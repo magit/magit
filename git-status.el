@@ -57,6 +57,57 @@
 (defun gits-get (key)
   (gits-shell "git-config %s" key))
 
+;;; Running asynchronous commands
+
+(defvar gits-process nil)
+
+(defun gits-run (cmd &rest args)
+  (or (not gits-process)
+      (error "Git is already running."))
+  (let ((dir default-directory)
+	(buf (get-buffer-create "*git-process*")))
+    (save-excursion
+      (set-buffer buf)
+      (setq default-directory dir)
+      (erase-buffer)
+      (setq gits-process (apply 'start-process "git" buf cmd args))
+      (set-process-sentinel gits-process 'gits-process-sentinel))))
+
+(defun gits-process-sentinel (process event)
+  (cond ((string= event "finished\n")
+	 (message "Git finished.")
+	 (setq gits-process nil))
+	((string= event "killed\n")
+	 (message "Git was killed.")
+	 (setq gits-process nil))
+	((string-match "exited abnormally" event)
+	 (message "Git failed.")
+	 (setq gits-process nil))
+	(t
+	 (message "Git is weird.")))
+  (gits-update-status))
+
+;;; Status
+
+(defun gits-update-status ()
+  (let ((buf (get-buffer "*git-status*")))
+    (save-excursion
+      (set-buffer buf)
+      (erase-buffer)
+      (insert (format "Repository:  %s\n"
+		      (abbreviate-file-name default-directory)))
+      (insert (format "Branch:      %s\n"
+		      (gits-shell "git-symbolic-ref -q HEAD")))
+      (let ((origin (gits-get "remote.origin.url")))
+	(if origin
+	    (insert (format "Origin:      %s\n" origin))))
+      (insert "\n")
+      (insert "Local changes:\n")
+      (call-process-shell-command "git diff" nil t)
+      (insert "\n")
+      (insert "Staged changes:\n")
+      (call-process-shell-command "git diff --cached" nil t))))
+
 ;;; Main
 
 (defun git-status (cwd)
@@ -66,24 +117,25 @@
 	(error "Not a git repository."))
     (let ((buf (get-buffer-create "*git-status*")))
       (switch-to-buffer buf)
-      (save-excursion
-	(set-buffer buf)
-	(setq default-directory dir)
-	(erase-buffer)
-	(insert (format "Repository:  %s\n"
-			(abbreviate-file-name default-directory)))
-	(insert (format "Branch:      %s\n"
-			(gits-shell "git-symbolic-ref -q HEAD")))
-	(let ((origin (gits-get "remote.origin.url")))
-	  (if origin
-	      (insert (format "Origin:      %s\n" origin))))
-	(insert "\n")
-	(insert "Local changes:\n")
-	(call-process-shell-command "git diff" nil t)
-	(insert "\n")
-	(insert "Staged changes:\n")
-	(call-process-shell-command "git diff --cached" nil t)))))
+      (setq default-directory dir)
+      (gits-update-status))))
 
 (defun git-status-here ()
   (interactive)
   (git-status default-directory))
+
+(defun git-pull ()
+  (interactive)
+  (gits-run "git-pull" "origin" "master"))
+
+(defun git-push ()
+  (interactive)
+  (gits-run "git-push" "origin"))
+
+(defun git-stage-all ()
+  (interactive)
+  (gits-run "git-add" "."))
+
+(defun git-commit ()
+  (interactive)
+  (gits-run "git-commit" "-m" "(changes)"))
