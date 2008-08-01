@@ -32,3 +32,58 @@
 ;; before committing.
 ;;
 ;; The status buffer also supports resolving conflicts.
+;;
+;; Maybe there will be some support for history browsing in the
+;; future.
+
+;;; Utilities
+
+(defun gits-shell (cmd &rest args)
+  (let ((str (shell-command-to-string (apply 'format cmd args))))
+    (if (string= str "")
+	nil
+      (if (equal (elt str (- (length str) 1)) ?\n)
+	  (substring str 0 (- (length str) 1))
+	str))))
+
+(defun gits-get-top-dir (cwd)
+  (let* ((cwd (expand-file-name cwd))
+	 (git-dir (gits-shell "cd '%s' && git-rev-parse --git-dir 2>/dev/null"
+			      cwd)))
+    (if git-dir
+	(file-name-as-directory (or (file-name-directory git-dir) cwd))
+      nil)))
+
+(defun gits-get (key)
+  (gits-shell "git-config %s" key))
+
+;;; Main
+
+(defun git-status (cwd)
+  (interactive "DDirectory: ")
+  (let ((dir (gits-get-top-dir cwd)))
+    (or dir
+	(error "Not a git repository."))
+    (let ((buf (get-buffer-create "*git-status*")))
+      (switch-to-buffer buf)
+      (save-excursion
+	(set-buffer buf)
+	(setq default-directory dir)
+	(erase-buffer)
+	(insert (format "Repository:  %s\n"
+			(abbreviate-file-name default-directory)))
+	(insert (format "Branch:      %s\n"
+			(gits-shell "git-symbolic-ref -q HEAD")))
+	(let ((origin (gits-get "remote.origin.url")))
+	  (if origin
+	      (insert (format "Origin:      %s\n" origin))))
+	(insert "\n")
+	(insert "Local changes:\n")
+	(call-process-shell-command "git diff" nil t)
+	(insert "\n")
+	(insert "Staged changes:\n")
+	(call-process-shell-command "git diff --cached" nil t)))))
+
+(defun git-status-here ()
+  (interactive)
+  (git-status default-directory))
