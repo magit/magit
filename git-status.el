@@ -102,6 +102,7 @@
       (set-buffer buf)
       (setq default-directory dir)
       (erase-buffer)
+      (insert "$ " (gits-concat-with-delim " " (cons cmd args)) "\n")
       (setq gits-process (apply 'start-process "git" buf cmd args))
       (set-process-sentinel gits-process 'gits-process-sentinel))))
 
@@ -119,6 +120,10 @@
 	 (message "Git is weird.")))
   (gits-update-status))
 
+(defun gits-display-process ()
+  (interactive)
+  (display-buffer "*git-process*"))
+
 ;;; Keymap
 
 (defvar gits-keymap nil)
@@ -128,7 +133,8 @@
   (suppress-keymap gits-keymap)
   (define-key gits-keymap (kbd "g") 'git-status)
   (define-key gits-keymap (kbd "S") 'git-stage-all)
-  (define-key gits-keymap (kbd "c") 'git-commit))
+  (define-key gits-keymap (kbd "c") 'git-commit)
+  (define-key gits-keymap (kbd "p") 'gits-display-process))
 
 ;;; Status
 
