@@ -36,6 +36,13 @@
 ;; Maybe there will be some support for history browsing in the
 ;; future.
 
+;;; TODO
+
+;; - Fontifying diffs
+;; - Staging/unstaging hunks
+;; - Untracked files
+;; - Removing files
+
 ;;; Utilities
 
 (defun gits-shell (cmd &rest args)
@@ -150,12 +157,6 @@
     (setq default-directory dir)
     (gits-update-status)))
 
-(defun git-show-status ()
-  (interactive)
-  (let ((buf (get-buffer-create "*git-status*")))
-    (switch-to-buffer buf)
-    (gits-update-status)))
-
 (defun git-pull ()
   (interactive)
   (gits-run "git-pull"))
@@ -166,7 +167,7 @@
 
 (defun git-stage-all ()
   (interactive)
-  (gits-run "git-add" "."))
+  (gits-run "git-add" "-u" "."))
 
 (defun git-commit ()
   (interactive)
