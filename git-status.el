@@ -119,38 +119,52 @@
 	 (message "Git is weird.")))
   (gits-update-status))
 
+;;; Keymap
+
+(defvar gits-keymap nil)
+
+(when (not gits-keymap)
+  (setq gits-keymap (make-keymap))
+  (suppress-keymap gits-keymap)
+  (define-key gits-keymap (kbd "g") 'git-status)
+  (define-key gits-keymap (kbd "S") 'git-stage-all)
+  (define-key gits-keymap (kbd "c") 'git-commit))
+
 ;;; Status
 
 (defun gits-update-status ()
   (let ((buf (get-buffer "*git-status*")))
     (save-excursion
       (set-buffer buf)
-      (erase-buffer)
-      (insert (format "Repository:  %s\n"
-		      (abbreviate-file-name default-directory)))
-      (let ((branch (gits-get-current-branch)))
-	(insert (format "Branch:      %s\n"
-			(or branch "(detached)")))
-	(if branch
-	    (let ((remote (gits-get "branch" branch "remote")))
-	      (if remote
-		  (let* ((push (gits-get "remote" remote "push"))
-			 (pull (gits-get "remote" remote "fetch"))
-			 (desc (if (equal push pull)
-				   push
-				 (format "%s -> %s" pull push))))
-		    (insert (format "Remote:      %s\n             %s\n"
-				    desc
-				    (gits-get "remote" remote "url"))))))))
-      (insert "\n")
-      (insert "Untracked files:\n")
-      (call-process-shell-command "git ls-files --others" nil t)
-      (insert "\n")
-      (insert "Local changes:\n")
-      (call-process-shell-command "git diff" nil t)
-      (insert "\n")
-      (insert "Staged changes:\n")
-      (call-process-shell-command "git diff --cached" nil t))))
+      (setq buffer-read-only t)
+      (use-local-map gits-keymap)
+      (let ((inhibit-read-only t))
+	(erase-buffer)
+	(insert (format "Repository:  %s\n"
+			(abbreviate-file-name default-directory)))
+	(let ((branch (gits-get-current-branch)))
+	  (insert (format "Branch:      %s\n"
+			  (or branch "(detached)")))
+	  (if branch
+	      (let ((remote (gits-get "branch" branch "remote")))
+		(if remote
+		    (let* ((push (gits-get "remote" remote "push"))
+			   (pull (gits-get "remote" remote "fetch"))
+			   (desc (if (equal push pull)
+				     push
+				   (format "%s -> %s" pull push))))
+		      (insert (format "Remote:      %s\n             %s\n"
+				      desc
+				      (gits-get "remote" remote "url"))))))))
+	(insert "\n")
+	(insert "Untracked files:\n")
+	(call-process-shell-command "git ls-files --others" nil t)
+	(insert "\n")
+	(insert "Local changes:\n")
+	(call-process-shell-command "git diff" nil t)
+	(insert "\n")
+	(insert "Staged changes:\n")
+	(call-process-shell-command "git diff --cached" nil t)))))
 
 ;;; Main
 
