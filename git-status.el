@@ -26,22 +26,15 @@
 ;;
 ;; The status buffer mainly shows the difference between the working
 ;; tree and the index, and the difference between the index and the
-;; current HEAD.  You can 'stage' individual hunks from the working
-;; tree to the index, and you can commit the index.  The commit
-;; message needs to be prepared in a special area of the status buffer
-;; before committing.
-;;
-;; The status buffer also supports resolving conflicts.
-;;
-;; Maybe there will be some support for history browsing in the
-;; future.
+;; current HEAD.  You can add individual hunks from the working tree
+;; to the index, and you can commit the index.
 
 ;;; TODO
 
-;; - Untracked files
-;; - Fontifying diffs
+;; - Washing diffs
 ;; - Staging/unstaging hunks
-;; - Removing files
+;; - Commit messages
+;; - Dealing with merges
 ;; - History browsing
 
 ;;; Utilities
@@ -64,6 +57,11 @@
 
 (defun gits-get (&rest keys)
   (gits-shell "git-config %s" (gits-concat-with-delim "." keys)))
+
+(defun gits-set (val &rest keys)
+  (if val
+      (gits-shell "git-config %s %s" (gits-concat-with-delim "." keys) val)
+    (gits-shell "git-config --unset %s" (gits-concat-with-delim "." keys))))
 
 (defun gits-get-top-dir (cwd)
   (let* ((cwd (expand-file-name cwd))
@@ -89,18 +87,24 @@
 	(gits-get-top-dir (read-directory-name "Git repository: " dir))
       dir)))
 
-(defun gits-insert-output (title post cmd &rest args)
-  (let ((tmp (get-buffer-create " *git-tmp*")))
+(defun gits-insert-output (title washer cmd &rest args)
+  (let ((dir default-directory)
+	(tmp (get-buffer-create " *git-tmp*")))
     (save-excursion
       (set-buffer tmp)
-      (erase-buffer))
-    (let ((status (apply 'call-process cmd nil tmp nil args)))
-      (if post
-	  (funcall post status)))
+      (erase-buffer)
+      (setq default-directory dir)
+      (let ((status (apply 'call-process cmd nil tmp nil args)))
+	(if washer
+	    (funcall washer status))))
     (when (> (buffer-size tmp) 0)
       (insert title "\n")
       (insert-buffer-substring tmp)
       (insert "\n"))))
+
+(defun gits-put-line-property (prop val)
+  (put-text-property (line-beginning-position) (line-end-position)
+		     prop val))
 
 ;;; Running asynchronous commands
 
@@ -146,10 +150,22 @@
   (suppress-keymap gits-keymap)
   (define-key gits-keymap (kbd "g") 'git-status)
   (define-key gits-keymap (kbd "S") 'git-stage-all)
+  (define-key gits-keymap (kbd "a") 'gits-add-thing-at-point)
+  (define-key gits-keymap (kbd "i") 'gits-ignore-thing-at-point)
   (define-key gits-keymap (kbd "c") 'git-commit)
   (define-key gits-keymap (kbd "p") 'gits-display-process))
 
 ;;; Status
+
+(defun gits-wash-other-files (status)
+  (goto-char (point-min))
+  (while (not (eobp))
+    (let ((filename (buffer-substring (point) (line-end-position))))
+      (insert "  ")
+      (gits-put-line-property 'face '(:foreground "red"))
+      (gits-put-line-property 'gits-info (list 'other-file filename)))
+    (forward-line)
+    (beginning-of-line)))
 
 (defun gits-update-status ()
   (let ((buf (get-buffer "*git-status*")))
@@ -175,14 +191,12 @@
 				      desc
 				      (gits-get "remote" remote "url"))))))))
 	(insert "\n")
-	(gits-insert-output "Untracked files:" nil
-			    "git" "ls-files" "--others")
+	(gits-insert-output "Untracked files:" 'gits-wash-other-files
+			    "git" "ls-files" "--others" "--exclude-standard")
 	(gits-insert-output "Local changes:" nil
 			    "git" "diff")
 	(gits-insert-output "Staged changes:" nil
 			    "git" "diff" "--cached")))))
-
-;;; Main
 
 (defun git-status (dir)
   (interactive (list (gits-read-top-dir current-prefix-arg)))
@@ -191,18 +205,96 @@
     (setq default-directory dir)
     (gits-update-status)))
 
-(defun git-pull ()
-  (interactive)
-  (gits-run "git-pull"))
+;;; Staging
 
-(defun git-push ()
+(defun gits-add-thing-at-point ()
   (interactive)
-  (gits-run "git-push"))
+  (let ((info (get-char-property (point) 'gits-info)))
+    (if info
+	(case (car info)
+	  ((other-file)
+	   (gits-run "git" "add" (cadr info)))))))
 
-(defun git-stage-all ()
+(defun gits-ignore-thing-at-point ()
   (interactive)
-  (gits-run "git-add" "-u" "."))
+  (let ((info (get-char-property (point) 'gits-info)))
+    (if info
+	(case (car info)
+	  ((other-file)
+	   (append-to-file (concat (cadr info) "\n") nil ".gitignore")
+	   (gits-update-status))))))
+
+;;; Push and pull
+
+(defstruct gits-remote-info
+  nick url push pull dirty-p)
+
+(defun gits-get-remote-config (nick)
+  (let* ((branch (gits-get-current-branch))
+	 (nick (or nick
+		   (and branch (gits-get "branch" branch "remote"))
+		   "origin"))
+	 (url (gits-get "remote" nick "url"))
+	 (push (gits-get "remote" nick "push"))
+	 (pull (gits-get "remote" nick "fetch")))
+    (make-gits-remote-info :nick nick :url url :push push :pull pull
+			   :dirty-p nil)))
+
+(defun gits-set-remote-config (config)
+  (let ((nick (gits-remote-info-nick config)))
+    (let ((branch (gits-get-current-branch)))
+      (if branch
+	  (gits-set nick "branch" branch "remote")))
+    (gits-set (gits-remote-info-url config) "remote" nick "url")
+    (gits-set (gits-remote-info-push config) "remote" nick "push")
+    (gits-set (gits-remote-info-pull config) "remote" nick "fetch")))
+
+(defun gits-remote-info-complete (conf field prompt)
+  (when (or current-prefix-arg
+	    (null (funcall field conf)))
+    (let ((url (read-string (format prompt (gits-remote-info-nick conf))
+			    (funcall field conf))))
+      (eval `(setf (,field ',conf) ',url))
+      (setf (gits-remote-info-dirty-p conf) t))))
+  
+(defun gits-read-push-pull-args (push-p)
+  (let ((conf (gits-get-remote-config nil)))
+    (when current-prefix-arg
+      (let ((nick (read-string "Remote repository nickname: "
+			       (gits-remote-info-nick conf))))
+	(setq conf (gits-get-remote-config nick))
+	(setf (gits-remote-info-dirty-p conf) t)))
+    (gits-remote-info-complete conf 'gits-remote-info-url
+			       "Repository url of '%s': ")
+    (if push-p
+	(gits-remote-info-complete conf 'gits-remote-info-push
+				   "Branch of '%s' to push to: ")
+      (gits-remote-info-complete conf 'gits-remote-info-pull
+				 "Branch of '%s' to pull from: "))
+    (if (and (gits-remote-info-dirty-p conf)
+	     (y-or-n-p "Save as defaults? "))
+	(gits-set-remote-config conf))
+    (list (gits-remote-info-url conf)
+	  (if push-p
+	      (gits-remote-info-push conf)
+	    (gits-remote-info-pull conf)))))
+
+(defun git-pull (nick branch)
+  (interactive (gits-read-push-pull-args nil))
+  (gits-run "git" "pull" nick branch))
+
+(defun git-push (nick branch)
+  (interactive (gits-read-push-pull-args t))
+  (gits-run "git" "push" nick branch))
+
+;;; Commit
 
 (defun git-commit ()
   (interactive)
   (gits-run "git-commit" "-m" "(changes)"))
+
+;;; Misc
+
+(defun git-stage-all ()
+  (interactive)
+  (gits-run "git-add" "-u" "."))
