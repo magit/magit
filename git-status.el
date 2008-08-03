@@ -93,10 +93,10 @@
   (let ((tmp (get-buffer-create " *git-tmp*")))
     (save-excursion
       (set-buffer tmp)
-      (erase-buffer)
-      (let ((status (apply 'call-process cmd nil t nil args)))
-	(if post
-	    (funcall post status))))
+      (erase-buffer))
+    (let ((status (apply 'call-process cmd nil tmp nil args)))
+      (if post
+	  (funcall post status)))
     (when (> (buffer-size tmp) 0)
       (insert title "\n")
       (insert-buffer-substring tmp)
@@ -159,11 +159,10 @@
       (use-local-map gits-keymap)
       (let ((inhibit-read-only t))
 	(erase-buffer)
-	(insert (format "Repository:  %s\n"
-			(abbreviate-file-name default-directory)))
 	(let ((branch (gits-get-current-branch)))
-	  (insert (format "Branch:      %s\n"
-			  (or branch "(detached)")))
+	  (insert (format "Local:  %s %s\n"
+			  (or branch "(detached)")
+			  (abbreviate-file-name default-directory)))
 	  (if branch
 	      (let ((remote (gits-get "branch" branch "remote")))
 		(if remote
@@ -171,8 +170,8 @@
 			   (pull (gits-get "remote" remote "fetch"))
 			   (desc (if (equal push pull)
 				     push
-				   (format "%s -> %s" pull push))))
-		      (insert (format "Remote:      %s\n             %s\n"
+				   (format "%s>%s" pull push))))
+		      (insert (format "Remote: %s %s\n"
 				      desc
 				      (gits-get "remote" remote "url"))))))))
 	(insert "\n")
