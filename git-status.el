@@ -89,6 +89,19 @@
 	(gits-get-top-dir (read-directory-name "Git repository: " dir))
       dir)))
 
+(defun gits-insert-output (title post cmd &rest args)
+  (let ((tmp (get-buffer-create " *git-tmp*")))
+    (save-excursion
+      (set-buffer tmp)
+      (erase-buffer)
+      (let ((status (apply 'call-process cmd nil t nil args)))
+	(if post
+	    (funcall post status))))
+    (when (> (buffer-size tmp) 0)
+      (insert title "\n")
+      (insert-buffer-substring tmp)
+      (insert "\n"))))
+
 ;;; Running asynchronous commands
 
 (defvar gits-process nil)
@@ -163,14 +176,12 @@
 				      desc
 				      (gits-get "remote" remote "url"))))))))
 	(insert "\n")
-	(insert "Untracked files:\n")
-	(call-process-shell-command "git ls-files --others" nil t)
-	(insert "\n")
-	(insert "Local changes:\n")
-	(call-process-shell-command "git diff" nil t)
-	(insert "\n")
-	(insert "Staged changes:\n")
-	(call-process-shell-command "git diff --cached" nil t)))))
+	(gits-insert-output "Untracked files:" nil
+			    "git" "ls-files" "--others")
+	(gits-insert-output "Local changes:" nil
+			    "git" "diff")
+	(gits-insert-output "Staged changes:" nil
+			    "git" "diff" "--cached")))))
 
 ;;; Main
 
