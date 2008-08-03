@@ -38,10 +38,11 @@
 
 ;;; TODO
 
+;; - Untracked files
 ;; - Fontifying diffs
 ;; - Staging/unstaging hunks
-;; - Untracked files
 ;; - Removing files
+;; - History browsing
 
 ;;; Utilities
 
@@ -141,6 +142,9 @@
 		    (insert (format "Remote:      %s\n             %s\n"
 				    desc
 				    (gits-get "remote" remote "url"))))))))
+      (insert "\n")
+      (insert "Untracked files:\n")
+      (call-process-shell-command "git ls-files --others" nil t)
       (insert "\n")
       (insert "Local changes:\n")
       (call-process-shell-command "git diff" nil t)
