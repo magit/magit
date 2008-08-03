@@ -46,6 +46,17 @@
 	  (substring str 0 (- (length str) 1))
 	str))))
 
+(defun gits-concat-with-delim (delim seqs)
+  (cond ((null seqs)
+	 nil)
+	((null (cdr seqs))
+	 (car seqs))
+	(t
+	 (concat (car seqs) delim (gits-concat-with-delim delim (cdr seqs))))))
+
+(defun gits-get (&rest keys)
+  (gits-shell "git-config %s" (gits-concat-with-delim "." keys)))
+
 (defun gits-get-top-dir (cwd)
   (let* ((cwd (expand-file-name cwd))
 	 (git-dir (gits-shell "cd '%s' && git-rev-parse --git-dir 2>/dev/null"
@@ -54,8 +65,21 @@
 	(file-name-as-directory (or (file-name-directory git-dir) cwd))
       nil)))
 
-(defun gits-get (key)
-  (gits-shell "git-config %s" key))
+(defun gits-get-ref (ref)
+  (gits-shell "git-symbolic-ref -q %s" ref))
+
+(defun gits-get-current-branch ()
+  (let* ((head (gits-get-ref "HEAD"))
+	 (pos (and head (string-match "^refs/heads/" head))))
+    (if pos
+	(substring head 11)
+      nil)))
+
+(defun gits-read-top-dir (prefix)
+  (let ((dir (gits-get-top-dir default-directory)))
+    (if prefix
+	(gits-get-top-dir (read-directory-name "Git repository: " dir))
+      dir)))
 
 ;;; Running asynchronous commands
 
@@ -96,11 +120,20 @@
       (erase-buffer)
       (insert (format "Repository:  %s\n"
 		      (abbreviate-file-name default-directory)))
-      (insert (format "Branch:      %s\n"
-		      (gits-shell "git-symbolic-ref -q HEAD")))
-      (let ((origin (gits-get "remote.origin.url")))
-	(if origin
-	    (insert (format "Origin:      %s\n" origin))))
+      (let ((branch (gits-get-current-branch)))
+	(insert (format "Branch:      %s\n"
+			(or branch "(detached)")))
+	(if branch
+	    (let ((remote (gits-get "branch" branch "remote")))
+	      (if remote
+		  (let* ((push (gits-get "remote" remote "push"))
+			 (pull (gits-get "remote" remote "fetch"))
+			 (desc (if (equal push pull)
+				   push
+				 (format "%s -> %s" pull push))))
+		    (insert (format "Remote:      %s\n             %s\n"
+				    desc
+				    (gits-get "remote" remote "url"))))))))
       (insert "\n")
       (insert "Local changes:\n")
       (call-process-shell-command "git diff" nil t)
@@ -110,27 +143,26 @@
 
 ;;; Main
 
-(defun git-status (cwd)
-  (interactive "DDirectory: ")
-  (let ((dir (gits-get-top-dir cwd)))
-    (or dir
-	(error "Not a git repository."))
-    (let ((buf (get-buffer-create "*git-status*")))
-      (switch-to-buffer buf)
-      (setq default-directory dir)
-      (gits-update-status))))
+(defun git-status (dir)
+  (interactive (list (gits-read-top-dir current-prefix-arg)))
+  (let ((buf (get-buffer-create "*git-status*")))
+    (switch-to-buffer buf)
+    (setq default-directory dir)
+    (gits-update-status)))
 
-(defun git-status-here ()
+(defun git-show-status ()
   (interactive)
-  (git-status default-directory))
+  (let ((buf (get-buffer-create "*git-status*")))
+    (switch-to-buffer buf)
+    (gits-update-status)))
 
 (defun git-pull ()
   (interactive)
-  (gits-run "git-pull" "origin" "master"))
+  (gits-run "git-pull"))
 
 (defun git-push ()
   (interactive)
-  (gits-run "git-push" "origin"))
+  (gits-run "git-push"))
 
 (defun git-stage-all ()
   (interactive)
