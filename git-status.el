@@ -148,6 +148,7 @@
   (define-key gits-keymap (kbd "g") 'git-status)
   (define-key gits-keymap (kbd "S") 'git-stage-all)
   (define-key gits-keymap (kbd "a") 'gits-add-thing-at-point)
+  (define-key gits-keymap (kbd "u") 'gits-unstage-thing-at-point)
   (define-key gits-keymap (kbd "i") 'gits-ignore-thing-at-point)
   (define-key gits-keymap (kbd "RET") 'gits-visit-thing-at-point)
   (define-key gits-keymap (kbd "c") 'git-commit)
@@ -250,6 +251,15 @@
 	  ((hunk)
 	   (gits-write-hunk-patch info ".git/gits-tmp")
 	   (gits-run "git" "apply" "--cached" ".git/gits-tmp"))))))
+
+(defun gits-unstage-thing-at-point ()
+  (interactive)
+  (let ((info (get-char-property (point) 'gits-info)))
+    (if info
+	(case (car info)
+	  ((hunk)
+	   (gits-write-hunk-patch info ".git/gits-tmp")
+	   (gits-run "git" "apply" "--cached" "--reverse" ".git/gits-tmp"))))))
 
 (defun gits-ignore-thing-at-point ()
   (interactive)
