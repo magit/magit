@@ -152,7 +152,7 @@
   (define-key gits-keymap (kbd "u") 'gits-unstage-thing-at-point)
   (define-key gits-keymap (kbd "i") 'gits-ignore-thing-at-point)
   (define-key gits-keymap (kbd "RET") 'gits-visit-thing-at-point)
-  (define-key gits-keymap (kbd "c") 'git-commit)
+  (define-key gits-keymap (kbd "c") 'git-log-edit)
   (define-key gits-keymap (kbd "p") 'gits-display-process))
 
 ;;; Status
@@ -365,27 +365,27 @@
 
 (when (not gits-log-edit-map)
   (setq gits-log-edit-map (make-sparse-keymap))
-  (define-key gits-log-edit-map (kbd "C-c C-c") 'gits-log-edit-done))
+  (define-key gits-log-edit-map (kbd "C-c C-c") 'gits-log-edit-commit))
 
-(defvar gits-pre-commit-window-configuration nil)
+(defvar gits-pre-log-edit-window-configuration nil)
 
-(defun gits-log-edit-done ()
+(defun gits-log-edit-commit ()
   (interactive)
   (write-region (point-min) (point-max) ".git/gits-log")
   (gits-run "git-commit" "-F" ".git/gits-log")
   (bury-buffer)
-  (when gits-pre-commit-window-configuration
-    (set-window-configuration gits-pre-commit-window-configuration)
-    (setq gits-pre-commit-window-configuration nil)))
+  (erase-buffer)
+  (when gits-pre-log-edit-window-configuration
+    (set-window-configuration gits-pre-log-edit-window-configuration)
+    (setq gits-pre-log-edit-window-configuration nil)))
 
-(defun git-commit ()
+(defun git-log-edit ()
   (interactive)
   (let ((dir default-directory)
 	(buf (get-buffer-create "*git-log-edit*")))
-    (setq gits-pre-commit-window-configuration (current-window-configuration))
+    (setq gits-pre-log-edit-window-configuration (current-window-configuration))
     (pop-to-buffer buf)
     (setq default-directory dir)
-    (erase-buffer)
     (use-local-map gits-log-edit-map)
     (message "Use C-c C-c when done.")))
 
