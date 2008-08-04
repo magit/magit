@@ -31,8 +31,6 @@
 
 ;;; TODO
 
-;; - Washing diffs
-;; - Staging/unstaging hunks
 ;; - Commit messages
 ;; - Dealing with merges
 ;; - History browsing
