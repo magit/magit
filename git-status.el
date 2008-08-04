@@ -88,19 +88,16 @@
       dir)))
 
 (defun gits-insert-output (title washer cmd &rest args)
-  (let ((dir default-directory)
-	(tmp (get-buffer-create " *git-tmp*")))
-    (save-excursion
-      (set-buffer tmp)
-      (erase-buffer)
-      (setq default-directory dir)
-      (let ((status (apply 'call-process cmd nil tmp nil args)))
-	(if washer
-	    (funcall washer status))))
-    (when (> (buffer-size tmp) 0)
-      (insert title "\n")
-      (insert-buffer-substring tmp)
-      (insert "\n"))))
+  (insert title "\n")
+  (let* ((beg (point))
+	 (status (apply 'call-process cmd nil t nil args))
+	 (end (point)))
+    (if washer
+	(save-restriction
+	  (narrow-to-region beg (point))
+	  (funcall washer status)
+	  (goto-char (point-max))
+	  (insert "\n")))))
 
 (defun gits-put-line-property (prop val)
   (put-text-property (line-beginning-position) (line-end-position)
@@ -168,30 +165,36 @@
     (forward-line)
     (beginning-of-line)))
 
+(defun gits-propertize-hunk (beg end head-beg head-end)
+  (if beg
+      (put-text-property beg end
+			 'gits-info (list 'hunk head-beg head-end beg end))))
+  
 (defun gits-wash-diff (status)
   (goto-char (point-min))
   (let ((n-files 1)
-	(hunk-beg nil)
-	(hunk-seq 0))
+	(head-beg nil)
+	(head-end nil)
+	(hunk-beg nil))
     (while (not (eobp))
       (let ((prefix (buffer-substring-no-properties
 		     (point) (+ (point) n-files))))
-	(cond ((looking-at "^@+")
+	(cond ((looking-at "^diff")
+	       (setq head-beg (point))
+	       (setq head-end nil))
+	      ((looking-at "^@+")
 	       (setq n-files (- (length (match-string 0)) 1))
- 	       (if hunk-beg
- 		   (put-text-property hunk-beg (point)
- 				      'gits-info (list 'hunk hunk-seq)))
-	       (setq hunk-beg (point))
-	       (setq hunk-seq (+ hunk-seq 1)))
+	       (if (null head-end)
+		   (setq head-end (point))
+		 (gits-propertize-hunk hunk-beg (point) head-beg head-end))
+	       (setq hunk-beg (point)))
 	      ((string-match "\\+" prefix)
 	       (gits-put-line-property 'face '(:foreground "blue1")))
 	      ((string-match "-" prefix)
 	       (gits-put-line-property 'face '(:foreground "red")))))
       (forward-line)
       (beginning-of-line))
-    (if hunk-beg
-	(put-text-property hunk-beg (point)
-			   'gits-info (list 'hunk hunk-seq)))))
+    (gits-propertize-hunk hunk-beg (point) head-beg head-end)))
 
 (defun gits-update-status ()
   (let ((buf (get-buffer "*git-status*")))
