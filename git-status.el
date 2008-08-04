@@ -31,6 +31,7 @@
 
 ;;; TODO
 
+;; - Detect and handle renames and copies.
 ;; - Shortcut for staging/unstaging of whole files
 ;; - Dealing with merges from pulls
 ;; - Hide titles of empty sections
