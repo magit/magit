@@ -358,9 +358,6 @@
 
 ;;; Commit
 
-;; XXX - Have to figure out a better UI for preparing the commit
-;;       message than popping up a (semi-)modal dialog.
-
 (defvar gits-log-edit-map nil)
 
 (when (not gits-log-edit-map)
