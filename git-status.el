@@ -208,6 +208,7 @@
 	       (gits-put-line-property 'face '(:foreground "red")))))
       (forward-line)
       (beginning-of-line))
+    (setq hunk-end (point))
     (gits-wash-diff-propertize)))
 
 (defun gits-update-status ()
