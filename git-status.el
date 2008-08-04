@@ -221,18 +221,7 @@
 	(let ((branch (gits-get-current-branch)))
 	  (insert (format "Local:  %s %s\n"
 			  (or branch "(detached)")
-			  (abbreviate-file-name default-directory)))
-	  (if branch
-	      (let ((remote (gits-get "branch" branch "remote")))
-		(if remote
-		    (let* ((push (gits-get "remote" remote "push"))
-			   (pull (gits-get "remote" remote "fetch"))
-			   (desc (if (equal push pull)
-				     push
-				   (format "%s>%s" pull push))))
-		      (insert (format "Remote: %s %s\n"
-				      desc
-				      (gits-get "remote" remote "url"))))))))
+			  (abbreviate-file-name default-directory))))
 	(insert "\n")
 	(gits-insert-output "Untracked files:" 'gits-wash-other-files
 			    "git" "ls-files" "--others" "--exclude-standard")
@@ -302,59 +291,6 @@
 	   (find-file (cadr info)))))))
 
 ;;; Push and pull
-
-(defstruct gits-remote-info
-  nick url push pull dirty-p)
-
-(defun gits-get-remote-config (nick)
-  (let* ((branch (gits-get-current-branch))
-	 (nick (or nick
-		   (and branch (gits-get "branch" branch "remote"))
-		   "origin"))
-	 (url (gits-get "remote" nick "url"))
-	 (push (gits-get "remote" nick "push"))
-	 (pull (gits-get "remote" nick "fetch")))
-    (make-gits-remote-info :nick nick :url url :push push :pull pull
-			   :dirty-p nil)))
-
-(defun gits-set-remote-config (config)
-  (let ((nick (gits-remote-info-nick config)))
-    (let ((branch (gits-get-current-branch)))
-      (if branch
-	  (gits-set nick "branch" branch "remote")))
-    (gits-set (gits-remote-info-url config) "remote" nick "url")
-    (gits-set (gits-remote-info-push config) "remote" nick "push")
-    (gits-set (gits-remote-info-pull config) "remote" nick "fetch")))
-
-(defun gits-remote-info-complete (conf field prompt)
-  (when (or current-prefix-arg
-	    (null (funcall field conf)))
-    (let ((url (read-string (format prompt (gits-remote-info-nick conf))
-			    (funcall field conf))))
-      (eval `(setf (,field ',conf) ',url))
-      (setf (gits-remote-info-dirty-p conf) t))))
-  
-(defun gits-read-push-pull-args (push-p)
-  (let ((conf (gits-get-remote-config nil)))
-    (when current-prefix-arg
-      (let ((nick (read-string "Remote repository nickname: "
-			       (gits-remote-info-nick conf))))
-	(setq conf (gits-get-remote-config nick))
-	(setf (gits-remote-info-dirty-p conf) t)))
-    (gits-remote-info-complete conf 'gits-remote-info-url
-			       "Repository url of '%s': ")
-    (if push-p
-	(gits-remote-info-complete conf 'gits-remote-info-push
-				   "Branch of '%s' to push to: ")
-      (gits-remote-info-complete conf 'gits-remote-info-pull
-				 "Branch of '%s' to pull from: "))
-    (if (and (gits-remote-info-dirty-p conf)
-	     (y-or-n-p "Save as defaults? "))
-	(gits-set-remote-config conf))
-    (list (gits-remote-info-url conf)
-	  (if push-p
-	      (gits-remote-info-push conf)
-	    (gits-remote-info-pull conf)))))
 
 (defun git-pull ()
   (interactive)
