@@ -168,40 +168,38 @@
     (forward-line)
     (beginning-of-line)))
 
-(defun gits-wash-diff-propertize ()
-  ;;; Ugh, dynamic scope.  This uses HEAD-BEG, HEAD-END, HUNK-BEG, and
-  ;;; HUNK-END.
-  (cond ((null head-end)
-	 ;; End of header
-	 (setq head-end (point))
-	 (if head-beg
-	     (put-text-property head-beg head-end
-				'gits-info (list 'diff
-						 head-beg head-end))))
-	(hunk-beg
-	 ;; End of hunk
-	 (put-text-property hunk-beg hunk-end
-			    'gits-info (list 'hunk
-					     head-beg head-end
-					     hunk-beg hunk-end)))))
+(defun gits-wash-diff-propertize-diff (head-beg head-end)
+  (let ((head-end (or head-end (point))))
+    (when head-beg
+      (put-text-property head-beg head-end
+			 'gits-info (list 'diff
+					  head-beg (point))))))
+
+(defun gits-wash-diff-propertize-hunk (head-beg head-end hunk-beg)
+  (when hunk-beg
+    (put-text-property hunk-beg (point)
+		       'gits-info (list 'hunk
+					head-beg head-end
+					hunk-beg (point)))))
 
 (defun gits-wash-diff (status)
   (goto-char (point-min))
   (let ((n-files 1)
 	(head-beg nil)
 	(head-end nil)
-	(hunk-beg nil)
-	(hunk-end nil))
+	(hunk-beg nil))
     (while (not (eobp))
       (let ((prefix (buffer-substring-no-properties
 		     (point) (+ (point) n-files))))
 	(cond ((looking-at "^diff")
+	       (gits-wash-diff-propertize-diff head-beg head-end)
 	       (setq head-beg (point))
 	       (setq head-end nil))
 	      ((looking-at "^@+")
 	       (setq n-files (- (length (match-string 0)) 1))
-	       (setq hunk-end (point))
-	       (gits-wash-diff-propertize)
+	       (if (null head-end)
+		   (setq head-end (point)))
+	       (gits-wash-diff-propertize-hunk head-beg head-end hunk-beg)
 	       (setq hunk-beg (point)))
 	      ((string-match "\\+" prefix)
 	       (gits-put-line-property 'face '(:foreground "blue1")))
@@ -209,8 +207,8 @@
 	       (gits-put-line-property 'face '(:foreground "red")))))
       (forward-line)
       (beginning-of-line))
-    (setq hunk-end (point))
-    (gits-wash-diff-propertize)))
+    (gits-wash-diff-propertize-diff head-beg head-end)
+    (gits-wash-diff-propertize-hunk head-beg head-end hunk-beg)))
 
 (defun gits-update-status ()
   (let ((buf (get-buffer "*git-status*")))
