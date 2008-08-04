@@ -185,9 +185,14 @@
 	       (setq head-end nil))
 	      ((looking-at "^@+")
 	       (setq n-files (- (length (match-string 0)) 1))
-	       (if (null head-end)
-		   (setq head-end (point))
-		 (gits-propertize-hunk hunk-beg (point) head-beg head-end))
+	       (cond ((null head-end)
+		      (setq head-end (point))
+		      (put-text-property head-beg head-end
+					 'gits-info (list 'diff
+							  head-beg head-end)))
+		     (t
+		      (gits-propertize-hunk hunk-beg (point)
+					    head-beg head-end)))
 	       (setq hunk-beg (point)))
 	      ((string-match "\\+" prefix)
 	       (gits-put-line-property 'face '(:foreground "blue1")))
@@ -195,7 +200,15 @@
 	       (gits-put-line-property 'face '(:foreground "red")))))
       (forward-line)
       (beginning-of-line))
-    (gits-propertize-hunk hunk-beg (point) head-beg head-end)))
+    (cond ((null head-end)
+	   (setq head-end (point))
+	   (if head-beg
+	       (put-text-property head-beg head-end
+				  'gits-info (list 'diff
+						   head-beg head-end))))
+	  (t
+	   (gits-propertize-hunk hunk-beg (point)
+				 head-beg head-end)))))
 
 (defun gits-update-status ()
   (let ((buf (get-buffer "*git-status*")))
