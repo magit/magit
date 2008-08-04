@@ -31,12 +31,12 @@
 
 ;;; TODO
 
-;; - Detect and handle renames and copies.
 ;; - Shortcut for staging/unstaging of whole files
 ;; - Dealing with merges from pulls
 ;; - Hide titles of empty sections
 ;; - Branch creation/switching
 ;; - Explicit diffing/merging of branches
+;; - Detect and handle renames and copies.
 ;; - History browsing
 
 ;;; Utilities
