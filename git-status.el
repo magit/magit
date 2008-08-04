@@ -152,6 +152,7 @@
   (define-key gits-keymap (kbd "S") 'git-stage-all)
   (define-key gits-keymap (kbd "a") 'gits-add-thing-at-point)
   (define-key gits-keymap (kbd "i") 'gits-ignore-thing-at-point)
+  (define-key gits-keymap (kbd "RET") 'gits-visit-thing-at-point)
   (define-key gits-keymap (kbd "c") 'git-commit)
   (define-key gits-keymap (kbd "p") 'gits-display-process))
 
@@ -166,6 +167,31 @@
       (gits-put-line-property 'gits-info (list 'other-file filename)))
     (forward-line)
     (beginning-of-line)))
+
+(defun gits-wash-diff (status)
+  (goto-char (point-min))
+  (let ((n-files 1)
+	(hunk-beg nil)
+	(hunk-seq 0))
+    (while (not (eobp))
+      (let ((prefix (buffer-substring-no-properties
+		     (point) (+ (point) n-files))))
+	(cond ((looking-at "^@+")
+	       (setq n-files (- (length (match-string 0)) 1))
+ 	       (if hunk-beg
+ 		   (put-text-property hunk-beg (point)
+ 				      'gits-info (list 'hunk hunk-seq)))
+	       (setq hunk-beg (point))
+	       (setq hunk-seq (+ hunk-seq 1)))
+	      ((string-match "\\+" prefix)
+	       (gits-put-line-property 'face '(:foreground "blue1")))
+	      ((string-match "-" prefix)
+	       (gits-put-line-property 'face '(:foreground "red")))))
+      (forward-line)
+      (beginning-of-line))
+    (if hunk-beg
+	(put-text-property hunk-beg (point)
+			   'gits-info (list 'hunk hunk-seq)))))
 
 (defun gits-update-status ()
   (let ((buf (get-buffer "*git-status*")))
@@ -193,9 +219,9 @@
 	(insert "\n")
 	(gits-insert-output "Untracked files:" 'gits-wash-other-files
 			    "git" "ls-files" "--others" "--exclude-standard")
-	(gits-insert-output "Local changes:" nil
+	(gits-insert-output "Local changes:" 'gits-wash-diff
 			    "git" "diff")
-	(gits-insert-output "Staged changes:" nil
+	(gits-insert-output "Staged changes:" 'gits-wash-diff
 			    "git" "diff" "--cached")))))
 
 (defun git-status (dir)
@@ -223,6 +249,15 @@
 	  ((other-file)
 	   (append-to-file (concat (cadr info) "\n") nil ".gitignore")
 	   (gits-update-status))))))
+
+(defun gits-visit-thing-at-point ()
+  (interactive)
+  (let ((info (get-char-property (point) 'gits-info)))
+    (message "visit %S" info)
+    (if info
+	(case (car info)
+	  ((other-file)
+	   (find-file (cadr info)))))))
 
 ;;; Push and pull
 
