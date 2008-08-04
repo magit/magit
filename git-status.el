@@ -372,9 +372,9 @@
 (defun gits-log-edit-commit ()
   (interactive)
   (write-region (point-min) (point-max) ".git/gits-log")
+  (erase-buffer)
   (gits-run "git-commit" "-F" ".git/gits-log")
   (bury-buffer)
-  (erase-buffer)
   (when gits-pre-log-edit-window-configuration
     (set-window-configuration gits-pre-log-edit-window-configuration)
     (setq gits-pre-log-edit-window-configuration nil)))
