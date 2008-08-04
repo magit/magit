@@ -33,8 +33,10 @@
 
 ;; - Commit messages
 ;; - Hide titles of empty sections
-;; - Stage/unstaging of whole files
-;; - Dealing with merges
+;; - Shortcut for staging/unstaging of whole files
+;; - Dealing with merges from pulls
+;; - Branch creation/switching
+;; - Explicit diffing/merging of branches
 ;; - History browsing
 
 ;;; Utilities
@@ -357,9 +359,36 @@
 
 ;;; Commit
 
+;; XXX - Have to figure out a better UI for preparing the commit
+;;       message than popping up a (semi-)modal dialog.
+
+(defvar gits-log-edit-map nil)
+
+(when (not gits-log-edit-map)
+  (setq gits-log-edit-map (make-sparse-keymap))
+  (define-key gits-log-edit-map (kbd "C-c C-c") 'gits-log-edit-done))
+
+(defvar gits-pre-commit-window-configuration nil)
+
+(defun gits-log-edit-done ()
+  (interactive)
+  (write-region (point-min) (point-max) ".git/gits-log")
+  (gits-run "git-commit" "-F" ".git/gits-log")
+  (bury-buffer)
+  (when gits-pre-commit-window-configuration
+    (set-window-configuration gits-pre-commit-window-configuration)
+    (setq gits-pre-commit-window-configuration nil)))
+
 (defun git-commit ()
   (interactive)
-  (gits-run "git-commit" "-m" "(changes)"))
+  (let ((dir default-directory)
+	(buf (get-buffer-create "*git-log-edit*")))
+    (setq gits-pre-commit-window-configuration (current-window-configuration))
+    (pop-to-buffer buf)
+    (setq default-directory dir)
+    (erase-buffer)
+    (use-local-map gits-log-edit-map)
+    (message "Use C-c C-c when done.")))
 
 ;;; Misc
 
