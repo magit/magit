@@ -369,7 +369,9 @@
 
 (defun gits-log-edit-commit ()
   (interactive)
-  (write-region (point-min) (point-max) ".git/gits-log")
+  (if (> (buffer-size) 0)
+      (write-region (point-min) (point-max) ".git/gits-log")
+    (write-region "(Empty description)" nil ".git/gits-log"))
   (erase-buffer)
   (gits-run "git-commit" "-F" ".git/gits-log")
   (bury-buffer)
