@@ -356,13 +356,13 @@
 	      (gits-remote-info-push conf)
 	    (gits-remote-info-pull conf)))))
 
-(defun git-pull (nick branch)
-  (interactive (gits-read-push-pull-args nil))
-  (gits-run "git" "pull" nick branch))
+(defun git-pull ()
+  (interactive)
+  (gits-run "git" "pull"))
 
-(defun git-push (nick branch)
-  (interactive (gits-read-push-pull-args t))
-  (gits-run "git" "push" nick branch))
+(defun git-push ()
+  (interactive)
+  (gits-run "git" "push" "-v" "--all"))
 
 ;;; Commit
 
