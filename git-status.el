@@ -236,13 +236,20 @@
 
 ;;; Staging
 
+(defun gits-write-hunk-patch (info file)
+  (write-region (elt info 1) (elt info 2) file)
+  (write-region (elt info 3) (elt info 4) file t))
+
 (defun gits-add-thing-at-point ()
   (interactive)
   (let ((info (get-char-property (point) 'gits-info)))
     (if info
 	(case (car info)
 	  ((other-file)
-	   (gits-run "git" "add" (cadr info)))))))
+	   (gits-run "git" "add" (cadr info)))
+	  ((hunk)
+	   (gits-write-hunk-patch info ".git/gits-tmp")
+	   (gits-run "git" "apply" "--cached" ".git/gits-tmp"))))))
 
 (defun gits-ignore-thing-at-point ()
   (interactive)
@@ -336,3 +343,5 @@
 (defun git-stage-all ()
   (interactive)
   (gits-run "git-add" "-u" "."))
+
+;;; Foo
