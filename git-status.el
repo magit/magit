@@ -32,6 +32,8 @@
 ;;; TODO
 
 ;; - Commit messages
+;; - Hide titles of empty sections
+;; - Stage/unstaging of whole files
 ;; - Dealing with merges
 ;; - History browsing
 
@@ -364,5 +366,3 @@
 (defun git-stage-all ()
   (interactive)
   (gits-run "git-add" "-u" "."))
-
-;;; Foo
