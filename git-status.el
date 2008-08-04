@@ -31,10 +31,9 @@
 
 ;;; TODO
 
-;; - Commit messages
-;; - Hide titles of empty sections
 ;; - Shortcut for staging/unstaging of whole files
 ;; - Dealing with merges from pulls
+;; - Hide titles of empty sections
 ;; - Branch creation/switching
 ;; - Explicit diffing/merging of branches
 ;; - History browsing
