@@ -296,15 +296,11 @@
 	  ((hunk)
 	   (if (mgit-hunk-is-conflict-p info)
 	       (error
-"Can't stage individual resolution hunks. Please stage the whole file."))
+"Can't stage individual resolution hunks.  Please stage the whole file."))
 	   (mgit-write-hunk-patch info ".git/mgit-tmp")
 	   (mgit-run "git" "apply" "--cached" ".git/mgit-tmp"))
 	  ((diff)
-	   (let ((file (mgit-diff-conflict-file info)))
-	     (if file
-		 (mgit-run "git" "add" file)
-	       (mgit-write-diff-patch info ".git/mgit-tmp")
-	       (mgit-run "git" "apply" "--cached" ".git/mgit-tmp"))))))))
+	   (mgit-run "git" "add" (mgit-diff-info-file info)))))))
 
 (defun mgit-unstage-thing-at-point ()
   (interactive)
@@ -315,8 +311,7 @@
 	   (mgit-write-hunk-patch info ".git/mgit-tmp")
 	   (mgit-run "git" "apply" "--cached" "--reverse" ".git/mgit-tmp"))
 	  ((diff)
-	   (mgit-write-diff-patch info ".git/mgit-tmp")
-	   (mgit-run "git" "apply" "--cached" "--reverse" ".git/mgit-tmp"))))))
+	   (mgit-run "git" "reset" "HEAD" (mgit-diff-info-file info)))))))
 
 (defun mgit-ignore-thing-at-point ()
   (interactive)
