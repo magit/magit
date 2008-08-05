@@ -338,8 +338,16 @@
 
 (defvar mgit-pre-log-edit-window-configuration nil)
 
+(defun mgit-log-edit-cleanup ()
+  (save-excursion
+    (goto-char (point-min))
+    (flush-lines "^#")
+    (goto-char (point-min))
+    (replace-regexp "[ \t\n]*\\'" "\n")))
+
 (defun mgit-log-edit-commit ()
   (interactive)
+  (mgit-log-edit-cleanup)
   (if (> (buffer-size) 0)
       (write-region (point-min) (point-max) ".git/mgit-log")
     (write-region "(Empty description)" nil ".git/mgit-log"))
@@ -358,6 +366,15 @@
     (pop-to-buffer buf)
     (setq default-directory dir)
     (use-local-map mgit-log-edit-map)
+    (save-excursion
+      (mgit-log-edit-cleanup)
+      (if  (and (= (buffer-size) 0)
+		(file-exists-p ".git/MERGE_MSG"))
+	  (insert-file-contents ".git/MERGE_MSG"))
+      (goto-char (point-max))
+      (insert "\n")
+      (mgit-insert-output nil nil
+			  "git" "status"))
     (message "Use C-c C-c when done.")))
 
 ;;; Misc
