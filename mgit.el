@@ -31,8 +31,7 @@
 
 ;;; TODO
 
-;; - Branch creation/switching
-;; - Explicit diffing/merging of branches
+;; - Reloading of changed files after finishing commands
 ;; - Detect and handle renames and copies.
 ;; - History browsing
 
