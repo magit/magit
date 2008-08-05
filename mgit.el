@@ -31,7 +31,6 @@
 
 ;;; TODO
 
-;; - Hide titles of empty sections
 ;; - Branch creation/switching
 ;; - Explicit diffing/merging of branches
 ;; - Detect and handle renames and copies.
@@ -147,11 +146,13 @@
   (setq mgit-keymap (make-keymap))
   (suppress-keymap mgit-keymap)
   (define-key mgit-keymap (kbd "g") 'mgit-status)
-  (define-key mgit-keymap (kbd "S") 'mgit-stage-all)
+  (define-key mgit-keymap (kbd "A") 'mgit-stage-all)
   (define-key mgit-keymap (kbd "a") 'mgit-stage-thing-at-point)
   (define-key mgit-keymap (kbd "u") 'mgit-unstage-thing-at-point)
   (define-key mgit-keymap (kbd "i") 'mgit-ignore-thing-at-point)
   (define-key mgit-keymap (kbd "RET") 'mgit-visit-thing-at-point)
+  (define-key mgit-keymap (kbd "b") 'mgit-switch-branch)
+  (define-key mgit-keymap (kbd "B") 'mgit-create-branch)
   (define-key mgit-keymap (kbd "U") 'mgit-pull)
   (define-key mgit-keymap (kbd "P") 'mgit-push)
   (define-key mgit-keymap (kbd "c") 'mgit-log-edit)
@@ -335,6 +336,29 @@
 	     (find-file file)
 	     (if position
 		 (goto-line position))))))))
+
+;;; Branches
+
+(defun mgit-list-branches ()
+  (directory-files ".git/refs/heads/"))
+
+(defun mgit-read-switch-branch-args ()
+  (list (completing-read "Switch to branch: " (mgit-list-branches))))
+
+(defun mgit-switch-branch (branch)
+  (interactive (mgit-read-switch-branch-args))
+  (mgit-run "git" "checkout" branch))
+
+(defun mgit-read-create-branch-args ()
+  (let* ((branches (mgit-list-branches))
+	 (cur-branch (mgit-get-current-branch))
+	 (branch (read-string "Create branch: "))
+	 (parent (completing-read "Parent: " branches nil t cur-branch)))
+    (list branch parent)))
+
+(defun mgit-create-branch (branch parent)
+  (interactive (mgit-read-create-branch-args))
+  (mgit-run "git" "checkout" "-b" branch parent))
 
 ;;; Push and pull
 
