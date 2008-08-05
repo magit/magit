@@ -147,7 +147,6 @@
   (suppress-keymap mgit-keymap)
   (define-key mgit-keymap (kbd "g") 'mgit-status)
   (define-key mgit-keymap (kbd "A") 'mgit-stage-all)
-  (define-key mgit-keymap (kbd "S") 'mgit-stage-all)
   (define-key mgit-keymap (kbd "a") 'mgit-stage-thing-at-point)
   (define-key mgit-keymap (kbd "u") 'mgit-unstage-thing-at-point)
   (define-key mgit-keymap (kbd "i") 'mgit-ignore-thing-at-point)
