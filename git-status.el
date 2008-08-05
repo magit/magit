@@ -294,7 +294,7 @@
 
 (defun git-pull ()
   (interactive)
-  (gits-run "git" "pull"))
+  (gits-run "git" "pull" "-v"))
 
 (defun git-push ()
   (interactive)
