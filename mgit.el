@@ -237,7 +237,7 @@
 	  (if remote
 	      (mgit-insert-output "Unpushed changes:" 'mgit-wash-diff
 				  "git" "diff" "--stat"
-				  (format "%s/%s" remote branch))))))))
+				  (format "%s/%s..HEAD" remote branch))))))))
 
 (defun mgit-status (dir)
   (interactive (list (mgit-read-top-dir current-prefix-arg)))
