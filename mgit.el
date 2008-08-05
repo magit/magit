@@ -243,6 +243,7 @@
 
 (defun mgit-status (dir)
   (interactive (list (mgit-read-top-dir current-prefix-arg)))
+  (save-some-buffers)
   (let ((buf (get-buffer-create "*git-status*")))
     (switch-to-buffer buf)
     (setq default-directory dir)
