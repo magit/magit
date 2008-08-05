@@ -368,11 +368,11 @@
 
 (defun mgit-manual-merge (branch)
   (interactive (list (mgit-read-other-branch "Manually merge from branch: ")))
-  (mgit-run "git" "merge" "--no-ff" "--no-commit"))
+  (mgit-run "git" "merge" "--no-ff" "--no-commit" branch))
 
 (defun mgit-automatic-merge (branch)
   (interactive (list (mgit-read-other-branch "Merge from branch: ")))
-  (mgit-run "git" "merge"))
+  (mgit-run "git" "merge" branch))
 
 ;;; Push and pull
 
