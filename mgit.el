@@ -369,7 +369,7 @@
 ;;; Branches
 
 (defun mgit-list-branches ()
-  (delete "." (delete ".." (directory-files ".git/refs/heads/"))))
+  (mgit-shell-lines "git branch - a | cut -c3-"))
 
 (defun mgit-read-other-branch (prompt)
   (completing-read prompt (delete (mgit-get-current-branch)
