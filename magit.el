@@ -1,13 +1,13 @@
-;;; mgit -- control git from Emacs.
+;;; magit -- control git from Emacs.
 
 ;; Copyright (C) 2008  Marius Vollmer
 ;;
-;; Mgit is free software; you can redistribute it and/or modify it
+;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation; either version 3, or (at your option)
 ;; any later version.
 ;;
-;; Mgit is distributed in the hope that it will be useful, but WITHOUT
+;; Magit is distributed in the hope that it will be useful, but WITHOUT
 ;; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 ;; or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 ;; License for more details.
@@ -19,7 +19,7 @@
 
 ;;; Introduction
 
-;; Invoking the mgit-status function will show a buffer with the
+;; Invoking the magit-status function will show a buffer with the
 ;; current status of the current git repository and its checkout.
 ;; That buffer offers key bindings for manipulating the status in
 ;; simple ways.
@@ -37,7 +37,7 @@
 
 ;;; Utilities
 
-(defun mgit-shell (cmd &rest args)
+(defun magit-shell (cmd &rest args)
   (let ((str (shell-command-to-string (apply 'format cmd args))))
     (if (string= str "")
 	nil
@@ -45,7 +45,7 @@
 	  (substring str 0 (- (length str) 1))
 	str))))
 
-(defun mgit-string-split (string regexp)
+(defun magit-string-split (string regexp)
   (let ((res nil)
 	(pos 0)
 	next)
@@ -54,53 +54,53 @@
       (setq pos (match-end 0)))
     (nreverse (cons (substring string pos) res))))
 
-(defun mgit-shell-lines (cmd &rest args)
+(defun magit-shell-lines (cmd &rest args)
   (let ((str (shell-command-to-string (apply 'format cmd args))))
     (if (string= str "")
 	nil
-      (mgit-string-split str "\n"))))
+      (magit-string-split str "\n"))))
 
-(defun mgit-concat-with-delim (delim seqs)
+(defun magit-concat-with-delim (delim seqs)
   (cond ((null seqs)
 	 nil)
 	((null (cdr seqs))
 	 (car seqs))
 	(t
-	 (concat (car seqs) delim (mgit-concat-with-delim delim (cdr seqs))))))
+	 (concat (car seqs) delim (magit-concat-with-delim delim (cdr seqs))))))
 
-(defun mgit-get (&rest keys)
-  (mgit-shell "git-config %s" (mgit-concat-with-delim "." keys)))
+(defun magit-get (&rest keys)
+  (magit-shell "git-config %s" (magit-concat-with-delim "." keys)))
 
-(defun mgit-set (val &rest keys)
+(defun magit-set (val &rest keys)
   (if val
-      (mgit-shell "git-config %s %s" (mgit-concat-with-delim "." keys) val)
-    (mgit-shell "git-config --unset %s" (mgit-concat-with-delim "." keys))))
+      (magit-shell "git-config %s %s" (magit-concat-with-delim "." keys) val)
+    (magit-shell "git-config --unset %s" (magit-concat-with-delim "." keys))))
 
-(defun mgit-get-top-dir (cwd)
+(defun magit-get-top-dir (cwd)
   (let* ((cwd (expand-file-name cwd))
-	 (mgit-dir (mgit-shell "cd '%s' && git-rev-parse --git-dir 2>/dev/null"
+	 (magit-dir (magit-shell "cd '%s' && git-rev-parse --git-dir 2>/dev/null"
 			      cwd)))
-    (if mgit-dir
-	(file-name-as-directory (or (file-name-directory mgit-dir) cwd))
+    (if magit-dir
+	(file-name-as-directory (or (file-name-directory magit-dir) cwd))
       nil)))
 
-(defun mgit-get-ref (ref)
-  (mgit-shell "git-symbolic-ref -q %s" ref))
+(defun magit-get-ref (ref)
+  (magit-shell "git-symbolic-ref -q %s" ref))
 
-(defun mgit-get-current-branch ()
-  (let* ((head (mgit-get-ref "HEAD"))
+(defun magit-get-current-branch ()
+  (let* ((head (magit-get-ref "HEAD"))
 	 (pos (and head (string-match "^refs/heads/" head))))
     (if pos
 	(substring head 11)
       nil)))
 
-(defun mgit-read-top-dir (prefix)
-  (let ((dir (mgit-get-top-dir default-directory)))
+(defun magit-read-top-dir (prefix)
+  (let ((dir (magit-get-top-dir default-directory)))
     (if prefix
-	(mgit-get-top-dir (read-directory-name "Git repository: " dir))
+	(magit-get-top-dir (read-directory-name "Git repository: " dir))
       dir)))
 
-(defun mgit-insert-output (title washer cmd &rest args)
+(defun magit-insert-output (title washer cmd &rest args)
   (if title
       (insert (propertize title 'face 'bold) "\n"))
   (let* ((beg (point))
@@ -113,16 +113,16 @@
 	  (goto-char (point-max))
 	  (insert "\n")))))
 
-(defun mgit-put-line-property (prop val)
+(defun magit-put-line-property (prop val)
   (put-text-property (line-beginning-position) (line-end-position)
 		     prop val))
 
 ;;; Running asynchronous commands
 
-(defvar mgit-process nil)
+(defvar magit-process nil)
 
-(defun mgit-run (cmd &rest args)
-  (or (not mgit-process)
+(defun magit-run (cmd &rest args)
+  (or (not magit-process)
       (error "Git is already running."))
   (let ((dir default-directory)
 	(buf (get-buffer-create "*git-process*")))
@@ -130,12 +130,12 @@
       (set-buffer buf)
       (setq default-directory dir)
       (erase-buffer)
-      (insert "$ " (mgit-concat-with-delim " " (cons cmd args)) "\n")
-      (setq mgit-process (apply 'start-process "git" buf cmd args))
-      (set-process-sentinel mgit-process 'mgit-process-sentinel))))
+      (insert "$ " (magit-concat-with-delim " " (cons cmd args)) "\n")
+      (setq magit-process (apply 'start-process "git" buf cmd args))
+      (set-process-sentinel magit-process 'magit-process-sentinel))))
 
-(defun mgit-revert-files ()
-  (let ((files (mgit-shell-lines "git ls-files")))
+(defun magit-revert-files ()
+  (let ((files (magit-shell-lines "git ls-files")))
     (dolist (file files)
       (let ((buffer (find-buffer-visiting file)))
 	(when (and buffer
@@ -145,74 +145,74 @@
 	    (ignore-errors
 	      (revert-buffer t t t))))))))
 
-(defun mgit-process-sentinel (process event)
+(defun magit-process-sentinel (process event)
   (cond ((string= event "finished\n")
 	 (message "Git finished.")
-	 (setq mgit-process nil))
+	 (setq magit-process nil))
 	((string= event "killed\n")
 	 (message "Git was killed.")
-	 (setq mgit-process nil))
+	 (setq magit-process nil))
 	((string-match "exited abnormally" event)
 	 (message "Git failed.")
-	 (setq mgit-process nil))
+	 (setq magit-process nil))
 	(t
 	 (message "Git is weird.")))
-  (mgit-revert-files)
-  (mgit-update-status))
+  (magit-revert-files)
+  (magit-update-status))
 
-(defun mgit-display-process ()
+(defun magit-display-process ()
   (interactive)
   (display-buffer "*git-process*"))
 
 ;;; Keymap
 
-(defvar mgit-keymap nil)
+(defvar magit-keymap nil)
 
-(when (not mgit-keymap)
-  (setq mgit-keymap (make-keymap))
-  (suppress-keymap mgit-keymap)
-  (define-key mgit-keymap (kbd "g") 'mgit-status)
-  (define-key mgit-keymap (kbd "A") 'mgit-stage-all)
-  (define-key mgit-keymap (kbd "a") 'mgit-stage-thing-at-point)
-  (define-key mgit-keymap (kbd "u") 'mgit-unstage-thing-at-point)
-  (define-key mgit-keymap (kbd "i") 'mgit-ignore-thing-at-point)
-  (define-key mgit-keymap (kbd "RET") 'mgit-visit-thing-at-point)
-  (define-key mgit-keymap (kbd "b") 'mgit-switch-branch)
-  (define-key mgit-keymap (kbd "B") 'mgit-create-branch)
-  (define-key mgit-keymap (kbd "m") 'mgit-manual-merge)
-  (define-key mgit-keymap (kbd "M") 'mgit-automatic-merge)
-  (define-key mgit-keymap (kbd "U") 'mgit-pull)
-  (define-key mgit-keymap (kbd "P") 'mgit-push)
-  (define-key mgit-keymap (kbd "c") 'mgit-log-edit)
-  (define-key mgit-keymap (kbd "p") 'mgit-display-process))
+(when (not magit-keymap)
+  (setq magit-keymap (make-keymap))
+  (suppress-keymap magit-keymap)
+  (define-key magit-keymap (kbd "g") 'magit-status)
+  (define-key magit-keymap (kbd "A") 'magit-stage-all)
+  (define-key magit-keymap (kbd "a") 'magit-stage-thing-at-point)
+  (define-key magit-keymap (kbd "u") 'magit-unstage-thing-at-point)
+  (define-key magit-keymap (kbd "i") 'magit-ignore-thing-at-point)
+  (define-key magit-keymap (kbd "RET") 'magit-visit-thing-at-point)
+  (define-key magit-keymap (kbd "b") 'magit-switch-branch)
+  (define-key magit-keymap (kbd "B") 'magit-create-branch)
+  (define-key magit-keymap (kbd "m") 'magit-manual-merge)
+  (define-key magit-keymap (kbd "M") 'magit-automatic-merge)
+  (define-key magit-keymap (kbd "U") 'magit-pull)
+  (define-key magit-keymap (kbd "P") 'magit-push)
+  (define-key magit-keymap (kbd "c") 'magit-log-edit)
+  (define-key magit-keymap (kbd "p") 'magit-display-process))
 
 ;;; Status
 
-(defun mgit-wash-other-files (status)
+(defun magit-wash-other-files (status)
   (goto-char (point-min))
   (while (not (eobp))
     (let ((filename (buffer-substring (point) (line-end-position))))
       (insert "  ")
-      (mgit-put-line-property 'face '(:foreground "red"))
-      (mgit-put-line-property 'mgit-info (list 'other-file filename)))
+      (magit-put-line-property 'face '(:foreground "red"))
+      (magit-put-line-property 'magit-info (list 'other-file filename)))
     (forward-line)
     (beginning-of-line)))
 
-(defun mgit-wash-diff-propertize-diff (head-beg head-end)
+(defun magit-wash-diff-propertize-diff (head-beg head-end)
   (let ((head-end (or head-end (point))))
     (when head-beg
       (put-text-property head-beg head-end
-			 'mgit-info (list 'diff
+			 'magit-info (list 'diff
 					  head-beg (point))))))
 
-(defun mgit-wash-diff-propertize-hunk (head-beg head-end hunk-beg)
+(defun magit-wash-diff-propertize-hunk (head-beg head-end hunk-beg)
   (when hunk-beg
     (put-text-property hunk-beg (point)
-		       'mgit-info (list 'hunk
+		       'magit-info (list 'hunk
 					head-beg head-end
 					hunk-beg (point)))))
 
-(defun mgit-wash-diff (status)
+(defun magit-wash-diff (status)
   (goto-char (point-min))
   (let ((n-files 1)
 	(head-beg nil)
@@ -222,82 +222,82 @@
       (let ((prefix (buffer-substring-no-properties
 		     (point) (+ (point) n-files))))
 	(cond ((looking-at "^diff")
-	       (mgit-wash-diff-propertize-diff head-beg head-end)
+	       (magit-wash-diff-propertize-diff head-beg head-end)
 	       (setq head-beg (point))
 	       (setq head-end nil))
 	      ((looking-at "^@+")
 	       (setq n-files (- (length (match-string 0)) 1))
 	       (if (null head-end)
 		   (setq head-end (point)))
-	       (mgit-wash-diff-propertize-hunk head-beg head-end hunk-beg)
+	       (magit-wash-diff-propertize-hunk head-beg head-end hunk-beg)
 	       (setq hunk-beg (point)))
 	      ((string-match "\\+" prefix)
-	       (mgit-put-line-property 'face '(:foreground "blue1")))
+	       (magit-put-line-property 'face '(:foreground "blue1")))
 	      ((string-match "-" prefix)
-	       (mgit-put-line-property 'face '(:foreground "red")))))
+	       (magit-put-line-property 'face '(:foreground "red")))))
       (forward-line)
       (beginning-of-line))
-    (mgit-wash-diff-propertize-diff head-beg head-end)
-    (mgit-wash-diff-propertize-hunk head-beg head-end hunk-beg)))
+    (magit-wash-diff-propertize-diff head-beg head-end)
+    (magit-wash-diff-propertize-hunk head-beg head-end hunk-beg)))
 
-(defun mgit-update-status ()
+(defun magit-update-status ()
   (let ((buf (get-buffer "*git-status*")))
     (save-excursion
       (set-buffer buf)
       (setq buffer-read-only t)
-      (use-local-map mgit-keymap)
+      (use-local-map magit-keymap)
       (let ((inhibit-read-only t))
 	(erase-buffer)
-	(let* ((branch (mgit-get-current-branch))
-	       (remote (and branch (mgit-get "branch" branch "remote"))))
+	(let* ((branch (magit-get-current-branch))
+	       (remote (and branch (magit-get "branch" branch "remote"))))
 	  (if remote
 	      (insert (format "Remote: %s %s\n"
-			      remote (mgit-get "remote" remote "url"))))
+			      remote (magit-get "remote" remote "url"))))
 	  (insert (format "Local:  %s %s\n"
 			  (propertize (or branch "(detached)") 'face 'bold)
 			  (abbreviate-file-name default-directory)))
 	  (insert "\n")
-	  (mgit-insert-output "Untracked files:" 'mgit-wash-other-files
+	  (magit-insert-output "Untracked files:" 'magit-wash-other-files
 			      "git" "ls-files" "--others" "--exclude-standard")
-	  (mgit-insert-output "Unstaged changes:" 'mgit-wash-diff
+	  (magit-insert-output "Unstaged changes:" 'magit-wash-diff
 			      "git" "diff")
-	  (mgit-insert-output "Staged changes:" 'mgit-wash-diff
+	  (magit-insert-output "Staged changes:" 'magit-wash-diff
 			      "git" "diff" "--cached")
 	  (if remote
-	      (mgit-insert-output "Unpushed changes:" 'mgit-wash-diff
+	      (magit-insert-output "Unpushed changes:" 'magit-wash-diff
 				  "git" "diff" "--stat"
 				  (format "%s/%s..HEAD" remote branch))))))))
 
-(defun mgit-status (dir)
-  (interactive (list (mgit-read-top-dir current-prefix-arg)))
+(defun magit-status (dir)
+  (interactive (list (magit-read-top-dir current-prefix-arg)))
   (save-some-buffers)
   (let ((buf (get-buffer-create "*git-status*")))
     (switch-to-buffer buf)
     (setq default-directory dir)
-    (mgit-update-status)))
+    (magit-update-status)))
 
 ;;; Staging
 
-(defun mgit-write-diff-patch (info file)
+(defun magit-write-diff-patch (info file)
   (write-region (elt info 1) (elt info 2) file))
 
-(defun mgit-write-hunk-patch (info file)
+(defun magit-write-hunk-patch (info file)
   (write-region (elt info 1) (elt info 2) file)
   (write-region (elt info 3) (elt info 4) file t))
 
-(defun mgit-hunk-is-conflict-p (info)
+(defun magit-hunk-is-conflict-p (info)
   (save-excursion
     (goto-char (elt info 1))
     (looking-at-p "^diff --cc")))
 
-(defun mgit-diff-conflict-file (info)
+(defun magit-diff-conflict-file (info)
   (save-excursion
     (goto-char (elt info 1))
     (if (looking-at "^diff --cc +\\(.*\\)$")
 	(match-string 1)
       nil)))
 
-(defun mgit-diff-info-file (info)
+(defun magit-diff-info-file (info)
   (save-excursion
     (goto-char (elt info 1))
     (cond ((looking-at "^diff --git a/\\(.*\\) b/\\(.*\\)$")
@@ -307,7 +307,7 @@
 	  (t
 	   nil))))
 
-(defun mgit-diff-info-position (info)
+(defun magit-diff-info-position (info)
   (save-excursion
     (cond ((eq (car info) 'hunk)
 	   (goto-char (elt info 3))
@@ -316,144 +316,144 @@
 	     nil))
 	  (t nil))))
   
-(defun mgit-stage-thing-at-point ()
+(defun magit-stage-thing-at-point ()
   (interactive)
-  (let ((info (get-char-property (point) 'mgit-info)))
+  (let ((info (get-char-property (point) 'magit-info)))
     (if info
 	(case (car info)
 	  ((other-file)
-	   (mgit-run "git" "add" (cadr info)))
+	   (magit-run "git" "add" (cadr info)))
 	  ((hunk)
-	   (if (mgit-hunk-is-conflict-p info)
+	   (if (magit-hunk-is-conflict-p info)
 	       (error
 "Can't stage individual resolution hunks.  Please stage the whole file."))
-	   (mgit-write-hunk-patch info ".git/mgit-tmp")
-	   (mgit-run "git" "apply" "--cached" ".git/mgit-tmp"))
+	   (magit-write-hunk-patch info ".git/magit-tmp")
+	   (magit-run "git" "apply" "--cached" ".git/magit-tmp"))
 	  ((diff)
-	   (mgit-run "git" "add" (mgit-diff-info-file info)))))))
+	   (magit-run "git" "add" (magit-diff-info-file info)))))))
 
-(defun mgit-unstage-thing-at-point ()
+(defun magit-unstage-thing-at-point ()
   (interactive)
-  (let ((info (get-char-property (point) 'mgit-info)))
+  (let ((info (get-char-property (point) 'magit-info)))
     (if info
 	(case (car info)
 	  ((hunk)
-	   (mgit-write-hunk-patch info ".git/mgit-tmp")
-	   (mgit-run "git" "apply" "--cached" "--reverse" ".git/mgit-tmp"))
+	   (magit-write-hunk-patch info ".git/magit-tmp")
+	   (magit-run "git" "apply" "--cached" "--reverse" ".git/magit-tmp"))
 	  ((diff)
-	   (mgit-run "git" "reset" "HEAD" (mgit-diff-info-file info)))))))
+	   (magit-run "git" "reset" "HEAD" (magit-diff-info-file info)))))))
 
-(defun mgit-ignore-thing-at-point ()
+(defun magit-ignore-thing-at-point ()
   (interactive)
-  (let ((info (get-char-property (point) 'mgit-info)))
+  (let ((info (get-char-property (point) 'magit-info)))
     (if info
 	(case (car info)
 	  ((other-file)
 	   (append-to-file (concat (cadr info) "\n") nil ".gitignore")
-	   (mgit-update-status))))))
+	   (magit-update-status))))))
 
-(defun mgit-visit-thing-at-point ()
+(defun magit-visit-thing-at-point ()
   (interactive)
-  (let ((info (get-char-property (point) 'mgit-info)))
+  (let ((info (get-char-property (point) 'magit-info)))
     (if info
 	(case (car info)
 	  ((other-file)
 	   (find-file (cadr info)))
 	  ((diff hunk)
-	   (let ((file (mgit-diff-info-file info))
-		 (position (mgit-diff-info-position info)))
+	   (let ((file (magit-diff-info-file info))
+		 (position (magit-diff-info-position info)))
 	     (find-file file)
 	     (if position
 		 (goto-line position))))))))
 
 ;;; Branches
 
-(defun mgit-list-branches ()
-  (mgit-shell-lines "git branch -a | cut -c3-"))
+(defun magit-list-branches ()
+  (magit-shell-lines "git branch -a | cut -c3-"))
 
-(defun mgit-read-other-branch (prompt)
-  (completing-read prompt (delete (mgit-get-current-branch)
-				  (mgit-list-branches))
+(defun magit-read-other-branch (prompt)
+  (completing-read prompt (delete (magit-get-current-branch)
+				  (magit-list-branches))
 		   nil t))
 
-(defun mgit-switch-branch (branch)
-  (interactive (list (mgit-read-other-branch "Switch to branch: ")))
+(defun magit-switch-branch (branch)
+  (interactive (list (magit-read-other-branch "Switch to branch: ")))
   (if (and branch (not (string= branch "")))
-      (mgit-run "git" "checkout" branch)))
+      (magit-run "git" "checkout" branch)))
   
-(defun mgit-read-create-branch-args ()
-  (let* ((branches (mgit-list-branches))
-	 (cur-branch (mgit-get-current-branch))
+(defun magit-read-create-branch-args ()
+  (let* ((branches (magit-list-branches))
+	 (cur-branch (magit-get-current-branch))
 	 (branch (read-string "Create branch: "))
 	 (parent (completing-read "Parent: " branches nil t cur-branch)))
     (list branch parent)))
 
-(defun mgit-create-branch (branch parent)
-  (interactive (mgit-read-create-branch-args))
+(defun magit-create-branch (branch parent)
+  (interactive (magit-read-create-branch-args))
   (if (and branch (not (string= branch ""))
 	   parent (not (string= parent "")))
-      (mgit-run "git" "checkout" "-b" branch parent)))
+      (magit-run "git" "checkout" "-b" branch parent)))
 
 ;;; Merging
 
-(defun mgit-manual-merge (branch)
-  (interactive (list (mgit-read-other-branch "Manually merge from branch: ")))
-  (mgit-run "git" "merge" "--no-ff" "--no-commit" branch))
+(defun magit-manual-merge (branch)
+  (interactive (list (magit-read-other-branch "Manually merge from branch: ")))
+  (magit-run "git" "merge" "--no-ff" "--no-commit" branch))
 
-(defun mgit-automatic-merge (branch)
-  (interactive (list (mgit-read-other-branch "Merge from branch: ")))
-  (mgit-run "git" "merge" branch))
+(defun magit-automatic-merge (branch)
+  (interactive (list (magit-read-other-branch "Merge from branch: ")))
+  (magit-run "git" "merge" branch))
 
 ;;; Push and pull
 
-(defun mgit-pull ()
+(defun magit-pull ()
   (interactive)
-  (mgit-run "git" "pull" "-v"))
+  (magit-run "git" "pull" "-v"))
 
-(defun mgit-push ()
+(defun magit-push ()
   (interactive)
-  (mgit-run "git" "push" "-v"))
+  (magit-run "git" "push" "-v"))
 
 ;;; Commit
 
-(defvar mgit-log-edit-map nil)
+(defvar magit-log-edit-map nil)
 
-(when (not mgit-log-edit-map)
-  (setq mgit-log-edit-map (make-sparse-keymap))
-  (define-key mgit-log-edit-map (kbd "C-c C-c") 'mgit-log-edit-commit))
+(when (not magit-log-edit-map)
+  (setq magit-log-edit-map (make-sparse-keymap))
+  (define-key magit-log-edit-map (kbd "C-c C-c") 'magit-log-edit-commit))
 
-(defvar mgit-pre-log-edit-window-configuration nil)
+(defvar magit-pre-log-edit-window-configuration nil)
 
-(defun mgit-log-edit-cleanup ()
+(defun magit-log-edit-cleanup ()
   (save-excursion
     (goto-char (point-min))
     (flush-lines "^#")
     (goto-char (point-min))
     (replace-regexp "[ \t\n]*\\'" "\n")))
 
-(defun mgit-log-edit-commit ()
+(defun magit-log-edit-commit ()
   (interactive)
-  (mgit-log-edit-cleanup)
+  (magit-log-edit-cleanup)
   (if (> (buffer-size) 0)
-      (write-region (point-min) (point-max) ".git/mgit-log")
-    (write-region "(Empty description)" nil ".git/mgit-log"))
+      (write-region (point-min) (point-max) ".git/magit-log")
+    (write-region "(Empty description)" nil ".git/magit-log"))
   (erase-buffer)
-  (mgit-run "git-commit" "-F" ".git/mgit-log")
+  (magit-run "git-commit" "-F" ".git/magit-log")
   (bury-buffer)
-  (when mgit-pre-log-edit-window-configuration
-    (set-window-configuration mgit-pre-log-edit-window-configuration)
-    (setq mgit-pre-log-edit-window-configuration nil)))
+  (when magit-pre-log-edit-window-configuration
+    (set-window-configuration magit-pre-log-edit-window-configuration)
+    (setq magit-pre-log-edit-window-configuration nil)))
 
-(defun mgit-log-edit ()
+(defun magit-log-edit ()
   (interactive)
   (let ((dir default-directory)
 	(buf (get-buffer-create "*git-log-edit*")))
-    (setq mgit-pre-log-edit-window-configuration (current-window-configuration))
+    (setq magit-pre-log-edit-window-configuration (current-window-configuration))
     (pop-to-buffer buf)
     (setq default-directory dir)
-    (use-local-map mgit-log-edit-map)
+    (use-local-map magit-log-edit-map)
     (save-excursion
-      (mgit-log-edit-cleanup)
+      (magit-log-edit-cleanup)
       (if  (and (= (buffer-size) 0)
 		(file-exists-p ".git/MERGE_MSG"))
 	  (insert-file-contents ".git/MERGE_MSG")))
@@ -461,6 +461,6 @@
 
 ;;; Misc
 
-(defun mgit-stage-all ()
+(defun magit-stage-all ()
   (interactive)
-  (mgit-run "git-add" "-u" "."))
+  (magit-run "git-add" "-u" "."))
