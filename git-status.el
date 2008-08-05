@@ -1,16 +1,16 @@
-;;; git-status -- control git from Emacs.
+;;; mgit -- control git from Emacs.
 
 ;; Copyright (C) 2008  Marius Vollmer
 ;;
-;; Git-status is free software; you can redistribute it and/or modify
-;; it under the terms of the GNU General Public License as published
-;; by the Free Software Foundation; either version 3, or (at your
-;; option) any later version.
+;; Mgit is free software; you can redistribute it and/or modify it
+;; under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 3, or (at your option)
+;; any later version.
 ;;
-;; Git-status is distributed in the hope that it will be useful,
-;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;; GNU General Public License for more details.
+;; Mgit is distributed in the hope that it will be useful, but WITHOUT
+;; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+;; or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+;; License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with GNU Emacs; see the file COPYING.  If not, write to
@@ -19,7 +19,7 @@
 
 ;;; Introduction
 
-;; Invoking the git-status function will show a buffer with the
+;; Invoking the mgit-status function will show a buffer with the
 ;; current status of the current git repository and its checkout.
 ;; That buffer offers key bindings for manipulating the status in
 ;; simple ways.
@@ -31,7 +31,7 @@
 
 ;;; TODO
 
-;; - Dealing with merge conflicts from pulls
+;; - Indicating a merge commit in the commit message
 ;; - Hide titles of empty sections
 ;; - Branch creation/switching
 ;; - Explicit diffing/merging of branches
@@ -40,7 +40,7 @@
 
 ;;; Utilities
 
-(defun gits-shell (cmd &rest args)
+(defun mgit-shell (cmd &rest args)
   (let ((str (shell-command-to-string (apply 'format cmd args))))
     (if (string= str "")
 	nil
@@ -48,47 +48,47 @@
 	  (substring str 0 (- (length str) 1))
 	str))))
 
-(defun gits-concat-with-delim (delim seqs)
+(defun mgit-concat-with-delim (delim seqs)
   (cond ((null seqs)
 	 nil)
 	((null (cdr seqs))
 	 (car seqs))
 	(t
-	 (concat (car seqs) delim (gits-concat-with-delim delim (cdr seqs))))))
+	 (concat (car seqs) delim (mgit-concat-with-delim delim (cdr seqs))))))
 
-(defun gits-get (&rest keys)
-  (gits-shell "git-config %s" (gits-concat-with-delim "." keys)))
+(defun mgit-get (&rest keys)
+  (mgit-shell "git-config %s" (mgit-concat-with-delim "." keys)))
 
-(defun gits-set (val &rest keys)
+(defun mgit-set (val &rest keys)
   (if val
-      (gits-shell "git-config %s %s" (gits-concat-with-delim "." keys) val)
-    (gits-shell "git-config --unset %s" (gits-concat-with-delim "." keys))))
+      (mgit-shell "git-config %s %s" (mgit-concat-with-delim "." keys) val)
+    (mgit-shell "git-config --unset %s" (mgit-concat-with-delim "." keys))))
 
-(defun gits-get-top-dir (cwd)
+(defun mgit-get-top-dir (cwd)
   (let* ((cwd (expand-file-name cwd))
-	 (git-dir (gits-shell "cd '%s' && git-rev-parse --git-dir 2>/dev/null"
+	 (mgit-dir (mgit-shell "cd '%s' && git-rev-parse --git-dir 2>/dev/null"
 			      cwd)))
-    (if git-dir
-	(file-name-as-directory (or (file-name-directory git-dir) cwd))
+    (if mgit-dir
+	(file-name-as-directory (or (file-name-directory mgit-dir) cwd))
       nil)))
 
-(defun gits-get-ref (ref)
-  (gits-shell "git-symbolic-ref -q %s" ref))
+(defun mgit-get-ref (ref)
+  (mgit-shell "git-symbolic-ref -q %s" ref))
 
-(defun gits-get-current-branch ()
-  (let* ((head (gits-get-ref "HEAD"))
+(defun mgit-get-current-branch ()
+  (let* ((head (mgit-get-ref "HEAD"))
 	 (pos (and head (string-match "^refs/heads/" head))))
     (if pos
 	(substring head 11)
       nil)))
 
-(defun gits-read-top-dir (prefix)
-  (let ((dir (gits-get-top-dir default-directory)))
+(defun mgit-read-top-dir (prefix)
+  (let ((dir (mgit-get-top-dir default-directory)))
     (if prefix
-	(gits-get-top-dir (read-directory-name "Git repository: " dir))
+	(mgit-get-top-dir (read-directory-name "Git repository: " dir))
       dir)))
 
-(defun gits-insert-output (title washer cmd &rest args)
+(defun mgit-insert-output (title washer cmd &rest args)
   (insert title "\n")
   (let* ((beg (point))
 	 (status (apply 'call-process cmd nil t nil args))
@@ -100,16 +100,16 @@
 	  (goto-char (point-max))
 	  (insert "\n")))))
 
-(defun gits-put-line-property (prop val)
+(defun mgit-put-line-property (prop val)
   (put-text-property (line-beginning-position) (line-end-position)
 		     prop val))
 
 ;;; Running asynchronous commands
 
-(defvar gits-process nil)
+(defvar mgit-process nil)
 
-(defun gits-run (cmd &rest args)
-  (or (not gits-process)
+(defun mgit-run (cmd &rest args)
+  (or (not mgit-process)
       (error "Git is already running."))
   (let ((dir default-directory)
 	(buf (get-buffer-create "*git-process*")))
@@ -117,73 +117,73 @@
       (set-buffer buf)
       (setq default-directory dir)
       (erase-buffer)
-      (insert "$ " (gits-concat-with-delim " " (cons cmd args)) "\n")
-      (setq gits-process (apply 'start-process "git" buf cmd args))
-      (set-process-sentinel gits-process 'gits-process-sentinel))))
+      (insert "$ " (mgit-concat-with-delim " " (cons cmd args)) "\n")
+      (setq mgit-process (apply 'start-process "git" buf cmd args))
+      (set-process-sentinel mgit-process 'mgit-process-sentinel))))
 
-(defun gits-process-sentinel (process event)
+(defun mgit-process-sentinel (process event)
   (cond ((string= event "finished\n")
 	 (message "Git finished.")
-	 (setq gits-process nil))
+	 (setq mgit-process nil))
 	((string= event "killed\n")
 	 (message "Git was killed.")
-	 (setq gits-process nil))
+	 (setq mgit-process nil))
 	((string-match "exited abnormally" event)
 	 (message "Git failed.")
-	 (setq gits-process nil))
+	 (setq mgit-process nil))
 	(t
 	 (message "Git is weird.")))
-  (gits-update-status))
+  (mgit-update-status))
 
-(defun gits-display-process ()
+(defun mgit-display-process ()
   (interactive)
   (display-buffer "*git-process*"))
 
 ;;; Keymap
 
-(defvar gits-keymap nil)
+(defvar mgit-keymap nil)
 
-(when (not gits-keymap)
-  (setq gits-keymap (make-keymap))
-  (suppress-keymap gits-keymap)
-  (define-key gits-keymap (kbd "g") 'git-status)
-  (define-key gits-keymap (kbd "S") 'git-stage-all)
-  (define-key gits-keymap (kbd "a") 'gits-stage-thing-at-point)
-  (define-key gits-keymap (kbd "u") 'gits-unstage-thing-at-point)
-  (define-key gits-keymap (kbd "i") 'gits-ignore-thing-at-point)
-  (define-key gits-keymap (kbd "RET") 'gits-visit-thing-at-point)
-  (define-key gits-keymap (kbd "U") 'git-pull)
-  (define-key gits-keymap (kbd "P") 'git-push)
-  (define-key gits-keymap (kbd "c") 'git-log-edit)
-  (define-key gits-keymap (kbd "p") 'gits-display-process))
+(when (not mgit-keymap)
+  (setq mgit-keymap (make-keymap))
+  (suppress-keymap mgit-keymap)
+  (define-key mgit-keymap (kbd "g") 'mgit-status)
+  (define-key mgit-keymap (kbd "S") 'mgit-stage-all)
+  (define-key mgit-keymap (kbd "a") 'mgit-stage-thing-at-point)
+  (define-key mgit-keymap (kbd "u") 'mgit-unstage-thing-at-point)
+  (define-key mgit-keymap (kbd "i") 'mgit-ignore-thing-at-point)
+  (define-key mgit-keymap (kbd "RET") 'mgit-visit-thing-at-point)
+  (define-key mgit-keymap (kbd "U") 'mgit-pull)
+  (define-key mgit-keymap (kbd "P") 'mgit-push)
+  (define-key mgit-keymap (kbd "c") 'mgit-log-edit)
+  (define-key mgit-keymap (kbd "p") 'mgit-display-process))
 
 ;;; Status
 
-(defun gits-wash-other-files (status)
+(defun mgit-wash-other-files (status)
   (goto-char (point-min))
   (while (not (eobp))
     (let ((filename (buffer-substring (point) (line-end-position))))
       (insert "  ")
-      (gits-put-line-property 'face '(:foreground "red"))
-      (gits-put-line-property 'gits-info (list 'other-file filename)))
+      (mgit-put-line-property 'face '(:foreground "red"))
+      (mgit-put-line-property 'mgit-info (list 'other-file filename)))
     (forward-line)
     (beginning-of-line)))
 
-(defun gits-wash-diff-propertize-diff (head-beg head-end)
+(defun mgit-wash-diff-propertize-diff (head-beg head-end)
   (let ((head-end (or head-end (point))))
     (when head-beg
       (put-text-property head-beg head-end
-			 'gits-info (list 'diff
+			 'mgit-info (list 'diff
 					  head-beg (point))))))
 
-(defun gits-wash-diff-propertize-hunk (head-beg head-end hunk-beg)
+(defun mgit-wash-diff-propertize-hunk (head-beg head-end hunk-beg)
   (when hunk-beg
     (put-text-property hunk-beg (point)
-		       'gits-info (list 'hunk
+		       'mgit-info (list 'hunk
 					head-beg head-end
 					hunk-beg (point)))))
 
-(defun gits-wash-diff (status)
+(defun mgit-wash-diff (status)
   (goto-char (point-min))
   (let ((n-files 1)
 	(head-beg nil)
@@ -193,98 +193,124 @@
       (let ((prefix (buffer-substring-no-properties
 		     (point) (+ (point) n-files))))
 	(cond ((looking-at "^diff")
-	       (gits-wash-diff-propertize-diff head-beg head-end)
+	       (mgit-wash-diff-propertize-diff head-beg head-end)
 	       (setq head-beg (point))
 	       (setq head-end nil))
 	      ((looking-at "^@+")
 	       (setq n-files (- (length (match-string 0)) 1))
 	       (if (null head-end)
 		   (setq head-end (point)))
-	       (gits-wash-diff-propertize-hunk head-beg head-end hunk-beg)
+	       (mgit-wash-diff-propertize-hunk head-beg head-end hunk-beg)
 	       (setq hunk-beg (point)))
 	      ((string-match "\\+" prefix)
-	       (gits-put-line-property 'face '(:foreground "blue1")))
+	       (mgit-put-line-property 'face '(:foreground "blue1")))
 	      ((string-match "-" prefix)
-	       (gits-put-line-property 'face '(:foreground "red")))))
+	       (mgit-put-line-property 'face '(:foreground "red")))))
       (forward-line)
       (beginning-of-line))
-    (gits-wash-diff-propertize-diff head-beg head-end)
-    (gits-wash-diff-propertize-hunk head-beg head-end hunk-beg)))
+    (mgit-wash-diff-propertize-diff head-beg head-end)
+    (mgit-wash-diff-propertize-hunk head-beg head-end hunk-beg)))
 
-(defun gits-update-status ()
+(defun mgit-update-status ()
   (let ((buf (get-buffer "*git-status*")))
     (save-excursion
       (set-buffer buf)
       (setq buffer-read-only t)
-      (use-local-map gits-keymap)
+      (use-local-map mgit-keymap)
       (let ((inhibit-read-only t))
 	(erase-buffer)
-	(let ((branch (gits-get-current-branch)))
+	(let* ((branch (mgit-get-current-branch))
+	       (remote (and branch (mgit-get "branch" branch "remote"))))
+	  (if remote
+	      (insert (format "Remote: %s %s\n"
+			      remote (mgit-get "remote" remote "url"))))
 	  (insert (format "Local:  %s %s\n"
 			  (or branch "(detached)")
-			  (abbreviate-file-name default-directory))))
-	(insert "\n")
-	(gits-insert-output "Untracked files:" 'gits-wash-other-files
-			    "git" "ls-files" "--others" "--exclude-standard")
-	(gits-insert-output "Local changes:" 'gits-wash-diff
-			    "git" "diff")
-	(gits-insert-output "Staged changes:" 'gits-wash-diff
-			    "git" "diff" "--cached")))))
+			  (abbreviate-file-name default-directory)))
+	  (insert "\n")
+	  (mgit-insert-output "Untracked files:" 'mgit-wash-other-files
+			      "git" "ls-files" "--others" "--exclude-standard")
+	  (mgit-insert-output "Unstaged changes:" 'mgit-wash-diff
+			      "git" "diff")
+	  (mgit-insert-output "Staged changes:" 'mgit-wash-diff
+			      "git" "diff" "--cached")
+	  (if remote
+	      (mgit-insert-output "Unpushed changes:" 'mgit-wash-diff
+				  "git" "diff" "--stat"
+				  (format "%s/%s" remote branch))))))))
 
-(defun git-status (dir)
-  (interactive (list (gits-read-top-dir current-prefix-arg)))
+(defun mgit-status (dir)
+  (interactive (list (mgit-read-top-dir current-prefix-arg)))
   (let ((buf (get-buffer-create "*git-status*")))
     (switch-to-buffer buf)
     (setq default-directory dir)
-    (gits-update-status)))
+    (mgit-update-status)))
 
 ;;; Staging
 
-(defun gits-write-diff-patch (info file)
+(defun mgit-write-diff-patch (info file)
   (write-region (elt info 1) (elt info 2) file))
 
-(defun gits-write-hunk-patch (info file)
+(defun mgit-write-hunk-patch (info file)
   (write-region (elt info 1) (elt info 2) file)
   (write-region (elt info 3) (elt info 4) file t))
 
-(defun gits-stage-thing-at-point ()
+(defun mgit-hunk-is-conflict-p (info)
+  (save-excursion
+    (goto-char (elt info 1))
+    (looking-at-p "^diff --cc")))
+
+(defun mgit-diff-conflict-file (info)
+  (save-excursion
+    (goto-char (elt info 1))
+    (if (looking-at "^diff --cc +\\(.*\\)$")
+	(match-string 1)
+      nil)))
+  
+(defun mgit-stage-thing-at-point ()
   (interactive)
-  (let ((info (get-char-property (point) 'gits-info)))
+  (let ((info (get-char-property (point) 'mgit-info)))
     (if info
 	(case (car info)
 	  ((other-file)
-	   (gits-run "git" "add" (cadr info)))
+	   (mgit-run "git" "add" (cadr info)))
 	  ((hunk)
-	   (gits-write-hunk-patch info ".git/gits-tmp")
-	   (gits-run "git" "apply" "--cached" ".git/gits-tmp"))
+	   (if (mgit-hunk-is-conflict-p info)
+	       (error
+"Can't stage individual resolution hunks. Please stage the whole file."))
+	   (mgit-write-hunk-patch info ".git/mgit-tmp")
+	   (mgit-run "git" "apply" "--cached" ".git/mgit-tmp"))
 	  ((diff)
-	   (gits-write-diff-patch info ".git/gits-tmp")
-	   (gits-run "git" "apply" "--cached" ".git/gits-tmp"))))))
+	   (let ((file (mgit-diff-conflict-file info)))
+	     (if file
+		 (mgit-run "git" "add" file)
+	       (mgit-write-diff-patch info ".git/mgit-tmp")
+	       (mgit-run "git" "apply" "--cached" ".git/mgit-tmp"))))))))
 
-(defun gits-unstage-thing-at-point ()
+(defun mgit-unstage-thing-at-point ()
   (interactive)
-  (let ((info (get-char-property (point) 'gits-info)))
+  (let ((info (get-char-property (point) 'mgit-info)))
     (if info
 	(case (car info)
 	  ((hunk)
-	   (gits-write-hunk-patch info ".git/gits-tmp")
-	   (gits-run "git" "apply" "--cached" "--reverse" ".git/gits-tmp"))
+	   (mgit-write-hunk-patch info ".git/mgit-tmp")
+	   (mgit-run "git" "apply" "--cached" "--reverse" ".git/mgit-tmp"))
 	  ((diff)
-	   (gits-write-diff-patch info ".git/gits-tmp")
-	   (gits-run "git" "apply" "--cached" "--reverse" ".git/gits-tmp"))))))
+	   (mgit-write-diff-patch info ".git/mgit-tmp")
+	   (mgit-run "git" "apply" "--cached" "--reverse" ".git/mgit-tmp"))))))
 
-(defun gits-ignore-thing-at-point ()
+(defun mgit-ignore-thing-at-point ()
   (interactive)
-  (let ((info (get-char-property (point) 'gits-info)))
+  (let ((info (get-char-property (point) 'mgit-info)))
     (if info
 	(case (car info)
 	  ((other-file)
 	   (append-to-file (concat (cadr info) "\n") nil ".gitignore")
-	   (gits-update-status))))))
+	   (mgit-update-status))))))
 
-(defun gits-visit-thing-at-point ()
+(defun mgit-visit-thing-at-point ()
   (interactive)
-  (let ((info (get-char-property (point) 'gits-info)))
+  (let ((info (get-char-property (point) 'mgit-info)))
     (message "visit %S" info)
     (if info
 	(case (car info)
@@ -293,48 +319,48 @@
 
 ;;; Push and pull
 
-(defun git-pull ()
+(defun mgit-pull ()
   (interactive)
-  (gits-run "git" "pull" "-v"))
+  (mgit-run "git" "pull" "-v"))
 
-(defun git-push ()
+(defun mgit-push ()
   (interactive)
-  (gits-run "git" "push" "-v"))
+  (mgit-run "git" "push" "-v"))
 
 ;;; Commit
 
-(defvar gits-log-edit-map nil)
+(defvar mgit-log-edit-map nil)
 
-(when (not gits-log-edit-map)
-  (setq gits-log-edit-map (make-sparse-keymap))
-  (define-key gits-log-edit-map (kbd "C-c C-c") 'gits-log-edit-commit))
+(when (not mgit-log-edit-map)
+  (setq mgit-log-edit-map (make-sparse-keymap))
+  (define-key mgit-log-edit-map (kbd "C-c C-c") 'mgit-log-edit-commit))
 
-(defvar gits-pre-log-edit-window-configuration nil)
+(defvar mgit-pre-log-edit-window-configuration nil)
 
-(defun gits-log-edit-commit ()
+(defun mgit-log-edit-commit ()
   (interactive)
   (if (> (buffer-size) 0)
-      (write-region (point-min) (point-max) ".git/gits-log")
-    (write-region "(Empty description)" nil ".git/gits-log"))
+      (write-region (point-min) (point-max) ".git/mgit-log")
+    (write-region "(Empty description)" nil ".git/mgit-log"))
   (erase-buffer)
-  (gits-run "git-commit" "-F" ".git/gits-log")
+  (mgit-run "git-commit" "-F" ".git/mgit-log")
   (bury-buffer)
-  (when gits-pre-log-edit-window-configuration
-    (set-window-configuration gits-pre-log-edit-window-configuration)
-    (setq gits-pre-log-edit-window-configuration nil)))
+  (when mgit-pre-log-edit-window-configuration
+    (set-window-configuration mgit-pre-log-edit-window-configuration)
+    (setq mgit-pre-log-edit-window-configuration nil)))
 
-(defun git-log-edit ()
+(defun mgit-log-edit ()
   (interactive)
   (let ((dir default-directory)
 	(buf (get-buffer-create "*git-log-edit*")))
-    (setq gits-pre-log-edit-window-configuration (current-window-configuration))
+    (setq mgit-pre-log-edit-window-configuration (current-window-configuration))
     (pop-to-buffer buf)
     (setq default-directory dir)
-    (use-local-map gits-log-edit-map)
+    (use-local-map mgit-log-edit-map)
     (message "Use C-c C-c when done.")))
 
 ;;; Misc
 
-(defun git-stage-all ()
+(defun mgit-stage-all ()
   (interactive)
-  (gits-run "git-add" "-u" "."))
+  (mgit-run "git-add" "-u" "."))
