@@ -31,9 +31,9 @@
 
 ;;; TODO
 
-;; - Reloading of changed files after finishing commands
-;; - Detect and handle renames and copies.
+;; - Documentation
 ;; - History browsing
+;; - Detect and handle renames and copies.
 
 ;;; Utilities
 
