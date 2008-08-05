@@ -266,6 +266,25 @@
     (if (looking-at "^diff --cc +\\(.*\\)$")
 	(match-string 1)
       nil)))
+
+(defun mgit-diff-info-file (info)
+  (save-excursion
+    (goto-char (elt info 1))
+    (cond ((looking-at "^diff --git a/\\(.*\\) b/\\(.*\\)$")
+	   (match-string 2))
+	  ((looking-at "^diff --cc +\\(.*\\)$")
+	   (match-string 1))
+	  (t
+	   nil))))
+
+(defun mgit-diff-info-position (info)
+  (save-excursion
+    (cond ((eq (car info) 'hunk)
+	   (goto-char (elt info 3))
+	   (if (looking-at "@@+ .* \\+\\([0-9]+\\),[0-9]+ @@+")
+	       (parse-integer (match-string 1))
+	     nil))
+	  (t nil))))
   
 (defun mgit-stage-thing-at-point ()
   (interactive)
@@ -311,11 +330,16 @@
 (defun mgit-visit-thing-at-point ()
   (interactive)
   (let ((info (get-char-property (point) 'mgit-info)))
-    (message "visit %S" info)
     (if info
 	(case (car info)
 	  ((other-file)
-	   (find-file (cadr info)))))))
+	   (find-file (cadr info)))
+	  ((diff hunk)
+	   (let ((file (mgit-diff-info-file info))
+		 (position (mgit-diff-info-position info)))
+	     (find-file file)
+	     (if position
+		 (goto-line position))))))))
 
 ;;; Push and pull
 
