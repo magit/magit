@@ -378,8 +378,9 @@
 
 (defun mgit-switch-branch (branch)
   (interactive (list (mgit-read-other-branch "Switch to branch: ")))
-  (mgit-run "git" "checkout" branch))
-
+  (if (and branch (not (string= branch "")))
+      (mgit-run "git" "checkout" branch)))
+  
 (defun mgit-read-create-branch-args ()
   (let* ((branches (mgit-list-branches))
 	 (cur-branch (mgit-get-current-branch))
@@ -389,7 +390,9 @@
 
 (defun mgit-create-branch (branch parent)
   (interactive (mgit-read-create-branch-args))
-  (mgit-run "git" "checkout" "-b" branch parent))
+  (if (and branch (not (string= branch ""))
+	   parent (not (string= parent "")))
+      (mgit-run "git" "checkout" "-b" branch parent)))
 
 ;;; Merging
 
