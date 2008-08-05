@@ -298,7 +298,7 @@
 
 (defun git-push ()
   (interactive)
-  (gits-run "git" "push" "-v" "--all"))
+  (gits-run "git" "push" "-v"))
 
 ;;; Commit
 
