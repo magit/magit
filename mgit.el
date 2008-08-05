@@ -89,7 +89,7 @@
 
 (defun mgit-insert-output (title washer cmd &rest args)
   (if title
-      (insert title "\n"))
+      (insert (propertize title 'face 'bold) "\n"))
   (let* ((beg (point))
 	 (status (apply 'call-process cmd nil t nil args))
 	 (end (point)))
@@ -225,7 +225,7 @@
 	      (insert (format "Remote: %s %s\n"
 			      remote (mgit-get "remote" remote "url"))))
 	  (insert (format "Local:  %s %s\n"
-			  (or branch "(detached)")
+			  (propertize (or branch "(detached)") 'face 'bold)
 			  (abbreviate-file-name default-directory)))
 	  (insert "\n")
 	  (mgit-insert-output "Untracked files:" 'mgit-wash-other-files
