@@ -45,6 +45,21 @@
 	  (substring str 0 (- (length str) 1))
 	str))))
 
+(defun mgit-string-split (string regexp)
+  (let ((res nil)
+	(pos 0)
+	next)
+    (while (setq next (string-match regexp string pos))
+      (setq res (cons (substring string pos next) res))
+      (setq pos (match-end 0)))
+    (nreverse (cons (substring string pos) res))))
+
+(defun mgit-shell-lines (cmd &rest args)
+  (let ((str (shell-command-to-string (apply 'format cmd args))))
+    (if (string= str "")
+	nil
+      (mgit-string-split str "\n"))))
+
 (defun mgit-concat-with-delim (delim seqs)
   (cond ((null seqs)
 	 nil)
@@ -119,6 +134,19 @@
       (setq mgit-process (apply 'start-process "git" buf cmd args))
       (set-process-sentinel mgit-process 'mgit-process-sentinel))))
 
+(defun mgit-revert-files ()
+  (let ((files (mgit-shell-lines "git ls-files")))
+    (dolist (file files)
+      (let ((buffer (find-buffer-visiting file)))
+	(message "Considering %s (%s)" file buffer)
+	(when (and buffer
+		   (not (verify-visited-file-modtime buffer))
+		   (not (buffer-modified-p buffer)))
+	  (message "Reverting %s" file)
+	  (with-current-buffer buffer
+	    (ignore-errors
+	      (revert-buffer t t t))))))))
+
 (defun mgit-process-sentinel (process event)
   (cond ((string= event "finished\n")
 	 (message "Git finished.")
@@ -131,6 +159,7 @@
 	 (setq mgit-process nil))
 	(t
 	 (message "Git is weird.")))
+  (mgit-revert-files)
   (mgit-update-status))
 
 (defun mgit-display-process ()
