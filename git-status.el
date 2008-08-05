@@ -31,8 +31,7 @@
 
 ;;; TODO
 
-;; - Shortcut for staging/unstaging of whole files
-;; - Dealing with merges from pulls
+;; - Dealing with merge conflicts from pulls
 ;; - Hide titles of empty sections
 ;; - Branch creation/switching
 ;; - Explicit diffing/merging of branches
