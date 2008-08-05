@@ -89,7 +89,8 @@
       dir)))
 
 (defun mgit-insert-output (title washer cmd &rest args)
-  (insert title "\n")
+  (if title
+      (insert title "\n"))
   (let* ((beg (point))
 	 (status (apply 'call-process cmd nil t nil args))
 	 (end (point)))
