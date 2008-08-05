@@ -153,8 +153,8 @@
   (define-key gits-keymap (kbd "u") 'gits-unstage-thing-at-point)
   (define-key gits-keymap (kbd "i") 'gits-ignore-thing-at-point)
   (define-key gits-keymap (kbd "RET") 'gits-visit-thing-at-point)
-  (define-key gits-keymap (kbd "U") 'gits-pull)
-  (define-key gits-keymap (kbd "P") 'gits-push)
+  (define-key gits-keymap (kbd "U") 'git-pull)
+  (define-key gits-keymap (kbd "P") 'git-push)
   (define-key gits-keymap (kbd "c") 'git-log-edit)
   (define-key gits-keymap (kbd "p") 'gits-display-process))
 
