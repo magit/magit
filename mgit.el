@@ -31,7 +31,6 @@
 
 ;;; TODO
 
-;; - Indicating a merge commit in the commit message
 ;; - Hide titles of empty sections
 ;; - Branch creation/switching
 ;; - Explicit diffing/merging of branches
@@ -370,11 +369,7 @@
       (mgit-log-edit-cleanup)
       (if  (and (= (buffer-size) 0)
 		(file-exists-p ".git/MERGE_MSG"))
-	  (insert-file-contents ".git/MERGE_MSG"))
-      (goto-char (point-max))
-      (insert "\n")
-      (mgit-insert-output nil nil
-			  "git" "status"))
+	  (insert-file-contents ".git/MERGE_MSG")))
     (message "Use C-c C-c when done.")))
 
 ;;; Misc
