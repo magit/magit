@@ -153,6 +153,8 @@
   (define-key mgit-keymap (kbd "RET") 'mgit-visit-thing-at-point)
   (define-key mgit-keymap (kbd "b") 'mgit-switch-branch)
   (define-key mgit-keymap (kbd "B") 'mgit-create-branch)
+  (define-key mgit-keymap (kbd "m") 'mgit-manual-merge)
+  (define-key mgit-keymap (kbd "M") 'mgit-automatic-merge)
   (define-key mgit-keymap (kbd "U") 'mgit-pull)
   (define-key mgit-keymap (kbd "P") 'mgit-push)
   (define-key mgit-keymap (kbd "c") 'mgit-log-edit)
@@ -340,13 +342,15 @@
 ;;; Branches
 
 (defun mgit-list-branches ()
-  (directory-files ".git/refs/heads/"))
+  (delete "." (delete ".." (directory-files ".git/refs/heads/"))))
 
-(defun mgit-read-switch-branch-args ()
-  (list (completing-read "Switch to branch: " (mgit-list-branches))))
+(defun mgit-read-other-branch (prompt)
+  (completing-read prompt (delete (mgit-get-current-branch)
+				  (mgit-list-branches))
+		   nil t))
 
 (defun mgit-switch-branch (branch)
-  (interactive (mgit-read-switch-branch-args))
+  (interactive (list (mgit-read-other-branch "Switch to branch: ")))
   (mgit-run "git" "checkout" branch))
 
 (defun mgit-read-create-branch-args ()
@@ -359,6 +363,16 @@
 (defun mgit-create-branch (branch parent)
   (interactive (mgit-read-create-branch-args))
   (mgit-run "git" "checkout" "-b" branch parent))
+
+;;; Merging
+
+(defun mgit-manual-merge (branch)
+  (interactive (list (mgit-read-other-branch "Manually merge from branch: ")))
+  (mgit-run "git" "merge" "--no-ff" "--no-commit"))
+
+(defun mgit-automatic-merge (branch)
+  (interactive (list (mgit-read-other-branch "Merge from branch: ")))
+  (mgit-run "git" "merge"))
 
 ;;; Push and pull
 
