@@ -179,6 +179,7 @@
   (define-key magit-keymap (kbd "a") 'magit-stage-thing-at-point)
   (define-key magit-keymap (kbd "u") 'magit-unstage-thing-at-point)
   (define-key magit-keymap (kbd "i") 'magit-ignore-thing-at-point)
+  (define-key magit-keymap (kbd "?") 'magit-describe-thing-at-point)
   (define-key magit-keymap (kbd "x") 'magit-reset-soft)
   (define-key magit-keymap (kbd "X") 'magit-reset-hard)
   (define-key magit-keymap (kbd "RET") 'magit-visit-thing-at-point)
@@ -485,3 +486,7 @@
 	     (if position
 		 (goto-line position))))))))
 
+(defun magit-describe-thing-at-point ()
+  (interactive)
+  (let ((info (get-char-property (point) 'magit-info)))
+    (message "Thing: %s" info)))
