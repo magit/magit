@@ -45,20 +45,11 @@
 	  (substring str 0 (- (length str) 1))
 	str))))
 
-(defun magit-string-split (string regexp)
-  (let ((res nil)
-	(pos 0)
-	next)
-    (while (setq next (string-match regexp string pos))
-      (setq res (cons (substring string pos next) res))
-      (setq pos (match-end 0)))
-    (nreverse (cons (substring string pos) res))))
-
 (defun magit-shell-lines (cmd &rest args)
   (let ((str (shell-command-to-string (apply 'format cmd args))))
     (if (string= str "")
 	nil
-      (magit-string-split str "\n"))))
+      (split-string str "\n"))))
 
 (defun magit-concat-with-delim (delim seqs)
   (cond ((null seqs)
