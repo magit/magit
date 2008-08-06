@@ -160,36 +160,45 @@
 	(t
 	 (message "Git is weird.")))
   (magit-revert-files)
-  (magit-update-status))
+  (magit-update-status (magit-find-status-buffer)))
 
 (defun magit-display-process ()
   (interactive)
   (display-buffer "*git-process*"))
 
-;;; Keymap
+;;; Mode
 
-(defvar magit-keymap nil)
+(defvar magit-mode-map nil)
 
-(when (not magit-keymap)
-  (setq magit-keymap (make-keymap))
-  (suppress-keymap magit-keymap)
-  (define-key magit-keymap (kbd "g") 'magit-status)
-  (define-key magit-keymap (kbd "A") 'magit-stage-all)
-  (define-key magit-keymap (kbd "a") 'magit-stage-thing-at-point)
-  (define-key magit-keymap (kbd "u") 'magit-unstage-thing-at-point)
-  (define-key magit-keymap (kbd "i") 'magit-ignore-thing-at-point)
-  (define-key magit-keymap (kbd "?") 'magit-describe-thing-at-point)
-  (define-key magit-keymap (kbd "x") 'magit-reset-soft)
-  (define-key magit-keymap (kbd "X") 'magit-reset-hard)
-  (define-key magit-keymap (kbd "RET") 'magit-visit-thing-at-point)
-  (define-key magit-keymap (kbd "b") 'magit-switch-branch)
-  (define-key magit-keymap (kbd "B") 'magit-create-branch)
-  (define-key magit-keymap (kbd "m") 'magit-manual-merge)
-  (define-key magit-keymap (kbd "M") 'magit-automatic-merge)
-  (define-key magit-keymap (kbd "U") 'magit-pull)
-  (define-key magit-keymap (kbd "P") 'magit-push)
-  (define-key magit-keymap (kbd "c") 'magit-log-edit)
-  (define-key magit-keymap (kbd "p") 'magit-display-process))
+(when (not magit-mode-map)
+  (setq magit-mode-map (make-keymap))
+  (suppress-keymap magit-mode-map)
+  (define-key magit-mode-map (kbd "g") 'magit-status)
+  (define-key magit-mode-map (kbd "A") 'magit-stage-all)
+  (define-key magit-mode-map (kbd "a") 'magit-stage-thing-at-point)
+  (define-key magit-mode-map (kbd "u") 'magit-unstage-thing-at-point)
+  (define-key magit-mode-map (kbd "i") 'magit-ignore-thing-at-point)
+  (define-key magit-mode-map (kbd "?") 'magit-describe-thing-at-point)
+  (define-key magit-mode-map (kbd "x") 'magit-reset-soft)
+  (define-key magit-mode-map (kbd "X") 'magit-reset-hard)
+  (define-key magit-mode-map (kbd "RET") 'magit-visit-thing-at-point)
+  (define-key magit-mode-map (kbd "b") 'magit-switch-branch)
+  (define-key magit-mode-map (kbd "B") 'magit-create-branch)
+  (define-key magit-mode-map (kbd "m") 'magit-manual-merge)
+  (define-key magit-mode-map (kbd "M") 'magit-automatic-merge)
+  (define-key magit-mode-map (kbd "U") 'magit-pull)
+  (define-key magit-mode-map (kbd "P") 'magit-push)
+  (define-key magit-mode-map (kbd "c") 'magit-log-edit)
+  (define-key magit-mode-map (kbd "p") 'magit-display-process))
+
+(defun magit-mode ()
+  "Review the status of a git repository and act on it.
+  \\{magit-mode-map}"
+  (kill-all-local-variables)
+  (setq buffer-read-only t)
+  (setq major-mode 'magit-mode
+	mode-name "Magit")
+  (use-local-map magit-mode-map))
 
 ;;; Status
 
@@ -247,47 +256,57 @@
     (magit-wash-diff-propertize-diff head-beg head-end)
     (magit-wash-diff-propertize-hunk head-beg head-end hunk-beg)))
 
-(defun magit-update-status ()
-  (let ((buf (get-buffer "*git-status*")))
-    (save-excursion
-      (set-buffer buf)
-      (setq buffer-read-only t)
-      (use-local-map magit-keymap)
-      (let ((inhibit-read-only t))
-	(erase-buffer)
-	(let* ((branch (magit-get-current-branch))
-	       (remote (and branch (magit-get "branch" branch "remote"))))
-	  (if remote
-	      (insert (format "Remote: %s %s\n"
-			      remote (magit-get "remote" remote "url"))))
-	  (insert (format "Local:  %s %s\n"
-			  (propertize (or branch "(detached)") 'face 'bold)
-			  (abbreviate-file-name default-directory)))
-	  (let ((merge-heads (magit-file-lines ".git/MERGE_HEAD")))
-	    (if merge-heads
-		(insert (format "Merging: %s\n"
-				(magit-concat-with-delim
-				 ", "
-				 (mapcar 'magit-name-rev merge-heads))))))
-	  (insert "\n")
-	  (magit-insert-output "Untracked files:" 'magit-wash-other-files
-			      "git" "ls-files" "--others" "--exclude-standard")
-	  (magit-insert-output "Unstaged changes:" 'magit-wash-diff
-			      "git" "diff")
-	  (magit-insert-output "Staged changes:" 'magit-wash-diff
-			      "git" "diff" "--cached")
-	  (if remote
-	      (magit-insert-output "Unpushed changes:" 'nil
-				  "git" "diff" "--stat"
-				  (format "%s/%s..HEAD" remote branch))))))))
+(defun magit-update-status (buf)
+  (save-excursion
+    (set-buffer buf)
+    (let ((inhibit-read-only t))
+      (erase-buffer)
+      (let* ((branch (magit-get-current-branch))
+	     (remote (and branch (magit-get "branch" branch "remote"))))
+	(if remote
+	    (insert (format "Remote: %s %s\n"
+			    remote (magit-get "remote" remote "url"))))
+	(insert (format "Local:  %s %s\n"
+			(propertize (or branch "(detached)") 'face 'bold)
+			(abbreviate-file-name default-directory)))
+	(let ((merge-heads (magit-file-lines ".git/MERGE_HEAD")))
+	  (if merge-heads
+	      (insert (format "Merging: %s\n"
+			      (magit-concat-with-delim
+			       ", "
+			       (mapcar 'magit-name-rev merge-heads))))))
+	(insert "\n")
+	(magit-insert-output "Untracked files:" 'magit-wash-other-files
+			     "git" "ls-files" "--others" "--exclude-standard")
+	(magit-insert-output "Unstaged changes:" 'magit-wash-diff
+			     "git" "diff")
+	(magit-insert-output "Staged changes:" 'magit-wash-diff
+			     "git" "diff" "--cached")
+	(if remote
+	    (magit-insert-output "Unpushed changes:" 'nil
+				 "git" "diff" "--stat"
+				 (format "%s/%s..HEAD" remote branch)))))))
+
+(defun magit-find-status-buffer (&optional dir)
+  (let ((topdir (magit-get-top-dir (or dir default-directory))))
+    (dolist (buf (buffer-list))
+      (if (save-excursion
+	    (set-buffer buf)
+	    (and (equal default-directory topdir)
+		 (eq major-mode 'magit-mode)))
+	  (return buf)))))
 
 (defun magit-status (dir)
   (interactive (list (magit-read-top-dir current-prefix-arg)))
   (save-some-buffers)
-  (let ((buf (get-buffer-create "*git-status*")))
+  (let* ((topdir (magit-get-top-dir dir))
+	 (buf (or (magit-find-status-buffer topdir)
+		  (create-file-buffer (file-name-nondirectory
+				       (directory-file-name topdir))))))
     (switch-to-buffer buf)
-    (setq default-directory dir)
-    (magit-update-status)))
+    (setq default-directory topdir)
+    (magit-mode)
+    (magit-update-status buf)))
 
 ;;; Staging
 
@@ -471,7 +490,7 @@
 	(case (car info)
 	  ((other-file)
 	   (append-to-file (concat (cadr info) "\n") nil ".gitignore")
-	   (magit-update-status))))))
+	   (magit-update-status (magit-find-status-buffer)))))))
 
 (defun magit-visit-thing-at-point ()
   (interactive)
