@@ -179,7 +179,7 @@
   (define-key magit-keymap (kbd "a") 'magit-stage-thing-at-point)
   (define-key magit-keymap (kbd "u") 'magit-unstage-thing-at-point)
   (define-key magit-keymap (kbd "i") 'magit-ignore-thing-at-point)
-  (define-key magit-keymap (kbd "x") 'magit-revert-thing-at-point)
+  (define-key magit-keymap (kbd "x") 'magit-reset-soft)
   (define-key magit-keymap (kbd "X") 'magit-reset-hard)
   (define-key magit-keymap (kbd "RET") 'magit-visit-thing-at-point)
   (define-key magit-keymap (kbd "b") 'magit-switch-branch)
@@ -397,6 +397,10 @@
   (magit-run "git" "merge" branch))
 
 ;;; Resetting
+
+(defun magit-reset-soft (target)
+  (interactive (list (read-string "Reset to: " "HEAD^")))
+  (magit-run "git" "reset" "--soft" target))
 
 (defun magit-reset-hard (target)
   (interactive (list (read-string "Hard reset to: " "HEAD")))
