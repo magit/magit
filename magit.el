@@ -31,6 +31,7 @@
 
 ;;; TODO
 
+;; - Reverting
 ;; - Documentation, major mode, menu, ...
 ;; - History browsing
 ;; - Detect and handle renames and copies.
@@ -178,6 +179,8 @@
   (define-key magit-keymap (kbd "a") 'magit-stage-thing-at-point)
   (define-key magit-keymap (kbd "u") 'magit-unstage-thing-at-point)
   (define-key magit-keymap (kbd "i") 'magit-ignore-thing-at-point)
+  (define-key magit-keymap (kbd "x") 'magit-revert-thing-at-point)
+  (define-key magit-keymap (kbd "X") 'magit-reset-hard)
   (define-key magit-keymap (kbd "RET") 'magit-visit-thing-at-point)
   (define-key magit-keymap (kbd "b") 'magit-switch-branch)
   (define-key magit-keymap (kbd "B") 'magit-create-branch)
@@ -392,6 +395,15 @@
 (defun magit-automatic-merge (branch)
   (interactive (list (magit-read-other-branch "Merge from branch: ")))
   (magit-run "git" "merge" branch))
+
+;;; Resetting
+
+(defun magit-reset-hard (target)
+  (interactive (list (read-string "Hard reset to: " "HEAD")))
+  (if (yes-or-no-p
+       (format "Hard reset to %s and throw away all uncommitted changes? "
+	       target))
+      (magit-run "git" "reset" "--hard" target)))
 
 ;;; Push and pull
 
