@@ -208,7 +208,7 @@
     (when head-beg
       (put-text-property head-beg head-end
 			 'magit-info (list 'diff
-					  head-beg (point))))))
+					   head-beg (point))))))
 
 (defun magit-wash-diff-propertize-hunk (head-beg head-end hunk-beg)
   (when hunk-beg
@@ -228,8 +228,10 @@
 		     (point) (+ (point) n-files))))
 	(cond ((looking-at "^diff")
 	       (magit-wash-diff-propertize-diff head-beg head-end)
+	       (magit-wash-diff-propertize-hunk head-beg head-end hunk-beg)
 	       (setq head-beg (point))
-	       (setq head-end nil))
+	       (setq head-end nil)
+	       (setq hunk-beg nil))
 	      ((looking-at "^@+")
 	       (setq n-files (- (length (match-string 0)) 1))
 	       (if (null head-end)
