@@ -99,6 +99,9 @@
 	(magit-get-top-dir (read-directory-name "Git repository: " dir))
       dir)))
 
+(defun magit-name-rev (rev)
+  (magit-shell "git name-rev --always --name-only %s" rev))
+
 (defun magit-insert-output (title washer cmd &rest args)
   (if title
       (insert (propertize title 'face 'bold) "\n"))
@@ -255,6 +258,12 @@
 	  (insert (format "Local:  %s %s\n"
 			  (propertize (or branch "(detached)") 'face 'bold)
 			  (abbreviate-file-name default-directory)))
+	  (let ((merge-heads (magit-file-lines ".git/MERGE_HEAD")))
+	    (if merge-heads
+		(insert (format "Merging: %s\n"
+				(magit-concat-with-delim
+				 ", "
+				 (mapcar 'magit-name-rev merge-heads))))))
 	  (insert "\n")
 	  (magit-insert-output "Untracked files:" 'magit-wash-other-files
 			      "git" "ls-files" "--others" "--exclude-standard")
@@ -428,16 +437,12 @@
   (interactive)
   (let ((dir default-directory)
 	(buf (get-buffer-create "*git-log-edit*")))
-    (setq magit-pre-log-edit-window-configuration (current-window-configuration))
+    (setq magit-pre-log-edit-window-configuration
+	  (current-window-configuration))
     (pop-to-buffer buf)
     (setq default-directory dir)
     (use-local-map magit-log-edit-map)
-    (save-excursion
-      (magit-log-edit-cleanup)
-      (if  (and (= (buffer-size) 0)
-		(file-exists-p ".git/MERGE_MSG"))
-	  (insert-file-contents ".git/MERGE_MSG")))
-    (message "Use C-c C-c when done.")))
+    (message "Type C-c C-c to commit.")))
 
 ;;; Miscellaneous
 
