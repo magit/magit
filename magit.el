@@ -49,7 +49,15 @@
   (let ((str (shell-command-to-string (apply 'format cmd args))))
     (if (string= str "")
 	nil
-      (split-string str "\n"))))
+      (let ((lines (nreverse (split-string str "\n"))))
+	(if (string= (car lines) "")
+	    (setq lines (cdr lines)))
+	(nreverse lines)))))
+
+(defun magit-file-lines (file)
+  (if (file-exists-p file)
+      (magit-shell-lines "cat '%s'" file)
+    nil))
 
 (defun magit-concat-with-delim (delim seqs)
   (cond ((null seqs)
