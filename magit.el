@@ -343,28 +343,9 @@
 	  ((diff)
 	   (magit-run "git" "reset" "HEAD" (magit-diff-info-file info)))))))
 
-(defun magit-ignore-thing-at-point ()
+(defun magit-stage-all ()
   (interactive)
-  (let ((info (get-char-property (point) 'magit-info)))
-    (if info
-	(case (car info)
-	  ((other-file)
-	   (append-to-file (concat (cadr info) "\n") nil ".gitignore")
-	   (magit-update-status))))))
-
-(defun magit-visit-thing-at-point ()
-  (interactive)
-  (let ((info (get-char-property (point) 'magit-info)))
-    (if info
-	(case (car info)
-	  ((other-file)
-	   (find-file (cadr info)))
-	  ((diff hunk)
-	   (let ((file (magit-diff-info-file info))
-		 (position (magit-diff-info-position info)))
-	     (find-file file)
-	     (if position
-		 (goto-line position))))))))
+  (magit-run "git-add" "-u" "."))
 
 ;;; Branches
 
@@ -459,8 +440,28 @@
 	  (insert-file-contents ".git/MERGE_MSG")))
     (message "Use C-c C-c when done.")))
 
-;;; Misc
+;;; Miscellaneous
 
-(defun magit-stage-all ()
+(defun magit-ignore-thing-at-point ()
   (interactive)
-  (magit-run "git-add" "-u" "."))
+  (let ((info (get-char-property (point) 'magit-info)))
+    (if info
+	(case (car info)
+	  ((other-file)
+	   (append-to-file (concat (cadr info) "\n") nil ".gitignore")
+	   (magit-update-status))))))
+
+(defun magit-visit-thing-at-point ()
+  (interactive)
+  (let ((info (get-char-property (point) 'magit-info)))
+    (if info
+	(case (car info)
+	  ((other-file)
+	   (find-file (cadr info)))
+	  ((diff hunk)
+	   (let ((file (magit-diff-info-file info))
+		 (position (magit-diff-info-position info)))
+	     (find-file file)
+	     (if position
+		 (goto-line position))))))))
+
