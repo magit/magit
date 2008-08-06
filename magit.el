@@ -264,7 +264,7 @@
 	  (magit-insert-output "Staged changes:" 'magit-wash-diff
 			      "git" "diff" "--cached")
 	  (if remote
-	      (magit-insert-output "Unpushed changes:" 'magit-wash-diff
+	      (magit-insert-output "Unpushed changes:" 'nil
 				  "git" "diff" "--stat"
 				  (format "%s/%s..HEAD" remote branch))))))))
 
