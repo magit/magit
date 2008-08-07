@@ -31,7 +31,6 @@
 
 ;;; TODO
 
-;; - Documentation, major mode, menu, ...
 ;; - History browsing, with cherry picking, reverting, etc.
 ;; - Detect and handle renames and copies.
 
