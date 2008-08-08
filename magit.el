@@ -502,11 +502,12 @@ pushed.
 ;;; Resetting
 
 (defun magit-reset-soft (target)
-  (interactive (list (read-string "Reset to: " "HEAD^")))
+  (interactive (list (read-string "Reset history to: " "HEAD^")))
   (magit-run "git" "reset" "--soft" target))
 
 (defun magit-reset-hard (target)
-  (interactive (list (read-string "Hard reset to: " "HEAD")))
+  (interactive (list (read-string "Reset working tree (and history) to: "
+				  "HEAD")))
   (if (yes-or-no-p
        (format "Hard reset to %s and throw away all uncommitted changes? "
 	       target))
