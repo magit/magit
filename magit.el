@@ -101,22 +101,57 @@
 (defun magit-name-rev (rev)
   (magit-shell "git name-rev --always --name-only %s" rev))
 
-(defun magit-insert-output (title washer cmd &rest args)
-  (if title
-      (insert (propertize title 'face 'bold) "\n"))
-  (let* ((beg (point))
-	 (status (apply 'call-process cmd nil t nil args))
-	 (end (point)))
-    (if washer
-	(save-restriction
-	  (narrow-to-region beg (point))
-	  (funcall washer status)
-	  (goto-char (point-max))
-	  (insert "\n")))))
-
 (defun magit-put-line-property (prop val)
   (put-text-property (line-beginning-position) (line-end-position)
 		     prop val))
+
+;;; Sections
+
+(defun magit-insert-section (section title washer cmd &rest args)
+  (let ((section-beg (point)))
+    (if title
+	(insert (propertize title 'face 'bold) "\n"))
+    (let* ((beg (point))
+	   (status (apply 'call-process cmd nil t nil args))
+	   (end (point)))
+      (insert "\n")
+      (put-text-property section-beg (point) 'magit-section (list section))
+      (if washer
+	  (save-restriction
+	    (narrow-to-region beg (point))
+	    (funcall washer status)
+	    (goto-char (point-max)))))))
+
+(defun magit-section-head (section n)
+  (if (<= (length section) n)
+      (subseq section 0 n)
+    (append section (make-list (- n (length section)) nil))))
+
+(defun magit-section-prefix-p (prefix section)
+  (and prefix 
+       (<= (length prefix) (length section))
+       (equal prefix (subseq section 0 (length prefix)))))
+
+(defun magit-mark-subsection (beg end subsection level)
+  (let* ((section (get-text-property beg 'magit-section))
+	 (new (append (magit-section-head section level)
+		      (list subsection))))
+    (put-text-property beg end 'magit-section new)))
+
+(defun magit-section-at-point ()
+  (get-text-property (point) 'magit-section))
+
+(defun magit-goto-section (section)
+  (let ((goal-pos (point)))
+    (goto-char (point-min))
+    (while (not (eobp))
+      (if (magit-section-prefix-p (get-text-property (point) 'magit-section)
+				  section)
+	  (setq goal-pos (point)))
+      (goto-char (or (next-single-property-change (point)
+						  'magit-section)
+		     (point-max))))
+    (goto-char goal-pos)))
 
 ;;; Running asynchronous commands
 
@@ -286,48 +321,63 @@ pushed.
 
 (defun magit-wash-other-files (status)
   (goto-char (point-min))
-  (while (not (eobp))
-    (let ((filename (buffer-substring (point) (line-end-position))))
-      (insert "  ")
-      (magit-put-line-property 'face '(:foreground "red"))
-      (magit-put-line-property 'magit-info (list 'other-file filename)))
-    (forward-line)
-    (beginning-of-line)))
+  (let ((seq 0))
+    (while (not (eobp))
+      (let ((filename (buffer-substring (point) (line-end-position))))
+	(magit-mark-subsection (line-beginning-position) 
+			       (+ (line-end-position) 1)
+			       seq 1)
+	(magit-put-line-property 'face '(:foreground "red"))
+	(magit-put-line-property 'magit-info (list 'other-file filename)))
+      (setq seq (+ seq 1))
+      (forward-line)
+    (beginning-of-line))))
 
-(defun magit-wash-diff-propertize-diff (head-beg head-end)
+(defun magit-wash-diff-propertize-diff (head-seq head-beg head-end)
   (let ((head-end (or head-end (point))))
     (when head-beg
       (put-text-property head-beg head-end
 			 'magit-info (list 'diff
-					   head-beg (point))))))
+					   head-beg (point)))
+      (magit-mark-subsection head-beg head-end head-seq 1))))
 
-(defun magit-wash-diff-propertize-hunk (head-beg head-end hunk-beg)
+(defun magit-wash-diff-propertize-hunk (head-seq hunk-seq
+					head-beg head-end hunk-beg)
   (when hunk-beg
     (put-text-property hunk-beg (point)
 		       'magit-info (list 'hunk
 					head-beg head-end
-					hunk-beg (point)))))
+					hunk-beg (point)))
+    (magit-mark-subsection hunk-beg (point) head-seq 1)
+    (magit-mark-subsection hunk-beg (point) hunk-seq 2)))
 
 (defun magit-wash-diff (status)
   (goto-char (point-min))
   (let ((n-files 1)
+	(head-seq 0)
 	(head-beg nil)
 	(head-end nil)
+	(hunk-seq 0)
 	(hunk-beg nil))
     (while (not (eobp))
       (let ((prefix (buffer-substring-no-properties
 		     (point) (+ (point) n-files))))
 	(cond ((looking-at "^diff")
-	       (magit-wash-diff-propertize-diff head-beg head-end)
-	       (magit-wash-diff-propertize-hunk head-beg head-end hunk-beg)
+	       (magit-wash-diff-propertize-diff head-seq head-beg head-end)
+	       (magit-wash-diff-propertize-hunk head-seq hunk-seq
+						head-beg head-end hunk-beg)
+	       (setq head-seq (+ head-seq 1))
 	       (setq head-beg (point))
 	       (setq head-end nil)
+	       (setq hunk-seq 0)
 	       (setq hunk-beg nil))
 	      ((looking-at "^@+")
 	       (setq n-files (- (length (match-string 0)) 1))
 	       (if (null head-end)
 		   (setq head-end (point)))
-	       (magit-wash-diff-propertize-hunk head-beg head-end hunk-beg)
+	       (magit-wash-diff-propertize-hunk head-seq hunk-seq
+						head-beg head-end hunk-beg)
+	       (setq hunk-seq (+ hunk-seq 1))
 	       (setq hunk-beg (point)))
 	      ((string-match "\\+" prefix)
 	       (magit-put-line-property 'face '(:foreground "blue1")))
@@ -335,13 +385,15 @@ pushed.
 	       (magit-put-line-property 'face '(:foreground "red")))))
       (forward-line)
       (beginning-of-line))
-    (magit-wash-diff-propertize-diff head-beg head-end)
-    (magit-wash-diff-propertize-hunk head-beg head-end hunk-beg)))
+    (magit-wash-diff-propertize-diff head-seq head-beg head-end)
+    (magit-wash-diff-propertize-hunk head-seq hunk-seq
+				     head-beg head-end hunk-beg)))
 
 (defun magit-update-status (buf)
-  (save-excursion
-    (set-buffer buf)
-    (let ((inhibit-read-only t))
+  (with-current-buffer buf
+    (let ((old-line (line-number-at-pos))
+	  (old-section (magit-section-at-point))
+	  (inhibit-read-only t))
       (erase-buffer)
       (let* ((branch (magit-get-current-branch))
 	     (remote (and branch (magit-get "branch" branch "remote"))))
@@ -358,16 +410,22 @@ pushed.
 			       ", "
 			       (mapcar 'magit-name-rev merge-heads))))))
 	(insert "\n")
-	(magit-insert-output "Untracked files:" 'magit-wash-other-files
+	(magit-insert-section 'untracked
+			      "Untracked files:" 'magit-wash-other-files
 			     "git" "ls-files" "--others" "--exclude-standard")
-	(magit-insert-output "Unstaged changes:" 'magit-wash-diff
-			     "git" "diff")
-	(magit-insert-output "Staged changes:" 'magit-wash-diff
-			     "git" "diff" "--cached")
+	(magit-insert-section 'unstaged
+			      "Unstaged changes:" 'magit-wash-diff
+			      "git" "diff")
+	(magit-insert-section 'staged
+			      "Staged changes:" 'magit-wash-diff
+			      "git" "diff" "--cached")
 	(if remote
-	    (magit-insert-output "Unpushed changes:" 'nil
-				 "git" "diff" "--stat"
-				 (format "%s/%s..HEAD" remote branch)))))))
+	    (magit-insert-section 'unpushed
+				  "Unpushed changes:" 'nil
+				  "git" "diff" "--stat"
+				  (format "%s/%s..HEAD" remote branch))))
+      (goto-line old-line)
+      (magit-goto-section old-section))))
 
 (defun magit-find-status-buffer (&optional dir)
   (let ((topdir (magit-get-top-dir (or dir default-directory))))
