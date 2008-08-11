@@ -724,9 +724,11 @@ pushed.
     (display-buffer buf)
     (save-excursion
       (set-buffer buf)
-      (erase-buffer)
-      (magit-insert-section 'commit nil nil
-			    "git" "log" "--max-count=1" "-p" commit))))
+      (setq buffer-read-only t)
+      (let ((inhibit-read-only t))
+	(erase-buffer)
+	(magit-insert-section 'commit nil 'magit-wash-diff
+			      "git" "log" "--max-count=1" "-p" commit)))))
 
 (defun magit-quit ()
   (interactive)
