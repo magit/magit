@@ -755,7 +755,7 @@ pushed.
 	(erase-buffer)
 	(magit-insert-section 'history "History" 'magit-wash-log
 			      "git" "log" "--max-count=100"
-			      "--pretty=oneline")))))
+			      "--pretty=oneline" head)))))
 
 (defun magit-browse-branch-log ()
   (interactive)
