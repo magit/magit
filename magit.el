@@ -366,7 +366,7 @@ pushed.
 	(hunk-beg nil))
     (while (not (eobp))
       (let ((prefix (buffer-substring-no-properties
-		     (point) (+ (point) n-files))))
+		     (point) (min (+ (point) n-files) (point-max)))))
 	(cond ((looking-at "^diff")
 	       (magit-wash-diff-propertize-diff head-seq head-beg head-end)
 	       (magit-wash-diff-propertize-hunk head-seq hunk-seq
