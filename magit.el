@@ -701,6 +701,27 @@ pushed.
 (put 'magit-log-mode 'mode-class 'special)
 
 (defun magit-log-mode ()
+  "Review commit history. \\<magit-log-mode-map>
+
+The buffer shows a summary of the (usually non-linear) history of
+changes starting form a given commit.  You can see the details of
+a the commit on the current line by typing
+`\\[magit-show-commit]'.  Typing `\\[magit-log-commit] will use
+the commit on the current line as the new starting point for the
+summary.  Typing `\\[magit-browse-branch-log]' will ask you for a
+branch and show its history.
+
+You can modify your working tree and staging area by using the
+commit on the current line in a number of ways.  Typing
+`\\[magit-revert-commit]' will revert the change made by the
+commit in your working tree (and staging area).  Typing
+`\\[magit-pick-commit]' will apply the commit.  You can use this
+to `cherry pick' changes from another branch.
+
+Typing `\\[magit-checkout-commit]' will checkout the commit on
+the current line into your working tree.
+
+\\{magit-log-mode-map}"
   (kill-all-local-variables)
   (setq buffer-read-only t)
   (toggle-truncate-lines t)
