@@ -487,7 +487,25 @@ pushed.
 	       (parse-integer (match-string 1))
 	     nil))
 	  (t nil))))
-  
+
+(defun magit-hunk-target-line (info)
+  ;; XXX - deal with combined diffs
+  (save-excursion
+    (beginning-of-line)
+    (let ((line (line-number-at-pos)))
+      (if (looking-at "-")
+	  (error "Can't visit removed lines."))
+      (goto-char (elt info 3))
+      (if (not (looking-at "@@+ .* \\+\\([0-9]+\\),[0-9]+ @@+"))
+	  (error "Hunk header not found."))
+      (let ((target (parse-integer (match-string 1))))
+	(forward-line)
+	(while (< (line-number-at-pos) line)
+	  (if (not (looking-at "-"))
+	      (setq target (+ target 1)))
+	  (forward-line))
+	target))))
+
 (defun magit-stage-thing-at-point ()
   (interactive)
   (let ((info (get-char-property (point) 'magit-info)))
@@ -642,10 +660,12 @@ pushed.
 	   (find-file (cadr info)))
 	  ((diff hunk)
 	   (let ((file (magit-diff-info-file info))
-		 (position (magit-diff-info-position info)))
+		 (line (if (eq (car info) 'hunk)
+			   (magit-hunk-target-line info)
+			 (magit-diff-info-position info))))
 	     (find-file file)
-	     (if position
-		 (goto-line position))))))))
+	     (if line
+		 (goto-line line))))))))
 
 (defun magit-describe-thing-at-point ()
   (interactive)
