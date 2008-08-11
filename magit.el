@@ -31,6 +31,7 @@
 
 ;;; TODO
 
+;; - Diffing between branches
 ;; - Polish history browsing.  Scroll when leaning on RET, etc.
 ;; - Indicate active command in modeline.  Show progress in message area?
 ;; - Detect and handle renames and copies.
