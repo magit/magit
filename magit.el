@@ -161,7 +161,7 @@
   (or (not magit-process)
       (error "Git is already running."))
   (let ((dir default-directory)
-	(buf (get-buffer-create "*git-process*")))
+	(buf (get-buffer-create "*magit-process*")))
     (save-excursion
       (set-buffer buf)
       (setq default-directory dir)
@@ -198,7 +198,7 @@
 
 (defun magit-display-process ()
   (interactive)
-  (display-buffer "*git-process*"))
+  (display-buffer "*magit-process*"))
 
 ;;; Mode
 
