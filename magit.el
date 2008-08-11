@@ -771,6 +771,7 @@ the current line into your working tree.
 			      commit)))))
 
 (defun magit-quit ()
+  "Bury the current buffer."
   (interactive)
   (bury-buffer))
 
