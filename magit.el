@@ -553,13 +553,11 @@ pushed.
 (defun magit-list-branches ()
   (magit-shell-lines "git branch -a | cut -c3-"))
 
-(defun magit-read-other-branch (prompt)
-  (completing-read prompt (delete (magit-get-current-branch)
-				  (magit-list-branches))
-		   nil t))
+(defun magit-read-rev (prompt)
+  (completing-read prompt (magit-list-branches)))
 
 (defun magit-switch-branch (branch)
-  (interactive (list (magit-read-other-branch "Switch to branch: ")))
+  (interactive (list (magit-read-rev "Switch to branch: ")))
   (if (and branch (not (string= branch "")))
       (magit-run "git" "checkout" branch)))
   
@@ -579,11 +577,11 @@ pushed.
 ;;; Merging
 
 (defun magit-manual-merge (branch)
-  (interactive (list (magit-read-other-branch "Manually merge from branch: ")))
+  (interactive (list (magit-read-rev "Manually merge from branch: ")))
   (magit-run "git" "merge" "--no-ff" "--no-commit" branch))
 
 (defun magit-automatic-merge (branch)
-  (interactive (list (magit-read-other-branch "Merge from branch: ")))
+  (interactive (list (magit-read-rev "Merge from branch: ")))
   (magit-run "git" "merge" branch))
 
 ;;; Resetting
@@ -807,7 +805,7 @@ the current line into your working tree.
 
 (defun magit-browse-branch-log ()
   (interactive)
-  (magit-browse-log (magit-read-other-branch "Browse history of branch: ")))
+  (magit-browse-log (magit-read-rev "Browse history of branch: ")))
 
 ;;; Miscellaneous
 
