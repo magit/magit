@@ -692,6 +692,8 @@ pushed.
   (define-key magit-log-mode-map (kbd "R") 'magit-revert-commit)
   (define-key magit-log-mode-map (kbd "P") 'magit-pick-commit)
   (define-key magit-log-mode-map (kbd "C") 'magit-checkout-commit)
+  (define-key magit-log-mode-map (kbd "l") 'magit-log-commit)
+  (define-key magit-log-mode-map (kbd "L") 'magit-browse-branch-log)
   (define-key magit-log-mode-map (kbd "q") 'magit-quit))
 
 (defvar magit-log-mode-hook nil)
@@ -727,14 +729,20 @@ pushed.
   (interactive)
   (magit-run "git" "checkout" (magit-commit-at-point)))
 
+(defun magit-log-commit ()
+  (interactive)
+  (magit-browse-log (magit-commit-at-point)))
+
 (defun magit-show-commit ()
   (interactive)
-  (let ((commit (magit-commit-at-point))
+  (let ((dir default-directory)
+	(commit (magit-commit-at-point))
 	(buf (get-buffer-create "*magit-commit*")))
     (display-buffer buf)
     (save-excursion
       (set-buffer buf)
       (setq buffer-read-only t)
+      (setq default-directory dir)
       (let ((inhibit-read-only t))
 	(erase-buffer)
 	(magit-insert-section 'commit nil 'magit-wash-diff
@@ -747,10 +755,10 @@ pushed.
 (defun magit-wash-log (status)
   (goto-char (point-min))
   (while (not (eobp))
-    (when (looking-at "[0-9a-fA-F]+")
+    (when (search-forward-regexp "[0-9a-fA-F]\\{40\\}" (line-end-position) t)
       (let ((commit (match-string-no-properties 0)))
 	(delete-region (match-beginning 0) (match-end 0))
-	(beginning-of-line)
+	(goto-char (match-beginning 0))
 	(fixup-whitespace)
 	(put-text-property (line-beginning-position) (line-end-position)
 			   'magit-info (list 'commit commit))))
@@ -765,8 +773,9 @@ pushed.
     (let ((inhibit-read-only t))
       (save-excursion
 	(erase-buffer)
-	(magit-insert-section 'history "History" 'magit-wash-log
-			      "git" "log" "--max-count=100"
+	(magit-insert-section 'history (format "History of %s" head)
+			      'magit-wash-log
+			      "git" "log" "--graph" "--max-count=10000"
 			      "--pretty=oneline" head)))))
 
 (defun magit-browse-branch-log ()
