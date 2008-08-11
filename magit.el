@@ -516,7 +516,7 @@ pushed.
 	target))))
 
 (defun magit-stage-thing-at-point ()
-  "Add the hunk under point to the staging area."
+  "Add the hunk or file under point to the staging area."
   (interactive)
   (let ((info (get-char-property (point) 'magit-info)))
     (if info
