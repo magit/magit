@@ -224,6 +224,7 @@
   (define-key magit-mode-map (kbd "P") 'magit-push)
   (define-key magit-mode-map (kbd "c") 'magit-log-edit)
   (define-key magit-mode-map (kbd "C") 'magit-add-log)
+  (define-key magit-mode-map (kbd "l") 'magit-browse-log)
   (define-key magit-mode-map (kbd "p") 'magit-display-process))
 
 (defvar magit-mode-hook nil)
@@ -673,6 +674,87 @@ pushed.
 		    (beginning-of-line)
 		    (open-line 1)
 		    (insert (format "(%s): " fun)))))))))
+
+;;; History browsing
+
+(defvar magit-log-mode-map nil)
+
+(when (not magit-log-mode-map)
+  (setq magit-log-mode-map (make-keymap))
+  (suppress-keymap magit-log-mode-map)
+  (define-key magit-log-mode-map (kbd "RET") 'magit-show-commit)
+  (define-key magit-log-mode-map (kbd "R") 'magit-revert-commit)
+  (define-key magit-log-mode-map (kbd "P") 'magit-pick-commit)
+  (define-key magit-log-mode-map (kbd "q") 'magit-quit))
+
+(defvar magit-log-mode-hook nil)
+
+(put 'magit-log-mode 'mode-class 'special)
+
+(defun magit-log-mode ()
+  (kill-all-local-variables)
+  (setq buffer-read-only t)
+  (toggle-truncate-lines t)
+  (setq major-mode 'magit-log-mode
+	mode-name "Magit Log")
+  (use-local-map magit-log-mode-map)
+  (run-mode-hooks 'magit-log-mode-hook))
+
+(defun magit-commit-at-point ()
+  (let* ((info (get-text-property (point) 'magit-info))
+	 (commit (and info
+		      (eq (car info) 'commit)
+		      (cadr info))))
+    (or commit
+	(error "No commit at point."))))
+
+(defun magit-revert-commit ()
+  (interactive)
+  (magit-run "git" "revert" "--no-commit" (magit-commit-at-point)))
+
+(defun magit-pick-commit ()
+  (interactive)
+  (magit-run "git" "cherry-pick" "--no-commit" (magit-commit-at-point)))
+
+(defun magit-show-commit ()
+  (interactive)
+  (let ((commit (magit-commit-at-point))
+	(buf (get-buffer-create "*magit-commit*")))
+    (display-buffer buf)
+    (save-excursion
+      (set-buffer buf)
+      (erase-buffer)
+      (magit-insert-section 'commit nil nil
+			    "git" "log" "--max-count=1" "-p" commit))))
+
+(defun magit-quit ()
+  (interactive)
+  (bury-buffer))
+
+(defun magit-wash-log (status)
+  (goto-char (point-min))
+  (while (not (eobp))
+    (when (looking-at "[0-9a-fA-F]+")
+      (let ((commit (match-string-no-properties 0)))
+	(delete-region (match-beginning 0) (match-end 0))
+	(beginning-of-line)
+	(fixup-whitespace)
+	(put-text-property (line-beginning-position) (line-end-position)
+			   'magit-info (list 'commit commit))))
+    (forward-line)))
+
+(defun magit-browse-log ()
+  (interactive)
+  (let* ((topdir (magit-get-top-dir default-directory)))
+    (switch-to-buffer "*magit-log*")
+    (setq default-directory topdir)
+    (magit-log-mode)
+    (let ((inhibit-read-only t))
+      (save-excursion
+	(erase-buffer)
+	(magit-insert-section 'history "History" 'magit-wash-log
+			      "git" "log" "--max-count=100"
+			      "--pretty=oneline")))))
 
 ;;; Miscellaneous
 
