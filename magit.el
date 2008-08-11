@@ -516,6 +516,7 @@ pushed.
 	target))))
 
 (defun magit-stage-thing-at-point ()
+  "Add the hunk under point to the index."
   (interactive)
   (let ((info (get-char-property (point) 'magit-info)))
     (if info
