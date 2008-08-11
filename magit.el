@@ -430,8 +430,8 @@ pushed.
 			      "git" "diff" "--cached")
 	(if remote
 	    (magit-insert-section 'unpushed
-				  "Unpushed changes:" 'nil
-				  "git" "diff" "--stat"
+				  "Unpushed commits:" 'magit-wash-log
+				  "git" "log" "--pretty=oneline"
 				  (format "%s/%s..HEAD" remote branch))))
       (goto-line old-line)
       (magit-goto-section old-section))))
