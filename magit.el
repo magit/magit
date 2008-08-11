@@ -161,7 +161,7 @@
   (or (not magit-process)
       (error "Git is already running."))
   (let ((dir default-directory)
-	(buf (get-buffer-create "*git-process*")))
+	(buf (get-buffer-create "*magit-process*")))
     (save-excursion
       (set-buffer buf)
       (setq default-directory dir)
@@ -198,7 +198,7 @@
 
 (defun magit-display-process ()
   (interactive)
-  (display-buffer "*git-process*"))
+  (display-buffer "*magit-process*"))
 
 ;;; Mode
 
@@ -724,9 +724,11 @@ pushed.
     (display-buffer buf)
     (save-excursion
       (set-buffer buf)
-      (erase-buffer)
-      (magit-insert-section 'commit nil nil
-			    "git" "log" "--max-count=1" "-p" commit))))
+      (setq buffer-read-only t)
+      (let ((inhibit-read-only t))
+	(erase-buffer)
+	(magit-insert-section 'commit nil 'magit-wash-diff
+			      "git" "log" "--max-count=1" "-p" commit)))))
 
 (defun magit-quit ()
   (interactive)
@@ -755,7 +757,7 @@ pushed.
 	(erase-buffer)
 	(magit-insert-section 'history "History" 'magit-wash-log
 			      "git" "log" "--max-count=100"
-			      "--pretty=oneline")))))
+			      "--pretty=oneline" head)))))
 
 (defun magit-browse-branch-log ()
   (interactive)
