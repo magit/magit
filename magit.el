@@ -755,6 +755,7 @@ the current line into your working tree.
   (magit-browse-log (magit-commit-at-point)))
 
 (defun magit-show-commit ()
+  "Show details of the commit on the current line."
   (interactive)
   (let ((dir default-directory)
 	(commit (magit-commit-at-point))
