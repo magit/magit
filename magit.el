@@ -223,6 +223,7 @@
   (define-key magit-mode-map (kbd "U") 'magit-pull)
   (define-key magit-mode-map (kbd "P") 'magit-push)
   (define-key magit-mode-map (kbd "c") 'magit-log-edit)
+  (define-key magit-mode-map (kbd "C") 'magit-add-log)
   (define-key magit-mode-map (kbd "p") 'magit-display-process))
 
 (defvar magit-mode-hook nil)
@@ -639,6 +640,39 @@ pushed.
     (setq default-directory dir)
     (use-local-map magit-log-edit-map)
     (message "Type C-c C-c to commit.")))
+
+(defun magit-add-log ()
+  (interactive)
+  (let* ((fun (save-window-excursion
+		 (save-excursion
+		   (magit-visit-thing-at-point)
+		   (add-log-current-defun))))
+	 (file (magit-diff-info-file (get-text-property (point)
+							'magit-info))))
+    (magit-log-edit)
+    (goto-char (point-min))
+    (cond ((not (search-forward-regexp (format "^\\* %s" (regexp-quote file))
+				       nil t))
+	   ;; No entry for file, create it.
+	   (goto-char (point-max))
+	   (insert (format "\n* %s (%s): " file fun)))
+	  (t
+	   ;; found entry for file, look for fun
+	   (let ((limit (or (search-forward-regexp "^\\* " nil t)
+			    (point-max))))
+	     (cond ((search-forward-regexp (format "(.*\\<%s\\>.*):"
+						   (regexp-quote fun))
+					   limit t)
+		    ;; found it, goto end of current entry
+		    (if (search-forward-regexp "^(" limit t)
+			(backward-char 2)
+		      (goto-char limit)))
+		   (t
+		    ;; not found insert new entry
+		    (goto-char limit)
+		    (beginning-of-line)
+		    (open-line 1)
+		    (insert (format "(%s): " fun)))))))))
 
 ;;; Miscellaneous
 
