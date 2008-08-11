@@ -407,6 +407,10 @@ pushed.
 	(insert (format "Local:  %s %s\n"
 			(propertize (or branch "(detached)") 'face 'bold)
 			(abbreviate-file-name default-directory)))
+	(insert
+	 (format "Head:   %s\n"
+		 (magit-shell
+		  "git log --max-count=1 --abbrev-commit --pretty=oneline")))
 	(let ((merge-heads (magit-file-lines ".git/MERGE_HEAD")))
 	  (if merge-heads
 	      (insert (format "Merging: %s\n"
