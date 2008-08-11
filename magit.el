@@ -832,7 +832,9 @@ the current line into your working tree.
 			 (magit-diff-info-position info))))
 	     (find-file file)
 	     (if line
-		 (goto-line line))))))))
+		 (goto-line line))))
+	  ((commit)
+	   (magit-show-commit))))))
 
 (defun magit-describe-thing-at-point ()
   (interactive)
