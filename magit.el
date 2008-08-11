@@ -215,6 +215,7 @@
   (define-key magit-mode-map (kbd "u") 'magit-unstage-thing-at-point)
   (define-key magit-mode-map (kbd "i") 'magit-ignore-thing-at-point)
   (define-key magit-mode-map (kbd "?") 'magit-describe-thing-at-point)
+  (define-key magit-mode-map (kbd ".") 'magit-mark-thing-at-point)
   (define-key magit-mode-map (kbd "x") 'magit-reset-soft)
   (define-key magit-mode-map (kbd "X") 'magit-reset-hard)
   (define-key magit-mode-map (kbd "RET") 'magit-visit-thing-at-point)
@@ -233,6 +234,7 @@
 (defvar magit-mode-hook nil)
 
 (put 'magit-mode 'mode-class 'special)
+(put 'magit-marked-object 'permanent-local t)
 
 (defun magit-mode ()
 ;;; XXX - the formatting is all screwed up because of the \\[...]
@@ -316,6 +318,7 @@ pushed.
 
 \\{magit-mode-map}"
   (kill-all-local-variables)
+  (make-variable-buffer-local 'magit-marked-object)
   (setq buffer-read-only t)
   (setq major-mode 'magit-mode
 	mode-name "Magit")
@@ -434,7 +437,8 @@ pushed.
 				  "git" "log" "--graph" "--pretty=oneline"
 				  (format "%s/%s..HEAD" remote branch))))
       (goto-line old-line)
-      (magit-goto-section old-section))))
+      (magit-goto-section old-section))
+    (magit-refresh-marks-in-buffer buf)))
 
 (defun magit-find-status-buffer (&optional dir)
   (let ((topdir (magit-get-top-dir (or dir default-directory))))
@@ -690,6 +694,8 @@ pushed.
   (setq magit-log-mode-map (make-keymap))
   (suppress-keymap magit-log-mode-map)
   (define-key magit-log-mode-map (kbd "RET") 'magit-show-commit)
+  (define-key magit-log-mode-map (kbd ".") 'magit-mark-thing-at-point)
+  (define-key magit-log-mode-map (kbd "=") 'magit-diff-with-mark)
   (define-key magit-log-mode-map (kbd "R") 'magit-revert-commit)
   (define-key magit-log-mode-map (kbd "P") 'magit-pick-commit)
   (define-key magit-log-mode-map (kbd "C") 'magit-checkout-commit)
@@ -785,8 +791,7 @@ the current line into your working tree.
 	(delete-region (match-beginning 0) (match-end 0))
 	(goto-char (match-beginning 0))
 	(fixup-whitespace)
-	(put-text-property (line-beginning-position) (line-end-position)
-			   'magit-info (list 'commit commit))))
+	(magit-put-line-property 'magit-info (list 'commit commit))))
     (forward-line)))
 
 (defun magit-browse-log (head)
@@ -801,11 +806,75 @@ the current line into your working tree.
 	(magit-insert-section 'history (format "History of %s" head)
 			      'magit-wash-log
 			      "git" "log" "--graph" "--max-count=10000"
-			      "--pretty=oneline" head)))))
+			      "--pretty=oneline" head)))
+    (magit-refresh-marks-in-buffer (current-buffer))))
 
 (defun magit-browse-branch-log ()
   (interactive)
   (magit-browse-log (magit-read-rev "Browse history of branch: ")))
+
+(defun magit-diff-with-mark ()
+  (interactive)
+  (let ((commit (magit-commit-at-point))
+	(marked (or (magit-marked-object)
+		    (error "Nothing marked."))))
+    (magit-show-diff commit marked)))
+
+;;; Diffing
+
+(defun magit-show-diff (start end)
+  (let ((dir default-directory)
+	(buf (get-buffer-create "*magit-diff*")))
+    (display-buffer buf)
+    (save-excursion
+      (set-buffer buf)
+      (setq buffer-read-only t)
+      (setq default-directory dir)
+      (let ((inhibit-read-only t))
+	(erase-buffer)
+	(magit-insert-section 'diff nil 'magit-wash-diff
+			      "git" "diff" start end)))))
+
+;;; Markers
+
+(defun magit-marked-object ()
+  (save-excursion
+    (set-buffer (magit-find-status-buffer))
+    magit-marked-object))
+
+(defun magit-set-marked-object (object)
+  (save-excursion
+    (set-buffer (magit-find-status-buffer))
+    (setq magit-marked-object object)))
+
+(defun magit-refresh-marks-in-buffer (buf)
+  (let ((marked (magit-marked-object)))
+    (save-excursion
+      (set-buffer buf)
+      (let ((inhibit-read-only t))
+	(goto-char (point-min))
+	(while (not (eobp))
+	  (let ((info (get-text-property (point) 'magit-info))
+		(next-change (or (next-single-property-change (point)
+							      'magit-info)
+				 (point-max))))
+	    (if (and info (eq (car info) 'commit))
+		(put-text-property (point) next-change
+				   'face (if (equal marked (cadr info))
+					     '(:foreground "red")
+					   nil)))
+	    (goto-char next-change)))))))
+
+(defun magit-refresh-marks ()
+  (let ((status-buffer (magit-find-status-buffer)))
+    (magit-refresh-marks-in-buffer (current-buffer))
+    (if (not (eq (current-buffer) status-buffer))
+	(magit-refresh-marks-in-buffer status-buffer))))
+
+(defun magit-mark-thing-at-point ()
+  (interactive)
+  (magit-set-marked-object (magit-commit-at-point))
+  (magit-refresh-marks))
 
 ;;; Miscellaneous
 
