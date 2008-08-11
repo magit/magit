@@ -225,6 +225,7 @@
   (define-key magit-mode-map (kbd "c") 'magit-log-edit)
   (define-key magit-mode-map (kbd "C") 'magit-add-log)
   (define-key magit-mode-map (kbd "l") 'magit-browse-log)
+  (define-key magit-mode-map (kbd "L") 'magit-browse-branch-log)
   (define-key magit-mode-map (kbd "p") 'magit-display-process))
 
 (defvar magit-mode-hook nil)
@@ -743,8 +744,8 @@ pushed.
 			   'magit-info (list 'commit commit))))
     (forward-line)))
 
-(defun magit-browse-log ()
-  (interactive)
+(defun magit-browse-log (head)
+  (interactive (list (magit-get-current-branch)))
   (let* ((topdir (magit-get-top-dir default-directory)))
     (switch-to-buffer "*magit-log*")
     (setq default-directory topdir)
@@ -755,6 +756,10 @@ pushed.
 	(magit-insert-section 'history "History" 'magit-wash-log
 			      "git" "log" "--max-count=100"
 			      "--pretty=oneline")))))
+
+(defun magit-browse-branch-log ()
+  (interactive)
+  (magit-browse-log (magit-read-other-branch "Browse history of branch: ")))
 
 ;;; Miscellaneous
 
