@@ -687,6 +687,7 @@ pushed.
   (define-key magit-log-mode-map (kbd "RET") 'magit-show-commit)
   (define-key magit-log-mode-map (kbd "R") 'magit-revert-commit)
   (define-key magit-log-mode-map (kbd "P") 'magit-pick-commit)
+  (define-key magit-log-mode-map (kbd "C") 'magit-checkout-commit)
   (define-key magit-log-mode-map (kbd "q") 'magit-quit))
 
 (defvar magit-log-mode-hook nil)
@@ -717,6 +718,10 @@ pushed.
 (defun magit-pick-commit ()
   (interactive)
   (magit-run "git" "cherry-pick" "--no-commit" (magit-commit-at-point)))
+
+(defun magit-checkout-commit ()
+  (interactive)
+  (magit-run "git" "checkout" (magit-commit-at-point)))
 
 (defun magit-show-commit ()
   (interactive)
