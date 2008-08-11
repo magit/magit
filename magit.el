@@ -431,7 +431,7 @@ pushed.
 	(if remote
 	    (magit-insert-section 'unpushed
 				  "Unpushed commits:" 'magit-wash-log
-				  "git" "log" "--pretty=oneline"
+				  "git" "log" "--graph" "--pretty=oneline"
 				  (format "%s/%s..HEAD" remote branch))))
       (goto-line old-line)
       (magit-goto-section old-section))))
