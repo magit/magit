@@ -767,7 +767,8 @@ the current line into your working tree.
       (let ((inhibit-read-only t))
 	(erase-buffer)
 	(magit-insert-section 'commit nil 'magit-wash-diff
-			      "git" "log" "--max-count=1" "-p" commit)))))
+			      "git" "log" "--max-count=1" "--cc" "-p"
+			      commit)))))
 
 (defun magit-quit ()
   (interactive)
