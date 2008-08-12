@@ -25,8 +25,7 @@ Permission is granted to copy, distribute and/or modify this document
 under the terms of the GNU Free Documentation License, Version 1.2 or
 any later version published by the Free Software Foundation; with no
 Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
-Texts.  A copy of the license is included in the section entitled
-``GNU Free Documentation License''.
+Texts.
 @end quotation
 @end copying
 
@@ -42,14 +41,178 @@ Texts.  A copy of the license is included in the section entitled
 
 @ifnottex
 @node Top
-@top Version
+@top Magit User Manual
 
-@insertcopying
 @end ifnottex
 
 @menu
 * Introduction::                
+* The Status Buffer::           
+* The History Buffer::          
+* Branching Merging and Rebasing::  
+* Pushing and Pulling::         
 @end menu
 
 @node Introduction
 @chapter Introduction
+
+Magit is an interface to the distributed version control system Git,
+implemented as an extension to Emacs.
+
+With magit, you can inspect and modify any number of git repositories.
+You can review and commit the changes you have made to the tracked
+files, for example, and you can browse the history of past changes.
+
+Magit is not a complete interface to git, it just makes using the most
+common git command-line tools more convenient.  Thus, while magit is a
+good way to experiment with git, using it will not save you from
+learning git itself.
+
+This manual provides a tour of all magit features and short
+discussions of how you would typically use them together for simple
+version control tasks.  It does not, in its current form, give a
+introduction to version control in general, or to git in particular.
+
+The main entry point to magit is @kbd{M-x magit-status}, which will
+put you in magit's status buffer.  You will be using it frequently, so
+it is probably a good idea to bind @code{magit-status} to a key of
+your choice.
+
+@node The Status Buffer
+@chapter The Status Buffer
+
+Running @kbd{M-x magit-status} displays the main interface of magit,
+the status buffer.  Almost all operations are initiated with single
+letter keystrokes from that buffer.
+
+You can have multiple status buffers active at the same time, each
+associated with its own git repository.  Running @kbd{M-x
+magit-status} in a buffer visiting a file inside a git repository will
+display the status buffer for that repository.  Running
+@kbd{magit-status} outside of any git repository or when giving it a
+prefix argument will ask you for the directory to run it in.
+
+You need to explicitly refresh the status buffer.  You can type
+@kbd{g} in the status buffer itself, or just use @kbd{M-x
+magit-status} instead of @kbd{C-x b} when switching to it.
+
+The @dfn{header} at the top of the status buffer shows a short summary
+of the repository state: where it is located, which branch is checked
+out, etc.  Below the header are three or four sections that show
+details about the working tree and the staging area.
+
+The first of these sections lists @emph{untracked files}.  These are
+the files that are present in your working tree but are not known to
+git; they are neither tracked in the current branch nor explicitly
+ignored.  You can move point to one of the listed files and type
+@kbd{a} to add it to the staging area.  Or you can tell git to ignore
+the file by typing @kbd{i}.
+
+Magit has no shortcuts for removing or renaming files (yet).  You need
+to use @code{git rm} or @code{git mv} in a shell and then refresh the
+status buffer.
+
+The next section, named @emph{Unstaged changes}, show the differences
+between the working tree and the staging area.  Thus, it shows the
+modifications that have not been staged yet and would thus not be
+included if you would commit now.
+
+The next section, @emph{Staged changes}, shows the differences between
+the staging area and the current head.  These are the changes that
+would be included if you would commit now.
+
+Unlike other version control interfaces, magit does not usually
+operate on files: Instead of dealing with files (or sets of files),
+differences are shown as @emph{diffs} and you deal with individual
+@emph{hunks}.
+
+Normally, you will prepare the staging area so that it contains
+changes that you want to commit as a unit.  You can leave changes that
+you are not yet ready to commit safely out of the staging area.
+
+To move a hunk from the working tree into the staging area, move point
+into the hunk and type @kbd{a}.  Likewise, to unstage a hunk, move
+point into it and type @kbd{u}.  If point is in a diff header when you
+type @kbd{a} or @kbd{u}, all hunks belonging to that diff are moved at
+the same time.  To move all hunks of all diffs into the staging area
+in one go, type @kbd{A}.
+
+Once you have a set of changes in the staging area that you want to
+commit, you should write a short description of them and then commit
+them.
+
+Type @kbd{c} to pop up a buffer where you can write your change
+description.  Once you are happy with the description, type @kbd{C-c
+C-c} in that buffer to commit the staged changes.
+
+Typing @kbd{C} will also pop up the change description buffer, but in
+addition it will try to insert a ChangeLog-style entry for the change
+that point is in.
+
+If the current branch is associated with a remote repository, the
+status buffer wil show a fourth section, named @emph{Unpushed
+commits}.  It will briefly list the commits that you have made in your
+local repository, but have not yet pushed.  See @ref{Pushing and
+Pulling} for more information.
+
+You can use @kbd{x} and @kbd{X} to ...
+
+@node The History Buffer
+@chapter The History Buffer
+
+To browse the repository history, type @kbd{l} or @kbd{L} in the
+status buffer.  Typing @kbd{l} will show the history starting from the
+current head, while @kbd{L} will ask for a starting point.
+
+A new buffer will be shown that displays the history in a terse form.
+The first paragraph of each commit message is displayed, next to a
+representation of the relationships between commits.
+
+You can move point to a commit and then cause various things to happen
+with it.
+
+Typing @kbd{RET} will pop up more information about the current
+commit and typing @kbd{l} will use it as the new starting point of the
+history buffer.
+
+Typing @kbd{R} will revert the current commit in your working tree and
+staging area.  Thus, it will apply the changes made by that commit in
+reverse.  This is obviously useful to cleanly undo changes that turned
+out to be wrong.
+
+Typing @kbd{P} will apply the current commit in the normal way.  This
+is useful when you are browsing the history of some other branch and
+you want to `cherry-pick' some changes from it for your current
+branch.  A typical situation is applying selected bug fixes from the
+development version of a program to a release branch.
+
+Typing @kbd{C} will switch your working tree to the current commit.
+
+You can also mark the current commit by typing @kbd{.}.  Once you have
+marked a commit, you can show the differences between it and the
+current commit by typing @kbd{=}.
+
+@node Branching Merging Rebasing Conflicts
+@chapter Branching, Merging, Rebasing, and Conflicts
+
+The current branch is indicated in the header of the status buffer.
+You can checkout a different branch by typing @kbd{b}.  To create a
+new branch and it check it out immediately, type @kbd{B}.
+
+You can also compare your working tree with some other branch.  Type
+@kbd{d} and then specify the branch to compare with.
+
+Magit offers two ways to merge branches: manually and automatic.  A
+manual merge will apply all changes to your working tree and staging
+area, but will not commit them, while a automatic merge will go ahead
+and commit them immediately.
+
+A manual merge is useful when carefully merging a new feature that you
+want to review and test before committing it.  A automatic merge is
+appropriate when you are on a feature branch and want to catch up with
+the master, say.
+
+@node Pushing and Pulling
+@chapter Pushing and Pulling
+
+@bye
