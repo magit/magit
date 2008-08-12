@@ -823,7 +823,7 @@ the current line into your working tree.
 
 ;;; Diffing
 
-(defun magit-show-diff (from to)
+(defun magit-show-diff (&rest args)
   (let ((dir default-directory)
 	(buf (get-buffer-create "*magit-diff*")))
     (display-buffer buf)
@@ -833,12 +833,12 @@ the current line into your working tree.
       (setq default-directory dir)
       (let ((inhibit-read-only t))
 	(erase-buffer)
-	(magit-insert-section 'diff nil 'magit-wash-diff
-			      "git" "diff" from to)))))
+	(apply 'magit-insert-section 'diff nil 'magit-wash-diff
+	       "git" "diff" args)))))
 
 (defun magit-diff-with-branch (branch)
-  (interactive (list (magit-read-rev "Diff HEAD against: ")))
-  (magit-show-diff "HEAD" branch))
+  (interactive (list (magit-read-rev "Diff against: ")))
+  (magit-show-diff branch))
 
 ;;; Markers
 
