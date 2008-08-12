@@ -192,11 +192,36 @@ You can also mark the current commit by typing @kbd{.}.  Once you have
 marked a commit, you can show the differences between it and the
 current commit by typing @kbd{=}.
 
+@node Rewriting History
+@chapter Rewriting History
+
+Once you have added a commit to your local repository, you can not
+change it anymore in any way.  But you can reset your current head to
+an earlier commit and start over.
+
+If you have published your history already, rewriting history in this
+way can be confusing and should be avoided.  However, rewriting your
+local history is fine and it is often cleaner to fix mistakes this way
+than by reverting commits (with @kbd{R} in the history buffer, for
+example).
+
+Magit gives you two ways to reset your current head: soft and hard.
+Type @kbd{x} to do a soft reset.  This will change the current head to
+the commit that you specify, but your current working tree and staging
+area will not be touched.  This is useful to redoing the last commit
+to correct the commit message, for example.
+
+Type @kbd{X} to do a hard reset.  This will reset the current head to
+the commit you specify and will check it out so that your working tree
+and staging area will match it.  In other words, a hard reset will
+throw away the history completely, which can be useful to abort highly
+experimental changes (like merging a branch just to see what happens).
+
 @node Branching Merging Rebasing Conflicts
 @chapter Branching, Merging, Rebasing, and Conflicts
 
 The current branch is indicated in the header of the status buffer.
-You can checkout a different branch by typing @kbd{b}.  To create a
+You can check out a different branch by typing @kbd{b}.  To create a
 new branch and it check it out immediately, type @kbd{B}.
 
 You can also compare your working tree with some other branch.  Type
@@ -211,6 +236,9 @@ A manual merge is useful when carefully merging a new feature that you
 want to review and test before committing it.  A automatic merge is
 appropriate when you are on a feature branch and want to catch up with
 the master, say.
+
+Type @kbd{m} to initiate a manual merge, and type @kbd{M} for a
+automatic merge.
 
 @node Pushing and Pulling
 @chapter Pushing and Pulling
