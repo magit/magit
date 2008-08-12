@@ -29,7 +29,7 @@
 ;; current HEAD.  You can add individual hunks from the working tree
 ;; to the index, and you can commit the index.
 ;;
-;; See the Magit User Guide for more information.
+;; See the Magit User Manual for more information.
 
 ;;; TODO
 
