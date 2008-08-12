@@ -105,7 +105,7 @@ The first of these sections lists @emph{untracked files}.  These are
 the files that are present in your working tree but are not known to
 git; they are neither tracked in the current branch nor explicitly
 ignored.  You can move point to one of the listed files and type
-@kbd{a} to add it to the staging area.  Or you can tell git to ignore
+@kbd{s} to add it to the staging area.  Or you can tell git to ignore
 the file by typing @kbd{i}.
 
 Magit has no shortcuts for removing or renaming files (yet).  You need
@@ -131,11 +131,11 @@ changes that you want to commit as a unit.  You can leave changes that
 you are not yet ready to commit safely out of the staging area.
 
 To move a hunk from the working tree into the staging area, move point
-into the hunk and type @kbd{a}.  Likewise, to unstage a hunk, move
+into the hunk and type @kbd{s}.  Likewise, to unstage a hunk, move
 point into it and type @kbd{u}.  If point is in a diff header when you
-type @kbd{a} or @kbd{u}, all hunks belonging to that diff are moved at
+type @kbd{s} or @kbd{u}, all hunks belonging to that diff are moved at
 the same time.  To move all hunks of all diffs into the staging area
-in one go, type @kbd{A}.
+in one go, type @kbd{S}.
 
 Once you have a set of changes in the staging area that you want to
 commit, you should write a short description of them and then commit
