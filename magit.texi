@@ -217,6 +217,11 @@ and staging area will match it.  In other words, a hard reset will
 throw away the history completely, which can be useful to abort highly
 experimental changes (like merging a branch just to see what happens).
 
+In particular, doing a hard reset to HEAD will have no effect on the
+current head, but it will reset your working tree and staging area
+back to the last comitted state.  You can do this to abort a manual
+merge, for example.
+
 @node Branching Merging Rebasing Conflicts
 @chapter Branching, Merging, Rebasing, and Conflicts
 
