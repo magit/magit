@@ -229,6 +229,7 @@
   (define-key magit-mode-map (kbd "C") 'magit-add-log)
   (define-key magit-mode-map (kbd "l") 'magit-browse-log)
   (define-key magit-mode-map (kbd "L") 'magit-browse-branch-log)
+  (define-key magit-mode-map (kbd "d") 'magit-diff-with-branch)
   (define-key magit-mode-map (kbd "p") 'magit-display-process))
 
 (defvar magit-mode-hook nil)
@@ -822,7 +823,7 @@ the current line into your working tree.
 
 ;;; Diffing
 
-(defun magit-show-diff (start end)
+(defun magit-show-diff (from to)
   (let ((dir default-directory)
 	(buf (get-buffer-create "*magit-diff*")))
     (display-buffer buf)
@@ -833,7 +834,11 @@ the current line into your working tree.
       (let ((inhibit-read-only t))
 	(erase-buffer)
 	(magit-insert-section 'diff nil 'magit-wash-diff
-			      "git" "diff" start end)))))
+			      "git" "diff" from to)))))
+
+(defun magit-diff-with-branch (branch)
+  (interactive (list (magit-read-rev "Diff HEAD against: ")))
+  (magit-show-diff "HEAD" branch))
 
 ;;; Markers
 
