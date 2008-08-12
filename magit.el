@@ -28,6 +28,8 @@
 ;; tree and the index, and the difference between the index and the
 ;; current HEAD.  You can add individual hunks from the working tree
 ;; to the index, and you can commit the index.
+;;
+;; See the Magit User Guide for more information.
 
 ;;; TODO
 
