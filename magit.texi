@@ -6,7 +6,7 @@
 
 @dircategory Emacs
 @direntry
-* Magit: (magit).        Using git from Emacs with Magit.
+* Magit: (magit).        Using Git from Emacs with Magit.
 @end direntry
 
 @setchapternewpage off
@@ -49,7 +49,9 @@ Texts.
 * Introduction::                
 * The Status Buffer::           
 * The History Buffer::          
-* Branching Merging and Rebasing::  
+* Rewriting History::           
+* Branching and Merging::       
+* Rebasing::                    
 * Pushing and Pulling::         
 @end menu
 
@@ -59,37 +61,37 @@ Texts.
 Magit is an interface to the distributed version control system Git,
 implemented as an extension to Emacs.
 
-With magit, you can inspect and modify any number of git repositories.
+With Magit, you can inspect and modify any number of Git repositories.
 You can review and commit the changes you have made to the tracked
 files, for example, and you can browse the history of past changes.
 
-Magit is not a complete interface to git, it just makes using the most
-common git command-line tools more convenient.  Thus, while magit is a
-good way to experiment with git, using it will not save you from
-learning git itself.
+Magit is not a complete interface to Git, it just makes using the most
+common Git command-line tools more convenient.  Thus, while Magit is a
+good way to experiment with Git, using it will not save you from
+learning Git itself.
 
-This manual provides a tour of all magit features and short
+This manual provides a tour of all Magit features and short
 discussions of how you would typically use them together for simple
 version control tasks.  It does not, in its current form, give a
-introduction to version control in general, or to git in particular.
+introduction to version control in general, or to Git in particular.
 
-The main entry point to magit is @kbd{M-x magit-status}, which will
-put you in magit's status buffer.  You will be using it frequently, so
+The main entry point to Magit is @kbd{M-x magit-status}, which will
+put you in Magit's status buffer.  You will be using it frequently, so
 it is probably a good idea to bind @code{magit-status} to a key of
 your choice.
 
 @node The Status Buffer
 @chapter The Status Buffer
 
-Running @kbd{M-x magit-status} displays the main interface of magit,
+Running @kbd{M-x magit-status} displays the main interface of Magit,
 the status buffer.  Almost all operations are initiated with single
 letter keystrokes from that buffer.
 
 You can have multiple status buffers active at the same time, each
-associated with its own git repository.  Running @kbd{M-x
-magit-status} in a buffer visiting a file inside a git repository will
+associated with its own Git repository.  Running @kbd{M-x
+magit-status} in a buffer visiting a file inside a Git repository will
 display the status buffer for that repository.  Running
-@kbd{magit-status} outside of any git repository or when giving it a
+@kbd{magit-status} outside of any Git repository or when giving it a
 prefix argument will ask you for the directory to run it in.
 
 You need to explicitly refresh the status buffer.  You can type
@@ -103,9 +105,9 @@ details about the working tree and the staging area.
 
 The first of these sections lists @emph{untracked files}.  These are
 the files that are present in your working tree but are not known to
-git; they are neither tracked in the current branch nor explicitly
+Git; they are neither tracked in the current branch nor explicitly
 ignored.  You can move point to one of the listed files and type
-@kbd{s} to add it to the staging area.  Or you can tell git to ignore
+@kbd{s} to add it to the staging area.  Or you can tell Git to ignore
 the file by typing @kbd{i}.
 
 Magit has no shortcuts for removing or renaming files (yet).  You need
@@ -121,7 +123,7 @@ The next section, @emph{Staged changes}, shows the differences between
 the staging area and the current head.  These are the changes that
 would be included if you would commit now.
 
-Unlike other version control interfaces, magit does not usually
+Unlike other version control interfaces, Magit does not usually
 operate on files: Instead of dealing with files (or sets of files),
 differences are shown as @emph{diffs} and you deal with individual
 @emph{hunks}.
@@ -222,8 +224,11 @@ current head, but it will reset your working tree and staging area
 back to the last comitted state.  You can do this to abort a manual
 merge, for example.
 
-@node Branching Merging Rebasing Conflicts
-@chapter Branching, Merging, Rebasing, and Conflicts
+Rebasing is a more powerful way to rewrite history.  It is so
+powerful, it has its own chapter.  See @ref{Rebasing}.
+
+@node Branching and Merging
+@chapter Branching and Merging
 
 The current branch is indicated in the header of the status buffer.
 You can check out a different branch by typing @kbd{b}.  To create a
@@ -237,13 +242,33 @@ manual merge will apply all changes to your working tree and staging
 area, but will not commit them, while a automatic merge will go ahead
 and commit them immediately.
 
+Type @kbd{m} to initiate a manual merge, and type @kbd{M} for a
+automatic merge.
+
 A manual merge is useful when carefully merging a new feature that you
 want to review and test before committing it.  A automatic merge is
 appropriate when you are on a feature branch and want to catch up with
 the master, say.
 
-Type @kbd{m} to initiate a manual merge, and type @kbd{M} for a
-automatic merge.
+After initiating a manual merge, the header of the status buffer will
+remind you that the next commit will be a merge commit (with more than
+one parent).  If you want to abort a manual merge, just do a hard
+reset to HEAD.
+
+Merges can fail if the two branches you merge want to introduce
+conflicting changes.  In that case, the automatic merge stops before
+the commit, essentially falling back to a manual merge.  You need to
+resolve the conflicts and stage the resolved files, for example with
+@kbd{S}.
+
+You can not stage individual hunks one by one as you resolve them, you
+can only stage whole files once all conflicts in them have been
+resolved.  If you can not easily and immediately resolve the conflicts
+from a merge, you should abort it instead of only comitting parts of
+it.
+
+@node Rebasing
+@chapter Rebasing
 
 @node Pushing and Pulling
 @chapter Pushing and Pulling
