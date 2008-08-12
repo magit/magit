@@ -98,7 +98,7 @@
 
 (defun magit-read-top-dir (prefix)
   (let ((dir (magit-get-top-dir default-directory)))
-    (if prefix
+    (if (or (not dir) prefix)
 	(magit-get-top-dir (read-directory-name "Git repository: " dir))
       dir)))
 
