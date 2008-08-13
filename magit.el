@@ -236,6 +236,7 @@
     (define-key map (kbd "i") 'magit-ignore-thing-at-point)
     (define-key map (kbd "?") 'magit-describe-thing-at-point)
     (define-key map (kbd ".") 'magit-mark-thing-at-point)
+    (define-key map (kbd "=") 'magit-diff-with-mark)
     (define-key map (kbd "x") 'magit-reset-soft)
     (define-key map (kbd "X") 'magit-reset-hard)
     (define-key map (kbd "RET") 'magit-visit-thing-at-point)
