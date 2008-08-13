@@ -931,7 +931,7 @@ the current line into your working tree.
     (if info
 	(case (car info)
 	  ((other-file)
-	   (append-to-file (concat (cadr info) "\n") nil ".gitignore")
+	   (append-to-file (concat "/" (cadr info) "\n") nil ".gitignore")
 	   (magit-update-status (magit-find-status-buffer)))))))
 
 (defun magit-visit-thing-at-point ()
