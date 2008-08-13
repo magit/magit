@@ -44,6 +44,12 @@
 
 ;;; Utilities
 
+(defun magit-goto-line (line)
+  (save-restriction
+    (widen)
+    (goto-char 1)
+    (forward-line (1- line))))
+
 (defun magit-shell (cmd &rest args)
   (let ((str (shell-command-to-string (apply 'format cmd args))))
     (if (string= str "")
@@ -448,7 +454,7 @@ pushed.
 				  "Unpushed commits:" 'magit-wash-log
 				  "git" "log" "--graph" "--pretty=oneline"
 				  (format "%s/%s..HEAD" remote branch))))
-      (goto-line old-line)
+      (magit-goto-line old-line)
       (magit-goto-section old-section))
     (magit-refresh-marks-in-buffer buf)))
 
