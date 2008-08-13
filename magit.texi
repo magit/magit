@@ -54,12 +54,10 @@ files, for example, and you can browse the history of past changes.
 
 Magit is not a complete interface to Git, it just makes the most
 common Git command-line tools more convenient to use.  Thus, while
-Magit is a good way to experiment with Git, using it will not save you
-from learning Git itself.
+Magit is a good way to experiment with Git, it will not save you from
+learning Git itself.
 
-This manual provides a tour of all Magit features and short
-discussions of how you would typically use them together for simple
-version control tasks.  It does not, in its current form, give a
+This manual provides a tour of all Magit features.  It does not give a
 introduction to version control in general, or to Git in particular.
 
 The main entry point to Magit is @kbd{M-x magit-status}, which will
@@ -75,33 +73,35 @@ the status buffer.  Almost all operations are initiated with single
 letter keystrokes from that buffer.
 
 You can have multiple status buffers active at the same time, each
-associated with its own Git repository.  Running @kbd{M-x
-magit-status} in a buffer visiting a file inside a Git repository will
-display the status buffer for that repository.  Running
-@kbd{magit-status} outside of any Git repository or when giving it a
-prefix argument will ask you for the directory to run it in.
+associated with its own Git repository.  Running @code{magit-status}
+in a buffer will display the status buffer for the repository that
+contains the file in that buffer.  Running @code{magit-status} outside
+of any Git repository or when giving it a prefix argument will ask you
+for the directory to run it in.
 
-You need to explicitly refresh the status buffer.  You can type
-@kbd{g} in the status buffer itself, or just use @kbd{M-x
-magit-status} instead of @kbd{C-x b} when switching to it.
+You need to explicitly refresh the status buffer when you have made
+changes to the repository from outside of Emacs.  You can type @kbd{g}
+in the status buffer itself, or just use @kbd{M-x magit-status}
+instead of @kbd{C-x b} when switching to it.  You also need to refresh
+the status buffer in this way after saving a file in Emacs.
 
-The @dfn{header} at the top of the status buffer shows a short summary
-of the repository state: where it is located, which branch is checked
+The header at the top of the status buffer shows a short summary of
+the repository state: where it is located, which branch is checked
 out, etc.  Below the header are three or four sections that show
 details about the working tree and the staging area.
 
-The first of these sections lists @emph{untracked files}.  These are
+The first of these sections lists @emph{Untracked files}.  These are
 the files that are present in your working tree but are not known to
 Git; they are neither tracked in the current branch nor explicitly
 ignored.  You can move point to one of the listed files and type
 @kbd{s} to add it to the staging area.  Or you can tell Git to ignore
 the file by typing @kbd{i}.
 
-Magit has no shortcuts for removing or renaming files (yet).  You need
-to use @code{git rm} or @code{git mv} in a shell and then refresh the
+Magit has no shortcuts for removing or renaming files.  You need to
+use @code{git rm} or @code{git mv} in a shell and then refresh the
 status buffer.
 
-The next section, named @emph{Unstaged changes}, show the differences
+The next section, named @emph{Unstaged changes}, shows the differences
 between the working tree and the staging area.  Thus, it shows the
 modifications that have not been staged yet and would thus not be
 included if you would commit now.
@@ -112,8 +112,7 @@ would be included if you would commit now.
 
 Unlike other version control interfaces, Magit does not usually
 operate on files: Instead of dealing with files (or sets of files),
-differences are shown as @emph{diffs} and you deal with individual
-@emph{hunks}.
+differences are shown as diffs and you deal with the individual hunks.
 
 Normally, you will prepare the staging area so that it contains
 changes that you want to commit as a unit.  You can leave changes that
@@ -126,17 +125,16 @@ type @kbd{s} or @kbd{u}, all hunks belonging to that diff are moved at
 the same time.  To move all hunks of all diffs into the staging area
 in one go, type @kbd{S}.
 
-Once you have a set of changes in the staging area that you want to
-commit, you should write a short description of them and then commit
-them.
+Nefore committing the changes in the staging area, you should write a
+short description of them.
 
 Type @kbd{c} to pop up a buffer where you can write your change
 description.  Once you are happy with the description, type @kbd{C-c
 C-c} in that buffer to commit the staged changes.
 
-Typing @kbd{C} will also pop up the change description buffer, but in
-addition it will try to insert a ChangeLog-style entry for the change
-that point is in.
+Typing @kbd{C} will also pop up the change description buffer, but it
+will also try to insert a ChangeLog-style entry for the change that
+point is in.
 
 If the current branch is associated with a remote repository, the
 status buffer wil show a fourth section, named @emph{Unpushed
@@ -267,7 +265,7 @@ Such a rebase can be finished with Magit as well.
 @chapter Pushing and Pulling
 
 Magit will run @code{git pull} when you type @kbd{U} in the status
-buffer, and it will you @code{git push} when you type @kbd{P}.  That's
+buffer, and it will run @code{git push} when you type @kbd{P}.  That's
 almost all the support for remote repositories that Magit offers.
 
 You can type @kbd{p} to pop up a buffer with the transcript of running
