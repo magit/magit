@@ -194,8 +194,8 @@ You can also mark the current commit by typing @kbd{.}.  Once you have
 marked a commit, you can show the differences between it and the
 current commit by typing @kbd{=}.
 
-@node Rewriting History
-@chapter Rewriting History
+@node Resetting
+@chapter Resetting
 
 Once you have added a commit to your local repository, you can not
 change it anymore in any way.  But you can reset your current head to
@@ -223,9 +223,6 @@ In particular, doing a hard reset to HEAD will have no effect on the
 current head, but it will reset your working tree and staging area
 back to the last comitted state.  You can do this to abort a manual
 merge, for example.
-
-Rebasing is a more powerful way to rewrite history.  It is so
-powerful, it has its own chapter.  See @ref{Rebasing}.
 
 @node Branching and Merging
 @chapter Branching and Merging
@@ -269,7 +266,17 @@ from a merge, you should abort it.
 @node Rebasing
 @chapter Rebasing
 
-not yet implemented.
+Typing @kbd{R} in the status buffer will initiate a rebase or, if one
+is already in progress, ask you how to continue.
+
+When a rebase is stopped in the middle because of a conflict, the
+header of the status buffer will indicate what you are rebasing your
+current branch onto and how far along you are in the series of commits
+that are being replayed.
+
+Of course, you can initiate a rebase in any number of ways, by
+configuring @code{git pull} to rebase instead of merge, for example.
+Such a rebase can be finished with Magit as well.
 
 @node Pushing and Pulling
 @chapter Pushing and Pulling

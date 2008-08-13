@@ -17,7 +17,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 
-;;; Introduction
+;;; Commentary
 
 ;; Invoking the magit-status function will show a buffer with the
 ;; current status of the current git repository and its checkout.
@@ -223,6 +223,7 @@
     (define-key map (kbd "B") 'magit-create-branch)
     (define-key map (kbd "m") 'magit-manual-merge)
     (define-key map (kbd "M") 'magit-automatic-merge)
+    (define-key map (kbd "R") 'magit-rebase-step)
     (define-key map (kbd "U") 'magit-pull)
     (define-key map (kbd "P") 'magit-push)
     (define-key map (kbd "c") 'magit-log-edit)
@@ -423,6 +424,9 @@ pushed.
 			      (magit-concat-with-delim
 			       ", "
 			       (mapcar 'magit-name-rev merge-heads))))))
+	(let ((rebase (magit-rebase-info)))
+	  (if rebase
+	      (insert (apply 'format "Rebasing: %s (%s of %s)\n" rebase))))
 	(insert "\n")
 	(magit-insert-section 'untracked
 			      "Untracked files:" 'magit-wash-other-files
@@ -589,6 +593,37 @@ pushed.
 (defun magit-automatic-merge (branch)
   (interactive (list (magit-read-rev "Merge from branch: ")))
   (magit-run "git" "merge" branch))
+
+;;; Rebasing
+
+(defun magit-rebase-info ()
+  (cond ((file-exists-p ".dotest")
+	 (list (magit-name-rev (car (magit-file-lines ".dotest/onto")))
+	       (car (magit-file-lines ".dotest/next"))
+	       (car (magit-file-lines ".dotest/last"))))
+	((file-exists-p ".git/.dotest-merge")
+	 (list (car (magit-file-lines ".git/.dotest-merge/onto_name"))
+	       (car (magit-file-lines ".git/.dotest-merge/msgnum"))
+	       (car (magit-file-lines ".git/.dotest-merge/end"))))
+	(t
+	 nil)))
+
+(defun magit-rebase-step ()
+  (interactive)
+  (let ((info (magit-rebase-info)))
+    (if (not info)
+	(magit-run "git" "rebase" (magit-read-rev "Rebase against: "))
+      (let ((cursor-in-echo-area t)
+	    (message-log-max nil))
+	(message "Rebase in progress.  Abort, Skip, or Continue? ")
+	(let ((reply (read-event)))
+	  (case reply
+	    ((?A ?a)
+	     (magit-run "git" "rebase" "--abort"))
+	    ((?S ?s)
+	     (magit-run "git" "rebase" "--skip"))
+	    ((?C ?c)
+	     (magit-run "git" "rebase" "--continue"))))))))
 
 ;;; Resetting
 
