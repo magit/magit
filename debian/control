@@ -1,0 +1,10 @@
+Source: magit
+Section: devel
+Priority: optional
+Maintainer: Marius Vollmer <marius.vollmer@uni-dortmund.de>
+Build-Depends: debhelper (>= 4.0.0), emacs, texinfo
+Standards-Version: 3.6.0
+
+Package: magit
+Architecture: all
+Description: A Emacs interface for Git
