@@ -169,6 +169,13 @@
 
 ;;; Running asynchronous commands
 
+(defun magit-set-mode-line-process (str)
+  (save-excursion
+    (set-buffer (magit-find-status-buffer))
+    (setq mode-line-process (if str
+				(concat " " str)
+			      ""))))
+
 (defvar magit-process nil)
 
 (defun magit-run (cmd &rest args)
@@ -176,6 +183,9 @@
       (error "Git is already running."))
   (let ((dir default-directory)
 	(buf (get-buffer-create "*magit-process*")))
+    (magit-set-mode-line-process (if (equal cmd "git")
+				     (car args)
+				   cmd))
     (save-excursion
       (set-buffer buf)
       (setq default-directory dir)
@@ -204,9 +214,11 @@
 	 (setq magit-process nil))
 	((string-match "exited abnormally" event)
 	 (message "Git failed.")
-	 (setq magit-process nil))
+	 (setq magit-process nil)
+	 (magit-display-process))
 	(t
 	 (message "Git is weird.")))
+  (magit-set-mode-line-process nil)
   (magit-revert-files)
   (magit-update-status (magit-find-status-buffer)))
 
@@ -336,7 +348,8 @@ pushed.
   (kill-all-local-variables)
   (setq buffer-read-only t)
   (setq major-mode 'magit-mode
-	mode-name "Magit")
+	mode-name "Magit"
+	mode-line-process "")
   (use-local-map magit-mode-map)
   (run-mode-hooks 'magit-mode-hook))
 
