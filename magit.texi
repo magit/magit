@@ -9,14 +9,6 @@
 * Magit: (magit).        Using Git from Emacs with Magit.
 @end direntry
 
-@setchapternewpage off
-
-@c Put everything in one index (arbitrarily chosen to be the concept index).
-@syncodeindex fn cp
-@syncodeindex ky cp
-@syncodeindex pg cp
-@syncodeindex vr cp
-
 @copying
 Copyright @copyright{} 2008 Marius Vollmer
 
@@ -125,7 +117,7 @@ type @kbd{s} or @kbd{u}, all hunks belonging to that diff are moved at
 the same time.  To move all hunks of all diffs into the staging area
 in one go, type @kbd{S}.
 
-Nefore committing the changes in the staging area, you should write a
+Before committing the changes in the staging area, you should write a
 short description of them.
 
 Type @kbd{c} to pop up a buffer where you can write your change
@@ -137,7 +129,7 @@ will also try to insert a ChangeLog-style entry for the change that
 point is in.
 
 If the current branch is associated with a remote repository, the
-status buffer wil show a fourth section, named @emph{Unpushed
+status buffer will show a fourth section, named @emph{Unpushed
 commits}.  It will briefly list the commits that you have made in your
 local repository, but have not yet pushed.  See @ref{Pushing and
 Pulling} for more information.
@@ -181,8 +173,8 @@ current commit by typing @kbd{=}.
 @chapter Resetting
 
 Once you have added a commit to your local repository, you can not
-change it anymore in any way.  But you can reset your current head to
-an earlier commit and start over.
+change that commit anymore in any way.  But you can reset your current
+head to an earlier commit and start over.
 
 If you have published your history already, rewriting history in this
 way can be confusing and should be avoided.  However, rewriting your
@@ -199,20 +191,19 @@ to correct the commit message, for example.
 Type @kbd{X} to do a hard reset.  This will reset the current head to
 the commit you specify and will check it out so that your working tree
 and staging area will match it.  In other words, a hard reset will
-throw away the history completely, which can be useful to abort highly
+throw away the history completely, which can be useful to abort
 experimental changes (like merging a branch just to see what happens).
 
 In particular, doing a hard reset to HEAD will have no effect on the
 current head, but it will reset your working tree and staging area
-back to the last comitted state.  You can do this to abort a manual
-merge, for example.
+back to the last committed state.
 
 @node Branching and Merging
 @chapter Branching and Merging
 
 The current branch is indicated in the header of the status buffer.
 You can check out a different branch by typing @kbd{b}.  To create a
-new branch and it check it out immediately, type @kbd{B}.
+new branch and check it out immediately, type @kbd{B}.
 
 You can also compare your working tree with some other branch.  Type
 @kbd{d} and then specify the branch to compare with.
