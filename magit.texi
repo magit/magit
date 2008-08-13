@@ -264,13 +264,30 @@ resolve the conflicts and stage the resolved files, for example with
 You can not stage individual hunks one by one as you resolve them, you
 can only stage whole files once all conflicts in them have been
 resolved.  If you can not easily and immediately resolve the conflicts
-from a merge, you should abort it instead of only comitting parts of
-it.
+from a merge, you should abort it.
 
 @node Rebasing
 @chapter Rebasing
 
+not yet implemented.
+
 @node Pushing and Pulling
 @chapter Pushing and Pulling
+
+Magit will run @code{git pull} when you type @kbd{U} in the status
+buffer, and it will you @code{git push} when you type @kbd{P}.  That's
+almost all the support for remote repositories that Magit offers.
+
+You can type @kbd{p} to pop up a buffer with the transcript of running
+these commands.
+
+If you have configured a default remote repository for the current
+branch (by setting the Git config option
+@code{branch.<branch>.remote}), Magit will show that repository in the
+status buffer header.
+
+In this case, the status buffer will also have a @emph{Unpushed
+commits} section that shows the commits on you current head that are
+not in the branch named @code{<remote>/<branch>}.
 
 @bye
