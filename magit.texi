@@ -49,7 +49,7 @@ Texts.
 * Introduction::                
 * The Status Buffer::           
 * The History Buffer::          
-* Rewriting History::           
+* Resetting::                   
 * Branching and Merging::       
 * Rebasing::                    
 * Pushing and Pulling::         
