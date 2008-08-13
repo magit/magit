@@ -39,6 +39,9 @@
 ;; - Indicate active command in modeline.  Show progress in message area?
 ;; - Detect and handle renames and copies.
 
+(require 'cl)
+(require 'parse-time)
+
 ;;; Utilities
 
 (defun magit-shell (cmd &rest args)
@@ -240,6 +243,9 @@
 (put 'magit-mode 'mode-class 'special)
 (put 'magit-marked-object 'permanent-local t)
 
+(defvar magit-marked-object nil)
+(make-variable-buffer-local 'magit-marked-object)
+
 (defun magit-mode ()
 ;;; XXX - the formatting is all screwed up because of the \\[...]
 ;;;       constructs.
@@ -322,7 +328,6 @@ pushed.
 
 \\{magit-mode-map}"
   (kill-all-local-variables)
-  (make-variable-buffer-local 'magit-marked-object)
   (setq buffer-read-only t)
   (setq major-mode 'magit-mode
 	mode-name "Magit")
@@ -665,7 +670,8 @@ pushed.
     (goto-char (point-min))
     (flush-lines "^#")
     (goto-char (point-min))
-    (replace-regexp "[ \t\n]*\\'" "\n")))
+    (if (re-search-forward "[ \t\n]*\\'" nil t)
+	(replace-match "\n" nil nil))))
 
 (defun magit-log-edit-commit ()
   (interactive)
@@ -950,3 +956,5 @@ the current line into your working tree.
   (interactive)
   (let ((info (get-char-property (point) 'magit-info)))
     (message "Thing: %s" info)))
+
+(provide 'magit)
