@@ -1,4 +1,4 @@
-;;; magit -- control git from Emacs.
+;;; magit -- control Git from Emacs.
 
 ;; Copyright (C) 2008  Marius Vollmer
 ;;
@@ -35,8 +35,6 @@
 
 ;; - Tags
 ;; - 'Subsetting', only looking at a subset of all files.
-;; - Polish history browsing.  Scroll when leaning on RET, etc.
-;; - Indicate active command in modeline.  Show progress in message area?
 ;; - Detect and handle renames and copies.
 
 (require 'cl)

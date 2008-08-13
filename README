@@ -1,4 +1,4 @@
-It's magit!  Another Emacs mode for git.
+It's magit!  A Emacs mode for Git.
 
 I wrote magit while learning about git and trying to figure out how I
 would be using git in a 'natural' way.  Magit will grow and hopefully
@@ -7,16 +7,17 @@ it.  Feedback is welcome!
 
 * Installing
 
-Magit is in such an early stage that there is no support for
-automatically installing it.  To use magit without installing it, just
-load magit.el into Emacs, in whatever way is most convenient for you.
+Magit can be installed with the popular recipe of
 
-For example, you could just add
+   $ ./configure
+   $ make install
 
-   (load ".../magit.el")
+This will put magit.el into /usr/local/share/emacs/site-lisp, where
+Emacs should be able to find it.  Then add
 
-to your ".emacs" file.  You can load it into your running Emacs with
-'M-x load-file'.
+      (require 'magit)
+
+to your .emacs file.
 
 * Getting started
 
@@ -28,10 +29,11 @@ commit them.
 * Learning more
 
 The Magit User Manual describes things with more words than the online
-help.  You can read it with 
+help.  You can read it in Emacs with 'C-u C-h i magit.info' for
+example, or on the web at
 
-* Updates
+    http://zagadka.vm.bytemark.co.uk/magit/magit.html
 
-You can follow magit development by cloning
+Magit's web home is currently at
 
-    http://zagadka.vm.bytemark.co.uk/git/magit.git/
+    http://zagadka.vm.bytemark.co.uk/magit/

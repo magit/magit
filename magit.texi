@@ -29,21 +29,11 @@ Texts.
 @end quotation
 @end copying
 
-@titlepage
-@title Magit User Manual
-@author Marius Vollmer
-@page
-@vskip 0pt plus 1filll
-@insertcopying
-@end titlepage
-
-@contents
-
-@ifnottex
 @node Top
 @top Magit User Manual
 
-@end ifnottex
+Magit is an interface to the version control system Git, implemented
+as an extension to Emacs.
 
 @menu
 * Introduction::                
@@ -58,17 +48,14 @@ Texts.
 @node Introduction
 @chapter Introduction
 
-Magit is an interface to the distributed version control system Git,
-implemented as an extension to Emacs.
-
 With Magit, you can inspect and modify any number of Git repositories.
 You can review and commit the changes you have made to the tracked
 files, for example, and you can browse the history of past changes.
 
-Magit is not a complete interface to Git, it just makes using the most
-common Git command-line tools more convenient.  Thus, while Magit is a
-good way to experiment with Git, using it will not save you from
-learning Git itself.
+Magit is not a complete interface to Git, it just makes the most
+common Git command-line tools more convenient to use.  Thus, while
+Magit is a good way to experiment with Git, using it will not save you
+from learning Git itself.
 
 This manual provides a tour of all Magit features and short
 discussions of how you would typically use them together for simple
