@@ -234,8 +234,7 @@ resolve the conflicts and stage the resolved files, for example with
 
 You can not stage individual hunks one by one as you resolve them, you
 can only stage whole files once all conflicts in them have been
-resolved.  If you can not easily and immediately resolve the conflicts
-from a merge, you should abort it.
+resolved.
 
 @node Rebasing
 @chapter Rebasing
@@ -244,23 +243,24 @@ Typing @kbd{R} in the status buffer will initiate a rebase or, if one
 is already in progress, ask you how to continue.
 
 When a rebase is stopped in the middle because of a conflict, the
-header of the status buffer will indicate what you are rebasing your
-current branch onto and how far along you are in the series of commits
-that are being replayed.
+header of the status buffer will indicate how far along you are in the
+series of commits that are being replayed.
 
 Of course, you can initiate a rebase in any number of ways, by
 configuring @code{git pull} to rebase instead of merge, for example.
-Such a rebase can be finished with Magit as well.
+Such a rebase can be finished with @kbd{R} as well.
 
 @node Pushing and Pulling
 @chapter Pushing and Pulling
 
 Magit will run @code{git pull} when you type @kbd{U} in the status
-buffer, and it will run @code{git push} when you type @kbd{P}.  That's
-almost all the support for remote repositories that Magit offers.
-
-You can type @kbd{p} to pop up a buffer with the transcript of running
+buffer, and it will run @code{git push} when you type @kbd{P}.  You
+can type @kbd{p} to pop up a buffer with the transcript of running
 these commands.
+
+That's almost all the support for remote repositories that Magit
+offers.  You should have setup your Git configuration to do the right
+thing for @code{git push} and @code{git pull}.
 
 If you have configured a default remote repository for the current
 branch (by setting the Git config option
