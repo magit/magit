@@ -1,5 +1,5 @@
-AC_INIT(hildon-application-manager, 2.2.0)
-AC_CONFIG_SRCDIR([src/main.cc])
+AC_INIT(magit, 0.5)
+AC_CONFIG_SRCDIR([magit.el])
 AM_INIT_AUTOMAKE
 
 AC_CONFIG_FILES([Makefile])
