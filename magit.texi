@@ -47,8 +47,8 @@ Texts.
 
 @menu
 * Introduction::                
-* The Status Buffer::           
-* The History Buffer::          
+* Status::                      
+* History::                     
 * Resetting::                   
 * Branching and Merging::       
 * Rebasing::                    
@@ -80,8 +80,8 @@ put you in Magit's status buffer.  You will be using it frequently, so
 it is probably a good idea to bind @code{magit-status} to a key of
 your choice.
 
-@node The Status Buffer
-@chapter The Status Buffer
+@node Status
+@chapter Status
 
 Running @kbd{M-x magit-status} displays the main interface of Magit,
 the status buffer.  Almost all operations are initiated with single
@@ -157,10 +157,8 @@ commits}.  It will briefly list the commits that you have made in your
 local repository, but have not yet pushed.  See @ref{Pushing and
 Pulling} for more information.
 
-You can use @kbd{x} and @kbd{X} to ...
-
-@node The History Buffer
-@chapter The History Buffer
+@node History
+@chapter History
 
 To browse the repository history, type @kbd{l} or @kbd{L} in the
 status buffer.  Typing @kbd{l} will show the history starting from the
