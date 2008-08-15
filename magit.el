@@ -34,6 +34,7 @@
 ;;; TODO
 
 ;; - Tags
+;; - Equivalent of interactive rebase
 ;; - 'Subsetting', only looking at a subset of all files.
 ;; - Detect and handle renames and copies.
 
