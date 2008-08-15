@@ -503,7 +503,7 @@ pushed.
 (defun magit-hunk-is-conflict-p (info)
   (save-excursion
     (goto-char (elt info 1))
-    (looking-at-p "^diff --cc")))
+    (looking-at "^diff --cc")))
 
 (defun magit-diff-conflict-file (info)
   (save-excursion
