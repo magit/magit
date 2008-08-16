@@ -733,6 +733,7 @@ pushed.
       (magit-run "git" "reset" "--soft" (magit-rev-to-git rev))))
 
 (defun magit-reset-working-tree ()
+  (interactive)
   (if (yes-or-no-p "Discard all uncommitted changes? ")
       (magit-run "git" "reset" "--hard")))
 
