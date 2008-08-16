@@ -327,10 +327,14 @@
 (defvar magit-mode-hook nil)
 
 (put 'magit-mode 'mode-class 'special)
-(put 'magit-marked-object 'permanent-local t)
 
 (defvar magit-marked-object nil)
 (make-variable-buffer-local 'magit-marked-object)
+(put 'magit-marked-object 'permanent-local t)
+
+(defvar magit-submode nil)
+(make-variable-buffer-local 'magit-submode)
+(put 'magit-submode 'permanent-local t)
 
 (defun magit-mode ()
 ;;; XXX - the formatting is all screwed up because of the \\[...]
@@ -421,6 +425,11 @@ pushed.
 	truncate-lines t)
   (use-local-map magit-mode-map)
   (run-mode-hooks 'magit-mode-hook))
+
+(defun magit-mode-init (dir submode)
+  (setq default-directory dir
+	magit-submode submode)
+  (magit-mode))
 
 ;;; Status
 
@@ -540,14 +549,18 @@ pushed.
       (magit-goto-section old-section))
     (magit-refresh-marks-in-buffer buf)))
 
-(defun magit-find-status-buffer (&optional dir)
+(defun magit-find-buffer (submode &optional dir)
   (let ((topdir (magit-get-top-dir (or dir default-directory))))
     (dolist (buf (buffer-list))
       (if (save-excursion
 	    (set-buffer buf)
 	    (and (equal default-directory topdir)
-		 (eq major-mode 'magit-mode)))
+		 (eq major-mode 'magit-mode)
+		 (eq magit-submode submode)))
 	  (return buf)))))
+
+(defun magit-find-status-buffer (&optional dir)
+  (magit-find-buffer 'status dir))
 
 (defun magit-status (dir)
   (interactive (list (magit-read-top-dir current-prefix-arg)))
@@ -557,8 +570,7 @@ pushed.
 		  (create-file-buffer (file-name-nondirectory
 				       (directory-file-name topdir))))))
     (switch-to-buffer buf)
-    (setq default-directory topdir)
-    (magit-mode)
+    (magit-mode-init topdir 'status)
     (magit-update-status buf)))
 
 ;;; Staging
@@ -879,8 +891,7 @@ pushed.
       (let* ((topdir (magit-get-top-dir default-directory))
 	     (args (magit-rev-range-to-git range)))
 	(switch-to-buffer "*magit-log*")
-	(setq default-directory topdir)
-	(magit-mode)
+	(magit-mode-init topdir 'log)
 	(let ((inhibit-read-only t))
 	  (save-excursion
 	    (erase-buffer)
@@ -906,8 +917,7 @@ pushed.
 	(display-buffer buf)
 	(save-excursion
 	  (set-buffer buf)
-	  (setq buffer-read-only t)
-	  (setq default-directory dir)
+	  (magit-mode-init dir 'diff)
 	  (let ((inhibit-read-only t))
 	    (erase-buffer)
 	    (magit-insert-section 'diff 
