@@ -191,6 +191,9 @@
 		(magit-rev-describe (cdr range)))
       (format "%s at %s" things (magit-rev-describe (car range))))))
 
+(defun magit-default-rev ()
+  (magit-commit-at-point t))
+
 ;;; Sections
 
 (defun magit-insert-section (section title washer cmd &rest args)
@@ -824,13 +827,15 @@ pushed.
 
 ;;; Commits
 
-(defun magit-commit-at-point ()
+(defun magit-commit-at-point (&optional nil-ok-p)
   (let* ((info (get-text-property (point) 'magit-info))
 	 (commit (and info
 		      (eq (car info) 'commit)
 		      (cadr info))))
-    (or commit
-	(error "No commit at point."))))
+    (if nil-ok-p
+	commit
+      (or commit
+	  (error "No commit at point.")))))
 
 (defun magit-revert-commit ()
   (interactive)
