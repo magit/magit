@@ -469,10 +469,11 @@ pushed.
 	(magit-insert-section 'staged
 			      "Staged changes:" 'magit-wash-diff
 			      "git" "diff" "--cached")
-	(magit-insert-section 'unpushed
-			      "Recent commits:" 'magit-wash-log
-			      "git" "log" "--graph" "--max-count=10"
-			      "--pretty=oneline"))
+	(if remote
+	    (magit-insert-section 'unpushed
+				  "Unpushed commits:" 'magit-wash-log
+				  "git" "log" "--graph" "--pretty=oneline"
+				  (format "%s/%s..HEAD" remote branch))))
       (magit-goto-line old-line)
       (magit-goto-section old-section))
     (magit-refresh-marks-in-buffer buf)))
