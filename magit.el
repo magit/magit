@@ -695,7 +695,7 @@ pushed.
 (defun magit-automatic-merge (rev)
   (interactive (list (magit-read-rev "Merge")))
   (if rev
-      (magit-run "git" "merge" (magit-rev-to-git branch))))
+      (magit-run "git" "merge" (magit-rev-to-git rev))))
 
 ;;; Rebasing
 
