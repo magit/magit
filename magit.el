@@ -126,8 +126,7 @@
 
 (defun magit-read-rev (prompt &optional def)
   (let* ((prompt (if def
-		     (format "%s (default %s): " prompt
-			     (magit-rev-describe def))
+		     (format "%s (default %s): " prompt def)
 		   (format "%s: " prompt)))
 	 (rev (completing-read prompt (magit-list-interesting-revisions)
 			       nil nil nil nil def)))
