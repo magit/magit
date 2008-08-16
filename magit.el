@@ -839,17 +839,13 @@ pushed.
       (or commit
 	  (error "No commit at point.")))))
 
-(defun magit-revert-commit ()
-  (interactive)
-  (magit-run "git" "revert" "--no-commit" (magit-commit-at-point)))
-
 (defun magit-apply-commit ()
   (interactive)
   (magit-run "git" "cherry-pick" "--no-commit" (magit-commit-at-point)))
 
-(defun magit-log-commit ()
+(defun magit-revert-commit ()
   (interactive)
-  (magit-browse-log (magit-commit-at-point)))
+  (magit-run "git" "revert" "--no-commit" (magit-commit-at-point)))
 
 (defun magit-show-commit ()
   "Show details of the commit on the current line."
