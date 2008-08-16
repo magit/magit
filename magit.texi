@@ -57,12 +57,17 @@ put you in Magit's status buffer.  You will be using it frequently, so
 it is probably a good idea to bind @code{magit-status} to a key of
 your choice.
 
+In addition to the status buffer, Magit will also create buffers that
+show lists of commits, buffers with diffs, and other kinds of buffers.
+All these buffers are in @code{magit-mode} and have the same key
+bindings.  Not all commands make sense in all contexts, but a given
+key will always do the same thing.
+
 @node Status
 @chapter Status
 
 Running @kbd{M-x magit-status} displays the main interface of Magit,
-the status buffer.  Almost all operations are initiated with single
-letter keystrokes from that buffer.
+the status buffer.
 
 You can have multiple status buffers active at the same time, each
 associated with its own Git repository.  Running @code{magit-status}
@@ -124,9 +129,9 @@ Type @kbd{c} to pop up a buffer where you can write your change
 description.  Once you are happy with the description, type @kbd{C-c
 C-c} in that buffer to commit the staged changes.
 
-Typing @kbd{C} will also pop up the change description buffer, but it
-will also try to insert a ChangeLog-style entry for the change that
-point is in.
+Typing @kbd{C} will also pop up the change description buffer, but in
+addition, it will try to insert a ChangeLog-style entry for the change
+that point is in.
 
 If the current branch is associated with a remote repository, the
 status buffer will show a fourth section, named @emph{Unpushed
@@ -137,37 +142,46 @@ Pulling} for more information.
 @node History
 @chapter History
 
-To browse the repository history, type @kbd{l} or @kbd{L} in the
-status buffer.  Typing @kbd{l} will show the history starting from the
-current head, while @kbd{L} will ask for a starting point.
-
-A new buffer will be shown that displays the history in a terse form.
+To show the repository history of your current head, type @kbd{l}.  A
+new buffer will be shown that displays the history in a terse form.
 The first paragraph of each commit message is displayed, next to a
 representation of the relationships between commits.
 
+Typing @kbd{L} will ask for the starting and end point of the history.
+This can be used to show the commits that are in one branch, but not
+in another, for example.
+
 You can move point to a commit and then cause various things to happen
-with it.
+with it.  (The following commands work in any list of commit, such as
+the one shown in the @emph{Unpushed commits} section.)
 
 Typing @kbd{RET} will pop up more information about the current
-commit and typing @kbd{l} will use it as the new starting point of the
-history buffer.
+commit.
 
-Typing @kbd{R} will revert the current commit in your working tree and
-staging area.  Thus, it will apply the changes made by that commit in
-reverse.  This is obviously useful to cleanly undo changes that turned
-out to be wrong.
+Typing @kbd{a} will apply the current commit to your working tree and
+staging area.  This is useful when you are browsing the history of
+some other branch and you want to `cherry-pick' some changes from it
+for your current branch.  A typical situation is applying selected bug
+fixes from the development version of a program to a release branch.
 
-Typing @kbd{P} will apply the current commit in the normal way.  This
-is useful when you are browsing the history of some other branch and
-you want to `cherry-pick' some changes from it for your current
-branch.  A typical situation is applying selected bug fixes from the
-development version of a program to a release branch.
+Typing @kbd{v} will revert the current commit.  Thus, it will apply
+the changes made by that commit in reverse.  This is obviously useful
+to cleanly undo changes that turned out to be wrong.
 
-Typing @kbd{C} will switch your working tree to the current commit.
+Typing @kbd{=} will show the differences from the current commit to
+the @dfn{marked} commit.
 
-You can also mark the current commit by typing @kbd{.}.  Once you have
-marked a commit, you can show the differences between it and the
-current commit by typing @kbd{=}.
+You can mark the current commit by typing @kbd{.}.  Some commands,
+such as @kbd{=}, will use the current commit and the marked commit as
+implicit arguments.  Other commands will offer the marked commit as a
+default when prompting for their arguments.
+
+@node Diffing
+@chapter Diffing
+
+To show the changes from you working tree to another revision, type
+@kbd{d}.  To show the changes between two arbitrary revisions, type
+@kbd{D}.
 
 @node Resetting
 @chapter Resetting
@@ -176,37 +190,43 @@ Once you have added a commit to your local repository, you can not
 change that commit anymore in any way.  But you can reset your current
 head to an earlier commit and start over.
 
-If you have published your history already, rewriting history in this
-way can be confusing and should be avoided.  However, rewriting your
-local history is fine and it is often cleaner to fix mistakes this way
-than by reverting commits (with @kbd{R} in the history buffer, for
-example).
+If you have published your history already, rewriting it in this way
+can be confusing and should be avoided.  However, rewriting your local
+history is fine and it is often cleaner to fix mistakes this way than
+by reverting commits (with @kbd{R}, for example).
 
-Magit gives you two ways to reset your current head: soft and hard.
-Type @kbd{x} to do a soft reset.  This will change the current head to
-the commit that you specify, but your current working tree and staging
-area will not be touched.  This is useful to redoing the last commit
-to correct the commit message, for example.
+Typing @kbd{x} will ask for a revision and reset your current head to
+it.  No changes will be made to your working tree and staging area.
+Thus, the @emph{Staged changes} section in the status buffer will show
+the changes that you have removed from your commit history.  You can
+commit the changes again as if you had just made them, thus rewriting
+history.
 
-Type @kbd{X} to do a hard reset.  This will reset the current head to
-the commit you specify and will check it out so that your working tree
-and staging area will match it.  In other words, a hard reset will
-throw away the history completely, which can be useful to abort
-experimental changes (like merging a branch just to see what happens).
+Typing @kbd{x} while point is in a line that describes a commit will
+offer this commit as the default revision to reset to.  Thus, you can
+move point to one of the commits in the @emph{Unpushed commits}
+section and hit @kbd{x RET} to reset your current head to it.
 
-In particular, doing a hard reset to HEAD will have no effect on the
-current head, but it will reset your working tree and staging area
-back to the last committed state.
+Type @kbd{X} to reset your working tree and staging area to the most
+recently committed state.  This will discard your local modifications,
+so be careful.
 
 @node Branching and Merging
 @chapter Branching and Merging
 
 The current branch is indicated in the header of the status buffer.
-You can check out a different branch by typing @kbd{b}.  To create a
-new branch and check it out immediately, type @kbd{B}.
+You can switch to a different branch by typing @kbd{b}.  This will
+immediately checkout the branch into your working copy, so you
+shouldn't have any local modifications when switching branches.
 
-You can also compare your working tree with some other branch.  Type
-@kbd{d} and then specify the branch to compare with.
+Similar to @kbs{x}, typing @kbd{b} while point is at a commit
+description will offer that commit as the default to switch to.
+This will result in a detached head.
+
+To create a new branch and switch to it immediately, type @kbd{B}.
+
+@node Merging
+@chapter Merging
 
 Magit offers two ways to merge branches: manually and automatic.  A
 manual merge will apply all changes to your working tree and staging
@@ -217,9 +237,9 @@ Type @kbd{m} to initiate a manual merge, and type @kbd{M} for a
 automatic merge.
 
 A manual merge is useful when carefully merging a new feature that you
-want to review and test before committing it.  A automatic merge is
-appropriate when you are on a feature branch and want to catch up with
-the master, say.
+want to review and test before even committing it.  A automatic merge
+is appropriate when you are on a feature branch and want to catch up
+with the master, say.
 
 After initiating a manual merge, the header of the status buffer will
 remind you that the next commit will be a merge commit (with more than
