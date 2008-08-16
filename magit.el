@@ -34,6 +34,7 @@
 ;;; TODO
 
 ;; - Tags
+;; - Unified keymaps for status and history, etc
 ;; - Equivalent of interactive rebase
 ;; - 'Subsetting', only looking at a subset of all files.
 ;; - Detect and handle renames and copies.
@@ -235,9 +236,13 @@
     (define-key map (kbd "S") 'magit-stage-all)
     (define-key map (kbd "u") 'magit-unstage-thing-at-point)
     (define-key map (kbd "i") 'magit-ignore-thing-at-point)
-    (define-key map (kbd "?") 'magit-describe-thing-at-point)
+    (define-key map (kbd "^") 'magit-describe-thing-at-point)
     (define-key map (kbd ".") 'magit-mark-thing-at-point)
     (define-key map (kbd "=") 'magit-diff-with-mark)
+    (define-key map (kbd "?") 'magit-log-commit)
+    (define-key map (kbd "a") 'magit-apply-commit)
+    (define-key map (kbd "v") 'magit-revert-commit)
+    (define-key map (kbd "H") 'magit-checkout-commit)
     (define-key map (kbd "x") 'magit-reset-soft)
     (define-key map (kbd "X") 'magit-reset-hard)
     (define-key map (kbd "RET") 'magit-visit-thing-at-point)
@@ -254,6 +259,7 @@
     (define-key map (kbd "L") 'magit-browse-branch-log)
     (define-key map (kbd "d") 'magit-diff-with-branch)
     (define-key map (kbd "p") 'magit-display-process)
+    (define-key map (kbd "q") 'magit-quit)
     map))
 
 (defvar magit-mode-hook nil)
@@ -326,13 +332,13 @@ that are being merged at the top.
 
 You can `soft reset' your repository by typing
 `\\[magit-reset-soft]'.  The current head will be set to the
-commit that you specify, but your working tree and the staging
-area are not changed.  Typing `\\[magit-reset-hard]' will do a
-`hard reset': all of the current head, your working tree, and the
-the index will be reverted to the commit that you specify.  Doing
-a hard reset without actually changing the current head will thus
-throw away all your uncommitted changes.  You can do this to
-abort a merge, for example.
+commit at point, but your working tree and the staging area are
+not changed.  Typing `\\[magit-reset-hard]' will do a `hard
+reset': all of the current head, your working tree, and the the
+index will be reverted to the commit at point.  Doing a hard
+reset without actually changing the current head will thus throw
+away all your uncommitted changes.  You can do this to abort a
+merge, for example.
 
 When you have a remote repository configured for the current
 branch (such as when \"git clone\" has done this for you
@@ -462,11 +468,10 @@ pushed.
 	(magit-insert-section 'staged
 			      "Staged changes:" 'magit-wash-diff
 			      "git" "diff" "--cached")
-	(if remote
-	    (magit-insert-section 'unpushed
-				  "Unpushed commits:" 'magit-wash-log
-				  "git" "log" "--graph" "--pretty=oneline"
-				  (format "%s/%s..HEAD" remote branch))))
+	(magit-insert-section 'unpushed
+			      "Recent commits:" 'magit-wash-log
+			      "git" "log" "--graph" "--max-count=10"
+			      "--pretty=oneline"))
       (magit-goto-line old-line)
       (magit-goto-section old-section))
     (magit-refresh-marks-in-buffer buf)))
@@ -653,14 +658,13 @@ pushed.
 ;;; Resetting
 
 (defun magit-reset-soft (target)
-  (interactive (list (read-string "Reset history to: " "HEAD^")))
+  (interactive (list (magit-commit-at-point)))
   (magit-run "git" "reset" "--soft" target))
 
 (defun magit-reset-hard (target)
-  (interactive (list (read-string "Reset working tree (and history) to: "
-				  "HEAD")))
+  (interactive (list (magit-commit-at-point)))
   (if (yes-or-no-p
-       (format "Hard reset to %s and throw away all uncommitted changes? "
+       (format "Hard reset and throw away all uncommitted changes? "
 	       target))
       (magit-run "git" "reset" "--hard" target)))
 
@@ -757,11 +761,13 @@ pushed.
     (define-key map (kbd "RET") 'magit-show-commit)
     (define-key map (kbd ".") 'magit-mark-thing-at-point)
     (define-key map (kbd "=") 'magit-diff-with-mark)
-    (define-key map (kbd "R") 'magit-revert-commit)
-    (define-key map (kbd "P") 'magit-pick-commit)
-    (define-key map (kbd "C") 'magit-checkout-commit)
-    (define-key map (kbd "l") 'magit-log-commit)
+    (define-key map (kbd "^") 'magit-log-commit)
+    (define-key map (kbd "a") 'magit-apply-commit)
+    (define-key map (kbd "v") 'magit-revert-commit)
+    (define-key map (kbd "H") 'magit-checkout-commit)
     (define-key map (kbd "L") 'magit-browse-branch-log)
+    (define-key map (kbd "x") 'magit-reset-soft)
+    (define-key map (kbd "X") 'magit-reset-hard)
     (define-key map (kbd "q") 'magit-quit)
     map))
 
@@ -784,7 +790,7 @@ You can modify your working tree and staging area by using the
 commit on the current line in a number of ways.  Typing
 `\\[magit-revert-commit]' will revert the change made by the
 commit in your working tree (and staging area).  Typing
-`\\[magit-pick-commit]' will apply the commit.  You can use this
+`\\[magit-apply-commit]' will apply the commit.  You can use this
 to `cherry pick' changes from another branch.
 
 Typing `\\[magit-checkout-commit]' will checkout the commit on
@@ -811,7 +817,7 @@ the current line into your working tree.
   (interactive)
   (magit-run "git" "revert" "--no-commit" (magit-commit-at-point)))
 
-(defun magit-pick-commit ()
+(defun magit-apply-commit ()
   (interactive)
   (magit-run "git" "cherry-pick" "--no-commit" (magit-commit-at-point)))
 

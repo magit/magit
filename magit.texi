@@ -149,25 +149,27 @@ You can move point to a commit and then cause various things to happen
 with it.
 
 Typing @kbd{RET} will pop up more information about the current
-commit and typing @kbd{l} will use it as the new starting point of the
-history buffer.
+commit.
 
-Typing @kbd{R} will revert the current commit in your working tree and
+Typing @kbd{v} will revert the current commit in your working tree and
 staging area.  Thus, it will apply the changes made by that commit in
 reverse.  This is obviously useful to cleanly undo changes that turned
 out to be wrong.
 
-Typing @kbd{P} will apply the current commit in the normal way.  This
+Typing @kbd{a} will apply the current commit in the normal way.  This
 is useful when you are browsing the history of some other branch and
 you want to `cherry-pick' some changes from it for your current
 branch.  A typical situation is applying selected bug fixes from the
 development version of a program to a release branch.
 
-Typing @kbd{C} will switch your working tree to the current commit.
+Typing @kbd{H} will switch your working tree to the current commit.
 
 You can also mark the current commit by typing @kbd{.}.  Once you have
 marked a commit, you can show the differences between it and the
 current commit by typing @kbd{=}.
+
+Finally, typing @kbd{^} will use the current commit as the new
+starting point of the history buffer.
 
 @node Resetting
 @chapter Resetting
