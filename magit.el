@@ -836,10 +836,6 @@ pushed.
   (interactive)
   (magit-run "git" "cherry-pick" "--no-commit" (magit-commit-at-point)))
 
-(defun magit-checkout-commit ()
-  (interactive)
-  (magit-run "git" "checkout" (magit-commit-at-point)))
-
 (defun magit-log-commit ()
   (interactive)
   (magit-browse-log (magit-commit-at-point)))
