@@ -1,4 +1,10 @@
 Changes in magit 0.6:
 
+* Key bindings and command behavior for diffing, history listing, and
+  resetting have changed.  Please see the manual.
+
+* All buffers created by Magit are now in magit-mode and share all key
+  bindings.
+
 * Bug fix: avoid looking-at-p so that magit.el works on Emacs 22 as
   well.
