@@ -1,4 +1,4 @@
-AC_INIT(magit, 0.5)
+AC_INIT(magit, 0.6)
 AC_CONFIG_SRCDIR([magit.el])
 AM_INIT_AUTOMAKE
 
