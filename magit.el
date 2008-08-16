@@ -306,7 +306,7 @@
     (define-key map (kbd "=") 'magit-diff-with-mark)
     (define-key map (kbd "l") 'magit-log-head)
     (define-key map (kbd "L") 'magit-log)
-    (define-key map (kbd "d") 'magit-diff-head)
+    (define-key map (kbd "d") 'magit-diff-working-tree)
     (define-key map (kbd "D") 'magit-diff)
     (define-key map (kbd "x") 'magit-reset-head)
     (define-key map (kbd "X") 'magit-reset-working-tree)
@@ -924,10 +924,10 @@ pushed.
 				  'magit-wash-diff
 				  "git" "diff" args))))))
 
-(defun magit-diff-head (rev)
+(defun magit-diff-working-tree (rev)
   (interactive (list (magit-read-rev "Diff with")))
   (if rev
-      (magit-diff (cons "HEAD" rev))))
+      (magit-diff rev)))
 
 (defun magit-diff-with-mark ()
   (interactive)
