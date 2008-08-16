@@ -125,8 +125,12 @@
   (magit-shell-lines "git branch -a | cut -c3-"))
 
 (defun magit-read-rev (prompt &optional def)
-  (let ((rev (completing-read prompt (magit-list-interesting-revisions)
-			      nil nil nil nil def)))
+  (let* ((prompt (if def
+		     (format "%s (default %s): " prompt
+			     (magit-rev-describe def))
+		   (format "%s: " prompt)))
+	 (rev (completing-read prompt (magit-list-interesting-revisions)
+			       nil nil nil nil def)))
     (if (string= rev "")
 	nil
       rev)))
@@ -134,24 +138,11 @@
 (defun magit-read-rev-range (op &optional def-beg def-end)
   (if current-prefix-arg
       (read-string (format "%s range: " op))
-    (let ((beg (magit-read-rev
-		(format "%s start%s: "
-			op
-			(if def-beg
-			    (format " (default %s)"
-				    (magit-rev-describe def-beg))
-			  ""))
-		def-beg)))
+    (let ((beg (magit-read-rev (format "%s start" op)
+			       def-beg)))
       (if (not beg)
 	  nil
-	(let ((end (magit-read-rev
-		(format "%s end%s: "
-			op
-			(if def-end
-			    (format " (default %s)"
-				    (magit-rev-describe def-end))
-			  ""))
-		    def-end)))
+	(let ((end (magit-read-rev (format "%s end" op) def-end)))
 	  (cons beg end))))))
 
 (defun magit-rev-to-git (rev)
@@ -664,14 +655,14 @@ pushed.
 ;;; Branches
 
 (defun magit-checkout (rev)
-  (interactive (list (magit-read-rev "Switch to: ")))
+  (interactive (list (magit-read-rev "Switch to" (magit-default-rev))))
   (if rev
       (magit-run "git" "checkout" (magit-rev-to-git rev))))
   
 (defun magit-read-create-branch-args ()
   (let* ((cur-branch (magit-get-current-branch))
 	 (branch (read-string "Create branch: "))
-	 (parent (magit-read-rev "Parent: " cur-branch)))
+	 (parent (magit-read-rev "Parent" cur-branch)))
     (list branch parent)))
 
 (defun magit-create-branch (branch parent)
@@ -685,13 +676,13 @@ pushed.
 ;;; Merging
 
 (defun magit-manual-merge (rev)
-  (interactive (list (magit-read-rev "Manually merge: ")))
+  (interactive (list (magit-read-rev "Manually merge")))
   (if rev
       (magit-run "git" "merge" "--no-ff" "--no-commit"
 		 (magit-rev-to-git rev))))
 
 (defun magit-automatic-merge (rev)
-  (interactive (list (magit-read-rev "Merge: ")))
+  (interactive (list (magit-read-rev "Merge")))
   (if rev
       (magit-run "git" "merge" (magit-rev-to-git branch))))
 
@@ -713,9 +704,9 @@ pushed.
   (interactive)
   (let ((info (magit-rebase-info)))
     (if (not info)
-	(let ((rev (magit-read-rev "Rebase to: ")))
+	(let ((rev (magit-read-rev "Rebase to")))
 	  (if rev
-	      (magit-run "git" "rebase" (magit-read-rev "Rebase to: "))))
+	      (magit-run "git" "rebase" rev)))
       (let ((cursor-in-echo-area t)
 	    (message-log-max nil))
 	(message "Rebase in progress.  Abort, Skip, or Continue? ")
@@ -731,7 +722,7 @@ pushed.
 ;;; Resetting
 
 (defun magit-reset-head (rev)
-  (interactive (list (magit-read-rev "Reset head to: ")))
+  (interactive (list (magit-read-rev "Reset head to")))
   (if rev
       (magit-run "git" "reset" "--soft" (magit-rev-to-git rev))))
 
@@ -929,7 +920,7 @@ pushed.
 				  "git" "diff" args))))))
 
 (defun magit-diff-head (rev)
-  (interactive (list (magit-read-rev "Diff with: ")))
+  (interactive (list (magit-read-rev "Diff with")))
   (if rev
       (magit-diff (cons "HEAD" rev))))
 
