@@ -733,7 +733,7 @@ pushed.
 ;;; Resetting
 
 (defun magit-reset-head (rev)
-  (interactive (list (magit-read-rev "Reset head to")))
+  (interactive (list (magit-read-rev "Reset head to" (magit-default-rev))))
   (if rev
       (magit-run "git" "reset" "--soft" (magit-rev-to-git rev))))
 
