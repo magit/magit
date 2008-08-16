@@ -119,6 +119,78 @@
   (put-text-property (line-beginning-position) (line-end-position)
 		     prop val))
 
+;;; Revisions and ranges
+
+(defun magit-list-interesting-revisions ()
+  (magit-shell-lines "git branch -a | cut -c3-"))
+
+(defun magit-read-rev (prompt &optional def)
+  (let ((rev (completing-read prompt (magit-list-interesting-revisions)
+			      nil nil nil nil def)))
+    (if (string= rev "")
+	nil
+      rev)))
+
+(defun magit-read-rev-range (op &optional def-beg def-end)
+  (if current-prefix-arg
+      (read-string (format "%s range: " op))
+    (let ((beg (magit-read-rev
+		(format "%s start%s: "
+			op
+			(if def-beg
+			    (format " (default %s)"
+				    (magit-rev-describe def-beg))
+			  ""))
+		def-beg)))
+      (if (not beg)
+	  nil
+	(let ((end (magit-read-rev
+		(format "%s end%s: "
+			op
+			(if def-end
+			    (format " (default %s)"
+				    (magit-rev-describe def-end))
+			  ""))
+		    def-end)))
+	  (cons beg end))))))
+
+(defun magit-rev-to-git (rev)
+  (or rev
+      (error "No revision specified"))
+  (if (string= rev ".")
+      (or (magit-marked-object)
+	  (error "Commit mark not set"))
+    rev))
+
+(defun magit-rev-range-to-git (range)
+  (or range
+      (error "No revision range specified"))
+  (if (stringp range)
+      range
+    (if (cdr range)
+	(format "%s..%s"
+		(magit-rev-to-git (car range))
+		(magit-rev-to-git (cdr range)))
+      (format "%s" (magit-rev-to-git (car range))))))
+
+(defun magit-rev-describe (rev)
+  (or rev
+      (error "No revision specified"))
+  (if (string= rev ".")
+      "mark"
+    (magit-name-rev rev)))
+
+(defun magit-rev-range-describe (range things)
+  (or range
+      (error "No revision range specified"))
+  (if (stringp range)
+      (format "%s in %s" things range)
+    (if (cdr range)
+	(format "%s from %s to %s" things 
+		(magit-rev-describe (car range))
+		(magit-rev-describe (cdr range)))
+      (format "%s at %s" things (magit-rev-describe (car range))))))
+
 ;;; Sections
 
 (defun magit-insert-section (section title washer cmd &rest args)
@@ -236,17 +308,17 @@
     (define-key map (kbd "S") 'magit-stage-all)
     (define-key map (kbd "u") 'magit-unstage-thing-at-point)
     (define-key map (kbd "i") 'magit-ignore-thing-at-point)
-    (define-key map (kbd "^") 'magit-describe-thing-at-point)
+    (define-key map (kbd "?") 'magit-describe-thing-at-point)
     (define-key map (kbd ".") 'magit-mark-thing-at-point)
     (define-key map (kbd "=") 'magit-diff-with-mark)
-    (define-key map (kbd "?") 'magit-log-commit)
-    (define-key map (kbd "a") 'magit-apply-commit)
-    (define-key map (kbd "v") 'magit-revert-commit)
-    (define-key map (kbd "H") 'magit-checkout-commit)
-    (define-key map (kbd "x") 'magit-reset-soft)
-    (define-key map (kbd "X") 'magit-reset-hard)
+    (define-key map (kbd "l") 'magit-log-head)
+    (define-key map (kbd "L") 'magit-log)
+    (define-key map (kbd "d") 'magit-diff-head)
+    (define-key map (kbd "D") 'magit-diff)
+    (define-key map (kbd "x") 'magit-reset-head)
+    (define-key map (kbd "X") 'magit-reset-working-tree)
     (define-key map (kbd "RET") 'magit-visit-thing-at-point)
-    (define-key map (kbd "b") 'magit-switch-branch)
+    (define-key map (kbd "b") 'magit-checkout)
     (define-key map (kbd "B") 'magit-create-branch)
     (define-key map (kbd "m") 'magit-manual-merge)
     (define-key map (kbd "M") 'magit-automatic-merge)
@@ -255,11 +327,7 @@
     (define-key map (kbd "P") 'magit-push)
     (define-key map (kbd "c") 'magit-log-edit)
     (define-key map (kbd "C") 'magit-add-log)
-    (define-key map (kbd "l") 'magit-browse-log)
-    (define-key map (kbd "L") 'magit-browse-branch-log)
-    (define-key map (kbd "d") 'magit-diff-with-branch)
     (define-key map (kbd "p") 'magit-display-process)
-    (define-key map (kbd "q") 'magit-quit)
     map))
 
 (defvar magit-mode-hook nil)
@@ -592,39 +660,37 @@ pushed.
 
 ;;; Branches
 
-(defun magit-list-branches ()
-  (magit-shell-lines "git branch -a | cut -c3-"))
-
-(defun magit-read-rev (prompt)
-  (completing-read prompt (magit-list-branches)))
-
-(defun magit-switch-branch (branch)
-  (interactive (list (magit-read-rev "Switch to branch: ")))
-  (if (and branch (not (string= branch "")))
-      (magit-run "git" "checkout" branch)))
+(defun magit-checkout (rev)
+  (interactive (list (magit-read-rev "Switch to: ")))
+  (if rev
+      (magit-run "git" "checkout" (magit-rev-to-git rev))))
   
 (defun magit-read-create-branch-args ()
-  (let* ((branches (magit-list-branches))
-	 (cur-branch (magit-get-current-branch))
+  (let* ((cur-branch (magit-get-current-branch))
 	 (branch (read-string "Create branch: "))
-	 (parent (completing-read "Parent: " branches nil t cur-branch)))
+	 (parent (magit-read-rev "Parent: " cur-branch)))
     (list branch parent)))
 
 (defun magit-create-branch (branch parent)
   (interactive (magit-read-create-branch-args))
   (if (and branch (not (string= branch ""))
-	   parent (not (string= parent "")))
-      (magit-run "git" "checkout" "-b" branch parent)))
+	   parent)
+      (magit-run "git" "checkout" "-b"
+		 branch
+		 (magit-rev-to-git parent))))
 
 ;;; Merging
 
-(defun magit-manual-merge (branch)
-  (interactive (list (magit-read-rev "Manually merge from branch: ")))
-  (magit-run "git" "merge" "--no-ff" "--no-commit" branch))
+(defun magit-manual-merge (rev)
+  (interactive (list (magit-read-rev "Manually merge: ")))
+  (if rev
+      (magit-run "git" "merge" "--no-ff" "--no-commit"
+		 (magit-rev-to-git rev))))
 
-(defun magit-automatic-merge (branch)
-  (interactive (list (magit-read-rev "Merge from branch: ")))
-  (magit-run "git" "merge" branch))
+(defun magit-automatic-merge (rev)
+  (interactive (list (magit-read-rev "Merge: ")))
+  (if rev
+      (magit-run "git" "merge" (magit-rev-to-git branch))))
 
 ;;; Rebasing
 
@@ -644,7 +710,9 @@ pushed.
   (interactive)
   (let ((info (magit-rebase-info)))
     (if (not info)
-	(magit-run "git" "rebase" (magit-read-rev "Rebase against: "))
+	(let ((rev (magit-read-rev "Rebase to: ")))
+	  (if rev
+	      (magit-run "git" "rebase" (magit-read-rev "Rebase to: "))))
       (let ((cursor-in-echo-area t)
 	    (message-log-max nil))
 	(message "Rebase in progress.  Abort, Skip, or Continue? ")
@@ -659,16 +727,14 @@ pushed.
 
 ;;; Resetting
 
-(defun magit-reset-soft (target)
-  (interactive (list (magit-commit-at-point)))
-  (magit-run "git" "reset" "--soft" target))
+(defun magit-reset-head (rev)
+  (interactive (list (magit-read-rev "Reset head to: ")))
+  (if rev
+      (magit-run "git" "reset" "--soft" (magit-rev-to-git rev))))
 
-(defun magit-reset-hard (target)
-  (interactive (list (magit-commit-at-point)))
-  (if (yes-or-no-p
-       (format "Hard reset and throw away all uncommitted changes? "
-	       target))
-      (magit-run "git" "reset" "--hard" target)))
+(defun magit-reset-working-tree ()
+  (if (yes-or-no-p "Discard all uncommitted changes? ")
+      (magit-run "git" "reset" "--hard")))
 
 ;;; Push and pull
 
@@ -680,7 +746,7 @@ pushed.
   (interactive)
   (magit-run "git" "push" "-v"))
 
-;;; Commit
+;;; Committing
 
 (defvar magit-log-edit-map nil)
 
@@ -755,7 +821,7 @@ pushed.
 		    (open-line 1)
 		    (insert (format "(%s): " fun)))))))))
 
-;;; Commit browsing
+;;; Commits
 
 (defun magit-commit-at-point ()
   (let* ((info (get-text-property (point) 'magit-info))
@@ -814,50 +880,57 @@ pushed.
 	(magit-put-line-property 'magit-info (list 'commit commit))))
     (forward-line)))
 
-(defun magit-browse-log (head)
-  (interactive (list (magit-get-current-branch)))
-  (let* ((topdir (magit-get-top-dir default-directory)))
-    (switch-to-buffer "*magit-log*")
-    (setq default-directory topdir)
-    (magit-mode)
-    (let ((inhibit-read-only t))
-      (save-excursion
-	(erase-buffer)
-	(magit-insert-section 'history (format "History of %s" head)
-			      'magit-wash-log
-			      "git" "log" "--graph" "--max-count=10000"
-			      "--pretty=oneline" head)))
-    (magit-refresh-marks-in-buffer (current-buffer))))
+(defun magit-log (range)
+  (interactive (list (magit-read-rev-range "Log" (magit-get-current-branch))))
+  (if range
+      (let* ((topdir (magit-get-top-dir default-directory))
+	     (args (magit-rev-range-to-git range)))
+	(switch-to-buffer "*magit-log*")
+	(setq default-directory topdir)
+	(magit-mode)
+	(let ((inhibit-read-only t))
+	  (save-excursion
+	    (erase-buffer)
+	    (magit-insert-section 'history
+				  (magit-rev-range-describe range "Commits")
+				  'magit-wash-log
+				  "git" "log" "--graph" "--max-count=10000"
+				  "--pretty=oneline" args)))
+	(magit-refresh-marks-in-buffer (current-buffer)))))
 
-(defun magit-browse-branch-log ()
+(defun magit-log-head ()
   (interactive)
-  (magit-browse-log (magit-read-rev "Browse history of branch: ")))
-
-(defun magit-diff-with-mark ()
-  (interactive)
-  (let ((commit (magit-commit-at-point))
-	(marked (or (magit-marked-object)
-		    (error "Nothing marked."))))
-    (magit-show-diff commit marked)))
+  (magit-log "HEAD"))
 
 ;;; Diffing
 
-(defun magit-show-diff (&rest args)
-  (let ((dir default-directory)
-	(buf (get-buffer-create "*magit-diff*")))
-    (display-buffer buf)
-    (save-excursion
-      (set-buffer buf)
-      (setq buffer-read-only t)
-      (setq default-directory dir)
-      (let ((inhibit-read-only t))
-	(erase-buffer)
-	(apply 'magit-insert-section 'diff nil 'magit-wash-diff
-	       "git" "diff" args)))))
+(defun magit-diff (range)
+  (interactive (list (magit-read-rev-range "Diff")))
+  (if range
+      (let* ((dir default-directory)
+	     (args (magit-rev-range-to-git range))
+	     (buf (get-buffer-create "*magit-diff*")))
+	(display-buffer buf)
+	(save-excursion
+	  (set-buffer buf)
+	  (setq buffer-read-only t)
+	  (setq default-directory dir)
+	  (let ((inhibit-read-only t))
+	    (erase-buffer)
+	    (magit-insert-section 'diff 
+				  (magit-rev-range-describe range "Changes")
+				  'magit-wash-diff
+				  "git" "diff" args))))))
 
-(defun magit-diff-with-branch (branch)
-  (interactive (list (magit-read-rev "Diff against: ")))
-  (magit-show-diff branch))
+(defun magit-diff-head (rev)
+  (interactive (list (magit-read-rev "Diff with: ")))
+  (if rev
+      (magit-diff (cons "HEAD" rev))))
+
+(defun magit-diff-with-mark ()
+  (interactive)
+  (magit-diff (cons (magit-marked-object)
+		    (magit-commit-at-point))))
 
 ;;; Markers
 
