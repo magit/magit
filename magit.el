@@ -355,7 +355,8 @@ pushed.
   (setq buffer-read-only t)
   (setq major-mode 'magit-mode
 	mode-name "Magit"
-	mode-line-process "")
+	mode-line-process ""
+	truncate-lines t)
   (use-local-map magit-mode-map)
   (run-mode-hooks 'magit-mode-hook))
 
@@ -753,57 +754,7 @@ pushed.
 		    (open-line 1)
 		    (insert (format "(%s): " fun)))))))))
 
-;;; History browsing
-
-(defvar magit-log-mode-map
-  (let ((map (make-keymap)))
-    (suppress-keymap map)
-    (define-key map (kbd "RET") 'magit-show-commit)
-    (define-key map (kbd ".") 'magit-mark-thing-at-point)
-    (define-key map (kbd "=") 'magit-diff-with-mark)
-    (define-key map (kbd "^") 'magit-log-commit)
-    (define-key map (kbd "a") 'magit-apply-commit)
-    (define-key map (kbd "v") 'magit-revert-commit)
-    (define-key map (kbd "H") 'magit-checkout-commit)
-    (define-key map (kbd "L") 'magit-browse-branch-log)
-    (define-key map (kbd "x") 'magit-reset-soft)
-    (define-key map (kbd "X") 'magit-reset-hard)
-    (define-key map (kbd "q") 'magit-quit)
-    map))
-
-(defvar magit-log-mode-hook nil)
-
-(put 'magit-log-mode 'mode-class 'special)
-
-(defun magit-log-mode ()
-  "Review commit history. \\<magit-log-mode-map>
-
-The buffer shows a summary of the (usually non-linear) history of
-changes starting form a given commit.  You can see the details of
-a the commit on the current line by typing
-`\\[magit-show-commit]'.  Typing `\\[magit-log-commit] will use
-the commit on the current line as the new starting point for the
-summary.  Typing `\\[magit-browse-branch-log]' will ask you for a
-branch and show its history.
-
-You can modify your working tree and staging area by using the
-commit on the current line in a number of ways.  Typing
-`\\[magit-revert-commit]' will revert the change made by the
-commit in your working tree (and staging area).  Typing
-`\\[magit-apply-commit]' will apply the commit.  You can use this
-to `cherry pick' changes from another branch.
-
-Typing `\\[magit-checkout-commit]' will checkout the commit on
-the current line into your working tree.
-
-\\{magit-log-mode-map}"
-  (kill-all-local-variables)
-  (setq buffer-read-only t)
-  (toggle-truncate-lines t)
-  (setq major-mode 'magit-log-mode
-	mode-name "Magit Log")
-  (use-local-map magit-log-mode-map)
-  (run-mode-hooks 'magit-log-mode-hook))
+;;; Commit browsing
 
 (defun magit-commit-at-point ()
   (let* ((info (get-text-property (point) 'magit-info))
@@ -867,7 +818,7 @@ the current line into your working tree.
   (let* ((topdir (magit-get-top-dir default-directory)))
     (switch-to-buffer "*magit-log*")
     (setq default-directory topdir)
-    (magit-log-mode)
+    (magit-mode)
     (let ((inhibit-read-only t))
       (save-excursion
 	(erase-buffer)
