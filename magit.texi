@@ -31,8 +31,10 @@ as an extension to Emacs.
 * Introduction::                
 * Status::                      
 * History::                     
+* Diffing::                     
 * Resetting::                   
-* Branching and Merging::       
+* Branching::                   
+* Merging::                     
 * Rebasing::                    
 * Pushing and Pulling::         
 @end menu
@@ -211,15 +213,15 @@ Type @kbd{X} to reset your working tree and staging area to the most
 recently committed state.  This will discard your local modifications,
 so be careful.
 
-@node Branching and Merging
-@chapter Branching and Merging
+@node Branching
+@chapter Branching
 
 The current branch is indicated in the header of the status buffer.
 You can switch to a different branch by typing @kbd{b}.  This will
 immediately checkout the branch into your working copy, so you
 shouldn't have any local modifications when switching branches.
 
-Similar to @kbs{x}, typing @kbd{b} while point is at a commit
+Similar to @kbd{x}, typing @kbd{b} while point is at a commit
 description will offer that commit as the default to switch to.
 This will result in a detached head.
 
