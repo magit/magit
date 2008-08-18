@@ -327,8 +327,8 @@
 (defvar magit-mode-map
   (let ((map (make-keymap)))
     (suppress-keymap map t)
-    (define-key map (kbd "M-n") 'magit-next-section)
-    (define-key map (kbd "M-p") 'magit-previous-section)
+    (define-key map (kbd "n") 'magit-next-section)
+    (define-key map (kbd "p") 'magit-previous-section)
     (define-key map (kbd "1") 'magit-jump-to-untracked)
     (define-key map (kbd "2") 'magit-jump-to-unstaged)
     (define-key map (kbd "3") 'magit-jump-to-staged)
@@ -359,7 +359,7 @@
     (define-key map (kbd "P") 'magit-push)
     (define-key map (kbd "c") 'magit-log-edit)
     (define-key map (kbd "C") 'magit-add-log)
-    (define-key map (kbd "p") 'magit-display-process)
+    (define-key map (kbd "$") 'magit-display-process)
     map))
 
 (defvar magit-mode-hook nil)
