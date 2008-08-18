@@ -345,6 +345,8 @@
     (define-key map (kbd "L") 'magit-log)
     (define-key map (kbd "d") 'magit-diff-working-tree)
     (define-key map (kbd "D") 'magit-diff)
+    (define-key map (kbd "a") 'magit-apply-commit)
+    (define-key map (kbd "v") 'magit-revert-commit)
     (define-key map (kbd "x") 'magit-reset-head)
     (define-key map (kbd "X") 'magit-reset-working-tree)
     (define-key map (kbd "RET") 'magit-visit-thing-at-point)
