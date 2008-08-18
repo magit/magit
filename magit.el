@@ -248,10 +248,13 @@
 	(goto-char prev-section)
       (error "No previous section."))))
 
-(defun magit-section-jumper (section)
-  (let ((section (if (symbolp section) (list section) section)))
-    `(lambda () (interactive) (magit-goto-section ',section))))
-		   
+(defmacro magit-define-section-jumper (sym title)
+  (let ((fun (intern (format "magit-jump-to-%s" sym)))
+	(doc (format "Jump to section `%s'." title)))
+    `(defun ,fun ()
+       (interactive)
+       (magit-goto-section '(,sym)))))
+
 ;;; Running asynchronous commands
 
 (defun magit-set-mode-line-process (str)
@@ -313,15 +316,23 @@
 
 ;;; Mode
 
+;; We define individual functions (instead of using lambda etc) so
+;; that the online help can show something meaningful.
+
+(magit-define-section-jumper untracked "Untracked changes")
+(magit-define-section-jumper unstaged  "Unstaged changes")
+(magit-define-section-jumper staged    "Staged changes")
+(magit-define-section-jumper unpushed  "Unpushed changes")
+
 (defvar magit-mode-map
   (let ((map (make-keymap)))
     (suppress-keymap map t)
     (define-key map (kbd "M-n") 'magit-next-section)
     (define-key map (kbd "M-p") 'magit-previous-section)
-    (define-key map (kbd "1") (magit-section-jumper 'untracked))
-    (define-key map (kbd "2") (magit-section-jumper 'unstaged))
-    (define-key map (kbd "3") (magit-section-jumper 'staged))
-    (define-key map (kbd "4") (magit-section-jumper 'unpushed))
+    (define-key map (kbd "1") 'magit-jump-to-untracked)
+    (define-key map (kbd "2") 'magit-jump-to-unstaged)
+    (define-key map (kbd "3") 'magit-jump-to-staged)
+    (define-key map (kbd "4") 'magit-jump-to-unpushed)
     (define-key map (kbd "g") 'magit-status)
     (define-key map (kbd "s") 'magit-stage-thing-at-point)
     (define-key map (kbd "S") 'magit-stage-all)
