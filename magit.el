@@ -33,8 +33,8 @@
 
 ;;; TODO
 
+;; - Update commit details when using n and p with commits.
 ;; - Tags
-;; - Unified keymaps for status and history, etc
 ;; - Equivalent of interactive rebase
 ;; - 'Subsetting', only looking at a subset of all files.
 ;; - Detect and handle renames and copies.
