@@ -116,7 +116,7 @@
   (magit-shell "git name-rev --always --name-only %s" rev))
 
 (defun magit-put-line-property (prop val)
-  (put-text-property (line-beginning-position) (line-end-position)
+  (put-text-property (line-beginning-position) (+ 1 (line-end-position))
 		     prop val))
 
 ;;; Revisions and ranges
@@ -232,6 +232,26 @@
 		     (point-max))))
     (goto-char goal-pos)))
 
+(defun magit-next-section ()
+  (interactive)
+  (let ((next-section (next-single-property-change (point)
+						   'magit-section)))
+    (if next-section
+	(goto-char next-section)
+      (error "No next section."))))
+
+(defun magit-previous-section ()
+  (interactive)
+  (let ((prev-section (previous-single-property-change (point)
+						       'magit-section)))
+    (if prev-section
+	(goto-char prev-section)
+      (error "No previous section."))))
+
+(defun magit-section-jumper (section)
+  (let ((section (if (symbolp section) (list section) section)))
+    `(lambda () (interactive) (magit-goto-section ',section))))
+		   
 ;;; Running asynchronous commands
 
 (defun magit-set-mode-line-process (str)
@@ -295,7 +315,13 @@
 
 (defvar magit-mode-map
   (let ((map (make-keymap)))
-    (suppress-keymap map)
+    (suppress-keymap map t)
+    (define-key map (kbd "M-n") 'magit-next-section)
+    (define-key map (kbd "M-p") 'magit-previous-section)
+    (define-key map (kbd "1") (magit-section-jumper 'untracked))
+    (define-key map (kbd "2") (magit-section-jumper 'unstaged))
+    (define-key map (kbd "3") (magit-section-jumper 'staged))
+    (define-key map (kbd "4") (magit-section-jumper 'unpushed))
     (define-key map (kbd "g") 'magit-status)
     (define-key map (kbd "s") 'magit-stage-thing-at-point)
     (define-key map (kbd "S") 'magit-stage-all)
