@@ -339,81 +339,8 @@
 ;;; XXX - the formatting is all screwed up because of the \\[...]
 ;;;       constructs.
   "Review the status of a git repository and act on it.
-\\<magit-mode-map>
-The buffer shows your changes (in the form of 'diff hunks') on
-their way into the local and remote repository.  Normally, you
-collect a set of changes into the staging area that you want to
-commit as a unit, and then you commit them.
 
-Typing `\\[magit-stage-thing-at-point]' will move the diff hunk
-that point is in into the staging area.  Typing
-`\\[magit-unstage-thing-at-point]' will remove it from the staging
-area.  When point is on a diff header for a file when you type
-`\\[magit-stage-thing-at-point]' or
-`\\[magit-unstage-thing-at-point]', all changes belonging to the
-file will move together.  You can also type `\\[magit-stage-all]'
-to stage all unstaged changes in one go.
-
-To commit the staged changes, type `\\[magit-log-edit]'.  A
-buffer will pop up where you can describe the changes.  Typing
-`C-c C-c' in that buffer will peform the commit.  The content of
-that buffer is preserved until you finally do commit it, so you
-can go back and forth between your source files, the status
-buffer, and the commit message buffer until you are ready to
-commit.
-
-The status buffer also lists untracked files; you should either
-start tracking them by typing `\\[magit-stage-thing-at-point]' when
-point is on one of them, or tell git to ignore them by typing
-`\\[magit-ignore-thing-at-point]'.
-
-If you make changes to your git status outside of Emacs, type
-`\\[magit-status]' to refresh the status buffer.  You also need
-to do this after saving one or more files.  For performance
-reasons, the status buffer is not updated every time you save.
-Instead, you should run `magit-status' whenever you want to look
-at the status buffer.  Of course, you can bind `magit-status' to
-a key to make this convenient.
-
-If you want to remove or rename tracked files, use \"git rm\" or
-\"git mv\" directly (and then refresh the status buffer to see
-the changes).
-
-Type `\\[magit-switch-branch]' to switch to another branch.  To
-create a new branch, type `\\[magit-create-branch]'.
-
-There are two commands for merging a branch into the current
-branch.  Type `\\[magit-manual-merge]' to initiate a `manual'
-merge: the changes resulting from the merge will not be
-committed, even when there are no conflicts.  You can review them
-and make modifications until you are ready to commit them.
-Typing `\\[magit-automatic-merge]' will initiate a `automatic'
-merge which will automatically commit the merged changes when
-there are no conflicts.
-
-While a merge is ongoing (i.e., until the merge commit has been
-added to the repository), the status buffer shows the branches
-that are being merged at the top.
-
-You can `soft reset' your repository by typing
-`\\[magit-reset-soft]'.  The current head will be set to the
-commit at point, but your working tree and the staging area are
-not changed.  Typing `\\[magit-reset-hard]' will do a `hard
-reset': all of the current head, your working tree, and the the
-index will be reverted to the commit at point.  Doing a hard
-reset without actually changing the current head will thus throw
-away all your uncommitted changes.  You can do this to abort a
-merge, for example.
-
-When you have a remote repository configured for the current
-branch (such as when \"git clone\" has done this for you
-automatically), it is shown at the top of the status buffer.  You
-can type `\\[magit-pull]' to run \"git pull\" and
-`\\[magit-push]' to run \"git push\".  Typing
-`\\[magit-display-process]' will pop up a buffer with a
-transcript of these commands.  There is also a section at the
-bottom that gives a summary of the changes that you have not yet
-pushed.
+Please see the manual for a complete description of Magit.
 
 \\{magit-mode-map}"
   (kill-all-local-variables)
