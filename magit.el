@@ -81,23 +81,23 @@
 	 (concat (car seqs) delim (magit-concat-with-delim delim (cdr seqs))))))
 
 (defun magit-get (&rest keys)
-  (magit-shell "git-config %s" (magit-concat-with-delim "." keys)))
+  (magit-shell "git config %s" (magit-concat-with-delim "." keys)))
 
 (defun magit-set (val &rest keys)
   (if val
-      (magit-shell "git-config %s %s" (magit-concat-with-delim "." keys) val)
-    (magit-shell "git-config --unset %s" (magit-concat-with-delim "." keys))))
+      (magit-shell "git config %s %s" (magit-concat-with-delim "." keys) val)
+    (magit-shell "git config --unset %s" (magit-concat-with-delim "." keys))))
 
 (defun magit-get-top-dir (cwd)
   (let* ((cwd (expand-file-name cwd))
-	 (magit-dir (magit-shell "cd '%s' && git-rev-parse --git-dir 2>/dev/null"
+	 (magit-dir (magit-shell "cd '%s' && git rev-parse --git-dir 2>/dev/null"
 			      cwd)))
     (if magit-dir
 	(file-name-as-directory (or (file-name-directory magit-dir) cwd))
       nil)))
 
 (defun magit-get-ref (ref)
-  (magit-shell "git-symbolic-ref -q %s" ref))
+  (magit-shell "git symbolic-ref -q %s" ref))
 
 (defun magit-get-current-branch ()
   (let* ((head (magit-get-ref "HEAD"))
@@ -661,7 +661,7 @@ pushed.
 
 (defun magit-stage-all ()
   (interactive)
-  (magit-run "git-add" "-u" "."))
+  (magit-run "git" "add" "-u" "."))
 
 ;;; Branches
 
@@ -777,7 +777,7 @@ pushed.
       (write-region (point-min) (point-max) ".git/magit-log")
     (write-region "(Empty description)" nil ".git/magit-log"))
   (erase-buffer)
-  (magit-run "git-commit" "-F" ".git/magit-log")
+  (magit-run "git" "commit" "-F" ".git/magit-log")
   (bury-buffer)
   (when magit-pre-log-edit-window-configuration
     (set-window-configuration magit-pre-log-edit-window-configuration)
