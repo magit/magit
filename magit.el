@@ -429,8 +429,6 @@ Many Magit faces inherit from this one by default."
 (put 'magit-submode 'permanent-local t)
 
 (defun magit-mode ()
-;;; XXX - the formatting is all screwed up because of the \\[...]
-;;;       constructs.
   "Review the status of a git repository and act on it.
 
 Please see the manual for a complete description of Magit.
