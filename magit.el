@@ -96,6 +96,11 @@ Many Magit faces inherit from this one by default."
   "Face for lines in a diff that have been deleted."
   :group 'magit)
 
+(defface magit-item-highlight
+  '((t :background "gray95"))
+  "Face for highlighting the current item."
+  :group 'magit)
+
 ;;; Utilities
 
 (defun magit-goto-line (line)
@@ -170,8 +175,38 @@ Many Magit faces inherit from this one by default."
   (magit-shell "git name-rev --always --name-only %s" rev))
 
 (defun magit-put-line-property (prop val)
-  (put-text-property (line-beginning-position) (+ 1 (line-end-position))
+  (put-text-property (line-beginning-position) (line-beginning-position 2)
 		     prop val))
+
+;;; Highlighting
+
+(defvar magit-highlight-overlay nil)
+
+(defvar magit-highlighted-info nil)
+
+(defun magit-highlight-item ()
+  (let ((info (get-text-property (point) 'magit-info)))
+    (cond ((not (eq info magit-highlighted-info))
+	   (setq magit-highlighted-info info)
+	   (if (not magit-highlight-overlay)
+	       (let ((ov (make-overlay 1 1)))
+		 (overlay-put ov 'face 'magit-item-highlight)
+		 (setq magit-highlight-overlay ov)))
+	   (cond ((not info)
+		  (delete-overlay magit-highlight-overlay))
+		 ((or (eq (car info) 'hunk))
+		  (move-overlay magit-highlight-overlay
+				(elt info 3) (elt info 4)
+				(current-buffer)))
+		 ((or (eq (car info) 'diff))
+		  (move-overlay magit-highlight-overlay
+				(elt info 1) (elt info 2)
+				(current-buffer)))
+		 (t
+		  (move-overlay magit-highlight-overlay
+				(line-beginning-position)
+				(line-beginning-position 2)
+				(current-buffer))))))))
 
 ;;; Revisions and ranges
 
@@ -440,6 +475,7 @@ Please see the manual for a complete description of Magit.
 	mode-name "Magit"
 	mode-line-process ""
 	truncate-lines t)
+  (add-hook 'post-command-hook #'magit-highlight-item nil t)
   (use-local-map magit-mode-map)
   (run-mode-hooks 'magit-mode-hook))
 
@@ -569,7 +605,8 @@ Please see the manual for a complete description of Magit.
 				  (format "%s/%s..HEAD" remote branch))))
       (magit-goto-line old-line)
       (magit-goto-section old-section))
-    (magit-refresh-marks-in-buffer buf)))
+    (magit-refresh-marks-in-buffer buf)
+    (magit-highlight-item)))
 
 (defun magit-find-buffer (submode &optional dir)
   (let ((topdir (magit-get-top-dir (or dir default-directory))))
