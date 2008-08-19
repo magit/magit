@@ -65,6 +65,13 @@ All these buffers are in @code{magit-mode} and have the same key
 bindings.  Not all commands make sense in all contexts, but a given
 key will always do the same thing.
 
+@node Acknowledgments
+@chapter Acknowledgments
+
+From day one of the first Magit announcement, John Wiegley, Linh Dang,
+and Christian Neukirchen have contributed fixes, UI improvements, and
+new features.  Thanks!
+
 @node Status
 @chapter Status
 
