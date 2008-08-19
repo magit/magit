@@ -14,10 +14,11 @@
 /install-sh
 /install-stamp
 /magit-0.5.tar.gz
-/magit.elc
 /magit.info
 /missing
 /texinfo.tex
 /debian/magit/
 /autom4te.cache/
 /magit-0.6.tar.gz
+*.elc
+*~
