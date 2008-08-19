@@ -48,34 +48,34 @@
   :prefix "magit-"
   :group 'tools)
 
-(defface magit-header-face
+(defface magit-header
   '((t))
   "Face for generic header lines.
 
 Many Magit faces inherit from this one by default."
   :group 'magit)
 
-(defface magit-section-title-face
-  '((t :weight bold :inherit magit-header-face))
+(defface magit-section-title
+  '((t :weight bold :inherit magit-header))
   "Face for section titles."
   :group 'magit)
 
-(defface magit-branch-face
-  '((t :weight bold :inherit magit-header-face))
+(defface magit-branch
+  '((t :weight bold :inherit magit-header))
   "Face for the current branch."
   :group 'magit)
 
-(defface magit-diff-file-header-face
-  '((t :inherit magit-header-face))
+(defface magit-diff-file-header
+  '((t :inherit magit-header))
   "Face for diff file header lines."
   :group 'magit)
 
-(defface magit-diff-hunk-header-face
-  '((t :weight bold :inherit magit-header-face))
+(defface magit-diff-hunk-header
+  '((t :slant italic :inherit magit-header))
   "Face for diff hunk header lines."
   :group 'magit)
 
-(defface magit-diff-add-face
+(defface magit-diff-add
   '((((class color) (background light))
      :foreground "blue1")
     (((class color) (background dark))
@@ -83,12 +83,12 @@ Many Magit faces inherit from this one by default."
   "Face for lines in a diff that have been added."
   :group 'magit)
 
-(defface magit-diff-none-face
+(defface magit-diff-none
   '((t))
   "Face for lines in a diff that are unchanged."
   :group 'magit)
 
-(defface magit-diff-del-face
+(defface magit-diff-del
   '((((class color) (background light))
      :foreground "red")
     (((class color) (background dark))
@@ -243,7 +243,7 @@ Many Magit faces inherit from this one by default."
 (defun magit-insert-section (section title washer cmd &rest args)
   (let ((section-beg (point)))
     (if title
-	(insert (propertize title 'face 'magit-section-title-face) "\n"))
+	(insert (propertize title 'face 'magit-section-title) "\n"))
     (let* ((beg (point))
 	   (status (apply 'call-process cmd nil t nil args))
 	   (end (point)))
@@ -496,7 +496,7 @@ Please see the manual for a complete description of Magit.
       (let ((prefix (buffer-substring-no-properties
 		     (point) (min (+ (point) n-files) (point-max)))))
 	(cond ((looking-at "^diff")
-	       (magit-put-line-property 'face 'magit-diff-file-header-face)
+	       (magit-put-line-property 'face 'magit-diff-file-header)
 	       (magit-wash-diff-propertize-diff head-seq head-beg head-end)
 	       (magit-wash-diff-propertize-hunk head-seq hunk-seq
 						head-beg head-end hunk-beg)
@@ -506,7 +506,7 @@ Please see the manual for a complete description of Magit.
 	       (setq hunk-seq 0)
 	       (setq hunk-beg nil))
 	      ((looking-at "^@+")
-	       (magit-put-line-property 'face 'magit-diff-hunk-header-face)
+	       (magit-put-line-property 'face 'magit-diff-hunk-header)
 	       (setq n-files (- (length (match-string 0)) 1))
 	       (if (null head-end)
 		   (setq head-end (point)))
@@ -515,11 +515,11 @@ Please see the manual for a complete description of Magit.
 	       (setq hunk-seq (+ hunk-seq 1))
 	       (setq hunk-beg (point)))
 	      ((looking-at "^ ")
-	       (magit-put-line-property 'face 'magit-diff-none-face))
+	       (magit-put-line-property 'face 'magit-diff-none))
 	      ((string-match "\\+" prefix)
-	       (magit-put-line-property 'face 'magit-diff-add-face))
+	       (magit-put-line-property 'face 'magit-diff-add))
 	      ((string-match "-" prefix)
-	       (magit-put-line-property 'face 'magit-diff-del-face))))
+	       (magit-put-line-property 'face 'magit-diff-del))))
       (forward-line)
       (beginning-of-line))
     (magit-wash-diff-propertize-diff head-seq head-beg head-end)
@@ -539,7 +539,7 @@ Please see the manual for a complete description of Magit.
 			    remote (magit-get "remote" remote "url"))))
 	(insert (format "Local:  %s %s\n"
 			(propertize (or branch "(detached)")
-				    'face 'magit-branch-face)
+				    'face 'magit-branch)
 			(abbreviate-file-name default-directory)))
 	(insert
 	 (format "Head:   %s\n"
