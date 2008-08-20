@@ -130,7 +130,7 @@ into the hunk and type @kbd{s}.  Likewise, to unstage a hunk, move
 point into it and type @kbd{u}.  If point is in a diff header when you
 type @kbd{s} or @kbd{u}, all hunks belonging to that diff are moved at
 the same time.  To move all hunks of all diffs into the staging area
-in one go, type @kbd{S}.
+in one go, type @kbd{S}.  To unstage everything, type @kbd{U}.
 
 Before committing the changes in the staging area, you should write a
 short description of them.

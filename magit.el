@@ -427,6 +427,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "s") 'magit-stage-thing-at-point)
     (define-key map (kbd "S") 'magit-stage-all)
     (define-key map (kbd "u") 'magit-unstage-thing-at-point)
+    (define-key map (kbd "U") 'magit-unstage-all)
     (define-key map (kbd "i") 'magit-ignore-thing-at-point)
     (define-key map (kbd "?") 'magit-describe-thing-at-point)
     (define-key map (kbd ".") 'magit-mark-thing-at-point)
@@ -727,6 +728,10 @@ Please see the manual for a complete description of Magit.
 (defun magit-stage-all ()
   (interactive)
   (magit-run "git" "add" "-u" "."))
+
+(defun magit-unstage-all ()
+  (interactive)
+  (magit-run "git" "reset" "HEAD"))
 
 ;;; Branches
 
