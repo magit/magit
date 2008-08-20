@@ -688,17 +688,7 @@ Please see the manual for a complete description of Magit.
 	  (t
 	   nil))))
 
-(defun magit-diff-or-hunk-item-position (item)
-  (save-excursion
-    (if (eq (magit-item-type item) 'hunk)
-	(goto-char (magit-item-beginning item))
-      (if (looking-at "@@+ .* \\+\\([0-9]+\\),[0-9]+ @@+")
-	  (parse-integer (match-string 1))
-	nil)
-      nil)))
-
 (defun magit-hunk-item-target-line (item)
-  ;; XXX - deal with combined diffs
   (save-excursion
     (beginning-of-line)
     (let ((line (line-number-at-pos)))
@@ -710,6 +700,7 @@ Please see the manual for a complete description of Magit.
       (let ((target (parse-integer (match-string 1))))
 	(forward-line)
 	(while (< (line-number-at-pos) line)
+	  ;; XXX - deal with combined diffs
 	  (if (not (looking-at "-"))
 	      (setq target (+ target 1)))
 	  (forward-line))
