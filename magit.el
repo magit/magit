@@ -655,7 +655,7 @@ Please see the manual for a complete description of Magit.
 
 ;;; Staging
 
-(defun magit-write-hunk-item-patch (info file)
+(defun magit-write-hunk-item-patch (item file)
   (write-region (magit-hunk-item-head-beg item)
 		(magit-hunk-item-head-end item)
 		file)
