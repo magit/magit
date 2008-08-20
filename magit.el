@@ -452,7 +452,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "c") 'magit-log-edit)
     (define-key map (kbd "C") 'magit-add-log)
     (define-key map (kbd "$") 'magit-display-process)
-    (define-key map (kbd "q") 'magit-quit)
+    (define-key map (kbd "q") 'quit-window)
     map))
 
 (defvar magit-mode-hook nil)
@@ -939,11 +939,6 @@ Please see the manual for a complete description of Magit.
 	(magit-insert-section 'commit nil 'magit-wash-diff
 			      "git" "log" "--max-count=1" "--cc" "-p"
 			      commit)))))
-
-(defun magit-quit ()
-  "Bury the current buffer."
-  (interactive)
-  (bury-buffer))
 
 (defun magit-wash-log (status)
   (goto-char (point-min))
