@@ -442,6 +442,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "v") 'magit-revert-commit)
     (define-key map (kbd "x") 'magit-reset-head)
     (define-key map (kbd "X") 'magit-reset-working-tree)
+    (define-key map (kbd "k") 'magit-discard-item)
     (define-key map (kbd "RET") 'magit-visit-item)
     (define-key map (kbd "b") 'magit-checkout)
     (define-key map (kbd "B") 'magit-create-branch)
@@ -1062,6 +1063,16 @@ Please see the manual for a complete description of Magit.
 			   nil ".gitignore")
 	   (magit-update-status (magit-find-status-buffer)))))))
 
+(defun magit-discard-item ()
+  (interactive)
+  (let ((item (magit-get-item)))
+    (if item
+	(case (magit-item-type item)
+	  ((untracked-file)
+	   (let ((file (magit-item-info item)))
+	     (if (yes-or-no-p (format "Delete file %s? " file))
+		 (magit-run "rm" file))))))))
+
 (defun magit-visit-item ()
   (interactive)
   (let ((item (magit-get-item)))
@@ -1088,5 +1099,6 @@ Please see the manual for a complete description of Magit.
 	     (magit-item-beginning item)
 	     (magit-item-ending item)
 	     (magit-item-info item))))
+
 
 (provide 'magit)
