@@ -445,8 +445,9 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "m") 'magit-manual-merge)
     (define-key map (kbd "M") 'magit-automatic-merge)
     (define-key map (kbd "R") 'magit-rebase-step)
-    (define-key map (kbd "U") 'magit-pull)
     (define-key map (kbd "P") 'magit-push)
+    (define-key map (kbd "f") 'magit-remote-update)
+    (define-key map (kbd "F") 'magit-pull)
     (define-key map (kbd "c") 'magit-log-edit)
     (define-key map (kbd "C") 'magit-add-log)
     (define-key map (kbd "$") 'magit-display-process)
@@ -808,7 +809,11 @@ Please see the manual for a complete description of Magit.
   (if (yes-or-no-p "Discard all uncommitted changes? ")
       (magit-run "git" "reset" "--hard")))
 
-;;; Push and pull
+;;; Updating, pull, and push
+
+(defun magit-remote-update ()
+  (interactive)
+  (magit-run "git" "remote" "update"))
 
 (defun magit-pull ()
   (interactive)

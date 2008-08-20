@@ -2,11 +2,8 @@ Changes in magit 0.6:
 
 * Magit works with Git 1.6.0 now.  (John Wiegley)
 
-* Key bindings and command behavior for diffing, history listing, and
-  resetting have changed.  Please see the manual.
-
-* Some key bindings have been added for moving around in the status
-  buffer.
+* Many key bindings and the behavior of many commands have changed.
+  Please see the manual.
 
 * All buffers created by Magit are now in magit-mode and share all key
   bindings.

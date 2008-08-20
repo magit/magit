@@ -283,10 +283,12 @@ Such a rebase can be finished with @kbd{R} as well.
 @node Pushing and Pulling
 @chapter Pushing and Pulling
 
-Magit will run @code{git pull} when you type @kbd{U} in the status
-buffer, and it will run @code{git push} when you type @kbd{P}.  You
-can type @kbd{$} to pop up a buffer with the transcript of running
-these commands.
+Magit will run @code{git push} when you type @kbd{P}.  You can type
+@kbd{$} to pop up a buffer with the transcript of running these
+commands.
+
+Typing @kbd{f} will run @code{git remote update} and @kbd{F} will run
+@code{git pull}.
 
 That's almost all the support for remote repositories that Magit
 offers.  You should have setup your Git configuration to do the right
@@ -298,9 +300,10 @@ branch (by setting the Git config option
 status buffer header.
 
 In this case, the status buffer will also have a @emph{Unpushed
-commits} section that shows the commits on you current head that are
+commits} section that shows the commits on yourcurrent head that are
 not in the branch named @code{<remote>/<branch>}.  This section works
-much like the history buffer: you can see details about a commit with
-@kbd{RET}, and compare two of them with @kbd{.} and @kbd{=}.
+just like the history buffer: you can see details about a commit with
+@kbd{RET}, and compare two of them with @kbd{.} and @kbd{=}, and you
+can reset your current head to one of them with @kbd{x}, for example.
 
 @bye
