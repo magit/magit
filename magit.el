@@ -280,15 +280,16 @@ Many Magit faces inherit from this one by default."
     (if title
 	(insert (propertize title 'face 'magit-section-title) "\n"))
     (let* ((beg (point))
-	   (status (apply 'call-process cmd nil t nil args))
-	   (end (point)))
-      (insert "\n")
+	   (status (apply 'call-process cmd nil t nil args)))
       (put-text-property section-beg (point) 'magit-section (list section))
       (if washer
 	  (save-restriction
 	    (narrow-to-region beg (point))
 	    (funcall washer status)
-	    (goto-char (point-max)))))))
+	    (goto-char (point-max))))
+      (if (/= beg (point))
+	  (insert "\n")
+	(delete-region section-beg (point))))))
 
 (defun magit-section-head (section n)
   (if (<= (length section) n)

@@ -93,8 +93,9 @@ the status buffer in this way after saving a file in Emacs.
 
 The header at the top of the status buffer shows a short summary of
 the repository state: where it is located, which branch is checked
-out, etc.  Below the header are three or four sections that show
-details about the working tree and the staging area.
+out, etc.  Below the header are up to four sections that show details
+about the working tree and the staging area.  Only sections that are
+not empty are shown.
 
 The first of these sections lists @emph{Untracked files}.  These are
 the files that are present in your working tree but are not known to
