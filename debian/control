@@ -1,4 +1,5 @@
 Source: magit
+Format: 3.0 (git)
 Section: devel
 Priority: optional
 Maintainer: Marius Vollmer <marius.vollmer@uni-dortmund.de>
