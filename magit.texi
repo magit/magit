@@ -29,6 +29,7 @@ as an extension to Emacs.
 
 @menu
 * Introduction::                
+* Acknowledgments::             
 * Status::                      
 * History::                     
 * Diffing::                     

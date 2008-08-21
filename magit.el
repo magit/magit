@@ -727,7 +727,7 @@ Please see the manual for a complete description of Magit.
 	   (magit-run "git" "apply" "--cached" "--reverse" ".git/magit-tmp"))
 	  ((diff)
 	   (magit-run "git" "reset" "HEAD"
-		      (magit-diffor-hunk-item-file item)))))))
+		      (magit-diff-or-hunk-item-file item)))))))
 
 (defun magit-stage-all ()
   (interactive)
@@ -1084,7 +1084,7 @@ Please see the manual for a complete description of Magit.
 	   (let ((file (magit-diff-or-hunk-item-file item))
 		 (line (if (eq (magit-item-type item) 'hunk)
 			   (magit-hunk-item-target-line item)
-			 (magit-diff-item-position item))))
+			 nil)))
 	     (find-file file)
 	     (if line
 		 (goto-line line))))
