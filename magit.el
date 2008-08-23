@@ -279,6 +279,24 @@ Many Magit faces inherit from this one by default."
 			(current-buffer))
 	(delete-overlay magit-highlight-overlay)))))
 
+(defmacro magit-item-case (head &rest body)
+  (declare (indent 1))
+  (let ((item (car head))
+	(info (cadr head))
+	(opname (caddr head)))
+    `(let* ((,item (magit-get-item))
+	    (,info (and ,item (magit-item-info ,item))))
+       (case (and ,item (magit-item-type ,item))
+	 ,@body
+	 ,@(if opname
+	       `(((nil)
+		  (error "Nothing to %s here." ,opname))
+		 (t
+		  (error "Can't %s a %s." ,opname
+			 (let ((type (magit-item-type ,item)))
+			   (or (get type 'magit-description)
+			       type))))))))))
+  
 ;;; Sections
 
 (defun magit-insert-section (section title washer cmd &rest args)
@@ -703,31 +721,27 @@ Please see the manual for a complete description of Magit.
 (defun magit-stage-item ()
   "Add the item at point to the staging area."
   (interactive)
-  (let ((item (magit-get-item)))
-    (if item
-	(case (magit-item-type item)
-	  ((untracked-file)
-	   (magit-run "git" "add" (magit-item-info item)))
-	  ((hunk)
-	   (if (magit-hunk-item-is-conflict-p item)
-	       (error "Can't stage individual resolution hunks.  Please stage the whole file."))
-	   (magit-write-hunk-item-patch item ".git/magit-tmp")
-	   (magit-run "git" "apply" "--cached" ".git/magit-tmp"))
-	  ((diff)
-	   (magit-run "git" "add" (magit-diff-or-hunk-item-file item)))))))
+  (magit-item-case (item info "stage")
+    ((untracked-file)
+     (magit-run "git" "add" info))
+    ((hunk)
+     (if (magit-hunk-item-is-conflict-p item)
+	 (error "Can't stage individual resolution hunks.  Please stage the whole file."))
+     (magit-write-hunk-item-patch item ".git/magit-tmp")
+     (magit-run "git" "apply" "--cached" ".git/magit-tmp"))
+    ((diff)
+     (magit-run "git" "add" (magit-diff-or-hunk-item-file item)))))
 
 (defun magit-unstage-item ()
   "Remove the item at point from the staging area."
   (interactive)
-  (let ((item (magit-get-item)))
-    (if item
-	(case (magit-item-type item)
-	  ((hunk)
-	   (magit-write-hunk-item-patch item ".git/magit-tmp")
-	   (magit-run "git" "apply" "--cached" "--reverse" ".git/magit-tmp"))
-	  ((diff)
-	   (magit-run "git" "reset" "HEAD"
-		      (magit-diff-or-hunk-item-file item)))))))
+  (magit-item-case (item info "unstage")
+    ((hunk)
+     (magit-write-hunk-item-patch item ".git/magit-tmp")
+     (magit-run "git" "apply" "--cached" "--reverse" ".git/magit-tmp"))
+    ((diff)
+     (magit-run "git" "reset" "HEAD"
+		(magit-diff-or-hunk-item-file item)))))
 
 (defun magit-stage-all ()
   (interactive)
@@ -1055,41 +1069,34 @@ Please see the manual for a complete description of Magit.
 
 (defun magit-ignore-item ()
   (interactive)
-  (let ((item (magit-get-item)))
-    (if item
-	(case (magit-item-type item)
-	  ((untracked-file)
-	   (append-to-file (concat "/" (magit-item-info item) "\n")
-			   nil ".gitignore")
-	   (magit-update-status (magit-find-status-buffer)))))))
+  (magit-item-case (item info "ignore")
+    ((untracked-file)
+     (append-to-file (concat "/" info "\n")
+		     nil ".gitignore")
+     (magit-update-status (magit-find-status-buffer)))))
 
 (defun magit-discard-item ()
   (interactive)
-  (let ((item (magit-get-item)))
-    (if item
-	(case (magit-item-type item)
-	  ((untracked-file)
-	   (let ((file (magit-item-info item)))
-	     (if (yes-or-no-p (format "Delete file %s? " file))
-		 (magit-run "rm" file))))))))
+  (magit-item-case (item info "discard")
+    ((untracked-file)
+     (if (yes-or-no-p (format "Delete file %s? " info))
+	 (magit-run "rm" info)))))
 
 (defun magit-visit-item ()
   (interactive)
-  (let ((item (magit-get-item)))
-    (if item
-	(case (magit-item-type item)
-	  ((untracked-file)
-	   (find-file (magit-item-info item)))
-	  ((diff hunk)
-	   (let ((file (magit-diff-or-hunk-item-file item))
-		 (line (if (eq (magit-item-type item) 'hunk)
-			   (magit-hunk-item-target-line item)
-			 nil)))
-	     (find-file file)
-	     (if line
-		 (goto-line line))))
-	  ((commit)
-	   (magit-show-commit))))))
+  (magit-item-case (item info)
+    ((untracked-file)
+     (find-file info))
+    ((diff hunk)
+     (let ((file (magit-diff-or-hunk-item-file item))
+	   (line (if (eq (magit-item-type item) 'hunk)
+		     (magit-hunk-item-target-line item)
+		   nil)))
+       (find-file file)
+       (if line
+	   (goto-line line))))
+    ((commit)
+     (magit-show-commit))))
 
 (defun magit-describe-item ()
   (interactive)
