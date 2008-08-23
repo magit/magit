@@ -301,7 +301,7 @@ branch (by setting the Git config option
 status buffer header.
 
 In this case, the status buffer will also have a @emph{Unpushed
-commits} section that shows the commits on yourcurrent head that are
+commits} section that shows the commits on your current head that are
 not in the branch named @code{<remote>/<branch>}.  This section works
 just like the history buffer: you can see details about a commit with
 @kbd{RET}, and compare two of them with @kbd{.} and @kbd{=}, and you
