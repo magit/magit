@@ -178,9 +178,6 @@ Many Magit faces inherit from this one by default."
   (put-text-property (line-beginning-position) (line-beginning-position 2)
 		     prop val))
 
-;;; Highlighting
-
-
 ;;; Revisions and ranges
 
 (defun magit-list-interesting-revisions ()
