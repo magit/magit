@@ -97,7 +97,10 @@ Many Magit faces inherit from this one by default."
   :group 'magit)
 
 (defface magit-item-highlight
-  '((t :background "gray95"))
+  '((((class color) (background light))
+     :background "gray95")
+    (((class color) (background dark))
+     :background "dim gray"))
   "Face for highlighting the current item."
   :group 'magit)
 
