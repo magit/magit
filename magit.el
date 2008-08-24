@@ -365,7 +365,7 @@ Many Magit faces inherit from this one by default."
 		    (not (magit-section-child-p s1 s2))))
 	(setq p (next-single-property-change p 'magit-section)))
       p)))
-  
+
 (defun magit-search-section-forward (section-mark)
   (let ((p (point)))
     (while (and p
@@ -528,8 +528,8 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "L") 'magit-log)
     (define-key map (kbd "d") 'magit-diff-working-tree)
     (define-key map (kbd "D") 'magit-diff)
-    (define-key map (kbd "a") 'magit-apply-commit)
-    (define-key map (kbd "v") 'magit-revert-commit)
+    (define-key map (kbd "a") 'magit-apply-item)
+    (define-key map (kbd "v") 'magit-revert-item)
     (define-key map (kbd "x") 'magit-reset-head)
     (define-key map (kbd "X") 'magit-reset-working-tree)
     (define-key map (kbd "k") 'magit-discard-item)
@@ -618,7 +618,7 @@ Please see the manual for a complete description of Magit.
   (cadr (magit-item-info item)))
 
 (defun magit-wash-diff-markup-hunk (head-seq hunk-seq
-			            head-beg head-end hunk-beg)
+				    head-beg head-end hunk-beg)
   (when hunk-beg
     (magit-markup-item hunk-beg (point)
 		       'hunk (list head-beg head-end))
@@ -1012,13 +1012,17 @@ Please see the manual for a complete description of Magit.
       (or commit
 	  (error "No commit at point.")))))
 
-(defun magit-apply-commit ()
+(defun magit-apply-item ()
   (interactive)
-  (magit-run "git" "cherry-pick" "--no-commit" (magit-commit-at-point)))
+  (magit-item-case (item info "apply")
+    ((commit)
+     (magit-run "git" "cherry-pick" "--no-commit" info))))
 
-(defun magit-revert-commit ()
+(defun magit-revert-item ()
   (interactive)
-  (magit-run "git" "revert" "--no-commit" (magit-commit-at-point)))
+  (magit-item-case (item info "revert")
+    ((commit)
+     (magit-run "git" "revert" "--no-commit" info))))
 
 (defvar magit-currently-shown-commit nil)
 
