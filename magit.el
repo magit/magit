@@ -1106,7 +1106,7 @@ Please see the manual for a complete description of Magit.
        (if line
 	   (goto-line line))))
     ((commit)
-     (magit-show-commit)
+     (magit-show-commit info)
      (pop-to-buffer "*magit-commit*"))))
 
 (defun magit-show-item-or-scroll-up ()
