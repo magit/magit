@@ -73,6 +73,8 @@ From day one of the first Magit announcement, John Wiegley, Linh Dang,
 and Christian Neukirchen have contributed fixes, UI improvements, and
 new features.  Thanks!
 
+Phil Hagelberg joined a few days later.  Thanks!
+
 @node Status
 @chapter Status
 
