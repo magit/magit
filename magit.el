@@ -296,16 +296,123 @@ Many Magit faces inherit from this one by default."
 			 (let ((type (magit-item-type ,item)))
 			   (or (get type 'magit-description)
 			       type))))))))))
-  
+
 ;;; Sections
 
-(defun magit-insert-section (section title washer cmd &rest args)
-  (let ((section-beg (point)))
+;; Sections give a tree structure to the buffer content.  They are
+;; used to navigate and for showing/hiding parts of it.
+;;
+;; The section tree is implemented by putting 'magit-section
+;; properties of the form "(DEPTH ID)" on text regions.
+
+(defun magit-markup-section (beg end depth seq)
+  (put-text-property beg end 'magit-section (list depth seq)))
+
+(defun magit-section-mark (p)
+  (get-text-property p 'magit-section))
+
+(defun magit-section-higher-p (s1 s2)
+  (or (not s2)
+      (< (car s2) (car s1))))
+
+(defun magit-section-child-p (s1 s2)
+  (and s2
+       (> (car s2) (car s1))))
+
+(defun magit-section-sibling-or-higher-p (s1 s2)
+  (or (not s2)
+      (< (car s2) (car s1))
+      (and (= (car s2) (car s1))
+	   (not (eq (cadr s2) (cadr s1))))))
+
+(defun magit-section-beginning-position (p)
+  (let ((s1 (magit-section-mark p)))
+    (if (not s1)
+	nil
+      (while (let ((s2 (magit-section-mark (- p 1))))
+	       (not (magit-section-sibling-or-higher-p s1 s2)))
+	(setq p (previous-single-property-change p 'magit-section
+						 nil (point-min))))
+      p)))
+
+(defun magit-section-ending-position (p)
+  (let ((s1 (magit-section-mark p)))
+    (if (not s1)
+	nil
+      (while (let ((s2 (magit-section-mark p)))
+	       (not (magit-section-sibling-or-higher-p s1 s2)))
+	(setq p (next-single-property-change p 'magit-section
+					     nil (point-max))))
+      p)))
+
+(defun magit-section-parent-position (p)
+  (let ((s1 (magit-section-mark p)))
+    (if (not s1)
+	nil
+      (while (and p
+		  (let ((s2 (magit-section-mark p)))
+		    (not (magit-section-higher-p s1 s2))))
+	(setq p (previous-single-property-change p 'magit-section)))
+      (and p 
+	   (magit-section-beginning-position p)))))
+
+(defun magit-section-first-child-position (p)
+  (let ((s1 (magit-section-mark p)))
+    (if (not s1)
+	nil
+      (while (and p
+		  (let ((s2 (magit-section-mark p)))
+		    (not (magit-section-child-p s1 s2))))
+	(setq p (next-single-property-change p 'magit-section)))
+      p)))
+  
+(defun magit-search-section-forward (section-mark)
+  (let ((p (point)))
+    (while (and p
+		(not (equal section-mark (magit-section-mark p))))
+      (setq p (next-single-property-change p 'magit-section)))
+    (if p
+	(goto-char p)
+      nil)))
+
+(defun magit-section-at-point ()
+  (do ((p (point) (magit-section-parent-position p))
+       (path nil (cons (cadr (magit-section-mark p)) path)))
+      ((not p) path)))
+
+(defun magit-goto-section (section-path)
+  (let ((goal-pos nil))
+    (save-excursion
+      (goto-char (point-min))
+      (do ((p section-path (cdr p))
+	   (d 0 (+ d 1)))
+	  ((cond ((null p)
+		  (setq goal-pos (point))
+		  t)
+		 (t
+		  (not (magit-search-section-forward (list d (car p)))))))))
+    (if goal-pos
+	(goto-char goal-pos))))
+
+(defun magit-section-hideshow-body (invisible)
+
+(defun magit-section-hideshow ()
+  (interactive)
+  (let ((beg (magit-section-first-child-position (point)))
+	(end (magit-section-ending-position (point))))
+    (if beg
+	(let ((inhibit-read-only t))
+	  (put-text-property beg end
+			     'invisible (not (get-text-property
+					      beg 'invisible)))))))
+
+(defun magit-insert-section (id title washer cmd &rest args)
+  (let ((chapter-beg (point)))
     (if title
 	(insert (propertize title 'face 'magit-section-title) "\n"))
+    (magit-markup-section chapter-beg (point) 0 id)
     (let* ((beg (point))
 	   (status (apply 'call-process cmd nil t nil args)))
-      (put-text-property section-beg (point) 'magit-section (list section))
       (if washer
 	  (save-restriction
 	    (narrow-to-region beg (point))
@@ -313,38 +420,7 @@ Many Magit faces inherit from this one by default."
 	    (goto-char (point-max))))
       (if (/= beg (point))
 	  (insert "\n")
-	(delete-region section-beg (point))))))
-
-(defun magit-section-head (section n)
-  (if (<= (length section) n)
-      (subseq section 0 n)
-    (append section (make-list (- n (length section)) nil))))
-
-(defun magit-section-prefix-p (prefix section)
-  (and prefix 
-       (<= (length prefix) (length section))
-       (equal prefix (subseq section 0 (length prefix)))))
-
-(defun magit-markup-subsection (beg end subsection level)
-  (let* ((section (get-text-property beg 'magit-section))
-	 (new (append (magit-section-head section level)
-		      (list subsection))))
-    (put-text-property beg end 'magit-section new)))
-
-(defun magit-section-at-point ()
-  (get-text-property (point) 'magit-section))
-
-(defun magit-goto-section (section)
-  (let ((goal-pos (point)))
-    (goto-char (point-min))
-    (while (not (eobp))
-      (if (magit-section-prefix-p (get-text-property (point) 'magit-section)
-				  section)
-	  (setq goal-pos (point)))
-      (goto-char (or (next-single-property-change (point)
-						  'magit-section)
-		     (point-max))))
-    (goto-char goal-pos)))
+	(delete-region chapter-beg (point))))))
 
 (defun magit-next-section ()
   (interactive)
@@ -436,6 +512,7 @@ Many Magit faces inherit from this one by default."
     (suppress-keymap map t)
     (define-key map (kbd "n") 'magit-next-section)
     (define-key map (kbd "p") 'magit-previous-section)
+    (define-key map (kbd "TAB") 'magit-section-hideshow)
     (define-key map (kbd "1") 'magit-jump-to-untracked)
     (define-key map (kbd "2") 'magit-jump-to-unstaged)
     (define-key map (kbd "3") 'magit-jump-to-staged)
@@ -517,9 +594,9 @@ Please see the manual for a complete description of Magit.
       (let ((filename (buffer-substring-no-properties
 		       (point) (line-end-position))))
 	(cond ((not (string= filename ""))
-	       (magit-markup-subsection (line-beginning-position) 
-					(line-beginning-position 2)
-					seq 1)
+	       (magit-markup-section (line-beginning-position) 
+				     (line-beginning-position 2)
+				     1 seq)
 	       (magit-put-line-property 'face '(:foreground "red"))
 	       (magit-markup-item (line-beginning-position)
 				  (line-beginning-position 2)
@@ -534,7 +611,7 @@ Please see the manual for a complete description of Magit.
       (magit-markup-item head-beg (point)
 			 'diff nil
 			 head-beg head-end)
-      (magit-markup-subsection head-beg head-end head-seq 1))))
+      (magit-markup-section head-beg head-end 1 head-seq))))
 
 (defun magit-hunk-item-head-beg (item)
   (car (magit-item-info item)))
@@ -543,12 +620,12 @@ Please see the manual for a complete description of Magit.
   (cadr (magit-item-info item)))
 
 (defun magit-wash-diff-markup-hunk (head-seq hunk-seq
-					     head-beg head-end hunk-beg)
+			            head-beg head-end hunk-beg)
   (when hunk-beg
     (magit-markup-item hunk-beg (point)
 		       'hunk (list head-beg head-end))
-    (magit-markup-subsection hunk-beg (point) head-seq 1)
-    (magit-markup-subsection hunk-beg (point) hunk-seq 2)))
+    (magit-markup-section hunk-beg (point) 1 head-seq)
+    (magit-markup-section hunk-beg (point) 2 hunk-seq)))
 
 (defun magit-wash-diff (status)
   (goto-char (point-min))
@@ -972,16 +1049,21 @@ Please see the manual for a complete description of Magit.
 
 (defun magit-wash-log (status)
   (goto-char (point-min))
-  (while (not (eobp))
-    (when (search-forward-regexp "[0-9a-fA-F]\\{40\\}" (line-end-position) t)
-      (let ((commit (match-string-no-properties 0)))
-	(delete-region (match-beginning 0) (match-end 0))
-	(goto-char (match-beginning 0))
-	(fixup-whitespace)
-	(magit-markup-item (line-beginning-position)
-			   (line-beginning-position 2)
-			   'commit commit)))
-    (forward-line)))
+  (let ((seq 0))
+    (while (not (eobp))
+      (when (search-forward-regexp "[0-9a-fA-F]\\{40\\}" (line-end-position) t)
+	(let ((commit (match-string-no-properties 0)))
+	  (delete-region (match-beginning 0) (match-end 0))
+	  (goto-char (match-beginning 0))
+	  (fixup-whitespace)
+	  (magit-markup-item (line-beginning-position)
+			     (line-beginning-position 2)
+			     'commit commit)
+	  (magit-markup-section (line-beginning-position)
+				(line-beginning-position 2)
+				1 seq)
+	  (setq seq (+ 1 seq))))
+      (forward-line))))
 
 (defun magit-log (range)
   (interactive (list (magit-read-rev-range "Log" (magit-get-current-branch))))
