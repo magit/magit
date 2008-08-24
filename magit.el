@@ -459,6 +459,8 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "X") 'magit-reset-working-tree)
     (define-key map (kbd "k") 'magit-discard-item)
     (define-key map (kbd "RET") 'magit-visit-item)
+    (define-key map (kbd "SPC") 'magit-show-item-or-scroll-up)
+    (define-key map (kbd "DEL") 'magit-show-item-or-scroll-down)
     (define-key map (kbd "b") 'magit-checkout)
     (define-key map (kbd "B") 'magit-create-branch)
     (define-key map (kbd "m") 'magit-manual-merge)
@@ -943,22 +945,30 @@ Please see the manual for a complete description of Magit.
   (interactive)
   (magit-run "git" "revert" "--no-commit" (magit-commit-at-point)))
 
-(defun magit-show-commit ()
-  "Show details of the commit on the current line."
-  (interactive)
+(defvar magit-currently-shown-commit nil)
+
+(defun magit-show-commit (commit &optional scroll)
   (let ((dir default-directory)
 	(commit (magit-commit-at-point))
 	(buf (get-buffer-create "*magit-commit*")))
-    (display-buffer buf)
-    (save-excursion
-      (set-buffer buf)
-      (setq buffer-read-only t)
-      (setq default-directory dir)
-      (let ((inhibit-read-only t))
-	(erase-buffer)
-	(magit-insert-section 'commit nil 'magit-wash-diff
-			      "git" "log" "--max-count=1" "--cc" "-p"
-			      commit)))))
+    (cond ((equal magit-currently-shown-commit commit)
+	   (let ((win (get-buffer-window buf)))
+	     (cond ((not win)
+		    (display-buffer buf))
+		   (scroll
+		    (with-selected-window win
+		      (funcall scroll))))))
+	  (t
+	   (setq magit-currently-shown-commit commit)
+	   (display-buffer buf)
+	   (save-excursion
+	     (set-buffer buf)
+	     (magit-mode-init dir 'commit)
+	     (let ((inhibit-read-only t))
+	       (erase-buffer)
+	       (magit-insert-section 'commit nil 'magit-wash-diff
+				     "git" "log" "--max-count=1" "--cc" "-p"
+				     commit)))))))
 
 (defun magit-wash-log (status)
   (goto-char (point-min))
@@ -1084,7 +1094,7 @@ Please see the manual for a complete description of Magit.
 
 (defun magit-visit-item ()
   (interactive)
-  (magit-item-case (item info)
+  (magit-item-case (item info "visit")
     ((untracked-file)
      (find-file info))
     ((diff hunk)
@@ -1096,7 +1106,20 @@ Please see the manual for a complete description of Magit.
        (if line
 	   (goto-line line))))
     ((commit)
-     (magit-show-commit))))
+     (magit-show-commit)
+     (pop-to-buffer "*magit-commit*"))))
+
+(defun magit-show-item-or-scroll-up ()
+  (interactive)
+  (magit-item-case (item info)
+    ((commit)
+     (magit-show-commit info #'scroll-up))))
+
+(defun magit-show-item-or-scroll-down ()
+  (interactive)
+  (magit-item-case (item info)
+    ((commit)
+     (magit-show-commit info #'scroll-down))))
 
 (defun magit-describe-item ()
   (interactive)
