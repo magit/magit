@@ -394,8 +394,6 @@ Many Magit faces inherit from this one by default."
     (if goal-pos
 	(goto-char goal-pos))))
 
-(defun magit-section-hideshow-body (invisible)
-
 (defun magit-section-hideshow ()
   (interactive)
   (let ((beg (magit-section-first-child-position (point)))
