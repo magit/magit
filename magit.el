@@ -960,7 +960,7 @@ Please see the manual for a complete description of Magit.
 (defun magit-log-edit ()
   (interactive)
   (let ((dir default-directory)
-	(buf (get-buffer-create "*git-log-edit*")))
+	(buf (get-buffer-create "*magit-log-edit*")))
     (setq magit-pre-log-edit-window-configuration
 	  (current-window-configuration))
     (pop-to-buffer buf)
