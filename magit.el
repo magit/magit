@@ -714,7 +714,9 @@ Please see the manual for a complete description of Magit.
 				  "git" "log" "--graph" "--pretty=oneline"
 				  (format "%s/%s..HEAD" remote branch))))
       (magit-goto-line old-line)
-      (magit-goto-section old-section))
+      (magit-goto-section old-section)
+      (when (bobp)
+	(magit-goto-section '(unstaged 1 1))))
     (magit-refresh-marks-in-buffer buf)
     (magit-highlight-item)))
 
