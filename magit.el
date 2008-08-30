@@ -399,7 +399,10 @@ Many Magit faces inherit from this one by default."
 
 (defun magit-section-hideshow ()
   (interactive)
-  (let ((beg (magit-section-first-child-position (point)))
+  (let ((beg (save-excursion
+	       (goto-char (magit-section-beginning-position (point)))
+	       (forward-line)
+	       (point)))
 	(end (magit-section-ending-position (point))))
     (if beg
 	(let ((inhibit-read-only t))
