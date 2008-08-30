@@ -460,7 +460,7 @@ Many Magit faces inherit from this one by default."
 
 (defvar magit-process nil)
 
-(defun magit-run (cmd &rest args)
+(defun magit-run-command (logline cmd &rest args)
   (or (not magit-process)
       (error "Git is already running."))
   (let ((dir default-directory)
@@ -472,9 +472,18 @@ Many Magit faces inherit from this one by default."
       (set-buffer buf)
       (setq default-directory dir)
       (erase-buffer)
-      (insert "$ " (magit-concat-with-delim " " (cons cmd args)) "\n")
+      (insert "$ " logline "\n")
       (setq magit-process (apply 'start-process "git" buf cmd args))
       (set-process-sentinel magit-process 'magit-process-sentinel))))
+
+(defun magit-run (cmd &rest args)
+  (apply #'magit-run-command
+	 (magit-concat-with-delim " " (cons cmd args))
+	 cmd args))
+
+(defun magit-run-shell (fmt &rest args)
+  (let ((cmd (apply #'format fmt args)))
+    (magit-run-command cmd "sh" "-c" cmd)))
 
 (defun magit-revert-files ()
   (let ((files (magit-shell-lines "git ls-files")))
@@ -1043,7 +1052,7 @@ Please see the manual for a complete description of Magit.
     ((commit)
      (magit-append-to-log-edit
       (magit-format-commit info "%s%n%n%b%n(Cherrypicked from %H)"))
-     (magit-run-shell "git diff %s^ %s | git apply -"))))
+     (magit-run-shell "git diff %s^ %s | git apply -" info info))))
 
 (defun magit-cherry-pick ()
   (interactive)
