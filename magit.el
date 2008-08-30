@@ -37,8 +37,6 @@
 ;; - Visiting hunks from staged hunks doesn't work since the line
 ;;   number don't refer to the working tree.  Fix that somehow.
 ;; - 'C' is very unreliable and often makes a mess.
-;; - Don't try to stage an already staged hunk, etc.  It's harmless
-;;   but fails too late now.
 ;; - Author and other extended information in the log-edit buffer.
 ;; - Commit amending.
 ;; - Make staging optional.  When there are no staged changes, call
