@@ -479,6 +479,16 @@ Many Magit faces inherit from this one by default."
 				(concat " " str)
 			      ""))))
 
+(defun magit-process-indicator-from-command (cmd args)
+  (cond ((or (null args)
+	     (not (equal cmd "git")))
+	 cmd)
+	((or (null (cdr args))
+	     (not (member (car args) '("remote"))))
+	 (car args))
+	(t
+	 (concat (car args) " " (cadr args)))))
+
 (defvar magit-process nil)
 
 (defun magit-run-command (logline cmd &rest args)
@@ -486,9 +496,8 @@ Many Magit faces inherit from this one by default."
       (error "Git is already running."))
   (let ((dir default-directory)
 	(buf (get-buffer-create "*magit-process*")))
-    (magit-set-mode-line-process (if (equal cmd "git")
-				     (car args)
-				   cmd))
+    (magit-set-mode-line-process
+     (magit-process-indicator-from-command cmd args))
     (save-excursion
       (set-buffer buf)
       (setq default-directory dir)
