@@ -349,14 +349,11 @@ Many Magit faces inherit from this one by default."
 	   (not (eq (cadr s2) (cadr s1))))))
 
 (defun magit-section-beginning-position (p)
-  (let ((s1 (magit-section-mark p)))
-    (if (not s1)
-	nil
-      (while (let ((s2 (magit-section-mark (- p 1))))
-	       (not (magit-section-sibling-or-higher-p s1 s2)))
-	(setq p (previous-single-property-change p 'magit-section
-						 nil (point-min))))
-      p)))
+  (previous-single-property-change (if (= p (point-max))
+				       p
+				     (+ p 1))
+				   'magit-section
+				   nil (point-min)))
 
 (defun magit-section-ending-position (p)
   (let ((s1 (magit-section-mark p)))
