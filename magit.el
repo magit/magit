@@ -1075,8 +1075,8 @@ Please see the manual for a complete description of Magit.
   (magit-item-case (item info "revert")
     ((commit)
      (magit-append-to-log-edit
-      (magit-format-commit info "Reverting %h, %s"))
-     (magit-run "git" "revert" "--no-commit" info))))
+      (magit-format-commit info "Reverting \"%s\""))
+     (magit-run-shell "git diff %s^ %s | git apply --reverse -" info info))))
 
 (defvar magit-currently-shown-commit nil)
 
