@@ -1305,11 +1305,12 @@ Please see the manual for a complete description of Magit.
 (defun magit-describe-item ()
   (interactive)
   (let ((item (magit-get-item)))
-    (message "Item: %s %s-%s %S"
-	     (magit-item-type item)
-	     (magit-item-beginning item)
-	     (magit-item-ending item)
-	     (magit-item-info item))))
-
+    (if item
+	(message "Item: %s %s-%s %S"
+		 (magit-item-type item)
+		 (magit-item-beginning item)
+		 (magit-item-ending item)
+		 (magit-item-info item))
+      (message "No item here"))))
 
 (provide 'magit)
