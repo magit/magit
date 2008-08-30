@@ -532,6 +532,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "d") 'magit-diff-working-tree)
     (define-key map (kbd "D") 'magit-diff)
     (define-key map (kbd "a") 'magit-apply-item)
+    (define-key map (kbd "A") 'magit-cherry-pick)
     (define-key map (kbd "v") 'magit-revert-item)
     (define-key map (kbd "x") 'magit-reset-head)
     (define-key map (kbd "X") 'magit-reset-working-tree)
@@ -1039,8 +1040,14 @@ Please see the manual for a complete description of Magit.
     ((commit)
      (magit-append-to-log-edit
       (magit-format-commit info "%s%n%n%b%n(Cherrypicked from %H)"))
-     (magit-run "git" "cherry-pick" "--no-commit" info))))
+     (magit-run-shell "git diff %s^ %s | git apply -"))))
 
+(defun magit-cherry-pick ()
+  (interactive)
+  (magit-item-case (item info "apply")
+    ((commit)
+     (magit-run "git" "cherry-pick" info))))
+  
 (defun magit-revert-item ()
   (interactive)
   (magit-item-case (item info "revert")
