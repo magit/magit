@@ -258,13 +258,16 @@ Many Magit faces inherit from this one by default."
 
 ;;; Items
 
+(defvar *magit-item-context* nil)
+
 (defstruct magit-item
-  type beginning ending info)
+  type beginning ending context info)
 
 (defun magit-markup-item (beg end type info &optional active-beg active-end)
   (let ((item (make-magit-item :type type
 			       :beginning beg
 			       :ending end
+			       :context *magit-item-context*
 			       :info info)))
     (put-text-property (or active-beg beg) (or active-end end)
 		       'magit-item item)
@@ -430,7 +433,8 @@ Many Magit faces inherit from this one by default."
       (if washer
 	  (save-restriction
 	    (narrow-to-region beg (point))
-	    (funcall washer status)
+	    (let ((*magit-item-context* id))
+	      (funcall washer status))
 	    (goto-char (point-max))))
       (if (/= beg (point))
 	  (insert "\n")
@@ -827,6 +831,18 @@ Please see the manual for a complete description of Magit.
   (magit-write-hunk-item-patch item ".git/magit-tmp")
   (apply #'magit-run "git" "apply" (append args (list ".git/magit-tmp"))))
 
+(defun magit-must-be-unstaged (item)
+  (if (eq (magit-item-context item) 'staged)
+      (error "Already staged"))
+  (if (not (eq (magit-item-context item) 'unstaged))
+      (error "Can't stage this.")))
+
+(defun magit-must-be-staged (item)
+  (if (eq (magit-item-context item) 'unstaged)
+      (error "Not staged"))
+  (if (not (eq (magit-item-context item) 'staged))
+      (error "Can't unstage this.")))
+
 (defun magit-stage-item ()
   "Add the item at point to the staging area."
   (interactive)
@@ -834,10 +850,12 @@ Please see the manual for a complete description of Magit.
     ((untracked-file)
      (magit-run "git" "add" info))
     ((hunk)
+     (magit-must-be-unstaged item)
      (if (magit-hunk-item-is-conflict-p item)
 	 (error "Can't stage individual resolution hunks.  Please stage the whole file."))
      (magit-apply-hunk-item item "--cached"))
     ((diff)
+     (magit-must-be-unstaged item)
      (magit-run "git" "add" (magit-diff-or-hunk-item-file item)))))
 
 (defun magit-unstage-item ()
@@ -845,8 +863,10 @@ Please see the manual for a complete description of Magit.
   (interactive)
   (magit-item-case (item info "unstage")
     ((hunk)
+     (magit-must-be-staged item)
      (magit-apply-hunk-item item "--cached" "--reverse"))
     ((diff)
+     (magit-must-be-staged item)
      (magit-run "git" "reset" "HEAD"
 		(magit-diff-or-hunk-item-file item)))))
 
