@@ -139,6 +139,10 @@ Many Magit faces inherit from this one by default."
 	    (setq lines (cdr lines)))
 	(nreverse lines)))))
 
+(defun magit-shell-exit-code (cmd &rest args)
+  (call-process shell-file-name nil nil nil
+		shell-command-switch (apply #'format cmd args)))
+
 (defun magit-file-lines (file)
   (if (file-exists-p file)
       (magit-shell-lines "cat '%s'" file)
@@ -255,6 +259,9 @@ Many Magit faces inherit from this one by default."
 
 (defun magit-default-rev ()
   (magit-commit-at-point t))
+
+(defun magit-file-uptodate-p (file)
+  (eq (magit-shell-exit-code "git diff --quiet %s" file) 0))
 
 ;;; Items
 
@@ -497,7 +504,7 @@ Many Magit faces inherit from this one by default."
 
 (defun magit-run-shell (fmt &rest args)
   (let ((cmd (apply #'format fmt args)))
-    (magit-run-command cmd "sh" "-c" cmd)))
+    (magit-run-command cmd shell-file-name shell-command-switch cmd)))
 
 (defun magit-revert-files ()
   (let ((files (magit-shell-lines "git ls-files")))
@@ -1247,14 +1254,23 @@ Please see the manual for a complete description of Magit.
   (interactive)
   (magit-item-case (item info "discard")
     ((untracked-file)
-     (if (yes-or-no-p (format "Delete file %s? " info))
+     (if (yes-or-no-p (format "Delete %s? " info))
 	 (magit-run "rm" info)))
     ((hunk)
-     (if (yes-or-no-p "Discard hunk? ")
-	 (magit-apply-hunk-item item "--reverse")))
+     (case (magit-item-context item)
+       ((unstaged)
+	(when (yes-or-no-p "Discard hunk? ")
+	  (magit-apply-hunk-item item "--reverse")))
+       ((staged)
+	(if (magit-file-uptodate-p (magit-diff-or-hunk-item-file item))
+	    (when (yes-or-no-p "Discard hunk? ")
+	      (magit-apply-hunk-item item "--reverse" "--index"))
+	  (error "Can't discard this hunk.  Please unstage it first.")))
+       (t
+	(error "Can't discard this hunk."))))
     ((diff)
      (let ((file (magit-diff-or-hunk-item-file item)))
-       (if (yes-or-no-p (format "Discard local changes to %s? " file))
+       (if (yes-or-no-p (format "Discard changes to %s? " file))
 	   (magit-run "git" "checkout" "--" file))))))
 
 (defun magit-visit-item ()
