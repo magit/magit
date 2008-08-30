@@ -800,6 +800,10 @@ Please see the manual for a complete description of Magit.
 	  (forward-line))
 	target))))
 
+(defun magit-apply-hunk-item (item &rest args)
+  (magit-write-hunk-item-patch item ".git/magit-tmp")
+  (apply #'magit-run "git" "apply" (append args (list ".git/magit-tmp"))))
+
 (defun magit-stage-item ()
   "Add the item at point to the staging area."
   (interactive)
@@ -809,8 +813,7 @@ Please see the manual for a complete description of Magit.
     ((hunk)
      (if (magit-hunk-item-is-conflict-p item)
 	 (error "Can't stage individual resolution hunks.  Please stage the whole file."))
-     (magit-write-hunk-item-patch item ".git/magit-tmp")
-     (magit-run "git" "apply" "--cached" ".git/magit-tmp"))
+     (magit-apply-hunk-item item "--cached"))
     ((diff)
      (magit-run "git" "add" (magit-diff-or-hunk-item-file item)))))
 
@@ -819,8 +822,7 @@ Please see the manual for a complete description of Magit.
   (interactive)
   (magit-item-case (item info "unstage")
     ((hunk)
-     (magit-write-hunk-item-patch item ".git/magit-tmp")
-     (magit-run "git" "apply" "--cached" "--reverse" ".git/magit-tmp"))
+     (magit-apply-hunk-item item "--cached" "--reverse"))
     ((diff)
      (magit-run "git" "reset" "HEAD"
 		(magit-diff-or-hunk-item-file item)))))
@@ -1179,7 +1181,14 @@ Please see the manual for a complete description of Magit.
   (magit-item-case (item info "discard")
     ((untracked-file)
      (if (yes-or-no-p (format "Delete file %s? " info))
-	 (magit-run "rm" info)))))
+	 (magit-run "rm" info)))
+    ((hunk)
+     (if (yes-or-no-p "Discard hunk? ")
+	 (magit-apply-hunk-item item "--reverse")))
+    ((diff)
+     (let ((file (magit-diff-or-hunk-item-file item)))
+       (if (yes-or-no-p (format "Discard local changes to %s? " file))
+	   (magit-run "git" "checkout" "--" file))))))
 
 (defun magit-visit-item ()
   (interactive)
