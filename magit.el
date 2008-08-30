@@ -1019,16 +1019,34 @@ Please see the manual for a complete description of Magit.
       (or commit
 	  (error "No commit at point.")))))
 
+(defun magit-append-to-log-edit (str)
+  (save-excursion
+    (set-buffer (get-buffer-create "*magit-log-edit*"))
+    (goto-char (point-max))
+    (insert str "\n")))
+
+(defun magit-escape-for-shell (str)
+  (concat "'" (replace-regexp-in-string "'" "'\\''" str) "'"))
+
+(defun magit-format-commit (commit format)
+  (magit-shell "git log --max-count=1 --pretty=format:%s %s" 
+	       (magit-escape-for-shell format)
+	       commit))
+
 (defun magit-apply-item ()
   (interactive)
   (magit-item-case (item info "apply")
     ((commit)
+     (magit-append-to-log-edit
+      (magit-format-commit info "%s%n%n%b%n(Cherrypicked from %H)"))
      (magit-run "git" "cherry-pick" "--no-commit" info))))
 
 (defun magit-revert-item ()
   (interactive)
   (magit-item-case (item info "revert")
     ((commit)
+     (magit-append-to-log-edit
+      (magit-format-commit info "Reverting %h, %s"))
      (magit-run "git" "revert" "--no-commit" info))))
 
 (defvar magit-currently-shown-commit nil)
