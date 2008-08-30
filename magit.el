@@ -414,18 +414,48 @@ Many Magit faces inherit from this one by default."
     (if goal-pos
 	(goto-char goal-pos))))
 
-(defun magit-section-hideshow ()
+(defun magit-section-set-visibility (beg state)
+  (let ((body-beg (save-excursion
+		    (goto-char beg)
+		    (forward-line)
+		    (point)))
+	(end (magit-section-ending-position beg))
+	(inhibit-read-only t))
+    (put-text-property beg (+ beg 1) 'magit-visibility-state state)
+    (case state
+      ((visible)
+       (put-text-property body-beg end 'invisible nil)
+       (magit-section-set-children-visibility beg 'visible))
+      ((collapsed)
+       (put-text-property body-beg end 'invisible nil)
+       (magit-section-set-children-visibility beg 'hidden))
+      ((hidden)
+       (put-text-property body-beg end 'invisible t)
+       (magit-section-set-children-visibility beg 'hidden)))))
+
+(defun magit-section-set-children-visibility (beg state)
+  (save-excursion
+    (let ((end (magit-section-ending-position beg))
+	  (start (magit-section-first-child-position beg)))
+      (when start
+	(goto-char start)
+	(while (and (< (point) end) (not (eobp)))
+	  (magit-section-set-visibility (point) state)
+	  (goto-char (magit-section-ending-position (point))))))))
+
+(defun magit-section-toggle-visibility ()
   (interactive)
-  (let ((beg (save-excursion
-	       (goto-char (magit-section-beginning-position (point)))
-	       (forward-line)
-	       (point)))
-	(end (magit-section-ending-position (point))))
-    (if beg
-	(let ((inhibit-read-only t))
-	  (put-text-property beg end
-			     'invisible (not (get-text-property
-					      beg 'invisible)))))))
+  (goto-char (magit-section-beginning-position (point)))
+  (let ((state (case (get-text-property (point) 'magit-visibility-state)
+		 ((nil visible)
+		  'hidden)
+		 ((hidden)
+		  (if (magit-section-first-child-position (point))
+		      'collapsed
+		    'visible))
+		 ((collapsed)
+		  'visible))))
+    (magit-section-set-visibility (point) state)))
 
 (defun magit-insert-section (id title washer cmd &rest args)
   (let ((chapter-beg (point)))
@@ -552,7 +582,7 @@ Many Magit faces inherit from this one by default."
     (suppress-keymap map t)
     (define-key map (kbd "n") 'magit-next-section)
     (define-key map (kbd "p") 'magit-previous-section)
-    (define-key map (kbd "TAB") 'magit-section-hideshow)
+    (define-key map (kbd "TAB") 'magit-section-toggle-visibility)
     (define-key map (kbd "1") 'magit-jump-to-untracked)
     (define-key map (kbd "2") 'magit-jump-to-unstaged)
     (define-key map (kbd "3") 'magit-jump-to-staged)
