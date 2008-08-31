@@ -40,6 +40,7 @@
 ;; - Update commit details when using n and p with commits.
 ;; - Tags
 ;; - Equivalent of interactive rebase
+;; - Equivalent git-wtf, http://git-wt-commit.rubyforge.org/#git-wtf
 ;; - 'Subsetting', only looking at a subset of all files.
 ;; - Detect and handle renames and copies.
 
