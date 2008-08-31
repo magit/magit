@@ -1088,7 +1088,7 @@ Please see the manual for a complete description of Magit.
 	     (setq fields (delq cell fields))))
 	  (t
 	   (if value
-	       (setq fields (append fields (cons name value))))))
+	       (setq fields (append fields (list (cons name value)))))))
     (magit-log-edit-set-fields fields)))
 
 (defun magit-log-edit-commit ()
