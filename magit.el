@@ -270,6 +270,9 @@ Many Magit faces inherit from this one by default."
 (defun magit-file-uptodate-p (file)
   (eq (magit-shell-exit-code "git diff --quiet %s" file) 0))
 
+(defun magit-anything-staged-p ()
+  (not (eq (magit-shell-exit-code "git diff --quiet --cached") 0)))
+
 ;;; Items
 
 (defvar *magit-item-context* nil)
@@ -779,12 +782,15 @@ Please see the manual for a complete description of Magit.
 	(magit-insert-section 'untracked
 			      "Untracked files:" 'magit-wash-untracked-files
 			      "git" "ls-files" "--others" "--exclude-standard")
-	(magit-insert-section 'unstaged
-			      "Unstaged changes:" 'magit-wash-diff
-			      "git" "diff")
-	(magit-insert-section 'staged
-			      "Staged changes:" 'magit-wash-diff
-			      "git" "diff" "--cached")
+	(let ((staged (magit-anything-staged-p)))
+	  (magit-insert-section 'unstaged
+				(if staged "Unstaged changes:" "Changes:")
+				'magit-wash-diff
+				"git" "diff")
+	  (if staged
+	      (magit-insert-section 'staged
+				    "Staged changes:" 'magit-wash-diff
+				    "git" "diff" "--cached")))
 	(if remote
 	    (magit-insert-section 'unpushed
 				  "Unpushed commits:" 'magit-wash-log
@@ -1100,12 +1106,13 @@ Please see the manual for a complete description of Magit.
       (write-region "(Empty description)" nil ".git/magit-log"))
     (erase-buffer)
     (apply #'magit-run "git" "commit" "-F" ".git/magit-log"
-	   (if amend '("--amend") '()))
+	   (append (if (not (magit-anything-staged-p)) '("--all") '())
+		   (if amend '("--amend") '())))
     (bury-buffer)
     (when magit-pre-log-edit-window-configuration
       (set-window-configuration magit-pre-log-edit-window-configuration)
       (setq magit-pre-log-edit-window-configuration nil))))
-  
+
 (defun magit-log-edit-toggle-amending ()
   (interactive)
   (let* ((fields (magit-log-edit-get-fields))
