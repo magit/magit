@@ -45,6 +45,7 @@
 
 (require 'cl)
 (require 'parse-time)
+(require 'log-edit)
 
 (defgroup magit nil
   "Controlling Git from Emacs."
@@ -1043,6 +1044,8 @@ Please see the manual for a complete description of Magit.
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-c") 'magit-log-edit-commit)
     (define-key map (kbd "C-c C-a") 'magit-log-edit-toggle-amending)
+    (define-key map (kbd "M-p") 'log-edit-previous-comment)
+    (define-key map (kbd "M-n") 'log-edit-next-comment)
     map))
 
 (defvar magit-pre-log-edit-window-configuration nil)
@@ -1115,11 +1118,17 @@ Please see the manual for a complete description of Magit.
 	 (setenv "GIT_AUTHOR_EMAIL")
 	 (setenv "GIT_AUTHOR_DATE"))))
 
+(defun magit-log-edit-push-to-comment-ring (comment)
+  (when (or (ring-empty-p log-edit-comment-ring)
+	    (not (equal comment (ring-ref log-edit-comment-ring 0))))
+    (ring-insert log-edit-comment-ring comment)))
+
 (defun magit-log-edit-commit ()
   (interactive)
   (let* ((fields (magit-log-edit-get-fields))
 	 (amend (equal (cdr (assq 'amend fields)) "yes"))
 	 (author (cdr (assq 'author fields))))
+    (magit-log-edit-push-to-comment-ring (buffer-string))
     (magit-log-edit-setup-author-env author)
     (magit-log-edit-set-fields nil)
     (magit-log-edit-cleanup)
