@@ -31,7 +31,9 @@ as an extension to Emacs.
 * Introduction::                
 * Acknowledgments::             
 * Status::                      
+* Staging and Committing::      
 * History::                     
+* Reflogs::                     
 * Diffing::                     
 * Resetting::                   
 * Branching::                   
@@ -46,6 +48,8 @@ as an extension to Emacs.
 With Magit, you can inspect and modify any number of Git repositories.
 You can review and commit the changes you have made to the tracked
 files, for example, and you can browse the history of past changes.
+There is also support for cherry picking, reverting, merging and
+rebasing, and other common Git operations.
 
 Magit is not a complete interface to Git, it just makes the most
 common Git command-line tools more convenient to use.  Thus, while
@@ -64,7 +68,7 @@ In addition to the status buffer, Magit will also create buffers that
 show lists of commits, buffers with diffs, and other kinds of buffers.
 All these buffers are in @code{magit-mode} and have the same key
 bindings.  Not all commands make sense in all contexts, but a given
-key will always do the same thing.
+key will always do the same thing in all Magit buffers.
 
 @node Acknowledgments
 @chapter Acknowledgments
@@ -85,8 +89,8 @@ You can have multiple status buffers active at the same time, each
 associated with its own Git repository.  Running @code{magit-status}
 in a buffer will display the status buffer for the repository that
 contains the file in that buffer.  Running @code{magit-status} outside
-of any Git repository or when giving it a prefix argument will ask you
-for the directory to run it in.
+of any Git repository, or when giving it a prefix argument, will ask
+you for the directory to run it in.
 
 You need to explicitly refresh the status buffer when you have made
 changes to the repository from outside of Emacs.  You can type @kbd{g}
@@ -96,61 +100,95 @@ the status buffer in this way after saving a file in Emacs.
 
 The header at the top of the status buffer shows a short summary of
 the repository state: where it is located, which branch is checked
-out, etc.  Below the header are up to four sections that show details
+out, etc.  Below the header are a number of sections that show details
 about the working tree and the staging area.  Only sections that are
 not empty are shown.
+
+You control how much of a section is visible by moving point to its
+title and hitting @kbd{TAB}.  This will cycle through three visibility
+states of the section: fully visible, fully hidden (expect for the
+first line), and collapsed, where only the first line of the children
+are visible.  You can also control the visibility of sub-sections this
+way.
 
 The first of these sections lists @emph{Untracked files}.  These are
 the files that are present in your working tree but are not known to
 Git; they are neither tracked in the current branch nor explicitly
 ignored.  You can move point to one of the listed files and type
-@kbd{s} to add it to the staging area.  Or you can tell Git to ignore
-the file by typing @kbd{i}.
+@kbd{s} to add it to the staging area.  You can tell Git to ignore the
+file by typing @kbd{i}, and you can remove it from the filesystem with
+@kbd{k}.
 
 Magit has no shortcuts for removing or renaming files.  You need to
 use @code{git rm} or @code{git mv} in a shell and then refresh the
 status buffer.
 
-The next section, named @emph{Unstaged changes}, shows the differences
-between the working tree and the staging area.  Thus, it shows the
-modifications that have not been staged yet and would thus not be
-included if you would commit now.
+The next one or two sections show your local changes.  They are
+explained fully in the next chapter, @ref{Staging and Committing}.
 
-The next section, @emph{Staged changes}, shows the differences between
-the staging area and the current head.  These are the changes that
-would be included if you would commit now.
+If the current branch is associated with a remote repository, the
+status buffer will show a section named @emph{Unpushed commits}.  It
+will briefly list the commits that you have made in your local
+repository, but have not yet pushed.  See @ref{Pushing and Pulling}
+for more information.
+
+Typing a digit in the status buffer will move point to a section
+header: @kbd{1} will move to @emph{Untracked files}, @kbd{2} will move
+to @emph{Unstaged changes} or @emph{Changes}, @kbd{3} will move to
+@emph{Staged changes}, and @kbd{4} will move to @emph{Unpushed
+commits}.  Note that these relations are fixed, @kbd{3} always moves
+to @emph{Unstaged changes}, not the third visible section.
+
+@node Staging and Committing
+@chapter Staging and Committing
+
+Comitting with Git is conceptually a two step process: first you add
+the changes you want to commit to a 'staging area', and then you
+commit them to the repository.  This allows you to only commit a
+subset of your local changes.
+
+Magit allows you to ignore the staging area if you wish.  As long as
+your staging area is unused, Magit will show your uncomitted changes
+in a section named @emph{Changes}.
+
+When the staging area is in use, Magit uses two sections:
+@emph{Unstaged changes} and @emph{Staged changes}.  The @emph{Staged
+changes} section shows the changes that will be included in the next
+commit, while the @emph{Unstaged changes} section shows the changes
+that will be left out.
 
 Unlike other version control interfaces, Magit does not usually
 operate on files: Instead of dealing with files (or sets of files),
-differences are shown as diffs and you deal with the individual hunks.
+uncommitted changes are shown as diffs and you usually deal with the
+individual hunks.
 
-Normally, you will prepare the staging area so that it contains
-changes that you want to commit as a unit.  You can leave changes that
-you are not yet ready to commit safely out of the staging area.
+You can discard uncommitted changes by moving point into a hunk and
+typing @kbd{k}.
 
-To move a hunk from the working tree into the staging area, move point
-into the hunk and type @kbd{s}.  Likewise, to unstage a hunk, move
-point into it and type @kbd{u}.  If point is in a diff header when you
-type @kbd{s} or @kbd{u}, all hunks belonging to that diff are moved at
-the same time.  To move all hunks of all diffs into the staging area
-in one go, type @kbd{S}.  To unstage everything, type @kbd{U}.
+To move a unstaged hunk into the staging area, move point into the
+hunk and type @kbd{s}.  Likewise, to unstage a hunk, move point into
+it and type @kbd{u}.  If point is in a diff header when you type
+@kbd{s} or @kbd{u}, all hunks belonging to that diff are moved at the
+same time.  To move all hunks of all diffs into the staging area in
+one go, type @kbd{S}.  To unstage everything, type @kbd{U}.
 
-Before committing the changes in the staging area, you should write a
-short description of them.
+Before committing, you should write a short description of the
+changes.
 
 Type @kbd{c} to pop up a buffer where you can write your change
 description.  Once you are happy with the description, type @kbd{C-c
-C-c} in that buffer to commit the staged changes.
+C-c} in that buffer to perform the commit.  When your stagin area is
+unused at this point, all your uncommitted changes are committed.
+When the staging area is in use, only the staged changes are
+committed.
+
+You can type @kbd{C-c C-a} in the buffer with the change description
+toggles a flag that determines whether the next commit will be a
+@emph{amending} one.
 
 Typing @kbd{C} will also pop up the change description buffer, but in
 addition, it will try to insert a ChangeLog-style entry for the change
 that point is in.
-
-If the current branch is associated with a remote repository, the
-status buffer will show a fourth section, named @emph{Unpushed
-commits}.  It will briefly list the commits that you have made in your
-local repository, but have not yet pushed.  See @ref{Pushing and
-Pulling} for more information.
 
 @node History
 @chapter History
@@ -168,18 +206,26 @@ You can move point to a commit and then cause various things to happen
 with it.  (The following commands work in any list of commit, such as
 the one shown in the @emph{Unpushed commits} section.)
 
-Typing @kbd{RET} will pop up more information about the current
-commit.
+Typing @kbd{RET} will pop up more information about the current commit
+and move point into the new buffer.  Typing @kbd{SPC} and @kbd{DEL}
+will also show the information, but will scroll the new buffer up or
+down when typed again.
 
-Typing @kbd{a} will apply the current commit to your working tree and
-staging area.  This is useful when you are browsing the history of
-some other branch and you want to `cherry-pick' some changes from it
-for your current branch.  A typical situation is applying selected bug
-fixes from the development version of a program to a release branch.
+Typing @kbd{a} will apply the current commit to your current branch.
+This is useful when you are browsing the history of some other branch
+and you want to `cherry-pick' some changes from it.  A typical
+situation is applying selected bug fixes from the development version
+of a program to a release branch.  The cherry-picked changes will not
+be committed automatically; you need to do that explicitly.
+
+Typing @kbd{A} will cherry-pick the current commit and will also
+commit the changes automatically when there have not been any
+conflicts.
 
 Typing @kbd{v} will revert the current commit.  Thus, it will apply
 the changes made by that commit in reverse.  This is obviously useful
-to cleanly undo changes that turned out to be wrong.
+to cleanly undo changes that turned out to be wrong.  As with @kbd{a},
+you need to commit the changes explicitly.
 
 Typing @kbd{=} will show the differences from the current commit to
 the @dfn{marked} commit.
@@ -188,6 +234,17 @@ You can mark the current commit by typing @kbd{.}.  Some commands,
 such as @kbd{=}, will use the current commit and the marked commit as
 implicit arguments.  Other commands will offer the marked commit as a
 default when prompting for their arguments.
+
+@node Reflogs
+@chapter Reflogs
+
+You can use @kbd{h} and @kbd{H} to browse your @emph{reflog}, the
+local history of changes made to your repository heads.  Typing
+@kbd{H} will ask for a head, while @kbd{h} will show the reflog of
+@code{HEAD}.
+
+The resulting buffer is just like the buffer produced by @kbd{l} and
+@kbd{L} that shows the commit history.
 
 @node Diffing
 @chapter Diffing
@@ -206,7 +263,7 @@ head to an earlier commit and start over.
 If you have published your history already, rewriting it in this way
 can be confusing and should be avoided.  However, rewriting your local
 history is fine and it is often cleaner to fix mistakes this way than
-by reverting commits (with @kbd{R}, for example).
+by reverting commits (with @kbd{v}, for example).
 
 Typing @kbd{x} will ask for a revision and reset your current head to
 it.  No changes will be made to your working tree and staging area.
@@ -257,7 +314,7 @@ with the master, say.
 After initiating a manual merge, the header of the status buffer will
 remind you that the next commit will be a merge commit (with more than
 one parent).  If you want to abort a manual merge, just do a hard
-reset to HEAD.
+reset to HEAD with @kbd{X}.
 
 Merges can fail if the two branches you merge want to introduce
 conflicting changes.  In that case, the automatic merge stops before
@@ -306,7 +363,7 @@ In this case, the status buffer will also have a @emph{Unpushed
 commits} section that shows the commits on your current head that are
 not in the branch named @code{<remote>/<branch>}.  This section works
 just like the history buffer: you can see details about a commit with
-@kbd{RET}, and compare two of them with @kbd{.} and @kbd{=}, and you
-can reset your current head to one of them with @kbd{x}, for example.
+@kbd{RET}, compare two of them with @kbd{.} and @kbd{=}, and you can
+reset your current head to one of them with @kbd{x}, for example.
 
 @bye
