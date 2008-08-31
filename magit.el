@@ -34,6 +34,7 @@
 
 ;;; TODO
 
+;; - Reflog browsing
 ;; - Visiting hunks from staged hunks doesn't work since the line
 ;;   number don't refer to the working tree.  Fix that somehow.
 ;; - 'C' is very unreliable and often makes a mess.
