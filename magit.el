@@ -1089,23 +1089,28 @@ Please see the manual for a complete description of Magit.
 
 (defun magit-log-edit-commit ()
   (interactive)
-  (magit-log-edit-cleanup)
-  (if (> (buffer-size) 0)
-      (write-region (point-min) (point-max) ".git/magit-log")
-    (write-region "(Empty description)" nil ".git/magit-log"))
-  (erase-buffer)
-  (magit-run "git" "commit" "-F" ".git/magit-log")
-  (bury-buffer)
-  (when magit-pre-log-edit-window-configuration
-    (set-window-configuration magit-pre-log-edit-window-configuration)
-    (setq magit-pre-log-edit-window-configuration nil)))
-
+  (let* ((fields (magit-log-edit-get-fields))
+	 (amend (equal (cdr (assq 'amend fields)) "yes"))
+	 (author (cdr (assq 'author fields))))
+    (magit-log-edit-set-fields nil)
+    (magit-log-edit-cleanup)
+    (if (> (buffer-size) 0)
+	(write-region (point-min) (point-max) ".git/magit-log")
+      (write-region "(Empty description)" nil ".git/magit-log"))
+    (erase-buffer)
+    (apply #'magit-run "git" "commit" "-F" ".git/magit-log"
+	   (if amend '("--amend") '()))
+    (bury-buffer)
+    (when magit-pre-log-edit-window-configuration
+      (set-window-configuration magit-pre-log-edit-window-configuration)
+      (setq magit-pre-log-edit-window-configuration nil))))
+  
 (defun magit-log-edit-toggle-amending ()
   (interactive)
   (let* ((fields (magit-log-edit-get-fields))
 	 (cell (assq 'amend fields)))
     (if cell
-	(rplacd cell (if (equal (cdr cell) "no") "yes" "no"))
+	(rplacd cell (if (equal (cdr cell) "yes") "no" "yes"))
       (setq fields (acons 'amend "yes" fields))
       (magit-log-edit-append
        (magit-format-commit "HEAD" "%s%n%n%b")))
