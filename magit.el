@@ -1225,7 +1225,7 @@ Please see the manual for a complete description of Magit.
   (interactive)
   (magit-item-case (item info "revert")
     ((commit)
-     (magit-append-to-log-edit
+     (magit-log-edit-append
       (magit-format-commit info "Reverting \"%s\""))
      (magit-run-shell "git diff %s^ %s | git apply --reverse -" info info))))
 
