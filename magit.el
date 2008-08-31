@@ -34,15 +34,10 @@
 
 ;;; TODO
 
-;; - Reflog browsing
+;; - Putting author information from log-edit buffer into commit environment.
 ;; - Visiting hunks from staged hunks doesn't work since the line
 ;;   number don't refer to the working tree.  Fix that somehow.
 ;; - 'C' is very unreliable and often makes a mess.
-;; - Author and other extended information in the log-edit buffer.
-;; - Commit amending.
-;; - Make staging optional.  When there are no staged changes, call
-;;   the "Unstaged changes" section just "Changes" and use "commit -a"
-;;   when committing.
 ;; - Update commit details when using n and p with commits.
 ;; - Tags
 ;; - Equivalent of interactive rebase
@@ -608,6 +603,8 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "=") 'magit-diff-with-mark)
     (define-key map (kbd "l") 'magit-log-head)
     (define-key map (kbd "L") 'magit-log)
+    (define-key map (kbd "h") 'magit-reflog-head)
+    (define-key map (kbd "H") 'magit-reflog)
     (define-key map (kbd "d") 'magit-diff-working-tree)
     (define-key map (kbd "D") 'magit-diff)
     (define-key map (kbd "a") 'magit-apply-item)
@@ -1270,6 +1267,30 @@ Please see the manual for a complete description of Magit.
 (defun magit-log-head ()
   (interactive)
   (magit-log "HEAD"))
+
+;;; Reflog
+
+(defun magit-reflog (head)
+  (interactive (list (magit-read-rev "Reflog of" "HEAD")))
+  (if head
+      (let* ((topdir (magit-get-top-dir default-directory))
+	     (args (magit-rev-to-git head)))
+	(switch-to-buffer "*magit-reflog*")
+	(magit-mode-init topdir 'reflog)
+	(let ((inhibit-read-only t))
+	  (save-excursion
+	    (erase-buffer)
+	    (magit-insert-section 'reflog
+				  (format "Local history of head %s" head)
+				  'magit-wash-log
+				  "git" "log" "--walk-reflogs"
+				  "--max-count=10000"
+				  "--pretty=oneline" args)))
+	(magit-refresh-marks-in-buffer (current-buffer)))))
+
+(defun magit-reflog-head ()
+  (interactive)
+  (magit-reflog "HEAD"))
 
 ;;; Diffing
 
