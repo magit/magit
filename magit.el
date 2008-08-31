@@ -34,7 +34,6 @@
 
 ;;; TODO
 
-;; - Putting author information from log-edit buffer into commit environment.
 ;; - Visiting hunks from staged hunks doesn't always work since the
 ;;   line number don't refer to the working tree.  Fix that somehow.
 ;; - 'C' is very unreliable and often makes a mess.
@@ -1091,11 +1090,25 @@ Please see the manual for a complete description of Magit.
 	       (setq fields (append fields (list (cons name value)))))))
     (magit-log-edit-set-fields fields)))
 
+(defun magit-log-edit-setup-author-env (author)
+  (cond (author
+	 ;; XXX - this is a bit strict, probably.
+	 (or (string-match "\\(.*\\) <\\(.*\\)>, \\(.*\\)" author)
+	     (error "Can't parse author string."))
+	 (setenv "GIT_AUTHOR_NAME" (match-string 1 author))
+	 (setenv "GIT_AUTHOR_EMAIL" (match-string 2 author))
+	 (setenv "GIT_AUTHOR_DATE" (match-string 3 author)))
+	(t
+	 (setenv "GIT_AUTHOR_NAME")
+	 (setenv "GIT_AUTHOR_EMAIL")
+	 (setenv "GIT_AUTHOR_DATE"))))
+
 (defun magit-log-edit-commit ()
   (interactive)
   (let* ((fields (magit-log-edit-get-fields))
 	 (amend (equal (cdr (assq 'amend fields)) "yes"))
 	 (author (cdr (assq 'author fields))))
+    (magit-log-edit-setup-author-env author)
     (magit-log-edit-set-fields nil)
     (magit-log-edit-cleanup)
     (if (> (buffer-size) 0)
