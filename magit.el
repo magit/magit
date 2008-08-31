@@ -1,4 +1,4 @@
-;;; magit -- control Git from Emacs.
+;;; Magit -- control Git from Emacs.
 
 ;; Copyright (C) 2008  Marius Vollmer
 ;; Copyright (C) 2008  Linh Dang
@@ -35,8 +35,8 @@
 ;;; TODO
 
 ;; - Putting author information from log-edit buffer into commit environment.
-;; - Visiting hunks from staged hunks doesn't work since the line
-;;   number don't refer to the working tree.  Fix that somehow.
+;; - Visiting hunks from staged hunks doesn't always work since the
+;;   line number don't refer to the working tree.  Fix that somehow.
 ;; - 'C' is very unreliable and often makes a mess.
 ;; - Update commit details when using n and p with commits.
 ;; - Tags
