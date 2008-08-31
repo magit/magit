@@ -193,6 +193,14 @@ Many Magit faces inherit from this one by default."
   (put-text-property (line-beginning-position) (line-beginning-position 2)
 		     prop val))
 
+(defun magit-escape-for-shell (str)
+  (concat "'" (replace-regexp-in-string "'" "'\\''" str) "'"))
+
+(defun magit-format-commit (commit format)
+  (magit-shell "git log --max-count=1 --pretty=format:%s %s" 
+	       (magit-escape-for-shell format)
+	       commit))
+
 ;;; Revisions and ranges
 
 (defun magit-list-interesting-revisions ()
@@ -1016,11 +1024,11 @@ Please see the manual for a complete description of Magit.
 
 ;;; Committing
 
-(defvar magit-log-edit-map nil)
-
-(when (not magit-log-edit-map)
-  (setq magit-log-edit-map (make-sparse-keymap))
-  (define-key magit-log-edit-map (kbd "C-c C-c") 'magit-log-edit-commit))
+(defvar magit-log-edit-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c C-c") 'magit-log-edit-commit)
+    (define-key map (kbd "C-c C-a") 'magit-log-edit-toggle-amending)
+    map))
 
 (defvar magit-pre-log-edit-window-configuration nil)
 
@@ -1031,6 +1039,53 @@ Please see the manual for a complete description of Magit.
     (goto-char (point-min))
     (if (re-search-forward "[ \t\n]*\\'" nil t)
 	(replace-match "\n" nil nil))))
+
+(defun magit-log-edit-append (str)
+  (save-excursion
+    (set-buffer (get-buffer-create "*magit-log-edit*"))
+    (goto-char (point-max))
+    (insert str "\n")))
+
+(defun magit-log-edit-get-fields ()
+  (let ((buf (get-buffer "*magit-log-edit*"))
+	(result nil))
+    (if buf
+	(save-excursion
+	  (set-buffer buf)
+	  (goto-char (point-min))
+	  (while (looking-at "^\\([A-Za-z0-9]+\\): *\\(.*\\)$")
+	    (setq result (acons (intern (downcase (match-string 1)))
+				(match-string 2)
+				result))
+	    (forward-line))))
+    (nreverse result)))
+
+(defun magit-log-edit-set-fields (fields)
+  (let ((buf (get-buffer-create "*magit-log-edit*")))
+    (save-excursion
+      (set-buffer buf)
+      (goto-char (point-min))
+      (if (search-forward-regexp "^\\([A-Za-z0-9]+:.*\n\\)+\n?" nil t)
+	  (delete-region (match-beginning 0) (match-end 0)))
+      (goto-char (point-min))
+      (when fields
+	(while fields
+	  (insert (capitalize (symbol-name (caar fields))) ": "
+		  (cdar fields) "\n")
+	  (setq fields (cdr fields)))
+	(insert "\n")))))
+
+(defun magit-log-edit-set-field (name value)
+  (let* ((fields (magit-log-edit-get-fields))
+	 (cell (assq name fields)))
+    (cond (cell
+	   (if value
+	       (rplacd cell value)
+	     (setq fields (delq cell fields))))
+	  (t
+	   (if value
+	       (setq fields (append fields (cons name value))))))
+    (magit-log-edit-set-fields fields)))
 
 (defun magit-log-edit-commit ()
   (interactive)
@@ -1044,6 +1099,17 @@ Please see the manual for a complete description of Magit.
   (when magit-pre-log-edit-window-configuration
     (set-window-configuration magit-pre-log-edit-window-configuration)
     (setq magit-pre-log-edit-window-configuration nil)))
+
+(defun magit-log-edit-toggle-amending ()
+  (interactive)
+  (let* ((fields (magit-log-edit-get-fields))
+	 (cell (assq 'amend fields)))
+    (if cell
+	(rplacd cell (if (equal (cdr cell) "no") "yes" "no"))
+      (setq fields (acons 'amend "yes" fields))
+      (magit-log-edit-append
+       (magit-format-commit "HEAD" "%s%n%n%b")))
+    (magit-log-edit-set-fields fields)))
 
 (defun magit-log-edit ()
   (interactive)
@@ -1103,26 +1169,15 @@ Please see the manual for a complete description of Magit.
       (or commit
 	  (error "No commit at point.")))))
 
-(defun magit-append-to-log-edit (str)
-  (save-excursion
-    (set-buffer (get-buffer-create "*magit-log-edit*"))
-    (goto-char (point-max))
-    (insert str "\n")))
-
-(defun magit-escape-for-shell (str)
-  (concat "'" (replace-regexp-in-string "'" "'\\''" str) "'"))
-
-(defun magit-format-commit (commit format)
-  (magit-shell "git log --max-count=1 --pretty=format:%s %s" 
-	       (magit-escape-for-shell format)
-	       commit))
-
 (defun magit-apply-item ()
   (interactive)
   (magit-item-case (item info "apply")
     ((commit)
-     (magit-append-to-log-edit
-      (magit-format-commit info "%s%n%n%b%n(Cherrypicked from %H)"))
+     (magit-log-edit-append
+      (magit-format-commit info "%s%n%n%b"))
+     (magit-log-edit-set-field 
+      'author
+      (magit-format-commit info "%an <%ae>, %ai"))
      (magit-run-shell "git diff %s^ %s | git apply -" info info))))
 
 (defun magit-cherry-pick ()
