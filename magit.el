@@ -51,6 +51,11 @@
   :prefix "magit-"
   :group 'tools)
 
+(defcustom magit-collapse-threshold 50
+  "Sections with more lines than this are collapsed automatically."
+  :group 'magit
+  :type '(integer))
+
 (defface magit-header
   '((t))
   "Face for generic header lines.
@@ -461,7 +466,7 @@ Many Magit faces inherit from this one by default."
 		  'visible))))
     (magit-section-set-visibility (point) state)))
 
-(defun magit-insert-section (id title washer cmd &rest args)
+(defun magit-insert-section (id title washer threshold cmd &rest args)
   (let ((chapter-beg (point)))
     (if title
 	(insert (propertize title 'face 'magit-section-title) "\n"))
@@ -475,7 +480,10 @@ Many Magit faces inherit from this one by default."
 	      (funcall washer status))
 	    (goto-char (point-max))))
       (if (/= beg (point))
-	  (insert "\n")
+	  (let ((lines (count-lines beg (point))))
+	    (insert "\n")
+	    (if (and threshold (> lines threshold))
+		(magit-section-set-visibility chapter-beg 'collapsed)))
 	(delete-region chapter-beg (point))))))
 
 (defun magit-next-section ()
@@ -777,19 +785,23 @@ Please see the manual for a complete description of Magit.
 	(insert "\n")
 	(magit-insert-section 'untracked
 			      "Untracked files:" 'magit-wash-untracked-files
+			      nil
 			      "git" "ls-files" "--others" "--exclude-standard")
 	(let ((staged (magit-anything-staged-p)))
 	  (magit-insert-section 'unstaged
 				(if staged "Unstaged changes:" "Changes:")
 				'magit-wash-diff
+				magit-collapse-threshold
 				"git" "diff")
 	  (if staged
 	      (magit-insert-section 'staged
 				    "Staged changes:" 'magit-wash-diff
+				    magit-collapse-threshold
 				    "git" "diff" "--cached")))
 	(if remote
 	    (magit-insert-section 'unpushed
 				  "Unpushed commits:" 'magit-wash-log
+				  nil
 				  "git" "log" "--graph" "--pretty=oneline"
 				  (format "%s/%s..HEAD" remote branch))))
       (magit-goto-line old-line)
@@ -1238,7 +1250,7 @@ Please see the manual for a complete description of Magit.
 	     (magit-mode-init dir 'commit)
 	     (let ((inhibit-read-only t))
 	       (erase-buffer)
-	       (magit-insert-section 'commit nil 'magit-wash-diff
+	       (magit-insert-section 'commit nil 'magit-wash-diff nil
 				     "git" "log" "--max-count=1" "--cc" "-p"
 				     commit)))))))
 
@@ -1272,7 +1284,7 @@ Please see the manual for a complete description of Magit.
 	    (erase-buffer)
 	    (magit-insert-section 'history
 				  (magit-rev-range-describe range "Commits")
-				  'magit-wash-log
+				  'magit-wash-log nil
 				  "git" "log" "--graph" "--max-count=10000"
 				  "--pretty=oneline" args)))
 	(magit-refresh-marks-in-buffer (current-buffer)))))
@@ -1295,7 +1307,7 @@ Please see the manual for a complete description of Magit.
 	    (erase-buffer)
 	    (magit-insert-section 'reflog
 				  (format "Local history of head %s" head)
-				  'magit-wash-log
+				  'magit-wash-log nil
 				  "git" "log" "--walk-reflogs"
 				  "--max-count=10000"
 				  "--pretty=oneline" args)))
@@ -1321,7 +1333,7 @@ Please see the manual for a complete description of Magit.
 	    (erase-buffer)
 	    (magit-insert-section 'diff 
 				  (magit-rev-range-describe range "Changes")
-				  'magit-wash-diff
+				  'magit-wash-diff nil
 				  "git" "diff" args))))))
 
 (defun magit-diff-working-tree (rev)
