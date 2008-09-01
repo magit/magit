@@ -726,6 +726,10 @@ Please see the manual for a complete description of Magit.
       (let ((prefix (buffer-substring-no-properties
 		     (point) (min (+ (point) n-files) (point-max)))))
 	(cond ((looking-at "^diff")
+	       (let ((file (magit-diff-line-file)))
+		 (save-excursion
+		   ;; XXX - figure out real status
+		   (insert "\tModified " file "\n")))
 	       (magit-put-line-property 'face 'magit-diff-file-header)
 	       (magit-wash-diff-markup-diff head-seq head-beg head-end)
 	       (magit-wash-diff-markup-hunk head-seq hunk-seq
@@ -734,7 +738,8 @@ Please see the manual for a complete description of Magit.
 	       (setq head-beg (point))
 	       (setq head-end nil)
 	       (setq hunk-seq 0)
-	       (setq hunk-beg nil))
+	       (setq hunk-beg nil)
+	       (forward-line))
 	      ((looking-at "^@+")
 	       (magit-put-line-property 'face 'magit-diff-hunk-header)
 	       (setq n-files (- (length (match-string 0)) 1))
@@ -755,6 +760,63 @@ Please see the manual for a complete description of Magit.
     (magit-wash-diff-markup-diff head-seq head-beg head-end)
     (magit-wash-diff-markup-hunk head-seq hunk-seq
 				 head-beg head-end hunk-beg)))
+
+(defun magit-write-hunk-item-patch (item file)
+  (write-region (magit-hunk-item-head-beg item)
+		(magit-hunk-item-head-end item)
+		file)
+  (write-region (magit-item-beginning item)
+		(magit-item-ending item)
+		file
+		t))
+
+(defun magit-hunk-item-is-conflict-p (item)
+  (save-excursion
+    (goto-char (magit-hunk-item-head-beg item))
+    (forward-line)
+    (looking-at "^diff --cc")))
+
+(defun magit-diff-item-conflict-file (item)
+  (save-excursion
+    (goto-char (magit-item-beginning item))
+    (forward-line)
+    (if (looking-at "^diff --cc +\\(.*\\)$")
+	(match-string 1)
+      nil)))
+
+(defun magit-diff-line-file ()
+  (cond ((looking-at "^diff --git a/\\(.*\\) b/\\(.*\\)$")
+	 (match-string 2))
+	((looking-at "^diff --cc +\\(.*\\)$")
+	 (match-string 1))
+	(t
+	 nil)))
+
+(defun magit-diff-or-hunk-item-file (item)
+  (save-excursion
+    (goto-char (if (eq (magit-item-type item) 'hunk)
+		   (magit-hunk-item-head-beg item)
+		 (magit-item-beginning item)))
+    (forward-line)
+    (magit-diff-line-file)))
+
+(defun magit-hunk-item-target-line (item)
+  (save-excursion
+    (beginning-of-line)
+    (let ((line (line-number-at-pos)))
+      (if (looking-at "-")
+	  (error "Can't visit removed lines."))
+      (goto-char (magit-item-beginning item))
+      (if (not (looking-at "@@+ .* \\+\\([0-9]+\\),[0-9]+ @@+"))
+	  (error "Hunk header not found."))
+      (let ((target (parse-integer (match-string 1))))
+	(forward-line)
+	(while (< (line-number-at-pos) line)
+	  ;; XXX - deal with combined diffs
+	  (if (not (looking-at "-"))
+	      (setq target (+ target 1)))
+	  (forward-line))
+	target))))
 
 (defun magit-update-status (buf)
   (with-current-buffer buf
@@ -841,57 +903,6 @@ Please see the manual for a complete description of Magit.
     (magit-update-status buf)))
 
 ;;; Staging
-
-(defun magit-write-hunk-item-patch (item file)
-  (write-region (magit-hunk-item-head-beg item)
-		(magit-hunk-item-head-end item)
-		file)
-  (write-region (magit-item-beginning item)
-		(magit-item-ending item)
-		file
-		t))
-
-(defun magit-hunk-item-is-conflict-p (item)
-  (save-excursion
-    (goto-char (magit-hunk-item-head-beg item))
-    (looking-at "^diff --cc")))
-
-(defun magit-diff-item-conflict-file (item)
-  (save-excursion
-    (goto-char (magit-item-beginning item))
-    (if (looking-at "^diff --cc +\\(.*\\)$")
-	(match-string 1)
-      nil)))
-
-(defun magit-diff-or-hunk-item-file (item)
-  (save-excursion
-    (goto-char (if (eq (magit-item-type item) 'hunk)
-		   (magit-hunk-item-head-beg item)
-		 (magit-item-beginning item)))
-    (cond ((looking-at "^diff --git a/\\(.*\\) b/\\(.*\\)$")
-	   (match-string 2))
-	  ((looking-at "^diff --cc +\\(.*\\)$")
-	   (match-string 1))
-	  (t
-	   nil))))
-
-(defun magit-hunk-item-target-line (item)
-  (save-excursion
-    (beginning-of-line)
-    (let ((line (line-number-at-pos)))
-      (if (looking-at "-")
-	  (error "Can't visit removed lines."))
-      (goto-char (magit-item-beginning item))
-      (if (not (looking-at "@@+ .* \\+\\([0-9]+\\),[0-9]+ @@+"))
-	  (error "Hunk header not found."))
-      (let ((target (parse-integer (match-string 1))))
-	(forward-line)
-	(while (< (line-number-at-pos) line)
-	  ;; XXX - deal with combined diffs
-	  (if (not (looking-at "-"))
-	      (setq target (+ target 1)))
-	  (forward-line))
-	target))))
 
 (defun magit-apply-hunk-item (item &rest args)
   (magit-write-hunk-item-patch item ".git/magit-tmp")
