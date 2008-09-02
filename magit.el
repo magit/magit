@@ -545,7 +545,33 @@ Many Magit faces inherit from this one by default."
       (erase-buffer)
       (insert "$ " logline "\n")
       (setq magit-process (apply 'start-process "git" buf cmd args))
-      (set-process-sentinel magit-process 'magit-process-sentinel))))
+      (set-process-sentinel magit-process 'magit-process-sentinel)
+      (set-process-filter magit-process 'magit-process-filter))))
+
+(defun magit-process-sentinel (process event)
+  (with-current-buffer (process-buffer process)
+    (let ((msg (format "Git %s." (substring event 0 -1))))
+      (insert msg "\n")
+      (message msg)))
+  (setq magit-process nil)
+  (magit-set-mode-line-process nil)
+  (magit-revert-files)
+  (magit-update-status (magit-find-status-buffer)))
+
+(defun magit-process-filter (proc string)
+  (save-excursion
+    (set-buffer (process-buffer proc))
+    (goto-char (process-mark proc))
+    ;; Find last ^M in string.  If one was found, ignore everything
+    ;; before it and delete the current line.
+    (let ((ret-pos (and (string-match ".*\r" string) (match-end 0))))
+      (cond (ret-pos
+	     (goto-char (line-beginning-position))
+	     (delete-region (point) (line-end-position))
+	     (insert (substring string ret-pos)))
+	    (t
+	     (insert string))))
+    (set-marker (process-mark proc) (point))))
 
 (defun magit-run (cmd &rest args)
   (apply #'magit-run-command
@@ -566,16 +592,6 @@ Many Magit faces inherit from this one by default."
 	  (with-current-buffer buffer
 	    (ignore-errors
 	      (revert-buffer t t t))))))))
-
-(defun magit-process-sentinel (process event)
-  (with-current-buffer (process-buffer process)
-    (let ((msg (format "Git %s." (substring event 0 -1))))
-      (insert msg "\n")
-      (message msg)))
-  (setq magit-process nil)
-  (magit-set-mode-line-process nil)
-  (magit-revert-files)
-  (magit-update-status (magit-find-status-buffer)))
 
 (defun magit-display-process ()
   (interactive)
