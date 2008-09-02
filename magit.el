@@ -564,11 +564,11 @@ Many Magit faces inherit from this one by default."
     (goto-char (process-mark proc))
     ;; Find last ^M in string.  If one was found, ignore everything
     ;; before it and delete the current line.
-    (let ((ret-pos (and (string-match ".*\r" string) (match-end 0))))
+    (let ((ret-pos (position ?\r string :from-end t)))
       (cond (ret-pos
 	     (goto-char (line-beginning-position))
 	     (delete-region (point) (line-end-position))
-	     (insert (substring string ret-pos)))
+	     (insert (substring string (+ ret-pos 1))))
 	    (t
 	     (insert string))))
     (set-marker (process-mark proc) (point))))
