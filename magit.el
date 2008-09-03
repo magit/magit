@@ -1138,9 +1138,13 @@ Please see the manual for a complete description of Magit.
 	 ;; XXX - this is a bit strict, probably.
 	 (or (string-match "\\(.*\\) <\\(.*\\)>, \\(.*\\)" author)
 	     (error "Can't parse author string."))
-	 (setenv "GIT_AUTHOR_NAME" (match-string 1 author))
-	 (setenv "GIT_AUTHOR_EMAIL" (match-string 2 author))
-	 (setenv "GIT_AUTHOR_DATE" (match-string 3 author)))
+	 ;; Shucks, setenv destroys the match data.
+	 (let ((name (match-string 1 author))
+	       (email (match-string 2 author))
+	       (date  (match-string 3 author)))
+	   (setenv "GIT_AUTHOR_NAME" name)
+	   (setenv "GIT_AUTHOR_EMAIL" email)
+	   (setenv "GIT_AUTHOR_DATE" date)))
 	(t
 	 (setenv "GIT_AUTHOR_NAME")
 	 (setenv "GIT_AUTHOR_EMAIL")
