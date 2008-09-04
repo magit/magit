@@ -34,13 +34,13 @@
 
 ;;; TODO
 
-;; - Visiting hunks from staged hunks doesn't always work since the
-;;   line number don't refer to the working tree.  Fix that somehow.
+;; - Visiting from staged hunks doesn't always work since the line
+;;   numbers don't refer to the working tree.  Fix that somehow.
 ;; - 'C' is very unreliable and often makes a mess.
 ;; - Update commit details when using n and p with commits.
 ;; - Tags
 ;; - Equivalent of interactive rebase
-;; - Equivalent git-wtf, http://git-wt-commit.rubyforge.org/#git-wtf
+;; - Equivalent of git-wtf, http://git-wt-commit.rubyforge.org/#git-wtf
 ;; - 'Subsetting', only looking at a subset of all files.
 ;; - Detect and handle renames and copies.
 
