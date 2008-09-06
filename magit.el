@@ -294,17 +294,23 @@ Many Magit faces inherit from this one by default."
 
 (defvar magit-top-section nil)
 (make-variable-buffer-local 'magit-top-section)
+(put 'magit-submode 'permanent-local t)
+
+(defvar magit-old-top-section nil)
 
 (defun magit-new-section (title type)
-  (message "Creating %s" title)
-  (let ((s (make-magit-section :parent magit-top-section
+  (let* ((s (make-magit-section :parent magit-top-section
 			       :title title
-			       :type type)))
+			       :type type))
+	 (old (magit-find-section (magit-section-path s)
+				  magit-old-top-section)))
     (if magit-top-section
 	(setf (magit-section-children magit-top-section)
 	      (append (magit-section-children magit-top-section)
 		      (list s)))
       (setq magit-top-section s))
+    (if old
+	(setf (magit-section-hidden s) (magit-section-hidden old)))
     s))
 
 (defun magit-cancel-section (section)
@@ -333,9 +339,12 @@ Many Magit faces inherit from this one by default."
   (declare (indent 0))
   `(let ((inhibit-read-only t))
      (erase-buffer)
-     (setq magit-top-section nil)
-     ,@body
-     (magit-propertize-section magit-top-section)))
+     (let ((magit-old-top-section magit-top-section))
+       (setq magit-top-section nil)
+       ,@body
+       (magit-propertize-section magit-top-section)
+       (magit-section-set-hidden magit-top-section
+				 (magit-section-hidden magit-top-section)))))
 
 (defun magit-propertize-section (section)
   (put-text-property (magit-section-beginning section)
