@@ -1391,7 +1391,8 @@ Please see the manual for a complete description of Magit.
 			       'magit-wash-log nil
 			       "git" "log" "--graph" "--max-count=10000"
 			       "--pretty=oneline" args))
-	(magit-refresh-marked-commits-in-buffer))))
+	(magit-refresh-marked-commits-in-buffer)
+	(goto-char (point-min)))))
 
 (defun magit-log-head ()
   (interactive)
@@ -1413,7 +1414,8 @@ Please see the manual for a complete description of Magit.
 			       "git" "log" "--walk-reflogs"
 			       "--max-count=10000"
 			       "--pretty=oneline" args))
-	(magit-refresh-marked-commits-in-buffer))))
+	(magit-refresh-marked-commits-in-buffer)
+	(goto-char (point-min)))))
 
 (defun magit-reflog-head ()
   (interactive)
