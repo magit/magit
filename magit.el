@@ -1584,7 +1584,7 @@ Please see the manual for a complete description of Magit.
     ((diff)
      (find-file (magit-diff-item-file info)))
     ((hunk)
-     (let ((file (magit-diff-item-info (magit-hunk-item-diff item)))
+     (let ((file (magit-diff-item-file (magit-hunk-item-diff item)))
 	   (line (magit-hunk-item-target-line item)))
        (find-file file)
        (goto-line line)))
