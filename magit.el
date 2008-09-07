@@ -347,6 +347,9 @@ Many Magit faces inherit from this one by default."
      (let ((magit-old-top-section magit-top-section))
        (setq magit-top-section nil)
        ,@body
+       (when (null magit-top-section)
+	 (magit-with-section 'top nil
+	   (insert "(empty)\n")))
        (magit-propertize-section magit-top-section)
        (magit-section-set-hidden magit-top-section
 				 (magit-section-hidden magit-top-section)))))
