@@ -856,12 +856,17 @@ Please see the manual for a complete description of Magit.
 			    (goto-char (match-beginning 0))
 			  (goto-char (point-max)))
 			(point-marker))))
-	     ;; XXX - figure out real status and propertize
 	     (magit-set-section-info file)
 	     (let ((status (cond
 			    ((save-excursion
 			       (search-forward-regexp "^new" end t))
 			     "New     ")
+			    ((save-excursion
+			       (search-forward-regexp "^deleted" end t))
+			     "Deleted ")
+			    ((save-excursion
+			       (search-forward-regexp "^rename" end t))
+			     "Renamed ")
 			    (t
 			     "Modified"))))
 	       (insert "\t" status " " file "\n")
