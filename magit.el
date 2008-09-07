@@ -1096,6 +1096,7 @@ Please see the manual for a complete description of Magit.
 	     (if rebase
 		 (insert (apply 'format "Rebasing: %s (%s of %s)\n" rebase))))
 	   (insert "\n")
+	   (magit-insert-pending-commits)
 	   (when remote
 	     (magit-insert-unpulled-commits remote branch))
 	   (let ((staged (magit-anything-staged-p)))
@@ -1254,6 +1255,36 @@ Please see the manual for a complete description of Magit.
   (interactive)
   (if (yes-or-no-p "Discard all uncommitted changes? ")
       (magit-run "git" "reset" "--hard")))
+
+;;; Rewriting
+
+(defun magit-read-rewrite-info ()
+  (when (file-exists-p ".git/magit-rewrite-info")
+    (with-temp-buffer
+      (insert-file-contents ".git/magit-rewrite-info")
+      (goto-char (point-min))
+      (read (current-buffer)))))
+
+(defun magit-write-rewrite-info (info)
+  (with-temp-file ".git/magit-rewrite-info"
+    (prin1 info (current-buffer))
+    (princ "\n" (current-buffer))))
+
+(defun magit-insert-pending-commits ()
+  (let* ((info (magit-read-rewrite-info))
+	 (pending (cdr (assq 'pending info))))
+    (when pending
+      (magit-with-section 'pending nil
+	(insert (propertize "Pending commits:\n"
+			    'face 'magit-section-title))
+	(dolist (p pending)
+	  (magit-with-section p 'commit
+	    (magit-set-section-info p)
+	    (insert (magit-shell
+		     "git log --max-count=1 --pretty=format:%s %s --"
+		     (magit-escape-for-shell "* %s") p)
+		    "\n"))))
+      (insert "\n"))))
 
 ;;; Updating, pull, and push
 
