@@ -851,6 +851,7 @@ Please see the manual for a complete description of Magit.
   (cond ((looking-at "^diff")
 	 (magit-with-section (magit-current-line) 'diff
 	   (let ((file (magit-diff-line-file))
+		 (unresolved (looking-at "^diff --cc"))
 		 (end (save-excursion
 			(forward-line) ;; skip over "diff" line
 			(if (search-forward-regexp "^diff\\|^@@" nil t)
@@ -859,17 +860,19 @@ Please see the manual for a complete description of Magit.
 			(point-marker))))
 	     (magit-set-section-info file)
 	     (let ((status (cond
+			    (unresolved
+			     "Unresolved")
 			    ((save-excursion
 			       (search-forward-regexp "^new" end t))
-			     "New     ")
+			     "New        ")
 			    ((save-excursion
 			       (search-forward-regexp "^deleted" end t))
-			     "Deleted ")
+			     "Deleted    ")
 			    ((save-excursion
 			       (search-forward-regexp "^rename" end t))
-			     "Renamed ")
+			     "Renamed    ")
 			    (t
-			     "Modified"))))
+			     "Modified   "))))
 	       (insert "\t" status " " file "\n")
 	       (goto-char end)
 	       (magit-wash-sequence #'magit-wash-hunk)
