@@ -51,10 +51,9 @@ files, for example, and you can browse the history of past changes.
 There is also support for cherry picking, reverting, merging and
 rebasing, and other common Git operations.
 
-Magit is not a complete interface to Git, it just makes the most
-common Git command-line tools more convenient to use.  Thus, while
-Magit is a good way to experiment with Git, it will not save you from
-learning Git itself.
+Magit is not a complete interface to Git; it just aims to make the
+most common Git operations convenient.  Thus, Magit will likely not
+save you from learning Git itself.
 
 This manual provides a tour of all Magit features.  It does not give a
 introduction to version control in general, or to Git in particular.
@@ -107,33 +106,19 @@ not empty are shown.
 You control how much of a section is visible by moving point to its
 title and hitting @kbd{TAB}.  This will cycle through three visibility
 states of the section: fully visible, fully hidden (expect for the
-first line), and collapsed, where only the first line of the children
-are visible.  You can also control the visibility of sub-sections this
-way.
+first line), and collapsed, where only the first lines of the children
+are visible.  You can also control the visibility of sub-sections in
+this way.
 
-The first of these sections lists @emph{Untracked files}.  These are
-the files that are present in your working tree but are not known to
-Git; they are neither tracked in the current branch nor explicitly
-ignored.  You can move point to one of the listed files and type
-@kbd{s} to add it to the staging area.  You can tell Git to ignore the
-file by typing @kbd{i}, and you can remove it from the filesystem with
-@kbd{k}.
+Two section show your local changes.  They are explained fully in the
+next chapter, @ref{Staging and Committing}.
 
-Magit has no shortcuts for removing or renaming files.  You need to
-use @code{git rm} or @code{git mv} in a shell and then refresh the
-status buffer.
-
-The next one or two sections show your local changes.  They are
-explained fully in the next chapter, @ref{Staging and Committing}.
-
-If the current branch is associated with a remote repository, the
-status buffer will show a section named @emph{Unpushed commits}.  It
-will briefly list the commits that you have made in your local
-repository, but have not yet pushed.  See @ref{Pushing and Pulling}
-for more information.
+If the current branch is associated with a remote tracking branch, the
+status buffer shows the differences between the current branch and the
+tracking branch.  See @ref{Pushing and Pulling} for more information.
 
 Typing a digit in the status buffer will move point to a section
-header: @kbd{1} will move to @emph{Untracked files}, @kbd{2} will move
+header: @kbd{1} will move to @emph{Unpulled commits}, @kbd{2} will move
 to @emph{Unstaged changes} or @emph{Changes}, @kbd{3} will move to
 @emph{Staged changes}, and @kbd{4} will move to @emph{Unpushed
 commits}.  Note that these relations are fixed, @kbd{3} always moves
@@ -157,10 +142,9 @@ changes} section shows the changes that will be included in the next
 commit, while the @emph{Unstaged changes} section shows the changes
 that will be left out.
 
-Unlike other version control interfaces, Magit does not usually
-operate on files: Instead of dealing with files (or sets of files),
-uncommitted changes are shown as diffs and you usually deal with the
-individual hunks.
+Untracked files are shown as @emph{New} in the @emph{Changes} or
+@emph{Unstaged changes} section.  You can instruct Git to ignore them
+by typing @kbd{i}.
 
 You can discard uncommitted changes by moving point into a hunk and
 typing @kbd{k}.
@@ -365,5 +349,9 @@ not in the branch named @code{<remote>/<branch>}.  This section works
 just like the history buffer: you can see details about a commit with
 @kbd{RET}, compare two of them with @kbd{.} and @kbd{=}, and you can
 reset your current head to one of them with @kbd{x}, for example.
+
+When the remote branch has changes that are not in the current branch,
+Magit shows them in a section called @emph{Unpulled changes}.  Typing
+@kbd{F} will merge them into the current branch.
 
 @bye
