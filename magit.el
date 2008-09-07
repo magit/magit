@@ -1297,10 +1297,23 @@ Please see the manual for a complete description of Magit.
     (or info
 	(error "No rewrite in progress."))
     (or (magit-everything-clean-p)
-	(error "You have uncommitted changes.  Abort aborted."))
+	(error "You have uncommitted changes."))
     (when (yes-or-no-p "Abort rewrite? ")
       (magit-write-rewrite-info nil)
       (magit-run "git" "reset" "--hard" orig))))
+
+(defun magit-rewrite-start (from &optional onto)
+  (interactive (list (magit-read-rev "Rewrite from" (magit-default-rev))))
+  (or (magit-everything-clean-p)
+      (error "You have uncommitted changes."))
+  (or (not (magit-read-rewrite-info))
+      (error "Rewrite in progress."))
+  (let* ((orig (magit-shell "git rev-parse HEAD"))
+	 (base (magit-shell "git rev-parse %s^" from))
+	 (pending (magit-shell-lines "git rev-list %s.." base)))
+    (magit-write-rewrite-info `((orig ,orig)
+				(pending ,@pending)))
+    (magit-run "git" "reset" "--hard" base)))
 
 ;;; Updating, pull, and push
 
