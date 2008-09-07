@@ -294,7 +294,7 @@ Many Magit faces inherit from this one by default."
 
 (defvar magit-top-section nil)
 (make-variable-buffer-local 'magit-top-section)
-(put 'magit-submode 'permanent-local t)
+(put 'magit-top-section 'permanent-local t)
 
 (defvar magit-old-top-section nil)
 
@@ -302,8 +302,9 @@ Many Magit faces inherit from this one by default."
   (let* ((s (make-magit-section :parent magit-top-section
 			       :title title
 			       :type type))
-	 (old (magit-find-section (magit-section-path s)
-				  magit-old-top-section)))
+	 (old (and magit-old-top-section
+		   (magit-find-section (magit-section-path s)
+				       magit-old-top-section))))
     (if magit-top-section
 	(setf (magit-section-children magit-top-section)
 	      (append (magit-section-children magit-top-section)
