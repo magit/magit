@@ -1581,9 +1581,14 @@ Please see the manual for a complete description of Magit.
 	   (magit-apply-hunk-item item "--reverse" "--index"))
        (error "Can't discard this hunk.  Please unstage it first.")))
     ((diff)
-     (let ((file (magit-diff-item-file item)))
-       (if (yes-or-no-p (format "Discard changes to %s? " file))
-	   (magit-run "git" "checkout" "--" file))))))
+     (let ((kind (magit-diff-item-kind item))
+	   (file (magit-diff-item-file item)))
+       (cond ((eq kind 'new)
+	      (if (yes-or-no-p (format "Delete %s? " file))
+		  (magit-run "git" "rm" "-f" "--" file)))
+	     (t
+	      (if (yes-or-no-p (format "Discard changes to %s? " file))
+		  (magit-run "git" "checkout" "--" file))))))))
 
 (defun magit-visit-item ()
   (interactive)
