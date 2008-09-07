@@ -1062,6 +1062,13 @@ Please see the manual for a complete description of Magit.
   (or magit-marked-commit
       (error "Not commit marked")))
 
+(defun magit-insert-unmerged-commits (remote branch)
+  (magit-insert-section 'unmerged
+			"Unmerged commits:" 'magit-wash-log
+			nil
+			"git" "log" "--graph" "--pretty=oneline"
+			(format "HEAD..%s/%s" remote branch)))
+
 (defun magit-insert-unpushed-commits (remote branch)
   (magit-insert-section 'unpushed
 			"Unpushed commits:" 'magit-wash-log
@@ -1106,8 +1113,9 @@ Please see the manual for a complete description of Magit.
 	      (if staged "Unstaged changes:" "Changes:"))
 	     (if staged
 		 (magit-insert-staged-changes)))
-	   (if remote
-	       (magit-insert-unpushed-commits remote branch)))))
+	   (when remote
+	     (magit-insert-unmerged-commits remote branch)
+	     (magit-insert-unpushed-commits remote branch)))))
       (magit-goto-line old-line)
       (when (bobp)
 	(magit-goto-section '(unstaged)))
