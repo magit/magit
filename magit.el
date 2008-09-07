@@ -34,7 +34,7 @@
 
 ;;; TODO
 
-;; - Handle new, deleted and renaemd files correctly when staging,
+;; - Handle new, deleted and renamed files correctly when staging,
 ;;   unstaging, discarding, etc.
 ;; - Visiting from staged hunks doesn't always work since the line
 ;;   numbers don't refer to the working tree.  Fix that somehow.
@@ -861,18 +861,18 @@ Please see the manual for a complete description of Magit.
 	     (magit-set-section-info file)
 	     (let ((status (cond
 			    (unresolved
-			     "Unresolved")
+			     "Unmerged")
 			    ((save-excursion
 			       (search-forward-regexp "^new" end t))
-			     "New        ")
+			     "New     ")
 			    ((save-excursion
 			       (search-forward-regexp "^deleted" end t))
-			     "Deleted    ")
+			     "Deleted ")
 			    ((save-excursion
 			       (search-forward-regexp "^rename" end t))
-			     "Renamed    ")
+			     "Renamed ")
 			    (t
-			     "Modified   "))))
+			     "Modified"))))
 	       (insert "\t" status " " file "\n")
 	       (goto-char end)
 	       (magit-wash-sequence #'magit-wash-hunk)
