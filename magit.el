@@ -1290,18 +1290,6 @@ Please see the manual for a complete description of Magit.
 		    "\n"))))
       (insert "\n"))))
 
-(defun magit-rewrite-abort ()
-  (interactive)
-  (let* ((info (magit-read-rewrite-info))
-	 (orig (cadr (assq 'orig info))))
-    (or info
-	(error "No rewrite in progress."))
-    (or (magit-everything-clean-p)
-	(error "You have uncommitted changes."))
-    (when (yes-or-no-p "Abort rewrite? ")
-      (magit-write-rewrite-info nil)
-      (magit-run "git" "reset" "--hard" orig))))
-
 (defun magit-rewrite-start (from &optional onto)
   (interactive (list (magit-read-rev "Rewrite from" (magit-default-rev))))
   (or (magit-everything-clean-p)
@@ -1314,6 +1302,27 @@ Please see the manual for a complete description of Magit.
     (magit-write-rewrite-info `((orig ,orig)
 				(pending ,@pending)))
     (magit-run "git" "reset" "--hard" base)))
+
+(defun magit-rewrite-stop ()
+  (interactive)
+  (let* ((info (magit-read-rewrite-info)))
+    (or info
+	(error "No rewrite in progress."))
+    (when (yes-or-no-p "Stop rewrite? ")
+      (magit-write-rewrite-info nil)
+      (magit-update-status (magit-find-status-buffer)))))
+
+(defun magit-rewrite-abort ()
+  (interactive)
+  (let* ((info (magit-read-rewrite-info))
+	 (orig (cadr (assq 'orig info))))
+    (or info
+	(error "No rewrite in progress."))
+    (or (magit-everything-clean-p)
+	(error "You have uncommitted changes."))
+    (when (yes-or-no-p "Abort rewrite? ")
+      (magit-write-rewrite-info nil)
+      (magit-run "git" "reset" "--hard" orig))))
 
 ;;; Updating, pull, and push
 
