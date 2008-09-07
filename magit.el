@@ -488,13 +488,56 @@ Many Magit faces inherit from this one by default."
       (dolist (c (magit-section-children section))
 	(magit-section-set-hidden c (magit-section-hidden c)))))
 
-(defun magit-toggle-section-visibility ()
-  (interactive)
+(defun magit-section-collapse (section)
+  (dolist (c (magit-section-children section))
+    (setf (magit-section-hidden c) t))
+  (magit-section-set-hidden section nil))
+
+(defun magit-section-expand (section)
+  (dolist (c (magit-section-children section))
+    (setf (magit-section-hidden c) nil))
+  (magit-section-set-hidden section nil))
+
+(defun magit-section-hideshow (flag-or-func)
   (let ((section (magit-current-section)))
     (cond ((magit-section-parent section)
 	   (goto-char (magit-section-beginning section))
-	   (magit-section-set-hidden section
-				     (not (magit-section-hidden section)))))))
+	   (if (functionp flag-or-func)
+	       (funcall flag-or-func section)
+	     (magit-section-set-hidden section flag-or-func))))))
+
+(defun magit-show-section ()
+  (interactive)
+  (magit-section-hideshow nil))
+
+(defun magit-hide-section ()
+  (interactive)
+  (magit-section-hideshow t))
+
+(defun magit-collapse-section ()
+  (interactive)
+  (magit-section-hideshow #'magit-section-collapse))
+
+(defun magit-expand-section ()
+  (interactive)
+  (magit-section-hideshow #'magit-section-expand))
+
+(defun magit-toggle-section ()
+  (interactive)
+  (magit-section-hideshow
+   (lambda (s)
+     (magit-section-set-hidden (not (magit-section-hidden s))))))
+
+(defun magit-cycle-section ()
+  (interactive)
+  (magit-section-hideshow
+   (lambda (s)
+     (cond ((magit-section-hidden s)
+	    (magit-section-collapse s))
+	   ((notany #'magit-section-hidden (magit-section-children s))
+	    (magit-section-set-hidden s t))
+	   (t
+	    (magit-section-expand s))))))
 
 (defmacro magit-define-section-jumper (sym title)
   (let ((fun (intern (format "magit-jump-to-%s" sym)))
@@ -674,7 +717,7 @@ Many Magit faces inherit from this one by default."
     (suppress-keymap map t)
     (define-key map (kbd "n") 'magit-goto-next-section)
     (define-key map (kbd "p") 'magit-goto-previous-section)
-    (define-key map (kbd "TAB") 'magit-toggle-section-visibility)
+    (define-key map (kbd "TAB") 'magit-cycle-section)
     (define-key map (kbd "1") 'magit-jump-to-untracked)
     (define-key map (kbd "2") 'magit-jump-to-unstaged)
     (define-key map (kbd "3") 'magit-jump-to-staged)
