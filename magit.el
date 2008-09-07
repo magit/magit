@@ -34,6 +34,8 @@
 
 ;;; TODO
 
+;; - Handle new, deleted and renaemd files correctly when staging,
+;;   unstaging, discarding, etc.
 ;; - Visiting from staged hunks doesn't always work since the line
 ;;   numbers don't refer to the working tree.  Fix that somehow.
 ;; - 'C' is very unreliable and often makes a mess.
@@ -42,7 +44,6 @@
 ;; - Equivalent of interactive rebase
 ;; - Equivalent of git-wtf, http://git-wt-commit.rubyforge.org/#git-wtf
 ;; - 'Subsetting', only looking at a subset of all files.
-;; - Detect and handle renames and copies.
 
 (require 'cl)
 (require 'parse-time)
