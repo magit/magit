@@ -824,6 +824,14 @@ Please see the manual for a complete description of Magit.
       (forward-line))
     t))
 
+(defun magit-insert-untracked-files ()
+  (magit-insert-section 'untracked
+			"Untracked files:"
+			'magit-wash-untracked-files
+			nil
+			"git" "ls-files" "--others"
+			"--exclude-standard"))
+
 ;;; Diffs and Hunks
 
 (defun magit-diff-line-file ()
@@ -926,6 +934,16 @@ Please see the manual for a complete description of Magit.
 	  (forward-line))
 	target))))
 
+(defun magit-insert-unstaged-changes (title)
+  (magit-insert-section 'unstaged title 'magit-wash-diffs
+			magit-collapse-threshold
+			"git" "diff"))
+
+(defun magit-insert-staged-changes ()
+  (magit-insert-section 'staged	"Staged changes:" 'magit-wash-diffs
+			magit-collapse-threshold
+			"git" "diff" "--cached"))
+
 ;;; Logs and Commits
 
 (defun magit-wash-log-line ()
@@ -1002,6 +1020,13 @@ Please see the manual for a complete description of Magit.
   (or magit-marked-commit
       (error "Not commit marked")))
 
+(defun magit-insert-unpushed-commits (remote branch)
+  (magit-insert-section 'unpushed
+			"Unpushed commits:" 'magit-wash-log
+			nil
+			"git" "log" "--graph" "--pretty=oneline"
+			(format "%s/%s..HEAD" remote branch)))
+
 ;;; Status
 
 (defun magit-update-status (buf)
@@ -1033,29 +1058,14 @@ Please see the manual for a complete description of Magit.
 	     (if rebase
 		 (insert (apply 'format "Rebasing: %s (%s of %s)\n" rebase))))
 	   (insert "\n")
-	   (magit-insert-section 'untracked
-				 "Untracked files:"
-				 'magit-wash-untracked-files
-				 nil
-				 "git" "ls-files" "--others"
-				 "--exclude-standard")
+	   (magit-insert-untracked-files)
 	   (let ((staged (magit-anything-staged-p)))
-	     (magit-insert-section 'unstaged
-				   (if staged "Unstaged changes:" "Changes:")
-				   'magit-wash-diffs
-				   magit-collapse-threshold
-				   "git" "diff")
+	     (magit-insert-unstaged-changes
+	      (if staged "Unstaged changes:" "Changes:"))
 	     (if staged
-		 (magit-insert-section 'staged
-				       "Staged changes:" 'magit-wash-diffs
-				       magit-collapse-threshold
-				       "git" "diff" "--cached")))
+		 (magit-insert-staged-changes)))
 	   (if remote
-	       (magit-insert-section 'unpushed
-				     "Unpushed commits:" 'magit-wash-log
-				     nil
-				     "git" "log" "--graph" "--pretty=oneline"
-				     (format "%s/%s..HEAD" remote branch))))))
+	       (magit-insert-unpushed-commits remote branch)))))
       (magit-goto-line old-line)
       (when (bobp)
 	(magit-goto-section '(unstaged)))
