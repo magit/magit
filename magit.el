@@ -34,8 +34,11 @@
 
 ;;; TODO
 
-;; - Handle new, deleted and renamed files correctly when staging,
+;; - Handle new and deleted files correctly when staging,
 ;;   unstaging, discarding, etc.
+;; - Show untracked files as "New" files in the unstaged changes
+;;   section.
+;; - Handle renames.
 ;; - Visiting from staged hunks doesn't always work since the line
 ;;   numbers don't refer to the working tree.  Fix that somehow.
 ;; - 'C' is very unreliable and often makes a mess.
@@ -851,34 +854,61 @@ Please see the manual for a complete description of Magit.
   (cond ((looking-at "^diff")
 	 (magit-with-section (magit-current-line) 'diff
 	   (let ((file (magit-diff-line-file))
-		 (unresolved (looking-at "^diff --cc"))
 		 (end (save-excursion
 			(forward-line) ;; skip over "diff" line
 			(if (search-forward-regexp "^diff\\|^@@" nil t)
 			    (goto-char (match-beginning 0))
 			  (goto-char (point-max)))
 			(point-marker))))
-	     (magit-set-section-info file)
-	     (let ((status (cond
-			    (unresolved
-			     "Unmerged")
+	     (let* ((status (cond
+			     ((looking-at "^diff --cc")
+			      'unmerged)
+			     ((save-excursion
+				(search-forward-regexp "^new" end t))
+			      'new)
+			     ((save-excursion
+				(search-forward-regexp "^deleted" end t))
+			      'deleted)
+			     ((save-excursion
+				(search-forward-regexp "^rename" end t))
+			      'renamed)
+			     (t
+			      'modified)))
+		    (file2 (cond
 			    ((save-excursion
-			       (search-forward-regexp "^new" end t))
-			     "New     ")
-			    ((save-excursion
-			       (search-forward-regexp "^deleted" end t))
-			     "Deleted ")
-			    ((save-excursion
-			       (search-forward-regexp "^rename" end t))
-			     "Renamed ")
-			    (t
-			     "Modified"))))
-	       (insert "\t" status " " file "\n")
+			       (search-forward-regexp "^rename from \\(.*\\)"
+						      end t))
+			     (match-string-no-properties 1))))
+		    (status-text (case status
+				   ((unmerged)
+				    (format "Unmerged %s" file))
+				   ((new)
+				    (format "New      %s" file))
+				   ((deleted)
+				    (format "Deleted  %s" file))
+				   ((renamed)
+				    (format "Renamed  %s   (from %s)"
+					    file file2))
+ 				   ((modified)
+				    (format "Modified %s" file))
+				   (
+				    (format "?        %s" file)))))
+	       (magit-set-section-info (list status file file2))
+	       (insert "\t" status-text "\n")
 	       (goto-char end)
 	       (magit-wash-sequence #'magit-wash-hunk)
 	       t))))
 	(t
 	 nil)))
+
+(defun magit-diff-item-kind (diff)
+  (car (magit-section-info diff)))
+
+(defun magit-diff-item-file (diff)
+  (cadr (magit-section-info diff)))
+
+(defun magit-diff-item-file2 (diff)
+  (caddr (magit-section-info diff)))
 
 (defun magit-wash-hunk ()
   (cond ((looking-at "\\(^@+\\)[^@]*@+")
@@ -928,11 +958,6 @@ Please see the manual for a complete description of Magit.
   (string-match "^diff --cc"
 		(magit-section-title (magit-hunk-item-diff hunk))))
 
-(defun magit-diff-or-hunk-item-file (item)
-  (magit-section-info (if (eq (magit-section-type item) 'hunk)
-			  (magit-hunk-item-diff item)
-			item)))
-
 (defun magit-hunk-item-target-line (hunk)
   (save-excursion
     (beginning-of-line)
@@ -959,7 +984,7 @@ Please see the manual for a complete description of Magit.
 (defun magit-insert-staged-changes ()
   (magit-insert-section 'staged	"Staged changes:" 'magit-wash-diffs
 			magit-collapse-threshold
-			"git" "diff" "--cached" "-M"))
+			"git" "diff" "--cached"))
 
 ;;; Logs and Commits
 
@@ -1121,7 +1146,7 @@ Please see the manual for a complete description of Magit.
 			"Please stage the whole file.")))
      (magit-apply-hunk-item item "--cached"))
     ((unstaged diff)
-     (magit-run "git" "add" info))
+     (magit-run "git" "add" "-u" (magit-diff-item-file item)))
     ((staged *)
      (error "Already staged"))
     ((hunk)
@@ -1136,7 +1161,7 @@ Please see the manual for a complete description of Magit.
     ((staged diff hunk)
      (magit-apply-hunk-item item "--cached" "--reverse"))
     ((staged diff)
-     (magit-run "git" "reset" "HEAD" info))
+     (magit-run "git" "reset" "HEAD" (magit-diff-item-file item)))
     ((unstaged *)
      (error "Already unstaged"))
     ((hunk)
@@ -1388,7 +1413,7 @@ Please see the manual for a complete description of Magit.
 		 (save-excursion
 		   (magit-visit-item)
 		   (add-log-current-defun))))
-	  (file (magit-section-info (magit-hunk-item-diff section))))
+	  (file (magit-diff-item-file (magit-hunk-item-diff section))))
       (magit-log-edit)
       (goto-char (point-min))
       (cond ((not (search-forward-regexp (format "^\\* %s" (regexp-quote file))
@@ -1521,8 +1546,6 @@ Please see the manual for a complete description of Magit.
   (magit-diff (cons (magit-marked-commit)
 		    (magit-commit-at-point))))
 
-;;; Markers
-
 ;;; Miscellaneous
 
 (defun magit-ignore-item ()
@@ -1543,13 +1566,15 @@ Please see the manual for a complete description of Magit.
      (when (yes-or-no-p "Discard hunk? ")
        (magit-apply-hunk-item item "--reverse")))
     ((staged diff hunk)
-     (if (magit-file-uptodate-p (magit-diff-or-hunk-item-file item))
+     (if (magit-file-uptodate-p (magit-diff-item-file
+				 (magit-hunk-item-diff item)))
 	 (when (yes-or-no-p "Discard hunk? ")
 	   (magit-apply-hunk-item item "--reverse" "--index"))
        (error "Can't discard this hunk.  Please unstage it first.")))
     ((diff)
-     (if (yes-or-no-p (format "Discard changes to %s? " info))
-	 (magit-run "git" "checkout" "--" info)))))
+     (let ((file (magit-diff-item-file item)))
+       (if (yes-or-no-p (format "Discard changes to %s? " file))
+	   (magit-run "git" "checkout" "--" file))))))
 
 (defun magit-visit-item ()
   (interactive)
@@ -1557,9 +1582,9 @@ Please see the manual for a complete description of Magit.
     ((untracked file)
      (find-file info))
     ((diff)
-     (find-file info))
+     (find-file (magit-diff-item-file info)))
     ((hunk)
-     (let ((file (magit-section-info (magit-hunk-item-diff item)))
+     (let ((file (magit-diff-item-info (magit-hunk-item-diff item)))
 	   (line (magit-hunk-item-target-line item)))
        (find-file file)
        (goto-line line)))
