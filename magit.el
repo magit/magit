@@ -849,17 +849,25 @@ Please see the manual for a complete description of Magit.
 (defun magit-wash-diff ()
   (cond ((looking-at "^diff")
 	 (magit-with-section (magit-current-line) 'diff
-	   (let ((file (magit-diff-line-file)))
-	   ;; XXX - figure out real status and propertize
+	   (let ((file (magit-diff-line-file))
+		 (end (save-excursion
+			(forward-line) ;; skip over "diff" line
+			(if (search-forward-regexp "^diff\\|^@@" nil t)
+			    (goto-char (match-beginning 0))
+			  (goto-char (point-max)))
+			(point-marker))))
+	     ;; XXX - figure out real status and propertize
 	     (magit-set-section-info file)
-	     (insert "\tModified " file "\n"))
-	   (forward-line) ;; skip over "diff" line
-	   (cond ((search-forward-regexp "^diff\\|^@@" nil t)
-		  (goto-char (match-beginning 0))
-		  (magit-wash-sequence #'magit-wash-hunk))
-		 (t
-		  (goto-char (point-max)))))
-	 t)
+	     (let ((status (cond
+			    ((save-excursion
+			       (search-forward-regexp "^new" end t))
+			     "New     ")
+			    (t
+			     "Modified"))))
+	       (insert "\t" status " " file "\n")
+	       (goto-char end)
+	       (magit-wash-sequence #'magit-wash-hunk)
+	       t))))
 	(t
 	 nil)))
 
