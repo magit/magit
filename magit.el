@@ -1161,7 +1161,7 @@ Please see the manual for a complete description of Magit.
     ((staged diff hunk)
      (magit-apply-hunk-item item "--cached" "--reverse"))
     ((staged diff)
-     (magit-run "git" "reset" "HEAD" (magit-diff-item-file item)))
+     (magit-run "git" "reset" "-q" "HEAD" "--" (magit-diff-item-file item)))
     ((unstaged *)
      (error "Already unstaged"))
     ((hunk)
