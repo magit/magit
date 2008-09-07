@@ -942,7 +942,7 @@ Please see the manual for a complete description of Magit.
 (defun magit-insert-staged-changes ()
   (magit-insert-section 'staged	"Staged changes:" 'magit-wash-diffs
 			magit-collapse-threshold
-			"git" "diff" "--cached"))
+			"git" "diff" "--cached" "-M"))
 
 ;;; Logs and Commits
 
