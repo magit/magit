@@ -1108,13 +1108,14 @@ Please see the manual for a complete description of Magit.
 		 (insert (apply 'format "Rebasing: %s (%s of %s)\n" rebase))))
 	   (insert "\n")
 	   (magit-insert-untracked-files)
+	   (when remote
+	     (magit-insert-unpulled-commits remote branch))
 	   (let ((staged (magit-anything-staged-p)))
 	     (magit-insert-unstaged-changes
 	      (if staged "Unstaged changes:" "Changes:"))
 	     (if staged
 		 (magit-insert-staged-changes)))
 	   (when remote
-	     (magit-insert-unpulled-commits remote branch)
 	     (magit-insert-unpushed-commits remote branch)))))
       (magit-goto-line old-line)
       (when (bobp)
