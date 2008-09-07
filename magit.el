@@ -273,10 +273,14 @@ Many Magit faces inherit from this one by default."
   (magit-commit-at-point t))
 
 (defun magit-file-uptodate-p (file)
-  (eq (magit-shell-exit-code "git diff --quiet %s" file) 0))
+  (eq (magit-shell-exit-code "git diff --quiet -- %s" file) 0))
 
 (defun magit-anything-staged-p ()
   (not (eq (magit-shell-exit-code "git diff --quiet --cached") 0)))
+
+(defun magit-everything-clean-p ()
+  (and (not (magit-anything-staged-p))
+       (eq (magit-shell-exit-code "git diff --quiet") 0)))
 
 ;;; Sections
 
@@ -1285,6 +1289,18 @@ Please see the manual for a complete description of Magit.
 		     (magit-escape-for-shell "* %s") p)
 		    "\n"))))
       (insert "\n"))))
+
+(defun magit-rewrite-abort ()
+  (interactive)
+  (let* ((info (magit-read-rewrite-info))
+	 (orig (cadr (assq 'orig info))))
+    (or info
+	(error "No rewrite in progress."))
+    (or (magit-everything-clean-p)
+	(error "You have uncommitted changes.  Abort aborted."))
+    (when (yes-or-no-p "Abort rewrite? ")
+      (magit-write-rewrite-info nil)
+      (magit-run "git" "reset" "--hard" orig))))
 
 ;;; Updating, pull, and push
 
