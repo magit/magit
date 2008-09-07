@@ -35,7 +35,7 @@
 ;;; TODO
 
 ;; - Handle new and deleted files correctly when staging,
-;;   unstaging, discarding, etc.
+;;   unstaging, and discarding.
 ;; - Show untracked files as "New" files in the unstaged changes
 ;;   section.
 ;; - Handle renames.
@@ -713,10 +713,10 @@ Many Magit faces inherit from this one by default."
 ;; We define individual functions (instead of using lambda etc) so
 ;; that the online help can show something meaningful.
 
-(magit-define-section-jumper untracked "Untracked changes")
+(magit-define-section-jumper unpulled  "Unpulled commits")
 (magit-define-section-jumper unstaged  "Unstaged changes")
 (magit-define-section-jumper staged    "Staged changes")
-(magit-define-section-jumper unpushed  "Unpushed changes")
+(magit-define-section-jumper unpushed  "Unpushed commits")
 
 (defvar magit-mode-map
   (let ((map (make-keymap)))
@@ -724,7 +724,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "n") 'magit-goto-next-section)
     (define-key map (kbd "p") 'magit-goto-previous-section)
     (define-key map (kbd "TAB") 'magit-cycle-section)
-    (define-key map (kbd "1") 'magit-jump-to-untracked)
+    (define-key map (kbd "1") 'magit-jump-to-unpulled)
     (define-key map (kbd "2") 'magit-jump-to-unstaged)
     (define-key map (kbd "3") 'magit-jump-to-staged)
     (define-key map (kbd "4") 'magit-jump-to-unpushed)
@@ -815,28 +815,6 @@ Please see the manual for a complete description of Magit.
       (if (eq major-mode 'magit-mode)
 	  (funcall func)))))
 
-;;; Untracked files
-
-(defun magit-wash-untracked-files ()
-  (magit-wash-sequence #'magit-wash-untracked-file))
-
-(defun magit-wash-untracked-file ()
-  (let ((filename (buffer-substring-no-properties
-		   (point) (line-end-position))))
-    (magit-with-section filename 'file
-      (magit-set-section-info filename)
-      (magit-put-line-property 'face '(:foreground "red"))
-      (forward-line))
-    t))
-
-(defun magit-insert-untracked-files ()
-  (magit-insert-section 'untracked
-			"Untracked files:"
-			'magit-wash-untracked-files
-			nil
-			"git" "ls-files" "--others"
-			"--exclude-standard"))
-
 ;;; Diffs and Hunks
 
 (defun magit-diff-line-file ()
@@ -849,7 +827,21 @@ Please see the manual for a complete description of Magit.
 
 (defun magit-wash-diffs ()
   (goto-char (point-min))
-  (magit-wash-sequence #'magit-wash-diff))
+  (magit-wash-sequence #'magit-wash-diff-or-other-file))
+
+(defun magit-wash-diff-or-other-file ()
+  (or (magit-wash-diff)
+      (magit-wash-other-file)))
+
+(defun magit-wash-other-file ()
+  (if (looking-at "^? \\(.*\\)$")
+      (let ((file (match-string-no-properties 1)))
+	(delete-region (point) (+ (line-end-position) 1))
+	(magit-with-section file 'file
+	  (magit-set-section-info file)
+	  (insert "\tNew      " file "\n"))
+	t)
+    nil))
 
 (defun magit-wash-diff ()
   (cond ((looking-at "^diff")
@@ -980,7 +972,7 @@ Please see the manual for a complete description of Magit.
 (defun magit-insert-unstaged-changes (title)
   (magit-insert-section 'unstaged title 'magit-wash-diffs
 			magit-collapse-threshold
-			"git" "diff"))
+			"sh" "-c" "git ls-files -t --others --exclude-standard; git diff"))
 
 (defun magit-insert-staged-changes ()
   (magit-insert-section 'staged	"Staged changes:" 'magit-wash-diffs
@@ -1108,7 +1100,6 @@ Please see the manual for a complete description of Magit.
 	     (if rebase
 		 (insert (apply 'format "Rebasing: %s (%s of %s)\n" rebase))))
 	   (insert "\n")
-	   (magit-insert-untracked-files)
 	   (when remote
 	     (magit-insert-unpulled-commits remote branch))
 	   (let ((staged (magit-anything-staged-p)))
@@ -1148,7 +1139,7 @@ Please see the manual for a complete description of Magit.
   "Add the item at point to the staging area."
   (interactive)
   (magit-section-case (item info "stage")
-    ((untracked file)
+    ((unstaged file)
      (magit-run "git" "add" info))
     ((unstaged diff hunk)
      (if (magit-hunk-item-is-conflict-p item)
@@ -1561,7 +1552,7 @@ Please see the manual for a complete description of Magit.
 (defun magit-ignore-item ()
   (interactive)
   (magit-section-case (item info "ignore")
-    ((untracked file)
+    ((unstaged file)
      (append-to-file (concat "/" info "\n")
 		     nil ".gitignore")
      (magit-update-status (magit-find-status-buffer)))))
@@ -1569,7 +1560,7 @@ Please see the manual for a complete description of Magit.
 (defun magit-discard-item ()
   (interactive)
   (magit-section-case (item info "discard")
-    ((untracked file)
+    ((unstaged file)
      (if (yes-or-no-p (format "Delete %s? " info))
 	 (magit-run "rm" info)))
     ((unstaged diff hunk)
@@ -1599,10 +1590,10 @@ Please see the manual for a complete description of Magit.
 (defun magit-visit-item ()
   (interactive)
   (magit-section-case (item info "visit")
-    ((untracked file)
+    ((unstaged file)
      (find-file info))
     ((diff)
-     (find-file (magit-diff-item-file info)))
+     (find-file (magit-diff-item-file item)))
     ((hunk)
      (let ((file (magit-diff-item-file (magit-hunk-item-diff item)))
 	   (line (magit-hunk-item-target-line item)))
