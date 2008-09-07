@@ -34,10 +34,6 @@
 
 ;;; TODO
 
-;; - Handle new and deleted files correctly when staging,
-;;   unstaging, and discarding.
-;; - Show untracked files as "New" files in the unstaged changes
-;;   section.
 ;; - Handle renames.
 ;; - Visiting from staged hunks doesn't always work since the line
 ;;   numbers don't refer to the working tree.  Fix that somehow.
