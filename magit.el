@@ -1583,7 +1583,12 @@ Please see the manual for a complete description of Magit.
     ((diff)
      (let ((kind (magit-diff-item-kind item))
 	   (file (magit-diff-item-file item)))
-       (cond ((eq kind 'new)
+       (cond ((eq kind 'deleted)
+	      (when (yes-or-no-p (format "Resurrect %s? " file))
+		(magit-shell "git reset -q -- %s" 
+			     (magit-escape-for-shell file))
+		(magit-run "git" "checkout" "--" file)))
+	     ((eq kind 'new)
 	      (if (yes-or-no-p (format "Delete %s? " file))
 		  (magit-run "git" "rm" "-f" "--" file)))
 	     (t
