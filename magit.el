@@ -1115,7 +1115,7 @@ Please see the manual for a complete description of Magit.
 	     (if rebase
 		 (insert (apply 'format "Rebasing: %s (%s of %s)\n" rebase))))
 	   (insert "\n")
-	   (magit-insert-unrewritten-changes)
+	   (magit-insert-pending-changes)
 	   (magit-insert-pending-commits)
 	   (when remote
 	     (magit-insert-unpulled-commits remote branch))
@@ -1306,13 +1306,13 @@ Please see the manual for a complete description of Magit.
 		    "\n"))))
       (insert "\n"))))
 
-(defun magit-insert-unrewritten-changes ()
+(defun magit-insert-pending-changes ()
   (let* ((info (magit-read-rewrite-info))
 	 (orig (cadr (assq 'orig info))))
     (when orig
       (let ((magit-hide-diffs t))
-	(magit-insert-section 'unrewritten
-			      "Unrewritten changes"
+	(magit-insert-section 'pending-changes
+			      "Pending changes"
 			      'magit-wash-diffs nil
 			      "git" "diff" "-R" orig)))))
 
