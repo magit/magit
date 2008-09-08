@@ -435,7 +435,8 @@ Many Magit faces inherit from this one by default."
 (defun magit-goto-next-section ()
   (interactive)
   (let* ((section (magit-current-section))
-	 (next (or (and (magit-section-children section)
+	 (next (or (and (not (magit-section-hidden section))
+			(magit-section-children section)
 			(magit-find-section-after (point)
 						  (magit-section-children
 						   section)))
@@ -450,7 +451,8 @@ Many Magit faces inherit from this one by default."
 	(let ((prev (cadr (memq section
 				(reverse (magit-section-children parent))))))
 	  (cond (prev
-		 (while (magit-section-children prev)
+		 (while (and (not (magit-section-hidden prev))
+			     (magit-section-children prev))
 		   (setq prev (car (reverse (magit-section-children prev)))))
 		 prev)
 		(t
