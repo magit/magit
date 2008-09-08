@@ -839,7 +839,6 @@ Please see the manual for a complete description of Magit.
 	 nil)))
 
 (defun magit-wash-diffs ()
-  (goto-char (point-min))
   (magit-wash-sequence #'magit-wash-diff-or-other-file))
 
 (defun magit-wash-diff-or-other-file ()
@@ -1014,13 +1013,11 @@ Please see the manual for a complete description of Magit.
   t)
 
 (defun magit-wash-log ()
-  (goto-char (point-min))
   (magit-wash-sequence #'magit-wash-log-line))
 
 (defvar magit-currently-shown-commit nil)
 
 (defun magit-wash-commit ()
-  (goto-char (point-min))
   (cond ((search-forward-regexp "^diff" nil t)
 	 (goto-char (match-beginning 0))
 	 (magit-wash-diffs))))
