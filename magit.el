@@ -852,9 +852,13 @@ Please see the manual for a complete description of Magit.
 	t)
     nil))
 
+(defvar magit-hide-diffs nil)
+
 (defun magit-wash-diff ()
   (cond ((looking-at "^diff")
-	 (magit-with-section (magit-current-line) (:type 'diff :hidden t)
+	 (magit-with-section
+	     (magit-current-line)
+	     (:type 'diff :hidden magit-hide-diffs)
 	   (let ((file (magit-diff-line-file))
 		 (end (save-excursion
 			(forward-line) ;; skip over "diff" line
@@ -979,14 +983,16 @@ Please see the manual for a complete description of Magit.
 	target))))
 
 (defun magit-insert-unstaged-changes (title)
-  (magit-insert-section 'unstaged title 'magit-wash-diffs
-			magit-collapse-threshold
-			"sh" "-c" "git ls-files -t --others --exclude-standard; git diff"))
+  (let ((magit-hide-diffs t))
+    (magit-insert-section 'unstaged title 'magit-wash-diffs
+			  magit-collapse-threshold
+			  "sh" "-c" "git ls-files -t --others --exclude-standard; git diff")))
 
 (defun magit-insert-staged-changes ()
-  (magit-insert-section 'staged	"Staged changes:" 'magit-wash-diffs
-			magit-collapse-threshold
-			"git" "diff" "--cached"))
+  (let ((magit-hide-diffs t))
+    (magit-insert-section 'staged "Staged changes:" 'magit-wash-diffs
+			  magit-collapse-threshold
+			  "git" "diff" "--cached")))
 
 ;;; Logs and Commits
 
@@ -1304,10 +1310,11 @@ Please see the manual for a complete description of Magit.
   (let* ((info (magit-read-rewrite-info))
 	 (orig (cadr (assq 'orig info))))
     (when orig
-      (magit-insert-section 'unrewritten
-			    "Unrewritten changes"
-			    'magit-wash-diff nil
-			    "git" "diff" "-R" orig))))
+      (let ((magit-hide-diffs t))
+	(magit-insert-section 'unrewritten
+			      "Unrewritten changes"
+			      'magit-wash-diffs nil
+			      "git" "diff" "-R" orig)))))
 
 (defun magit-rewrite-start (from &optional onto)
   (interactive (list (magit-read-rev "Rewrite from" (magit-default-rev))))
