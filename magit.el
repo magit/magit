@@ -34,6 +34,7 @@
 
 ;;; TODO
 
+;; - Recover lost performance from the section rewrite.
 ;; - Handle renames.
 ;; - Visiting from staged hunks doesn't always work since the line
 ;;   numbers don't refer to the working tree.  Fix that somehow.
