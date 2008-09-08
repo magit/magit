@@ -1302,13 +1302,27 @@ Please see the manual for a complete description of Magit.
 	(insert (propertize "Pending commits:\n"
 			    'face 'magit-section-title))
 	(dolist (p pending)
-	  (magit-with-section p 'commit
-	    (magit-set-section-info p)
-	    (insert (magit-shell
-		     "git log --max-count=1 --pretty=format:%s %s --"
-		     (magit-escape-for-shell "* %s") p)
-		    "\n"))))
+	  (let* ((commit (car p))
+		 (properties (cdr p))
+		 (used (plist-get properties 'used)))
+	  (magit-with-section commit 'commit
+	    (magit-set-section-info commit)
+	    (insert (propertize
+		     (magit-shell
+		      "git log --max-count=1 --pretty=format:%s %s --"
+		      (magit-escape-for-shell (if used ". %s" "* %s"))
+		      commit)
+		     'face (if used '(:forground "gray50") nil))
+		    "\n")))))
       (insert "\n"))))
+
+(defun magit-rewrite-set-commit-property (commit prop value)
+  (let* ((info (magit-read-rewrite-info))
+	 (pending (cdr (assq 'pending info)))
+	 (p (assoc commit pending)))
+    (when p
+      (setf (cdr p) (plist-put (cdr p) prop value))
+      (magit-write-rewrite-info info))))
 
 (defun magit-insert-pending-changes ()
   (let* ((info (magit-read-rewrite-info))
@@ -1330,7 +1344,7 @@ Please see the manual for a complete description of Magit.
 	 (base (magit-shell "git rev-parse %s^" from))
 	 (pending (magit-shell-lines "git rev-list %s.." base)))
     (magit-write-rewrite-info `((orig ,orig)
-				(pending ,@pending)))
+				(pending ,@(mapcar #'list pending))))
     (magit-run "git" "reset" "--hard" base)))
 
 (defun magit-rewrite-stop ()
