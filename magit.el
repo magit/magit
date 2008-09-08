@@ -1304,12 +1304,10 @@ Please see the manual for a complete description of Magit.
 		 (used (plist-get properties 'used)))
 	  (magit-with-section commit 'commit
 	    (magit-set-section-info commit)
-	    (insert (propertize
-		     (magit-shell
-		      "git log --max-count=1 --pretty=format:%s %s --"
-		      (magit-escape-for-shell (if used ". %s" "* %s"))
-		      commit)
-		     'face (if used '(:forground "gray50") nil))
+	    (insert (magit-shell
+		     "git log --max-count=1 --pretty=format:%s %s --"
+		     (magit-escape-for-shell (if used ". %s" "* %s"))
+		     commit)
 		    "\n")))))
       (insert "\n"))))
 
