@@ -1560,30 +1560,45 @@ Please see the manual for a complete description of Magit.
       (or commit
 	  (error "No commit at point.")))))
 
+(defun magit-apply-commit (commit)
+  (magit-log-edit-append
+   (magit-format-commit info "%s%n%n%b"))
+  (magit-log-edit-set-field 
+   'author
+   (magit-format-commit info "%an <%ae>, %ai"))
+  (magit-run-shell "git diff %s^ %s | git apply -" info info))
+
 (defun magit-apply-item ()
   (interactive)
   (magit-section-case (item info "apply")
+    ((pending commit)
+     (magit-rewrite-set-commit-property info 'used t)
+     (magit-apply-commit info))
     ((commit)
-     (magit-log-edit-append
-      (magit-format-commit info "%s%n%n%b"))
-     (magit-log-edit-set-field 
-      'author
-      (magit-format-commit info "%an <%ae>, %ai"))
-     (magit-run-shell "git diff %s^ %s | git apply -" info info))))
+     (magit-apply-commit info))))
 
 (defun magit-cherry-pick ()
   (interactive)
   (magit-section-case (item info "apply")
+    ((pending commit)
+     (magit-rewrite-set-commit-property info 'used t)
+     (magit-run "git" "cherry-pick" info))
     ((commit)
      (magit-run "git" "cherry-pick" info))))
+
+(defun magit-revert-commit (commit)
+  (magit-log-edit-append
+   (magit-format-commit info "Reverting \"%s\""))
+  (magit-run-shell "git diff %s^ %s | git apply --reverse -" info info))
   
 (defun magit-revert-item ()
   (interactive)
   (magit-section-case (item info "revert")
+    ((pending commit)
+     (magit-rewrite-set-commit-property info 'used nil)
+     (magit-revert-commit info))
     ((commit)
-     (magit-log-edit-append
-      (magit-format-commit info "Reverting \"%s\""))
-     (magit-run-shell "git diff %s^ %s | git apply --reverse -" info info))))
+     (magit-revert-commit info))))
 
 (defun magit-log (range)
   (interactive (list (magit-read-rev-range "Log" (magit-get-current-branch))))
