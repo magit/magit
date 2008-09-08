@@ -303,10 +303,11 @@ Many Magit faces inherit from this one by default."
 
 (defvar magit-old-top-section nil)
 
-(defun magit-new-section (title type)
-  (let* ((s (make-magit-section :parent magit-top-section
-			       :title title
-			       :type type))
+(defun magit-new-section (title &rest args)
+  (let* ((s (apply #'make-magit-section
+		   :parent magit-top-section
+		   :title title
+		   args))
 	 (old (and magit-old-top-section
 		   (magit-find-section (magit-section-path s)
 				       magit-old-top-section))))
@@ -328,10 +329,12 @@ Many Magit faces inherit from this one by default."
 	      (delq section (magit-section-children parent)))
       (setq magit-top-section nil))))
 
-(defmacro magit-with-section (title type &rest body)
+(defmacro magit-with-section (title args &rest body)
   (declare (indent 2))
   (let ((s (gensym)))
-    `(let* ((,s (magit-new-section ,title ,type))
+    `(let* ((,s (magit-new-section ,title ,@(if (keywordp (car args))
+						args
+					      `(:type ,args))))
 	    (magit-top-section ,s))
        (setf (magit-section-beginning ,s) (point))
        ,@body
@@ -851,7 +854,7 @@ Please see the manual for a complete description of Magit.
 
 (defun magit-wash-diff ()
   (cond ((looking-at "^diff")
-	 (magit-with-section (magit-current-line) 'diff
+	 (magit-with-section (magit-current-line) (:type 'diff :hidden t)
 	   (let ((file (magit-diff-line-file))
 		 (end (save-excursion
 			(forward-line) ;; skip over "diff" line
