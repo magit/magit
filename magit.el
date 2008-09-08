@@ -1019,7 +1019,7 @@ Please see the manual for a complete description of Magit.
   (goto-char (point-min))
   (cond ((search-forward-regexp "^diff" nil t)
 	 (goto-char (match-beginning 0))
-	 (magit-wash-diff))))
+	 (magit-wash-diffs))))
 
 (defun magit-show-commit (commit &optional scroll)
   (let ((dir default-directory)
