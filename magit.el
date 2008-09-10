@@ -780,6 +780,8 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "r t") 'magit-rewrite-stop)
     (define-key map (kbd "r a") 'magit-rewrite-abort)
     (define-key map (kbd "r f") 'magit-rewrite-finish)
+    (define-key map (kbd "r *") 'magit-rewrite-set-unused)
+    (define-key map (kbd "r .") 'magit-rewrite-set-used)
     (define-key map (kbd "P") 'magit-push)
     (define-key map (kbd "f") 'magit-remote-update)
     (define-key map (kbd "F") 'magit-pull)
@@ -1329,6 +1331,20 @@ Please see the manual for a complete description of Magit.
     (when p
       (setf (cdr p) (plist-put (cdr p) prop value))
       (magit-write-rewrite-info info))))
+
+(defun magit-rewrite-set-used ()
+  (interactive)
+  (magit-section-case (item info)
+    ((pending commit)
+     (magit-rewrite-set-commit-property info 'used t)
+     (magit-update-status (magit-find-status-buffer)))))
+
+(defun magit-rewrite-set-unused ()
+  (interactive)
+  (magit-section-case (item info)
+    ((pending commit)
+     (magit-rewrite-set-commit-property info 'used nil)
+     (magit-update-status (magit-find-status-buffer)))))
 
 (defun magit-insert-pending-changes ()
   (let* ((info (magit-read-rewrite-info))
