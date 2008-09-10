@@ -331,21 +331,20 @@ Such a rebase can be finished with @kbd{R} as well.
 As hinted at earlier, you can rewrite your commit history.  For
 example, you can reset he current head to an earlier commit with
 @kbd{x}.  This leaves the working tree unchanged, and the status
-buffer will show all the changes that has been made since that new
+buffer will show all the changes that have been made since that new
 value of the current head.  You can commit these changes again,
 possibly splitting them into multiple commits as you go along.
 
-Amending your last commit is common special case of rewriting history
-like this.
+Amending your last commit is a common special case of rewriting
+history like this.
 
 Another common way to rewrite history is to reset the head to an
-earlier commit, and then to cherry pick the discarded commits by
-cherry picking them in a different order.  You could pick them from
-the reflog, for example.
+earlier commit, and then to cherry pick the previous commits in a
+different order.  You could pick them from the reflog, for example.
 
-Magit has special support for rewriting that can simplify the book
-keeping.  These support commands all start with teh @kbd{r} prefix
-key.
+Magit has several commands that can simplify the book keeping
+associated with rewriting.  These commands all start with the @kbd{r}
+prefix key.
 
 Typing @kbd{r s} will start a rewrite operation.  You will be prompted
 for a @emph{base} commit, and all commits between the current head and
@@ -359,9 +358,9 @@ all have been applied.  Magit shows which commits have been applied by
 changing their marker from @code{*} to @code{.}.
 
 Using @kbd{A} will immediately commit the commit (as usual).  If you
-want to combine multiple old commits into a single new one, use
+want to combine multiple previous commits into a single new one, use
 @kbd{a} to apply them all to your working tree, and then commit them
-in the normal way.
+together.
 
 You can also use @kbd{v} to revert a commit when you have changed your
 mind.  This will change the @code{.} mark back to @code{*}.
