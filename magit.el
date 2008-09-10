@@ -1607,11 +1607,11 @@ Please see the manual for a complete description of Magit.
 
 (defun magit-apply-commit (commit)
   (magit-log-edit-append
-   (magit-format-commit info "%s%n%n%b"))
+   (magit-format-commit commit "%s%n%n%b"))
   (magit-log-edit-set-field 
    'author
-   (magit-format-commit info "%an <%ae>, %ai"))
-  (magit-run-shell "git diff %s^ %s | git apply -" info info))
+   (magit-format-commit commit "%an <%ae>, %ai"))
+  (magit-run-shell "git diff %s^ %s | git apply -" commit commit))
 
 (defun magit-apply-item ()
   (interactive)
@@ -1633,8 +1633,8 @@ Please see the manual for a complete description of Magit.
 
 (defun magit-revert-commit (commit)
   (magit-log-edit-append
-   (magit-format-commit info "Reverting \"%s\""))
-  (magit-run-shell "git diff %s^ %s | git apply --reverse -" info info))
+   (magit-format-commit commit "Reverting \"%s\""))
+  (magit-run-shell "git diff %s^ %s | git apply --reverse -" commit commit))
   
 (defun magit-revert-item ()
   (interactive)
