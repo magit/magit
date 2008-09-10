@@ -1,12 +1,11 @@
-Changes in magit 0.6:
+Changes in magit 0.6
+--------------------
 
-* Magit works with Git 1.6.0 now.  (John Wiegley)
+Almost everything has changed.  Please read the manual again.  Some
+highlights:
 
-* Many key bindings and the behavior of many commands have changed.
-  Please see the manual.
+* Magit now works with Git 1.6.0.  (John Wiegley)
 
-* All buffers created by Magit are now in magit-mode and share all key
-  bindings.
+* Support for interactive rewriting.
 
-* Bug fix: avoid looking-at-p so that magit.el works on Emacs 22 as
-  well.
+* Sections can be shown and hidden.
