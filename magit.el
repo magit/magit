@@ -1013,7 +1013,8 @@ Please see the manual for a complete description of Magit.
   t)
 
 (defun magit-wash-log ()
-  (magit-wash-sequence #'magit-wash-log-line))
+  (let ((magit-old-top-section nil))
+    (magit-wash-sequence #'magit-wash-log-line)))
 
 (defvar magit-currently-shown-commit nil)
 
