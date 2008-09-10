@@ -653,7 +653,9 @@ Many Magit faces inherit from this one by default."
 
 (defvar magit-process nil)
 
-(defun magit-run-command (logline cmd &rest args)
+(defvar magit-process-continuation nil)
+
+(defun magit-run-command (logline erase cont cmd &rest args)
   (or (not magit-process)
       (error "Git is already running."))
   (let ((dir default-directory)
@@ -663,11 +665,16 @@ Many Magit faces inherit from this one by default."
     (save-excursion
       (set-buffer buf)
       (setq default-directory dir)
-      (erase-buffer)
-      (insert "$ " logline "\n")
+      (if erase
+	  (erase-buffer)
+	(goto-char (point-max)))
+      (insert "$ " (or logline
+		       (magit-concat-with-delim " " (cons cmd args)))
+	      "\n")
       (setq magit-process (apply 'start-process "git" buf cmd args))
       (set-process-sentinel magit-process 'magit-process-sentinel)
-      (set-process-filter magit-process 'magit-process-filter))))
+      (set-process-filter magit-process 'magit-process-filter)
+      (setq magit-process-continuation cont))))
 
 (defun magit-process-sentinel (process event)
   (with-current-buffer (process-buffer process)
@@ -677,7 +684,11 @@ Many Magit faces inherit from this one by default."
   (setq magit-process nil)
   (magit-set-mode-line-process nil)
   (magit-revert-files)
-  (magit-update-status (magit-find-status-buffer)))
+  (magit-update-status (magit-find-status-buffer))
+  (when magit-process-continuation
+    (let ((cont magit-process-continuation))
+      (setq magit-process-continuation nil)
+      (funcall cont event))))
 
 (defun magit-process-filter (proc string)
   (save-excursion
@@ -695,13 +706,11 @@ Many Magit faces inherit from this one by default."
     (set-marker (process-mark proc) (point))))
 
 (defun magit-run (cmd &rest args)
-  (apply #'magit-run-command
-	 (magit-concat-with-delim " " (cons cmd args))
-	 cmd args))
+  (apply #'magit-run-command nil t nil cmd args))
 
 (defun magit-run-shell (fmt &rest args)
   (let ((cmd (apply #'format fmt args)))
-    (magit-run-command cmd shell-file-name shell-command-switch cmd)))
+    (magit-run-command cmd t nil shell-file-name shell-command-switch cmd)))
 
 (defun magit-revert-files ()
   (let ((files (magit-shell-lines "git ls-files")))
