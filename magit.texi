@@ -39,6 +39,7 @@ as an extension to Emacs.
 * Branching::                   
 * Merging::                     
 * Rebasing::                    
+* Rewriting::                   
 * Pushing and Pulling::         
 @end menu
 
@@ -323,6 +324,67 @@ series of commits that are being replayed.
 Of course, you can initiate a rebase in any number of ways, by
 configuring @code{git pull} to rebase instead of merge, for example.
 Such a rebase can be finished with @kbd{R} as well.
+
+@node Rewriting
+@chapter Rewriting
+
+As hinted at earlier, you can rewrite your commit history.  For
+example, you can reset he current head to an earlier commit with
+@kbd{x}.  This leaves the working tree unchanged, and the status
+buffer will show all the changes that has been made since that new
+value of the current head.  You can commit these changes again,
+possibly splitting them into multiple commits as you go along.
+
+Amending your last commit is common special case of rewriting history
+like this.
+
+Another common way to rewrite history is to reset the head to an
+earlier commit, and then to cherry pick the discarded commits by
+cherry picking them in a different order.  You could pick them from
+the reflog, for example.
+
+Magit has special support for rewriting that can simplify the book
+keeping.  These support commands all start with teh @kbd{r} prefix
+key.
+
+Typing @kbd{r s} will start a rewrite operation.  You will be prompted
+for a @emph{base} commit, and all commits between the current head and
+this commit are put in a list of @emph{Pending commits} (including the
+base commit).  The current head will then be reset to the parent of
+the base commit.
+
+You would then typically use @kbd{a} and @kbd{A} to cherry pick
+commits from the list of pending commits in the desired order, until
+all have been applied.  Magit shows which commits have been applied by
+changing their marker from @code{*} to @code{.}.
+
+Using @kbd{A} will immediately commit the commit (as usual).  If you
+want to combine multiple old commits into a single new one, use
+@kbd{a} to apply them all to your working tree, and then commit them
+in the normal way.
+
+You can also use @kbd{v} to revert a commit when you have changed your
+mind.  This will change the @code{.} mark back to @code{*}.
+
+Once you are done with the rewrite, type @kbd{r t} to remove the book
+keeping information from the status buffer.
+
+If you rather wish to start over, type @kbd{r a}.  This will abort the
+rewriting, resetting the current head back to the value it had before
+the rewrite was started with @kbd{r s}.
+
+Typing @kbd{r f} will @emph{finish} the rewrite: it will apply all
+unused commits one after the other, as if you would us @kbd{A} with
+all of them.
+
+You can change the @kbd{*} and @kbd{.} marks of a pending commit
+explicitly with @kbd{r *} and @kbd{r .}.
+
+In addition to a list of pending commits, the status buffer will show
+the @emph{Pending changes}.  This section shows the diff between the
+original head and the current head.  You can use it to review the
+changes that you still need to rewrite, and you can apply hunks from
+it, like from any other diff.
 
 @node Pushing and Pulling
 @chapter Pushing and Pulling
