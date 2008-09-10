@@ -1374,6 +1374,29 @@ Please see the manual for a complete description of Magit.
       (magit-write-rewrite-info nil)
       (magit-run "git" "reset" "--hard" orig))))
 
+(defun magit-rewrite-finish ()
+  (interactive)
+  (magit-rewrite-finish-step t))
+
+(defun magit-rewrite-finish-step (first-p)
+  (let ((info (magit-read-rewrite-info)))
+    (or info
+	(error "No rewrite in progress."))
+    (let* ((pending (cdr (assq 'pending info)))
+	   (first-unused (find-if (lambda (p)
+				    (not (plist-get (cdr p) 'used)))
+				  pending
+				  :from-end t)))
+      (if (not first-unused)
+	  (magit-rewrite-stop)
+	(magit-rewrite-set-commit-property (car first-unused) 'used t)
+	(magit-run-command nil first-p #'magit-rewrite-finish-continuation
+			   "git" "cherry-pick" (car first-unused))))))
+
+(defun magit-rewrite-finish-continuation (event)
+  (if (string-match "finished" event)
+      (magit-rewrite-finish-step nil)))
+  
 ;;; Updating, pull, and push
 
 (defun magit-remote-update ()
