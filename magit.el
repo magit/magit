@@ -34,14 +34,15 @@
 
 ;;; TODO
 
-;; - Recover lost performance from the section rewrite.
+;; - Equivalent of interactive rebase
+;;   - rewrite finishing
 ;; - Handle renames.
 ;; - Visiting from staged hunks doesn't always work since the line
 ;;   numbers don't refer to the working tree.  Fix that somehow.
 ;; - 'C' is very unreliable and often makes a mess.
 ;; - Update commit details when using n and p with commits.
 ;; - Tags
-;; - Equivalent of interactive rebase
+;; - Recover lost performance from the section rewrite.
 ;; - Equivalent of git-wtf, http://git-wt-commit.rubyforge.org/#git-wtf
 ;; - 'Subsetting', only looking at a subset of all files.
 
