@@ -1359,18 +1359,18 @@ Please see the manual for a complete description of Magit.
     (if (not info)
 	(let ((rev (magit-read-rev "Rebase to")))
 	  (if rev
-	      (magit-run "git" "rebase" (magit-rev-to-git rev))))
+	      (magit-execute "git" "rebase" (magit-rev-to-git rev))))
       (let ((cursor-in-echo-area t)
 	    (message-log-max nil))
 	(message "Rebase in progress.  Abort, Skip, or Continue? ")
 	(let ((reply (read-event)))
 	  (case reply
 	    ((?A ?a)
-	     (magit-run "git" "rebase" "--abort"))
+	     (magit-execute "git" "rebase" "--abort"))
 	    ((?S ?s)
-	     (magit-run "git" "rebase" "--skip"))
+	     (magit-execute "git" "rebase" "--skip"))
 	    ((?C ?c)
-	     (magit-run "git" "rebase" "--continue"))))))))
+	     (magit-execute "git" "rebase" "--continue"))))))))
 
 ;;; Resetting
 
