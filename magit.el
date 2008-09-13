@@ -1461,19 +1461,22 @@ Please see the manual for a complete description of Magit.
 				    (not (plist-get (cdr p) 'used)))
 				  pending
 				  :from-end t)))
-      (if (not first-unused)
-	  (magit-rewrite-stop t)
-	(magit-run-command nil first-p 
-			   (list "git" "cherry-pick" (car first-unused))
-			   (list #'magit-rewrite-finish-continuation
-				 (car first-unused)))))))
+      (cond ((not first-unused)
+	     (magit-revert-files)
+	     (magit-rewrite-stop t))
+	    (t
+	     (magit-run-command nil first-p 
+				(list "git" "cherry-pick" (car first-unused))
+				(list #'magit-rewrite-finish-continuation
+				      (car first-unused))))))))
 
 (defun magit-rewrite-finish-continuation (successp commit)
   (cond (successp
 	 (magit-rewrite-set-commit-property commit 'used t)
 	 (magit-rewrite-finish-step nil))
 	(t
-	 (magit-run-command-standard-continuation successp))))
+	 (magit-revert-files)
+	 (magit-refresh))))
 
 ;;; Updating, pull, and push
 
