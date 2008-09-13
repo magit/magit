@@ -657,13 +657,15 @@ Many Magit faces inherit from this one by default."
 
 (defvar magit-process nil)
 
-(defvar magit-process-continuation nil)
+(defvar magit-process-continuation-and-args nil)
 
-(defun magit-run-command (logline erase cont cmd &rest args)
-  (or (not magit-process)
-      (error "Git is already running."))
-  (let ((dir default-directory)
+(defun magit-run-command (logline erase cmd-and-args cont-and-args)
+  (let ((cmd (car cmd-and-args))
+	(args (cdr cmd-and-args))
+	(dir default-directory)
 	(buf (get-buffer-create "*magit-process*")))
+    (or (not magit-process)
+	(error "Git is already running."))
     (magit-set-mode-line-process
      (magit-process-indicator-from-command cmd args))
     (save-excursion
@@ -673,26 +675,29 @@ Many Magit faces inherit from this one by default."
 	  (erase-buffer)
 	(goto-char (point-max)))
       (insert "$ " (or logline
-		       (magit-concat-with-delim " " (cons cmd args)))
+		       (magit-concat-with-delim " " cmd-and-args))
 	      "\n")
       (setq magit-process (apply 'start-process "git" buf cmd args))
       (set-process-sentinel magit-process 'magit-process-sentinel)
       (set-process-filter magit-process 'magit-process-filter)
-      (setq magit-process-continuation cont))))
+      (setq magit-process-continuation-and-args cont-and-args))))
 
 (defun magit-process-sentinel (process event)
   (with-current-buffer (process-buffer process)
-    (let ((msg (format "Git %s." (substring event 0 -1))))
+    (let ((msg (format "Git %s." (substring event 0 -1)))
+	  (successp (string-match "^finished" event)))
       (insert msg "\n")
-      (message msg)))
-  (setq magit-process nil)
-  (magit-set-mode-line-process nil)
-  (magit-revert-files)
-  (magit-refresh)
-  (when magit-process-continuation
-    (let ((cont magit-process-continuation))
-      (setq magit-process-continuation nil)
-      (funcall cont event))))
+      (message msg)
+      (setq magit-process nil)
+      (magit-set-mode-line-process nil)
+      (let ((inhibit-quit nil))
+	(magit-revert-files)
+	(magit-refresh (magit-find-buffer 'status default-directory))
+	(when magit-process-continuation-and-args
+	  (let ((cont (car magit-process-continuation-and-args))
+		(args (cdr magit-process-continuation-and-args)))
+	    (setq magit-process-continuation-and-args nil)
+	    (apply cont successp args)))))))
 
 (defun magit-process-filter (proc string)
   (save-excursion
@@ -710,11 +715,13 @@ Many Magit faces inherit from this one by default."
     (set-marker (process-mark proc) (point))))
 
 (defun magit-run (cmd &rest args)
-  (apply #'magit-run-command nil t nil cmd args))
+  (magit-run-command nil t (cons cmd args) nil))
 
 (defun magit-run-shell (fmt &rest args)
   (let ((cmd (apply #'format fmt args)))
-    (magit-run-command cmd t nil shell-file-name shell-command-switch cmd)))
+    (magit-run-command cmd t
+		       (list shell-file-name shell-command-switch cmd)
+		       nil)))
 
 (defun magit-revert-files ()
   (let ((files (magit-shell-lines "git ls-files")))
@@ -858,11 +865,12 @@ Please see the manual for a complete description of Magit.
 		   (equal default-directory dir)))
 	  (funcall func)))))
 
-(defun magit-refresh ()
+(defun magit-refresh (&optional buffer)
   (interactive)
-  (if magit-refresh-function
-      (apply magit-refresh-function
-	     magit-refresh-args)))
+  (with-current-buffer (or buffer (current-buffer))
+    (if magit-refresh-function
+	(apply magit-refresh-function
+	       magit-refresh-args))))
 
 (defun magit-refresh-all ()
   (interactive)
@@ -1448,11 +1456,12 @@ Please see the manual for a complete description of Magit.
       (if (not first-unused)
 	  (magit-rewrite-stop)
 	(magit-rewrite-set-commit-property (car first-unused) 'used t)
-	(magit-run-command nil first-p #'magit-rewrite-finish-continuation
-			   "git" "cherry-pick" (car first-unused))))))
+	(magit-run-command nil first-p 
+			   (list "git" "cherry-pick" (car first-unused))
+			   (list #'magit-rewrite-finish-continuation))))))
 
-(defun magit-rewrite-finish-continuation (event)
-  (if (string-match "finished" event)
+(defun magit-rewrite-finish-continuation (successp)
+  (if successp
       (magit-rewrite-finish-step nil)))
   
 ;;; Updating, pull, and push
