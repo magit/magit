@@ -36,7 +36,6 @@
 
 ;; For 0.6:
 ;;
-;; - Unified refreshing of all magit-mode buffers.
 ;; - Applying and reverting hunks and diffs.
 ;; - Only mark pending commits as used when the apply was successful
 ;; - Refuse to apply and revert merge commits.
@@ -642,11 +641,10 @@ Many Magit faces inherit from this one by default."
 ;;; Running asynchronous commands
 
 (defun magit-set-mode-line-process (str)
-  (save-excursion
-    (set-buffer (magit-find-status-buffer))
-    (setq mode-line-process (if str
-				(concat " " str)
-			      ""))))
+  (let ((pr (if str (concat " " str) "")))
+    (save-excursion
+      (magit-for-all-buffers (lambda ()
+			       (setq mode-line-process pr))))))
 
 (defun magit-process-indicator-from-command (cmd args)
   (cond ((or (null args)
@@ -691,7 +689,7 @@ Many Magit faces inherit from this one by default."
   (setq magit-process nil)
   (magit-set-mode-line-process nil)
   (magit-revert-files)
-  (magit-update-status (magit-find-status-buffer))
+  (magit-refresh)
   (when magit-process-continuation
     (let ((cont magit-process-continuation))
       (setq magit-process-continuation nil)
@@ -754,7 +752,8 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "2") 'magit-jump-to-unstaged)
     (define-key map (kbd "3") 'magit-jump-to-staged)
     (define-key map (kbd "4") 'magit-jump-to-unpushed)
-    (define-key map (kbd "g") 'magit-status)
+    (define-key map (kbd "g") 'magit-refresh)
+    (define-key map (kbd "G") 'magit-refresh-all)
     (define-key map (kbd "s") 'magit-stage-item)
     (define-key map (kbd "S") 'magit-stage-all)
     (define-key map (kbd "u") 'magit-unstage-item)
@@ -806,6 +805,14 @@ Many Magit faces inherit from this one by default."
 (make-variable-buffer-local 'magit-submode)
 (put 'magit-submode 'permanent-local t)
 
+(defvar magit-refresh-function nil)
+(make-variable-buffer-local 'magit-refresh-function)
+(put 'magit-refresh-function 'permanent-local t)
+
+(defvar magit-refresh-args nil)
+(make-variable-buffer-local 'magit-refresh-args)
+(put 'magit-refresh-args 'permanent-local t)
+
 (defun magit-mode ()
   "Review the status of a git repository and act on it.
 
@@ -822,10 +829,13 @@ Please see the manual for a complete description of Magit.
   (use-local-map magit-mode-map)
   (run-mode-hooks 'magit-mode-hook))
 
-(defun magit-mode-init (dir submode)
+(defun magit-mode-init (dir submode refresh-func &rest refresh-args)
   (setq default-directory dir
-	magit-submode submode)
-  (magit-mode))
+	magit-submode submode
+	magit-refresh-function refresh-func
+	magit-refresh-args refresh-args)
+  (magit-mode)
+  (magit-refresh))
 
 (defun magit-find-buffer (submode &optional dir)
   (let ((topdir (magit-get-top-dir (or dir default-directory))))
@@ -840,12 +850,24 @@ Please see the manual for a complete description of Magit.
 (defun magit-find-status-buffer (&optional dir)
   (magit-find-buffer 'status dir))
 
-(defun magit-for-all-buffers (func)
+(defun magit-for-all-buffers (func &optional dir)
   (dolist (buf (buffer-list))
     (save-excursion
       (set-buffer buf)
-      (if (eq major-mode 'magit-mode)
+      (if (and (eq major-mode 'magit-mode)
+	       (or (null dir)
+		   (equal default-directory dir)))
 	  (funcall func)))))
+
+(defun magit-refresh ()
+  (interactive)
+  (if magit-refresh-function
+      (apply magit-refresh-function
+	     magit-refresh-args)))
+
+(defun magit-refresh-all ()
+  (interactive)
+  (magit-for-all-buffers #'magit-refresh default-directory))
 
 ;;; Diffs and Hunks
 
@@ -1042,6 +1064,13 @@ Please see the manual for a complete description of Magit.
 	 (goto-char (match-beginning 0))
 	 (magit-wash-diffs))))
 
+(defun magit-refresh-commit-buffer (commit)
+  (magit-create-buffer-sections
+    (magit-insert-section 'commitbuf nil
+			  'magit-wash-commit nil
+			  "git" "log" "--max-count=1" "--cc" "-p" commit))
+  (goto-char (point-min)))
+
 (defun magit-show-commit (commit &optional scroll)
   (let ((dir default-directory)
 	(commit (magit-commit-at-point))
@@ -1058,11 +1087,8 @@ Please see the manual for a complete description of Magit.
 	   (display-buffer buf)
 	   (save-excursion
 	     (set-buffer buf)
-	     (magit-mode-init dir 'commit)
-	     (magit-create-buffer-sections
-	      (magit-insert-section 'commitbuf nil 'magit-wash-commit nil
-				    "git" "log" "--max-count=1" "--cc" "-p"
-				    commit)))))))
+	     (magit-mode-init dir 'commit
+			      #'magit-refresh-commit-buffer commit))))))
 
 (defvar magit-marked-commit nil)
 
@@ -1107,65 +1133,63 @@ Please see the manual for a complete description of Magit.
 
 ;;; Status
 
-(defun magit-update-status (buf)
-  (with-current-buffer buf
-    (let ((old-line (line-number-at-pos)))
-      (magit-create-buffer-sections
-       (magit-with-section 'status nil
-	 (let* ((branch (magit-get-current-branch))
-		(remote (and branch (magit-get "branch" branch "remote"))))
-	   (if remote
-	       (insert (format "Remote: %s %s\n"
-			       remote (magit-get "remote" remote "url"))))
-	   (insert (format "Local:  %s %s\n"
-			   (propertize (or branch "(detached)")
-				       'face 'magit-branch)
-			   (abbreviate-file-name default-directory)))
-	   (insert
-	    (format
-	     "Head:   %s\n"
-	     (magit-shell
-	      "git log --max-count=1 --abbrev-commit --pretty=oneline")))
-	   (let ((merge-heads (magit-file-lines ".git/MERGE_HEAD")))
-	     (if merge-heads
-		 (insert (format "Merging: %s\n"
-				 (magit-concat-with-delim
-				  ", "
-				  (mapcar 'magit-name-rev merge-heads))))))
-	   (let ((rebase (magit-rebase-info)))
-	     (if rebase
-		 (insert (apply 'format "Rebasing: %s (%s of %s)\n" rebase))))
-	   (insert "\n")
-	   (magit-insert-pending-changes)
-	   (magit-insert-pending-commits)
-	   (when remote
-	     (magit-insert-unpulled-commits remote branch))
-	   (let ((staged (magit-anything-staged-p)))
-	     (magit-insert-unstaged-changes
-	      (if staged "Unstaged changes:" "Changes:"))
-	     (if staged
-		 (magit-insert-staged-changes)))
-	   (when remote
-	     (magit-insert-unpushed-commits remote branch)))))
-      (magit-goto-line old-line)
-      (when (bobp)
-	(magit-goto-section '(unstaged)))
-      (magit-highlight-section))))
+(defun magit-refresh-status ()
+  (let ((old-line (line-number-at-pos)))
+    (magit-create-buffer-sections
+      (magit-with-section 'status nil
+	(let* ((branch (magit-get-current-branch))
+	       (remote (and branch (magit-get "branch" branch "remote"))))
+	  (if remote
+	      (insert (format "Remote: %s %s\n"
+			      remote (magit-get "remote" remote "url"))))
+	  (insert (format "Local:  %s %s\n"
+			  (propertize (or branch "(detached)")
+				      'face 'magit-branch)
+			  (abbreviate-file-name default-directory)))
+	  (insert
+	   (format
+	    "Head:   %s\n"
+	    (magit-shell
+	     "git log --max-count=1 --abbrev-commit --pretty=oneline")))
+	  (let ((merge-heads (magit-file-lines ".git/MERGE_HEAD")))
+	    (if merge-heads
+		(insert (format "Merging: %s\n"
+				(magit-concat-with-delim
+				 ", "
+				 (mapcar 'magit-name-rev merge-heads))))))
+	  (let ((rebase (magit-rebase-info)))
+	    (if rebase
+		(insert (apply 'format "Rebasing: %s (%s of %s)\n" rebase))))
+	  (insert "\n")
+	  (magit-insert-pending-changes)
+	  (magit-insert-pending-commits)
+	  (when remote
+	    (magit-insert-unpulled-commits remote branch))
+	  (let ((staged (magit-anything-staged-p)))
+	    (magit-insert-unstaged-changes
+	     (if staged "Unstaged changes:" "Changes:"))
+	    (if staged
+		(magit-insert-staged-changes)))
+	  (when remote
+	    (magit-insert-unpushed-commits remote branch)))))
+    (magit-goto-line old-line)
+    (when (bobp)
+      (magit-goto-section '(unstaged)))
+    (magit-highlight-section)
+    (magit-refresh-marked-commits-in-buffer)))
 
 (defun magit-status (dir)
   (interactive (list (magit-read-top-dir current-prefix-arg)))
   (save-some-buffers)
   (let* ((topdir (magit-get-top-dir dir))
-	 (buf (or (magit-find-status-buffer topdir)
+	 (buf (or (magit-find-buffer 'status topdir)
 		  (switch-to-buffer
 		   (generate-new-buffer
 		    (concat "*magit: "
 			    (file-name-nondirectory
 			     (directory-file-name topdir)) "*"))))))
     (switch-to-buffer buf)
-    (magit-mode-init topdir 'status)
-    (magit-update-status buf)
-    (magit-refresh-marked-commits-in-buffer)))
+    (magit-mode-init topdir 'status #'magit-refresh-status)))
 
 ;;; Staging and Unstaging
 
@@ -1344,14 +1368,14 @@ Please see the manual for a complete description of Magit.
   (magit-section-case (item info)
     ((pending commit)
      (magit-rewrite-set-commit-property info 'used t)
-     (magit-update-status (magit-find-status-buffer)))))
+     (magit-refresh))))
 
 (defun magit-rewrite-set-unused ()
   (interactive)
   (magit-section-case (item info)
     ((pending commit)
      (magit-rewrite-set-commit-property info 'used nil)
-     (magit-update-status (magit-find-status-buffer)))))
+     (magit-refresh))))
 
 (defun magit-insert-pending-changes ()
   (let* ((info (magit-read-rewrite-info))
@@ -1383,7 +1407,7 @@ Please see the manual for a complete description of Magit.
 	(error "No rewrite in progress."))
     (when (yes-or-no-p "Stop rewrite? ")
       (magit-write-rewrite-info nil)
-      (magit-update-status (magit-find-status-buffer)))))
+      (magit-refresh))))
 
 (defun magit-rewrite-abort ()
   (interactive)
@@ -1652,21 +1676,23 @@ Please see the manual for a complete description of Magit.
     ((commit)
      (magit-revert-commit info))))
 
+(defun magit-refresh-log-buffer (range args)
+  (magit-create-buffer-sections
+    (magit-insert-section 'log
+			  (magit-rev-range-describe range "Commits")
+			  'magit-wash-log nil
+			  "git" "log" "--graph" "--max-count=10000"
+			  "--pretty=oneline" args))
+  (magit-refresh-marked-commits-in-buffer)
+  (goto-char (point-min)))
+
 (defun magit-log (range)
   (interactive (list (magit-read-rev-range "Log" (magit-get-current-branch))))
   (if range
       (let* ((topdir (magit-get-top-dir default-directory))
 	     (args (magit-rev-range-to-git range)))
 	(switch-to-buffer "*magit-log*")
-	(magit-mode-init topdir 'log)
-	(magit-create-buffer-sections
-	 (magit-insert-section 'log
-			       (magit-rev-range-describe range "Commits")
-			       'magit-wash-log nil
-			       "git" "log" "--graph" "--max-count=10000"
-			       "--pretty=oneline" args))
-	(magit-refresh-marked-commits-in-buffer)
-	(goto-char (point-min)))))
+	(magit-mode-init topdir 'log #'magit-refresh-log-buffer range args))))
 
 (defun magit-log-head ()
   (interactive)
@@ -1674,28 +1700,39 @@ Please see the manual for a complete description of Magit.
 
 ;;; Reflog
 
+(defun magit-refresh-reflog-buffer (head args)
+  (magit-create-buffer-sections
+    (magit-insert-section 'reflog
+			  (format "Local history of head %s" head)
+			  'magit-wash-log nil
+			  "git" "log" "--walk-reflogs"
+			  "--max-count=10000"
+			  "--pretty=oneline" args))
+  (magit-refresh-marked-commits-in-buffer)
+  (goto-char (point-min)))
+
 (defun magit-reflog (head)
   (interactive (list (magit-read-rev "Reflog of" "HEAD")))
   (if head
       (let* ((topdir (magit-get-top-dir default-directory))
 	     (args (magit-rev-to-git head)))
 	(switch-to-buffer "*magit-reflog*")
-	(magit-mode-init topdir 'reflog)
-	(magit-create-buffer-sections
-	 (magit-insert-section 'reflog
-			       (format "Local history of head %s" head)
-			       'magit-wash-log nil
-			       "git" "log" "--walk-reflogs"
-			       "--max-count=10000"
-			       "--pretty=oneline" args))
-	(magit-refresh-marked-commits-in-buffer)
-	(goto-char (point-min)))))
+	(magit-mode-init topdir 'reflog 
+			 #'magit-refresh-reflog-buffer head args))))
 
 (defun magit-reflog-head ()
   (interactive)
   (magit-reflog "HEAD"))
 
 ;;; Diffing
+
+(defun magit-refresh-diff-buffer (range args)
+  (magit-create-buffer-sections
+    (magit-insert-section 'diffbuf
+			  (magit-rev-range-describe range "Changes")
+			  'magit-wash-diffs nil
+			  "git" "diff" args))
+  (goto-char (point-min)))
 
 (defun magit-diff (range)
   (interactive (list (magit-read-rev-range "Diff")))
@@ -1706,12 +1743,7 @@ Please see the manual for a complete description of Magit.
 	(display-buffer buf)
 	(save-excursion
 	  (set-buffer buf)
-	  (magit-mode-init dir 'diff)
-	  (magit-create-buffer-sections
-	   (magit-insert-section 'diffbuf
-				 (magit-rev-range-describe range "Changes")
-				 'magit-wash-diffs nil
-				 "git" "diff" args))))))
+	  (magit-mode-init dir 'diff #'magit-refresh-diff-buffer range args)))))
 
 (defun magit-diff-working-tree (rev)
   (interactive (list (magit-read-rev "Diff with")))
@@ -1731,7 +1763,7 @@ Please see the manual for a complete description of Magit.
     ((unstaged file)
      (append-to-file (concat "/" info "\n")
 		     nil ".gitignore")
-     (magit-update-status (magit-find-status-buffer)))))
+     (magit-refresh))))
 
 (defun magit-discard-item ()
   (interactive)
