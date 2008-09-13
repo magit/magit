@@ -21,9 +21,9 @@
 ;;; Commentary
 
 ;; Invoking the magit-status function will show a buffer with the
-;; current status of the current git repository and its checkout.
-;; That buffer offers key bindings for manipulating the status in
-;; simple ways.
+;; status of the current git repository and its working tree.  That
+;; buffer offers key bindings for manipulating the status in simple
+;; ways.
 ;;
 ;; The status buffer mainly shows the difference between the working
 ;; tree and the index, and the difference between the index and the
@@ -34,15 +34,22 @@
 
 ;;; TODO
 
-;; - Equivalent of interactive rebase
-;;   - replaying merges
-;; - Handle renames.
+;; For 0.6:
+;;
+;; - Unified refreshing of all magit-mode buffers.
+;; - Applying and reverting hunks and diffs.
+;; - Only mark pending commits as used when the apply was successful
+;; - Refuse to apply and revert merge commits.
+;; - Clean up utilities.
+;; - Fix magit-add-log to be more reliable.
+;; - Update commit details when using n and p with commits.
+;;
+;; Later:
+;;
+;; - Tags
 ;; - Visiting from staged hunks doesn't always work since the line
 ;;   numbers don't refer to the working tree.  Fix that somehow.
-;; - 'C' is very unreliable and often makes a mess.
-;; - Update commit details when using n and p with commits.
-;; - Tags
-;; - Recover lost performance from the section rewrite.
+;; - Recover more lost performance from the section rewrite.
 ;; - Equivalent of git-wtf, http://git-wt-commit.rubyforge.org/#git-wtf
 ;; - 'Subsetting', only looking at a subset of all files.
 
