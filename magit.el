@@ -36,7 +36,6 @@
 
 ;; For 0.6:
 ;;
-;; - Applying and reverting hunks and diffs.
 ;; - Only mark pending commits as used when the apply was successful
 ;; - Refuse to apply and revert merge commits.
 ;; - Clean up utilities.
@@ -1663,11 +1662,19 @@ Please see the manual for a complete description of Magit.
      (magit-rewrite-set-commit-property info 'used t)
      (magit-apply-commit info))
     ((commit)
-     (magit-apply-commit info))))
+     (magit-apply-commit info))
+    ((unstaged *)
+     (error "Change is already in your working tree"))
+    ((staged *)
+     (error "Change is already in your working tree"))
+    ((hunk)
+     (magit-apply-hunk-item item))
+    ((diff)
+     (magit-apply-diff-item item))))
 
 (defun magit-cherry-pick ()
   (interactive)
-  (magit-section-case (item info "apply")
+  (magit-section-case (item info "cherry-pick")
     ((pending commit)
      (magit-rewrite-set-commit-property info 'used t)
      (magit-run "git" "cherry-pick" info))
@@ -1686,7 +1693,11 @@ Please see the manual for a complete description of Magit.
      (magit-rewrite-set-commit-property info 'used nil)
      (magit-revert-commit info))
     ((commit)
-     (magit-revert-commit info))))
+     (magit-revert-commit info))
+    ((hunk)
+     (magit-apply-hunk-item item "--reverse"))
+    ((diff)
+     (magit-apply-diff-item item "--reverse"))))
 
 (defun magit-refresh-log-buffer (range args)
   (magit-create-buffer-sections
