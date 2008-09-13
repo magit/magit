@@ -693,9 +693,9 @@ Many Magit faces inherit from this one by default."
     (setq magit-process nil)
     (magit-set-mode-line-process nil)
     (let ((inhibit-quit nil))
-      (set-buffer magit-process-client-buffer)
       (magit-revert-files)
-      (magit-refresh)
+      (magit-refresh (magit-find-buffer 'status default-directory))
+      (set-buffer magit-process-client-buffer)
       (when magit-process-continuation-and-args
 	(let ((cont (car magit-process-continuation-and-args))
 	      (args (cdr magit-process-continuation-and-args)))
