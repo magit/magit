@@ -36,9 +36,6 @@
 
 ;; For 0.6:
 ;;
-;; - More synchronous running of commands.  Only really slow ones need
-;;   to run asynchronously.
-;; - Only mark pending commits as used when the apply was successful
 ;; - Refuse to apply and revert merge commits.
 ;; - Clean up utilities.
 ;; - Fix magit-add-log to be more reliable.
@@ -293,7 +290,7 @@ Many Magit faces inherit from this one by default."
 
 ;;; Sections
 
-;; A buffer in magit-mode isorganized into hierarchical sections.
+;; A buffer in magit-mode is organized into hierarchical sections.
 ;; These sections are used for navigation and for hiding parts of the
 ;; buffer.
 ;;
