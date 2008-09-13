@@ -1585,9 +1585,10 @@ Please see the manual for a complete description of Magit.
 	(write-region (point-min) (point-max) ".git/magit-log")
       (write-region "(Empty description)" nil ".git/magit-log"))
     (erase-buffer)
-    (apply #'magit-run "git" "commit" "-F" ".git/magit-log"
-	   (append (if (not (magit-anything-staged-p)) '("--all") '())
-		   (if amend '("--amend") '())))
+    (with-current-buffer (magit-find-buffer 'status default-directory)
+      (apply #'magit-run "git" "commit" "-F" ".git/magit-log"
+	     (append (if (not (magit-anything-staged-p)) '("--all") '())
+		     (if amend '("--amend") '()))))
     (bury-buffer)
     (when magit-pre-log-edit-window-configuration
       (set-window-configuration magit-pre-log-edit-window-configuration)
