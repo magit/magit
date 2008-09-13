@@ -998,6 +998,14 @@ Please see the manual for a complete description of Magit.
 	       (magit-section-end diff))))
     (write-region beg end file append-p)))
 
+(defun magit-diff-item-write (diff file &optional append-p)
+  (let ((beg (save-excursion 
+	       (goto-char (magit-section-beginning diff))
+	       (forward-line)
+	       (point)))
+	(end (magit-section-end diff)))
+    (write-region beg end file append-p)))
+
 (defun magit-write-hunk-item-patch (hunk file)
   (magit-diff-item-write-header (magit-hunk-item-diff hunk) file)
   (write-region (magit-section-beginning hunk) (magit-section-end hunk)
@@ -1025,6 +1033,14 @@ Please see the manual for a complete description of Magit.
 	      (setq target (+ target 1)))
 	  (forward-line))
 	target))))
+
+(defun magit-apply-diff-item (diff &rest args)
+  (magit-write-diff-item-patch diff ".git/magit-tmp")
+  (apply #'magit-run "git" "apply" (append args (list ".git/magit-tmp"))))
+
+(defun magit-apply-hunk-item (hunk &rest args)
+  (magit-write-hunk-item-patch hunk ".git/magit-tmp")
+  (apply #'magit-run "git" "apply" (append args (list ".git/magit-tmp"))))
 
 (defun magit-insert-unstaged-changes (title)
   (let ((magit-hide-diffs t))
@@ -1192,10 +1208,6 @@ Please see the manual for a complete description of Magit.
     (magit-mode-init topdir 'status #'magit-refresh-status)))
 
 ;;; Staging and Unstaging
-
-(defun magit-apply-hunk-item (hunk &rest args)
-  (magit-write-hunk-item-patch hunk ".git/magit-tmp")
-  (apply #'magit-run "git" "apply" (append args (list ".git/magit-tmp"))))
 
 (defun magit-stage-item ()
   "Add the item at point to the staging area."
