@@ -682,8 +682,14 @@ Many Magit faces inherit from this one by default."
       (setq magit-process (apply 'start-process "git" buf cmd args))
       (set-process-sentinel magit-process 'magit-process-sentinel)
       (set-process-filter magit-process 'magit-process-filter)
-      (setq magit-process-continuation-and-args cont-and-args))))
+      (setq magit-process-continuation-and-args
+	    (or cont-and-args
+		(list #'magit-run-command-standard-continuation))))))
 
+(defun magit-run-command-standard-continuation (successp)
+  (magit-revert-files)
+  (magit-refresh))
+  
 (defun magit-process-sentinel (process event)
   (let ((msg (format "Git %s." (substring event 0 -1)))
 	(successp (string-match "^finished" event)))
@@ -693,8 +699,6 @@ Many Magit faces inherit from this one by default."
     (setq magit-process nil)
     (magit-set-mode-line-process nil)
     (let ((inhibit-quit nil))
-      (magit-revert-files)
-      (magit-refresh (magit-find-buffer 'status default-directory))
       (set-buffer magit-process-client-buffer)
       (when magit-process-continuation-and-args
 	(let ((cont (car magit-process-continuation-and-args))
@@ -1465,9 +1469,11 @@ Please see the manual for a complete description of Magit.
 				 (car first-unused)))))))
 
 (defun magit-rewrite-finish-continuation (successp commit)
-  (when successp
-    (magit-rewrite-set-commit-property commit 'used t)
-    (magit-rewrite-finish-step nil)))
+  (cond (successp
+	 (magit-rewrite-set-commit-property commit 'used t)
+	 (magit-rewrite-finish-step nil))
+	(t
+	 (magit-run-command-standard-continuation successp))))
 
 ;;; Updating, pull, and push
 
