@@ -1422,12 +1422,13 @@ Please see the manual for a complete description of Magit.
 				(pending ,@(mapcar #'list pending))))
     (magit-run "git" "reset" "--hard" base)))
 
-(defun magit-rewrite-stop ()
+(defun magit-rewrite-stop (&optional noconfirm)
   (interactive)
   (let* ((info (magit-read-rewrite-info)))
     (or info
 	(error "No rewrite in progress."))
-    (when (yes-or-no-p "Stop rewrite? ")
+    (when (or noconfirm
+	      (yes-or-no-p "Stop rewrite? "))
       (magit-write-rewrite-info nil)
       (magit-refresh))))
 
@@ -1457,7 +1458,7 @@ Please see the manual for a complete description of Magit.
 				  pending
 				  :from-end t)))
       (if (not first-unused)
-	  (magit-rewrite-stop)
+	  (magit-rewrite-stop t)
 	(magit-run-command nil first-p 
 			   (list "git" "cherry-pick" (car first-unused))
 			   (list #'magit-rewrite-finish-continuation
