@@ -1458,15 +1458,16 @@ Please see the manual for a complete description of Magit.
 				  :from-end t)))
       (if (not first-unused)
 	  (magit-rewrite-stop)
-	(magit-rewrite-set-commit-property (car first-unused) 'used t)
 	(magit-run-command nil first-p 
 			   (list "git" "cherry-pick" (car first-unused))
-			   (list #'magit-rewrite-finish-continuation))))))
+			   (list #'magit-rewrite-finish-continuation
+				 (car first-unused)))))))
 
-(defun magit-rewrite-finish-continuation (successp)
-  (if successp
-      (magit-rewrite-finish-step nil)))
-  
+(defun magit-rewrite-finish-continuation (successp commit)
+  (when successp
+    (magit-rewrite-set-commit-property commit 'used t)
+    (magit-rewrite-finish-step nil)))
+
 ;;; Updating, pull, and push
 
 (defun magit-remote-update ()
