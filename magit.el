@@ -547,7 +547,7 @@ Many Magit faces inherit from this one by default."
   (interactive)
   (magit-section-hideshow
    (lambda (s)
-     (magit-section-set-hidden (not (magit-section-hidden s))))))
+     (magit-section-set-hidden s (not (magit-section-hidden s))))))
 
 (defun magit-cycle-section ()
   (interactive)
