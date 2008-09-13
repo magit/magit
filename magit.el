@@ -657,6 +657,7 @@ Many Magit faces inherit from this one by default."
 
 (defvar magit-process nil)
 
+(defvar magit-process-client-buffer nil)
 (defvar magit-process-continuation-and-args nil)
 
 (defun magit-run-command (logline erase cmd-and-args cont-and-args)
@@ -668,6 +669,7 @@ Many Magit faces inherit from this one by default."
 	(error "Git is already running."))
     (magit-set-mode-line-process
      (magit-process-indicator-from-command cmd args))
+    (setq magit-process-client-buffer (current-buffer))
     (save-excursion
       (set-buffer buf)
       (setq default-directory dir)
@@ -683,21 +685,22 @@ Many Magit faces inherit from this one by default."
       (setq magit-process-continuation-and-args cont-and-args))))
 
 (defun magit-process-sentinel (process event)
-  (with-current-buffer (process-buffer process)
-    (let ((msg (format "Git %s." (substring event 0 -1)))
-	  (successp (string-match "^finished" event)))
+  (let ((msg (format "Git %s." (substring event 0 -1)))
+	(successp (string-match "^finished" event)))
+    (with-current-buffer (process-buffer process)
       (insert msg "\n")
-      (message msg)
-      (setq magit-process nil)
-      (magit-set-mode-line-process nil)
-      (let ((inhibit-quit nil))
-	(magit-revert-files)
-	(magit-refresh (magit-find-buffer 'status default-directory))
-	(when magit-process-continuation-and-args
-	  (let ((cont (car magit-process-continuation-and-args))
-		(args (cdr magit-process-continuation-and-args)))
-	    (setq magit-process-continuation-and-args nil)
-	    (apply cont successp args)))))))
+      (message msg))
+    (setq magit-process nil)
+    (magit-set-mode-line-process nil)
+    (let ((inhibit-quit nil))
+      (set-buffer magit-process-client-buffer)
+      (magit-revert-files)
+      (magit-refresh)
+      (when magit-process-continuation-and-args
+	(let ((cont (car magit-process-continuation-and-args))
+	      (args (cdr magit-process-continuation-and-args)))
+	  (setq magit-process-continuation-and-args nil)
+	  (apply cont successp args))))))
 
 (defun magit-process-filter (proc string)
   (save-excursion
