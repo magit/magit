@@ -129,7 +129,8 @@ Many Magit faces inherit from this one by default."
     (forward-line (1- line))))
 
 (defun magit-shell (cmd &rest args)
-  (let ((str (shell-command-to-string (apply 'format cmd args))))
+  (let ((str (shell-command-to-string
+	      (apply 'format cmd (mapcar #'magit-escape-for-shell args)))))
     (if (string= str "")
 	nil
       (if (equal (elt str (- (length str) 1)) ?\n)
@@ -137,7 +138,8 @@ Many Magit faces inherit from this one by default."
 	str))))
 
 (defun magit-shell-lines (cmd &rest args)
-  (let ((str (shell-command-to-string (apply 'format cmd args))))
+  (let ((str (shell-command-to-string
+	      (apply 'format cmd (mapcar #'magit-escape-for-shell args)))))
     (if (string= str "")
 	nil
       (let ((lines (nreverse (split-string str "\n"))))
@@ -147,11 +149,12 @@ Many Magit faces inherit from this one by default."
 
 (defun magit-shell-exit-code (cmd &rest args)
   (call-process shell-file-name nil nil nil
-		shell-command-switch (apply #'format cmd args)))
+		shell-command-switch
+		(apply 'format cmd (mapcar #'magit-escape-for-shell args))))
 
 (defun magit-file-lines (file)
   (if (file-exists-p file)
-      (magit-shell-lines "cat '%s'" file)
+      (magit-shell-lines "cat %s" file)
     nil))
 
 (defun magit-concat-with-delim (delim seqs)
@@ -173,7 +176,7 @@ Many Magit faces inherit from this one by default."
 (defun magit-get-top-dir (cwd)
   (let* ((cwd (expand-file-name cwd))
 	 (magit-dir (magit-shell
-		     "cd '%s' && git rev-parse --git-dir 2>/dev/null"
+		     "cd %s && git rev-parse --git-dir 2>/dev/null"
 		     cwd)))
     (if magit-dir
 	(file-name-as-directory (or (file-name-directory magit-dir) cwd))
@@ -207,7 +210,7 @@ Many Magit faces inherit from this one by default."
 
 (defun magit-format-commit (commit format)
   (magit-shell "git log --max-count=1 --pretty=format:%s %s" 
-	       (magit-escape-for-shell format)
+	       format
 	       commit))
 
 (defun magit-current-line ()
@@ -746,7 +749,7 @@ Many Magit faces inherit from this one by default."
   (magit-run* (cons cmd args)))
 
 (defun magit-run-shell (fmt &rest args)
-  (let ((cmd (apply #'format fmt args)))
+  (let ((cmd (apply #'format fmt (mapcar #'magit-escape-for-shell args))))
     (magit-run* (list shell-file-name shell-command-switch cmd)
 		    cmd)))
 
@@ -1410,7 +1413,7 @@ Please see the manual for a complete description of Magit.
 	    (magit-set-section-info commit)
 	    (insert (magit-shell
 		     "git log --max-count=1 --pretty=format:%s %s --"
-		     (magit-escape-for-shell (if used ". %s" "* %s"))
+		     (if used ". %s" "* %s")
 		     commit)
 		    "\n")))))
       (insert "\n"))))
