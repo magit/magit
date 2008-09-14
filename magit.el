@@ -36,7 +36,6 @@
 
 ;; For 0.6:
 ;;
-;; - Refuse to apply and revert merge commits.
 ;; - Clean up utilities.
 ;; - Fix magit-add-log to be more reliable.
 ;; - Update commit details when using n and p with commits.
