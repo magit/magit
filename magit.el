@@ -1485,7 +1485,10 @@ Please see the manual for a complete description of Magit.
 
 (defun magit-rewrite-finish ()
   (interactive)
-  (magit-rewrite-finish-step t))
+  (unwind-protect
+      (magit-rewrite-finish-step t)
+    (magit-revert-buffers)
+    (magit-refresh)))
 
 (defun magit-rewrite-finish-step (first-p)
   (let ((info (magit-read-rewrite-info)))
@@ -1498,14 +1501,10 @@ Please see the manual for a complete description of Magit.
 				  :from-end t))
 	   (commit (car first-unused)))
       (cond ((not first-unused)
-	     (magit-revert-buffers)
 	     (magit-rewrite-stop t))
 	    ((magit-cherry-pick-commit commit (not first-p) t)
 	     (magit-rewrite-set-commit-property commit 'used t)
-	     (magit-rewrite-finish-step nil))
-	    (t
-	     (magit-revert-buffers)
-	     (magit-refresh))))))
+	     (magit-rewrite-finish-step nil))))))
 
 ;;; Updating, pull, and push
 
