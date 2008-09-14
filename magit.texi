@@ -362,6 +362,11 @@ want to combine multiple previous commits into a single new one, use
 @kbd{a} to apply them all to your working tree, and then commit them
 together.
 
+Magit has no explicit support for rewriting merge commits.  It will
+happily include merge commits in the list of pending commits, but
+there is no way of replaying them automatically.  You have to redo the
+merge explicitly.
+
 You can also use @kbd{v} to revert a commit when you have changed your
 mind.  This will change the @code{.} mark back to @code{*}.
 
