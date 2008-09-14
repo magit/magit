@@ -199,7 +199,8 @@ Many Magit faces inherit from this one by default."
       dir)))
 
 (defun magit-name-rev (rev)
-  (magit-shell "git name-rev --always --name-only %s" rev))
+  (and rev
+       (magit-shell "git name-rev --always --name-only %s" rev)))
 
 (defun magit-put-line-property (prop val)
   (put-text-property (line-beginning-position) (line-beginning-position 2)
@@ -307,7 +308,7 @@ Many Magit faces inherit from this one by default."
       (format "%s at %s" things (magit-rev-describe (car range))))))
 
 (defun magit-default-rev ()
-  (magit-commit-at-point t))
+  (magit-name-rev (magit-commit-at-point t)))
 
 ;;; Sections
 
