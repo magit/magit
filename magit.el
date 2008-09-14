@@ -215,6 +215,34 @@ Many Magit faces inherit from this one by default."
   (buffer-substring-no-properties (line-beginning-position)
 				  (line-end-position)))
 
+(defun magit-file-uptodate-p (file)
+  (eq (magit-shell-exit-code "git diff --quiet -- %s" file) 0))
+
+(defun magit-anything-staged-p ()
+  (not (eq (magit-shell-exit-code "git diff --quiet --cached") 0)))
+
+(defun magit-everything-clean-p ()
+  (and (not (magit-anything-staged-p))
+       (eq (magit-shell-exit-code "git diff --quiet") 0)))
+
+(defun magit-commit-parents (commit)
+  (cdr (magit-shell-lines "git rev-list -1 --parents %s | tr ' ' '\n'"
+			  commit)))
+
+;; XXX - let the user choose the parent
+
+(defun magit-choose-parent (commit op)
+  (let* ((parents (magit-commit-parents commit)))
+    (if (> (length parents) 1)
+	(error "Can't %s merge commits." op)
+      (car parents))))
+
+(defun magit-choose-parent-id (commit op)
+  (let* ((parents (magit-commit-parents commit)))
+    (if (> (length parents) 1)
+	(error "Can't %s merge commits." op)
+      nil)))
+
 ;;; Revisions and ranges
 
 (defun magit-list-interesting-revisions ()
@@ -278,16 +306,6 @@ Many Magit faces inherit from this one by default."
 
 (defun magit-default-rev ()
   (magit-commit-at-point t))
-
-(defun magit-file-uptodate-p (file)
-  (eq (magit-shell-exit-code "git diff --quiet -- %s" file) 0))
-
-(defun magit-anything-staged-p ()
-  (not (eq (magit-shell-exit-code "git diff --quiet --cached") 0)))
-
-(defun magit-everything-clean-p ()
-  (and (not (magit-anything-staged-p))
-       (eq (magit-shell-exit-code "git diff --quiet") 0)))
 
 ;;; Sections
 
@@ -788,7 +806,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "d") 'magit-diff-working-tree)
     (define-key map (kbd "D") 'magit-diff)
     (define-key map (kbd "a") 'magit-apply-item)
-    (define-key map (kbd "A") 'magit-cherry-pick)
+    (define-key map (kbd "A") 'magit-cherry-pick-item)
     (define-key map (kbd "v") 'magit-revert-item)
     (define-key map (kbd "x") 'magit-reset-head)
     (define-key map (kbd "X") 'magit-reset-working-tree)
@@ -1482,8 +1500,7 @@ Please see the manual for a complete description of Magit.
       (cond ((not first-unused)
 	     (magit-revert-buffers)
 	     (magit-rewrite-stop t))
-	    ((magit-run* (list "git" "cherry-pick" commit)
-			     nil (not first-p) t)
+	    ((magit-cherry-pick-commit commit (not first-p) t)
 	     (magit-rewrite-set-commit-property commit 'used t)
 	     (magit-rewrite-finish-step nil))
 	    (t
@@ -1684,12 +1701,21 @@ Please see the manual for a complete description of Magit.
 	  (error "No commit at point.")))))
 
 (defun magit-apply-commit (commit)
-  (magit-log-edit-append
-   (magit-format-commit commit "%s%n%n%b"))
-  (magit-log-edit-set-field 
-   'author
-   (magit-format-commit commit "%an <%ae>, %ai"))
-  (magit-run-shell "git diff %s^ %s | git apply -" commit commit))
+  (let ((parent (magit-choose-parent commit "apply")))
+    (magit-log-edit-append
+     (magit-format-commit commit "%s%n%n%b"))
+    (magit-log-edit-set-field 
+     'author
+     (magit-format-commit commit "%an <%ae>, %ai"))
+    (magit-run-shell "git diff %s %s | git apply -" parent commit)))
+
+(defun magit-cherry-pick-commit (commit &optional noerase norefresh)
+  (let ((parent-id (magit-choose-parent-id commit "cherry-pick")))
+    (magit-run* `("git" "cherry-pick"
+		  ,@(if parent-id
+			(list "-m" (number-to-string parent-id)))
+		  ,commit)
+		nil noerase norefresh)))
 
 (defun magit-apply-item ()
   (interactive)
@@ -1709,21 +1735,22 @@ Please see the manual for a complete description of Magit.
     ((diff)
      (magit-apply-diff-item item))))
 
-(defun magit-cherry-pick ()
+(defun magit-cherry-pick-item ()
   (interactive)
   (magit-section-case (item info "cherry-pick")
     ((pending commit)
-     (magit-run "git" "cherry-pick" info)
+     (magit-cherry-pick-commit info)
      (magit-rewrite-set-commit-property info 'used t)
      (magit-refresh))
     ((commit)
-     (magit-run "git" "cherry-pick" info))))
+     (magit-cherry-pick-commit info))))
 
 (defun magit-revert-commit (commit)
-  (magit-log-edit-append
-   (magit-format-commit commit "Reverting \"%s\""))
-  (magit-run-shell "git diff %s^ %s | git apply --reverse -" commit commit))
-  
+  (let ((parent (magit-choose-parent commit "revert")))
+    (magit-log-edit-append
+     (magit-format-commit commit "Reverting \"%s\""))
+    (magit-run-shell "git diff %s %s | git apply --reverse -" parent commit)))
+
 (defun magit-revert-item ()
   (interactive)
   (magit-section-case (item info "revert")
