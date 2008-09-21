@@ -654,6 +654,11 @@ Many Magit faces inherit from this one by default."
 			     (or (get ,type 'magit-description)
 				 ,type)))))))))
 
+(defmacro magit-section-action (head &rest clauses)
+  (declare (indent 1))
+  `(magit-with-refresh
+     (magit-section-case ,head ,@clauses)))
+
 (defun magit-wash-sequence (func)
   (while (and (not (eobp))
 	      (funcall func))))
@@ -680,7 +685,7 @@ Many Magit faces inherit from this one by default."
 (defvar magit-process-client-buffer nil)
 
 (defun magit-run* (cmd-and-args
-		       &optional logline noerase norefresh noerror nowait)
+		       &optional logline noerase noerror nowait)
   (let ((cmd (car cmd-and-args))
 	(args (cdr cmd-and-args))
 	(dir default-directory)
@@ -710,11 +715,8 @@ Many Magit faces inherit from this one by default."
 	    (t
 	     (setq successp
 		   (equal (apply 'call-process cmd nil buf nil args) 0))
-	     (magit-set-mode-line-process nil))))
-    (when (and (not nowait)
-	       (not norefresh))
-      (magit-revert-buffers)
-      (magit-refresh magit-process-client-buffer))
+	     (magit-set-mode-line-process nil)
+	     (magit-need-refresh magit-process-client-buffer))))
     (or successp
 	noerror
 	(error "Git failed."))
@@ -728,8 +730,7 @@ Many Magit faces inherit from this one by default."
       (message msg))
     (setq magit-process nil)
     (magit-set-mode-line-process nil)
-    (magit-revert-buffers)
-    (magit-refresh magit-process-client-buffer)))
+    (magit-refresh-buffer magit-process-client-buffer)))
 
 (defun magit-process-filter (proc string)
   (save-excursion
@@ -747,26 +748,17 @@ Many Magit faces inherit from this one by default."
     (set-marker (process-mark proc) (point))))
 
 (defun magit-run (cmd &rest args)
-  (magit-run* (cons cmd args)))
+  (magit-with-refresh
+    (magit-run* (cons cmd args))))
 
 (defun magit-run-shell (fmt &rest args)
   (let ((cmd (apply #'format fmt (mapcar #'magit-escape-for-shell args))))
-    (magit-run* (list shell-file-name shell-command-switch cmd)
-		    cmd)))
+    (magit-with-refresh
+      (magit-run* (list shell-file-name shell-command-switch cmd)
+		  cmd))))
 
 (defun magit-run-async (cmd &rest args)
-  (magit-run* (cons cmd args) nil nil nil nil t))
-
-(defun magit-revert-buffers ()
-  (let ((files (magit-shell-lines "git ls-files")))
-    (dolist (file files)
-      (let ((buffer (find-buffer-visiting file)))
-	(when (and buffer
-		   (not (verify-visited-file-modtime buffer))
-		   (not (buffer-modified-p buffer)))
-	  (with-current-buffer buffer
-	    (ignore-errors
-	      (revert-buffer t t t))))))))
+  (magit-run* (cons cmd args) nil nil nil t))
 
 (defun magit-display-process ()
   (interactive)
@@ -875,7 +867,7 @@ Please see the manual for a complete description of Magit.
 	magit-refresh-function refresh-func
 	magit-refresh-args refresh-args)
   (magit-mode)
-  (magit-refresh))
+  (magit-refresh-buffer))
 
 (defun magit-find-buffer (submode &optional dir)
   (let ((topdir (magit-get-top-dir (or dir default-directory))))
@@ -899,8 +891,7 @@ Please see the manual for a complete description of Magit.
 		   (equal default-directory dir)))
 	  (funcall func)))))
 
-(defun magit-refresh (&optional buffer)
-  (interactive)
+(defun magit-refresh-buffer (&optional buffer)
   (with-current-buffer (or buffer (current-buffer))
     (let* ((old-line (line-number-at-pos))
 	   (old-section (magit-current-section))
@@ -924,9 +915,48 @@ Please see the manual for a complete description of Magit.
 	  (set-window-point w (point)))
 	(magit-highlight-section)))))
 
+(defun magit-revert-buffers ()
+  (let ((files (magit-shell-lines "git ls-files")))
+    (dolist (file files)
+      (let ((buffer (find-buffer-visiting file)))
+	(when (and buffer
+		   (not (verify-visited-file-modtime buffer))
+		   (not (buffer-modified-p buffer)))
+	  (with-current-buffer buffer
+	    (ignore-errors
+	      (revert-buffer t t t))))))))
+
+(defvar magit-refresh-needing-buffers nil)
+(defvar magit-refresh-pending nil)
+
+(defun magit-refresh-wrapper (func)
+  (if magit-refresh-pending
+      (funcall func)
+    (let ((magit-refresh-needing-buffers nil)
+	  (magit-refresh-pending t))
+      (unwind-protect
+	  (funcall func)
+	(magit-revert-buffers)
+	(dolist (b magit-refresh-needing-buffers)
+	  (magit-refresh-buffer b))))))
+  
+(defun magit-need-refresh (&optional buffer)
+  (setq magit-refresh-needing-buffers (cons (or buffer
+						(current-buffer))
+					    magit-refresh-needing-buffers)))
+
+(defmacro magit-with-refresh (&rest body)
+  (declare (indent 0))
+  `(magit-refresh-wrapper (lambda () ,@body)))
+
+(defun magit-refresh ()
+  (interactive)
+  (magit-with-refresh
+    (magit-need-refresh)))
+
 (defun magit-refresh-all ()
   (interactive)
-  (magit-for-all-buffers #'magit-refresh default-directory))
+  (magit-for-all-buffers #'magit-refresh-buffer default-directory))
 
 ;;; Diffs and Hunks
 
@@ -1264,7 +1294,7 @@ Please see the manual for a complete description of Magit.
 (defun magit-stage-item ()
   "Add the item at point to the staging area."
   (interactive)
-  (magit-section-case (item info "stage")
+  (magit-section-action (item info "stage")
     ((unstaged file)
      (magit-run "git" "add" info))
     ((unstaged diff hunk)
@@ -1284,7 +1314,7 @@ Please see the manual for a complete description of Magit.
 (defun magit-unstage-item ()
   "Remove the item at point from the staging area."
   (interactive)
-  (magit-section-case (item info "unstage")
+  (magit-section-action (item info "unstage")
     ((staged diff hunk)
      (magit-apply-hunk-item item "--cached" "--reverse"))
     ((staged diff)
@@ -1322,8 +1352,8 @@ Please see the manual for a complete description of Magit.
   (if (and branch (not (string= branch ""))
 	   parent)
       (magit-run "git" "checkout" "-b"
-		     branch
-		     (magit-rev-to-git parent))))
+		 branch
+		 (magit-rev-to-git parent))))
 
 ;;; Merging
 
@@ -1425,21 +1455,20 @@ Please see the manual for a complete description of Magit.
 	 (p (assoc commit pending)))
     (when p
       (setf (cdr p) (plist-put (cdr p) prop value))
-      (magit-write-rewrite-info info))))
+      (magit-write-rewrite-info info)
+      (magit-need-refresh))))
 
 (defun magit-rewrite-set-used ()
   (interactive)
-  (magit-section-case (item info)
+  (magit-section-action (item info)
     ((pending commit)
-     (magit-rewrite-set-commit-property info 'used t)
-     (magit-refresh))))
+     (magit-rewrite-set-commit-property info 'used t))))
 
 (defun magit-rewrite-set-unused ()
   (interactive)
-  (magit-section-case (item info)
+  (magit-section-action (item info)
     ((pending commit)
-     (magit-rewrite-set-commit-property info 'used nil)
-     (magit-refresh))))
+     (magit-rewrite-set-commit-property info 'used nil))))
 
 (defun magit-insert-pending-changes ()
   (let* ((info (magit-read-rewrite-info))
@@ -1472,7 +1501,7 @@ Please see the manual for a complete description of Magit.
     (when (or noconfirm
 	      (yes-or-no-p "Stop rewrite? "))
       (magit-write-rewrite-info nil)
-      (magit-refresh))))
+      (magit-need-refresh))))
 
 (defun magit-rewrite-abort ()
   (interactive)
@@ -1488,10 +1517,8 @@ Please see the manual for a complete description of Magit.
 
 (defun magit-rewrite-finish ()
   (interactive)
-  (unwind-protect
-      (magit-rewrite-finish-step t)
-    (magit-revert-buffers)
-    (magit-refresh)))
+  (magit-with-refresh
+    (magit-rewrite-finish-step t)))
 
 (defun magit-rewrite-finish-step (first-p)
   (let ((info (magit-read-rewrite-info)))
@@ -1505,7 +1532,7 @@ Please see the manual for a complete description of Magit.
 	   (commit (car first-unused)))
       (cond ((not first-unused)
 	     (magit-rewrite-stop t))
-	    ((magit-cherry-pick-commit commit (not first-p) t)
+	    ((magit-cherry-pick-commit commit (not first-p))
 	     (magit-rewrite-set-commit-property commit 'used t)
 	     (magit-rewrite-finish-step nil))))))
 
@@ -1711,21 +1738,20 @@ Please see the manual for a complete description of Magit.
      (magit-format-commit commit "%an <%ae>, %ai"))
     (magit-run-shell "git diff %s %s | git apply -" parent commit)))
 
-(defun magit-cherry-pick-commit (commit &optional noerase norefresh)
+(defun magit-cherry-pick-commit (commit &optional noerase)
   (let ((parent-id (magit-choose-parent-id commit "cherry-pick")))
     (magit-run* `("git" "cherry-pick"
 		  ,@(if parent-id
 			(list "-m" (number-to-string parent-id)))
 		  ,commit)
-		nil noerase norefresh)))
+		nil noerase)))
 
 (defun magit-apply-item ()
   (interactive)
-  (magit-section-case (item info "apply")
+  (magit-section-action (item info "apply")
     ((pending commit)
      (magit-apply-commit info)
-     (magit-rewrite-set-commit-property info 'used t)
-     (magit-refresh))
+     (magit-rewrite-set-commit-property info 'used t))
     ((commit)
      (magit-apply-commit info))
     ((unstaged *)
@@ -1739,11 +1765,10 @@ Please see the manual for a complete description of Magit.
 
 (defun magit-cherry-pick-item ()
   (interactive)
-  (magit-section-case (item info "cherry-pick")
+  (magit-section-action (item info "cherry-pick")
     ((pending commit)
      (magit-cherry-pick-commit info)
-     (magit-rewrite-set-commit-property info 'used t)
-     (magit-refresh))
+     (magit-rewrite-set-commit-property info 'used t))
     ((commit)
      (magit-cherry-pick-commit info))))
 
@@ -1755,11 +1780,10 @@ Please see the manual for a complete description of Magit.
 
 (defun magit-revert-item ()
   (interactive)
-  (magit-section-case (item info "revert")
+  (magit-section-action (item info "revert")
     ((pending commit)
      (magit-revert-commit info)
-     (magit-rewrite-set-commit-property info 'used nil)
-     (magit-refresh))
+     (magit-rewrite-set-commit-property info 'used nil))
     ((commit)
      (magit-revert-commit info))
     ((hunk)
@@ -1845,15 +1869,15 @@ Please see the manual for a complete description of Magit.
 
 (defun magit-ignore-item ()
   (interactive)
-  (magit-section-case (item info "ignore")
+  (magit-section-action (item info "ignore")
     ((unstaged file)
      (append-to-file (concat "/" info "\n")
 		     nil ".gitignore")
-     (magit-refresh))))
+     (magit-need-refresh))))
 
 (defun magit-discard-item ()
   (interactive)
-  (magit-section-case (item info "discard")
+  (magit-section-action (item info "discard")
     ((unstaged file)
      (if (yes-or-no-p (format "Delete %s? " info))
 	 (magit-run "rm" info)))
@@ -1883,7 +1907,7 @@ Please see the manual for a complete description of Magit.
 
 (defun magit-visit-item ()
   (interactive)
-  (magit-section-case (item info "visit")
+  (magit-section-action (item info "visit")
     ((unstaged file)
      (find-file info))
     ((diff)
@@ -1899,19 +1923,19 @@ Please see the manual for a complete description of Magit.
 
 (defun magit-show-item-or-scroll-up ()
   (interactive)
-  (magit-section-case (item info)
+  (magit-section-action (item info)
     ((commit)
      (magit-show-commit info #'scroll-up))))
 
 (defun magit-show-item-or-scroll-down ()
   (interactive)
-  (magit-section-case (item info)
+  (magit-section-action (item info)
     ((commit)
      (magit-show-commit info #'scroll-down))))
 
 (defun magit-mark-item ()
   (interactive)
-  (magit-section-case (item info "mark")
+  (magit-section-action (item info "mark")
     ((commit)
      (magit-set-marked-commit info))))
 
