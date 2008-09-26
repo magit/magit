@@ -48,6 +48,7 @@
 ;; - Recover more lost performance from the section rewrite.
 ;; - Equivalent of git-wtf, http://git-wt-commit.rubyforge.org/#git-wtf
 ;; - 'Subsetting', only looking at a subset of all files.
+;; - Stashing.
 
 (require 'cl)
 (require 'parse-time)
