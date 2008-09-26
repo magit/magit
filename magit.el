@@ -200,7 +200,10 @@ Many Magit faces inherit from this one by default."
 
 (defun magit-name-rev (rev)
   (and rev
-       (magit-shell "git name-rev --always --name-only %s" rev)))
+       (let ((name (magit-shell "git name-rev --always --name-only %s" rev)))
+	 (if (or (not name) (string= name "undefined"))
+	     rev
+	   name))))
 
 (defun magit-put-line-property (prop val)
   (put-text-property (line-beginning-position) (line-beginning-position 2)
