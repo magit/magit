@@ -193,11 +193,10 @@ Many Magit faces inherit from this one by default."
 	(substring head 11)
       nil)))
 
-(defun magit-read-top-dir (prefix)
-  (let ((dir (magit-get-top-dir default-directory)))
-    (if (or (not dir) prefix)
-	(magit-get-top-dir (read-directory-name "Git repository: " dir))
-      dir)))
+(defun magit-read-top-dir ()
+  (magit-get-top-dir
+   (read-directory-name "Git repository: "
+			(magit-get-top-dir default-directory))))
 
 (defun magit-name-rev (rev)
   (and rev
@@ -1278,7 +1277,7 @@ Please see the manual for a complete description of Magit.
 	  (magit-insert-unpushed-commits remote branch))))))
 
 (defun magit-status (dir)
-  (interactive (list (magit-read-top-dir current-prefix-arg)))
+  (interactive (list (magit-read-top-dir)))
   (save-some-buffers)
   (let* ((topdir (magit-get-top-dir dir))
 	 (buf (or (magit-find-buffer 'status topdir)
