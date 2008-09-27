@@ -38,7 +38,6 @@
 ;;
 ;; - Clean up utilities.
 ;; - More reliable refreshing behavior.
-;; - Mode menu
 ;; - Fix magit-add-log to be more reliable.
 ;; - Update commit details when using n and p with commits.
 ;;
@@ -55,6 +54,7 @@
 (require 'cl)
 (require 'parse-time)
 (require 'log-edit)
+(require 'easymenu)
 
 (defgroup magit nil
   "Controlling Git from Emacs."
@@ -833,6 +833,55 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "$") 'magit-display-process)
     (define-key map (kbd "q") 'quit-window)
     map))
+
+(easy-menu-define magit-mode-menu magit-mode-map
+  "Magit menu"
+  '("Magit"
+    ["Refresh" magit-refresh t]
+    ["Refresh all" magit-refresh-all t]
+    "---"
+    ["Stage" magit-stage-item t]
+    ["Stage all" magit-stage-all t]
+    ["Unstage" magit-unstage-item t]
+    ["Unstage all" magit-unstage-all t]
+    ["Commit" magit-log-edit t]
+    ["Add log entry" magit-add-log t]
+    "---"
+    ["Diff working tree" magit-diff-working-tree t]
+    ["Diff" magit-diff t]
+    ["Log head" magit-log-head t]
+    ["Log" magit-log t]
+    ["Reflog head" magit-reflog-head t]
+    ["Reflog" magit-reflog t]
+    "---"
+    ["Cherry pick" magit-cherry-pick-item t]
+    ["Apply" magit-apply-item t]
+    ["Revert" magit-revert-item t]
+    "---"
+    ["Ignore" magit-ignore-item t]
+    ["Discard" magit-discard-item t]
+    ["Reset head" magit-reset-head t]
+    ["Reset working tree" magit-reset-working-tree t]
+    "---"
+    ["Switch branch" magit-checkout t]
+    ["Create branch" magit-create-branch t]
+    ["Merge" magit-automatic-merge t]
+    ["Merge (no commit)" magit-manual-merge t]
+    ["Rebase" magit-rebase-step t]
+    ("Rewrite"
+     ["Start" magit-rewrite-start t]
+     ["Stop" magit-rewrite-stop t]
+     ["Finish" magit-rewrite-finish t]
+     ["Abort" magit-rewrite-abort t]
+     ["Set used" magit-rewrite-set-used t]
+     ["Set unused" magit-rewrite-set-unused t])
+    "---"
+    ["Push" magit-push t]
+    ["Pull" magit-pull t]
+    ["Remote update" magit-remote-update t]
+    "---"
+    ["Display Git output" magit-display-process t]
+    ["Quit Magit" quit-window t]))
 
 (defvar magit-mode-hook nil)
 
