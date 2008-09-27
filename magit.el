@@ -37,6 +37,8 @@
 ;; For 0.6:
 ;;
 ;; - Clean up utilities.
+;; - More reliable refreshing behavior.
+;; - Mode menu
 ;; - Fix magit-add-log to be more reliable.
 ;; - Update commit details when using n and p with commits.
 ;;

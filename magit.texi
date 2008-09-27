@@ -83,14 +83,8 @@ Phil Hagelberg joined a few days later.  Thanks!
 @chapter Status
 
 Running @kbd{M-x magit-status} displays the main interface of Magit,
-the status buffer.
-
-You can have multiple status buffers active at the same time, each
-associated with its own Git repository.  Running @code{magit-status}
-in a buffer will display the status buffer for the repository that
-contains the file in that buffer.  Running @code{magit-status} outside
-of any Git repository, or when giving it a prefix argument, will ask
-you for the directory to run it in.
+the status buffer.  You can have multiple status buffers active at the
+same time, each associated with its own Git repository.
 
 You need to explicitly refresh the status buffer when you have made
 changes to the repository from outside of Emacs.  You can type @kbd{g}
