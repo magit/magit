@@ -986,7 +986,8 @@ Please see the manual for a complete description of Magit.
 (defun magit-refresh-wrapper (func)
   (if magit-refresh-pending
       (funcall func)
-    (let ((magit-refresh-needing-buffers nil)
+    (let ((magit-refresh-needing-buffers
+	   (list (magit-find-buffer 'status default-directory)))
 	  (magit-refresh-pending t))
       (unwind-protect
 	  (funcall func)
@@ -995,9 +996,10 @@ Please see the manual for a complete description of Magit.
 	  (magit-refresh-buffer b))))))
   
 (defun magit-need-refresh (&optional buffer)
-  (setq magit-refresh-needing-buffers (cons (or buffer
-						(current-buffer))
-					    magit-refresh-needing-buffers)))
+  (let ((buffer (or buffer (current-buffer))))
+    (when (not (memq buffer magit-refresh-needing-buffers))
+      (setq magit-refresh-needing-buffers
+	    (cons buffer magit-refresh-needing-buffers)))))
 
 (defmacro magit-with-refresh (&rest body)
   (declare (indent 0))
