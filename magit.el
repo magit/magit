@@ -345,8 +345,7 @@ Many Magit faces inherit from this one by default."
 				       magit-old-top-section))))
     (if magit-top-section
 	(setf (magit-section-children magit-top-section)
-	      (append (magit-section-children magit-top-section)
-		      (list s)))
+	      (cons s (magit-section-children magit-top-section)))
       (setq magit-top-section s))
     (if old
 	(setf (magit-section-hidden s) (magit-section-hidden old)))
@@ -371,6 +370,8 @@ Many Magit faces inherit from this one by default."
        (setf (magit-section-beginning ,s) (point))
        ,@body
        (setf (magit-section-end ,s) (point))
+       (setf (magit-section-children ,s)
+	     (nreverse (magit-section-children ,s)))
        ,s)))
 
 (defun magit-set-section-info (info &optional section)
@@ -1852,7 +1853,7 @@ Please see the manual for a complete description of Magit.
     (magit-insert-section 'log
 			  (magit-rev-range-describe range "Commits")
 			  'magit-wash-log nil
-			  "git" "log" "--graph" "--max-count=10000"
+			  "git" "log" "--graph" "--max-count=1000"
 			  "--pretty=oneline" args)))
 
 (defun magit-log (range)
@@ -1875,7 +1876,7 @@ Please see the manual for a complete description of Magit.
 			  (format "Local history of head %s" head)
 			  'magit-wash-log nil
 			  "git" "log" "--walk-reflogs"
-			  "--max-count=10000"
+			  "--max-count=1000"
 			  "--pretty=oneline" args)))
 
 (defun magit-reflog (head)
