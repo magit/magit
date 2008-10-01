@@ -1773,7 +1773,8 @@ Prefix arg means justify as well."
 			(magit-hunk-item-diff section))
 		       ((eq (magit-section-type section) 'diff)
 			section)
-		       (error "No change at point")))))
+		       (t
+			(error "No change at point"))))))
       (magit-log-edit)
       (goto-char (point-min))
       (cond ((not (search-forward-regexp (format "^\\* %s" (regexp-quote file))
