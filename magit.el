@@ -37,8 +37,6 @@
 ;; For 0.6:
 ;;
 ;; - Clean up utilities.
-;; - More reliable refreshing behavior.
-;; - Fix magit-add-log to be more reliable.
 ;; - Update commit details when using n and p with commits.
 ;;
 ;; Later:
@@ -46,6 +44,7 @@
 ;; - Tags
 ;; - Visiting from staged hunks doesn't always work since the line
 ;;   numbers don't refer to the working tree.  Fix that somehow.
+;; - Get current defun from removed lines in a diff
 ;; - Recover more lost performance from the section rewrite.
 ;; - Equivalent of git-wtf, http://git-wt-commit.rubyforge.org/#git-wtf
 ;; - 'Subsetting', only looking at a subset of all files.
