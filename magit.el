@@ -987,14 +987,16 @@ Please see the manual for a complete description of Magit.
 (defun magit-refresh-wrapper (func)
   (if magit-refresh-pending
       (funcall func)
-    (let ((magit-refresh-needing-buffers
-	   (list (magit-find-buffer 'status default-directory)))
+    (let ((status-buffer (magit-find-buffer 'status default-directory))
+	  (magit-refresh-needing-buffers nil)
 	  (magit-refresh-pending t))
       (unwind-protect
 	  (funcall func)
-	(magit-revert-buffers)
-	(dolist (b magit-refresh-needing-buffers)
-	  (magit-refresh-buffer b))))))
+	(when magit-refresh-needing-buffers
+	  (magit-revert-buffers)
+	  (dolist (b (adjoin status-buffer
+			     magit-refresh-needing-buffers))
+	    (magit-refresh-buffer b)))))))
   
 (defun magit-need-refresh (&optional buffer)
   (let ((buffer (or buffer (current-buffer))))
