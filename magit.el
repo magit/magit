@@ -1607,7 +1607,7 @@ Please see the manual for a complete description of Magit.
   (interactive)
   (magit-run-async "git" "push" "-v"))
 
-;;; Committing
+;;; Log edit mode
 
 (defvar magit-log-edit-map
   (let ((map (make-sparse-keymap)))
@@ -1618,6 +1618,23 @@ Please see the manual for a complete description of Magit.
     map))
 
 (defvar magit-pre-log-edit-window-configuration nil)
+
+(defun magit-log-fill-paragraph (&optional justify)
+  "Fill the paragraph, but preserve open parentheses at beginning of lines.
+Prefix arg means justify as well."
+  (interactive "P")
+  ;; Add lines starting with a left paren or an asterisk.
+  (let ((paragraph-start (concat paragraph-start "\\|*\\|(")))
+    (let ((end (progn (forward-paragraph) (point)))
+	  (beg (progn (backward-paragraph) (point)))
+	  (adaptive-fill-mode nil))
+      (fill-region beg end justify)
+      t)))
+
+(define-derived-mode magit-log-edit-mode text-mode "Magit Log Edit"
+  (set (make-local-variable 'fill-paragraph-function)
+       'magit-log-fill-paragraph)
+  (use-local-map magit-log-edit-map))
 
 (defun magit-log-edit-cleanup ()
   (save-excursion
@@ -1737,29 +1754,39 @@ Please see the manual for a complete description of Magit.
 	  (current-window-configuration))
     (pop-to-buffer buf)
     (setq default-directory dir)
-    (use-local-map magit-log-edit-map)
+    (magit-log-edit-mode)
     (message "Type C-c C-c to commit.")))
 
 (defun magit-add-log ()
   (interactive)
   (let ((section (magit-current-section)))
-    (if (not (eq (magit-section-type section) 'hunk))
-	(error "No hunk at point."))
-    (let ((fun (save-window-excursion
-		 (save-excursion
-		   (magit-visit-item)
-		   (add-log-current-defun))))
-	  (file (magit-diff-item-file (magit-hunk-item-diff section))))
+    (let ((fun (if (eq (magit-section-type section) 'hunk)
+		   (save-window-excursion
+		     (save-excursion
+		       (magit-visit-item)
+		       (add-log-current-defun)))
+		 nil))
+	  (file (magit-diff-item-file
+		 (cond ((eq (magit-section-type section) 'hunk)
+			(magit-hunk-item-diff section))
+		       ((eq (magit-section-type section) 'diff)
+			section)
+		       (error "No change at point")))))
       (magit-log-edit)
       (goto-char (point-min))
       (cond ((not (search-forward-regexp (format "^\\* %s" (regexp-quote file))
 					 nil t))
 	     ;; No entry for file, create it.
 	     (goto-char (point-max))
-	     (insert (format "\n* %s (%s): " file fun)))
-	    (t
+	     (insert (format "\n* %s" file))
+	     (if fun
+		 (insert (format " (%s)" fun)))
+	     (insert ": "))
+	    (fun
 	     ;; found entry for file, look for fun
-	     (let ((limit (or (search-forward-regexp "^\\* " nil t)
+	     (let ((limit (or (save-excursion
+				(and (search-forward-regexp "^\\* " nil t)
+				     (match-beginning 0)))
 			      (point-max))))
 	       (cond ((search-forward-regexp (format "(.*\\<%s\\>.*):"
 						     (regexp-quote fun))
@@ -1769,10 +1796,11 @@ Please see the manual for a complete description of Magit.
 			  (backward-char 2)
 			(goto-char limit)))
 		     (t
-		      ;; not found insert new entry
+		      ;; not found, insert new entry
 		      (goto-char limit)
-		      (beginning-of-line)
-		      (open-line 1)
+		      (if (bolp)
+			  (open-line 1)
+			(newline))
 		      (insert (format "(%s): " fun))))))))))
 
 ;;; Commits
