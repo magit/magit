@@ -1,9 +1,8 @@
 Source: magit
-Format: 3.0 (git)
 Section: devel
 Priority: optional
 Maintainer: Marius Vollmer <marius.vollmer@uni-dortmund.de>
-Build-Depends: debhelper (>= 4.0.0), emacs, texinfo
+Build-Depends: debhelper (>= 7), emacs, texinfo
 Standards-Version: 3.6.0
 
 Package: magit
