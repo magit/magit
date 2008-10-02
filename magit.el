@@ -476,7 +476,10 @@ Many Magit faces inherit from this one by default."
 						   section)))
 		   (magit-next-section section))))
     (if next
-	(goto-char (magit-section-beginning next))
+	(progn
+	  (goto-char (magit-section-beginning next))
+	  (if (memq magit-submode '(log reflog))
+	      (magit-show-commit next)))
       (message "No next section"))))
 
 (defun magit-prev-section (section)
@@ -498,12 +501,17 @@ Many Magit faces inherit from this one by default."
     (cond ((= (point) (magit-section-beginning section))
 	   (let ((prev (magit-prev-section (magit-current-section))))
 	     (if prev
-		 (goto-char (magit-section-beginning prev))
+		 (progn
+		   (if (memq magit-submode '(log reflog))
+		       (magit-show-commit (or prev section)))
+		   (goto-char (magit-section-beginning prev)))
 	       (message "No previous section"))))
 	  (t
 	   (let ((prev (magit-find-section-before (point)
 						  (magit-section-children
 						   section))))
+	     (if (memq magit-submode '(log reflog))
+		 (magit-show-commit (or prev section)))
 	     (goto-char (magit-section-beginning (or prev section))))))))
 
 (defun magit-goto-section (path)
@@ -1244,8 +1252,9 @@ Please see the manual for a complete description of Magit.
 	  (t
 	   (setq magit-currently-shown-commit commit)
 	   (display-buffer buf)
-	   (save-excursion
+	   (with-current-buffer buf
 	     (set-buffer buf)
+	     (goto-char (point-min))
 	     (magit-mode-init dir 'commit
 			      #'magit-refresh-commit-buffer commit))))))
 
