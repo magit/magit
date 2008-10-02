@@ -36,7 +36,6 @@
 
 ;; For 0.6:
 ;;
-;; - Clean up utilities.
 ;; - Update commit details when using n and p with commits.
 ;;
 ;; Later:
