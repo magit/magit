@@ -969,15 +969,13 @@ Please see the manual for a complete description of Magit.
 	(magit-highlight-section)))))
 
 (defun magit-revert-buffers ()
-  (let ((files (magit-shell-lines "git ls-files")))
-    (dolist (file files)
-      (let ((buffer (find-buffer-visiting file)))
-	(when (and buffer
-		   (not (verify-visited-file-modtime buffer))
-		   (not (buffer-modified-p buffer)))
-	  (with-current-buffer buffer
-	    (ignore-errors
-	      (revert-buffer t t t))))))))
+  (dolist (buffer (buffer-list))
+    (when (and buffer
+	       (not (verify-visited-file-modtime buffer))
+	       (not (buffer-modified-p buffer)))
+      (with-current-buffer buffer
+	(ignore-errors
+	  (revert-buffer t t t))))))
 
 (defvar magit-refresh-needing-buffers nil)
 (defvar magit-refresh-pending nil)
