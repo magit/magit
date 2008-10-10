@@ -1156,6 +1156,10 @@ Please see the manual for a complete description of Magit.
 	(end (magit-section-end diff)))
     (write-region beg end file append-p)))
 
+(defun magit-write-diff-item-patch (diff file)
+  (write-region (magit-section-beginning diff) (magit-section-end diff)
+		file))
+
 (defun magit-write-hunk-item-patch (hunk file)
   (magit-diff-item-write-header (magit-hunk-item-diff hunk) file)
   (write-region (magit-section-beginning hunk) (magit-section-end hunk)
