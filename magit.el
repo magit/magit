@@ -1986,8 +1986,7 @@ Prefix arg means justify as well."
 	   (file (magit-diff-item-file item)))
        (cond ((eq kind 'deleted)
 	      (when (yes-or-no-p (format "Resurrect %s? " file))
-		(magit-shell "git reset -q -- %s" 
-			     (magit-escape-for-shell file))
+		(magit-shell "git reset -q -- %s" file)
 		(magit-run "git" "checkout" "--" file)))
 	     ((eq kind 'new)
 	      (if (yes-or-no-p (format "Delete %s? " file))
