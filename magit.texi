@@ -31,6 +31,7 @@ as an extension to Emacs.
 * Introduction::                
 * Acknowledgments::             
 * Status::                      
+* Untracked files::             
 * Staging and Committing::      
 * History::                     
 * Reflogs::                     
