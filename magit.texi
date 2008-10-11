@@ -104,6 +104,8 @@ states of the section: fully visible, fully hidden (expect for the
 first line), and collapsed, where only the first lines of the children
 are visible.  You can also control the visibility of sub-sections in
 this way.
+The first section shows @emph{Untracked files}, if there are any.  See
+@ref{Untracked files} for more details.
 
 Two section show your local changes.  They are explained fully in the
 next chapter, @ref{Staging and Committing}.
@@ -113,11 +115,24 @@ status buffer shows the differences between the current branch and the
 tracking branch.  See @ref{Pushing and Pulling} for more information.
 
 Typing a digit in the status buffer will move point to a section
-header: @kbd{1} will move to @emph{Unpulled commits}, @kbd{2} will move
+header: @kbd{1} will move to @emph{Untracked files}, @kbd{2} will move
 to @emph{Unstaged changes} or @emph{Changes}, @kbd{3} will move to
 @emph{Staged changes}, and @kbd{4} will move to @emph{Unpushed
 commits}.  Note that these relations are fixed, @kbd{3} always moves
 to @emph{Unstaged changes}, not the third visible section.
+
+@node Untracked files
+@chapter Untracked files
+
+Untracked files are shown in the @emph{Untracked changes} section.
+
+You can instruct Git to ignore them by typing @kbd{i}.  This will add
+the filename to the @code{.gitignore} file.  Typing @kbd{C-u i} will
+ask you for the name of the file to ignore.  This is useful to ignore
+whole directories, for example.  The @kbd{I} command is similar to
+@kbd{i} but will add the file to @code{.git/info/exclude} instead.
+
+To delete a untracked file forever, use @kbd{k}.
 
 @node Staging and Committing
 @chapter Staging and Committing
@@ -136,10 +151,6 @@ When the staging area is in use, Magit uses two sections:
 changes} section shows the changes that will be included in the next
 commit, while the @emph{Unstaged changes} section shows the changes
 that will be left out.
-
-Untracked files are shown as @emph{New} in the @emph{Changes} or
-@emph{Unstaged changes} section.  You can instruct Git to ignore them
-by typing @kbd{i}.
 
 You can discard uncommitted changes by moving point into a hunk and
 typing @kbd{k}.

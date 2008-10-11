@@ -779,7 +779,7 @@ Many Magit faces inherit from this one by default."
 ;; We define individual functions (instead of using lambda etc) so
 ;; that the online help can show something meaningful.
 
-(magit-define-section-jumper unpulled  "Unpulled commits")
+(magit-define-section-jumper untracked "Untracked files")
 (magit-define-section-jumper unstaged  "Unstaged changes")
 (magit-define-section-jumper staged    "Staged changes")
 (magit-define-section-jumper unpushed  "Unpushed commits")
@@ -790,7 +790,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "n") 'magit-goto-next-section)
     (define-key map (kbd "p") 'magit-goto-previous-section)
     (define-key map (kbd "TAB") 'magit-cycle-section)
-    (define-key map (kbd "1") 'magit-jump-to-unpulled)
+    (define-key map (kbd "1") 'magit-jump-to-untracked)
     (define-key map (kbd "2") 'magit-jump-to-unstaged)
     (define-key map (kbd "3") 'magit-jump-to-staged)
     (define-key map (kbd "4") 'magit-jump-to-unpushed)
@@ -800,6 +800,8 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "S") 'magit-stage-all)
     (define-key map (kbd "u") 'magit-unstage-item)
     (define-key map (kbd "U") 'magit-unstage-all)
+    (define-key map (kbd "i") 'magit-ignore-item)
+    (define-key map (kbd "I") 'magit-ignore-item-locally)
     (define-key map (kbd "i") 'magit-ignore-item)
     (define-key map (kbd "?") 'magit-describe-item)
     (define-key map (kbd ".") 'magit-mark-item)
@@ -864,6 +866,7 @@ Many Magit faces inherit from this one by default."
     ["Revert" magit-revert-item t]
     "---"
     ["Ignore" magit-ignore-item t]
+    ["Ignore locally" magit-ignore-item-locally t]
     ["Discard" magit-discard-item t]
     ["Reset head" magit-reset-head t]
     ["Reset working tree" magit-reset-working-tree t]
@@ -1018,6 +1021,27 @@ Please see the manual for a complete description of Magit.
 (defun magit-refresh-all ()
   (interactive)
   (magit-for-all-buffers #'magit-refresh-buffer default-directory))
+
+;;; Untracked files
+
+(defun magit-wash-untracked-file ()
+  (if (looking-at "^? \\(.*\\)$")
+      (let ((file (match-string-no-properties 1)))
+	(delete-region (point) (+ (line-end-position) 1))
+	(magit-with-section file 'file
+	  (magit-set-section-info file)
+	  (insert "\t" file "\n"))
+	t)
+    nil))
+
+(defun magit-wash-untracked-files ()
+  (magit-wash-sequence #'magit-wash-untracked-file))
+
+(defun magit-insert-untracked-files ()
+  (magit-insert-section 'untracked "Untracked files:"
+			'magit-wash-untracked-files
+			magit-collapse-threshold
+			"git" "ls-files" "-t" "--others" "--exclude-standard"))
 
 ;;; Diffs and Hunks
 
@@ -1200,7 +1224,7 @@ Please see the manual for a complete description of Magit.
   (let ((magit-hide-diffs t))
     (magit-insert-section 'unstaged title 'magit-wash-diffs
 			  magit-collapse-threshold
-			  "sh" "-c" "git ls-files -t --others --exclude-standard; git diff")))
+			  "git" "diff")))
 
 (defun magit-insert-staged-changes ()
   (let ((magit-hide-diffs t))
@@ -1330,6 +1354,7 @@ Please see the manual for a complete description of Magit.
 	  (if rebase
 	      (insert (apply 'format "Rebasing: %s (%s of %s)\n" rebase))))
 	(insert "\n")
+	(magit-insert-untracked-files)
 	(magit-insert-pending-changes)
 	(magit-insert-pending-commits)
 	(when remote
@@ -1361,7 +1386,7 @@ Please see the manual for a complete description of Magit.
   "Add the item at point to the staging area."
   (interactive)
   (magit-section-action (item info "stage")
-    ((unstaged file)
+    ((untracked file)
      (magit-run "git" "add" info))
     ((unstaged diff hunk)
      (if (magit-hunk-item-is-conflict-p item)
@@ -1962,18 +1987,29 @@ Prefix arg means justify as well."
 
 ;;; Miscellaneous
 
+(defun magit-ignore-file (file edit local)
+  (let ((ignore-file (if local ".git/info/exclude" ".gitignore")))
+    (if edit
+	(setq file (read-string "File to ignore: " file)))
+    (append-to-file (concat "/" file "\n") nil ignore-file)
+    (magit-need-refresh)))
+
 (defun magit-ignore-item ()
   (interactive)
   (magit-section-action (item info "ignore")
-    ((unstaged file)
-     (append-to-file (concat "/" info "\n")
-		     nil ".gitignore")
-     (magit-need-refresh))))
+    ((untracked file)
+     (magit-ignore-file info current-prefix-arg nil))))
+
+(defun magit-ignore-item-locally ()
+  (interactive)
+  (magit-section-action (item info "ignore")
+    ((untracked file)
+     (magit-ignore-file info current-prefix-arg t))))
 
 (defun magit-discard-item ()
   (interactive)
   (magit-section-action (item info "discard")
-    ((unstaged file)
+    ((untracked file)
      (if (yes-or-no-p (format "Delete %s? " info))
 	 (magit-run "rm" info)))
     ((unstaged diff hunk)
@@ -2002,7 +2038,7 @@ Prefix arg means justify as well."
 (defun magit-visit-item ()
   (interactive)
   (magit-section-action (item info "visit")
-    ((unstaged file)
+    ((untracked file)
      (find-file info))
     ((diff)
      (find-file (magit-diff-item-file item)))
