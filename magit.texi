@@ -99,11 +99,14 @@ about the working tree and the staging area.  Only sections that are
 not empty are shown.
 
 You control how much of a section is visible by moving point to its
-title and hitting @kbd{TAB}.  This will cycle through three visibility
-states of the section: fully visible, fully hidden (expect for the
-first line), and collapsed, where only the first lines of the children
-are visible.  You can also control the visibility of sub-sections in
-this way.
+title and hitting @kbd{TAB} or @kbd{S-TAB}.  Hitting @kbd{TAB} will
+toggle between hiding and showing the section.  A hidden section only
+shows its first line.  You can also control the visibility of
+sub-sections in this way.  Hitting @kbd{S-TAB} will fully expand a
+section by showing it and all of its sub-sections.  If a section is
+already fully expanded, @kbd{S-TAB} will collapse it: the section
+itself remains shown, but all its immediate sub-sections are hidden.
+
 The first section shows @emph{Untracked files}, if there are any.  See
 @ref{Untracked files} for more details.
 

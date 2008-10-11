@@ -36,6 +36,8 @@
 
 ;; For 0.6:
 ;;
+;; - Clean up hide/show logic.
+;;
 ;; Later:
 ;;
 ;; - Tags
@@ -539,6 +541,10 @@ Many Magit faces inherit from this one by default."
       (dolist (c (magit-section-children section))
 	(magit-section-set-hidden c (magit-section-hidden c)))))
 
+(defun magit-section-any-hidden (section)
+  (or (magit-section-hidden section)
+      (some #'magit-section-any-hidden (magit-section-children section))))
+
 (defun magit-section-collapse (section)
   (dolist (c (magit-section-children section))
     (setf (magit-section-hidden c) t))
@@ -547,6 +553,15 @@ Many Magit faces inherit from this one by default."
 (defun magit-section-expand (section)
   (dolist (c (magit-section-children section))
     (setf (magit-section-hidden c) nil))
+  (magit-section-set-hidden section nil))
+
+(defun magit-section-expand-all-aux (section)
+  (dolist (c (magit-section-children section))
+    (setf (magit-section-hidden c) nil)
+    (magit-section-expand-all-aux c)))
+
+(defun magit-section-expand-all (section)
+  (magit-section-expand-all-aux section)
   (magit-section-set-hidden section nil))
 
 (defun magit-section-hideshow (flag-or-func)
@@ -579,6 +594,15 @@ Many Magit faces inherit from this one by default."
    (lambda (s)
      (magit-section-set-hidden s (not (magit-section-hidden s))))))
 
+(defun magit-expand-collapse-section ()
+  (interactive)
+  (magit-section-hideshow
+   (lambda (s)
+     (cond ((magit-section-any-hidden s)
+	    (magit-section-expand-all s))
+	   (t
+	    (magit-section-collapse s))))))
+  
 (defun magit-cycle-section ()
   (interactive)
   (magit-section-hideshow
@@ -789,7 +813,8 @@ Many Magit faces inherit from this one by default."
     (suppress-keymap map t)
     (define-key map (kbd "n") 'magit-goto-next-section)
     (define-key map (kbd "p") 'magit-goto-previous-section)
-    (define-key map (kbd "TAB") 'magit-cycle-section)
+    (define-key map (kbd "TAB") 'magit-toggle-section)
+    (define-key map (kbd "<backtab>") 'magit-expand-collapse-section)
     (define-key map (kbd "1") 'magit-jump-to-untracked)
     (define-key map (kbd "2") 'magit-jump-to-unstaged)
     (define-key map (kbd "3") 'magit-jump-to-staged)
