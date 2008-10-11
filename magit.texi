@@ -155,15 +155,23 @@ changes} section shows the changes that will be included in the next
 commit, while the @emph{Unstaged changes} section shows the changes
 that will be left out.
 
-You can discard uncommitted changes by moving point into a hunk and
-typing @kbd{k}.
-
 To move a unstaged hunk into the staging area, move point into the
 hunk and type @kbd{s}.  Likewise, to unstage a hunk, move point into
 it and type @kbd{u}.  If point is in a diff header when you type
 @kbd{s} or @kbd{u}, all hunks belonging to that diff are moved at the
-same time.  To move all hunks of all diffs into the staging area in
-one go, type @kbd{S}.  To unstage everything, type @kbd{U}.
+same time.
+
+If the region is active when you type @kbd{s} or @kbd{u}, only the
+changes in the region are staged or unstaged.  (This works line by
+line: if the beginning of a line is in the region it is included in
+the changes, otherwise it is not.)
+
+To move all hunks of all diffs into the staging area in one go, type
+@kbd{S}.  To unstage everything, type @kbd{U}.
+
+You can discard uncommitted changes by moving point into a hunk and
+typing @kbd{k}.  The changes to discard are selected as with @kbd{s}
+and @kbd{u}.
 
 Before committing, you should write a short description of the
 changes.
@@ -245,6 +253,14 @@ The resulting buffer is just like the buffer produced by @kbd{l} and
 To show the changes from you working tree to another revision, type
 @kbd{d}.  To show the changes between two arbitrary revisions, type
 @kbd{D}.
+
+You can use @kbd{a} within the diff output to apply the changes to
+your working tree.  As usual when point is in a diff header for a
+file, all changes for that file are applied, and when it is in a hunk,
+only that hunk is.  When the region is active, the applied changes are
+restricted to that region.
+
+Typing @kbd{v} will apply the selected changes in reverse.
 
 @node Resetting
 @chapter Resetting

@@ -221,6 +221,17 @@ Many Magit faces inherit from this one by default."
   (buffer-substring-no-properties (line-beginning-position)
 				  (line-end-position)))
 
+(defun magit-insert-region (beg end buf)
+  (let ((text (buffer-substring-no-properties beg end)))
+    (with-current-buffer buf
+      (insert text))))
+
+(defun magit-insert-current-line (buf)
+  (let ((text (buffer-substring-no-properties
+	       (line-beginning-position) (line-beginning-position 2))))
+    (with-current-buffer buf
+      (insert text))))
+
 (defun magit-file-uptodate-p (file)
   (eq (magit-shell-exit-code "git diff --quiet -- %s" file) 0))
 
@@ -719,7 +730,7 @@ Many Magit faces inherit from this one by default."
 (defvar magit-process-client-buffer nil)
 
 (defun magit-run* (cmd-and-args
-		       &optional logline noerase noerror nowait)
+		   &optional logline noerase noerror nowait input)
   (let ((cmd (car cmd-and-args))
 	(args (cdr cmd-and-args))
 	(dir default-directory)
@@ -746,6 +757,13 @@ Many Magit faces inherit from this one by default."
 	     (set-process-sentinel magit-process 'magit-process-sentinel)
 	     (set-process-filter magit-process 'magit-process-filter)
 	     (setq successp t))
+	    (input
+	     (with-current-buffer input
+	       (setq successp
+		     (equal (apply 'call-process-region (point-min) (point-max)
+				   cmd nil buf nil args) 0)))
+	     (magit-set-mode-line-process nil)
+	     (magit-need-refresh magit-process-client-buffer))
 	    (t
 	     (setq successp
 		   (equal (apply 'call-process cmd nil buf nil args) 0))
@@ -784,6 +802,10 @@ Many Magit faces inherit from this one by default."
 (defun magit-run (cmd &rest args)
   (magit-with-refresh
     (magit-run* (cons cmd args))))
+
+(defun magit-run-with-input (input cmd &rest args)
+  (magit-with-refresh
+    (magit-run* (cons cmd args) nil nil nil nil input)))
 
 (defun magit-run-shell (fmt &rest args)
   (let ((cmd (apply #'format fmt (mapcar #'magit-escape-for-shell args))))
@@ -1187,7 +1209,7 @@ Please see the manual for a complete description of Magit.
 	(error "Huh?  Parent of hunk not a diff."))
     diff))
 
-(defun magit-diff-item-write-header (diff file &optional append-p)
+(defun magit-diff-item-insert-header (diff buf)
   (let ((beg (save-excursion 
 	       (goto-char (magit-section-beginning diff))
 	       (forward-line)
@@ -1195,24 +1217,40 @@ Please see the manual for a complete description of Magit.
 	(end (if (magit-section-children diff)
 		 (magit-section-beginning (car (magit-section-children diff)))
 	       (magit-section-end diff))))
-    (write-region beg end file append-p)))
+    (magit-insert-region beg end buf)))
 
-(defun magit-diff-item-write (diff file &optional append-p)
+(defun magit-insert-diff-item-patch (diff buf)
   (let ((beg (save-excursion 
 	       (goto-char (magit-section-beginning diff))
 	       (forward-line)
 	       (point)))
 	(end (magit-section-end diff)))
-    (write-region beg end file append-p)))
+    (magit-insert-region beg end buf)))
 
-(defun magit-write-diff-item-patch (diff file)
-  (write-region (magit-section-beginning diff) (magit-section-end diff)
-		file))
+(defun magit-insert-hunk-item-patch (hunk buf)
+  (magit-diff-item-insert-header (magit-hunk-item-diff hunk) buf)
+  (magit-insert-region (magit-section-beginning hunk) (magit-section-end hunk)
+		       buf))
 
-(defun magit-write-hunk-item-patch (hunk file)
-  (magit-diff-item-write-header (magit-hunk-item-diff hunk) file)
-  (write-region (magit-section-beginning hunk) (magit-section-end hunk)
-		file t))
+(defun magit-insert-hunk-item-region-patch (hunk beg end buf)
+  (magit-diff-item-insert-header (magit-hunk-item-diff hunk) buf)
+  (save-excursion
+    (goto-char (magit-section-beginning hunk))
+    (magit-insert-current-line buf)
+    (forward-line)
+    (while (< (point) (magit-section-end hunk))
+      (if (and (<= beg (point)) (< (point) end))
+	  (magit-insert-current-line buf)
+	(cond ((looking-at " ")
+	       (magit-insert-current-line buf))
+	      ((looking-at "-")
+	       (let ((text (buffer-substring-no-properties
+			    (+ (point) 1) (line-beginning-position 2))))
+		 (with-current-buffer buf
+		   (insert " " text))))))
+      (forward-line)))
+  (with-current-buffer buf
+    (diff-fixup-modifs (point-min) (point-max))))
 
 (defun magit-hunk-item-is-conflict-p (hunk)
   ;;; XXX - Using the title is a bit too clever...
@@ -1238,12 +1276,21 @@ Please see the manual for a complete description of Magit.
 	target))))
 
 (defun magit-apply-diff-item (diff &rest args)
-  (magit-write-diff-item-patch diff ".git/magit-tmp")
-  (apply #'magit-run "git" "apply" (append args (list ".git/magit-tmp"))))
+  (with-current-buffer (get-buffer-create "*magit-tmp*")
+    (erase-buffer))
+  (magit-insert-diff-item-patch diff "*magit-tmp*")
+  (apply #'magit-run "git" "apply" (append args (list "-"))))
 
 (defun magit-apply-hunk-item (hunk &rest args)
-  (magit-write-hunk-item-patch hunk ".git/magit-tmp")
-  (apply #'magit-run "git" "apply" (append args (list ".git/magit-tmp"))))
+  (let ((tmp (get-buffer-create "*magit-tmp*")))
+    (with-current-buffer tmp
+      (erase-buffer))
+    (if (use-region-p)
+	(magit-insert-hunk-item-region-patch
+	 hunk (region-beginning) (region-end) tmp)
+      (magit-insert-hunk-item-patch hunk tmp))
+    (apply #'magit-run-with-input tmp
+	   "git" "apply" (append args (list "-")))))
 
 (defun magit-insert-unstaged-changes (title)
   (let ((magit-hide-diffs t))
@@ -2031,6 +2078,20 @@ Prefix arg means justify as well."
     ((untracked file)
      (magit-ignore-file info current-prefix-arg t))))
 
+(defun magit-discard-diff (diff)
+  (let ((kind (magit-diff-item-kind item))
+	(file (magit-diff-item-file item)))
+    (cond ((eq kind 'deleted)
+	   (when (yes-or-no-p (format "Resurrect %s? " file))
+	     (magit-shell "git reset -q -- %s" file)
+	     (magit-run "git" "checkout" "--" file)))
+	  ((eq kind 'new)
+	   (if (yes-or-no-p (format "Delete %s? " file))
+	       (magit-run "git" "rm" "-f" "--" file)))
+	  (t
+	   (if (yes-or-no-p (format "Discard changes to %s? " file))
+	       (magit-run "git" "checkout" "--" file))))))
+
 (defun magit-discard-item ()
   (interactive)
   (magit-section-action (item info "discard")
@@ -2046,20 +2107,15 @@ Prefix arg means justify as well."
 	 (when (yes-or-no-p "Discard hunk? ")
 	   (magit-apply-hunk-item item "--reverse" "--index"))
        (error "Can't discard this hunk.  Please unstage it first.")))
+    ((unstaged diff)
+     (magit-discard-diff item))
+    ((staged diff)
+     (magit-discard-diff item))
+    ((hunk)
+     (error "Can't discard this hunk"))
     ((diff)
-     (let ((kind (magit-diff-item-kind item))
-	   (file (magit-diff-item-file item)))
-       (cond ((eq kind 'deleted)
-	      (when (yes-or-no-p (format "Resurrect %s? " file))
-		(magit-shell "git reset -q -- %s" file)
-		(magit-run "git" "checkout" "--" file)))
-	     ((eq kind 'new)
-	      (if (yes-or-no-p (format "Delete %s? " file))
-		  (magit-run "git" "rm" "-f" "--" file)))
-	     (t
-	      (if (yes-or-no-p (format "Discard changes to %s? " file))
-		  (magit-run "git" "checkout" "--" file))))))))
-
+     (error "Can't discard this diff"))))
+     
 (defun magit-visit-item ()
   (interactive)
   (magit-section-action (item info "visit")
