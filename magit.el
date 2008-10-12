@@ -53,6 +53,7 @@
 (require 'parse-time)
 (require 'log-edit)
 (require 'easymenu)
+(require 'diff-mode)
 
 (defgroup magit nil
   "Controlling Git from Emacs."
@@ -121,6 +122,11 @@ Many Magit faces inherit from this one by default."
   :group 'magit)
 
 ;;; Utilities
+
+(defun magit-use-region-p ()
+  (if (fboundp 'use-region-p)
+      (use-region-p)
+    (and transient-mark-mode mark-active)))
 
 (defun magit-goto-line (line)
   ;; Like goto-line but doesn't set the mark.
@@ -1285,7 +1291,7 @@ Please see the manual for a complete description of Magit.
   (let ((tmp (get-buffer-create "*magit-tmp*")))
     (with-current-buffer tmp
       (erase-buffer))
-    (if (use-region-p)
+    (if (magit-use-region-p)
 	(magit-insert-hunk-item-region-patch
 	 hunk (region-beginning) (region-end) tmp)
       (magit-insert-hunk-item-patch hunk tmp))
@@ -2079,8 +2085,8 @@ Prefix arg means justify as well."
      (magit-ignore-file info current-prefix-arg t))))
 
 (defun magit-discard-diff (diff)
-  (let ((kind (magit-diff-item-kind item))
-	(file (magit-diff-item-file item)))
+  (let ((kind (magit-diff-item-kind diff))
+	(file (magit-diff-item-file diff)))
     (cond ((eq kind 'deleted)
 	   (when (yes-or-no-p (format "Resurrect %s? " file))
 	     (magit-shell "git reset -q -- %s" file)
