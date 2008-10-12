@@ -47,10 +47,10 @@ as an extension to Emacs.
 @node Introduction
 @chapter Introduction
 
-With Magit, you can inspect and modify any number of Git repositories.
-You can review and commit the changes you have made to the tracked
-files, for example, and you can browse the history of past changes.
-There is also support for cherry picking, reverting, merging and
+With Magit, you can inspect and modify your Git repositories with
+Emacs.  You can review and commit the changes you have made to the
+tracked files, for example, and you can browse the history of past
+changes.  There is support for cherry picking, reverting, merging,
 rebasing, and other common Git operations.
 
 Magit is not a complete interface to Git; it just aims to make the
@@ -70,6 +70,10 @@ show lists of commits, buffers with diffs, and other kinds of buffers.
 All these buffers are in @code{magit-mode} and have the same key
 bindings.  Not all commands make sense in all contexts, but a given
 key will always do the same thing in all Magit buffers.
+
+Naturally, Magit runs the @code{git} command to do most of the work.
+The @code{*magit-process*} buffer contains the transcript of the most
+recent command.  You can switch to it with @kbd{$}.
 
 @node Acknowledgments
 @chapter Acknowledgments
