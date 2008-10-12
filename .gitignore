@@ -22,3 +22,13 @@
 /magit-0.6.tar.gz
 *.elc
 *~
+/magit.aux
+/magit.cp
+/magit.dvi
+/magit.fn
+/magit.ky
+/magit.log
+/magit.pg
+/magit.toc
+/magit.tp
+/magit.vr
