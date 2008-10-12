@@ -1,3 +1,9 @@
+magit (0.7-1~unreleased) unstable; urgency=low
+
+  * 
+
+ -- Marius Vollmer <marius.vollmer@gmail.com>  Mon, 13 Oct 2008 00:40:08 +0300
+
 magit (0.6-1) unstable; urgency=low
 
   Almost everything has changed.  Please read the manual again.  Some
