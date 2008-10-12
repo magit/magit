@@ -1834,13 +1834,14 @@ Prefix arg means justify as well."
     (magit-log-edit-setup-author-env author)
     (magit-log-edit-set-fields nil)
     (magit-log-edit-cleanup)
-    (if (> (buffer-size) 0)
-	(write-region (point-min) (point-max) ".git/magit-log")
-      (write-region "(Empty description)" nil ".git/magit-log"))
-    (with-current-buffer (magit-find-buffer 'status default-directory)
-      (apply #'magit-run "git" "commit" "-F" ".git/magit-log"
-	     (append (if (not (magit-anything-staged-p)) '("--all") '())
-		     (if amend '("--amend") '()))))
+    (if (= (buffer-size) 0)
+	(insert "(Empty description)\n"))
+    (let ((commit-buf (current-buffer)))
+      (with-current-buffer (magit-find-buffer 'status default-directory)
+	(apply #'magit-run-with-input commit-buf
+	       "git" "commit" "-F" "-"
+	       (append (if (not (magit-anything-staged-p)) '("--all") '())
+		       (if amend '("--amend") '())))))
     (erase-buffer)
     (bury-buffer)
     (when magit-pre-log-edit-window-configuration
