@@ -128,7 +128,7 @@ to @emph{Unstaged changes}, not the third visible section.
 @node Untracked files
 @chapter Untracked files
 
-Untracked files are shown in the @emph{Untracked changes} section.
+Untracked files are shown in the @emph{Untracked files} section.
 
 You can instruct Git to ignore them by typing @kbd{i}.  This will add
 the filename to the @code{.gitignore} file.  Typing @kbd{C-u i} will
