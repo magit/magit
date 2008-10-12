@@ -1,8 +1,18 @@
-magit (0.6-1~unreleased) unstable; urgency=low
+magit (0.6-1) unstable; urgency=low
 
-  * 
+  Almost everything has changed.  Please read the manual again.  Some
+  highlights:
 
- -- Marius Vollmer <marius.vollmer@uni-dortmund.de>  Sat, 16 Aug 2008 16:17:39 +0300
+  * Magit now works with Git 1.6.0.  (John Wiegley)
+
+  * Support for interactive rewriting.
+
+  * Sections can be shown and hidden.
+
+  * Staging, unstaging, applying, reverting and discarding changes can now
+    be done line-by-line, not only hunk-by-hunk.
+
+ -- Marius Vollmer <marius.vollmer@gmail.com>  Mon, 13 Oct 2008 00:32:44 +0300
 
 magit (0.5-1) unstable; urgency=low
 

@@ -34,12 +34,6 @@
 
 ;;; TODO
 
-;; For 0.6:
-;;
-;; - Clean up hide/show logic.
-;;
-;; Later:
-;;
 ;; - Tags
 ;; - Visiting from staged hunks doesn't always work since the line
 ;;   numbers don't refer to the working tree.  Fix that somehow.
