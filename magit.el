@@ -759,6 +759,7 @@ Many Magit faces inherit from this one by default."
 	     (setq successp t))
 	    (input
 	     (with-current-buffer input
+	       (setq default-directory dir)
 	       (setq successp
 		     (equal (apply 'call-process-region (point-min) (point-max)
 				   cmd nil buf nil args) 0)))
