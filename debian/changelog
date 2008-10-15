@@ -1,6 +1,6 @@
-magit (0.7-1~unreleased) unstable; urgency=low
+magit (0.6.1-1) unstable; urgency=low
 
-  * 
+  * Fixed a bug that screwed up working with multiple repositories.
 
  -- Marius Vollmer <marius.vollmer@gmail.com>  Mon, 13 Oct 2008 00:40:08 +0300
 
