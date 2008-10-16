@@ -1,3 +1,9 @@
+magit (0.7-1~unreleased) unstable; urgency=low
+
+  * 
+
+ -- Marius Vollmer <marius.vollmer@gmail.com>  Thu, 16 Oct 2008 22:20:31 +0300
+
 magit (0.6.1-1) unstable; urgency=low
 
   * Fixed a bug that screwed up working with multiple repositories.
