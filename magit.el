@@ -2167,9 +2167,8 @@ Prefix arg means justify as well."
 	  (magit-mode-init dir 'diff #'magit-refresh-diff-buffer range args)))))
 
 (defun magit-diff-working-tree (rev)
-  (interactive (list (magit-read-rev "Diff with")))
-  (if rev
-      (magit-diff rev)))
+  (interactive (list (magit-read-rev "Diff with (default HEAD)")))
+  (magit-diff (or rev "HEAD")))
 
 (defun magit-diff-with-mark ()
   (interactive)
