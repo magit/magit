@@ -112,6 +112,16 @@ Many Magit faces inherit from this one by default."
   "Face for highlighting the current item."
   :group 'magit)
 
+(defface magit-log-tag-label
+  '((t :background "DarkGoldenRod"))
+  "Face for git tag labels shown in log buffer."
+  :group 'magit)
+
+(defface magit-log-head-label
+  '((t :background "DarkGreen"))
+  "Face for branch head labels shown in log buffer."
+  :group 'magit)
+
 ;;; Macros
 
 (defmacro magit-with-refresh (&rest body)
@@ -1319,6 +1329,31 @@ Please see the manual for a complete description of Magit.
 
 ;;; Logs and Commits
 
+(defun magit-parse-log-ref (refname)
+  "Return shortened and propertized version of full REFNAME, like
+\"refs/remotes/origin/master\"."
+  (let ((face 'magit-log-head-label))
+    (cond ((string-match "^\\(tag: +\\)?refs/tags/\\(.+\\)" refname)
+           (setq refname (match-string 2 refname)
+                 face 'magit-log-tag-label))
+          ((string-match "^refs/remotes/\\(.+\\)" refname)
+           (setq refname (match-string 1 refname)))
+          ((string-match "[^/]+$" refname)
+           (setq refname (match-string 0 refname))))
+    (propertize refname 'face face)))
+
+(defun magit-parse-log-refs (refstring)
+  "Parse REFSTRING annotation from `git log --decorate'
+output (for example: \"refs/remotes/origin/master,
+refs/heads/master\") and return prettified string for displaying
+in log buffer."
+  (mapconcat 'identity
+             (mapcar 'magit-parse-log-ref
+                     (remove-if (lambda (refname)
+                                  (string-match "/HEAD$" refname))
+                                (reverse (split-string refstring ", *" t))))
+             " - "))
+
 (defun magit-wash-log-line ()
   (if (search-forward-regexp "[0-9a-fA-F]\\{40\\}" (line-end-position) t)
       (let ((commit (match-string-no-properties 0)))
@@ -1326,6 +1361,12 @@ Please see the manual for a complete description of Magit.
 	(goto-char (match-beginning 0))
 	(fixup-whitespace)
 	(goto-char (line-beginning-position))
+        (when (search-forward-regexp "^[|*\\/ ]+\\((\\(tag:.+?\\|refs/.+?\\))\\)"
+                                     (line-end-position) t)
+          (let ((refstring (match-string-no-properties 2)))
+            (delete-region (match-beginning 1) (match-end 1))
+            (insert (magit-parse-log-refs refstring)))
+          (goto-char (line-beginning-position)))
 	(magit-with-section commit 'commit
 	  (magit-set-section-info commit)
 	  (forward-line)))
@@ -2092,6 +2133,7 @@ Prefix arg means justify as well."
      (magit-apply-diff-item item "--reverse"))))
 
 (defvar magit-have-graph 'unset)
+(defvar magit-have-decorate 'unset)
 
 (defun magit-configure-have-graph ()
   (if (eq magit-have-graph 'unset)
@@ -2099,13 +2141,20 @@ Prefix arg means justify as well."
 	(message "result %s" res)
 	(setq magit-have-graph (eq res 0)))))
 
+(defun magit-configure-have-decorate ()
+  (if (eq magit-have-decorate 'unset)
+      (let ((res (magit-shell-exit-code "git log --decorate --max-count=0")))
+	(setq magit-have-decorate (eq res 0)))))
+
 (defun magit-refresh-log-buffer (range args)
   (magit-configure-have-graph)
+  (magit-configure-have-decorate)
   (magit-create-buffer-sections
     (apply #'magit-insert-section 'log
 	   (magit-rev-range-describe range "Commits")
 	   'magit-wash-log nil
 	   `("git" "log" "--max-count=1000" "--pretty=oneline"
+             ,@(if magit-have-decorate (list "--decorate"))
 	     ,@(if magit-have-graph (list "--graph"))
 	     ,args))))
 
