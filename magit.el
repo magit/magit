@@ -1397,8 +1397,9 @@ in log buffer."
 			  "git" "log" "--max-count=1" "--cc" "-p" commit)))
 
 (defun magit-show-commit (commit &optional scroll)
+  (when (magit-section-p commit)
+    (setq commit (magit-section-info commit)))
   (let ((dir default-directory)
-	(commit (magit-commit-at-point))
 	(buf (get-buffer-create "*magit-commit*")))
     (cond ((equal magit-currently-shown-commit commit)
 	   (let ((win (get-buffer-window buf)))
