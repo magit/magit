@@ -244,6 +244,9 @@ the changes made by that commit in reverse.  This is obviously useful
 to cleanly undo changes that turned out to be wrong.  As with @kbd{a},
 you need to commit the changes explicitly.
 
+Typing @kbd{C-w} will copy the sha1 of the current commit into the
+kill ring.
+
 Typing @kbd{=} will show the differences from the current commit to
 the @dfn{marked} commit.
 

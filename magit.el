@@ -889,6 +889,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "RET") 'magit-visit-item)
     (define-key map (kbd "SPC") 'magit-show-item-or-scroll-up)
     (define-key map (kbd "DEL") 'magit-show-item-or-scroll-down)
+    (define-key map (kbd "C-w") 'magit-copy-item-as-kill)
     (define-key map (kbd "b") 'magit-checkout)
     (define-key map (kbd "B") 'magit-create-branch)
     (define-key map (kbd "m") 'magit-manual-merge)
@@ -2335,5 +2336,13 @@ Prefix arg means justify as well."
 	     (magit-section-end section)
 	     (magit-section-title section)
 	     (magit-section-info section))))
+
+(defun magit-copy-item-as-kill ()
+  "Copy sha1 of commit at point into kill ring."
+  (interactive)
+  (magit-section-action (item info "copy")
+    ((commit)
+     (kill-new info)
+     (message "%s" info))))
 
 (provide 'magit)
