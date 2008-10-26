@@ -114,6 +114,12 @@ Many Magit faces inherit from this one by default."
   "Face for highlighting the current item."
   :group 'magit)
 
+;;; Macros
+
+(defmacro magit-with-refresh (&rest body)
+  (declare (indent 0))
+  `(magit-refresh-wrapper (lambda () ,@body)))
+
 ;;; Utilities
 
 (defun magit-use-region-p ()
@@ -1055,10 +1061,6 @@ Please see the manual for a complete description of Magit.
     (when (not (memq buffer magit-refresh-needing-buffers))
       (setq magit-refresh-needing-buffers
 	    (cons buffer magit-refresh-needing-buffers)))))
-
-(defmacro magit-with-refresh (&rest body)
-  (declare (indent 0))
-  `(magit-refresh-wrapper (lambda () ,@body)))
 
 (defun magit-refresh ()
   (interactive)
