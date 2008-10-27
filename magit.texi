@@ -122,6 +122,10 @@ If the current branch is associated with a remote tracking branch, the
 status buffer shows the differences between the current branch and the
 tracking branch.  See @ref{Pushing and Pulling} for more information.
 
+During a history rewriting session, the status buffer shows the
+@emph{Pending changes} and @emph{Pending commits} sections.  See
+@ref{Rewriting} for more details.
+
 Typing a digit in the status buffer will move point to a section
 header: @kbd{1} will move to @emph{Untracked files}, @kbd{2} will move
 to @emph{Unstaged changes} or @emph{Changes}, @kbd{3} will move to
@@ -134,6 +138,8 @@ to @emph{Unstaged changes}, not the third visible section.
 
 Untracked files are shown in the @emph{Untracked files} section.
 
+You can add a untracked file to the staging area with @kbd{s}.
+
 You can instruct Git to ignore them by typing @kbd{i}.  This will add
 the filename to the @code{.gitignore} file.  Typing @kbd{C-u i} will
 ask you for the name of the file to ignore.  This is useful to ignore
@@ -145,10 +151,10 @@ To delete a untracked file forever, use @kbd{k}.
 @node Staging and Committing
 @chapter Staging and Committing
 
-Comitting with Git is conceptually a two step process: first you add
-the changes you want to commit to a 'staging area', and then you
-commit them to the repository.  This allows you to only commit a
-subset of your local changes.
+Comitting with Git is a two step process: first you add the changes
+you want to commit to a 'staging area', and then you commit them to
+the repository.  This allows you to only commit a subset of your local
+changes.
 
 Magit allows you to ignore the staging area if you wish.  As long as
 your staging area is unused, Magit will show your uncomitted changes
