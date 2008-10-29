@@ -205,7 +205,7 @@ Many Magit faces inherit from this one by default."
 
 (defun magit-name-rev (rev)
   (and rev
-       (let ((name (magit-shell "git name-rev --always --name-only %s" rev)))
+       (let ((name (magit-shell "git name-rev --name-only %s" rev)))
 	 (if (or (not name) (string= name "undefined"))
 	     rev
 	   name))))
