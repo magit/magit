@@ -1389,14 +1389,14 @@ Please see the manual for a complete description of Magit.
   (magit-insert-section 'unpulled
 			"Unpulled commits:" 'magit-wash-log
 			nil
-			"git" "log" "--graph" "--pretty=oneline"
+			"git" "log" "--pretty=oneline"
 			(format "HEAD..%s/%s" remote branch)))
 
 (defun magit-insert-unpushed-commits (remote branch)
   (magit-insert-section 'unpushed
 			"Unpushed commits:" 'magit-wash-log
 			nil
-			"git" "log" "--graph" "--pretty=oneline"
+			"git" "log" "--pretty=oneline"
 			(format "%s/%s..HEAD" remote branch)))
 
 ;;; Status
@@ -1986,13 +1986,23 @@ Prefix arg means justify as well."
     ((diff)
      (magit-apply-diff-item item "--reverse"))))
 
+(defvar magit-have-graph 'unset)
+
+(defun magit-configure-have-graph ()
+  (if (eq magit-have-graph 'unset)
+      (let ((res (magit-shell-exit-code "git log --graph --max-count=0")))
+	(message "result %s" res)
+	(setq magit-have-graph (eq res 0)))))
+
 (defun magit-refresh-log-buffer (range args)
+  (magit-configure-have-graph)
   (magit-create-buffer-sections
-    (magit-insert-section 'log
-			  (magit-rev-range-describe range "Commits")
-			  'magit-wash-log nil
-			  "git" "log" "--graph" "--max-count=1000"
-			  "--pretty=oneline" args)))
+    (apply #'magit-insert-section 'log
+	   (magit-rev-range-describe range "Commits")
+	   'magit-wash-log nil
+	   `("git" "log" "--max-count=1000" "--pretty=oneline"
+	     ,@(if magit-have-graph (list "--graph"))
+	     ,args))))
 
 (defun magit-log (range)
   (interactive (list (magit-read-rev-range "Log" (magit-get-current-branch))))
