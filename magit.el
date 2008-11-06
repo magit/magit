@@ -1390,14 +1390,14 @@ Please see the manual for a complete description of Magit.
   (magit-insert-section 'unpulled
 			"Unpulled commits:" 'magit-wash-log
 			nil
-			"git" "log" "--pretty=oneline"
+			"git" "log" "--pretty=format:* %H %s"
 			(format "HEAD..%s/%s" remote branch)))
 
 (defun magit-insert-unpushed-commits (remote branch)
   (magit-insert-section 'unpushed
 			"Unpushed commits:" 'magit-wash-log
 			nil
-			"git" "log" "--pretty=oneline"
+			"git" "log" "--pretty=format:* %H %s"
 			(format "%s/%s..HEAD" remote branch)))
 
 ;;; Status
