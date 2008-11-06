@@ -268,7 +268,8 @@ Many Magit faces inherit from this one by default."
 ;;; Revisions and ranges
 
 (defun magit-list-interesting-revisions ()
-  (magit-shell-lines "git branch -a | cut -c3-"))
+  (append (magit-shell-lines "git branch -a | cut -c3-")
+	  (magit-shell-lines "git tag")))
 
 (defun magit-read-rev (prompt &optional def)
   (let* ((prompt (if def
