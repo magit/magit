@@ -36,6 +36,7 @@ as an extension to Emacs.
 * History::                     
 * Reflogs::                     
 * Diffing::                     
+* Tagging::                     
 * Resetting::                   
 * Branching::                   
 * Merging::                     
@@ -438,21 +439,19 @@ it, like from any other diff.
 @node Pushing and Pulling
 @chapter Pushing and Pulling
 
-Magit will run @code{git push} when you type @kbd{P}.  You can type
-@kbd{$} to pop up a buffer with the transcript of running these
-commands.
+Magit will run @code{git push} when you type @kbd{P}.  If you give a
+prefix argument to @kbd{P}, you will be prompted for the repository to
+push to.  When no default remote repositor has been configured yet for
+the current branch, you will be prompted as well.  Typing @kbd{P} will
+only push the current branch to the remote.  In other words, it will
+run @code{git push <remote> <branch>}.
 
 Typing @kbd{f} will run @code{git remote update} and @kbd{F} will run
-@code{git pull}.
+@code{git pull}.  You should have setup your Git configuration to do
+the right thing for @code{git pull}.
 
-That's almost all the support for remote repositories that Magit
-offers.  You should have setup your Git configuration to do the right
-thing for @code{git push} and @code{git pull}.
-
-If you have configured a default remote repository for the current
-branch (by setting the Git config option
-@code{branch.<branch>.remote}), Magit will show that repository in the
-status buffer header.
+If there is a default remote repository for the current branch, Magit
+will show that repository in the status buffer header.
 
 In this case, the status buffer will also have a @emph{Unpushed
 commits} section that shows the commits on your current head that are

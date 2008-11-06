@@ -1716,20 +1716,27 @@ Please see the manual for a complete description of Magit.
   (interactive)
   (magit-run-async "git" "pull" "-v"))
 
-(defun magit-read-remote (prompt)
-  (completing-read prompt 
+(defun magit-read-remote (prompt def)
+  (completing-read (if def
+		       (format "%s (default %s): " prompt def)
+		     (format "%s: " prompt))
 		   (magit-shell-lines "git remote")
-		   nil nil nil nil nil))
+		   nil nil nil nil def))
 
 (defun magit-push ()
   (interactive)
   (let* ((branch (or (magit-get-current-branch)
 		     (error "Don't push a detached head. That's gross.")))
-	 (remote (and current-prefix-arg
-		      (magit-read-remote "Push to: "))))
-    (if remote
-	(magit-run-async "git" "push" "-v" remote)
-      (magit-run-async "git" "push" "-v"))))
+	 (branch-remote (magit-get "branch" branch "remote"))
+	 (push-remote (if (or current-prefix-arg
+			      (not branch-remote))
+			  (magit-read-remote (format "Push %s to" branch)
+					     branch-remote)
+			branch-remote)))
+    (if (and (not branch-remote)
+	     (not current-prefix-arg))
+	(magit-set push-remote "branch" branch "remote"))
+    (magit-run-async "git" "push" "-v" push-remote branch)))
 
 ;;; Log edit mode
 
