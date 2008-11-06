@@ -891,6 +891,8 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "F") 'magit-pull)
     (define-key map (kbd "c") 'magit-log-edit)
     (define-key map (kbd "C") 'magit-add-log)
+    (define-key map (kbd "t") 'magit-tag)
+    (define-key map (kbd "T") 'magit-annotated-tag)
     (define-key map (kbd "$") 'magit-display-process)
     (define-key map (kbd "q") 'quit-window)
     map))
@@ -907,6 +909,8 @@ Many Magit faces inherit from this one by default."
     ["Unstage all" magit-unstage-all t]
     ["Commit" magit-log-edit t]
     ["Add log entry" magit-add-log t]
+    ["Tag" magit-tag t]
+    ["Annotated tag" magit-annotated-tag t]
     "---"
     ["Diff working tree" magit-diff-working-tree t]
     ["Diff" magit-diff t]
@@ -1826,6 +1830,7 @@ Prefix arg means justify as well."
   (interactive)
   (let* ((fields (magit-log-edit-get-fields))
 	 (amend (equal (cdr (assq 'amend fields)) "yes"))
+	 (tag (cdr (assq 'tag fields)))
 	 (author (cdr (assq 'author fields))))
     (magit-log-edit-push-to-comment-ring (buffer-string))
     (magit-log-edit-setup-author-env author)
@@ -1835,10 +1840,15 @@ Prefix arg means justify as well."
 	(insert "(Empty description)\n"))
     (let ((commit-buf (current-buffer)))
       (with-current-buffer (magit-find-buffer 'status default-directory)
-	(apply #'magit-run-with-input commit-buf
-	       "git" "commit" "-F" "-"
-	       (append (if (not (magit-anything-staged-p)) '("--all") '())
-		       (if amend '("--amend") '())))))
+	(cond (tag
+	       (magit-run-with-input commit-buf
+				     "git" "tag" tag "-a" "-F" "-"))
+	      (t
+	       (apply #'magit-run-with-input commit-buf
+		      "git" "commit" "-F" "-"
+		      (append (if (not (magit-anything-staged-p))
+				  '("--all") '())
+			      (if amend '("--amend") '())))))))
     (erase-buffer)
     (bury-buffer)
     (when magit-pre-log-edit-window-configuration
@@ -1856,8 +1866,7 @@ Prefix arg means justify as well."
        (magit-format-commit "HEAD" "%s%n%n%b")))
     (magit-log-edit-set-fields fields)))
 
-(defun magit-log-edit ()
-  (interactive)
+(defun magit-pop-to-log-edit (operation)
   (let ((dir default-directory)
 	(buf (get-buffer-create "*magit-log-edit*")))
     (setq magit-pre-log-edit-window-configuration
@@ -1865,7 +1874,12 @@ Prefix arg means justify as well."
     (pop-to-buffer buf)
     (setq default-directory dir)
     (magit-log-edit-mode)
-    (message "Type C-c C-c to commit.")))
+    (message "Type C-c C-c to %s." operation)))
+
+(defun magit-log-edit ()
+  (interactive)
+  (magit-log-edit-set-field 'tag nil)
+  (magit-pop-to-log-edit "commit"))
 
 (defun magit-add-log ()
   (interactive)
@@ -1913,6 +1927,17 @@ Prefix arg means justify as well."
 			  (open-line 1)
 			(newline))
 		      (insert (format "(%s): " fun))))))))))
+
+;;; Tags
+
+(defun magit-tag (name)
+  (interactive "sNew tag name: ")
+  (magit-run "git" "tag" name))
+
+(defun magit-annotated-tag (name)
+  (interactive "sNew tag name: ")
+  (magit-log-edit-set-field 'tag name)
+  (magit-pop-to-log-edit "tag"))
 
 ;;; Commits
 

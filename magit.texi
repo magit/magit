@@ -273,6 +273,16 @@ restricted to that region.
 
 Typing @kbd{v} will apply the selected changes in reverse.
 
+@node Tagging
+@chapter Tagging
+
+Typing @kbd{t} will make a lighweight tag.  Typing @kbd{T} will make a
+annotated tag.  It will put you in the normal @code{*magit-log-edit}
+buffer for writing commit messages, but typing @kbd{C-c C-c} in it
+will make the tag instead.  This is controlled by the @code{Tag} field
+that will be added to the @code{*magit-log-edit*} buffer.  You can
+edit it, if you like.
+
 @node Resetting
 @chapter Resetting
 
