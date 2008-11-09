@@ -32,15 +32,14 @@
 
 ;;; TODO
 
+;; - Showing tags
+;; - Stashing.
 ;; - Amending commits other than HEAD.
-;; - Tags
 ;; - Visiting from staged hunks doesn't always work since the line
 ;;   numbers don't refer to the working tree.  Fix that somehow.
 ;; - Get current defun from removed lines in a diff
-;; - Recover more lost performance from the section rewrite.
 ;; - Equivalent of git-wtf, http://git-wt-commit.rubyforge.org/#git-wtf
 ;; - 'Subsetting', only looking at a subset of all files.
-;; - Stashing.
 
 (require 'cl)
 (require 'parse-time)
