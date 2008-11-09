@@ -1781,6 +1781,8 @@ Prefix arg means justify as well."
     (goto-char (point-max))
     (insert str "\n")))
 
+(defconst magit-log-header-end "-- End of Magit header --\n")
+
 (defun magit-log-edit-get-fields ()
   (let ((buf (get-buffer "*magit-log-edit*"))
 	(result nil))
@@ -1792,7 +1794,9 @@ Prefix arg means justify as well."
 	    (setq result (acons (intern (downcase (match-string 1)))
 				(match-string 2)
 				result))
-	    (forward-line))))
+	    (forward-line))
+	  (if (not (looking-at (regexp-quote magit-log-header-end)))
+	      (setq result nil))))
     (nreverse result)))
 
 (defun magit-log-edit-set-fields (fields)
@@ -1800,7 +1804,9 @@ Prefix arg means justify as well."
     (save-excursion
       (set-buffer buf)
       (goto-char (point-min))
-      (if (search-forward-regexp "^\\([A-Za-z0-9]+:.*\n\\)+\n?" nil t)
+      (if (search-forward-regexp (format "^\\([A-Za-z0-9]+:.*\n\\)+%s"
+					 (regexp-quote magit-log-header-end))
+				 nil t)
 	  (delete-region (match-beginning 0) (match-end 0)))
       (goto-char (point-min))
       (when fields
@@ -1808,7 +1814,7 @@ Prefix arg means justify as well."
 	  (insert (capitalize (symbol-name (caar fields))) ": "
 		  (cdar fields) "\n")
 	  (setq fields (cdr fields)))
-	(insert "\n")))))
+	(insert magit-log-header-end)))))
 
 (defun magit-log-edit-set-field (name value)
   (let* ((fields (magit-log-edit-get-fields))
