@@ -33,7 +33,6 @@
 ;;; TODO
 
 ;; - Showing tags
-;; - Stashing.
 ;; - Amending commits other than HEAD.
 ;; - Visiting from staged hunks doesn't always work since the line
 ;;   numbers don't refer to the working tree.  Fix that somehow.
@@ -892,6 +891,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "C") 'magit-add-log)
     (define-key map (kbd "t") 'magit-tag)
     (define-key map (kbd "T") 'magit-annotated-tag)
+    (define-key map (kbd "z") 'magit-stash)
     (define-key map (kbd "$") 'magit-display-process)
     (define-key map (kbd "q") 'quit-window)
     map))
@@ -927,6 +927,7 @@ Many Magit faces inherit from this one by default."
     ["Discard" magit-discard-item t]
     ["Reset head" magit-reset-head t]
     ["Reset working tree" magit-reset-working-tree t]
+    ["Stash" magit-stash t]
     "---"
     ["Switch branch" magit-checkout t]
     ["Create branch" magit-create-branch t]
@@ -1433,6 +1434,7 @@ Please see the manual for a complete description of Magit.
 	      (insert (apply 'format "Rebasing: %s (%s of %s)\n" rebase))))
 	(insert "\n")
 	(magit-insert-untracked-files)
+	(magit-insert-stashes)
 	(magit-insert-pending-changes)
 	(magit-insert-pending-commits)
 	(when remote
@@ -1962,6 +1964,38 @@ Prefix arg means justify as well."
   (magit-log-edit-set-field 'tag name)
   (magit-pop-to-log-edit "tag"))
 
+;;; Stashing
+
+(defun magit-wash-stash ()
+  (if (search-forward-regexp "stash@{\\(.*\\)}" (line-end-position) t)
+      (let ((stash (match-string-no-properties 0))
+	    (name (match-string-no-properties 1)))
+	(delete-region (match-beginning 0) (match-end 0))
+	(goto-char (match-beginning 0))
+	(fixup-whitespace)
+	(goto-char (line-beginning-position))
+	(insert name)
+	(goto-char (line-beginning-position))
+	(magit-with-section stash 'stash
+	  (magit-set-section-info stash)
+	  (forward-line)))
+    (forward-line))
+  t)
+
+(defun magit-wash-stashes ()
+  (let ((magit-old-top-section nil))
+    (magit-wash-sequence #'magit-wash-stash)))
+
+(defun magit-insert-stashes ()
+  (magit-insert-section 'stashes
+			"Stashes:" 'magit-wash-stashes
+			nil
+			"git" "stash" "list"))
+
+(defun magit-stash (description)
+  (interactive "sStash description: ")
+  (magit-run "git" "stash" "save" description))
+
 ;;; Commits
 
 (defun magit-commit-at-point (&optional nil-ok-p)
@@ -2005,7 +2039,9 @@ Prefix arg means justify as well."
     ((hunk)
      (magit-apply-hunk-item item))
     ((diff)
-     (magit-apply-diff-item item))))
+     (magit-apply-diff-item item))
+    ((stash)
+     (magit-run "git" "stash" "apply" info))))
 
 (defun magit-cherry-pick-item ()
   (interactive)
@@ -2014,7 +2050,9 @@ Prefix arg means justify as well."
      (magit-cherry-pick-commit info)
      (magit-rewrite-set-commit-property info 'used t))
     ((commit)
-     (magit-cherry-pick-commit info))))
+     (magit-cherry-pick-commit info))
+    ((stash)
+     (magit-run "git" "stash" "pop" info))))
 
 (defun magit-revert-commit (commit)
   (let ((parent (magit-choose-parent commit "revert")))
@@ -2176,7 +2214,10 @@ Prefix arg means justify as well."
     ((hunk)
      (error "Can't discard this hunk"))
     ((diff)
-     (error "Can't discard this diff"))))
+     (error "Can't discard this diff"))
+    ((stash)
+     (when (yes-or-no-p "Discard stash? ")
+       (magit-run "git" "stash" "drop" info)))))
      
 (defun magit-visit-item ()
   (interactive)

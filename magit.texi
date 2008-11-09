@@ -38,6 +38,7 @@ as an extension to Emacs.
 * Diffing::                     
 * Tagging::                     
 * Resetting::                   
+* Stashing::                    
 * Branching::                   
 * Merging::                     
 * Rebasing::                    
@@ -311,6 +312,13 @@ section and hit @kbd{x RET} to reset your current head to it.
 Type @kbd{X} to reset your working tree and staging area to the most
 recently committed state.  This will discard your local modifications,
 so be careful.
+
+@node Stashing
+@chapter Stashing
+
+You can create a new stash with @kbd{z}.  Your stashes will be listed
+in the status buffer, and you can apply them with @kbd{a} and pop them
+with @kbd{A}.  To drop a stash, use @kbd{k}.
 
 @node Branching
 @chapter Branching
