@@ -934,6 +934,10 @@ Many Magit faces inherit from this one by default."
     ["Merge" magit-automatic-merge t]
     ["Merge (no commit)" magit-manual-merge t]
     ["Rebase" magit-rebase-step t]
+		("Git SVN"
+		 ["Rebase" magit-svn-rebase (magit-svn-enabled)]
+		 ["Commit" magit-svn-dcommit (magit-svn-enabled)]
+		 )
     ("Rewrite"
      ["Start" magit-rewrite-start t]
      ["Stop" magit-rewrite-stop t]
@@ -1571,6 +1575,19 @@ Please see the manual for a complete description of Magit.
 	     (magit-run "git" "rebase" "--skip"))
 	    ((?C ?c)
 	     (magit-run "git" "rebase" "--continue"))))))))
+
+;; git svn commands
+
+(defun magit-svn-rebase ()
+	(interactive)
+	(magit-run "git" "svn" "rebase"))
+
+(defun magit-svn-dcommit ()
+	(interactive)
+	(magit-run "git" "svn" "dcommit"))
+
+(defun magit-svn-enabled ()
+	(not (null (find "git-svn" (magit-list-interesting-revisions) :test 'equal))))
 
 ;;; Resetting
 
