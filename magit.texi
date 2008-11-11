@@ -87,6 +87,8 @@ new features.  Thanks!
 
 Phil Hagelberg joined a few days later.  Thanks!
 
+Alex Ott contributed support for git svn.  Thanks!
+
 @node Status
 @chapter Status
 
