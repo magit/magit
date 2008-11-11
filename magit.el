@@ -877,6 +877,8 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "B") 'magit-create-branch)
     (define-key map (kbd "m") 'magit-manual-merge)
     (define-key map (kbd "M") 'magit-automatic-merge)
+    (define-key map (kbd "N r") 'magit-svn-rebase)
+    (define-key map (kbd "N c") 'magit-svn-dcommit)
     (define-key map (kbd "R") 'magit-rebase-step)
     (define-key map (kbd "r s") 'magit-rewrite-start)
     (define-key map (kbd "r t") 'magit-rewrite-stop)

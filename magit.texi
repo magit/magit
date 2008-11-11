@@ -44,6 +44,7 @@ as an extension to Emacs.
 * Rebasing::                    
 * Rewriting::                   
 * Pushing and Pulling::         
+* Interfacing with Subversion::  
 @end menu
 
 @node Introduction
@@ -471,5 +472,11 @@ reset your current head to one of them with @kbd{x}, for example.
 When the remote branch has changes that are not in the current branch,
 Magit shows them in a section called @emph{Unpulled changes}.  Typing
 @kbd{F} will merge them into the current branch.
+
+@node Interfacing with Subversion
+@chapter Interfacing with Subversion
+
+Typing @kbd{N r} runs @code{git svn rebase} and typing @kbd{N c} runs
+@code{git svn dcommit}.
 
 @bye
