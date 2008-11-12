@@ -89,6 +89,9 @@ Phil Hagelberg joined a few days later.  Thanks!
 
 Alex Ott contributed support for git svn.  Thanks!
 
+Marcin Bachry contributed bug fixes and support for decorated logs.
+Thanks!
+
 @node Status
 @chapter Status
 
