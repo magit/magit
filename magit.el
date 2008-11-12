@@ -113,12 +113,18 @@ Many Magit faces inherit from this one by default."
   :group 'magit)
 
 (defface magit-log-tag-label
-  '((t :background "DarkGoldenRod"))
+  '((((class color) (background light))
+     :background "LightGoldenRod")
+    (((class color) (background dark))
+     :background "DarkGoldenRod"))
   "Face for git tag labels shown in log buffer."
   :group 'magit)
 
 (defface magit-log-head-label
-  '((t :background "DarkGreen"))
+  '((((class color) (background light))
+     :background "spring green")
+    (((class color) (background dark))
+     :background "DarkGreen"))
   "Face for branch head labels shown in log buffer."
   :group 'magit)
 
