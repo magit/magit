@@ -2,6 +2,8 @@
 
 ;; Copyright (C) 2008  Marius Vollmer
 ;; Copyright (C) 2008  Linh Dang
+;; Copyright (C) 2008  Alex Ott
+;; Copyright (C) 2008  Marcin Bachry
 ;;
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
