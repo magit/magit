@@ -1397,7 +1397,9 @@ in log buffer."
   (magit-create-buffer-sections
     (magit-insert-section 'commitbuf nil
 			  'magit-wash-commit nil
-			  "git" "log" "--max-count=1" "--cc" "-p" commit)))
+			  "git" "log" "--max-count=1"
+                          "--pretty=medium"
+                          "--cc" "-p" commit)))
 
 (defun magit-show-commit (commit &optional scroll)
   (when (magit-section-p commit)
