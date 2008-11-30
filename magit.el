@@ -1444,7 +1444,7 @@ in log buffer."
 
 (defun magit-marked-commit ()
   (or magit-marked-commit
-      (error "Not commit marked")))
+      (error "No commit marked")))
 
 (defun magit-insert-unpulled-commits (remote branch)
   (magit-insert-section 'unpulled
