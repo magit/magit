@@ -9,6 +9,7 @@ it.  Feedback is welcome!
 
 Magit can be installed with the popular recipe of
 
+   $ ./autogen.sh     # If you got the sources directly from Git
    $ ./configure
    $ make install
 
