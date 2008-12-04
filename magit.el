@@ -215,13 +215,14 @@ Many Magit faces inherit from this one by default."
     (magit-shell "git config --unset %s" (magit-concat-with-delim "." keys))))
 
 (defun magit-get-top-dir (cwd)
-  (let* ((cwd (expand-file-name cwd))
-	 (magit-dir (magit-shell
-		     "cd %s && git rev-parse --git-dir 2>/dev/null"
-		     cwd)))
-    (if magit-dir
-	(file-name-as-directory (or (file-name-directory magit-dir) cwd))
-      nil)))
+  (let ((cwd (expand-file-name cwd)))
+    (and (file-directory-p cwd)
+	 (let ((magit-dir (magit-shell
+			   "cd %s && git rev-parse --git-dir 2>/dev/null"
+			   cwd)))
+	   (and magit-dir
+		(file-name-as-directory
+		 (or (file-name-directory magit-dir) cwd)))))))
 
 (defun magit-get-ref (ref)
   (magit-shell "git symbolic-ref -q %s" ref))
