@@ -123,6 +123,14 @@ Many Magit faces inherit from this one by default."
   "Face for highlighting the current item."
   :group 'magit)
 
+(defface magit-item-mark
+  '((((class color) (background light))
+     :foreground "red")
+    (((class color) (background dark))
+     :foreground "orange"))
+  "Face for highlighting marked item."
+  :group 'magit)
+
 (defface magit-log-tag-label
   '((((class color) (background light))
      :background "LightGoldenRod")
@@ -1441,21 +1449,30 @@ in log buffer."
 
 (defvar magit-marked-commit nil)
 
+(defvar magit-mark-overlay nil)
+(make-variable-buffer-local 'magit-mark-overlay)
+(put 'magit-mark-overlay 'permanent-local t)
+
 (defun magit-refresh-marked-commits ()
   (magit-for-all-buffers #'magit-refresh-marked-commits-in-buffer))
 
 (defun magit-refresh-marked-commits-in-buffer ()
-  (let ((inhibit-read-only t))
-    (magit-for-all-sections
-     (lambda (section)
-       (if (not (magit-section-p section))
-	   (message "%s" section))
-       (when (and (eq (magit-section-type section) 'commit)
-                  (equal (magit-section-info section)
-                         magit-marked-commit))
-	 (put-text-property (magit-section-beginning section)
-			    (magit-section-end section)
-			    'face '(:foreground "red")))))))
+  (if (not magit-mark-overlay)
+      (let ((ov (make-overlay 1 1)))
+        (overlay-put ov 'face 'magit-item-mark)
+        (setq magit-mark-overlay ov)))
+  (delete-overlay magit-mark-overlay)
+  (magit-for-all-sections
+   (lambda (section)
+     (if (not (magit-section-p section))
+         (message "%s" section))
+     (when (and (eq (magit-section-type section) 'commit)
+                (equal (magit-section-info section)
+                       magit-marked-commit))
+       (move-overlay magit-mark-overlay
+                     (magit-section-beginning section)
+                     (magit-section-end section)
+                     (current-buffer))))))
 
 (defun magit-set-marked-commit (commit)
   (setq magit-marked-commit commit)
