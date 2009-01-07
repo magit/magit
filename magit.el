@@ -997,6 +997,7 @@ Please see the manual for a complete description of Magit.
 
 \\{magit-mode-map}"
   (kill-all-local-variables)
+  (buffer-disable-undo)
   (setq buffer-read-only t)
   (setq major-mode 'magit-mode
 	mode-name "Magit"
