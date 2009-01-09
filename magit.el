@@ -1216,7 +1216,7 @@ Please see the manual for a complete description of Magit.
 
 (defun magit-wash-hunk ()
   (cond ((looking-at "\\(^@+\\)[^@]*@+")
-	 (let ((n-files (length (match-string 1)))
+	 (let ((n-columns (1- (length (match-string 1))))
 	       (head (match-string 0)))
 	   (magit-with-section head 'hunk
 	     (magit-put-line-property 'face 'magit-diff-hunk-header)
@@ -1224,7 +1224,7 @@ Please see the manual for a complete description of Magit.
 	     (while (not (or (eobp)
 			     (looking-at "^diff\\|^@@")))
 	       (let ((prefix (buffer-substring-no-properties
-			      (point) (min (+ (point) n-files) (point-max)))))
+			      (point) (min (+ (point) n-columns) (point-max)))))
 		 (cond ((string-match "\\+" prefix)
 			(magit-put-line-property 'face 'magit-diff-add))
 		       ((string-match "-" prefix)
