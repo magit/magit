@@ -53,6 +53,15 @@
   :prefix "magit-"
   :group 'tools)
 
+(defcustom magit-save-some-buffers t
+  "Non-nil means that \\[magit-status] will save modified buffers before running.
+Setting this to t will ask which buffers to save, setting it to 'dontask will
+save all modified buffers without asking."
+  :group 'magit
+  :type '(choice (const :tag "Never" nil)
+		 (const :tag "Ask" t)
+		 (const :tag "Save without asking" dontask)))
+
 (defface magit-header
   '((t))
   "Face for generic header lines.
@@ -1507,7 +1516,8 @@ in log buffer."
 
 (defun magit-status (dir)
   (interactive (list (magit-read-top-dir)))
-  (save-some-buffers)
+  (if magit-save-some-buffers
+      (save-some-buffers (eq magit-save-some-buffers 'dontask)))
   (let* ((topdir (magit-get-top-dir dir))
 	 (buf (or (magit-find-buffer 'status topdir)
 		  (switch-to-buffer
