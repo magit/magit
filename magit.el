@@ -53,11 +53,6 @@
   :prefix "magit-"
   :group 'tools)
 
-(defcustom magit-collapse-threshold 50
-  "Sections with more lines than this are collapsed automatically."
-  :group 'magit
-  :type '(integer))
-
 (defface magit-header
   '((t))
   "Face for generic header lines.
@@ -473,7 +468,7 @@ Many Magit faces inherit from this one by default."
   (or (get-text-property (point) 'magit-section)
       magit-top-section))
 
-(defun magit-insert-section (type title washer threshold cmd &rest args)
+(defun magit-insert-section (type title washer cmd &rest args)
   (let* ((body-beg nil)
 	 (section
 	  (magit-with-section type nil
@@ -1129,7 +1124,6 @@ Please see the manual for a complete description of Magit.
 (defun magit-insert-untracked-files ()
   (magit-insert-section 'untracked "Untracked files:"
 			'magit-wash-untracked-files
-			magit-collapse-threshold
 			"git" "ls-files" "-t" "--others" "--exclude-standard"))
 
 ;;; Diffs and Hunks
@@ -1337,13 +1331,11 @@ Please see the manual for a complete description of Magit.
 (defun magit-insert-unstaged-changes (title)
   (let ((magit-hide-diffs t))
     (magit-insert-section 'unstaged title 'magit-wash-diffs
-			  magit-collapse-threshold
 			  "git" "diff")))
 
 (defun magit-insert-staged-changes ()
   (let ((magit-hide-diffs t))
     (magit-insert-section 'staged "Staged changes:" 'magit-wash-diffs
-			  magit-collapse-threshold
 			  "git" "diff" "--cached")))
 
 ;;; Logs and Commits
@@ -1406,7 +1398,7 @@ in log buffer."
 (defun magit-refresh-commit-buffer (commit)
   (magit-create-buffer-sections
     (magit-insert-section 'commitbuf nil
-			  'magit-wash-commit nil
+			  'magit-wash-commit
 			  "git" "log" "--max-count=1"
                           "--pretty=medium"
                           "--cc" "-p" commit)))
@@ -1461,14 +1453,12 @@ in log buffer."
 (defun magit-insert-unpulled-commits (remote branch)
   (magit-insert-section 'unpulled
 			"Unpulled commits:" 'magit-wash-log
-			nil
 			"git" "log" "--pretty=format:* %H %s"
 			(format "HEAD..%s/%s" remote branch)))
 
 (defun magit-insert-unpushed-commits (remote branch)
   (magit-insert-section 'unpushed
 			"Unpushed commits:" 'magit-wash-log
-			nil
 			"git" "log" "--pretty=format:* %H %s"
 			(format "%s/%s..HEAD" remote branch)))
 
@@ -1729,7 +1719,7 @@ in log buffer."
       (let ((magit-hide-diffs t))
 	(magit-insert-section 'pending-changes
 			      "Pending changes"
-			      'magit-wash-diffs nil
+			      'magit-wash-diffs
 			      "git" "diff" "-R" orig)))))
 
 (defun magit-rewrite-start (from &optional onto)
@@ -2070,7 +2060,6 @@ Prefix arg means justify as well."
 (defun magit-insert-stashes ()
   (magit-insert-section 'stashes
 			"Stashes:" 'magit-wash-stashes
-			nil
 			"git" "stash" "list"))
 
 (defun magit-stash (description)
@@ -2174,7 +2163,7 @@ Prefix arg means justify as well."
   (magit-create-buffer-sections
     (apply #'magit-insert-section 'log
 	   (magit-rev-range-describe range "Commits")
-	   'magit-wash-log nil
+	   'magit-wash-log
 	   `("git" "log" "--max-count=1000" "--pretty=oneline"
              ,@(if magit-have-decorate (list "--decorate"))
 	     ,@(if magit-have-graph (list "--graph"))
@@ -2198,7 +2187,7 @@ Prefix arg means justify as well."
   (magit-create-buffer-sections
     (magit-insert-section 'reflog
 			  (format "Local history of head %s" head)
-			  'magit-wash-log nil
+			  'magit-wash-log
 			  "git" "log" "--walk-reflogs"
 			  "--max-count=1000"
 			  "--pretty=oneline" args)))
@@ -2222,7 +2211,7 @@ Prefix arg means justify as well."
   (magit-create-buffer-sections
     (magit-insert-section 'diffbuf
 			  (magit-rev-range-describe range "Changes")
-			  'magit-wash-diffs nil
+			  'magit-wash-diffs
 			  "git" "diff" args)))
 
 (defun magit-diff (range)
