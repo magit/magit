@@ -62,6 +62,11 @@ save all modified buffers without asking."
 		 (const :tag "Ask" t)
 		 (const :tag "Save without asking" dontask)))
 
+(defcustom magit-commit-signoff nil
+  "When performing git commit adds --signoff"
+  :group 'magit
+  :type 'boolean)
+
 (defface magit-header
   '((t))
   "Face for generic header lines.
@@ -1955,7 +1960,9 @@ Prefix arg means justify as well."
 		      "git" "commit" "-F" "-"
 		      (append (if (not (magit-anything-staged-p))
 				  '("--all") '())
-			      (if amend '("--amend") '())))))))
+			      (if amend '("--amend") '())
+			      (if magit-commit-signoff
+				  '("--signoff") '())))))))
     (erase-buffer)
     (bury-buffer)
     (when magit-pre-log-edit-window-configuration
