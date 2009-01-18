@@ -568,8 +568,7 @@ Many Magit faces inherit from this one by default."
 			 (forward-line)
 			 (point)))
 	(end (magit-section-end section)))
-    (put-text-property beg end 'invisible hidden)
-    (put-text-property beg end 'rear-nonsticky t))
+    (put-text-property beg end 'invisible hidden))
   (if (not hidden)
       (dolist (c (magit-section-children section))
 	(magit-section-set-hidden c (magit-section-hidden c)))))
@@ -990,6 +989,16 @@ Many Magit faces inherit from this one by default."
 (make-variable-buffer-local 'magit-refresh-args)
 (put 'magit-refresh-args 'permanent-local t)
 
+(defun magit-correct-point-after-command ()
+  ;; Emacs often leaves point in invisible regions.  If that happens,
+  ;; move point to the end of that region.
+  (if (get-text-property (point) 'invisible)
+      (goto-char (next-single-property-change (point) 'invisible))))
+
+(defun magit-post-command-hook ()
+  (magit-correct-point-after-command)
+  (magit-highlight-section))
+
 (defun magit-mode ()
   "Review the status of a git repository and act on it.
 
@@ -1001,8 +1010,9 @@ Please see the manual for a complete description of Magit.
   (setq major-mode 'magit-mode
 	mode-name "Magit"
 	mode-line-process ""
-	truncate-lines t)
-  (add-hook 'post-command-hook #'magit-highlight-section nil t)
+	truncate-lines t
+	line-move-visual nil)
+  (add-hook 'post-command-hook #'magit-post-command-hook nil t)
   (use-local-map magit-mode-map)
   (run-mode-hooks 'magit-mode-hook))
 
