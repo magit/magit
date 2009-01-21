@@ -253,10 +253,13 @@ kill ring.
 Typing @kbd{=} will show the differences from the current commit to
 the @dfn{marked} commit.
 
-You can mark the current commit by typing @kbd{.}.  Some commands,
-such as @kbd{=}, will use the current commit and the marked commit as
-implicit arguments.  Other commands will offer the marked commit as a
-default when prompting for their arguments.
+You can mark the current commit by typing @kbd{.}.  When the current
+commit is already marked, typing @kbd{.} will unmark it.  To unmark
+the marked commit no matter where point it, use @kbd{C-u .}.
+
+Some commands, such as @kbd{=}, will use the current commit and the
+marked commit as implicit arguments.  Other commands will offer the
+marked commit as a default when prompting for their arguments.
 
 @node Reflogs
 @chapter Reflogs
