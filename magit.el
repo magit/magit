@@ -1451,7 +1451,7 @@ in log buffer."
 
 (defun magit-refresh-commit-buffer (commit)
   (magit-create-buffer-sections
-    (magit-insert-section 'commitbuf nil
+    (magit-insert-section nil nil
 			  'magit-wash-commit
 			  "git" "log" "--max-count=1"
                           "--pretty=medium"
@@ -2224,7 +2224,7 @@ Prefix arg means justify as well."
   (magit-configure-have-graph)
   (magit-configure-have-decorate)
   (magit-create-buffer-sections
-    (apply #'magit-insert-section 'log
+    (apply #'magit-insert-section nil
 	   (magit-rev-range-describe range "Commits")
 	   'magit-wash-log
 	   `("git" "log" "--max-count=1000" "--pretty=oneline"
