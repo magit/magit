@@ -4,6 +4,9 @@ Changes in magit 0.7:
 
 * Stashing, on 'z'.
 
+* Wazzup, on 'w'.  Wazzup gives you an overview over how other
+  branches relate to the current one.
+
 * There is more control over pushing.  'P' now takes a prefix argument
   and pushing a branch without a default remote will ask for one.
 
