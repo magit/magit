@@ -412,7 +412,8 @@ Many Magit faces inherit from this one by default."
 (defmacro magit-with-section (title args &rest body)
   (declare (indent 2))
   (let ((s (gensym)))
-    `(let* ((,s (magit-new-section ,title ,@(if (keywordp (car args))
+    `(let* ((,s (magit-new-section ,title ,@(if (and (listp args)
+						     (keywordp (car args)))
 						args
 					      `(:type ,args))))
 	    (magit-top-section ,s))
@@ -494,7 +495,7 @@ Many Magit faces inherit from this one by default."
 (defun magit-insert-section (type title washer cmd &rest args)
   (let* ((body-beg nil)
 	 (section
-	  (magit-with-section type nil
+	  (magit-with-section title type
 	    (if title
 		(insert (propertize title 'face 'magit-section-title) "\n"))
 	    (setq body-beg (point))
