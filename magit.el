@@ -1465,8 +1465,6 @@ in log buffer."
   (delete-overlay magit-mark-overlay)
   (magit-for-all-sections
    (lambda (section)
-     (if (not (magit-section-p section))
-         (message "%s" section))
      (when (and (eq (magit-section-type section) 'commit)
                 (equal (magit-section-info section)
                        magit-marked-commit))
@@ -2185,7 +2183,6 @@ Prefix arg means justify as well."
 (defun magit-configure-have-graph ()
   (if (eq magit-have-graph 'unset)
       (let ((res (magit-shell-exit-code "git log --graph --max-count=0")))
-	(message "result %s" res)
 	(setq magit-have-graph (eq res 0)))))
 
 (defun magit-configure-have-decorate ()
