@@ -384,11 +384,13 @@ Many Magit faces inherit from this one by default."
 
 (defvar magit-old-top-section nil)
 
-(defun magit-new-section (title &rest args)
-  (let* ((s (apply #'make-magit-section
-		   :parent magit-top-section
-		   :title title
-		   args))
+(defvar magit-section-hidden-default nil)
+
+(defun magit-new-section (title type)
+  (let* ((s (make-magit-section :parent magit-top-section
+				:title title
+				:type type
+				:hidden magit-section-hidden-default))
 	 (old (and magit-old-top-section
 		   (magit-find-section (magit-section-path s)
 				       magit-old-top-section))))
@@ -409,13 +411,10 @@ Many Magit faces inherit from this one by default."
 	      (delq section (magit-section-children parent)))
       (setq magit-top-section nil))))
 
-(defmacro magit-with-section (title args &rest body)
+(defmacro magit-with-section (title type &rest body)
   (declare (indent 2))
   (let ((s (gensym)))
-    `(let* ((,s (magit-new-section ,title ,@(if (and (listp args)
-						     (keywordp (car args)))
-						args
-					      `(:type ,args))))
+    `(let* ((,s (magit-new-section ,title ,type))
 	    (magit-top-section ,s))
        (setf (magit-section-beginning ,s) (point))
        ,@body
@@ -1211,56 +1210,56 @@ Please see the manual for a complete description of Magit.
 
 (defun magit-wash-diff ()
   (cond ((looking-at "^diff")
-	 (magit-with-section
-	     (magit-current-line)
-	     (:type 'diff :hidden magit-hide-diffs)
-	   (let ((file (magit-diff-line-file))
-		 (end (save-excursion
-			(forward-line) ;; skip over "diff" line
-			(if (search-forward-regexp "^diff\\|^@@" nil t)
-			    (goto-char (match-beginning 0))
-			  (goto-char (point-max)))
-			(point-marker))))
-	     (let* ((status (cond
-			     ((looking-at "^diff --cc")
-			      'unmerged)
-			     ((save-excursion
-				(search-forward-regexp "^new" end t))
-			      'new)
-			     ((save-excursion
-				(search-forward-regexp "^deleted" end t))
-			      'deleted)
-			     ((save-excursion
-				(search-forward-regexp "^rename" end t))
-			      'renamed)
-			     (t
-			      'modified)))
-		    (file2 (cond
-			    ((save-excursion
-			       (search-forward-regexp "^rename from \\(.*\\)"
-						      end t))
-			     (match-string-no-properties 1))))
-		    (status-text (case status
-				   ((unmerged)
-				    (format "Unmerged %s" file))
-				   ((new)
-				    (format "New      %s" file))
-				   ((deleted)
-				    (format "Deleted  %s" file))
-				   ((renamed)
-				    (format "Renamed  %s   (from %s)"
-					    file file2))
- 				   ((modified)
-				    (format "Modified %s" file))
-				   (
-				    (format "?        %s" file)))))
-	       (magit-set-section-info (list status file file2))
-	       (insert "\t" status-text "\n")
-	       (goto-char end)
-	       (magit-wash-sequence #'magit-wash-hunk)
-	       t))))
-	(t
-	 nil)))
+	 (let ((magit-section-hidden-default magit-hide-diffs))
+	   (magit-with-section (magit-current-line) 'diff
+	     (let ((file (magit-diff-line-file))
+		   (end (save-excursion
+			  (forward-line) ;; skip over "diff" line
+			  (if (search-forward-regexp "^diff\\|^@@" nil t)
+			      (goto-char (match-beginning 0))
+			    (goto-char (point-max)))
+			  (point-marker))))
+	       (let* ((status (cond
+			       ((looking-at "^diff --cc")
+				'unmerged)
+			       ((save-excursion
+				  (search-forward-regexp "^new" end t))
+				'new)
+			       ((save-excursion
+				  (search-forward-regexp "^deleted" end t))
+				'deleted)
+			       ((save-excursion
+				  (search-forward-regexp "^rename" end t))
+				'renamed)
+			       (t
+				'modified)))
+		      (file2 (cond
+			      ((save-excursion
+				 (search-forward-regexp "^rename from \\(.*\\)"
+							end t))
+			       (match-string-no-properties 1))))
+		      (status-text (case status
+				     ((unmerged)
+				      (format "Unmerged %s" file))
+				     ((new)
+				      (format "New      %s" file))
+				     ((deleted)
+				      (format "Deleted  %s" file))
+				     ((renamed)
+				      (format "Renamed  %s   (from %s)"
+					      file file2))
+				     ((modified)
+				      (format "Modified %s" file))
+				     (
+				      (format "?        %s" file)))))
+		 (magit-set-section-info (list status file file2))
+		 (insert "\t" status-text "\n")
+		 (goto-char end)
+		 (let ((magit-section-hidden-default nil))
+		   (magit-wash-sequence #'magit-wash-hunk))
+		 t)))))
+	 (t
+	  nil)))
 
 (defun magit-diff-item-kind (diff)
   (car (magit-section-info diff)))
