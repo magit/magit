@@ -2312,15 +2312,20 @@ Prefix arg means justify as well."
       (insert (format "Wazzup, %s\n\n" head))
       (let ((branches (magit-shell-lines "git branch -a | cut -c3-")))
 	(dolist (b branches)
-	  (let ((section 
-		 (magit-insert-section 'wazzup
-				       (format "Unmerged commits in %s" b)
-				       'magit-wash-log
-				       "git" "log"
-				       "--max-count=100"
-				       "--pretty=oneline"
-				       (format "%s..%s" head b)
-				       "--")))
+	  (let* ((n (magit-shell "git log --pretty=oneline %s..%s | wc -l"
+				 head b))
+		 (section
+		  (let ((magit-section-hidden-default t))
+		    (magit-insert-section 
+		     (cons b 'wazzup)
+		     (format "%s unmerged commits in %s"
+			     n b)
+		     'magit-wash-log
+		     "git" "log"
+		     "--max-count=100"
+		     "--pretty=oneline"
+		     (format "%s..%s" head b)
+		     "--"))))
 	    (magit-set-section-info b section)))))))
 
 (defun magit-wazzup ()
@@ -2343,7 +2348,9 @@ Prefix arg means justify as well."
   (interactive)
   (magit-section-action (item info "ignore")
     ((untracked file)
-     (magit-ignore-file info current-prefix-arg nil))))
+     (magit-ignore-file info current-prefix-arg nil))
+    ((wazzup)
+     (message "wazzup"))))
 
 (defun magit-ignore-item-locally ()
   (interactive)
