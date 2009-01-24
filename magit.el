@@ -491,12 +491,20 @@ Many Magit faces inherit from this one by default."
   (or (get-text-property (point) 'magit-section)
       magit-top-section))
 
-(defun magit-insert-section (type title washer cmd &rest args)
+(defun magit-insert-section (section-title-and-type
+			     buffer-title washer cmd &rest args)
   (let* ((body-beg nil)
+	 (section-title (if (consp section-title-and-type)
+			    (car section-title-and-type)
+			  section-title-and-type))
+	 (section-type (if (consp section-title-and-type)
+			   (cdr section-title-and-type)
+			 nil))
 	 (section
-	  (magit-with-section title type
-	    (if title
-		(insert (propertize title 'face 'magit-section-title) "\n"))
+	  (magit-with-section section-title section-type
+	    (if buffer-title
+		(insert (propertize buffer-title 'face 'magit-section-title)
+			"\n"))
 	    (setq body-beg (point))
 	    (apply 'call-process cmd nil t nil args)
 	    (if washer
