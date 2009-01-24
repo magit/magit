@@ -508,8 +508,9 @@ Many Magit faces inherit from this one by default."
 		  (goto-char (point-max)))))))
     (if (= body-beg (point))
 	(magit-cancel-section section)
-      (insert "\n"))))
-  
+      (insert "\n"))
+    section))
+
 (defun magit-next-section (section)
   (let ((parent (magit-section-parent section)))
     (if parent
@@ -931,6 +932,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "t") 'magit-tag)
     (define-key map (kbd "T") 'magit-annotated-tag)
     (define-key map (kbd "z") 'magit-stash)
+    (define-key map (kbd "w") 'magit-wazzup)
     (define-key map (kbd "$") 'magit-display-process)
     (define-key map (kbd "q") 'quit-window)
     map))
@@ -2294,6 +2296,32 @@ Prefix arg means justify as well."
   (interactive)
   (magit-diff (cons (magit-marked-commit)
 		    (magit-commit-at-point))))
+
+;;; Wazzup
+
+(defun magit-refresh-wazzup-buffer (head)
+  (magit-create-buffer-sections
+    (magit-with-section 'wazzupbuf nil
+      (insert (format "Wazzup, %s\n\n" head))
+      (let ((branches (magit-shell-lines "git branch -a | cut -c3-")))
+	(dolist (b branches)
+	  (let ((section 
+		 (magit-insert-section 'wazzup
+				       (format "Unmerged commits in %s" b)
+				       'magit-wash-log
+				       "git" "log"
+				       "--max-count=100"
+				       "--pretty=oneline"
+				       (format "%s..%s" head b)
+				       "--")))
+	    (magit-set-section-info b section)))))))
+
+(defun magit-wazzup ()
+  (interactive)
+  (let* ((topdir (magit-get-top-dir default-directory)))
+    (switch-to-buffer "*magit-wazzup*")
+    (magit-mode-init topdir 'wazzup 
+		     #'magit-refresh-wazzup-buffer "master")))
 
 ;;; Miscellaneous
 
