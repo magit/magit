@@ -583,9 +583,9 @@ Many Magit faces inherit from this one by default."
   (setf (magit-section-hidden section) hidden)
   (let ((inhibit-read-only t)
 	(beg (save-excursion
-			 (goto-char (magit-section-beginning section))
-			 (forward-line)
-			 (point)))
+	       (goto-char (magit-section-beginning section))
+	       (forward-line)
+	       (point)))
 	(end (magit-section-end section)))
     (put-text-property beg end 'invisible hidden))
   (if (not hidden)
@@ -653,7 +653,7 @@ Many Magit faces inherit from this one by default."
 	    (magit-section-expand-all s))
 	   (t
 	    (magit-section-collapse s))))))
-  
+
 (defun magit-cycle-section ()
   (interactive)
   (magit-section-hideshow
@@ -974,10 +974,10 @@ Many Magit faces inherit from this one by default."
     ["Merge" magit-automatic-merge t]
     ["Merge (no commit)" magit-manual-merge t]
     ["Rebase" magit-rebase-step t]
-		("Git SVN"
-		 ["Rebase" magit-svn-rebase (magit-svn-enabled)]
-		 ["Commit" magit-svn-dcommit (magit-svn-enabled)]
-		 )
+    ("Git SVN"
+     ["Rebase" magit-svn-rebase (magit-svn-enabled)]
+     ["Commit" magit-svn-dcommit (magit-svn-enabled)]
+     )
     ("Rewrite"
      ["Start" magit-rewrite-start t]
      ["Stop" magit-rewrite-stop t]
@@ -1143,7 +1143,7 @@ Please see the manual for a complete description of Magit.
 	  (dolist (b (adjoin status-buffer
 			     magit-refresh-needing-buffers))
 	    (magit-refresh-buffer b)))))))
-  
+
 (defun magit-need-refresh (&optional buffer)
   (let ((buffer (or buffer (current-buffer))))
     (when (not (memq buffer magit-refresh-needing-buffers))
@@ -1398,12 +1398,12 @@ Please see the manual for a complete description of Magit.
 \"refs/remotes/origin/master\"."
   (let ((face 'magit-log-head-label))
     (cond ((string-match "^\\(tag: +\\)?refs/tags/\\(.+\\)" refname)
-           (setq refname (match-string 2 refname)
-                 face 'magit-log-tag-label))
-          ((string-match "^refs/remotes/\\(.+\\)" refname)
-           (setq refname (match-string 1 refname)))
-          ((string-match "[^/]+$" refname)
-           (setq refname (match-string 0 refname))))
+	   (setq refname (match-string 2 refname)
+		 face 'magit-log-tag-label))
+	  ((string-match "^refs/remotes/\\(.+\\)" refname)
+	   (setq refname (match-string 1 refname)))
+	  ((string-match "[^/]+$" refname)
+	   (setq refname (match-string 0 refname))))
     (propertize refname 'face face)))
 
 (defun magit-parse-log-refs (refstring)
@@ -1412,11 +1412,11 @@ output (for example: \"refs/remotes/origin/master,
 refs/heads/master\") and return prettified string for displaying
 in log buffer."
   (mapconcat 'identity
-             (mapcar 'magit-parse-log-ref
-                     (remove-if (lambda (refname)
-                                  (string-match "/HEAD$" refname))
-                                (reverse (split-string refstring ", *" t))))
-             " - "))
+	     (mapcar 'magit-parse-log-ref
+		     (remove-if (lambda (refname)
+				  (string-match "/HEAD$" refname))
+				(reverse (split-string refstring ", *" t))))
+	     " - "))
 
 (defun magit-wash-log-line ()
   (if (search-forward-regexp "[0-9a-fA-F]\\{40\\}" (line-end-position) t)
@@ -1425,12 +1425,12 @@ in log buffer."
 	(goto-char (match-beginning 0))
 	(fixup-whitespace)
 	(goto-char (line-beginning-position))
-        (when (search-forward-regexp "^[|*\\/ ]+\\((\\(tag:.+?\\|refs/.+?\\))\\)"
-                                     (line-end-position) t)
-          (let ((refstring (match-string-no-properties 2)))
-            (delete-region (match-beginning 1) (match-end 1))
-            (insert (magit-parse-log-refs refstring)))
-          (goto-char (line-beginning-position)))
+	(when (search-forward-regexp "^[|*\\/ ]+\\((\\(tag:.+?\\|refs/.+?\\))\\)"
+				     (line-end-position) t)
+	  (let ((refstring (match-string-no-properties 2)))
+	    (delete-region (match-beginning 1) (match-end 1))
+	    (insert (magit-parse-log-refs refstring)))
+	  (goto-char (line-beginning-position)))
 	(magit-with-section commit 'commit
 	  (magit-set-section-info commit)
 	  (forward-line)))
@@ -1453,8 +1453,8 @@ in log buffer."
     (magit-insert-section nil nil
 			  'magit-wash-commit
 			  "git" "log" "--max-count=1"
-                          "--pretty=medium"
-                          "--cc" "-p" commit)))
+			  "--pretty=medium"
+			  "--cc" "-p" commit)))
 
 (defun magit-show-commit (commit &optional scroll)
   (when (magit-section-p commit)
@@ -1489,18 +1489,18 @@ in log buffer."
 (defun magit-refresh-marked-commits-in-buffer ()
   (if (not magit-mark-overlay)
       (let ((ov (make-overlay 1 1)))
-        (overlay-put ov 'face 'magit-item-mark)
-        (setq magit-mark-overlay ov)))
+	(overlay-put ov 'face 'magit-item-mark)
+	(setq magit-mark-overlay ov)))
   (delete-overlay magit-mark-overlay)
   (magit-for-all-sections
    (lambda (section)
      (when (and (eq (magit-section-type section) 'commit)
-                (equal (magit-section-info section)
-                       magit-marked-commit))
+		(equal (magit-section-info section)
+		       magit-marked-commit))
        (move-overlay magit-mark-overlay
-                     (magit-section-beginning section)
-                     (magit-section-end section)
-                     (current-buffer))))))
+		     (magit-section-beginning section)
+		     (magit-section-end section)
+		     (current-buffer))))))
 
 (defun magit-set-marked-commit (commit)
   (setq magit-marked-commit commit)
@@ -1651,7 +1651,7 @@ in log buffer."
   (interactive (list (magit-read-rev "Manually merge")))
   (if rev
       (magit-run "git" "merge" "--no-ff" "--no-commit"
-		     (magit-rev-to-git rev))))
+		 (magit-rev-to-git rev))))
 
 (defun magit-automatic-merge (rev)
   (interactive (list (magit-read-rev "Merge")))
@@ -1694,15 +1694,15 @@ in log buffer."
 ;; git svn commands
 
 (defun magit-svn-rebase ()
-	(interactive)
-	(magit-run "git" "svn" "rebase"))
+  (interactive)
+  (magit-run "git" "svn" "rebase"))
 
 (defun magit-svn-dcommit ()
-	(interactive)
-	(magit-run "git" "svn" "dcommit"))
+  (interactive)
+  (magit-run "git" "svn" "dcommit"))
 
 (defun magit-svn-enabled ()
-	(not (null (find "git-svn" (magit-list-interesting-revisions) :test 'equal))))
+  (not (null (find "git-svn" (magit-list-interesting-revisions) :test 'equal))))
 
 ;;; Resetting
 
@@ -1743,13 +1743,13 @@ in log buffer."
 	  (let* ((commit (car p))
 		 (properties (cdr p))
 		 (used (plist-get properties 'used)))
-	  (magit-with-section commit 'commit
-	    (magit-set-section-info commit)
-	    (insert (magit-shell
-		     "git log --max-count=1 --pretty=format:%s %s --"
-		     (if used ". %s" "* %s")
-		     commit)
-		    "\n")))))
+	    (magit-with-section commit 'commit
+	      (magit-set-section-info commit)
+	      (insert (magit-shell
+		       "git log --max-count=1 --pretty=format:%s %s --"
+		       (if used ". %s" "* %s")
+		       commit)
+		      "\n")))))
       (insert "\n"))))
 
 (defun magit-rewrite-set-commit-property (commit prop value)
@@ -2227,7 +2227,7 @@ Prefix arg means justify as well."
 	   (magit-rev-range-describe range "Commits")
 	   'magit-wash-log
 	   `("git" "log" "--max-count=1000" "--pretty=oneline"
-             ,@(if magit-have-decorate (list "--decorate"))
+	     ,@(if magit-have-decorate (list "--decorate"))
 	     ,@(if magit-have-graph (list "--graph"))
 	     ,args "--"))))
 
@@ -2383,7 +2383,7 @@ Prefix arg means justify as well."
     ((stash)
      (when (yes-or-no-p "Discard stash? ")
        (magit-run "git" "stash" "drop" info)))))
-     
+
 (defun magit-visit-item ()
   (interactive)
   (magit-section-action (item info "visit")
