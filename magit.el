@@ -1007,11 +1007,37 @@ Many Magit faces inherit from this one by default."
 (make-variable-buffer-local 'magit-refresh-args)
 (put 'magit-refresh-args 'permanent-local t)
 
+(defvar last-point)
+
+(defun magit-remember-point ()
+  (setq last-point (point)))
+
+(defun magit-invisible-region-end (pos)
+  (while (and (not (= pos (point-max))) (invisible-p pos))
+    (setq pos (next-char-property-change pos)))
+  pos)
+
+(defun magit-invisible-region-start (pos)
+  (while (and (not (= pos (point-min))) (invisible-p pos))
+    (setq pos (1- (previous-char-property-change pos))))
+  pos)
+
 (defun magit-correct-point-after-command ()
-  ;; Emacs often leaves point in invisible regions.  If that happens,
-  ;; move point to the end of that region.
-  (if (get-text-property (point) 'invisible)
-      (goto-char (next-single-property-change (point) 'invisible))))
+  ;; Emacs often leaves point in invisible regions, it seems.  To fix
+  ;; this, we move point ourselves and never let Emacs do its own
+  ;; adjustements.
+  ;;
+  ;; When point has to be moved out of an invisible region, it can be
+  ;; moved to its end or its beginning.  We usually move it to its
+  ;; end, except when that would move point back to where it was
+  ;; before the last command.
+  ;;
+  (if (invisible-p (point))
+      (let ((end (magit-invisible-region-end (point))))
+	(goto-char (if (= end last-point)
+		       (magit-invisible-region-start (point))
+		     end))))
+  (setq disable-point-adjustment t))
 
 (defun magit-post-command-hook ()
   (magit-correct-point-after-command)
@@ -1031,7 +1057,8 @@ Please see the manual for a complete description of Magit.
 	mode-line-process ""
 	truncate-lines t
 	line-move-visual nil)
-  (add-hook 'post-command-hook #'magit-post-command-hook nil t)
+  (add-hook 'pre-command-hook #'magit-remember-point nil t)
+  (add-hook 'post-command-hook #'magit-post-command-hook t t)
   (use-local-map magit-mode-map)
   (run-mode-hooks 'magit-mode-hook))
 
