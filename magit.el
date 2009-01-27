@@ -941,6 +941,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "z") 'magit-stash)
     (define-key map (kbd "w") 'magit-wazzup)
     (define-key map (kbd "$") 'magit-display-process)
+    (define-key map (kbd "E") 'magit-interactive-rebase)
     (define-key map (kbd "q") 'quit-window)
     map))
 
@@ -2454,5 +2455,22 @@ Prefix arg means justify as well."
     ((commit)
      (kill-new info)
      (message "%s" info))))
+
+(defun magit-interactive-rebase ()
+  "Start a git rebase -i session, old school-style."
+  (interactive)
+  (server-start)
+  (let* ((section (get-text-property (point) 'magit-section))
+	 (commit (and (member 'commit (magit-section-context-type section))
+		      (setq commit (magit-section-info section))))
+	 (old-editor (getenv "GIT_EDITOR")))
+    (setenv "GIT_EDITOR" (expand-file-name "emacsclient" exec-directory))
+    (unwind-protect
+	(shell-command (concat "git rebase -i "
+			       (or (and commit (concat commit "^"))
+				   (read-string "Interactively rebase to: "))
+			       " &"))
+      (if old-editor
+	  (setenv "GIT_EDITOR" old-editor)))))
 
 (provide 'magit)
