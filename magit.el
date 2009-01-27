@@ -942,6 +942,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "w") 'magit-wazzup)
     (define-key map (kbd "$") 'magit-display-process)
     (define-key map (kbd "E") 'magit-interactive-rebase)
+    (define-key map (kbd "V") 'magit-show-branches)
     (define-key map (kbd "q") 'quit-window)
     map))
 
@@ -2472,5 +2473,13 @@ Prefix arg means justify as well."
 			       " &"))
       (if old-editor
 	  (setenv "GIT_EDITOR" old-editor)))))
+
+(defun magit-show-branches ()
+  "Show all of the current branches in other-window."
+  (interactive)
+  (save-selected-window
+    (switch-to-buffer-other-window "*magit-branches*")
+    (erase-buffer)
+    (shell-command "git branch -va" t t)))
 
 (provide 'magit)
