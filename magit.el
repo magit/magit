@@ -2417,7 +2417,14 @@ Prefix arg means justify as well."
        (goto-line line)))
     ((commit)
      (magit-show-commit info)
-     (pop-to-buffer "*magit-commit*"))))
+     (pop-to-buffer "*magit-commit*"))
+    ((stash)
+     (let ((buf (get-buffer "*magit-diff*"))
+	   (inhibit-read-only t))
+       (if buf
+	   (with-current-buffer buf
+	     (erase-buffer))))
+     (magit-diff (cons (concat info "^2^") info)))))
 
 (defun magit-show-item-or-scroll-up ()
   (interactive)
