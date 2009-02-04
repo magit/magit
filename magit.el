@@ -1590,7 +1590,7 @@ in log buffer."
   (let* ((topdir (magit-get-top-dir dir))
 	 (buf (or (magit-find-buffer 'status topdir)
 		  (switch-to-buffer
-		   (generate-new-buffer
+		   (get-buffer-create
 		    (concat "*magit: "
 			    (file-name-nondirectory
 			     (directory-file-name topdir)) "*"))))))
