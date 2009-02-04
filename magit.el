@@ -904,8 +904,8 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "?") 'magit-describe-item)
     (define-key map (kbd ".") 'magit-mark-item)
     (define-key map (kbd "=") 'magit-diff-with-mark)
-    (define-key map (kbd "l") 'magit-log-head)
-    (define-key map (kbd "L") 'magit-log)
+    (define-key map (kbd "l") 'magit-log)
+    (define-key map (kbd "L") 'magit-log-long)
     (define-key map (kbd "h") 'magit-reflog-head)
     (define-key map (kbd "H") 'magit-reflog)
     (define-key map (kbd "d") 'magit-diff-working-tree)
@@ -965,8 +965,8 @@ Many Magit faces inherit from this one by default."
     "---"
     ["Diff working tree" magit-diff-working-tree t]
     ["Diff" magit-diff t]
-    ["Log head" magit-log-head t]
     ["Log" magit-log t]
+    ["Long Log" magit-log-long t]
     ["Reflog head" magit-reflog-head t]
     ["Reflog" magit-reflog t]
     "---"
@@ -1431,10 +1431,11 @@ in log buffer."
 	     " - "))
 
 (defun magit-wash-log-line ()
-  (if (search-forward-regexp "[0-9a-fA-F]\\{40\\}" (line-end-position) t)
+  (if (and (search-forward-regexp "[0-9a-fA-F]\\{40\\}" (line-end-position) t)
+	   (goto-char (match-beginning 0))
+	   (not (looking-back "commit ")))
       (let ((commit (match-string-no-properties 0)))
 	(delete-region (match-beginning 0) (match-end 0))
-	(goto-char (match-beginning 0))
 	(fixup-whitespace)
 	(goto-char (line-beginning-position))
 	(when (search-forward-regexp "^[|*\\/ ]+\\((\\(tag:.+?\\|refs/.+?\\))\\)"
@@ -2231,29 +2232,39 @@ Prefix arg means justify as well."
       (let ((res (magit-shell-exit-code "git log --decorate --max-count=0")))
 	(setq magit-have-decorate (eq res 0)))))
 
-(defun magit-refresh-log-buffer (range args)
+(defun magit-refresh-log-buffer (range style args)
   (magit-configure-have-graph)
   (magit-configure-have-decorate)
   (magit-create-buffer-sections
     (apply #'magit-insert-section nil
 	   (magit-rev-range-describe range "Commits")
 	   'magit-wash-log
-	   `("git" "log" "--max-count=1000" "--pretty=oneline"
+	   `("git" "log" "--max-count=1000" ,style
 	     ,@(if magit-have-decorate (list "--decorate"))
 	     ,@(if magit-have-graph (list "--graph"))
 	     ,args "--"))))
 
-(defun magit-log (range)
-  (interactive (list (magit-read-rev-range "Log" (magit-get-current-branch))))
-  (if range
-      (let* ((topdir (magit-get-top-dir default-directory))
-	     (args (magit-rev-range-to-git range)))
-	(switch-to-buffer "*magit-log*")
-	(magit-mode-init topdir 'log #'magit-refresh-log-buffer range args))))
+(defun magit-log (&optional arg)
+  (interactive "P")
+  (let* ((range (if arg
+		    (read-string "Show log for (default is HEAD): ")
+		  "HEAD"))
+	 (topdir (magit-get-top-dir default-directory))
+	 (args (magit-rev-range-to-git range)))
+    (switch-to-buffer "*magit-log*")
+    (magit-mode-init topdir 'log #'magit-refresh-log-buffer range
+		     "--pretty=oneline" args)))
 
-(defun magit-log-head ()
-  (interactive)
-  (magit-log "HEAD"))
+(defun magit-log-long (&optional arg)
+  (interactive "P")
+  (let* ((range (if arg
+		    (read-string "Show long log for (default is HEAD): ")
+		  "HEAD"))
+	 (topdir (magit-get-top-dir default-directory))
+	 (args (magit-rev-range-to-git range)))
+    (switch-to-buffer "*magit-log*")
+    (magit-mode-init topdir 'log #'magit-refresh-log-buffer range
+		     "--stat" args)))
 
 ;;; Reflog
 
@@ -2472,7 +2483,7 @@ Prefix arg means justify as well."
   (server-start)
   (let* ((section (get-text-property (point) 'magit-section))
 	 (commit (and (member 'commit (magit-section-context-type section))
-		      (setq commit (magit-section-info section))))
+		      (magit-section-info section)))
 	 (old-editor (getenv "GIT_EDITOR")))
     (setenv "GIT_EDITOR" (expand-file-name "emacsclient" exec-directory))
     (unwind-protect
