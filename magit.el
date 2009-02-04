@@ -69,6 +69,11 @@ save all modified buffers without asking."
   :group 'magit
   :type 'boolean)
 
+(defcustom magit-log-cutoff-length 100
+  "The maximum number of commits to show in the log and whazzup buffers"
+  :group 'magit
+  :type 'integer)
+
 (defface magit-header
   '((t))
   "Face for generic header lines.
@@ -2239,7 +2244,8 @@ Prefix arg means justify as well."
     (apply #'magit-insert-section nil
 	   (magit-rev-range-describe range "Commits")
 	   'magit-wash-log
-	   `("git" "log" "--max-count=1000" ,style
+	   `("git" "log" ,(format "--max-count=%s"
+				  magit-log-cutoff-length) ,style
 	     ,@(if magit-have-decorate (list "--decorate"))
 	     ,@(if magit-have-graph (list "--graph"))
 	     ,args "--"))))
@@ -2274,7 +2280,8 @@ Prefix arg means justify as well."
 			  (format "Local history of head %s" head)
 			  'magit-wash-log
 			  "git" "log" "--walk-reflogs"
-			  "--max-count=1000"
+			  (format "--max-count=%s"
+				  magit-log-cutoff-length)
 			  "--pretty=oneline" args)))
 
 (defun magit-reflog (head)
@@ -2337,7 +2344,7 @@ Prefix arg means justify as well."
 			     n b)
 		     'magit-wash-log
 		     "git" "log"
-		     "--max-count=100"
+		     (format "--max-count=%s" magit-log-cutoff-length)
 		     "--pretty=oneline"
 		     (format "%s..%s" head b)
 		     "--"))))
