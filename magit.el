@@ -2145,6 +2145,31 @@ Prefix arg means justify as well."
   (interactive "sStash description: ")
   (magit-run "git" "stash" "save" description))
 
+(defvar magit-currently-shown-stash nil)
+
+(defun magit-show-stash (stash &optional scroll)
+  (when (magit-section-p stash)
+    (setq stash (magit-section-info stash)))
+  (let ((dir default-directory)
+	(buf (get-buffer-create "*magit-diff*")))
+    (cond ((equal magit-currently-shown-stash stash)
+	   (let ((win (get-buffer-window buf)))
+	     (cond ((not win)
+		    (display-buffer buf))
+		   (scroll
+		    (with-selected-window win
+		      (funcall scroll))))))
+	  (t
+	   (setq magit-currently-shown-stash stash)
+	   (display-buffer buf)
+	   (with-current-buffer buf
+	     (set-buffer buf)
+	     (goto-char (point-min))
+	     (let* ((range (cons (concat info "^2^") info))
+		    (args (magit-rev-range-to-git range)))
+	       (magit-mode-init dir 'diff #'magit-refresh-diff-buffer
+				range args)))))))
+
 ;;; Commits
 
 (defun magit-commit-at-point (&optional nil-ok-p)
@@ -2435,24 +2460,24 @@ Prefix arg means justify as well."
      (magit-show-commit info)
      (pop-to-buffer "*magit-commit*"))
     ((stash)
-     (let ((buf (get-buffer "*magit-diff*"))
-	   (inhibit-read-only t))
-       (if buf
-	   (with-current-buffer buf
-	     (erase-buffer))))
-     (magit-diff (cons (concat info "^2^") info)))))
+     (magit-show-stash info)
+     (pop-to-buffer "*magit-diff*"))))
 
 (defun magit-show-item-or-scroll-up ()
   (interactive)
   (magit-section-action (item info)
     ((commit)
-     (magit-show-commit info #'scroll-up))))
+     (magit-show-commit info #'scroll-up))
+    ((stash)
+     (magit-show-stash info #'scroll-up))))
 
 (defun magit-show-item-or-scroll-down ()
   (interactive)
   (magit-section-action (item info)
     ((commit)
-     (magit-show-commit info #'scroll-down))))
+     (magit-show-commit info #'scroll-down))
+    ((stash)
+     (magit-show-stash info #'scroll-down))))
 
 (defun magit-mark-item (&optional unmark)
   (interactive "P")
