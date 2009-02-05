@@ -323,14 +323,12 @@ Many Magit faces inherit from this one by default."
       rev)))
 
 (defun magit-read-rev-range (op &optional def-beg def-end)
-  (if current-prefix-arg
-      (read-string (format "%s range: " op))
-    (let ((beg (magit-read-rev (format "%s start" op)
-			       def-beg)))
-      (if (not beg)
-	  nil
-	(let ((end (magit-read-rev (format "%s end" op) def-end)))
-	  (cons beg end))))))
+  (let ((beg (magit-read-rev (format "%s start" op)
+			     def-beg)))
+    (if (not beg)
+	nil
+      (let ((end (magit-read-rev (format "%s end" op) def-end)))
+	(cons beg end)))))
 
 (defun magit-rev-to-git (rev)
   (or rev
@@ -2253,7 +2251,7 @@ Prefix arg means justify as well."
 (defun magit-log (&optional arg)
   (interactive "P")
   (let* ((range (if arg
-		    (read-string "Show log for (default is HEAD): ")
+		    (magit-read-rev-range "Log" "HEAD")
 		  "HEAD"))
 	 (topdir (magit-get-top-dir default-directory))
 	 (args (magit-rev-range-to-git range)))
@@ -2264,7 +2262,7 @@ Prefix arg means justify as well."
 (defun magit-log-long (&optional arg)
   (interactive "P")
   (let* ((range (if arg
-		    (read-string "Show long log for (default is HEAD): ")
+		    (magit-read-rev-range "Long log" "HEAD")
 		  "HEAD"))
 	 (topdir (magit-get-top-dir default-directory))
 	 (args (magit-rev-range-to-git range)))
