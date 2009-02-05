@@ -2378,7 +2378,8 @@ Prefix arg means justify as well."
   (let* ((topdir (magit-get-top-dir default-directory)))
     (switch-to-buffer "*magit-wazzup*")
     (magit-mode-init topdir 'wazzup 
-		     #'magit-refresh-wazzup-buffer "master")))
+		     #'magit-refresh-wazzup-buffer
+		     (magit-get-current-branch))))
 
 ;;; Miscellaneous
 
