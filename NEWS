@@ -14,6 +14,9 @@ Changes in magit 0.7:
   'L' shows a more verbose log.  Use the prefix arg to specify the
   range of the log.
 
+* M-x magit-status doesn't prompt anymore for a directory when invoked
+  from within a Git repository.  Use C-u to force a prompt.
+
 * Magit works better with oldish Gits that don't understand "--graph"
   for example.
 

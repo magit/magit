@@ -1584,7 +1584,9 @@ in log buffer."
 	  (magit-insert-unpushed-commits remote branch))))))
 
 (defun magit-status (dir)
-  (interactive (list (magit-read-top-dir)))
+  (interactive (list (or (and (not current-prefix-arg)
+			      (magit-get-top-dir default-directory))
+			 (magit-read-top-dir))))
   (if magit-save-some-buffers
       (save-some-buffers (eq magit-save-some-buffers 'dontask)))
   (let* ((topdir (magit-get-top-dir dir))
