@@ -30,6 +30,7 @@ as an extension to Emacs.
 @menu
 * Introduction::                
 * Acknowledgments::             
+* Sections::                    
 * Status::                      
 * Untracked files::             
 * Staging and Committing::      
@@ -93,6 +94,44 @@ Alex Ott contributed support for git svn.  Thanks!
 Marcin Bachry contributed bug fixes and support for decorated logs.
 Thanks!
 
+@node Sections
+@chapter Sections
+
+All Magit buffers are structured into nested 'sections'.  These
+sections can be hidden and shown individually.  When a section is
+hidden, only its first line is shown and all its children are
+completely invisible.
+
+The most fine-grained way to control the visibility of sections is the
+@kbd{TAB} key.  It will to toggle the current section (the section
+that contains point) between being hidden and being shown.
+
+Typing @kbd{S-TAB} toggles the visibility of the children of the
+current section.  When all of them are shown, they will all be hidden.
+Otherwise, when some or all are hidden, they will all be shown.
+
+The digit keys @kbd{1}, @kbd{2}, @kbd{3}, and @kbd{4} control the
+visibility of sections based on levels.  Hitting @kbd{2}, for example,
+will show sections on levels one and two, and will hide sections on
+level 3.  However, only sections that are a parent or child of the
+current section are affected.
+
+For example, when the current section is on level 3 and you hit
+@kbd{1}, the grand-parent of the current section (which is on level
+one) will be show, the parent of the current section (level 2) will be
+hidden.  The visibility of no other section will be changed.
+
+This sounds a bit complicated, but you'll figure it out.
+
+Using @kbd{M-1}, @kbd{M-2}, @kbd{M-3}, and @kbd{M-4} is similar to the
+unmodified digits, but now all sections on the respective level are
+affected, regardless of whether they are related to the current
+section.
+
+For example, @kbd{M-1} will only show the first lines of the top-level
+sections and will hide everything else.  Typing @kbd{M-4} on the other
+hand will show everything in the status buffer.
+
 @node Status
 @chapter Status
 
@@ -114,17 +153,8 @@ the status buffer in this way after saving a file in Emacs.
 The header at the top of the status buffer shows a short summary of
 the repository state: where it is located, which branch is checked
 out, etc.  Below the header are a number of sections that show details
-about the working tree and the staging area.  Only sections that are
-not empty are shown.
-
-You control how much of a section is visible by moving point to its
-title and hitting @kbd{TAB} or @kbd{S-TAB}.  Hitting @kbd{TAB} will
-toggle between hiding and showing the section.  A hidden section only
-shows its first line.  You can also control the visibility of
-sub-sections in this way.  Hitting @kbd{S-TAB} will fully expand a
-section by showing it and all of its sub-sections.  If a section is
-already fully expanded, @kbd{S-TAB} will collapse it: the section
-itself remains shown, but all its immediate sub-sections are hidden.
+about the working tree and the staging area.  You can hide and show
+them as described in the previous section.
 
 The first section shows @emph{Untracked files}, if there are any.  See
 @ref{Untracked files} for more details.

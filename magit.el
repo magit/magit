@@ -680,10 +680,42 @@ Many Magit faces inherit from this one by default."
 	   (t
 	    (magit-section-expand s))))))
 
+(defun magit-section-lineage (s)
+  (and s (cons s (magit-section-lineage (magit-section-parent s)))))
+
+(defun magit-section-show-level (section level threshold path)
+  (magit-section-set-hidden section (>= level threshold))
+  (when (< level threshold)
+    (if path
+	(magit-section-show-level (car path) (1+ level) threshold (cdr path))
+      (dolist (c (magit-section-children section))
+	(magit-section-show-level c (1+ level) threshold nil)))))
+
+(defun magit-show-level (level all)
+  (if all
+      (magit-section-show-level magit-top-section 0 level nil)
+    (let ((path (reverse (magit-section-lineage (magit-current-section)))))
+      (magit-section-show-level (car path) 0 level (cdr path)))))
+
+(defmacro magit-define-level-shower-1 (level all)
+  (let ((fun (intern (format "magit-show-level-%s%s"
+			     level (if all "-all" ""))))
+	(doc (format "Show sections on level %s." level)))
+    `(defun ,fun ()
+       ,doc
+       (interactive)
+       (magit-show-level ,level ,all))))
+
+(defmacro magit-define-level-shower (level)
+  `(progn
+     (magit-define-level-shower-1 ,level nil)
+     (magit-define-level-shower-1 ,level t)))
+
 (defmacro magit-define-section-jumper (sym title)
   (let ((fun (intern (format "magit-jump-to-%s" sym)))
 	(doc (format "Jump to section `%s'." title)))
     `(defun ,fun ()
+       ,doc
        (interactive)
        (magit-goto-section '(,sym)))))
 
@@ -891,6 +923,11 @@ Many Magit faces inherit from this one by default."
 (magit-define-section-jumper staged    "Staged changes")
 (magit-define-section-jumper unpushed  "Unpushed commits")
 
+(magit-define-level-shower 1)
+(magit-define-level-shower 2)
+(magit-define-level-shower 3)
+(magit-define-level-shower 4)
+
 (defvar magit-mode-map
   (let ((map (make-keymap)))
     (suppress-keymap map t)
@@ -898,10 +935,14 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "p") 'magit-goto-previous-section)
     (define-key map (kbd "TAB") 'magit-toggle-section)
     (define-key map (kbd "<backtab>") 'magit-expand-collapse-section)
-    (define-key map (kbd "1") 'magit-jump-to-untracked)
-    (define-key map (kbd "2") 'magit-jump-to-unstaged)
-    (define-key map (kbd "3") 'magit-jump-to-staged)
-    (define-key map (kbd "4") 'magit-jump-to-unpushed)
+    (define-key map (kbd "1") 'magit-show-level-1)
+    (define-key map (kbd "2") 'magit-show-level-2)
+    (define-key map (kbd "3") 'magit-show-level-3)
+    (define-key map (kbd "4") 'magit-show-level-4)
+    (define-key map (kbd "M-1") 'magit-show-level-1-all)
+    (define-key map (kbd "M-2") 'magit-show-level-2-all)
+    (define-key map (kbd "M-3") 'magit-show-level-3-all)
+    (define-key map (kbd "M-4") 'magit-show-level-4-all)
     (define-key map (kbd "g") 'magit-refresh)
     (define-key map (kbd "G") 'magit-refresh-all)
     (define-key map (kbd "s") 'magit-stage-item)

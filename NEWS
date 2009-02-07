@@ -17,6 +17,11 @@ Changes in magit 0.7:
 * M-x magit-status doesn't prompt anymore for a directory when invoked
   from within a Git repository.  Use C-u to force a prompt.
 
+* The digit keys '1', '2', '3', and '4' now show sections on the
+  respective level and hide everything below.  With Meta, they work on
+  all sections, without, they work only on sections that are a parent
+  or child of the current section.
+
 * Magit works better with oldish Gits that don't understand "--graph"
   for example.
 
