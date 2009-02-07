@@ -1713,11 +1713,11 @@ in log buffer."
 
 (defun magit-svn-rebase ()
   (interactive)
-  (magit-run "git" "svn" "rebase"))
+  (magit-run-async "git" "svn" "rebase"))
 
 (defun magit-svn-dcommit ()
   (interactive)
-  (magit-run "git" "svn" "dcommit"))
+  (magit-run-async "git" "svn" "dcommit"))
 
 (defun magit-svn-enabled ()
   (not (null (find "git-svn" (magit-list-interesting-revisions) :test 'equal))))
