@@ -10,7 +10,7 @@
 @end direntry
 
 @copying
-Copyright @copyright{} 2008 Marius Vollmer
+Copyright @copyright{} 2008, 2009 Marius Vollmer
 
 @quotation
 Permission is granted to copy, distribute and/or modify this document
@@ -40,6 +40,7 @@ as an extension to Emacs.
 * Resetting::                   
 * Stashing::                    
 * Branching::                   
+* Wazzup::                      
 * Merging::                     
 * Rebasing::                    
 * Rewriting::                   
@@ -218,9 +219,12 @@ new buffer will be shown that displays the history in a terse form.
 The first paragraph of each commit message is displayed, next to a
 representation of the relationships between commits.
 
-Typing @kbd{L} will ask for the starting and end point of the history.
-This can be used to show the commits that are in one branch, but not
-in another, for example.
+Giving a prefix argument to @kbd{l} will ask for the starting and end
+point of the history.  This can be used to show the commits that are
+in one branch, but not in another, for example.
+
+Typing @kbd{L} (or @kbd{C-u L}) will show the log in a more verbose
+form.
 
 You can move point to a commit and then cause various things to happen
 with it.  (The following commands work in any list of commit, such as
@@ -229,7 +233,7 @@ the one shown in the @emph{Unpushed commits} section.)
 Typing @kbd{RET} will pop up more information about the current commit
 and move point into the new buffer.  Typing @kbd{SPC} and @kbd{DEL}
 will also show the information, but will scroll the new buffer up or
-down when typed again.
+down (respectively) when typed again.
 
 Typing @kbd{a} will apply the current commit to your current branch.
 This is useful when you are browsing the history of some other branch
@@ -255,7 +259,7 @@ the @dfn{marked} commit.
 
 You can mark the current commit by typing @kbd{.}.  When the current
 commit is already marked, typing @kbd{.} will unmark it.  To unmark
-the marked commit no matter where point it, use @kbd{C-u .}.
+the marked commit no matter where point is, use @kbd{C-u .}.
 
 Some commands, such as @kbd{=}, will use the current commit and the
 marked commit as implicit arguments.  Other commands will offer the
@@ -332,6 +336,10 @@ You can create a new stash with @kbd{z}.  Your stashes will be listed
 in the status buffer, and you can apply them with @kbd{a} and pop them
 with @kbd{A}.  To drop a stash, use @kbd{k}.
 
+You can visit and show stashes in the usual way: Typing @kbd{SPC} and
+@kbd{DEL} will pop up a buffer with the description of the stash and
+scroll it, typing @kbd{RET} will move point into that buffer.
+
 @node Branching
 @chapter Branching
 
@@ -345,6 +353,17 @@ description will offer that commit as the default to switch to.
 This will result in a detached head.
 
 To create a new branch and switch to it immediately, type @kbd{B}.
+
+@node Wazzup
+@chapter Wazzup
+
+Typing @kbd{w} will show a summary of how your other branches relate
+to the current branch.
+
+For each branch, you will get a section that lists the commits in that
+branch that are not in the current branch.  The sections are initially
+collapsed; you need to explicitly open them with @kbd{TAB} (or
+similar) to show the lists of commits.
 
 @node Merging
 @chapter Merging
