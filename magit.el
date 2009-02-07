@@ -799,43 +799,47 @@ Many Magit faces inherit from this one by default."
     (setq magit-process-client-buffer (current-buffer))
     (save-excursion
       (set-buffer buf)
-      (setq default-directory dir)
-      (if noerase
-	  (goto-char (point-max))
-	(erase-buffer))
-      (insert "$ " (or logline
-		       (magit-concat-with-delim " " cmd-and-args))
-	      "\n")
-      (cond (nowait
-	     (setq magit-process
-		   (apply 'start-process "git" buf cmd args))
-	     (set-process-sentinel magit-process 'magit-process-sentinel)
-	     (set-process-filter magit-process 'magit-process-filter)
-	     (setq successp t))
-	    (input
-	     (with-current-buffer input
-	       (setq default-directory dir)
+      (setq buffer-read-only t)
+      (let ((inhibit-read-only t))
+	(setq default-directory dir)
+	(if noerase
+	    (goto-char (point-max))
+	  (erase-buffer))
+	(insert "$ " (or logline
+			 (magit-concat-with-delim " " cmd-and-args))
+		"\n")
+	(cond (nowait
+	       (setq magit-process
+		     (apply 'start-process "git" buf cmd args))
+	       (set-process-sentinel magit-process 'magit-process-sentinel)
+	       (set-process-filter magit-process 'magit-process-filter)
+	       (setq successp t))
+	      (input
+	       (with-current-buffer input
+		 (setq default-directory dir)
+		 (setq successp
+		       (equal (apply 'call-process-region
+				     (point-min) (point-max)
+				     cmd nil buf nil args) 0)))
+	       (magit-set-mode-line-process nil)
+	       (magit-need-refresh magit-process-client-buffer))
+	      (t
 	       (setq successp
-		     (equal (apply 'call-process-region (point-min) (point-max)
-				   cmd nil buf nil args) 0)))
-	     (magit-set-mode-line-process nil)
-	     (magit-need-refresh magit-process-client-buffer))
-	    (t
-	     (setq successp
-		   (equal (apply 'call-process cmd nil buf nil args) 0))
-	     (magit-set-mode-line-process nil)
-	     (magit-need-refresh magit-process-client-buffer))))
-    (or successp
-	noerror
-	(error "Git failed."))
-    successp))
+		     (equal (apply 'call-process cmd nil buf nil args) 0))
+	       (magit-set-mode-line-process nil)
+	       (magit-need-refresh magit-process-client-buffer))))
+      (or successp
+	  noerror
+	  (error "Git failed."))
+      successp)))
 
 (defun magit-process-sentinel (process event)
   (let ((msg (format "Git %s." (substring event 0 -1)))
 	(successp (string-match "^finished" event)))
     (with-current-buffer (process-buffer process)
-      (insert msg "\n")
-      (message msg))
+      (let ((inhibit-read-only t))
+	(insert msg "\n")
+	(message msg)))
     (setq magit-process nil)
     (magit-set-mode-line-process nil)
     (magit-refresh-buffer magit-process-client-buffer)))
@@ -843,17 +847,18 @@ Many Magit faces inherit from this one by default."
 (defun magit-process-filter (proc string)
   (save-excursion
     (set-buffer (process-buffer proc))
-    (goto-char (process-mark proc))
-    ;; Find last ^M in string.  If one was found, ignore everything
-    ;; before it and delete the current line.
-    (let ((ret-pos (position ?\r string :from-end t)))
-      (cond (ret-pos
-	     (goto-char (line-beginning-position))
-	     (delete-region (point) (line-end-position))
-	     (insert (substring string (+ ret-pos 1))))
-	    (t
-	     (insert string))))
-    (set-marker (process-mark proc) (point))))
+    (let ((inhibit-read-only t))
+      (goto-char (process-mark proc))
+      ;; Find last ^M in string.  If one was found, ignore everything
+      ;; before it and delete the current line.
+      (let ((ret-pos (position ?\r string :from-end t)))
+	(cond (ret-pos
+	       (goto-char (line-beginning-position))
+	       (delete-region (point) (line-end-position))
+	       (insert (substring string (+ ret-pos 1))))
+	      (t
+	       (insert string))))
+      (set-marker (process-mark proc) (point)))))
 
 (defun magit-run (cmd &rest args)
   (magit-with-refresh
