@@ -512,6 +512,8 @@ Many Magit faces inherit from this one by default."
 			"\n"))
 	    (setq body-beg (point))
 	    (apply 'call-process cmd nil t nil args)
+	    (if (not (looking-back "\n"))
+		(insert "\n"))
 	    (if washer
 		(save-restriction
 		  (narrow-to-region body-beg (point))
