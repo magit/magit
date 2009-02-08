@@ -55,6 +55,11 @@
   :prefix "magit-"
   :group 'tools)
 
+(defcustom magit-git-executable "git"
+  "The name of the Git executable."
+  :group 'magit
+  :type 'string)
+
 (defcustom magit-save-some-buffers t
   "Non-nil means that \\[magit-status] will save modified buffers before running.
 Setting this to t will ask which buffers to save, setting it to 'dontask will
@@ -212,25 +217,31 @@ Many Magit faces inherit from this one by default."
 	 (concat (car seqs) delim (magit-concat-with-delim delim (cdr seqs))))))
 
 (defun magit-get (&rest keys)
-  (magit-shell "git config %s" (magit-concat-with-delim "." keys)))
+  (magit-shell "%s config %s"
+	       magit-git-executable
+	       (magit-concat-with-delim "." keys)))
 
 (defun magit-set (val &rest keys)
   (if val
-      (magit-shell "git config %s %s" (magit-concat-with-delim "." keys) val)
-    (magit-shell "git config --unset %s" (magit-concat-with-delim "." keys))))
+      (magit-shell "%s config %s %s"
+		   magit-git-executable
+		   (magit-concat-with-delim "." keys) val)
+    (magit-shell "%s config --unset %s"
+		 magit-git-executable
+		 (magit-concat-with-delim "." keys))))
 
 (defun magit-get-top-dir (cwd)
   (let ((cwd (expand-file-name cwd)))
     (and (file-directory-p cwd)
 	 (let ((magit-dir (magit-shell
-			   "cd %s && git rev-parse --git-dir 2>/dev/null"
-			   cwd)))
+			   "cd %s && %s rev-parse --git-dir 2>/dev/null"
+			   cwd magit-git-executable)))
 	   (and magit-dir
 		(file-name-as-directory
 		 (or (file-name-directory magit-dir) cwd)))))))
 
 (defun magit-get-ref (ref)
-  (magit-shell "git symbolic-ref -q %s" ref))
+  (magit-shell "%s symbolic-ref -q %s" magit-git-executable ref))
 
 (defun magit-get-current-branch ()
   (let* ((head (magit-get-ref "HEAD"))
@@ -246,7 +257,8 @@ Many Magit faces inherit from this one by default."
 
 (defun magit-name-rev (rev)
   (and rev
-       (let ((name (magit-shell "git name-rev --name-only %s" rev)))
+       (let ((name (magit-shell "%s name-rev --name-only %s"
+				magit-git-executable rev)))
 	 (if (or (not name) (string= name "undefined"))
 	     rev
 	   name))))
@@ -259,7 +271,8 @@ Many Magit faces inherit from this one by default."
   (concat "'" (replace-regexp-in-string "'" "'\\''" str) "'"))
 
 (defun magit-format-commit (commit format)
-  (magit-shell "git log --max-count=1 --pretty=format:%s %s" 
+  (magit-shell "%s log --max-count=1 --pretty=format:%s %s" 
+	       magit-git-executable
 	       format
 	       commit))
 
@@ -279,17 +292,24 @@ Many Magit faces inherit from this one by default."
       (insert text))))
 
 (defun magit-file-uptodate-p (file)
-  (eq (magit-shell-exit-code "git diff --quiet -- %s" file) 0))
+  (eq (magit-shell-exit-code "%s diff --quiet -- %s"
+			     magit-git-executable file)
+      0))
 
 (defun magit-anything-staged-p ()
-  (not (eq (magit-shell-exit-code "git diff --quiet --cached") 0)))
+  (not (eq (magit-shell-exit-code "%s diff --quiet --cached" 
+				  magit-git-executable)
+	   0)))
 
 (defun magit-everything-clean-p ()
   (and (not (magit-anything-staged-p))
-       (eq (magit-shell-exit-code "git diff --quiet") 0)))
+       (eq (magit-shell-exit-code "%s diff --quiet"
+				  magit-git-executable)
+	   0)))
 
 (defun magit-commit-parents (commit)
-  (cdr (magit-shell-lines "git rev-list -1 --parents %s | tr ' ' '\n'"
+  (cdr (magit-shell-lines "%s rev-list -1 --parents %s | tr ' ' '\n'"
+			  magit-git-executable
 			  commit)))
 
 ;; XXX - let the user choose the parent
@@ -309,8 +329,8 @@ Many Magit faces inherit from this one by default."
 ;;; Revisions and ranges
 
 (defun magit-list-interesting-revisions ()
-  (append (magit-shell-lines "git branch -a | cut -c3-")
-	  (magit-shell-lines "git tag")))
+  (append (magit-shell-lines "%s branch -a | cut -c3-" magit-git-executable)
+	  (magit-shell-lines "%s tag" magit-git-executable)))
 
 (defun magit-read-rev (prompt &optional def)
   (let* ((prompt (if def
@@ -805,7 +825,7 @@ Many Magit faces inherit from this one by default."
 
 (defun magit-process-indicator-from-command (cmd args)
   (cond ((or (null args)
-	     (not (equal cmd "git")))
+	     (not (equal cmd magit-git-executable)))
 	 cmd)
 	((or (null (cdr args))
 	     (not (member (car args) '("remote"))))
@@ -842,7 +862,7 @@ Many Magit faces inherit from this one by default."
 		"\n")
 	(cond (nowait
 	       (setq magit-process
-		     (apply 'start-process "git" buf cmd args))
+		     (apply 'start-process magit-git-executable buf cmd args))
 	       (set-process-sentinel magit-process 'magit-process-sentinel)
 	       (set-process-filter magit-process 'magit-process-filter)
 	       (setq successp t))
@@ -895,6 +915,10 @@ Many Magit faces inherit from this one by default."
 (defun magit-run (cmd &rest args)
   (magit-with-refresh
     (magit-run* (cons cmd args))))
+
+(defun magit-run-git (&rest args)
+  (magit-with-refresh
+    (magit-run* (cons magit-git-executable args))))
 
 (defun magit-run-with-input (input cmd &rest args)
   (magit-with-refresh
@@ -1240,7 +1264,8 @@ Please see the manual for a complete description of Magit.
 (defun magit-insert-untracked-files ()
   (magit-insert-section 'untracked "Untracked files:"
 			'magit-wash-untracked-files
-			"git" "ls-files" "-t" "--others" "--exclude-standard"))
+			magit-git-executable
+			"ls-files" "-t" "--others" "--exclude-standard"))
 
 ;;; Diffs and Hunks
 
@@ -1431,7 +1456,7 @@ Please see the manual for a complete description of Magit.
   (with-current-buffer (get-buffer-create "*magit-tmp*")
     (erase-buffer))
   (magit-insert-diff-item-patch diff "*magit-tmp*")
-  (apply #'magit-run "git" "apply" (append args (list "-"))))
+  (apply #'magit-run-git "apply" (append args (list "-"))))
 
 (defun magit-apply-hunk-item (hunk &rest args)
   (let ((tmp (get-buffer-create "*magit-tmp*")))
@@ -1442,17 +1467,17 @@ Please see the manual for a complete description of Magit.
 	 hunk (region-beginning) (region-end) tmp)
       (magit-insert-hunk-item-patch hunk tmp))
     (apply #'magit-run-with-input tmp
-	   "git" "apply" (append args (list "-")))))
+	   magit-git-executable "apply" (append args (list "-")))))
 
 (defun magit-insert-unstaged-changes (title)
   (let ((magit-hide-diffs t))
     (magit-insert-section 'unstaged title 'magit-wash-diffs
-			  "git" "diff")))
+			  magit-git-executable "diff")))
 
 (defun magit-insert-staged-changes ()
   (let ((magit-hide-diffs t))
     (magit-insert-section 'staged "Staged changes:" 'magit-wash-diffs
-			  "git" "diff" "--cached")))
+			  magit-git-executable "diff" "--cached")))
 
 ;;; Logs and Commits
 
@@ -1516,7 +1541,7 @@ in log buffer."
   (magit-create-buffer-sections
     (magit-insert-section nil nil
 			  'magit-wash-commit
-			  "git" "log" "--max-count=1"
+			  magit-git-executable "log" "--max-count=1"
 			  "--pretty=medium"
 			  "--cc" "-p" commit)))
 
@@ -1577,13 +1602,13 @@ in log buffer."
 (defun magit-insert-unpulled-commits (remote branch)
   (magit-insert-section 'unpulled
 			"Unpulled commits:" 'magit-wash-log
-			"git" "log" "--pretty=format:* %H %s"
+			magit-git-executable "log" "--pretty=format:* %H %s"
 			(format "HEAD..%s/%s" remote branch)))
 
 (defun magit-insert-unpushed-commits (remote branch)
   (magit-insert-section 'unpushed
 			"Unpushed commits:" 'magit-wash-log
-			"git" "log" "--pretty=format:* %H %s"
+			magit-git-executable "log" "--pretty=format:* %H %s"
 			(format "%s/%s..HEAD" remote branch)))
 
 ;;; Status
@@ -1604,7 +1629,8 @@ in log buffer."
 	 (format
 	  "Head:   %s\n"
 	  (magit-shell
-	   "git log --max-count=1 --abbrev-commit --pretty=oneline")))
+	   "%s log --max-count=1 --abbrev-commit --pretty=oneline"
+	   magit-git-executable)))
 	(let ((merge-heads (magit-file-lines ".git/MERGE_HEAD")))
 	  (if merge-heads
 	      (insert (format "Merging: %s\n"
@@ -1652,14 +1678,14 @@ in log buffer."
   (interactive)
   (magit-section-action (item info "stage")
     ((untracked file)
-     (magit-run "git" "add" info))
+     (magit-run-git "add" info))
     ((unstaged diff hunk)
      (if (magit-hunk-item-is-conflict-p item)
 	 (error (concat "Can't stage individual resolution hunks.  "
 			"Please stage the whole file.")))
      (magit-apply-hunk-item item "--cached"))
     ((unstaged diff)
-     (magit-run "git" "add" "-u" (magit-diff-item-file item)))
+     (magit-run-git "add" "-u" (magit-diff-item-file item)))
     ((staged *)
      (error "Already staged"))
     ((hunk)
@@ -1674,7 +1700,7 @@ in log buffer."
     ((staged diff hunk)
      (magit-apply-hunk-item item "--cached" "--reverse"))
     ((staged diff)
-     (magit-run "git" "reset" "-q" "HEAD" "--" (magit-diff-item-file item)))
+     (magit-run-git "reset" "-q" "HEAD" "--" (magit-diff-item-file item)))
     ((unstaged *)
      (error "Already unstaged"))
     ((hunk)
@@ -1684,18 +1710,18 @@ in log buffer."
 
 (defun magit-stage-all ()
   (interactive)
-  (magit-run "git" "add" "-u" "."))
+  (magit-run-git "add" "-u" "."))
 
 (defun magit-unstage-all ()
   (interactive)
-  (magit-run "git" "reset" "HEAD"))
+  (magit-run-git "reset" "HEAD"))
 
 ;;; Branches
 
 (defun magit-checkout (rev)
   (interactive (list (magit-read-rev "Switch to" (magit-default-rev))))
   (if rev
-      (magit-run "git" "checkout" (magit-rev-to-git rev))))
+      (magit-run-git "checkout" (magit-rev-to-git rev))))
 
 (defun magit-read-create-branch-args ()
   (let* ((cur-branch (magit-get-current-branch))
@@ -1707,7 +1733,7 @@ in log buffer."
   (interactive (magit-read-create-branch-args))
   (if (and branch (not (string= branch ""))
 	   parent)
-      (magit-run "git" "checkout" "-b"
+      (magit-run-git "checkout" "-b"
 		 branch
 		 (magit-rev-to-git parent))))
 
@@ -1716,13 +1742,13 @@ in log buffer."
 (defun magit-manual-merge (rev)
   (interactive (list (magit-read-rev "Manually merge")))
   (if rev
-      (magit-run "git" "merge" "--no-ff" "--no-commit"
+      (magit-run-git "merge" "--no-ff" "--no-commit"
 		 (magit-rev-to-git rev))))
 
 (defun magit-automatic-merge (rev)
   (interactive (list (magit-read-rev "Merge")))
   (if rev
-      (magit-run "git" "merge" (magit-rev-to-git rev))))
+      (magit-run-git "merge" (magit-rev-to-git rev))))
 
 ;;; Rebasing
 
@@ -1744,28 +1770,28 @@ in log buffer."
     (if (not info)
 	(let ((rev (magit-read-rev "Rebase to")))
 	  (if rev
-	      (magit-run "git" "rebase" (magit-rev-to-git rev))))
+	      (magit-run-git "rebase" (magit-rev-to-git rev))))
       (let ((cursor-in-echo-area t)
 	    (message-log-max nil))
 	(message "Rebase in progress.  Abort, Skip, or Continue? ")
 	(let ((reply (read-event)))
 	  (case reply
 	    ((?A ?a)
-	     (magit-run "git" "rebase" "--abort"))
+	     (magit-run-git "rebase" "--abort"))
 	    ((?S ?s)
-	     (magit-run "git" "rebase" "--skip"))
+	     (magit-run-git "rebase" "--skip"))
 	    ((?C ?c)
-	     (magit-run "git" "rebase" "--continue"))))))))
+	     (magit-run-git "rebase" "--continue"))))))))
 
 ;; git svn commands
 
 (defun magit-svn-rebase ()
   (interactive)
-  (magit-run-async "git" "svn" "rebase"))
+  (magit-run-async magit-git-executable "svn" "rebase"))
 
 (defun magit-svn-dcommit ()
   (interactive)
-  (magit-run-async "git" "svn" "dcommit"))
+  (magit-run-async magit-git-executable "svn" "dcommit"))
 
 (defun magit-svn-enabled ()
   (not (null (find "git-svn" (magit-list-interesting-revisions) :test 'equal))))
@@ -1777,12 +1803,12 @@ in log buffer."
 				     (or (magit-default-rev)
 					 "HEAD^"))))
   (if rev
-      (magit-run "git" "reset" "--soft" (magit-rev-to-git rev))))
+      (magit-run-git "reset" "--soft" (magit-rev-to-git rev))))
 
 (defun magit-reset-working-tree ()
   (interactive)
   (if (yes-or-no-p "Discard all uncommitted changes? ")
-      (magit-run "git" "reset" "--hard")))
+      (magit-run-git "reset" "--hard")))
 
 ;;; Rewriting
 
@@ -1812,7 +1838,8 @@ in log buffer."
 	    (magit-with-section commit 'commit
 	      (magit-set-section-info commit)
 	      (insert (magit-shell
-		       "git log --max-count=1 --pretty=format:%s %s --"
+		       "%s log --max-count=1 --pretty=format:%s %s --"
+		       magit-git-executable
 		       (if used ". %s" "* %s")
 		       commit)
 		      "\n")))))
@@ -1847,7 +1874,7 @@ in log buffer."
 	(magit-insert-section 'pending-changes
 			      "Pending changes"
 			      'magit-wash-diffs
-			      "git" "diff" "-R" orig)))))
+			      magit-git-executable "diff" "-R" orig)))))
 
 (defun magit-rewrite-start (from &optional onto)
   (interactive (list (magit-read-rev "Rewrite from" (magit-default-rev))))
@@ -1855,12 +1882,13 @@ in log buffer."
       (error "You have uncommitted changes."))
   (or (not (magit-read-rewrite-info))
       (error "Rewrite in progress."))
-  (let* ((orig (magit-shell "git rev-parse HEAD"))
-	 (base (magit-shell "git rev-parse %s^" from))
-	 (pending (magit-shell-lines "git rev-list %s.." base)))
+  (let* ((orig (magit-shell "%s rev-parse HEAD" magit-git-executable))
+	 (base (magit-shell "%s rev-parse %s^" magit-git-executable from))
+	 (pending (magit-shell-lines "%s rev-list %s.."
+				     magit-git-executable base)))
     (magit-write-rewrite-info `((orig ,orig)
 				(pending ,@(mapcar #'list pending))))
-    (magit-run "git" "reset" "--hard" base)))
+    (magit-run-git "reset" "--hard" base)))
 
 (defun magit-rewrite-stop (&optional noconfirm)
   (interactive)
@@ -1882,7 +1910,7 @@ in log buffer."
 	(error "You have uncommitted changes."))
     (when (yes-or-no-p "Abort rewrite? ")
       (magit-write-rewrite-info nil)
-      (magit-run "git" "reset" "--hard" orig))))
+      (magit-run-git "reset" "--hard" orig))))
 
 (defun magit-rewrite-finish ()
   (interactive)
@@ -1909,17 +1937,17 @@ in log buffer."
 
 (defun magit-remote-update ()
   (interactive)
-  (magit-run-async "git" "remote" "update"))
+  (magit-run-async magit-git-executable "remote" "update"))
 
 (defun magit-pull ()
   (interactive)
-  (magit-run-async "git" "pull" "-v"))
+  (magit-run-async magit-git-executable "pull" "-v"))
 
 (defun magit-read-remote (prompt def)
   (completing-read (if def
 		       (format "%s (default %s): " prompt def)
 		     (format "%s: " prompt))
-		   (magit-shell-lines "git remote")
+		   (magit-shell-lines "%s remote" magit-git-executable)
 		   nil nil nil nil def))
 
 (defun magit-push ()
@@ -1935,7 +1963,7 @@ in log buffer."
     (if (and (not branch-remote)
 	     (not current-prefix-arg))
 	(magit-set push-remote "branch" branch "remote"))
-    (magit-run-async "git" "push" "-v" push-remote branch)))
+    (magit-run-async magit-git-executable "push" "-v" push-remote branch)))
 
 ;;; Log edit mode
 
@@ -2065,10 +2093,10 @@ Prefix arg means justify as well."
       (with-current-buffer (magit-find-buffer 'status default-directory)
 	(cond (tag
 	       (magit-run-with-input commit-buf
-				     "git" "tag" tag "-a" "-F" "-"))
+				     magit-git-executable "tag" tag "-a" "-F" "-"))
 	      (t
 	       (apply #'magit-run-with-input commit-buf
-		      "git" "commit" "-F" "-"
+		      magit-git-executable "commit" "-F" "-"
 		      (append (if (not (magit-anything-staged-p))
 				  '("--all") '())
 			      (if amend '("--amend") '())
@@ -2157,7 +2185,7 @@ Prefix arg means justify as well."
 
 (defun magit-tag (name)
   (interactive "sNew tag name: ")
-  (magit-run "git" "tag" name))
+  (magit-run-git "tag" name))
 
 (defun magit-annotated-tag (name)
   (interactive "sNew tag name: ")
@@ -2189,11 +2217,11 @@ Prefix arg means justify as well."
 (defun magit-insert-stashes ()
   (magit-insert-section 'stashes
 			"Stashes:" 'magit-wash-stashes
-			"git" "stash" "list"))
+			magit-git-executable "stash" "list"))
 
 (defun magit-stash (description)
   (interactive "sStash description: ")
-  (magit-run "git" "stash" "save" description))
+  (magit-run-git "stash" "save" description))
 
 (defvar magit-currently-shown-stash nil)
 
@@ -2238,11 +2266,13 @@ Prefix arg means justify as well."
     (magit-log-edit-set-field 
      'author
      (magit-format-commit commit "%an <%ae>, %ai"))
-    (magit-run-shell "git diff %s %s | git apply -" parent commit)))
+    (magit-run-shell "%s diff %s %s | %s apply -"
+		     magit-git-executable parent commit
+		     magit-git-executable)))
 
 (defun magit-cherry-pick-commit (commit &optional noerase)
   (let ((parent-id (magit-choose-parent-id commit "cherry-pick")))
-    (magit-run* `("git" "cherry-pick"
+    (magit-run* `(,magit-git-executable "cherry-pick"
 		  ,@(if parent-id
 			(list "-m" (number-to-string parent-id)))
 		  ,commit)
@@ -2265,7 +2295,7 @@ Prefix arg means justify as well."
     ((diff)
      (magit-apply-diff-item item))
     ((stash)
-     (magit-run "git" "stash" "apply" info))))
+     (magit-run-git "stash" "apply" info))))
 
 (defun magit-cherry-pick-item ()
   (interactive)
@@ -2276,13 +2306,15 @@ Prefix arg means justify as well."
     ((commit)
      (magit-cherry-pick-commit info))
     ((stash)
-     (magit-run "git" "stash" "pop" info))))
+     (magit-run-git "stash" "pop" info))))
 
 (defun magit-revert-commit (commit)
   (let ((parent (magit-choose-parent commit "revert")))
     (magit-log-edit-append
      (magit-format-commit commit "Reverting \"%s\""))
-    (magit-run-shell "git diff %s %s | git apply --reverse -" parent commit)))
+    (magit-run-shell "%s diff %s %s | %s apply --reverse -"
+		     magit-git-executable parent commit
+		     magit-git-executable)))
 
 (defun magit-revert-item ()
   (interactive)
@@ -2302,12 +2334,14 @@ Prefix arg means justify as well."
 
 (defun magit-configure-have-graph ()
   (if (eq magit-have-graph 'unset)
-      (let ((res (magit-shell-exit-code "git log --graph --max-count=0")))
+      (let ((res (magit-shell-exit-code "%s log --graph --max-count=0"
+					magit-git-executable)))
 	(setq magit-have-graph (eq res 0)))))
 
 (defun magit-configure-have-decorate ()
   (if (eq magit-have-decorate 'unset)
-      (let ((res (magit-shell-exit-code "git log --decorate --max-count=0")))
+      (let ((res (magit-shell-exit-code "%s log --decorate --max-count=0"
+					magit-git-executable)))
 	(setq magit-have-decorate (eq res 0)))))
 
 (defun magit-refresh-log-buffer (range style args)
@@ -2317,7 +2351,7 @@ Prefix arg means justify as well."
     (apply #'magit-insert-section nil
 	   (magit-rev-range-describe range "Commits")
 	   'magit-wash-log
-	   `("git" "log" ,(format "--max-count=%s"
+	   `(,magit-git-executable "log" ,(format "--max-count=%s"
 				  magit-log-cutoff-length) ,style
 	     ,@(if magit-have-decorate (list "--decorate"))
 	     ,@(if magit-have-graph (list "--graph"))
@@ -2352,7 +2386,7 @@ Prefix arg means justify as well."
     (magit-insert-section 'reflog
 			  (format "Local history of head %s" head)
 			  'magit-wash-log
-			  "git" "log" "--walk-reflogs"
+			  magit-git-executable "log" "--walk-reflogs"
 			  (format "--max-count=%s"
 				  magit-log-cutoff-length)
 			  "--pretty=oneline" args)))
@@ -2377,7 +2411,7 @@ Prefix arg means justify as well."
     (magit-insert-section 'diffbuf
 			  (magit-rev-range-describe range "Changes")
 			  'magit-wash-diffs
-			  "git" "diff" args)))
+			  magit-git-executable "diff" args)))
 
 (defun magit-diff (range)
   (interactive (list (magit-read-rev-range "Diff")))
@@ -2405,9 +2439,11 @@ Prefix arg means justify as well."
   (magit-create-buffer-sections
     (magit-with-section 'wazzupbuf nil
       (insert (format "Wazzup, %s\n\n" head))
-      (let ((branches (magit-shell-lines "git branch -a | cut -c3-")))
+      (let ((branches (magit-shell-lines "%s branch -a | cut -c3-"
+					 magit-git-executable)))
 	(dolist (b branches)
-	  (let* ((n (magit-shell "git log --pretty=oneline %s..%s | wc -l"
+	  (let* ((n (magit-shell "%s log --pretty=oneline %s..%s | wc -l"
+				 magit-git-executable
 				 head b))
 		 (section
 		  (let ((magit-section-hidden-default t))
@@ -2416,7 +2452,7 @@ Prefix arg means justify as well."
 		     (format "%s unmerged commits in %s"
 			     n b)
 		     'magit-wash-log
-		     "git" "log"
+		     magit-git-executable "log"
 		     (format "--max-count=%s" magit-log-cutoff-length)
 		     "--pretty=oneline"
 		     (format "%s..%s" head b)
@@ -2459,14 +2495,14 @@ Prefix arg means justify as well."
 	(file (magit-diff-item-file diff)))
     (cond ((eq kind 'deleted)
 	   (when (yes-or-no-p (format "Resurrect %s? " file))
-	     (magit-shell "git reset -q -- %s" file)
-	     (magit-run "git" "checkout" "--" file)))
+	     (magit-shell "%s reset -q -- %s" magit-git-executable file)
+	     (magit-run-git "checkout" "--" file)))
 	  ((eq kind 'new)
 	   (if (yes-or-no-p (format "Delete %s? " file))
-	       (magit-run "git" "rm" "-f" "--" file)))
+	       (magit-run-git "rm" "-f" "--" file)))
 	  (t
 	   (if (yes-or-no-p (format "Discard changes to %s? " file))
-	       (magit-run "git" "checkout" "--" file))))))
+	       (magit-run-git "checkout" "--" file))))))
 
 (defun magit-discard-item ()
   (interactive)
@@ -2493,7 +2529,7 @@ Prefix arg means justify as well."
      (error "Can't discard this diff"))
     ((stash)
      (when (yes-or-no-p "Discard stash? ")
-       (magit-run "git" "stash" "drop" info)))))
+       (magit-run-git "stash" "drop" info)))))
 
 (defun magit-visit-item ()
   (interactive)
@@ -2568,7 +2604,7 @@ Prefix arg means justify as well."
 	 (old-editor (getenv "GIT_EDITOR")))
     (setenv "GIT_EDITOR" (expand-file-name "emacsclient" exec-directory))
     (unwind-protect
-	(shell-command (concat "git rebase -i "
+	(shell-command (concat magit-git-executable " rebase -i "
 			       (or (and commit (concat commit "^"))
 				   (read-string "Interactively rebase to: "))
 			       " &"))
@@ -2581,6 +2617,6 @@ Prefix arg means justify as well."
   (save-selected-window
     (switch-to-buffer-other-window "*magit-branches*")
     (erase-buffer)
-    (shell-command "git branch -va" t t)))
+    (shell-command (concat magit-git-executable " branch -va") t t)))
 
 (provide 'magit)
