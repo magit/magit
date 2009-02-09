@@ -1164,7 +1164,8 @@ Please see the manual for a complete description of Magit.
     (dolist (buf (buffer-list))
       (if (save-excursion
 	    (set-buffer buf)
-	    (and (equal (expand-file-name default-directory) topdir)
+	    (and default-directory
+		 (equal (expand-file-name default-directory) topdir)
 		 (eq major-mode 'magit-mode)
 		 (eq magit-submode submode)))
 	  (return buf)))))
