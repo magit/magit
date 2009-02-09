@@ -1740,14 +1740,19 @@ in log buffer."
 
 ;;; Merging
 
+(defun magit-guess-branch ()
+  (let ((sec (magit-current-section)))
+    (if (and sec (eq (magit-section-type sec) 'wazzup))
+	(magit-section-info sec))))
+
 (defun magit-manual-merge (rev)
-  (interactive (list (magit-read-rev "Manually merge")))
+  (interactive (list (magit-read-rev "Manually merge" (magit-guess-branch))))
   (if rev
       (magit-run-git "merge" "--no-ff" "--no-commit"
 		 (magit-rev-to-git rev))))
 
 (defun magit-automatic-merge (rev)
-  (interactive (list (magit-read-rev "Merge")))
+  (interactive (list (magit-read-rev "Merge" (magit-guess-branch))))
   (if rev
       (magit-run-git "merge" (magit-rev-to-git rev))))
 
