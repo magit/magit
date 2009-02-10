@@ -2098,12 +2098,13 @@ Prefix arg means justify as well."
     (let ((commit-buf (current-buffer)))
       (with-current-buffer (magit-find-buffer 'status default-directory)
 	(cond (tag
-	       (magit-run-with-input commit-buf
-				     magit-git-executable "tag" tag "-a" "-F" "-"))
+	       (magit-run-with-input 
+		commit-buf
+		magit-git-executable "tag" tag "-a" "-F" "-"))
 	      (t
 	       (apply #'magit-run-with-input commit-buf
 		      magit-git-executable "commit" "-F" "-"
-		      (append (if (not (magit-anything-staged-p))
+		      (append (if (not (or amend (magit-anything-staged-p)))
 				  '("--all") '())
 			      (if amend '("--amend") '())
 			      (if magit-commit-signoff

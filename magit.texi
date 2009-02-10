@@ -240,7 +240,10 @@ committed.
 
 You can type @kbd{C-c C-a} in the buffer with the change description
 toggles a flag that determines whether the next commit will be a
-@emph{amending} one.
+@emph{amending} one.  When amending a commit, only the staged changes
+are committed, even if there are none.  (Normally, all unstaged
+changes are committed when there are no staged changes.)  This allows
+you to easily modify the message of the last commit.
 
 Typing @kbd{C} will also pop up the change description buffer, but in
 addition, it will try to insert a ChangeLog-style entry for the change
