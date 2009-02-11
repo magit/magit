@@ -1017,6 +1017,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "t") 'magit-tag)
     (define-key map (kbd "T") 'magit-annotated-tag)
     (define-key map (kbd "z") 'magit-stash)
+    (define-key map (kbd "Z") 'magit-stash-snapshot)
     (define-key map (kbd "w") 'magit-wazzup)
     (define-key map (kbd "$") 'magit-display-process)
     (define-key map (kbd "E") 'magit-interactive-rebase)
@@ -1056,6 +1057,7 @@ Many Magit faces inherit from this one by default."
     ["Reset head" magit-reset-head t]
     ["Reset working tree" magit-reset-working-tree t]
     ["Stash" magit-stash t]
+    ["Snapshot" magit-stash-snapshot t]
     "---"
     ["Switch branch" magit-checkout t]
     ["Create branch" magit-create-branch t]
@@ -2230,6 +2232,13 @@ Prefix arg means justify as well."
 (defun magit-stash (description)
   (interactive "sStash description: ")
   (magit-run-git "stash" "save" description))
+
+(defun magit-stash-snapshot ()
+  (interactive)
+  (magit-run-git "stash" "save"
+		 (format-time-string "Snapshot taken at %Y-%m-%d %H:%M:%S"
+				     (current-time)))
+  (magit-run-git "stash" "apply" "stash@{0}"))
 
 (defvar magit-currently-shown-stash nil)
 
