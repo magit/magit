@@ -799,10 +799,12 @@ Many Magit faces inherit from this one by default."
 	    (,type (magit-section-type ,section))
 	    (,context (magit-section-context-type ,section)))
        (cond ,@(mapcar (lambda (clause)
-			 (let ((prefix (reverse (car clause)))
-			       (body (cdr clause)))
-			   `((magit-prefix-p ',prefix ,context)
-			     ,@body)))
+			 (if (eq (car clause) t)
+			     clause
+			   (let ((prefix (reverse (car clause)))
+				 (body (cdr clause)))
+			     `((magit-prefix-p ',prefix ,context)
+			       ,@body))))
 		       clauses)
 	     ,@(if opname
 		   `(((not ,type)
@@ -2684,7 +2686,9 @@ Prefix arg means justify as well."
     ((commit)
      (magit-show-commit info #'scroll-up))
     ((stash)
-     (magit-show-stash info #'scroll-up))))
+     (magit-show-stash info #'scroll-up))
+    (t
+     (scroll-up))))
 
 (defun magit-show-item-or-scroll-down ()
   (interactive)
@@ -2692,7 +2696,9 @@ Prefix arg means justify as well."
     ((commit)
      (magit-show-commit info #'scroll-down))
     ((stash)
-     (magit-show-stash info #'scroll-down))))
+     (magit-show-stash info #'scroll-down))
+    (t
+     (scroll-down))))
 
 (defun magit-mark-item (&optional unmark)
   (interactive "P")
