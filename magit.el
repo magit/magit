@@ -898,7 +898,7 @@ Many Magit faces inherit from this one by default."
     (magit-refresh-buffer magit-process-client-buffer)))
 
 (defun magit-process-filter (proc string)
-  (save-excursion
+  (save-current-buffer
     (set-buffer (process-buffer proc))
     (let ((inhibit-read-only t))
       (goto-char (process-mark proc))
