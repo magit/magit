@@ -890,6 +890,7 @@ Many Magit faces inherit from this one by default."
 	(successp (string-match "^finished" event)))
     (with-current-buffer (process-buffer process)
       (let ((inhibit-read-only t))
+	(goto-char (point-max))
 	(insert msg "\n")
 	(message msg)))
     (setq magit-process nil)
