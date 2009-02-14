@@ -83,9 +83,12 @@ recent command.  You can switch to it with @kbd{$}.
 @node Acknowledgments
 @chapter Acknowledgments
 
-From day one of the first Magit announcement, John Wiegley, Linh Dang,
-and Christian Neukirchen have contributed fixes, UI improvements, and
-new features.  Thanks!
+From day one of the first Magit announcement, John Wiegley has
+contributed numerous fixes, UI improvements, and new features.
+Thanks!
+
+Linh Dang and Christian Neukirchen also contributed from day one.
+Thanks!
 
 Phil Hagelberg joined a few days later.  Thanks!
 
@@ -93,6 +96,8 @@ Alex Ott contributed support for git svn.  Thanks!
 
 Marcin Bachry contributed bug fixes and support for decorated logs.
 Thanks!
+
+Alexey Voinov fixed bugs.  Thanks!
 
 @node Sections
 @chapter Sections
