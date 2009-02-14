@@ -123,19 +123,33 @@ current section are affected.
 
 For example, when the current section is on level 3 and you hit
 @kbd{1}, the grand-parent of the current section (which is on level
-one) will be show, the parent of the current section (level 2) will be
-hidden.  The visibility of no other section will be changed.
+one) will be shown, and the parent of the current section (level 2)
+will be hidden.  The visibility of no other section will be changed.
 
 This sounds a bit complicated, but you'll figure it out.
 
 Using @kbd{M-1}, @kbd{M-2}, @kbd{M-3}, and @kbd{M-4} is similar to the
 unmodified digits, but now all sections on the respective level are
-affected, regardless of whether they are related to the current
+affected, regardless of whether or not they are related to the current
 section.
 
 For example, @kbd{M-1} will only show the first lines of the top-level
 sections and will hide everything else.  Typing @kbd{M-4} on the other
-hand will show everything in the status buffer.
+hand will show everything.
+
+Because of the way the status buffer is set up, some changes to
+section visibility are more common than others.  Files are on level 2
+and diff hunks are on level 4.  Thus, you can type @kbd{2} to collapse
+the diff of the current file, and @kbd{M-2} to collapse all files.
+This returns the status buffer to its default setup and is a quick way
+to unclutter it after drilling down into the modified files.
+
+Because @kbd{2} and @kbd{M-2} are so common, they are bound to
+additional, more mnemonic keys: @kbd{M-h} (hide) and @kbd{M-H} (hide
+all).
+
+Likewise @kbd{4} and @kbd{M-4} are also available as @kbd{M-s} (show)
+and @kbd{M-S} (show all).
 
 @node Status
 @chapter Status
@@ -174,13 +188,6 @@ tracking branch.  See @ref{Pushing and Pulling} for more information.
 During a history rewriting session, the status buffer shows the
 @emph{Pending changes} and @emph{Pending commits} sections.  See
 @ref{Rewriting} for more details.
-
-Typing a digit in the status buffer will move point to a section
-header: @kbd{1} will move to @emph{Untracked files}, @kbd{2} will move
-to @emph{Unstaged changes} or @emph{Changes}, @kbd{3} will move to
-@emph{Staged changes}, and @kbd{4} will move to @emph{Unpushed
-commits}.  Note that these relations are fixed, @kbd{3} always moves
-to @emph{Unstaged changes}, not the third visible section.
 
 @node Untracked files
 @chapter Untracked files
