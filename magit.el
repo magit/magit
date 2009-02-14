@@ -2674,7 +2674,6 @@ Prefix arg means justify as well."
 (defun magit-clean ()
   (interactive)
   (if (yes-or-no-p "Remove all untracked files and directories? ")
-      (magit-run "git" "clean" "-dxf")))
-
+      (magit-run "git" "clean" "-df")))
 
 (provide 'magit)
