@@ -865,6 +865,12 @@ Many Magit faces inherit from this one by default."
 		     (apply 'start-process magit-git-executable buf cmd args))
 	       (set-process-sentinel magit-process 'magit-process-sentinel)
 	       (set-process-filter magit-process 'magit-process-filter)
+	       (when input
+		 (with-current-buffer input
+		   (process-send-region magit-process
+					(point-min) (point-max)))
+		 (process-send-eof magit-process)
+		 (sit-for 0.1 t))
 	       (setq successp t))
 	      (input
 	       (with-current-buffer input
@@ -933,6 +939,9 @@ Many Magit faces inherit from this one by default."
 
 (defun magit-run-async (cmd &rest args)
   (magit-run* (cons cmd args) nil nil nil t))
+
+(defun magit-run-async-with-input (input cmd &rest args)
+  (magit-run* (cons cmd args) nil nil nil t input))
 
 (defun magit-display-process ()
   (interactive)
@@ -2105,7 +2114,7 @@ Prefix arg means justify as well."
 		commit-buf
 		magit-git-executable "tag" tag "-a" "-F" "-"))
 	      (t
-	       (apply #'magit-run-with-input commit-buf
+	       (apply #'magit-run-async-with-input commit-buf
 		      magit-git-executable "commit" "-F" "-"
 		      (append (if (not (or amend (magit-anything-staged-p)))
 				  '("--all") '())
