@@ -79,6 +79,13 @@ save all modified buffers without asking."
   :group 'magit
   :type 'integer)
 
+(defcustom magit-process-popup-time -1
+  "Popup the process buffer if a command takes longer than this many seconds."
+  :group 'magit
+  :type '(choice (const :tag "Never" -1)
+		 (const :tag "Immediately" 0)
+		 (integer :tag "After this many seconds")))
+
 (defface magit-header
   '((t))
   "Face for generic header lines.
@@ -871,6 +878,18 @@ Many Magit faces inherit from this one by default."
 					(point-min) (point-max)))
 		 (process-send-eof magit-process)
 		 (sit-for 0.1 t))
+	       (cond ((= magit-process-popup-time 0)
+		      (pop-to-buffer (process-buffer magit-process)))
+		     ((> magit-process-popup-time 0)
+		      (run-with-timer
+		       magit-process-popup-time nil
+		       (function
+			(lambda (buf)
+			  (with-current-buffer buf
+			    (if magit-process
+				(pop-to-buffer
+				 (process-buffer magit-process))))))
+		       (current-buffer))))
 	       (setq successp t))
 	      (input
 	       (with-current-buffer input
