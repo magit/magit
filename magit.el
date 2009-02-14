@@ -1012,6 +1012,9 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "?") 'magit-describe-item)
     (define-key map (kbd ".") 'magit-mark-item)
     (define-key map (kbd "=") 'magit-diff-with-mark)
+    (define-key map (kbd "-") 'magit-diff-smaller-hunks)
+    (define-key map (kbd "+") 'magit-diff-larger-hunks)
+    (define-key map (kbd "0") 'magit-diff-default-hunks)
     (define-key map (kbd "l") 'magit-log)
     (define-key map (kbd "L") 'magit-log-long)
     (define-key map (kbd "h") 'magit-reflog-head)
@@ -1306,6 +1309,26 @@ Please see the manual for a complete description of Magit.
 
 ;;; Diffs and Hunks
 
+(defvar magit-diff-context-lines 3)
+
+(defun magit-diff-U-arg ()
+  (format "-U%d" magit-diff-context-lines))
+
+(defun magit-diff-smaller-hunks (&optional count)
+  (interactive "p")
+  (setq magit-diff-context-lines (max 0 (- magit-diff-context-lines count)))
+  (magit-refresh))
+
+(defun magit-diff-larger-hunks (&optional count)
+  (interactive "p")
+  (setq magit-diff-context-lines (+ magit-diff-context-lines count))
+  (magit-refresh))
+
+(defun magit-diff-default-hunks ()
+  (interactive "")
+  (setq magit-diff-context-lines 3)
+  (magit-refresh))
+
 (defun magit-diff-line-file ()
   (cond ((looking-at "^diff --git a/\\(.*\\) b/\\(.*\\)$")
 	 (match-string-no-properties 2))
@@ -1490,12 +1513,16 @@ Please see the manual for a complete description of Magit.
 	target))))
 
 (defun magit-apply-diff-item (diff &rest args)
+  (when (zerop magit-diff-context-lines)
+    (setq args (cons "--unidiff-zero" args)))
   (with-current-buffer (get-buffer-create "*magit-tmp*")
     (erase-buffer))
   (magit-insert-diff-item-patch diff "*magit-tmp*")
   (apply #'magit-run-git "apply" (append args (list "-"))))
 
 (defun magit-apply-hunk-item (hunk &rest args)
+  (when (zerop magit-diff-context-lines)
+    (setq args (cons "--unidiff-zero" args)))
   (let ((tmp (get-buffer-create "*magit-tmp*")))
     (with-current-buffer tmp
       (erase-buffer))
@@ -1509,12 +1536,14 @@ Please see the manual for a complete description of Magit.
 (defun magit-insert-unstaged-changes (title)
   (let ((magit-hide-diffs t))
     (magit-insert-section 'unstaged title 'magit-wash-diffs
-			  magit-git-executable "diff")))
+			  magit-git-executable "diff"
+			  (magit-diff-U-arg))))
 
 (defun magit-insert-staged-changes ()
   (let ((magit-hide-diffs t))
     (magit-insert-section 'staged "Staged changes:" 'magit-wash-diffs
-			  magit-git-executable "diff" "--cached")))
+			  magit-git-executable "diff" "--cached"
+			  (magit-diff-U-arg))))
 
 ;;; Logs and Commits
 
@@ -1916,7 +1945,8 @@ in log buffer."
 	(magit-insert-section 'pending-changes
 			      "Pending changes"
 			      'magit-wash-diffs
-			      magit-git-executable "diff" "-R" orig)))))
+			      magit-git-executable "diff"
+			      (magit-diff-U-arg) "-R" orig)))))
 
 (defun magit-rewrite-start (from &optional onto)
   (interactive (list (magit-read-rev "Rewrite from" (magit-default-rev))))
@@ -2463,7 +2493,8 @@ Prefix arg means justify as well."
     (magit-insert-section 'diffbuf
 			  (magit-rev-range-describe range "Changes")
 			  'magit-wash-diffs
-			  magit-git-executable "diff" args)))
+			  magit-git-executable "diff"
+			  (cons (magit-diff-U-arg) args))))
 
 (defun magit-diff (range)
   (interactive (list (magit-read-rev-range "Diff")))
