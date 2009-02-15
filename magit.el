@@ -1550,14 +1550,14 @@ Please see the manual for a complete description of Magit.
 			  magit-git-executable "diff"
 			  (magit-diff-U-arg))))
 
-(defun magit-insert-staged-changes ()
+(defun magit-insert-staged-changes (no-commit)
   (let ((magit-hide-diffs t))
     (if no-commit
         (let ((null-tree (magit-shell "git mktree </dev/null")))
           (magit-insert-section 'staged "Staged changes:" 'magit-wash-diffs
                                 magit-git-executable "diff" "--cached"
-                                null-tree
-				(magit-diff-U-arg)))
+				(magit-diff-U-arg)
+				null-tree))
       (magit-insert-section 'staged "Staged changes:" 'magit-wash-diffs
 			    magit-git-executable "diff" "--cached"
 			    (magit-diff-U-arg)))))
@@ -1734,7 +1734,7 @@ in log buffer."
 	  (magit-insert-unstaged-changes
 	   (if staged "Unstaged changes:" "Changes:"))
 	  (if staged
-	      (magit-insert-staged-changes)))
+	      (magit-insert-staged-changes no-commit)))
 	(when remote
 	  (magit-insert-unpushed-commits remote branch))))))
 
@@ -2367,7 +2367,7 @@ Prefix arg means justify as well."
 	   (with-current-buffer buf
 	     (set-buffer buf)
 	     (goto-char (point-min))
-	     (let* ((range (cons (concat info "^2^") info))
+	     (let* ((range (cons (concat stash "^2^") stash))
 		    (args (magit-rev-range-to-git range)))
 	       (magit-mode-init dir 'diff #'magit-refresh-diff-buffer
 				range args)))))))
