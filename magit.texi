@@ -160,8 +160,11 @@ same time, each associated with its own Git repository.
 
 When invoking @kbd{M-x magit-status} from within a Git repository, it
 will switch to the status buffer of that repository.  Otherwise, it
-will prompt for a directory.  With a rpefix argument, it will always
+will prompt for a directory.  With a prefix argument, it will always
 prompt.
+
+If you specify a directory that is not a Git repository, @kbd{M-x
+magit-status} will ask whether to create one.
 
 You need to explicitly refresh the status buffer when you have made
 changes to the repository from outside of Emacs.  You can type @kbd{g}
