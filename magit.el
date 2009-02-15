@@ -2530,7 +2530,8 @@ Prefix arg means justify as well."
 			  (magit-rev-range-describe range "Changes")
 			  'magit-wash-diffs
 			  magit-git-executable "diff"
-			  (cons (magit-diff-U-arg) args))))
+			  (magit-diff-U-arg)
+			  args)))
 
 (defun magit-diff (range)
   (interactive (list (magit-read-rev-range "Diff")))
