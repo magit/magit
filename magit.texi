@@ -420,6 +420,9 @@ branch that are not in the current branch.  The sections are initially
 collapsed; you need to explicitly open them with @kbd{TAB} (or
 similar) to show the lists of commits.
 
+When point is on a @emph{N unmerged commits in ...} title, the
+corresponding branch will be offered as the default for a merge.
+
 @node Merging
 @chapter Merging
 

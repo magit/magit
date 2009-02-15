@@ -22,8 +22,16 @@ Changes in magit 0.7:
   all sections; without, they work only on sections that are a parent
   or child of the current section.
 
+* Typing 'k' on the "Untracked files" section title will offer to
+  delete all untracked files.
+
+* M-x magit-status can also create repositories when given a directory
+  that is not a Git repository.
+
 * Magit works better with oldish Gits that don't understand "--graph"
   for example.
+
+* The name of the Git program can be customized.
 
 Changes in magit 0.6:
 
