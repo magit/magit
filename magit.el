@@ -2664,12 +2664,13 @@ Prefix arg means justify as well."
 (defun magit-describe-item ()
   (interactive)
   (let ((section (magit-current-section)))
-    (message "Section: %s %s-%s %S %S"
+    (message "Section: %s %s-%s %S %S %S"
 	     (magit-section-type section)
 	     (magit-section-beginning section)
 	     (magit-section-end section)
 	     (magit-section-title section)
-	     (magit-section-info section))))
+	     (magit-section-info section)
+	     (magit-section-context-type section))))
 
 (defun magit-copy-item-as-kill ()
   "Copy sha1 of commit at point into kill ring."
