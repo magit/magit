@@ -2055,7 +2055,7 @@ in log buffer."
 	   (commit (car first-unused)))
       (cond ((not first-unused)
 	     (magit-rewrite-stop t))
-	    ((magit-cherry-pick-commit commit (not first-p))
+	    ((magit-apply-commit commit t (not first-p))
 	     (magit-rewrite-set-commit-property commit 'used t)
 	     (magit-rewrite-finish-step nil))))))
 
@@ -2396,26 +2396,27 @@ Prefix arg means justify as well."
       (or commit
 	  (error "No commit at point.")))))
 
-(defun magit-apply-commit (commit)
-  (let ((parent (magit-choose-parent commit "apply")))
-    (magit-log-edit-append
-     (magit-format-commit commit "%s%n%n%b"))
-    (magit-log-edit-set-field 
-     'author
-     (magit-format-commit commit "%an <%ae>, %ai"))
-    (magit-run-shell "%s diff %s %s | %s apply -"
-		     magit-git-executable parent commit
-		     magit-git-executable)))
-
-(defun magit-cherry-pick-commit (commit &optional noerase)
-  (let ((parent-id (magit-choose-parent-id commit "cherry-pick")))
-    (magit-run* `(,magit-git-executable
-		  ,@magit-git-standard-options
-		  "cherry-pick"
-		  ,@(if parent-id
-			(list "-m" (number-to-string parent-id)))
-		  ,commit)
-		nil noerase)))
+(defun magit-apply-commit (commit &optional docommit noerase revert)
+  (let* ((parent-id (magit-choose-parent-id commit "cherry-pick"))
+	 (success (magit-run* `(,magit-git-executable
+				,@magit-git-standard-options
+				,(if revert "revert" "cherry-pick")
+				,@(if parent-id
+				      (list "-m" (number-to-string parent-id)))
+				,@(if (not docommit) (list "--no-commit"))
+				,commit)
+			      nil noerase)))
+    (when (or (not docommit) success)
+      (cond (revert
+	     (magit-log-edit-append
+	      (magit-format-commit commit "Reverting \"%s\"")))
+	    (t
+	     (magit-log-edit-append
+	      (magit-format-commit commit "%s%n%n%b"))
+	     (magit-log-edit-set-field 
+	      'author
+	      (magit-format-commit commit "%an <%ae>, %ai")))))
+    success))
 
 (defun magit-apply-item ()
   (interactive)
@@ -2440,29 +2441,21 @@ Prefix arg means justify as well."
   (interactive)
   (magit-section-action (item info "cherry-pick")
     ((pending commit)
-     (magit-cherry-pick-commit info)
+     (magit-apply-commit info t)
      (magit-rewrite-set-commit-property info 'used t))
     ((commit)
-     (magit-cherry-pick-commit info))
+     (magit-apply-commit info t))
     ((stash)
      (magit-run-git "stash" "pop" info))))
-
-(defun magit-revert-commit (commit)
-  (let ((parent (magit-choose-parent commit "revert")))
-    (magit-log-edit-append
-     (magit-format-commit commit "Reverting \"%s\""))
-    (magit-run-shell "%s diff %s %s | %s apply --reverse -"
-		     magit-git-executable parent commit
-		     magit-git-executable)))
 
 (defun magit-revert-item ()
   (interactive)
   (magit-section-action (item info "revert")
     ((pending commit)
-     (magit-revert-commit info)
+     (magit-apply-commit info nil nil t)
      (magit-rewrite-set-commit-property info 'used nil))
     ((commit)
-     (magit-revert-commit info))
+     (magit-apply-commit info nil nil t))
     ((hunk)
      (magit-apply-hunk-item-reverse item))
     ((diff)
