@@ -1370,8 +1370,11 @@ Please see the manual for a complete description of Magit.
 			       ((looking-at "^diff --cc")
 				'unmerged)
 			       ((save-excursion
-				  (search-forward-regexp "^new" end t))
+				  (search-forward-regexp "^new file" end t))
 				'new)
+			       ((save-excursion
+				  (search-forward-regexp "^new mode" end t))
+				'mode)
 			       ((save-excursion
 				  (search-forward-regexp "^deleted" end t))
 				'deleted)
@@ -1390,6 +1393,8 @@ Please see the manual for a complete description of Magit.
 				      (format "Unmerged %s" file))
 				     ((new)
 				      (format "New      %s" file))
+				     ((mode)
+				      (format "New mode %s" file))
 				     ((deleted)
 				      (format "Deleted  %s" file))
 				     ((renamed)
