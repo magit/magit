@@ -202,7 +202,9 @@ ask you for the name of the file to ignore.  This is useful to ignore
 whole directories, for example.  The @kbd{I} command is similar to
 @kbd{i} but will add the file to @code{.git/info/exclude} instead.
 
-To delete a untracked file forever, use @kbd{k}.
+To delete a untracked file forever, use @kbd{k}.  If point is one the
+@emph{Untracked files} section title when you it @kbd{k}, all
+untracked files are deleted.
 
 @node Staging and Committing
 @chapter Staging and Committing

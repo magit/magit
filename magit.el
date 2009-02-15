@@ -1027,7 +1027,6 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "x") 'magit-reset-head)
     (define-key map (kbd "X") 'magit-reset-working-tree)
     (define-key map (kbd "k") 'magit-discard-item)
-    (define-key map (kbd "K") 'magit-clean)
     (define-key map (kbd "RET") 'magit-visit-item)
     (define-key map (kbd "SPC") 'magit-show-item-or-scroll-up)
     (define-key map (kbd "DEL") 'magit-show-item-or-scroll-down)
@@ -2593,6 +2592,9 @@ Prefix arg means justify as well."
     ((untracked file)
      (if (yes-or-no-p (format "Delete %s? " info))
 	 (magit-run "rm" info)))
+    ((untracked)
+     (if (yes-or-no-p "Delete all untracked files and directories? ")
+	 (magit-run "git" "clean" "-df")))
     ((unstaged diff hunk)
      (when (yes-or-no-p "Discard hunk? ")
        (magit-apply-hunk-item item "--reverse")))
@@ -2701,10 +2703,5 @@ Prefix arg means justify as well."
     (switch-to-buffer-other-window "*magit-branches*")
     (erase-buffer)
     (shell-command (concat magit-git-executable " branch -va") t t)))
-
-(defun magit-clean ()
-  (interactive)
-  (if (yes-or-no-p "Remove all untracked files and directories? ")
-      (magit-run "git" "clean" "-df")))
 
 (provide 'magit)
