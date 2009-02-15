@@ -793,7 +793,7 @@ Many Magit faces inherit from this one by default."
 	      (and (not (null list))
 		   (magit-prefix-p prefix (cdr list))))
 	(and (not (null list))
-	     (eq (car prefix) (car list))
+	     (equal (car prefix) (car list))
 	     (magit-prefix-p (cdr prefix) (cdr list))))))
 
 (defmacro magit-section-case (head &rest clauses)
@@ -839,15 +839,15 @@ Many Magit faces inherit from this one by default."
       (magit-for-all-buffers (lambda ()
 			       (setq mode-line-process pr))))))
 
-(defun magit-process-indicator-from-command (cmd args)
-  (cond ((or (null args)
-	     (not (equal cmd magit-git-executable)))
-	 cmd)
-	((or (null (cdr args))
-	     (not (member (car args) '("remote"))))
-	 (car args))
+(defun magit-process-indicator-from-command (comps)
+  (if (magit-prefix-p (cons magit-git-executable magit-git-standard-options)
+		      comps)
+      (setq comps (nthcdr (+ (length magit-git-standard-options) 1) comps)))
+  (cond ((or (null (cdr comps))
+	     (not (member (car comps) '("remote"))))
+	 (car comps))
 	(t
-	 (concat (car args) " " (cadr args)))))
+	 (concat (car comps) " " (cadr comps)))))
 
 (defvar magit-process nil)
 (defvar magit-process-client-buffer nil)
@@ -862,8 +862,7 @@ Many Magit faces inherit from this one by default."
     (or (not magit-process)
 	(error "Git is already running."))
     (magit-set-mode-line-process
-     (magit-process-indicator-from-command
-      (car cmd-and-args) (cdr cmd-and-args)))
+     (magit-process-indicator-from-command cmd-and-args))
     (setq magit-process-client-buffer (current-buffer))
     (save-excursion
       (set-buffer buf)
