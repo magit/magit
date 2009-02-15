@@ -2640,12 +2640,16 @@ Prefix arg means justify as well."
      (if (yes-or-no-p "Delete all untracked files and directories? ")
 	 (magit-run "git" "clean" "-df")))
     ((unstaged diff hunk)
-     (when (yes-or-no-p "Discard hunk? ")
+     (when (yes-or-no-p (if (magit-use-region-p)
+			    "Discard changes in region? "
+			  "Discard hunk? "))
        (magit-apply-hunk-item-reverse item)))
     ((staged diff hunk)
      (if (magit-file-uptodate-p (magit-diff-item-file
 				 (magit-hunk-item-diff item)))
-	 (when (yes-or-no-p "Discard hunk? ")
+	 (when (yes-or-no-p (if (magit-use-region-p)
+				"Discard changes in region? "
+			      "Discard hunk? "))
 	   (magit-apply-hunk-item-reverse item "--index"))
        (error "Can't discard this hunk.  Please unstage it first.")))
     ((unstaged diff)
