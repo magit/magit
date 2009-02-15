@@ -258,7 +258,7 @@ Many Magit faces inherit from this one by default."
       nil)))
 
 (defun magit-read-top-dir ()
-  (magit-get-top-dir
+  (file-name-as-directory
    (read-directory-name "Git repository: "
 			(magit-get-top-dir default-directory))))
 
@@ -1540,9 +1540,15 @@ Please see the manual for a complete description of Magit.
 
 (defun magit-insert-staged-changes ()
   (let ((magit-hide-diffs t))
-    (magit-insert-section 'staged "Staged changes:" 'magit-wash-diffs
-			  magit-git-executable "diff" "--cached"
-			  (magit-diff-U-arg))))
+    (if no-commit
+        (let ((null-tree (magit-shell "git mktree </dev/null")))
+          (magit-insert-section 'staged "Staged changes:" 'magit-wash-diffs
+                                magit-git-executable "diff" "--cached"
+                                null-tree
+				(magit-diff-U-arg)))
+      (magit-insert-section 'staged "Staged changes:" 'magit-wash-diffs
+			    magit-git-executable "diff" "--cached"
+			    (magit-diff-U-arg)))))
 
 ;;; Logs and Commits
 
@@ -1682,7 +1688,11 @@ in log buffer."
   (magit-create-buffer-sections
     (magit-with-section 'status nil
       (let* ((branch (magit-get-current-branch))
-	     (remote (and branch (magit-get "branch" branch "remote"))))
+	     (remote (and branch (magit-get "branch" branch "remote")))
+	     (head (magit-shell
+                    "%s log --max-count=1 --abbrev-commit --pretty=oneline"
+                    magit-git-executable))
+	     (no-commit (string-match "fatal: bad default revision" head)))
 	(if remote
 	    (insert (format "Remote: %s %s\n"
 			    remote (magit-get "remote" remote "url"))))
@@ -1690,12 +1700,8 @@ in log buffer."
 			(propertize (or branch "(detached)")
 				    'face 'magit-branch)
 			(abbreviate-file-name default-directory)))
-	(insert
-	 (format
-	  "Head:   %s\n"
-	  (magit-shell
-	   "%s log --max-count=1 --abbrev-commit --pretty=oneline"
-	   magit-git-executable)))
+        (insert (format "Head:   %s\n"
+                        (if no-commit "nothing commited (yet)" head)))
 	(let ((merge-heads (magit-file-lines ".git/MERGE_HEAD")))
 	  (if merge-heads
 	      (insert (format "Merging: %s\n"
@@ -1712,7 +1718,7 @@ in log buffer."
 	(magit-insert-pending-commits)
 	(when remote
 	  (magit-insert-unpulled-commits remote branch))
-	(let ((staged (magit-anything-staged-p)))
+	(let ((staged (or no-commit (magit-anything-staged-p))))
 	  (magit-insert-unstaged-changes
 	   (if staged "Unstaged changes:" "Changes:"))
 	  (if staged
@@ -1720,21 +1726,44 @@ in log buffer."
 	(when remote
 	  (magit-insert-unpushed-commits remote branch))))))
 
+(defun magit-init (dir)
+  "Initialize git repository in specified directory"
+  (interactive (list (read-directory-name "Directory for git repository: ")))
+  (let ((topdir (magit-get-top-dir dir)))
+    (when (or (not topdir)
+	      (y-or-n-p
+	       (format
+		(if (string-equal topdir (expand-file-name dir))
+		    "There is already git repository in %S. Reinitialize?"
+		  "There is git repository in %S. Create another in %S?")
+		topdir dir)))
+      (unless (file-directory-p dir)
+	(and (y-or-n-p (format "Directory %S does not exists. Create?" dir))
+	     (make-directory dir)))
+      (let ((default-directory dir))
+	(magit-run* (list "git" "init"))))))
+
 (defun magit-status (dir)
   (interactive (list (or (and (not current-prefix-arg)
 			      (magit-get-top-dir default-directory))
 			 (magit-read-top-dir))))
   (if magit-save-some-buffers
       (save-some-buffers (eq magit-save-some-buffers 'dontask)))
-  (let* ((topdir (magit-get-top-dir dir))
-	 (buf (or (magit-find-buffer 'status topdir)
-		  (switch-to-buffer
-		   (get-buffer-create
-		    (concat "*magit: "
-			    (file-name-nondirectory
-			     (directory-file-name topdir)) "*"))))))
-    (switch-to-buffer buf)
-    (magit-mode-init topdir 'status #'magit-refresh-status)))
+  (let ((topdir (magit-get-top-dir dir)))
+    (unless topdir
+      (when (y-or-n-p (format "There is no git repository in %S. Create?" dir))
+	(magit-init dir)
+	(setq topdir (magit-get-top-dir dir))))
+    (when topdir
+      (let ((buf (or (magit-find-buffer 'status topdir)
+                     (switch-to-buffer
+                      (get-buffer-create
+                       (concat "*magit: "
+                               (file-name-nondirectory
+                                (directory-file-name topdir)) "*"))))))
+        (switch-to-buffer buf)
+        (magit-mode-init topdir 'status #'magit-refresh-status)))))
+
 
 ;;; Staging and Unstaging
 
