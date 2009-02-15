@@ -2341,10 +2341,11 @@ Prefix arg means justify as well."
 
 (defun magit-stash-snapshot ()
   (interactive)
-  (magit-run-git "stash" "save"
-		 (format-time-string "Snapshot taken at %Y-%m-%d %H:%M:%S"
-				     (current-time)))
-  (magit-run-git "stash" "apply" "stash@{0}"))
+  (magit-with-refresh
+    (magit-run-git "stash" "save"
+		   (format-time-string "Snapshot taken at %Y-%m-%d %H:%M:%S"
+				       (current-time)))
+    (magit-run-git "stash" "apply" "stash@{0}")))
 
 (defvar magit-currently-shown-stash nil)
 
