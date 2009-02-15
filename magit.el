@@ -1468,23 +1468,24 @@ Please see the manual for a complete description of Magit.
   (magit-insert-region (magit-section-beginning hunk) (magit-section-end hunk)
 		       buf))
 
-(defun magit-insert-hunk-item-region-patch (hunk beg end buf)
+(defun magit-insert-hunk-item-region-patch (hunk reverse beg end buf)
   (magit-diff-item-insert-header (magit-hunk-item-diff hunk) buf)
   (save-excursion
     (goto-char (magit-section-beginning hunk))
     (magit-insert-current-line buf)
     (forward-line)
-    (while (< (point) (magit-section-end hunk))
-      (if (and (<= beg (point)) (< (point) end))
-	  (magit-insert-current-line buf)
-	(cond ((looking-at " ")
-	       (magit-insert-current-line buf))
-	      ((looking-at "-")
-	       (let ((text (buffer-substring-no-properties
-			    (+ (point) 1) (line-beginning-position 2))))
-		 (with-current-buffer buf
-		   (insert " " text))))))
-      (forward-line)))
+    (let ((copy-op (if reverse "+" "-")))
+      (while (< (point) (magit-section-end hunk))
+	(if (and (<= beg (point)) (< (point) end))
+	    (magit-insert-current-line buf)
+	  (cond ((looking-at " ")
+		 (magit-insert-current-line buf))
+		((looking-at copy-op)
+		 (let ((text (buffer-substring-no-properties
+			      (+ (point) 1) (line-beginning-position 2))))
+		   (with-current-buffer buf
+		     (insert " " text))))))
+	(forward-line))))
   (with-current-buffer buf
     (diff-fixup-modifs (point-min) (point-max))))
 
@@ -1519,7 +1520,7 @@ Please see the manual for a complete description of Magit.
   (magit-insert-diff-item-patch diff "*magit-tmp*")
   (apply #'magit-run-git "apply" (append args (list "-"))))
 
-(defun magit-apply-hunk-item (hunk &rest args)
+(defun magit-apply-hunk-item* (hunk reverse &rest args)
   (when (zerop magit-diff-context-lines)
     (setq args (cons "--unidiff-zero" args)))
   (let ((tmp (get-buffer-create "*magit-tmp*")))
@@ -1527,10 +1528,16 @@ Please see the manual for a complete description of Magit.
       (erase-buffer))
     (if (magit-use-region-p)
 	(magit-insert-hunk-item-region-patch
-	 hunk (region-beginning) (region-end) tmp)
+	 hunk reverse (region-beginning) (region-end) tmp)
       (magit-insert-hunk-item-patch hunk tmp))
     (apply #'magit-run-with-input tmp
 	   magit-git-executable "apply" (append args (list "-")))))
+
+(defun magit-apply-hunk-item (hunk &rest args)
+  (apply #'magit-apply-hunk-item* hunk nil args))
+
+(defun magit-apply-hunk-item-reverse (hunk &rest args)
+  (apply #'magit-apply-hunk-item* hunk t (cons "--reverse" args)))
 
 (defun magit-insert-unstaged-changes (title)
   (let ((magit-hide-diffs t))
@@ -1793,7 +1800,7 @@ in log buffer."
   (interactive)
   (magit-section-action (item info "unstage")
     ((staged diff hunk)
-     (magit-apply-hunk-item item "--cached" "--reverse"))
+     (magit-apply-hunk-item-reverse item "--cached"))
     ((staged diff)
      (magit-run-git "reset" "-q" "HEAD" "--" (magit-diff-item-file item)))
     ((unstaged *)
@@ -2436,7 +2443,7 @@ Prefix arg means justify as well."
     ((commit)
      (magit-revert-commit info))
     ((hunk)
-     (magit-apply-hunk-item item "--reverse"))
+     (magit-apply-hunk-item-reverse item))
     ((diff)
      (magit-apply-diff-item item "--reverse"))))
 
@@ -2627,12 +2634,12 @@ Prefix arg means justify as well."
 	 (magit-run "git" "clean" "-df")))
     ((unstaged diff hunk)
      (when (yes-or-no-p "Discard hunk? ")
-       (magit-apply-hunk-item item "--reverse")))
+       (magit-apply-hunk-item-reverse item)))
     ((staged diff hunk)
      (if (magit-file-uptodate-p (magit-diff-item-file
 				 (magit-hunk-item-diff item)))
 	 (when (yes-or-no-p "Discard hunk? ")
-	   (magit-apply-hunk-item item "--reverse" "--index"))
+	   (magit-apply-hunk-item-reverse item "--index"))
        (error "Can't discard this hunk.  Please unstage it first.")))
     ((unstaged diff)
      (magit-discard-diff item))
