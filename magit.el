@@ -1728,17 +1728,17 @@ in log buffer."
 
 (defun magit-init (dir)
   "Initialize git repository in specified directory"
-  (interactive (list (read-directory-name "Directory for git repository: ")))
+  (interactive (list (read-directory-name "Directory for Git repository: ")))
   (let ((topdir (magit-get-top-dir dir)))
     (when (or (not topdir)
-	      (y-or-n-p
+	      (yes-or-no-p
 	       (format
 		(if (string-equal topdir (expand-file-name dir))
-		    "There is already git repository in %S. Reinitialize?"
-		  "There is git repository in %S. Create another in %S?")
+		    "There is already a Git repository in %s. Reinitialize? "
+		  "There is a Git repository in %s. Create another in %s? ")
 		topdir dir)))
       (unless (file-directory-p dir)
-	(and (y-or-n-p (format "Directory %S does not exists. Create?" dir))
+	(and (y-or-n-p (format "Directory %s does not exists. Create it? " dir))
 	     (make-directory dir)))
       (let ((default-directory dir))
 	(magit-run* (list "git" "init"))))))
@@ -1751,7 +1751,8 @@ in log buffer."
       (save-some-buffers (eq magit-save-some-buffers 'dontask)))
   (let ((topdir (magit-get-top-dir dir)))
     (unless topdir
-      (when (y-or-n-p (format "There is no git repository in %S. Create?" dir))
+      (when (y-or-n-p (format "There is no Git repository in %S. Create one? "
+			      dir))
 	(magit-init dir)
 	(setq topdir (magit-get-top-dir dir))))
     (when topdir
