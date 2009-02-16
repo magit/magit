@@ -733,6 +733,18 @@ Many Magit faces inherit from this one by default."
     (let ((path (reverse (magit-section-lineage (magit-current-section)))))
       (magit-section-show-level (car path) 0 level (cdr path)))))
 
+(defun magit-show-only-files ()
+  (interactive)
+  (if (eq magit-submode 'status)
+      (call-interactively 'magit-show-level-2)
+    (call-interactively 'magit-show-level-1)))
+
+(defun magit-show-only-files-all ()
+  (interactive)
+  (if (eq magit-submode 'status)
+      (call-interactively 'magit-show-level-2-all)
+    (call-interactively 'magit-show-level-1-all)))
+
 (defmacro magit-define-level-shower-1 (level all)
   (let ((fun (intern (format "magit-show-level-%s%s"
 			     level (if all "-all" ""))))
@@ -808,10 +820,12 @@ Many Magit faces inherit from this one by default."
 	    (,type (magit-section-type ,section))
 	    (,context (magit-section-context-type ,section)))
        (cond ,@(mapcar (lambda (clause)
-			 (let ((prefix (reverse (car clause)))
-			       (body (cdr clause)))
-			   `((magit-prefix-p ',prefix ,context)
-			     ,@body)))
+			 (if (eq (car clause) t)
+			     clause
+			   (let ((prefix (reverse (car clause)))
+				 (body (cdr clause)))
+			     `((magit-prefix-p ',prefix ,context)
+			       ,@body))))
 		       clauses)
 	     ,@(if opname
 		   `(((not ,type)
@@ -895,7 +909,7 @@ Many Magit faces inherit from this one by default."
 			(lambda (buf)
 			  (with-current-buffer buf
 			    (when magit-process
-			      (pop-to-buffer (process-buffer magit-process))
+			      (display-buffer (process-buffer magit-process))
 			      (goto-char (point-max))))))
 		       (current-buffer))))
 	       (setq successp t))
@@ -1016,8 +1030,8 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "M-2") 'magit-show-level-2-all)
     (define-key map (kbd "M-3") 'magit-show-level-3-all)
     (define-key map (kbd "M-4") 'magit-show-level-4-all)
-    (define-key map (kbd "M-h") 'magit-show-level-2)
-    (define-key map (kbd "M-H") 'magit-show-level-2-all)
+    (define-key map (kbd "M-h") 'magit-show-only-files)
+    (define-key map (kbd "M-H") 'magit-show-only-files-all)
     (define-key map (kbd "M-s") 'magit-show-level-4)
     (define-key map (kbd "M-S") 'magit-show-level-4-all)
     (define-key map (kbd "g") 'magit-refresh)
@@ -2691,7 +2705,9 @@ Prefix arg means justify as well."
     ((commit)
      (magit-show-commit info #'scroll-up))
     ((stash)
-     (magit-show-stash info #'scroll-up))))
+     (magit-show-stash info #'scroll-up))
+    (t
+     (scroll-up))))
 
 (defun magit-show-item-or-scroll-down ()
   (interactive)
@@ -2699,7 +2715,9 @@ Prefix arg means justify as well."
     ((commit)
      (magit-show-commit info #'scroll-down))
     ((stash)
-     (magit-show-stash info #'scroll-down))))
+     (magit-show-stash info #'scroll-down))
+    (t
+     (scroll-down))))
 
 (defun magit-mark-item (&optional unmark)
   (interactive "P")
