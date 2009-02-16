@@ -889,7 +889,7 @@ Many Magit faces inherit from this one by default."
 			(lambda (buf)
 			  (with-current-buffer buf
 			    (when magit-process
-			      (pop-to-buffer (process-buffer magit-process))
+			      (display-buffer (process-buffer magit-process))
 			      (goto-char (point-max))))))
 		       (current-buffer))))
 	       (setq successp t))
