@@ -724,6 +724,18 @@ Many Magit faces inherit from this one by default."
     (let ((path (reverse (magit-section-lineage (magit-current-section)))))
       (magit-section-show-level (car path) 0 level (cdr path)))))
 
+(defun magit-show-only-files ()
+  (interactive)
+  (if (eq magit-submode 'status)
+      (call-interactively 'magit-show-level-2)
+    (call-interactively 'magit-show-level-1)))
+
+(defun magit-show-only-files-all ()
+  (interactive)
+  (if (eq magit-submode 'status)
+      (call-interactively 'magit-show-level-2-all)
+    (call-interactively 'magit-show-level-1-all)))
+
 (defmacro magit-define-level-shower-1 (level all)
   (let ((fun (intern (format "magit-show-level-%s%s"
 			     level (if all "-all" ""))))
@@ -998,8 +1010,8 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "M-2") 'magit-show-level-2-all)
     (define-key map (kbd "M-3") 'magit-show-level-3-all)
     (define-key map (kbd "M-4") 'magit-show-level-4-all)
-    (define-key map (kbd "M-h") 'magit-show-level-2)
-    (define-key map (kbd "M-H") 'magit-show-level-2-all)
+    (define-key map (kbd "M-h") 'magit-show-only-files)
+    (define-key map (kbd "M-H") 'magit-show-only-files-all)
     (define-key map (kbd "M-s") 'magit-show-level-4)
     (define-key map (kbd "M-S") 'magit-show-level-4-all)
     (define-key map (kbd "g") 'magit-refresh)
