@@ -253,7 +253,8 @@ Many Magit faces inherit from this one by default."
   (let ((cwd (expand-file-name cwd)))
     (and (file-directory-p cwd)
 	 (let* ((default-dir cwd)
-		(magit-dir (magit-git-string "rev-parse --git-dir 2>/dev/null")))
+		(magit-dir
+		 (magit-git-string "rev-parse --git-dir 2>/dev/null")))
 	   (and magit-dir
 		(file-name-as-directory
 		 (or (file-name-directory magit-dir) cwd)))))))
@@ -2479,7 +2480,7 @@ Prefix arg means justify as well."
 
 (defun magit-configure-have-graph ()
   (if (eq magit-have-graph 'unset)
-      (let ((res (magit-git-exit-code "%s log --graph --max-count=0")))
+      (let ((res (magit-git-exit-code "log --graph --max-count=0")))
 	(setq magit-have-graph (eq res 0)))))
 
 (defun magit-configure-have-decorate ()
