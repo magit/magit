@@ -2584,23 +2584,31 @@ Prefix arg means justify as well."
   (magit-create-buffer-sections
     (magit-with-section 'wazzupbuf nil
       (insert (format "Wazzup, %s\n\n" head))
-      (let ((branches (magit-git-lines "branch -a | cut -c3-")))
+      (let ((branches (magit-git-lines "branch -a | cut -c3-"))
+	    (reported (make-hash-table :test #'equal)))
 	(dolist (b branches)
-	  (let* ((n (magit-git-string "log --pretty=oneline %s..%s | wc -l"
-				      head b))
-		 (section
-		  (let ((magit-section-hidden-default t))
-		    (magit-git-section 
-		     (cons b 'wazzup)
-		     (format "%s unmerged commits in %s"
-			     n b)
-		     'magit-wash-log
-		     "log"
-		     (format "--max-count=%s" magit-log-cutoff-length)
-		     "--pretty=oneline"
-		     (format "%s..%s" head b)
-		     "--"))))
-	    (magit-set-section-info b section)))))))
+	  (let* ((hash (magit-git-string "rev-parse %s" b))
+		 (reported-branch (gethash hash reported)))
+	    (unless (or (and reported-branch
+			     (string= (file-name-nondirectory b)
+				      reported-branch))
+			(not (magit-git-string "merge-base %s %s" head b)))
+	      (puthash hash (file-name-nondirectory b) reported)
+	      (let* ((n (magit-git-string "log --pretty=oneline %s..%s | wc -l"
+					  head b))
+		     (section
+		      (let ((magit-section-hidden-default t))
+			(magit-git-section 
+			 (cons b 'wazzup)
+			 (format "%s unmerged commits in %s"
+				 n b)
+			 'magit-wash-log
+			 "log"
+			 (format "--max-count=%s" magit-log-cutoff-length)
+			 "--pretty=oneline"
+			 (format "%s..%s" head b)
+			 "--"))))
+		(magit-set-section-info b section)))))))))
 
 (defun magit-wazzup ()
   (interactive)
