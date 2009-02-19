@@ -69,6 +69,15 @@ save all modified buffers without asking."
 		 (const :tag "Ask" t)
 		 (const :tag "Save without asking" dontask)))
 
+(defcustom magit-commit-all-when-nothing-staged 'ask
+  "Non-nil means that \\[magit-log-edit] will commit all unstaged
+changes when there are no staged changes.  Setting this to 'ask will
+ask each time, while setting it to t will skip the question."
+  :group 'magit
+  :type '(choice (const :tag "No" nil)
+		 (const :tag "Always" t)
+		 (const :tag "Ask" ask)))
+
 (defcustom magit-commit-signoff nil
   "When performing git commit adds --signoff"
   :group 'magit
@@ -2202,6 +2211,9 @@ Prefix arg means justify as well."
 	       (setq fields (append fields (list (cons name value)))))))
     (magit-log-edit-set-fields fields)))
 
+(defun magit-log-edit-get-field (name)
+  (cdr (assq name (magit-log-edit-get-fields))))
+
 (defun magit-log-edit-setup-author-env (author)
   (cond (author
 	 ;; XXX - this is a bit strict, probably.
@@ -2228,6 +2240,7 @@ Prefix arg means justify as well."
   (interactive)
   (let* ((fields (magit-log-edit-get-fields))
 	 (amend (equal (cdr (assq 'amend fields)) "yes"))
+	 (commit-all (equal (cdr (assq 'commit-all fields)) "yes"))
 	 (tag (cdr (assq 'tag fields)))
 	 (author (cdr (assq 'author fields))))
     (magit-log-edit-push-to-comment-ring (buffer-string))
@@ -2245,8 +2258,7 @@ Prefix arg means justify as well."
 		      magit-git-executable
 		      (append magit-git-standard-options
 			      (list "commit" "-F" "-")
-			      (if (not (or amend (magit-anything-staged-p)))
-				  '("--all") '())
+			      (if commit-all '("--all") '())
 			      (if amend '("--amend") '())
 			      (if magit-commit-signoff
 				  '("--signoff") '())))))))
@@ -2280,6 +2292,14 @@ Prefix arg means justify as well."
 (defun magit-log-edit ()
   (interactive)
   (magit-log-edit-set-field 'tag nil)
+  (when (and magit-commit-all-when-nothing-staged
+	     (not (magit-anything-staged-p))
+	     (not (magit-log-edit-get-field 'commit-all)))
+    (magit-log-edit-set-field
+     'commit-all
+     (if (or (eq magit-commit-all-when-nothing-staged t)
+	     (y-or-n-p "Nothing staged. Commit all unstaged changes? "))
+	 "yes" "no")))
   (magit-pop-to-log-edit "commit"))
 
 (defun magit-add-log ()
