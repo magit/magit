@@ -252,7 +252,7 @@ Many Magit faces inherit from this one by default."
 (defun magit-get-top-dir (cwd)
   (let ((cwd (expand-file-name cwd)))
     (and (file-directory-p cwd)
-	 (let* ((default-dir cwd)
+	 (let* ((default-directory cwd)
 		(magit-dir
 		 (magit-git-string "rev-parse --git-dir 2>/dev/null")))
 	   (and magit-dir
