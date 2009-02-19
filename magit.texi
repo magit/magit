@@ -250,17 +250,14 @@ changes.
 
 Type @kbd{c} to pop up a buffer where you can write your change
 description.  Once you are happy with the description, type @kbd{C-c
-C-c} in that buffer to perform the commit.  When your stagin area is
-unused at this point, all your uncommitted changes are committed.
-When the staging area is in use, only the staged changes are
-committed.
+C-c} in that buffer to perform the commit.  When your staging area is
+unused when you hit @kbd{c}, you will be asked whether to commit all
+the unchanged changes.  When the staging area is in use, only the
+staged changes are committed, of course.
 
 You can type @kbd{C-c C-a} in the buffer with the change description
-toggles a flag that determines whether the next commit will be a
-@emph{amending} one.  When amending a commit, only the staged changes
-are committed, even if there are none.  (Normally, all unstaged
-changes are committed when there are no staged changes.)  This allows
-you to easily modify the message of the last commit.
+to toggle a flag that determines whether the next commit will
+@emph{amending} the current commit in HEAD.
 
 Typing @kbd{C} will also pop up the change description buffer, but in
 addition, it will try to insert a ChangeLog-style entry for the change
