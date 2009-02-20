@@ -1024,6 +1024,7 @@ Many Magit faces inherit from this one by default."
 (magit-define-section-jumper unstaged  "Unstaged changes")
 (magit-define-section-jumper staged    "Staged changes")
 (magit-define-section-jumper unpushed  "Unpushed commits")
+(magit-define-section-jumper svn-unpushed  "Unpushed commits (SVN)")
 
 (magit-define-level-shower 1)
 (magit-define-level-shower 2)
@@ -1739,6 +1740,18 @@ in log buffer."
 		     "log" "--pretty=format:* %H %s"
 		     (format "%s/%s..HEAD" remote branch)))
 
+(defun magit-insert-unpulled-svn-commits ()
+  (magit-git-section 'svn-unpulled
+		     "Unpulled commits (SVN):" 'magit-wash-log
+		     "log" "--pretty=format:* %H %s"
+		     (format "HEAD..remotes/git-svn")))
+
+(defun magit-insert-unpushed-svn-commits ()
+  (magit-git-section 'svn-unpushed
+		     "Unpushed commits (SVN):" 'magit-wash-log
+		     "log" "--pretty=format:* %H %s"
+		     (format "remotes/git-svn..HEAD")))
+
 ;;; Status
 
 (defun magit-refresh-status ()
@@ -1746,6 +1759,7 @@ in log buffer."
     (magit-with-section 'status nil
       (let* ((branch (magit-get-current-branch))
 	     (remote (and branch (magit-get "branch" branch "remote")))
+             (svn-enabled (magit-svn-enabled))
 	     (head (magit-git-string
 		    "log --max-count=1 --abbrev-commit --pretty=oneline"))
 	     (no-commit (string-match "fatal: bad default revision" head)))
@@ -1774,13 +1788,17 @@ in log buffer."
 	(magit-insert-pending-commits)
 	(when remote
 	  (magit-insert-unpulled-commits remote branch))
+        (when svn-enabled
+          (magit-insert-unpulled-svn-commits))
 	(let ((staged (or no-commit (magit-anything-staged-p))))
 	  (magit-insert-unstaged-changes
 	   (if staged "Unstaged changes:" "Changes:"))
 	  (if staged
 	      (magit-insert-staged-changes no-commit)))
 	(when remote
-	  (magit-insert-unpushed-commits remote branch))))))
+	  (magit-insert-unpushed-commits remote branch))
+        (when svn-enabled
+          (magit-insert-unpushed-svn-commits))))))
 
 (defun magit-init (dir)
   "Initialize git repository in specified directory"
