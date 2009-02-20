@@ -1983,7 +1983,10 @@ in log buffer."
   (magit-run-git-async "svn" "dcommit"))
 
 (defun magit-svn-enabled ()
-  (not (null (find "git-svn" (magit-list-interesting-revisions) :test 'equal))))
+  (or (not (null (find "git-svn" (magit-list-interesting-revisions)
+		       :test 'equal)))
+      (not (null (find "trunk" (magit-list-interesting-revisions)
+		       :test 'equal)))))
 
 ;;; Resetting
 
