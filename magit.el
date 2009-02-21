@@ -1995,7 +1995,9 @@ in log buffer."
 				     (or (magit-default-rev)
 					 "HEAD^"))))
   (if rev
-      (magit-run-git "reset" "--soft" (magit-rev-to-git rev))))
+      (magit-run-git "reset" (if current-prefix-arg
+				 "--hard" "--soft")
+		     (magit-rev-to-git rev))))
 
 (defun magit-reset-working-tree ()
   (interactive)
