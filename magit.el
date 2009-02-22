@@ -224,8 +224,14 @@ Many Magit faces inherit from this one by default."
 	    (setq lines (cdr lines)))
 	(nreverse lines)))))
 
+(defun magit-shell-command-to-string (command)
+  (with-output-to-string
+    (with-current-buffer
+        standard-output
+      (process-file shell-file-name nil t nil shell-command-switch command))))
+
 (defun magit-shell (command)
-  (let ((str (shell-command-to-string command)))
+  (let ((str (magit-shell-command-to-string command)))
     (if (string= str "")
 	nil
       (if (equal (elt str (- (length str) 1)) ?\n)
@@ -287,7 +293,7 @@ Many Magit faces inherit from this one by default."
 (defun magit-read-top-dir ()
   (file-name-as-directory
    (read-directory-name "Git repository: "
-			(magit-get-top-dir default-directory))))
+			(or (magit-get-top-dir default-directory) default-directory))))
 
 (defun magit-name-rev (rev)
   (and rev
@@ -554,7 +560,7 @@ Many Magit faces inherit from this one by default."
 		(insert (propertize buffer-title 'face 'magit-section-title)
 			"\n"))
 	    (setq body-beg (point))
-	    (apply 'call-process cmd nil t nil args)
+	    (apply 'process-file cmd nil t nil args)
 	    (if (not (eq (char-before) ?\n))
 		(insert "\n"))
 	    (if washer
