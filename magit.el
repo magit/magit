@@ -1078,7 +1078,6 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "U") 'magit-unstage-all)
     (define-key map (kbd "i") 'magit-ignore-item)
     (define-key map (kbd "I") 'magit-ignore-item-locally)
-    (define-key map (kbd "i") 'magit-ignore-item)
     (define-key map (kbd "?") 'magit-describe-item)
     (define-key map (kbd ".") 'magit-mark-item)
     (define-key map (kbd "=") 'magit-diff-with-mark)
