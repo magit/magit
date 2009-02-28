@@ -38,12 +38,12 @@
 
 ;; For 0.7:
 ;;
-;; - Showing tags.
 ;; - Make it possible to ignore commits etc for Wazzup.
 ;;
 ;; Later:
 ;;
 ;; - Good email integration.
+;; - Showing tags.
 ;; - Visiting from staged hunks doesn't always work since the line
 ;;   numbers don't refer to the working tree.  Fix that somehow.
 ;; - Get current defun from removed lines in a diff
