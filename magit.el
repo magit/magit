@@ -1384,7 +1384,7 @@ Please see the manual for a complete description of Magit.
   (magit-refresh))
 
 (defun magit-diff-line-file ()
-  (cond ((looking-at "^diff --git a/\\(.*\\) b/\\(.*\\)$")
+  (cond ((looking-at "^diff --git ./\\(.*\\) ./\\(.*\\)$")
 	 (match-string-no-properties 2))
 	((looking-at "^diff --cc +\\(.*\\)$")
 	 (match-string-no-properties 1))
