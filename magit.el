@@ -36,12 +36,18 @@
 
 ;;; TODO
 
-;; - Showing tags
-;; - Amending commits other than HEAD.
+;; For 0.7:
+;;
+;; - Showing tags.
+;; - Make it possible to ignore commits etc for Wazzup.
+;;
+;; Later:
+;;
+;; - Good email integration.
 ;; - Visiting from staged hunks doesn't always work since the line
 ;;   numbers don't refer to the working tree.  Fix that somehow.
 ;; - Get current defun from removed lines in a diff
-;; - Equivalent of git-wtf, http://git-wt-commit.rubyforge.org/#git-wtf
+;; - Amending commits other than HEAD.
 ;; - 'Subsetting', only looking at a subset of all files.
 
 (require 'cl)
