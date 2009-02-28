@@ -2091,9 +2091,9 @@ in log buffer."
 
 (defun magit-remote-update ()
   (interactive)
-  (magit-run-git-async "remote" "update")
   (if (magit-svn-enabled)
-      (magit-run-git-async "svn" "fetch")))
+      (magit-run-git-async "svn" "fetch")
+    (magit-run-git-async "remote" "update")))
 
 (defun magit-pull ()
   (interactive)
