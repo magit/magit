@@ -76,13 +76,13 @@ save all modified buffers without asking."
 		 (const :tag "Save without asking" dontask)))
 
 (defcustom magit-commit-all-when-nothing-staged 'ask
-  "Non-nil means that \\[magit-log-edit] will commit all unstaged
-changes when there are no staged changes.  Setting this to 'ask will
-ask each time, while setting it to t will skip the question."
+  "Determines what \\[magit-log-edit] does when nothing is staged.
+Setting this to nil will make it do nothing, setting it to t will arrange things so that the actual commit command will use the \"--all\" option, setting it to 'ask will first ask for confirmation whether to do this, and setting it to 'ask-stage will cause all changes to be staged, after a confirmation."
   :group 'magit
   :type '(choice (const :tag "No" nil)
 		 (const :tag "Always" t)
-		 (const :tag "Ask" ask)))
+		 (const :tag "Ask" ask)
+		 (const :tag "Ask to stage everything" ask-stage)))
 
 (defcustom magit-commit-signoff nil
   "When performing git commit adds --signoff"
@@ -2317,13 +2317,17 @@ Prefix arg means justify as well."
   (interactive)
   (magit-log-edit-set-field 'tag nil)
   (when (and magit-commit-all-when-nothing-staged
-	     (not (magit-anything-staged-p))
-	     (not (magit-log-edit-get-field 'commit-all)))
-    (magit-log-edit-set-field
-     'commit-all
-     (if (or (eq magit-commit-all-when-nothing-staged t)
-	     (y-or-n-p "Nothing staged. Commit all unstaged changes? "))
-	 "yes" "no")))
+	     (not (magit-anything-staged-p)))
+    (cond ((eq magit-commit-all-when-nothing-staged 'ask-stage)
+	   (if (and (not (magit-everything-clean-p))
+		    (y-or-n-p "Nothing staged. Stage everything now? "))
+	       (magit-stage-all)))
+	  ((not (magit-log-edit-get-field 'commit-all))
+	   (magit-log-edit-set-field
+	    'commit-all
+	    (if (or (eq magit-commit-all-when-nothing-staged t)
+		    (y-or-n-p "Nothing staged. Commit all unstaged changes? "))
+		"yes" "no")))))
   (magit-pop-to-log-edit "commit"))
 
 (defun magit-add-log ()
