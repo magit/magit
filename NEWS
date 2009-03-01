@@ -34,17 +34,18 @@ Changes in magit 0.7:
 
 * Magit understands a bit of git-svn: the status buffer shows unpushed
   and unpulled commits, 'N r' runs git svn rebase, and 'N c' runs git
-  svn commit.
+  svn dcommit.
 
 * Magit now also works when the direcory is accessed via tramp.
 
 * M-x magit-status can also create new repositories when given a
   directory that is not a Git repository.
 
-* Magit works better with oldish Gits that don't understand "--graph"
+* Magit works better with oldish Gits that don't understand "--graph",
   for example.
 
-* The name of the Git program can be customized.
+* The name of the Git program and common options for it can be
+  customized.
 
 Changes in magit 0.6:
 

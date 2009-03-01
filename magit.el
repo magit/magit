@@ -66,6 +66,11 @@
   :group 'magit
   :type 'string)
 
+(defcustom magit-git-standard-options '("--no-pager")
+  "Standard options when running Git."
+  :group 'magit
+  :type '(repeat string))
+
 (defcustom magit-save-some-buffers t
   "Non-nil means that \\[magit-status] will save modified buffers before running.
 Setting this to t will ask which buffers to save, setting it to 'dontask will
@@ -185,8 +190,6 @@ Many Magit faces inherit from this one by default."
      :background "DarkGreen"))
   "Face for branch head labels shown in log buffer."
   :group 'magit)
-
-(defconst magit-git-standard-options '("--no-pager"))
 
 ;;; Macros
 
