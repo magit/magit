@@ -224,7 +224,7 @@ Many Magit faces inherit from this one by default."
 	  (magit-format-shell-command fmt args)))
 
 (defun magit-shell-lines (command)
-  (let ((str (shell-command-to-string command)))
+  (let ((str (magit-shell-command-to-string command)))
     (if (string= str "")
 	nil
       (let ((lines (nreverse (split-string str "\n"))))
