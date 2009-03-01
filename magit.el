@@ -1995,13 +1995,16 @@ in log buffer."
 
 ;;; Resetting
 
-(defun magit-reset-head (rev)
-  (interactive (list (magit-read-rev "Reset head to"
+(defun magit-reset-head (rev &optional hard)
+  (interactive (list (magit-read-rev (format "%s head to"
+					     (if current-prefix-arg
+						 "Hard reset"
+					       "Reset"))
 				     (or (magit-default-rev)
-					 "HEAD^"))))
+					 "HEAD^"))
+		     current-prefix-arg))
   (if rev
-      (magit-run-git "reset" (if current-prefix-arg
-				 "--hard" "--soft")
+      (magit-run-git "reset" (if hard "--hard" "--soft")
 		     (magit-rev-to-git rev))))
 
 (defun magit-reset-working-tree ()

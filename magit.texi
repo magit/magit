@@ -388,6 +388,11 @@ Type @kbd{X} to reset your working tree and staging area to the most
 recently committed state.  This will discard your local modifications,
 so be careful.
 
+You can give a prefix to @kbd{x} if you want to reset both the current
+head and your working tree to a given commit.  This is the same as
+first using an unprefixed @kbd{x} to reset only the head, and then
+using @kbd{X}.
+
 @node Stashing
 @chapter Stashing
 
