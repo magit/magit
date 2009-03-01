@@ -255,9 +255,13 @@ Many Magit faces inherit from this one by default."
 		(magit-format-git-command fmt args)))
 
 (defun magit-file-lines (file)
-  (if (file-exists-p file)
-      (magit-shell-lines (magit-format-shell-command "cat %s" (list file)))
-    nil))
+  (when (file-exists-p file)
+    (with-temp-buffer
+      (insert-file-contents file)
+      (let ((rev (nreverse (split-string (buffer-string) "\n"))))
+	(nreverse (if (equal (car rev) "")
+		      (cdr rev)
+		    rev))))))
 
 (defun magit-concat-with-delim (delim seqs)
   (cond ((null seqs)
