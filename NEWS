@@ -2,7 +2,7 @@ Changes in magit 0.7:
 
 * Tagging, on 't' and 'T'.
 
-* Stashing, on 'z'.
+* Stashing, on 'z' and 'Z'.
 
 * Wazzup, on 'w'.  Wazzup gives you an overview over how other
   branches relate to the current one.
@@ -26,11 +26,20 @@ Changes in magit 0.7:
   all sections; without, they work only on sections that are a parent
   or child of the current section.
 
+* Typing '+' and '-' will change the size of hunks, via the "-U"
+  option to git diff.  '0' resets hunks to their default size.
+
 * Typing 'k' on the "Untracked files" section title will offer to
   delete all untracked files.
 
-* M-x magit-status can also create repositories when given a directory
-  that is not a Git repository.
+* Magit understands a bit of git-svn: the status buffer shows unpushed
+  and unpulled commits, 'N r' runs git svn rebase, and 'N c' runs git
+  svn commit.
+
+* Magit now also works when the direcory is accessed via tramp.
+
+* M-x magit-status can also create new repositories when given a
+  directory that is not a Git repository.
 
 * Magit works better with oldish Gits that don't understand "--graph"
   for example.
