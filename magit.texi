@@ -266,6 +266,16 @@ You can type @kbd{C-c C-a} in the buffer with the change description
 to toggle a flag that determines whether the next commit will
 @emph{amending} the current commit in HEAD.
 
+If you change your mind and don't want to go ahead with your commit
+while you are in the @code{*magit-log-edit*} buffer, you can just
+switch to another buffer, continue editing there, staging and
+unstaging things until you are happy, and then return to the
+@code{*magit-log-edit*} buffer, maybe via @kbd{C-x b}, or by hitting
+@kbd{c} again in a Magit buffer.
+
+If you want to erase the @code{*magit-log-edit*} buffer and bury it,
+you can hit @kbd{C-c C-k} in it.
+
 Typing @kbd{C} will also pop up the change description buffer, but in
 addition, it will try to insert a ChangeLog-style entry for the change
 that point is in.
