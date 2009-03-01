@@ -2671,12 +2671,23 @@ Prefix arg means justify as well."
 
 ;;; Wazzup
 
-(defun magit-refresh-wazzup-buffer (head)
+(defun magit-wazzup-ignore (branch edit)
+  (let ((ignore-file ".git/info/wazzup-exclude"))
+    (if edit
+	(setq branch (read-string "Branch to ignore for wazzup: " branch)))
+    (append-to-file (concat branch "\n") nil ignore-file)
+    (magit-need-refresh)))
+
+(defun magit-refresh-wazzup-buffer (head all)
   (magit-create-buffer-sections
     (magit-with-section 'wazzupbuf nil
       (insert (format "Wazzup, %s\n\n" head))
-      (let ((branches (magit-git-lines "branch -a | cut -c3-"))
-	    (reported (make-hash-table :test #'equal)))
+      (let* ((excluded (magit-file-lines ".git/info/wazzup-exclude"))
+	     (all-branches (magit-git-lines "branch -a | cut -c3-"))
+	     (branches (if all all-branches
+			 (remove-if (lambda (b) (member b excluded))
+				    all-branches)))
+	     (reported (make-hash-table :test #'equal)))
 	(dolist (b branches)
 	  (let* ((hash (magit-git-string "rev-parse %s" b))
 		 (reported-branch (gethash hash reported)))
@@ -2691,8 +2702,11 @@ Prefix arg means justify as well."
 		      (let ((magit-section-hidden-default t))
 			(magit-git-section 
 			 (cons b 'wazzup)
-			 (format "%s unmerged commits in %s"
-				 n b)
+			 (format "%s unmerged commits in %s%s"
+				 n b
+				 (if (member b excluded)
+				     " (normally ignored)"
+				   ""))
 			 'magit-wash-log
 			 "log"
 			 (format "--max-count=%s" magit-log-cutoff-length)
@@ -2701,13 +2715,13 @@ Prefix arg means justify as well."
 			 "--"))))
 		(magit-set-section-info b section)))))))))
 
-(defun magit-wazzup ()
-  (interactive)
+(defun magit-wazzup (&optional all)
+  (interactive "P")
   (let* ((topdir (magit-get-top-dir default-directory)))
     (switch-to-buffer "*magit-wazzup*")
     (magit-mode-init topdir 'wazzup 
 		     #'magit-refresh-wazzup-buffer
-		     (magit-get-current-branch))))
+		     (magit-get-current-branch) all)))
 
 ;;; Miscellaneous
 
@@ -2724,7 +2738,7 @@ Prefix arg means justify as well."
     ((untracked file)
      (magit-ignore-file info current-prefix-arg nil))
     ((wazzup)
-     (message "wazzup"))))
+     (magit-wazzup-ignore info current-prefix-arg))))
 
 (defun magit-ignore-item-locally ()
   (interactive)

@@ -445,6 +445,10 @@ similar) to show the lists of commits.
 When point is on a @emph{N unmerged commits in ...} title, the
 corresponding branch will be offered as the default for a merge.
 
+Hitting @kbd{i} on a branch title will ignore this branch in the
+wazzup view.  You can use @kbd{C-u w} to show all branches, including
+the ignored ones.
+
 @node Merging
 @chapter Merging
 
