@@ -2335,6 +2335,8 @@ Prefix arg means justify as well."
 				  '("--signoff") '())))))))
     (erase-buffer)
     (bury-buffer)
+    (when (file-exists-p ".git/MERGE_MSG")
+      (delete-file ".git/MERGE_MSG"))
     (when magit-pre-log-edit-window-configuration
       (set-window-configuration magit-pre-log-edit-window-configuration)
       (setq magit-pre-log-edit-window-configuration nil))))
@@ -2367,6 +2369,8 @@ Prefix arg means justify as well."
     (setq magit-pre-log-edit-window-configuration
 	  (current-window-configuration))
     (pop-to-buffer buf)
+    (when (file-exists-p ".git/MERGE_MSG")
+      (insert-file-contents ".git/MERGE_MSG"))
     (setq default-directory dir)
     (magit-log-edit-mode)
     (message "Type C-c C-c to %s (C-c C-k to cancel)." operation)))
