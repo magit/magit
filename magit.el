@@ -1814,6 +1814,7 @@ in log buffer."
 	(insert "\n")
 	(magit-insert-untracked-files)
 	(magit-insert-stashes)
+	(magit-insert-topics)
 	(magit-insert-pending-changes)
 	(magit-insert-pending-commits)
 	(when remote
@@ -2509,6 +2510,32 @@ Prefix arg means justify as well."
 	       (magit-mode-init dir 'diff #'magit-refresh-diff-buffer
 				range args)))))))
 
+;;; Topic branches (using topgit)
+
+(defun magit-wash-topic ()
+  (if (search-forward-regexp "^..\\(t/\\S-+\\)\\s-+\\(\\S-+\\)\\s-+\\(\\S-+\\)"
+			     (line-end-position) t)
+      (let ((topic (match-string 1)))
+	(delete-region (match-beginning 2) (match-end 2))
+	(goto-char (line-beginning-position))
+	(delete-char 4)
+	(insert "\t")
+	(goto-char (line-beginning-position))
+	(magit-with-section topic 'topic
+	  (magit-set-section-info topic)
+	  (forward-line)))
+    (delete-region (line-beginning-position) (1+ (line-end-position))))
+  t)
+
+(defun magit-wash-topics ()
+  (let ((magit-old-top-section nil))
+    (magit-wash-sequence #'magit-wash-topic)))
+
+(defun magit-insert-topics ()
+  (magit-git-section 'topics
+		     "Topics:" 'magit-wash-topics
+		     "branch" "-v"))
+
 ;;; Commits
 
 (defun magit-commit-at-point (&optional nil-ok-p)
@@ -2841,7 +2868,9 @@ Prefix arg means justify as well."
      (pop-to-buffer "*magit-commit*"))
     ((stash)
      (magit-show-stash info)
-     (pop-to-buffer "*magit-diff*"))))
+     (pop-to-buffer "*magit-diff*"))
+    ((topic)
+     (magit-checkout info))))
 
 (defun magit-show-item-or-scroll-up ()
   (interactive)
