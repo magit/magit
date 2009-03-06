@@ -1104,6 +1104,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "x") 'magit-reset-head)
     (define-key map (kbd "X") 'magit-reset-working-tree)
     (define-key map (kbd "k") 'magit-discard-item)
+    (define-key map (kbd "!") 'magit-shell-command)
     (define-key map (kbd "RET") 'magit-visit-item)
     (define-key map (kbd "SPC") 'magit-show-item-or-scroll-up)
     (define-key map (kbd "DEL") 'magit-show-item-or-scroll-down)
@@ -2157,6 +2158,15 @@ in log buffer."
 (defun magit-pull ()
   (interactive)
   (magit-run-git-async "pull" "-v"))
+
+(defun magit-shell-command (command)
+  (interactive "sCommand: ")
+  (require 'pcomplete)
+  (let ((args (car (with-temp-buffer
+		     (insert command)
+		     (pcomplete-parse-buffer-arguments))))
+	(magit-process-popup-time 0))
+    (magit-run* args nil nil nil t)))
 
 (defun magit-read-remote (prompt def)
   (completing-read (if def
