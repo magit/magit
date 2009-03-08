@@ -1771,13 +1771,13 @@ in log buffer."
   (magit-git-section 'svn-unpulled
 		     "Unpulled commits (SVN):" 'magit-wash-log
 		     "log" "--pretty=format:* %H %s"
-		     (format "HEAD..remotes/git-svn")))
+		     (format "HEAD..remotes/%s" (magit-get-svn-branch-name))))
 
 (defun magit-insert-unpushed-svn-commits ()
   (magit-git-section 'svn-unpushed
 		     "Unpushed commits (SVN):" 'magit-wash-log
 		     "log" "--pretty=format:* %H %s"
-		     (format "remotes/git-svn..HEAD")))
+		     (format "remotes/%s..HEAD" (magit-get-svn-branch-name))))
 
 ;;; Status
 
@@ -1995,10 +1995,13 @@ in log buffer."
   (magit-run-git-async "svn" "dcommit"))
 
 (defun magit-svn-enabled ()
-  (or (not (null (find "git-svn" (magit-list-interesting-revisions)
-		       :test 'equal)))
-      (not (null (find "trunk" (magit-list-interesting-revisions)
-		       :test 'equal)))))
+   (not (null (magit-get-svn-branch-name))))
+
+(defun magit-get-svn-branch-name ()
+  (or (find "git-svn" (magit-list-interesting-revisions)
+	    :test 'equal)
+      (find "trunk" (magit-list-interesting-revisions)
+	    :test 'equal)))
 
 ;;; Resetting
 
