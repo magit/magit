@@ -42,6 +42,7 @@
 ;;
 ;; Later:
 ;;
+;; - Queuing of asynchronous commands.
 ;; - Good email integration.
 ;; - Showing tags.
 ;; - Visiting from staged hunks doesn't always work since the line
@@ -265,6 +266,12 @@ Many Magit faces inherit from this one by default."
 	(nreverse (if (equal (car rev) "")
 		      (cdr rev)
 		    rev))))))
+
+(defun magit-write-file-lines (file lines)
+  (with-temp-buffer
+    (dolist (l lines)
+      (insert l "\n"))
+    (write-file file)))
 
 (defun magit-concat-with-delim (delim seqs)
   (cond ((null seqs)
@@ -2682,12 +2689,19 @@ Prefix arg means justify as well."
 
 ;;; Wazzup
 
-(defun magit-wazzup-ignore (branch edit)
+(defun magit-wazzup-toggle-ignore (branch edit)
   (let ((ignore-file ".git/info/wazzup-exclude"))
     (if edit
 	(setq branch (read-string "Branch to ignore for wazzup: " branch)))
-    (append-to-file (concat branch "\n") nil ignore-file)
-    (magit-need-refresh)))
+    (let ((ignored (magit-file-lines ignore-file)))
+      (cond ((member branch ignored)
+	     (when (or (not edit)
+		       (y-or-n-p "Branch %s is already ignored. Unignore?"))
+	       (setq ignored (delete branch ignored))))
+	    (t
+	     (setq ignored (append ignored (list branch)))))
+      (magit-write-file-lines ignore-file ignored)
+      (magit-need-refresh))))
 
 (defun magit-refresh-wazzup-buffer (head all)
   (magit-create-buffer-sections
@@ -2749,7 +2763,7 @@ Prefix arg means justify as well."
     ((untracked file)
      (magit-ignore-file info current-prefix-arg nil))
     ((wazzup)
-     (magit-wazzup-ignore info current-prefix-arg))))
+     (magit-wazzup-toggle-ignore info current-prefix-arg))))
 
 (defun magit-ignore-item-locally ()
   (interactive)
