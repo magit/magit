@@ -36,12 +36,6 @@
 
 ;;; TODO
 
-;; For 0.7:
-;;
-;; - Make it possible to ignore commits etc for Wazzup.
-;;
-;; Later:
-;;
 ;; - Queuing of asynchronous commands.
 ;; - Good email integration.
 ;; - Showing tags.
