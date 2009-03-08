@@ -2574,6 +2574,10 @@ Prefix arg means justify as well."
 
 (defvar magit-have-graph 'unset)
 (defvar magit-have-decorate 'unset)
+(make-variable-buffer-local 'magit-have-graph)
+(put 'magit-have-graph 'permanent-local t)
+(make-variable-buffer-local 'magit-have-decorate)
+(put 'magit-have-decorate 'permanent-local t)
 
 (defun magit-configure-have-graph ()
   (if (eq magit-have-graph 'unset)
