@@ -471,10 +471,10 @@ one parent).  If you want to abort a manual merge, just do a hard
 reset to HEAD with @kbd{X}.
 
 Merges can fail if the two branches you merge want to introduce
-conflicting changes.  In that case, the automatic merge stops before
-the commit, essentially falling back to a manual merge.  You need to
-resolve the conflicts and stage the resolved files, for example with
-@kbd{S}.
+conflicting changes.  In that case, the automatic merge stops before the
+commit, essentially falling back to a manual merge.  You need to resolve
+the conflicts for example with @kbd{e} and stage the resolved files, for
+example with @kbd{S}.
 
 You can not stage individual hunks one by one as you resolve them, you
 can only stage whole files once all conflicts in them have been
