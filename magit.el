@@ -2003,10 +2003,9 @@ in log buffer."
    (not (null (magit-get-svn-branch-name))))
 
 (defun magit-get-svn-branch-name ()
-  (or (find "git-svn" (magit-list-interesting-revisions)
-	    :test 'equal)
-      (find "trunk" (magit-list-interesting-revisions)
-	    :test 'equal)))
+  (let ((interesting-revisions (magit-list-interesting-revisions)))
+    (or (find "git-svn" interesting-revisions :test 'equal)
+	(find "trunk" interesting-revisions :test 'equal))))
 
 ;;; Resetting
 
