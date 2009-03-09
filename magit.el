@@ -1846,6 +1846,7 @@ in log buffer."
       (let ((default-directory dir))
 	(magit-run* (list "git" "init"))))))
 
+;;;###autoload
 (defun magit-status (dir)
   (interactive (list (or (and (not current-prefix-arg)
 			      (magit-get-top-dir default-directory))
