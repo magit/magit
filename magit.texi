@@ -489,7 +489,11 @@ is already in progress, ask you how to continue.
 
 When a rebase is stopped in the middle because of a conflict, the
 header of the status buffer will indicate how far along you are in the
-series of commits that are being replayed.
+series of commits that are being replayed.  When that happens, you
+should resolve the conflicts and stage everything and hit @kbd{R c} to
+continue the rebase.  Alternatively, hitting @kbd{c} or @kbd{C} while
+in the middle of a rebase will also ask you whether to continue the
+rebase.
 
 Of course, you can initiate a rebase in any number of ways, by
 configuring @code{git pull} to rebase instead of merge, for example.
