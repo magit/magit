@@ -571,8 +571,8 @@ only push the current branch to the remote.  In other words, it will
 run @code{git push <remote> <branch>}.
 
 Typing @kbd{f} will run @code{git remote update} and @kbd{F} will run
-@code{git pull}.  You should have setup your Git configuration to do
-the right thing for @code{git pull}.
+@code{git pull}.  When you don't have a default branch configured to
+be pulled into the current one, you will be asked for it.
 
 If there is a default remote repository for the current branch, Magit
 will show that repository in the status buffer header.
