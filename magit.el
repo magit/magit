@@ -2161,7 +2161,13 @@ in log buffer."
 
 (defun magit-pull ()
   (interactive)
-  (magit-run-git-async "pull" "-v"))
+  (let* ((branch (magit-get-current-branch))
+	 (config-branch (and branch (magit-get "branch" branch "merge")))
+	 (merge-branch (or config-branch
+			   (magit-read-rev (format "Pull from")))))
+    (if (and branch (not config-branch))
+	(magit-set merge-branch "branch" branch "merge"))
+    (magit-run-git-async "pull" "-v")))
 
 (defun magit-read-remote (prompt def)
   (completing-read (if def
