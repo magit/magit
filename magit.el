@@ -1434,7 +1434,14 @@ Please see the manual for a complete description of Magit.
 (defvar magit-hide-diffs nil)
 
 (defun magit-wash-diff ()
-  (cond ((looking-at "^diff")
+  (cond ((looking-at "^\\* Unmerged path \\(.*\\)")
+	 (let ((file (match-string-no-properties 1)))
+	   (magit-with-section file 'diff
+	     (delete-region (point) (line-end-position))
+	     (insert "\tUnmerged " file "\n")
+	     (magit-set-section-info (list 'unmerged file nil))))
+	 t)
+	((looking-at "^diff")
 	 (let ((magit-section-hidden-default magit-hide-diffs))
 	   (magit-with-section (magit-current-line) 'diff
 	     (let ((file (magit-diff-line-file))
@@ -1899,6 +1906,8 @@ in log buffer."
     ((staged diff hunk)
      (magit-apply-hunk-item-reverse item "--cached"))
     ((staged diff)
+     (if (eq (car info) 'unmerged)
+	 (error "Can't unstage a unmerged file.  Resolve it first."))
      (magit-run-git "reset" "-q" "HEAD" "--" (magit-diff-item-file item)))
     ((unstaged *)
      (error "Already unstaged"))
