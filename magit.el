@@ -1957,7 +1957,12 @@ in log buffer."
 ;;; Rebasing
 
 (defun magit-rebase-info ()
-  (cond ((file-exists-p ".dotest")
+  (cond ((file-exists-p ".git/rebase-apply")
+	 (list (magit-name-rev
+		(car (magit-file-lines ".git/rebase-apply/onto")))
+	       (car (magit-file-lines ".git/rebase-apply/next"))
+	       (car (magit-file-lines ".git/rebase-apply/last"))))
+	((file-exists-p ".dotest")
 	 (list (magit-name-rev (car (magit-file-lines ".dotest/onto")))
 	       (car (magit-file-lines ".dotest/next"))
 	       (car (magit-file-lines ".dotest/last"))))
@@ -2362,67 +2367,77 @@ Prefix arg means justify as well."
 
 (defun magit-log-edit ()
   (interactive)
-  (magit-log-edit-set-field 'tag nil)
-  (when (and magit-commit-all-when-nothing-staged
-	     (not (magit-anything-staged-p)))
-    (cond ((eq magit-commit-all-when-nothing-staged 'ask-stage)
-	   (if (and (not (magit-everything-clean-p))
-		    (y-or-n-p "Nothing staged. Stage everything now? "))
-	       (magit-stage-all)))
-	  ((not (magit-log-edit-get-field 'commit-all))
-	   (magit-log-edit-set-field
-	    'commit-all
-	    (if (or (eq magit-commit-all-when-nothing-staged t)
-		    (y-or-n-p "Nothing staged. Commit all unstaged changes? "))
-		"yes" "no")))))
-  (magit-pop-to-log-edit "commit"))
+  (cond ((magit-rebase-info)
+	 (if (y-or-n-p "Rebase in progress. Continue it? ")
+	     (magit-run-git "rebase" "--continue")))
+	(t
+	 (magit-log-edit-set-field 'tag nil)
+	 (when (and magit-commit-all-when-nothing-staged
+		    (not (magit-anything-staged-p)))
+	   (cond ((eq magit-commit-all-when-nothing-staged 'ask-stage)
+		  (if (and (not (magit-everything-clean-p))
+			   (y-or-n-p "Nothing staged. Stage everything now? "))
+		      (magit-stage-all)))
+		 ((not (magit-log-edit-get-field 'commit-all))
+		  (magit-log-edit-set-field
+		   'commit-all
+		   (if (or (eq magit-commit-all-when-nothing-staged t)
+			   (y-or-n-p
+			    "Nothing staged. Commit all unstaged changes? "))
+		       "yes" "no")))))
+	 (magit-pop-to-log-edit "commit"))))
 
 (defun magit-add-log ()
   (interactive)
-  (let ((section (magit-current-section)))
-    (let ((fun (if (eq (magit-section-type section) 'hunk)
-		   (save-window-excursion
-		     (save-excursion
-		       (magit-visit-item)
-		       (add-log-current-defun)))
-		 nil))
-	  (file (magit-diff-item-file
-		 (cond ((eq (magit-section-type section) 'hunk)
-			(magit-hunk-item-diff section))
-		       ((eq (magit-section-type section) 'diff)
-			section)
-		       (t
-			(error "No change at point"))))))
-      (magit-log-edit)
-      (goto-char (point-min))
-      (cond ((not (search-forward-regexp (format "^\\* %s" (regexp-quote file))
-					 nil t))
-	     ;; No entry for file, create it.
-	     (goto-char (point-max))
-	     (insert (format "\n* %s" file))
-	     (if fun
-		 (insert (format " (%s)" fun)))
-	     (insert ": "))
-	    (fun
-	     ;; found entry for file, look for fun
-	     (let ((limit (or (save-excursion
-				(and (search-forward-regexp "^\\* " nil t)
-				     (match-beginning 0)))
-			      (point-max))))
-	       (cond ((search-forward-regexp (format "(.*\\<%s\\>.*):"
-						     (regexp-quote fun))
-					     limit t)
-		      ;; found it, goto end of current entry
-		      (if (search-forward-regexp "^(" limit t)
-			  (backward-char 2)
-			(goto-char limit)))
-		     (t
-		      ;; not found, insert new entry
-		      (goto-char limit)
-		      (if (bolp)
-			  (open-line 1)
-			(newline))
-		      (insert (format "(%s): " fun))))))))))
+  (cond ((magit-rebase-info)
+	 (if (y-or-n-p "Rebase in progress. Continue it? ")
+	     (magit-run-git "rebase" "--continue")))
+	(t
+	 (let ((section (magit-current-section)))
+	   (let ((fun (if (eq (magit-section-type section) 'hunk)
+			  (save-window-excursion
+			    (save-excursion
+			      (magit-visit-item)
+			      (add-log-current-defun)))
+			nil))
+		 (file (magit-diff-item-file
+			(cond ((eq (magit-section-type section) 'hunk)
+			       (magit-hunk-item-diff section))
+			      ((eq (magit-section-type section) 'diff)
+			       section)
+			      (t
+			       (error "No change at point"))))))
+	     (magit-log-edit)
+	     (goto-char (point-min))
+	     (cond ((not (search-forward-regexp
+			  (format "^\\* %s" (regexp-quote file)) nil t))
+		    ;; No entry for file, create it.
+		    (goto-char (point-max))
+		    (insert (format "\n* %s" file))
+		    (if fun
+			(insert (format " (%s)" fun)))
+		    (insert ": "))
+		   (fun
+		    ;; found entry for file, look for fun
+		    (let ((limit (or (save-excursion
+				       (and (search-forward-regexp "^\\* "
+								   nil t)
+					    (match-beginning 0)))
+				     (point-max))))
+		      (cond ((search-forward-regexp (format "(.*\\<%s\\>.*):"
+							    (regexp-quote fun))
+						    limit t)
+			     ;; found it, goto end of current entry
+			     (if (search-forward-regexp "^(" limit t)
+				 (backward-char 2)
+			       (goto-char limit)))
+			    (t
+			     ;; not found, insert new entry
+			     (goto-char limit)
+			     (if (bolp)
+				 (open-line 1)
+			       (newline))
+			     (insert (format "(%s): " fun))))))))))))
 
 ;;; Tags
 
