@@ -1,3 +1,12 @@
+Changes in magit 0.8:
+
+* Hitting 'c' or 'C' while resolving a conflict in the middle of a
+  rebase will offer to continue the rebase instead of trying to commit
+  your changes.
+
+* Pulling will ask which branch to pull from when you don't have a
+  default branch configured.
+
 Changes in magit 0.7:
 
 * Tagging, on 't' and 'T'.
