@@ -1104,6 +1104,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "x") 'magit-reset-head)
     (define-key map (kbd "X") 'magit-reset-working-tree)
     (define-key map (kbd "k") 'magit-discard-item)
+    (define-key map (kbd "!") 'magit-shell-command)
     (define-key map (kbd "RET") 'magit-visit-item)
     (define-key map (kbd "SPC") 'magit-show-item-or-scroll-up)
     (define-key map (kbd "DEL") 'magit-show-item-or-scroll-down)
@@ -1820,6 +1821,7 @@ in log buffer."
 	(insert "\n")
 	(magit-insert-untracked-files)
 	(magit-insert-stashes)
+	(magit-insert-topics)
 	(magit-insert-pending-changes)
 	(magit-insert-pending-commits)
 	(when remote
@@ -2015,10 +2017,9 @@ in log buffer."
    (not (null (magit-get-svn-branch-name))))
 
 (defun magit-get-svn-branch-name ()
-  (or (find "git-svn" (magit-list-interesting-revisions)
-	    :test 'equal)
-      (find "trunk" (magit-list-interesting-revisions)
-	    :test 'equal)))
+  (let ((interesting-revisions (magit-list-interesting-revisions)))
+    (or (find "git-svn" interesting-revisions :test 'equal)
+	(find "trunk" interesting-revisions :test 'equal))))
 
 ;;; Resetting
 
@@ -2177,6 +2178,15 @@ in log buffer."
     (if (and branch (not config-branch))
 	(magit-set merge-branch "branch" branch "merge"))
     (magit-run-git-async "pull" "-v")))
+
+(defun magit-shell-command (command)
+  (interactive "sCommand: ")
+  (require 'pcomplete)
+  (let ((args (car (with-temp-buffer
+		     (insert command)
+		     (pcomplete-parse-buffer-arguments))))
+	(magit-process-popup-time 0))
+    (magit-run* args nil nil nil t)))
 
 (defun magit-read-remote (prompt def)
   (completing-read (if def
@@ -2344,6 +2354,8 @@ Prefix arg means justify as well."
 				  '("--signoff") '())))))))
     (erase-buffer)
     (bury-buffer)
+    (when (file-exists-p ".git/MERGE_MSG")
+      (delete-file ".git/MERGE_MSG"))
     (when magit-pre-log-edit-window-configuration
       (set-window-configuration magit-pre-log-edit-window-configuration)
       (setq magit-pre-log-edit-window-configuration nil))))
@@ -2376,6 +2388,8 @@ Prefix arg means justify as well."
     (setq magit-pre-log-edit-window-configuration
 	  (current-window-configuration))
     (pop-to-buffer buf)
+    (when (file-exists-p ".git/MERGE_MSG")
+      (insert-file-contents ".git/MERGE_MSG"))
     (setq default-directory dir)
     (magit-log-edit-mode)
     (message "Type C-c C-c to %s (C-c C-k to cancel)." operation)))
@@ -2528,6 +2542,32 @@ Prefix arg means justify as well."
 		    (args (magit-rev-range-to-git range)))
 	       (magit-mode-init dir 'diff #'magit-refresh-diff-buffer
 				range args)))))))
+
+;;; Topic branches (using topgit)
+
+(defun magit-wash-topic ()
+  (if (search-forward-regexp "^..\\(t/\\S-+\\)\\s-+\\(\\S-+\\)\\s-+\\(\\S-+\\)"
+			     (line-end-position) t)
+      (let ((topic (match-string 1)))
+	(delete-region (match-beginning 2) (match-end 2))
+	(goto-char (line-beginning-position))
+	(delete-char 4)
+	(insert "\t")
+	(goto-char (line-beginning-position))
+	(magit-with-section topic 'topic
+	  (magit-set-section-info topic)
+	  (forward-line)))
+    (delete-region (line-beginning-position) (1+ (line-end-position))))
+  t)
+
+(defun magit-wash-topics ()
+  (let ((magit-old-top-section nil))
+    (magit-wash-sequence #'magit-wash-topic)))
+
+(defun magit-insert-topics ()
+  (magit-git-section 'topics
+		     "Topics:" 'magit-wash-topics
+		     "branch" "-v"))
 
 ;;; Commits
 
@@ -2861,7 +2901,9 @@ Prefix arg means justify as well."
      (pop-to-buffer "*magit-commit*"))
     ((stash)
      (magit-show-stash info)
-     (pop-to-buffer "*magit-diff*"))))
+     (pop-to-buffer "*magit-diff*"))
+    ((topic)
+     (magit-checkout info))))
 
 (defun magit-show-item-or-scroll-up ()
   (interactive)
