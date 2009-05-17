@@ -323,7 +323,7 @@ Many Magit faces inherit from this one by default."
 		     prop val))
 
 (defun magit-escape-for-shell (str)
-  (concat "'" (replace-regexp-in-string "'" "'\\''" str) "'"))
+  (concat "'" (replace-regexp-in-string "'" "'\\''" str t t) "'"))
 
 (defun magit-format-commit (commit format)
   (magit-git-string "log --max-count=1 --pretty=format:%s %s" format commit))
