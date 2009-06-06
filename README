@@ -1,8 +1,8 @@
-It's magit!  A Emacs mode for Git.
+It's Magit!  A Emacs mode for Git.
 
-I wrote magit while learning about git and trying to figure out how I
-would be using git in a 'natural' way.  Magit will grow and hopefully
-become more coherent as I learn more about git and good ways to use
+I started to write Magit to learn about Git and to figure out how I
+would be using Git in a 'natural' way.  Magit will grow and hopefully
+become more coherent as I learn more about Git and good ways to use
 it.  Feedback is welcome!
 
 * Installing
@@ -22,9 +22,9 @@ to your .emacs file.
 
 * Getting started
 
-To get started with magit, open any file in a git repository in Emacs
+To get started with Magit, open any file in a Git repository in Emacs
 and run 'M-x magit-status'.  Read the online help of magit-mode ('C-h
-m' in the magit buffer), make some changes to your files, and try to
+m' in the Magit buffer), make some changes to your files, and try to
 commit them.
 
 * Learning more
