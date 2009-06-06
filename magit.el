@@ -2248,6 +2248,7 @@ in log buffer."
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-c") 'magit-log-edit-commit)
     (define-key map (kbd "C-c C-a") 'magit-log-edit-toggle-amending)
+    (define-key map (kbd "C-c C-s") 'magit-log-edit-toggle-signoff)
     (define-key map (kbd "M-p") 'log-edit-previous-comment)
     (define-key map (kbd "M-n") 'log-edit-next-comment)
     (define-key map (kbd "C-c C-k") 'magit-log-edit-cancel-log-message)
@@ -2363,6 +2364,10 @@ Prefix arg means justify as well."
   (let* ((fields (magit-log-edit-get-fields))
 	 (amend (equal (cdr (assq 'amend fields)) "yes"))
 	 (commit-all (equal (cdr (assq 'commit-all fields)) "yes"))
+	 (sign-off-field (assq 'sign-off fields))
+	 (sign-off (if sign-off-field
+		       (equal (cdr sign-off-field) "yes")
+		     magit-commit-signoff))
 	 (tag (cdr (assq 'tag fields)))
 	 (author (cdr (assq 'author fields))))
     (magit-log-edit-push-to-comment-ring (buffer-string))
@@ -2382,8 +2387,7 @@ Prefix arg means justify as well."
 			      (list "commit" "-F" "-")
 			      (if commit-all '("--all") '())
 			      (if amend '("--amend") '())
-			      (if magit-commit-signoff
-				  '("--signoff") '())))))))
+			      (if sign-off '("--signoff") '())))))))
     (erase-buffer)
     (bury-buffer)
     (when (file-exists-p ".git/MERGE_MSG")
@@ -2412,6 +2416,16 @@ Prefix arg means justify as well."
       (setq fields (acons 'amend "yes" fields))
       (magit-log-edit-append
        (magit-format-commit "HEAD" "%s%n%n%b")))
+    (magit-log-edit-set-fields fields)))
+
+(defun magit-log-edit-toggle-signoff ()
+  (interactive)
+  (let* ((fields (magit-log-edit-get-fields))
+	 (cell (assq 'sign-off fields)))
+    (if cell
+	(rplacd cell (if (equal (cdr cell) "yes") "no" "yes"))
+      (setq fields (acons 'sign-off (if magit-commit-signoff "no" "yes")
+			  fields)))
     (magit-log-edit-set-fields fields)))
 
 (defun magit-pop-to-log-edit (operation)
