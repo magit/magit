@@ -371,15 +371,31 @@ Many Magit faces inherit from this one by default."
 ;;; Revisions and ranges
 
 (defun magit-list-interesting-refs ()
-  (append (magit-git-lines "branch -a | cut -c3-")
-	  (magit-git-lines "tag")))
+  (let ((refs ()))
+    (dolist (line (magit-git-lines "show-ref"))
+      (if (string-match "[^ ]+ +\\(.*\\)" line)
+	  (let ((ref (match-string 1 line)))
+	    (cond ((string-match "refs/heads/\\(.*\\)" ref)
+		   (push (cons (match-string 1 ref) ref) refs))
+		  ((string-match "refs/tags/\\(.*\\)" ref)
+		   (push (cons (format "%s (tag)" (match-string 1 ref)) ref)
+			 refs))
+		  ((string-match "refs/remotes/\\([^/]+\\)/\\([^/]+\\)" ref)
+		   (push (cons (format "%s (%s)"
+				       (match-string 2 ref)
+				       (match-string 1 ref))
+			       ref)
+			 refs))))))
+    refs))
 
 (defun magit-read-rev (prompt &optional def)
   (let* ((prompt (if def
 		     (format "%s (default %s): " prompt def)
 		   (format "%s: " prompt)))
-	 (rev (completing-read prompt (magit-list-interesting-refs)
-			       nil nil nil nil def)))
+	 (interesting-refs (magit-list-interesting-refs))
+	 (reply (completing-read prompt interesting-refs
+				 nil nil nil nil def))
+	 (rev (or (cdr (assoc reply interesting-refs)) reply)))
     (if (string= rev "")
 	nil
       rev)))
@@ -2018,8 +2034,8 @@ in log buffer."
 
 (defun magit-get-svn-branch-name ()
   (let ((interesting-refs (magit-list-interesting-refs)))
-    (or (find "git-svn" interesting-refs :test 'equal)
-	(find "trunk" interesting-refs :test 'equal))))
+    (or (cdr (assoc "git-svn" interesting-refs))
+	(cdr (assoc "trunk" interesting-refs)))))
 
 ;;; Resetting
 
@@ -2773,37 +2789,39 @@ Prefix arg means justify as well."
     (magit-with-section 'wazzupbuf nil
       (insert (format "Wazzup, %s\n\n" head))
       (let* ((excluded (magit-file-lines ".git/info/wazzup-exclude"))
-	     (all-branches (magit-git-lines "branch -a | cut -c3-"))
+	     (all-branches (magit-list-interesting-refs))
 	     (branches (if all all-branches
-			 (remove-if (lambda (b) (member b excluded))
+			 (remove-if (lambda (b) (member (cdr b) excluded))
 				    all-branches)))
 	     (reported (make-hash-table :test #'equal)))
-	(dolist (b branches)
-	  (let* ((hash (magit-git-string "rev-parse %s" b))
+	(dolist (branch branches)
+	  (let* ((name (car branch))
+		 (ref (cdr branch))
+		 (hash (magit-git-string "rev-parse %s" ref))
 		 (reported-branch (gethash hash reported)))
 	    (unless (or (and reported-branch
-			     (string= (file-name-nondirectory b)
+			     (string= (file-name-nondirectory ref)
 				      reported-branch))
-			(not (magit-git-string "merge-base %s %s" head b)))
-	      (puthash hash (file-name-nondirectory b) reported)
+			(not (magit-git-string "merge-base %s %s" head ref)))
+	      (puthash hash (file-name-nondirectory ref) reported)
 	      (let* ((n (magit-git-string "log --pretty=oneline %s..%s | wc -l"
-					  head b))
+					  head ref))
 		     (section
 		      (let ((magit-section-hidden-default t))
 			(magit-git-section
-			 (cons b 'wazzup)
+			 (cons ref 'wazzup)
 			 (format "%s unmerged commits in %s%s"
-				 n b
-				 (if (member b excluded)
+				 n name
+				 (if (member ref excluded)
 				     " (normally ignored)"
 				   ""))
 			 'magit-wash-log
 			 "log"
 			 (format "--max-count=%s" magit-log-cutoff-length)
 			 "--pretty=oneline"
-			 (format "%s..%s" head b)
+			 (format "%s..%s" head ref)
 			 "--"))))
-		(magit-set-section-info b section)))))))))
+		(magit-set-section-info ref section)))))))))
 
 (defun magit-wazzup (&optional all)
   (interactive "P")
