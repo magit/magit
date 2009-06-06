@@ -303,6 +303,9 @@ Many Magit faces inherit from this one by default."
 	(substring head 11)
       nil)))
 
+(defun magit-ref-exists-p (ref)
+  (magit-git-exit-code "show-ref" "--verify" "--quiet" ref))
+
 (defun magit-read-top-dir ()
   (file-name-as-directory
    (read-directory-name "Git repository: "
@@ -1944,10 +1947,22 @@ in log buffer."
 
 ;;; Branches
 
+(defun magit-maybe-create-localtracking-branch (rev)
+  (if (string-match "^refs/remotes/\\(.*\\)/\\([^/]*\\)" rev)
+      (let ((remote (match-string 1 rev))
+	    (branch (match-string 2 rev)))
+	(when (and (not (magit-ref-exists-p (concat "refs/heads/" branch)))
+		   (yes-or-no-p
+		    (format "Create local tracking branch for %s? " branch)))
+	  (magit-run-git "checkout" "-b" branch rev)
+	  t))
+    nil))
+
 (defun magit-checkout (rev)
   (interactive (list (magit-read-rev "Switch to" (magit-default-rev))))
   (if rev
-      (magit-run-git "checkout" (magit-rev-to-git rev))))
+      (if (not (magit-maybe-create-localtracking-branch rev))
+	  (magit-run-git "checkout" (magit-rev-to-git rev)))))
 
 (defun magit-read-create-branch-args ()
   (let* ((cur-branch (magit-get-current-branch))
