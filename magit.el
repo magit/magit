@@ -2886,7 +2886,7 @@ Prefix arg means justify as well."
     ((untracked file)
      (magit-ignore-file info current-prefix-arg t))))
 
-(defun magit-discard-diff (diff)
+(defun magit-discard-diff (diff stagedp)
   (let ((kind (magit-diff-item-kind diff))
 	(file (magit-diff-item-file diff)))
     (cond ((eq kind 'deleted)
@@ -2898,7 +2898,9 @@ Prefix arg means justify as well."
 	       (magit-run-git "rm" "-f" "--" file)))
 	  (t
 	   (if (yes-or-no-p (format "Discard changes to %s? " file))
-	       (magit-run-git "checkout" "--" file))))))
+	       (if stagedp
+		   (magit-run-git "checkout" "HEAD" "--" file)
+		 (magit-run-git "checkout" "--" file)))))))
 
 (defun magit-discard-item ()
   (interactive)
@@ -2923,9 +2925,9 @@ Prefix arg means justify as well."
 	   (magit-apply-hunk-item-reverse item "--index"))
        (error "Can't discard this hunk.  Please unstage it first.")))
     ((unstaged diff)
-     (magit-discard-diff item))
+     (magit-discard-diff item nil))
     ((staged diff)
-     (magit-discard-diff item))
+     (magit-discard-diff item t))
     ((hunk)
      (error "Can't discard this hunk"))
     ((diff)
