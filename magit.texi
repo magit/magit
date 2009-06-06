@@ -425,6 +425,10 @@ You can switch to a different branch by typing @kbd{b}.  This will
 immediately checkout the branch into your working copy, so you
 shouldn't have any local modifications when switching branches.
 
+If you try to switch to a remote branch, Magit will offer to create a
+local tracking branch for it instead.  This way, you can easily start
+working on new branches that have appeared in a remote repository.
+
 Similar to @kbd{x}, typing @kbd{b} while point is at a commit
 description will offer that commit as the default to switch to.
 This will result in a detached head.
