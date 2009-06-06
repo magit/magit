@@ -264,7 +264,11 @@ Another choice is stage everything at the time of hitting @kbd{c}.
 
 You can type @kbd{C-c C-a} in the buffer with the change description
 to toggle a flag that determines whether the next commit will
-@emph{amending} the current commit in HEAD.
+@emph{amend} the current commit in HEAD.
+
+Typing @kbd{C-c C-s} will toggle the @code{--signoff} option.  The
+default is determined by the @code{magit-commit-signoff} customization
+variable.
 
 If you change your mind and don't want to go ahead with your commit
 while you are in the @code{*magit-log-edit*} buffer, you can just

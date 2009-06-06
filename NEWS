@@ -10,6 +10,9 @@ Changes in magit 0.8:
 * Switching to a remote branch will offer to create a local tracking
   branch for it.
 
+* Hitting C-c C-s while editing a commit message will toggle the
+  "--signoff" option.
+
 * Bug fixes to make Magit work better with newer Gits.
 
 Changes in magit 0.7:
