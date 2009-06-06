@@ -1279,6 +1279,7 @@ Please see the manual for a complete description of Magit.
   (kill-all-local-variables)
   (buffer-disable-undo)
   (setq buffer-read-only t)
+  (make-variable-buffer-local 'line-move-visual)
   (setq major-mode 'magit-mode
 	mode-name "Magit"
 	mode-line-process ""
