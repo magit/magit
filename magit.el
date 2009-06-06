@@ -370,7 +370,7 @@ Many Magit faces inherit from this one by default."
 
 ;;; Revisions and ranges
 
-(defun magit-list-interesting-revisions ()
+(defun magit-list-interesting-refs ()
   (append (magit-git-lines "branch -a | cut -c3-")
 	  (magit-git-lines "tag")))
 
@@ -378,7 +378,7 @@ Many Magit faces inherit from this one by default."
   (let* ((prompt (if def
 		     (format "%s (default %s): " prompt def)
 		   (format "%s: " prompt)))
-	 (rev (completing-read prompt (magit-list-interesting-revisions)
+	 (rev (completing-read prompt (magit-list-interesting-refs)
 			       nil nil nil nil def)))
     (if (string= rev "")
 	nil
@@ -2017,9 +2017,9 @@ in log buffer."
    (not (null (magit-get-svn-branch-name))))
 
 (defun magit-get-svn-branch-name ()
-  (let ((interesting-revisions (magit-list-interesting-revisions)))
-    (or (find "git-svn" interesting-revisions :test 'equal)
-	(find "trunk" interesting-revisions :test 'equal))))
+  (let ((interesting-refs (magit-list-interesting-refs)))
+    (or (find "git-svn" interesting-refs :test 'equal)
+	(find "trunk" interesting-refs :test 'equal))))
 
 ;;; Resetting
 
