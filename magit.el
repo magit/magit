@@ -384,7 +384,7 @@ Many Magit faces inherit from this one by default."
 		  ((string-match "refs/tags/\\(.*\\)" ref)
 		   (push (cons (format "%s (tag)" (match-string 1 ref)) ref)
 			 refs))
-		  ((string-match "refs/remotes/\\([^/]+\\)/\\([^/]+\\)" ref)
+		  ((string-match "refs/remotes/\\([^/]+\\)/\\(.+\\)" ref)
 		   (push (cons (format "%s (%s)"
 				       (match-string 2 ref)
 				       (match-string 1 ref))
@@ -1999,8 +1999,8 @@ in log buffer."
 
 ;;; Branches
 
-(defun magit-maybe-create-localtracking-branch (rev)
-  (if (string-match "^refs/remotes/\\(.*\\)/\\([^/]*\\)" rev)
+(defun magit-maybe-create-local-tracking-branch (rev)
+  (if (string-match "^refs/remotes/\\([^/]+\\)/\\(.+\\)" rev)
       (let ((remote (match-string 1 rev))
 	    (branch (match-string 2 rev)))
 	(when (and (not (magit-ref-exists-p (concat "refs/heads/" branch)))
@@ -2013,7 +2013,7 @@ in log buffer."
 (defun magit-checkout (rev)
   (interactive (list (magit-read-rev "Switch to" (magit-default-rev))))
   (if rev
-      (if (not (magit-maybe-create-localtracking-branch rev))
+      (if (not (magit-maybe-create-local-tracking-branch rev))
 	  (magit-run-git "checkout" (magit-rev-to-git rev)))))
 
 (defun magit-read-create-branch-args ()
