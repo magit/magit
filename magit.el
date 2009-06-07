@@ -41,6 +41,8 @@
 ;; - Showing tags.
 ;; - Visiting from staged hunks doesn't always work since the line
 ;;   numbers don't refer to the working tree.  Fix that somehow.
+;; - Figure out how to discard staged changes for files that also have
+;;   unstaged changes.
 ;; - Get current defun from removed lines in a diff
 ;; - Amending commits other than HEAD.
 ;; - 'Subsetting', only looking at a subset of all files.
@@ -2977,7 +2979,9 @@ Prefix arg means justify as well."
     ((unstaged diff)
      (magit-discard-diff item nil))
     ((staged diff)
-     (magit-discard-diff item t))
+     (if (magit-file-uptodate-p (magit-diff-item-file item))
+	 (magit-discard-diff item t)
+       (error "Can't discard staged changes to this file.  Please unstage it first.")))
     ((hunk)
      (error "Can't discard this hunk"))
     ((diff)
