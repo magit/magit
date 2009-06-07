@@ -392,9 +392,6 @@ Many Magit faces inherit from this one by default."
 				       (match-string 2 ref)
 				       (match-string 1 ref))
 			       ref)
-			 refs))
-		  ((string-match "refs/remotes/\\([^/]+\\)" ref)
-		   (push (cons (format "%s (git-svn)" (match-string 1 ref)) ref)
 			 refs))))))
     refs))
 
