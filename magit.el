@@ -2102,9 +2102,12 @@ in log buffer."
    (not (null (magit-get-svn-ref))))
 
 (defun magit-get-svn-ref ()
-  (let ((interesting-refs (magit-list-interesting-refs)))
-    (or (cdr (assoc "git-svn (git-svn)" interesting-refs))
-	(cdr (assoc "trunk (git-svn)" interesting-refs)))))
+  (cond ((magit-ref-exists-p "refs/remotes/git-svn")
+	 "refs/remotes/git-svn")
+	((magit-ref-exists-p "refs/remotes/trunk")
+	 "refs/remotes/trunk")
+	(t
+	 nil)))
 
 ;;; Resetting
 
