@@ -306,7 +306,7 @@ Many Magit faces inherit from this one by default."
       nil)))
 
 (defun magit-ref-exists-p (ref)
-  (magit-git-exit-code "show-ref" "--verify" "--quiet" ref))
+  (= (magit-git-exit-code "show-ref --verify %s" ref) 0))
 
 (defun magit-read-top-dir ()
   (file-name-as-directory
