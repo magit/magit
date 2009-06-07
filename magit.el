@@ -389,6 +389,9 @@ Many Magit faces inherit from this one by default."
 				       (match-string 2 ref)
 				       (match-string 1 ref))
 			       ref)
+			 refs))
+		  ((string-match "refs/remotes/\\([^/]+\\)" ref)
+		   (push (cons (format "%s (git-svn)" (match-string 1 ref)) ref)
 			 refs))))))
     refs))
 
@@ -1849,13 +1852,13 @@ in log buffer."
   (magit-git-section 'svn-unpulled
 		     "Unpulled commits (SVN):" 'magit-wash-log
 		     "log" "--pretty=format:* %H %s"
-		     (format "HEAD..remotes/%s" (magit-get-svn-branch-name))))
+		     (format "HEAD..%s" (magit-get-svn-ref))))
 
 (defun magit-insert-unpushed-svn-commits ()
   (magit-git-section 'svn-unpushed
 		     "Unpushed commits (SVN):" 'magit-wash-log
 		     "log" "--pretty=format:* %H %s"
-		     (format "remotes/%s..HEAD" (magit-get-svn-branch-name))))
+		     (format "%s..HEAD" (magit-get-svn-ref))))
 
 ;;; Status
 
@@ -2094,12 +2097,12 @@ in log buffer."
   (magit-run-git-async "svn" "dcommit"))
 
 (defun magit-svn-enabled ()
-   (not (null (magit-get-svn-branch-name))))
+   (not (null (magit-get-svn-ref))))
 
-(defun magit-get-svn-branch-name ()
+(defun magit-get-svn-ref ()
   (let ((interesting-refs (magit-list-interesting-refs)))
-    (or (cdr (assoc "git-svn" interesting-refs))
-	(cdr (assoc "trunk" interesting-refs)))))
+    (or (cdr (assoc "git-svn (git-svn)" interesting-refs))
+	(cdr (assoc "trunk (git-svn)" interesting-refs)))))
 
 ;;; Resetting
 
