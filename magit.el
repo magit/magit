@@ -1529,7 +1529,7 @@ Please see the manual for a complete description of Magit.
 
 (defun magit-wash-diff ()
   (magit-with-section (magit-current-line) 'diff
-    (magit-wash-section-diff)))
+    (magit-wash-diff-section)))
 
 (defun magit-diff-item-kind (diff)
   (car (magit-section-info diff)))
