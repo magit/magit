@@ -1531,8 +1531,9 @@ Please see the manual for a complete description of Magit.
 	 nil)))
 
 (defun magit-wash-diff ()
-  (magit-with-section (magit-current-line) 'diff
-    (magit-wash-diff-section)))
+  (let ((magit-section-hidden-default magit-hide-diffs))
+    (magit-with-section (magit-current-line) 'diff
+      (magit-wash-diff-section))))
 
 (defun magit-diff-item-kind (diff)
   (car (magit-section-info diff)))
@@ -1588,7 +1589,8 @@ Please see the manual for a complete description of Magit.
   (if (looking-at "\\(^[0-9-]+\\)\t\\([0-9-]+\\)\t\\(.*\\)$")
       (let ((added (string-to-number (match-string 1)))
 	    (deleted (string-to-number (match-string 2)))
-	    (file (match-string-no-properties 3)))
+	    (file (match-string-no-properties 3))
+	    (magit-section-hidden-default magit-hide-diffs))
 	(magit-with-section file 'diff
 	  (delete-region (point) (+ (line-end-position) 1))
 	  (if (or (not (magit-section-hidden magit-top-section))
