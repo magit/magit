@@ -1471,10 +1471,11 @@ Please see the manual for a complete description of Magit.
 
 (defun magit-wash-diff-section ()
   (cond ((looking-at "^\\* Unmerged path \\(.*\\)")
-	 (delete-region (point) (line-end-position))
-	 (insert "\tUnmerged " file "\n")
-	 (magit-set-section-info (list 'unmerged file nil))
-	 t)
+	 (let ((file (match-string-no-properties 1)))
+	   (delete-region (point) (line-end-position))
+	   (insert "\tUnmerged " file "\n")
+	   (magit-set-section-info (list 'unmerged file nil))
+	   t))
 	((looking-at "^diff")
 	 (let ((file (magit-diff-line-file))
 	       (end (save-excursion
