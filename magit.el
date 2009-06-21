@@ -1571,6 +1571,7 @@ Please see the manual for a complete description of Magit.
   (let ((cmd magit-git-executable)
 	(args (append magit-git-standard-options 
 		      (list "diff")
+		      (list (magit-diff-U-arg))
 		      magit-diff-options
 		      (list "--" file))))
     (let ((p (point)))
