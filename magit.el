@@ -3102,7 +3102,7 @@ Prefix arg means justify as well."
 	(their-buffer (generate-new-buffer (concat file ".merged")))
 	(windows (current-window-configuration)))
     (if (null merge-status)
-	(error "Cannot resolge %s" file))
+	(error "Cannot resolve %s" file))
     (with-current-buffer base-buffer
       (if (string-match "^[0-9]+ [0-9a-f]+ 1" merge-status)
 	  (insert (magit-git-string "cat-file blob :1:%s" file))))
