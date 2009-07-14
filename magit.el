@@ -208,51 +208,38 @@ Many Magit faces inherit from this one by default."
     (goto-char 1)
     (forward-line (1- line))))
 
-(defun magit-format-shell-command (fmt args)
-  (apply 'format fmt (mapcar #'magit-escape-for-shell args)))
+(defun magit-trim-line (str)
+  (if (string= str "")
+      nil
+    (if (equal (elt str (- (length str) 1)) ?\n)
+	(substring str 0 (- (length str) 1))
+      str)))
 
-(defun magit-format-git-command (fmt args)
-  (concat (magit-concat-with-delim
-	   " "
-	   (mapcar #'magit-escape-for-shell
-		   (cons magit-git-executable
-			 magit-git-standard-options)))
-	  " "
-	  (magit-format-shell-command fmt args)))
+(defun magit-split-lines (str)
+  (if (string= str "")
+      nil
+    (let ((lines (nreverse (split-string str "\n"))))
+      (if (string= (car lines) "")
+	  (setq lines (cdr lines)))
+      (nreverse lines))))
 
-(defun magit-shell-lines (command)
-  (let ((str (magit-shell-command-to-string command)))
-    (if (string= str "")
-	nil
-      (let ((lines (nreverse (split-string str "\n"))))
-	(if (string= (car lines) "")
-	    (setq lines (cdr lines)))
-	(nreverse lines)))))
-
-(defun magit-shell-command-to-string (command)
+(defun magit-git-output (args)
   (with-output-to-string
     (with-current-buffer
         standard-output
-      (process-file shell-file-name nil t nil shell-command-switch command))))
+      (apply #'process-file
+	     magit-git-executable
+	     nil (list t nil) nil
+	     args))))
 
-(defun magit-shell (command)
-  (let ((str (magit-shell-command-to-string command)))
-    (if (string= str "")
-	nil
-      (if (equal (elt str (- (length str) 1)) ?\n)
-	  (substring str 0 (- (length str) 1))
-	str))))
+(defun magit-git-string (&rest args)
+  (magit-trim-line (magit-git-output args)))
 
-(defun magit-git-lines (fmt &rest args)
-  (magit-shell-lines (magit-format-git-command fmt args)))
+(defun magit-git-lines (&rest args)  
+  (magit-split-lines (magit-git-output args)))
 
-(defun magit-git-string (fmt &rest args)
-  (magit-shell (magit-format-git-command fmt args)))
-
-(defun magit-git-exit-code (fmt &rest args)
-  (call-process shell-file-name nil nil nil
-		shell-command-switch
-		(magit-format-git-command fmt args)))
+(defun magit-git-exit-code (&rest args)
+  (apply #'process-file magit-git-executable nil nil nil args))
 
 (defun magit-file-lines (file)
   (when (file-exists-p file)
@@ -278,25 +265,25 @@ Many Magit faces inherit from this one by default."
 	 (concat (car seqs) delim (magit-concat-with-delim delim (cdr seqs))))))
 
 (defun magit-get (&rest keys)
-  (magit-git-string "config %s" (magit-concat-with-delim "." keys)))
+  (magit-git-string "config" (magit-concat-with-delim "." keys)))
 
 (defun magit-set (val &rest keys)
   (if val
-      (magit-git-string "config %s %s" (magit-concat-with-delim "." keys) val)
-    (magit-git-string "config --unset %s" (magit-concat-with-delim "." keys))))
+      (magit-git-string "config" (magit-concat-with-delim "." keys) val)
+    (magit-git-string "config" "--unset" (magit-concat-with-delim "." keys))))
 
 (defun magit-get-top-dir (cwd)
   (let ((cwd (expand-file-name cwd)))
     (and (file-directory-p cwd)
 	 (let* ((default-directory cwd)
 		(magit-dir
-		 (magit-git-string "rev-parse --git-dir 2>/dev/null")))
+		 (magit-git-string "rev-parse" "--git-dir")))
 	   (and magit-dir
 		(file-name-as-directory
 		 (or (file-name-directory magit-dir) cwd)))))))
 
 (defun magit-get-ref (ref)
-  (magit-git-string "symbolic-ref -q %s" ref))
+  (magit-git-string "symbolic-ref" "-q" ref))
 
 (defun magit-get-current-branch ()
   (let* ((head (magit-get-ref "HEAD"))
@@ -306,7 +293,7 @@ Many Magit faces inherit from this one by default."
       nil)))
 
 (defun magit-ref-exists-p (ref)
-  (= (magit-git-exit-code "show-ref --verify %s" ref) 0))
+  (= (magit-git-exit-code "show-ref" "--verify" ref) 0))
 
 (defun magit-read-top-dir ()
   (file-name-as-directory
@@ -316,7 +303,7 @@ Many Magit faces inherit from this one by default."
 
 (defun magit-name-rev (rev)
   (and rev
-       (let ((name (magit-git-string "name-rev --name-only %s" rev)))
+       (let ((name (magit-git-string "name-rev" "--name-only" rev)))
 	 (if (or (not name) (string= name "undefined"))
 	     rev
 	   name))))
@@ -325,11 +312,10 @@ Many Magit faces inherit from this one by default."
   (put-text-property (line-beginning-position) (line-beginning-position 2)
 		     prop val))
 
-(defun magit-escape-for-shell (str)
-  (concat "'" (replace-regexp-in-string "'" "'\\''" str t t) "'"))
-
 (defun magit-format-commit (commit format)
-  (magit-git-string "log --max-count=1 --pretty=format:%s %s" format commit))
+  (magit-git-string "log" "--max-count=1"
+		    (concat "--pretty=format:" format)
+		    commit))
 
 (defun magit-current-line ()
   (buffer-substring-no-properties (line-beginning-position)
@@ -347,26 +333,19 @@ Many Magit faces inherit from this one by default."
       (insert text))))
 
 (defun magit-file-uptodate-p (file)
-  (eq (magit-git-exit-code "diff --quiet -- %s" file) 0))
+  (eq (magit-git-exit-code "diff" "--quiet" "--" file) 0))
 
 (defun magit-anything-staged-p ()
-  (not (eq (magit-git-exit-code "diff --quiet --cached") 0)))
+  (not (eq (magit-git-exit-code "diff" "--quiet" "--cached") 0)))
 
 (defun magit-everything-clean-p ()
   (and (not (magit-anything-staged-p))
-       (eq (magit-git-exit-code "diff --quiet") 0)))
+       (eq (magit-git-exit-code "diff" "--quiet") 0)))
 
 (defun magit-commit-parents (commit)
-  (cdr (magit-git-lines "rev-list -1 --parents %s | tr ' ' '\n'"
-			commit)))
+  (cdr (split-string (magit-git-string "rev-list" "-1" "--parents" commit))))
 
 ;; XXX - let the user choose the parent
-
-(defun magit-choose-parent (commit op)
-  (let* ((parents (magit-commit-parents commit)))
-    (if (> (length parents) 1)
-	(error "Can't %s merge commits." op)
-      (car parents))))
 
 (defun magit-choose-parent-id (commit op)
   (let* ((parents (magit-commit-parents commit)))
@@ -1054,15 +1033,9 @@ Many Magit faces inherit from this one by default."
 (defun magit-run-git-with-input (input &rest args)
   (magit-with-refresh
     (magit-run* (append (cons magit-git-executable
-			    magit-git-standard-options)
+			      magit-git-standard-options)
 			args)
 		nil nil nil nil input)))
-
-(defun magit-run-shell (fmt &rest args)
-  (let ((cmd (apply #'format fmt (mapcar #'magit-escape-for-shell args))))
-    (magit-with-refresh
-      (magit-run* (list shell-file-name shell-command-switch cmd)
-		  cmd))))
 
 (defun magit-run-git-async (&rest args)
   (magit-run* (append (cons magit-git-executable
@@ -1567,6 +1540,8 @@ Please see the manual for a complete description of Magit.
 	(t
 	 nil)))
 
+(defvar magit-diff-options nil)
+
 (defun magit-insert-diff (file)
   (let ((cmd magit-git-executable)
 	(args (append magit-git-standard-options 
@@ -1715,7 +1690,7 @@ Please see the manual for a complete description of Magit.
 (defun magit-insert-staged-changes (no-commit)
   (let ((magit-hide-diffs t)
 	(base (if no-commit
-		  (magit-git-string "mktree </dev/null")
+		  (magit-git-string "mktree")
 		"HEAD")))
     (let ((magit-diff-options '("--cached")))
       (magit-git-section 'staged "Staged changes:" 'magit-wash-numstat-diffs
@@ -1875,8 +1850,8 @@ in log buffer."
 	     (remote (and branch (magit-get "branch" branch "remote")))
              (svn-enabled (magit-svn-enabled))
 	     (head (magit-git-string
-		    "log --max-count=1 --abbrev-commit --pretty=oneline"))
-	     (no-commit (string-match "fatal: bad default revision" head)))
+		    "log" "--max-count=1" "--abbrev-commit" "--pretty=oneline"))
+	     (no-commit (not head)))
 	(if remote
 	    (insert (format "Remote: %s %s\n"
 			    remote (magit-get "remote" remote "url"))))
@@ -2103,7 +2078,7 @@ in log buffer."
   (magit-run-git-async "svn" "dcommit"))
 
 (defun magit-svn-enabled ()
-   (not (null (magit-get-svn-ref))))
+  (not (null (magit-get-svn-ref))))
 
 (defun magit-get-svn-ref ()
   (cond ((magit-ref-exists-p "refs/remotes/git-svn")
@@ -2160,9 +2135,11 @@ in log buffer."
 	    (magit-with-section commit 'commit
 	      (magit-set-section-info commit)
 	      (insert (magit-git-string
-		       "log --max-count=1 --pretty=format:%s %s --"
-		       (if used ". %s" "* %s")
-		       commit)
+		       "log" "--max-count=1"
+		       (if used
+			   "--pretty=format:. %s"
+			 "--pretty=format:* %s")
+		       commit "--")
 		      "\n")))))
       (insert "\n"))))
 
@@ -2203,10 +2180,10 @@ in log buffer."
       (error "You have uncommitted changes."))
   (or (not (magit-read-rewrite-info))
       (error "Rewrite in progress."))
-  (let* ((orig (magit-git-string "rev-parse HEAD"))
+  (let* ((orig (magit-git-string "rev-parse" "HEAD"))
 	 (base (or (car (magit-commit-parents from))
 		   (error "Can't rewrite a commit without a parent, sorry.")))
-	 (pending (magit-git-lines "rev-list %s.." base)))
+	 (pending (magit-git-lines "rev-list" (concat base ".."))))
     (magit-write-rewrite-info `((orig ,orig)
 				(pending ,@(mapcar #'list pending))))
     (magit-run-git "reset" "--hard" base)))
@@ -2761,12 +2738,12 @@ Prefix arg means justify as well."
 
 (defun magit-configure-have-graph ()
   (if (eq magit-have-graph 'unset)
-      (let ((res (magit-git-exit-code "log --graph --max-count=0")))
+      (let ((res (magit-git-exit-code "log" "--graph" "--max-count=0")))
 	(setq magit-have-graph (eq res 0)))))
 
 (defun magit-configure-have-decorate ()
   (if (eq magit-have-decorate 'unset)
-      (let ((res (magit-git-exit-code "log --decorate --max-count=0")))
+      (let ((res (magit-git-exit-code "log" "--decorate" "--max-count=0")))
 	(setq magit-have-decorate (eq res 0)))))
 
 (defun magit-refresh-log-buffer (range style args)
@@ -2888,15 +2865,15 @@ Prefix arg means justify as well."
 	(dolist (branch branches)
 	  (let* ((name (car branch))
 		 (ref (cdr branch))
-		 (hash (magit-git-string "rev-parse %s" ref))
+		 (hash (magit-git-string "rev-parse" ref))
 		 (reported-branch (gethash hash reported)))
 	    (unless (or (and reported-branch
 			     (string= (file-name-nondirectory ref)
 				      reported-branch))
-			(not (magit-git-string "merge-base %s %s" head ref)))
+			(not (magit-git-string "merge-base" head ref)))
 	      (puthash hash (file-name-nondirectory ref) reported)
-	      (let* ((n (magit-git-string "log --pretty=oneline %s..%s | wc -l"
-					  head ref))
+	      (let* ((n (length (magit-git-lines "log" "--pretty=oneline"
+						 (concat head ".." ref))))
 		     (section
 		      (let ((magit-section-hidden-default t))
 			(magit-git-section
@@ -3077,10 +3054,9 @@ Prefix arg means justify as well."
 	 (old-editor (getenv "GIT_EDITOR")))
     (setenv "GIT_EDITOR" (expand-file-name "emacsclient" exec-directory))
     (unwind-protect
-	(shell-command (concat magit-git-executable " rebase -i "
-			       (or (and commit (concat commit "^"))
-				   (read-string "Interactively rebase to: "))
-			       " &"))
+	(magit-run-git-async "rebase" "-i"
+			     (or (and commit (concat commit "^"))
+				 (read-string "Interactively rebase to: ")))
       (if old-editor
 	  (setenv "GIT_EDITOR" old-editor)))))
 
@@ -3090,13 +3066,14 @@ Prefix arg means justify as well."
   (save-selected-window
     (switch-to-buffer-other-window "*magit-branches*")
     (erase-buffer)
-    (shell-command (concat magit-git-executable " branch -va") t t)))
+    (insert (magit-git-string "branch" "-va"))
+    (insert "\n")))
 
 (defvar magit-ediff-file)
 (defvar magit-ediff-windows)
 
 (defun magit-interactive-resolve (file)
-  (let ((merge-status (magit-git-string "ls-files -u -- %s" file))
+  (let ((merge-status (magit-git-string "ls-files" "-u" "--" file))
 	(base-buffer (generate-new-buffer (concat file ".base")))
 	(our-buffer (generate-new-buffer (concat file ".current")))
 	(their-buffer (generate-new-buffer (concat file ".merged")))
@@ -3105,13 +3082,16 @@ Prefix arg means justify as well."
 	(error "Cannot resolve %s" file))
     (with-current-buffer base-buffer
       (if (string-match "^[0-9]+ [0-9a-f]+ 1" merge-status)
-	  (insert (magit-git-string "cat-file blob :1:%s" file))))
+	  (insert (magit-git-string "cat-file" "blob" 
+				    (concat ":1:" file)))))
     (with-current-buffer our-buffer
       (if (string-match "^[0-9]+ [0-9a-f]+ 2" merge-status)
-	  (insert (magit-git-string "cat-file blob :2:%s" file))))
+	  (insert (magit-git-string "cat-file" "blob"
+				    (concat ":2:" file)))))
     (with-current-buffer their-buffer
       (if (string-match "^[0-9]+ [0-9a-f]+ 3" merge-status)
-	  (insert (magit-git-string "cat-file blob :3:%s" file))))
+	  (insert (magit-git-string "cat-file" "blob"
+				    (concat ":3:" file)))))
     ;; We have now created the 3 buffer with ours, theirs and the ancestor files
     (with-current-buffer (ediff-merge-buffers-with-ancestor our-buffer their-buffer base-buffer)
       (make-local-variable 'magit-ediff-file)
