@@ -1680,10 +1680,12 @@ Please see the manual for a complete description of Magit.
 (defun magit-apply-diff-item (diff &rest args)
   (when (zerop magit-diff-context-lines)
     (setq args (cons "--unidiff-zero" args)))
-  (with-current-buffer (get-buffer-create "*magit-tmp*")
-    (erase-buffer))
-  (magit-insert-diff-item-patch diff "*magit-tmp*")
-  (apply #'magit-run-git "apply" (append args (list "-"))))
+  (let ((tmp (get-buffer-create "*magit-tmp*")))
+    (with-current-buffer tmp
+      (erase-buffer))
+    (magit-insert-diff-item-patch diff "*magit-tmp*")
+    (apply #'magit-run-git-with-input tmp
+	   "apply" (append args (list "-")))))
 
 (defun magit-apply-hunk-item* (hunk reverse &rest args)
   (when (zerop magit-diff-context-lines)
