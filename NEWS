@@ -13,6 +13,8 @@ Changes in magit 0.8:
 * Hitting C-c C-s while editing a commit message will toggle the
   "--signoff" option.
 
+* Performance improvements in the status buffer.
+
 * Bug fixes to make Magit work better with newer Gits.
 
 Changes in magit 0.7:
