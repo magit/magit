@@ -1339,7 +1339,7 @@ Please see the manual for a complete description of Magit.
 	       (not (buffer-modified-p buffer)))
       (with-current-buffer buffer
 	(ignore-errors
-	  (revert-buffer t t t))))))
+	  (revert-buffer t t nil))))))
 
 (defvar magit-refresh-needing-buffers nil)
 (defvar magit-refresh-pending nil)
