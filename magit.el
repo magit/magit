@@ -1442,6 +1442,23 @@ Please see the manual for a complete description of Magit.
 
 (defvar magit-hide-diffs nil)
 
+(defun magit-insert-diff-title (status file file2)
+  (let ((status-text (case status
+		       ((unmerged)
+			(format "Unmerged %s" file))
+		       ((new)
+			(format "New      %s" file))
+		       ((deleted)
+			(format "Deleted  %s" file))
+		       ((renamed)
+			(format "Renamed  %s   (from %s)"
+				file file2))
+		       ((modified)
+			(format "Modified %s" file))
+		       (t
+			(format "?        %s" file)))))
+    (insert "\t" status-text "\n")))
+
 (defun magit-wash-diff-section ()
   (cond ((looking-at "^\\* Unmerged path \\(.*\\)")
 	 (let ((file (match-string-no-properties 1)))
@@ -1464,9 +1481,6 @@ Please see the manual for a complete description of Magit.
 			      (search-forward-regexp "^new file" end t))
 			    'new)
 			   ((save-excursion
-			      (search-forward-regexp "^new mode" end t))
-			    'mode)
-			   ((save-excursion
 			      (search-forward-regexp "^deleted" end t))
 			    'deleted)
 			   ((save-excursion
@@ -1478,25 +1492,9 @@ Please see the manual for a complete description of Magit.
 			  ((save-excursion
 			     (search-forward-regexp "^rename from \\(.*\\)"
 						    end t))
-			   (match-string-no-properties 1))))
-		  (status-text (case status
-				 ((unmerged)
-				  (format "Unmerged %s" file))
-				 ((new)
-				  (format "New      %s" file))
-				 ((mode)
-				  (format "New mode %s" file))
-				 ((deleted)
-				  (format "Deleted  %s" file))
-				 ((renamed)
-				  (format "Renamed  %s   (from %s)"
-					  file file2))
-				 ((modified)
-				  (format "Modified %s" file))
-				 (
-				  (format "?        %s" file)))))
+			   (match-string-no-properties 1)))))
 	     (magit-set-section-info (list status file file2))
-	     (insert "\t" status-text "\n")
+	     (magit-insert-diff-title status file file2)
 	     (goto-char end)
 	     (let ((magit-section-hidden-default nil))
 	       (magit-wash-sequence #'magit-wash-hunk))))
@@ -1559,15 +1557,22 @@ Please see the manual for a complete description of Magit.
 	(magit-wash-diff-section)
 	(goto-char (point-max))))))
 
-(defun magit-wash-numstat-diffs ()
-  (magit-wash-sequence #'magit-wash-numstat-diff))
+(defun magit-wash-raw-diffs ()
+  (magit-wash-sequence #'magit-wash-raw-diff))
 
-(defun magit-wash-numstat-diff ()
-  (if (looking-at "\\(^[0-9-]+\\)\t\\([0-9-]+\\)\t\\(.*\\)$")
-      (let ((added (string-to-number (match-string 1)))
-	    (deleted (string-to-number (match-string 2)))
-	    (file (match-string-no-properties 3))
-	    (magit-section-hidden-default magit-hide-diffs))
+(defun magit-wash-raw-diff ()
+  (if (looking-at
+       ":\\([0-7]+\\) \\([0-7]+\\) [0-9a-f]+ [0-9a-f]+ \\(.\\)[0-9]*\t\\([^\t\n]+\\)$")
+      (let ((old-perm (match-string-no-properties 1))
+	    (new-perm (match-string-no-properties 2))
+	    (status (case (string-to-char (match-string-no-properties 3))
+		      (?A 'new)
+		      (?D 'deleted)
+		      (?M 'modified)
+		      (?U 'unmerged)
+		      (?T 'new-type)
+		      (t     nil)))
+	    (file (match-string-no-properties 4)))
 	;; The 'diff' section that is created here will not work with
 	;; magit-insert-diff-item-patch etc when we leave it empty.
 	;; Luckily, numstat diffs are only produced for staged and
@@ -1576,12 +1581,11 @@ Please see the manual for a complete description of Magit.
 	;; brittle, of course.
 	(magit-with-section file 'diff
 	  (delete-region (point) (+ (line-end-position) 1))
-	  (if (or (not (magit-section-hidden magit-top-section))
-		  (< (+ added deleted) 20))
+	  (if (not (magit-section-hidden magit-top-section))
 	      (magit-insert-diff file)
-	    (magit-set-section-info (list 'modified file nil))
+	    (magit-set-section-info (list status file nil))
 	    (magit-set-section-needs-refresh-on-show t)
-	    (insert (format "\tModified %s\n" file))))
+	    (magit-insert-diff-title status file nil)))
 	t)
     nil))
 
@@ -1690,8 +1694,8 @@ Please see the manual for a complete description of Magit.
 (defun magit-insert-unstaged-changes (title)
   (let ((magit-hide-diffs t))
     (let ((magit-diff-options '()))
-      (magit-git-section 'unstaged title 'magit-wash-numstat-diffs
-			 "diff" "--numstat"))))
+      (magit-git-section 'unstaged title 'magit-wash-raw-diffs
+			 "diff-files"))))
 
 (defun magit-insert-staged-changes (no-commit)
   (let ((magit-hide-diffs t)
@@ -1699,8 +1703,8 @@ Please see the manual for a complete description of Magit.
 		  (magit-git-string "mktree")
 		"HEAD")))
     (let ((magit-diff-options '("--cached")))
-      (magit-git-section 'staged "Staged changes:" 'magit-wash-numstat-diffs
-			 "diff" "--cached" "--numstat"
+      (magit-git-section 'staged "Staged changes:" 'magit-wash-raw-diffs
+			 "diff-index" "--cached"
 			 base))))
 
 ;;; Logs and Commits
