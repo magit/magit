@@ -1989,7 +1989,7 @@ in log buffer."
 (defun magit-status (dir)
   (interactive (list (or (and (not current-prefix-arg)
 			      (magit-get-top-dir default-directory))
-			 (magit-read-top-dir (and (listp current-prefix-arg)
+			 (magit-read-top-dir (and (consp current-prefix-arg)
 						  (> (car current-prefix-arg) 4))))))
   (if magit-save-some-buffers
       (save-some-buffers (eq magit-save-some-buffers 'dontask)))
