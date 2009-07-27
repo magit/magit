@@ -68,6 +68,17 @@
   :group 'magit
   :type '(repeat string))
 
+(defcustom magit-repo-dirs nil
+  "Directories containing Git repositories.
+Magit will look into these directories for Git repositories and offers them as choices for magit-status."
+  :group 'magit
+  :type '(repeat string))
+
+(defcustom magit-repo-dirs-depth 3
+  "When looking for Git repositors below the directories in magit-repo-dirs, Magit will only descend this many levels deep."
+  :group 'magit
+  :type 'integer)
+
 (defcustom magit-save-some-buffers t
   "Non-nil means that \\[magit-status] will save modified buffers before running.
 Setting this to t will ask which buffers to save, setting it to 'dontask will
@@ -272,6 +283,51 @@ Many Magit faces inherit from this one by default."
       (magit-git-string "config" (magit-concat-with-delim "." keys) val)
     (magit-git-string "config" "--unset" (magit-concat-with-delim "." keys))))
 
+(defun magit-remove-conflicts (alist)
+  (let ((dict (make-hash-table :test 'equal))
+	(result nil))
+    (dolist (a alist)
+      (puthash (car a) (cons (cdr a) (gethash (car a) dict))
+	       dict))
+    (maphash (lambda (key value)
+	       (if (= (length value) 1)
+		   (push (cons key (car value)) result)
+		 (let ((sub (magit-remove-conflicts
+			     (mapcar (lambda (entry)
+				       (let ((dir (directory-file-name 
+						   (subseq entry 0 (- (length key))))))
+					 (cons (concat (file-name-nondirectory dir) "/" key)
+					       entry)))
+				     value))))
+		   (setq result (append result sub)))))
+	     dict)
+    result))
+
+(defun magit-git-repo-p (dir)
+  (file-exists-p (expand-file-name ".git" dir)))
+
+(defun magit-list-repos* (dir level)
+  (if (magit-git-repo-p dir)
+      (list dir)
+    (apply #'append
+	   (mapcar (lambda (entry)
+		     (unless (or (string= (substring entry -3) "/..")
+				 (string= (substring entry -2) "/."))
+		       (magit-list-repos* entry (+ level 1))))
+		   (and (file-directory-p dir)
+			(< level magit-repo-dirs-depth)
+			(directory-files dir t nil t))))))
+
+(defun magit-list-repos (dirs)
+  (magit-remove-conflicts
+   (apply #'append
+	  (mapcar (lambda (dir)
+		    (mapcar #'(lambda (repo)
+				(cons (file-name-nondirectory repo)
+				      repo))
+			    (magit-list-repos* dir 0)))
+		  dirs))))
+
 (defun magit-get-top-dir (cwd)
   (let ((cwd (expand-file-name cwd)))
     (and (file-directory-p cwd)
@@ -295,11 +351,17 @@ Many Magit faces inherit from this one by default."
 (defun magit-ref-exists-p (ref)
   (= (magit-git-exit-code "show-ref" "--verify" ref) 0))
 
-(defun magit-read-top-dir ()
-  (file-name-as-directory
-   (read-directory-name "Git repository: "
-			(or (magit-get-top-dir default-directory)
-			    default-directory))))
+(defun magit-read-top-dir (rawp)
+  (if (and (not rawp) magit-repo-dirs)
+      (let* ((repos (magit-list-repos magit-repo-dirs))
+	     (reply (completing-read "Git repository: "
+				     (magit-list-repos magit-repo-dirs))))
+	(file-name-as-directory
+	 (cdr (assoc reply repos))))
+    (file-name-as-directory
+     (read-directory-name "Git repository: "
+			  (or (magit-get-top-dir default-directory)
+			      default-directory)))))
 
 (defun magit-name-rev (rev)
   (and rev
@@ -1927,7 +1989,8 @@ in log buffer."
 (defun magit-status (dir)
   (interactive (list (or (and (not current-prefix-arg)
 			      (magit-get-top-dir default-directory))
-			 (magit-read-top-dir))))
+			 (magit-read-top-dir (and (listp current-prefix-arg)
+						  (> (car current-prefix-arg) 4))))))
   (if magit-save-some-buffers
       (save-some-buffers (eq magit-save-some-buffers 'dontask)))
   (let ((topdir (magit-get-top-dir dir)))
@@ -1945,7 +2008,6 @@ in log buffer."
                                 (directory-file-name topdir)) "*"))))))
         (switch-to-buffer buf)
         (magit-mode-init topdir 'status #'magit-refresh-status)))))
-
 
 ;;; Staging and Unstaging
 

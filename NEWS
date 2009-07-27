@@ -1,5 +1,12 @@
 Changes in magit 0.8:
 
+* By setting magit-repo-dirs, you can get better repo completion.
+  Magit will offer all subdirectories (upto magit-repo-dirs level
+  deep) of the listed directories when magit-status asks for a
+  directory to work on.
+
+  You can get the old behavior with a double prefix to magit-status.
+
 * Hitting 'c' or 'C' while resolving a conflict in the middle of a
   rebase will offer to continue the rebase instead of trying to commit
   your changes.

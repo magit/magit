@@ -166,8 +166,28 @@ will switch to the status buffer of that repository.  Otherwise, it
 will prompt for a directory.  With a prefix argument, it will always
 prompt.
 
+You can set @code{magit-repo-dirs} to customize how
+@code{magit-status} asks for the repository to work on.  When
+@code{magit-repo-dirs} is nil, @code{magit-status} will simply ask for
+a directory.
+
 If you specify a directory that is not a Git repository, @kbd{M-x
-magit-status} will ask whether to create one.
+magit-status} will offer to initialize it as one.
+
+When @code{magit-repo-dirs} is not nil, it is treated as a list of
+directory names, and @code{magit-status} will find all Git
+repositories in those directories and offer them for completion.
+(Magit will only look @code{magit-repo-dirs-depth} levels deep,
+however.)
+
+With two prefix arguments, @code{magit-status} will always prompt for
+a raw directory.
+
+Thus, you would normally set @code{magit-repo-dirs} to the places
+where you keep most of your Git repositories and switch between them
+with @kbd{C-u M-x magit-status}.  If you want to go to a repository
+outside of your normal working areas, or if you want to create a new
+repository, you would use @kbd{C-u C-u M-x magit-status}.
 
 You need to explicitly refresh the status buffer when you have made
 changes to the repository from outside of Emacs.  You can type @kbd{g}
