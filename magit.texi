@@ -200,7 +200,9 @@ During a history rewriting session, the status buffer shows the
 
 Untracked files are shown in the @emph{Untracked files} section.
 
-You can add a untracked file to the staging area with @kbd{s}.
+You can add a untracked file to the staging area with @kbd{s}.  If
+point is on the @emph{Untracked files} section title when you it
+@kbd{s}, all untracked files are staged.
 
 You can instruct Git to ignore them by typing @kbd{i}.  This will add
 the filename to the @code{.gitignore} file.  Typing @kbd{C-u i} will
@@ -208,7 +210,7 @@ ask you for the name of the file to ignore.  This is useful to ignore
 whole directories, for example.  The @kbd{I} command is similar to
 @kbd{i} but will add the file to @code{.git/info/exclude} instead.
 
-To delete a untracked file forever, use @kbd{k}.  If point is one the
+To delete a untracked file forever, use @kbd{k}.  If point is on the
 @emph{Untracked files} section title when you it @kbd{k}, all
 untracked files are deleted.
 

@@ -1949,6 +1949,9 @@ in log buffer."
   (magit-section-action (item info "stage")
     ((untracked file)
      (magit-run-git "add" info))
+    ((untracked)
+     (apply #'magit-run-git "add" "--"
+	    (magit-git-lines "ls-files" "--other" "--exclude-standard")))
     ((unstaged diff hunk)
      (if (magit-hunk-item-is-conflict-p item)
 	 (error (concat "Can't stage individual resolution hunks.  "
