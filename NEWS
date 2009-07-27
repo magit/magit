@@ -13,6 +13,11 @@ Changes in magit 0.8:
 * Hitting C-c C-s while editing a commit message will toggle the
   "--signoff" option.
 
+* Hitting 's' on the "Untracked files" section title will stage all
+  untracked files.
+
+* Hitting 'C-u S' will stage all untracked and tracked files.
+
 * Performance improvements in the status buffer.
 
 * Bug fixes to make Magit work better with newer Gits.
@@ -50,9 +55,6 @@ Changes in magit 0.7:
 
 * Typing 'k' on the "Untracked files" section title will offer to
   delete all untracked files.
-
-* Similarily, hitting 's' on the "Untracked files" section title will
-  stage all untracked files.
 
 * Magit understands a bit of git-svn: the status buffer shows unpushed
   and unpulled commits, 'N r' runs git svn rebase, and 'N c' runs git

@@ -204,6 +204,9 @@ You can add a untracked file to the staging area with @kbd{s}.  If
 point is on the @emph{Untracked files} section title when you it
 @kbd{s}, all untracked files are staged.
 
+Typing @kbd{C-u S} anywhere will also stage all untracked files,
+together with all changes to the tracked files.
+
 You can instruct Git to ignore them by typing @kbd{i}.  This will add
 the filename to the @code{.gitignore} file.  Typing @kbd{C-u i} will
 ask you for the name of the file to ignore.  This is useful to ignore
@@ -245,6 +248,9 @@ the changes, otherwise it is not.)
 
 To move all hunks of all diffs into the staging area in one go, type
 @kbd{S}.  To unstage everything, type @kbd{U}.
+
+Typing @kbd{C-u S} will stage all untracked files in addition to the
+changes to tracked files.
 
 You can discard uncommitted changes by moving point into a hunk and
 typing @kbd{k}.  The changes to discard are selected as with @kbd{s}

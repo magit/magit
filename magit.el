@@ -1983,9 +1983,11 @@ in log buffer."
     ((diff)
      (error "Can't unstage this diff"))))
 
-(defun magit-stage-all ()
-  (interactive)
-  (magit-run-git "add" "-u" "."))
+(defun magit-stage-all (&optional also-untracked-p)
+  (interactive "P")
+  (if also-untracked-p
+      (magit-run-git "add" ".")
+    (magit-run-git "add" "-u" ".")))
 
 (defun magit-unstage-all ()
   (interactive)
