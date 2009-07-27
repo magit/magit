@@ -1332,9 +1332,14 @@ Please see the manual for a complete description of Magit.
 	  (set-window-point w (point)))
 	(magit-highlight-section)))))
 
-(defun magit-revert-buffers ()
+(defun magit-string-has-prefix-p (string prefix)
+  (eq (compare-strings string nil (length prefix) prefix nil nil) t))
+
+(defun magit-revert-buffers (dir)
   (dolist (buffer (buffer-list))
     (when (and buffer
+	       (buffer-file-name buffer)
+	       (magit-string-has-prefix-p (buffer-file-name buffer) dir)
 	       (not (verify-visited-file-modtime buffer))
 	       (not (buffer-modified-p buffer)))
       (with-current-buffer buffer
@@ -1347,13 +1352,14 @@ Please see the manual for a complete description of Magit.
 (defun magit-refresh-wrapper (func)
   (if magit-refresh-pending
       (funcall func)
-    (let ((status-buffer (magit-find-buffer 'status default-directory))
-	  (magit-refresh-needing-buffers nil)
-	  (magit-refresh-pending t))
+    (let* ((dir default-directory)
+	   (status-buffer (magit-find-buffer 'status dir))
+	   (magit-refresh-needing-buffers nil)
+	   (magit-refresh-pending t))
       (unwind-protect
 	  (funcall func)
 	(when magit-refresh-needing-buffers
-	  (magit-revert-buffers)
+	  (magit-revert-buffers dir)
 	  (dolist (b (adjoin status-buffer
 			     magit-refresh-needing-buffers))
 	    (magit-refresh-buffer b)))))))
