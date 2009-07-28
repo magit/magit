@@ -1643,17 +1643,18 @@ Please see the manual for a complete description of Magit.
 	    (file (match-string-no-properties 4)))
 	;; The 'diff' section that is created here will not work with
 	;; magit-insert-diff-item-patch etc when we leave it empty.
-	;; Luckily, numstat diffs are only produced for staged and
+	;; Luckily, raw diffs are only produced for staged and
 	;; unstaged changes, and we never call
 	;; magit-insert-diff-item-patch on them.  This is a bit
 	;; brittle, of course.
-	(magit-with-section file 'diff
-	  (delete-region (point) (+ (line-end-position) 1))
-	  (if (not (magit-section-hidden magit-top-section))
-	      (magit-insert-diff file)
-	    (magit-set-section-info (list status file nil))
-	    (magit-set-section-needs-refresh-on-show t)
-	    (magit-insert-diff-title status file nil)))
+	(let ((magit-section-hidden-default magit-hide-diffs))
+	  (magit-with-section file 'diff
+	    (delete-region (point) (+ (line-end-position) 1))
+	    (if (not (magit-section-hidden magit-top-section))
+		(magit-insert-diff file)
+	      (magit-set-section-info (list status file nil))
+	      (magit-set-section-needs-refresh-on-show t)
+	      (magit-insert-diff-title status file nil))))
 	t)
     nil))
 
