@@ -1957,7 +1957,7 @@ in log buffer."
 	  (if rebase
 	      (insert (apply 'format "Rebasing: %s (%s of %s)\n" rebase))))
 	(insert "\n")
-        (magit-run-git "update-index" "--refresh")
+        (magit-git-exit-code "update-index" "--refresh")
 	(magit-insert-untracked-files)
 	(magit-insert-stashes)
 	(magit-insert-topics)
