@@ -1640,8 +1640,12 @@ Please see the manual for a complete description of Magit.
 	(magit-wash-diff-section)
 	(goto-char (point-max))))))
 
+(defvar magit-last-raw-diff nil)
+(defvar magit-ignore-unmerged-raw-diffs nil)
+
 (defun magit-wash-raw-diffs ()
-  (magit-wash-sequence #'magit-wash-raw-diff))
+  (let ((magit-last-raw-diff nil))
+    (magit-wash-sequence #'magit-wash-raw-diff)))
 
 (defun magit-wash-raw-diff ()
   (if (looking-at
@@ -1656,20 +1660,27 @@ Please see the manual for a complete description of Magit.
 		      (?T 'new-type)
 		      (t     nil)))
 	    (file (match-string-no-properties 4)))
-	;; The 'diff' section that is created here will not work with
-	;; magit-insert-diff-item-patch etc when we leave it empty.
-	;; Luckily, raw diffs are only produced for staged and
-	;; unstaged changes, and we never call
-	;; magit-insert-diff-item-patch on them.  This is a bit
-	;; brittle, of course.
-	(let ((magit-section-hidden-default magit-hide-diffs))
-	  (magit-with-section file 'diff
+	;; If this is for the same file as the last diff, ignore it.
+	;; Unmerged files seem to get two entries.
+	;; We also ignore unmerged files when told so.
+	(if (or (equal file magit-last-raw-diff)
+		(and magit-ignore-unmerged-raw-diffs (eq status 'unmerged)))
 	    (delete-region (point) (+ (line-end-position) 1))
-	    (if (not (magit-section-hidden magit-top-section))
-		(magit-insert-diff file)
-	      (magit-set-section-info (list status file nil))
-	      (magit-set-section-needs-refresh-on-show t)
-	      (magit-insert-diff-title status file nil))))
+	  (setq magit-last-raw-diff file)
+	  ;; The 'diff' section that is created here will not work with
+	  ;; magit-insert-diff-item-patch etc when we leave it empty.
+	  ;; Luckily, raw diffs are only produced for staged and
+	  ;; unstaged changes, and we never call
+	  ;; magit-insert-diff-item-patch on them.  This is a bit
+	  ;; brittle, of course.
+	  (let ((magit-section-hidden-default magit-hide-diffs))
+	    (magit-with-section file 'diff
+	      (delete-region (point) (+ (line-end-position) 1))
+	      (if (not (magit-section-hidden magit-top-section))
+		  (magit-insert-diff file)
+		(magit-set-section-info (list status file nil))
+		(magit-set-section-needs-refresh-on-show t)
+		(magit-insert-diff-title status file nil)))))
 	t)
     nil))
 
@@ -1786,7 +1797,8 @@ Please see the manual for a complete description of Magit.
 	(base (if no-commit
 		  (magit-git-string "mktree")
 		"HEAD")))
-    (let ((magit-diff-options '("--cached")))
+    (let ((magit-diff-options '("--cached"))
+	  (magit-ignore-unmerged-raw-diffs t))
       (magit-git-section 'staged "Staged changes:" 'magit-wash-raw-diffs
 			 "diff-index" "--cached"
 			 base))))
