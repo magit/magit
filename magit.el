@@ -36,6 +36,14 @@
 
 ;;; TODO
 
+;; For 0.8:
+;;
+;; - Fix display of unmerged files.
+;; - Fix performance problems with large status buffers.
+;; - Handle the case where remote and local branches have different names.
+;;
+;; Later:
+;;
 ;; - Queuing of asynchronous commands.
 ;; - Good email integration.
 ;; - Showing tags.
