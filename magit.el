@@ -1021,7 +1021,7 @@ Many Magit faces inherit from this one by default."
 		"\n")
 	(cond (nowait
 	       (setq magit-process
-		     (apply 'start-process cmd buf cmd args))
+		     (apply 'start-file-process cmd buf cmd args))
 	       (set-process-sentinel magit-process 'magit-process-sentinel)
 	       (set-process-filter magit-process 'magit-process-filter)
 	       (when input
@@ -1054,7 +1054,7 @@ Many Magit faces inherit from this one by default."
 	       (magit-need-refresh magit-process-client-buffer))
 	      (t
 	       (setq successp
-		     (equal (apply 'call-process cmd nil buf nil args) 0))
+		     (equal (apply 'process-file cmd nil buf nil args) 0))
 	       (magit-set-mode-line-process nil)
 	       (magit-need-refresh magit-process-client-buffer))))
       (or successp
