@@ -242,14 +242,17 @@ Many Magit faces inherit from this one by default."
 	  (setq lines (cdr lines)))
       (nreverse lines))))
 
+(defun magit-git-insert (args)
+  (apply #'process-file
+	 magit-git-executable
+	 nil (list t nil) nil
+	 (append magit-git-standard-options args)))
+
 (defun magit-git-output (args)
   (with-output-to-string
     (with-current-buffer
         standard-output
-      (apply #'process-file
-	     magit-git-executable
-	     nil (list t nil) nil
-	     args))))
+      (magit-git-insert args))))
 
 (defun magit-git-string (&rest args)
   (magit-trim-line (magit-git-output args)))
@@ -258,7 +261,8 @@ Many Magit faces inherit from this one by default."
   (magit-split-lines (magit-git-output args)))
 
 (defun magit-git-exit-code (&rest args)
-  (apply #'process-file magit-git-executable nil nil nil args))
+  (apply #'process-file magit-git-executable nil nil nil
+	 (append magit-git-standard-options args)))
 
 (defun magit-file-lines (file)
   (when (file-exists-p file)
@@ -651,7 +655,7 @@ Many Magit faces inherit from this one by default."
 		(insert (propertize buffer-title 'face 'magit-section-title)
 			"\n"))
 	    (setq body-beg (point))
-	    (apply 'process-file cmd nil t nil args)
+	    (apply 'process-file cmd nil t nil (append magit-git-standard-options args))
 	    (if (not (eq (char-before) ?\n))
 		(insert "\n"))
 	    (if washer
@@ -1625,13 +1629,12 @@ Please see the manual for a complete description of Magit.
 
 (defun magit-insert-diff (file)
   (let ((cmd magit-git-executable)
-	(args (append magit-git-standard-options 
-		      (list "diff")
+	(args (append (list "diff")
 		      (list (magit-diff-U-arg))
 		      magit-diff-options
 		      (list "--" file))))
     (let ((p (point)))
-      (apply 'process-file cmd nil t nil args)
+      (magit-git-insert args)
       (if (not (eq (char-before) ?\n))
 	  (insert "\n"))
       (save-restriction
