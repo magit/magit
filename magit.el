@@ -799,6 +799,12 @@ Many Magit faces inherit from this one by default."
 		 (magit-show-commit (or prev section)))
 	     (goto-char (magit-section-beginning (or prev section))))))))
 
+(defun magit-goto-parent-section ()
+  (interactive)
+  (let ((parent (magit-section-parent (magit-current-section))))
+    (when parent
+      (goto-char (magit-section-beginning parent)))))
+
 (defun magit-goto-section (path)
   (let ((sec (magit-find-section path magit-top-section)))
     (if sec
@@ -1235,6 +1241,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "M-H") 'magit-show-only-files-all)
     (define-key map (kbd "M-s") 'magit-show-level-4)
     (define-key map (kbd "M-S") 'magit-show-level-4-all)
+    (define-key map (kbd "<M-left>") 'magit-goto-parent-section)
     (define-key map (kbd "g") 'magit-refresh)
     (define-key map (kbd "G") 'magit-refresh-all)
     (define-key map (kbd "s") 'magit-stage-item)
