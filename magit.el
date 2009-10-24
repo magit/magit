@@ -881,6 +881,13 @@ Many Magit faces inherit from this one by default."
   (interactive)
   (magit-section-hideshow #'magit-section-expand))
 
+(defun magit-toggle-file-section ()
+  "Like `magit-toggle-section' but toggles at file granularity."
+  (interactive)
+  (when (eq 'hunk (first (magit-section-context-type (magit-current-section))))
+    (magit-goto-parent-section))
+  (magit-toggle-section))
+
 (defun magit-toggle-section ()
   (interactive)
   (magit-section-hideshow
