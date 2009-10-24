@@ -2418,10 +2418,16 @@ branch."
       (magit-run-git "reset" (if hard "--hard" "--soft")
 		     (magit-rev-to-git rev))))
 
+(defun magit-reset-head-hard (rev)
+  (interactive (list (magit-read-rev (format "Hard reset head to")
+				     (or (magit-default-rev)
+					 "HEAD"))))
+  (magit-reset-head rev t))
+
 (defun magit-reset-working-tree ()
   (interactive)
-  (if (yes-or-no-p "Discard all uncommitted changes? ")
-      (magit-run-git "reset" "--hard")))
+  (when (yes-or-no-p "Discard all uncommitted changes? ")
+    (magit-reset-head-hard "HEAD")))
 
 ;;; Rewriting
 
