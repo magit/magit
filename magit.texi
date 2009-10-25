@@ -99,6 +99,8 @@ Thanks!
 
 Alexey Voinov fixed bugs.  Thanks!
 
+Rémi Vanicat helped with Tramp support.  Thanks!
+
 @node Sections
 @chapter Sections
 
