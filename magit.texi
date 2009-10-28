@@ -498,9 +498,11 @@ Type @kbd{m} to initiate a manual merge, and type @kbd{M} for a
 automatic merge.
 
 A manual merge is useful when carefully merging a new feature that you
-want to review and test before even committing it.  A automatic merge
+want to review and test before even committing it.  An automatic merge
 is appropriate when you are on a feature branch and want to catch up
-with the master, say.
+with the master, say. If you would like to squash the merge (have git
+avoid creating a merge commit) then use a prefix argument with the
+command (@kbd{C-U m}).
 
 After initiating a manual merge, the header of the status buffer will
 remind you that the next commit will be a merge commit (with more than

@@ -2131,9 +2131,18 @@ in log buffer."
 	(magit-section-info sec))))
 
 (defun magit-manual-merge (rev)
-  (interactive (list (magit-read-rev "Manually merge" (magit-guess-branch))))
+  "Merge (without commiting) REV. Given a prefix-arg then the
+merge will be squashed."
+  (interactive
+   (list (magit-read-rev (concat "Manually merge"
+				 (when current-prefix-arg
+				   " (squashed)"))
+			 (magit-guess-branch))))
   (if rev
-      (magit-run-git "merge" "--no-ff" "--no-commit"
+      (magit-run-git "merge" "--no-commit"
+		     (if current-prefix-arg
+			 "--squash"
+		       "--no-ff")
 		     (magit-rev-to-git rev))))
 
 (defun magit-automatic-merge (rev)
