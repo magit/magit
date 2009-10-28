@@ -1949,23 +1949,31 @@ in log buffer."
 
 ;;; Status
 
+(defun magit-remote-string (remote svn-info)
+  (if remote
+      (concat remote " " (magit-get "remote" remote "url"))
+    (when svn-info
+      (concat (cdr (assoc 'url svn-info))
+	      " @ "
+	      (cdr (assoc 'revision svn-info))))))
+
 (defun magit-refresh-status ()
   (magit-create-buffer-sections
     (magit-with-section 'status nil
       (let* ((branch (magit-get-current-branch))
 	     (remote (and branch (magit-get "branch" branch "remote")))
-	     (svn-enabled (magit-svn-enabled))
+	     (svn-info (magit-get-svn-ref-info))
+	     (remote-string (magit-remote-string remote svn-info))
 	     (head (magit-git-string
 		    "log" "--max-count=1" "--abbrev-commit" "--pretty=oneline"))
 	     (no-commit (not head)))
-	(if remote
-	    (insert (format "Remote: %s %s\n"
-			    remote (magit-get "remote" remote "url"))))
-	(insert (format "Local:	 %s %s\n"
+	(when remote-string
+	  (insert "Remote: " remote-string "\n"))
+	(insert (format "Local:  %s %s\n"
 			(propertize (or branch "(detached)")
 				    'face 'magit-branch)
 			(abbreviate-file-name default-directory)))
-	(insert (format "Head:	 %s\n"
+	(insert (format "Head:   %s\n"
 			(if no-commit "nothing commited (yet)" head)))
 	(let ((merge-heads (magit-file-lines ".git/MERGE_HEAD")))
 	  (if merge-heads
@@ -1985,7 +1993,7 @@ in log buffer."
 	(magit-insert-pending-commits)
 	(when remote
 	  (magit-insert-unpulled-commits remote branch))
-	(when svn-enabled
+	(when svn-info
 	  (magit-insert-unpulled-svn-commits t))
 	(let ((staged (or no-commit (magit-anything-staged-p))))
 	  (magit-insert-unstaged-changes
@@ -1994,7 +2002,7 @@ in log buffer."
 	      (magit-insert-staged-changes no-commit)))
 	(when remote
 	  (magit-insert-unpushed-commits remote branch))
-	(when svn-enabled
+	(when svn-info
 	  (magit-insert-unpushed-svn-commits t))))))
 
 (defun magit-init (dir)
