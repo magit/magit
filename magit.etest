@@ -1,0 +1,16 @@
+(require 'el-mock)
+
+(etest
+ ("svn"
+  (equal (assoc 'trunk-ref-name
+                (with-mock
+                  (stub magit-get => "someproject/trunk:refs/remotes/hello/trunk")
+                  (magit-get-svn-ref-info)))
+         '(trunk-ref-name . "trunk")
+         "correct refpath from `magit-get-svn-ref-info'")
+  (equal (assoc 'refpath
+                (with-mock
+                  (stub magit-get => "someproject/trunk:refs/remotes/hello/trunk")
+                  (magit-get-svn-ref-info)))
+         '(refpath . "refs/remotes/hello/")
+         "correct refpath from `magit-get-svn-ref-info'")))

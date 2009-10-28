@@ -2190,23 +2190,42 @@ in log buffer."
   (magit-run-git-async "svn" "dcommit"))
 
 (defun magit-svn-enabled ()
-  (not (null (magit-get-svn-ref))))
+  (not (null (magit-get "svn-remote" "svn" "fetch"))))
+
+(defun magit-get-svn-ref-info ()
+  "Gather details about the current git-svn repository (nil if
+there isn't one). Keys of the alist are ref-path, trunk-ref-name
+and local-ref-name."
+  (let* ((fetch (magit-get "svn-remote" "svn" "fetch"))
+	 (branches (magit-get "svn-remote" "svn" "fetch")))
+    (when fetch
+      (list
+       (cons 'ref-path (file-name-directory
+			(cadr (split-string fetch ":"))))
+       (cons 'trunk-ref-name (file-name-nondirectory
+			      (cadr (split-string fetch ":"))))
+       ;; get the local ref from the log. This is actually
+       ;; the way that git-svn does it.
+       (cons 'local-ref-name
+	     (with-temp-buffer
+	       (insert (magit-git-string "log" "--first-parent"))
+	       (goto-char (point-min))
+	       (when (re-search-forward "git-svn-id: .+/\\(.+?\\)@" nil t)
+		 (match-string 1))))))))
+
+(defun magit-get-svn-trunk-ref ()
+  "Get the best guess remote trunk ref for the current git-svn
+based branch."
+  (let ((info (magit-get-svn-ref-info)))
+    (concat (cdr (assoc 'ref-path info))
+	    (cdr (assoc 'trunk-ref-name info)))))
 
 (defun magit-get-svn-ref ()
   "Get the best guess remote ref for the current git-svn based
 branch."
-  (let* ((info (magit-get "svn-remote" "svn" "fetch"))
-	 (refs))
-    (when info
-      (concat
-       (file-name-directory (cadr (split-string info ":")))
-       (with-temp-buffer
-	 ;; grab the git-svn-id information, this is how git-svn.perl
-	 ;; does it :/
-	 (insert (magit-git-string "log" "--first-parent"))
-	 (goto-char (point-min))
-	 (when (re-search-forward "git-svn-id: .+/\\(.+?\\)@" nil t)
-	   (match-string 1)))))))
+  (let ((info (magit-get-svn-ref-info)))
+    (concat (cdr (assoc 'ref-path info))
+	    (cdr (assoc 'local-ref-name info)))))
 
 ;;; Resetting
 
