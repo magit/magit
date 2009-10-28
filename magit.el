@@ -2193,12 +2193,20 @@ in log buffer."
   (not (null (magit-get-svn-ref))))
 
 (defun magit-get-svn-ref ()
-  (cond ((magit-ref-exists-p "refs/remotes/git-svn")
-	 "refs/remotes/git-svn")
-	((magit-ref-exists-p "refs/remotes/trunk")
-	 "refs/remotes/trunk")
-	(t
-	 nil)))
+  "Get the best guess remote ref for the current git-svn based
+branch."
+  (let* ((info (magit-get "svn-remote" "svn" "fetch"))
+	 (refs))
+    (when info
+      (concat
+       (file-name-directory (cadr (split-string info ":")))
+       (with-temp-buffer
+	 ;; grab the git-svn-id information, this is how git-svn.perl
+	 ;; does it :/
+	 (insert (magit-git-string "log" "--first-parent"))
+	 (goto-char (point-min))
+	 (when (re-search-forward "git-svn-id: .+/\\(.+?\\)@" nil t)
+	   (match-string 1)))))))
 
 ;;; Resetting
 
