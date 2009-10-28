@@ -7,8 +7,8 @@
                   (stub magit-get => "someproject/trunk:refs/remotes/hello/trunk")
                   (magit-get-svn-ref-info)))
          '(trunk-ref-name . "trunk")
-         "correct refpath from `magit-get-svn-ref-info'")
-  (equal (assoc 'refpath
+         "correct trunk-ref-name from `magit-get-svn-ref-info'")
+  (equal (assoc 'ref-path
                 (with-mock
                   (stub magit-get => "someproject/trunk:refs/remotes/hello/trunk")
                   (magit-get-svn-ref-info)))
