@@ -2285,9 +2285,12 @@ insert a line to tell how to insert more of them"
 (defvar magit-currently-shown-commit nil)
 
 (defun magit-wash-commit ()
-  (cond ((search-forward-regexp "^diff" nil t)
-	 (goto-char (match-beginning 0))
-	 (magit-wash-diffs))))
+  (when (looking-at "^commit \\([0-9a-fA-F]\\{40\\}\\)")
+    (add-text-properties (match-beginning 1) (match-end 1)
+			 '(face magit-log-sha1)))
+  (search-forward-regexp "^diff" nil t)
+  (goto-char (match-beginning 0))
+  (magit-wash-diffs))
 
 (defun magit-refresh-commit-buffer (commit)
   (magit-create-buffer-sections
