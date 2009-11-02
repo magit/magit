@@ -1842,7 +1842,7 @@ Please see the manual for a complete description of Magit.
 args: CHART, SHA1, REFS and MESSAGE. The function must return a
 string which will represent the log line.")
 
-(defun magit-present-log-line (chart sha1 refs message)
+(defun magit-present-log-line (graph sha1 refs message)
   "The default log line generator."
   (let* ((ref-re "\\(?:tag: \\)?refs/\\(?:tags\\|remotes\\|heads\\)/\\(.+\\)")
 	 (string-refs
@@ -1858,10 +1858,11 @@ string which will represent the log line.")
 		     " ")
 		    " "))))
     (concat
-     (propertize chart 'face 'magit-log-graph)
-     (when sha1
-       (propertize (substring sha1 0 8) 'face 'magit-log-sha1))
+     (if sha1
+         (propertize (substring sha1 0 8) 'face 'magit-log-sha1)
+       (insert-char ? 8))
      " "
+     (propertize graph 'face 'magit-log-graph)
      string-refs
      (when message
        (propertize message 'face 'magit-log-message)))))
