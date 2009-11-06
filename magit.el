@@ -2182,16 +2182,22 @@ in log buffer."
 
 ;; git svn commands
 
-(defun magit-svn-find-rev (rev)
-  (interactive "SVN revision: ")
-  (let* ((sha (magit-git-string "svn" "find-rev"
-				(concat "r" (number-to-string rev)))))
+(defun magit-svn-find-rev (rev &optional branch)
+  (interactive
+   (list (read-input "SVN revision: ")
+         (if current-prefix-arg
+             (read-input "In branch: "))))
+  (let* ((sha (apply 'magit-git-string
+                     `("svn"
+                       "find-rev"
+                       ,(concat "r" rev)
+                       ,@(when branch (list branch))))))
     (if sha
-      (magit-show-commit
-       (magit-with-section sha 'commit
-	 (magit-set-section-info sha)
-	 sha))
-      (error "Revision %d could not be mapped to a commit" rev))))
+        (magit-show-commit
+         (magit-with-section sha 'commit
+           (magit-set-section-info sha)
+           sha))
+      (error "Revision %s could not be mapped to a commit" rev))))
 
 (defun magit-svn-rebase ()
   (interactive)
