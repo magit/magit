@@ -2894,7 +2894,7 @@ Prefix arg means justify as well."
 
 (defun magit-configure-have-decorate ()
   (if (eq magit-have-decorate 'unset)
-      (let ((res (magit-git-exit-code "log" "--decorate" "--max-count=0")))
+      (let ((res (magit-git-exit-code "log" "--decorate=full" "--max-count=0")))
 	(setq magit-have-decorate (eq res 0)))))
 
 (defun magit-refresh-log-buffer (range style args)
@@ -2907,7 +2907,7 @@ Prefix arg means justify as well."
 	   `("log"
 	     ,(format "--max-count=%s" magit-log-cutoff-length)
 	     ,style
-	     ,@(if magit-have-decorate (list "--decorate"))
+	     ,@(if magit-have-decorate (list "--decorate=full"))
 	     ,@(if magit-have-graph (list "--graph"))
 	     ,args "--"))))
 
