@@ -220,13 +220,36 @@ Many Magit faces inherit from this one by default."
   "Face for git tag labels shown in log buffer."
   :group 'magit)
 
-(defface magit-log-head-label
+(defface magit-log-head-label-remote
   '((((class color) (background light))
-     :background "spring green")
+     :background "Grey11"
+     :foreground "OliveDrab4")
     (((class color) (background dark))
-     :background "DarkGreen"))
-  "Face for branch head labels shown in log buffer."
+     :background "Grey11"
+     :foreground "DarkSeaGreen2"))
+  "Face for remote branch head labels shown in log buffer."
   :group 'magit)
+
+(defface magit-log-head-label-tags
+  '((((class color) (background light))
+     :background "Grey13"
+     :foreground "khaki4")
+    (((class color) (background dark))
+     :background "Grey13"
+     :foreground "khaki1"))
+  "Face for tag labels shown in log buffer."
+  :group 'magit)
+
+(defface magit-log-head-label-local
+  '((((class color) (background light))
+     :background "Grey13"
+     :foreground "LightSkyBlue4")
+    (((class color) (background dark))
+     :background "Grey13"
+     :foreground "LightSkyBlue1"))
+  "Face for local branch head labels shown in log buffer."
+  :group 'magit)
+
 
 ;;; Macros
 
@@ -1844,28 +1867,34 @@ string which will represent the log line.")
 
 (defun magit-present-log-line (graph sha1 refs message)
   "The default log line generator."
-  (let* ((ref-re "\\(?:tag: \\)?refs/\\(?:tags\\|remotes\\|heads\\)/\\(.+\\)")
+  (let* ((ref-re "\\(?:tag: \\)?refs/\\(tags\\|remotes\\|heads\\)/\\(.+\\)")
 	 (string-refs
 	  (when refs
 	    (concat (mapconcat
 		     (lambda (r)
 		       (propertize
 			(if (string-match ref-re r)
-			    (match-string 1 r)
+			    (match-string 2 r)
 			  r)
-			'face 'magit-log-head-label))
-		     refs
-		     " ")
-		    " "))))
-    (concat
-     (if sha1
-         (propertize (substring sha1 0 8) 'face 'magit-log-sha1)
-       (insert-char ? 8))
-     " "
-     (propertize graph 'face 'magit-log-graph)
-     string-refs
-     (when message
-       (propertize message 'face 'magit-log-message)))))
+			'face (cond
+			       ((string= (match-string 1 r) "remotes")
+				'magit-log-head-label-remote)
+			       ((string= (match-string 1 r) "tags")
+				'magit-log-head-label-tags)
+				((string= (match-string 1 r) "heads")
+				 'magit-log-head-label-local))))
+		       refs
+		       " ")
+		     " "))))
+	 (concat
+	  (if sha1
+	      (propertize (substring sha1 0 8) 'face 'magit-log-sha1)
+	    (insert-char ? 8))
+	  " "
+	  (propertize graph 'face 'magit-log-graph)
+	  string-refs
+	  (when message
+	    (propertize message 'face 'magit-log-message)))))
 
 (defun magit-wash-log-line ()
   (beginning-of-line)
@@ -1876,7 +1905,9 @@ string which will represent the log line.")
 	    (sha1 (match-string 2))
 	    (msg (match-string 4))
 	    (refs (when (match-string 3)
-		    (split-string (match-string 3) "[(), ]" t))))
+		    (remove-if (lambda (s)
+				 (string= s "tag:"))
+			       (split-string (match-string 3) "[(), ]" t)))))
 	(delete-region (point-at-bol) (point-at-eol))
 	(insert (magit-present-log-line chart sha1 refs msg))
 	(goto-char (point-at-bol))
