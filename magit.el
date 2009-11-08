@@ -222,7 +222,7 @@ Many Magit faces inherit from this one by default."
 
 (defface magit-log-head-label-remote
   '((((class color) (background light))
-     :background "Grey11"
+     :background "Grey85"
      :foreground "OliveDrab4")
     (((class color) (background dark))
      :background "Grey11"
@@ -232,8 +232,8 @@ Many Magit faces inherit from this one by default."
 
 (defface magit-log-head-label-tags
   '((((class color) (background light))
-     :background "Grey13"
-     :foreground "khaki4")
+     :background "Grey85"
+     :foreground "VioletRed1")
     (((class color) (background dark))
      :background "Grey13"
      :foreground "khaki1"))
@@ -242,7 +242,7 @@ Many Magit faces inherit from this one by default."
 
 (defface magit-log-head-label-local
   '((((class color) (background light))
-     :background "Grey13"
+     :background "Grey85"
      :foreground "LightSkyBlue4")
     (((class color) (background dark))
      :background "Grey13"
