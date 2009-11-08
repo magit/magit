@@ -187,7 +187,7 @@ Many Magit faces inherit from this one by default."
   '((((class color) (background light))
      :foreground "firebrick")
     (((class color) (background dark))
-     :foreground "OrangeRed"))
+     :foreground "tomato"))
   "Face for the sha1 element of the log output."
   :group 'magit)
 
@@ -222,9 +222,11 @@ Many Magit faces inherit from this one by default."
 
 (defface magit-log-head-label-remote
   '((((class color) (background light))
+     :box t
      :background "Grey85"
      :foreground "OliveDrab4")
     (((class color) (background dark))
+     :box t
      :background "Grey11"
      :foreground "DarkSeaGreen2"))
   "Face for remote branch head labels shown in log buffer."
@@ -232,9 +234,11 @@ Many Magit faces inherit from this one by default."
 
 (defface magit-log-head-label-tags
   '((((class color) (background light))
+     :box t
      :background "Grey85"
      :foreground "VioletRed1")
     (((class color) (background dark))
+     :box t
      :background "Grey13"
      :foreground "khaki1"))
   "Face for tag labels shown in log buffer."
@@ -242,9 +246,11 @@ Many Magit faces inherit from this one by default."
 
 (defface magit-log-head-label-local
   '((((class color) (background light))
+     :box t
      :background "Grey85"
      :foreground "LightSkyBlue4")
     (((class color) (background dark))
+     :box t
      :background "Grey13"
      :foreground "LightSkyBlue1"))
   "Face for local branch head labels shown in log buffer."
@@ -3306,6 +3312,5 @@ Prefix arg means justify as well."
   (magit-section-action (item info "resolv")
     ((diff)
      (magit-interactive-resolve (cadr info)))))
-
 
 (provide 'magit)
