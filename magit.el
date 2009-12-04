@@ -1031,7 +1031,8 @@ Many Magit faces inherit from this one by default."
 		"\n")
 	(cond (nowait
 	       (setq magit-process
-		     (apply 'start-file-process cmd buf cmd args))
+		     (let ((process-connection-type nil))
+		       (apply 'start-file-process cmd buf cmd args)))
 	       (set-process-sentinel magit-process 'magit-process-sentinel)
 	       (set-process-filter magit-process 'magit-process-filter)
 	       (when input
