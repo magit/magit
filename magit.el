@@ -1915,7 +1915,7 @@ string which will represent the log line.")
 				 (string= s "tag:"))
 			       (split-string (match-string 3) "[(), ]" t)))))
 	(delete-region (point-at-bol) (point-at-eol))
-	(insert (magit-present-log-line chart sha1 refs msg))
+	(insert (funcall magit-present-log-line-function chart sha1 refs msg))
 	(goto-char (point-at-bol))
 	(if sha1
 	  (magit-with-section sha1 'commit
