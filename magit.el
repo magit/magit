@@ -1074,10 +1074,21 @@ Many Magit faces inherit from this one by default."
     (magit-set-mode-line-process nil)
     (magit-refresh-buffer magit-process-client-buffer)))
 
+(defun magit-password (proc string)
+  "Checks if git/ssh asks for a password and ask the user for it."
+  (when (string-match "^Enter passphrase for key '\\\(.*\\\)': $" string)
+    (process-send-string proc
+                         (concat (read-passwd
+                                  (format "Password for '%s': " (match-string 1 string))
+                                  nil) "\n"))))
+
+
+
 (defun magit-process-filter (proc string)
   (save-current-buffer
     (set-buffer (process-buffer proc))
     (let ((inhibit-read-only t))
+      (magit-password proc string)
       (goto-char (process-mark proc))
       ;; Find last ^M in string.  If one was found, ignore everything
       ;; before it and delete the current line.
