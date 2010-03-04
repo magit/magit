@@ -1057,10 +1057,17 @@ Many Magit faces inherit from this one by default."
 	      (input
 	       (with-current-buffer input
 		 (setq default-directory dir)
+                 (setq magit-process
+                       (apply 'start-file-process cmd buf cmd args))
+                 (set-process-filter magit-process 'magit-process-filter)
+                 (process-send-region magit-process
+                                      (point-min) (point-max))
+		 (process-send-eof magit-process)
+                 (while (equal (process-status magit-process) 'run)
+                   (sit-for 0.1 t))
 		 (setq successp
-		       (equal (apply 'call-process-region
-				     (point-min) (point-max)
-				     cmd nil buf nil args) 0)))
+		       (equal (process-exit-status magit-process) 0))
+                 (setq magit-process nil))
 	       (magit-set-mode-line-process nil)
 	       (magit-need-refresh magit-process-client-buffer))
 	      (t
