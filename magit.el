@@ -297,6 +297,9 @@ Many Magit faces inherit from this one by default."
 (defun magit-get (&rest keys)
   (magit-git-string "config" (magit-concat-with-delim "." keys)))
 
+(defun magit-get-all (&rest keys)
+  (magit-git-lines "config" "--get-all" (magit-concat-with-delim "." keys)))
+
 (defun magit-set (val &rest keys)
   (if val
       (magit-git-string "config" (magit-concat-with-delim "." keys) val)
