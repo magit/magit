@@ -207,6 +207,9 @@ Many Magit faces inherit from this one by default."
   "Face for branch head labels shown in log buffer."
   :group 'magit)
 
+(defvar magit-completing-read 'completing-read
+  "Function to be called when requesting input from the user.")
+
 ;;; Macros
 
 (defmacro magit-with-refresh (&rest body)
@@ -366,7 +369,7 @@ Many Magit faces inherit from this one by default."
 (defun magit-read-top-dir (rawp)
   (if (and (not rawp) magit-repo-dirs)
       (let* ((repos (magit-list-repos magit-repo-dirs))
-	     (reply (completing-read "Git repository: "
+	     (reply (funcall magit-completing-read "Git repository: "
 				     (magit-list-repos magit-repo-dirs))))
 	(file-name-as-directory
 	 (cdr (assoc reply repos))))
@@ -453,7 +456,7 @@ Many Magit faces inherit from this one by default."
 		     (format "%s (default %s): " prompt def)
 		   (format "%s: " prompt)))
 	 (interesting-refs (magit-list-interesting-refs))
-	 (reply (completing-read prompt interesting-refs
+	 (reply (funcall magit-completing-read prompt interesting-refs
 				 nil nil nil nil def))
 	 (rev (or (cdr (assoc reply interesting-refs)) reply)))
     (if (string= rev "")
@@ -2385,7 +2388,7 @@ in log buffer."
     (magit-run* args nil nil nil t)))
 
 (defun magit-read-remote (prompt def)
-  (completing-read (if def
+  (funcall magit-completing-read (if def
 		       (format "%s (default %s): " prompt def)
 		     (format "%s: " prompt))
 		   (magit-git-lines "remote")
