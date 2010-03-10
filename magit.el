@@ -2730,7 +2730,10 @@ Prefix arg means justify as well."
 
 (defun magit-stash (description)
   (interactive "sStash description: ")
-  (magit-run-git "stash" "save" description))
+  (apply 'magit-run-git `("stash"
+			  "save"
+			  ,@(when current-prefix-arg '("--keep-index"))
+			  ,description)))
 
 (defun magit-stash-snapshot ()
   (interactive)
