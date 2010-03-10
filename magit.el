@@ -2250,7 +2250,6 @@ of `magit-get-svn-ref-info-cache'."
   (if use-cache
       magit-get-svn-ref-info-cache
     (let* ((fetch (magit-get "svn-remote" "svn" "fetch"))
-           (branches (magit-get "svn-remote" "svn" "fetch"))
            (url)
            (revision))
       (when fetch
