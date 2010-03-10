@@ -1630,7 +1630,8 @@ Please see the manual for a complete description of Magit.
 	 (let ((n-columns (1- (length (match-string 1))))
 	       (head (match-string 0)))
 	   (magit-with-section head 'hunk
-	     (magit-put-line-property 'face 'magit-diff-hunk-header)
+	     (add-text-properties (match-beginning 0) (match-end 0)
+				  '(face magit-diff-hunk-header))
 	     (forward-line)
 	     (while (not (or (eobp)
 			     (looking-at "^diff\\|^@@")))
