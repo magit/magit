@@ -1891,7 +1891,10 @@ in log buffer."
     (setq commit (magit-section-info commit)))
   (let ((dir default-directory)
 	(buf (get-buffer-create "*magit-commit*")))
-    (cond ((equal magit-currently-shown-commit commit)
+    (cond ((and (equal magit-currently-shown-commit commit)
+		;; if it's empty then the buffer was killed
+		(with-current-buffer buf
+		  (> (length (buffer-string)) 1)))
 	   (let ((win (get-buffer-window buf)))
 	     (cond ((not win)
 		    (display-buffer buf))
