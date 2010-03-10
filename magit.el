@@ -210,6 +210,10 @@ Many Magit faces inherit from this one by default."
 (defvar magit-completing-read 'completing-read
   "Function to be called when requesting input from the user.")
 
+(defvar magit-omit-untracked-dir-contents nil
+  "When non-nil magit will only list an untracked directory, not
+  its contents.")
+
 ;;; Macros
 
 (defmacro magit-with-refresh (&rest body)
@@ -1490,9 +1494,13 @@ Please see the manual for a complete description of Magit.
     (magit-wash-sequence #'magit-wash-untracked-file)))
 
 (defun magit-insert-untracked-files ()
-  (magit-git-section 'untracked "Untracked files:"
-		     'magit-wash-untracked-files
-		     "ls-files" "-t" "--others" "--exclude-standard"))
+  (apply 'magit-git-section
+         `(untracked
+           "Untracked files:"
+           magit-wash-untracked-files
+           "ls-files" "-t" "--others" "--exclude-standard"
+           ,@(when magit-omit-untracked-dir-contents
+               '("--directory")))))
 
 ;;; Diffs and Hunks
 
