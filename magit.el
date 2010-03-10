@@ -1955,38 +1955,46 @@ in log buffer."
 		     "log" "--pretty=format:* %H %s"
 		     (format "%s/%s..HEAD" remote branch)))
 
-(defun magit-insert-unpulled-svn-commits ()
+(defun magit-insert-unpulled-svn-commits (&optional use-cache)
   (magit-git-section 'svn-unpulled
 		     "Unpulled commits (SVN):" 'magit-wash-log
 		     "log" "--pretty=format:* %H %s"
-		     (format "HEAD..%s" (magit-get-svn-ref))))
+		     (format "HEAD..%s" (magit-get-svn-ref use-cache))))
 
-(defun magit-insert-unpushed-svn-commits ()
+(defun magit-insert-unpushed-svn-commits (&optional use-cache)
   (magit-git-section 'svn-unpushed
 		     "Unpushed commits (SVN):" 'magit-wash-log
 		     "log" "--pretty=format:* %H %s"
-		     (format "%s..HEAD" (magit-get-svn-ref))))
+		     (format "%s..HEAD" (magit-get-svn-ref use-cache))))
 
 ;;; Status
+
+(defun magit-remote-string (remote svn-info)
+  (if remote
+      (concat remote " " (magit-get "remote" remote "url"))
+    (when svn-info
+      (concat (cdr (assoc 'url svn-info))
+	      " @ "
+	      (cdr (assoc 'revision svn-info))))))
 
 (defun magit-refresh-status ()
   (magit-create-buffer-sections
     (magit-with-section 'status nil
       (let* ((branch (magit-get-current-branch))
 	     (remote (and branch (magit-get "branch" branch "remote")))
-             (svn-enabled (magit-svn-enabled))
+	     (svn-info (magit-get-svn-ref-info))
+	     (remote-string (magit-remote-string remote svn-info))
 	     (head (magit-git-string
 		    "log" "--max-count=1" "--abbrev-commit" "--pretty=oneline"))
 	     (no-commit (not head)))
-	(if remote
-	    (insert (format "Remote: %s %s\n"
-			    remote (magit-get "remote" remote "url"))))
+	(when remote-string
+	  (insert "Remote: " remote-string "\n"))
 	(insert (format "Local:  %s %s\n"
 			(propertize (or branch "(detached)")
 				    'face 'magit-branch)
 			(abbreviate-file-name default-directory)))
-        (insert (format "Head:   %s\n"
-                        (if no-commit "nothing commited (yet)" head)))
+	(insert (format "Head:   %s\n"
+			(if no-commit "nothing commited (yet)" head)))
 	(let ((merge-heads (magit-file-lines ".git/MERGE_HEAD")))
 	  (if merge-heads
 	      (insert (format "Merging: %s\n"
@@ -1997,7 +2005,7 @@ in log buffer."
 	  (if rebase
 	      (insert (apply 'format "Rebasing: %s (%s of %s)\n" rebase))))
 	(insert "\n")
-        (magit-git-exit-code "update-index" "--refresh")
+	(magit-git-exit-code "update-index" "--refresh")
 	(magit-insert-untracked-files)
 	(magit-insert-stashes)
 	(magit-insert-topics)
@@ -2005,8 +2013,8 @@ in log buffer."
 	(magit-insert-pending-commits)
 	(when remote
 	  (magit-insert-unpulled-commits remote branch))
-        (when svn-enabled
-          (magit-insert-unpulled-svn-commits))
+	(when svn-info
+	  (magit-insert-unpulled-svn-commits t))
 	(let ((staged (or no-commit (magit-anything-staged-p))))
 	  (magit-insert-unstaged-changes
 	   (if staged "Unstaged changes:" "Changes:"))
@@ -2014,8 +2022,8 @@ in log buffer."
 	      (magit-insert-staged-changes no-commit)))
 	(when remote
 	  (magit-insert-unpushed-commits remote branch))
-        (when svn-enabled
-          (magit-insert-unpushed-svn-commits))))))
+	(when svn-info
+	  (magit-insert-unpushed-svn-commits t))))))
 
 (defun magit-init (dir)
   "Initialize git repository in specified directory"
@@ -2219,15 +2227,50 @@ merge will be squashed."
   (magit-run-git-async "svn" "dcommit"))
 
 (defun magit-svn-enabled ()
-  (not (null (magit-get-svn-ref))))
+  (not (null (magit-get-svn-ref-info))))
 
-(defun magit-get-svn-ref ()
-  (cond ((magit-ref-exists-p "refs/remotes/git-svn")
-	 "refs/remotes/git-svn")
-	((magit-ref-exists-p "refs/remotes/trunk")
-	 "refs/remotes/trunk")
-	(t
-	 nil)))
+(defvar magit-get-svn-ref-info-cache nil
+  "As `magit-get-svn-ref-info' might be considered a quite
+  expensive operation a cache is taken so that `magit-status'
+  doesn't repeatedly call it.")
+
+(defun magit-get-svn-ref-info (&optional use-cache)
+  "Gather details about the current git-svn repository (nil if
+there isn't one). Keys of the alist are ref-path, trunk-ref-name
+and local-ref-name. If USE-CACHE is non-nil then return the value
+of `magit-get-svn-ref-info-cache'."
+  (if use-cache
+      magit-get-svn-ref-info-cache
+    (let* ((fetch (magit-get "svn-remote" "svn" "fetch"))
+           (branches (magit-get "svn-remote" "svn" "fetch"))
+           (url)
+           (revision))
+      (when fetch
+        (setq magit-get-svn-ref-info-cache
+              (list
+               (cons 'ref-path (file-name-directory
+                                (cadr (split-string fetch ":"))))
+               (cons 'trunk-ref-name (file-name-nondirectory
+                                      (cadr (split-string fetch ":"))))
+               ;; get the local ref from the log. This is actually
+               ;; the way that git-svn does it.
+               (cons 'local-ref-name
+                     (with-temp-buffer
+                       (insert (magit-git-string "log" "--first-parent"))
+                       (goto-char (point-min))
+                       (when (re-search-forward "git-svn-id: \\(.+/\\(.+?\\)\\)@\\([0-9]+\\)" nil t)
+                         (setq url (match-string 1)
+                               revision (match-string 3))
+                         (match-string 2))))
+               (cons 'revision revision)
+               (cons 'url url)))))))
+
+(defun magit-get-svn-ref (&optional use-cache)
+  "Get the best guess remote ref for the current git-svn based
+branch."
+  (let ((info (magit-get-svn-ref-info use-cache)))
+    (concat (cdr (assoc 'ref-path info))
+	    (cdr (assoc 'local-ref-name info)))))
 
 ;;; Resetting
 
