@@ -3129,7 +3129,11 @@ Prefix arg means justify as well."
   (let ((ignore-file (if local ".git/info/exclude" ".gitignore")))
     (if edit
 	(setq file (read-string "File to ignore: " file)))
-    (append-to-file (concat "/" file "\n") nil ignore-file)
+    (with-temp-buffer
+      (insert-file-contents ignore-file)
+      (goto-char (point-max))
+      (insert "/" file "\n")
+      (write-region nil nil ignore-file))
     (magit-need-refresh)))
 
 (defun magit-ignore-item ()
