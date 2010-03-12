@@ -1069,6 +1069,12 @@ Many Magit faces inherit from this one by default."
     (setq magit-process-client-buffer (current-buffer))
     (save-excursion
       (set-buffer buf)
+      (view-mode 1)
+      (set (make-local-variable 'view-no-disable-on-exit) t)
+      (setq view-exit-action
+	    (lambda (buffer)
+	      (with-current-buffer buffer
+		(bury-buffer))))
       (setq buffer-read-only t)
       (let ((inhibit-read-only t))
 	(setq default-directory dir)
