@@ -1896,7 +1896,7 @@ Please see the manual for a complete description of Magit.
    "^\\([_\\*|/ ]+\\)"           ; graph   (1)
    "\\(?:"
    "\\([0-9a-fA-F]\\{40\\}\\) "  ; sha1    (2)
-   "\\(?:\\((.+)\\) \\)?"        ; refs    (3)
+   "\\(?:\\((.+?)\\) \\)?"        ; refs    (3)
    "\\(.*\\)"                    ; msg     (4)
    "\\)?$")
   "Regexp used to extract elements of git log output with
