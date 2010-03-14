@@ -1,6 +1,6 @@
 AC_INIT(magit, 0.8)
 AC_CONFIG_SRCDIR([magit.el])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([1.10])
 
 AC_ARG_WITH([site-start],
 	AS_HELP_STRING([--with-site-start], [Provide the emacs site-start directory.  The default is $(sysconfdir)/emacs/site-start.el.]),
