@@ -1,5 +1,5 @@
 lispdir = $(datadir)/emacs/site-lisp
-sitestartdir = $(sysconfdir)/emacs/site-start.d
+sitestartdir = @SITESTART@
 
 lisp_DATA = magit.el magit.elc
 sitestart_DATA = 50magit.el
