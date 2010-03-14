@@ -175,6 +175,27 @@ Many Magit faces inherit from this one by default."
   "Face for lines in a diff that have been deleted."
   :group 'magit)
 
+(defface magit-log-graph
+  '((((class color) (background light))
+     :foreground "grey11")
+    (((class color) (background dark))
+     :foreground "grey30"))
+  "Face for the graph element of the log output."
+  :group 'magit)
+
+(defface magit-log-sha1
+  '((((class color) (background light))
+     :foreground "firebrick")
+    (((class color) (background dark))
+     :foreground "tomato"))
+  "Face for the sha1 element of the log output."
+  :group 'magit)
+
+(defface magit-log-message
+  '((t))
+  "Face for the message element of the log output."
+  :group 'magit)
+
 (defface magit-item-highlight
   '((((class color) (background light))
      :background "gray95")
@@ -199,12 +220,28 @@ Many Magit faces inherit from this one by default."
   "Face for git tag labels shown in log buffer."
   :group 'magit)
 
-(defface magit-log-head-label
+(defface magit-log-head-label-remote
   '((((class color) (background light))
-     :background "spring green")
+     :box t
+     :background "Grey85"
+     :foreground "OliveDrab4")
     (((class color) (background dark))
-     :background "DarkGreen"))
-  "Face for branch head labels shown in log buffer."
+     :box t
+     :background "Grey11"
+     :foreground "DarkSeaGreen2"))
+  "Face for remote branch head labels shown in log buffer."
+  :group 'magit)
+
+(defface magit-log-head-label-tags
+  '((((class color) (background light))
+     :box t
+     :background "Grey85"
+     :foreground "VioletRed1")
+    (((class color) (background dark))
+     :box t
+     :background "Grey13"
+     :foreground "khaki1"))
+  "Face for tag labels shown in log buffer."
   :group 'magit)
 
 (defvar magit-completing-read 'completing-read
@@ -213,6 +250,18 @@ Many Magit faces inherit from this one by default."
 (defvar magit-omit-untracked-dir-contents nil
   "When non-nil magit will only list an untracked directory, not
   its contents.")
+
+(defface magit-log-head-label-local
+  '((((class color) (background light))
+     :box t
+     :background "Grey85"
+     :foreground "LightSkyBlue4")
+    (((class color) (background dark))
+     :box t
+     :background "Grey13"
+     :foreground "LightSkyBlue1"))
+  "Face for local branch head labels shown in log buffer."
+  :group 'magit)
 
 ;;; Macros
 
@@ -1842,50 +1891,77 @@ Please see the manual for a complete description of Magit.
 
 ;;; Logs and Commits
 
-(defun magit-parse-log-ref (refname)
-  "Return shortened and propertized version of full REFNAME, like
-\"refs/remotes/origin/master\"."
-  (let ((face 'magit-log-head-label))
-    (cond ((string-match "^\\(tag: +\\)?refs/tags/\\(.+\\)" refname)
-	   (setq refname (match-string 2 refname)
-		 face 'magit-log-tag-label))
-	  ((string-match "^refs/remotes/\\(.+\\)" refname)
-	   (setq refname (match-string 1 refname)))
-	  ((string-match "[^/]+$" refname)
-	   (setq refname (match-string 0 refname))))
-    (propertize refname 'face face)))
+(defvar magit-log-oneline-re
+  (concat
+   "^\\([_\\*|/ ]+\\)"           ; graph   (1)
+   "\\(?:"
+   "\\([0-9a-fA-F]\\{40\\}\\) "  ; sha1    (2)
+   "\\(?:\\((.+?)\\) \\)?"       ; refs    (3)
+   "\\(.*\\)"                    ; msg     (4)
+   "\\)?$")
+  "Regexp used to extract elements of git log output with
+--pretty=oneline.")
 
-(defun magit-parse-log-refs (refstring)
-  "Parse REFSTRING annotation from `git log --decorate'
-output (for example: \"refs/remotes/origin/master,
-refs/heads/master\") and return prettified string for displaying
-in log buffer."
-  (mapconcat 'identity
-	     (mapcar 'magit-parse-log-ref
-		     (remove-if (lambda (refname)
-				  (string-match "/HEAD$" refname))
-				(reverse (split-string refstring ", *" t))))
-	     " - "))
+(defvar magit-present-log-line-function 'magit-present-log-line
+  "The function to use when generating a log line. It takes four
+args: CHART, SHA1, REFS and MESSAGE. The function must return a
+string which will represent the log line.")
+
+(defun magit-present-log-line (graph sha1 refs message)
+  "The default log line generator."
+  (let* ((ref-re "\\(?:tag: \\)?refs/\\(tags\\|remotes\\|heads\\)/\\(.+\\)")
+	 (string-refs
+	  (when refs
+	    (concat (mapconcat
+		     (lambda (r)
+		       (propertize
+			(if (string-match ref-re r)
+			    (match-string 2 r)
+			  r)
+			'face (cond
+			       ((string= (match-string 1 r) "remotes")
+				'magit-log-head-label-remote)
+			       ((string= (match-string 1 r) "tags")
+				'magit-log-head-label-tags)
+				((string= (match-string 1 r) "heads")
+				 'magit-log-head-label-local))))
+		       refs
+		       " ")
+		     " "))))
+	 (concat
+	  (if sha1
+	      (propertize (substring sha1 0 8) 'face 'magit-log-sha1)
+	    (insert-char ? 8))
+	  " "
+	  (propertize graph 'face 'magit-log-graph)
+	  string-refs
+	  (when message
+	    (propertize message 'face 'magit-log-message)))))
 
 (defun magit-wash-log-line ()
-  (if (and (search-forward-regexp "[0-9a-fA-F]\\{40\\}" (line-end-position) t)
-	   (goto-char (match-beginning 0))
-	   (not (looking-back "commit ")))
-      (let ((commit (match-string-no-properties 0)))
-	(delete-region (match-beginning 0) (match-end 0))
-	(fixup-whitespace)
-	(goto-char (line-beginning-position))
-	(when (search-forward-regexp "^[|*\\/ ]+\\((\\(tag:.+?\\|refs/.+?\\))\\)"
-				     (line-end-position) t)
-	  (let ((refstring (match-string-no-properties 2)))
-	    (delete-region (match-beginning 1) (match-end 1))
-	    (insert (magit-parse-log-refs refstring)))
-	  (goto-char (line-beginning-position)))
-	(magit-with-section commit 'commit
-	  (magit-set-section-info commit)
-	  (forward-line)))
-    (forward-line))
-  t)
+  (beginning-of-line)
+  (let ((line-re magit-log-oneline-re))
+    (cond
+     ((looking-at magit-log-oneline-re)
+      (let ((chart (match-string 1))
+            (sha1 (match-string 2))
+            (msg (match-string 4))
+            (refs (when (match-string 3)
+                    (remove-if (lambda (s)
+                                 (or (string= s "tag:")
+                                     (string= s "HEAD"))) ; as of 1.6.6
+                               (split-string (match-string 3) "[(), ]" t)))))
+        (delete-region (point-at-bol) (point-at-eol))
+        (insert (funcall magit-present-log-line-function chart sha1 refs msg))
+        (goto-char (point-at-bol))
+        (if sha1
+            (magit-with-section sha1 'commit
+              (magit-set-section-info sha1)
+              (forward-line))
+          (forward-line))))
+     (t
+      (forward-line)))
+    t))
 
 (defun magit-wash-log ()
   (let ((magit-old-top-section nil))
@@ -3361,6 +3437,5 @@ Prefix arg means justify as well."
   (magit-section-action (item info "resolv")
     ((diff)
      (magit-interactive-resolve (cadr info)))))
-
 
 (provide 'magit)
