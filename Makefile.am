@@ -7,7 +7,7 @@ sitestart_DATA = 50magit.el
 info_TEXINFOS = magit.texi
 
 CLEANFILES = magit.elc
-EXTRA_DIST = magit.el 50magit.el
+EXTRA_DIST = magit.el 50magit.el magit.spec
 
 %.elc: %.el
 	@if [ $(builddir) != $(srcdir) ]; then ln $(srcdir)/$*.el .; fi

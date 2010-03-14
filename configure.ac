@@ -9,6 +9,7 @@ AC_ARG_WITH([site-start],
 
 AC_SUBST([SITESTART])
 AC_CONFIG_FILES([Makefile 
-	         magit-pkg.el])
+	         magit-pkg.el
+		 magit.spec])
 
 AC_OUTPUT
