@@ -2916,7 +2916,9 @@ Prefix arg means justify as well."
     (setq stash (magit-section-info stash)))
   (let ((dir default-directory)
 	(buf (get-buffer-create "*magit-stash*")))
-    (cond ((equal magit-currently-shown-stash stash)
+    (cond ((and (equal magit-currently-shown-stash stash)
+                (with-current-buffer buf
+		  (> (length (buffer-string)) 1)))
 	   (let ((win (get-buffer-window buf)))
 	     (cond ((not win)
 		    (display-buffer buf))
