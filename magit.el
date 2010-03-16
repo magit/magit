@@ -3304,7 +3304,7 @@ Prefix arg means justify as well."
      (pop-to-buffer "*magit-commit*"))
     ((stash)
      (magit-show-stash info)
-     (pop-to-buffer "*magit-diff*"))
+     (pop-to-buffer "*magit-stash*"))
     ((topic)
      (magit-checkout info))))
 
