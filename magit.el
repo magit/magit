@@ -3196,7 +3196,8 @@ Prefix arg means justify as well."
 			 'magit-wash-log
 			 "log"
 			 (format "--max-count=%s" magit-log-cutoff-length)
-			 "--pretty=format:* %H %s"
+			 "--graph"
+			 "--pretty=oneline"
 			 (format "%s..%s" head ref)
 			 "--"))))
 		(magit-set-section-info ref section)))))))))
