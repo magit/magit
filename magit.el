@@ -401,13 +401,11 @@ Many Magit faces inherit from this one by default."
 
 (defun magit-get-top-dir (cwd)
   (let ((cwd (expand-file-name cwd)))
-    (and (file-directory-p cwd)
-	 (let* ((default-directory cwd)
-		(magit-dir
-		 (magit-git-string "rev-parse" "--git-dir")))
-	   (and magit-dir
-		(file-name-as-directory
-		 (or (file-name-directory magit-dir) cwd)))))))
+    (when (file-directory-p cwd)
+      (let* ((default-directory cwd)
+             (cdup (magit-git-string "rev-parse" "--show-cdup")))
+        (when cdup
+          (file-name-as-directory (expand-file-name cdup cwd)))))))
 
 (defun magit-get-ref (ref)
   (magit-git-string "symbolic-ref" "-q" ref))
@@ -801,6 +799,12 @@ Many Magit faces inherit from this one by default."
 		 (magit-show-commit (or prev section)))
 	     (goto-char (magit-section-beginning (or prev section))))))))
 
+(defun magit-goto-parent-section ()
+  (interactive)
+  (let ((parent (magit-section-parent (magit-current-section))))
+    (when parent
+      (goto-char (magit-section-beginning parent)))))
+
 (defun magit-goto-section (path)
   (let ((sec (magit-find-section path magit-top-section)))
     (if sec
@@ -876,6 +880,13 @@ Many Magit faces inherit from this one by default."
 (defun magit-expand-section ()
   (interactive)
   (magit-section-hideshow #'magit-section-expand))
+
+(defun magit-toggle-file-section ()
+  "Like `magit-toggle-section' but toggles at file granularity."
+  (interactive)
+  (when (eq 'hunk (first (magit-section-context-type (magit-current-section))))
+    (magit-goto-parent-section))
+  (magit-toggle-section))
 
 (defun magit-toggle-section ()
   (interactive)
@@ -1243,6 +1254,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "M-H") 'magit-show-only-files-all)
     (define-key map (kbd "M-s") 'magit-show-level-4)
     (define-key map (kbd "M-S") 'magit-show-level-4-all)
+    (define-key map (kbd "<M-left>") 'magit-goto-parent-section)
     (define-key map (kbd "g") 'magit-refresh)
     (define-key map (kbd "G") 'magit-refresh-all)
     (define-key map (kbd "s") 'magit-stage-item)
@@ -2412,10 +2424,16 @@ branch."
       (magit-run-git "reset" (if hard "--hard" "--soft")
 		     (magit-rev-to-git rev))))
 
+(defun magit-reset-head-hard (rev)
+  (interactive (list (magit-read-rev (format "Hard reset head to")
+				     (or (magit-default-rev)
+					 "HEAD"))))
+  (magit-reset-head rev t))
+
 (defun magit-reset-working-tree ()
   (interactive)
-  (if (yes-or-no-p "Discard all uncommitted changes? ")
-      (magit-run-git "reset" "--hard")))
+  (when (yes-or-no-p "Discard all uncommitted changes? ")
+    (magit-reset-head-hard "HEAD")))
 
 ;;; Rewriting
 
@@ -2592,7 +2610,7 @@ branch."
 
 ;;; Log edit mode
 
-(defvar magit-log-edit-map
+(defvar magit-log-edit-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-c") 'magit-log-edit-commit)
     (define-key map (kbd "C-c C-a") 'magit-log-edit-toggle-amending)
@@ -2618,8 +2636,7 @@ Prefix arg means justify as well."
 
 (define-derived-mode magit-log-edit-mode text-mode "Magit Log Edit"
   (set (make-local-variable 'fill-paragraph-function)
-       'magit-log-fill-paragraph)
-  (use-local-map magit-log-edit-map))
+       'magit-log-fill-paragraph))
 
 (defun magit-log-edit-cleanup ()
   (save-excursion
