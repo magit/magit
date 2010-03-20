@@ -1900,7 +1900,7 @@ Please see the manual for a complete description of Magit.
    "\\(.*\\)"                    ; msg     (4)
    "\\)?$")
   "Regexp used to extract elements of git log output with
---pretty=oneline.")
+--pretty=oneline with graph, or --pretty=format:* %H %s")
 
 (defvar magit-present-log-line-function 'magit-present-log-line
   "The function to use when generating a log line. It takes four
@@ -3101,7 +3101,7 @@ Prefix arg means justify as well."
 		       'magit-wash-log
 		       "log" "--walk-reflogs"
 		       (format "--max-count=%s" magit-log-cutoff-length)
-		       "--pretty=oneline"
+		       "--pretty=format:* %H %s"
 		       args)))
 
 (defun magit-reflog (head)
@@ -3196,7 +3196,7 @@ Prefix arg means justify as well."
 			 'magit-wash-log
 			 "log"
 			 (format "--max-count=%s" magit-log-cutoff-length)
-			 "--pretty=oneline"
+			 "--pretty=format:* %H %s"
 			 (format "%s..%s" head ref)
 			 "--"))))
 		(magit-set-section-info ref section)))))))))
