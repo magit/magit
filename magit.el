@@ -3545,14 +3545,95 @@ Prefix arg means justify as well."
       (if old-editor
 	  (setenv "GIT_EDITOR" old-editor)))))
 
+(defvar magit-show-branches-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "b") 'magit-branches-window-checkout)
+    (define-key map (kbd "k") 'magit-remove-branch)
+    (define-key map (kbd "m") 'magit-branches-window-manual-merge)
+    (define-key map (kbd "M") 'magit-branches-window-automatic-merge)
+    (define-key map (kbd "$") 'magit-display-process)
+    (define-key map (kbd "q") 'magit-quit-branches-window)
+    (define-key map (kbd "V") 'magit-show-branches)
+    map))
+
+(define-derived-mode magit-show-branches-mode text-mode "Magit Branches")
+
+(defun magit-quit-branches-window ()
+  "Bury the branches buffer and delete its window."
+  (interactive)
+  (quit-window)
+  (delete-window))
+
+(defun magit--branch-name-from-line (line)
+  "Extract the branch name from one line of 'git branch' output.
+Will remove the 'remotes/' prefix if it exists."
+  (save-match-data
+    (if (string-match "^[[:blank:]]*\\*?[[:blank:]]+\\(remotes/\\)?\\([^[:blank:]]+\\)[[:blank:]]" line)
+	(match-string 2 line))))
+
+(defun magit--branch-name-at-point ()
+  "Get the branch name in the line at point."
+  (let ((branch (magit--branch-name-from-line (thing-at-point 'line))))
+    (if (or (= (point) (point-max))
+	    (not branch))
+      (error "No branch found in current line"))
+    branch))
+
+(defun magit-branches-window-checkout ()
+  "Check out the branch in the line at point."
+  (interactive)
+  (magit-run-git "checkout" (magit--branch-name-at-point))
+  (save-excursion
+    (magit-show-branches)))
+
+(defun magit-remove-branch (&optional force)
+  "Remove the branch in the line at point.
+With prefix force the removal even it it hasn't been merged."
+  (interactive "P")
+  (let ((args (list "branch"
+		    (if force "-D" "-d")
+		    (if (magit--is-branch-at-point-remote) "-r")
+		    (magit--branch-name-at-point))))
+    (save-excursion
+      (apply 'magit-run-git (remq nil args))
+      (magit-show-branches))))
+
+(defun magit-branches-window-manual-merge ()
+  "Merge the branch at point manually."
+  (interactive)
+  (magit-manual-merge (magit--branch-name-at-point))
+  (magit-show-branches))
+
+(defun magit-branches-window-automatic-merge ()
+  "Merge the branch at point automatically."
+  (interactive)
+  (magit-automatic-merge (magit--branch-name-at-point))
+  (magit-show-branches))
+
+(defvar magit-branches-buffer-name "*magit-branches*")
+(defvar magit-number-local-branches nil
+  "Number of local branches for the branches window")
+
+(defun magit--is-branch-at-point-remote()
+  "Return t if the branch at point is a remote tracking branch"
+  (> (line-number-at-pos) (or magit-number-local-branches 0)))
+
 (defun magit-show-branches ()
   "Show all of the current branches in other-window."
   (interactive)
   (save-selected-window
-    (switch-to-buffer-other-window "*magit-branches*")
-    (erase-buffer)
-    (insert (magit-git-string "branch" "-va"))
-    (insert "\n")))
+    (unless (string= (buffer-name) magit-branches-buffer-name)
+	(switch-to-buffer-other-window magit-branches-buffer-name))
+    (let ((inhibit-read-only t))
+      (erase-buffer)
+      (insert (magit-git-string "branch" "-va"))
+      (insert "\n"))
+    (magit-show-branches-mode)
+    (set (make-local-variable 'magit-number-local-branches)
+	 (with-temp-buffer
+	   (insert (magit-git-string "branch"))
+	   (line-number-at-pos)))
+    (setq buffer-read-only t)))
 
 (defvar magit-ediff-file)
 (defvar magit-ediff-windows)
