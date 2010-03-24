@@ -335,7 +335,9 @@ representation of the relationships between commits.
 
 Giving a prefix argument to @kbd{l} will ask for the starting and end
 point of the history.  This can be used to show the commits that are
-in one branch, but not in another, for example.
+in one branch, but not in another, for example.  The start point can
+also be a range of revisions ``r1..r2''.  In that case ``r1'' is used
+as the start and ``r2'' as the end point of the history.
 
 Typing @kbd{l L} (or @kbd{l C-u L}) will show the log in a more verbose
 form.
