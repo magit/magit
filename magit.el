@@ -2186,6 +2186,13 @@ must return a string which will represent the log line.")
 		     "log" "--pretty=format:* %H %s"
 		     (format "%s..HEAD" (magit-get-svn-ref use-cache))))
 
+(defun magit-remote-branch-for (local-branch)
+  "Guess the remote branch name that LOCAL-BRANCH is tracking."
+  (let ((merge (magit-get "branch" local-branch "merge")))
+    (save-match-data
+      (if (and merge (string-match "^refs/heads/\\(.+\\)" merge))
+	  (match-string 1 merge)))))
+
 ;;; Status
 
 (defun magit-remote-string (remote svn-info)
@@ -2201,6 +2208,7 @@ must return a string which will represent the log line.")
     (magit-with-section 'status nil
       (let* ((branch (magit-get-current-branch))
 	     (remote (and branch (magit-get "branch" branch "remote")))
+	     (remote-branch (or (and branch (magit-remote-branch-for branch)) branch))
 	     (svn-info (magit-get-svn-ref-info))
 	     (remote-string (magit-remote-string remote svn-info))
 	     (head (magit-git-string
@@ -2231,7 +2239,7 @@ must return a string which will represent the log line.")
 	(magit-insert-pending-changes)
 	(magit-insert-pending-commits)
 	(when remote
-	  (magit-insert-unpulled-commits remote branch))
+	  (magit-insert-unpulled-commits remote remote-branch))
 	(when svn-info
 	  (magit-insert-unpulled-svn-commits t))
 	(let ((staged (or no-commit (magit-anything-staged-p))))
@@ -2240,7 +2248,7 @@ must return a string which will represent the log line.")
 	  (if staged
 	      (magit-insert-staged-changes no-commit)))
 	(when remote
-	  (magit-insert-unpushed-commits remote branch))
+	  (magit-insert-unpushed-commits remote remote-branch))
 	(when svn-info
 	  (magit-insert-unpushed-svn-commits t))))))
 
