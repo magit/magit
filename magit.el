@@ -3109,7 +3109,8 @@ Prefix arg means justify as well."
 	     ,style
 	     ,@(if magit-have-decorate (list "--decorate=full"))
 	     ,@(if magit-have-graph (list "--graph"))
-	     ,args "--"))))
+	     ,@args
+	     "--"))))
 
 (defun magit-log (&optional arg)
   (interactive "P")
@@ -3117,10 +3118,20 @@ Prefix arg means justify as well."
 		    (magit-read-rev-range "Log" "HEAD")
 		  "HEAD"))
 	 (topdir (magit-get-top-dir default-directory))
-	 (args (magit-rev-range-to-git range)))
+	 (args (list (magit-rev-range-to-git range))))
     (switch-to-buffer "*magit-log*")
     (magit-mode-init topdir 'log #'magit-refresh-log-buffer range
 		     "--pretty=oneline" args)))
+
+(defun magit-log-grep (str)
+  "Search for "
+  (interactive "sGrep in commit log: ")
+  (let ((topdir (magit-get-top-dir default-directory)))
+    (switch-to-buffer "*magit-log-grep*")
+    (magit-mode-init topdir 'log #'magit-refresh-log-buffer "HEAD"
+		     "--pretty=oneline"
+		     (list "-E"
+			   (format "--grep=%s" (shell-quote-argument str))))))
 
 (defun magit-log-long (&optional arg)
   (interactive "P")
@@ -3128,7 +3139,7 @@ Prefix arg means justify as well."
 		    (magit-read-rev-range "Long log" "HEAD")
 		  "HEAD"))
 	 (topdir (magit-get-top-dir default-directory))
-	 (args (magit-rev-range-to-git range)))
+	 (args (list (magit-rev-range-to-git range))))
     (switch-to-buffer "*magit-log*")
     (magit-mode-init topdir 'log #'magit-refresh-log-buffer range
 		     "--stat" args)))
