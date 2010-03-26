@@ -3105,6 +3105,16 @@ Prefix arg means justify as well."
     (magit-mode-init topdir 'log #'magit-refresh-log-buffer range
 		     "--pretty=oneline" args)))
 
+(defun magit-log-grep (str)
+  "Search for "
+  (interactive "sGrep in commit log: ")
+  (let ((topdir (magit-get-top-dir default-directory)))
+    (switch-to-buffer "*magit-log-grep*")
+    (magit-mode-init topdir 'log #'magit-refresh-log-buffer "HEAD"
+		     "--pretty=oneline"
+		     (list "-E"
+			   (format "--grep=%s" (shell-quote-argument str))))))
+
 (defun magit-log-long (&optional arg)
   (interactive "P")
   (let* ((range (if arg
