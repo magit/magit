@@ -3124,7 +3124,7 @@ Prefix arg means justify as well."
 		     "--pretty=oneline" args)))
 
 (defun magit-log-grep (str)
-  "Search for "
+  "Search for regexp specified by STR in the commit log."
   (interactive "sGrep in commit log: ")
   (let ((topdir (magit-get-top-dir default-directory)))
     (switch-to-buffer "*magit-log-grep*")
