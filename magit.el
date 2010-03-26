@@ -1293,6 +1293,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "e") 'magit-interactive-resolve-item)
     (define-key map (kbd "N r") 'magit-svn-rebase)
     (define-key map (kbd "N c") 'magit-svn-dcommit)
+    (define-key map (kbd "N f") 'magit-svn-find-rev)
     (define-key map (kbd "R") 'magit-rebase-step)
     (define-key map (kbd "r s") 'magit-rewrite-start)
     (define-key map (kbd "r t") 'magit-rewrite-stop)
@@ -2331,6 +2332,23 @@ merge will be squashed."
 	     (magit-run-git "rebase" "--continue"))))))))
 
 ;; git svn commands
+
+(defun magit-svn-find-rev (rev &optional branch)
+  (interactive
+   (list (read-input "SVN revision: ")
+         (if current-prefix-arg
+             (read-input "In branch: "))))
+  (let* ((sha (apply 'magit-git-string
+                     `("svn"
+                       "find-rev"
+                       ,(concat "r" rev)
+                       ,@(when branch (list branch))))))
+    (if sha
+        (magit-show-commit
+         (magit-with-section sha 'commit
+           (magit-set-section-info sha)
+           sha))
+      (error "Revision %s could not be mapped to a commit" rev))))
 
 (defun magit-svn-rebase ()
   (interactive)
