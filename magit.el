@@ -3361,11 +3361,12 @@ Prefix arg means justify as well."
 
 (defun magit-wazzup (&optional all)
   (interactive "P")
-  (let* ((topdir (magit-get-top-dir default-directory)))
+  (let ((topdir (magit-get-top-dir default-directory))
+	(current-branch (magit-get-current-branch)))
     (switch-to-buffer "*magit-wazzup*")
     (magit-mode-init topdir 'wazzup
 		     #'magit-refresh-wazzup-buffer
-		     (magit-get-current-branch) all)))
+		     current-branch all)))
 
 ;;; Miscellaneous
 
