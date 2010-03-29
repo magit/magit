@@ -821,7 +821,7 @@ CMD is an external command that will be run with ARGS as arguments"
 		(insert (propertize buffer-title 'face 'magit-section-title)
 			"\n"))
 	    (setq body-beg (point))
-	    (apply 'process-file cmd nil t nil (append magit-git-standard-options args))
+	    (apply 'process-file cmd nil t nil args)
 	    (if (not (eq (char-before) ?\n))
 		(insert "\n"))
 	    (if washer
