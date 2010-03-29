@@ -3320,45 +3320,46 @@ Prefix arg means justify as well."
       (magit-need-refresh))))
 
 (defun magit-refresh-wazzup-buffer (head all)
-  (unless head (setq head "HEAD"))
-  (magit-create-buffer-sections
-    (magit-with-section 'wazzupbuf nil
-      (insert (format "Wazzup, %s\n\n" head))
-      (let* ((excluded (magit-file-lines ".git/info/wazzup-exclude"))
-	     (all-branches (magit-list-interesting-refs))
-	     (branches (if all all-branches
+  (let ((branch-desc (or head "(detached) HEAD")))
+    (unless head (setq head "HEAD"))
+    (magit-create-buffer-sections
+      (magit-with-section 'wazzupbuf nil
+	(insert (format "Wazzup, %s\n\n" branch-desc))
+	(let* ((excluded (magit-file-lines ".git/info/wazzup-exclude"))
+	       (all-branches (magit-list-interesting-refs))
+	       (branches (if all all-branches
 			   (remove-if (lambda (b) (member (cdr b) excluded))
 				      all-branches)))
-	     (reported (make-hash-table :test #'equal)))
-	(dolist (branch branches)
-	  (let* ((name (car branch))
-		 (ref (cdr branch))
-		 (hash (magit-git-string "rev-parse" ref))
-		 (reported-branch (gethash hash reported)))
-	    (unless (or (and reported-branch
-			     (string= (file-name-nondirectory ref)
-				      reported-branch))
-			(not (magit-git-string "merge-base" head ref)))
-	      (puthash hash (file-name-nondirectory ref) reported)
-	      (let* ((n (length (magit-git-lines "log" "--pretty=oneline"
-						 (concat head ".." ref))))
-		     (section
-		      (let ((magit-section-hidden-default t))
-			(magit-git-section
-			 (cons ref 'wazzup)
-			 (format "%s unmerged commits in %s%s"
-				 n name
-				 (if (member ref excluded)
-				     " (normally ignored)"
+	       (reported (make-hash-table :test #'equal)))
+	  (dolist (branch branches)
+	    (let* ((name (car branch))
+		   (ref (cdr branch))
+		   (hash (magit-git-string "rev-parse" ref))
+		   (reported-branch (gethash hash reported)))
+	      (unless (or (and reported-branch
+			       (string= (file-name-nondirectory ref)
+					reported-branch))
+			  (not (magit-git-string "merge-base" head ref)))
+		(puthash hash (file-name-nondirectory ref) reported)
+		(let* ((n (length (magit-git-lines "log" "--pretty=oneline"
+						   (concat head ".." ref))))
+		       (section
+			(let ((magit-section-hidden-default t))
+			  (magit-git-section
+			   (cons ref 'wazzup)
+			   (format "%s unmerged commits in %s%s"
+				   n name
+				   (if (member ref excluded)
+				       " (normally ignored)"
 				     ""))
-			 'magit-wash-log
-			 "log"
-			 (format "--max-count=%s" magit-log-cutoff-length)
-			 "--graph"
-			 "--pretty=oneline"
-			 (format "%s..%s" head ref)
-			 "--"))))
-		(magit-set-section-info ref section)))))))))
+			   'magit-wash-log
+			   "log"
+			   (format "--max-count=%s" magit-log-cutoff-length)
+			   "--graph"
+			   "--pretty=oneline"
+			   (format "%s..%s" head ref)
+			   "--"))))
+		  (magit-set-section-info ref section))))))))))
 
 (defun magit-wazzup (&optional all)
   (interactive "P")
