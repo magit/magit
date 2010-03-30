@@ -3568,9 +3568,7 @@ Prefix arg means justify as well."
 (defun magit--branch-name-from-line (line)
   "Extract the branch name from one line of 'git branch' output.
 Will remove the 'remotes/' prefix if it exists."
-  (save-match-data
-    (if (string-match " \\([^ ]+\\)$" line)
-	(match-string 1 line))))
+  (get-text-property 0 'branch-name line))
 
 (defun magit--branch-name-at-point ()
   "Get the branch name in the line at point."
@@ -3648,7 +3646,7 @@ With prefix force the removal even it it hasn't been merged."
   (interactive)
   (save-selected-window
     (unless (string= (buffer-name) magit-branches-buffer-name)
-	(switch-to-buffer-other-window magit-branches-buffer-name))
+      (switch-to-buffer-other-window magit-branches-buffer-name))
     (let ((inhibit-read-only t)
           (branches (mapcar 'magit--branch-view-details
                             (magit-git-lines "branch" "-va"))))
@@ -3656,15 +3654,17 @@ With prefix force the removal even it it hasn't been merged."
       (insert
        (mapconcat
         (lambda (b)
-          (concat
-           (cdr (assoc 'current b))
-           (propertize (or (cdr (assoc 'sha1 b))
-                           "       ")
-                       'face 'magit-log-sha1)
-           " "
-           (cdr (assoc 'branch b))
-           (when (assoc 'other-ref b)
-             (concat " (" (cdr (assoc 'other-ref b)) ")"))))
+          (propertize
+           (concat
+            (cdr (assoc 'current b))
+            (propertize (or (cdr (assoc 'sha1 b))
+                            "       ")
+                        'face 'magit-log-sha1)
+            " "
+            (cdr (assoc 'branch b))
+            (when (assoc 'other-ref b)
+              (concat " (" (cdr (assoc 'other-ref b)) ")")))
+           'branch-name (cdr (assoc 'branch b))))
         branches
         "\n")))
 
