@@ -3627,7 +3627,7 @@ With prefix force the removal even it it hasn't been merged."
 
                  "\\(?:"
                  "\\([0-9a-fA-F]\\{7\\}\\) "  ; sha1
-                 "\\|\\(->\\)"                ; or the pointer to a ref
+                 "\\|\\(-> \\)"               ; or the pointer to a ref
                  "\\)"
 
                  "\\(.+\\)"                   ; message or ref
@@ -3662,7 +3662,9 @@ With prefix force the removal even it it hasn't been merged."
                            "       ")
                        'face 'magit-log-sha1)
            " "
-           (cdr (assoc 'branch b))))
+           (cdr (assoc 'branch b))
+           (when (assoc 'other-ref b)
+             (concat " (" (cdr (assoc 'other-ref b)) ")"))))
         branches
         "\n")))
 
