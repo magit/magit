@@ -3569,8 +3569,8 @@ Prefix arg means justify as well."
   "Extract the branch name from one line of 'git branch' output.
 Will remove the 'remotes/' prefix if it exists."
   (save-match-data
-    (if (string-match "^[[:blank:]]*\\*?[[:blank:]]+\\(remotes/\\)?\\([^[:blank:]]+\\)[[:blank:]]" line)
-	(match-string 2 line))))
+    (if (string-match " \\([^ ]+\\)$" line)
+	(match-string 1 line))))
 
 (defun magit--branch-name-at-point ()
   "Get the branch name in the line at point."
