@@ -3553,6 +3553,7 @@ Prefix arg means justify as well."
     (define-key map (kbd "M") 'magit-branches-window-automatic-merge)
     (define-key map (kbd "$") 'magit-display-process)
     (define-key map (kbd "q") 'magit-quit-branches-window)
+    (define-key map (kbd "g") 'magit-show-branches)
     (define-key map (kbd "V") 'magit-show-branches)
     map))
 
@@ -3618,16 +3619,53 @@ With prefix force the removal even it it hasn't been merged."
   "Return t if the branch at point is a remote tracking branch"
   (> (line-number-at-pos) (or magit-number-local-branches 0)))
 
+(defun magit--branch-view-details (branch-line)
+  "Extract details from branch -va output."
+  (string-match (concat
+                 "^\\(\\*? \\{1,2\\}\\)"      ; current branch marker (maybe)
+                 "\\(.+?\\) +"                ; branch name
+
+                 "\\(?:"
+                 "\\([0-9a-fA-F]\\{7\\}\\) "  ; sha1
+                 "\\|\\(->\\)"                ; or the pointer to a ref
+                 "\\)"
+
+                 "\\(.+\\)"                   ; message or ref
+                 )
+                branch-line)
+  (let ((res (list (cons 'current (match-string 1 branch-line))
+                   (cons 'branch  (match-string 2 branch-line)))))
+    (if (match-string 4 branch-line)
+        (cons (cons 'other-ref (match-string 5 branch-line)) res)
+      (append
+       (list
+        (cons 'sha1 (match-string 3 branch-line))
+        (cons 'msg (match-string 5 branch-line)))
+       res))))
+
 (defun magit-show-branches ()
   "Show all of the current branches in other-window."
   (interactive)
   (save-selected-window
     (unless (string= (buffer-name) magit-branches-buffer-name)
 	(switch-to-buffer-other-window magit-branches-buffer-name))
-    (let ((inhibit-read-only t))
+    (let ((inhibit-read-only t)
+          (branches (mapcar 'magit--branch-view-details
+                            (magit-git-lines "branch" "-va"))))
       (erase-buffer)
-      (insert (magit-git-string "branch" "-va"))
-      (insert "\n"))
+      (insert
+       (mapconcat
+        (lambda (b)
+          (concat
+           (cdr (assoc 'current b))
+           (propertize (or (cdr (assoc 'sha1 b))
+                           "       ")
+                       'face 'magit-log-sha1)
+           " "
+           (cdr (assoc 'branch b))))
+        branches
+        "\n")))
+
     (magit-show-branches-mode)
     (set (make-local-variable 'magit-number-local-branches)
 	 (with-temp-buffer
