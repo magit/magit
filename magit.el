@@ -3559,7 +3559,8 @@ Prefix arg means justify as well."
     (define-key map (kbd "p") 'previous-line)
     map))
 
-(define-derived-mode magit-show-branches-mode text-mode "Magit Branches")
+(define-derived-mode magit-show-branches-mode fundamental-mode
+  "Magit Branches")
 
 (defun magit-quit-branches-window ()
   "Bury the branches buffer and delete its window."
