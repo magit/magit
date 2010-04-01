@@ -3620,7 +3620,7 @@ With prefix force the removal even it it hasn't been merged."
   "Extract details from branch -va output."
   (string-match (concat
                  "^\\(\\*? \\{1,2\\}\\)"      ; current branch marker (maybe)
-                 "\\(remotes/\\)?\\(.+?\\) +" ; branch name
+                 "\\(remotes/\\)?\\(.+?\\) +" ; is it remote, branch name
 
                  "\\(?:"
                  "\\([0-9a-fA-F]\\{7\\}\\) "  ; sha1
@@ -3647,7 +3647,6 @@ With prefix force the removal even it it hasn't been merged."
   (unless (string= (buffer-name) magit-branches-buffer-name)
     (switch-to-buffer-other-window magit-branches-buffer-name))
   (let ((inhibit-read-only t)
-        (old-point (point))
         (branches (mapcar 'magit--branch-view-details
                           (magit-git-lines "branch" "-va"))))
     (erase-buffer)
@@ -3668,8 +3667,7 @@ With prefix force the removal even it it hasn't been merged."
          'branch-name (cdr (assoc 'branch b))))
       branches
       "\n"))
-    (magit-show-branches-mode)
-    (goto-char old-point))
+    (magit-show-branches-mode))
   (setq buffer-read-only t))
 
 (defvar magit-ediff-file)
