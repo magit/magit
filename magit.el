@@ -3568,8 +3568,7 @@ Prefix arg means justify as well."
   (delete-window))
 
 (defun magit--branch-name-from-line (line)
-  "Extract the branch name from one line of 'git branch' output.
-Will remove the 'remotes/' prefix if it exists."
+  "Extract the branch name from one line of 'git branch' output."
   (get-text-property 0 'branch-name line))
 
 (defun magit--branch-name-at-point ()
@@ -3593,7 +3592,7 @@ With prefix force the removal even it it hasn't been merged."
   (interactive "P")
   (let ((args (list "branch"
 		    (if force "-D" "-d")
-		    (if (magit--is-branch-at-point-remote) "-r")
+		    (when (magit--is-branch-at-point-remote) "-r")
 		    (magit--branch-name-at-point))))
     (save-excursion
       (apply 'magit-run-git (remq nil args))
@@ -3612,18 +3611,16 @@ With prefix force the removal even it it hasn't been merged."
   (magit-show-branches))
 
 (defvar magit-branches-buffer-name "*magit-branches*")
-(defvar magit-number-local-branches nil
-  "Number of local branches for the branches window")
 
 (defun magit--is-branch-at-point-remote()
   "Return t if the branch at point is a remote tracking branch"
-  (> (line-number-at-pos) (or magit-number-local-branches 0)))
+  (get-text-property (point) 'remote))
 
 (defun magit--branch-view-details (branch-line)
   "Extract details from branch -va output."
   (string-match (concat
                  "^\\(\\*? \\{1,2\\}\\)"      ; current branch marker (maybe)
-                 "\\(?:remotes/\\)?\\(.+?\\) +"                ; branch name
+                 "\\(remotes/\\)?\\(.+?\\) +" ; branch name
 
                  "\\(?:"
                  "\\([0-9a-fA-F]\\{7\\}\\) "  ; sha1
@@ -3634,48 +3631,46 @@ With prefix force the removal even it it hasn't been merged."
                  )
                 branch-line)
   (let ((res (list (cons 'current (match-string 1 branch-line))
-                   (cons 'branch  (match-string 2 branch-line)))))
-    (if (match-string 4 branch-line)
-        (cons (cons 'other-ref (match-string 5 branch-line)) res)
+                   (cons 'remote  (not (not (match-string 2 branch-line))))
+                   (cons 'branch  (match-string 3 branch-line)))))
+    (if (match-string 5 branch-line)
+        (cons (cons 'other-ref (match-string 6 branch-line)) res)
       (append
        (list
-        (cons 'sha1 (match-string 3 branch-line))
-        (cons 'msg (match-string 5 branch-line)))
+        (cons 'sha1 (match-string 4 branch-line))
+        (cons 'msg (match-string 6 branch-line)))
        res))))
 
 (defun magit-show-branches ()
   "Show all of the current branches in other-window."
   (interactive)
-  (save-selected-window
-    (unless (string= (buffer-name) magit-branches-buffer-name)
-      (switch-to-buffer-other-window magit-branches-buffer-name))
-    (let ((inhibit-read-only t)
-          (branches (mapcar 'magit--branch-view-details
-                            (magit-git-lines "branch" "-va"))))
-      (erase-buffer)
-      (insert
-       (mapconcat
-        (lambda (b)
-          (propertize
-           (concat
-            (cdr (assoc 'current b))
-            (propertize (or (cdr (assoc 'sha1 b))
-                            "       ")
-                        'face 'magit-log-sha1)
-            " "
-            (cdr (assoc 'branch b))
-            (when (assoc 'other-ref b)
-              (concat " (" (cdr (assoc 'other-ref b)) ")")))
-           'branch-name (cdr (assoc 'branch b))))
-        branches
-        "\n")))
-
+  (unless (string= (buffer-name) magit-branches-buffer-name)
+    (switch-to-buffer-other-window magit-branches-buffer-name))
+  (let ((inhibit-read-only t)
+        (old-point (point))
+        (branches (mapcar 'magit--branch-view-details
+                          (magit-git-lines "branch" "-va"))))
+    (erase-buffer)
+    (insert
+     (mapconcat
+      (lambda (b)
+        (propertize
+         (concat
+          (cdr (assoc 'current b))
+          (propertize (or (cdr (assoc 'sha1 b))
+                          "       ")
+                      'face 'magit-log-sha1)
+          " "
+          (cdr (assoc 'branch b))
+          (when (assoc 'other-ref b)
+            (concat " (" (cdr (assoc 'other-ref b)) ")")))
+         'remote (cdr (assoc 'remote b))
+         'branch-name (cdr (assoc 'branch b))))
+      branches
+      "\n"))
     (magit-show-branches-mode)
-    (set (make-local-variable 'magit-number-local-branches)
-	 (with-temp-buffer
-	   (insert (magit-git-string "branch"))
-	   (line-number-at-pos)))
-    (setq buffer-read-only t)))
+    (goto-char old-point))
+  (setq buffer-read-only t))
 
 (defvar magit-ediff-file)
 (defvar magit-ediff-windows)
