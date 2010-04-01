@@ -3623,7 +3623,7 @@ With prefix force the removal even it it hasn't been merged."
   "Extract details from branch -va output."
   (string-match (concat
                  "^\\(\\*? \\{1,2\\}\\)"      ; current branch marker (maybe)
-                 "\\(.+?\\) +"                ; branch name
+                 "\\(?:remotes/\\)?\\(.+?\\) +"                ; branch name
 
                  "\\(?:"
                  "\\([0-9a-fA-F]\\{7\\}\\) "  ; sha1
