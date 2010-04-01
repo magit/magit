@@ -3532,7 +3532,8 @@ Prefix arg means justify as well."
 (defun magit-interactive-rebase ()
   "Start a git rebase -i session, old school-style."
   (interactive)
-  (server-start)
+  (unless (server-running-p)
+    (server-start))
   (let* ((section (get-text-property (point) 'magit-section))
 	 (commit (and (member 'commit (magit-section-context-type section))
 		      (magit-section-info section)))
