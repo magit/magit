@@ -3574,7 +3574,10 @@ Will remove the 'remotes/' prefix if it exists."
 (defun magit--branch-name-at-point ()
   "Get the branch name in the line at point."
   (let ((branch (magit--branch-name-from-line (thing-at-point 'line))))
-    (or branch (error "No branch at point"))))
+    (if (or (= (point) (point-max))
+	    (not branch))
+      (error "No branch found in current line"))
+    branch))
 
 (defun magit-branches-window-checkout ()
   "Check out the branch in the line at point."
