@@ -1369,9 +1369,6 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "?") 'magit-describe-item)
     (define-key map (kbd ".") 'magit-mark-item)
     (define-key map (kbd "=") 'magit-diff-with-mark)
-    (define-key map (kbd "-") 'magit-diff-smaller-hunks)
-    (define-key map (kbd "+") 'magit-diff-larger-hunks)
-    (define-key map (kbd "0") 'magit-diff-default-hunks)
     (define-key map (kbd "l") 'magit-log)
     (define-key map (kbd "L") 'magit-log-long)
     (define-key map (kbd "h") 'magit-reflog-head)
@@ -1426,10 +1423,16 @@ FUNC should leave point at the end of the modified region"
 
 (defvar magit-status-mode-map
   (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "-") 'magit-diff-smaller-hunks)
+    (define-key map (kbd "+") 'magit-diff-larger-hunks)
+    (define-key map (kbd "0") 'magit-diff-default-hunks)
     map))
 
 (defvar magit-stash-mode-map
   (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "-") 'magit-diff-smaller-hunks)
+    (define-key map (kbd "+") 'magit-diff-larger-hunks)
+    (define-key map (kbd "0") 'magit-diff-default-hunks)
     map))
 
 (defvar magit-log-mode-map
@@ -1442,6 +1445,9 @@ FUNC should leave point at the end of the modified region"
 
 (defvar magit-diff-mode-map
   (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "-") 'magit-diff-smaller-hunks)
+    (define-key map (kbd "+") 'magit-diff-larger-hunks)
+    (define-key map (kbd "0") 'magit-diff-default-hunks)
     map))
 
 (defvar magit-wazzup-mode-map
