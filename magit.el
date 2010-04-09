@@ -1361,14 +1361,10 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "g") 'magit-refresh)
     (define-key map (kbd "G") 'magit-refresh-all)
     (define-key map (kbd "?") 'magit-describe-item)
-    (define-key map (kbd ".") 'magit-mark-item)
-    (define-key map (kbd "=") 'magit-diff-with-mark)
     (define-key map (kbd "l") 'magit-log)
     (define-key map (kbd "L") 'magit-log-long)
     (define-key map (kbd "h") 'magit-reflog-head)
     (define-key map (kbd "H") 'magit-reflog)
-    (define-key map (kbd "d") 'magit-diff-working-tree)
-    (define-key map (kbd "D") 'magit-diff)
     (define-key map (kbd "a") 'magit-apply-item)
     (define-key map (kbd "A") 'magit-cherry-pick-item)
     (define-key map (kbd "v") 'magit-revert-item)
@@ -1426,6 +1422,10 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "U") 'magit-unstage-all)
     (define-key map (kbd "i") 'magit-ignore-item)
     (define-key map (kbd "I") 'magit-ignore-item-locally)
+    (define-key map (kbd ".") 'magit-mark-item)
+    (define-key map (kbd "=") 'magit-diff-with-mark)
+    (define-key map (kbd "d") 'magit-diff-working-tree)
+    (define-key map (kbd "D") 'magit-diff)
     map))
 
 (defvar magit-stash-mode-map
@@ -1437,10 +1437,18 @@ FUNC should leave point at the end of the modified region"
 
 (defvar magit-log-mode-map
   (let ((map (make-sparse-keymap)))
+    (define-key map (kbd ".") 'magit-mark-item)
+    (define-key map (kbd "=") 'magit-diff-with-mark)
+    (define-key map (kbd "d") 'magit-diff-working-tree)
+    (define-key map (kbd "D") 'magit-diff)
     map))
 
 (defvar magit-reflog-mode-map
   (let ((map (make-sparse-keymap)))
+    (define-key map (kbd ".") 'magit-mark-item)
+    (define-key map (kbd "=") 'magit-diff-with-mark)
+    (define-key map (kbd "d") 'magit-diff-working-tree)
+    (define-key map (kbd "D") 'magit-diff)
     map))
 
 (defvar magit-diff-mode-map
@@ -1452,6 +1460,10 @@ FUNC should leave point at the end of the modified region"
 
 (defvar magit-wazzup-mode-map
   (let ((map (make-sparse-keymap)))
+    (define-key map (kbd ".") 'magit-mark-item)
+    (define-key map (kbd "=") 'magit-diff-with-mark)
+    (define-key map (kbd "d") 'magit-diff-working-tree)
+    (define-key map (kbd "D") 'magit-diff)
     map))
 
 (easy-menu-define magit-mode-menu magit-mode-map
