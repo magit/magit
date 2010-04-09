@@ -1373,10 +1373,6 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "SPC") 'magit-show-item-or-scroll-up)
     (define-key map (kbd "DEL") 'magit-show-item-or-scroll-down)
     (define-key map (kbd "C-w") 'magit-copy-item-as-kill)
-    (define-key map (kbd "b") 'magit-checkout)
-    (define-key map (kbd "B") 'magit-create-branch)
-    (define-key map (kbd "m") 'magit-manual-merge)
-    (define-key map (kbd "M") 'magit-automatic-merge)
     (define-key map (kbd "e") 'magit-interactive-resolve-item)
     (define-key map (kbd "N r") 'magit-svn-rebase)
     (define-key map (kbd "N c") 'magit-svn-dcommit)
@@ -1426,6 +1422,10 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "a") 'magit-apply-item)
     (define-key map (kbd "A") 'magit-cherry-pick-item)
     (define-key map (kbd "v") 'magit-revert-item)
+    (define-key map (kbd "b") 'magit-checkout)
+    (define-key map (kbd "B") 'magit-create-branch)
+    (define-key map (kbd "m") 'magit-manual-merge)
+    (define-key map (kbd "M") 'magit-automatic-merge)
     map))
 
 (defvar magit-stash-mode-map
@@ -1447,6 +1447,10 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "a") 'magit-apply-item)
     (define-key map (kbd "A") 'magit-cherry-pick-item)
     (define-key map (kbd "v") 'magit-revert-item)
+    (define-key map (kbd "b") 'magit-checkout)
+    (define-key map (kbd "B") 'magit-create-branch)
+    (define-key map (kbd "m") 'magit-manual-merge)
+    (define-key map (kbd "M") 'magit-automatic-merge)
     map))
 
 (defvar magit-reflog-mode-map
@@ -1479,6 +1483,10 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "a") 'magit-apply-item)
     (define-key map (kbd "A") 'magit-cherry-pick-item)
     (define-key map (kbd "v") 'magit-revert-item)
+    (define-key map (kbd "b") 'magit-checkout)
+    (define-key map (kbd "B") 'magit-create-branch)
+    (define-key map (kbd "m") 'magit-manual-merge)
+    (define-key map (kbd "M") 'magit-automatic-merge)
     map))
 
 (easy-menu-define magit-mode-menu magit-mode-map
