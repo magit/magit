@@ -1365,9 +1365,6 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "L") 'magit-log-long)
     (define-key map (kbd "h") 'magit-reflog-head)
     (define-key map (kbd "H") 'magit-reflog)
-    (define-key map (kbd "a") 'magit-apply-item)
-    (define-key map (kbd "A") 'magit-cherry-pick-item)
-    (define-key map (kbd "v") 'magit-revert-item)
     (define-key map (kbd "x") 'magit-reset-head)
     (define-key map (kbd "X") 'magit-reset-working-tree)
     (define-key map (kbd "k") 'magit-discard-item)
@@ -1426,6 +1423,9 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "=") 'magit-diff-with-mark)
     (define-key map (kbd "d") 'magit-diff-working-tree)
     (define-key map (kbd "D") 'magit-diff)
+    (define-key map (kbd "a") 'magit-apply-item)
+    (define-key map (kbd "A") 'magit-cherry-pick-item)
+    (define-key map (kbd "v") 'magit-revert-item)
     map))
 
 (defvar magit-stash-mode-map
@@ -1433,6 +1433,9 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "-") 'magit-diff-smaller-hunks)
     (define-key map (kbd "+") 'magit-diff-larger-hunks)
     (define-key map (kbd "0") 'magit-diff-default-hunks)
+    (define-key map (kbd "a") 'magit-apply-item)
+    (define-key map (kbd "A") 'magit-cherry-pick-item)
+    (define-key map (kbd "v") 'magit-revert-item)
     map))
 
 (defvar magit-log-mode-map
@@ -1441,6 +1444,9 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "=") 'magit-diff-with-mark)
     (define-key map (kbd "d") 'magit-diff-working-tree)
     (define-key map (kbd "D") 'magit-diff)
+    (define-key map (kbd "a") 'magit-apply-item)
+    (define-key map (kbd "A") 'magit-cherry-pick-item)
+    (define-key map (kbd "v") 'magit-revert-item)
     map))
 
 (defvar magit-reflog-mode-map
@@ -1449,6 +1455,9 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "=") 'magit-diff-with-mark)
     (define-key map (kbd "d") 'magit-diff-working-tree)
     (define-key map (kbd "D") 'magit-diff)
+    (define-key map (kbd "a") 'magit-apply-item)
+    (define-key map (kbd "A") 'magit-cherry-pick-item)
+    (define-key map (kbd "v") 'magit-revert-item)
     map))
 
 (defvar magit-diff-mode-map
@@ -1456,6 +1465,9 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "-") 'magit-diff-smaller-hunks)
     (define-key map (kbd "+") 'magit-diff-larger-hunks)
     (define-key map (kbd "0") 'magit-diff-default-hunks)
+    (define-key map (kbd "a") 'magit-apply-item)
+    (define-key map (kbd "A") 'magit-cherry-pick-item)
+    (define-key map (kbd "v") 'magit-revert-item)
     map))
 
 (defvar magit-wazzup-mode-map
@@ -1464,6 +1476,9 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "=") 'magit-diff-with-mark)
     (define-key map (kbd "d") 'magit-diff-working-tree)
     (define-key map (kbd "D") 'magit-diff)
+    (define-key map (kbd "a") 'magit-apply-item)
+    (define-key map (kbd "A") 'magit-cherry-pick-item)
+    (define-key map (kbd "v") 'magit-revert-item)
     map))
 
 (easy-menu-define magit-mode-menu magit-mode-map
