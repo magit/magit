@@ -591,7 +591,13 @@ Many Magit faces inherit from this one by default."
       (format "%s at %s" things (magit-rev-describe (car range))))))
 
 (defun magit-default-rev ()
-  (magit-name-rev (magit-commit-at-point t)))
+  (or (magit-name-rev (magit-commit-at-point t))
+      (let ((branch (magit-guess-branch)))
+	(if branch
+	    (if (string-match "^refs/\\(.*\\)" branch)
+		(match-string 1 branch)
+		branch)))))
+
 
 ;;; Sections
 
