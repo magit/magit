@@ -2608,7 +2608,7 @@ With a prefix-arg, the merge will be squashed.
   (interactive)
   (let ((info (magit-rebase-info)))
     (if (not info)
-	(let ((rev (magit-read-rev "Rebase to")))
+	(let ((rev (magit-read-rev "Rebase to" (magit-guess-branch))))
 	  (if rev
 	      (magit-run-git "rebase" (magit-rev-to-git rev))))
       (let ((cursor-in-echo-area t)
@@ -3537,7 +3537,7 @@ With a non numeric prefix ARG, show all entries"
   :keymap magit-reflog-mode-map)
 
 (defun magit-reflog (head)
-  (interactive (list (magit-read-rev "Reflog of" "HEAD")))
+  (interactive (list (magit-read-rev "Reflog of" (or (magit-guess-branch) "HEAD"))))
   (if head
       (let* ((topdir (magit-get-top-dir default-directory))
 	     (args (magit-rev-to-git head)))
@@ -3579,7 +3579,7 @@ With a non numeric prefix ARG, show all entries"
 	  (magit-diff-mode t)))))
 
 (defun magit-diff-working-tree (rev)
-  (interactive (list (magit-read-rev "Diff with (default HEAD)")))
+  (interactive (list (magit-read-rev "Diff with" (magit-default-rev))))
   (magit-diff (or rev "HEAD")))
 
 (defun magit-diff-with-mark ()
