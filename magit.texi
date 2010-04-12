@@ -330,6 +330,12 @@ in one branch, but not in another, for example.
 Typing @kbd{L} (or @kbd{C-u L}) will show the log in a more verbose
 form.
 
+Magit will show only @code{magit-log-cutoff-length} entries. @kbd{l}
+will show twice as much entries. @kbd{C-u l} will show all entries,
+and given a numeric prefix argument, @kbd{l} will add this number of
+entries. You can also show more entry by typing @kbd{RET} on the text
+appended at the end of the buffer.
+
 You can move point to a commit and then cause various things to happen
 with it.  (The following commands work in any list of commit, such as
 the one shown in the @emph{Unpushed commits} section.)

@@ -116,6 +116,11 @@ Setting this to nil will make it do nothing, setting it to t will arrange things
   :group 'magit
   :type 'integer)
 
+(defcustom magit-log-infinite-length 99999
+  "Number of log used to show as maximum for magit-log-cutoff-length"
+  :group 'magit
+  :type 'integer)
+
 (defcustom magit-process-popup-time -1
   "Popup the process buffer if a command takes longer than this many seconds."
   :group 'magit
@@ -1452,6 +1457,7 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "m") 'magit-manual-merge)
     (define-key map (kbd "M") 'magit-automatic-merge)
     (define-key map (kbd "x") 'magit-reset-head)
+    (define-key map (kbd "l") 'magit-log-show-more-entries)
     map))
 
 (defvar magit-reflog-mode-map
@@ -2133,6 +2139,23 @@ must return a string which will represent the log line.")
 	  (when message
 	    (propertize message 'face 'magit-log-message)))))
 
+(defvar magit-log-count ()
+  "internal var used to count the number of log actualy added in a buffer")
+
+(defmacro magit-create-log-buffer-sections (&rest body)
+  "Empty current buffer of text and magit's section, and then evaluate body.
+
+if the number of logs inserted in the buffer is magit-log-cutoff-length
+insert a line to tell how to insert more of them"
+  (declare (indent 0))
+  `(let ((magit-log-count 0) (inhibit-read-only t))
+     (magit-create-buffer-sections
+       ,@body
+       (if (= magit-log-count magit-log-cutoff-length)
+	   (magit-with-section "longer"  'longer
+	     (insert "type \"l\" to show more logs\n"))))))
+
+
 (defun magit-wash-log-line ()
   (beginning-of-line)
   (let ((line-re magit-log-oneline-re))
@@ -2151,6 +2174,7 @@ must return a string which will represent the log line.")
         (goto-char (point-at-bol))
         (if sha1
             (magit-with-section sha1 'commit
+              (when magit-log-count (setq magit-log-count (1+ magit-log-count)))
               (magit-set-section-info sha1)
               (forward-line))
           (forward-line))))
@@ -3306,10 +3330,27 @@ Prefix arg means justify as well."
       (let ((res (magit-git-exit-code "log" "--decorate=full" "--max-count=0")))
 	(setq magit-have-decorate (eq res 0)))))
 
+(defun magit-log-show-more-entries (&optional arg)
+  "Grow the number of log entries shown.
+
+With no prefix optional ARG, show twice as much log entries.
+With a numerical prefix ARG, add this number to the number of shown log entries.
+With a non numeric prefix ARG, show all entries"
+  (interactive "P")
+  (make-local-variable 'magit-log-cutoff-length)
+  (cond
+    ((numberp arg)
+     (setq magit-log-cutoff-length (+ magit-log-cutoff-length added)))
+    (arg
+     (setq magit-log-cutoff-length magit-log-infinite-length))
+    (t (setq magit-log-cutoff-length (* magit-log-cutoff-length 2))))
+  (magit-refresh))
+
+
 (defun magit-refresh-log-buffer (range style args)
   (magit-configure-have-graph)
   (magit-configure-have-decorate)
-  (magit-create-buffer-sections
+  (magit-create-log-buffer-sections
     (apply #'magit-git-section nil
 	   (magit-rev-range-describe range "Commits")
 	   'magit-wash-log
@@ -3366,7 +3407,7 @@ Prefix arg means justify as well."
 ;;; Reflog
 
 (defun magit-refresh-reflog-buffer (head args)
-  (magit-create-buffer-sections
+  (magit-create-log-buffer-sections
     (magit-git-section 'reflog
 		       (format "Local history of head %s" head)
 		       'magit-wash-log
@@ -3608,7 +3649,9 @@ Prefix arg means justify as well."
      (magit-show-stash info)
      (pop-to-buffer "*magit-stash*"))
     ((topic)
-     (magit-checkout info))))
+     (magit-checkout info))
+    ((longer)
+     (magit-log-show-more-entries ()))))
 
 (defun magit-show-item-or-scroll-up ()
   (interactive)
