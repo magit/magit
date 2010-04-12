@@ -1360,40 +1360,12 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "<M-left>") 'magit-goto-parent-section)
     (define-key map (kbd "g") 'magit-refresh)
     (define-key map (kbd "G") 'magit-refresh-all)
-    (define-key map (kbd "s") 'magit-stage-item)
-    (define-key map (kbd "S") 'magit-stage-all)
-    (define-key map (kbd "u") 'magit-unstage-item)
-    (define-key map (kbd "U") 'magit-unstage-all)
-    (define-key map (kbd "i") 'magit-ignore-item)
-    (define-key map (kbd "I") 'magit-ignore-item-locally)
     (define-key map (kbd "?") 'magit-describe-item)
-    (define-key map (kbd ".") 'magit-mark-item)
-    (define-key map (kbd "=") 'magit-diff-with-mark)
-    (define-key map (kbd "-") 'magit-diff-smaller-hunks)
-    (define-key map (kbd "+") 'magit-diff-larger-hunks)
-    (define-key map (kbd "0") 'magit-diff-default-hunks)
-    (define-key map (kbd "l") 'magit-log)
-    (define-key map (kbd "L") 'magit-log-long)
-    (define-key map (kbd "h") 'magit-reflog-head)
-    (define-key map (kbd "H") 'magit-reflog)
-    (define-key map (kbd "d") 'magit-diff-working-tree)
-    (define-key map (kbd "D") 'magit-diff)
-    (define-key map (kbd "a") 'magit-apply-item)
-    (define-key map (kbd "A") 'magit-cherry-pick-item)
-    (define-key map (kbd "v") 'magit-revert-item)
-    (define-key map (kbd "x") 'magit-reset-head)
-    (define-key map (kbd "X") 'magit-reset-working-tree)
-    (define-key map (kbd "k") 'magit-discard-item)
     (define-key map (kbd "!") 'magit-shell-command)
     (define-key map (kbd "RET") 'magit-visit-item)
     (define-key map (kbd "SPC") 'magit-show-item-or-scroll-up)
     (define-key map (kbd "DEL") 'magit-show-item-or-scroll-down)
     (define-key map (kbd "C-w") 'magit-copy-item-as-kill)
-    (define-key map (kbd "b") 'magit-checkout)
-    (define-key map (kbd "B") 'magit-create-branch)
-    (define-key map (kbd "m") 'magit-manual-merge)
-    (define-key map (kbd "M") 'magit-automatic-merge)
-    (define-key map (kbd "e") 'magit-interactive-resolve-item)
     (define-key map (kbd "N r") 'magit-svn-rebase)
     (define-key map (kbd "N c") 'magit-svn-dcommit)
     (define-key map (kbd "N f") 'magit-svn-find-rev)
@@ -1408,16 +1380,116 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "f") 'magit-remote-update)
     (define-key map (kbd "F") 'magit-pull)
     (define-key map (kbd "c") 'magit-log-edit)
-    (define-key map (kbd "C") 'magit-add-log)
-    (define-key map (kbd "t") 'magit-tag)
-    (define-key map (kbd "T") 'magit-annotated-tag)
-    (define-key map (kbd "z") 'magit-stash)
-    (define-key map (kbd "Z") 'magit-stash-snapshot)
+    (define-key map (kbd "l") 'magit-log)
+    (define-key map (kbd "L") 'magit-log-long)
+    (define-key map (kbd "h") 'magit-reflog-head)
+    (define-key map (kbd "H") 'magit-reflog)
     (define-key map (kbd "w") 'magit-wazzup)
     (define-key map (kbd "$") 'magit-display-process)
     (define-key map (kbd "E") 'magit-interactive-rebase)
     (define-key map (kbd "V") 'magit-show-branches)
     (define-key map (kbd "q") 'quit-window)
+    map))
+
+(defvar magit-commit-mode-map
+  (let ((map (make-sparse-keymap)))
+    map))
+
+(defvar magit-status-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "-") 'magit-diff-smaller-hunks)
+    (define-key map (kbd "+") 'magit-diff-larger-hunks)
+    (define-key map (kbd "0") 'magit-diff-default-hunks)
+    (define-key map (kbd "s") 'magit-stage-item)
+    (define-key map (kbd "S") 'magit-stage-all)
+    (define-key map (kbd "u") 'magit-unstage-item)
+    (define-key map (kbd "U") 'magit-unstage-all)
+    (define-key map (kbd "i") 'magit-ignore-item)
+    (define-key map (kbd "I") 'magit-ignore-item-locally)
+    (define-key map (kbd ".") 'magit-mark-item)
+    (define-key map (kbd "=") 'magit-diff-with-mark)
+    (define-key map (kbd "d") 'magit-diff-working-tree)
+    (define-key map (kbd "D") 'magit-diff)
+    (define-key map (kbd "a") 'magit-apply-item)
+    (define-key map (kbd "A") 'magit-cherry-pick-item)
+    (define-key map (kbd "v") 'magit-revert-item)
+    (define-key map (kbd "b") 'magit-checkout)
+    (define-key map (kbd "B") 'magit-create-branch)
+    (define-key map (kbd "m") 'magit-manual-merge)
+    (define-key map (kbd "M") 'magit-automatic-merge)
+    (define-key map (kbd "k") 'magit-discard-item)
+    (define-key map (kbd "e") 'magit-interactive-resolve-item)
+    (define-key map (kbd "C") 'magit-add-log)
+    (define-key map (kbd "x") 'magit-reset-head)
+    (define-key map (kbd "X") 'magit-reset-working-tree)
+    (define-key map (kbd "t") 'magit-tag)
+    (define-key map (kbd "T") 'magit-annotated-tag)
+    (define-key map (kbd "z") 'magit-stash)
+    (define-key map (kbd "Z") 'magit-stash-snapshot)
+    map))
+
+(defvar magit-stash-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "-") 'magit-diff-smaller-hunks)
+    (define-key map (kbd "+") 'magit-diff-larger-hunks)
+    (define-key map (kbd "0") 'magit-diff-default-hunks)
+    (define-key map (kbd "a") 'magit-apply-item)
+    (define-key map (kbd "A") 'magit-cherry-pick-item)
+    (define-key map (kbd "v") 'magit-revert-item)
+    map))
+
+(defvar magit-log-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd ".") 'magit-mark-item)
+    (define-key map (kbd "=") 'magit-diff-with-mark)
+    (define-key map (kbd "d") 'magit-diff-working-tree)
+    (define-key map (kbd "D") 'magit-diff)
+    (define-key map (kbd "a") 'magit-apply-item)
+    (define-key map (kbd "A") 'magit-cherry-pick-item)
+    (define-key map (kbd "v") 'magit-revert-item)
+    (define-key map (kbd "b") 'magit-checkout)
+    (define-key map (kbd "B") 'magit-create-branch)
+    (define-key map (kbd "m") 'magit-manual-merge)
+    (define-key map (kbd "M") 'magit-automatic-merge)
+    (define-key map (kbd "x") 'magit-reset-head)
+    map))
+
+(defvar magit-reflog-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd ".") 'magit-mark-item)
+    (define-key map (kbd "=") 'magit-diff-with-mark)
+    (define-key map (kbd "d") 'magit-diff-working-tree)
+    (define-key map (kbd "D") 'magit-diff)
+    (define-key map (kbd "a") 'magit-apply-item)
+    (define-key map (kbd "A") 'magit-cherry-pick-item)
+    (define-key map (kbd "v") 'magit-revert-item)
+    (define-key map (kbd "x") 'magit-reset-head)
+    map))
+
+(defvar magit-diff-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "-") 'magit-diff-smaller-hunks)
+    (define-key map (kbd "+") 'magit-diff-larger-hunks)
+    (define-key map (kbd "0") 'magit-diff-default-hunks)
+    (define-key map (kbd "a") 'magit-apply-item)
+    (define-key map (kbd "A") 'magit-cherry-pick-item)
+    (define-key map (kbd "v") 'magit-revert-item)
+    map))
+
+(defvar magit-wazzup-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd ".") 'magit-mark-item)
+    (define-key map (kbd "=") 'magit-diff-with-mark)
+    (define-key map (kbd "d") 'magit-diff-working-tree)
+    (define-key map (kbd "D") 'magit-diff)
+    (define-key map (kbd "a") 'magit-apply-item)
+    (define-key map (kbd "A") 'magit-cherry-pick-item)
+    (define-key map (kbd "v") 'magit-revert-item)
+    (define-key map (kbd "b") 'magit-checkout)
+    (define-key map (kbd "B") 'magit-create-branch)
+    (define-key map (kbd "m") 'magit-manual-merge)
+    (define-key map (kbd "M") 'magit-automatic-merge)
+    (define-key map (kbd "x") 'magit-reset-head)
     map))
 
 (easy-menu-define magit-mode-menu magit-mode-map
@@ -2105,6 +2177,13 @@ must return a string which will represent the log line.")
 		       "--pretty=medium"
 		       "--cc" "-p" commit)))
 
+(define-minor-mode magit-commit-mode
+    "Minor mode to view git commit"
+  :group magit
+  :init-value ()
+  :lighter ()
+  :keymap magit-commit-mode-map)
+
 (defun magit-show-commit (commit &optional scroll)
   (when (magit-section-p commit)
     (setq commit (magit-section-info commit)))
@@ -2127,7 +2206,8 @@ must return a string which will represent the log line.")
 	     (set-buffer buf)
 	     (goto-char (point-min))
 	     (magit-mode-init dir 'commit
-			      #'magit-refresh-commit-buffer commit))))))
+			      #'magit-refresh-commit-buffer commit)
+	     (magit-commit-mode t))))))
 
 (defvar magit-marked-commit nil)
 
@@ -2269,6 +2349,13 @@ must return a string which will represent the log line.")
       (let ((default-directory dir))
 	(magit-run* (list "git" "init"))))))
 
+(define-minor-mode magit-status-mode
+    "Minor mode for looking at git status"
+  :group magit
+  :init-value ()
+  :lighter ()
+  :keymap magit-status-mode-map)
+
 ;;;###autoload
 (defun magit-status (dir)
   (interactive (list (or (and (not current-prefix-arg)
@@ -2291,7 +2378,8 @@ must return a string which will represent the log line.")
                                (file-name-nondirectory
                                 (directory-file-name topdir)) "*"))))))
         (switch-to-buffer buf)
-        (magit-mode-init topdir 'status #'magit-refresh-status)))))
+        (magit-mode-init topdir 'status #'magit-refresh-status)
+        (magit-status-mode t)))))
 
 ;;; Staging and Unstaging
 
@@ -3065,6 +3153,13 @@ Prefix arg means justify as well."
 
 (defvar magit-currently-shown-stash nil)
 
+(define-minor-mode magit-stash-mode
+    "Minor mode for looking at git status"
+  :group magit
+  :init-value ()
+  :lighter ()
+  :keymap magit-stash-mode-map)
+
 (defun magit-show-stash (stash &optional scroll)
   (when (magit-section-p stash)
     (setq stash (magit-section-info stash)))
@@ -3089,7 +3184,8 @@ Prefix arg means justify as well."
 	     (let* ((range (cons (concat stash "^2^") stash))
 		    (args (magit-rev-range-to-git range)))
 	       (magit-mode-init dir 'diff #'magit-refresh-diff-buffer
-				range args)))))))
+				range args)
+	       (magit-stash-mode t)))))))
 
 ;;; Topic branches (using topgit)
 
@@ -3225,6 +3321,13 @@ Prefix arg means justify as well."
 	     ,@args
 	     "--"))))
 
+(define-minor-mode magit-log-mode
+    "Minor mode for looking at git status"
+  :group magit
+  :init-value ()
+  :lighter ()
+  :keymap magit-log-mode-map)
+
 (defun magit-log (&optional arg)
   (interactive "P")
   (let* ((range (if arg
@@ -3234,7 +3337,8 @@ Prefix arg means justify as well."
 	 (args (list (magit-rev-range-to-git range))))
     (switch-to-buffer "*magit-log*")
     (magit-mode-init topdir 'log #'magit-refresh-log-buffer range
-		     "--pretty=oneline" args)))
+		     "--pretty=oneline" args)
+    (magit-log-mode t)))
 
 (defun magit-log-grep (str)
   "Search for regexp specified by STR in the commit log."
@@ -3244,7 +3348,8 @@ Prefix arg means justify as well."
     (magit-mode-init topdir 'log #'magit-refresh-log-buffer "HEAD"
 		     "--pretty=oneline"
 		     (list "-E"
-			   (format "--grep=%s" (shell-quote-argument str))))))
+			   (format "--grep=%s" (shell-quote-argument str))))
+    (magit-log-mode t)))
 
 (defun magit-log-long (&optional arg)
   (interactive "P")
@@ -3255,7 +3360,8 @@ Prefix arg means justify as well."
 	 (args (list (magit-rev-range-to-git range))))
     (switch-to-buffer "*magit-log*")
     (magit-mode-init topdir 'log #'magit-refresh-log-buffer range
-		     "--stat" args)))
+		     "--stat" args)
+    (magit-log-mode t)))
 
 ;;; Reflog
 
@@ -3269,6 +3375,13 @@ Prefix arg means justify as well."
 		       "--pretty=format:* %H %s"
 		       args)))
 
+(define-minor-mode magit-reflog-mode
+    "Minor mode for looking at git status"
+  :group magit
+  :init-value ()
+  :lighter ()
+  :keymap magit-reflog-mode-map)
+
 (defun magit-reflog (head)
   (interactive (list (magit-read-rev "Reflog of" "HEAD")))
   (if head
@@ -3276,7 +3389,8 @@ Prefix arg means justify as well."
 	     (args (magit-rev-to-git head)))
 	(switch-to-buffer "*magit-reflog*")
 	(magit-mode-init topdir 'reflog
-			 #'magit-refresh-reflog-buffer head args))))
+			 #'magit-refresh-reflog-buffer head args)
+	(magit-reflog-mode t))))
 
 (defun magit-reflog-head ()
   (interactive)
@@ -3291,6 +3405,13 @@ Prefix arg means justify as well."
 		       'magit-wash-diffs
 		       "diff" (magit-diff-U-arg) args)))
 
+(define-minor-mode magit-diff-mode
+    "Minor mode for looking at git status"
+  :group magit
+  :init-value ()
+  :lighter ()
+  :keymap magit-diff-mode-map)
+
 (defun magit-diff (range)
   (interactive (list (magit-read-rev-range "Diff")))
   (if range
@@ -3300,7 +3421,8 @@ Prefix arg means justify as well."
 	(display-buffer buf)
 	(save-excursion
 	  (set-buffer buf)
-	  (magit-mode-init dir 'diff #'magit-refresh-diff-buffer range args)))))
+	  (magit-mode-init dir 'diff #'magit-refresh-diff-buffer range args)
+	  (magit-diff-mode t)))))
 
 (defun magit-diff-working-tree (rev)
   (interactive (list (magit-read-rev "Diff with (default HEAD)")))
@@ -3369,6 +3491,13 @@ Prefix arg means justify as well."
 			   "--"))))
 		  (magit-set-section-info ref section))))))))))
 
+(define-minor-mode magit-wazzup-mode
+    "Minor mode for looking at git status"
+  :group magit
+  :init-value ()
+  :lighter ()
+  :keymap magit-wazzup-mode-map)
+
 (defun magit-wazzup (&optional all)
   (interactive "P")
   (let ((topdir (magit-get-top-dir default-directory))
@@ -3376,7 +3505,8 @@ Prefix arg means justify as well."
     (switch-to-buffer "*magit-wazzup*")
     (magit-mode-init topdir 'wazzup
 		     #'magit-refresh-wazzup-buffer
-		     current-branch all)))
+		     current-branch all)
+    (magit-wazzup-mode t)))
 
 ;;; Miscellaneous
 
