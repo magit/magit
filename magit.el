@@ -352,17 +352,17 @@ Many Magit faces inherit from this one by default."
   "Face for diff hunk header lines."
   :group 'magit-faces)
 
-(defface magit-diff-add
+(defface magit-diff-added
   '((t :inherit diff-added))
   "Face for lines in a diff that have been added."
   :group 'magit-faces)
 
-(defface magit-diff-none
+(defface magit-diff-context
   '((t :inherit diff-context))
   "Face for lines in a diff that are unchanged."
   :group 'magit-faces)
 
-(defface magit-diff-del
+(defface magit-diff-removed
   '((t :inherit diff-removed))
   "Face for lines in a diff that have been deleted."
   :group 'magit-faces)
@@ -2600,11 +2600,11 @@ in the corresponding directories."
 	       (let ((prefix (buffer-substring-no-properties
 			      (point) (min (+ (point) n-columns) (point-max)))))
 		 (cond ((string-match "\\+" prefix)
-			(magit-put-line-property 'face 'magit-diff-add))
+			(magit-put-line-property 'face 'magit-diff-added))
 		       ((string-match "-" prefix)
-			(magit-put-line-property 'face 'magit-diff-del))
+			(magit-put-line-property 'face 'magit-diff-removed))
 		       (t
-			(magit-put-line-property 'face 'magit-diff-none))))
+			(magit-put-line-property 'face 'magit-diff-context))))
 	       (forward-line))))
 	 t)
 	(t
