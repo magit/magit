@@ -274,7 +274,15 @@ Many Magit faces inherit from this one by default."
   (declare (indent 0))
   `(magit-refresh-wrapper (lambda () ,@body)))
 
+(eval-when-compile
+  (when (< emacs-major-version 23)
+    (defvar line-move-visual nil)))
+
 ;;; Utilities
+
+(defvar magit-submode nil)
+(make-variable-buffer-local 'magit-submode)
+(put 'magit-submode 'permanent-local t)
 
 (defun magit-use-region-p ()
   (if (fboundp 'use-region-p)
@@ -1561,10 +1569,6 @@ FUNC should leave point at the end of the modified region"
 
 (put 'magit-mode 'mode-class 'special)
 
-(defvar magit-submode nil)
-(make-variable-buffer-local 'magit-submode)
-(put 'magit-submode 'permanent-local t)
-
 (defvar magit-refresh-function nil)
 (make-variable-buffer-local 'magit-refresh-function)
 (put 'magit-refresh-function 'permanent-local t)
@@ -2559,9 +2563,9 @@ Given a prefix-arg then the merge will be squashed."
 
 (defun magit-svn-find-rev (rev &optional branch)
   (interactive
-   (list (read-input "SVN revision: ")
+   (list (read-string "SVN revision: ")
          (if current-prefix-arg
-             (read-input "In branch: "))))
+             (read-string "In branch: "))))
   (let* ((sha (apply 'magit-git-string
                      `("svn"
                        "find-rev"
@@ -2819,6 +2823,8 @@ If USE-CACHE is non nil, use the cached information."
     (if (and branch (not config-branch))
 	(magit-set merge-branch "branch" branch "merge"))
     (magit-run-git-async "pull" "-v")))
+
+(eval-when-compile (require 'pcomplete))
 
 (defun magit-shell-command (command)
   (interactive "sCommand: ")
@@ -3702,9 +3708,12 @@ With a non numeric prefix ARG, show all entries"
      (kill-new info)
      (message "%s" info))))
 
+(eval-when-compile (require 'server))
+
 (defun magit-interactive-rebase ()
   "Start a git rebase -i session, old school-style."
   (interactive)
+  (require 'server)
   (unless (server-running-p)
     (server-start))
   (let* ((section (get-text-property (point) 'magit-section))
@@ -3847,7 +3856,10 @@ With prefix force the removal even it it hasn't been merged."
 (defvar magit-ediff-file)
 (defvar magit-ediff-windows)
 
+(eval-when-compile (require 'ediff))
+
 (defun magit-interactive-resolve (file)
+  (require 'ediff)
   (let ((merge-status (magit-git-string "ls-files" "-u" "--" file))
 	(base-buffer (generate-new-buffer (concat file ".base")))
 	(our-buffer (generate-new-buffer (concat file ".current")))
