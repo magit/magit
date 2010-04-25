@@ -3340,7 +3340,7 @@ With a non numeric prefix ARG, show all entries"
   (make-local-variable 'magit-log-cutoff-length)
   (cond
     ((numberp arg)
-     (setq magit-log-cutoff-length (+ magit-log-cutoff-length added)))
+     (setq magit-log-cutoff-length (+ magit-log-cutoff-length arg)))
     (arg
      (setq magit-log-cutoff-length magit-log-infinite-length))
     (t (setq magit-log-cutoff-length (* magit-log-cutoff-length 2))))
