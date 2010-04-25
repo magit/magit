@@ -3773,8 +3773,10 @@ With prefix force the removal even it it hasn't been merged."
 (defun magit-show-branches ()
   "Show all of the current branches in other-window."
   (interactive)
-  (unless (string= (buffer-name) magit-branches-buffer-name)
-    (switch-to-buffer-other-window magit-branches-buffer-name))
+  (unless (eq major-mode 'magit-show-branches-mode)
+    (let ((topdir (magit-get-top-dir default-directory)))
+      (switch-to-buffer-other-window magit-branches-buffer-name)
+      (setq default-directory topdir)))
   (let ((inhibit-read-only t)
         (branches (mapcar 'magit--branch-view-details
                           (magit-git-lines "branch" "-va"))))
