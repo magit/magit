@@ -1180,16 +1180,18 @@ FUNC should leave point at the end of the modified region"
 
 (defvar magit-process nil)
 (defvar magit-process-client-buffer nil)
+(defvar magit-process-buffer-name "*magit-process*"
+  "Buffer name for running git commands")
 
 (defun magit-run* (cmd-and-args
 		   &optional logline noerase noerror nowait input)
   (if (and magit-process
-	   (get-buffer "*magit-process*"))
+	   (get-buffer magit-process-buffer-name))
       (error "Git is already running"))
   (let ((cmd (car cmd-and-args))
 	(args (cdr cmd-and-args))
 	(dir default-directory)
-	(buf (get-buffer-create "*magit-process*"))
+	(buf (get-buffer-create magit-process-buffer-name))
 	(successp nil))
     (magit-set-mode-line-process
      (magit-process-indicator-from-command cmd-and-args))
@@ -1334,7 +1336,7 @@ FUNC should leave point at the end of the modified region"
 (defun magit-display-process ()
   "Display output from most recent git command"
   (interactive)
-  (display-buffer "*magit-process*"))
+  (display-buffer magit-process-buffer-name))
 
 ;;; Mode
 
@@ -2222,11 +2224,14 @@ insert a line to tell how to insert more of them"
   :lighter ()
   :keymap magit-commit-mode-map)
 
+(defvar magit-commit-buffer-name "*magit-commit*"
+  "Buffer name for displaying commit log messages")
+
 (defun magit-show-commit (commit &optional scroll)
   (when (magit-section-p commit)
     (setq commit (magit-section-info commit)))
   (let ((dir default-directory)
-	(buf (get-buffer-create "*magit-commit*")))
+	(buf (get-buffer-create magit-commit-buffer-name)))
     (cond ((and (equal magit-currently-shown-commit commit)
 		;; if it's empty then the buffer was killed
 		(with-current-buffer buf
@@ -2895,6 +2900,9 @@ in both working tree and staging area.
 
 ;;; Log edit mode
 
+(defvar magit-log-edit-buffer-name "*magit-edit-log*"
+  "Buffer name for composing commit messages")
+
 (defvar magit-log-edit-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-c") 'magit-log-edit-commit)
@@ -2903,6 +2911,7 @@ in both working tree and staging area.
     (define-key map (kbd "M-p") 'log-edit-previous-comment)
     (define-key map (kbd "M-n") 'log-edit-next-comment)
     (define-key map (kbd "C-c C-k") 'magit-log-edit-cancel-log-message)
+    (define-key map (kbd "C-c C-]") 'magit-log-edit-cancel-log-message)
     map))
 
 (defvar magit-pre-log-edit-window-configuration nil)
@@ -2933,14 +2942,14 @@ Prefix arg means justify as well."
 
 (defun magit-log-edit-append (str)
   (save-excursion
-    (set-buffer (get-buffer-create "*magit-log-edit*"))
+    (set-buffer (get-buffer-create magit-log-edit-buffer-name))
     (goto-char (point-max))
     (insert str "\n")))
 
 (defconst magit-log-header-end "-- End of Magit header --\n")
 
 (defun magit-log-edit-get-fields ()
-  (let ((buf (get-buffer "*magit-log-edit*"))
+  (let ((buf (get-buffer magit-log-edit-buffer-name))
 	(result nil))
     (if buf
 	(save-excursion
@@ -2956,7 +2965,7 @@ Prefix arg means justify as well."
     (nreverse result)))
 
 (defun magit-log-edit-set-fields (fields)
-  (let ((buf (get-buffer-create "*magit-log-edit*")))
+  (let ((buf (get-buffer-create magit-log-edit-buffer-name)))
     (save-excursion
       (set-buffer buf)
       (goto-char (point-min))
@@ -3087,7 +3096,7 @@ Prefix arg means justify as well."
 
 (defun magit-pop-to-log-edit (operation)
   (let ((dir default-directory)
-	(buf (get-buffer-create "*magit-log-edit*")))
+	(buf (get-buffer-create magit-log-edit-buffer-name)))
     (setq magit-pre-log-edit-window-configuration
 	  (current-window-configuration))
     (pop-to-buffer buf)
@@ -3244,11 +3253,14 @@ With prefix argument, changes in staging area are kept.
   :lighter ()
   :keymap magit-stash-mode-map)
 
+(defvar magit-stash-buffer-name "*magit-stash*"
+  "Buffer name for displaying a stash")
+
 (defun magit-show-stash (stash &optional scroll)
   (when (magit-section-p stash)
     (setq stash (magit-section-info stash)))
   (let ((dir default-directory)
-	(buf (get-buffer-create "*magit-stash*"))
+	(buf (get-buffer-create magit-stash-buffer-name))
         (stash-id (magit-git-string "rev-list" "-1" stash)))
     (cond ((and (equal magit-currently-shown-stash stash-id)
                 (with-current-buffer buf
@@ -3429,6 +3441,11 @@ With a non numeric prefix ARG, show all entries"
   :lighter ()
   :keymap magit-log-mode-map)
 
+(defvar magit-log-buffer-name "*magit-log*"
+  "Buffer name for display of log entries")
+(defvar magit-log-grep-buffer-name "*magit-grep-log*"
+  "Buffer name for display of log grep results")
+
 (defun magit-log (&optional arg)
   (interactive "P")
   (let* ((range (if arg
@@ -3436,7 +3453,7 @@ With a non numeric prefix ARG, show all entries"
 		  "HEAD"))
 	 (topdir (magit-get-top-dir default-directory))
 	 (args (list (magit-rev-range-to-git range))))
-    (switch-to-buffer "*magit-log*")
+    (switch-to-buffer magit-log-buffer-name)
     (magit-mode-init topdir 'log #'magit-refresh-log-buffer range
 		     "--pretty=oneline" args)
     (magit-log-mode t)))
@@ -3445,7 +3462,7 @@ With a non numeric prefix ARG, show all entries"
   "Search for regexp specified by STR in the commit log."
   (interactive "sGrep in commit log: ")
   (let ((topdir (magit-get-top-dir default-directory)))
-    (switch-to-buffer "*magit-log-grep*")
+    (switch-to-buffer magit-log-grep-buffer-name)
     (magit-mode-init topdir 'log #'magit-refresh-log-buffer "HEAD"
 		     "--pretty=oneline"
 		     (list "-E"
@@ -3459,7 +3476,7 @@ With a non numeric prefix ARG, show all entries"
 		  "HEAD"))
 	 (topdir (magit-get-top-dir default-directory))
 	 (args (list (magit-rev-range-to-git range))))
-    (switch-to-buffer "*magit-log*")
+    (switch-to-buffer magit-log-buffer-name)
     (magit-mode-init topdir 'log #'magit-refresh-log-buffer range
 		     "--stat" args)
     (magit-log-mode t)))
@@ -3704,10 +3721,10 @@ With a non numeric prefix ARG, show all entries"
        (goto-line line)))
     ((commit)
      (magit-show-commit info)
-     (pop-to-buffer "*magit-commit*"))
+     (pop-to-buffer magit-commit-buffer-name))
     ((stash)
      (magit-show-stash info)
-     (pop-to-buffer "*magit-stash*"))
+     (pop-to-buffer magit-stash-buffer-name))
     ((topic)
      (magit-checkout info))
     ((longer)
