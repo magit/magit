@@ -1332,6 +1332,7 @@ FUNC should leave point at the end of the modified region"
   (magit-run* (cons cmd args) nil nil nil t input))
 
 (defun magit-display-process ()
+  "Display output from most recent git command"
   (interactive)
   (display-buffer "*magit-process*"))
 
@@ -1728,11 +1729,17 @@ Please see the manual for a complete description of Magit.
 	    (cons buffer magit-refresh-needing-buffers)))))
 
 (defun magit-refresh ()
+  "Refresh current buffer to match repository state.
+Also revert every unmodified buffer visiting files
+in the corresponding directory."
   (interactive)
   (magit-with-refresh
     (magit-need-refresh)))
 
 (defun magit-refresh-all ()
+  "Refresh all magit buffers to match respective repository states.
+Also revert every unmodified buffer visiting files
+in the corresponding directories."
   (interactive)
   (magit-for-all-buffers #'magit-refresh-buffer default-directory))
 
@@ -1775,16 +1782,19 @@ Please see the manual for a complete description of Magit.
   (format "-U%d" magit-diff-context-lines))
 
 (defun magit-diff-smaller-hunks (&optional count)
+  "Decrease the context for diff hunks by COUNT."
   (interactive "p")
   (setq magit-diff-context-lines (max 0 (- magit-diff-context-lines count)))
   (magit-refresh))
 
 (defun magit-diff-larger-hunks (&optional count)
+  "Increase the context for diff hunks by COUNT."
   (interactive "p")
   (setq magit-diff-context-lines (+ magit-diff-context-lines count))
   (magit-refresh))
 
 (defun magit-diff-default-hunks ()
+  "Reset context for diff hunks to the default size."
   (interactive "")
   (setq magit-diff-context-lines 3)
   (magit-refresh))
@@ -2452,12 +2462,17 @@ insert a line to tell how to insert more of them"
      (error "Can't unstage this diff"))))
 
 (defun magit-stage-all (&optional also-untracked-p)
+  "Add all remaining changes in tracked files to staging area.
+With prefix argument, add remaining untracked files as well.
+('git add -u .' or 'git add .', respectively)."
   (interactive "P")
   (if also-untracked-p
       (magit-run-git "add" ".")
     (magit-run-git "add" "-u" ".")))
 
 (defun magit-unstage-all ()
+  "Remove all changes from staging area.
+('git reset --mixed HEAD')."
   (interactive)
   (magit-run-git "reset" "HEAD"))
 
@@ -2475,6 +2490,10 @@ insert a line to tell how to insert more of them"
     nil))
 
 (defun magit-checkout (rev)
+  "Switch 'HEAD' to REVISION and update working tree.
+Fails if working tree or staging area contain uncommitted changes.
+If REVISION is a remote branch, offer to create a local tracking branch.
+('git checkout [-b] REVISION')."
   (interactive (list (magit-read-rev "Switch to" (magit-default-rev))))
   (if rev
       (if (not (magit-maybe-create-local-tracking-branch rev))
@@ -2487,6 +2506,9 @@ insert a line to tell how to insert more of them"
     (list branch parent)))
 
 (defun magit-create-branch (branch parent)
+  "Switch 'HEAD' to new BRANCH at REVISION and update working tree.
+Fails if working tree or staging area contain uncommitted changes.
+('git checkout -b BRANCH REVISION')."
   (interactive (magit-read-create-branch-args))
   (if (and branch (not (string= branch ""))
 	   parent)
@@ -2502,8 +2524,9 @@ insert a line to tell how to insert more of them"
 	(magit-section-info sec))))
 
 (defun magit-manual-merge (rev)
-  "Merge (without committing) REV.
-Given a prefix-arg then the merge will be squashed."
+  "Merge REVISION into the current 'HEAD'; leave changes uncommitted.
+With a prefix-arg, the merge will be squashed.
+('git merge --no-commit [--squash|--no-ff] REVISION')."
   (interactive
    (list (magit-read-rev (concat "Manually merge"
 				 (when current-prefix-arg
@@ -2517,6 +2540,8 @@ Given a prefix-arg then the merge will be squashed."
 		     (magit-rev-to-git rev))))
 
 (defun magit-automatic-merge (rev)
+  "Merge REVISION into the current 'HEAD'; commit unless merge fails.
+('git merge REVISION')."
   (interactive (list (magit-read-rev "Merge" (magit-guess-branch))))
   (if rev
       (magit-run-git "merge" (magit-rev-to-git rev))))
@@ -2660,6 +2685,11 @@ If USE-CACHE is non nil, use the cached information."
 ;;; Resetting
 
 (defun magit-reset-head (rev &optional hard)
+  "Switch 'HEAD' to REVISION, keeping prior working tree and staging area
+Any differences from REVISION become new changes to be committed.
+With prefix argument, all uncommitted changes in working tree
+and staging area are lost.
+('git reset [--soft|--hard] REVISION')."
   (interactive (list (magit-read-rev (format "%s head to"
 					     (if current-prefix-arg
 						 "Hard reset"
@@ -2672,12 +2702,17 @@ If USE-CACHE is non nil, use the cached information."
 		     (magit-rev-to-git rev))))
 
 (defun magit-reset-head-hard (rev)
+  "Switch 'HEAD' to REVISION, losing all uncommitted changes
+in both working tree and staging area.
+('git reset --hard REVISION')."
   (interactive (list (magit-read-rev (format "Hard reset head to")
 				     (or (magit-default-rev)
 					 "HEAD"))))
   (magit-reset-head rev t))
 
 (defun magit-reset-working-tree ()
+  "Revert working tree and clear changes from staging area.
+('git reset --hard HEAD')."
   (interactive)
   (when (yes-or-no-p "Discard all uncommitted changes? ")
     (magit-reset-head-hard "HEAD")))
@@ -2827,6 +2862,7 @@ If USE-CACHE is non nil, use the cached information."
 (eval-when-compile (require 'pcomplete))
 
 (defun magit-shell-command (command)
+  "Perform arbitrary shell COMMAND."
   (interactive "sCommand: ")
   (require 'pcomplete)
   (let ((args (car (with-temp-buffer
@@ -2974,6 +3010,8 @@ Prefix arg means justify as well."
     (ring-insert log-edit-comment-ring comment)))
 
 (defun magit-log-edit-commit ()
+  "Finish edits and create new commit object.
+('git commit ...')"
   (interactive)
   (let* ((fields (magit-log-edit-get-fields))
 	 (amend (equal (cdr (assq 'amend fields)) "yes"))
@@ -3011,6 +3049,7 @@ Prefix arg means justify as well."
       (setq magit-pre-log-edit-window-configuration nil))))
 
 (defun magit-log-edit-cancel-log-message ()
+  "Abort edits and erase commit message being composed."
   (interactive)
   (when (or (not magit-log-edit-confirm-cancellation)
 	    (yes-or-no-p
@@ -3022,6 +3061,8 @@ Prefix arg means justify as well."
       (setq magit-pre-log-edit-window-configuration nil))))
 
 (defun magit-log-edit-toggle-amending ()
+  "Toggle whether this will be an amendment to the previous commit.
+(i.e., whether eventual commit does 'git commit --amend')"
   (interactive)
   (let* ((fields (magit-log-edit-get-fields))
 	 (cell (assq 'amend fields)))
@@ -3033,6 +3074,8 @@ Prefix arg means justify as well."
     (magit-log-edit-set-fields fields)))
 
 (defun magit-log-edit-toggle-signoff ()
+  "Toggle whether this commit will include a signoff.
+(i.e., whether eventual commit does 'git commit --signoff')"
   (interactive)
   (let* ((fields (magit-log-edit-get-fields))
 	 (cell (assq 'sign-off fields)))
@@ -3131,10 +3174,15 @@ Prefix arg means justify as well."
 ;;; Tags
 
 (defun magit-tag (name)
+  "Creates a new lightweight tag with the given NAME.
+Tag will point to the current 'HEAD'.
+('git tag NAME')."
   (interactive "sNew tag name: ")
   (magit-run-git "tag" name))
 
 (defun magit-annotated-tag (name)
+  "Start composing an annotated tag with the given NAME.
+Tag will point to the current 'HEAD'."
   (interactive "sNew tag name: ")
   (magit-log-edit-set-field 'tag name)
   (magit-pop-to-log-edit "tag"))
@@ -3167,6 +3215,10 @@ Prefix arg means justify as well."
 		     "stash" "list"))
 
 (defun magit-stash (description)
+  "Create new stash of working tree and staging area named DESCRIPTION,
+working tree and staging area revert to the current 'HEAD'.
+With prefix argument, changes in staging area are kept.
+('git stash save [--keep-index] DESCRIPTION')"
   (interactive "sStash description: ")
   (apply 'magit-run-git `("stash"
 			  "save"
@@ -3174,6 +3226,8 @@ Prefix arg means justify as well."
 			  ,description)))
 
 (defun magit-stash-snapshot ()
+  "Create new stash of working tree and staging area; keep changes in place.
+('git stash save \"Snapshot...\"; git stash apply stash@{0}')"
   (interactive)
   (magit-with-refresh
     (magit-run-git "stash" "save"
