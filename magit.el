@@ -3826,7 +3826,8 @@ With a non numeric prefix ARG, show all entries"
   "Start a git rebase -i session, old school-style."
   (interactive)
   (require 'server)
-  (unless (server-running-p)
+  (if (or (< emacs-major-version 23)
+          (not (server-running-p)))
     (server-start))
   (let* ((section (get-text-property (point) 'magit-section))
 	 (commit (and (member 'commit (magit-section-context-type section))
