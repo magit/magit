@@ -55,8 +55,8 @@
 ;; - Amending commits other than HEAD.
 ;; - 'Subsetting', only looking at a subset of all files.
 
-(require 'cl)
-(require 'parse-time)
+(eval-when-compile (require 'cl))
+(eval-when-compile (require 'parse-time))
 (require 'log-edit)
 (require 'easymenu)
 (require 'diff-mode)
@@ -379,7 +379,7 @@ Many Magit faces inherit from this one by default."
 		 (let ((sub (magit-remove-conflicts
 			     (mapcar (lambda (entry)
 				       (let ((dir (directory-file-name
-						   (subseq entry 0 (- (length key))))))
+						   (substring entry 0 (- (length key))))))
 					 (cons (concat (file-name-nondirectory dir) "/" key)
 					       entry)))
 				     value))))
@@ -640,7 +640,7 @@ BODY must leave point at the end of the created section.
 
 If TYPE is nil, the section won't be highlighted."
   (declare (indent 2))
-  (let ((s (gensym)))
+  (let ((s (make-symbol "*section*")))
     `(let* ((,s (magit-new-section ,title ,type))
 	    (magit-top-section ,s))
        (setf (magit-section-beginning ,s) (point))
@@ -685,12 +685,12 @@ If TYPE is nil, the section won't be highlighted."
   "Find in subsection of section TOP the section at the path PATH."
   (if (null path)
       top
-    (let ((sec (find-if (lambda (s) (equal (car path)
-					   (magit-section-title s)))
-			(magit-section-children top))))
-      (if sec
-	  (magit-find-section (cdr path) sec)
-	nil))))
+    (let ((secs (magit-section-children top)))
+      (while (and secs (not (equal (car path) 
+				   (magit-section-title (car secs)))))
+	(setq secs (cdr secs)))
+      (and (car secs) 
+	   (magit-find-section (cdr path) (car secs))))))
 
 (defun magit-section-path (section)
   "Return the path of SECTION."
@@ -900,7 +900,10 @@ Default value for TOP is `magit-top-section'"
 (defun magit-section-any-hidden (section)
   "Return true if SECTION or any of its children is hidden."
   (or (magit-section-hidden section)
-      (some #'magit-section-any-hidden (magit-section-children section))))
+      (let ((kids (magit-section-children section)))
+	(while (and kids (not (magit-section-any-hidden (car kids))))
+	  (setq kids (cdr kids)))
+	kids)))
 
 (defun magit-section-collapse (section)
   "Show SECTION and hide all its children."
@@ -1124,8 +1127,8 @@ where SECTION-TYPE describe section where BODY will be run."
   (declare (indent 1))
   (let ((section (car head))
 	(info (cadr head))
-	(type (gensym))
-	(context (gensym))
+	(type (make-symbol "*type*"))
+	(context (make-symbol "*context*"))
 	(opname (caddr head)))
     `(let* ((,section (magit-current-section))
 	    (,info (magit-section-info ,section))
@@ -1294,8 +1297,10 @@ FUNC should leave point at the end of the modified region"
       (goto-char (process-mark proc))
       ;; Find last ^M in string.  If one was found, ignore everything
       ;; before it and delete the current line.
-      (let ((ret-pos (position ?\r string :from-end t)))
-	(cond (ret-pos
+      (let ((ret-pos (length string)))
+	(while (and (>= (setq ret-pos (1- ret-pos)) 0)
+		    (/= ?\r (aref string ret-pos))))
+	(cond ((>= ret-pos 0)
 	       (goto-char (line-beginning-position))
 	       (delete-region (point) (line-end-position))
 	       (insert (substring string (+ ret-pos 1))))
@@ -2181,10 +2186,14 @@ insert a line to tell how to insert more of them"
             (sha1 (match-string 2))
             (msg (match-string 4))
             (refs (when (match-string 3)
-                    (remove-if (lambda (s)
-                                 (or (string= s "tag:")
-                                     (string= s "HEAD"))) ; as of 1.6.6
-                               (split-string (match-string 3) "[(), ]" t)))))
+		    (delq nil
+			  (mapcar 
+			   (lambda (s)
+			     (and (not
+				   (or (string= s "tag:")
+				       (string= s "HEAD"))) ; as of 1.6.6
+				  s))
+			   (split-string (match-string 3) "[(), ]" t))))))
         (delete-region (point-at-bol) (point-at-eol))
         (insert (funcall magit-present-log-line-function chart sha1 refs msg))
         (goto-char (point-at-bol))
@@ -2835,10 +2844,11 @@ in both working tree and staging area.
     (or info
 	(error "No rewrite in progress"))
     (let* ((pending (cdr (assq 'pending info)))
-	   (first-unused (find-if (lambda (p)
-				    (not (plist-get (cdr p) 'used)))
-				  pending
-				  :from-end t))
+	   (first-unused 
+	    (let ((rpend (reverse pending)))
+	      (while (and rpend (plist-get (cdr (car rpend)) 'used))
+		(setq rpend (cdr rpend)))
+	      (car rpend)))
 	   (commit (car first-unused)))
       (cond ((not first-unused)
 	     (magit-rewrite-stop t))
@@ -3576,8 +3586,12 @@ With a non numeric prefix ARG, show all entries"
 	(let* ((excluded (magit-file-lines ".git/info/wazzup-exclude"))
 	       (all-branches (magit-list-interesting-refs))
 	       (branches (if all all-branches
-			   (remove-if (lambda (b) (member (cdr b) excluded))
-				      all-branches)))
+			   (delq nil (mapcar
+				      (lambda (b)
+					(and (not 
+					      (member (cdr b) excluded))
+					     b))
+				      all-branches))))
 	       (reported (make-hash-table :test #'equal)))
 	  (dolist (branch branches)
 	    (let* ((name (car branch))
