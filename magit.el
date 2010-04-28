@@ -2441,17 +2441,23 @@ insert a line to tell how to insert more of them"
   (or magit-marked-commit
       (error "No commit marked")))
 
+(defun magit-remote-branch-name (remote branch)
+  "Get the name of the branch BRANCH on remote REMOTE"
+  (if (string= remote ".") branch (concat remote "/" branch)))
+
 (defun magit-insert-unpulled-commits (remote branch)
   (magit-git-section 'unpulled
 		     "Unpulled commits:" 'magit-wash-log
 		     "log" "--pretty=format:* %H %s"
-		     (format "HEAD..%s/%s" remote branch)))
+		     (format "HEAD..%s"
+			     (magit-remote-branch-name remote branch))))
 
 (defun magit-insert-unpushed-commits (remote branch)
   (magit-git-section 'unpushed
 		     "Unpushed commits:" 'magit-wash-log
 		     "log" "--pretty=format:* %H %s"
-		     (format "%s/%s..HEAD" remote branch)))
+		     (format "%s..HEAD"
+			     (magit-remote-branch-name remote branch))))
 
 (defun magit-insert-unpulled-svn-commits (&optional use-cache)
   (magit-git-section 'svn-unpulled
