@@ -2478,7 +2478,7 @@ insert a line to tell how to insert more of them"
 (defun magit-stage-all (&optional also-untracked-p)
   "Add all remaining changes in tracked files to staging area.
 With prefix argument, add remaining untracked files as well.
-('git add -u .' or 'git add .', respectively)."
+\('git add -u .' or 'git add .', respectively)."
   (interactive "P")
   (if also-untracked-p
       (magit-run-git "add" ".")
@@ -2486,7 +2486,7 @@ With prefix argument, add remaining untracked files as well.
 
 (defun magit-unstage-all ()
   "Remove all changes from staging area.
-('git reset --mixed HEAD')."
+\('git reset --mixed HEAD')."
   (interactive)
   (magit-run-git "reset" "HEAD"))
 
@@ -2507,7 +2507,7 @@ With prefix argument, add remaining untracked files as well.
   "Switch 'HEAD' to REVISION and update working tree.
 Fails if working tree or staging area contain uncommitted changes.
 If REVISION is a remote branch, offer to create a local tracking branch.
-('git checkout [-b] REVISION')."
+\('git checkout [-b] REVISION')."
   (interactive (list (magit-read-rev "Switch to" (magit-default-rev))))
   (if rev
       (if (not (magit-maybe-create-local-tracking-branch rev))
@@ -2522,7 +2522,7 @@ If REVISION is a remote branch, offer to create a local tracking branch.
 (defun magit-create-branch (branch parent)
   "Switch 'HEAD' to new BRANCH at REVISION and update working tree.
 Fails if working tree or staging area contain uncommitted changes.
-('git checkout -b BRANCH REVISION')."
+\('git checkout -b BRANCH REVISION')."
   (interactive (magit-read-create-branch-args))
   (if (and branch (not (string= branch ""))
 	   parent)
@@ -2540,7 +2540,7 @@ Fails if working tree or staging area contain uncommitted changes.
 (defun magit-manual-merge (rev)
   "Merge REVISION into the current 'HEAD'; leave changes uncommitted.
 With a prefix-arg, the merge will be squashed.
-('git merge --no-commit [--squash|--no-ff] REVISION')."
+\('git merge --no-commit [--squash|--no-ff] REVISION')."
   (interactive
    (list (magit-read-rev (concat "Manually merge"
 				 (when current-prefix-arg
@@ -2555,7 +2555,7 @@ With a prefix-arg, the merge will be squashed.
 
 (defun magit-automatic-merge (rev)
   "Merge REVISION into the current 'HEAD'; commit unless merge fails.
-('git merge REVISION')."
+\('git merge REVISION')."
   (interactive (list (magit-read-rev "Merge" (magit-guess-branch))))
   (if rev
       (magit-run-git "merge" (magit-rev-to-git rev))))
@@ -2703,7 +2703,7 @@ If USE-CACHE is non nil, use the cached information."
 Any differences from REVISION become new changes to be committed.
 With prefix argument, all uncommitted changes in working tree
 and staging area are lost.
-('git reset [--soft|--hard] REVISION')."
+\('git reset [--soft|--hard] REVISION')."
   (interactive (list (magit-read-rev (format "%s head to"
 					     (if current-prefix-arg
 						 "Hard reset"
@@ -2718,7 +2718,7 @@ and staging area are lost.
 (defun magit-reset-head-hard (rev)
   "Switch 'HEAD' to REVISION, losing all uncommitted changes
 in both working tree and staging area.
-('git reset --hard REVISION')."
+\('git reset --hard REVISION')."
   (interactive (list (magit-read-rev (format "Hard reset head to")
 				     (or (magit-default-rev)
 					 "HEAD"))))
@@ -2726,7 +2726,7 @@ in both working tree and staging area.
 
 (defun magit-reset-working-tree ()
   "Revert working tree and clear changes from staging area.
-('git reset --hard HEAD')."
+\('git reset --hard HEAD')."
   (interactive)
   (when (yes-or-no-p "Discard all uncommitted changes? ")
     (magit-reset-head-hard "HEAD")))
@@ -3030,7 +3030,7 @@ Prefix arg means justify as well."
 
 (defun magit-log-edit-commit ()
   "Finish edits and create new commit object.
-('git commit ...')"
+\('git commit ...')"
   (interactive)
   (let* ((fields (magit-log-edit-get-fields))
 	 (amend (equal (cdr (assq 'amend fields)) "yes"))
@@ -3081,7 +3081,7 @@ Prefix arg means justify as well."
 
 (defun magit-log-edit-toggle-amending ()
   "Toggle whether this will be an amendment to the previous commit.
-(i.e., whether eventual commit does 'git commit --amend')"
+\(i.e., whether eventual commit does 'git commit --amend')"
   (interactive)
   (let* ((fields (magit-log-edit-get-fields))
 	 (cell (assq 'amend fields)))
@@ -3094,7 +3094,7 @@ Prefix arg means justify as well."
 
 (defun magit-log-edit-toggle-signoff ()
   "Toggle whether this commit will include a signoff.
-(i.e., whether eventual commit does 'git commit --signoff')"
+\(i.e., whether eventual commit does 'git commit --signoff')"
   (interactive)
   (let* ((fields (magit-log-edit-get-fields))
 	 (cell (assq 'sign-off fields)))
@@ -3195,7 +3195,7 @@ Prefix arg means justify as well."
 (defun magit-tag (name)
   "Creates a new lightweight tag with the given NAME.
 Tag will point to the current 'HEAD'.
-('git tag NAME')."
+\('git tag NAME')."
   (interactive "sNew tag name: ")
   (magit-run-git "tag" name))
 
@@ -3237,7 +3237,7 @@ Tag will point to the current 'HEAD'."
   "Create new stash of working tree and staging area named DESCRIPTION,
 working tree and staging area revert to the current 'HEAD'.
 With prefix argument, changes in staging area are kept.
-('git stash save [--keep-index] DESCRIPTION')"
+\('git stash save [--keep-index] DESCRIPTION')"
   (interactive "sStash description: ")
   (apply 'magit-run-git `("stash"
 			  "save"
@@ -3246,7 +3246,7 @@ With prefix argument, changes in staging area are kept.
 
 (defun magit-stash-snapshot ()
   "Create new stash of working tree and staging area; keep changes in place.
-('git stash save \"Snapshot...\"; git stash apply stash@{0}')"
+\('git stash save \"Snapshot...\"; git stash apply stash@{0}')"
   (interactive)
   (magit-with-refresh
     (magit-run-git "stash" "save"
