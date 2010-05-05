@@ -6,6 +6,14 @@
 ;; Copyright (C) 2008  Marcin Bachry
 ;; Copyright (C) 2009  Alexey Voinov
 ;; Copyright (C) 2009  John Wiegley
+;; Copyright (C) 2010  Phil Jackson
+;; Copyright (C) 2010  Roger Crew
+;; Copyright (C) 2010  Rémi Vanicat
+;; Copyright (C) 2010  Moritz Bunkus
+;; Copyright (C) 2010  Ben Walton
+;; Copyright (C) 2010  Hannu Koivisto
+;; Copyright (C) 2010  Pavel Holejsovsky
+
 ;;
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
