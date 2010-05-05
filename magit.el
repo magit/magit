@@ -294,6 +294,12 @@ Many Magit faces inherit from this one by default."
   (when (< emacs-major-version 23)
     (defvar line-move-visual nil)))
 
+;;; Compatibilities
+
+(if (functionp 'start-file-process)
+    (defalias 'magit-start-process 'start-file-process)
+    (defalias 'magit-start-process 'start-process))
+
 ;;; Utilities
 
 (defvar magit-submode nil)
@@ -1241,7 +1247,7 @@ FUNC should leave point at the end of the modified region"
 	(cond (nowait
 	       (setq magit-process
 		     (let ((process-connection-type magit-process-connection-type))
-		       (apply 'start-file-process cmd buf cmd args)))
+		       (apply 'magit-start-process cmd buf cmd args)))
 	       (set-process-sentinel magit-process 'magit-process-sentinel)
 	       (set-process-filter magit-process 'magit-process-filter)
 	       (when input
@@ -1266,17 +1272,17 @@ FUNC should leave point at the end of the modified region"
 	      (input
 	       (with-current-buffer input
 		 (setq default-directory dir)
-                 (setq magit-process
-                       (apply 'start-file-process cmd buf cmd args))
-                 (set-process-filter magit-process 'magit-process-filter)
-                 (process-send-region magit-process
-                                      (point-min) (point-max))
+		 (setq magit-process
+		       (apply 'magit-start-process cmd buf cmd args))
+		 (set-process-filter magit-process 'magit-process-filter)
+		 (process-send-region magit-process
+				      (point-min) (point-max))
 		 (process-send-eof magit-process)
-                 (while (equal (process-status magit-process) 'run)
-                   (sit-for 0.1 t))
+		 (while (equal (process-status magit-process) 'run)
+		   (sit-for 0.1 t))
 		 (setq successp
 		       (equal (process-exit-status magit-process) 0))
-                 (setq magit-process nil))
+		 (setq magit-process nil))
 	       (magit-set-mode-line-process nil)
 	       (magit-need-refresh magit-process-client-buffer))
 	      (t
