@@ -2558,9 +2558,10 @@ Fails if working tree or staging area contain uncommitted changes.
 ;;; Merging
 
 (defun magit-guess-branch ()
-  (let ((sec (magit-current-section)))
-    (if (and sec (eq (magit-section-type sec) 'wazzup))
-	(magit-section-info sec))))
+  (magit-section-case (item info)
+    ((wazzup commit)
+     (magit-section-info (magit-section-parent item)))
+    ((wazzup) info)))
 
 (defun magit-manual-merge (rev)
   "Merge REVISION into the current 'HEAD'; leave changes uncommitted.
