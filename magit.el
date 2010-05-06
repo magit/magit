@@ -4012,9 +4012,11 @@ With prefix force the removal even it it hasn't been merged."
 			(buffer-C ediff-buffer-C)
 			(buffer-Ancestor ediff-ancestor-buffer)
 			(file magit-ediff-file)
+			(file-buffer)
 			(windows magit-ediff-windows))
 		    (ediff-cleanup-mess)
 		    (find-file file)
+		    (setq file-buffer (current-buffer))
 		    (erase-buffer)
 		    (insert-buffer-substring buffer-C)
 		    (kill-buffer buffer-A)
@@ -4022,8 +4024,12 @@ With prefix force the removal even it it hasn't been merged."
 		    (kill-buffer buffer-C)
 		    (when (bufferp buffer-Ancestor) (kill-buffer buffer-Ancestor))
 		    (set-window-configuration windows)
-		    (message "Conflict resolution finished; you may save the buffer")))))))
-
+		    (if magit-save-some-buffers
+			(save-some-buffers
+			 (eq magit-save-some-buffers 'dontask)
+			 (lambda ()
+			   (eq (current-buffer) file-buffer)))
+		      (message "Conflict resolution finished; you may save the buffer"))))))))
 
 (defun magit-interactive-resolve-item ()
   (interactive)
