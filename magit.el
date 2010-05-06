@@ -4045,6 +4045,14 @@ With prefix force the removal even it it hasn't been merged."
     ((diff)
      (magit-interactive-resolve (cadr info)))))
 
+(defun magit-list-buffers ()
+  "Returns a list of magit buffers."
+  (remove-if-not (lambda (b)
+                   (save-excursion
+                     (set-buffer b)
+                     (eq major-mode 'magit-mode)))
+                 (buffer-list)))
+
 (provide 'magit)
 
 ;;; magit.el ends here
