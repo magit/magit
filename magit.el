@@ -4053,6 +4053,18 @@ With prefix force the removal even it it hasn't been merged."
                      (eq major-mode 'magit-mode)))
                  (buffer-list)))
 
+(defun magit-list-projects ()
+  "Returns a list of toplevel directories with a magit
+representation."
+  (remove-duplicates
+   (mapcar (lambda (b)
+             (save-excursion
+               (set-buffer b)
+               (file-name-nondirectory
+                (directory-file-name default-directory))))
+           (magit-list-buffers))
+   :test 'string=))
+
 (provide 'magit)
 
 ;;; magit.el ends here
