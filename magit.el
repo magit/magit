@@ -136,6 +136,11 @@ Setting this to nil will make it do nothing, setting it to t will arrange things
 		 (const :tag "Immediately" 0)
 		 (integer :tag "After this many seconds")))
 
+(defcustom magit-revert-item-confirm nil
+  "Require acknowledgment before reverting an item"
+  :group 'magit
+  :type 'boolean)
+
 (defcustom magit-log-edit-confirm-cancellation nil
   "Require acknowledgment before canceling the log edit buffer."
   :group 'magit
@@ -3417,16 +3422,19 @@ With prefix argument, changes in staging area are kept.
 
 (defun magit-revert-item ()
   (interactive)
-  (magit-section-action (item info "revert")
-    ((pending commit)
-     (magit-apply-commit info nil nil t)
-     (magit-rewrite-set-commit-property info 'used nil))
-    ((commit)
-     (magit-apply-commit info nil nil t))
-    ((hunk)
-     (magit-apply-hunk-item-reverse item))
-    ((diff)
-     (magit-apply-diff-item item "--reverse"))))
+  (when (or (not magit-revert-item-confirm)
+	    (yes-or-no-p
+	     "Really revert this item (cannot be undone)? "))
+    (magit-section-action (item info "revert")
+      ((pending commit)
+       (magit-apply-commit info nil nil t)
+       (magit-rewrite-set-commit-property info 'used nil))
+      ((commit)
+       (magit-apply-commit info nil nil t))
+      ((hunk)
+       (magit-apply-hunk-item-reverse item))
+      ((diff)
+       (magit-apply-diff-item item "--reverse")))))
 
 (defvar magit-have-graph 'unset)
 (defvar magit-have-decorate 'unset)
