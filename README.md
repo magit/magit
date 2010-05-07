@@ -12,7 +12,10 @@ Jackson. For a full list of contributors have a look at magit.el.
 Installing
 ----------
 
-Magit can be installed with the popular recipe of
+Download the latest tarball from
+[the github download page](http://github.com/philjackson/magit/downloads).
+
+And then Magit can be installed with the popular recipe of:
 
     $ ./autogen.sh     # If you got the sources directly from Git
     $ ./configure
