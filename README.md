@@ -43,12 +43,12 @@ The Magit User Manual describes things with more words than the online
 help.  You can read it in Emacs with 'C-u C-h i magit.info' for
 example, or on the web at
 
-  http://zagadka.vm.bytemark.co.uk/magit/magit.html
+  [the manual](http://zagadka.vm.bytemark.co.uk/magit/magit.html)
 
 If you have questions, please use the mailing list at
 
-  http://groups.google.com/group/magit/
+  [google group](http://groups.google.com/group/magit/)
 
 Magit's web home is currently at
 
-  http://zagadka.vm.bytemark.co.uk/magit/
+  [zagadka](http://zagadka.vm.bytemark.co.uk/magit/)
