@@ -2,6 +2,7 @@
 @c %**start of header
 @setfilename magit.info
 @settitle Magit User Manual
+@documentencoding utf-8
 @c %**end of header
 
 @dircategory Emacs
