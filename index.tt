@@ -1,0 +1,6 @@
+[%- WRAPPER "lib/head-foot.tt"
+    title="TactMe signup part 2"
+    selected="home"
+-%]
+
+[% END %]

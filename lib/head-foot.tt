@@ -1,0 +1,39 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+
+[% menu = [
+   [ "home"       ,  "/"                                            ]
+   [ "download"   , "http://github.com/philjackson/magit/downloads" ]
+   [ "repo"       , "http://github.com/philjackson/magit"           ]
+   [ "manual"     , "manual.html"                                   ]
+   [ "contribute" , "contribute.html"                               ]
+] %]
+
+<html>
+  <head>
+    <title>[% title %]</title>
+    <link rel="stylesheet" type="text/css"
+          href="style/main.css" media="screen" />
+  </head>
+  <body>
+    <div id="outer">
+      <div id="main">
+        <div id="title">
+          <img src="img/title.png" />
+          <div id="tag-line">It's Magit! An emacs mode for git.</div>
+
+          <div id="menu">
+            [% FOR item IN menu %]
+              <a [% IF selected == item.0 %]class="selected" [% END %]
+                 href="[% item.1 %]">[% item.0 %]</a>
+
+              [% "&#183;" UNLESS item == menu.last %]
+            [% END %]
+          </div>
+        </div>
+
+        [% content %]
+      </div>
+    </div>
+  </body>
+</html>
