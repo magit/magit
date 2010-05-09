@@ -8,16 +8,16 @@
        class="rounded-block[% " $class" IF class %]"
        [% "style=\"background: $colour;\"" IF colour %] >
     <div>
-      <span class="left"><img src="/images/tl.png" />[%- text %]</span>
-      <span class="right"><img src="/images/tr.png" /></span>
+      <span class="left"><img src="img/tl.png" />[%- text %]</span>
+      <span class="right"><img src="img/tr.png" /></span>
       <span class="clearer">&nbsp;</span>
 
     </div>
 
     <div class="rounded-block-content">[% content %]</div>
     <div style="height: 15px;">
-      <span class="left"><img src="/images/ll.png" /></span>
-      <span class="right"><img src="/images/lr.png" /></span>
+      <span class="left"><img src="img/ll.png" /></span>
+      <span class="right"><img src="img/lr.png" /></span>
       <div class="clearer">&nbsp;</div>
     </div>
   </div>

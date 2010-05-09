@@ -9,55 +9,9 @@ html {min-height: 100%;}
   padding: 0;
 }
 
-img, form, fieldset, button { border: 0; margin: 0; padding: 0; }
-
-#search-action { background: #ccc }
-#search-action table { width: 100%; }
-#search-action input#search-box {
-  width: 100%;
-  height: 25px;
-  margin: 0;
-  padding: 2px;
-  background-color: #FEFFEC;
-  font-size: 18px;
-  border: 0;
-}
-#search-action td#search-button, td.search-button {
-  width: 122px;
-  text-align: right;
-}
-#search-button input.button, .search-button input.button {
-  padding-bottom: 1px;
-  width: 110px;
-  height: 30px;
-  font-size: 14px;
-  color: #FFF;
-  background: url('/images/fancy-button.png') no-repeat 0 0;
-  border: 0;
-}
-
-#search-action .search-help a { font-size: small; color: #555; font-weight: normal; }
-#search-action h2 {font: 1.4em sans-serif; margin-bottom: 2px; margin-top: 2px; }
-
-.tag-cloud a {
-  font-weight: normal;
-  font-size: small;
-}
-
-/* .inverted-link { color: #fff; background: #4f89ff } */
-.inverted-link { font-style: italic }
-
-#featured td .description { font-style:italic; }
-#featured dt              { position: relative; font-weight: bold; padding-top: 4px; }
-#featured dd              { padding-left: 10px; }
-#featured table           { width: 100%; }
-#featured th              { font-size: large; text-align: left; }
-#featured td              { padding-right: 20px; }
-
-#featured .domain-price   { color: #555; background: #ccc; }
-#featured .domain-price .value  { font-size: large; }
-
 td { vertical-align: top; }
+
+p { padding-bottom: 20px; }
 
 a { color: #4f89ff; text-decoration: none; font-weight: bold;}
 a:hover { text-decoration: underline }
@@ -66,6 +20,13 @@ a:hover { text-decoration: underline }
 .clearer {clear: both; font-size: 0;}
 .left {float: left;}
 .right {float: right;}
+
+.release {
+}
+
+img {
+  border: 0px;
+}
 
 body {
   background: #fff;
