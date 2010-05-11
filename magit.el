@@ -1499,6 +1499,7 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "d") 'magit-diff-working-tree)
     (define-key map (kbd "D") 'magit-diff)
     (define-key map (kbd "a") 'magit-apply-item)
+    (define-key map (kbd "s") 'magit-log-grep)
     (define-key map (kbd "A") 'magit-cherry-pick-item)
     (define-key map (kbd "v") 'magit-revert-item)
     (define-key map (kbd "b") 'magit-checkout)

@@ -376,6 +376,8 @@ Some commands, such as @kbd{=}, will use the current commit and the
 marked commit as implicit arguments.  Other commands will offer the
 marked commit as a default when prompting for their arguments.
 
+To grep the history press @kbd{s}.
+
 @node Reflogs
 @chapter Reflogs
 
