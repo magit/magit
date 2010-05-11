@@ -2152,7 +2152,7 @@ in the corresponding directories."
 
 (defvar magit-log-oneline-re
   (concat
-   "^\\([_\\*|/ ]+\\)"           ; graph   (1)
+   "^\\([_\\*|/ -.]+\\)"         ; graph   (1)
    "\\(?:"
    "\\([0-9a-fA-F]\\{40\\}\\) "  ; sha1    (2)
    "\\(?:\\((.+?)\\) \\)?"       ; refs    (3)
