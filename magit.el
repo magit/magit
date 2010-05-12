@@ -4047,6 +4047,34 @@ With prefix force the removal even it it hasn't been merged."
     ((diff)
      (magit-interactive-resolve (cadr info)))))
 
-(provide 'magit)
+(defun magit-list-buffers ()
+  "Returns a list of magit buffers."
+  (delq nil (mapcar (lambda (b)
+                      (save-excursion
+                        (set-buffer b)
+                        (when (eq major-mode 'magit-mode)
+                          b)))
+                    (buffer-list))))
 
+(defun remove-dupes (list)
+  "Remove the duplicate items in a sorted list."
+  (let (tmp-list head)
+    (while list
+      (setq head (pop list))
+      (unless (equal head (car list))
+        (push head tmp-list)))
+    (reverse tmp-list)))
+
+(defun magit-list-projects ()
+  "Returns a list of directories with a magit representation."
+  (remove-dupes
+   (sort
+    (mapcar (lambda (b)
+              (save-excursion
+                (set-buffer b)
+                (directory-file-name default-directory)))
+            (magit-list-buffers))
+    'string=)))
+
+(provide 'magit)
 ;;; magit.el ends here
