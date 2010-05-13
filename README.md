@@ -1,6 +1,8 @@
 It's Magit!  A Emacs mode for Git.
 ==================================
 
+[github pages](http://philjackson.github.com/magit)
+
 I started to write Magit to learn about Git and to figure out how I
 would be using Git in a 'natural' way.  Magit will grow and hopefully
 become more coherent as I learn more about Git and good ways to use
@@ -43,7 +45,7 @@ The Magit User Manual describes things with more words than the online
 help.  You can read it in Emacs with 'C-u C-h i magit.info' for
 example, or on the web at
 
-  [the manual](http://zagadka.vm.bytemark.co.uk/magit/magit.html)
+  [the manual](http://philjackson.github.com/magit/magit.html)
 
 If you have questions, please use the mailing list at
 
@@ -51,4 +53,4 @@ If you have questions, please use the mailing list at
 
 Magit's web home is currently at
 
-  [zagadka](http://zagadka.vm.bytemark.co.uk/magit/)
+  [github pages](http://philjackson.github.com/magit)
