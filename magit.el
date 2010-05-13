@@ -3998,16 +3998,13 @@ With prefix force the removal even it it hasn't been merged."
 	(error "Cannot resolve %s" file))
     (with-current-buffer base-buffer
       (if (string-match "^[0-9]+ [0-9a-f]+ 1" merge-status)
-	  (insert (magit-git-string "cat-file" "blob"
-				    (concat ":1:" file)))))
+	  (insert (magit-git-output `("cat-file" "blob" ,(concat ":1:" file))))))
     (with-current-buffer our-buffer
       (if (string-match "^[0-9]+ [0-9a-f]+ 2" merge-status)
-	  (insert (magit-git-string "cat-file" "blob"
-				    (concat ":2:" file)))))
+	  (insert (magit-git-output `("cat-file" "blob" ,(concat ":2:" file))))))
     (with-current-buffer their-buffer
       (if (string-match "^[0-9]+ [0-9a-f]+ 3" merge-status)
-	  (insert (magit-git-string "cat-file" "blob"
-				    (concat ":3:" file)))))
+	  (insert (magit-git-output `("cat-file" "blob" ,(concat ":3:" file))))))
     ;; We have now created the 3 buffer with ours, theirs and the ancestor files
     (with-current-buffer (ediff-merge-buffers-with-ancestor our-buffer their-buffer base-buffer)
       (make-local-variable 'magit-ediff-file)
