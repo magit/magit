@@ -3499,17 +3499,25 @@ With a non numeric prefix ARG, show all entries"
 (defvar magit-log-grep-buffer-name "*magit-grep-log*"
   "Buffer name for display of log grep results")
 
-(defun magit-log (&optional arg)
-  (interactive "P")
-  (let* ((range (if arg
+(defun magit-display-log (ask-for-range &rest extra-args)
+  (let* ((log-range (if ask-for-range
 		    (magit-read-rev-range "Log" "HEAD")
 		  "HEAD"))
 	 (topdir (magit-get-top-dir default-directory))
-	 (args (list (magit-rev-range-to-git range))))
+	 (args (nconc (list (magit-rev-range-to-git log-range))
+                      extra-args)))
     (switch-to-buffer magit-log-buffer-name)
-    (magit-mode-init topdir 'log #'magit-refresh-log-buffer range
+    (magit-mode-init topdir 'log #'magit-refresh-log-buffer log-range
 		     "--pretty=oneline" args)
     (magit-log-mode t)))
+
+(defun magit-log-all (&optional arg)
+  (interactive "P")
+  (magit-display-log arg "--all"))
+
+(defun magit-log (&optional arg)
+  (interactive "P")
+  (magit-display-log arg))
 
 (defun magit-log-grep (str)
   "Search for regexp specified by STR in the commit log."
