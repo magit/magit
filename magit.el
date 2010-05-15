@@ -1392,6 +1392,10 @@ FUNC should leave point at the end of the modified region"
 (magit-define-level-shower 3)
 (magit-define-level-shower 4)
 
+(defvar magit-menu
+  (list '("Log" ?l "Short log" magit-log)
+	'("Log" ?L "Detailed log" magit-log-long)))
+
 (defvar magit-mode-map
   (let ((map (make-keymap)))
     (suppress-keymap map t)
@@ -1434,7 +1438,7 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "f") 'magit-remote-update)
     (define-key map (kbd "F") 'magit-pull)
     (define-key map (kbd "c") 'magit-log-edit)
-    (define-key map (kbd "l") 'magit-log)
+    (define-key map (kbd "l") 'magit-log-menu)
     (define-key map (kbd "L") 'magit-log-long)
     (define-key map (kbd "h") 'magit-reflog-head)
     (define-key map (kbd "H") 'magit-reflog)
@@ -1569,7 +1573,7 @@ FUNC should leave point at the end of the modified region"
     "---"
     ["Diff working tree" magit-diff-working-tree t]
     ["Diff" magit-diff t]
-    ["Log" magit-log t]
+    ["Log" magit-log-menu t]
     ["Long Log" magit-log-long t]
     ["Reflog head" magit-reflog-head t]
     ["Reflog" magit-reflog t]
@@ -3518,6 +3522,44 @@ With a non numeric prefix ARG, show all entries"
 (defun magit-log (&optional arg)
   (interactive "P")
   (magit-display-log arg))
+
+(defun magit-log-menu (&optional arg)
+  (interactive "P")
+  (magit-submenu "Log" arg))
+
+(defun magit-menu-for-group (group)
+  (let ((magit-group-menu (concat group " commands\n")))
+    (dolist (item magit-menu)
+      (when (string= (car item) group)
+	(setq magit-group-menu
+	      (concat magit-group-menu
+		      (format "\n%s  %s" (string (nth 1 item)) (nth 2 item))))))
+    magit-group-menu))
+
+(defun magit-submenu (group &optional arg)
+  (let ((magit-buf (current-buffer))
+	(menu (magit-menu-for-group group))
+	(chosen-fn nil))
+    (save-window-excursion
+      (delete-other-windows)
+      (switch-to-buffer-other-window " *Magit Commands*")
+      (erase-buffer)
+      (insert menu)
+      (setq buffer-read-only nil)
+      (fit-window-to-buffer)
+      (catch 'exit
+	(while t
+	  (setq c (read-char-exclusive "Command key: "))
+	  (message "%s" c)
+	  (let ((case-fold-search nil))
+	    (dolist (item magit-menu)
+	      (when (char-equal c (nth 1 item))
+		(message "%s" (nth 2 item))
+		(setq chosen-fn (nth 3 item))
+		(throw 'exit 0))))
+	  (error "Invalid key %c" c))))
+    (when chosen-fn
+      (call-interactively chosen-fn))))
 
 (defun magit-log-grep (str)
   "Search for regexp specified by STR in the commit log."
