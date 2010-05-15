@@ -3552,11 +3552,9 @@ With a non numeric prefix ARG, show all entries"
       (catch 'exit
 	(while t
 	  (setq c (read-char-exclusive prompt))
-	  (message "%s" c)
 	  (let ((case-fold-search nil))
 	    (dolist (item magit-menu)
 	      (when (char-equal c (nth 1 item))
-		(message "%s" (nth 2 item))
 		(setq chosen-fn (nth 3 item))
 		(throw 'exit 0))))
 	  (error "Invalid key %c" c))))
