@@ -3536,9 +3536,11 @@ With a non numeric prefix ARG, show all entries"
 		      (format "\n%s  %s" (string (nth 1 item)) (nth 2 item))))))
     magit-group-menu))
 
-(defun magit-submenu (group &optional arg)
+(defun magit-submenu (group &optional prefix-arg)
   (let ((magit-buf (current-buffer))
 	(menu (magit-menu-for-group group))
+	(prompt (concat (if prefix-arg (format "(prefix: %s) " prefix-arg))
+			"Command key: "))
 	(chosen-fn nil))
     (save-window-excursion
       (delete-other-windows)
@@ -3549,7 +3551,7 @@ With a non numeric prefix ARG, show all entries"
       (fit-window-to-buffer)
       (catch 'exit
 	(while t
-	  (setq c (read-char-exclusive "Command key: "))
+	  (setq c (read-char-exclusive prompt))
 	  (message "%s" c)
 	  (let ((case-fold-search nil))
 	    (dolist (item magit-menu)
@@ -3559,6 +3561,7 @@ With a non numeric prefix ARG, show all entries"
 		(throw 'exit 0))))
 	  (error "Invalid key %c" c))))
     (when chosen-fn
+      (setq current-prefix-arg prefix-arg)
       (call-interactively chosen-fn))))
 
 (defun magit-log-grep (str)
