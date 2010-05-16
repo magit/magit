@@ -1404,7 +1404,7 @@ FUNC should leave point at the end of the modified region"
 	'("Log" ?H "Reflog head" magit-reflog-head)
 	'("Log" ?a "All branches" "--all" magit-true)
 	'("Log" ?R "Restrict to path" "--relative=" read-directory-name)
-	))))
+	))
 
 (defvar magit-mode-map
   (let ((map (make-keymap)))
