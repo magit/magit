@@ -1393,8 +1393,12 @@ FUNC should leave point at the end of the modified region"
 (magit-define-level-shower 4)
 
 (defvar magit-menu
-  (list '("Log" ?l "Short log" magit-log)
-	'("Log" ?L "Detailed log" magit-log-long)))
+  (list '("Log" ?l "One line log" magit-log)
+	'("Log" ?L "Detailed log" magit-log-long)
+	'("Log" ?a "All branches" magit-log-all)
+	'("Log" ?s "Search for regexp" magit-log-grep)
+	'("Log" ?h "Reflog" magit-reflog)
+	'("Log" ?H "Reflog head" magit-reflog-head)))
 
 (defvar magit-mode-map
   (let ((map (make-keymap)))
