@@ -13,13 +13,12 @@ demonstrates some of the major features.
 Installing
 ----------
 
-Download the latest tarball from [the github download page][download].
+Download the latest tarball from [the github download page][download],
+then Magit can be installed with the popular recipe of:
 
-And then Magit can be installed with the popular recipe of:
-
-    $ ./autogen.sh     # If you got the sources directly from Git
-    $ ./configure
-    $ make install
+    ./autogen.sh     # If you got the sources directly from Git
+    ./configure
+    make install
 
 This will put magit.el into `/usr/local/share/emacs/site-lisp`, where
 Emacs should be able to find it.  Then add
