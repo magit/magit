@@ -3592,14 +3592,12 @@ With a non numeric prefix ARG, show all entries"
 	(menu-items (magit-get-menu-options group))
 	(prompt (concat (if prefix-arg (format "(prefix: %s) " prefix-arg))
 			"Command key (? for help): "))
-	(original-prompt "")
 	(display-help-p)
 	(chosen-fn nil))
     (save-window-excursion
       (delete-other-windows)
       (switch-to-buffer-other-window " *Magit Commands*" t)
       (setq menu-buf (current-buffer))
-      (setq original-prompt prompt)
       (catch 'exit
 	(while t
 	  (pop-to-buffer menu-buf)
@@ -3629,17 +3627,18 @@ With a non numeric prefix ARG, show all entries"
 		    (setcar (nthcdr 5 item)
 			    (funcall (nth 4 item) (nth 2 item))))
 		   (display-help-p
-		    (describe-function fn)
-		    (setq prompt original-prompt)
-		    (setq display-help-p nil))
+		    (setq chosen-fn fn)
+		    (throw 'exit 0))
 		   (t
 		    (setq chosen-fn fn)
 		    (throw 'exit 0))))))
 	     (error "Invalid key: %c" c))))))
     (when chosen-fn
-      (setq current-prefix-arg prefix-arg)
-      (let ((magit-custom-options (magit-menu-make-option-list menu-items)))
-	(call-interactively chosen-fn)))))
+      (if display-help-p
+	  (describe-function chosen-fn)
+	(setq current-prefix-arg prefix-arg)
+	(let ((magit-custom-options (magit-menu-make-option-list menu-items)))
+	  (call-interactively chosen-fn))))))
 
 (defun magit-menu-make-option-list (menu-items)
   (let ((result '())
