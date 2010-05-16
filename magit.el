@@ -3528,13 +3528,18 @@ With a non numeric prefix ARG, show all entries"
   (magit-submenu "Log" arg))
 
 (defun magit-menu-for-group (group)
-  (let ((magit-group-menu (concat group " commands\n")))
+  (let ((text (concat group " variants\n"))
+	(s "") (line ""))
     (dolist (item magit-menu)
       (when (string= (car item) group)
-	(setq magit-group-menu
-	      (concat magit-group-menu
-		      (format "\n%s  %s" (string (nth 1 item)) (nth 2 item))))))
-    magit-group-menu))
+	(setq s 
+	      (format "%-35s" (concat (string (nth 1 item)) "  " (nth 2 item))))
+	(when (< 35 (length line))
+	  (setq text (concat text "\n" line))
+	  (setq line ""))
+	(setq line (concat line s))))
+    (setq text (concat text "\n" line))
+    text))
 
 (defun magit-submenu (group &optional prefix-arg)
   (let ((magit-buf (current-buffer))
