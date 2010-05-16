@@ -3242,7 +3242,7 @@ Tag will point to the current 'HEAD'.
 (defun magit-annotated-tag (name)
   "Start composing an annotated tag with the given NAME.
 Tag will point to the current 'HEAD'."
-  (interactive "sNew tag name: ")
+  (interactive "sNew annotated tag name: ")
   (magit-log-edit-set-field 'tag name)
   (magit-pop-to-log-edit "tag"))
 
