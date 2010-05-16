@@ -1396,6 +1396,8 @@ FUNC should leave point at the end of the modified region"
   "Dummy function for turning on options on menu."
   t)
 
+(defvar magit-custom-options '())
+
 (defvar magit-menu
   (list '("Log" ?l "One line log" magit-log)
 	'("Log" ?L "Detailed log" magit-log-long)
@@ -3531,7 +3533,7 @@ With a non numeric prefix ARG, show all entries"
 
 (defun magit-log (&optional arg)
   (interactive "P")
-  (magit-display-log arg))
+  (apply 'magit-display-log arg magit-custom-options))
 
 (defun magit-log-menu (&optional arg)
   (interactive "P")
@@ -3636,7 +3638,24 @@ With a non numeric prefix ARG, show all entries"
 	     (error "Invalid key: %c" c))))))
     (when chosen-fn
       (setq current-prefix-arg prefix-arg)
-      (call-interactively chosen-fn))))
+      (let ((magit-custom-options (magit-menu-make-option-list menu-items)))
+	(call-interactively chosen-fn)))))
+
+(defun magit-menu-make-option-list (menu-items)
+  (let ((result '())
+	(option))
+    (dolist (item menu-items)
+      (when (and (stringp (nth 3 item)) (nth 5 item))
+	(setq option
+	      (concat (nth 3 item)
+		      (if (stringp (nth 5 item))
+			  (if (string= "="
+				       (substring (nth 3 item)
+						  (- (length (nth 3 item)) 1)))
+			      (shell-quote-argument (nth 5 item))
+			    (concat " " (shell-quote-argument (nth 5 item)))))))
+	(setq result (append result (list option)))))
+    result))
 
 (defun magit-log-grep (str)
   "Search for regexp specified by STR in the commit log."
@@ -3645,8 +3664,10 @@ With a non numeric prefix ARG, show all entries"
     (switch-to-buffer magit-log-grep-buffer-name)
     (magit-mode-init topdir 'log #'magit-refresh-log-buffer "HEAD"
 		     "--pretty=oneline"
-		     (list "-E"
-			   (format "--grep=%s" (shell-quote-argument str))))
+		     (append
+		      (list "-E"
+			    (format "--grep=%s" (shell-quote-argument str)))
+		      magit-custom-options))
     (magit-log-mode t)))
 
 (defun magit-log-long (&optional arg)
@@ -3655,7 +3676,8 @@ With a non numeric prefix ARG, show all entries"
 		    (magit-read-rev-range "Long log" "HEAD")
 		  "HEAD"))
 	 (topdir (magit-get-top-dir default-directory))
-	 (args (list (magit-rev-range-to-git range))))
+	 (args (append (list (magit-rev-range-to-git range))
+		       magit-custom-options)))
     (switch-to-buffer magit-log-buffer-name)
     (magit-mode-init topdir 'log #'magit-refresh-log-buffer range
 		     "--stat" args)
