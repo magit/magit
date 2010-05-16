@@ -1402,8 +1402,8 @@ FUNC should leave point at the end of the modified region"
 	'("Log" ?s "Search for regexp" magit-log-grep)
 	'("Log" ?h "Reflog" magit-reflog)
 	'("Log" ?H "Reflog head" magit-reflog-head)
-	'("Log-option" ?a "All branches" "--all" magit-true)
-	'("Log-option" ?R "Restrict to path" "--relative=" read-directory-name)
+	'("Log" ?a "All branches" "--all" magit-true)
+	'("Log" ?R "Restrict to path" "--relative=" read-directory-name)
 	))))
 
 (defvar magit-mode-map
@@ -3538,15 +3538,16 @@ With a non numeric prefix ARG, show all entries"
   (magit-submenu "Log" arg))
 
 (defun magit-get-menu-options (group)
-  (let ((option-key (concat group "-option"))
-	(menu-items '()))
+  (let ((menu-items '()))
     (dolist (item magit-menu)
-      (cond
-       ((string= (car item) option-key)
-	;; We append an extra cell to the item for storing the option's value:
-	(setq menu-items (append menu-items (list (append item (list nil))))))
-       ((string= (car item) group)
-	(setq menu-items (append menu-items (list item))))))
+      (when (string= (car item) group)
+	(cond
+	 ((stringp (nth 3 item)) ;; It's an option
+	  ;; We append an extra cell to the item for storing the option's value:
+	  (setq menu-items (append menu-items (list (append item (list nil))))))
+	 ((functionp (nth 3 item)) ;; It's a command
+	  (setq menu-items (append menu-items (list item))))
+	 (t (error "Unrecognised item type in `magit-menu': %S." item)))))
     menu-items))
 
 (defun magit-build-menu (group menu-items)
