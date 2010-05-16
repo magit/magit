@@ -1611,7 +1611,7 @@ FUNC should leave point at the end of the modified region"
     ["Display Git output" magit-display-process t]
     ["Quit Magit" quit-window t]))
 
-(defvar magit-mode-hook nil)
+(defvar magit-mode-hook nil "Hook run by `magit-mode'")
 
 (put 'magit-mode 'mode-class 'special)
 
