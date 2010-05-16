@@ -3545,7 +3545,9 @@ With a non numeric prefix ARG, show all entries"
   (let ((magit-buf (current-buffer))
 	(menu (magit-menu-for-group group))
 	(prompt (concat (if prefix-arg (format "(prefix: %s) " prefix-arg))
-			"Command key: "))
+			"Command key (? for help): "))
+	(original-prompt "")
+	(display-help-p)
 	(chosen-fn nil))
     (save-window-excursion
       (delete-other-windows)
@@ -3554,15 +3556,26 @@ With a non numeric prefix ARG, show all entries"
       (insert menu)
       (setq buffer-read-only nil)
       (fit-window-to-buffer)
+      (setq original-prompt prompt)
       (catch 'exit
 	(while t
-	  (setq c (read-char-exclusive prompt))
-	  (let ((case-fold-search nil))
-	    (dolist (item magit-menu)
-	      (when (char-equal c (nth 1 item))
-		(setq chosen-fn (nth 3 item))
-		(throw 'exit 0))))
-	  (error "Invalid key %c" c))))
+	  (let ((c (read-char-exclusive prompt))
+		(case-fold-search nil))
+	    (cond
+	     ((char-equal c ??)
+	      (setq display-help-p t)
+	      (setq prompt "Show help for command: "))
+	     (t
+	      (dolist (item magit-menu)
+		(when (char-equal c (nth 1 item))
+		  (if display-help-p
+		      (progn
+			(describe-function (nth 3 item))
+			(setq prompt original-prompt)
+			(setq display-help-p nil))
+		    (setq chosen-fn (nth 3 item))
+		    (throw 'exit 0)))))
+	     (error "Invalid key: %c" c))))))
     (when chosen-fn
       (setq current-prefix-arg prefix-arg)
       (call-interactively chosen-fn))))
