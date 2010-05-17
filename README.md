@@ -47,8 +47,19 @@ at Google Groups.
 
 Magit's website is currently hosted [on GitHub][website].
 
+Development
+-----------
+
+Magit was started by Marius Vollmer and is currently maintained by
+Phil Jackson. For a full list of contributors have a look at
+`magit.el` in the source distribution.
+
+Magit's canonical source repository is currently
+[hosted on GitHub][development].
+
 [vc]: http://www.gnu.org/software/emacs/manual/html_node/emacs/Version-Control.html#Version-Control
 [website]: http://philjackson.github.com/magit
+[development]: http://github.com/philjackson/magit
 [manual]: http://philjackson.github.com/magit/magit.html
 [cheatsheet]: http://daemianmack.com/magit-cheatsheet.html
 [screencast]: http://vimeo.com/2871241
