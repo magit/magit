@@ -1392,6 +1392,21 @@ FUNC should leave point at the end of the modified region"
 	'("Log" ?H "Reflog head" magit-reflog-head)
 	'("Log" ?a "All branches" "--all" magit-true)
 	'("Log" ?R "Restrict to path" "--relative=" read-directory-name)
+	'("Branch" ?b "Switch" magit-checkout)
+	'("Branch" ?B "Create" magit-create-branch)
+	'("Branch" ?V "Show branches" magit-show-branches)
+	'("Branch" ?k "Delete" magit-delete-branch)
+	'("Branch" ?m "Move/Rename" magit-move-branch)
+	'("Branch" ?w "Wazzup" magit-wazzup)
+	'("Branch" ?T "Do not track remote parent branch"
+	  "--no-track" magit-true)
+	'("Branch" ?R "Consider remote-tracking branches" "-r" magit-true)
+	'("Branch" ?C "Only branches that contains the given commit"
+	  "--contains" magit-read-rev)
+	'("Branch" ?M "Only branches merged into the given commit"
+	  "--merged" magit-read-rev)
+	'("Branch" ?N "Only branches not merged into the given commit"
+	  "--no-merged" magit-read-rev)
 	))
 
 (defun magit-get-menu-options (group)
@@ -1608,7 +1623,7 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "a") 'magit-apply-item)
     (define-key map (kbd "A") 'magit-cherry-pick-item)
     (define-key map (kbd "v") 'magit-revert-item)
-    (define-key map (kbd "b") 'magit-checkout)
+    (define-key map (kbd "b") 'magit-branch-menu)
     (define-key map (kbd "B") 'magit-create-branch)
     (define-key map (kbd "m") 'magit-manual-merge)
     (define-key map (kbd "M") 'magit-automatic-merge)
@@ -2671,6 +2686,10 @@ With prefix argument, add remaining untracked files as well.
 
 ;;; Branches
 
+(defun magit-branch-menu (&optional arg)
+  (interactive "P")
+  (magit-menu "Branch" arg))
+
 (defun magit-maybe-create-local-tracking-branch (rev)
   (if (string-match "^refs/remotes/\\([^/]+\\)/\\(.+\\)" rev)
       (let ((remote (match-string 1 rev))
@@ -2690,7 +2709,8 @@ If REVISION is a remote branch, offer to create a local tracking branch.
   (interactive (list (magit-read-rev "Switch to" (magit-default-rev))))
   (if rev
       (if (not (magit-maybe-create-local-tracking-branch rev))
-	  (magit-run-git "checkout" (magit-rev-to-git rev)))))
+	  (apply 'magit-run-git "checkout" magit-custom-options
+		 (magit-rev-to-git rev)))))
 
 (defun magit-read-create-branch-args ()
   (let* ((cur-branch (magit-get-current-branch))
@@ -2705,9 +2725,32 @@ Fails if working tree or staging area contain uncommitted changes.
   (interactive (magit-read-create-branch-args))
   (if (and branch (not (string= branch ""))
 	   parent)
-      (magit-run-git "checkout" "-b"
-		     branch
-		     (magit-rev-to-git parent))))
+      (apply 'magit-run-git "checkout" "-b"
+	     magit-custom-options
+	     branch
+	     (magit-rev-to-git parent))))
+
+(defun magit-delete-branch (branch)
+  "Asks for a branch and deletes it.
+If the branch is the current one, offers to switch to `master' first.
+\('git branch -d BRANCH')."
+  (interactive (list (magit-read-rev "Branch to delete" (magit-default-rev))))
+  (when (and branch (string= branch (magit-get-current-branch)))
+    (if (y-or-n-p "Cannot delete current branch. Switch to master first?")
+	(magit-checkout "master")
+      (setq branch nil)))
+  (when branch
+    (apply 'magit-run-git "branch" "-d" magit-custom-options
+	   (magit-rev-to-git branch))))
+
+(defun magit-move-branch (old new)
+  "Renames or moves a branch.
+If the branch is the current one, offers to switch to `master' first.
+\('git branch -m OLD NEW')."
+  (interactive (list (magit-read-rev "Old name" (magit-default-rev))
+		     (magit-read-rev "New name" (magit-default-rev))))
+  (when branch
+    (magit-run-git "branch" "-m" (magit-rev-to-git branch) new)))
 
 ;;; Merging
 
@@ -4116,7 +4159,8 @@ With prefix force the removal even it it hasn't been merged."
       (setq default-directory topdir)))
   (let ((inhibit-read-only t)
         (branches (mapcar 'magit--branch-view-details
-                          (magit-git-lines "branch" "-va"))))
+                          (apply 'magit-git-lines "branch" "-va"
+				 magit-custom-options))))
     (erase-buffer)
     (insert
      (mapconcat
