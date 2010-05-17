@@ -1376,6 +1376,141 @@ FUNC should leave point at the end of the modified region"
   (interactive)
   (display-buffer magit-process-buffer-name))
 
+;;; Menu
+
+;; Some keys show a list of commands and options
+
+(defvar magit-custom-options
+  "This variable is for internal use by the magit menu
+  functionality." '())
+
+(defvar magit-menu
+  (list '("Log" ?l "One line log" magit-log)
+	'("Log" ?L "Detailed log" magit-log-long)
+	'("Log" ?s "Search for regexp" magit-log-grep)
+	'("Log" ?h "Reflog" magit-reflog)
+	'("Log" ?H "Reflog head" magit-reflog-head)
+	'("Log" ?a "All branches" "--all" magit-true)
+	'("Log" ?R "Restrict to path" "--relative=" read-directory-name)
+	))
+
+(defun magit-get-menu-options (group)
+  (let ((menu-items '()))
+    (dolist (item magit-menu)
+      (when (string= (car item) group)
+	(cond
+	 ((stringp (nth 3 item)) ;; It's an option
+	  ;; We append an extra cell to the item for storing the option's value:
+	  (setq menu-items (append menu-items (list (append item (list nil))))))
+	 ((functionp (nth 3 item)) ;; It's a command
+	  (setq menu-items (append menu-items (list item))))
+	 (t (error "Unrecognised item type in `magit-menu': %S." item)))))
+    menu-items))
+
+(defun magit-build-menu (group menu-items)
+  (erase-buffer)
+  (let ((text (concat group " variants\n"))
+	(s "") (line ""))
+    (dolist (item menu-items)
+      (unless (stringp (nth 3 item))
+	(setq s
+	      (format "%-35s" (concat (string (nth 1 item)) "  " (nth 2 item))))
+	(when (< 35 (length line))
+	  (setq text (concat text "\n" line))
+	  (setq line ""))
+	(setq line (concat line s))))
+    (setq text (concat text "\n" line))
+    (setq line "")
+    (setq text (concat text "\n\nOptions\n"))
+    (dolist (item menu-items)
+      (when (stringp (nth 3 item))
+	(setq s 
+	      (format "%-35s" (concat (string (nth 1 item)) "  " (nth 2 item)
+				      " (" (nth 3 item)
+				      (if (nth 5 item)
+					  (if (stringp (nth 5 item))
+					      (nth 5 item)
+					    " ON"))
+				       ")")))
+	(when (or (< 35 (length s)) (< 35 (length line)))
+	  (setq text (concat text "\n" line))
+	  (setq line ""))
+	(setq line (concat line s))))
+    (setq text (concat text "\n" line "\n\n"))
+    (insert text)
+    (setq buffer-read-only nil)
+    (fit-window-to-buffer)))
+
+(defun magit-menu (group &optional prefix-arg)
+  (let ((magit-buf (current-buffer))
+	(menu-buf)
+	(menu-items (magit-get-menu-options group))
+	(prompt (concat (if prefix-arg (format "(prefix: %s) " prefix-arg))
+			"Command key (? for help): "))
+	(display-help-p)
+	(chosen-fn nil))
+    (save-window-excursion
+      (delete-other-windows)
+      (switch-to-buffer-other-window " *Magit Commands*" t)
+      (setq menu-buf (current-buffer))
+      (catch 'exit
+	(while t
+	  (pop-to-buffer menu-buf)
+	  (magit-build-menu group menu-items)
+	  (let ((c (read-char-exclusive prompt))
+		(case-fold-search nil))
+	    (cond
+	     ;; Bail out if the input is not a character (Meta-x etc):
+	     ((not (characterp c))
+	      (throw 'exit 0))
+	     ((char-equal c ??)
+	      (setq display-help-p t)
+	      (setq prompt "Show help for command: "))
+	     (t
+	      (dolist (item menu-items)
+		(when (char-equal c (nth 1 item))
+		  ;; If a command, fn is a function.
+		  ;; If an option, fn is a string.
+		  (setq fn (nth 3 item))
+		  (cond
+		   ((and (stringp fn) display-help-p)
+		    (message "No help for options!")
+		    (sit-for 2))
+		   ((and (stringp fn) (nth 5 item))
+		    (setcar (nthcdr 5 item) nil))
+		   ((stringp fn)
+		    (setcar (nthcdr 5 item)
+			    (funcall (nth 4 item) (nth 2 item))))
+		   (display-help-p
+		    (setq chosen-fn fn)
+		    (throw 'exit 0))
+		   (t
+		    (setq chosen-fn fn)
+		    (throw 'exit 0))))))
+	     (error "Invalid key: %c" c))))))
+    (when chosen-fn
+      (if display-help-p
+	  (describe-function chosen-fn)
+	(setq current-prefix-arg prefix-arg)
+	(let ((magit-custom-options (magit-menu-make-option-list menu-items)))
+	  (call-interactively chosen-fn))))))
+
+(defun magit-menu-make-option-list (menu-items)
+  (let ((result '())
+	(option))
+    (dolist (item menu-items)
+      (when (and (stringp (nth 3 item)) (nth 5 item))
+	(setq option
+	      (concat (nth 3 item)
+		      (if (stringp (nth 5 item))
+			  (if (string= "="
+				       (substring (nth 3 item)
+						  (- (length (nth 3 item)) 1)))
+			      (shell-quote-argument (nth 5 item))
+			    (concat " " (shell-quote-argument (nth 5 item)))))))
+	(setq result (append result (list option)))))
+    result))
+
 ;;; Mode
 
 ;; We define individual functions (instead of using lambda etc) so
@@ -1395,18 +1530,6 @@ FUNC should leave point at the end of the modified region"
 (defun magit-true (prompt)
   "Dummy function for turning on options on menu."
   t)
-
-(defvar magit-custom-options '())
-
-(defvar magit-menu
-  (list '("Log" ?l "One line log" magit-log)
-	'("Log" ?L "Detailed log" magit-log-long)
-	'("Log" ?s "Search for regexp" magit-log-grep)
-	'("Log" ?h "Reflog" magit-reflog)
-	'("Log" ?H "Reflog head" magit-reflog-head)
-	'("Log" ?a "All branches" "--all" magit-true)
-	'("Log" ?R "Restrict to path" "--relative=" read-directory-name)
-	))
 
 (defvar magit-mode-map
   (let ((map (make-keymap)))
@@ -3537,124 +3660,7 @@ With a non numeric prefix ARG, show all entries"
 
 (defun magit-log-menu (&optional arg)
   (interactive "P")
-  (magit-submenu "Log" arg))
-
-(defun magit-get-menu-options (group)
-  (let ((menu-items '()))
-    (dolist (item magit-menu)
-      (when (string= (car item) group)
-	(cond
-	 ((stringp (nth 3 item)) ;; It's an option
-	  ;; We append an extra cell to the item for storing the option's value:
-	  (setq menu-items (append menu-items (list (append item (list nil))))))
-	 ((functionp (nth 3 item)) ;; It's a command
-	  (setq menu-items (append menu-items (list item))))
-	 (t (error "Unrecognised item type in `magit-menu': %S." item)))))
-    menu-items))
-
-(defun magit-build-menu (group menu-items)
-  (erase-buffer)
-  (let ((text (concat group " variants\n"))
-	(s "") (line ""))
-    (dolist (item menu-items)
-      (unless (stringp (nth 3 item))
-	(setq s
-	      (format "%-35s" (concat (string (nth 1 item)) "  " (nth 2 item))))
-	(when (< 35 (length line))
-	  (setq text (concat text "\n" line))
-	  (setq line ""))
-	(setq line (concat line s))))
-    (setq text (concat text "\n" line))
-    (setq line "")
-    (setq text (concat text "\n\nOptions\n"))
-    (dolist (item menu-items)
-      (when (stringp (nth 3 item))
-	(setq s 
-	      (format "%-35s" (concat (string (nth 1 item)) "  " (nth 2 item)
-				      " (" (nth 3 item)
-				      (if (nth 5 item)
-					  (if (stringp (nth 5 item))
-					      (nth 5 item)
-					    " ON"))
-				       ")")))
-	(when (or (< 35 (length s)) (< 35 (length line)))
-	  (setq text (concat text "\n" line))
-	  (setq line ""))
-	(setq line (concat line s))))
-    (setq text (concat text "\n" line "\n\n"))
-    (insert text)
-    (setq buffer-read-only nil)
-    (fit-window-to-buffer)))
-
-(defun magit-submenu (group &optional prefix-arg)
-  (let ((magit-buf (current-buffer))
-	(menu-buf)
-	(menu-items (magit-get-menu-options group))
-	(prompt (concat (if prefix-arg (format "(prefix: %s) " prefix-arg))
-			"Command key (? for help): "))
-	(display-help-p)
-	(chosen-fn nil))
-    (save-window-excursion
-      (delete-other-windows)
-      (switch-to-buffer-other-window " *Magit Commands*" t)
-      (setq menu-buf (current-buffer))
-      (catch 'exit
-	(while t
-	  (pop-to-buffer menu-buf)
-	  (magit-build-menu group menu-items)
-	  (let ((c (read-char-exclusive prompt))
-		(case-fold-search nil))
-	    (cond
-	     ;; Bail out if the input is not a character (Meta-x etc):
-	     ((not (characterp c))
-	      (throw 'exit 0))
-	     ((char-equal c ??)
-	      (setq display-help-p t)
-	      (setq prompt "Show help for command: "))
-	     (t
-	      (dolist (item menu-items)
-		(when (char-equal c (nth 1 item))
-		  ;; If a command, fn is a function.
-		  ;; If an option, fn is a string.
-		  (setq fn (nth 3 item))
-		  (cond
-		   ((and (stringp fn) display-help-p)
-		    (message "No help for options!")
-		    (sit-for 2))
-		   ((and (stringp fn) (nth 5 item))
-		    (setcar (nthcdr 5 item) nil))
-		   ((stringp fn)
-		    (setcar (nthcdr 5 item)
-			    (funcall (nth 4 item) (nth 2 item))))
-		   (display-help-p
-		    (setq chosen-fn fn)
-		    (throw 'exit 0))
-		   (t
-		    (setq chosen-fn fn)
-		    (throw 'exit 0))))))
-	     (error "Invalid key: %c" c))))))
-    (when chosen-fn
-      (if display-help-p
-	  (describe-function chosen-fn)
-	(setq current-prefix-arg prefix-arg)
-	(let ((magit-custom-options (magit-menu-make-option-list menu-items)))
-	  (call-interactively chosen-fn))))))
-
-(defun magit-menu-make-option-list (menu-items)
-  (let ((result '())
-	(option))
-    (dolist (item menu-items)
-      (when (and (stringp (nth 3 item)) (nth 5 item))
-	(setq option
-	      (concat (nth 3 item)
-		      (if (stringp (nth 5 item))
-			  (if (string= "="
-				       (substring (nth 3 item)
-						  (- (length (nth 3 item)) 1)))
-			      (shell-quote-argument (nth 5 item))
-			    (concat " " (shell-quote-argument (nth 5 item)))))))
-	(setq result (append result (list option)))))
-    result))
+  (magit-menu "Log" arg))
 
 (defun magit-log-grep (str)
   "Search for regexp specified by STR in the commit log."
