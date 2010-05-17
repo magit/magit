@@ -1412,7 +1412,7 @@ FUNC should leave point at the end of the modified region"
   (let ((text (concat group " variants\n"))
 	(s "") (line ""))
     (dolist (item menu-items)
-      (unless (stringp (nth 3 item))
+      (when (and (string= (car item) group) (functionp (nth 3 item)))
 	(setq s
 	      (format "%-35s" (concat (string (nth 1 item)) "  " (nth 2 item))))
 	(when (< 35 (length line))
@@ -1423,14 +1423,16 @@ FUNC should leave point at the end of the modified region"
     (setq line "")
     (setq text (concat text "\n\nOptions\n"))
     (dolist (item menu-items)
-      (when (stringp (nth 3 item))
+      (when (and (string= (car item) group) (stringp (nth 3 item)))
 	(setq s 
 	      (format "%-35s" (concat (string (nth 1 item)) "  " (nth 2 item)
 				      " (" (nth 3 item)
-				      (if (nth 5 item)
-					  (if (stringp (nth 5 item))
-					      (nth 5 item)
-					    " ON"))
+				      (when (nth 5 item)
+					(concat
+					 " "
+					 (if (stringp (nth 5 item))
+					     (nth 5 item)
+					   "ON")))
 				       ")")))
 	(when (or (< 35 (length s)) (< 35 (length line)))
 	  (setq text (concat text "\n" line))
