@@ -1513,19 +1513,18 @@ FUNC should leave point at the end of the modified region"
 	  (call-interactively chosen-fn))))))
 
 (defun magit-menu-make-option-list (menu-items)
-  (let ((result '())
-	(option))
+  (let ((result '()))
     (dolist (item menu-items)
-      (when (and (stringp (nth 3 item)) (nth 5 item))
-	(setq option
-	      (concat (nth 3 item)
-		      (if (stringp (nth 5 item))
-			  (if (string= "="
-				       (substring (nth 3 item)
-						  (- (length (nth 3 item)) 1)))
-			      (shell-quote-argument (nth 5 item))
-			    (concat " " (shell-quote-argument (nth 5 item)))))))
-	(setq result (append result (list option)))))
+      (let ((option (nth 3 item))
+	    (value (nth 5 item)))
+      (when (and (stringp option) value)
+	(when (and (stringp value)
+		   (string= "=" (substring option (- (length option) 1))))
+	  (setq option (concat option value))
+	  (setq value nil))
+	(setq result (append result (list (shell-quote-argument option))))
+	(when (stringp value)
+	  (setq result (append result (list (shell-quote-argument value))))))))
     result))
 
 ;;; Mode
