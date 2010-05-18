@@ -290,6 +290,14 @@ Many Magit faces inherit from this one by default."
   "Face for local branch head labels shown in log buffer."
   :group 'magit)
 
+(defface magit-menu-selected-option
+  '((((class color) (background light))
+     :foreground "red")
+    (((class color) (background dark))
+     :foreground "orange"))
+  "Face for selected options on magit's menu"
+  :group 'magit)
+
 ;;; Macros
 
 (defmacro magit-with-refresh (&rest body)
@@ -1429,41 +1437,42 @@ FUNC should leave point at the end of the modified region"
 	 (t (error "Unrecognised item type in `magit-menu': %S." item)))))
     menu-items))
 
+(defun magit-menu-insert-item (text highlight-p)
+  (let* ((item-width 35)
+	 (max-items-perline 2)
+	 (max-columns (* max-items-perline item-width))
+	 (begin)
+	 (current-column (- (point) (line-beginning-position)))
+	 (padding
+	  (make-string (- item-width (mod (length text) item-width)) 32)))
+    (when (< max-columns (+ current-column (length text) (length padding)))
+      (insert "\n"))
+    (setq begin (point))
+    (insert text)
+    (when highlight-p
+      (put-text-property begin (point) 'face 'magit-menu-selected-option))
+    (insert padding)))
+
 (defun magit-build-menu (group menu-items)
   (erase-buffer)
-  (let ((text (concat group " variants\n"))
-	(s "") (line ""))
+  (let ((s ""))
+    (insert group " variants\n")
     (dolist (item menu-items)
       (when (and (string= (car item) group) (functionp (nth 3 item)))
-	(setq s
-	      (format "%-35s" (concat (string (nth 1 item)) "  " (nth 2 item))))
-	(when (< 35 (length line))
-	  (setq text (concat text "\n" line))
-	  (setq line ""))
-	(setq line (concat line s))))
-    (setq text (concat text "\n" line))
-    (setq line "")
-    (setq text (concat text "\n\nOptions\n"))
+	(setq s (concat (string (nth 1 item)) "  " (nth 2 item)))
+	(magit-menu-insert-item s nil)))
+    (insert "\nOptions\n")
     (dolist (item menu-items)
       (when (and (string= (car item) group) (stringp (nth 3 item)))
-	(setq s 
-	      (format "%-35s" (concat (string (nth 1 item)) "  " (nth 2 item)
-				      " (" (nth 3 item)
-				      (when (nth 5 item)
-					(concat
-					 " "
-					 (if (stringp (nth 5 item))
-					     (nth 5 item)
-					   "ON")))
-				       ")")))
-	(when (or (< 35 (length s)) (< 35 (length line)))
-	  (setq text (concat text "\n" line))
-	  (setq line ""))
-	(setq line (concat line s))))
-    (setq text (concat text "\n" line "\n\n"))
-    (insert text)
+	(setq s (concat (string (nth 1 item)) "  " (nth 2 item)
+			" (" (nth 3 item)
+			(when (stringp (nth 5 item))
+			  (concat " " (nth 5 item)))
+			")"))
+	(magit-menu-insert-item s (nth 5 item))))
+    (insert "\n"))
     (setq buffer-read-only nil)
-    (fit-window-to-buffer)))
+    (fit-window-to-buffer))
 
 (defun magit-menu (group &optional prefix-arg)
   (let ((magit-buf (current-buffer))
