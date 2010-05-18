@@ -1380,9 +1380,11 @@ FUNC should leave point at the end of the modified region"
 
 ;; Some keys show a list of commands and options
 
-(defvar magit-custom-options
+(defvar magit-custom-options '()
   "This variable is for internal use by the magit menu
-  functionality." '())
+  functionality. Before executing a menu command, it is bound to
+  the list of arguments corresponding to the options setted by
+  the user on the menu.")
 
 (defvar magit-menu
   (list '("Log" ?l "One line log" magit-log)
