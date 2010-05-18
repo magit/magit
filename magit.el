@@ -1387,10 +1387,15 @@ FUNC should leave point at the end of the modified region"
 (defvar magit-menu
   (list '("Log" ?l "One line log" magit-log)
 	'("Log" ?L "Detailed log" magit-log-long)
-	'("Log" ?s "Search for regexp" magit-log-grep)
 	'("Log" ?h "Reflog" magit-reflog)
 	'("Log" ?H "Reflog head" magit-reflog-head)
 	'("Log" ?a "All branches" "--all" magit-true)
+	'("Log" ?g "Containing regexp" "--grep=" read-from-minibuffer)
+	'("Log" ?A "By author" "--author=" read-from-minibuffer)
+	'("Log" ?C "By committer" "--committer=" read-from-minibuffer)
+	'("Log" ?F "Follow only first parent"
+	  "--first-parent" magit-true)
+	'("Log" ?B "Branches" "--branches=" read-from-minibuffer)
 	'("Log" ?R "Restrict to path" "--relative=" read-directory-name)
 	'("Branch" ?b "Switch" magit-checkout)
 	'("Branch" ?B "Create" magit-create-branch)
