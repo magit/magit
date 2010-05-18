@@ -1522,9 +1522,9 @@ FUNC should leave point at the end of the modified region"
 		   (string= "=" (substring option (- (length option) 1))))
 	  (setq option (concat option value))
 	  (setq value nil))
-	(setq result (append result (list (shell-quote-argument option))))
+	(setq result (append result (list option)))
 	(when (stringp value)
-	  (setq result (append result (list (shell-quote-argument value))))))))
+	  (setq result (append result (list value)))))))
     result))
 
 ;;; Mode
