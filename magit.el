@@ -1447,6 +1447,9 @@ FUNC should leave point at the end of the modified region"
 
 (defvar magit-commit-mode-map
   (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "a") 'magit-apply-item)
+    (define-key map (kbd "A") 'magit-cherry-pick-item)
+    (define-key map (kbd "v") 'magit-revert-item)
     map))
 
 (defvar magit-status-mode-map
