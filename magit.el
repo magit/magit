@@ -1502,7 +1502,7 @@ FUNC should leave point at the end of the modified region"
 		    (setcar (nthcdr 5 item) nil))
 		   ((stringp fn)
 		    (setcar (nthcdr 5 item)
-			    (funcall (nth 4 item) (nth 2 item))))
+			    (funcall (nth 4 item) (concat (nth 2 item) ": "))))
 		   (display-help-p
 		    (setq chosen-fn fn)
 		    (throw 'exit 0))
