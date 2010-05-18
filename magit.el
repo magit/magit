@@ -1595,13 +1595,8 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "F") 'magit-pull)
     (define-key map (kbd "c") 'magit-log-edit)
     (define-key map (kbd "l") 'magit-log-menu)
-    (define-key map (kbd "L") 'magit-log-long)
-    (define-key map (kbd "h") 'magit-reflog-head)
-    (define-key map (kbd "H") 'magit-reflog)
-    (define-key map (kbd "w") 'magit-wazzup)
     (define-key map (kbd "$") 'magit-display-process)
     (define-key map (kbd "E") 'magit-interactive-rebase)
-    (define-key map (kbd "V") 'magit-show-branches)
     (define-key map (kbd "q") 'quit-window)
     map))
 
@@ -1628,7 +1623,6 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "A") 'magit-cherry-pick-item)
     (define-key map (kbd "v") 'magit-revert-item)
     (define-key map (kbd "b") 'magit-branch-menu)
-    (define-key map (kbd "B") 'magit-create-branch)
     (define-key map (kbd "m") 'magit-manual-merge)
     (define-key map (kbd "M") 'magit-automatic-merge)
     (define-key map (kbd "k") 'magit-discard-item)
@@ -1662,16 +1656,12 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "s") 'magit-log-grep)
     (define-key map (kbd "A") 'magit-cherry-pick-item)
     (define-key map (kbd "v") 'magit-revert-item)
-    (define-key map (kbd "b") 'magit-checkout)
-    (define-key map (kbd "B") 'magit-create-branch)
+    (define-key map (kbd "b") 'magit-branch-menu)
     (define-key map (kbd "m") 'magit-manual-merge)
     (define-key map (kbd "M") 'magit-automatic-merge)
     (define-key map (kbd "x") 'magit-reset-head)
     (define-key map (kbd "e") 'magit-log-show-more-entries)
-    (define-key map (kbd "l") 'magit-log)
-    (define-key map (kbd "L") 'magit-log-long)
-    (define-key map (kbd "h") 'magit-reflog-head)
-    (define-key map (kbd "H") 'magit-reflog)
+    (define-key map (kbd "l") 'magit-log-menu)
     map))
 
 (defvar magit-reflog-mode-map
@@ -1705,8 +1695,7 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "a") 'magit-apply-item)
     (define-key map (kbd "A") 'magit-cherry-pick-item)
     (define-key map (kbd "v") 'magit-revert-item)
-    (define-key map (kbd "b") 'magit-checkout)
-    (define-key map (kbd "B") 'magit-create-branch)
+    (define-key map (kbd "b") 'magit-branch-menu)
     (define-key map (kbd "m") 'magit-manual-merge)
     (define-key map (kbd "M") 'magit-automatic-merge)
     (define-key map (kbd "x") 'magit-reset-head)
@@ -1729,10 +1718,7 @@ FUNC should leave point at the end of the modified region"
     "---"
     ["Diff working tree" magit-diff-working-tree t]
     ["Diff" magit-diff t]
-    ["Log" magit-log-menu t]
-    ["Long Log" magit-log-long t]
-    ["Reflog head" magit-reflog-head t]
-    ["Reflog" magit-reflog t]
+    ["Log..." magit-log-menu t]
     "---"
     ["Cherry pick" magit-cherry-pick-item t]
     ["Apply" magit-apply-item t]
@@ -1746,8 +1732,7 @@ FUNC should leave point at the end of the modified region"
     ["Stash" magit-stash t]
     ["Snapshot" magit-stash-snapshot t]
     "---"
-    ["Switch branch" magit-checkout t]
-    ["Create branch" magit-create-branch t]
+    ["Branch..." magit-checkout t]
     ["Merge" magit-automatic-merge t]
     ["Merge (no commit)" magit-manual-merge t]
     ["Interactive resolve" magit-interactive-resolve-item t]
