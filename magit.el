@@ -3266,12 +3266,14 @@ Prefix arg means justify as well."
 
 ;;; Tags
 
-(defun magit-tag (name)
-  "Creates a new lightweight tag with the given NAME.
-Tag will point to the current 'HEAD'.
+(defun magit-tag (name rev)
+  "Creates a new lightweight tag with the given NAME at REV.
 \('git tag NAME')."
-  (interactive "sNew tag name: ")
-  (magit-run-git "tag" name))
+  (interactive
+   (list
+    (read-string "Tag name: ")
+    (magit-read-rev "Place tag on: " (or (magit-default-rev) "HEAD"))))
+  (magit-run-git "tag" name rev))
 
 (defun magit-annotated-tag (name)
   "Start composing an annotated tag with the given NAME.
