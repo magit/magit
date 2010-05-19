@@ -1440,7 +1440,7 @@ FUNC should leave point at the end of the modified region"
 (defun magit-menu-insert-item (text highlight-p)
   (let* ((item-width 35)
 	 (max-items-perline 2)
-	 (max-columns (* max-items-perline item-width))
+	 (max-columns (window-width))
 	 (begin)
 	 (current-column (- (point) (line-beginning-position)))
 	 (padding
