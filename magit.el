@@ -1399,29 +1399,29 @@ FUNC should leave point at the end of the modified region"
 	'("Log" ?L "Detailed log" magit-log-long)
 	'("Log" ?h "Reflog" magit-reflog)
 	'("Log" ?H "Reflog head" magit-reflog-head)
-	'("Log" ?a "All branches" "--all" magit-true)
-	'("Log" ?g "Containing regexp" "--grep=" read-from-minibuffer)
-	'("Log" ?A "By author" "--author=" read-from-minibuffer)
-	'("Log" ?C "By committer" "--committer=" read-from-minibuffer)
-	'("Log" ?F "Follow only first parent"
-	  "--first-parent" magit-true)
-	'("Log" ?B "Branches" "--branches=" read-from-minibuffer)
-	'("Log" ?R "Restrict to path" "--relative=" read-directory-name)
+	'("Log" ?a "--all" "All branches" magit-true)
+	'("Log" ?g "--grep=" "Containing regexp" read-from-minibuffer)
+	'("Log" ?A "--author=" "By author" read-from-minibuffer)
+	'("Log" ?C "--committer=" "By committer" read-from-minibuffer)
+	'("Log" ?F "--first-parent"
+	  "Follow only first parent" magit-true)
+	'("Log" ?B "--branches=" "Branches" read-from-minibuffer)
+	'("Log" ?R "--relative=" "Restrict to path" read-directory-name)
 	'("Branch" ?b "Switch" magit-checkout)
 	'("Branch" ?B "Create" magit-create-branch)
 	'("Branch" ?V "Show branches" magit-show-branches)
 	'("Branch" ?k "Delete" magit-delete-branch)
 	'("Branch" ?m "Move/Rename" magit-move-branch)
 	'("Branch" ?w "Wazzup" magit-wazzup)
-	'("Branch" ?T "Do not track remote parent branch"
-	  "--no-track" magit-true)
-	'("Branch" ?R "Consider remote-tracking branches" "-r" magit-true)
-	'("Branch" ?C "Only branches that contains the given commit"
-	  "--contains" magit-read-rev)
-	'("Branch" ?M "Only branches merged into the given commit"
-	  "--merged" magit-read-rev)
-	'("Branch" ?N "Only branches not merged into the given commit"
-	  "--no-merged" magit-read-rev)
+	'("Branch" ?T "--no-track"
+	  "Do not track remote parent branch" magit-true)
+	'("Branch" ?R "-r" "Consider remote-tracking branches" magit-true)
+	'("Branch" ?C "--contains"
+	  "Only branches that contains the given commit" magit-read-rev)
+	'("Branch" ?M "--merged"
+	  "Only branches merged into the given commit" magit-read-rev)
+	'("Branch" ?N "--no-merged"
+	  "Only branches not merged into the given commit" magit-read-rev)
 	))
 
 (defun magit-get-menu-options (group)
@@ -1458,18 +1458,16 @@ FUNC should leave point at the end of the modified region"
   (let ((s ""))
     (insert group " variants\n")
     (dolist (item menu-items)
-      (when (and (string= (car item) group) (functionp (nth 3 item)))
+      (when (functionp (nth 3 item))
 	(setq s (concat (string (nth 1 item)) "  " (nth 2 item)))
 	(magit-menu-insert-item s nil)))
     (insert "\nOptions\n")
     (dolist (item menu-items)
-      (when (and (string= (car item) group) (stringp (nth 3 item)))
-	(setq s (concat (string (nth 1 item)) "  " (nth 2 item)
-			" (" (nth 3 item)
-			(when (stringp (nth 5 item))
-			  (concat " " (nth 5 item)))
-			")"))
-	(magit-menu-insert-item s (nth 5 item))))
+      (let ((args (magit-menu-make-arguments-for-option item t)))
+	(when args
+	  (setq s (concat (string (nth 1 item)) "  " (nth 0 args)
+			  " " (nth 1 args)))
+	  (magit-menu-insert-item s (nth 5 item)))))
     (insert "\n"))
     (setq buffer-read-only nil)
     (fit-window-to-buffer))
@@ -1528,19 +1526,23 @@ FUNC should leave point at the end of the modified region"
 	(let ((magit-custom-options (magit-menu-make-option-list menu-items)))
 	  (call-interactively chosen-fn))))))
 
+(defun magit-menu-make-arguments-for-option (item &optional all-p)
+  "Returns as a cons cell the arguments for the git process
+depending on the contents of `item'. If the option was not set,
+returns nil, unless `all-p' evals to true."
+  (let* ((option (nth 2 item))
+	 (value (nth 5 item))
+	 (join-valuep
+	  (and (stringp value)
+	       (string= "=" (substring option (- (length option) 1))))))
+    (when (and (stringp (nth 3 item)) (or value all-p))
+	(cons (concat option (when join-valuep value))
+	      (when (and (stringp value) (not join-valuep)) value)))))
+
 (defun magit-menu-make-option-list (menu-items)
   (let ((result '()))
     (dolist (item menu-items)
-      (let ((option (nth 3 item))
-	    (value (nth 5 item)))
-      (when (and (stringp option) value)
-	(when (and (stringp value)
-		   (string= "=" (substring option (- (length option) 1))))
-	  (setq option (concat option value))
-	  (setq value nil))
-	(setq result (append result (list option)))
-	(when (stringp value)
-	  (setq result (append result (list value)))))))
+      (setq result (append result (magit-menu-make-arguments-for-option item))))
     result))
 
 ;;; Mode
