@@ -248,6 +248,30 @@ Many Magit faces inherit from this one by default."
   "Face for git tag labels shown in log buffer."
   :group 'magit)
 
+(defface magit-log-head-label-bisect-good
+  '((((class color) (background light))
+     :box t
+     :background "Grey85"
+     :foreground "green")
+    (((class color) (background dark))
+     :box t
+     :background "Grey11"
+     :foreground "green"))
+  "Face for good bisect refs"
+  :group 'magit)
+
+(defface magit-log-head-label-bisect-bad
+  '((((class color) (background light))
+     :box t
+     :background "Grey85"
+     :foreground "red")
+    (((class color) (background dark))
+     :box t
+     :background "Grey11"
+     :foreground "red"))
+  "Face for bad bisect refs"
+  :group 'magit)
+
 (defface magit-log-head-label-remote
   '((((class color) (background light))
      :box t
@@ -2172,7 +2196,7 @@ must return a string which will represent the log line.")
 
 (defun magit-present-log-line (graph sha1 refs message)
   "The default log line generator."
-  (let* ((ref-re "\\(?:tag: \\)?refs/\\(tags\\|remotes\\|heads\\)/\\(.+\\)")
+  (let* ((ref-re "\\(?:tag: \\)?refs/\\(bisect\\|tags\\|remotes\\|heads\\)/\\(.+\\)")
 	 (string-refs
 	  (when refs
 	    (concat (mapconcat
@@ -2184,22 +2208,26 @@ must return a string which will represent the log line.")
 			'face (cond
 			       ((string= (match-string 1 r) "remotes")
 				'magit-log-head-label-remote)
+			       ((string= (match-string 1 r) "bisect")
+				(if (string= (match-string 2 r) "bad")
+				    'magit-log-head-label-bisect-bad
+				  'magit-log-head-label-bisect-good))
 			       ((string= (match-string 1 r) "tags")
 				'magit-log-head-label-tags)
-				((string= (match-string 1 r) "heads")
-				 'magit-log-head-label-local))))
-		       refs
-		       " ")
-		     " "))))
-	 (concat
-	  (if sha1
-	      (propertize (substring sha1 0 8) 'face 'magit-log-sha1)
-	    (insert-char ? 8))
-	  " "
-	  (propertize graph 'face 'magit-log-graph)
-	  string-refs
-	  (when message
-	    (propertize message 'face 'magit-log-message)))))
+			       ((string= (match-string 1 r) "heads")
+				'magit-log-head-label-local))))
+		     refs
+		     " ")
+		    " "))))
+    (concat
+     (if sha1
+	 (propertize (substring sha1 0 8) 'face 'magit-log-sha1)
+       (insert-char ? 8))
+     " "
+     (propertize graph 'face 'magit-log-graph)
+     string-refs
+     (when message
+       (propertize message 'face 'magit-log-message)))))
 
 (defvar magit-log-count ()
   "internal var used to count the number of log actualy added in a buffer")
