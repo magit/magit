@@ -1539,6 +1539,7 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "L") 'magit-log-long)
     (define-key map (kbd "h") 'magit-reflog-head)
     (define-key map (kbd "H") 'magit-reflog)
+    (define-key map (kbd "t") 'magit-tag)
     map))
 
 (defvar magit-reflog-mode-map
