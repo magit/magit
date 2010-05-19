@@ -287,12 +287,12 @@ Many Magit faces inherit from this one by default."
 (defface magit-log-head-label-tags
   '((((class color) (background light))
      :box t
-     :background "Grey85"
-     :foreground "VioletRed1")
+     :background "LemonChiffon1"
+     :foreground "goldenrod4")
     (((class color) (background dark))
      :box t
-     :background "Grey13"
-     :foreground "khaki1"))
+     :background "LemonChiffon1"
+     :foreground "goldenrod4"))
   "Face for tag labels shown in log buffer."
   :group 'magit)
 
