@@ -251,24 +251,24 @@ Many Magit faces inherit from this one by default."
 (defface magit-log-head-label-bisect-good
   '((((class color) (background light))
      :box t
-     :background "Grey85"
-     :foreground "green")
+     :background "light green"
+     :foreground "dark olive green")
     (((class color) (background dark))
      :box t
-     :background "Grey11"
-     :foreground "green"))
+     :background "light green"
+     :foreground "dark olive green"))
   "Face for good bisect refs"
   :group 'magit)
 
 (defface magit-log-head-label-bisect-bad
   '((((class color) (background light))
      :box t
-     :background "Grey85"
-     :foreground "red")
+     :background "IndianRed1"
+     :foreground "IndianRed4")
     (((class color) (background dark))
      :box t
-     :background "Grey11"
-     :foreground "red"))
+     :background "IndianRed1"
+     :foreground "IndianRed4"))
   "Face for bad bisect refs"
   :group 'magit)
 
