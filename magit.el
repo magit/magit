@@ -14,6 +14,7 @@
 ;; Copyright (C) 2010  Hannu Koivisto
 ;; Copyright (C) 2010  Pavel Holejsovsky
 ;; Copyright (C) 2010  David Abrahams
+;; Copyright (C) 2010  Mark Hepburn
 
 ;;
 ;; Magit is free software; you can redistribute it and/or modify it
