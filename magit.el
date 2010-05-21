@@ -3894,7 +3894,7 @@ With a non numeric prefix ARG, show all entries"
 	 (commit (and (member 'commit (magit-section-context-type section))
 		      (magit-section-info section)))
 	 (old-editor (getenv "GIT_EDITOR")))
-    (setenv "GIT_EDITOR" (expand-file-name "emacsclient" exec-directory))
+    (setenv "GIT_EDITOR" (locate-file "emacsclient" exec-path))
     (unwind-protect
 	(magit-run-git-async "rebase" "-i"
 			     (or (and commit (concat commit "^"))
