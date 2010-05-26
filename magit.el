@@ -66,7 +66,6 @@
 ;; - 'Subsetting', only looking at a subset of all files.
 
 (eval-when-compile (require 'cl))
-(eval-when-compile (require 'parse-time))
 (require 'log-edit)
 (require 'easymenu)
 (require 'diff-mode)
@@ -2123,7 +2122,7 @@ in the corresponding directories."
       (goto-char (magit-section-beginning hunk))
       (if (not (looking-at "@@+ .* \\+\\([0-9]+\\),[0-9]+ @@+"))
 	  (error "Hunk header not found"))
-      (let ((target (parse-integer (match-string 1))))
+      (let ((target (string-to-number (match-string 1))))
 	(forward-line)
 	(while (< (line-number-at-pos) line)
 	  ;; XXX - deal with combined diffs
