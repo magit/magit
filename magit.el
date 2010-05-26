@@ -2495,11 +2495,10 @@ insert a line to tell how to insert more of them"
 	(setq topdir (magit-get-top-dir dir))))
     (when topdir
       (let ((buf (or (magit-find-buffer 'status topdir)
-                     (switch-to-buffer
-                      (get-buffer-create
-                       (concat "*magit: "
-                               (file-name-nondirectory
-                                (directory-file-name topdir)) "*"))))))
+		     (get-buffer-create
+		      (concat "*magit: "
+			      (file-name-nondirectory
+			       (directory-file-name topdir)) "*")))))
         (switch-to-buffer buf)
         (magit-mode-init topdir 'status #'magit-refresh-status)
         (magit-status-mode t)))))
