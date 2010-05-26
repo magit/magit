@@ -2495,7 +2495,7 @@ insert a line to tell how to insert more of them"
 	(setq topdir (magit-get-top-dir dir))))
     (when topdir
       (let ((buf (or (magit-find-buffer 'status topdir)
-		     (get-buffer-create
+		     (generate-new-buffer
 		      (concat "*magit: "
 			      (file-name-nondirectory
 			       (directory-file-name topdir)) "*")))))
