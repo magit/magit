@@ -3548,6 +3548,10 @@ With a non numeric prefix ARG, show all entries"
   (interactive "P")
   (magit-display-log arg "--all"))
 
+(defun magit-log-first-parent (&optional arg)
+  (interactive "P")
+  (magit-display-log arg "--first-parent"))
+
 (defun magit-log (&optional arg)
   (interactive "P")
   (magit-display-log arg))
