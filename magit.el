@@ -3885,12 +3885,37 @@ With a non numeric prefix ARG, show all entries"
 
 (eval-when-compile (require 'server))
 
+(defun magit-server-running-p ()
+  "Test whether server is running (works with < 23 as well).
+
+Return values:
+  nil		   the server is definitely not running.
+  t		   the server seems to be running.
+  something else   we cannot determine whether it's running without using
+		   commands which may have to wait for a long time."
+  (if (functionp 'server-running-p)
+      (server-running-p)
+    (condition-case nil
+	(if server-use-tcp
+	    (with-temp-buffer
+	      (insert-file-contents-literally (expand-file-name server-name server-auth-dir))
+	      (or (and (looking-at "127\\.0\\.0\\.1:[0-9]+ \\([0-9]+\\)")
+		       (assq 'comm
+			     (process-attributes
+			      (string-to-number (match-string 1))))
+		       t)
+		  :other))
+	  (delete-process
+	   (make-network-process
+	    :name "server-client-test" :family 'local :server nil :noquery t
+	    :service (expand-file-name server-name server-socket-dir)))
+	  t)
+      (file-error nil))))
+
 (defun magit-interactive-rebase ()
   "Start a git rebase -i session, old school-style."
   (interactive)
-  (require 'server)
-  (if (or (< emacs-major-version 23)
-          (not (server-running-p)))
+  (unless (magit-server-running-p)
     (server-start))
   (let* ((section (get-text-property (point) 'magit-section))
 	 (commit (and (member 'commit (magit-section-context-type section))
