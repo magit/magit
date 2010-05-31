@@ -133,7 +133,8 @@ current line down."
   "Abort this rebase (by emptying the buffer, saving and closing
 server connection)."
   (interactive)
-  (when (y-or-n-p "Abort this rebase? ")
+  (when (or (not (buffer-modified-p))
+            (y-or-n-p "Abort this rebase? "))
     (let ((buffer-read-only nil))
       (delete-region (point-min) (point-max))
       (save-buffer)
