@@ -47,6 +47,13 @@
          '(2 font-lock-builtin-face)))
   "Font lock keywords for rebase-mode.")
 
+(defvar key-to-action-map '(("p" . "pick")
+                            ("r" . "reword")
+                            ("e" . "edit")
+                            ("s" . "squash")
+                            ("f" . "fixup"))
+  "Mapping from key to action.")
+
 (defvar rebase-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "q") 'server-edit)
@@ -54,17 +61,22 @@
     (define-key map (kbd "M-n") 'rebase-mode-move-line-down)
     (define-key map (kbd "k") 'rebase-mode-kill-line)
     (define-key map (kbd "a") 'rebase-mode-abort)
-    (dolist (key-fun '(("p" . "pick")
-                       ("r" . "reword")
-                       ("e" . "edit")
-                       ("s" . "squash")
-                       ("f" . "fixup")))
-      (define-key map (car key-fun)
-        `(lambda ()
-           (interactive)
-           (rebase-mode-edit-line ,(cdr key-fun)))))
     map)
-  "Keymap for rebase-mode.")
+  "Keymap for rebase-mode. Note this will be added to by the
+  top-level code which defines the edit functions.")
+
+;; create the functions which edit the action lines themselves (based
+;; on `key-to-action-map' above)
+(mapc (lambda (key-action)
+        (let ((fun-name (intern (concat "rebase-mode-" (cdr key-action)))))
+          ;; define the function
+          (eval `(defun ,fun-name ()
+                   (interactive)
+                   (rebase-mode-edit-line ,(cdr key-action))))
+
+          ;; bind the function in `rebase-mode-map'
+          (define-key rebase-mode-map (car key-action) fun-name)))
+      key-to-action-map)
 
 (defun rebase-mode-edit-line (change-to)
   "Change the keyword at the start of the current action line to
