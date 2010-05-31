@@ -89,10 +89,11 @@ current line down."
 (defun rebase-mode-abort ()
   "Abort this rebase."
   (interactive)
-  (let ((buffer-read-only nil))
-    (delete-region (point-min) (point-max))
-    (save-buffer)
-    (server-edit)))
+  (when (y-or-n-p "Abort this rebase? ")
+    (let ((buffer-read-only nil))
+      (delete-region (point-min) (point-max))
+      (save-buffer)
+      (server-edit))))
 
 (defun rebase-mode-kill-line ()
   "Kill the current action line."
