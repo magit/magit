@@ -47,11 +47,12 @@
          '(2 font-lock-builtin-face)))
   "Font lock keywords for rebase-mode.")
 
-(defvar key-to-action-map '(("p" . "pick")
-                            ("r" . "reword")
-                            ("e" . "edit")
-                            ("s" . "squash")
-                            ("f" . "fixup"))
+(defvar key-to-action-map
+  '(("c" . "pick")
+    ("r" . "reword")
+    ("e" . "edit")
+    ("s" . "squash")
+    ("f" . "fixup"))
   "Mapping from key to action.")
 
 (defvar rebase-mode-map
@@ -65,6 +66,10 @@
     (define-key map (kbd "M-p") 'rebase-mode-move-line-up)
     (define-key map (kbd "M-n") 'rebase-mode-move-line-down)
     (define-key map (kbd "k") 'rebase-mode-kill-line)
+
+    (define-key map (kbd "n") 'next-line)
+    (define-key map (kbd "p") 'previous-line)
+
     map)
   "Keymap for rebase-mode. Note this will be added to by the
   top-level code which defines the edit functions.")
