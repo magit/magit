@@ -60,7 +60,7 @@
                        ("s" . "squash")
                        ("f" . "fixup")))
       (define-key map (car key-fun)
-         `(lambda ()
+        `(lambda ()
            (interactive)
            (rebase-mode-edit-line ,(cdr key-fun)))))
     map)
