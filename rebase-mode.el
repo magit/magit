@@ -10,7 +10,11 @@
      "squash"
      "fixup"))
    (char space)
-   (group (** 7 40 (char "0-9" "a-f" "A-F")))))
+   (group
+    (** 7 40 (char "0-9" "a-f" "A-F"))) ;sha1
+   (char space)
+   (* anything)                         ; msg
+   line-end))
 
 (defvar rebase-font-lock-keywords
   (list
@@ -26,22 +30,33 @@
       (insert change-to)
       (goto-char start)))
 
+(defun rebase-mode-looking-at-action ()
+  (save-excursion
+    (goto-char (point-at-bol))
+    (looking-at rebase-mode-action-line-re)))
+
 (defun rebase-mode-setup ()
   (setq buffer-read-only t)
   (use-local-map rebase-mode-map))
 
 (defun rebase-mode-move-line-up ()
   (interactive)
-  (let ((buffer-read-only nil))
-    (transpose-lines 1)
-    (previous-line 2)))
+  (when (rebase-mode-looking-at-action)
+    (let ((buffer-read-only nil))
+      (transpose-lines 1)
+      (previous-line 2))))
 
 (defun rebase-mode-move-line-down ()
   (interactive)
-  (let ((buffer-read-only nil))
-    (next-line 1)
-    (transpose-lines 1)
-    (previous-line 1)))
+  ;; if we're on an action and the next line is also an action
+  (when (and (rebase-mode-looking-at-action)
+             (save-excursion
+               (forward-line)
+               (rebase-mode-looking-at-action)))
+    (let ((buffer-read-only nil))
+      (next-line 1)
+      (transpose-lines 1)
+      (previous-line 1))))
 
 (defun rebase-mode-kill-line ()
   (interactive)
@@ -49,7 +64,8 @@
          (region (list (point-at-bol)
                        (progn (forward-line)
                               (point-at-bol))))
-         ;; might be handy to let the user know what went somehow
+         ;; might be handy to let the user know what went
+         ;; somehow... sometime
          (text (apply 'buffer-substring region)))
     (apply 'kill-region region)))
 
