@@ -47,20 +47,29 @@
          '(2 font-lock-builtin-face)))
   "Font lock keywords for rebase-mode.")
 
-(defvar key-to-action-map '(("p" . "pick")
-                            ("r" . "reword")
-                            ("e" . "edit")
-                            ("s" . "squash")
-                            ("f" . "fixup"))
+(defvar key-to-action-map
+  '(("c" . "pick")
+    ("r" . "reword")
+    ("e" . "edit")
+    ("s" . "squash")
+    ("f" . "fixup"))
   "Mapping from key to action.")
 
 (defvar rebase-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "q") 'server-edit)
+    (define-key map (kbd "C-c C-c") 'server-edit)
+
+    (define-key map (kbd "a") 'rebase-mode-abort)
+    (define-key map (kbd "C-c C-k") 'rebase-mode-abort)
+
     (define-key map (kbd "M-p") 'rebase-mode-move-line-up)
     (define-key map (kbd "M-n") 'rebase-mode-move-line-down)
     (define-key map (kbd "k") 'rebase-mode-kill-line)
-    (define-key map (kbd "a") 'rebase-mode-abort)
+
+    (define-key map (kbd "n") 'next-line)
+    (define-key map (kbd "p") 'previous-line)
+
     map)
   "Keymap for rebase-mode. Note this will be added to by the
   top-level code which defines the edit functions.")
@@ -81,12 +90,13 @@
 (defun rebase-mode-edit-line (change-to)
   "Change the keyword at the start of the current action line to
 that of CHANGE-TO."
-  (let ((buffer-read-only nil)
-        (start (point)))
-    (goto-char (point-at-bol))
-    (kill-region (point) (progn (forward-word 1) (point)))
-    (insert change-to)
-    (goto-char start)))
+  (when (rebase-mode-looking-at-action)
+    (let ((buffer-read-only nil)
+          (start (point)))
+      (goto-char (point-at-bol))
+      (kill-region (point) (progn (forward-word 1) (point)))
+      (insert change-to)
+      (goto-char start))))
 
 (defun rebase-mode-looking-at-action ()
   "Returns non-nil if looking at an action line."
@@ -129,7 +139,8 @@ current line down."
   "Abort this rebase (by emptying the buffer, saving and closing
 server connection)."
   (interactive)
-  (when (y-or-n-p "Abort this rebase? ")
+  (when (or (not (buffer-modified-p))
+            (y-or-n-p "Abort this rebase? "))
     (let ((buffer-read-only nil))
       (delete-region (point-min) (point-max))
       (save-buffer)
