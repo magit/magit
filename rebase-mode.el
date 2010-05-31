@@ -36,8 +36,7 @@
    (group
     (** 7 40 (char "0-9" "a-f" "A-F"))) ;sha1
    (char space)
-   (* anything)                         ; msg
-   line-end)
+   (* not-newline))
   "Regexp that matches an action line in a rebase buffer.")
 
 (defvar rebase-mode-font-lock-keywords
