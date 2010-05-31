@@ -1,3 +1,26 @@
+;;; rebase-mode -- edit git rebase files.
+
+;; Copyright (C) 2010  Phil Jackson
+;;
+;; Magit is free software; you can redistribute it and/or modify it
+;; under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 3, or (at your option)
+;; any later version.
+;;
+;; Magit is distributed in the hope that it will be useful, but WITHOUT
+;; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+;; or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+;; License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with Magit.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; Allows the editing of a git rebase file (which you might get when
+;; using 'git rebase -i' or hitting 'E' in Magit). Assumes editing is
+;; happening in a server.
+
 (defvar rebase-mode-action-line-re
   (rx
    line-start
@@ -115,6 +138,7 @@ server connection)."
   rebase-font-lock-keywords
   '("git-rebase-todo")
   '(rebase-mode-setup)
-  "Major mode for interactively editing git rebase files.")
+  "Major mode for interactively editing git rebase files.
+\\{rebase-mode-map}")
 
 (provide 'rebase-mode)
