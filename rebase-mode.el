@@ -87,7 +87,8 @@ current line down."
       (previous-line 1))))
 
 (defun rebase-mode-abort ()
-  "Abort this rebase."
+  "Abort this rebase (by emptying the buffer, saving and closing
+server connection)."
   (interactive)
   (when (y-or-n-p "Abort this rebase? ")
     (let ((buffer-read-only nil))
