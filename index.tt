@@ -5,12 +5,12 @@
 
 [% PROCESS "lib/magit.tt" %]
 
-[%- WRAPPER rounded_corners class="release" colour="#ddd" %]
-  <div>
+[%- WRAPPER rounded_corners colour="#eee" %]
+  <p class="release">
     The latest release is 0.8. Grab it <a
     href="http://github.com/philjackson/magit/downloads">from the github
     download page</a>.
-  </div>
+  </p>
 [% END %]
 
 <h1>Introduction</h1>

@@ -80,3 +80,8 @@ hr { margin-top: 5px; border: 1px solid #aaa }
 #footer { color: #ccc; background: #555; padding: 20px; border-top: 15px solid #3e3e3e; margin-top: 20px; }
 #footer ul { list-style-type:none; }
 #footer a { color: #ccc; }
+
+.release {
+  text-shadow: 2px 2px 2px #ddd;
+  font-size: large;
+}
