@@ -3919,7 +3919,7 @@ Return values:
     (unwind-protect
 	(magit-run-git-async "rebase" "-i"
 			     (or (and commit (concat commit "^"))
-				 (read-string "Interactively rebase to: ")))
+				 (magit-read-rev "Interactively rebase to" (magit-guess-branch))))
       (if old-editor
 	  (setenv "GIT_EDITOR" old-editor)))))
 
