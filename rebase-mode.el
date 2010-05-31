@@ -97,14 +97,15 @@ current line down."
 (defun rebase-mode-kill-line ()
   "Kill the current action line."
   (interactive)
-  (let* ((buffer-read-only nil)
-         (region (list (point-at-bol)
-                       (progn (forward-line)
-                              (point-at-bol))))
-         ;; might be handy to let the user know what went
-         ;; somehow... sometime
-         (text (apply 'buffer-substring region)))
-    (apply 'kill-region region)))
+  (when (rebase-mode-looking-at-action)
+    (let* ((buffer-read-only nil)
+           (region (list (point-at-bol)
+                         (progn (forward-line)
+                                (point-at-bol))))
+           ;; might be handy to let the user know what went
+           ;; somehow... sometime
+           (text (apply 'buffer-substring region)))
+      (apply 'kill-region region))))
 
 (define-generic-mode 'rebase-mode
   '("#")
