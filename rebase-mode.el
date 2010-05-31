@@ -58,6 +58,13 @@
       (transpose-lines 1)
       (previous-line 1))))
 
+(defun rebase-mode-abort ()
+  (interactive)
+  (let ((buffer-read-only nil))
+    (delete-region (point-min) (point-max))
+    (save-buffer)
+    (server-edit)))
+
 (defun rebase-mode-kill-line ()
   (interactive)
   (let* ((buffer-read-only nil)
@@ -75,6 +82,7 @@
     (define-key map (kbd "M-p") 'rebase-mode-move-line-up)
     (define-key map (kbd "M-n") 'rebase-mode-move-line-down)
     (define-key map (kbd "k") 'rebase-mode-kill-line)
+    (define-key map (kbd "a") 'rebase-mode-abort)
     (dolist (key-fun '(("p" . "pick")
                        ("r" . "reword")
                        ("e" . "edit")
