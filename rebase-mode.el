@@ -99,19 +99,15 @@ that of CHANGE-TO."
   (setq buffer-read-only t)
   (use-local-map rebase-mode-map))
 
-(defun rebase-mode-transpose-lines (arg)
-  "Wraps emacs `transpose-lines' but saves column position."
-  (let ((col (current-column)))
-    (transpose-lines arg)
-    (move-to-column col)))
-
 (defun rebase-mode-move-line-up ()
   "Move the current action line up."
   (interactive)
   (when (rebase-mode-looking-at-action)
-    (let ((buffer-read-only nil))
-      (rebase-mode-transpose-lines 1)
-      (previous-line 2))))
+    (let ((buffer-read-only nil)
+          (col (current-column)))
+      (transpose-lines 1)
+      (previous-line 2)
+      (move-to-column col))))
 
 (defun rebase-mode-move-line-down ()
   "Assuming the next line is also an action line, move the
@@ -122,10 +118,12 @@ current line down."
              (save-excursion
                (forward-line)
                (rebase-mode-looking-at-action)))
-    (let ((buffer-read-only nil))
+    (let ((buffer-read-only nil)
+          (col (current-column)))
       (next-line 1)
-      (rebase-mode-transpose-lines 1)
-      (previous-line 1))))
+      (transpose-lines 1)
+      (previous-line 1)
+      (move-to-column col))))
 
 (defun rebase-mode-abort ()
   "Abort this rebase (by emptying the buffer, saving and closing
