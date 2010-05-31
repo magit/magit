@@ -36,15 +36,15 @@
    (group
     (** 7 40 (char "0-9" "a-f" "A-F"))) ;sha1
    (char space)
-   (* anything)                         ; msg
-   line-end)
+   (* not-newline))
   "Regexp that matches an action line in a rebase buffer.")
 
-(defvar rebase-font-lock-keywords
+(defvar rebase-mode-font-lock-keywords
   (list
    (list rebase-mode-action-line-re
          '(1 font-lock-keyword-face)
-         '(2 font-lock-builtin-face)))
+         '(2 font-lock-builtin-face))
+   (list (rx line-start (char "#") (* not-newline)) 0 font-lock-comment-face))
   "Font lock keywords for rebase-mode.")
 
 (defvar key-to-action-map
@@ -104,11 +104,6 @@ that of CHANGE-TO."
     (goto-char (point-at-bol))
     (looking-at rebase-mode-action-line-re)))
 
-(defun rebase-mode-setup ()
-  "Function run when initialising rebase-mode."
-  (setq buffer-read-only t)
-  (use-local-map rebase-mode-map))
-
 (defun rebase-mode-move-line-up ()
   "Move the current action line up."
   (interactive)
@@ -159,13 +154,19 @@ server connection)."
            (text (apply 'buffer-substring region)))
       (apply 'kill-region region))))
 
-(define-generic-mode 'rebase-mode
-  '("#")
-  nil
-  rebase-font-lock-keywords
-  '("git-rebase-todo")
-  '(rebase-mode-setup)
-  "Major mode for interactively editing git rebase files.
-\\{rebase-mode-map}")
+(defun rebase-mode ()
+  (interactive)
+  (kill-all-local-variables)
+
+  (make-local-variable 'font-lock-defaults)
+  (setq font-lock-defaults
+        '(rebase-mode-font-lock-keywords t t nil nil))
+
+  (use-local-map rebase-mode-map)
+  (setq buffer-read-only t)
+  (setq mode-name "rebase-mode" major-mode 'rebase-mode))
+
+(add-to-list 'auto-mode-alist
+             '("git-rebase-todo" . rebase-mode))
 
 (provide 'rebase-mode)
