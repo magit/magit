@@ -167,4 +167,7 @@ server connection)."
   (setq buffer-read-only t)
   (setq mode-name "rebase-mode" major-mode 'rebase-mode))
 
+(add-to-list 'auto-mode-alist
+             '("git-rebase-todo" . rebase-mode))
+
 (provide 'rebase-mode)
