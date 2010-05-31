@@ -90,12 +90,13 @@
 (defun rebase-mode-edit-line (change-to)
   "Change the keyword at the start of the current action line to
 that of CHANGE-TO."
-  (let ((buffer-read-only nil)
-        (start (point)))
-    (goto-char (point-at-bol))
-    (kill-region (point) (progn (forward-word 1) (point)))
-    (insert change-to)
-    (goto-char start)))
+  (when (rebase-mode-looking-at-action)
+    (let ((buffer-read-only nil)
+          (start (point)))
+      (goto-char (point-at-bol))
+      (kill-region (point) (progn (forward-word 1) (point)))
+      (insert change-to)
+      (goto-char start))))
 
 (defun rebase-mode-looking-at-action ()
   "Returns non-nil if looking at an action line."
