@@ -57,10 +57,14 @@
 (defvar rebase-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "q") 'server-edit)
+    (define-key map (kbd "C-c C-c") 'server-edit)
+
+    (define-key map (kbd "a") 'rebase-mode-abort)
+    (define-key map (kbd "C-c C-k") 'rebase-mode-abort)
+
     (define-key map (kbd "M-p") 'rebase-mode-move-line-up)
     (define-key map (kbd "M-n") 'rebase-mode-move-line-down)
     (define-key map (kbd "k") 'rebase-mode-kill-line)
-    (define-key map (kbd "a") 'rebase-mode-abort)
     map)
   "Keymap for rebase-mode. Note this will be added to by the
   top-level code which defines the edit functions.")
