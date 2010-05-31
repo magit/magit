@@ -14,13 +14,34 @@
     (** 7 40 (char "0-9" "a-f" "A-F"))) ;sha1
    (char space)
    (* anything)                         ; msg
-   line-end))
+   line-end)
+  "Regexp that matches an action line in a rebase buffer.")
 
 (defvar rebase-font-lock-keywords
   (list
    (list rebase-mode-action-line-re
          '(1 font-lock-keyword-face)
-         '(2 font-lock-builtin-face))))
+         '(2 font-lock-builtin-face)))
+  "Font lock keywords for rebase-mode.")
+
+(defvar rebase-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "q") 'server-edit)
+    (define-key map (kbd "M-p") 'rebase-mode-move-line-up)
+    (define-key map (kbd "M-n") 'rebase-mode-move-line-down)
+    (define-key map (kbd "k") 'rebase-mode-kill-line)
+    (define-key map (kbd "a") 'rebase-mode-abort)
+    (dolist (key-fun '(("p" . "pick")
+                       ("r" . "reword")
+                       ("e" . "edit")
+                       ("s" . "squash")
+                       ("f" . "fixup")))
+      (define-key map (car key-fun)
+         `(lambda ()
+           (interactive)
+           (rebase-mode-edit-line ,(cdr key-fun)))))
+    map)
+  "Keymap for rebase-mode.")
 
 (defun rebase-mode-edit-line (change-to)
     (let ((buffer-read-only nil)
@@ -75,24 +96,6 @@
          ;; somehow... sometime
          (text (apply 'buffer-substring region)))
     (apply 'kill-region region)))
-
-(defvar rebase-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "q") 'server-edit)
-    (define-key map (kbd "M-p") 'rebase-mode-move-line-up)
-    (define-key map (kbd "M-n") 'rebase-mode-move-line-down)
-    (define-key map (kbd "k") 'rebase-mode-kill-line)
-    (define-key map (kbd "a") 'rebase-mode-abort)
-    (dolist (key-fun '(("p" . "pick")
-                       ("r" . "reword")
-                       ("e" . "edit")
-                       ("s" . "squash")
-                       ("f" . "fixup")))
-      (define-key map (car key-fun)
-         `(lambda ()
-           (interactive)
-           (rebase-mode-edit-line ,(cdr key-fun)))))
-    map))
 
 (define-generic-mode 'rebase-mode
   '("#")
