@@ -44,23 +44,28 @@
   "Keymap for rebase-mode.")
 
 (defun rebase-mode-edit-line (change-to)
-    (let ((buffer-read-only nil)
-          (start (point)))
-      (goto-char (point-at-bol))
-      (kill-region (point) (progn (forward-word 1) (point)))
-      (insert change-to)
-      (goto-char start)))
+  "Change the keyword at the start of the current action line to
+that of CHANGE-TO."
+  (let ((buffer-read-only nil)
+        (start (point)))
+    (goto-char (point-at-bol))
+    (kill-region (point) (progn (forward-word 1) (point)))
+    (insert change-to)
+    (goto-char start)))
 
 (defun rebase-mode-looking-at-action ()
+  "Returns non-nil if looking at an action line."
   (save-excursion
     (goto-char (point-at-bol))
     (looking-at rebase-mode-action-line-re)))
 
 (defun rebase-mode-setup ()
+  "Function run when initialising rebase-mode."
   (setq buffer-read-only t)
   (use-local-map rebase-mode-map))
 
 (defun rebase-mode-move-line-up ()
+  "Move the current action line up."
   (interactive)
   (when (rebase-mode-looking-at-action)
     (let ((buffer-read-only nil))
@@ -68,6 +73,8 @@
       (previous-line 2))))
 
 (defun rebase-mode-move-line-down ()
+  "Assuming the next line is also an action line, move the
+current line down."
   (interactive)
   ;; if we're on an action and the next line is also an action
   (when (and (rebase-mode-looking-at-action)
@@ -80,6 +87,7 @@
       (previous-line 1))))
 
 (defun rebase-mode-abort ()
+  "Abort this rebase."
   (interactive)
   (let ((buffer-read-only nil))
     (delete-region (point-min) (point-max))
@@ -87,6 +95,7 @@
     (server-edit)))
 
 (defun rebase-mode-kill-line ()
+  "Kill the current action line."
   (interactive)
   (let* ((buffer-read-only nil)
          (region (list (point-at-bol)
@@ -103,20 +112,6 @@
   rebase-font-lock-keywords
   '("git-rebase-todo")
   '(rebase-mode-setup)
-  "Mode for blah")
-
-;;(defun rebase-mode ()
-;;  (interactive)
-;;  (kill-all-local-variables)
-;;  (make-local-variable 'font-lock-defaults)
-;;  (setq font-lock-defaults '(rebase-font-lock-keywords nil t nil nil))
-;;
-;;  (set (make-local-variable 'comment-start) "#")
-;;  (set (make-local-variable 'comment-end) "")
-;;
-;;  (setq mode-name "rebase" major-mode 'rebase-mode))
+  "Major mode for interactively editing git rebase files.")
 
 (provide 'rebase-mode)
-
-
-;; "\\([0-9a-fA-F]\\{40\\}\\) "
