@@ -40,6 +40,15 @@
   (next-line 1)
   (transpose-lines 1)
   (previous-line 1))
+(defun rebase-mode-kill-line ()
+  (interactive)
+  (let* ((buffer-read-only nil)
+         (region (list (point-at-bol)
+                       (progn (forward-line)
+                              (point-at-bol))))
+         ;; might be handy to let the user know what went somehow
+         (text (apply 'buffer-substring region)))
+    (apply 'kill-region region)))
 
 (defvar rebase-mode-map
   (let ((map (make-sparse-keymap)))
@@ -56,6 +65,7 @@
                                   (interactive)
                                   (let ((buffer-read-only nil))
                                     (kill-region (point-at-bol) (point-at-eol)))))
+    (define-key map (kbd "k") 'rebase-mode-kill-line)
     (dolist (key-fun '(("p" . "pick")
                        ("r" . "reword")
                        ("e" . "edit")
