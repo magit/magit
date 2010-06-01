@@ -3545,14 +3545,18 @@ With a non numeric prefix ARG, show all entries"
     (magit-log-mode t)))
 
 (defun magit-log-all (&optional arg)
+  "Display the state of all refs in the log output."
   (interactive "P")
   (magit-display-log arg "--all"))
 
 (defun magit-log-first-parent (&optional arg)
+  "Display the log buffer excluding anything more than first
+level commits."
   (interactive "P")
   (magit-display-log arg "--first-parent"))
 
 (defun magit-log (&optional arg)
+  "View and act upon the output of git log."
   (interactive "P")
   (magit-display-log arg))
 
