@@ -1397,6 +1397,8 @@ FUNC should leave point at the end of the modified region"
 (defun magit-display-process ()
   "Display output from most recent git command"
   (interactive)
+  (unless (get-buffer magit-process-buffer-name)
+    (error "No Git commands have run"))
   (display-buffer magit-process-buffer-name))
 
 ;;; Mode
