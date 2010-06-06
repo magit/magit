@@ -1448,6 +1448,7 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "G") 'magit-refresh-all)
     (define-key map (kbd "?") 'magit-describe-item)
     (define-key map (kbd "!") 'magit-shell-command)
+    (define-key map (kbd ":") 'magit-git-command)
     (define-key map (kbd "RET") 'magit-visit-item)
     (define-key map (kbd "SPC") 'magit-show-item-or-scroll-up)
     (define-key map (kbd "DEL") 'magit-show-item-or-scroll-down)
@@ -2964,6 +2965,23 @@ Uncomitted changes in both working tree and staging area are lost.
 		     (pcomplete-parse-buffer-arguments))))
 	(magit-process-popup-time 0))
     (magit-run* args nil nil nil t)))
+
+(defun magit-git-command (command)
+  "Perform arbitrary Git COMMAND.
+
+Similar to `magit-shell-command', but involves slightly less
+typing and automatically refreshes the status buffer."
+  (interactive "sgit ")
+  (require 'pcomplete)
+  (let ((args (car (with-temp-buffer
+		     (insert command)
+		     (pcomplete-parse-buffer-arguments))))
+	(magit-process-popup-time 0))
+    (magit-with-refresh
+      (magit-run* (append (cons magit-git-executable
+                                magit-git-standard-options)
+                          args)
+                  nil nil nil t))))
 
 (defun magit-read-remote (prompt def)
   (funcall magit-completing-read (if def
