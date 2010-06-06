@@ -499,6 +499,14 @@ Many Magit faces inherit from this one by default."
 	(substring head 11)
       nil)))
 
+(defun magit-get-current-remote ()
+  "Return the name of the remote for the current branch.
+If there is no current branch, or no remote for that branch,
+return nil."
+  (let* ((branch (magit-get-current-branch))
+         (remote (and branch (magit-get "branch" branch "remote"))))
+    (if (string= remote "") nil remote)))
+
 (defun magit-ref-exists-p (ref)
   (= (magit-git-exit-code "show-ref" "--verify" ref) 0))
 
@@ -651,6 +659,19 @@ Many Magit faces inherit from this one by default."
 		(match-string 1 branch)
 		branch)))))
 
+(defun magit-read-remote (&optional prompt def)
+  "Read the name of a remote.
+PROMPT is used as the prompt, and defaults to \"Remote\".
+DEF is the default value, and defaults to the value of `magit-get-current-branch'."
+  (let* ((prompt (or prompt "Remote"))
+         (def (or def (magit-get-current-remote)))
+         (prompt (if def
+		     (format "%s (default %s): " prompt def)
+		   (format "%s: " prompt)))
+	 (remotes (magit-git-lines "remote"))
+	 (reply (funcall magit-completing-read prompt remotes
+				 nil nil nil nil def)))
+    (if (string= reply "") nil reply)))
 
 ;;; Sections
 
@@ -2963,11 +2984,17 @@ Uncomitted changes in both working tree and staging area are lost.
 
 ;;; Updating, pull, and push
 
-(defun magit-remote-update ()
-  (interactive)
-  (if (magit-svn-enabled)
-      (magit-run-git-async "svn" "fetch")
-    (magit-run-git-async "remote" "update")))
+(defun magit-remote-update (&optional remote)
+  "Update REMOTE. If nil, update all remotes.
+
+When called interactively, update the current remote unless a
+prefix arg is given.  With prefix arg, prompt for a remote and
+update it."
+  (interactive (list (when current-prefix-arg (magit-read-remote))))
+  (cond
+   ((magit-svn-enabled) (magit-run-git-async "svn" "fetch"))
+   (remote (magit-run-git-async "fetch" remote))
+   (t (magit-run-git-async "remote" "update"))))
 
 (defun magit-pull ()
   (interactive)
@@ -3007,13 +3034,6 @@ typing and automatically refreshes the status buffer."
                                 magit-git-standard-options)
                           args)
                   nil nil nil t))))
-
-(defun magit-read-remote (prompt def)
-  (funcall magit-completing-read (if def
-		       (format "%s (default %s): " prompt def)
-		     (format "%s: " prompt))
-		   (magit-git-lines "remote")
-		   nil nil nil nil def))
 
 (defun magit-push ()
   (interactive)
