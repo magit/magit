@@ -2971,7 +2971,7 @@ Uncomitted changes in both working tree and staging area are lost.
 
 Similar to `magit-shell-command', but involves slightly less
 typing and automatically refreshes the status buffer."
-  (interactive "sgit ")
+  (interactive "sRun git like this: ")
   (require 'pcomplete)
   (let ((args (car (with-temp-buffer
 		     (insert command)
