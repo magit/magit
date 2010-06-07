@@ -9,7 +9,7 @@
 
 <p>If you want to submit a patch to magit the preferred way is to send
 patches in a git-am compatible fashion (perhaps with <a
-href="http://www.kernel.org/pub/software/scm/git/docs/git-send-email.html">git-send-mail</a>
+href="http://www.kernel.org/pub/software/scm/git/docs/git-send-email.html">git-send-mail</a>)
 to <a href="http://groups.google.com/group/magit/">the mailing
 list</a>.</p>
 
