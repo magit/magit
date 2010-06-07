@@ -49,6 +49,7 @@ as an extension to Emacs.
 * Rewriting::                   
 * Pushing and Pulling::         
 * Interfacing with Subversion::  
+* Using Git Directly::
 @end menu
 
 @node Introduction
@@ -682,5 +683,13 @@ then search for a corresponding Git sha1 for the commit. This is
 limited to the path of the remote Subversion repository. With a prefix
 (@kbd{C-u N f} the user will also be prompted for a branch to search
 in.
+
+@node Using Git Directly
+@chapter Using Git Directly
+
+For situations when Magit doesn't do everything you need, you can run
+raw Git commands using @kbd{:}.  This will prompt for a Git command, run
+it, and refresh the status buffer.  The output can be viewed by typing
+@kbd{$}.
 
 @bye

@@ -88,12 +88,15 @@
 
 (defcustom magit-repo-dirs nil
   "Directories containing Git repositories.
-Magit will look into these directories for Git repositories and offers them as choices for `magit-status'."
+Magit will look into these directories for Git repositories and
+offer them as choices for `magit-status'."
   :group 'magit
   :type '(repeat string))
 
 (defcustom magit-repo-dirs-depth 3
-  "When looking for Git repository below the directories in `magit-repo-dirs', Magit will only descend this many levels deep."
+  "The maximum depth to look for Git repos.
+When looking for a Git repository below the directories in `magit-repo-dirs',
+Magit will only descend this many levels deep."
   :group 'magit
   :type 'integer)
 
@@ -108,7 +111,11 @@ save all modified buffers without asking."
 
 (defcustom magit-commit-all-when-nothing-staged 'ask
   "Determines what \\[magit-log-edit] does when nothing is staged.
-Setting this to nil will make it do nothing, setting it to t will arrange things so that the actual commit command will use the \"--all\" option, setting it to 'ask will first ask for confirmation whether to do this, and setting it to 'ask-stage will cause all changes to be staged, after a confirmation."
+Setting this to nil will make it do nothing, setting it to t will
+arrange things so that the actual commit command will use the \"--all\" option,
+setting it to 'ask will first ask for confirmation whether to do this,
+and setting it to 'ask-stage will cause all changes to be staged,
+after a confirmation."
   :group 'magit
   :type '(choice (const :tag "No" nil)
 		 (const :tag "Always" t)
@@ -126,7 +133,7 @@ Setting this to nil will make it do nothing, setting it to t will arrange things
   :type 'integer)
 
 (defcustom magit-log-infinite-length 99999
-  "Number of log used to show as maximum for magit-log-cutoff-length"
+  "Number of log used to show as maximum for `magit-log-cutoff-length'."
   :group 'magit
   :type 'integer)
 
@@ -138,7 +145,7 @@ Setting this to nil will make it do nothing, setting it to t will arrange things
 		 (integer :tag "After this many seconds")))
 
 (defcustom magit-revert-item-confirm nil
-  "Require acknowledgment before reverting an item"
+  "Require acknowledgment before reverting an item."
   :group 'magit
   :type 'boolean)
 
@@ -740,14 +747,14 @@ If TYPE is nil, the section won't be highlighted."
     (magit-propertize-section s)))
 
 (defun magit-find-section (path top)
-  "Find in subsection of section TOP the section at the path PATH."
+  "Find the section at the path PATH in subsection of section TOP."
   (if (null path)
       top
     (let ((secs (magit-section-children top)))
-      (while (and secs (not (equal (car path) 
+      (while (and secs (not (equal (car path)
 				   (magit-section-title (car secs)))))
 	(setq secs (cdr secs)))
-      (and (car secs) 
+      (and (car secs)
 	   (magit-find-section (cdr path) (car secs))))))
 
 (defun magit-section-path (section)
@@ -771,14 +778,14 @@ If TYPE is nil, the section won't be highlighted."
     nil))
 
 (defun magit-find-section-after (pos secs)
-  "Find the first section in the list SECS that begin after POS."
+  "Find the first section that begins after POS in the list SECS."
   (while (and secs
 	      (not (> (magit-section-beginning (car secs)) pos)))
     (setq secs (cdr secs)))
   (car secs))
 
 (defun magit-find-section-before (pos secs)
-  "Find the last section in the list SECS that begin before POS."
+  "Find the last section that begins before POS in the list SECS."
   (let ((prev nil))
     (while (and secs
 		(not (> (magit-section-beginning (car secs)) pos)))
@@ -1019,7 +1026,7 @@ IF FLAG-OR-FUNC is a Boolean value, the section will be hidden if its true, show
   (magit-section-hideshow #'magit-section-expand))
 
 (defun magit-toggle-file-section ()
-  "Like `magit-toggle-section' but toggles at file granularity."
+  "Like `magit-toggle-section' but toggle at file granularity."
   (interactive)
   (when (eq 'hunk (first (magit-section-context-type (magit-current-section))))
     (magit-goto-parent-section))
@@ -1242,7 +1249,7 @@ FUNC should leave point at the end of the modified region"
 (defvar magit-process nil)
 (defvar magit-process-client-buffer nil)
 (defvar magit-process-buffer-name "*magit-process*"
-  "Buffer name for running git commands")
+  "Buffer name for running git commands.")
 
 (defun magit-run* (cmd-and-args
 		   &optional logline noerase noerror nowait input)
@@ -1395,8 +1402,10 @@ FUNC should leave point at the end of the modified region"
   (magit-run* (cons cmd args) nil nil nil t input))
 
 (defun magit-display-process ()
-  "Display output from most recent git command"
+  "Display output from most recent git command."
   (interactive)
+  (unless (get-buffer magit-process-buffer-name)
+    (error "No Git commands have run"))
   (display-buffer magit-process-buffer-name))
 
 ;;; Mode
@@ -1439,6 +1448,7 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "G") 'magit-refresh-all)
     (define-key map (kbd "?") 'magit-describe-item)
     (define-key map (kbd "!") 'magit-shell-command)
+    (define-key map (kbd ":") 'magit-git-command)
     (define-key map (kbd "RET") 'magit-visit-item)
     (define-key map (kbd "SPC") 'magit-show-item-or-scroll-up)
     (define-key map (kbd "DEL") 'magit-show-item-or-scroll-down)
@@ -1638,7 +1648,7 @@ FUNC should leave point at the end of the modified region"
     ["Display Git output" magit-display-process t]
     ["Quit Magit" quit-window t]))
 
-(defvar magit-mode-hook nil "Hook run by `magit-mode'")
+(defvar magit-mode-hook nil "Hook run by `magit-mode'.")
 
 (put 'magit-mode 'mode-class 'special)
 
@@ -2228,12 +2238,12 @@ must return a string which will represent the log line.")
        (propertize message 'face 'magit-log-message)))))
 
 (defvar magit-log-count ()
-  "internal var used to count the number of log actualy added in a buffer")
+  "Internal var used to count the number of logs actually added in a buffer.")
 
 (defmacro magit-create-log-buffer-sections (&rest body)
-  "Empty current buffer of text and magit's section, and then evaluate body.
+  "Empty current buffer of text and magit's section, and then evaluate BODY.
 
-if the number of logs inserted in the buffer is magit-log-cutoff-length
+if the number of logs inserted in the buffer is `magit-log-cutoff-length'
 insert a line to tell how to insert more of them"
   (declare (indent 0))
   `(let ((magit-log-count 0) (inhibit-read-only t))
@@ -2254,7 +2264,7 @@ insert a line to tell how to insert more of them"
             (msg (match-string 4))
             (refs (when (match-string 3)
 		    (delq nil
-			  (mapcar 
+			  (mapcar
 			   (lambda (s)
 			     (and (not
 				   (or (string= s "tag:")
@@ -2304,7 +2314,7 @@ insert a line to tell how to insert more of them"
   :keymap magit-commit-mode-map)
 
 (defvar magit-commit-buffer-name "*magit-commit*"
-  "Buffer name for displaying commit log messages")
+  "Buffer name for displaying commit log messages.")
 
 (defun magit-show-commit (commit &optional scroll)
   (when (magit-section-p commit)
@@ -2572,15 +2582,15 @@ With prefix argument, add remaining untracked files as well.
 	  t))
     nil))
 
-(defun magit-checkout (rev)
+(defun magit-checkout (revision)
   "Switch 'HEAD' to REVISION and update working tree.
 Fails if working tree or staging area contain uncommitted changes.
 If REVISION is a remote branch, offer to create a local tracking branch.
 \('git checkout [-b] REVISION')."
   (interactive (list (magit-read-rev "Switch to" (magit-default-rev))))
-  (if rev
-      (if (not (magit-maybe-create-local-tracking-branch rev))
-	  (magit-run-git "checkout" (magit-rev-to-git rev)))))
+  (if revision
+      (if (not (magit-maybe-create-local-tracking-branch revision))
+	  (magit-run-git "checkout" (magit-rev-to-git revision)))))
 
 (defun magit-read-create-branch-args ()
   (let* ((cur-branch (magit-get-current-branch))
@@ -2589,7 +2599,7 @@ If REVISION is a remote branch, offer to create a local tracking branch.
     (list branch parent)))
 
 (defun magit-create-branch (branch parent)
-  "Switch 'HEAD' to new BRANCH at REVISION and update working tree.
+  "Switch 'HEAD' to new BRANCH at revision PARENT and update working tree.
 Fails if working tree or staging area contain uncommitted changes.
 \('git checkout -b BRANCH REVISION')."
   (interactive (magit-read-create-branch-args))
@@ -2607,7 +2617,7 @@ Fails if working tree or staging area contain uncommitted changes.
      (magit-section-info (magit-section-parent item)))
     ((wazzup) info)))
 
-(defun magit-manual-merge (rev)
+(defun magit-manual-merge (revision)
   "Merge REVISION into the current 'HEAD'; leave changes uncommitted.
 With a prefix-arg, the merge will be squashed.
 \('git merge --no-commit [--squash|--no-ff] REVISION')."
@@ -2616,19 +2626,19 @@ With a prefix-arg, the merge will be squashed.
 				 (when current-prefix-arg
 				   " (squashed)"))
 			 (magit-guess-branch))))
-  (if rev
+  (if revision
       (magit-run-git "merge" "--no-commit"
 		     (if current-prefix-arg
 			 "--squash"
 		       "--no-ff")
-		     (magit-rev-to-git rev))))
+		     (magit-rev-to-git revision))))
 
-(defun magit-automatic-merge (rev)
+(defun magit-automatic-merge (revision)
   "Merge REVISION into the current 'HEAD'; commit unless merge fails.
 \('git merge REVISION')."
   (interactive (list (magit-read-rev "Merge" (magit-guess-branch))))
-  (if rev
-      (magit-run-git "merge" (magit-rev-to-git rev))))
+  (if revision
+      (magit-run-git "merge" (magit-rev-to-git revision))))
 
 ;;; Rebasing
 
@@ -2768,8 +2778,8 @@ If USE-CACHE is non nil, use the cached information."
 
 ;;; Resetting
 
-(defun magit-reset-head (rev &optional hard)
-  "Switch 'HEAD' to REVISION, keeping prior working tree and staging area
+(defun magit-reset-head (revision &optional hard)
+  "Switch 'HEAD' to REVISION, keeping prior working tree and staging area.
 Any differences from REVISION become new changes to be committed.
 With prefix argument, all uncommitted changes in working tree
 and staging area are lost.
@@ -2781,18 +2791,18 @@ and staging area are lost.
 				     (or (magit-default-rev)
 					 "HEAD^"))
 		     current-prefix-arg))
-  (if rev
+  (if revision
       (magit-run-git "reset" (if hard "--hard" "--soft")
-		     (magit-rev-to-git rev))))
+		     (magit-rev-to-git revision))))
 
-(defun magit-reset-head-hard (rev)
-  "Switch 'HEAD' to REVISION, losing all uncommitted changes
-in both working tree and staging area.
+(defun magit-reset-head-hard (revision)
+  "Switch 'HEAD' to REVISION, losing all changes.
+Uncomitted changes in both working tree and staging area are lost.
 \('git reset --hard REVISION')."
   (interactive (list (magit-read-rev (format "Hard reset head to")
 				     (or (magit-default-rev)
 					 "HEAD"))))
-  (magit-reset-head rev t))
+  (magit-reset-head revision t))
 
 (defun magit-reset-working-tree ()
   "Revert working tree and clear changes from staging area.
@@ -2914,7 +2924,7 @@ in both working tree and staging area.
     (or info
 	(error "No rewrite in progress"))
     (let* ((pending (cdr (assq 'pending info)))
-	   (first-unused 
+	   (first-unused
 	    (let ((rpend (reverse pending)))
 	      (while (and rpend (plist-get (cdr (car rpend)) 'used))
 		(setq rpend (cdr rpend)))
@@ -2956,6 +2966,23 @@ in both working tree and staging area.
 	(magit-process-popup-time 0))
     (magit-run* args nil nil nil t)))
 
+(defun magit-git-command (command)
+  "Perform arbitrary Git COMMAND.
+
+Similar to `magit-shell-command', but involves slightly less
+typing and automatically refreshes the status buffer."
+  (interactive "sgit ")
+  (require 'pcomplete)
+  (let ((args (car (with-temp-buffer
+		     (insert command)
+		     (pcomplete-parse-buffer-arguments))))
+	(magit-process-popup-time 0))
+    (magit-with-refresh
+      (magit-run* (append (cons magit-git-executable
+                                magit-git-standard-options)
+                          args)
+                  nil nil nil t))))
+
 (defun magit-read-remote (prompt def)
   (funcall magit-completing-read (if def
 		       (format "%s (default %s): " prompt def)
@@ -2980,10 +3007,10 @@ in both working tree and staging area.
 
 ;;; Log edit mode
 
-(defvar magit-log-edit-mode-hook nil "Hook run by `magit-log-edit-mode'")
+(defvar magit-log-edit-mode-hook nil "Hook run by `magit-log-edit-mode'.")
 
 (defvar magit-log-edit-buffer-name "*magit-edit-log*"
-  "Buffer name for composing commit messages")
+  "Buffer name for composing commit messages.")
 
 (defvar magit-log-edit-mode-map
   (let ((map (make-sparse-keymap)))
@@ -3264,7 +3291,7 @@ Prefix arg means justify as well."
 ;;; Tags
 
 (defun magit-tag (name rev)
-  "Creates a new lightweight tag with the given NAME at REV.
+  "Create a new lightweight tag with the given NAME at REV.
 \('git tag NAME')."
   (interactive
    (list
@@ -3307,8 +3334,8 @@ Tag will point to the current 'HEAD'."
 		     "stash" "list"))
 
 (defun magit-stash (description)
-  "Create new stash of working tree and staging area named DESCRIPTION,
-working tree and staging area revert to the current 'HEAD'.
+  "Create new stash of working tree and staging area named DESCRIPTION.
+Working tree and staging area revert to the current 'HEAD'.
 With prefix argument, changes in staging area are kept.
 \('git stash save [--keep-index] DESCRIPTION')"
   (interactive "sStash description: ")
@@ -3337,7 +3364,7 @@ With prefix argument, changes in staging area are kept.
   :keymap magit-stash-mode-map)
 
 (defvar magit-stash-buffer-name "*magit-stash*"
-  "Buffer name for displaying a stash")
+  "Buffer name for displaying a stash.")
 
 (defun magit-show-stash (stash &optional scroll)
   (when (magit-section-p stash)
@@ -3528,9 +3555,9 @@ With a non numeric prefix ARG, show all entries"
   :keymap magit-log-mode-map)
 
 (defvar magit-log-buffer-name "*magit-log*"
-  "Buffer name for display of log entries")
+  "Buffer name for display of log entries.")
 (defvar magit-log-grep-buffer-name "*magit-grep-log*"
-  "Buffer name for display of log grep results")
+  "Buffer name for display of log grep results.")
 
 (defun magit-display-log (ask-for-range &rest extra-args)
   (let* ((log-range (if ask-for-range
@@ -3679,7 +3706,7 @@ level commits."
 	       (branches (if all all-branches
 			   (delq nil (mapcar
 				      (lambda (b)
-					(and (not 
+					(and (not
 					      (member (cdr b) excluded))
 					     b))
 				      all-branches))))
@@ -3955,7 +3982,7 @@ Return values:
   (delete-window))
 
 (defun magit--branch-name-from-line (line)
-  "Extract the branch name from one line of 'git branch' output."
+  "Extract the branch name from line LINE of 'git branch' output."
   (get-text-property 0 'branch-name line))
 
 (defun magit--branch-name-at-point ()
@@ -4026,7 +4053,7 @@ With prefix force the removal even it it hasn't been merged."
        res))))
 
 (defun magit-show-branches ()
-  "Show all of the current branches in other-window."
+  "Show all of the current branches in `other-window'."
   (interactive)
   (unless (eq major-mode 'magit-show-branches-mode)
     (let ((topdir (magit-get-top-dir default-directory)))
@@ -4119,7 +4146,7 @@ With prefix force the removal even it it hasn't been merged."
      (magit-interactive-resolve (cadr info)))))
 
 (defun magit-list-buffers ()
-  "Returns a list of magit buffers."
+  "Return a list of magit buffers."
   (delq nil (mapcar (lambda (b)
                       (with-current-buffer b
                         (when (eq major-mode 'magit-mode)
@@ -4136,7 +4163,7 @@ With prefix force the removal even it it hasn't been merged."
     (reverse tmp-list)))
 
 (defun magit-list-projects ()
-  "Returns a list of directories with a magit representation."
+  "Return a list of directories with a magit representation."
   (remove-dupes
    (sort
     (mapcar (lambda (b)
