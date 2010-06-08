@@ -4041,7 +4041,7 @@ With prefix force the removal even it it hasn't been merged."
   "Extract details from branch -va output."
   (string-match (concat
                  "^\\(\\*? \\{1,2\\}\\)"      ; current branch marker (maybe)
-                 "\\(remotes/\\)?\\(.+?\\) +" ; is it remote, branch name
+                 "\\(.+?\\) +"                ; branch name
 
                  "\\(?:"
                  "\\([0-9a-fA-F]\\{7\\}\\) "  ; sha1
@@ -4052,14 +4052,13 @@ With prefix force the removal even it it hasn't been merged."
                  )
                 branch-line)
   (let ((res (list (cons 'current (match-string 1 branch-line))
-                   (cons 'remote  (not (not (match-string 2 branch-line))))
-                   (cons 'branch  (match-string 3 branch-line)))))
-    (if (match-string 5 branch-line)
+                   (cons 'branch  (match-string 2 branch-line)))))
+    (if (match-string 4 branch-line)
         (cons (cons 'other-ref (match-string 6 branch-line)) res)
       (append
        (list
-        (cons 'sha1 (match-string 4 branch-line))
-        (cons 'msg (match-string 6 branch-line)))
+        (cons 'sha1 (match-string 3 branch-line))
+        (cons 'msg (match-string 5 branch-line)))
        res))))
 
 (defun magit-show-branches ()
