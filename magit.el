@@ -2582,7 +2582,7 @@ With prefix argument, add remaining untracked files as well.
 ;;; Branches
 
 (defun magit-maybe-create-local-tracking-branch (rev)
-  (if (string-match "^refs/remotes/\\([^/]+\\)/\\(.+\\)" rev)
+  (if (string-match "^\\(?:refs/\\)?remotes/\\([^/]+\\)/\\(.+\\)" rev)
       (let ((remote (match-string 1 rev))
 	    (branch (match-string 2 rev)))
 	(when (and (not (magit-ref-exists-p (concat "refs/heads/" branch)))
@@ -4003,7 +4003,7 @@ Return values:
 (defun magit-branches-window-checkout ()
   "Check out the branch in the line at point."
   (interactive)
-  (magit-run-git "checkout" (magit--branch-name-at-point))
+  (magit-checkout (magit--branch-name-at-point))
   (save-excursion
     (magit-show-branches)))
 
