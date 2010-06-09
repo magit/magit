@@ -3479,7 +3479,7 @@ With prefix argument, changes in staging area are kept.
 				,@(if (not docommit) (list "--no-commit"))
 				,commit)
 			      nil noerase)))
-    (when (or (not docommit) success)
+    (when (or (not docommit) (not success))
       (cond (revert
 	     (magit-log-edit-append
 	      (magit-format-commit commit "Reverting \"%s\"")))
