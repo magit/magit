@@ -2,5 +2,5 @@
 
 # :-)
 
-(/(\d{4}) .*--(.+)/ && $aut{$2}->{$1}++) for(qx(git log --pretty='format: %aD--%an'));
-print "Copyright (C) ".join(", ", sort keys %{$aut{$_}})." $_.\n" for(sort keys %aut);
+/(\d{4}).*?_(.+)/&&\$a{$2}->{$1}for`git log --pretty=format:%aD_%an`;
+print"Copyright (C) ".join(", ",sort keys %{$a{$_}})." $_.\n"for sort keys %a
