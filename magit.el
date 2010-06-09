@@ -3115,7 +3115,7 @@ Prefix arg means justify as well."
   (let ((buf (get-buffer-create magit-log-edit-buffer-name)))
     (with-current-buffer buf
       (goto-char (point-min))
-      (if (search-forward-regexp (format "^\\([A-Za-z0-9-_]+:.*\n\\)+%s"
+      (if (search-forward-regexp (format "^\\([A-Za-z0-9-_]+:.*\n\\)*%s"
 					 (regexp-quote magit-log-header-end))
 				 nil t)
 	  (delete-region (match-beginning 0) (match-end 0)))
