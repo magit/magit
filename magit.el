@@ -2581,15 +2581,30 @@ With prefix argument, add remaining untracked files as well.
 
 ;;; Branches
 
+(defun magit-get-tracking-name (remote branch)
+  "Given a REMOTE and a BRANCH name, ask the user for a local
+tracking brach name suggesting a sensible default."
+  (when (yes-or-no-p
+         (format "Create local tracking branch for %s? " branch))
+    (let* ((default-name (concat remote "-" branch))
+           (chosen-name (read-string (format "Call local branch (%s): " default-name)
+                                     nil
+                                     nil
+                                     default-name)))
+      (when (magit-ref-exists-p (concat "refs/heads/" chosen-name))
+        (error "'%s' already exists." chosen-name))
+      chosen-name)))
+
 (defun magit-maybe-create-local-tracking-branch (rev)
+  "Depending on the users wishes, create a tracking branch for
+rev... maybe."
   (if (string-match "^\\(?:refs/\\)?remotes/\\([^/]+\\)/\\(.+\\)" rev)
-      (let ((remote (match-string 1 rev))
-	    (branch (match-string 2 rev)))
-	(when (and (not (magit-ref-exists-p (concat "refs/heads/" branch)))
-		   (yes-or-no-p
-		    (format "Create local tracking branch for %s? " branch)))
-	  (magit-run-git "checkout" "-b" branch rev)
-	  t))
+      (let* ((remote (match-string 1 rev))
+             (branch (match-string 2 rev))
+             (tracker-name (magit-get-tracking-name remote branch)))
+        (when tracker-name
+          (magit-run-git "checkout" "-b" tracker-name rev)
+          t))
     nil))
 
 (defun magit-checkout (revision)
