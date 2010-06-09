@@ -2581,15 +2581,30 @@ With prefix argument, add remaining untracked files as well.
 
 ;;; Branches
 
+(defun magit-get-tracking-name (remote branch)
+  "Given a REMOTE and a BRANCH name, ask the user for a local
+tracking brach name suggesting a sensible default."
+  (when (yes-or-no-p
+         (format "Create local tracking branch for %s? " branch))
+    (let* ((default-name (concat remote "-" branch))
+           (chosen-name (read-string (format "Call local branch (%s): " default-name)
+                                     nil
+                                     nil
+                                     default-name)))
+      (when (magit-ref-exists-p (concat "refs/heads/" chosen-name))
+        (error "'%s' already exists." chosen-name))
+      chosen-name)))
+
 (defun magit-maybe-create-local-tracking-branch (rev)
-  (if (string-match "^refs/remotes/\\([^/]+\\)/\\(.+\\)" rev)
-      (let ((remote (match-string 1 rev))
-	    (branch (match-string 2 rev)))
-	(when (and (not (magit-ref-exists-p (concat "refs/heads/" branch)))
-		   (yes-or-no-p
-		    (format "Create local tracking branch for %s? " branch)))
-	  (magit-run-git "checkout" "-b" branch rev)
-	  t))
+  "Depending on the users wishes, create a tracking branch for
+rev... maybe."
+  (if (string-match "^\\(?:refs/\\)?remotes/\\([^/]+\\)/\\(.+\\)" rev)
+      (let* ((remote (match-string 1 rev))
+             (branch (match-string 2 rev))
+             (tracker-name (magit-get-tracking-name remote branch)))
+        (when tracker-name
+          (magit-run-git "checkout" "-b" tracker-name rev)
+          t))
     nil))
 
 (defun magit-checkout (revision)
@@ -4003,7 +4018,7 @@ Return values:
 (defun magit-branches-window-checkout ()
   "Check out the branch in the line at point."
   (interactive)
-  (magit-run-git "checkout" (magit--branch-name-at-point))
+  (magit-checkout (magit--branch-name-at-point))
   (save-excursion
     (magit-show-branches)))
 
@@ -4041,7 +4056,7 @@ With prefix force the removal even it it hasn't been merged."
   "Extract details from branch -va output."
   (string-match (concat
                  "^\\(\\*? \\{1,2\\}\\)"      ; current branch marker (maybe)
-                 "\\(remotes/\\)?\\(.+?\\) +" ; is it remote, branch name
+                 "\\(.+?\\) +"                ; branch name
 
                  "\\(?:"
                  "\\([0-9a-fA-F]\\{7\\}\\) "  ; sha1
@@ -4052,14 +4067,13 @@ With prefix force the removal even it it hasn't been merged."
                  )
                 branch-line)
   (let ((res (list (cons 'current (match-string 1 branch-line))
-                   (cons 'remote  (not (not (match-string 2 branch-line))))
-                   (cons 'branch  (match-string 3 branch-line)))))
-    (if (match-string 5 branch-line)
+                   (cons 'branch  (match-string 2 branch-line)))))
+    (if (match-string 4 branch-line)
         (cons (cons 'other-ref (match-string 6 branch-line)) res)
       (append
        (list
-        (cons 'sha1 (match-string 4 branch-line))
-        (cons 'msg (match-string 6 branch-line)))
+        (cons 'sha1 (match-string 3 branch-line))
+        (cons 'msg (match-string 5 branch-line)))
        res))))
 
 (defun magit-show-branches ()
