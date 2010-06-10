@@ -54,27 +54,6 @@
 ;;
 ;; See the Magit User Manual for more information.
 
-;;; TODO
-
-;; For 0.8:
-;;
-;; - Fix display of unmerged files.
-;; - Fix performance problems with large status buffers.
-;; - Handle the case where remote and local branches have different names.
-;;
-;; Later:
-;;
-;; - Queuing of asynchronous commands.
-;; - Good email integration.
-;; - Showing tags.
-;; - Visiting from staged hunks doesn't always work since the line
-;;   numbers don't refer to the working tree.  Fix that somehow.
-;; - Figure out how to discard staged changes for files that also have
-;;   unstaged changes.
-;; - Get current defun from removed lines in a diff
-;; - Amending commits other than HEAD.
-;; - 'Subsetting', only looking at a subset of all files.
-
 (eval-when-compile (require 'cl))
 (require 'log-edit)
 (require 'easymenu)
