@@ -3039,7 +3039,7 @@ typing and automatically refreshes the status buffer."
   (interactive)
   (let* ((branch (or (magit-get-current-branch)
 		     (error "Don't push a detached head.  That's gross")))
-	 (branch-remote (magit-get "branch" branch "remote"))
+	 (branch-remote (magit-get-remote branch))
 	 (push-remote (if (or current-prefix-arg
 			      (not branch-remote))
 			  (magit-read-remote (format "Push %s to" branch)
