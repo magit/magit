@@ -1410,6 +1410,7 @@ FUNC should leave point at the end of the modified region"
 		nil nil nil nil input)))
 
 (defun magit-run-git-async (&rest args)
+  (message "Running %s %s" magit-git-executable (mapconcat 'identity args " "))
   (magit-run* (append (cons magit-git-executable
 			    magit-git-standard-options)
 		      args)
