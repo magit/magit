@@ -150,6 +150,16 @@ after a confirmation."
   :group 'magit
   :type 'boolean)
 
+(defcustom magit-remote-ref-format 'branch-then-remote
+  "What format to use for autocompleting refs, in pariticular for remotes.
+
+The value 'name-then-remote means remotes will be of the
+form \"name (remote)\", while the value 'remote-slash-name
+means that they'll be of the form \"remote/name\"."
+  :group 'magit
+  :type '(choice (const :tag "name (remote)" branch-then-remote)
+                 (const :tag "remote/name" remote-slash-branch)))
+
 (defcustom magit-process-connection-type (not (eq system-type 'cygwin))
   "Connection type used for the git process.
 
@@ -571,12 +581,20 @@ return nil."
 		   (let ((branch (match-string 1 ref)))
 		     (push (cons branch branch) refs)))
 		  ((string-match "refs/tags/\\(.*\\)" ref)
-		   (push (cons (format "%s (tag)" (match-string 1 ref)) ref)
+		   (push (cons (format
+                                (if (eq magit-remote-ref-format 'branch-then-remote)
+                                    "%s (tag)" "%s")
+                                (match-string 1 ref))
+                               ref)
 			 refs))
 		  ((string-match "refs/remotes/\\([^/]+\\)/\\(.+\\)" ref)
-		   (push (cons (format "%s (%s)"
-				       (match-string 2 ref)
-				       (match-string 1 ref))
+		   (push (cons (if (eq magit-remote-ref-format 'branch-then-remote)
+                                   (format "%s (%s)"
+                                           (match-string 2 ref)
+                                           (match-string 1 ref))
+                                 (format "%s/%s"
+				       (match-string 1 ref)
+				       (match-string 2 ref)))
 			       ref)
 			 refs))))))
     refs))
