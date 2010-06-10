@@ -2985,8 +2985,8 @@ prefix arg is given.  With prefix arg, prompt for a remote and
 update it."
   (interactive (list (when current-prefix-arg (magit-read-remote))))
   (cond
-   ((magit-svn-enabled) (magit-run-git-async "svn" "fetch"))
    (remote (magit-run-git-async "fetch" remote))
+   ((magit-svn-enabled) (magit-run-git-async "svn" "fetch"))
    (t (magit-run-git-async "remote" "update"))))
 
 (defun magit-pull ()
