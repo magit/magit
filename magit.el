@@ -1,4 +1,4 @@
-;;; Magit -- control Git from Emacs.
+;;; magit.el -- control Git from Emacs.
 
 ;; Copyright (C) 2008 Alex Ott.
 ;; Copyright (C) 2008, 2009, 2010 Alexey Voinov.
@@ -25,6 +25,11 @@
 ;; Copyright (C) 2009 Steve Purcell.
 ;; Copyright (C) 2010 Ævar Arnfjörð Bjarmason.
 ;; Copyright (C) 2010 Óscar Fuentes.
+
+;; Author: Marius Vollmer <marius.vollmer@nokia.com>
+;; Maintainer: Phil Jackson <phil@shellarchive.co.uk>
+;; Version: 0.8.1
+;; Keywords: tools
 
 ;;
 ;; Magit is free software; you can redistribute it and/or modify it
@@ -53,6 +58,8 @@
 ;; to the index, and you can commit the index.
 ;;
 ;; See the Magit User Manual for more information.
+
+;;; Code:
 
 (eval-when-compile (require 'cl))
 (require 'log-edit)
@@ -4196,4 +4203,5 @@ With prefix force the removal even it it hasn't been merged."
     'string=)))
 
 (provide 'magit)
+
 ;;; magit.el ends here
