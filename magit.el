@@ -2156,26 +2156,32 @@ in the corresponding directories."
 	  (forward-line))
 	target))))
 
+(defvar magit-tmp-buffer-name " *magit-tmp*")
+
+(defmacro with-magit-tmp-buffer (var &rest body)
+  (declare (indent 1)
+	   (debug (symbolp &rest form)))
+  `(let ((,var (generate-new-buffer magit-tmp-buffer-name)))
+     (unwind-protect
+	  (progn ,@body)
+       (kill-buffer ,var))))
+
 (defun magit-apply-diff-item (diff &rest args)
   (when (zerop magit-diff-context-lines)
     (setq args (cons "--unidiff-zero" args)))
-  (let ((tmp (get-buffer-create "*magit-tmp*")))
-    (with-current-buffer tmp
-      (erase-buffer))
-    (magit-insert-diff-item-patch diff "*magit-tmp*")
+  (with-magit-tmp-buffer tmp
+    (magit-insert-diff-item-patch diff tmp)
     (apply #'magit-run-git-with-input tmp
 	   "apply" (append args (list "-")))))
 
 (defun magit-apply-hunk-item* (hunk reverse &rest args)
   (when (zerop magit-diff-context-lines)
     (setq args (cons "--unidiff-zero" args)))
-  (let ((tmp (get-buffer-create "*magit-tmp*")))
-    (with-current-buffer tmp
-      (erase-buffer))
+  (with-magit-tmp-buffer tmp
     (if (magit-use-region-p)
 	(magit-insert-hunk-item-region-patch
 	 hunk reverse (region-beginning) (region-end) tmp)
-      (magit-insert-hunk-item-patch hunk tmp))
+	(magit-insert-hunk-item-patch hunk tmp))
     (apply #'magit-run-git-with-input tmp
 	   "apply" (append args (list "-")))))
 
