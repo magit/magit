@@ -3037,11 +3037,12 @@ typing and automatically refreshes the status buffer."
 			      (not branch-remote))
 			  (magit-read-remote (format "Push %s to" branch)
 					     branch-remote)
-			branch-remote)))
+			branch-remote))
+	 (ref-branch (magit-get "branch" branch "merge")))
     (if (and (not branch-remote)
 	     (not current-prefix-arg))
 	(magit-set push-remote "branch" branch "remote"))
-    (magit-run-git-async "push" "-v" push-remote branch)))
+    (magit-run-git-async "push" "-v" push-remote (format "%s:%s" branch ref-branch))))
 
 ;;; Log edit mode
 
