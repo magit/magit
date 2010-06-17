@@ -509,11 +509,9 @@ return nil."
 			      default-directory)))))
 
 (defun magit-name-rev (rev)
-  (and rev
-       (let ((name (magit-git-string "name-rev" "--name-only" rev)))
-	 (if (or (not name) (string= name "undefined"))
-	     rev
-	   name))))
+  (when rev
+    (let ((name (magit-git-string "name-rev" "--no-undefined" "--name-only" rev)))
+      (or name rev))))
 
 (defun magit-put-line-property (prop val)
   (put-text-property (line-beginning-position) (line-beginning-position 2)
