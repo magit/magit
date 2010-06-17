@@ -302,6 +302,9 @@ Many Magit faces inherit from this one by default."
 (defvar magit-completing-read 'completing-read
   "Function to be called when requesting input from the user.")
 
+(defvar magit-read-rev-history nil
+  "The history of inputs to `magit-read-rev'.")
+
 (defvar magit-omit-untracked-dir-contents nil
   "When non-nil magit will only list an untracked directory, not its contents.")
 
@@ -587,7 +590,7 @@ return nil."
 		   (format "%s: " prompt)))
 	 (interesting-refs (magit-list-interesting-refs))
 	 (reply (funcall magit-completing-read prompt interesting-refs
-				 nil nil nil nil def))
+				 nil nil nil 'magit-read-rev-history def))
 	 (rev (or (cdr (assoc reply interesting-refs)) reply)))
     (if (string= rev "")
 	nil
