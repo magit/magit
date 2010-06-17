@@ -508,10 +508,22 @@ return nil."
 			  (or (magit-get-top-dir default-directory)
 			      default-directory)))))
 
+(defun magit-ref-ambiguous-p (ref)
+  "Return whether or not REF is ambiguous."
+  (/= (magit-git-exit-code "rev-parse" "--abbrev-ref" ref) 0))
+
 (defun magit-name-rev (rev)
+  "Return a human-readable name for REV.
+Unlike git name-rev, this will remove tags/ and remotes/ prefixes
+if that can be done unambiguously."
   (when rev
     (let ((name (magit-git-string "name-rev" "--no-undefined" "--name-only" rev)))
-      (or name rev))))
+      (setq rev (or name rev))
+      (when (string-match "^\\(?:tags\\|remotes\\)/\\(.*\\)" rev)
+        (let ((plain-name (match-string 1 rev)))
+          (unless (magit-ref-ambiguous-p plain-name)
+            (setq rev plain-name))))
+      rev)))
 
 (defun magit-put-line-property (prop val)
   (put-text-property (line-beginning-position) (line-beginning-position 2)
