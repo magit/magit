@@ -510,7 +510,9 @@ return nil."
 
 (defun magit-ref-ambiguous-p (ref)
   "Return whether or not REF is ambiguous."
-  (/= (magit-git-exit-code "rev-parse" "--abbrev-ref" ref) 0))
+  ;; If REF is ambiguous, rev-parse just prints errors,
+  ;; so magit-git-string returns nil.
+  (not (magit-git-string "rev-parse" "--abbrev-ref" ref)))
 
 (defun magit-name-rev (rev)
   "Return a human-readable name for REV.
