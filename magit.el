@@ -468,7 +468,7 @@ Many Magit faces inherit from this one by default."
 		  dirs))))
 
 (defun magit-get-top-dir (cwd)
-  (let ((cwd (expand-file-name cwd)))
+  (let ((cwd (expand-file-name (file-truename cwd))))
     (when (file-directory-p cwd)
       (let* ((default-directory cwd)
              (cdup (magit-git-string "rev-parse" "--show-cdup")))
