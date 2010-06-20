@@ -4025,7 +4025,12 @@ Return values:
 
 (defun magit--branch-name-from-line (line)
   "Extract the branch name from line LINE of 'git branch' output."
-  (get-text-property 0 'branch-name line))
+  (let ((branch (get-text-property 0 'branch-name line)))
+    (if (and branch
+             (get-text-property 0 'remote line)
+             (string-match-p "^remotes/" branch))
+        (substring branch 8)
+      branch)))
 
 (defun magit--branch-name-at-point ()
   "Get the branch name in the line at point."
