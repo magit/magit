@@ -4084,7 +4084,8 @@ With prefix force the removal even it it hasn't been merged."
                  )
                 branch-line)
   (let ((res (list (cons 'current (match-string 1 branch-line))
-                   (cons 'branch  (match-string 2 branch-line)))))
+                   (cons 'branch  (match-string 2 branch-line))
+                   (cons 'remote  (string-match-p "^remotes/" (match-string 2 branch-line))))))
     (if (match-string 4 branch-line)
         (cons (cons 'other-ref (match-string 6 branch-line)) res)
       (append
