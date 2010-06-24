@@ -521,9 +521,23 @@ return nil."
 (defun magit-name-rev (rev)
   "Return a human-readable name for REV.
 Unlike git name-rev, this will remove tags/ and remotes/ prefixes
-if that can be done unambiguously."
+if that can be done unambiguously.  In addition, it will filter
+out revs involving HEAD."
   (when rev
     (let ((name (magit-git-string "name-rev" "--no-undefined" "--name-only" rev)))
+      ;; There doesn't seem to be a way of filtering HEAD out from name-rev,
+      ;; so we have to do it manually.
+      ;; HEAD-based names are too transient to allow.
+      (when (string-match "^\\(.*\\<HEAD\\)\\([~^].*\\|$\\)" name)
+        (let ((head-ref (match-string 1 name))
+              (modifier (match-string 2 name)))
+          ;; Sometimes when name-rev gives a HEAD-based name,
+          ;; rev-parse will give an actual branch or remote name.
+          (setq name (concat (magit-git-string "rev-parse" "--abbrev-ref" head-ref)
+                             modifier))
+          ;; If rev-parse doesn't give us what we want, just use the SHA.
+          (when (or (null name) (string-match-p "\\<HEAD\\>" name))
+            (setq name (magit-rev-parse ref)))))
       (setq rev (or name rev))
       (when (string-match "^\\(?:tags\\|remotes\\)/\\(.*\\)" rev)
         (let ((plain-name (match-string 1 rev)))
