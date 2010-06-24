@@ -303,6 +303,10 @@ Typing @kbd{C-c C-s} will toggle the @code{--signoff} option.  The
 default is determined by the @code{magit-commit-signoff} customization
 variable.
 
+Typing @kbd{C-c C-e} will toggle the @code{--allow-empty} option.  This
+allows you to make commits that serve as notes, without including any
+changes.
+
 If you change your mind and don't want to go ahead with your commit
 while you are in the @code{*magit-log-edit*} buffer, you can just
 switch to another buffer, continue editing there, staging and
