@@ -3056,6 +3056,7 @@ typing and automatically refreshes the status buffer."
     (define-key map (kbd "C-c C-c") 'magit-log-edit-commit)
     (define-key map (kbd "C-c C-a") 'magit-log-edit-toggle-amending)
     (define-key map (kbd "C-c C-s") 'magit-log-edit-toggle-signoff)
+    (define-key map (kbd "C-c C-e") 'magit-log-edit-toggle-allow-empty)
     (define-key map (kbd "M-p") 'log-edit-previous-comment)
     (define-key map (kbd "M-n") 'log-edit-next-comment)
     (define-key map (kbd "C-c C-k") 'magit-log-edit-cancel-log-message)
@@ -3187,6 +3188,7 @@ toggled on.  When it's toggled on for the first time, return
   (interactive)
   (let* ((fields (magit-log-edit-get-fields))
 	 (amend (equal (cdr (assq 'amend fields)) "yes"))
+	 (allow-empty (equal (cdr (assq 'allow-empty fields)) "yes"))
 	 (commit-all (equal (cdr (assq 'commit-all fields)) "yes"))
 	 (sign-off-field (assq 'sign-off fields))
 	 (sign-off (if sign-off-field
@@ -3209,8 +3211,9 @@ toggled on.  When it's toggled on for the first time, return
 		      magit-git-executable
 		      (append magit-git-standard-options
 			      (list "commit" "-F" "-")
-			      (if commit-all '("--all") '())
+			      (if (and commit-all (not allow-empty)) '("--all") '())
 			      (if amend '("--amend") '())
+                              (if allow-empty '("--allow-empty"))
 			      (if sign-off '("--signoff") '())))))))
     (erase-buffer)
     (bury-buffer)
@@ -3246,6 +3249,12 @@ toggled on.  When it's toggled on for the first time, return
 \(i.e., whether eventual commit does 'git commit --signoff')"
   (interactive)
   (magit-log-edit-toggle-field 'sign-off (not magit-commit-signoff)))
+
+(defun magit-log-edit-toggle-allow-empty ()
+  "Toggle whether this commit is allowed to be empty.
+This means that the eventual commit does 'git commit --allow-empty'."
+  (interactive)
+  (magit-log-edit-toggle-field 'allow-empty t))
 
 (defun magit-pop-to-log-edit (operation)
   (let ((dir default-directory)
