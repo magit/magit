@@ -508,6 +508,10 @@ return nil."
 			  (or (magit-get-top-dir default-directory)
 			      default-directory)))))
 
+(defun magit-rev-parse (ref)
+  "Return the SHA hash for REF."
+  (magit-git-string "rev-parse" ref))
+
 (defun magit-ref-ambiguous-p (ref)
   "Return whether or not REF is ambiguous."
   ;; If REF is ambiguous, rev-parse just prints errors,
@@ -2935,7 +2939,7 @@ Uncomitted changes in both working tree and staging area are lost.
       (error "You have uncommitted changes"))
   (or (not (magit-read-rewrite-info))
       (error "Rewrite in progress"))
-  (let* ((orig (magit-git-string "rev-parse" "HEAD"))
+  (let* ((orig (magit-rev-parse "HEAD"))
 	 (base (or (car (magit-commit-parents from))
 		   (error "Can't rewrite a commit without a parent, sorry")))
 	 (pending (magit-git-lines "rev-list" (concat base ".."))))
@@ -3765,7 +3769,7 @@ level commits."
 	  (dolist (branch branches)
 	    (let* ((name (car branch))
 		   (ref (cdr branch))
-		   (hash (magit-git-string "rev-parse" ref))
+		   (hash (magit-rev-parse ref))
 		   (reported-branch (gethash hash reported)))
 	      (unless (or (and reported-branch
 			       (string= (file-name-nondirectory ref)
