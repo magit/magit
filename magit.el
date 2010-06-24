@@ -3042,7 +3042,10 @@ typing and automatically refreshes the status buffer."
     (if (and (not branch-remote)
 	     (not current-prefix-arg))
 	(magit-set push-remote "branch" branch "remote"))
-    (magit-run-git-async "push" "-v" push-remote (format "%s:%s" branch ref-branch))))
+    (magit-run-git-async "push" "-v" push-remote
+                         (if ref-branch
+                             (format "%s:%s" branch ref-branch)
+                           branch))))
 
 ;;; Log edit mode
 
