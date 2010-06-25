@@ -3665,7 +3665,13 @@ level commits."
 
 ;;; Reflog
 
+(defvar magit-reflog-head nil
+  "The HEAD of the reflog in the current buffer.
+This is only non-nil in reflog buffers.")
+(make-variable-buffer-local 'magit-reflog-head)
+
 (defun magit-refresh-reflog-buffer (head args)
+  (setq magit-reflog-head head)
   (magit-create-log-buffer-sections
     (magit-git-section 'reflog
 		       (format "Local history of head %s" head)
