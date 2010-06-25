@@ -3741,6 +3741,16 @@ This is only non-nil in reflog buffers.")
 
 ;;; Wazzup
 
+(defvar magit-wazzup-head nil
+  "The integration head for the current wazzup buffer.
+This is only non-nil in wazzup buffers.")
+(make-variable-buffer-local 'magit-wazzup-head)
+
+(defvar magit-wazzup-all-p nil
+  "Non-nil if the current wazzup buffer displays excluded branches.
+This is only meaningful in wazzup buffers.")
+(make-variable-buffer-local 'magit-wazzup-all-p)
+
 (defun magit-wazzup-toggle-ignore (branch edit)
   (let ((ignore-file ".git/info/wazzup-exclude"))
     (if edit
@@ -3756,6 +3766,8 @@ This is only non-nil in reflog buffers.")
       (magit-need-refresh))))
 
 (defun magit-refresh-wazzup-buffer (head all)
+  (setq magit-wazzup-head head)
+  (setq magit-wazzup-all-p all)
   (let ((branch-desc (or head "(detached) HEAD")))
     (unless head (setq head "HEAD"))
     (magit-create-buffer-sections
