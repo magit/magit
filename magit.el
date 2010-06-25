@@ -3161,7 +3161,8 @@ toggled on.  When it's toggled on for the first time, return
           (rplacd cell (if yesp "no" "yes")))
       (setq fields (acons name (if default "yes" "no") fields))
       (setq yesp (if default 'first)))
-    (magit-log-edit-set-fields fields)))
+    (magit-log-edit-set-fields fields)
+    yesp))
 
 (defun magit-log-edit-setup-author-env (author)
   (cond (author
