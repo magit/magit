@@ -3045,7 +3045,15 @@ typing and automatically refreshes the status buffer."
     (if (and (not branch-remote)
 	     (not current-prefix-arg))
 	(magit-set push-remote "branch" branch "remote"))
-    (magit-run-git-async "push" "-v" push-remote (format "%s:%s" branch ref-branch))))
+    (magit-run-git-async "push" "-v" push-remote
+                         (if ref-branch
+                             (format "%s:%s" branch ref-branch)
+                           branch))
+    ;; Although git will automatically set up the remote,
+    ;; it doesn't set up the branch to merge (at least as of Git 1.6.6.1),
+    ;; so we have to do that manually.
+    (unless ref-branch
+      (magit-set (concat "refs/heads/" branch) "branch" branch "merge"))))
 
 ;;; Log edit mode
 

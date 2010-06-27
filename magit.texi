@@ -649,10 +649,12 @@ it, like from any other diff.
 
 Magit will run @code{git push} when you type @kbd{P}.  If you give a
 prefix argument to @kbd{P}, you will be prompted for the repository to
-push to.  When no default remote repositor has been configured yet for
+push to.  When no default remote repository has been configured yet for
 the current branch, you will be prompted as well.  Typing @kbd{P} will
-only push the current branch to the remote.  In other words, it will
-run @code{git push <remote> <branch>}.
+only push the current branch to the remote.  In other words, it will run
+@code{git push <remote> <branch>}.  The branch will be created in the
+remote if it doesn't exist already.  The local branch will be configured
+so that it pulls from the new remote branch.
 
 Typing @kbd{f} will run @code{git remote update}.  With a prefix arg, it
 will prompt for the name of the remote to update.  Typing @kbd{F} will
