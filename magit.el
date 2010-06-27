@@ -1806,6 +1806,7 @@ Please see the manual for a complete description of Magit.
 	  (revert-buffer t t nil))))))
 
 (defun magit-update-vc-modeline (dir)
+  "Update the modeline for buffers representable by magit."
   (dolist (buffer (buffer-list))
     (when (and buffer
 	       (buffer-file-name buffer)
