@@ -1805,6 +1805,15 @@ Please see the manual for a complete description of Magit.
 	(ignore-errors
 	  (revert-buffer t t nil))))))
 
+(defun magit-update-vc-modeline (dir)
+  (dolist (buffer (buffer-list))
+    (when (and buffer
+	       (buffer-file-name buffer)
+	       (magit-string-has-prefix-p (buffer-file-name buffer) dir))
+      (with-current-buffer buffer
+	(ignore-errors
+	  (vc-find-file-hook))))))
+
 (defvar magit-refresh-needing-buffers nil)
 (defvar magit-refresh-pending nil)
 
@@ -2833,9 +2842,10 @@ and staging area are lost.
 				     (or (magit-default-rev)
 					 "HEAD^"))
 		     current-prefix-arg))
-  (if revision
-      (magit-run-git "reset" (if hard "--hard" "--soft")
-		     (magit-rev-to-git revision))))
+  (when revision
+    (magit-run-git "reset" (if hard "--hard" "--soft")
+		   (magit-rev-to-git revision))
+    (magit-update-vc-modeline default-directory)))
 
 (defun magit-reset-head-hard (revision)
   "Switch 'HEAD' to REVISION, losing all changes.
@@ -3210,7 +3220,7 @@ Prefix arg means justify as well."
     (bury-buffer)
     (when (file-exists-p ".git/MERGE_MSG")
       (delete-file ".git/MERGE_MSG"))
-    (magit-revert-buffers default-directory t)
+    (magit-update-vc-modeline default-directory)
     (when magit-pre-log-edit-window-configuration
       (set-window-configuration magit-pre-log-edit-window-configuration)
       (setq magit-pre-log-edit-window-configuration nil))))
