@@ -2983,7 +2983,7 @@ Uncomitted changes in both working tree and staging area are lost.
     (when (or noconfirm
 	      (yes-or-no-p "Stop rewrite? "))
       (magit-write-rewrite-info nil)
-      (magit-need-refresh))))
+      (magit-refresh))))
 
 (defun magit-rewrite-abort ()
   (interactive)
