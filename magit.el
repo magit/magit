@@ -511,12 +511,42 @@ return nil."
 			  (or (magit-get-top-dir default-directory)
 			      default-directory)))))
 
+(defun magit-rev-parse (ref)
+  "Return the SHA hash for REF."
+  (magit-git-string "rev-parse" ref))
+
+(defun magit-ref-ambiguous-p (ref)
+  "Return whether or not REF is ambiguous."
+  ;; If REF is ambiguous, rev-parse just prints errors,
+  ;; so magit-git-string returns nil.
+  (not (magit-git-string "rev-parse" "--abbrev-ref" ref)))
+
 (defun magit-name-rev (rev)
-  (and rev
-       (let ((name (magit-git-string "name-rev" "--name-only" rev)))
-	 (if (or (not name) (string= name "undefined"))
-	     rev
-	   name))))
+  "Return a human-readable name for REV.
+Unlike git name-rev, this will remove tags/ and remotes/ prefixes
+if that can be done unambiguously.  In addition, it will filter
+out revs involving HEAD."
+  (when rev
+    (let ((name (magit-git-string "name-rev" "--no-undefined" "--name-only" rev)))
+      ;; There doesn't seem to be a way of filtering HEAD out from name-rev,
+      ;; so we have to do it manually.
+      ;; HEAD-based names are too transient to allow.
+      (when (string-match "^\\(.*\\<HEAD\\)\\([~^].*\\|$\\)" name)
+        (let ((head-ref (match-string 1 name))
+              (modifier (match-string 2 name)))
+          ;; Sometimes when name-rev gives a HEAD-based name,
+          ;; rev-parse will give an actual branch or remote name.
+          (setq name (concat (magit-git-string "rev-parse" "--abbrev-ref" head-ref)
+                             modifier))
+          ;; If rev-parse doesn't give us what we want, just use the SHA.
+          (when (or (null name) (string-match-p "\\<HEAD\\>" name))
+            (setq name (magit-rev-parse ref)))))
+      (setq rev (or name rev))
+      (when (string-match "^\\(?:tags\\|remotes\\)/\\(.*\\)" rev)
+        (let ((plain-name (match-string 1 rev)))
+          (unless (magit-ref-ambiguous-p plain-name)
+            (setq rev plain-name))))
+      rev)))
 
 (defun magit-put-line-property (prop val)
   (put-text-property (line-beginning-position) (line-beginning-position 2)
@@ -2937,7 +2967,7 @@ Uncomitted changes in both working tree and staging area are lost.
       (error "You have uncommitted changes"))
   (or (not (magit-read-rewrite-info))
       (error "Rewrite in progress"))
-  (let* ((orig (magit-git-string "rev-parse" "HEAD"))
+  (let* ((orig (magit-rev-parse "HEAD"))
 	 (base (or (car (magit-commit-parents from))
 		   (error "Can't rewrite a commit without a parent, sorry")))
 	 (pending (magit-git-lines "rev-list" (concat base ".."))))
@@ -3775,7 +3805,7 @@ level commits."
 	  (dolist (branch branches)
 	    (let* ((name (car branch))
 		   (ref (cdr branch))
-		   (hash (magit-git-string "rev-parse" ref))
+		   (hash (magit-rev-parse ref))
 		   (reported-branch (gethash hash reported)))
 	      (unless (or (and reported-branch
 			       (string= (file-name-nondirectory ref)
