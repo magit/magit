@@ -2653,7 +2653,9 @@ With prefix argument, add remaining untracked files as well.
 tracking brach name suggesting a sensible default."
   (when (yes-or-no-p
          (format "Create local tracking branch for %s? " branch))
-    (let* ((default-name (concat remote "-" branch))
+    (let* ((default-name (concat remote
+                                 "-"
+                                 (replace-regexp-in-string "[/]" "-" branch)))
            (chosen-name (read-string (format "Call local branch (%s): " default-name)
                                      nil
                                      nil
