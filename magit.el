@@ -4061,6 +4061,7 @@ Return values:
 
 (defvar magit-show-branches-mode-map
   (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "RET") 'magit-branches-window-checkout)
     (define-key map (kbd "b") 'magit-branches-window-checkout)
     (define-key map (kbd "k") 'magit-remove-branch)
     (define-key map (kbd "m") 'magit-branches-window-manual-merge)
