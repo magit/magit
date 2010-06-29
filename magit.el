@@ -4074,12 +4074,7 @@ Return values:
 
 (defun magit--branch-name-from-line (line)
   "Extract the branch name from line LINE of 'git branch' output."
-  (let ((branch (get-text-property 0 'branch-name line)))
-    (if (and branch
-             (get-text-property 0 'remote line)
-             (string-match-p "^remotes/" branch))
-        (substring branch 8)
-      branch)))
+  (get-text-property 0 'branch-name line))
 
 (defun magit--branch-name-at-point ()
   "Get the branch name in the line at point."
@@ -4093,6 +4088,12 @@ Return values:
   (save-excursion
     (magit-show-branches)))
 
+(defun magit-remove-remote (ref)
+  "Return REF with any remote part removed."
+  (if (string-match "^remotes/" ref)
+      (substring ref 8)
+    ref))
+
 (defun magit-remove-branch (&optional force)
   "Remove the branch in the line at point.
 With prefix force the removal even it it hasn't been merged."
@@ -4100,7 +4101,9 @@ With prefix force the removal even it it hasn't been merged."
   (let ((args (list "branch"
 		    (if force "-D" "-d")
 		    (when (magit--is-branch-at-point-remote) "-r")
-		    (magit--branch-name-at-point))))
+		    ;; remove the remotes part
+		    (magit-remove-remote
+                     (magit--branch-name-at-point)))))
     (save-excursion
       (apply 'magit-run-git (remq nil args))
       (magit-show-branches))))
