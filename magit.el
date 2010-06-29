@@ -2441,17 +2441,23 @@ insert a line to tell how to insert more of them"
   (or magit-marked-commit
       (error "No commit marked")))
 
+(defun magit-remote-branch-name (remote branch)
+  "Get the name of the branch BRANCH on remote REMOTE"
+  (if (string= remote ".") branch (concat remote "/" branch)))
+
 (defun magit-insert-unpulled-commits (remote branch)
   (magit-git-section 'unpulled
 		     "Unpulled commits:" 'magit-wash-log
 		     "log" "--pretty=format:* %H %s"
-		     (format "HEAD..%s/%s" remote branch)))
+		     (format "HEAD..%s"
+			     (magit-remote-branch-name remote branch))))
 
 (defun magit-insert-unpushed-commits (remote branch)
   (magit-git-section 'unpushed
 		     "Unpushed commits:" 'magit-wash-log
 		     "log" "--pretty=format:* %H %s"
-		     (format "%s/%s..HEAD" remote branch)))
+		     (format "%s..HEAD"
+			     (magit-remote-branch-name remote branch))))
 
 (defun magit-insert-unpulled-svn-commits (&optional use-cache)
   (magit-git-section 'svn-unpulled
@@ -2474,10 +2480,14 @@ insert a line to tell how to insert more of them"
 
 ;;; Status
 
-(defun magit-remote-string (remote svn-info)
-  (if remote
-      (concat remote " " (magit-get "remote" remote "url"))
-    (when svn-info
+(defun magit-remote-string (remote remote-branch svn-info)
+  (cond
+   ((string= "." remote)
+      (format "branch %s"
+	      (propertize remote-branch 'face 'magit-branch)))
+   (remote
+      (concat remote " " (magit-get "remote" remote "url")))
+   (svn-info
       (concat (cdr (assoc 'url svn-info))
 	      " @ "
 	      (cdr (assoc 'revision svn-info))))))
@@ -2489,7 +2499,7 @@ insert a line to tell how to insert more of them"
 	     (remote (and branch (magit-get "branch" branch "remote")))
 	     (remote-branch (or (and branch (magit-remote-branch-for branch)) branch))
 	     (svn-info (magit-get-svn-ref-info))
-	     (remote-string (magit-remote-string remote svn-info))
+	     (remote-string (magit-remote-string remote remote-branch svn-info))
 	     (head (magit-git-string
 		    "log" "--max-count=1" "--abbrev-commit" "--pretty=oneline"))
 	     (no-commit (not head)))
