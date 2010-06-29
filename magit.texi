@@ -500,7 +500,8 @@ local branch. Deleting works for both local and remote branches.
 You can merge the branch in the current line by typing @kbd{m} for a
 manual merge and @kbd{M} for an automatic merge.
 
-With @kbd{b} you can check out the branch in the current line.
+With @kbd{RET} or @kbd{b} you can check out the branch in the current
+line.
 
 Typing @kbd{$} shows the @code{*magit-process*} buffer which contains
 the transcript of the most recent command.
