@@ -550,7 +550,7 @@ out revs involving HEAD."
                              modifier))
           ;; If rev-parse doesn't give us what we want, just use the SHA.
           (when (or (null name) (string-match-p "\\<HEAD\\>" name))
-            (setq name (magit-rev-parse ref)))))
+            (setq name (magit-rev-parse rev)))))
       (setq rev (or name rev))
       (when (string-match "^\\(?:tags\\|remotes\\)/\\(.*\\)" rev)
         (let ((plain-name (match-string 1 rev)))
