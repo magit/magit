@@ -3160,8 +3160,7 @@ Prefix arg means justify as well."
 
 (define-derived-mode magit-log-edit-mode text-mode "Magit Log Edit"
   (set (make-local-variable 'fill-paragraph-function)
-       'magit-log-fill-paragraph)
-  (run-mode-hooks 'magit-log-edit-mode-hook))
+       'magit-log-fill-paragraph))
 
 (defun magit-log-edit-cleanup ()
   (save-excursion
