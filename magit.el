@@ -153,9 +153,15 @@ after a confirmation."
 (defcustom magit-remote-ref-format 'branch-then-remote
   "What format to use for autocompleting refs, in pariticular for remotes.
 
+Autocompletion is used by functions like `magit-checkout',
+`magit-interactive-rebase' and others which offer branch name
+completion.
+
 The value 'name-then-remote means remotes will be of the
 form \"name (remote)\", while the value 'remote-slash-name
-means that they'll be of the form \"remote/name\"."
+means that they'll be of the form \"remote/name\". I.e. something that's
+listed as \"remotes/upstream/next\" by \"git branch -l -a\"
+will be \"upstream/next\"."
   :group 'magit
   :type '(choice (const :tag "name (remote)" branch-then-remote)
                  (const :tag "remote/name" remote-slash-branch)))
