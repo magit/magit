@@ -2551,7 +2551,7 @@ insert a line to tell how to insert more of them"
 
 (defvar magit-remote-string-hook nil)
 
-(defun magit-remote-string (remote remote-branch svn-info)
+(defun magit-remote-string (remote remote-branch)
   (cond
    ((string= "." remote)
       (format "branch %s"
