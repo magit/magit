@@ -2557,7 +2557,13 @@ insert a line to tell how to insert more of them"
       (format "branch %s"
 	      (propertize remote-branch 'face 'magit-branch)))
    (remote
-      (concat remote " " (magit-get "remote" remote "url")))
+      (concat
+       (propertize remote-branch 'face 'magit-branch)
+       " @ "
+       remote
+       " ("
+       (magit-get "remote" remote "url")
+       ")"))
    (t
     (run-hook-with-args-until-success 'magit-remote-string-hook))))
 
@@ -2573,11 +2579,11 @@ insert a line to tell how to insert more of them"
 	     (no-commit (not head)))
 	(when remote-string
 	  (insert "Remote: " remote-string "\n"))
-	(insert (format "Local:	 %s %s\n"
+	(insert (format "Local:  %s %s\n"
 			(propertize (or branch "(detached)")
 				    'face 'magit-branch)
 			(abbreviate-file-name default-directory)))
-	(insert (format "Head:	 %s\n"
+	(insert (format "Head:   %s\n"
 			(if no-commit "nothing commited (yet)" head)))
 	(let ((merge-heads (magit-file-lines ".git/MERGE_HEAD")))
 	  (if merge-heads
