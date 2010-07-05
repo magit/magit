@@ -2507,14 +2507,20 @@ insert a line to tell how to insert more of them"
 (defun magit-remote-string (remote remote-branch svn-info)
   (cond
    ((string= "." remote)
-      (format "branch %s"
-	      (propertize remote-branch 'face 'magit-branch)))
+    (format "branch %s"
+	    (propertize remote-branch 'face 'magit-branch)))
    (remote
-      (concat remote " " (magit-get "remote" remote "url")))
+    (concat
+     (propertize remote-branch 'face 'magit-branch)
+     " @ "
+     remote
+     " ("
+     (magit-get "remote" remote "url")
+     ")"))
    (svn-info
-      (concat (cdr (assoc 'url svn-info))
-	      " @ "
-	      (cdr (assoc 'revision svn-info))))))
+    (concat (cdr (assoc 'url svn-info))
+	    " @ "
+	    (cdr (assoc 'revision svn-info))))))
 
 (defun magit-refresh-status ()
   (magit-create-buffer-sections
