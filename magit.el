@@ -2518,6 +2518,12 @@ insert a line to tell how to insert more of them"
   (or magit-marked-commit
       (error "No commit marked")))
 
+(defun magit-remote-branch-name (remote branch)
+  "Get the name of the branch BRANCH on remote REMOTE"
+  (if (string= remote ".")
+      branch
+    (concat remote "/" branch)))
+
 (magit-define-inserter unpulled-commits (remote branch)
   (when remote
     (magit-git-section 'unpulled
@@ -2531,7 +2537,7 @@ insert a line to tell how to insert more of them"
     (magit-git-section 'unpushed
 		       "Unpushed commits:" 'magit-wash-log
 		       "log" "--pretty=format:* %H %s"
-		       (format "HEAD..%s"
+		       (format "%s..HEAD"
 			     (magit-remote-branch-name remote branch)))))
 
 (defun magit-remote-branch-for (local-branch)
