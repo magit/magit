@@ -2606,7 +2606,7 @@ insert a line to tell how to insert more of them"
 	  (magit-insert-unstaged-changes
 	   (if staged "Unstaged changes:" "Changes:"))
 	  (magit-insert-staged-changes staged no-commit))
-	(magit-insert-unpushed-commits remote branch)
+	(magit-insert-unpushed-commits remote remote-branch)
 	(run-hooks 'magit-refresh-status-hook)))))
 
 (defun magit-init (dir)
