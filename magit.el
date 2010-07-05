@@ -2567,18 +2567,17 @@ insert a line to tell how to insert more of them"
       (let* ((branch (magit-get-current-branch))
 	     (remote (and branch (magit-get "branch" branch "remote")))
 	     (remote-branch (or (and branch (magit-remote-branch-for branch)) branch))
-	     (svn-info (magit-get-svn-ref-info))
-	     (remote-string (magit-remote-string remote remote-branch svn-info))
+	     (remote-string (magit-remote-string remote remote-branch))
 	     (head (magit-git-string
 		    "log" "--max-count=1" "--abbrev-commit" "--pretty=oneline"))
 	     (no-commit (not head)))
 	(when remote-string
 	  (insert "Remote: " remote-string "\n"))
-	(insert (format "Local:  %s %s\n"
+	(insert (format "Local:	 %s %s\n"
 			(propertize (or branch "(detached)")
 				    'face 'magit-branch)
 			(abbreviate-file-name default-directory)))
-	(insert (format "Head:   %s\n"
+	(insert (format "Head:	 %s\n"
 			(if no-commit "nothing commited (yet)" head)))
 	(let ((merge-heads (magit-file-lines ".git/MERGE_HEAD")))
 	  (if merge-heads
@@ -2593,17 +2592,15 @@ insert a line to tell how to insert more of them"
 	(magit-git-exit-code "update-index" "--refresh")
 	(magit-insert-untracked-files)
 	(magit-insert-stashes)
+	(magit-insert-topics)
 	(magit-insert-pending-changes)
 	(magit-insert-pending-commits)
-	(when remote
-	  (magit-insert-unpulled-commits remote remote-branch))
+	(magit-insert-unpulled-commits remote remote-branch)
 	(let ((staged (or no-commit (magit-anything-staged-p))))
 	  (magit-insert-unstaged-changes
 	   (if staged "Unstaged changes:" "Changes:"))
-	  (if staged
-	      (magit-insert-staged-changes staged no-commit)))
-	(when remote
-	  (magit-insert-unpushed-commits remote remote-branch))
+	  (magit-insert-staged-changes staged no-commit))
+	(magit-insert-unpushed-commits remote branch)
 	(run-hooks 'magit-refresh-status-hook)))))
 
 (defun magit-init (dir)
