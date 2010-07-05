@@ -2521,42 +2521,18 @@ insert a line to tell how to insert more of them"
 (magit-define-inserter unpulled-commits (remote branch)
   (when remote
     (magit-git-section 'unpulled
-                       "Unpulled commits:" 'magit-wash-log
-                       "log" "--pretty=format:* %H %s"
-                       (format "HEAD..%s"
+		       "Unpulled commits:" 'magit-wash-log
+		       "log" "--pretty=format:* %H %s"
+		       (format "HEAD..%s"
 			     (magit-remote-branch-name remote branch)))))
 
 (magit-define-inserter unpushed-commits (remote branch)
   (when remote
     (magit-git-section 'unpushed
-                       "Unpushed commits:" 'magit-wash-log
-                       "log" "--pretty=format:* %H %s"
-                       (format "HEAD..%s"
+		       "Unpushed commits:" 'magit-wash-log
+		       "log" "--pretty=format:* %H %s"
+		       (format "HEAD..%s"
 			     (magit-remote-branch-name remote branch)))))
-
-(defun magit-insert-unpulled-commits (remote branch)
-  (magit-git-section 'unpulled
-		     "Unpulled commits:" 'magit-wash-log
-		     "log" "--pretty=format:* %H %s"
-		     (format "HEAD..%s/%s" remote branch)))
-
-(defun magit-insert-unpushed-commits (remote branch)
-  (magit-git-section 'unpushed
-		     "Unpushed commits:" 'magit-wash-log
-		     "log" "--pretty=format:* %H %s"
-		     (format "%s/%s..HEAD" remote branch)))
-
-(defun magit-insert-unpulled-svn-commits (&optional use-cache)
-  (magit-git-section 'svn-unpulled
-		     "Unpulled commits (SVN):" 'magit-wash-log
-		     "log" "--pretty=format:* %H %s"
-		     (format "HEAD..%s" (magit-get-svn-ref use-cache))))
-
-(defun magit-insert-unpushed-svn-commits (&optional use-cache)
-  (magit-git-section 'svn-unpushed
-		     "Unpushed commits (SVN):" 'magit-wash-log
-		     "log" "--pretty=format:* %H %s"
-		     (format "%s..HEAD" (magit-get-svn-ref use-cache))))
 
 (defun magit-remote-branch-for (local-branch)
   "Guess the remote branch name that LOCAL-BRANCH is tracking."
@@ -2592,11 +2568,11 @@ insert a line to tell how to insert more of them"
 	     (no-commit (not head)))
 	(when remote-string
 	  (insert "Remote: " remote-string "\n"))
-	(insert (format "Local:	 %s %s\n"
+	(insert (format "Local:  %s %s\n"
 			(propertize (or branch "(detached)")
 				    'face 'magit-branch)
 			(abbreviate-file-name default-directory)))
-	(insert (format "Head:	 %s\n"
+	(insert (format "Head:   %s\n"
 			(if no-commit "nothing commited (yet)" head)))
 	(let ((merge-heads (magit-file-lines ".git/MERGE_HEAD")))
 	  (if merge-heads
@@ -3027,7 +3003,6 @@ update it."
   (interactive (list (when current-prefix-arg (magit-read-remote))))
   (cond
    (remote (magit-run-git-async "fetch" remote))
-   ((magit-svn-enabled) (magit-run-git-async "svn" "fetch"))
    (t (magit-run-git-async "remote" "update"))))
 
 (magit-define-command pull ()
