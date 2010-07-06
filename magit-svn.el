@@ -151,33 +151,32 @@ If USE-CACHE is non nil, use the cached information."
               (cdr (assoc 'revision svn-info))))))
 
 (defun magit-svn-remote-update ()
+  (interactive)
   (when (magit-svn-enabled)
     (magit-run-git-async "svn" "fetch")))
 
 (defvar magit-svn-extension-keys
   `((,(kbd "N r") . magit-svn-rebase)
     (,(kbd "N c") . magit-svn-dcommit)
-    (,(kbd "N f") . magit-svn-find-rev)))
+    (,(kbd "N f") . magit-svn-remote-update)
+    (,(kbd "N s") . magit-svn-find-rev)))
 
 (easy-menu-define magit-svn-extension-menu
   nil
   "Git SVN extension menu"
   '("Git SVN"
     ["Rebase" magit-svn-rebase (magit-svn-enabled)]
+    ["Fetch" magit-svn-remote-update (magit-svn-enabled)]
     ["Commit" magit-svn-dcommit (magit-svn-enabled)]))
 
 (defvar magit-svn-extension-inserters
   '((:after unpulled-commits (lambda () (magit-insert-svn-unpulled t)))
     (:after unpushed-commits (lambda () (magit-insert-svn-unpushed t)))))
 
-(defvar magit-svn-extension-commands
-  '((remote-update . magit-svn-remote-update)))
-
 (defvar magit-svn-extension
   (make-magit-extension :keys magit-svn-extension-keys
                         :menu magit-svn-extension-menu
                         :insert magit-svn-extension-inserters
-                        :commands magit-svn-extension-commands
                         :remote-string 'magit-svn-remote-string))
 
 (magit-install-extension magit-svn-extension)
