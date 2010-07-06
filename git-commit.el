@@ -7,7 +7,13 @@
 
 ;; Author: Florian Ragwitz <rafl@debian.org>
 ;; Version: 0.1
-;; Keywords: git
+;; Keywords: convenience git
+
+;;; History:
+;;
+;;  0.1   Tue, 06 Jul 2010 18:54:35 +0200
+;;    * Initial version
+;;
 
 ;;; Commentary:
 ;;
