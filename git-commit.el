@@ -279,8 +279,19 @@ default comments in git commit messages"
 (defvar git-commit-mode-hook nil
   "List of functions to be called when activating `git-commit-mode'.")
 
-(defvar git-commit-commit-hook nil
-  "List of functions to be called on `git-commit-commit'.")
+(defun git-commit--save-and-exit ()
+  (save-buffer)
+  (kill-buffer))
+
+
+(defcustom git-commit-commit-function
+  #'git-commit--save-and-exit
+  "Function to actually perform a commit.
+Used by `git-commit-commit'."
+  :group 'git-commit
+  :type '(radio (function-item :doc "Call `save-buffers-kill-terminal'."
+                               git-commit--save-and-exit)
+                (function)))
 
 (defun git-commit-commit ()
   "Finish editing the commit message and commit.
@@ -297,7 +308,7 @@ message, you might want to this:
           (lambda () (save-buffers-kill-terminal)))"
   (interactive)
   (save-buffer)
-  (run-hooks 'git-commit-commit-hook))
+  (funcall git-commit-commit-function))
 
 (defun git-commit-git-config-var (key)
   "Retrieve a git configuration value.
