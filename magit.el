@@ -1356,8 +1356,7 @@ FUNC should leave point at the end of the modified region"
        ,doc
        ,inter
        (or (run-hook-with-args-until-success
-            ',hook ,@(remove-if (lambda (x) (member x '(&optional &rest)))
-                                arglist))
+            ',hook ,@(remq '&optional (remq '&rest arglist)))
            ,@instr))))
 
 ;;; Running commands
@@ -2598,7 +2597,6 @@ insert a line to tell how to insert more of them"
 	(magit-git-exit-code "update-index" "--refresh")
 	(magit-insert-untracked-files)
 	(magit-insert-stashes)
-	(magit-insert-topics)
 	(magit-insert-pending-changes)
 	(magit-insert-pending-commits)
 	(magit-insert-unpulled-commits remote remote-branch)
