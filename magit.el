@@ -4175,7 +4175,7 @@ With prefix force the removal even it it hasn't been merged."
                  "\\(.+?\\) +"                ; branch name
 
                  "\\(?:"
-                 "\\([0-9a-fA-F]\\{7\\}\\) "  ; sha1
+                 "\\([0-9a-fA-F]\\{7,8\\}\\) "  ; sha1
                  "\\|\\(-> \\)"               ; or the pointer to a ref
                  "\\)"
 
