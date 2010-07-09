@@ -283,7 +283,6 @@ default comments in git commit messages"
   (save-buffer)
   (kill-buffer))
 
-
 (defcustom git-commit-commit-function
   #'git-commit--save-and-exit
   "Function to actually perform a commit.
@@ -592,6 +591,12 @@ Turning on git commit calls the hooks in `git-commit-mode-hook'."
   (use-local-map git-commit-map)
   (setq font-lock-multiline t)
   (setq font-lock-defaults '(git-commit-font-lock-keywords t))
+  (make-local-variable 'comment-start-skip)
+  (make-local-variable 'comment-start)
+  (make-local-variable 'comment-end)
+  (setq comment-start-skip "^#\s"
+        comment-start "# "
+        comment-end "")
   (setq major-mode 'git-commit)
   (run-hooks 'git-commit-mode-hook)
   (setq mode-name "Git-Commit"))
