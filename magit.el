@@ -28,7 +28,7 @@
 
 ;; Author: Marius Vollmer <marius.vollmer@nokia.com>
 ;; Maintainer: Phil Jackson <phil@shellarchive.co.uk>
-;; Version: 0.8.1
+;; Version: 0.8.2
 ;; Keywords: tools
 
 ;;
