@@ -4171,15 +4171,15 @@ With prefix force the removal even it it hasn't been merged."
 (defun magit--branch-view-details (branch-line)
   "Extract details from branch -va output."
   (string-match (concat
-                 "^\\(\\*? \\{1,2\\}\\)"      ; current branch marker (maybe)
-                 "\\(.+?\\) +"                ; branch name
+                 "^\\(\\*? \\{1,2\\}\\)"       ; current branch marker (maybe)
+                 "\\(.+?\\) +"                 ; branch name
 
                  "\\(?:"
-                 "\\([0-9a-fA-F]\\{7,8\\}\\) "  ; sha1
-                 "\\|\\(-> \\)"               ; or the pointer to a ref
+                 "\\([0-9a-fA-F]\\{7,8\\}\\) " ; sha1
+                 "\\|\\(-> \\)"                ; or the pointer to a ref
                  "\\)"
 
-                 "\\(.+\\)"                   ; message or ref
+                 "\\(.+\\)"                    ; message or ref
                  )
                 branch-line)
   (let ((res (list (cons 'current (match-string 1 branch-line))
