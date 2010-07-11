@@ -679,13 +679,13 @@ Magit shows them in a section called @emph{Unpulled changes}.  Typing
 @node Interfacing with Subversion
 @chapter Interfacing with Subversion
 
-Typing @kbd{N r} runs @code{git svn rebase} and typing @kbd{N c} runs
-@code{git svn dcommit}.
+Typing @kbd{N r} runs @code{git svn rebase}, typing @kbd{N c} runs
+@code{git svn dcommit} and typing @kbd{N f} runs @code{git svn fetch}.
 
-@kbd{N f} will prompt you for a (numeric, Subversion) revision and
+@kbd{N s} will prompt you for a (numeric, Subversion) revision and
 then search for a corresponding Git sha1 for the commit. This is
 limited to the path of the remote Subversion repository. With a prefix
-(@kbd{C-u N f} the user will also be prompted for a branch to search
+(@kbd{C-u N s} the user will also be prompted for a branch to search
 in.
 
 @node Using Git Directly
