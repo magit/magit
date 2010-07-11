@@ -359,6 +359,10 @@ Many Magit faces inherit from this one by default."
 (make-variable-buffer-local 'magit-submode)
 (put 'magit-submode 'permanent-local t)
 
+(eval-when-compile
+  (defun magit-dynamic-clauses-helper (clauses context)
+    `(((magit-dynamic-clauses ,clauses ,context) t))))
+
 (defun magit-use-region-p ()
   (if (fboundp 'use-region-p)
       (use-region-p)
@@ -1273,9 +1277,6 @@ TITLE is the displayed title of the section."
           (body (cdr clause)))
       `((magit-prefix-p ',prefix ,context)
         ,@body))))
-
-(defun magit-dynamic-clauses-helper (clauses context)
-  `(((magit-dynamic-clauses ,clauses ,context) t)))
 
 (defun magit-dynamic-clauses (clauses context)
   (let* ((c (car clauses))
