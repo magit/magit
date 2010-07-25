@@ -3412,6 +3412,7 @@ With prefix argument, changes in staging area are kept.
   (apply 'magit-run-git `("stash"
 			  "save"
 			  ,@(when current-prefix-arg '("--keep-index"))
+			  "--"
 			  ,description)))
 
 (magit-define-command stash-snapshot ()
