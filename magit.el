@@ -3157,7 +3157,7 @@ Prefix arg means justify as well."
   (let ((buf (get-buffer-create magit-log-edit-buffer-name)))
     (with-current-buffer buf
       (goto-char (point-min))
-      (if (search-forward-regexp (format "^\\([A-Za-z0-9-_]+:.*\n\\)+%s"
+      (if (search-forward-regexp (format "^\\([A-Za-z0-9-_]+:.*\n\\)*%s"
 					 (regexp-quote magit-log-header-end))
 				 nil t)
 	  (delete-region (match-beginning 0) (match-end 0)))
@@ -3511,7 +3511,7 @@ With prefix argument, changes in staging area are kept.
 				,@(if (not docommit) (list "--no-commit"))
 				,commit)
 			      nil noerase)))
-    (when (or (not docommit) success)
+    (when (and (not docommit) success)
       (cond (revert
 	     (magit-log-edit-append
 	      (magit-format-commit commit "Reverting \"%s\"")))
