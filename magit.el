@@ -3840,7 +3840,8 @@ This is only meaningful in wazzup buffers.")
     (if edit
 	(setq file (read-string "File to ignore: " file)))
     (with-temp-buffer
-      (insert-file-contents ignore-file)
+      (when (file-exists-p ignore-file)
+        (insert-file-contents ignore-file))
       (goto-char (point-max))
       (unless (bolp)
 	(insert "\n"))
