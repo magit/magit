@@ -2786,6 +2786,7 @@ Fails if working tree or staging area contain uncommitted changes.
   (magit-section-case (item info)
     ((wazzup commit)
      (magit-section-info (magit-section-parent item)))
+    ((commit) (substring info 0 8))
     ((wazzup) info)))
 
 (defun magit-manual-merge (revision)
