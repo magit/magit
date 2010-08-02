@@ -616,6 +616,16 @@ out revs involving HEAD."
 
 ;;; Revisions and ranges
 
+(defvar magit-current-range nil
+  "The range described by the current buffer.
+This is only non-nil in diff and log buffers.
+
+This has three possible (non-nil) forms.  If it's a string REF or
+a singleton list (REF), then the range is from REF to the current
+working directory state (or HEAD in a log buffer).  If it's a
+pair (START . END), then the range is START..END.")
+(make-variable-buffer-local 'magit-current-range)
+
 (defun magit-list-interesting-refs ()
   (let ((refs ()))
     (dolist (line (magit-git-lines "show-ref"))
@@ -3580,6 +3590,7 @@ With a non numeric prefix ARG, show all entries"
 (defun magit-refresh-log-buffer (range style args)
   (magit-configure-have-graph)
   (magit-configure-have-decorate)
+  (setq magit-current-range range)
   (magit-create-log-buffer-sections
     (apply #'magit-git-section nil
 	   (magit-rev-range-describe range "Commits")
@@ -3657,7 +3668,13 @@ level commits."
 
 ;;; Reflog
 
+(defvar magit-reflog-head nil
+  "The HEAD of the reflog in the current buffer.
+This is only non-nil in reflog buffers.")
+(make-variable-buffer-local 'magit-reflog-head)
+
 (defun magit-refresh-reflog-buffer (head args)
+  (setq magit-reflog-head head)
   (magit-create-log-buffer-sections
     (magit-git-section 'reflog
 		       (format "Local history of head %s" head)
@@ -3691,6 +3708,7 @@ level commits."
 ;;; Diffing
 
 (defun magit-refresh-diff-buffer (range args)
+  (setq magit-current-range range)
   (magit-create-buffer-sections
     (magit-git-section 'diffbuf
 		       (magit-rev-range-describe range "Changes")
@@ -3726,6 +3744,16 @@ level commits."
 
 ;;; Wazzup
 
+(defvar magit-wazzup-head nil
+  "The integration head for the current wazzup buffer.
+This is only non-nil in wazzup buffers.")
+(make-variable-buffer-local 'magit-wazzup-head)
+
+(defvar magit-wazzup-all-p nil
+  "Non-nil if the current wazzup buffer displays excluded branches.
+This is only meaningful in wazzup buffers.")
+(make-variable-buffer-local 'magit-wazzup-all-p)
+
 (defun magit-wazzup-toggle-ignore (branch edit)
   (let ((ignore-file ".git/info/wazzup-exclude"))
     (if edit
@@ -3741,6 +3769,8 @@ level commits."
       (magit-need-refresh))))
 
 (defun magit-refresh-wazzup-buffer (head all)
+  (setq magit-wazzup-head head)
+  (setq magit-wazzup-all-p all)
   (let ((branch-desc (or head "(detached) HEAD")))
     (unless head (setq head "HEAD"))
     (magit-create-buffer-sections
