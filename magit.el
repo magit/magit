@@ -509,13 +509,20 @@ Many Magit faces inherit from this one by default."
 	(substring head 11)
       nil)))
 
+(defun magit-get-remote (branch)
+  "Return the name of the remote for BRANCH.
+If branch is nil or it has no remote, but a remote named
+\"origin\" exists, return that. Otherwise, return nil."
+  (let ((remote (or (and branch (magit-get "branch" branch "remote"))
+                    (and (magit-get "remote" "origin" "url") "origin"))))
+    (if (string= remote "") nil remote)))
+
 (defun magit-get-current-remote ()
   "Return the name of the remote for the current branch.
 If there is no current branch, or no remote for that branch,
-return nil."
-  (let* ((branch (magit-get-current-branch))
-         (remote (and branch (magit-get "branch" branch "remote"))))
-    (if (string= remote "") nil remote)))
+but a remote named \"origin\" is configured, return that.
+Otherwise, return nil."
+  (magit-get-remote (magit-get-current-branch)))
 
 (defun magit-ref-exists-p (ref)
   (= (magit-git-exit-code "show-ref" "--verify" ref) 0))
@@ -3067,7 +3074,7 @@ typing and automatically refreshes the status buffer."
   (interactive)
   (let* ((branch (or (magit-get-current-branch)
 		     (error "Don't push a detached head.  That's gross")))
-	 (branch-remote (magit-get "branch" branch "remote"))
+	 (branch-remote (magit-get-remote branch))
 	 (push-remote (if (or current-prefix-arg
 			      (not branch-remote))
 			  (magit-read-remote (format "Push %s to" branch)
