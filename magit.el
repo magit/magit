@@ -3098,6 +3098,7 @@ typing and automatically refreshes the status buffer."
     (define-key map (kbd "C-c C-c") 'magit-log-edit-commit)
     (define-key map (kbd "C-c C-a") 'magit-log-edit-toggle-amending)
     (define-key map (kbd "C-c C-s") 'magit-log-edit-toggle-signoff)
+    (define-key map (kbd "C-c C-e") 'magit-log-edit-toggle-allow-empty)
     (define-key map (kbd "M-p") 'log-edit-previous-comment)
     (define-key map (kbd "M-n") 'log-edit-next-comment)
     (define-key map (kbd "C-c C-k") 'magit-log-edit-cancel-log-message)
@@ -3183,6 +3184,24 @@ Prefix arg means justify as well."
 (defun magit-log-edit-get-field (name)
   (cdr (assq name (magit-log-edit-get-fields))))
 
+(defun magit-log-edit-toggle-field (name default)
+  "Toggle the log-edit field named NAME.
+If it's currently unset, set it to DEFAULT (t or nil).
+
+Return nil if the field is toggled off, and non-nil if it's
+toggled on.  When it's toggled on for the first time, return
+'first."
+  (let* ((fields (magit-log-edit-get-fields))
+	 (cell (assq name fields)) yesp)
+    (if cell
+        (progn
+          (setq yesp (equal (cdr cell) "yes"))
+          (rplacd cell (if yesp "no" "yes")))
+      (setq fields (acons name (if default "yes" "no") fields))
+      (setq yesp (if default 'first)))
+    (magit-log-edit-set-fields fields)
+    yesp))
+
 (defun magit-log-edit-setup-author-env (author)
   (cond (author
 	 ;; XXX - this is a bit strict, probably.
@@ -3211,6 +3230,7 @@ Prefix arg means justify as well."
   (interactive)
   (let* ((fields (magit-log-edit-get-fields))
 	 (amend (equal (cdr (assq 'amend fields)) "yes"))
+	 (allow-empty (equal (cdr (assq 'allow-empty fields)) "yes"))
 	 (commit-all (equal (cdr (assq 'commit-all fields)) "yes"))
 	 (sign-off-field (assq 'sign-off fields))
 	 (sign-off (if sign-off-field
@@ -3233,8 +3253,9 @@ Prefix arg means justify as well."
 		      magit-git-executable
 		      (append magit-git-standard-options
 			      (list "commit" "-F" "-")
-			      (if commit-all '("--all") '())
+			      (if (and commit-all (not allow-empty)) '("--all") '())
 			      (if amend '("--amend") '())
+                              (if allow-empty '("--allow-empty"))
 			      (if sign-off '("--signoff") '())))))))
     (erase-buffer)
     (bury-buffer)
@@ -3261,26 +3282,21 @@ Prefix arg means justify as well."
   "Toggle whether this will be an amendment to the previous commit.
 \(i.e., whether eventual commit does 'git commit --amend')"
   (interactive)
-  (let* ((fields (magit-log-edit-get-fields))
-	 (cell (assq 'amend fields)))
-    (if cell
-	(rplacd cell (if (equal (cdr cell) "yes") "no" "yes"))
-      (setq fields (acons 'amend "yes" fields))
-      (magit-log-edit-append
-       (magit-format-commit "HEAD" "%s%n%n%b")))
-    (magit-log-edit-set-fields fields)))
+  (when (eq (magit-log-edit-toggle-field 'amend t) 'first)
+    (magit-log-edit-append
+     (magit-format-commit "HEAD" "%s%n%n%b"))))
 
 (defun magit-log-edit-toggle-signoff ()
   "Toggle whether this commit will include a signoff.
 \(i.e., whether eventual commit does 'git commit --signoff')"
   (interactive)
-  (let* ((fields (magit-log-edit-get-fields))
-	 (cell (assq 'sign-off fields)))
-    (if cell
-	(rplacd cell (if (equal (cdr cell) "yes") "no" "yes"))
-      (setq fields (acons 'sign-off (if magit-commit-signoff "no" "yes")
-			  fields)))
-    (magit-log-edit-set-fields fields)))
+  (magit-log-edit-toggle-field 'sign-off (not magit-commit-signoff)))
+
+(defun magit-log-edit-toggle-allow-empty ()
+  "Toggle whether this commit is allowed to be empty.
+This means that the eventual commit does 'git commit --allow-empty'."
+  (interactive)
+  (magit-log-edit-toggle-field 'allow-empty t))
 
 (defun magit-pop-to-log-edit (operation)
   (let ((dir default-directory)
