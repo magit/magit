@@ -1695,6 +1695,7 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "h") 'magit-reflog-head)
     (define-key map (kbd "H") 'magit-reflog)
     (define-key map (kbd "t") 'magit-tag)
+    (define-key map (kbd "T") 'magit-annotated-tag)
     map))
 
 (defvar magit-reflog-mode-map
@@ -2463,9 +2464,12 @@ insert a line to tell how to insert more of them"
   (magit-create-buffer-sections
     (magit-git-section nil nil
 		       'magit-wash-commit
-		       "log" "--max-count=1"
+		       "log"
+		       "--decorate=full"
+		       "--max-count=1"
 		       "--pretty=medium"
-		       "--cc" "-p" commit)))
+		       "--cc"
+		       "-p" commit)))
 
 (define-minor-mode magit-commit-mode
     "Minor mode to view git commit"
@@ -3244,7 +3248,8 @@ toggled on.  When it's toggled on for the first time, return
 	 (sign-off (if sign-off-field
 		       (equal (cdr sign-off-field) "yes")
 		     magit-commit-signoff))
-	 (tag (cdr (assq 'tag fields)))
+	 (tag-rev (cdr (assq 'tag-rev fields)))
+	 (tag-name (cdr (assq 'tag-name fields)))
 	 (author (cdr (assq 'author fields))))
     (magit-log-edit-push-to-comment-ring (buffer-string))
     (magit-log-edit-setup-author-env author)
@@ -3254,8 +3259,8 @@ toggled on.  When it's toggled on for the first time, return
 	(insert "(Empty description)\n"))
     (let ((commit-buf (current-buffer)))
       (with-current-buffer (magit-find-buffer 'status default-directory)
-	(cond (tag
-	       (magit-run-git-with-input commit-buf "tag" tag "-a" "-F" "-"))
+	(cond (tag-name
+	       (magit-run-git-with-input commit-buf "tag" tag-name "-a" "-F" "-" tag-rev))
 	      (t
 	       (apply #'magit-run-async-with-input commit-buf
 		      magit-git-executable
@@ -3263,7 +3268,7 @@ toggled on.  When it's toggled on for the first time, return
 			      (list "commit" "-F" "-")
 			      (if (and commit-all (not allow-empty)) '("--all") '())
 			      (if amend '("--amend") '())
-                              (if allow-empty '("--allow-empty"))
+			      (if allow-empty '("--allow-empty"))
 			      (if sign-off '("--signoff") '())))))))
     (erase-buffer)
     (bury-buffer)
@@ -3324,7 +3329,6 @@ This means that the eventual commit does 'git commit --allow-empty'."
 	 (if (y-or-n-p "Rebase in progress.  Continue it? ")
 	     (magit-run-git "rebase" "--continue")))
 	(t
-	 (magit-log-edit-set-field 'tag nil)
 	 (when (and magit-commit-all-when-nothing-staged
 		    (not (magit-anything-staged-p)))
 	   (cond ((eq magit-commit-all-when-nothing-staged 'ask-stage)
@@ -3403,11 +3407,15 @@ This means that the eventual commit does 'git commit --allow-empty'."
     (magit-read-rev "Place tag on: " (or (magit-default-rev) "HEAD"))))
   (magit-run-git "tag" name rev))
 
-(magit-define-command annotated-tag (name)
+(magit-define-command annotated-tag (name rev)
   "Start composing an annotated tag with the given NAME.
 Tag will point to the current 'HEAD'."
-  (interactive "sNew annotated tag name: ")
-  (magit-log-edit-set-field 'tag name)
+  (interactive
+   (list
+    (read-string "Tag name: ")
+    (magit-read-rev "Place tag on: " (or (magit-default-rev) "HEAD"))))
+  (magit-log-edit-set-field 'tag-name name)
+  (magit-log-edit-set-field 'tag-rev rev)
   (magit-pop-to-log-edit "tag"))
 
 ;;; Stashing
