@@ -1480,6 +1480,7 @@ FUNC should leave point at the end of the modified region"
 	  (error "Git failed"))
       successp)))
 
+(autoload 'dired-uncache "dired")
 (defun magit-process-sentinel (process event)
   (let ((msg (format "Git %s." (substring event 0 -1)))
 	(successp (string-match "^finished" event)))
@@ -1487,7 +1488,9 @@ FUNC should leave point at the end of the modified region"
       (let ((inhibit-read-only t))
 	(goto-char (point-max))
 	(insert msg "\n")
-	(message msg)))
+	(message msg))
+      (unless (memq (process-status process) '(run open))
+        (dired-uncache default-directory)))
     (setq magit-process nil)
     (magit-set-mode-line-process nil)
     (magit-refresh-buffer magit-process-client-buffer)))
