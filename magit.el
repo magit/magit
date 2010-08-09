@@ -3035,15 +3035,17 @@ update it."
    (remote (magit-run-git-async "fetch" remote))
    (t (magit-run-git-async "remote" "update"))))
 
-(magit-define-command pull ()
-  (interactive)
+(magit-define-command pull (&optional rebase)
+  "Run git pull against the current remote. With a prefix arg
+will run pull with --rebase."
+  (interactive "P")
   (let* ((branch (magit-get-current-branch))
 	 (config-branch (and branch (magit-get "branch" branch "merge")))
 	 (merge-branch (or config-branch
 			   (magit-read-rev (format "Pull from")))))
     (if (and branch (not config-branch))
 	(magit-set merge-branch "branch" branch "merge"))
-    (magit-run-git-async "pull" "-v")))
+    (apply 'magit-run-git-async `("pull" "-v" ,@(and rebase '("--rebase"))))))
 
 (eval-when-compile (require 'pcomplete))
 
