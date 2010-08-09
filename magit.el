@@ -1738,6 +1738,7 @@ FUNC should leave point at the end of the modified region"
     (define-key map (kbd "m") 'magit-manual-merge)
     (define-key map (kbd "M") 'magit-automatic-merge)
     (define-key map (kbd "x") 'magit-reset-head)
+    (define-key map (kbd "i") 'magit-ignore-item)
     map))
 
 (easy-menu-define magit-mode-menu magit-mode-map
