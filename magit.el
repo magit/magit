@@ -1318,7 +1318,7 @@ error otherwise."
                        clauses)
              ,@(when opname
                  `(((run-hook-with-args-until-success
-                     ,(make-symbol (format "magit-%s-action-hook" opname)))
+                     ',(make-symbol (format "magit-%s-action-hook" opname)))
                     t)
                    ((not ,type)
                     (error "Nothing to %s here" ,opname))
@@ -1342,7 +1342,7 @@ the actions."
   (let ((section (car head))
         (info (cadr head))
         (type (caddr head)))
-    `(add-hook ,(make-symbol (format "magit-%s-action-hook" type))
+    `(add-hook ',(make-symbol (format "magit-%s-action-hook" type))
                (lambda ()
                  ,(macroexpand
                    ;; Don't pass in the opname so we don't recursively
