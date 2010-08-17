@@ -559,7 +559,8 @@ out revs involving HEAD."
       ;; There doesn't seem to be a way of filtering HEAD out from name-rev,
       ;; so we have to do it manually.
       ;; HEAD-based names are too transient to allow.
-      (when (string-match "^\\(.*\\<HEAD\\)\\([~^].*\\|$\\)" name)
+      (when (and (stringp name)
+                 (string-match "^\\(.*\\<HEAD\\)\\([~^].*\\|$\\)" name))
         (let ((head-ref (match-string 1 name))
               (modifier (match-string 2 name)))
           ;; Sometimes when name-rev gives a HEAD-based name,
