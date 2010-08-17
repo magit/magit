@@ -155,11 +155,12 @@ If USE-CACHE is non nil, use the cached information."
   (when (magit-svn-enabled)
     (magit-run-git-async "svn" "fetch")))
 
-(defvar magit-svn-extension-keys
-  `((,(kbd "N r") . magit-svn-rebase)
-    (,(kbd "N c") . magit-svn-dcommit)
-    (,(kbd "N f") . magit-svn-remote-update)
-    (,(kbd "N s") . magit-svn-find-rev)))
+(define-prefix-command 'magit-svn-prefix 'magit-svn-map)
+(define-key magit-svn-map (kbd "r") 'magit-svn-rebase)
+(define-key magit-svn-map (kbd "c") 'magit-svn-dcommit)
+(define-key magit-svn-map (kbd "f") 'magit-svn-remote-update)
+(define-key magit-svn-map (kbd "s") 'magit-svn-find-rev)))
+(define-key magit-map (kbd "N") 'magit-svn-prefix)
 
 (easy-menu-define magit-svn-extension-menu
   nil
@@ -168,18 +169,14 @@ If USE-CACHE is non nil, use the cached information."
     ["Rebase" magit-svn-rebase (magit-svn-enabled)]
     ["Fetch" magit-svn-remote-update (magit-svn-enabled)]
     ["Commit" magit-svn-dcommit (magit-svn-enabled)]))
+(easy-menu-add-item 'magit-mode-menu '("Extensions") magit-svn-extension-menu)
 
-(defvar magit-svn-extension-inserters
-  '((:after unpulled-commits (lambda () (magit-insert-svn-unpulled t)))
-    (:after unpushed-commits (lambda () (magit-insert-svn-unpushed t)))))
+(add-hook magit-after-insert-unpulled-commits
+          (lambda () (magit-insert-svn-unpulled t)))
+(add-hook magit-after-insert-unpushed-commits
+          (lambda () (magit-insert-svn-unpushed t)))
 
-(defvar magit-svn-extension
-  (make-magit-extension :keys magit-svn-extension-keys
-                        :menu magit-svn-extension-menu
-                        :insert magit-svn-extension-inserters
-                        :remote-string 'magit-svn-remote-string))
-
-(magit-install-extension magit-svn-extension)
+(add-hook 'magit-remote-string-hook 'magit-svn-remote-string)
 
 (provide 'magit-svn)
 ;;; magit-svn.el ends here

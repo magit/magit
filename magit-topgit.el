@@ -73,27 +73,19 @@
                      "Topics:" 'magit-topgit-wash-topics
                      "branch" "-v"))
 
-(defvar magit-topgit-extension-inserters
-  '((:after stashes magit-insert-topics)))
+(magit-add-action (item info "discard")
+  ((topic)
+   (when (yes-or-no-p "Discard topic? ")
+     (magit-run* (list magit-topgit-executable "delete" "-f" info)
+                 nil nil nil t))))
 
-(defvar magit-topgit-extension-actions
-  '(("discard" ((topic)
-                (when (yes-or-no-p "Discard topic? ")
-                  (magit-run* (list magit-topgit-executable "delete" "-f" info)
-                              nil nil nil t))))
-    ("visit" ((topic)
-              (magit-checkout info)))))
+(magit-add-action (item info "visit")
+  ((topic)
+   (magit-checkout info)))
 
-(defvar magit-topgit-extension-commands
-  '((create-branch . magit-topgit-create-branch)
-    (pull . magit-topgit-pull)))
-
-(defvar magit-topgit-extension
-  (make-magit-extension :actions magit-topgit-extension-actions
-                        :insert magit-topgit-extension-inserters
-                        :commands magit-topgit-extension-commands))
-
-(magit-install-extension magit-topgit-extension)
+(add-hook 'magit-after-insert-stashes 'magit-insert-topics)
+(add-hook 'magit-create-branch-command-hook 'magit-topgit-create-branch)
+(add-hook 'magit-pull-command-hook 'magit-topgit-pull)
 
 (provide 'magit-topgit)
 ;;; magit-topgit.el ends here
