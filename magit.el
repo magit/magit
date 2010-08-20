@@ -359,10 +359,6 @@ Many Magit faces inherit from this one by default."
 (make-variable-buffer-local 'magit-submode)
 (put 'magit-submode 'permanent-local t)
 
-(eval-when-compile
-  (defun magit-dynamic-clauses-helper (clauses context)
-    `(((magit-dynamic-clauses ,clauses ,context) t))))
-
 (defun magit-use-region-p ()
   (if (fboundp 'use-region-p)
       (use-region-p)
@@ -1237,8 +1233,8 @@ TITLE is the displayed title of the section."
 (defmacro magit-define-inserter (sym arglist &rest body)
   (declare (indent defun))
   (let ((fun (intern (format "magit-insert-%s" sym)))
-        (before (intern (format "magit-insert-%s:before-hook" sym)))
-        (after (intern (format "magit-insert-%s:after-hook" sym)))
+        (before (intern (format "magit-before-insert-%s-hook" sym)))
+        (after (intern (format "magit-after-insert-%s-hook" sym)))
         (doc (format "Insert items for `%s'." sym)))
     `(defun ,fun ,arglist
        ,doc
@@ -1288,23 +1284,6 @@ TITLE is the displayed title of the section."
              (equal (car prefix) (car list))
              (magit-prefix-p (cdr prefix) (cdr list))))))
 
-(defun magit-inline-clause (clause context)
-  (if (eq (car clause) t)
-      clause
-    (let ((prefix (reverse (car clause)))
-          (body (cdr clause)))
-      `((magit-prefix-p ',prefix ,context)
-        ,@body))))
-
-(defun magit-dynamic-clauses (clauses context)
-  (let* ((c (car clauses))
-         (prefix (reverse (car c)))
-         (body (cadr c)))
-    (cond ((magit-prefix-p prefix context)
-           (eval body))
-          (t
-           (magit-dynamic-clauses (cdr clauses) context)))))
-
 (defmacro magit-section-case (head &rest clauses)
   "Make different action depending of current section.
 
@@ -1314,41 +1293,64 @@ HEAD is (SECTION INFO &optional OPNAME),
   OPNAME is a string that will be used to describe current action,
 
 CLAUSES is a list of CLAUSE, each clause is (SECTION-TYPE &BODY)
-where SECTION-TYPE describe section where BODY will be run."
+where SECTION-TYPE describe section where BODY will be run.
+
+This returns non-nil if some section matches. If no section
+matches, this returns nil if no OPNAME was given and throws an
+error otherwise."
   (declare (indent 1))
   (let ((section (car head))
         (info (cadr head))
         (type (make-symbol "*type*"))
         (context (make-symbol "*context*"))
-        (extra (make-symbol "*extra*"))
         (opname (caddr head)))
     `(let* ((,section (magit-current-section))
             (,info (magit-section-info ,section))
             (,type (magit-section-type ,section))
-            (,context (magit-section-context-type ,section))
-            (,extra (magit-get-extensions-actions ,opname)))
+            (,context (magit-section-context-type ,section)))
        (cond ,@(mapcar (lambda (clause)
                          (if (eq (car clause) t)
-                             clause
+                             `(,@clause t)
                            (let ((prefix (reverse (car clause)))
                                  (body (cdr clause)))
                              `((magit-prefix-p ',prefix ,context)
-                               ,@body))))
+                               ,@body
+                               t))))
                        clauses)
-             ,@(magit-dynamic-clauses-helper extra context)
-             ,@(if opname
-                   `(((not ,type)
-                      (error "Nothing to %s here" ,opname))
-                     (t
-                      (error "Can't %s a %s"
-                             ,opname
-                             (or (get ,type 'magit-description)
-                                 ,type)))))))))
+             ,@(when opname
+                 `(((run-hook-with-args-until-success
+                     ',(make-symbol (format "magit-%s-action-hook" opname)))
+                    t)
+                   ((not ,type)
+                    (error "Nothing to %s here" ,opname))
+                   (t
+                    (error "Can't %s a %s"
+                           ,opname
+                           (or (get ,type 'magit-description)
+                               ,type)))))))))
 
 (defmacro magit-section-action (head &rest clauses)
   (declare (indent 1))
   `(magit-with-refresh
      (magit-section-case ,head ,@clauses)))
+
+(defmacro magit-add-action (head &rest clauses)
+  "Add additional actions to a pre-existing operator.
+The syntax is identical to `magit-section-case', except that
+OPNAME is mandatory and specifies the operation to which to add
+the actions."
+  (declare (indent 1))
+  (let ((section (car head))
+        (info (cadr head))
+        (type (caddr head)))
+    `(add-hook ',(make-symbol (format "magit-%s-action-hook" type))
+               (lambda ()
+                 ,(macroexpand
+                   ;; Don't pass in the opname so we don't recursively
+                   ;; run the hook again, and so we don't throw an
+                   ;; error if no action matches.
+                   `(magit-section-case (,section ,info)
+                      ,@clauses))))))
 
 (defun magit-wash-sequence (func)
   "Run FUNC until end of buffer is reached.
@@ -1360,7 +1362,7 @@ FUNC should leave point at the end of the modified region"
 (defmacro magit-define-command (sym arglist &rest body)
   (declare (indent defun))
   (let ((fun (intern (format "magit-%s" sym)))
-        (hook (intern (format "magit-%s:functions" sym)))
+        (hook (intern (format "magit-%s-command-hook" sym)))
         (doc (format "Command for `%s'." sym))
         (inter nil)
         (instr body))
@@ -4293,46 +4295,6 @@ With prefix force the removal even it it hasn't been merged."
                 (directory-file-name default-directory)))
             (magit-list-buffers))
     'string=)))
-
-;; Extensions
-
-(defvar magit-active-extensions '())
-
-(defstruct magit-extension
-  keys menu actions insert remote-string commands)
-
-(defun magit-install-extension (ext)
-  (add-to-list 'magit-active-extensions ext)
-  (let ((keys (magit-extension-keys ext))
-        (menu (magit-extension-menu ext))
-        (actions (magit-extension-actions ext))
-        (insert (magit-extension-insert ext))
-        (remote-string (magit-extension-remote-string ext))
-        (commands (magit-extension-commands ext)))
-    (when keys
-      (mapc (lambda (x) (define-key magit-mode-map (car x) (cdr x)))
-            keys))
-    (when menu
-      (easy-menu-add-item 'magit-mode-menu '("Extensions") menu))
-    (when insert
-      (mapc (lambda (x)
-              (destructuring-bind (position reference hook) x
-                (add-hook (intern (format "magit-insert-%s%s-hook"
-                                          reference position))
-                          hook)))
-            insert))
-    (when remote-string
-      (add-hook 'magit-remote-string-hook remote-string))
-    (when commands
-      (mapc (lambda (x)
-              (add-hook (intern (format "magit-%s:functions" (car x)))
-                        (cdr x)))
-            commands))))
-
-(defun magit-get-extensions-actions (action)
-  (mapcar (lambda (ext)
-            (cadr (assoc action (magit-extension-actions ext))))
-          magit-active-extensions))
 
 (provide 'magit)
 
