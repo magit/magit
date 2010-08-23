@@ -91,7 +91,7 @@ doesn't repeatedly call it.")
 Return nil if there isn't one.  Keys of the alist are ref-path,
 trunk-ref-name and local-ref-name.
 If USE-CACHE is non-nil then return the value of `magit-get-svn-ref-info-cache'."
-  (if use-cache
+  (if (and use-cache magit-svn-get-ref-info-cache)
       magit-svn-get-ref-info-cache
     (let* ((fetch (magit-get "svn-remote" "svn" "fetch"))
            (url)
@@ -100,7 +100,8 @@ If USE-CACHE is non-nil then return the value of `magit-get-svn-ref-info-cache'.
         (let* ((ref (cadr (split-string fetch ":")))
                (ref-path (file-name-directory ref))
                (trunk-ref-name (file-name-nondirectory ref)))
-          (setq magit-svn-get-ref-info-cache
+          (set (make-local-variable
+                'magit-svn-get-ref-info-cache)
                 (list
                  (cons 'ref-path ref-path)
                  (cons 'trunk-ref-name trunk-ref-name)
@@ -128,14 +129,14 @@ If USE-CACHE is non nil, use the cached information."
     (cdr (assoc 'local-ref info))))
 
 (magit-define-inserter svn-unpulled (&optional use-cache)
-  (when (magit-svn-get-ref-info)
+  (when (magit-svn-get-ref-info t)
     (magit-git-section 'svn-unpulled
                        "Unpulled commits (SVN):" 'magit-wash-log
                        "log" "--pretty=format:* %H %s"
                        (format "HEAD..%s" (magit-svn-get-ref use-cache)))))
 
 (magit-define-inserter svn-unpushed (&optional use-cache)
-  (when (magit-svn-get-ref-info)
+  (when (magit-svn-get-ref-info t)
     (magit-git-section 'svn-unpushed
                        "Unpushed commits (SVN):" 'magit-wash-log
                        "log" "--pretty=format:* %H %s"
