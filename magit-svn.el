@@ -171,9 +171,9 @@ If USE-CACHE is non nil, use the cached information."
     ["Commit" magit-svn-dcommit (magit-svn-enabled)]))
 (easy-menu-add-item 'magit-mode-menu '("Extensions") magit-svn-extension-menu)
 
-(add-hook 'magit-after-insert-unpulled-commits
+(add-hook 'magit-after-insert-unpulled-commits-hook
           (lambda () (magit-insert-svn-unpulled t)))
-(add-hook 'magit-after-insert-unpushed-commits
+(add-hook 'magit-after-insert-unpushed-commits-hook
           (lambda () (magit-insert-svn-unpushed t)))
 
 (add-hook 'magit-remote-string-hook 'magit-svn-remote-string)
