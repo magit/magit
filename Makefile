@@ -10,9 +10,10 @@ install: build
 	install -m 644 50magit.el $(DESTDIR)/etc/emacs/site-start.d/50magit.el
 
 build:
-	sed s/@VERSION@/$VERSION/ < magit-pkg.el.in > magit-pkg.el
-	sed s/@VERSION@/$VERSION/ < magit.spec.in > magit.spec
+	sed -e s/@VERSION@/$(VERSION)/ < magit-pkg.el.in > magit-pkg.el
+	sed -e s/@VERSION@/$(VERSION)/ < magit.spec.in > magit.spec
 	emacs --batch --eval '(byte-compile-file "magit.el")'
+	makeinfo -I . -o magit.info magit.texi
 
 clean:
 	rm -f magit-pkg.el magit.spec
