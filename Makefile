@@ -16,4 +16,4 @@ build:
 	makeinfo -I . -o magit.info magit.texi
 
 clean:
-	rm -f magit-pkg.el magit.spec
+	rm -f magit-pkg.el magit.spec magit.elc magit.info
