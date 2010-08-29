@@ -49,6 +49,7 @@ as an extension to Emacs.
 * Rewriting::                   
 * Pushing and Pulling::         
 * Interfacing with Subversion::  
+* Using Git Directly::
 @end menu
 
 @node Introduction
@@ -302,6 +303,10 @@ Typing @kbd{C-c C-s} will toggle the @code{--signoff} option.  The
 default is determined by the @code{magit-commit-signoff} customization
 variable.
 
+Typing @kbd{C-c C-e} will toggle the @code{--allow-empty} option.  This
+allows you to make commits that serve as notes, without including any
+changes.
+
 If you change your mind and don't want to go ahead with your commit
 while you are in the @code{*magit-log-edit*} buffer, you can just
 switch to another buffer, continue editing there, staging and
@@ -499,7 +504,8 @@ local branch. Deleting works for both local and remote branches.
 You can merge the branch in the current line by typing @kbd{m} for a
 manual merge and @kbd{M} for an automatic merge.
 
-With @kbd{b} you can check out the branch in the current line.
+With @kbd{RET} or @kbd{b} you can check out the branch in the current
+line.
 
 Typing @kbd{$} shows the @code{*magit-process*} buffer which contains
 the transcript of the most recent command.
@@ -648,13 +654,17 @@ it, like from any other diff.
 
 Magit will run @code{git push} when you type @kbd{P}.  If you give a
 prefix argument to @kbd{P}, you will be prompted for the repository to
-push to.  When no default remote repositor has been configured yet for
+push to.  When no default remote repository has been configured yet for
 the current branch, you will be prompted as well.  Typing @kbd{P} will
-only push the current branch to the remote.  In other words, it will
-run @code{git push <remote> <branch>}.
+only push the current branch to the remote.  In other words, it will run
+@code{git push <remote> <branch>}.  The branch will be created in the
+remote if it doesn't exist already.  The local branch will be configured
+so that it pulls from the new remote branch.
 
-Typing @kbd{f} will run @code{git remote update} and @kbd{F} will run
-@code{git pull}.  When you don't have a default branch configured to
+Typing @kbd{f} will run @code{git remote update}.  With a prefix arg,
+it will prompt for the name of the remote to update.  Typing @kbd{F}
+will run @code{git pull} (with a prefix arg will pull with
+@code{--rebase}).  When you don't have a default branch configured to
 be pulled into the current one, you will be asked for it.
 
 If there is a default remote repository for the current branch, Magit
@@ -674,13 +684,21 @@ Magit shows them in a section called @emph{Unpulled changes}.  Typing
 @node Interfacing with Subversion
 @chapter Interfacing with Subversion
 
-Typing @kbd{N r} runs @code{git svn rebase} and typing @kbd{N c} runs
-@code{git svn dcommit}.
+Typing @kbd{N r} runs @code{git svn rebase}, typing @kbd{N c} runs
+@code{git svn dcommit} and typing @kbd{N f} runs @code{git svn fetch}.
 
-@kbd{N f} will prompt you for a (numeric, Subversion) revision and
+@kbd{N s} will prompt you for a (numeric, Subversion) revision and
 then search for a corresponding Git sha1 for the commit. This is
 limited to the path of the remote Subversion repository. With a prefix
-(@kbd{C-u N f} the user will also be prompted for a branch to search
+(@kbd{C-u N s} the user will also be prompted for a branch to search
 in.
+
+@node Using Git Directly
+@chapter Using Git Directly
+
+For situations when Magit doesn't do everything you need, you can run
+raw Git commands using @kbd{:}.  This will prompt for a Git command, run
+it, and refresh the status buffer.  The output can be viewed by typing
+@kbd{$}.
 
 @bye
