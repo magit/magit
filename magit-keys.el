@@ -168,26 +168,27 @@ put it in magit-key-mode-key-maps for fast lookup."
                       (error "Unknown group '%s'" for-group)))
          (actions (cdr (assoc 'actions options)))
          (modifiers (cdr (assoc 'modifiers options))))
-    (when actions
-      (let ((map (make-sparse-keymap)))
+    (let ((map (make-sparse-keymap)))
+      (when actions
         (dolist (k actions)
-          (define-key map (car k) (nth 1 k)))
-        map))))
+          (define-key map (car k) (nth 2 k)))
+        (aput 'magit-key-mode-key-maps for-group map))
+      map)))
 
-(magit-key-mode-build-keymap 'logging)
+(magit-key-mode 'logging)
 
 (defun magit-key-mode (for-group)
   (interactive)
-  (kill-all-local-variables)
-
-  (make-local-variable 'font-lock-defaults)
-
-  (use-local-map
-   (if (let ((key-map (cdr (assoc for-group magit-key-mode-groups)))))
-       key-map
-     (magit-key-mode-build-keymap for-group)))
-
-  (setq buffer-read-only t)
-  (setq mode-name "magit-key-mode" major-mode 'magit-key-mode))
+  (let ((buf (get-buffer-create "*magit-key*")))
+    (switch-to-buffer buf)
+    (with-current-buffer buf
+      (kill-all-local-variables)
+      (make-local-variable 'font-lock-defaults)
+      (use-local-map
+       (if (let ((key-map (cdr (assoc for-group magit-key-mode-groups)))))
+           key-map
+         (magit-key-mode-build-keymap for-group)))
+      (setq buffer-read-only t)
+      (setq mode-name "magit-key-mode" major-mode 'magit-key-mode))))
 
 (provide 'magit-keys)
