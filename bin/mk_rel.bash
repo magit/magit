@@ -3,7 +3,7 @@
 set -e
 
 function configure_ac_ver_ok {
-  cat configure.ac | grep "${1}" || return 1
+  cat Makefile | grep "VERSION=${1}" || return 1
 }
 
 function magit_el_ver_ok {
@@ -43,12 +43,9 @@ if ! configure_ac_ver_ok "$tag"; then
 fi
 
 # clean up if we need to
-[ -f Makefile ] && make distclean
-
-./autogen.sh
-
-./configure
+make clean
 
 make dist
 
+# back to master
 git co master
