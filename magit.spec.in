@@ -36,7 +36,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/share/emacs/site-lisp/site-start.d/50magit.el
 /usr/share/emacs/site-lisp/magit.el
 /usr/share/emacs/site-lisp/magit.elc
-%doc README NEWS COPYING AUTHORS
+%doc README.md
 /usr/share/info/magit.info.gz
 
 %changelog
