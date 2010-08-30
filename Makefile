@@ -24,7 +24,7 @@ magit-topgit.elc: magit-topgit.el
 magit.info:
 
 # yuck - this needs cleaning up a bit...
-dist: magit.spec magit-pkg.el
+dist: $(DIST_FILES)
 	mkdir -p magit-$(VERSION)
 	cp $(DIST_FILES) magit-$(VERSION)
 	tar -cvzf magit-$(VERSION).tar.gz magit-$(VERSION)
