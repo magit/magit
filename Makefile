@@ -1,5 +1,5 @@
 VERSION=0.8.2
-PREFIX=/usr
+PREFIX=/usr/local
 
 build:
 	sed -e s/@VERSION@/$(VERSION)/ < magit-pkg.el.in > magit-pkg.el
