@@ -156,10 +156,14 @@
 (defvar magit-key-mode-groups
   '((logging
      (actions
+      ("q" "Exit" bury-buffer)
       ("l" "One line log" magit-log)
       ("L" "Long log" magit-log-long)
       ("h" "Reflog" magit-reflog)
-      ("H" "Reflog on head" magit-reflog-head)))))
+      ("H" "Reflog on head" magit-reflog-head))))
+  "Holds the key, help, function mapping for the log-mode. If you
+  modify this make sure you reset `magit-key-mode-key-maps' to
+  nil.")
 
 (defun magit-key-mode-build-keymap (for-group)
   "Construct a normal looking keymap for the key mode to use and
@@ -175,8 +179,6 @@ put it in magit-key-mode-key-maps for fast lookup."
         (aput 'magit-key-mode-key-maps for-group map))
       map)))
 
-(magit-key-mode 'logging)
-
 (defun magit-key-mode (for-group)
   (interactive)
   (let ((buf (get-buffer-create "*magit-key*")))
@@ -185,9 +187,8 @@ put it in magit-key-mode-key-maps for fast lookup."
       (kill-all-local-variables)
       (make-local-variable 'font-lock-defaults)
       (use-local-map
-       (if (let ((key-map (cdr (assoc for-group magit-key-mode-groups)))))
-           key-map
-         (magit-key-mode-build-keymap for-group)))
+       (or (cdr (assoc for-group magit-key-mode-key-maps))
+           (magit-key-mode-build-keymap for-group)))
       (setq buffer-read-only t)
       (setq mode-name "magit-key-mode" major-mode 'magit-key-mode))))
 
