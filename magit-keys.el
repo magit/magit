@@ -156,7 +156,6 @@
 (defvar magit-key-mode-groups
   '((logging
      (actions
-      ("q" "Exit" bury-buffer)
       ("l" "One line log" magit-log)
       ("L" "Long log" magit-log-long)
       ("h" "Reflog" magit-reflog)
@@ -165,14 +164,19 @@
   modify this make sure you reset `magit-key-mode-key-maps' to
   nil.")
 
+(defun magit-key-mode-options-for-group (for-group)
+  (or (cdr (assoc for-group magit-key-mode-groups))
+      (error "Unknown group '%s'" for-group)))
+
 (defun magit-key-mode-build-keymap (for-group)
   "Construct a normal looking keymap for the key mode to use and
 put it in magit-key-mode-key-maps for fast lookup."
-  (let* ((options (or (cdr (assoc for-group magit-key-mode-groups))
-                      (error "Unknown group '%s'" for-group)))
+  (let* ((options (magit-key-mode-options-for-group for-group))
          (actions (cdr (assoc 'actions options)))
          (modifiers (cdr (assoc 'modifiers options))))
     (let ((map (make-sparse-keymap)))
+      ;; all maps should 'quit' with C-g
+      (define-key map (kbd "C-g") 'bury-buffer)
       (when actions
         (dolist (k actions)
           (define-key map (car k) (nth 2 k)))
@@ -184,12 +188,24 @@ put it in magit-key-mode-key-maps for fast lookup."
   (let ((buf (get-buffer-create "*magit-key*")))
     (switch-to-buffer buf)
     (with-current-buffer buf
+      (erase-buffer)
       (kill-all-local-variables)
       (make-local-variable 'font-lock-defaults)
       (use-local-map
        (or (cdr (assoc for-group magit-key-mode-key-maps))
            (magit-key-mode-build-keymap for-group)))
+      (magit-key-mode-draw for-group)
       (setq buffer-read-only t)
       (setq mode-name "magit-key-mode" major-mode 'magit-key-mode))))
+
+(magit-key-mode 'logging)
+
+(defun magit-key-mode-draw (for-group)
+  (let* ((options (magit-key-mode-options-for-group for-group))
+         (actions (cdr (assoc 'actions options))))
+    (insert "Actions:\n")
+    (dolist (action actions)
+      (insert
+       (concat " " (car action) ": " (nth 1 action) "\n")))))
 
 (provide 'magit-keys)
