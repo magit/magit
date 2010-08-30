@@ -2,6 +2,7 @@ VERSION=0.8.2
 PREFIX=/usr/local
 ELS=magit.el magit-svn.el magit-topgit.el
 ELCS=$(ELS:.el=.elc)
+DIST_FILES=$(ELS) Makefile magit.texi README.md magit.spec.in magit-pkg.el.in 50magit.el
 
 .PHONY=install
 
@@ -22,6 +23,13 @@ magit-svn.elc: magit-svn.el
 magit-topgit.elc: magit-topgit.el
 magit.info:
 
+# yuck - this needs cleaning up a bit...
+dist: magit.spec magit-pkg.el
+	mkdir -p magit-$(VERSION)
+	cp $(DIST_FILES) magit-$(VERSION)
+	tar -cvzf magit-$(VERSION).tar.gz magit-$(VERSION)
+	rm -rf magit-$(VERSION)
+
 install: all
 	mkdir -p $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp
 	install -m 644 $(ELS) $(ELCS) $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp
@@ -32,5 +40,4 @@ install: all
 	install -m 644 50magit.el $(DESTDIR)/etc/emacs/site-start.d/50magit.el
 
 clean:
-	rm -f magit-pkg.el magit.spec magit.info $(ELCS)
-
+	rm -fr magit-pkg.el magit.spec magit.info $(ELCS) *.tar.gz magit-$(VERSION)
