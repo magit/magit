@@ -1,6 +1,7 @@
 ;;; magit.el -- control Git from Emacs.
 
-;; Copyright (C) 2008 Alex Ott.
+;; Copyright (C) 2010 Alan Falloon.
+;; Copyright (C) 2008, 2010 Alex Ott.
 ;; Copyright (C) 2008, 2009, 2010 Alexey Voinov.
 ;; Copyright (C) 2010 Ben Walton.
 ;; Copyright (C) 2008 Daniel Farina.
@@ -19,13 +20,16 @@
 ;; Copyright (C) 2009 Pavel Holejsovsky.
 ;; Copyright (C) 2009, 2010 Phil Jackson.
 ;; Copyright (C) 2010 Ramkumar Ramachandra.
+;; Copyright (C) 2010 Remco van 't Veer.
 ;; Copyright (C) 2009 René Stadler.
 ;; Copyright (C) 2010 Roger Crew.
 ;; Copyright (C) 2009, 2010 Rémi Vanicat.
+;; Copyright (C) 2010 Sean Bryant.
 ;; Copyright (C) 2009 Steve Purcell.
+;; Copyright (C) 2010 Timo Juhani Lindfors.
+;; Copyright (C) 2010 Yann Hodique.
 ;; Copyright (C) 2010 Ævar Arnfjörð Bjarmason.
 ;; Copyright (C) 2010 Óscar Fuentes.
-;; Copyright (C) 2010  Yann Hodique
 
 ;; Author: Marius Vollmer <marius.vollmer@nokia.com>
 ;; Maintainer: Phil Jackson <phil@shellarchive.co.uk>
