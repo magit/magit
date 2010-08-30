@@ -149,167 +149,45 @@
     (define-key map (kbd "i") 'magit-ignore-item)
     map))
 
-(defvar magit-menu
+(defvar magit-key-mode-key-maps '()
+  "This will be filled lazily with proper `define-key' built
+  keymaps as they're reqeusted.")
+
+(defvar magit-key-mode-groups
   '((logging
-     (?l "One line log" magit-log)
-     (?L "Detailed log" magit-log-long)
-     (?h "Reflog" magit-reflog)
-     (?H "Reflog head" magit-reflog-head)
-     (?a "--all" "All branches" magit-true)
-     (?g "--grep=" "Containing regexp" read-from-minibuffer)
-     (?A "--author=" "By author" read-from-minibuffer)
-     (?C "--committer=" "By committer" read-from-minibuffer)
-     (?F "--first-parent" "Follow only first parent" magit-true)
-     (?B "--branches=" "Branches" read-from-minibuffer)
-     (?R "--relative=" "Restrict to path" read-directory-name))
-    (branching
-     (?b "Switch" magit-checkout)
-     (?B "Create" magit-create-branch)
-     (?V "Show branches" magit-show-branches)
-     (?k "Delete" magit-delete-branch)
-     (?m "Move/Rename" magit-move-branch)
-     (?w "Wazzup" magit-wazzup)
-     (?T "--no-track" "Do not track remote parent branch" magit-true)
-     (?R "-r" "Consider remote-tracking branches" magit-true)
-     (?C "--contains" "Only branches that contain the given commit" magit-read-rev)
-     (?M "--merged" "Only branches merged into the given commit" magit-read-rev)
-     (?N "--no-merged" "Only branches not merged into the given commit" magit-read-rev))))
+     (actions
+      ("l" "One line log" magit-log)
+      ("L" "Long log" magit-log-long)
+      ("h" "Reflog" magit-reflog)
+      ("H" "Reflog on head" magit-reflog-head)))))
 
-(defun magit-log-menu (&optional arg)
-  (interactive "P")
-  (magit-menu 'logging arg))
+(defun magit-key-mode-build-keymap (for-group)
+  "Construct a normal looking keymap for the key mode to use and
+put it in magit-key-mode-key-maps for fast lookup."
+  (let* ((options (or (cdr (assoc for-group magit-key-mode-groups))
+                      (error "Unknown group '%s'" for-group)))
+         (actions (cdr (assoc 'actions options)))
+         (modifiers (cdr (assoc 'modifiers options))))
+    (when actions
+      (let ((map (make-sparse-keymap)))
+        (dolist (k actions)
+          (define-key map (car k) (nth 1 k)))
+        map))))
 
-(defun magit-branch-menu (&optional arg)
-  (interactive "P")
-  (magit-menu 'branching arg))
+(magit-key-mode-build-keymap 'logging)
 
-(defvar magit-custom-options '()
-  "This variable is for internal use by the magit menu
-  functionality. Before executing a menu command, it is bound to
-  the list of arguments corresponding to the options setted by
-  the user on the menu.")
+(defun magit-key-mode (for-group)
+  (interactive)
+  (kill-all-local-variables)
 
-(magit-get-menu-options 'logging)
+  (make-local-variable 'font-lock-defaults)
 
-(defun magit-get-menu-options (group)
-  (let ((menu-items '()))
-    (dolist (item magit-menu)
-      (when (string= (car item) group)
-        (cond
-         ((stringp (nth 3 item)) ;; It's an option
-          ;; We append an extra cell to the item for storing the option's value:
-          (setq menu-items (append menu-items (list (append item (list nil))))))
-         ((functionp (nth 3 item)) ;; It's a command
-          (setq menu-items (append menu-items (list item))))
-         (t (error "Unrecognised item type in `magit-menu': %S." item)))))
-    menu-items))
+  (use-local-map
+   (if (let ((key-map (cdr (assoc for-group magit-key-mode-groups)))))
+       key-map
+     (magit-key-mode-build-keymap for-group)))
 
-(defun magit-menu-insert-item (text highlight-p)
-  (let* ((item-width 35)
-         (max-items-perline 2)
-         (max-columns (window-width))
-         (begin)
-         (current-column (- (point) (line-beginning-position)))
-         (padding
-          (make-string (- item-width (mod (length text) item-width)) 32)))
-    (when (< max-columns (+ current-column (length text) (length padding)))
-      (insert "\n"))
-    (setq begin (point))
-    (insert text)
-    (when highlight-p
-      (put-text-property begin (point) 'face 'magit-menu-selected-option))
-    (insert padding)))
-
-(defun magit-build-menu (group menu-items)
-  (erase-buffer)
-  (let ((s ""))
-    (insert group " variants\n")
-    (dolist (item menu-items)
-      (when (functionp (nth 3 item))
-        (setq s (concat (string (nth 1 item)) "  " (nth 2 item)))
-        (magit-menu-insert-item s nil)))
-    (insert "\nOptions\n")
-    (dolist (item menu-items)
-      (let ((args (magit-menu-make-arguments-for-option item t)))
-        (when args
-          (setq s (concat (string (nth 1 item)) "  " (nth 0 args)
-                          " " (nth 1 args)))
-          (magit-menu-insert-item s (nth 5 item)))))
-    (insert "\n"))
-    (setq buffer-read-only nil)
-    (fit-window-to-buffer))
-
-(defun magit-menu (group &optional prefix-arg)
-  (let ((magit-buf (current-buffer))
-        (menu-buf)
-        (menu-items (magit-get-menu-options group))
-        (prompt (concat (if prefix-arg (format "(prefix: %s) " prefix-arg))
-                        "Command key (? for help): "))
-        (display-help-p)
-        (chosen-fn nil))
-    (save-window-excursion
-      (delete-other-windows)
-      (switch-to-buffer-other-window "*Magit Commands*" t)
-      (setq menu-buf (current-buffer))
-      (catch 'exit
-        (while t
-          (pop-to-buffer menu-buf)
-          (magit-build-menu group menu-items)
-          (let ((c (read-char-exclusive prompt))
-                (case-fold-search nil))
-            (cond
-             ;; Bail out if the input is not a character (Meta-x etc):
-             ((not (characterp c))
-              (throw 'exit 0))
-             ((char-equal c ??)
-              (setq display-help-p t)
-              (setq prompt "Show help for command: "))
-             (t
-              (dolist (item menu-items)
-                (when (char-equal c (nth 1 item))
-                  ;; If a command, fn is a function.
-                  ;; If an option, fn is a string.
-                  (setq fn (nth 3 item))
-                  (cond
-                   ((and (stringp fn) display-help-p)
-                    (message "No help for options!")
-                    (sit-for 2))
-                   ((and (stringp fn) (nth 5 item))
-                    (setcar (nthcdr 5 item) nil))
-                   ((stringp fn)
-                    (setcar (nthcdr 5 item)
-                            (funcall (nth 4 item) (concat (nth 2 item) ": "))))
-                   (display-help-p
-                    (setq chosen-fn fn)
-                    (throw 'exit 0))
-                   (t
-                    (setq chosen-fn fn)
-                    (throw 'exit 0))))))
-             (error "Invalid key: %c" c))))))
-    (when chosen-fn
-      (if display-help-p
-          (describe-function chosen-fn)
-        (setq current-prefix-arg prefix-arg)
-        (let ((magit-custom-options (magit-menu-make-option-list menu-items)))
-          (call-interactively chosen-fn))))))
-
-(defun magit-menu-make-arguments-for-option (item &optional all-p)
-  "Returns as a cons cell the arguments for the git process
-depending on the contents of `item'. If the option was not set,
-returns nil, unless `all-p' evals to true."
-  (let* ((option (nth 2 item))
-         (value (nth 5 item))
-         (join-valuep
-          (and (stringp value)
-               (string= "=" (substring option (- (length option) 1))))))
-    (when (and (stringp (nth 3 item)) (or value all-p))
-        (cons (concat option (when join-valuep value))
-              (when (and (stringp value) (not join-valuep)) value)))))
-
-(defun magit-menu-make-option-list (menu-items)
-  (let ((result '()))
-    (dolist (item menu-items)
-      (setq result (append result (magit-menu-make-arguments-for-option item))))
-    result))
+  (setq buffer-read-only t)
+  (setq mode-name "magit-key-mode" major-mode 'magit-key-mode))
 
 (provide 'magit-keys)
