@@ -183,6 +183,26 @@ put it in magit-key-mode-key-maps for fast lookup."
         (aput 'magit-key-mode-key-maps for-group map))
       map)))
 
+(defvar magit-key-mode-header-re
+  (rx line-start (| "Actions:")))
+
+(defvar magit-key-mode-action-re
+  (rx line-start
+      (char space)
+      (group
+       (char alpha))
+      ": "
+      (group
+       (* not-newline))))
+
+(defvar magit-key-mode-font-lock-keywords
+  (list
+   (list magit-key-mode-header-re 0 'font-lock-keyword-face)
+   (list magit-key-mode-action-re
+         '(1 font-lock-builtin-face))))
+
+(magit-key-mode 'logging)
+
 (defun magit-key-mode (for-group)
   (interactive)
   (let ((buf (get-buffer-create "*magit-key*")))
@@ -191,6 +211,8 @@ put it in magit-key-mode-key-maps for fast lookup."
       (erase-buffer)
       (kill-all-local-variables)
       (make-local-variable 'font-lock-defaults)
+      (setq font-lock-defaults
+            '(magit-key-mode-font-lock-keywords t t nil nil))
       (use-local-map
        (or (cdr (assoc for-group magit-key-mode-key-maps))
            (magit-key-mode-build-keymap for-group)))
@@ -198,9 +220,8 @@ put it in magit-key-mode-key-maps for fast lookup."
       (setq buffer-read-only t)
       (setq mode-name "magit-key-mode" major-mode 'magit-key-mode))))
 
-(magit-key-mode 'logging)
-
 (defun magit-key-mode-draw (for-group)
+  "Function used to draw actions, switches and parameters."
   (let* ((options (magit-key-mode-options-for-group for-group))
          (actions (cdr (assoc 'actions options))))
     (insert "Actions:\n")
