@@ -170,8 +170,6 @@
   modify this make sure you reset `magit-key-mode-key-maps' to
   nil.")
 
-; (magit-key-mode 'logging)
-
 (defun magit-key-mode-options-for-group (for-group)
   (or (cdr (assoc for-group magit-key-mode-groups))
       (error "Unknown group '%s'" for-group)))
