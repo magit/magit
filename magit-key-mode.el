@@ -208,13 +208,10 @@ put it in magit-key-mode-key-maps for fast lookup."
                                      (interactive)
                                      (magit-key-mode-add-argument
                                       ',for-group
-                                      ,(nth 2 k))))))
+                                      ,(nth 2 k)
+                                      ',(nth 3 k))))))
       (aput 'magit-key-mode-key-maps for-group map)
       map)))
-
-(defvar magit-key-mode-current-options '()
-  "Current option set (which will eventually make it to the git
-  command-line).")
 
 (defvar magit-key-mode-header-re
   (rx line-start (| "Actions" "Switches" "Arguments") ":"))
@@ -240,7 +237,22 @@ put it in magit-key-mode-key-maps for fast lookup."
      ,@body
      (magit-key-mode-kill-buffer)))
 
-(defun magit-key-mode-add-argument (for-group option-name))
+(defvar magit-key-mode-current-args nil
+  "A hash-table of current argument set (which will eventually
+  make it to the git command-line).")
+
+(defun debug-args ()
+  (interactive)
+  (maphash (lambda (k v) (print (format "%s: %s" k v))) magit-key-mode-current-args))
+
+(defun magit-key-mode-add-argument (for-group arg-name input-func)
+  (let ((input (funcall input-func (concat arg-name ": "))))
+    (puthash arg-name input magit-key-mode-current-args)
+    (magit-key-mode-redraw for-group)))
+
+(defvar magit-key-mode-current-options '()
+  "Current option set (which will eventually make it to the git
+  command-line).")
 
 (defun magit-key-mode-add-option (for-group option-name)
   "Toggles the appearance of OPTION-NAME in
@@ -261,12 +273,10 @@ put it in magit-key-mode-key-maps for fast lookup."
 (defun magit-key-mode (for-group &optional original-opts)
   "Mode for magit key selection."
   (interactive)
-
   ;; save the window config to restore it as was (no need to make this
   ;; buffer local)
   (setq magit-log-mode-window-conf
         (current-window-configuration))
-
   ;; setup the mode, draw the buffer
   (let ((buf (get-buffer-create magit-key-mode-buf-name)))
     (pop-to-buffer buf)
@@ -274,6 +284,9 @@ put it in magit-key-mode-key-maps for fast lookup."
     (set (make-variable-buffer-local
           'magit-key-mode-current-options)
          original-opts)
+    (set (make-variable-buffer-local
+          'magit-key-mode-current-args)
+         (make-hash-table))
     (magit-key-mode-redraw for-group)))
 
 (defun magit-key-mode-redraw (for-group)
