@@ -185,7 +185,10 @@ put it in magit-key-mode-key-maps for fast lookup."
          (arguments (cdr (assoc 'arguments options))))
     (let ((map (make-sparse-keymap)))
       ;; all maps should 'quit' with C-g
-      (define-key map (kbd "C-g") 'magit-key-mode-kill-buffer)
+      (define-key map (kbd "C-g") (lambda ()
+                                    (interactive)
+                                    (with-magit-key-mode-command
+                                     t)))
       (when actions
         (dolist (k actions)
           (define-key map (car k) `(lambda ()
@@ -232,12 +235,12 @@ put it in magit-key-mode-key-maps for fast lookup."
    (list magit-key-mode-action-re '(1 font-lock-builtin-face))))
 
 (defmacro with-magit-key-mode-command (&rest body)
+  (set-window-configuration magit-log-mode-window-conf)
   `(let ((magit-custom-options magit-key-mode-current-options))
      ,@body
      (magit-key-mode-kill-buffer)))
 
-(defun magit-key-mode-add-argument (for-group option-name)
-  )
+(defun magit-key-mode-add-argument (for-group option-name))
 
 (defun magit-key-mode-add-option (for-group option-name)
   "Toggles the appearance of OPTION-NAME in
@@ -252,17 +255,27 @@ put it in magit-key-mode-key-maps for fast lookup."
   (interactive)
   (kill-buffer magit-key-mode-buf-name))
 
+(defvar magit-log-mode-window-conf nil
+  "Pre-popup window configuration.")
+
 (defun magit-key-mode (for-group &optional original-opts)
   "Mode for magit key selection."
   (interactive)
+
+  ;; save the window config to restore it as was
+  (setq magit-log-mode-window-conf
+        (current-window-configuration))
+
+  ;; setup the mode, draw the buffer
   (let ((buf (get-buffer-create magit-key-mode-buf-name)))
-    (pop-to-buffer buf)
-    (with-current-buffer buf
-      (kill-all-local-variables)
-      (set (make-variable-buffer-local
-            'magit-key-mode-current-options)
-           original-opts)
-      (magit-key-mode-redraw for-group))))
+    (delete-other-windows)
+    (split-window-vertically)
+    (switch-to-buffer buf)
+    (kill-all-local-variables)
+    (set (make-variable-buffer-local
+          'magit-key-mode-current-options)
+         original-opts)
+    (magit-key-mode-redraw for-group)))
 
 (defun magit-key-mode-redraw (for-group)
   "(re)draw the magit key buffer."
@@ -276,7 +289,8 @@ put it in magit-key-mode-key-maps for fast lookup."
          (magit-key-mode-build-keymap for-group)))
     (magit-key-mode-draw for-group)
     (setq mode-name "magit-key-mode" major-mode 'magit-key-mode))
-  (setq buffer-read-only t))
+  (setq buffer-read-only t)
+  (fit-window-to-buffer))
 
 (defun magit-key-mode-draw (for-group)
   "Function used to draw actions, switches and parameters."
