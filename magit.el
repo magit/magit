@@ -316,6 +316,9 @@ Many Magit faces inherit from this one by default."
   "Face for tag labels shown in log buffer."
   :group 'magit)
 
+(defvar magit-custom-options '()
+  "List of custom options to pass git. Do not customise this.")
+
 (defvar magit-completing-read 'completing-read
   "Function to be called when requesting input from the user.")
 

@@ -164,16 +164,18 @@
       ("h" "Reflog" magit-reflog)
       ("H" "Reflog on head" magit-reflog-head))
      (switches
+      ("f" "First parent" "--first-parent")
       ("a" "All" "--all"))))
   "Holds the key, help, function mapping for the log-mode. If you
   modify this make sure you reset `magit-key-mode-key-maps' to
   nil.")
 
+; (magit-key-mode 'logging)
+
 (defun magit-key-mode-options-for-group (for-group)
   (or (cdr (assoc for-group magit-key-mode-groups))
       (error "Unknown group '%s'" for-group)))
 
-; (magit-key-mode 'logging)
 (defun magit-key-mode-build-keymap (for-group)
   "Construct a normal looking keymap for the key mode to use and
 put it in magit-key-mode-key-maps for fast lookup."
@@ -222,7 +224,7 @@ put it in magit-key-mode-key-maps for fast lookup."
    (list magit-key-mode-action-re '(1 font-lock-builtin-face))))
 
 (defmacro with-magit-key-mode-command (&rest body)
-  `(progn
+  `(let ((magit-custom-options magit-key-mode-current-options))
      ,@body
      (magit-key-mode-kill-buffer)))
 
