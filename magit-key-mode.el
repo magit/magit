@@ -262,7 +262,8 @@ put it in magit-key-mode-key-maps for fast lookup."
   "Mode for magit key selection."
   (interactive)
 
-  ;; save the window config to restore it as was
+  ;; save the window config to restore it as was (no need to make this
+  ;; buffer local)
   (setq magit-log-mode-window-conf
         (current-window-configuration))
 
