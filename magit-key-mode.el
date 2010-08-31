@@ -167,8 +167,8 @@
       ("-f" "First parent" "--first-parent")
       ("-a" "All" "--all"))
      (arguments
-      ("-a" "Author" "--author" read-from-minibuffer)
-      ("-g" "Grep" "--grep" read-from-minibuffer))))
+      ("=a" "Author" "--author" read-from-minibuffer)
+      ("=g" "Grep" "--grep" read-from-minibuffer))))
   "Holds the key, help, function mapping for the log-mode. If you
   modify this make sure you reset `magit-key-mode-key-maps' to
   nil.")
@@ -219,7 +219,7 @@ put it in magit-key-mode-key-maps for fast lookup."
   (rx line-start
       (char space)
       (group
-       (* "-")
+       (* (char "-="))
        (char alpha))
       ": "
       (group
