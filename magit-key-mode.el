@@ -241,18 +241,21 @@ put it in magit-key-mode-key-maps for fast lookup."
   (kill-buffer magit-key-mode-buf-name))
 
 (defun magit-key-mode (for-group &optional original-opts)
+  "Mode for magit key selection."
   (interactive)
   (let ((buf (get-buffer-create magit-key-mode-buf-name)))
     (pop-to-buffer buf)
     (with-current-buffer buf
-      (set (make-local-variable 'magit-key-mode-current-options)
+      (kill-all-local-variables)
+      (set (make-variable-buffer-local
+            'magit-key-mode-current-options)
            original-opts)
       (magit-key-mode-redraw for-group))))
 
 (defun magit-key-mode-redraw (for-group)
+  "(re)draw the magit key buffer."
   (let ((buffer-read-only nil))
     (erase-buffer)
-    (kill-all-local-variables)
     (make-local-variable 'font-lock-defaults)
     (setq font-lock-defaults
           '(magit-key-mode-font-lock-keywords t nil nil nil))
