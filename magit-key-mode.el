@@ -187,14 +187,12 @@ put it in magit-key-mode-key-maps for fast lookup."
       ;; all maps should 'quit' with C-g
       (define-key map (kbd "C-g") (lambda ()
                                     (interactive)
-                                    (with-magit-key-mode-command
-                                     t)))
+                                    (magit-key-mode-command 'identity)))
       (when actions
         (dolist (k actions)
           (define-key map (car k) `(lambda ()
                                      (interactive)
-                                     (with-magit-key-mode-command
-                                      (funcall ',(nth 2 k)))))))
+                                     (magit-key-mode-command ',(nth 2 k))))))
       (when switches
         (dolist (k switches)
           (define-key map (car k) `(lambda ()
@@ -231,11 +229,16 @@ put it in magit-key-mode-key-maps for fast lookup."
    (list magit-key-mode-header-re 0 'font-lock-keyword-face)
    (list magit-key-mode-action-re '(1 font-lock-builtin-face))))
 
-(defmacro with-magit-key-mode-command (&rest body)
-  (set-window-configuration magit-log-mode-window-conf)
-  `(let ((magit-custom-options magit-key-mode-current-options))
-     ,@body
-     (magit-key-mode-kill-buffer)))
+(defun magit-key-mode-command (func)
+  (let ((args '()))
+    ;; why can't maphash return a list?!
+    (maphash (lambda (k v)
+               (push (concat k "=" (shell-quote-argument v)) args))
+             magit-key-mode-current-args)
+    (let ((magit-custom-options (append args magit-key-mode-current-options)))
+      (set-window-configuration magit-log-mode-window-conf)
+      (funcall func)
+      (magit-key-mode-kill-buffer))))
 
 (defvar magit-key-mode-current-args nil
   "A hash-table of current argument set (which will eventually
@@ -248,7 +251,7 @@ put it in magit-key-mode-key-maps for fast lookup."
 (defun magit-key-mode-add-argument (for-group arg-name input-func)
   (let ((input (funcall input-func (concat arg-name ": "))))
     (puthash arg-name input magit-key-mode-current-args)
-    (magit-key-mode-redraw for-group)))
+   (magit-key-mode-redraw for-group)))
 
 (defvar magit-key-mode-current-options '()
   "Current option set (which will eventually make it to the git
