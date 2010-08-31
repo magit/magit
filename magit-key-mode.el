@@ -168,6 +168,7 @@
       ("-f" "First parent" "--first-parent")
       ("-a" "All" "--all"))
      (arguments
+      ("=b" "Branches" "--branches" read-from-minibuffer)
       ("=a" "Author" "--author" read-from-minibuffer)
       ("=g" "Grep" "--grep" read-from-minibuffer))))
   "Holds the key, help, function mapping for the log-mode. If you
