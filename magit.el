@@ -66,6 +66,7 @@
 (require 'log-edit)
 (require 'easymenu)
 (require 'diff-mode)
+(require 'magit-key-mode)
 
 ;;; Code:
 (defgroup magit nil
