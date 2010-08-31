@@ -187,7 +187,7 @@ put it in magit-key-mode-key-maps for fast lookup."
       ;; all maps should 'quit' with C-g
       (define-key map (kbd "C-g") (lambda ()
                                     (interactive)
-                                    (magit-key-mode-command 'identity)))
+                                    (magit-key-mode-command nil)))
       (when actions
         (dolist (k actions)
           (define-key map (car k) `(lambda ()
@@ -237,7 +237,8 @@ put it in magit-key-mode-key-maps for fast lookup."
              magit-key-mode-current-args)
     (let ((magit-custom-options (append args magit-key-mode-current-options)))
       (set-window-configuration magit-log-mode-window-conf)
-      (funcall func)
+      (when func
+        (funcall func))
       (magit-key-mode-kill-buffer))))
 
 (defvar magit-key-mode-current-args nil
