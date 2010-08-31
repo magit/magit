@@ -338,6 +338,10 @@ put it in magit-key-mode-key-maps for fast lookup."
         (nth 1 argument)
         " ("
         (nth 2 argument)
-        ")\n")))))
+        ") "
+        (propertize
+         (gethash (nth 2 argument) magit-key-mode-current-args "")
+         'font-lock-face 'widget-field)
+        "\n")))))
 
 (provide 'magit-key-mode)
