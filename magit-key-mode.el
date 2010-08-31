@@ -38,7 +38,7 @@
     (define-key map (kbd "f") 'magit-remote-update)
     (define-key map (kbd "F") 'magit-pull)
     (define-key map (kbd "c") 'magit-log-edit)
-    (define-key map (kbd "l") 'magit-log-menu)
+    (define-key map (kbd "l") (lambda () (interactive) (magit-key-mode 'logging)))
     (define-key map (kbd "$") 'magit-display-process)
     (define-key map (kbd "E") 'magit-interactive-rebase)
     (define-key map (kbd "q") 'quit-window)
@@ -108,7 +108,7 @@
     (define-key map (kbd "M") 'magit-automatic-merge)
     (define-key map (kbd "x") 'magit-reset-head)
     (define-key map (kbd "e") 'magit-log-show-more-entries)
-    (define-key map (kbd "l") 'magit-log-menu)
+    (define-key map (kbd "l") (lambda () (interactive) (magit-key-mode 'logging)))
     map))
 
 (defvar magit-reflog-mode-map
