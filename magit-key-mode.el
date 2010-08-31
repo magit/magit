@@ -211,7 +211,8 @@ put it in magit-key-mode-key-maps for fast lookup."
   (rx line-start
       (char space)
       (group
-       (char "-" alpha))
+       (* "-")
+       (char alpha))
       ": "
       (group
        (* not-newline))))
