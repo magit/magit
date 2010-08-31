@@ -165,7 +165,9 @@
       ("H" "Reflog on head" magit-reflog-head))
      (switches
       ("-f" "First parent" "--first-parent")
-      ("-a" "All" "--all"))))
+      ("-a" "All" "--all"))
+     (arguments
+      ("-g" "Grep" "--grep" read-from-minibuffer))))
   "Holds the key, help, function mapping for the log-mode. If you
   modify this make sure you reset `magit-key-mode-key-maps' to
   nil.")
@@ -180,7 +182,7 @@ put it in magit-key-mode-key-maps for fast lookup."
   (let* ((options (magit-key-mode-options-for-group for-group))
          (actions (cdr (assoc 'actions options)))
          (switches (cdr (assoc 'switches options)))
-         (modifiers (cdr (assoc 'modifiers options))))
+         (arguments (cdr (assoc 'arguments options))))
     (let ((map (make-sparse-keymap)))
       ;; all maps should 'quit' with C-g
       (define-key map (kbd "C-g") 'magit-key-mode-kill-buffer)
@@ -197,6 +199,13 @@ put it in magit-key-mode-key-maps for fast lookup."
                                      (magit-key-mode-add-option
                                       ',for-group
                                       ,(nth 2 k))))))
+      (when arguments
+        (dolist (k arguments)
+          (define-key map (car k) `(lambda ()
+                                     (interactive)
+                                     (magit-key-mode-add-argument
+                                      ',for-group
+                                      ,(nth 2 k))))))
       (aput 'magit-key-mode-key-maps for-group map)
       map)))
 
@@ -205,7 +214,7 @@ put it in magit-key-mode-key-maps for fast lookup."
   command-line).")
 
 (defvar magit-key-mode-header-re
-  (rx line-start (| "Actions" "Switches") ":"))
+  (rx line-start (| "Actions" "Switches" "Arguments") ":"))
 
 (defvar magit-key-mode-action-re
   (rx line-start
@@ -226,6 +235,9 @@ put it in magit-key-mode-key-maps for fast lookup."
   `(let ((magit-custom-options magit-key-mode-current-options))
      ,@body
      (magit-key-mode-kill-buffer)))
+
+(defun magit-key-mode-add-argument (for-group option-name)
+  )
 
 (defun magit-key-mode-add-option (for-group option-name)
   "Toggles the appearance of OPTION-NAME in
@@ -270,6 +282,7 @@ put it in magit-key-mode-key-maps for fast lookup."
   "Function used to draw actions, switches and parameters."
   (let* ((options (magit-key-mode-options-for-group for-group))
          (switches (cdr (assoc 'switches options)))
+         (arguments (cdr (assoc 'arguments options)))
          (actions (cdr (assoc 'actions options))))
     (insert "Actions:\n")
     (dolist (action actions)
@@ -288,7 +301,17 @@ put it in magit-key-mode-key-maps for fast lookup."
           (if (member option magit-key-mode-current-options)
               (propertize option 'font-lock-face 'font-lock-warning-face)
             option)
-          ")"
-          "\n"))))))
+          ")\n"))))
+    (insert "Arguments:\n")
+    (dolist (argument arguments)
+      (insert
+       (concat
+        " "
+        (car argument)
+        ": "
+        (nth 1 argument)
+        " ("
+        (nth 2 argument)
+        ")\n")))))
 
 (provide 'magit-key-mode)
