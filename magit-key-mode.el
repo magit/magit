@@ -183,7 +183,7 @@ put it in magit-key-mode-key-maps for fast lookup."
          (modifiers (cdr (assoc 'modifiers options))))
     (let ((map (make-sparse-keymap)))
       ;; all maps should 'quit' with C-g
-      (define-key map (kbd "C-g") 'bury-buffer)
+      (define-key map (kbd "C-g") 'magit-key-mode-kill-buffer)
       (when actions
         (dolist (k actions)
           (define-key map (car k) `(lambda ()
@@ -236,6 +236,7 @@ put it in magit-key-mode-key-maps for fast lookup."
   (magit-key-mode-redraw for-group))
 
 (defun magit-key-mode-kill-buffer ()
+  (interactive)
   (kill-buffer magit-key-mode-buf-name))
 
 (defun magit-key-mode (for-group &optional original-opts)
