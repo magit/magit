@@ -153,13 +153,18 @@
   "This will be filled lazily with proper `define-key' built
   keymaps as they're reqeusted.")
 
+(defvar magit-key-mode-buf-name "*magit-key*"
+  "Name of the buffer.")
+
 (defvar magit-key-mode-groups
   '((logging
      (actions
       ("l" "One line log" magit-log)
       ("L" "Long log" magit-log-long)
       ("h" "Reflog" magit-reflog)
-      ("H" "Reflog on head" magit-reflog-head))))
+      ("H" "Reflog on head" magit-reflog-head))
+     (switches
+      ("a" "All" "--all"))))
   "Holds the key, help, function mapping for the log-mode. If you
   modify this make sure you reset `magit-key-mode-key-maps' to
   nil.")
@@ -168,23 +173,39 @@
   (or (cdr (assoc for-group magit-key-mode-groups))
       (error "Unknown group '%s'" for-group)))
 
+; (magit-key-mode 'logging)
 (defun magit-key-mode-build-keymap (for-group)
   "Construct a normal looking keymap for the key mode to use and
 put it in magit-key-mode-key-maps for fast lookup."
   (let* ((options (magit-key-mode-options-for-group for-group))
          (actions (cdr (assoc 'actions options)))
+         (switches (cdr (assoc 'switches options)))
          (modifiers (cdr (assoc 'modifiers options))))
     (let ((map (make-sparse-keymap)))
       ;; all maps should 'quit' with C-g
       (define-key map (kbd "C-g") 'bury-buffer)
       (when actions
         (dolist (k actions)
-          (define-key map (car k) (nth 2 k)))
-        (aput 'magit-key-mode-key-maps for-group map))
+          (define-key map (car k) `(lambda ()
+                                     (interactive)
+                                     (with-magit-key-mode-command
+                                      (funcall ',(nth 2 k)))))))
+      (when switches
+        (dolist (k switches)
+          (define-key map (car k) `(lambda ()
+                                    (interactive)
+                                    (magit-key-mode-add-option
+                                     ',for-group
+                                     ,(nth 2 k))))))
+      (aput 'magit-key-mode-key-maps for-group map)
       map)))
 
+(defvar magit-key-mode-current-options '()
+  "Current option set (which will eventually make it to the git
+  command-line).")
+
 (defvar magit-key-mode-header-re
-  (rx line-start (| "Actions:")))
+  (rx line-start (| "Actions" "Switches") ":"))
 
 (defvar magit-key-mode-action-re
   (rx line-start
@@ -198,35 +219,71 @@ put it in magit-key-mode-key-maps for fast lookup."
 (defvar magit-key-mode-font-lock-keywords
   (list
    (list magit-key-mode-header-re 0 'font-lock-keyword-face)
-   (list magit-key-mode-action-re
-         '(1 font-lock-builtin-face))))
+   (list magit-key-mode-action-re '(1 font-lock-builtin-face))))
 
-(magit-key-mode 'logging)
+(defmacro with-magit-key-mode-command (&rest body)
+  `(progn
+     ,@body
+     (magit-key-mode-kill-buffer)))
 
-(defun magit-key-mode (for-group)
+(defun magit-key-mode-add-option (for-group option-name)
+  "Toggles the appearance of OPTION-NAME in
+`magit-key-mode-current-options'."
+  (if (not (member option-name magit-key-mode-current-options))
+      (add-to-list 'magit-key-mode-current-options option-name)
+    (setq magit-key-mode-current-options
+          (delete option-name magit-key-mode-current-options)))
+  (magit-key-mode-redraw for-group))
+
+(defun magit-key-mode-kill-buffer ()
+  (kill-buffer magit-key-mode-buf-name))
+
+(defun magit-key-mode (for-group &optional original-opts)
   (interactive)
-  (let ((buf (get-buffer-create "*magit-key*")))
-    (switch-to-buffer buf)
+  (let ((buf (get-buffer-create magit-key-mode-buf-name)))
+    (pop-to-buffer buf)
     (with-current-buffer buf
-      (erase-buffer)
-      (kill-all-local-variables)
-      (make-local-variable 'font-lock-defaults)
-      (setq font-lock-defaults
-            '(magit-key-mode-font-lock-keywords t t nil nil))
-      (use-local-map
-       (or (cdr (assoc for-group magit-key-mode-key-maps))
-           (magit-key-mode-build-keymap for-group)))
-      (magit-key-mode-draw for-group)
-      (setq buffer-read-only t)
-      (setq mode-name "magit-key-mode" major-mode 'magit-key-mode))))
+      (set (make-local-variable 'magit-key-mode-current-options)
+           original-opts)
+      (magit-key-mode-redraw for-group))))
+
+(defun magit-key-mode-redraw (for-group)
+  (let ((buffer-read-only nil))
+    (erase-buffer)
+    (kill-all-local-variables)
+    (make-local-variable 'font-lock-defaults)
+    (setq font-lock-defaults
+          '(magit-key-mode-font-lock-keywords t nil nil nil))
+    (use-local-map
+     (or (cdr (assoc for-group magit-key-mode-key-maps))
+         (magit-key-mode-build-keymap for-group)))
+    (magit-key-mode-draw for-group)
+    (setq buffer-read-only t)
+    (setq mode-name "magit-key-mode" major-mode 'magit-key-mode)))
 
 (defun magit-key-mode-draw (for-group)
   "Function used to draw actions, switches and parameters."
   (let* ((options (magit-key-mode-options-for-group for-group))
+         (switches (cdr (assoc 'switches options)))
          (actions (cdr (assoc 'actions options))))
     (insert "Actions:\n")
     (dolist (action actions)
       (insert
-       (concat " " (car action) ": " (nth 1 action) "\n")))))
+       (concat " " (car action) ": " (nth 1 action) "\n")))
+    (insert "Switches:\n")
+    (dolist (switch switches)
+      (let ((option (nth 2 switch)))
+        (insert
+         (concat
+          " "
+          (car switch)
+          ": "
+          (nth 1 switch)
+          " ("
+          (if (member option magit-key-mode-current-options)
+              (propertize option 'font-lock-face 'font-lock-warning-face)
+            option)
+          ")"
+          "\n"))))))
 
-(provide 'magit-keys)
+(provide 'magit-key-mode)
