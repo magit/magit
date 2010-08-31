@@ -3543,34 +3543,10 @@ With a non numeric prefix ARG, show all entries"
 		     "--pretty=oneline" args)
     (magit-log-mode t)))
 
-(defun magit-log-all (&optional arg)
-  "Display the state of all refs in the log output."
-  (interactive "P")
-  (magit-display-log arg "--all"))
-
-(defun magit-log-first-parent (&optional arg)
-  "Display the log buffer excluding anything more than first
-level commits."
-  (interactive "P")
-  (magit-display-log arg "--first-parent"))
-
 (defun magit-log (&optional arg)
   "View and act upon the output of git log."
   (interactive "P")
   (apply 'magit-display-log arg magit-custom-options))
-
-(defun magit-log-grep (str)
-  "Search for regexp specified by STR in the commit log."
-  (interactive "sGrep in commit log: ")
-  (let ((topdir (magit-get-top-dir default-directory)))
-    (switch-to-buffer magit-log-grep-buffer-name)
-    (magit-mode-init topdir 'log #'magit-refresh-log-buffer "HEAD"
-		     "--pretty=oneline"
-		     (append
-		      (list "-E"
-			    (format "--grep=%s" (shell-quote-argument str)))
-		      magit-custom-options))
-    (magit-log-mode t)))
 
 (magit-define-command log-long (&optional arg)
   (interactive "P")
