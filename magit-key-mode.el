@@ -164,6 +164,7 @@
       ("h" "Reflog" magit-reflog)
       ("H" "Reflog on head" magit-reflog-head))
      (switches
+      ("-m" "Only merge commits" "--merges")
       ("-f" "First parent" "--first-parent")
       ("-a" "All" "--all"))
      (arguments
