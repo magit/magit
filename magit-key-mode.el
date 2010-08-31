@@ -261,8 +261,8 @@ put it in magit-key-mode-key-maps for fast lookup."
          (magit-key-mode-build-keymap for-group)))
     (magit-key-mode-draw for-group)
     (fit-window-to-buffer)
-    (setq buffer-read-only t)
-    (setq mode-name "magit-key-mode" major-mode 'magit-key-mode)))
+    (setq mode-name "magit-key-mode" major-mode 'magit-key-mode))
+  (setq buffer-read-only t))
 
 (defun magit-key-mode-draw (for-group)
   "Function used to draw actions, switches and parameters."
