@@ -164,8 +164,8 @@
       ("h" "Reflog" magit-reflog)
       ("H" "Reflog on head" magit-reflog-head))
      (switches
-      ("f" "First parent" "--first-parent")
-      ("a" "All" "--all"))))
+      ("-f" "First parent" "--first-parent")
+      ("-a" "All" "--all"))))
   "Holds the key, help, function mapping for the log-mode. If you
   modify this make sure you reset `magit-key-mode-key-maps' to
   nil.")
@@ -195,10 +195,10 @@ put it in magit-key-mode-key-maps for fast lookup."
       (when switches
         (dolist (k switches)
           (define-key map (car k) `(lambda ()
-                                    (interactive)
-                                    (magit-key-mode-add-option
-                                     ',for-group
-                                     ,(nth 2 k))))))
+                                     (interactive)
+                                     (magit-key-mode-add-option
+                                      ',for-group
+                                      ,(nth 2 k))))))
       (aput 'magit-key-mode-key-maps for-group map)
       map)))
 
@@ -213,7 +213,7 @@ put it in magit-key-mode-key-maps for fast lookup."
   (rx line-start
       (char space)
       (group
-       (char alpha))
+       (char "-" alpha))
       ": "
       (group
        (* not-newline))))
@@ -260,6 +260,7 @@ put it in magit-key-mode-key-maps for fast lookup."
      (or (cdr (assoc for-group magit-key-mode-key-maps))
          (magit-key-mode-build-keymap for-group)))
     (magit-key-mode-draw for-group)
+    (fit-window-to-buffer)
     (setq buffer-read-only t)
     (setq mode-name "magit-key-mode" major-mode 'magit-key-mode)))
 
