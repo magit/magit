@@ -30,10 +30,10 @@
     (define-key map (kbd "R") 'magit-rebase-step)
     (define-key map (kbd "t") (lambda () (interactive) (magit-key-mode 'tagging)))
     (define-key map (kbd "r") (lambda () (interactive) (magit-key-mode 'rewriting)))
-    (define-key map (kbd "P") 'magit-push)
+    (define-key map (kbd "P") (lambda () (interactive) (magit-key-mode 'pushing)))
     (define-key map (kbd "f") 'magit-remote-update)
     (define-key map (kbd "b") (lambda () (interactive) (magit-key-mode 'branching)))
-    (define-key map (kbd "F") 'magit-pull)
+    (define-key map (kbd "F") (lambda () (interactive) (magit-key-mode 'pulling)))
     (define-key map (kbd "c") 'magit-log-edit)
     (define-key map (kbd "l") (lambda () (interactive) (magit-key-mode 'logging)))
     (define-key map (kbd "$") 'magit-display-process)
@@ -167,6 +167,16 @@
       ("=b" "Branches" "--branches" read-from-minibuffer)
       ("=a" "Author" "--author" read-from-minibuffer)
       ("=g" "Grep" "--grep" read-from-minibuffer)))
+
+    (pushing
+     (actions
+      ("p" "Push" magit-push)))
+
+    (pulling
+     (actions
+      ("p" "Pull" magit-pull))
+     (switches
+      ("-r" "Rebase" "--rebase")))
 
     (branching
      (actions
