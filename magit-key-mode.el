@@ -32,6 +32,7 @@
     (define-key map (kbd "r") (lambda () (interactive) (magit-key-mode 'rewriting)))
     (define-key map (kbd "P") 'magit-push)
     (define-key map (kbd "f") 'magit-remote-update)
+    (define-key map (kbd "b") (lambda () (interactive) (magit-key-mode 'branching)))
     (define-key map (kbd "F") 'magit-pull)
     (define-key map (kbd "c") 'magit-log-edit)
     (define-key map (kbd "l") (lambda () (interactive) (magit-key-mode 'logging)))
@@ -65,7 +66,7 @@
     (define-key map (kbd "a") 'magit-apply-item)
     (define-key map (kbd "A") 'magit-cherry-pick-item)
     (define-key map (kbd "v") 'magit-revert-item)
-    (define-key map (kbd "b") 'magit-branch-menu)
+    (define-key map (kbd "b") (lambda () (interactive) (magit-key-mode 'branching)))
     (define-key map (kbd "m") 'magit-manual-merge)
     (define-key map (kbd "M") 'magit-automatic-merge)
     (define-key map (kbd "k") 'magit-discard-item)
@@ -97,7 +98,7 @@
     (define-key map (kbd "s") 'magit-log-grep)
     (define-key map (kbd "A") 'magit-cherry-pick-item)
     (define-key map (kbd "v") 'magit-revert-item)
-    (define-key map (kbd "b") 'magit-branch-menu)
+    (define-key map (kbd "b") (lambda () (interactive) (magit-key-mode 'branching)))
     (define-key map (kbd "m") 'magit-manual-merge)
     (define-key map (kbd "M") 'magit-automatic-merge)
     (define-key map (kbd "x") 'magit-reset-head)
@@ -136,7 +137,7 @@
     (define-key map (kbd "a") 'magit-apply-item)
     (define-key map (kbd "A") 'magit-cherry-pick-item)
     (define-key map (kbd "v") 'magit-revert-item)
-    (define-key map (kbd "b") 'magit-branch-menu)
+    (define-key map (kbd "b") (lambda () (interactive) (magit-key-mode 'branching)))
     (define-key map (kbd "m") 'magit-manual-merge)
     (define-key map (kbd "M") 'magit-automatic-merge)
     (define-key map (kbd "x") 'magit-reset-head)
@@ -166,6 +167,10 @@
       ("=b" "Branches" "--branches" read-from-minibuffer)
       ("=a" "Author" "--author" read-from-minibuffer)
       ("=g" "Grep" "--grep" read-from-minibuffer)))
+
+    (branching
+     (actions
+      ("c" "Checkout" magit-checkout)))
 
     (tagging
      (actions

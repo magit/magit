@@ -2591,10 +2591,6 @@ With prefix argument, add remaining untracked files as well.
 
 ;;; Branches
 
-(defun magit-branch-menu (&optional arg)
-  (interactive "P")
-  (magit-menu "Branch" arg))
-
 (defun magit-get-tracking-name (remote branch)
   "Given a REMOTE and a BRANCH name, ask the user for a local
 tracking brach name suggesting a sensible default."
