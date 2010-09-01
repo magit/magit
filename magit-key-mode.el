@@ -324,37 +324,29 @@ put it in magit-key-mode-key-maps for fast lookup."
     (insert "Actions:\n")
     (dolist (action actions)
       (insert
-       (concat " " (car action) ": " (nth 1 action) "\n")))
+       (format " %s: %s\n" (car action) (nth 1 action))))
     (when switches
       (insert "Switches:\n")
       (dolist (switch switches)
         (let ((option (nth 2 switch)))
           (insert
-           (concat
-            " "
-            (car switch)
-            ": "
-            (nth 1 switch)
-            " ("
-            (if (member option magit-key-mode-current-options)
-                (propertize option 'font-lock-face 'font-lock-warning-face)
-              option)
-            ")\n")))))
+           (format " %s: %s (%s)\n"
+                   (car switch)
+                   (nth 1 switch)
+                   (if (member option magit-key-mode-current-options)
+                       (propertize option
+                                   'font-lock-face 'font-lock-warning-face)
+                     option))))))
     (when arguments
       (insert "Arguments:\n")
       (dolist (argument arguments)
         (insert
-         (concat
-          " "
+         (format " %s: (%s) %s\n"
           (car argument)
-          ": "
           (nth 1 argument)
-          " ("
           (nth 2 argument)
-          ") "
           (propertize
            (gethash (nth 2 argument) magit-key-mode-current-args "")
-           'font-lock-face 'widget-field)
-          "\n"))))))
+           'font-lock-face 'widget-field)))))))
 
 (provide 'magit-key-mode)
