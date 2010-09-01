@@ -290,7 +290,9 @@ put it in magit-key-mode-key-maps for fast lookup."
         (current-window-configuration))
   ;; setup the mode, draw the buffer
   (let ((buf (get-buffer-create magit-key-mode-buf-name)))
-    (pop-to-buffer buf)
+    (delete-other-windows)
+    (split-window-vertically)
+    (switch-to-buffer buf)
     (kill-all-local-variables)
     (set (make-variable-buffer-local
           'magit-key-mode-current-options)
