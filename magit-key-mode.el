@@ -306,9 +306,11 @@ put it in magit-key-mode-key-maps for fast lookup."
   (fit-window-to-buffer))
 
 (defun magit-key-mode-draw-header (header)
+  "Draw a header with the correct face."
   (insert (propertize header 'face 'font-lock-keyword-face)))
 
 (defun magit-key-mode-draw-args (args)
+  "Draw the args part of the menu."
   (when args
     (magit-key-mode-draw-header "Args\n")
     (dolist (argument args)
@@ -324,6 +326,7 @@ put it in magit-key-mode-key-maps for fast lookup."
                 'face 'widget-field))))))
 
 (defun magit-key-mode-draw-switches (switches)
+  "Draw the switches part of the menu."
   (when switches
     (let ((switch-strs (mapcar
                         (lambda (s)
@@ -342,6 +345,7 @@ put it in magit-key-mode-key-maps for fast lookup."
       (magit-key-mode-draw-in-cols switch-strs))))
 
 (defun magit-key-mode-draw-actions (actions)
+  "Draw the actions part of the menu."
   (when actions
     (let ((action-strs (mapcar
                         (lambda (a)
