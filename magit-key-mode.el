@@ -28,6 +28,7 @@
     (define-key map (kbd "DEL") 'magit-show-item-or-scroll-down)
     (define-key map (kbd "C-w") 'magit-copy-item-as-kill)
     (define-key map (kbd "R") 'magit-rebase-step)
+    (define-key map (kbd "t") (lambda () (interactive) (magit-key-mode 'tagging)))
     (define-key map (kbd "r") (lambda () (interactive) (magit-key-mode 'rewriting)))
     (define-key map (kbd "P") 'magit-push)
     (define-key map (kbd "f") 'magit-remote-update)
@@ -72,8 +73,6 @@
     (define-key map (kbd "C") 'magit-add-log)
     (define-key map (kbd "x") 'magit-reset-head)
     (define-key map (kbd "X") 'magit-reset-working-tree)
-    (define-key map (kbd "t") 'magit-tag)
-    (define-key map (kbd "T") 'magit-annotated-tag)
     (define-key map (kbd "z") 'magit-stash)
     (define-key map (kbd "Z") 'magit-stash-snapshot)
     map))
@@ -166,6 +165,13 @@
       ("=b" "Branches" "--branches" read-from-minibuffer)
       ("=a" "Author" "--author" read-from-minibuffer)
       ("=g" "Grep" "--grep" read-from-minibuffer)))
+
+    (tagging
+     (actions
+      ("t" "Lightweight" magit-tag)
+      ("T" "Annotated" magit-annotated-tag))
+     (switches
+      ("-f" "Force" "-f")))
 
     (rewriting
      (actions
