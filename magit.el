@@ -2979,7 +2979,8 @@ typing and automatically refreshes the status buffer."
 
 ;;; Log edit mode
 
-(defvar magit-log-edit-mode-hook nil "Hook run by `magit-log-edit-mode'.")
+(defvar magit-log-edit-mode-hook nil
+  "Hook run by `magit-log-edit-mode'.")
 
 (defvar magit-log-edit-buffer-name "*magit-edit-log*"
   "Buffer name for composing commit messages.")
