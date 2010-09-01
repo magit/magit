@@ -2902,16 +2902,15 @@ Uncomitted changes in both working tree and staging area are lost.
 
 ;;; Updating, pull, and push
 
-(magit-define-command remote-update (&optional remote)
-  "Update REMOTE. If nil, update all remotes.
+(magit-define-command fetch ()
+  "Run fetch."
+  (interactive)
+  (magit-run-git-async "fetch" (magit-read-remote)))
 
-When called interactively, update the current remote unless a
-prefix arg is given.  With prefix arg, prompt for a remote and
-update it."
-  (interactive (list (when current-prefix-arg (magit-read-remote))))
-  (cond
-   (remote (magit-run-git-async "fetch" remote))
-   (t (magit-run-git-async "remote" "update"))))
+(magit-define-command remote-update ()
+  "Update all remotes."
+  (interactive)
+  (magit-run-git-async "remote" "update"))
 
 (magit-define-command pull ()
   "Run git pull against the current remote."
