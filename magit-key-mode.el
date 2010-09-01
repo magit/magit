@@ -329,7 +329,8 @@ put it in magit-key-mode-key-maps for fast lookup."
       (let ((option (nth 2 switch)))
         (insert
          (format " %s: %s (%s)\n"
-                 (car switch)
+                 (propertize (car switch)
+                             'face 'font-lock-builtin-face)
                  (nth 1 switch)
                  (if (member option magit-key-mode-current-options)
                      (propertize
@@ -343,7 +344,8 @@ put it in magit-key-mode-key-maps for fast lookup."
                          (lambda (a)
                            (format
                             " %s: %s"
-                            (propertize (car a) 'face 'font-lock-builtin-face)
+                            (propertize (car a)
+                                        'face 'font-lock-builtin-face)
                             (nth 1 a)))
                          actions))
            (longest-act (apply 'max (mapcar 'length action-strs)))
