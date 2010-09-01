@@ -2922,7 +2922,7 @@ update it."
 			   (magit-read-rev (format "Pull from")))))
     (if (and branch (not config-branch))
 	(magit-set merge-branch "branch" branch "merge"))
-    (apply 'magit-run-git-async `("pull" "-v"))))
+    (apply 'magit-run-git-async "pull" "-v" magit-custom-options)))
 
 (eval-when-compile (require 'pcomplete))
 
