@@ -170,6 +170,10 @@
 
     (branching
      (actions
+      ("V" "Branch manager" magit-show-branches)
+      ("B" "Create" magit-create-branch)
+      ("m" "Move" magit-move-branch)
+      ("d" "Delete" magit-delete-branch)
       ("c" "Checkout" magit-checkout)))
 
     (tagging
@@ -369,7 +373,7 @@ put it in magit-key-mode-key-maps for fast lookup."
         (max-size 70))
     (while strings
       (let ((str (car strings)))
-        (let ((padding (make-string (- (+ longest-act 5) (length str)) ? )))
+        (let ((padding (make-string (- (+ longest-act 3) (length str)) ? )))
           (insert str)
           (if (and (> (+ (current-column) longest-act) max-size)
                    (cdr strings))
