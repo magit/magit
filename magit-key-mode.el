@@ -307,6 +307,19 @@ put it in magit-key-mode-key-maps for fast lookup."
 (defun magit-key-mode-draw-header (header)
   (insert (propertize header 'face 'font-lock-keyword-face)))
 
+(defun magit-key-mode-draw-args (args)
+  (when args
+    (magit-key-mode-draw-header "Args\n")
+    (dolist (argument args)
+      (insert
+       (format " %s: (%s) %s %s\n"
+               (car argument)
+               (nth 1 argument)
+               (nth 2 argument)
+               (propertize
+                (gethash (nth 2 argument) magit-key-mode-current-args "")
+                'font-lock-face 'widget-field))))))
+
 (defun magit-key-mode-draw-actions (actions)
   (when actions
     (let* ((action-strs (mapcar
@@ -346,16 +359,6 @@ put it in magit-key-mode-key-maps for fast lookup."
                        (propertize option
                                    'face 'font-lock-warning-face)
                      option))))))
-    (when arguments
-      (magit-key-mode-draw-header "Arguments\n")
-      (dolist (argument arguments)
-        (insert
-         (format " %s: (%s) %s %s\n"
-          (car argument)
-          (nth 1 argument)
-          (nth 2 argument)
-          (propertize
-           (gethash (nth 2 argument) magit-key-mode-current-args "")
-           'font-lock-face 'widget-field)))))))
+    (magit-key-mode-draw-args arguments)))
 
 (provide 'magit-key-mode)
