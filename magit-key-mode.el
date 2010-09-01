@@ -170,7 +170,9 @@
 
     (pushing
      (actions
-      ("p" "Push" magit-push)))
+      ("p" "Push" magit-push))
+     (switches
+      ("-d" "Dry run" "-n")))
 
     (pulling
      (actions
