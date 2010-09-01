@@ -154,8 +154,8 @@
 (defvar magit-key-mode-groups
   '((logging
      (actions
-      ("l" "One line log" magit-log)
-      ("L" "Long log" magit-log-long)
+      ("l" "Short" magit-log)
+      ("L" "Long" magit-log-long)
       ("h" "Reflog" magit-reflog)
       ("H" "Reflog on head" magit-reflog-head))
      (switches
