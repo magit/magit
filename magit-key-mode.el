@@ -28,12 +28,7 @@
     (define-key map (kbd "DEL") 'magit-show-item-or-scroll-down)
     (define-key map (kbd "C-w") 'magit-copy-item-as-kill)
     (define-key map (kbd "R") 'magit-rebase-step)
-    (define-key map (kbd "r s") 'magit-rewrite-start)
-    (define-key map (kbd "r t") 'magit-rewrite-stop)
-    (define-key map (kbd "r a") 'magit-rewrite-abort)
-    (define-key map (kbd "r f") 'magit-rewrite-finish)
-    (define-key map (kbd "r *") 'magit-rewrite-set-unused)
-    (define-key map (kbd "r .") 'magit-rewrite-set-used)
+    (define-key map (kbd "r") (lambda () (interactive) (magit-key-mode 'rewriting)))
     (define-key map (kbd "P") 'magit-push)
     (define-key map (kbd "f") 'magit-remote-update)
     (define-key map (kbd "F") 'magit-pull)
@@ -170,7 +165,16 @@
      (arguments
       ("=b" "Branches" "--branches" read-from-minibuffer)
       ("=a" "Author" "--author" read-from-minibuffer)
-      ("=g" "Grep" "--grep" read-from-minibuffer))))
+      ("=g" "Grep" "--grep" read-from-minibuffer)))
+
+    (rewriting
+     (actions
+      ("b" "Begin" magit-rewrite-start)
+      ("s" "Stop" magit-rewrite-stop)
+      ("a" "Abort" magit-rewrite-abort)
+      ("f" "Finish" magit-rewrite-finish)
+      ("*" "Set unused" magit-rewrite-set-unused)
+      ("." "Set used" magit-rewrite-set-used))))
   "Holds the key, help, function mapping for the log-mode. If you
   modify this make sure you reset `magit-key-mode-key-maps' to
   nil.")
@@ -222,7 +226,7 @@ put it in magit-key-mode-key-maps for fast lookup."
       (char space)
       (group
        (* (char "-="))
-       (char alpha))
+       (char "*." alpha))
       ": "
       (group
        (* not-newline))))
@@ -241,7 +245,7 @@ put it in magit-key-mode-key-maps for fast lookup."
     (let ((magit-custom-options (append args magit-key-mode-current-options)))
       (set-window-configuration magit-log-mode-window-conf)
       (when func
-        (funcall func))
+        (call-interactively func))
       (magit-key-mode-kill-buffer))))
 
 (defvar magit-key-mode-current-args nil
@@ -321,34 +325,36 @@ put it in magit-key-mode-key-maps for fast lookup."
     (dolist (action actions)
       (insert
        (concat " " (car action) ": " (nth 1 action) "\n")))
-    (insert "Switches:\n")
-    (dolist (switch switches)
-      (let ((option (nth 2 switch)))
+    (when switches
+      (insert "Switches:\n")
+      (dolist (switch switches)
+        (let ((option (nth 2 switch)))
+          (insert
+           (concat
+            " "
+            (car switch)
+            ": "
+            (nth 1 switch)
+            " ("
+            (if (member option magit-key-mode-current-options)
+                (propertize option 'font-lock-face 'font-lock-warning-face)
+              option)
+            ")\n")))))
+    (when arguments
+      (insert "Arguments:\n")
+      (dolist (argument arguments)
         (insert
          (concat
           " "
-          (car switch)
+          (car argument)
           ": "
-          (nth 1 switch)
+          (nth 1 argument)
           " ("
-          (if (member option magit-key-mode-current-options)
-              (propertize option 'font-lock-face 'font-lock-warning-face)
-            option)
-          ")\n"))))
-    (insert "Arguments:\n")
-    (dolist (argument arguments)
-      (insert
-       (concat
-        " "
-        (car argument)
-        ": "
-        (nth 1 argument)
-        " ("
-        (nth 2 argument)
-        ") "
-        (propertize
-         (gethash (nth 2 argument) magit-key-mode-current-args "")
-         'font-lock-face 'widget-field)
-        "\n")))))
+          (nth 2 argument)
+          ") "
+          (propertize
+           (gethash (nth 2 argument) magit-key-mode-current-args "")
+           'font-lock-face 'widget-field)
+          "\n"))))))
 
 (provide 'magit-key-mode)
