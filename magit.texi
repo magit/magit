@@ -588,7 +588,7 @@ Such a rebase can be finished with @kbd{R} as well.
 @chapter Rewriting
 
 As hinted at earlier, you can rewrite your commit history.  For
-example, you can reset he current head to an earlier commit with
+example, you can reset the current head to an earlier commit with
 @kbd{x}.  This leaves the working tree unchanged, and the status
 buffer will show all the changes that have been made since that new
 value of the current head.  You can commit these changes again,
