@@ -322,6 +322,21 @@ put it in magit-key-mode-key-maps for fast lookup."
                 (gethash (nth 2 argument) magit-key-mode-current-args "")
                 'face 'widget-field))))))
 
+(defun magit-key-mode-draw-switches (switches)
+  (when switches
+    (magit-key-mode-draw-header "Switches\n")
+    (dolist (switch switches)
+      (let ((option (nth 2 switch)))
+        (insert
+         (format " %s: %s (%s)\n"
+                 (car switch)
+                 (nth 1 switch)
+                 (if (member option magit-key-mode-current-options)
+                     (propertize
+                      option
+                      'face 'font-lock-warning-face)
+                   option)))))))
+
 (defun magit-key-mode-draw-actions (actions)
   (when actions
     (let* ((action-strs (mapcar
@@ -349,18 +364,7 @@ put it in magit-key-mode-key-maps for fast lookup."
          (arguments (cdr (assoc 'arguments options)))
          (actions (cdr (assoc 'actions options))))
     (magit-key-mode-draw-actions actions)
-    (when switches
-      (magit-key-mode-draw-header "Switches\n")
-      (dolist (switch switches)
-        (let ((option (nth 2 switch)))
-          (insert
-           (format " %s: %s (%s)\n"
-                   (car switch)
-                   (nth 1 switch)
-                   (if (member option magit-key-mode-current-options)
-                       (propertize option
-                                   'face 'font-lock-warning-face)
-                     option))))))
+    (magit-key-mode-draw-switches switches)
     (magit-key-mode-draw-args arguments)))
 
 (provide 'magit-key-mode)
