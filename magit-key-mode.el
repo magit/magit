@@ -225,24 +225,6 @@ put it in magit-key-mode-key-maps for fast lookup."
       (aput 'magit-key-mode-key-maps for-group map)
       map)))
 
-(defvar magit-key-mode-header-re
-  (rx line-start (| "Actions" "Switches" "Arguments") ":"))
-
-(defvar magit-key-mode-action-re
-  (rx line-start
-      (char space)
-      (group
-       (* (char "-="))
-       (char "*." alpha))
-      ": "
-      (group
-       (* not-newline))))
-
-(defvar magit-key-mode-font-lock-keywords
-  (list
-   (list magit-key-mode-header-re 0 'font-lock-keyword-face)
-   (list magit-key-mode-action-re '(1 font-lock-builtin-face))))
-
 (defun magit-key-mode-command (func)
   (let ((args '()))
     ;; why can't maphash return a list?!
@@ -314,8 +296,6 @@ put it in magit-key-mode-key-maps for fast lookup."
   (let ((buffer-read-only nil))
     (erase-buffer)
     (make-local-variable 'font-lock-defaults)
-    (setq font-lock-defaults
-          '(magit-key-mode-font-lock-keywords t nil nil nil))
     (use-local-map
      (or (cdr (assoc for-group magit-key-mode-key-maps))
          (magit-key-mode-build-keymap for-group)))
@@ -324,6 +304,9 @@ put it in magit-key-mode-key-maps for fast lookup."
   (setq buffer-read-only t)
   (fit-window-to-buffer))
 
+(defun magit-key-mode-draw-header (header)
+  (insert (propertize header 'face 'font-lock-keyword-face)))
+
 (defun magit-key-mode-draw-actions (actions)
   (when actions
     (let* ((action-strs (mapcar (lambda (a)
@@ -331,7 +314,7 @@ put it in magit-key-mode-key-maps for fast lookup."
                                 actions))
            (longest-act (apply 'max (mapcar 'length action-strs)))
            (max-size 70))
-      (insert "Actions:\n")
+      (magit-key-mode-draw-header "Actions\n")
       (dolist (str action-strs)
         (let ((padding (make-string (- (+ longest-act 5) (length str)) ? )))
           (insert str)
@@ -348,7 +331,7 @@ put it in magit-key-mode-key-maps for fast lookup."
          (actions (cdr (assoc 'actions options))))
     (magit-key-mode-draw-actions actions)
     (when switches
-      (insert "Switches:\n")
+      (magit-key-mode-draw-header "Switches\n")
       (dolist (switch switches)
         (let ((option (nth 2 switch)))
           (insert
@@ -357,10 +340,10 @@ put it in magit-key-mode-key-maps for fast lookup."
                    (nth 1 switch)
                    (if (member option magit-key-mode-current-options)
                        (propertize option
-                                   'font-lock-face 'font-lock-warning-face)
+                                   'face 'font-lock-warning-face)
                      option))))))
     (when arguments
-      (insert "Arguments:\n")
+      (magit-key-mode-draw-header "Arguments\n")
       (dolist (argument arguments)
         (insert
          (format " %s: (%s) %s %s\n"
