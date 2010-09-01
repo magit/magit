@@ -160,6 +160,7 @@
      (switches
       ("-m" "Only merge commits" "--merges")
       ("-f" "First parent" "--first-parent")
+      ("-i" "Case insesnitive patterns" "-i")
       ("-a" "All" "--all"))
      (arguments
       ("=b" "Branches" "--branches" read-from-minibuffer)
