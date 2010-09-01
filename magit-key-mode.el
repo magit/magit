@@ -379,13 +379,12 @@ put it in magit-key-mode-key-maps for fast lookup."
 
 (defun magit-key-mode-draw-in-cols (strings)
   "Given a list of strings, print in columns (using `insert')."
-  (let ((longest-act (apply 'max (mapcar 'length strings)))
-        (max-size 70))
+  (let ((longest-act (apply 'max (mapcar 'length strings))))
     (while strings
       (let ((str (car strings)))
         (let ((padding (make-string (- (+ longest-act 3) (length str)) ? )))
           (insert str)
-          (if (and (> (+ (current-column) longest-act) max-size)
+          (if (and (> (+ (current-column) longest-act) (window-width))
                    (cdr strings))
               (insert "\n")
             (insert padding))))
