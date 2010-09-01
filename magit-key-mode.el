@@ -325,40 +325,46 @@ put it in magit-key-mode-key-maps for fast lookup."
 
 (defun magit-key-mode-draw-switches (switches)
   (when switches
-    (magit-key-mode-draw-header "Switches\n")
-    (dolist (switch switches)
-      (let ((option (nth 2 switch)))
-        (insert
-         (format " %s: %s (%s)\n"
-                 (propertize (car switch)
-                             'face 'font-lock-builtin-face)
-                 (nth 1 switch)
-                 (if (member option magit-key-mode-current-options)
-                     (propertize
-                      option
-                      'face 'font-lock-warning-face)
-                   option)))))))
+    (let ((switch-strs (mapcar
+                        (lambda (s)
+                          (let ((option (nth 2 s)))
+                            (format " %s: %s (%s)"
+                                    (propertize (car s)
+                                                'face 'font-lock-builtin-face)
+                                    (nth 1 s)
+                                    (if (member option magit-key-mode-current-options)
+                                        (propertize
+                                         option
+                                         'face 'font-lock-warning-face)
+                                      option))))
+                          switches)))
+      (magit-key-mode-draw-header "Switches\n")
+      (magit-key-mode-draw-in-cols switch-strs))))
+
+(defun magit-key-mode-draw-in-cols (strings)
+  (let ((longest-act (apply 'max (mapcar 'length strings)))
+        (max-size 70))
+    (dolist (str strings)
+      (let ((padding (make-string (- (+ longest-act 5) (length str)) ? )))
+        (insert str)
+        (if (> (+ (current-column) longest-act) max-size)
+            (insert "\n")
+          (insert padding))))
+    (insert "\n")))
 
 (defun magit-key-mode-draw-actions (actions)
   (when actions
-    (let* ((action-strs (mapcar
-                         (lambda (a)
-                           (format
-                            " %s: %s"
-                            (propertize (car a)
-                                        'face 'font-lock-builtin-face)
-                            (nth 1 a)))
-                         actions))
-           (longest-act (apply 'max (mapcar 'length action-strs)))
-           (max-size 60))
+    (let ((action-strs (mapcar
+                        (lambda (a)
+                          (format
+                           " %s: %s"
+                           (propertize (car a)
+                                       'face 'font-lock-builtin-face)
+                           (nth 1 a)))
+                        actions)))
       (magit-key-mode-draw-header "Actions\n")
-      (dolist (str action-strs)
-        (let ((padding (make-string (- (+ longest-act 5) (length str)) ? )))
-          (insert str)
-          (if (> (+ (current-column) longest-act) max-size)
-              (insert "\n")
-            (insert padding))))
-      (insert "\n"))))
+      (magit-key-mode-draw-in-cols action-strs))))
+
 
 (defun magit-key-mode-draw (for-group)
   "Function used to draw actions, switches and parameters."
