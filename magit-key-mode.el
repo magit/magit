@@ -324,16 +324,29 @@ put it in magit-key-mode-key-maps for fast lookup."
   (setq buffer-read-only t)
   (fit-window-to-buffer))
 
+(defun magit-key-mode-draw-actions (actions)
+  (when actions
+    (let* ((action-strs (mapcar (lambda (a)
+                                  (format " %s: %s" (car a) (nth 1 a)))
+                                actions))
+           (longest-act (apply 'max (mapcar 'length action-strs)))
+           (max-size 70))
+      (insert "Actions:\n")
+      (dolist (str action-strs)
+        (let ((padding (make-string (- (+ longest-act 5) (length str)) ? )))
+          (insert str)
+          (if (> (+ (current-column) longest-act) max-size)
+              (insert "\n")
+            (insert padding))))
+      (insert "\n"))))
+
 (defun magit-key-mode-draw (for-group)
   "Function used to draw actions, switches and parameters."
   (let* ((options (magit-key-mode-options-for-group for-group))
          (switches (cdr (assoc 'switches options)))
          (arguments (cdr (assoc 'arguments options)))
          (actions (cdr (assoc 'actions options))))
-    (insert "Actions:\n")
-    (dolist (action actions)
-      (insert
-       (format " %s: %s\n" (car action) (nth 1 action))))
+    (magit-key-mode-draw-actions actions)
     (when switches
       (insert "Switches:\n")
       (dolist (switch switches)
