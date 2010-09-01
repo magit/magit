@@ -313,12 +313,14 @@ put it in magit-key-mode-key-maps for fast lookup."
     (dolist (argument args)
       (insert
        (format " %s: (%s) %s %s\n"
+               (propertize
                (car argument)
+                'face 'font-lock-builtin-face)
                (nth 1 argument)
                (nth 2 argument)
                (propertize
                 (gethash (nth 2 argument) magit-key-mode-current-args "")
-                'font-lock-face 'widget-field))))))
+                'face 'widget-field))))))
 
 (defun magit-key-mode-draw-actions (actions)
   (when actions
