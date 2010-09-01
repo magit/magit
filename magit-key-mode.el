@@ -309,11 +309,15 @@ put it in magit-key-mode-key-maps for fast lookup."
 
 (defun magit-key-mode-draw-actions (actions)
   (when actions
-    (let* ((action-strs (mapcar (lambda (a)
-                                  (format " %s: %s" (car a) (nth 1 a)))
-                                actions))
+    (let* ((action-strs (mapcar
+                         (lambda (a)
+                           (format
+                            " %s: %s"
+                            (propertize (car a) 'face 'font-lock-builtin-face)
+                            (nth 1 a)))
+                         actions))
            (longest-act (apply 'max (mapcar 'length action-strs)))
-           (max-size 70))
+           (max-size 60))
       (magit-key-mode-draw-header "Actions\n")
       (dolist (str action-strs)
         (let ((padding (make-string (- (+ longest-act 5) (length str)) ? )))
