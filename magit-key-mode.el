@@ -341,17 +341,6 @@ put it in magit-key-mode-key-maps for fast lookup."
       (magit-key-mode-draw-header "Switches\n")
       (magit-key-mode-draw-in-cols switch-strs))))
 
-(defun magit-key-mode-draw-in-cols (strings)
-  (let ((longest-act (apply 'max (mapcar 'length strings)))
-        (max-size 70))
-    (dolist (str strings)
-      (let ((padding (make-string (- (+ longest-act 5) (length str)) ? )))
-        (insert str)
-        (if (> (+ (current-column) longest-act) max-size)
-            (insert "\n")
-          (insert padding))))
-    (insert "\n")))
-
 (defun magit-key-mode-draw-actions (actions)
   (when actions
     (let ((action-strs (mapcar
@@ -365,6 +354,20 @@ put it in magit-key-mode-key-maps for fast lookup."
       (magit-key-mode-draw-header "Actions\n")
       (magit-key-mode-draw-in-cols action-strs))))
 
+(defun magit-key-mode-draw-in-cols (strings)
+  "Given a list of strings, print in columns (using `insert')."
+  (let ((longest-act (apply 'max (mapcar 'length strings)))
+        (max-size 70))
+    (while strings
+      (let ((str (car strings)))
+        (let ((padding (make-string (- (+ longest-act 5) (length str)) ? )))
+          (insert str)
+          (if (and (> (+ (current-column) longest-act) max-size)
+                   (cdr strings))
+              (insert "\n")
+            (insert padding))))
+      (setq strings (cdr strings))))
+  (insert "\n"))
 
 (defun magit-key-mode-draw (for-group)
   "Function used to draw actions, switches and parameters."
