@@ -343,7 +343,7 @@ put it in magit-key-mode-key-maps for fast lookup."
       (insert "Arguments:\n")
       (dolist (argument arguments)
         (insert
-         (format " %s: (%s) %s\n"
+         (format " %s: (%s) %s %s\n"
           (car argument)
           (nth 1 argument)
           (nth 2 argument)
