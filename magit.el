@@ -3085,10 +3085,10 @@ Prefix arg means justify as well."
 (defun magit-log-edit ()
   (interactive)
   (cond ((magit-rebase-info)
-	 (if (y-or-n-p "Rebase in progress.  Continue it? ")
-	     (magit-run-git "rebase" "--continue")))
-	(t
-	 (magit-pop-to-log-edit "commit"))))
+         (if (y-or-n-p "Rebase in progress.  Continue it? ")
+             (magit-run-git "rebase" "--continue")))
+        (t
+         (magit-pop-to-log-edit 'commit))))
 
 (defun magit-add-log ()
   (interactive)
