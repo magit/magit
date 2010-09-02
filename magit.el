@@ -2643,9 +2643,9 @@ Fails if working tree or staging area contain uncommitted changes.
   (if (and branch (not (string= branch ""))
 	   parent)
       (magit-run-git "checkout" "-b"
+		      branch
 		     (append
 		      magit-custom-options
-		      branch
 		      (magit-rev-to-git parent)))))
 
 (defun magit-delete-branch (branch)
