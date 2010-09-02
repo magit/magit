@@ -197,8 +197,9 @@
       ("-s" "Signoff" "--signoff")
       ("-am" "Amend" "--amend")
       ("-al" "All" "--all"))
+      ("-e" "Allow empty" "--allow-empty")
      (arguments
-      ("=a" "Author" "--author" read-from-minibuffer)))
+      ("=au" "Author" "--author" read-from-minibuffer)))
 
     (fetching
      (actions
