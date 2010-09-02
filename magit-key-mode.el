@@ -1,3 +1,5 @@
+(require 'assoc)
+
 (defvar magit-mode-map
   (let ((map (make-keymap)))
     (suppress-keymap map t)
