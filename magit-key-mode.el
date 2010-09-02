@@ -46,13 +46,11 @@
     (define-key map (kbd "F") (lambda ()
                                 (interactive)
                                 (magit-key-mode 'pulling)))
-    (define-key map (kbd "c") (lambda ()
-                                (interactive)
-                                (magit-key-mode 'committing)))
     (define-key map (kbd "l") (lambda ()
                                 (interactive)
                                 (magit-key-mode 'logging)))
     (define-key map (kbd "$") 'magit-display-process)
+    (define-key map (kbd "c") 'magit-log-edit)
     (define-key map (kbd "E") 'magit-interactive-rebase)
     (define-key map (kbd "q") 'quit-window)
     map))
@@ -191,6 +189,16 @@
       ("=b" "Branches" "--branches" read-from-minibuffer)
       ("=a" "Author" "--author" read-from-minibuffer)
       ("=g" "Grep" "--grep" read-from-minibuffer)))
+
+    (committing
+     (actions
+      ("c" "Commit" magit-log-edit-commit))
+     (switches
+      ("-s" "Signoff" "--signoff")
+      ("-am" "Amend" "--amend")
+      ("-al" "All" "--all"))
+     (arguments
+      ("=a" "Author" "--author" read-from-minibuffer)))
 
     (fetching
      (actions
