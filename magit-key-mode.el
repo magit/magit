@@ -1,9 +1,5 @@
 (require 'assoc)
 
-(progn
-  (unload-feature 'magit t)
-  (require 'magit))
-
 (defvar magit-mode-map
   (let ((map (make-keymap)))
     (suppress-keymap map t)
