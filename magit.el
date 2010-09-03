@@ -2689,9 +2689,6 @@ With a prefix-arg, the merge will be squashed.
 			 (magit-guess-branch))))
   (if revision
       (magit-run-git "merge" "--no-commit"
-		     (if current-prefix-arg
-			 "--squash"
-		       "--no-ff")
 		     (magit-rev-to-git revision))))
 
 (magit-define-command automatic-merge (revision)
