@@ -1,5 +1,9 @@
 (require 'assoc)
 
+(progn
+  (unload-feature 'magit t)
+  (require 'magit))
+
 (defvar magit-mode-map
   (let ((map (make-keymap)))
     (suppress-keymap map t)
@@ -85,8 +89,9 @@
     (define-key map (kbd "b") (lambda ()
                                 (interactive)
                                 (magit-key-mode 'branching)))
-    (define-key map (kbd "m") 'magit-manual-merge)
-    (define-key map (kbd "M") 'magit-automatic-merge)
+    (define-key map (kbd "m") (lambda ()
+                                (interactive)
+                                (magit-key-mode 'merging)))
     (define-key map (kbd "k") 'magit-discard-item)
     (define-key map (kbd "e") 'magit-interactive-resolve-item)
     (define-key map (kbd "C") 'magit-add-log)
@@ -119,8 +124,9 @@
     (define-key map (kbd "b") (lambda ()
                                 (interactive)
                                 (magit-key-mode 'branching)))
-    (define-key map (kbd "m") 'magit-manual-merge)
-    (define-key map (kbd "M") 'magit-automatic-merge)
+    (define-key map (kbd "m") (lambda ()
+                                (interactive)
+                                (magit-key-mode 'merging)))
     (define-key map (kbd "x") 'magit-reset-head)
     (define-key map (kbd "e") 'magit-log-show-more-entries)
     (define-key map (kbd "l") (lambda ()
@@ -162,8 +168,9 @@
     (define-key map (kbd "b") (lambda ()
                                 (interactive)
                                 (magit-key-mode 'branching)))
-    (define-key map (kbd "m") 'magit-manual-merge)
-    (define-key map (kbd "M") 'magit-automatic-merge)
+    (define-key map (kbd "m") (lambda ()
+                                (interactive)
+                                (magit-key-mode 'merging)))
     (define-key map (kbd "x") 'magit-reset-head)
     (define-key map (kbd "i") 'magit-ignore-item)
     map))
@@ -234,6 +241,16 @@
       ("T" "Annotated" magit-annotated-tag))
      (switches
       ("-f" "Force" "-f")))
+
+    (merging
+     (actions
+      ("m" "Manual" magit-manual-merge)
+      ("M" "Automatic" magit-automatic-merge))
+     (switches
+      ("-n" "No fast-forward" "--no-ff")
+      ("-sq" "Squash" "--sqaush"))
+     (arguments
+      ("-st" "Strategy" "--strategy" read-from-minibuffer)))
 
     (rewriting
      (actions
