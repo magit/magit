@@ -2917,7 +2917,7 @@ Uncomitted changes in both working tree and staging area are lost.
   (interactive)
   (let* ((branch (magit-get-current-branch))
 	 (config-branch (and branch (magit-get "branch" branch "merge")))
-	 (merge-branch (or config-branch
+	 (merge-branch (or (and config-branch (not current-prefix-arg))
 			   (magit-read-rev (format "Pull from")))))
     (if (and branch (not config-branch))
 	(magit-set merge-branch "branch" branch "merge"))
