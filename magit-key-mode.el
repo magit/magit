@@ -97,8 +97,9 @@
     (define-key map (kbd "C") 'magit-add-log)
     (define-key map (kbd "x") 'magit-reset-head)
     (define-key map (kbd "X") 'magit-reset-working-tree)
-    (define-key map (kbd "z") 'magit-stash)
-    (define-key map (kbd "Z") 'magit-stash-snapshot)
+    (define-key map (kbd "z") (lambda ()
+                                (interactive)
+                                (magit-key-mode 'stashing)))
     map))
 
 (defvar magit-stash-mode-map
@@ -118,7 +119,6 @@
     (define-key map (kbd "d") 'magit-diff-working-tree)
     (define-key map (kbd "D") 'magit-diff)
     (define-key map (kbd "a") 'magit-apply-item)
-    (define-key map (kbd "s") 'magit-log-grep)
     (define-key map (kbd "A") 'magit-cherry-pick-item)
     (define-key map (kbd "v") 'magit-revert-item)
     (define-key map (kbd "b") (lambda ()
@@ -241,6 +241,13 @@
       ("T" "Annotated" magit-annotated-tag))
      (switches
       ("-f" "Force" "-f")))
+
+    (stashing
+     (actions
+      ("s" "Save" magit-stash)
+      ("S" "Snapshot" magit-stash-snapshot))
+     (switches
+      ("-k" "Keep index" "--keep-index")))
 
     (merging
      (actions
