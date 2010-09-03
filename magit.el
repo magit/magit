@@ -3575,7 +3575,10 @@ With prefix argument, changes in staging area are kept.
     ((diff)
      (magit-apply-diff-item item))
     ((stash)
-     (magit-run-git "stash" "apply" info))))
+     (apply 'magit-run-git `("stash"
+                             "apply"
+                             ,@(when current-prefix-arg '("--index"))
+                             ,info)))))
 
 (defun magit-cherry-pick-item ()
   (interactive)
@@ -3586,7 +3589,10 @@ With prefix argument, changes in staging area are kept.
     ((commit)
      (magit-apply-commit info t))
     ((stash)
-     (magit-run-git "stash" "pop" info))))
+     (apply 'magit-run-git `("stash"
+                             "pop"
+                             ,@(when current-prefix-arg '("--index"))
+                             ,info)))))
 
 (defun magit-revert-item ()
   (interactive)

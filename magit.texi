@@ -459,6 +459,9 @@ You can create a new stash with @kbd{z}.  Your stashes will be listed
 in the status buffer, and you can apply them with @kbd{a} and pop them
 with @kbd{A}.  To drop a stash, use @kbd{k}.
 
+With a prefix argument, both @kbd{a} and @kbd{A} will attempt to
+reinstate the index as well as the working tree from the stash.
+
 Typing @kbd{Z} will create a stash just like @kbd{z}, but will leave
 the changes in your working tree and index.
 
