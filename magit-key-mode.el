@@ -251,7 +251,7 @@
       ("M" "Automatic" magit-automatic-merge))
      (switches
       ("-n" "No fast-forward" "--no-ff")
-      ("-sq" "Squash" "--sqaush"))
+      ("-sq" "Squash" "--squash"))
      (arguments
       ("-st" "Strategy" "--strategy" read-from-minibuffer)))
 
