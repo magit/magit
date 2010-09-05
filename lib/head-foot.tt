@@ -1,6 +1,8 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
 "http://www.w3.org/TR/html4/strict.dtd">
 
+[% PROCESS "lib/magit.tt" %]
+
 [%- menu = [
    [ "home"       ,  "index.html"                                   ]
    [ "download"   , "http://github.com/philjackson/magit/downloads" ]
@@ -17,7 +19,6 @@
   </head>
   <body>
 <script type="text/javascript">
-
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-16655308-1']);
   _gaq.push(['_trackPageview']);
@@ -27,11 +28,28 @@
     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
-
 </script>
-    <div id="outer">
-      <div id="main">
-        <div id="title">
+
+<div class="books">
+[%- WRAPPER rounded_corners colour="#777" %]
+  <div class="book">
+    <a href="http://www.amazon.co.uk/gp/product/1430218339?ie=UTF8&tag=yipgocom-21&linkCode=as2&camp=1634&creative=6738&creativeASIN=1430218339"><img border="0" src="img/51EUb74kl0L._SL110_.jpg"></a><img src="http://www.assoc-amazon.co.uk/e/ir?t=yipgocom-21&l=as2&o=2&a=1430218339" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+    <p>Pro Git (Expert's Voice in Software Development)</p>
+  </div>
+  <div class="book">
+    <a href="http://www.amazon.co.uk/gp/product/0596520123?ie=UTF8&tag=yipgocom-21&linkCode=as2&camp=1634&creative=6738&creativeASIN=0596520123"><img border="0" src="img/51xhtaRdyKL._SL110_.jpg"></a><img src="http://www.assoc-amazon.co.uk/e/ir?t=yipgocom-21&l=as2&o=2&a=0596520123" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+    <p>Version Control with Git: Powerful tools and techniques for collaborative software development</p>
+    <div class="book">
+      <a href="http://www.amazon.co.uk/gp/product/1934356158?ie=UTF8&tag=yipgocom-21&linkCode=as2&camp=1634&creative=19450&creativeASIN=1934356158"><img border="0" src="519CeNsejdL._SL110_.jpg"></a><img src="http://www.assoc-amazon.co.uk/e/ir?t=yipgocom-21&l=as2&o=2&a=1934356158" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+      <p>Pragmatic Version Control Using Git: 1 (Pragmatic Starter Kit)</p>
+
+  </div>
+[% END %]
+</div>
+
+<div id="outer">
+  <div id="main">
+    <div id="title">
           <img src="img/title.png" />
           <div id="tag-line">It's Magit! An emacs mode for git.</div>
 

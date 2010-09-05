@@ -28,6 +28,23 @@ img {
   border: 0px;
 }
 
+.book a {
+  padding-bottom: 20px;
+}
+
+.books {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+
+  padding: 20px;
+  width: 150px;
+}
+
+.book {
+  color: white;
+}
+
 body {
   background: #fff;
   color: #444;
@@ -56,7 +73,7 @@ hr { margin-top: 5px; border: 1px solid #aaa }
 
 #outer {
   margin: 0 auto;
-  width: 800px;
+  width: 600px;
 }
 
 #main {
