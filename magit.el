@@ -2678,25 +2678,19 @@ If the branch is the current one, offers to switch to `master' first.
     ((commit) (substring info 0 8))
     ((wazzup) info)))
 
-(defun magit-manual-merge (revision)
+(defun magit-merge (revision)
   "Merge REVISION into the current 'HEAD'; leave changes uncommitted.
 With a prefix-arg, the merge will be squashed.
 \('git merge --no-commit [--squash|--no-ff] REVISION')."
   (interactive
-   (list (magit-read-rev (concat "Manually merge"
-				 (when current-prefix-arg
-				   " (squashed)"))
-			 (magit-guess-branch))))
+   (list (magit-read-rev (concat
+                          "Merge"
+                          (magit-guess-branch)))))
   (if revision
-      (magit-run-git "merge" "--no-commit"
-		     (magit-rev-to-git revision))))
-
-(magit-define-command automatic-merge (revision)
-  "Merge REVISION into the current 'HEAD'; commit unless merge fails.
-\('git merge REVISION')."
-  (interactive (list (magit-read-rev "Merge" (magit-guess-branch))))
-  (if revision
-      (magit-run-git "merge" (magit-rev-to-git revision))))
+      (apply 'magit-run-git
+             "merge"
+             (magit-rev-to-git revision)
+             magit-custom-options)))
 
 ;;; Rebasing
 

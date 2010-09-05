@@ -247,10 +247,10 @@
 
     (merging
      (actions
-      ("m" "Manual" magit-manual-merge)
-      ("M" "Automatic" magit-automatic-merge))
+      ("m" "Merge" magit-merge))
      (switches
-      ("-n" "No fast-forward" "--no-ff")
+      ("-nf" "No fast-forward" "--no-ff")
+      ("-nc" "No commit" "--no-commit")
       ("-sq" "Squash" "--squash"))
      (arguments
       ("-st" "Strategy" "--strategy" read-from-minibuffer)))
