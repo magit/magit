@@ -30,41 +30,49 @@
   })();
 </script>
 
-<div class="books">
-[%- WRAPPER rounded_corners colour="#777" %]
-  <div class="book">
-    <a href="http://www.amazon.co.uk/gp/product/1430218339?ie=UTF8&tag=yipgocom-21&linkCode=as2&camp=1634&creative=6738&creativeASIN=1430218339"><img border="0" src="img/51EUb74kl0L._SL110_.jpg"></a><img src="http://www.assoc-amazon.co.uk/e/ir?t=yipgocom-21&l=as2&o=2&a=1430218339" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
-    <p>Pro Git (Expert's Voice in Software Development)</p>
-  </div>
-  <div class="book">
-    <a href="http://www.amazon.co.uk/gp/product/0596520123?ie=UTF8&tag=yipgocom-21&linkCode=as2&camp=1634&creative=6738&creativeASIN=0596520123"><img border="0" src="img/51xhtaRdyKL._SL110_.jpg"></a><img src="http://www.assoc-amazon.co.uk/e/ir?t=yipgocom-21&l=as2&o=2&a=0596520123" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
-    <p>Version Control with Git: Powerful tools and techniques for collaborative software development</p>
-    <div class="book">
-      <a href="http://www.amazon.co.uk/gp/product/1934356158?ie=UTF8&tag=yipgocom-21&linkCode=as2&camp=1634&creative=19450&creativeASIN=1934356158"><img border="0" src="img/519CeNsejdL._SL110_.jpg"></a><img src="http://www.assoc-amazon.co.uk/e/ir?t=yipgocom-21&l=as2&o=2&a=1934356158" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
-      <p>Pragmatic Version Control Using Git: 1 (Pragmatic Starter Kit)</p>
-
-  </div>
-[% END %]
-</div>
-
 <div id="outer">
-  <div id="main">
-    <div id="title">
-          <img src="img/title.png" />
-          <div id="tag-line">It's Magit! An emacs mode for git.</div>
+  <table>
+    <tr>
+      <td>
+        <div id="main">
+          <div id="title">
+            <img src="img/title.png" />
+            <div id="tag-line">It's Magit! An emacs mode for git.</div>
 
-          <div id="menu">
-            [% FOR item IN menu %]
+            <div id="menu">
+              [% FOR item IN menu %]
               <a [% IF selected == item.0 %]class="selected" [% END %]
                  href="[% item.1 %]">[% item.0 %]</a>
 
               [% "&#183;" UNLESS item == menu.last %]
-            [% END %]
+              [% END %]
+            </div>
           </div>
-        </div>
 
-        [% content %]
-      </div>
+          [% content %]
+        </div>
+      </td>
+      <td>
+        <div class="books">
+          [%- WRAPPER rounded_corners colour="#777" %]
+          <div class="book">
+            <a href="http://www.amazon.co.uk/gp/product/1430218339?ie=UTF8&tag=yipgocom-21&linkCode=as2&camp=1634&creative=6738&creativeASIN=1430218339"><img border="0" src="img/51EUb74kl0L._SL110_.jpg"></a><img src="http://www.assoc-amazon.co.uk/e/ir?t=yipgocom-21&l=as2&o=2&a=1430218339" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+            <p>Pro Git (Expert's Voice in Software Development)</p>
+          </div>
+          <div class="book">
+            <a href="http://www.amazon.co.uk/gp/product/0596520123?ie=UTF8&tag=yipgocom-21&linkCode=as2&camp=1634&creative=6738&creativeASIN=0596520123"><img border="0" src="img/51xhtaRdyKL._SL110_.jpg"></a><img src="http://www.assoc-amazon.co.uk/e/ir?t=yipgocom-21&l=as2&o=2&a=0596520123" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+            <p>Version Control with Git: Powerful tools and techniques for collaborative software development</p>
+            </div>
+            <div class="book">
+              <a href="http://www.amazon.co.uk/gp/product/1934356158?ie=UTF8&tag=yipgocom-21&linkCode=as2&camp=1634&creative=19450&creativeASIN=1934356158"><img border="0" src="img/519CeNsejdL._SL110_.jpg"></a><img src="http://www.assoc-amazon.co.uk/e/ir?t=yipgocom-21&l=as2&o=2&a=1934356158" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+              <p>Pragmatic Version Control Using Git: 1 (Pragmatic Starter Kit)</p>
+
+            </div>
+            [% END %]
+        </div>
+      </td>
+    </tr>
+    <table>
     </div>
   </body>
 </html>

@@ -33,9 +33,10 @@ img {
 }
 
 .books {
-  position: absolute;
-  left: 0px;
-  top: 0px;
+  /* position: absolute; */
+  /* float: left; */
+  /* left: 0px; */
+  /* top: 0px; */
 
   padding: 20px;
   width: 150px;
@@ -73,7 +74,7 @@ hr { margin-top: 5px; border: 1px solid #aaa }
 
 #outer {
   margin: 0 auto;
-  width: 600px;
+  width: 700px;
 }
 
 #main {
