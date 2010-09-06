@@ -33,6 +33,7 @@ img {
 }
 
 .books {
+  margin-left: 10px
   border-left: 1px solid #222;
   padding: 20px;
   width: 150px;
