@@ -33,11 +33,7 @@ img {
 }
 
 .books {
-  /* position: absolute; */
-  /* float: left; */
-  /* left: 0px; */
-  /* top: 0px; */
-
+  border-left: 1px solid #222;
   padding: 20px;
   width: 150px;
 }
