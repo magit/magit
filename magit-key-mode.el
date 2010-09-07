@@ -298,4 +298,18 @@ put it in magit-key-mode-key-maps for fast lookup."
     (magit-key-mode-draw-switches switches)
     (magit-key-mode-draw-args arguments)))
 
+(defun magit-key-mode-generate (sym)
+  "Generate the key-group menu for SYM"
+  (let ((opts (magit-key-mode-options-for-group sym)))
+    (eval
+     `(defun ,(intern  (concat "magit-key-mode-popup-" (symbol-name sym))) nil
+        ,(concat "Key menu for " (symbol-name sym))
+        (interactive)
+        (magit-key-mode (quote ,sym))))))
+
+;; create the interactive functions for the key mode popups
+(mapc (lambda (g)
+        (magit-key-mode-generate (car g)))
+      magit-key-mode-groups)
+
 (provide 'magit-key-mode)
