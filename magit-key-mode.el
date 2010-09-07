@@ -218,6 +218,7 @@ put it in magit-key-mode-key-maps for fast lookup."
     (magit-key-mode-draw for-group)
     (setq mode-name "magit-key-mode" major-mode 'magit-key-mode))
   (setq buffer-read-only t)
+  (goto-char (point-min))
   (fit-window-to-buffer))
 
 (defun magit-key-mode-draw-header (header)
