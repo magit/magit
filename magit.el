@@ -62,11 +62,13 @@
 
 ;;; Code:
 
+;; magit core
+(require 'magit-key-mode)
+
 (eval-when-compile (require 'cl))
 (require 'log-edit)
 (require 'easymenu)
 (require 'diff-mode)
-(require 'magit-key-mode)
 
 ;;; Code:
 (defgroup magit nil
@@ -372,7 +374,9 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "g") 'magit-refresh)
     (define-key map (kbd "G") 'magit-refresh-all)
     (define-key map (kbd "?") 'magit-describe-item)
-    (define-key map (kbd "!") 'magit-shell-command)
+    (define-key map (kbd "!") (lambda ()
+                                (interactive)
+                                (magit-key-mode 'running)))
     (define-key map (kbd ":") 'magit-git-command)
     (define-key map (kbd "RET") 'magit-visit-item)
     (define-key map (kbd "SPC") 'magit-show-item-or-scroll-up)

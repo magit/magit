@@ -24,6 +24,11 @@
       ("=a" "Author" "--author" read-from-minibuffer)
       ("=g" "Grep" "--grep" read-from-minibuffer)))
 
+    (running
+     (actions
+      ("!" "Command from root" magit-shell-command)
+      (":" "Git command" magit-git-command)))
+
     (committing
      (actions
       ("c" "Commit" magit-log-edit-commit))
