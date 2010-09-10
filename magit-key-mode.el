@@ -216,6 +216,7 @@ put it in magit-key-mode-key-maps for fast lookup."
      (or (cdr (assoc for-group magit-key-mode-key-maps))
          (magit-key-mode-build-keymap for-group)))
     (magit-key-mode-draw for-group)
+    (delete-trailing-whitespace)
     (setq mode-name "magit-key-mode" major-mode 'magit-key-mode))
   (setq buffer-read-only t)
   (goto-char (point-min))
