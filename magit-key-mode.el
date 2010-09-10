@@ -101,31 +101,31 @@
   modify this make sure you reset `magit-key-mode-key-maps' to
   nil.")
 
+(defun magit-key-mode-update-group (for-group thing &rest args)
+  "Abstraction for setting values in `magit-key-mode-key-maps'."
+  (let* ((options (magit-key-mode-options-for-group for-group))
+         (things (cdr (assoc thing options))))
+    (when things
+      (setcdr things (cons args (cdr things)))
+      (setq magit-key-mode-key-maps nil)
+      things)))
+
 (defun magit-key-mode-insert-argument (for-group key desc arg read-func)
   "Add a new binding (KEY) in FOR-GROUP which will use READ-FUNC
 to receive input to apply to argument ARG git is run. DESC should
 be a brief description of the binding."
-  (let* ((options (magit-key-mode-options-for-group for-group))
-         (arguments (cdr (assoc 'arguments options))))
-    (setcar arguments (list key desc arg read-func))
-    (setq magit-key-mode-key-maps nil)))
+  (magit-key-mode-update-group for-group 'arguments key desc arg read-func))
 
 (defun magit-key-mode-insert-switch (for-group key desc switch)
   "Add a new binding (KEY) in FOR-GROUP which will add SWITCH to git's
 commandline when it runs. DESC should be a brief description of
 the binding."
-  (let* ((options (magit-key-mode-options-for-group for-group))
-         (switches (cdr (assoc 'switches options))))
-    (setcar switches (list key desc switch))
-    (setq magit-key-mode-key-maps nil)))
+  (magit-key-mode-update-group for-group 'switches key desc switch))
 
 (defun magit-key-mode-insert-action (for-group key desc func)
   "Add a new binding (KEY) in FOR-GROUP which will run command
 FUNC. DESC should be a brief description of the binding."
-  (let* ((options (magit-key-mode-options-for-group for-group))
-         (actions (cdr (assoc 'actions options))))
-    (setcar actions (list key desc func))
-    (setq magit-key-mode-key-maps nil)))
+  (magit-key-mode-update-group for-group 'actions key desc func))
 
 (defun magit-key-mode-options-for-group (for-group)
   "Retrieve the options (switches, commands and arguments) for
