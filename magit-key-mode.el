@@ -101,6 +101,10 @@
   modify this make sure you reset `magit-key-mode-key-maps' to
   nil.")
 
+(defun magit-key-mode-add-group (name)
+  "Add a new group to `magit-key-mode-key-maps'."
+  (push (list name) magit-key-mode-groups))
+
 (defun magit-key-mode-update-group (for-group thing &rest args)
   "Abstraction for setting values in `magit-key-mode-key-maps'."
   (let* ((options (magit-key-mode-options-for-group for-group))
