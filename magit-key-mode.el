@@ -128,6 +128,8 @@ FUNC. DESC should be a brief description of the binding."
     (setq magit-key-mode-key-maps nil)))
 
 (defun magit-key-mode-options-for-group (for-group)
+  "Retrieve the options (switches, commands and arguments) for
+the group FOR-GROUP."
   (or (cdr (assoc for-group magit-key-mode-groups))
       (error "Unknown group '%s'" for-group)))
 
