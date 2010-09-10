@@ -103,16 +103,18 @@
 
 (defun magit-key-mode-add-group (name)
   "Add a new group to `magit-key-mode-key-maps'."
-  (push (list name) magit-key-mode-groups))
+  (unless (assoc name magit-key-mode-groups)
+    (push (list name '(actions)) magit-key-mode-groups)))
 
 (defun magit-key-mode-update-group (for-group thing &rest args)
   "Abstraction for setting values in `magit-key-mode-key-maps'."
   (let* ((options (magit-key-mode-options-for-group for-group))
-         (things (cdr (assoc thing options))))
-    (when things
-      (setcdr things (cons args (cdr things)))
-      (setq magit-key-mode-key-maps nil)
-      things)))
+         (things (assoc thing options)))
+    (if (cdr things)
+        (setcdr (cdr things) (cons args (cddr things)))
+      (setcdr things (list args)))
+    (setq magit-key-mode-key-maps nil)
+    things))
 
 (defun magit-key-mode-insert-argument (for-group key desc arg read-func)
   "Add a new binding (KEY) in FOR-GROUP which will use READ-FUNC
