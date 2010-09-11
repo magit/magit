@@ -233,10 +233,10 @@ put it in magit-key-mode-key-maps for fast lookup."
     (other-window 1)
     (switch-to-buffer buf)
     (kill-all-local-variables)
-    (set (make-variable-buffer-local
+    (set (make-local-variable
           'magit-key-mode-current-options)
          original-opts)
-    (set (make-variable-buffer-local
+    (set (make-local-variable
           'magit-key-mode-current-args)
          (make-hash-table))
     (magit-key-mode-redraw for-group)))
