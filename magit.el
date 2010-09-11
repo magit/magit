@@ -3121,10 +3121,6 @@ typing and automatically refreshes the status buffer."
 
 (defvar magit-log-edit-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-c")
-      (lambda ()
-        (interactive)
-        (magit-key-mode 'committing)))
     (define-key map (kbd "M-p") 'log-edit-previous-comment)
     (define-key map (kbd "M-n") 'log-edit-next-comment)
     (define-key map (kbd "C-c C-k") 'magit-log-edit-cancel-log-message)
@@ -3210,8 +3206,12 @@ Prefix arg means justify as well."
     (setq magit-pre-log-edit-window-configuration
 	  (current-window-configuration))
     (pop-to-buffer buf)
-    (when (file-exists-p ".git/MERGE_MSG")
-      (insert-file-contents ".git/MERGE_MSG"))
+    (case operation
+      ('committing
+       (when (file-exists-p ".git/MERGE_MSG")
+         (insert-file-contents ".git/MERGE_MSG"))
+       (define-key magit-log-edit-mode-map (kbd "C-c C-c")
+         'magit-key-mode-popup-committing)))
     (setq default-directory dir)
     (magit-log-edit-mode)
     (message "Type C-c C-c to %s (C-c C-k to cancel)." operation)))
@@ -3222,7 +3222,7 @@ Prefix arg means justify as well."
          (if (y-or-n-p "Rebase in progress.  Continue it? ")
              (magit-run-git "rebase" "--continue")))
         (t
-         (magit-pop-to-log-edit 'commit))))
+         (magit-pop-to-log-edit 'committing))))
 
 (defun magit-add-log ()
   (interactive)
