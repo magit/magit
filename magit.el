@@ -1775,7 +1775,6 @@ FUNC should leave point at the end of the modified region"
     "---"
     ["Branch..." magit-checkout t]
     ["Merge" magit-automatic-merge t]
-    ["Merge (no commit)" magit-manual-merge t]
     ["Interactive resolve" magit-interactive-resolve-item t]
     ["Rebase" magit-rebase-step t]
     ("Rewrite"
@@ -3436,10 +3435,7 @@ With prefix argument, changes in staging area are kept.
 	      (magit-format-commit commit "Reverting \"%s\"")))
 	    (t
 	     (magit-log-edit-append
-	      (magit-format-commit commit "%s%n%n%b"))
-	     (magit-log-edit-set-field
-	      'author
-	      (magit-format-commit commit "%an <%ae>, %ai")))))
+	      (magit-format-commit commit "%s%n%n%b")))))
     success))
 
 (defun magit-apply-item ()
@@ -4005,18 +4001,6 @@ With prefix force the removal even it it hasn't been merged."
     (save-excursion
       (apply 'magit-run-git (remq nil args))
       (magit-show-branches))))
-
-(defun magit-branches-window-manual-merge ()
-  "Merge the branch at point manually."
-  (interactive)
-  (magit-manual-merge (magit--branch-name-at-point))
-  (magit-show-branches))
-
-(defun magit-branches-window-automatic-merge ()
-  "Merge the branch at point automatically."
-  (interactive)
-  (magit-automatic-merge (magit--branch-name-at-point))
-  (magit-show-branches))
 
 (defvar magit-branches-buffer-name "*magit-branches*")
 
