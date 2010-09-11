@@ -48,9 +48,9 @@ Magit's website is currently hosted [on GitHub][website].
 Development
 -----------
 
-Magit was started by Marius Vollmer and is currently maintained by
-Phil Jackson. For a full list of contributors have a look at
-`magit.el` in the source distribution.
+Magit was started by Marius Vollmer. Phil Jackson is the lead
+developer. For a full list of contributors have a look at `magit.el`
+in the source distribution.
 
 Magit's canonical source repository is currently
 [hosted on GitHub][development].
