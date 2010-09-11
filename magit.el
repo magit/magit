@@ -3163,6 +3163,17 @@ Prefix arg means justify as well."
             (not (equal comment (ring-ref log-edit-comment-ring 0))))
     (ring-insert log-edit-comment-ring comment)))
 
+(defun magit-log-edit-apply-tag (name rev)
+  (let ((commit-buf (current-buffer)))
+    (with-current-buffer (magit-find-buffer 'status default-directory)
+      (magit-run-git-with-input (current-buffer) "tag" name "-a" "-F" "-" rev))
+    (erase-buffer)
+    (bury-buffer)
+    (magit-update-vc-modeline default-directory)
+    (when magit-pre-log-edit-window-configuration
+      (set-window-configuration magit-pre-log-edit-window-configuration)
+      (setq magit-pre-log-edit-window-configuration nil))))
+
 (defun magit-log-edit-commit ()
   "Finish edits and create new commit object.
 \('git commit ...')"
@@ -3200,13 +3211,22 @@ Prefix arg means justify as well."
       (set-window-configuration magit-pre-log-edit-window-configuration)
       (setq magit-pre-log-edit-window-configuration nil))))
 
-(defun magit-pop-to-log-edit (operation)
+(defun magit-pop-to-log-edit (operation &optional options)
   (let ((dir default-directory)
 	(buf (get-buffer-create magit-log-edit-buffer-name)))
     (setq magit-pre-log-edit-window-configuration
 	  (current-window-configuration))
     (pop-to-buffer buf)
     (case operation
+      ('tagging
+       (let ((name (cdr (assoc 'name options)))
+             (rev (cdr (assoc 'rev options))))
+         (setq header-line-format
+               (format "For tag %s on %s" name rev))
+         (define-key magit-log-edit-mode-map (kbd "C-c C-c")
+           `(lambda ()
+              (interactive)
+              (magit-log-edit-apply-tag ,name ,rev)))))
       ('committing
        (when (file-exists-p ".git/MERGE_MSG")
          (insert-file-contents ".git/MERGE_MSG"))
@@ -3294,7 +3314,8 @@ Tag will point to the current 'HEAD'."
    (list
     (read-string "Tag name: ")
     (magit-read-rev "Place tag on: " (or (magit-default-rev) "HEAD"))))
-  (magit-pop-to-log-edit 'tagging))
+  (magit-pop-to-log-edit 'tagging (list (cons 'name name)
+                                        (cons 'rev rev))))
 
 ;;; Stashing
 
