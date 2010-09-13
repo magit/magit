@@ -25,6 +25,17 @@ Emacs should be able to find it.  Then add
 
 to your `.emacs` file.
 
+Magit also now supports extensions:
+
+### git-svn
+
+`(require 'magit-svn)` - integrates with git-svn. Hit 'N' to see your
+options.
+
+### git-topgit
+
+`(require 'magit-topgit)` - integrates with topgit.
+
 Getting started
 ---------------
 
