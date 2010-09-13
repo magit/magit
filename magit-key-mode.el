@@ -329,9 +329,9 @@ put it in magit-key-mode-key-maps for fast lookup."
          (switches (cdr (assoc 'switches options)))
          (arguments (cdr (assoc 'arguments options)))
          (actions (cdr (assoc 'actions options))))
-    (magit-key-mode-draw-actions actions)
     (magit-key-mode-draw-switches switches)
-    (magit-key-mode-draw-args arguments)))
+    (magit-key-mode-draw-args arguments)
+    (magit-key-mode-draw-actions actions)))
 
 (defun magit-key-mode-generate (sym)
   "Generate the key-group menu for SYM"
