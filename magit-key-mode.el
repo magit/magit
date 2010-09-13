@@ -7,6 +7,15 @@
 (defvar magit-key-mode-buf-name "*magit-key*"
   "Name of the buffer.")
 
+(defvar magit-key-mode-current-args '()
+  "Will contain the arguments to be passed to git.")
+
+(defvar magit-key-mode-current-options '()
+  "Will contain the arguments to be passed to git.")
+
+(defvar magit-log-mode-window-conf nil
+  "Will hold the pre-menu configuration of magit.")
+
 (defvar magit-key-mode-groups
   '((logging
      (actions
