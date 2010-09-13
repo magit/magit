@@ -1,11 +1,6 @@
 ;;; magit-topgit.el --- topgit plug-in for Magit
 
-;; Copyright (C) 2008, 2009  Marius Vollmer
-;; Copyright (C) 2008  Linh Dang
-;; Copyright (C) 2008  Alex Ott
-;; Copyright (C) 2008  Marcin Bachry
-;; Copyright (C) 2009  Alexey Voinov
-;; Copyright (C) 2009  John Wiegley
+;; Copyright (C) 2010  Nathan Weizenbaum
 ;; Copyright (C) 2010  Yann Hodique
 ;;
 ;; Magit is free software; you can redistribute it and/or modify it
