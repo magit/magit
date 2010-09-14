@@ -122,11 +122,6 @@ after a confirmation."
 		 (const :tag "Ask" ask)
 		 (const :tag "Ask to stage everything" ask-stage)))
 
-(defcustom magit-commit-signoff nil
-  "When performing git commit adds --signoff."
-  :group 'magit
-  :type 'boolean)
-
 (defcustom magit-log-cutoff-length 100
   "The maximum number of commits to show in the log and whazzup buffers."
   :group 'magit
