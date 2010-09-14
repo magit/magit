@@ -2801,7 +2801,7 @@ If the branch is the current one, offers to switch to `master' first.
 	(magit-checkout "master")
       (setq branch nil)))
   (when branch
-    (magit-run-git "branch" "-d" (append magit-custom-options
+    (magit-run-git "branch" "-D" (append magit-custom-options
 					 (magit-rev-to-git branch)))))
 
 (defun magit-move-branch (old new)
