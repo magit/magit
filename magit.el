@@ -2797,7 +2797,7 @@ If the branch is the current one, offers to switch to `master' first.
 \('git branch -d BRANCH')."
   (interactive (list (magit-read-rev "Branch to delete" (magit-default-rev))))
   (when (and branch (string= branch (magit-get-current-branch)))
-    (if (y-or-n-p "Cannot delete current branch. Switch to master first?")
+    (if (y-or-n-p "Cannot delete current branch. Switch to master first? ")
 	(magit-checkout "master")
       (setq branch nil)))
   (when branch
