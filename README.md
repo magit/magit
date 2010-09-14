@@ -25,6 +25,17 @@ Emacs should be able to find it.  Then add
 
 to your `.emacs` file.
 
+Magit also now supports extensions:
+
+### git-svn
+
+`(require 'magit-svn)` - integrates with git-svn. Hit 'N' to see your
+options.
+
+### git-topgit
+
+`(require 'magit-topgit)` - integrates with topgit.
+
 Getting started
 ---------------
 
@@ -48,9 +59,9 @@ Magit's website is currently hosted [on GitHub][website].
 Development
 -----------
 
-Magit was started by Marius Vollmer and is currently maintained by
-Phil Jackson. For a full list of contributors have a look at
-`magit.el` in the source distribution.
+Magit was started by Marius Vollmer. Phil Jackson is the lead
+developer. For a full list of contributors have a look at `magit.el`
+in the source distribution.
 
 Magit's canonical source repository is currently
 [hosted on GitHub][development].

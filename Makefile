@@ -1,6 +1,6 @@
 VERSION=0.8.2
 PREFIX=/usr/local
-ELS=magit.el magit-svn.el magit-topgit.el
+ELS=magit.el magit-svn.el magit-topgit.el magit-key-mode.el
 ELCS=$(ELS:.el=.elc)
 DIST_FILES=$(ELS) Makefile magit.texi README.md magit.spec.in magit-pkg.el.in 50magit.el
 
@@ -18,9 +18,10 @@ magit.spec: magit.spec.in
 magit-pkg.el: magit-pkg.el.in
 	sed -e s/@VERSION@/$(VERSION)/ < $< > $@
 
-magit.elc: magit.el
-magit-svn.elc: magit-svn.el 
-magit-topgit.elc: magit-topgit.el
+magit.elc:
+magit-key-mode.elc:
+magit-svn.elc:
+magit-topgit.elc:
 magit.info:
 
 # yuck - this needs cleaning up a bit...

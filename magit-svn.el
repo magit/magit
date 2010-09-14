@@ -156,13 +156,6 @@ If USE-CACHE is non nil, use the cached information."
   (when (magit-svn-enabled)
     (magit-run-git-async "svn" "fetch")))
 
-(define-prefix-command 'magit-svn-prefix 'magit-svn-map)
-(define-key magit-svn-map (kbd "r") 'magit-svn-rebase)
-(define-key magit-svn-map (kbd "c") 'magit-svn-dcommit)
-(define-key magit-svn-map (kbd "f") 'magit-svn-remote-update)
-(define-key magit-svn-map (kbd "s") 'magit-svn-find-rev)
-(define-key magit-mode-map (kbd "N") 'magit-svn-prefix)
-
 (easy-menu-define magit-svn-extension-menu
   nil
   "Git SVN extension menu"
@@ -178,6 +171,17 @@ If USE-CACHE is non nil, use the cached information."
           (lambda () (magit-insert-svn-unpushed t)))
 
 (add-hook 'magit-remote-string-hook 'magit-svn-remote-string)
+
+;; add the group and its keys
+(magit-key-mode-add-group 'svn)
+(magit-key-mode-insert-action 'svn "r" "Rebase" 'magit-svn-rebase)
+(magit-key-mode-insert-action 'svn "c" "DCommit" 'magit-svn-dcommit)
+(magit-key-mode-insert-action 'svn "f" "Fetch" 'magit-svn-remote-update)
+(magit-key-mode-insert-action 'svn "s" "Find rev" 'magit-svn-find-rev)
+
+;; generate and bind the menu popup function
+(magit-key-mode-generate 'svn)
+(define-key magit-mode-map (kbd "N") 'magit-key-mode-popup-svn)
 
 (provide 'magit-svn)
 ;;; magit-svn.el ends here
