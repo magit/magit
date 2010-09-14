@@ -1465,7 +1465,10 @@ FUNC should leave point at the end of the modified region"
 	       (with-current-buffer input
 		 (setq default-directory dir)
 		 (setq magit-process
-		       (apply 'magit-start-process cmd buf cmd args))
+		       ;; Don't use a pty, because it would set icrnl
+		       ;; which would modify the input (issue #20).
+		       (let ((process-connection-type nil))
+			 (apply 'magit-start-process cmd buf cmd args)))
 		 (set-process-filter magit-process 'magit-process-filter)
 		 (process-send-region magit-process
 				      (point-min) (point-max))
