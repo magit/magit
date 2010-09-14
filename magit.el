@@ -2852,21 +2852,14 @@ With a prefix-arg, the merge will be squashed.
 ;;; Rebasing
 
 (defun magit-rebase-info ()
-  (cond ((file-exists-p ".git/rebase-apply")
-	 (list (magit-name-rev
-		(car (magit-file-lines ".git/rebase-apply/onto")))
-	       (car (magit-file-lines ".git/rebase-apply/next"))
-	       (car (magit-file-lines ".git/rebase-apply/last"))))
-	((file-exists-p ".dotest")
-	 (list (magit-name-rev (car (magit-file-lines ".dotest/onto")))
-	       (car (magit-file-lines ".dotest/next"))
-	       (car (magit-file-lines ".dotest/last"))))
-	((file-exists-p ".git/.dotest-merge")
-	 (list (car (magit-file-lines ".git/.dotest-merge/onto_name"))
-	       (car (magit-file-lines ".git/.dotest-merge/msgnum"))
-	       (car (magit-file-lines ".git/.dotest-merge/end"))))
-	(t
-	 nil)))
+  "Returns a list indicating the state of an in-progress rebase,
+if any."
+  (cond ((file-exists-p ".git/rebase-merge")
+         (list
+          (magit-name-rev (car (magit-file-lines ".git/rebase-merge/message")))
+          (length (magit-file-lines ".git/rebase-merge/done"))
+          (length (magit-file-lines ".git/rebase-merge/git-rebase-todo.backup"))))
+	(t nil)))
 
 (defun magit-rebase-step ()
   (interactive)
@@ -2877,7 +2870,7 @@ With a prefix-arg, the merge will be squashed.
 	      (magit-run-git "rebase" (magit-rev-to-git rev))))
       (let ((cursor-in-echo-area t)
             (message-log-max nil))
-        (message "Rebase in progress.  Abort, Skip, or Continue? ")
+        (message "Rebase in progress. Abort, Skip, or Continue? ")
         (let ((reply (read-event)))
           (case reply
             ((?A ?a)
