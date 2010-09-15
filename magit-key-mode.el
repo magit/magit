@@ -286,7 +286,7 @@ put it in magit-key-mode-key-maps for fast lookup."
   (when args
     (let ((strs (mapcar
                  (lambda (argument)
-                   (format " %s: (%s) %s %s"
+                   (format " %s: %s (%s) %s"
                            (propertize
                             (car argument)
                             'face 'font-lock-builtin-face)
