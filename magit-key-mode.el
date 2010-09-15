@@ -250,7 +250,8 @@ put it in magit-key-mode-key-maps for fast lookup."
     (set (make-local-variable
           'magit-key-mode-current-args)
          (make-hash-table))
-    (magit-key-mode-redraw for-group)))
+    (magit-key-mode-redraw for-group))
+  (message "Type bindings prefixing option to action them."))
 
 (defun magit-key-mode-redraw (for-group)
   "(re)draw the magit key buffer."
