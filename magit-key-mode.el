@@ -272,21 +272,27 @@ put it in magit-key-mode-key-maps for fast lookup."
   "Draw a header with the correct face."
   (insert (propertize header 'face 'font-lock-keyword-face)))
 
+(defvar magit-key-mode-args-in-cols nil
+  "When true, draw arguments in columns as with switches and
+  options.")
+
 (defun magit-key-mode-draw-args (args)
   "Draw the args part of the menu."
   (when args
-    (magit-key-mode-draw-header "Args\n")
-    (dolist (argument args)
-      (insert
-       (format " %s: (%s) %s %s\n"
-               (propertize
-               (car argument)
-                'face 'font-lock-builtin-face)
-               (nth 1 argument)
-               (nth 2 argument)
-               (propertize
-                (gethash (nth 2 argument) magit-key-mode-current-args "")
-                'face 'widget-field))))))
+    (let ((strs (mapcar
+                 (lambda (argument)
+                   (format " %s: (%s) %s %s"
+                           (propertize
+                            (car argument)
+                            'face 'font-lock-builtin-face)
+                           (nth 1 argument)
+                           (nth 2 argument)
+                           (propertize
+                            (gethash (nth 2 argument) magit-key-mode-current-args "")
+                            'face 'widget-field)))
+                 args)))
+      (magit-key-mode-draw-header "Args\n")
+      (magit-key-mode-draw-in-cols strs (not magit-key-mode-args-in-cols)))))
 
 (defun magit-key-mode-draw-switches (switches)
   "Draw the switches part of the menu."
@@ -321,18 +327,21 @@ put it in magit-key-mode-key-maps for fast lookup."
       (magit-key-mode-draw-header "Actions\n")
       (magit-key-mode-draw-in-cols action-strs))))
 
-(defun magit-key-mode-draw-in-cols (strings)
-  "Given a list of strings, print in columns (using `insert')."
+(defun magit-key-mode-draw-in-cols (strings &optional one-col-each)
+  "Given a list of strings, print in columns (using `insert'). If
+ONE-COL-EACH is true then don't columify, but rather, draw each
+item on one line."
   (let ((longest-act (apply 'max (mapcar 'length strings))))
     (while strings
       (let ((str (car strings)))
         (let ((padding (make-string (- (+ longest-act 3) (length str)) ? )))
           (insert str)
-          (if (and (> (+ (length padding)
-                         (current-column)
-                         longest-act)
-                      (window-width))
-                   (cdr strings))
+          (if (or one-col-each
+                  (and (> (+ (length padding) ;
+                             (current-column)
+                             longest-act)
+                          (window-width))
+                       (cdr strings)))
               (insert "\n")
             (insert padding))))
       (setq strings (cdr strings))))
