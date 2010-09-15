@@ -27,11 +27,13 @@
       ("-m" "Only merge commits" "--merges")
       ("-f" "First parent" "--first-parent")
       ("-i" "Case insesnitive patterns" "-i")
+      ("-p" "Pickaxe regex" "--pickaxe-regex")
       ("-a" "All" "--all"))
      (arguments
-      ("=b" "Branches" "--branches" read-from-minibuffer)
-      ("=a" "Author" "--author" read-from-minibuffer)
-      ("=g" "Grep" "--grep" read-from-minibuffer)))
+      ("=b" "Branches" "--branches=" read-from-minibuffer)
+      ("=s" "Pickaxe search" "-S" read-from-minibuffer)
+      ("=a" "Author" "--author=" read-from-minibuffer)
+      ("=g" "Grep" "--grep=" read-from-minibuffer)))
 
     (running
      (actions
@@ -47,7 +49,7 @@
       ("-al" "All" "--all"))
       ("-e" "Allow empty" "--allow-empty")
      (arguments
-      ("=au" "Author" "--author" read-from-minibuffer)))
+      ("=au" "Author" "--author=" read-from-minibuffer)))
 
     (fetching
      (actions
@@ -187,7 +189,7 @@ put it in magit-key-mode-key-maps for fast lookup."
   (let ((args '()))
     ;; why can't maphash return a list?!
     (maphash (lambda (k v)
-               (push (concat k "=" (shell-quote-argument v)) args))
+               (push (concat k (shell-quote-argument v)) args))
              magit-key-mode-current-args)
     (let ((magit-custom-options (append args magit-key-mode-current-options)))
       (set-window-configuration magit-log-mode-window-conf)
