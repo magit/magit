@@ -45,17 +45,6 @@
       ("!" "Command from root" magit-shell-command)
       (":" "Git command" magit-git-command)))
 
-    (committing
-     (actions
-      ("c" "Commit" magit-log-edit-commit))
-     (switches
-      ("-s" "Signoff" "--signoff")
-      ("-am" "Amend" "--amend")
-      ("-al" "All" "--all"))
-      ("-e" "Allow empty" "--allow-empty")
-     (arguments
-      ("=au" "Author" "--author=" read-from-minibuffer)))
-
     (fetching
      (actions
       ("f" "Fetch" magit-fetch)

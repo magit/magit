@@ -3128,6 +3128,10 @@ typing and automatically refreshes the status buffer."
 
 (defvar magit-log-edit-mode-map
   (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c C-c") 'magit-log-edit-commit)
+    (define-key map (kbd "C-c C-a") 'magit-log-edit-toggle-amending)
+    (define-key map (kbd "C-c C-s") 'magit-log-edit-toggle-signoff)
+    (define-key map (kbd "C-c C-e") 'magit-log-edit-toggle-allow-empty)
     (define-key map (kbd "M-p") 'log-edit-previous-comment)
     (define-key map (kbd "M-n") 'log-edit-next-comment)
     (define-key map (kbd "C-c C-k") 'magit-log-edit-cancel-log-message)
@@ -3165,46 +3169,136 @@ Prefix arg means justify as well."
     (goto-char (point-max))
     (insert str "\n")))
 
+(defconst magit-log-header-end "-- End of Magit header --\n")
+
+(defun magit-log-edit-get-fields ()
+  (let ((buf (get-buffer magit-log-edit-buffer-name))
+	(result nil))
+    (if buf
+	(with-current-buffer buf
+	  (goto-char (point-min))
+	  (while (looking-at "^\\([A-Za-z0-9-_]+\\): *\\(.*\\)$")
+	    (setq result (acons (intern (downcase (match-string 1)))
+				(match-string 2)
+				result))
+	    (forward-line))
+	  (if (not (looking-at (regexp-quote magit-log-header-end)))
+	      (setq result nil))))
+    (nreverse result)))
+
+(defun magit-log-edit-set-fields (fields)
+  (let ((buf (get-buffer-create magit-log-edit-buffer-name)))
+    (with-current-buffer buf
+      (goto-char (point-min))
+      (if (search-forward-regexp (format "^\\([A-Za-z0-9-_]+:.*\n\\)*%s"
+					 (regexp-quote magit-log-header-end))
+				 nil t)
+	  (delete-region (match-beginning 0) (match-end 0)))
+      (goto-char (point-min))
+      (when fields
+	(while fields
+	  (insert (capitalize (symbol-name (caar fields))) ": "
+		  (cdar fields) "\n")
+	  (setq fields (cdr fields)))
+	(insert magit-log-header-end)))))
+
+(defun magit-log-edit-set-field (name value)
+  (let* ((fields (magit-log-edit-get-fields))
+	 (cell (assq name fields)))
+    (cond (cell
+	   (if value
+	       (rplacd cell value)
+	     (setq fields (delq cell fields))))
+	  (t
+	   (if value
+	       (setq fields (append fields (list (cons name value)))))))
+    (magit-log-edit-set-fields fields)))
+
+(defun magit-log-edit-get-field (name)
+  (cdr (assq name (magit-log-edit-get-fields))))
+
+(defun magit-log-edit-toggle-field (name default)
+  "Toggle the log-edit field named NAME.
+If it's currently unset, set it to DEFAULT (t or nil).
+
+Return nil if the field is toggled off, and non-nil if it's
+toggled on.  When it's toggled on for the first time, return
+'first."
+  (let* ((fields (magit-log-edit-get-fields))
+	 (cell (assq name fields)) yesp)
+    (if cell
+        (progn
+          (setq yesp (equal (cdr cell) "yes"))
+          (rplacd cell (if yesp "no" "yes")))
+      (setq fields (acons name (if default "yes" "no") fields))
+      (setq yesp (if default 'first)))
+    (magit-log-edit-set-fields fields)
+    yesp))
+
+(defun magit-log-edit-setup-author-env (author)
+  (cond (author
+	 ;; XXX - this is a bit strict, probably.
+	 (or (string-match "\\(.*\\) <\\(.*\\)>, \\(.*\\)" author)
+	     (error "Can't parse author string"))
+	 ;; Shucks, setenv destroys the match data.
+	 (let ((name (match-string 1 author))
+	       (email (match-string 2 author))
+	       (date  (match-string 3 author)))
+	   (setenv "GIT_AUTHOR_NAME" name)
+	   (setenv "GIT_AUTHOR_EMAIL" email)
+	   (setenv "GIT_AUTHOR_DATE" date)))
+	(t
+	 (setenv "GIT_AUTHOR_NAME")
+	 (setenv "GIT_AUTHOR_EMAIL")
+	 (setenv "GIT_AUTHOR_DATE"))))
+
 (defun magit-log-edit-push-to-comment-ring (comment)
   (when (or (ring-empty-p log-edit-comment-ring)
-            (not (equal comment (ring-ref log-edit-comment-ring 0))))
+	    (not (equal comment (ring-ref log-edit-comment-ring 0))))
     (ring-insert log-edit-comment-ring comment)))
-
-(defun magit-log-edit-apply-tag (name rev)
-  (let ((commit-buf (current-buffer)))
-    (with-current-buffer (magit-find-buffer 'status default-directory)
-      (magit-run-git-with-input (current-buffer) "tag" name "-a" "-F" "-" rev))
-    (erase-buffer)
-    (bury-buffer)
-    (magit-update-vc-modeline default-directory)
-    (when magit-pre-log-edit-window-configuration
-      (set-window-configuration magit-pre-log-edit-window-configuration)
-      (setq magit-pre-log-edit-window-configuration nil))))
 
 (defun magit-log-edit-commit ()
   "Finish edits and create new commit object.
 \('git commit ...')"
   (interactive)
-  (magit-log-edit-push-to-comment-ring (buffer-string))
-  (magit-log-edit-cleanup)
-  (if (= (buffer-size) 0)
-      (insert "(Empty description)\n"))
-  (let ((commit-buf (current-buffer)))
-    (with-current-buffer (magit-find-buffer 'status default-directory)
-      (apply #'magit-run-async-with-input commit-buf
-             magit-git-executable
-             (append
-              magit-git-standard-options
-              '("commit" "-F" "-")
-              magit-custom-options))))
-  (erase-buffer)
-  (bury-buffer)
-  (when (file-exists-p ".git/MERGE_MSG")
-    (delete-file ".git/MERGE_MSG"))
-  (magit-update-vc-modeline default-directory)
-  (when magit-pre-log-edit-window-configuration
-    (set-window-configuration magit-pre-log-edit-window-configuration)
-    (setq magit-pre-log-edit-window-configuration nil)))
+  (let* ((fields (magit-log-edit-get-fields))
+	 (amend (equal (cdr (assq 'amend fields)) "yes"))
+	 (allow-empty (equal (cdr (assq 'allow-empty fields)) "yes"))
+	 (commit-all (equal (cdr (assq 'commit-all fields)) "yes"))
+	 (sign-off-field (assq 'sign-off fields))
+	 (sign-off (if sign-off-field
+		       (equal (cdr sign-off-field) "yes")
+		     magit-commit-signoff))
+	 (tag-rev (cdr (assq 'tag-rev fields)))
+	 (tag-name (cdr (assq 'tag-name fields)))
+	 (author (cdr (assq 'author fields))))
+    (magit-log-edit-push-to-comment-ring (buffer-string))
+    (magit-log-edit-setup-author-env author)
+    (magit-log-edit-set-fields nil)
+    (magit-log-edit-cleanup)
+    (if (= (buffer-size) 0)
+	(insert "(Empty description)\n"))
+    (let ((commit-buf (current-buffer)))
+      (with-current-buffer (magit-find-buffer 'status default-directory)
+	(cond (tag-name
+	       (magit-run-git-with-input commit-buf "tag" tag-name "-a" "-F" "-" tag-rev))
+	      (t
+	       (apply #'magit-run-async-with-input commit-buf
+		      magit-git-executable
+		      (append magit-git-standard-options
+			      (list "commit" "-F" "-")
+			      (if (and commit-all (not allow-empty)) '("--all") '())
+			      (if amend '("--amend") '())
+			      (if allow-empty '("--allow-empty"))
+			      (if sign-off '("--signoff") '())))))))
+    (erase-buffer)
+    (bury-buffer)
+    (when (file-exists-p ".git/MERGE_MSG")
+      (delete-file ".git/MERGE_MSG"))
+    (magit-update-vc-modeline default-directory)
+    (when magit-pre-log-edit-window-configuration
+      (set-window-configuration magit-pre-log-edit-window-configuration)
+      (setq magit-pre-log-edit-window-configuration nil))))
 
 (defun magit-log-edit-cancel-log-message ()
   "Abort edits and erase commit message being composed."
@@ -3218,27 +3312,34 @@ Prefix arg means justify as well."
       (set-window-configuration magit-pre-log-edit-window-configuration)
       (setq magit-pre-log-edit-window-configuration nil))))
 
-(defun magit-pop-to-log-edit (operation &optional options)
+(defun magit-log-edit-toggle-amending ()
+  "Toggle whether this will be an amendment to the previous commit.
+\(i.e., whether eventual commit does 'git commit --amend')"
+  (interactive)
+  (when (eq (magit-log-edit-toggle-field 'amend t) 'first)
+    (magit-log-edit-append
+     (magit-format-commit "HEAD" "%s%n%n%b"))))
+
+(defun magit-log-edit-toggle-signoff ()
+  "Toggle whether this commit will include a signoff.
+\(i.e., whether eventual commit does 'git commit --signoff')"
+  (interactive)
+  (magit-log-edit-toggle-field 'sign-off (not magit-commit-signoff)))
+
+(defun magit-log-edit-toggle-allow-empty ()
+  "Toggle whether this commit is allowed to be empty.
+This means that the eventual commit does 'git commit --allow-empty'."
+  (interactive)
+  (magit-log-edit-toggle-field 'allow-empty t))
+
+(defun magit-pop-to-log-edit (operation)
   (let ((dir default-directory)
 	(buf (get-buffer-create magit-log-edit-buffer-name)))
     (setq magit-pre-log-edit-window-configuration
 	  (current-window-configuration))
     (pop-to-buffer buf)
-    (case operation
-      ('tagging
-       (let ((name (cdr (assoc 'name options)))
-             (rev (cdr (assoc 'rev options))))
-         (setq header-line-format
-               (format "For tag %s on %s" name rev))
-         (define-key magit-log-edit-mode-map (kbd "C-c C-c")
-           `(lambda ()
-              (interactive)
-              (magit-log-edit-apply-tag ,name ,rev)))))
-      ('committing
-       (when (file-exists-p ".git/MERGE_MSG")
-         (insert-file-contents ".git/MERGE_MSG"))
-       (define-key magit-log-edit-mode-map (kbd "C-c C-c")
-         'magit-key-mode-popup-committing)))
+    (when (file-exists-p ".git/MERGE_MSG")
+      (insert-file-contents ".git/MERGE_MSG"))
     (setq default-directory dir)
     (magit-log-edit-mode)
     (message "Type C-c C-c to %s (C-c C-k to cancel)." operation)))
@@ -3246,10 +3347,23 @@ Prefix arg means justify as well."
 (defun magit-log-edit ()
   (interactive)
   (cond ((magit-rebase-info)
-         (if (y-or-n-p "Rebase in progress.  Continue it? ")
-             (magit-run-git "rebase" "--continue")))
-        (t
-         (magit-pop-to-log-edit 'committing))))
+	 (if (y-or-n-p "Rebase in progress.  Continue it? ")
+	     (magit-run-git "rebase" "--continue")))
+	(t
+	 (when (and magit-commit-all-when-nothing-staged
+		    (not (magit-anything-staged-p)))
+	   (cond ((eq magit-commit-all-when-nothing-staged 'ask-stage)
+		  (if (and (not (magit-everything-clean-p))
+			   (y-or-n-p "Nothing staged.  Stage everything now? "))
+		      (magit-stage-all)))
+		 ((not (magit-log-edit-get-field 'commit-all))
+		  (magit-log-edit-set-field
+		   'commit-all
+		   (if (or (eq magit-commit-all-when-nothing-staged t)
+			   (y-or-n-p
+			    "Nothing staged.  Commit all unstaged changes? "))
+		       "yes" "no")))))
+	 (magit-pop-to-log-edit "commit"))))
 
 (defun magit-add-log ()
   (interactive)
@@ -3321,8 +3435,9 @@ Tag will point to the current 'HEAD'."
    (list
     (read-string "Tag name: ")
     (magit-read-rev "Place tag on: " (or (magit-default-rev) "HEAD"))))
-  (magit-pop-to-log-edit 'tagging (list (cons 'name name)
-                                        (cons 'rev rev))))
+  (magit-log-edit-set-field 'tag-name name)
+  (magit-log-edit-set-field 'tag-rev rev)
+  (magit-pop-to-log-edit "tag"))
 
 ;;; Stashing
 
@@ -3441,7 +3556,10 @@ With prefix argument, changes in staging area are kept.
 	      (magit-format-commit commit "Reverting \"%s\"")))
 	    (t
 	     (magit-log-edit-append
-	      (magit-format-commit commit "%s%n%n%b")))))
+	      (magit-format-commit commit "%s%n%n%b"))
+	     (magit-log-edit-set-field
+	      'author
+	      (magit-format-commit commit "%an <%ae>, %ai")))))
     success))
 
 (defun magit-apply-item ()
@@ -4015,6 +4133,18 @@ With prefix force the removal even it it hasn't been merged."
     (save-excursion
       (apply 'magit-run-git (remq nil args))
       (magit-show-branches))))
+
+(defun magit-branches-window-manual-merge ()
+  "Merge the branch at point manually."
+  (interactive)
+  (magit-manual-merge (magit--branch-name-at-point))
+  (magit-show-branches))
+
+(defun magit-branches-window-automatic-merge ()
+  "Merge the branch at point automatically."
+  (interactive)
+  (magit-automatic-merge (magit--branch-name-at-point))
+  (magit-show-branches))
 
 (defvar magit-branches-buffer-name "*magit-branches*")
 
