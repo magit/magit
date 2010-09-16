@@ -2682,6 +2682,13 @@ insert a line to tell how to insert more of them"
         (magit-mode-init topdir 'status #'magit-refresh-status)
         (magit-status-mode t)))))
 
+(magit-define-command automatic-merge (revision)
+  "Merge REVISION into the current 'HEAD'; commit unless merge fails.
+\('git merge REVISION')."
+  (interactive (list (magit-read-rev "Merge" (magit-guess-branch))))
+  (if revision
+      (magit-run-git "merge" (magit-rev-to-git revision))))
+
 ;;; Staging and Unstaging
 
 (defun magit-stage-item ()
