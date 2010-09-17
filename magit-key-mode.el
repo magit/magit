@@ -47,11 +47,14 @@
       (":" "Git command" magit-git-command)))
 
     (fetching
+     (man-page "git-fetch")
      (actions
-      ("f" "Fetch" magit-fetch)
-      ("r" "Remote update" magit-remote-update)))
+      ("f" "Fetch" magit-fetch))
+     (switches
+      ("-a" "All" "--all")))
 
     (pushing
+     (man-page "git-push")
      (actions
       ("p" "Push" magit-push))
      (switches
@@ -59,12 +62,14 @@
       ("-d" "Dry run" "-n")))
 
     (pulling
+     (man-page "git-pull")
      (actions
       ("p" "Pull" magit-pull))
      (switches
       ("-r" "Rebase" "--rebase")))
 
     (branching
+     (man-page "git-branch")
      (actions
       ("V" "Branch manager" magit-show-branches)
       ("B" "Create" magit-create-branch)
@@ -73,6 +78,7 @@
       ("c" "Checkout" magit-checkout)))
 
     (tagging
+     (man-page "git-tag")
      (actions
       ("t" "Lightweight" magit-tag)
       ("T" "Annotated" magit-annotated-tag))
@@ -80,6 +86,7 @@
       ("-f" "Force" "-f")))
 
     (stashing
+     (man-page "git-stash")
      (actions
       ("s" "Save" magit-stash)
       ("S" "Snapshot" magit-stash-snapshot))
@@ -87,6 +94,7 @@
       ("-k" "Keep index" "--keep-index")))
 
     (merging
+     (man-page "git-merge")
      (actions
       ("m" "Merge" magit-merge))
      (switches
