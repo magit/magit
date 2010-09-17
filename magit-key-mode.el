@@ -155,6 +155,8 @@ the group FOR-GROUP."
       (error "Unknown group '%s'" for-group)))
 
 (defun magit-key-mode-help (for-group)
+  "Provide help for a key (which the user is prompted for) within
+FOR-GROUP."
   (let* ((opts (magit-key-mode-options-for-group for-group))
          (seq (read-key-sequence "Enter command prefix: "))
          (actions (cdr (assoc 'actions opts))))
@@ -247,7 +249,9 @@ put it in magit-key-mode-key-maps for fast lookup."
   "Pre-popup window configuration.")
 
 (defun magit-key-mode (for-group &optional original-opts)
-  "Mode for magit key selection."
+  "Mode for magit key selection. All commands, switches and
+options can be toggled/actioned with the key combination
+highlighed before the description."
   (interactive)
   ;; save the window config to restore it as was (no need to make this
   ;; buffer local)
