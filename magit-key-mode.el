@@ -55,6 +55,7 @@
      (actions
       ("p" "Push" magit-push))
      (switches
+      ("-f" "Force" "--force")
       ("-d" "Dry run" "-n")))
 
     (pulling
