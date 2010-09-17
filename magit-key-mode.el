@@ -221,10 +221,6 @@ put it in magit-key-mode-key-maps for fast lookup."
   "A hash-table of current argument set (which will eventually
   make it to the git command-line).")
 
-(defun debug-args ()
-  (interactive)
-  (maphash (lambda (k v) (print (format "%s: %s" k v))) magit-key-mode-current-args))
-
 (defun magit-key-mode-add-argument (for-group arg-name input-func)
   (let ((input (funcall input-func (concat arg-name ": "))))
     (puthash arg-name input magit-key-mode-current-args)
@@ -386,7 +382,8 @@ item on one line."
         (interactive)
         (magit-key-mode (quote ,sym))))))
 
-;; create the interactive functions for the key mode popups
+;; create the interactive functions for the key mode popups (which are
+;; applied in the top-level key maps)
 (mapc (lambda (g)
         (magit-key-mode-generate (car g)))
       magit-key-mode-groups)
