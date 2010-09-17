@@ -18,6 +18,7 @@
 
 (defvar magit-key-mode-groups
   '((logging
+     (man-page "git-log")
      (actions
       ("l" "Short" magit-log)
       ("L" "Long" magit-log-long)
@@ -144,6 +145,18 @@ the group FOR-GROUP."
   (or (cdr (assoc for-group magit-key-mode-groups))
       (error "Unknown group '%s'" for-group)))
 
+(defun magit-key-mode-help (for-group)
+  (let* ((opts (magit-key-mode-options-for-group for-group))
+         (seq (read-key-sequence "Enter command prefix: "))
+         (actions (cdr (assoc 'actions opts))))
+    ;; is it an action? If so popup the help for the to-be-run
+    ;; function
+    (if (assoc seq actions)
+        (describe-function (nth 2 (assoc seq actions)))
+      ;; otherwise give the user a man page
+      (man (or (cadr (assoc 'man-page opts))
+               (error "No help associated with %s" seq))))))
+
 (defun magit-key-mode-build-keymap (for-group)
   "Construct a normal looking keymap for the key mode to use and
 put it in magit-key-mode-key-maps for fast lookup."
@@ -156,6 +169,10 @@ put it in magit-key-mode-key-maps for fast lookup."
       (define-key map (kbd "C-g") (lambda ()
                                     (interactive)
                                     (magit-key-mode-command nil)))
+      (define-key map (kbd "?") `(lambda ()
+                                  (interactive)
+                                  (magit-key-mode-help ',for-group)))
+
       (when actions
         (dolist (k actions)
           (define-key map (car k) `(lambda ()
@@ -245,7 +262,7 @@ put it in magit-key-mode-key-maps for fast lookup."
           'magit-key-mode-current-args)
          (make-hash-table))
     (magit-key-mode-redraw for-group))
-  (message "Type bindings prefixing option to action them."))
+  (message "Bindings prefixing options action them. '?' for help"))
 
 (defun magit-key-mode-redraw (for-group)
   "(re)draw the magit key buffer."
