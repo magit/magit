@@ -29,26 +29,26 @@ Magit is an interface to the version control system Git, implemented
 as an extension to Emacs.
 
 @menu
-* Introduction::                
-* Acknowledgments::             
-* Sections::                    
-* Status::                      
-* Untracked files::             
-* Staging and Committing::      
-* History::                     
-* Reflogs::                     
-* Diffing::                     
-* Tagging::                     
-* Resetting::                   
-* Stashing::                    
-* Branching::                   
+* Introduction::
+* Acknowledgments::
+* Sections::
+* Status::
+* Untracked files::
+* Staging and Committing::
+* History::
+* Reflogs::
+* Diffing::
+* Tagging::
+* Resetting::
+* Stashing::
+* Branching::
 * The branch list::
-* Wazzup::                      
-* Merging::                     
-* Rebasing::                    
-* Rewriting::                   
-* Pushing and Pulling::         
-* Interfacing with Subversion::  
+* Wazzup::
+* Merging::
+* Rebasing::
+* Rewriting::
+* Pushing and Pulling::
+* Using Magit Extensions::
 * Using Git Directly::
 @end menu
 
@@ -676,8 +676,17 @@ When the remote branch has changes that are not in the current branch,
 Magit shows them in a section called @emph{Unpulled changes}.  Typing
 @kbd{f f} will merge them into the current branch.
 
+@node Using Magit Extensions
+@chapter Magit Extensions
+
+@menu
+* Interfacing with Subversion::
+* Interfacing with Topgit::
+* Developing Extensions::
+@end menu
+
 @node Interfacing with Subversion
-@chapter Interfacing with Subversion
+@section Interfacing with Subversion
 
 Typing @kbd{N r} runs @code{git svn rebase}, typing @kbd{N c} runs
 @code{git svn dcommit} and typing @kbd{N f} runs @code{git svn fetch}.
@@ -687,6 +696,114 @@ then search for a corresponding Git sha1 for the commit. This is
 limited to the path of the remote Subversion repository. With a prefix
 (@kbd{C-u N s} the user will also be prompted for a branch to search
 in.
+
+@node Interfacing with Topgit
+@section Interfacing with Topgit
+
+Topgit (http://repo.or.cz/r/topgit.git) is a patch queue manager that
+aims at being close as possible to raw Git, which makes it easy to use
+with Magit. In particular, it does not require to use a different set of
+commands for ``commit'', ``update'',… operations.
+
+@file{magit-topgit.el} provides basic integration with Magit, mostly by
+providing a ``Topics'' section.
+
+Topgit branches can be created the regular way, by using a ``t/'' prefix
+by convention. So, creating a ``t/foo'' branch will actually populate
+the ``Topics'' section with one more branch after committing
+@file{.topdeps} and @file{.topmsg}.
+
+Also, the way we pull (see @ref{Pushing and Pulling}) such a branch is
+slightly different, since it requires updating the various dependencies
+of that branch. This should be mostly transparent, except in case
+of conflicts.
+
+@node Developing Extensions
+@section Developing Extensions
+
+Magit provides a generic mechanism to allow cooperation with Git-related
+systems, such as foreign VCS, patch systems,…
+
+In particular it allows to:
+
+@itemize @bullet
+@item
+Define sections to display specific informations about the current state
+of the repository, and place them relatively to existing sections.
+
+@code{magit-define-inserter} automagically defines two hooks called
+@code{magit-before-insert-SECTION-hook} and
+@code{magit-after-insert-SECTION-hook} that allow to generate and place
+more sections.
+
+In the following example, we use the builtin ``stashes'' section to
+place our own ``foo'' one.
+
+@example
+(magit-define-inserter foo ()
+  (magit-git-section 'foo
+                     "Foo:" 'foo-wash-function
+                     "foo" "arg1" "arg2"))
+(add-hook 'magit-after-insert-stashes-hook 'magit-insert-foo)
+@end example
+
+@item
+Define new types of objects in those sections.
+
+The function @code{foo-wash-function} defined above post-processes each
+line of the output of the ``git foo arg1 arg2'' command, and is able to
+associate a type to certain lines.
+
+A simple implementation could be:
+
+@example
+(defun foo-wash-function ()
+  (let ((foo (buffer-substring (line-beginning-position) (line-end-position))))
+    (goto-char (line-beginning-position))
+    (magit-with-section foo 'foo
+      (magit-set-section-info foo)
+      (forward-line))))
+@end example
+
+In this case, every line of the command output is transformed into an
+object of type @code{'foo}.
+
+@item
+Alter behavior of generic commands to dispatch them correctly to the
+relevant system, optionally making use of the newly defined types.
+
+@example
+(magit-add-action (item info "discard")
+  ((foo)
+   (do-something-meaningful-for-discarding-a-foo)))
+@end example
+
+This will alter the behavior of @kbd{k}, when applied to those objects.
+
+@item
+Plug a different logic into basic commands, to reflect the presence of
+the extension.
+
+@code{magit-define-command} automagically defines
+a @code{magit-CMD-command-hook} that can contain a list of functions to
+call before the actual core code. Execution stops after the first hook
+that returns a non-nil value. This leaves room for extension logic.
+
+@example
+(add-hook 'magit-create-branch-command-hook 'foo-create-branch)
+@end example
+
+The function @code{foo-create-branch} will be called each time an
+attempt is made to create a branch, and can, for example, react to
+a certain name convention.
+
+@item
+Define new commands and associated menu.
+
+This part is not really specific to extensions, except that menus take
+place in the ``Extensions'' submenu.
+
+@end itemize
 
 @node Using Git Directly
 @chapter Using Git Directly
