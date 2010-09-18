@@ -78,7 +78,7 @@
   ((topic)
    (magit-checkout info)))
 
-(add-hook 'magit-after-insert-stashes 'magit-insert-topics)
+(add-hook 'magit-after-insert-stashes-hook 'magit-insert-topics)
 (add-hook 'magit-create-branch-command-hook 'magit-topgit-create-branch)
 (add-hook 'magit-pull-command-hook 'magit-topgit-pull)
 
