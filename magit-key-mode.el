@@ -359,14 +359,16 @@ highlighed before the description."
   (when actions
     (let ((action-strs (mapcar
                         (lambda (a)
-                          (format
-                           " %s: %s"
-                           (propertize (car a)
-                                       'face 'font-lock-builtin-face)
-                           (nth 1 a)))
-                        actions)))
-      (magit-key-mode-draw-header "Actions\n")
-      (magit-key-mode-draw-in-cols action-strs))))
+                          (propertize
+                           (format
+                            " %s: %s"
+                            (propertize (car a)
+                                        'face 'font-lock-builtin-face)
+                            (nth 1 a))
+                           'key-group-executor (car a)))
+                       actions)))
+    (magit-key-mode-draw-header "Actions\n")
+    (magit-key-mode-draw-in-cols action-strs))))
 
 (defun magit-key-mode-draw-in-cols (strings &optional one-col-each)
   "Given a list of strings, print in columns (using `insert'). If
