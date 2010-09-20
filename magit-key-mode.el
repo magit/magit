@@ -168,6 +168,14 @@ FOR-GROUP."
       (man (or (cadr (assoc 'man-page opts))
                (error "No help associated with %s" seq))))))
 
+(defun magit-key-mode-exec-at-point ()
+  "Run action/args/option at point."
+  (interactive)
+  (let* ((key (or (get-text-property (point) 'key-group-executor)
+                  (error "Nothing at point to do.")))
+         (def (lookup-key (current-local-map) key)))
+    (call-interactively def)))
+
 (defun magit-key-mode-build-keymap (for-group)
   "Construct a normal looking keymap for the key mode to use and
 put it in magit-key-mode-key-maps for fast lookup."
@@ -176,10 +184,14 @@ put it in magit-key-mode-key-maps for fast lookup."
          (switches (cdr (assoc 'switches options)))
          (arguments (cdr (assoc 'arguments options))))
     (let ((map (make-sparse-keymap)))
+      ;; ret dwim
+      (define-key map (kbd "RET") 'magit-key-mode-exec-at-point)
+
       ;; all maps should 'quit' with C-g
       (define-key map (kbd "C-g") (lambda ()
                                     (interactive)
                                     (magit-key-mode-command nil)))
+      ;; run help
       (define-key map (kbd "?") `(lambda ()
                                   (interactive)
                                   (magit-key-mode-help ',for-group)))
@@ -273,14 +285,17 @@ highlighed before the description."
     (magit-key-mode-redraw for-group))
   (message "Bindings prefixing options action them. '?' for help"))
 
+(defun magit-key-mode-get-key-map (for-group)
+  "Get or build the keymap for FOR-GROUP."
+  (or (cdr (assoc for-group magit-key-mode-key-maps))
+      (magit-key-mode-build-keymap for-group)))
+
 (defun magit-key-mode-redraw (for-group)
   "(re)draw the magit key buffer."
   (let ((buffer-read-only nil))
     (erase-buffer)
     (make-local-variable 'font-lock-defaults)
-    (use-local-map
-     (or (cdr (assoc for-group magit-key-mode-key-maps))
-         (magit-key-mode-build-keymap for-group)))
+    (use-local-map (magit-key-mode-get-key-map for-group))
     (magit-key-mode-draw for-group)
     (delete-trailing-whitespace)
     (setq mode-name "magit-key-mode" major-mode 'magit-key-mode))
@@ -301,15 +316,19 @@ highlighed before the description."
   (when args
     (let ((strs (mapcar
                  (lambda (argument)
-                   (format " %s: %s (%s) %s"
-                           (propertize
-                            (car argument)
-                            'face 'font-lock-builtin-face)
-                           (nth 1 argument)
-                           (nth 2 argument)
-                           (propertize
-                            (gethash (nth 2 argument) magit-key-mode-current-args "")
-                            'face 'widget-field)))
+                   (propertize
+                    (format " %s: %s (%s) %s"
+                            (propertize
+                             (car argument)
+                             'face 'font-lock-builtin-face)
+                            (nth 1 argument)
+                            (nth 2 argument)
+                            (propertize
+                             (gethash (nth 2 argument)
+                                      magit-key-mode-current-args
+                                      "")
+                             'face 'widget-field))
+                    'key-group-executor (car argument)))
                  args)))
       (magit-key-mode-draw-header "Args\n")
       (magit-key-mode-draw-in-cols strs (not magit-key-mode-args-in-cols)))))
