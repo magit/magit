@@ -31,7 +31,7 @@
       ("-pr" "Pickaxe regex" "--pickaxe-regex")
       ("-n" "Name only" "--name-only")
       ("-am" "All match" "--all-match")
-      ("-a" "All" "--all"))
+      ("-al" "All" "--all"))
      (arguments
       ("=r" "Relative" "--relative=" read-directory-name)
       ("=c" "Committer" "--committer" read-from-minibuffer)
