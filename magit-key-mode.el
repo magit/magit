@@ -339,16 +339,18 @@ highlighed before the description."
     (let ((switch-strs (mapcar
                         (lambda (s)
                           (let ((option (nth 2 s)))
-                            (format " %s: %s (%s)"
-                                    (propertize (car s)
-                                                'face 'font-lock-builtin-face)
-                                    (nth 1 s)
-                                    (if (member option magit-key-mode-current-options)
-                                        (propertize
-                                         option
-                                         'face 'font-lock-warning-face)
-                                      option))))
-                          switches)))
+                            (propertize
+                             (format " %s: %s (%s)"
+                                     (propertize (car s)
+                                                 'face 'font-lock-builtin-face)
+                                     (nth 1 s)
+                                     (if (member option magit-key-mode-current-options)
+                                         (propertize
+                                          option
+                                          'face 'font-lock-warning-face)
+                                       option))
+                             'key-group-executor (car s))))
+                        switches)))
       (magit-key-mode-draw-header "Switches\n")
       (magit-key-mode-draw-in-cols switch-strs))))
 
