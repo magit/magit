@@ -292,15 +292,16 @@ highlighed before the description."
 
 (defun magit-key-mode-redraw (for-group)
   "(re)draw the magit key buffer."
-  (let ((buffer-read-only nil))
+  (let ((buffer-read-only nil)
+        (old-point (point)))
     (erase-buffer)
     (make-local-variable 'font-lock-defaults)
     (use-local-map (magit-key-mode-get-key-map for-group))
     (magit-key-mode-draw for-group)
     (delete-trailing-whitespace)
-    (setq mode-name "magit-key-mode" major-mode 'magit-key-mode))
+    (setq mode-name "magit-key-mode" major-mode 'magit-key-mode)
+    (goto-char old-point))
   (setq buffer-read-only t)
-  (goto-char (point-min))
   (fit-window-to-buffer))
 
 (defun magit-key-mode-draw-header (header)
