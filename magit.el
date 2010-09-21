@@ -2804,11 +2804,10 @@ If REVISION is a remote branch, offer to create a local tracking branch.
 \('git checkout [-b] REVISION')."
   (interactive (list (magit-read-rev "Switch to" (magit-default-rev))))
   (if revision
-      (if (not (magit-maybe-create-local-tracking-branch revision))
-	  (progn 
-	    (magit-save-some-buffers)
-	    (magit-run-git "checkout" (magit-rev-to-git revision))
-	    (magit-update-vc-modeline default-directory)))))
+      (when (not (magit-maybe-create-local-tracking-branch revision))
+	(magit-save-some-buffers)
+	(magit-run-git "checkout" (magit-rev-to-git revision))
+	(magit-update-vc-modeline default-directory))))
 
 (defun magit-read-create-branch-args ()
   (let* ((cur-branch (magit-get-current-branch))
@@ -2821,16 +2820,15 @@ If REVISION is a remote branch, offer to create a local tracking branch.
 Fails if working tree or staging area contain uncommitted changes.
 \('git checkout -b BRANCH REVISION')."
   (interactive (magit-read-create-branch-args))
-  (if (and branch (not (string= branch ""))
-	   parent)
-    (progn
-      (magit-save-some-buffers)
-      (magit-run-git "checkout" "-b"
-		      branch
-		     (append
-		      magit-custom-options
-		      (magit-rev-to-git parent)))
-      (magit-update-vc-modeline default-directory))))
+  (when (and branch (not (string= branch ""))
+	     parent)
+    (magit-save-some-buffers)
+    (magit-run-git "checkout" "-b"
+		   branch
+		   (append
+		    magit-custom-options
+		    (magit-rev-to-git parent)))
+    (magit-update-vc-modeline default-directory)))
 
 (defun magit-delete-branch (branch)
   "Asks for a branch and deletes it.
