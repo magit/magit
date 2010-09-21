@@ -2658,14 +2658,35 @@ insert a line to tell how to insert more of them"
   :lighter ()
   :keymap magit-status-mode-map)
 
+(defun magit-save-some-buffers (&optional msg pred)
+  "Save some buffers if variable `magit-save-some-buffers' is non-nil.
+If variable `magit-save-some-buffers' is set to 'dontask then
+don't ask the user before saving the buffers, just go ahead and
+do it.
+
+Optional argument MSG is displayed in the minibuffer if variable
+`magit-save-some-buffers' is nil.
+
+Optional second argument PRED determines which buffers are considered:
+If PRED is nil, all the file-visiting buffers are considered.
+If PRED is t, then certain non-file buffers will also be considered.
+If PRED is a zero-argument function, it indicates for each buffer whether
+to consider it or not when called with that buffer current."
+  (interactive)
+  (if magit-save-some-buffers
+      (save-some-buffers
+       (eq magit-save-some-buffers 'dontask)
+       pred)
+    (when msg
+	(message msg))))
+
 ;;;###autoload
 (defun magit-status (dir)
   (interactive (list (or (and (not current-prefix-arg)
 			      (magit-get-top-dir default-directory))
 			 (magit-read-top-dir (and (consp current-prefix-arg)
 						  (> (car current-prefix-arg) 4))))))
-  (if magit-save-some-buffers
-      (save-some-buffers (eq magit-save-some-buffers 'dontask)))
+  (magit-save-some-buffers)
   (let ((topdir (magit-get-top-dir dir)))
     (unless topdir
       (when (y-or-n-p (format "There is no Git repository in %S.  Create one? "
@@ -2785,6 +2806,7 @@ If REVISION is a remote branch, offer to create a local tracking branch.
   (if revision
       (if (not (magit-maybe-create-local-tracking-branch revision))
 	  (progn 
+	    (magit-save-some-buffers)
 	    (magit-run-git "checkout" (magit-rev-to-git revision))
 	    (magit-update-vc-modeline default-directory)))))
 
@@ -4260,12 +4282,9 @@ With prefix force the removal even it it hasn't been merged."
 		    (kill-buffer buffer-C)
 		    (when (bufferp buffer-Ancestor) (kill-buffer buffer-Ancestor))
 		    (set-window-configuration windows)
-		    (if magit-save-some-buffers
-			(save-some-buffers
-			 (eq magit-save-some-buffers 'dontask)
-			 (lambda ()
-			   (eq (current-buffer) file-buffer)))
-		      (message "Conflict resolution finished; you may save the buffer"))))))))
+		    (magit-save-some-buffers
+		     "Conflict resolution finished; you may save the buffer"
+		     (lambda () (eq (current-buffer) file-buffer)))))))))
 
 (defun magit-interactive-resolve-item ()
   (interactive)
