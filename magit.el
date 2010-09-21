@@ -2823,11 +2823,15 @@ Fails if working tree or staging area contain uncommitted changes.
   (interactive (magit-read-create-branch-args))
   (if (and branch (not (string= branch ""))
 	   parent)
+	(magit-save-some-buffers)
+    (progn
+      (magit-save-some-buffers)
       (magit-run-git "checkout" "-b"
 		      branch
 		     (append
 		      magit-custom-options
-		      (magit-rev-to-git parent)))))
+		      (magit-rev-to-git parent)))
+      (magit-update-vc-modeline default-directory))))
 
 (defun magit-delete-branch (branch)
   "Asks for a branch and deletes it.
