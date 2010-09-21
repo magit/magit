@@ -30,6 +30,7 @@
 ;; Copyright (C) 2010 Yann Hodique.
 ;; Copyright (C) 2010 Ævar Arnfjörð Bjarmason.
 ;; Copyright (C) 2010 Óscar Fuentes.
+;; Copyright (C) 2010 Aaron Culich.
 
 ;; Author: Marius Vollmer <marius.vollmer@nokia.com>
 ;; Maintainer: Phil Jackson <phil@shellarchive.co.uk>
