@@ -2823,7 +2823,6 @@ Fails if working tree or staging area contain uncommitted changes.
   (interactive (magit-read-create-branch-args))
   (if (and branch (not (string= branch ""))
 	   parent)
-	(magit-save-some-buffers)
     (progn
       (magit-save-some-buffers)
       (magit-run-git "checkout" "-b"
