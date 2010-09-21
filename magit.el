@@ -1640,10 +1640,10 @@ FUNC should leave point at the end of the modified region"
 	       (magit-need-refresh magit-process-client-buffer))))
       (or successp
 	  noerror
-	  (error 
+	  (error
 	   (or (save-excursion
 		 (set-buffer (get-buffer magit-process-buffer-name))
-		 (when (re-search-backward 
+		 (when (re-search-backward
 			(concat "^error: \\(.*\\)" paragraph-separate) nil t)
 		   (match-string 1)))
 	       "Git failed")))
