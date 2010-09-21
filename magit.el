@@ -2784,7 +2784,9 @@ If REVISION is a remote branch, offer to create a local tracking branch.
   (interactive (list (magit-read-rev "Switch to" (magit-default-rev))))
   (if revision
       (if (not (magit-maybe-create-local-tracking-branch revision))
-	  (magit-run-git "checkout" (magit-rev-to-git revision)))))
+	  (progn 
+	    (magit-run-git "checkout" (magit-rev-to-git revision))
+	    (magit-update-vc-modeline default-directory)))))
 
 (defun magit-read-create-branch-args ()
   (let* ((cur-branch (magit-get-current-branch))
