@@ -49,9 +49,9 @@
     (fetching
      (man-page "git-fetch")
      (actions
-      ("f" "Fetch" magit-fetch))
-     (switches
-      ("-a" "All" "--all")))
+      ("f" "Current" magit-fetch-current)
+      ("a" "All" magit-remote-update)
+      ("o" "Other" magit-fetch)))
 
     (pushing
      (man-page "git-push")

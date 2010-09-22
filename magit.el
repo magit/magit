@@ -3080,6 +3080,11 @@ Uncomitted changes in both working tree and staging area are lost.
   (interactive)
   (magit-run-git-async "fetch" (magit-read-remote)))
 
+(magit-define-command fetch-current ()
+  "Run fetch."
+  (interactive)
+  (magit-run-git-async "fetch"))
+
 (magit-define-command remote-update ()
   "Update all remotes."
   (interactive)
