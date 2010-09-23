@@ -2835,7 +2835,16 @@ rev... maybe."
 Fails if working tree or staging area contain uncommitted changes.
 If REVISION is a remote branch, offer to create a local tracking branch.
 \('git checkout [-b] REVISION')."
-  (interactive (list (magit-read-rev "Switch to" (magit-default-rev))))
+  (interactive
+   (list (let ((current-branch (magit-get-current-branch))
+               (default (magit-default-rev)))
+           (magit-read-rev "Switch to"
+                           (unless (string= current-branch default)
+                             default)
+                           (if current-branch
+                               (cons (concat "refs/heads/" current-branch)
+                                     magit-uninteresting-refs)
+                             magit-uninteresting-refs)))))
   (if revision
       (when (not (magit-maybe-create-local-tracking-branch revision))
 	(magit-save-some-buffers)
