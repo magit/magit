@@ -34,7 +34,7 @@
       ("-al" "All" "--all"))
      (arguments
       ("=r" "Relative" "--relative=" read-directory-name)
-      ("=c" "Committer" "--committer" read-from-minibuffer)
+      ("=c" "Committer" "--committer=" read-from-minibuffer)
       ("=>" "Since" "--since=" read-from-minibuffer)
       ("=<" "Before" "--before=" read-from-minibuffer)
       ("=s" "Pickaxe search" "-S" read-from-minibuffer)
