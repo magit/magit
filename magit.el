@@ -2624,7 +2624,7 @@ insert a line to tell how to insert more of them"
 			       (mapcar 'magit-name-rev merge-heads))))))
 	(let ((rebase (magit-rebase-info)))
 	  (if rebase
-	      (insert (apply 'format "Rebasing: onto %s (%s of %s)\n" rebase))))
+	      (insert (apply 'format "Rebasing: onto %s (%s of %s); Press \"R\" to Abort, Skip, or Continue\n" rebase))))
 	(insert "\n")
 	(magit-git-exit-code "update-index" "--refresh")
 	(magit-insert-untracked-files)
