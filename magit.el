@@ -2888,9 +2888,18 @@ With a prefix-arg, the merge will be squashed.
 if any."
   (cond ((file-exists-p ".git/rebase-merge")
          (list
+          ;; The commit message of the commit we're at
           (magit-name-rev (car (magit-file-lines ".git/rebase-merge/message")))
+
+          ;; How many commits we've gone through
           (length (magit-file-lines ".git/rebase-merge/done"))
-          (length (magit-file-lines ".git/rebase-merge/git-rebase-todo.backup"))))
+
+          ;; How many commits we have in total, without the comments
+          ;; at the end of git-rebase-todo.backup
+          (let ((todo-lines-with-comments (magit-file-lines ".git/rebase-merge/git-rebase-todo.backup")))
+            (loop for i in todo-lines-with-comments
+                  until (string= "" i)
+                  count i))))
 	(t nil)))
 
 (defun magit-rebase-step ()
