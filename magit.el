@@ -2911,7 +2911,7 @@ if any."
 	      (magit-run-git "rebase" (magit-rev-to-git rev))))
       (let ((cursor-in-echo-area t)
             (message-log-max nil))
-        (message "Rebase in progress. Abort, Skip, or Continue? ")
+        (message "Rebase in progress. [A]bort, [S]kip, or [C]ontinue? ")
         (let ((reply (read-event)))
           (case reply
             ((?A ?a)
