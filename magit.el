@@ -533,14 +533,15 @@ Many Magit faces inherit from this one by default."
            (setq iswitchb-temp-buflist (if (consp (first choices))
                                            (mapcar #'car choices)
                                          choices)))))
-    (iswitchb-read-buffer (format "%s: " prompt) (or initial-input def) require-match)))
+    (iswitchb-read-buffer prompt (or initial-input def) require-match)))
 
 (defun magit-builtin-completing-read (prompt choices &optional predicate require-match
                                       initial-input hist def)
   "Magit wrapper for standard completing-read function."
-  (completing-read (if def
-                       (format "%s (default %s): " prompt def)
-                     (format "%s: " prompt))
+  (completing-read (if (and def (> (length prompt) 2)
+                            (string-equal ": " (substring prompt -2)))
+                       (format "%s (default %s): " (substring prompt 0 -2) def)
+                     prompt)
                    choices predicate require-match initial-input hist def))
 
 (defun magit-completing-read (prompt choices &optional predicate require-match
@@ -856,8 +857,8 @@ pair (START . END), then the range is START..END.")
 (defun magit-read-rev (prompt &optional def uninteresting)
   (let* ((interesting-refs (magit-list-interesting-refs
                             (or uninteresting magit-uninteresting-refs)))
-	 (reply (magit-completing-read prompt interesting-refs nil nil nil
-                                       'magit-read-rev-history def))
+	 (reply (magit-completing-read (concat prompt ": ") interesting-refs
+                                       nil nil nil 'magit-read-rev-history def))
 	 (rev (or (cdr (assoc reply interesting-refs)) reply)))
     (if (string= rev "")
 	nil
@@ -919,7 +920,7 @@ pair (START . END), then the range is START..END.")
   "Read the name of a remote.
 PROMPT is used as the prompt, and defaults to \"Remote\".
 DEF is the default value, and defaults to the value of `magit-get-current-branch'."
-  (let* ((prompt (or prompt "Remote"))
+  (let* ((prompt (or prompt "Remote: "))
          (def (or def (magit-get-current-remote)))
 	 (remotes (magit-git-lines "remote"))
 	 (reply (magit-completing-read prompt remotes
@@ -3190,7 +3191,7 @@ typing and automatically refreshes the status buffer."
 	 (branch-remote (magit-get-remote branch))
 	 (push-remote (if (or current-prefix-arg
 			      (not branch-remote))
-			  (magit-read-remote (format "Push %s to" branch)
+			  (magit-read-remote (format "Push %s to: " branch)
 					     branch-remote)
 			branch-remote))
 	 (ref-branch (magit-get "branch" branch "merge")))
