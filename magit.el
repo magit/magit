@@ -2641,16 +2641,16 @@ insert a line to tell how to insert more of them"
 		    "log" "--max-count=1" "--abbrev-commit" "--pretty=oneline"))
 	     (no-commit (not head)))
 	(when remote-string
-	  (insert "Remote: " remote-string "\n"))
-	(insert (format "Local:  %s %s\n"
+	  (insert "Remote:   " remote-string "\n"))
+	(insert (format "Local:    %s %s\n"
 			(propertize (or branch "(detached)")
 				    'face 'magit-branch)
 			(abbreviate-file-name default-directory)))
-	(insert (format "Head:   %s\n"
+	(insert (format "Head:     %s\n"
 			(if no-commit "nothing commited (yet)" head)))
 	(let ((merge-heads (magit-file-lines ".git/MERGE_HEAD")))
 	  (if merge-heads
-	      (insert (format "Merging: %s\n"
+	      (insert (format "Merging:   %s\n"
 			      (magit-concat-with-delim
 			       ", "
 			       (mapcar 'magit-name-rev merge-heads))))))
