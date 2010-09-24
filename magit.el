@@ -2656,7 +2656,7 @@ insert a line to tell how to insert more of them"
 			       (mapcar 'magit-name-rev merge-heads))))))
 	(let ((rebase (magit-rebase-info)))
 	  (if rebase
-	      (insert (apply 'format "Rebasing: %s (%s of %s)\n" rebase))))
+	      (insert (apply 'format "Rebasing: onto %s (%s of %s)\n" rebase))))
 	(insert "\n")
 	(magit-git-exit-code "update-index" "--refresh")
 	(magit-insert-untracked-files)
@@ -2929,8 +2929,8 @@ With a prefix-arg, the merge will be squashed.
 if any."
   (cond ((file-exists-p ".git/rebase-merge")
          (list
-          ;; The commit message of the commit we're at
-          (magit-name-rev (car (magit-file-lines ".git/rebase-merge/message")))
+          ;; The commit we're rebasing onto, i.e. git rebase -i <onto>
+          (magit-name-rev (car (magit-file-lines ".git/rebase-merge/onto")))
 
           ;; How many commits we've gone through
           (length (magit-file-lines ".git/rebase-merge/done"))
