@@ -183,7 +183,7 @@ t mean pty, it enable magit to prompt for passphrase when needed."
   :group 'magit
   :type 'boolean)
 
-(defcustom magit-completing-read-function 'magit-iswitchb-completing-read
+(defcustom magit-completing-read-function 'magit-builtin-completing-read
   "Function to be called when requesting input from the user."
   :group 'magit
   :type '(radio (function-item magit-iswitchb-completing-read)
