@@ -3222,6 +3222,7 @@ typing and automatically refreshes the status buffer."
     (define-key map (kbd "C-c C-a") 'magit-log-edit-toggle-amending)
     (define-key map (kbd "C-c C-s") 'magit-log-edit-toggle-signoff)
     (define-key map (kbd "C-c C-e") 'magit-log-edit-toggle-allow-empty)
+    (define-key map (kbd "C-c C-h") 'magit-log-edit-insert-header)
     (define-key map (kbd "M-p") 'log-edit-previous-comment)
     (define-key map (kbd "M-n") 'log-edit-next-comment)
     (define-key map (kbd "C-c C-k") 'magit-log-edit-cancel-log-message)
@@ -3421,6 +3422,11 @@ toggled on.  When it's toggled on for the first time, return
 This means that the eventual commit does 'git commit --allow-empty'."
   (interactive)
   (magit-log-edit-toggle-field 'allow-empty t))
+
+(defun magit-log-edit-insert-header ()
+  "Inserts the end of headers string into the commit message"
+  (interactive)
+  (insert magit-log-header-end))
 
 (defun magit-pop-to-log-edit (operation)
   (let ((dir default-directory)
