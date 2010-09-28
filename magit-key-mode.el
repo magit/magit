@@ -56,7 +56,8 @@
     (pushing
      (man-page "git-push")
      (actions
-      ("p" "Push" magit-push))
+      ("p" "Push" magit-push)
+      ("t" "Push tags" magit-push-tags))
      (switches
       ("-f" "Force" "--force")
       ("-d" "Dry run" "-n")))
