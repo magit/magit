@@ -3184,6 +3184,11 @@ typing and automatically refreshes the status buffer."
                           args)
                   nil nil nil t))))
 
+(magit-define-command push-tags ()
+  "Push tags."
+  (interactive)
+  (magit-run-git-async "push" "--tags"))
+
 (magit-define-command push ()
   (interactive)
   (let* ((branch (or (magit-get-current-branch)
