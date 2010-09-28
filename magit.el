@@ -3432,7 +3432,16 @@ This means that the eventual commit does 'git commit --allow-empty'."
 (defun magit-log-edit-insert-header ()
   "Inserts the end of headers string into the commit message"
   (interactive)
-  (insert magit-log-header-end))
+  (let ((buf (get-buffer magit-log-edit-buffer-name)))
+    (with-current-buffer buf
+	(goto-char (point-min))
+	(if (not (search-forward-regexp
+		  (regexp-quote magit-log-header-end) nil t))
+	    (insert magit-log-header-end))
+	;; once we have either found or inserted the header
+	;; go to the first point in the buffer, since that
+	;; will be in the header
+	(goto-char (point-min)))))
 
 (defun magit-pop-to-log-edit (operation)
   (let ((dir default-directory)
