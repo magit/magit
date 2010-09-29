@@ -1,4 +1,5 @@
 VERSION=0.8.2
+EMACS=emacs
 PREFIX=/usr/local
 ELS=magit.el magit-svn.el magit-topgit.el magit-key-mode.el
 ELCS=$(ELS:.el=.elc)
@@ -6,9 +7,11 @@ DIST_FILES=$(ELS) Makefile magit.texi README.md magit.spec.in magit-pkg.el.in 50
 
 .PHONY=install
 
+BATCH=$(EMACS) -batch -q -no-site-file -eval \
+  "(setq load-path (cons (expand-file-name \".\") load-path))"
+
 %.elc: %.el
-	emacs --batch --eval "(add-to-list 'load-path \"$(CURDIR)\")" \
-	              --eval '(byte-compile-file "$<")'
+	$(BATCH) --eval '(byte-compile-file "$<")'
 
 all: $(ELCS) magit.info magit.spec magit-pkg.el
 
