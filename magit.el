@@ -1975,7 +1975,8 @@ function can be enriched by magit extension like magit-topgit and magit-svn"
 		nil nil nil nil input)))
 
 (defun magit-run-git-async (&rest args)
-  (message "Running %s %s" magit-git-executable (mapconcat 'identity args " "))
+  (message "Running `%s %s'..."
+           magit-git-executable (mapconcat 'identity args " "))
   (magit-run* (append (cons magit-git-executable
 			    magit-git-standard-options)
 		      args)
