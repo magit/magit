@@ -2,7 +2,7 @@
 
 (defvar magit-key-mode-key-maps '()
   "This will be filled lazily with proper `define-key' built
-  keymaps as they're reqeusted.")
+  keymaps as they're requested.")
 
 (defvar magit-key-mode-buf-name "*magit-key*"
   "Name of the buffer.")
@@ -29,7 +29,7 @@
      (switches
       ("-m" "Only merge commits" "--merges")
       ("-f" "First parent" "--first-parent")
-      ("-i" "Case insesnitive patterns" "-i")
+      ("-i" "Case insensitive patterns" "-i")
       ("-pr" "Pickaxe regex" "--pickaxe-regex")
       ("-n" "Name only" "--name-only")
       ("-am" "All match" "--all-match")
@@ -182,7 +182,7 @@ be a brief description of the binding."
 
 (defun magit-key-mode-insert-switch (for-group key desc switch)
   "Add a new binding (KEY) in FOR-GROUP which will add SWITCH to git's
-commandline when it runs. DESC should be a brief description of
+command line when it runs. DESC should be a brief description of
 the binding."
   (magit-key-mode-update-group for-group 'switches key desc switch))
 
@@ -306,7 +306,7 @@ put it in magit-key-mode-key-maps for fast lookup."
 (defun magit-key-mode (for-group &optional original-opts)
   "Mode for magit key selection. All commands, switches and
 options can be toggled/actioned with the key combination
-highlighed before the description."
+highlighted before the description."
   (interactive)
   ;; save the window config to restore it as was (no need to make this
   ;; buffer local)
