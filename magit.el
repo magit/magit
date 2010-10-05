@@ -274,10 +274,7 @@ Many Magit faces inherit from this one by default."
   :group 'magit-faces)
 
 (defface magit-diff-add
-  '((((class color) (background light))
-     :foreground "blue1")
-    (((class color) (background dark))
-     :foreground "white"))
+  '((t :inherit font-lock-function-name))
   "Face for lines in a diff that have been added."
   :group 'magit-faces)
 
@@ -287,10 +284,7 @@ Many Magit faces inherit from this one by default."
   :group 'magit-faces)
 
 (defface magit-diff-del
-  '((((class color) (background light))
-     :foreground "red")
-    (((class color) (background dark))
-     :foreground "OrangeRed"))
+  '((t :inherit font-lock-comment))
   "Face for lines in a diff that have been deleted."
   :group 'magit-faces)
 
@@ -303,10 +297,7 @@ Many Magit faces inherit from this one by default."
   :group 'magit-faces)
 
 (defface magit-log-sha1
-  '((((class color) (background light))
-     :foreground "firebrick")
-    (((class color) (background dark))
-     :foreground "tomato"))
+  '((t :inherit font-lock-comment))
   "Face for the sha1 element of the log output."
   :group 'magit-faces)
 
