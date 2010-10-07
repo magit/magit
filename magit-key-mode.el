@@ -34,7 +34,7 @@
       ("-al" "All" "--all"))
      (arguments
       ("=r" "Relative" "--relative=" read-directory-name)
-      ("=c" "Committer" "--committer" read-from-minibuffer)
+      ("=c" "Committer" "--committer=" read-from-minibuffer)
       ("=>" "Since" "--since=" read-from-minibuffer)
       ("=<" "Before" "--before=" read-from-minibuffer)
       ("=s" "Pickaxe search" "-S" read-from-minibuffer)
@@ -49,14 +49,15 @@
     (fetching
      (man-page "git-fetch")
      (actions
-      ("f" "Fetch" magit-fetch))
-     (switches
-      ("-a" "All" "--all")))
+      ("f" "Current" magit-fetch-current)
+      ("a" "All" magit-remote-update)
+      ("o" "Other" magit-fetch)))
 
     (pushing
      (man-page "git-push")
      (actions
-      ("p" "Push" magit-push))
+      ("p" "Push" magit-push)
+      ("t" "Push tags" magit-push-tags))
      (switches
       ("-f" "Force" "--force")
       ("-d" "Dry run" "-n")))

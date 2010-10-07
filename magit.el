@@ -183,6 +183,14 @@ t mean pty, it enable magit to prompt for passphrase when needed."
   :group 'magit
   :type 'boolean)
 
+(defcustom magit-completing-read-function 'magit-builtin-completing-read
+  "Function to be called when requesting input from the user."
+  :group 'magit
+  :type '(radio (function-item magit-iswitchb-completing-read)
+		(function-item magit-builtin-completing-read)
+		(function :tag "Other")))
+
+
 (defface magit-header
   '((t))
   "Face for generic header lines.
@@ -326,9 +334,6 @@ Many Magit faces inherit from this one by default."
 
 (defvar magit-custom-options '()
   "List of custom options to pass git. Do not customise this.")
-
-(defvar magit-completing-read 'completing-read
-  "Function to be called when requesting input from the user.")
 
 (defvar magit-read-rev-history nil
   "The history of inputs to `magit-read-rev'.")
@@ -519,6 +524,31 @@ Many Magit faces inherit from this one by default."
 (make-variable-buffer-local 'magit-submode)
 (put 'magit-submode 'permanent-local t)
 
+(defun magit-iswitchb-completing-read (prompt choices &optional predicate require-match
+                                       initial-input hist def)
+  "iswitchb-based completing-read almost-replacement."
+  (require 'iswitchb)
+  (let ((iswitchb-make-buflist-hook
+         (lambda ()
+           (setq iswitchb-temp-buflist (if (consp (first choices))
+                                           (mapcar #'car choices)
+                                         choices)))))
+    (iswitchb-read-buffer prompt (or initial-input def) require-match)))
+
+(defun magit-builtin-completing-read (prompt choices &optional predicate require-match
+                                      initial-input hist def)
+  "Magit wrapper for standard completing-read function."
+  (completing-read (if (and def (> (length prompt) 2)
+                            (string-equal ": " (substring prompt -2)))
+                       (format "%s (default %s): " (substring prompt 0 -2) def)
+                     prompt)
+                   choices predicate require-match initial-input hist def))
+
+(defun magit-completing-read (prompt choices &optional predicate require-match
+                              initial-input hist def)
+  (funcall magit-completing-read-function prompt choices predicate require-match
+           initial-input hist def))
+
 (defun magit-use-region-p ()
   (if (fboundp 'use-region-p)
       (use-region-p)
@@ -686,8 +716,8 @@ Otherwise, return nil."
 (defun magit-read-top-dir (rawp)
   (if (and (not rawp) magit-repo-dirs)
       (let* ((repos (magit-list-repos magit-repo-dirs))
-	     (reply (funcall magit-completing-read "Git repository: "
-				     (magit-list-repos magit-repo-dirs))))
+	     (reply (magit-completing-read "Git repository: "
+                                           (magit-list-repos magit-repo-dirs))))
 	(file-name-as-directory
 	 (cdr (assoc reply repos))))
     (file-name-as-directory
@@ -790,12 +820,14 @@ working directory state (or HEAD in a log buffer).  If it's a
 pair (START . END), then the range is START..END.")
 (make-variable-buffer-local 'magit-current-range)
 
-(defun magit-list-interesting-refs ()
+(defun magit-list-interesting-refs (&optional uninteresting)
   (let ((refs ()))
     (dolist (line (magit-git-lines "show-ref"))
       (if (string-match "[^ ]+ +\\(.*\\)" line)
 	  (let ((ref (match-string 1 line)))
-	    (cond ((string-match "refs/heads/\\(.*\\)" ref)
+	    (cond ((loop for i in uninteresting
+                         thereis (string-match i ref)))
+                  ((string-match "refs/heads/\\(.*\\)" ref)
 		   (let ((branch (match-string 1 ref)))
 		     (push (cons branch branch) refs)))
 		  ((string-match "refs/tags/\\(.*\\)" ref)
@@ -815,15 +847,18 @@ pair (START . END), then the range is START..END.")
 				       (match-string 2 ref)))
 			       ref)
 			 refs))))))
-    refs))
+    (nreverse refs)))
 
-(defun magit-read-rev (prompt &optional def)
-  (let* ((prompt (if def
-		     (format "%s (default %s): " prompt def)
-		   (format "%s: " prompt)))
-	 (interesting-refs (magit-list-interesting-refs))
-	 (reply (funcall magit-completing-read prompt interesting-refs
-				 nil nil nil 'magit-read-rev-history def))
+(defvar magit-uninteresting-refs '("refs/remotes/\\([^/]+\\)/HEAD$"))
+
+;; TODO: fix this so that def can (must?) be git rev instead of, say, "master (origin)"
+;; which involves a particular display strategy and shouldn't be visible to callers
+;; of magit-read-rev
+(defun magit-read-rev (prompt &optional def uninteresting)
+  (let* ((interesting-refs (magit-list-interesting-refs
+                            (or uninteresting magit-uninteresting-refs)))
+	 (reply (magit-completing-read (concat prompt ": ") interesting-refs
+                                       nil nil nil 'magit-read-rev-history def))
 	 (rev (or (cdr (assoc reply interesting-refs)) reply)))
     (if (string= rev "")
 	nil
@@ -885,14 +920,11 @@ pair (START . END), then the range is START..END.")
   "Read the name of a remote.
 PROMPT is used as the prompt, and defaults to \"Remote\".
 DEF is the default value, and defaults to the value of `magit-get-current-branch'."
-  (let* ((prompt (or prompt "Remote"))
+  (let* ((prompt (or prompt "Remote: "))
          (def (or def (magit-get-current-remote)))
-         (prompt (if def
-		     (format "%s (default %s): " prompt def)
-		   (format "%s: " prompt)))
 	 (remotes (magit-git-lines "remote"))
-	 (reply (funcall magit-completing-read prompt remotes
-				 nil nil nil nil def)))
+	 (reply (magit-completing-read prompt remotes
+                                       nil nil nil nil def)))
     (if (string= reply "") nil reply)))
 
 ;;; Sections
@@ -1640,10 +1672,10 @@ FUNC should leave point at the end of the modified region"
 	       (magit-need-refresh magit-process-client-buffer))))
       (or successp
 	  noerror
-	  (error 
+	  (error
 	   (or (save-excursion
 		 (set-buffer (get-buffer magit-process-buffer-name))
-		 (when (re-search-backward 
+		 (when (re-search-backward
 			(concat "^error: \\(.*\\)" paragraph-separate) nil t)
 		   (match-string 1)))
 	       "Git failed")))
@@ -2809,7 +2841,16 @@ rev... maybe."
 Fails if working tree or staging area contain uncommitted changes.
 If REVISION is a remote branch, offer to create a local tracking branch.
 \('git checkout [-b] REVISION')."
-  (interactive (list (magit-read-rev "Switch to" (magit-default-rev))))
+  (interactive
+   (list (let ((current-branch (magit-get-current-branch))
+               (default (magit-default-rev)))
+           (magit-read-rev "Switch to"
+                           (unless (string= current-branch default)
+                             default)
+                           (if current-branch
+                               (cons (concat "refs/heads/" current-branch)
+                                     magit-uninteresting-refs)
+                             magit-uninteresting-refs)))))
   (if revision
       (when (not (magit-maybe-create-local-tracking-branch revision))
 	(magit-save-some-buffers)
@@ -2897,7 +2938,20 @@ if any."
   (interactive)
   (let ((info (magit-rebase-info)))
     (if (not info)
-	(let ((rev (magit-read-rev "Rebase to" (magit-guess-branch))))
+	(let* ((current-branch (magit-get-current-branch))
+               (remote (when current-branch
+                         (magit-get "branch" current-branch "remote")))
+               (remote-branch (when remote
+                                (magit-get "branch" current-branch "merge")))
+               (rev (magit-read-rev "Rebase to"
+                                    (when (and remote-branch
+                                               (string-match "refs/heads/\\(.*\\)" remote-branch))
+                                      (concat (match-string 1 remote-branch)
+                                              " (" remote ")"))
+                                    (if current-branch
+                                        (cons (concat "refs/heads/" current-branch)
+                                              magit-uninteresting-refs)
+                                      magit-uninteresting-refs))))
 	  (if rev
 	      (magit-run-git "rebase" (magit-rev-to-git rev))))
       (let ((cursor-in-echo-area t)
@@ -3080,6 +3134,11 @@ Uncomitted changes in both working tree and staging area are lost.
   (interactive)
   (magit-run-git-async "fetch" (magit-read-remote)))
 
+(magit-define-command fetch-current ()
+  "Run fetch."
+  (interactive)
+  (magit-run-git-async "fetch"))
+
 (magit-define-command remote-update ()
   "Update all remotes."
   (interactive)
@@ -3125,6 +3184,11 @@ typing and automatically refreshes the status buffer."
                           args)
                   nil nil nil t))))
 
+(magit-define-command push-tags ()
+  "Push tags."
+  (interactive)
+  (magit-run-git-async "push" "--tags"))
+
 (magit-define-command push ()
   (interactive)
   (let* ((branch (or (magit-get-current-branch)
@@ -3132,7 +3196,7 @@ typing and automatically refreshes the status buffer."
 	 (branch-remote (magit-get-remote branch))
 	 (push-remote (if (or current-prefix-arg
 			      (not branch-remote))
-			  (magit-read-remote (format "Push %s to" branch)
+			  (magit-read-remote (format "Push %s to: " branch)
 					     branch-remote)
 			branch-remote))
 	 (ref-branch (magit-get "branch" branch "merge")))
