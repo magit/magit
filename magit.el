@@ -502,6 +502,12 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "i") 'magit-ignore-item)
     map))
 
+
+(defvar magit-bug-report-url "http://github.com/philjackson/magit/issues")
+(defun magit-bug-report (str)
+  (message "Unknown error: %s\nPlease file a bug at %s"
+	   str magit-bug-report-url))
+
 ;;; Macros
 
 (defmacro magit-with-refresh (&rest body)
@@ -1966,8 +1972,10 @@ Please see the manual for a complete description of Magit.
 	       (or ignore-modtime (not (verify-visited-file-modtime buffer)))
 	       (not (buffer-modified-p buffer)))
       (with-current-buffer buffer
-	(ignore-errors
-	  (revert-buffer t t nil))))))
+	(condition-case var
+	  (revert-buffer t t nil)
+	  (error (let ((signal-data (cadr var)))
+		   (cond (t (magit-bug-report signal-data))))))))))
 
 (defun magit-update-vc-modeline (dir)
   "Update the modeline for buffers representable by magit."
@@ -1976,8 +1984,10 @@ Please see the manual for a complete description of Magit.
 	       (buffer-file-name buffer)
 	       (magit-string-has-prefix-p (buffer-file-name buffer) dir))
       (with-current-buffer buffer
-	(ignore-errors
-	  (vc-find-file-hook))))))
+	(condition-case var
+	    (vc-find-file-hook)
+	  (error (let ((signal-data (cadr var)))
+		   (cond (t (magit-bug-report signal-data))))))))))
 
 (defvar magit-refresh-needing-buffers nil)
 (defvar magit-refresh-pending nil)
