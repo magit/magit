@@ -1,9 +1,12 @@
 ;;; magit.el -- control Git from Emacs.
 
+;; Copyright (C) 2010 Aaron Culich.
 ;; Copyright (C) 2010 Alan Falloon.
 ;; Copyright (C) 2008, 2010 Alex Ott.
 ;; Copyright (C) 2008, 2009, 2010 Alexey Voinov.
 ;; Copyright (C) 2010 Ben Walton.
+;; Copyright (C) 2010 Chris Bernard.
+;; Copyright (C) 2010 Christian Kluge.
 ;; Copyright (C) 2008 Daniel Farina.
 ;; Copyright (C) 2010 David Abrahams.
 ;; Copyright (C) 2009 David Wallin.
@@ -17,23 +20,26 @@
 ;; Copyright (C) 2010 Mark Hepburn.
 ;; Copyright (C) 2010 Moritz Bunkus.
 ;; Copyright (C) 2010 Nathan Weizenbaum.
+;; Copyright (C) 2010 Oscar Fuentes.
 ;; Copyright (C) 2009 Pavel Holejsovsky.
 ;; Copyright (C) 2009, 2010 Phil Jackson.
+;; Copyright (C) 2010 Philip Weaver.
 ;; Copyright (C) 2010 Ramkumar Ramachandra.
 ;; Copyright (C) 2010 Remco van 't Veer.
 ;; Copyright (C) 2009 René Stadler.
+;; Copyright (C) 2010 Robin Green.
 ;; Copyright (C) 2010 Roger Crew.
 ;; Copyright (C) 2009, 2010 Rémi Vanicat.
 ;; Copyright (C) 2010 Sean Bryant.
 ;; Copyright (C) 2009 Steve Purcell.
 ;; Copyright (C) 2010 Timo Juhani Lindfors.
 ;; Copyright (C) 2010 Yann Hodique.
+;; Copyright (C) 2010 oscar.
 ;; Copyright (C) 2010 Ævar Arnfjörð Bjarmason.
 ;; Copyright (C) 2010 Óscar Fuentes.
-;; Copyright (C) 2010 Aaron Culich.
 
-;; Author: Marius Vollmer <marius.vollmer@nokia.com>
-;; Maintainer: Phil Jackson <phil@shellarchive.co.uk>
+;; Original Author: Marius Vollmer <marius.vollmer@nokia.com>
+;; Lead developer: Phil Jackson <phil@shellarchive.co.uk>
 ;; Version: 0.8.2
 ;; Keywords: tools
 
