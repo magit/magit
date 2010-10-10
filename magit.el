@@ -2657,22 +2657,22 @@ insert a line to tell how to insert more of them"
 		    "log" "--max-count=1" "--abbrev-commit" "--pretty=oneline"))
 	     (no-commit (not head)))
 	(when remote-string
-	  (insert "Remote: " remote-string "\n"))
-	(insert (format "Local:  %s %s\n"
+	  (insert "Remote:   " remote-string "\n"))
+	(insert (format "Local:    %s %s\n"
 			(propertize (or branch "(detached)")
 				    'face 'magit-branch)
 			(abbreviate-file-name default-directory)))
-	(insert (format "Head:   %s\n"
+	(insert (format "Head:     %s\n"
 			(if no-commit "nothing commited (yet)" head)))
 	(let ((merge-heads (magit-file-lines ".git/MERGE_HEAD")))
 	  (if merge-heads
-	      (insert (format "Merging: %s\n"
+	      (insert (format "Merging:   %s\n"
 			      (magit-concat-with-delim
 			       ", "
 			       (mapcar 'magit-name-rev merge-heads))))))
 	(let ((rebase (magit-rebase-info)))
 	  (if rebase
-	      (insert (apply 'format "Rebasing: %s (%s of %s)\n" rebase))))
+	      (insert (apply 'format "Rebasing: onto %s (%s of %s); Press \"R\" to Abort, Skip, or Continue\n" rebase))))
 	(insert "\n")
 	(magit-git-exit-code "update-index" "--refresh")
 	(magit-insert-untracked-files)
@@ -2945,9 +2945,18 @@ With a prefix-arg, the merge will be squashed.
 if any."
   (cond ((file-exists-p ".git/rebase-merge")
          (list
-          (magit-name-rev (car (magit-file-lines ".git/rebase-merge/message")))
+          ;; The commit we're rebasing onto, i.e. git rebase -i <onto>
+          (magit-name-rev (car (magit-file-lines ".git/rebase-merge/onto")))
+
+          ;; How many commits we've gone through
           (length (magit-file-lines ".git/rebase-merge/done"))
-          (length (magit-file-lines ".git/rebase-merge/git-rebase-todo.backup"))))
+
+          ;; How many commits we have in total, without the comments
+          ;; at the end of git-rebase-todo.backup
+          (let ((todo-lines-with-comments (magit-file-lines ".git/rebase-merge/git-rebase-todo.backup")))
+            (loop for i in todo-lines-with-comments
+                  until (string= "" i)
+                  count i))))
 	(t nil)))
 
 (defun magit-rebase-step ()
@@ -2972,7 +2981,7 @@ if any."
 	      (magit-run-git "rebase" (magit-rev-to-git rev))))
       (let ((cursor-in-echo-area t)
             (message-log-max nil))
-        (message "Rebase in progress. Abort, Skip, or Continue? ")
+        (message "Rebase in progress. [A]bort, [S]kip, or [C]ontinue? ")
         (let ((reply (read-event)))
           (case reply
             ((?A ?a)
