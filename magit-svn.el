@@ -48,6 +48,10 @@
            sha))
       (error "Revision %s could not be mapped to a commit" rev))))
 
+(defun magit-svn-create-branch (name)
+  (interactive "sBranch name: ")
+  (magit-run-git "svn" "branch" name))
+
 (defun magit-svn-rebase ()
   (interactive)
   (magit-run-git-async "svn" "rebase"))
@@ -160,6 +164,7 @@ If USE-CACHE is non nil, use the cached information."
   nil
   "Git SVN extension menu"
   '("Git SVN"
+    ["Create branch" magit-svn-create-branch (magit-svn-enabled)]
     ["Rebase" magit-svn-rebase (magit-svn-enabled)]
     ["Fetch" magit-svn-remote-update (magit-svn-enabled)]
     ["Commit" magit-svn-dcommit (magit-svn-enabled)]))
@@ -185,6 +190,7 @@ If USE-CACHE is non nil, use the cached information."
   (magit-key-mode-insert-action 'svn "c" "DCommit" 'magit-svn-dcommit)
   (magit-key-mode-insert-action 'svn "f" "Fetch" 'magit-svn-remote-update)
   (magit-key-mode-insert-action 'svn "s" "Find rev" 'magit-svn-find-rev)
+  (magit-key-mode-insert-action 'svn "B" "Create branch" 'magit-svn-create-branch)
 
   ;; generate and bind the menu popup function
   (magit-key-mode-generate 'svn))
