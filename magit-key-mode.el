@@ -117,17 +117,46 @@
   modify this make sure you reset `magit-key-mode-key-maps' to
   nil.")
 
-(defun magit-key-mode-add-group (name)
-  "Add a new group to `magit-key-mode-key-maps'."
-  (unless (assoc name magit-key-mode-groups)
-    (push (list name '(actions)) magit-key-mode-groups)))
+(defun magit-key-mode-delete-group (group)
+  "Add a new group (GROUP) to `magit-key-mode-key-maps'."
+  (let ((items (assoc group magit-key-mode-groups)))
+    (when items
+      ;; reset the cache
+      (setq magit-key-mode-key-maps nil)
+      ;; delete the whole group
+      (setq magit-key-mode-groups
+            (delq items magit-key-mode-groups))
+      ;; unbind the defun
+      (magit-key-mode-de-generate group))
+    magit-key-mode-groups))
+
+(defun magit-key-mode-add-group (group)
+  "Add a new group to `magit-key-mode-key-maps'. If there's
+already a group of that name then this will completely remove it
+and put in its place an empty one of the same name."
+  (when (assoc group magit-key-mode-groups)
+    (magit-key-mode-delete-group group))
+  (setq magit-key-mode-groups
+        (cons (list group '(actions)) magit-key-mode-groups)))
+
+(defun magit-key-mode-key-defined-p (for-group key)
+  "If KEY is defined as any of switch, argument or action within
+FOR-GROUP then return t"
+  (catch 'result
+    (let ((options (magit-key-mode-options-for-group for-group)))
+      (dolist (type '(actions switches arguments))
+        (when (assoc key (assoc type options))
+          (throw 'result t))))))
 
 (defun magit-key-mode-update-group (for-group thing &rest args)
   "Abstraction for setting values in `magit-key-mode-key-maps'."
   (let* ((options (magit-key-mode-options-for-group for-group))
-         (things (assoc thing options)))
+         (things (assoc thing options))
+         (key (car args)))
     (if (cdr things)
-        (setcdr (cdr things) (cons args (cddr things)))
+        (if (magit-key-mode-key-defined-p for-group key)
+            (error "%s is already defined in the %s group." key for-group)
+          (setcdr (cdr things) (cons args (cddr things))))
       (setcdr things (list args)))
     (setq magit-key-mode-key-maps nil)
     things))
@@ -402,14 +431,19 @@ item on one line."
     (magit-key-mode-draw-args arguments)
     (magit-key-mode-draw-actions actions)))
 
-(defun magit-key-mode-generate (sym)
-  "Generate the key-group menu for SYM"
-  (let ((opts (magit-key-mode-options-for-group sym)))
+(defun magit-key-mode-de-generate (group)
+  "Unbind the function for GROUP."
+  (fmakunbound
+   (intern (concat "magit-key-mode-popup-" (symbol-name group)))))
+
+(defun magit-key-mode-generate (group)
+  "Generate the key-group menu for GROUP"
+  (let ((opts (magit-key-mode-options-for-group group)))
     (eval
-     `(defun ,(intern  (concat "magit-key-mode-popup-" (symbol-name sym))) nil
-        ,(concat "Key menu for " (symbol-name sym))
+     `(defun ,(intern (concat "magit-key-mode-popup-" (symbol-name group))) nil
+        ,(concat "Key menu for " (symbol-name group))
         (interactive)
-        (magit-key-mode (quote ,sym))))))
+        (magit-key-mode (quote ,group))))))
 
 ;; create the interactive functions for the key mode popups (which are
 ;; applied in the top-level key maps)
