@@ -1974,6 +1974,7 @@ Please see the manual for a complete description of Magit.
   (dolist (buffer (buffer-list))
     (when (and buffer
 	       (buffer-file-name buffer)
+	       (file-readable-p (buffer-file-name buffer))
 	       (magit-string-has-prefix-p (buffer-file-name buffer) dir)
 	       (or ignore-modtime (not (verify-visited-file-modtime buffer)))
 	       (not (buffer-modified-p buffer)))
