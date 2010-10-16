@@ -3594,11 +3594,7 @@ Working tree and staging area revert to the current 'HEAD'.
 With prefix argument, changes in staging area are kept.
 \('git stash save [--keep-index] DESCRIPTION')"
   (interactive "sStash description: ")
-  (apply 'magit-run-git `("stash"
-			  "save"
-			  ,@(when current-prefix-arg '("--keep-index"))
-			  "--"
-			  ,description)))
+  (apply 'magit-run-git `("stash" "save" ,@magit-custom-options "--" ,description)))
 
 (magit-define-command stash-snapshot ()
   "Create new stash of working tree and staging area; keep changes in place.
