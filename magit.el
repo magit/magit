@@ -3095,7 +3095,7 @@ PREPEND-REMOTE-NAME is non-nil."
 	(and (y-or-n-p (format "Directory %s does not exists.  Create it? " dir))
 	     (make-directory dir)))
       (let ((default-directory dir))
-	(magit-run* (list "git" "init"))))))
+	(magit-run* (list magit-git-executable "init"))))))
 
 (define-minor-mode magit-status-mode
     "Minor mode for looking at git status.
