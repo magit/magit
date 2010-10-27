@@ -99,6 +99,7 @@
      (actions
       ("m" "Merge" magit-merge))
      (switches
+      ("-ff" "Fast-forward only" "--ff-only")
       ("-nf" "No fast-forward" "--no-ff")
       ("-nc" "No commit" "--no-commit")
       ("-sq" "Squash" "--squash"))
