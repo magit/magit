@@ -3502,6 +3502,9 @@ toggled on.  When it's toggled on for the first time, return
       (with-current-buffer (magit-find-buffer 'status default-directory)
 	(cond (tag-name
 	       (magit-run-git-with-input commit-buf "tag" tag-name "-a" "-F" "-" tag-rev))
+	      ((or (not (or allow-empty commit-all amend (magit-anything-staged-p)))
+		   (not (or allow-empty (not commit-all) amend (not (magit-everything-clean-p)))))
+	       (error "Refusing to create empty commit. Maybe you want to amend or allow-empty?"))
 	      (t
 	       (apply #'magit-run-async-with-input commit-buf
 		      magit-git-executable
