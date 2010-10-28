@@ -3469,8 +3469,9 @@ This means that the eventual commit does 'git commit --allow-empty'."
     (magit-log-edit-mode)
     (message "Type C-c C-c to %s (C-c C-k to cancel)." operation)))
 
-(defun magit-log-edit ()
-  (interactive)
+(defun magit-log-edit (amend-p)
+  (interactive "P")
+
   (cond ((magit-rebase-info)
 	 (if (y-or-n-p "Rebase in progress.  Continue it? ")
 	     (magit-run-git "rebase" "--continue")))
@@ -3488,6 +3489,7 @@ This means that the eventual commit does 'git commit --allow-empty'."
 			   (y-or-n-p
 			    "Nothing staged.  Commit all unstaged changes? "))
 		       "yes" "no")))))
+	 (when amend-p (magit-log-edit-toggle-amending))
 	 (magit-pop-to-log-edit "commit"))))
 
 (defun magit-add-log ()
@@ -3510,7 +3512,7 @@ This means that the eventual commit does 'git commit --allow-empty'."
 			       section)
 			      (t
 			       (error "No change at point"))))))
-	     (magit-log-edit)
+	     (magit-log-edit nil)
 	     (goto-char (point-min))
 	     (cond ((not (search-forward-regexp
 			  (format "^\\* %s" (regexp-quote file)) nil t))
