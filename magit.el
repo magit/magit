@@ -1415,11 +1415,13 @@ Expanded: everything is shown."
 
 (defun magit-section-show-level (section level threshold path)
   (magit-section-set-hidden section (>= level threshold))
-  (when (< level threshold)
-    (if path
-	(magit-section-show-level (car path) (1+ level) threshold (cdr path))
-	(dolist (c (magit-section-children section))
-	  (magit-section-show-level c (1+ level) threshold nil)))))
+  (when (and (< level threshold)
+	     (magit-git-string
+	      "log" "--max-count=1" "--abbrev-commit" "--pretty=oneline"))
+	(if path
+	    (magit-section-show-level (car path) (1+ level) threshold (cdr path))
+	    (dolist (c (magit-section-children section))
+	      (magit-section-show-level c (1+ level) threshold nil)))))
 
 (defun magit-show-level (level all)
   "Show section whose level is less than LEVEL, hide the others.
