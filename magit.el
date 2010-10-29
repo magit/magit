@@ -514,6 +514,8 @@ Many Magit faces inherit from this one by default."
   (message "Unknown error: %s\nPlease file a bug at %s"
 	   str magit-bug-report-url))
 
+(defalias 'magit-buffer-switch 'pop-to-buffer)
+
 ;;; Macros
 
 (defmacro magit-with-refresh (&rest body)
@@ -2758,7 +2760,7 @@ to consider it or not when called with that buffer current."
 		      (concat "*magit: "
 			      (file-name-nondirectory
 			       (directory-file-name topdir)) "*")))))
-        (switch-to-buffer buf)
+        (magit-buffer-switch buf)
         (magit-mode-init topdir 'status #'magit-refresh-status)
         (magit-status-mode t)))))
 
@@ -3806,7 +3808,7 @@ With a non numeric prefix ARG, show all entries"
 	 (topdir (magit-get-top-dir default-directory))
 	 (args (nconc (list (magit-rev-range-to-git log-range))
                       extra-args)))
-    (switch-to-buffer magit-log-buffer-name)
+    (magit-buffer-switch magit-log-buffer-name)
     (magit-mode-init topdir 'log #'magit-refresh-log-buffer log-range
 		     "--pretty=oneline" args)
     (magit-log-mode t)))
@@ -3824,7 +3826,7 @@ With a non numeric prefix ARG, show all entries"
 	 (topdir (magit-get-top-dir default-directory))
 	 (args (append (list (magit-rev-range-to-git range))
 		       magit-custom-options)))
-    (switch-to-buffer magit-log-buffer-name)
+    (magit-buffer-switch magit-log-buffer-name)
     (magit-mode-init topdir 'log #'magit-refresh-log-buffer range
 		     "--stat" args)
     (magit-log-mode t)))
@@ -3861,7 +3863,7 @@ This is only non-nil in reflog buffers.")
   (if head
       (let* ((topdir (magit-get-top-dir default-directory))
 	     (args (magit-rev-to-git head)))
-	(switch-to-buffer "*magit-reflog*")
+	(magit-buffer-switch "*magit-reflog*")
 	(magit-mode-init topdir 'reflog
 			 #'magit-refresh-reflog-buffer head args)
 	(magit-reflog-mode t))))
@@ -3996,7 +3998,7 @@ This is only meaningful in wazzup buffers.")
   (interactive "P")
   (let ((topdir (magit-get-top-dir default-directory))
 	(current-branch (magit-get-current-branch)))
-    (switch-to-buffer "*magit-wazzup*")
+    (magit-buffer-switch "*magit-wazzup*")
     (magit-mode-init topdir 'wazzup
 		     #'magit-refresh-wazzup-buffer
 		     current-branch all)
@@ -4309,7 +4311,7 @@ With prefix force the removal even it it hasn't been merged."
   (interactive)
   (unless (eq major-mode 'magit-show-branches-mode)
     (let ((topdir (magit-get-top-dir default-directory)))
-      (switch-to-buffer-other-window magit-branches-buffer-name)
+      (pop-to-buffer magit-branches-buffer-name)
       (setq default-directory topdir)))
   (let ((inhibit-read-only t)
         (branches (mapcar 'magit--branch-view-details
