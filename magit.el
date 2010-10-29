@@ -2899,7 +2899,10 @@ at point."
     ((staged diff)
      (if (eq (car info) 'unmerged)
 	 (error "Can't unstage a unmerged file.  Resolve it first"))
-     (magit-run-git "reset" "-q" "HEAD" "--" (magit-diff-item-file item)))
+     (if (magit-git-string
+	  "log" "--max-count=1" "--abbrev-commit" "--pretty=oneline")
+	 (magit-run-git "reset" "-q" "HEAD" "--" (magit-diff-item-file item))
+     	 (magit-run-git "rm" "--cached" "--" (magit-diff-item-file item))))
     ((unstaged *)
      (error "Already unstaged"))
     ((hunk)
