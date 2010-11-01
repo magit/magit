@@ -22,10 +22,10 @@
      (actions
       ("l" "Short" magit-display-log)
       ("L" "Long" magit-log-long)
+      ("h" "Reflog" magit-reflog)
       ("rl" "Ranged short" magit-display-log-ranged)
       ("rL" "Ranged long" magit-log-long-ranged)
-      ("h" "Reflog" magit-reflog)
-      ("H" "Reflog on head" magit-reflog-head))
+      ("rh" "Ranged reflog" magit-reflog-ranged))
      (switches
       ("-m" "Only merge commits" "--merges")
       ("-f" "First parent" "--first-parent")

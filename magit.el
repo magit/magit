@@ -3854,19 +3854,21 @@ This is only non-nil in reflog buffers.")
   :lighter ()
   :keymap magit-reflog-mode-map)
 
-(magit-define-command reflog (head)
-  (interactive (list (magit-read-rev "Reflog of" (or (magit-guess-branch) "HEAD"))))
-  (if head
-      (let* ((topdir (magit-get-top-dir default-directory))
-	     (args (magit-rev-to-git head)))
-	(switch-to-buffer "*magit-reflog*")
-	(magit-mode-init topdir 'reflog
-			 #'magit-refresh-reflog-buffer head args)
-	(magit-reflog-mode t))))
-
-(magit-define-command reflog-head ()
+(magit-define-command reflog (&optional ask-for-range)
   (interactive)
-  (magit-reflog "HEAD"))
+  (let ((at (or (if ask-for-range
+                    (magit-read-rev "Reflog of" (or (magit-guess-branch) "HEAD")))
+                "HEAD")))
+    (let* ((topdir (magit-get-top-dir default-directory))
+           (args (magit-rev-to-git at)))
+      (switch-to-buffer "*magit-reflog*")
+      (magit-mode-init topdir 'reflog
+                       #'magit-refresh-reflog-buffer at args)
+      (magit-reflog-mode t)))))
+
+(magit-define-command reflog-ranged ()
+  (interactive)
+  (magit-reflog t))
 
 ;;; Diffing
 
