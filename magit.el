@@ -3797,7 +3797,7 @@ With a non numeric prefix ARG, show all entries"
   (interactive)
   (magit-display-log t))
 
-(magit-define-command display-log (ask-for-range &rest extra-args)
+(magit-define-command display-log (&optional ask-for-range &rest extra-args)
   (interactive)
   (let* ((log-range (if ask-for-range
                         (magit-read-rev-range "Log" "HEAD")
