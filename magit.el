@@ -3793,10 +3793,15 @@ With a non numeric prefix ARG, show all entries"
 (defvar magit-log-grep-buffer-name "*magit-grep-log*"
   "Buffer name for display of log grep results.")
 
+(magit-define-command display-log-ranged ()
+  (interactive)
+  (magit-display-log t))
+
 (magit-define-command display-log (ask-for-range &rest extra-args)
+  (interactive)
   (let* ((log-range (if ask-for-range
-		    (magit-read-rev-range "Log" "HEAD")
-		  "HEAD"))
+                        (magit-read-rev-range "Log" "HEAD")
+                      "HEAD"))
 	 (topdir (magit-get-top-dir default-directory))
 	 (args (nconc (list (magit-rev-range-to-git log-range))
                       extra-args)))
@@ -3805,12 +3810,7 @@ With a non numeric prefix ARG, show all entries"
 		     "--pretty=oneline" args)
     (magit-log-mode t)))
 
-(defun magit-log (&optional arg)
-  "View and act upon the output of git log."
-  (interactive "P")
-  (apply 'magit-display-log arg magit-custom-options))
-
-(magit-define-command magit-log-long-ranged ()
+(magit-define-command log-long-ranged ()
   (interactive)
   (magit-log-long t))
 
