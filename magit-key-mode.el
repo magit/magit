@@ -22,6 +22,8 @@
      (actions
       ("l" "Short" magit-log)
       ("L" "Long" magit-log-long)
+      ("r l" "Ranged short" magit-log-ranged)
+      ("r L" "Ranged long" magit-log-long-ranged)
       ("h" "Reflog" magit-reflog)
       ("H" "Reflog on head" magit-reflog-head))
      (switches

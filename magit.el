@@ -3810,9 +3810,13 @@ With a non numeric prefix ARG, show all entries"
   (interactive "P")
   (apply 'magit-display-log arg magit-custom-options))
 
-(magit-define-command log-long (&optional arg)
-  (interactive "P")
-  (let* ((range (if arg
+(magit-define-command magit-log-long-ranged ()
+  (interactive)
+  (magit-log-long t))
+
+(magit-define-command log-long (&optional ranged)
+  (interactive)
+  (let* ((range (if ranged
 		    (magit-read-rev-range "Long log" "HEAD")
 		  "HEAD"))
 	 (topdir (magit-get-top-dir default-directory))
