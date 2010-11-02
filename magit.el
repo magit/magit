@@ -3470,8 +3470,14 @@ This means that the eventual commit does 'git commit --allow-empty'."
     (message "Type C-c C-c to %s (C-c C-k to cancel)." operation)))
 
 (defun magit-log-edit (amend-p)
-  (interactive "P")
+  "Brings up a buffer to allow editing of commit messages. Given
+a prefix arg will set the amend flag for the commit buffer.
 
+If there is a rebase in progress offer the user the option to
+continue it.
+
+\\{magit-log-edit-mode-map}"
+  (interactive "P")
   (cond ((magit-rebase-info)
 	 (if (y-or-n-p "Rebase in progress.  Continue it? ")
 	     (magit-run-git "rebase" "--continue")))
