@@ -3864,7 +3864,7 @@ This is only non-nil in reflog buffers.")
       (switch-to-buffer "*magit-reflog*")
       (magit-mode-init topdir 'reflog
                        #'magit-refresh-reflog-buffer at args)
-      (magit-reflog-mode t)))))
+      (magit-reflog-mode t))))
 
 (magit-define-command reflog-ranged ()
   (interactive)
