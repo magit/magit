@@ -2390,7 +2390,7 @@ in the corresponding directories."
 
 (magit-define-inserter unstaged-changes (title)
   (let ((magit-hide-diffs t))
-    (let ((magit-diff-options '()))
+    (let ((magit-diff-options (append '() magit-diff-options)))
       (magit-git-section 'unstaged title 'magit-wash-raw-diffs
                          "diff-files"))))
 
@@ -2400,7 +2400,7 @@ in the corresponding directories."
           (base (if no-commit
                     (magit-git-string "mktree")
                   "HEAD")))
-      (let ((magit-diff-options '("--cached"))
+      (let ((magit-diff-options (append '("--cached") magit-diff-options))
             (magit-ignore-unmerged-raw-diffs t))
         (magit-git-section 'staged "Staged changes:" 'magit-wash-raw-diffs
                            "diff-index" "--cached"
