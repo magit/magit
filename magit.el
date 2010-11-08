@@ -338,6 +338,18 @@ Many Magit faces inherit from this one by default."
   "Face for tag labels shown in log buffer."
   :group 'magit)
 
+(defface magit-log-head-label-patches
+  '((((class color) (background light))
+     :box t
+     :background "IndianRed1"
+     :foreground "IndianRed4")
+    (((class color) (background dark))
+     :box t
+     :background "IndianRed1"
+     :foreground "IndianRed4"))
+  "Face for Stacked Git patches"
+  :group 'magit)
+
 (defvar magit-custom-options '()
   "List of custom options to pass git. Do not customise this.")
 
@@ -2426,7 +2438,7 @@ must return a string which will represent the log line.")
 
 (defun magit-present-log-line (graph sha1 refs message)
   "The default log line generator."
-  (let* ((ref-re "\\(?:tag: \\)?refs/\\(bisect\\|tags\\|remotes\\|heads\\)/\\(.+\\)")
+  (let* ((ref-re "\\(?:tag: \\)?refs/\\(bisect\\|tags\\|remotes\\|patches/[^/]*\\|heads\\)/\\(.+\\)")
 	 (string-refs
 	  (when refs
 	    (concat (mapconcat
@@ -2438,6 +2450,8 @@ must return a string which will represent the log line.")
 			'face (cond
 			       ((string= (match-string 1 r) "remotes")
 				'magit-log-head-label-remote)
+			       ((string-match "^patches/[^/]*$" (match-string 1 r)) ; Stacked Git
+				'magit-log-head-label-patches)
 			       ((string= (match-string 1 r) "bisect")
 				(if (string= (match-string 2 r) "bad")
 				    'magit-log-head-label-bisect-bad
