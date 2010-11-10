@@ -120,6 +120,16 @@ save all modified buffers without asking."
 		 (const :tag "Ask" t)
 		 (const :tag "Save without asking" dontask)))
 
+(defcustom magit-save-some-buffers-predicate
+  'magit-save-buffers-predicate-tree-only
+  "Specifies a predicate function on \\[magit-save-some-buffers] to determine which
+   unsaved buffers should be prompted for saving."
+
+  :group 'magit
+  :type '(radio (function-item magit-save-buffers-predicate-tree-only)
+                (function-item magit-save-buffers-predicate-all)
+		(function :tag "Other")))
+
 (defcustom magit-commit-all-when-nothing-staged 'ask
   "Determines what \\[magit-log-edit] does when nothing is staged.
 Setting this to nil will make it do nothing, setting it to t will
@@ -2732,12 +2742,34 @@ If PRED is t, then certain non-file buffers will also be considered.
 If PRED is a zero-argument function, it indicates for each buffer whether
 to consider it or not when called with that buffer current."
   (interactive)
-  (if magit-save-some-buffers
-      (save-some-buffers
-       (eq magit-save-some-buffers 'dontask)
-       pred)
-    (when msg
-	(message msg))))
+  (let ((predicate-function (or pred magit-save-some-buffers-predicate)))
+    
+    (if magit-save-some-buffers
+        (save-some-buffers
+         (eq magit-save-some-buffers 'dontask)
+         predicate-function)
+      (when msg
+        (message msg)))))
+
+
+(defun magit-save-buffers-predicate-all () 
+  "Prompt to save all buffers with unsaved changes"
+  t)
+
+(defun magit-save-buffers-predicate-tree-only ()
+  "Only prompt to save buffers which are within the current git project (as
+  determined by the dir passed to `magit-status'."
+  (let ((current-buf-dir
+         (file-name-directory (buffer-file-name (current-buffer)))))
+    (let ((invoked-git-root-dir (or (magit-get-top-dir dir) dir)))
+      (let ((save-this-buffer
+             (and
+              invoked-git-root-dir
+              (eq 0
+                  (string-match
+                   (regexp-quote invoked-git-root-dir)
+                   current-buf-dir)))))
+        save-this-buffer))))
 
 ;;;###autoload
 (defun magit-status (dir)
