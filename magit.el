@@ -3866,6 +3866,7 @@ With a non numeric prefix ARG, show all entries"
                       "HEAD"))
 	 (topdir (magit-get-top-dir default-directory))
 	 (args (nconc (list (magit-rev-range-to-git log-range))
+                      magit-custom-options
                       extra-args)))
     (switch-to-buffer magit-log-buffer-name)
     (magit-mode-init topdir 'log #'magit-refresh-log-buffer log-range
