@@ -158,6 +158,13 @@ after a confirmation."
 		 (const :tag "Ask" ask)
 		 (const :tag "Ask to stage everything" ask-stage)))
 
+
+(defcustom magit-git-diff-standard-options '("--patience")
+  "Standard diff options when running Git diff."
+  :group 'magit
+  :type '(repeat string))
+
+
 (defcustom magit-commit-signoff nil
   "When performing git commit adds --signoff."
   :group 'magit
@@ -2550,6 +2557,7 @@ in the corresponding directories."
 (defun magit-insert-diff (file status)
   (let ((cmd magit-git-executable)
 	(args (append (list "diff")
+		      magit-git-diff-standard-options
 		      (list (magit-diff-U-arg))
 		      magit-diff-options
 		      (list "--" file))))
@@ -3698,7 +3706,8 @@ Uncomitted changes in both working tree and staging area are lost.
 	(magit-git-section 'pending-changes
 			   "Pending changes"
 			   'magit-wash-diffs
-			   "diff" (magit-diff-U-arg) "-R" orig)))))
+			   "diff" magit-git-diff-standard-options
+			          (magit-diff-U-arg) "-R" orig)))))
 
 (defun magit-rewrite-start (from &optional onto)
   (interactive (list (magit-read-rev "Rewrite from" (magit-default-rev))))
@@ -4568,7 +4577,9 @@ restore the window state that was saved before ediff was called."
       (magit-git-section 'diffbuf
                          (magit-rev-range-describe range "Changes")
                          'magit-wash-diffs
-                         "diff" (magit-diff-U-arg) args))))
+                         "diff" magit-git-diff-standard-options
+                                (magit-diff-U-arg) args))))
+
 
 (define-minor-mode magit-diff-mode
     "Minor mode for looking at a git diff.
