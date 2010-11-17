@@ -2422,7 +2422,7 @@ in the corresponding directories."
 
 (defvar magit-log-oneline-re
   (concat
-   "^\\([_\\*|/ -.]+\\)"         ; graph   (1)
+   "^\\([_\\*|/ -.]+\\)?"        ; graph   (1)
    "\\(?:"
    "\\([0-9a-fA-F]\\{40\\}\\) "  ; sha1    (2)
    "\\(?:\\((.+?)\\) \\)?"       ; refs    (3)
@@ -2468,7 +2468,8 @@ must return a string which will represent the log line.")
 	 (propertize (substring sha1 0 8) 'face 'magit-log-sha1)
        (insert-char ? 8))
      " "
-     (propertize graph 'face 'magit-log-graph)
+     (when graph
+       (propertize graph 'face 'magit-log-graph))
      string-refs
      (when message
        (propertize message 'face 'magit-log-message)))))
