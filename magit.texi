@@ -670,11 +670,12 @@ commits} section that shows the commits on your current head that are
 not in the branch named @code{<remote>/<branch>}.  This section works
 just like the history buffer: you can see details about a commit with
 @kbd{RET}, compare two of them with @kbd{.} and @kbd{=}, and you can
-reset your current head to one of them with @kbd{x}, for example.
+reset your current head to one of them with @kbd{x}, for example. If
+you want to push the changes then type @kbd{P p}.
 
 When the remote branch has changes that are not in the current branch,
 Magit shows them in a section called @emph{Unpulled changes}.  Typing
-@kbd{f f} will merge them into the current branch.
+@kbd{F p} will merge them into the current branch.
 
 @node Using Magit Extensions
 @chapter Magit Extensions
