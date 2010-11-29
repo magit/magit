@@ -48,6 +48,7 @@ as an extension to Emacs.
 * Rebasing::
 * Rewriting::
 * Pushing and Pulling::
+* Submodules::         
 * Using Magit Extensions::
 * Using Git Directly::
 @end menu
@@ -677,6 +678,25 @@ When the remote branch has changes that are not in the current branch,
 Magit shows them in a section called @emph{Unpulled changes}.  Typing
 @kbd{F p} will merge them into the current branch.
 
+@node Submodules
+@chapter Submodules
+
+@table @kbd
+@item M u
+Update the submodules, with a prefix argument it will initializing.
+
+@item M i
+Initialize the submodules.
+
+@item M b
+Update and initialize the submodules in one go.
+
+@item M s
+Synchronizes submodules' remote URL configuration setting to the value
+specified in .gitmodules.
+@end table
+
+
 @node Using Magit Extensions
 @chapter Magit Extensions
 
@@ -685,6 +705,7 @@ Magit shows them in a section called @emph{Unpulled changes}.  Typing
 * Interfacing with Topgit::
 * Developing Extensions::
 @end menu
+
 
 @node Interfacing with Subversion
 @section Interfacing with Subversion

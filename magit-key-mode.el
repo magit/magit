@@ -115,7 +115,15 @@
       ("a" "Abort" magit-rewrite-abort)
       ("f" "Finish" magit-rewrite-finish)
       ("*" "Set unused" magit-rewrite-set-unused)
-      ("." "Set used" magit-rewrite-set-used))))
+      ("." "Set used" magit-rewrite-set-used)))
+
+    (submodule
+     (man-page "git-submodule")
+     (actions
+      ("u" "Update" magit-submodule-update)
+      ("b" "Both update and init" magit-submodule-update-init)
+      ("i" "Init" magit-submodule-init)
+      ("s" "Sync" magit-submodule-sync))))
   "Holds the key, help, function mapping for the log-mode. If you
   modify this make sure you reset `magit-key-mode-key-maps' to
   nil.")
