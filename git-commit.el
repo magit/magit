@@ -602,7 +602,7 @@ Turning on git commit calls the hooks in `git-commit-mode-hook'."
         comment-start "# "
         comment-end "")
   (setq major-mode 'git-commit-mode)
-  (run-hooks 'git-commit-mode-hook)
+  (run-mode-hooks 'git-commit-mode-hook)
   (setq mode-name "Git-Commit"))
 
 ;;;###autoload
