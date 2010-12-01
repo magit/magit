@@ -2921,7 +2921,7 @@ If REVISION is a remote branch, offer to create a local tracking branch.
                            (unless (string= current-branch default)
                              default)
                            (if current-branch
-                               (cons (concat "refs/heads/" current-branch)
+                               (cons (concat "refs/heads/" current-branch "$")
                                      magit-uninteresting-refs)
                              magit-uninteresting-refs)))))
   (if revision
