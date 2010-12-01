@@ -602,7 +602,8 @@ Turning on git commit calls the hooks in `git-commit-mode-hook'."
   (setq mode-name "Git-Commit"))
 
 ;;;###autoload
-(add-to-list 'session-mode-disable-list 'git-commit-mode)
+(when (boundp 'session-mode-disable-list)
+  (add-to-list 'session-mode-disable-list 'git-commit-mode))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist
