@@ -2782,7 +2782,7 @@ to consider it or not when called with that buffer current."
   determined by the dir passed to `magit-status'."
   (let ((current-buf-dir
          (file-name-directory (buffer-file-name (current-buffer)))))
-    (let ((invoked-git-root-dir (or (magit-get-top-dir dir) dir)))
+    (let ((invoked-git-root-dir (magit-get-top-dir default-directory)))
       (let ((save-this-buffer
              (and
               invoked-git-root-dir
