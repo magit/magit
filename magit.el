@@ -1522,9 +1522,12 @@ HEAD is (SECTION INFO &optional OPNAME),
 CLAUSES is a list of CLAUSE, each clause is (SECTION-TYPE &BODY)
 where SECTION-TYPE describe section where BODY will be run.
 
-This returns non-nil if some section matches. If no section
-matches, this returns nil if no OPNAME was given and throws an
-error otherwise."
+This returns non-nil if some section matches. If the
+corresponding body return a non-nil value, it is returned,
+otherwise it roturn t.
+
+If no section matches, this returns nil if no OPNAME was given
+and throws an error otherwise."
   (declare (indent 1))
   (let ((section (car head))
         (info (cadr head))
@@ -1537,17 +1540,17 @@ error otherwise."
             (,context (magit-section-context-type ,section)))
        (cond ,@(mapcar (lambda (clause)
                          (if (eq (car clause) t)
-                             `(,@clause t)
+                             `(t (or (progn ,@(cdr clause))
+				     t))
                            (let ((prefix (reverse (car clause)))
                                  (body (cdr clause)))
                              `((magit-prefix-p ',prefix ,context)
-                               ,@body
-                               t))))
+                               (or (progn ,@body)
+				   t)))))
                        clauses)
              ,@(when opname
                  `(((run-hook-with-args-until-success
-                     ',(intern (format "magit-%s-action-hook" opname)))
-                    t)
+                     ',(intern (format "magit-%s-action-hook" opname))))
                    ((not ,type)
                     (error "Nothing to %s here" ,opname))
                    (t
