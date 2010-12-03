@@ -129,7 +129,7 @@
   nil.")
 
 (defun magit-key-mode-delete-group (group)
-  "Add a new group (GROUP) to `magit-key-mode-key-maps'."
+  "Delete a group from `magit-key-mode-key-maps'."
   (let ((items (assoc group magit-key-mode-groups)))
     (when items
       ;; reset the cache
