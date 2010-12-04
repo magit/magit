@@ -2989,9 +2989,7 @@ If the branch is the current one, offers to switch to `master' first.
 With a prefix-arg, the merge will be squashed.
 \('git merge --no-commit [--squash|--no-ff] REVISION')."
   (interactive
-   (list (magit-read-rev (concat
-                          "Merge"
-                          (magit-guess-branch)))))
+   (list (magit-read-rev "Merge" (magit-default-rev))))
   (if revision
       (apply 'magit-run-git
              "merge"
