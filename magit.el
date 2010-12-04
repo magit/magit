@@ -429,6 +429,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "$") 'magit-display-process)
     (define-key map (kbd "c") 'magit-log-edit)
     (define-key map (kbd "E") 'magit-interactive-rebase)
+    (define-key map (kbd "w") 'magit-wazzup)
     (define-key map (kbd "q") 'quit-window)
     map))
 
