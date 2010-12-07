@@ -324,7 +324,8 @@ highlighed before the description."
           'magit-key-mode-current-args)
          (make-hash-table))
     (magit-key-mode-redraw for-group))
-  (message "Bindings prefixing options action them. '?' for help"))
+  (message (concat "Type a command's prefix (highlighted) to action it. "
+                   "'?' for more help on a specific prefix.")))
 
 (defun magit-key-mode-get-key-map (for-group)
   "Get or build the keymap for FOR-GROUP."
