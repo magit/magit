@@ -2466,21 +2466,23 @@ must return a string which will represent the log line.")
 			(if (string-match ref-re r)
 			    (match-string 2 r)
 			  r)
-			'face (cond
+			'face 
+                        (let ((label (or (match-string 1 r) "")))
+                          (cond
 			       ((string= r "refs/stash")
 				'magit-log-head-label-local)
-			       ((string= (match-string 1 r) "remotes")
+			       ((string= label "remotes")
 				'magit-log-head-label-remote)
-			       ((string-match "^patches/[^/]*$" (match-string 1 r)) ; Stacked Git
+			       ((string-match "^patches/[^/]*$" label) ; Stacked Git
 				'magit-log-head-label-patches)
-			       ((string= (match-string 1 r) "bisect")
+			       ((string= label "bisect")
 				(if (string= (match-string 2 r) "bad")
 				    'magit-log-head-label-bisect-bad
 				  'magit-log-head-label-bisect-good))
-			       ((string= (match-string 1 r) "tags")
+			       ((string= label "tags")
 				'magit-log-head-label-tags)
-			       ((string= (match-string 1 r) "heads")
-				'magit-log-head-label-local))))
+			       ((string= label "heads")
+				'magit-log-head-label-local)))))
 		     refs
 		     " ")
 		    " "))))
