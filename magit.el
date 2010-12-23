@@ -2467,6 +2467,8 @@ must return a string which will represent the log line.")
 			    (match-string 2 r)
 			  r)
 			'face (cond
+			       ((string= r "refs/stash")
+				'magit-log-head-label-local)
 			       ((string= (match-string 1 r) "remotes")
 				'magit-log-head-label-remote)
 			       ((string-match "^patches/[^/]*$" (match-string 1 r)) ; Stacked Git
