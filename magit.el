@@ -4498,5 +4498,16 @@ With a prefix arg, do a submodule update --init"
   (let ((default-directory (magit-get-top-dir default-directory)))
     (magit-run-git-async "submodule" "sync")))
 
+;; for emacs 22 compatibility
+
+(defun magit-string-match-p (regexp string &optional start)
+  "Same as `string-match' except this function does not change
+the match data."
+  (let ((inhibit-changing-match-data t))
+    (string-match regexp string start)))
+
+(when (not (fboundp 'string-match-p))
+  (fset 'string-match-p (symbol-function 'magit-string-match-p)))
+
 (provide 'magit)
 ;;; magit.el ends here
