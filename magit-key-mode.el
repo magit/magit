@@ -46,7 +46,9 @@
     (running
      (actions
       ("!" "Command from root" magit-shell-command)
-      (":" "Git command" magit-git-command)))
+      (":" "Git command" magit-git-command)
+      ("g" "git gui" magit-run-git-gui)
+      ("k" "gitk" magit-run-gitk)))
 
     (fetching
      (man-page "git-fetch")

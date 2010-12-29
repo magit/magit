@@ -4499,6 +4499,18 @@ With a prefix arg, do a submodule update --init"
   (let ((default-directory (magit-get-top-dir default-directory)))
     (magit-run-git-async "submodule" "sync")))
 
+(defun magit-run-git-gui ()
+  "Run `git gui' for the current git repository"
+  (interactive)
+  (let* ((default-directory (magit-get-top-dir default-directory)))
+    (start-process "git gui" nil "git" "gui")))
+
+(defun magit-run-gitk ()
+  "Run `gitk --all' for the current git repository"
+  (interactive)
+  (let* ((default-directory (magit-get-top-dir default-directory)))
+    (start-process "gitk" nil "gitk" "--all")))
+
 ;; for emacs 22 compatibility
 
 (defun magit-string-match-p (regexp string &optional start)
