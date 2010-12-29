@@ -4149,7 +4149,13 @@ This is only meaningful in wazzup buffers.")
      (error "Can't discard this diff"))
     ((stash)
      (when (yes-or-no-p "Discard stash? ")
-       (magit-run-git "stash" "drop" info)))))
+       (magit-run-git "stash" "drop" info)))
+    ((commit)
+     (let ((parent (magit-rev-parse (concat info "^"))))
+       (if (yes-or-no-p (format "Reset hard to %s? "
+                                (magit-git-string "log" "--format=format:%h %s" "-1"
+                                                  (concat parent "^.." parent))))
+           (magit-run-git "reset" "--hard" parent))))))
 
 (defun magit-visit-item ()
   (interactive)
