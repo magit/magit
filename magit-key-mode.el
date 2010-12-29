@@ -84,7 +84,7 @@
      (man-page "git-tag")
      (actions
       ("t" "Lightweight" magit-tag)
-      ("T" "Annotated" magit-annotated-tag))
+      ("a" "Annotated" magit-annotated-tag))
      (switches
       ("-f" "Force" "-f")))
 
