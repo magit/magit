@@ -74,7 +74,7 @@
     (branching
      (man-page "git-branch")
      (actions
-      ("V" "Branch manager" magit-show-branches)
+      ("v" "Branch manager" magit-show-branches)
       ("n" "New" magit-create-branch)
       ("m" "Move" magit-move-branch)
       ("d" "Delete" magit-delete-branch)
