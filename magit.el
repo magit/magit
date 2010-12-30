@@ -540,7 +540,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "$") 'magit-display-process)
     (define-key map (kbd "q") 'magit-quit-branches-window)
     (define-key map (kbd "g") 'magit-show-branches)
-    (define-key map (kbd "V") 'magit-show-branches)
+    (define-key map (kbd "v") 'magit-show-branches)
     (define-key map (kbd "n") 'next-line)
     (define-key map (kbd "p") 'previous-line)
     map))
