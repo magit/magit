@@ -42,7 +42,8 @@
       ("=<" "Before" "--before=" read-from-minibuffer)
       ("=s" "Pickaxe search" "-S" read-from-minibuffer)
       ("=a" "Author" "--author=" read-from-minibuffer)
-      ("=g" "Grep" "--grep=" read-from-minibuffer)))
+      ("=g" "Grep" "--grep=" read-from-minibuffer)
+      ("=p" "Path spec" "--" magit-key-mode-read-file-name)))
 
     (running
      (actions
@@ -283,18 +284,23 @@ put it in magit-key-mode-key-maps for fast lookup."
       (when arguments
         (dolist (k arguments)
           (defkey k `(magit-key-mode-add-argument
-                      ',for-group ,(nth 2 k) ',(nth 3 k))))))
+                      ',for-group ,(nth 1 k) ,(nth 2 k) ',(nth 3 k))))))
 
     (aput 'magit-key-mode-key-maps for-group map)
     map))
 
 (defun magit-key-mode-command (func)
-  (let ((args '()))
+  (let ((args '())
+        (args2 '()))
     ;; why can't maphash return a list?!
     (maphash (lambda (k v)
-               (push (concat k (shell-quote-argument v)) args))
+               (if (string= k "--")
+                   (push (shell-quote-argument v) args2)
+                 (push (concat k (shell-quote-argument v)) args)))
              magit-key-mode-current-args)
-    (let ((magit-custom-options (append args magit-key-mode-current-options)))
+    (if args2
+        (setq args2 (cons "--" args2)))
+    (let ((magit-custom-options (append args magit-key-mode-current-options args2)))
       (set-window-configuration magit-log-mode-window-conf)
       (when func
         (call-interactively func))
@@ -304,8 +310,8 @@ put it in magit-key-mode-key-maps for fast lookup."
   "A hash-table of current argument set (which will eventually
   make it to the git command-line).")
 
-(defun magit-key-mode-add-argument (for-group arg-name input-func)
-  (let ((input (funcall input-func (concat arg-name ": "))))
+(defun magit-key-mode-add-argument (for-group description arg-name input-func)
+  (let ((input (funcall input-func (concat (if (string= arg-name "--") description arg-name) ": "))))
     (puthash arg-name input magit-key-mode-current-args)
    (magit-key-mode-redraw for-group)))
 
@@ -487,6 +493,14 @@ item on one line."
         ,(concat "Key menu for " (symbol-name group))
         (interactive)
         (magit-key-mode (quote ,group))))))
+
+(defun magit-key-mode-read-file-name (prompt)
+  "Call `read-file-name' making sure `read-file-name-function' is
+not set to `ido-read-file-name'. The ido version causes errors if
+called from a key group function. Also expand the file name and
+make it relative to the current repository's base directory."
+  (let ((read-file-name-function (if (and (eq read-file-name-function 'ido-read-file-name)) nil read-file-name-function)))
+    (file-relative-name (expand-file-name (read-file-name prompt)))))
 
 ;; create the interactive functions for the key mode popups (which are
 ;; applied in the top-level key maps)
