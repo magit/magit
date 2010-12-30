@@ -326,10 +326,8 @@ highlighed before the description."
     (magit-key-mode-redraw for-group))
   (message
    (concat
-    "Type a switch or argument's prefix keys ("
-    (propertize "highlighed" 'face 'font-lock-builtin-face)
-    ") to toggle it. Run 'actions' with their prefixes. "
-    "'?' for more help on specific options.")))
+    "Type a prefix key to toggle it. Run 'actions' with their prefixes. "
+    "'?' for more help.")))
 
 (defun magit-key-mode-get-key-map (for-group)
   "Get or build the keymap for FOR-GROUP."
