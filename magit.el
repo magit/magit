@@ -532,6 +532,18 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "i") 'magit-ignore-item)
     map))
 
+(defvar magit-show-branches-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "RET") 'magit-branches-window-checkout)
+    (define-key map (kbd "b") 'magit-branches-window-checkout)
+    (define-key map (kbd "k") 'magit-remove-branch)
+    (define-key map (kbd "$") 'magit-display-process)
+    (define-key map (kbd "q") 'magit-quit-branches-window)
+    (define-key map (kbd "g") 'magit-show-branches)
+    (define-key map (kbd "V") 'magit-show-branches)
+    (define-key map (kbd "n") 'next-line)
+    (define-key map (kbd "p") 'previous-line)
+    map))
 
 (defvar magit-bug-report-url "http://github.com/philjackson/magit/issues")
 (defun magit-bug-report (str)
@@ -4273,19 +4285,6 @@ Return values:
 				 (magit-read-rev "Interactively rebase to" (magit-guess-branch))))
       (if old-editor
 	  (setenv "GIT_EDITOR" old-editor)))))
-
-(defvar magit-show-branches-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "RET") 'magit-branches-window-checkout)
-    (define-key map (kbd "b") 'magit-branches-window-checkout)
-    (define-key map (kbd "k") 'magit-remove-branch)
-    (define-key map (kbd "$") 'magit-display-process)
-    (define-key map (kbd "q") 'magit-quit-branches-window)
-    (define-key map (kbd "g") 'magit-show-branches)
-    (define-key map (kbd "V") 'magit-show-branches)
-    (define-key map (kbd "n") 'next-line)
-    (define-key map (kbd "p") 'previous-line)
-    map))
 
 (define-derived-mode magit-show-branches-mode fundamental-mode
   "Magit Branches")
