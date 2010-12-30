@@ -2660,12 +2660,18 @@ insert a line to tell how to insert more of them"
 		       (format "%s..HEAD"
 			     (magit-remote-branch-name remote branch)))))
 
-(defun magit-remote-branch-for (local-branch)
-  "Guess the remote branch name that LOCAL-BRANCH is tracking."
+(defun magit-remote-branch-for (local-branch &optional prepend-remote-name)
+  "Guess the remote branch name that LOCAL-BRANCH is tracking.
+Prepend \"remotes/\", the remote's name and \"/\" if
+PREPEND-REMOTE-NAME is non-nil."
   (let ((merge (magit-get "branch" local-branch "merge")))
     (save-match-data
       (if (and merge (string-match "^refs/heads/\\(.+\\)" merge))
-	  (match-string 1 merge)))))
+	  (concat (if prepend-remote-name
+                      (concat "remotes/"
+                              (magit-get "branch" local-branch "remote")
+                              "/"))
+                  (match-string 1 merge))))))
 
 ;;; Status
 
@@ -4349,6 +4355,11 @@ With prefix force the removal even it it hasn't been merged."
   (let ((res (list (cons 'current (match-string 1 branch-line))
                    (cons 'branch  (match-string 2 branch-line))
                    (cons 'remote  (string-match-p "^remotes/" (match-string 2 branch-line))))))
+    (unless (cdr (assoc 'remote res))
+      (setq res (append (list (cons 'tracking
+                                    (magit-remote-branch-for (cdr (assoc 'branch res))
+                                                             t)))
+                        res)))
     (if (match-string 4 branch-line)
         (cons (cons 'other-ref (match-string 6 branch-line)) res)
       (append
@@ -4381,7 +4392,10 @@ With prefix force the removal even it it hasn't been merged."
           " "
           (cdr (assoc 'branch b))
           (when (assoc 'other-ref b)
-            (concat " (" (cdr (assoc 'other-ref b)) ")")))
+            (concat " (" (cdr (assoc 'other-ref b)) ")"))
+          (when (and (assoc 'tracking b)
+                     (cdr (assoc 'tracking b)))
+            (concat " [" (cdr (assoc 'tracking b)) "]")))
          'remote (cdr (assoc 'remote b))
          'branch-name (cdr (assoc 'branch b))))
       branches
