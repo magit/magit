@@ -4308,8 +4308,7 @@ Return values:
   "Check out the branch in the line at point."
   (interactive)
   (magit-checkout (magit--branch-name-at-point))
-  (save-excursion
-    (magit-show-branches)))
+  (magit-show-branches))
 
 (defun magit-remove-remote (ref)
   "Return REF with any remote part removed."
@@ -4327,9 +4326,8 @@ With prefix force the removal even it it hasn't been merged."
 		    ;; remove the remotes part
 		    (magit-remove-remote
                      (magit--branch-name-at-point)))))
-    (save-excursion
-      (apply 'magit-run-git (remq nil args))
-      (magit-show-branches))))
+    (apply 'magit-run-git (remq nil args))
+    (magit-show-branches)))
 
 (defvar magit-branches-buffer-name "*magit-branches*")
 
@@ -4370,36 +4368,46 @@ With prefix force the removal even it it hasn't been merged."
 (defun magit-show-branches ()
   "Show all of the current branches in `other-window'."
   (interactive)
-  (unless (eq major-mode 'magit-show-branches-mode)
-    (let ((topdir (magit-get-top-dir default-directory)))
-      (switch-to-buffer-other-window magit-branches-buffer-name)
-      (setq default-directory topdir)))
-  (let ((inhibit-read-only t)
-        (branches (mapcar 'magit--branch-view-details
-                          (apply 'magit-git-lines "branch" "-va"
-				 magit-custom-options))))
-    (erase-buffer)
-    (insert
-     (mapconcat
-      (lambda (b)
-        (propertize
-         (concat
-          (cdr (assoc 'current b))
-          (propertize (or (cdr (assoc 'sha1 b))
-                          "       ")
-                      'face 'magit-log-sha1)
-          " "
-          (cdr (assoc 'branch b))
-          (when (assoc 'other-ref b)
-            (concat " (" (cdr (assoc 'other-ref b)) ")"))
-          (when (and (assoc 'tracking b)
-                     (cdr (assoc 'tracking b)))
-            (concat " [" (cdr (assoc 'tracking b)) "]")))
-         'remote (cdr (assoc 'remote b))
-         'branch-name (cdr (assoc 'branch b))))
-      branches
-      "\n"))
-    (magit-show-branches-mode))
+  (let ((buffer-existed (get-buffer magit-branches-buffer-name)))
+    (unless (eq major-mode 'magit-show-branches-mode)
+      (let ((topdir (magit-get-top-dir default-directory)))
+        (switch-to-buffer-other-window magit-branches-buffer-name)
+        (setq default-directory topdir)))
+    (let ((inhibit-read-only t)
+          (goto-branch-line (line-number-at-pos))
+          (branches (mapcar 'magit--branch-view-details
+                            (apply 'magit-git-lines "branch" "-va"
+                                   magit-custom-options))))
+      (erase-buffer)
+      (insert
+       (mapconcat
+        (lambda (b)
+          (propertize
+           (concat
+            (cdr (assoc 'current b))
+            (propertize (or (cdr (assoc 'sha1 b))
+                            "       ")
+                        'face 'magit-log-sha1)
+            " "
+            (cdr (assoc 'branch b))
+            (when (assoc 'other-ref b)
+              (concat " (" (cdr (assoc 'other-ref b)) ")"))
+            (when (and (assoc 'tracking b)
+                       (cdr (assoc 'tracking b)))
+              (concat " [" (cdr (assoc 'tracking b)) "]")))
+           'remote (cdr (assoc 'remote b))
+           'branch-name (cdr (assoc 'branch b))))
+        branches
+        "\n"))
+      (magit-show-branches-mode)
+      (goto-char (point-min))
+      (if buffer-existed
+          (forward-line (1- goto-branch-line))
+        (while (and (< (point)
+                       (point-max))
+                    (not (string= (buffer-substring-no-properties (point) (1+ (point)))
+                                  "*")))
+          (forward-line 1)))))
   (setq buffer-read-only t))
 
 (defvar magit-ediff-file)
