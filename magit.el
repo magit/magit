@@ -869,12 +869,19 @@ pair (START . END), then the range is START..END.")
 (make-variable-buffer-local 'magit-current-range)
 
 (defun magit-list-interesting-refs (&optional uninteresting)
+  "Return interesting references as given by `git show-ref'.
+Removes references matching UNINTERESTING from the
+results. UNINTERESTING can be either a function taking a single
+argument or a list of strings used as regexps."
   (let ((refs ()))
     (dolist (line (magit-git-lines "show-ref"))
       (if (string-match "[^ ]+ +\\(.*\\)" line)
 	  (let ((ref (match-string 1 line)))
-	    (cond ((loop for i in uninteresting
-                         thereis (string-match i ref)))
+	    (cond ((and (functionp uninteresting)
+                        (funcall uninteresting ref)))
+                  ((and (not (functionp uninteresting))
+                        (loop for i in uninteresting
+                              thereis (string-match i ref))))
                   ((string-match "refs/heads/\\(.*\\)" ref)
 		   (let ((branch (match-string 1 ref)))
 		     (push (cons branch branch) refs)))
