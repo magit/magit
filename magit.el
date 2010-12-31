@@ -541,6 +541,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "q") 'magit-quit-branches-window)
     (define-key map (kbd "g") 'magit-show-branches)
     (define-key map (kbd "v") 'magit-show-branches)
+    (define-key map (kbd "t") 'magit-change-what-branch-tracks)
     (define-key map (kbd "n") 'next-line)
     (define-key map (kbd "p") 'previous-line)
     map))
@@ -4416,6 +4417,31 @@ With prefix force the removal even it it hasn't been merged."
                                   "*")))
           (forward-line 1)))))
   (setq buffer-read-only t))
+
+(defun magit-change-what-branch-tracks ()
+  "Change which remote branch the current branch tracks."
+  (interactive)
+  (if (magit--is-branch-at-point-remote)
+      (error "Cannot modify a remote branch"))
+  (let* ((local-branch (magit--branch-name-at-point))
+         (new-tracked (magit-read-rev  "Change tracked branch to"
+                                       nil
+                                       (lambda (ref)
+                                         (not (string-match-p "refs/remotes/"
+                                                              ref)))))
+         new-remote new-branch)
+    (unless (string= (or new-tracked "") "")
+      (unless (and new-tracked
+                   (string-match "^refs/remotes/\\([^/]+\\)/\\(.+\\)" ; 1: remote name; 2: branch name
+                                 new-tracked))
+        (error "Cannot parse the remote and branch name"))
+      (setq new-remote (match-string 1 new-tracked)
+            new-branch (concat "refs/heads/" (match-string 2 new-tracked))))
+    (magit-set new-remote "branch" local-branch "remote")
+    (magit-set new-branch "branch" local-branch "merge")
+    (magit-show-branches)
+    (if (string= (magit-get-current-branch) local-branch)
+        (magit-refresh-buffer (magit-find-buffer 'status default-directory)))))
 
 (defvar magit-ediff-file)
 (defvar magit-ediff-windows)
