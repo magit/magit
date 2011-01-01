@@ -532,6 +532,19 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "i") 'magit-ignore-item)
     map))
 
+(defvar magit-show-branches-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "RET") 'magit-branches-window-checkout)
+    (define-key map (kbd "b") 'magit-branches-window-checkout)
+    (define-key map (kbd "k") 'magit-remove-branch)
+    (define-key map (kbd "$") 'magit-display-process)
+    (define-key map (kbd "q") 'magit-quit-branches-window)
+    (define-key map (kbd "g") 'magit-show-branches)
+    (define-key map (kbd "v") 'magit-show-branches)
+    (define-key map (kbd "t") 'magit-change-what-branch-tracks)
+    (define-key map (kbd "n") 'next-line)
+    (define-key map (kbd "p") 'previous-line)
+    map))
 
 (defvar magit-bug-report-url "http://github.com/philjackson/magit/issues")
 (defun magit-bug-report (str)
@@ -857,12 +870,19 @@ pair (START . END), then the range is START..END.")
 (make-variable-buffer-local 'magit-current-range)
 
 (defun magit-list-interesting-refs (&optional uninteresting)
+  "Return interesting references as given by `git show-ref'.
+Removes references matching UNINTERESTING from the
+results. UNINTERESTING can be either a function taking a single
+argument or a list of strings used as regexps."
   (let ((refs ()))
     (dolist (line (magit-git-lines "show-ref"))
       (if (string-match "[^ ]+ +\\(.*\\)" line)
 	  (let ((ref (match-string 1 line)))
-	    (cond ((loop for i in uninteresting
-                         thereis (string-match i ref)))
+	    (cond ((and (functionp uninteresting)
+                        (funcall uninteresting ref)))
+                  ((and (not (functionp uninteresting))
+                        (loop for i in uninteresting
+                              thereis (string-match i ref))))
                   ((string-match "refs/heads/\\(.*\\)" ref)
 		   (let ((branch (match-string 1 ref)))
 		     (push (cons branch branch) refs)))
@@ -2660,12 +2680,18 @@ insert a line to tell how to insert more of them"
 		       (format "%s..HEAD"
 			     (magit-remote-branch-name remote branch)))))
 
-(defun magit-remote-branch-for (local-branch)
-  "Guess the remote branch name that LOCAL-BRANCH is tracking."
+(defun magit-remote-branch-for (local-branch &optional prepend-remote-name)
+  "Guess the remote branch name that LOCAL-BRANCH is tracking.
+Prepend \"remotes/\", the remote's name and \"/\" if
+PREPEND-REMOTE-NAME is non-nil."
   (let ((merge (magit-get "branch" local-branch "merge")))
     (save-match-data
       (if (and merge (string-match "^refs/heads/\\(.+\\)" merge))
-	  (match-string 1 merge)))))
+	  (concat (if prepend-remote-name
+                      (concat "remotes/"
+                              (magit-get "branch" local-branch "remote")
+                              "/"))
+                  (match-string 1 merge))))))
 
 ;;; Status
 
@@ -4268,19 +4294,6 @@ Return values:
       (if old-editor
 	  (setenv "GIT_EDITOR" old-editor)))))
 
-(defvar magit-show-branches-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "RET") 'magit-branches-window-checkout)
-    (define-key map (kbd "b") 'magit-branches-window-checkout)
-    (define-key map (kbd "k") 'magit-remove-branch)
-    (define-key map (kbd "$") 'magit-display-process)
-    (define-key map (kbd "q") 'magit-quit-branches-window)
-    (define-key map (kbd "g") 'magit-show-branches)
-    (define-key map (kbd "V") 'magit-show-branches)
-    (define-key map (kbd "n") 'next-line)
-    (define-key map (kbd "p") 'previous-line)
-    map))
-
 (define-derived-mode magit-show-branches-mode fundamental-mode
   "Magit Branches")
 
@@ -4303,8 +4316,7 @@ Return values:
   "Check out the branch in the line at point."
   (interactive)
   (magit-checkout (magit--branch-name-at-point))
-  (save-excursion
-    (magit-show-branches)))
+  (magit-show-branches))
 
 (defun magit-remove-remote (ref)
   "Return REF with any remote part removed."
@@ -4322,9 +4334,8 @@ With prefix force the removal even it it hasn't been merged."
 		    ;; remove the remotes part
 		    (magit-remove-remote
                      (magit--branch-name-at-point)))))
-    (save-excursion
-      (apply 'magit-run-git (remq nil args))
-      (magit-show-branches))))
+    (apply 'magit-run-git (remq nil args))
+    (magit-show-branches)))
 
 (defvar magit-branches-buffer-name "*magit-branches*")
 
@@ -4335,22 +4346,27 @@ With prefix force the removal even it it hasn't been merged."
 (defun magit--branch-view-details (branch-line)
   "Extract details from branch -va output."
   (string-match (concat
-                 "^\\(\\*? \\{1,2\\}\\)"       ; current branch marker (maybe)
-                 "\\(.+?\\) +"                 ; branch name
+                 "^\\(\\*? \\{1,2\\}\\)"       ; 1: current branch marker (maybe)
+                 "\\(.+?\\) +"                 ; 2: branch name
 
                  "\\(?:"
-                 "\\([0-9a-fA-F]\\{7,8\\}\\) " ; sha1
-                 "\\|\\(-> \\)"                ; or the pointer to a ref
+                 "\\([0-9a-fA-F]\\{7,8\\}\\) " ; 3: sha1
+                 "\\|\\(-> \\)"                ; 4: or the pointer to a ref
                  "\\)"
 
-                 "\\(.+\\)"                    ; message or ref
+                 "\\(.+\\)"                    ; 5: message or ref
                  )
                 branch-line)
   (let ((res (list (cons 'current (match-string 1 branch-line))
                    (cons 'branch  (match-string 2 branch-line))
                    (cons 'remote  (string-match-p "^remotes/" (match-string 2 branch-line))))))
+    (unless (cdr (assoc 'remote res))
+      (setq res (append (list (cons 'tracking
+                                    (magit-remote-branch-for (cdr (assoc 'branch res))
+                                                             t)))
+                        res)))
     (if (match-string 4 branch-line)
-        (cons (cons 'other-ref (match-string 6 branch-line)) res)
+        (cons (cons 'other-ref (match-string 5 branch-line)) res)
       (append
        (list
         (cons 'sha1 (match-string 3 branch-line))
@@ -4360,34 +4376,72 @@ With prefix force the removal even it it hasn't been merged."
 (defun magit-show-branches ()
   "Show all of the current branches in `other-window'."
   (interactive)
-  (unless (eq major-mode 'magit-show-branches-mode)
-    (let ((topdir (magit-get-top-dir default-directory)))
-      (switch-to-buffer-other-window magit-branches-buffer-name)
-      (setq default-directory topdir)))
-  (let ((inhibit-read-only t)
-        (branches (mapcar 'magit--branch-view-details
-                          (apply 'magit-git-lines "branch" "-va"
-				 magit-custom-options))))
-    (erase-buffer)
-    (insert
-     (mapconcat
-      (lambda (b)
-        (propertize
-         (concat
-          (cdr (assoc 'current b))
-          (propertize (or (cdr (assoc 'sha1 b))
-                          "       ")
-                      'face 'magit-log-sha1)
-          " "
-          (cdr (assoc 'branch b))
-          (when (assoc 'other-ref b)
-            (concat " (" (cdr (assoc 'other-ref b)) ")")))
-         'remote (cdr (assoc 'remote b))
-         'branch-name (cdr (assoc 'branch b))))
-      branches
-      "\n"))
-    (magit-show-branches-mode))
+  (let ((buffer-existed (get-buffer magit-branches-buffer-name)))
+    (unless (eq major-mode 'magit-show-branches-mode)
+      (let ((topdir (magit-get-top-dir default-directory)))
+        (switch-to-buffer-other-window magit-branches-buffer-name)
+        (setq default-directory topdir)))
+    (let ((inhibit-read-only t)
+          (goto-branch-line (line-number-at-pos))
+          (branches (mapcar 'magit--branch-view-details
+                            (apply 'magit-git-lines "branch" "-va"
+                                   magit-custom-options))))
+      (erase-buffer)
+      (insert
+       (mapconcat
+        (lambda (b)
+          (propertize
+           (concat
+            (cdr (assoc 'current b))
+            (propertize (or (cdr (assoc 'sha1 b))
+                            "       ")
+                        'face 'magit-log-sha1)
+            " "
+            (cdr (assoc 'branch b))
+            (when (assoc 'other-ref b)
+              (concat " (" (cdr (assoc 'other-ref b)) ")"))
+            (when (and (assoc 'tracking b)
+                       (cdr (assoc 'tracking b)))
+              (concat " [" (cdr (assoc 'tracking b)) "]")))
+           'remote (cdr (assoc 'remote b))
+           'branch-name (cdr (assoc 'branch b))))
+        branches
+        "\n"))
+      (magit-show-branches-mode)
+      (goto-char (point-min))
+      (if buffer-existed
+          (forward-line (1- goto-branch-line))
+        (while (and (< (point)
+                       (point-max))
+                    (not (string= (buffer-substring-no-properties (point) (1+ (point)))
+                                  "*")))
+          (forward-line 1)))))
   (setq buffer-read-only t))
+
+(defun magit-change-what-branch-tracks ()
+  "Change which remote branch the current branch tracks."
+  (interactive)
+  (if (magit--is-branch-at-point-remote)
+      (error "Cannot modify a remote branch"))
+  (let* ((local-branch (magit--branch-name-at-point))
+         (new-tracked (magit-read-rev  "Change tracked branch to"
+                                       nil
+                                       (lambda (ref)
+                                         (not (string-match-p "refs/remotes/"
+                                                              ref)))))
+         new-remote new-branch)
+    (unless (string= (or new-tracked "") "")
+      (unless (and new-tracked
+                   (string-match "^refs/remotes/\\([^/]+\\)/\\(.+\\)" ; 1: remote name; 2: branch name
+                                 new-tracked))
+        (error "Cannot parse the remote and branch name"))
+      (setq new-remote (match-string 1 new-tracked)
+            new-branch (concat "refs/heads/" (match-string 2 new-tracked))))
+    (magit-set new-remote "branch" local-branch "remote")
+    (magit-set new-branch "branch" local-branch "merge")
+    (magit-show-branches)
+    (if (string= (magit-get-current-branch) local-branch)
+        (magit-refresh-buffer (magit-find-buffer 'status default-directory)))))
 
 (defvar magit-ediff-file)
 (defvar magit-ediff-windows)
