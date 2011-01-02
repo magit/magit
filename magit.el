@@ -4334,6 +4334,22 @@ With prefix force the removal even it it hasn't been merged."
     (apply 'magit-run-git (remq nil args))
     (magit-show-branches)))
 
+(defun magit--remotes ()
+  "Return a list of names for known remotes."
+  (magit-git-lines "remote"))
+
+(defun magit--branches-for-remote-repo (remote)
+  "Return a list of remote branch names for REMOTE.
+These are the branch names with the remote name stripped."
+  (remq nil
+        (mapcar (lambda (line)
+                  (save-match-data
+                    (if (and (not (string-match-p " -> " line))
+                             (string-match (concat "^ +" remote "/\\([^ $]+\\)")
+                                           line))
+                        (match-string 1 line))))
+                (magit-git-lines "branch" "-r"))))
+
 (defvar magit-branches-buffer-name "*magit-branches*")
 
 (defun magit--is-branch-at-point-remote()
