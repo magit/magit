@@ -537,6 +537,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "RET") 'magit-branches-window-checkout)
     (define-key map (kbd "b") 'magit-branches-window-checkout)
     (define-key map (kbd "k") 'magit-remove-branch)
+    (define-key map (kbd "K") 'magit-remove-branch-in-remote-repo)
     (define-key map (kbd "$") 'magit-display-process)
     (define-key map (kbd "q") 'magit-quit-branches-window)
     (define-key map (kbd "g") 'magit-show-branches)
@@ -2802,7 +2803,7 @@ to consider it or not when called with that buffer current."
         (message msg)))))
 
 
-(defun magit-save-buffers-predicate-all () 
+(defun magit-save-buffers-predicate-all ()
   "Prompt to save all buffers with unsaved changes"
   t)
 
@@ -4332,6 +4333,9 @@ With prefix force the removal even it it hasn't been merged."
 		    (magit-remove-remote
                      (magit--branch-name-at-point)))))
     (apply 'magit-run-git (remq nil args))
+    (if (and (magit--is-branch-at-point-remote)
+             (yes-or-no-p "Remove branch in remote repository as well? "))
+        (magit-remove-branch-in-remote-repo (magit--branch-name-at-point)))
     (magit-show-branches)))
 
 (defun magit--remotes ()
@@ -4349,6 +4353,30 @@ These are the branch names with the remote name stripped."
                                            line))
                         (match-string 1 line))))
                 (magit-git-lines "branch" "-r"))))
+
+(defun magit-remove-branch-in-remote-repo (&optional branch-name-at-local)
+  "Remove a branch in a remote repository by pushing nothing into it.
+If BRANCH-NAME-AT-LOCAL is not given then ask the user for the
+name of the remote and branch name. The remote must be known to git."
+  (interactive)
+  (let ((all-remotes (magit--remotes))
+        remote branch)
+    (unless all-remotes
+      (error "No remote has been  configured"))
+    (if branch-name-at-local
+        (save-match-data
+          (if (string-match "^remotes/\\([^/]+\\)/\\(.+\\)" branch-name-at-local)
+              (setq remote (match-string 1 branch-name-at-local)
+                    branch (match-string 2 branch-name-at-local))
+            (error "Cannot parse remote and branch name from `%s'" branch-name-at-local)))
+      (setq remote (magit-completing-read "Name of remote repository: " all-remotes nil t)
+            branch (magit-completing-read "Name of branch in remote repository: "
+                                          (magit--branches-for-remote-repo remote))))
+    (unless (magit-get "remote" remote "url")
+      (error "Unknown remote"))
+    (magit-run-git "push"
+                   remote
+                   (concat ":refs/heads/" branch))))
 
 (defvar magit-branches-buffer-name "*magit-branches*")
 
