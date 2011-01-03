@@ -493,6 +493,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "x") 'magit-reset-head)
     (define-key map (kbd "e") 'magit-log-show-more-entries)
     (define-key map (kbd "l") 'magit-key-mode-popup-logging)
+    (define-key map (kbd "t") 'magit-key-mode-popup-tagging)
     map))
 
 (defvar magit-reflog-mode-map
