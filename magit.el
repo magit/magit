@@ -542,7 +542,8 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "q") 'magit-quit-branches-window)
     (define-key map (kbd "g") 'magit-show-branches)
     (define-key map (kbd "v") 'magit-show-branches)
-    (define-key map (kbd "t") 'magit-change-what-branch-tracks)
+    (define-key map (kbd "T") 'magit-change-what-branch-tracks)
+    (define-key map (kbd "t") 'magit-key-mode-popup-tagging)
     (define-key map (kbd "n") 'next-line)
     (define-key map (kbd "p") 'previous-line)
     map))
@@ -3744,12 +3745,14 @@ With prefix argument, changes in staging area are kept.
 
 (defun magit-commit-at-point (&optional nil-ok-p)
   (let* ((section (magit-current-section))
-	 (commit (and (eq (magit-section-type section) 'commit)
-		      (magit-section-info section))))
+         (commit (or (and (not section)                          ; Places without a magit-section
+                          (get-text-property (point) 'revision)) ; but with a text property 'revision
+                     (and (eq (magit-section-type section) 'commit)
+                          (magit-section-info section)))))
     (if nil-ok-p
-	commit
+        commit
       (or commit
-	  (error "No commit at point")))))
+          (error "No commit at point")))))
 
 (defun magit-apply-commit (commit &optional docommit noerase revert)
   (let* ((parent-id (magit-choose-parent-id commit "cherry-pick"))
@@ -4444,7 +4447,8 @@ name of the remote and branch name. The remote must be known to git."
             (when (cdr (assoc 'tracking b))
               (concat " [" (cdr (assoc 'tracking b)) "]")))
            'remote (cdr (assoc 'remote b))
-           'branch-name (cdr (assoc 'branch b))))
+           'branch-name (cdr (assoc 'branch b))
+           'revision (cdr (assoc 'sha1 b))))
         branches
         "\n"))
       (magit-show-branches-mode)
