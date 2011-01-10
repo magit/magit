@@ -80,6 +80,7 @@
      (man-page "git-branch")
      (actions
       ("v" "Branch manager" magit-show-branches)
+      ("r" "Remotes manager" magit-show-remotes)
       ("n" "New" magit-create-branch)
       ("m" "Move" magit-move-branch)
       ("d" "Delete" magit-delete-branch)

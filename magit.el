@@ -77,6 +77,7 @@
 ;; magit core
 (require 'magit-key-mode)
 (require 'magit-bisect)
+(require 'magit-remotes)
 
 (eval-when-compile (require 'cl))
 (require 'log-edit)
@@ -632,8 +633,15 @@ Do not customize this (used in the `magit-key-mode' implementation).")
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "k") 'magit-remove-branch)
     (define-key map (kbd "K") 'magit-remove-branch-in-remote-repo)
+    (define-key map (kbd "$") 'magit-display-process)
+    (define-key map (kbd "q") 'magit-quit-window)
+    (define-key map (kbd "g") 'magit-show-branches)
     (define-key map (kbd "v") 'magit-show-branches)
     (define-key map (kbd "T") 'magit-change-what-branch-tracks)
+    (define-key map (kbd "t") 'magit-key-mode-popup-tagging)
+    (define-key map (kbd "r") 'magit-show-remotes)
+    (define-key map (kbd "n") 'next-line)
+    (define-key map (kbd "p") 'previous-line)
     map))
 
 (defvar magit-bug-report-url
@@ -1827,7 +1835,7 @@ order until one return non nil. If they all return nil then body will be called.
 It used to define hookable magit command: command defined by this
 function can be enriched by magit extension like magit-topgit and magit-svn"
   (declare (indent defun)
-           (debug (&define name lambda-list 
+           (debug (&define name lambda-list
                            [&optional stringp]        ; Match the doc string, if present.
                            [&optional ("interactive" interactive)]
                            def-body)))
