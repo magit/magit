@@ -29,7 +29,7 @@
 ;; Copyright (C) 2009 René Stadler.
 ;; Copyright (C) 2010 Robin Green.
 ;; Copyright (C) 2010 Roger Crew.
-;; Copyright (C) 2009, 2010 Rémi Vanicat.
+;; Copyright (C) 2009, 2010, 2011 Rémi Vanicat.
 ;; Copyright (C) 2010 Sean Bryant.
 ;; Copyright (C) 2009 Steve Purcell.
 ;; Copyright (C) 2010 Timo Juhani Lindfors.
@@ -165,7 +165,7 @@ after a confirmation."
 		 (const :tag "Immediately" 0)
 		 (integer :tag "After this many seconds")))
 
-(defcustom magit-revert-item-confirm nil
+(defcustom magit-revert-item-confirm t
   "Require acknowledgment before reverting an item."
   :group 'magit
   :type 'boolean)
