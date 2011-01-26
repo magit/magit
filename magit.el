@@ -3041,6 +3041,19 @@ if any."
             (loop for i in todo-lines-with-comments
                   until (string= "" i)
                   count i))))
+        ((file-exists-p ".git/rebase-apply")
+         ;; we might be here because a non-interactive rebase failed: the
+         ;; patches didn't apply cleanly
+         (list
+          ;; The commit we're rebasing onto, i.e. git rebase -i <onto>
+          (magit-name-rev (car (magit-file-lines ".git/rebase-apply/onto")))
+
+          ;; How many commits we've gone through
+          (- (string-to-number (car (magit-file-lines ".git/rebase-apply/next"))) 1)
+
+          ;; How many commits we have in total
+          (string-to-number (car (magit-file-lines ".git/rebase-apply/last")))
+          ))
 	(t nil)))
 
 (defun magit-rebase-step ()
