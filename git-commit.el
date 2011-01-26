@@ -509,6 +509,31 @@ NOTE defaults to `current-prefix-arg'."
     (define-key map (kbd "C-c C-p") 'git-commit-reported)
     map))
 
+(defun git-commit-font-lock-diff ()
+  "Add font lock on diff."
+  (save-excursion
+    (goto-char (point-min))
+    (when (re-search-forward "^diff --git")
+      (let ((beg (match-beginning 0)))
+        (let* ((buffer (current-buffer))
+               (font-lock-verbose nil)
+               (font-lock-support-mode nil)
+               (text (with-temp-buffer
+                       (insert
+                        (with-current-buffer buffer
+                          (buffer-substring-no-properties beg (point-max))))
+                       (diff-mode)
+                       (font-lock-fontify-buffer)
+                       (let ((pos (point-min))
+                             next)
+                         (while (setq next (next-single-property-change pos 'face))
+                           (put-text-property pos next 'font-lock-face
+                                              (get-text-property pos 'face))
+                           (setq pos next)))
+                       (buffer-string))))
+          (delete-region beg (point-max))
+          (insert text))))))
+
 ;;;###autoload
 (defun git-commit-mode ()
   "Major mode for editing git commit messages.
@@ -538,6 +563,7 @@ Turning on git commit calls the hooks in `git-commit-mode-hook'."
         comment-start "# "
         comment-end "")
   (setq major-mode 'git-commit-mode)
+  (git-commit-font-lock-diff)
   (run-mode-hooks 'git-commit-mode-hook)
   (setq mode-name "Git-Commit"))
 
