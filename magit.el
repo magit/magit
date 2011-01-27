@@ -1653,9 +1653,10 @@ FUNC should leave point at the end of the modified region"
 
 (defun magit-run* (cmd-and-args
 		   &optional logline noerase noerror nowait input)
-  (if (and magit-process
-	   (get-buffer magit-process-buffer-name))
-      (error "Git is already running"))
+  (unless nowait
+    (if (and magit-process
+             (get-buffer magit-process-buffer-name))
+        (error "Git is already running")))
   (let ((cmd (car cmd-and-args))
 	(args (cdr cmd-and-args))
 	(dir default-directory)
@@ -2793,7 +2794,7 @@ If PRED is a zero-argument function, it indicates for each buffer whether
 to consider it or not when called with that buffer current."
   (interactive)
   (let ((predicate-function (or pred magit-save-some-buffers-predicate)))
-    
+
     (if magit-save-some-buffers
         (save-some-buffers
          (eq magit-save-some-buffers 'dontask)
@@ -2802,7 +2803,7 @@ to consider it or not when called with that buffer current."
         (message msg)))))
 
 
-(defun magit-save-buffers-predicate-all () 
+(defun magit-save-buffers-predicate-all ()
   "Prompt to save all buffers with unsaved changes"
   t)
 
