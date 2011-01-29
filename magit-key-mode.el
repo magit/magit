@@ -445,7 +445,8 @@ item on one line."
          (actions (cdr (assoc 'actions options))))
     (magit-key-mode-draw-switches switches)
     (magit-key-mode-draw-args arguments)
-    (magit-key-mode-draw-actions actions)))
+    (magit-key-mode-draw-actions actions)
+    (insert "\n")))
 
 (defun magit-key-mode-de-generate (group)
   "Unbind the function for GROUP."
