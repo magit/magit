@@ -2110,13 +2110,14 @@ in the corresponding directories."
     (magit-wash-sequence #'magit-wash-untracked-file)))
 
 (defun magit-insert-untracked-files ()
-  (apply 'magit-git-section
-         `(untracked
+  (unless (string= (magit-get "status" "showUntrackedFiles") "no")
+    (apply 'magit-git-section
+           `(untracked
            "Untracked files:"
            magit-wash-untracked-files
-           "ls-files" "-t" "--others" "--exclude-standard"
+           "ls-files" "--others" "-t" "--exclude-standard"
            ,@(when magit-omit-untracked-dir-contents
-               '("--directory")))))
+               '("--directory"))))))
 
 ;;; Diffs and Hunks
 
