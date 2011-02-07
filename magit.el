@@ -2854,28 +2854,32 @@ to consider it or not when called with that buffer current."
 
 ;;; Staging and Unstaging
 
-(defun magit-stage-item ()
-  "Add the item at point to the staging area."
-  (interactive)
-  (magit-section-action (item info "stage")
-    ((untracked file)
-     (magit-run-git "add" info))
-    ((untracked)
-     (apply #'magit-run-git "add" "--"
-	    (magit-git-lines "ls-files" "--other" "--exclude-standard")))
-    ((unstaged diff hunk)
-     (if (magit-hunk-item-is-conflict-p item)
-	 (error (concat "Can't stage individual resolution hunks.  "
-			"Please stage the whole file.")))
-     (magit-apply-hunk-item item "--cached"))
-    ((unstaged diff)
-     (magit-run-git "add" "-u" (magit-diff-item-file item)))
-    ((staged *)
-     (error "Already staged"))
-    ((hunk)
-     (error "Can't stage this hunk"))
-    ((diff)
-     (error "Can't stage this diff"))))
+(defun magit-stage-item (&optional ask)
+  "Add the item at point to the staging area.
+If ASK is set, ask for the file name rather than picking the one
+at point."
+  (interactive "P")
+  (if ask
+      (magit-run-git "add" (read-file-name "File to stage: "))
+    (magit-section-action (item info "stage")
+      ((untracked file)
+       (magit-stage-new-item info))
+      ((untracked)
+       (apply #'magit-run-git "add" "--"
+              (magit-git-lines "ls-files" "--other" "--exclude-standard")))
+      ((unstaged diff hunk)
+       (if (magit-hunk-item-is-conflict-p item)
+           (error (concat "Can't stage individual resolution hunks.  "
+                          "Please stage the whole file.")))
+       (magit-apply-hunk-item item "--cached"))
+      ((unstaged diff)
+       (magit-run-git "add" "-u" (magit-diff-item-file item)))
+      ((staged *)
+       (error "Already staged"))
+      ((hunk)
+       (error "Can't stage this hunk"))
+      ((diff)
+       (error "Can't stage this diff")))))
 
 (defun magit-unstage-item ()
   "Remove the item at point from the staging area."
