@@ -1857,7 +1857,11 @@ FUNC should leave point at the end of the modified region"
     "---"
     ["Diff working tree" magit-diff-working-tree t]
     ["Diff" magit-diff t]
-    ["Log..." magit-log-menu t]
+    ("Log"
+     ["Short Log" magit-display-log t]
+     ["Long Log" magit-log-long t]
+     ["Reflog" magit-reflog t]
+     ["Extended..." magit-key-mode-popup-logging t])
     "---"
     ["Cherry pick" magit-cherry-pick-item t]
     ["Apply" magit-apply-item t]
