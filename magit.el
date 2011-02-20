@@ -2872,7 +2872,7 @@ at point."
       (magit-run-git "add" (read-file-name "File to stage: "))
     (magit-section-action (item info "stage")
       ((untracked file)
-       (magit-stage-new-item info))
+       (magit-run-git "add" info))
       ((untracked)
        (apply #'magit-run-git "add" "--"
               (magit-git-lines "ls-files" "--other" "--exclude-standard")))
