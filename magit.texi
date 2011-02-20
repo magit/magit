@@ -11,7 +11,7 @@
 @end direntry
 
 @copying
-Copyright @copyright{} 2008, 2009 Marius Vollmer
+Copyright @copyright{} 2008, 2009, 2011 Marius Vollmer
 
 @quotation
 Permission is granted to copy, distribute and/or modify this document
@@ -271,6 +271,9 @@ If the region is active when you type @kbd{s} or @kbd{u}, only the
 changes in the region are staged or unstaged.  (This works line by
 line: if the beginning of a line is in the region it is included in
 the changes, otherwise it is not.)
+
+Typing @kbd{C-u s} will ask you for a name of a file to be staged, for
+example to stage files that are hidden.
 
 To move all hunks of all diffs into the staging area in one go, type
 @kbd{S}.  To unstage everything, type @kbd{U}.
