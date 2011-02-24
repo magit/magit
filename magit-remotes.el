@@ -8,6 +8,7 @@
     (define-key map (kbd "k") 'magit-delete-remote)
     (define-key map (kbd "n") 'next-line)
     (define-key map (kbd "p") 'previous-line)
+    (define-key map (kbd "P") 'magit-prune-remote)
     (define-key map (kbd "q") 'magit-quit-window)
     (define-key map (kbd "r") 'magit-rename-remote)
     (define-key map (kbd "s") 'magit-show-remote)
@@ -129,5 +130,15 @@ Error out if there's no remote at point."
         (define-key map "q" 'magit-quit-window)
         (use-local-map map))
       (setq buffer-read-only t))))
+
+(defun magit-prune-remote (&optional arg)
+  "Delete stale tracking branches for the remote at point with `git remote prune'.
+With prefix all remotes will be pruned."
+  (interactive "P")
+  (if (yes-or-no-p (if arg "Really prune all remotes (cannot be undone)? " "Really prune the remote (cannot be undone)? "))
+      (if arg
+          (dolist (remote (magit--remotes))
+            (magit-run-git "remote" "prune" remote))
+        (magit-run-git-async "remote" "prune" (magit--remote-at-point)))))
 
 (provide 'magit-remotes)
