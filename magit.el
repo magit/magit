@@ -3367,7 +3367,9 @@ typing and automatically refreshes the status buffer."
     (define-key map (kbd "M-n") 'log-edit-next-comment)
     (define-key map (kbd "C-c C-k") 'magit-log-edit-cancel-log-message)
     (define-key map (kbd "C-c C-]") 'magit-log-edit-cancel-log-message)
-    (define-key map (kbd "C-x C-s") 'ignore)
+    (define-key map (kbd "C-x C-s") (lambda ()
+				      (interactive)
+				      (message "Not saved. Use C-c C-c to finalize this commit message.")))
     map))
 
 (defvar magit-pre-log-edit-window-configuration nil)
