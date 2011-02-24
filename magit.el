@@ -549,10 +549,14 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "p") 'previous-line)
     map))
 
-(defvar magit-bug-report-url "http://github.com/philjackson/magit/issues")
+(defvar magit-bug-report-url
+  "http://github.com/philjackson/magit/issues")
+
 (defun magit-bug-report (str)
-  (message "Unknown error: %s\nPlease file a bug at %s"
-	   str magit-bug-report-url))
+  (message (concat
+            "Unknown error: %s\nPlease, with as much "
+            "information as possible, file a bug at %s")
+           str magit-bug-report-url))
 
 (defun magit-buffer-switch (buf)
   (if (string-match "magit" (buffer-name))
