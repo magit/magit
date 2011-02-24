@@ -3680,7 +3680,7 @@ Tag will point to the current 'HEAD'."
 ;;; Stashing
 
 (defun magit-wash-stash ()
-  (if (search-forward-regexp "stash@{\\(.*\\)}" (line-end-position) t)
+  (if (search-forward-regexp "stash@{\\(.*?\\)}" (line-end-position) t)
       (let ((stash (match-string-no-properties 0))
 	    (name (match-string-no-properties 1)))
 	(delete-region (match-beginning 0) (match-end 0))
