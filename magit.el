@@ -707,6 +707,11 @@ Many Magit faces inherit from this one by default."
 (defun magit-git-repo-p (dir)
   (file-exists-p (expand-file-name ".git" dir)))
 
+(defun magit-no-commit-p ()
+  "return non-nil if there is no commit in the current git repository"
+  (not (magit-git-string
+        "rev-list" "HEAD" "--max-count=1")))
+
 (defun magit-list-repos* (dir level)
   (if (magit-git-repo-p dir)
       (list dir)
@@ -1416,8 +1421,7 @@ Expanded: everything is shown."
 (defun magit-section-show-level (section level threshold path)
   (magit-section-set-hidden section (>= level threshold))
   (when (and (< level threshold)
-	     (magit-git-string
-	      "log" "--max-count=1" "--abbrev-commit" "--pretty=oneline"))
+             (not (magit-no-commit-p)))
 	(if path
 	    (magit-section-show-level (car path) (1+ level) threshold (cdr path))
 	    (dolist (c (magit-section-children section))
@@ -2900,10 +2904,9 @@ at point."
     ((staged diff)
      (if (eq (car info) 'unmerged)
 	 (error "Can't unstage a unmerged file.  Resolve it first"))
-     (if (magit-git-string
-	  "log" "--max-count=1" "--abbrev-commit" "--pretty=oneline")
-	 (magit-run-git "reset" "-q" "HEAD" "--" (magit-diff-item-file item))
-     	 (magit-run-git "rm" "--cached" "--" (magit-diff-item-file item))))
+     (if (magit-no-commit-p)
+     	 (magit-run-git "rm" "--cached" "--" (magit-diff-item-file item))
+         (magit-run-git "reset" "-q" "HEAD" "--" (magit-diff-item-file item))))
     ((unstaged *)
      (error "Already unstaged"))
     ((hunk)
