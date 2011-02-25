@@ -3802,21 +3802,30 @@ With prefix argument, changes in staging area are kept.
     ((stash)
      (magit-run-git "stash" "pop" info))))
 
+(defmacro magit-with-revert-confirmation (&rest body)
+  `(when (or (not magit-revert-item-confirm)
+             (yes-or-no-p "Really revert this item? "))
+     ,@body))
+
 (defun magit-revert-item ()
   (interactive)
-  (when (or (not magit-revert-item-confirm)
-	    (yes-or-no-p
-	     "Really revert this item (cannot be undone)? "))
-    (magit-section-action (item info "revert")
-      ((pending commit)
-       (magit-apply-commit info nil nil t)
-       (magit-rewrite-set-commit-property info 'used nil))
-      ((commit)
-       (magit-apply-commit info nil nil t))
-      ((hunk)
-       (magit-apply-hunk-item-reverse item))
-      ((diff)
-       (magit-apply-diff-item item "--reverse")))))
+  (magit-section-action (item info "revert")
+    ((pending commit)
+     (magit-with-revert-confirmation
+      (magit-apply-commit info nil nil t)
+      (magit-rewrite-set-commit-property info 'used nil)))
+    ((commit)
+     (magit-with-revert-confirmation
+      (magit-apply-commit info nil nil t)))
+    ;; Reverting unstaged changes cannot be undone
+    ((unstaged *)
+     (magit-discard-item))
+    ((hunk)
+     (magit-with-revert-confirmation
+      (magit-apply-hunk-item-reverse item)))
+    ((diff)
+     (magit-with-revert-confirmation
+      (magit-apply-diff-item item "--reverse")))))
 
 (defvar magit-have-graph 'unset)
 (defvar magit-have-decorate 'unset)
