@@ -941,8 +941,11 @@ argument or a list of strings used as regexps."
 			     def-beg)))
     (if (not beg)
 	nil
-      (let ((end (magit-read-rev (format "%s end" op) def-end)))
-	(cons beg end)))))
+      (save-match-data
+	(if (string-match "^\\(.+\\)\\.\\.\\(.+\\)$" beg)
+	    (cons (match-string 1 beg) (match-string 2 beg))
+	  (let ((end (magit-read-rev (format "%s end" op) def-end)))
+	    (cons beg end)))))))
 
 (defun magit-rev-to-git (rev)
   (or rev
