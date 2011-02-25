@@ -2808,7 +2808,7 @@ If PRED is a zero-argument function, it indicates for each buffer whether
 to consider it or not when called with that buffer current."
   (interactive)
   (let ((predicate-function (or pred magit-save-some-buffers-predicate)))
-    
+
     (if magit-save-some-buffers
         (save-some-buffers
          (eq magit-save-some-buffers 'dontask)
@@ -4463,11 +4463,13 @@ name of the remote and branch name. The remote must be known to git."
                             "       ")
                         'face 'magit-log-sha1)
             " "
-            (cdr (assoc 'branch b))
+            (apply 'propertize (cdr (assoc 'branch b))
+                   (if (string-match-p "^\\*" (cdr (assoc 'current b)))
+                       '(face magit-branch)))
             (when (assoc 'other-ref b)
               (concat " (" (cdr (assoc 'other-ref b)) ")"))
             (when (cdr (assoc 'tracking b))
-              (concat " [" (cdr (assoc 'tracking b)) "]")))
+              (concat " [" (propertize (cdr (assoc 'tracking b)) 'face 'magit-log-head-label-remote) "]")))
            'remote (cdr (assoc 'remote b))
            'branch-name (cdr (assoc 'branch b))
            'revision (cdr (assoc 'sha1 b))))
