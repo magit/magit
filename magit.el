@@ -3115,11 +3115,11 @@ if any."
         (let ((reply (read-event)))
           (case reply
             ((?A ?a)
-             (magit-run-git "rebase" "--abort"))
+             (magit-run-git-async "rebase" "--abort"))
             ((?S ?s)
-             (magit-run-git "rebase" "--skip"))
+             (magit-run-git-async "rebase" "--skip"))
             ((?C ?c)
-             (magit-run-git "rebase" "--continue"))))))))
+             (magit-run-git-async "rebase" "--continue"))))))))
 
 ;;; Resetting
 
