@@ -414,6 +414,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "?") 'magit-describe-item)
     (define-key map (kbd "!") 'magit-key-mode-popup-running)
     (define-key map (kbd ":") 'magit-git-command)
+    (define-key map (kbd "C-x 4 a") 'magit-add-change-log-entry-other-window)
     (define-key map (kbd "RET") 'magit-visit-item)
     (define-key map (kbd "SPC") 'magit-show-item-or-scroll-up)
     (define-key map (kbd "DEL") 'magit-show-item-or-scroll-down)
@@ -4226,6 +4227,28 @@ This is only meaningful in wazzup buffers.")
     ((stash)
      (when (yes-or-no-p "Discard stash? ")
        (magit-run-git "stash" "drop" info)))))
+
+(defun magit-add-change-log-entry (&optional whoami file-name other-window
+                                             new-entry put-new-entry-on-new-line)
+  "Add a change log entry for current change."
+  (interactive (list current-prefix-arg
+		     (prompt-for-change-log-name)))
+  (let ((marker
+         (save-window-excursion
+           (magit-visit-item)
+           (set-marker (make-marker) (point)))))
+    (save-excursion
+      (with-current-buffer (marker-buffer marker)
+        (goto-char marker)
+        (add-change-log-entry whoami file-name other-window
+                              new-entry put-new-entry-on-new-line)))))
+
+(defun magit-add-change-log-entry-other-window (&optional whoami file-name)
+  "Add a change log entry for current change in other window."
+  (interactive (if current-prefix-arg
+		   (list current-prefix-arg
+			 (prompt-for-change-log-name))))
+  (magit-add-change-log-entry whoami file-name t))
 
 (defun magit-visit-item (&optional other-window)
   "Visit current item.
