@@ -4245,17 +4245,25 @@ This is only meaningful in wazzup buffers.")
      (when (yes-or-no-p "Discard stash? ")
        (magit-run-git "stash" "drop" info)))))
 
-(defun magit-visit-item ()
-  (interactive)
+(defun magit-visit-item (&optional other-window)
+  "Visit current item.
+With a prefix argument, visit in other window."
+  (interactive (list current-prefix-arg))
   (magit-section-action (item info "visit")
     ((untracked file)
-     (find-file info))
+     (funcall
+      (if other-window 'find-file-other-window 'find-file)
+      info))
     ((diff)
-     (find-file (magit-diff-item-file item)))
+     (funcall
+      (if other-window 'find-file-other-window 'find-file)
+      (magit-diff-item-file item)))
     ((hunk)
      (let ((file (magit-diff-item-file (magit-hunk-item-diff item)))
 	   (line (magit-hunk-item-target-line item)))
-       (find-file file)
+       (funcall
+        (if other-window 'find-file-other-window 'find-file)
+        file)
        (goto-char (point-min))
        (forward-line (1- line))))
     ((commit)
