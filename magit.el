@@ -1631,6 +1631,15 @@ FUNC should leave point at the end of the modified region"
               (funcall func))))
 
 (defmacro magit-define-command (sym arglist &rest body)
+  "Macro to define a magit command.
+It will define the magit-SYM function having ARGLIST as argument.
+It will also define the magit-SYM-command-hook variable.
+
+The defined function will call the function in the hook in
+order until one return non nil. If they all return nil then body will be called.
+
+It used to define hookable magit command: command defined by this
+function can be enriched by magit extension like magit-topgit and magit-svn"
   (declare (indent defun))
   (let ((fun (intern (format "magit-%s" sym)))
         (hook (intern (format "magit-%s-command-hook" sym)))
