@@ -513,7 +513,7 @@ NOTE defaults to `current-prefix-arg'."
   "Add font lock on diff."
   (save-excursion
     (goto-char (point-min))
-    (when (re-search-forward "^diff --git")
+    (when (re-search-forward "^diff --git" nil t)
       (let ((beg (match-beginning 0)))
         (let* ((buffer (current-buffer))
                (font-lock-verbose nil)
