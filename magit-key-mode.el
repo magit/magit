@@ -2,7 +2,7 @@
 
 (defvar magit-key-mode-key-maps '()
   "This will be filled lazily with proper `define-key' built
-  keymaps as they're reqeusted.")
+  keymaps as they're requested.")
 
 (defvar magit-key-mode-buf-name "*magit-key*"
   "Name of the buffer.")
@@ -29,7 +29,7 @@
      (switches
       ("-m" "Only merge commits" "--merges")
       ("-f" "First parent" "--first-parent")
-      ("-i" "Case insesnitive patterns" "-i")
+      ("-i" "Case insensitive patterns" "-i")
       ("-pr" "Pickaxe regex" "--pickaxe-regex")
       ("-n" "Name only" "--name-only")
       ("-am" "All match" "--all-match")
@@ -46,7 +46,9 @@
     (running
      (actions
       ("!" "Command from root" magit-shell-command)
-      (":" "Git command" magit-git-command)))
+      (":" "Git command" magit-git-command)
+      ("g" "git gui" magit-run-git-gui)
+      ("k" "gitk" magit-run-gitk)))
 
     (fetching
      (man-page "git-fetch")
@@ -58,7 +60,7 @@
     (pushing
      (man-page "git-push")
      (actions
-      ("p" "Push" magit-push)
+      ("P" "Push" magit-push)
       ("t" "Push tags" magit-push-tags))
      (switches
       ("-f" "Force" "--force")
@@ -67,32 +69,32 @@
     (pulling
      (man-page "git-pull")
      (actions
-      ("p" "Pull" magit-pull))
+      ("F" "Pull" magit-pull))
      (switches
       ("-r" "Rebase" "--rebase")))
 
     (branching
      (man-page "git-branch")
      (actions
-      ("V" "Branch manager" magit-show-branches)
-      ("B" "Create" magit-create-branch)
+      ("v" "Branch manager" magit-show-branches)
+      ("n" "New" magit-create-branch)
       ("m" "Move" magit-move-branch)
       ("d" "Delete" magit-delete-branch)
-      ("c" "Checkout" magit-checkout)))
+      ("b" "Checkout" magit-checkout)))
 
     (tagging
      (man-page "git-tag")
      (actions
       ("t" "Lightweight" magit-tag)
-      ("T" "Annotated" magit-annotated-tag))
+      ("a" "Annotated" magit-annotated-tag))
      (switches
       ("-f" "Force" "-f")))
 
     (stashing
      (man-page "git-stash")
      (actions
-      ("s" "Save" magit-stash)
-      ("S" "Snapshot" magit-stash-snapshot))
+      ("z" "Save" magit-stash)
+      ("s" "Snapshot" magit-stash-snapshot))
      (switches
       ("-k" "Keep index" "--keep-index")))
 
@@ -115,13 +117,21 @@
       ("a" "Abort" magit-rewrite-abort)
       ("f" "Finish" magit-rewrite-finish)
       ("*" "Set unused" magit-rewrite-set-unused)
-      ("." "Set used" magit-rewrite-set-used))))
+      ("." "Set used" magit-rewrite-set-used)))
+
+    (submodule
+     (man-page "git-submodule")
+     (actions
+      ("u" "Update" magit-submodule-update)
+      ("b" "Both update and init" magit-submodule-update-init)
+      ("i" "Init" magit-submodule-init)
+      ("s" "Sync" magit-submodule-sync))))
   "Holds the key, help, function mapping for the log-mode. If you
   modify this make sure you reset `magit-key-mode-key-maps' to
   nil.")
 
 (defun magit-key-mode-delete-group (group)
-  "Add a new group (GROUP) to `magit-key-mode-key-maps'."
+  "Delete a group from `magit-key-mode-key-maps'."
   (let ((items (assoc group magit-key-mode-groups)))
     (when items
       ;; reset the cache
@@ -172,7 +182,7 @@ be a brief description of the binding."
 
 (defun magit-key-mode-insert-switch (for-group key desc switch)
   "Add a new binding (KEY) in FOR-GROUP which will add SWITCH to git's
-commandline when it runs. DESC should be a brief description of
+command line when it runs. DESC should be a brief description of
 the binding."
   (magit-key-mode-update-group for-group 'switches key desc switch))
 
@@ -296,7 +306,7 @@ put it in magit-key-mode-key-maps for fast lookup."
 (defun magit-key-mode (for-group &optional original-opts)
   "Mode for magit key selection. All commands, switches and
 options can be toggled/actioned with the key combination
-highlighed before the description."
+highlighted before the description."
   (interactive)
   ;; save the window config to restore it as was (no need to make this
   ;; buffer local)
@@ -316,7 +326,10 @@ highlighed before the description."
           'magit-key-mode-current-args)
          (make-hash-table))
     (magit-key-mode-redraw for-group))
-  (message "Bindings prefixing options action them. '?' for help"))
+  (message
+   (concat
+    "Type a prefix key to toggle it. Run 'actions' with their prefixes. "
+    "'?' for more help.")))
 
 (defun magit-key-mode-get-key-map (for-group)
   "Get or build the keymap for FOR-GROUP."
@@ -432,7 +445,8 @@ item on one line."
          (actions (cdr (assoc 'actions options))))
     (magit-key-mode-draw-switches switches)
     (magit-key-mode-draw-args arguments)
-    (magit-key-mode-draw-actions actions)))
+    (magit-key-mode-draw-actions actions)
+    (insert "\n")))
 
 (defun magit-key-mode-de-generate (group)
   "Unbind the function for GROUP."

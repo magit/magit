@@ -11,7 +11,7 @@
 @end direntry
 
 @copying
-Copyright @copyright{} 2008, 2009 Marius Vollmer
+Copyright @copyright{} 2008, 2009, 2011 Marius Vollmer
 
 @quotation
 Permission is granted to copy, distribute and/or modify this document
@@ -48,6 +48,7 @@ as an extension to Emacs.
 * Rebasing::
 * Rewriting::
 * Pushing and Pulling::
+* Submodules::         
 * Using Magit Extensions::
 * Using Git Directly::
 @end menu
@@ -271,6 +272,9 @@ changes in the region are staged or unstaged.  (This works line by
 line: if the beginning of a line is in the region it is included in
 the changes, otherwise it is not.)
 
+Typing @kbd{C-u s} will ask you for a name of a file to be staged, for
+example to stage files that are hidden.
+
 To move all hunks of all diffs into the staging area in one go, type
 @kbd{S}.  To unstage everything, type @kbd{U}.
 
@@ -331,7 +335,9 @@ representation of the relationships between commits.
 
 Giving a prefix argument to @kbd{l} will ask for the starting and end
 point of the history.  This can be used to show the commits that are
-in one branch, but not in another, for example.
+in one branch, but not in another, for example.  The start point can
+also be a range of revisions ``r1..r2''.  In that case ``r1'' is used
+as the start and ``r2'' as the end point of the history.
 
 Typing @kbd{l L} (or @kbd{l C-u L}) will show the log in a more verbose
 form.
@@ -600,7 +606,7 @@ Magit has several commands that can simplify the book keeping
 associated with rewriting.  These commands all start with the @kbd{r}
 prefix key.
 
-Typing @kbd{r s} will start a rewrite operation.  You will be prompted
+Typing @kbd{r b} will start a rewrite operation.  You will be prompted
 for a @emph{base} commit, and all commits between the current head and
 this commit are put in a list of @emph{Pending commits} (including the
 base commit).  The current head will then be reset to the parent of
@@ -670,11 +676,31 @@ commits} section that shows the commits on your current head that are
 not in the branch named @code{<remote>/<branch>}.  This section works
 just like the history buffer: you can see details about a commit with
 @kbd{RET}, compare two of them with @kbd{.} and @kbd{=}, and you can
-reset your current head to one of them with @kbd{x}, for example.
+reset your current head to one of them with @kbd{x}, for example. If
+you want to push the changes then type @kbd{P p}.
 
 When the remote branch has changes that are not in the current branch,
 Magit shows them in a section called @emph{Unpulled changes}.  Typing
-@kbd{f f} will merge them into the current branch.
+@kbd{F p} will merge them into the current branch.
+
+@node Submodules
+@chapter Submodules
+
+@table @kbd
+@item M u
+Update the submodules, with a prefix argument it will initializing.
+
+@item M i
+Initialize the submodules.
+
+@item M b
+Update and initialize the submodules in one go.
+
+@item M s
+Synchronizes submodules' remote URL configuration setting to the value
+specified in .gitmodules.
+@end table
+
 
 @node Using Magit Extensions
 @chapter Magit Extensions
@@ -684,6 +710,7 @@ Magit shows them in a section called @emph{Unpulled changes}.  Typing
 * Interfacing with Topgit::
 * Developing Extensions::
 @end menu
+
 
 @node Interfacing with Subversion
 @section Interfacing with Subversion
