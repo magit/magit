@@ -3084,7 +3084,8 @@ if any."
             (loop for i in todo-lines-with-comments
                   until (string= "" i)
                   count i))))
-        ((file-exists-p ".git/rebase-apply")
+        ((and (file-exists-p ".git/rebase-apply")
+              (file-exists-p ".git/rebase-apply/onto"))
          ;; we might be here because a non-interactive rebase failed: the
          ;; patches didn't apply cleanly
          (list
@@ -3097,7 +3098,7 @@ if any."
           ;; How many commits we have in total
           (string-to-number (car (magit-file-lines ".git/rebase-apply/last")))
           ))
-	(t nil)))
+        (t nil)))
 
 (defun magit-rebase-step ()
   (interactive)
