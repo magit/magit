@@ -2513,37 +2513,37 @@ must return a string which will represent the log line.")
 (defun magit-present-log-line (graph sha1 refs message)
   "The default log line generator."
   (let* ((ref-re "\\(?:tag: \\)?refs/\\(bisect\\|tags\\|remotes\\|patches/[^/]*\\|heads\\)/\\(.+\\)")
-	 (string-refs
-	  (when refs
-	    (concat (mapconcat
-		     (lambda (r)
-		       (propertize
-			(if (string-match ref-re r)
-			    (match-string 2 r)
-			  r)
-			'face (cond
-			       ((string= r "refs/stash")
-				'magit-log-head-label-local)
+         (string-refs
+          (when refs
+            (concat (mapconcat
+                     (lambda (r)
+                       (propertize
+                        (if (string-match ref-re r)
+                            (match-string 2 r)
+                          r)
+                        'face (cond
+                               ((string= r "refs/stash")
+                                'magit-log-head-label-local)
                                ((not (match-string 1 r))
                                 nil)
-			       ((string= (match-string 1 r) "remotes")
-				'magit-log-head-label-remote)
-			       ((string-match "^patches/[^/]*$" (match-string 1 r)) ; Stacked Git
-				'magit-log-head-label-patches)
-			       ((string= (match-string 1 r) "bisect")
-				(if (string= (match-string 2 r) "bad")
-				    'magit-log-head-label-bisect-bad
-				  'magit-log-head-label-bisect-good))
-			       ((string= (match-string 1 r) "tags")
-				'magit-log-head-label-tags)
-			       ((string= (match-string 1 r) "heads")
-				'magit-log-head-label-local))))
-		     refs
-		     " ")
-		    " "))))
+                               ((string= (match-string 1 r) "remotes")
+                                'magit-log-head-label-remote)
+                               ((string-match "^patches/[^/]*$" (match-string 1 r)) ; Stacked Git
+                                'magit-log-head-label-patches)
+                               ((string= (match-string 1 r) "bisect")
+                                (if (string= (match-string 2 r) "bad")
+                                    'magit-log-head-label-bisect-bad
+                                  'magit-log-head-label-bisect-good))
+                               ((string= (match-string 1 r) "tags")
+                                'magit-log-head-label-tags)
+                               ((string= (match-string 1 r) "heads")
+                                'magit-log-head-label-local))))
+                     refs
+                     " ")
+                    " "))))
     (concat
      (if sha1
-	 (propertize (substring sha1 0 8) 'face 'magit-log-sha1)
+         (propertize (substring sha1 0 8) 'face 'magit-log-sha1)
        (insert-char ? 8))
      " "
      (when graph
