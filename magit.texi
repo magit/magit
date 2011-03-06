@@ -11,7 +11,7 @@
 @end direntry
 
 @copying
-Copyright @copyright{} 2008, 2009 Marius Vollmer
+Copyright @copyright{} 2008, 2009, 2011 Marius Vollmer
 
 @quotation
 Permission is granted to copy, distribute and/or modify this document
@@ -272,6 +272,9 @@ changes in the region are staged or unstaged.  (This works line by
 line: if the beginning of a line is in the region it is included in
 the changes, otherwise it is not.)
 
+Typing @kbd{C-u s} will ask you for a name of a file to be staged, for
+example to stage files that are hidden.
+
 To move all hunks of all diffs into the staging area in one go, type
 @kbd{S}.  To unstage everything, type @kbd{U}.
 
@@ -332,7 +335,9 @@ representation of the relationships between commits.
 
 Giving a prefix argument to @kbd{l} will ask for the starting and end
 point of the history.  This can be used to show the commits that are
-in one branch, but not in another, for example.
+in one branch, but not in another, for example.  The start point can
+also be a range of revisions ``r1..r2''.  In that case ``r1'' is used
+as the start and ``r2'' as the end point of the history.
 
 Typing @kbd{l L} (or @kbd{l C-u L}) will show the log in a more verbose
 form.

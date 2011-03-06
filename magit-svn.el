@@ -28,6 +28,8 @@
 ;;; Code:
 
 (require 'magit)
+(eval-when-compile
+  (require 'cl))
 
 ;; git svn commands
 
