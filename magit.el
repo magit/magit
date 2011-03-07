@@ -2528,7 +2528,8 @@ must return a string which will represent the log line.")
                                 nil)
                                ((string= (match-string 1 r) "remotes")
                                 'magit-log-head-label-remote)
-                               ((string-match "^patches/[^/]*$" (match-string 1 r)) ; Stacked Git
+                               ((and (not (null (match-string 1 r))) 
+                                     (string-match "^patches/[^/]*$" (match-string 1 r))) ; Stacked Git
                                 'magit-log-head-label-patches)
                                ((string= (match-string 1 r) "bisect")
                                 (if (string= (match-string 2 r) "bad")
@@ -2537,6 +2538,8 @@ must return a string which will represent the log line.")
                                ((string= (match-string 1 r) "tags")
                                 'magit-log-head-label-tags)
                                ((string= (match-string 1 r) "heads")
+                                'magit-log-head-label-local)
+                               (t
                                 'magit-log-head-label-local))))
                      refs
                      " ")
