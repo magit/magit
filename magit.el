@@ -4695,6 +4695,7 @@ With a prefix arg, do a submodule update --init"
 
 (defun magit-submodule-update-init ()
   "Update and init the submodule of the current git repository."
+  (interactive)
   (magit-submodule-update t))
 
 (defun magit-submodule-init ()
