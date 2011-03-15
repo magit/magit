@@ -81,6 +81,9 @@
 (require 'easymenu)
 (require 'diff-mode)
 
+;; Silences two byte-compiler warnings
+(eval-when-compile (require 'iswitchb))
+
 ;;; Code:
 (defgroup magit nil
   "Controlling Git from Emacs."
