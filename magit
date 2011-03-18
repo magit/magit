@@ -1,0 +1,20 @@
+#!/bin/sh
+
+ALTERNATE_EDITOR=''
+
+if [ -n "$1" ]; then
+    dir=$1
+else
+    dir=$(pwd)
+fi
+
+if [ -n "$DISPLAY" ]; then
+    emacsclient -e "(progn (make-frame-on-display \"$DISPLAY\")
+                           (magit-status \"$dir\")
+                           (delete-other-windows)
+                           nil)"
+else
+    emacsclient -nw -e "(progn (magit-status \"$dir\")
+                               (delete-other-windows)
+                               nil)"
+fi
