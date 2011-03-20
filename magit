@@ -1,20 +1,28 @@
 #!/bin/sh
 
-ALTERNATE_EDITOR=''
-
 if [ -n "$1" ]; then
     dir=$1
 else
     dir=$(pwd)
 fi
 
-if [ -n "$DISPLAY" ]; then
-    emacsclient -e "(progn (make-frame-on-display \"$DISPLAY\")
-                           (magit-status \"$dir\")
-                           (delete-other-windows)
-                           nil)"
+runmagit="(progn (magit-status \"$dir\")
+                 (delete-other-windows))"
+
+# Don't allow non-empty alternate editor
+env | grep ^ALTERNATE_EDITOR=$ > /dev/null
+if [ $? != 0 ]; then
+    ALTERNATE_EDITOR=false
+fi
+
+if [ "$DISPLAY" ]; then
+    emacsclient --eval "(progn (select-frame (make-frame-on-display \"$DISPLAY\"))
+                               $runmagit)" 2>/dev/null
 else
-    emacsclient -nw -e "(progn (magit-status \"$dir\")
-                               (delete-other-windows)
-                               nil)"
+    emacsclient --create-frame --eval "$runmagit" 2>/dev/null
+fi
+
+if [ $? != 0 ]; then
+    #Server not running or emacsclient not usable
+    emacs --eval "$runmagit"
 fi
