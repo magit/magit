@@ -80,9 +80,9 @@
 (require 'log-edit)
 (require 'easymenu)
 (require 'diff-mode)
-(require 'view)
 
-;; Silences two byte-compiler warnings
+;; Silences byte-compiler warnings
+(eval-when-compile  (require 'view))
 (eval-when-compile (require 'iswitchb))
 
 ;;; Code:
