@@ -209,6 +209,7 @@ t mean pty, it enable magit to prompt for passphrase when needed."
 (defgroup magit-faces nil
   "Customize the appearance of Magit"
   :prefix "magit-"
+  :group 'faces
   :group 'magit)
 
 (defface magit-header
