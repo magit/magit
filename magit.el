@@ -80,6 +80,10 @@
 (require 'log-edit)
 (require 'easymenu)
 (require 'diff-mode)
+(require 'view)
+
+;; Silences two byte-compiler warnings
+(eval-when-compile (require 'iswitchb))
 
 ;;; Code:
 (defgroup magit nil

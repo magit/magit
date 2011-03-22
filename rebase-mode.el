@@ -111,7 +111,7 @@ that of CHANGE-TO."
     (let ((buffer-read-only nil)
           (col (current-column)))
       (transpose-lines 1)
-      (previous-line 2)
+      (forward-line -2)
       (move-to-column col))))
 
 (defun rebase-mode-move-line-down ()
@@ -125,9 +125,9 @@ current line down."
                (rebase-mode-looking-at-action)))
     (let ((buffer-read-only nil)
           (col (current-column)))
-      (next-line 1)
+      (forward-line 1)
       (transpose-lines 1)
-      (previous-line 1)
+      (forward-line -1)
       (move-to-column col))))
 
 (defun rebase-mode-abort ()
