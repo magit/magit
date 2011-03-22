@@ -16,7 +16,7 @@
 # along with Magit.  If not, see <http://www.gnu.org/licenses/>.
 
 if [ -n "$1" ]; then
-    dir=$1
+    dir=$(readlink -m "$1")
 else
     dir=$(pwd)
 fi
@@ -32,7 +32,13 @@ fi
 
 if [ "$DISPLAY" ]; then
     emacsclient --eval "(progn (select-frame (make-frame-on-display \"$DISPLAY\"))
-                               $runmagit)" 2>/dev/null
+                               $runmagit)" 2>&1 |
+    grep "Don't know how to create a frame on window system" > /dev/null
+    #^Above is what you get when $DISPLAY is set but emacs was
+    # built without X support.
+    if [ $? = 0 ]; then
+        emacsclient --tty --eval "$runmagit"
+    fi
 else
     emacsclient --create-frame --eval "$runmagit" 2>/dev/null
 fi
