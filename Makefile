@@ -3,7 +3,7 @@ EMACS=emacs
 PREFIX=/usr/local
 ELS=magit.el magit-svn.el magit-topgit.el magit-key-mode.el magit-bisect.el
 ELCS=$(ELS:.el=.elc)
-DIST_FILES=$(ELS) Makefile magit.texi README.md magit.spec.in magit-pkg.el.in 50magit.el
+DIST_FILES=$(ELS) Makefile magit.texi README.md magit.spec.in magit-pkg.el.in 50magit.el magit
 
 .PHONY=install
 
@@ -42,6 +42,7 @@ install: all
 	install-info --info-dir=$(DESTDIR)/$(PREFIX)/share/info $(DESTDIR)/$(PREFIX)/share/info/magit.info
 	mkdir -p $(DESTDIR)/etc/emacs/site-start.d
 	install -m 644 50magit.el $(DESTDIR)/etc/emacs/site-start.d/50magit.el
+	install -m 755 magit $(DESTDIR)/$(PREFIX)/bin/
 
 clean:
 	rm -fr magit-pkg.el magit.spec magit.info $(ELCS) *.tar.gz magit-$(VERSION)
