@@ -1,13 +1,13 @@
 <html lang="en">
 <head>
 <title>Magit User Manual</title>
-<meta http-equiv="Content-Type" content="text/html">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="description" content="Magit User Manual">
 <meta name="generator" content="makeinfo 4.13">
 <link title="Top" rel="top" href="#Top">
 <link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
 <!--
-Copyright (C) 2008, 2009 Marius Vollmer
+Copyright (C) 2008, 2009, 2011 Marius Vollmer
 
      Permission is granted to copy, distribute and/or modify this
      document under the terms of the GNU Free Documentation License,
@@ -99,7 +99,9 @@ as an extension to Emacs.
 <li><a href="#Rebasing">Rebasing</a>
 <li><a href="#Rewriting">Rewriting</a>
 <li><a href="#Pushing-and-Pulling">Pushing and Pulling</a>
-<li><a href="#Interfacing-with-Subversion">Interfacing with Subversion</a>
+<li><a href="#Submodules">Submodules</a>
+<li><a href="#Using-Magit-Extensions">Using Magit Extensions</a>
+<li><a href="#Using-Git-Directly">Using Git Directly</a>
 </ul>
 
 <div class="node">
@@ -369,6 +371,9 @@ changes in the region are staged or unstaged.  (This works line by
 line: if the beginning of a line is in the region it is included in
 the changes, otherwise it is not.)
 
+   <p>Typing <kbd>C-u s</kbd> will ask you for a name of a file to be staged, for
+example to stage files that are hidden.
+
    <p>To move all hunks of all diffs into the staging area in one go, type
 <kbd>S</kbd>.  To unstage everything, type <kbd>U</kbd>.
 
@@ -386,6 +391,9 @@ changes.
 description.  Once you are happy with the description, type <kbd>C-c
 C-c</kbd> in that buffer to perform the commit.
 
+   <p>If you want to write changes in a <samp><span class="file">ChangeLog</span></samp> file, you can use
+<kbd>C-x 4 a</kbd> on a diff hunk.
+
    <p>Typing <kbd>c</kbd> when the staging area is unused is a special situation. 
 Normally, the next commit would be empty, but you can configure Magit
 to do something more useful by customizing the
@@ -400,6 +408,10 @@ to toggle a flag that determines whether the next commit will
    <p>Typing <kbd>C-c C-s</kbd> will toggle the <code>--signoff</code> option.  The
 default is determined by the <code>magit-commit-signoff</code> customization
 variable.
+
+   <p>Typing <kbd>C-c C-e</kbd> will toggle the <code>--allow-empty</code> option.  This
+allows you to make commits that serve as notes, without including any
+changes.
 
    <p>If you change your mind and don't want to go ahead with your commit
 while you are in the <code>*magit-log-edit*</code> buffer, you can just
@@ -426,16 +438,18 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
 <h2 class="chapter">7 History</h2>
 
-<p>To show the repository history of your current head, type <kbd>l</kbd>.  A
+<p>To show the repository history of your current head, type <kbd>l l</kbd>.  A
 new buffer will be shown that displays the history in a terse form. 
 The first paragraph of each commit message is displayed, next to a
 representation of the relationships between commits.
 
    <p>Giving a prefix argument to <kbd>l</kbd> will ask for the starting and end
 point of the history.  This can be used to show the commits that are
-in one branch, but not in another, for example.
+in one branch, but not in another, for example.  The start point can
+also be a range of revisions &ldquo;r1..r2&rdquo;.  In that case &ldquo;r1&rdquo; is used
+as the start and &ldquo;r2&rdquo; as the end point of the history.
 
-   <p>Typing <kbd>L</kbd> (or <kbd>C-u L</kbd>) will show the log in a more verbose
+   <p>Typing <kbd>l L</kbd> (or <kbd>l C-u L</kbd>) will show the log in a more verbose
 form.
 
    <p>Magit will show only <code>magit-log-cutoff-length</code> entries. <kbd>e</kbd>
@@ -483,6 +497,8 @@ the marked commit no matter where point is, use <kbd>C-u .</kbd>.
 marked commit as implicit arguments.  Other commands will offer the
 marked commit as a default when prompting for their arguments.
 
+   <p>To grep the history press <kbd>s</kbd>.
+
 <div class="node">
 <a name="Reflogs"></a>
 <p><hr>
@@ -494,13 +510,13 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
 <h2 class="chapter">8 Reflogs</h2>
 
-<p>You can use <kbd>h</kbd> and <kbd>H</kbd> to browse your <em>reflog</em>, the
+<p>You can use <kbd>l h</kbd> and <kbd>l H</kbd> to browse your <em>reflog</em>, the
 local history of changes made to your repository heads.  Typing
-<kbd>H</kbd> will ask for a head, while <kbd>h</kbd> will show the reflog of
+<kbd>H</kbd> will ask for a head, while <kbd>l h</kbd> will show the reflog of
 <code>HEAD</code>.
 
-   <p>The resulting buffer is just like the buffer produced by <kbd>l</kbd> and
-<kbd>L</kbd> that shows the commit history.
+   <p>The resulting buffer is just like the buffer produced by <kbd>l l</kbd> and
+<kbd>l L</kbd> that shows the commit history.
 
 <div class="node">
 <a name="Diffing"></a>
@@ -536,12 +552,12 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
 <h2 class="chapter">10 Tagging</h2>
 
-<p>Typing <kbd>t</kbd> will make a lighweight tag.  Typing <kbd>T</kbd> will make a
-annotated tag.  It will put you in the normal <code>*magit-log-edit</code>
-buffer for writing commit messages, but typing <kbd>C-c C-c</kbd> in it
-will make the tag instead.  This is controlled by the <code>Tag</code> field
-that will be added to the <code>*magit-log-edit*</code> buffer.  You can
-edit it, if you like.
+<p>Typing <kbd>t t</kbd> will make a lighweight tag.  Typing <kbd>t T</kbd> will
+make a annotated tag.  It will put you in the normal
+<code>*magit-log-edit</code> buffer for writing commit messages, but typing
+<kbd>C-c C-c</kbd> in it will make the tag instead.  This is controlled by
+the <code>Tag</code> field that will be added to the <code>*magit-log-edit*</code>
+buffer.  You can edit it, if you like.
 
 <div class="node">
 <a name="Resetting"></a>
@@ -595,16 +611,20 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
 <h2 class="chapter">12 Stashing</h2>
 
-<p>You can create a new stash with <kbd>z</kbd>.  Your stashes will be listed
+<p>You can create a new stash with <kbd>z z</kbd>.  Your stashes will be listed
 in the status buffer, and you can apply them with <kbd>a</kbd> and pop them
 with <kbd>A</kbd>.  To drop a stash, use <kbd>k</kbd>.
 
-   <p>Typing <kbd>Z</kbd> will create a stash just like <kbd>z</kbd>, but will leave
-the changes in your working tree and index.
+   <p>With a prefix argument, both <kbd>a</kbd> and <kbd>A</kbd> will attempt to
+reinstate the index as well as the working tree from the stash.
+
+   <p>Typing <kbd>z Z</kbd> will create a stash just like <kbd>z z</kbd>, but will
+leave the changes in your working tree and index.
 
    <p>You can visit and show stashes in the usual way: Typing <kbd>SPC</kbd> and
 <kbd>DEL</kbd> will pop up a buffer with the description of the stash and
-scroll it, typing <kbd>RET</kbd> will move point into that buffer.
+scroll it, typing <kbd>RET</kbd> will move point into that buffer. Using
+<kbd>C-u RET</kbd> will move point into that buffer in other window.
 
 <div class="node">
 <a name="Branching"></a>
@@ -618,7 +638,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 <h2 class="chapter">13 Branching</h2>
 
 <p>The current branch is indicated in the header of the status buffer. 
-You can switch to a different branch by typing <kbd>b</kbd>.  This will
+You can switch to a different branch by typing <kbd>b c</kbd>.  This will
 immediately checkout the branch into your working copy, so you
 shouldn't have any local modifications when switching branches.
 
@@ -626,13 +646,13 @@ shouldn't have any local modifications when switching branches.
 local tracking branch for it instead.  This way, you can easily start
 working on new branches that have appeared in a remote repository.
 
-   <p>Similar to <kbd>x</kbd>, typing <kbd>b</kbd> while point is at a commit
-description will offer that commit as the default to switch to. 
-This will result in a detached head.
+   <p>Typing <kbd>b c</kbd> while point is at a commit description will offer
+that commit as the default to switch to.  This will result in a
+detached head.
 
-   <p>To create a new branch and switch to it immediately, type <kbd>B</kbd>.
+   <p>To create a new branch and switch to it immediately, type <kbd>b B</kbd>.
 
-   <p>Typing <kbd>V</kbd> will list the local and remote branches in a new buffer
+   <p>Typing <kbd>b V</kbd> will list the local and remote branches in a new buffer
 called <code>*magit-branches*</code> from which you can work with them. See
 <a href="#The-branch-list">The branch list</a> for more details.
 
@@ -656,10 +676,11 @@ current local branch is marked by a &ldquo;*&rdquo; in front of the name.
 <kbd>C-u k</kbd> deletes it even if it hasn't been merged into the current
 local branch. Deleting works for both local and remote branches.
 
-   <p>You can merge the branch in the current line by typing <kbd>m</kbd> for a
-manual merge and <kbd>M</kbd> for an automatic merge.
+   <p>You can merge the branch in the current line by typing <kbd>m m</kbd> for a
+manual merge and <kbd>m m</kbd> for an automatic merge.
 
-   <p>With <kbd>b</kbd> you can check out the branch in the current line.
+   <p>With <kbd>RET</kbd> or <kbd>b b</kbd> you can check out the branch in the current
+line.
 
    <p>Typing <kbd>$</kbd> shows the <code>*magit-process*</code> buffer which contains
 the transcript of the most recent command.
@@ -710,20 +731,12 @@ manual merge will apply all changes to your working tree and staging
 area, but will not commit them, while a automatic merge will go ahead
 and commit them immediately.
 
-   <p>Type <kbd>m</kbd> to initiate a manual merge, and type <kbd>M</kbd> for a
-automatic merge.
+   <p>Type <kbd>m m</kbd> to initiate merge.
 
-   <p>A manual merge is useful when carefully merging a new feature that you
-want to review and test before even committing it.  An automatic merge
-is appropriate when you are on a feature branch and want to catch up
-with the master, say. If you would like to squash the merge (have git
-avoid creating a merge commit) then use a prefix argument with the
-command (<kbd>C-U m</kbd>).
-
-   <p>After initiating a manual merge, the header of the status buffer will
-remind you that the next commit will be a merge commit (with more than
-one parent).  If you want to abort a manual merge, just do a hard
-reset to HEAD with <kbd>X</kbd>.
+   <p>After initiating a merge, the header of the status buffer might remind
+you that the next commit will be a merge commit (with more than one
+parent).  If you want to abort a manual merge, just do a hard reset to
+HEAD with <kbd>X</kbd>.
 
    <p>Merges can fail if the two branches you merge want to introduce
 conflicting changes.  In that case, the automatic merge stops before the
@@ -773,7 +786,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 <h2 class="chapter">18 Rewriting</h2>
 
 <p>As hinted at earlier, you can rewrite your commit history.  For
-example, you can reset he current head to an earlier commit with
+example, you can reset the current head to an earlier commit with
 <kbd>x</kbd>.  This leaves the working tree unchanged, and the status
 buffer will show all the changes that have been made since that new
 value of the current head.  You can commit these changes again,
@@ -790,7 +803,7 @@ different order.  You could pick them from the reflog, for example.
 associated with rewriting.  These commands all start with the <kbd>r</kbd>
 prefix key.
 
-   <p>Typing <kbd>r s</kbd> will start a rewrite operation.  You will be prompted
+   <p>Typing <kbd>r b</kbd> will start a rewrite operation.  You will be prompted
 for a <em>base</em> commit, and all commits between the current head and
 this commit are put in a list of <em>Pending commits</em> (including the
 base commit).  The current head will then be reset to the parent of
@@ -837,7 +850,7 @@ it, like from any other diff.
 <div class="node">
 <a name="Pushing-and-Pulling"></a>
 <p><hr>
-Next:&nbsp;<a rel="next" accesskey="n" href="#Interfacing-with-Subversion">Interfacing with Subversion</a>,
+Next:&nbsp;<a rel="next" accesskey="n" href="#Submodules">Submodules</a>,
 Previous:&nbsp;<a rel="previous" accesskey="p" href="#Rewriting">Rewriting</a>,
 Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
@@ -845,16 +858,20 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
 <h2 class="chapter">19 Pushing and Pulling</h2>
 
-<p>Magit will run <code>git push</code> when you type <kbd>P</kbd>.  If you give a
-prefix argument to <kbd>P</kbd>, you will be prompted for the repository to
-push to.  When no default remote repositor has been configured yet for
-the current branch, you will be prompted as well.  Typing <kbd>P</kbd> will
-only push the current branch to the remote.  In other words, it will
-run <code>git push &lt;remote&gt; &lt;branch&gt;</code>.
+<p>Magit will run <code>git push</code> when you type <kbd>P p</kbd>.  If you give a
+prefix argument to <kbd>P p</kbd>, you will be prompted for the repository to
+push to.  When no default remote repository has been configured yet for
+the current branch, you will be prompted as well.  Typing <kbd>P p</kbd> will
+only push the current branch to the remote.  In other words, it will run
+<code>git push &lt;remote&gt; &lt;branch&gt;</code>.  The branch will be created in the
+remote if it doesn't exist already.  The local branch will be configured
+so that it pulls from the new remote branch.
 
-   <p>Typing <kbd>f</kbd> will run <code>git remote update</code> and <kbd>F</kbd> will run
-<code>git pull</code>.  When you don't have a default branch configured to
-be pulled into the current one, you will be asked for it.
+   <p>Typing <kbd>f f</kbd> will run <code>git remote update</code>.  With a prefix
+arg, it will prompt for the name of the remote to update.  Typing
+<kbd>F p</kbd> will run <code>git pull</code>.  When you don't have a default
+branch configured to be pulled into the current one, you will be asked
+for it.
 
    <p>If there is a default remote repository for the current branch, Magit
 will show that repository in the status buffer header.
@@ -864,30 +881,202 @@ commits</em> section that shows the commits on your current head that are
 not in the branch named <code>&lt;remote&gt;/&lt;branch&gt;</code>.  This section works
 just like the history buffer: you can see details about a commit with
 <kbd>RET</kbd>, compare two of them with <kbd>.</kbd> and <kbd>=</kbd>, and you can
-reset your current head to one of them with <kbd>x</kbd>, for example.
+reset your current head to one of them with <kbd>x</kbd>, for example. If
+you want to push the changes then type <kbd>P p</kbd>.
 
    <p>When the remote branch has changes that are not in the current branch,
 Magit shows them in a section called <em>Unpulled changes</em>.  Typing
-<kbd>F</kbd> will merge them into the current branch.
+<kbd>F p</kbd> will merge them into the current branch.
 
 <div class="node">
-<a name="Interfacing-with-Subversion"></a>
+<a name="Submodules"></a>
 <p><hr>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Using-Magit-Extensions">Using Magit Extensions</a>,
 Previous:&nbsp;<a rel="previous" accesskey="p" href="#Pushing-and-Pulling">Pushing and Pulling</a>,
 Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
 </div>
 
-<h2 class="chapter">20 Interfacing with Subversion</h2>
+<h2 class="chapter">20 Submodules</h2>
 
-<p>Typing <kbd>N r</kbd> runs <code>git svn rebase</code> and typing <kbd>N c</kbd> runs
-<code>git svn dcommit</code>.
+     <dl>
+<dt><kbd>M u</kbd><dd>Update the submodules, with a prefix argument it will initializing.
 
-   <p><kbd>N f</kbd> will prompt you for a (numeric, Subversion) revision and
+     <br><dt><kbd>M i</kbd><dd>Initialize the submodules.
+
+     <br><dt><kbd>M b</kbd><dd>Update and initialize the submodules in one go.
+
+     <br><dt><kbd>M s</kbd><dd>Synchronizes submodules' remote URL configuration setting to the value
+specified in .gitmodules. 
+</dl>
+
+<div class="node">
+<a name="Using-Magit-Extensions"></a>
+<p><hr>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Using-Git-Directly">Using Git Directly</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Submodules">Submodules</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+
+</div>
+
+<h2 class="chapter">21 Magit Extensions</h2>
+
+<ul class="menu">
+<li><a accesskey="1" href="#Interfacing-with-Subversion">Interfacing with Subversion</a>
+<li><a accesskey="2" href="#Interfacing-with-Topgit">Interfacing with Topgit</a>
+<li><a accesskey="3" href="#Developing-Extensions">Developing Extensions</a>
+</ul>
+
+<div class="node">
+<a name="Interfacing-with-Subversion"></a>
+<p><hr>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Interfacing-with-Topgit">Interfacing with Topgit</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Using-Magit-Extensions">Using Magit Extensions</a>
+
+</div>
+
+<h3 class="section">21.1 Interfacing with Subversion</h3>
+
+<p>Typing <kbd>N r</kbd> runs <code>git svn rebase</code>, typing <kbd>N c</kbd> runs
+<code>git svn dcommit</code> and typing <kbd>N f</kbd> runs <code>git svn fetch</code>.
+
+   <p><kbd>N s</kbd> will prompt you for a (numeric, Subversion) revision and
 then search for a corresponding Git sha1 for the commit. This is
 limited to the path of the remote Subversion repository. With a prefix
-(<kbd>C-u N f</kbd> the user will also be prompted for a branch to search
+(<kbd>C-u N s</kbd> the user will also be prompted for a branch to search
 in.
+
+<div class="node">
+<a name="Interfacing-with-Topgit"></a>
+<p><hr>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Developing-Extensions">Developing Extensions</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Interfacing-with-Subversion">Interfacing with Subversion</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Using-Magit-Extensions">Using Magit Extensions</a>
+
+</div>
+
+<h3 class="section">21.2 Interfacing with Topgit</h3>
+
+<p>Topgit (http://repo.or.cz/r/topgit.git) is a patch queue manager that
+aims at being close as possible to raw Git, which makes it easy to use
+with Magit. In particular, it does not require to use a different set of
+commands for &ldquo;commit&rdquo;, &ldquo;update&rdquo;,… operations.
+
+   <p><samp><span class="file">magit-topgit.el</span></samp> provides basic integration with Magit, mostly by
+providing a &ldquo;Topics&rdquo; section.
+
+   <p>Topgit branches can be created the regular way, by using a &ldquo;t/&rdquo; prefix
+by convention. So, creating a &ldquo;t/foo&rdquo; branch will actually populate
+the &ldquo;Topics&rdquo; section with one more branch after committing
+<samp><span class="file">.topdeps</span></samp> and <samp><span class="file">.topmsg</span></samp>.
+
+   <p>Also, the way we pull (see <a href="#Pushing-and-Pulling">Pushing and Pulling</a>) such a branch is
+slightly different, since it requires updating the various dependencies
+of that branch. This should be mostly transparent, except in case
+of conflicts.
+
+<div class="node">
+<a name="Developing-Extensions"></a>
+<p><hr>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Interfacing-with-Topgit">Interfacing with Topgit</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Using-Magit-Extensions">Using Magit Extensions</a>
+
+</div>
+
+<h3 class="section">21.3 Developing Extensions</h3>
+
+<p>Magit provides a generic mechanism to allow cooperation with Git-related
+systems, such as foreign VCS, patch systems,…
+
+   <p>In particular it allows to:
+
+     <ul>
+<li>Define sections to display specific informations about the current state
+of the repository, and place them relatively to existing sections.
+
+     <p><code>magit-define-inserter</code> automagically defines two hooks called
+<code>magit-before-insert-SECTION-hook</code> and
+<code>magit-after-insert-SECTION-hook</code> that allow to generate and place
+more sections.
+
+     <p>In the following example, we use the builtin &ldquo;stashes&rdquo; section to
+place our own &ldquo;foo&rdquo; one.
+
+     <pre class="example">          (magit-define-inserter foo ()
+            (magit-git-section 'foo
+                               "Foo:" 'foo-wash-function
+                               "foo" "arg1" "arg2"))
+          (add-hook 'magit-after-insert-stashes-hook 'magit-insert-foo)
+</pre>
+     <li>Define new types of objects in those sections.
+
+     <p>The function <code>foo-wash-function</code> defined above post-processes each
+line of the output of the &ldquo;git foo arg1 arg2&rdquo; command, and is able to
+associate a type to certain lines.
+
+     <p>A simple implementation could be:
+
+     <pre class="example">          (defun foo-wash-function ()
+            (let ((foo (buffer-substring (line-beginning-position) (line-end-position))))
+              (goto-char (line-beginning-position))
+              (magit-with-section foo 'foo
+                (magit-set-section-info foo)
+                (forward-line))))
+</pre>
+     <p>In this case, every line of the command output is transformed into an
+object of type <code>'foo</code>.
+
+     <li>Alter behavior of generic commands to dispatch them correctly to the
+relevant system, optionally making use of the newly defined types.
+
+     <pre class="example">          (magit-add-action (item info "discard")
+            ((foo)
+             (do-something-meaningful-for-discarding-a-foo)))
+</pre>
+     <p>This will alter the behavior of <kbd>k</kbd>, when applied to those objects.
+
+     <li>Plug a different logic into basic commands, to reflect the presence of
+the extension.
+
+     <p><code>magit-define-command</code> automagically defines
+a <code>magit-CMD-command-hook</code> that can contain a list of functions to
+call before the actual core code. Execution stops after the first hook
+that returns a non-nil value. This leaves room for extension logic.
+
+     <pre class="example">          (add-hook 'magit-create-branch-command-hook 'foo-create-branch)
+</pre>
+     <p>The function <code>foo-create-branch</code> will be called each time an
+attempt is made to create a branch, and can, for example, react to
+a certain name convention.
+
+     <li>Define new commands and associated menu.
+
+     <p>This part is not really specific to extensions, except that menus take
+place in the &ldquo;Extensions&rdquo; submenu.
+
+   </ul>
+
+<div class="node">
+<a name="Using-Git-Directly"></a>
+<p><hr>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Using-Magit-Extensions">Using Magit Extensions</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+
+</div>
+
+<h2 class="chapter">22 Using Git Directly</h2>
+
+<p>For situations when Magit doesn't do everything you need, you can run
+raw Git commands using <kbd>:</kbd>.  This will prompt for a Git command, run
+it, and refresh the status buffer.  The output can be viewed by typing
+<kbd>$</kbd>.
 
 </body></html>
 
+<!--
+
+Local Variables:
+coding: utf-8
+End:
+
+-->
