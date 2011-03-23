@@ -40,7 +40,7 @@
 
 ;; Original Author: Marius Vollmer <marius.vollmer@nokia.com>
 ;; Lead developer: Phil Jackson <phil@shellarchive.co.uk>
-;; Version: 0.8.2
+;; Version: 1.0.0
 ;; Keywords: tools
 
 ;;
