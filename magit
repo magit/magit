@@ -14,6 +14,44 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Magit.  If not, see <http://www.gnu.org/licenses/>.
+# ====================================================================
+
+test "$1" = "-h" || test "$1" = "--help"
+if [ $? = 0 ]; then
+    cat <<EOF
+Usage: magit [OPTION] [REPOSITORY]
+
+Open a Magit session in Emacs visiting the specified repository.  If no
+repository is specified, use the current directory.
+
+    -h, --help          Print this text and exit
+    -e, --use-existing  Use an existing Emacs frame instead of creating a new
+                        one.  Requires that Emacs be running in server mode with
+                        at least one visible frame.
+
+If Emacs is running in server mode or if the ALTERNATE_EDITOR environment
+variable is the empty string, emacsclient will be used.  Otherwise a new Emacs
+session will be started.
+EOF
+    exit 0;
+fi
+
+# Don't allow non-empty alternate editor
+env | grep ^ALTERNATE_EDITOR=$ > /dev/null
+if [ $? != 0 ]; then
+    ALTERNATE_EDITOR=false
+fi
+
+test "$1" = "-e" || test "$1" = "--use-existing"
+if [ $? = 0 ]; then
+    if [ -n "$2" ]; then
+        dir=$(readlink -m "$2")
+    else
+        dir=$(pwd)
+    fi
+    emacsclient --eval "(progn (magit-status \"$dir\") nil)"
+    exit
+fi
 
 if [ -n "$1" ]; then
     dir=$(readlink -m "$1")
@@ -23,12 +61,6 @@ fi
 
 runmagit="(progn (magit-status \"$dir\")
                  (delete-other-windows))"
-
-# Don't allow non-empty alternate editor
-env | grep ^ALTERNATE_EDITOR=$ > /dev/null
-if [ $? != 0 ]; then
-    ALTERNATE_EDITOR=false
-fi
 
 if [ "$DISPLAY" ]; then
     ec_err=$(emacsclient --eval "(progn (select-frame (make-frame-on-display \"$DISPLAY\"))
