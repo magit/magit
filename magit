@@ -31,19 +31,23 @@ if [ $? != 0 ]; then
 fi
 
 if [ "$DISPLAY" ]; then
-    emacsclient --eval "(progn (select-frame (make-frame-on-display \"$DISPLAY\"))
-                               $runmagit)" 2>&1 |
-    grep "Don't know how to create a frame on window system" > /dev/null
-    #^Above is what you get when $DISPLAY is set but emacs was
-    # built without X support.
-    if [ $? = 0 ]; then
-        emacsclient --tty --eval "$runmagit"
+    ec_err=$(emacsclient --eval "(progn (select-frame (make-frame-on-display \"$DISPLAY\"))
+                                         $runmagit)" 2>&1)
+    runemacs=$?
+    if [ $runemacs = 0 ]; then
+        echo $ec_err | grep "Don't know how to create a frame on window system" > /dev/null
+        #^Above is what you get when $DISPLAY is set but emacs was built without X support.
+        if [ $? = 0 ]; then
+            emacsclient --tty --eval "$runmagit"
+            runemacs=$?
+        fi
     fi
 else
     emacsclient --create-frame --eval "$runmagit" 2>/dev/null
+    runemacs=$?
 fi
 
-if [ $? != 0 ]; then
+if [ $runemacs != 0 ]; then
     #Server not running or emacsclient not usable
     emacs --eval "$runmagit"
 fi
