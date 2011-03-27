@@ -42,25 +42,33 @@ if [ $? != 0 ]; then
     ALTERNATE_EDITOR=false
 fi
 
+set_dir(){
+    if [ -n "$1" ]; then
+        dir=\"$(readlink -m "$1")\"
+    else
+        dir=\"$(pwd)\"
+    fi
+}
+
 test "$1" = "-e" || test "$1" = "--use-existing"
 if [ $? = 0 ]; then
-    if [ -n "$2" ]; then
-        dir=$(readlink -m "$2")
-    else
-        dir=$(pwd)
-    fi
-    emacsclient --eval "(progn (magit-status \"$dir\") nil)"
+    set_dir "$2"
+    useexisting=1
+else
+    set_dir "$1"
+fi
+
+runmagit="(progn (magit-status $dir)"
+if [ -z "$useexisting" ]; then
+    #Don't steal the whole frame if we're using an existing one.
+    runmagit="$runmagit (delete-other-windows)"
+fi
+runmagit="$runmagit nil)"
+
+if [ -n "$useexisting" ]; then
+    emacsclient --eval "$runmagit"
     exit
 fi
-
-if [ -n "$1" ]; then
-    dir=$(readlink -m "$1")
-else
-    dir=$(pwd)
-fi
-
-runmagit="(progn (magit-status \"$dir\")
-                 (delete-other-windows))"
 
 if [ "$DISPLAY" ]; then
     ec_err=$(emacsclient --eval "(progn (select-frame (make-frame-on-display \"$DISPLAY\"))
@@ -75,7 +83,7 @@ if [ "$DISPLAY" ]; then
         fi
     fi
 else
-    emacsclient --create-frame --eval "$runmagit" 2>/dev/null
+    emacsclient --tty --eval "$runmagit"
     runemacs=$?
 fi
 
