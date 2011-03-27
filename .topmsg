@@ -1,0 +1,6 @@
+From: Yann Hodique <yhodique@vmware.com>
+Subject: [PATCH] issue #17
+
+This patch tweaks the log-wash main regexp so that it accepts the long version of logs properly
+
+Signed-off-by: Yann Hodique <yhodique@vmware.com>
