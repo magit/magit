@@ -723,8 +723,7 @@ and magit will update its status buffer accordingly.
 
 You can tell git that the current revision is good with @kbd{B g},
 that it is bad with @kbd{B b} or that git should skip it with @kbd{B
-k}. You can specify revisions or ranges to skip by prefixing the
-latter.
+k}.
 
 The current status can be shown as a log with @kbd{B l}. It contains
 the revisions that have already been tested and your decisions about

@@ -3,7 +3,9 @@
 (put 'magit--bisect-info 'permanent-local t)
 
 (defun magit--bisecting-p (&optional required-status)
-  "Return t if a bisect session is running"
+  "Return t if a bisect session is running.
+If REQUIRED-STATUS is not nil then the current status must also
+match REQUIRED-STATUS."
   (and (file-exists-p (concat (magit-get-top-dir default-directory)
                           ".git/BISECT_LOG"))
        (or (not required-status)
@@ -83,18 +85,12 @@
     (error "Not bisecting"))
   (magit--bisect-cmd "bad"))
 
-(defun magit-bisect-skip (&optional pfx)
-  "Tell git to skip the current revision during a bisect session.
-With prefix let the user enter the revisions to skip."
+(defun magit-bisect-skip ()
+  "Tell git to skip the current revision during a bisect session."
   (interactive "P")
   (unless (magit--bisecting-p 'running)
     (error "Not bisecting"))
-  (let ((args '("skip")))
-    (if pfx
-        (setq args (append args
-                           (split (magit-completing-read "Revision(s) to skip: " nil)
-                                  " "))))
-    (apply 'magit--bisect-cmd args)))
+  (magit--bisect-cmd "skip"))
 
 (defun magit-bisect-log ()
   "Show the bisect log"
