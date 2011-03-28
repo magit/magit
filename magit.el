@@ -792,10 +792,12 @@ Otherwise, return nil."
 (defun magit-read-top-dir (rawp)
   (if (and (not rawp) magit-repo-dirs)
       (let* ((repos (magit-list-repos magit-repo-dirs))
-	     (reply (magit-completing-read "Git repository: "
-                                           (magit-list-repos magit-repo-dirs))))
-	(file-name-as-directory
-	 (cdr (assoc reply repos))))
+             (reply (magit-completing-read "Git repository: " repos)))
+        (file-name-as-directory
+         (or (cdr (assoc reply repos))
+             (if (file-directory-p reply)
+                 reply
+               (error "Not a repository or a directory: %s" reply)))))
     (file-name-as-directory
      (read-directory-name "Git repository: "
 			  (or (magit-get-top-dir default-directory)
