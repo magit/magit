@@ -796,7 +796,7 @@ Otherwise, return nil."
         (file-name-as-directory
          (or (cdr (assoc reply repos))
              (if (file-directory-p reply)
-                 reply
+                 (expand-file-name reply)
                (error "Not a repository or a directory: %s" reply)))))
     (file-name-as-directory
      (read-directory-name "Git repository: "
