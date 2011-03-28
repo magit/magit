@@ -109,4 +109,71 @@ match REQUIRED-STATUS."
   (unless (getenv "DISPLAY")
     (magit-display-process)))
 
+(defun magit-bisect-run ()
+  "Bisect automatically by running commands after each step"
+  (interactive)
+  (unless (magit--bisecting-p)
+    (error "Not bisecting"))
+  (let ((args (read-file-name "Command to run: "))
+        (file (make-temp-file "magit-bisect-run"))
+        buffer)
+    (with-temp-buffer
+      (insert "#!/bin/sh\n" args "\n")
+      (write-region (point-min) (point-max) file))
+    (chmod file #o755)
+    (magit-run-git-async "bisect" "run" file)
+    (magit-display-process)
+    (setq buffer (get-buffer magit-process-buffer-name))
+    (with-current-buffer buffer
+      (set (make-local-variable 'magit--bisect-last-pos) 0)
+      (set (make-local-variable 'magit--bisect-tmp-file) file))
+    (set-process-filter (get-buffer-process buffer) 'magit--bisect-run-filter)
+    (set-process-sentinel (get-buffer-process buffer) 'magit--bisect-run-sentinel)))
+
+(defun magit--bisect-run-filter (process output)
+  (with-current-buffer (process-buffer process)
+    (save-match-data
+      (let ((inhibit-read-only t)
+            line new-info)
+        (insert output)
+        (goto-char magit--bisect-last-pos)
+        (beginning-of-line)
+        (while (< (point) (point-max))
+          (cond ( ;; Bisecting: 78 revisions left to test after this (roughly 6 steps)
+                 (looking-at "^Bisecting:\\s-+\\([0-9]+\\).+roughly\\s-+\\([0-9]+\\)")
+                 (setq new-info (list :status 'running
+                                      :revs (match-string 1)
+                                      :steps (match-string 2))))
+                ( ;; e2596955d9253a80aec9071c18079705597fa102 is the first bad commit
+                 (looking-at "^\\([a-f0-9]+\\)\\s-.*first bad commit")
+                 (setq new-info (list :status 'finished
+                                      :bad (match-string 1)))))
+          (forward-line 1))
+        (goto-char (point-max))
+        (setq magit--bisect-last-pos (point))
+        (if new-info
+            (with-current-buffer (magit-find-status-buffer)
+              (setq magit--bisect-info new-info)
+              (magit--bisect-update-status-buffer)))))))
+
+(defun magit--bisect-run-sentinel (process event)
+  (if (string-match-p "^finish" event)
+      (with-current-buffer (process-buffer process)
+        (delete-file magit--bisect-tmp-file)))
+  (magit-process-sentinel process event))
+
+(defun magit--bisect-update-status-buffer ()
+  (with-current-buffer (magit-find-status-buffer)
+    (save-excursion
+      (save-match-data
+        (let ((inhibit-read-only t))
+          (goto-char (point-min))
+          (when (search-forward-regexp "Local:" nil t)
+            (beginning-of-line)
+            (kill-line)
+            (insert (format "Local:    %s %s"
+                            (propertize (magit--bisect-info-for-status (magit-get-current-branch))
+                                        'face 'magit-branch)
+                            (abbreviate-file-name default-directory)))))))))
+
 (provide 'magit-bisect)

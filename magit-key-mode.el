@@ -136,6 +136,7 @@
       ("l" "Log" magit-bisect-log)
       ("r" "Reset" magit-bisect-reset)
       ("s" "Start" magit-bisect-start)
+      ("u" "Run" magit-bisect-run)
       ("v" "Visualize" magit-bisect-visualize))))
   "Holds the key, help, function mapping for the log-mode. If you
   modify this make sure you reset `magit-key-mode-key-maps' to

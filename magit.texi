@@ -723,7 +723,8 @@ and magit will update its status buffer accordingly.
 
 You can tell git that the current revision is good with @kbd{B g},
 that it is bad with @kbd{B b} or that git should skip it with @kbd{B
-k}.
+k}. You can also tell git to go into full automatic mode by giving it
+the name of a script to run for each revision to test with @kbd{B u}.
 
 The current status can be shown as a log with @kbd{B l}. It contains
 the revisions that have already been tested and your decisions about
