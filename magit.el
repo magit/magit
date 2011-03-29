@@ -2433,8 +2433,6 @@ in the corresponding directories."
 (defun magit-hunk-item-target-line (hunk)
   (save-excursion
     (beginning-of-line)
-    (while (looking-at "-")
-	  (forward-line -1))
     (let ((line (line-number-at-pos)))
       (goto-char (magit-section-beginning hunk))
       (if (not (looking-at "@@+ .* \\+\\([0-9]+\\)\\(,[0-9]+\\)? @@+"))
