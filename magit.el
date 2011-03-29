@@ -2437,7 +2437,7 @@ in the corresponding directories."
 	  (forward-line -1))
     (let ((line (line-number-at-pos)))
       (goto-char (magit-section-beginning hunk))
-      (if (not (looking-at "@@+ .* \\+\\([0-9]+\\),[0-9]+ @@+"))
+      (if (not (looking-at "@@+ .* \\+\\([0-9]+\\)\\(,[0-9]+\\)? @@+"))
 	  (error "Hunk header not found"))
       (let ((target (string-to-number (match-string 1))))
 	(forward-line)
