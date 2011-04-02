@@ -390,6 +390,16 @@ Many Magit faces inherit from this one by default."
   "Face for local branch head labels shown in log buffer."
   :group 'magit-faces)
 
+(defface magit-log-head-label-default
+  '((((class color) (background light))
+     :box t
+     :background "Grey50")
+    (((class color) (background dark))
+     :box t
+     :background "Grey50"))
+  "Face for unknown ref labels shown in log buffer."
+  :group 'magit-faces)
+
 (defface magit-menu-selected-option
   '((((class color) (background light))
      :foreground "red")
@@ -2522,40 +2532,54 @@ This is also made compatible with long log lines.")
 It takes four args: CHART, SHA1, REFS and MESSAGE.  The function
 must return a string which will represent the log line.")
 
+(defun magit-log-get-bisect-state-color (suffix)
+  (if (string= suffix "bad")
+      (list suffix 'magit-log-head-label-bisect-bad)
+    (list suffix 'magit-log-head-label-bisect-good)))
+
+(defun magit-log-get-patches-color (suffix)
+  (list (and (string-match ".+/\\(.+\\)" suffix)
+             (match-string 1 suffix))
+        'magit-log-head-label-patches))
+
+(defvar magit-refs-namespaces
+  '(("tags" . magit-log-head-label-tags)
+    ("remotes" . magit-log-head-label-remote)
+    ("heads" . magit-log-head-label-local)
+    ("patches" magit-log-get-patches-color)
+    ("bisect" magit-log-get-bisect-state-color)))
+
+(defun magit-ref-get-label-color (r)
+  (let* ((ref-re "\\(?:tag: \\)?refs/\\(?:\\([^/]+\\)/\\)?\\(.+\\)") 
+         (label (and (string-match ref-re r)
+                     (match-string 2 r)))
+         (res (let ((colorizer 
+                     (cdr (assoc (match-string 1 r) 
+                                 magit-refs-namespaces))))
+                (cond ((null colorizer)
+                       (list r 'magit-log-head-label-default))
+                      ((symbolp colorizer)
+                       (list label colorizer))
+                      ((listp colorizer)
+                       (funcall (car colorizer) 
+                                (match-string 2 r)))
+                      (t
+                       (list r 'magit-log-head-label-default))))))
+    res))
+
 (defun magit-present-log-line (graph sha1 refs message)
   "The default log line generator."
-  (let* ((ref-re "\\(?:tag: \\)?refs/\\(bisect\\|tags\\|remotes\\|patches/[^/]*\\|heads\\)/\\(.+\\)")
-         (string-refs
-          (when refs
-            (concat (mapconcat
-                     (lambda (r)
-                       (propertize
-                        (if (string-match ref-re r)
-                            (match-string 2 r)
-                          r)
-                        'face (cond
-                               ((string= r "refs/stash")
-                                'magit-log-head-label-local)
-                               ((not (match-string 1 r))
-                                nil)
-                               ((string= (match-string 1 r) "remotes")
-                                'magit-log-head-label-remote)
-                               ((and (not (null (match-string 1 r))) 
-                                     (string-match "^patches/[^/]*$" (match-string 1 r))) ; Stacked Git
-                                'magit-log-head-label-patches)
-                               ((string= (match-string 1 r) "bisect")
-                                (if (string= (match-string 2 r) "bad")
-                                    'magit-log-head-label-bisect-bad
-                                  'magit-log-head-label-bisect-good))
-                               ((string= (match-string 1 r) "tags")
-                                'magit-log-head-label-tags)
-                               ((string= (match-string 1 r) "heads")
-                                'magit-log-head-label-local)
-                               (t
-                                'magit-log-head-label-local))))
-                     refs
-                     " ")
-                    " "))))
+  (let ((string-refs
+         (when refs
+           (concat (mapconcat
+                    (lambda (r)
+                      (destructuring-bind (label face)
+                          (magit-ref-get-label-color r)
+                        (propertize label 'face face)))
+                    refs
+                    " ")
+                   " "))))
+    
     (concat
      (if sha1
          (propertize (substring sha1 0 8) 'face 'magit-log-sha1)
