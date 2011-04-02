@@ -3336,14 +3336,15 @@ Uncomitted changes in both working tree and staging area are lost.
 
 ;;; Updating, pull, and push
 
-(magit-define-command fetch (&optional remote)
-  "Run fetch."
-  (interactive)
-  (magit-run-git-async "fetch" (or remote
-                                   (magit-read-remote))))
+(magit-define-command fetch (remote)
+  "Fetch from REMOTE."
+  (interactive (magit-read-remote))
+  (magit-run-git-async "fetch" (or remote)))
 
 (magit-define-command fetch-current ()
-  "Run fetch."
+  "Run fetch for default remote.
+
+If there is no default remote, ask for one."
   (interactive)
   (magit-fetch (or (magit-get-current-remote)
                    (magit-read-remote))))
