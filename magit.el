@@ -1826,6 +1826,10 @@ function can be enriched by magit extension like magit-topgit and magit-svn"
 	       (insert string))))
       (set-marker (process-mark proc) (point)))))
 
+(defun magit-run (cmd &rest args)
+  (magit-with-refresh
+    (magit-run* (cons cmd args))))
+
 (defun magit-run-git (&rest args)
   (magit-with-refresh
     (magit-run* (append (cons magit-git-executable
