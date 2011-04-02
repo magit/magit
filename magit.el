@@ -1662,7 +1662,8 @@ order until one return non nil. If they all return nil then body will be called.
 
 It used to define hookable magit command: command defined by this
 function can be enriched by magit extension like magit-topgit and magit-svn"
-  (declare (indent defun))
+  (declare (indent defun)
+           (debug (&define symbolp lambda-list def-body)))
   (let ((fun (intern (format "magit-%s" sym)))
         (hook (intern (format "magit-%s-command-hook" sym)))
         (doc (format "Command for `%s'." sym))
