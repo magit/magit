@@ -666,11 +666,11 @@ only push the current branch to the remote.  In other words, it will run
 remote if it doesn't exist already.  The local branch will be configured
 so that it pulls from the new remote branch.
 
-Typing @kbd{f f} will run @code{git remote update}.  With a prefix
-arg, it will prompt for the name of the remote to update.  Typing
-@kbd{F p} will run @code{git pull}.  When you don't have a default
-branch configured to be pulled into the current one, you will be asked
-for it.
+Typing @kbd{f f} will run @code{git fetch}.  It will prompt for the name
+of the remote to update if there are no default one.  Typing @kbd{f o}
+will always prompt for the remote.  Typing @kbd{F F} will run @code{git
+pull}.  When you don't have a default branch configured to be pulled
+into the current one, you will be asked for it.
 
 If there is a default remote repository for the current branch, Magit
 will show that repository in the status buffer header.
