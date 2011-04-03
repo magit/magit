@@ -48,6 +48,7 @@ as an extension to Emacs.
 * Rebasing::
 * Rewriting::
 * Pushing and Pulling::
+* Bisecting::
 * Submodules::         
 * Using Magit Extensions::
 * Using Git Directly::
@@ -704,6 +705,35 @@ Update and initialize the submodules in one go.
 Synchronizes submodules' remote URL configuration setting to the value
 specified in .gitmodules.
 @end table
+
+
+@node Bisecting
+@chapter Bisecting
+
+magit supports bisecting by showing how many revisions and steps are
+left to be tested in the status buffer. You can control the bisect
+session from both the status and from log buffers with the @kbd{B} key
+menu.
+
+Typing @kbd{B s} will start a bisect session.  You will be prompted
+for a revision that is known to be bad (defaults to @emph{HEAD}) and
+for a revision that is known to be good (defaults to the revision at
+point if there is one). git will select a revision for you to test,
+and magit will update its status buffer accordingly.
+
+You can tell git that the current revision is good with @kbd{B g},
+that it is bad with @kbd{B b} or that git should skip it with @kbd{B
+k}. You can also tell git to go into full automatic mode by giving it
+the name of a script to run for each revision to test with @kbd{B u}.
+
+The current status can be shown as a log with @kbd{B l}. It contains
+the revisions that have already been tested and your decisions about
+their state.
+
+The revisions left to test can be visualized in gitk with @kbd{B v}.
+
+When you're finished bisecting you have to reset the session with
+@kbd{B r}.
 
 
 @node Using Magit Extensions

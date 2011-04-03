@@ -75,6 +75,7 @@
 
 ;; magit core
 (require 'magit-key-mode)
+(require 'magit-bisect)
 
 (eval-when-compile (require 'cl))
 (require 'log-edit)
@@ -444,6 +445,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "P") 'magit-key-mode-popup-pushing)
     (define-key map (kbd "f") 'magit-key-mode-popup-fetching)
     (define-key map (kbd "b") 'magit-key-mode-popup-branching)
+    (define-key map (kbd "B") 'magit-key-mode-popup-bisecting)
     (define-key map (kbd "F") 'magit-key-mode-popup-pulling)
     (define-key map (kbd "l") 'magit-key-mode-popup-logging)
     (define-key map (kbd "$") 'magit-display-process)
@@ -509,6 +511,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "A") 'magit-cherry-pick-item)
     (define-key map (kbd "v") 'magit-revert-item)
     (define-key map (kbd "b") 'magit-key-mode-popup-branching)
+    (define-key map (kbd "B") 'magit-key-mode-popup-bisecting)
     (define-key map (kbd "m") 'magit-key-mode-popup-merging)
     (define-key map (kbd "x") 'magit-reset-head)
     (define-key map (kbd "e") 'magit-log-show-more-entries)
@@ -2802,7 +2805,7 @@ PREPEND-REMOTE-NAME is non-nil."
 	(when remote-string
 	  (insert "Remote:   " remote-string "\n"))
 	(insert (format "Local:    %s %s\n"
-			(propertize (or branch "(detached)")
+			(propertize (magit--bisect-info-for-status branch)
 				    'face 'magit-branch)
 			(abbreviate-file-name default-directory)))
 	(insert (format "Head:     %s\n"
