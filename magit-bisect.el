@@ -109,16 +109,29 @@ match REQUIRED-STATUS."
   (unless (getenv "DISPLAY")
     (magit-display-process)))
 
-(defun magit-bisect-run ()
+(easy-mmode-defmap magit-bisect-minibuffer-local-map
+  '(("\C-i" . comint-dynamic-complete-filename))
+  "Keymap for minibuffer prompting of rebase command."
+  :inherit minibuffer-local-map)
+
+(defvar magit-bisect-mode-history nil
+  "Previously run bisect commands.")
+
+(defun magit-bisect-run (command)
   "Bisect automatically by running commands after each step"
-  (interactive)
   (unless (magit--bisecting-p)
     (error "Not bisecting"))
-  (let ((args (read-file-name "Command to run: "))
-        (file (make-temp-file "magit-bisect-run"))
+  (interactive
+   (list
+    (read-from-minibuffer "Run command (like this): "
+                          ""
+                          magit-bisect-minibuffer-local-map
+                          nil
+                          'magit-bisect-mode-history)))
+  (let ((file (make-temp-file "magit-bisect-run"))
         buffer)
     (with-temp-buffer
-      (insert "#!/bin/sh\n" args "\n")
+      (insert "#!/bin/sh\n" command "\n")
       (write-region (point-min) (point-max) file))
     (chmod file #o755)
     (magit-run-git-async "bisect" "run" file)
@@ -177,3 +190,4 @@ match REQUIRED-STATUS."
                             (abbreviate-file-name default-directory)))))))))
 
 (provide 'magit-bisect)
+
