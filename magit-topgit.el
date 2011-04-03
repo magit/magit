@@ -44,7 +44,8 @@
 ;;; Topic branches (using topgit)
 
 (defun magit-topgit-in-topic-p ()
-  (file-exists-p ".topdeps"))
+  (and (file-exists-p ".topdeps")
+       (executable-find magit-topgit-executable)))
 
 (defun magit-topgit-create-branch (branch parent)
   (when (zerop (or (string-match magit-topgit-branch-prefix branch) -1))
@@ -127,9 +128,10 @@
     (apply 'magit-git-section section title washer args)))
 
 (magit-define-inserter topics ()
-  (magit-topgit-section 'topics
-                        "Topics:" 'magit-topgit-wash-topics
-                        "summary"))
+  (when (executable-find magit-topgit-executable)
+      (magit-topgit-section 'topics
+                            "Topics:" 'magit-topgit-wash-topics
+                            "summary")))
 
 (magit-add-action (item info "discard")
   ((topic)
