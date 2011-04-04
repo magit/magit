@@ -3585,7 +3585,7 @@ toggled on.  When it's toggled on for the first time, return
 	 (tag-rev (cdr (assq 'tag-rev fields)))
 	 (tag-name (cdr (assq 'tag-name fields)))
 	 (author (cdr (assq 'author fields))))
-    (if (or (not (or allow-empty commit-all amend (magit-anything-staged-p)))
+    (if (or (not (or allow-empty commit-all amend tag-name (magit-anything-staged-p)))
             (not (or allow-empty (not commit-all) amend (not (magit-everything-clean-p)))))
         (error "Refusing to create empty commit. Maybe you want to amend or allow-empty?"))
     (magit-log-edit-push-to-comment-ring (buffer-string))
