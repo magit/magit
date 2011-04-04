@@ -31,7 +31,7 @@
 ;; Copyright (C) 2010 Roger Crew.
 ;; Copyright (C) 2009, 2010, 2011 Rémi Vanicat.
 ;; Copyright (C) 2010 Sean Bryant.
-;; Copyright (C) 2009 Steve Purcell.
+;; Copyright (C) 2009, 2011 Steve Purcell.
 ;; Copyright (C) 2010 Timo Juhani Lindfors.
 ;; Copyright (C) 2010 Yann Hodique.
 ;; Copyright (C) 2010 oscar.
@@ -247,37 +247,34 @@ The function is given one argument, the status buffer."
   :group 'magit)
 
 (defface magit-header
-  '((t))
+  '((t :inherit header-line))
   "Face for generic header lines.
 
 Many Magit faces inherit from this one by default."
   :group 'magit-faces)
 
 (defface magit-section-title
-  '((t :weight bold :inherit magit-header))
+  '((t :inherit magit-header))
   "Face for section titles."
   :group 'magit-faces)
 
 (defface magit-branch
-  '((t :weight bold :inherit magit-header))
+  '((t :inherit magit-header))
   "Face for the current branch."
   :group 'magit-faces)
 
 (defface magit-diff-file-header
-  '((t :inherit magit-header))
+  '((t :inherit diff-file-header))
   "Face for diff file header lines."
   :group 'magit-faces)
 
 (defface magit-diff-hunk-header
-  '((t :slant italic :inherit magit-header))
+  '((t :inherit diff-hunk-header))
   "Face for diff hunk header lines."
   :group 'magit-faces)
 
 (defface magit-diff-add
-  '((((class color) (background light))
-     :foreground "blue1")
-    (((class color) (background dark))
-     :foreground "white"))
+  '((t :inherit diff-added))
   "Face for lines in a diff that have been added."
   :group 'magit-faces)
 
@@ -287,10 +284,7 @@ Many Magit faces inherit from this one by default."
   :group 'magit-faces)
 
 (defface magit-diff-del
-  '((((class color) (background light))
-     :foreground "red")
-    (((class color) (background dark))
-     :foreground "OrangeRed"))
+  '((t :inherit diff-removed))
   "Face for lines in a diff that have been deleted."
   :group 'magit-faces)
 
@@ -316,18 +310,12 @@ Many Magit faces inherit from this one by default."
   :group 'magit-faces)
 
 (defface magit-item-highlight
-  '((((class color) (background light))
-     :background "gray95")
-    (((class color) (background dark))
-     :background "dim gray"))
+  '((t :inherit highlight))
   "Face for highlighting the current item."
   :group 'magit-faces)
 
 (defface magit-item-mark
-  '((((class color) (background light))
-     :foreground "red")
-    (((class color) (background dark))
-     :foreground "orange"))
+  '((t :inherit secondary-selection))
   "Face for highlighting marked item."
   :group 'magit-faces)
 
