@@ -16,8 +16,7 @@
 # along with Magit.  If not, see <http://www.gnu.org/licenses/>.
 # ====================================================================
 
-test "$1" = "-h" || test "$1" = "--help"
-if [ $? = 0 ]; then
+if test "$1" = "-h" || test "$1" = "--help"; then
     cat <<EOF
 Usage: magit [OPTION] [REPOSITORY]
 
@@ -37,24 +36,17 @@ EOF
     exit 0;
 fi
 
-# Don't allow non-empty alternate editor
-env | grep ^ALTERNATE_EDITOR=$ > /dev/null
-if [ $? != 0 ]; then
-    ALTERNATE_EDITOR=false
+# Disable any ALTERNATE_EDITOR except the special blank value.
+[ -z "$ALTERNATE_EDITOR" ] || ALTERNATE_EDITOR=false
+
+useexisting=false
+if test "$1" = "-e" || test "$1" = "--use-existing"; then
+    useexisting=true
+    shift;
 fi
 
-set_dir(){
-    if [ -n "$1" ]; then
-        dir=$(readlink -m "$1")
-    fi
-}
-
-test "$1" = "-e" || test "$1" = "--use-existing"
-if [ $? = 0 ]; then
-    set_dir "$2"
-    useexisting=1
-else
-    set_dir "$1"
+if [ -n "$1" ]; then
+    dir=$(readlink -m "$1")
 fi
 
 runmagit="(progn "
@@ -64,13 +56,13 @@ else
     runmagit="$runmagit (let ((default-directory \"$(pwd)\"))
                           (call-interactively 'magit-status))"
 fi
-if [ -z "$useexisting" ]; then
+if ! $useexisting; then
     #Don't steal the whole frame if we're using an existing one.
     runmagit="$runmagit (delete-other-windows)"
 fi
 runmagit="$runmagit nil)"
 
-if [ -n "$useexisting" ]; then
+if $useexisting; then
     emacsclient --eval "$runmagit"
     exit
 fi
