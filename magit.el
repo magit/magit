@@ -37,6 +37,7 @@
 ;; Copyright (C) 2010 oscar.
 ;; Copyright (C) 2010 Ævar Arnfjörð Bjarmason.
 ;; Copyright (C) 2010 Óscar Fuentes.
+;; Copyright (C) 2011 Peter J Weisberg
 
 ;; Original Author: Marius Vollmer <marius.vollmer@nokia.com>
 ;; Lead developer: Phil Jackson <phil@shellarchive.co.uk>
@@ -2466,6 +2467,39 @@ in the corresponding directories."
 	      (setq target (+ target 1)))
 	  (forward-line))
 	target))))
+
+(defun magit-get-file-from-commit (commit filename)
+  "Returns a buffer containing the contents of the file FILENAME, as stored in
+COMMIT.  COMMIT may be one of the following:
+
+- A string with the name of a commit, such as \"head\" or \"dae86e\".  See 'git
+  help revisions' for syntax.
+- The symbol 'index, indicating that you want the version in Git's index or
+  staging area.
+- The symbol 'working, indicating that you want the version in the working
+  directory.  In this case you'll get a buffer visiting the file.  If there's
+  already a buffer visiting that file, you'll get that one."
+
+  (if (eq commit 'working)
+      (find-file-noselect filename)
+    (let ((buffer (create-file-buffer (format "%s.%s" filename commit))))
+      (cond
+       ((eq commit 'index)
+        (let ((checkout-string (magit-git-string "checkout-index"
+                                                 "--temp"
+                                                 filename)))
+          (string-match "^\\(.*\\)\t" checkout-string)
+          (with-current-buffer buffer
+            (let ((tmpname (match-string 1 checkout-string)))
+              (insert-file-contents tmpname nil nil nil t)
+              (delete-file tmpname)))))
+       (t
+        (with-current-buffer buffer
+          (magit-git-insert (list "show" (concat commit ":" filename))))))
+      (with-current-buffer buffer
+        (let ((buffer-file-name filename))
+          (normal-mode)))
+      buffer)))
 
 (defvar magit-tmp-buffer-name " *magit-tmp*")
 
