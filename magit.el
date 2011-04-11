@@ -85,7 +85,9 @@
 
 ;; Silences byte-compiler warnings
 (eval-when-compile  (require 'view))
+(declare-function view-mode 'view)
 (eval-when-compile (require 'iswitchb))
+(eval-when-compile (require 'ediff))
 
 ;;; Code:
 (defgroup magit nil
@@ -4689,8 +4691,6 @@ name of the remote and branch name. The remote must be known to git."
 
 (defvar magit-ediff-file)
 (defvar magit-ediff-windows)
-
-(eval-when-compile (require 'ediff))
 
 (defun magit-interactive-resolve (file)
   (require 'ediff)
