@@ -2257,6 +2257,9 @@ in the corresponding directories."
 			(format "?        %s" file)))))
     (insert "\t" status-text "\n")))
 
+(defvar magit-current-diff-range nil
+  "Used internally when setting up magit diff sections.")
+
 (defun magit-wash-diff-section ()
   (cond ((looking-at "^\\* Unmerged path \\(.*\\)")
 	 (let ((file (match-string-no-properties 1)))
@@ -2291,7 +2294,10 @@ in the corresponding directories."
 			     (search-forward-regexp "^rename from \\(.*\\)"
 						    end t))
 			   (match-string-no-properties 1)))))
-	     (magit-set-section-info (list status file file2))
+         (magit-set-section-info (list status
+                                       file
+                                       file2
+                                       magit-current-diff-range))
 	     (magit-insert-diff-title status file file2)
 	     (goto-char end)
 	     (let ((magit-section-hidden-default nil))
@@ -2313,6 +2319,9 @@ in the corresponding directories."
 
 (defun magit-diff-item-file2 (diff)
   (caddr (magit-section-info diff)))
+
+(defun magit-diff-item-range (diff)
+  (nth 3 (magit-section-info diff)))
 
 (defun magit-wash-hunk ()
   (cond ((looking-at "\\(^@+\\)[^@]*@+")
@@ -2539,22 +2548,24 @@ COMMIT.  COMMIT may be one of the following:
   (apply #'magit-apply-hunk-item* hunk t (cons "--reverse" args)))
 
 (magit-define-inserter unstaged-changes (title)
-  (let ((magit-hide-diffs t))
+  (let ((magit-hide-diffs t)
+        (magit-current-diff-range (cons 'index 'working)))
     (let ((magit-diff-options (append '() magit-diff-options)))
       (magit-git-section 'unstaged title 'magit-wash-raw-diffs
                          "diff-files"))))
 
 (magit-define-inserter staged-changes (staged no-commit)
-  (when staged
-    (let ((magit-hide-diffs t)
-          (base (if no-commit
-                    (magit-git-string "mktree")
-                  "HEAD")))
-      (let ((magit-diff-options (append '("--cached") magit-diff-options))
-            (magit-ignore-unmerged-raw-diffs t))
-        (magit-git-section 'staged "Staged changes:" 'magit-wash-raw-diffs
-                           "diff-index" "--cached"
-                           base)))))
+  (let ((magit-current-diff-range (cons "HEAD" 'index)))
+    (when staged
+      (let ((magit-hide-diffs t)
+            (base (if no-commit
+                      (magit-git-string "mktree")
+                    "HEAD")))
+        (let ((magit-diff-options (append '("--cached") magit-diff-options))
+              (magit-ignore-unmerged-raw-diffs t))
+          (magit-git-section 'staged "Staged changes:" 'magit-wash-raw-diffs
+                             "diff-index" "--cached"
+                             base))))))
 
 ;;; Logs and Commits
 
@@ -2690,12 +2701,21 @@ insert a line to tell how to insert more of them"
 (defvar magit-currently-shown-commit nil)
 
 (defun magit-wash-commit ()
-  (when (looking-at "^commit \\([0-9a-fA-F]\\{40\\}\\)")
-    (add-text-properties (match-beginning 1) (match-end 1)
-			 '(face magit-log-sha1)))
-  (when (search-forward-regexp "^diff" nil t)
-    (goto-char (match-beginning 0))
-    (magit-wash-diffs)))
+  (let ((magit-current-diff-range))
+    (when (looking-at "^commit \\([0-9a-fA-F]\\{40\\}\\)")
+      (setq magit-current-diff-range (match-string 1))
+      (add-text-properties (match-beginning 1) (match-end 1)
+                           '(face magit-log-sha1)))
+    (if (search-forward-regexp "^Merge: \\([0-9a-fA-F]+\\) \\([0-9a-fA-F]+\\)$" nil t)
+        (setq magit-current-diff-range (cons (magit-git-string "merge-base"
+                                                               (match-string 1)
+                                                               (match-string 2))
+                                             magit-current-diff-range))
+      (setq magit-current-diff-range (cons (concat magit-current-diff-range "^")
+                                           magit-current-diff-range)))
+    (when (search-forward-regexp "^diff" nil t)
+      (goto-char (match-beginning 0))
+      (magit-wash-diffs))))
 
 (defun magit-refresh-commit-buffer (commit)
   (magit-create-buffer-sections
@@ -3885,6 +3905,7 @@ With prefix argument, changes in staging area are kept.
              (set-buffer buf)
              (goto-char (point-min))
              (let* ((range (cons (concat stash "^2^") stash))
+                    (magit-current-diff-range range)
                     (args (magit-rev-range-to-git range)))
                (magit-mode-init dir 'diff #'magit-refresh-diff-buffer
                                 range args)
@@ -4124,13 +4145,71 @@ This is only non-nil in reflog buffers.")
 
 ;;; Diffing
 
+(defvar magit-ediff-buffers nil
+  "List of buffers that may be killed by magit-ediff-restore.")
+
+(defun magit-ediff()
+  "View the current DIFF section in ediff."
+  (interactive)
+  (let ((diff (magit-current-section)))
+    (when (magit-section-hidden diff)
+      ;; Range is not set until the first time the diff is visible.
+      ;; This somewhat hackish code makes sure it's been visible at least once.
+      (magit-toggle-section)
+      (magit-toggle-section)
+      (setq diff (magit-current-section)))
+    (if (eq 'hunk (magit-section-type diff))
+        (setq diff (magit-section-parent diff)))
+    (unless (eq 'diff (magit-section-type diff))
+      (error "No diff at this location"))
+    (let* ((type (magit-diff-item-kind diff))
+           (file1 (magit-diff-item-file diff))
+           (file2 (or (magit-diff-item-file2 diff)
+                      file1))
+           (range (magit-diff-item-range diff)))
+      (cond
+       ((member type '(new deleted))
+        (message "Why ediff a %s file?" type))
+       ((and (eq type 'unmerged)
+             (eq (cdr range) 'working))
+        (magit-interactive-resolve file1))
+       (t
+        (require 'ediff)
+        (let ((buffer-a (magit-get-file-from-commit (car range) file2))
+              (buffer-b (magit-get-file-from-commit (cdr range) file1)))
+          (setq magit-ediff-buffers (list buffer-a buffer-b))
+          (window-configuration-to-register ?m)
+          ;I really don't like using a hook with "internal" in the name, but if I
+          ;use ediff-quit-hook then the ediff control frame doesn't get deleted
+          ;as it should.
+          (add-hook 'ediff-after-quit-hook-internal 'magit-ediff-restore)
+          (ediff-buffers buffer-a buffer-b)))))))
+
+(defun magit-ediff-restore()
+  "Kill any buffers in `magit-ediff-buffers' that are not visiting files and
+restore the window state that was saved before ediff was called."
+  (dolist (buffer magit-ediff-buffers)
+    (if (and (null (buffer-file-name buffer))
+             (buffer-live-p buffer))
+        (kill-buffer buffer)))
+  (setq magit-ediff-buffers nil)
+  (jump-to-register ?m)
+  (remove-hook 'ediff-after-quit-hook-internal 'magit-ediff-restore))
+
 (defun magit-refresh-diff-buffer (range args)
-  (setq magit-current-range range)
-  (magit-create-buffer-sections
-    (magit-git-section 'diffbuf
-		       (magit-rev-range-describe range "Changes")
-		       'magit-wash-diffs
-		       "diff" (magit-diff-U-arg) args)))
+  (let ((magit-current-diff-range (cond
+                                   ((stringp range)
+                                    (cons range 'working))
+                                   ((null (cdr range))
+                                    (cons (car range) 'working))
+                                   (t
+                                    range))))
+    (setq magit-current-range range)
+    (magit-create-buffer-sections
+      (magit-git-section 'diffbuf
+                         (magit-rev-range-describe range "Changes")
+                         'magit-wash-diffs
+                         "diff" (magit-diff-U-arg) args))))
 
 (define-minor-mode magit-diff-mode
     "Minor mode for looking at a git diff.
