@@ -2502,11 +2502,13 @@ COMMIT.  COMMIT may be one of the following:
           (string-match "^\\(.*\\)\t" checkout-string)
           (with-current-buffer buffer
             (let ((tmpname (match-string 1 checkout-string)))
-              (insert-file-contents tmpname nil nil nil t)
+              (with-silent-modifications
+                (insert-file-contents tmpname nil nil nil t))
               (delete-file tmpname)))))
        (t
         (with-current-buffer buffer
-          (magit-git-insert (list "show" (concat commit ":" filename))))))
+          (with-silent-modifications
+            (magit-git-insert (list "show" (concat commit ":" filename)))))))
       (with-current-buffer buffer
         (let ((buffer-file-name filename))
           (normal-mode)))
