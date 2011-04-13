@@ -2696,7 +2696,7 @@ insert a line to tell how to insert more of them"
 		   (scroll
 		    (with-selected-window win
 		      (funcall scroll))))))
-	  (t
+	  (commit
 	   (setq magit-currently-shown-commit commit)
 	   (display-buffer buf)
 	   (with-current-buffer buf
