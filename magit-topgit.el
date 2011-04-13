@@ -39,7 +39,7 @@
 (defface magit-topgit-current
   '((t :weight bold :inherit magit-branch))
   "Face for section titles."
-  :group 'magit)
+  :group 'magit-faces)
 
 ;;; Topic branches (using topgit)
 
