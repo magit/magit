@@ -123,15 +123,15 @@
     (magit-wash-sequence #'magit-topgit-wash-topic)))
 
 (defun magit-topgit-section (section title washer &rest args)
-  (let ((magit-git-executable magit-topgit-executable)
-        (magit-git-standard-options nil))
-    (apply 'magit-git-section section title washer args)))
+  (when (executable-find magit-topgit-executable)
+    (let ((magit-git-executable magit-topgit-executable)
+          (magit-git-standard-options nil))
+      (apply 'magit-git-section section title washer args))))
 
 (magit-define-inserter topics ()
-  (when (executable-find magit-topgit-executable)
-      (magit-topgit-section 'topics
-                            "Topics:" 'magit-topgit-wash-topics
-                            "summary")))
+  (magit-topgit-section 'topics
+                        "Topics:" 'magit-topgit-wash-topics
+                        "summary"))
 
 (magit-add-action (item info "discard")
   ((topic)
