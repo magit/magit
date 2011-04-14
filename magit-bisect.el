@@ -87,7 +87,7 @@ match REQUIRED-STATUS."
 
 (defun magit-bisect-skip ()
   "Tell git to skip the current revision during a bisect session."
-  (interactive "P")
+  (interactive)
   (unless (magit--bisecting-p 'running)
     (error "Not bisecting"))
   (magit--bisect-cmd "skip"))
