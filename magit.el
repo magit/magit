@@ -4148,7 +4148,10 @@ This is only non-nil in reflog buffers.")
 ;;; Diffing
 
 (defvar magit-ediff-buffers nil
-  "List of buffers that may be killed by magit-ediff-restore.")
+  "List of buffers that may be killed by `magit-ediff-restore'.")
+
+(defvar magit-ediff-windows nil
+  "The window configuration that will be restored when Ediff is finished.")
 
 (defun magit-ediff()
   "View the current DIFF section in ediff."
@@ -4180,7 +4183,7 @@ This is only non-nil in reflog buffers.")
         (let ((buffer-a (magit-get-file-from-commit (car range) file2))
               (buffer-b (magit-get-file-from-commit (cdr range) file1)))
           (setq magit-ediff-buffers (list buffer-a buffer-b))
-          (window-configuration-to-register ?m)
+          (setq magit-ediff-windows (current-window-configuration))
           ;I really don't like using a hook with "internal" in the name, but if I
           ;use ediff-quit-hook then the ediff control frame doesn't get deleted
           ;as it should.
@@ -4195,7 +4198,7 @@ restore the window state that was saved before ediff was called."
              (buffer-live-p buffer))
         (kill-buffer buffer)))
   (setq magit-ediff-buffers nil)
-  (jump-to-register ?m)
+  (set-window-configuration magit-ediff-windows)
   (remove-hook 'ediff-after-quit-hook-internal 'magit-ediff-restore))
 
 (defun magit-refresh-diff-buffer (range args)
@@ -4771,7 +4774,6 @@ name of the remote and branch name. The remote must be known to git."
         (magit-refresh-buffer (magit-find-buffer 'status default-directory)))))
 
 (defvar magit-ediff-file)
-(defvar magit-ediff-windows)
 
 (defun magit-interactive-resolve (file)
   (require 'ediff)
