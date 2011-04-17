@@ -4274,10 +4274,7 @@ This is only non-nil in reflog buffers.")
               (buffer-b (magit-show (cdr range) file1)))
           (setq magit-ediff-buffers (list buffer-a buffer-b))
           (setq magit-ediff-windows (current-window-configuration))
-          ;I really don't like using a hook with "internal" in the name, but if I
-          ;use ediff-quit-hook then the ediff control frame doesn't get deleted
-          ;as it should.
-          (add-hook 'ediff-after-quit-hook-internal 'magit-ediff-restore)
+          (add-hook 'ediff-quit-hook 'magit-ediff-restore 'append)
           (ediff-buffers buffer-a buffer-b)))))))
 
 (defun magit-ediff-restore()
@@ -4289,7 +4286,7 @@ restore the window state that was saved before ediff was called."
         (kill-buffer buffer)))
   (setq magit-ediff-buffers nil)
   (set-window-configuration magit-ediff-windows)
-  (remove-hook 'ediff-after-quit-hook-internal 'magit-ediff-restore))
+  (remove-hook 'ediff-quit-hook 'magit-ediff-restore))
 
 (defun magit-refresh-diff-buffer (range args)
   (let ((magit-current-diff-range (cond
