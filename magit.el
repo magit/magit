@@ -1276,12 +1276,12 @@ see `magit-insert-section' for meaning of the arguments"
 	      (magit-show-commit next))
 	  (if (not (magit-section-hidden next))
 	      (let ((offset (- (line-number-at-pos
-				(magit-section-beginning next))
-			       (line-number-at-pos
-				(magit-section-end next)))))
-		(if (< offset (window-height))
-		    (recenter offset)))))
-      (message "No next section"))))
+                            (magit-section-beginning next))
+                           (line-number-at-pos
+                            (magit-section-end next)))))
+            (if (< offset 0)
+                (recenter offset)))))
+    (message "No next section"))))
 
 (defun magit-prev-section (section)
   "Return the section that is before SECTION."
@@ -1353,7 +1353,8 @@ Default value for TOP is `magit-top-section'"
 		 (forward-line)
 		 (point)))
 	  (end (magit-section-end section)))
-      (put-text-property beg end 'invisible hidden))
+      (if (< beg end)
+          (put-text-property beg end 'invisible hidden)))
     (if (not hidden)
 	(dolist (c (magit-section-children section))
 	  (magit-section-set-hidden c (magit-section-hidden c))))))
