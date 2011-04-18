@@ -56,7 +56,9 @@
      (actions
       ("f" "Current" magit-fetch-current)
       ("a" "All" magit-remote-update)
-      ("o" "Other" magit-fetch)))
+      ("o" "Other" magit-fetch))
+     (switches
+      ("-p" "Prune" "--prune")))
 
     (pushing
      (man-page "git-push")
