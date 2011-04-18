@@ -1103,6 +1103,14 @@ If TYPE is nil, the section won't be highlighted."
 	     (nreverse (magit-section-children ,s)))
        ,s)))
 
+(defun magit-set-section (title type start end)
+  "Create a new section of title TITLE and type TYPE with specified start and
+end positions."
+  (let ((section (magit-new-section title type)))
+    (setf (magit-section-beginning section) start)
+    (setf (magit-section-end section) end)
+    section))
+
 (defun magit-set-section-info (info &optional section)
   (setf (magit-section-info (or section magit-top-section)) info))
 
@@ -2718,8 +2726,19 @@ insert a line to tell how to insert more of them"
      (t
       (setq magit-current-diff-range (cons (concat magit-current-diff-range "^")
                                            magit-current-diff-range))))
-    (when (search-forward-regexp "^diff" nil t)
-      (goto-char (match-beginning 0))
+    (search-forward-regexp "^$")
+    (while (and
+            (search-forward-regexp "\\(\\b[0-9a-fA-F]\\{4,40\\}\\b\\)\\|\\(^diff\\)" nil 'noerror)
+            (not (match-string 2)))
+      (let ((sha1 (match-string 1))
+            (start (match-beginning 1))
+            (end (match-end 1)))
+        (when (string-equal "commit" (magit-git-string "cat-file" "-t" sha1))
+          (add-text-properties start end '(face magit-log-sha1))
+          (let ((section (magit-set-section sha1 'commit start end)))
+            (magit-set-section-info sha1 section)))))
+    (beginning-of-line)
+    (when (looking-at "^diff")
       (magit-wash-diffs))))
 
 (defun magit-refresh-commit-buffer (commit)
