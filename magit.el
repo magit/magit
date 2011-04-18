@@ -3409,7 +3409,7 @@ Uncomitted changes in both working tree and staging area are lost.
 (magit-define-command fetch (remote)
   "Fetch from REMOTE."
   (interactive (list (magit-read-remote)))
-  (magit-run-git-async "fetch" remote))
+  (apply 'magit-run-git-async "fetch" remote magit-custom-options))
 
 (magit-define-command fetch-current ()
   "Run fetch for default remote.
@@ -3422,7 +3422,7 @@ If there is no default remote, ask for one."
 (magit-define-command remote-update ()
   "Update all remotes."
   (interactive)
-  (magit-run-git-async "remote" "update"))
+  (apply 'magit-run-git-async "remote" "update" magit-custom-options))
 
 (magit-define-command pull ()
   "Run git pull against the current remote."
