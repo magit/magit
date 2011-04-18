@@ -751,6 +751,7 @@ When you're finished bisecting you have to reset the session with
 @menu
 * Interfacing with Subversion::
 * Interfacing with Topgit::
+* Interfacing with StGit::
 * Developing Extensions::
 @end menu
 
@@ -787,6 +788,27 @@ Also, the way we pull (see @ref{Pushing and Pulling}) such a branch is
 slightly different, since it requires updating the various dependencies
 of that branch. This should be mostly transparent, except in case
 of conflicts.
+
+@node Interfacing with StGit
+@section Interfacing with StGit
+
+StGit (http://www.procode.org/stgit) is a Python application providing
+similar functionality to Quilt (i.e. pushing/popping patches to/from a
+stack) on top of Git. These operations are performed using Git commands
+and the patches are stored as Git commit objects, allowing easy merging
+of the StGit patches into other repositories using standard Git
+functionality.
+
+@file{magit-stgit.el} provides basic integration with Magit, mostly by
+providing a ``Series'' section, whose patches can be seen as regular
+commits through the ``visit'' action.
+
+You can change the current patch in a series with the ``apply'' action,
+as well as you can delete them using the ``discard'' action.
+
+Additionally, the @code{magit-stgit-refresh} and
+@code{magit-stgit-rebase} commands let you perform the respective StGit
+operations.
 
 @node Developing Extensions
 @section Developing Extensions
