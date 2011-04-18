@@ -22,7 +22,8 @@ if [ $? = 0 ]; then
 Usage: magit [OPTION] [REPOSITORY]
 
 Open a Magit session in Emacs visiting the specified repository.  If no
-repository is specified, use the current directory.
+repository is specified, and the current directory is a Git repository, use the
+current directory.  Otherwise, magit-status will prompt for a repository to use.
 
     -h, --help          Print this text and exit
     -e, --use-existing  Use an existing Emacs frame instead of creating a new
@@ -44,9 +45,7 @@ fi
 
 set_dir(){
     if [ -n "$1" ]; then
-        dir=\"$(readlink -m "$1")\"
-    else
-        dir=\"$(pwd)\"
+        dir=$(readlink -m "$1")
     fi
 }
 
@@ -58,7 +57,13 @@ else
     set_dir "$1"
 fi
 
-runmagit="(progn (magit-status $dir)"
+runmagit="(progn "
+if [ -n "$dir" ]; then
+    runmagit="$runmagit (magit-status \"$dir\")"
+else
+    runmagit="$runmagit (let ((default-directory \"$(pwd)\"))
+                          (call-interactively 'magit-status))"
+fi
 if [ -z "$useexisting" ]; then
     #Don't steal the whole frame if we're using an existing one.
     runmagit="$runmagit (delete-other-windows)"
