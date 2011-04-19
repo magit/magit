@@ -50,7 +50,7 @@ as an extension to Emacs.
 * Rewriting::
 * Pushing and Pulling::
 * Bisecting::
-* Submodules::         
+* Submodules::
 * Using Magit Extensions::
 * Using Git Directly::
 @end menu
