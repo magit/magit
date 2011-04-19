@@ -1,5 +1,5 @@
-It's Magit!  A Emacs mode for Git.
-==================================
+It's Magit!  An Emacs mode for Git.
+===================================
 
 Magit is an interface to Git for Emacs. Unlike Emacs's native
 [version control support][vc], Magit can take advantage of Git's

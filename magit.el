@@ -3097,7 +3097,7 @@ at point."
      (magit-apply-hunk-item-reverse item "--cached"))
     ((staged diff)
      (if (eq (car info) 'unmerged)
-	 (error "Can't unstage a unmerged file.  Resolve it first"))
+	 (error "Can't unstage an unmerged file.  Resolve it first"))
      (if (magit-no-commit-p)
      	 (magit-run-git "rm" "--cached" "--" (magit-diff-item-file item))
          (magit-run-git "reset" "-q" "HEAD" "--" (magit-diff-item-file item))))
