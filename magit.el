@@ -379,6 +379,16 @@ Many Magit faces inherit from this one by default."
 (defvar magit-read-rev-history nil
   "The history of inputs to `magit-read-rev'.")
 
+(defvar magit-back-navigation-history nil
+  "History items that will be visited by successively going \"back\".")
+(make-variable-buffer-local 'magit-back-navigation-history)
+(put 'magit-back-navigation-history 'permanent-local t)
+
+(defvar magit-forward-navigation-history nil
+  "History items that will be visited by successively going \"forward\".")
+(make-variable-buffer-local 'magit-forward-navigation-history)
+(put 'magit-forward-navigation-history 'permanent-local t)
+
 (defvar magit-omit-untracked-dir-contents nil
   "When non-nil magit will only list an untracked directory, not its contents.")
 
@@ -2769,30 +2779,60 @@ insert a line to tell how to insert more of them"
 (defvar magit-commit-buffer-name "*magit-commit*"
   "Buffer name for displaying commit log messages.")
 
-(defun magit-show-commit (commit &optional scroll)
+(defun magit-show-commit (commit &optional scroll inhibit-history)
   (when (magit-section-p commit)
     (setq commit (magit-section-info commit)))
   (let ((dir default-directory)
-	(buf (get-buffer-create magit-commit-buffer-name)))
-    (cond ((and (equal magit-currently-shown-commit commit)
-		;; if it's empty then the buffer was killed
-		(with-current-buffer buf
-		  (> (length (buffer-string)) 1)))
-	   (let ((win (get-buffer-window buf)))
-	     (cond ((not win)
-		    (display-buffer buf))
-		   (scroll
-		    (with-selected-window win
-		      (funcall scroll))))))
-	  (commit
-	   (setq magit-currently-shown-commit commit)
-	   (display-buffer buf)
-	   (with-current-buffer buf
-	     (set-buffer buf)
-	     (goto-char (point-min))
-	     (magit-mode-init dir 'commit
-			      #'magit-refresh-commit-buffer commit)
-	     (magit-commit-mode t))))))
+        (buf (get-buffer-create magit-commit-buffer-name)))
+    (cond
+     ((and (equal magit-currently-shown-commit commit)
+           ;; if it's empty then the buffer was killed
+           (with-current-buffer buf
+             (> (length (buffer-string)) 1)))
+      (let ((win (get-buffer-window buf)))
+        (cond ((not win)
+               (display-buffer buf))
+              (scroll
+               (with-selected-window win
+                 (funcall scroll))))))
+     (commit
+      (display-buffer buf)
+      (with-current-buffer buf
+        (unless inhibit-history
+          (push (cons default-directory magit-currently-shown-commit)
+                magit-back-navigation-history)
+          (setq magit-forward-navigation-history nil))
+        (setq magit-currently-shown-commit commit)
+        (goto-char (point-min))
+        (magit-mode-init dir 'commit
+                         #'magit-refresh-commit-buffer commit)
+        (magit-commit-mode t))))))
+
+(defun magit-show-commit-backward ()
+  "Show the commit at the head of `magit-back-navigation-history in
+`magit-commit-buffer-name`."
+  (interactive)
+  (with-current-buffer magit-commit-buffer-name
+    (unless magit-back-navigation-history
+      (error "No previous commit."))
+    (let ((histitem (pop magit-back-navigation-history)))
+      (push (cons default-directory magit-currently-shown-commit)
+            magit-forward-navigation-history)
+      (setq default-directory (car histitem))
+      (magit-show-commit (cdr histitem) nil 'inhibit-history))))
+
+(defun magit-show-commit-forward ()
+  "Show the commit at the head of `magit-forward-navigation-history in
+`magit-commit-buffer-name`."
+  (interactive)
+  (with-current-buffer magit-commit-buffer-name
+    (unless magit-forward-navigation-history
+      (error "No next commit."))
+    (let ((histitem (pop magit-forward-navigation-history)))
+      (push (cons default-directory magit-currently-shown-commit)
+            magit-back-navigation-history)
+      (setq default-directory (car histitem))
+      (magit-show-commit (cdr histitem) nil 'inhibit-history))))
 
 (defvar magit-marked-commit nil)
 
