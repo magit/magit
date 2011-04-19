@@ -11,7 +11,8 @@
 @end direntry
 
 @copying
-Copyright @copyright{} 2008, 2009, 2011 Marius Vollmer
+Copyright @copyright{} 2008, 2009, 2011 Marius Vollmer et al. (See the
+header of magit.el for the lengthy list of Magit contributors.)
 
 @quotation
 Permission is granted to copy, distribute and/or modify this document
@@ -48,6 +49,7 @@ as an extension to Emacs.
 * Rebasing::
 * Rewriting::
 * Pushing and Pulling::
+* Bisecting::
 * Submodules::         
 * Using Magit Extensions::
 * Using Git Directly::
@@ -292,6 +294,9 @@ Type @kbd{c} to pop up a buffer where you can write your change
 description.  Once you are happy with the description, type @kbd{C-c
 C-c} in that buffer to perform the commit.
 
+If you want to write changes in a @file{ChangeLog} file, you can use
+@kbd{C-x 4 a} on a diff hunk.
+
 Typing @kbd{c} when the staging area is unused is a special situation.
 Normally, the next commit would be empty, but you can configure Magit
 to do something more useful by customizing the
@@ -403,6 +408,14 @@ The resulting buffer is just like the buffer produced by @kbd{l l} and
 @node Diffing
 @chapter Diffing
 
+Magit typically shows diffs in the ``unified'' format.
+
+In any buffer that shows a diff, you can type @kbd{e} anywhere within
+the diff to show the two versions of the file in Ediff.  If the diff
+is of a file in the status buffer that needs to be merged, you will be
+able to use Ediff as an interactive merge tool.  Otherwise, Ediff will
+simply show the two versions of the file.
+
 To show the changes from you working tree to another revision, type
 @kbd{d}.  To show the changes between two arbitrary revisions, type
 @kbd{D}.
@@ -473,7 +486,8 @@ leave the changes in your working tree and index.
 
 You can visit and show stashes in the usual way: Typing @kbd{SPC} and
 @kbd{DEL} will pop up a buffer with the description of the stash and
-scroll it, typing @kbd{RET} will move point into that buffer.
+scroll it, typing @kbd{RET} will move point into that buffer. Using
+@kbd{C-u RET} will move point into that buffer in other window.
 
 @node Branching
 @chapter Branching
@@ -662,11 +676,11 @@ only push the current branch to the remote.  In other words, it will run
 remote if it doesn't exist already.  The local branch will be configured
 so that it pulls from the new remote branch.
 
-Typing @kbd{f f} will run @code{git remote update}.  With a prefix
-arg, it will prompt for the name of the remote to update.  Typing
-@kbd{F p} will run @code{git pull}.  When you don't have a default
-branch configured to be pulled into the current one, you will be asked
-for it.
+Typing @kbd{f f} will run @code{git fetch}.  It will prompt for the name
+of the remote to update if there are no default one.  Typing @kbd{f o}
+will always prompt for the remote.  Typing @kbd{F F} will run @code{git
+pull}.  When you don't have a default branch configured to be pulled
+into the current one, you will be asked for it.
 
 If there is a default remote repository for the current branch, Magit
 will show that repository in the status buffer header.
@@ -700,6 +714,35 @@ Update and initialize the submodules in one go.
 Synchronizes submodules' remote URL configuration setting to the value
 specified in .gitmodules.
 @end table
+
+
+@node Bisecting
+@chapter Bisecting
+
+magit supports bisecting by showing how many revisions and steps are
+left to be tested in the status buffer. You can control the bisect
+session from both the status and from log buffers with the @kbd{B} key
+menu.
+
+Typing @kbd{B s} will start a bisect session.  You will be prompted
+for a revision that is known to be bad (defaults to @emph{HEAD}) and
+for a revision that is known to be good (defaults to the revision at
+point if there is one). git will select a revision for you to test,
+and magit will update its status buffer accordingly.
+
+You can tell git that the current revision is good with @kbd{B g},
+that it is bad with @kbd{B b} or that git should skip it with @kbd{B
+k}. You can also tell git to go into full automatic mode by giving it
+the name of a script to run for each revision to test with @kbd{B u}.
+
+The current status can be shown as a log with @kbd{B l}. It contains
+the revisions that have already been tested and your decisions about
+their state.
+
+The revisions left to test can be visualized in gitk with @kbd{B v}.
+
+When you're finished bisecting you have to reset the session with
+@kbd{B r}.
 
 
 @node Using Magit Extensions

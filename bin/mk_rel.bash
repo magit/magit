@@ -2,8 +2,8 @@
 
 set -e
 
-function configure_ac_ver_ok {
-  cat Makefile | grep "VERSION=${1}" || return 1
+function makefile_ver_ok {
+  grep "VERSION=${1}" Makefile || return 1
 }
 
 function magit_el_ver_ok {
@@ -36,7 +36,7 @@ if ! magit_el_ver_ok "$tag"; then
 fi
 
 # correct version in configure.ac?
-if ! configure_ac_ver_ok "$tag"; then
+if ! makefile_ver_ok "$tag"; then
   echo "Please set AC_INIT to $tag in configure.ac"
   git co master
   exit 1

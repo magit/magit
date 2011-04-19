@@ -1,7 +1,7 @@
-VERSION=0.8.2
+VERSION=1.0.0
 EMACS=emacs
 PREFIX=/usr/local
-ELS=magit.el magit-svn.el magit-topgit.el magit-key-mode.el
+ELS=magit.el magit-svn.el magit-topgit.el magit-key-mode.el magit-bisect.el
 ELCS=$(ELS:.el=.elc)
 DIST_FILES=$(ELS) Makefile magit.texi README.md magit.spec.in magit-pkg.el.in 50magit.el
 
