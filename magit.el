@@ -1861,7 +1861,7 @@ function can be enriched by magit extension like magit-topgit and magit-svn"
 
 (autoload 'dired-uncache "dired")
 (defun magit-process-sentinel (process event)
-  (let ((msg (format "Git %s." (substring event 0 -1)))
+  (let ((msg (format "%s %s." (process-name process) (substring event 0 -1)))
 	(successp (string-match "^finished" event)))
     (with-current-buffer (process-buffer process)
       (let ((inhibit-read-only t))
