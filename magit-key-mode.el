@@ -213,15 +213,22 @@ the group FOR-GROUP."
   "Provide help for a key (which the user is prompted for) within
 FOR-GROUP."
   (let* ((opts (magit-key-mode-options-for-group for-group))
-         (seq (read-key-sequence "Enter command prefix: "))
+         (man-page (cadr (assoc 'man-page opts)))
+         (seq (read-key-sequence
+               (format "Enter command prefix%s: "
+                       (if man-page
+                         (format ", `?' for man `%s'" man-page)
+                         ""))))
          (actions (cdr (assoc 'actions opts))))
-    ;; is it an action? If so popup the help for the to-be-run
-    ;; function
-    (if (assoc seq actions)
-        (describe-function (nth 2 (assoc seq actions)))
-      ;; otherwise give the user a man page
-      (man (or (cadr (assoc 'man-page opts))
-               (error "No help associated with %s" seq))))))
+    (cond
+      ;; if it is an action popup the help for the to-be-run function
+      ((assoc seq actions) (describe-function (nth 2 (assoc seq actions))))
+      ;; if there is "?" show a man page if there is one
+      ((equal seq "?")
+       (if man-page
+         (man man-page)
+         (error "No man page associated with `%s'" for-group)))
+      (t (error "No help associated with `%s'" seq)))))
 
 (defun magit-key-mode-exec-at-point ()
   "Run action/args/option at point."
