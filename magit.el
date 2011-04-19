@@ -2754,7 +2754,18 @@ insert a line to tell how to insert more of them"
             (magit-set-section-info sha1 section)))))
     (beginning-of-line)
     (when (looking-at "^diff")
-      (magit-wash-diffs))))
+      (magit-wash-diffs))
+    (goto-char (point-max))
+    (insert "\n")
+    (if magit-back-navigation-history
+        (magit-with-section nil 'button
+          (magit-set-section-info 'magit-show-commit-backward)
+          (insert "[back]")))
+    (insert " ")
+    (if magit-forward-navigation-history
+        (magit-with-section nil 'button
+          (magit-set-section-info 'magit-show-commit-forward)
+          (insert "[forward]")))))
 
 (defun magit-refresh-commit-buffer (commit)
   (magit-create-buffer-sections
@@ -4542,7 +4553,9 @@ With a prefix argument, visit in other window."
      (magit-show-stash info)
      (pop-to-buffer magit-stash-buffer-name))
     ((longer)
-     (magit-log-show-more-entries ()))))
+     (magit-log-show-more-entries ()))
+    ((button)
+     (funcall info))))
 
 (defun magit-show-item-or-scroll-up ()
   (interactive)
