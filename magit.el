@@ -3538,7 +3538,6 @@ Prefix arg means justify as well."
 (defun magit-log-edit-cleanup ()
   (save-excursion
     (goto-char (point-min))
-    (flush-lines "^#")
     (goto-char (point-min))
     (if (re-search-forward "[ \t\n]*\\'" nil t)
 	(replace-match "\n" nil nil))))
