@@ -250,8 +250,11 @@ put it in magit-key-mode-key-maps for fast lookup."
     ;; ret dwim
     (define-key map (kbd "RET") 'magit-key-mode-exec-at-point)
 
-    ;; all maps should 'quit' with C-g
+    ;; all maps should `quit' with `C-g' or `q'
     (define-key map (kbd "C-g") `(lambda ()
+                                   (interactive)
+                                   (magit-key-mode-command nil)))
+    (define-key map (kbd "q")   `(lambda ()
                                    (interactive)
                                    (magit-key-mode-command nil)))
     ;; run help
