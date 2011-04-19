@@ -505,9 +505,9 @@ Typing @kbd{b c} while point is at a commit description will offer
 that commit as the default to switch to.  This will result in a
 detached head.
 
-To create a new branch and switch to it immediately, type @kbd{b B}.
+To create a new branch and switch to it immediately, type @kbd{b n}.
 
-Typing @kbd{b V} will list the local and remote branches in a new buffer
+Typing @kbd{b v} will list the local and remote branches in a new buffer
 called @code{*magit-branches*} from which you can work with them. See
 @ref{The branch list} for more details.
 
