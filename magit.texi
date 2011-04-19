@@ -68,7 +68,7 @@ Magit is not a complete interface to Git; it just aims to make the
 most common Git operations convenient.  Thus, Magit will likely not
 save you from learning Git itself.
 
-This manual provides a tour of all Magit features.  It does not give a
+This manual provides a tour of all Magit features.  It does not give an
 introduction to version control in general, or to Git in particular.
 
 The main entry point to Magit is @kbd{M-x magit-status}, which will
@@ -228,7 +228,7 @@ During a history rewriting session, the status buffer shows the
 
 Untracked files are shown in the @emph{Untracked files} section.
 
-You can add a untracked file to the staging area with @kbd{s}.  If
+You can add an untracked file to the staging area with @kbd{s}.  If
 point is on the @emph{Untracked files} section title when you it
 @kbd{s}, all untracked files are staged.
 
@@ -241,7 +241,7 @@ ask you for the name of the file to ignore.  This is useful to ignore
 whole directories, for example.  The @kbd{I} command is similar to
 @kbd{i} but will add the file to @code{.git/info/exclude} instead.
 
-To delete a untracked file forever, use @kbd{k}.  If point is on the
+To delete an untracked file forever, use @kbd{k}.  If point is on the
 @emph{Untracked files} section title when you it @kbd{k}, all
 untracked files are deleted.
 
@@ -263,7 +263,7 @@ changes} section shows the changes that will be included in the next
 commit, while the @emph{Unstaged changes} section shows the changes
 that will be left out.
 
-To move a unstaged hunk into the staging area, move point into the
+To move an unstaged hunk into the staging area, move point into the
 hunk and type @kbd{s}.  Likewise, to unstage a hunk, move point into
 it and type @kbd{u}.  If point is in a diff header when you type
 @kbd{s} or @kbd{u}, all hunks belonging to that diff are moved at the
@@ -432,7 +432,7 @@ Typing @kbd{v} will apply the selected changes in reverse.
 @chapter Tagging
 
 Typing @kbd{t t} will make a lighweight tag.  Typing @kbd{t T} will
-make a annotated tag.  It will put you in the normal
+make an annotated tag.  It will put you in the normal
 @code{*magit-log-edit} buffer for writing commit messages, but typing
 @kbd{C-c C-c} in it will make the tag instead.  This is controlled by
 the @code{Tag} field that will be added to the @code{*magit-log-edit*}
@@ -561,7 +561,7 @@ that view will unignore it.
 
 Magit offers two ways to merge branches: manually and automatic.  A
 manual merge will apply all changes to your working tree and staging
-area, but will not commit them, while a automatic merge will go ahead
+area, but will not commit them, while an automatic merge will go ahead
 and commit them immediately.
 
 Type @kbd{m m} to initiate merge.
