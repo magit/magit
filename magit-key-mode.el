@@ -245,42 +245,42 @@ put it in magit-key-mode-key-maps for fast lookup."
   (let* ((options (magit-key-mode-options-for-group for-group))
          (actions (cdr (assoc 'actions options)))
          (switches (cdr (assoc 'switches options)))
-         (arguments (cdr (assoc 'arguments options))))
-    (let ((map (make-sparse-keymap)))
-      ;; ret dwim
-      (define-key map (kbd "RET") 'magit-key-mode-exec-at-point)
+         (arguments (cdr (assoc 'arguments options)))
+         (map (make-sparse-keymap)))
+    ;; ret dwim
+    (define-key map (kbd "RET") 'magit-key-mode-exec-at-point)
 
-      ;; all maps should 'quit' with C-g
-      (define-key map (kbd "C-g") `(lambda ()
-                                     (interactive)
-                                     (magit-key-mode-command nil)))
-      ;; run help
-      (define-key map (kbd "?") `(lambda ()
+    ;; all maps should 'quit' with C-g
+    (define-key map (kbd "C-g") `(lambda ()
                                    (interactive)
-                                   (magit-key-mode-help ',for-group)))
+                                   (magit-key-mode-command nil)))
+    ;; run help
+    (define-key map (kbd "?") `(lambda ()
+                                 (interactive)
+                                 (magit-key-mode-help ',for-group)))
 
-      (when actions
-        (dolist (k actions)
-          (define-key map (car k) `(lambda ()
-                                     (interactive)
-                                     (magit-key-mode-command ',(nth 2 k))))))
-      (when switches
-        (dolist (k switches)
-          (define-key map (car k) `(lambda ()
-                                     (interactive)
-                                     (magit-key-mode-add-option
-                                      ',for-group
-                                      ,(nth 2 k))))))
-      (when arguments
-        (dolist (k arguments)
-          (define-key map (car k) `(lambda ()
-                                     (interactive)
-                                     (magit-key-mode-add-argument
-                                      ',for-group
-                                      ,(nth 2 k)
-                                      ',(nth 3 k))))))
-      (aput 'magit-key-mode-key-maps for-group map)
-      map)))
+    (when actions
+      (dolist (k actions)
+        (define-key map (car k) `(lambda ()
+                                   (interactive)
+                                   (magit-key-mode-command ',(nth 2 k))))))
+    (when switches
+      (dolist (k switches)
+        (define-key map (car k) `(lambda ()
+                                   (interactive)
+                                   (magit-key-mode-add-option
+                                    ',for-group
+                                    ,(nth 2 k))))))
+    (when arguments
+      (dolist (k arguments)
+        (define-key map (car k) `(lambda ()
+                                   (interactive)
+                                   (magit-key-mode-add-argument
+                                    ',for-group
+                                    ,(nth 2 k)
+                                    ',(nth 3 k))))))
+    (aput 'magit-key-mode-key-maps for-group map)
+    map))
 
 (defun magit-key-mode-command (func)
   (let ((args '()))
