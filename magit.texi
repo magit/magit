@@ -667,10 +667,10 @@ it, like from any other diff.
 @node Pushing and Pulling
 @chapter Pushing and Pulling
 
-Magit will run @code{git push} when you type @kbd{P p}.  If you give a
-prefix argument to @kbd{P p}, you will be prompted for the repository to
+Magit will run @code{git push} when you type @kbd{P P}.  If you give a
+prefix argument to @kbd{P P}, you will be prompted for the repository to
 push to.  When no default remote repository has been configured yet for
-the current branch, you will be prompted as well.  Typing @kbd{P p} will
+the current branch, you will be prompted as well.  Typing @kbd{P P} will
 only push the current branch to the remote.  In other words, it will run
 @code{git push <remote> <branch>}.  The branch will be created in the
 remote if it doesn't exist already.  The local branch will be configured
@@ -691,7 +691,7 @@ not in the branch named @code{<remote>/<branch>}.  This section works
 just like the history buffer: you can see details about a commit with
 @kbd{RET}, compare two of them with @kbd{.} and @kbd{=}, and you can
 reset your current head to one of them with @kbd{x}, for example. If
-you want to push the changes then type @kbd{P p}.
+you want to push the changes then type @kbd{P P}.
 
 When the remote branch has changes that are not in the current branch,
 Magit shows them in a section called @emph{Unpulled changes}.  Typing
