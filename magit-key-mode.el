@@ -244,13 +244,13 @@ put it in magit-key-mode-key-maps for fast lookup."
       (define-key map (kbd "RET") 'magit-key-mode-exec-at-point)
 
       ;; all maps should 'quit' with C-g
-      (define-key map (kbd "C-g") (lambda ()
-                                    (interactive)
-                                    (magit-key-mode-command nil)))
+      (define-key map (kbd "C-g") `(lambda ()
+                                     (interactive)
+                                     (magit-key-mode-command nil)))
       ;; run help
       (define-key map (kbd "?") `(lambda ()
-                                  (interactive)
-                                  (magit-key-mode-help ',for-group)))
+                                   (interactive)
+                                   (magit-key-mode-help ',for-group)))
 
       (when actions
         (dolist (k actions)
