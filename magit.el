@@ -2722,6 +2722,10 @@ insert a line to tell how to insert more of them"
                                                              (match-string 1)
                                                              (match-string 2))
                                            magit-current-diff-range))
+      (let ((first (magit-set-section nil 'commit (match-beginning 1) (match-end 1)))
+            (second (magit-set-section nil 'commit (match-beginning 2) (match-end 2))))
+        (magit-set-section-info (match-string 1) first)
+        (magit-set-section-info (match-string 2) second))
       (add-text-properties (match-beginning 1) (match-end 1) '(face magit-log-sha1))
       (add-text-properties (match-beginning 2) (match-end 2) '(face magit-log-sha1)))
      (t
