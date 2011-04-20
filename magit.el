@@ -441,7 +441,6 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "M-H") 'magit-show-only-files-all)
     (define-key map (kbd "M-s") 'magit-show-level-4)
     (define-key map (kbd "M-S") 'magit-show-level-4-all)
-    (define-key map (kbd "<M-left>") 'magit-goto-parent-section)
     (define-key map (kbd "g") 'magit-refresh)
     (define-key map (kbd "G") 'magit-refresh-all)
     (define-key map (kbd "?") 'magit-describe-item)
@@ -474,6 +473,8 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "a") 'magit-apply-item)
     (define-key map (kbd "A") 'magit-cherry-pick-item)
     (define-key map (kbd "v") 'magit-revert-item)
+    (define-key map (kbd "C-c C-b") 'magit-show-commit-backward)
+    (define-key map (kbd "C-c C-f") 'magit-show-commit-forward)
     map))
 
 (defvar magit-status-mode-map
