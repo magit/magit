@@ -622,9 +622,8 @@ prefix key.
 
 Typing @kbd{r b} will start a rewrite operation.  You will be prompted
 for a @emph{base} commit, and all commits between the current head and
-this commit are put in a list of @emph{Pending commits} (including the
-base commit).  The current head will then be reset to the parent of
-the base commit.
+this commit are put in a list of @emph{Pending commits}.  The current
+head will then be reset to the base commit.
 
 You would then typically use @kbd{a} and @kbd{A} to cherry pick
 commits from the list of pending commits in the desired order, until
