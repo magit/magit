@@ -3162,6 +3162,19 @@ If the branch is the current one, offers to switch to `master' first.
     (magit-run-git "branch" "-d" (append magit-custom-options
 					 (magit-rev-to-git branch)))))
 
+(defun magit-delete-branch-forced (branch)
+  "Asks for a branch and deletes it, irrespective of its merged status.
+If the branch is the current one, offers to switch to `master' first.
+\('git branch -D BRANCH')."
+  (interactive (list (magit-read-rev "Branch to force delete" (magit-default-rev))))
+  (when (and branch (string= branch (magit-get-current-branch)))
+    (if (y-or-n-p "Cannot delete current branch. Switch to master first? ")
+        (magit-checkout "master")
+      (setq branch nil)))
+  (when branch
+    (magit-run-git "branch" "-D" (append magit-custom-options
+                                         (magit-rev-to-git branch)))))
+
 (defun magit-move-branch (old new)
   "Renames or moves a branch.
 If the branch is the current one, offers to switch to `master' first.
