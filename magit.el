@@ -214,6 +214,16 @@ t mean pty, it enable magit to prompt for passphrase when needed."
 		(function-item magit-builtin-completing-read)
 		(function :tag "Other")))
 
+(defcustom magit-create-branch-behaviour 'at-head
+  "Where magit will create a new branch if not supplied a branchname or ref.
+
+The value 'at-head means a new branch will be created at the tip
+of your current branch, while the value 'at-point means magit
+will try to find a valid reference at point..."
+  :group 'magit
+  :type '(choice (const :tag "at HEAD" at-head)
+                 (const :tag "at point" at-point)))
+
 (defgroup magit-faces nil
   "Customize the appearance of Magit"
   :prefix "magit-"
@@ -3115,8 +3125,13 @@ If REVISION is a remote branch, offer to create a local tracking branch.
 
 (defun magit-read-create-branch-args ()
   (let* ((cur-branch (magit-get-current-branch))
+	 (cur-point (magit-default-rev))
 	 (branch (read-string "Create branch: "))
-	 (parent (magit-read-rev "Parent" cur-branch)))
+	 (parent (magit-read-rev "Parent"
+	   (cond
+         ((eq magit-create-branch-behaviour 'at-point) cur-point)
+         ((eq magit-create-branch-behaviour 'at-head) cur-branch)
+         (t cur-branch)))))
     (list branch parent)))
 
 (magit-define-command create-branch (branch parent)
