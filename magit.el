@@ -2777,7 +2777,10 @@ insert a line to tell how to insert more of them"
 (defun make-commit-button (start end)
   (make-text-button start end
                     'help-echo "Visit commit"
-                    'action 'magit-visit-item
+                    'action (lambda (button)
+                              (save-excursion
+                                (goto-char button)
+                                (magit-visit-item)))
                     'follow-link t
                     'mouse-face 'magit-item-highlight
                     'face 'magit-log-sha1))
