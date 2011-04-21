@@ -2737,8 +2737,8 @@ insert a line to tell how to insert more of them"
             (second (magit-set-section nil 'commit (match-beginning 2) (match-end 2))))
         (magit-set-section-info (match-string 1) first)
         (magit-set-section-info (match-string 2) second))
-      (add-text-properties (match-beginning 1) (match-end 1) '(face magit-log-sha1))
-      (add-text-properties (match-beginning 2) (match-end 2) '(face magit-log-sha1)))
+      (make-commit-button (match-beginning 1) (match-end 1))
+      (make-commit-button (match-beginning 2) (match-end 2)))
      (t
       (setq magit-current-diff-range (cons (concat magit-current-diff-range "^")
                                            magit-current-diff-range))))
@@ -2750,7 +2750,7 @@ insert a line to tell how to insert more of them"
             (start (match-beginning 1))
             (end (match-end 1)))
         (when (string-equal "commit" (magit-git-string "cat-file" "-t" sha1))
-          (add-text-properties start end '(face magit-log-sha1))
+          (make-commit-button start end)
           (let ((section (magit-set-section sha1 'commit start end)))
             (magit-set-section-info sha1 section)))))
     (beginning-of-line)
@@ -2759,14 +2759,28 @@ insert a line to tell how to insert more of them"
     (goto-char (point-max))
     (insert "\n")
     (if magit-back-navigation-history
-        (magit-with-section nil 'button
-          (magit-set-section-info 'magit-show-commit-backward)
-          (insert "[back]")))
+        (magit-with-section "[back]" 'button
+          (insert-text-button "[back]"
+                              'help-echo "Previous commit"
+                              'action 'magit-show-commit-backward
+                              'follow-link t
+                              'mouse-face 'magit-item-highlight)))
     (insert " ")
     (if magit-forward-navigation-history
-        (magit-with-section nil 'button
-          (magit-set-section-info 'magit-show-commit-forward)
-          (insert "[forward]")))))
+        (magit-with-section "[forward]" 'button
+          (insert-text-button "[forward]"
+                              'help-echo "Next commit"
+                              'action 'magit-show-commit-forward
+                              'follow-link t
+                              'mouse-face 'magit-item-highlight)))))
+
+(defun make-commit-button (start end)
+  (make-text-button start end
+                    'help-echo "Visit commit"
+                    'action 'magit-visit-item
+                    'follow-link t
+                    'mouse-face 'magit-item-highlight
+                    'face 'magit-log-sha1))
 
 (defun magit-refresh-commit-buffer (commit)
   (magit-create-buffer-sections
@@ -2820,7 +2834,8 @@ insert a line to tell how to insert more of them"
                          #'magit-refresh-commit-buffer commit)
         (magit-commit-mode t))))))
 
-(defun magit-show-commit-backward ()
+(defun magit-show-commit-backward (&optional ignored)
+  ;; Ignore argument passed by push-button
   "Show the commit at the head of `magit-back-navigation-history in
 `magit-commit-buffer-name`."
   (interactive)
@@ -2833,7 +2848,8 @@ insert a line to tell how to insert more of them"
       (setq default-directory (car histitem))
       (magit-show-commit (cdr histitem) nil 'inhibit-history))))
 
-(defun magit-show-commit-forward ()
+(defun magit-show-commit-forward (&optional ignored)
+  ;; Ignore argument passed by push-button
   "Show the commit at the head of `magit-forward-navigation-history in
 `magit-commit-buffer-name`."
   (interactive)
@@ -4554,9 +4570,7 @@ With a prefix argument, visit in other window."
      (magit-show-stash info)
      (pop-to-buffer magit-stash-buffer-name))
     ((longer)
-     (magit-log-show-more-entries ()))
-    ((button)
-     (funcall info))))
+     (magit-log-show-more-entries ()))))
 
 (defun magit-show-item-or-scroll-up ()
   (interactive)
