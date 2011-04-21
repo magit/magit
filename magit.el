@@ -4113,7 +4113,7 @@ With prefix argument, changes in staging area are kept.
 (defun magit-log-show-more-entries (&optional arg)
   "Grow the number of log entries shown.
 
-With no prefix optional ARG, show twice as much log entries.
+With no prefix optional ARG, show twice as many log entries.
 With a numerical prefix ARG, add this number to the number of shown log entries.
 With a non numeric prefix ARG, show all entries"
   (interactive "P")
