@@ -3671,7 +3671,7 @@ continue it.
   (interactive "P")
   (cond ((magit-rebase-info)
 	 (if (y-or-n-p "Rebase in progress.  Continue it? ")
-	     (magit-run-git "rebase" "--continue")))
+	     (magit-run-git-async "rebase" "--continue")))
 	(t
 	 (when (and magit-commit-all-when-nothing-staged
 		    (not (magit-anything-staged-p)))
@@ -3693,7 +3693,7 @@ continue it.
   (interactive)
   (cond ((magit-rebase-info)
 	 (if (y-or-n-p "Rebase in progress.  Continue it? ")
-	     (magit-run-git "rebase" "--continue")))
+	     (magit-run-git-async "rebase" "--continue")))
 	(t
 	 (let ((section (magit-current-section)))
 	   (let ((fun (if (eq (magit-section-type section) 'hunk)
