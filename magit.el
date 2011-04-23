@@ -624,7 +624,7 @@ Many Magit faces inherit from this one by default."
 
 (defun magit-builtin-completing-read (prompt choices &optional predicate require-match
                                       initial-input hist def)
-  "Magit wrapper for standard completing-read function."
+  "Magit wrapper for standard `completing-read' function."
   (completing-read (if (and def (> (length prompt) 2)
                             (string-equal ": " (substring prompt -2)))
                        (format "%s (default %s): " (substring prompt 0 -2) def)
@@ -2493,7 +2493,7 @@ COMMIT.  COMMIT may be one of the following:
 
   (if (eq commit 'working)
       (find-file-noselect filename)
-    (let ((buffer (create-file-buffer (format "%s.%s" filename commit))))
+    (let ((buffer (create-file-buffer (format "%s.%s" filename (replace-regexp-in-string ".*/" "" (prin1-to-string commit t))))))
       (cond
        ((eq commit 'index)
         (let ((checkout-string (magit-git-string "checkout-index"
