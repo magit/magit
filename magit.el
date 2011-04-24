@@ -2523,7 +2523,7 @@ in the corresponding directories."
 	  (forward-line))
 	target))))
 
-(defun magit-get-file-from-commit (commit filename &optional select prefix)
+(defun magit-show (commit filename &optional select prefix)
   "Returns a buffer containing the contents of the file FILENAME, as stored in
 COMMIT.  COMMIT may be one of the following:
 
@@ -4233,8 +4233,8 @@ This is only non-nil in reflog buffers.")
         (magit-interactive-resolve file1))
        (t
         (require 'ediff)
-        (let ((buffer-a (magit-get-file-from-commit (car range) file2))
-              (buffer-b (magit-get-file-from-commit (cdr range) file1)))
+        (let ((buffer-a (magit-show (car range) file2))
+              (buffer-b (magit-show (cdr range) file1)))
           (setq magit-ediff-buffers (list buffer-a buffer-b))
           (setq magit-ediff-windows (current-window-configuration))
           ;I really don't like using a hook with "internal" in the name, but if I
