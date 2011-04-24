@@ -214,6 +214,16 @@ t mean pty, it enable magit to prompt for passphrase when needed."
 		(function-item magit-builtin-completing-read)
 		(function :tag "Other")))
 
+(defcustom magit-create-branch-behaviour 'at-head
+  "Where magit will create a new branch if not supplied a branchname or ref.
+
+The value 'at-head means a new branch will be created at the tip
+of your current branch, while the value 'at-point means magit
+will try to find a valid reference at point..."
+  :group 'magit
+  :type '(choice (const :tag "at HEAD" at-head)
+                 (const :tag "at point" at-point)))
+
 (defgroup magit-faces nil
   "Customize the appearance of Magit"
   :prefix "magit-"
@@ -3166,8 +3176,13 @@ If REVISION is a remote branch, offer to create a local tracking branch.
 
 (defun magit-read-create-branch-args ()
   (let* ((cur-branch (magit-get-current-branch))
+	 (cur-point (magit-default-rev))
 	 (branch (read-string "Create branch: "))
-	 (parent (magit-read-rev "Parent" cur-branch)))
+	 (parent (magit-read-rev "Parent"
+	   (cond
+         ((eq magit-create-branch-behaviour 'at-point) cur-point)
+         ((eq magit-create-branch-behaviour 'at-head) cur-branch)
+         (t cur-branch)))))
     (list branch parent)))
 
 (magit-define-command create-branch (branch parent)
@@ -3197,6 +3212,19 @@ If the branch is the current one, offers to switch to `master' first.
   (when branch
     (magit-run-git "branch" "-d" (append magit-custom-options
 					 (magit-rev-to-git branch)))))
+
+(defun magit-delete-branch-forced (branch)
+  "Asks for a branch and deletes it, irrespective of its merged status.
+If the branch is the current one, offers to switch to `master' first.
+\('git branch -D BRANCH')."
+  (interactive (list (magit-read-rev "Branch to force delete" (magit-default-rev))))
+  (when (and branch (string= branch (magit-get-current-branch)))
+    (if (y-or-n-p "Cannot delete current branch. Switch to master first? ")
+        (magit-checkout "master")
+      (setq branch nil)))
+  (when branch
+    (magit-run-git "branch" "-D" (append magit-custom-options
+                                         (magit-rev-to-git branch)))))
 
 (defun magit-move-branch (old new)
   "Renames or moves a branch.
@@ -3404,8 +3432,9 @@ Uncomitted changes in both working tree and staging area are lost.
   (or (not (magit-read-rewrite-info))
       (error "Rewrite in progress"))
   (let* ((orig (magit-rev-parse "HEAD"))
-	 (base (or (car (magit-commit-parents from))
-		   (error "Can't rewrite a commit without a parent, sorry")))
+         (base (if (car (magit-commit-parents from))
+                   from
+                 (error "Can't rewrite a commit without a parent, sorry")))
 	 (pending (magit-git-lines "rev-list" (concat base ".."))))
     (magit-write-rewrite-info `((orig ,orig)
 				(pending ,@(mapcar #'list pending))))

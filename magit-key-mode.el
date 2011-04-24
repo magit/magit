@@ -80,6 +80,7 @@
       ("n" "New" magit-create-branch)
       ("m" "Move" magit-move-branch)
       ("d" "Delete" magit-delete-branch)
+      ("D" "Force Delete" magit-delete-branch-forced)
       ("b" "Checkout" magit-checkout)))
 
     (tagging

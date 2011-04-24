@@ -493,7 +493,7 @@ scroll it, typing @kbd{RET} will move point into that buffer. Using
 @chapter Branching
 
 The current branch is indicated in the header of the status buffer.
-You can switch to a different branch by typing @kbd{b c}.  This will
+You can switch to a different branch by typing @kbd{b b}.  This will
 immediately checkout the branch into your working copy, so you
 shouldn't have any local modifications when switching branches.
 
@@ -501,13 +501,27 @@ If you try to switch to a remote branch, Magit will offer to create a
 local tracking branch for it instead.  This way, you can easily start
 working on new branches that have appeared in a remote repository.
 
-Typing @kbd{b c} while point is at a commit description will offer
+Typing @kbd{b b} while point is at a commit description will offer
 that commit as the default to switch to.  This will result in a
 detached head.
 
-To create a new branch and switch to it immediately, type @kbd{b B}.
 
-Typing @kbd{b V} will list the local and remote branches in a new buffer
+Typing  @kbd{b m} will let you rename a branch. Unless a branch with the same
+name already exists, obviously...
+
+
+To create a new branch and switch to it immediately, type @kbd{b n}.
+
+
+To delete a branch, type @kbd{b d}. If you're currently on that
+branch, Magit will offer to switch to the 'master' branch.
+
+Deleting a branch is only possible if it's already fully merged into
+HEAD or it's upstream branch. Unless you type @kbd{b D}, that is.
+Here be dragons...
+
+
+Typing @kbd{b v} will list the local and remote branches in a new buffer
 called @code{*magit-branches*} from which you can work with them. See
 @ref{The branch list} for more details.
 
@@ -622,9 +636,8 @@ prefix key.
 
 Typing @kbd{r b} will start a rewrite operation.  You will be prompted
 for a @emph{base} commit, and all commits between the current head and
-this commit are put in a list of @emph{Pending commits} (including the
-base commit).  The current head will then be reset to the parent of
-the base commit.
+this commit are put in a list of @emph{Pending commits}.  The current
+head will then be reset to the base commit.
 
 You would then typically use @kbd{a} and @kbd{A} to cherry pick
 commits from the list of pending commits in the desired order, until
