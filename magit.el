@@ -2555,7 +2555,7 @@ COMMIT.  COMMIT may be one of the following:
   directory.  In this case you'll get a buffer visiting the file.  If there's
   already a buffer visiting that file, you'll get that one.
 
-When called interactively or when SELECT is non-nill, make the buffer active,
+When called interactively or when SELECT is non-nil, make the buffer active,
 either in another window or (with a prefix argument) in the current window."
   (interactive (let* ((revision (magit-read-rev "Retrieve file from revision"))
                       (filename (magit-read-file-from-rev revision)))
