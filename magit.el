@@ -382,6 +382,8 @@ Many Magit faces inherit from this one by default."
 (defvar magit-omit-untracked-dir-contents nil
   "When non-nil magit will only list an untracked directory, not its contents.")
 
+(defvar magit-tmp-buffer-name " *magit-tmp*")
+
 (defface magit-log-head-label-local
   '((((class color) (background light))
      :box t
@@ -949,7 +951,49 @@ argument or a list of strings used as regexps."
                          refs))))))
     (nreverse refs)))
 
+(defun magit-tree-contents (tree)
+  "Returns a list of all files under TREE.  TREE can be a tree, a commit, or a
+tag that points to one of those.  (Note that a branch is a pointer to a commit,
+so you can pass in a branch name as well.)"
+  (when (string-equal "tag" (magit-git-string "cat-file" "-t" tree))
+    (let ((tag-contents (magit-git-string "cat-file" "-p" tree)))
+      (string-match "^object \\([0-9a-f]+\\)$" tag-contents)
+      (setq tree (match-string 1 tag-contents))))
+  (when (string-equal "commit" (magit-git-string "cat-file" "-t" tree))
+    (let ((commit-contents (magit-git-string "cat-file" "-p" tree)))
+      (string-match "^tree \\([0-9a-f]+\\)$" commit-contents)
+      (setq tree (match-string 1 commit-contents))))
+  (unless (string-equal "tree" (magit-git-string "cat-file" "-t" tree))
+    (error "%s is not a commit or tree." tree))
+  (let ((return-value ()))
+    (with-current-buffer (generate-new-buffer magit-tmp-buffer-name)
+      (magit-git-insert (list "cat-file" "-p" tree))
+      (while (search-backward-regexp
+              "\\(\\(blob\\)\\|\\(tree\\)\\)\\s +\\([0-9a-f]+\\)\\s +\\(.+\\)$"
+              nil 'noerror)
+        (if (match-string 2) ;"blob"
+            (push (match-string 5) return-value)
+          ;"tree"
+          (setq return-value
+                (append (mapcar `(lambda(x)
+                                   (concat ,(match-string 5) "/" x))
+                                (magit-tree-contents (match-string 4)))
+                        return-value))))
+      (kill-this-buffer))
+    return-value))
+
 (defvar magit-uninteresting-refs '("refs/remotes/\\([^/]+\\)/HEAD$"))
+
+(defun magit-read-file-from-rev (revision)
+  (magit-completing-read (format "Retrieve file from %s: " revision)
+                         (magit-tree-contents revision)
+                         nil
+                         'require-match
+                         nil
+                         'magit-read-file-hist
+                         (if buffer-file-name
+                             (let ((topdir-length (length (magit-get-top-dir default-directory))))
+                               (substring (buffer-file-name) topdir-length)))))
 
 ;; TODO: fix this so that def can (must?) be git rev instead of, say, "master (origin)"
 ;; which involves a particular display strategy and shouldn't be visible to callers
@@ -2479,7 +2523,7 @@ in the corresponding directories."
 	  (forward-line))
 	target))))
 
-(defun magit-get-file-from-commit (commit filename)
+(defun magit-get-file-from-commit (commit filename &optional select prefix)
   "Returns a buffer containing the contents of the file FILENAME, as stored in
 COMMIT.  COMMIT may be one of the following:
 
@@ -2489,8 +2533,13 @@ COMMIT.  COMMIT may be one of the following:
   staging area.
 - The symbol 'working, indicating that you want the version in the working
   directory.  In this case you'll get a buffer visiting the file.  If there's
-  already a buffer visiting that file, you'll get that one."
+  already a buffer visiting that file, you'll get that one.
 
+When called interactively or when SELECT is non-nill, make the buffer active,
+either in another window or (with a prefix argument) in the current window."
+  (interactive (let* ((revision (magit-read-rev "Retrieve file from revision"))
+                      (filename (magit-read-file-from-rev revision)))
+                 (list revision filename t current-prefix-arg)))
   (if (eq commit 'working)
       (find-file-noselect filename)
     (let ((buffer (create-file-buffer (format "%s.%s" filename (replace-regexp-in-string ".*/" "" (prin1-to-string commit t))))))
@@ -2512,9 +2561,11 @@ COMMIT.  COMMIT may be one of the following:
       (with-current-buffer buffer
         (let ((buffer-file-name filename))
           (normal-mode)))
-      buffer)))
-
-(defvar magit-tmp-buffer-name " *magit-tmp*")
+      (if select
+          (if prefix
+              (switch-to-buffer buffer)
+            (switch-to-buffer-other-window buffer))
+        buffer))))
 
 (defmacro with-magit-tmp-buffer (var &rest body)
   (declare (indent 1)
