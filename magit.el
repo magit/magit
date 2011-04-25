@@ -3432,9 +3432,7 @@ Uncomitted changes in both working tree and staging area are lost.
   (or (not (magit-read-rewrite-info))
       (error "Rewrite in progress"))
   (let* ((orig (magit-rev-parse "HEAD"))
-         (base (if (car (magit-commit-parents from))
-                   from
-                 (error "Can't rewrite a commit without a parent, sorry")))
+         (base from)
 	 (pending (magit-git-lines "rev-list" (concat base ".."))))
     (magit-write-rewrite-info `((orig ,orig)
 				(pending ,@(mapcar #'list pending))))
