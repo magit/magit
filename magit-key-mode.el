@@ -266,7 +266,8 @@ put it in magit-key-mode-key-maps for fast lookup."
                                  (magit-key-mode-help ',for-group)))
 
     (flet ((defkey (k action)
-             (when (lookup-key map (car k))
+             (when (and (lookup-key map (car k))
+                        (not (numberp (lookup-key map (car k)))))
                (message "Warning: overriding binding for `%s' in %S"
                         (car k) for-group)
                (ding)
