@@ -38,6 +38,7 @@ as an extension to Emacs.
 * Staging and Committing::
 * History::
 * Reflogs::
+* Commit Buffer::
 * Diffing::
 * Tagging::
 * Resetting::
@@ -350,17 +351,16 @@ form.
 Magit will show only @code{magit-log-cutoff-length} entries. @kbd{e}
 will show twice as many entries. @kbd{C-u e} will show all entries,
 and given a numeric prefix argument, @kbd{e} will add this number of
-entries. You can also show more entries by typing @kbd{RET} on the
-text appended at the end of the buffer.
+entries.
 
 You can move point to a commit and then cause various things to happen
 with it.  (The following commands work in any list of commit, such as
 the one shown in the @emph{Unpushed commits} section.)
 
 Typing @kbd{RET} will pop up more information about the current commit
-and move point into the new buffer.  Typing @kbd{SPC} and @kbd{DEL}
-will also show the information, but will scroll the new buffer up or
-down (respectively) when typed again.
+and move point into the new buffer.  @xref{Commit Buffer}.  Typing
+@kbd{SPC} and @kbd{DEL} will also show the information, but will
+scroll the new buffer up or down (respectively) when typed again.
 
 Typing @kbd{a} will apply the current commit to your current branch.
 This is useful when you are browsing the history of some other branch
@@ -404,6 +404,34 @@ local history of changes made to your repository heads.  Typing
 
 The resulting buffer is just like the buffer produced by @kbd{l l} and
 @kbd{l L} that shows the commit history.
+
+@node Commit Buffer
+@chapter Commit Buffer
+
+When you view a commit (perhaps by selecting it in the log buffer,
+@ref{History}), the ``commit buffer'' is displayed, showing you
+information about the commit and letting you interact with it.
+
+By placing your cursor within the diff or hunk and typing @kbd{a}, you
+can apply the same patch to your working copy.  This is useful when
+you want to copy a change from another branch, but don't necessarily
+want to cherry-pick the whole commit.
+
+By typing @kbd{v} you can apply the patch in reverse, removing all the
+lines that were added and adding all the lines that were removed.
+This is a convenient way to remove a change after determining that it
+introduced a bug.
+
+If the commit message refers to any other commits in the repository by
+their unique hash, the hash will be highlighted and you will be able
+to visit the referenced commit either by clicking on it or by moving
+your cursor onto it and pressing @kbd{RET}.
+
+The commit buffer maintains a history of the commits that it's shown.
+After visiting a referenced commit you can type @kbd{C-c C-b} to get
+back to where you came from.  To go forward in the history, type
+@kbd{C-c C-f}.  There are also @code{[back]} and @code{[forward]}
+buttons at the bottom of the buffer.
 
 @node Diffing
 @chapter Diffing

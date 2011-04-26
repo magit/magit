@@ -389,6 +389,16 @@ Many Magit faces inherit from this one by default."
 (defvar magit-read-rev-history nil
   "The history of inputs to `magit-read-rev'.")
 
+(defvar magit-back-navigation-history nil
+  "History items that will be visited by successively going \"back\".")
+(make-variable-buffer-local 'magit-back-navigation-history)
+(put 'magit-back-navigation-history 'permanent-local t)
+
+(defvar magit-forward-navigation-history nil
+  "History items that will be visited by successively going \"forward\".")
+(make-variable-buffer-local 'magit-forward-navigation-history)
+(put 'magit-forward-navigation-history 'permanent-local t)
+
 (defvar magit-omit-untracked-dir-contents nil
   "When non-nil magit will only list an untracked directory, not its contents.")
 
@@ -443,7 +453,6 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "M-H") 'magit-show-only-files-all)
     (define-key map (kbd "M-s") 'magit-show-level-4)
     (define-key map (kbd "M-S") 'magit-show-level-4-all)
-    (define-key map (kbd "<M-left>") 'magit-goto-parent-section)
     (define-key map (kbd "g") 'magit-refresh)
     (define-key map (kbd "G") 'magit-refresh-all)
     (define-key map (kbd "?") 'magit-describe-item)
@@ -476,6 +485,8 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "a") 'magit-apply-item)
     (define-key map (kbd "A") 'magit-cherry-pick-item)
     (define-key map (kbd "v") 'magit-revert-item)
+    (define-key map (kbd "C-c C-b") 'magit-show-commit-backward)
+    (define-key map (kbd "C-c C-f") 'magit-show-commit-forward)
     map))
 
 (defvar magit-status-mode-map
@@ -1167,6 +1178,14 @@ If TYPE is nil, the section won't be highlighted."
 	     (nreverse (magit-section-children ,s)))
        ,s)))
 
+(defun magit-set-section (title type start end)
+  "Create a new section of title TITLE and type TYPE with specified start and
+end positions."
+  (let ((section (magit-new-section title type)))
+    (setf (magit-section-beginning section) start)
+    (setf (magit-section-end section) end)
+    section))
+
 (defun magit-set-section-info (info &optional section)
   (setf (magit-section-info (or section magit-top-section)) info))
 
@@ -1332,12 +1351,12 @@ see `magit-insert-section' for meaning of the arguments"
 	      (magit-show-commit next))
 	  (if (not (magit-section-hidden next))
 	      (let ((offset (- (line-number-at-pos
-				(magit-section-beginning next))
-			       (line-number-at-pos
-				(magit-section-end next)))))
-		(if (< offset (window-height))
-		    (recenter offset)))))
-      (message "No next section"))))
+                            (magit-section-beginning next))
+                           (line-number-at-pos
+                            (magit-section-end next)))))
+            (if (< offset 0)
+                (recenter offset)))))
+    (message "No next section"))))
 
 (defun magit-prev-section (section)
   "Return the section that is before SECTION."
@@ -1409,7 +1428,8 @@ Default value for TOP is `magit-top-section'"
 		 (forward-line)
 		 (point)))
 	  (end (magit-section-end section)))
-      (put-text-property beg end 'invisible hidden))
+      (if (< beg end)
+          (put-text-property beg end 'invisible hidden)))
     (if (not hidden)
 	(dolist (c (magit-section-children section))
 	  (magit-section-set-hidden c (magit-section-hidden c))))))
@@ -2784,14 +2804,57 @@ insert a line to tell how to insert more of them"
                                                              (match-string 1)
                                                              (match-string 2))
                                            magit-current-diff-range))
-      (add-text-properties (match-beginning 1) (match-end 1) '(face magit-log-sha1))
-      (add-text-properties (match-beginning 2) (match-end 2) '(face magit-log-sha1)))
+      (let ((first (magit-set-section nil 'commit (match-beginning 1) (match-end 1)))
+            (second (magit-set-section nil 'commit (match-beginning 2) (match-end 2))))
+        (magit-set-section-info (match-string 1) first)
+        (magit-set-section-info (match-string 2) second))
+      (make-commit-button (match-beginning 1) (match-end 1))
+      (make-commit-button (match-beginning 2) (match-end 2)))
      (t
       (setq magit-current-diff-range (cons (concat magit-current-diff-range "^")
                                            magit-current-diff-range))))
-    (when (search-forward-regexp "^diff" nil t)
-      (goto-char (match-beginning 0))
-      (magit-wash-diffs))))
+    (search-forward-regexp "^$")
+    (while (and
+            (search-forward-regexp "\\(\\b[0-9a-fA-F]\\{4,40\\}\\b\\)\\|\\(^diff\\)" nil 'noerror)
+            (not (match-string 2)))
+      (let ((sha1 (match-string 1))
+            (start (match-beginning 1))
+            (end (match-end 1)))
+        (when (string-equal "commit" (magit-git-string "cat-file" "-t" sha1))
+          (make-commit-button start end)
+          (let ((section (magit-set-section sha1 'commit start end)))
+            (magit-set-section-info sha1 section)))))
+    (beginning-of-line)
+    (when (looking-at "^diff")
+      (magit-wash-diffs))
+    (goto-char (point-max))
+    (insert "\n")
+    (if magit-back-navigation-history
+        (magit-with-section "[back]" 'button
+          (insert-text-button "[back]"
+                              'help-echo "Previous commit"
+                              'action 'magit-show-commit-backward
+                              'follow-link t
+                              'mouse-face 'magit-item-highlight)))
+    (insert " ")
+    (if magit-forward-navigation-history
+        (magit-with-section "[forward]" 'button
+          (insert-text-button "[forward]"
+                              'help-echo "Next commit"
+                              'action 'magit-show-commit-forward
+                              'follow-link t
+                              'mouse-face 'magit-item-highlight)))))
+
+(defun make-commit-button (start end)
+  (make-text-button start end
+                    'help-echo "Visit commit"
+                    'action (lambda (button)
+                              (save-excursion
+                                (goto-char button)
+                                (magit-visit-item)))
+                    'follow-link t
+                    'mouse-face 'magit-item-highlight
+                    'face 'magit-log-sha1))
 
 (defun magit-refresh-commit-buffer (commit)
   (magit-create-buffer-sections
@@ -2816,30 +2879,62 @@ insert a line to tell how to insert more of them"
 (defvar magit-commit-buffer-name "*magit-commit*"
   "Buffer name for displaying commit log messages.")
 
-(defun magit-show-commit (commit &optional scroll)
+(defun magit-show-commit (commit &optional scroll inhibit-history)
   (when (magit-section-p commit)
     (setq commit (magit-section-info commit)))
   (let ((dir default-directory)
-	(buf (get-buffer-create magit-commit-buffer-name)))
-    (cond ((and (equal magit-currently-shown-commit commit)
-		;; if it's empty then the buffer was killed
-		(with-current-buffer buf
-		  (> (length (buffer-string)) 1)))
-	   (let ((win (get-buffer-window buf)))
-	     (cond ((not win)
-		    (display-buffer buf))
-		   (scroll
-		    (with-selected-window win
-		      (funcall scroll))))))
-	  (commit
-	   (setq magit-currently-shown-commit commit)
-	   (display-buffer buf)
-	   (with-current-buffer buf
-	     (set-buffer buf)
-	     (goto-char (point-min))
-	     (magit-mode-init dir 'commit
-			      #'magit-refresh-commit-buffer commit)
-	     (magit-commit-mode t))))))
+        (buf (get-buffer-create magit-commit-buffer-name)))
+    (cond
+     ((and (equal magit-currently-shown-commit commit)
+           ;; if it's empty then the buffer was killed
+           (with-current-buffer buf
+             (> (length (buffer-string)) 1)))
+      (let ((win (get-buffer-window buf)))
+        (cond ((not win)
+               (display-buffer buf))
+              (scroll
+               (with-selected-window win
+                 (funcall scroll))))))
+     (commit
+      (display-buffer buf)
+      (with-current-buffer buf
+        (unless inhibit-history
+          (push (cons default-directory magit-currently-shown-commit)
+                magit-back-navigation-history)
+          (setq magit-forward-navigation-history nil))
+        (setq magit-currently-shown-commit commit)
+        (goto-char (point-min))
+        (magit-mode-init dir 'commit
+                         #'magit-refresh-commit-buffer commit)
+        (magit-commit-mode t))))))
+
+(defun magit-show-commit-backward (&optional ignored)
+  ;; Ignore argument passed by push-button
+  "Show the commit at the head of `magit-back-navigation-history in
+`magit-commit-buffer-name`."
+  (interactive)
+  (with-current-buffer magit-commit-buffer-name
+    (unless magit-back-navigation-history
+      (error "No previous commit."))
+    (let ((histitem (pop magit-back-navigation-history)))
+      (push (cons default-directory magit-currently-shown-commit)
+            magit-forward-navigation-history)
+      (setq default-directory (car histitem))
+      (magit-show-commit (cdr histitem) nil 'inhibit-history))))
+
+(defun magit-show-commit-forward (&optional ignored)
+  ;; Ignore argument passed by push-button
+  "Show the commit at the head of `magit-forward-navigation-history in
+`magit-commit-buffer-name`."
+  (interactive)
+  (with-current-buffer magit-commit-buffer-name
+    (unless magit-forward-navigation-history
+      (error "No next commit."))
+    (let ((histitem (pop magit-forward-navigation-history)))
+      (push (cons default-directory magit-currently-shown-commit)
+            magit-back-navigation-history)
+      (setq default-directory (car histitem))
+      (magit-show-commit (cdr histitem) nil 'inhibit-history))))
 
 (defvar magit-marked-commit nil)
 
