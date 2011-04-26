@@ -961,10 +961,16 @@ argument or a list of strings used as regexps."
                          refs))))))
     (nreverse refs)))
 
-(defun magit-tree-contents (tree)
+(defvar magit-tree-contents-cache-internal nil
+  "Cache used by `magit-tree-contents' to avoid re-walking the same tree")
+
+(defun magit-tree-contents (tree use-cache)
   "Returns a list of all files under TREE.  TREE can be a tree, a commit, or a
 tag that points to one of those.  (Note that a branch is a pointer to a commit,
-so you can pass in a branch name as well.)"
+so you can pass in a branch name as well.)
+
+When USE-CACHE is non-nil, store the results for later use, to avoid walking
+the tree again."
   (when (string-equal "tag" (magit-git-string "cat-file" "-t" tree))
     (let ((tag-contents (magit-git-string "cat-file" "-p" tree)))
       (string-match "^object \\([0-9a-f]+\\)$" tag-contents)
@@ -975,28 +981,32 @@ so you can pass in a branch name as well.)"
       (setq tree (match-string 1 commit-contents))))
   (unless (string-equal "tree" (magit-git-string "cat-file" "-t" tree))
     (error "%s is not a commit or tree." tree))
-  (let ((return-value ()))
-    (with-current-buffer (generate-new-buffer magit-tmp-buffer-name)
-      (magit-git-insert (list "cat-file" "-p" tree))
-      (while (search-backward-regexp
-              "\\(\\(blob\\)\\|\\(tree\\)\\)\\s +\\([0-9a-f]+\\)\\s +\\(.+\\)$"
-              nil 'noerror)
-        (if (match-string 2) ;"blob"
-            (push (match-string 5) return-value)
-          ;"tree"
-          (setq return-value
-                (append (mapcar `(lambda(x)
-                                   (concat ,(match-string 5) "/" x))
-                                (magit-tree-contents (match-string 4)))
-                        return-value))))
-      (kill-this-buffer))
+  (let ((return-value (if use-cache
+                          (assoc-default tree magit-tree-contents-cache-internal))))
+    (unless return-value
+      (with-current-buffer (generate-new-buffer magit-tmp-buffer-name)
+        (magit-git-insert (list "cat-file" "-p" tree))
+        (while (search-backward-regexp
+                "\\(\\(blob\\)\\|\\(tree\\)\\)\\s +\\([0-9a-f]+\\)\\s +\\(.+\\)$"
+                nil 'noerror)
+          (if (match-string 2) ;"blob"
+              (push (match-string 5) return-value)
+            ;"tree"
+            (setq return-value
+                  (append (mapcar `(lambda(x)
+                                     (concat ,(match-string 5) "/" x))
+                                  (magit-tree-contents (match-string 4) nil))
+                          return-value))))
+        (if use-cache
+            (push (cons tree return-value) magit-tree-contents-cache-internal))
+        (kill-this-buffer)))
     return-value))
 
 (defvar magit-uninteresting-refs '("refs/remotes/\\([^/]+\\)/HEAD$"))
 
 (defun magit-read-file-from-rev (revision)
   (magit-completing-read (format "Retrieve file from %s: " revision)
-                         (magit-tree-contents revision)
+                         (magit-tree-contents revision 'use-cache)
                          nil
                          'require-match
                          nil
