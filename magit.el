@@ -2760,9 +2760,11 @@ insert a line to tell how to insert more of them"
   (declare (indent 0))
   `(let ((magit-log-count 0) (inhibit-read-only t))
      (magit-create-buffer-sections
-       ,@body
-       (if (= magit-log-count magit-log-cutoff-length)
-           (insert "type \"e\" to show more logs\n")))))
+       (magit-with-section 'log nil
+         ,@body
+         (if (= magit-log-count magit-log-cutoff-length)
+             (magit-with-section "longer"  'longer
+               (insert "type \"e\" to show more logs\n")))))))
 
 
 (defun magit-wash-log-line ()
