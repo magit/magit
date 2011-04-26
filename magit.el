@@ -166,6 +166,13 @@ after a confirmation."
   :group 'magit
   :type 'integer)
 
+(defcustom magit-log-auto-more nil
+  "Insert more log entries automatically when moving past the last entry.
+
+Only considered when moving past the last entry with `magit-goto-next-section'."
+  :group 'magit
+  :type 'boolean)
+
 (defcustom magit-process-popup-time -1
   "Popup the process buffer if a command takes longer than this many seconds."
   :group 'magit
@@ -1352,20 +1359,22 @@ see `magit-insert-section' for meaning of the arguments"
 						  (magit-section-children
 						   section)))
 		   (magit-next-section section))))
-
-    (if next
-	(progn
-	  (goto-char (magit-section-beginning next))
-	  (if (memq magit-submode '(log reflog))
-	      (magit-show-commit next))
-	  (if (not (magit-section-hidden next))
-	      (let ((offset (- (line-number-at-pos
-                            (magit-section-beginning next))
-                           (line-number-at-pos
-                            (magit-section-end next)))))
-            (if (< offset 0)
-                (recenter offset)))))
-    (message "No next section"))))
+    (cond ((and next (eq (magit-section-type next) 'longer))
+           (when magit-log-auto-more
+             (magit-log-show-more-entries)
+             (magit-goto-next-section)))
+          (next
+           (goto-char (magit-section-beginning next))
+           (if (memq magit-submode '(log reflog))
+               (magit-show-commit next))
+           (if (not (magit-section-hidden next))
+               (let ((offset (- (line-number-at-pos
+                                 (magit-section-beginning next))
+                                (line-number-at-pos
+                                 (magit-section-end next)))))
+                 (if (< offset 0)
+                     (recenter offset)))))
+          (t (message "No next section")))))
 
 (defun magit-prev-section (section)
   "Return the section that is before SECTION."
