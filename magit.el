@@ -224,6 +224,15 @@ will try to find a valid reference at point..."
   :type '(choice (const :tag "at HEAD" at-head)
                  (const :tag "at point" at-point)))
 
+(defcustom magit-status-buffer-switch-function 'pop-to-buffer
+  "Function for `magit-status' to use for switching to the status buffer.
+
+The function is given one argument, the status buffer."
+  :group 'magit
+  :type '(radio (function-item switch-to-buffer)
+		(function-item pop-to-buffer)
+		(function :tag "Other")))
+
 (defgroup magit-faces nil
   "Customize the appearance of Magit"
   :prefix "magit-"
@@ -3154,7 +3163,7 @@ to consider it or not when called with that buffer current."
 		      (concat "*magit: "
 			      (file-name-nondirectory
 			       (directory-file-name topdir)) "*")))))
-        (pop-to-buffer buf)
+        (funcall magit-status-buffer-switch-function buf)
         (magit-mode-init topdir 'status #'magit-refresh-status)
         (magit-status-mode t)))))
 
