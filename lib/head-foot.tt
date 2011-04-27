@@ -4,11 +4,11 @@
 [% PROCESS "lib/magit.tt" %]
 
 [%- menu = [
-   [ "home"       ,  "index.html"                                   ]
-   [ "download"   , "http://github.com/philjackson/magit/downloads" ]
-   [ "repo"       , "http://github.com/philjackson/magit"           ]
-   [ "manual"     , "magit.html"                                    ]
-   [ "contribute" , "contribute.html"                               ]
+   [ "home"       , "index.html"                              ]
+   [ "download"   , "http://github.com/magit/magit/downloads" ]
+   [ "repo"       , "http://github.com/magit/magit"           ]
+   [ "manual"     , "magit.html"                              ]
+   [ "contribute" , "contribute.html"                         ]
 ] -%]
 
 <html>

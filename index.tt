@@ -8,7 +8,7 @@
 [%- WRAPPER rounded_corners colour="#eee" %]
   <p class="release">
     The latest release is 1.0.0. Grab it <a
-    href="http://github.com/philjackson/magit/downloads">from the github
+    href="http://github.com/magit/magit/downloads">from the github
     download page</a>.
   </p>
 [% END %]
