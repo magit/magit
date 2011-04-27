@@ -67,10 +67,10 @@ Magit's canonical source repository is currently
 [hosted on GitHub][development].
 
 [vc]: http://www.gnu.org/software/emacs/manual/html_node/emacs/Version-Control.html#Version-Control
-[website]: http://philjackson.github.com/magit
-[development]: http://github.com/philjackson/magit
-[manual]: http://philjackson.github.com/magit/magit.html
+[website]: http://github.com/magit/magit
+[development]: http://github.com/magit/magit
+[manual]: http://github.com/magit/magit
 [cheatsheet]: http://daemianmack.com/magit-cheatsheet.html
 [screencast]: http://vimeo.com/2871241
-[download]: http://github.com/philjackson/magit/downloads
+[download]: http://github.com/magit/magit/downloads
 [google group]: http://groups.google.com/group/magit/
