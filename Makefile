@@ -2,8 +2,11 @@ VERSION=1.0.0
 EMACS=emacs
 PREFIX=/usr/local
 ELS=magit.el magit-svn.el magit-topgit.el magit-key-mode.el magit-bisect.el
+ELS_CONTRIB=contrib/magit-simple-keys.el
 ELCS=$(ELS:.el=.elc)
+ELCS_CONTRIB=$(ELS_CONTRIB:.el=.elc)
 DIST_FILES=$(ELS) Makefile magit.texi README.md magit.spec.in magit-pkg.el.in 50magit.el
+DIST_FILES_CONTRIB=$(ELS_CONTRIB)
 
 .PHONY=install
 
@@ -13,7 +16,11 @@ BATCH=$(EMACS) -batch -q -no-site-file -eval \
 %.elc: %.el
 	$(BATCH) --eval '(byte-compile-file "$<")'
 
-all: $(ELCS) magit.info magit.spec magit-pkg.el
+all: core contrib
+
+core: $(ELCS) magit.info magit.spec magit-pkg.el
+
+contrib: $(ELCS_CONTRIB)
 
 magit.spec: magit.spec.in
 	sed -e s/@VERSION@/$(VERSION)/ < $< > $@
@@ -28,13 +35,14 @@ magit-topgit.elc:
 magit.info:
 
 # yuck - this needs cleaning up a bit...
-dist: $(DIST_FILES)
-	mkdir -p magit-$(VERSION)
+dist: $(DIST_FILES) $(DIST_FILES_CONTRIB)
+	mkdir -p magit-$(VERSION)/contrib
 	cp $(DIST_FILES) magit-$(VERSION)
+	cp $(DIST_FILES_CONTRIB) magit-$(VERSION)/contrib
 	tar -cvzf magit-$(VERSION).tar.gz magit-$(VERSION)
 	rm -rf magit-$(VERSION)
 
-install: all
+install: core
 	mkdir -p $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp
 	install -m 644 $(ELS) $(ELCS) $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp
 	mkdir -p $(DESTDIR)/$(PREFIX)/share/info
@@ -43,5 +51,11 @@ install: all
 	mkdir -p $(DESTDIR)/etc/emacs/site-start.d
 	install -m 644 50magit.el $(DESTDIR)/etc/emacs/site-start.d/50magit.el
 
+install_contrib: contrib
+	mkdir -p $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp
+	install -m 644 $(ELS_CONTRIB) $(ELCS_CONTRIB) $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp
+
+install_all: install install_contrib
+
 clean:
-	rm -fr magit-pkg.el magit.spec magit.info $(ELCS) *.tar.gz magit-$(VERSION)
+	rm -fr magit-pkg.el magit.spec magit.info $(ELCS) $(ELCS_CONTRIB) *.tar.gz magit-$(VERSION)
