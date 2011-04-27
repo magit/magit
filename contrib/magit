@@ -1,0 +1,87 @@
+#!/bin/sh
+
+# Copyright (C) 2011 Peter J Weisberg.
+#
+# Magit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+#
+# Magit is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+# License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Magit.  If not, see <http://www.gnu.org/licenses/>.
+# ====================================================================
+
+if test "$1" = "-h" || test "$1" = "--help"; then
+    cat <<EOF
+Usage: magit [OPTION] [REPOSITORY]
+
+Open a Magit session in Emacs visiting the specified repository.  If no
+repository is specified, and the current directory is a Git repository, use the
+current directory.  Otherwise, magit-status will prompt for a repository to use.
+
+    -h, --help          Print this text and exit
+    -e, --use-existing  Use an existing Emacs frame instead of creating a new
+                        one.  Requires that Emacs be running in server mode with
+                        at least one visible frame.
+
+If Emacs is running in server mode or if the ALTERNATE_EDITOR environment
+variable is the empty string, emacsclient will be used.  Otherwise a new Emacs
+session will be started.
+EOF
+    exit 0;
+fi
+
+# Disable any ALTERNATE_EDITOR except the special blank value.
+[ -z "$ALTERNATE_EDITOR" ] || ALTERNATE_EDITOR=false
+
+useexisting=false
+if test "$1" = "-e" || test "$1" = "--use-existing"; then
+    useexisting=true
+    shift;
+fi
+
+if [ -n "$1" ]; then
+    dir=$(readlink -m "$1")
+fi
+
+runmagit="(progn "
+if [ -n "$dir" ]; then
+    runmagit="$runmagit (magit-status \"$dir\")"
+else
+    runmagit="$runmagit (let ((default-directory \"$(pwd)\"))
+                          (call-interactively 'magit-status))"
+fi
+if ! $useexisting; then
+    #Don't steal the whole frame if we're using an existing one.
+    runmagit="$runmagit (delete-other-windows)"
+fi
+runmagit="$runmagit nil)"
+
+if $useexisting; then
+    emacsclient --eval "$runmagit"
+    exit
+fi
+
+xsupport=false
+if emacs -Q --batch --eval "(kill-emacs (if (featurep 'x) 0 1))"; then
+    xsupport=true
+fi
+
+if test -n "$DISPLAY" && $xsupport; then
+    emacsclient --eval "(progn (select-frame (make-frame-on-display \"$DISPLAY\"))
+                               $runmagit)"
+    runemacs=$?
+else
+    emacsclient --tty --eval "$runmagit"
+    runemacs=$?
+fi
+
+if [ $runemacs != 0 ]; then
+    #Server not running or emacsclient not usable
+    emacs --eval "$runmagit"
+fi
