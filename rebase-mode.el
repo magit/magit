@@ -154,7 +154,12 @@ server connection)."
            (text (apply 'buffer-substring region)))
       (apply 'kill-region region))))
 
+;;;###autoload
 (defun rebase-mode ()
+  "Major mode for editing of a git rebase file
+
+Rebase files are generated when you run 'git rebase -i' or run `magit-interactive-rebase'"
+
   (interactive)
   (kill-all-local-variables)
 
