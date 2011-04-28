@@ -9,6 +9,6 @@ clean:
 contribute.html: contribute.tt lib/head-foot.tt
 index.html: index.tt lib/head-foot.tt
 
-# will build from the latest tag
+# will build from the latest tag whose name starts with a digit
 manual.html: lib/head-foot.tt
-	./bin/build-manual.bash `git tag | head -n 1`
+	./bin/build-manual.bash `git tag -l '[0-9].*' | tail -n 1`
