@@ -154,7 +154,12 @@ server connection)."
            (text (apply 'buffer-substring region)))
       (apply 'kill-region region))))
 
+;;;###autoload
 (defun rebase-mode ()
+  "Major mode for editing of a git rebase file
+
+Rebase files are generated when you run 'git rebase -i' or run `magit-interactive-rebase'"
+
   (interactive)
   (kill-all-local-variables)
 
@@ -166,6 +171,7 @@ server connection)."
   (setq buffer-read-only t)
   (setq mode-name "rebase-mode" major-mode 'rebase-mode))
 
+;;;###autoload
 (add-to-list 'auto-mode-alist
              '("git-rebase-todo" . rebase-mode))
 
