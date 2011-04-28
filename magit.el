@@ -3725,21 +3725,10 @@ typing and automatically refreshes the status buffer."
 
 (defvar magit-pre-log-edit-window-configuration nil)
 
-(defun magit-log-fill-paragraph (&optional justify)
-  "Fill the paragraph, but preserve open parentheses at beginning of lines.
-Prefix arg means justify as well."
-  (interactive "P")
-  ;; Add lines starting with a left paren or an asterisk.
-  (let ((paragraph-start (concat paragraph-start "\\|*\\|(")))
-    (let ((end (progn (forward-paragraph) (point)))
-	  (beg (progn (backward-paragraph) (point)))
-	  (adaptive-fill-mode nil))
-      (fill-region beg end justify)
-      t)))
-
 (define-derived-mode magit-log-edit-mode text-mode "Magit Log Edit"
-  (set (make-local-variable 'fill-paragraph-function)
-       'magit-log-fill-paragraph))
+  ;; Recognize changelog-style paragraphs
+  (set (make-local-variable 'paragraph-start)
+       (concat paragraph-start "\\|*\\|(")))
 
 (defun magit-log-edit-cleanup ()
   (save-excursion
