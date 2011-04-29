@@ -41,7 +41,7 @@
 
 ;; Original Author: Marius Vollmer <marius.vollmer@nokia.com>
 ;; Lead developer: Phil Jackson <phil@shellarchive.co.uk>
-;; Version: 1.0.0
+;; Version: @GIT_DEV_VERSION@
 ;; Keywords: tools
 
 ;;

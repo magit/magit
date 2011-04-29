@@ -1,4 +1,4 @@
-VERSION=1.0.0
+VERSION=$(shell git describe --tags --dirty)
 EMACS=emacs
 PREFIX=/usr/local
 ELS=magit.el magit-svn.el magit-topgit.el magit-key-mode.el magit-bisect.el
@@ -31,12 +31,15 @@ magit.info:
 dist: $(DIST_FILES)
 	mkdir -p magit-$(VERSION)
 	cp $(DIST_FILES) magit-$(VERSION)
+	sed -i "s/$$.s\hell git describe./$(VERSION)/" magit-$(VERSION)/Makefile
+	sed -i "s/@GIT_DEV_VERSION@/$(VERSION)/" magit-$(VERSION)/magit.el
 	tar -cvzf magit-$(VERSION).tar.gz magit-$(VERSION)
 	rm -rf magit-$(VERSION)
 
 install: all
 	mkdir -p $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp
 	install -m 644 $(ELS) $(ELCS) $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp
+	sed -i "s/@GIT_DEV_VERSION@/$(VERSION)/" $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp/magit.el
 	mkdir -p $(DESTDIR)/$(PREFIX)/share/info
 	install -m 644 magit.info $(DESTDIR)/$(PREFIX)/share/info
 	install-info --info-dir=$(DESTDIR)/$(PREFIX)/share/info $(DESTDIR)/$(PREFIX)/share/info/magit.info
