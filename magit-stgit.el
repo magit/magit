@@ -107,9 +107,9 @@
 (easy-menu-define magit-stgit-extension-menu
   nil
   "StGit extension menu"
-  '("StGit"
-    ["Refresh patch" magit-stgit-refresh (magit-stgit--enabled)]
-    ["Rebase series" magit-stgit-rebase (magit-stgit--enabled)]
+  '("StGit" :active (magit-stgit--enabled)
+    ["Refresh patch" magit-stgit-refresh]
+    ["Rebase series" magit-stgit-rebase]
     ))
 
 (easy-menu-add-item 'magit-mode-menu
