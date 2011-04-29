@@ -1824,9 +1824,10 @@ function can be enriched by magit extension like magit-topgit and magit-svn"
 
 (defun magit-run* (cmd-and-args
 		   &optional logline noerase noerror nowait input)
-  (if (and magit-process
-	   (get-buffer magit-process-buffer-name))
-      (error "Git is already running"))
+  (unless nowait
+    (if (and magit-process
+             (get-buffer magit-process-buffer-name))
+        (error "Git is already running")))
   (let ((cmd (car cmd-and-args))
 	(args (cdr cmd-and-args))
 	(dir default-directory)
