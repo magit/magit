@@ -1,51 +1,13 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 set -e
 
-function makefile_ver_ok {
-  grep "VERSION=${1}" Makefile || return 1
-}
-
-function magit_el_ver_ok {
-  grep -e ";; Version: *$1" magit.el || return 1
-}
-
-USAGE="usage: ${0##*/} <tag>"
-
-tag="${1}"
-
-[ ${#} -lt 1 ] && {
-    echo ${USAGE} >&2
-    exit 2
-}
-
-# does the specified tag exist?
-if ! git tag | grep "${tag}"; then
-  echo "Make sure you've tagged '${tag}'"
-  exit 3
+if [ -z "$1" ]; then
+    make dist
+else
+    home_rev=$(git name-rev --name-only HEAD)
+    make clean
+    git checkout "$1"
+    make dist
+    git checkout "$home_rev"
 fi
-
-# grab that tag
-git co "${tag}"
-
-# correct version in magit?
-if ! magit_el_ver_ok "$tag"; then
-  echo "Please set version in magit.el to $tag"
-  git co master
-  exit 1
-fi
-
-# correct version in configure.ac?
-if ! makefile_ver_ok "$tag"; then
-  echo "Please set AC_INIT to $tag in configure.ac"
-  git co master
-  exit 1
-fi
-
-# clean up if we need to
-make clean
-
-make dist
-
-# back to master
-git co master
