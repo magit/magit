@@ -545,7 +545,7 @@ To delete a branch, type @kbd{b d}. If you're currently on that
 branch, Magit will offer to switch to the 'master' branch.
 
 Deleting a branch is only possible if it's already fully merged into
-HEAD or it's upstream branch. Unless you type @kbd{b D}, that is.
+HEAD or its upstream branch. Unless you type @kbd{b D}, that is.
 Here be dragons...
 
 
