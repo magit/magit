@@ -1,1 +1,6 @@
+*.elc
+magit.info
+magit-pkg.el
+magit.spec
+magit-*.tar.gz
 magit.texi
