@@ -27,11 +27,11 @@
 ;; Available commands:
 ;; - `magit-stgit-refresh': Refresh the marked/at point patch in the series
 ;;   (stg refresh)
+;; - `magit-stgit-repair': Repair the StGit metadata (stg repair)
 ;; - `magit-stgit-rebase': Rebase the whole series (stg rebase)
 
 ;; TODO:
 ;; - Let the user select which files must be included in a refresh.
-;; - Add command for creating a new patch in a series
 ;; - Missing actions for `magit-show-item-or-scroll-up' and
 ;;   `magit-show-item-or-scroll-down'.
 ;; - Marking a patch is slow and refreshes all buffers, which resets their
@@ -112,6 +112,8 @@
 
     ["Refresh patch" magit-stgit-refresh
      :help "Refresh the contents of a patch in an StGit series"]
+    ["Repair" magit-stgit-repair
+     :help "Repair StGit metadata if branch was modified with git commands"]
     ["Rebase series" magit-stgit-rebase
      :help "Rebase an StGit patch series"]
     ))
@@ -238,6 +240,15 @@ Otherwise, refreshes the marked patch."
   (if magit-stgit--marked-patch
       (magit-run magit-stgit-executable "refresh" "-p" magit-stgit--marked-patch)
     (magit-run magit-stgit-executable "refresh")))
+
+(defun magit-stgit-repair ()
+  "Repair StGit metadata if branch was modified with git commands.
+In the case of Git commits these will be imported as new patches
+into the series."
+  (interactive)
+  (message "Repairing series...")
+  (magit-run magit-stgit-executable "repair")
+  (message ""))
 
 (defun magit-stgit-rebase ()
   "Rebase an StGit patch series."
