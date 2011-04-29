@@ -78,13 +78,12 @@
 
 (defun magit-stgit--enabled ()
   "Whether this buffer has StGit support enabled."
-  (if (member 'magit-stgit--enabled (buffer-local-variables))
+  (if (assoc 'magit-stgit--enabled (buffer-local-variables))
       magit-stgit--enabled
     (setq magit-stgit--enabled
           (if (member (concat (magit-get-current-branch) ".stgit")
                       (mapcar '(lambda (line)
                                  (string-match "^\\*?\s*\\([^\s]*\\)" line)
-                                 (message "--> %s" (match-string 1 line))
                                  (match-string 1 line))
                               (magit-git-lines "branch")))
               t
