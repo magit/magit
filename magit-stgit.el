@@ -70,6 +70,11 @@
   "Face for a marked stgit patch."
   :group 'magit-faces)
 
+(defface magit-stgit-empty
+  '((t :inherit magit-item-mark))
+  "Face for an empty stgit patch."
+  :group 'magit-faces)
+
 ;;; Common code:
 
 (defvar magit-stgit--enabled nil
@@ -114,21 +119,26 @@
 ;;; Series section:
 
 (defun magit-stgit--wash-patch ()
-  (if (search-forward-regexp "^\\(.\\) \\([^\s]*\\)\\(\s*# ?\\)\\(.*\\)"
+  (if (search-forward-regexp "^\\(.\\)\\(.\\) \\([^\s]*\\)\\(\s*# ?\\)\\(.*\\)"
                              (line-end-position) t)
-      (let ((state (match-string 1))
-            (patch (match-string 2))
-            (descr (match-string 4)))
+      (let* ((empty-str "[empty] ")
+             (indent-str (make-string (string-bytes empty-str) ?\ ))
+             (empty (match-string 1))
+             (state (match-string 2))
+             (patch (match-string 3))
+             (descr (match-string 5)))
         (delete-region (line-beginning-position) (line-end-position))
         (insert
-         (cond ((string= magit-stgit--marked-patch patch)
-                (propertize (concat state " " descr) 'face 'magit-stgit-marked))
+         (cond ((string= empty "0")
+                (propertize (concat empty-str " " state " " descr) 'face 'magit-stgit-empty))
+               ((string= magit-stgit--marked-patch patch)
+                (propertize (concat indent-str " " state " " descr) 'face 'magit-stgit-marked))
                ((string= state "+")
-                (concat (propertize state 'face 'magit-stgit-applied) " " descr))
+                (concat indent-str " " (propertize state 'face 'magit-stgit-applied) " " descr))
                ((string= state ">")
-                (propertize (concat state " " descr) 'face 'magit-stgit-current))
+                (propertize (concat indent-str " " state " " descr) 'face 'magit-stgit-current))
                ((string= state "-")
-                (concat (propertize state 'face 'magit-stgit-other) " " descr))))
+                (concat indent-str " " (propertize state 'face 'magit-stgit-other) " " descr))))
         (goto-char (line-beginning-position))
         (magit-with-section patch 'series
           (magit-set-section-info patch)
@@ -144,7 +154,7 @@
 (magit-define-inserter series ()
   (magit-insert-section 'series
                      "Series:" 'magit-stgit--wash-series
-                     magit-stgit-executable "series" "-a" "-d"))
+                     magit-stgit-executable "series" "-a" "-d" "-e"))
 (add-hook 'magit-after-insert-stashes-hook 'magit-insert-series)
 
 ;;; Actions:
