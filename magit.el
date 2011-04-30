@@ -274,10 +274,7 @@ Many Magit faces inherit from this one by default."
   :group 'magit-faces)
 
 (defface magit-diff-add
-  '((((class color) (background light))
-     :foreground "blue1")
-    (((class color) (background dark))
-     :foreground "white"))
+  '((t :inherit font-lock-function-name))
   "Face for lines in a diff that have been added."
   :group 'magit-faces)
 
@@ -287,10 +284,7 @@ Many Magit faces inherit from this one by default."
   :group 'magit-faces)
 
 (defface magit-diff-del
-  '((((class color) (background light))
-     :foreground "red")
-    (((class color) (background dark))
-     :foreground "OrangeRed"))
+  '((t :inherit font-lock-comment))
   "Face for lines in a diff that have been deleted."
   :group 'magit-faces)
 
@@ -303,10 +297,7 @@ Many Magit faces inherit from this one by default."
   :group 'magit-faces)
 
 (defface magit-log-sha1
-  '((((class color) (background light))
-     :foreground "firebrick")
-    (((class color) (background dark))
-     :foreground "tomato"))
+  '((t :inherit font-lock-comment))
   "Face for the sha1 element of the log output."
   :group 'magit-faces)
 
@@ -1819,7 +1810,7 @@ function can be enriched by magit extension like magit-topgit and magit-svn"
 
 (defvar magit-process nil)
 (defvar magit-process-client-buffer nil)
-(defvar magit-process-buffer-name "*magit-process*"
+(defvar magit-process-buffer-name "*Magit Process*"
   "Buffer name for running git commands.")
 
 (defun magit-run* (cmd-and-args
@@ -1975,7 +1966,8 @@ function can be enriched by magit extension like magit-topgit and magit-svn"
 		nil nil nil nil input)))
 
 (defun magit-run-git-async (&rest args)
-  (message "Running %s %s" magit-git-executable (mapconcat 'identity args " "))
+  (message "Running `%s %s'..."
+           magit-git-executable (mapconcat 'identity args " "))
   (magit-run* (append (cons magit-git-executable
 			    magit-git-standard-options)
 		      args)
@@ -2899,7 +2891,7 @@ insert a line to tell how to insert more of them"
   :lighter ()
   :keymap magit-commit-mode-map)
 
-(defvar magit-commit-buffer-name "*magit-commit*"
+(defvar magit-commit-buffer-name "*Magit Commit*"
   "Buffer name for displaying commit log messages.")
 
 (defun magit-show-commit (commit &optional scroll inhibit-history)
@@ -3103,7 +3095,7 @@ PREPEND-REMOTE-NAME is non-nil."
 	(and (y-or-n-p (format "Directory %s does not exists.  Create it? " dir))
 	     (make-directory dir)))
       (let ((default-directory dir))
-	(magit-run* (list "git" "init"))))))
+	(magit-run* (list magit-git-executable "init"))))))
 
 (define-minor-mode magit-status-mode
     "Minor mode for looking at git status.
@@ -3174,7 +3166,7 @@ to consider it or not when called with that buffer current."
     (when topdir
       (let ((buf (or (magit-find-buffer 'status topdir)
 		     (generate-new-buffer
-		      (concat "*magit: "
+		      (concat "*Magit: "
 			      (file-name-nondirectory
 			       (directory-file-name topdir)) "*")))))
         (funcall magit-status-buffer-switch-function buf)
@@ -3705,7 +3697,7 @@ typing and automatically refreshes the status buffer."
 (defvar magit-log-edit-mode-hook nil
   "Hook run by `magit-log-edit-mode'.")
 
-(defvar magit-log-edit-buffer-name "*magit-edit-log*"
+(defvar magit-log-edit-buffer-name "*Magit Edit Log*"
   "Buffer name for composing commit messages.")
 
 (defvar magit-log-edit-mode-map
@@ -4079,7 +4071,7 @@ With prefix argument, changes in staging area are kept.
   :lighter ()
   :keymap magit-stash-mode-map)
 
-(defvar magit-stash-buffer-name "*magit-stash*"
+(defvar magit-stash-buffer-name "*Magit Stash*"
   "Buffer name for displaying a stash.")
 
 (defun magit-show-stash (stash &optional scroll)
@@ -4259,9 +4251,9 @@ With a non numeric prefix ARG, show all entries"
   :lighter ()
   :keymap magit-log-mode-map)
 
-(defvar magit-log-buffer-name "*magit-log*"
+(defvar magit-log-buffer-name "*Magit Log*"
   "Buffer name for display of log entries.")
-(defvar magit-log-grep-buffer-name "*magit-grep-log*"
+(defvar magit-log-grep-buffer-name "*Magit Grep Log*"
   "Buffer name for display of log grep results.")
 
 (magit-define-command display-log-ranged ()
@@ -4333,7 +4325,7 @@ This is only non-nil in reflog buffers.")
                 "HEAD")))
     (let* ((topdir (magit-get-top-dir default-directory))
            (args (magit-rev-to-git at)))
-      (magit-buffer-switch "*magit-reflog*")
+      (magit-buffer-switch "*Magit Reflog*")
       (magit-mode-init topdir 'reflog
                        #'magit-refresh-reflog-buffer at args)
       (magit-reflog-mode t))))
@@ -4424,7 +4416,7 @@ restore the window state that was saved before ediff was called."
   (if range
       (let* ((dir default-directory)
              (args (magit-rev-range-to-git range))
-             (buf (get-buffer-create "*magit-diff*")))
+             (buf (get-buffer-create "*Magit Diff*")))
         (display-buffer buf)
         (with-current-buffer buf
           (magit-mode-init dir 'diff #'magit-refresh-diff-buffer range args)
@@ -4526,7 +4518,7 @@ This is only meaningful in wazzup buffers.")
   (interactive "P")
   (let ((topdir (magit-get-top-dir default-directory))
 	(current-branch (magit-get-current-branch)))
-    (magit-buffer-switch "*magit-wazzup*")
+    (magit-buffer-switch "*Magit Wazzup*")
     (magit-mode-init topdir 'wazzup
 		     #'magit-refresh-wazzup-buffer
 		     current-branch all)
@@ -4856,7 +4848,7 @@ name of the remote and branch name. The remote must be known to git."
                    remote
                    (concat ":refs/heads/" branch))))
 
-(defvar magit-branches-buffer-name "*magit-branches*")
+(defvar magit-branches-buffer-name "*Magit Branches*")
 
 (defun magit--is-branch-at-point-remote()
   "Return t if the branch at point is a remote tracking branch"
