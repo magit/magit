@@ -77,6 +77,7 @@
 ;; magit core
 (require 'magit-key-mode)
 (require 'magit-bisect)
+(require 'magit-remotes)
 
 (eval-when-compile (require 'cl))
 (require 'log-edit)
@@ -605,11 +606,12 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "k") 'magit-remove-branch)
     (define-key map (kbd "K") 'magit-remove-branch-in-remote-repo)
     (define-key map (kbd "$") 'magit-display-process)
-    (define-key map (kbd "q") 'magit-quit-branches-window)
+    (define-key map (kbd "q") 'magit-quit-window)
     (define-key map (kbd "g") 'magit-show-branches)
     (define-key map (kbd "v") 'magit-show-branches)
     (define-key map (kbd "T") 'magit-change-what-branch-tracks)
     (define-key map (kbd "t") 'magit-key-mode-popup-tagging)
+    (define-key map (kbd "r") 'magit-show-remotes)
     (define-key map (kbd "n") 'next-line)
     (define-key map (kbd "p") 'previous-line)
     map))
@@ -4773,8 +4775,8 @@ Return values:
 (define-derived-mode magit-show-branches-mode fundamental-mode
   "Magit Branches")
 
-(defun magit-quit-branches-window ()
-  "Bury the branches buffer and delete its window."
+(defun magit-quit-window ()
+  "Bury the current buffer and delete its window."
   (interactive)
   (quit-window)
   (delete-window))
