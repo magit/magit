@@ -6,7 +6,7 @@ ELS_CONTRIB=contrib/magit-simple-keys.el
 ELCS=$(ELS:.el=.elc)
 ELCS_CONTRIB=$(ELS_CONTRIB:.el=.elc)
 DIST_FILES=$(ELS) Makefile magit.texi README.md magit.spec.in magit-pkg.el.in 50magit.el
-DIST_FILES_CONTRIB=$(ELS_CONTRIB)
+DIST_FILES_CONTRIB=$(ELS_CONTRIB) contrib/magit
 
 .PHONY=install
 
@@ -58,6 +58,7 @@ install: core
 install_contrib: contrib
 	mkdir -p $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp
 	install -m 644 $(ELS_CONTRIB) $(ELCS_CONTRIB) $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp
+	install -m 755 contrib/magit $(DESTDIR)/$(PREFIX)/bin
 
 install_all: install install_contrib
 
