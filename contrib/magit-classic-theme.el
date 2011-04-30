@@ -32,6 +32,9 @@
     (((class color) (background dark))
      :foreground "white")))
 
+ '(magit-diff-none
+   ((t)))
+
  '(magit-diff-del
    ((((class color) (background light))
       :foreground "red")
