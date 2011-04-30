@@ -39,15 +39,16 @@ dist: $(DIST_FILES) $(DIST_FILES_CONTRIB)
 	mkdir -p magit-$(VERSION)/contrib
 	cp $(DIST_FILES) magit-$(VERSION)
 	cp $(DIST_FILES_CONTRIB) magit-$(VERSION)/contrib
-	sed -i "s/$$.s\hell git describe./$(VERSION)/" magit-$(VERSION)/Makefile
-	sed -i "s/@GIT_DEV_VERSION@/$(VERSION)/" magit-$(VERSION)/magit.el
+	sed -i -e "1 s/=.*/=$(VERSION)/" magit-$(VERSION)/Makefile #NO_DIST
+	sed -i -e "/NO_DIST/d" magit-$(VERSION)/Makefile #NO_DIST
+	sed -i "s/@GIT_DEV_VERSION@/$(VERSION)/" magit-$(VERSION)/magit.el #NO_DIST
 	tar -cvzf magit-$(VERSION).tar.gz magit-$(VERSION)
 	rm -rf magit-$(VERSION)
 
 install: core
 	mkdir -p $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp
 	install -m 644 $(ELS) $(ELCS) $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp
-	sed -i "s/@GIT_DEV_VERSION@/$(VERSION)/" $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp/magit.el
+	sed -i "s/@GIT_DEV_VERSION@/$(VERSION)/" $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp/magit.el #NO_DIST
 	mkdir -p $(DESTDIR)/$(PREFIX)/share/info
 	install -m 644 magit.info $(DESTDIR)/$(PREFIX)/share/info
 	install-info --info-dir=$(DESTDIR)/$(PREFIX)/share/info $(DESTDIR)/$(PREFIX)/share/info/magit.info
