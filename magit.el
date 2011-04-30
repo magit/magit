@@ -2392,6 +2392,13 @@ in the corresponding directories."
                                        file2
                                        magit-current-diff-range))
 	     (magit-insert-diff-title status file file2)
+         (search-forward-regexp "--- \\(.*\\)\n\\+\\+\\+ \\(.*\\)\n")
+         (add-text-properties (match-beginning 0) (match-end 0)
+                              '(face magit-diff-hunk-header))
+         (add-text-properties (match-beginning 1) (match-end 1)
+                              '(face magit-diff-file-header))
+         (add-text-properties (match-beginning 2) (match-end 2)
+                              '(face magit-diff-file-header))
 	     (goto-char end)
 	     (let ((magit-section-hidden-default nil))
 	       (magit-wash-sequence #'magit-wash-hunk))))
@@ -2417,7 +2424,7 @@ in the corresponding directories."
   (nth 3 (magit-section-info diff)))
 
 (defun magit-wash-hunk ()
-  (cond ((looking-at "\\(^@+\\)[^@]*@+")
+  (cond ((looking-at "\\(^@+\\)[^@]*@+.*")
 	 (let ((n-columns (1- (length (match-string 1))))
 	       (head (match-string 0)))
 	   (magit-with-section head 'hunk
