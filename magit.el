@@ -4771,8 +4771,7 @@ Return values:
 (defun magit-quit-branches-window ()
   "Bury the branches buffer and delete its window."
   (interactive)
-  (quit-window)
-  (delete-window))
+  (quit-window nil (selected-window)))
 
 (defun magit--branch-name-from-line (line)
   "Extract the branch name from line LINE of 'git branch' output."
