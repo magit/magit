@@ -481,7 +481,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "E") 'magit-interactive-rebase)
     (define-key map (kbd "e") 'magit-ediff)
     (define-key map (kbd "w") 'magit-wazzup)
-    (define-key map (kbd "q") 'quit-window)
+    (define-key map (kbd "q") 'magit-quit-window)
     map))
 
 (defvar magit-commit-mode-map
@@ -593,7 +593,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "k") 'magit-remove-branch)
     (define-key map (kbd "K") 'magit-remove-branch-in-remote-repo)
     (define-key map (kbd "$") 'magit-display-process)
-    (define-key map (kbd "q") 'magit-quit-branches-window)
+    (define-key map (kbd "q") 'magit-quit-window)
     (define-key map (kbd "g") 'magit-show-branches)
     (define-key map (kbd "v") 'magit-show-branches)
     (define-key map (kbd "T") 'magit-change-what-branch-tracks)
@@ -2057,7 +2057,7 @@ function can be enriched by magit extension like magit-topgit and magit-svn"
     ("Extensions")
     "---"
     ["Display Git output" magit-display-process t]
-    ["Quit Magit" quit-window t]))
+    ["Quit Magit" magit-quit-window t]))
 
 (defvar magit-mode-hook nil "Hook run by `magit-mode'.")
 
@@ -4768,10 +4768,11 @@ Return values:
 (define-derived-mode magit-show-branches-mode fundamental-mode
   "Magit Branches")
 
-(defun magit-quit-branches-window ()
-  "Bury the branches buffer and delete its window."
-  (interactive)
-  (quit-window nil (selected-window)))
+(defun magit-quit-window (&optional kill-buffer)
+  "Bury the buffer and delete its window.  With a prefix argument, kill the
+buffer instead."
+  (interactive "P")
+  (quit-window kill-buffer (selected-window)))
 
 (defun magit--branch-name-from-line (line)
   "Extract the branch name from line LINE of 'git branch' output."
