@@ -588,18 +588,11 @@ Many Magit faces inherit from this one by default."
 
 (defvar magit-show-branches-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "RET") 'magit-branches-window-checkout)
-    (define-key map (kbd "b") 'magit-branches-window-checkout)
     (define-key map (kbd "k") 'magit-remove-branch)
     (define-key map (kbd "K") 'magit-remove-branch-in-remote-repo)
-    (define-key map (kbd "$") 'magit-display-process)
-    (define-key map (kbd "q") 'magit-quit-window)
     (define-key map (kbd "g") 'magit-show-branches)
     (define-key map (kbd "v") 'magit-show-branches)
     (define-key map (kbd "T") 'magit-change-what-branch-tracks)
-    (define-key map (kbd "t") 'magit-key-mode-popup-tagging)
-    (define-key map (kbd "n") 'next-line)
-    (define-key map (kbd "p") 'previous-line)
     map))
 
 (defvar magit-bug-report-url
@@ -4667,6 +4660,8 @@ With a prefix argument, visit in other window."
     ((stash)
      (magit-show-stash info)
      (pop-to-buffer magit-stash-buffer-name))
+    ((branch)
+     (magit-checkout (assoc-default 'branch info)))
     ((longer)
      (magit-log-show-more-entries ()))))
 
@@ -4765,7 +4760,7 @@ Return values:
       (if old-editor
 	  (setenv "GIT_EDITOR" old-editor)))))
 
-(define-derived-mode magit-show-branches-mode fundamental-mode
+(define-derived-mode magit-show-branches-mode magit-mode
   "Magit Branches")
 
 (defun magit-quit-window (&optional kill-buffer)
@@ -4774,20 +4769,14 @@ buffer instead."
   (interactive "P")
   (quit-window kill-buffer (selected-window)))
 
-(defun magit--branch-name-from-line (line)
-  "Extract the branch name from line LINE of 'git branch' output."
-  (get-text-property 0 'branch-name line))
+(defun magit--branch-name-from-section (branch)
+  "Extract the branch name from the specified magit-section of type 'branch"
+  (assoc-default 'branch (magit-section-info branch)))
 
 (defun magit--branch-name-at-point ()
   "Get the branch name in the line at point."
-  (let ((branch (magit--branch-name-from-line (thing-at-point 'line))))
+  (let ((branch (magit--branch-name-from-section (magit-current-section))))
     (or branch (error "No branch at point"))))
-
-(defun magit-branches-window-checkout ()
-  "Check out the branch in the line at point."
-  (interactive)
-  (magit-checkout (magit--branch-name-at-point))
-  (magit-show-branches))
 
 (defun magit-remove-remote (ref)
   "Return REF with any remote part removed."
@@ -4855,7 +4844,7 @@ name of the remote and branch name. The remote must be known to git."
 
 (defun magit--is-branch-at-point-remote()
   "Return t if the branch at point is a remote tracking branch"
-  (get-text-property (point) 'remote))
+  (assoc-default 'remote (magit-section-info (magit-current-section))))
 
 (defun magit--branch-view-details (branch-line)
   "Extract details from branch -va output."
@@ -4900,29 +4889,29 @@ name of the remote and branch name. The remote must be known to git."
           (branches (mapcar 'magit--branch-view-details
                             (apply 'magit-git-lines "branch" "-va"
                                    magit-custom-options))))
-      (erase-buffer)
-      (insert
-       (mapconcat
-        (lambda (b)
-          (propertize
-           (concat
-            (cdr (assoc 'current b))
-            (propertize (or (cdr (assoc 'sha1 b))
-                            "       ")
-                        'face 'magit-log-sha1)
-            " "
-            (apply 'propertize (cdr (assoc 'branch b))
-                   (if (string-match-p "^\\*" (cdr (assoc 'current b)))
-                       '(face magit-branch)))
-            (when (assoc 'other-ref b)
-              (concat " (" (cdr (assoc 'other-ref b)) ")"))
-            (when (cdr (assoc 'tracking b))
-              (concat " [" (propertize (cdr (assoc 'tracking b)) 'face 'magit-log-head-label-remote) "]")))
-           'remote (cdr (assoc 'remote b))
-           'branch-name (cdr (assoc 'branch b))
-           'revision (cdr (assoc 'sha1 b))))
-        branches
-        "\n"))
+      (magit-create-buffer-sections
+        (magit-with-section "branch-manager" nil
+          (dolist (b branches)
+            (magit-with-section (assoc-default 'branch b) 'branch
+              (magit-set-section-info b)
+              (insert (concat
+                       (assoc-default 'current b)
+                       (propertize (or (assoc-default 'sha1 b) "       ")
+                                   'face 'magit-log-sha1)
+                       " "
+                       (apply 'propertize (assoc-default 'branch b)
+                              (if (string-match-p "^\\*" (assoc-default 'current b))
+                                  '(face magit-branch)))
+                       (if (assoc 'other-ref b)
+                           (concat " (" (assoc-default 'other-ref b) ")")
+                         "")
+                       (if (assoc-default 'tracking b)
+                           (concat " ["
+                                   (propertize (assoc-default 'tracking b)
+                                               'face 'magit-log-head-label-remote)
+                                   "]")
+                         ""))))
+            (insert "\n"))))
       (magit-show-branches-mode)
       (goto-char (point-min))
       (if buffer-existed
