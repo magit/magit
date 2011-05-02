@@ -44,7 +44,7 @@ as an extension to Emacs.
 * Resetting::
 * Stashing::
 * Branching::
-* The branch list::
+* The Branch Manager::
 * Wazzup::
 * Merging::
 * Rebasing::
@@ -551,33 +551,25 @@ Here be dragons...
 
 Typing @kbd{b v} will list the local and remote branches in a new buffer
 called @code{*magit-branches*} from which you can work with them. See
-@ref{The branch list} for more details.
+@ref{The Branch Manager} for more details.
 
 
-@node The branch list
-@chapter The branch list
+@node The Branch Manager
+@chapter The Branch Manager
 
-The branch list is a separate buffer called @code{*magit-branches*}
-with its own local key map. The keybindings are modeled after magit's
-main buffer. The buffer contains both local and remote branches. The
-current local branch is marked by a ``*'' in front of the name.
+The Branch Manager is a separate buffer called @code{*magit-branches*}
+with its own local key map. The buffer contains both local and remote
+branches. The current local branch is marked by a ``*'' in front of
+the name.
+
+To check out a branch, move your cursor to the desired branch and
+press @kbd{RET}.
 
 Typing @kbd{k} will delete the branch in the current line, and
 @kbd{C-u k} deletes it even if it hasn't been merged into the current
 local branch. Deleting works for both local and remote branches.
 
-You can merge the branch in the current line by typing @kbd{m m} for a
-manual merge and @kbd{m m} for an automatic merge.
-
-With @kbd{RET} or @kbd{b b} you can check out the branch in the current
-line.
-
-Typing @kbd{$} shows the @code{*magit-process*} buffer which contains
-the transcript of the most recent command.
-
-Typing @kbd{V} will refresh the branch list. @kbd{q} buries the branch
-list buffer and deletes its window.
-
+By typing @kbd{T} on a local branch, you can change which remote branch it's set to track.
 
 @node Wazzup
 @chapter Wazzup
