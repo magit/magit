@@ -5070,7 +5070,7 @@ With a prefix arg, do a submodule update --init"
   "Run `git gui' for the current git repository"
   (interactive)
   (let* ((default-directory (magit-get-top-dir default-directory)))
-    (start-process "git gui" nil "git" "gui")))
+    (start-process "git gui" nil magit-git-executable "gui")))
 
 (defun magit-run-gitk ()
   "Run `gitk --all' for the current git repository"
