@@ -38,7 +38,7 @@ options.
 
 ### git-stgit
 
-`(require 'magit-stgit)` - integrates with stgit.
+`(require 'magit-stgit)` - integrates with StGit.
 
 Getting started
 ---------------

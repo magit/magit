@@ -1,4 +1,4 @@
-;;; magit-topgit.el --- topgit plug-in for Magit
+;;; magit-stgit.el --- StGit plug-in for Magit
 
 ;; Copyright (C) 2011  Lluis Vilanova
 ;;
@@ -17,7 +17,7 @@
 
 ;;; Commentary:
 
-;; This plug-in provides stgit functionality as a separate component of Magit
+;; This plug-in provides StGit functionality as a separate component of Magit.
 
 ;; Available actions:
 ;; - visit: Shows the patch at point in the series (stg show)
