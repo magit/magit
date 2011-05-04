@@ -5078,6 +5078,14 @@ With a prefix arg, do a submodule update --init"
   (let* ((default-directory (magit-get-top-dir default-directory)))
     (start-process "gitk" nil "gitk" "--all")))
 
+(defun magit-run-git-gui-blame ()
+  "Run `git gui blame' for the current file/line."
+  (interactive)
+  (start-process "git gui blame"
+                 nil magit-git-executable "gui" "blame"
+                 (format "--line=%d" (line-number-at-pos))
+                 (file-relative-name (buffer-file-name))))
+
 ;; for emacs 22 compatibility
 
 (defun magit-string-match-p (regexp string &optional start)
