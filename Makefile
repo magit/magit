@@ -58,6 +58,7 @@ install: core
 install_contrib: contrib
 	mkdir -p $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp
 	install -m 644 $(ELS_CONTRIB) $(ELCS_CONTRIB) $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp
+	mkdir -p $(DESTDIR)/$(PREFIX)/bin
 	install -m 755 contrib/magit $(DESTDIR)/$(PREFIX)/bin
 
 install_all: install install_contrib
