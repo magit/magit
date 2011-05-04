@@ -154,14 +154,14 @@
   t)
 
 (defun magit-stgit--wash-series ()
-  (when (executable-find magit-stgit-executable)
     (let ((magit-old-top-section nil))
-      (magit-wash-sequence #'magit-stgit--wash-patch))))
+      (magit-wash-sequence #'magit-stgit--wash-patch)))
 
 (magit-define-inserter series ()
-  (magit-insert-section 'series
-                     "Series:" 'magit-stgit--wash-series
-                     magit-stgit-executable "series" "-a" "-d" "-e"))
+  (when (executable-find magit-stgit-executable)
+    (magit-insert-section 'series
+                          "Series:" 'magit-stgit--wash-series
+                          magit-stgit-executable "series" "-a" "-d" "-e")))
 (add-hook 'magit-after-insert-stashes-hook 'magit-insert-series)
 
 ;;; Actions:
