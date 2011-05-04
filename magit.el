@@ -3881,7 +3881,7 @@ toggled on.  When it's toggled on for the first time, return
   (interactive)
   (when (eq (magit-log-edit-toggle-field 'amend t) 'first)
     (magit-log-edit-append
-     (magit-format-commit "HEAD" "%s%n%n%b"))))
+     (magit-trim-line (magit-format-commit "HEAD" "%s%n%n%b")))))
 
 (defun magit-log-edit-toggle-signoff ()
   "Toggle whether this commit will include a signoff.
