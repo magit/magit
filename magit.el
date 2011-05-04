@@ -3881,7 +3881,7 @@ toggled on.  When it's toggled on for the first time, return
   (interactive)
   (when (eq (magit-log-edit-toggle-field 'amend t) 'first)
     (magit-log-edit-append
-     (magit-format-commit "HEAD" "%s%n%n%b"))))
+     (magit-trim-line (magit-format-commit "HEAD" "%s%n%n%b")))))
 
 (defun magit-log-edit-toggle-signoff ()
   "Toggle whether this commit will include a signoff.
@@ -5077,6 +5077,14 @@ With a prefix arg, do a submodule update --init"
   (interactive)
   (let* ((default-directory (magit-get-top-dir default-directory)))
     (start-process "gitk" nil "gitk" "--all")))
+
+(defun magit-run-git-gui-blame ()
+  "Run `git gui blame' for the current file/line."
+  (interactive)
+  (start-process "git gui blame"
+                 nil magit-git-executable "gui" "blame"
+                 (format "--line=%d" (line-number-at-pos))
+                 (file-relative-name (buffer-file-name))))
 
 ;; for emacs 22 compatibility
 
