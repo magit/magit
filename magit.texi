@@ -677,7 +677,7 @@ merge explicitly.
 You can also use @kbd{v} to revert a commit when you have changed your
 mind.  This will change the @code{.} mark back to @code{*}.
 
-Once you are done with the rewrite, type @kbd{r t} to remove the book
+Once you are done with the rewrite, type @kbd{r s} to remove the book
 keeping information from the status buffer.
 
 If you rather wish to start over, type @kbd{r a}.  This will abort the
