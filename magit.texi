@@ -937,119 +937,134 @@ The following variables can be used to adapt Magit to your workflow:
 @table @code
 
 @item magit-git-executable
-  "The name of the Git executable."
+The name of the Git executable.
 
 @item magit-git-standard-options
-  "Standard options when running Git."
+Standard options when running Git.
 
 @item magit-repo-dirs
-  "Directories containing Git repositories.
-Magit will look into these directories for Git repositories and
-offer them as choices for `magit-status'."
+Directories containing Git repositories.
+
+Magit will look into these directories for Git repositories and offer
+them as choices for @code{magit-status}.
 
 @item magit-repo-dirs-depth
-  "The maximum depth to look for Git repos.
-When looking for a Git repository below the directories in `magit-repo-dirs',
-Magit will only descend this many levels deep."
+The maximum depth to look for Git repos.
+
+When looking for a Git repository below the directories in
+@code{magit-repo-dirs}, Magit will only descend this many levels deep.
 
 @item magit-save-some-buffers
-  "Non-nil means that \\[magit-status] will save modified buffers before running.
-Setting this to t will ask which buffers to save, setting it to 'dontask will
-save all modified buffers without asking."
+Non-nil means that @code{magit-status} will save modified buffers
+before running.  Setting this to @code{t} will ask which buffers to
+save, setting it to @code{'dontask} will save all modified buffers
+without asking.
 
 @item magit-save-some-buffers-predicate
-  "Specifies a predicate function on \\[magit-save-some-buffers] to determine which
-   unsaved buffers should be prompted for saving."
+Specifies a predicate function on @code{magit-save-some-buffers} to
+determine which unsaved buffers should be prompted for saving.
 
 @item magit-commit-all-when-nothing-staged
-  "Determines what \\[magit-log-edit] does when nothing is staged.
-Setting this to nil will make it do nothing, setting it to t will
-arrange things so that the actual commit command will use the \"--all\" option,
-setting it to 'ask will first ask for confirmation whether to do this,
-and setting it to 'ask-stage will cause all changes to be staged,
-after a confirmation."
+Determines what @code{magit-log-edit} does when nothing is staged.
+Setting this to @code{nil} will make it do nothing, setting it to
+@code{t} will arrange things so that the actual commit command will
+use the @code{--all} option, setting it to @code{'ask} will first ask
+for confirmation whether to do this, and setting it to
+@code{'ask-stage} will cause all changes to be staged, after a
+confirmation.
 
 @item magit-commit-signoff
-  "When performing git commit adds --signoff."
+When performing @code{git commit} adds @code{--signoff}.
 
 @item magit-log-cutoff-length
-  "The maximum number of commits to show in the log and whazzup buffers."
+The maximum number of commits to show in the @code{log} and
+@code{whazzup} buffers.
 
 @item magit-log-infinite-length
-  "Number of log used to show as maximum for `magit-log-cutoff-length'."
+Number of log used to show as maximum for
+@code{magit-log-cutoff-length}.
 
 @item magit-log-auto-more
-  "Insert more log entries automatically when moving past the last entry.
+Insert more log entries automatically when moving past the last entry.
 
-Only considered when moving past the last entry with `magit-goto-next-section'."
+Only considered when moving past the last entry with @code{magit-goto-next-section}.
 
 @item magit-process-popup-time
-  "Popup the process buffer if a command takes longer than this many seconds."
+Popup the process buffer if a command takes longer than this many
+seconds.
 
 @item magit-revert-item-confirm
-  "Require acknowledgment before reverting an item."
+Require acknowledgment before reverting an item.
 
 @item magit-log-edit-confirm-cancellation
-  "Require acknowledgment before canceling the log edit buffer."
+Require acknowledgment before canceling the log edit buffer.
 
 @item magit-remote-ref-format
-  "What format to use for autocompleting refs, in pariticular for remotes.
+What format to use for autocompleting refs, in pariticular for
+remotes.
 
-Autocompletion is used by functions like `magit-checkout',
-`magit-interactive-rebase' and others which offer branch name
+Autocompletion is used by functions like @code{magit-checkout},
+@code{magit-interactive-rebase} and others which offer branch name
 completion.
 
-The value 'name-then-remote means remotes will be of the
-form \"name (remote)\", while the value 'remote-slash-name
-means that they'll be of the form \"remote/name\". I.e. something that's
-listed as \"remotes/upstream/next\" by \"git branch -l -a\"
-will be \"upstream/next\"."
+The value @code{'name-then-remote} means remotes will be of the form
+@code{name (remote)}, while the value @code{'remote-slash-name} means
+that they'll be of the form @code{remote/name}. I.e. something that's
+listed as @code{remotes/upstream/next} by @code{git branch -l -a} will
+be @code{upstream/next}.
 
 @item magit-process-connection-type
-  "Connection type used for the git process.
+Connection type used for the git process.
 
-nil mean pipe, it is usually faster and more efficient, and work on cygwin.
-t mean pty, it enable magit to prompt for passphrase when needed."
+@code{nil} mean pipe, it is usually faster and more efficient, and
+work on cygwin.  @code{t} mean pty, it enable magit to prompt for
+passphrase when needed.
 
 @item magit-completing-read-function
-  "Function to be called when requesting input from the user."
+Function to be called when requesting input from the user.
 
 @item magit-create-branch-behaviour
-  "Where magit will create a new branch if not supplied a branchname or ref.
+Where magit will create a new branch if not supplied a branchname or
+ref.
 
-The value 'at-head means a new branch will be created at the tip
-of your current branch, while the value 'at-point means magit
-will try to find a valid reference at point..."
+The value @code{'at-head} means a new branch will be created at the
+tip of your current branch, while the value @code{'at-point} means
+magit will try to find a valid reference at point...
 
 @item magit-status-buffer-switch-function
-  "Function for `magit-status' to use for switching to the status buffer.
+Function for @code{magit-status} to use for switching to the status
+buffer.
 
-The function is given one argument, the status buffer."
+The function is given one argument, the status buffer.
 
 @item magit-rewrite-inclusive
-  "Whether magit includes the selected base commit in a rewrite operation.
+Whether magit includes the selected base commit in a rewrite
+operation.
 
-t means both the selected commit as well as any subsequent
+@code{t} means both the selected commit as well as any subsequent
 commits will be rewritten. This is magit's default behaviour,
-equivalent to 'git rebase -i ${REV}~1'
+equivalent to @code{git rebase -i $@{REV~1@}}
 
+@verbatim
   A'---B'---C'---D'
   ^
+@end verbatim
 
-nil means the selected commit will be literally used as 'base',
-so only subsequent commits will be rewritten. This is consistent
-with git-rebase, equivalent to 'git rebase -i ${REV}', yet more
-cumbersome to use from the status buffer.
+@code{nil} means the selected commit will be literally used as
+@code{base}, so only subsequent commits will be rewritten. This is
+consistent with git-rebase, equivalent to @code{git rebase -i
+$@{REV@}}, yet more cumbersome to use from the status buffer.
 
+@verbatim
   A---B'---C'---D'
   ^
-"
+@end verbatim
 
 @item magit-topgit-executable
-  "The name of the TopGit executable."
+The name of the TopGit executable.
 
 @item magit-topgit-branch-prefix
-  "Convention prefix for topic branch creation."
+Convention prefix for topic branch creation.
 
 @end table
 
