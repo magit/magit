@@ -755,7 +755,7 @@ specified in .gitmodules.
 @node Bisecting
 @chapter Bisecting
 
-magit supports bisecting by showing how many revisions and steps are
+Magit supports bisecting by showing how many revisions and steps are
 left to be tested in the status buffer. You can control the bisect
 session from both the status and from log buffers with the @kbd{B} key
 menu.
@@ -764,7 +764,7 @@ Typing @kbd{B s} will start a bisect session.  You will be prompted
 for a revision that is known to be bad (defaults to @emph{HEAD}) and
 for a revision that is known to be good (defaults to the revision at
 point if there is one). git will select a revision for you to test,
-and magit will update its status buffer accordingly.
+and Magit will update its status buffer accordingly.
 
 You can tell git that the current revision is good with @kbd{B g},
 that it is bad with @kbd{B b} or that git should skip it with @kbd{B
