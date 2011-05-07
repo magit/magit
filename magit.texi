@@ -658,7 +658,9 @@ Typing @kbd{r b} will start a rewrite operation.  You will be prompted
 for a @emph{base} commit.  This commit and all subsequent commits up
 until the current head are then put in a list of @emph{Pending
 commits}, after which the current head will be reset to the
-@emph{parent} of the base commit.
+@emph{parent} of the base commit.  This can be configured to behave
+like @code{git rebase}, i.e. exclude the selected base commit from the
+rewrite operation, with the @code{magit-rewrite-inclusive} variable.
 
 You would then typically use @kbd{a} and @kbd{A} to cherry pick
 commits from the list of pending commits in the desired order, until
