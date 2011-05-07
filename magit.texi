@@ -345,6 +345,11 @@ in one branch, but not in another, for example.  The start point can
 also be a range of revisions ``r1..r2''.  In that case ``r1'' is used
 as the start and ``r2'' as the end point of the history.
 
+More thorough filtering can be done by supplying @kbd{l} with one or
+more suffix arguments, as displayed in its popup.  @kbd{=g} ('Grep')
+for example, limits the output to commits of which the log message
+matches a specific string/regex.
+
 Typing @kbd{l L} (or @kbd{l C-u L}) will show the log in a more verbose
 form.
 
@@ -391,8 +396,6 @@ the marked commit no matter where point is, use @kbd{C-u .}.
 Some commands, such as @kbd{=}, will use the current commit and the
 marked commit as implicit arguments.  Other commands will offer the
 marked commit as a default when prompting for their arguments.
-
-To grep the history press @kbd{s}.
 
 @node Reflogs
 @chapter Reflogs
