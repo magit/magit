@@ -54,6 +54,7 @@ as an extension to Emacs.
 * Submodules::
 * Using Magit Extensions::
 * Using Git Directly::
+* Customization::
 @end menu
 
 @node Introduction
@@ -926,5 +927,39 @@ For situations when Magit doesn't do everything you need, you can run
 raw Git commands using @kbd{:}.  This will prompt for a Git command, run
 it, and refresh the status buffer.  The output can be viewed by typing
 @kbd{$}.
+
+
+@node Customization
+@chapter Customization
+
+The following variables can be used to adapt Magit to your workflow:
+
+@table @code
+
+@item magit-git-executable
+@item magit-git-standard-options
+@item magit-repo-dirs
+@item magit-repo-dirs-depth
+@item magit-save-some-buffers
+@item magit-save-some-buffers-predicate
+@item magit-commit-all-when-nothing-staged
+@item magit-commit-signoff
+@item magit-log-cutoff-length
+@item magit-log-infinite-length
+@item magit-log-auto-more
+@item magit-process-popup-time
+@item magit-revert-item-confirm
+@item magit-log-edit-confirm-cancellation
+@item magit-remote-ref-format
+@item magit-process-connection-type
+@item magit-completing-read-function
+@item magit-create-branch-behaviour
+@item magit-status-buffer-switch-function
+@item magit-rewrite-inclusive
+@item magit-topgit-executable
+@item magit-topgit-branch-prefix
+
+@end table
+
 
 @bye
