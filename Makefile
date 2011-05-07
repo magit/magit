@@ -16,9 +16,11 @@ BATCH=$(EMACS) -batch -q -no-site-file -eval \
 %.elc: %.el
 	$(BATCH) --eval '(byte-compile-file "$<")'
 
-all: core contrib
+all: core docs contrib
 
-core: $(ELCS) magit.info magit.spec magit-pkg.el
+core: $(ELCS) magit.spec magit-pkg.el
+
+docs: magit.info
 
 contrib: $(ELCS_CONTRIB)
 
@@ -45,15 +47,19 @@ dist: $(DIST_FILES) $(DIST_FILES_CONTRIB)
 	tar -cvzf magit-$(VERSION).tar.gz magit-$(VERSION)
 	rm -rf magit-$(VERSION)
 
-install: core
+install: install_core install_docs
+
+install_core: core
 	mkdir -p $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp
 	install -m 644 $(ELS) $(ELCS) $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp
 	sed -i "s/@GIT_DEV_VERSION@/$(VERSION)/" $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp/magit.el #NO_DIST
+	mkdir -p $(DESTDIR)/etc/emacs/site-start.d
+	install -m 644 50magit.el $(DESTDIR)/etc/emacs/site-start.d/50magit.el
+
+install_docs: docs
 	mkdir -p $(DESTDIR)/$(PREFIX)/share/info
 	install -m 644 magit.info $(DESTDIR)/$(PREFIX)/share/info
 	install-info --info-dir=$(DESTDIR)/$(PREFIX)/share/info $(DESTDIR)/$(PREFIX)/share/info/magit.info
-	mkdir -p $(DESTDIR)/etc/emacs/site-start.d
-	install -m 644 50magit.el $(DESTDIR)/etc/emacs/site-start.d/50magit.el
 
 install_contrib: contrib
 	mkdir -p $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp
