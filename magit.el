@@ -2328,18 +2328,20 @@ in the corresponding directories."
 (defun magit-insert-diff-title (status file file2)
   (let ((status-text (case status
 		       ((unmerged)
-			(format "Unmerged %s" file))
+			(format "Unmerged   %s" file))
 		       ((new)
-			(format "New      %s" file))
+			(format "New        %s" file))
 		       ((deleted)
-			(format "Deleted  %s" file))
+			(format "Deleted    %s" file))
 		       ((renamed)
-			(format "Renamed  %s   (from %s)"
+			(format "Renamed    %s   (from %s)"
 				file file2))
 		       ((modified)
-			(format "Modified %s" file))
+			(format "Modified   %s" file))
+		       ((new-type)
+			(format "Typechange %s" file))
 		       (t
-			(format "?        %s" file)))))
+			(format "?          %s" file)))))
     (insert "\t" status-text "\n")))
 
 (defvar magit-current-diff-range nil
