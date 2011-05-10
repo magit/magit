@@ -36,6 +36,10 @@ options.
 
 `(require 'magit-topgit)` - integrates with topgit.
 
+### git-stgit
+
+`(require 'magit-stgit)` - integrates with StGit.
+
 Getting started
 ---------------
 
