@@ -2340,7 +2340,7 @@ in the corresponding directories."
 				file file2))
 		       ((modified)
 			(format "Modified   %s" file))
-		       ((new-type)
+		       ((typechange)
 			(format "Typechange %s" file))
 		       (t
 			(format "?          %s" file)))))
@@ -2477,7 +2477,7 @@ in the corresponding directories."
 	(narrow-to-region p (point))
 	(goto-char p)
         (cond
-         ((eq status 'new-type)
+         ((eq status 'typechange)
           (magit-insert-diff-title status file file)
           (magit-wash-typechange-section file))
          (t
@@ -2501,7 +2501,7 @@ in the corresponding directories."
 		      (?D 'deleted)
 		      (?M 'modified)
 		      (?U 'unmerged)
-		      (?T 'new-type)
+		      (?T 'typechange)
 		      (t     nil)))
 	    (file (match-string-no-properties 4)))
 	;; If this is for the same file as the last diff, ignore it.
