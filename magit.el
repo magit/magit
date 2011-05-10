@@ -2325,25 +2325,48 @@ in the corresponding directories."
 
 (defvar magit-hide-diffs nil)
 
+(defvar magit-indentation-level 1)
+
 (defun magit-insert-diff-title (status file file2)
   (let ((status-text (case status
 		       ((unmerged)
-			(format "Unmerged %s" file))
+			(format "Unmerged   %s" file))
 		       ((new)
-			(format "New      %s" file))
+			(format "New        %s" file))
 		       ((deleted)
-			(format "Deleted  %s" file))
+			(format "Deleted    %s" file))
 		       ((renamed)
-			(format "Renamed  %s   (from %s)"
+			(format "Renamed    %s   (from %s)"
 				file file2))
 		       ((modified)
-			(format "Modified %s" file))
+			(format "Modified   %s" file))
+		       ((typechange)
+			(format "Typechange %s" file))
 		       (t
-			(format "?        %s" file)))))
-    (insert "\t" status-text "\n")))
+			(format "?          %s" file)))))
+    (insert (make-string magit-indentation-level ?\t) status-text "\n")))
 
 (defvar magit-current-diff-range nil
   "Used internally when setting up magit diff sections.")
+
+(defun magit-wash-typechange-section (file)
+  (magit-set-section-info (list 'typechange file))
+  (let ((first-start (point-marker))
+        (second-start (progn (forward-line 1)
+                             (search-forward-regexp "^diff")
+                             (beginning-of-line)
+                             (point-marker))))
+    (let ((magit-indentation-level (+ magit-indentation-level 1)))
+      (save-restriction
+        (narrow-to-region first-start second-start)
+        (goto-char (point-min))
+        (magit-with-section file 'diff
+          (magit-wash-diff-section)))
+      (save-restriction
+        (narrow-to-region second-start (point-max))
+        (goto-char (point-min))
+        (magit-with-section file 'diff
+          (magit-wash-diff-section))))))
 
 (defun magit-wash-diff-section ()
   (cond ((looking-at "^\\* Unmerged path \\(.*\\)")
@@ -2440,7 +2463,7 @@ in the corresponding directories."
 
 (defvar magit-diff-options nil)
 
-(defun magit-insert-diff (file)
+(defun magit-insert-diff (file status)
   (let ((cmd magit-git-executable)
 	(args (append (list "diff")
 		      (list (magit-diff-U-arg))
@@ -2453,7 +2476,12 @@ in the corresponding directories."
       (save-restriction
 	(narrow-to-region p (point))
 	(goto-char p)
-	(magit-wash-diff-section)
+        (cond
+         ((eq status 'typechange)
+          (magit-insert-diff-title status file file)
+          (magit-wash-typechange-section file))
+         (t
+          (magit-wash-diff-section)))
 	(goto-char (point-max))))))
 
 (defvar magit-last-raw-diff nil)
@@ -2473,7 +2501,7 @@ in the corresponding directories."
 		      (?D 'deleted)
 		      (?M 'modified)
 		      (?U 'unmerged)
-		      (?T 'new-type)
+		      (?T 'typechange)
 		      (t     nil)))
 	    (file (match-string-no-properties 4)))
 	;; If this is for the same file as the last diff, ignore it.
@@ -2493,7 +2521,7 @@ in the corresponding directories."
 	    (magit-with-section file 'diff
 	      (delete-region (point) (+ (line-end-position) 1))
 	      (if (not (magit-section-hidden magit-top-section))
-		  (magit-insert-diff file)
+		  (magit-insert-diff file status)
 		(magit-set-section-info (list status file nil))
 		(magit-set-section-needs-refresh-on-show t)
 		(magit-insert-diff-title status file nil)))))
@@ -3199,6 +3227,15 @@ at point."
        (magit-run-git "add" "-u" (magit-diff-item-file item)))
       ((staged *)
        (error "Already staged"))
+      ((diff diff)
+       (save-excursion
+         (magit-goto-parent-section)
+         (magit-stage-item)))
+      ((diff diff hunk)
+       (save-excursion
+         (magit-goto-parent-section)
+         (magit-goto-parent-section)
+         (magit-stage-item)))
       ((hunk)
        (error "Can't stage this hunk"))
       ((diff)
@@ -3218,6 +3255,15 @@ at point."
          (magit-run-git "reset" "-q" "HEAD" "--" (magit-diff-item-file item))))
     ((unstaged *)
      (error "Already unstaged"))
+    ((diff diff)
+     (save-excursion
+       (magit-goto-parent-section)
+       (magit-unstage-item)))
+    ((diff diff hunk)
+     (save-excursion
+       (magit-goto-parent-section)
+       (magit-goto-parent-section)
+       (magit-unstage-item)))
     ((hunk)
      (error "Can't unstage this hunk"))
     ((diff)
@@ -4357,7 +4403,7 @@ This is only non-nil in reflog buffers.")
                       file1))
            (range (magit-diff-item-range diff)))
       (cond
-       ((member type '(new deleted))
+       ((member type '(new deleted typechange))
         (message "Why ediff a %s file?" type))
        ((and (eq type 'unmerged)
              (eq (cdr range) 'working))
@@ -4597,6 +4643,15 @@ This is only meaningful in wazzup buffers.")
      (if (magit-file-uptodate-p (magit-diff-item-file item))
 	 (magit-discard-diff item t)
        (error "Can't discard staged changes to this file.  Please unstage it first")))
+    ((diff diff)
+     (save-excursion
+       (magit-goto-parent-section)
+       (magit-discard-item)))
+    ((diff diff hunk)
+     (save-excursion
+       (magit-goto-parent-section)
+       (magit-goto-parent-section)
+       (magit-discard-item)))
     ((hunk)
      (error "Can't discard this hunk"))
     ((diff)
