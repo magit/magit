@@ -240,6 +240,29 @@ The function is given one argument, the status buffer."
 		(function-item pop-to-buffer)
 		(function :tag "Other")))
 
+(defcustom magit-rewrite-inclusive t
+  "Whether magit includes the selected base commit in a rewrite operation.
+
+t means both the selected commit as well as any subsequent
+commits will be rewritten. This is magit's default behaviour,
+equivalent to 'git rebase -i ${REV}~1'
+
+  A'---B'---C'---D'
+  ^
+
+nil means the selected commit will be literally used as 'base',
+so only subsequent commits will be rewritten. This is consistent
+with git-rebase, equivalent to 'git rebase -i ${REV}', yet more
+cumbersome to use from the status buffer.
+
+  A---B'---C'---D'
+  ^
+"
+  :group 'magit
+  :type '(choice (const :tag "Always" t)
+                 (const :tag "Never" nil)
+                 (const :tag "Ask"   ask)))
+
 (defgroup magit-faces nil
   "Customize the appearance of Magit"
   :prefix "magit-"
@@ -3593,7 +3616,17 @@ Uncomitted changes in both working tree and staging area are lost.
   (or (not (magit-read-rewrite-info))
       (error "Rewrite in progress"))
   (let* ((orig (magit-rev-parse "HEAD"))
-         (base from)
+         (base
+          (if
+              (or
+               (eq magit-rewrite-inclusive t)
+               (and
+                (eq magit-rewrite-inclusive 'ask)
+                (y-or-n-p "Include selected revision in rewrite? ")))
+              (or
+               (car (magit-commit-parents from))
+               (error "Can't rewrite a parentless commit."))
+            from))
 	 (pending (magit-git-lines "rev-list" (concat base ".."))))
     (magit-write-rewrite-info `((orig ,orig)
 				(pending ,@(mapcar #'list pending))))

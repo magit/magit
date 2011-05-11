@@ -54,6 +54,7 @@ as an extension to Emacs.
 * Submodules::
 * Using Magit Extensions::
 * Using Git Directly::
+* Customization::
 @end menu
 
 @node Introduction
@@ -345,6 +346,11 @@ in one branch, but not in another, for example.  The start point can
 also be a range of revisions ``r1..r2''.  In that case ``r1'' is used
 as the start and ``r2'' as the end point of the history.
 
+More thorough filtering can be done by supplying @kbd{l} with one or
+more suffix arguments, as displayed in its popup.  @kbd{=g} ('Grep')
+for example, limits the output to commits of which the log message
+matches a specific string/regex.
+
 Typing @kbd{l L} (or @kbd{l C-u L}) will show the log in a more verbose
 form.
 
@@ -391,8 +397,6 @@ the marked commit no matter where point is, use @kbd{C-u .}.
 Some commands, such as @kbd{=}, will use the current commit and the
 marked commit as implicit arguments.  Other commands will offer the
 marked commit as a default when prompting for their arguments.
-
-To grep the history press @kbd{s}.
 
 @node Reflogs
 @chapter Reflogs
@@ -509,8 +513,13 @@ with @kbd{A}.  To drop a stash, use @kbd{k}.
 With a prefix argument, both @kbd{a} and @kbd{A} will attempt to
 reinstate the index as well as the working tree from the stash.
 
-Typing @kbd{z Z} will create a stash just like @kbd{z z}, but will
-leave the changes in your working tree and index.
+Typing @kbd{z -k z} will create a stash just like @kbd{z z}, but will
+leave the changes in your working tree and index. This makes it easier
+to, for example, test multiple variations of the same change.
+
+If you just want to make quick snapshots in between edits, you can use
+@kbd{z s}, which automatically enters a timestamp as description, and
+keeps your working tree and index intact by default.
 
 You can visit and show stashes in the usual way: Typing @kbd{SPC} and
 @kbd{DEL} will pop up a buffer with the description of the stash and
@@ -655,9 +664,12 @@ associated with rewriting.  These commands all start with the @kbd{r}
 prefix key.
 
 Typing @kbd{r b} will start a rewrite operation.  You will be prompted
-for a @emph{base} commit, and all commits between the current head and
-this commit are put in a list of @emph{Pending commits}.  The current
-head will then be reset to the base commit.
+for a @emph{base} commit.  This commit and all subsequent commits up
+until the current head are then put in a list of @emph{Pending
+commits}, after which the current head will be reset to the
+@emph{parent} of the base commit.  This can be configured to behave
+like @code{git rebase}, i.e. exclude the selected base commit from the
+rewrite operation, with the @code{magit-rewrite-inclusive} variable.
 
 You would then typically use @kbd{a} and @kbd{A} to cherry pick
 commits from the list of pending commits in the desired order, until
@@ -752,7 +764,7 @@ specified in .gitmodules.
 @node Bisecting
 @chapter Bisecting
 
-magit supports bisecting by showing how many revisions and steps are
+Magit supports bisecting by showing how many revisions and steps are
 left to be tested in the status buffer. You can control the bisect
 session from both the status and from log buffers with the @kbd{B} key
 menu.
@@ -761,7 +773,7 @@ Typing @kbd{B s} will start a bisect session.  You will be prompted
 for a revision that is known to be bad (defaults to @emph{HEAD}) and
 for a revision that is known to be good (defaults to the revision at
 point if there is one). git will select a revision for you to test,
-and magit will update its status buffer accordingly.
+and Magit will update its status buffer accordingly.
 
 You can tell git that the current revision is good with @kbd{B g},
 that it is bad with @kbd{B b} or that git should skip it with @kbd{B
@@ -937,5 +949,146 @@ For situations when Magit doesn't do everything you need, you can run
 raw Git commands using @kbd{:}.  This will prompt for a Git command, run
 it, and refresh the status buffer.  The output can be viewed by typing
 @kbd{$}.
+
+
+@node Customization
+@chapter Customization
+
+The following variables can be used to adapt Magit to your workflow:
+
+@table @code
+
+@item magit-git-executable
+The name of the Git executable.
+
+@item magit-git-standard-options
+Standard options when running Git.
+
+@item magit-repo-dirs
+Directories containing Git repositories.
+
+Magit will look into these directories for Git repositories and offer
+them as choices for @code{magit-status}.
+
+@item magit-repo-dirs-depth
+The maximum depth to look for Git repos.
+
+When looking for a Git repository below the directories in
+@code{magit-repo-dirs}, Magit will only descend this many levels deep.
+
+@item magit-save-some-buffers
+Non-nil means that @code{magit-status} will save modified buffers
+before running.  Setting this to @code{t} will ask which buffers to
+save, setting it to @code{'dontask} will save all modified buffers
+without asking.
+
+@item magit-save-some-buffers-predicate
+Specifies a predicate function on @code{magit-save-some-buffers} to
+determine which unsaved buffers should be prompted for saving.
+
+@item magit-commit-all-when-nothing-staged
+Determines what @code{magit-log-edit} does when nothing is staged.
+Setting this to @code{nil} will make it do nothing, setting it to
+@code{t} will arrange things so that the actual commit command will
+use the @code{--all} option, setting it to @code{'ask} will first ask
+for confirmation whether to do this, and setting it to
+@code{'ask-stage} will cause all changes to be staged, after a
+confirmation.
+
+@item magit-commit-signoff
+When performing @code{git commit} adds @code{--signoff}.
+
+@item magit-log-cutoff-length
+The maximum number of commits to show in the @code{log} and
+@code{whazzup} buffers.
+
+@item magit-log-infinite-length
+Number of log used to show as maximum for
+@code{magit-log-cutoff-length}.
+
+@item magit-log-auto-more
+Insert more log entries automatically when moving past the last entry.
+
+Only considered when moving past the last entry with @code{magit-goto-next-section}.
+
+@item magit-process-popup-time
+Popup the process buffer if a command takes longer than this many
+seconds.
+
+@item magit-revert-item-confirm
+Require acknowledgment before reverting an item.
+
+@item magit-log-edit-confirm-cancellation
+Require acknowledgment before canceling the log edit buffer.
+
+@item magit-remote-ref-format
+What format to use for autocompleting refs, in pariticular for
+remotes.
+
+Autocompletion is used by functions like @code{magit-checkout},
+@code{magit-interactive-rebase} and others which offer branch name
+completion.
+
+The value @code{'name-then-remote} means remotes will be of the form
+@code{name (remote)}, while the value @code{'remote-slash-name} means
+that they'll be of the form @code{remote/name}. I.e. something that's
+listed as @code{remotes/upstream/next} by @code{git branch -l -a} will
+be @code{upstream/next}.
+
+@item magit-process-connection-type
+Connection type used for the git process.
+
+@code{nil} mean pipe, it is usually faster and more efficient, and
+work on cygwin.  @code{t} mean pty, it enable magit to prompt for
+passphrase when needed.
+
+@item magit-completing-read-function
+Function to be called when requesting input from the user.
+
+@item magit-create-branch-behaviour
+Where magit will create a new branch if not supplied a branchname or
+ref.
+
+The value @code{'at-head} means a new branch will be created at the
+tip of your current branch, while the value @code{'at-point} means
+magit will try to find a valid reference at point...
+
+@item magit-status-buffer-switch-function
+Function for @code{magit-status} to use for switching to the status
+buffer.
+
+The function is given one argument, the status buffer.
+
+@item magit-rewrite-inclusive
+Whether magit includes the selected base commit in a rewrite
+operation.
+
+@code{t} means both the selected commit as well as any subsequent
+commits will be rewritten. This is magit's default behaviour,
+equivalent to @code{git rebase -i $@{REV~1@}}
+
+@verbatim
+  A'---B'---C'---D'
+  ^
+@end verbatim
+
+@code{nil} means the selected commit will be literally used as
+@code{base}, so only subsequent commits will be rewritten. This is
+consistent with git-rebase, equivalent to @code{git rebase -i
+$@{REV@}}, yet more cumbersome to use from the status buffer.
+
+@verbatim
+  A---B'---C'---D'
+  ^
+@end verbatim
+
+@item magit-topgit-executable
+The name of the TopGit executable.
+
+@item magit-topgit-branch-prefix
+Convention prefix for topic branch creation.
+
+@end table
+
 
 @bye
