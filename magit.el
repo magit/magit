@@ -618,7 +618,7 @@ Many Magit faces inherit from this one by default."
     map))
 
 (defvar magit-bug-report-url
-  "http://github.com/philjackson/magit/issues")
+  "http://github.com/magit/magit/issues")
 
 (defun magit-bug-report (str)
   (message (concat
