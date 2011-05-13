@@ -1,9 +1,12 @@
 It's Magit!  An Emacs mode for Git.
 ===================================
 
-Magit is an interface to Git for Emacs. Unlike Emacs's native
-[version control support][vc], Magit can take advantage of Git's
-native features without breaking compatibility with other systems.
+Magit is an interface to Git for Emacs, supporting GNU Emacs 22 or
+later.
+
+ Unlike Emacs's native [version control support][vc], Magit can take
+advantage of Git's native features without breaking compatibility with
+other systems.
 
 To get started see the [Magit User Manual][manual] or perhaps the
 [cheatsheet][cheatsheet] if you're in a hurry. There's also an
