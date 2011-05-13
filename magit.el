@@ -87,6 +87,7 @@
 (eval-when-compile  (require 'view))
 (declare-function view-mode 'view)
 (eval-when-compile (require 'iswitchb))
+(eval-when-compile (require 'ido))
 (eval-when-compile (require 'ediff))
 
 ;;; Code:
@@ -218,6 +219,7 @@ t mean pty, it enable magit to prompt for passphrase when needed."
   "Function to be called when requesting input from the user."
   :group 'magit
   :type '(radio (function-item magit-iswitchb-completing-read)
+                (function-item magit-ido-completing-read)
 		(function-item magit-builtin-completing-read)
 		(function :tag "Other")))
 
@@ -663,6 +665,18 @@ Many Magit faces inherit from this one by default."
                                            (mapcar #'car choices)
                                          choices)))))
     (iswitchb-read-buffer prompt (or initial-input def) require-match)))
+
+(defun magit-ido-completing-read (prompt choices &optional predicate require-match initial-input hist def)
+  "ido-based completing-read almost-replacement."
+  (require 'ido)
+  (let ((selected (ido-completing-read prompt (if (consp (first choices))
+                                                  (mapcar #'car choices)
+                                                choices)
+                                       predicate require-match initial-input hist def)))
+    (if (consp (first choices))
+        (or (cdr (assoc selected choices))
+            selected)
+      selected)))
 
 (defun magit-builtin-completing-read (prompt choices &optional predicate require-match
                                       initial-input hist def)
