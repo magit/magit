@@ -5024,18 +5024,19 @@ name of the remote and branch name. The remote must be known to git."
                                                               ref)))))
          new-remote new-branch)
     (unless (string= (or new-tracked "") "")
-      (if (string-match "^refs/remotes/\\([^/]+\\)/\\(.+\\)" ; 1: remote name; 2: branch name
-                        new-tracked)
-          (setq new-remote (match-string 1 new-tracked)
-                new-branch (concat "refs/heads/" (match-string 2 new-tracked)))
-        ;; Match refs that are unknown in the local repository. Can be
-        ;; useful if you want to create a new branch in a remote
-        ;; repository.
-        (if (string-match "^\\([^ ]+\\) +(\\(.+\\))$" ; 1: branch name; 2: remote name
-                          new-tracked)
-            (setq new-remote (match-string 2 new-tracked)
-                  new-branch (concat "refs/heads/" (match-string 1 new-tracked)))
-            (error "Cannot parse the remote and branch name"))))
+      (cond (;; Match refs that are unknown in the local repository if
+             ;; `magit-remote-ref-format' is set to
+             ;; `name-then-remote'. Can be useful if you want to
+             ;; create a new branch in a remote repository.
+             (string-match "^\\([^ ]+\\) +(\\(.+\\))$" ; 1: branch name; 2: remote name
+                           new-tracked)
+             (setq new-remote (match-string 2 new-tracked)
+                   new-branch (concat "refs/heads/" (match-string 1 new-tracked))))
+            ((string-match "^\\(?:refs/remotes/\\)?\\([^/]+\\)/\\(.+\\)" ; 1: remote name; 2: branch name
+                           new-tracked)
+             (setq new-remote (match-string 1 new-tracked)
+                   new-branch (concat "refs/heads/" (match-string 2 new-tracked))))
+            (t (error "Cannot parse the remote and branch name"))))
     (magit-set new-remote "branch" local-branch "remote")
     (magit-set new-branch "branch" local-branch "merge")
     (magit-show-branches)
