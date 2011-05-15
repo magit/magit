@@ -30,7 +30,8 @@ Magit is an interface to the version control system Git, implemented
 as an extension to Emacs.  Magit supports GNU Emacs version 22 or
 later.  It may work with other emacsen, but Magit developers do not
 intend to investigate and fix bugs that only appear in unsupported
-versions.
+versions.  Patches to fix bugs in other emacsen or volunteers to
+maintain compatibility are still welcome.
 
 @menu
 * Introduction::
