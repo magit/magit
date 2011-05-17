@@ -4894,17 +4894,15 @@ buffer instead."
   "Remove the branch in the line at point.
 With prefix force the removal even it it hasn't been merged."
   (interactive "P")
-  (let ((args (list "branch"
-		    (if force "-D" "-d")
-		    (when (magit--is-branch-at-point-remote) "-r")
-		    ;; remove the remotes part
-		    (magit-remove-remote
-                     (magit--branch-name-at-point)))))
-    (apply 'magit-run-git (remq nil args))
-    (if (and (magit--is-branch-at-point-remote)
+  (let* ((branch-section (magit-current-section))
+         (args (list "branch"
+                    (if force "-D" "-d")
+                    (when (magit--is-branch-section-remote branch-section) "-r")
+                    (magit-remove-remote (magit--branch-name-from-section branch-section)))))
+    (if (and (magit--is-branch-section-remote branch-section)
              (yes-or-no-p "Remove branch in remote repository as well? "))
-        (magit-remove-branch-in-remote-repo (magit--branch-name-at-point)))
-    (magit-show-branches)))
+        (magit-remove-branch-in-remote-repo (magit--branch-name-from-section branch-section)))
+    (apply 'magit-run-git (remq nil args))))
 
 (defun magit--remotes ()
   "Return a list of names for known remotes."
@@ -4950,7 +4948,10 @@ name of the remote and branch name. The remote must be known to git."
 
 (defun magit--is-branch-at-point-remote()
   "Return t if the branch at point is a remote tracking branch"
-  (assoc-default 'remote (magit-section-info (magit-current-section))))
+  (magit--is-branch-section-remote (magit-current-section)))
+
+(defun magit--is-branch-section-remote (branch)
+  (assoc-default 'remote (magit-section-info branch)))
 
 (defun magit--branch-view-details (branch-line)
   "Extract details from branch -va output."
