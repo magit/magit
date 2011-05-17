@@ -622,11 +622,16 @@ Many Magit faces inherit from this one by default."
 (defvar magit-bug-report-url
   "http://github.com/magit/magit/issues")
 
+(defconst magit-version "@GIT_DEV_VERSION@"
+  "The version of Magit that you're using.")
+
 (defun magit-bug-report (str)
   (message (concat
-            "Unknown error: %s\nPlease, with as much "
-            "information as possible, file a bug at %s")
-           str magit-bug-report-url))
+            "Unknown error: %s\n"
+            "Please, with as much information as possible, file a bug at\n"
+            "%s\n"
+            "You are using Magit version %s.")
+           str magit-bug-report-url magit-version))
 
 (defun magit-buffer-switch (buf)
   (if (string-match "magit" (buffer-name))
