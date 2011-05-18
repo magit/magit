@@ -2641,6 +2641,20 @@ in the corresponding directories."
 	  (forward-line))
 	target))))
 
+(when (and (not (fboundp 'with-silent-modifications))
+           (or (< emacs-major-version 23)
+               (and (= emacs-major-version 23)
+                    (< emacs-minor-version 2))))
+  (defmacro with-silent-modifications (&rest body)
+    "Execute body without changing `buffer-modified-p'. Also, do not
+record undo information."
+    `(set-buffer-modified-p
+      (prog1 (buffer-modified-p)
+        (let ((buffer-undo-list t)
+              before-change-functions
+              after-change-functions)
+          ,@body)))))
+
 (defun magit-show (commit filename &optional select prefix)
   "Returns a buffer containing the contents of the file FILENAME, as stored in
 COMMIT.  COMMIT may be one of the following:
