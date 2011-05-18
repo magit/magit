@@ -654,6 +654,19 @@ Many Magit faces inherit from this one by default."
     (defalias 'magit-start-process 'start-file-process)
     (defalias 'magit-start-process 'start-process))
 
+(eval-and-compile
+  (if (fboundp 'with-silent-modifications)
+      (defalias 'magit-with-silent-modifications 'with-silent-modifications)
+    (defmacro magit-with-silent-modifications (&rest body)
+      "Execute body without changing `buffer-modified-p'. Also, do not
+record undo information."
+      `(set-buffer-modified-p
+        (prog1 (buffer-modified-p)
+          (let ((buffer-undo-list t)
+                before-change-functions
+                after-change-functions)
+            ,@body))))))
+
 ;;; Utilities
 
 (defvar magit-submode nil)
@@ -2641,20 +2654,6 @@ in the corresponding directories."
 	  (forward-line))
 	target))))
 
-(when (and (not (fboundp 'with-silent-modifications))
-           (or (< emacs-major-version 23)
-               (and (= emacs-major-version 23)
-                    (< emacs-minor-version 2))))
-  (defmacro with-silent-modifications (&rest body)
-    "Execute body without changing `buffer-modified-p'. Also, do not
-record undo information."
-    `(set-buffer-modified-p
-      (prog1 (buffer-modified-p)
-        (let ((buffer-undo-list t)
-              before-change-functions
-              after-change-functions)
-          ,@body)))))
-
 (defun magit-show (commit filename &optional select prefix)
   "Returns a buffer containing the contents of the file FILENAME, as stored in
 COMMIT.  COMMIT may be one of the following:
@@ -2683,13 +2682,13 @@ either in another window or (with a prefix argument) in the current window."
           (string-match "^\\(.*\\)\t" checkout-string)
           (with-current-buffer buffer
             (let ((tmpname (match-string 1 checkout-string)))
-              (with-silent-modifications
+              (magit-with-silent-modifications
                 (insert-file-contents tmpname nil nil nil t))
               (delete-file tmpname)))))
        (t
         (with-current-buffer buffer
-          (with-silent-modifications
-            (magit-git-insert (list "show" (concat commit ":" filename)))))))
+          (magit-with-silent-modifications
+           (magit-git-insert (list "show" (concat commit ":" filename)))))))
       (with-current-buffer buffer
         (let ((buffer-file-name filename))
           (normal-mode)))
