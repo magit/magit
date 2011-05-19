@@ -658,9 +658,27 @@ Many Magit faces inherit from this one by default."
 
 (if (functionp 'start-file-process)
     (defalias 'magit-start-process 'start-file-process)
-    (defalias 'magit-start-process 'start-process))
+  (defalias 'magit-start-process 'start-process))
 
 (eval-and-compile
+  (defun magit-max-args-internal (function)
+    "Returns the maximum number of arguments accepted by FUNCTION."
+    (if (symbolp function)
+        (setq function (symbol-function function)))
+    (if (subrp function)
+        (let ((max (cdr (subr-arity function))))
+          (if (eq 'many max)
+              most-positive-fixnum
+            max))
+      (if (eq 'macro (car-safe function))
+          (setq function (cdr function)))
+      (let ((arglist (if (byte-code-function-p function)
+                         (aref function 0)
+                       (second function))))
+        (if (memq '&rest arglist)
+            most-positive-fixnum
+          (length (remq '&optional arglist))))))
+
   (if (fboundp 'with-silent-modifications)
       (defalias 'magit-with-silent-modifications 'with-silent-modifications)
     (defmacro magit-with-silent-modifications (&rest body)
@@ -671,7 +689,23 @@ record undo information."
           (let ((buffer-undo-list t)
                 before-change-functions
                 after-change-functions)
-            ,@body))))))
+            ,@body)))))
+
+  (if (< (magit-max-args-internal 'delete-directory) 2)
+      (defalias 'magit-delete-directory 'delete-directory)
+    (defun magit-delete-directory (directory &optional recursive)
+      "Deletes a directory named DIRECTORY.  If RECURSIVE is non-nill,
+recursively delete all of DIRECTORY's contents as well.
+
+Does not follow symlinks."
+      (if (or (file-symlink-p directory)
+              (not (file-directory-p directory)))
+          (delete-file directory)
+        (if recursive
+            ;; `directory-files-no-dot-files-regex' borrowed from Emacs 23
+            (dolist (file (directory-files directory 'full "\\([^.]\\|\\.\\([^.]\\|\\..\\)\\).*"))
+              (magit-delete-directory file recursive)))
+        (delete-directory directory)))))
 
 ;;; Utilities
 
@@ -4693,7 +4727,7 @@ This is only meaningful in wazzup buffers.")
      (when (yes-or-no-p (format "Delete %s? " info))
        (if (and (file-directory-p info)
                 (not (file-symlink-p info)))
-           (delete-directory info 'recursive)
+           (magit-delete-directory info 'recursive)
          (delete-file info))
        (magit-refresh-buffer)))
     ((untracked)
