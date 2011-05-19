@@ -679,6 +679,13 @@ Many Magit faces inherit from this one by default."
             most-positive-fixnum
           (length (remq '&optional arglist))))))
 
+  (unless (fboundp 'string-match-p)
+    (defun string-match-p (regexp string &optional start)
+      "Same as `string-match' except this function does not
+change the match data."
+      (let ((inhibit-changing-match-data t))
+	(string-match regexp string start))))
+
   (if (fboundp 'with-silent-modifications)
       (defalias 'magit-with-silent-modifications 'with-silent-modifications)
     (defmacro magit-with-silent-modifications (&rest body)
@@ -5268,17 +5275,6 @@ With a prefix arg, do a submodule update --init"
         (magit-start-process "Gitk" nil "sh" magit-gitk-executable "--all")))
      (t
       (magit-start-process "Gitk" nil magit-gitk-executable "--all")))))
-
-;; for emacs 22 compatibility
-
-(defun magit-string-match-p (regexp string &optional start)
-  "Same as `string-match' except this function does not change
-the match data."
-  (let ((inhibit-changing-match-data t))
-    (string-match regexp string start)))
-
-(when (not (fboundp 'string-match-p))
-  (fset 'string-match-p (symbol-function 'magit-string-match-p)))
 
 (provide 'magit)
 ;;; magit.el ends here
