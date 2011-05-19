@@ -656,10 +656,6 @@ Many Magit faces inherit from this one by default."
 
 ;;; Compatibilities
 
-(if (functionp 'start-file-process)
-    (defalias 'magit-start-process 'start-file-process)
-  (defalias 'magit-start-process 'start-process))
-
 (eval-and-compile
   (defun magit-max-args-internal (function)
     "Returns the maximum number of arguments accepted by FUNCTION."
@@ -678,6 +674,10 @@ Many Magit faces inherit from this one by default."
         (if (memq '&rest arglist)
             most-positive-fixnum
           (length (remq '&optional arglist))))))
+
+  (if (functionp 'start-file-process)
+      (defalias 'magit-start-process 'start-file-process)
+    (defalias 'magit-start-process 'start-process))
 
   (unless (fboundp 'string-match-p)
     (defun string-match-p (regexp string &optional start)
