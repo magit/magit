@@ -4781,8 +4781,12 @@ This is only meaningful in wazzup buffers.")
     (save-excursion
       (with-current-buffer (marker-buffer marker)
         (goto-char marker)
-        (add-change-log-entry whoami file-name other-window
-                              new-entry put-new-entry-on-new-line)))))
+        (if (>= (magit-max-args-internal 'add-change-log-entry) 5)
+            (add-change-log-entry whoami file-name other-window
+                                new-entry put-new-entry-on-new-line)
+          (add-change-log-entry whoami file-name other-window new-entry)
+          (if put-new-entry-on-new-line
+              (display-warning 'magit (format "Emacs %s does not support `put-new-entry-on-new-line' option to `add-change-log-entry'" emacs-version))))))))
 
 (defun magit-add-change-log-entry-other-window (&optional whoami file-name)
   "Add a change log entry for current change in other window."
