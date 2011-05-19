@@ -101,6 +101,12 @@
   :group 'magit
   :type 'string)
 
+(defcustom magit-gitk-executable (concat (file-name-directory magit-git-executable)
+                                         "gitk")
+  "The name of the Gitk executable."
+  :group 'magit
+  :type 'string)
+
 (defcustom magit-git-standard-options '("--no-pager")
   "Standard options when running Git."
   :group 'magit
@@ -5196,8 +5202,29 @@ With a prefix arg, do a submodule update --init"
 (defun magit-run-gitk ()
   "Run `gitk --all' for the current git repository"
   (interactive)
-  (let* ((default-directory (magit-get-top-dir default-directory)))
-    (start-process "gitk" nil "gitk" "--all")))
+  (let ((default-directory (magit-get-top-dir default-directory)))
+    (cond
+     ((eq system-type 'windows-nt)
+      ;; Gitk is a shell script, and Windows doesn't know how to
+      ;; "execute" it.  The Windows version of Git comes with an
+      ;; implementation of "sh" and everything else it needs, but
+      ;; Windows users might not have added the directory where it's
+      ;; installed to their path
+      (let ((git-bin-dir (file-name-directory magit-gitk-executable))
+            (exec-path exec-path)
+            (process-environment (copy-sequence process-environment)))
+        (when git-bin-dir
+          ;; Adding it onto the end so that anything the user
+          ;; specified will get tried first.  Emacs looks in
+          ;; exec-path; PATH is the environment variable inherited by
+          ;; the process.  I need to change both.
+          (setq exec-path (append exec-path (list git-bin-dir)))
+          (setenv "PATH" (concat (getenv "PATH") ";"
+                                 (replace-regexp-in-string "/" "\\\\"
+                                                           git-bin-dir))))
+        (start-process "gitk" nil "sh" magit-gitk-executable "--all")))
+     (t
+      (start-process "gitk" nil magit-gitk-executable "--all")))))
 
 ;; for emacs 22 compatibility
 
