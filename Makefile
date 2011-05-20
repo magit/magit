@@ -44,7 +44,7 @@ dist: $(DIST_FILES) $(DIST_FILES_CONTRIB)
 	cp $(DIST_FILES_CONTRIB) magit-$(VERSION)/contrib
 	sed -i -e "1 s/=.*/=$(VERSION)/" magit-$(VERSION)/Makefile #NO_DIST
 	sed -i -e "/NO_DIST/d" magit-$(VERSION)/Makefile #NO_DIST
-	sed -i "s/@GIT_DEV_VERSION@/$(VERSION)/" magit-$(VERSION)/magit.el #NO_DIST
+	sed -i -e "s/@GIT_DEV_VERSION@/$(VERSION)/" magit-$(VERSION)/magit.el #NO_DIST
 	tar -cvzf magit-$(VERSION).tar.gz magit-$(VERSION)
 	rm -rf magit-$(VERSION)
 
@@ -53,7 +53,7 @@ install: install_core install_docs
 install_core: core
 	mkdir -p $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp
 	install -m 644 $(ELS) $(ELCS) $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp
-	sed -i "s/@GIT_DEV_VERSION@/$(VERSION)/" $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp/magit.el #NO_DIST
+	sed -i -e "s/@GIT_DEV_VERSION@/$(VERSION)/" $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp/magit.el #NO_DIST
 	mkdir -p $(DESTDIR)/etc/emacs/site-start.d
 	install -m 644 50magit.el $(DESTDIR)/etc/emacs/site-start.d/50magit.el
 
