@@ -21,10 +21,10 @@
   '((logging
      (man-page "git-log")
      (actions
-      ("l" "Short" magit-display-log)
+      ("l" "Short" magit-log)
       ("L" "Long" magit-log-long)
       ("h" "Reflog" magit-reflog)
-      ("rl" "Ranged short" magit-display-log-ranged)
+      ("rl" "Ranged short" magit-log-ranged)
       ("rL" "Ranged long" magit-log-long-ranged)
       ("rh" "Ranged reflog" magit-reflog-ranged))
      (switches

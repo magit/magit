@@ -2063,7 +2063,7 @@ function can be enriched by magit extension like magit-topgit and magit-svn"
     ["Diff working tree" magit-diff-working-tree t]
     ["Diff" magit-diff t]
     ("Log"
-     ["Short Log" magit-display-log t]
+     ["Short Log" magit-log t]
      ["Long Log" magit-log-long t]
      ["Reflog" magit-reflog t]
      ["Extended..." magit-key-mode-popup-logging t])
@@ -4362,11 +4362,12 @@ With a non numeric prefix ARG, show all entries"
 (defvar magit-log-grep-buffer-name "*magit-grep-log*"
   "Buffer name for display of log grep results.")
 
-(magit-define-command display-log-ranged ()
+(magit-define-command log-ranged ()
   (interactive)
-  (magit-display-log t))
+  (magit-log t))
+(define-obsolete-function-alias 'magit-display-log-ranged 'magit-log-ranged)
 
-(magit-define-command display-log (&optional ask-for-range &rest extra-args)
+(magit-define-command log (&optional ask-for-range &rest extra-args)
   (interactive)
   (let* ((log-range (if ask-for-range
                         (magit-read-rev-range "Log" "HEAD")
@@ -4379,6 +4380,7 @@ With a non numeric prefix ARG, show all entries"
     (magit-mode-init topdir 'log #'magit-refresh-log-buffer log-range
 		     "--pretty=oneline" args)
     (magit-log-mode t)))
+(define-obsolete-function-alias 'magit-display-log 'magit-log)
 
 (magit-define-command log-long-ranged ()
   (interactive)
