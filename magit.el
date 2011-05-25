@@ -5197,7 +5197,7 @@ With a prefix arg, do a submodule update --init"
   "Run `git gui' for the current git repository"
   (interactive)
   (let* ((default-directory (magit-get-top-dir default-directory)))
-    (start-process "git gui" nil magit-git-executable "gui")))
+    (magit-start-process "Git Gui" nil magit-git-executable "gui")))
 
 (defun magit-run-gitk ()
   "Run `gitk --all' for the current git repository"
@@ -5222,9 +5222,9 @@ With a prefix arg, do a submodule update --init"
           (setenv "PATH" (concat (getenv "PATH") ";"
                                  (replace-regexp-in-string "/" "\\\\"
                                                            git-bin-dir))))
-        (start-process "gitk" nil "sh" magit-gitk-executable "--all")))
+        (magit-start-process "Gitk" nil "sh" magit-gitk-executable "--all")))
      (t
-      (start-process "gitk" nil magit-gitk-executable "--all")))))
+      (magit-start-process "Gitk" nil magit-gitk-executable "--all")))))
 
 ;; for emacs 22 compatibility
 
