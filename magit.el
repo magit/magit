@@ -656,11 +656,11 @@ Many Magit faces inherit from this one by default."
 
 ;;; Compatibilities
 
-(if (functionp 'start-file-process)
-    (defalias 'magit-start-process 'start-file-process)
+(eval-and-compile
+  (if (functionp 'start-file-process)
+      (defalias 'magit-start-process 'start-file-process)
     (defalias 'magit-start-process 'start-process))
 
-(eval-and-compile
   (if (fboundp 'with-silent-modifications)
       (defalias 'magit-with-silent-modifications 'with-silent-modifications)
     (defmacro magit-with-silent-modifications (&rest body)
