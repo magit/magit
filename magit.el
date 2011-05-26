@@ -5207,21 +5207,22 @@ With a prefix arg, do a submodule update --init"
      ((eq system-type 'windows-nt)
       ;; Gitk is a shell script, and Windows doesn't know how to
       ;; "execute" it.  The Windows version of Git comes with an
-      ;; implementation of "sh" and everything else it needs, but
+      ;; implimentation of "sh" and everything else it needs, but
       ;; Windows users might not have added the directory where it's
       ;; installed to their path
       (let ((git-bin-dir (file-name-directory magit-gitk-executable))
             (exec-path exec-path)
-            (process-environment (copy-sequence process-environment)))
+            (process-environment process-environment))
         (when git-bin-dir
           ;; Adding it onto the end so that anything the user
           ;; specified will get tried first.  Emacs looks in
           ;; exec-path; PATH is the environment variable inherited by
           ;; the process.  I need to change both.
           (setq exec-path (append exec-path (list git-bin-dir)))
-          (setenv "PATH" (concat (getenv "PATH") ";"
-                                 (replace-regexp-in-string "/" "\\\\"
-                                                           git-bin-dir))))
+          (push (format "PATH=%s;%s"
+                        (getenv "PATH")
+                        (replace-regexp-in-string "/" "\\\\" git-bin-dir))
+                process-environment))
         (magit-start-process "Gitk" nil "sh" magit-gitk-executable "--all")))
      (t
       (magit-start-process "Gitk" nil magit-gitk-executable "--all")))))
