@@ -1962,12 +1962,14 @@ function can be enriched by magit extension like magit-topgit and magit-svn"
 
 (defun magit-password (proc string)
   "Checks if git/ssh asks for a password and ask the user for it."
-  (when (or (string-match "^Enter passphrase for key '\\\(.*\\\)': $" string)
-	    (string-match "^\\\(.*\\\)'s password:" string))
-    (process-send-string proc
-                         (concat (read-passwd
-                                  (format "Password for '%s': " (match-string 1 string))
-                                  nil) "\n"))))
+  (let (ask)
+    (cond ((or (string-match "^Enter passphrase for key '\\\(.*\\\)': $" string)
+               (string-match "^\\\(.*\\\)'s password:" string))
+           (setq ask (format "Password for '%s': " (match-string 1 string))))
+          ((string-match "^[pP]assword:" string)
+           (setq ask "Password:")))
+    (when ask
+     (process-send-string proc (concat (read-passwd ask nil) "\n")))))
 
 (defun magit-process-filter (proc string)
   (save-current-buffer
