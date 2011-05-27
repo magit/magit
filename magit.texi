@@ -344,11 +344,13 @@ new buffer will be shown that displays the history in a terse form.
 The first paragraph of each commit message is displayed, next to a
 representation of the relationships between commits.
 
-Giving a prefix argument to @kbd{l} will ask for the starting and end
-point of the history.  This can be used to show the commits that are
-in one branch, but not in another, for example.  The start point can
-also be a range of revisions ``r1..r2''.  In that case ``r1'' is used
-as the start and ``r2'' as the end point of the history.
+To show the repository history between two branches or between any two
+points of the history, type @kbd{l r l}.  You will be prompted to enter
+references for starting point and ending point of the history range; you
+can use auto-completion to specify them.  A typical use case for ranged
+history log display would be @kbd{l r l master RET new-feature RET} that
+will display commits on the new-feature branch that are not in master;
+these commits can then be inspected and cherry-picked, for example.
 
 More thorough filtering can be done by supplying @kbd{l} with one or
 more suffix arguments, as displayed in its popup.  @kbd{=g} ('Grep')
