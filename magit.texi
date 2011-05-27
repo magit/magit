@@ -746,7 +746,7 @@ you want to push the changes then type @kbd{P P}.
 
 When the remote branch has changes that are not in the current branch,
 Magit shows them in a section called @emph{Unpulled changes}.  Typing
-@kbd{F p} will merge them into the current branch.
+@kbd{F F} will fetch and merge them into the current branch.
 
 @node Submodules
 @chapter Submodules
