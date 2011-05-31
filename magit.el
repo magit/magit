@@ -698,10 +698,10 @@ record undo information."
                 after-change-functions)
             ,@body)))))
 
-  (if (< (magit-max-args-internal 'delete-directory) 2)
+  (if (>= (magit-max-args-internal 'delete-directory) 2)
       (defalias 'magit-delete-directory 'delete-directory)
     (defun magit-delete-directory (directory &optional recursive)
-      "Deletes a directory named DIRECTORY.  If RECURSIVE is non-nill,
+      "Deletes a directory named DIRECTORY.  If RECURSIVE is non-nil,
 recursively delete all of DIRECTORY's contents as well.
 
 Does not follow symlinks."
