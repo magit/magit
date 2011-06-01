@@ -719,7 +719,7 @@ it, like from any other diff.
 @chapter Pushing and Pulling
 
 Magit will run @code{git push} when you type @kbd{P P}.  If you give a
-prefix argument to @kbd{P P}, you will be prompted for the repository to
+prefix argument (i.e. @kbd{P C-u P}), you will be prompted for the repository to
 push to.  When no default remote repository has been configured yet for
 the current branch, you will be prompted as well.  Typing @kbd{P P} will
 only push the current branch to the remote.  In other words, it will run
@@ -746,7 +746,7 @@ you want to push the changes then type @kbd{P P}.
 
 When the remote branch has changes that are not in the current branch,
 Magit shows them in a section called @emph{Unpulled changes}.  Typing
-@kbd{F p} will merge them into the current branch.
+@kbd{F F} will fetch and merge them into the current branch.
 
 @node Submodules
 @chapter Submodules
