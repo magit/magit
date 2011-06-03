@@ -288,13 +288,19 @@ put it in magit-key-mode-key-maps for fast lookup."
     (aput 'magit-key-mode-key-maps for-group map)
     map))
 
+(defvar magit-key-mode-prefix nil
+  "For internal use.  Holds the prefix argument to the command
+that brought up the key-mode window, so it can be used by the
+command that's eventually invoked.")
+
 (defun magit-key-mode-command (func)
   (let ((args '()))
     ;; why can't maphash return a list?!
     (maphash (lambda (k v)
                (push (concat k (shell-quote-argument v)) args))
              magit-key-mode-current-args)
-    (let ((magit-custom-options (append args magit-key-mode-current-options)))
+    (let ((magit-custom-options (append args magit-key-mode-current-options))
+          (current-prefix-arg (or current-prefix-arg magit-key-mode-prefix)))
       (set-window-configuration magit-log-mode-window-conf)
       (when func
         (call-interactively func))
@@ -351,6 +357,7 @@ highlighted before the description."
     (set (make-local-variable
           'magit-key-mode-current-args)
          (make-hash-table))
+    (set (make-local-variable 'magit-key-mode-prefix) current-prefix-arg)
     (magit-key-mode-redraw for-group))
   (message
    (concat
