@@ -30,7 +30,11 @@ magit.spec: magit.spec.in
 magit-pkg.el: magit-pkg.el.in
 	sed -e s/@VERSION@/$(VERSION)/ < $< > $@
 
-magit.elc:
+magit.elc: magit.el
+	sed -e "s/@GIT_DEV_VERSION@/$(VERSION)/" < magit.el > magit.tmp.el #NO_DIST
+	$(BATCH) --eval '(byte-compile-file "magit.tmp.el")' #NO_DIST
+	mv magit.tmp.elc magit.elc #NO_DIST
+	rm magit.tmp.el #NO_DIST
 magit-key-mode.elc:
 magit-svn.elc:
 magit-topgit.elc:
