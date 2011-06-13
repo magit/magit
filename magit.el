@@ -785,16 +785,22 @@ Does not follow symlinks."
       (nreverse lines))))
 
 (defun magit-git-insert (args)
-  (apply #'process-file
-	 magit-git-executable
-	 nil (list t nil) nil
-	 (append magit-git-standard-options args)))
+  (insert (magit-git-output args)))
 
 (defun magit-git-output (args)
-  (with-output-to-string
-    (with-current-buffer
-        standard-output
-      (magit-git-insert args))))
+  (magit-cmd-output magit-git-executable (append magit-git-standard-options args)))
+
+(defun magit-cmd-insert (cmd args)
+  (insert (magit-cmd-output cmd args)))
+
+(defun magit-cmd-output (cmd args)
+  (let ((cmd-output (with-output-to-string
+                      (with-current-buffer standard-output
+                        (apply #'process-file
+                               cmd
+                               nil (list t nil) nil
+                               args)))))
+    (replace-regexp-in-string "\e\\[.*?m" "" cmd-output)))
 
 (defun magit-git-string (&rest args)
   (magit-trim-line (magit-git-output args)))
@@ -1396,7 +1402,7 @@ CMD is an external command that will be run with ARGS as arguments"
 		(insert (propertize buffer-title 'face 'magit-section-title)
 			"\n"))
 	    (setq body-beg (point))
-	    (apply 'process-file cmd nil t nil args)
+            (magit-cmd-insert cmd args)
 	    (if (not (eq (char-before) ?\n))
 		(insert "\n"))
 	    (if washer
