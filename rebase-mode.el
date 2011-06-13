@@ -74,6 +74,22 @@
   "Keymap for rebase-mode. Note this will be added to by the
   top-level code which defines the edit functions.")
 
+(require 'easymenu)
+(easy-menu-define rebase-mode-menu rebase-mode-map
+  "Rebase-mode menu"
+  '("Rebase"
+    ["Pick" rebase-mode-pick t]
+    ["Reword" rebase-mode-reword t]
+    ["Edit" rebase-mode-edit t]
+    ["Squash" rebase-mode-squash t]
+    ["Fixup" rebase-mode-fixup t]
+    ["Kill" rebase-mode-kill-line t]
+    ["Move Down" rebase-mode-move-line-down t]
+    ["Move Up" rebase-mode-move-line-up t]
+    "---"
+    ["Abort" rebase-mode-abort t]
+    ["Done" server-edit t]))
+
 ;; create the functions which edit the action lines themselves (based
 ;; on `key-to-action-map' above)
 (mapc (lambda (key-action)
