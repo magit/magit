@@ -2744,7 +2744,8 @@ either in another window or (with a prefix argument) in the current window."
        (t
         (with-current-buffer buffer
           (magit-with-silent-modifications
-           (magit-git-insert (list "show" (concat commit ":" filename)))))))
+           (magit-git-insert (list "cat-file" "-p"
+                                   (concat commit ":" filename)))))))
       (with-current-buffer buffer
         (let ((buffer-file-name filename))
           (normal-mode)))
