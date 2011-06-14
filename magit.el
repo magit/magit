@@ -3037,7 +3037,24 @@ insert a line to tell how to insert more of them"
 (defvar magit-commit-buffer-name "*magit-commit*"
   "Buffer name for displaying commit log messages.")
 
-(defun magit-show-commit (commit &optional scroll inhibit-history)
+(defun magit-show-commit (commit &optional scroll inhibit-history select)
+  "Show information about a commit in the buffer named by
+`magit-commit-buffer-name'.  COMMIT can be any valid name for a commit
+in the current Git repository.
+
+When called interactively or when SELECT is non-nil, switch to
+the commit buffer using `pop-to-buffer'.
+
+Unless INHIBIT-HISTORY is non-nil, the commit currently shown
+will be pushed onto `magit-back-navigation-history' and
+`magit-forward-navigation-history' will be cleared.
+
+Noninteractively, if the commit is already displayed and SCROLL
+is provided, call SCROLL's function definition in the commit
+window.  (`scroll-up' and `scroll-down' are typically passed in
+for this argument.)"
+  (interactive (list (magit-read-rev "Show commit (hash or ref)")
+                     nil nil t))
   (when (magit-section-p commit)
     (setq commit (magit-section-info commit)))
   (let ((dir default-directory)
@@ -3064,7 +3081,9 @@ insert a line to tell how to insert more of them"
         (goto-char (point-min))
         (magit-mode-init dir 'commit
                          #'magit-refresh-commit-buffer commit)
-        (magit-commit-mode t))))))
+        (magit-commit-mode t))))
+    (if select
+        (pop-to-buffer buf))))
 
 (defun magit-show-commit-backward (&optional ignored)
   ;; Ignore argument passed by push-button
@@ -4846,8 +4865,7 @@ With a prefix argument, visit in other window."
        (goto-char (point-min))
        (forward-line (1- line))))
     ((commit)
-     (magit-show-commit info)
-     (pop-to-buffer magit-commit-buffer-name))
+     (magit-show-commit info nil nil 'select))
     ((stash)
      (magit-show-stash info)
      (pop-to-buffer magit-stash-buffer-name))
