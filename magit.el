@@ -1079,12 +1079,11 @@ argument or a list of strings used as regexps."
 (defun magit-tree-contents (treeish)
   "Returns a list of all files under TREEISH.  TREEISH can be a tree,
 a commit, or any reference to one of those."
-  (let ((real-tree (magit-git-string "rev-parse" (format "%s^{tree}" treeish))))
-    (unless (string-equal "tree" (magit-git-string "cat-file" "-t" real-tree))
-      (error "%s is not a commit or tree." treeish)))
   (let ((return-value nil))
     (with-temp-buffer
       (magit-git-insert (list "ls-tree" "-r" treeish))
+      (if (eql 0 (buffer-size))
+          (error "%s is not a commit or tree." treeish))
       (goto-char (point-min))
       (while (search-forward-regexp "\t\\(.*\\)" nil 'noerror)
         (push (match-string 1) return-value)))
