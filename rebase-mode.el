@@ -46,7 +46,7 @@
    line-start
    (group "exec"))
    (char space)
-   (* not-newline))
+   (* not-newline)
   "Regexp that matches an exec line in a rebase buffer.")
 
 (defvar rebase-mode-font-lock-keywords
