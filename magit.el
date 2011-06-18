@@ -883,24 +883,16 @@ Does not follow symlinks."
       (insert l "\n"))
     (write-file file)))
 
-(defun magit-concat-with-delim (delim seqs)
-  (cond ((null seqs)
-	 nil)
-	((null (cdr seqs))
-	 (car seqs))
-	(t
-	 (concat (car seqs) delim (magit-concat-with-delim delim (cdr seqs))))))
-
 (defun magit-get (&rest keys)
-  (magit-git-string "config" (magit-concat-with-delim "." keys)))
+  (magit-git-string "config" (mapconcat 'identity keys ".")))
 
 (defun magit-get-all (&rest keys)
-  (magit-git-lines "config" "--get-all" (magit-concat-with-delim "." keys)))
+  (magit-git-lines "config" "--get-all" (mapconcat 'identity keys ".")))
 
 (defun magit-set (val &rest keys)
   (if val
-      (magit-git-string "config" (magit-concat-with-delim "." keys) val)
-    (magit-git-string "config" "--unset" (magit-concat-with-delim "." keys))))
+      (magit-git-string "config" (mapconcat 'identity keys ".") val)
+    (magit-git-string "config" "--unset" (mapconcat 'identity keys "."))))
 
 (defun magit-remove-conflicts (alist)
   (let ((dict (make-hash-table :test 'equal))
@@ -1971,7 +1963,7 @@ function can be enriched by magit extension like magit-topgit and magit-svn"
 	    (goto-char (point-max))
 	  (erase-buffer))
 	(insert "$ " (or logline
-			 (magit-concat-with-delim " " cmd-and-args))
+			 (mapconcat 'identity cmd-and-args " "))
 		"\n")
 	(cond (nowait
 	       (setq magit-process
@@ -3255,9 +3247,9 @@ PREPEND-REMOTE-NAME is non-nil."
 	(let ((merge-heads (magit-file-lines ".git/MERGE_HEAD")))
 	  (if merge-heads
 	      (insert (format "Merging:   %s\n"
-			      (magit-concat-with-delim
-			       ", "
-			       (mapcar 'magit-name-rev merge-heads))))))
+			      (mapconcat 'identity
+                                         (mapcar 'magit-name-rev merge-heads)
+                                         ", ")))))
 	(let ((rebase (magit-rebase-info)))
 	  (if rebase
 	      (insert (apply 'format "Rebasing: onto %s (%s of %s); Press \"R\" to Abort, Skip, or Continue\n" rebase))))
