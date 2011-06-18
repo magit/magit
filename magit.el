@@ -1383,19 +1383,6 @@ end positions."
     (append (magit-section-path (magit-section-parent section))
 	    (list (magit-section-title section)))))
 
-;; Dead code:
-(defun magit-find-section-at (pos secs)
-  "Return the section at POS in SECS."
-  ;; Could use the text-property
-  (while (and secs
-	      (not (and (<= (magit-section-beginning (car secs)) pos)
-			(<  pos (magit-section-end (car secs))))))
-    (setq secs (cdr secs)))
-  (if secs
-      (or (magit-find-section-at pos (magit-section-children (car secs)))
-	  (car secs))
-    nil))
-
 (defun magit-find-section-after (pos secs)
   "Find the first section that begins after POS in the list SECS."
   (while (and secs
@@ -2100,10 +2087,6 @@ function can be enriched by magit extension like magit-topgit and magit-svn"
 			      magit-git-standard-options)
 			args))))
 
-(defun magit-run-with-input (input cmd &rest args)
-  (magit-with-refresh
-    (magit-run* (cons cmd args) nil nil nil nil input)))
-
 (defun magit-run-git-with-input (input &rest args)
   (magit-with-refresh
     (magit-run* (append (cons magit-git-executable
@@ -2142,10 +2125,6 @@ function can be enriched by magit extension like magit-topgit and magit-svn"
 (magit-define-level-shower 2)
 (magit-define-level-shower 3)
 (magit-define-level-shower 4)
-
-(defun magit-true (prompt)
-  "Dummy function for turning on options on menu."
-  t)
 
 (easy-menu-define magit-mode-menu magit-mode-map
   "Magit menu"
@@ -4501,8 +4480,6 @@ With a non numeric prefix ARG, show all entries"
 
 (defvar magit-log-buffer-name "*magit-log*"
   "Buffer name for display of log entries.")
-(defvar magit-log-grep-buffer-name "*magit-grep-log*"
-  "Buffer name for display of log grep results.")
 
 (magit-define-command log-ranged ()
   (interactive)
@@ -5288,33 +5265,6 @@ name of the remote and branch name. The remote must be known to git."
   (magit-section-action (item info "resolv")
     ((diff)
      (magit-interactive-resolve (cadr info)))))
-
-(defun magit-list-buffers ()
-  "Return a list of magit buffers."
-  (delq nil (mapcar (lambda (b)
-                      (with-current-buffer b
-                        (when (eq major-mode 'magit-mode)
-                          b)))
-                    (buffer-list))))
-
-(defun remove-dupes (list)
-  "Remove the duplicate items in a sorted list."
-  (let (tmp-list head)
-    (while list
-      (setq head (pop list))
-      (unless (equal head (car list))
-        (push head tmp-list)))
-    (reverse tmp-list)))
-
-(defun magit-list-projects ()
-  "Return a list of directories with a magit representation."
-  (remove-dupes
-   (sort
-    (mapcar (lambda (b)
-              (with-current-buffer b
-                (directory-file-name default-directory)))
-            (magit-list-buffers))
-    'string=)))
 
 (defun magit-submodule-update (&optional init)
   "Update the submodule of the current git repository
