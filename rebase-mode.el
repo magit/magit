@@ -44,7 +44,7 @@
 (defvar rebase-mode-exec-line-re
   (rx
    line-start
-   (group "exec"))
+   (group "exec")
    (char space)
    (* not-newline))
   "Regexp that matches an exec line in a rebase buffer.")
