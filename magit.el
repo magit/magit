@@ -126,6 +126,11 @@ Magit will only descend this many levels deep."
   :group 'magit
   :type 'integer)
 
+(defcustom magit-use-highlights t
+  "Use highlights in diff buffer."
+  :group 'magit
+  :type 'boolean)
+
 (defcustom magit-save-some-buffers t
   "Non-nil means that \\[magit-status] will save modified buffers before running.
 Setting this to t will ask which buffers to save, setting it to 'dontask will
@@ -1708,7 +1713,7 @@ TITLE is the displayed title of the section."
 (defun magit-highlight-section ()
   "Highlight current section if it have a type."
   (let ((section (magit-current-section)))
-    (when (not (eq section magit-highlighted-section))
+    (when (and magit-use-highlights (not (eq section magit-highlighted-section)))
       (setq magit-highlighted-section section)
       (if (not magit-highlight-overlay)
 	  (let ((ov (make-overlay 1 1)))
