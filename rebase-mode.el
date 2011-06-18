@@ -21,6 +21,8 @@
 ;; using 'git rebase -i' or hitting 'E' in Magit). Assumes editing is
 ;; happening in a server.
 
+;;; Code:
+
 (defvar rebase-mode-action-line-re
   (rx
    line-start
@@ -39,13 +41,23 @@
    (* not-newline))
   "Regexp that matches an action line in a rebase buffer.")
 
+(defvar rebase-mode-exec-line-re
+  (rx
+   line-start
+   (group "exec"))
+   (char space)
+   (* not-newline))
+  "Regexp that matches an exec line in a rebase buffer.")
+
 (defvar rebase-mode-font-lock-keywords
   (list
    (list rebase-mode-action-line-re
          '(1 font-lock-keyword-face)
          '(2 font-lock-builtin-face))
+   (list rebase-mode-exec-line-re
+         '(1 font-lock-keyword-face))
    (list (rx line-start (char "#") (* not-newline)) 0 font-lock-comment-face))
-  "Font lock keywords for rebase-mode.")
+  "Font lock keywords for `rebase-mode'.")
 
 (defvar key-to-action-map
   '(("c" . "pick")
@@ -66,13 +78,31 @@
     (define-key map (kbd "M-p") 'rebase-mode-move-line-up)
     (define-key map (kbd "M-n") 'rebase-mode-move-line-down)
     (define-key map (kbd "k") 'rebase-mode-kill-line)
+    (define-key map (kbd "x") 'rebase-mode-exec-line)
 
     (define-key map (kbd "n") 'next-line)
     (define-key map (kbd "p") 'previous-line)
 
     map)
-  "Keymap for rebase-mode. Note this will be added to by the
-  top-level code which defines the edit functions.")
+  "Keymap for rebase-mode.  Note this will be added to by the
+top-level code which defines the edit functions.")
+
+(require 'easymenu)
+(easy-menu-define rebase-mode-menu rebase-mode-map
+  "Rebase-mode menu"
+  '("Rebase"
+    ["Pick" rebase-mode-pick t]
+    ["Reword" rebase-mode-reword t]
+    ["Edit" rebase-mode-edit t]
+    ["Squash" rebase-mode-squash t]
+    ["Fixup" rebase-mode-fixup t]
+    ["Kill" rebase-mode-kill-line t]
+    ["Move Down" rebase-mode-move-line-down t]
+    ["Move Up" rebase-mode-move-line-up t]
+    ["Execute" rebase-mode-exec-line t]
+    "---"
+    ["Abort" rebase-mode-abort t]
+    ["Done" server-edit t]))
 
 ;; create the functions which edit the action lines themselves (based
 ;; on `key-to-action-map' above)
@@ -99,15 +129,22 @@ that of CHANGE-TO."
       (goto-char start))))
 
 (defun rebase-mode-looking-at-action ()
-  "Returns non-nil if looking at an action line."
+  "Return non-nil if looking at an action line."
   (save-excursion
     (goto-char (point-at-bol))
     (looking-at rebase-mode-action-line-re)))
 
+(defun rebase-mode-looking-at-action-or-exec ()
+  "Return non-nil if looking at an action line or exec line."
+  (save-excursion
+    (goto-char (point-at-bol))
+    (or (looking-at rebase-mode-action-line-re)
+        (looking-at rebase-mode-exec-line-re))))
+
 (defun rebase-mode-move-line-up ()
   "Move the current action line up."
   (interactive)
-  (when (rebase-mode-looking-at-action)
+  (when (rebase-mode-looking-at-action-or-exec)
     (let ((buffer-read-only nil)
           (col (current-column)))
       (transpose-lines 1)
@@ -115,14 +152,13 @@ that of CHANGE-TO."
       (move-to-column col))))
 
 (defun rebase-mode-move-line-down ()
-  "Assuming the next line is also an action line, move the
-current line down."
+  "Assuming the next line is also an action line, move the current line down."
   (interactive)
   ;; if we're on an action and the next line is also an action
-  (when (and (rebase-mode-looking-at-action)
+  (when (and (rebase-mode-looking-at-action-or-exec)
              (save-excursion
                (forward-line)
-               (rebase-mode-looking-at-action)))
+               (rebase-mode-looking-at-action-or-exec)))
     (let ((buffer-read-only nil)
           (col (current-column)))
       (forward-line 1)
@@ -144,7 +180,7 @@ server connection)."
 (defun rebase-mode-kill-line ()
   "Kill the current action line."
   (interactive)
-  (when (rebase-mode-looking-at-action)
+  (when (rebase-mode-looking-at-action-or-exec)
     (let* ((buffer-read-only nil)
            (region (list (point-at-bol)
                          (progn (forward-line)
@@ -154,9 +190,18 @@ server connection)."
            (text (apply 'buffer-substring region)))
       (apply 'kill-region region))))
 
+(defun rebase-mode-exec-line (line)
+  "Add a LINE that gets executed."
+  (interactive "sExecute: ")
+  (let ((buffer-read-only nil))
+    (move-end-of-line nil)
+    (newline)
+    (insert (concat "exec " line))
+    (move-beginning-of-line nil)))
+
 ;;;###autoload
 (defun rebase-mode ()
-  "Major mode for editing of a git rebase file
+  "Major mode for editing of a git rebase file.
 
 Rebase files are generated when you run 'git rebase -i' or run `magit-interactive-rebase'"
 
@@ -176,3 +221,5 @@ Rebase files are generated when you run 'git rebase -i' or run `magit-interactiv
              '("git-rebase-todo" . rebase-mode))
 
 (provide 'rebase-mode)
+
+;;; rebase-mode.el ends here
