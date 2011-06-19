@@ -271,6 +271,35 @@ cumbersome to use from the status buffer.
                  (const :tag "Never" nil)
                  (const :tag "Ask"   ask)))
 
+(defcustom magit-highlight-whitespace t
+  "Specifies where to highlight whitespace errors.  See
+`magit-highlight-trailing-whitespace',
+`magit-highlight-indentation'.  `t' means in all diffs, the
+symbol `status' means only in the status buffer, and `nil' means
+nowhere."
+  :group 'magit
+  :type '(choice (const :tag "Always" t)
+                 (const :tag "Never" nil)
+                 (const :tag "In status buffer" status)))
+
+(defcustom magit-highlight-trailing-whitespace t
+  "If `magit-highlight-whitespace' is enabled, highlight
+whitespace at the end of a line in diffs."
+  :group 'magit
+  :type 'boolean)
+
+(defcustom magit-highlight-indentation nil
+  "If `magit-highlight-whitespace' is enabled, highlight the
+\"wrong\" indentation style.
+
+If the value is `tabs', highlight indentation with tabs.  If the
+value is an integer, highlight indentation with at least that
+many spaces.  Otherwise, highlight neither."
+  :group 'magit
+  :type `(choice (const :tag "Tabs" tabs)
+                 (integer :tag "Spaces" :value ,tab-width)
+                 (const :tag "Neither" nil)))
+
 (defgroup magit-faces nil
   "Customize the appearance of Magit"
   :prefix "magit-"
@@ -416,6 +445,13 @@ Many Magit faces inherit from this one by default."
      :background "IndianRed1"
      :foreground "IndianRed4"))
   "Face for Stacked Git patches"
+  :group 'magit-faces)
+
+(defface magit-whitespace-warning-face
+  '((((class color))
+     :inherit font-lock-warning-face
+     :inverse-video t))
+  "Face for highlighting whitespace errors in Magit diffs."
   :group 'magit-faces)
 
 (defvar magit-custom-options '()
@@ -983,6 +1019,22 @@ out revs involving HEAD."
           (unless (magit-ref-ambiguous-p plain-name)
             (setq rev plain-name))))
       rev)))
+
+(defun magit-highlight-line-whitespace ()
+  (when (and magit-highlight-whitespace
+             (or magit-status-mode
+                 (not (eq magit-highlight-whitespace 'status))))
+    (if (and magit-highlight-trailing-whitespace
+             (looking-at "^[-+].*?\\([ \t]+\\)$"))
+        (overlay-put (make-overlay (match-beginning 1) (match-end 1))
+                     'face 'magit-whitespace-warning-face))
+    (if (or (and (eq magit-highlight-indentation 'tabs)
+                 (looking-at "^[-+]\\( *\t[ \t]*\\)"))
+            (and (integerp magit-highlight-indentation)
+                 (looking-at (format "^[-+]\\([ \t]* \\{%s,\\}[ \t]*\\)"
+                                     magit-highlight-indentation))))
+        (overlay-put (make-overlay (match-beginning 1) (match-end 1))
+                     'face 'magit-whitespace-warning-face))))
 
 (defun magit-put-line-property (prop val)
   (put-text-property (line-beginning-position) (line-beginning-position 2)
@@ -2531,6 +2583,7 @@ in the corresponding directories."
 	     (forward-line)
 	     (while (not (or (eobp)
 			     (looking-at "^diff\\|^@@")))
+               (magit-highlight-line-whitespace)
 	       (let ((prefix (buffer-substring-no-properties
 			      (point) (min (+ (point) n-columns) (point-max)))))
 		 (cond ((string-match "\\+" prefix)
