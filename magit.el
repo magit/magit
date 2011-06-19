@@ -2485,10 +2485,10 @@ in the corresponding directories."
 			     (search-forward-regexp "^rename from \\(.*\\)"
 						    end t))
 			   (match-string-no-properties 1)))))
-         (magit-set-section-info (list status
-                                       file
-                                       file2
-                                       magit-current-diff-range))
+             (magit-set-section-info (list status
+                                           file
+                                           file2
+                                           magit-current-diff-range))
 	     (magit-insert-diff-title status file file2)
              (search-forward-regexp "\\(--- \\(.*\\)\n\\+\\+\\+ \\(.*\\)\n\\)\\|\\(Binary files .* differ\\)")
              (when (match-string 1)
