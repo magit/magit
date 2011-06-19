@@ -292,13 +292,32 @@ whitespace at the end of a line in diffs."
   "If `magit-highlight-whitespace' is enabled, highlight the
 \"wrong\" indentation style.
 
+The value is a list of cons cells.  The car is a regular
+expression, and the cdr is the value that applies to repositories
+whose directory matches the regular expression.  If more than one
+item matches, then the *last* item in the list applies.  So, the
+default value should come first in the list.
+
 If the value is `tabs', highlight indentation with tabs.  If the
 value is an integer, highlight indentation with at least that
 many spaces.  Otherwise, highlight neither."
   :group 'magit
-  :type `(choice (const :tag "Tabs" tabs)
-                 (integer :tag "Spaces" :value ,tab-width)
-                 (const :tag "Neither" nil)))
+  :type `(repeat (cons (string :tag "Directory regexp")
+                       (choice (const :tag "Tabs" tabs)
+                               (integer :tag "Spaces" :value ,tab-width)
+                               (const :tag "Neither" nil))))
+  :set (lambda (symbol value)
+         (set symbol value)
+         (dolist (buf (buffer-list))
+           (with-current-buffer buf
+             (when (eq major-mode 'magit-mode)
+               (setq magit-current-indentation (magit-indentation-for default-directory))
+               (magit-refresh))))))
+
+(defvar magit-current-indentation nil
+  "Indentation highlight used in the current buffer, as specified
+in `magit-highlight-indentation'.")
+(make-variable-buffer-local 'magit-current-indentation)
 
 (defgroup magit-faces nil
   "Customize the appearance of Magit"
@@ -1028,11 +1047,11 @@ out revs involving HEAD."
              (looking-at "^[-+].*?\\([ \t]+\\)$"))
         (overlay-put (make-overlay (match-beginning 1) (match-end 1))
                      'face 'magit-whitespace-warning-face))
-    (if (or (and (eq magit-highlight-indentation 'tabs)
+    (if (or (and (eq magit-current-indentation 'tabs)
                  (looking-at "^[-+]\\( *\t[ \t]*\\)"))
-            (and (integerp magit-highlight-indentation)
+            (and (integerp magit-current-indentation)
                  (looking-at (format "^[-+]\\([ \t]* \\{%s,\\}[ \t]*\\)"
-                                     magit-highlight-indentation))))
+                                     magit-current-indentation))))
         (overlay-put (make-overlay (match-beginning 1) (match-end 1))
                      'face 'magit-whitespace-warning-face))))
 
@@ -2252,6 +2271,7 @@ Please see the manual for a complete description of Magit.
   (add-hook 'pre-command-hook #'magit-remember-point nil t)
   (add-hook 'post-command-hook #'magit-post-command-hook t t)
   (use-local-map magit-mode-map)
+  (setq magit-current-indentation (magit-indentation-for default-directory))
   (run-mode-hooks 'magit-mode-hook))
 
 (defun magit-mode-init (dir submode refresh-func &rest refresh-args)
@@ -2261,6 +2281,13 @@ Please see the manual for a complete description of Magit.
 	magit-refresh-args refresh-args)
   (magit-mode)
   (magit-refresh-buffer))
+
+(defun magit-indentation-for (dir)
+  (let (result)
+    (dolist (pair magit-highlight-indentation)
+      (if (string-match-p (car pair) dir)
+          (setq result (cdr pair))))
+    result))
 
 (defun magit-find-buffer (submode &optional dir)
   (let ((topdir (magit-get-top-dir (or dir default-directory))))
