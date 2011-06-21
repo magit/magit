@@ -1529,17 +1529,20 @@ see `magit-insert-section' for meaning of the arguments"
 	   (let ((prev (magit-prev-section (magit-current-section))))
 	     (if prev
 		 (progn
-		   (if (memq magit-submode '(log reflog))
-		       (magit-show-commit (or prev section)))
+                   (if (and (eq (magit-section-type prev) 'commit)
+                            (memq magit-submode '(log reflog)))
+                       (magit-show-commit prev))
 		   (goto-char (magit-section-beginning prev)))
 	       (message "No previous section"))))
 	  (t
-	   (let ((prev (magit-find-section-before (point)
+           (let* ((prev (magit-find-section-before (point)
 						  (magit-section-children
-						   section))))
-	     (if (memq magit-submode '(log reflog))
-		 (magit-show-commit (or prev section)))
-	     (goto-char (magit-section-beginning (or prev section))))))))
+                                                   section)))
+                  (target (or prev section)))
+             (if (and (eq (magit-section-type target) 'commit)
+                      (memq magit-submode '(log reflog)))
+                 (magit-show-commit target))
+             (goto-char (magit-section-beginning target)))))))
 
 (defun magit-goto-parent-section ()
   "Goto the parent section."
