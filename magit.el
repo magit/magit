@@ -2803,7 +2803,8 @@ either in another window or (with a prefix argument) in the current window."
                                    (concat commit ":" filename)))))))
       (with-current-buffer buffer
         (let ((buffer-file-name filename))
-          (normal-mode)))
+          (normal-mode))
+        (goto-char (point-min)))
       (if select
           (if prefix
               (switch-to-buffer buffer)
