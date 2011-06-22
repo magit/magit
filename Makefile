@@ -41,8 +41,9 @@ magit-topgit.elc:
 magit-stgit.elc:
 magit.info:
 
-# yuck - this needs cleaning up a bit...
-dist: $(DIST_FILES) $(DIST_FILES_CONTRIB)
+dist: magit-$(VERSION).tar.gz
+
+magit-$(VERSION).tar.gz: $(DIST_FILES) $(DIST_FILES_CONTRIB)
 	mkdir -p magit-$(VERSION)/contrib
 	cp $(DIST_FILES) magit-$(VERSION)
 	cp $(DIST_FILES_CONTRIB) magit-$(VERSION)/contrib
