@@ -90,6 +90,12 @@
 (eval-when-compile (require 'ido))
 (eval-when-compile (require 'ediff))
 
+;; This needs to be defined before the defcustoms that use it.
+(defun magit-set-variable-and-refresh (symbol value)
+  "Set SYMBOL to VALUE and call `magit-refresh-all'"
+  (set symbol value)
+  (magit-refresh-all))
+
 ;;; Code:
 (defgroup magit nil
   "Controlling Git from Emacs."
@@ -280,13 +286,15 @@ nowhere."
   :group 'magit
   :type '(choice (const :tag "Always" t)
                  (const :tag "Never" nil)
-                 (const :tag "In status buffer" status)))
+                 (const :tag "In status buffer" status))
+  :set 'magit-set-variable-and-refresh)
 
 (defcustom magit-highlight-trailing-whitespace t
   "If `magit-highlight-whitespace' is enabled, highlight
 whitespace at the end of a line in diffs."
   :group 'magit
-  :type 'boolean)
+  :type 'boolean
+  :set 'magit-set-variable-and-refresh)
 
 (defcustom magit-highlight-indentation nil
   "If `magit-highlight-whitespace' is enabled, highlight the
@@ -306,13 +314,7 @@ many spaces.  Otherwise, highlight neither."
                        (choice (const :tag "Tabs" tabs)
                                (integer :tag "Spaces" :value ,tab-width)
                                (const :tag "Neither" nil))))
-  :set (lambda (symbol value)
-         (set symbol value)
-         (dolist (buf (buffer-list))
-           (with-current-buffer buf
-             (when (eq major-mode 'magit-mode)
-               (setq magit-current-indentation (magit-indentation-for default-directory))
-               (magit-refresh))))))
+  :set 'magit-set-variable-and-refresh)
 
 (defvar magit-current-indentation nil
   "Indentation highlight used in the current buffer, as specified
