@@ -2385,10 +2385,9 @@ Please see the manual for a complete description of Magit.
 	    (magit-refresh-buffer b)))))))
 
 (defun magit-need-refresh (&optional buffer)
-  (let ((buffer (or buffer (current-buffer))))
-    (when (not (memq buffer magit-refresh-needing-buffers))
-      (setq magit-refresh-needing-buffers
-	    (cons buffer magit-refresh-needing-buffers)))))
+  "Mark BUFFER as needing to be refreshed.  If BUFFER is nil, use the
+current buffer."
+  (pushnew (or buffer (current-buffer)) magit-refresh-needing-buffers :test 'eq))
 
 (defun magit-refresh ()
   "Refresh current buffer to match repository state.
