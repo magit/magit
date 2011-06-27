@@ -3994,7 +3994,7 @@ typing and automatically refreshes the status buffer."
 	  (goto-char (point-min))
 	  (while (looking-at "^\\([A-Za-z0-9-_]+\\): *\\(.*\\)$")
 	    (setq result (acons (intern (downcase (match-string 1)))
-				(match-string 2)
+                                (read (match-string 2))
 				result))
 	    (forward-line))
 	  (if (not (looking-at (regexp-quote magit-log-header-end)))
@@ -4012,8 +4012,8 @@ typing and automatically refreshes the status buffer."
       (goto-char (point-min))
       (when fields
 	(while fields
-	  (insert (capitalize (symbol-name (caar fields))) ": "
-		  (cdar fields) "\n")
+          (insert (capitalize (symbol-name (caar fields))) ": "
+                  (prin1-to-string (cdar fields)) "\n")
 	  (setq fields (cdr fields)))
 	(insert magit-log-header-end)))))
 
@@ -4086,7 +4086,8 @@ toggled on.  When it's toggled on for the first time, return
 		     magit-commit-signoff))
 	 (tag-rev (cdr (assq 'tag-rev fields)))
 	 (tag-name (cdr (assq 'tag-name fields)))
-	 (author (cdr (assq 'author fields))))
+         (author (cdr (assq 'author fields)))
+         (tag-options (cdr (assq 'tag-options fields))))
     (if (or (not (or allow-empty commit-all amend tag-name (magit-anything-staged-p)))
             (not (or allow-empty (not commit-all) amend (not (magit-everything-clean-p)))))
         (error "Refusing to create empty commit. Maybe you want to amend or allow-empty?"))
@@ -4099,12 +4100,15 @@ toggled on.  When it's toggled on for the first time, return
     (let ((commit-buf (current-buffer)))
       (with-current-buffer (magit-find-buffer 'status default-directory)
 	(cond (tag-name
-	       (magit-run-git-with-input commit-buf "tag" tag-name "-a" "-F" "-" tag-rev))
+               (apply #'magit-run-git-with-input commit-buf
+                      "tag" (append tag-options (list tag-name "-a" "-F" "-" tag-rev))))
 	      (t
 	       (apply #'magit-run-async-with-input commit-buf
 		      magit-git-executable
 		      (append magit-git-standard-options
-			      (list "commit" "-F" "-")
+                              '("commit")
+                              magit-custom-options
+                              '("-F" "-")
 			      (if (and commit-all (not allow-empty)) '("--all") '())
 			      (if amend '("--amend") '())
 			      (if allow-empty '("--allow-empty"))
@@ -4252,7 +4256,7 @@ continue it.
    (list
     (read-string "Tag name: ")
     (magit-read-rev "Place tag on: " (or (magit-default-rev) "HEAD"))))
-  (magit-run-git "tag" name rev))
+  (apply #'magit-run-git "tag" (append magit-custom-options (list name rev))))
 
 (magit-define-command annotated-tag (name rev)
   "Start composing an annotated tag with the given NAME.
@@ -4263,6 +4267,7 @@ Tag will point to the current 'HEAD'."
     (magit-read-rev "Place tag on: " (or (magit-default-rev) "HEAD"))))
   (magit-log-edit-set-field 'tag-name name)
   (magit-log-edit-set-field 'tag-rev rev)
+  (magit-log-edit-set-field 'tag-options magit-custom-options)
   (magit-pop-to-log-edit "tag"))
 
 ;;; Stashing
