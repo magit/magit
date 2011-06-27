@@ -3992,9 +3992,9 @@ typing and automatically refreshes the status buffer."
     (if buf
 	(with-current-buffer buf
 	  (goto-char (point-min))
-	  (while (looking-at "^\\([A-Za-z0-9-_]+\\): *\\(.*\\)$")
+          (while (looking-at "^\\([A-Za-z0-9-_]+\\): *\\(.+\\)?$")
 	    (setq result (acons (intern (downcase (match-string 1)))
-                                (read (match-string 2))
+                                (read (or (match-string 2) "nil"))
 				result))
 	    (forward-line))
 	  (if (not (looking-at (regexp-quote magit-log-header-end)))
