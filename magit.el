@@ -90,11 +90,8 @@
 (eval-when-compile (require 'ido))
 (eval-when-compile (require 'ediff))
 
-;; This needs to be defined before the defcustoms that use it.
-(defun magit-set-variable-and-refresh (symbol value)
-  "Set SYMBOL to VALUE and call `magit-refresh-all'"
-  (set symbol value)
-  (magit-refresh-all))
+;; Dummy to be used by the defcustoms when first loading the file.
+(defalias 'magit-set-variable-and-refresh 'set)
 
 ;;; Code:
 (defgroup magit nil
@@ -772,6 +769,11 @@ Does not follow symlinks."
         (delete-directory directory)))))
 
 ;;; Utilities
+
+(defun magit-set-variable-and-refresh (symbol value)
+  "Set SYMBOL to VALUE and call `magit-refresh-all'"
+  (set symbol value)
+  (magit-refresh-all))
 
 (defvar magit-submode nil)
 (make-variable-buffer-local 'magit-submode)
