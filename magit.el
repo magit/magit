@@ -3712,12 +3712,19 @@ Uncomitted changes in both working tree and staging area are lost.
 					 "HEAD"))))
   (magit-reset-head revision t))
 
-(magit-define-command reset-working-tree ()
+(magit-define-command reset-working-tree (&optional include-untracked)
   "Revert working tree and clear changes from staging area.
-\('git reset --hard HEAD')."
-  (interactive)
-  (when (yes-or-no-p "Discard all uncommitted changes? ")
-    (magit-reset-head-hard "HEAD")))
+\('git reset --hard HEAD').
+
+With a prefix arg, also remove untracked files."
+  (interactive "P")
+  (when (yes-or-no-p (format "Discard all uncommitted changes%s? "
+                             (if include-untracked
+                                 " and untracked files"
+                               "")))
+    (magit-reset-head-hard "HEAD")
+    (if include-untracked
+        (magit-run-git "clean" "-fd"))))
 
 ;;; Rewriting
 
