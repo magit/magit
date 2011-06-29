@@ -23,6 +23,17 @@
 
 ;;; Code:
 
+(defgroup rebase-mode nil
+  "Customize Rebase Mode"
+  :group 'faces)
+
+(defface rebase-mode-killed-action-face
+  '((((class color))
+     :inherit font-lock-comment-face
+     :strike-through t))
+  "Action lines in the rebase TODO list that have been commented out."
+  :group 'rebase-mode)
+
 (defvar rebase-mode-action-line-re
   (rx
    line-start
@@ -37,7 +48,7 @@
      "fixup"))
    (char space)
    (group
-    (** 7 40 (char "0-9" "a-f" "A-F"))) ;sha1
+    (** 4 40 hex-digit)) ;sha1
    (char space)
    (* not-newline))
   "Regexp that matches an action line in a rebase buffer.")
@@ -51,6 +62,13 @@
    (* not-newline))
   "Regexp that matches an exec line in a rebase buffer.")
 
+(defvar rebase-mode-dead-line-re
+  (rx-to-string `(and line-start
+                      (char ?#)
+                      (or (regexp ,(substring rebase-mode-action-line-re 1))
+                          (regexp ,(substring rebase-mode-exec-line-re 1)))) t)
+  "Regexp that matches a commented-out exec or action line in a rebase buffer.")
+
 (defvar rebase-mode-font-lock-keywords
   (list
    (list rebase-mode-action-line-re
@@ -58,7 +76,8 @@
          '(2 font-lock-builtin-face))
    (list rebase-mode-exec-line-re
          '(1 font-lock-keyword-face))
-   (list (rx line-start (char "#") (* not-newline)) 0 font-lock-comment-face t))
+   (list (rx line-start (char "#") (* not-newline)) 0 font-lock-comment-face)
+   (list rebase-mode-dead-line-re 0 ''rebase-mode-killed-action-face t))
   "Font lock keywords for `rebase-mode'.")
 
 (defvar key-to-action-map
