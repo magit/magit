@@ -181,14 +181,10 @@ server connection)."
   "Kill the current action line."
   (interactive)
   (when (rebase-mode-looking-at-action-or-exec)
-    (let* ((buffer-read-only nil)
-           (region (list (point-at-bol)
-                         (progn (forward-line)
-                                (point-at-bol))))
-           ;; might be handy to let the user know what went
-           ;; somehow... sometime
-           (text (apply 'buffer-substring region)))
-      (apply 'kill-region region))))
+    (save-excursion
+      (beginning-of-line)
+      (let ((buffer-read-only nil))
+        (insert "#")))))
 
 (defun rebase-mode-exec-line (line)
   "Add a LINE that gets executed."
