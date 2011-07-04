@@ -26,6 +26,7 @@
 (defvar rebase-mode-action-line-re
   (rx
    line-start
+   (? "#")
    (group
     (|
      (any "presf")
@@ -44,6 +45,7 @@
 (defvar rebase-mode-exec-line-re
   (rx
    line-start
+   (? "#")
    (group "exec")
    (char space)
    (* not-newline))
@@ -56,7 +58,7 @@
          '(2 font-lock-builtin-face))
    (list rebase-mode-exec-line-re
          '(1 font-lock-keyword-face))
-   (list (rx line-start (char "#") (* not-newline)) 0 font-lock-comment-face))
+   (list (rx line-start (char "#") (* not-newline)) 0 font-lock-comment-face t))
   "Font lock keywords for `rebase-mode'.")
 
 (defvar key-to-action-map
@@ -141,6 +143,12 @@ that of CHANGE-TO."
     (or (looking-at rebase-mode-action-line-re)
         (looking-at rebase-mode-exec-line-re))))
 
+(defun rebase-mode-looking-at-killed-exec ()
+  "Return non-nil if looking at an exec line that has been commented out"
+  (let ((line (thing-at-point 'line)))
+    (and (eq (aref line 0) ?#)
+         (string-match rebase-mode-exec-line-re line))))
+
 (defun rebase-mode-move-line-up ()
   "Move the current action line up."
   (interactive)
@@ -183,17 +191,31 @@ server connection)."
   (when (rebase-mode-looking-at-action-or-exec)
     (save-excursion
       (beginning-of-line)
-      (let ((buffer-read-only nil))
-        (insert "#")))))
+      (if (not (looking-at "#"))
+          (let ((buffer-read-only nil))
+            (insert "#"))))))
 
-(defun rebase-mode-exec-line (line)
-  "Add a LINE that gets executed."
-  (interactive "sExecute: ")
-  (let ((buffer-read-only nil))
-    (move-end-of-line nil)
-    (newline)
-    (insert (concat "exec " line))
-    (move-beginning-of-line nil)))
+(defvar rebase-mode-exec-hist nil
+  "Contains history items for the prompt in `rebase-mode-exec-line`")
+
+(defun rebase-mode-exec-line (&optional line)
+  "If point is on a commented-out exec line, uncomment that line.
+Otherwise, add a LINE that gets executed."
+  (interactive)
+  (cond
+   ((rebase-mode-looking-at-killed-exec)
+    (save-excursion
+      (beginning-of-line)
+      (let ((buffer-read-only nil))
+        (delete-char 1))))
+   (t
+    (if (not line)
+        (setq line (read-string "Execute: " nil rebase-mode-exec-hist)))
+    (let ((buffer-read-only nil))
+      (move-end-of-line nil)
+      (newline)
+      (insert (concat "exec " line))
+      (move-beginning-of-line nil)))))
 
 ;;;###autoload
 (defun rebase-mode ()
