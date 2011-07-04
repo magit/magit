@@ -34,7 +34,7 @@
   "Action lines in the rebase TODO list that have been commented out."
   :group 'rebase-mode)
 
-(defvar rebase-mode-action-line-re
+(defconst rebase-mode-action-line-re
   (rx
    line-start
    (? "#")
@@ -53,16 +53,18 @@
    (* not-newline))
   "Regexp that matches an action line in a rebase buffer.")
 
-(defvar rebase-mode-exec-line-re
+(defconst rebase-mode-exec-line-re
   (rx
    line-start
    (? "#")
-   (group "exec")
+   (group
+    (| "x"
+       "exec"))
    (char space)
    (* not-newline))
   "Regexp that matches an exec line in a rebase buffer.")
 
-(defvar rebase-mode-dead-line-re
+(defconst rebase-mode-dead-line-re
   (rx-to-string `(and line-start
                       (char ?#)
                       (or (regexp ,(substring rebase-mode-action-line-re 1))
