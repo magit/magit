@@ -2565,7 +2565,7 @@ in the corresponding directories."
 			   (match-string-no-properties 1)))))
              (magit-set-section-info (list status
                                            file
-                                           file2
+                                           (or file2 file)
                                            magit-current-diff-range))
 	     (magit-insert-diff-title status file file2)
              (when (search-forward-regexp "\\(--- \\(.*\\)\n\\+\\+\\+ \\(.*\\)\n\\)" () t)
@@ -4609,11 +4609,10 @@ This is only non-nil in reflog buffers.")
       (error "No diff at this location"))
     (let* ((type (magit-diff-item-kind diff))
            (file1 (magit-diff-item-file diff))
-           (file2 (or (magit-diff-item-file2 diff)
-                      file1))
+           (file2 (magit-diff-item-file2 diff))
            (range (magit-diff-item-range diff)))
       (cond
-       ((member type '(new deleted typechange))
+       ((memq type '(new deleted typechange))
         (message "Why ediff a %s file?" type))
        ((and (eq type 'unmerged)
              (eq (cdr range) 'working))
