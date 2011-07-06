@@ -147,7 +147,7 @@ that of CHANGE-TO."
     (let ((buffer-read-only nil)
           (start (point)))
       (goto-char (point-at-bol))
-      (kill-region (point) (progn (forward-word 1) (point)))
+      (delete-region (point) (progn (forward-word 1) (point)))
       (insert change-to)
       (goto-char start))))
 
