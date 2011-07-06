@@ -239,15 +239,14 @@ Otherwise, add a LINE that gets executed."
       (move-beginning-of-line nil)))))
 
 ;;;###autoload
-(define-derived-mode rebase-mode fundamental-mode "Rebase"
+(define-derived-mode rebase-mode special-mode "Rebase"
   "Major mode for editing of a Git rebase file.
 
 Rebase files are generated when you run 'git rebase -i' or run
 `magit-interactive-rebase'.  They describe how Git should perform
 the rebase.  See the documentation for git-rebase (e.g., by
 running 'man git-rebase' at the command line) for details."
-  (setq font-lock-defaults '(rebase-mode-font-lock-keywords t t))
-  (toggle-read-only 1))
+  (setq font-lock-defaults '(rebase-mode-font-lock-keywords t t)))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist
