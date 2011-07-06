@@ -220,11 +220,17 @@ server connection)."
   "Contains history items for the prompt in `rebase-mode-exec-line`")
 
 (defun rebase-mode-exec-line (&optional line)
-  "If point is on a commented-out exec line, uncomment that line.
-Otherwise, add a LINE that gets executed."
+  "Add a LINE that gets executed.
+
+If LINE is nil and point is on a commented-out exec line,
+uncomment the current line instead.
+
+If LINE is nil and point is *not* on a commented-out exec line,
+prompt the user for a value of LINE."
   (interactive)
   (cond
-   ((rebase-mode-looking-at-killed-exec)
+   ((and (null line)
+         (rebase-mode-looking-at-killed-exec))
     (save-excursion
       (beginning-of-line)
       (let ((buffer-read-only nil))
