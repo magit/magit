@@ -3362,17 +3362,8 @@ to consider it or not when called with that buffer current."
 (defun magit-save-buffers-predicate-tree-only ()
   "Only prompt to save buffers which are within the current git project (as
   determined by the dir passed to `magit-status'."
-  (let ((current-buf-dir
-         (file-name-directory (buffer-file-name (current-buffer)))))
-    (let ((invoked-git-root-dir (magit-get-top-dir default-directory)))
-      (let ((save-this-buffer
-             (and
-              invoked-git-root-dir
-              (eq 0
-                  (string-match
-                   (regexp-quote invoked-git-root-dir)
-                   current-buf-dir)))))
-        save-this-buffer))))
+  (and buffer-file-name
+       (magit-get-top-dir (file-name-directory buffer-file-name))))
 
 ;;;###autoload
 (defun magit-status (dir)
