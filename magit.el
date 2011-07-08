@@ -91,7 +91,8 @@
 (eval-when-compile (require 'ediff))
 
 ;; Dummy to be used by the defcustoms when first loading the file.
-(defalias 'magit-set-variable-and-refresh 'set)
+(eval-when (load eval)
+  (defalias 'magit-set-variable-and-refresh 'set))
 
 ;;; Code:
 (defgroup magit nil
