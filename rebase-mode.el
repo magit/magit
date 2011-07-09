@@ -109,7 +109,7 @@
     (define-key map (kbd "M-p") 'rebase-mode-move-line-up)
     (define-key map (kbd "M-n") 'rebase-mode-move-line-down)
     (define-key map (kbd "k") 'rebase-mode-kill-line)
-    (define-key map (kbd "x") 'rebase-mode-exec-line)
+    (define-key map (kbd "x") 'rebase-mode-exec)
 
     (define-key map (kbd "n") 'next-line)
     (define-key map (kbd "p") 'previous-line)
@@ -130,7 +130,7 @@ top-level code which defines the edit functions.")
     ["Kill" rebase-mode-kill-line t]
     ["Move Down" rebase-mode-move-line-down t]
     ["Move Up" rebase-mode-move-line-up t]
-    ["Execute" rebase-mode-exec-line t]
+    ["Execute" rebase-mode-exec t]
     "---"
     ["Abort" rebase-mode-abort t]
     ["Done" server-edit t]))
@@ -225,9 +225,9 @@ server connection)."
             (insert "#"))))))
 
 (defvar rebase-mode-exec-hist nil
-  "Contains history items for the prompt in `rebase-mode-exec-line`")
+  "Contains history items for the prompt in `rebase-mode-exec'")
 
-(defun rebase-mode-exec-line (&optional line)
+(defun rebase-mode-exec (&optional line)
   "Add a LINE that gets executed.
 
 If LINE is nil and point is on a commented-out exec line,
