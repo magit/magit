@@ -1,6 +1,7 @@
 ;;; rebase-mode -- edit git rebase files.
 
 ;; Copyright (C) 2010  Phil Jackson
+;; Copyright (C) 2011  Peter J Weisberg
 ;;
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
@@ -34,6 +35,11 @@
   "Action lines in the rebase TODO list that have been commented out."
   :group 'rebase-mode)
 
+(defface rebase-mode-description-face
+  '((t :inherit font-lock-comment-face))
+  "Face for one-line commit descriptions"
+  :group 'rebase-mode)
+
 (defconst rebase-mode-action-line-re
   (rx
    line-start
@@ -50,7 +56,8 @@
    (group
     (** 4 40 hex-digit)) ;sha1
    (char space)
-   (* not-newline))
+   (group
+    (* not-newline)))
   "Regexp that matches an action line in a rebase buffer.")
 
 (defconst rebase-mode-exec-line-re
@@ -75,7 +82,8 @@
   (list
    (list rebase-mode-action-line-re
          '(1 font-lock-keyword-face)
-         '(2 font-lock-builtin-face))
+         '(2 font-lock-builtin-face)
+         '(3 'rebase-mode-description-face))
    (list rebase-mode-exec-line-re
          '(1 font-lock-keyword-face))
    (list (rx line-start (char "#") (* not-newline)) 0 font-lock-comment-face)
