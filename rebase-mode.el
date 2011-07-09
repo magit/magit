@@ -262,6 +262,25 @@ the rebase.  See the documentation for git-rebase (e.g., by
 running 'man git-rebase' at the command line) for details."
   (setq font-lock-defaults '(rebase-mode-font-lock-keywords t t)))
 
+(defun rebase-mode-show-keybindings ()
+  "Modify the \"Commands:\" section of the comment Git generates
+at the bottom of the file so that in place of the one-letter
+abbreviation for the command, it shows the command's keybinding.
+By default, this is the same except for the \"pick\" command."
+  (save-excursion
+    (goto-char (point-min))
+    (while (search-forward-regexp "^#  \\(.\\), \\([[:alpha:]]+\\) = " nil t)
+      (let ((start (match-beginning 1))
+            (end (match-end 1))
+            (command (intern (concat "rebase-mode-" (match-string 2)))))
+        (when (fboundp command)
+          (let ((overlay (make-overlay start end)))
+            (overlay-put overlay
+                         'display
+                         (key-description (where-is-internal command nil t)))))))))
+
+(add-hook 'rebase-mode-hook 'rebase-mode-show-keybindings t)
+
 ;;;###autoload
 (add-to-list 'auto-mode-alist
              '("git-rebase-todo" . rebase-mode))
