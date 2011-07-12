@@ -111,9 +111,10 @@
     (define-key map (kbd "k") 'rebase-mode-kill-line)
     (define-key map (kbd "x") 'rebase-mode-exec)
 
-    (define-key map (kbd "n") 'next-line)
-    (define-key map (kbd "p") 'previous-line)
-
+    (define-key map (kbd "n") 'forward-line)
+    (define-key map (kbd "p") '(lambda(n)
+                                 (interactive "p")
+                                 (forward-line (* n -1))))
     map)
   "Keymap for rebase-mode.  Note this will be added to by the
 top-level code which defines the edit functions.")
