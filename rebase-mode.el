@@ -68,7 +68,8 @@
     (| "x"
        "exec"))
    (char space)
-   (* not-newline))
+   (group
+    (* not-newline)))
   "Regexp that matches an exec line in a rebase buffer.")
 
 (defconst rebase-mode-dead-line-re
@@ -173,6 +174,10 @@ that of CHANGE-TO."
     (or (looking-at rebase-mode-action-line-re)
         (looking-at rebase-mode-exec-line-re))))
 
+(defun rebase-mode-looking-at-exec ()
+  "Return non-nil if cursor is on an exec line."
+  (string-match rebase-mode-exec-line-re (thing-at-point 'line)))
+
 (defun rebase-mode-looking-at-killed-exec ()
   "Return non-nil if looking at an exec line that has been commented out"
   (let ((line (thing-at-point 'line)))
@@ -225,33 +230,44 @@ server connection)."
           (let ((buffer-read-only nil))
             (insert "#"))))))
 
-(defvar rebase-mode-exec-hist nil
-  "Contains history items for the prompt in `rebase-mode-exec'")
+(defun rebase-mode-exec (edit)
+  "Prompt the user for a shell command to be executed, and add it to
+the todo list.
 
-(defun rebase-mode-exec (&optional line)
-  "Add a LINE that gets executed.
+If the cursor is on a commented-out exec line, uncomment the
+current line instead of prompting.
 
-If LINE is nil and point is on a commented-out exec line,
-uncomment the current line instead.
-
-If LINE is nil and point is *not* on a commented-out exec line,
-prompt the user for a value of LINE."
-  (interactive)
+When the prefix argument EDIT is non-nil and the cursor is on an
+exec line, edit that line instead of inserting a new one.  If the
+exec line was commented out, also uncomment it."
+  (interactive "P")
   (cond
-   ((and (null line)
-         (rebase-mode-looking-at-killed-exec))
+   ((and edit (rebase-mode-looking-at-exec))
+    (let ((new-line (rebase-mode-read-exec-line
+                     (match-string-no-properties 2 (thing-at-point 'line))))
+          (inhibit-read-only t))
+      (delete-region (point-at-bol) (point-at-eol))
+      (if (not (equal "" new-line))
+          (insert "exec " new-line)
+        (delete-char -1)
+        (forward-line))
+      (move-beginning-of-line nil)))
+   ((rebase-mode-looking-at-killed-exec)
     (save-excursion
       (beginning-of-line)
       (let ((buffer-read-only nil))
         (delete-char 1))))
    (t
-    (if (not line)
-        (setq line (read-string "Execute: " nil rebase-mode-exec-hist)))
-    (let ((buffer-read-only nil))
-      (move-end-of-line nil)
-      (newline)
-      (insert (concat "exec " line))
-      (move-beginning-of-line nil)))))
+    (let ((inhibit-read-only t)
+          (line (rebase-mode-read-exec-line)))
+      (unless (equal "" line)
+        (move-end-of-line nil)
+        (newline)
+        (insert (concat "exec " line))))
+    (move-beginning-of-line nil))))
+
+(defun rebase-mode-read-exec-line (&optional initial-line)
+  (read-shell-command "Execute: " initial-line))
 
 ;;;###autoload
 (define-derived-mode rebase-mode special-mode "Rebase"
