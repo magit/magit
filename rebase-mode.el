@@ -224,12 +224,12 @@ server connection)."
 (defun rebase-mode-kill-line ()
   "Kill the current action line."
   (interactive)
-  (when (rebase-mode-looking-at-action-or-exec)
-    (save-excursion
-      (beginning-of-line)
-      (if (not (looking-at "#"))
-          (let ((buffer-read-only nil))
-            (insert "#"))))))
+  (when (and (not (eq (char-after (point-at-bol)) ?#))
+             (rebase-mode-looking-at-action-or-exec))
+    (beginning-of-line)
+    (let ((buffer-read-only nil))
+      (insert "#"))
+    (forward-line)))
 
 (defun rebase-mode-exec (edit)
   "Prompt the user for a shell command to be executed, and add it to
