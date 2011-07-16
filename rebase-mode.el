@@ -116,6 +116,7 @@
     (define-key map (kbd "p") '(lambda(n)
                                  (interactive "p")
                                  (forward-line (* n -1))))
+    (define-key map [remap undo] 'rebase-mode-undo)
     map)
   "Keymap for rebase-mode.  Note this will be added to by the
 top-level code which defines the edit functions.")
@@ -268,6 +269,13 @@ exec line was commented out, also uncomment it."
 
 (defun rebase-mode-read-exec-line (&optional initial-line)
   (read-shell-command "Execute: " initial-line))
+
+(defun rebase-mode-undo (&optional arg)
+  "A thin wrapper around `undo', which allows undoing in
+read-only buffers."
+  (interactive "P")
+  (let ((inhibit-read-only t))
+    (undo arg)))
 
 ;;;###autoload
 (define-derived-mode rebase-mode special-mode "Rebase"
