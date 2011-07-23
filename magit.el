@@ -163,7 +163,7 @@ after a confirmation."
 		 (const :tag "Ask to stage everything" ask-stage)))
 
 (defcustom magit-commit-signoff nil
-  "When performing git commit adds --signoff."
+  "Add the \"Signed-off-by:\" line when committing."
   :group 'magit
   :type 'boolean)
 
@@ -320,7 +320,7 @@ in `magit-highlight-indentation'.")
 (make-variable-buffer-local 'magit-current-indentation)
 
 (defgroup magit-faces nil
-  "Customize the appearance of Magit"
+  "Customize the appearance of Magit."
   :prefix "magit-"
   :group 'faces
   :group 'magit)
@@ -415,7 +415,7 @@ Many Magit faces inherit from this one by default."
      :box t
      :background "light green"
      :foreground "dark olive green"))
-  "Face for good bisect refs"
+  "Face for good bisect refs."
   :group 'magit-faces)
 
 (defface magit-log-head-label-bisect-bad
@@ -427,7 +427,7 @@ Many Magit faces inherit from this one by default."
      :box t
      :background "IndianRed1"
      :foreground "IndianRed4"))
-  "Face for bad bisect refs"
+  "Face for bad bisect refs."
   :group 'magit-faces)
 
 (defface magit-log-head-label-remote
@@ -463,7 +463,7 @@ Many Magit faces inherit from this one by default."
      :box t
      :background "IndianRed1"
      :foreground "IndianRed4"))
-  "Face for Stacked Git patches"
+  "Face for Stacked Git patches."
   :group 'magit-faces)
 
 (defface magit-whitespace-warning-face
@@ -472,7 +472,8 @@ Many Magit faces inherit from this one by default."
   :group 'magit-faces)
 
 (defvar magit-custom-options '()
-  "List of custom options to pass git. Do not customise this.")
+  "List of custom options to pass to Git.
+Do not customize this (used in the `magit-key-mode' implementation).")
 
 (defvar magit-read-rev-history nil
   "The history of inputs to `magit-read-rev'.")
@@ -882,12 +883,15 @@ Does not follow symlinks."
     (write-file file)))
 
 (defun magit-get (&rest keys)
+  "Return the value of Git config entry specified by KEYS."
   (magit-git-string "config" (mapconcat 'identity keys ".")))
 
 (defun magit-get-all (&rest keys)
+  "Return all values of the Git config entry specified by KEYS."
   (magit-git-lines "config" "--get-all" (mapconcat 'identity keys ".")))
 
 (defun magit-set (val &rest keys)
+  "Set Git config settings specified by KEYS to VAL."
   (if val
       (magit-git-string "config" (mapconcat 'identity keys ".") val)
     (magit-git-string "config" "--unset" (mapconcat 'identity keys "."))))
@@ -916,7 +920,7 @@ Does not follow symlinks."
   (file-exists-p (expand-file-name ".git" dir)))
 
 (defun magit-no-commit-p ()
-  "return non-nil if there is no commit in the current git repository"
+  "Return non-nil if there is no commit in the current git repository."
   (not (magit-git-string
         "rev-list" "HEAD" "--max-count=1")))
 
@@ -1301,8 +1305,8 @@ If TYPE is nil, the section won't be highlighted."
 (defmacro magit-with-section (title type &rest body)
   "Create a new section of title TITLE and type TYPE and evaluate BODY there.
 
-Sections create into BODY will be child of the new section.
-BODY must leave point at the end of the created section.
+Sections created inside BODY will become children of the new
+section. BODY must leave point at the end of the created section.
 
 If TYPE is nil, the section won't be highlighted."
   (declare (indent 2))
@@ -1333,7 +1337,7 @@ end positions."
 	flag))
 
 (defmacro magit-create-buffer-sections (&rest body)
-  "Empty current buffer of text and magit's section, and then evaluate BODY."
+  "Empty current buffer of text and Magit's sections, and then evaluate BODY."
   (declare (indent 0))
   `(let ((inhibit-read-only t))
      (erase-buffer)
@@ -1390,7 +1394,7 @@ end positions."
     prev))
 
 (defun magit-current-section ()
-  "Return the magit section at point."
+  "Return the Magit section at point."
   (or (get-text-property (point) 'magit-section)
       magit-top-section))
 
@@ -1407,9 +1411,9 @@ BUFFER-TITLE is the inserted title of the section
 
 WASHER is a function that will be run after CMD.
 The buffer will be narrowed to the inserted text.
-It should add sectioning as needed for magit interaction
+It should add sectioning as needed for Magit interaction.
 
-CMD is an external command that will be run with ARGS as arguments"
+CMD is an external command that will be run with ARGS as arguments."
   (let* ((body-beg nil)
 	 (section-title (if (consp section-title-and-type)
 			    (car section-title-and-type)
@@ -1459,7 +1463,7 @@ see `magit-insert-section' for meaning of the arguments"
 	      (magit-next-section parent))))))
 
 (defun magit-goto-next-section ()
-  "Go to the next magit section."
+  "Go to the next Magit section."
   (interactive)
   (let* ((section (magit-current-section))
 	 (next (or (and (not (magit-section-hidden section))
@@ -1500,7 +1504,7 @@ see `magit-insert-section' for meaning of the arguments"
 		 parent))))))
 
 (defun magit-goto-previous-section ()
-  "Goto the previous magit section."
+  "Go to the previous Magit section."
   (interactive)
   (let ((section (magit-current-section)))
     (cond ((= (point) (magit-section-beginning section))
@@ -1523,14 +1527,14 @@ see `magit-insert-section' for meaning of the arguments"
              (goto-char (magit-section-beginning target)))))))
 
 (defun magit-goto-parent-section ()
-  "Goto the parent section."
+  "Go to the parent section."
   (interactive)
   (let ((parent (magit-section-parent (magit-current-section))))
     (when parent
       (goto-char (magit-section-beginning parent)))))
 
 (defun magit-goto-section (path)
-  "Goto the section describe by PATH."
+  "Go to the section described by PATH."
   (let ((sec (magit-find-section path magit-top-section)))
     (if sec
 	(goto-char (magit-section-beginning sec))
