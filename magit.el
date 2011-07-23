@@ -534,6 +534,8 @@ Do not customize this (used in the `magit-key-mode' implementation).")
     (define-key map (kbd "2") 'magit-show-level-2)
     (define-key map (kbd "3") 'magit-show-level-3)
     (define-key map (kbd "4") 'magit-show-level-4)
+    (define-key map (kbd "M-n") 'magit-top-subsection-next)
+    (define-key map (kbd "M-p") 'magit-top-subsection-prev)
     (define-key map (kbd "M-1") 'magit-show-level-1-all)
     (define-key map (kbd "M-2") 'magit-show-level-2-all)
     (define-key map (kbd "M-3") 'magit-show-level-3-all)
@@ -2119,6 +2121,17 @@ function can be enriched by magit extension like magit-topgit and magit-svn"
 (magit-define-level-shower 2)
 (magit-define-level-shower 3)
 (magit-define-level-shower 4)
+
+(defcustom magit-top-subsections '("Changes" "Staged changes" "Stashes"
+                                   "Unpushed commits" "Unpulled commits"
+                                   "Unstaged changes" "Untracked files")
+  "List of top subsections defined by Magit or its extensions.
+Used for `magit-top-subsection-next' and `magit-top-subsection-prev'."
+  :group 'magit
+  :type '(repeat string))
+
+(easy-mmode-define-navigation magit-top-subsection
+    (concat "^" (regexp-opt magit-top-subsections) ":"))
 
 (easy-menu-define magit-mode-menu magit-mode-map
   "Magit menu"
