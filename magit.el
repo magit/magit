@@ -467,9 +467,7 @@ Many Magit faces inherit from this one by default."
   :group 'magit-faces)
 
 (defface magit-whitespace-warning-face
-  '((((class color))
-     :inherit font-lock-warning-face
-     :inverse-video t))
+  '((t :inherit trailing-whitespace))
   "Face for highlighting whitespace errors in Magit diffs."
   :group 'magit-faces)
 
