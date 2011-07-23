@@ -92,7 +92,7 @@
 
 ;; Dummy to be used by the defcustoms when first loading the file.
 (eval-when (load eval)
-  (defalias 'magit-set-variable-and-refresh 'set))
+  (defalias 'magit-set-variable-and-refresh 'set-default))
 
 ;;; Code:
 (defgroup magit nil
@@ -769,7 +769,7 @@ Does not follow symlinks."
 
 (defun magit-set-variable-and-refresh (symbol value)
   "Set SYMBOL to VALUE and call `magit-refresh-all'"
-  (set symbol value)
+  (set-default symbol value)
   (magit-refresh-all))
 
 (defvar magit-submode nil)
