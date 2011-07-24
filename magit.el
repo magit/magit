@@ -3011,9 +3011,8 @@ insert a line to tell how to insert more of them"
                            '(face magit-log-sha1)))
     (cond
      ((search-forward-regexp "^Merge: \\([0-9a-fA-F]+\\) \\([0-9a-fA-F]+\\)$" nil t)
-      (setq magit-current-diff-range (cons (magit-git-string "merge-base"
-                                                             (match-string 1)
-                                                             (match-string 2))
+      (setq magit-current-diff-range (cons (cons (match-string 1)
+                                                 (match-string 2))
                                            magit-current-diff-range))
       (let ((first (magit-set-section nil 'commit (match-beginning 1) (match-end 1)))
             (second (magit-set-section nil 'commit (match-beginning 2) (match-end 2))))
@@ -4617,14 +4616,21 @@ This is only non-nil in reflog buffers.")
        ((and (eq type 'unmerged)
              (eq (cdr range) 'working))
         (magit-interactive-resolve file1))
+       ((consp (car range))
+        (magit-ediff* (magit-show (caar range) file2)
+                      (magit-show (cdar range) file2)
+                      (magit-show (cdr range) file1)))
        (t
-        (require 'ediff)
-        (let ((buffer-a (magit-show (car range) file2))
-              (buffer-b (magit-show (cdr range) file1)))
-          (setq magit-ediff-buffers (list buffer-a buffer-b))
-          (setq magit-ediff-windows (current-window-configuration))
-          (add-hook 'ediff-quit-hook 'magit-ediff-restore 'append)
-          (ediff-buffers buffer-a buffer-b)))))))
+        (magit-ediff* (magit-show (car range) file2)
+                      (magit-show (cdr range) file1)))))))
+
+(defun magit-ediff* (a b &optional c)
+  (setq magit-ediff-buffers (list a b c))
+  (setq magit-ediff-windows (current-window-configuration))
+  (add-hook 'ediff-quit-hook 'magit-ediff-restore 'append)
+  (if c
+      (ediff-buffers3 a b c)
+    (ediff-buffers a b)))
 
 (defun magit-ediff-restore()
   "Kill any buffers in `magit-ediff-buffers' that are not visiting files and
