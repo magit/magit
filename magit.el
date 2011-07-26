@@ -994,8 +994,12 @@ Otherwise, return nil."
 (defun magit-ref-exists-p (ref)
   (= (magit-git-exit-code "show-ref" "--verify" ref) 0))
 
-(defun magit-read-top-dir (rawp)
-  (if (and (not rawp) magit-repo-dirs)
+(defun magit-read-top-dir (dir)
+  "Ask the user for a Git repository.  The choices offered by
+auto-completion will be the repositories under `magit-repo-dirs'.
+If `magit-repo-dirs' is nil or DIR is non-nill, then
+autocompletion will offer directory names."
+  (if (and (not dir) magit-repo-dirs)
       (let* ((repos (magit-list-repos magit-repo-dirs))
              (reply (magit-completing-read "Git repository: " repos)))
         (file-name-as-directory
@@ -3404,10 +3408,20 @@ to consider it or not when called with that buffer current."
 
 ;;;###autoload
 (defun magit-status (dir)
-  (interactive (list (or (and (not current-prefix-arg)
-			      (magit-get-top-dir default-directory))
-			 (magit-read-top-dir (and (consp current-prefix-arg)
-						  (> (car current-prefix-arg) 4))))))
+  "Open a Magit status buffer for the Git repository containing
+DIR.  If DIR is not within a Git repository, offer to create a
+Git repository in DIR.
+
+Interactively, a prefix argument means to ask the user which Git
+repository to use even if `default-directory' is under Git control.
+Two prefix arguments means to ignore `magit-repo-dirs' when asking for
+user input."
+  (interactive (list (if current-prefix-arg
+                         (magit-read-top-dir
+                          (> (prefix-numeric-value current-prefix-arg)
+                             4))
+                       (or (magit-get-top-dir default-directory)
+                           (magit-read-top-dir nil)))))
   (magit-save-some-buffers)
   (let ((topdir (magit-get-top-dir dir)))
     (unless topdir
