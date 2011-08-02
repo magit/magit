@@ -3099,14 +3099,15 @@ insert a line to tell how to insert more of them"
 
 (defun magit-refresh-commit-buffer (commit)
   (magit-create-buffer-sections
-    (magit-git-section nil nil
-		       'magit-wash-commit
-		       "log"
-		       "--decorate=full"
-		       "--max-count=1"
-		       "--pretty=medium"
-		       "--cc"
-		       "-p" commit)))
+    (apply #'magit-git-section nil nil
+	   'magit-wash-commit
+	   "log"
+	   "--decorate=full"
+	   "--max-count=1"
+	   "--pretty=medium"
+	   `(,@(if magit-have-abbrev (list "--no-abbrev-commit"))
+	     "--cc"
+	     "-p" ,commit))))
 
 (define-minor-mode magit-commit-mode
     "Minor mode to view a git commit.
