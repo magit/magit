@@ -112,7 +112,7 @@
       ("-nc" "No commit" "--no-commit")
       ("-sq" "Squash" "--squash"))
      (arguments
-      ("-st" "Strategy" "--strategy" read-from-minibuffer)))
+      ("-st" "Strategy" "--strategy=" read-from-minibuffer)))
 
     (rewriting
      (actions
