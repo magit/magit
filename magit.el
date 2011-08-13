@@ -2844,14 +2844,72 @@ either in another window or (with a prefix argument) in the current window."
 ;  '("--pretty=format:* %H%d %s" "--decorate=full"))
 
 
-(defvar magit-log-oneline-re
+;;
+;; Regexps for parsing ref names
+;;
+;; see the `git-check-ref-format' manpage for details
+
+(defconst magit-ref-nonchars "\000-\037\177 ~^:?*[\\"
+  "Characters specifically disallowed from appearing in Git symbolic refs.
+
+Evaluate (man \"git-check-ref-format\") for details")
+
+(defconst magit-ref-nonslash-re
+  (concat "\\(?:"
+              ;; "no slash-separated component can begin with a dot ." (rule 1)
+              "[^" magit-ref-nonchars "./]"
+              ;; "cannot have two consecutive dots ..  anywhere." (rule 3)
+              "\\.?"
+          "\\)*")
+  "Regexp that matches the non-slash parts of a ref name.
+
+Evaluate (man \"git-check-ref-format\") for details")
+
+(defconst magit-refname-re
+      (concat
+       "\\(?:HEAD\\|"
+
+         "\\(?:tag: \\)?"
+
+         ;; optional non-slash sequence at the beginning
+         magit-ref-nonslash-re
+
+         ;; any number of slash-prefixed sequences
+         "\\(?:"
+           "/"
+           magit-ref-nonslash-re
+         "\\)*"
+
+         "/" ;; "must contain at least one /." (rule 2)
+         magit-ref-nonslash-re
+
+         ;; "cannot end with a slash / nor a dot .." (rule 5)
+         "[^" magit-ref-nonchars "./]"
+
+       "\\)"
+       )
+  "Regexp that matches a git symbolic reference name.
+
+Evaluate (man \"git-check-ref-format\") for details")
+
+(defconst magit-log-oneline-re
   (concat
    "^\\([_\\*|/ -.]+\\)?"                                  ; graph   (1)
    "\\(?:commit \\)?"                                      ; this happens in long mode
    "\\(?:"
-   "\\([0-9a-fA-F]\\{40\\}\\)"                             ; sha1    (2)
-   "\\(?: \\((\\(?:[^ ]+?\\(?:[:,] \\)?\\)+)\\)\\)?"       ; refs    (3)
+     "\\([0-9a-fA-F]\\{40\\}\\)"                           ; sha1    (2)
+
+
+     "\\(?:"                                               ; refs    (3)
+        " "
+        "\\("
+          "("
+          magit-refname-re "\\(?:, " magit-refname-re "\\)*"
+          ")"
+        "\\)"
+     "\\)?"
    "\\)?"
+
    " ?\\(.*\\)$"                                           ; msg     (4)
    )
   "Regexp used to extract elements of git log output.
