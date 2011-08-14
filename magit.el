@@ -527,7 +527,9 @@ Do not customize this (used in the `magit-key-mode' implementation).")
   (let ((map (make-keymap)))
     (suppress-keymap map t)
     (define-key map (kbd "n") 'magit-goto-next-section)
+    (define-key map (kbd "M-n") 'magit-goto-next-sibling-section)
     (define-key map (kbd "p") 'magit-goto-previous-section)
+    (define-key map (kbd "M-p") 'magit-goto-previous-sibling-section)
     (define-key map (kbd "^") 'magit-goto-parent-section)
     (define-key map (kbd "TAB") 'magit-toggle-section)
     (define-key map (kbd "<backtab>") 'magit-expand-collapse-section)
@@ -1464,9 +1466,7 @@ see `magit-insert-section' for meaning of the arguments"
               (and (not same-level)
                    (magit-next-section parent)))))))
 
-(defun magit-goto-next-section (&optional same-level)
-  "Go to the next Magit section."
-  (interactive "P")
+(defun magit-goto-next-section-internal (&optional same-level)
   (let* ((section (magit-current-section))
 	 (next (or (and (not same-level)
                         (not (magit-section-hidden section))
@@ -1492,6 +1492,18 @@ see `magit-insert-section' for meaning of the arguments"
                      (recenter offset)))))
           (t (message "No next section")))))
 
+(defun magit-goto-next-section (&optional count same-level)
+  "Go to the next Magit section."
+  (interactive "p")
+  (let ((count (or count 1)))
+    (dotimes (x count)
+      (magit-goto-next-section-internal same-level))))
+
+(defun magit-goto-next-sibling-section (&optional count)
+  "Go to the next Magit sibling section."
+  (interactive "p")
+  (magit-goto-next-section count t))
+
 (defun magit-prev-section (section &optional same-level)
   "Return the section that is before SECTION."
   (let ((parent (magit-section-parent section)))
@@ -1505,12 +1517,10 @@ see `magit-insert-section' for meaning of the arguments"
 			     (magit-section-children prev))
 		   (setq prev (car (reverse (magit-section-children prev)))))
 		 prev)
-		(t
+		((not same-level)
 		 parent))))))
 
-(defun magit-goto-previous-section (&optional same-level)
-  "Go to the previous Magit section."
-  (interactive "P")
+(defun magit-goto-previous-section-internal (&optional same-level)
   (let ((section (magit-current-section)))
     (cond ((= (point) (magit-section-beginning section))
 	   (let ((prev (magit-prev-section (magit-current-section)
@@ -1531,6 +1541,18 @@ see `magit-insert-section' for meaning of the arguments"
                       (memq magit-submode '(log reflog)))
                  (magit-show-commit target))
              (goto-char (magit-section-beginning target)))))))
+
+(defun magit-goto-previous-section (&optional count same-level)
+  "Go to the previous Magit section."
+  (interactive "p")
+  (let ((count (or count 1)))
+    (dotimes (x count)
+      (magit-goto-previous-section-internal same-level))))
+
+(defun magit-goto-previous-sibling-section (&optional count)
+  "Go to the previous Magit sibling section."
+  (interactive "p")
+  (magit-goto-previous-section count t))
 
 (defun magit-goto-parent-section ()
   "Go to the parent section."
