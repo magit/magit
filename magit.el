@@ -149,14 +149,16 @@ save all modified buffers without asking."
                 (function-item magit-save-buffers-predicate-all)
                 (function :tag "Other")))
 
-(defcustom magit-default-checkout-branch-name-function
-  'magit-default-checkout-branch-name-remote-plus-branch
-  "Specifies the function to use to generate default branch names
-when doing a \\[magit-checkout]. The default is
-'remote-branchname'."
+(defcustom magit-default-tracking-name-function
+  'magit-default-tracking-name-remote-plus-branch
+  "Specifies the function to use to generate default tracking branch names
+when doing a \\[magit-checkout].
+
+The default is magit-default-tracking-name-remote-plus-branch,
+which generates a tracking name of the form 'REMOTE-BRANCHNAME'."
   :group 'magit
-  :type '(radio (function-item magit-default-checkout-branch-name-remote-plus-branch)
-                (function-item magit-default-checkout-branch-name-branch-only)
+  :type '(radio (function-item magit-default-tracking-name-remote-plus-branch)
+                (function-item magit-default-tracking-name-branch-only)
                 (function :tag "Other")))
 
 (defcustom magit-commit-all-when-nothing-staged 'ask
@@ -3512,15 +3514,19 @@ With prefix argument, add remaining untracked files as well.
 
 ;;; Branches
 
-(defun magit-default-checkout-branch-name-remote-plus-branch
+(defun escape-branch-name (branch)
+  "Escapes branch names to remove problematic characters."
+  (replace-regexp-in-string "[/]" "-" branch))
+
+(defun magit-default-tracking-name-remote-plus-branch
   (remote branch)
   "Use the remote name plus a hyphen plus the escaped branch name for tracking branches."
-  (concat remote "-" (replace-regexp-in-string "[/]" "-" branch)))
+  (concat remote "-" (escape-branch-name branch)))
 
-(defun magit-default-checkout-branch-name-branch-only
+(defun magit-default-tracking-name-branch-only
   (remote banch)
   "Use just the escaped branch name for tracking branches."
-  (replace-regexp-in-string "[/]" "-" branch))
+  (escape-branch-name branch))
 
 (defun magit-get-tracking-name (remote branch)
   "Given a REMOTE and a BRANCH name, ask the user for a local
@@ -3528,7 +3534,7 @@ tracking brach name suggesting a sensible default."
   (when (yes-or-no-p
          (format "Create local tracking branch for %s? " branch))
     (let* ((default-name
-             (funcall magit-default-checkout-branch-name-function remote branch))
+             (funcall magit-default-tracking-name-function remote branch))
            (chosen-name (read-string (format "Call local branch (%s): " default-name)
                                      nil
                                      nil
