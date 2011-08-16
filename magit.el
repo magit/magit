@@ -147,7 +147,17 @@ save all modified buffers without asking."
   :group 'magit
   :type '(radio (function-item magit-save-buffers-predicate-tree-only)
                 (function-item magit-save-buffers-predicate-all)
-		(function :tag "Other")))
+                (function :tag "Other")))
+
+(defcustom magit-default-checkout-branch-name-function
+  'magit-default-checkout-branch-name-remote-plus-branch
+  "Specifies the function to use to generate default branch names
+when doing a \\[magit-checkout]. The default is
+'remote-branchname'."
+  :group 'magit
+  :type '(radio (function-item magit-default-checkout-branch-name-remote-plus-branch)
+                (function-item magit-default-checkout-branch-name-branch-only)
+                (function :tag "Other")))
 
 (defcustom magit-commit-all-when-nothing-staged 'ask
   "Determines what \\[magit-log-edit] does when nothing is staged.
@@ -3502,14 +3512,23 @@ With prefix argument, add remaining untracked files as well.
 
 ;;; Branches
 
+(defun magit-default-checkout-branch-name-remote-plus-branch
+  (remote branch)
+  "Use the remote name plus a hyphen plus the escaped branch name for tracking branches."
+  (concat remote "-" (replace-regexp-in-string "[/]" "-" branch)))
+
+(defun magit-default-checkout-branch-name-branch-only
+  (remote banch)
+  "Use just the escaped branch name for tracking branches."
+  (replace-regexp-in-string "[/]" "-" branch))
+
 (defun magit-get-tracking-name (remote branch)
   "Given a REMOTE and a BRANCH name, ask the user for a local
 tracking brach name suggesting a sensible default."
   (when (yes-or-no-p
          (format "Create local tracking branch for %s? " branch))
-    (let* ((default-name (concat remote
-                                 "-"
-                                 (replace-regexp-in-string "[/]" "-" branch)))
+    (let* ((default-name
+             (funcall magit-default-checkout-branch-name-function remote branch))
            (chosen-name (read-string (format "Call local branch (%s): " default-name)
                                      nil
                                      nil
