@@ -1488,35 +1488,17 @@ see `magit-insert-section' for meaning of the arguments"
 (defun magit-goto-next-section ()
   "Go to the next Magit section."
   (interactive)
-  (let* ((section (magit-current-section))
-         (next (magit-find-section-after (point))))
-    (cond ((and next (eq (magit-section-type next) 'longer))
-           (when magit-log-auto-more
-             (magit-log-show-more-entries)
-             (magit-goto-next-section)))
-          (next
-           (goto-char (magit-section-beginning next))
-           (if (memq magit-submode '(log reflog))
-               (magit-show-commit next))
-           (if (not (magit-section-hidden next))
-               (let ((offset (- (line-number-at-pos
-                                 (magit-section-beginning next))
-                                (line-number-at-pos
-                                 (magit-section-end next)))))
-                 (if (< offset 0)
-                     (recenter offset)))))
-          (t (message "No next section")))))
+  (let ((next (magit-find-section-after (point))))
+    (if next
+        (magit-goto-section next)
+      (message "No next section"))))
 
 (defun magit-goto-previous-section ()
   "Go to the previous Magit section."
   (interactive)
   (if (eq (point) 1)
       (message "No previous section")
-    (let ((prev (magit-find-section-before (point))))
-      (if (and (eq (magit-section-type prev) 'commit)
-               (memq magit-submode '(log reflog)))
-          (magit-show-commit prev))
-      (goto-char (magit-section-beginning prev)))))
+    (magit-goto-section (magit-find-section-before (point)))))
 
 (defun magit-goto-parent-section ()
   "Go to the parent section."
@@ -1525,7 +1507,19 @@ see `magit-insert-section' for meaning of the arguments"
     (when parent
       (goto-char (magit-section-beginning parent)))))
 
-(defun magit-goto-section (path)
+(defun magit-goto-section (section)
+  (goto-char (magit-section-beginning section))
+  (cond
+   ((and magit-log-auto-more
+         (eq (magit-section-type section) 'longer))
+    (magit-log-show-more-entries)
+    (forward-line -1)
+    (magit-goto-next-section))
+   ((and (eq (magit-section-type section) 'commit)
+         (memq magit-submode '(log reflog)))
+    (magit-show-commit section))))
+
+(defun magit-goto-section-at-path (path)
   "Go to the section described by PATH."
   (let ((sec (magit-find-section path magit-top-section)))
     (if sec
@@ -1734,7 +1728,7 @@ TITLE is the displayed title of the section."
     `(defun ,fun ()
        ,doc
        (interactive)
-       (magit-goto-section '(,sym)))))
+       (magit-goto-section-at-path '(,sym)))))
 
 (defmacro magit-define-inserter (sym arglist &rest body)
   (declare (indent defun))
@@ -4517,8 +4511,9 @@ With a non numeric prefix ARG, show all entries"
     (arg
      (setq magit-log-cutoff-length magit-log-infinite-length))
     (t (setq magit-log-cutoff-length (* magit-log-cutoff-length 2))))
-  (magit-refresh))
-
+  (let ((old-point (point)))
+    (magit-refresh)
+    (goto-char old-point)))
 
 (defun magit-refresh-log-buffer (range style args)
   (magit-configure-have-graph)
