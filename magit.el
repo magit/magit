@@ -3110,6 +3110,7 @@ insert a line to tell how to insert more of them"
                     'face 'magit-log-sha1))
 
 (defun magit-refresh-commit-buffer (commit)
+  (magit-configure-have-abbrev)
   (magit-create-buffer-sections
     (apply #'magit-git-section nil nil
 	   'magit-wash-commit
