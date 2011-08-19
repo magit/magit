@@ -1389,11 +1389,17 @@ end positions."
     (append (magit-section-path (magit-section-parent section))
 	    (list (magit-section-title section)))))
 
-(defun magit-find-section-after (pos secs)
-  "Find the first section that begins after POS in the list SECS."
+(defun magit-find-section-after (pos)
+  "Find the first section that begins after POS."
+  (magit-find-section-after* pos (list magit-top-section)))
+
+(defun magit-find-section-after* (pos secs)
+  "Find the first section that begins after POS in the list SECS
+(including children of sections in SECS)."
   (while (and secs
-	      (not (> (magit-section-beginning (car secs)) pos)))
-    (setq secs (cdr secs)))
+              (<= (magit-section-beginning (car secs)) pos))
+    (setq secs (append (magit-section-children (car secs))
+                       (cdr secs))))
   (car secs))
 
 (defun magit-find-section-before (pos)
@@ -1479,25 +1485,11 @@ see `magit-insert-section' for meaning of the arguments"
 	 magit-git-executable
 	 (append magit-git-standard-options args)))
 
-(defun magit-next-section (section)
-  "Return the section that is after SECTION."
-  (let ((parent (magit-section-parent section)))
-    (if parent
-	(let ((next (cadr (memq section
-				(magit-section-children parent)))))
-	  (or next
-	      (magit-next-section parent))))))
-
 (defun magit-goto-next-section ()
   "Go to the next Magit section."
   (interactive)
   (let* ((section (magit-current-section))
-	 (next (or (and (not (magit-section-hidden section))
-			(magit-section-children section)
-			(magit-find-section-after (point)
-						  (magit-section-children
-						   section)))
-		   (magit-next-section section))))
+         (next (magit-find-section-after (point))))
     (cond ((and next (eq (magit-section-type next) 'longer))
            (when magit-log-auto-more
              (magit-log-show-more-entries)
