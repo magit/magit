@@ -1278,6 +1278,14 @@ DEF is the default value, and defaults to the value of `magit-get-current-branch
   parent title beginning end children hidden type info
   needs-refresh-on-show)
 
+(defun magit-section-invisible (section)
+  "Returns non-nil if SECTION is invisible, e.g., because its
+parent section is hidden.  Unlike `magit-section-hidden', this
+will return nil if SECTION is collapsed but its header is still
+visible."
+  (get-text-property (magit-section-beginning section)
+                     'invisible))
+
 (defvar magit-top-section nil
   "The top section of the current buffer.")
 (make-variable-buffer-local 'magit-top-section)
@@ -1399,7 +1407,8 @@ end positions."
 
 (defun magit-find-section-after* (pos secs)
   "Find the first section that begins after POS in the list SECS
-(including children of sections in SECS)."
+\(including children of sections in SECS)."
+  (setq secs (remove-if 'magit-section-invisible secs))
   (while (and secs
               (<= (magit-section-beginning (car secs)) pos))
     (setq secs (append (magit-section-children (car secs))
@@ -1418,6 +1427,7 @@ end positions."
 
 (defun magit-find-section-before* (pos secs)
   "Find the last section that begins before POS in the list SECS."
+  (setq secs (remove-if 'magit-section-invisible secs))
   (let ((prev nil))
     (while (and secs
                 (< (magit-section-beginning (car secs)) pos))
