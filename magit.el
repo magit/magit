@@ -1399,11 +1399,13 @@ end positions."
 
 (defun magit-find-section-after* (pos secs)
   "Find the first section that begins after POS in the list SECS
-(including children of sections in SECS)."
+\(including children of sections in SECS)."
   (while (and secs
               (<= (magit-section-beginning (car secs)) pos))
-    (setq secs (append (magit-section-children (car secs))
-                       (cdr secs))))
+    (setq secs (if (magit-section-hidden (car secs))
+                   (cdr secs)
+                 (append (magit-section-children (car secs))
+                         (cdr secs)))))
   (car secs))
 
 (defun magit-find-section-before (pos)
@@ -1412,8 +1414,10 @@ end positions."
     (do* ((current (or (magit-section-parent section)
                        section)
                    next)
-          (next (magit-find-section-before* pos (magit-section-children current))
-                (magit-find-section-before* pos (magit-section-children current))))
+          (next (if (not (magit-section-hidden current))
+                    (magit-find-section-before* pos (magit-section-children current)))
+                (if (not (magit-section-hidden current))
+                    (magit-find-section-before* pos (magit-section-children current)))))
         ((null next) current))))
 
 (defun magit-find-section-before* (pos secs)
