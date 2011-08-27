@@ -2343,7 +2343,7 @@ Please see the manual for a complete description of Magit.
   (if magit-refresh-pending
       (funcall func)
     (let* ((dir default-directory)
-	   (status-buffer (magit-find-buffer 'status dir))
+	   (status-buffer (magit-find-status-buffer dir))
 	   (magit-refresh-needing-buffers nil)
 	   (magit-refresh-pending t))
       (unwind-protect
@@ -3413,7 +3413,7 @@ user input."
 	(magit-init dir)
 	(setq topdir (magit-get-top-dir dir))))
     (when topdir
-      (let ((buf (or (magit-find-buffer 'status topdir)
+      (let ((buf (or (magit-find-status-buffer topdir)
 		     (generate-new-buffer
 		      (concat "*magit: "
 			      (file-name-nondirectory
@@ -4146,7 +4146,7 @@ toggled on.  When it's toggled on for the first time, return
     (if (= (buffer-size) 0)
 	(insert "(Empty description)\n"))
     (let ((commit-buf (current-buffer)))
-      (with-current-buffer (magit-find-buffer 'status default-directory)
+      (with-current-buffer (magit-find-status-buffer default-directory)
 	(cond (tag-name
                (apply #'magit-run-git-with-input commit-buf
                       "tag" (append tag-options (list tag-name "-a" "-F" "-" tag-rev))))
@@ -5291,7 +5291,7 @@ name of the remote and branch name. The remote must be known to git."
     (magit-set new-branch "branch" local-branch "merge")
     (magit-show-branches)
     (if (string= (magit-get-current-branch) local-branch)
-        (magit-refresh-buffer (magit-find-buffer 'status default-directory)))))
+        (magit-refresh-buffer (magit-find-status-buffer default-directory)))))
 
 (defvar magit-ediff-file)
 
