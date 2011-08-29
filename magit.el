@@ -192,7 +192,8 @@ after a confirmation."
 (defcustom magit-log-auto-more nil
   "Insert more log entries automatically when moving past the last entry.
 
-Only considered when moving past the last entry with `magit-goto-next-section'."
+Only considered when moving past the last entry with
+`magit-goto-*-section' commands."
   :group 'magit
   :type 'boolean)
 
