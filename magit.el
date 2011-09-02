@@ -623,8 +623,7 @@ Do not customize this (used in the `magit-key-mode' implementation).")
 
 (defvar magit-reflog-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd ".") 'magit-mark-item)
-    (define-key map (kbd "=") 'magit-diff-with-mark)
+    (set-keymap-parent map magit-log-mode-map)
     map))
 
 (defvar magit-wazzup-mode-map
