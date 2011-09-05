@@ -322,6 +322,10 @@ Typing @kbd{C-c C-e} will toggle the @code{--allow-empty} option.  This
 allows you to make commits that serve as notes, without including any
 changes.
 
+Typing @kbd{C-c C-t} will toggle the option to speficy the name and
+email address for the commit's author.  The default is determined by
+the @code{user.name} and @code{user.email} git configuration settings.
+
 If you change your mind and don't want to go ahead with your commit
 while you are in the @code{*magit-log-edit*} buffer, you can just
 switch to another buffer, continue editing there, staging and
