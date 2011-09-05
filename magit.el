@@ -4029,7 +4029,7 @@ toggled on.  When it's toggled on for the first time, return
 (defun magit-log-edit-setup-author-env (author)
   (cond (author
 	 ;; XXX - this is a bit strict, probably.
-	 (or (string-match "\\(.*\\) <\\(.*\\)>" author)
+	 (or (string-match "\\(.*\\) <\\(.*\\)>\\(?:,\\s-*\\(.+\\)\\)" author)
 	     (error "Can't parse author string"))
 	 ;; Shucks, setenv destroys the match data.
 	 (let ((name (match-string 1 author))
@@ -4037,7 +4037,8 @@ toggled on.  When it's toggled on for the first time, return
 	       (date  (match-string 3 author)))
 	   (setenv "GIT_AUTHOR_NAME" name)
 	   (setenv "GIT_AUTHOR_EMAIL" email)
-	   (setenv "GIT_AUTHOR_DATE" date)))
+           (if date
+               (setenv "GIT_AUTHOR_DATE" date))))
 	(t
 	 (setenv "GIT_AUTHOR_NAME")
 	 (setenv "GIT_AUTHOR_EMAIL")
