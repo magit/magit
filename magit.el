@@ -3453,7 +3453,7 @@ With prefix argument, add remaining untracked files as well.
   (concat remote "-" (escape-branch-name branch)))
 
 (defun magit-default-tracking-name-branch-only
-  (remote banch)
+  (remote branch)
   "Use just the escaped branch name for tracking branches."
   (escape-branch-name branch))
 
