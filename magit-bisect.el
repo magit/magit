@@ -1,3 +1,5 @@
+(require 'magit)
+
 (defvar magit--bisect-last-pos)
 (defvar magit--bisect-tmp-file)
 (defvar magit--bisect-info nil)

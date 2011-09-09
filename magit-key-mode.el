@@ -1,3 +1,5 @@
+(require 'magit)
+
 (require 'assoc)
 (eval-when-compile (require 'cl))
 

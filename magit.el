@@ -74,10 +74,6 @@
 
 ;;; Code:
 
-;; magit core
-(require 'magit-key-mode)
-(require 'magit-bisect)
-
 (eval-when-compile (require 'cl))
 (require 'log-edit)
 (require 'easymenu)
@@ -5324,4 +5320,9 @@ With a prefix arg, do a submodule update --init"
       (magit-start-process "Gitk" nil magit-gitk-executable "--all")))))
 
 (provide 'magit)
+
+;; rest of magit core
+(require 'magit-key-mode)
+(require 'magit-bisect)
+
 ;;; magit.el ends here
