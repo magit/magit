@@ -3035,6 +3035,8 @@ insert a line to tell how to insert more of them"
                     'mouse-face 'magit-item-highlight
                     'face 'magit-log-sha1))
 
+(defvar magit-have-abbrev) ;below
+
 (defun magit-refresh-commit-buffer (commit)
   (magit-configure-have-abbrev)
   (magit-create-buffer-sections
@@ -3221,6 +3223,8 @@ PREPEND-REMOTE-NAME is non-nil."
        ")"))
    (t
     (run-hook-with-args-until-success 'magit-remote-string-hook))))
+
+(declare-function magit--bisect-info-for-status "magit-bisect" (branch))
 
 (defun magit-refresh-status ()
   (magit-create-buffer-sections

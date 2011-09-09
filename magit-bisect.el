@@ -1,3 +1,5 @@
+(defvar magit--bisect-last-pos)
+(defvar magit--bisect-tmp-file)
 (defvar magit--bisect-info nil)
 (make-variable-buffer-local 'magit--bisect-info)
 (put 'magit--bisect-info 'permanent-local t)
