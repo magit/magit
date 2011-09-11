@@ -17,7 +17,7 @@
 (defvar magit-log-mode-window-conf nil
   "Will hold the pre-menu configuration of magit.")
 
-(defvar magit-key-mode-groups
+(defconst magit-key-mode-groups
   '((logging
      (man-page "git-log")
      (actions
@@ -112,7 +112,7 @@
       ("-nc" "No commit" "--no-commit")
       ("-sq" "Squash" "--squash"))
      (arguments
-      ("-st" "Strategy" "--strategy" read-from-minibuffer)))
+      ("-st" "Strategy" "--strategy=" read-from-minibuffer)))
 
     (rewriting
      (actions
@@ -250,6 +250,7 @@ put it in magit-key-mode-key-maps for fast lookup."
          (switches (cdr (assoc 'switches options)))
          (arguments (cdr (assoc 'arguments options)))
          (map (make-sparse-keymap)))
+    (suppress-keymap map 'nodigits)
     ;; ret dwim
     (define-key map (kbd "RET") 'magit-key-mode-exec-at-point)
 

@@ -197,9 +197,8 @@
            (with-current-buffer buf
              (set-buffer buf)
              (goto-char (point-min))
-             (magit-mode-init dir 'commit
-                              #'magit-stgit--refresh-patch-buffer patch)
-             (magit-commit-mode t))))))
+             (magit-mode-init dir 'magit-commit-mode
+                              #'magit-stgit--refresh-patch-buffer patch))))))
 
 (magit-add-action (item info "visit")
   ((series)

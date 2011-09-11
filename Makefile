@@ -1,6 +1,7 @@
 VERSION=$(shell git describe --tags --dirty)
 EMACS=emacs
 PREFIX=/usr/local
+SYSCONFDIR=/etc
 ELS=magit.el magit-svn.el magit-topgit.el magit-stgit.el magit-key-mode.el magit-bisect.el
 ELS_CONTRIB=contrib/magit-simple-keys.el contrib/magit-classic-theme.el
 ELCS=$(ELS:.el=.elc)
@@ -56,22 +57,22 @@ magit-$(VERSION).tar.gz: $(DIST_FILES) $(DIST_FILES_CONTRIB)
 install: install_core install_docs
 
 install_core: core
-	mkdir -p $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp
-	install -m 644 $(ELS) $(ELCS) $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp
-	sed -i -e "s/@GIT_DEV_VERSION@/$(VERSION)/" $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp/magit.el #NO_DIST
-	mkdir -p $(DESTDIR)/etc/emacs/site-start.d
-	install -m 644 50magit.el $(DESTDIR)/etc/emacs/site-start.d/50magit.el
+	mkdir -p $(DESTDIR)$(PREFIX)/share/emacs/site-lisp
+	install -m 644 $(ELS) $(ELCS) $(DESTDIR)$(PREFIX)/share/emacs/site-lisp
+	sed -i -e "s/@GIT_DEV_VERSION@/$(VERSION)/" $(DESTDIR)$(PREFIX)/share/emacs/site-lisp/magit.el #NO_DIST
+	mkdir -p $(DESTDIR)$(SYSCONFDIR)/emacs/site-start.d
+	install -m 644 50magit.el $(DESTDIR)$(SYSCONFDIR)/emacs/site-start.d/50magit.el
 
 install_docs: docs
-	mkdir -p $(DESTDIR)/$(PREFIX)/share/info
-	install -m 644 magit.info $(DESTDIR)/$(PREFIX)/share/info
-	install-info --info-dir=$(DESTDIR)/$(PREFIX)/share/info $(DESTDIR)/$(PREFIX)/share/info/magit.info
+	mkdir -p $(DESTDIR)$(PREFIX)/share/info
+	install -m 644 magit.info $(DESTDIR)$(PREFIX)/share/info
+	install-info --info-dir=$(DESTDIR)$(PREFIX)/share/info $(DESTDIR)$(PREFIX)/share/info/magit.info
 
 install_contrib: contrib
-	mkdir -p $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp
-	install -m 644 $(ELS_CONTRIB) $(ELCS_CONTRIB) $(DESTDIR)/$(PREFIX)/share/emacs/site-lisp
-	mkdir -p $(DESTDIR)/$(PREFIX)/bin
-	install -m 755 contrib/magit $(DESTDIR)/$(PREFIX)/bin
+	mkdir -p $(DESTDIR)$(PREFIX)/share/emacs/site-lisp
+	install -m 644 $(ELS_CONTRIB) $(ELCS_CONTRIB) $(DESTDIR)$(PREFIX)/share/emacs/site-lisp
+	mkdir -p $(DESTDIR)$(PREFIX)/bin
+	install -m 755 contrib/magit $(DESTDIR)$(PREFIX)/bin
 
 install_all: install install_contrib
 
