@@ -74,10 +74,6 @@
 
 ;;; Code:
 
-;; magit core
-(require 'magit-key-mode)
-(require 'magit-bisect)
-
 (eval-when-compile (require 'cl))
 (require 'log-edit)
 (require 'easymenu)
@@ -3035,6 +3031,8 @@ insert a line to tell how to insert more of them"
                     'mouse-face 'magit-item-highlight
                     'face 'magit-log-sha1))
 
+(defvar magit-have-abbrev) ;below
+
 (defun magit-refresh-commit-buffer (commit)
   (magit-configure-have-abbrev)
   (magit-create-buffer-sections
@@ -3221,6 +3219,8 @@ PREPEND-REMOTE-NAME is non-nil."
        ")"))
    (t
     (run-hook-with-args-until-success 'magit-remote-string-hook))))
+
+(declare-function magit--bisect-info-for-status "magit-bisect" (branch))
 
 (defun magit-refresh-status ()
   (magit-create-buffer-sections
@@ -3453,7 +3453,7 @@ With prefix argument, add remaining untracked files as well.
   (concat remote "-" (escape-branch-name branch)))
 
 (defun magit-default-tracking-name-branch-only
-  (remote banch)
+  (remote branch)
   "Use just the escaped branch name for tracking branches."
   (escape-branch-name branch))
 
@@ -5320,4 +5320,9 @@ With a prefix arg, do a submodule update --init"
       (magit-start-process "Gitk" nil magit-gitk-executable "--all")))))
 
 (provide 'magit)
+
+;; rest of magit core
+(require 'magit-key-mode)
+(require 'magit-bisect)
+
 ;;; magit.el ends here
