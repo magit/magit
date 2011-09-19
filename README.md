@@ -21,6 +21,8 @@ then Magit can be installed with the popular recipe of:
 
 make && sudo make install
 
+This requires `emacs` and `makeinfo` binaries, so please make sure the relevant
+packages (generally `emacs` and `texinfo`) are installed on your system.
 This will put magit.el into `/usr/local/share/emacs/site-lisp`, where
 Emacs should be able to find it.  Then add
 

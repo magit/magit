@@ -235,7 +235,7 @@ During a history rewriting session, the status buffer shows the
 Untracked files are shown in the @emph{Untracked files} section.
 
 You can add an untracked file to the staging area with @kbd{s}.  If
-point is on the @emph{Untracked files} section title when you it
+point is on the @emph{Untracked files} section title when you hit
 @kbd{s}, all untracked files are staged.
 
 Typing @kbd{C-u S} anywhere will also stage all untracked files,
@@ -248,7 +248,7 @@ whole directories, for example.  The @kbd{I} command is similar to
 @kbd{i} but will add the file to @code{.git/info/exclude} instead.
 
 To delete an untracked file forever, use @kbd{k}.  If point is on the
-@emph{Untracked files} section title when you it @kbd{k}, all
+@emph{Untracked files} section title when you hit @kbd{k}, all
 untracked files are deleted.
 
 @node Staging and Committing
@@ -366,7 +366,7 @@ and given a numeric prefix argument, @kbd{e} will add this number of
 entries.
 
 You can move point to a commit and then cause various things to happen
-with it.  (The following commands work in any list of commit, such as
+with it.  (The following commands work in any list of commits, such as
 the one shown in the @emph{Unpushed commits} section.)
 
 Typing @kbd{RET} will pop up more information about the current commit
@@ -437,7 +437,7 @@ their unique hash, the hash will be highlighted and you will be able
 to visit the referenced commit either by clicking on it or by moving
 your cursor onto it and pressing @kbd{RET}.
 
-The commit buffer maintains a history of the commits that it's shown.
+The commit buffer maintains a history of the commits it has shown.
 After visiting a referenced commit you can type @kbd{C-c C-b} to get
 back to where you came from.  To go forward in the history, type
 @kbd{C-c C-f}.  There are also @code{[back]} and @code{[forward]}
@@ -469,7 +469,7 @@ Typing @kbd{v} will apply the selected changes in reverse.
 @node Tagging
 @chapter Tagging
 
-Typing @kbd{t t} will make a lighweight tag.  Typing @kbd{t T} will
+Typing @kbd{t t} will make a lighweight tag.  Typing @kbd{t a} will
 make an annotated tag.  It will put you in the normal
 @code{*magit-log-edit} buffer for writing commit messages, but typing
 @kbd{C-c C-c} in it will make the tag instead.  This is controlled by
@@ -608,7 +608,7 @@ that view will unignore it.
 @node Merging
 @chapter Merging
 
-Magit offers two ways to merge branches: manually and automatic.  A
+Magit offers two ways to merge branches: manual and automatic.  A
 manual merge will apply all changes to your working tree and staging
 area, but will not commit them, while an automatic merge will go ahead
 and commit them immediately.
@@ -620,7 +620,7 @@ you that the next commit will be a merge commit (with more than one
 parent).  If you want to abort a manual merge, just do a hard reset to
 HEAD with @kbd{X}.
 
-Merges can fail if the two branches you merge want to introduce
+Merges can fail if the two branches you want to merge introduce
 conflicting changes.  In that case, the automatic merge stops before the
 commit, essentially falling back to a manual merge.  You need to resolve
 the conflicts for example with @kbd{e} and stage the resolved files, for
@@ -728,7 +728,7 @@ remote if it doesn't exist already.  The local branch will be configured
 so that it pulls from the new remote branch.
 
 Typing @kbd{f f} will run @code{git fetch}.  It will prompt for the name
-of the remote to update if there are no default one.  Typing @kbd{f o}
+of the remote to update if there is no default one.  Typing @kbd{f o}
 will always prompt for the remote.  Typing @kbd{F F} will run @code{git
 pull}.  When you don't have a default branch configured to be pulled
 into the current one, you will be asked for it.
