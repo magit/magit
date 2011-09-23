@@ -126,6 +126,13 @@ Magit will only descend this many levels deep."
   :group 'magit
   :type 'integer)
 
+(defcustom magit-set-upstream-on-push nil
+  "Non-nil means that \\[magit-push] will use --set-upstream when pushing a branch.
+--set-upstream is supported with git > 1.7.0"
+  :group 'magit
+  :type '(choice (const :tag "Never" nil)
+		 (const :tag "Always" t)))
+
 (defcustom magit-save-some-buffers t
   "Non-nil means that \\[magit-status] will save modified buffers before running.
 Setting this to t will ask which buffers to save, setting it to 'dontask will
@@ -3939,7 +3946,10 @@ typing and automatically refreshes the status buffer."
            (if ref-branch
                (format "%s:%s" branch ref-branch)
              branch)
-           magit-custom-options)
+           (if (and magit-set-upstream-on-push
+                    (not ref-branch))
+               (cons "--set-upstream" magit-custom-options)
+             magit-custom-options))
     ;; Although git will automatically set up the remote,
     ;; it doesn't set up the branch to merge (at least as of Git 1.6.6.1),
     ;; so we have to do that manually.
