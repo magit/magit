@@ -469,7 +469,7 @@ Typing @kbd{v} will apply the selected changes in reverse.
 @node Tagging
 @chapter Tagging
 
-Typing @kbd{t t} will make a lighweight tag.  Typing @kbd{t T} will
+Typing @kbd{t t} will make a lighweight tag.  Typing @kbd{t a} will
 make an annotated tag.  It will put you in the normal
 @code{*magit-log-edit} buffer for writing commit messages, but typing
 @kbd{C-c C-c} in it will make the tag instead.  This is controlled by
