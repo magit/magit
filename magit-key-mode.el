@@ -1,3 +1,5 @@
+(require 'magit)
+
 (require 'assoc)
 (eval-when-compile (require 'cl))
 
@@ -17,7 +19,7 @@
 (defvar magit-log-mode-window-conf nil
   "Will hold the pre-menu configuration of magit.")
 
-(defconst magit-key-mode-groups
+(defvar magit-key-mode-groups
   '((logging
      (man-page "git-log")
      (actions
