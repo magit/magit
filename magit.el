@@ -3035,16 +3035,17 @@ insert a line to tell how to insert more of them"
 
 (defun magit-refresh-commit-buffer (commit)
   (magit-configure-have-abbrev)
+  (magit-configure-have-decorate)
   (magit-create-buffer-sections
     (apply #'magit-git-section nil nil
 	   'magit-wash-commit
 	   "log"
-	   "--decorate=full"
-	   "--max-count=1"
-	   "--pretty=medium"
-	   `(,@(if magit-have-abbrev (list "--no-abbrev-commit"))
-	     "--cc"
-	     "-p" ,commit))))
+           "--max-count=1"
+           "--pretty=medium"
+           `(,@(if magit-have-abbrev (list "--no-abbrev-commit"))
+             ,@(if magit-have-decorate (list "--decorate=full"))
+             "--cc"
+             "-p" ,commit))))
 
 (define-derived-mode magit-commit-mode magit-mode "Magit"
   "Mode to view a git commit.
