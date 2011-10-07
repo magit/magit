@@ -4227,7 +4227,7 @@ continue it.
 			  (format "^\\* %s" (regexp-quote file)) nil t))
 		    ;; No entry for file, create it.
 		    (goto-char (point-max))
-		    (insert (format "\n* %s" file))
+		    (insert (format "%s" file))
 		    (if fun
 			(insert (format " (%s)" fun)))
 		    (insert ": "))
