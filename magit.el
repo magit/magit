@@ -3032,6 +3032,7 @@ insert a line to tell how to insert more of them"
                     'face 'magit-log-sha1))
 
 (defvar magit-have-abbrev) ;below
+(defvar magit-have-decorate) ;below
 
 (defun magit-refresh-commit-buffer (commit)
   (magit-configure-have-abbrev)
