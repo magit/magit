@@ -657,6 +657,33 @@ Do not customize this (used in the `magit-key-mode' implementation).")
   (declare (indent 0))
   `(magit-refresh-wrapper (lambda () ,@body)))
 
+;;; Git features
+
+(defvar magit-have-graph 'unset)
+(defvar magit-have-decorate 'unset)
+(defvar magit-have-abbrev 'unset)
+(make-variable-buffer-local 'magit-have-graph)
+(put 'magit-have-graph 'permanent-local t)
+(make-variable-buffer-local 'magit-have-decorate)
+(put 'magit-have-decorate 'permanent-local t)
+(make-variable-buffer-local 'magit-have-abbrev)
+(put 'magit-have-abbrev 'permanent-local t)
+
+(defun magit-configure-have-graph ()
+  (if (eq magit-have-graph 'unset)
+      (let ((res (magit-git-exit-code "log" "--graph" "--max-count=0")))
+        (setq magit-have-graph (eq res 0)))))
+
+(defun magit-configure-have-decorate ()
+  (if (eq magit-have-decorate 'unset)
+      (let ((res (magit-git-exit-code "log" "--decorate=full" "--max-count=0")))
+        (setq magit-have-decorate (eq res 0)))))
+
+(defun magit-configure-have-abbrev ()
+  (if (eq magit-have-abbrev 'unset)
+      (let ((res (magit-git-exit-code "log" "--no-abbrev-commit" "--max-count=0")))
+        (setq magit-have-abbrev (eq res 0)))))
+
 ;;; Compatibilities
 
 (eval-and-compile
@@ -3031,8 +3058,6 @@ insert a line to tell how to insert more of them"
                     'mouse-face 'magit-item-highlight
                     'face 'magit-log-sha1))
 
-(defvar magit-have-abbrev) ;below
-
 (defun magit-refresh-commit-buffer (commit)
   (magit-configure-have-abbrev)
   (magit-configure-have-decorate)
@@ -4447,31 +4472,6 @@ With prefix argument, changes in staging area are kept.
     ((diff)
      (magit-with-revert-confirmation
       (magit-apply-diff-item item "--reverse")))))
-
-(defvar magit-have-graph 'unset)
-(defvar magit-have-decorate 'unset)
-(defvar magit-have-abbrev 'unset)
-(make-variable-buffer-local 'magit-have-graph)
-(put 'magit-have-graph 'permanent-local t)
-(make-variable-buffer-local 'magit-have-decorate)
-(put 'magit-have-decorate 'permanent-local t)
-(make-variable-buffer-local 'magit-have-abbrev)
-(put 'magit-have-abbrev 'permanent-local t)
-
-(defun magit-configure-have-graph ()
-  (if (eq magit-have-graph 'unset)
-      (let ((res (magit-git-exit-code "log" "--graph" "--max-count=0")))
-	(setq magit-have-graph (eq res 0)))))
-
-(defun magit-configure-have-decorate ()
-  (if (eq magit-have-decorate 'unset)
-      (let ((res (magit-git-exit-code "log" "--decorate=full" "--max-count=0")))
-	(setq magit-have-decorate (eq res 0)))))
-
-(defun magit-configure-have-abbrev ()
-  (if (eq magit-have-abbrev 'unset)
-      (let ((res (magit-git-exit-code "log" "--no-abbrev-commit" "--max-count=0")))
-	(setq magit-have-abbrev (eq res 0)))))
 
 (defun magit-log-show-more-entries (&optional arg)
   "Grow the number of log entries shown.
