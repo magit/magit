@@ -4,6 +4,7 @@ PREFIX=/usr/local
 SYSCONFDIR=/etc
 ELS=magit.el magit-svn.el magit-topgit.el magit-stgit.el magit-key-mode.el magit-bisect.el magit-wip.el rebase-mode.el
 ELS_CONTRIB=contrib/magit-simple-keys.el contrib/magit-classic-theme.el
+ELS_TESTS=tests/dummy-tests.el
 ELCS=$(ELS:.el=.elc)
 ELCS_CONTRIB=$(ELS_CONTRIB:.el=.elc)
 DIST_FILES=$(ELS) Makefile magit.texi magit.info README.md magit.spec.in magit-pkg.el.in
@@ -14,6 +15,7 @@ ELPA_FILES=$(ELS) magit.info magit-pkg.el
 
 BATCH=$(EMACS) -batch -q -no-site-file -eval \
   "(setq load-path (cons (expand-file-name \".\") load-path))"
+
 
 %.elc: %.el
 	$(BATCH) --eval '(byte-compile-file "$<")'
@@ -84,6 +86,9 @@ install_contrib: contrib
 	install -m 755 contrib/magit $(DESTDIR)$(PREFIX)/bin
 
 install_all: install install_contrib
+
+test:
+	$(BATCH) -l tests/magit-tests.el -f ert-run-tests-batch-and-exit
 
 clean:
 	rm -f magit.info #NO_DIST
