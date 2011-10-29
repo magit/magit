@@ -269,18 +269,29 @@ put it in magit-key-mode-key-maps for fast lookup."
                                  (interactive)
                                  (magit-key-mode-help ',for-group)))
 
-    (flet ((defkey (k action)
+    (flet ((defkey (k action &optional doc-symbol)
              (when (and (lookup-key map (car k))
                         (not (numberp (lookup-key map (car k)))))
                (message "Warning: overriding binding for `%s' in %S"
                         (car k) for-group)
                (ding)
                (sit-for 2))
-             (define-key map (car k)
-               `(lambda () (interactive) ,action))))
+             (unless (and (consp action) (symbolp (car action)))
+               (error "unrecognized action: %S" action))
+             ;; Hack: to make bindings play nicely with `C-h c' and `C-h k',
+             ;; make up a function definition and possibly hook a description
+             ;; string on it.  Use uninterned symbols to avoid redefinitions.
+             (let* ((name (format "%s:%s" (car action) (or doc-symbol (car k))))
+                    (name (replace-regexp-in-string ":magit-" ":" name))
+                    (name (make-symbol name)))
+               (eval `(defun ,name ()
+                        ,@(if doc-symbol (list (documentation doc-symbol)) nil)
+                        (interactive)
+                        ,action))
+               (define-key map (car k) name))))
       (when actions
         (dolist (k actions)
-          (defkey k `(magit-key-mode-command ',(nth 2 k)))))
+          (defkey k `(magit-key-mode-command ',(nth 2 k)) (nth 2 k))))
       (when switches
         (dolist (k switches)
           (defkey k `(magit-key-mode-add-option ',for-group ,(nth 2 k)))))
