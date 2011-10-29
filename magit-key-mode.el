@@ -410,64 +410,47 @@ highlighted before the description."
 
 (defun magit-key-mode-draw-args (args)
   "Draw the args part of the menu."
-  (when args
-    (let ((strs (mapcar
-                 (lambda (argument)
-                   (propertize
-                    (format " %s: %s (%s) %s"
-                            (propertize
-                             (car argument)
-                             'face 'font-lock-builtin-face)
-                            (nth 1 argument)
-                            (nth 2 argument)
-                            (propertize
-                             (gethash (nth 2 argument)
-                                      magit-key-mode-current-args
-                                      "")
-                             'face 'widget-field))
-                    'key-group-executor (car argument)))
-                 args)))
-      (magit-key-mode-draw-header "Args")
-      (magit-key-mode-draw-in-cols strs (not magit-key-mode-args-in-cols)))))
+  (magit-key-mode-draw-buttons
+   "Args"
+   args
+   (lambda (x)
+     (format "(%s) %s"
+             (nth 2 x)
+             (propertize (gethash (nth 2 x) magit-key-mode-current-args "")
+                         'face 'widget-field)))
+   (not magit-key-mode-args-in-cols)))
 
 (defun magit-key-mode-draw-switches (switches)
   "Draw the switches part of the menu."
-  (when switches
-    (let ((switch-strs (mapcar
-                        (lambda (s)
-                          (let ((option (nth 2 s)))
-                            (propertize
-                             (format " %s: %s (%s)"
-                                     (propertize (car s)
-                                                 'face 'font-lock-builtin-face)
-                                     (nth 1 s)
-                                     (if (member option magit-key-mode-current-options)
-                                         (propertize
-                                          option
-                                          'face 'font-lock-warning-face)
-                                       option))
-                             'key-group-executor (car s))))
-                        switches)))
-      (magit-key-mode-draw-header "Switches")
-      (magit-key-mode-draw-in-cols switch-strs))))
+  (magit-key-mode-draw-buttons
+   "Switches"
+   switches
+   (lambda (x)
+     (format "(%s)" (let ((s (nth 2 x)))
+                      (if (member s magit-key-mode-current-options)
+                        (propertize s 'face 'font-lock-warning-face)
+                        s))))))
 
 (defun magit-key-mode-draw-actions (actions)
   "Draw the actions part of the menu."
-  (when actions
-    (let ((action-strs (mapcar
-                        (lambda (a)
-                          (propertize
-                           (format
-                            " %s: %s"
-                            (propertize (car a)
-                                        'face 'font-lock-builtin-face)
-                            (nth 1 a))
-                           'key-group-executor (car a)))
-                       actions)))
-    (magit-key-mode-draw-header "Actions")
-    (magit-key-mode-draw-in-cols action-strs))))
+  (magit-key-mode-draw-buttons "Actions" actions nil))
 
-(defun magit-key-mode-draw-in-cols (strings &optional one-col-each)
+(defun magit-key-mode-draw-buttons (section xs maker
+                                    &optional one-col-each)
+  (when xs
+    (magit-key-mode-draw-header section)
+    (magit-key-mode-draw-in-cols
+     (mapcar (lambda (x)
+               (let* ((head (propertize (car x) 'face 'font-lock-builtin-face))
+                      (desc (nth 1 x))
+                      (more (and maker (funcall maker x)))
+                      (text (format " %s: %s%s%s"
+                                    head desc (if more " " "") (or more ""))))
+                 (propertize text 'key-group-executor (car x))))
+             xs)
+     one-col-each)))
+
+(defun magit-key-mode-draw-in-cols (strings one-col-each)
   "Given a list of strings, print in columns (using `insert'). If
 ONE-COL-EACH is true then don't columify, but rather, draw each
 item on one line."
