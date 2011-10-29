@@ -402,7 +402,7 @@ highlighted before the description."
 
 (defun magit-key-mode-draw-header (header)
   "Draw a header with the correct face."
-  (insert (propertize header 'face 'font-lock-keyword-face)))
+  (insert (propertize header 'face 'font-lock-keyword-face) "\n"))
 
 (defvar magit-key-mode-args-in-cols nil
   "When true, draw arguments in columns as with switches and
@@ -427,7 +427,7 @@ highlighted before the description."
                              'face 'widget-field))
                     'key-group-executor (car argument)))
                  args)))
-      (magit-key-mode-draw-header "Args\n")
+      (magit-key-mode-draw-header "Args")
       (magit-key-mode-draw-in-cols strs (not magit-key-mode-args-in-cols)))))
 
 (defun magit-key-mode-draw-switches (switches)
@@ -448,7 +448,7 @@ highlighted before the description."
                                        option))
                              'key-group-executor (car s))))
                         switches)))
-      (magit-key-mode-draw-header "Switches\n")
+      (magit-key-mode-draw-header "Switches")
       (magit-key-mode-draw-in-cols switch-strs))))
 
 (defun magit-key-mode-draw-actions (actions)
@@ -464,7 +464,7 @@ highlighted before the description."
                             (nth 1 a))
                            'key-group-executor (car a)))
                        actions)))
-    (magit-key-mode-draw-header "Actions\n")
+    (magit-key-mode-draw-header "Actions")
     (magit-key-mode-draw-in-cols action-strs))))
 
 (defun magit-key-mode-draw-in-cols (strings &optional one-col-each)
