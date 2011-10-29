@@ -244,6 +244,17 @@ FOR-GROUP."
                   (error "Nothing at point to do.")))
          (def (lookup-key (current-local-map) key)))
     (call-interactively def)))
+(defun magit-key-mode-jump-to-next-exec ()
+  "Jump to the next action/args/option point."
+  (interactive)
+  (let* ((oldp (point))
+         (old  (get-text-property oldp 'key-group-executor))
+         (p    (if (= oldp (point-max)) (point-min) (1+ oldp))))
+    (while (let ((new (get-text-property p 'key-group-executor)))
+             (and (not (= p oldp)) (or (not new) (eq new old))))
+      (setq p (if (= p (point-max)) (point-min) (1+ p))))
+    (goto-char p)
+    (skip-chars-forward " ")))
 
 (defun magit-key-mode-build-keymap (for-group)
   "Construct a normal looking keymap for the key mode to use and
@@ -256,6 +267,8 @@ put it in magit-key-mode-key-maps for fast lookup."
     (suppress-keymap map 'nodigits)
     ;; ret dwim
     (define-key map (kbd "RET") 'magit-key-mode-exec-at-point)
+    ;; tab jumps to the next "button"
+    (define-key map (kbd "TAB") 'magit-key-mode-jump-to-next-exec)
 
     ;; all maps should `quit' with `C-g' or `q'
     (define-key map (kbd "C-g") `(lambda ()
