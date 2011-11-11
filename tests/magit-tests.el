@@ -1,5 +1,7 @@
 (require 'ert)
 (require 'mocker)
+(eval-when-compile
+  (require 'cl))
 
 (require 'magit)
 
