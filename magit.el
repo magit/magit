@@ -5068,8 +5068,8 @@ With prefix force the removal even it it hasn't been merged."
                     (magit-remove-remote (magit--branch-name-from-section branch-section)))))
     (if (and (magit--is-branch-section-remote branch-section)
              (yes-or-no-p "Remove branch in remote repository as well? "))
-        (magit-remove-branch-in-remote-repo (magit--branch-name-from-section branch-section)))
-    (apply 'magit-run-git (remq nil args))))
+        (magit-remove-branch-in-remote-repo (magit--branch-name-from-section branch-section))
+    (apply 'magit-run-git (remq nil args)))))
 
 (defun magit--remotes ()
   "Return a list of names for known remotes."
