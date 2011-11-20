@@ -109,7 +109,7 @@
           (magit-with-section topic 'topic
             (magit-set-section-info topic)
             (let ((beg (1+ (line-beginning-position)))
-                  (end (line-end-position))) 
+                  (end (line-end-position)))
               (when (plist-get flags :current)
                 (put-text-property beg end 'face 'magit-topgit-current))
               (when (plist-get flags :empty)
