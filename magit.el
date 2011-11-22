@@ -407,14 +407,6 @@ Many Magit faces inherit from this one by default."
   "Face for highlighting marked item."
   :group 'magit-faces)
 
-(defface magit-log-tag-label
-  '((((class color) (background light))
-     :background "LightGoldenRod")
-    (((class color) (background dark))
-     :background "DarkGoldenRod"))
-  "Face for git tag labels shown in log buffer."
-  :group 'magit-faces)
-
 (defface magit-log-head-label-bisect-good
   '((((class color) (background light))
      :box t
@@ -522,14 +514,6 @@ Do not customize this (used in the `magit-key-mode' implementation).")
      :box t
      :background "Grey50"))
   "Face for unknown ref labels shown in log buffer."
-  :group 'magit-faces)
-
-(defface magit-menu-selected-option
-  '((((class color) (background light))
-     :foreground "red")
-    (((class color) (background dark))
-     :foreground "orange"))
-  "Face for selected options on magit's menu"
   :group 'magit-faces)
 
 (defvar magit-mode-map
