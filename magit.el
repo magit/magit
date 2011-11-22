@@ -516,14 +516,6 @@ Do not customize this (used in the `magit-key-mode' implementation).")
   "Face for unknown ref labels shown in log buffer."
   :group 'magit-faces)
 
-(defface magit-menu-selected-option
-  '((((class color) (background light))
-     :foreground "red")
-    (((class color) (background dark))
-     :foreground "orange"))
-  "Face for selected options on magit's menu"
-  :group 'magit-faces)
-
 (defvar magit-mode-map
   (let ((map (make-keymap)))
     (suppress-keymap map t)
@@ -1842,7 +1834,7 @@ order until one return non nil. If they all return nil then body will be called.
 It used to define hookable magit command: command defined by this
 function can be enriched by magit extension like magit-topgit and magit-svn"
   (declare (indent defun)
-           (debug (&define name lambda-list 
+           (debug (&define name lambda-list
                            [&optional stringp]        ; Match the doc string, if present.
                            [&optional ("interactive" interactive)]
                            def-body)))
