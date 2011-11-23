@@ -2231,6 +2231,7 @@ Please see the manual for a complete description of Magit.
 
 (defun magit-refresh-buffer (&optional buffer)
   (with-current-buffer (or buffer (current-buffer))
+    (beginning-of-line)
     (let* ((old-line (line-number-at-pos))
 	   (old-section (magit-current-section))
 	   (old-path (and old-section
