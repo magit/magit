@@ -5173,8 +5173,8 @@ name of the remote and branch name. The remote must be known to git."
                                    (propertize (assoc-default 'tracking b)
                                                'face 'magit-log-head-label-remote)
                                    "]")
-                         ""))))
-            (insert "\n"))))
+                         "")))
+            (insert "\n")))))
       (magit-show-branches-mode)
       (goto-char (point-min))
       (if buffer-existed
