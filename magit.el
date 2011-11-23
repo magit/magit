@@ -2231,28 +2231,31 @@ Please see the manual for a complete description of Magit.
 
 (defun magit-refresh-buffer (&optional buffer)
   (with-current-buffer (or buffer (current-buffer))
-    (beginning-of-line)
     (let* ((old-line (line-number-at-pos))
+           (old-point (point))
 	   (old-section (magit-current-section))
 	   (old-path (and old-section
-			  (magit-section-path (magit-current-section))))
-	   (section-line (and old-section
-			      (count-lines
-			       (magit-section-beginning old-section)
-			       (point)))))
-      (if magit-refresh-function
-	  (apply magit-refresh-function
-		 magit-refresh-args))
-      (magit-refresh-marked-commits-in-buffer)
-      (let ((s (and old-path (magit-find-section old-path magit-top-section))))
-	(cond (s
-	       (goto-char (magit-section-beginning s))
-	       (forward-line section-line))
-	      (t
-	       (magit-goto-line old-line)))
-	(dolist (w (get-buffer-window-list (current-buffer)))
-	  (set-window-point w (point)))
-	(magit-highlight-section)))))
+			  (magit-section-path (magit-current-section)))))
+      (beginning-of-line)
+      (let ((section-line (and old-section
+                               (count-lines
+                                (magit-section-beginning old-section)
+                                (point))))
+            (line-char (- old-point (point))))
+        (if magit-refresh-function
+            (apply magit-refresh-function
+                   magit-refresh-args))
+        (magit-refresh-marked-commits-in-buffer)
+        (let ((s (and old-path (magit-find-section old-path magit-top-section))))
+          (cond (s
+                 (goto-char (magit-section-beginning s))
+                 (forward-line section-line)
+                 (forward-char line-char))
+                (t
+                 (magit-goto-line old-line)))
+          (dolist (w (get-buffer-window-list (current-buffer)))
+            (set-window-point w (point)))
+          (magit-highlight-section))))))
 
 (defun magit-string-has-prefix-p (string prefix)
   (eq (compare-strings string nil (length prefix) prefix nil nil) t))
