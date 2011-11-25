@@ -5346,6 +5346,14 @@ With a prefix arg, do a submodule update --init"
      (t
       (magit-start-process "Gitk" nil magit-gitk-executable "--all")))))
 
+(defun magit-load-config-extensions ()
+  "Try to load magit extensions that are defined at git config
+layer. This can be added to `magit-mode-hook' for example"
+  (dolist (ext (magit-get-all "magit.extension"))
+    (let ((sym (intern (format "magit-%s-mode" ext))))
+      (when (fboundp sym)
+        (funcall sym 1)))))
+
 (provide 'magit)
 
 ;; rest of magit core
