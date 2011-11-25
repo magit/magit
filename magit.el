@@ -2876,9 +2876,17 @@ must return a string which will represent the log line.")
              (match-string 1 suffix))
         'magit-log-head-label-patches))
 
+(defvar magit-log-remotes-color-hook nil)
+
+(defun magit-log-get-remotes-color (suffix)
+  (or
+   (run-hook-with-args-until-success
+    'magit-log-remotes-color-hook suffix)
+   (list suffix 'magit-log-head-label-remote)))
+
 (defvar magit-refs-namespaces
   '(("tags" . magit-log-head-label-tags)
-    ("remotes" . magit-log-head-label-remote)
+    ("remotes" magit-log-get-remotes-color)
     ("heads" . magit-log-head-label-local)
     ("patches" magit-log-get-patches-color)
     ("bisect" magit-log-get-bisect-state-color)))
@@ -2905,14 +2913,17 @@ must return a string which will represent the log line.")
   "The default log line generator."
   (let ((string-refs
          (when refs
-           (concat (mapconcat
-                    (lambda (r)
-                      (destructuring-bind (label face)
-                          (magit-ref-get-label-color r)
-                        (propertize label 'face face)))
-                    refs
-                    " ")
-                   " "))))
+           (let ((colored-labels
+                  (delete nil
+                          (mapcar (lambda (r)
+                                    (destructuring-bind (label face)
+                                        (magit-ref-get-label-color r)
+                                      (and label
+                                           (propertize label 'face face))))
+                                  refs))))
+             (concat
+              (mapconcat 'identity colored-labels " ")
+              " ")))))
 
     (concat
      (if sha1

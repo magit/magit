@@ -150,5 +150,20 @@
 (add-hook 'magit-remote-update-command-hook 'magit-topgit-remote-update)
 (add-hook 'magit-push-command-hook 'magit-topgit-push)
 
+(defun magit-topgit-get-top-bases-color (suffix)
+  (list nil nil))
+
+(defun magit-topgit-get-remote-top-bases-color (suffix)
+  (when (string-match "^\\(?:[^/]+\\)/top-bases" suffix)
+    (list nil nil)))
+
+;; hide refs in the top-bases namespace, as they're not meant for the user
+(add-to-list 'magit-refs-namespaces
+             '("top-bases" magit-topgit-get-top-bases-color))
+
+;; same thing for top-bases namespace in any remote
+(add-hook 'magit-log-remotes-color-hook
+          'magit-topgit-get-remote-top-bases-color)
+
 (provide 'magit-topgit)
 ;;; magit-topgit.el ends here
