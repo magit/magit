@@ -3329,7 +3329,8 @@ to consider it or not when called with that buffer current."
   "Only prompt to save buffers which are within the current git project (as
   determined by the dir passed to `magit-status'."
   (and buffer-file-name
-       (magit-get-top-dir (file-name-directory buffer-file-name))))
+       (eq (magit-get-top-dir dir)
+           (magit-get-top-dir (file-name-directory buffer-file-name)))))
 
 ;;;###autoload
 (defun magit-status (dir)
