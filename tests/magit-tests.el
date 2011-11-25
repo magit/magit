@@ -1,7 +1,11 @@
 (require 'ert)
-(require 'mocker)
 (eval-when-compile
   (require 'cl))
+
+(eval-when-compile
+  (when (null (ignore-errors (require 'mocker)))
+    (defmacro* mocker-let (specs &body body)
+      (error "Skipping tests, mocker.el is not available"))))
 
 (require 'magit)
 
