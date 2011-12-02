@@ -414,14 +414,6 @@ Many Magit faces inherit from this one by default."
   "Face for highlighting marked item."
   :group 'magit-faces)
 
-(defface magit-log-tag-label
-  '((((class color) (background light))
-     :background "LightGoldenRod")
-    (((class color) (background dark))
-     :background "DarkGoldenRod"))
-  "Face for git tag labels shown in log buffer."
-  :group 'magit-faces)
-
 (defface magit-log-head-label-bisect-good
   '((((class color) (background light))
      :box t
@@ -529,14 +521,6 @@ Do not customize this (used in the `magit-key-mode' implementation).")
      :box t
      :background "Grey50"))
   "Face for unknown ref labels shown in log buffer."
-  :group 'magit-faces)
-
-(defface magit-menu-selected-option
-  '((((class color) (background light))
-     :foreground "red")
-    (((class color) (background dark))
-     :foreground "orange"))
-  "Face for selected options on magit's menu"
   :group 'magit-faces)
 
 (defvar magit-mode-map
@@ -1857,7 +1841,7 @@ order until one return non nil. If they all return nil then body will be called.
 It used to define hookable magit command: command defined by this
 function can be enriched by magit extension like magit-topgit and magit-svn"
   (declare (indent defun)
-           (debug (&define name lambda-list 
+           (debug (&define name lambda-list
                            [&optional stringp]        ; Match the doc string, if present.
                            [&optional ("interactive" interactive)]
                            def-body)))
@@ -2899,9 +2883,17 @@ must return a string which will represent the log line.")
              (match-string 1 suffix))
         'magit-log-head-label-patches))
 
+(defvar magit-log-remotes-color-hook nil)
+
+(defun magit-log-get-remotes-color (suffix)
+  (or
+   (run-hook-with-args-until-success
+    'magit-log-remotes-color-hook suffix)
+   (list suffix 'magit-log-head-label-remote)))
+
 (defvar magit-refs-namespaces
   '(("tags" . magit-log-head-label-tags)
-    ("remotes" . magit-log-head-label-remote)
+    ("remotes" magit-log-get-remotes-color)
     ("heads" . magit-log-head-label-local)
     ("patches" magit-log-get-patches-color)
     ("bisect" magit-log-get-bisect-state-color)))
@@ -2928,14 +2920,17 @@ must return a string which will represent the log line.")
   "The default log line generator."
   (let ((string-refs
          (when refs
-           (concat (mapconcat
-                    (lambda (r)
-                      (destructuring-bind (label face)
-                          (magit-ref-get-label-color r)
-                        (propertize label 'face face)))
-                    refs
-                    " ")
-                   " "))))
+           (let ((colored-labels
+                  (delete nil
+                          (mapcar (lambda (r)
+                                    (destructuring-bind (label face)
+                                        (magit-ref-get-label-color r)
+                                      (and label
+                                           (propertize label 'face face))))
+                                  refs))))
+             (concat
+              (mapconcat 'identity colored-labels " ")
+              " ")))))
 
     (concat
      (if sha1
@@ -3352,7 +3347,8 @@ to consider it or not when called with that buffer current."
   "Only prompt to save buffers which are within the current git project (as
   determined by the dir passed to `magit-status'."
   (and buffer-file-name
-       (magit-get-top-dir (file-name-directory buffer-file-name))))
+       (eq (magit-get-top-dir dir)
+           (magit-get-top-dir (file-name-directory buffer-file-name)))))
 
 ;;;###autoload
 (defun magit-status (dir)
@@ -3894,15 +3890,18 @@ If there is no default remote, ask for one."
 	(magit-set merge-branch "branch" branch "merge"))
     (apply 'magit-run-git-async "pull" "-v" magit-custom-options)))
 
-(eval-when-compile (require 'pcomplete))
+(eval-when-compile (require 'eshell))
+
+(defun magit-parse-arguments (command)
+  (require 'eshell)
+  (with-temp-buffer
+    (insert command)
+    (mapcar 'eval (eshell-parse-arguments (point-min) (point-max)))))
 
 (defun magit-shell-command (command)
   "Perform arbitrary shell COMMAND."
   (interactive "sCommand: ")
-  (require 'pcomplete)
-  (let ((args (car (with-temp-buffer
-		     (insert command)
-		     (pcomplete-parse-buffer-arguments))))
+  (let ((args (magit-parse-arguments command))
 	(magit-process-popup-time 0))
     (magit-run* args nil nil nil t)))
 
@@ -3913,9 +3912,7 @@ Similar to `magit-shell-command', but involves slightly less
 typing and automatically refreshes the status buffer."
   (interactive "sRun git like this: ")
   (require 'pcomplete)
-  (let ((args (car (with-temp-buffer
-		     (insert command)
-		     (pcomplete-parse-buffer-arguments))))
+  (let ((args (magit-parse-arguments command))
 	(magit-process-popup-time 0))
     (magit-with-refresh
       (magit-run* (append (cons magit-git-executable
@@ -5010,7 +5007,8 @@ Return values:
   (if (functionp 'server-running-p)
       (server-running-p)
     (condition-case nil
-	(if server-use-tcp
+	(if (and (boundp 'server-use-tcp)
+                 server-use-tcp)
 	    (with-temp-buffer
 	      (insert-file-contents-literally (expand-file-name server-name server-auth-dir))
 	      (or (and (looking-at "127\\.0\\.0\\.1:[0-9]+ \\([0-9]+\\)")
