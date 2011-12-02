@@ -2378,7 +2378,8 @@ in the corresponding directories."
   (magit-refresh))
 
 (defun magit-diff-line-file ()
-  (cond ((looking-at "^diff --git ./\\(.*\\) ./\\(.*\\)$")
+  (cond ((or (looking-at "^diff --git ./\\(.*\\) ./\\(.*\\)$")
+             (looking-at "^diff --git \\(.*\\) \\(.*\\)$"))
 	 (match-string-no-properties 2))
 	((looking-at "^diff --cc +\\(.*\\)$")
 	 (match-string-no-properties 1))
