@@ -361,17 +361,17 @@ Many Magit faces inherit from this one by default."
   "Face for diff hunk header lines."
   :group 'magit-faces)
 
-(defface magit-diff-add
+(defface magit-diff-added
   '((t :inherit diff-added))
   "Face for lines in a diff that have been added."
   :group 'magit-faces)
 
-(defface magit-diff-none
+(defface magit-diff-context
   '((t :inherit diff-context))
   "Face for lines in a diff that are unchanged."
   :group 'magit-faces)
 
-(defface magit-diff-del
+(defface magit-diff-removed
   '((t :inherit diff-removed))
   "Face for lines in a diff that have been deleted."
   :group 'magit-faces)
@@ -527,6 +527,8 @@ Do not customize this (used in the `magit-key-mode' implementation).")
     (define-key map (kbd "2") 'magit-show-level-2)
     (define-key map (kbd "3") 'magit-show-level-3)
     (define-key map (kbd "4") 'magit-show-level-4)
+    (define-key map (kbd "M-n") 'magit-top-subsection-next)
+    (define-key map (kbd "M-p") 'magit-top-subsection-prev)
     (define-key map (kbd "M-1") 'magit-show-level-1-all)
     (define-key map (kbd "M-2") 'magit-show-level-2-all)
     (define-key map (kbd "M-3") 'magit-show-level-3-all)
@@ -2062,6 +2064,17 @@ function can be enriched by magit extension like magit-topgit and magit-svn"
 (magit-define-level-shower 3)
 (magit-define-level-shower 4)
 
+(defcustom magit-top-subsections '("Changes" "Staged changes" "Stashes"
+                                   "Unpushed commits" "Unpulled commits"
+                                   "Unstaged changes" "Untracked files")
+  "List of top subsections defined by Magit or its extensions.
+Used for `magit-top-subsection-next' and `magit-top-subsection-prev'."
+  :group 'magit
+  :type '(repeat string))
+
+(easy-mmode-define-navigation magit-top-subsection
+    (concat "^" (regexp-opt magit-top-subsections) ":"))
+
 (easy-menu-define magit-mode-menu magit-mode-map
   "Magit menu"
   '("Magit"
@@ -2532,11 +2545,11 @@ in the corresponding directories."
 	       (let ((prefix (buffer-substring-no-properties
 			      (point) (min (+ (point) n-columns) (point-max)))))
 		 (cond ((string-match "\\+" prefix)
-			(magit-put-line-property 'face 'magit-diff-add))
+			(magit-put-line-property 'face 'magit-diff-added))
 		       ((string-match "-" prefix)
-			(magit-put-line-property 'face 'magit-diff-del))
+			(magit-put-line-property 'face 'magit-diff-removed))
 		       (t
-			(magit-put-line-property 'face 'magit-diff-none))))
+			(magit-put-line-property 'face 'magit-diff-context))))
 	       (forward-line))))
 	 t)
 	(t
