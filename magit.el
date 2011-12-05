@@ -4996,6 +4996,7 @@ Return values:
   t		   the server seems to be running.
   something else   we cannot determine whether it's running without using
 		   commands which may have to wait for a long time."
+  (require 'server)
   (if (functionp 'server-running-p)
       (server-running-p)
     (condition-case nil
