@@ -4514,8 +4514,10 @@ With a non numeric prefix ARG, show all entries"
 \\{magit-log-mode-map}"
   :group 'magit)
 
-(defvar magit-log-buffer-name "*magit-log*"
-  "Buffer name for display of log entries.")
+(defun get-magit-log-buffer-name (topdir)
+  (concat "*magit-log: "
+          (file-name-nondirectory
+           (directory-file-name topdir)) "*"))
 
 (magit-define-command log-ranged ()
   (interactive)
@@ -4531,7 +4533,7 @@ With a non numeric prefix ARG, show all entries"
 	 (args (nconc (list (magit-rev-range-to-git log-range))
                       magit-custom-options
                       extra-args)))
-    (magit-buffer-switch magit-log-buffer-name)
+    (magit-buffer-switch (get-magit-log-buffer-name topdir))
     (magit-mode-init topdir 'magit-log-mode #'magit-refresh-log-buffer log-range
 		     "--pretty=oneline" args)))
 
@@ -4549,7 +4551,7 @@ With a non numeric prefix ARG, show all entries"
 	 (topdir (magit-get-top-dir default-directory))
 	 (args (append (list (magit-rev-range-to-git range))
 		       magit-custom-options)))
-    (magit-buffer-switch magit-log-buffer-name)
+    (magit-buffer-switch (get-magit-log-buffer-name topdir))
     (magit-mode-init topdir 'magit-log-mode #'magit-refresh-log-buffer range
 		     "--stat" args)))
 
