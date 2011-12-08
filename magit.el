@@ -1971,12 +1971,17 @@ function can be enriched by magit extension like magit-topgit and magit-svn"
 (autoload 'dired-uncache "dired")
 (defun magit-process-sentinel (process event)
   (let ((msg (format "%s %s." (process-name process) (substring event 0 -1)))
-	(successp (string-match "^finished" event)))
+	(successp (string-match "^finished" event))
+        (key (with-current-buffer magit-process-client-buffer
+               (key-description (car (where-is-internal
+                                      'magit-display-process))))))
     (with-current-buffer (process-buffer process)
       (let ((inhibit-read-only t))
 	(goto-char (point-max))
 	(insert msg "\n")
-	(message msg))
+	(message (if successp msg
+                   (format "%s Hit %s or see buffer %s for details."
+                           msg key (current-buffer)))))
       (unless (memq (process-status process) '(run open))
         (dired-uncache default-directory)))
     (setq magit-process nil)
