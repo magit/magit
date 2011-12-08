@@ -804,12 +804,53 @@ When you're finished bisecting you have to reset the session with
 @chapter Magit Extensions
 
 @menu
+* Activating extensions::
 * Interfacing with Subversion::
 * Interfacing with Topgit::
 * Interfacing with StGit::
 * Developing Extensions::
 @end menu
 
+@node Activating extensions
+@section Activating extensions
+
+Magit comes with a couple of shipped extensions that allow interaction
+with @code{git-svn}, @code{topgit} and @code{stgit}. See following
+sections for specific details on how to use them.
+
+Extensions can be activated globally or on a per-repository basis. Since
+those extensions are implemented as minor modes, one can use for example
+@kbd{M-x magit-topgit-mode} to toggle the @code{topgit} extension,
+making the corresponding section and commands (un)available.
+
+In order to do that automatically (and for every repository), one can
+use for example:
+
+@example
+(add-hook 'magit-mode-hook 'turn-on-magit-topgit)
+@end example
+
+Magit also allows configuring different extensions, based on the git
+repository configuration.
+
+@example
+(add-hook 'magit-mode-hook 'magit-load-config-extensions)
+@end example
+
+This will read git configuration variables and activate the
+relevant extensions.
+
+For example, after running the following commands, the @code{topgit}
+extension will be loaded for every repository, while the @code{svn} one
+will be loaded only for the current one.
+
+@example
+$ git config --global --add magit.extension topgit
+$ git config --add magit.extension svn
+@end example
+
+Note the @code{--add} flag, which means that each extension gets its own
+line in the @code{config} file.
 
 @node Interfacing with Subversion
 @section Interfacing with Subversion
@@ -951,6 +992,24 @@ This part is not really specific to extensions, except that menus take
 place in the ``Extensions'' submenu.
 
 @end itemize
+
+It is suggested that Magit extensions authors stick to the convention of
+making extensions minor modes. This has many advantages, including the
+fact that users are able to toggle extensions, and that it's easy to
+configure a specific set of extensions for a given repository.
+
+Shipped extensions can serve as an example of how to develop
+new extensions.
+
+Basically a @code{foo} extension should provide a @code{magit-foo-mode}
+minor mode, as well as a @code{turn-on-magit-foo} function.  The main
+task of the minor mode is to register/unregister the various hooks that
+the extension requires. The registered actions on the other hand can be
+left alone and activated globally, since they can be run only on
+displayed items, which won't happen when the minor mode is off.
+
+Don't forget to call @code{magit-refresh} when the minor mode is toggled
+interactively, so that the relevant sections can be shown or hidden.
 
 @node Using Git Directly
 @chapter Using Git Directly
