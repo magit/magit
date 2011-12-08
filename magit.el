@@ -1961,11 +1961,16 @@ function can be enriched by magit extension like magit-topgit and magit-svn"
       (or successp
 	  noerror
 	  (error
-	   (or (with-current-buffer (get-buffer magit-process-buffer-name)
-		 (when (re-search-backward
-			(concat "^error: \\(.*\\)" paragraph-separate) nil t)
-		   (match-string 1)))
-	       "Git failed")))
+           "%s ... [Hit %s or see buffer %s for details]"
+           (or (with-current-buffer (get-buffer magit-process-buffer-name)
+                 (when (re-search-backward
+                        (concat "^error: \\(.*\\)" paragraph-separate) nil t)
+                   (match-string 1)))
+               "Git failed")
+           (with-current-buffer magit-process-client-buffer
+             (key-description (car (where-is-internal
+                                    'magit-display-process))))
+           magit-process-buffer-name))
       successp)))
 
 (autoload 'dired-uncache "dired")
@@ -5155,6 +5160,9 @@ name of the remote and branch name. The remote must be known to git."
         (cons 'sha1 (match-string 3 branch-line))
         (cons 'msg (match-string 5 branch-line)))
        res))))
+
+
+
 
 (defun magit-show-branches ()
   "Show all of the current branches."
