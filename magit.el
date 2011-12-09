@@ -2269,16 +2269,18 @@ Please see the manual for a complete description of Magit.
 (defun magit-revert-buffers (dir &optional ignore-modtime)
   (dolist (buffer (buffer-list))
     (when (and buffer
-	       (buffer-file-name buffer)
-	       (magit-string-has-prefix-p (buffer-file-name buffer) dir)
-	       (file-readable-p (buffer-file-name buffer))
-	       (or ignore-modtime (not (verify-visited-file-modtime buffer)))
-	       (not (buffer-modified-p buffer)))
+               (buffer-file-name buffer)
+               ;; don't revert indirect buffers, as the parent will be reverted
+               (not (buffer-base-buffer buffer))
+               (magit-string-has-prefix-p (buffer-file-name buffer) dir)
+               (file-readable-p (buffer-file-name buffer))
+               (or ignore-modtime (not (verify-visited-file-modtime buffer)))
+               (not (buffer-modified-p buffer)))
       (with-current-buffer buffer
-	(condition-case var
-	  (revert-buffer t t nil)
-	  (error (let ((signal-data (cadr var)))
-		   (cond (t (magit-bug-report signal-data))))))))))
+        (condition-case var
+            (revert-buffer t t nil)
+          (error (let ((signal-data (cadr var)))
+                   (cond (t (magit-bug-report signal-data))))))))))
 
 (defun magit-update-vc-modeline (dir)
   "Update the modeline for buffers representable by magit."
