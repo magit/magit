@@ -2134,6 +2134,7 @@ function can be enriched by magit extension like magit-topgit and magit-svn"
     ["Quit Magit" magit-quit-window t]))
 
 (defvar magit-mode-hook nil "Hook run by `magit-mode'.")
+(defvar magit-log-edit-commit-hook nil "Hook run by `magit-log-edit-commit'.")
 
 (put 'magit-mode 'mode-class 'special)
 
@@ -4109,6 +4110,7 @@ toggled on."
   "Finish edits and create new commit object.
 \('git commit ...')"
   (interactive)
+  (run-hook-with-args 'magit-log-edit-commit-hook)
   (let* ((fields (magit-log-edit-get-fields))
 	 (amend (equal (cdr (assq 'amend fields)) "yes"))
 	 (allow-empty (equal (cdr (assq 'allow-empty fields)) "yes"))
