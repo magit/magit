@@ -5134,15 +5134,15 @@ name of the remote and branch name. The remote must be known to git."
 (defun magit--branch-view-details (branch-line)
   "Extract details from branch -va output."
   (string-match (concat
-                 "^\\(\\*? \\{1,2\\}\\)"       ; 1: current branch marker (maybe)
-                 "\\(.+?\\) +"                 ; 2: branch name
+                 "^\\([ *] \\)"         ; 1: current branch marker (maybe)
+                 "\\(.+?\\) +"          ; 2: branch name
 
                  "\\(?:"
-                 "\\([0-9a-fA-F]\\{7,8\\}\\) " ; 3: sha1
-                 "\\|\\(-> \\)"                ; 4: or the pointer to a ref
-                 "\\)"
+                 "\\([0-9a-fA-F]+\\)"   ; 3: sha1
+                 "\\|\\(->\\)"          ; 4: or the pointer to a ref
+                 "\\) "
 
-                 "\\(.+\\)"                    ; 5: message or ref
+                 "\\(.*\\)$"            ; 5: message or ref
                  )
                 branch-line)
   (let ((res (list (cons 'current (match-string 1 branch-line))
