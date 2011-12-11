@@ -2849,9 +2849,10 @@ region) will be applied to either the index, if \"--cached\" is a
 member of ARGS, or to the working file otherwise.  If a region is
 active, only those lines in the hunk identified by the region
 will be applied."
-  ;; It appears that REVERSE iff (memq "--reverse" ARGS)
   (let ((zero-context (zerop magit-diff-context-lines))
         (use-region (magit-use-region-p)))
+    (when reverse
+      (setq args (cons "--reverse" args)))
     (when zero-context
       (setq args (cons "--unidiff-zero" args)))
     (when (and use-region zero-context)
@@ -2868,7 +2869,7 @@ will be applied."
   (apply #'magit-apply-hunk-item* hunk nil args))
 
 (defun magit-apply-hunk-item-reverse (hunk &rest args)
-  (apply #'magit-apply-hunk-item* hunk t (cons "--reverse" args)))
+  (apply #'magit-apply-hunk-item* hunk t args))
 
 (magit-define-inserter unstaged-changes (title)
   (let ((magit-hide-diffs t)
