@@ -87,9 +87,9 @@
       magit-stgit--enabled
     (setq magit-stgit--enabled
           (if (member (concat (magit-get-current-branch) ".stgit")
-                      (mapcar '(lambda (line)
-                                 (string-match "^\\*?\s*\\([^\s]*\\)" line)
-                                 (match-string 1 line))
+                      (mapcar #'(lambda (line)
+                                  (string-match "^\\*?\s*\\([^\s]*\\)" line)
+                                  (match-string 1 line))
                               (magit-git-lines "branch")))
               t
             nil))))

@@ -218,8 +218,8 @@ them as described in the previous section.
 The first section shows @emph{Untracked files}, if there are any.  See
 @ref{Untracked files} for more details.
 
-Two section show your local changes.  They are explained fully in the
-next chapter, @ref{Staging and Committing}.
+The next two sections show your local changes.  They are explained
+fully in the next chapter, @ref{Staging and Committing}.
 
 If the current branch is associated with a remote tracking branch, the
 status buffer shows the differences between the current branch and the
@@ -321,6 +321,10 @@ variable.
 Typing @kbd{C-c C-e} will toggle the @code{--allow-empty} option.  This
 allows you to make commits that serve as notes, without including any
 changes.
+
+Typing @kbd{C-c C-t} will toggle the option to specify the name and
+email address for the commit's author.  The default is determined by
+the @code{user.name} and @code{user.email} git configuration settings.
 
 If you change your mind and don't want to go ahead with your commit
 while you are in the @code{*magit-log-edit*} buffer, you can just
@@ -454,7 +458,7 @@ is of a file in the status buffer that needs to be merged, you will be
 able to use Ediff as an interactive merge tool.  Otherwise, Ediff will
 simply show the two versions of the file.
 
-To show the changes from you working tree to another revision, type
+To show the changes from your working tree to another revision, type
 @kbd{d}.  To show the changes between two arbitrary revisions, type
 @kbd{D}.
 

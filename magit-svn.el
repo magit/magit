@@ -63,7 +63,7 @@
   (magit-run-git-async "svn" "dcommit"))
 
 (defun magit-svn-enabled ()
-  (not (null (magit-svn-get-ref-info))))
+  (not (null (magit-svn-get-ref-info t))))
 
 (defun magit-svn-get-local-ref (url)
   (let ((branches (cons (magit-get "svn-remote" "svn" "fetch")
@@ -75,6 +75,7 @@
              (src (replace-regexp-in-string "\\*" "\\\\(.*\\\\)" (car pats)))
              (dst (replace-regexp-in-string "\\*" "\\\\1" (cadr pats)))
              (base-url (replace-regexp-in-string "\\+" "\\\\+" base-url))
+             (base-url (replace-regexp-in-string "//.+@" "//" base-url))
              (pat1 (concat "^" src "$"))
              (pat2 (cond ((equal src "") (concat "^" base-url "$"))
                          (t (concat "^" base-url "/" src "$")))))
@@ -115,7 +116,8 @@ If USE-CACHE is non-nil then return the value of `magit-get-svn-ref-info-cache'.
                  ;; the way that git-svn does it.
                  (cons 'local-ref
                        (with-temp-buffer
-                         (insert (or (magit-git-string "log" "--first-parent")
+                         (insert (or (magit-git-string "log" "--first-parent"
+                                                       "--grep" "git-svn" "-1")
                                      ""))
                          (goto-char (point-min))
                          (cond ((re-search-forward "git-svn-id: \\(.+/.+?\\)@\\([0-9]+\\)" nil t)
@@ -135,7 +137,7 @@ If USE-CACHE is non nil, use the cached information."
     (cdr (assoc 'local-ref info))))
 
 (magit-define-inserter svn-unpulled (&optional use-cache)
-  (when (magit-svn-get-ref-info t)
+  (when (magit-svn-enabled)
     (apply #'magit-git-section
            'svn-unpulled "Unpulled commits (SVN):" 'magit-wash-log "log"
            (append magit-git-log-options
@@ -143,7 +145,7 @@ If USE-CACHE is non nil, use the cached information."
                     (format "HEAD..%s" (magit-svn-get-ref use-cache)))))))
 
 (magit-define-inserter svn-unpushed (&optional use-cache)
-  (when (magit-svn-get-ref-info t)
+  (when (magit-svn-enabled)
     (apply #'magit-git-section
            'svn-unpushed "Unpushed commits (SVN):" 'magit-wash-log "log"
            (append magit-git-log-options
