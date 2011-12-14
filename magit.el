@@ -4221,25 +4221,33 @@ continue it.
 
 \\{magit-log-edit-mode-map}"
   (interactive "P")
-  (cond ((magit-rebase-info)
-	 (if (y-or-n-p "Rebase in progress.  Continue it? ")
-	     (magit-run-git-async "rebase" "--continue")))
-	(t
-	 (when (and magit-commit-all-when-nothing-staged
-		    (not (magit-anything-staged-p)))
-	   (cond ((eq magit-commit-all-when-nothing-staged 'ask-stage)
-		  (if (and (not (magit-everything-clean-p))
-			   (y-or-n-p "Nothing staged.  Stage everything now? "))
-		      (magit-stage-all)))
-		 ((not (magit-log-edit-get-field 'commit-all))
-		  (magit-log-edit-set-field
-		   'commit-all
-		   (if (or (eq magit-commit-all-when-nothing-staged t)
-			   (y-or-n-p
-			    "Nothing staged.  Commit all unstaged changes? "))
-		       "yes" "no")))))
-	 (when amend-p (magit-log-edit-toggle-amending))
-	 (magit-pop-to-log-edit "commit"))))
+  ;; If repository is dirty there is no point in trying to
+  ;; suggest to continue the rebase. Git will rebuke you and exit with
+  ;; error code, so suggest it only if theres absolutely nothing else
+  ;; to do and rebase is ongoing.
+  (if (magit-everything-clean-p)
+      (when (and (magit-rebase-info)
+                 (y-or-n-p "Rebase in progress.  Continue it? "))
+        (magit-run-git-async "rebase" "--continue"))
+    ;; If there's nothing staged, set commit flag to `nil', thus
+    ;; avoiding unnescessary popping up of the log edit buffer in case
+    ;; when user chose to forgo commiting all unstaged changes
+    (let ((perform-commit-p (magit-anything-staged-p)))
+      (when (and magit-commit-all-when-nothing-staged
+                 (not perform-commit-p))
+        (cond ((eq magit-commit-all-when-nothing-staged 'ask-stage)
+               (when (y-or-n-p "Nothing staged.  Stage everything now? ")
+                 (setq perform-commit-p t)
+                 (magit-stage-all)))
+              ((not (magit-log-edit-get-field 'commit-all))
+               (when (or (eq magit-commit-all-when-nothing-staged t)
+                         (y-or-n-p
+                          "Nothing staged.  Commit all unstaged changes? "))
+                 (magit-log-edit-set-field 'commit-all "yes")
+                 (setq perform-commit-p t)))))
+      (when perform-commit-p
+        (when amend-p (magit-log-edit-toggle-amending))
+        (magit-pop-to-log-edit "commit")))))
 
 (defun magit-add-log ()
   (interactive)
