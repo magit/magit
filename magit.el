@@ -3152,7 +3152,7 @@ insert a line to tell how to insert more of them"
   (magit-configure-have-abbrev)
   (magit-configure-have-decorate)
   (magit-create-buffer-sections
-    (apply #'magit-git-section nil nil
+    (apply #'magit-git-section 'diffbuf nil
            'magit-wash-commit
            "log"
            "--max-count=1"
@@ -5037,6 +5037,22 @@ With a prefix argument, visit in other window."
      (funcall
       (if other-window 'find-file-other-window 'find-file)
       info))
+    ((diffbuf diff *)
+     (when (magit-section-hidden item)
+       (magit-toggle-section)
+       (magit-toggle-section)
+       (setq item (magit-current-section)))
+     (if (eq 'hunk (magit-section-type item))
+         (setq item (magit-section-parent item)))
+     (let* ((type (magit-diff-item-kind item))
+            (file1 (magit-diff-item-file item))
+            (file2 (magit-diff-item-file2 item))
+            (range (magit-diff-item-range item)))
+       (cond ((consp (car range))
+              (error "Range is too complicated: %s" range))
+             ((memq type '(new modified))
+              (magit-show (cdr range) file2 t))
+             (t (message "Not sure how to show a %s file." type)))))
     ((diff)
      (let ((file (magit-diff-item-file item)))
        (if (not (file-exists-p file))
