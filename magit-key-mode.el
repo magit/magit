@@ -69,7 +69,8 @@
       ("t" "Push tags" magit-push-tags))
      (switches
       ("-f" "Force" "--force")
-      ("-d" "Dry run" "-n")))
+      ("-d" "Dry run" "-n")
+      ("-u" "Set upstream" "-u")))
 
     (pulling
      (man-page "git-pull")
