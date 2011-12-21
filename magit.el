@@ -3125,7 +3125,18 @@ for this argument.)"
                      nil nil t))
   (when (magit-section-p commit)
     (setq commit (magit-section-info commit)))
-  (unless (eql 0 (magit-git-exit-code "cat-file" "-e" (format "%s^{commit}" commit)))
+  (unless (eql 0
+               (apply ; changed to using call-process-shell-command
+                ; due to a quirk with getting MYSHAH1^{commit} through to msysgit on win32
+                'call-process-shell-command
+                (mapconcat
+                 'identity
+                 (append
+                  (list magit-git-executable)
+                  magit-git-standard-options
+                  (list "cat-file" "-e" (format "\"%s^{commit}\"" commit)))
+                 " ")
+                nil nil nil))
     (error "%s is not a commit" commit))
   (let ((dir default-directory)
         (buf (get-buffer-create magit-commit-buffer-name)))
