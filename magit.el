@@ -3125,7 +3125,7 @@ for this argument.)"
                      nil nil t))
   (when (magit-section-p commit)
     (setq commit (magit-section-info commit)))
-  (unless (eql 0 (magit-git-exit-code "cat-file" "-e" (format "%s^{commit}" commit)))
+  (unless (eql 0 (magit-git-exit-code "cat-file" "commit" commit))
     (error "%s is not a commit" commit))
   (let ((dir default-directory)
         (buf (get-buffer-create magit-commit-buffer-name)))
