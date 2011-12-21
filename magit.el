@@ -3961,7 +3961,7 @@ typing and automatically refreshes the status buffer."
 			branch-remote))
 	 (ref-branch (magit-get "branch" branch "merge")))
     (if (and (not ref-branch)
-             (eq magit-get-current-branch 'refuse))
+             (eq magit-set-upstream-on-push 'refuse))
         (error "Not pushing since no upstream has been set.")
       (let ((set-upstream-on-push (and (not ref-branch)
                                        (or (eq magit-set-upstream-on-push 'dontask)
