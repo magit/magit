@@ -4110,22 +4110,21 @@ toggled on."
     result))
 
 (defun magit-log-edit-setup-author-env (author)
-  (cond (author
-	 ;; XXX - this is a bit strict, probably.
-	 (or (string-match "\\(.*\\) <\\(.*\\)>\\(?:,\\s-*\\(.+\\)\\)?" author)
-	     (error "Can't parse author string"))
-	 ;; Shucks, setenv destroys the match data.
-	 (let ((name (match-string 1 author))
-	       (email (match-string 2 author))
-	       (date  (match-string 3 author)))
-	   (setenv "GIT_AUTHOR_NAME" name)
-	   (setenv "GIT_AUTHOR_EMAIL" email)
-           (if date
-               (setenv "GIT_AUTHOR_DATE" date))))
-	(t
-	 (setenv "GIT_AUTHOR_NAME")
-	 (setenv "GIT_AUTHOR_EMAIL")
-	 (setenv "GIT_AUTHOR_DATE"))))
+  "Set GIT_AUTHOR_* variables from AUTHOR spec.
+If AUTHOR is nil, honor default values from
+environment (potentially empty)."
+  (when author
+    ;; XXX - this is a bit strict, probably.
+    (or (string-match "\\(.*\\) <\\(.*\\)>\\(?:,\\s-*\\(.+\\)\\)?" author)
+        (error "Can't parse author string"))
+    ;; Shucks, setenv destroys the match data.
+    (let ((name (match-string 1 author))
+          (email (match-string 2 author))
+          (date  (match-string 3 author)))
+      (setenv "GIT_AUTHOR_NAME" name)
+      (setenv "GIT_AUTHOR_EMAIL" email)
+      (if date
+          (setenv "GIT_AUTHOR_DATE" date)))))
 
 (defun magit-log-edit-push-to-comment-ring (comment)
   (when (or (ring-empty-p log-edit-comment-ring)
