@@ -194,4 +194,3 @@ match REQUIRED-STATUS."
                             (abbreviate-file-name default-directory)))))))))
 
 (provide 'magit-bisect)
-
