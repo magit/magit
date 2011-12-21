@@ -2236,10 +2236,10 @@ Please see the manual for a complete description of Magit.
   (let ((topdir (magit-get-top-dir (or dir default-directory))))
     (dolist (buf (buffer-list))
       (if (with-current-buffer buf
-	    (and default-directory
-		 (equal (expand-file-name default-directory) topdir)
-                 (eq major-mode submode)))
-	  (return buf)))))
+            (and (eq major-mode submode)
+                 default-directory
+                 (equal (expand-file-name default-directory) topdir)))
+          (return buf)))))
 
 (defun magit-find-status-buffer (&optional dir)
   (magit-find-buffer 'magit-status-mode dir))
