@@ -59,6 +59,7 @@ maintain compatibility are still welcome.
 * Using Magit Extensions::
 * Using Git Directly::
 * Customization::
+* Frequently Asked Questions::
 @end menu
 
 @node Introduction
@@ -1159,5 +1160,74 @@ Convention prefix for topic branch creation.
 
 @end table
 
+@node Frequently Asked Questions
+@chapter Frequently Asked Questions
+
+@menu
+* FAQ - Changes::
+* FAQ 1 - Troubleshooting::
+* FAQ 2 - Display issues::
+@end menu
+
+@node FAQ - Changes
+@section Changes
+
+@itemize @bullet
+
+@item
+v1.1: Changed the way extensions work. Previously, they were enabled
+unconditionally once the library was loaded. Now they are minor modes
+that need to be activated explicitly (potentially on a per-repository
+basis). See @ref{Activating extensions}.
+
+@end itemize
+
+@node FAQ 1 - Troubleshooting
+@section Troubleshooting
+
+@menu
+* FAQ 1-1::    How do I get raw error messages from git?
+@end menu
+
+@node FAQ 1-1
+@subsection Question 1.1
+
+How do I get raw error messages from git?
+
+@subsubheading Answer
+
+If a command goes wrong, you can hit @kbd{$} to access the git process
+buffer. There, the entire trace for the latest operation is available.
+
+@node FAQ 2 - Display issues
+@section Display issues
+
+@menu
+* FAQ 2-1::    How do I fix international characters display?
+@end menu
+
+@node FAQ 2-1
+@subsection Question 2.1
+
+How do I fix international characters display?
+
+@subsubheading Answer
+
+Please make sure your Magit buffer uses a compatible coding system.
+In the particular case of file names, git itself quotes them by
+default. You can disable this with one of the following approaches:
+
+@example
+$ git config core.quotepath false
+@end example
+
+or
+
+@example
+(setq magit-git-standard-options (append magit-git-standard-options
+                                         '("-c" "core.quotepath=false")))
+@end example
+
+The latter might not work in old versions of git.
 
 @bye
