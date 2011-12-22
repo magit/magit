@@ -723,14 +723,17 @@ it, like from any other diff.
 @node Pushing and Pulling
 @chapter Pushing and Pulling
 
-Magit will run @code{git push} when you type @kbd{P P}.  If you give a
-prefix argument to @kbd{P P}, you will be prompted for the repository to
-push to.  When no default remote repository has been configured yet for
-the current branch, you will be prompted as well.  Typing @kbd{P P} will
-only push the current branch to the remote.  In other words, it will run
-@code{git push <remote> <branch>}.  The branch will be created in the
-remote if it doesn't exist already.  The local branch will be configured
-so that it pulls from the new remote branch.
+Magit will run @code{git push} when you type @kbd{P P}.  If you give
+a prefix argument to @kbd{P P}, you will be prompted for the repository
+to push to.  When no default remote repository has been configured yet
+for the current branch, you will be prompted as well.  Typing @kbd{P P}
+will only push the current branch to the remote.  In other words, it
+will run @code{git push <remote> <branch>}.  The branch will be created
+in the remote if it doesn't exist already.  The local branch will be
+configured so that it pulls from the new remote branch. If you give
+a double prefix argument to @kbd{P P}, you will be prompted in addition
+for the target branch to push to.  In other words, it will run @code{git
+push <remote> <branch>:<target>}.
 
 Typing @kbd{f f} will run @code{git fetch}.  It will prompt for the name
 of the remote to update if there is no default one.  Typing @kbd{f o}
