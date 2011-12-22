@@ -1224,6 +1224,20 @@ DEF is the default value, and defaults to the value of `magit-get-current-branch
                                        nil nil nil nil def)))
     (if (string= reply "") nil reply)))
 
+(defun magit-read-remote-branch (remote &optional prompt default)
+  (let* ((prompt (or prompt (format "Remote branch (in %s): " remote)))
+         (branches (delete nil
+                           (mapcar
+                            (lambda (b)
+                              (and (not (string-match " -> " b))
+                                   (string-match (format "^ *%s/\\(.*\\)$"
+                                                         remote) b)
+                                   (match-string 1 b)))
+                            (magit-git-lines "branch" "-r"))))
+         (reply (magit-completing-read prompt branches
+                                       nil nil nil nil default)))
+    (if (string= reply "") nil reply)))
+
 ;;; Sections
 
 ;; A buffer in magit-mode is organized into hierarchical sections.
@@ -3952,10 +3966,14 @@ typing and automatically refreshes the status buffer."
          (branch-remote (magit-get-remote branch))
          (push-remote (if (or current-prefix-arg
                               (not branch-remote))
-                          (magit-read-remote (format "Push %s to: " branch)
+                          (magit-read-remote (format "Push %s to remote: "
+                                                     branch)
                                              branch-remote)
                         branch-remote))
-         (ref-branch (magit-get "branch" branch "merge")))
+         (ref-branch (or (and (>= (prefix-numeric-value current-prefix-arg) 16)
+                              (magit-read-remote-branch
+                               push-remote (format "Push %s as branch: " branch)))
+                         (magit-get "branch" branch "merge"))))
     (if (and (not ref-branch)
              (eq magit-set-upstream-on-push 'refuse))
         (error "Not pushing since no upstream has been set.")
