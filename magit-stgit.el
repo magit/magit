@@ -81,6 +81,8 @@
   "Whether this buffer has StGit support.")
 (make-variable-buffer-local 'magit-stgit--enabled)
 
+(defvar magit-stgit-mode)
+
 (defun magit-stgit--enabled ()
   "Whether this buffer has StGit support enabled."
   (if (assoc 'magit-stgit--enabled (buffer-local-variables))
