@@ -22,6 +22,7 @@
 ;; Copyright (C) 2010 Nathan Weizenbaum.
 ;; Copyright (C) 2010 Oscar Fuentes.
 ;; Copyright (C) 2009 Pavel Holejsovsky.
+;; Copyright (C) 2011 Peter J Weisberg
 ;; Copyright (C) 2009, 2010 Phil Jackson.
 ;; Copyright (C) 2010 Philip Weaver.
 ;; Copyright (C) 2010 Ramkumar Ramachandra.
@@ -33,14 +34,18 @@
 ;; Copyright (C) 2010 Sean Bryant.
 ;; Copyright (C) 2009, 2011 Steve Purcell.
 ;; Copyright (C) 2010 Timo Juhani Lindfors.
-;; Copyright (C) 2010 Yann Hodique.
-;; Copyright (C) 2010 oscar.
+;; Copyright (C) 2010, 2011 Yann Hodique.
 ;; Copyright (C) 2010 Ævar Arnfjörð Bjarmason.
 ;; Copyright (C) 2010 Óscar Fuentes.
-;; Copyright (C) 2011 Peter J Weisberg
 
 ;; Original Author: Marius Vollmer <marius.vollmer@nokia.com>
-;; Lead developer: Phil Jackson <phil@shellarchive.co.uk>
+;; Former Maintainer: Phil Jackson <phil@shellarchive.co.uk>
+;; Maintenance Group: https://github.com/organizations/magit/teams/53130
+;;   Currently composed of:
+;;   - Phil Jackson
+;;   - Peter J Weisberg
+;;   - Yann Hodique
+;;   - Rémi Vanicat
 ;; Version: @GIT_DEV_VERSION@
 ;; Keywords: tools
 
