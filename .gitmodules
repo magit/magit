@@ -1,0 +1,3 @@
+[submodule "git-commit-mode"]
+	path = git-commit-mode
+	url = git://github.com/rafl/git-commit-mode.git

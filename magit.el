@@ -4150,10 +4150,16 @@ option, falling back to something hairy if that is unset."
 
 (defvar magit-pre-log-edit-window-configuration nil)
 
-(define-derived-mode magit-log-edit-mode text-mode "Magit Log Edit"
-  ;; Recognize changelog-style paragraphs
-  (set (make-local-variable 'paragraph-start)
-       (concat paragraph-start "\\|*\\|(")))
+(if (require 'git-commit nil 'noerror)
+    (define-derived-mode magit-log-edit-mode git-commit-mode "Magit Log Edit"
+			 (define-key magit-log-edit-mode-map (kbd "C-c C-s")
+                           'git-commit-signoff)
+			 ;; Recognize changelog-style paragraphs
+			 (set (make-local-variable 'paragraph-start)
+			      (concat paragraph-start "\\|*\\|(")))
+    (define-derived-mode magit-log-edit-mode text-mode "Magit Log Edit"
+			 (set (make-local-variable 'paragraph-start)
+			      (concat paragraph-start "\\|*\\|("))))
 
 (defun magit-log-edit-cleanup ()
   (save-excursion
