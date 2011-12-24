@@ -5063,8 +5063,7 @@ Return values:
   (if (functionp 'server-running-p)
       (server-running-p)
     (condition-case nil
-        (if (and (boundp 'server-use-tcp)
-                 server-use-tcp)
+        (if server-use-tcp
             (with-temp-buffer
               (insert-file-contents-literally (expand-file-name server-name server-auth-dir))
               (or (and (looking-at "127\\.0\\.0\\.1:[0-9]+ \\([0-9]+\\)")
