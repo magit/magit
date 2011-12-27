@@ -244,6 +244,17 @@ FOR-GROUP."
                   (error "Nothing at point to do.")))
          (def (lookup-key (current-local-map) key)))
     (call-interactively def)))
+(defun magit-key-mode-jump-to-next-exec ()
+  "Jump to the next action/args/option point."
+  (interactive)
+  (let* ((oldp (point))
+         (old  (get-text-property oldp 'key-group-executor))
+         (p    (if (= oldp (point-max)) (point-min) (1+ oldp))))
+    (while (let ((new (get-text-property p 'key-group-executor)))
+             (and (not (= p oldp)) (or (not new) (eq new old))))
+      (setq p (if (= p (point-max)) (point-min) (1+ p))))
+    (goto-char p)
+    (skip-chars-forward " ")))
 
 (defun magit-key-mode-build-keymap (for-group)
   "Construct a normal looking keymap for the key mode to use and
@@ -256,6 +267,8 @@ put it in magit-key-mode-key-maps for fast lookup."
     (suppress-keymap map 'nodigits)
     ;; ret dwim
     (define-key map (kbd "RET") 'magit-key-mode-exec-at-point)
+    ;; tab jumps to the next "button"
+    (define-key map (kbd "TAB") 'magit-key-mode-jump-to-next-exec)
 
     ;; all maps should `quit' with `C-g' or `q'
     (define-key map (kbd "C-g") `(lambda ()
@@ -269,18 +282,29 @@ put it in magit-key-mode-key-maps for fast lookup."
                                  (interactive)
                                  (magit-key-mode-help ',for-group)))
 
-    (flet ((defkey (k action)
+    (flet ((defkey (k action &optional doc-symbol)
              (when (and (lookup-key map (car k))
                         (not (numberp (lookup-key map (car k)))))
                (message "Warning: overriding binding for `%s' in %S"
                         (car k) for-group)
                (ding)
                (sit-for 2))
-             (define-key map (car k)
-               `(lambda () (interactive) ,action))))
+             (unless (and (consp action) (symbolp (car action)))
+               (error "unrecognized action: %S" action))
+             ;; Hack: to make bindings play nicely with `C-h c' and `C-h k',
+             ;; make up a function definition and possibly hook a description
+             ;; string on it.  Use uninterned symbols to avoid redefinitions.
+             (let* ((name (format "%s:%s" (car action) (or doc-symbol (car k))))
+                    (name (replace-regexp-in-string ":magit-" ":" name))
+                    (name (make-symbol name)))
+               (eval `(defun ,name ()
+                        ,@(if doc-symbol (list (documentation doc-symbol)) nil)
+                        (interactive)
+                        ,action))
+               (define-key map (car k) name))))
       (when actions
         (dolist (k actions)
-          (defkey k `(magit-key-mode-command ',(nth 2 k)))))
+          (defkey k `(magit-key-mode-command ',(nth 2 k)) (nth 2 k))))
       (when switches
         (dolist (k switches)
           (defkey k `(magit-key-mode-add-option ',for-group ,(nth 2 k)))))
@@ -376,20 +400,25 @@ highlighted before the description."
 (defun magit-key-mode-redraw (for-group)
   "(re)draw the magit key buffer."
   (let ((buffer-read-only nil)
-        (old-point (point)))
+        (old-point (point))
+        (is-first (zerop (buffer-size)))
+        (actions-p nil))
     (erase-buffer)
     (make-local-variable 'font-lock-defaults)
     (use-local-map (magit-key-mode-get-key-map for-group))
-    (magit-key-mode-draw for-group)
+    (setq actions-p (magit-key-mode-draw for-group))
     (delete-trailing-whitespace)
     (setq mode-name "magit-key-mode" major-mode 'magit-key-mode)
-    (goto-char old-point))
+    (if (and is-first actions-p)
+      (progn (goto-char actions-p)
+             (magit-key-mode-jump-to-next-exec))
+      (goto-char old-point)))
   (setq buffer-read-only t)
   (fit-window-to-buffer))
 
 (defun magit-key-mode-draw-header (header)
   "Draw a header with the correct face."
-  (insert (propertize header 'face 'font-lock-keyword-face)))
+  (insert (propertize header 'face 'font-lock-keyword-face) "\n"))
 
 (defvar magit-key-mode-args-in-cols nil
   "When true, draw arguments in columns as with switches and
@@ -397,64 +426,47 @@ highlighted before the description."
 
 (defun magit-key-mode-draw-args (args)
   "Draw the args part of the menu."
-  (when args
-    (let ((strs (mapcar
-                 (lambda (argument)
-                   (propertize
-                    (format " %s: %s (%s) %s"
-                            (propertize
-                             (car argument)
-                             'face 'font-lock-builtin-face)
-                            (nth 1 argument)
-                            (nth 2 argument)
-                            (propertize
-                             (gethash (nth 2 argument)
-                                      magit-key-mode-current-args
-                                      "")
-                             'face 'widget-field))
-                    'key-group-executor (car argument)))
-                 args)))
-      (magit-key-mode-draw-header "Args\n")
-      (magit-key-mode-draw-in-cols strs (not magit-key-mode-args-in-cols)))))
+  (magit-key-mode-draw-buttons
+   "Args"
+   args
+   (lambda (x)
+     (format "(%s) %s"
+             (nth 2 x)
+             (propertize (gethash (nth 2 x) magit-key-mode-current-args "")
+                         'face 'widget-field)))
+   (not magit-key-mode-args-in-cols)))
 
 (defun magit-key-mode-draw-switches (switches)
   "Draw the switches part of the menu."
-  (when switches
-    (let ((switch-strs (mapcar
-                        (lambda (s)
-                          (let ((option (nth 2 s)))
-                            (propertize
-                             (format " %s: %s (%s)"
-                                     (propertize (car s)
-                                                 'face 'font-lock-builtin-face)
-                                     (nth 1 s)
-                                     (if (member option magit-key-mode-current-options)
-                                         (propertize
-                                          option
-                                          'face 'font-lock-warning-face)
-                                       option))
-                             'key-group-executor (car s))))
-                        switches)))
-      (magit-key-mode-draw-header "Switches\n")
-      (magit-key-mode-draw-in-cols switch-strs))))
+  (magit-key-mode-draw-buttons
+   "Switches"
+   switches
+   (lambda (x)
+     (format "(%s)" (let ((s (nth 2 x)))
+                      (if (member s magit-key-mode-current-options)
+                        (propertize s 'face 'font-lock-warning-face)
+                        s))))))
 
 (defun magit-key-mode-draw-actions (actions)
   "Draw the actions part of the menu."
-  (when actions
-    (let ((action-strs (mapcar
-                        (lambda (a)
-                          (propertize
-                           (format
-                            " %s: %s"
-                            (propertize (car a)
-                                        'face 'font-lock-builtin-face)
-                            (nth 1 a))
-                           'key-group-executor (car a)))
-                       actions)))
-    (magit-key-mode-draw-header "Actions\n")
-    (magit-key-mode-draw-in-cols action-strs))))
+  (magit-key-mode-draw-buttons "Actions" actions nil))
 
-(defun magit-key-mode-draw-in-cols (strings &optional one-col-each)
+(defun magit-key-mode-draw-buttons (section xs maker
+                                    &optional one-col-each)
+  (when xs
+    (magit-key-mode-draw-header section)
+    (magit-key-mode-draw-in-cols
+     (mapcar (lambda (x)
+               (let* ((head (propertize (car x) 'face 'font-lock-builtin-face))
+                      (desc (nth 1 x))
+                      (more (and maker (funcall maker x)))
+                      (text (format " %s: %s%s%s"
+                                    head desc (if more " " "") (or more ""))))
+                 (propertize text 'key-group-executor (car x))))
+             xs)
+     one-col-each)))
+
+(defun magit-key-mode-draw-in-cols (strings one-col-each)
   "Given a list of strings, print in columns (using `insert'). If
 ONE-COL-EACH is true then don't columify, but rather, draw each
 item on one line."
@@ -475,15 +487,20 @@ item on one line."
   (insert "\n"))
 
 (defun magit-key-mode-draw (for-group)
-  "Function used to draw actions, switches and parameters."
+  "Function used to draw actions, switches and parameters.
+
+Returns the point before the actions part, if any."
   (let* ((options (magit-key-mode-options-for-group for-group))
          (switches (cdr (assoc 'switches options)))
          (arguments (cdr (assoc 'arguments options)))
-         (actions (cdr (assoc 'actions options))))
+         (actions (cdr (assoc 'actions options)))
+         (p nil))
     (magit-key-mode-draw-switches switches)
     (magit-key-mode-draw-args arguments)
+    (when actions (setq p (point)))
     (magit-key-mode-draw-actions actions)
-    (insert "\n")))
+    (insert "\n")
+    p))
 
 (defun magit-key-mode-de-generate (group)
   "Unbind the function for GROUP."

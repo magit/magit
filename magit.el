@@ -3413,13 +3413,15 @@ user input."
         (magit-init dir)
         (setq topdir (magit-get-top-dir dir))))
     (when topdir
-      (let ((buf (or (magit-find-status-buffer topdir)
-                     (generate-new-buffer
-                      (concat "*magit: "
-                              (file-name-nondirectory
-                               (directory-file-name topdir)) "*")))))
+      (let* ((existing (magit-find-status-buffer topdir))
+             (buf (or existing
+                      (generate-new-buffer
+                       (concat "*magit: "
+                               (file-name-nondirectory
+                                (directory-file-name topdir)) "*")))))
         (funcall magit-status-buffer-switch-function buf)
-        (magit-mode-init topdir 'magit-status-mode #'magit-refresh-status)))))
+        (magit-mode-init topdir 'magit-status-mode #'magit-refresh-status)
+        (unless existing (with-current-buffer buf (setq truncate-lines t)))))))
 
 (magit-define-command automatic-merge (revision)
   "Merge REVISION into the current 'HEAD'; commit unless merge fails.
