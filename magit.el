@@ -341,6 +341,15 @@ many spaces.  Otherwise, highlight neither."
                                (const :tag "Neither" nil))))
   :set 'magit-set-variable-and-refresh)
 
+(defcustom magit-quit-window-strategy 'quit
+  "Strategy to follow when quitting the magit buffer
+bury  bury the magit buffer
+quit  quit the window"
+  :group 'magit
+  :type '(choice
+          (const 'bury)
+          (const 'quit)))
+
 (defvar magit-current-indentation nil
   "Indentation highlight used in the current buffer, as specified
 in `magit-highlight-indentation'.")
@@ -5100,10 +5109,14 @@ Return values:
   "Magit Branches")
 
 (defun magit-quit-window (&optional kill-buffer)
-  "Bury the buffer and delete its window.  With a prefix argument, kill the
-buffer instead."
+  "Bury the buffer or quit the window, and kill the buffer with a
+prefix argument"
   (interactive "P")
-  (quit-window kill-buffer (selected-window)))
+  (cond
+   ((eq magit-quit-window-strategy 'quit)
+    (quit-window kill-buffer (selected-window)))
+   ((eq magit-quit-window-strategy 'bury)
+    (bury-buffer kill-buffer))))
 
 (defun magit--branch-name-from-section (branch)
   "Extract the branch name from the specified magit-section of type 'branch"
