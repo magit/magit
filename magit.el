@@ -4616,6 +4616,30 @@ With a non numeric prefix ARG, show all entries"
     (magit-mode-init topdir 'magit-log-mode #'magit-refresh-log-buffer range
                      "--stat" args)))
 
+(defun magit-log-all (&optional arg)
+  "Display the state of all refs in the log output."
+  (interactive "P")
+  (magit-log arg "--all"))
+
+(defun magit-log-first-parent (&optional arg)
+  "Display the log buffer excluding anything more than first
+level commits."
+  (interactive "P")
+  (magit-log arg "--first-parent"))
+
+(defun magit-log-grep (str)
+  "Search for regexp specified by STR in the commit log."
+  (interactive "sGrep in commit log: ")
+  (let ((topdir (magit-get-top-dir default-directory)))
+    (switch-to-buffer magit-log-grep-buffer-name)
+    (magit-mode-init topdir 'log #'magit-refresh-log-buffer "HEAD"
+		     "--pretty=oneline"
+		     (append
+		      (list "-E"
+			    (format "--grep=%s" (shell-quote-argument str)))
+		      magit-custom-options))
+    (magit-log-mode t)))
+
 ;;; Reflog
 
 (defvar magit-reflog-head nil
