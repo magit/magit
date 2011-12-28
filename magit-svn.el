@@ -65,9 +65,21 @@
 (defun magit-svn-enabled ()
   (not (null (magit-svn-get-ref-info t))))
 
+(defun magit-svn-expand-braces-in-branches (branch)
+  (if (not (string-match "\\(.+\\){\\(.+,.+\\)}\\(.*\\):\\(.*\\)\\\*" branch))
+      (list branch)
+    (let ((prefix (match-string 1 branch))
+          (suffix (match-string 3 branch))
+          (rhs (match-string 4 branch))
+          (pieces (split-string (match-string 2 branch) ",")))
+      (mapcar (lambda (p) (concat prefix p suffix ":" rhs p)) pieces))))
+
 (defun magit-svn-get-local-ref (url)
-  (let ((branches (cons (magit-get "svn-remote" "svn" "fetch")
+  (let* ((branches (cons (magit-get "svn-remote" "svn" "fetch")
                         (magit-get-all "svn-remote" "svn" "branches")))
+         (branches (apply 'nconc
+                          (mapcar 'magit-svn-expand-braces-in-branches
+                                  branches)))
         (base-url (magit-get "svn-remote" "svn" "url"))
         (result nil))
     (while branches
