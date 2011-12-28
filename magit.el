@@ -3343,8 +3343,7 @@ PREPEND-REMOTE-NAME is non-nil."
       (unless (file-directory-p dir)
         (and (y-or-n-p (format "Directory %s does not exists.  Create it? " dir))
              (make-directory dir)))
-      (let ((default-directory dir))
-        (magit-run* (list magit-git-executable "init"))))))
+      (magit-run* (list magit-git-executable "init" dir)))))
 
 (define-derived-mode magit-status-mode magit-mode "Magit"
   "Mode for looking at git status.
