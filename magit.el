@@ -193,6 +193,11 @@ after a confirmation."
   :group 'magit
   :type 'boolean)
 
+(defcustom magit-sha1-abbrev-length 7
+  "The number of digits to show when a sha1 is displayed in abbreviated form."
+  :group 'magit
+  :type 'integer)
+
 (defcustom magit-log-cutoff-length 100
   "The maximum number of commits to show in the log and whazzup buffers."
   :group 'magit
@@ -2889,9 +2894,9 @@ Evaluate (man \"git-check-ref-format\") for details")
    "^\\([_\\*|/ -.]+\\)?"                                  ; graph   (1)
    "\\(?:commit \\)?"                                      ; this happens in long mode
    "\\(?:"
-   "\\([0-9a-fA-F]\\{40\\}\\)"                           ; sha1    (2)
+   "\\([0-9a-fA-F]+\\)"                                    ; sha1    (2)
 
-   "\\(?:"                                               ; refs    (3)
+   "\\(?:"                                                 ; refs    (3)
    " "
    "\\("
    "("
@@ -2973,8 +2978,8 @@ must return a string which will represent the log line.")
 
     (concat
      (if sha1
-         (propertize (substring sha1 0 8) 'face 'magit-log-sha1)
-       (insert-char ? 8))
+         (propertize sha1 'face 'magit-log-sha1)
+       (insert-char ? magit-sha1-abbrev-length))
      " "
      (when graph
        (propertize graph 'face 'magit-log-graph))
@@ -3296,7 +3301,11 @@ PREPEND-REMOTE-NAME is non-nil."
              (remote-branch (or (and branch (magit-remote-branch-for branch)) branch))
              (remote-string (magit-remote-string remote remote-branch))
              (head (magit-git-string
-                    "log" "--max-count=1" "--abbrev-commit" "--pretty=oneline"))
+                    "log"
+                    "--max-count=1"
+                    "--abbrev-commit"
+                    (format "--abbrev=%s" magit-sha1-abbrev-length)
+                    "--pretty=oneline"))
              (no-commit (not head)))
         (when remote-string
           (insert "Remote:   " remote-string "\n"))
@@ -4564,10 +4573,11 @@ With a non numeric prefix ARG, show all entries"
            'magit-wash-log
            `("log"
              ,(format "--max-count=%s" magit-log-cutoff-length)
+             ,"--abbrev-commit"
+             ,(format "--abbrev=%s" magit-sha1-abbrev-length)
              ,style
              ,@(if magit-have-decorate (list "--decorate=full"))
              ,@(if magit-have-graph (list "--graph"))
-             ,@(if magit-have-abbrev (list "--no-abbrev-commit"))
              ,@args
              "--"))))
 
@@ -5226,7 +5236,10 @@ name of the remote and branch name. The remote must be known to git."
     (let ((inhibit-read-only t)
           (goto-branch-line (line-number-at-pos))
           (branches (mapcar 'magit--branch-view-details
-                            (apply 'magit-git-lines "branch" "-va"
+                            (apply 'magit-git-lines
+                                   "branch"
+                                   "-va"
+                                   (format "--abbrev=%s" magit-sha1-abbrev-length)
                                    magit-custom-options))))
       (magit-create-buffer-sections
         (magit-with-section "branch-manager" nil
