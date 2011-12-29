@@ -117,6 +117,55 @@
   :group 'magit
   :type '(repeat string))
 
+(defcustom magit-diff-hunk-format-options nil
+  "Control the format of diff hunks.
+
+These options are passed to all commands that generate diff
+output.  Appropriate options for this list would be any of
+
+  --patience
+  --ignore-space-at-eol
+  --ignore-space-change / -b
+  --ignore-all-space / -w
+  --inter-hunk-context=N
+
+Do not put options like
+
+  --numstat
+  --stat
+  --dirstat
+
+in this list since they affect comparisons between two commits,
+not the actual diff output format.  See 'magit-diff-commit-options'
+instead."
+  :group 'magit
+  :type '(repeat string))
+
+(defcustom magit-diff-commit-options nil
+  "Output for diffs between commits, trees, the index and working directory.
+
+These options are passed to the appropriate git commands (usually
+\"diff\" or \"log\") whenever magit compares two complete trees.
+These trees are usually specified as commits, but also include
+the contents of the index or the working directory.  Appropriate
+options for this list could be any of
+
+  --stat
+  --dirstat
+  --shortstat
+  --dirstat-by-file=N
+  --summary
+  --find-renames=N / -M=N
+  --find-copies=N / -C=N
+  --find-copies-harder
+  -lN
+
+Do not put options such as '--patience', '--ignore-space-at-eol',
+etc, that just affect the specific form of the diff hunks in this
+list.  See 'magit-diff-hunk-format-options'."
+  :group 'magit
+  :type '(repeat string))
+
 (defcustom magit-repo-dirs nil
   "Directories containing Git repositories.
 Magit will look into these directories for Git repositories and
@@ -2594,10 +2643,11 @@ in the corresponding directories."
 
 (defun magit-insert-diff (file status)
   (let ((cmd magit-git-executable)
-        (args (append (list "diff")
-                      (list (magit-diff-U-arg))
-                      magit-diff-options
-                      (list "--" file))))
+	(args (append (list "diff")
+		      (list (magit-diff-U-arg))
+                      magit-diff-hunk-format-options
+		      magit-diff-options
+		      (list "--" file))))
     (let ((p (point)))
       (magit-git-insert args)
       (if (not (eq (char-before) ?\n))
@@ -3109,6 +3159,8 @@ insert a line to tell how to insert more of them"
            "--pretty=medium"
            `(,@(if magit-have-abbrev (list "--no-abbrev-commit"))
              ,@(if magit-have-decorate (list "--decorate=full"))
+             ,@magit-diff-hunk-format-options
+             ,@magit-diff-commit-options
              "--cc"
              "-p" ,commit))))
 
@@ -4724,10 +4776,14 @@ restore the window state that was saved before ediff was called."
                                     range))))
     (setq magit-current-range range)
     (magit-create-buffer-sections
-      (magit-git-section 'diffbuf
-                         (magit-rev-range-describe range "Changes")
-                         'magit-wash-diffs
-                         "diff" (magit-diff-U-arg) args))))
+      (apply #'magit-git-section
+             'diffbuf (magit-rev-range-describe range "Changes")
+             'magit-wash-diffs
+             "diff"
+             `(,@(magit-diff-U-arg)
+               ,@magit-diff-hunk-format-options
+               ,@magit-diff-commit-options
+               ,@args)))))
 
 (define-derived-mode magit-diff-mode magit-mode "Magit"
   "Mode for looking at a git diff.
