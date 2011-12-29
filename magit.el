@@ -4749,10 +4749,18 @@ restore the window state that was saved before ediff was called."
   (interactive (list (magit-read-rev "Diff with" (magit-default-rev))))
   (magit-diff (or rev "HEAD")))
 
-(defun magit-diff-with-mark ()
-  (interactive)
-  (magit-diff (cons (magit-marked-commit)
-                    (magit-commit-at-point))))
+(defun magit-diff-with-mark (reverse)
+  "Display differences between marked commit and commit at point.
+
+If the prefix argument is NIL, display differences starting from
+the marked commit to the commit at point.  Otherwise, display
+differences starting from the commit at point to the marked commit."
+  (interactive "P")
+  (let ((here (magit-commit-at-point))
+        (there (magit-marked-commit)))
+    (magit-diff (if reverse
+                    (cons here there)
+                  (cons there here)))))
 
 ;;; Wazzup
 
