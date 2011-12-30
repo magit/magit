@@ -5249,7 +5249,9 @@ name of the remote and branch name. The remote must be known to git."
                (propertize (or (assoc-default 'sha1 b) "       ")
                            'face 'magit-log-sha1)
                " "
-               (assoc-default 'current b)
+               (if (string-match-p "^\\*" (assoc-default 'current b))
+                   "# "
+                 "  ")
                (apply 'propertize (assoc-default 'branch b)
                       (if (string-match-p "^\\*" (assoc-default 'current b))
                           '(face magit-branch)))
