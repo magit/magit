@@ -1049,6 +1049,15 @@ out revs involving HEAD."
   (buffer-substring-no-properties (line-beginning-position)
                                   (line-end-position)))
 
+(defun magit-delete-current-line ()
+  (delete-region (line-beginning-position)
+                 (line-beginning-position 2)))
+
+(defun magit-extract-current-line ()
+  (let ((line (magit-current-line)))
+    (magit-delete-current-line)
+    line))
+
 (defun magit-insert-region (beg end buf)
   (let ((text (buffer-substring-no-properties beg end)))
     (with-current-buffer buf
@@ -1858,6 +1867,13 @@ the actions."
 FUNC should leave point at the end of the modified region"
   (while (and (not (eobp))
               (funcall func))))
+
+(defun magit-wash-line-by-line (func)
+  "Run FUNC on each line until end of buffer is reached.
+
+FUNC should act on a single line"
+  (while (and (not (eobp))
+              (funcall func (magit-extract-current-line)))))
 
 (defmacro magit-define-command (sym arglist &rest body)
   "Macro to define a magit command.
