@@ -631,11 +631,10 @@ Do not customize this (used in the `magit-key-mode' implementation).")
     (define-key map (kbd "i") 'magit-ignore-item)
     map))
 
-(defvar magit-show-branches-mode-map
+(defvar magit-branch-manager-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "k") 'magit-remove-branch)
     (define-key map (kbd "K") 'magit-remove-branch-in-remote-repo)
-    (define-key map (kbd "v") 'magit-show-branches)
     (define-key map (kbd "T") 'magit-change-what-branch-tracks)
     map))
 
@@ -5226,7 +5225,7 @@ name of the remote and branch name. The remote must be known to git."
         (cons 'msg (match-string 5 branch-line)))
        res))))
 
-(defun magit-show-branches ()
+(defun magit-branch-manager ()
   "Show all of the current branches."
   (interactive)
   (let ((buffer-existed (get-buffer magit-branches-buffer-name)))
@@ -5305,7 +5304,7 @@ name of the remote and branch name. The remote must be known to git."
             (t (error "Cannot parse the remote and branch name"))))
     (magit-set new-remote "branch" local-branch "remote")
     (magit-set new-branch "branch" local-branch "merge")
-    (magit-show-branches)
+    (magit-branch-manager)
     (if (string= (magit-get-current-branch) local-branch)
         (magit-refresh-buffer (magit-find-status-buffer default-directory)))))
 
