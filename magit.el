@@ -5124,7 +5124,7 @@ Return values:
       (if old-editor
           (setenv "GIT_EDITOR" old-editor)))))
 
-(define-derived-mode magit-show-branches-mode magit-mode
+(define-derived-mode magit-branch-manager-mode magit-mode
   "Magit Branches")
 
 (defun magit-quit-window (&optional kill-buffer)
@@ -5241,56 +5241,49 @@ name of the remote and branch name. The remote must be known to git."
         (cons 'msg (match-string 5 branch-line)))
        res))))
 
+(defun magit-wash-branch-line (branch-line)
+  (let ((b (magit--branch-view-details branch-line)))
+    (magit-with-section (assoc-default 'branch b) 'branch
+      (magit-set-section-info b)
+      (insert (concat
+               (assoc-default 'current b)
+               (propertize (or (assoc-default 'sha1 b) "       ")
+                           'face 'magit-log-sha1)
+               " "
+               (apply 'propertize (assoc-default 'branch b)
+                      (if (string-match-p "^\\*" (assoc-default 'current b))
+                          '(face magit-branch)))
+               (if (assoc 'other-ref b)
+                   (concat " (" (assoc-default 'other-ref b) ")")
+                 "")
+               (if (assoc-default 'tracking b)
+                   (concat " ["
+                           (propertize (assoc-default 'tracking b)
+                                       'face 'magit-log-head-label-remote)
+                           "]")
+                 "")))
+      (insert "\n"))))
+
+(defun magit-wash-branches ()
+  (magit-wash-line-by-line #'magit-wash-branch-line))
+
+(defun magit-insert-branches ()
+  (magit-git-section "branches" "Branches:" 'magit-wash-branches
+                     "branch"
+                     "-va"
+                     (format "--abbrev=%s" magit-sha1-abbrev-length)))
+
+(defun magit-refresh-branch-manager ()
+  (magit-create-buffer-sections
+    (magit-with-section "branch-manager" nil
+      (magit-insert-branches))))
+
 (defun magit-branch-manager ()
   "Show all of the current branches."
   (interactive)
-  (let ((buffer-existed (get-buffer magit-branches-buffer-name)))
-    (unless (derived-mode-p 'magit-show-branches-mode)
-      (let ((topdir (magit-get-top-dir default-directory)))
-        (magit-buffer-switch magit-branches-buffer-name)
-        (setq magit-refresh-function 'magit-show-branches)
-        (setq default-directory topdir)))
-    (let ((inhibit-read-only t)
-          (goto-branch-line (line-number-at-pos))
-          (branches (mapcar 'magit--branch-view-details
-                            (apply 'magit-git-lines
-                                   "branch"
-                                   "-va"
-                                   (format "--abbrev=%s" magit-sha1-abbrev-length)
-                                   magit-custom-options))))
-      (magit-create-buffer-sections
-        (magit-with-section "branch-manager" nil
-          (dolist (b branches)
-            (magit-with-section (assoc-default 'branch b) 'branch
-              (magit-set-section-info b)
-              (insert (concat
-                       (assoc-default 'current b)
-                       (propertize (or (assoc-default 'sha1 b) "       ")
-                                   'face 'magit-log-sha1)
-                       " "
-                       (apply 'propertize (assoc-default 'branch b)
-                              (if (string-match-p "^\\*" (assoc-default 'current b))
-                                  '(face magit-branch)))
-                       (if (assoc 'other-ref b)
-                           (concat " (" (assoc-default 'other-ref b) ")")
-                         "")
-                       (if (assoc-default 'tracking b)
-                           (concat " ["
-                                   (propertize (assoc-default 'tracking b)
-                                               'face 'magit-log-head-label-remote)
-                                   "]")
-                         "")))
-              (insert "\n")))))
-      (magit-show-branches-mode)
-      (goto-char (point-min))
-      (if buffer-existed
-          (forward-line (1- goto-branch-line))
-        (while (and (< (point)
-                       (point-max))
-                    (not (string= (buffer-substring-no-properties (point) (1+ (point)))
-                                  "*")))
-          (forward-line 1)))))
-  (setq buffer-read-only t))
+  (let ((topdir (magit-get-top-dir default-directory)))
+    (magit-buffer-switch magit-branches-buffer-name)
+    (magit-mode-init topdir 'magit-branch-manager-mode #'magit-refresh-branch-manager)))
 
 (defun magit-change-what-branch-tracks ()
   "Change which remote branch the current branch tracks."
