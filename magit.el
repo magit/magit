@@ -5246,7 +5246,8 @@ name of the remote and branch name. The remote must be known to git."
     (magit-with-section (assoc-default 'branch b) 'branch
       (magit-set-section-info b)
       (insert (concat
-               (propertize (or (assoc-default 'sha1 b) "       ")
+               (propertize (or (assoc-default 'sha1 b)
+                               (make-string magit-sha1-abbrev-length ? ))
                            'face 'magit-log-sha1)
                " "
                (if (string-match-p "^\\*" (assoc-default 'current b))
