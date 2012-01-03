@@ -5212,34 +5212,42 @@ name of the remote and branch name. The remote must be known to git."
   (assoc-default 'remote (magit-section-info branch)))
 
 (defun magit--branch-view-details (branch-line)
-  "Extract details from branch -va output."
+  "Extract details from branch -vva output."
   (string-match (concat
-                 "^\\([ *] \\)"         ; 1: current branch marker (maybe)
-                 "\\(.+?\\) +"          ; 2: branch name
+                 "^\\([ *] \\)"                 ; 1: current branch marker
+                 "\\(.+?\\) +"                  ; 2: branch name
 
                  "\\(?:"
-                 "\\([0-9a-fA-F]+\\)"   ; 3: sha1
-                 "\\|\\(->\\)"          ; 4: or the pointer to a ref
-                 "\\) "
 
-                 "\\(.*\\)$"            ; 5: message or ref
+                 "\\([0-9a-fA-F]+\\)"           ; 3: sha1
+                 " "
+                 "\\(?:\\["
+                 "\\([^:]+\\)"                  ; 4: tracking
+                 "\\(?:: \\)?"
+                 "\\(?:ahead \\([0-9]+\\)\\)?"  ; 5: ahead
+                 "\\(?:, \\)?"
+                 "\\(?:behind \\([0-9]+\\)\\)?" ; 6: behind
+                 "\\] \\)?"
+                 "\\(.*\\)"                     ; 7: message
+
+                 "\\|"                          ; or
+
+                 "-> "                          ; the pointer to
+                 "\\(.+\\)"                     ; 8: a ref
+
+                 "\\)$"
                  )
                 branch-line)
-  (let ((res (list (cons 'current (match-string 1 branch-line))
+  (let ((res (list (cons 'current (string-match-p "^\\*" (match-string 1 branch-line)))
                    (cons 'branch  (match-string 2 branch-line))
-                   (cons 'remote  (string-match-p "^remotes/" (match-string 2 branch-line))))))
-    (unless (cdr (assoc 'remote res))
-      (setq res (append (list (cons 'tracking
-                                    (magit-remote-branch-for (cdr (assoc 'branch res))
-                                                             t)))
-                        res)))
-    (if (match-string 4 branch-line)
-        (cons (cons 'other-ref (match-string 5 branch-line)) res)
-      (append
-       (list
-        (cons 'sha1 (match-string 3 branch-line))
-        (cons 'msg (match-string 5 branch-line)))
-       res))))
+                   (cons 'remote  (string-match-p "^remotes/" (match-string 2 branch-line)))
+                   (cons 'sha1 (match-string 3 branch-line))
+                   (cons 'tracking (match-string 4 branch-line))
+                   (cons 'ahead (match-string 5 branch-line))
+                   (cons 'behind (match-string 6 branch-line))
+                   (cons 'msg (match-string 7 branch-line))
+                   (cons 'other-ref (match-string 8 branch-line)))))
+    res))
 
 (defun magit-wash-branch-line (branch-line)
   (let ((b (magit--branch-view-details branch-line)))
@@ -5250,22 +5258,40 @@ name of the remote and branch name. The remote must be known to git."
                                (make-string magit-sha1-abbrev-length ? ))
                            'face 'magit-log-sha1)
                " "
-               (if (string-match-p "^\\*" (assoc-default 'current b))
+               (if (assoc-default 'current b)
                    "# "
                  "  ")
                (apply 'propertize (assoc-default 'branch b)
-                      (if (string-match-p "^\\*" (assoc-default 'current b))
+                      (if (assoc-default 'current b)
                           '(face magit-branch)))
-               (if (assoc 'other-ref b)
+               (if (assoc-default 'other-ref b)
                    (concat " (" (assoc-default 'other-ref b) ")")
                  "")
                (if (assoc-default 'tracking b)
                    (concat " ["
                            (propertize (assoc-default 'tracking b)
                                        'face 'magit-log-head-label-remote)
+                           (if (or (assoc-default 'ahead b)
+                                   (assoc-default 'behind b))
+                               ": "
+                             "")
+                           (if (assoc-default 'ahead b)
+                               (concat "ahead "
+                                       (propertize (assoc-default 'ahead b)
+                                                   'face (if (assoc-default 'current b)
+                                                             'magit-branch))
+                                       (if (assoc-default 'behind b)
+                                           ", "
+                                         ""))
+                             "")
+                           (if (assoc-default 'behind b)
+                               (concat "behind "
+                                       (propertize (assoc-default 'behind b)
+                                                   'face 'magit-log-head-label-remote))
+                             "")
                            "]")
-                 "")))
-      (insert "\n"))))
+                 "")
+               "\n")))))
 
 (defun magit-wash-branches ()
   (magit-wash-line-by-line #'magit-wash-branch-line))
@@ -5273,7 +5299,7 @@ name of the remote and branch name. The remote must be known to git."
 (defun magit-insert-branches ()
   (magit-git-section "branches" "Branches:" 'magit-wash-branches
                      "branch"
-                     "-va"
+                     "-vva"
                      (format "--abbrev=%s" magit-sha1-abbrev-length)))
 
 (defun magit-refresh-branch-manager ()
