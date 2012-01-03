@@ -5307,8 +5307,7 @@ name of the remote and branch name. The remote must be known to git."
     (magit-with-section "branch-manager" nil
       (magit-insert-branches))))
 
-(defun magit-branch-manager ()
-  "Show all of the current branches."
+(magit-define-command branch-manager ()
   (interactive)
   (let ((topdir (magit-get-top-dir default-directory)))
     (magit-buffer-switch magit-branches-buffer-name)
