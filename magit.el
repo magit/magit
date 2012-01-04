@@ -4225,7 +4225,7 @@ environment (potentially empty)."
   (interactive)
   (when (eq (magit-log-edit-toggle-field 'amend t) 'first)
     (magit-log-edit-append
-     (magit-format-commit "HEAD" "%s%n%n%b"))))
+     (magit-trim-line (magit-format-commit "HEAD" "%s%n%n%b")))))
 
 (defun magit-log-edit-toggle-signoff ()
   "Toggle whether this commit will include a signoff.
@@ -4985,11 +4985,14 @@ With a prefix argument, visit in other window."
       info))
     ((diff)
      (let ((file (magit-diff-item-file item)))
-       (if (not (file-exists-p file))
-           (error "Can't visit deleted file: %s" file))
-       (funcall
-        (if other-window 'find-file-other-window 'find-file)
-        file)))
+       (cond ((not (file-exists-p file))
+              (error "Can't visit deleted file: %s" file))
+             ((file-directory-p file)
+              (magit-status file))
+             (t
+              (funcall
+               (if other-window 'find-file-other-window 'find-file)
+               file)))))
     ((hunk)
      (let ((file (magit-diff-item-file (magit-hunk-item-diff item)))
            (line (magit-hunk-item-target-line item)))
