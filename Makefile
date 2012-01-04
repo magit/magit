@@ -87,4 +87,5 @@ install_contrib: contrib
 install_all: install install_contrib
 
 clean:
-	rm -fr magit-pkg.el magit.spec magit.info $(ELCS) $(ELCS_CONTRIB) *.tar.gz magit-$(VERSION)
+	rm -f magit.info #NO_DIST
+	rm -fr magit-pkg.el magit.spec $(ELCS) $(ELCS_CONTRIB) *.tar.gz magit-$(VERSION)
