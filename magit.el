@@ -4975,11 +4975,14 @@ With a prefix argument, visit in other window."
       info))
     ((diff)
      (let ((file (magit-diff-item-file item)))
-       (if (not (file-exists-p file))
-           (error "Can't visit deleted file: %s" file))
-       (funcall
-        (if other-window 'find-file-other-window 'find-file)
-        file)))
+       (cond ((not (file-exists-p file))
+              (error "Can't visit deleted file: %s" file))
+             ((file-directory-p file)
+              (magit-status file))
+             (t
+              (funcall
+               (if other-window 'find-file-other-window 'find-file)
+               file)))))
     ((hunk)
      (let ((file (magit-diff-item-file (magit-hunk-item-diff item)))
            (line (magit-hunk-item-target-line item)))
