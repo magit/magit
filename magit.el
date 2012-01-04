@@ -5213,8 +5213,7 @@ name of the remote and branch name. The remote must be known to git."
 (defun magit--is-branch-section-remote (branch)
   (assoc-default 'remote (magit-section-info branch)))
 
-(defun magit--branch-view-details (branch-line)
-  "Extract details from branch -vva output."
+(defun magit-wash-branch-line (branch-line)
   (string-match (concat
                  "^\\([ *] \\)"                 ; 1: current branch marker
                  "\\(.+?\\) +"                  ; 2: branch name
@@ -5240,55 +5239,54 @@ name of the remote and branch name. The remote must be known to git."
                  "\\)$"
                  )
                 branch-line)
-  (let ((res (list (cons 'current (string-match-p "^\\*" (match-string 1 branch-line)))
-                   (cons 'branch  (match-string 2 branch-line))
-                   (cons 'remote  (string-match-p "^remotes/" (match-string 2 branch-line)))
-                   (cons 'sha1 (match-string 3 branch-line))
-                   (cons 'tracking (match-string 4 branch-line))
-                   (cons 'ahead (match-string 5 branch-line))
-                   (cons 'behind (match-string 6 branch-line))
-                   (cons 'msg (match-string 7 branch-line))
-                   (cons 'other-ref (match-string 8 branch-line)))))
-    res))
 
-(defun magit-wash-branch-line (branch-line)
-  (let ((b (magit--branch-view-details branch-line)))
-    (magit-with-section (assoc-default 'branch b) 'branch
-      (magit-set-section-info b)
+  (let ((current (string-match-p "^\\*" (match-string 1 branch-line)))
+        (branch  (match-string 2 branch-line))
+        (remote  (string-match-p "^remotes/" (match-string 2 branch-line)))
+        (sha1 (match-string 3 branch-line))
+        (tracking (match-string 4 branch-line))
+        (ahead (match-string 5 branch-line))
+        (behind (match-string 6 branch-line))
+        (msg (match-string 7 branch-line))
+        (other-ref (match-string 8 branch-line)))
+
+    (magit-with-section branch 'branch
+      (magit-set-section-info (list (cons 'branch branch)
+                                    (cons 'remote remote)))
       (insert (concat
-               (propertize (or (assoc-default 'sha1 b)
+               (propertize (or sha1
                                (make-string magit-sha1-abbrev-length ? ))
                            'face 'magit-log-sha1)
                " "
-               (if (assoc-default 'current b)
+               (if current
                    "# "
                  "  ")
-               (apply 'propertize (assoc-default 'branch b)
-                      (if (assoc-default 'current b)
+               (apply 'propertize branch
+                      (if current
                           '(face magit-branch)))
-               (if (assoc-default 'other-ref b)
-                   (concat " (" (assoc-default 'other-ref b) ")")
+               (if other-ref
+                   (concat " (" other-ref ")")
                  "")
-               (if (assoc-default 'tracking b)
+               (if tracking
                    (concat " ["
-                           (propertize (assoc-default 'tracking b)
+                           (propertize tracking
                                        'face 'magit-log-head-label-remote)
-                           (if (or (assoc-default 'ahead b)
-                                   (assoc-default 'behind b))
+                           (if (or ahead
+                                   behind)
                                ": "
                              "")
-                           (if (assoc-default 'ahead b)
+                           (if ahead
                                (concat "ahead "
-                                       (propertize (assoc-default 'ahead b)
-                                                   'face (if (assoc-default 'current b)
+                                       (propertize ahead
+                                                   'face (if current
                                                              'magit-branch))
-                                       (if (assoc-default 'behind b)
+                                       (if behind
                                            ", "
                                          ""))
                              "")
-                           (if (assoc-default 'behind b)
+                           (if behind
                                (concat "behind "
-                                       (propertize (assoc-default 'behind b)
+                                       (propertize behind
                                                    'face 'magit-log-head-label-remote))
                              "")
                            "]")
