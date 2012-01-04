@@ -146,7 +146,7 @@ Setting it to 'refuse will refuse to push unless a remote branch has already bee
 
 (defcustom magit-save-some-buffers t
   "Non-nil means that \\[magit-status] will save modified buffers before running.
-Setting this to t will ask which buffers to save, setting it to 'dontask will
+Setting this to t will ask which buffers to save, setting it to `dontask' will
 save all modified buffers without asking."
   :group 'magit
   :type '(choice (const :tag "Never" nil)
@@ -156,7 +156,7 @@ save all modified buffers without asking."
 (defcustom magit-save-some-buffers-predicate
   'magit-save-buffers-predicate-tree-only
   "Specifies a predicate function on \\[magit-save-some-buffers] to determine which
-   unsaved buffers should be prompted for saving."
+unsaved buffers should be prompted for saving."
 
   :group 'magit
   :type '(radio (function-item magit-save-buffers-predicate-tree-only)
@@ -237,7 +237,7 @@ completion.
 
 The value 'name-then-remote means remotes will be of the
 form \"name (remote)\", while the value 'remote-slash-name
-means that they'll be of the form \"remote/name\". I.e. something that's
+means that they'll be of the form \"remote/name\".  I.e. something that's
 listed as \"remotes/upstream/next\" by \"git branch -l -a\"
 will be \"upstream/next\"."
   :group 'magit
@@ -247,10 +247,11 @@ will be \"upstream/next\"."
 (defcustom magit-process-connection-type (not (eq system-type 'cygwin))
   "Connection type used for the git process.
 
-nil mean pipe, it is usually faster and more efficient, and work on cygwin.
-t mean pty, it enable magit to prompt for passphrase when needed."
+If nil, use pipes: this is usually more efficient, and works on Cygwin.
+If t, use ptys: this enables magit to prompt for passphrases when needed."
   :group 'magit
-  :type 'boolean)
+  :type '(choice (const :tag "pipe" nil)
+                 (const :tag "pty" t)))
 
 (defcustom magit-completing-read-function 'magit-builtin-completing-read
   "Function to be called when requesting input from the user."
@@ -283,31 +284,29 @@ The function is given one argument, the status buffer."
   "Whether magit includes the selected base commit in a rewrite operation.
 
 t means both the selected commit as well as any subsequent
-commits will be rewritten. This is magit's default behaviour,
+commits will be rewritten.  This is magit's default behaviour,
 equivalent to 'git rebase -i ${REV}~1'
 
   A'---B'---C'---D'
   ^
 
 nil means the selected commit will be literally used as 'base',
-so only subsequent commits will be rewritten. This is consistent
+so only subsequent commits will be rewritten.  This is consistent
 with git-rebase, equivalent to 'git rebase -i ${REV}', yet more
 cumbersome to use from the status buffer.
 
   A---B'---C'---D'
-  ^
-"
+  ^"
   :group 'magit
   :type '(choice (const :tag "Always" t)
                  (const :tag "Never" nil)
                  (const :tag "Ask"   ask)))
 
 (defcustom magit-highlight-whitespace t
-  "Specifies where to highlight whitespace errors.  See
-`magit-highlight-trailing-whitespace',
-`magit-highlight-indentation'.  `t' means in all diffs, the
-symbol `status' means only in the status buffer, and `nil' means
-nowhere."
+  "Specifies where to highlight whitespace errors.
+See `magit-highlight-trailing-whitespace',
+`magit-highlight-indentation'.  The symbol t means in all diffs,
+`status' means only in the status buffer, and nil means nowhere."
   :group 'magit
   :type '(choice (const :tag "Always" t)
                  (const :tag "Never" nil)
@@ -315,15 +314,15 @@ nowhere."
   :set 'magit-set-variable-and-refresh)
 
 (defcustom magit-highlight-trailing-whitespace t
-  "If `magit-highlight-whitespace' is enabled, highlight
-whitespace at the end of a line in diffs."
+  "Highlight whitespace at the end of a line in diffs.
+Used only when `magit-highlight-whitespace' is non-nil."
   :group 'magit
   :type 'boolean
   :set 'magit-set-variable-and-refresh)
 
 (defcustom magit-highlight-indentation nil
-  "If `magit-highlight-whitespace' is enabled, highlight the
-\"wrong\" indentation style.
+  "Highlight the \"wrong\" indentation style.
+Used only when `magit-highlight-whitespace' is non-nil.
 
 The value is a list of cons cells.  The car is a regular
 expression, and the cdr is the value that applies to repositories
@@ -342,8 +341,8 @@ many spaces.  Otherwise, highlight neither."
   :set 'magit-set-variable-and-refresh)
 
 (defvar magit-current-indentation nil
-  "Indentation highlight used in the current buffer, as specified
-in `magit-highlight-indentation'.")
+  "Indentation highlight used in the current buffer.
+This is calculated from `magit-highlight-indentation'.")
 (make-variable-buffer-local 'magit-current-indentation)
 
 (defgroup magit-faces nil
@@ -641,6 +640,8 @@ Do not customize this (used in the `magit-key-mode' implementation).")
   "The version of Magit that you're using.")
 
 (defun magit-bug-report (str)
+  "Asks the user to submit a bug report about the error described in STR."
+;; XXX - should propose more information to be included.
   (message (concat
             "Unknown error: %s\n"
             "Please, with as much information as possible, file a bug at\n"
