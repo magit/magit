@@ -4964,21 +4964,21 @@ This is only meaningful in wazzup buffers.")
                          (prompt-for-change-log-name))))
   (magit-add-change-log-entry whoami file-name t))
 
-(defun magit-visit-item (&optional other-window)
+(defun magit-visit-item (&optional same-window)
   "Visit current item.
-With a prefix argument, visit in other window."
+With a prefix argument, visit in the same window."
   (interactive (list current-prefix-arg))
   (magit-section-action (item info "visit")
     ((untracked file)
      (funcall
-      (if other-window 'find-file-other-window 'find-file)
+      (if same-window 'find-file 'find-file-other-window)
       info))
     ((diff)
      (let ((file (magit-diff-item-file item)))
        (if (not (file-exists-p file))
            (error "Can't visit deleted file: %s" file))
        (funcall
-        (if other-window 'find-file-other-window 'find-file)
+        (if same-window 'find-file 'find-file-other-window)
         file)))
     ((hunk)
      (let ((file (magit-diff-item-file (magit-hunk-item-diff item)))
@@ -4986,7 +4986,7 @@ With a prefix argument, visit in other window."
        (if (not (file-exists-p file))
            (error "Can't visit deleted file: %s" file))
        (funcall
-        (if other-window 'find-file-other-window 'find-file)
+        (if same-window 'find-file 'find-file-other-window)
         file)
        (goto-char (point-min))
        (forward-line (1- line))))
