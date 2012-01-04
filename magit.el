@@ -2837,7 +2837,9 @@ either in another window or (with a prefix argument) in the current window."
                                         ; Note: making this a plain defcustom would probably let users break
                                         ; the parser too easily
 (defvar magit-git-log-options
-  '("--pretty=format:* %H %s"))
+  (list
+   "--pretty=format:* %h %s"
+   (format "--abbrev=%s" magit-sha1-abbrev-length)))
                                         ; --decorate=full otherwise some ref prefixes are stripped
                                         ;  '("--pretty=format:* %H%d %s" "--decorate=full"))
 
