@@ -132,7 +132,7 @@ Magit will only descend this many levels deep."
   :type 'integer)
 
 (defcustom magit-set-upstream-on-push nil
-  "Non-nil means that \\[magit-push] will use --set-upstream when pushing a branch.
+  "Non-nil means that `magit-push' may use --set-upstream when pushing a branch.
 Setting this to t will ask if --set-upstream should be used.
 Setting it to 'dontask will always use --set-upstream.
 Setting it to 'refuse will refuse to push unless a remote branch has already been set.
@@ -155,8 +155,10 @@ save all modified buffers without asking."
 
 (defcustom magit-save-some-buffers-predicate
   'magit-save-buffers-predicate-tree-only
-  "Specifies a predicate function on \\[magit-save-some-buffers] to determine which
-unsaved buffers should be prompted for saving."
+  "A predicate function to decide whether to save a buffer.
+
+Used by function `magit-save-some-buffers' when the variable of
+the same name is non-nil."
 
   :group 'magit
   :type '(radio (function-item magit-save-buffers-predicate-tree-only)
@@ -3965,6 +3967,18 @@ typing and automatically refreshes the status buffer."
   (magit-run-git-async "push" "--tags"))
 
 (magit-define-command push ()
+  "Push the current branch to a remote repository.
+
+With no prefix argument, ask `magit-get-remote' what remote to
+use for this branch.
+
+With a prefix arg \(e.g., \\[universal-argument] \\[magit-push]), \
+ask user instead.
+
+With \\[universal-argument] \\[universal-argument] as prefix, \
+also prompt user for the remote branch;
+otherwise, try to use the branch.<name>.merge git-config(1)
+option, falling back to something hairy if that is unset."
   (interactive)
   (let* ((branch (or (magit-get-current-branch)
                      (error "Don't push a detached head.  That's gross")))
