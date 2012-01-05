@@ -1223,8 +1223,8 @@ a commit, or any reference to one of those."
 
 (defun magit-read-remote (&optional prompt def)
   "Read the name of a remote.
-PROMPT is used as the prompt, and defaults to \"Remote\".
-DEF is the default value, and defaults to the value of `magit-get-current-branch'."
+PROMPT is used as the prompt, and defaults to \"Remote: \".
+DEF is the default value."
   (let* ((prompt (or prompt "Remote: "))
          (def (or def (magit-get-current-remote)))
          (remotes (magit-git-lines "remote"))
