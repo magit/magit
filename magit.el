@@ -4740,7 +4740,7 @@ If REVISION is a remote branch, offer to create a local tracking branch.
   (interactive
    (list (let ((current-branch (magit-get-current-branch))
                (default (magit-default-rev)))
-           (magit-read-rev "Switch to"
+           (magit-read-rev (format "Switch from '%s' to" current-branch)
                            (unless (string= current-branch default)
                              default)
                            (if current-branch
