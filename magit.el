@@ -593,6 +593,7 @@ Do not customize this (used in the `magit-key-mode' implementation).")
     (define-key map (kbd "-") 'magit-diff-smaller-hunks)
     (define-key map (kbd "+") 'magit-diff-larger-hunks)
     (define-key map (kbd "0") 'magit-diff-default-hunks)
+    (define-key map (kbd "h") 'diff-refine-hunk)
     map))
 
 (defvar magit-commit-mode-map
