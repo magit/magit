@@ -2594,6 +2594,7 @@ in the corresponding directories."
              (add-text-properties (match-beginning 0) (match-end 0)
                                   '(face magit-diff-hunk-header))
              (forward-line)
+             (diff-refine-hunk)
              (while (not (or (eobp)
                              (looking-at "^diff\\|^@@")))
                (magit-highlight-line-whitespace)
