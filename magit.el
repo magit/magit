@@ -1518,7 +1518,10 @@ see `magit-insert-section' for meaning of the arguments"
     (magit-goto-next-section))
    ((and (eq (magit-section-type section) 'commit)
          (derived-mode-p 'magit-log-mode))
-    (magit-show-commit section))))
+    (magit-show-commit section))
+   ((and (eq (magit-section-type section) 'hunk)
+         diff-auto-refine-mode)
+    (condition-case-no-debug nil (diff-refine-hunk) (error nil)))))
 
 (defun magit-goto-section-at-path (path)
   "Go to the section described by PATH."
@@ -2594,7 +2597,6 @@ in the corresponding directories."
              (add-text-properties (match-beginning 0) (match-end 0)
                                   '(face magit-diff-hunk-header))
              (forward-line)
-             (diff-refine-hunk)
              (while (not (or (eobp)
                              (looking-at "^diff\\|^@@")))
                (magit-highlight-line-whitespace)
