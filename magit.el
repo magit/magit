@@ -5253,7 +5253,7 @@ name of the remote and branch name. The remote must be known to git."
     (magit-with-section branch 'branch
       (magit-set-section-info (list (cons 'branch branch)
                                     (cons 'remote remote)))
-      (insert (propertize (or sha1
+      (insert-before-markers (propertize (or sha1
                               (make-string magit-sha1-abbrev-length ? ))
                           'face 'magit-log-sha1)
               " "
@@ -5292,19 +5292,62 @@ name of the remote and branch name. The remote must be known to git."
                 "")
               "\n"))))
 
+(defun magit-insert-branch-sub-group (sub-group)
+  (let ((title (car sub-group))
+        (end-marker (cadr sub-group)))
+    (if title
+        (let ((magit-section-hidden-default t))
+          (magit-with-section title nil
+            (insert-before-markers (concat "    "
+                                           title
+                                           "\n"))
+            (save-restriction
+              (narrow-to-region (point) end-marker)
+              (magit-wash-line-by-line #'magit-wash-branch-line))))
+      (save-restriction
+        (narrow-to-region (point) end-marker)
+        (magit-wash-line-by-line #'magit-wash-branch-line)))))
+
+(defun magit-insert-branch-group (group)
+  (let ((title (car group))
+        (buffer-title (cadr group))
+        (sub-groups (caddr group)))
+    (magit-with-section title nil
+      (insert-before-markers (propertize buffer-title 'face 'magit-section-title) "\n")
+      (mapcar 'magit-insert-branch-sub-group sub-groups)))
+  (insert-before-markers "\n"))
+
 (defun magit-wash-branches ()
-  (magit-wash-line-by-line #'magit-wash-branch-line))
+  (let* ((remotes (magit-git-lines "remote"))
+         (markers
+          (append (mapcar '(lambda (remote)
+                             (save-excursion
+                               (search-forward-regexp (concat "^  remotes\\/" remote))
+                               (beginning-of-line)
+                               (point-marker)))
+                          remotes)
+                  (list (save-excursion
+                          (end-of-buffer)
+                          (point-marker)))))
+         (groups `(("local" "Local branches:" ((nil ,(car markers))))
+                   ("remote" "Remote branches:" ,(loop for title in remotes
+                                                       for end-marker in (cdr markers)
+                                                       collect (list title end-marker))))))
+
+    (mapcar 'magit-insert-branch-group groups)
+    (mapcar '(lambda (marker)
+               (set-marker marker nil))
+            markers)))
 
 (defun magit-insert-branches ()
-  (magit-git-section "branches" "Branches:" 'magit-wash-branches
+  (magit-git-section "branches" nil 'magit-wash-branches
                      "branch"
                      "-vva"
                      (format "--abbrev=%s" magit-sha1-abbrev-length)))
 
 (defun magit-refresh-branch-manager ()
   (magit-create-buffer-sections
-    (magit-with-section "branch-manager" nil
-      (magit-insert-branches))))
+    (magit-insert-branches)))
 
 (magit-define-command branch-manager ()
   (interactive)
