@@ -5253,45 +5253,44 @@ name of the remote and branch name. The remote must be known to git."
     (magit-with-section branch 'branch
       (magit-set-section-info (list (cons 'branch branch)
                                     (cons 'remote remote)))
-      (insert (concat
-               (propertize (or sha1
-                               (make-string magit-sha1-abbrev-length ? ))
-                           'face 'magit-log-sha1)
-               " "
-               (if current
-                   "# "
-                 "  ")
-               (apply 'propertize branch
-                      (if current
-                          '(face magit-branch)))
-               (if other-ref
-                   (concat " (" other-ref ")")
-                 "")
-               (if tracking
-                   (concat " ["
-                           (propertize tracking
-                                       'face 'magit-log-head-label-remote)
-                           (if (or ahead
-                                   behind)
-                               ": "
-                             "")
-                           (if ahead
-                               (concat "ahead "
-                                       (propertize ahead
-                                                   'face (if current
-                                                             'magit-branch))
-                                       (if behind
-                                           ", "
-                                         ""))
-                             "")
-                           (if behind
-                               (concat "behind "
-                                       (propertize behind
-                                                   'face 'magit-log-head-label-remote))
-                             "")
-                           "]")
-                 "")
-               "\n")))))
+      (insert (propertize (or sha1
+                              (make-string magit-sha1-abbrev-length ? ))
+                          'face 'magit-log-sha1)
+              " "
+              (if current
+                  "# "
+                "  ")
+              (apply 'propertize branch
+                     (if current
+                         '(face magit-branch)))
+              (if other-ref
+                  (concat " (" other-ref ")")
+                "")
+              (if tracking
+                  (concat " ["
+                          (propertize tracking
+                                      'face 'magit-log-head-label-remote)
+                          (if (or ahead
+                                  behind)
+                              ": "
+                            "")
+                          (if ahead
+                              (concat "ahead "
+                                      (propertize ahead
+                                                  'face (if current
+                                                            'magit-branch))
+                                      (if behind
+                                          ", "
+                                        ""))
+                            "")
+                          (if behind
+                              (concat "behind "
+                                      (propertize behind
+                                                  'face 'magit-log-head-label-remote))
+                            "")
+                          "]")
+                "")
+              "\n"))))
 
 (defun magit-wash-branches ()
   (magit-wash-line-by-line #'magit-wash-branch-line))
