@@ -593,6 +593,7 @@ Do not customize this (used in the `magit-key-mode' implementation).")
     (define-key map (kbd "-") 'magit-diff-smaller-hunks)
     (define-key map (kbd "+") 'magit-diff-larger-hunks)
     (define-key map (kbd "0") 'magit-diff-default-hunks)
+    (define-key map (kbd "h") 'diff-refine-hunk)
     map))
 
 (defvar magit-commit-mode-map
@@ -1518,7 +1519,10 @@ see `magit-insert-section' for meaning of the arguments"
     (magit-goto-next-section))
    ((and (eq (magit-section-type section) 'commit)
          (derived-mode-p 'magit-log-mode))
-    (magit-show-commit section))))
+    (magit-show-commit section))
+   ((and (eq (magit-section-type section) 'hunk)
+         diff-auto-refine-mode)
+    (condition-case-no-debug nil (diff-refine-hunk) (error nil)))))
 
 (defun magit-goto-section-at-path (path)
   "Go to the section described by PATH."
