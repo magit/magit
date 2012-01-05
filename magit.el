@@ -5246,7 +5246,9 @@ name of the remote and branch name. The remote must be known to git."
                   "# "
                 "  ")
               (apply 'propertize (if remote
-                                     branch ;to change
+                                     ; get rid of substring "remotes/<remote-name>/"
+                                     ; need to get rid of 9 characters
+                                     (substring branch (+ 9 (length remote-name)))
                                    branch)
                      (if current
                          '(face magit-branch)))
