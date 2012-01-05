@@ -5351,7 +5351,7 @@ name of the remote and branch name. The remote must be known to git."
     (magit-git-section "branches" nil 'magit-wash-branches
                        "branch"
                        "-vva"
-                       (format "--abbrev=%s" magit-sha1-abbrev-length)))
+                       (format "--abbrev=%s" magit-sha1-abbrev-length))))
 
 (magit-define-command branch-manager ()
   (interactive)
