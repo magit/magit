@@ -1239,7 +1239,7 @@ DEF is the default value, and defaults to the value of `magit-get-current-branch
                             (lambda (b)
                               (and (not (string-match " -> " b))
                                    (string-match (format "^ *%s/\\(.*\\)$"
-                                                         remote) b)
+                                                         (regexp-quote remote)) b)
                                    (match-string 1 b)))
                             (magit-git-lines "branch" "-r"))))
          (reply (magit-completing-read prompt branches
