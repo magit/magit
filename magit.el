@@ -1049,15 +1049,6 @@ out revs involving HEAD."
   (buffer-substring-no-properties (line-beginning-position)
                                   (line-end-position)))
 
-(defun magit-delete-current-line ()
-  (delete-region (line-beginning-position)
-                 (line-beginning-position 2)))
-
-(defun magit-extract-current-line ()
-  (let ((line (magit-current-line)))
-    (magit-delete-current-line)
-    line))
-
 (defun magit-insert-region (beg end buf)
   (let ((text (buffer-substring-no-properties beg end)))
     (with-current-buffer buf
@@ -1867,13 +1858,6 @@ the actions."
 FUNC should leave point at the end of the modified region"
   (while (and (not (eobp))
               (funcall func))))
-
-(defun magit-wash-line-by-line (func)
-  "Run FUNC on each line until end of buffer is reached.
-
-FUNC should act on a single line"
-  (while (and (not (eobp))
-              (funcall func (magit-extract-current-line)))))
 
 (defmacro magit-define-command (sym arglist &rest body)
   "Macro to define a magit command.
@@ -5213,42 +5197,43 @@ name of the remote and branch name. The remote must be known to git."
 (defun magit--is-branch-section-remote (branch)
   (assoc-default 'remote (magit-section-info branch)))
 
-(defun magit-wash-branch-line (branch-line)
-  (string-match (concat
-                 "^\\([ *] \\)"                 ; 1: current branch marker
-                 "\\(.+?\\) +"                  ; 2: branch name
+(defun magit-wash-branch-line (&optional remote-name)
+  (looking-at (concat
+               "^\\([ *] \\)"                 ; 1: current branch marker
+               "\\(.+?\\) +"                  ; 2: branch name
 
-                 "\\(?:"
+               "\\(?:"
 
-                 "\\([0-9a-fA-F]+\\)"           ; 3: sha1
-                 " "
-                 "\\(?:\\["
-                 "\\([^:]+\\)"                  ; 4: tracking
-                 "\\(?:: \\)?"
-                 "\\(?:ahead \\([0-9]+\\)\\)?"  ; 5: ahead
-                 "\\(?:, \\)?"
-                 "\\(?:behind \\([0-9]+\\)\\)?" ; 6: behind
-                 "\\] \\)?"
-                 "\\(.*\\)"                     ; 7: message
+               "\\([0-9a-fA-F]+\\)"           ; 3: sha1
+               " "
+               "\\(?:\\["
+               "\\([^:]+?\\)"                 ; 4: tracking
+               "\\(?:: \\)?"
+               "\\(?:ahead \\([0-9]+\\)\\)?"  ; 5: ahead
+               "\\(?:, \\)?"
+               "\\(?:behind \\([0-9]+\\)\\)?" ; 6: behind
+               "\\] \\)?"
+               "\\(?:.*\\)"                   ; message
 
-                 "\\|"                          ; or
+               "\\|"                          ; or
 
-                 "-> "                          ; the pointer to
-                 "\\(.+\\)"                     ; 8: a ref
+               "-> "                          ; the pointer to
+               "\\(.+\\)"                     ; 7: a ref
 
-                 "\\)$"
-                 )
-                branch-line)
+               "\\)\n"))
 
-  (let ((current (string-match-p "^\\*" (match-string 1 branch-line)))
-        (branch  (match-string 2 branch-line))
-        (remote  (string-match-p "^remotes/" (match-string 2 branch-line)))
-        (sha1 (match-string 3 branch-line))
-        (tracking (match-string 4 branch-line))
-        (ahead (match-string 5 branch-line))
-        (behind (match-string 6 branch-line))
-        (msg (match-string 7 branch-line))
-        (other-ref (match-string 8 branch-line)))
+  (let* ((current-string (match-string 1))
+         (branch         (match-string 2))
+         (sha1           (match-string 3))
+         (tracking       (match-string 4))
+         (ahead          (match-string 5))
+         (behind         (match-string 6))
+         (other-ref      (match-string 7))
+         (current (string-match-p "^\\*" current-string))
+         (remote (string-match-p "^remotes\\/" branch)))
+
+    (delete-region (point)
+                   (line-beginning-position 2))
 
     (magit-with-section branch 'branch
       (magit-set-section-info (list (cons 'branch branch)
@@ -5260,7 +5245,9 @@ name of the remote and branch name. The remote must be known to git."
               (if current
                   "# "
                 "  ")
-              (apply 'propertize branch
+              (apply 'propertize (if remote
+                                     branch ;to change
+                                   branch)
                      (if current
                          '(face magit-branch)))
               (if other-ref
@@ -5303,10 +5290,10 @@ name of the remote and branch name. The remote must be known to git."
                                            "\n"))
             (save-restriction
               (narrow-to-region (point) end-marker)
-              (magit-wash-line-by-line #'magit-wash-branch-line))))
+              (magit-wash-sequence (apply-partially 'magit-wash-branch-line title)))))
       (save-restriction
         (narrow-to-region (point) end-marker)
-        (magit-wash-line-by-line #'magit-wash-branch-line)))))
+        (magit-wash-sequence #'magit-wash-branch-line)))))
 
 (defun magit-insert-branch-group (group)
   (let ((title (car group))
