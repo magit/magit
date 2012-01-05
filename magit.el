@@ -3924,11 +3924,15 @@ If there is no default remote, ask for one."
   "Run git pull against the current remote."
   (interactive)
   (let* ((branch (magit-get-current-branch))
+         (branch-remote (magit-get-remote branch))
          (config-branch (and branch (magit-get "branch" branch "merge")))
          (merge-branch (or (and config-branch (not current-prefix-arg))
-                           (magit-read-rev (format "Pull from")))))
-    (if (and branch (not config-branch))
-        (magit-set merge-branch "branch" branch "merge"))
+                           (magit-read-remote-branch
+                            branch-remote (format "Pull from: ")))))
+    (when (and branch (not config-branch))
+      (magit-set branch-remote "branch" branch "remote")
+      (magit-set (format "refs/heads/%s" merge-branch)
+                 "branch" branch "merge"))
     (apply 'magit-run-git-async "pull" "-v" magit-custom-options)))
 
 (eval-when-compile (require 'eshell))
