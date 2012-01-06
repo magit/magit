@@ -5308,7 +5308,7 @@ name of the remote and branch name. The remote must be known to git."
                                            "\n"))
             (save-restriction
               (narrow-to-region (point) end-marker)
-              (magit-wash-sequence (apply-partially 'magit-wash-branch-line remote)))))
+              (magit-wash-sequence (apply-partially 'magit-wash-branch-line remote-name)))))
       (save-restriction
         (narrow-to-region (point) end-marker)
         (magit-wash-sequence #'magit-wash-branch-line)))))
