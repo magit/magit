@@ -3668,7 +3668,7 @@ If the branch is the current one, offers to switch to `master' first.
   (magit-section-case (item info)
     ((wazzup commit)
      (magit-section-info (magit-section-parent item)))
-    ((commit) (magit-name-rev (substring info 0 8)))
+    ((commit) (magit-name-rev (substring info 0 magit-sha1-abbrev-length)))
     ((wazzup) info)))
 
 (defun magit-merge (revision)
