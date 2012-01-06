@@ -5295,8 +5295,11 @@ name of the remote and branch name. The remote must be known to git."
        "\n"))))
 
 (defun magit-insert-branch-sub-group (sub-group)
-  (let ((title (car sub-group))
-        (end-marker (cadr sub-group)))
+  (let* ((remote (first sub-group))
+         (remote-name (if remote (first remote)))
+         (remote-url (if remote (second remote)))
+         (title (if remote (concat remote-name " (" remote-url ")")))
+         (end-marker (second sub-group)))
     (if title
         (let ((magit-section-hidden-default t))
           (magit-with-section title nil
@@ -5305,7 +5308,7 @@ name of the remote and branch name. The remote must be known to git."
                                            "\n"))
             (save-restriction
               (narrow-to-region (point) end-marker)
-              (magit-wash-sequence (apply-partially 'magit-wash-branch-line title)))))
+              (magit-wash-sequence (apply-partially 'magit-wash-branch-line remote)))))
       (save-restriction
         (narrow-to-region (point) end-marker)
         (magit-wash-sequence #'magit-wash-branch-line)))))
@@ -5322,6 +5325,8 @@ name of the remote and branch name. The remote must be known to git."
 (defun magit-wash-branches ()
          ; get the names of the remotes
   (let* ((remotes (magit-git-lines "remote"))
+         (remotes-urls (mapcar (lambda (remote)
+                                 (magit-get "remote" remote "url")) remotes))
          ; get the location of remotes in the buffer
          (markers
           (append (mapcar '(lambda (remote)
@@ -5335,9 +5340,10 @@ name of the remote and branch name. The remote must be known to git."
                           (point-marker)))))
          ; list of elements to display in the buffer
          (groups `(("local" "Local branches:" ((nil ,(car markers))))
-                   ("remote" "Remote branches:" ,(loop for title in remotes
+                   ("remote" "Remote branches:" ,(loop for remote in remotes
+                                                       for remote-url in remotes-urls
                                                        for end-marker in (cdr markers)
-                                                       collect (list title end-marker))))))
+                                                       collect (list (list remote remote-url) end-marker))))))
 
     ; actual displaying of information
     (mapcar 'magit-insert-branch-group groups)
