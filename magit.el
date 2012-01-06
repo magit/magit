@@ -5259,7 +5259,7 @@ name of the remote and branch name. The remote must be known to git."
                   '(face magit-branch)))
        ; other ref that this branch is pointing to
        (if other-ref
-           (concat " (" other-ref ")")
+           (concat " -> " (substring other-ref (+ 1 (length remote-name))))
          "")
        ; tracking information
        (if tracking
