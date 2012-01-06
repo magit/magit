@@ -1050,15 +1050,6 @@ out revs involving HEAD."
   (buffer-substring-no-properties (line-beginning-position)
                                   (line-end-position)))
 
-(defun magit-delete-current-line ()
-  (delete-region (line-beginning-position)
-                 (line-beginning-position 2)))
-
-(defun magit-extract-current-line ()
-  (let ((line (magit-current-line)))
-    (magit-delete-current-line)
-    line))
-
 (defun magit-insert-region (beg end buf)
   (let ((text (buffer-substring-no-properties beg end)))
     (with-current-buffer buf
@@ -1871,13 +1862,6 @@ the actions."
 FUNC should leave point at the end of the modified region"
   (while (and (not (eobp))
               (funcall func))))
-
-(defun magit-wash-line-by-line (func)
-  "Run FUNC on each line until end of buffer is reached.
-
-FUNC should act on a single line"
-  (while (and (not (eobp))
-              (funcall func (magit-extract-current-line)))))
 
 (defmacro magit-define-command (sym arglist &rest body)
   "Macro to define a magit command.
@@ -5210,108 +5194,174 @@ name of the remote and branch name. The remote must be known to git."
 
 (defvar magit-branches-buffer-name "*magit-branches*")
 
-(defun magit--is-branch-at-point-remote()
+(defun magit--is-branch-at-point-remote ()
   "Return t if the branch at point is a remote tracking branch"
   (magit--is-branch-section-remote (magit-current-section)))
 
 (defun magit--is-branch-section-remote (branch)
   (assoc-default 'remote (magit-section-info branch)))
 
-(defun magit--branch-view-details (branch-line)
-  "Extract details from branch -vva output."
-  (string-match (concat
-                 "^\\([ *] \\)"                 ; 1: current branch marker
-                 "\\(.+?\\) +"                  ; 2: branch name
+(defun magit-wash-branch-line (&optional remote-name)
+  (looking-at (concat
+               "^\\([ *] \\)"                 ; 1: current branch marker
+               "\\(.+?\\) +"                  ; 2: branch name
 
-                 "\\(?:"
+               "\\(?:"
 
-                 "\\([0-9a-fA-F]+\\)"           ; 3: sha1
-                 " "
-                 "\\(?:\\["
-                 "\\([^:]+\\)"                  ; 4: tracking
-                 "\\(?:: \\)?"
-                 "\\(?:ahead \\([0-9]+\\)\\)?"  ; 5: ahead
-                 "\\(?:, \\)?"
-                 "\\(?:behind \\([0-9]+\\)\\)?" ; 6: behind
-                 "\\] \\)?"
-                 "\\(.*\\)"                     ; 7: message
-
-                 "\\|"                          ; or
-
-                 "-> "                          ; the pointer to
-                 "\\(.+\\)"                     ; 8: a ref
-
-                 "\\)$"
-                 )
-                branch-line)
-  (let ((res (list (cons 'current (string-match-p "^\\*" (match-string 1 branch-line)))
-                   (cons 'branch  (match-string 2 branch-line))
-                   (cons 'remote  (string-match-p "^remotes/" (match-string 2 branch-line)))
-                   (cons 'sha1 (match-string 3 branch-line))
-                   (cons 'tracking (match-string 4 branch-line))
-                   (cons 'ahead (match-string 5 branch-line))
-                   (cons 'behind (match-string 6 branch-line))
-                   (cons 'msg (match-string 7 branch-line))
-                   (cons 'other-ref (match-string 8 branch-line)))))
-    res))
-
-(defun magit-wash-branch-line (branch-line)
-  (let ((b (magit--branch-view-details branch-line)))
-    (magit-with-section (assoc-default 'branch b) 'branch
-      (magit-set-section-info b)
-      (insert (concat
-               (propertize (or (assoc-default 'sha1 b)
-                               (make-string magit-sha1-abbrev-length ? ))
-                           'face 'magit-log-sha1)
+               "\\([0-9a-fA-F]+\\)"           ; 3: sha1
                " "
-               (if (assoc-default 'current b)
-                   "# "
-                 "  ")
-               (apply 'propertize (assoc-default 'branch b)
-                      (if (assoc-default 'current b)
-                          '(face magit-branch)))
-               (if (assoc-default 'other-ref b)
-                   (concat " (" (assoc-default 'other-ref b) ")")
-                 "")
-               (if (assoc-default 'tracking b)
-                   (concat " ["
-                           (propertize (assoc-default 'tracking b)
-                                       'face 'magit-log-head-label-remote)
-                           (if (or (assoc-default 'ahead b)
-                                   (assoc-default 'behind b))
-                               ": "
-                             "")
-                           (if (assoc-default 'ahead b)
-                               (concat "ahead "
-                                       (propertize (assoc-default 'ahead b)
-                                                   'face (if (assoc-default 'current b)
-                                                             'magit-branch))
-                                       (if (assoc-default 'behind b)
-                                           ", "
-                                         ""))
-                             "")
-                           (if (assoc-default 'behind b)
-                               (concat "behind "
-                                       (propertize (assoc-default 'behind b)
-                                                   'face 'magit-log-head-label-remote))
-                             "")
-                           "]")
-                 "")
-               "\n")))))
+               "\\(?:\\["
+               "\\([^:]+?\\)"                 ; 4: tracking (non-greedy + to avoid matching \n)
+               "\\(?:: \\)?"
+               "\\(?:ahead \\([0-9]+\\)\\)?"  ; 5: ahead
+               "\\(?:, \\)?"
+               "\\(?:behind \\([0-9]+\\)\\)?" ; 6: behind
+               "\\] \\)?"
+               "\\(?:.*\\)"                   ; message
+
+               "\\|"                          ; or
+
+               "-> "                          ; the pointer to
+               "\\(.+\\)"                     ; 7: a ref
+
+               "\\)\n"))
+
+  (let* ((current-string (match-string 1))
+         (branch         (match-string 2))
+         (sha1           (match-string 3))
+         (tracking       (match-string 4))
+         (ahead          (match-string 5))
+         (behind         (match-string 6))
+         (other-ref      (match-string 7))
+         (current (string-match-p "^\\*" current-string))
+         (remote (string-match-p "^remotes\\/" branch)))
+
+    ; the current line is deleted before being reconstructed
+    (delete-region (point)
+                   (line-beginning-position 2))
+
+    (magit-with-section branch 'branch
+      (magit-set-section-info (list (cons 'branch branch)
+                                    (cons 'remote remote)))
+      (insert-before-markers
+       ; sha1
+       (propertize (or sha1
+                       (make-string magit-sha1-abbrev-length ? ))
+                   'face 'magit-log-sha1)
+       " "
+       ; current marker
+       (if current
+           "# "
+         "  ")
+       ; branch name
+       (apply 'propertize (if remote
+                              ; getting rid of substring "remotes/<remote-name>/"
+                              ; this represents 9 characters plus the lenght of <remote-name>
+                              (substring branch (+ 9 (length remote-name)))
+                                   branch)
+              (if current
+                  '(face magit-branch)))
+       ; other ref that this branch is pointing to
+       (if other-ref
+           (concat " -> " (substring other-ref (+ 1 (length remote-name))))
+         "")
+       ; tracking information
+       (if tracking
+           (concat " ["
+                   ; getting rid of the tracking branch name if it is the same as the branch name
+                   (let* ((tracking-remote (magit-get "branch" branch "remote"))
+                          (tracking-branch (substring tracking (+ 1 (length tracking-remote)))))
+                     (propertize (if (string= branch tracking-branch)
+                                     (concat "@ " tracking-remote)
+                                   (concat tracking-branch " @ tracking-remote"))
+                                 'face 'magit-log-head-label-remote))
+                   ; ahead/behind information
+                   (if (or ahead
+                           behind)
+                       ": "
+                     "")
+                   (if ahead
+                       (concat "ahead "
+                               (propertize ahead
+                                           'face (if current
+                                                     'magit-branch))
+                               (if behind
+                                   ", "
+                                 ""))
+                     "")
+                   (if behind
+                       (concat "behind "
+                               (propertize behind
+                                           'face 'magit-log-head-label-remote))
+                     "")
+                   "]")
+         "")
+       "\n"))))
+
+(defun magit-insert-branch-sub-group (sub-group)
+  (let* ((remote (first sub-group))
+         (remote-name (if remote (first remote)))
+         (remote-url (if remote (second remote)))
+         (title (if remote (concat remote-name " (" remote-url ")")))
+         (end-marker (second sub-group)))
+    (if title
+        (let ((magit-section-hidden-default t))
+          (magit-with-section title nil
+            (insert-before-markers (concat "    "
+                                           title
+                                           "\n"))
+            (save-restriction
+              (narrow-to-region (point) end-marker)
+              (magit-wash-sequence (apply-partially 'magit-wash-branch-line remote-name)))))
+      (save-restriction
+        (narrow-to-region (point) end-marker)
+        (magit-wash-sequence #'magit-wash-branch-line)))))
+
+(defun magit-insert-branch-group (group)
+  (let ((title (car group))
+        (buffer-title (cadr group))
+        (sub-groups (caddr group)))
+    (magit-with-section title nil
+      (insert-before-markers (propertize buffer-title 'face 'magit-section-title) "\n")
+      (mapcar 'magit-insert-branch-sub-group sub-groups)))
+  (insert-before-markers "\n"))
 
 (defun magit-wash-branches ()
-  (magit-wash-line-by-line #'magit-wash-branch-line))
+         ; get the names of the remotes
+  (let* ((remotes (magit-git-lines "remote"))
+         (remotes-urls (mapcar (lambda (remote)
+                                 (magit-get "remote" remote "url")) remotes))
+         ; get the location of remotes in the buffer
+         (markers
+          (append (mapcar '(lambda (remote)
+                             (save-excursion
+                               (search-forward-regexp (concat "^  remotes\\/" remote))
+                               (beginning-of-line)
+                               (point-marker)))
+                          remotes)
+                  (list (save-excursion
+                          (end-of-buffer)
+                          (point-marker)))))
+         ; list of elements to display in the buffer
+         (groups `(("local" "Local branches:" ((nil ,(car markers))))
+                   ("remote" "Remote branches:" ,(loop for remote in remotes
+                                                       for remote-url in remotes-urls
+                                                       for end-marker in (cdr markers)
+                                                       collect (list (list remote remote-url) end-marker))))))
 
-(defun magit-insert-branches ()
-  (magit-git-section "branches" "Branches:" 'magit-wash-branches
-                     "branch"
-                     "-vva"
-                     (format "--abbrev=%s" magit-sha1-abbrev-length)))
+    ; actual displaying of information
+    (mapcar 'magit-insert-branch-group groups)
+    ; make sure markers point to nil so that they can be garbage collected
+    (mapcar '(lambda (marker)
+               (set-marker marker nil))
+            markers)))
 
 (defun magit-refresh-branch-manager ()
   (magit-create-buffer-sections
-    (magit-with-section "branch-manager" nil
-      (magit-insert-branches))))
+    (magit-git-section "branches" nil 'magit-wash-branches
+                       "branch"
+                       "-vva"
+                       (format "--abbrev=%s" magit-sha1-abbrev-length))))
 
 (magit-define-command branch-manager ()
   (interactive)
