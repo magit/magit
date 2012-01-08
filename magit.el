@@ -3642,7 +3642,7 @@ If the branch is the current one, offers to switch to `master' first.
   "Renames or moves a branch.
 \('git branch -m OLD NEW')."
   (interactive (list (magit-read-rev "Old name" (magit-default-rev))
-                     (magit-read-rev "New name" (magit-default-rev))))
+                     (read-string "New name: ")))
   (magit-run-git "branch" "-m" (magit-rev-to-git old) new))
 
 ;;; Merging
