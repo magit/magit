@@ -1228,7 +1228,7 @@ a commit, or any reference to one of those."
 PROMPT is used as the prompt, and defaults to \"Remote\".
 DEF is the default value, and defaults to the value of `magit-get-current-branch'."
   (let* ((prompt (or prompt "Remote: "))
-         (def (or def (magit-get-current-remote)))
+         (def (or def (magit-guess-remote)))
          (remotes (magit-git-lines "remote"))
          (reply (magit-completing-read prompt remotes
                                        nil nil nil nil def)))
@@ -3656,6 +3656,19 @@ If the branch is the current one, offers to switch to `master' first.
      (magit-section-info (magit-section-parent item)))
     ((commit) (magit-name-rev (substring info 0 magit-sha1-abbrev-length)))
     ((wazzup) info)))
+
+;;; Remotes
+
+(defun magit-guess-remote ()
+  (magit-section-case (item info)
+    ((branch)
+     (magit-section-info (magit-section-parent item)))
+    (t
+     (let ((info (magit-section-info (magit-current-section)))
+           (remotes (append (magit-git-lines "remote") '("."))))
+       (if  (member info remotes)
+           info
+         (magit-get-current-remote))))))
 
 ;;; Merging
 
