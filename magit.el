@@ -1743,7 +1743,7 @@ TITLE is the displayed title of the section."
 (defvar magit-highlighted-section nil)
 
 (defun magit-highlight-section ()
-  "Highlight current section if it have a type."
+  "Highlight current section if it has a type."
   (let ((section (magit-current-section)))
     (when (not (eq section magit-highlighted-section))
       (setq magit-highlighted-section section)
@@ -3640,13 +3640,10 @@ If the branch is the current one, offers to switch to `master' first.
 
 (defun magit-move-branch (old new)
   "Renames or moves a branch.
-If the branch is the current one, offers to switch to `master' first.
 \('git branch -m OLD NEW')."
   (interactive (list (magit-read-rev "Old name" (magit-default-rev))
-                     (magit-read-rev "New name" (magit-default-rev))))
+                     (read-string "New name: ")))
   (magit-run-git "branch" "-m" (magit-rev-to-git old) new))
-
-;;; Merging
 
 (defun magit-guess-branch ()
   (magit-section-case (item info)
@@ -3654,6 +3651,8 @@ If the branch is the current one, offers to switch to `master' first.
      (magit-section-info (magit-section-parent item)))
     ((commit) (magit-name-rev (substring info 0 magit-sha1-abbrev-length)))
     ((wazzup) info)))
+
+;;; Merging
 
 (defun magit-merge (revision)
   "Merge REVISION into the current 'HEAD'; leave changes uncommitted.
@@ -4837,6 +4836,8 @@ This is only meaningful in wazzup buffers.")
                            'magit-wash-log
                            "log"
                            (format "--max-count=%s" magit-log-cutoff-length)
+                           "--abbrev-commit"
+                           (format "--abbrev=%s" magit-sha1-abbrev-length)
                            "--graph"
                            "--pretty=oneline"
                            (format "%s..%s" head ref)
