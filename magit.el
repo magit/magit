@@ -1227,15 +1227,16 @@ a commit, or any reference to one of those."
   "Read the name of a remote.
 PROMPT is used as the prompt, and defaults to \"Remote\".
 DEF is the default value, and defaults to the value of `magit-get-current-branch'."
-  (let* ((prompt (or prompt "Remote: "))
+  (let* ((prompt (or prompt "Remote"))
          (def (or def (magit-guess-remote)))
          (remotes (magit-git-lines "remote"))
-         (reply (magit-completing-read prompt remotes
+
+         (reply (magit-completing-read (concat prompt ": ") remotes
                                        nil nil nil nil def)))
     (if (string= reply "") nil reply)))
 
 (defun magit-read-remote-branch (remote &optional prompt default)
-  (let* ((prompt (or prompt (format "Remote branch (in %s): " remote)))
+  (let* ((prompt (or prompt (format "Remote branch (in %s)" remote)))
          (branches (delete nil
                            (mapcar
                             (lambda (b)
@@ -1244,7 +1245,7 @@ DEF is the default value, and defaults to the value of `magit-get-current-branch
                                                          remote) b)
                                    (match-string 1 b)))
                             (magit-git-lines "branch" "-r"))))
-         (reply (magit-completing-read prompt branches
+         (reply (magit-completing-read (concat prompt ": ") branches
                                        nil nil nil nil default)))
     (if (string= reply "") nil reply)))
 
@@ -4001,13 +4002,13 @@ typing and automatically refreshes the status buffer."
          (branch-remote (magit-get-remote branch))
          (push-remote (if (or current-prefix-arg
                               (not branch-remote))
-                          (magit-read-remote (format "Push %s to remote: "
+                          (magit-read-remote (format "Push %s to remote"
                                                      branch)
                                              branch-remote)
                         branch-remote))
          (ref-branch (or (and (>= (prefix-numeric-value current-prefix-arg) 16)
                               (magit-read-remote-branch
-                               push-remote (format "Push %s as branch: " branch)))
+                               push-remote (format "Push %s as branch" branch)))
                          (magit-get "branch" branch "merge"))))
     (if (and (not ref-branch)
              (eq magit-set-upstream-on-push 'refuse))
