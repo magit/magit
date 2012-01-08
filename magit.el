@@ -5323,7 +5323,7 @@ name of the remote and branch name. The remote must be known to git."
         (sub-groups (caddr group)))
     (magit-with-section title nil
       (insert-before-markers (propertize buffer-title 'face 'magit-section-title) "\n")
-      (mapcar 'magit-insert-branch-sub-group sub-groups)))
+      (mapc 'magit-insert-branch-sub-group sub-groups)))
   (insert-before-markers "\n"))
 
 (defun magit-wash-branches ()
@@ -5333,14 +5333,14 @@ name of the remote and branch name. The remote must be known to git."
                                  (magit-get "remote" remote "url")) remotes))
          ; get the location of remotes in the buffer
          (markers
-          (append (mapcar '(lambda (remote)
-                             (save-excursion
-                               (search-forward-regexp (concat "^  remotes\\/" remote))
-                               (beginning-of-line)
-                               (point-marker)))
+          (append (mapcar (lambda (remote)
+                            (save-excursion
+                              (search-forward-regexp (concat "^  remotes\\/" remote))
+                              (beginning-of-line)
+                              (point-marker)))
                           remotes)
                   (list (save-excursion
-                          (end-of-buffer)
+                          (goto-char (point-max))
                           (point-marker)))))
          ; list of elements to display in the buffer
          (groups `(("local" "Local branches:" ((nil ,(car markers))))
@@ -5350,11 +5350,11 @@ name of the remote and branch name. The remote must be known to git."
                                                        collect (list (list remote remote-url) end-marker))))))
 
     ; actual displaying of information
-    (mapcar 'magit-insert-branch-group groups)
+    (mapc 'magit-insert-branch-group groups)
     ; make sure markers point to nil so that they can be garbage collected
-    (mapcar '(lambda (marker)
-               (set-marker marker nil))
-            markers)))
+    (mapc (lambda (marker)
+            (set-marker marker nil))
+          markers)))
 
 (defun magit-refresh-branch-manager ()
   (magit-create-buffer-sections
