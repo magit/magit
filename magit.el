@@ -5273,7 +5273,7 @@ name of the remote and branch name. The remote must be known to git."
                           (tracking-branch (substring tracking (+ 1 (length tracking-remote)))))
                      (propertize (if (string= branch tracking-branch)
                                      (concat "@ " tracking-remote)
-                                   (concat tracking-branch " @ tracking-remote"))
+                                   (concat tracking-branch " @ " tracking-remote))
                                  'face 'magit-log-head-label-remote))
                    ; ahead/behind information
                    (if (or ahead
