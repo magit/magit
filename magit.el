@@ -3640,7 +3640,6 @@ If the branch is the current one, offers to switch to `master' first.
 
 (defun magit-move-branch (old new)
   "Renames or moves a branch.
-If the branch is the current one, offers to switch to `master' first.
 \('git branch -m OLD NEW')."
   (interactive (list (magit-read-rev "Old name" (magit-default-rev))
                      (magit-read-rev "New name" (magit-default-rev))))
