@@ -5301,33 +5301,26 @@ name of the remote and branch name. The remote must be known to git."
          "")
        "\n"))))
 
-(defun magit-insert-branch-sub-group (sub-group)
-  (let* ((remote (first sub-group))
-         (remote-name (if remote (first remote)))
-         (remote-url (if remote (second remote)))
-         (title (if remote (concat remote-name " (" remote-url ")")))
-         (end-marker (second sub-group)))
-    (if title
-        (let ((magit-section-hidden-default t))
-          (magit-with-section title nil
-            (insert-before-markers (concat "    "
-                                           title
-                                           "\n"))
-            (save-restriction
-              (narrow-to-region (point) end-marker)
-              (magit-wash-sequence (apply-partially 'magit-wash-branch-line remote-name)))))
-      (save-restriction
-        (narrow-to-region (point) end-marker)
-        (magit-wash-sequence #'magit-wash-branch-line)))))
+(defun magit-wash-remote-branches-group (group)
+  (let* ((remote-name (first group))
+         (remote-url (second group))
+         (buffer-title )
+         (marker (third group))
+         (magit-section-hidden-default t))
+    (magit-with-section remote-name nil
+      (magit-set-section-info remote-name)
+      (insert-before-markers (concat "    "
+                                     remote-name " (" remote-url ")"
+                                     "\n"))
+      (magit-wash-branches-between-point-and-marker marker remote-name))))
 
-(defun magit-insert-branch-group (group)
-  (let ((title (car group))
-        (buffer-title (cadr group))
-        (sub-groups (caddr group)))
-    (magit-with-section title nil
-      (insert-before-markers (propertize buffer-title 'face 'magit-section-title) "\n")
-      (mapc 'magit-insert-branch-sub-group sub-groups)))
-  (insert-before-markers "\n"))
+(defun magit-wash-branches-between-point-and-marker (marker &optional remote-name)
+  (save-restriction
+    (narrow-to-region (point) marker)
+    (magit-wash-sequence
+     (if remote-name
+         (apply-partially 'magit-wash-branch-line remote-name)
+       #'magit-wash-branch-line))))
 
 (defun magit-wash-branches ()
          ; get the names of the remotes
@@ -5345,15 +5338,23 @@ name of the remote and branch name. The remote must be known to git."
                   (list (save-excursion
                           (goto-char (point-max))
                           (point-marker)))))
-         ; list of elements to display in the buffer
-         (groups `(("local" "Local branches:" ((nil ,(car markers))))
-                   ("remote" "Remote branches:" ,(loop for remote in remotes
-                                                       for remote-url in remotes-urls
-                                                       for end-marker in (cdr markers)
-                                                       collect (list (list remote remote-url) end-marker))))))
+         ; list of remote elements to display in the buffer
+         (remote-groups (loop for remote in remotes
+                              for remote-url in remotes-urls
+                              for end-marker in (cdr markers)
+                              collect (list remote remote-url end-marker))))
 
     ; actual displaying of information
-    (mapc 'magit-insert-branch-group groups)
+    (magit-with-section "local" nil
+      (insert-before-markers (propertize "Local branches:" 'face 'magit-section-title) "\n")
+      (magit-wash-branches-between-point-and-marker (car markers)))
+
+    (insert-before-markers "\n")
+
+    (magit-with-section "remote" nil
+      (insert-before-markers (propertize "Remote branches:" 'face 'magit-section-title) "\n")
+      (mapc 'magit-wash-remote-branches-group remote-groups))
+
     ; make sure markers point to nil so that they can be garbage collected
     (mapc (lambda (marker)
             (set-marker marker nil))
