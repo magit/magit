@@ -5018,7 +5018,7 @@ With a prefix argument, visit in other window."
      (magit-show-stash info)
      (pop-to-buffer magit-stash-buffer-name))
     ((branch)
-     (magit-checkout (assoc-default 'branch info)))
+     (magit-checkout info))
     ((longer)
      (magit-log-show-more-entries ()))))
 
@@ -5129,7 +5129,7 @@ buffer instead."
 
 (defun magit--branch-name-from-section (branch)
   "Extract the branch name from the specified magit-section of type 'branch"
-  (assoc-default 'branch (magit-section-info branch)))
+  (magit-section-info branch))
 
 (defun magit--branch-name-at-point ()
   "Get the branch name in the line at point."
@@ -5147,11 +5147,12 @@ buffer instead."
 With prefix force the removal even it it hasn't been merged."
   (interactive "P")
   (let* ((branch-section (magit-current-section))
+         (is-remote (magit--is-branch-at-point-remote))
          (args (list "branch"
                      (if force "-D" "-d")
-                     (when (magit--is-branch-section-remote branch-section) "-r")
+                     (when is-remote "-r")
                      (magit-remove-remote (magit--branch-name-from-section branch-section)))))
-    (if (and (magit--is-branch-section-remote branch-section)
+    (if (and is-remote
              (yes-or-no-p "Remove branch in remote repository as well? "))
         (magit-remove-branch-in-remote-repo (magit--branch-name-from-section branch-section))
       (apply 'magit-run-git (remq nil args)))))
@@ -5200,10 +5201,10 @@ name of the remote and branch name. The remote must be known to git."
 
 (defun magit--is-branch-at-point-remote ()
   "Return t if the branch at point is a remote tracking branch"
-  (magit--is-branch-section-remote (magit-current-section)))
+  (magit--is-branch-remote (magit-section-info (magit-current-section))))
 
-(defun magit--is-branch-section-remote (branch)
-  (assoc-default 'remote (magit-section-info branch)))
+(defun magit--is-branch-remote (branch)
+  (string-match-p "^remotes\\/" branch))
 
 (defun magit-wash-branch-line (&optional remote-name)
   (looking-at (concat
@@ -5237,16 +5238,14 @@ name of the remote and branch name. The remote must be known to git."
          (ahead          (match-string 5))
          (behind         (match-string 6))
          (other-ref      (match-string 7))
-         (current (string-match-p "^\\*" current-string))
-         (remote (string-match-p "^remotes\\/" branch)))
+         (current (string-match-p "^\\*" current-string)))
 
     ; the current line is deleted before being reconstructed
     (delete-region (point)
                    (line-beginning-position 2))
 
     (magit-with-section branch 'branch
-      (magit-set-section-info (list (cons 'branch branch)
-                                    (cons 'remote remote)))
+      (magit-set-section-info branch)
       (insert-before-markers
        ; sha1
        (propertize (or sha1
@@ -5258,7 +5257,7 @@ name of the remote and branch name. The remote must be known to git."
            "# "
          "  ")
        ; branch name
-       (apply 'propertize (if remote
+       (apply 'propertize (if (magit--is-branch-remote branch)
                               ; getting rid of substring "remotes/<remote-name>/"
                               ; this represents 9 characters plus the lenght of <remote-name>
                               (substring branch (+ 9 (length remote-name)))
