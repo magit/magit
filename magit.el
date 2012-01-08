@@ -2230,8 +2230,9 @@ Please see the manual for a complete description of Magit.
 \\{magit-mode-map}"
   (kill-all-local-variables)
   (buffer-disable-undo)
-  (setq buffer-read-only t)
-  (setq major-mode 'magit-mode
+  (setq buffer-read-only t
+        truncate-lines t
+        major-mode 'magit-mode
         mode-name "Magit"
         mode-line-process "")
   (add-hook 'pre-command-hook #'magit-remember-point nil t)
