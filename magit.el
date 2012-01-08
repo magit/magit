@@ -3650,6 +3650,8 @@ If the branch is the current one, offers to switch to `master' first.
 
 (defun magit-guess-branch ()
   (magit-section-case (item info)
+    ((branch)
+     (magit-section-info (magit-current-section)))
     ((wazzup commit)
      (magit-section-info (magit-section-parent item)))
     ((commit) (magit-name-rev (substring info 0 magit-sha1-abbrev-length)))
