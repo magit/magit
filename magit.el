@@ -1735,7 +1735,7 @@ TITLE is the displayed title of the section."
 (defvar magit-highlighted-section nil)
 
 (defun magit-highlight-section ()
-  "Highlight current section if it have a type."
+  "Highlight current section if it has a type."
   (let ((section (magit-current-section)))
     (when (not (eq section magit-highlighted-section))
       (setq magit-highlighted-section section)
