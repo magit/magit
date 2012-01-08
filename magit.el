@@ -4821,6 +4821,8 @@ This is only meaningful in wazzup buffers.")
                            'magit-wash-log
                            "log"
                            (format "--max-count=%s" magit-log-cutoff-length)
+                           "--abbrev-commit"
+                           (format "--abbrev=%s" magit-sha1-abbrev-length)
                            "--graph"
                            "--pretty=oneline"
                            (format "%s..%s" head ref)
