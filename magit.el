@@ -5143,39 +5143,29 @@ buffer instead."
   (interactive "P")
   (quit-window kill-buffer (selected-window)))
 
-(defun magit--branch-name-from-section (branch)
-  "Extract the branch name from the specified magit-section of type 'branch"
-  (magit-section-info branch))
-
 (defun magit--branch-name-at-point ()
   "Get the branch name in the line at point."
-  (let ((branch (magit--branch-name-from-section (magit-current-section))))
+  (let ((branch (magit-section-info (magit-current-section))))
     (or branch (error "No branch at point"))))
-
-(defun magit-remove-remote (ref)
-  "Return REF with any remote part removed."
-  (if (string-match "^remotes/" ref)
-      (substring ref 8)
-    ref))
 
 (defun magit-remove-branch (&optional force)
   "Remove the branch in the line at point.
 With prefix force the removal even it it hasn't been merged."
   (interactive "P")
   (let* ((branch-section (magit-current-section))
+         (branch-name (magit-section-info branch-section))
+         (branch-name-no-remote (if (string-match "^remotes/" branch-name)
+                                    (substring branch-name 8)
+                                  branch-name))
          (is-remote (magit--is-branch-at-point-remote))
          (args (list "branch"
                      (if force "-D" "-d")
                      (when is-remote "-r")
-                     (magit-remove-remote (magit--branch-name-from-section branch-section)))))
+                     branch-name-no-remote)))
     (if (and is-remote
              (yes-or-no-p "Remove branch in remote repository as well? "))
-        (magit-remove-branch-in-remote-repo (magit--branch-name-from-section branch-section))
+        (magit-remove-branch-in-remote-repo branch-name)
       (apply 'magit-run-git (remq nil args)))))
-
-(defun magit--remotes ()
-  "Return a list of names for known remotes."
-  (magit-git-lines "remote"))
 
 (defun magit--branches-for-remote-repo (remote)
   "Return a list of remote branch names for REMOTE.
@@ -5194,7 +5184,7 @@ These are the branch names with the remote name stripped."
 If BRANCH-NAME-AT-LOCAL is not given then ask the user for the
 name of the remote and branch name. The remote must be known to git."
   (interactive)
-  (let ((all-remotes (magit--remotes))
+  (let ((all-remotes (magit-git-lines "remote"))
         remote branch)
     (unless all-remotes
       (error "No remote has been  configured"))
