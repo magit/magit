@@ -4354,7 +4354,11 @@ continue it.
                              (if (bolp)
                                  (open-line 1)
                                (newline))
-                             (insert (format "(%s): " fun))))))))))))
+                             (insert (format "(%s): " fun))))))
+                   (t
+                    ;; found entry for file, look for beginning  it
+                    (when (looking-at ":")
+                      (forward-char 2)))))))))
 
 ;;; Tags
 
