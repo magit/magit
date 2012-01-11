@@ -5321,7 +5321,7 @@ name of the remote and branch name. The remote must be known to git."
     (narrow-to-region (point) marker)
     (magit-wash-sequence
      (if remote-name
-         (apply-partially 'magit-wash-branch-line remote-name)
+         (apply 'magit-wash-branch-line remote-name)
        #'magit-wash-branch-line))))
 
 (defun magit-wash-branches ()
