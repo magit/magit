@@ -1227,15 +1227,16 @@ a commit, or any reference to one of those."
   "Read the name of a remote.
 PROMPT is used as the prompt, and defaults to \"Remote\".
 DEF is the default value, and defaults to the value of `magit-get-current-branch'."
-  (let* ((prompt (or prompt "Remote: "))
-         (def (or def (magit-get-current-remote)))
+  (let* ((prompt (or prompt "Remote"))
+         (def (or def (magit-guess-remote)))
          (remotes (magit-git-lines "remote"))
-         (reply (magit-completing-read prompt remotes
+
+         (reply (magit-completing-read (concat prompt ": ") remotes
                                        nil nil nil nil def)))
     (if (string= reply "") nil reply)))
 
 (defun magit-read-remote-branch (remote &optional prompt default)
-  (let* ((prompt (or prompt (format "Remote branch (in %s): " remote)))
+  (let* ((prompt (or prompt (format "Remote branch (in %s)" remote)))
          (branches (delete nil
                            (mapcar
                             (lambda (b)
@@ -1244,7 +1245,7 @@ DEF is the default value, and defaults to the value of `magit-get-current-branch
                                                          remote) b)
                                    (match-string 1 b)))
                             (magit-git-lines "branch" "-r"))))
-         (reply (magit-completing-read prompt branches
+         (reply (magit-completing-read (concat prompt ": ") branches
                                        nil nil nil nil default)))
     (if (string= reply "") nil reply)))
 
@@ -3650,10 +3651,25 @@ If the branch is the current one, offers to switch to `master' first.
 
 (defun magit-guess-branch ()
   (magit-section-case (item info)
+    ((branch)
+     (magit-section-info (magit-current-section)))
     ((wazzup commit)
      (magit-section-info (magit-section-parent item)))
     ((commit) (magit-name-rev (substring info 0 magit-sha1-abbrev-length)))
     ((wazzup) info)))
+
+;;; Remotes
+
+(defun magit-guess-remote ()
+  (magit-section-case (item info)
+    ((branch)
+     (magit-section-info (magit-section-parent item)))
+    (t
+     (let ((info (magit-section-info (magit-current-section)))
+           (remotes (append (magit-git-lines "remote") '("."))))
+       (if  (member info remotes)
+           info
+         (magit-get-current-remote))))))
 
 ;;; Merging
 
@@ -3986,13 +4002,13 @@ typing and automatically refreshes the status buffer."
          (branch-remote (magit-get-remote branch))
          (push-remote (if (or current-prefix-arg
                               (not branch-remote))
-                          (magit-read-remote (format "Push %s to remote: "
+                          (magit-read-remote (format "Push %s to remote"
                                                      branch)
                                              branch-remote)
                         branch-remote))
          (ref-branch (or (and (>= (prefix-numeric-value current-prefix-arg) 16)
                               (magit-read-remote-branch
-                               push-remote (format "Push %s as branch: " branch)))
+                               push-remote (format "Push %s as branch" branch)))
                          (magit-get "branch" branch "merge"))))
     (if (and (not ref-branch)
              (eq magit-set-upstream-on-push 'refuse))
@@ -5018,7 +5034,7 @@ With a prefix argument, visit in other window."
      (magit-show-stash info)
      (pop-to-buffer magit-stash-buffer-name))
     ((branch)
-     (magit-checkout (assoc-default 'branch info)))
+     (magit-checkout info))
     ((longer)
      (magit-log-show-more-entries ()))))
 
@@ -5127,38 +5143,29 @@ buffer instead."
   (interactive "P")
   (quit-window kill-buffer (selected-window)))
 
-(defun magit--branch-name-from-section (branch)
-  "Extract the branch name from the specified magit-section of type 'branch"
-  (assoc-default 'branch (magit-section-info branch)))
-
 (defun magit--branch-name-at-point ()
   "Get the branch name in the line at point."
-  (let ((branch (magit--branch-name-from-section (magit-current-section))))
+  (let ((branch (magit-section-info (magit-current-section))))
     (or branch (error "No branch at point"))))
-
-(defun magit-remove-remote (ref)
-  "Return REF with any remote part removed."
-  (if (string-match "^remotes/" ref)
-      (substring ref 8)
-    ref))
 
 (defun magit-remove-branch (&optional force)
   "Remove the branch in the line at point.
 With prefix force the removal even it it hasn't been merged."
   (interactive "P")
   (let* ((branch-section (magit-current-section))
+         (branch-name (magit-section-info branch-section))
+         (branch-name-no-remote (if (string-match "^remotes/" branch-name)
+                                    (substring branch-name 8)
+                                  branch-name))
+         (is-remote (magit--is-branch-at-point-remote))
          (args (list "branch"
                      (if force "-D" "-d")
-                     (when (magit--is-branch-section-remote branch-section) "-r")
-                     (magit-remove-remote (magit--branch-name-from-section branch-section)))))
-    (if (and (magit--is-branch-section-remote branch-section)
+                     (when is-remote "-r")
+                     branch-name-no-remote)))
+    (if (and is-remote
              (yes-or-no-p "Remove branch in remote repository as well? "))
-        (magit-remove-branch-in-remote-repo (magit--branch-name-from-section branch-section))
+        (magit-remove-branch-in-remote-repo branch-name)
       (apply 'magit-run-git (remq nil args)))))
-
-(defun magit--remotes ()
-  "Return a list of names for known remotes."
-  (magit-git-lines "remote"))
 
 (defun magit--branches-for-remote-repo (remote)
   "Return a list of remote branch names for REMOTE.
@@ -5177,7 +5184,7 @@ These are the branch names with the remote name stripped."
 If BRANCH-NAME-AT-LOCAL is not given then ask the user for the
 name of the remote and branch name. The remote must be known to git."
   (interactive)
-  (let ((all-remotes (magit--remotes))
+  (let ((all-remotes (magit-git-lines "remote"))
         remote branch)
     (unless all-remotes
       (error "No remote has been  configured"))
@@ -5200,10 +5207,10 @@ name of the remote and branch name. The remote must be known to git."
 
 (defun magit--is-branch-at-point-remote ()
   "Return t if the branch at point is a remote tracking branch"
-  (magit--is-branch-section-remote (magit-current-section)))
+  (magit--is-branch-remote (magit-section-info (magit-current-section))))
 
-(defun magit--is-branch-section-remote (branch)
-  (assoc-default 'remote (magit-section-info branch)))
+(defun magit--is-branch-remote (branch)
+  (string-match-p "^remotes\\/" branch))
 
 (defun magit-wash-branch-line (&optional remote-name)
   (looking-at (concat
@@ -5237,16 +5244,14 @@ name of the remote and branch name. The remote must be known to git."
          (ahead          (match-string 5))
          (behind         (match-string 6))
          (other-ref      (match-string 7))
-         (current (string-match-p "^\\*" current-string))
-         (remote (string-match-p "^remotes\\/" branch)))
+         (current (string-match-p "^\\*" current-string)))
 
     ; the current line is deleted before being reconstructed
     (delete-region (point)
                    (line-beginning-position 2))
 
     (magit-with-section branch 'branch
-      (magit-set-section-info (list (cons 'branch branch)
-                                    (cons 'remote remote)))
+      (magit-set-section-info branch)
       (insert-before-markers
        ; sha1
        (propertize (or sha1
@@ -5258,7 +5263,7 @@ name of the remote and branch name. The remote must be known to git."
            "# "
          "  ")
        ; branch name
-       (apply 'propertize (if remote
+       (apply 'propertize (if (magit--is-branch-remote branch)
                               ; getting rid of substring "remotes/<remote-name>/"
                               ; this represents 9 characters plus the lenght of <remote-name>
                               (substring branch (+ 9 (length remote-name)))
@@ -5302,39 +5307,26 @@ name of the remote and branch name. The remote must be known to git."
          "")
        "\n"))))
 
-(defun magit-insert-branch-sub-group (sub-group)
-  (let* ((remote (first sub-group))
-         (remote-name (if remote (first remote)))
-         (remote-url (if remote (second remote)))
-         (title (if remote (concat remote-name " (" remote-url ")")))
-         (end-marker (second sub-group)))
-    (if title
-        (let ((magit-section-hidden-default t))
-          (magit-with-section title nil
-            (insert-before-markers (concat "    "
-                                           title
-                                           "\n"))
-            (save-restriction
-              (narrow-to-region (point) end-marker)
-              (magit-wash-sequence (apply-partially 'magit-wash-branch-line remote-name)))))
-      (save-restriction
-        (narrow-to-region (point) end-marker)
-        (magit-wash-sequence #'magit-wash-branch-line)))))
+(defun magit-wash-remote-branches-group (group)
+  (let* ((remote-name (first group))
+         (marker (second group)))
+    (magit-with-section (concat "remote:" remote-name) nil
+      (insert-before-markers (propertize (concat remote-name ":") 'face 'magit-section-title) "\n")
+      (magit-set-section-info remote-name)
+      (magit-wash-branches-between-point-and-marker marker remote-name))
+    (insert-before-markers "\n")))
 
-(defun magit-insert-branch-group (group)
-  (let ((title (car group))
-        (buffer-title (cadr group))
-        (sub-groups (caddr group)))
-    (magit-with-section title nil
-      (insert-before-markers (propertize buffer-title 'face 'magit-section-title) "\n")
-      (mapc 'magit-insert-branch-sub-group sub-groups)))
-  (insert-before-markers "\n"))
+(defun magit-wash-branches-between-point-and-marker (marker &optional remote-name)
+  (save-restriction
+    (narrow-to-region (point) marker)
+    (magit-wash-sequence
+     (if remote-name
+         (apply-partially 'magit-wash-branch-line remote-name)
+       #'magit-wash-branch-line))))
 
 (defun magit-wash-branches ()
          ; get the names of the remotes
   (let* ((remotes (magit-git-lines "remote"))
-         (remotes-urls (mapcar (lambda (remote)
-                                 (magit-get "remote" remote "url")) remotes))
          ; get the location of remotes in the buffer
          (markers
           (append (mapcar (lambda (remote)
@@ -5346,15 +5338,21 @@ name of the remote and branch name. The remote must be known to git."
                   (list (save-excursion
                           (goto-char (point-max))
                           (point-marker)))))
-         ; list of elements to display in the buffer
-         (groups `(("local" "Local branches:" ((nil ,(car markers))))
-                   ("remote" "Remote branches:" ,(loop for remote in remotes
-                                                       for remote-url in remotes-urls
-                                                       for end-marker in (cdr markers)
-                                                       collect (list (list remote remote-url) end-marker))))))
+         ; list of remote elements to display in the buffer
+         (remote-groups (loop for remote in remotes
+                              for end-marker in (cdr markers)
+                              collect (list remote end-marker))))
 
     ; actual displaying of information
-    (mapc 'magit-insert-branch-group groups)
+    (magit-with-section "local" nil
+      (insert-before-markers (propertize "Local:" 'face 'magit-section-title) "\n")
+      (magit-set-section-info ".")
+      (magit-wash-branches-between-point-and-marker (car markers)))
+
+    (insert-before-markers "\n")
+
+    (mapc 'magit-wash-remote-branches-group remote-groups)
+
     ; make sure markers point to nil so that they can be garbage collected
     (mapc (lambda (marker)
             (set-marker marker nil))
