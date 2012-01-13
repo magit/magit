@@ -4165,7 +4165,11 @@ environment (potentially empty)."
          (tag-options (cdr (assq 'tag-options fields))))
     (if (or (not (or allow-empty commit-all amend tag-name (magit-anything-staged-p)))
             (not (or allow-empty (not commit-all) amend (not (magit-everything-clean-p)))))
-        (error "Refusing to create empty commit. Maybe you want to amend or allow-empty?"))
+        (error "Refusing to create empty commit. Maybe you want to amend (%s) or allow-empty (%s)?"
+               (key-description (car (where-is-internal
+                                      'magit-log-edit-toggle-amending)))
+               (key-description (car (where-is-internal
+                                      'magit-log-edit-toggle-allow-empty)))))
     (magit-log-edit-push-to-comment-ring (buffer-string))
     (magit-log-edit-setup-author-env author)
     (magit-log-edit-set-fields nil)
