@@ -3959,12 +3959,15 @@ If there is no default remote, ask for one."
         (magit-process-popup-time 0))
     (magit-run* args nil nil nil t)))
 
+(defvar magit-git-command-history nil)
+
 (defun magit-git-command (command)
   "Perform arbitrary Git COMMAND.
 
 Similar to `magit-shell-command', but involves slightly less
 typing and automatically refreshes the status buffer."
-  (interactive "sRun git like this: ")
+  (interactive
+   (list (read-string "Run git like this: " nil 'magit-git-command-history)))
   (require 'pcomplete)
   (let ((args (magit-parse-arguments command))
         (magit-process-popup-time 0))
