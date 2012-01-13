@@ -4250,12 +4250,13 @@ This means that the eventual commit does 'git commit --allow-empty'."
     (magit-log-edit-mode)
     (message "Type C-c C-c to %s (C-c C-k to cancel)." operation)))
 
-(defun magit-log-edit (&optional force)
-  "Brings up a buffer to allow editing of commit messages. Giving
-a prefix arg will force a commit, allowing to amend a previous
-commit or create an empty one, depending on the flags user sets.
+(defun magit-log-edit (&optional arg)
+  "Brings up a buffer to allow editing of commit messages.
 
-If there is a rebase in progress offer the user the option to
+Giving a simple prefix arg will amend a previous commit, while
+a double prefix arg will allow creating an empty one.
+
+If there is a rebase in progress, offer the user the option to
 continue it.
 
 \\{magit-log-edit-mode-map}"
@@ -4272,8 +4273,10 @@ continue it.
     ;; If there's nothing staged, set commit flag to `nil', thus
     ;; avoiding unnescessary popping up of the log edit buffer in case
     ;; when user chose to forgo commiting all unstaged changes
-    (let ((perform-commit-p (or force
-                                (magit-anything-staged-p))))
+    (let ((perform-commit-p (or arg
+                                (magit-anything-staged-p)))
+          (amend-p (= (prefix-numeric-value arg) 4))
+          (empty-p (= (prefix-numeric-value arg) 16)))
       (when (and magit-commit-all-when-nothing-staged
                  (not (magit-everything-clean-p))
                  (not (magit-anything-staged-p)))
@@ -4288,6 +4291,10 @@ continue it.
                  (magit-log-edit-set-field 'commit-all "yes")
                  (setq perform-commit-p t)))))
       (when perform-commit-p
+        (when amend-p
+          (magit-log-edit-toggle-amending))
+        (when empty-p
+          (magit-log-edit-toggle-allow-empty))
         (magit-pop-to-log-edit "commit")))))
 
 (defun magit-add-log ()
