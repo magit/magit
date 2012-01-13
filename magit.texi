@@ -283,6 +283,10 @@ changes in the region are staged or unstaged.  (This works line by
 line: if the beginning of a line is in the region it is included in
 the changes, otherwise it is not.)
 
+To change the size of the hunks, you can type @kbd{+} or @kbd{-} to
+increase and decrease, respectively.  Typing @kbd{0} will
+reset the hunk size to the default.
+
 Typing @kbd{C-u s} will ask you for a name of a file to be staged, for
 example to stage files that are hidden.
 
