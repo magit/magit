@@ -4273,29 +4273,24 @@ continue it.
     ;; If there's nothing staged, set commit flag to `nil', thus
     ;; avoiding unnescessary popping up of the log edit buffer in case
     ;; when user chose to forgo commiting all unstaged changes
-    (let ((perform-commit-p (or arg
-                                (magit-anything-staged-p)))
-          (amend-p (= (prefix-numeric-value arg) 4))
+    (let ((amend-p (= (prefix-numeric-value arg) 4))
           (empty-p (= (prefix-numeric-value arg) 16)))
       (when (and magit-commit-all-when-nothing-staged
                  (not (magit-everything-clean-p))
                  (not (magit-anything-staged-p)))
         (cond ((eq magit-commit-all-when-nothing-staged 'ask-stage)
                (when (y-or-n-p "Nothing staged.  Stage everything now? ")
-                 (setq perform-commit-p t)
                  (magit-stage-all)))
               ((not (magit-log-edit-get-field 'commit-all))
                (when (or (eq magit-commit-all-when-nothing-staged t)
                          (y-or-n-p
                           "Nothing staged.  Commit all unstaged changes? "))
-                 (magit-log-edit-set-field 'commit-all "yes")
-                 (setq perform-commit-p t)))))
-      (when perform-commit-p
-        (when amend-p
-          (magit-log-edit-toggle-amending))
-        (when empty-p
-          (magit-log-edit-toggle-allow-empty))
-        (magit-pop-to-log-edit "commit")))))
+                 (magit-log-edit-set-field 'commit-all "yes")))))
+      (when amend-p
+        (magit-log-edit-toggle-amending))
+      (when empty-p
+        (magit-log-edit-toggle-allow-empty))
+      (magit-pop-to-log-edit "commit"))))
 
 (defun magit-add-log ()
   (interactive)
