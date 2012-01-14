@@ -88,6 +88,14 @@
       ("k" "Delete" magit-delete-branch)
       ("b" "Checkout" magit-checkout)))
 
+    (remoting
+     (man-page "git-remote")
+     (actions
+      ("v" "Branch manager" magit-branch-manager)
+      ("a" "Add" magit-add-remote)
+      ("m" "Move" magit-rename-remote)
+      ("k" "Remove" magit-remove-remote)))
+
     (tagging
      (man-page "git-tag")
      (actions

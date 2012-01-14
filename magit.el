@@ -574,6 +574,7 @@ Do not customize this (used in the `magit-key-mode' implementation).")
     (define-key map (kbd "P") 'magit-key-mode-popup-pushing)
     (define-key map (kbd "f") 'magit-key-mode-popup-fetching)
     (define-key map (kbd "b") 'magit-key-mode-popup-branching)
+    (define-key map (kbd "C-u b") 'magit-key-mode-popup-remoting)
     (define-key map (kbd "B") 'magit-key-mode-popup-bisecting)
     (define-key map (kbd "F") 'magit-key-mode-popup-pulling)
     (define-key map (kbd "l") 'magit-key-mode-popup-logging)
@@ -635,6 +636,7 @@ Do not customize this (used in the `magit-key-mode' implementation).")
 (defvar magit-branch-manager-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "c") 'magit-create-branch)
+    (define-key map (kbd "a") 'magit-add-remote)
     (define-key map (kbd "m") 'magit-move-item)
     (define-key map (kbd "k") 'magit-discard-item)
     (define-key map (kbd "T") 'magit-change-what-branch-tracks)
@@ -3664,6 +3666,26 @@ With prefix, forces the move even if NEW already exists.
     ((wazzup) info)))
 
 ;;; Remotes
+
+(defun magit-add-remote (remote url)
+  "Adds a remote and fetches it.
+\('git remote add REMOTE URL')."
+  (interactive (list (read-string "Add remote: ")
+                     (read-string "URL: ")))
+  (magit-run-git "remote" "add" "-f" remote url))
+
+(defun magit-remove-remote (remote)
+  "Deletes a remote.
+\('git remote rm REMOTE')."
+  (interactive (list (magit-read-remote "Remote to delete")))
+  (magit-run-git "remote" "rm" remote))
+
+(defun magit-rename-remote (old new)
+  "Renames a remote.
+\('git remote rename OLD NEW')."
+  (interactive (list (magit-read-remote "Old name")
+                     (read-string "New name: ")))
+  (magit-run-git "remote" "rename" old new))
 
 (defun magit-guess-remote ()
   (magit-section-case (item info)
