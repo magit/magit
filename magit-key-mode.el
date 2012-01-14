@@ -85,8 +85,7 @@
       ("v" "Branch manager" magit-branch-manager)
       ("n" "New" magit-create-branch)
       ("m" "Move" magit-move-branch)
-      ("d" "Delete" magit-delete-branch)
-      ("D" "Force Delete" magit-delete-branch-forced)
+      ("k" "Delete" magit-delete-branch)
       ("b" "Checkout" magit-checkout)))
 
     (tagging
