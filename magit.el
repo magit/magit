@@ -490,6 +490,18 @@ Many Magit faces inherit from this one by default."
   "Face for Stacked Git patches."
   :group 'magit-faces)
 
+(defface magit-log-head-label-wip
+  '((((class color) (background light))
+     :box t
+     :background "Grey95"
+     :foreground "LightSkyBlue3")
+    (((class color) (background dark))
+     :box t
+     :background "Grey07"
+     :foreground "LightSkyBlue4"))
+  "Face for git-wip labels shown in log buffer."
+  :group 'magit-faces)
+
 (defface magit-whitespace-warning-face
   '((t :inherit trailing-whitespace))
   "Face for highlighting whitespace errors in Magit diffs."
@@ -2942,12 +2954,17 @@ must return a string which will represent the log line.")
     'magit-log-remotes-color-hook suffix)
    (list suffix 'magit-log-head-label-remote)))
 
+(defun magit-log-get-wip-color (suffix)
+  (list (concat "(WIP) " suffix)
+        'magit-log-head-label-wip))
+
 (defvar magit-refs-namespaces
   '(("tags" . magit-log-head-label-tags)
     ("remotes" magit-log-get-remotes-color)
     ("heads" . magit-log-head-label-local)
     ("patches" magit-log-get-patches-color)
-    ("bisect" magit-log-get-bisect-state-color)))
+    ("bisect" magit-log-get-bisect-state-color)
+    ("wip" magit-log-get-wip-color)))
 
 (defun magit-ref-get-label-color (r)
   (let* ((ref-re "\\(?:tag: \\)?refs/\\(?:\\([^/]+\\)/\\)?\\(.+\\)")
