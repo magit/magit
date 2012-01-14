@@ -5326,10 +5326,16 @@ These are the branch names with the remote name stripped."
 
 (defun magit-wash-remote-branches-group (group)
   (let* ((remote-name (first group))
+         (url (magit-get "remote" remote-name "url"))
+         (push-url (magit-get "remote" remote-name "pushurl"))
+         (urls (concat url (if push-url
+                               (concat ", "push-url)
+                             "")))
          (marker (second group)))
+
     (magit-with-section (concat "remote:" remote-name) 'remote
-      (insert-before-markers (propertize (concat remote-name ":") 'face 'magit-section-title) "\n")
       (magit-set-section-info remote-name)
+      (insert-before-markers (propertize (format "%s (%s):" remote-name urls) 'face 'magit-section-title) "\n")
       (magit-wash-branches-between-point-and-marker marker remote-name))
     (insert-before-markers "\n")))
 
