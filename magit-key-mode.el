@@ -83,7 +83,7 @@
      (man-page "git-branch")
      (actions
       ("v" "Branch manager" magit-branch-manager)
-      ("n" "New" magit-create-branch)
+      ("c" "Create" magit-create-branch)
       ("m" "Move" magit-move-branch)
       ("k" "Delete" magit-delete-branch)
       ("b" "Checkout" magit-checkout)))

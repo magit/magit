@@ -634,6 +634,8 @@ Do not customize this (used in the `magit-key-mode' implementation).")
 
 (defvar magit-branch-manager-mode-map
   (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "c") 'magit-create-branch)
+    (define-key map (kbd "m") 'magit-move-item)
     (define-key map (kbd "k") 'magit-discard-item)
     (define-key map (kbd "T") 'magit-change-what-branch-tracks)
     map))
@@ -3640,12 +3642,17 @@ Works with local or remote branches.
      (t
             (apply 'magit-run-git args)))))
 
-(defun magit-move-branch (old new)
+(defun magit-move-branch (old new &optional force)
   "Renames or moves a branch.
-\('git branch -m OLD NEW')."
+With prefix, forces the move even if NEW already exists.
+\('git branch [-m|-M] OLD NEW')."
   (interactive (list (magit-read-rev "Old name" (magit-default-rev))
-                     (read-string "New name: ")))
-  (magit-run-git "branch" "-m" (magit-rev-to-git old) new))
+                     (read-string "New name: ")
+                     current-prefix-arg))
+  (magit-run-git "branch" (if force
+                              "-M"
+                            "-m")
+                 (magit-rev-to-git old) new))
 
 (defun magit-guess-branch ()
   (magit-section-case (item info)
@@ -4988,8 +4995,13 @@ This is only meaningful in wazzup buffers.")
        (magit-run-git "stash" "drop" info)))
     ((branch)
      (when (yes-or-no-p "Delete branch? ")
-       (funcall 'magit-delete-branch info current-prefix-arg)))))
+       (magit-delete-branch info current-prefix-arg)))))
 
+(defun magit-move-item ()
+  (interactive)
+  (magit-section-action (item info "move")
+    ((branch)
+     (call-interactively 'magit-move-branch))))
 
 (defun magit-add-change-log-entry (&optional whoami file-name other-window
                                              new-entry put-new-entry-on-new-line)
