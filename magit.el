@@ -3983,7 +3983,7 @@ typing and automatically refreshes the status buffer."
       (let ((set-upstream-on-push (and (not ref-branch)
                                        (or (eq magit-set-upstream-on-push 'dontask)
                                            (and (eq magit-set-upstream-on-push t)
-                                                (yes-or-no-p "Set upstream while pushing?"))))))
+                                                (yes-or-no-p "Set upstream while pushing? "))))))
         (if (and (not branch-remote)
                  (not current-prefix-arg))
             (magit-set push-remote "branch" branch "remote"))
