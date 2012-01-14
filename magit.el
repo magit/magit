@@ -3669,12 +3669,12 @@ With prefix, forces the move even if NEW already exists.
   (magit-section-case (item info)
     ((branch)
      (magit-section-info (magit-section-parent item)))
+    ((remote)
+     info)
     (t
-     (let ((info (magit-section-info (magit-current-section)))
-           (remotes (append (magit-git-lines "remote") '("."))))
-       (if  (member info remotes)
-           info
-         (magit-get-current-remote))))))
+     (if  (string= info ".")
+         info
+       (magit-get-current-remote)))))
 
 ;;; Merging
 
@@ -4995,7 +4995,10 @@ This is only meaningful in wazzup buffers.")
        (magit-run-git "stash" "drop" info)))
     ((branch)
      (when (yes-or-no-p "Delete branch? ")
-       (magit-delete-branch info current-prefix-arg)))))
+       (magit-delete-branch info current-prefix-arg)))
+    ((remote)
+     (when (yes-or-no-p "Remove remote? ")
+       (magit-remove-remote info)))))
 
 (defun magit-move-item ()
   (interactive)
