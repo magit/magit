@@ -634,8 +634,7 @@ Do not customize this (used in the `magit-key-mode' implementation).")
 
 (defvar magit-branch-manager-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "k") 'magit-remove-branch)
-    (define-key map (kbd "K") 'magit-remove-branch-in-remote-repo)
+    (define-key map (kbd "k") 'magit-discard-item)
     (define-key map (kbd "T") 'magit-change-what-branch-tracks)
     map))
 
@@ -3616,31 +3615,30 @@ Fails if working tree or staging area contain uncommitted changes.
                     (magit-rev-to-git parent)))
     (magit-update-vc-modeline default-directory)))
 
-(defun magit-delete-branch (branch)
-  "Asks for a branch and deletes it.
+(defun magit-delete-branch (branch &optional force)
+  "Deletes a branch.
 If the branch is the current one, offers to switch to `master' first.
-\('git branch -d BRANCH')."
-  (interactive (list (magit-read-rev "Branch to delete" (magit-default-rev))))
-  (when (and branch (string= branch (magit-get-current-branch)))
-    (if (y-or-n-p "Cannot delete current branch. Switch to master first? ")
-        (magit-checkout "master")
-      (setq branch nil)))
-  (when branch
-    (magit-run-git "branch" "-d" (append magit-custom-options
-                                         (magit-rev-to-git branch)))))
-
-(defun magit-delete-branch-forced (branch)
-  "Asks for a branch and deletes it, irrespective of its merged status.
-If the branch is the current one, offers to switch to `master' first.
-\('git branch -D BRANCH')."
-  (interactive (list (magit-read-rev "Branch to force delete" (magit-default-rev))))
-  (when (and branch (string= branch (magit-get-current-branch)))
-    (if (y-or-n-p "Cannot delete current branch. Switch to master first? ")
-        (magit-checkout "master")
-      (setq branch nil)))
-  (when branch
-    (magit-run-git "branch" "-D" (append magit-custom-options
-                                         (magit-rev-to-git branch)))))
+With prefix, forces the removal even if it hasn't been merged.
+Works with local or remote branches.
+\('git branch [-d|-D] BRANCH' or 'git push <remote-part-of-BRANCH> :refs/heads/BRANCH')."
+  (interactive (list (magit-read-rev "Branch to delete" (magit-default-rev))
+                     current-prefix-arg))
+  (let* ((remote (magit-remote-part-of-branch branch))
+         (is-current (string= branch (magit-get-current-branch)))
+         (args (list "branch"
+                     (if force "-D" "-d")
+                     branch)))
+    (cond
+     (remote
+      (magit-run-git "push" remote (concat ":refs/heads/" (magit-branch-no-remote branch))))
+     (is-current
+      (when (y-or-n-p "Cannot delete current branch. Switch to master first? ")
+          (progn
+            (magit-checkout "master")
+            (apply 'magit-run-git args))
+          (message "The current branch was not deleted.")))
+     (t
+            (apply 'magit-run-git args)))))
 
 (defun magit-move-branch (old new)
   "Renames or moves a branch.
@@ -4987,7 +4985,11 @@ This is only meaningful in wazzup buffers.")
      (error "Can't discard this diff"))
     ((stash)
      (when (yes-or-no-p "Discard stash? ")
-       (magit-run-git "stash" "drop" info)))))
+       (magit-run-git "stash" "drop" info)))
+    ((branch)
+     (when (yes-or-no-p "Delete branch? ")
+       (funcall 'magit-delete-branch info current-prefix-arg)))))
+
 
 (defun magit-add-change-log-entry (&optional whoami file-name other-window
                                              new-entry put-new-entry-on-new-line)
@@ -5164,25 +5166,6 @@ buffer instead."
   (let ((branch (magit-section-info (magit-current-section))))
     (or branch (error "No branch at point"))))
 
-(defun magit-remove-branch (&optional force)
-  "Remove the branch in the line at point.
-With prefix force the removal even it it hasn't been merged."
-  (interactive "P")
-  (let* ((branch-section (magit-current-section))
-         (branch-name (magit-section-info branch-section))
-         (branch-name-no-remote (if (string-match "^remotes/" branch-name)
-                                    (substring branch-name 8)
-                                  branch-name))
-         (is-remote (magit--is-branch-at-point-remote))
-         (args (list "branch"
-                     (if force "-D" "-d")
-                     (when is-remote "-r")
-                     branch-name-no-remote)))
-    (if (and is-remote
-             (yes-or-no-p "Remove branch in remote repository as well? "))
-        (magit-remove-branch-in-remote-repo branch-name)
-      (apply 'magit-run-git (remq nil args)))))
-
 (defun magit--branches-for-remote-repo (remote)
   "Return a list of remote branch names for REMOTE.
 These are the branch names with the remote name stripped."
@@ -5195,38 +5178,23 @@ These are the branch names with the remote name stripped."
                         (match-string 1 line))))
                 (magit-git-lines "branch" "-r"))))
 
-(defun magit-remove-branch-in-remote-repo (&optional branch-name-at-local)
-  "Remove a branch in a remote repository by pushing nothing into it.
-If BRANCH-NAME-AT-LOCAL is not given then ask the user for the
-name of the remote and branch name. The remote must be known to git."
-  (interactive)
-  (let ((all-remotes (magit-git-lines "remote"))
-        remote branch)
-    (unless all-remotes
-      (error "No remote has been  configured"))
-    (if branch-name-at-local
-        (save-match-data
-          (if (string-match "^remotes/\\([^/]+\\)/\\(.+\\)" branch-name-at-local)
-              (setq remote (match-string 1 branch-name-at-local)
-                    branch (match-string 2 branch-name-at-local))
-            (error "Cannot parse remote and branch name from `%s'" branch-name-at-local)))
-      (setq remote (magit-completing-read "Name of remote repository: " all-remotes nil t)
-            branch (magit-completing-read "Name of branch in remote repository: "
-                                          (magit--branches-for-remote-repo remote))))
-    (unless (magit-get "remote" remote "url")
-      (error "Unknown remote"))
-    (magit-run-git "push"
-                   remote
-                   (concat ":refs/heads/" branch))))
-
 (defvar magit-branches-buffer-name "*magit-branches*")
 
 (defun magit--is-branch-at-point-remote ()
   "Return t if the branch at point is a remote tracking branch"
-  (magit--is-branch-remote (magit-section-info (magit-current-section))))
+  (magit-remote-part-of-branch (magit-section-info (magit-current-section))))
 
-(defun magit--is-branch-remote (branch)
-  (string-match-p "^remotes\\/" branch))
+(defun magit-remote-part-of-branch (branch)
+  (when (string-match-p "^remotes\\/" branch)
+    (loop for remote in (magit-git-lines "remote")
+          until (string-match-p (format "^remotes\\/%s\\/" remote) branch)
+          finally return remote)))
+
+(defun magit-branch-no-remote (branch)
+  (let ((remote (magit-remote-part-of-branch branch)))
+    (if remote
+        (substring branch (+ 9 (length remote)))
+      branch)))
 
 (defun magit-wash-branch-line (&optional remote-name)
   (looking-at (concat
@@ -5279,11 +5247,7 @@ name of the remote and branch name. The remote must be known to git."
            "# "
          "  ")
        ; branch name
-       (apply 'propertize (if (magit--is-branch-remote branch)
-                              ; getting rid of substring "remotes/<remote-name>/"
-                              ; this represents 9 characters plus the lenght of <remote-name>
-                              (substring branch (+ 9 (length remote-name)))
-                                   branch)
+       (apply 'propertize (magit-branch-no-remote branch)
               (if current
                   '(face magit-branch)))
        ; other ref that this branch is pointing to
