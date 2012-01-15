@@ -563,6 +563,7 @@ Do not customize this (used in the `magit-key-mode' implementation).")
     (define-key map (kbd "?") 'magit-describe-item)
     (define-key map (kbd "!") 'magit-key-mode-popup-running)
     (define-key map (kbd ":") 'magit-git-command)
+    (define-key map (kbd "C-x 4 a") 'magit-add-change-log-entry-other-window)
     (define-key map (kbd "L") 'magit-add-change-log-entry)
     (define-key map (kbd "RET") 'magit-visit-item)
     (define-key map (kbd "SPC") 'magit-show-item-or-scroll-up)
@@ -4988,6 +4989,10 @@ The name of the change log file is set by variable change-log-default-name."
           (with-current-buffer (marker-buffer marker)
             (goto-char marker)
             (add-change-log-entry nil nil other-window)))))
+
+(defun magit-add-change-log-entry-other-window ()
+  (interactive)
+  (magit-add-change-log-entry t))
 
 (defun magit-visit-item (&optional other-window)
   "Visit current item.
