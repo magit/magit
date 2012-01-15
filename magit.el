@@ -5002,7 +5002,7 @@ This is only meaningful in wazzup buffers.")
 (defun magit-visit-item (&optional other-window)
   "Visit current item.
 With a prefix argument, visit in other window."
-  (interactive (list current-prefix-arg))
+  (interactive "P")
   (magit-section-action (item info "visit")
     ((untracked file)
      (funcall
