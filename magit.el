@@ -574,6 +574,7 @@ Do not customize this (used in the `magit-key-mode' implementation).")
     (define-key map (kbd "P") 'magit-key-mode-popup-pushing)
     (define-key map (kbd "f") 'magit-key-mode-popup-fetching)
     (define-key map (kbd "b") 'magit-key-mode-popup-branching)
+    (define-key map (kbd "M") 'magit-key-mode-popup-remoting)
     (define-key map (kbd "B") 'magit-key-mode-popup-bisecting)
     (define-key map (kbd "F") 'magit-key-mode-popup-pulling)
     (define-key map (kbd "l") 'magit-key-mode-popup-logging)
@@ -634,6 +635,9 @@ Do not customize this (used in the `magit-key-mode' implementation).")
 
 (defvar magit-branch-manager-mode-map
   (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "c") 'magit-create-branch)
+    (define-key map (kbd "a") 'magit-add-remote)
+    (define-key map (kbd "m") 'magit-move-item)
     (define-key map (kbd "k") 'magit-discard-item)
     (define-key map (kbd "T") 'magit-change-what-branch-tracks)
     map))
@@ -3640,12 +3644,17 @@ Works with local or remote branches.
      (t
             (apply 'magit-run-git args)))))
 
-(defun magit-move-branch (old new)
+(defun magit-move-branch (old new &optional force)
   "Renames or moves a branch.
-\('git branch -m OLD NEW')."
+With prefix, forces the move even if NEW already exists.
+\('git branch [-m|-M] OLD NEW')."
   (interactive (list (magit-read-rev "Old name" (magit-default-rev))
-                     (read-string "New name: ")))
-  (magit-run-git "branch" "-m" (magit-rev-to-git old) new))
+                     (read-string "New name: ")
+                     current-prefix-arg))
+  (magit-run-git "branch" (if force
+                              "-M"
+                            "-m")
+                 (magit-rev-to-git old) new))
 
 (defun magit-guess-branch ()
   (magit-section-case (item info)
@@ -3658,16 +3667,36 @@ Works with local or remote branches.
 
 ;;; Remotes
 
+(defun magit-add-remote (remote url)
+  "Adds a remote and fetches it.
+\('git remote add REMOTE URL')."
+  (interactive (list (read-string "Add remote: ")
+                     (read-string "URL: ")))
+  (magit-run-git "remote" "add" "-f" remote url))
+
+(defun magit-remove-remote (remote)
+  "Deletes a remote.
+\('git remote rm REMOTE')."
+  (interactive (list (magit-read-remote "Remote to delete")))
+  (magit-run-git "remote" "rm" remote))
+
+(defun magit-rename-remote (old new)
+  "Renames a remote.
+\('git remote rename OLD NEW')."
+  (interactive (list (magit-read-remote "Old name")
+                     (read-string "New name: ")))
+  (magit-run-git "remote" "rename" old new))
+
 (defun magit-guess-remote ()
   (magit-section-case (item info)
     ((branch)
      (magit-section-info (magit-section-parent item)))
+    ((remote)
+     info)
     (t
-     (let ((info (magit-section-info (magit-current-section)))
-           (remotes (append (magit-git-lines "remote") '("."))))
-       (if  (member info remotes)
-           info
-         (magit-get-current-remote))))))
+     (if  (string= info ".")
+         info
+       (magit-get-current-remote)))))
 
 ;;; Merging
 
@@ -4988,8 +5017,16 @@ This is only meaningful in wazzup buffers.")
        (magit-run-git "stash" "drop" info)))
     ((branch)
      (when (yes-or-no-p "Delete branch? ")
-       (funcall 'magit-delete-branch info current-prefix-arg)))))
+       (magit-delete-branch info current-prefix-arg)))
+    ((remote)
+     (when (yes-or-no-p "Remove remote? ")
+       (magit-remove-remote info)))))
 
+(defun magit-move-item ()
+  (interactive)
+  (magit-section-action (item info "move")
+    ((branch)
+     (call-interactively 'magit-move-branch))))
 
 (defun magit-add-change-log-entry (&optional whoami file-name other-window
                                              new-entry put-new-entry-on-new-line)
@@ -5289,10 +5326,16 @@ These are the branch names with the remote name stripped."
 
 (defun magit-wash-remote-branches-group (group)
   (let* ((remote-name (first group))
+         (url (magit-get "remote" remote-name "url"))
+         (push-url (magit-get "remote" remote-name "pushurl"))
+         (urls (concat url (if push-url
+                               (concat ", "push-url)
+                             "")))
          (marker (second group)))
-    (magit-with-section (concat "remote:" remote-name) nil
-      (insert-before-markers (propertize (concat remote-name ":") 'face 'magit-section-title) "\n")
+
+    (magit-with-section (concat "remote:" remote-name) 'remote
       (magit-set-section-info remote-name)
+      (insert-before-markers (propertize (format "%s (%s):" remote-name urls) 'face 'magit-section-title) "\n")
       (magit-wash-branches-between-point-and-marker marker remote-name))
     (insert-before-markers "\n")))
 
