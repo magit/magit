@@ -84,7 +84,7 @@
      (actions
       ("v" "Branch manager" magit-branch-manager)
       ("c" "Create" magit-create-branch)
-      ("m" "Move" magit-move-branch)
+      ("r" "Rename" magit-move-branch)
       ("k" "Delete" magit-delete-branch)
       ("b" "Checkout" magit-checkout)))
 
@@ -93,7 +93,7 @@
      (actions
       ("v" "Branch manager" magit-branch-manager)
       ("a" "Add" magit-add-remote)
-      ("m" "Move" magit-rename-remote)
+      ("r" "Rename" magit-rename-remote)
       ("k" "Remove" magit-remove-remote)))
 
     (tagging
