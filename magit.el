@@ -1798,7 +1798,7 @@ where SECTION-TYPE describe section where BODY will be run.
 
 This returns non-nil if some section matches. If the
 corresponding body return a non-nil value, it is returned,
-otherwise it roturn t.
+otherwise it returns t.
 
 If no section matches, this returns nil if no OPNAME was given
 and throws an error otherwise."
