@@ -567,6 +567,7 @@ Do not customize this (used in the `magit-key-mode' implementation).")
     (define-key map (kbd "!") 'magit-key-mode-popup-running)
     (define-key map (kbd ":") 'magit-git-command)
     (define-key map (kbd "C-x 4 a") 'magit-add-change-log-entry-other-window)
+    (define-key map (kbd "L") 'magit-add-change-log-entry)
     (define-key map (kbd "RET") 'magit-visit-item)
     (define-key map (kbd "SPC") 'magit-show-item-or-scroll-up)
     (define-key map (kbd "DEL") 'magit-show-item-or-scroll-down)
@@ -1830,7 +1831,7 @@ where SECTION-TYPE describe section where BODY will be run.
 
 This returns non-nil if some section matches. If the
 corresponding body return a non-nil value, it is returned,
-otherwise it roturn t.
+otherwise it returns t.
 
 If no section matches, this returns nil if no OPNAME was given
 and throws an error otherwise."
@@ -5079,36 +5080,30 @@ This is only meaningful in wazzup buffers.")
     ((branch)
      (call-interactively 'magit-move-branch))))
 
-(defun magit-add-change-log-entry (&optional whoami file-name other-window
-                                             new-entry put-new-entry-on-new-line)
-  "Add a change log entry for current change."
-  (interactive (list current-prefix-arg
-                     (prompt-for-change-log-name)))
-  (let ((marker
+(defun magit-add-change-log-entry (&optional other-window)
+  "Add a change log entry for current change.
+With a prefix argument, edit in other window.
+The name of the change log file is set by variable change-log-default-name."
+  (interactive "P")
+  (let ((add-log-full-name (magit-get "user" "name"))
+        (add-log-mailing-address (magit-get "user" "email"))
+        (marker
          (save-window-excursion
            (magit-visit-item)
            (set-marker (make-marker) (point)))))
-    (save-excursion
-      (with-current-buffer (marker-buffer marker)
-        (goto-char marker)
-        (if (>= (magit-max-args-internal 'add-change-log-entry) 5)
-            (add-change-log-entry whoami file-name other-window
-                                  new-entry put-new-entry-on-new-line)
-          (add-change-log-entry whoami file-name other-window new-entry)
-          (if put-new-entry-on-new-line
-              (display-warning 'magit (format "Emacs %s does not support `put-new-entry-on-new-line' option to `add-change-log-entry'" emacs-version))))))))
+        (save-excursion
+          (with-current-buffer (marker-buffer marker)
+            (goto-char marker)
+            (add-change-log-entry nil nil other-window)))))
 
-(defun magit-add-change-log-entry-other-window (&optional whoami file-name)
-  "Add a change log entry for current change in other window."
-  (interactive (if current-prefix-arg
-                   (list current-prefix-arg
-                         (prompt-for-change-log-name))))
-  (magit-add-change-log-entry whoami file-name t))
+(defun magit-add-change-log-entry-other-window ()
+  (interactive)
+  (magit-add-change-log-entry t))
 
 (defun magit-visit-item (&optional other-window)
   "Visit current item.
 With a prefix argument, visit in other window."
-  (interactive (list current-prefix-arg))
+  (interactive "P")
   (magit-section-action (item info "visit")
     ((untracked file)
      (funcall
