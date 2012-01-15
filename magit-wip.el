@@ -39,7 +39,6 @@ Currently, this will just give git-wip refs a special appearance
 in Magit log buffers."
   :group 'magit
   :global t
-  :require 'magit-wip
   (magit-wip-setup-namespaces))
 
 (defface magit-log-head-label-wip
@@ -69,5 +68,7 @@ in Magit log buffers."
         (remover (lambda (ns) (setq magit-refs-namespaces (delete ns magit-refs-namespaces)))))
     (mapc (if magit-wip-mode adder remover)
           magit-wip-refs-namespaces)))
+
+(magit-wip-setup-namespaces)
 
 (provide 'magit-wip)
