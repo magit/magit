@@ -544,6 +544,9 @@ Do not customize this (used in the `magit-key-mode' implementation).")
     (suppress-keymap map t)
     (define-key map (kbd "n") 'magit-goto-next-section)
     (define-key map (kbd "p") 'magit-goto-previous-section)
+    (define-key map (kbd "^") 'magit-goto-parent-section)
+    (define-key map (kbd "M-n") 'magit-goto-next-sibling-section)
+    (define-key map (kbd "M-p") 'magit-goto-previous-sibling-section)
     (define-key map (kbd "TAB") 'magit-toggle-section)
     (define-key map (kbd "<backtab>") 'magit-expand-collapse-section)
     (define-key map (kbd "1") 'magit-show-level-1)
@@ -1479,7 +1482,7 @@ see `magit-insert-section' for meaning of the arguments"
          (append magit-git-standard-options args)))
 
 (defun magit-goto-next-section ()
-  "Go to the next Magit section."
+  "Go to the next section."
   (interactive)
   (let ((next (magit-find-section-after (point))))
     (if next
@@ -1487,7 +1490,7 @@ see `magit-insert-section' for meaning of the arguments"
       (message "No next section"))))
 
 (defun magit-goto-previous-section ()
-  "Go to the previous Magit section."
+  "Go to the previous section."
   (interactive)
   (if (eq (point) 1)
       (message "No previous section")
@@ -1499,6 +1502,31 @@ see `magit-insert-section' for meaning of the arguments"
   (let ((parent (magit-section-parent (magit-current-section))))
     (when parent
       (goto-char (magit-section-beginning parent)))))
+
+(defun magit-goto-next-sibling-section ()
+  "Go to the next sibling section."
+  (interactive)
+  (let* ((initial (point))
+         (section (magit-current-section))
+         (end (- (magit-section-end section) 1))
+         (parent (magit-section-parent section))
+         (siblings (magit-section-children parent))
+         (next-sibling (magit-find-section-after* end siblings)))
+    (if next-sibling
+        (magit-goto-section next-sibling)
+      (magit-goto-next-section))))
+
+(defun magit-goto-previous-sibling-section ()
+  "Go to the previous sibling section."
+  (interactive)
+  (let* ((section (magit-current-section))
+         (beginning (magit-section-beginning section))
+         (parent (magit-section-parent section))
+         (siblings (magit-section-children parent))
+         (previous-sibling (magit-find-section-before* beginning siblings)))
+    (if previous-sibling
+        (magit-goto-section previous-sibling)
+      (magit-goto-parent-section))))
 
 (defun magit-goto-section (section)
   (goto-char (magit-section-beginning section))
