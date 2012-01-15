@@ -289,18 +289,29 @@ put it in magit-key-mode-key-maps for fast lookup."
                                  (interactive)
                                  (magit-key-mode-help ',for-group)))
 
-    (flet ((defkey (k action)
+    (flet ((defkey (k action &optional doc-symbol)
              (when (and (lookup-key map (car k))
                         (not (numberp (lookup-key map (car k)))))
                (message "Warning: overriding binding for `%s' in %S"
                         (car k) for-group)
                (ding)
                (sit-for 2))
-             (define-key map (car k)
-               `(lambda () (interactive) ,action))))
+             (unless (and (consp action) (symbolp (car action)))
+               (error "unrecognized action: %S" action))
+             ;; Hack: to make bindings play nicely with `C-h c' and `C-h k',
+             ;; make up a function definition and possibly hook a description
+             ;; string on it.  Use uninterned symbols to avoid redefinitions.
+             (let* ((name (format "%s:%s" (car action) (or doc-symbol (car k))))
+                    (name (replace-regexp-in-string ":magit-" ":" name))
+                    (name (make-symbol name)))
+               (eval `(defun ,name ()
+                        ,@(if doc-symbol (list (documentation doc-symbol)) nil)
+                        (interactive)
+                        ,action))
+               (define-key map (car k) name))))
       (when actions
         (dolist (k actions)
-          (defkey k `(magit-key-mode-command ',(nth 2 k)))))
+          (defkey k `(magit-key-mode-command ',(nth 2 k)) (nth 2 k))))
       (when switches
         (dolist (k switches)
           (defkey k `(magit-key-mode-add-option ',for-group ,(nth 2 k)))))
@@ -396,14 +407,19 @@ highlighted before the description."
 (defun magit-key-mode-redraw (for-group)
   "(re)draw the magit key buffer."
   (let ((buffer-read-only nil)
-        (old-point (point)))
+        (old-point (point))
+        (is-first (zerop (buffer-size)))
+        (actions-p nil))
     (erase-buffer)
     (make-local-variable 'font-lock-defaults)
     (use-local-map (magit-key-mode-get-key-map for-group))
-    (magit-key-mode-draw for-group)
+    (setq actions-p (magit-key-mode-draw for-group))
     (delete-trailing-whitespace)
     (setq mode-name "magit-key-mode" major-mode 'magit-key-mode)
-    (goto-char old-point))
+    (if (and is-first actions-p)
+      (progn (goto-char actions-p)
+             (magit-key-mode-jump-to-next-exec))
+      (goto-char old-point)))
   (setq buffer-read-only t)
   (fit-window-to-buffer))
 
@@ -478,15 +494,20 @@ item on one line."
   (insert "\n"))
 
 (defun magit-key-mode-draw (for-group)
-  "Function used to draw actions, switches and parameters."
+  "Function used to draw actions, switches and parameters.
+
+Returns the point before the actions part, if any."
   (let* ((options (magit-key-mode-options-for-group for-group))
          (switches (cdr (assoc 'switches options)))
          (arguments (cdr (assoc 'arguments options)))
-         (actions (cdr (assoc 'actions options))))
+         (actions (cdr (assoc 'actions options)))
+         (p nil))
     (magit-key-mode-draw-switches switches)
     (magit-key-mode-draw-args arguments)
+    (when actions (setq p (point)))
     (magit-key-mode-draw-actions actions)
-    (insert "\n")))
+    (insert "\n")
+    p))
 
 (defun magit-key-mode-de-generate (group)
   "Unbind the function for GROUP."
