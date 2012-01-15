@@ -146,7 +146,7 @@ Setting it to 'refuse will refuse to push unless a remote branch has already bee
 
 (defcustom magit-save-some-buffers t
   "Non-nil means that \\[magit-status] will save modified buffers before running.
-Setting this to t will ask which buffers to save, setting it to `dontask' will
+Setting this to t will ask which buffers to save, setting it to 'dontask will
 save all modified buffers without asking."
   :group 'magit
   :type '(choice (const :tag "Never" nil)
@@ -313,7 +313,7 @@ cumbersome to use from the status buffer.
   "Specifies where to highlight whitespace errors.
 See `magit-highlight-trailing-whitespace',
 `magit-highlight-indentation'.  The symbol t means in all diffs,
-`status' means only in the status buffer, and nil means nowhere."
+'status means only in the status buffer, and nil means nowhere."
   :group 'magit
   :type '(choice (const :tag "Always" t)
                  (const :tag "Never" nil)
