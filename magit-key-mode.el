@@ -83,11 +83,18 @@
      (man-page "git-branch")
      (actions
       ("v" "Branch manager" magit-branch-manager)
-      ("n" "New" magit-create-branch)
+      ("c" "Create" magit-create-branch)
       ("m" "Move" magit-move-branch)
-      ("d" "Delete" magit-delete-branch)
-      ("D" "Force Delete" magit-delete-branch-forced)
+      ("k" "Delete" magit-delete-branch)
       ("b" "Checkout" magit-checkout)))
+
+    (remoting
+     (man-page "git-remote")
+     (actions
+      ("v" "Branch manager" magit-branch-manager)
+      ("a" "Add" magit-add-remote)
+      ("m" "Move" magit-rename-remote)
+      ("k" "Remove" magit-remove-remote)))
 
     (tagging
      (man-page "git-tag")
