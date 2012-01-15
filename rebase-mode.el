@@ -101,8 +101,8 @@
 
 (defvar rebase-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "q") 'server-edit)
-    (define-key map (kbd "C-c C-c") 'server-edit)
+    (define-key map (kbd "q") 'rebase-mode-server-edit)
+    (define-key map (kbd "C-c C-c") 'rebase-mode-server-edit)
 
     (define-key map (kbd "a") 'rebase-mode-abort)
     (define-key map (kbd "C-c C-k") 'rebase-mode-abort)
@@ -276,6 +276,12 @@ read-only buffers."
   (interactive "P")
   (let ((inhibit-read-only t))
     (undo arg)))
+
+(defun rebase-mode-server-edit ()
+  "Disable `buffer-read-only' and call `sever-edit'."
+  (interactive)
+  (let (buffer-read-only)
+    (server-edit)))
 
 ;;;###autoload
 (define-derived-mode rebase-mode special-mode "Rebase"
