@@ -4031,7 +4031,7 @@ typing and automatically refreshes the status buffer."
       (let ((set-upstream-on-push (and (not ref-branch)
                                        (or (eq magit-set-upstream-on-push 'dontask)
                                            (and (eq magit-set-upstream-on-push t)
-                                                (yes-or-no-p "Set upstream while pushing?"))))))
+                                                (yes-or-no-p "Set upstream while pushing? "))))))
         (if (and (not branch-remote)
                  (not current-prefix-arg))
             (magit-set push-remote "branch" branch "remote"))
@@ -4211,13 +4211,20 @@ environment (potentially empty)."
          (tag-name (cdr (assq 'tag-name fields)))
          (author (cdr (assq 'author fields)))
          (tag-options (cdr (assq 'tag-options fields))))
-    (if (or (not (or allow-empty commit-all amend tag-name (magit-anything-staged-p)))
-            (not (or allow-empty (not commit-all) amend (not (magit-everything-clean-p)))))
-        (error "Refusing to create empty commit. Maybe you want to amend (%s) or allow-empty (%s)?"
-               (key-description (car (where-is-internal
-                                      'magit-log-edit-toggle-amending)))
-               (key-description (car (where-is-internal
-                                      'magit-log-edit-toggle-allow-empty)))))
+
+    (unless (or (magit-anything-staged-p)
+                allow-empty
+                amend
+                tag-name
+                (file-exists-p ".git/MERGE_HEAD")
+                (and commit-all
+                     (not (magit-everything-clean-p))))
+      (error "Refusing to create empty commit. Maybe you want to amend (%s) or allow-empty (%s)?"
+             (key-description (car (where-is-internal
+                                    'magit-log-edit-toggle-amending)))
+             (key-description (car (where-is-internal
+                                    'magit-log-edit-toggle-allow-empty)))))
+
     (magit-log-edit-push-to-comment-ring (buffer-string))
     (magit-log-edit-setup-author-env author)
     (magit-log-edit-set-fields nil)
