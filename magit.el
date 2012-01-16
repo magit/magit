@@ -5099,7 +5099,9 @@ This is only meaningful in wazzup buffers.")
   (interactive)
   (magit-section-action (item info "move")
     ((branch)
-     (call-interactively 'magit-move-branch))))
+     (call-interactively 'magit-move-branch))
+    ((remote)
+     (call-interactively 'magit-rename-remote))))
 
 (defun magit-add-change-log-entry (&optional other-window)
   "Add a change log entry for current change.
