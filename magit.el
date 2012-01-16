@@ -5087,7 +5087,9 @@ This is only meaningful in wazzup buffers.")
      (when (yes-or-no-p "Discard stash? ")
        (magit-run-git "stash" "drop" info)))
     ((branch)
-     (when (yes-or-no-p "Delete branch? ")
+     (when (yes-or-no-p (if current-prefix-arg
+                            "Force delete branch?"
+                          "Delete branch? "))
        (magit-delete-branch info current-prefix-arg)))
     ((remote)
      (when (yes-or-no-p "Remove remote? ")
@@ -5097,7 +5099,9 @@ This is only meaningful in wazzup buffers.")
   (interactive)
   (magit-section-action (item info "move")
     ((branch)
-     (call-interactively 'magit-move-branch))))
+     (call-interactively 'magit-move-branch))
+    ((remote)
+     (call-interactively 'magit-rename-remote))))
 
 (defun magit-add-change-log-entry (&optional other-window)
   "Add a change log entry for current change.
