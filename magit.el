@@ -5087,7 +5087,9 @@ This is only meaningful in wazzup buffers.")
      (when (yes-or-no-p "Discard stash? ")
        (magit-run-git "stash" "drop" info)))
     ((branch)
-     (when (yes-or-no-p "Delete branch? ")
+     (when (yes-or-no-p (if current-prefix-arg
+                            "Force delete branch?"
+                          "Delete branch? "))
        (magit-delete-branch info current-prefix-arg)))
     ((remote)
      (when (yes-or-no-p "Remove remote? ")
