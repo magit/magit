@@ -133,6 +133,7 @@ Magit will only descend this many levels deep."
 
 (defcustom magit-set-upstream-on-push nil
   "Non-nil means that \\[magit-push] will use --set-upstream when pushing a branch.
+This only applies if the branch does not have an upstream set yet.
 Setting this to t will ask if --set-upstream should be used.
 Setting it to 'dontask will always use --set-upstream.
 Setting it to 'refuse will refuse to push unless a remote branch has already been set.
