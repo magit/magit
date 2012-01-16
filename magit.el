@@ -5119,11 +5119,11 @@ The name of the change log file is set by variable change-log-default-name."
   (interactive)
   (magit-add-change-log-entry t))
 
-(defun magit-visit-item (&optional other-window)
-  "Visit current item.
+(defun magit-visit-file-item (&optional other-window)
+  "Visit current file associated with item.
 With a prefix argument, visit in other window."
   (interactive "P")
-  (magit-section-action (item info "visit")
+  (magit-section-action (item info "visit-file")
     ((untracked file)
      (funcall
       (if other-window 'find-file-other-window 'find-file)
@@ -5147,7 +5147,19 @@ With a prefix argument, visit in other window."
         (if other-window 'find-file-other-window 'find-file)
         file)
        (goto-char (point-min))
-       (forward-line (1- line))))
+       (forward-line (1- line))))))
+
+(defun magit-visit-item (&optional other-window)
+  "Visit current item.
+With a prefix argument, visit in other window."
+  (interactive "P")
+  (magit-section-action (item info "visit")
+    ((untracked file)
+     (call-interactively 'magit-visit-file-item))
+    ((diff)
+     (call-interactively 'magit-visit-file-item))
+    ((hunk)
+     (call-interactively 'magit-visit-file-item))
     ((commit)
      (magit-show-commit info nil nil 'select))
     ((stash)
