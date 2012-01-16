@@ -5127,7 +5127,7 @@ The name of the change log file is set by variable change-log-default-name."
 
 (defun magit-add-change-log-entry-other-window ()
   (interactive)
-  (magit-add-change-log-entry t))
+  (magit-eval-as-if-visiting-file-item '(call-interactively 'add-change-log-entry-other-window)))
 
 (defun magit-visit-file-item (&optional other-window)
   "Visit current file associated with item.
