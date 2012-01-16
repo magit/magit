@@ -5099,7 +5099,17 @@ This is only meaningful in wazzup buffers.")
     ((branch)
      (call-interactively 'magit-move-branch))))
 
-(defun magit-add-change-log-entry (&optional other-window)
+(defun magit-eval-as-if-visiting-file-item (exp)
+  (interactive)
+  (let ((marker
+         (save-window-excursion
+           (magit-visit-file-item)
+           (set-marker (make-marker) (point)))))
+    (save-excursion
+      (with-current-buffer (marker-buffer marker)
+        (goto-char marker)
+        (eval exp)))))
+
   "Add a change log entry for current change.
 With a prefix argument, edit in other window.
 The name of the change log file is set by variable change-log-default-name."
