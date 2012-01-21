@@ -4932,12 +4932,6 @@ This is only meaningful in wazzup buffers.")
 
 ;;; Miscellaneous
 
-(defvar magit-ignore-file-history nil
-  "History list of file names or patterns to ignore.
-
-Maximum length of the history list is determined by the value of
-`history-length'.")
-
 (defun magit-ignore-modifiable-file (file edit)
   "Prompt the user for the filename to be added to git ignore.
 \\<minibuffer-local-map>
