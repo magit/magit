@@ -4425,7 +4425,7 @@ With prefix argument, changes in staging area are kept.
 
 (defvar magit-currently-shown-stash nil)
 
-(define-derived-mode magit-stash-mode magit-mode
+(define-derived-mode magit-stash-mode magit-mode "Magit Stash"
   "Mode for looking at a git stash.
 
 \\{magit-stash-mode-map}"
@@ -4586,7 +4586,7 @@ With a non numeric prefix ARG, show all entries"
              ,@args
              "--"))))
 
-(define-derived-mode magit-log-mode magit-mode "Magit"
+(define-derived-mode magit-log-mode magit-mode "Magit Log"
   "Mode for looking at git log.
 
 \\{magit-log-mode-map}"
@@ -4649,7 +4649,7 @@ This is only non-nil in reflog buffers.")
                     (format "--max-count=%s" magit-log-cutoff-length)
                     args)))))
 
-(define-derived-mode magit-reflog-mode magit-log-mode "Magit"
+(define-derived-mode magit-reflog-mode magit-log-mode "Magit Reflog"
   "Mode for looking at git reflog.
 
 \\{magit-reflog-mode-map}"
@@ -4744,7 +4744,7 @@ restore the window state that was saved before ediff was called."
                          'magit-wash-diffs
                          "diff" (magit-diff-U-arg) args))))
 
-(define-derived-mode magit-diff-mode magit-mode "Magit"
+(define-derived-mode magit-diff-mode magit-mode "Magit Diff"
   "Mode for looking at a git diff.
 
 \\{magit-diff-mode-map}"
@@ -4843,7 +4843,7 @@ This is only meaningful in wazzup buffers.")
                            "--"))))
                   (magit-set-section-info ref section))))))))))
 
-(define-derived-mode magit-wazzup-mode magit-mode
+(define-derived-mode magit-wazzup-mode magit-mode "Magit Wazzup"
   "Mode for looking at commits that could be merged from other branches.
 
 \\{magit-wazzup-mode-map}"
@@ -5112,7 +5112,7 @@ Return values:
       (if old-editor
           (setenv "GIT_EDITOR" old-editor)))))
 
-(define-derived-mode magit-show-branches-mode magit-mode
+(define-derived-mode magit-show-branches-mode magit-mode "Magit Branch"
   "Magit Branches")
 
 (defun magit-quit-window (&optional kill-buffer)
