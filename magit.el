@@ -1767,6 +1767,27 @@ TITLE is the displayed title of the section."
        ,@body
        (run-hooks ',after))))
 
+(defun magit-refine-section (section)
+  "Apply temporary refinements to the display of SECTION.
+Refinements can be undone with `magit-unrefine-section'."
+  (let ((type (and section (magit-section-type section))))
+    (cond ((eq type 'hunk)
+           ;; Refine the current hunk to show fine details, using
+           ;; diff-mode machinery.
+           (save-excursion
+             (goto-char (magit-section-beginning magit-highlighted-section))
+             (diff-refine-hunk))))))
+
+(defun magit-unrefine-section (section)
+  "Remove refinements to the display of SECTION done by `magit-refine-section'."
+  (let ((type (and section (magit-section-type section))))
+    (cond ((eq type 'hunk)
+           ;; XXX this should be in some diff-mode function, like
+           ;; `diff-unrefine-hunk'
+           (remove-overlays (magit-section-beginning section)
+                            (magit-section-end section)
+                            'diff-mode 'fine)))))
+
 (defvar magit-highlight-overlay nil)
 
 (defvar magit-highlighted-section nil)
@@ -1775,16 +1796,21 @@ TITLE is the displayed title of the section."
   "Highlight current section if it has a type."
   (let ((section (magit-current-section)))
     (when (not (eq section magit-highlighted-section))
+      (when magit-highlighted-section
+        ;; remove any refinement from previous hunk
+        (magit-unrefine-section magit-highlighted-section))
       (setq magit-highlighted-section section)
       (if (not magit-highlight-overlay)
           (let ((ov (make-overlay 1 1)))
             (overlay-put ov 'face 'magit-item-highlight)
             (setq magit-highlight-overlay ov)))
       (if (and section (magit-section-type section))
-          (move-overlay magit-highlight-overlay
-                        (magit-section-beginning section)
-                        (magit-section-end section)
-                        (current-buffer))
+          (progn
+            (magit-refine-section section)
+            (move-overlay magit-highlight-overlay
+                          (magit-section-beginning section)
+                          (magit-section-end section)
+                          (current-buffer)))
         (delete-overlay magit-highlight-overlay)))))
 
 (defun magit-section-context-type (section)
