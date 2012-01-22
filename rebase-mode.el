@@ -306,6 +306,11 @@ By default, this is the same except for the \"pick\" command."
 
 (add-hook 'rebase-mode-hook 'rebase-mode-show-keybindings t)
 
+(defun rebase-mode-disable-before-save-hook ()
+  (set (make-local-variable 'before-save-hook) nil))
+
+(add-hook 'rebase-mode-hook 'rebase-mode-disable-before-save-hook)
+
 ;;;###autoload
 (add-to-list 'auto-mode-alist
              '("git-rebase-todo" . rebase-mode))
