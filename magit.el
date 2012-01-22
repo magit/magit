@@ -117,6 +117,55 @@
   :group 'magit
   :type '(repeat string))
 
+(defcustom magit-diff-hunk-format-options nil
+  "Control the format of diff hunks.
+
+These options are passed to all commands that generate diff
+output.  Appropriate options for this list would be any of
+
+  --patience
+  --ignore-space-at-eol
+  --ignore-space-change / -b
+  --ignore-all-space / -w
+  --inter-hunk-context=N
+
+Do not put options like
+
+  --numstat
+  --stat
+  --dirstat
+
+in this list since they affect comparisons between two commits,
+not the actual diff output format.  See 'magit-diff-commit-options'
+instead."
+  :group 'magit
+  :type '(repeat string))
+
+(defcustom magit-diff-commit-options nil
+  "Output for diffs between commits, trees, the index and working directory.
+
+These options are passed to the appropriate git commands (usually
+\"diff\" or \"log\") whenever magit compares two complete trees.
+These trees are usually specified as commits, but also include
+the contents of the index or the working directory.  Appropriate
+options for this list could be any of
+
+  --stat
+  --dirstat
+  --shortstat
+  --dirstat-by-file=N
+  --summary
+  --find-renames=N / -M=N
+  --find-copies=N / -C=N
+  --find-copies-harder
+  -lN
+
+Do not put options such as '--patience', '--ignore-space-at-eol',
+etc, that just affect the specific form of the diff hunks in this
+list.  See 'magit-diff-hunk-format-options'."
+  :group 'magit
+  :type '(repeat string))
+
 (defcustom magit-repo-dirs nil
   "Directories containing Git repositories.
 Magit will look into these directories for Git repositories and
@@ -2632,10 +2681,11 @@ in the corresponding directories."
 
 (defun magit-insert-diff (file status)
   (let ((cmd magit-git-executable)
-        (args (append (list "diff")
-                      (list (magit-diff-U-arg))
-                      magit-diff-options
-                      (list "--" file))))
+	(args (append (list "diff")
+		      (list (magit-diff-U-arg))
+                      magit-diff-hunk-format-options
+		      magit-diff-options
+		      (list "--" file))))
     (let ((p (point)))
       (magit-git-insert args)
       (if (not (eq (char-before) ?\n))
@@ -2829,21 +2879,35 @@ either in another window or (with a prefix argument) in the current window."
            "apply" (append args (list "-")))))
 
 (defun magit-apply-hunk-item* (hunk reverse &rest args)
-  (when (zerop magit-diff-context-lines)
-    (setq args (cons "--unidiff-zero" args)))
-  (with-magit-tmp-buffer tmp
-    (if (magit-use-region-p)
-        (magit-insert-hunk-item-region-patch
-         hunk reverse (region-beginning) (region-end) tmp)
-      (magit-insert-hunk-item-patch hunk tmp))
-    (apply #'magit-run-git-with-input tmp
-           "apply" (append args (list "-")))))
+  "Apply single hunk or part of a hunk to the index or working file.
+
+This function is the core of magit's stage, unstage, apply, and
+revert operations.  HUNK (or the portion of it selected by the
+region) will be applied to either the index, if \"--cached\" is a
+member of ARGS, or to the working file otherwise.  If a region is
+active, only those lines in the hunk identified by the region
+will be applied."
+  (let ((zero-context (zerop magit-diff-context-lines))
+        (use-region (magit-use-region-p)))
+    (when reverse
+      (setq args (cons "--reverse" args)))
+    (when zero-context
+      (setq args (cons "--unidiff-zero" args)))
+    (when (and use-region zero-context)
+      (error "Zero context is a bad idea when applying part of a hunk."))
+    (with-magit-tmp-buffer tmp
+      (if use-region
+          (magit-insert-hunk-item-region-patch
+           hunk reverse (region-beginning) (region-end) tmp)
+        (magit-insert-hunk-item-patch hunk tmp))
+      (apply #'magit-run-git-with-input tmp
+             "apply" (append args (list "-"))))))
 
 (defun magit-apply-hunk-item (hunk &rest args)
   (apply #'magit-apply-hunk-item* hunk nil args))
 
 (defun magit-apply-hunk-item-reverse (hunk &rest args)
-  (apply #'magit-apply-hunk-item* hunk t (cons "--reverse" args)))
+  (apply #'magit-apply-hunk-item* hunk t args))
 
 (magit-define-inserter unstaged-changes (title)
   (let ((magit-hide-diffs t)
@@ -3158,13 +3222,15 @@ insert a line to tell how to insert more of them"
   (magit-configure-have-abbrev)
   (magit-configure-have-decorate)
   (magit-create-buffer-sections
-    (apply #'magit-git-section nil nil
+    (apply #'magit-git-section 'diffbuf nil
            'magit-wash-commit
            "log"
            "--max-count=1"
            "--pretty=medium"
            `(,@(if magit-have-abbrev (list "--no-abbrev-commit"))
              ,@(if magit-have-decorate (list "--decorate=full"))
+             ,@magit-diff-hunk-format-options
+             ,@magit-diff-commit-options
              "--cc"
              "-p" ,commit))))
 
@@ -4809,10 +4875,14 @@ restore the window state that was saved before ediff was called."
                                     range))))
     (setq magit-current-range range)
     (magit-create-buffer-sections
-      (magit-git-section 'diffbuf
-                         (magit-rev-range-describe range "Changes")
-                         'magit-wash-diffs
-                         "diff" (magit-diff-U-arg) args))))
+      (apply #'magit-git-section
+             'diffbuf (magit-rev-range-describe range "Changes")
+             'magit-wash-diffs
+             "diff"
+             `(,@(magit-diff-U-arg)
+               ,@magit-diff-hunk-format-options
+               ,@magit-diff-commit-options
+               ,@args)))))
 
 (define-derived-mode magit-diff-mode magit-mode "Magit Diff"
   "Mode for looking at a git diff.
@@ -4834,10 +4904,18 @@ restore the window state that was saved before ediff was called."
   (interactive (list (magit-read-rev "Diff with" (magit-default-rev))))
   (magit-diff (or rev "HEAD")))
 
-(defun magit-diff-with-mark ()
-  (interactive)
-  (magit-diff (cons (magit-marked-commit)
-                    (magit-commit-at-point))))
+(defun magit-diff-with-mark (reverse)
+  "Display differences between marked commit and commit at point.
+
+If the prefix argument is NIL, display differences starting from
+the marked commit to the commit at point.  Otherwise, display
+differences starting from the commit at point to the marked commit."
+  (interactive "P")
+  (let ((here (magit-commit-at-point))
+        (there (magit-marked-commit)))
+    (magit-diff (if reverse
+                    (cons here there)
+                  (cons there here)))))
 
 ;;; Wazzup
 
@@ -5060,6 +5138,22 @@ With a prefix argument, visit in other window."
      (funcall
       (if other-window 'find-file-other-window 'find-file)
       info))
+    ((diffbuf diff *)
+     (when (magit-section-hidden item)
+       (magit-toggle-section)
+       (magit-toggle-section)
+       (setq item (magit-current-section)))
+     (if (eq 'hunk (magit-section-type item))
+         (setq item (magit-section-parent item)))
+     (let* ((type (magit-diff-item-kind item))
+            (file1 (magit-diff-item-file item))
+            (file2 (magit-diff-item-file2 item))
+            (range (magit-diff-item-range item)))
+       (cond ((consp (car range))
+              (error "Range is too complicated: %s" range))
+             ((memq type '(new modified))
+              (magit-show (cdr range) file2 t))
+             (t (message "Not sure how to show a %s file." type)))))
     ((diff)
      (let ((file (magit-diff-item-file item)))
        (cond ((not (file-exists-p file))
