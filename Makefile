@@ -2,11 +2,11 @@ VERSION=$(shell git describe --tags --dirty)
 EMACS=emacs
 PREFIX=/usr/local
 SYSCONFDIR=/etc
-ELS=magit.el magit-svn.el magit-topgit.el magit-stgit.el magit-key-mode.el magit-bisect.el
+ELS=magit.el magit-svn.el magit-topgit.el magit-stgit.el magit-key-mode.el magit-bisect.el rebase-mode.el
 ELS_CONTRIB=contrib/magit-simple-keys.el contrib/magit-classic-theme.el
 ELCS=$(ELS:.el=.elc)
 ELCS_CONTRIB=$(ELS_CONTRIB:.el=.elc)
-DIST_FILES=$(ELS) Makefile magit.texi magit.info README.md magit.spec.in magit-pkg.el.in 50magit.el
+DIST_FILES=$(ELS) Makefile magit.texi magit.info README.md magit.spec.in magit-pkg.el.in
 DIST_FILES_CONTRIB=$(ELS_CONTRIB) contrib/magit
 ELPA_FILES=$(ELS) magit.info magit-pkg.el
 
@@ -20,7 +20,7 @@ BATCH=$(EMACS) -batch -q -no-site-file -eval \
 
 all: core docs contrib
 
-core: $(ELCS) magit.spec magit-pkg.el
+core: $(ELCS) magit.spec magit-pkg.el 50magit.el
 
 docs: magit.info
 
@@ -31,6 +31,9 @@ magit.spec: magit.spec.in
 
 magit-pkg.el: magit-pkg.el.in
 	sed -e s/@VERSION@/$(VERSION)/ < $< > $@
+
+50magit.el: $(ELS)
+	$(BATCH) --eval "(let ((generated-autoload-file \"$(PWD)/50magit.el\") (make-backup-files nil)) (update-directory-autoloads \".\"))"
 
 magit.elc: magit.el
 	sed -e "s/@GIT_DEV_VERSION@/$(VERSION)/" < magit.el > magit.tmp.el #NO_DIST
@@ -88,4 +91,4 @@ install_all: install install_contrib
 
 clean:
 	rm -f magit.info #NO_DIST
-	rm -fr magit-pkg.el magit.spec $(ELCS) $(ELCS_CONTRIB) *.tar.gz magit-$(VERSION)
+	rm -fr magit-pkg.el magit.spec 50magit.el $(ELCS) $(ELCS_CONTRIB) *.tar.gz magit-$(VERSION)

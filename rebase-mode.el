@@ -101,8 +101,8 @@
 
 (defvar rebase-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "q") 'rebase-mode-server-edit)
-    (define-key map (kbd "C-c C-c") 'rebase-mode-server-edit)
+    (define-key map (kbd "q") 'server-edit)
+    (define-key map (kbd "C-c C-c") 'server-edit)
 
     (define-key map (kbd "a") 'rebase-mode-abort)
     (define-key map (kbd "C-c C-k") 'rebase-mode-abort)
@@ -277,12 +277,6 @@ read-only buffers."
   (let ((inhibit-read-only t))
     (undo arg)))
 
-(defun rebase-mode-server-edit ()
-  "Disable `buffer-read-only' and call `sever-edit'."
-  (interactive)
-  (let (buffer-read-only)
-    (server-edit)))
-
 ;;;###autoload
 (define-derived-mode rebase-mode special-mode "Rebase"
   "Major mode for editing of a Git rebase file.
@@ -311,6 +305,11 @@ By default, this is the same except for the \"pick\" command."
                          (key-description (where-is-internal command nil t)))))))))
 
 (add-hook 'rebase-mode-hook 'rebase-mode-show-keybindings t)
+
+(defun rebase-mode-disable-before-save-hook ()
+  (set (make-local-variable 'before-save-hook) nil))
+
+(add-hook 'rebase-mode-hook 'rebase-mode-disable-before-save-hook)
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist
