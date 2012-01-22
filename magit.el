@@ -4485,9 +4485,9 @@ With prefix argument, changes in staging area are kept.
 \('git stash save \"Snapshot...\"; git stash apply stash@{0}')"
   (interactive)
   (magit-with-refresh
-    (magit-run-git "stash" "save"
-                   (format-time-string "Snapshot taken at %Y-%m-%d %H:%M:%S"
-                                       (current-time)))
+    (apply 'magit-run-git `("stash" "save" ,@magit-custom-options
+                   ,(format-time-string "Snapshot taken at %Y-%m-%d %H:%M:%S"
+                                       (current-time))))
     (magit-run-git "stash" "apply" "stash@{0}")))
 
 (defvar magit-currently-shown-stash nil)
