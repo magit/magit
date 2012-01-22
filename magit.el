@@ -5099,16 +5099,14 @@ This is only meaningful in wazzup buffers.")
     ((branch)
      (call-interactively 'magit-move-branch))))
 
-(defun magit-eval-as-if-visiting-file-item (exp)
-  (interactive)
-  (let ((marker
-         (save-window-excursion
-           (magit-visit-file-item)
-           (set-marker (make-marker) (point)))))
-    (save-excursion
-      (with-current-buffer (marker-buffer marker)
-        (goto-char marker)
-        (eval exp)))))
+(defmacro magit-visiting-file-item (&rest body)
+  `(let ((marker (save-window-excursion
+                   (magit-visit-file-item)
+                   (set-marker (make-marker) (point)))))
+     (save-excursion
+       (with-current-buffer (marker-buffer marker)
+         (goto-char marker)
+         ,@body))))
 
 (defun magit-add-change-log-entry-no-option (&optional other-window)
   "Add a change log entry for current change.
@@ -5116,12 +5114,12 @@ With a prefix argument, edit in other window.
 The name of the change log file is set by variable change-log-default-name."
   (interactive "P")
   (if other-window
-      (magit-eval-as-if-visiting-file-item '(funcall 'add-change-log-entry-other-window))
-    (magit-eval-as-if-visiting-file-item '(funcall 'add-change-log-entry))))
+      (magit-visiting-file-item (add-change-log-entry-other-window))
+    (magit-visiting-file-item (add-change-log-entry))))
 
 (defun magit-add-change-log-entry-other-window ()
   (interactive)
-  (magit-eval-as-if-visiting-file-item '(call-interactively 'add-change-log-entry-other-window)))
+  (magit-visiting-file-item (call-interactively 'add-change-log-entry-other-window)))
 
 (defun magit-visit-file-item (&optional other-window)
   "Visit current file associated with item.
