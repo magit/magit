@@ -347,6 +347,23 @@ many spaces.  Otherwise, highlight neither."
                                (const :tag "Neither" nil))))
   :set 'magit-set-variable-and-refresh)
 
+(defcustom magit-diff-refine-hunk nil
+  "Show fine (word-granularity) differences within diff hunks.
+
+There are three possible settings:
+
+  nil means to never show fine differences
+
+  t means to only show fine differences for the currently
+  selected diff hunk
+
+  `all' means to always show fine differences for all displayed diff hunks"
+  :group 'magit
+  :type '(choice (const :tag "Never" nil)
+                 (const :tag "Selected only" t)
+                 (const :tag "All" all))
+  :set 'magit-set-variable-and-refresh)
+
 (defvar magit-current-indentation nil
   "Indentation highlight used in the current buffer, as specified
 in `magit-highlight-indentation'.")
