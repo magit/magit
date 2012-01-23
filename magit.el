@@ -2829,6 +2829,12 @@ either in another window or (with a prefix argument) in the current window."
            "apply" (append args (list "-")))))
 
 (defun magit-apply-hunk-item* (hunk reverse &rest args)
+  "Apply single hunk or part of a hunk to the index or working file.
+
+This function is the core of magit's stage, unstage, apply, and
+revert operations.  HUNK (or the portion of it selected by the
+region) will be applied to either the index, if \"--cached\" is a
+member of ARGS, or to the working file otherwise."
   (when (zerop magit-diff-context-lines)
     (setq args (cons "--unidiff-zero" args)))
   (with-magit-tmp-buffer tmp
