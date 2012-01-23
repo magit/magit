@@ -2651,7 +2651,8 @@ in the corresponding directories."
 (defun magit-wash-hunk ()
   (cond ((looking-at "\\(^@+\\)[^@]*@+.*")
          (let ((n-columns (1- (length (match-string 1))))
-               (head (match-string 0)))
+               (head (match-string 0))
+               (hunk-start-pos (point)))
            (magit-with-section head 'hunk
              (add-text-properties (match-beginning 0) (match-end 0)
                                   '(face magit-diff-hunk-header))
@@ -2667,7 +2668,12 @@ in the corresponding directories."
                         (magit-put-line-property 'face 'magit-diff-del))
                        (t
                         (magit-put-line-property 'face 'magit-diff-none))))
-               (forward-line))))
+               (forward-line)))
+
+           (when (eq magit-diff-refine-hunk 'all)
+             (save-excursion
+               (goto-char hunk-start-pos)
+               (diff-refine-hunk))))
          t)
         (t
          nil)))
