@@ -1539,10 +1539,7 @@ see `magit-insert-section' for meaning of the arguments"
     (magit-goto-next-section))
    ((and (eq (magit-section-type section) 'commit)
          (derived-mode-p 'magit-log-mode))
-    (magit-show-commit section))
-   ((and (eq (magit-section-type section) 'hunk)
-         diff-auto-refine-mode)
-    (condition-case-no-debug nil (diff-refine-hunk) (error nil)))))
+    (magit-show-commit section))))
 
 (defun magit-goto-section-at-path (path)
   "Go to the section described by PATH."
