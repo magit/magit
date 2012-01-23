@@ -2507,6 +2507,43 @@ in the corresponding directories."
   (setq magit-diff-context-lines 3)
   (magit-refresh))
 
+(defun magit-toggle-diff-refine-hunk (&optional other)
+  (interactive "P")
+  "Turn diff-hunk refining on or off.
+
+If hunk refining is currently on, then hunk refining is turned off.
+If hunk refining is off, then hunk refining is turned on, in
+`selected' mode (only the currently selected hunk is refined).
+
+With a prefix argument, the \"third choice\" is used instead:
+If hunk refining is currently on, then refining is kept on, but
+the refining mode (`selected' or `all') is switched.
+If hunk refining is off, then hunk refining is turned on, in
+`all' mode (all hunks refined).
+
+Customize `magit-diff-refine-hunk' to change the default mode."
+  (let* ((old magit-diff-refine-hunk)
+         (new
+          (if other
+              (if (eq old 'all) t 'all)
+            (not old))))
+
+    ;; remove any old refining in currently highlighted section
+    (when (and magit-highlighted-section old (not (eq old 'all)))
+      (magit-unrefine-section magit-highlighted-section))
+
+    ;; set variable to new value locally
+    (set (make-local-variable 'magit-diff-refine-hunk) new)
+
+    ;; if now highlighting in "selected only" mode, turn refining back
+    ;; on in the current section
+    (when (and magit-highlighted-section new (not (eq new 'all)))
+      (magit-refine-section magit-highlighted-section))
+
+    ;; `all' mode being turned on or off needs a complete refresh
+    (when (or (eq old 'all) (eq new 'all))
+      (magit-refresh))))
+
 (defun magit-diff-line-file ()
   (cond ((looking-at "^diff --git ./\\(.*\\) ./\\(.*\\)$")
          (match-string-no-properties 2))
