@@ -2829,21 +2829,34 @@ either in another window or (with a prefix argument) in the current window."
            "apply" (append args (list "-")))))
 
 (defun magit-apply-hunk-item* (hunk reverse &rest args)
-  (when (zerop magit-diff-context-lines)
-    (setq args (cons "--unidiff-zero" args)))
-  (with-magit-tmp-buffer tmp
-    (if (magit-use-region-p)
-        (magit-insert-hunk-item-region-patch
-         hunk reverse (region-beginning) (region-end) tmp)
-      (magit-insert-hunk-item-patch hunk tmp))
-    (apply #'magit-run-git-with-input tmp
-           "apply" (append args (list "-")))))
+  "Apply single hunk or part of a hunk to the index or working file.
+
+This function is the core of magit's stage, unstage, apply, and
+revert operations.  HUNK (or the portion of it selected by the
+region) will be applied to either the index, if \"--cached\" is a
+member of ARGS, or to the working file otherwise."
+  (let ((zero-context (zerop magit-diff-context-lines))
+        (use-region (magit-use-region-p)))
+    (when zero-context
+      (setq args (cons "--unidiff-zero" args)))
+    (when reverse
+      (setq args (cons "--reverse" args)))
+    (when (and use-region zero-context)
+      (error (concat "Not enough context to partially apply hunk.  "
+                     "Use `+' to increase context.")))
+    (with-magit-tmp-buffer tmp
+      (if use-region
+          (magit-insert-hunk-item-region-patch
+           hunk reverse (region-beginning) (region-end) tmp)
+        (magit-insert-hunk-item-patch hunk tmp))
+      (apply #'magit-run-git-with-input tmp
+             "apply" (append args (list "-"))))))
 
 (defun magit-apply-hunk-item (hunk &rest args)
   (apply #'magit-apply-hunk-item* hunk nil args))
 
 (defun magit-apply-hunk-item-reverse (hunk &rest args)
-  (apply #'magit-apply-hunk-item* hunk t (cons "--reverse" args)))
+  (apply #'magit-apply-hunk-item* hunk t args))
 
 (magit-define-inserter unstaged-changes (title)
   (let ((magit-hide-diffs t)
