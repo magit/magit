@@ -1785,7 +1785,9 @@ TITLE is the displayed title of the section."
   "Apply temporary refinements to the display of SECTION.
 Refinements can be undone with `magit-unrefine-section'."
   (let ((type (and section (magit-section-type section))))
-    (cond ((eq type 'hunk)
+    (cond ((and (eq type 'hunk)
+                magit-diff-refine-hunk
+                (not (eq magit-diff-refine-hunk 'all)))
            ;; Refine the current hunk to show fine details, using
            ;; diff-mode machinery.
            (save-excursion
@@ -1795,7 +1797,9 @@ Refinements can be undone with `magit-unrefine-section'."
 (defun magit-unrefine-section (section)
   "Remove refinements to the display of SECTION done by `magit-refine-section'."
   (let ((type (and section (magit-section-type section))))
-    (cond ((eq type 'hunk)
+    (cond ((and (eq type 'hunk)
+                magit-diff-refine-hunk
+                (not (eq magit-diff-refine-hunk 'all)))
            ;; XXX this should be in some diff-mode function, like
            ;; `diff-unrefine-hunk'
            (remove-overlays (magit-section-beginning section)
