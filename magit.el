@@ -2837,6 +2837,8 @@ region) will be applied to either the index, if \"--cached\" is a
 member of ARGS, or to the working file otherwise."
   (when (zerop magit-diff-context-lines)
     (setq args (cons "--unidiff-zero" args)))
+  (when reverse
+    (setq args (cons "--reverse" args)))
   (with-magit-tmp-buffer tmp
     (if (magit-use-region-p)
         (magit-insert-hunk-item-region-patch
@@ -2849,7 +2851,7 @@ member of ARGS, or to the working file otherwise."
   (apply #'magit-apply-hunk-item* hunk nil args))
 
 (defun magit-apply-hunk-item-reverse (hunk &rest args)
-  (apply #'magit-apply-hunk-item* hunk t (cons "--reverse" args)))
+  (apply #'magit-apply-hunk-item* hunk t args))
 
 (magit-define-inserter unstaged-changes (title)
   (let ((magit-hide-diffs t)
