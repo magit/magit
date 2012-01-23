@@ -2841,6 +2841,9 @@ member of ARGS, or to the working file otherwise."
       (setq args (cons "--unidiff-zero" args)))
     (when reverse
       (setq args (cons "--reverse" args)))
+    (when (and use-region zero-context)
+      (error (concat "Not enough context to partially apply hunk.  "
+                     "Use `+' to increase context.")))
     (with-magit-tmp-buffer tmp
       (if use-region
           (magit-insert-hunk-item-region-patch
