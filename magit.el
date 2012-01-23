@@ -4945,10 +4945,8 @@ If EDIT argument is negative, the prompt proposes wildcard by default.
          (full-extension (concat (file-name-directory file) just-extension))
          (just-file (file-name-nondirectory file))
          ;; change the order in history depending on the negativity of
-         ;; EDIT. If user just types M--, EDIT will equal to symbol
-         ;; `-' and not to a negative number.
-         (history (if (or (eq edit '-)
-                          (and (numberp edit) (< edit 0)))
+         ;; EDIT.
+         (history (if (< (prefix-numeric-value edit) 0)
                       (list full-extension just-extension file just-file)
                     (list file full-extension just-extension just-file))))
     (read-string
