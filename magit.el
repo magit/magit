@@ -4179,7 +4179,8 @@ option, falling back to something hairy if that is unset."
 Normally when you do `git commit' on the command line, git
 invokes your editor and pre-populates the commit message with
 some comments showing the status of your repo. If this variables
-it set to t, Magit will do the same.")
+it set to t, Magit will do the same."
+  :type 'boolean)
 
 (defun magit-log-edit-add-status-comments ()
   (when magit-log-edit-add-status-comments
