@@ -1789,6 +1789,8 @@ TITLE is the displayed title of the section."
        ,@body
        (run-hooks ',after))))
 
+(defvar magit-highlighted-section nil)
+
 (defun magit-refine-section (section)
   "Apply temporary refinements to the display of SECTION.
 Refinements can be undone with `magit-unrefine-section'."
@@ -1815,8 +1817,6 @@ Refinements can be undone with `magit-unrefine-section'."
                             'diff-mode 'fine)))))
 
 (defvar magit-highlight-overlay nil)
-
-(defvar magit-highlighted-section nil)
 
 (defun magit-highlight-section ()
   "Highlight current section if it has a type."
