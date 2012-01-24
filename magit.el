@@ -4151,12 +4151,24 @@ option, falling back to something hairy if that is unset."
 (defvar magit-pre-log-edit-window-configuration nil)
 
 (if (require 'git-commit nil 'noerror)
+    (progn
+      (defvar magit-log-edit-font-lock-keywords
+        (mapcar (lambda (x)
+                  (if (string= (substring (car x) 0 2) "\\`")
+                      `(,(format "\\`\\(\\(?:.*\n\\)*?%s\\|\\)\\(.\\{,50\\}\\)\\(.*?\\)\n\\(.*\\)$" magit-log-header-end)
+                        (1 'git-commit-comment-face)
+                        (2 'git-commit-summary-face)
+                        (3 'git-commit-overlong-summary-face)
+                        (4 'git-commit-nonempty-second-line-face))
+                    x))
+                git-commit-font-lock-keywords))
     (define-derived-mode magit-log-edit-mode git-commit-mode "Magit Log Edit"
 			 (define-key magit-log-edit-mode-map (kbd "C-c C-s")
                            'git-commit-signoff)
 			 ;; Recognize changelog-style paragraphs
 			 (set (make-local-variable 'paragraph-start)
-			      (concat paragraph-start "\\|*\\|(")))
+			      (concat paragraph-start "\\|*\\|("))
+                         (setq font-lock-defaults '(magit-log-edit-font-lock-keywords t))))
     (define-derived-mode magit-log-edit-mode text-mode "Magit Log Edit"
 			 (set (make-local-variable 'paragraph-start)
 			      (concat paragraph-start "\\|*\\|("))))
