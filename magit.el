@@ -4173,6 +4173,33 @@ option, falling back to something hairy if that is unset."
 			 (set (make-local-variable 'paragraph-start)
 			      (concat paragraph-start "\\|*\\|("))))
 
+(defcustom magit-log-edit-add-status-comments nil
+  "Add the usual status comments to the log edit buffer.
+
+Normally when you do `git commit' on the command line, git
+invokes your editor and pre-populates the commit message with
+some comments showing the status of your repo. If this variables
+it set to t, Magit will do the same.")
+
+(defun magit-log-edit-add-status-comments ()
+  (when magit-log-edit-add-status-comments
+    (save-excursion
+      (goto-char (point-min))
+      (when (not (search-forward "# Please enter the commit message for your changes." nil 'noerror))
+        (goto-char (point-max))
+        (insert "\n\n"
+                "# Please enter the commit message for your changes. Lines starting\n"
+                "# with '#' will be ignored, and an empty message aborts the commit.\n")
+        (let ((status-text (magit-git-output '("status"))))
+          (insert
+           (replace-regexp-in-string
+            "\n\\([^#]\\)" "\n# \\1"
+            (replace-regexp-in-string
+             "\n.*(use \"git.*" ""
+             status-text))))))))
+
+(add-hook 'magit-log-edit-mode-hook 'magit-log-edit-add-status-comments)
+
 (defun magit-log-edit-cleanup ()
   (save-excursion
     (goto-char (point-min))
