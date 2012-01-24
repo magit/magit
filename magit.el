@@ -347,6 +347,23 @@ many spaces.  Otherwise, highlight neither."
                                (const :tag "Neither" nil))))
   :set 'magit-set-variable-and-refresh)
 
+(defcustom magit-diff-refine-hunk nil
+  "Show fine (word-granularity) differences within diff hunks.
+
+There are three possible settings:
+
+  nil means to never show fine differences
+
+  t means to only show fine differences for the currently
+  selected diff hunk
+
+  `all' means to always show fine differences for all displayed diff hunks"
+  :group 'magit
+  :type '(choice (const :tag "Never" nil)
+                 (const :tag "Selected only" t)
+                 (const :tag "All" all))
+  :set 'magit-set-variable-and-refresh)
+
 (defvar magit-current-indentation nil
   "Indentation highlight used in the current buffer, as specified
 in `magit-highlight-indentation'.")
@@ -597,7 +614,7 @@ Do not customize this (used in the `magit-key-mode' implementation).")
     (define-key map (kbd "-") 'magit-diff-smaller-hunks)
     (define-key map (kbd "+") 'magit-diff-larger-hunks)
     (define-key map (kbd "0") 'magit-diff-default-hunks)
-    (define-key map (kbd "h") 'diff-refine-hunk)
+    (define-key map (kbd "h") 'magit-toggle-diff-refine-hunk)
     map))
 
 (defvar magit-commit-mode-map
@@ -1539,10 +1556,7 @@ see `magit-insert-section' for meaning of the arguments"
     (magit-goto-next-section))
    ((and (eq (magit-section-type section) 'commit)
          (derived-mode-p 'magit-log-mode))
-    (magit-show-commit section))
-   ((and (eq (magit-section-type section) 'hunk)
-         diff-auto-refine-mode)
-    (condition-case-no-debug nil (diff-refine-hunk) (error nil)))))
+    (magit-show-commit section))))
 
 (defun magit-goto-section-at-path (path)
   "Go to the section described by PATH."
@@ -1767,6 +1781,31 @@ TITLE is the displayed title of the section."
        ,@body
        (run-hooks ',after))))
 
+(defun magit-refine-section (section)
+  "Apply temporary refinements to the display of SECTION.
+Refinements can be undone with `magit-unrefine-section'."
+  (let ((type (and section (magit-section-type section))))
+    (cond ((and (eq type 'hunk)
+                magit-diff-refine-hunk
+                (not (eq magit-diff-refine-hunk 'all)))
+           ;; Refine the current hunk to show fine details, using
+           ;; diff-mode machinery.
+           (save-excursion
+             (goto-char (magit-section-beginning magit-highlighted-section))
+             (diff-refine-hunk))))))
+
+(defun magit-unrefine-section (section)
+  "Remove refinements to the display of SECTION done by `magit-refine-section'."
+  (let ((type (and section (magit-section-type section))))
+    (cond ((and (eq type 'hunk)
+                magit-diff-refine-hunk
+                (not (eq magit-diff-refine-hunk 'all)))
+           ;; XXX this should be in some diff-mode function, like
+           ;; `diff-unrefine-hunk'
+           (remove-overlays (magit-section-beginning section)
+                            (magit-section-end section)
+                            'diff-mode 'fine)))))
+
 (defvar magit-highlight-overlay nil)
 
 (defvar magit-highlighted-section nil)
@@ -1775,16 +1814,21 @@ TITLE is the displayed title of the section."
   "Highlight current section if it has a type."
   (let ((section (magit-current-section)))
     (when (not (eq section magit-highlighted-section))
+      (when magit-highlighted-section
+        ;; remove any refinement from previous hunk
+        (magit-unrefine-section magit-highlighted-section))
       (setq magit-highlighted-section section)
       (if (not magit-highlight-overlay)
           (let ((ov (make-overlay 1 1)))
             (overlay-put ov 'face 'magit-item-highlight)
             (setq magit-highlight-overlay ov)))
       (if (and section (magit-section-type section))
-          (move-overlay magit-highlight-overlay
-                        (magit-section-beginning section)
-                        (magit-section-end section)
-                        (current-buffer))
+          (progn
+            (magit-refine-section section)
+            (move-overlay magit-highlight-overlay
+                          (magit-section-beginning section)
+                          (magit-section-end section)
+                          (current-buffer)))
         (delete-overlay magit-highlight-overlay)))))
 
 (defun magit-section-context-type (section)
@@ -2463,6 +2507,43 @@ in the corresponding directories."
   (setq magit-diff-context-lines 3)
   (magit-refresh))
 
+(defun magit-toggle-diff-refine-hunk (&optional other)
+  (interactive "P")
+  "Turn diff-hunk refining on or off.
+
+If hunk refining is currently on, then hunk refining is turned off.
+If hunk refining is off, then hunk refining is turned on, in
+`selected' mode (only the currently selected hunk is refined).
+
+With a prefix argument, the \"third choice\" is used instead:
+If hunk refining is currently on, then refining is kept on, but
+the refining mode (`selected' or `all') is switched.
+If hunk refining is off, then hunk refining is turned on, in
+`all' mode (all hunks refined).
+
+Customize `magit-diff-refine-hunk' to change the default mode."
+  (let* ((old magit-diff-refine-hunk)
+         (new
+          (if other
+              (if (eq old 'all) t 'all)
+            (not old))))
+
+    ;; remove any old refining in currently highlighted section
+    (when (and magit-highlighted-section old (not (eq old 'all)))
+      (magit-unrefine-section magit-highlighted-section))
+
+    ;; set variable to new value locally
+    (set (make-local-variable 'magit-diff-refine-hunk) new)
+
+    ;; if now highlighting in "selected only" mode, turn refining back
+    ;; on in the current section
+    (when (and magit-highlighted-section new (not (eq new 'all)))
+      (magit-refine-section magit-highlighted-section))
+
+    ;; `all' mode being turned on or off needs a complete refresh
+    (when (or (eq old 'all) (eq new 'all))
+      (magit-refresh))))
+
 (defun magit-diff-line-file ()
   (cond ((looking-at "^diff --git ./\\(.*\\) ./\\(.*\\)$")
          (match-string-no-properties 2))
@@ -2607,7 +2688,8 @@ in the corresponding directories."
 (defun magit-wash-hunk ()
   (cond ((looking-at "\\(^@+\\)[^@]*@+.*")
          (let ((n-columns (1- (length (match-string 1))))
-               (head (match-string 0)))
+               (head (match-string 0))
+               (hunk-start-pos (point)))
            (magit-with-section head 'hunk
              (add-text-properties (match-beginning 0) (match-end 0)
                                   '(face magit-diff-hunk-header))
@@ -2623,7 +2705,12 @@ in the corresponding directories."
                         (magit-put-line-property 'face 'magit-diff-del))
                        (t
                         (magit-put-line-property 'face 'magit-diff-none))))
-               (forward-line))))
+               (forward-line)))
+
+           (when (eq magit-diff-refine-hunk 'all)
+             (save-excursion
+               (goto-char hunk-start-pos)
+               (diff-refine-hunk))))
          t)
         (t
          nil)))
