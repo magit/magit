@@ -569,7 +569,7 @@ Do not customize this (used in the `magit-key-mode' implementation).")
     (define-key map (kbd "!") 'magit-key-mode-popup-running)
     (define-key map (kbd ":") 'magit-git-command)
     (define-key map (kbd "C-x 4 a") 'magit-add-change-log-entry-other-window)
-    (define-key map (kbd "L") 'magit-add-change-log-entry)
+    (define-key map (kbd "L") 'magit-add-change-log-entry-no-option)
     (define-key map (kbd "RET") 'magit-visit-item)
     (define-key map (kbd "SPC") 'magit-show-item-or-scroll-up)
     (define-key map (kbd "DEL") 'magit-show-item-or-scroll-down)
@@ -5104,31 +5104,33 @@ This is only meaningful in wazzup buffers.")
     ((remote)
      (call-interactively 'magit-rename-remote))))
 
-(defun magit-add-change-log-entry (&optional other-window)
+(defmacro magit-visiting-file-item (&rest body)
+  `(let ((marker (save-window-excursion
+                   (magit-visit-file-item)
+                   (set-marker (make-marker) (point)))))
+     (save-excursion
+       (with-current-buffer (marker-buffer marker)
+         (goto-char marker)
+         ,@body))))
+
+(defun magit-add-change-log-entry-no-option (&optional other-window)
   "Add a change log entry for current change.
 With a prefix argument, edit in other window.
 The name of the change log file is set by variable change-log-default-name."
   (interactive "P")
-  (let ((add-log-full-name (magit-get "user" "name"))
-        (add-log-mailing-address (magit-get "user" "email"))
-        (marker
-         (save-window-excursion
-           (magit-visit-item)
-           (set-marker (make-marker) (point)))))
-        (save-excursion
-          (with-current-buffer (marker-buffer marker)
-            (goto-char marker)
-            (add-change-log-entry nil nil other-window)))))
+  (if other-window
+      (magit-visiting-file-item (add-change-log-entry-other-window))
+    (magit-visiting-file-item (add-change-log-entry))))
 
 (defun magit-add-change-log-entry-other-window ()
   (interactive)
-  (magit-add-change-log-entry t))
+  (magit-visiting-file-item (call-interactively 'add-change-log-entry-other-window)))
 
-(defun magit-visit-item (&optional other-window)
-  "Visit current item.
+(defun magit-visit-file-item (&optional other-window)
+  "Visit current file associated with item.
 With a prefix argument, visit in other window."
   (interactive "P")
-  (magit-section-action (item info "visit")
+  (magit-section-action (item info "visit-file")
     ((untracked file)
      (funcall
       (if other-window 'find-file-other-window 'find-file)
@@ -5152,7 +5154,19 @@ With a prefix argument, visit in other window."
         (if other-window 'find-file-other-window 'find-file)
         file)
        (goto-char (point-min))
-       (forward-line (1- line))))
+       (forward-line (1- line))))))
+
+(defun magit-visit-item (&optional other-window)
+  "Visit current item.
+With a prefix argument, visit in other window."
+  (interactive "P")
+  (magit-section-action (item info "visit")
+    ((untracked file)
+     (call-interactively 'magit-visit-file-item))
+    ((diff)
+     (call-interactively 'magit-visit-file-item))
+    ((hunk)
+     (call-interactively 'magit-visit-file-item))
     ((commit)
      (magit-show-commit info nil nil 'select))
     ((stash)
