@@ -4172,17 +4172,30 @@ option, falling back to something hairy if that is unset."
     (set (make-local-variable 'paragraph-start)
          (concat paragraph-start "\\|*\\|("))))
 
-(defcustom magit-log-edit-add-status-comments nil
+(defcustom magit-log-edit-status-comments nil
   "Add the usual status comments to the log edit buffer.
 
 Normally when you do `git commit' on the command line, git
 invokes your editor and pre-populates the commit message with
-some comments showing the status of your repo. If this variables
-it set to t, Magit will do the same."
+some comments showing the status of your repo. If this variable
+is set to t, Magit will do the same. Additionally, the value of
+`magit-log-edit-clean-comment-lines' will be set to t if this is
+t, so that the inserted comments do not appear in the final
+commit message."
+  :group 'magit
   :type 'boolean)
 
-(defun magit-log-edit-add-status-comments ()
-  (when magit-log-edit-add-status-comments
+(defcustom magit-log-edit-clean-comment-lines nil
+  "If t, comment lines are deleted before committing.
+
+This emulates the behavior of running git from the command line."
+  :group 'magit
+  :type 'boolean)
+
+(defun magit-log-edit-insert-status-comments ()
+  (when (and magit-log-edit-status-comments
+             ;; Make sure we don't add comments more than once
+             (not (bound-and-true-p already-added-status-comments)))
     (save-excursion
       (goto-char (point-min))
       (when (not (search-forward "# Please enter the commit message for your changes." nil 'noerror))
@@ -4196,9 +4209,15 @@ it set to t, Magit will do the same."
             "\n\\([^#]\\)" "\n# \\1"
             (replace-regexp-in-string
              "\n.*(use \"git.*" ""
-             status-text))))))))
+             status-text))))))
+    ;; Make sure the comments are deleted at commit time
+    (set (make-local-variable 'magit-log-edit-clean-comment-lines)
+         t)
+    ;; Mark status comments as already added
+    (set (make-local-variable 'already-added-status-comments)
+         t)))
 
-(add-hook 'magit-log-edit-mode-hook 'magit-log-edit-add-status-comments)
+(add-hook 'magit-log-edit-mode-hook 'magit-log-edit-insert-status-comments)
 
 (defun magit-log-edit-cleanup ()
   (save-excursion
@@ -4365,6 +4384,10 @@ environment (potentially empty)."
                       (append magit-git-standard-options
                               '("commit")
                               magit-custom-options
+                              (list (if (buffer-local-value 'magit-log-edit-clean-comment-lines
+                                                            commit-buf)
+                                        "--cleanup=strip"
+                                      "--cleanup=whitespace"))
                               '("-F" "-")
                               (if (and commit-all (not allow-empty)) '("--all") '())
                               (if amend '("--amend") '())
