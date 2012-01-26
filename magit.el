@@ -4161,7 +4161,7 @@ option, falling back to something hairy if that is unset."
       (set (make-local-variable 'git-commit-font-lock-keywords)
            (mapcar (lambda (x)
                      (if (string= (substring (car x) 0 2) "\\`")
-                         `(,(format "\\`\\(\\(?:.*\n\\)*?%s\\|\\)\\(?:\\(?:[[:space:]]*\\|#.*\\)\n\\)*\\(.\\{,50\\}\\)\\(.*?\\)\\(?:\n\\(.*\\)\\)?$" magit-log-header-end)
+                         `(,(format "\\`\\(?:\\(?:.*\n\\)*?\\(%s\\)\\|\\)\\(?:\\(?:[[:space:]]*\\|#.*\\)\n\\)*\\(.\\{,50\\}\\)\\(.*?\\)\\(?:\n\\(.*\\)\\)?$" magit-log-header-end)
                            (1 'git-commit-comment-face)
                            (2 'git-commit-summary-face)
                            (3 'git-commit-overlong-summary-face)
