@@ -245,10 +245,14 @@ Typing @kbd{C-u S} anywhere will also stage all untracked files,
 together with all changes to the tracked files.
 
 You can instruct Git to ignore them by typing @kbd{i}.  This will add
-the filename to the @code{.gitignore} file.  Typing @kbd{C-u i} will
-ask you for the name of the file to ignore.  This is useful to ignore
-whole directories, for example.  The @kbd{I} command is similar to
-@kbd{i} but will add the file to @code{.git/info/exclude} instead.
+the filename to the @code{.gitignore} file.  Typing @kbd{C-u i} will ask
+you for the name of the file to ignore.  This is useful to ignore whole
+directories, for example.  In this case, the minibuffer's future history
+(accessible with @kbd{M-n}) contains predefined values (such as
+wildcards) that might be of interest. If prefix argument is negative
+(for example after typing @kbd{C-- i}), the prompt proposes wildcard by
+default.  The @kbd{I} command is similar to @kbd{i} but will add the
+file to @code{.git/info/exclude} instead.
 
 To delete an untracked file forever, use @kbd{k}.  If point is on the
 @emph{Untracked files} section title when you hit @kbd{k}, all
