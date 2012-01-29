@@ -396,14 +396,19 @@ highlighted before the description."
 (defun magit-key-mode-redraw (for-group)
   "(re)draw the magit key buffer."
   (let ((buffer-read-only nil)
-        (old-point (point)))
+        (old-point (point))
+        (is-first (zerop (buffer-size)))
+        (actions-p nil))
     (erase-buffer)
     (make-local-variable 'font-lock-defaults)
     (use-local-map (magit-key-mode-get-key-map for-group))
-    (magit-key-mode-draw for-group)
+    (setq actions-p (magit-key-mode-draw for-group))
     (delete-trailing-whitespace)
     (setq mode-name "magit-key-mode" major-mode 'magit-key-mode)
-    (goto-char old-point))
+    (if (and is-first actions-p)
+      (progn (goto-char actions-p)
+             (magit-key-mode-jump-to-next-exec))
+      (goto-char old-point)))
   (setq buffer-read-only t)
   (fit-window-to-buffer))
 
@@ -478,15 +483,20 @@ item on one line."
   (insert "\n"))
 
 (defun magit-key-mode-draw (for-group)
-  "Function used to draw actions, switches and parameters."
+  "Function used to draw actions, switches and parameters.
+
+Returns the point before the actions part, if any."
   (let* ((options (magit-key-mode-options-for-group for-group))
          (switches (cdr (assoc 'switches options)))
          (arguments (cdr (assoc 'arguments options)))
-         (actions (cdr (assoc 'actions options))))
+         (actions (cdr (assoc 'actions options)))
+         (p nil))
     (magit-key-mode-draw-switches switches)
     (magit-key-mode-draw-args arguments)
+    (when actions (setq p (point-marker)))
     (magit-key-mode-draw-actions actions)
-    (insert "\n")))
+    (insert "\n")
+    p))
 
 (defun magit-key-mode-de-generate (group)
   "Unbind the function for GROUP."
