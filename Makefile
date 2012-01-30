@@ -2,7 +2,7 @@ VERSION=$(shell git describe --tags --dirty)
 EMACS=emacs
 PREFIX=/usr/local
 SYSCONFDIR=/etc
-ELS=magit.el magit-svn.el magit-topgit.el magit-stgit.el magit-key-mode.el magit-bisect.el
+ELS=magit.el magit-svn.el magit-topgit.el magit-stgit.el magit-key-mode.el magit-bisect.el magit-wip.el rebase-mode.el
 ELS_CONTRIB=contrib/magit-simple-keys.el contrib/magit-classic-theme.el
 ELCS=$(ELS:.el=.elc)
 ELCS_CONTRIB=$(ELS_CONTRIB:.el=.elc)
@@ -37,10 +37,6 @@ magit.elc: magit.el
 	$(BATCH) --eval '(byte-compile-file "magit.tmp.el")' #NO_DIST
 	mv magit.tmp.elc magit.elc #NO_DIST
 	rm magit.tmp.el #NO_DIST
-magit-key-mode.elc:
-magit-svn.elc:
-magit-topgit.elc:
-magit-stgit.elc:
 magit.info:
 
 dist: magit-$(VERSION).tar.gz
