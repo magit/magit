@@ -37,10 +37,6 @@ magit.elc: magit.el
 	$(BATCH) --eval '(byte-compile-file "magit.tmp.el")' #NO_DIST
 	mv magit.tmp.elc magit.elc #NO_DIST
 	rm magit.tmp.el #NO_DIST
-magit-key-mode.elc:
-magit-svn.elc:
-magit-topgit.elc:
-magit-stgit.elc:
 magit.info:
 
 dist: magit-$(VERSION).tar.gz
