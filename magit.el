@@ -5030,8 +5030,8 @@ This is only meaningful in wazzup buffers.")
                      #'magit-refresh-wazzup-buffer
                      current-branch all)))
 
-(defun magit-refresh-filelog-buffer (file range style)
-  "Refresh the current filelog buffer by calling git.
+(defun magit-refresh-file-log-buffer (file range style)
+  "Refresh the current file-log buffer by calling git.
 
 FILE is the path of the file whose log must be displayed.
 
@@ -5059,7 +5059,7 @@ STYLE controls the display. It is either `'long',  `'oneline', or something else
              "--"
              ,file))))
 
-(defun magit-filelog (&optional all)
+(defun magit-file-log (&optional all)
   "Display the log for the currently visited file or another one.
 
 With a prefix argument or if no file is currently visited, ask
@@ -5072,7 +5072,7 @@ for the file whose log must be displayed."
         (range "HEAD"))
     (magit-buffer-switch "*magit-log*")
     (magit-mode-init topdir 'magit-log-mode
-                     #'magit-refresh-filelog-buffer
+                     #'magit-refresh-file-log-buffer
                      current-file range 'oneline)))
 
 ;;; Miscellaneous
