@@ -24,6 +24,8 @@
 
 ;;; Code:
 
+(require 'server)
+
 (defgroup rebase-mode nil
   "Customize Rebase Mode"
   :group 'faces)
