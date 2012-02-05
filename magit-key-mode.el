@@ -110,7 +110,9 @@
       ("z" "Save" magit-stash)
       ("s" "Snapshot" magit-stash-snapshot))
      (switches
-      ("-k" "Keep index" "--keep-index")))
+      ("-k" "Keep index" "--keep-index")
+      ("-u" "Include untracked files" "--include-untracked")
+      ("-a" "Include all files" "--all")))
 
     (merging
      (man-page "git-merge")
