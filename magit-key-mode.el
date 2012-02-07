@@ -176,7 +176,7 @@ and put in its place an empty one of the same name."
   (when (assoc group magit-key-mode-groups)
     (magit-key-mode-delete-group group))
   (setq magit-key-mode-groups
-        (cons (list group '(actions)) magit-key-mode-groups)))
+        (cons (list group (list 'actions)) magit-key-mode-groups)))
 
 (defun magit-key-mode-key-defined-p (for-group key)
   "If KEY is defined as any of switch, argument or action within
