@@ -1,4 +1,4 @@
-;;; magit.el -- control Git from Emacs.
+;;; magit.el --- control Git from Emacs
 
 ;; Copyright (C) 2010 Aaron Culich.
 ;; Copyright (C) 2010 Alan Falloon.
