@@ -1021,11 +1021,11 @@ autocompletion will offer directory names."
   ;; so magit-git-string returns nil.
   (not (magit-git-string "rev-parse" "--abbrev-ref" ref)))
 
-(defun magit-name-rev (rev)
+(defun magit-name-rev (rev &optional no-trim)
   "Return a human-readable name for REV.
 Unlike git name-rev, this will remove tags/ and remotes/ prefixes
-if that can be done unambiguously.  In addition, it will filter
-out revs involving HEAD."
+if that can be done unambiguously (unless optional arg NO-TRIM is
+non-nil).  In addition, it will filter out revs involving HEAD."
   (when rev
     (let ((name (magit-git-string "name-rev" "--no-undefined" "--name-only" rev)))
       ;; There doesn't seem to be a way of filtering HEAD out from name-rev,
@@ -1045,7 +1045,7 @@ out revs involving HEAD."
       (setq rev (or name rev))
       (when (string-match "^\\(?:tags\\|remotes\\)/\\(.*\\)" rev)
         (let ((plain-name (match-string 1 rev)))
-          (unless (magit-ref-ambiguous-p plain-name)
+          (unless (or no-trim (magit-ref-ambiguous-p plain-name))
             (setq rev plain-name))))
       rev)))
 
@@ -1243,8 +1243,8 @@ a commit, or any reference to one of those."
                 (magit-rev-describe (cdr range)))
       (format "%s at %s" things (magit-rev-describe (car range))))))
 
-(defun magit-default-rev ()
-  (or (magit-name-rev (magit-commit-at-point t))
+(defun magit-default-rev (&optional no-trim)
+  (or (magit-name-rev (magit-commit-at-point t) no-trim)
       (let ((branch (magit-guess-branch)))
         (if branch
             (if (string-match "^refs/\\(.*\\)" branch)
