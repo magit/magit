@@ -5447,7 +5447,7 @@ These are the branch names with the remote name stripped."
 
 (defun magit--is-branch-at-point-remote ()
   "Return t if the branch at point is a remote tracking branch"
-  (magit-remote-part-of-branch (magit-section-info (magit-current-section))))
+  (magit-remote-part-of-branch (magit--branch-name-at-point)))
 
 (defun magit-remote-part-of-branch (branch)
   (when (string-match-p "^remotes\\/" branch)
