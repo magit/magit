@@ -5450,15 +5450,19 @@ These are the branch names with the remote name stripped."
   (magit-remote-part-of-branch (magit--branch-name-at-point)))
 
 (defun magit-remote-part-of-branch (branch)
-  (when (string-match-p "^remotes\\/" branch)
+  (when (string-match-p "^\\(?:refs/\\)?remotes\\/" branch)
     (loop for remote in (magit-git-lines "remote")
-          until (string-match-p (format "^remotes\\/%s\\/" remote) branch)
+          until (string-match-p (format "^\\(?:refs/\\)?remotes\\/%s\\/" (regexp-quote remote)) branch)
           finally return remote)))
 
 (defun magit-branch-no-remote (branch)
   (let ((remote (magit-remote-part-of-branch branch)))
     (if remote
-        (substring branch (+ 9 (length remote)))
+        (progn
+          ;; This has to match if remote is non-nil
+          (assert (string-match (format "^\\(?:refs/\\)?remotes\\/%s\\/\\(.*\\)" (regexp-quote remote)) branch)
+                  'show-args "Unexpected string-match failure")
+          (match-string 1 branch))
       branch)))
 
 (defun magit-wash-branch-line (&optional remote-name)
