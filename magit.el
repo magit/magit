@@ -1882,12 +1882,14 @@ function can be enriched by magit extension like magit-topgit and magit-svn"
       (when (eq (car form) 'interactive)
         (setq inter form
               instr (cdr instr))))
-    `(defun ,fun ,arglist
-       ,doc
-       ,inter
-       (or (run-hook-with-args-until-success
-            ',hook ,@(remq '&optional (remq '&rest arglist)))
-           ,@instr))))
+    `(progn
+       (defvar ,hook nil)
+       (defun ,fun ,arglist
+         ,doc
+         ,inter
+         (or (run-hook-with-args-until-success
+              ',hook ,@(remq '&optional (remq '&rest arglist)))
+             ,@instr)))))
 
 ;;; Running commands
 
