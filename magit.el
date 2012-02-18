@@ -1724,11 +1724,14 @@ TITLE is the displayed title of the section."
         (before (intern (format "magit-before-insert-%s-hook" sym)))
         (after (intern (format "magit-after-insert-%s-hook" sym)))
         (doc (format "Insert items for `%s'." sym)))
-    `(defun ,fun ,arglist
-       ,doc
-       (run-hooks ',before)
-       ,@body
-       (run-hooks ',after))))
+    `(progn
+       (defvar ,before nil)
+       (defvar ,after nil)
+       (defun ,fun ,arglist
+         ,doc
+         (run-hooks ',before)
+         ,@body
+         (run-hooks ',after)))))
 
 (defvar magit-highlight-overlay nil)
 
