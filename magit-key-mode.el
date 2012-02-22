@@ -28,7 +28,10 @@
       ("h" "Reflog" magit-reflog)
       ("rl" "Ranged short" magit-log-ranged)
       ("rL" "Ranged long" magit-log-long-ranged)
-      ("rh" "Ranged reflog" magit-reflog-ranged))
+      ("rh" "Ranged reflog" magit-reflog-ranged)
+      ("g" "open gitg" magit-run-gitg)
+      ("k" "open gitk" magit-run-gitk))
+
      (switches
       ("-m" "Only merge commits" "--merges")
       ("-f" "First parent" "--first-parent")
