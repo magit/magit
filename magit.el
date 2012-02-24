@@ -3595,6 +3595,14 @@ user input."
   (if revision
       (magit-run-git "merge" (magit-rev-to-git revision))))
 
+(magit-define-command manual-merge (revision)
+  "Merge REVISION into the current 'HEAD'; commit unless merge fails.
+\('git merge REVISION')."
+  (interactive (list (magit-read-rev "Merge" (magit-guess-branch))))
+  (when revision
+    (magit-run-git "merge" "--no-commit" (magit-rev-to-git revision))
+    (magit-log-edit)))
+
 ;;; Staging and Unstaging
 
 (defun magit-stage-item (&optional ask)
