@@ -3601,7 +3601,8 @@ user input."
   (interactive (list (magit-read-rev "Merge" (magit-guess-branch))))
   (when revision
     (magit-run-git "merge" "--no-commit" (magit-rev-to-git revision))
-    (magit-log-edit)))
+    (when (file-exists-p ".git/MERGE_MSG")
+        (magit-log-edit))))
 
 ;;; Staging and Unstaging
 
