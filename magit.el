@@ -2234,7 +2234,7 @@ function can be enriched by magit extension like magit-topgit and magit-svn"
     ["Snapshot" magit-stash-snapshot t]
     "---"
     ["Branch..." magit-checkout t]
-    ["Merge" magit-automatic-merge t]
+    ["Merge" magit-manual-merge t]
     ["Interactive resolve" magit-interactive-resolve-item t]
     ["Rebase" magit-rebase-step t]
     ("Rewrite"
@@ -3599,6 +3599,15 @@ user input."
   (interactive (list (magit-read-rev "Merge" (magit-guess-branch))))
   (if revision
       (magit-run-git "merge" (magit-rev-to-git revision))))
+
+(magit-define-command manual-merge (revision)
+  "Merge REVISION into the current 'HEAD'; commit unless merge fails.
+\('git merge REVISION')."
+  (interactive (list (magit-read-rev "Merge" (magit-guess-branch))))
+  (when revision
+    (magit-run-git "merge" "--no-commit" (magit-rev-to-git revision))
+    (when (file-exists-p ".git/MERGE_MSG")
+        (magit-log-edit))))
 
 ;;; Staging and Unstaging
 
