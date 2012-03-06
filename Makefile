@@ -33,7 +33,7 @@ magit-pkg.el: magit-pkg.el.in
 	sed -e s/@VERSION@/$(VERSION)/ < $< > $@
 
 50magit.el: $(ELS)
-	$(BATCH) --eval "(let ((generated-autoload-file \"$(PWD)/50magit.el\") (make-backup-files nil)) (update-directory-autoloads \".\"))"
+	$(BATCH) -eval "(progn (defvar generated-autoload-file nil) (let ((generated-autoload-file \"$(PWD)/50magit.el\") (make-backup-files nil)) (update-directory-autoloads \".\")))"
 
 magit.elc: magit.el
 	sed -e "s/@GIT_DEV_VERSION@/$(VERSION)/" < magit.el > magit.tmp.el #NO_DIST
