@@ -4544,6 +4544,14 @@ continue it.
         (magit-log-edit-toggle-amending))
       (when empty-p
         (magit-log-edit-toggle-allow-empty))
+      (let ((author-email (or (getenv "GIT_AUTHOR_EMAIL") ""))
+            (author-name (or (getenv "GIT_AUTHOR_NAME") ""))
+            (author-date (or (getenv "GIT_AUTHOR_DATE") "")))
+        (if (not (string= author-email ""))
+            (magit-log-edit-set-field 'author (format "%s <%s>%s"
+                                                      (if (string= "" author-name) author-email author-name)
+                                                      author-email
+                                                      (if (string= "" author-date) "" (format ", %s") author-date)))))
       (magit-pop-to-log-edit "commit"))))
 
 (defun magit-add-log ()
