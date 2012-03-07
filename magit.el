@@ -2234,7 +2234,7 @@ function can be enriched by magit extension like magit-topgit and magit-svn"
     ["Snapshot" magit-stash-snapshot t]
     "---"
     ["Branch..." magit-checkout t]
-    ["Merge" magit-automatic-merge t]
+    ["Merge" magit-manual-merge t]
     ["Interactive resolve" magit-interactive-resolve-item t]
     ["Rebase" magit-rebase-step t]
     ("Rewrite"
@@ -3600,6 +3600,15 @@ user input."
   (if revision
       (magit-run-git "merge" (magit-rev-to-git revision))))
 
+(magit-define-command manual-merge (revision)
+  "Merge REVISION into the current 'HEAD'; commit unless merge fails.
+\('git merge REVISION')."
+  (interactive (list (magit-read-rev "Merge" (magit-guess-branch))))
+  (when revision
+    (magit-run-git "merge" "--no-commit" (magit-rev-to-git revision))
+    (when (file-exists-p ".git/MERGE_MSG")
+        (magit-log-edit))))
+
 ;;; Staging and Unstaging
 
 (defun magit-stage-item (&optional ask)
@@ -3960,19 +3969,26 @@ Uncomitted changes in both working tree and staging area are lost.
                                          "HEAD"))))
   (magit-reset-head revision t))
 
-(magit-define-command reset-working-tree (&optional include-untracked)
+(magit-define-command reset-working-tree (&optional arg)
   "Revert working tree and clear changes from staging area.
 \('git reset --hard HEAD').
 
-With a prefix arg, also remove untracked files."
-  (interactive "P")
-  (when (yes-or-no-p (format "Discard all uncommitted changes%s? "
-                             (if include-untracked
-                                 " and untracked files"
-                               "")))
-    (magit-reset-head-hard "HEAD")
-    (if include-untracked
-        (magit-run-git "clean" "-fd"))))
+With a prefix arg, also remove untracked files.  With two prefix args, remove ignored files as well."
+  (interactive "p")
+  (let ((include-untracked (>= arg 4))
+        (include-ignored (>= arg 16)))
+    (when (yes-or-no-p (format "Discard all uncommitted changes%s%s? "
+                               (if include-untracked
+                                   ", untracked files"
+                                 "")
+                               (if include-ignored
+                                   ", ignored files"
+                                 "")))
+      (magit-reset-head-hard "HEAD")
+      (if include-untracked
+          (magit-run-git "clean" "-fd" (if include-ignored
+                                           "-x"
+                                         ""))))))
 
 ;;; Rewriting
 
@@ -4360,18 +4376,28 @@ toggled on."
   "Set GIT_AUTHOR_* variables from AUTHOR spec.
 If AUTHOR is nil, honor default values from
 environment (potentially empty)."
-  (when author
-    ;; XXX - this is a bit strict, probably.
-    (or (string-match "\\(.*\\) <\\(.*\\)>\\(?:,\\s-*\\(.+\\)\\)?" author)
-        (error "Can't parse author string"))
-    ;; Shucks, setenv destroys the match data.
-    (let ((name (match-string 1 author))
-          (email (match-string 2 author))
-          (date  (match-string 3 author)))
-      (setenv "GIT_AUTHOR_NAME" name)
-      (setenv "GIT_AUTHOR_EMAIL" email)
-      (if date
-          (setenv "GIT_AUTHOR_DATE" date)))))
+  (let ((previous-env-vars (list (getenv "GIT_AUTHOR_NAME")
+                                 (getenv "GIT_AUTHOR_EMAIL")
+                                 (getenv "GIT_AUTHOR_DATE"))))
+    (when author
+      ;; XXX - this is a bit strict, probably.
+      (or (string-match "\\(.*\\) <\\(.*\\)>\\(?:,\\s-*\\(.+\\)\\)?" author)
+          (error "Can't parse author string"))
+      ;; Shucks, setenv destroys the match data.
+      (let ((name (match-string 1 author))
+            (email (match-string 2 author))
+            (date  (match-string 3 author)))
+        (setenv "GIT_AUTHOR_NAME" name)
+        (setenv "GIT_AUTHOR_EMAIL" email)
+        (if date
+            (setenv "GIT_AUTHOR_DATE" date))))
+    previous-env-vars))
+
+(defun magit-log-edit-clean-author-env (name email date)
+  "Re-set GIT_AUTHOR_* variables after commit."
+  (setenv "GIT_AUTHOR_NAME" name)
+  (setenv "GIT_AUTHOR_EMAIL" email)
+  (setenv "GIT_AUTHOR_DATE" date))
 
 (defun magit-log-edit-push-to-comment-ring (comment)
   (when (or (ring-empty-p log-edit-comment-ring)
@@ -4393,6 +4419,7 @@ environment (potentially empty)."
          (tag-rev (cdr (assq 'tag-rev fields)))
          (tag-name (cdr (assq 'tag-name fields)))
          (author (cdr (assq 'author fields)))
+         previous-author-env
          (tag-options (cdr (assq 'tag-options fields))))
 
     (unless (or (magit-anything-staged-p)
@@ -4409,7 +4436,7 @@ environment (potentially empty)."
                                     'magit-log-edit-toggle-allow-empty)))))
 
     (magit-log-edit-push-to-comment-ring (buffer-string))
-    (magit-log-edit-setup-author-env author)
+    (setq previous-author-env (magit-log-edit-setup-author-env author))
     (magit-log-edit-set-fields nil)
     (magit-log-edit-cleanup)
     (if (= (buffer-size) 0)
@@ -4434,6 +4461,7 @@ environment (potentially empty)."
     (bury-buffer)
     (when (file-exists-p ".git/MERGE_MSG")
       (delete-file ".git/MERGE_MSG"))
+    (apply 'magit-log-edit-clean-author-env previous-author-env)
     (magit-update-vc-modeline default-directory)
     (when magit-pre-log-edit-window-configuration
       (set-window-configuration magit-pre-log-edit-window-configuration)
@@ -4532,6 +4560,14 @@ continue it.
         (magit-log-edit-toggle-amending))
       (when empty-p
         (magit-log-edit-toggle-allow-empty))
+      (let ((author-email (or (getenv "GIT_AUTHOR_EMAIL") ""))
+            (author-name (or (getenv "GIT_AUTHOR_NAME") ""))
+            (author-date (or (getenv "GIT_AUTHOR_DATE") "")))
+        (if (not (string= author-email ""))
+            (magit-log-edit-set-field 'author (format "%s <%s>%s"
+                                                      (if (string= "" author-name) author-email author-name)
+                                                      author-email
+                                                      (if (string= "" author-date) "" (format ", %s") author-date)))))
       (magit-pop-to-log-edit "commit"))))
 
 (defun magit-add-log ()
@@ -5097,6 +5133,90 @@ This is only meaningful in wazzup buffers.")
     (magit-mode-init topdir 'magit-wazzup-mode
                      #'magit-refresh-wazzup-buffer
                      current-branch all)))
+
+(defun magit-filename (filename)
+  "Return the path of FILENAME relative to its git repository.
+
+If FILENAME is absolute, return a path relative to the git
+repository containing it. Otherwise, return a path relative to
+the current git repository."
+  (let ((topdir (expand-file-name
+                 (magit-get-top-dir (or (file-name-directory filename)
+                                        default-directory))))
+        (file (expand-file-name filename)))
+    (when (and (not (string= topdir ""))
+               ;; FILE must start with the git repository path
+               (zerop (string-match-p (concat "\\`" topdir) file)))
+      (substring file (length topdir)))))
+
+(defun magit-refresh-file-log-buffer (file range style)
+  "Refresh the current file-log buffer by calling git.
+
+FILE is the path of the file whose log must be displayed.
+
+`magit-current-range' will be set to the value of RANGE.
+
+STYLE controls the display. It is either `'long',  `'oneline', or something else.
+ "
+  (magit-configure-have-graph)
+  (magit-configure-have-decorate)
+  (magit-configure-have-abbrev)
+  (setq magit-current-range range)
+  (setq magit-file-log-file file)
+  (magit-create-log-buffer-sections
+    (apply #'magit-git-section nil
+           (magit-rev-range-describe range (format "Commits for file %s" file))
+           (apply-partially 'magit-wash-log style)
+           `("log"
+             ,(format "--max-count=%s" magit-log-cutoff-length)
+             ,"--abbrev-commit"
+             ,(format "--abbrev=%s" magit-sha1-abbrev-length)
+             ,@(cond ((eq style 'long) (list "--stat" "-z"))
+                     ((eq style 'oneline) (list "--pretty=oneline"))
+                     (t nil))
+             ,@(if magit-have-decorate (list "--decorate=full"))
+             ,@(if magit-have-graph (list "--graph"))
+             "--"
+             ,file))))
+
+;; This variable is used to keep track of the current file in the
+;; *magit-log* buffer when this one is dedicated to showing the log of
+;; just 1 file.
+(make-variable-buffer-local 'magit-file-log-file)
+(setq-default magit-file-log-file nil)
+
+(defun magit-file-log (&optional all)
+  "Display the log for the currently visited file or another one.
+
+With a prefix argument or if no file is currently visited, ask
+for the file whose log must be displayed."
+  (interactive "P")
+  (let ((topdir (magit-get-top-dir default-directory))
+        (current-file (magit-filename
+                       (if (or current-prefix-arg (not buffer-file-name))
+                           (magit-read-file-from-rev (magit-get-current-branch))
+                        buffer-file-name)))
+        (range "HEAD"))
+    (magit-buffer-switch "*magit-log*")
+    (magit-mode-init topdir 'magit-log-mode
+                     #'magit-refresh-file-log-buffer
+                     current-file range 'oneline)))
+
+(defun magit-show-file-revision ()
+  "Open a new buffer showing the current file in the revision at point."
+  (interactive)
+  (flet ((magit-show-file-from-diff (item)
+                                    (switch-to-buffer-other-window
+                                     (magit-show (cdr (magit-diff-item-range item))
+                                                 (magit-diff-item-file item)))))
+    (magit-section-action (item info "show")
+      ((commit)
+       (let ((current-file (or magit-file-log-file
+                               (magit-read-file-from-rev info))))
+         (switch-to-buffer-other-window
+          (magit-show info current-file))))
+      ((hunk) (magit-show-file-from-diff (magit-hunk-item-diff item)))
+      ((diff) (magit-show-file-from-diff item)))))
 
 ;;; Miscellaneous
 
