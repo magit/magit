@@ -1021,11 +1021,11 @@ autocompletion will offer directory names."
   ;; so magit-git-string returns nil.
   (not (magit-git-string "rev-parse" "--abbrev-ref" ref)))
 
-(defun magit-name-rev (rev)
+(defun magit-name-rev (rev &optional no-trim)
   "Return a human-readable name for REV.
 Unlike git name-rev, this will remove tags/ and remotes/ prefixes
-if that can be done unambiguously.  In addition, it will filter
-out revs involving HEAD."
+if that can be done unambiguously (unless optional arg NO-TRIM is
+non-nil).  In addition, it will filter out revs involving HEAD."
   (when rev
     (let ((name (magit-git-string "name-rev" "--no-undefined" "--name-only" rev)))
       ;; There doesn't seem to be a way of filtering HEAD out from name-rev,
@@ -1045,7 +1045,7 @@ out revs involving HEAD."
       (setq rev (or name rev))
       (when (string-match "^\\(?:tags\\|remotes\\)/\\(.*\\)" rev)
         (let ((plain-name (match-string 1 rev)))
-          (unless (magit-ref-ambiguous-p plain-name)
+          (unless (or no-trim (magit-ref-ambiguous-p plain-name))
             (setq rev plain-name))))
       rev)))
 
@@ -1243,8 +1243,8 @@ a commit, or any reference to one of those."
                 (magit-rev-describe (cdr range)))
       (format "%s at %s" things (magit-rev-describe (car range))))))
 
-(defun magit-default-rev ()
-  (or (magit-name-rev (magit-commit-at-point t))
+(defun magit-default-rev (&optional no-trim)
+  (or (magit-name-rev (magit-commit-at-point t) no-trim)
       (let ((branch (magit-guess-branch)))
         (if branch
             (if (string-match "^refs/\\(.*\\)" branch)
@@ -3786,7 +3786,7 @@ If the branch is the current one, offers to switch to `master' first.
 With prefix, forces the removal even if it hasn't been merged.
 Works with local or remote branches.
 \('git branch [-d|-D] BRANCH' or 'git push <remote-part-of-BRANCH> :refs/heads/BRANCH')."
-  (interactive (list (magit-read-rev "Branch to delete" (magit-default-rev))
+  (interactive (list (magit-read-rev "Branch to delete" (magit-default-rev 'notrim))
                      current-prefix-arg))
   (let* ((remote (magit-remote-part-of-branch branch))
          (is-current (string= branch (magit-get-current-branch)))
@@ -5552,18 +5552,22 @@ These are the branch names with the remote name stripped."
 
 (defun magit--is-branch-at-point-remote ()
   "Return t if the branch at point is a remote tracking branch"
-  (magit-remote-part-of-branch (magit-section-info (magit-current-section))))
+  (magit-remote-part-of-branch (magit--branch-name-at-point)))
 
 (defun magit-remote-part-of-branch (branch)
-  (when (string-match-p "^remotes\\/" branch)
+  (when (string-match-p "^\\(?:refs/\\)?remotes\\/" branch)
     (loop for remote in (magit-git-lines "remote")
-          until (string-match-p (format "^remotes\\/%s\\/" remote) branch)
+          until (string-match-p (format "^\\(?:refs/\\)?remotes\\/%s\\/" (regexp-quote remote)) branch)
           finally return remote)))
 
 (defun magit-branch-no-remote (branch)
   (let ((remote (magit-remote-part-of-branch branch)))
     (if remote
-        (substring branch (+ 9 (length remote)))
+        (progn
+          ;; This has to match if remote is non-nil
+          (assert (string-match (format "^\\(?:refs/\\)?remotes\\/%s\\/\\(.*\\)" (regexp-quote remote)) branch)
+                  'show-args "Unexpected string-match failure")
+          (match-string 1 branch))
       branch)))
 
 (defun magit-wash-branch-line (&optional remote-name)
