@@ -5566,7 +5566,7 @@ These are the branch names with the remote name stripped."
         (progn
           ;; This has to match if remote is non-nil
           (assert (string-match (format "^\\(?:refs/\\)?remotes\\/%s\\/\\(.*\\)" (regexp-quote remote)) branch)
-                  'show-args "Unexpected string-match failure")
+                  'show-args "Unexpected string-match failure: %s %s")
           (match-string 1 branch))
       branch)))
 
