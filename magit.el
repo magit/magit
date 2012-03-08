@@ -5132,8 +5132,8 @@ the current git repository."
 ;; This variable is used to keep track of the current file in the
 ;; *magit-log* buffer when this one is dedicated to showing the log of
 ;; just 1 file.
+(defvar magit-file-log-file nil)
 (make-variable-buffer-local 'magit-file-log-file)
-(setq-default magit-file-log-file nil)
 
 (defun magit-refresh-file-log-buffer (file range style)
   "Refresh the current file-log buffer by calling git.
