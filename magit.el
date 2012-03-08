@@ -5129,6 +5129,12 @@ the current git repository."
                (zerop (string-match-p (concat "\\`" topdir) file)))
       (substring file (length topdir)))))
 
+;; This variable is used to keep track of the current file in the
+;; *magit-log* buffer when this one is dedicated to showing the log of
+;; just 1 file.
+(make-variable-buffer-local 'magit-file-log-file)
+(setq-default magit-file-log-file nil)
+
 (defun magit-refresh-file-log-buffer (file range style)
   "Refresh the current file-log buffer by calling git.
 
@@ -5158,12 +5164,6 @@ STYLE controls the display. It is either `'long',  `'oneline', or something else
              ,@(if magit-have-graph (list "--graph"))
              "--"
              ,file))))
-
-;; This variable is used to keep track of the current file in the
-;; *magit-log* buffer when this one is dedicated to showing the log of
-;; just 1 file.
-(make-variable-buffer-local 'magit-file-log-file)
-(setq-default magit-file-log-file nil)
 
 (defun magit-file-log (&optional all)
   "Display the log for the currently visited file or another one.
