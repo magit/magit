@@ -4360,28 +4360,19 @@ toggled on."
   "Set GIT_AUTHOR_* variables from AUTHOR spec.
 If AUTHOR is nil, honor default values from
 environment (potentially empty)."
-  (let ((previous-env-vars (list (getenv "GIT_AUTHOR_NAME")
-                                 (getenv "GIT_AUTHOR_EMAIL")
-                                 (getenv "GIT_AUTHOR_DATE"))))
-    (when author
-      ;; XXX - this is a bit strict, probably.
-      (or (string-match "\\(.*\\) <\\(.*\\)>\\(?:,\\s-*\\(.+\\)\\)?" author)
-          (error "Can't parse author string"))
-      ;; Shucks, setenv destroys the match data.
-      (let ((name (match-string 1 author))
-            (email (match-string 2 author))
-            (date  (match-string 3 author)))
-        (setenv "GIT_AUTHOR_NAME" name)
-        (setenv "GIT_AUTHOR_EMAIL" email)
-        (if date
-            (setenv "GIT_AUTHOR_DATE" date))))
-    previous-env-vars))
-
-(defun magit-log-edit-clean-author-env (name email date)
-  "Re-set GIT_AUTHOR_* variables after commit."
-  (setenv "GIT_AUTHOR_NAME" name)
-  (setenv "GIT_AUTHOR_EMAIL" email)
-  (setenv "GIT_AUTHOR_DATE" date))
+  (when author
+    ;; XXX - this is a bit strict, probably.
+    (or (string-match "\\(.*\\) <\\(.*\\)>\\(?:,\\s-*\\(.+\\)\\)?" author)
+        (error "Can't parse author string"))
+    ;; Shucks, setenv destroys the match data.
+    (let ((name (match-string 1 author))
+          (email (match-string 2 author))
+          (date  (match-string 3 author)))
+      (make-local-variable 'process-environment)
+      (setenv "GIT_AUTHOR_NAME" name)
+      (setenv "GIT_AUTHOR_EMAIL" email)
+      (if date
+          (setenv "GIT_AUTHOR_DATE" date)))))
 
 (defun magit-log-edit-push-to-comment-ring (comment)
   (when (or (ring-empty-p log-edit-comment-ring)
@@ -4403,7 +4394,6 @@ environment (potentially empty)."
          (tag-rev (cdr (assq 'tag-rev fields)))
          (tag-name (cdr (assq 'tag-name fields)))
          (author (cdr (assq 'author fields)))
-         previous-author-env
          (tag-options (cdr (assq 'tag-options fields))))
 
     (unless (or (magit-anything-staged-p)
@@ -4420,32 +4410,37 @@ environment (potentially empty)."
                                     'magit-log-edit-toggle-allow-empty)))))
 
     (magit-log-edit-push-to-comment-ring (buffer-string))
-    (setq previous-author-env (magit-log-edit-setup-author-env author))
+    (magit-log-edit-setup-author-env author)
     (magit-log-edit-set-fields nil)
     (magit-log-edit-cleanup)
     (if (= (buffer-size) 0)
         (insert "(Empty description)\n"))
-    (let ((commit-buf (current-buffer)))
+    (let ((env process-environment)
+          (commit-buf (current-buffer)))
       (with-current-buffer (magit-find-status-buffer default-directory)
-        (cond (tag-name
-               (apply #'magit-run-git-with-input commit-buf
-                      "tag" (append tag-options (list tag-name "-a" "-F" "-" tag-rev))))
-              (t
-               (apply #'magit-run-async-with-input commit-buf
-                      magit-git-executable
-                      (append magit-git-standard-options
-                              '("commit")
-                              magit-custom-options
-                              '("-F" "-")
-                              (if (and commit-all (not allow-empty)) '("--all") '())
-                              (if amend '("--amend") '())
-                              (if allow-empty '("--allow-empty"))
-                              (if sign-off '("--signoff") '())))))))
+        (let ((process-environment env))
+          (cond (tag-name
+                 (apply #'magit-run-git-with-input commit-buf
+                        "tag" (append tag-options (list tag-name "-a" "-F" "-" tag-rev))))
+                (t
+                 (apply #'magit-run-async-with-input commit-buf
+                        magit-git-executable
+                        (append magit-git-standard-options
+                                '("commit")
+                                magit-custom-options
+                                '("-F" "-")
+                                (if (and commit-all (not allow-empty)) '("--all") '())
+                                (if amend '("--amend") '())
+                                (if allow-empty '("--allow-empty"))
+                                (if sign-off '("--signoff") '()))))))))
+    ;; shouldn't we kill that buffer altogether?
     (erase-buffer)
     (bury-buffer)
     (when (file-exists-p ".git/MERGE_MSG")
       (delete-file ".git/MERGE_MSG"))
-    (apply 'magit-log-edit-clean-author-env previous-author-env)
+    ;; potentially the local environment has been altered with settings that
+    ;; were specific to this commit. Let's revert it
+    (kill-local-variable 'process-environment)
     (magit-update-vc-modeline default-directory)
     (when magit-pre-log-edit-window-configuration
       (set-window-configuration magit-pre-log-edit-window-configuration)
