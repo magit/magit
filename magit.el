@@ -4376,18 +4376,28 @@ toggled on."
   "Set GIT_AUTHOR_* variables from AUTHOR spec.
 If AUTHOR is nil, honor default values from
 environment (potentially empty)."
-  (when author
-    ;; XXX - this is a bit strict, probably.
-    (or (string-match "\\(.*\\) <\\(.*\\)>\\(?:,\\s-*\\(.+\\)\\)?" author)
-        (error "Can't parse author string"))
-    ;; Shucks, setenv destroys the match data.
-    (let ((name (match-string 1 author))
-          (email (match-string 2 author))
-          (date  (match-string 3 author)))
-      (setenv "GIT_AUTHOR_NAME" name)
-      (setenv "GIT_AUTHOR_EMAIL" email)
-      (if date
-          (setenv "GIT_AUTHOR_DATE" date)))))
+  (let ((previous-env-vars (list (getenv "GIT_AUTHOR_NAME")
+                                 (getenv "GIT_AUTHOR_EMAIL")
+                                 (getenv "GIT_AUTHOR_DATE"))))
+    (when author
+      ;; XXX - this is a bit strict, probably.
+      (or (string-match "\\(.*\\) <\\(.*\\)>\\(?:,\\s-*\\(.+\\)\\)?" author)
+          (error "Can't parse author string"))
+      ;; Shucks, setenv destroys the match data.
+      (let ((name (match-string 1 author))
+            (email (match-string 2 author))
+            (date  (match-string 3 author)))
+        (setenv "GIT_AUTHOR_NAME" name)
+        (setenv "GIT_AUTHOR_EMAIL" email)
+        (if date
+            (setenv "GIT_AUTHOR_DATE" date))))
+    previous-env-vars))
+
+(defun magit-log-edit-clean-author-env (name email date)
+  "Re-set GIT_AUTHOR_* variables after commit."
+  (setenv "GIT_AUTHOR_NAME" name)
+  (setenv "GIT_AUTHOR_EMAIL" email)
+  (setenv "GIT_AUTHOR_DATE" date))
 
 (defun magit-log-edit-push-to-comment-ring (comment)
   (when (or (ring-empty-p log-edit-comment-ring)
@@ -4409,6 +4419,7 @@ environment (potentially empty)."
          (tag-rev (cdr (assq 'tag-rev fields)))
          (tag-name (cdr (assq 'tag-name fields)))
          (author (cdr (assq 'author fields)))
+         previous-author-env
          (tag-options (cdr (assq 'tag-options fields))))
 
     (unless (or (magit-anything-staged-p)
@@ -4425,7 +4436,7 @@ environment (potentially empty)."
                                     'magit-log-edit-toggle-allow-empty)))))
 
     (magit-log-edit-push-to-comment-ring (buffer-string))
-    (magit-log-edit-setup-author-env author)
+    (setq previous-author-env (magit-log-edit-setup-author-env author))
     (magit-log-edit-set-fields nil)
     (magit-log-edit-cleanup)
     (if (= (buffer-size) 0)
@@ -4450,6 +4461,7 @@ environment (potentially empty)."
     (bury-buffer)
     (when (file-exists-p ".git/MERGE_MSG")
       (delete-file ".git/MERGE_MSG"))
+    (apply 'magit-log-edit-clean-author-env previous-author-env)
     (magit-update-vc-modeline default-directory)
     (when magit-pre-log-edit-window-configuration
       (set-window-configuration magit-pre-log-edit-window-configuration)
@@ -4548,6 +4560,14 @@ continue it.
         (magit-log-edit-toggle-amending))
       (when empty-p
         (magit-log-edit-toggle-allow-empty))
+      (let ((author-email (or (getenv "GIT_AUTHOR_EMAIL") ""))
+            (author-name (or (getenv "GIT_AUTHOR_NAME") ""))
+            (author-date (or (getenv "GIT_AUTHOR_DATE") "")))
+        (if (not (string= author-email ""))
+            (magit-log-edit-set-field 'author (format "%s <%s>%s"
+                                                      (if (string= "" author-name) author-email author-name)
+                                                      author-email
+                                                      (if (string= "" author-date) "" (format ", %s") author-date)))))
       (magit-pop-to-log-edit "commit"))))
 
 (defun magit-add-log ()
