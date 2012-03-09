@@ -4546,7 +4546,7 @@ continue it.
             (magit-log-edit-set-field 'author (format "%s <%s>%s"
                                                       (if (string= "" author-name) author-email author-name)
                                                       author-email
-                                                      (if (string= "" author-date) "" (format ", %s") author-date)))))
+                                                      (if (string= "" author-date) "" (format ", %s" author-date))))))
       (magit-pop-to-log-edit "commit"))))
 
 (defun magit-add-log ()
