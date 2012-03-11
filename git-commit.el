@@ -564,6 +564,8 @@ Turning on git commit calls the hooks in `git-commit-mode-hook'."
         comment-end "")
   (setq major-mode 'git-commit-mode)
   (git-commit-font-lock-diff)
+  (when (fboundp 'toggle-save-place)
+    (toggle-save-place 0))
   (run-mode-hooks 'git-commit-mode-hook)
   (setq mode-name "Git-Commit"))
 
