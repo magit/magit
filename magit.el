@@ -3505,11 +3505,12 @@ PREPEND-REMOTE-NAME is non-nil."
 (defun magit-init (dir)
   "Initialize git repository in the DIR directory."
   (interactive (list (read-directory-name "Directory for Git repository: ")))
-  (let ((topdir (magit-get-top-dir dir)))
+  (let* ((dir (expand-file-name dir))
+         (topdir (magit-get-top-dir dir)))
     (when (or (not topdir)
               (yes-or-no-p
                (format
-                (if (string-equal topdir (expand-file-name dir))
+                (if (string-equal topdir dir)
                     "There is already a Git repository in %s. Reinitialize? "
                   "There is a Git repository in %s. Create another in %s? ")
                 topdir dir)))
