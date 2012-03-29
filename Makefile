@@ -12,8 +12,10 @@ ELPA_FILES=$(ELS) magit.info magit-pkg.el
 
 .PHONY=install
 
-BATCH=$(EMACS) -batch -q -no-site-file -eval \
+EFLAGS=
+BATCH=$(EMACS) $(EFLAGS) -batch -q -no-site-file -eval \
   "(setq load-path (cons (expand-file-name \".\") load-path))"
+
 
 %.elc: %.el
 	$(BATCH) --eval '(byte-compile-file "$<")'
@@ -84,6 +86,9 @@ install_contrib: contrib
 	install -m 755 contrib/magit $(DESTDIR)$(PREFIX)/bin
 
 install_all: install install_contrib
+
+test: $(ELCS)
+	$(BATCH) -l tests/magit-tests.el -f ert-run-tests-batch-and-exit
 
 clean:
 	rm -f magit.info #NO_DIST
