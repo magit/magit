@@ -44,6 +44,20 @@
         (should (magit-git-repo-p nested-repo))))
     (should (magit-git-repo-p repo))))
 
+(ert-deftest magit-init-test-expansion ()
+  (let* ((dir "~/plop")
+         (exp-dir (expand-file-name dir)))
+    (mocker-let
+        ;; make sure all steps have the expanded version of dir
+        ((magit-get-top-dir (dir)
+                            ((:input `(,exp-dir) :output nil)))
+         (file-directory-p (dir)
+                           ((:input `(,exp-dir) :output t)))
+         (magit-run* (args)
+                     ((:input `((,magit-git-executable "init" ,exp-dir))
+                       :output t))))
+      (should (magit-init dir)))))
+
 (ert-deftest magit-untracked-file ()
   (let ((dummy-filename "foo"))
     (with-temp-git-repo repo
