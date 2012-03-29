@@ -3514,10 +3514,10 @@ PREPEND-REMOTE-NAME is non-nil."
                     "There is already a Git repository in %s. Reinitialize? "
                   "There is a Git repository in %s. Create another in %s? ")
                 topdir dir)))
-      (unless (file-directory-p dir)
-        (and (y-or-n-p (format "Directory %s does not exists.  Create it? " dir))
-             (make-directory dir)))
-      (magit-run* (list magit-git-executable "init" dir)))))
+      (unless (file-directory-p (expand-file-name dir))
+        (and (y-or-n-p (format "Directory %s does not exists.  Create it? " (expand-file-name dir)))
+             (make-directory (expand-file-name dir))))
+      (magit-run* (list magit-git-executable "init" (expand-file-name dir))))))
 
 (define-derived-mode magit-status-mode magit-mode "Magit"
   "Mode for looking at git status.
