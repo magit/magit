@@ -1793,7 +1793,7 @@ where SECTION-TYPE describe section where BODY will be run.
 
 This returns non-nil if some section matches. If the
 corresponding body return a non-nil value, it is returned,
-otherwise it roturn t.
+otherwise it returns t.
 
 If no section matches, this returns nil if no OPNAME was given
 and throws an error otherwise."
@@ -1804,8 +1804,8 @@ and throws an error otherwise."
         (context (make-symbol "*context*"))
         (opname (caddr head)))
     `(let* ((,section (magit-current-section))
-            (,info (magit-section-info ,section))
-            (,type (magit-section-type ,section))
+            (,info (and ,section (magit-section-info ,section)))
+            (,type (and ,section (magit-section-type ,section)))
             (,context (magit-section-context-type ,section)))
        (cond ,@(mapcar (lambda (clause)
                          (if (eq (car clause) t)
@@ -4470,10 +4470,10 @@ With prefix argument, changes in staging area are kept.
 
 (defun magit-commit-at-point (&optional nil-ok-p)
   (let* ((section (magit-current-section))
-         (commit (or (and (not section)                          ; Places without a magit-section
-                          (get-text-property (point) 'revision)) ; but with a text property 'revision
-                     (and (eq (magit-section-type section) 'commit)
-                          (magit-section-info section)))))
+         (commit (if (and section
+                          (eq (magit-section-type section) 'commit))
+                     (magit-section-info section)
+                 (get-text-property (point) 'revision))))
     (if nil-ok-p
         commit
       (or commit
