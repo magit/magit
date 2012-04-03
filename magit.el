@@ -1135,27 +1135,33 @@ argument or a list of strings used as regexps."
                         (funcall uninteresting ref)))
                   ((and (not (functionp uninteresting))
                         (loop for i in uninteresting thereis (string-match i ref))))
-                  ((string-match "refs/heads/\\(.*\\)" ref)
-                   (let ((branch (match-string 1 ref)))
-                     (push (cons branch branch) refs)))
-                  ((string-match "refs/tags/\\(.*\\)" ref)
-                   (push (cons (format
-                                (if (eq magit-remote-ref-format 'branch-then-remote)
-                                    "%s (tag)" "%s")
-                                (match-string 1 ref))
-                               ref)
-                         refs))
-                  ((string-match "refs/remotes/\\([^/]+\\)/\\(.+\\)" ref)
-                   (push (cons (if (eq magit-remote-ref-format 'branch-then-remote)
-                                   (format "%s (%s)"
-                                           (match-string 2 ref)
-                                           (match-string 1 ref))
-                                 (format "%s/%s"
-                                         (match-string 1 ref)
-                                         (match-string 2 ref)))
-                               ref)
+                  (t
+                   (push (cons (magit-format-ref ref)
+                               (replace-regexp-in-string "^refs/heads/" "" ref))
                          refs))))))
     (nreverse refs)))
+
+(defun magit-format-ref (ref)
+  "Convert fully-specified ref REF into its displayable form
+according to `magit-remote-ref-format'"
+  (cond
+   ((null ref)
+    nil)
+   ((string-match "refs/heads/\\(.*\\)" ref)
+    (match-string 1 ref))
+   ((string-match "refs/tags/\\(.*\\)" ref)
+    (format (if (eq magit-remote-ref-format 'branch-then-remote)
+                "%s (tag)"
+              "%s")
+            (match-string 1 ref)))
+   ((string-match "refs/remotes/\\([^/]+\\)/\\(.+\\)" ref)
+    (if (eq magit-remote-ref-format 'branch-then-remote)
+        (format "%s (%s)"
+                (match-string 2 ref)
+                (match-string 1 ref))
+      (format "%s/%s"
+              (match-string 1 ref)
+              (match-string 2 ref))))))
 
 (defun magit-tree-contents (treeish)
   "Returns a list of all files under TREEISH.  TREEISH can be a tree,
@@ -1170,7 +1176,7 @@ a commit, or any reference to one of those."
         (push (match-string 1) return-value)))
     return-value))
 
-(defvar magit-uninteresting-refs '("refs/remotes/\\([^/]+\\)/HEAD$"))
+(defvar magit-uninteresting-refs '("refs/remotes/\\([^/]+\\)/HEAD$" "refs/stash"))
 
 (defun magit-read-file-from-rev (revision)
   (magit-completing-read (format "Retrieve file from %s: " revision)
@@ -1183,14 +1189,11 @@ a commit, or any reference to one of those."
                              (let ((topdir-length (length (magit-get-top-dir default-directory))))
                                (substring (buffer-file-name) topdir-length)))))
 
-;; TODO: fix this so that def can (must?) be git rev instead of, say, "master (origin)"
-;; which involves a particular display strategy and shouldn't be visible to callers
-;; of magit-read-rev
-(defun magit-read-rev (prompt &optional def uninteresting)
+(defun magit-read-rev (prompt &optional default uninteresting)
   (let* ((interesting-refs (magit-list-interesting-refs
                             (or uninteresting magit-uninteresting-refs)))
          (reply (magit-completing-read (concat prompt ": ") interesting-refs
-                                       nil nil nil 'magit-read-rev-history def))
+                                       nil nil nil 'magit-read-rev-history default))
          (rev (or (cdr (assoc reply interesting-refs)) reply)))
     (if (string= rev "")
         nil
@@ -1893,8 +1896,8 @@ and throws an error otherwise."
         (context (make-symbol "*context*"))
         (opname (caddr head)))
     `(let* ((,section (magit-current-section))
-            (,info (magit-section-info ,section))
-            (,type (magit-section-type ,section))
+            (,info (and ,section (magit-section-info ,section)))
+            (,type (and ,section (magit-section-type ,section)))
             (,context (magit-section-context-type ,section)))
        (cond ,@(mapcar (lambda (clause)
                          (if (eq (car clause) t)
@@ -3422,17 +3425,18 @@ for this argument.)"
                    (list
                     (format "%s..HEAD" (magit-remote-branch-name remote branch)))))))
 
-(defun magit-remote-branch-for (local-branch &optional prepend-remote-name)
+(defun magit-remote-branch-for (local-branch &optional fully-qualified-name)
   "Guess the remote branch name that LOCAL-BRANCH is tracking.
-Prepend \"remotes/\", the remote's name and \"/\" if
-PREPEND-REMOTE-NAME is non-nil."
+Gives a fully qualified name (e.g., refs/remotes/origin/master) if
+FULLY-QUALIFIED-NAME is non-nil."
   (let ((merge (magit-get "branch" local-branch "merge")))
     (save-match-data
       (if (and merge (string-match "^refs/heads/\\(.+\\)" merge))
-          (concat (if prepend-remote-name
-                      (concat "remotes/"
-                              (magit-get "branch" local-branch "remote")
-                              "/"))
+          (concat (if fully-qualified-name
+                      (let ((remote-name (magit-get "branch" local-branch "remote")))
+                        (if (string= "." remote-name)
+                            "refs/heads/"
+                          (concat "refs/remotes/" remote-name "/"))))
                   (match-string 1 merge))))))
 
 ;;; Status
@@ -3914,15 +3918,8 @@ if any."
   (let ((info (magit-rebase-info)))
     (if (not info)
         (let* ((current-branch (magit-get-current-branch))
-               (remote (when current-branch
-                         (magit-get "branch" current-branch "remote")))
-               (remote-branch (when remote
-                                (magit-get "branch" current-branch "merge")))
                (rev (magit-read-rev "Rebase to"
-                                    (when (and remote-branch
-                                               (string-match "refs/heads/\\(.*\\)" remote-branch))
-                                      (concat (match-string 1 remote-branch)
-                                              " (" remote ")"))
+                                    (magit-format-ref (magit-remote-branch-for current-branch t))
                                     (if current-branch
                                         (cons (concat "refs/heads/" current-branch)
                                               magit-uninteresting-refs)
@@ -4731,10 +4728,10 @@ With prefix argument, changes in staging area are kept.
 
 (defun magit-commit-at-point (&optional nil-ok-p)
   (let* ((section (magit-current-section))
-         (commit (or (and (not section)                          ; Places without a magit-section
-                          (get-text-property (point) 'revision)) ; but with a text property 'revision
-                     (and (eq (magit-section-type section) 'commit)
-                          (magit-section-info section)))))
+         (commit (if (and section
+                          (eq (magit-section-type section) 'commit))
+                     (magit-section-info section)
+                 (get-text-property (point) 'revision))))
     (if nil-ok-p
         commit
       (or commit
