@@ -1102,27 +1102,33 @@ argument or a list of strings used as regexps."
                         (funcall uninteresting ref)))
                   ((and (not (functionp uninteresting))
                         (loop for i in uninteresting thereis (string-match i ref))))
-                  ((string-match "refs/heads/\\(.*\\)" ref)
-                   (let ((branch (match-string 1 ref)))
-                     (push (cons branch branch) refs)))
-                  ((string-match "refs/tags/\\(.*\\)" ref)
-                   (push (cons (format
-                                (if (eq magit-remote-ref-format 'branch-then-remote)
-                                    "%s (tag)" "%s")
-                                (match-string 1 ref))
-                               ref)
-                         refs))
-                  ((string-match "refs/remotes/\\([^/]+\\)/\\(.+\\)" ref)
-                   (push (cons (if (eq magit-remote-ref-format 'branch-then-remote)
-                                   (format "%s (%s)"
-                                           (match-string 2 ref)
-                                           (match-string 1 ref))
-                                 (format "%s/%s"
-                                         (match-string 1 ref)
-                                         (match-string 2 ref)))
-                               ref)
+                  (t
+                   (push (cons (magit-format-ref ref)
+                               (replace-regexp-in-string "^refs/heads/" "" ref))
                          refs))))))
     (nreverse refs)))
+
+(defun magit-format-ref (ref)
+  "Convert fully-specified ref REF into its displayable form
+according to `magit-remote-ref-format'"
+  (cond
+   ((null ref)
+    nil)
+   ((string-match "refs/heads/\\(.*\\)" ref)
+    (match-string 1 ref))
+   ((string-match "refs/tags/\\(.*\\)" ref)
+    (format (if (eq magit-remote-ref-format 'branch-then-remote)
+                "%s (tag)"
+              "%s")
+            (match-string 1 ref)))
+   ((string-match "refs/remotes/\\([^/]+\\)/\\(.+\\)" ref)
+    (if (eq magit-remote-ref-format 'branch-then-remote)
+        (format "%s (%s)"
+                (match-string 2 ref)
+                (match-string 1 ref))
+      (format "%s/%s"
+              (match-string 1 ref)
+              (match-string 2 ref))))))
 
 (defun magit-tree-contents (treeish)
   "Returns a list of all files under TREEISH.  TREEISH can be a tree,
