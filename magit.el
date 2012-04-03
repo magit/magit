@@ -3258,17 +3258,18 @@ for this argument.)"
                    (list
                     (format "%s..HEAD" (magit-remote-branch-name remote branch)))))))
 
-(defun magit-remote-branch-for (local-branch &optional prepend-remote-name)
+(defun magit-remote-branch-for (local-branch &optional fully-qualified-name)
   "Guess the remote branch name that LOCAL-BRANCH is tracking.
-Prepend \"remotes/\", the remote's name and \"/\" if
-PREPEND-REMOTE-NAME is non-nil."
+Gives a fully qualified name (e.g., refs/remotes/origin/master) if
+FULLY-QUALIFIED-NAME is non-nil."
   (let ((merge (magit-get "branch" local-branch "merge")))
     (save-match-data
       (if (and merge (string-match "^refs/heads/\\(.+\\)" merge))
-          (concat (if prepend-remote-name
-                      (concat "remotes/"
-                              (magit-get "branch" local-branch "remote")
-                              "/"))
+          (concat (if fully-qualified-name
+                      (let ((remote-name (magit-get "branch" local-branch "remote")))
+                        (if (string= "." remote-name)
+                            "refs/heads/"
+                          (concat "refs/remotes/" remote-name "/"))))
                   (match-string 1 merge))))))
 
 ;;; Status
