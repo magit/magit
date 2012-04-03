@@ -1183,14 +1183,11 @@ a commit, or any reference to one of those."
                              (let ((topdir-length (length (magit-get-top-dir default-directory))))
                                (substring (buffer-file-name) topdir-length)))))
 
-;; TODO: fix this so that def can (must?) be git rev instead of, say, "master (origin)"
-;; which involves a particular display strategy and shouldn't be visible to callers
-;; of magit-read-rev
-(defun magit-read-rev (prompt &optional def uninteresting)
+(defun magit-read-rev (prompt &optional default uninteresting)
   (let* ((interesting-refs (magit-list-interesting-refs
                             (or uninteresting magit-uninteresting-refs)))
          (reply (magit-completing-read (concat prompt ": ") interesting-refs
-                                       nil nil nil 'magit-read-rev-history def))
+                                       nil nil nil 'magit-read-rev-history default))
          (rev (or (cdr (assoc reply interesting-refs)) reply)))
     (if (string= rev "")
         nil
