@@ -1170,7 +1170,7 @@ a commit, or any reference to one of those."
         (push (match-string 1) return-value)))
     return-value))
 
-(defvar magit-uninteresting-refs '("refs/remotes/\\([^/]+\\)/HEAD$"))
+(defvar magit-uninteresting-refs '("refs/remotes/\\([^/]+\\)/HEAD$" "refs/stash"))
 
 (defun magit-read-file-from-rev (revision)
   (magit-completing-read (format "Retrieve file from %s: " revision)
