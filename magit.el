@@ -3705,15 +3705,8 @@ if any."
   (let ((info (magit-rebase-info)))
     (if (not info)
         (let* ((current-branch (magit-get-current-branch))
-               (remote (when current-branch
-                         (magit-get "branch" current-branch "remote")))
-               (remote-branch (when remote
-                                (magit-get "branch" current-branch "merge")))
                (rev (magit-read-rev "Rebase to"
-                                    (when (and remote-branch
-                                               (string-match "refs/heads/\\(.*\\)" remote-branch))
-                                      (concat (match-string 1 remote-branch)
-                                              " (" remote ")"))
+                                    (magit-format-ref (magit-remote-branch-for current-branch t))
                                     (if current-branch
                                         (cons (concat "refs/heads/" current-branch)
                                               magit-uninteresting-refs)
