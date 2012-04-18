@@ -110,12 +110,14 @@
       ("z" "Save" magit-stash)
       ("s" "Snapshot" magit-stash-snapshot))
      (switches
-      ("-k" "Keep index" "--keep-index")))
+      ("-k" "Keep index" "--keep-index")
+      ("-u" "Include untracked files" "--include-untracked")
+      ("-a" "Include all files" "--all")))
 
     (merging
      (man-page "git-merge")
      (actions
-      ("m" "Merge" magit-merge))
+      ("m" "Merge" magit-manual-merge))
      (switches
       ("-ff" "Fast-forward only" "--ff-only")
       ("-nf" "No fast-forward" "--no-ff")
