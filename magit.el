@@ -3448,13 +3448,16 @@ FULLY-QUALIFIED-NAME is non-nil."
 
 (defvar magit-remote-string-hook nil)
 
-(defun magit-remote-string (remote remote-branch)
+(defun magit-remote-string (remote remote-branch remote-rebase)
   (cond
    ((string= "." remote)
-    (format "branch %s"
-            (propertize remote-branch 'face 'magit-branch)))
+    (concat
+     (when remote-rebase "onto ")
+     "branch"
+     (propertize remote-branch 'face 'magit-branch)))
    (remote
     (concat
+     (when remote-rebase "onto ")
      (propertize remote-branch 'face 'magit-branch)
      " @ "
      remote
@@ -3471,8 +3474,9 @@ FULLY-QUALIFIED-NAME is non-nil."
     (magit-with-section 'status nil
       (let* ((branch (magit-get-current-branch))
              (remote (and branch (magit-get "branch" branch "remote")))
+             (remote-rebase (and branch (magit-get-boolean "branch" branch "rebase")))
              (remote-branch (or (and branch (magit-remote-branch-for branch)) branch))
-             (remote-string (magit-remote-string remote remote-branch))
+             (remote-string (magit-remote-string remote remote-branch remote-rebase))
              (head (magit-git-string
                     "log"
                     "--max-count=1"
