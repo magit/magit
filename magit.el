@@ -901,6 +901,11 @@ Does not follow symlinks."
   "Return all values of the Git config entry specified by KEYS."
   (magit-git-lines "config" "--get-all" (mapconcat 'identity keys ".")))
 
+(defun magit-get-boolean (&rest keys)
+  "Return the boolean value of Git config entry specified by KEYS."
+  (equal (magit-git-string "config" "--bool" (mapconcat 'identity keys "."))
+         "true"))
+
 (defun magit-set (val &rest keys)
   "Set Git config settings specified by KEYS to VAL."
   (if val
