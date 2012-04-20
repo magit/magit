@@ -236,5 +236,11 @@ If USE-CACHE is non nil, use the cached information."
   "Unconditionally turn on `magit-svn-mode'."
   (magit-svn-mode 1))
 
+;; automatically turn on magit-svn-mode
+(add-hook 'magit-mode-hook
+          (lambda ()
+            (when (magit-svn-enabled)
+              (magit-svn-mode 1))))
+
 (provide 'magit-svn)
 ;;; magit-svn.el ends here
