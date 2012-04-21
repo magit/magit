@@ -3675,35 +3675,36 @@ With a prefix-arg, the merge will be squashed.
 (defun magit-rebase-info ()
   "Returns a list indicating the state of an in-progress rebase,
 if any."
-  (cond ((file-exists-p (concat (magit-git-dir) "rebase-merge"))
-         (list
-          ;; The commit we're rebasing onto, i.e. git rebase -i <onto>
-          (magit-name-rev (car (magit-file-lines (concat (magit-git-dir) "rebase-merge/onto"))))
+  (let ((git-dir (magit-git-dir)))
+    (cond ((file-exists-p (concat git-dir "rebase-merge"))
+           (list
+            ;; The commit we're rebasing onto, i.e. git rebase -i <onto>
+            (magit-name-rev (car (magit-file-lines (concat git-dir "rebase-merge/onto"))))
 
-          ;; How many commits we've gone through
-          (length (magit-file-lines (concat (magit-git-dir) "rebase-merge/done")))
+            ;; How many commits we've gone through
+            (length (magit-file-lines (concat git-dir "rebase-merge/done")))
 
-          ;; How many commits we have in total, without the comments
-          ;; at the end of git-rebase-todo.backup
-          (let ((todo-lines-with-comments (magit-file-lines (concat (magit-git-dir) "rebase-merge/git-rebase-todo.backup"))))
-            (loop for i in todo-lines-with-comments
-                  until (string= "" i)
-                  count i))))
-        ((and (file-exists-p (concat (magit-git-dir) "rebase-apply"))
-              (file-exists-p (concat (magit-git-dir) "rebase-apply/onto")))
-         ;; we might be here because a non-interactive rebase failed: the
-         ;; patches didn't apply cleanly
-         (list
-          ;; The commit we're rebasing onto, i.e. git rebase -i <onto>
-          (magit-name-rev (car (magit-file-lines (concat (magit-git-dir) "rebase-apply/onto"))))
+            ;; How many commits we have in total, without the comments
+            ;; at the end of git-rebase-todo.backup
+            (let ((todo-lines-with-comments (magit-file-lines (concat git-dir "rebase-merge/git-rebase-todo.backup"))))
+              (loop for i in todo-lines-with-comments
+                    until (string= "" i)
+                    count i))))
+          ((and (file-exists-p (concat git-dir "rebase-apply"))
+                (file-exists-p (concat git-dir "rebase-apply/onto")))
+           ;; we might be here because a non-interactive rebase failed: the
+           ;; patches didn't apply cleanly
+           (list
+            ;; The commit we're rebasing onto, i.e. git rebase -i <onto>
+            (magit-name-rev (car (magit-file-lines (concat git-dir "rebase-apply/onto"))))
 
-          ;; How many commits we've gone through
-          (- (string-to-number (car (magit-file-lines (concat (magit-git-dir) "rebase-apply/next")))) 1)
+            ;; How many commits we've gone through
+            (- (string-to-number (car (magit-file-lines (concat git-dir "rebase-apply/next")))) 1)
 
-          ;; How many commits we have in total
-          (string-to-number (car (magit-file-lines (concat (magit-git-dir) "rebase-apply/last"))))
-          ))
-        (t nil)))
+            ;; How many commits we have in total
+            (string-to-number (car (magit-file-lines (concat git-dir "rebase-apply/last"))))
+            ))
+          (t nil))))
 
 (defun magit-rebase-step ()
   (interactive)
