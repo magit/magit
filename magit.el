@@ -897,6 +897,10 @@ Does not follow symlinks."
 (defun magit-git-repo-p (dir)
   (file-exists-p (expand-file-name ".git" dir)))
 
+(defun magit-git-dir ()
+  "Returns the .git directory for the current repository."
+  (concat (expand-file-name (magit-git-string "rev-parse" "--git-dir")) "/"))
+
 (defun magit-no-commit-p ()
   "Return non-nil if there is no commit in the current git repository."
   (not (magit-git-string
