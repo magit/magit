@@ -74,3 +74,12 @@
       (magit-status repo)
       (magit-stage-all t)
       (magit-tests-section-has-item-title dummy-filename '(staged)))))
+
+(ert-deftest magit-get-boolean ()
+  (with-temp-git-repo repo
+    (magit-run* '("git" "config" "core.safecrlf" "true"))
+    (should (magit-get-boolean "core.safecrlf"))
+    (should (magit-get-boolean "core" "safecrlf"))
+
+    (magit-run* '("git" "config" "core.safecrlf" "false"))
+    (should-not (magit-get-boolean "core.safecrlf"))))
