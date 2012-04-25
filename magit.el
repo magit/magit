@@ -521,6 +521,12 @@ Do not customize this (used in the `magit-key-mode' implementation).")
 (defvar magit-read-rev-history nil
   "The history of inputs to `magit-read-rev'.")
 
+(defvar magit-buffer-internal nil
+  "Track associated *magit* buffers.
+Do not customize this (used in the `magit-log-edit-mode' implementation
+to switch back to the *magit* buffer associated with a given commit
+operation after commit).")
+
 (defvar magit-back-navigation-history nil
   "History items that will be visited by successively going \"back\".")
 (make-variable-buffer-local 'magit-back-navigation-history)
@@ -4448,7 +4454,9 @@ environment (potentially empty)."
                                 (if sign-off '("--signoff") '()))))))))
     ;; shouldn't we kill that buffer altogether?
     (erase-buffer)
-    (bury-buffer)
+    (let ((magit-buf magit-buffer-internal))
+      (bury-buffer)
+      (set-buffer magit-buf))
     (when (file-exists-p (concat (magit-git-dir) "MERGE_MSG"))
       (delete-file (concat (magit-git-dir) "MERGE_MSG")))
     ;; potentially the local environment has been altered with settings that
@@ -4502,6 +4510,7 @@ This means that the eventual commit does 'git commit --allow-empty'."
 
 (defun magit-pop-to-log-edit (operation)
   (let ((dir default-directory)
+        (magit-buf (current-buffer))
         (buf (get-buffer-create magit-log-edit-buffer-name)))
     (setq magit-pre-log-edit-window-configuration
           (current-window-configuration))
@@ -4510,6 +4519,8 @@ This means that the eventual commit does 'git commit --allow-empty'."
       (insert-file-contents (concat (magit-git-dir) "MERGE_MSG")))
     (setq default-directory dir)
     (magit-log-edit-mode)
+    (make-local-variable 'magit-buffer-internal)
+    (setq magit-buffer-internal magit-buf)
     (message "Type C-c C-c to %s (C-c C-k to cancel)." operation)))
 
 (defun magit-log-edit (&optional arg)
