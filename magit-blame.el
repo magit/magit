@@ -112,8 +112,8 @@
           (magit-blame-parse buffer (current-buffer)))))))
 
 (defun magit-blame-locate-commit (pos)
-  (interactive "d")
   "Jump to a commit in the branch history from an annotated blame section."
+  (interactive "d")
   (let ((overlays (overlays-at pos))
         sha1)
     (dolist (ov overlays)
