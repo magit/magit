@@ -29,6 +29,8 @@
 
 ;;; Code:
 
+(require 'magit)
+
 (defface magit-blame
   '((((class color) (background light))
      :background: "grey85" :foreground "black")
