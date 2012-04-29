@@ -31,30 +31,24 @@
 
 (require 'magit)
 
-(defface magit-blame
-  '((((class color) (background light))
-     :background: "grey85" :foreground "black")
-    (((class color) (background dark))
-     :background "grey15" :foreground "white")
-    (t :inherit region))
+(defface magit-blame-header
+  '((t :inherit magit-header))
   "Face for blame header."
   :group 'magit-faces)
 
+(defface magit-blame-sha1
+  '((t :inherit (magit-log-sha1
+                 magit-blame-header)))
+  "Face for blame sha1."
+  :group 'magit-faces)
+
 (defface magit-blame-culprit
-  '((((class color) (background light))
-     :background "grey85" :foreground "grey35")
-    (((class color) (background dark))
-     :background "grey15" :foreground "grey60")
-    (t :inherit magit-blame))
+  '((t :inherit magit-blame-header))
   "Face for blame culprit."
   :group 'magit-faces)
 
 (defface magit-blame-subject
-  '((((class color) (background light))
-     :inherit magit-blame-culprit :foreground "black")
-    (((class color) (background dark))
-     :inherit magit-blame-culprit :foreground "white")
-    (t :inherit magit-blame))
+  '((t :inherit (magit-log-message magit-blame-header)))
   "Face for blame tag line."
   :group 'magit-faces)
 
@@ -125,8 +119,8 @@
 (defun magit-blame-parse (target-buf blame-buf)
   "Parse blame-info in buffer BLAME-BUF and decorate TARGET-BUF buffer."
   (save-match-data
-    (let ((blank (propertize " " 'face 'magit-blame))
-	  (nl (propertize "\n" 'face 'magit-blame))
+    (let ((blank (propertize " " 'face 'magit-blame-header))
+	  (nl (propertize "\n" 'face 'magit-blame-header))
 	  (commit-hash (make-hash-table :test 'equal :size 577))
 	  commit commit-info old-line new-line num old-file subject author
 	  info ov beg end blame)
@@ -187,7 +181,7 @@
 	  (overlay-put ov :blame chunk)
 	  (setq blame (concat 
 		       (propertize (substring-no-properties commit 0 8)
-                                   'face 'magit-blame)
+                                   'face 'magit-blame-sha1)
 		       blank
 		       (propertize (format "%-20s" author)
                                    'face 'magit-blame-culprit)
