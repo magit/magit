@@ -8,7 +8,7 @@
 ;; Copyright (C) 2008  Marius Vollmer
 
 ;; Author: Yann Hodique <yann.hodique@gmail.com>
-;; Keywords: 
+;; Keywords:
 
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@
 
 (defface magit-blame-sha1
   '((t :inherit (magit-log-sha1
-                 magit-blame-header)))
+		 magit-blame-header)))
   "Face for blame sha1."
   :group 'magit-faces)
 
@@ -76,10 +76,10 @@
 
   (if magit-blame-mode
       (progn
-        (setq magit-blame-buffer-read-only buffer-read-only)
-        (magit-blame-file-on (current-buffer))
-        (set-buffer-modified-p nil)
-        (setq buffer-read-only t))
+	(setq magit-blame-buffer-read-only buffer-read-only)
+	(magit-blame-file-on (current-buffer))
+	(set-buffer-modified-p nil)
+	(setq buffer-read-only t))
     (magit-blame-file-off (current-buffer))
     (set-buffer-modified-p nil)
     (setq buffer-read-only magit-blame-buffer-read-only)))
@@ -100,21 +100,21 @@
     (with-current-buffer buffer
       (save-restriction
 	(with-temp-buffer
-          (magit-git-insert (list "blame" "--porcelain" "--" 
-                                  (file-name-nondirectory 
-                                   (buffer-file-name buffer))))
-          (magit-blame-parse buffer (current-buffer)))))))
+	  (magit-git-insert (list "blame" "--porcelain" "--"
+				  (file-name-nondirectory
+				   (buffer-file-name buffer))))
+	  (magit-blame-parse buffer (current-buffer)))))))
 
 (defun magit-blame-locate-commit (pos)
   "Jump to a commit in the branch history from an annotated blame section."
   (interactive "d")
   (let ((overlays (overlays-at pos))
-        sha1)
+	sha1)
     (dolist (ov overlays)
       (if (overlay-get ov :blame)
-          (setq sha1 (plist-get (nth 3 (overlay-get ov :blame)) :sha1))))
+	  (setq sha1 (plist-get (nth 3 (overlay-get ov :blame)) :sha1))))
     (if sha1
-        (magit-show-commit sha1))))
+	(magit-show-commit sha1))))
 
 (defun magit-blame-parse (target-buf blame-buf)
   "Parse blame-info in buffer BLAME-BUF and decorate TARGET-BUF buffer."
@@ -145,8 +145,8 @@
 	    (setq subject (match-string-no-properties 1))
 	    (re-search-forward "^filename \\(.+\\)$")
 	    (setq old-file (match-string-no-properties 1))
-	    (setq commit-info (list :sha1 commit :author author 
-                                    :subject subject :file old-file))
+	    (setq commit-info (list :sha1 commit :author author
+				    :subject subject :file old-file))
 	    ;; save it in the hash
 	    (puthash commit commit-info commit-hash))
 	  ;; add the current blame-block into the list INFO.
@@ -162,13 +162,13 @@
 		new-line (nth 1 chunk)
 		num (nth 2 chunk)
 		commit (plist-get commit-info :sha1)
-		author (plist-get commit-info :author) 
+		author (plist-get commit-info :author)
 		subject (plist-get commit-info :subject))
-	  
-          (goto-char (point-min))
-          (forward-line (1- new-line))
 
-          (setq beg (line-beginning-position)
+	  (goto-char (point-min))
+	  (forward-line (1- new-line))
+
+	  (setq beg (line-beginning-position)
 		end (save-excursion
 		      (forward-line num)
 		      (line-beginning-position)))
@@ -179,12 +179,12 @@
 	  ;; on the current chunk.
 	  (setq ov (make-overlay beg end))
 	  (overlay-put ov :blame chunk)
-	  (setq blame (concat 
+	  (setq blame (concat
 		       (propertize (substring-no-properties commit 0 8)
-                                   'face 'magit-blame-sha1)
+				   'face 'magit-blame-sha1)
 		       blank
 		       (propertize (format "%-20s" author)
-                                   'face 'magit-blame-culprit)
+				   'face 'magit-blame-culprit)
 		       blank
 		       (propertize subject 'face 'magit-blame-subject)
 		       blank nl))
