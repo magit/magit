@@ -5615,7 +5615,7 @@ These are the branch names with the remote name stripped."
                "\\([0-9a-fA-F]+\\)"           ; 3: sha1
                " "
                "\\(?:\\["
-               "\\([^:]+?\\)"                 ; 4: tracking (non-greedy + to avoid matching \n)
+               "\\([^:\\[\\]]+?\\)"           ; 4: tracking (non-greedy + to avoid matching \n)
                "\\(?:: \\)?"
                "\\(?:ahead \\([0-9]+\\)\\)?"  ; 5: ahead
                "\\(?:, \\)?"
