@@ -34,7 +34,7 @@ magit.spec: magit.spec.in
 magit-pkg.el: magit-pkg.el.in
 	sed -e s/@VERSION@/$(VERSION)/ < $< > $@
 
-50magit.el: $(ELS)
+50magit.el: $(ELS) magit.elc
 	$(BATCH) -eval "(progn (defvar generated-autoload-file nil) (let ((generated-autoload-file \"$(PWD)/50magit.el\") (make-backup-files nil)) (update-directory-autoloads \".\")))"
 
 magit.elc: magit.el
