@@ -5657,7 +5657,9 @@ These are the branch names with the remote name stripped."
            (concat " -> " (substring other-ref (+ 1 (length remote-name))))
          "")
        ; tracking information
-       (if tracking
+       (if (and tracking
+                (equal (magit-remote-branch-for branch t)
+                       (concat "refs/remotes/" tracking)))
            (concat " ["
                    ; getting rid of the tracking branch name if it is the same as the branch name
                    (let* ((tracking-remote (magit-get "branch" branch "remote"))
