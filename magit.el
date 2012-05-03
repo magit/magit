@@ -1790,10 +1790,12 @@ one for all, one for current lineage."
 TITLE is the displayed title of the section."
   (let ((fun (intern (format "magit-jump-to-%s" sym)))
         (doc (format "Jump to section `%s'." title)))
-    `(defun ,fun ()
-       ,doc
-       (interactive)
-       (magit-goto-section-at-path '(,sym)))))
+    `(progn
+       (defun ,fun ()
+         ,doc
+         (interactive)
+         (magit-goto-section-at-path '(,sym)))
+       (put ',fun 'definition-name ',sym))))
 
 (defmacro magit-define-inserter (sym arglist &rest body)
   (declare (indent defun))
@@ -1808,7 +1810,10 @@ TITLE is the displayed title of the section."
          ,doc
          (run-hooks ',before)
          ,@body
-         (run-hooks ',after)))))
+         (run-hooks ',after))
+       (put ',before 'definition-name ',sym)
+       (put ',after 'definition-name ',sym)
+       (put ',fun 'definition-name ',sym))))
 
 (defvar magit-highlighted-section nil)
 
@@ -1999,7 +2004,9 @@ function can be enriched by magit extension like magit-topgit and magit-svn"
          ,inter
          (or (run-hook-with-args-until-success
               ',hook ,@(remq '&optional (remq '&rest arglist)))
-             ,@instr)))))
+             ,@instr))
+       (put ',fun 'definition-name ',sym)
+       (put ',hook 'definition-name ',sym))))
 
 ;;; Running commands
 
