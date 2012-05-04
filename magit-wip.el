@@ -18,38 +18,22 @@
 
 ;;; Commentary:
 
-;; When the global minor mode `magit-wip-mode' is turned on and a file is
-;; saved inside a writable git repository then it is also committed to a
-;; special Work In Progress ref.
+;; This plug-in provides support for special work-in-progress refs.
 
-;; This required the third-party git command `git-wip' which is available
+;; This required the third-party git command `git wip' which is available
 ;; from https://github.com/bartman/git-wip.
 
-;;; TODO:
+;; The global mode `magit-wip-mode' provides highlighting of wip refs in
+;; the Magit log buffers and `magit-wip-save-mode' commits to such a ref
+;; when saving a file-visiting buffer.
 
-;; - Provide an interface for `git wip log'
+;; Use `global-magit-wip-save-mode' to enable the latter globally.
 
 ;;; Code:
 
 (require 'magit)
 
-(defcustom magit-wip-commit-message "WIP %r"
-  "Commit message for git-wip commits.
-
-The following `format'-like specs are supported:
-%f the full name of the file being saved, and
-%r the name of the file being saved, relative to the repository root."
-  :group 'magit
-  :type 'string)
-
-(defcustom magit-wip-echo-area-message "Wrote (wip) %f...done"
-  "Message shown in the echo area after creating a for git-wip commit.
-
-The following `format'-like specs are supported:
-%f the full name of the file being saved, and
-%r the name of the file being saved, relative to the repository root."
-  :group 'magit
-  :type '(choice (const :tag "No message" nil) string))
+;;; Magit Wip Mode.
 
 (defface magit-log-head-label-wip
   '((((class color) (background light))
@@ -70,27 +54,68 @@ The following `format'-like specs are supported:
 (defconst magit-wip-refs-namespace
   '("wip" magit-log-get-wip-color))
 
+;;;###autoload
 (define-minor-mode magit-wip-mode
-  "Magit support for git-wip.
-
-When this global minor mode is turned on and a file is saved inside a
-writable git repository then it is also committed to a special Work In
-Progress ref."
+  "In Magit log buffers; give wip refs a special appearance."
   :group 'magit
   :global t
-  (cond (magit-wip-mode
-         (add-hook 'after-save-hook 'magit-wip-save)
-         (add-to-list 'magit-refs-namespaces magit-wip-refs-namespace 'append))
-        (t
-         (remove-hook 'after-save-hook 'magit-wip-save)
-         (setq magit-refs-namespaces
-               (delete magit-wip-refs-namespace magit-refs-namespaces)))))
+  (if magit-wip-mode
+      (add-to-list 'magit-refs-namespaces magit-wip-refs-namespace 'append)
+    (setq magit-refs-namespaces
+          (delete magit-wip-refs-namespace magit-refs-namespaces))))
+
+;;; Magit Wip Record Mode.
+
+(defcustom magit-wip-commit-message "WIP %r"
+  "Commit message for git-wip commits.
+
+The following `format'-like specs are supported:
+%f the full name of the file being saved, and
+%r the name of the file being saved, relative to the repository root
+%g the root of the git repository."
+  :group 'magit
+  :type 'string)
+
+(defcustom magit-wip-echo-area-message "Wrote %f (wip)"
+  "Message shown in the echo area after creating a git-wip commit.
+
+The following `format'-like specs are supported:
+%f the full name of the file being saved, and
+%r the name of the file being saved, relative to the repository root.
+%g the root of the git repository."
+  :group 'magit
+  :type '(choice (const :tag "No message" nil) string))
+
+(defvar magit-wip-save-mode-lighter " Wip")
+
+;;;###autoload
+(define-minor-mode magit-wip-save-mode
+  "Magit support for committing to a work-in-progress ref.
+
+When this minor mode is turned on and a file is saved inside a writable
+git repository then it is also committed to a special work-in-progress
+ref."
+  :lighter magit-wip-save-mode-lighter
+  (if magit-wip-save-mode
+      (add-hook  'after-save-hook 'magit-wip-save t t)
+    (remove-hook 'after-save-hook 'magit-wip-save t)))
+
+;;;###autoload
+(define-globalized-minor-mode global-magit-wip-save-mode
+  magit-wip-save-mode turn-on-magit-wip-save
+  :group 'magit)
+
+(defun turn-on-magit-wip-save ()
+  (when (and (buffer-file-name)
+             (magit-get-top-dir default-directory))
+    (magit-wip-save-mode 1)))
 
 (defun magit-wip-save ()
   (let* ((top-dir (magit-get-top-dir default-directory))
          (name (buffer-file-name))
          (spec `((?r . ,(file-relative-name name top-dir))
-                 (?f . ,(buffer-file-name)))))
+                 (?f . ,(buffer-file-name))
+                 (?g . ,top-dir))))
     (when (and top-dir (file-writable-p top-dir))
       (magit-run-git "wip" "save"
                      (format-spec magit-wip-commit-message spec)
