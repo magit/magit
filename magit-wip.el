@@ -27,7 +27,12 @@
 ;; the Magit log buffers and `magit-wip-save-mode' commits to such a ref
 ;; when saving a file-visiting buffer.
 
-;; Use `global-magit-wip-save-mode' to enable the latter globally.
+;; Use `global-magit-wip-save-mode' to enable the latter using the Magit
+;; extension mechanism.  (Unlike other such extensions it does not apply
+;; to Magit buffers but to file-visiting buffers.)
+;;
+;;   $ git config --global --add magit.extension wip-save  # or
+;;   $ git config --add magit.extension wip-save
 
 ;;; Code:
 
@@ -107,7 +112,8 @@ ref."
 
 (defun turn-on-magit-wip-save ()
   (when (and (buffer-file-name)
-             (magit-get-top-dir default-directory))
+             (magit-get-top-dir default-directory)
+             (member "wip" (magit-get-all "magit.extensions")))
     (magit-wip-save-mode 1)))
 
 (defun magit-wip-save ()
