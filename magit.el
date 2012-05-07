@@ -3131,22 +3131,25 @@ must return a string which will represent the log line.")
     ("bisect" magit-log-get-bisect-state-color)))
 
 (defun magit-ref-get-label-color (r)
-  (let* ((ref-re "\\(?:tag: \\)?refs/\\(?:\\([^/]+\\)/\\)?\\(.+\\)")
-         (label (and (string-match ref-re r)
-                     (match-string 2 r)))
-         (res (let ((colorizer
-                     (cdr (assoc (match-string 1 r)
-                                 magit-refs-namespaces))))
-                (cond ((null colorizer)
-                       (list r 'magit-log-head-label-default))
-                      ((symbolp colorizer)
-                       (list label colorizer))
-                      ((listp colorizer)
-                       (funcall (car colorizer)
-                                (match-string 2 r)))
-                      (t
-                       (list r 'magit-log-head-label-default))))))
-    res))
+  (let ((uninteresting (loop for re in magit-uninteresting-refs
+                             thereis (string-match re r))))
+    (if uninteresting (list nil nil)
+      (let* ((ref-re "\\(?:tag: \\)?refs/\\(?:\\([^/]+\\)/\\)?\\(.+\\)")
+             (label (and (string-match ref-re r)
+                         (match-string 2 r)))
+             (res (let ((colorizer
+                         (cdr (assoc (match-string 1 r)
+                                     magit-refs-namespaces))))
+                    (cond ((null colorizer)
+                           (list r 'magit-log-head-label-default))
+                          ((symbolp colorizer)
+                           (list label colorizer))
+                          ((listp colorizer)
+                           (funcall (car colorizer)
+                                    (match-string 2 r)))
+                          (t
+                           (list r 'magit-log-head-label-default))))))
+        res))))
 
 (defun magit-present-log-line (graph sha1 refs message)
   "The default log line generator."
