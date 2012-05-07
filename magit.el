@@ -2960,10 +2960,8 @@ must return a string which will represent the log line.")
     ("bisect" magit-log-get-bisect-state-color)))
 
 (defun magit-ref-get-label-color (r)
-  (let ((uninteresting (some 'identity
-                            (mapcar #'(lambda (re)
-                                        (string-match re r))
-                                    magit-uninteresting-refs))))
+  (let ((uninteresting (loop for re in magit-uninteresting-refs
+                             thereis (string-match re r))))
     (if uninteresting (list nil nil)
       (let* ((ref-re "\\(?:tag: \\)?refs/\\(?:\\([^/]+\\)/\\)?\\(.+\\)")
              (label (and (string-match ref-re r)
