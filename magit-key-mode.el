@@ -1,6 +1,5 @@
 (require 'magit)
 
-(require 'assoc)
 (eval-when-compile (require 'cl))
 
 (defvar magit-key-mode-key-maps '()
@@ -311,7 +310,7 @@ put it in magit-key-mode-key-maps for fast lookup."
           (defkey k `(magit-key-mode-add-argument
                       ',for-group ,(nth 2 k) ',(nth 3 k))))))
 
-    (aput 'magit-key-mode-key-maps for-group map)
+    (push (cons for-group map) magit-key-mode-key-maps)
     map))
 
 (defvar magit-key-mode-prefix nil
