@@ -3,7 +3,7 @@
   (require 'cl))
 
 (eval-when-compile
-  (when (null (ignore-errors (require 'mocker)))
+  (unless (require 'mocker nil t)
     (defmacro* mocker-let (specs &body body)
       (error "Skipping tests, mocker.el is not available"))))
 
@@ -11,12 +11,14 @@
 
 (defmacro with-temp-git-repo (repo &rest body)
   (declare (indent 1) (debug t))
-  `(let ((,repo (make-temp-file "tmp_git" t)))
+  `(let* ((,repo (make-temp-file "tmp_git" t))
+          (default-directory (concat ,repo "/")))
      (unwind-protect
          (progn
            (magit-init repo)
            ,@body)
-       (delete-directory ,repo t))))
+       (delete-directory ,repo t)
+       )))
 
 (defun magit-tests-section-has-item-title (title &optional section-path)
   (let ((children (magit-section-children
@@ -74,3 +76,12 @@
       (magit-status repo)
       (magit-stage-all t)
       (magit-tests-section-has-item-title dummy-filename '(staged)))))
+
+(ert-deftest magit-get-boolean ()
+  (with-temp-git-repo repo
+    (magit-run* '("git" "config" "core.safecrlf" "true"))
+    (should (magit-get-boolean "core.safecrlf"))
+    (should (magit-get-boolean "core" "safecrlf"))
+
+    (magit-run* '("git" "config" "core.safecrlf" "false"))
+    (should-not (magit-get-boolean "core.safecrlf"))))
