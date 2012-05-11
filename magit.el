@@ -4260,7 +4260,8 @@ ask user instead.
 With \\[universal-argument] \\[universal-argument] as prefix, \
 also prompt user for the remote branch;
 otherwise, try to use the branch.<name>.merge git-config(1)
-option, falling back to something hairy if that is unset."
+option, falling back to something hairy if that is unset,
+or not pushing to branch.<name>.remote."
   (interactive)
   (let* ((branch (or (magit-get-current-branch)
                      (error "Don't push a detached head.  That's gross")))
@@ -4274,7 +4275,8 @@ option, falling back to something hairy if that is unset."
          (ref-branch (or (and (>= (prefix-numeric-value current-prefix-arg) 16)
                               (magit-read-remote-branch
                                push-remote (format "Push %s as branch" branch)))
-                         (magit-get "branch" branch "merge"))))
+                         (and (equal branch-remote push-remote)
+                              (magit-get "branch" branch "merge")))))
     (if (and (not ref-branch)
              (eq magit-set-upstream-on-push 'refuse))
         (error "Not pushing since no upstream has been set.")
