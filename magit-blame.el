@@ -136,7 +136,12 @@
   (+ (lsh (car unixtime) 16) (cadr unixtime)))
 
 (defun magit-blame-decode-time (unixtime &optional tz)
-  "Decode UNIXTIME into (HIGH LOW) format.  The second argument TZ can be used to add the timezone in (-)HHMM format to UNIXTIME.  UNIXTIME should be either a number containing seconds since epoch or Emacs's (HIGH LOW . IGNORED) format."
+  "Decode UNIXTIME into (HIGH LOW) format.
+
+The second argument TZ can be used to add the timezone in (-)HHMM
+format to UNIXTIME.  UNIXTIME should be either a number
+containing seconds since epoch or Emacs's (HIGH LOW
+. IGNORED) format."
   (when (numberp tz)
     (unless (numberp unixtime)
       (setq unixtime (magit-blame-unsplit-time unixtime)))
@@ -151,7 +156,15 @@
 
 (defun magit-blame-format-time-string (format &optional unixtime tz)
   "Use FORMAT to format the time UNIXTIME, or now if omitted.
-UNIXTIME is specified as a number containing seconds since epoch or Emacs's (HIGH LOW . IGNORED) format.  The optional argument TZ can be used to set the time zone.  If TZ is a number it is treated as a (-)HHMM offset to Universal Time.  If TZ is not a number and non-nil the time is printed in UTC.  If TZ is nil the local zime zone is used.  The format of the function is similar to `format-time-string' except for %Z which is not officially supported at the moment."
+
+UNIXTIME is specified as a number containing seconds since epoch
+or Emacs's (HIGH LOW . IGNORED) format.  The optional argument TZ
+can be used to set the time zone.  If TZ is a number it is
+treated as a (-)HHMM offset to Universal Time.  If TZ is not
+a number and non-nil the time is printed in UTC.  If TZ is nil
+the local zime zone is used.  The format of the function is
+similar to `format-time-string' except for %Z which is not
+officially supported at the moment."
   (unless unixtime
     (setq unixtime (current-time)))
   (when (numberp tz) ;; TODO add support for %Z
