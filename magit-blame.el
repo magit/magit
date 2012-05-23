@@ -184,7 +184,7 @@ UNIXTIME is specified as a number containing seconds since epoch or Emacs's (HIG
 	    (re-search-forward "^author \\(.+\\)$")
 	    (setq author (match-string-no-properties 1))
             (re-search-forward "^author-time \\(.+\\)$")
-            (setq author-time (magit-blame-splittime
+            (setq author-time (magit-blame-split-time
                                (string-to-number
                                 (match-string-no-properties 1))))
             (re-search-forward "^author-tz \\(.+\\)$")
