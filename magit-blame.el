@@ -1,5 +1,6 @@
 ;;; magit-blame.el --- blame support for magit
 
+;; Copyright (C) 2012  Rüdiger Sonderfeld
 ;; Copyright (C) 2012  Yann Hodique
 ;; Copyright (C) 2011  byplayer
 ;; Copyright (C) 2010  Alexander Prusov
@@ -45,6 +46,11 @@
 (defface magit-blame-culprit
   '((t :inherit magit-blame-header))
   "Face for blame culprit."
+  :group 'magit-faces)
+
+(defface magit-blame-time
+  '((t :inherit magit-blame-header))
+  "Face for blame time."
   :group 'magit-faces)
 
 (defface magit-blame-subject
@@ -116,6 +122,55 @@
     (if sha1
 	(magit-show-commit sha1))))
 
+(defcustom magit-time-format-string "%Y-%m-%dT%T%z"
+  "How to format time in magit-blame header."
+  :group 'magit
+  :type 'string)
+
+(defun magit-blame-split-time (unixtime)
+  "Split UNIXTIME into (HIGH LOW) format expected by Emacs's time functions."
+  (list (lsh unixtime -16) (logand unixtime #xFFFF)))
+
+(defun magit-blame-unsplit-time (unixtime)
+  "Convert UNIXTIME from (HIGH LOW) format to single number."
+  (+ (lsh (car unixtime) 16) (cadr unixtime)))
+
+(defun magit-blame-decode-time (unixtime &optional tz)
+  "Decode UNIXTIME into (HIGH LOW) format.
+
+The second argument TZ can be used to add the timezone in (-)HHMM
+format to UNIXTIME.  UNIXTIME should be either a number
+containing seconds since epoch or Emacs's (HIGH LOW
+. IGNORED) format."
+  (when (numberp tz)
+    (unless (numberp unixtime)
+      (setq unixtime (magit-blame-unsplit-time unixtime)))
+    (let* ((ptz (abs tz))
+           (min (+ (* (/ ptz 100) 60)
+                   (mod ptz 100))))
+      (setq unixtime (+ (* (if (< tz 0) (- min) min) 60) unixtime))))
+
+  (when (numberp unixtime)
+    (setq unixtime (magit-blame-split-time unixtime)))
+  unixtime)
+
+(defun magit-blame-format-time-string (format &optional unixtime tz)
+  "Use FORMAT to format the time UNIXTIME, or now if omitted.
+
+UNIXTIME is specified as a number containing seconds since epoch
+or Emacs's (HIGH LOW . IGNORED) format.  The optional argument TZ
+can be used to set the time zone.  If TZ is a number it is
+treated as a (-)HHMM offset to Universal Time.  If TZ is not
+a number and non-nil the time is printed in UTC.  If TZ is nil
+the local zime zone is used.  The format of the function is
+similar to `format-time-string' except for %Z which is not
+officially supported at the moment."
+  (unless unixtime
+    (setq unixtime (current-time)))
+  (when (numberp tz) ;; TODO add support for %Z
+    (setq format (replace-regexp-in-string "%z" (format "%+05d" tz) format)))
+  (format-time-string format (magit-blame-decode-time unixtime tz) tz))
+
 (defun magit-blame-parse (target-buf blame-buf)
   "Parse blame-info in buffer BLAME-BUF and decorate TARGET-BUF buffer."
   (save-match-data
@@ -123,7 +178,7 @@
 	  (nl (propertize "\n" 'face 'magit-blame-header))
 	  (commit-hash (make-hash-table :test 'equal :size 577))
 	  commit commit-info old-line new-line num old-file subject author
-	  info ov beg end blame)
+	  author-time author-timezone info ov beg end blame)
       (with-current-buffer blame-buf
 	(goto-char (point-min))
 	;; search for a ful commit info
@@ -141,11 +196,20 @@
 	  (unless commit-info
 	    (re-search-forward "^author \\(.+\\)$")
 	    (setq author (match-string-no-properties 1))
+            (re-search-forward "^author-time \\(.+\\)$")
+            (setq author-time (magit-blame-split-time
+                               (string-to-number
+                                (match-string-no-properties 1))))
+            (re-search-forward "^author-tz \\(.+\\)$")
+            (setq author-timezone (string-to-number
+                                   (match-string-no-properties 1)))
 	    (re-search-forward "^summary \\(.+\\)$")
 	    (setq subject (match-string-no-properties 1))
 	    (re-search-forward "^filename \\(.+\\)$")
 	    (setq old-file (match-string-no-properties 1))
 	    (setq commit-info (list :sha1 commit :author author
+                                    :author-time author-time
+                                    :author-timezone author-timezone
 				    :subject subject :file old-file))
 	    ;; save it in the hash
 	    (puthash commit commit-info commit-hash))
@@ -163,6 +227,8 @@
 		num (nth 2 chunk)
 		commit (plist-get commit-info :sha1)
 		author (plist-get commit-info :author)
+                author-time (plist-get commit-info :author-time)
+                author-timezone (plist-get commit-info :author-timezone)
 		subject (plist-get commit-info :subject))
 
 	  (goto-char (point-min))
@@ -185,6 +251,11 @@
 		       blank
 		       (propertize (format "%-20s" author)
 				   'face 'magit-blame-culprit)
+                       blank
+                       (propertize (magit-blame-format-time-string
+                                    magit-time-format-string
+                                    author-time author-timezone)
+                                   'face 'magit-blame-time)
 		       blank
 		       (propertize subject 'face 'magit-blame-subject)
 		       blank nl))
