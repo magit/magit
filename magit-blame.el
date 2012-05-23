@@ -145,9 +145,9 @@ containing seconds since epoch or Emacs's (HIGH LOW
   (when (numberp tz)
     (unless (numberp unixtime)
       (setq unixtime (magit-blame-unsplit-time unixtime)))
-    (let ((ptz (abs tz)))
-      (setq min (+ (* (/ ptz 100) 60)
-                   (mod ptz 100)))
+    (let* ((ptz (abs tz))
+           (min (+ (* (/ ptz 100) 60)
+                   (mod ptz 100))))
       (setq unixtime (+ (* (if (< tz 0) (- min) min) 60) unixtime))))
 
   (when (numberp unixtime)
