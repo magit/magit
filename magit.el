@@ -1151,9 +1151,12 @@ argument or a list of strings used as regexps."
                   ((and (not (functionp uninteresting))
                         (loop for i in uninteresting thereis (string-match i ref))))
                   (t
-                   (push (cons (magit-format-ref ref)
-                               (replace-regexp-in-string "^refs/heads/" "" ref))
-                         refs))))))
+                   (let ((fmt-ref (magit-format-ref ref)))
+                     (when fmt-ref
+                       (push (cons fmt-ref
+                                   (replace-regexp-in-string "^refs/heads/"
+                                                             "" ref))
+                             refs))))))))
     (nreverse refs)))
 
 (defun magit-format-ref (ref)
