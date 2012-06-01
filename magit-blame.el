@@ -198,11 +198,13 @@ officially supported at the moment."
 	    (setq author (match-string-no-properties 1))
             (re-search-forward "^author-time \\(.+\\)$")
             (setq author-time (magit-blame-split-time
-                               (string-to-number
-                                (match-string-no-properties 1))))
+                               (truncate
+                                (string-to-number
+                                 (match-string-no-properties 1)))))
             (re-search-forward "^author-tz \\(.+\\)$")
-            (setq author-timezone (string-to-number
-                                   (match-string-no-properties 1)))
+            (setq author-timezone (truncate
+                                   (string-to-number
+                                    (match-string-no-properties 1))))
 	    (re-search-forward "^summary \\(.+\\)$")
 	    (setq subject (match-string-no-properties 1))
 	    (re-search-forward "^filename \\(.+\\)$")
