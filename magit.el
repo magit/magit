@@ -85,6 +85,9 @@
 (require 'diff-mode)
 
 ;; Silences byte-compiler warnings
+(eval-and-compile
+  (unless (fboundp 'declare-function) (defmacro declare-function (&rest args))))
+
 (eval-when-compile  (require 'view))
 (declare-function view-mode 'view)
 (eval-when-compile (require 'iswitchb))
