@@ -136,7 +136,7 @@ match REQUIRED-STATUS."
     (with-temp-buffer
       (insert "#!/bin/sh\n" command "\n")
       (write-region (point-min) (point-max) file))
-    (chmod file #o755)
+    (set-file-modes file #o755)
     (magit-run-git-async "bisect" "run" file)
     (magit-display-process)
     (setq buffer (get-buffer magit-process-buffer-name))
