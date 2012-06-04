@@ -3646,7 +3646,10 @@ user input."
 \('git merge REVISION')."
   (interactive (list (magit-read-rev "Merge" (magit-guess-branch))))
   (when revision
-    (magit-run-git "merge" "--no-commit" (magit-rev-to-git revision))
+    (apply 'magit-run-git
+           "merge" "--no-commit"
+           (magit-rev-to-git revision)
+           magit-custom-options)
     (when (file-exists-p ".git/MERGE_MSG")
         (magit-log-edit))))
 
