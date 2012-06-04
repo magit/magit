@@ -5758,14 +5758,16 @@ These are the branch names with the remote name stripped."
                           (point-marker)))))
          ; list of remote elements to display in the buffer
          (remote-groups (loop for remote in remotes
-                              for end-marker on (cdr markers)
-                              collect (list remote (find-if-not 'null end-marker)))))
+                              for end-markers on (cdr markers)
+                              for marker = (loop for x in end-markers thereis x)
+                              collect (list remote marker))))
 
     ; actual displaying of information
     (magit-with-section "local" nil
       (insert-before-markers (propertize "Local:" 'face 'magit-section-title) "\n")
       (magit-set-section-info ".")
-      (magit-wash-branches-between-point-and-marker (find-if-not 'null markers)))
+      (magit-wash-branches-between-point-and-marker
+       (loop for x in markers thereis x)))
 
     (insert-before-markers "\n")
 
