@@ -2,6 +2,7 @@
 
 ;; Copyright (C) 2012  Rüdiger Sonderfeld
 ;; Copyright (C) 2012  Yann Hodique
+;; Copyright (C) 2012  York Zhao
 ;; Copyright (C) 2011  byplayer
 ;; Copyright (C) 2010  Alexander Prusov
 ;; Copyright (C) 2009  Tim Moore
@@ -129,11 +130,22 @@
 
 (defun magit-blame-split-time (unixtime)
   "Split UNIXTIME into (HIGH LOW) format expected by Emacs's time functions."
-  (list (lsh unixtime -16) (logand unixtime #xFFFF)))
-
-(defun magit-blame-unsplit-time (unixtime)
-  "Convert UNIXTIME from (HIGH LOW) format to single number."
-  (+ (lsh (car unixtime) 16) (cadr unixtime)))
+  ;; UNIXTIME is a 32 bit integer, however, since integer number in Emacs is
+  ;; only 30 bits, the UNIXTIME has to be represented by a floating point
+  ;; number. Therefor, this procedure is to "split" the floating point number
+  ;; into the (HIGH LOW) format representation. The algorithm is to first divide
+  ;; the time (floating point number) by 4, which is equivalent to right
+  ;; shifting 2 bits to make a 30 bits integer number (discarding the lowest 2
+  ;; bits). Since this number is the higher 30 bits of the time, by right
+  ;; shifting 14 bits we get the HIGH part (16 bits). The original floating
+  ;; point time mod 4 we get the lowest 2 bits of the time. Take the 30 bits
+  ;; number calculated in the earlier steps, wipe out the higher 16 bits and we
+  ;; get the higher 14 bits of LOW part, left shifting 2 bits and "inclusive or"
+  ;; the lowest 2 bits we get the final LOW part.
+  (let ((unixtime-hi-30 (truncate (/ unixtime 4)))
+        (unixtime-lo-2 (truncate (mod unixtime 4))))
+    (list (lsh unixtime-hi-30 -14)
+          (logior (lsh (logand unixtime-hi-30 #x3FFF) 2) unixtime-lo-2))))
 
 (defun magit-blame-decode-time (unixtime &optional tz)
   "Decode UNIXTIME into (HIGH LOW) format.
@@ -144,7 +156,7 @@ containing seconds since epoch or Emacs's (HIGH LOW
 . IGNORED) format."
   (when (numberp tz)
     (unless (numberp unixtime)
-      (setq unixtime (magit-blame-unsplit-time unixtime)))
+      (setq unixtime (float-time unixtime)))
     (let* ((ptz (abs tz))
            (min (+ (* (/ ptz 100) 60)
                    (mod ptz 100))))
@@ -197,14 +209,13 @@ officially supported at the moment."
 	    (re-search-forward "^author \\(.+\\)$")
 	    (setq author (match-string-no-properties 1))
             (re-search-forward "^author-time \\(.+\\)$")
-            (setq author-time (magit-blame-split-time
-                               (truncate
-                                (string-to-number
-                                 (match-string-no-properties 1)))))
+            (setq author-time
+                  (string-to-number
+                   (match-string-no-properties 1)))
             (re-search-forward "^author-tz \\(.+\\)$")
-            (setq author-timezone (truncate
-                                   (string-to-number
-                                    (match-string-no-properties 1))))
+            (setq author-timezone 
+                  (string-to-number
+                   (match-string-no-properties 1)))
 	    (re-search-forward "^summary \\(.+\\)$")
 	    (setq subject (match-string-no-properties 1))
 	    (re-search-forward "^filename \\(.+\\)$")
