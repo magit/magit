@@ -986,11 +986,17 @@ contents as well.  Don't follow symlinks."
 (defun magit-builtin-completing-read (prompt choices &optional predicate require-match
                                              initial-input hist def)
   "Magit wrapper for standard `completing-read' function."
-  (completing-read (if (and def (> (length prompt) 2)
-                            (string-equal ": " (substring prompt -2)))
-                       (format "%s (default %s): " (substring prompt 0 -2) def)
-                     prompt)
-                   choices predicate require-match initial-input hist def))
+  (let ((reply (completing-read
+                (if (and def (> (length prompt) 2)
+                         (string-equal ": " (substring prompt -2)))
+                    (format "%s (default %s): " (substring prompt 0 -2) def)
+                  prompt)
+                choices predicate require-match initial-input hist def)))
+    (if (string= reply "")
+        (if require-match
+            (error "Nothing selected")
+          nil)
+      reply)))
 
 (defun magit-completing-read (prompt collection &optional predicate require-match
                                      initial-input hist def)
