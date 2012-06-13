@@ -1456,17 +1456,16 @@ PROMPT and UNINTERESTING are passed to `magit-read-rev'."
                 (match-string 1 branch)
               branch)))))
 
-(defun magit-read-remote (&optional prompt def)
+(defun magit-read-remote (&optional prompt def require-match)
   "Read the name of a remote.
 PROMPT is used as the prompt, and defaults to \"Remote\".
-DEF is the default value."
-  (let* ((prompt (or prompt "Remote"))
-         (def (or def (magit-guess-remote)))
-         (remotes (magit-git-lines "remote"))
-
-         (reply (magit-completing-read (concat prompt ": ") remotes
-                                       nil nil nil nil def)))
-    (if (string= reply "") nil reply)))
+DEF is the default value.  If optional REQUIRE-MATCH is non-nil then
+the user is not allowed to exit unless the input is or completes to
+an existing remote."
+  (magit-completing-read (concat prompt ": ")
+                         (magit-git-lines "remote")
+                         nil require-match nil nil
+                         (or def (magit-guess-remote))))
 
 (defun magit-read-remote-branch (remote &optional prompt default)
   (let* ((prompt (or prompt (format "Remote branch (in %s)" remote)))
