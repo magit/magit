@@ -4302,7 +4302,7 @@ or not pushing to branch.<name>.remote."
         ;; it doesn't set up the branch to merge (at least as of Git 1.6.6.1),
         ;; so we have to do that manually.
         (when (and ref-branch set-upstream-on-push)
-          (magit-set (concat "refs/heads/" branch) "branch" branch "merge"))))))
+          (magit-set ref-branch "branch" branch "merge"))))))
 
 ;;; Log edit mode
 
