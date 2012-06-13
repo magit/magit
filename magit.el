@@ -4927,9 +4927,6 @@ or not pushing to branch.<name>.remote."
                                                     (and (not branch-remote)
                                                          (eq magit-set-upstream-on-push 'askifnotset)))
                                                 (yes-or-no-p "Set upstream while pushing? "))))))
-        (if (and (not branch-remote)
-                 (not current-prefix-arg))
-            (magit-set push-remote "branch" branch "remote"))
         (apply 'magit-run-git-async "push" "-v" push-remote
                (if ref-branch
                    (format "%s:%s" branch ref-branch)
@@ -4940,7 +4937,7 @@ or not pushing to branch.<name>.remote."
         ;; Although git will automatically set up the remote,
         ;; it doesn't set up the branch to merge (at least as of Git 1.6.6.1),
         ;; so we have to do that manually.
-        (unless ref-branch
+        (when (and ref-branch set-upstream-on-push)
           (magit-set (concat "refs/heads/" branch) "branch" branch "merge"))))))
 
 ;;; Log edit mode
