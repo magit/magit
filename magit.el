@@ -4302,7 +4302,9 @@ even if `magit-set-upstream-on-push's value is `refuse'."
         ;; Although git will automatically set up the remote,
         ;; it doesn't set up the branch to merge (at least as of Git 1.6.6.1),
         ;; so we have to do that manually.
-        (when (and ref-branch set-upstream-on-push)
+        (when (and ref-branch
+                   (or set-upstream-on-push
+                       (member "-u" magit-custom-options)))
           (magit-set ref-branch "branch" branch "merge"))))))
 
 ;;; Log edit mode
