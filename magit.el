@@ -4911,13 +4911,15 @@ or not pushing to branch.<name>.remote."
   (interactive)
   (let* ((branch (or (magit-get-current-branch)
                      (error "Don't push a detached head.  That's gross")))
-         (branch-remote (magit-get-remote branch))
+         (branch-remote (and branch (magit-get "branch" branch "remote")))
+         (origin-remote (and (magit-get "remote" "origin" "url") "origin"))
          (push-remote (if (or current-prefix-arg
-                              (not branch-remote))
-                          (magit-read-remote (format "Push %s to remote"
-                                                     branch)
-                                             branch-remote)
-                        branch-remote))
+                              (and (not branch-remote)
+                                   (not origin-remote)))
+                          (magit-read-remote
+                           (format "Push %s to remote" branch)
+                           (or branch-remote origin-remote))
+                        (or branch-remote origin-remote)))
          (ref-branch (or (and (>= (prefix-numeric-value current-prefix-arg) 16)
                               (concat "refs/heads/"
                                       (magit-read-remote-branch
