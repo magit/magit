@@ -4278,8 +4278,10 @@ or not pushing to branch.<name>.remote."
                                              branch-remote)
                         branch-remote))
          (ref-branch (or (and (>= (prefix-numeric-value current-prefix-arg) 16)
-                              (magit-read-remote-branch
-                               push-remote (format "Push %s as branch" branch)))
+                              (concat "refs/heads/"
+                                      (magit-read-remote-branch
+                                       push-remote
+                                       (format "Push %s as branch" branch))))
                          (and (equal branch-remote push-remote)
                               (magit-get "branch" branch "merge")))))
     (if (and (not ref-branch)
