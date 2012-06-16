@@ -127,14 +127,6 @@
   :group 'magit
   :type 'string)
 
-(defun magit-blame-split-time (unixtime)
-  "Split UNIXTIME into (HIGH LOW) format expected by Emacs's time functions."
-  (list (lsh unixtime -16) (logand unixtime #xFFFF)))
-
-(defun magit-blame-unsplit-time (unixtime)
-  "Convert UNIXTIME from (HIGH LOW) format to single number."
-  (+ (lsh (car unixtime) 16) (cadr unixtime)))
-
 (defun magit-blame-decode-time (unixtime &optional tz)
   "Decode UNIXTIME into (HIGH LOW) format.
 
@@ -144,14 +136,14 @@ containing seconds since epoch or Emacs's (HIGH LOW
 . IGNORED) format."
   (when (numberp tz)
     (unless (numberp unixtime)
-      (setq unixtime (magit-blame-unsplit-time unixtime)))
+      (setq unixtime (float-time unixtime)))
     (let* ((ptz (abs tz))
            (min (+ (* (/ ptz 100) 60)
                    (mod ptz 100))))
       (setq unixtime (+ (* (if (< tz 0) (- min) min) 60) unixtime))))
 
   (when (numberp unixtime)
-    (setq unixtime (magit-blame-split-time unixtime)))
+    (setq unixtime (seconds-to-time unixtime)))
   unixtime)
 
 (defun magit-blame-format-time-string (format &optional unixtime tz)
@@ -197,14 +189,11 @@ officially supported at the moment."
             (re-search-forward "^author \\(.+\\)$")
             (setq author (match-string-no-properties 1))
             (re-search-forward "^author-time \\(.+\\)$")
-            (setq author-time (magit-blame-split-time
-                               (truncate
-                                (string-to-number
-                                 (match-string-no-properties 1)))))
+            (setq author-time (string-to-number
+                               (match-string-no-properties 1)))
             (re-search-forward "^author-tz \\(.+\\)$")
-            (setq author-timezone (truncate
-                                   (string-to-number
-                                    (match-string-no-properties 1))))
+            (setq author-timezone (string-to-number
+                                   (match-string-no-properties 1)))
             (re-search-forward "^summary \\(.+\\)$")
             (setq subject (match-string-no-properties 1))
             (re-search-forward "^filename \\(.+\\)$")
