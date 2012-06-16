@@ -120,7 +120,6 @@
      (switches
       ("-ff" "Fast-forward only" "--ff-only")
       ("-nf" "No fast-forward" "--no-ff")
-      ("-nc" "No commit" "--no-commit")
       ("-sq" "Squash" "--squash"))
      (arguments
       ("-st" "Strategy" "--strategy=" read-from-minibuffer)))
