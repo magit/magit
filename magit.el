@@ -5751,23 +5751,26 @@ These are the branch names with the remote name stripped."
          (markers
           (append (mapcar (lambda (remote)
                             (save-excursion
-                              (search-forward-regexp (concat "^  remotes\\/" remote))
-                              (beginning-of-line)
-                              (point-marker)))
+                              (when (search-forward-regexp
+                                     (concat "^  remotes\\/" remote) nil t)
+                                (beginning-of-line)
+                                (point-marker))))
                           remotes)
                   (list (save-excursion
                           (goto-char (point-max))
                           (point-marker)))))
          ; list of remote elements to display in the buffer
          (remote-groups (loop for remote in remotes
-                              for end-marker in (cdr markers)
-                              collect (list remote end-marker))))
+                              for end-markers on (cdr markers)
+                              for marker = (loop for x in end-markers thereis x)
+                              collect (list remote marker))))
 
     ; actual displaying of information
     (magit-with-section "local" nil
       (insert-before-markers (propertize "Local:" 'face 'magit-section-title) "\n")
       (magit-set-section-info ".")
-      (magit-wash-branches-between-point-and-marker (car markers)))
+      (magit-wash-branches-between-point-and-marker
+       (loop for x in markers thereis x)))
 
     (insert-before-markers "\n")
 
@@ -5775,7 +5778,8 @@ These are the branch names with the remote name stripped."
 
     ; make sure markers point to nil so that they can be garbage collected
     (mapc (lambda (marker)
-            (set-marker marker nil))
+            (when marker
+             (set-marker marker nil)))
           markers)))
 
 (defun magit-refresh-branch-manager ()
