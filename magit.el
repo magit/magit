@@ -411,6 +411,21 @@ Many Magit faces inherit from this one by default."
   "Face for lines in a diff that have been added."
   :group 'magit-faces)
 
+(defface magit-diff-merge-current
+  '((t :inherit font-lock-preprocessor-face))
+  "Face for merge conflict marker 'current' line."
+  :group 'magit-faces)
+
+(defface magit-diff-merge-separator
+  '((t :inherit font-lock-preprocessor-face))
+  "Face for merge conflict marker seperator."
+  :group 'magit-faces)
+
+(defface magit-diff-merge-proposed
+  '((t :inherit font-lock-preprocessor-face))
+  "Face for merge conflict marker 'proposed' line."
+  :group 'magit-faces)
+
 (defface magit-diff-none
   '((t :inherit diff-context))
   "Face for lines in a diff that are unchanged."
@@ -2742,8 +2757,15 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                              (looking-at "^diff\\|^@@")))
                (magit-highlight-line-whitespace)
                (let ((prefix (buffer-substring-no-properties
-                              (point) (min (+ (point) n-columns) (point-max)))))
-                 (cond ((string-match "\\+" prefix)
+                              (point) (min (+ (point) n-columns) (point-max))))
+                     (line (buffer-substring-no-properties (point) (line-end-position))))
+                 (cond ((string-match "^[\\+]+<<<<<<< " line)
+                        (magit-put-line-property 'face 'magit-diff-merge-current))
+                       ((string-match "^[\\+]+=======" line)
+                        (magit-put-line-property 'face 'magit-diff-merge-separator))
+                       ((string-match "^[\\+]+>>>>>>> " line)
+                        (magit-put-line-property 'face 'magit-diff-merge-proposed))
+                       ((string-match "\\+" prefix)
                         (magit-put-line-property 'face 'magit-diff-add))
                        ((string-match "-" prefix)
                         (magit-put-line-property 'face 'magit-diff-del))
