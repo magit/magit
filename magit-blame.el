@@ -63,6 +63,8 @@
     (define-key map (kbd "l") 'magit-blame-locate-commit)
     (define-key map (kbd "RET") 'magit-blame-locate-commit)
     (define-key map (kbd "q") 'magit-blame-mode)
+    (define-key map (kbd "n") 'magit-blame-next-chunk)
+    (define-key map (kbd "p") 'magit-blame-previous-chunk)
     map)
   "Keymap for an annotated section.\\{magit-blame-map}")
 
@@ -121,6 +123,46 @@
           (setq sha1 (plist-get (nth 3 (overlay-get ov :blame)) :sha1))))
     (if sha1
         (magit-show-commit sha1))))
+
+(defun magit-blame-next-chunk (pos)
+  "Go to the next blame chunk."
+  (interactive "d")
+  (catch 'found
+    (let ((ov-pos pos))
+      (while (< ov-pos (point-max))
+        (let* ((next-ov-pos (next-overlay-change ov-pos))
+               ;; search for an overlay with blame info
+               (next-blame-ov 
+                (let ((overlays (overlays-at next-ov-pos)))
+                  (while (and overlays 
+                              (not (overlay-get (car overlays) :blame)))
+                    (setq overlays (cdr overlays)))
+                  (car overlays))))
+          (if next-blame-ov
+              ;; found a blame chunk
+              (throw 'found (goto-char next-ov-pos))
+            ;; keep looking
+            (setq ov-pos next-ov-pos)))))))
+
+(defun magit-blame-previous-chunk (pos)
+  "Go to the previous blame chunk."
+  (interactive "d")
+  (catch 'found
+    (let ((ov-pos pos))
+      (while (> ov-pos (point-min))
+        (let* ((prev-ov-pos (previous-overlay-change ov-pos))
+               ;; search for an overlay with blame info
+               (prev-blame-ov 
+                (let ((overlays (overlays-at prev-ov-pos)))
+                  (while (and overlays 
+                              (not (overlay-get (car overlays) :blame)))
+                    (setq overlays (cdr overlays)))
+                  (car overlays))))
+          (if prev-blame-ov
+              ;; found a blame chunk
+              (throw 'found (goto-char prev-ov-pos))
+            ;; keep looking
+            (setq ov-pos prev-ov-pos)))))))
 
 (defcustom magit-time-format-string "%Y-%m-%dT%T%z"
   "How to format time in magit-blame header."
