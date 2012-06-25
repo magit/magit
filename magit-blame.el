@@ -30,6 +30,7 @@
 
 ;;; Code:
 
+(eval-when-compile (require 'cl))
 (require 'magit)
 
 (defface magit-blame-header
@@ -131,28 +132,28 @@ boundaries from BEG to END, the return value is nil."
   (save-excursion
     (goto-char BEG)
     (catch 'found
-      (let ((ov-pos BEG)
-            ;; use the appropriate overlay change function depending
-            ;; on the direction of the search
-            (overlay-change-function (if (< BEG END) #'next-overlay-change
-                                       #'previous-overlay-change))
-            (within-bounds-p (if (< BEG END) (apply-partially #'> END)
-                               (apply-partially #'< END))))
-        ;; iterate through overlay changes from BEG to END
-        (while (funcall within-bounds-p ov-pos)
-          (let* ((next-ov-pos (funcall overlay-change-function ov-pos))
-                 ;; search for an overlay with a PROP property
-                 (next-ov
-                  (let ((overlays (overlays-at next-ov-pos)))
-                    (while (and overlays
-                                (not (overlay-get (car overlays) PROP)))
-                      (setq overlays (cdr overlays)))
-                    (car overlays))))
-            (if next-ov
-                ;; found the next overlay with prop PROP at next-ov-pos
-                (throw 'found next-ov-pos)
-              ;; no matching overlay found, keep looking
-              (setq ov-pos next-ov-pos))))))))
+      (flet ((overlay-change (pos)
+                             (if (< BEG END) (next-overlay-change pos)
+                               (previous-overlay-change pos)))
+             (within-bounds-p (pos)
+                              (if (< BEG END) (< pos END)
+                                (> pos END))))
+        (let ((ov-pos BEG))
+          ;; iterate through overlay changes from BEG to END
+          (while (within-bounds-p ov-pos)
+            (let* ((next-ov-pos (overlay-change ov-pos))
+                   ;; search for an overlay with a PROP property
+                   (next-ov
+                    (let ((overlays (overlays-at next-ov-pos)))
+                      (while (and overlays
+                                  (not (overlay-get (car overlays) PROP)))
+                        (setq overlays (cdr overlays)))
+                      (car overlays))))
+              (if next-ov
+                  ;; found the next overlay with prop PROP at next-ov-pos
+                  (throw 'found next-ov-pos)
+                ;; no matching overlay found, keep looking
+                (setq ov-pos next-ov-pos)))))))))
 
 (defun magit-blame-next-chunk (pos)
   "Go to the next blame chunk."
