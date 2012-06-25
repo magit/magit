@@ -30,6 +30,7 @@
 
 ;;; Code:
 
+(eval-when-compile (require 'cl))
 (require 'magit)
 
 (defface magit-blame-header
@@ -63,6 +64,8 @@
     (define-key map (kbd "l") 'magit-blame-locate-commit)
     (define-key map (kbd "RET") 'magit-blame-locate-commit)
     (define-key map (kbd "q") 'magit-blame-mode)
+    (define-key map (kbd "n") 'magit-blame-next-chunk)
+    (define-key map (kbd "p") 'magit-blame-previous-chunk)
     map)
   "Keymap for an annotated section.\\{magit-blame-map}")
 
@@ -121,6 +124,50 @@
           (setq sha1 (plist-get (nth 3 (overlay-get ov :blame)) :sha1))))
     (if sha1
         (magit-show-commit sha1))))
+
+(defun magit-find-next-overlay-change (BEG END PROP)
+  "Return the next position after BEG where an overlay matching a
+property PROP starts or ends. If there are no matching overlay
+boundaries from BEG to END, the return value is nil."
+  (save-excursion
+    (goto-char BEG)
+    (catch 'found
+      (flet ((overlay-change (pos)
+                             (if (< BEG END) (next-overlay-change pos)
+                               (previous-overlay-change pos)))
+             (within-bounds-p (pos)
+                              (if (< BEG END) (< pos END)
+                                (> pos END))))
+        (let ((ov-pos BEG))
+          ;; iterate through overlay changes from BEG to END
+          (while (within-bounds-p ov-pos)
+            (let* ((next-ov-pos (overlay-change ov-pos))
+                   ;; search for an overlay with a PROP property
+                   (next-ov
+                    (let ((overlays (overlays-at next-ov-pos)))
+                      (while (and overlays
+                                  (not (overlay-get (car overlays) PROP)))
+                        (setq overlays (cdr overlays)))
+                      (car overlays))))
+              (if next-ov
+                  ;; found the next overlay with prop PROP at next-ov-pos
+                  (throw 'found next-ov-pos)
+                ;; no matching overlay found, keep looking
+                (setq ov-pos next-ov-pos)))))))))
+
+(defun magit-blame-next-chunk (pos)
+  "Go to the next blame chunk."
+  (interactive "d")
+  (let ((next-chunk-pos (magit-find-next-overlay-change pos (point-max) :blame)))
+    (when next-chunk-pos
+      (goto-char next-chunk-pos))))
+
+(defun magit-blame-previous-chunk (pos)
+  "Go to the previous blame chunk."
+  (interactive "d")
+  (let ((prev-chunk-pos (magit-find-next-overlay-change pos (point-min) :blame)))
+    (when prev-chunk-pos
+      (goto-char prev-chunk-pos))))
 
 (defcustom magit-time-format-string "%Y-%m-%dT%T%z"
   "How to format time in magit-blame header."
