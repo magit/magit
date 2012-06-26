@@ -4188,14 +4188,23 @@ If there is no default remote, ask for one."
   (let* ((branch (magit-get-current-branch))
          (branch-remote (magit-get-remote branch))
          (config-branch (and branch (magit-get "branch" branch "merge")))
-         (merge-branch (or (and config-branch (not current-prefix-arg))
+         (pull-remote (if (or current-prefix-arg
+                               (not branch-remote))
+                           (magit-read-remote (format "Pull from remote"
+                                                      branch)
+                                              branch-remote)))
+         (merge-branch (or (and config-branch (not (>= (prefix-numeric-value current-prefix-arg) 16)))
                            (magit-read-remote-branch
-                            branch-remote (format "Pull from: ")))))
+                            pull-remote (format "Pull branch from remote %s" pull-remote)))))
     (when (and branch (not config-branch))
-      (magit-set branch-remote "branch" branch "remote")
+      (magit-set merge-remote "branch" branch "remote")
       (magit-set (format "refs/heads/%s" merge-branch)
                  "branch" branch "merge"))
-    (apply 'magit-run-git-async "pull" "-v" magit-custom-options)))
+    (apply 'magit-run-git-async "pull" "-v" pull-remote
+           (if merge-branch
+               (format "%s:%s" branch merge-branch)
+             branch)
+           magit-custom-options)))
 
 (eval-when-compile (require 'eshell))
 
