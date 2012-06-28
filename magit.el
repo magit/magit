@@ -5609,14 +5609,13 @@ These are the branch names with the remote name stripped."
 (defvar magit-branches-buffer-name "*magit-branches*")
 
 (defun magit--is-branch-at-point-remote ()
-  "Return t if the branch at point is a remote tracking branch"
+  "Return non-nil if the branch at point is a remote tracking branch"
   (magit-remote-part-of-branch (magit--branch-name-at-point)))
 
 (defun magit-remote-part-of-branch (branch)
   (when (string-match-p "^\\(?:refs/\\)?remotes\\/" branch)
     (loop for remote in (magit-git-lines "remote")
-          until (string-match-p (format "^\\(?:refs/\\)?remotes\\/%s\\/" (regexp-quote remote)) branch)
-          finally return remote)))
+          when (string-match-p (format "^\\(?:refs/\\)?remotes\\/%s\\/" (regexp-quote remote)) branch) return remote)))
 
 (defun magit-branch-no-remote (branch)
   (let ((remote (magit-remote-part-of-branch branch)))
