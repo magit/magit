@@ -76,6 +76,7 @@
      (actions
       ("F" "Pull" magit-pull))
      (switches
+      ("-f" "Force" "--force")
       ("-r" "Rebase" "--rebase")))
 
     (branching
