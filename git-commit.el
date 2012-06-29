@@ -20,6 +20,9 @@
 
 ;;; Code:
 
+(eval-when-compile
+  (require 'cl))
+
 (defgroup git-commit '((jit-lock custom-group))
   "Mode for editing git commit messages"
   :group 'faces)
