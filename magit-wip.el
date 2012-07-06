@@ -113,7 +113,7 @@ ref."
 (defun turn-on-magit-wip-save ()
   (when (and (buffer-file-name)
              (magit-get-top-dir default-directory)
-             (member "wip" (magit-get-all "magit.extensions")))
+             (member "wip-save" (magit-get-all "magit.extension")))
     (magit-wip-save-mode 1)))
 
 (defun magit-wip-save ()
