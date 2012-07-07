@@ -4298,6 +4298,7 @@ option, falling back to something hairy if that is unset."
     (define-key map (kbd "C-c C-s") 'magit-log-edit-toggle-signoff)
     (define-key map (kbd "C-c C-t") 'magit-log-edit-toggle-author)
     (define-key map (kbd "C-c C-e") 'magit-log-edit-toggle-allow-empty)
+    (define-key map (kbd "C-c C-h") 'magit-log-edit-insert-header)
     (define-key map (kbd "M-p") 'log-edit-previous-comment)
     (define-key map (kbd "M-n") 'log-edit-next-comment)
     (define-key map (kbd "C-c C-k") 'magit-log-edit-cancel-log-message)
@@ -4542,6 +4543,20 @@ GIT_AUTHOR_EMAIL set)"
 This means that the eventual commit does 'git commit --allow-empty'."
   (interactive)
   (magit-log-edit-toggle-field 'allow-empty t))
+
+(defun magit-log-edit-insert-header ()
+  "Inserts the end of headers string into the commit message"
+  (interactive)
+  (let ((buf (get-buffer magit-log-edit-buffer-name)))
+    (with-current-buffer buf
+	(goto-char (point-min))
+	(if (not (search-forward-regexp
+		  (regexp-quote magit-log-header-end) nil t))
+	    (insert magit-log-header-end))
+	;; once we have either found or inserted the header
+	;; go to the first point in the buffer, since that
+	;; will be in the header
+	(goto-char (point-min)))))
 
 (defun magit-pop-to-log-edit (operation)
   (let ((dir default-directory)
