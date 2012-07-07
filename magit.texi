@@ -52,6 +52,7 @@ maintain compatibility are still welcome.
 * Wazzup::
 * Merging::
 * Rebasing::
+* Interactive Rebasing::
 * Rewriting::
 * Pushing and Pulling::
 * Bisecting::
