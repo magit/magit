@@ -71,7 +71,7 @@
     (setq magit-refs-namespaces
           (delete magit-wip-refs-namespace magit-refs-namespaces))))
 
-;;; Magit Wip Record Mode.
+;;; Magit Wip Save Mode.
 
 (defcustom magit-wip-commit-message "WIP %r"
   "Commit message for git-wip commits.
