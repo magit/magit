@@ -22,19 +22,27 @@
 
 ;; This plug-in provides support for special work-in-progress refs.
 
-;; This required the third-party git command `git wip' which is available
+;; This requires the third-party git command `git wip' which is available
 ;; from https://github.com/bartman/git-wip.
 
 ;; The global mode `magit-wip-mode' provides highlighting of wip refs in
-;; the Magit log buffers and `magit-wip-save-mode' commits to such a ref
-;; when saving a file-visiting buffer.
+;; Magit buffers while the local mode `magit-wip-save-mode' commits to
+;; such a ref when saving a file-visiting buffer.
 
-;; Use `global-magit-wip-save-mode' to enable the latter using the Magit
-;; extension mechanism.  (Unlike other such extensions it does not apply
-;; to Magit buffers but to file-visiting buffers.)
+;; To enable `magit-wip-save-mode' enable `global-magit-wip-save-mode'
+;; and use the Magit extension mechanism to select the repositories in
+;; which you want to use a work-in-progress ref.  Usually you also want
+;; to enable `magit-wip-mode'.
 ;;
-;;   $ git config --global --add magit.extension wip-save  # or
-;;   $ git config --add magit.extension wip-save
+;;   (magit-wip-mode 1)
+;;   (global-magit-wip-save-mode 1)
+;;
+;;   $ git config --add magit.extension wip-save           # or
+;;   $ git config --global --add magit.extension wip-save
+
+;; Note that `global-magit-wip-save-mode' is the only mode that uses the
+;; extension mechanism for file-visiting buffers all other global modes
+;; making use of it do so to turn on local modes in Magit buffers.
 
 ;;; Code:
 
