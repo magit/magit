@@ -4550,9 +4550,9 @@ This means that the eventual commit does 'git commit --allow-empty'."
     (setq magit-pre-log-edit-window-configuration
           (current-window-configuration))
     (pop-to-buffer buf)
+    (setq default-directory dir)
     (when (file-exists-p (concat (magit-git-dir) "MERGE_MSG"))
       (insert-file-contents (concat (magit-git-dir) "MERGE_MSG")))
-    (setq default-directory dir)
     (magit-log-edit-mode)
     (make-local-variable 'magit-buffer-internal)
     (setq magit-buffer-internal magit-buf)
