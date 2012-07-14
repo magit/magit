@@ -2154,17 +2154,29 @@ function can be enriched by magit extension like magit-topgit and magit-svn"
   "Checks if git/ssh asks for a password and ask the user for it."
   (let (ask)
     (cond ((or (string-match "^Enter passphrase for key '\\\(.*\\\)': $" string)
-               (string-match "^\\\(.*\\\)'s password:" string))
+               (string-match "^\\\(.*\\\)'s password:" string)
+               (string-match "^Password for '\\\(.*\\\)':" string))
            (setq ask (format "Password for '%s': " (match-string 1 string))))
           ((string-match "^[pP]assword:" string)
            (setq ask "Password:")))
     (when ask
       (process-send-string proc (concat (read-passwd ask nil) "\n")))))
 
+(defun magit-username (proc string)
+  "Checks if git asks for a username and ask the user for it."
+  (when (string-match "^Username for '\\\(.*\\\)':" string)
+    (process-send-string proc
+                         (concat
+                          (read-string (format "Username for '%s': "
+                                               (match-string 1 string))
+                                       nil nil (user-login-name))
+                          "\n"))))
+
 (defun magit-process-filter (proc string)
   (save-current-buffer
     (set-buffer (process-buffer proc))
     (let ((inhibit-read-only t))
+      (magit-username proc string)
       (magit-password proc string)
       (goto-char (process-mark proc))
       ;; Find last ^M in string.  If one was found, ignore everything
