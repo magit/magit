@@ -740,7 +740,7 @@ keeping information from the status buffer.
 
 If you rather wish to start over, type @kbd{r a}.  This will abort the
 rewriting, resetting the current head back to the value it had before
-the rewrite was started with @kbd{r s}.
+the rewrite was started with @kbd{r b}.
 
 Typing @kbd{r f} will @emph{finish} the rewrite: it will apply all
 unused commits one after the other, as if you would us @kbd{A} with
