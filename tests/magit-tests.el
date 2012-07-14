@@ -104,10 +104,10 @@
   (let ((dummy-filename "foo"))
     (with-temp-git-repo repo
       (with-temp-buffer
+        (insert "dummy content")
         (write-file (format "%s/%s" repo dummy-filename)))
       (magit-status repo)
       (magit-stage-all t)
-      (message repo)
       (magit-log-edit)
       (insert "dummy message")
       (magit-log-edit-commit)
