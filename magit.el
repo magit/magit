@@ -5193,7 +5193,7 @@ the current git repository."
   (let ((topdir (expand-file-name
                  (magit-get-top-dir (or (file-name-directory filename)
                                         default-directory))))
-        (file (expand-file-name filename)))
+        (file (file-truename filename)))
     (when (and (not (string= topdir ""))
                ;; FILE must start with the git repository path
                (zerop (string-match-p (concat "\\`" topdir) file)))
