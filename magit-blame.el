@@ -1,5 +1,6 @@
 ;;; magit-blame.el --- blame support for magit
 
+;; Copyright (C) 2012  Sébastien Gross
 ;; Copyright (C) 2012  Rüdiger Sonderfeld
 ;; Copyright (C) 2012  Yann Hodique
 ;; Copyright (C) 2011  byplayer
@@ -64,6 +65,7 @@
     (define-key map (kbd "l") 'magit-blame-locate-commit)
     (define-key map (kbd "RET") 'magit-blame-locate-commit)
     (define-key map (kbd "q") 'magit-blame-mode)
+    (define-key map (kbd "v") 'magit-blame-view-file-at-commit)
     (define-key map (kbd "n") 'magit-blame-next-chunk)
     (define-key map (kbd "p") 'magit-blame-previous-chunk)
     map)
@@ -124,6 +126,31 @@
           (setq sha1 (plist-get (nth 3 (overlay-get ov :blame)) :sha1))))
     (if sha1
         (magit-show-commit sha1))))
+
+(defun magit-blame-view-file-at-commit (pos)
+  "View the content of current file as it was at commit from
+annotated blame section from POS (or point)."
+  (interactive "d")
+  (let ((sha1
+	 (loop for ov in (overlays-at pos)
+	       for blame =  (overlay-get ov :blame)
+	       when blame
+	       return (plist-get (nth 3 blame) :sha1))))
+    (if (not sha1)
+        (message "Not commit found.")
+      (let* ((buffer (current-buffer))
+	     (mode major-mode)
+	     (file (file-name-nondirectory (buffer-file-name buffer)))
+	     (new-buffer-name
+              (format "%s:%s"
+                      (substring sha1 0 magit-sha1-abbrev-length) file))
+	     (new-buffer (generate-new-buffer new-buffer-name)))
+      (with-current-buffer new-buffer
+	(magit-git-insert (list "show" new-buffer-name))
+        (set-buffer-modified-p nil)
+	(funcall mode)
+	(goto-char pos)
+        (view-buffer-other-window new-buffer nil 'kill-buffer))))))
 
 (defun magit-find-next-overlay-change (BEG END PROP)
   "Return the next position after BEG where an overlay matching a
