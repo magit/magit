@@ -32,6 +32,7 @@
 ;;; Code:
 
 (eval-when-compile (require 'cl))
+(eval-when-compile (require 'view))
 (require 'magit)
 
 (defface magit-blame-header
