@@ -5584,7 +5584,8 @@ Return values:
          (commit (and (member 'commit (magit-section-context-type section))
                       (magit-section-info section)))
          (old-editor (getenv "GIT_EDITOR")))
-    (setenv "GIT_EDITOR" (locate-file "emacsclient" exec-path))
+    (setenv "GIT_EDITOR" (concat (locate-file "emacsclient" exec-path)
+                                 " -s " server-name))
     (unwind-protect
         (magit-run-git-async "rebase" "-i"
                              (or (and commit (concat commit "^"))
