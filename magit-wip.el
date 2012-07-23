@@ -124,7 +124,9 @@ ref."
   (when (and (buffer-file-name)
              (magit-get-top-dir default-directory)
              (member "wip-save" (magit-get-all "magit.extension")))
-    (magit-wip-save-mode 1)))
+    (if (= (magit-git-exit-code "wip" "-h") 0)
+        (magit-wip-save-mode 1)
+      (message "Git command 'git wip' cannot be found"))))
 
 (defun magit-wip-save ()
   (let* ((top-dir (magit-get-top-dir default-directory))
