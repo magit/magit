@@ -22,7 +22,7 @@
 
 ;; This plug-in provides support for special work-in-progress refs.
 
-;; This requires the third-party git command `git wip' which is available
+;; This requires the third-party git command "git wip" which is available
 ;; from https://github.com/bartman/git-wip.
 
 ;; The global mode `magit-wip-mode' provides highlighting of wip refs in
@@ -42,7 +42,7 @@
 
 ;; Note that `global-magit-wip-save-mode' is the only mode that uses the
 ;; extension mechanism for file-visiting buffers all other global modes
-;; making use of it do so to turn on local modes in Magit buffers.
+;; making use of it to turn on local modes in Magit buffers.
 
 ;;; Code:
 
