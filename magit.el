@@ -5194,7 +5194,7 @@ the current git repository."
   (let ((topdir (expand-file-name
                  (magit-get-top-dir (or (file-name-directory filename)
                                         default-directory))))
-        (file (expand-file-name filename)))
+        (file (file-truename filename)))
     (when (and (not (string= topdir ""))
                ;; FILE must start with the git repository path
                (zerop (string-match-p (concat "\\`" topdir) file)))
@@ -5585,7 +5585,8 @@ Return values:
          (commit (and (member 'commit (magit-section-context-type section))
                       (magit-section-info section)))
          (old-editor (getenv "GIT_EDITOR")))
-    (setenv "GIT_EDITOR" (locate-file "emacsclient" exec-path))
+    (setenv "GIT_EDITOR" (concat (locate-file "emacsclient" exec-path)
+                                 " -s " server-name))
     (unwind-protect
         (magit-run-git-async "rebase" "-i"
                              (or (and commit (concat commit "^"))
@@ -5963,7 +5964,8 @@ With a prefix arg, do a submodule update --init"
 layer. This can be added to `magit-mode-hook' for example"
   (dolist (ext (magit-get-all "magit.extension"))
     (let ((sym (intern (format "magit-%s-mode" ext))))
-      (when (fboundp sym)
+      (when (and (fboundp sym)
+                 (not (eq sym 'magit-wip-save-mode)))
         (funcall sym 1)))))
 
 (provide 'magit)
