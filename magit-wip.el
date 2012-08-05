@@ -47,6 +47,7 @@
 ;;; Code:
 
 (require 'magit)
+(require 'format-spec)
 
 ;;; Magit Wip Mode.
 
