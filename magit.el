@@ -3557,7 +3557,7 @@ FULLY-QUALIFIED-NAME is non-nil."
 (defun magit-init (dir)
   "Initialize git repository in the DIR directory."
   (interactive (list (read-directory-name "Directory for Git repository: ")))
-  (let* ((dir (expand-file-name dir))
+  (let* ((dir (file-name-as-directory (expand-file-name dir)))
          (topdir (magit-get-top-dir dir)))
     (when (or (not topdir)
               (yes-or-no-p
@@ -3569,7 +3569,8 @@ FULLY-QUALIFIED-NAME is non-nil."
       (unless (file-directory-p dir)
         (and (y-or-n-p (format "Directory %s does not exists.  Create it? " dir))
              (make-directory dir)))
-      (magit-run* (list magit-git-executable "init" dir)))))
+      (let ((default-directory dir))
+        (magit-run* (list magit-git-executable "init"))))))
 
 (define-derived-mode magit-status-mode magit-mode "Magit"
   "Mode for looking at git status.
