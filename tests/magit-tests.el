@@ -60,7 +60,7 @@
 
 (ert-deftest magit-init-test-expansion ()
   (let* ((dir "~/plop")
-         (exp-dir (expand-file-name dir)))
+         (exp-dir (file-name-as-directory (expand-file-name dir))))
     (mocker-let
         ;; make sure all steps have the expanded version of dir
         ((magit-get-top-dir (dir)
@@ -68,7 +68,7 @@
          (file-directory-p (dir)
                            ((:input `(,exp-dir) :output t)))
          (magit-run* (args)
-                     ((:input `((,magit-git-executable "init" ,exp-dir))
+                     ((:input `((,magit-git-executable "init"))
                        :output t))))
       (should (magit-init dir)))))
 
