@@ -5305,6 +5305,8 @@ Otherwise, it is `.git/info/exclude'."
   (let ((ignore-file (if local (concat (magit-git-dir) "info/exclude") ".gitignore")))
     (if edit
       (setq file (magit-ignore-modifiable-file file edit)))
+    (if (and local (not (file-exists-p (file-name-directory ignore-file))))
+      (make-directory (file-name-directory ignore-file) t))
     (with-temp-buffer
       (when (file-exists-p ignore-file)
         (insert-file-contents ignore-file))
