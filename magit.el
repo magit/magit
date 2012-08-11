@@ -4887,9 +4887,14 @@ This is only meaningful in wazzup buffers.")
 ;;; Miscellaneous
 
 (defun magit-ignore-file (file edit local)
-  (let ((ignore-file (if local (concat (magit-git-dir) "info/exclude") ".gitignore")))
+  (let* ((local-ignore-dir (concat (magit-git-dir) "info/"))
+         (ignore-file (if local
+                          (concat local-ignore-dir "exclude")
+                        ".gitignore")))
     (if edit
         (setq file (read-string "File to ignore: " file)))
+    (if (and local (not (file-exists-p local-ignore-dir)))
+        (make-directory local-ignore-dir t))
     (with-temp-buffer
       (when (file-exists-p ignore-file)
         (insert-file-contents ignore-file))
