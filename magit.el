@@ -4890,9 +4890,22 @@ typing and automatically refreshes the status buffer."
                   nil nil nil t))))
 
 (magit-define-command push-tags ()
-  "Push tags."
+  "Push tags to a remote repository.
+
+Push tags to the current branch's remote.  If that isn't set push
+to \"origin\" or if that remote doesn't exit but only a single
+remote is defined use that.  Otherwise or with a prefix argument
+ask the user what remote to use."
   (interactive)
-  (magit-run-git-async "push" "--tags"))
+  (let* ((branch  (magit-get-current-branch))
+         (remotes (magit-git-lines "remote"))
+         (remote  (or (and branch (magit-get-remote branch))
+                      (car (member  "origin" remotes))
+                      (and (= (length remotes) 1)
+                           (car remotes)))))
+    (when (or current-prefix-arg (not remote))
+      (setq remote (magit-pr-read-remote "Push to remote: ")))
+    (magit-run-git-async "push" remote "--tags")))
 
 (magit-define-command push ()
   "Push the current branch to a remote repository.
