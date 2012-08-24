@@ -8,6 +8,7 @@
       (error "Skipping tests, mocker.el is not available"))))
 
 (require 'magit)
+(require 'magit-blame)
 
 (defmacro with-temp-git-repo (repo &rest body)
   (declare (indent 1) (debug t))
@@ -17,8 +18,17 @@
          (progn
            (magit-init repo)
            ,@body)
-       (delete-directory ,repo t)
-       )))
+       (delete-directory ,repo t))))
+
+(defmacro with-opened-file (file &rest body)
+  (declare (indent 1) (debug t))
+  (let ((buffer (make-symbol "*buffer*")))
+    `(let (,buffer)
+       (unwind-protect
+           (progn
+             (setq ,buffer (find-file-literally ,file))
+             ,@body)
+         (when ,buffer (kill-buffer ,buffer))))))
 
 (defun magit-tests-section-has-item-title (title &optional section-path)
   (let ((children (magit-section-children
@@ -27,6 +37,8 @@
                                                 magit-top-section))))))
     (should (member title
                     (mapcar 'magit-section-title children)))))
+
+;;; magit.el tests
 
 (ert-deftest magit-init-test ()
   (with-temp-git-repo repo
@@ -48,7 +60,7 @@
 
 (ert-deftest magit-init-test-expansion ()
   (let* ((dir "~/plop")
-         (exp-dir (expand-file-name dir)))
+         (exp-dir (file-name-as-directory (expand-file-name dir))))
     (mocker-let
         ;; make sure all steps have the expanded version of dir
         ((magit-get-top-dir (dir)
@@ -56,7 +68,7 @@
          (file-directory-p (dir)
                            ((:input `(,exp-dir) :output t)))
          (magit-run* (args)
-                     ((:input `((,magit-git-executable "init" ,exp-dir))
+                     ((:input `((,magit-git-executable "init"))
                        :output t))))
       (should (magit-init dir)))))
 
@@ -85,3 +97,19 @@
 
     (magit-run* '("git" "config" "core.safecrlf" "false"))
     (should-not (magit-get-boolean "core.safecrlf"))))
+
+;;; magit-blame.el tests
+
+(ert-deftest magit-blame-mode ()
+  (let ((dummy-filename "foo"))
+    (with-temp-git-repo repo
+      (with-temp-buffer
+        (insert "dummy content")
+        (write-file (format "%s/%s" repo dummy-filename)))
+      (magit-status repo)
+      (magit-stage-all t)
+      (magit-log-edit)
+      (insert "dummy message")
+      (magit-log-edit-commit)
+      (with-opened-file (format "%s/%s" repo dummy-filename)
+        (should (magit-blame-mode))))))

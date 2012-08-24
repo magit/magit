@@ -52,6 +52,7 @@ maintain compatibility are still welcome.
 * Wazzup::
 * Merging::
 * Rebasing::
+* Interactive Rebasing::
 * Rewriting::
 * Pushing and Pulling::
 * Bisecting::
@@ -663,6 +664,30 @@ Of course, you can initiate a rebase in any number of ways, by
 configuring @code{git pull} to rebase instead of merge, for example.
 Such a rebase can be finished with @kbd{R} as well.
 
+@node Interactive Rebasing
+@chapter Interactive Rebasing
+
+Typing @kbd{E} in the status buffer will initiate an interactive
+rebase. This is equivalent to running @code{git rebase --interactive}
+at the command line. The @file{git-rebase-todo} file will be opened in
+an Emacs buffer for you to edit. This file is opened using
+@code{emacsclient}, so just edit this file as you normally would, then
+call the @code{server-edit} function (typically bound to @kbd{C-x #})
+to tell Emacs you are finished editing, and the rebase will proceed as
+usual.
+
+If you have loaded @file{rebase-mode.el} (which is included in the
+Magit distribution), the @file{git-rebase-todo} buffer will be in
+@code{rebase-mode}. This mode disables normal text editing but instead
+provides single-key commands (shown in the buffer) to perform all the
+edits that you would normally do manually, including changing the
+operation to be performed each commit (``pick'', ``squash'', etc.),
+deleting (commenting out) commits from the list, and reordering
+commits. You can finish editing the buffer and proceed with the rebase
+by pressing @kbd{C-c C-c}, which is bound to @code{server-edit} in
+this mode, and you can abort the rebase with @kbd{C-c C-k}, just like
+when editing a commit message in Magit.
+
 @node Rewriting
 @chapter Rewriting
 
@@ -715,7 +740,7 @@ keeping information from the status buffer.
 
 If you rather wish to start over, type @kbd{r a}.  This will abort the
 rewriting, resetting the current head back to the value it had before
-the rewrite was started with @kbd{r s}.
+the rewrite was started with @kbd{r b}.
 
 Typing @kbd{r f} will @emph{finish} the rewrite: it will apply all
 unused commits one after the other, as if you would us @kbd{A} with
