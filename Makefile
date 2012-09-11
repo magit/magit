@@ -8,7 +8,7 @@ ELCS=$(ELS:.el=.elc)
 ELCS_CONTRIB=$(ELS_CONTRIB:.el=.elc)
 DIST_FILES=$(ELS) Makefile magit.texi magit.info README.md magit.spec.in magit-pkg.el.in
 DIST_FILES_CONTRIB=$(ELS_CONTRIB) contrib/magit
-ELPA_FILES=$(ELS) magit.info magit-pkg.el
+ELPA_FILES=$(ELS) magit.info dir magit-pkg.el
 
 .PHONY=install
 
@@ -22,7 +22,7 @@ all: core docs contrib
 
 core: $(ELCS) magit.spec magit-pkg.el 50magit.el
 
-docs: magit.info
+docs: dir
 
 contrib: $(ELCS_CONTRIB)
 
@@ -44,6 +44,10 @@ magit-key-mode.elc:
 magit-svn.elc:
 magit-topgit.elc:
 magit-stgit.elc:
+
+dir: magit.info
+	install-info --dir=$@ $<
+
 magit.info:
 
 dist: magit-$(VERSION).tar.gz
