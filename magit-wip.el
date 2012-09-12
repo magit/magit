@@ -131,7 +131,7 @@ ref."
 
 (defun magit-wip-save ()
   (let* ((top-dir (magit-get-top-dir default-directory))
-         (name (buffer-file-name))
+         (name (file-truename (buffer-file-name)))
          (spec `((?r . ,(file-relative-name name top-dir))
                  (?f . ,(buffer-file-name))
                  (?g . ,top-dir))))
