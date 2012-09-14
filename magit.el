@@ -5106,7 +5106,7 @@ This is only non-nil in wazzup buffers.")
 This is only meaningful in wazzup buffers.")
 (make-variable-buffer-local 'magit-wazzup-all-p)
 
-(defvar magit-wazzup-only-branches t
+(defvar magit-wazzup-only-branches nil
   "Non-nil if wazzup should only consider branches")
 
 (defun magit-wazzup-toggle-ignore (branch edit)
