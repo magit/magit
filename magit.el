@@ -5302,9 +5302,14 @@ values (such as wildcards) that might be of interest.
 
 If LOCAL is nil, the `.gitignore' file is updated.
 Otherwise, it is `.git/info/exclude'."
-  (let ((ignore-file (if local (concat (magit-git-dir) "info/exclude") ".gitignore")))
+  (let* ((local-ignore-dir (concat (magit-git-dir) "info/"))
+         (ignore-file (if local
+                          (concat local-ignore-dir "exclude")
+                        ".gitignore")))
     (if edit
       (setq file (magit-ignore-modifiable-file file edit)))
+    (if (and local (not (file-exists-p local-ignore-dir)))
+        (make-directory local-ignore-dir t))
     (with-temp-buffer
       (when (file-exists-p ignore-file)
         (insert-file-contents ignore-file))
