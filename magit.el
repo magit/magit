@@ -4263,7 +4263,7 @@ ask the user what remote to use."
                       (and (= (length remotes) 1)
                            (car remotes)))))
     (when (or current-prefix-arg (not remote))
-      (setq remote (magit-pr-read-remote "Push to remote: ")))
+      (setq remote (magit-read-remote "Push to remote: ")))
     (magit-run-git-async "push" remote "--tags")))
 
 (magit-define-command push ()
