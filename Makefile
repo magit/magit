@@ -54,8 +54,8 @@ dist: magit-$(VERSION).tar.gz
 
 magit-$(VERSION).tar.gz: $(DIST_FILES) $(DIST_FILES_CONTRIB)
 	mkdir -p magit-$(VERSION)/contrib
-	cp --preserve=timestamps $(DIST_FILES) magit-$(VERSION)
-	cp --preserve=timestamps $(DIST_FILES_CONTRIB) magit-$(VERSION)/contrib
+	cp -p $(DIST_FILES) magit-$(VERSION)
+	cp -p $(DIST_FILES_CONTRIB) magit-$(VERSION)/contrib
 	sed -i -e "1 s/=.*/=$(VERSION)/" magit-$(VERSION)/Makefile #NO_DIST
 	sed -i -e "/NO_DIST/d" magit-$(VERSION)/Makefile #NO_DIST
 	sed -i -e "s/@GIT_DEV_VERSION@/$(VERSION)/" magit-$(VERSION)/magit.el #NO_DIST
@@ -66,7 +66,7 @@ elpa: magit-$(VERSION).tar
 
 magit-$(VERSION).tar: $(ELPA_FILES)
 	mkdir magit-$(VERSION)
-	cp --preserve=timestamps $(ELPA_FILES) magit-$(VERSION)
+	cp -p $(ELPA_FILES) magit-$(VERSION)
 	sed -i -e "s/@GIT_DEV_VERSION@/$(VERSION)/" magit-$(VERSION)/magit.el #NO_DIST
 	tar -cvf magit-$(VERSION).tar magit-$(VERSION)
 	rm -rf magit-$(VERSION)
