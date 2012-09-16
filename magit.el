@@ -2114,12 +2114,16 @@ function can be enriched by magit extension like magit-topgit and magit-svn"
                        (equal (process-exit-status magit-process) 0))
                  (setq magit-process nil))
                (magit-set-mode-line-process nil)
-               (magit-need-refresh magit-process-client-buffer))
+               (with-current-buffer magit-process-client-buffer
+                 (when (derived-mode-p 'magit-mode)
+                   (magit-need-refresh magit-process-client-buffer))))
               (t
                (setq successp
                      (equal (apply 'process-file cmd nil buf nil args) 0))
                (magit-set-mode-line-process nil)
-               (magit-need-refresh magit-process-client-buffer))))
+               (with-current-buffer magit-process-client-buffer
+                 (when (derived-mode-p 'magit-mode)
+                   (magit-need-refresh magit-process-client-buffer))))))
       (or successp
           noerror
           (error
