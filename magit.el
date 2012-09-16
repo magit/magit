@@ -2127,15 +2127,16 @@ function can be enriched by magit extension like magit-topgit and magit-svn"
       (or successp
           noerror
           (error
-           "%s ... [Hit %s or see buffer %s for details]"
+           "%s ... [%s buffer %s for details]"
            (or (with-current-buffer (get-buffer magit-process-buffer-name)
                  (when (re-search-backward
                         (concat "^error: \\(.*\\)" paragraph-separate) nil t)
                    (match-string 1)))
                "Git failed")
            (with-current-buffer magit-process-client-buffer
-             (key-description (car (where-is-internal
-                                    'magit-display-process))))
+             (let ((key (key-description (car (where-is-internal
+                                               'magit-display-process)))))
+               (if key (format "Hit %s to see" key) "See")))
            magit-process-buffer-name))
       successp)))
 
