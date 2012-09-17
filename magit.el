@@ -5133,8 +5133,8 @@ This is only meaningful in wazzup buffers.")
         (insert (format "Wazzup, %s\n\n" branch-desc))
         (let* ((excluded (magit-file-lines (concat (magit-git-dir) "info/wazzup-exclude")))
                (all-branches (magit-list-interesting-refs
-                              (lambda (ref)
-                                (and magit-wazzup-only-branches (not (string-match-p "heads" ref))))))
+                              '(lambda (ref)
+                                 (and magit-wazzup-only-branches (not (string-match-p "heads" ref))))))
                (branches (if all all-branches
                            (delq nil (mapcar
                                       (lambda (b)
