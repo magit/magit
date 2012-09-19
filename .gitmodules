@@ -1,0 +1,3 @@
+[submodule "lib/ert"]
+	path = lib/ert
+	url = git://github.com/ohler/ert.git
