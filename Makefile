@@ -92,7 +92,11 @@ install_contrib: contrib
 install_all: install install_contrib
 
 test: $(ELCS)
-	$(BATCH) -l tests/magit-tests.el -f ert-run-tests-batch-and-exit
+	$(EMACS) --version
+	$(EMACS) $(EFLAGS) -batch -Q -l tests/run-test.el
+
+test-interactively: $(ELCS)
+	$(EMACS) $(EFLAGS) -Q -l tests/run-test.el
 
 clean:
 	rm -f magit.info #NO_DIST
