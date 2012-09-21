@@ -649,6 +649,7 @@ operation after commit).")
     (define-key map (kbd "C") 'magit-add-log)
     (define-key map (kbd "X") 'magit-reset-working-tree)
     (define-key map (kbd "z") 'magit-key-mode-popup-stashing)
+    (define-key map [remap dired-jump] 'magit-dired-jump)
     map))
 
 (defvar magit-log-mode-map
@@ -5445,6 +5446,18 @@ The name of the change log file is set by variable change-log-default-name."
 (defun magit-add-change-log-entry-other-window ()
   (interactive)
   (magit-visiting-file-item (call-interactively 'add-change-log-entry-other-window)))
+
+(defun magit-dired-jump (&optional other-window)
+  "Visit current item.
+With a prefix argument, visit in other window."
+  (interactive "P")
+  (magit-section-action (item info "dired-jump")
+    ((untracked file)
+     (dired-jump other-window (file-truename info)))
+    ((diff)
+     (dired-jump other-window (file-truename (magit-diff-item-file item))))
+    ((hunk)
+     (dired-jump other-window (file-truename (magit-diff-item-file (magit-hunk-item-diff item)))))))
 
 (defun magit-visit-file-item (&optional other-window)
   "Visit current file associated with item.
