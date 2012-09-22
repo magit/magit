@@ -69,7 +69,7 @@ Development
 -----------
 
 Magit was started by Marius Vollmer. It is now collectively maintained by the
-Magit Owners Team: https://github.com/organizations/magit/teams/53130
+Magit Owners Team: https://github.com/magit?tab=members
 
 For a full list of contributors have a look at `magit.el` in the
 source distribution.
