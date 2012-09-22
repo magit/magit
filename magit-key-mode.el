@@ -370,7 +370,6 @@ highlighted before the description."
         (current-window-configuration))
   ;; setup the mode, draw the buffer
   (let ((buf (get-buffer-create magit-key-mode-buf-name)))
-    (delete-other-windows)
     (split-window-vertically)
     (other-window 1)
     (switch-to-buffer buf)
