@@ -8,8 +8,7 @@ later.
 advantage of Git's native features without breaking compatibility with
 other systems.
 
-To get started see the [Magit User Manual][manual] or perhaps the
-[cheatsheet][cheatsheet] if you're in a hurry. There's also an
+To get started see the [Magit User Manual][manual]. There's also an
 excellent [Magit screencast][screencast] by Alex Vollmer which
 demonstrates some of the major features.
 
@@ -69,7 +68,7 @@ Development
 -----------
 
 Magit was started by Marius Vollmer. It is now collectively maintained by the
-Magit Owners Team: https://github.com/organizations/magit/teams/53130
+Magit Owners Team: https://github.com/magit?tab=members
 
 For a full list of contributors have a look at `magit.el` in the
 source distribution.
@@ -81,7 +80,6 @@ Magit's canonical source repository is currently
 [website]: http://magit.github.com/magit
 [development]: http://github.com/magit/magit
 [manual]: http://magit.github.com/magit/magit.html
-[cheatsheet]: http://daemianmack.com/magit-cheatsheet.html
 [screencast]: http://vimeo.com/2871241
 [download]: http://github.com/magit/magit/downloads
 [google group]: http://groups.google.com/group/magit/
