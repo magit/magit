@@ -4190,9 +4190,7 @@ If there is no default remote, ask for one."
          (config-branch (and branch (magit-get "branch" branch "merge")))
          (pull-remote (if (or current-prefix-arg
                               (not branch-remote))
-                           (magit-read-remote (format "Pull from remote"
-                                                      branch)
-                                              branch-remote)
+                           (magit-read-remote "Pull from remote" branch-remote)
                       branch-remote))
          (merge-branch (or (and (not current-prefix-arg)
                                 config-branch)
