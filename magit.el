@@ -3631,7 +3631,6 @@ user input."
                              4))
                        (or (magit-get-top-dir default-directory)
                            (magit-read-top-dir nil)))))
-  (magit-save-some-buffers)
   (let ((topdir (magit-get-top-dir dir)))
     (unless topdir
       (when (y-or-n-p (format "There is no Git repository in %S.  Create one? "
@@ -3639,6 +3638,8 @@ user input."
         (magit-init dir)
         (setq topdir (magit-get-top-dir dir))))
     (when topdir
+      (let ((default-directory topdir))
+        (magit-save-some-buffers))
       (let ((buf (or (magit-find-status-buffer topdir)
                      (generate-new-buffer
                       (concat "*magit: "
