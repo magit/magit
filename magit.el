@@ -5295,9 +5295,7 @@ If EDIT argument is negative, the prompt proposes wildcard by default.
          (history (if (< (prefix-numeric-value edit) 0)
                       (list full-extension just-extension file just-file)
                     (list file full-extension just-extension just-file))))
-    (read-string
-     (format "File to ignore [%s]: " (car history))
-     nil nil history)))
+    (magit-completing-read "File to ignore: " history)))
 
 (defun magit-ignore-file (file edit local)
   "Add FILE to the list of files to ignore.
