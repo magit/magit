@@ -4200,11 +4200,12 @@ If there is no default remote, ask for one."
       (magit-set branch-remote "branch" branch "remote")
       (magit-set (format "refs/heads/%s" merge-branch)
                  "branch" branch "merge"))
-    (apply 'magit-run-git-async "pull" "-v" pull-remote
-           (if merge-branch
-               (format "%s:%s" merge-branch branch)
-             "")
-           magit-custom-options)))
+    (apply 'magit-run-git-async "pull" "-v"
+           (append
+            magit-custom-options
+            (list pull-remote)
+            (when merge-branch
+               (list (format "%s:%s" merge-branch branch)))))))
 
 (eval-when-compile (require 'eshell))
 
