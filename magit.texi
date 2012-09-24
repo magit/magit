@@ -569,7 +569,7 @@ Typing  @kbd{b m} will let you rename a branch. Unless a branch with the same
 name already exists, obviously...
 
 
-To create a new branch and switch to it immediately, type @kbd{b n}.
+To create a new branch and switch to it immediately, type @kbd{b c}.
 
 
 To delete a branch, type @kbd{b d}. If you're currently on that
