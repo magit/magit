@@ -11,7 +11,7 @@
 @end direntry
 
 @copying
-Copyright @copyright{} 2008, 2009, 2010, 2011 Magit contributors. (See
+Copyright @copyright{} 2008, 2009, 2010, 2011, 2012 Magit contributors. (See
 the header of magit.el for the lengthy list of Magit contributors.)
 
 @quotation
