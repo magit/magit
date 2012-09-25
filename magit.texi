@@ -47,8 +47,7 @@ maintain compatibility are still welcome.
 * Tagging::
 * Resetting::
 * Stashing::
-* Branching::
-* The Branch Manager::
+* Branches and Remotes::
 * Wazzup::
 * Merging::
 * Rebasing::
@@ -548,55 +547,75 @@ You can visit and show stashes in the usual way: Typing @kbd{SPC} and
 scroll it, typing @kbd{RET} will move point into that buffer. Using
 @kbd{C-u RET} will move point into that buffer in other window.
 
-@node Branching
-@chapter Branching
+@node Branches and Remotes
+@chapter Branches and Remotes
 
-The current branch is indicated in the header of the status buffer.
-You can switch to a different branch by typing @kbd{b b}.  This will
+The current branch is indicated in the header of the status buffer. If
+this branch is tracking a remote branch, the latter is also indicated.
+
+Branches and remotes can be manipulated directly with a popup menu or
+through the branch manager. Using the popup menu allows you to quickly
+make changes from any magit buffer. The branch manager is a separate
+buffer called @code{*magit-branches*}. It displays information about
+branches and remotes and offers a local key map for shorter key
+bindings. The two interaction methods are described in more details
+below.
+
+@menu
+* Branches Popup::
+* Remotes Popup::
+* Branches in the Branch Manager::
+* Remotes in the Branch Manager::
+@end menu
+
+@node Branches Popup
+@section Branches Popup
+
+Typing @kbd{b} will display a popup menu to manipulate branches.
+
+You can switch to a different branch by typing @kbd{b b}. This will
 immediately checkout the branch into your working copy, so you
 shouldn't have any local modifications when switching branches.
 
 If you try to switch to a remote branch, Magit will offer to create a
-local tracking branch for it instead.  This way, you can easily start
+local tracking branch for it instead. This way, you can easily start
 working on new branches that have appeared in a remote repository.
 
 Typing @kbd{b b} while point is at a commit description will offer
-that commit as the default to switch to.  This will result in a
+that commit as the default to switch to. This will result in a
 detached head.
-
-
-Typing  @kbd{b m} will let you rename a branch. Unless a branch with the same
-name already exists, obviously...
-
 
 To create a new branch and switch to it immediately, type @kbd{b c}.
 
-
-To delete a branch, type @kbd{b d}. If you're currently on that
+To delete a branch, type @kbd{b k}. If you're currently on that
 branch, Magit will offer to switch to the 'master' branch.
 
+Typing  @kbd{b r} will let you rename a branch. Unless a branch with the same
+name already exists, obviously...
+
 Deleting a branch is only possible if it's already fully merged into
-HEAD or its upstream branch. Unless you type @kbd{b D}, that is.
+HEAD or its upstream branch. Unless you type @kbd{b C-u k}, that is.
 Here be dragons...
 
+Typing @kbd{b v} will launch the branch manager.
 
-Typing @kbd{b v} will list the local and remote branches in a new buffer
-called @code{*magit-branches*} from which you can work with them. See
-@ref{The Branch Manager} for more details.
+@node Remotes Popup
+@section Remotes Popup
 
-@node The Branch Manager
-@chapter The Branch Manager
+Typing @kbd{M} will display a popup menu to manipulate remotes.
 
-The branch manager is a separate buffer called @code{*magit-branches*}
-with its own local key map. branches and remotes can be manipulated
-easily with this key map.
+To add a new remote, type  @kbd{M a}.
 
-@node Managing Branches
-@section Managing Branches
+To delete a remote type @kbd{M k}.
 
-Each branch is displayed on a separate line. The current local branch is
-marked by a ``#'' in front of the name. Remote branches are grouped by
-the remote they come from.
+Typing @kbd{M r} will let you rename a remote.
+
+@node Branches in the Branch Manager
+@section Branches in the Branch Manager
+
+In the branch manager, each branch is displayed on a separate line. The
+current local branch is marked by a ``#'' in front of the name. Remote
+branches are grouped by the remote they come from.
 
 If a local branch tracks a remote branch some extra information is
 printed on the branch line. The format  is the following: ``<branch>
@@ -618,11 +637,13 @@ Typing @kbd{r} on a branch will rename it.
 Typing @kbd{T} on a local branch, changes which remote branch it
 tracks.
 
-@node Managing Remotes
-@section Managing Remotes
+@node Remotes in the Branch Manager
+@section Remotes in the Branch Manager
 
-Each remote is displayed on a separate line. The format is the following
-``<remote> (<url>, <push-url>)''. ``<push-url>'' is omitted if it is not set.
+In the branch manager, each remote is displayed on a separate line. The
+format is the following ``<remote> (<url>, <push-url>)''. ``<push-url>''
+is omitted if it is not set. The associated branches are listed under
+this line.
 
 Typing @kbd{a} will add a new remote.
 
