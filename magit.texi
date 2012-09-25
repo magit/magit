@@ -584,23 +584,51 @@ Typing @kbd{b v} will list the local and remote branches in a new buffer
 called @code{*magit-branches*} from which you can work with them. See
 @ref{The Branch Manager} for more details.
 
-
 @node The Branch Manager
 @chapter The Branch Manager
 
-The Branch Manager is a separate buffer called @code{*magit-branches*}
-with its own local key map. The buffer contains both local and remote
-branches. The current local branch is marked by a ``*'' in front of
-the name.
+The branch manager is a separate buffer called @code{*magit-branches*}
+with its own local key map. branches and remotes can be manipulated
+easily with this key map.
+
+@node Managing Branches
+@section Managing Branches
+
+Each branch is displayed on a separate line. The current local branch is
+marked by a ``#'' in front of the name. Remote branches are grouped by
+the remote they come from.
+
+If a local branch tracks a remote branch some extra information is
+printed on the branch line. The format  is the following: ``<branch>
+[<remote-branch> @ <remote>: ahead <a>, behind <b>]''.
+``<remote-branch>'' is omitted if it is identical to ``<branch>''.
+``ahead'' and ``behind'' information are only displayed if necessary.
 
 To check out a branch, move your cursor to the desired branch and
 press @kbd{RET}.
+
+Typing @kbd{c} will create a new branch.
 
 Typing @kbd{k} will delete the branch in the current line, and
 @kbd{C-u k} deletes it even if it hasn't been merged into the current
 local branch. Deleting works for both local and remote branches.
 
-By typing @kbd{T} on a local branch, you can change which remote branch it's set to track.
+Typing @kbd{r} on a branch will rename it.
+
+Typing @kbd{T} on a local branch, changes which remote branch it
+tracks.
+
+@node Managing Remotes
+@section Managing Remotes
+
+Each remote is displayed on a separate line. The format is the following
+``<remote> (<url>, <push-url>)''. ``<push-url>'' is omitted if it is not set.
+
+Typing @kbd{a} will add a new remote.
+
+Typing @kbd{k} will delete the remote in the current line.
+
+Typing @kbd{r} on a remote will rename it.
 
 @node Wazzup
 @chapter Wazzup
