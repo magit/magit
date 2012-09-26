@@ -830,9 +830,12 @@ Does not follow symlinks."
                      prompt)
                    choices predicate require-match initial-input hist def))
 
-(defun magit-completing-read (prompt choices &optional predicate require-match
+(defun magit-completing-read (prompt collection &optional predicate require-match
                                      initial-input hist def)
-  (funcall magit-completing-read-function prompt choices predicate require-match
+  "Call function in `magit-completing-read-function' to read user input
+
+Read `completing-read' documentation for the meaning of the argument"
+  (funcall magit-completing-read-function prompt collection predicate require-match
            initial-input hist def))
 
 (defun magit-use-region-p ()
@@ -3634,7 +3637,6 @@ user input."
                              4))
                        (or (magit-get-top-dir default-directory)
                            (magit-read-top-dir nil)))))
-  (magit-save-some-buffers)
   (let ((topdir (magit-get-top-dir dir)))
     (unless topdir
       (when (y-or-n-p (format "There is no Git repository in %S.  Create one? "
@@ -3642,6 +3644,8 @@ user input."
         (magit-init dir)
         (setq topdir (magit-get-top-dir dir))))
     (when topdir
+      (let ((default-directory topdir))
+        (magit-save-some-buffers))
       (let ((buf (or (magit-find-status-buffer topdir)
                      (generate-new-buffer
                       (concat "*magit: "

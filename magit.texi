@@ -11,7 +11,7 @@
 @end direntry
 
 @copying
-Copyright @copyright{} 2008, 2009, 2010, 2011 Magit contributors. (See
+Copyright @copyright{} 2008, 2009, 2010, 2011, 2012 Magit contributors. (See
 the header of magit.el for the lengthy list of Magit contributors.)
 
 @quotation
@@ -569,7 +569,7 @@ Typing  @kbd{b m} will let you rename a branch. Unless a branch with the same
 name already exists, obviously...
 
 
-To create a new branch and switch to it immediately, type @kbd{b n}.
+To create a new branch and switch to it immediately, type @kbd{b c}.
 
 
 To delete a branch, type @kbd{b d}. If you're currently on that
