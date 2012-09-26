@@ -5281,7 +5281,7 @@ A list of predefined values with wildcards is derived from the filename FILE."
          (extension-in-dir (concat (file-name-directory file) extension))
          (filename (file-name-nondirectory file))
          (completions (list extension extension-in-dir filename file)))
-    (magit-completing-read "File to ignore: " completions)))
+    (magit-completing-read "File to ignore: " completions () () () () file)))
 
 (defun magit-ignore-file (file &optional edit-ignore-string local)
   "Add FILE to the list of files to ignore.
