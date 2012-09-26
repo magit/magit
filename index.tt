@@ -7,7 +7,7 @@
 
 [%- WRAPPER rounded_corners colour="#eee" %]
   <p class="release">
-    The latest release is 1.1.1. Grab it <a
+    The latest release is 1.2.0. Grab it <a
     href="http://github.com/magit/magit/downloads">from the github
     download page</a>.
   </p>

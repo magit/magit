@@ -7,7 +7,7 @@
 <link title="Top" rel="top" href="#Top">
 <link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
 <!--
-Copyright (C) 2008, 2009, 2010, 2011 Magit contributors. (See
+Copyright (C) 2008, 2009, 2010, 2011, 2012 Magit contributors. (See
 the header of magit.el for the lengthy list of Magit contributors.)
 
      Permission is granted to copy, distribute and/or modify this
@@ -103,6 +103,7 @@ maintain compatibility are still welcome.
 <li><a href="#Wazzup">Wazzup</a>
 <li><a href="#Merging">Merging</a>
 <li><a href="#Rebasing">Rebasing</a>
+<li><a href="#Interactive-Rebasing">Interactive Rebasing</a>
 <li><a href="#Rewriting">Rewriting</a>
 <li><a href="#Pushing-and-Pulling">Pushing and Pulling</a>
 <li><a href="#Bisecting">Bisecting</a>
@@ -336,10 +337,14 @@ point is on the <em>Untracked files</em> section title when you hit
 together with all changes to the tracked files.
 
    <p>You can instruct Git to ignore them by typing <kbd>i</kbd>.  This will add
-the filename to the <code>.gitignore</code> file.  Typing <kbd>C-u i</kbd> will
-ask you for the name of the file to ignore.  This is useful to ignore
-whole directories, for example.  The <kbd>I</kbd> command is similar to
-<kbd>i</kbd> but will add the file to <code>.git/info/exclude</code> instead.
+the filename to the <code>.gitignore</code> file.  Typing <kbd>C-u i</kbd> will ask
+you for the name of the file to ignore.  This is useful to ignore whole
+directories, for example.  In this case, the minibuffer's future history
+(accessible with <kbd>M-n</kbd>) contains predefined values (such as
+wildcards) that might be of interest. If prefix argument is negative
+(for example after typing <kbd>C-- i</kbd>), the prompt proposes wildcard by
+default.  The <kbd>I</kbd> command is similar to <kbd>i</kbd> but will add the
+file to <code>.git/info/exclude</code> instead.
 
    <p>To delete an untracked file forever, use <kbd>k</kbd>.  If point is on the
 <em>Untracked files</em> section title when you hit <kbd>k</kbd>, all
@@ -725,7 +730,7 @@ detached head.
    <p>Typing  <kbd>b m</kbd> will let you rename a branch. Unless a branch with the same
 name already exists, obviously...
 
-   <p>To create a new branch and switch to it immediately, type <kbd>b n</kbd>.
+   <p>To create a new branch and switch to it immediately, type <kbd>b c</kbd>.
 
    <p>To delete a branch, type <kbd>b d</kbd>. If you're currently on that
 branch, Magit will offer to switch to the 'master' branch.
@@ -826,7 +831,7 @@ resolved.
 <div class="node">
 <a name="Rebasing"></a>
 <p><hr>
-Next:&nbsp;<a rel="next" accesskey="n" href="#Rewriting">Rewriting</a>,
+Next:&nbsp;<a rel="next" accesskey="n" href="#Interactive-Rebasing">Interactive Rebasing</a>,
 Previous:&nbsp;<a rel="previous" accesskey="p" href="#Merging">Merging</a>,
 Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
@@ -850,15 +855,47 @@ configuring <code>git pull</code> to rebase instead of merge, for example.
 Such a rebase can be finished with <kbd>R</kbd> as well.
 
 <div class="node">
-<a name="Rewriting"></a>
+<a name="Interactive-Rebasing"></a>
 <p><hr>
-Next:&nbsp;<a rel="next" accesskey="n" href="#Pushing-and-Pulling">Pushing and Pulling</a>,
+Next:&nbsp;<a rel="next" accesskey="n" href="#Rewriting">Rewriting</a>,
 Previous:&nbsp;<a rel="previous" accesskey="p" href="#Rebasing">Rebasing</a>,
 Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
 </div>
 
-<h2 class="chapter">19 Rewriting</h2>
+<h2 class="chapter">19 Interactive Rebasing</h2>
+
+<p>Typing <kbd>E</kbd> in the status buffer will initiate an interactive
+rebase. This is equivalent to running <code>git rebase --interactive</code>
+at the command line. The <samp><span class="file">git-rebase-todo</span></samp> file will be opened in
+an Emacs buffer for you to edit. This file is opened using
+<code>emacsclient</code>, so just edit this file as you normally would, then
+call the <code>server-edit</code> function (typically bound to <kbd>C-x #</kbd>)
+to tell Emacs you are finished editing, and the rebase will proceed as
+usual.
+
+   <p>If you have loaded <samp><span class="file">rebase-mode.el</span></samp> (which is included in the
+Magit distribution), the <samp><span class="file">git-rebase-todo</span></samp> buffer will be in
+<code>rebase-mode</code>. This mode disables normal text editing but instead
+provides single-key commands (shown in the buffer) to perform all the
+edits that you would normally do manually, including changing the
+operation to be performed each commit (&ldquo;pick&rdquo;, &ldquo;squash&rdquo;, etc.),
+deleting (commenting out) commits from the list, and reordering
+commits. You can finish editing the buffer and proceed with the rebase
+by pressing <kbd>C-c C-c</kbd>, which is bound to <code>server-edit</code> in
+this mode, and you can abort the rebase with <kbd>C-c C-k</kbd>, just like
+when editing a commit message in Magit.
+
+<div class="node">
+<a name="Rewriting"></a>
+<p><hr>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Pushing-and-Pulling">Pushing and Pulling</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Interactive-Rebasing">Interactive Rebasing</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+
+</div>
+
+<h2 class="chapter">20 Rewriting</h2>
 
 <p>As hinted at earlier, you can rewrite your commit history.  For
 example, you can reset the current head to an earlier commit with
@@ -909,7 +946,7 @@ keeping information from the status buffer.
 
    <p>If you rather wish to start over, type <kbd>r a</kbd>.  This will abort the
 rewriting, resetting the current head back to the value it had before
-the rewrite was started with <kbd>r s</kbd>.
+the rewrite was started with <kbd>r b</kbd>.
 
    <p>Typing <kbd>r f</kbd> will <em>finish</em> the rewrite: it will apply all
 unused commits one after the other, as if you would us <kbd>A</kbd> with
@@ -933,7 +970,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
 </div>
 
-<h2 class="chapter">20 Pushing and Pulling</h2>
+<h2 class="chapter">21 Pushing and Pulling</h2>
 
 <p>Magit will run <code>git push</code> when you type <kbd>P P</kbd>.  If you give
 a prefix argument to <kbd>P P</kbd>, you will be prompted for the repository
@@ -977,7 +1014,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
 </div>
 
-<h2 class="chapter">21 Submodules</h2>
+<h2 class="chapter">22 Submodules</h2>
 
      <dl>
 <dt><kbd>M u</kbd><dd>Update the submodules, with a prefix argument it will initializing.
@@ -999,7 +1036,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
 </div>
 
-<h2 class="chapter">22 Bisecting</h2>
+<h2 class="chapter">23 Bisecting</h2>
 
 <p>Magit supports bisecting by showing how many revisions and steps are
 left to be tested in the status buffer. You can control the bisect
@@ -1035,7 +1072,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
 </div>
 
-<h2 class="chapter">23 Magit Extensions</h2>
+<h2 class="chapter">24 Magit Extensions</h2>
 
 <ul class="menu">
 <li><a accesskey="1" href="#Activating-extensions">Activating extensions</a>
@@ -1053,7 +1090,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Using-Magit-Extensions">Using Magit Ex
 
 </div>
 
-<h3 class="section">23.1 Activating extensions</h3>
+<h3 class="section">24.1 Activating extensions</h3>
 
 <p>Magit comes with a couple of shipped extensions that allow interaction
 with <code>git-svn</code>, <code>topgit</code> and <code>stgit</code>. See following
@@ -1096,7 +1133,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Using-Magit-Extensions">Using Magit Ex
 
 </div>
 
-<h3 class="section">23.2 Interfacing with Subversion</h3>
+<h3 class="section">24.2 Interfacing with Subversion</h3>
 
 <p>Typing <kbd>N r</kbd> runs <code>git svn rebase</code>, typing <kbd>N c</kbd> runs
 <code>git svn dcommit</code> and typing <kbd>N f</kbd> runs <code>git svn fetch</code>.
@@ -1116,7 +1153,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Using-Magit-Extensions">Using Magit Ex
 
 </div>
 
-<h3 class="section">23.3 Interfacing with Topgit</h3>
+<h3 class="section">24.3 Interfacing with Topgit</h3>
 
 <p>Topgit (http://repo.or.cz/r/topgit.git) is a patch queue manager that
 aims at being close as possible to raw Git, which makes it easy to use
@@ -1145,7 +1182,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Using-Magit-Extensions">Using Magit Ex
 
 </div>
 
-<h3 class="section">23.4 Interfacing with StGit</h3>
+<h3 class="section">24.4 Interfacing with StGit</h3>
 
 <p>StGit (http://www.procode.org/stgit) is a Python application providing
 similar functionality to Quilt (i.e. pushing/popping patches to/from a
@@ -1173,7 +1210,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Using-Magit-Extensions">Using Magit Ex
 
 </div>
 
-<h3 class="section">23.5 Developing Extensions</h3>
+<h3 class="section">24.5 Developing Extensions</h3>
 
 <p>Magit provides a generic mechanism to allow cooperation with Git-related
 systems, such as foreign VCS, patch systems,…
@@ -1273,7 +1310,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
 </div>
 
-<h2 class="chapter">24 Using Git Directly</h2>
+<h2 class="chapter">25 Using Git Directly</h2>
 
 <p>For situations when Magit doesn't do everything you need, you can run
 raw Git commands using <kbd>:</kbd>.  This will prompt for a Git command, run
@@ -1289,7 +1326,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
 </div>
 
-<h2 class="chapter">25 Customization</h2>
+<h2 class="chapter">26 Customization</h2>
 
 <p>The following variables can be used to adapt Magit to your workflow:
 
@@ -1410,7 +1447,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
 </div>
 
-<h2 class="chapter">26 Frequently Asked Questions</h2>
+<h2 class="chapter">27 Frequently Asked Questions</h2>
 
 <ul class="menu">
 <li><a accesskey="1" href="#FAQ-_002d-Changes">FAQ - Changes</a>
@@ -1427,7 +1464,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Frequently-Asked-Questions">Frequently
 
 </div>
 
-<h3 class="section">26.1 Changes</h3>
+<h3 class="section">27.1 Changes</h3>
 
      <ul>
 <li>v1.1: Changed the way extensions work. Previously, they were enabled
@@ -1447,7 +1484,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Frequently-Asked-Questions">Frequently
 
 </div>
 
-<h3 class="section">26.2 Troubleshooting</h3>
+<h3 class="section">27.2 Troubleshooting</h3>
 
 <ul class="menu">
 <li><a accesskey="1" href="#FAQ-1_002d1">FAQ 1-1</a>:     How do I get raw error messages from git? 
@@ -1461,7 +1498,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#FAQ-1-_002d-Troubleshooting">FAQ 1 - T
 
 </div>
 
-<h4 class="subsection">26.2.1 Question 1.1</h4>
+<h4 class="subsection">27.2.1 Question 1.1</h4>
 
 <p>How do I get raw error messages from git?
 
@@ -1479,7 +1516,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Frequently-Asked-Questions">Frequently
 
 </div>
 
-<h3 class="section">26.3 Display issues</h3>
+<h3 class="section">27.3 Display issues</h3>
 
 <ul class="menu">
 <li><a accesskey="1" href="#FAQ-2_002d1">FAQ 2-1</a>:     How do I fix international characters display? 
@@ -1493,7 +1530,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#FAQ-2-_002d-Display-issues">FAQ 2 - Di
 
 </div>
 
-<h4 class="subsection">26.3.1 Question 2.1</h4>
+<h4 class="subsection">27.3.1 Question 2.1</h4>
 
 <p>How do I fix international characters display?
 
