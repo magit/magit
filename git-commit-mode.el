@@ -1,4 +1,4 @@
-;;; git-commit.el --- Major mode for editing git commit messages
+;;; git-commit-mode.el --- Major mode for editing git commit messages
 
 ;; This software is Copyright (c) 2010 by Florian Ragwitz.
 ;;
@@ -584,6 +584,6 @@ Turning on git commit calls the hooks in `git-commit-mode-hook'."
                 ("MERGE_MSG" . git-commit-mode)
                 ("TAG_EDITMSG" . git-commit-mode))))
 
-(provide 'git-commit)
+(provide 'git-commit-mode)
 
-;;; git-commit.el ends here
+;;; git-commit-mode.el ends here
