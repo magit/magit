@@ -5922,6 +5922,7 @@ These are the branch names with the remote name stripped."
         (normal-mode)))
     ;; We have now created the 3 buffer with ours, theirs and the ancestor files
     (with-current-buffer (ediff-merge-buffers-with-ancestor our-buffer their-buffer base-buffer () () file)
+      (setq ediff-show-clashes-only t)
       (make-local-variable 'magit-ediff-windows)
       (setq magit-ediff-windows windows)
       (make-local-variable 'ediff-quit-hook)
