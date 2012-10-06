@@ -11,7 +11,7 @@
 @end direntry
 
 @copying
-Copyright @copyright{} 2008, 2009, 2010, 2011 Magit contributors. (See
+Copyright @copyright{} 2008, 2009, 2010, 2011, 2012 Magit contributors. (See
 the header of magit.el for the lengthy list of Magit contributors.)
 
 @quotation
@@ -47,8 +47,7 @@ maintain compatibility are still welcome.
 * Tagging::
 * Resetting::
 * Stashing::
-* Branching::
-* The Branch Manager::
+* Branches and Remotes::
 * Wazzup::
 * Merging::
 * Rebasing::
@@ -250,7 +249,7 @@ the filename to the @code{.gitignore} file.  Typing @kbd{C-u i} will ask
 you for the name of the file to ignore.  This is useful to ignore whole
 directories, for example.  In this case, the minibuffer's future history
 (accessible with @kbd{M-n}) contains predefined values (such as
-wildcards) that might be of interest. If prefix argument is negative
+wildcards) that might be of interest.  If prefix argument is negative
 (for example after typing @kbd{C-- i}), the prompt proposes wildcard by
 default.  The @kbd{I} command is similar to @kbd{i} but will add the
 file to @code{.git/info/exclude} instead.
@@ -376,8 +375,8 @@ matches a specific string/regex.
 Typing @kbd{l L} (or @kbd{l C-u L}) will show the log in a more verbose
 form.
 
-Magit will show only @code{magit-log-cutoff-length} entries. @kbd{e}
-will show twice as many entries. @kbd{C-u e} will show all entries,
+Magit will show only @code{magit-log-cutoff-length} entries.  @kbd{e}
+will show twice as many entries.  @kbd{C-u e} will show all entries,
 and given a numeric prefix argument, @kbd{e} will add this number of
 entries.
 
@@ -536,7 +535,7 @@ With a prefix argument, both @kbd{a} and @kbd{A} will attempt to
 reinstate the index as well as the working tree from the stash.
 
 Typing @kbd{z -k z} will create a stash just like @kbd{z z}, but will
-leave the changes in your working tree and index. This makes it easier
+leave the changes in your working tree and index.  This makes it easier
 to, for example, test multiple variations of the same change.
 
 If you just want to make quick snapshots in between edits, you can use
@@ -545,13 +544,35 @@ keeps your working tree and index intact by default.
 
 You can visit and show stashes in the usual way: Typing @kbd{SPC} and
 @kbd{DEL} will pop up a buffer with the description of the stash and
-scroll it, typing @kbd{RET} will move point into that buffer. Using
+scroll it, typing @kbd{RET} will move point into that buffer.  Using
 @kbd{C-u RET} will move point into that buffer in other window.
 
-@node Branching
-@chapter Branching
+@node Branches and Remotes
+@chapter Branches and Remotes
 
-The current branch is indicated in the header of the status buffer.
+The current branch is indicated in the header of the status buffer.  If
+this branch is tracking a remote branch, the latter is also indicated.
+
+Branches and remotes can be manipulated directly with a popup menu or
+through the branch manager.  Using the popup menu allows you to quickly
+make changes from any magit buffer.  The branch manager is a separate
+buffer called @code{*magit-branches*}.  It displays information about
+branches and remotes and offers a local key map for shorter key
+bindings.  The two interaction methods are described in more details
+below.
+
+@menu
+* Branches Popup::
+* Remotes Popup::
+* Branches in the Branch Manager::
+* Remotes in the Branch Manager::
+@end menu
+
+@node Branches Popup
+@section Branches Popup
+
+Typing @kbd{b} will display a popup menu to manipulate branches.
+
 You can switch to a different branch by typing @kbd{b b}.  This will
 immediately checkout the branch into your working copy, so you
 shouldn't have any local modifications when switching branches.
@@ -564,43 +585,71 @@ Typing @kbd{b b} while point is at a commit description will offer
 that commit as the default to switch to.  This will result in a
 detached head.
 
+To create a new branch and switch to it immediately, type @kbd{b c}.
 
-Typing  @kbd{b m} will let you rename a branch. Unless a branch with the same
-name already exists, obviously...
-
-
-To create a new branch and switch to it immediately, type @kbd{b n}.
-
-
-To delete a branch, type @kbd{b d}. If you're currently on that
+To delete a branch, type @kbd{b k}.  If you're currently on that
 branch, Magit will offer to switch to the 'master' branch.
 
+Typing  @kbd{b r} will let you rename a branch.  Unless a branch with the same
+name already exists, obviously...
+
 Deleting a branch is only possible if it's already fully merged into
-HEAD or its upstream branch. Unless you type @kbd{b D}, that is.
+HEAD or its upstream branch.  Unless you type @kbd{b C-u k}, that is.
 Here be dragons...
 
+Typing @kbd{b v} will launch the branch manager.
 
-Typing @kbd{b v} will list the local and remote branches in a new buffer
-called @code{*magit-branches*} from which you can work with them. See
-@ref{The Branch Manager} for more details.
+@node Remotes Popup
+@section Remotes Popup
 
+Typing @kbd{M} will display a popup menu to manipulate remotes.
 
-@node The Branch Manager
-@chapter The Branch Manager
+To add a new remote, type  @kbd{M a}.
 
-The Branch Manager is a separate buffer called @code{*magit-branches*}
-with its own local key map. The buffer contains both local and remote
-branches. The current local branch is marked by a ``*'' in front of
-the name.
+To delete a remote type @kbd{M k}.
+
+Typing @kbd{M r} will let you rename a remote.
+
+@node Branches in the Branch Manager
+@section Branches in the Branch Manager
+
+In the branch manager, each branch is displayed on a separate line.  The
+current local branch is marked by a ``#'' in front of the name.  Remote
+branches are grouped by the remote they come from.
+
+If a local branch tracks a remote branch some extra information is
+printed on the branch line.  The format  is the following: ``<branch>
+[<remote-branch> @ <remote>: ahead <a>, behind <b>]''.
+``<remote-branch>'' is omitted if it is identical to ``<branch>''.
+``ahead'' and ``behind'' information are only displayed if necessary.
 
 To check out a branch, move your cursor to the desired branch and
 press @kbd{RET}.
 
+Typing @kbd{c} will create a new branch.
+
 Typing @kbd{k} will delete the branch in the current line, and
 @kbd{C-u k} deletes it even if it hasn't been merged into the current
-local branch. Deleting works for both local and remote branches.
+local branch.  Deleting works for both local and remote branches.
 
-By typing @kbd{T} on a local branch, you can change which remote branch it's set to track.
+Typing @kbd{r} on a branch will rename it.
+
+Typing @kbd{T} on a local branch, changes which remote branch it
+tracks.
+
+@node Remotes in the Branch Manager
+@section Remotes in the Branch Manager
+
+In the branch manager, each remote is displayed on a separate line.  The
+format is the following ``<remote> (<url>, <push-url>)''.  ``<push-url>''
+is omitted if it is not set.  The associated branches are listed under
+this line.
+
+Typing @kbd{a} will add a new remote.
+
+Typing @kbd{k} will delete the remote in the current line.
+
+Typing @kbd{r} on a remote will rename it.
 
 @node Wazzup
 @chapter Wazzup
@@ -668,9 +717,9 @@ Such a rebase can be finished with @kbd{R} as well.
 @chapter Interactive Rebasing
 
 Typing @kbd{E} in the status buffer will initiate an interactive
-rebase. This is equivalent to running @code{git rebase --interactive}
-at the command line. The @file{git-rebase-todo} file will be opened in
-an Emacs buffer for you to edit. This file is opened using
+rebase.  This is equivalent to running @code{git rebase --interactive}
+at the command line.  The @file{git-rebase-todo} file will be opened in
+an Emacs buffer for you to edit.  This file is opened using
 @code{emacsclient}, so just edit this file as you normally would, then
 call the @code{server-edit} function (typically bound to @kbd{C-x #})
 to tell Emacs you are finished editing, and the rebase will proceed as
@@ -678,12 +727,12 @@ usual.
 
 If you have loaded @file{rebase-mode.el} (which is included in the
 Magit distribution), the @file{git-rebase-todo} buffer will be in
-@code{rebase-mode}. This mode disables normal text editing but instead
+@code{rebase-mode}.  This mode disables normal text editing but instead
 provides single-key commands (shown in the buffer) to perform all the
 edits that you would normally do manually, including changing the
 operation to be performed each commit (``pick'', ``squash'', etc.),
 deleting (commenting out) commits from the list, and reordering
-commits. You can finish editing the buffer and proceed with the rebase
+commits.  You can finish editing the buffer and proceed with the rebase
 by pressing @kbd{C-c C-c}, which is bound to @code{server-edit} in
 this mode, and you can abort the rebase with @kbd{C-c C-k}, just like
 when editing a commit message in Magit.
@@ -765,7 +814,7 @@ for the current branch, you will be prompted as well.  Typing @kbd{P P}
 will only push the current branch to the remote.  In other words, it
 will run @code{git push <remote> <branch>}.  The branch will be created
 in the remote if it doesn't exist already.  The local branch will be
-configured so that it pulls from the new remote branch. If you give
+configured so that it pulls from the new remote branch.  If you give
 a double prefix argument to @kbd{P P}, you will be prompted in addition
 for the target branch to push to.  In other words, it will run @code{git
 push <remote> <branch>:<target>}.
@@ -784,7 +833,7 @@ commits} section that shows the commits on your current head that are
 not in the branch named @code{<remote>/<branch>}.  This section works
 just like the history buffer: you can see details about a commit with
 @kbd{RET}, compare two of them with @kbd{.} and @kbd{=}, and you can
-reset your current head to one of them with @kbd{x}, for example. If
+reset your current head to one of them with @kbd{x}, for example.  If
 you want to push the changes then type @kbd{P P}.
 
 When the remote branch has changes that are not in the current branch,
@@ -814,22 +863,22 @@ specified in .gitmodules.
 @chapter Bisecting
 
 Magit supports bisecting by showing how many revisions and steps are
-left to be tested in the status buffer. You can control the bisect
+left to be tested in the status buffer.  You can control the bisect
 session from both the status and from log buffers with the @kbd{B} key
 menu.
 
 Typing @kbd{B s} will start a bisect session.  You will be prompted
 for a revision that is known to be bad (defaults to @emph{HEAD}) and
 for a revision that is known to be good (defaults to the revision at
-point if there is one). git will select a revision for you to test,
+point if there is one).  git will select a revision for you to test,
 and Magit will update its status buffer accordingly.
 
 You can tell git that the current revision is good with @kbd{B g},
 that it is bad with @kbd{B b} or that git should skip it with @kbd{B
-k}. You can also tell git to go into full automatic mode by giving it
+k}.  You can also tell git to go into full automatic mode by giving it
 the name of a script to run for each revision to test with @kbd{B u}.
 
-The current status can be shown as a log with @kbd{B l}. It contains
+The current status can be shown as a log with @kbd{B l}.  It contains
 the revisions that have already been tested and your decisions about
 their state.
 
@@ -854,10 +903,10 @@ When you're finished bisecting you have to reset the session with
 @section Activating extensions
 
 Magit comes with a couple of shipped extensions that allow interaction
-with @code{git-svn}, @code{topgit} and @code{stgit}. See following
+with @code{git-svn}, @code{topgit} and @code{stgit}.  See following
 sections for specific details on how to use them.
 
-Extensions can be activated globally or on a per-repository basis. Since
+Extensions can be activated globally or on a per-repository basis.  Since
 those extensions are implemented as minor modes, one can use for example
 @kbd{M-x magit-topgit-mode} to toggle the @code{topgit} extension,
 making the corresponding section and commands (un)available.
@@ -898,8 +947,8 @@ Typing @kbd{N r} runs @code{git svn rebase}, typing @kbd{N c} runs
 @code{git svn dcommit} and typing @kbd{N f} runs @code{git svn fetch}.
 
 @kbd{N s} will prompt you for a (numeric, Subversion) revision and
-then search for a corresponding Git sha1 for the commit. This is
-limited to the path of the remote Subversion repository. With a prefix
+then search for a corresponding Git sha1 for the commit.  This is
+limited to the path of the remote Subversion repository.  With a prefix
 (@kbd{C-u N s} the user will also be prompted for a branch to search
 in.
 
@@ -908,20 +957,20 @@ in.
 
 Topgit (http://repo.or.cz/r/topgit.git) is a patch queue manager that
 aims at being close as possible to raw Git, which makes it easy to use
-with Magit. In particular, it does not require to use a different set of
+with Magit.  In particular, it does not require to use a different set of
 commands for ``commit'', ``update'',… operations.
 
 @file{magit-topgit.el} provides basic integration with Magit, mostly by
 providing a ``Topics'' section.
 
 Topgit branches can be created the regular way, by using a ``t/'' prefix
-by convention. So, creating a ``t/foo'' branch will actually populate
+by convention.  So, creating a ``t/foo'' branch will actually populate
 the ``Topics'' section with one more branch after committing
 @file{.topdeps} and @file{.topmsg}.
 
 Also, the way we pull (see @ref{Pushing and Pulling}) such a branch is
 slightly different, since it requires updating the various dependencies
-of that branch. This should be mostly transparent, except in case
+of that branch.  This should be mostly transparent, except in case
 of conflicts.
 
 @node Interfacing with StGit
@@ -929,7 +978,7 @@ of conflicts.
 
 StGit (http://www.procode.org/stgit) is a Python application providing
 similar functionality to Quilt (i.e. pushing/popping patches to/from a
-stack) on top of Git. These operations are performed using Git commands
+stack) on top of Git.  These operations are performed using Git commands
 and the patches are stored as Git commit objects, allowing easy merging
 of the StGit patches into other repositories using standard Git
 functionality.
@@ -1013,8 +1062,8 @@ the extension.
 
 @code{magit-define-command} automagically defines
 a @code{magit-CMD-command-hook} that can contain a list of functions to
-call before the actual core code. Execution stops after the first hook
-that returns a non-nil value. This leaves room for extension logic.
+call before the actual core code.  Execution stops after the first hook
+that returns a non-nil value.  This leaves room for extension logic.
 
 @example
 (add-hook 'magit-create-branch-command-hook 'foo-create-branch)
@@ -1033,7 +1082,7 @@ place in the ``Extensions'' submenu.
 @end itemize
 
 It is suggested that Magit extensions authors stick to the convention of
-making extensions minor modes. This has many advantages, including the
+making extensions minor modes.  This has many advantages, including the
 fact that users are able to toggle extensions, and that it's easy to
 configure a specific set of extensions for a given repository.
 
@@ -1043,7 +1092,7 @@ new extensions.
 Basically a @code{foo} extension should provide a @code{magit-foo-mode}
 minor mode, as well as a @code{turn-on-magit-foo} function.  The main
 task of the minor mode is to register/unregister the various hooks that
-the extension requires. The registered actions on the other hand can be
+the extension requires.  The registered actions on the other hand can be
 left alone and activated globally, since they can be run only on
 displayed items, which won't happen when the minor mode is off.
 
@@ -1139,9 +1188,9 @@ completion.
 
 The value @code{'name-then-remote} means remotes will be of the form
 @code{name (remote)}, while the value @code{'remote-slash-name} means
-that they'll be of the form @code{remote/name}. I.e. something that's
+that they'll be of the form @code{remote/name}. For example something
 listed as @code{remotes/upstream/next} by @code{git branch -l -a} will
-be @code{upstream/next}.
+be offered as @code{next (upstream)} and @code{upstream/next}.
 
 @item magit-process-connection-type
 Connection type used for the git process.
@@ -1172,7 +1221,7 @@ Whether magit includes the selected base commit in a rewrite
 operation.
 
 @code{t} means both the selected commit as well as any subsequent
-commits will be rewritten. This is magit's default behaviour,
+commits will be rewritten.  This is magit's default behaviour,
 equivalent to @code{git rebase -i $@{REV~1@}}
 
 @verbatim
@@ -1181,7 +1230,7 @@ equivalent to @code{git rebase -i $@{REV~1@}}
 @end verbatim
 
 @code{nil} means the selected commit will be literally used as
-@code{base}, so only subsequent commits will be rewritten. This is
+@code{base}, so only subsequent commits will be rewritten.  This is
 consistent with git-rebase, equivalent to @code{git rebase -i
 $@{REV@}}, yet more cumbersome to use from the status buffer.
 
@@ -1213,10 +1262,10 @@ Convention prefix for topic branch creation.
 @itemize @bullet
 
 @item
-v1.1: Changed the way extensions work. Previously, they were enabled
-unconditionally once the library was loaded. Now they are minor modes
+v1.1: Changed the way extensions work.  Previously, they were enabled
+unconditionally once the library was loaded.  Now they are minor modes
 that need to be activated explicitly (potentially on a per-repository
-basis). See @ref{Activating extensions}.
+basis).  See @ref{Activating extensions}.
 
 @end itemize
 
@@ -1235,7 +1284,7 @@ How do I get raw error messages from git?
 @subsubheading Answer
 
 If a command goes wrong, you can hit @kbd{$} to access the git process
-buffer. There, the entire trace for the latest operation is available.
+buffer.  There, the entire trace for the latest operation is available.
 
 @node FAQ 2 - Display issues
 @section Display issues
@@ -1253,7 +1302,7 @@ How do I fix international characters display?
 
 Please make sure your Magit buffer uses a compatible coding system.
 In the particular case of file names, git itself quotes them by
-default. You can disable this with one of the following approaches:
+default.  You can disable this with one of the following approaches:
 
 @example
 $ git config core.quotepath false

@@ -12,7 +12,7 @@ Magit uses 3 main branches for its lifecyle: `maint`, `master` and `next`.
 * `master` contains the set of patches that will highly likely make it into the
   next major release.
 * `next` contains patches that necessitate some additional checks/improvements
-  before they're integrating into a release.
+  before they're integrated into a release.
 
 ## Making changes
 
@@ -27,7 +27,7 @@ Please make sure your commits are well-organized and "atomic" (hitting a single
 well-defined target each).
 
 Please also make sure you check that byte-compilation completes without errors
-of warnings, and that tests run without failures.
+or warnings, and that tests run without failures.
 
 Bonus points if you add tests to cover the feature you're hacking.
 
