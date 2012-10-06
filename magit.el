@@ -30,7 +30,7 @@
 ;; Copyright (C) 2009 René Stadler.
 ;; Copyright (C) 2010 Robin Green.
 ;; Copyright (C) 2010 Roger Crew.
-;; Copyright (C) 2009, 2010, 2011 Rémi Vanicat.
+;; Copyright (C) 2009, 2010, 2011, 2012 Rémi Vanicat.
 ;; Copyright (C) 2010 Sean Bryant.
 ;; Copyright (C) 2009, 2011 Steve Purcell.
 ;; Copyright (C) 2010 Timo Juhani Lindfors.
@@ -5587,8 +5587,10 @@ Return values:
          (commit (and (member 'commit (magit-section-context-type section))
                       (magit-section-info section)))
          (old-editor (getenv "GIT_EDITOR")))
-    (setenv "GIT_EDITOR" (concat (locate-file "emacsclient" exec-path)
-                                 " -s " server-name))
+    (if (locate-file "emacsclient" exec-path)
+        (setenv "GIT_EDITOR" (concat (locate-file "emacsclient" exec-path)
+                                     " -s " server-name))
+        (message "Cannot find emacsclient, using default git editor, please check you PATH"))
     (unwind-protect
         (magit-run-git-async "rebase" "-i"
                              (or (and commit (concat commit "^"))
