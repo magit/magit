@@ -3557,8 +3557,8 @@ FULLY-QUALIFIED-NAME is non-nil."
           (magit-insert-unstaged-changes
            (if staged "Unstaged changes:" "Changes:"))
           (magit-insert-staged-changes staged no-commit))
-        (magit-insert-unpushed-commits remote remote-branch)
-        (run-hooks 'magit-refresh-status-hook)))))
+        (magit-insert-unpushed-commits remote remote-branch))))
+  (run-hooks 'magit-refresh-status-hook))
 
 (defun magit-init (dir)
   "Initialize git repository in the DIR directory."
