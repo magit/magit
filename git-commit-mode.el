@@ -1,218 +1,129 @@
 ;;; git-commit-mode.el --- Major mode for editing git commit messages
+;;; -*- coding: utf-8; lexical-binding: t -*-
 
-;; This software is Copyright (c) 2010 by Florian Ragwitz.
+;; Copyright (c) 2012 Sebastian Wiesner <lunaryorn@gmail.com>
+;; Copyright (c) 2010 Florian Ragwitz.
 ;;
-;; This is free software, licensed under:
-;;   The GNU General Public License, Version 2, June 1991
+;; Author: Sebastian Wiesner <lunaryorn@gmail.com>
+;;      Florian Ragwitz <rafl@debian.org>
+;; Maintainer: Sebastian Wiesner <lunaryorn@gmail.com>
+;; URL: https://github.com/lunaryorn/git-modes
+;; Version: 0.9
+;; Keywords: convenience vc git
 
-;; Author: Florian Ragwitz <rafl@debian.org>
-;; Version: 0.1
-;; Keywords: convenience git
+;; This file is not part of GNU Emacs.
 
-;;; History:
-;;
-;;  0.1   Tue, 06 Jul 2010 18:54:35 +0200
-;;    * Initial version
-;;
+;; This program is free software; you can redistribute it and/or modify it under
+;; the terms of the GNU General Public License as published by the Free Software
+;; Foundation; either version 2 of the License, or (at your option) any later
+;; version.
+
+;; This program is distributed in the hope that it will be useful, but WITHOUT
+;; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+;; FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+;; details.
+
+;; You should have received a copy of the GNU General Public License along with
+;; this program; if not, write to the Free Software Foundation, Inc., 51
+;; Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 ;;; Commentary:
+
+;; A major mode for editing Git commit messages.
+
+;; * Formatting
 ;;
+;; Highlight the formatting of git commit messages and indicate errors according
+;; to the guidelines for commit messages (see
+;; http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html).
+;;
+;; Highlight the first line (aka "summary") specially if it exceeds 54
+;; characters.
+;;
+;; Enable `auto-fill-mode' and set the `fill-column' to 72 according to the
+;; aforementioned guidelines.
+
+;; * Headers
+;;
+;; Provide commands to insert standard headers into commit messages.
+;;
+;; - C-c C-h s or C-c C-s inserts Signed-off-by (`git-commit-signoff').
+;; - C-C C-h a inserts Acked-by (`git-commit-ack').
+;; - C-c C-h t inserts Tested-by (`git-commit-test').
+;; - C-c C-h r inserts Reviewed-by (`git-commit-review').
+;; - C-c C-h o inserts Cc (`git-commit-cc').
+;; - C-c C-h p inserts Reported-by (`git-commit-reported').
+
+;; * Committing
+;;
+;; C-c C-c finishes a commit.  By default this means to save and kill the
+;; buffer.  Customize `git-commit-commit-function' to change this behaviour.
+;;
+;; Check a buffer for stylistic errors before committing, and ask for
+;; confirmation before committing with style errors.
+
+;; * Magit integration
+;;
+;; Overwrite `magit-log-edit-mode' to provide font locking and header insertion
+;; for Magit.
+;;
+;; Change the keymap of `magit-log-edit-mode' to use the header insertion of
+;; `git-commit-mode'.
 
 ;;; Code:
 
-(eval-when-compile
-  (require 'cl))
+(require 'server)
 
-(defgroup git-commit '((jit-lock custom-group))
+(eval-when-compile
+  (defvar magit-log-header-end))
+
+(defgroup git-commit nil
   "Mode for editing git commit messages"
-  :group 'faces)
+  :group 'tools)
 
 (defgroup git-commit-faces nil
   "Faces for highlighting git commit messages"
   :prefix "git-commit-"
-  :group 'git-commit)
+  :group 'git-commit
+  :group 'faces)
 
 (defface git-commit-summary-face
-  '((default (:weight bold))
-    (((class grayscale) (background light))
-     (:foreground "DimGray" :slant italic))
-    (((class grayscale) (background dark))
-     (:foreground "LightGray" :slant italic))
-    (((class color) (min-colors 88) (background light))
-     (:foreground "VioletRed4"))
-    (((class color) (min-colors 88) (background dark))
-     (:foreground "LightSalmon"))
-    (((class color) (min-colors 16) (background light))
-     (:foreground "RosyBrown"))
-    (((class color) (min-colors 16) (background dark))
-     (:foreground "LightSalmon"))
-    (((class color) (min-colors 8)) (:foreground "green"))
-    (t (:slant italic)))
+  '((t (:inherit font-lock-type-face)))
   "Face used to highlight the summary in git commit messages"
   :group 'git-commit-faces)
 
 (defface git-commit-overlong-summary-face
-  '((((class color) (min-colors 88) (background light))
-     (:foreground "Red1" :weight bold))
-    (((class color) (min-colors 88) (background dark))
-     (:foreground "Pink" :weight bold))
-    (((class color) (min-colors 16) (background light))
-     (:foreground "Red1" :weight bold))
-    (((class color) (min-colors 16) (background dark))
-     (:foreground "Pink" :weight bold))
-    (((class color) (min-colors 8)) (:foreground "red"))
-    (t (:inverse-video t :weight bold)))
+  '((t (:inherit font-lock-warning-face)))
   "Face used to highlight overlong parts of git commit message summaries"
   :group 'git-commit-faces)
 
 (defface git-commit-nonempty-second-line-face
-  '((((class color) (min-colors 88) (background light))
-     (:foreground "Red1" :weight bold))
-    (((class color) (min-colors 88) (background dark))
-     (:foreground "Pink" :weight bold))
-    (((class color) (min-colors 16) (background light))
-     (:foreground "Red1" :weight bold))
-    (((class color) (min-colors 16) (background dark))
-     (:foreground "Pink" :weight bold))
-    (((class color) (min-colors 8)) (:foreground "red"))
-    (t (:inverse-video t :weight bold)))
+  '((t (:inherit font-lock-warning-face)))
   "Face used to highlight text on the second line of git commit messages"
   :group 'git-commit-faces)
 
-(defface git-commit-text-face
-  '((t (:inherit default)))
-  "Face used to highlight text in git commit messages"
-  :group 'git-commit-faces)
-
-(defface git-commit-comment-face
-  '((((class grayscale) (background light))
-     (:foreground "DimGray" :weight bold :slant italic))
-    (((class grayscale) (background dark))
-     (:foreground "LightGray" :weight bold :slant italic))
-    (((class color) (min-colors 88) (background light))
-     (:foreground "Firebrick"))
-    (((class color) (min-colors 88) (background dark))
-     (:foreground "chocolate1"))
-    (((class color) (min-colors 16) (background light))
-     (:foreground "red"))
-    (((class color) (min-colors 16) (background dark))
-     (:foreground "red1"))
-    (((class color) (min-colors 8) (background light))
-     (:foreground "red"))
-    (((class color) (min-colors 8) (background dark)))
-    (t (:weight bold :slant italic)))
-  "Face used to highlight comments in git commit messages"
+(defface git-commit-note-face
+  '((t (:inherit font-lock-string-face)))
+  "Face used to highlight notes in git commit messages"
   :group 'git-commit-faces)
 
 (defface git-commit-pseudo-header-face
-  '((((class grayscale) (background light))
-     (:foreground "LightGray" :weight bold))
-    (((class grayscale) (background dark)) (:foreground "DimGray" :weight bold))
-    (((class color) (min-colors 88) (background light)) (:foreground "Purple"))
-    (((class color) (min-colors 88) (background dark)) (:foreground "Cyan1"))
-    (((class color) (min-colors 16) (background light)) (:foreground "Purple"))
-    (((class color) (min-colors 16) (background dark)) (:foreground "Cyan"))
-    (((class color) (min-colors 8)) (:foreground "cyan" :weight bold))
-    (t (:weight bold)))
+  '((t (:inherit font-lock-string-face)))
   "Font used to hightlight pseudo headers in git commit messages"
   :group 'git-commit-faces)
 
-(defcustom git-commit-known-pseudo-headers
-  '("Signed-off-by"
-    "Acked-by"
-    "Cc"
-    "Reported-by"
-    "Tested-by"
-    "Reviewed-by")
-  "A list of git pseudo headers to be highlighted."
-  :group 'git-commit
-  :type '(repeat string))
-
 (defface git-commit-known-pseudo-header-face
-  '((((class grayscale) (background light)) (:foreground "Gray90" :weight bold))
-    (((class grayscale) (background dark)) (:foreground "DimGray" :weight bold))
-    (((class color) (min-colors 88) (background light))
-     (:foreground "ForestGreen"))
-    (((class color) (min-colors 88) (background dark))
-     (:foreground "PaleGreen"))
-    (((class color) (min-colors 16) (background light))
-     (:foreground "ForestGreen"))
-    (((class color) (min-colors 16) (background dark))
-     (:foreground "PaleGreen"))
-    (((class color) (min-colors 8)) (:foreground "green"))
-    (t (:weight bold :underline t)))
+  '((t (:inherit font-lock-keyword-face)))
   "Face used to hightlight common pseudo headers in git commit messages"
   :group 'git-commit-faces)
 
-(defface git-commit-note-brace-face
-  '((((class grayscale) (background light))
-     (:foreground "LightGray" :weight bold :underline t))
-    (((class grayscale) (background dark))
-     (:foreground "Gray50" :weight bold :underline t))
-    (((class color) (min-colors 88) (background light))
-     (:foreground "dark cyan"))
-    (((class color) (min-colors 88) (background dark))
-     (:foreground "Aquamarine"))
-    (((class color) (min-colors 16) (background light))
-     (:foreground "CadetBlue"))
-    (((class color) (min-colors 16) (background dark))
-     (:foreground "Aquamarine"))
-    (((class color) (min-colors 8)) (:foreground "magenta"))
-    (t (:weight bold :underline t)))
-  "Face used to highlight braces within notes in git commit messages"
-  :group 'git-commit-faces)
-
-(defface git-commit-note-address-face
-  '((((class grayscale) (background light))
-     (:foreground "LightGray" :weight bold))
-    (((class grayscale) (background dark)) (:foreground "DimGray" :weight bold))
-    (((class color) (min-colors 88) (background light)) (:foreground "Purple"))
-    (((class color) (min-colors 88) (background dark)) (:foreground "Cyan1"))
-    (((class color) (min-colors 16) (background light)) (:foreground "Purple"))
-    (((class color) (min-colors 16) (background dark)) (:foreground "Cyan"))
-    (((class color) (min-colors 8)) (:foreground "cyan" :weight bold))
-    (t (:weight bold)))
-  "Face used to highlight email addresses within notes in git commit messages"
-  :group 'git-commit-faces)
-
-(defface git-commit-note-face
-  '((((class grayscale) (background light))
-     (:foreground "DimGray" :slant italic))
-    (((class grayscale) (background dark))
-     (:foreground "LightGray" :slant italic))
-    (((class color) (min-colors 88) (background light))
-     (:foreground "VioletRed4"))
-    (((class color) (min-colors 88) (background dark))
-     (:foreground "LightSalmon"))
-    (((class color) (min-colors 16) (background light))
-     (:foreground "RosyBrown"))
-    (((class color) (min-colors 16) (background dark))
-     (:foreground "LightSalmon"))
-    (((class color) (min-colors 8)) (:foreground "green"))
-    (t (:slant italic)))
-  "Face used to highlight notes within git commit messages"
-  :group 'git-commit-faces)
-
 (defface git-commit-branch-face
-  '((((class grayscale) (background light))
-     (:foreground "DimGray" :slant italic))
-    (((class grayscale) (background dark))
-     (:foreground "LightGray" :slant italic))
-    (((class color) (min-colors 88) (background light))
-     (:foreground "VioletRed2"))
-    (((class color) (min-colors 88) (background dark))
-     (:foreground "LightSalmon"))
-    (((class color) (min-colors 16) (background light))
-     (:foreground "RosyBrown"))
-    (((class color) (min-colors 16) (background dark))
-     (:foreground "LightSalmon"))
-    (((class color) (min-colors 8)) (:foreground "green"))
-    (t (:slant italic)))
+  '((t (:inherit font-lock-variable-name-face)))
   "Face used to highlight the branch name in comments in git commit messages"
   :group 'git-commit-faces)
 
 (defface git-commit-no-branch-face
-  '((t :inherit git-commit-branch-face))
+  '((t (:inherit git-commit-branch-face)))
   "Face used when a commit is going to be made outside of any branches"
   :group 'git-commit-faces)
 
@@ -234,96 +145,91 @@ git commit messages"
 default comments in git commit messages"
   :group 'git-commit-faces)
 
-(defconst git-commit-font-lock-keywords-1
-  (append
-   '(("^\\(#\s+On branch \\)\\(.*\\)$"
-      (1 'git-commit-comment-face)
-      (2 'git-commit-branch-face)))
-   (loop for exp in
-         '(("Not currently on any branch." . git-commit-no-branch-face)
-           ("Changes to be committed:"     . git-commit-comment-heading-face)
-           ("Untracked files:"             . git-commit-comment-heading-face)
-           ("Changed but not updated:"     . git-commit-comment-heading-face)
-           ("Unmerged paths:"              . git-commit-comment-heading-face))
-         collect `(,(concat "^\\(#\s+\\)\\(" (car exp) "\\)$")
-                   (1 'git-commit-comment-face)
-                   (2 ',(cdr exp))))
-   `(("^\\(#\t\\)\\([^:]+\\)\\(:\s+\\)\\(.*\\)$"
-      (1 'git-commit-comment-face)
-      (2 'git-commit-comment-action-face)
-      (3 'git-commit-comment-face)
-      (4 'git-commit-comment-file-face))
-     ("^\\(#\t\\)\\(.*\\)$"
-      (1 'git-commit-comment-face)
-      (2 'git-commit-comment-file-face))
-     ("^#.*$"
-      (0 'git-commit-comment-face))
-     ("\\`\\(?:\\(?:[[:space:]]*\\|#.*\\)\n\\)*\\(.\\{,50\\}\\)\\(.*?\\)\\(?:\n\\(.*\\)\\)?$"
-      (1 'git-commit-summary-face)
-      (2 'git-commit-overlong-summary-face)
-      (3 'git-commit-nonempty-second-line-face))
-     (,(concat "^\\("
-               (regexp-opt git-commit-known-pseudo-headers)
-               ":\\)\\(\s.*\\)$")
-      (1 'git-commit-known-pseudo-header-face)
-      (2 'git-commit-pseudo-header-face))
-     ("^\\w[^\s\n]+:\s.*$"
-      (0 'git-commit-pseudo-header-face))
-     ("^\\(\\[\\)\\([^\s@]+@[^\s@]+:\\)\\(.*\\)\\(\\]\\)$"
-      (1 'git-commit-note-brace-face)
-      (2 'git-commit-note-address-face)
-      (3 'git-commit-note-face)
-      (4 'git-commit-note-brace-face))
-     (".*"
-      (0 'git-commit-text-face)))))
+(defun git-commit-end-session ()
+  "Save the buffer and end the session.
 
-(defvar git-commit-font-lock-keywords git-commit-font-lock-keywords-1)
-
-(defvar git-commit-mode-hook nil
-  "List of functions to be called when activating `git-commit-mode'.")
-
-(defun git-commit--save-and-exit ()
-  (save-buffer)
-  (kill-buffer))
+If the current buffer has clients from the Emacs server, call
+`server-edit' to mark the buffer as done and let the clients
+continue, otherwise kill the buffer via `kill-buffer'."
+  (if server-buffer-clients
+      (server-edit) ; The message buffer comes from emacsclient
+    (kill-buffer)))
 
 (defcustom git-commit-commit-function
-  #'git-commit--save-and-exit
-  "Function to actually perform a commit.
-Used by `git-commit-commit'."
+  #'git-commit-end-session
+  "Function called by `git-commit-commit' to actually perform a commit.
+
+The function is called without argument, with the current buffer
+being the commit message buffer.  It shall return t, if the
+commit was successful, or nil otherwise."
   :group 'git-commit
-  :type '(radio (function-item :doc "Call `save-buffers-kill-terminal'."
-                               git-commit--save-and-exit)
+  :type '(radio (function-item :doc "Save the buffer and end the session."
+                               git-commit-end-session)
                 (function)))
 
-(defun git-commit-commit ()
+(defun git-commit-has-style-errors-p ()
+  "Check whether the current buffer has style errors.
+
+Return t, if the current buffer has style errors, or nil
+otherwise."
+  (save-excursion
+    (goto-char (point-min))
+    (when (re-search-forward (git-commit-find-summary-regexp) nil t)
+      (or (string-match-p ".+" (or (match-string 2) ""))
+          (string-match-p "^.+$" (or (match-string 3) ""))))))
+
+(defun git-commit-may-do-commit (&optional force)
+  "Check whether a commit may be performed.
+
+Check for stylistic errors in the current message, unless FORCE
+is non-nil.  If stylistic errors are found, ask the user to
+confirm commit.
+
+Return t if the commit may be performed, or nil otherwise."
+  (if force t
+    (if (git-commit-has-style-errors-p)
+        (yes-or-no-p "Buffer has style errors. Commit anyway?")
+      t)))
+
+(defun git-commit-log-edit-commit (&optional force)
+  "Finish edits and create a new commit.
+
+Check for stylistic errors in the current message, unless FORCE
+is non-nil.  If stylistic errors are found, ask the user to
+confirm the commit."
+  (interactive "P")
+  (if (git-commit-may-do-commit force)
+      (call-interactively 'magit-log-edit-commit)
+    (message "Commit canceled due to stylistic errors.")))
+
+(defun git-commit-commit (&optional force)
   "Finish editing the commit message and commit.
-By default this only calls `save-buffer', as there is no general
-way to actually trigger git to commit whatever the commit message
-was intended for.
 
-After calling `save-buffer', the hooks in
-`git-commit-commit-hook' will be run.  If you have configured git
-in a way that simply invokes Emacs for editing the commit
-message, you might want to this:
+Saves the buffer and checks for style errors, unless prefix
+argument FORCE is given.
 
-  (add-hook 'git-commit-commit-hook
-          (lambda () (save-buffers-kill-terminal)))"
-  (interactive)
+Call `git-commit-commit-function` to actually perform the commit.
+Customize this variable as needed.
+
+Return t, if the commit was successful, or nil otherwise."
+  (interactive "P")
   (save-buffer)
-  (funcall git-commit-commit-function))
+  (if (git-commit-may-do-commit force)
+      (funcall git-commit-commit-function)
+    (message "Commit canceled due to stylistic errors.")))
 
 (defun git-commit-git-config-var (key)
   "Retrieve a git configuration value.
 Invokes 'git config --get' to retrieve the value for the
 configuration key KEY."
   (let* ((exit)
-        (output
-         (with-output-to-string
-           (with-current-buffer
-               standard-output
-             (setq exit
-                   (call-process "git" nil (list t nil) nil
-                                 "config" "--get" key))))))
+         (output
+          (with-output-to-string
+            (with-current-buffer
+                standard-output
+              (setq exit
+                    (call-process "git" nil (list t nil) nil
+                                  "config" "--get" key))))))
     (if (not (= 0 exit))
         nil
       (substring output 0 (- (length output) 1)))))
@@ -332,9 +238,12 @@ configuration key KEY."
   "Get the value of the first defined environment variable.
 Walk VARS, call `getenv' on each element and return the first
 non-nil return value of `getenv'."
-  (loop for var in vars
-        do (let ((val (getenv var)))
-             (when val (return val)))))
+  (let ((current vars)
+        (val nil))
+    (while (and (not val) current)
+      (setq val (getenv (car current)))
+      (setq current (cdr current)))
+    val))
 
 (defun git-commit-committer-name ()
   "Get the git committer name of the current user.
@@ -366,18 +275,17 @@ If the above mechanism fails, the value of the variable
 
 (defun git-commit-find-pseudo-header-position ()
   "Find the position at which commit pseudo headers should be inserted.
+
 Those headers usually live at the end of a commit message, but
-before any trailing comments git or the user might have inserted."
+before any trailing comments git or the user might have
+inserted."
   (save-excursion
-    ;; skip the summary line, limit the search to comment region
-    (goto-char (point-min))
-    (forward-line 2)
     (let ((comment-start (point)))
       (goto-char (point-max))
-      (if (not (re-search-backward "^[^#][^\s:]+:.*$" comment-start t))
+      (if (not (re-search-backward "^\\S<[^\s:]+:.*$" nil t))
           ;; no headers yet, so we'll search backwards for a good place
           ;; to insert them
-          (if (not (re-search-backward "^[^#].*?.*$" comment-start t))
+          (if (not (re-search-backward "^[^#].*?.*$" nil t))
               ;; no comment lines anywhere before end-of-buffer, so we
               ;; want to insert right there
               (point-max)
@@ -392,76 +300,49 @@ before any trailing comments git or the user might have inserted."
         (forward-line 1)
         (point)))))
 
-(defun git-commit-insert-header (type name email &optional note)
+(defun git-commit-insert-header (type name email)
   "Insert a header into the commit message.
 The inserted headers have the format 'TYPE: NAME <EMAIL>'.
-
-If NOTE satisfies `stringp', an additional note of the format
-'[EMAIL: NOTE]' is inserted after the header.
-
-If NOTE is not nil and doesn't satisfy `stringp', the
-surroundings of an additional note will be inserted, and the
-point will be left where the content of the note needs to be
-inserted.
 
 The header is inserted at the position returned by
 `git-commit-find-pseudo-header-position'.  When this position
 isn't after an existing header or a newline, an extra newline is
 inserted before the header."
   (let* ((header-at (git-commit-find-pseudo-header-position))
-         (prev-line (save-excursion
-                      (goto-char (- header-at 1))
-                      (thing-at-point 'line)))
+         (prev-line (or (save-excursion
+                          (goto-char (- header-at 1))
+                          (thing-at-point 'line)) ""))
          (pre       (if (or (string-match "^[^\s:]+:.+$" prev-line)
-                            (string-match "\\`\s*$" prev-line))
-                        "" "\n"))
-         (insert    (lambda ()
-                      (goto-char header-at)
-                      (insert (format "%s%s: %s <%s>\n" pre type name email))
-                      (when note
-                        (insert (format "[%s: %s]\n"
-                                        email (if (stringp note) note "")))
-                        (backward-char 2)))))
-    (if (eq t note)
-        (funcall insert)
-      (save-excursion (funcall insert)))))
+                            (string-match "\\`\\s-*$" prev-line))
+                        "" "\n")))
+    (save-excursion
+      (goto-char header-at)
+      (insert (format "%s%s: %s <%s>\n" pre type name email)))))
 
-(defun git-commit-insert-header-as-self (type &optional note)
+(defun git-commit-insert-header-as-self (type)
   "Insert a header with the name and email address of the current user.
 Call `git-commit-insert-header' with the user name and email
 address provided by `git-commit-committer-name' and
 `git-commit-committer-email'.
 
-TYPE and NOTE are passed along unmodified."
+TYPE is passed along unmodified."
   (let ((committer-name (git-commit-committer-name))
         (committer-email (git-commit-committer-email)))
-    (git-commit-insert-header type committer-name committer-email note)))
+    (git-commit-insert-header type committer-name committer-email)))
 
 (defmacro git-define-git-commit-self (action header)
   "Create function git-commit-ACTION.
 ACTION will be part of the function name.
 HEADER is the actual header to be inserted into the comment."
   (let ((func-name (intern (concat "git-commit-" action))))
-    `(defun ,func-name (&optional note)
+    `(defun ,func-name ()
        ,(format "Insert a '%s' header at the end of the commit message.
-If NOTE is given, an additional note will be inserted.
-
-If NOTE satisfies `stringp', the value of NOTE will be inserted
-as the content of the note.
-
-If NOTE is not nil and doesn't satisfy `stringp', the
-surroundings of an additional note will be inserted, and the
-point will be left where the content of the note needs to be
-inserted.
-
-NOTE defaults to `current-prefix-arg'.
 
 The author name and email address used for the header are
 retrieved automatically with the same mechanism git uses."
                 header)
-       (interactive
-        (list (when current-prefix-arg t)))
-       (git-commit-insert-header-as-self ,header note))))
+       (interactive)
+       (git-commit-insert-header-as-self ,header))))
 
 (git-define-git-commit-self "ack"     "Acked-by")
 (git-define-git-commit-self "review"  "Reviewed-by")
@@ -473,44 +354,166 @@ retrieved automatically with the same mechanism git uses."
 ACTION will be part of the function name.
 HEADER is the actual header to be inserted into the comment."
   (let ((func-name (intern (concat "git-commit-" action))))
-    `(defun ,func-name (name email &optional note)
+    `(defun ,func-name (name email)
        ,(format "Insert a '%s' header at the end of the commit message.
 The value of the header is determined by NAME and EMAIL.
 
 When called interactively, both NAME and EMAIL are read from the
-minibuffer.
-
-If NOTE is given, an additional note will be inserted.
-
-If NOTE satisfies `stringp', the value of NOTE will be inserted
-as the content of the note.
-
-If NOTE is not nil and doesn't satisfy `stringp', the
-surroundings of an additional note will be inserted, and the
-point will be left where the content of the note needs to be
-inserted.
-
-NOTE defaults to `current-prefix-arg'."
+minibuffer."
                 header)
        (interactive
         (list (read-string "Name: ")
-              (read-string "Email: ")
-              (when current-prefix-arg t)))
-       (git-commit-insert-header ,header name email note))))
+              (read-string "Email: ")))
+       (git-commit-insert-header ,header name email))))
 
 (git-define-git-commit "cc" "Cc")
 (git-define-git-commit "reported" "Reported-by")
 
-(defvar git-commit-map
+(defconst git-commit-known-pseudo-headers
+  '("Signed-off-by"
+    "Acked-by"
+    "Cc"
+    "Reported-by"
+    "Tested-by"
+    "Reviewed-by")
+  "A list of git pseudo headers to be highlighted.")
+
+(defconst git-commit-comment-headings-alist
+  '(("Not currently on any branch." . git-commit-no-branch-face)
+    ("Changes to be committed:" . git-commit-comment-heading-face)
+    ("Untracked files:" . git-commit-comment-heading-face)
+    ("Changed but not updated:" . git-commit-comment-heading-face)
+    ("Changes not staged for commit:" . git-commit-comment-heading-face)
+    ("Unmerged paths:" . git-commit-comment-heading-face))
+  "Headings in message comments.
+
+The `car' of each cell is the heading text, the `cdr' the face to
+use for fontification.")
+
+(defconst git-commit-skip-before-summary-regexp
+  "\\(?:\\(?:\\s-*\\|\\s<.*\\)\n\\)*"
+  "Regexp to skip empty lines and comments before the summary.
+
+Do not use this expression directly, instead call
+`git-commit-find-summary-regexp' to create a regular expression
+to match the summary line.")
+
+(defconst git-commit-summary-regexp
+   "\\(?:^\\(.\\{,50\\}\\)\\(.*?\\)$\\)"
+   "Regexp to match the summary line.
+
+Do not use this expression directly, instead call
+`git-commit-find-summary-regexp' to create a regular expression
+to match the summary line.")
+
+(defconst git-commit-nonempty-second-line-regexp
+  "\\(?:\n\\(.*\\)\\)?$"
+  "Regexp to match a nonempty line following the summary.
+
+Do not use this expression directly, instead call
+`git-commit-find-summary-regexp' to create a regular expression
+to match the summary line.")
+
+(defvar git-commit-skip-magit-header-regexp nil
+  "Regexp to skip magit header.
+
+This variable is nil until `magit' is loaded.
+
+Do not use this expression directly, instead call
+`git-commit-find-summary-regexp' to create a regular expression
+to match the summary line.")
+
+(eval-after-load 'magit
+  ;; Configure regexp to skip Magit header
+  '(setq git-commit-skip-magit-header-regexp
+        (format
+         "\\(?:\\(?:[A-Za-z0-9-_]+: *.*\n\\)*%s\\)?"
+         (regexp-quote magit-log-header-end))))
+
+(defun git-commit-find-summary-regexp ()
+  "Create a regular expression to find the Git summary line.
+
+Return a regular expression that starts at the beginning of the
+buffer, skips over empty lines, comments and also over the magit
+header, if the current buffer is a `magit-log-edit-mode' buffer,
+and finds the summary line.
+
+The regular expression matches three groups.  The first group is
+the summary line, the second group contains any overlong part of
+the summary, and the third group contains a nonempty line
+following the summary line.  The latter two groups may be empty."
+  (format "\\`%s%s%s%s"
+          (if (eq major-mode 'magit-log-edit-mode)
+              git-commit-skip-magit-header-regexp
+            "")
+          git-commit-skip-before-summary-regexp
+          git-commit-summary-regexp
+          git-commit-nonempty-second-line-regexp))
+
+(defun git-commit-mode-summary-font-lock-keywords (&optional errors)
+  "Create font lock keywords to fontify the Git summary.
+
+If ERRORS is non-nil create keywords that highlight errors in the
+summary line, not the summary line itself."
+  (let ((regexp (git-commit-find-summary-regexp)))
+    (if errors
+        `(,regexp
+          (2 'git-commit-overlong-summary-face t t)
+          (3 'git-commit-nonempty-second-line-face t t))
+      `(,regexp (1 'git-commit-summary-face t)))))
+
+(defun git-commit-mode-heading-keywords ()
+  "Create font lock keywords to fontify comment headings.
+
+Known comment headings are provided by `git-commit-comment-headings'."
+  (mapcar (lambda (cell) `(,(format "^\\s<\\s-+\\(%s\\)$"
+                                    (regexp-quote (car cell)))
+                           (1 ',(cdr cell) t)))
+          git-commit-comment-headings-alist))
+
+(defvar git-commit-mode-font-lock-keywords
+  (append
+   `(("^\\s<.*$" . 'font-lock-comment-face)
+     ("^\\s<\\s-On branch \\(.*\\)$" (1 'git-commit-branch-face t))
+     ("^\\s<\t\\(?:\\([^:]+\\):\\s-+\\)?\\(.*\\)$"
+      (1 'git-commit-comment-action-face t t)
+      (2 'git-commit-comment-file-face t))
+     (,(concat "^\\("
+               (regexp-opt git-commit-known-pseudo-headers)
+               ":\\)\\(\s.*\\)$")
+      (1 'git-commit-known-pseudo-header-face)
+      (2 'git-commit-pseudo-header-face))
+     ("^\\<\\S-+:\\s-.*$" . 'git-commit-pseudo-header-face)
+     (eval . (git-commit-mode-summary-font-lock-keywords))
+     ("\\[[^\n]+?\\]" (0 'git-commit-note-face t)) ; Notes override summary line
+     ;; Warnings from overlong lines and nonempty second line override
+     ;; everything
+     (eval . (git-commit-mode-summary-font-lock-keywords t)))
+   (git-commit-mode-heading-keywords)))
+
+(defvar git-commit-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-c") 'git-commit-commit)
+    ;; Short shortcut ;) for the frequently used signoff header
     (define-key map (kbd "C-c C-s") 'git-commit-signoff)
-    (define-key map (kbd "C-c C-a") 'git-commit-ack)
-    (define-key map (kbd "C-c C-t") 'git-commit-test)
-    (define-key map (kbd "C-c C-r") 'git-commit-review)
-    (define-key map (kbd "C-c C-o") 'git-commit-cc)
-    (define-key map (kbd "C-c C-p") 'git-commit-reported)
-    map))
+    ;; Verbose shortcuts for all headers to avoid conflicts with magit bindings
+    (define-key map (kbd "C-c C-h s") 'git-commit-signoff)
+    (define-key map (kbd "C-c C-h a") 'git-commit-ack)
+    (define-key map (kbd "C-c C-h t") 'git-commit-test)
+    (define-key map (kbd "C-c C-h r") 'git-commit-review)
+    (define-key map (kbd "C-c C-h o") 'git-commit-cc)
+    (define-key map (kbd "C-c C-h p") 'git-commit-reported)
+    ;; Committing
+    (define-key map (kbd "C-c C-c") 'git-commit-commit)
+    map)
+  "Key map used by `git-commit-mode'.")
+
+(defvar git-commit-mode-syntax-table
+  (let ((table (make-syntax-table text-mode-syntax-table)))
+    (modify-syntax-entry ?# "<" table)
+    (modify-syntax-entry ?\n ">" table)
+    (modify-syntax-entry ?\r ">" table)
+    table)
+  "Syntax table used by `git-commit-mode'.")
 
 (defun git-commit-font-lock-diff ()
   "Add font lock on diff."
@@ -538,51 +541,66 @@ NOTE defaults to `current-prefix-arg'."
           (insert text))))))
 
 ;;;###autoload
-(defun git-commit-mode ()
-  "Major mode for editing git commit messages.
-This mode helps with editing git commit messages both by
-providing commands to do common tasks, and by highlighting the
-basic structure of and errors in git commit messages.
+(defun git-commit-mode-magit-setup ()
+  (message "Magit integration is now always enabled!")
+  "Compatibility function.
 
-Commands:\\<git-commit-map>
-\\[git-commit-commit]   `git-commit-commit'  Finish editing and commit
-\\[git-commit-signoff]   `git-commit-signoff'   Insert a Signed-off-by header
-\\[git-commit-ack]   `git-commit-ack'   Insert an Acked-by header
-\\[git-commit-test]   `git-commit-test'   Insert a Tested-by header
-\\[git-commit-review]   `git-commit-review'   Insert a Reviewed-by header
-\\[git-commit-cc]   `git-commit-cc'   Insert a Cc header
-\\[git-commit-reported]   `git-commit-reported'   Insert a Reported-by header
-
-Turning on git commit calls the hooks in `git-commit-mode-hook'."
-  (interactive)
-  (kill-all-local-variables)
-  (use-local-map git-commit-map)
-  (setq font-lock-multiline t)
-  (setq font-lock-defaults '(git-commit-font-lock-keywords t))
-  (make-local-variable 'comment-start-skip)
-  (make-local-variable 'comment-start)
-  (make-local-variable 'comment-end)
-  (setq comment-start-skip "^#\s"
-        comment-start "# "
-        comment-end "")
-  (setq major-mode 'git-commit-mode)
-  (git-commit-font-lock-diff)
-  (when (fboundp 'toggle-save-place)
-    (toggle-save-place 0))
-  (run-mode-hooks 'git-commit-mode-hook)
-  (setq mode-name "Git-Commit"))
+Obsolete function for compatibility with older releases.  Does
+nothing.")
 
 ;;;###autoload
-(when (boundp 'session-mode-disable-list)
-  (add-to-list 'session-mode-disable-list 'git-commit-mode))
+(define-derived-mode git-commit-mode text-mode "Git Commit"
+  "Major mode for editing git commit messages.
+
+This mode helps with editing git commit messages both by
+providing commands to do common tasks, and by highlighting the
+basic structure of and errors in git commit messages."
+  ;; Font locking
+  (setq font-lock-defaults '(git-commit-mode-font-lock-keywords t))
+  (set (make-local-variable 'font-lock-multiline) t)
+  ;; Filling according to the guidelines
+  (setq fill-column 72)
+  (turn-on-auto-fill)
+  ;; Comment settings
+  (set (make-local-variable 'comment-start) "#")
+  (set (make-local-variable 'comment-start-skip)
+       (concat (regexp-quote comment-start) "+\\s-*"))
+  (set (make-local-variable 'comment-end) "")
+  ;; Recognize changelog-style paragraphs
+  (set (make-local-variable 'paragraph-start)
+       (concat paragraph-start "\\|*\\|("))
+  ;; Do not remember point location in commit messages
+  (when (fboundp 'toggle-save-place)
+    (toggle-save-place 0)))
+
+;;;###autoload
+(eval-after-load 'session
+  #'(add-to-list 'session-mode-disable-list 'git-commit-mode))
+
+;;;###autoload
+;; Overwrite magit-log-edit-mode to derive it from git-commit-mode
+(eval-after-load 'magit
+  #'(define-derived-mode magit-log-edit-mode git-commit-mode "Magit Log Edit"))
+
+;;;###autoload
+;; Change the Magit log edit keymap to use our commit and header insertion
+;; bindings
+(eval-after-load 'magit
+  #'(progn
+      (substitute-key-definition 'magit-log-edit-toggle-signoff
+                                 'git-commit-signoff
+                                 magit-log-edit-mode-map)
+      (substitute-key-definition 'magit-log-edit-commit
+                                 'git-commit-log-edit-commit
+                                 magit-log-edit-mode-map)))
 
 ;;;###autoload
 (setq auto-mode-alist
       (append auto-mode-alist
-              '(("COMMIT_EDITMSG" . git-commit-mode)
-                ("NOTES_EDITMSG" . git-commit-mode)
-                ("MERGE_MSG" . git-commit-mode)
-                ("TAG_EDITMSG" . git-commit-mode))))
+              '(("/COMMIT_EDITMSG\\'" . git-commit-mode)
+                ("/NOTES_EDITMSG\\'" . git-commit-mode)
+                ("/MERGE_MSG\\'" . git-commit-mode)
+                ("/TAG_EDITMSG\\'" . git-commit-mode))))
 
 (provide 'git-commit-mode)
 
