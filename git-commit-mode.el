@@ -79,6 +79,7 @@
 
 (defgroup git-commit nil
   "Mode for editing git commit messages"
+  :prefix "git-commit-"
   :group 'tools)
 
 (defgroup git-commit-faces nil
