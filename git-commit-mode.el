@@ -1,5 +1,4 @@
 ;;; git-commit-mode.el --- Major mode for editing git commit messages
-;;; -*- coding: utf-8; lexical-binding: t -*-
 
 ;; Copyright (c) 2012 Sebastian Wiesner <lunaryorn@gmail.com>
 ;; Copyright (c) 2010 Florian Ragwitz.
