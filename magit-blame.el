@@ -69,6 +69,16 @@
     map)
   "Keymap for an annotated section.\\{magit-blame-map}")
 
+(require 'easymenu)
+(easy-menu-define magit-blame-mode-menu magit-blame-map
+  "Magit blame menu"
+  '("Blame"
+    ["Locate Commit" magit-blame-locate-commit t]
+    ["Next" magit-blame-next-chunk t]
+    ["Previous" magit-blame-previous-chunk t]
+    "---"
+    ["Quit" magit-blame-mode t]))
+
 (defvar magit-blame-buffer-read-only)
 (make-variable-buffer-local 'magit-blame-buffer-read-only)
 
