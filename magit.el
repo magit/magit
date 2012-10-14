@@ -5614,8 +5614,8 @@ Return values:
          (commit (and (member 'commit (magit-section-context-type section))
                       (magit-section-info section)))
          (old-editor (getenv "GIT_EDITOR")))
-    (if (locate-file "emacsclient" exec-path)
-        (setenv "GIT_EDITOR" (concat (locate-file "emacsclient" exec-path)
+    (if (executable-find "emacsclient")
+        (setenv "GIT_EDITOR" (concat (executable-find "emacsclient")
                                      " -s " server-name))
         (message "Cannot find emacsclient, using default git editor, please check you PATH"))
     (unwind-protect
