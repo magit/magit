@@ -14,6 +14,7 @@
 ;; Copyright (C) 2009 Ian Eure.
 ;; Copyright (C) 2009 Jesse Alama.
 ;; Copyright (C) 2009 John Wiegley.
+;; Copyright (C) 2012 Jonas Bernoulli.
 ;; Copyright (C) 2010 Leo.
 ;; Copyright (C) 2008, 2009 Marcin Bachry.
 ;; Copyright (C) 2008, 2009 Marius Vollmer.
