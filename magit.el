@@ -98,7 +98,6 @@
 (eval-when (load eval)
   (defalias 'magit-set-variable-and-refresh 'set-default))
 
-;;; Code:
 (defgroup magit nil
   "Controlling Git from Emacs."
   :prefix "magit-"
