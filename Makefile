@@ -11,6 +11,8 @@ DIST_FILES_CONTRIB=$(ELS_CONTRIB) contrib/magit
 ELPA_FILES=$(ELS) magit.info dir magit-pkg.el
 ELISP_INSTALL_DIR=$(DESTDIR)$(PREFIX)/share/emacs/site-lisp
 
+INSTALL_INFO = install-info
+
 .PHONY=install
 
 EFLAGS=
@@ -45,7 +47,7 @@ magit.elc: magit.el
 	rm magit.tmp.el #NO_DIST
 
 dir: magit.info
-	install-info --dir=$@ $<
+	$(INSTALL_INFO) --dir=$@ $<
 
 magit.info:
 
@@ -82,7 +84,7 @@ install_core: core
 install_docs: docs
 	mkdir -p $(DESTDIR)$(PREFIX)/share/info
 	install -m 644 magit.info $(DESTDIR)$(PREFIX)/share/info
-	install-info --info-dir=$(DESTDIR)$(PREFIX)/share/info $(DESTDIR)$(PREFIX)/share/info/magit.info
+	$(INSTALL_INFO) --info-dir=$(DESTDIR)$(PREFIX)/share/info $(DESTDIR)$(PREFIX)/share/info/magit.info
 
 install_contrib: contrib
 	mkdir -p $(ELISP_INSTALL_DIR)
