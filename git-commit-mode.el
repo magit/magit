@@ -46,12 +46,12 @@
 ;;
 ;; Provide commands to insert standard headers into commit messages.
 ;;
-;; - C-c C-h s or C-c C-s inserts Signed-off-by (`git-commit-signoff').
-;; - C-C C-h a inserts Acked-by (`git-commit-ack').
-;; - C-c C-h t inserts Tested-by (`git-commit-test').
-;; - C-c C-h r inserts Reviewed-by (`git-commit-review').
-;; - C-c C-h o inserts Cc (`git-commit-cc').
-;; - C-c C-h p inserts Reported-by (`git-commit-reported').
+;; - C-c C-x s or C-c C-s inserts Signed-off-by (`git-commit-signoff').
+;; - C-C C-x a inserts Acked-by (`git-commit-ack').
+;; - C-c C-x t inserts Tested-by (`git-commit-test').
+;; - C-c C-x r inserts Reviewed-by (`git-commit-review').
+;; - C-c C-x o inserts Cc (`git-commit-cc').
+;; - C-c C-x p inserts Reported-by (`git-commit-reported').
 
 ;; * Committing
 ;;
@@ -496,12 +496,12 @@ Known comment headings are provided by `git-commit-comment-headings'."
     ;; Short shortcut ;) for the frequently used signoff header
     (define-key map (kbd "C-c C-s") 'git-commit-signoff)
     ;; Verbose shortcuts for all headers to avoid conflicts with magit bindings
-    (define-key map (kbd "C-c C-h s") 'git-commit-signoff)
-    (define-key map (kbd "C-c C-h a") 'git-commit-ack)
-    (define-key map (kbd "C-c C-h t") 'git-commit-test)
-    (define-key map (kbd "C-c C-h r") 'git-commit-review)
-    (define-key map (kbd "C-c C-h o") 'git-commit-cc)
-    (define-key map (kbd "C-c C-h p") 'git-commit-reported)
+    (define-key map (kbd "C-c C-x s") 'git-commit-signoff)
+    (define-key map (kbd "C-c C-x a") 'git-commit-ack)
+    (define-key map (kbd "C-c C-x t") 'git-commit-test)
+    (define-key map (kbd "C-c C-x r") 'git-commit-review)
+    (define-key map (kbd "C-c C-x o") 'git-commit-cc)
+    (define-key map (kbd "C-c C-x p") 'git-commit-reported)
     ;; Committing
     (define-key map (kbd "C-c C-c") 'git-commit-commit)
     map)
