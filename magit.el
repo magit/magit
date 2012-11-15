@@ -5972,6 +5972,18 @@ layer. This can be added to `magit-mode-hook' for example"
                  (not (eq sym 'magit-wip-save-mode)))
         (funcall sym 1)))))
 
+(defun magit-insert-commit-template ()
+  "Insert git commit templates into the magit-edit-log buffer."
+  (let* (magit-config-commit-template (magit-get "commit.template")
+                                      (magit-commit-template
+                                       (expand-file-name (concat (magit-git-dir) "../" (magit-get "commit.template")))))
+    (when (and (file-exists-p magit-commit-template) (not (file-accessible-directory-p magit-commit-template)))
+      (magit-log-edit-append (with-temp-buffer
+                               (insert-file-contents magit-commit-template)
+                               (buffer-string))) (goto-char (point-min)))))
+
+(add-hook 'magit-log-edit-mode-hook 'magit-insert-commit-template)
+
 (provide 'magit)
 
 ;; rest of magit core
