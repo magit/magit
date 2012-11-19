@@ -3888,7 +3888,11 @@ With prefix, forces the move even if NEW already exists.
     ((wazzup commit)
      (magit-section-info (magit-section-parent item)))
     ((commit) (magit-name-rev (substring info 0 magit-sha1-abbrev-length)))
-    ((wazzup) info)))
+    ((wazzup) info)
+    (t (match-string 1 (find-if
+                        (lambda (x)
+                          (string-match "moving from \\(.*\\) to" x))
+                        (magit-git-lines "reflog"))))))
 
 ;;; Remotes
 
