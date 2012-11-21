@@ -1993,15 +1993,13 @@ Refinements can be undone with `magit-unrefine-section'."
         (delete-overlay magit-highlight-overlay)))))
 
 (defun magit-section-context-type (section)
-  (if (null section)
-      '()
+  (when section
     (let ((c (or (magit-section-type section)
-                 (if (symbolp (magit-section-title section))
-                     (magit-section-title section)))))
-      (if c
-          (cons c (magit-section-context-type
-                   (magit-section-parent section)))
-        '()))))
+                 (and (symbolp (magit-section-title section))
+                      (magit-section-title section)))))
+      (when c
+        (cons c (magit-section-context-type
+                 (magit-section-parent section)))))))
 
 (defun magit-prefix-p (prefix list)
   "Return non-nil if PREFIX is a prefix of LIST.
