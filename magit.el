@@ -3928,7 +3928,7 @@ With prefix, forces the move even if NEW already exists.
     ((remote)
      info)
     (t
-     (if  (string= info ".")
+     (if (string= info ".")
          info
        (magit-get-current-remote)))))
 
