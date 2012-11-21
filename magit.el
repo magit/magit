@@ -2579,7 +2579,6 @@ in the corresponding directories."
   (magit-refresh))
 
 (defun magit-toggle-diff-refine-hunk (&optional other)
-  (interactive "P")
   "Turn diff-hunk refining on or off.
 
 If hunk refining is currently on, then hunk refining is turned off.
@@ -2593,6 +2592,7 @@ If hunk refining is off, then hunk refining is turned on, in
 `all' mode (all hunks refined).
 
 Customize `magit-diff-refine-hunk' to change the default mode."
+  (interactive "P")
   (let* ((old magit-diff-refine-hunk)
          (new
           (if other
