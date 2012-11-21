@@ -1340,8 +1340,9 @@ DEF is the default value."
 (defun magit-new-section (title type)
   "Create a new section with title TITLE and type TYPE in current buffer.
 
-If not `magit-top-section' exist, the new section will be the new top-section
-otherwise, the new-section will be a child of the current top-section.
+If `magit-top-section' buffer local value is nil, the new section
+will be the new top-section; otherwise the new-section will be a
+child of the current top-section.
 
 If TYPE is nil, the section won't be highlighted."
   (let* ((s (make-magit-section :parent magit-top-section
@@ -1797,7 +1798,7 @@ otherwise it will affect only ancestors and descendants of current section."
 
 (defmacro magit-define-level-shower (level)
   "Define two interactive function to show function of level LEVEL.
-one for all, one for current lineage."
+One for all, one for current lineage."
   `(progn
      (magit-define-level-shower-1 ,level nil)
      (magit-define-level-shower-1 ,level t)))
@@ -1993,11 +1994,13 @@ FUNC should leave point at the end of the modified region"
 It will define the magit-SYM function having ARGLIST as argument.
 It will also define the magit-SYM-command-hook variable.
 
-The defined function will call the function in the hook in
-order until one return non nil. If they all return nil then body will be called.
+The defined function will call the function in the hook in order
+until one return non nil. If they all return nil then body will
+be called.
 
-It is used to define hookable magit command: command defined by this
-function can be enriched by magit extension like magit-topgit and magit-svn"
+It is used to define hookable magit command: command defined by
+this function can be enriched by magit extension like
+magit-topgit and magit-svn"
   (declare (indent defun)
            (debug (&define name lambda-list
                            [&optional stringp]        ; Match the doc string, if present.
@@ -3899,20 +3902,20 @@ With prefix, forces the move even if NEW already exists.
 ;;; Remotes
 
 (defun magit-add-remote (remote url)
-  "Adds a remote and fetches it.
+  "Add a remote and fetch it.
 \('git remote add REMOTE URL')."
   (interactive (list (read-string "Add remote: ")
                      (read-string "URL: ")))
   (magit-run-git "remote" "add" "-f" remote url))
 
 (defun magit-remove-remote (remote)
-  "Deletes a remote.
+  "Delete a remote.
 \('git remote rm REMOTE')."
   (interactive (list (magit-read-remote "Remote to delete")))
   (magit-run-git "remote" "rm" remote))
 
 (defun magit-rename-remote (old new)
-  "Renames a remote.
+  "Rename a remote.
 \('git remote rename OLD NEW')."
   (interactive (list (magit-read-remote "Old name")
                      (read-string "New name: ")))
@@ -3946,8 +3949,7 @@ With a prefix-arg, the merge will be squashed.
 ;;; Rebasing
 
 (defun magit-rebase-info ()
-  "Returns a list indicating the state of an in-progress rebase,
-if any."
+  "Return a list indicating the state of an in-progress rebase, if any."
   (let ((git-dir (magit-git-dir)))
     (cond ((file-exists-p (concat git-dir "rebase-merge"))
            (list
