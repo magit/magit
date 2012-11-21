@@ -3495,20 +3495,17 @@ FULLY-QUALIFIED-NAME is non-nil."
 
 (defun magit-remote-string (remote remote-branch remote-rebase)
   (cond
-   ((string= "." remote)
+   ((and (string= "." remote) remote-branch)
     (concat
      (when remote-rebase "onto ")
      "branch "
      (propertize remote-branch 'face 'magit-branch)))
-   (remote
+   ((and remote remote-branch)
     (concat
      (when remote-rebase "onto ")
      (propertize remote-branch 'face 'magit-branch)
-     " @ "
-     remote
-     " ("
-     (magit-get "remote" remote "url")
-     ")"))
+     " @ " remote
+     " (" (magit-get "remote" remote "url") ")"))
    (t
     (run-hook-with-args-until-success 'magit-remote-string-hook))))
 
