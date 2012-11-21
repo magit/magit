@@ -2001,22 +2001,19 @@ Refinements can be undone with `magit-unrefine-section'."
         (cons c (magit-section-context-type
                  (magit-section-parent section)))))))
 
-(defun magit-prefix-p (prefix list)
-  "Return non-nil if PREFIX is a prefix of LIST.
-
-PREFIX and LIST should both be lists.  If the car of PREFIX is
-the symbol `*', then return non-nil if the cdr of PREFIX is a
-sublist of LIST (as if `*' matched zero or more arbitrary
-elements of LIST)"
-  ;;; Very schemish...
-  (or (null prefix)
-      (if (eq (car prefix) '*)
-          (or (magit-prefix-p (cdr prefix) list)
-              (and (not (null list))
-                   (magit-prefix-p prefix (cdr list))))
-        (and (not (null list))
-             (equal (car prefix) (car list))
-             (magit-prefix-p (cdr prefix) (cdr list))))))
+(defun magit-prefix-p (l1 l2)
+  "Return non-nil if list L1 is a prefix of list L1.
+L1 is a prefix of L2 if each of it's element is `equal' to the
+element at the same position in L2.  As a special case `*' in
+L1 matches zero or more arbitrary elements in L2."
+  (or (null l1)
+      (if (eq (car l1) '*)
+          (or (magit-prefix-p (cdr l1) l2)
+              (and l2
+                   (magit-prefix-p l1 (cdr l2))))
+        (and l2
+             (equal (car l1) (car l2))
+             (magit-prefix-p (cdr l1) (cdr l2))))))
 
 (defmacro magit-section-case (head &rest clauses)
   "Make different action depending of current section.
