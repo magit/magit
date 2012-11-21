@@ -87,13 +87,19 @@
 
 ;; Silences byte-compiler warnings
 (eval-and-compile
-  (unless (fboundp 'declare-function) (defmacro declare-function (&rest args))))
+  (unless (fboundp 'declare-function)
+    (defmacro declare-function (&rest args))))
 
 (eval-when-compile (require 'view))
 (declare-function view-mode 'view)
 (eval-when-compile (require 'iswitchb))
+(declare-function iswitchb-read-buffer 'iswitchb)
 (eval-when-compile (require 'ido))
+(declare-function ido-completing-read 'ido)
 (eval-when-compile (require 'ediff))
+(declare-function ediff-cleanup-mess 'ediff)
+(eval-when-compile (require 'eshell))
+(declare-function eshell-parse-arguments 'eshell)
 
 ;; Dummy to be used by the defcustoms when first loading the file.
 (eval-when (load eval)
