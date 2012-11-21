@@ -3478,15 +3478,16 @@ for this argument.)"
   "Guess the remote branch name that LOCAL-BRANCH is tracking.
 Gives a fully qualified name (e.g., refs/remotes/origin/master) if
 FULLY-QUALIFIED-NAME is non-nil."
-  (let ((merge (magit-get "branch" local-branch "merge")))
+  (let ((merge  (magit-get "branch" local-branch "merge"))
+        (remote (magit-get "branch" local-branch "remote")))
     (save-match-data
-      (if (and merge (string-match "^refs/heads/\\(.+\\)" merge))
-          (concat (if fully-qualified-name
-                      (let ((remote-name (magit-get "branch" local-branch "remote")))
-                        (if (string= "." remote-name)
-                            "refs/heads/"
-                          (concat "refs/remotes/" remote-name "/"))))
-                  (match-string 1 merge))))))
+      (when (and merge remote
+                 (string-match "^refs/heads/\\(.+\\)" merge))
+        (concat (when fully-qualified-name
+                  (if (string= "." remote)
+                      "refs/heads/"
+                    (concat "refs/remotes/" remote "/")))
+                (match-string 1 merge))))))
 
 ;;; Status
 
