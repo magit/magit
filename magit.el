@@ -675,6 +675,7 @@ operation after commit).")
     (define-key map (kbd "r") 'magit-move-item)
     (define-key map (kbd "k") 'magit-discard-item)
     (define-key map (kbd "T") 'magit-change-what-branch-tracks)
+    (define-key map (kbd "z") 'kill-this-buffer)
     map))
 
 (defvar magit-bug-report-url
