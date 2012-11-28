@@ -5915,6 +5915,10 @@ for the file whose log must be displayed."
                      #'magit-refresh-file-log-buffer
                      current-file range 'oneline)))
 
+(magit-define-command single-file-log (&optional ranged)
+  (interactive)
+  (magit-file-log))
+
 (defun magit-show-file-revision ()
   "Open a new buffer showing the current file in the revision at point."
   (interactive)
