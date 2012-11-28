@@ -627,6 +627,7 @@ operation after commit).")
     (define-key map (kbd "+") 'magit-diff-larger-hunks)
     (define-key map (kbd "0") 'magit-diff-default-hunks)
     (define-key map (kbd "h") 'magit-toggle-diff-refine-hunk)
+    (define-key map (kbd "M-g") 'magit-goto-diffstats)
     map))
 
 (defvar magit-commit-mode-map
@@ -1339,6 +1340,11 @@ DEF is the default value."
 (defvar magit-show-diffstat t
   "If non-nil, diff and commit log will display diffstat.")
 
+(defvar magit-diffstat-cached-sections)
+(make-variable-buffer-local 'magit-diffstat-cached-sections)
+(put 'magit-diffstat-cached-sections 'permanent-local t)
+
+
 (defun magit-new-section (title type)
   "Create a new section with title TITLE and type TYPE in current buffer.
 
@@ -1622,6 +1628,19 @@ see `magit-insert-section' for meaning of the arguments"
                           (magit-section-beginning sec)))))))
     (when pos
       (goto-char pos))))
+
+(defun magit-goto-diffstats ()
+  "Go to the diffstats section if exists"
+  (interactive)
+  (let ((pos (catch 'section-found
+               (dolist (sec (magit-section-children magit-top-section))
+                 (when (eq (magit-section-type sec) 'diffstats)
+                   (throw 'section-found
+                          (magit-section-beginning sec)))))))
+    (if pos
+      (goto-char pos)
+      (if (called-interactively-p 'interactive)
+          (message "No diffstats section found")))))
 
 (defun magit-for-all-sections (func &optional top)
   "Run FUNC on TOP and recursively on all its children.
@@ -2648,22 +2667,62 @@ Customize `magit-diff-refine-hunk' to change the default mode."
    (magit-diff-item-file (magit-current-section)))
   (call-interactively 'magit-ediff))
 
-(defun magit-wash-diffstat ()
+(defun magit-wash-diffstat (&optional guess)
   (let ((entry-regexp "^ ?\\(.*?\\)\\( +| +.*\\)$"))
     (when (looking-at entry-regexp)
       (let ((file (match-string-no-properties 1))
             (remaining (match-string-no-properties 2)))
         (delete-region (point) (+ (line-end-position) 1))
         (magit-with-section "diffstat" 'diffstat
-          (magit-set-section-info (list 'diffstat file))
-          (insert (propertize (concat " "
-                                      (propertize file
-                                                  'face
-                                                  'magit-diff-file-header)
-                                      remaining)
-                              'keymap
-                              magit-diffstat-keymap)
-                  "\n"))))))
+          ;;(magit-set-section-info 'incomplete)
+
+          ;; diffstat entries will look like
+          ;;
+          ;; ' PSEUDO-FILE-NAME | +++---'
+          ;;
+          ;; Since PSEUDO-FILE-NAME is not always real pathname, we
+          ;; don't know the pathname yet.  Thus, section info will be
+          ;; (diffstat FILE incomplete MARKER-BEGIN MARKER-END) for
+          ;; now, where MARKER-BEGIN points the beginning of the
+          ;; PSEUDO-FILE-NAME, MARKER-END points the end of the
+          ;; PSEUDO-FILE-NAME, and FILE will be abbreviated filename.
+          ;; Later in `magit-wash-diff-or-other-file`, the section
+          ;; info will be updated.
+
+          ;; Note that FILE is the 2nd element of the section-info;
+          ;; this is intentional, so that `magit-diff-item-file` can
+          ;; return the FILE part.
+
+           ;; (list 'diffstat
+           ;;       (or (and (> (length file) 3)
+           ;;                (string-equal (substring file 0 3) "...")
+           ;;                (message "got the invalid file here")
+           ;;                'truncated)
+           ;;           file)))
+
+          (insert " ")
+          (let ((f-begin (point-marker)) f-end)
+            (insert file)
+            (setq f-end (point-marker))
+
+            (magit-set-section-info (list 'diffstat
+                                          file 'incomplete f-begin f-end))
+            (insert remaining)
+            (magit-put-line-property 'keymap magit-diffstat-keymap)
+
+            (insert "\n")
+            (add-to-list 'magit-diffstat-cached-sections
+                         magit-top-section))
+
+          ;; (insert (propertize (concat " "
+          ;;                             (propertize file
+          ;;                                         'face
+          ;;                                         'magit-diff-file-header)
+          ;;                             remaining)
+          ;;                     'keymap
+          ;;                     magit-diffstat-keymap)
+          ;;         "\n")
+          )))))
 
 (defun magit-wash-diffstats ()
   (let ((entry-regexp "^ ?\\(.*?\\)\\( +| +.*\\)$")
@@ -2682,38 +2741,48 @@ Customize `magit-diff-refine-hunk' to change the default mode."
               (insert title-line)
               ;;(magit-put-line-property 'face 'magit-section-title)
               (insert "\n")
+
+              (set (make-local-variable 'magit-diffstat-cached-sections)
+                   nil)
+
               (magit-wash-sequence #'magit-wash-diffstat))
+            (setq magit-diffstat-cached-sections
+                  (nreverse magit-diffstat-cached-sections))
             (insert "\n")))))))
 
-(defun magit-wash-stat ()
-  (when (and (boundp 'magit-stat-washed) (not magit-stat-washed))
-    (cond ((looking-at "^ ?\\(.*?\\) +| +.*$")
-           (let ((file (match-string-no-properties 1))
-                 (line (match-string-no-properties 0)))
-             (message "process stat entry: %S" file)
-             (message "process stat line: %S" line)
-             (delete-region (point) (+ (line-end-position) 1))
-             (magit-with-section file 'link
-               (magit-set-section-info file)
-               ;;(magit-put-line-property PROP VAL)
-               (insert line "\n"))
-             t))
-          ((looking-at "^ ?[0-9]+ +files changed.*$")
-           (let ((line (match-string-no-properties 0)))
-             (message "set magit-stat-washed to T")
-             (if t
-                 (end-of-line)
-               (delete-region (point) (+ (line-end-position) 1))
-               (magit-with-section "summary" 'link-summary
-                 (magit-set-section-info "summary")
-                 (insert line "\n")))
-             (re-search-forward "\n*" nil t)
-             (setq magit-stat-washed t)))
-          (t nil))))
+(defun magit-wash-diffstats-postwork (file &optional section)
+  (let ((sec (or section
+                 (and (boundp 'magit-diffstat-cached-sections)
+                      (pop magit-diffstat-cached-sections)))))
+    (when sec
+      (let* ((info (magit-section-info sec))
+             (begin (nth 3 info))
+             (end (nth 4 info)))
+        (put-text-property begin end
+                          'face 'magit-diff-file-header)
+        (magit-set-section-info (list 'diffstat file 'completed)
+                                sec)))))
+
+(defun magit-diffstat-item-kind (diffstat)
+  (car (magit-section-info diffstat)))
+
+(defun magit-diffstat-item-file (diffstat)
+  (let ((file (cadr (magit-section-info diffstat))))
+    ;; Git diffstat may shorten long pathname with the prefix "..."
+    ;; (e.g. ".../long/sub/dir/file" or "...longfilename")
+    (save-match-data
+      (if (string-match "\\`\\.\\.\\." file)
+          nil
+        file))))
+
+(defun magit-diffstat-item-status (diffstat)
+  "Return 'completed or 'incomplete depending on the processed status"
+  (caddr (magit-section-info diffstat)))
 
 (defun magit-wash-other-file ()
   (if (looking-at "^? \\(.*\\)$")
       (let ((file (match-string-no-properties 1)))
+        (magit-wash-diffstats-postwork file)
         (delete-region (point) (+ (line-end-position) 1))
         (magit-with-section file 'file
           (magit-set-section-info file)
@@ -2781,6 +2850,8 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                           (goto-char (match-beginning 0))
                         (goto-char (point-max)))
                       (point-marker))))
+           (magit-wash-diffstats-postwork file)
+
            (let* ((status (cond
                            ((looking-at "^diff --cc")
                             'unmerged)
@@ -5555,7 +5626,10 @@ With a prefix argument, visit in other window."
       ((diff)
        (dired-jump other-window (file-truename (magit-diff-item-file item))))
       ((diffstat)
-       (dired-jump other-window (file-truename (magit-diff-item-file item))))
+       (let ((file (magit-diffstat-item-file item)))
+         (if file
+             (dired-jump other-window (file-truename file))
+           (error "Can't get the pathname for this file"))))
       ((hunk)
        (dired-jump other-window
                    (file-truename (magit-diff-item-file
@@ -5581,8 +5655,10 @@ With a prefix argument, visit in other window."
                (if other-window 'find-file-other-window 'find-file)
                file)))))
     ((diffstat)
-     (let ((file (magit-diff-item-file item)))
-       (cond ((not (file-exists-p file))
+     (let ((file (magit-diffstat-item-file item)))
+       (cond ((null file)
+              (error "Can't get pathname for this file"))
+             ((not (file-exists-p file))
               (error "Can't visit deleted file: %s" file))
              ((file-directory-p file)
               (magit-status file))
