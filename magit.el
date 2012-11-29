@@ -14,6 +14,7 @@
 ;; Copyright (C) 2009 Ian Eure.
 ;; Copyright (C) 2009 Jesse Alama.
 ;; Copyright (C) 2009 John Wiegley.
+;; Copyright (C) 2012 Jonas Bernoulli.
 ;; Copyright (C) 2010 Leo.
 ;; Copyright (C) 2008, 2009 Marcin Bachry.
 ;; Copyright (C) 2008, 2009 Marius Vollmer.
@@ -88,7 +89,7 @@
 (eval-and-compile
   (unless (fboundp 'declare-function) (defmacro declare-function (&rest args))))
 
-(eval-when-compile  (require 'view))
+(eval-when-compile (require 'view))
 (declare-function view-mode 'view)
 (eval-when-compile (require 'iswitchb))
 (eval-when-compile (require 'ido))
@@ -98,7 +99,6 @@
 (eval-when (load eval)
   (defalias 'magit-set-variable-and-refresh 'set-default))
 
-;;; Code:
 (defgroup magit nil
   "Controlling Git from Emacs."
   :prefix "magit-"
