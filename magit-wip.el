@@ -142,10 +142,9 @@ ref."
                  (?f . ,(buffer-file-name))
                  (?g . ,top-dir))))
     (when (and top-dir (file-writable-p top-dir))
-      (save-excursion ; kludge see https://github.com/magit/magit/issues/441
-        (magit-run-git "wip" "save"
-                       (format-spec magit-wip-commit-message spec)
-                       "--editor" "--" name))
+      (magit-run-git "wip" "save"
+                     (format-spec magit-wip-commit-message spec)
+                     "--editor" "--" name)
       (when magit-wip-echo-area-message
         (message (format-spec magit-wip-echo-area-message spec))))))
 
