@@ -222,6 +222,15 @@ Only considered when moving past the last entry with
   :group 'magit
   :type 'boolean)
 
+(defcustom magit-branch-manager-options nil
+  "Options for \"git branch\" command used in `magit-branch-manager'.
+
+For example, to show only non-merged branches (like Github), use
+the following configuration:
+    (setq magit-branch-manager-options '(\"--no-merged\"))"
+  :group 'magit
+  :type '(repeat string))
+
 (defcustom magit-process-popup-time -1
   "Popup the process buffer if a command takes longer than this many seconds."
   :group 'magit
@@ -5801,10 +5810,12 @@ These are the branch names with the remote name stripped."
 
 (defun magit-refresh-branch-manager ()
   (magit-create-buffer-sections
-    (magit-git-section "branches" nil 'magit-wash-branches
-                       "branch"
-                       "-vva"
-                       (format "--abbrev=%s" magit-sha1-abbrev-length))))
+    (apply #'magit-git-section
+           "branches" nil 'magit-wash-branches
+           "branch"
+           "-vva"
+           (format "--abbrev=%s" magit-sha1-abbrev-length)
+           magit-branch-manager-options)))
 
 (magit-define-command branch-manager ()
   (interactive)
