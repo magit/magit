@@ -225,8 +225,8 @@ Only considered when moving past the last entry with
 (defcustom magit-branch-manager-options nil
   "Options for \"git branch\" command used in `magit-branch-manager'.
 
-For example, to show only non-merged branches (like Github), use
-the following configuration:
+For example, to show only non-merged branches, use the following
+configuration:
     (setq magit-branch-manager-options '(\"--no-merged\"))"
   :group 'magit
   :type '(repeat string))
