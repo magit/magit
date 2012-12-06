@@ -222,12 +222,12 @@ Only considered when moving past the last entry with
   :group 'magit
   :type 'boolean)
 
-(defcustom magit-branch-manager-options nil
+(defcustom magit-branch-options nil
   "Options for \"git branch\" command used in `magit-branch-manager'.
 
 For example, to show only non-merged branches, use the following
 configuration:
-    (setq magit-branch-manager-options '(\"--no-merged\"))"
+    (setq magit-branch-options '(\"--no-merged\"))"
   :group 'magit
   :type '(repeat string))
 
@@ -5815,7 +5815,7 @@ These are the branch names with the remote name stripped."
            "branch"
            "-vva"
            (format "--abbrev=%s" magit-sha1-abbrev-length)
-           magit-branch-manager-options)))
+           magit-branch-options)))
 
 (magit-define-command branch-manager ()
   (interactive)
