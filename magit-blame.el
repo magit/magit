@@ -34,6 +34,12 @@
 (require 'magit)
 (require 'easymenu)
 
+(defcustom magit-blame-ignore-whitespace t
+  "Ignore whitespace when comparing the parent’s version and the
+child’s to find where the lines came from."
+  :group 'magit
+  :type 'boolean)
+
 (defface magit-blame-header
   '((t :inherit magit-header))
   "Face for blame header."
@@ -119,9 +125,12 @@
     (with-current-buffer buffer
       (save-restriction
         (with-temp-buffer
-          (magit-git-insert (list "blame" "--porcelain" "--"
-                                  (file-name-nondirectory
-                                   (buffer-file-name buffer))))
+          (magit-git-insert (append
+                             (list "blame" "--porcelain")
+                             (if magit-blame-ignore-whitespace (list "-w"))
+                             (list "--"
+                                   (file-name-nondirectory
+                                    (buffer-file-name buffer)))))
           (magit-blame-parse buffer (current-buffer)))))))
 
 (defun magit-blame-locate-commit (pos)
