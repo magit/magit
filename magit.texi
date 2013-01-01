@@ -849,16 +849,16 @@ Magit shows them in a section called @emph{Unpulled changes}.  Typing
 @chapter Submodules
 
 @table @kbd
-@item M u
+@item o u
 Update the submodules, with a prefix argument it will initializing.
 
-@item M i
+@item o i
 Initialize the submodules.
 
-@item M b
+@item o b
 Update and initialize the submodules in one go.
 
-@item M s
+@item o s
 Synchronizes submodules' remote URL configuration setting to the value
 specified in .gitmodules.
 @end table
