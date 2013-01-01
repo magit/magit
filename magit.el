@@ -881,7 +881,11 @@ Read `completing-read' documentation for the meaning of the argument"
                                cmd
                                nil (list t nil) nil
                                args)))))
-    (replace-regexp-in-string "\e\\[.*?m" "" cmd-output)))
+;;    (replace-regexp-in-string "\e\\[.*?m" "" cmd-output)))
+;; Instead of stripping out all control sequences translate
+;; color sequences into text properties (still discards non-color
+;; control sequnces)
+    (ansi-color-apply cmd-output)))
 
 (defun magit-git-string (&rest args)
   (magit-trim-line (magit-git-output args)))
@@ -3196,8 +3200,13 @@ must return a string which will represent the log line.")
          (propertize sha1 'face 'magit-log-sha1)
        (insert-char ? magit-sha1-abbrev-length))
      " "
-     (when graph
-       (propertize graph 'face 'magit-log-graph))
+;;          (when graph
+;;       (propertize graph 'face 'magit-log-graph)
+;;       )
+;; Pass through the ansi-color translated (colorized) graph
+;; rather than propertize with magit-log-graph. It would be nicer
+;; to provide optional mechanism to override using magit-log-graph 
+     graph
      string-refs
      (when message
        (propertize message 'face 'magit-log-message)))))
@@ -4915,6 +4924,7 @@ With a non numeric prefix ARG, show all entries"
                      (t nil))
              ,@(if magit-have-decorate (list "--decorate=full"))
              ,@(if magit-have-graph (list "--graph"))
+             ,"--color"
              ,@args
              "--"))))
 
