@@ -1380,6 +1380,7 @@ If TYPE is nil, the section won't be highlighted."
             (magit-top-section ,s))
        (setf (magit-section-beginning ,s) (point))
        ,@body
+       (delete-blank-lines)
        (setf (magit-section-end ,s) (point))
        (setf (magit-section-children ,s)
              (nreverse (magit-section-children ,s)))
