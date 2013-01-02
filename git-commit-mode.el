@@ -1,6 +1,6 @@
 ;;; git-commit-mode.el --- Major mode for editing git commit messages
 
-;; Copyright (c) 2012 Sebastian Wiesner <lunaryorn@gmail.com>
+;; Copyright (c) 2012, 2013 Sebastian Wiesner <lunaryorn@gmail.com>
 ;; Copyright (c) 2010 Florian Ragwitz.
 ;;
 ;; Author: Sebastian Wiesner <lunaryorn@gmail.com>
@@ -88,59 +88,59 @@
   :group 'faces)
 
 (defface git-commit-summary-face
-  '((t (:inherit font-lock-type-face)))
+  '((t :inherit font-lock-type-face))
   "Face used to highlight the summary in git commit messages"
   :group 'git-commit-faces)
 
 (defface git-commit-overlong-summary-face
-  '((t (:inherit font-lock-warning-face)))
+  '((t :inherit font-lock-warning-face))
   "Face used to highlight overlong parts of git commit message summaries"
   :group 'git-commit-faces)
 
 (defface git-commit-nonempty-second-line-face
-  '((t (:inherit font-lock-warning-face)))
+  '((t :inherit font-lock-warning-face))
   "Face used to highlight text on the second line of git commit messages"
   :group 'git-commit-faces)
 
 (defface git-commit-note-face
-  '((t (:inherit font-lock-string-face)))
+  '((t :inherit font-lock-string-face))
   "Face used to highlight notes in git commit messages"
   :group 'git-commit-faces)
 
 (defface git-commit-pseudo-header-face
-  '((t (:inherit font-lock-string-face)))
+  '((t :inherit font-lock-string-face))
   "Font used to hightlight pseudo headers in git commit messages"
   :group 'git-commit-faces)
 
 (defface git-commit-known-pseudo-header-face
-  '((t (:inherit font-lock-keyword-face)))
+  '((t :inherit font-lock-keyword-face))
   "Face used to hightlight common pseudo headers in git commit messages"
   :group 'git-commit-faces)
 
 (defface git-commit-branch-face
-  '((t (:inherit font-lock-variable-name-face)))
+  '((t :inherit font-lock-variable-name-face))
   "Face used to highlight the branch name in comments in git commit messages"
   :group 'git-commit-faces)
 
 (defface git-commit-no-branch-face
-  '((t (:inherit git-commit-branch-face)))
+  '((t :inherit git-commit-branch-face))
   "Face used when a commit is going to be made outside of any branches"
   :group 'git-commit-faces)
 
 (defface git-commit-comment-heading-face
-  '((t (:inherit git-commit-known-pseudo-header-face)))
+  '((t :inherit git-commit-known-pseudo-header-face))
   "Face used to highlight section headings in the default
 comments in git commit messages"
   :group 'git-commit-faces)
 
 (defface git-commit-comment-file-face
-  '((t (:inherit git-commit-pseudo-header-face)))
+  '((t :inherit git-commit-pseudo-header-face))
   "Face used to highlight file names in the default comments in
 git commit messages"
   :group 'git-commit-faces)
 
 (defface git-commit-comment-action-face
-  '((t (:inherit git-commit-branch-face)))
+  '((t :inherit git-commit-branch-face))
   "Face used to highlight what has happened to files in the
 default comments in git commit messages"
   :group 'git-commit-faces)
