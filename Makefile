@@ -9,6 +9,9 @@ ELCS_CONTRIB=$(ELS_CONTRIB:.el=.elc)
 DIST_FILES=$(ELS) Makefile magit.texi magit.info README.md magit.spec.in magit-pkg.el.in
 DIST_FILES_CONTRIB=$(ELS_CONTRIB) contrib/magit
 ELPA_FILES=$(ELS) magit.info dir magit-pkg.el
+ELISP_INSTALL_DIR=$(DESTDIR)$(PREFIX)/share/emacs/site-lisp
+
+INSTALL_INFO = install-info
 
 .PHONY=install
 
@@ -44,7 +47,7 @@ magit.elc: magit.el
 	rm magit.tmp.el #NO_DIST
 
 dir: magit.info
-	install-info --dir=$@ $<
+	$(INSTALL_INFO) --dir=$@ $<
 
 magit.info:
 
@@ -72,20 +75,20 @@ magit-$(VERSION).tar: $(ELPA_FILES)
 install: install_core install_docs
 
 install_core: core
-	mkdir -p $(DESTDIR)$(PREFIX)/share/emacs/site-lisp
-	install -m 644 $(ELS) $(ELCS) $(DESTDIR)$(PREFIX)/share/emacs/site-lisp
-	sed -i -e "s/@GIT_DEV_VERSION@/$(VERSION)/" $(DESTDIR)$(PREFIX)/share/emacs/site-lisp/magit.el #NO_DIST
+	mkdir -p $(ELISP_INSTALL_DIR)
+	install -m 644 $(ELS) $(ELCS) $(ELISP_INSTALL_DIR)
+	sed -i -e "s/@GIT_DEV_VERSION@/$(VERSION)/" $(ELISP_INSTALL_DIR)/magit.el #NO_DIST
 	mkdir -p $(DESTDIR)$(SYSCONFDIR)/emacs/site-start.d
 	install -m 644 50magit.el $(DESTDIR)$(SYSCONFDIR)/emacs/site-start.d/50magit.el
 
 install_docs: docs
 	mkdir -p $(DESTDIR)$(PREFIX)/share/info
 	install -m 644 magit.info $(DESTDIR)$(PREFIX)/share/info
-	install-info --info-dir=$(DESTDIR)$(PREFIX)/share/info $(DESTDIR)$(PREFIX)/share/info/magit.info
+	$(INSTALL_INFO) --info-dir=$(DESTDIR)$(PREFIX)/share/info $(DESTDIR)$(PREFIX)/share/info/magit.info
 
 install_contrib: contrib
-	mkdir -p $(DESTDIR)$(PREFIX)/share/emacs/site-lisp
-	install -m 644 $(ELS_CONTRIB) $(ELCS_CONTRIB) $(DESTDIR)$(PREFIX)/share/emacs/site-lisp
+	mkdir -p $(ELISP_INSTALL_DIR)
+	install -m 644 $(ELS_CONTRIB) $(ELCS_CONTRIB) $(ELISP_INSTALL_DIR)
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
 	install -m 755 contrib/magit $(DESTDIR)$(PREFIX)/bin
 
