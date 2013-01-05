@@ -84,6 +84,7 @@
 (require 'log-edit)
 (require 'easymenu)
 (require 'diff-mode)
+(require 'ansi-color)
 
 ;; Silences byte-compiler warnings
 (eval-and-compile
@@ -610,6 +611,7 @@ operation after commit).")
     (define-key map (kbd "B") 'magit-key-mode-popup-bisecting)
     (define-key map (kbd "F") 'magit-key-mode-popup-pulling)
     (define-key map (kbd "l") 'magit-key-mode-popup-logging)
+    (define-key map (kbd "o") 'magit-key-mode-popup-submodule)
     (define-key map (kbd "$") 'magit-display-process)
     (define-key map (kbd "c") 'magit-log-edit)
     (define-key map (kbd "E") 'magit-interactive-rebase)
@@ -887,7 +889,7 @@ Read `completing-read' documentation for the meaning of the argument"
                                cmd
                                nil (list t nil) nil
                                args)))))
-    (replace-regexp-in-string "\e\\[.*?m" "" cmd-output)))
+    (ansi-color-apply cmd-output)))
 
 (defun magit-git-string (&rest args)
   (magit-trim-line (magit-git-output args)))
@@ -3206,8 +3208,7 @@ must return a string which will represent the log line.")
          (propertize sha1 'face 'magit-log-sha1)
        (insert-char ? magit-sha1-abbrev-length))
      " "
-     (when graph
-       (propertize graph 'face 'magit-log-graph))
+     graph
      string-refs
      (when message
        (propertize message 'face 'magit-log-message)))))
@@ -3567,8 +3568,8 @@ FULLY-QUALIFIED-NAME is non-nil."
           (magit-insert-unstaged-changes
            (if staged "Unstaged changes:" "Changes:"))
           (magit-insert-staged-changes staged no-commit))
-        (magit-insert-unpushed-commits remote remote-branch)
-        (run-hooks 'magit-refresh-status-hook)))))
+        (magit-insert-unpushed-commits remote remote-branch))))
+  (run-hooks 'magit-refresh-status-hook))
 
 (defun magit-init (dir)
   "Initialize git repository in the DIR directory."
@@ -4942,6 +4943,7 @@ With a non numeric prefix ARG, show all entries"
                      (t nil))
              ,@(if magit-have-decorate (list "--decorate=full"))
              ,@(if magit-have-graph (list "--graph"))
+             ,"--color"
              ,@args
              "--"))))
 

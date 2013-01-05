@@ -90,7 +90,7 @@
     (remoting
      (man-page "git-remote")
      (actions
-      ("v" "Branch manager" magit-branch-manager)
+      ("v" "Remote manager" magit-branch-manager)
       ("a" "Add" magit-add-remote)
       ("r" "Rename" magit-rename-remote)
       ("k" "Remove" magit-remove-remote)))
