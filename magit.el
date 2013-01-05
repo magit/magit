@@ -5479,14 +5479,17 @@ With a prefix argument, visit in other window."
                file)))))
     ((hunk)
      (let ((file (magit-diff-item-file (magit-hunk-item-diff item)))
-           (line (magit-hunk-item-target-line item)))
+           (line (magit-hunk-item-target-line item))
+           (column (current-column)))
        (if (not (file-exists-p file))
            (error "Can't visit deleted file: %s" file))
        (funcall
         (if other-window 'find-file-other-window 'find-file)
         file)
        (goto-char (point-min))
-       (forward-line (1- line))))))
+       (forward-line (1- line))
+       (when (> column 0)
+         (move-to-column (1- column)))))))
 
 (defun magit-visit-item (&optional other-window)
   "Visit current item.
