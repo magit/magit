@@ -610,6 +610,7 @@ operation after commit).")
     (define-key map (kbd "B") 'magit-key-mode-popup-bisecting)
     (define-key map (kbd "F") 'magit-key-mode-popup-pulling)
     (define-key map (kbd "l") 'magit-key-mode-popup-logging)
+    (define-key map (kbd "o") 'magit-key-mode-popup-submodule)
     (define-key map (kbd "$") 'magit-display-process)
     (define-key map (kbd "c") 'magit-log-edit)
     (define-key map (kbd "E") 'magit-interactive-rebase)
@@ -5278,43 +5279,27 @@ for the file whose log must be displayed."
 
 ;;; Miscellaneous
 
-(defun magit-ignore-modifiable-file (file edit)
-  "Prompt the user for the filename to be added to git ignore.
-\\<minibuffer-local-map>
-The minibuffer's future history (accessible with \\[next-history-element])
-contains predefined values (such as wildcards) that might
-be of interest.
-The history and default value are derived from the filename FILE.
-If EDIT argument is negative, the prompt proposes wildcard by default.
-"
-  (let* ((just-extension (concat "*." (file-name-extension file)))
-         (full-extension (concat (file-name-directory file) just-extension))
-         (just-file (file-name-nondirectory file))
-         ;; change the order in history depending on the negativity of
-         ;; EDIT.
-         (history (if (< (prefix-numeric-value edit) 0)
-                      (list full-extension just-extension file just-file)
-                    (list file full-extension just-extension just-file))))
-    (read-string
-     (format "File to ignore [%s]: " (car history))
-     nil nil history)))
+(defun magit-edit-ignore-string (file)
+  "Prompt the user for the string to be ignored.
+A list of predefined values with wildcards is derived from the filename FILE."
+  (let* ((extension (concat "*." (file-name-extension file)))
+         (extension-in-dir (concat (file-name-directory file) extension))
+         (filename (file-name-nondirectory file))
+         (completions (list extension extension-in-dir filename file)))
+    (magit-completing-read "File to ignore: " completions () () () () file)))
 
-(defun magit-ignore-file (file edit local)
+(defun magit-ignore-file (file &optional edit-ignore-string local)
   "Add FILE to the list of files to ignore.
-\\<minibuffer-local-map>
-If EDIT is non-`nil', prompt the user for the filename to
-be added to git ignore. In this case, the minibuffer's
-future history (accessible with \\[next-history-element]) contains predefined
-values (such as wildcards) that might be of interest.
-
-If LOCAL is nil, the `.gitignore' file is updated.
-Otherwise, it is `.git/info/exclude'."
+If EDIT-IGNORE-STRING is non-`nil', prompt the user for the string to be ignored
+instead of using FILE.
+The changes are written to `.gitignore' except if LOCAL is non-`nil' in which
+case they are written to `.git/info/exclude'."
   (let* ((local-ignore-dir (concat (magit-git-dir) "info/"))
          (ignore-file (if local
                           (concat local-ignore-dir "exclude")
                         ".gitignore")))
-    (if edit
-      (setq file (magit-ignore-modifiable-file file edit)))
+    (if edit-ignore-string
+      (setq file (magit-edit-ignore-string file)))
     (if (and local (not (file-exists-p local-ignore-dir)))
         (make-directory local-ignore-dir t))
     (with-temp-buffer
@@ -5327,33 +5312,23 @@ Otherwise, it is `.git/info/exclude'."
       (write-region nil nil ignore-file))
     (magit-need-refresh)))
 
-(defun magit-ignore-item ()
-  "Add FILE to the `.gitignore' list of files to ignore.
-\\<minibuffer-local-map>
-With a prefix argument, prompt the user for the filename to
-be added. In this case, the minibuffer's future history
-\(accessible with \\[next-history-element]) contains predefined values (such as
-wildcards) that might be of interest. If prefix argument is
-negative, the prompt proposes wildcard by default."
+(defun magit--ignore-item (arg &optional local)
   (interactive)
   (magit-section-action (item info "ignore")
     ((untracked file)
-     (magit-ignore-file (concat "/" info) current-prefix-arg nil))
+     (magit-ignore-file (concat "/" info) current-prefix-arg local))
     ((wazzup)
      (magit-wazzup-toggle-ignore info current-prefix-arg))))
 
-(defun magit-ignore-item-locally ()
-  "Add FILE to the `.git/info/exclude' list of files to ignore.
-\\<minibuffer-local-map>
-With a prefix argument, prompt the user for the filename to
-be added. In this case, the minibuffer's future history
-(accessible with \\[next-history-element]) contains predefined values (such as
-wildcards) that might be of interest. If prefix argument is
-negative, the prompt proposes wildcard by default."
+(defun magit-ignore-item ()
+  "Ignores the item at point."
   (interactive)
-  (magit-section-action (item info "ignore")
-    ((untracked file)
-     (magit-ignore-file (concat "/" info) current-prefix-arg t))))
+  (magit--ignore-item current-prefix-arg))
+
+(defun magit-ignore-item-locally ()
+  "Ignores the item at point locally only."
+  (interactive)
+  (magit--ignore-item current-prefix-arg t))
 
 (defun magit-discard-diff (diff stagedp)
   (let ((kind (magit-diff-item-kind diff))
