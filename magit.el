@@ -27,6 +27,7 @@
 ;; Copyright (C) 2009, 2010 Phil Jackson.
 ;; Copyright (C) 2010 Philip Weaver.
 ;; Copyright (C) 2010 Ramkumar Ramachandra.
+;; Copyright (C) 2012 Raimon Grau.
 ;; Copyright (C) 2010 Remco van 't Veer.
 ;; Copyright (C) 2009 René Stadler.
 ;; Copyright (C) 2010 Robin Green.
@@ -3898,7 +3899,12 @@ With prefix, forces the move even if NEW already exists.
     ((wazzup commit)
      (magit-section-info (magit-section-parent item)))
     ((commit) (magit-name-rev (substring info 0 magit-sha1-abbrev-length)))
-    ((wazzup) info)))
+    ((wazzup) info)
+    (t (let ((lines (magit-git-lines "reflog")))
+         (while (not (string-match "moving from \\(.+?\\) to" (car lines)))
+           (setq lines (cdr lines)))
+         (when lines
+           (match-string 1 (car lines)))))))
 
 ;;; Remotes
 
