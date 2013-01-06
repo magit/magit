@@ -27,6 +27,7 @@
 ;; Copyright (C) 2009, 2010 Phil Jackson.
 ;; Copyright (C) 2010 Philip Weaver.
 ;; Copyright (C) 2010 Ramkumar Ramachandra.
+;; Copyright (C) 2012 Raimon Grau.
 ;; Copyright (C) 2010 Remco van 't Veer.
 ;; Copyright (C) 2009 René Stadler.
 ;; Copyright (C) 2010 Robin Green.
@@ -3498,15 +3499,16 @@ for this argument.)"
   "Guess the remote branch name that LOCAL-BRANCH is tracking.
 Gives a fully qualified name (e.g., refs/remotes/origin/master) if
 FULLY-QUALIFIED-NAME is non-nil."
-  (let ((merge (magit-get "branch" local-branch "merge")))
+  (let ((merge  (magit-get "branch" local-branch "merge"))
+        (remote (magit-get "branch" local-branch "remote")))
     (save-match-data
-      (if (and merge (string-match "^refs/heads/\\(.+\\)" merge))
-          (concat (if fully-qualified-name
-                      (let ((remote-name (magit-get "branch" local-branch "remote")))
-                        (if (string= "." remote-name)
-                            "refs/heads/"
-                          (concat "refs/remotes/" remote-name "/"))))
-                  (match-string 1 merge))))))
+      (when (and merge remote
+                 (string-match "^refs/heads/\\(.+\\)" merge))
+        (concat (when fully-qualified-name
+                  (if (string= "." remote)
+                      "refs/heads/"
+                    (concat "refs/remotes/" remote "/")))
+                (match-string 1 merge))))))
 
 ;;; Status
 
@@ -3514,20 +3516,17 @@ FULLY-QUALIFIED-NAME is non-nil."
 
 (defun magit-remote-string (remote remote-branch remote-rebase)
   (cond
-   ((string= "." remote)
+   ((and (string= "." remote) remote-branch)
     (concat
      (when remote-rebase "onto ")
      "branch "
      (propertize remote-branch 'face 'magit-branch)))
-   (remote
+   ((and remote remote-branch)
     (concat
      (when remote-rebase "onto ")
      (propertize remote-branch 'face 'magit-branch)
-     " @ "
-     remote
-     " ("
-     (magit-get "remote" remote "url")
-     ")"))
+     " @ " remote
+     " (" (magit-get "remote" remote "url") ")"))
    (t
     (run-hook-with-args-until-success 'magit-remote-string-hook))))
 
@@ -3908,7 +3907,12 @@ With prefix, forces the move even if NEW already exists.
     ((wazzup commit)
      (magit-section-info (magit-section-parent item)))
     ((commit) (magit-name-rev (substring info 0 magit-sha1-abbrev-length)))
-    ((wazzup) info)))
+    ((wazzup) info)
+    (t (let ((lines (magit-git-lines "reflog")))
+         (while (not (string-match "moving from \\(.+?\\) to" (car lines)))
+           (setq lines (cdr lines)))
+         (when lines
+           (match-string 1 (car lines)))))))
 
 ;;; Remotes
 
