@@ -600,7 +600,8 @@ basic structure of and errors in git commit messages."
               '(("/COMMIT_EDITMSG\\'" . git-commit-mode)
                 ("/NOTES_EDITMSG\\'" . git-commit-mode)
                 ("/MERGE_MSG\\'" . git-commit-mode)
-                ("/TAG_EDITMSG\\'" . git-commit-mode))))
+                ("/TAG_EDITMSG\\'" . git-commit-mode)
+                ("/PULLREQ_EDITMSG\\'" . git-commit-mode))))
 
 (provide 'git-commit-mode)
 
