@@ -707,15 +707,23 @@ operation after commit).")
 (defconst magit-version "@GIT_DEV_VERSION@"
   "The version of Magit that you're using.")
 
+(defconst magit-bug-report-buffer "*magit-bug-report*"
+  "The buffer in which Magit output bug report messages.")
+
 (defun magit-bug-report (str)
-  "Asks the user to submit a bug report about the error described in STR."
-;; XXX - should propose more information to be included.
-  (message (concat
-            "Unknown error: %s\n"
-            "Please, with as much information as possible, file a bug at\n"
-            "%s\n"
-            "You are using Magit version %s.")
-           str magit-bug-report-url magit-version))
+  "Asks the user to submit a bug report about the error described
+in STR."
+  (with-current-buffer (get-buffer-create magit-bug-report-buffer)
+    (erase-buffer)
+    (insert (format
+             (concat
+              "Magit unknown error: %s\n Please, with as much"
+              " information as possible, file a bug at\n %s\n"
+              "- Magit: %s\n"
+              "- Emacs: %s")
+             str magit-bug-report-url
+             magit-version (emacs-version))))
+  (switch-to-buffer-other-window magit-bug-report-buffer))
 
 (defun magit-buffer-switch (buf)
   (if (string-match "magit" (buffer-name))
