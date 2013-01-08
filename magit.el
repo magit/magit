@@ -3931,7 +3931,8 @@ With prefix, forces the move even if NEW already exists.
     ((commit) (magit-name-rev (substring info 0 magit-sha1-abbrev-length)))
     ((wazzup) info)
     (t (let ((lines (magit-git-lines "reflog")))
-         (while (not (string-match "moving from \\(.+?\\) to" (car lines)))
+         (while (and lines (not (string-match "moving from \\(.+?\\) to"
+                                              (car lines))))
            (setq lines (cdr lines)))
          (when lines
            (match-string 1 (car lines)))))))
