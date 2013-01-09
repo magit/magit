@@ -2066,8 +2066,8 @@ section (see `magit-section-info').
   "Choose among action clauses depending on the current section.
 
 Like `magit-section-case' (which see) but if no CLAUSE succeeds
-try additional CLAUSES added with `magit-add-action'.  Return the
-value of BODY of the clause that succeeded.
+try additional CLAUSES added with `magit-add-action-clauses'.
+Return the value of BODY of the clause that succeeded.
 
 Each use of `magit-section-action' should use an unique OPNAME.
 
@@ -2096,8 +2096,8 @@ Each use of `magit-section-action' should use an unique OPNAME.
          (unless (eq ,value magit-section-action-success)
            ,value)))))
 
-(defmacro magit-add-action (head &rest clauses)
-  "Add additional clauses to a section action.
+(defmacro magit-add-action-clauses (head &rest clauses)
+  "Add additional clauses to the OPCODE section action.
 
 Add to the section action with the same OPNAME additional
 CLAUSES.  If none of the default clauses defined using
