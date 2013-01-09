@@ -1946,69 +1946,95 @@ section."
                    (or section (magit-current-section)))))
 
 (defmacro magit-section-case (head &rest clauses)
-  "Make different action depending of current section.
+  "Choose among clauses depending on the current section.
 
-HEAD is (SECTION INFO &optional OPNAME),
-  SECTION will be bind to the current section,
-  INFO will be bind to the info's of the current section,
-  OPNAME is a string that will be used to describe current action,
+Each clause looks like (SECTION-TYPE BODY...).  The current
+section is compared against SECTION-TYPE; the corresponding
+BODY is evaluated and it's value returned.  If no clause
+succeeds return nil.
 
-CLAUSES is a list of CLAUSE, each clause is (SECTION-TYPE &BODY)
-where SECTION-TYPE describe section where BODY will be run.
+SECTION-TYPE is a list of symbols identifying a section and it's
+section context; beginning with the most narrow section.  Whether
+a clause succeeds is determined using `magit-section-match'.
+A SECTION-TYPE of t is allowed only in the final clause, and
+matches if no other SECTION-TYPE matches.
 
-This returns non-nil if some section matches. If the
-corresponding body return a non-nil value, it is returned,
-otherwise it returns t.
+While evaluating the selected BODY SECTION is dynamically bound
+to the current section and INFO to information about this
+section (see `magit-section-info').
 
-If no section matches, this returns nil if no OPNAME was given
-and throws an error otherwise."
+\(fn (SECTION INFO) (SECTION-TYPE BODY...)...)"
   (declare (indent 1))
   (let ((section (car head))
-        (info (cadr head))
-        (type (make-symbol "*type*"))
-        (opname (caddr head)))
+        (info (cadr head)))
     `(let* ((,section (magit-current-section))
-            (,info (and ,section (magit-section-info ,section)))
-            (,type (and ,section (magit-section-type ,section))))
+            (,info (and ,section (magit-section-info ,section))))
        (cond ,@(mapcar (lambda (clause)
                          (let ((condition (car clause)))
                            `(,(if (eq condition t) t
                                 `(magit-section-match ',condition ,section))
-                             (or (progn ,@(cdr clause)) t))))
-                       clauses)
-             ,@(when opname
-                 `(((run-hook-with-args-until-success
-                     ',(intern (format "magit-%s-action-hook" opname))))
-                   ((not ,type)
-                    (error "Nothing to %s here" ,opname))
-                   (t
-                    (error "Can't %s a %s"
-                           ,opname
-                           (or (get ,type 'magit-description)
-                               ,type)))))))))
+                             ,@(cdr clause))))
+                       clauses)))))
+
+(defconst magit-section-action-success
+  (make-symbol "magit-section-action-success"))
 
 (defmacro magit-section-action (head &rest clauses)
+  "Choose among action clauses depending on the current section.
+
+Like `magit-section-case' (which see) but if no CLAUSE succeeds
+try additional CLAUSES added with `magit-add-action'.  Return the
+value of BODY of the clause that succeeded.
+
+Each use of `magit-section-action' should use an unique OPNAME.
+
+\(fn (SECTION INFO OPNAME) (SECTION-TYPE BODY...)...)"
   (declare (indent 1))
-  `(magit-with-refresh
-     (magit-section-case ,head ,@clauses)))
+  (let ((opname (make-symbol "*opname*"))
+        (value (make-symbol "*value*"))
+        (disallowed (car (or (assq t clauses)
+                             (assq 'otherwise clauses)))))
+    (when disallowed
+      (error "%s is an invalid section type" disallowed))
+    `(magit-with-refresh
+       (let* ((,opname ,(car (cddr head)))
+              (,value
+               (magit-section-case ,(butlast head)
+                 ,@clauses
+                 ((run-hook-with-args-until-success
+                   ',(intern (format "magit-%s-action-hook" opname))))
+                 (t
+                  (let* ((section (magit-current-section))
+                         (type (and section (magit-section-type section))))
+                    (if type
+                        (error "Can't %s a %s" ,opname
+                               (or (get type 'magit-description) type))
+                      (error "Nothing to %s here" ,opname)))))))
+         (unless (eq ,value magit-section-action-success)
+           ,value)))))
 
 (defmacro magit-add-action (head &rest clauses)
-  "Add additional actions to a pre-existing operator.
-The syntax is identical to `magit-section-case', except that
-OPNAME is mandatory and specifies the operation to which to add
-the actions."
+  "Add additional clauses to a section action.
+
+Add to the section action with the same OPNAME additional
+CLAUSES.  If none of the default clauses defined using
+`magit-section-action' succeed try the clauses added with this
+function (which can be used multiple times with the same OPNAME).
+
+See `magit-section-case' for more information on SECTION, INFO
+and CLAUSES.
+
+\(fn (SECTION INFO OPNAME) (SECTION-TYPE BODY...)...)"
   (declare (indent 1))
-  (let ((section (car head))
-        (info (cadr head))
-        (type (caddr head)))
-    `(add-hook ',(intern (format "magit-%s-action-hook" type))
-               (lambda ()
-                 ,(macroexpand
-                   ;; Don't pass in the opname so we don't recursively
-                   ;; run the hook again, and so we don't throw an
-                   ;; error if no action matches.
-                   `(magit-section-case (,section ,info)
-                      ,@clauses))))))
+  `(add-hook ',(intern (format "magit-%s-action-hook" (car (cddr head))))
+             (lambda ()
+               ,(macroexpand
+                 `(magit-section-case ,(butlast head)
+                    ,@(mapcar (lambda (clause)
+                                `(,(car clause)
+                                  (or (progn ,@(cdr clause))
+                                      magit-section-action-success)))
+                              clauses))))))
 
 (defun magit-wash-sequence (func)
   "Run FUNC until end of buffer is reached.
@@ -4179,13 +4205,13 @@ With a prefix arg, also remove untracked files.  With two prefix args, remove ig
 
 (defun magit-rewrite-set-used ()
   (interactive)
-  (magit-section-action (item info)
+  (magit-section-case (item info)
     ((pending commit)
      (magit-rewrite-set-commit-property info 'used t))))
 
 (defun magit-rewrite-set-unused ()
   (interactive)
-  (magit-section-action (item info)
+  (magit-section-case (item info)
     ((pending commit)
      (magit-rewrite-set-commit-property info 'used nil))))
 
@@ -5618,7 +5644,7 @@ With a prefix argument, visit in other window."
 
 (defun magit-show-item-or-scroll-up ()
   (interactive)
-  (magit-section-action (item info)
+  (magit-section-case (item info)
     ((commit)
      (magit-show-commit info #'scroll-up))
     ((stash)
@@ -5628,7 +5654,7 @@ With a prefix argument, visit in other window."
 
 (defun magit-show-item-or-scroll-down ()
   (interactive)
-  (magit-section-action (item info)
+  (magit-section-case (item info)
     ((commit)
      (magit-show-commit info #'scroll-down))
     ((stash)
