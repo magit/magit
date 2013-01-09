@@ -30,7 +30,7 @@
 
 ;;; Code:
 
-(eval-when-compile (require 'cl))
+(eval-when-compile (require 'cl-lib))
 (require 'magit)
 (require 'easymenu)
 
@@ -142,12 +142,12 @@ boundaries from BEG to END, the return value is nil."
   (save-excursion
     (goto-char BEG)
     (catch 'found
-      (flet ((overlay-change (pos)
-                             (if (< BEG END) (next-overlay-change pos)
-                               (previous-overlay-change pos)))
-             (within-bounds-p (pos)
-                              (if (< BEG END) (< pos END)
-                                (> pos END))))
+      (cl-flet ((overlay-change (pos)
+                                (if (< BEG END) (next-overlay-change pos)
+                                  (previous-overlay-change pos)))
+                (within-bounds-p (pos)
+                                 (if (< BEG END) (< pos END)
+                                   (> pos END))))
         (let ((ov-pos BEG))
           ;; iterate through overlay changes from BEG to END
           (while (within-bounds-p ov-pos)

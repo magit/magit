@@ -23,8 +23,7 @@
 ;;; Code:
 
 (require 'magit)
-(eval-when-compile
-  (require 'cl))
+(eval-when-compile (require 'cl-lib))
 
 (defcustom magit-topgit-executable "tg"
   "The name of the TopGit executable."
