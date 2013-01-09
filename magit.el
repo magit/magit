@@ -2015,6 +2015,19 @@ L1 matches zero or more arbitrary elements in L2."
              (equal (car l1) (car l2))
              (magit-prefix-p (cdr l1) (cdr l2))))))
 
+(defun magit-section-match (condition &optional section)
+  "Return t if the context type of SECTION matches CONDITION.
+
+CONDITION is a list beginning with the type of the least narrow
+section and recursively the more narrow sections.  It may also
+contain wildcards (see `magit-prefix-p').
+
+Optional SECTION is a section, if it is nil use the current
+section."
+  (magit-prefix-p (reverse condition)
+                  (magit-section-context-type
+                   (or section (magit-current-section)))))
+
 (defmacro magit-section-case (head &rest clauses)
   "Make different action depending of current section.
 
@@ -2036,21 +2049,15 @@ and throws an error otherwise."
   (let ((section (car head))
         (info (cadr head))
         (type (make-symbol "*type*"))
-        (context (make-symbol "*context*"))
         (opname (caddr head)))
     `(let* ((,section (magit-current-section))
             (,info (and ,section (magit-section-info ,section)))
-            (,type (and ,section (magit-section-type ,section)))
-            (,context (magit-section-context-type ,section)))
+            (,type (and ,section (magit-section-type ,section))))
        (cond ,@(mapcar (lambda (clause)
-                         (if (eq (car clause) t)
-                             `(t (or (progn ,@(cdr clause))
-                                     t))
-                           (let ((prefix (reverse (car clause)))
-                                 (body (cdr clause)))
-                             `((magit-prefix-p ',prefix ,context)
-                               (or (progn ,@body)
-                                   t)))))
+                         (let ((condition (car clause)))
+                           `(,(if (eq condition t) t
+                                `(magit-section-match ',condition ,section))
+                             (or (progn ,@(cdr clause)) t))))
                        clauses)
              ,@(when opname
                  `(((run-hook-with-args-until-success
