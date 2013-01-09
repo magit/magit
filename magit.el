@@ -143,11 +143,13 @@ Magit will only descend this many levels deep."
   :type 'integer)
 
 (defcustom magit-set-upstream-on-push nil
-  "Non-nil means that `magit-push' may use --set-upstream when pushing a branch.
+  "Whether `magit-push' may use --set-upstream when pushing a branch.
 This only applies if the branch does not have an upstream set yet.
-Setting this to t will ask if --set-upstream should be used.
-Setting it to 'dontask will always use --set-upstream.
-Setting it to 'refuse will refuse to push unless a remote branch has already been set.
+
+nil        don't use --set-upstream.
+t          ask if --set-upstream should be used.
+`dontask'  always use --set-upstream.
+`refuse'   refuse to push unless a remote branch has already been set.
 
 --set-upstream is supported with git > 1.7.0"
   :group 'magit
@@ -157,9 +159,11 @@ Setting it to 'refuse will refuse to push unless a remote branch has already bee
                  (const :tag "Always" dontask)))
 
 (defcustom magit-save-some-buffers t
-  "Non-nil means that \\[magit-status] will save modified buffers before running.
-Setting this to t will ask which buffers to save, setting it to 'dontask will
-save all modified buffers without asking."
+  "Whether \\[magit-status] saves modified buffers before running.
+
+nil        don't save buffers.
+t          ask which buffers to save.
+`dontask'  save all buffers without asking."
   :group 'magit
   :type '(choice (const :tag "Never" nil)
                  (const :tag "Ask" t)
@@ -171,7 +175,6 @@ save all modified buffers without asking."
 
 Used by function `magit-save-some-buffers' when the variable of
 the same name is non-nil."
-
   :group 'magit
   :type '(radio (function-item magit-save-buffers-predicate-tree-only)
                 (function-item magit-save-buffers-predicate-all)
@@ -179,23 +182,24 @@ the same name is non-nil."
 
 (defcustom magit-default-tracking-name-function
   'magit-default-tracking-name-remote-plus-branch
-  "Specifies the function to use to generate default tracking branch names
+  "Function used to generate default tracking branch names
 when doing a \\[magit-checkout].
 
-The default is magit-default-tracking-name-remote-plus-branch,
-which generates a tracking name of the form 'REMOTE-BRANCHNAME'."
+The default is `magit-default-tracking-name-remote-plus-branch',
+which generates a tracking name of the form \"REMOTE-BRANCHNAME\"."
   :group 'magit
   :type '(radio (function-item magit-default-tracking-name-remote-plus-branch)
                 (function-item magit-default-tracking-name-branch-only)
                 (function :tag "Other")))
 
 (defcustom magit-commit-all-when-nothing-staged 'ask
-  "Determines what \\[magit-log-edit] does when nothing is staged.
+  "Determine what \\[magit-log-edit] does when nothing is staged.
+
 Setting this to nil will make it do nothing, setting it to t will
-arrange things so that the actual commit command will use the \"--all\" option,
-setting it to 'ask will first ask for confirmation whether to do this,
-and setting it to 'ask-stage will cause all changes to be staged,
-after a confirmation."
+arrange things so that the actual commit command will use the
+\"--all\" option, setting it to `ask' will first ask for
+confirmation whether to do this, and setting it to `ask-stage'
+will cause all changes to be staged, after a confirmation."
   :group 'magit
   :type '(choice (const :tag "No" nil)
                  (const :tag "Always" t)
@@ -322,10 +326,10 @@ cumbersome to use from the status buffer.
                  (const :tag "Ask"   ask)))
 
 (defcustom magit-highlight-whitespace t
-  "Specifies where to highlight whitespace errors.
+  "Specify where to highlight whitespace errors.
 See `magit-highlight-trailing-whitespace',
 `magit-highlight-indentation'.  The symbol t means in all diffs,
-'status means only in the status buffer, and nil means nowhere."
+`status' means only in the status buffer, and nil means nowhere."
   :group 'magit
   :type '(choice (const :tag "Always" t)
                  (const :tag "Never" nil)
@@ -333,7 +337,7 @@ See `magit-highlight-trailing-whitespace',
   :set 'magit-set-variable-and-refresh)
 
 (defcustom magit-highlight-trailing-whitespace t
-  "Highlight whitespace at the end of a line in diffs.
+  "Whether to highlight whitespace at the end of a line in diffs.
 Used only when `magit-highlight-whitespace' is non-nil."
   :group 'magit
   :type 'boolean
@@ -708,7 +712,7 @@ operation after commit).")
   "The version of Magit that you're using.")
 
 (defun magit-bug-report (str)
-  "Asks the user to submit a bug report about the error described in STR."
+  "Ask the user to submit a bug report about the error described in STR."
 ;; XXX - should propose more information to be included.
   (message (concat
             "Unknown error: %s\n"
@@ -759,7 +763,7 @@ operation after commit).")
 
 (eval-and-compile
   (defun magit-max-args-internal (function)
-    "Returns the maximum number of arguments accepted by FUNCTION."
+    "Return the maximum number of arguments accepted by FUNCTION."
     (if (symbolp function)
         (setq function (symbol-function function)))
     (if (subrp function)
@@ -790,8 +794,8 @@ change the match data."
   (if (fboundp 'with-silent-modifications)
       (defalias 'magit-with-silent-modifications 'with-silent-modifications)
     (defmacro magit-with-silent-modifications (&rest body)
-      "Execute body without changing `buffer-modified-p'. Also, do not
-record undo information."
+      "Execute body without changing `buffer-modified-p'.
+Also, do not record undo information."
       `(set-buffer-modified-p
         (prog1 (buffer-modified-p)
           (let ((buffer-undo-list t)
@@ -802,10 +806,9 @@ record undo information."
   (if (>= (magit-max-args-internal 'delete-directory) 2)
       (defalias 'magit-delete-directory 'delete-directory)
     (defun magit-delete-directory (directory &optional recursive)
-      "Deletes a directory named DIRECTORY.  If RECURSIVE is non-nil,
-recursively delete all of DIRECTORY's contents as well.
-
-Does not follow symlinks."
+      "Delete a directory named DIRECTORY.
+If RECURSIVE is non-nil, recursively delete all of DIRECTORY's
+contents as well.  Don't follow symlinks."
       (if (or (file-symlink-p directory)
               (not (file-directory-p directory)))
           (delete-file directory)
@@ -975,7 +978,7 @@ Read `completing-read' documentation for the meaning of the argument"
   (file-exists-p (expand-file-name ".git" dir)))
 
 (defun magit-git-dir ()
-  "Returns the .git directory for the current repository."
+  "Return the .git directory for the current repository."
   (concat (expand-file-name (magit-git-string "rev-parse" "--git-dir")) "/"))
 
 (defun magit-no-commit-p ()
@@ -1026,7 +1029,7 @@ Read `completing-read' documentation for the meaning of the argument"
 (defun magit-get-remote (branch)
   "Return the name of the remote for BRANCH.
 If branch is nil or it has no remote, but a remote named
-\"origin\" exists, return that. Otherwise, return nil."
+\"origin\" exists, return that.  Otherwise, return nil."
   (let ((remote (or (and branch (magit-get "branch" branch "remote"))
                     (and (magit-get "remote" "origin" "url") "origin"))))
     (if (string= remote "") nil remote)))
@@ -1042,10 +1045,10 @@ Otherwise, return nil."
   (= (magit-git-exit-code "show-ref" "--verify" ref) 0))
 
 (defun magit-read-top-dir (dir)
-  "Ask the user for a Git repository.  The choices offered by
-auto-completion will be the repositories under `magit-repo-dirs'.
-If `magit-repo-dirs' is nil or DIR is non-nill, then
-autocompletion will offer directory names."
+  "Ask the user for a Git repository.
+The choices offered by auto-completion will be the repositories
+under `magit-repo-dirs'.  If `magit-repo-dirs' is nil or DIR is
+non-nil, then autocompletion will offer directory names."
   (if (and (not dir) magit-repo-dirs)
       (let* ((repos (magit-list-repos magit-repo-dirs))
              (reply (magit-completing-read "Git repository: " repos)))
@@ -1215,8 +1218,9 @@ according to `magit-remote-ref-format'"
               (match-string 2 ref))))))
 
 (defun magit-tree-contents (treeish)
-  "Returns a list of all files under TREEISH.  TREEISH can be a tree,
-a commit, or any reference to one of those."
+  "Return a list of all files under TREEISH.
+TREEISH can be a tree, a commit, or any reference to one of
+those."
   (let ((return-value nil))
     (with-temp-buffer
       (magit-git-insert (list "ls-tree" "-r" treeish))
@@ -1552,9 +1556,8 @@ CMD is an external command that will be run with ARGS as arguments."
 
 (defun magit-git-section (section-title-and-type
                           buffer-title washer &rest args)
-  "Run git and put its result in a new section.
-
-see `magit-insert-section' for meaning of the arguments"
+  "Run Git and put its result in a new section.
+See `magit-insert-section' for meaning of the arguments"
   (apply #'magit-insert-section
          section-title-and-type
          buffer-title
@@ -1630,7 +1633,6 @@ see `magit-insert-section' for meaning of the arguments"
 
 (defun magit-for-all-sections (func &optional top)
   "Run FUNC on TOP and recursively on all its children.
-
 Default value for TOP is `magit-top-section'"
   (let ((section (or top magit-top-section)))
     (when section
@@ -1690,8 +1692,9 @@ Default value for TOP is `magit-top-section'"
 (defun magit-section-hideshow (flag-or-func)
   "Show or hide current section depending on FLAG-OR-FUNC.
 
-If FLAG-OR-FUNC is a function, it will be ran on current section
-IF FLAG-OR-FUNC is a Boolean value, the section will be hidden if its true, shown otherwise"
+If FLAG-OR-FUNC is a function, it will be ran on current section.
+IF FLAG-OR-FUNC is a boolean, the section will be hidden if it is
+true, shown otherwise."
   (let ((section (magit-current-section)))
     (when (magit-section-parent section)
       (goto-char (magit-section-beginning section))
@@ -1759,10 +1762,10 @@ Expanded: everything is shown."
            (t
             (magit-section-expand s))))))
 
-(defun magit-section-lineage (s)
-  "Return list of parent, grand-parents... for section S."
-  (when s
-    (cons s (magit-section-lineage (magit-section-parent s)))))
+(defun magit-section-lineage (section)
+  "Return list of parent, grand-parents... for SECTION."
+  (when section
+    (cons section (magit-section-lineage (magit-section-parent section)))))
 
 (defun magit-section-show-level (section level threshold path)
   (magit-section-set-hidden section (>= level threshold))
@@ -1775,8 +1778,8 @@ Expanded: everything is shown."
 
 (defun magit-show-level (level all)
   "Show section whose level is less than LEVEL, hide the others.
-If ALL is non nil, do this in all sections,
-otherwise do it only on ancestors and descendants of current section."
+If ALL is non nil, do this in all sections, otherwise do it only
+on ancestors and descendants of current section."
   (magit-with-refresh
     (if all
         (magit-section-show-level magit-top-section 0 level nil)
@@ -1794,7 +1797,6 @@ Do this in on ancestors and descendants of current section."
 
 (defun magit-show-only-files-all ()
   "Show section that are files, but not there subsection.
-
 Do this for all sections"
   (interactive)
   (if (derived-mode-p 'magit-status-mode)
@@ -1805,7 +1807,8 @@ Do this for all sections"
   "Define an interactive function to show function of level LEVEL.
 
 If ALL is non nil, this function will affect all section,
-otherwise it will affect only ancestors and descendants of current section."
+otherwise it will affect only ancestors and descendants of
+current section."
   (let ((fun (intern (format "magit-show-level-%s%s"
                              level (if all "-all" ""))))
         (doc (format "Show sections on level %s." level)))
@@ -1823,7 +1826,6 @@ One for all, one for current lineage."
 
 (defmacro magit-define-section-jumper (sym title)
   "Define an interactive function to go to section SYM.
-
 TITLE is the displayed title of the section."
   (let ((fun (intern (format "magit-jump-to-%s" sym)))
         (doc (format "Jump to section `%s'." title)))
@@ -1914,11 +1916,12 @@ Refinements can be undone with `magit-unrefine-section'."
         '()))))
 
 (defun magit-prefix-p (prefix list)
-  "Returns non-nil if PREFIX is a prefix of LIST.  PREFIX and LIST should both be
-lists.
+  "Return non-nil if PREFIX is a prefix of LIST.
 
-If the car of PREFIX is the symbol '*, then return non-nil if the cdr of PREFIX
-is a sublist of LIST (as if '* matched zero or more arbitrary elements of LIST)"
+PREFIX and LIST should both be lists.  If the car of PREFIX is
+the symbol `*', then return non-nil if the cdr of PREFIX is a
+sublist of LIST (as if `*' matched zero or more arbitrary
+elements of LIST)"
   ;;; Very schemish...
   (or (null prefix)
       (if (eq (car prefix) '*)
@@ -2002,7 +2005,6 @@ the actions."
 
 (defun magit-wash-sequence (func)
   "Run FUNC until end of buffer is reached.
-
 FUNC should leave point at the end of the modified region"
   (while (and (not (eobp))
               (funcall func))))
@@ -2184,7 +2186,7 @@ magit-topgit and magit-svn"
     (magit-refresh-buffer magit-process-client-buffer)))
 
 (defun magit-password (proc string)
-  "Checks if git/ssh asks for a password and ask the user for it."
+  "Check if git/ssh asks for a password and ask the user for it."
   (let (ask)
     (cond ((or (string-match "^Enter passphrase for key '\\\(.*\\\)': $" string)
                (string-match "^\\\(.*\\\)'s password:" string)
@@ -2196,7 +2198,7 @@ magit-topgit and magit-svn"
       (process-send-string proc (concat (read-passwd ask nil) "\n")))))
 
 (defun magit-username (proc string)
-  "Checks if git asks for a username and ask the user for it."
+  "Check if git asks for a username and ask the user for it."
   (when (string-match "^Username for '\\\(.*\\\)':" string)
     (process-send-string proc
                          (concat
@@ -2520,8 +2522,8 @@ Please see the manual for a complete description of Magit.
             (magit-refresh-buffer b)))))))
 
 (defun magit-need-refresh (&optional buffer)
-  "Mark BUFFER as needing to be refreshed.  If BUFFER is nil, use the
-current buffer."
+  "Mark BUFFER as needing to be refreshed.
+If optional BUFFER is nil, use the current buffer."
   (pushnew (or buffer (current-buffer)) magit-refresh-needing-buffers :test 'eq))
 
 (defun magit-refresh ()
@@ -2950,19 +2952,21 @@ Customize `magit-diff-refine-hunk' to change the default mode."
         target))))
 
 (defun magit-show (commit filename &optional select prefix)
-  "Returns a buffer containing the contents of the file FILENAME, as stored in
-COMMIT.  COMMIT may be one of the following:
+  "Return a buffer containing the file FILENAME, as stored in COMMIT.
 
-- A string with the name of a commit, such as \"head\" or \"dae86e\".  See 'git
-  help revisions' for syntax.
-- The symbol 'index, indicating that you want the version in Git's index or
-  staging area.
-- The symbol 'working, indicating that you want the version in the working
-  directory.  In this case you'll get a buffer visiting the file.  If there's
-  already a buffer visiting that file, you'll get that one.
+COMMIT may be one of the following:
+- A string with the name of a commit, such as \"HEAD\" or
+  \"dae86e\".  See 'git help revisions' for syntax.
+- The symbol 'index, indicating that you want the version in
+  Git's index or staging area.
+- The symbol 'working, indicating that you want the version in
+  the working directory.  In this case you'll get a buffer
+  visiting the file.  If there's already a buffer visiting that
+  file, you'll get that one.
 
-When called interactively or when SELECT is non-nil, make the buffer active,
-either in another window or (with a prefix argument) in the current window."
+When called interactively or when SELECT is non-nil, make the
+buffer active, either in another window or (with a prefix
+argument) in the current window."
   (interactive (let* ((revision (magit-read-rev "Retrieve file from revision"))
                       (filename (magit-read-file-from-rev revision)))
                  (list revision filename t current-prefix-arg)))
@@ -3063,14 +3067,14 @@ member of ARGS, or to the working file otherwise."
 
 ;;; Logs and Commits
 
-                                        ; Note: making this a plain defcustom would probably let users break
-                                        ; the parser too easily
+;; Note: making this a plain defcustom would probably let users break
+;; the parser too easily
 (defvar magit-git-log-options
   (list
    "--pretty=format:* %h %s"
    (format "--abbrev=%s" magit-sha1-abbrev-length)))
-                                        ; --decorate=full otherwise some ref prefixes are stripped
-                                        ;  '("--pretty=format:* %H%d %s" "--decorate=full"))
+;; --decorate=full otherwise some ref prefixes are stripped
+;;  '("--pretty=format:* %H%d %s" "--decorate=full"))
 
 ;;
 ;; Regexps for parsing ref names
@@ -3426,8 +3430,8 @@ for this argument.)"
 
 (defun magit-show-commit-backward (&optional ignored)
   ;; Ignore argument passed by push-button
-  "Show the commit at the head of `magit-back-navigation-history in
-`magit-commit-buffer-name`."
+  "Show the commit at the head of `magit-back-navigation-history'
+in `magit-commit-buffer-name'."
   (interactive)
   (with-current-buffer magit-commit-buffer-name
     (unless magit-back-navigation-history
@@ -3440,8 +3444,8 @@ for this argument.)"
 
 (defun magit-show-commit-forward (&optional ignored)
   ;; Ignore argument passed by push-button
-  "Show the commit at the head of `magit-forward-navigation-history in
-`magit-commit-buffer-name`."
+  "Show the commit at the head of `magit-forward-navigation-history'
+in `magit-commit-buffer-name'."
   (interactive)
   (with-current-buffer magit-commit-buffer-name
     (unless magit-forward-navigation-history
@@ -3486,7 +3490,7 @@ for this argument.)"
       (error "No commit marked")))
 
 (defun magit-remote-branch-name (remote branch)
-  "Get the name of the branch BRANCH on remote REMOTE"
+  "Get the name of the branch BRANCH on remote REMOTE."
   (if (string= remote ".")
       branch
     (concat remote "/" branch)))
@@ -3619,7 +3623,7 @@ FULLY-QUALIFIED-NAME is non-nil."
 
 (defun magit-save-some-buffers (&optional msg pred)
   "Save some buffers if variable `magit-save-some-buffers' is non-nil.
-If variable `magit-save-some-buffers' is set to 'dontask then
+If variable `magit-save-some-buffers' is set to `dontask' then
 don't ask the user before saving the buffers, just go ahead and
 do it.
 
@@ -3642,7 +3646,7 @@ to consider it or not when called with that buffer current."
         (message msg)))))
 
 (defun magit-save-buffers-predicate-all ()
-  "Prompt to save all buffers with unsaved changes"
+  "Prompt to save all buffers with unsaved changes."
   t)
 
 (defun magit-save-buffers-predicate-tree-only ()
@@ -3654,14 +3658,14 @@ to consider it or not when called with that buffer current."
 
 ;;;###autoload
 (defun magit-status (dir)
-  "Open a Magit status buffer for the Git repository containing
-DIR.  If DIR is not within a Git repository, offer to create a
-Git repository in DIR.
+  "Open a Magit status buffer for the Git repository containing DIR.
+If DIR is not within a Git repository, offer to create a Git
+repository in DIR.
 
 Interactively, a prefix argument means to ask the user which Git
-repository to use even if `default-directory' is under Git control.
-Two prefix arguments means to ignore `magit-repo-dirs' when asking for
-user input."
+repository to use even if `default-directory' is under Git
+control.  Two prefix arguments means to ignore `magit-repo-dirs'
+when asking for user input."
   (interactive (list (if current-prefix-arg
                          (magit-read-top-dir
                           (> (prefix-numeric-value current-prefix-arg)
@@ -3788,16 +3792,14 @@ With prefix argument, add remaining untracked files as well.
 ;;; Branches
 
 (defun escape-branch-name (branch)
-  "Escapes branch names to remove problematic characters."
+  "Escape branch name BRANCH to remove problematic characters."
   (replace-regexp-in-string "[/]" "-" branch))
 
-(defun magit-default-tracking-name-remote-plus-branch
-  (remote branch)
+(defun magit-default-tracking-name-remote-plus-branch (remote branch)
   "Use the remote name plus a hyphen plus the escaped branch name for tracking branches."
   (concat remote "-" (escape-branch-name branch)))
 
-(defun magit-default-tracking-name-branch-only
-  (remote branch)
+(defun magit-default-tracking-name-branch-only (remote branch)
   "Use just the escaped branch name for tracking branches."
   (escape-branch-name branch))
 
@@ -3876,7 +3878,7 @@ Fails if working tree or staging area contain uncommitted changes.
     (magit-update-vc-modeline default-directory)))
 
 (defun magit-delete-branch (branch &optional force)
-  "Deletes a branch.
+  "Delete the BRANCH.
 If the branch is the current one, offers to switch to `master' first.
 With prefix, forces the removal even if it hasn't been merged.
 Works with local or remote branches.
@@ -3901,7 +3903,7 @@ Works with local or remote branches.
             (apply 'magit-run-git args)))))
 
 (defun magit-move-branch (old new &optional force)
-  "Renames or moves a branch.
+  "Rename or move branch OLD to NEW.
 With prefix, forces the move even if NEW already exists.
 \('git branch [-m|-M] OLD NEW')."
   (interactive (list (magit-read-rev "Old name" (magit-default-rev))
@@ -3930,20 +3932,20 @@ With prefix, forces the move even if NEW already exists.
 ;;; Remotes
 
 (defun magit-add-remote (remote url)
-  "Add a remote and fetch it.
+  "Add the REMOTE and fetch it.
 \('git remote add REMOTE URL')."
   (interactive (list (read-string "Add remote: ")
                      (read-string "URL: ")))
   (magit-run-git "remote" "add" "-f" remote url))
 
 (defun magit-remove-remote (remote)
-  "Delete a remote.
+  "Delete the REMOTE.
 \('git remote rm REMOTE')."
   (interactive (list (magit-read-remote "Remote to delete")))
   (magit-run-git "remote" "rm" remote))
 
 (defun magit-rename-remote (old new)
-  "Rename a remote.
+  "Rename remote OLD to NEW.
 \('git remote rename OLD NEW')."
   (interactive (list (magit-read-remote "Old name")
                      (read-string "New name: ")))
@@ -3977,7 +3979,8 @@ With a prefix-arg, the merge will be squashed.
 ;;; Rebasing
 
 (defun magit-rebase-info ()
-  "Return a list indicating the state of an in-progress rebase, if any."
+  "Return a list indicating the state of an in-progress rebase.
+If there is no rebase in progress return nil."
   (let ((git-dir (magit-git-dir)))
     (cond ((file-exists-p (concat git-dir "rebase-merge"))
            (list
@@ -4615,7 +4618,7 @@ This means that the eventual commit does 'git commit --allow-empty'."
     (message "Type C-c C-c to %s (C-c C-k to cancel)." operation)))
 
 (defun magit-log-edit (&optional arg)
-  "Brings up a buffer to allow editing of commit messages.
+  "Bring up a buffer to allow editing of commit messages.
 
 Giving a simple prefix arg will amend a previous commit, while
 a double prefix arg will allow creating an empty one.
@@ -5317,7 +5320,8 @@ for the file whose log must be displayed."
 
 (defun magit-edit-ignore-string (file)
   "Prompt the user for the string to be ignored.
-A list of predefined values with wildcards is derived from the filename FILE."
+A list of predefined values with wildcards is derived from the
+filename FILE."
   (let* ((extension (concat "*." (file-name-extension file)))
          (extension-in-dir (concat (file-name-directory file) extension))
          (filename (file-name-nondirectory file))
@@ -5326,10 +5330,10 @@ A list of predefined values with wildcards is derived from the filename FILE."
 
 (defun magit-ignore-file (file &optional edit-ignore-string local)
   "Add FILE to the list of files to ignore.
-If EDIT-IGNORE-STRING is non-`nil', prompt the user for the string to be ignored
-instead of using FILE.
-The changes are written to `.gitignore' except if LOCAL is non-`nil' in which
-case they are written to `.git/info/exclude'."
+If EDIT-IGNORE-STRING is non-nil, prompt the user for the string
+to be ignored instead of using FILE.  The changes are written to
+.gitignore except if LOCAL is non-nil in which case they are
+written to .git/info/exclude."
   (let* ((local-ignore-dir (concat (magit-git-dir) "info/"))
          (ignore-file (if local
                           (concat local-ignore-dir "exclude")
@@ -5357,12 +5361,12 @@ case they are written to `.git/info/exclude'."
      (magit-wazzup-toggle-ignore info current-prefix-arg))))
 
 (defun magit-ignore-item ()
-  "Ignores the item at point."
+  "Ignore the item at point."
   (interactive)
   (magit--ignore-item current-prefix-arg))
 
 (defun magit-ignore-item-locally ()
-  "Ignores the item at point locally only."
+  "Ignore the item at point locally only."
   (interactive)
   (magit--ignore-item current-prefix-arg t))
 
@@ -5642,8 +5646,8 @@ Return values:
   "Magit Branches")
 
 (defun magit-quit-window (&optional kill-buffer)
-  "Bury the buffer and delete its window.  With a prefix argument, kill the
-buffer instead."
+  "Bury the buffer and delete its window.
+With a prefix argument, kill the buffer instead."
   (interactive "P")
   (quit-window kill-buffer (selected-window)))
 
@@ -5802,9 +5806,9 @@ These are the branch names with the remote name stripped."
        #'magit-wash-branch-line))))
 
 (defun magit-wash-branches ()
-         ; get the names of the remotes
+  ;; get the names of the remotes
   (let* ((remotes (magit-git-lines "remote"))
-         ; get the location of remotes in the buffer
+         ;; get the location of remotes in the buffer
          (markers
           (append (mapcar (lambda (remote)
                             (save-excursion
@@ -5816,13 +5820,13 @@ These are the branch names with the remote name stripped."
                   (list (save-excursion
                           (goto-char (point-max))
                           (point-marker)))))
-         ; list of remote elements to display in the buffer
+         ;; list of remote elements to display in the buffer
          (remote-groups (loop for remote in remotes
                               for end-markers on (cdr markers)
                               for marker = (loop for x in end-markers thereis x)
                               collect (list remote marker))))
 
-    ; actual displaying of information
+    ;; actual displaying of information
     (magit-with-section "local" nil
       (insert-before-markers (propertize "Local:" 'face 'magit-section-title) "\n")
       (magit-set-section-info ".")
@@ -5833,7 +5837,7 @@ These are the branch names with the remote name stripped."
 
     (mapc 'magit-wash-remote-branches-group remote-groups)
 
-    ; make sure markers point to nil so that they can be garbage collected
+    ;; make sure markers point to nil so that they can be garbage collected
     (mapc (lambda (marker)
             (when marker
              (set-marker marker nil)))
@@ -5946,8 +5950,7 @@ These are the branch names with the remote name stripped."
 
 (defun magit-submodule-update (&optional init)
   "Update the submodule of the current git repository
-
-With a prefix arg, do a submodule update --init"
+With a prefix arg, do a submodule update --init."
   (interactive "P")
   (let ((default-directory (magit-get-top-dir default-directory)))
     (apply #'magit-run-git-async "submodule" "update" (if init '("--init") ()))))
@@ -5964,19 +5967,19 @@ With a prefix arg, do a submodule update --init"
     (magit-run-git-async "submodule" "init")))
 
 (defun magit-submodule-sync ()
-  "Synchronizes submodules' remote URL configuration"
+  "Synchronizes submodule's remote URL configuration."
   (interactive)
   (let ((default-directory (magit-get-top-dir default-directory)))
     (magit-run-git-async "submodule" "sync")))
 
 (defun magit-run-git-gui ()
-  "Run `git gui' for the current git repository"
+  "Run `git gui' for the current git repository."
   (interactive)
   (let* ((default-directory (magit-get-top-dir default-directory)))
     (magit-start-process "Git Gui" nil magit-git-executable "gui")))
 
 (defun magit-run-gitk ()
-  "Run `gitk --all' for the current git repository"
+  "Run `gitk --all' for the current git repository."
   (interactive)
   (let ((default-directory (magit-get-top-dir default-directory)))
     (cond
@@ -6004,8 +6007,8 @@ With a prefix arg, do a submodule update --init"
       (magit-start-process "Gitk" nil magit-gitk-executable "--all")))))
 
 (defun magit-load-config-extensions ()
-  "Try to load magit extensions that are defined at git config
-layer. This can be added to `magit-mode-hook' for example"
+  "Try to load magit extensions that are defined at git config layer.
+This can be added to `magit-mode-hook' for example"
   (dolist (ext (magit-get-all "magit.extension"))
     (let ((sym (intern (format "magit-%s-mode" ext))))
       (when (and (fboundp sym)
