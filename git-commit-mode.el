@@ -561,11 +561,6 @@ basic structure of and errors in git commit messages."
   ;; Filling according to the guidelines
   (setq fill-column 72)
   (turn-on-auto-fill)
-  ;; Comment settings
-  (set (make-local-variable 'comment-start) "#")
-  (set (make-local-variable 'comment-start-skip)
-       (concat (regexp-quote comment-start) "+\\s-*"))
-  (set (make-local-variable 'comment-end) "")
   ;; Recognize changelog-style paragraphs
   (set (make-local-variable 'paragraph-start)
        (concat paragraph-start "\\|*\\|("))
