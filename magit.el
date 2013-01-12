@@ -5095,7 +5095,7 @@ This is only non-nil in reflog buffers.")
   (setq magit-ediff-buffers (list a b c))
   (setq magit-ediff-windows (current-window-configuration))
   (if c
-      (ediff-buffers3 a b c)
+      (ediff-buffers3 a b c '(magit-ediff-add-cleanup))
       (ediff-buffers a b '(magit-ediff-add-cleanup))))
 
 (defun magit-ediff-restore()
