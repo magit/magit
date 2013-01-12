@@ -5082,13 +5082,21 @@ This is only non-nil in reflog buffers.")
         (magit-ediff* (magit-show (car range) file2)
                       (magit-show (cdr range) file1)))))))
 
+(defun magit-ediff-add-cleanup ()
+  (make-local-variable 'magit-ediff-buffers)
+  (setq-default magit-ediff-buffers ())
+
+  (make-local-variable 'magit-ediff-windows)
+  (setq-default magit-ediff-windows ())
+
+  (add-hook 'ediff-cleanup-hook 'magit-ediff-restore 'append 'local))
+
 (defun magit-ediff* (a b &optional c)
   (setq magit-ediff-buffers (list a b c))
   (setq magit-ediff-windows (current-window-configuration))
-  (add-hook 'ediff-quit-hook 'magit-ediff-restore 'append)
   (if c
       (ediff-buffers3 a b c)
-    (ediff-buffers a b)))
+      (ediff-buffers a b '(magit-ediff-add-cleanup))))
 
 (defun magit-ediff-restore()
   "Kill any buffers in `magit-ediff-buffers' that are not visiting files and
@@ -5097,9 +5105,9 @@ restore the window state that was saved before ediff was called."
     (if (and (null (buffer-file-name buffer))
              (buffer-live-p buffer))
         (kill-buffer buffer)))
-  (setq magit-ediff-buffers nil)
-  (set-window-configuration magit-ediff-windows)
-  (remove-hook 'ediff-quit-hook 'magit-ediff-restore))
+  (let ((buf (current-buffer)))
+    (set-window-configuration magit-ediff-windows)
+    (set-buffer buf)))
 
 (defun magit-refresh-diff-buffer (range args)
   (let ((magit-current-diff-range (cond
