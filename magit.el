@@ -2959,6 +2959,22 @@ Customize `magit-diff-refine-hunk' to change the default mode."
   "Which version of MAGIT-FILE-NAME is shown in this buffer")
 (make-variable-buffer-local 'magit-show-current-version)
 
+(defun magit-save-index ()
+  "Add the content of current file as if it was the index"
+  (interactive)
+  (unless (eq magit-show-current-version 'index)
+    (error "Current buffer doesn't visit the index version of a file"))
+  (when (y-or-n-p (format "Stage current version of %s" magit-file-name))
+    (let ((buf (current-buffer))
+          (name (concat (magit-git-dir) "magit-add-index")))
+      (with-temp-file name
+        (insert-buffer buf))
+      (let ((hash
+             (magit-git-string "hash-object" "-t" "blob" "-w" (concat "--path=" magit-file-name) "--" name))
+            (perm (substring (magit-git-string "ls-files" "-s" magit-file-name)
+                             0 6)))
+        (magit-run-git "update-index" "--cacheinfo" perm hash magit-file-name)))))
+
 (defun magit-show (commit filename &optional select prefix)
   "Return a buffer containing the file FILENAME, as stored in COMMIT.
 
