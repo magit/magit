@@ -5128,9 +5128,12 @@ This is only non-nil in reflog buffers.")
   "Kill any buffers in `magit-ediff-buffers' that are not visiting files and
 restore the window state that was saved before ediff was called."
   (dolist (buffer magit-ediff-buffers)
-    (if (and (null (buffer-file-name buffer))
-             (buffer-live-p buffer))
-        (kill-buffer buffer)))
+    (when (and (null (buffer-file-name buffer))
+               (buffer-live-p buffer))
+      (with-current-buffer buffer
+       (when (eq magit-show-current-version 'index)
+         (magit-save-index)))
+      (kill-buffer buffer)))
   (let ((buf (current-buffer)))
     (set-window-configuration magit-ediff-windows)
     (set-buffer buf)))
