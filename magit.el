@@ -2951,6 +2951,14 @@ Customize `magit-diff-refine-hunk' to change the default mode."
           (forward-line))
         target))))
 
+(defvar magit-file-name ()
+  "Name of file the buffer show a different version of")
+(make-variable-buffer-local 'magit-file-name)
+
+(defvar magit-show-current-version ()
+  "Which version of MAGIT-FILE-NAME is shown in this buffer")
+(make-variable-buffer-local 'magit-show-current-version)
+
 (defun magit-show (commit filename &optional select prefix)
   "Return a buffer containing the file FILENAME, as stored in COMMIT.
 
@@ -2991,7 +2999,9 @@ argument) in the current window."
                                    (concat commit ":" filename)))))))
       (with-current-buffer buffer
         (let ((buffer-file-name filename))
-          (normal-mode))
+          (normal-mode)
+          (setq magit-file-name filename)
+          (setq magit-show-current-version commit))
         (goto-char (point-min)))
       (if select
           (if prefix
