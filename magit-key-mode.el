@@ -87,10 +87,10 @@
       ("k" "Delete" magit-delete-branch)
       ("b" "Checkout" magit-checkout))
      (switches
-      ("-mh" "Merged to HEAD" "--merged")
-      ("-mm" "Merged to master" "--merged=master")
-      ("-nh" "Not merged to HEAD" "--no-merged")
-      ("-nm" "Not merged to master" "--no-merged=master"))
+      ("-m" "Merged to HEAD" "--merged")
+      ("-M" "Merged to master" "--merged=master")
+      ("-n" "Not merged to HEAD" "--no-merged")
+      ("-N" "Not merged to master" "--no-merged=master"))
      (arguments
       ("=c" "Contains" "--contains=" magit-read-rev-with-default)
       ("=m" "Merged" "--merged=" magit-read-rev-with-default)
