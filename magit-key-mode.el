@@ -85,7 +85,13 @@
       ("c" "Create" magit-create-branch)
       ("r" "Rename" magit-move-branch)
       ("k" "Delete" magit-delete-branch)
-      ("b" "Checkout" magit-checkout)))
+      ("b" "Checkout" magit-checkout))
+     (arguments
+      ("=c" "Contains" "--contains=" magit-read-rev)
+      ("=m" "Merged" "--merged="
+       (lambda (prompt) (magit-read-rev prompt "HEAD")))
+      ("=n" "Not merged" "--no-merged="
+       (lambda (prompt) (magit-read-rev prompt "HEAD")))))
 
     (remoting
      (man-page "git-remote")
