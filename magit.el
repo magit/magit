@@ -762,6 +762,9 @@ operation after commit).")
 ;;; Compatibilities
 
 (eval-and-compile
+  (defalias 'magit-flet* (if (fboundp 'cl-flet*) 'cl-flet* 'flet))
+  (put 'magit-flet* 'lisp-indent-function 1)
+
   (defun magit-max-args-internal (function)
     "Return the maximum number of arguments accepted by FUNCTION."
     (if (symbolp function)
@@ -2968,7 +2971,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
     (let ((buf (current-buffer))
           (name (concat (magit-git-dir) "magit-add-index")))
       (with-temp-file name
-        (insert-buffer buf))
+        (insert-buffer-substring buf))
       (let ((hash
              (magit-git-string "hash-object" "-t" "blob" "-w" (concat "--path=" magit-file-name) "--" name))
             (perm (substring (magit-git-string "ls-files" "-s" magit-file-name)
@@ -5340,10 +5343,11 @@ for the file whose log must be displayed."
 (defun magit-show-file-revision ()
   "Open a new buffer showing the current file in the revision at point."
   (interactive)
-  (flet ((magit-show-file-from-diff (item)
-                                    (switch-to-buffer-other-window
-                                     (magit-show (cdr (magit-diff-item-range item))
-                                                 (magit-diff-item-file item)))))
+  (magit-flet*
+      ((magit-show-file-from-diff (item)
+                                  (switch-to-buffer-other-window
+                                   (magit-show (cdr (magit-diff-item-range item))
+                                               (magit-diff-item-file item)))))
     (magit-section-action (item info "show")
       ((commit)
        (let ((current-file (or magit-file-log-file
@@ -5630,6 +5634,7 @@ With a prefix argument, visit in other window."
      (message "%s" info))))
 
 (eval-when-compile (require 'server))
+(declare-function server-running-p 'server)
 
 (defun magit-server-running-p ()
   "Test whether server is running (works with < 23 as well).
