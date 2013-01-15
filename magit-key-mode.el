@@ -14,7 +14,8 @@
   make it to the git command-line).")
 
 (defvar magit-key-mode-current-options '()
-  "Will contain the arguments to be passed to git.")
+  "Current option set (which will eventually make it to the git
+  command-line).")
 
 (defvar magit-log-mode-window-conf nil
   "Will hold the pre-menu configuration of magit.")
@@ -335,10 +336,6 @@ command that's eventually invoked.")
   (let ((input (funcall input-func (concat arg-name ": "))))
     (puthash arg-name input magit-key-mode-current-args)
    (magit-key-mode-redraw for-group)))
-
-(defvar magit-key-mode-current-options '()
-  "Current option set (which will eventually make it to the git
-  command-line).")
 
 (defun magit-key-mode-add-option (for-group option-name)
   "Toggles the appearance of OPTION-NAME in
