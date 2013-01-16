@@ -3941,19 +3941,26 @@ With prefix, forces the move even if NEW already exists.
                  (magit-rev-to-git old) new))
 
 (defun magit-guess-branch ()
-  (magit-section-case (item info)
-    ((branch)
-     (magit-section-info (magit-current-section)))
-    ((wazzup commit)
-     (magit-section-info (magit-section-parent item)))
-    ((commit) (magit-name-rev (substring info 0 magit-sha1-abbrev-length)))
-    ((wazzup) info)
-    (t (let ((lines (magit-git-lines "reflog")))
-         (while (and lines (not (string-match "moving from \\(.+?\\) to"
-                                              (car lines))))
-           (setq lines (cdr lines)))
-         (when lines
-           (match-string 1 (car lines)))))))
+  "Guess branch name depending on the context of cursor and
+return a string or nil when not found."
+  (let ((branch                  ; may be t.  see `magit-section-case'
+         (magit-section-case (item info)
+           ((branch)
+            (magit-section-info (magit-current-section)))
+           ((wazzup commit)
+            (magit-section-info (magit-section-parent item)))
+           ((commit)
+            (magit-name-rev (substring info 0 magit-sha1-abbrev-length)))
+           ((wazzup) info)
+           (t (let ((lines (magit-git-lines "reflog")))
+                (while (and lines
+                            (not (string-match "moving from \\(.+?\\) to"
+                                               (car lines))))
+                  (setq lines (cdr lines)))
+                (when lines
+                  (match-string 1 (car lines))))))))
+    (when (stringp branch)
+      branch)))
 
 ;;; Remotes
 
