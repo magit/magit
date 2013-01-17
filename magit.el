@@ -32,7 +32,7 @@
 ;; Copyright (C) 2009 René Stadler.
 ;; Copyright (C) 2010 Robin Green.
 ;; Copyright (C) 2010 Roger Crew.
-;; Copyright (C) 2009, 2010, 2011, 2012 Rémi Vanicat.
+;; Copyright (C) 2009-2013 Rémi Vanicat.
 ;; Copyright (C) 2010 Sean Bryant.
 ;; Copyright (C) 2009, 2011 Steve Purcell.
 ;; Copyright (C) 2010 Timo Juhani Lindfors.
@@ -2961,6 +2961,30 @@ Customize `magit-diff-refine-hunk' to change the default mode."
           (forward-line))
         target))))
 
+(defvar magit-file-name ()
+  "Name of file the buffer show a different version of")
+(make-variable-buffer-local 'magit-file-name)
+
+(defvar magit-show-current-version ()
+  "Which version of MAGIT-FILE-NAME is shown in this buffer")
+(make-variable-buffer-local 'magit-show-current-version)
+
+(defun magit-save-index ()
+  "Add the content of current file as if it was the index"
+  (interactive)
+  (unless (eq magit-show-current-version 'index)
+    (error "Current buffer doesn't visit the index version of a file"))
+  (when (y-or-n-p (format "Stage current version of %s" magit-file-name))
+    (let ((buf (current-buffer))
+          (name (concat (magit-git-dir) "magit-add-index")))
+      (with-temp-file name
+        (insert-buffer buf))
+      (let ((hash
+             (magit-git-string "hash-object" "-t" "blob" "-w" (concat "--path=" magit-file-name) "--" name))
+            (perm (substring (magit-git-string "ls-files" "-s" magit-file-name)
+                             0 6)))
+        (magit-run-git "update-index" "--cacheinfo" perm hash magit-file-name)))))
+
 (defun magit-show (commit filename &optional select prefix)
   "Return a buffer containing the file FILENAME, as stored in COMMIT.
 
@@ -3001,7 +3025,9 @@ argument) in the current window."
                                    (concat commit ":" filename)))))))
       (with-current-buffer buffer
         (let ((buffer-file-name filename))
-          (normal-mode))
+          (normal-mode)
+          (setq magit-file-name filename)
+          (setq magit-show-current-version commit))
         (goto-char (point-min)))
       (if select
           (if prefix
@@ -3925,19 +3951,26 @@ With prefix, forces the move even if NEW already exists.
                  (magit-rev-to-git old) new))
 
 (defun magit-guess-branch ()
-  (magit-section-case (item info)
-    ((branch)
-     (magit-section-info (magit-current-section)))
-    ((wazzup commit)
-     (magit-section-info (magit-section-parent item)))
-    ((commit) (magit-name-rev (substring info 0 magit-sha1-abbrev-length)))
-    ((wazzup) info)
-    (t (let ((lines (magit-git-lines "reflog")))
-         (while (and lines (not (string-match "moving from \\(.+?\\) to"
-                                              (car lines))))
-           (setq lines (cdr lines)))
-         (when lines
-           (match-string 1 (car lines)))))))
+  "Guess branch name depending on the context of cursor and
+return a string or nil when not found."
+  (let ((branch                  ; may be t.  see `magit-section-case'
+         (magit-section-case (item info)
+           ((branch)
+            (magit-section-info (magit-current-section)))
+           ((wazzup commit)
+            (magit-section-info (magit-section-parent item)))
+           ((commit)
+            (magit-name-rev (substring info 0 magit-sha1-abbrev-length)))
+           ((wazzup) info)
+           (t (let ((lines (magit-git-lines "reflog")))
+                (while (and lines
+                            (not (string-match "moving from \\(.+?\\) to"
+                                               (car lines))))
+                  (setq lines (cdr lines)))
+                (when lines
+                  (match-string 1 (car lines))))))))
+    (when (stringp branch)
+      branch)))
 
 ;;; Remotes
 
@@ -5109,24 +5142,35 @@ This is only non-nil in reflog buffers.")
         (magit-ediff* (magit-show (car range) file2)
                       (magit-show (cdr range) file1)))))))
 
+(defun magit-ediff-add-cleanup ()
+  (make-local-variable 'magit-ediff-buffers)
+  (setq-default magit-ediff-buffers ())
+
+  (make-local-variable 'magit-ediff-windows)
+  (setq-default magit-ediff-windows ())
+
+  (add-hook 'ediff-cleanup-hook 'magit-ediff-restore 'append 'local))
+
 (defun magit-ediff* (a b &optional c)
   (setq magit-ediff-buffers (list a b c))
   (setq magit-ediff-windows (current-window-configuration))
-  (add-hook 'ediff-quit-hook 'magit-ediff-restore 'append)
   (if c
-      (ediff-buffers3 a b c)
-    (ediff-buffers a b)))
+      (ediff-buffers3 a b c '(magit-ediff-add-cleanup))
+      (ediff-buffers a b '(magit-ediff-add-cleanup))))
 
 (defun magit-ediff-restore()
   "Kill any buffers in `magit-ediff-buffers' that are not visiting files and
 restore the window state that was saved before ediff was called."
   (dolist (buffer magit-ediff-buffers)
-    (if (and (null (buffer-file-name buffer))
-             (buffer-live-p buffer))
-        (kill-buffer buffer)))
-  (setq magit-ediff-buffers nil)
-  (set-window-configuration magit-ediff-windows)
-  (remove-hook 'ediff-quit-hook 'magit-ediff-restore))
+    (when (and (null (buffer-file-name buffer))
+               (buffer-live-p buffer))
+      (with-current-buffer buffer
+       (when (eq magit-show-current-version 'index)
+         (magit-save-index)))
+      (kill-buffer buffer)))
+  (let ((buf (current-buffer)))
+    (set-window-configuration magit-ediff-windows)
+    (set-buffer buf)))
 
 (defun magit-refresh-diff-buffer (range args)
   (let ((magit-current-diff-range (cond
@@ -5940,9 +5984,8 @@ These are the branch names with the remote name stripped."
       (let ((buffer-file-name file))
         (normal-mode)))
     ;; We have now created the 3 buffer with ours, theirs and the ancestor files
-    (with-current-buffer (ediff-merge-buffers-with-ancestor our-buffer their-buffer base-buffer)
-      (make-local-variable 'magit-ediff-file)
-      (setq magit-ediff-file file)
+    (with-current-buffer (ediff-merge-buffers-with-ancestor our-buffer their-buffer base-buffer () () file)
+      (setq ediff-show-clashes-only t)
       (make-local-variable 'magit-ediff-windows)
       (setq magit-ediff-windows windows)
       (make-local-variable 'ediff-quit-hook)
@@ -5952,22 +5995,12 @@ These are the branch names with the remote name stripped."
                         (buffer-B ediff-buffer-B)
                         (buffer-C ediff-buffer-C)
                         (buffer-Ancestor ediff-ancestor-buffer)
-                        (file magit-ediff-file)
-                        (file-buffer)
                         (windows magit-ediff-windows))
                     (ediff-cleanup-mess)
-                    (find-file file)
-                    (setq file-buffer (current-buffer))
-                    (erase-buffer)
-                    (insert-buffer-substring buffer-C)
                     (kill-buffer buffer-A)
                     (kill-buffer buffer-B)
-                    (kill-buffer buffer-C)
                     (when (bufferp buffer-Ancestor) (kill-buffer buffer-Ancestor))
-                    (set-window-configuration windows)
-                    (magit-save-some-buffers
-                     "Conflict resolution finished; you may save the buffer"
-                     (lambda () (eq (current-buffer) file-buffer)))))))))
+                    (set-window-configuration windows)))))))
 
 (defun magit-interactive-resolve-item ()
   (interactive)
