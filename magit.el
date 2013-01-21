@@ -3756,6 +3756,11 @@ at point."
        (magit-apply-hunk-item item "--cached"))
       ((unstaged diff)
        (magit-run-git "add" "-u" (magit-diff-item-file item)))
+      ((unstaged)
+       (apply #'magit-run-git "add" "-u" "--"
+              (append
+               (magit-git-lines "ls-files" "--modified")
+               (magit-git-lines "ls-files" "--deleted"))))
       ((staged *)
        (error "Already staged"))
       ((diff diff)
