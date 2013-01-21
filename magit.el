@@ -3757,10 +3757,7 @@ at point."
       ((unstaged diff)
        (magit-run-git "add" "-u" (magit-diff-item-file item)))
       ((unstaged)
-       (apply #'magit-run-git "add" "-u" "--"
-              (append
-               (magit-git-lines "ls-files" "--modified")
-               (magit-git-lines "ls-files" "--deleted"))))
+       (magit-stage-all))
       ((staged *)
        (error "Already staged"))
       ((diff diff)
@@ -3789,6 +3786,8 @@ at point."
      (if (magit-no-commit-p)
          (magit-run-git "rm" "--cached" "--" (magit-diff-item-file item))
        (magit-run-git "reset" "-q" "HEAD" "--" (magit-diff-item-file item))))
+    ((staged)
+     (magit-unstage-all))
     ((unstaged *)
      (error "Already unstaged"))
     ((diff diff)
