@@ -5138,8 +5138,9 @@ restore the window state that was saved before ediff was called."
     (when (and (null (buffer-file-name buffer))
                (buffer-live-p buffer))
       (with-current-buffer buffer
-       (when (eq magit-show-current-version 'index)
-         (magit-save-index)))
+        (when (and (eq magit-show-current-version 'index)
+                   (buffer-modified-p))
+          (magit-save-index)))
       (kill-buffer buffer)))
   (let ((buf (current-buffer)))
     (set-window-configuration magit-ediff-windows)
