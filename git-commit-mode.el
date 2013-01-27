@@ -568,9 +568,6 @@ basic structure of and errors in git commit messages."
   (when (fboundp 'toggle-save-place)
     (toggle-save-place 0)))
 
-;;;###autoload
-(eval-after-load 'session
-  #'(add-to-list 'session-mode-disable-list 'git-commit-mode))
 
 ;;;###autoload
 ;; Overwrite magit-log-edit-mode to derive it from git-commit-mode
