@@ -3316,9 +3316,9 @@ insert a line to tell how to insert more of them"
      ((looking-at line-re)
       (let ((chart (match-string 1))
             (sha1 (match-string 2))
-            (author (match-string 4))
+            (author (when (not (eq style 'long)) (match-string 4)))
             (date (match-string 5))
-            (msg (match-string 6))
+            (msg  (match-string (if (eq style 'long) 4 6)))
             (refs (when (match-string 3)
                     (delq nil
                           (mapcar
