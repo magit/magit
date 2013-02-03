@@ -325,6 +325,11 @@ You can type @kbd{C-c C-a} in the buffer with the change description
 to toggle a flag that determines whether the next commit will
 @emph{amend} the current commit in HEAD.
 
+Typing @kbd{M-n} or @kbd{M-p} will cycle through the
+@code{log-edit-comment-ring}, which will have your previous log
+messages. This is particularly useful if you have a hook that
+occasionally causes git to refuse your commit.
+
 Typing @kbd{C-c C-s} will toggle the @code{--signoff} option.  The
 default is determined by the @code{magit-commit-signoff} customization
 variable.
@@ -844,16 +849,16 @@ Magit shows them in a section called @emph{Unpulled changes}.  Typing
 @chapter Submodules
 
 @table @kbd
-@item M u
+@item o u
 Update the submodules, with a prefix argument it will initializing.
 
-@item M i
+@item o i
 Initialize the submodules.
 
-@item M b
+@item o b
 Update and initialize the submodules in one go.
 
-@item M s
+@item o s
 Synchronizes submodules' remote URL configuration setting to the value
 specified in .gitmodules.
 @end table
