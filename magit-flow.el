@@ -46,13 +46,17 @@
   "List the feature branches managed by flow"
   (let ((output (magit-run-git-lines-flow "feature" "list")))
     (mapcar '(lambda (n)
+               ;; strips the spaces and '*' from the beginning of each
+               ;; item in the list
                (replace-regexp-in-string "^\\*? +\\(.+\\)" "\\1" n))
             output)))
 
 (defun magit-flow-feature-finish ()
   (interactive)
-  (magit-run-git-flow "feature" "finish")
-  (magit-display-process))
+  (let* ((names (magit-flow-feature-list))
+         (name (magit-completing-read "hello: " names nil t)))
+    (magit-run-git-flow "feature" "finish" name)
+    (magit-display-process)))
 
 (defvar magit-flow-mode-map
   (let ((map (make-sparse-keymap)))
@@ -90,7 +94,7 @@
    'flow
    "f"
    "Finish feature"
-   'magit-flow-finish-feature)
+   'magit-flow-feature-finish)
 
   ;; generate and bind the menu popup function
   (magit-key-mode-generate 'flow))
