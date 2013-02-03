@@ -39,6 +39,13 @@
   (let (name (read-string "Create feature branch: "))
     (magit-run-git-flow "feature" "start" name)))
 
+(defun magit-flow-feature-list ()
+  "List the feature branches managed by flow"
+  (let ((output (magit-run-git-lines-flow "feature" "list")))
+    (mapcar '(lambda (n)
+               (replace-regexp-in-string "^\\*? +\\(.+\\)" "\\1" n))
+            output)))
+
 (defvar magit-flow-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "o") 'magit-key-mode-popup-flow)
