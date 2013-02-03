@@ -34,9 +34,9 @@
   (magit-run-git-flow "init" "-d")
   (magit-display-process))
 
-(defun magit-flow-create-feature ()
+(defun magit-flow-feature-create ()
   (interactive)
-  (let (name (read-string "Create feature branch: "))
+  (let ((name (read-string "Create feature branch: ")))
     (magit-run-git-flow "feature" "start" name)))
 
 (defun magit-flow-feature-list ()
