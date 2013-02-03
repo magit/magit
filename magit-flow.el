@@ -29,6 +29,9 @@
 (defun magit-run-git-flow (&rest args)
   (apply 'magit-run-git (cons "flow" args)))
 
+(defun magit-run-git-lines-flow (&rest args)
+  (apply 'magit-git-lines (cons "flow" args)))
+
 (defun magit-flow-init ()
   (interactive)
   (magit-run-git-flow "init" "-d")
@@ -45,6 +48,11 @@
     (mapcar '(lambda (n)
                (replace-regexp-in-string "^\\*? +\\(.+\\)" "\\1" n))
             output)))
+
+(defun magit-flow-feature-finish ()
+  (interactive)
+  (magit-run-git-flow "feature" "finish")
+  (magit-display-process))
 
 (defvar magit-flow-mode-map
   (let ((map (make-sparse-keymap)))
@@ -70,7 +78,7 @@
    'flow
    "n"
    "Create feature"
-   'magit-flow-create-feature)
+   'magit-flow-feature-create)
 
   (magit-key-mode-insert-action
    'flow
@@ -80,9 +88,9 @@
 
   (magit-key-mode-insert-action
    'flow
-   "f l"
-   "List features"
-   'magit-flow-create-feature)
+   "f"
+   "Finish feature"
+   'magit-flow-finish-feature)
 
   ;; generate and bind the menu popup function
   (magit-key-mode-generate 'flow))
