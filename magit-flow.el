@@ -44,17 +44,23 @@
 
 (defun magit-flow-feature-list ()
   "List the feature branches managed by flow"
-  (let ((output (magit-run-git-lines-flow "feature" "list")))
-    (mapcar '(lambda (n)
-               ;; strips the spaces and '*' from the beginning of each
-               ;; item in the list
-               (replace-regexp-in-string "^\\*? +\\(.+\\)" "\\1" n))
-            output)))
+  (let ((current-feature nil)
+        (all-features nil))
+    (dolist (name (magit-run-git-lines-flow "feature" "list"))
+      ;; is this the branch we're on
+      (when (string-match "^\\* \\(.+\\)$" name 0)
+        (setq current-feature (match-string 1 name)))
+      ;; clean and append this line
+      (let ((clean-name (replace-regexp-in-string "^\\*? +\\(.+\\)" "\\1" name)))
+        (setq all-features (nconc all-features (list clean-name)))))
+    (cons current-feature all-features)))
 
 (defun magit-flow-feature-finish ()
   (interactive)
-  (let* ((names (magit-flow-feature-list))
-         (name (magit-completing-read "hello: " names nil t)))
+  (let* ((all (magit-flow-feature-list))
+         (current (car all))
+         (names (cdr all))
+         (name (magit-completing-read "Branch to finish: " names nil t current)))
     (magit-run-git-flow "feature" "finish" name)
     (magit-display-process)))
 
