@@ -18,7 +18,7 @@
 ;;; Commentary:
 
 ;; This plug-in provides git-flow functionality as a separate
-;; component of Magit
+;; component of Magit. Only supports `feature` commands at the moment.
 
 ;;; Code:
 
