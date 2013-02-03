@@ -58,6 +58,20 @@
     (magit-run-git-flow "feature" "finish" name)
     (magit-display-process)))
 
+(defun magit-flow-feature-diff ()
+  (let ((dir default-directory)
+        (buf (get-buffer-create "*magit-diff*")))
+    (display-buffer buf)
+    (with-current-buffer buf
+      (magit-mode-init dir
+                       'magit-diff-mode
+                       '(lambda ()
+                          (magit-create-buffer-sections
+                            (magit-git-section 'diffbuf
+                                               "Divergence from develop:"
+                                               'magit-wash-diffs
+                                               "flow" "feature" "diff")))))))
+
 (defvar magit-flow-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "o") 'magit-key-mode-popup-flow)
