@@ -57,8 +57,10 @@
 
 (defun magit-flow-feature-finish ()
   (interactive)
-  (let* ((names (magit-flow-feature-list))
-         (name (magit-completing-read "hello: " names nil t)))
+  (let* ((all (magit-flow-feature-list))
+         (current (car all))
+         (names (cdr all))
+         (name (magit-completing-read "Branch to finish: " names nil t current)))
     (magit-run-git-flow "feature" "finish" name)
     (magit-display-process)))
 
