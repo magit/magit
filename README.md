@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/magit/magit.png?branch=maint,master,next)](https://travis-ci.org/magit/magit)
+
 It's Magit!  An Emacs mode for Git.
 ===================================
 
