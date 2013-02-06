@@ -168,6 +168,7 @@
 (eval-when (load eval)
   (defalias 'magit-set-variable-and-refresh 'set-default))
 
+
 (defgroup magit nil
   "Controlling Git from Emacs."
   :prefix "magit-"
@@ -441,11 +442,7 @@ There are three possible settings:
                  (const :tag "All" all))
   :set 'magit-set-variable-and-refresh)
 
-(defvar magit-current-indentation nil
-  "Indentation highlight used in the current buffer.
-This is calculated from `magit-highlight-indentation'.")
-(make-variable-buffer-local 'magit-current-indentation)
-
+
 (defgroup magit-faces nil
   "Customize the appearance of Magit."
   :prefix "magit-"
@@ -605,6 +602,29 @@ Many Magit faces inherit from this one by default."
   "Face for highlighting whitespace errors in Magit diffs."
   :group 'magit-faces)
 
+(defface magit-log-head-label-local
+  '((((class color) (background light))
+     :box t
+     :background "Grey85"
+     :foreground "LightSkyBlue4")
+    (((class color) (background dark))
+     :box t
+     :background "Grey13"
+     :foreground "LightSkyBlue1"))
+  "Face for local branch head labels shown in log buffer."
+  :group 'magit-faces)
+
+(defface magit-log-head-label-default
+  '((((class color) (background light))
+     :box t
+     :background "Grey50")
+    (((class color) (background dark))
+     :box t
+     :background "Grey50"))
+  "Face for unknown ref labels shown in log buffer."
+  :group 'magit-faces)
+
+
 (defvar magit-custom-options '()
   "List of custom options to pass to Git.
 Do not customize this (used in the `magit-key-mode' implementation).")
@@ -633,28 +653,20 @@ operation after commit).")
 
 (defvar magit-tmp-buffer-name " *magit-tmp*")
 
-(defface magit-log-head-label-local
-  '((((class color) (background light))
-     :box t
-     :background "Grey85"
-     :foreground "LightSkyBlue4")
-    (((class color) (background dark))
-     :box t
-     :background "Grey13"
-     :foreground "LightSkyBlue1"))
-  "Face for local branch head labels shown in log buffer."
-  :group 'magit-faces)
+(defvar magit-read-file-hist nil)
 
-(defface magit-log-head-label-default
-  '((((class color) (background light))
-     :box t
-     :background "Grey50")
-    (((class color) (background dark))
-     :box t
-     :background "Grey50"))
-  "Face for unknown ref labels shown in log buffer."
-  :group 'magit-faces)
+(defvar magit-current-indentation nil
+  "Indentation highlight used in the current buffer.
+This is calculated from `magit-highlight-indentation'.")
+(make-variable-buffer-local 'magit-current-indentation)
 
+(defvar magit-bug-report-url
+  "http://github.com/magit/magit/issues")
+
+(defconst magit-version "@GIT_DEV_VERSION@"
+  "The version of Magit that you're using.")
+
+
 (defvar magit-mode-map
   (let ((map (make-keymap)))
     (suppress-keymap map t)
@@ -766,12 +778,7 @@ operation after commit).")
     (define-key map (kbd "T") 'magit-change-what-branch-tracks)
     map))
 
-(defvar magit-bug-report-url
-  "http://github.com/magit/magit/issues")
-
-(defconst magit-version "@GIT_DEV_VERSION@"
-  "The version of Magit that you're using.")
-
+
 (defun magit-bug-report (str)
   "Ask the user to submit a bug report about the error described in STR."
 ;; XXX - should propose more information to be included.
