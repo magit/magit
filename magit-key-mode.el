@@ -241,17 +241,17 @@ The user is prompted for the key."
       ;; if there is "?" show a man page if there is one
       ((equal seq "?")
        (if man-page
-         (man man-page)
+           (man man-page)
          (error "No man page associated with `%s'" for-group)))
       (t (error "No help associated with `%s'" seq)))))
 
 (defun magit-key-mode-exec-at-point ()
   "Run action/args/option at point."
   (interactive)
-  (let* ((key (or (get-text-property (point) 'key-group-executor)
-                  (error "Nothing at point to do.")))
-         (def (lookup-key (current-local-map) key)))
-    (call-interactively def)))
+  (let ((key (or (get-text-property (point) 'key-group-executor)
+                 (error "Nothing at point to do."))))
+    (call-interactively (lookup-key (current-local-map) key))))
+
 (defun magit-key-mode-jump-to-next-exec ()
   "Jump to the next action/args/option point."
   (interactive)
@@ -339,7 +339,7 @@ command-line.")
 (defun magit-key-mode-add-argument (for-group arg-name input-func)
   (let ((input (funcall input-func (concat arg-name ": "))))
     (puthash arg-name input magit-key-mode-current-args)
-   (magit-key-mode-redraw for-group)))
+    (magit-key-mode-redraw for-group)))
 
 (defvar magit-key-mode-current-options '()
   "Current option set.
