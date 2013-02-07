@@ -142,12 +142,13 @@
 
 ;;; Code:
 
-(eval-when-compile (require 'cl))
+(eval-when-compile
+  (require 'cl)
+  (require 'grep))
 (require 'log-edit)
 (require 'easymenu)
 (require 'diff-mode)
 (require 'ansi-color)
-(require 'grep)
 
 ;; Silences byte-compiler warnings
 (eval-and-compile
