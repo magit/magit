@@ -147,6 +147,7 @@
 (require 'easymenu)
 (require 'diff-mode)
 (require 'ansi-color)
+(require 'grep)
 
 ;; Silences byte-compiler warnings
 (eval-and-compile
@@ -6116,6 +6117,20 @@ This can be added to `magit-mode-hook' for example"
       (when (and (fboundp sym)
                  (not (eq sym 'magit-wip-save-mode)))
         (funcall sym 1)))))
+
+(magit-define-command grep (&optional pattern)
+  (interactive)
+  (let ((pattern (or pattern
+                     (read-string "git grep: "))))
+    (with-current-buffer (generate-new-buffer "*Magit Grep*")
+      (insert magit-git-executable " "
+              (mapconcat 'identity magit-git-standard-options " ")
+              " grep --line-number "
+              (shell-quote-argument pattern) "\n\n")
+      (magit-git-insert (list "grep" "--line-number" pattern))
+      (insert "\n(END)")
+      (grep-mode)
+      (pop-to-buffer (current-buffer)))))
 
 (provide 'magit)
 
