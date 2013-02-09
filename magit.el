@@ -1734,6 +1734,9 @@ Use the specified START and END positions."
     section))
 
 (defun magit-set-section-info (info &optional section)
+  "set the info of SECTION
+
+If SECTION is nil, default to setting `magit-top-section'"
   (setf (magit-section-info (or section magit-top-section)) info))
 
 (defun magit-set-section-needs-refresh-on-show (flag &optional section)
