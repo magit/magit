@@ -85,7 +85,16 @@
       ("c" "Create" magit-create-branch)
       ("r" "Rename" magit-move-branch)
       ("k" "Delete" magit-delete-branch)
-      ("b" "Checkout" magit-checkout)))
+      ("b" "Checkout" magit-checkout))
+     (switches
+      ("-m" "Merged to HEAD" "--merged")
+      ("-M" "Merged to master" "--merged=master")
+      ("-n" "Not merged to HEAD" "--no-merged")
+      ("-N" "Not merged to master" "--no-merged=master"))
+     (arguments
+      ("=c" "Contains" "--contains=" magit-read-rev-with-default)
+      ("=m" "Merged" "--merged=" magit-read-rev-with-default)
+      ("=n" "Not merged" "--no-merged=" magit-read-rev-with-default)))
 
     (remoting
      (man-page "git-remote")
