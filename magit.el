@@ -4469,6 +4469,35 @@ option, falling back to something hairy if that is unset."
 
 (defvar magit-pre-log-edit-window-configuration nil)
 
+(easy-menu-define magit-log-edit-mode-menu magit-log-edit-mode-map
+  "Log Edit menu"
+  '("Log Edit"
+    ["Previous" log-edit-previous-comment t]
+    ["Next" log-edit-next-comment t]
+    "-"
+    ["Amend" magit-log-edit-toggle-amending
+     :style toggle
+     :selected (string= (magit-log-edit-get-field 'amend) "yes")
+     :help "If selected this commit will be an amendment to the previous commit."]
+    ["Sign-Off" magit-log-edit-toggle-signoff
+     :style toggle
+     :selected (let ((sign-off-field (magit-log-edit-get-field 'sign-off)))
+                 (if sign-off-field
+                     (equal sign-off-field "yes")
+                   magit-commit-signoff))
+     :help "If selected a Signed-off-by line will be added."]
+    ["Author" magit-log-edit-toggle-author
+     :style toggle
+     :selected (magit-log-edit-get-field 'author)
+     :help "If selected this commit will include an author."]
+    ["Allow Empty" magit-log-edit-toggle-allow-empty
+     :style toggle
+     :selected (string= (magit-log-edit-get-field 'allow-empty) "yes")
+     :help "If selected the commit is allowed to be empty."]
+    "-"
+    ["Cancel" magit-log-edit-cancel-log-message t]
+    ["Commit" magit-log-edit-commit t]))
+
 (define-derived-mode magit-log-edit-mode text-mode "Magit Log Edit"
   ;; Recognize changelog-style paragraphs
   (set (make-local-variable 'paragraph-start)
