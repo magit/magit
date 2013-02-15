@@ -3036,7 +3036,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
     (let ((buf (current-buffer))
           (name (concat (magit-git-dir) "magit-add-index")))
       (with-temp-file name
-        (insert-buffer buf))
+        (insert-buffer-substring buf))
       (let ((hash
              (magit-git-string "hash-object" "-t" "blob" "-w" (concat "--path=" magit-file-name) "--" name))
             (perm (substring (magit-git-string "ls-files" "-s" magit-file-name)
