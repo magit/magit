@@ -3373,43 +3373,44 @@ insert a line to tell how to insert more of them"
                (insert "type \"e\" to show more logs\n")))))))
 
 (defun magit-wash-log-line (style)
-  (defun remove-surrounding-braces (string)
-    (when string
-      (replace-regexp-in-string "\\(^\\[\\)\\|\\(\\]$\\)" "" string)))
+  (let ((remove-surrounding-braces
+         (lambda (string)
+           (when string
+             (replace-regexp-in-string "\\(^\\[\\)\\|\\(\\]$\\)" "" string)))))
 
-  (beginning-of-line)
-  (let ((line-re (cond ((eq style 'long) magit-log-longline-re)
-                       (t magit-log-oneline-re))))
-    (cond
-     ((looking-at line-re)
-      (let ((chart (match-string 1))
-            (sha1 (match-string 2))
-            (author (when (not (eq style 'long)) (match-string 4)))
-            (date (match-string 5))
-            (msg  (match-string (if (eq style 'long) 4 6)))
-            (refs (when (match-string 3)
-                    (delq nil
-                          (mapcar
-                           (lambda (s)
-                             (and (not
-                                   (or (string= s "tag:")
-                                       (string= s "HEAD"))) ; as of 1.6.6
-                                  s))
-                           (split-string (match-string 3) "[(), ]" t))))))
-        (delete-region (point-at-bol) (point-at-eol))
-        (insert (funcall magit-present-log-line-function chart sha1 refs
-                         (remove-surrounding-braces author)
-                         (remove-surrounding-braces date) msg))
-        (goto-char (point-at-bol))
-        (if sha1
-            (magit-with-section sha1 'commit
-              (when magit-log-count (setq magit-log-count (1+ magit-log-count)))
-              (magit-set-section-info sha1)
-              (forward-line))
-          (forward-line))))
-     (t
-      (forward-line)))
-    t))
+    (beginning-of-line)
+    (let ((line-re (cond ((eq style 'long) magit-log-longline-re)
+                         (t magit-log-oneline-re))))
+      (cond
+       ((looking-at line-re)
+        (let ((chart (match-string 1))
+              (sha1 (match-string 2))
+              (author (when (not (eq style 'long)) (match-string 4)))
+              (date (match-string 5))
+              (msg  (match-string (if (eq style 'long) 4 6)))
+              (refs (when (match-string 3)
+                      (delq nil
+                            (mapcar
+                             (lambda (s)
+                               (and (not
+                                     (or (string= s "tag:")
+                                         (string= s "HEAD"))) ; as of 1.6.6
+                                    s))
+                             (split-string (match-string 3) "[(), ]" t))))))
+          (delete-region (point-at-bol) (point-at-eol))
+          (insert (funcall magit-present-log-line-function chart sha1 refs
+                           (funcall remove-surrounding-braces author)
+                           (funcall remove-surrounding-braces date) msg))
+          (goto-char (point-at-bol))
+          (if sha1
+              (magit-with-section sha1 'commit
+                (when magit-log-count (setq magit-log-count (1+ magit-log-count)))
+                (magit-set-section-info sha1)
+                (forward-line))
+            (forward-line))))
+       (t
+        (forward-line)))
+      t)))
 
 (defun magit-wash-log (&optional style)
   (let ((magit-old-top-section nil))
