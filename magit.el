@@ -522,6 +522,19 @@ Many Magit faces inherit from this one by default."
   "Face for the sha1 element of the log output."
   :group 'magit-faces)
 
+(defface magit-log-author
+  '((((class color) (background light))
+     :foreground "firebrick")
+    (((class color) (background dark))
+     :foreground "tomato"))
+  "Face for the author element of the log output."
+  :group 'magit-faces)
+
+(defface magit-log-date
+  '((t))
+  "Face for the date element of the log output."
+  :group 'magit-faces)
+
 (defface magit-log-message
   '((t))
   "Face for the message element of the log output."
@@ -1327,6 +1340,13 @@ those."
     (if (string= rev "")
         nil
       rev)))
+
+(defun magit-read-rev-with-default (prompt &optional no-trim uninteresting)
+  "Ask user for revision like `magit-read-rev' but default is set
+appropriately depending on context.  If NO-TRIM is non-nil, strip
+off prefixes such as \"ref/remotes/\" (see `magit-name-rev').
+PROMPT and UNINTERESTING are passed to `magit-read-rev'."
+  (magit-read-rev prompt (magit-default-rev no-trim) uninteresting))
 
 (defun magit-read-rev-range (op &optional def-beg def-end)
   (let ((beg (magit-read-rev (format "%s start" op)
@@ -3046,7 +3066,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
     (let ((buf (current-buffer))
           (name (concat (magit-git-dir) "magit-add-index")))
       (with-temp-file name
-        (insert-buffer buf))
+        (insert-buffer-substring buf))
       (let ((hash
              (magit-git-string "hash-object" "-t" "blob" "-w" (concat "--path=" magit-file-name) "--" name))
             (perm (substring (magit-git-string "ls-files" "-s" magit-file-name)
@@ -3242,7 +3262,9 @@ Evaluate (man \"git-check-ref-format\") for details")
    "\\)"
    "\\)?"
    "\\)?"
-   " ?\\(.*\\)$"                                   ; msg     (4)
+   " ?\\(\\[.*?\\]\\)?"                             ; author  (4)
+   "\\(\\[.*?\\]\\)?"                               ; date    (5)
+   "\\(.*\\)$"                                      ; msg     (6)
    ))
 
 (defconst magit-log-longline-re
@@ -3317,31 +3339,38 @@ must return a string which will represent the log line.")
                            (list r 'magit-log-head-label-default))))))
         res))))
 
-(defun magit-present-log-line (graph sha1 refs message)
+(defun magit-present-log-line (graph sha1 refs author date message)
   "The default log line generator."
-  (let ((string-refs
-         (when refs
-           (let ((colored-labels
-                  (delete nil
-                          (mapcar (lambda (r)
-                                    (destructuring-bind (label face)
-                                        (magit-ref-get-label-color r)
-                                      (and label
-                                           (propertize label 'face face))))
-                                  refs))))
-             (concat
-              (mapconcat 'identity colored-labels " ")
-              " ")))))
-
-    (concat
-     (if sha1
-         (propertize sha1 'face 'magit-log-sha1)
-       (insert-char ? magit-sha1-abbrev-length))
-     " "
-     graph
-     string-refs
-     (when message
-       (propertize message 'face 'magit-log-message)))))
+  (let* ((string-refs
+          (when refs
+            (let ((colored-labels
+                   (delete nil
+                           (mapcar (lambda (r)
+                                     (destructuring-bind (label face)
+                                         (magit-ref-get-label-color r)
+                                       (and label
+                                            (propertize label 'face face))))
+                                   refs))))
+              (concat
+               (mapconcat 'identity colored-labels " ")
+               " "))))
+         (lhs (concat
+               (if sha1
+                   (propertize sha1 'face 'magit-log-sha1)
+                 (insert-char ? magit-sha1-abbrev-length))
+               " "
+               graph
+               string-refs
+               (when message
+                 (propertize message 'face 'magit-log-message))))
+         (rhs (concat
+               (when author
+                 (concat (propertize author 'face 'magit-log-author) " "))
+               (when date
+                 (concat (propertize date 'face 'magit-log-date) " "))))
+         (sep-length (- (window-body-width) (length lhs) (length rhs)))
+         (space (if (wholenump sep-length) (make-string sep-length ?\ ) " - ")))
+    (if (equal rhs "") lhs (concat lhs space rhs))))
 
 (defvar magit-log-count ()
   "Internal var used to count the number of logs actually added in a buffer.")
@@ -3361,35 +3390,44 @@ insert a line to tell how to insert more of them"
                (insert "type \"e\" to show more logs\n")))))))
 
 (defun magit-wash-log-line (style)
-  (beginning-of-line)
-  (let ((line-re (cond ((eq style 'long) magit-log-longline-re)
-                       (t magit-log-oneline-re))))
-    (cond
-     ((looking-at line-re)
-      (let ((chart (match-string 1))
-            (sha1 (match-string 2))
-            (msg (match-string 4))
-            (refs (when (match-string 3)
-                    (delq nil
-                          (mapcar
-                           (lambda (s)
-                             (and (not
-                                   (or (string= s "tag:")
-                                       (string= s "HEAD"))) ; as of 1.6.6
-                                  s))
-                           (split-string (match-string 3) "[(), ]" t))))))
-        (delete-region (point-at-bol) (point-at-eol))
-        (insert (funcall magit-present-log-line-function chart sha1 refs msg))
-        (goto-char (point-at-bol))
-        (if sha1
-            (magit-with-section sha1 'commit
-              (when magit-log-count (setq magit-log-count (1+ magit-log-count)))
-              (magit-set-section-info sha1)
-              (forward-line))
-          (forward-line))))
-     (t
-      (forward-line)))
-    t))
+  (let ((remove-surrounding-braces
+         (lambda (string)
+           (when string
+             (replace-regexp-in-string "\\(^\\[\\)\\|\\(\\]$\\)" "" string)))))
+
+    (beginning-of-line)
+    (let ((line-re (cond ((eq style 'long) magit-log-longline-re)
+                         (t magit-log-oneline-re))))
+      (cond
+       ((looking-at line-re)
+        (let ((chart (match-string 1))
+              (sha1 (match-string 2))
+              (author (when (not (eq style 'long)) (match-string 4)))
+              (date (match-string 5))
+              (msg  (match-string (if (eq style 'long) 4 6)))
+              (refs (when (match-string 3)
+                      (delq nil
+                            (mapcar
+                             (lambda (s)
+                               (and (not
+                                     (or (string= s "tag:")
+                                         (string= s "HEAD"))) ; as of 1.6.6
+                                    s))
+                             (split-string (match-string 3) "[(), ]" t))))))
+          (delete-region (point-at-bol) (point-at-eol))
+          (insert (funcall magit-present-log-line-function chart sha1 refs
+                           (funcall remove-surrounding-braces author)
+                           (funcall remove-surrounding-braces date) msg))
+          (goto-char (point-at-bol))
+          (if sha1
+              (magit-with-section sha1 'commit
+                (when magit-log-count (setq magit-log-count (1+ magit-log-count)))
+                (magit-set-section-info sha1)
+                (forward-line))
+            (forward-line))))
+       (t
+        (forward-line)))
+      t)))
 
 (defun magit-wash-log (&optional style)
   (let ((magit-old-top-section nil))
@@ -3974,11 +4012,10 @@ Fails if working tree or staging area contain uncommitted changes.
   (when (and branch (not (string= branch ""))
              parent)
     (magit-save-some-buffers)
-    (magit-run-git "checkout" "-b"
-                   branch
-                   (append
-                    magit-custom-options
-                    (magit-rev-to-git parent)))
+    (apply #'magit-run-git
+           "checkout" "-b"
+           branch
+           (append magit-custom-options (list (magit-rev-to-git parent))))
     (magit-update-vc-modeline default-directory)))
 
 (defun magit-delete-branch (branch &optional force)
@@ -3987,7 +4024,7 @@ If the branch is the current one, offers to switch to `master' first.
 With prefix, forces the removal even if it hasn't been merged.
 Works with local or remote branches.
 \('git branch [-d|-D] BRANCH' or 'git push <remote-part-of-BRANCH> :refs/heads/BRANCH')."
-  (interactive (list (magit-read-rev "Branch to delete" (magit-default-rev 'notrim))
+  (interactive (list (magit-read-rev-with-default "Branch to delete" 'notrim)
                      current-prefix-arg))
   (let* ((remote (magit-remote-part-of-branch branch))
          (is-current (string= branch (magit-get-current-branch)))
@@ -4010,7 +4047,7 @@ Works with local or remote branches.
   "Rename or move branch OLD to NEW.
 With prefix, forces the move even if NEW already exists.
 \('git branch [-m|-M] OLD NEW')."
-  (interactive (list (magit-read-rev "Old name" (magit-default-rev))
+  (interactive (list (magit-read-rev-with-default "Old name")
                      (read-string "New name: ")
                      current-prefix-arg))
   (magit-run-git "branch" (if force
@@ -4080,7 +4117,7 @@ return a string or nil when not found."
 With a prefix-arg, the merge will be squashed.
 \('git merge --no-commit [--squash|--no-ff] REVISION')."
   (interactive
-   (list (magit-read-rev "Merge" (magit-default-rev))))
+   (list (magit-read-rev-with-default "Merge")))
   (if revision
       (apply 'magit-run-git
              "merge"
@@ -4266,7 +4303,7 @@ With a prefix arg, also remove untracked files.  With two prefix args, remove ig
                            "diff" (magit-diff-U-arg) "-R" orig)))))
 
 (defun magit-rewrite-start (from &optional onto)
-  (interactive (list (magit-read-rev "Rewrite from" (magit-default-rev))))
+  (interactive (list (magit-read-rev-with-default "Rewrite from")))
   (or (magit-everything-clean-p)
       (error "You have uncommitted changes"))
   (or (not (magit-read-rewrite-info))
@@ -5078,7 +5115,7 @@ With a non numeric prefix ARG, show all entries"
              ,"--abbrev-commit"
              ,(format "--abbrev=%s" magit-sha1-abbrev-length)
              ,@(cond ((eq style 'long) (list "--stat" "-z"))
-                     ((eq style 'oneline) (list "--pretty=oneline"))
+                     ((eq style 'oneline) (list "--pretty=format:%h%d [%an][%ar]%s"))
                      (t nil))
              ,@(if magit-have-decorate (list "--decorate=full"))
              ,@(if magit-have-graph (list "--graph"))
@@ -5273,7 +5310,7 @@ restore the window state that was saved before ediff was called."
           (magit-mode-init dir 'magit-diff-mode #'magit-refresh-diff-buffer range args)))))
 
 (magit-define-command diff-working-tree (rev)
-  (interactive (list (magit-read-rev "Diff with" (magit-default-rev))))
+  (interactive (list (magit-read-rev-with-default "Diff with")))
   (magit-diff (or rev "HEAD")))
 
 (defun magit-diff-with-mark ()
@@ -5985,10 +6022,12 @@ These are the branch names with the remote name stripped."
 
 (defun magit-refresh-branch-manager ()
   (magit-create-buffer-sections
-    (magit-git-section "branches" nil 'magit-wash-branches
-                       "branch"
-                       "-vva"
-                       (format "--abbrev=%s" magit-sha1-abbrev-length))))
+    (apply #'magit-git-section
+           "branches" nil 'magit-wash-branches
+           "branch"
+           "-vva"
+           (format "--abbrev=%s" magit-sha1-abbrev-length)
+           magit-custom-options)))
 
 (magit-define-command branch-manager ()
   (interactive)
