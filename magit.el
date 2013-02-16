@@ -843,6 +843,9 @@ This is calculated from `magit-highlight-indentation'.")
 ;;; Compatibilities
 
 (eval-and-compile
+  (defalias 'magit-flet* (if (fboundp 'cl-flet*) 'cl-flet* 'flet))
+  (put 'magit-flet* 'lisp-indent-function 1)
+
   (defun magit-max-args-internal (function)
     "Return the maximum number of arguments accepted by FUNCTION."
     (if (symbolp function)
@@ -5467,10 +5470,11 @@ for the file whose log must be displayed."
 (defun magit-show-file-revision ()
   "Open a new buffer showing the current file in the revision at point."
   (interactive)
-  (flet ((magit-show-file-from-diff (item)
-                                    (switch-to-buffer-other-window
-                                     (magit-show (cdr (magit-diff-item-range item))
-                                                 (magit-diff-item-file item)))))
+  (magit-flet*
+      ((magit-show-file-from-diff (item)
+                                  (switch-to-buffer-other-window
+                                   (magit-show (cdr (magit-diff-item-range item))
+                                               (magit-diff-item-file item)))))
     (magit-section-action (item info "show")
       ((commit)
        (let ((current-file (or magit-file-log-file

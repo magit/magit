@@ -313,15 +313,16 @@ Put it in `magit-key-mode-key-maps' for fast lookup."
                                  (interactive)
                                  (magit-key-mode-help ',for-group)))
 
-    (flet ((defkey (k action)
-             (when (and (lookup-key map (car k))
-                        (not (numberp (lookup-key map (car k)))))
-               (message "Warning: overriding binding for `%s' in %S"
-                        (car k) for-group)
-               (ding)
-               (sit-for 2))
-             (define-key map (car k)
-               `(lambda () (interactive) ,action))))
+    (magit-flet*
+        ((defkey (k action)
+           (when (and (lookup-key map (car k))
+                      (not (numberp (lookup-key map (car k)))))
+             (message "Warning: overriding binding for `%s' in %S"
+                      (car k) for-group)
+             (ding)
+             (sit-for 2))
+           (define-key map (car k)
+             `(lambda () (interactive) ,action))))
       (when actions
         (dolist (k actions)
           (defkey k `(magit-key-mode-command ',(nth 2 k)))))
