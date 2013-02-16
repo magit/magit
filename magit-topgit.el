@@ -133,13 +133,13 @@
                         "Topics:" 'magit-topgit-wash-topics
                         "summary"))
 
-(magit-add-action (item info "discard")
+(magit-add-action-clauses (item info "discard")
   ((topic)
    (when (yes-or-no-p "Discard topic? ")
      (magit-run* (list magit-topgit-executable "delete" "-f" info)
                  nil nil nil t))))
 
-(magit-add-action (item info "visit")
+(magit-add-action-clauses (item info "visit")
   ((topic)
    (magit-checkout info)))
 
