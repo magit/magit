@@ -5812,6 +5812,7 @@ With a prefix argument, visit in other window."
      (message "%s" info))))
 
 (eval-when-compile (require 'server))
+(declare-function server-running-p 'server)
 
 (defun magit-server-running-p ()
   "Test whether server is running (works with < 23 as well).
