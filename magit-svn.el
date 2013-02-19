@@ -54,6 +54,10 @@
   (interactive "sBranch name: ")
   (magit-run-git "svn" "branch" name))
 
+(defun magit-svn-create-tag (name)
+  (interactive "sTag name: ")
+  (magit-run-git "svn" "tag" name))
+
 (defun magit-svn-rebase ()
   (interactive)
   (magit-run-git-async "svn" "rebase"))
@@ -202,6 +206,7 @@ If USE-CACHE is non nil, use the cached information."
   (magit-key-mode-insert-action 'svn "f" "Fetch" 'magit-svn-remote-update)
   (magit-key-mode-insert-action 'svn "s" "Find rev" 'magit-svn-find-rev)
   (magit-key-mode-insert-action 'svn "B" "Create branch" 'magit-svn-create-branch)
+  (magit-key-mode-insert-action 'svn "T" "Create tag" 'magit-svn-create-tag)
 
   ;; generate and bind the menu popup function
   (magit-key-mode-generate 'svn))

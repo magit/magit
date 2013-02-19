@@ -9,11 +9,13 @@
 (defvar magit-key-mode-buf-name "*magit-key*"
   "Name of the buffer.")
 
-(defvar magit-key-mode-current-args '()
-  "Will contain the arguments to be passed to git.")
+(defvar magit-key-mode-current-args nil
+  "A hash-table of current argument set (which will eventually
+  make it to the git command-line).")
 
 (defvar magit-key-mode-current-options '()
-  "Will contain the arguments to be passed to git.")
+  "Current option set (which will eventually make it to the git
+  command-line).")
 
 (defvar magit-log-mode-window-conf nil
   "Will hold the pre-menu configuration of magit.")
@@ -76,6 +78,7 @@
      (actions
       ("F" "Pull" magit-pull))
      (switches
+      ("-f" "Force" "--force")
       ("-r" "Rebase" "--rebase")))
 
     (branching
@@ -85,7 +88,16 @@
       ("c" "Create" magit-create-branch)
       ("r" "Rename" magit-move-branch)
       ("k" "Delete" magit-delete-branch)
-      ("b" "Checkout" magit-checkout)))
+      ("b" "Checkout" magit-checkout))
+     (switches
+      ("-m" "Merged to HEAD" "--merged")
+      ("-M" "Merged to master" "--merged=master")
+      ("-n" "Not merged to HEAD" "--no-merged")
+      ("-N" "Not merged to master" "--no-merged=master"))
+     (arguments
+      ("=c" "Contains" "--contains=" magit-read-rev-with-default)
+      ("=m" "Merged" "--merged=" magit-read-rev-with-default)
+      ("=n" "Not merged" "--no-merged=" magit-read-rev-with-default)))
 
     (remoting
      (man-page "git-remote")
@@ -152,9 +164,9 @@
       ("s" "Start" magit-bisect-start)
       ("u" "Run" magit-bisect-run)
       ("v" "Visualize" magit-bisect-visualize))))
-  "Holds the key, help, function mapping for the log-mode. If you
-  modify this make sure you reset `magit-key-mode-key-maps' to
-  nil.")
+  "Holds the key, help, function mapping for the log-mode.
+If you modify this make sure you reset `magit-key-mode-key-maps'
+to nil.")
 
 (defun magit-key-mode-delete-group (group)
   "Delete a group from `magit-key-mode-key-maps'."
@@ -170,17 +182,18 @@
     magit-key-mode-groups))
 
 (defun magit-key-mode-add-group (group)
-  "Add a new group to `magit-key-mode-key-maps'. If there's
-already a group of that name then this will completely remove it
-and put in its place an empty one of the same name."
+  "Add a new group to `magit-key-mode-key-maps'.
+If there already is a group of that name then this will
+completely remove it and put in its place an empty one of the
+same name."
   (when (assoc group magit-key-mode-groups)
     (magit-key-mode-delete-group group))
   (setq magit-key-mode-groups
         (cons (list group (list 'actions)) magit-key-mode-groups)))
 
 (defun magit-key-mode-key-defined-p (for-group key)
-  "If KEY is defined as any of switch, argument or action within
-FOR-GROUP then return t"
+  "Return t if KEY is defined as any option within FOR-GROUP.
+The option may be a switch, argument or action."
   (catch 'result
     (let ((options (magit-key-mode-options-for-group for-group)))
       (dolist (type '(actions switches arguments))
@@ -201,31 +214,31 @@ FOR-GROUP then return t"
     things))
 
 (defun magit-key-mode-insert-argument (for-group key desc arg read-func)
-  "Add a new binding (KEY) in FOR-GROUP which will use READ-FUNC
-to receive input to apply to argument ARG git is run. DESC should
+  "Add a new binding KEY in FOR-GROUP which will use READ-FUNC
+to receive input to apply to argument ARG git is run.  DESC should
 be a brief description of the binding."
   (magit-key-mode-update-group for-group 'arguments key desc arg read-func))
 
 (defun magit-key-mode-insert-switch (for-group key desc switch)
-  "Add a new binding (KEY) in FOR-GROUP which will add SWITCH to git's
-command line when it runs. DESC should be a brief description of
+  "Add a new binding KEY in FOR-GROUP which will add SWITCH to git's
+command line when it runs.  DESC should be a brief description of
 the binding."
   (magit-key-mode-update-group for-group 'switches key desc switch))
 
 (defun magit-key-mode-insert-action (for-group key desc func)
-  "Add a new binding (KEY) in FOR-GROUP which will run command
-FUNC. DESC should be a brief description of the binding."
+  "Add a new binding KEY in FOR-GROUP which will run command FUNC.
+DESC should be a brief description of the binding."
   (magit-key-mode-update-group for-group 'actions key desc func))
 
 (defun magit-key-mode-options-for-group (for-group)
-  "Retrieve the options (switches, commands and arguments) for
-the group FOR-GROUP."
+  "Retrieve the options for the group FOR-GROUP.
+This includes switches, commands and arguments."
   (or (cdr (assoc for-group magit-key-mode-groups))
       (error "Unknown group '%s'" for-group)))
 
 (defun magit-key-mode-help (for-group)
-  "Provide help for a key (which the user is prompted for) within
-FOR-GROUP."
+  "Provide help for a key within FOR-GROUP.
+The user is prompted for the key."
   (let* ((opts (magit-key-mode-options-for-group for-group))
          (man-page (cadr (assoc 'man-page opts)))
          (seq (read-key-sequence
@@ -240,17 +253,28 @@ FOR-GROUP."
       ;; if there is "?" show a man page if there is one
       ((equal seq "?")
        (if man-page
-         (man man-page)
+           (man man-page)
          (error "No man page associated with `%s'" for-group)))
       (t (error "No help associated with `%s'" seq)))))
 
 (defun magit-key-mode-exec-at-point ()
   "Run action/args/option at point."
   (interactive)
-  (let* ((key (or (get-text-property (point) 'key-group-executor)
-                  (error "Nothing at point to do.")))
-         (def (lookup-key (current-local-map) key)))
-    (call-interactively def)))
+  (let ((key (or (get-text-property (point) 'key-group-executor)
+                 (error "Nothing at point to do."))))
+    (call-interactively (lookup-key (current-local-map) key))))
+
+(defun magit-key-mode-build-exec-point-alist ()
+  (save-excursion
+    (goto-char (point-min))
+    (let* ((exec (get-text-property (point) 'key-group-executor))
+           (exec-alist (if exec `((,exec . ,(point))) nil)))
+      (do nil ((eobp) (nreverse exec-alist))
+        (when (not (eq exec (get-text-property (point) 'key-group-executor)))
+          (setq exec (get-text-property (point) 'key-group-executor))
+          (when exec (push (cons exec (point)) exec-alist)))
+        (forward-char)))))
+
 (defun magit-key-mode-jump-to-next-exec ()
   "Jump to the next action/args/option point."
   (interactive)
@@ -264,8 +288,8 @@ FOR-GROUP."
     (skip-chars-forward " ")))
 
 (defun magit-key-mode-build-keymap (for-group)
-  "Construct a normal looking keymap for the key mode to use and
-put it in magit-key-mode-key-maps for fast lookup."
+  "Construct a normal looking keymap for the key mode to use.
+Put it in `magit-key-mode-key-maps' for fast lookup."
   (let* ((options (magit-key-mode-options-for-group for-group))
          (actions (cdr (assoc 'actions options)))
          (switches (cdr (assoc 'switches options)))
@@ -330,22 +354,13 @@ command that's eventually invoked.")
         (call-interactively func))
       (magit-key-mode-kill-buffer))))
 
-(defvar magit-key-mode-current-args nil
-  "A hash-table of current argument set (which will eventually
-  make it to the git command-line).")
-
 (defun magit-key-mode-add-argument (for-group arg-name input-func)
   (let ((input (funcall input-func (concat arg-name ": "))))
     (puthash arg-name input magit-key-mode-current-args)
-   (magit-key-mode-redraw for-group)))
-
-(defvar magit-key-mode-current-options '()
-  "Current option set (which will eventually make it to the git
-  command-line).")
+    (magit-key-mode-redraw for-group)))
 
 (defun magit-key-mode-add-option (for-group option-name)
-  "Toggles the appearance of OPTION-NAME in
-`magit-key-mode-current-options'."
+  "Toggles the appearance of OPTION-NAME in `magit-key-mode-current-options'."
   (if (not (member option-name magit-key-mode-current-options))
       (add-to-list 'magit-key-mode-current-options option-name)
     (setq magit-key-mode-current-options
@@ -360,9 +375,9 @@ command that's eventually invoked.")
   "Pre-popup window configuration.")
 
 (defun magit-key-mode (for-group &optional original-opts)
-  "Mode for magit key selection. All commands, switches and
-options can be toggled/actioned with the key combination
-highlighted before the description."
+  "Mode for magit key selection.
+All commands, switches and options can be toggled/actioned with
+the key combination highlighted before the description."
   (interactive)
   ;; save the window config to restore it as was (no need to make this
   ;; buffer local)
@@ -396,6 +411,8 @@ highlighted before the description."
 (defun magit-key-mode-redraw (for-group)
   "(re)draw the magit key buffer."
   (let ((buffer-read-only nil)
+        (current-exec (get-text-property (point) 'key-group-executor))
+        (new-exec-pos)
         (old-point (point))
         (is-first (zerop (buffer-size)))
         (actions-p nil))
@@ -405,10 +422,15 @@ highlighted before the description."
     (setq actions-p (magit-key-mode-draw for-group))
     (delete-trailing-whitespace)
     (setq mode-name "magit-key-mode" major-mode 'magit-key-mode)
+    (when current-exec
+      (setq new-exec-pos (cdr (assoc current-exec (magit-key-mode-build-exec-point-alist)))))
     (if (and is-first actions-p)
       (progn (goto-char actions-p)
              (magit-key-mode-jump-to-next-exec))
-      (goto-char old-point)))
+      (if new-exec-pos
+          (progn (goto-char new-exec-pos)
+                 (skip-chars-forward " "))
+          (goto-char old-point))))
   (setq buffer-read-only t)
   (fit-window-to-buffer))
 
@@ -483,9 +505,8 @@ item on one line."
   (insert "\n"))
 
 (defun magit-key-mode-draw (for-group)
-  "Function used to draw actions, switches and parameters.
-
-Returns the point before the actions part, if any."
+  "Draw actions, switches and parameters.
+Return the point before the actions part, if any, nil otherwise."
   (let* ((options (magit-key-mode-options-for-group for-group))
          (switches (cdr (assoc 'switches options)))
          (arguments (cdr (assoc 'arguments options)))
@@ -504,7 +525,7 @@ Returns the point before the actions part, if any."
    (intern (concat "magit-key-mode-popup-" (symbol-name group)))))
 
 (defun magit-key-mode-generate (group)
-  "Generate the key-group menu for GROUP"
+  "Generate the key-group menu for GROUP."
   (let ((opts (magit-key-mode-options-for-group group)))
     (eval
      `(defun ,(intern (concat "magit-key-mode-popup-" (symbol-name group))) nil

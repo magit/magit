@@ -1,0 +1,6 @@
+[submodule "lib/ert"]
+	path = lib/ert
+	url = git://github.com/ohler/ert.git
+[submodule "lib/mocker"]
+	path = lib/mocker
+	url = git://github.com/sigma/mocker.el.git
