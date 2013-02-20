@@ -296,6 +296,11 @@ Only considered when moving past the last entry with
   :group 'magit
   :type 'boolean)
 
+(defcustom magit-log-show-author-date t
+  "Show author and date for each commit in short log mode."
+  :group 'magit
+  :type 'boolean)
+
 (defcustom magit-process-popup-time -1
   "Popup the process buffer if a command takes longer than this many seconds."
   :group 'magit
@@ -3352,15 +3357,19 @@ must return a string which will represent the log line.")
                graph
                string-refs
                (when message
-                 (propertize message 'face 'magit-log-message))))
-         (rhs (concat
-               (when author
-                 (concat (propertize author 'face 'magit-log-author) " "))
-               (when date
-                 (concat (propertize date 'face 'magit-log-date) " "))))
-         (sep-length (- (window-body-width) (length lhs) (length rhs)))
-         (space (if (wholenump sep-length) (make-string sep-length ?\ ) " - ")))
-    (if (equal rhs "") lhs (concat lhs space rhs))))
+                 (propertize message 'face 'magit-log-message)))))
+    (if magit-log-show-author-date
+        (let* ((rhs (concat
+                     (when author
+                       (concat (propertize author 'face 'magit-log-author) " "))
+                     (when date
+                       (concat (propertize date 'face 'magit-log-date) " "))))
+               (sep-length (- (window-width) (length lhs) (length rhs)))
+               (space (if (wholenump sep-length)
+                          (make-string sep-length ?\ )
+                        " - ")))
+          (if (equal rhs "") lhs (concat lhs space rhs)))
+      lhs)))
 
 (defvar magit-log-count ()
   "Internal var used to count the number of logs actually added in a buffer.")
