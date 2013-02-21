@@ -189,7 +189,7 @@ same name."
   (when (assoc group magit-key-mode-groups)
     (magit-key-mode-delete-group group))
   (setq magit-key-mode-groups
-        (cons (list group (list 'actions)) magit-key-mode-groups)))
+        (cons (list group (list 'actions) (list 'switches)) magit-key-mode-groups)))
 
 (defun magit-key-mode-key-defined-p (for-group key)
   "Return t if KEY is defined as any option within FOR-GROUP.
