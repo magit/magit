@@ -3,6 +3,7 @@
 ;; Copyright (C) 2008  Alex Ott
 ;; Copyright (C) 2009  Alexey Voinov
 ;; Copyright (C) 2009  John Wiegley
+;; Copyright (C) 2013  Leonardo Etcheverry
 ;; Copyright (C) 2008  Linh Dang
 ;; Copyright (C) 2008  Marcin Bachry
 ;; Copyright (C) 2008, 2009  Marius Vollmer
@@ -213,6 +214,7 @@ If USE-CACHE is non nil, use the cached information."
   (magit-key-mode-insert-action 'svn "s" "Find rev" 'magit-svn-find-rev)
   (magit-key-mode-insert-action 'svn "B" "Create branch" 'magit-svn-create-branch)
   (magit-key-mode-insert-action 'svn "T" "Create tag" 'magit-svn-create-tag)
+  (magit-key-mode-insert-switch 'svn "-n" "Dry run" "--dry-run")
 
   ;; generate and bind the menu popup function
   (magit-key-mode-generate 'svn))
