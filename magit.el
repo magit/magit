@@ -4415,7 +4415,7 @@ If there is no default remote, ask for one."
             magit-custom-options
             (list pull-remote)
             (when merge-branch
-               (list (format "%s:%s" merge-branch branch)))))))
+               (list (format "%s:%s/%s" merge-branch branch-remote branch)))))))
 
 (eval-when-compile (require 'eshell))
 
