@@ -23,8 +23,7 @@
 ;;; Code:
 
 (require 'magit)
-(eval-when-compile
-  (require 'cl))
+(eval-when-compile (require 'cl-lib))
 
 (defcustom magit-topgit-executable "tg"
   "The name of the TopGit executable."
@@ -133,13 +132,13 @@
                         "Topics:" 'magit-topgit-wash-topics
                         "summary"))
 
-(magit-add-action (item info "discard")
+(magit-add-action-clauses (item info "discard")
   ((topic)
    (when (yes-or-no-p "Discard topic? ")
      (magit-run* (list magit-topgit-executable "delete" "-f" info)
                  nil nil nil t))))
 
-(magit-add-action (item info "visit")
+(magit-add-action-clauses (item info "visit")
   ((topic)
    (magit-checkout info)))
 
