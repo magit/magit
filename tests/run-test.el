@@ -21,7 +21,8 @@
 (mapc (lambda (p) (add-to-list 'load-path p))
       (list magit-test-dir
             magit-root-dir
-            (magit-test-join-path magit-root-dir "lib" "mocker")))
+            (magit-test-join-path magit-root-dir "lib" "mocker")
+            (magit-test-join-path magit-root-dir "lib" "cl-lib")))
 
 
 ;; Use ERT from github when this Emacs does not have it

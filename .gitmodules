@@ -4,3 +4,6 @@
 [submodule "lib/mocker"]
 	path = lib/mocker
 	url = git://github.com/sigma/mocker.el.git
+[submodule "lib/cl-lib"]
+	path = lib/cl-lib
+	url = git://github.com/magit/cl-lib.git
