@@ -142,7 +142,7 @@
 
 ;;; Code:
 
-(eval-when-compile (require 'cl-lib))
+(require 'cl-lib)
 (require 'log-edit)
 (require 'easymenu)
 (require 'diff-mode)
@@ -1850,7 +1850,8 @@ Expanded: everything is shown."
    (lambda (s)
      (cond ((magit-section-hidden s)
             (magit-section-collapse s))
-           ((cl-notany #'magit-section-hidden (magit-section-children s))
+           ((with-no-warnings
+              (cl-notany #'magit-section-hidden (magit-section-children s)))
             (magit-section-set-hidden s t))
            (t
             (magit-section-expand s))))))
@@ -2615,8 +2616,9 @@ Please see the manual for a complete description of Magit.
           (funcall func)
         (when magit-refresh-needing-buffers
           (magit-revert-buffers dir)
-          (dolist (b (cl-adjoin status-buffer
-                                magit-refresh-needing-buffers))
+          (dolist (b (if (memq status-buffer magit-refresh-needing-buffers)
+                         (cons status-buffer magit-refresh-needing-buffers)
+                       magit-refresh-needing-buffers))
             (magit-refresh-buffer b)))))))
 
 (defun magit-need-refresh (&optional buffer)
@@ -4589,9 +4591,9 @@ option, falling back to something hairy if that is unset."
         (with-current-buffer buf
           (goto-char (point-min))
           (while (looking-at "^\\([A-Za-z0-9-_]+\\): *\\(.+\\)?$")
-            (setq result (cl-acons (intern (downcase (match-string 1)))
-                                   (read (or (match-string 2) "nil"))
-                                   result))
+            (setq result (nconc (cons (intern (downcase (match-string 1)))
+                                      (read (or (match-string 2) "nil")))
+                                result))
             (forward-line))
           (if (not (looking-at (regexp-quote magit-log-header-end)))
               (setq result nil))))
@@ -4641,7 +4643,7 @@ toggled on.  When it's toggled on for the first time, return
         (progn
           (setq yesp (equal (cdr cell) "yes"))
           (rplacd cell (if yesp "no" "yes")))
-      (setq fields (cl-acons name (if default "yes" "no") fields))
+      (setq fields (nconc (cons name (if default "yes" "no")) fields))
       (setq yesp (if default 'first)))
     (magit-log-edit-set-fields fields)
     yesp))
@@ -4660,7 +4662,7 @@ toggled on."
         (progn
           (setq fields (assq-delete-all name fields)
                 result (cdr cell)))
-      (setq fields (cl-acons name default fields)))
+      (setq fields (nconc (cons name default) fields)))
     (magit-log-edit-set-fields fields)
     result))
 
