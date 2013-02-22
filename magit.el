@@ -2300,9 +2300,11 @@ magit-topgit and magit-svn"
 (defun magit-process-sentinel (process event)
   (let ((msg (format "%s %s." (process-name process) (substring event 0 -1)))
         (successp (string-match "^finished" event))
-        (key (with-current-buffer magit-process-client-buffer
-               (key-description (car (where-is-internal
-                                      'magit-display-process))))))
+        (key (if (buffer-live-p magit-process-client-buffer)
+                 (with-current-buffer magit-process-client-buffer
+                   (key-description (car (where-is-internal
+                                          'magit-display-process))))
+               "M-x magit-display-process")))
     (with-current-buffer (process-buffer process)
       (let ((inhibit-read-only t))
         (goto-char (point-max))
@@ -2314,7 +2316,10 @@ magit-topgit and magit-svn"
         (dired-uncache default-directory)))
     (setq magit-process nil)
     (magit-set-mode-line-process nil)
-    (magit-refresh-buffer magit-process-client-buffer)))
+    (when (and (buffer-live-p magit-process-client-buffer)
+               (with-current-buffer magit-process-client-buffer
+                 (derived-mode-p 'magit-mode)))
+      (magit-refresh-buffer magit-process-client-buffer))))
 
 (defun magit-password (proc string)
   "Check if git/ssh asks for a password and ask the user for it."
@@ -4453,7 +4458,7 @@ If there is no default remote, ask for one."
             magit-custom-options
             (list pull-remote)
             (when merge-branch
-               (list (format "%s:%s" merge-branch branch)))))))
+               (list (format "%s:refs/remotes/%s/%s" merge-branch branch-remote branch)))))))
 
 (eval-when-compile (require 'eshell))
 
@@ -4583,6 +4588,35 @@ even if `magit-set-upstream-on-push's value is `refuse'."
     map))
 
 (defvar magit-pre-log-edit-window-configuration nil)
+
+(easy-menu-define magit-log-edit-mode-menu magit-log-edit-mode-map
+  "Log Edit menu"
+  '("Log Edit"
+    ["Previous" log-edit-previous-comment t]
+    ["Next" log-edit-next-comment t]
+    "-"
+    ["Amend" magit-log-edit-toggle-amending
+     :style toggle
+     :selected (string= (magit-log-edit-get-field 'amend) "yes")
+     :help "If selected this commit will be an amendment to the previous commit."]
+    ["Sign-Off" magit-log-edit-toggle-signoff
+     :style toggle
+     :selected (let ((sign-off-field (magit-log-edit-get-field 'sign-off)))
+                 (if sign-off-field
+                     (equal sign-off-field "yes")
+                   magit-commit-signoff))
+     :help "If selected a Signed-off-by line will be added."]
+    ["Author" magit-log-edit-toggle-author
+     :style toggle
+     :selected (magit-log-edit-get-field 'author)
+     :help "If selected this commit will include an author."]
+    ["Allow Empty" magit-log-edit-toggle-allow-empty
+     :style toggle
+     :selected (string= (magit-log-edit-get-field 'allow-empty) "yes")
+     :help "If selected the commit is allowed to be empty."]
+    "-"
+    ["Cancel" magit-log-edit-cancel-log-message t]
+    ["Commit" magit-log-edit-commit t]))
 
 (define-derived-mode magit-log-edit-mode text-mode "Magit Log Edit"
   ;; Recognize changelog-style paragraphs
