@@ -2273,7 +2273,9 @@ magit-topgit and magit-svn"
         (dired-uncache default-directory)))
     (setq magit-process nil)
     (magit-set-mode-line-process nil)
-    (when (buffer-live-p magit-process-client-buffer)
+    (when (and (buffer-live-p magit-process-client-buffer)
+               (with-current-buffer magit-process-client-buffer
+                 (derived-mode-p 'magit-mode)))
       (magit-refresh-buffer magit-process-client-buffer))))
 
 (defun magit-password (proc string)
