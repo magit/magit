@@ -2257,9 +2257,11 @@ magit-topgit and magit-svn"
 (defun magit-process-sentinel (process event)
   (let ((msg (format "%s %s." (process-name process) (substring event 0 -1)))
         (successp (string-match "^finished" event))
-        (key (with-current-buffer magit-process-client-buffer
-               (key-description (car (where-is-internal
-                                      'magit-display-process))))))
+        (key (if (buffer-live-p magit-process-client-buffer)
+                 (with-current-buffer magit-process-client-buffer
+                   (key-description (car (where-is-internal
+                                          'magit-display-process))))
+               "M-x magit-display-process")))
     (with-current-buffer (process-buffer process)
       (let ((inhibit-read-only t))
         (goto-char (point-max))
@@ -2271,7 +2273,8 @@ magit-topgit and magit-svn"
         (dired-uncache default-directory)))
     (setq magit-process nil)
     (magit-set-mode-line-process nil)
-    (magit-refresh-buffer magit-process-client-buffer)))
+    (when (buffer-live-p magit-process-client-buffer)
+      (magit-refresh-buffer magit-process-client-buffer))))
 
 (defun magit-password (proc string)
   "Check if git/ssh asks for a password and ask the user for it."
