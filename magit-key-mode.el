@@ -269,7 +269,7 @@ The user is prompted for the key."
     (goto-char (point-min))
     (let* ((exec (get-text-property (point) 'key-group-executor))
            (exec-alist (if exec `((,exec . ,(point))) nil)))
-      (do nil ((eobp) (nreverse exec-alist))
+      (cl-do nil ((eobp) (nreverse exec-alist))
         (when (not (eq exec (get-text-property (point) 'key-group-executor)))
           (setq exec (get-text-property (point) 'key-group-executor))
           (when exec (push (cons exec (point)) exec-alist)))
