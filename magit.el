@@ -4420,18 +4420,23 @@ If there is no default remote, ask for one."
                       branch-remote))
          (merge-branch (or (and (not current-prefix-arg)
                                 config-branch)
-                           (magit-read-remote-branch
-                            pull-remote (format "Pull branch from remote %s" pull-remote)))))
+                           (format "refs/heads/%s"
+                                   (magit-read-remote-branch pull-remote
+                                    (format "Pull branch from remote %s" pull-remote)))))
+         (merge-branch-on-remote
+          (save-match-data
+            (string-match "^refs/heads/\\(.+\\)" merge-branch)
+            (format "refs/remotes/%s/%s" pull-remote (match-string 1 merge-branch)))))
     (when (and branch (not config-branch))
       (magit-set branch-remote "branch" branch "remote")
-      (magit-set (format "refs/heads/%s" merge-branch)
+      (magit-set (format "%s" merge-branch)
                  "branch" branch "merge"))
     (apply 'magit-run-git-async "pull" "-v"
            (append
             magit-custom-options
             (list pull-remote)
             (when merge-branch
-               (list (format "%s:refs/remotes/%s/%s" merge-branch branch-remote branch)))))))
+               (list (format "%s:%s" merge-branch merge-branch-on-remote)))))))
 
 (eval-when-compile (require 'eshell))
 
