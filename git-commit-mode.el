@@ -1,4 +1,4 @@
-;;; git-commit-mode.el --- Major mode for editing git commit messages
+;;; git-commit-mode.el --- Major mode for editing git commit messages -*- lexical-binding: t; -*-
 
 ;; Copyright (c) 2012, 2013 Sebastian Wiesner <lunaryorn@gmail.com>
 ;; Copyright (c) 2010 Florian Ragwitz.
