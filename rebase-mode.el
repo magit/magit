@@ -114,6 +114,8 @@
 
 (defvar rebase-mode-map
   (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-m") 'rebase-mode-show-commit)
+
     (define-key map (kbd "q") 'server-edit)
     (define-key map (kbd "C-c C-c") 'server-edit)
 
@@ -292,6 +294,17 @@ exec line was commented out, also uncomment it."
   (interactive "P")
   (let ((inhibit-read-only t))
     (undo arg)))
+
+(defun rebase-mode-show-commit (&optional arg)
+  "Show current commit"
+  (interactive "P")
+  (save-excursion
+    (goto-char (point-at-bol))
+    (when (looking-at rebase-mode-action-line-re)
+      (let ((commit (match-string 2)))
+        (if (fboundp 'magit-show-commit)
+            (magit-show-commit commit nil nil 'select)
+          (shell-command (concat "git show " commit)))))))
 
 ;;;###autoload
 (define-derived-mode rebase-mode special-mode "Rebase"
