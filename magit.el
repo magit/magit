@@ -217,6 +217,7 @@ t          ask if --set-upstream should be used.
   :group 'magit
   :type '(choice (const :tag "Never" nil)
                  (const :tag "Ask" t)
+                 (const :tag "Ask if not set" askifnotset)
                  (const :tag "Refuse" refuse)
                  (const :tag "Always" dontask)))
 
@@ -4551,7 +4552,9 @@ even if `magit-set-upstream-on-push's value is `refuse'."
         (error "Not pushing since no upstream has been set")
       (let ((set-upstream-on-push (and (not ref-branch)
                                        (or (eq magit-set-upstream-on-push 'dontask)
-                                           (and (eq magit-set-upstream-on-push t)
+                                           (and (or (eq magit-set-upstream-on-push t)
+                                                    (and (not branch-remote)
+                                                         (eq magit-set-upstream-on-push 'askifnotset)))
                                                 (yes-or-no-p "Set upstream while pushing? "))))))
         (apply 'magit-run-git-async "push" "-v" push-remote
                (if ref-branch
