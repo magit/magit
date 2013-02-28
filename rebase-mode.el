@@ -26,9 +26,20 @@
 
 (require 'server)
 
+(defgroup rebase-mode nil
+  "Customize Rebase Mode"
+  :group 'tools)
+
+(defcustom rebase-mode-auto-advance nil
+  "If non-nil, moves point forward a line after running an
+action (e.g. pick, edit, etc)."
+  :group 'rebase-mode
+  :type 'boolean)
+
 (defgroup rebase-mode-faces nil
   "Customize Rebase Mode faces"
-  :group 'faces)
+  :group 'faces
+  :group 'rebase-mode)
 
 (defface rebase-mode-killed-action-face
   '((((class color))
@@ -162,7 +173,9 @@ that of CHANGE-TO."
       (goto-char (point-at-bol))
       (delete-region (point) (progn (forward-word 1) (point)))
       (insert change-to)
-      (goto-char start))))
+      (goto-char start)
+      (when rebase-mode-auto-advance
+        (forward-line)))))
 
 (defun rebase-mode-looking-at-action ()
   "Return non-nil if looking at an action line."
