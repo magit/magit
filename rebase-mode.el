@@ -26,8 +26,8 @@
 
 (require 'server)
 
-(defgroup rebase-mode nil
-  "Customize Rebase Mode"
+(defgroup rebase-mode-faces nil
+  "Customize Rebase Mode faces"
   :group 'faces)
 
 (defface rebase-mode-killed-action-face
@@ -35,12 +35,12 @@
      :inherit font-lock-comment-face
      :strike-through t))
   "Action lines in the rebase TODO list that have been commented out."
-  :group 'rebase-mode)
+  :group 'rebase-mode-faces)
 
 (defface rebase-mode-description-face
   '((t :inherit font-lock-comment-face))
   "Face for one-line commit descriptions"
-  :group 'rebase-mode)
+  :group 'rebase-mode-faces)
 
 (defconst rebase-mode-action-line-re
   (rx
