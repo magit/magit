@@ -4471,7 +4471,7 @@ Values entered by the user because of prefix arguments are not saved with git co
             (when choose-remote
               (list chosen-branch-remote))
             (when choose-branch
-               (list chosen-branch-merge-name))))))
+               (list (format "refs/heads/%s:refs/remotes/%s/%s" chosen-branch-merge-name chosen-branch-remote chosen-branch-merge-name)))))))
 
 (eval-when-compile (require 'eshell))
 
