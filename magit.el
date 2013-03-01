@@ -4592,9 +4592,9 @@ option, falling back to something hairy if that is unset."
         (with-current-buffer buf
           (goto-char (point-min))
           (while (looking-at "^\\([A-Za-z0-9-_]+\\): *\\(.+\\)?$")
-            (setq result (nconc (cons (intern (downcase (match-string 1)))
-                                      (read (or (match-string 2) "nil")))
-                                result))
+            (setq result (cons (cons (intern (downcase (match-string 1)))
+                                     (read (or (match-string 2) "nil")))
+                               result))
             (forward-line))
           (if (not (looking-at (regexp-quote magit-log-header-end)))
               (setq result nil))))
@@ -4644,7 +4644,7 @@ toggled on.  When it's toggled on for the first time, return
         (progn
           (setq yesp (equal (cdr cell) "yes"))
           (rplacd cell (if yesp "no" "yes")))
-      (setq fields (nconc (cons name (if default "yes" "no")) fields))
+      (setq fields (cons (cons name (if default "yes" "no")) fields))
       (setq yesp (if default 'first)))
     (magit-log-edit-set-fields fields)
     yesp))
@@ -4663,7 +4663,7 @@ toggled on."
         (progn
           (setq fields (assq-delete-all name fields)
                 result (cdr cell)))
-      (setq fields (nconc (cons name default) fields)))
+      (setq fields (cons (cons name default) fields)))
     (magit-log-edit-set-fields fields)
     result))
 
