@@ -6226,7 +6226,6 @@ This can be added to `magit-mode-hook' for example"
               " grep -n "
               (shell-quote-argument pattern) "\n\n")
       (magit-git-insert (list "grep" "--line-number" pattern))
-      (insert "\n(END)")
       (grep-mode)
       (pop-to-buffer (current-buffer)))))
 
