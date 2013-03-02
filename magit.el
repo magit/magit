@@ -1963,7 +1963,7 @@ Refinements can be undone with `magit-unrefine-section'."
            ;; diff-mode machinery.
            (save-excursion
              (goto-char (magit-section-beginning magit-highlighted-section))
-             (diff-refine-hunk))))))
+             (magit-maybe-diff-refine-hunk))))))
 
 (defun magit-unrefine-section (section)
   "Remove refinements to the display of SECTION done by `magit-refine-section'."
@@ -2909,10 +2909,17 @@ Customize `magit-diff-refine-hunk' to change the default mode."
            (when (eq magit-diff-refine-hunk 'all)
              (save-excursion
                (goto-char hunk-start-pos)
-               (diff-refine-hunk))))
+               (magit-maybe-diff-refine-hunk))))
          t)
         (t
          nil)))
+
+(defun magit-looking-at-combined-diff-p ()
+  (looking-at "@@@"))
+
+(defun magit-maybe-diff-refine-hunk ()
+  (when (not (magit-looking-at-combined-diff-p)) ;; diff-refine-hunk can't handle git's combined diff output (--cc)
+    (diff-refine-hunk)))
 
 (defvar magit-diff-options nil)
 
