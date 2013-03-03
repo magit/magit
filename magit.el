@@ -2918,7 +2918,8 @@ Customize `magit-diff-refine-hunk' to change the default mode."
   (looking-at "@@@"))
 
 (defun magit-maybe-diff-refine-hunk ()
-  (when (not (magit-looking-at-combined-diff-p)) ;; diff-refine-hunk can't handle git's combined diff output (--cc)
+  ;; diff-refine-hunk can't handle git's combined diff output (--cc)
+  (unless (magit-looking-at-combined-diff-p)
     (diff-refine-hunk)))
 
 (defvar magit-diff-options nil)
