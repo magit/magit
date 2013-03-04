@@ -4409,29 +4409,47 @@ If there is no default remote, ask for one."
   (apply 'magit-run-git-async "remote" "update" magit-custom-options))
 
 (magit-define-command pull ()
-  "Run git pull against the current remote."
+  "Run git pull.
+
+If there is no default remote, the user is prompted for one and its values is saved with git config.
+If there is no default merge branch, the user is prompted for one and its values is saved with git config.
+With a prefix argument, the default remote is not used and the user is prompted for a remote.
+With two prefix arguments, the default merge branch is not used and the user is prompted for a merge branch.
+Values entered by the user because of prefix arguments are not saved with git config."
+
   (interactive)
   (let* ((branch (magit-get-current-branch))
          (branch-remote (magit-get-remote branch))
-         (config-branch (and branch (magit-get "branch" branch "merge")))
-         (pull-remote (if (or current-prefix-arg
-                              (not branch-remote))
-                           (magit-read-remote "Pull from remote" branch-remote)
-                      branch-remote))
-         (merge-branch (or (and (not current-prefix-arg)
-                                config-branch)
-                           (magit-read-remote-branch
-                            pull-remote (format "Pull branch from remote %s" pull-remote)))))
-    (when (and branch (not config-branch))
-      (magit-set branch-remote "branch" branch "remote")
-      (magit-set (format "refs/heads/%s" merge-branch)
-                 "branch" branch "merge"))
+         (branch-merge (magit-get "branch" branch "merge"))
+         (branch-merge-name (and branch-merge
+                             (save-match-data
+                               (string-match "^refs/heads/\\(.+\\)" branch-merge)
+                               (match-string 1 branch-merge))))
+         (choose-remote (>= (prefix-numeric-value current-prefix-arg) 4))
+         (choose-branch (>= (prefix-numeric-value current-prefix-arg) 16))
+         (remote-needed (or choose-remote
+                            (not branch-remote)))
+         (branch-needed (or choose-branch
+                            (not branch-merge-name)))
+         (chosen-branch-remote (if remote-needed
+                                   (magit-read-remote "Pull from remote" branch-remote)
+                                 branch-remote))
+         (chosen-branch-merge-name (if branch-needed
+                                       (magit-read-remote-branch chosen-branch-remote (format "Pull branch from remote %s" chosen-branch-remote))
+                                   branch-merge-name)))
+    (when (and (not branch-remote)
+               (not choose-remote))
+      (magit-set chosen-branch-remote "branch" branch "remote"))
+    (when (and (not branch-merge-name)
+               (not choose-branch))
+      (magit-set (format "%s" chosen-branch-merge-name) "branch" branch "merge"))
     (apply 'magit-run-git-async "pull" "-v"
            (append
             magit-custom-options
-            (list pull-remote)
-            (when merge-branch
-               (list (format "%s:refs/remotes/%s/%s" merge-branch branch-remote branch)))))))
+            (when choose-remote
+              (list chosen-branch-remote))
+            (when choose-branch
+               (list (format "refs/heads/%s:refs/remotes/%s/%s" chosen-branch-merge-name chosen-branch-remote chosen-branch-merge-name)))))))
 
 (eval-when-compile (require 'eshell))
 
