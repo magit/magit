@@ -6,8 +6,11 @@
   "This will be filled lazily with proper `define-key' built
   keymaps as they're requested.")
 
-(defvar magit-key-mode-buf-name "*magit-key*"
-  "Name of the buffer.")
+(defvar magit-key-mode-buf-name "*magit-key:%s*"
+  "Format string to create the name of the magit-key buffer.")
+
+(defvar magit-key-mode-last-buffer nil
+  "Store the last magit-key buffer used.")
 
 (defvar magit-key-mode-current-args nil
   "A hash-table of current argument set (which will eventually
@@ -369,7 +372,7 @@ command that's eventually invoked.")
 
 (defun magit-key-mode-kill-buffer ()
   (interactive)
-  (kill-buffer magit-key-mode-buf-name))
+  (kill-buffer magit-key-mode-last-buffer))
 
 (defvar magit-log-mode-window-conf nil
   "Pre-popup window configuration.")
@@ -384,7 +387,9 @@ the key combination highlighted before the description."
   (setq magit-log-mode-window-conf
         (current-window-configuration))
   ;; setup the mode, draw the buffer
-  (let ((buf (get-buffer-create magit-key-mode-buf-name)))
+  (let ((buf (get-buffer-create (format magit-key-mode-buf-name
+                                        (symbol-name for-group)))))
+    (setq magit-key-mode-last-buffer buf)
     (delete-other-windows)
     (split-window-vertically)
     (other-window 1)
