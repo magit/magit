@@ -374,9 +374,6 @@ command that's eventually invoked.")
   (interactive)
   (kill-buffer magit-key-mode-last-buffer))
 
-(defvar magit-log-mode-window-conf nil
-  "Pre-popup window configuration.")
-
 (defun magit-key-mode (for-group &optional original-opts)
   "Mode for magit key selection.
 All commands, switches and options can be toggled/actioned with
