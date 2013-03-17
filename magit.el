@@ -3355,42 +3355,49 @@ must return a string which will represent the log line.")
                            (list r 'magit-log-head-label-default))))))
         res))))
 
-(defun magit-present-log-line (graph sha1 refs author date message)
+(defun magit-present-log-line (line)
   "The default log line generator."
-  (let* ((string-refs
-          (when refs
-            (let ((colored-labels
-                   (delete nil
-                           (mapcar (lambda (r)
-                                     (destructuring-bind (label face)
-                                         (magit-ref-get-label-color r)
-                                       (and label
-                                            (propertize label 'face face))))
-                                   refs))))
-              (concat
-               (mapconcat 'identity colored-labels " ")
-               " "))))
-         (lhs (concat
-               (if sha1
-                   (propertize sha1 'face 'magit-log-sha1)
-                 (insert-char ? magit-sha1-abbrev-length))
-               " "
-               graph
-               string-refs
-               (when message
-                 (propertize message 'face 'magit-log-message)))))
-    (if magit-log-show-author-date
-        (let* ((rhs (concat
-                     (when author
-                       (concat (propertize author 'face 'magit-log-author) " "))
-                     (when date
-                       (concat (propertize date 'face 'magit-log-date) " "))))
-               (sep-length (- (window-width) (length lhs) (length rhs)))
-               (space (if (wholenump sep-length)
-                          (make-string sep-length ?\ )
-                        " - ")))
-          (if (equal rhs "") lhs (concat lhs space rhs)))
-      lhs)))
+  (let ((graph (magit-log-line-chart line))
+        (sha1 (magit-log-line-sha1 line))
+        (refs (magit-log-line-refs line))
+        (author (magit-log-line-author line))
+        (date (magit-log-line-date line))
+        (message (magit-log-line-msg line)))
+    (let* ((string-refs
+            (when refs
+              (let ((colored-labels
+                     (delete nil
+                             (mapcar (lambda (r)
+                                       (destructuring-bind (label face)
+                                           (magit-ref-get-label-color r)
+                                         (and label
+                                              (propertize label 'face face))))
+                                     refs))))
+                (concat
+                 (mapconcat 'identity colored-labels " ")
+                 " "))))
+           (lhs (concat
+                 (if sha1
+                     (propertize sha1 'face 'magit-log-sha1)
+                   (insert-char ? magit-sha1-abbrev-length))
+                 " "
+                 graph
+                 string-refs
+                 (when message
+                   (propertize message 'face 'magit-log-message)))))
+      (if magit-log-show-author-date
+          (let* ((rhs (concat
+                       (when author
+                         (concat (propertize author 'face 'magit-log-author)
+                                 " "))
+                       (when date
+                         (concat (propertize date 'face 'magit-log-date) " "))))
+                 (sep-length (- (window-width) (length lhs) (length rhs)))
+                 (space (if (wholenump sep-length)
+                            (make-string sep-length ?\ )
+                          " - ")))
+            (if (equal rhs "") lhs (concat lhs space rhs)))
+        lhs))))
 
 (defvar magit-log-count ()
   "Internal var used to count the number of logs actually added in a buffer.")
@@ -3409,45 +3416,61 @@ insert a line to tell how to insert more of them"
              (magit-with-section "longer"  'longer
                (insert "type \"e\" to show more logs\n")))))))
 
-(defun magit-wash-log-line (style)
+(defstruct magit-log-line
+  chart sha1 author date msg refs gpg)
+
+(defun magit-parse-log-line (line style)
   (let ((remove-surrounding-braces
          (lambda (string)
            (when string
-             (replace-regexp-in-string "\\(^\\[\\)\\|\\(\\]$\\)" "" string)))))
-
-    (beginning-of-line)
-    (let ((line-re (cond ((eq style 'long) magit-log-longline-re)
+             (replace-regexp-in-string "\\(^\\[\\)\\|\\(\\]$\\)" "" string))))
+        (match-style-string
+         (lambda (short-pos long-pos)
+           (match-string (if (eq style 'long) long-pos short-pos) line)))
+        (line-re (cond ((eq style 'long) magit-log-longline-re)
                          (t magit-log-oneline-re))))
-      (cond
-       ((looking-at line-re)
-        (let ((chart (match-string 1))
-              (sha1 (match-string 2))
-              (author (when (not (eq style 'long)) (match-string 4)))
-              (date (match-string 5))
-              (msg  (match-string (if (eq style 'long) 4 6)))
-              (refs (when (match-string 3)
-                      (delq nil
-                            (mapcar
-                             (lambda (s)
-                               (and (not
-                                     (or (string= s "tag:")
-                                         (string= s "HEAD"))) ; as of 1.6.6
-                                    s))
-                             (split-string (match-string 3) "[(), ]" t))))))
-          (delete-region (point-at-bol) (point-at-eol))
-          (insert (funcall magit-present-log-line-function chart sha1 refs
-                           (funcall remove-surrounding-braces author)
-                           (funcall remove-surrounding-braces date) msg))
-          (goto-char (point-at-bol))
-          (if sha1
-              (magit-with-section sha1 'commit
-                (when magit-log-count (setq magit-log-count (1+ magit-log-count)))
-                (magit-set-section-info sha1)
-                (forward-line))
-            (forward-line))))
-       (t
-        (forward-line)))
-      t)))
+    (when (string-match line-re line)
+      (make-magit-log-line
+       :chart (funcall match-style-string 1 1)
+       :sha1 (funcall match-style-string 2 2)
+       :author (funcall remove-surrounding-braces
+                        (when (not (eq style 'long)) (match-string 4 line)))
+       :date (funcall remove-surrounding-braces
+                      (when (not (eq style 'long)) (match-string 5 line)))
+       :msg (funcall match-style-string 6 4)
+       :refs (when (funcall match-style-string 3 3)
+               (delq nil
+                     (mapcar
+                      (lambda (s)
+                        (and (not
+                              (or (string= s "tag:")
+                                  (string= s "HEAD"))) ; as of 1.6.6
+                             s))
+                      (split-string (funcall match-style-string 3 3)
+                                    "[(), ]" t))))))))
+
+(defun magit-wash-log-line (style)
+  (beginning-of-line)
+  (let* ((bol (point-at-bol))
+         (eol (point-at-eol))
+         (line (magit-parse-log-line
+                (buffer-substring bol eol)
+                style)))
+    (if line
+        (progn
+          (delete-region bol eol)
+          (insert (funcall magit-present-log-line-function line))
+          (goto-char bol)
+          (let ((sha1 (magit-log-line-sha1 line)))
+            (if sha1
+                (magit-with-section sha1 'commit
+                  (when magit-log-count
+                    (setq magit-log-count (1+ magit-log-count)))
+                  (magit-set-section-info sha1)
+                  (forward-line))
+              (forward-line))))
+      (forward-line))
+    t))
 
 (defun magit-wash-log (&optional style)
   (let ((magit-old-top-section nil))
