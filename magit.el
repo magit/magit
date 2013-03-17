@@ -145,6 +145,7 @@
 (eval-when-compile
   (require 'cl)
   (require 'grep))
+(require 'epa)
 (require 'log-edit)
 (require 'easymenu)
 (require 'diff-mode)
@@ -306,6 +307,11 @@ Only considered when moving past the last entry with
 
 (defcustom magit-log-show-author-date t
   "Show author and date for each commit in short log mode."
+  :group 'magit
+  :type 'boolean)
+
+(defcustom magit-log-show-gpg-status nil
+  "Display signature verification information as part of the log."
   :group 'magit
   :type 'boolean)
 
@@ -3278,9 +3284,11 @@ Evaluate (man \"git-check-ref-format\") for details")
    "\\)"
    "\\)?"
    "\\)?"
-   " ?\\(\\[.*?\\]\\)?"                             ; author  (4)
-   "\\(\\[.*?\\]\\)?"                               ; date    (5)
-   "\\(.*\\)$"                                      ; msg     (6)
+   " ?"
+   "\\([BG]\\)?"                                    ; gpg     (4)
+   "\\(\\[.*?\\]\\)?"                               ; author  (5)
+   "\\(\\[.*?\\]\\)?"                               ; date    (6)
+   "\\(.*\\)$"                                      ; msg     (7)
    ))
 
 (defconst magit-log-longline-re
@@ -3362,7 +3370,8 @@ must return a string which will represent the log line.")
         (refs (magit-log-line-refs line))
         (author (magit-log-line-author line))
         (date (magit-log-line-date line))
-        (message (magit-log-line-msg line)))
+        (message (magit-log-line-msg line))
+        (gpg-status (magit-log-line-gpg line)))
     (let* ((string-refs
             (when refs
               (let ((colored-labels
@@ -3384,7 +3393,12 @@ must return a string which will represent the log line.")
                  graph
                  string-refs
                  (when message
-                   (propertize message 'face 'magit-log-message)))))
+                   (propertize message 'face
+                               (if gpg-status
+                                   (if (string= gpg-status "B")
+                                       'error
+                                     'epa-validity-high)
+                     'magit-log-message))))))
       (if magit-log-show-author-date
           (let* ((rhs (concat
                        (when author
@@ -3434,10 +3448,12 @@ insert a line to tell how to insert more of them"
        :chart (funcall match-style-string 1 1)
        :sha1 (funcall match-style-string 2 2)
        :author (funcall remove-surrounding-braces
-                        (when (not (eq style 'long)) (match-string 4 line)))
+                        (when (not (eq style 'long)) (match-string 5 line)))
        :date (funcall remove-surrounding-braces
-                      (when (not (eq style 'long)) (match-string 5 line)))
-       :msg (funcall match-style-string 6 4)
+                      (when (not (eq style 'long)) (match-string 6 line)))
+       :gpg (when (not (eq style 'long))
+              (match-string 4 line))
+       :msg (funcall match-style-string 7 4)
        :refs (when (funcall match-style-string 3 3)
                (delq nil
                      (mapcar
@@ -5224,8 +5240,16 @@ With a non numeric prefix ARG, show all entries"
              ,(format "--max-count=%s" magit-log-cutoff-length)
              ,"--abbrev-commit"
              ,(format "--abbrev=%s" magit-sha1-abbrev-length)
-             ,@(cond ((eq style 'long) (list "--stat" "-z"))
-                     ((eq style 'oneline) (list "--pretty=format:%h%d [%an][%ar]%s"))
+             ,@(cond ((eq style 'long) (append
+                                        (list "--stat" "-z")
+                                        (when magit-log-show-gpg-status
+                                          (list "--show-signature"))))
+                     ((eq style 'oneline)
+                      (let ((fmt
+                             (if magit-log-show-gpg-status
+                                 "%h%d %G?[%an][%ar]%s"
+                               "%h%d [%an][%ar]%s")))
+                        (list (format "--pretty=format:%s" fmt))))
                      (t nil))
              ,@(if magit-have-decorate (list "--decorate=full"))
              ,@(if magit-have-graph (list "--graph"))
