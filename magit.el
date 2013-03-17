@@ -3472,7 +3472,7 @@ insert a line to tell how to insert more of them"
              (magit-with-section "longer"  'longer
                (insert "type \"e\" to show more logs\n")))))))
 
-(defstruct magit-log-line
+(cl-defstruct magit-log-line
   chart sha1 author date msg refs gpg)
 
 (defun magit-parse-log-line (line style)
