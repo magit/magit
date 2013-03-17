@@ -6,7 +6,7 @@
   "This will be filled lazily with proper `define-key' built
   keymaps as they're requested.")
 
-(defvar magit-key-mode-buf-name "*magit-key:%s*"
+(defvar magit-key-mode-buf-name "*magit-key: %s*"
   "Format string to create the name of the magit-key buffer.")
 
 (defvar magit-key-mode-last-buffer nil
