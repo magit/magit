@@ -276,6 +276,11 @@ will cause all changes to be staged, after a confirmation."
   :group 'magit
   :type 'boolean)
 
+(defcustom magit-commit-gpgsign nil
+  "Use GPG to sign commits."
+  :group 'magit
+  :type 'boolean)
+
 (defcustom magit-sha1-abbrev-length 7
   "The number of digits to show when a sha1 is displayed in abbreviated form."
   :group 'magit
@@ -4552,6 +4557,7 @@ option, falling back to something hairy if that is unset."
     (define-key map (kbd "C-x #") 'magit-log-edit-commit)
     (define-key map (kbd "C-c C-a") 'magit-log-edit-toggle-amending)
     (define-key map (kbd "C-c C-s") 'magit-log-edit-toggle-signoff)
+    (define-key map (kbd "C-c C-S") 'magit-log-edit-toggle-gpgsign)
     (define-key map (kbd "C-c C-t") 'magit-log-edit-toggle-author)
     (define-key map (kbd "C-c C-e") 'magit-log-edit-toggle-allow-empty)
     (define-key map (kbd "M-p") 'log-edit-previous-comment)
@@ -4582,6 +4588,13 @@ option, falling back to something hairy if that is unset."
                      (equal sign-off-field "yes")
                    magit-commit-signoff))
      :help "If selected a Signed-off-by line will be added."]
+    ["GPG Sign" magit-log-edit-toggle-gpgsign
+     :style toggle
+     :selected (let ((gpg-sign-field (magit-log-edit-get-field 'gpg-sign)))
+                 (if gpg-sign-field
+                     (equal gpg-sign-field "yes")
+                   magit-commit-gpgsign))
+     :help "If selected the commit will be signed."]
     ["Author" magit-log-edit-toggle-author
      :style toggle
      :selected (magit-log-edit-get-field 'author)
@@ -4730,6 +4743,10 @@ environment (potentially empty)."
          (sign-off (if sign-off-field
                        (equal (cdr sign-off-field) "yes")
                      magit-commit-signoff))
+         (gpg-sign-field (assq 'gpg-sign fields))
+         (gpg-sign (if gpg-sign-field
+                       (equal (cdr gpg-sign-field) "yes")
+                     magit-commit-gpgsign))
          (tag-rev (cdr (assq 'tag-rev fields)))
          (tag-name (cdr (assq 'tag-name fields)))
          (author (cdr (assq 'author fields)))
@@ -4760,7 +4777,8 @@ environment (potentially empty)."
         (let ((process-environment env))
           (cond (tag-name
                  (apply #'magit-run-git-with-input commit-buf
-                        "tag" (append tag-options (list tag-name "-a" "-F" "-" tag-rev))))
+                        "tag" (append tag-options
+                                      (list tag-name "-a" "-F" "-" tag-rev))))
                 (t
                  (apply #'magit-run-async-with-input commit-buf
                         magit-git-executable
@@ -4768,10 +4786,12 @@ environment (potentially empty)."
                                 '("commit")
                                 magit-custom-options
                                 '("-F" "-")
-                                (if (and commit-all (not allow-empty)) '("--all") '())
-                                (if amend '("--amend") '())
-                                (if allow-empty '("--allow-empty"))
-                                (if sign-off '("--signoff") '()))))))))
+                                (when (and commit-all (not allow-empty))
+                                  '("--all"))
+                                (when amend '("--amend"))
+                                (when allow-empty '("--allow-empty"))
+                                (when sign-off '("--signoff"))
+                                (when gpg-sign '("-S")))))))))
     ;; shouldn't we kill that buffer altogether?
     (erase-buffer)
     (let ((magit-buf magit-buffer-internal))
@@ -4812,6 +4832,12 @@ environment (potentially empty)."
 \(i.e., whether eventual commit does 'git commit --signoff')"
   (interactive)
   (magit-log-edit-toggle-field 'sign-off (not magit-commit-signoff)))
+
+(defun magit-log-edit-toggle-gpgsign ()
+  "Toggle whether this commit will be GPG-signed.
+\(i.e., whether eventual commit does 'git commit -S')"
+  (interactive)
+  (magit-log-edit-toggle-field 'gpg-sign (not magit-commit-gpgsign)))
 
 (defun magit-log-edit-toggle-author ()
   "Toggle whether this commit will include an author.
