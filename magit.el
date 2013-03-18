@@ -3272,7 +3272,7 @@ Evaluate (man \"git-check-ref-format\") for details")
 
 (defconst magit-log-oneline-re
   (concat
-   "^\\([_\\*|/ -.]+\\)?"                          ; graph   (1)
+   "^\\(\\(?:[---_\\*|/.] ?\\)+ *\\)?"             ; graph   (1)
    "\\(?:"
    "\\([0-9a-fA-F]+\\)"                            ; sha1    (2)
    "\\(?:"                                         ; refs    (3)
@@ -3288,7 +3288,7 @@ Evaluate (man \"git-check-ref-format\") for details")
    "\\([BG]\\)?"                                    ; gpg     (4)
    "\\(\\[.*?\\]\\)?"                               ; author  (5)
    "\\(\\[.*?\\]\\)?"                               ; date    (6)
-   "\\(.*\\)$"                                      ; msg     (7)
+   "\\(.+\\)?$"                                     ; msg     (7)
    ))
 
 (defconst magit-log-longline-re
@@ -3296,8 +3296,9 @@ Evaluate (man \"git-check-ref-format\") for details")
    ;; use \0 delimiter (from -z option) to identify commits. this prevents
    ;; commit messages containing lines like "commit 00000" from polluting the
    ;; display
-   "\\(?:\\(?:\\`\\|\0\\)"
-   "\\([_\\*|/ -.]+\\)?"                           ; graph   (1)
+   "\\(?:\\`\\|\0\\)"
+   "\\(\\(?:[---_\\*|/.] ?\\)+ *\\)"               ; graph   (1)
+   "\\(?:"
    "commit "
    "\\([0-9a-fA-F]+\\)"                            ; sha1    (2)
    "\\(?:"                                         ; refs    (3)
@@ -3308,8 +3309,8 @@ Evaluate (man \"git-check-ref-format\") for details")
    ")"
    "\\)"
    "\\)?"
-   "$\\)?"
-   " ?\\(.*\\)$"                                   ; msg     (4)
+   "\\)?"
+   "\\(.+\\)?$"                                    ; msg     (4)
    ))
 
 (defvar magit-present-log-line-function 'magit-present-log-line
