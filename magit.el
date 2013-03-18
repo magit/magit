@@ -3389,17 +3389,20 @@ must return a string which will represent the log line.")
            (lhs (concat
                  (if sha1
                      (propertize sha1 'face 'magit-log-sha1)
-                   (insert-char ? magit-sha1-abbrev-length))
+                   (make-string magit-sha1-abbrev-length ? ))
                  " "
                  graph
                  string-refs
                  (when message
-                   (propertize message 'face
-                               (if gpg-status
-                                   (if (string= gpg-status "B")
-                                       'error
-                                     'epa-validity-high)
-                     'magit-log-message))))))
+                   (font-lock-append-text-property
+                    0 (length message)
+                    'face (if gpg-status
+                              (if (string= gpg-status "B")
+                                  'error
+                                'epa-validity-high)
+                            'magit-log-message)
+                    message)
+                   message))))
       (if magit-log-show-author-date
           (let* ((rhs (concat
                        (when author
