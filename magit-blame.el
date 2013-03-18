@@ -1,4 +1,4 @@
-;;; magit-blame.el --- blame support for magit
+;;; magit-blame.el --- blame support for Magit
 
 ;; Copyright (C) 2012  Rüdiger Sonderfeld
 ;; Copyright (C) 2012  Yann Hodique
@@ -9,7 +9,6 @@
 ;; Copyright (C) 2008  Marius Vollmer
 
 ;; Author: Yann Hodique <yann.hodique@gmail.com>
-;; Keywords:
 
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
@@ -26,7 +25,8 @@
 
 ;;; Commentary:
 
-;; This code has been backported from Egg (Magit fork) to Magit
+;; Control git-blame from Magit.
+;; This code has been backported from Egg (Magit fork) to Magit.
 
 ;;; Code:
 

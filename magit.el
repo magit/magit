@@ -67,7 +67,6 @@
 ;; Copyright (C) 2010 Oscar Fuentes.
 ;; Copyright (C) 2010 Paul Stadig.
 ;; Copyright (C) 2009 Pavel Holejsovsky.
-;; Copyright (C) 2011, 2012 Peter J Weisberg.
 ;; Copyright (C) 2011, 2012 Peter J. Weisberg.
 ;; Copyright (C) 2009, 2010, 2011, 2013 Phil Jackson.
 ;; Copyright (C) 2010 Philip Weaver.
@@ -112,7 +111,6 @@
 ;; Version: @GIT_DEV_VERSION@
 ;; Keywords: tools
 
-;;
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation; either version 3, or (at your option)

@@ -1,3 +1,29 @@
+;;; magit-key-mode.el --- interactively tune git invocation
+
+;; Copyright (C) 2010  Phil Jackson
+
+;; Magit is free software; you can redistribute it and/or modify it
+;; under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 3, or (at your option)
+;; any later version.
+;;
+;; Magit is distributed in the hope that it will be useful, but WITHOUT
+;; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+;; or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+;; License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with Magit.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; This library implements `magit-key-mode' which is used throughout
+;; Magit to let the user interactively select the command, switches
+;; and options to call Git with.  It can be though of as a way to
+;; provide "postfix" arguments.
+
+;;; Code:
+
 (require 'magit)
 
 (eval-when-compile (require 'cl-lib))
@@ -539,3 +565,4 @@ Return the point before the actions part, if any, nil otherwise."
       magit-key-mode-groups)
 
 (provide 'magit-key-mode)
+;;; magit-key-mode.el ends here

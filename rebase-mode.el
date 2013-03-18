@@ -1,8 +1,8 @@
-;;; rebase-mode -- edit git rebase files.
+;;; rebase-mode -- edit git rebase files
 
 ;; Copyright (C) 2010  Phil Jackson
 ;; Copyright (C) 2011  Peter J Weisberg
-;;
+
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation; either version 3, or (at your option)
@@ -332,5 +332,4 @@ By default, this is the same except for the \"pick\" command."
              '("git-rebase-todo" . rebase-mode))
 
 (provide 'rebase-mode)
-
 ;;; rebase-mode.el ends here

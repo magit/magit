@@ -1,7 +1,7 @@
 ;;; magit-flow.el --- git-flow plug-in for Magit
 
 ;; Copyright (C) 2012  Phil Jackson
-;;
+
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation; either version 3, or (at your option)
@@ -18,7 +18,7 @@
 ;;; Commentary:
 
 ;; This plug-in provides git-flow functionality as a separate
-;; component of Magit. Only supports `feature` commands at the moment.
+;; component of Magit. Only supports `feature' commands at the moment.
 
 ;;; Code:
 
