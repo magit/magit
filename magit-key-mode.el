@@ -1,6 +1,6 @@
 (require 'magit)
 
-(eval-when-compile (require 'cl))
+(eval-when-compile (require 'cl-lib))
 
 (defvar magit-key-mode-key-maps '()
   "This will be filled lazily with proper `define-key' built
@@ -272,7 +272,7 @@ The user is prompted for the key."
     (goto-char (point-min))
     (let* ((exec (get-text-property (point) 'key-group-executor))
            (exec-alist (if exec `((,exec . ,(point))) nil)))
-      (do nil ((eobp) (nreverse exec-alist))
+      (cl-do nil ((eobp) (nreverse exec-alist))
         (when (not (eq exec (get-text-property (point) 'key-group-executor)))
           (setq exec (get-text-property (point) 'key-group-executor))
           (when exec (push (cons exec (point)) exec-alist)))
@@ -316,25 +316,22 @@ Put it in `magit-key-mode-key-maps' for fast lookup."
                                  (interactive)
                                  (magit-key-mode-help ',for-group)))
 
-    (flet ((defkey (k action)
-             (when (and (lookup-key map (car k))
-                        (not (numberp (lookup-key map (car k)))))
-               (message "Warning: overriding binding for `%s' in %S"
-                        (car k) for-group)
-               (ding)
-               (sit-for 2))
-             (define-key map (car k)
-               `(lambda () (interactive) ,action))))
-      (when actions
-        (dolist (k actions)
-          (defkey k `(magit-key-mode-command ',(nth 2 k)))))
-      (when switches
-        (dolist (k switches)
-          (defkey k `(magit-key-mode-add-option ',for-group ,(nth 2 k)))))
-      (when arguments
-        (dolist (k arguments)
-          (defkey k `(magit-key-mode-add-argument
-                      ',for-group ,(nth 2 k) ',(nth 3 k))))))
+    (let ((defkey (lambda (k action)
+                    (when (and (lookup-key map (car k))
+                               (not (numberp (lookup-key map (car k)))))
+                      (message "Warning: overriding binding for `%s' in %S"
+                               (car k) for-group)
+                      (ding)
+                      (sit-for 2))
+                    (define-key map (car k)
+                      `(lambda () (interactive) ,action)))))
+      (dolist (k actions)
+        (funcall defkey k `(magit-key-mode-command ',(nth 2 k))))
+      (dolist (k switches)
+        (funcall defkey k `(magit-key-mode-add-option ',for-group ,(nth 2 k))))
+      (dolist (k arguments)
+        (funcall defkey k `(magit-key-mode-add-argument
+                            ',for-group ,(nth 2 k) ',(nth 3 k)))))
 
     (push (cons for-group map) magit-key-mode-key-maps)
     map))

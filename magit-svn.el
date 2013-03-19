@@ -29,8 +29,9 @@
 ;;; Code:
 
 (require 'magit)
+
 (eval-when-compile
-  (require 'cl)
+  (require 'cl-lib)
   (require 'find-lisp))
 
 (defcustom magit-svn-externals-dir ".git_externals"

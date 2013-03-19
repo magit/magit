@@ -25,6 +25,7 @@
 ;;; Code:
 
 (require 'server)
+(declare-function server-edit "server") 
 
 (defgroup rebase-mode nil
   "Customize Rebase Mode"
