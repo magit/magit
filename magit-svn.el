@@ -29,6 +29,7 @@
 ;;; Code:
 
 (require 'magit)
+
 (eval-when-compile
   (require 'cl-lib)
   (require 'find-lisp))

@@ -147,6 +147,7 @@
 
 (require 'cl-lib)
 (require 'epa)
+
 (require 'log-edit)
 (require 'easymenu)
 (require 'diff-mode)
