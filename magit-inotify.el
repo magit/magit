@@ -109,6 +109,7 @@ This can only be called from a magit status buffer."
   :group 'magit-inotify
   :type 'string)
 
+;;;###autoload
 (define-minor-mode magit-inotify-mode
   "Refresh status buffer if source tree changes."
   :lighter magit-inotify-lighter
