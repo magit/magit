@@ -6341,6 +6341,11 @@ This can be added to `magit-mode-hook' for example"
       (grep-mode)
       (pop-to-buffer (current-buffer)))))
 
+(defun magit-grep-from-root ()
+    (interactive)
+    (let ((default-directory (magit-get-top-dir default-directory)))
+      (magit-grep)))
+
 (provide 'magit)
 
 ;; rest of magit core
