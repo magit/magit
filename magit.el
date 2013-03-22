@@ -6335,7 +6335,7 @@ This can be added to `magit-mode-hook' for example"
     (with-current-buffer (generate-new-buffer "*Magit Grep*")
       (insert magit-git-executable " "
               (mapconcat 'identity magit-git-standard-options " ")
-              " grep -n "
+              " grep --untracked -n "
               (shell-quote-argument pattern) "\n\n")
       (magit-git-insert (list "grep" "--line-number" pattern))
       (grep-mode)
