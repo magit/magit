@@ -72,7 +72,7 @@ See `inotify-add-watch'."
 (defun magit-inotify-start ()
   "Start watching for changes to the source tree using inotify.
 This can only be called from a magit status buffer."
-  (unless (eq major-mode 'magit-status-mode)
+  (unless (derived-mode-p 'magit-status-mode)
     (error "Only works in magit status buffer"))
   (dolist (dir (magit-inotify--directories))
     (puthash (inotify-add-watch dir magit-inotify-aspects
@@ -83,7 +83,7 @@ This can only be called from a magit status buffer."
 (defun magit-inotify-stop ()
   "Stop watching for changes to the source tree using inotify.
 This can only be called from a magit status buffer."
-  (unless (eq major-mode 'magit-status-mode)
+  (unless (derived-mode-p 'magit-status-mode)
     (error "Only works in magit status buffer"))
   (maphash
    (lambda (k v)
@@ -94,7 +94,7 @@ This can only be called from a magit status buffer."
 
 (defun magit-inotify-watching-p ()
   "Return non-nil if current source tree is watched."
-  (unless (eq major-mode 'magit-status-mode)
+  (unless (derived-mode-p 'magit-status-mode)
     (error "Only works in magit status buffer"))
   (let (ret)
     (maphash (lambda (_k v)
