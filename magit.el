@@ -5956,7 +5956,7 @@ Return values:
     (if (executable-find "emacsclient")
         (setenv "GIT_EDITOR" (concat (executable-find "emacsclient")
                                      " -s " server-name))
-        (message "Cannot find emacsclient, using default git editor, please check you PATH"))
+        (message "Cannot find emacsclient, using default git editor, please check your PATH"))
     (unwind-protect
         (magit-run-git-async "rebase" "-i"
                              (or (and commit (concat commit "^"))
