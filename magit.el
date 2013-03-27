@@ -4107,7 +4107,7 @@ Works with local or remote branches.
                      branch)))
     (cond
      (remote
-      (magit-run-git "push" remote (concat ":refs/heads/" (magit-branch-no-remote branch))))
+      (magit-run-git-async "push" remote (concat ":refs/heads/" (magit-branch-no-remote branch))))
      (is-current
       (when (y-or-n-p "Cannot delete current branch. Switch to master first? ")
           (progn
@@ -4158,7 +4158,7 @@ return a string or nil when not found."
 \('git remote add REMOTE URL')."
   (interactive (list (read-string "Add remote: ")
                      (read-string "URL: ")))
-  (magit-run-git "remote" "add" "-f" remote url))
+  (magit-run-git-async "remote" "add" "-f" remote url))
 
 (defun magit-remove-remote (remote)
   "Delete the REMOTE.
