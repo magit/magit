@@ -3490,13 +3490,14 @@ must return a string which will represent the log line.")
        magit-log-author-date-overlay)
       (setq magit-log-author-date-string-length max-length))))
 
-(defun magit-log-display-author-date ()
-  (set-window-margins nil
-                      (car (window-margins))
-                      magit-log-author-date-string-length))
-
 (defvar magit-log-buffer-name "*magit-log*"
   "Buffer name for display of log entries.")
+
+(defun magit-log-display-author-date ()
+  (with-selected-window (get-buffer-window magit-log-buffer-name)
+    (set-window-margins nil
+                        (car (window-margins))
+                        magit-log-author-date-string-length)))
 
 (defun magit-log-initialize-author-date-overlay ()
   (when (equal magit-log-buffer-name (buffer-name))
