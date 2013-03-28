@@ -551,6 +551,12 @@ Many Magit faces inherit from this one by default."
   "Face for the author element of the log output."
   :group 'magit-faces)
 
+(defface magit-log-author-date-cutoff
+  '((t :inherit magit-log-author
+       :bold t))
+  "Face for the author element's cutoff mark."
+  :group 'magit-faces)
+
 (defface magit-log-date
   '((t))
   "Face for the date element of the log output."
@@ -3410,19 +3416,108 @@ must return a string which will represent the log line.")
                             'magit-log-message)
                     message)
                    message))))
-      (if magit-log-show-author-date
-          (let* ((rhs (concat
-                       (when author
-                         (concat (propertize author 'face 'magit-log-author)
-                                 " "))
-                       (when date
-                         (concat (propertize date 'face 'magit-log-date) " "))))
-                 (sep-length (- (window-width) (length lhs) (length rhs)))
-                 (space (if (wholenump sep-length)
-                            (make-string sep-length ?\ )
-                          " - ")))
-            (if (equal rhs "") lhs (concat lhs space rhs)))
-        lhs))))
+      (if (and magit-log-show-author-date
+               author date)
+          (magit-log-make-author-date-overlay author date))
+      lhs)))
+
+(defcustom magit-log-author-date-max-length 25
+  "max of author-date margin length."
+  :type 'integer
+  :group 'magit)
+
+(defvar magit-log-author-date-string-length nil
+  "only use in `*magit-log*' buffer.")
+(defvar magit-log-author-string-length nil
+  "only use in `*magit-log*' buffer.")
+(defvar magit-log-date-string-length nil
+  "only use in `*magit-log*' buffer.")
+(defvar magit-log-author-date-overlay nil
+  "only use in `*magit-log*' buffer.")
+
+(defun magit-log-make-author-date-overlay (author date)
+  (let ((overlay (make-overlay (point) (point))))
+    (setq author (propertize author 'face 'magit-log-author)
+          date (delete "ago" (split-string date "[ ,]+"))
+          date (propertize (concat (format "%2s %5s"
+                                           (nth 0 date)
+                                           (nth 1 date))
+                                   (if (nth 2 date)
+                                       (format " %2s %1.1s "
+                                               (nth 2 date)
+                                               (nth 3 date))))
+                           'face 'magit-log-date))
+    (overlay-put overlay 'magit-log-overlay (cons author date))
+    (setq magit-log-author-date-overlay
+          (cons overlay magit-log-author-date-overlay))
+    (if (> (length author) magit-log-author-string-length)
+        (setq magit-log-author-string-length (length author)))
+    (if (> (length date) magit-log-date-string-length)
+        (setq magit-log-date-string-length (length date)))))
+
+(defun magit-log-set-author-date-overlays ()
+  (when magit-log-author-date-overlay
+    (let* ((author-length magit-log-author-string-length)
+           (date-length magit-log-date-string-length)
+           (max-length (if (< (+ author-length date-length 1)
+                              magit-log-author-date-max-length)
+                           (+ author-length date-length 1)
+                         magit-log-author-date-max-length))
+           (author-length (- max-length date-length 1))
+           (author-length-string (number-to-string author-length))
+           (date-length-string (number-to-string date-length))
+           (format-string (concat "%-" author-length-string "s "
+                                  "%-" date-length-string "s")))
+      (mapc
+       #'(lambda (overlay)
+           (let* ((data (overlay-get overlay 'magit-log-overlay))
+                  (author (car data))
+                  (date (cdr data))
+                  (author-date
+                   (format format-string
+                           (if (< author-length (length author))
+                               (concat
+                                (substring author
+                                           0 (1- author-length))
+                                (propertize "-" 'face
+                                            'magit-log-author-date-cutoff))
+                             author)
+                           date)))
+             (overlay-put overlay 'before-string
+                          (propertize " " 'display
+                                      (list '(margin right-margin)
+                                            author-date)))))
+       magit-log-author-date-overlay)
+      (setq magit-log-author-date-string-length max-length))))
+
+(defvar magit-log-buffer-name "*magit-log*"
+  "Buffer name for display of log entries.")
+
+(defun magit-log-display-author-date ()
+  (with-selected-window (get-buffer-window magit-log-buffer-name)
+    (set-window-margins nil
+                        (car (window-margins))
+                        magit-log-author-date-string-length)))
+
+(defun magit-log-initialize-author-date-overlay ()
+  (when (equal magit-log-buffer-name (buffer-name))
+    (set (make-local-variable 'magit-log-author-date-string-length) 0)
+    (set (make-local-variable 'magit-log-author-string-length) 0)
+    (set (make-local-variable 'magit-log-date-string-length) 0)
+    (when magit-log-author-date-overlay
+      (mapc #'delete-overlay magit-log-author-date-overlay)
+      (setq magit-log-author-date-overlay nil)
+      (remove-hook 'window-configuration-change-hook
+                   'magit-log-display-author-date t))))
+
+(defun magit-log-create-author-date-overlay ()
+  (when (equal magit-log-buffer-name (buffer-name))
+    (magit-log-set-author-date-overlays)
+    (magit-log-display-author-date)
+    (when magit-log-author-date-overlay
+      (add-hook 'window-configuration-change-hook
+                'magit-log-display-author-date
+                nil t))))
 
 (defvar magit-log-count ()
   "Internal var used to count the number of logs actually added in a buffer.")
@@ -3501,7 +3596,9 @@ insert a line to tell how to insert more of them"
 
 (defun magit-wash-log (&optional style)
   (let ((magit-old-top-section nil))
-    (magit-wash-sequence (apply-partially 'magit-wash-log-line style))))
+    (magit-log-initialize-author-date-overlay)
+    (magit-wash-sequence (apply-partially 'magit-wash-log-line style))
+    (magit-log-create-author-date-overlay)))
 
 (defvar magit-currently-shown-commit nil)
 
@@ -5273,9 +5370,6 @@ With a non numeric prefix ARG, show all entries"
 
 \\{magit-log-mode-map}"
   :group 'magit)
-
-(defvar magit-log-buffer-name "*magit-log*"
-  "Buffer name for display of log entries.")
 
 (magit-define-command log-ranged ()
   (interactive)
