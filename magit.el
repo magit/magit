@@ -4711,7 +4711,7 @@ option, falling back to something hairy if that is unset."
     (define-key map (kbd "C-x #") 'magit-log-edit-commit)
     (define-key map (kbd "C-c C-a") 'magit-log-edit-toggle-amending)
     (define-key map (kbd "C-c C-s") 'magit-log-edit-toggle-signoff)
-    (define-key map (kbd "C-c C-S") 'magit-log-edit-toggle-gpgsign)
+    (define-key map (kbd "C-c C-v") 'magit-log-edit-toggle-gpgsign)
     (define-key map (kbd "C-c C-t") 'magit-log-edit-toggle-author)
     (define-key map (kbd "C-c C-e") 'magit-log-edit-toggle-allow-empty)
     (define-key map (kbd "M-p") 'log-edit-previous-comment)
