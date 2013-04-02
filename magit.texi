@@ -356,6 +356,15 @@ Typing @kbd{C} will also pop up the change description buffer, but in
 addition, it will try to insert a ChangeLog-style entry for the change
 that point is in.
 
+You can create fixup! or squash! commits for the autosquash feature of
+@code{git-rebase} by typing @kbd{' '} or @kbd{' s}, respectively.  The
+created commit will be autosquashed to the commit at point or, if the commit
+at point is to be autosquashed, to the commit the commit at point will be
+squashed to.  If there are staged changes, the new commit is created out of
+those.  If there are no staged changes,
+@code{magit-commit-all-when-nothing-staged} determines what is done.  Magit
+will offer to set rebase.autosquash option if necessary.
+
 @node History
 @chapter History
 
@@ -741,6 +750,9 @@ commits.  You can finish editing the buffer and proceed with the rebase
 by pressing @kbd{C-c C-c}, which is bound to @code{server-edit} in
 this mode, and you can abort the rebase with @kbd{C-c C-k}, just like
 when editing a commit message in Magit.
+
+See @ref{Staging and Committing} for information about creating commits
+for the autosquash feature of @code{git-rebase}.
 
 @node Rewriting
 @chapter Rewriting
