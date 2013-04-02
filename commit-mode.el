@@ -509,9 +509,6 @@ Turning on git commit calls the hooks in `commit-mode-hook'."
   (run-mode-hooks 'commit-mode-hook)
   (setq mode-name "Commit"))
 
-;;;###autoload
-(when (boundp 'session-mode-disable-list)
-  (add-to-list 'session-mode-disable-list 'commit-mode))
 
 ;;;###autoload
 ;; override the existing defition in magit.el where
