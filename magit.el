@@ -512,6 +512,11 @@ Many Magit faces inherit from this one by default."
   "Face for merge conflict marker seperator."
   :group 'magit-faces)
 
+(defface magit-diff-merge-diff3-separator
+  '((t :inherit font-lock-preprocessor-face))
+  "Face for merge conflict marker seperator."
+  :group 'magit-faces)
+
 (defface magit-diff-merge-proposed
   '((t :inherit font-lock-preprocessor-face))
   "Face for merge conflict marker 'proposed' line."
@@ -2956,6 +2961,8 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                         (magit-put-line-property 'face 'magit-diff-merge-current))
                        ((string-match "^[\\+]+=======" line)
                         (magit-put-line-property 'face 'magit-diff-merge-separator))
+                       ((string-match "^[\\+]+|||||||" line)
+                        (magit-put-line-property 'face 'magit-diff-merge-diff3-separator))
                        ((string-match "^[\\+]+>>>>>>> " line)
                         (magit-put-line-property 'face 'magit-diff-merge-proposed))
                        ((string-match "\\+" prefix)
@@ -4759,7 +4766,7 @@ even if `magit-set-upstream-on-push's value is `refuse'."
     (define-key map (kbd "C-x #") 'magit-log-edit-commit)
     (define-key map (kbd "C-c C-a") 'magit-log-edit-toggle-amending)
     (define-key map (kbd "C-c C-s") 'magit-log-edit-toggle-signoff)
-    (define-key map (kbd "C-c C-S") 'magit-log-edit-toggle-gpgsign)
+    (define-key map (kbd "C-c C-v") 'magit-log-edit-toggle-gpgsign)
     (define-key map (kbd "C-c C-t") 'magit-log-edit-toggle-author)
     (define-key map (kbd "C-c C-e") 'magit-log-edit-toggle-allow-empty)
     (define-key map (kbd "M-p") 'log-edit-previous-comment)
