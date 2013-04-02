@@ -437,7 +437,7 @@ TYPE and NOTE are passed along unmodified."
         (committer-email (commit-mode-committer-email)))
     (commit-mode-insert-header type committer-name committer-email note)))
 
-(defmacro git-define-commit-mode-self (action header)
+(defmacro commit-mode-define-header (action header)
   "Create function commit-mode-ACTION.
 ACTION will be part of the function name.
 HEADER is the actual header to be inserted into the comment."
@@ -463,51 +463,20 @@ retrieved automatically with the same mechanism git uses."
         (list (when current-prefix-arg t)))
        (commit-mode-insert-header-as-self ,header note))))
 
-(git-define-commit-mode-self "ack"     "Acked-by")
-(git-define-commit-mode-self "review"  "Reviewed-by")
-(git-define-commit-mode-self "signoff" "Signed-off-by")
-(git-define-commit-mode-self "test"    "Tested-by")
-
-(defmacro git-define-git-commit (action header)
-  "Create interactive function commit-mode-ACTION.
-ACTION will be part of the function name.
-HEADER is the actual header to be inserted into the comment."
-  (let ((func-name (intern (concat "commit-mode-" action))))
-    `(defun ,func-name (name email &optional note)
-       ,(format "Insert a '%s' header at the end of the commit message.
-The value of the header is determined by NAME and EMAIL.
-
-When called interactively, both NAME and EMAIL are read from the
-minibuffer.
-
-If NOTE is given, an additional note will be inserted.
-
-If NOTE satisfies `stringp', the value of NOTE will be inserted
-as the content of the note.
-
-If NOTE is not nil and doesn't satisfy `stringp', the
-surroundings of an additional note will be inserted, and the
-point will be left where the content of the note needs to be
-inserted.
-
-NOTE defaults to `current-prefix-arg'."
-                header)
-       (interactive
-        (list (read-string "Name: ")
-              (read-string "Email: ")
-              (when current-prefix-arg t)))
-       (commit-mode-insert-header ,header name email note))))
-
-(git-define-git-commit "cc" "Cc")
-(git-define-git-commit "reported" "Reported-by")
+(commit-mode-define-header "signoff"  "Signed-off-by")
+(commit-mode-define-header "ack"      "Acked-by")
+(commit-mode-define-header "review"   "Reviewed-by")
+(commit-mode-define-header "test"     "Tested-by")
+(commit-mode-define-header "cc"       "Cc")
+(commit-mode-define-header "reported" "Reported-by")
 
 (defvar commit-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-c") 'commit-mode-commit)
     (define-key map (kbd "C-c C-s") 'commit-mode-signoff)
     (define-key map (kbd "C-c C-a") 'commit-mode-ack)
-    (define-key map (kbd "C-c C-t") 'commit-mode-test)
     (define-key map (kbd "C-c C-r") 'commit-mode-review)
+    (define-key map (kbd "C-c C-t") 'commit-mode-test)
     (define-key map (kbd "C-c C-o") 'commit-mode-cc)
     (define-key map (kbd "C-c C-p") 'commit-mode-reported)
     map))
