@@ -512,6 +512,11 @@ Many Magit faces inherit from this one by default."
   "Face for merge conflict marker seperator."
   :group 'magit-faces)
 
+(defface magit-diff-merge-diff3-separator
+  '((t :inherit font-lock-preprocessor-face))
+  "Face for merge conflict marker seperator."
+  :group 'magit-faces)
+
 (defface magit-diff-merge-proposed
   '((t :inherit font-lock-preprocessor-face))
   "Face for merge conflict marker 'proposed' line."
@@ -2918,6 +2923,8 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                         (magit-put-line-property 'face 'magit-diff-merge-current))
                        ((string-match "^[\\+]+=======" line)
                         (magit-put-line-property 'face 'magit-diff-merge-separator))
+                       ((string-match "^[\\+]+|||||||" line)
+                        (magit-put-line-property 'face 'magit-diff-merge-diff3-separator))
                        ((string-match "^[\\+]+>>>>>>> " line)
                         (magit-put-line-property 'face 'magit-diff-merge-proposed))
                        ((string-match "\\+" prefix)
