@@ -24,6 +24,7 @@
 ;;; Code:
 
 (require 'cl-lib)
+(require 'magit)
 
 (defgroup git-commit '((jit-lock custom-group))
   "Mode for editing git commit messages"
@@ -546,6 +547,11 @@ Turning on git commit calls the hooks in `commit-mode-hook'."
 ;;;###autoload
 (when (boundp 'session-mode-disable-list)
   (add-to-list 'session-mode-disable-list 'commit-mode))
+
+;;;###autoload
+;; override the existing defition in magit.el where
+;; magit-log-edit-mode is derived from text-mode
+(define-derived-mode magit-log-edit-mode commit-mode "Magit Log Edit")
 
 ;;;###autoload
 (setq auto-mode-alist
