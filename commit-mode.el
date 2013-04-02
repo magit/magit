@@ -107,6 +107,11 @@
   "Face used to highlight comments in git commit messages"
   :group 'commit-mode-faces)
 
+(defface commit-mode-magit-header-face
+  '((t :inherit font-lock-preprocessor-face))
+  "Face used to highlight the Magit header."
+  :group 'commit-mode-faces)
+
 (defface commit-mode-pseudo-header-face
   '((((class grayscale) (background light))
      (:foreground "LightGray" :weight bold))
@@ -261,6 +266,12 @@ default comments in git commit messages"
       (2 'commit-mode-comment-file-face))
      ("^#.*$"
       (0 'commit-mode-comment-face))
+     (,magit-log-header-re
+      (0 'commit-mode-magit-header-face))
+     (,(concat (regexp-quote magit-log-header-end) "\\(?:\\(?:[[:space:]]*\\|#.*\\)\n\\)*\\(.\\{,50\\}\\)\\(.*?\\)\\(?:\n\\(.*\\)\\)?$")
+      (1 'commit-mode-summary-face)
+      (2 'commit-mode-overlong-summary-face)
+      (3 'commit-mode-nonempty-second-line-face))
      ("\\`\\(?:\\(?:[[:space:]]*\\|#.*\\)\n\\)*\\(.\\{,50\\}\\)\\(.*?\\)\\(?:\n\\(.*\\)\\)?$"
       (1 'commit-mode-summary-face)
       (2 'commit-mode-overlong-summary-face)
