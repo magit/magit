@@ -282,39 +282,6 @@ default comments in git commit messages"
 
 (defvar commit-mode-font-lock-keywords commit-mode-font-lock-keywords-1)
 
-(defvar commit-mode-hook nil
-  "List of functions to be called when activating `commit-mode'.")
-
-(defun commit-mode--save-and-exit ()
-  (save-buffer)
-  (kill-buffer))
-
-(defcustom commit-mode-commit-function
-  #'commit-mode--save-and-exit
-  "Function to actually perform a commit.
-Used by `commit-mode-commit'."
-  :group 'git-commit
-  :type '(radio (function-item :doc "Call `save-buffers-kill-terminal'."
-                               commit-mode--save-and-exit)
-                (function)))
-
-(defun commit-mode-commit ()
-  "Finish editing the commit message and commit.
-By default this only calls `save-buffer', as there is no general
-way to actually trigger git to commit whatever the commit message
-was intended for.
-
-After calling `save-buffer', the hooks in
-`commit-mode-commit-hook' will be run.  If you have configured git
-in a way that simply invokes Emacs for editing the commit
-message, you might want to this:
-
-  (add-hook 'commit-mode-commit-hook
-          (lambda () (save-buffers-kill-terminal)))"
-  (interactive)
-  (save-buffer)
-  (funcall commit-mode-commit-function))
-
 (defun commit-mode-git-config-var (key)
   "Retrieve a git configuration value.
 Invokes 'git config --get' to retrieve the value for the
@@ -475,7 +442,7 @@ retrieved automatically with the same mechanism git uses."
 
 (defvar commit-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-c") 'commit-mode-commit)
+    (define-key map (kbd "C-c C-c") 'server-edit)
     (define-key map (kbd "C-c C-s") 'commit-mode-signoff)
     (define-key map (kbd "C-c C-a") 'commit-mode-ack)
     (define-key map (kbd "C-c C-r") 'commit-mode-review)
