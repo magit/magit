@@ -261,7 +261,7 @@ untracked files are deleted.
 @node Staging and Committing
 @chapter Staging and Committing
 
-Comitting with Git is a two step process: first you add the changes
+Committing with Git is a two step process: first you add the changes
 you want to commit to a 'staging area', and then you commit them to
 the repository.  This allows you to only commit a subset of your local
 changes.
@@ -489,7 +489,7 @@ Typing @kbd{v} will apply the selected changes in reverse.
 @node Tagging
 @chapter Tagging
 
-Typing @kbd{t t} will make a lighweight tag.  Typing @kbd{t a} will
+Typing @kbd{t t} will make a lightweight tag.  Typing @kbd{t a} will
 make an annotated tag.  It will put you in the normal
 @code{*magit-log-edit} buffer for writing commit messages, but typing
 @kbd{C-c C-c} in it will make the tag instead.  This is controlled by
@@ -1009,7 +1009,7 @@ In particular it allows to:
 
 @itemize @bullet
 @item
-Define sections to display specific informations about the current state
+Define sections to display specific information about the current state
 of the repository, and place them relatively to existing sections.
 
 @code{magit-define-inserter} automagically defines two hooks called
@@ -1184,7 +1184,7 @@ Require acknowledgment before reverting an item.
 Require acknowledgment before canceling the log edit buffer.
 
 @item magit-remote-ref-format
-What format to use for autocompleting refs, in pariticular for
+What format to use for autocompleting refs, in particular for
 remotes.
 
 Autocompletion is used by functions like @code{magit-checkout},
