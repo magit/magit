@@ -475,7 +475,7 @@ retrieved automatically with the same mechanism git uses."
           (insert text))))))
 
 ;;;###autoload
-(defun commit-mode ()
+(define-derived-mode commit-mode text-mode "Commit"
   "Major mode for editing git commit messages.
 This mode helps with editing git commit messages both by
 providing commands to do common tasks, and by highlighting the
@@ -489,11 +489,7 @@ Commands:\\<commit-mode-map>
 \\[commit-mode-review]   `commit-mode-review'   Insert a Reviewed-by header
 \\[commit-mode-cc]   `commit-mode-cc'   Insert a Cc header
 \\[commit-mode-reported]   `commit-mode-reported'   Insert a Reported-by header
-
-Turning on git commit calls the hooks in `commit-mode-hook'."
-  (interactive)
-  (kill-all-local-variables)
-  (use-local-map commit-mode-map)
+"
   (setq font-lock-multiline t)
   (setq font-lock-defaults '(commit-mode-font-lock-keywords t))
   (make-local-variable 'comment-start-skip)
@@ -502,13 +498,7 @@ Turning on git commit calls the hooks in `commit-mode-hook'."
   (setq comment-start-skip "^#\s"
         comment-start "# "
         comment-end "")
-  (setq major-mode 'commit-mode)
-  (commit-mode-font-lock-diff)
-  (when (fboundp 'toggle-save-place)
-    (toggle-save-place 0))
-  (run-mode-hooks 'commit-mode-hook)
-  (setq mode-name "Commit"))
-
+  (commit-mode-font-lock-diff))
 
 ;;;###autoload
 ;; override the existing defition in magit.el where
