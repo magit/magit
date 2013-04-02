@@ -237,7 +237,7 @@ git commit messages"
 default comments in git commit messages"
   :group 'commit-mode-faces)
 
-(defconst commit-mode-font-lock-keywords-1
+(defconst commit-mode-font-lock-keywords
   (append
    '(("^\\(#\s+On branch \\)\\(.*\\)$"
       (1 'commit-mode-comment-face)
@@ -279,8 +279,6 @@ default comments in git commit messages"
       (4 'commit-mode-note-brace-face))
      (".*"
       (0 'commit-mode-text-face)))))
-
-(defvar commit-mode-font-lock-keywords commit-mode-font-lock-keywords-1)
 
 (defun commit-mode-git-config-var (key)
   "Retrieve a git configuration value.
