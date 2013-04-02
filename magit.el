@@ -4969,6 +4969,8 @@ option, falling back to something hairy if that is unset."
     (insert str "\n")))
 
 (defconst magit-log-header-end "-- End of Magit header --\n")
+(defconst magit-log-header-re (format "^\\([A-Za-z0-9-_]+:.*\n\\)*%s"
+                                      (regexp-quote magit-log-header-end)))
 
 (defun magit-log-edit-get-fields ()
   (let ((buf (get-buffer magit-log-edit-buffer-name))
@@ -4989,8 +4991,7 @@ option, falling back to something hairy if that is unset."
   (let ((buf (get-buffer-create magit-log-edit-buffer-name)))
     (with-current-buffer buf
       (goto-char (point-min))
-      (if (search-forward-regexp (format "^\\([A-Za-z0-9-_]+:.*\n\\)*%s"
-                                         (regexp-quote magit-log-header-end))
+      (if (search-forward-regexp magit-log-header-re
                                  nil t)
           (delete-region (match-beginning 0) (match-end 0)))
       (goto-char (point-min))
