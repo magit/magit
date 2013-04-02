@@ -23,6 +23,8 @@
 
 ;;; Code:
 
+(require 'cl-lib)
+
 (defgroup git-commit '((jit-lock custom-group))
   "Mode for editing git commit messages"
   :group 'faces)
@@ -239,7 +241,7 @@ default comments in git commit messages"
    '(("^\\(#\s+On branch \\)\\(.*\\)$"
       (1 'commit-mode-comment-face)
       (2 'commit-mode-branch-face)))
-   (loop for exp in
+   (cl-loop for exp in
          '(("Not currently on any branch." . commit-mode-no-branch-face)
            ("Changes to be committed:"     . commit-mode-comment-heading-face)
            ("Untracked files:"             . commit-mode-comment-heading-face)
@@ -332,7 +334,7 @@ configuration key KEY."
   "Get the value of the first defined environment variable.
 Walk VARS, call `getenv' on each element and return the first
 non-nil return value of `getenv'."
-  (loop for var in vars
+  (cl-loop for var in vars
         do (let ((val (getenv var)))
              (when val (return val)))))
 
