@@ -54,6 +54,7 @@ command-line).")
      (man-page "git-log")
      (actions
       ("l" "Short" magit-log)
+      ("s" "Simple" magit-log-simple)
       ("L" "Long" magit-log-long)
       ("h" "Reflog" magit-reflog)
       ("f" "File log" magit-single-file-log)

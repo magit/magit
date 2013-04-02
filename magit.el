@@ -880,10 +880,12 @@ in STR."
 (make-variable-buffer-local 'magit-have-abbrev)
 (put 'magit-have-abbrev 'permanent-local t)
 
-(defun magit-configure-have-graph ()
-  (if (eq magit-have-graph 'unset)
-      (let ((res (magit-git-exit-code "log" "--graph" "--max-count=0")))
-        (setq magit-have-graph (eq res 0)))))
+(defun magit-configure-have-graph (&optional disable-t)
+  (if disable-t
+      (setq magit-have-graph nil)
+    (if (eq magit-have-graph 'unset)
+        (let ((res (magit-git-exit-code "log" "--graph" "--max-count=0")))
+          (setq magit-have-graph (eq res 0))))))
 
 (defun magit-configure-have-decorate ()
   (if (eq magit-have-decorate 'unset)
@@ -5600,8 +5602,8 @@ With a non numeric prefix ARG, show all entries"
     (magit-refresh)
     (goto-char old-point)))
 
-(defun magit-refresh-log-buffer (range style args)
-  (magit-configure-have-graph)
+(defun magit-refresh-log-buffer (range style args &optional no-graph)
+  (magit-configure-have-graph no-graph)
   (magit-configure-have-decorate)
   (magit-configure-have-abbrev)
   (setq magit-current-range range)
@@ -5671,6 +5673,20 @@ With a non numeric prefix ARG, show all entries"
     (magit-buffer-switch magit-log-buffer-name)
     (magit-mode-init topdir 'magit-log-mode #'magit-refresh-log-buffer range
                      'long args)))
+
+(magit-define-command log-simple (&optional ask-for-range &rest extra-args)
+  (interactive)
+  (let* ((log-range (if ask-for-range
+                        (magit-read-rev-range "Log" "HEAD")
+                      "HEAD"))
+         (topdir (magit-get-top-dir default-directory))
+         (args (nconc (list (magit-rev-range-to-git log-range))
+                      magit-custom-options
+                      extra-args))
+         (magit-log-cutoff-length 1000))
+    (magit-buffer-switch magit-log-buffer-name)
+    (magit-mode-init topdir 'magit-log-mode #'magit-refresh-log-buffer log-range
+                     'oneline args t)))
 
 ;;; Reflog
 
