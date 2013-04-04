@@ -136,16 +136,16 @@ ref."
      (message "Magit WIP got an error: %S" err))))
 
 (defun magit-wip-save ()
-  (let* ((top-dir (magit-get-top-dir default-directory))
-         (name (file-truename (buffer-file-name)))
-         (spec `((?r . ,(file-relative-name name top-dir))
-                 (?f . ,(buffer-file-name))
-                 (?g . ,top-dir))))
-    (when (and top-dir (file-writable-p top-dir))
-      (save-excursion ; kludge see https://github.com/magit/magit/issues/441
-        (magit-run-git "wip" "save"
-                       (format-spec magit-wip-commit-message spec)
-                       "--editor" "--" name))
+  (let* ((filename (expand-file-name (file-truename (buffer-file-name))))
+         (toplevel (magit-get-top-dir (file-name-directory filename)))
+         (blobname (file-relative-name filename toplevel))
+         (spec `((?f . ,filename)
+                 (?r . ,blobname)
+                 (?g . ,toplevel))))
+    (when (and toplevel (file-writable-p toplevel))
+      (magit-run-git "wip" "save"
+                     (format-spec magit-wip-commit-message spec)
+                     "--editor" "--" filename)
       (when magit-wip-echo-area-message
         (message (format-spec magit-wip-echo-area-message spec))))))
 
