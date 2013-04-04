@@ -211,7 +211,7 @@ If USE-CACHE is non nil, use the cached information."
       (magit-refresh))))
 
 (defun magit-svn-external-directories()
-  "Returns all .git directories within `magit-svn-externals-dir'"
+  "Returns all .git directories within `magit-svn-externals-dir'."
   (require 'find-lisp)
   (find-lisp-find-files-internal (expand-file-name magit-svn-externals-dir)
                                  '(lambda(file dir)

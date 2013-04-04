@@ -235,8 +235,7 @@
 (defun magit-stgit-refresh ()
   "Refresh the contents of a patch in an StGit series.
 If there is no marked patch in the series, refreshes the current
-patch.
-Otherwise, refreshes the marked patch."
+patch.  Otherwise, refreshes the marked patch."
   (interactive)
   (if magit-stgit--marked-patch
       (magit-run magit-stgit-executable "refresh" "-p" magit-stgit--marked-patch)

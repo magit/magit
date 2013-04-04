@@ -43,7 +43,7 @@
     (magit-run-git-flow "feature" "start" name)))
 
 (defun magit-flow-feature-list ()
-  "List the feature branches managed by flow"
+  "List the feature branches managed by flow."
   (let ((current-feature nil)
         (all-features nil))
     (dolist (name (magit-run-git-lines-flow "feature" "list"))
