@@ -6354,43 +6354,44 @@ These are the branch names with the remote name stripped."
          (other-ref      (match-string 7))
          (current (string-match-p "^\\*" current-string)))
 
-    ; the current line is deleted before being reconstructed
+    ;; the current line is deleted before being reconstructed
     (delete-region (point)
                    (line-beginning-position 2))
 
     (magit-with-section branch 'branch
       (magit-set-section-info branch)
       (insert-before-markers
-       ; sha1
+       ;; sha1
        (propertize (or sha1
                        (make-string magit-sha1-abbrev-length ? ))
                    'face 'magit-log-sha1)
        " "
-       ; current marker
+       ;; current marker
        (if current
            "# "
          "  ")
-       ; branch name
+       ;; branch name
        (apply 'propertize (magit-branch-no-remote branch)
               (if current
                   '(face magit-branch)))
-       ; other ref that this branch is pointing to
+       ;; other ref that this branch is pointing to
        (if other-ref
            (concat " -> " (substring other-ref (+ 1 (length remote-name))))
          "")
-       ; tracking information
+       ;; tracking information
        (if (and tracking
                 (equal (magit-remote-branch-for branch t)
                        (concat "refs/remotes/" tracking)))
            (concat " ["
-                   ; getting rid of the tracking branch name if it is the same as the branch name
+                   ;; getting rid of the tracking branch name if it is
+                   ;; the same as the branch name
                    (let* ((tracking-remote (magit-get "branch" branch "remote"))
                           (tracking-branch (substring tracking (+ 1 (length tracking-remote)))))
                      (propertize (if (string= branch tracking-branch)
                                      (concat "@ " tracking-remote)
                                    (concat tracking-branch " @ " tracking-remote))
                                  'face 'magit-log-head-label-remote))
-                   ; ahead/behind information
+                   ;; ahead/behind information
                    (if (or ahead
                            behind)
                        ": "
