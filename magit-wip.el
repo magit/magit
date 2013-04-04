@@ -130,15 +130,22 @@ ref."
       (message "Git command 'git wip' cannot be found"))))
 
 (defun magit-wip-save ()
-  (let* ((top-dir (magit-get-top-dir default-directory))
-         (name (file-truename (buffer-file-name)))
-         (spec `((?r . ,(file-relative-name name top-dir))
-                 (?f . ,(buffer-file-name))
-                 (?g . ,top-dir))))
-    (when (and top-dir (file-writable-p top-dir))
+  (let* ((filename (expand-file-name (file-truename (buffer-file-name))))
+         (filedir  (file-name-directory filename))
+         (toplevel (magit-get-top-dir filedir))
+         (blobname (file-relative-name filename toplevel))
+         (spec `((?f . ,filename)
+                 (?r . ,blobname)
+                 (?g . ,toplevel))))
+    (when (and toplevel (file-writable-p toplevel)
+               (not (member blobname
+                            (let ((default-directory filedir))
+                              (magit-git-lines
+                               "ls-files" "--other" "--ignored"
+                               "--exclude-standard" "--full-name")))))
       (magit-run-git-async "wip" "save"
                            (format-spec magit-wip-commit-message spec)
-                           "--editor" "--" name)
+                           "--editor" "--" filename)
       (when magit-wip-echo-area-message
         (message (format-spec magit-wip-echo-area-message spec))))))
 
