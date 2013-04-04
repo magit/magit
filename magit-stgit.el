@@ -1,7 +1,7 @@
 ;;; magit-stgit.el --- StGit plug-in for Magit
 
 ;; Copyright (C) 2011  Lluis Vilanova
-;;
+
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation; either version 3, or (at your option)
@@ -235,8 +235,7 @@
 (defun magit-stgit-refresh ()
   "Refresh the contents of a patch in an StGit series.
 If there is no marked patch in the series, refreshes the current
-patch.
-Otherwise, refreshes the marked patch."
+patch.  Otherwise, refreshes the marked patch."
   (interactive)
   (if magit-stgit--marked-patch
       (magit-run magit-stgit-executable "refresh" "-p" magit-stgit--marked-patch)

@@ -86,9 +86,10 @@
   "Commit message for git-wip commits.
 
 The following `format'-like specs are supported:
-%f the full name of the file being saved, and
-%r the name of the file being saved, relative to the repository root
-%g the root of the git repository."
+%f the full name of the file being saved
+#g the root of the git repository
+%r the name of the file being saved,
+   relative to the repository root."
   :group 'magit
   :type 'string)
 
@@ -96,9 +97,10 @@ The following `format'-like specs are supported:
   "Message shown in the echo area after creating a git-wip commit.
 
 The following `format'-like specs are supported:
-%f the full name of the file being saved, and
-%r the name of the file being saved, relative to the repository root.
-%g the root of the git repository."
+%f the full name of the file being saved
+#g the root of the git repository
+%r the name of the file being saved,
+   relative to the repository root."
   :group 'magit
   :type '(choice (const :tag "No message" nil) string))
 
@@ -108,9 +110,9 @@ The following `format'-like specs are supported:
 (define-minor-mode magit-wip-save-mode
   "Magit support for committing to a work-in-progress ref.
 
-When this minor mode is turned on and a file is saved inside a writable
-git repository then it is also committed to a special work-in-progress
-ref."
+When this minor mode is turned on and a file is saved inside a
+writable git repository then it is also committed to a special
+work-in-progress ref."
   :lighter magit-wip-save-mode-lighter
   (if magit-wip-save-mode
       (add-hook  'after-save-hook 'magit-wip-save t t)
