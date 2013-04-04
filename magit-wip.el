@@ -131,12 +131,18 @@ ref."
 
 (defun magit-wip-save ()
   (let* ((filename (expand-file-name (file-truename (buffer-file-name))))
-         (toplevel (magit-get-top-dir (file-name-directory filename)))
+         (filedir  (file-name-directory filename))
+         (toplevel (magit-get-top-dir filedir))
          (blobname (file-relative-name filename toplevel))
          (spec `((?f . ,filename)
                  (?r . ,blobname)
                  (?g . ,toplevel))))
-    (when (and toplevel (file-writable-p toplevel))
+    (when (and toplevel (file-writable-p toplevel)
+               (not (member blobname
+                            (let ((default-directory filedir))
+                              (magit-git-lines
+                               "ls-files" "--other" "--ignored"
+                               "--exclude-standard" "--full-name")))))
       (magit-run-git-async "wip" "save"
                            (format-spec magit-wip-commit-message spec)
                            "--editor" "--" filename)
