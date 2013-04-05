@@ -3610,22 +3610,18 @@ Evaluate (man \"git-check-ref-format\") for details")
 
 (defconst magit-log-longline-re
   (concat
-   ;; use \0 delimiter (from -z option) to identify commits. this prevents
-   ;; commit messages containing lines like "commit 00000" from polluting the
-   ;; display
-   "\\(?:\\`\\|\0\\)"
-   "\\(\\(?:[---_\\*|/.] ?\\)+ *\\)"               ; graph   (1)
+   "\\(\\(?: ?[---_\\*|/.]+ \\)* *\\)"             ; graph   (1)
    "\\(?:"
    "commit "
    "\\([0-9a-fA-F]+\\)"                            ; sha1    (2)
-   "\\(?:"                                         ; refs    (3)
+   "\\(?:"
    " "
-   "\\("
+   "\\("                                           ; refs    (3)
    "("
    magit-refname-re "\\(?:, " magit-refname-re "\\)*"
    ")"
    "\\)"
-   "\\)?"
+   "\\)?$"
    "\\)?"
    "\\(.+\\)?$"                                    ; msg     (4)
    ))
@@ -5801,7 +5797,7 @@ With a non numeric prefix ARG, show all entries"
              ,(format "--abbrev=%s" magit-sha1-abbrev-length)
              ,@(cl-case style
                  (long
-                  (append (list "--stat" "-z")
+                  (append (list "--stat")
                           (when magit-log-show-gpg-status
                             (list "--show-signature"))))
                  (oneline
