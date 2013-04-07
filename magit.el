@@ -3259,6 +3259,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
     (let ((buf (current-buffer))
           (name (concat (magit-git-dir) "magit-add-index")))
       (with-temp-file name
+        (set (make-variable-buffer-local 'buffer-file-coding-system) 'undecided-unix)
         (insert-buffer-substring buf))
       (let ((hash
              (magit-git-string "hash-object" "-t" "blob" "-w" (concat "--path=" magit-file-name) "--" name))
@@ -3331,6 +3332,7 @@ argument) in the current window."
     (magit-insert-diff-item-patch diff tmp)
     (let ((name (concat (magit-git-dir) "magit-apply-diff-item")))
       (with-temp-file name
+        (set (make-variable-buffer-local 'buffer-file-coding-system) 'undecided-unix)
         (insert-buffer-substring tmp))
       (apply #'magit-run-git-with-input name
              "apply" (append args (list name))))))
@@ -3358,6 +3360,7 @@ member of ARGS, or to the working file otherwise."
         (magit-insert-hunk-item-patch hunk tmp))
       (let ((name (concat (magit-git-dir) "magit-apply-hunk-item")))
         (with-temp-file name
+          (set (make-variable-buffer-local 'buffer-file-coding-system) 'undecided-unix)
           (insert-buffer-substring tmp))
         (apply #'magit-run-git-with-input name
                "apply" (append args (list name)))))))
@@ -5109,6 +5112,7 @@ environment (potentially empty)."
         (let ((process-environment env)
               (file (concat (magit-git-dir) "magit-log-edit-commit")))
           (with-temp-file file
+            (set (make-variable-buffer-local 'buffer-file-coding-system) 'undecided-unix)
             (insert-buffer-substring commit-buf))
           (cond (tag-name
                  (apply #'magit-run-git-with-input file
