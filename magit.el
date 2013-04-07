@@ -2237,8 +2237,12 @@ magit-topgit and magit-svn"
 (defvar magit-process-buffer-name "*magit-process*"
   "Buffer name for running git commands.")
 
+(defvar magit-run-input-file nil)
+(make-variable-buffer-local 'magit-run-input-file)
+(put 'magit-run-input-file 'permanent-local t)
+
 (defun magit-run* (cmd-and-args
-                   &optional logline noerase noerror nowait input)
+                   &optional logline noerase noerror nowait file)
   (if (and magit-process
            (get-buffer magit-process-buffer-name))
       (error "Git is already running"))
@@ -2253,6 +2257,7 @@ magit-topgit and magit-svn"
     (with-current-buffer buf
       (view-mode 1)
       (set (make-local-variable 'view-no-disable-on-exit) t)
+      (set (make-local-variable 'magit-run-input-file) file)
       (setq view-exit-action
             (lambda (buffer)
               (with-current-buffer buffer
@@ -2272,12 +2277,6 @@ magit-topgit and magit-svn"
                        (apply 'magit-start-process cmd buf cmd args)))
                (set-process-sentinel magit-process 'magit-process-sentinel)
                (set-process-filter magit-process 'magit-process-filter)
-               (when input
-                 (with-current-buffer input
-                   (process-send-region magit-process
-                                        (point-min) (point-max)))
-                 (process-send-eof magit-process)
-                 (sit-for 0.1 t))
                (cond ((= magit-process-popup-time 0)
                       (pop-to-buffer (process-buffer magit-process)))
                      ((> magit-process-popup-time 0)
@@ -2291,28 +2290,13 @@ magit-topgit and magit-svn"
                               (goto-char (point-max))))))
                        (current-buffer))))
                (setq successp t))
-              (input
-               (with-current-buffer input
-                 (setq default-directory dir)
-                 (setq magit-process
-                       ;; Don't use a pty, because it would set icrnl
-                       ;; which would modify the input (issue #20).
-                       (let ((process-connection-type nil))
-                         (apply 'magit-start-process cmd buf cmd args)))
-                 (set-process-filter magit-process 'magit-process-filter)
-                 (process-send-region magit-process
-                                      (point-min) (point-max))
-                 (process-send-eof magit-process)
-                 (while (equal (process-status magit-process) 'run)
-                   (sit-for 0.1 t))
-                 (setq successp
-                       (equal (process-exit-status magit-process) 0))
-                 (setq magit-process nil))
-               (magit-set-mode-line-process nil)
-               (magit-need-refresh magit-process-client-buffer))
               (t
-               (setq successp
-                     (equal (apply 'process-file cmd nil buf nil args) 0))
+               (unwind-protect
+                   (setq successp
+                         (equal (apply 'process-file cmd nil buf nil args) 0))
+                 (when file (delete-file file))
+                 (with-current-buffer buf
+                   (setq magit-run-input-file nil)))
                (magit-set-mode-line-process nil)
                (magit-need-refresh magit-process-client-buffer))))
       (or successp
@@ -2340,6 +2324,9 @@ magit-topgit and magit-svn"
                                           'magit-display-process))))
                "M-x magit-display-process")))
     (with-current-buffer (process-buffer process)
+      (when magit-run-input-file
+        (delete-file magit-run-input-file)
+        (setq magit-run-input-file nil))
       (let ((inhibit-read-only t))
         (goto-char (point-max))
         (insert msg "\n")
@@ -2407,12 +2394,12 @@ magit-topgit and magit-svn"
                               magit-git-standard-options)
                         args))))
 
-(defun magit-run-git-with-input (input &rest args)
+(defun magit-run-git-with-input (file &rest args)
   (magit-with-refresh
     (magit-run* (append (cons magit-git-executable
                               magit-git-standard-options)
                         args)
-                nil nil nil nil input)))
+                nil nil nil nil file)))
 
 (defun magit-run-git-async (&rest args)
   (message "Running %s %s" magit-git-executable (mapconcat 'identity args " "))
@@ -2421,8 +2408,8 @@ magit-topgit and magit-svn"
                       args)
               nil nil nil t))
 
-(defun magit-run-async-with-input (input cmd &rest args)
-  (magit-run* (cons cmd args) nil nil nil t input))
+(defun magit-run-async-with-input (file cmd &rest args)
+  (magit-run* (cons cmd args) nil nil nil t file))
 
 (defun magit-display-process ()
   "Display output from most recent git command."
@@ -3342,8 +3329,11 @@ argument) in the current window."
     (setq args (cons "--unidiff-zero" args)))
   (with-magit-tmp-buffer tmp
     (magit-insert-diff-item-patch diff tmp)
-    (apply #'magit-run-git-with-input tmp
-           "apply" (append args (list "-")))))
+    (let ((name (concat (magit-git-dir) "magit-apply-diff-item")))
+      (with-temp-file name
+        (insert-buffer-substring tmp))
+      (apply #'magit-run-git-with-input name
+             "apply" (append args (list name))))))
 
 (defun magit-apply-hunk-item* (hunk reverse &rest args)
   "Apply single hunk or part of a hunk to the index or working file.
@@ -3366,8 +3356,11 @@ member of ARGS, or to the working file otherwise."
           (magit-insert-hunk-item-region-patch
            hunk reverse (region-beginning) (region-end) tmp)
         (magit-insert-hunk-item-patch hunk tmp))
-      (apply #'magit-run-git-with-input tmp
-             "apply" (append args (list "-"))))))
+      (let ((name (concat (magit-git-dir) "magit-apply-hunk-item")))
+        (with-temp-file name
+          (insert-buffer-substring tmp))
+        (apply #'magit-run-git-with-input name
+               "apply" (append args (list name)))))))
 
 (defun magit-apply-hunk-item (hunk &rest args)
   (apply #'magit-apply-hunk-item* hunk nil args))
@@ -5113,18 +5106,21 @@ environment (potentially empty)."
     (let ((env process-environment)
           (commit-buf (current-buffer)))
       (with-current-buffer (magit-find-status-buffer default-directory)
-        (let ((process-environment env))
+        (let ((process-environment env)
+              (file (concat (magit-git-dir) "magit-log-edit-commit")))
+          (with-temp-file file
+            (insert-buffer-substring commit-buf))
           (cond (tag-name
-                 (apply #'magit-run-git-with-input commit-buf
+                 (apply #'magit-run-git-with-input file
                         "tag" (append tag-options
-                                      (list tag-name "-a" "-F" "-" tag-rev))))
+                                      (list tag-name "-a" "-F" file tag-rev))))
                 (t
-                 (apply #'magit-run-async-with-input commit-buf
+                 (apply #'magit-run-async-with-input file
                         magit-git-executable
                         (append magit-git-standard-options
                                 '("commit")
                                 magit-custom-options
-                                '("-F" "-")
+                                (list "-F" file)
                                 (when (and commit-all (not allow-empty))
                                   '("--all"))
                                 (when amend '("--amend"))
