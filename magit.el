@@ -6289,7 +6289,7 @@ With a prefix argument, kill the buffer instead."
   (interactive "P")
   (let ((winconf magit-status-window-conf)) 
     (quit-window kill-buffer (selected-window))
-    (set-window-configuration winconf)))
+    (and winconf (set-window-configuration winconf))))
 
 (defun magit--branch-name-at-point ()
   "Get the branch name in the line at point."
