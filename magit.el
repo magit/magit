@@ -2564,23 +2564,25 @@ before the last command."
 Please see the manual for a complete description of Magit.
 
 \\{magit-mode-map}"
-  (kill-all-local-variables)
-  (buffer-disable-undo)
-  (setq buffer-read-only t
-        truncate-lines t
-        major-mode 'magit-mode
-        mode-name "Magit"
-        mode-line-process "")
-  (add-hook 'pre-command-hook #'magit-remember-point nil t)
-  (add-hook 'post-command-hook #'magit-post-command-hook t t)
-  (use-local-map magit-mode-map)
-  (setq magit-current-indentation (magit-indentation-for default-directory))
-  ;; Emacs' normal method of showing trailing whitespace gives weird
-  ;; results when `magit-whitespace-warning-face' is different from
-  ;; `trailing-whitespace'.
-  (if (and magit-highlight-whitespace magit-highlight-trailing-whitespace)
-      (setq show-trailing-whitespace nil))
-  (run-mode-hooks 'magit-mode-hook))
+  (let ((winconf magit-status-window-conf))
+    (kill-all-local-variables)
+    (setq-local magit-status-window-conf winconf)
+    (buffer-disable-undo)
+    (setq buffer-read-only t
+          truncate-lines t
+          major-mode 'magit-mode
+          mode-name "Magit"
+          mode-line-process "")
+    (add-hook 'pre-command-hook #'magit-remember-point nil t)
+    (add-hook 'post-command-hook #'magit-post-command-hook t t)
+    (use-local-map magit-mode-map)
+    (setq magit-current-indentation (magit-indentation-for default-directory))
+    ;; Emacs' normal method of showing trailing whitespace gives weird
+    ;; results when `magit-whitespace-warning-face' is different from
+    ;; `trailing-whitespace'.
+    (if (and magit-highlight-whitespace magit-highlight-trailing-whitespace)
+        (setq show-trailing-whitespace nil))
+    (run-mode-hooks 'magit-mode-hook)))
 
 (defun magit-mode-init (dir submode refresh-func &rest refresh-args)
   (setq default-directory dir
@@ -4158,6 +4160,7 @@ to consider it or not when called with that buffer current."
        (string= (magit-get-top-dir magit-default-directory)
                 (magit-get-top-dir (file-name-directory buffer-file-name)))))
 
+(defvar magit-status-window-conf nil)
 ;;;###autoload
 (defun magit-status (dir)
   "Open a Magit status buffer for the Git repository containing DIR.
@@ -4174,7 +4177,8 @@ when asking for user input."
                              4))
                        (or (magit-get-top-dir default-directory)
                            (magit-read-top-dir nil)))))
-  (let ((topdir (magit-get-top-dir dir)))
+  (let ((topdir (magit-get-top-dir dir))
+        (winconf (current-window-configuration)))
     (unless topdir
       (when (y-or-n-p (format "There is no Git repository in %S.  Create one? "
                               dir))
@@ -4189,6 +4193,7 @@ when asking for user input."
                               (file-name-nondirectory
                                (directory-file-name topdir)) "*")))))
         (funcall magit-status-buffer-switch-function buf)
+        (setq-local magit-status-window-conf winconf)
         (magit-mode-init topdir 'magit-status-mode #'magit-refresh-status)))))
 
 (magit-define-command automatic-merge (revision)
@@ -6282,7 +6287,9 @@ Return values:
   "Bury the buffer and delete its window.
 With a prefix argument, kill the buffer instead."
   (interactive "P")
-  (quit-window kill-buffer (selected-window)))
+  (let ((winconf magit-status-window-conf)) 
+    (quit-window kill-buffer (selected-window))
+    (set-window-configuration winconf)))
 
 (defun magit--branch-name-at-point ()
   "Get the branch name in the line at point."
