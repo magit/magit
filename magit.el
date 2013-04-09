@@ -2566,7 +2566,7 @@ Please see the manual for a complete description of Magit.
 \\{magit-mode-map}"
   (let ((winconf magit-status-window-conf))
     (kill-all-local-variables)
-    (setq-local magit-status-window-conf winconf)
+    (set (make-local-variable 'magit-status-window-conf) winconf)
     (buffer-disable-undo)
     (setq buffer-read-only t
           truncate-lines t
@@ -4193,7 +4193,7 @@ when asking for user input."
                               (file-name-nondirectory
                                (directory-file-name topdir)) "*")))))
         (funcall magit-status-buffer-switch-function buf)
-        (setq-local magit-status-window-conf winconf)
+        (set (make-local-variable 'magit-status-window-conf) winconf)
         (magit-mode-init topdir 'magit-status-mode #'magit-refresh-status)))))
 
 (magit-define-command automatic-merge (revision)
