@@ -6404,8 +6404,7 @@ These are the branch names with the remote name stripped."
                    (if ahead
                        (concat "ahead "
                                (propertize ahead
-                                           'face (if current
-                                                     'magit-branch))
+                                           'face 'magit-log-head-label-local)
                                (if behind
                                    ", "
                                  ""))
