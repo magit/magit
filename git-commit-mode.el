@@ -233,17 +233,8 @@ Return t, if the commit was successful, or nil otherwise."
   "Retrieve a git configuration value.
 Invokes 'git config --get' to retrieve the value for the
 configuration key KEY."
-  (let* ((exit)
-         (output
-          (with-output-to-string
-            (with-current-buffer
-                standard-output
-              (setq exit
-                    (call-process "git" nil (list t nil) nil
-                                  "config" "--get" key))))))
-    (if (not (= 0 exit))
-        nil
-      (substring output 0 (- (length output) 1)))))
+  (ignore-errors
+      (car (process-lines "git" "config" "--get" key))))
 
 (defun git-commit-first-env-var (&rest vars)
   "Get the value of the first defined environment variable.
