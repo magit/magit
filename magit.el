@@ -6052,8 +6052,8 @@ written to .git/info/exclude."
        (magit-run-git "stash" "drop" info)))
     ((branch)
      (when (yes-or-no-p (if current-prefix-arg
-                            "Force delete branch?"
-                          "Delete branch? "))
+                            (concat "Force delete branch [" info "]? ")
+                          (concat "Delete branch [" info "]? ")))
        (magit-delete-branch info current-prefix-arg)))
     ((remote)
      (when (yes-or-no-p "Remove remote? ")
