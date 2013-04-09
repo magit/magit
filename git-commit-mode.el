@@ -572,17 +572,12 @@ basic structure of and errors in git commit messages."
   (when (fboundp 'toggle-save-place)
     (toggle-save-place 0)))
 
-
 ;;;###autoload
-;; Overwrite magit-log-edit-mode to derive it from git-commit-mode
-(eval-after-load 'magit
-  #'(define-derived-mode magit-log-edit-mode git-commit-mode "Magit Log Edit"))
-
-;;;###autoload
-;; Change the Magit log edit keymap to use our commit and header insertion
-;; bindings
+;; Overwrite magit-log-edit-mode to derive from git-commit-mode, and change it's
+;; key bindings to use our commit and header insertion bindings
 (eval-after-load 'magit
   #'(progn
+      (define-derived-mode magit-log-edit-mode git-commit-mode "Magit Log Edit")
       (substitute-key-definition 'magit-log-edit-toggle-signoff
                                  'git-commit-signoff
                                  magit-log-edit-mode-map)
