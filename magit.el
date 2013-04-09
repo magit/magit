@@ -143,7 +143,6 @@
 (eval-when-compile
   (require 'grep))
 
-(require 'epa)
 (require 'cl-lib)
 
 (require 'log-edit)
@@ -668,6 +667,12 @@ Many Magit faces inherit from this one by default."
   "Face for unknown ref labels shown in log buffer."
   :group 'magit-faces)
 
+(defface magit-valid-signature
+  (if (require 'epa nil t)
+      '((t :inherit epa-validity-high))
+    '((t :weight bold :foreground "PaleTurquoise")))
+  "Face for valid gpg signatures."
+  :group 'magit-faces)
 
 (defvar magit-custom-options '()
   "List of custom options to pass to Git.
@@ -3585,7 +3590,7 @@ must return a string which will represent the log line.")
                     'face (if gpg-status
                               (if (string= gpg-status "B")
                                   'error
-                                'epa-validity-high)
+                                'magit-valid-signature)
                             'magit-log-message)
                     message)
                    message))))
