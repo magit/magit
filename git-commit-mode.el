@@ -569,6 +569,7 @@ basic structure of and errors in git commit messages."
   ;; Font locking
   (setq font-lock-defaults '(git-commit-mode-font-lock-keywords t))
   (set (make-local-variable 'font-lock-multiline) t)
+  (git-commit-font-lock-diff)
   ;; Filling according to the guidelines
   (setq fill-column 72)
   (turn-on-auto-fill)
