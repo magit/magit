@@ -668,6 +668,12 @@ Many Magit faces inherit from this one by default."
   "Face for unknown ref labels shown in log buffer."
   :group 'magit-faces)
 
+(defface magit-valid-signature
+  (if (require 'epa nil t)
+      '((t :inherit epa-validity-high))
+    '((t :weight bold :foreground "PaleTurquoise")))
+  "Face for valid gpg signatures."
+  :group 'magit-faces)
 
 (defvar magit-custom-options '()
   "List of custom options to pass to Git.
@@ -3623,7 +3629,7 @@ must return a string which will represent the log line.")
                     'face (if gpg-status
                               (if (string= gpg-status "B")
                                   'error
-                                'epa-validity-high)
+                                'magit-valid-signature)
                             'magit-log-message)
                     message)
                    message))))
@@ -6102,8 +6108,8 @@ written to .git/info/exclude."
        (magit-run-git "stash" "drop" info)))
     ((branch)
      (when (yes-or-no-p (if current-prefix-arg
-                            "Force delete branch?"
-                          "Delete branch? "))
+                            (concat "Force delete branch [" info "]? ")
+                          (concat "Delete branch [" info "]? ")))
        (magit-delete-branch info current-prefix-arg)))
     ((remote)
      (when (yes-or-no-p "Remove remote? ")

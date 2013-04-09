@@ -61,6 +61,7 @@ command-line).")
       ("rh" "Ranged reflog" magit-reflog-ranged))
      (switches
       ("-m" "Only merge commits" "--merges")
+      ("-do" "Date Order" "--date-order")
       ("-f" "First parent" "--first-parent")
       ("-i" "Case insensitive patterns" "-i")
       ("-pr" "Pickaxe regex" "--pickaxe-regex")
