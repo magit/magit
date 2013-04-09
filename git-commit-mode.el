@@ -552,14 +552,6 @@ Known comment headings are provided by `git-commit-comment-headings'."
           (insert text))))))
 
 ;;;###autoload
-(defun git-commit-mode-magit-setup ()
-  (message "Magit integration is now always enabled!")
-  "Compatibility function.
-
-Obsolete function for compatibility with older releases.  Does
-nothing.")
-
-;;;###autoload
 (define-derived-mode git-commit-mode text-mode "Git Commit"
   "Major mode for editing git commit messages.
 
