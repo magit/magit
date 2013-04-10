@@ -1,10 +1,36 @@
+;;; magit-key-mode.el --- interactively tune git invocation
+
+;; Copyright (C) 2010  Phil Jackson
+
+;; Magit is free software; you can redistribute it and/or modify it
+;; under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 3, or (at your option)
+;; any later version.
+;;
+;; Magit is distributed in the hope that it will be useful, but WITHOUT
+;; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+;; or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+;; License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with Magit.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; This library implements `magit-key-mode' which is used throughout
+;; Magit to let the user interactively select the command, switches
+;; and options to call Git with.  It can be though of as a way to
+;; provide "postfix" arguments.
+
+;;; Code:
+
 (require 'magit)
 
 (eval-when-compile (require 'cl-lib))
 
 (defvar magit-key-mode-key-maps '()
   "This will be filled lazily with proper `define-key' built
-  keymaps as they're requested.")
+keymaps as they're requested.")
 
 (defvar magit-key-mode-buf-name "*magit-key: %s*"
   "Format string to create the name of the magit-key buffer.")
@@ -14,11 +40,11 @@
 
 (defvar magit-key-mode-current-args nil
   "A hash-table of current argument set (which will eventually
-  make it to the git command-line).")
+make it to the git command-line).")
 
 (defvar magit-key-mode-current-options '()
   "Current option set (which will eventually make it to the git
-  command-line).")
+command-line).")
 
 (defvar magit-log-mode-window-conf nil
   "Will hold the pre-menu configuration of magit.")
@@ -35,6 +61,7 @@
       ("rh" "Ranged reflog" magit-reflog-ranged))
      (switches
       ("-m" "Only merge commits" "--merges")
+      ("-do" "Date Order" "--date-order")
       ("-f" "First parent" "--first-parent")
       ("-i" "Case insensitive patterns" "-i")
       ("-pr" "Pickaxe regex" "--pickaxe-regex")
@@ -438,8 +465,7 @@ the key combination highlighted before the description."
   (insert (propertize header 'face 'font-lock-keyword-face) "\n"))
 
 (defvar magit-key-mode-args-in-cols nil
-  "When true, draw arguments in columns as with switches and
-  options.")
+  "When true, draw arguments in columns as with switches and options.")
 
 (defun magit-key-mode-draw-args (args)
   "Draw the args part of the menu."
@@ -484,9 +510,9 @@ the key combination highlighted before the description."
      one-col-each)))
 
 (defun magit-key-mode-draw-in-cols (strings one-col-each)
-  "Given a list of strings, print in columns (using `insert'). If
-ONE-COL-EACH is true then don't columify, but rather, draw each
-item on one line."
+  "Given a list of strings, print in columns (using `insert').
+If ONE-COL-EACH is true then don't columify, but rather, draw
+each item on one line."
   (let ((longest-act (apply 'max (mapcar 'length strings))))
     (while strings
       (let ((str (car strings)))
@@ -539,3 +565,4 @@ Return the point before the actions part, if any, nil otherwise."
       magit-key-mode-groups)
 
 (provide 'magit-key-mode)
+;;; magit-key-mode.el ends here

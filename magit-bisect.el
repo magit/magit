@@ -1,3 +1,26 @@
+;;; magit-bisect.el --- bisect support for Magit
+
+;; Copyright (C) 2011  Moritz Bunkus
+
+;; Magit is free software; you can redistribute it and/or modify it
+;; under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 3, or (at your option)
+;; any later version.
+;;
+;; Magit is distributed in the hope that it will be useful, but WITHOUT
+;; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+;; or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+;; License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with Magit.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; Control git-bisect from Magit.
+
+;;; Code:
+
 (require 'magit)
 
 (defvar magit--bisect-last-pos)
@@ -21,7 +44,7 @@ match REQUIRED-STATUS."
         (list :status (if (magit--bisecting-p) 'running 'not-running)))))
 
 (defun magit--bisect-cmd (&rest args)
-  "Run `git bisect ...' and update the status buffer"
+  "Run `git bisect ...' and update the status buffer."
   (with-current-buffer (magit-find-status-buffer)
     (let* ((output (apply 'magit-git-lines (append '("bisect") args)))
            (cmd (car args))
@@ -44,7 +67,7 @@ match REQUIRED-STATUS."
   (magit-refresh))
 
 (defun magit--bisect-info-for-status (branch)
-  "Return bisect info suitable for display in the status buffer"
+  "Return bisect info suitable for display in the status buffer."
   (let* ((info (magit--bisect-info))
          (status (plist-get info :status)))
     (cond ((eq status 'not-running)
@@ -59,7 +82,7 @@ match REQUIRED-STATUS."
            "(bisecting; unknown error occured)"))))
 
 (defun magit-bisect-start ()
-  "Start a bisect session"
+  "Start a bisect session."
   (interactive)
   (if (magit--bisecting-p)
       (error "Already bisecting"))
@@ -68,21 +91,21 @@ match REQUIRED-STATUS."
     (magit--bisect-cmd "start" bad good)))
 
 (defun magit-bisect-reset ()
-  "Quit a bisect session"
+  "Quit a bisect session."
   (interactive)
   (unless (magit--bisecting-p)
     (error "Not bisecting"))
   (magit--bisect-cmd "reset"))
 
 (defun magit-bisect-good ()
-  "Tell git that the current revision is good during a bisect session"
+  "Tell git that the current revision is good during a bisect session."
   (interactive)
   (unless (magit--bisecting-p 'running)
     (error "Not bisecting"))
   (magit--bisect-cmd "good"))
 
 (defun magit-bisect-bad ()
-  "Tell git that the current revision is bad during a bisect session"
+  "Tell git that the current revision is bad during a bisect session."
   (interactive)
   (unless (magit--bisecting-p 'running)
     (error "Not bisecting"))
@@ -96,7 +119,7 @@ match REQUIRED-STATUS."
   (magit--bisect-cmd "skip"))
 
 (defun magit-bisect-log ()
-  "Show the bisect log"
+  "Show the bisect log."
   (interactive)
   (unless (magit--bisecting-p)
     (error "Not bisecting"))
@@ -104,7 +127,7 @@ match REQUIRED-STATUS."
   (magit-display-process))
 
 (defun magit-bisect-visualize ()
-  "Show the remaining suspects with gitk"
+  "Show the remaining suspects with gitk."
   (interactive)
   (unless (magit--bisecting-p)
     (error "Not bisecting"))
@@ -121,7 +144,7 @@ match REQUIRED-STATUS."
   "Previously run bisect commands.")
 
 (defun magit-bisect-run (command)
-  "Bisect automatically by running commands after each step"
+  "Bisect automatically by running commands after each step."
   (interactive
    (list
     (read-from-minibuffer "Run command (like this): "
@@ -193,3 +216,4 @@ match REQUIRED-STATUS."
                             (abbreviate-file-name default-directory)))))))))
 
 (provide 'magit-bisect)
+;;; magit-bisect.el ends here

@@ -86,9 +86,10 @@
   "Commit message for git-wip commits.
 
 The following `format'-like specs are supported:
-%f the full name of the file being saved, and
-%r the name of the file being saved, relative to the repository root
-%g the root of the git repository."
+%f the full name of the file being saved
+#g the root of the git repository
+%r the name of the file being saved,
+   relative to the repository root."
   :group 'magit
   :type 'string)
 
@@ -96,9 +97,10 @@ The following `format'-like specs are supported:
   "Message shown in the echo area after creating a git-wip commit.
 
 The following `format'-like specs are supported:
-%f the full name of the file being saved, and
-%r the name of the file being saved, relative to the repository root.
-%g the root of the git repository."
+%f the full name of the file being saved
+#g the root of the git repository
+%r the name of the file being saved,
+   relative to the repository root."
   :group 'magit
   :type '(choice (const :tag "No message" nil) string))
 
@@ -108,9 +110,9 @@ The following `format'-like specs are supported:
 (define-minor-mode magit-wip-save-mode
   "Magit support for committing to a work-in-progress ref.
 
-When this minor mode is turned on and a file is saved inside a writable
-git repository then it is also committed to a special work-in-progress
-ref."
+When this minor mode is turned on and a file is saved inside a
+writable git repository then it is also committed to a special
+work-in-progress ref."
   :lighter magit-wip-save-mode-lighter
   (if magit-wip-save-mode
       (add-hook  'after-save-hook 'magit-wip-save t t)
@@ -130,15 +132,22 @@ ref."
       (message "Git command 'git wip' cannot be found"))))
 
 (defun magit-wip-save ()
-  (let* ((top-dir (magit-get-top-dir default-directory))
-         (name (file-truename (buffer-file-name)))
-         (spec `((?r . ,(file-relative-name name top-dir))
-                 (?f . ,(buffer-file-name))
-                 (?g . ,top-dir))))
-    (when (and top-dir (file-writable-p top-dir))
+  (let* ((filename (expand-file-name (file-truename (buffer-file-name))))
+         (filedir  (file-name-directory filename))
+         (toplevel (magit-get-top-dir filedir))
+         (blobname (file-relative-name filename toplevel))
+         (spec `((?f . ,filename)
+                 (?r . ,blobname)
+                 (?g . ,toplevel))))
+    (when (and toplevel (file-writable-p toplevel)
+               (not (member blobname
+                            (let ((default-directory filedir))
+                              (magit-git-lines
+                               "ls-files" "--other" "--ignored"
+                               "--exclude-standard" "--full-name")))))
       (magit-run-git-async "wip" "save"
                            (format-spec magit-wip-commit-message spec)
-                           "--editor" "--" name)
+                           "--editor" "--" filename)
       (when magit-wip-echo-area-message
         (message (format-spec magit-wip-echo-area-message spec))))))
 
