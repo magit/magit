@@ -708,6 +708,10 @@ This is calculated from `magit-highlight-indentation'.")
 (defvar magit-bug-report-url
   "http://github.com/magit/magit/issues")
 
+(defvar magit-status-window-conf nil
+  "Store initial window configuration before starting `magit-status'.")
+(put 'magit-status-window-conf 'permanent-local t)
+
 (defconst magit-version "@GIT_DEV_VERSION@"
   "The version of Magit that you're using.")
 
@@ -2564,25 +2568,23 @@ before the last command."
 Please see the manual for a complete description of Magit.
 
 \\{magit-mode-map}"
-  (let ((winconf magit-status-window-conf))
-    (kill-all-local-variables)
-    (set (make-local-variable 'magit-status-window-conf) winconf)
-    (buffer-disable-undo)
-    (setq buffer-read-only t
-          truncate-lines t
-          major-mode 'magit-mode
-          mode-name "Magit"
-          mode-line-process "")
-    (add-hook 'pre-command-hook #'magit-remember-point nil t)
-    (add-hook 'post-command-hook #'magit-post-command-hook t t)
-    (use-local-map magit-mode-map)
-    (setq magit-current-indentation (magit-indentation-for default-directory))
-    ;; Emacs' normal method of showing trailing whitespace gives weird
-    ;; results when `magit-whitespace-warning-face' is different from
-    ;; `trailing-whitespace'.
-    (if (and magit-highlight-whitespace magit-highlight-trailing-whitespace)
-        (setq show-trailing-whitespace nil))
-    (run-mode-hooks 'magit-mode-hook)))
+  (kill-all-local-variables)
+  (buffer-disable-undo)
+  (setq buffer-read-only t
+        truncate-lines t
+        major-mode 'magit-mode
+        mode-name "Magit"
+        mode-line-process "")
+  (add-hook 'pre-command-hook #'magit-remember-point nil t)
+  (add-hook 'post-command-hook #'magit-post-command-hook t t)
+  (use-local-map magit-mode-map)
+  (setq magit-current-indentation (magit-indentation-for default-directory))
+  ;; Emacs' normal method of showing trailing whitespace gives weird
+  ;; results when `magit-whitespace-warning-face' is different from
+  ;; `trailing-whitespace'.
+  (if (and magit-highlight-whitespace magit-highlight-trailing-whitespace)
+      (setq show-trailing-whitespace nil))
+  (run-mode-hooks 'magit-mode-hook))
 
 (defun magit-mode-init (dir submode refresh-func &rest refresh-args)
   (setq default-directory dir
@@ -4160,7 +4162,6 @@ to consider it or not when called with that buffer current."
        (string= (magit-get-top-dir magit-default-directory)
                 (magit-get-top-dir (file-name-directory buffer-file-name)))))
 
-(defvar magit-status-window-conf nil)
 ;;;###autoload
 (defun magit-status (dir)
   "Open a Magit status buffer for the Git repository containing DIR.
