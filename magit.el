@@ -858,9 +858,9 @@ in STR."
 (defun magit-buffer-switch (buf)
   (if (string-match "magit" (buffer-name))
       (switch-to-buffer buf)
+      (pop-to-buffer buf)
       (set (make-local-variable 'magit-status-window-conf)
-       (current-window-configuration))
-      (pop-to-buffer buf)))
+       (current-window-configuration))))
 
 ;;; Macros
 
