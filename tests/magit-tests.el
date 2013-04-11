@@ -29,6 +29,11 @@
              ,@body)
          (when ,buffer (kill-buffer ,buffer))))))
 
+(defun kill-current-magit-buffer ()
+  (let ((buffer (magit-find-status-buffer default-directory)))
+    (when (and buffer (buffer-live-p buffer))
+      (kill-buffer buffer))))
+
 (defun magit-tests-section-has-item-title (title &optional section-path)
   (let ((children (magit-section-children
                    (or (and section-path
@@ -77,7 +82,8 @@
       (with-temp-buffer
         (write-file (format "%s/%s" repo dummy-filename)))
       (magit-status repo)
-      (magit-tests-section-has-item-title dummy-filename '(untracked)))))
+      (magit-tests-section-has-item-title dummy-filename '(untracked))
+      (kill-current-magit-buffer))))
 
 (ert-deftest magit-staged-file-from-all ()
   (let ((dummy-filename "foo"))
@@ -86,7 +92,8 @@
         (write-file (format "%s/%s" repo dummy-filename)))
       (magit-status repo)
       (magit-stage-all t)
-      (magit-tests-section-has-item-title dummy-filename '(staged)))))
+      (magit-tests-section-has-item-title dummy-filename '(staged))
+      (kill-current-magit-buffer))))
 
 (ert-deftest magit-get-boolean ()
   (with-temp-git-repo repo
@@ -110,5 +117,11 @@
       (magit-log-edit)
       (insert "dummy message")
       (magit-log-edit-commit)
+      (let ((attempts 0))
+        (while (and magit-process (< attempts 5))
+          (message "sleep")
+          (accept-process-output magit-process 1)
+          (cl-incf attempts)))
       (with-opened-file (format "%s/%s" repo dummy-filename)
-        (should (magit-blame-mode))))))
+        (should (magit-blame-mode)))
+      (kill-current-magit-buffer))))
