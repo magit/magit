@@ -5651,7 +5651,7 @@ This is only non-nil in reflog buffers.")
 (defvar magit-ediff-windows nil
   "The window configuration that will be restored when Ediff is finished.")
 
-(defun magit-ediff()
+(defun magit-ediff ()
   "View the current DIFF section in ediff."
   (interactive)
   (let ((diff (magit-current-section)))
@@ -5699,7 +5699,7 @@ This is only non-nil in reflog buffers.")
       (ediff-buffers3 a b c '(magit-ediff-add-cleanup))
       (ediff-buffers a b '(magit-ediff-add-cleanup))))
 
-(defun magit-ediff-restore()
+(defun magit-ediff-restore ()
   "Kill any buffers in `magit-ediff-buffers' that are not visiting files and
 restore the window state that was saved before ediff was called."
   (dolist (buffer magit-ediff-buffers)
