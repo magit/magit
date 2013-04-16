@@ -5369,12 +5369,17 @@ Tag will point to the current 'HEAD'."
                      "Stashes:" 'magit-wash-stashes
                      "stash" "list"))
 
+(defvar magit-read-stash-history nil
+  "The history of inputs to `magit-stash'.")
+
 (magit-define-command stash (description)
   "Create new stash of working tree and staging area named DESCRIPTION.
 Working tree and staging area revert to the current 'HEAD'.
 With prefix argument, changes in staging area are kept.
 \('git stash save [--keep-index] DESCRIPTION')"
-  (interactive "sStash description: ")
+  (interactive (list (read-string "Stash description: "
+                                  nil
+                                  'magit-read-stash-history)))
   (apply 'magit-run-git `("stash" "save" ,@magit-custom-options "--" ,description)))
 
 (magit-define-command stash-snapshot ()
