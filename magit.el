@@ -6796,10 +6796,16 @@ This can be added to `magit-mode-hook' for example"
   :group 'magit
   :type 'boolean)
 
+;;;###autoload
 (defun magit-maybe-add-font-lock-keywords ()
   (when magit-add-font-lock-keywords
     (font-lock-add-keywords nil magit-font-lock-keywords)))
+
+;;;###autoload
 (put 'magit-maybe-add-font-lock-keywords 'safe-local-eval-function t)
+
+;;;###autoload
+(add-to-list 'safe-local-eval-forms '(require 'magit))
 
 (provide 'magit)
 

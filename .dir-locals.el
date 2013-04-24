@@ -4,4 +4,5 @@
 ((emacs-lisp-mode
   (indent-tabs-mode)
   (tab-width . 8)
+  (eval . (require 'magit))
   (eval . (magit-maybe-add-font-lock-keywords))))
