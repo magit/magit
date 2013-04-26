@@ -58,7 +58,7 @@
 ;; Copyright (C) 2008, 2009 Marius Vollmer.
 ;; Copyright (C) 2010 Mark Hepburn.
 ;; Copyright (C) 2012 Miles Bader.
-;; Copyright (C) 2010, 2011, 2012 Moritz Bunkus.
+;; Copyright (C) 2010, 2011, 2012, 2013 Moritz Bunkus.
 ;; Copyright (C) 2010 Nathan Weizenbaum.
 ;; Copyright (C) 2012 Nic Ferier.
 ;; Copyright (C) 2012 Nick Alcock.
@@ -800,6 +800,7 @@ This is calculated from `magit-highlight-indentation'.")
     (define-key map (kbd "k") 'magit-discard-item)
     (define-key map (kbd "C") 'magit-add-log)
     (define-key map (kbd "X") 'magit-reset-working-tree)
+    (define-key map (kbd "y") 'magit-cherry)
     (define-key map (kbd "z") 'magit-key-mode-popup-stashing)
     map))
 
@@ -6723,5 +6724,6 @@ This can be added to `magit-mode-hook' for example"
 ;; rest of magit core
 (require 'magit-key-mode)
 (require 'magit-bisect)
+(require 'magit-cherry)
 
 ;;; magit.el ends here
