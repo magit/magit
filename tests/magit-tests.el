@@ -15,9 +15,19 @@
           (default-directory (concat ,repo "/")))
      (unwind-protect
          (progn
-           (magit-init repo)
+           (magit-init ,repo)
            ,@body)
        (delete-directory ,repo t))))
+
+(defmacro with-cloned-git-repo (source-repo dest-repo &rest body)
+  (declare (indent 2) (debug t))
+  `(let* ((,dest-repo (make-temp-file "tmp_git" t))
+          (default-directory (concat ,dest-repo "/")))
+     (unwind-protect
+         (progn
+           (magit-run* (list magit-git-executable "clone" ,source-repo ,dest-repo))
+           ,@body)
+       (delete-directory ,dest-repo t))))
 
 (defmacro with-opened-file (file &rest body)
   (declare (indent 1) (debug t))
@@ -28,6 +38,21 @@
              (setq ,buffer (find-file-literally ,file))
              ,@body)
          (when ,buffer (kill-buffer ,buffer))))))
+
+
+(defun magit-tests--get-latest-sha1 ()
+  (magit-git-string "log"
+                    "-n"
+                    "1"
+                    (format "--abbrev=%s" magit-sha1-abbrev-length)
+                    "--format=%h"
+                    "HEAD"))
+
+(defun magit-tests--commit-all (msg)
+  (magit-stage-all t)
+  (magit-log-edit)
+  (insert msg)
+  (magit-log-edit-commit))
 
 (defun magit-tests-section-has-item-title (title &optional section-path)
   (let ((children (magit-section-children
@@ -88,6 +113,30 @@
       (magit-stage-all t)
       (magit-tests-section-has-item-title dummy-filename '(staged)))))
 
+(ert-deftest magit-unpushed ()
+  (let ((dummy-filename "foo"))
+    (with-temp-git-repo repo-server
+      (with-temp-buffer
+        (insert "1")
+        (write-file (format "%s/%s" repo-server dummy-filename)))
+      (magit-status repo-server)
+      (magit-tests--commit-all "dummy message")
+
+      (with-cloned-git-repo repo-server repo-client
+        (with-temp-buffer
+          (insert "2")
+          (write-file (format "%s/%s" repo-client dummy-filename)))
+        (magit-status repo-client)
+        (magit-tests--commit-all "an unpushed commit")
+        (magit-tests-section-has-item-title (magit-tests--get-latest-sha1) '(unpushed))
+
+        (with-temp-buffer
+          (insert "3")
+          (write-file (format "%s/%s" repo-client dummy-filename)))
+        (magit-status repo-client)
+        (magit-tests--commit-all "an unpushed commit #2")
+        (magit-tests-section-has-item-title (magit-tests--get-latest-sha1) '(unpushed))))))
+
 (ert-deftest magit-get-boolean ()
   (with-temp-git-repo repo
     (magit-run* '("git" "config" "core.safecrlf" "true"))
@@ -106,9 +155,6 @@
         (insert "dummy content")
         (write-file (format "%s/%s" repo dummy-filename)))
       (magit-status repo)
-      (magit-stage-all t)
-      (magit-log-edit)
-      (insert "dummy message")
-      (magit-log-edit-commit)
+      (magit-tests--commit-all "dummy message")
       (with-opened-file (format "%s/%s" repo dummy-filename)
         (should (magit-blame-mode))))))

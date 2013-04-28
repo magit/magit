@@ -3450,6 +3450,13 @@ member of ARGS, or to the working file otherwise."
 ;; --decorate=full otherwise some ref prefixes are stripped
 ;;  '("--pretty=format:* %H%d %s" "--decorate=full"))
 
+(defconst magit-unpushed-or-unpulled-commit-re
+  (concat "^\\* "
+          "\\([0-9a-fA-F]+\\) " ;; sha
+          "\\(.*\\)$"           ;; message
+          )
+  "Regexp for parsing format in `magit-git-log-options'.")
+
 ;;
 ;; Regexps for parsing ref names
 ;;
@@ -4040,10 +4047,34 @@ in `magit-commit-buffer-name'."
       branch
     (concat remote "/" branch)))
 
+
+(defun magit-wash-unpulled-or-unpushed ()
+  (save-match-data
+    (let ((magit-old-top-section nil))
+      (magit-wash-sequence
+       (lambda ()
+         (beginning-of-line)
+         (if (looking-at magit-unpushed-or-unpulled-commit-re)
+           (let* ((sha1 (match-string 1))
+                  (bol (point-at-bol))
+                  (line (make-magit-log-line :sha1 sha1
+                                             :msg (match-string 2))))
+             (delete-region bol (point-at-eol))
+             (insert (funcall magit-present-log-line-function line))
+             (goto-char bol)
+             (if sha1
+               (magit-with-section sha1 'commit
+                 (magit-set-section-info sha1)
+                 (forward-line))
+               (forward-line)))
+           (forward-line))
+         t)))))
+
+
 (magit-define-inserter unpulled-commits (remote branch)
   (when remote
     (apply #'magit-git-section
-           'unpulled "Unpulled commits:" 'magit-wash-log "log"
+           'unpulled "Unpulled commits:" #'magit-wash-unpulled-or-unpushed "log"
            (append magit-git-log-options
                    (list
                     (format "HEAD..%s" (magit-remote-branch-name remote branch)))))))
@@ -4051,7 +4082,7 @@ in `magit-commit-buffer-name'."
 (magit-define-inserter unpushed-commits (remote branch)
   (when remote
     (apply #'magit-git-section
-           'unpushed "Unpushed commits:" 'magit-wash-log "log"
+           'unpushed "Unpushed commits:" #'magit-wash-unpulled-or-unpushed "log"
            (append magit-git-log-options
                    (list
                     (format "%s..HEAD" (magit-remote-branch-name remote branch)))))))
@@ -5425,12 +5456,17 @@ Tag will point to the current 'HEAD'."
                      "Stashes:" 'magit-wash-stashes
                      "stash" "list"))
 
+(defvar magit-read-stash-history nil
+  "The history of inputs to `magit-stash'.")
+
 (magit-define-command stash (description)
   "Create new stash of working tree and staging area named DESCRIPTION.
 Working tree and staging area revert to the current 'HEAD'.
 With prefix argument, changes in staging area are kept.
 \('git stash save [--keep-index] DESCRIPTION')"
-  (interactive "sStash description: ")
+  (interactive (list (read-string "Stash description: "
+                                  nil
+                                  'magit-read-stash-history)))
   (apply 'magit-run-git `("stash" "save" ,@magit-custom-options "--" ,description)))
 
 (magit-define-command stash-snapshot ()
@@ -5707,7 +5743,7 @@ This is only non-nil in reflog buffers.")
 (defvar magit-ediff-windows nil
   "The window configuration that will be restored when Ediff is finished.")
 
-(defun magit-ediff()
+(defun magit-ediff ()
   "View the current DIFF section in ediff."
   (interactive)
   (let ((diff (magit-current-section)))
@@ -5755,7 +5791,7 @@ This is only non-nil in reflog buffers.")
       (ediff-buffers3 a b c '(magit-ediff-add-cleanup))
       (ediff-buffers a b '(magit-ediff-add-cleanup))))
 
-(defun magit-ediff-restore()
+(defun magit-ediff-restore ()
   "Kill any buffers in `magit-ediff-buffers' that are not visiting files and
 restore the window state that was saved before ediff was called."
   (dolist (buffer magit-ediff-buffers)
@@ -5970,6 +6006,10 @@ for the file whose log must be displayed."
     (magit-mode-init topdir 'magit-log-mode
                      #'magit-refresh-file-log-buffer
                      current-file range 'oneline)))
+
+(magit-define-command single-file-log (&optional ranged)
+  (interactive)
+  (magit-file-log))
 
 (defun magit-show-file-revision ()
   "Open a new buffer showing the current file in the revision at point."
