@@ -40,7 +40,7 @@
          (when ,buffer (kill-buffer ,buffer))))))
 
 
-(defun magit--get-latest-sha1 ()
+(defun magit-tests--get-latest-sha1 ()
   (magit-git-string "log"
                     "-n"
                     "1"
@@ -48,7 +48,7 @@
                     "--format=%h"
                     "HEAD"))
 
-(defun magit--commit-all (msg)
+(defun magit-tests--commit-all (msg)
   (magit-stage-all t)
   (magit-log-edit)
   (insert msg)
@@ -120,22 +120,22 @@
         (insert "1")
         (write-file (format "%s/%s" repo-server dummy-filename)))
       (magit-status repo-server)
-      (magit--commit-all "dummy message")
+      (magit-tests--commit-all "dummy message")
 
       (with-cloned-git-repo repo-server repo-client
         (with-temp-buffer
           (insert "2")
           (write-file (format "%s/%s" repo-client dummy-filename)))
         (magit-status repo-client)
-        (magit--commit-all "an unpushed commit")
-        (magit-tests-section-has-item-title (magit--get-latest-sha1) '(unpushed))
+        (magit-tests--commit-all "an unpushed commit")
+        (magit-tests-section-has-item-title (magit-tests--get-latest-sha1) '(unpushed))
 
         (with-temp-buffer
           (insert "3")
           (write-file (format "%s/%s" repo-client dummy-filename)))
         (magit-status repo-client)
-        (magit--commit-all "an unpushed commit #2")
-        (magit-tests-section-has-item-title (magit--get-latest-sha1) '(unpushed))))))
+        (magit-tests--commit-all "an unpushed commit #2")
+        (magit-tests-section-has-item-title (magit-tests--get-latest-sha1) '(unpushed))))))
 
 (ert-deftest magit-get-boolean ()
   (with-temp-git-repo repo
@@ -155,6 +155,6 @@
         (insert "dummy content")
         (write-file (format "%s/%s" repo dummy-filename)))
       (magit-status repo)
-      (magit--commit-all "dummy message")
+      (magit-tests--commit-all "dummy message")
       (with-opened-file (format "%s/%s" repo dummy-filename)
         (should (magit-blame-mode))))))
