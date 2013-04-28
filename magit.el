@@ -3613,12 +3613,19 @@ must return a string which will represent the log line.")
 
 (defvar magit-log-author-date-string-length nil
   "only use in `*magit-log*' buffer.")
+(make-variable-buffer-local 'magit-log-author-date-string-length)
+
 (defvar magit-log-author-string-length nil
   "only use in `*magit-log*' buffer.")
+(make-variable-buffer-local 'magit-log-author-string-length)
+
 (defvar magit-log-date-string-length nil
   "only use in `*magit-log*' buffer.")
+(make-variable-buffer-local 'magit-log-date-string-length)
+
 (defvar magit-log-author-date-overlay nil
   "only use in `*magit-log*' buffer.")
+(make-variable-buffer-local 'magit-log-author-date-overlay)
 
 (defun magit-log-make-author-date-overlay (author date)
   (let ((overlay (make-overlay (point) (point))))
@@ -3679,16 +3686,16 @@ must return a string which will represent the log line.")
   "Buffer name for display of log entries.")
 
 (defun magit-log-display-author-date ()
-  (with-selected-window (get-buffer-window magit-log-buffer-name)
+  (when (derived-mode-p 'magit-log-mode)
     (set-window-margins nil
-                        (car (window-margins))
-                        magit-log-author-date-string-length)))
+                            (car (window-margins))
+                            magit-log-author-date-string-length)))
 
 (defun magit-log-initialize-author-date-overlay ()
-  (when (equal magit-log-buffer-name (buffer-name))
-    (set (make-local-variable 'magit-log-author-date-string-length) 0)
-    (set (make-local-variable 'magit-log-author-string-length) 0)
-    (set (make-local-variable 'magit-log-date-string-length) 0)
+  (when (derived-mode-p 'magit-log-mode)
+    (setq magit-log-author-date-string-length 0)
+    (setq magit-log-author-string-length 0)
+    (setq magit-log-date-string-length 0)
     (when magit-log-author-date-overlay
       (mapc #'delete-overlay magit-log-author-date-overlay)
       (setq magit-log-author-date-overlay nil)
@@ -3696,7 +3703,7 @@ must return a string which will represent the log line.")
                    'magit-log-display-author-date t))))
 
 (defun magit-log-create-author-date-overlay ()
-  (when (equal magit-log-buffer-name (buffer-name))
+  (when (derived-mode-p 'magit-log-mode)
     (magit-log-set-author-date-overlays)
     (magit-log-display-author-date)
     (when magit-log-author-date-overlay
@@ -5946,7 +5953,7 @@ for the file whose log must be displayed."
                            (magit-read-file-from-rev (magit-get-current-branch))
                         buffer-file-name)))
         (range "HEAD"))
-    (magit-buffer-switch "*magit-log*")
+    (magit-buffer-switch magit-log-buffer-name)
     (magit-mode-init topdir 'magit-log-mode
                      #'magit-refresh-file-log-buffer
                      current-file range 'oneline)))
