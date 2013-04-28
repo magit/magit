@@ -5910,7 +5910,7 @@ for the file whose log must be displayed."
                            (magit-read-file-from-rev (magit-get-current-branch))
                         buffer-file-name)))
         (range "HEAD"))
-    (magit-buffer-switch "*magit-log*")
+    (magit-buffer-switch magit-log-buffer-name)
     (magit-mode-init topdir 'magit-log-mode
                      #'magit-refresh-file-log-buffer
                      current-file range 'oneline)))
