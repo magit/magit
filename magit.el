@@ -867,12 +867,15 @@ in STR."
 (defvar magit-have-graph 'unset)
 (defvar magit-have-decorate 'unset)
 (defvar magit-have-abbrev 'unset)
+(defvar magit-have-grep-reflog 'unset)
 (make-variable-buffer-local 'magit-have-graph)
 (put 'magit-have-graph 'permanent-local t)
 (make-variable-buffer-local 'magit-have-decorate)
 (put 'magit-have-decorate 'permanent-local t)
 (make-variable-buffer-local 'magit-have-abbrev)
 (put 'magit-have-abbrev 'permanent-local t)
+(make-variable-buffer-local 'magit-have-grep-reflog)
+(put 'magit-have-grep-reflog 'permanent-local t)
 
 (defun magit-configure-have-graph ()
   (if (eq magit-have-graph 'unset)
@@ -888,6 +891,12 @@ in STR."
   (if (eq magit-have-abbrev 'unset)
       (let ((res (magit-git-exit-code "log" "--no-abbrev-commit" "--max-count=0")))
         (setq magit-have-abbrev (eq res 0)))))
+
+(defun magit-configure-have-grep-reflog ()
+  "'git log --walk-reflogs --grep-reflog=PATTERN' is supported in git >= 1.8.0."
+  (if (eq magit-have-grep-reflog 'unset)
+      (let ((res (magit-git-exit-code "log" "--walk-reflogs" "--grep-reflog" "." "--max-count=0")))
+        (setq magit-have-grep-reflog (eq res 0)))))
 
 ;;; Compatibilities
 
@@ -4464,6 +4473,7 @@ With prefix, forces the move even if NEW already exists.
 (defun magit-guess-branch ()
   "Return a branch name depending on the context of cursor.
 If no branch is found near the cursor return nil."
+  (magit-configure-have-grep-reflog)
   (let ((branch                  ; may be t.  see `magit-section-case'
          (magit-section-case (item info)
            ((branch)
@@ -4473,7 +4483,12 @@ If no branch is found near the cursor return nil."
            ((commit)
             (magit-name-rev (substring info 0 magit-sha1-abbrev-length)))
            ((wazzup) info)
-           (t (let ((lines (magit-git-lines "reflog")))
+           (t (let ((lines
+                     (if magit-have-grep-reflog
+                         (magit-git-lines "log"
+                                          "--pretty=oneline" "--max-count=1"
+                                          "--walk-reflogs" "--grep-reflog" "moving from")
+                       (magit-git-lines "reflog"))))
                 (while (and lines
                             (not (string-match "moving from \\(.+?\\) to"
                                                (car lines))))
