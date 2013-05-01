@@ -149,6 +149,7 @@
 (require 'easymenu)
 (require 'diff-mode)
 (require 'ansi-color)
+(require 'thingatpt)
 
 ;; Silences byte-compiler warnings
 (eval-and-compile
