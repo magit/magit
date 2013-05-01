@@ -150,6 +150,7 @@
 (require 'easymenu)
 (require 'diff-mode)
 (require 'ansi-color)
+(require 'thingatpt)
 
 ;; Silences byte-compiler warnings
 (eval-and-compile
@@ -6749,15 +6750,16 @@ This can be added to `magit-mode-hook' for example"
 (magit-define-command grep (&optional pattern)
   (interactive)
   (let ((pattern (or pattern
-                     (read-string "git grep: "))))
+                     (read-string "git grep: " (word-at-point)))))
     (with-current-buffer (generate-new-buffer "*Magit Grep*")
-      (insert magit-git-executable " "
-              (mapconcat 'identity magit-git-standard-options " ")
-              " grep -n "
-              (shell-quote-argument pattern) "\n\n")
-      (magit-git-insert (list "grep" "--line-number" pattern))
-      (grep-mode)
-      (pop-to-buffer (current-buffer)))))
+      (let ((default-directory (magit-get-top-dir default-directory)))
+        (insert magit-git-executable " "
+                (mapconcat 'identity magit-git-standard-options " ")
+                " grep -n "
+                (shell-quote-argument pattern) "\n\n")
+        (magit-git-insert (list "grep" "--line-number" pattern))
+        (grep-mode)
+        (pop-to-buffer (current-buffer))))))
 
 (provide 'magit)
 
