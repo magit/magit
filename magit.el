@@ -2694,7 +2694,7 @@ Please see the manual for a complete description of Magit.
           (funcall func)
         (when magit-refresh-needing-buffers
           (magit-revert-buffers dir)
-          (dolist (b (if (memq status-buffer magit-refresh-needing-buffers)
+          (dolist (b (if (not (memq status-buffer magit-refresh-needing-buffers))
                          (cons status-buffer magit-refresh-needing-buffers)
                        magit-refresh-needing-buffers))
             (magit-refresh-buffer b)))))))
