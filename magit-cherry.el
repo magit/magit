@@ -38,24 +38,24 @@
     (magit-buffer-switch magit--cherry-buffer-name)
     (magit-mode-init topdir 'magit-cherry-mode #'magit--refresh-cherry-buffer upstream head)))
 
-(defun magit--refresh-cherry-buffer (upstream head)
+(defun magit--refresh-cherry-buffer (cherry-upstream cherry-head)
   (magit-create-buffer-sections
-    (let ((head (magit-git-string "log" "--max-count=1" "--abbrev-commit"
-                                  (format "--abbrev=%s" magit-sha1-abbrev-length)
-                                  "--pretty=oneline")))
-      (insert-before-markers (format "Local: %s %s\n"
+    (let ((branch-head (magit-git-string "log" "--max-count=1" "--abbrev-commit"
+                                         (format "--abbrev=%s" magit-sha1-abbrev-length)
+                                         "--pretty=oneline")))
+      (insert-before-markers (format "Repository:  %s %s\n"
                                      (propertize (magit-get-current-branch) 'face 'magit-branch)
                                      (abbreviate-file-name default-directory))
-                             (format "Head:  %s\n" (or head "nothing commited (yet)"))
+                             (format "Branch head: %s\n" (or branch-head "nothing commited (yet)"))
                              "\n"
                              (format "%s means: present in '%s' but not in '%s'\n"
-                                     (propertize " - " 'face 'magit-diff-del) upstream head)
+                                     (propertize " - " 'face 'magit-diff-del) cherry-upstream cherry-head)
                              (format "%s means: present in '%s' but not in '%s'\n"
-                                     (propertize " + " 'face 'magit-diff-add) head upstream)
+                                     (propertize " + " 'face 'magit-diff-add) cherry-head cherry-upstream)
                              "\n"
                              (propertize "Cherry commits:" 'face 'magit-section-title) "\n"))
     (magit-git-section 'commit nil 'magit--wash-cherry-output
-                       "cherry" "-v" upstream head)))
+                       "cherry" "-v" cherry-upstream cherry-head)))
 
 ;;; Format of "git cherry -v ..." output:
 ;;+ 8927349872a908bf hello world
