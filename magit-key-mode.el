@@ -76,7 +76,9 @@ command-line).")
       ("=<" "Before" "--before=" read-from-minibuffer)
       ("=s" "Pickaxe search" "-S" read-from-minibuffer)
       ("=a" "Author" "--author=" read-from-minibuffer)
-      ("=g" "Grep" "--grep=" read-from-minibuffer)))
+      ("=g" "Grep" "--grep=" read-from-minibuffer)
+      ("=b" "Branches" "--branches=" magit-read-rev-with-default)
+      ("=R" "Remotes" "--remotes=" read-from-minibuffer)))
 
     (running
      (actions
