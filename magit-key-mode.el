@@ -375,7 +375,7 @@ command that's eventually invoked.")
   (let ((args '()))
     ;; why can't maphash return a list?!
     (maphash (lambda (k v)
-               (push (concat k (shell-quote-argument v)) args))
+               (push (concat k v) args))
              magit-key-mode-current-args)
     (let ((magit-custom-options (append args magit-key-mode-current-options))
           (current-prefix-arg (or current-prefix-arg magit-key-mode-prefix)))
