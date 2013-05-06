@@ -81,7 +81,7 @@
 ;; Copyright (C) 2012 Romain Francoise.
 ;; Copyright (C) 2012 Ron Parker.
 ;; Copyright (C) 2012 Ryan C. Thompson.
-;; Copyright (C) 2009, 2010, 2011, 2012, 2013 Rémi Vanicat.
+;; Copyright (C) 2009-2013 Rémi Vanicat.
 ;; Copyright (C) 2011, 2012 Rüdiger Sonderfeld.
 ;; Copyright (C) 2012 Samuel Bronson.
 ;; Copyright (C) 2010 Sean Bryant.
@@ -6316,8 +6316,14 @@ Return values:
                       (magit-section-info section)))
          (old-editor (getenv "GIT_EDITOR")))
     (if (executable-find "emacsclient")
-        (setenv "GIT_EDITOR" (concat (executable-find "emacsclient")
-                                     " -s " server-name))
+        (setenv "GIT_EDITOR"
+                (cond ((string= server-name "server")
+                       (executable-find "emacsclient"))
+                      ((eq system-type 'windows-nt)
+                       (message "We don't know how to deal with non-default server name on windows")
+                       ())
+                      (t (concat (executable-find "emacsclient")
+                                 " -s " server-name))))
         (message "Cannot find emacsclient, using default git editor, please check your PATH"))
     (unwind-protect
         (magit-run-git-async "rebase" "-i"
