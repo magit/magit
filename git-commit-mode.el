@@ -577,13 +577,10 @@ basic structure of and errors in git commit messages."
                                  magit-log-edit-mode-map)))
 
 ;;;###autoload
-(setq auto-mode-alist
-      (append auto-mode-alist
-              '(("/COMMIT_EDITMSG\\'" . git-commit-mode)
-                ("/NOTES_EDITMSG\\'" . git-commit-mode)
-                ("/MERGE_MSG\\'" . git-commit-mode)
-                ("/TAG_EDITMSG\\'" . git-commit-mode)
-                ("/PULLREQ_EDITMSG\\'" . git-commit-mode))))
+(dolist (pattern '("/COMMIT_EDITMSG\\'" "/NOTES_EDITMSG\\'"
+                   "/MERGE_MSG\\'" "/TAG_EDITMSG\\'"
+                   "/PULLREQ_EDITMSG\\'"))
+  (add-to-list 'auto-mode-alist (cons pattern 'git-commit-mode)))
 
 (provide 'git-commit-mode)
 
