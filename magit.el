@@ -2245,9 +2245,13 @@ magit-topgit and magit-svn"
 
 (defun magit-run* (cmd-and-args
                    &optional logline noerase noerror nowait input)
-  (if (and magit-process
-           (get-buffer magit-process-buffer-name))
-      (error "Git is already running"))
+  (when magit-process
+    (let* ((buf (get-buffer magit-process-buffer-name))
+           (str (and buf (with-current-buffer buf
+                           (buffer-substring-no-properties
+                            (point-min) (point-max))))))
+      (when buf
+        (error "Git is already running %S" str))))
   (let ((cmd (car cmd-and-args))
         (args (cdr cmd-and-args))
         (dir default-directory)
