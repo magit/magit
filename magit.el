@@ -2243,6 +2243,8 @@ magit-topgit and magit-svn"
 (defvar magit-process-buffer-name "*magit-process*"
   "Buffer name for running git commands.")
 
+(defvar magit--disable-async t)
+
 (defun magit-run* (cmd-and-args
                    &optional logline noerase noerror nowait input)
   (when magit-process
@@ -2276,7 +2278,7 @@ magit-topgit and magit-svn"
         (insert "$ " (or logline
                          (mapconcat 'identity cmd-and-args " "))
                 "\n")
-        (cond (nowait
+        (cond ((and nowait (not magit--disable-async))
                (setq magit-process
                      (let ((process-connection-type magit-process-connection-type))
                        (apply 'magit-start-process cmd buf cmd args)))
