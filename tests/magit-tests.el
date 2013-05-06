@@ -129,7 +129,10 @@
           (write-file (format "%s/%s" repo-client dummy-filename)))
         (magit-status repo-client)
         (magit-tests--commit-all "an unpushed commit")
-        (message "--- %s" (magit-tests--get-latest-sha1))
+        (message "--- %s %s %s"
+                 (magit-tests--get-latest-sha1)
+                 (current-buffer)
+                 default-directory)
         (magit-tests-section-has-item-title (magit-tests--get-latest-sha1) '(unpushed))
 
         (with-temp-buffer
@@ -137,7 +140,10 @@
           (write-file (format "%s/%s" repo-client dummy-filename)))
         (magit-status repo-client)
         (magit-tests--commit-all "an unpushed commit #2")
-        (message "--- %s" (magit-tests--get-latest-sha1))
+        (message "--- %s %s %s"
+                 (magit-tests--get-latest-sha1)
+                 (current-buffer)
+                 default-directory)
         (magit-tests-section-has-item-title (magit-tests--get-latest-sha1) '(unpushed))))))
 
 (ert-deftest magit-get-boolean ()
