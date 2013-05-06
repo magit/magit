@@ -52,7 +52,8 @@
   (magit-stage-all t)
   (magit-log-edit)
   (insert msg)
-  (magit-log-edit-commit))
+  (magit-log-edit-commit)
+  (sit-for 10))
 
 (defun magit-tests-section-has-item-title (title &optional section-path)
   (let ((children (magit-section-children

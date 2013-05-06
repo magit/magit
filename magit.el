@@ -2243,7 +2243,7 @@ magit-topgit and magit-svn"
 (defvar magit-process-buffer-name "*magit-process*"
   "Buffer name for running git commands.")
 
-(defvar magit--disable-async t)
+(defvar magit--disable-async nil)
 
 (defun magit-run* (cmd-and-args
                    &optional logline noerase noerror nowait input)
