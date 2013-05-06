@@ -17,6 +17,8 @@
 (defvar magit-root-dir (concat magit-test-dir ".."))
 
 
+(add-to-list 'load-path "~/.emacs.d/lib/mocker")
+
 ;; Setup `load-path'
 (mapc (lambda (p) (add-to-list 'load-path p))
       (list magit-test-dir
