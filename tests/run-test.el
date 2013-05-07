@@ -3,39 +3,29 @@
 ;;   emacs -Q -l tests/run-test.el           # interactive mode
 ;;   emacs -batch -Q -l tests/run-test.el    # batch mode
 
-
-;; Utils
-(defun magit-test-join-path (p &rest ps)
-  "Join a list of PATHS with appropriate separator (such as /).
-
-\(fn &rest paths)"
-  (if ps
-      (concat (file-name-as-directory p) (apply 'magit-test-join-path ps))
-    p))
-
-(defvar magit-test-dir (file-name-directory load-file-name))
-(defvar magit-root-dir (concat magit-test-dir ".."))
-
-
 ;; Setup `load-path'
-(mapc (lambda (p) (add-to-list 'load-path p))
-      (list magit-test-dir
-            magit-root-dir
-            (magit-test-join-path magit-root-dir "lib" "mocker")))
+(let* ((test-dir (file-name-directory (or load-file-name buffer-file-name)))
+       (root-dir (file-name-directory (directory-file-name test-dir)))
+       (sitelisp (file-name-directory (directory-file-name root-dir))))
+  (add-to-list 'load-path test-dir)
+  (add-to-list 'load-path root-dir)
+  (mapc (lambda (p)
+          (when (file-directory-p p)
+            (add-to-list 'load-path p)))
+        (list (expand-file-name (convert-standard-filename "lib/mocker") root-dir)
+              (expand-file-name (convert-standard-filename "lib/cl-lib") root-dir)))
 
-
-;; Use ERT from github when this Emacs does not have it
-(unless (locate-library "ert")
-  (add-to-list
-   'load-path
-   (magit-test-join-path magit-root-dir "lib" "ert" "lisp" "emacs-lisp"))
-  (require 'ert-batch)
-  (require 'ert-ui))
-
+  ;; Use `ert' from github when this Emacs does not have it
+  (unless (locate-library "ert")
+    (add-to-list 'load-path
+                 (expand-file-name
+                  (convert-standard-filename "lib/ert/lisp/emacs-lisp")
+                  root-dir))
+    (require 'ert-batch)
+    (require 'ert-ui)))
 
 ;; Load tests
 (load "magit-tests")
-
 
 ;; Run tests
 (if noninteractive
