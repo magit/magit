@@ -12,7 +12,9 @@
   (mapc (lambda (p)
           (when (file-directory-p p)
             (add-to-list 'load-path p)))
-        (list (expand-file-name (convert-standard-filename "lib/mocker") root-dir)
+        (list (expand-file-name "mocker" sitelisp)
+              (expand-file-name "cl-lib" sitelisp)
+              (expand-file-name (convert-standard-filename "lib/mocker") root-dir)
               (expand-file-name (convert-standard-filename "lib/cl-lib") root-dir)))
 
   ;; Use `ert' from github when this Emacs does not have it
