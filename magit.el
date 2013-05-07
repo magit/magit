@@ -1032,13 +1032,12 @@ Read `completing-read' documentation for the meaning of the argument."
   (insert (magit-cmd-output cmd args)))
 
 (defun magit-cmd-output (cmd args)
-  (let ((cmd-output (with-output-to-string
-                      (with-current-buffer standard-output
-                        (apply #'process-file
-                               cmd
-                               nil (list t nil) nil
-                               args)))))
-    (ansi-color-apply cmd-output)))
+  (with-output-to-string
+    (with-current-buffer standard-output
+      (apply #'process-file
+             cmd
+             nil (list t nil) nil
+             args))))
 
 (defun magit-git-string (&rest args)
   (magit-trim-line (magit-git-output args)))
@@ -3793,6 +3792,14 @@ insert a line to tell how to insert more of them"
     (magit-wash-sequence (apply-partially 'magit-wash-log-line style))
     (magit-log-create-author-date-overlay)))
 
+(defun magit-wash-color-log (&optional style)
+  (let ((ansi-color-apply-face-function
+         (lambda (beg end face)
+           (when face
+             (put-text-property beg end 'font-lock-face face)))))
+    (ansi-color-apply-on-region (point-min) (point-max)))
+  (magit-wash-log style))
+
 (defvar magit-currently-shown-commit nil)
 
 (defun magit-wash-commit ()
@@ -5584,10 +5591,10 @@ With a non numeric prefix ARG, show all entries"
   (magit-create-log-buffer-sections
     (apply #'magit-git-section nil
            (magit-rev-range-describe range "Commits")
-           (apply-partially 'magit-wash-log style)
+           (apply-partially 'magit-wash-color-log style)
            `("log"
              ,(format "--max-count=%s" magit-log-cutoff-length)
-             ,"--abbrev-commit"
+             "--abbrev-commit"
              ,(format "--abbrev=%s" magit-sha1-abbrev-length)
              ,@(cond ((eq style 'long) (append
                                         (list "--stat" "-z")
@@ -5602,7 +5609,7 @@ With a non numeric prefix ARG, show all entries"
                      (t nil))
              ,@(if magit-have-decorate (list "--decorate=full"))
              ,@(if magit-have-graph (list "--graph"))
-             ,"--color"
+             "--color"
              ,@args
              "--"))))
 
