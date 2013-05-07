@@ -879,13 +879,12 @@ Read `completing-read' documentation for the meaning of the argument"
   (insert (magit-cmd-output cmd args)))
 
 (defun magit-cmd-output (cmd args)
-  (let ((cmd-output (with-output-to-string
-                      (with-current-buffer standard-output
-                        (apply #'process-file
-                               cmd
-                               nil (list t nil) nil
-                               args)))))
-    (replace-regexp-in-string "\e\\[.*?m" "" cmd-output)))
+  (with-output-to-string
+    (with-current-buffer standard-output
+      (apply #'process-file
+             cmd
+             nil (list t nil) nil
+             args))))
 
 (defun magit-git-string (&rest args)
   (magit-trim-line (magit-git-output args)))
