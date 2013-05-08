@@ -31,21 +31,6 @@ Emacs should be able to find it.  Then add
 
 to your `.emacs` file.
 
-Magit also now supports extensions:
-
-### git-svn
-
-`(require 'magit-svn)` - integrates with git-svn. Hit 'N' to see your
-options.
-
-### git-topgit
-
-`(require 'magit-topgit)` - integrates with topgit.
-
-### git-stgit
-
-`(require 'magit-stgit)` - integrates with StGit.
-
 Getting started
 ---------------
 
@@ -66,14 +51,30 @@ at Google Groups.
 
 Magit's website is currently hosted [on GitHub][website].
 
+Extensions
+----------
+
+Magit also now supports extensions:
+
+### git-svn
+
+`(require 'magit-svn)` - integrates with git-svn. Hit 'N' to see your
+options.
+
+### git-topgit
+
+`(require 'magit-topgit)` - integrates with topgit.
+
+### git-stgit
+
+`(require 'magit-stgit)` - integrates with StGit.
+
 Development
 -----------
 
-Magit was started by Marius Vollmer. It is now collectively maintained by the
-Magit Owners Team: https://github.com/magit?tab=members
-
-For a full list of contributors have a look at `magit.el` in the
-source distribution.
+Magit was started by Marius Vollmer. It is now collectively maintained
+by the [Magit Owners Team][owners]. [Many more people][contributors]
+have contributed.
 
 Magit's canonical source repository is currently
 [hosted on GitHub][development].
@@ -85,3 +86,5 @@ Magit's canonical source repository is currently
 [screencast]: http://vimeo.com/2871241
 [download]: http://github.com/magit/magit/downloads
 [google group]: http://groups.google.com/group/magit/
+[owners]: https://github.com/magit?tab=members
+[contributors]: https://github.com/magit/magit/contributors
