@@ -71,8 +71,7 @@ Development
 -----------
 
 Magit was started by Marius Vollmer. It is now collectively maintained
-by the [Magit Owners Team][https://github.com/magit?tab=members].
-[Many more people][https://github.com/magit/magit/contributors]
+by the [Magit Owners Team][owners]. [Many more people][contributors]
 have contributed.
 
 Magit's canonical source repository is currently
@@ -85,3 +84,5 @@ Magit's canonical source repository is currently
 [screencast]: http://vimeo.com/2871241
 [download]: http://github.com/magit/magit/downloads
 [google group]: http://groups.google.com/group/magit/
+[owners]: https://github.com/magit?tab=members
+[contributors]: https://github.com/magit/magit/contributors
