@@ -70,11 +70,10 @@ options.
 Development
 -----------
 
-Magit was started by Marius Vollmer. It is now collectively maintained by the
-Magit Owners Team: https://github.com/magit?tab=members
-
-For a full list of contributors have a look at `magit.el` in the
-source distribution.
+Magit was started by Marius Vollmer. It is now collectively maintained
+by the [Magit Owners Team][https://github.com/magit?tab=members].
+[Many more people][https://github.com/magit/magit/contributors]
+have contributed.
 
 Magit's canonical source repository is currently
 [hosted on GitHub][development].
