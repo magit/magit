@@ -6775,6 +6775,46 @@ This can be added to `magit-mode-hook' for example"
         (grep-mode)
         (pop-to-buffer (current-buffer))))))
 
+(defconst magit-font-lock-keywords
+  (eval-when-compile
+    `((,(concat "(\\(" (regexp-opt
+                     '("magit-define-level-shower"
+                       "magit-define-section-jumper"
+                       "magit-define-inserter"
+                       "magit-define-command"))
+                "\\)\\>[ \t'\(]*\\(\\sw+\\)?")
+       (1 font-lock-keyword-face)
+       (2 font-lock-function-name-face nil t))
+      (,(concat "(" (regexp-opt
+                     '("magit-with-refresh"
+                       "magit-with-silent-modifications"
+                       "magit-with-section"
+                       "magit-create-buffer-sections"
+                       "magit-section-action"
+                       "magit-add-action-clauses"
+                       "with-magit-tmp-buffer"
+                       "magit-create-log-buffer-sections"
+                       "magit-with-revert-confirmation"
+                       "magit-visiting-file-item") t)
+                "\\>")
+       . 1))))
+
+(defcustom magit-add-font-lock-keywords t
+  "Whether to fontify certain magit forms in magit source code."
+  :group 'magit
+  :type 'boolean)
+
+;;;###autoload
+(defun magit-maybe-add-font-lock-keywords ()
+  (when magit-add-font-lock-keywords
+    (font-lock-add-keywords nil magit-font-lock-keywords)))
+
+;;;###autoload
+(put 'magit-maybe-add-font-lock-keywords 'safe-local-eval-function t)
+
+;;;###autoload
+(add-to-list 'safe-local-eval-forms '(require 'magit))
+
 (provide 'magit)
 
 ;; rest of magit core
