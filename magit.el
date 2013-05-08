@@ -4511,14 +4511,14 @@ environment (potentially empty)."
                                 (if sign-off '("--signoff") '()))))))))
     ;; shouldn't we kill that buffer altogether?
     (erase-buffer)
+    ;; potentially the local environment has been altered with settings that
+    ;; were specific to this commit. Let's revert it
+    (kill-local-variable 'process-environment)
     (let ((magit-buf magit-buffer-internal))
       (bury-buffer)
       (set-buffer magit-buf))
     (when (file-exists-p (concat (magit-git-dir) "MERGE_MSG"))
       (delete-file (concat (magit-git-dir) "MERGE_MSG")))
-    ;; potentially the local environment has been altered with settings that
-    ;; were specific to this commit. Let's revert it
-    (kill-local-variable 'process-environment)
     (magit-update-vc-modeline default-directory)
     (when magit-pre-log-edit-window-configuration
       (set-window-configuration magit-pre-log-edit-window-configuration)
