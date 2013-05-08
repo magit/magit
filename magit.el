@@ -6791,16 +6791,6 @@ This can be added to `magit-mode-hook' for example"
                 "\\>")
        . 1))))
 
-(defcustom magit-add-font-lock-keywords t
-  "Whether to fontify certain magit forms in magit source code."
-  :group 'magit
-  :type 'boolean)
-
-(defun magit-maybe-add-font-lock-keywords ()
-  (when magit-add-font-lock-keywords
-    (font-lock-add-keywords nil magit-font-lock-keywords)))
-(put 'magit-maybe-add-font-lock-keywords 'safe-local-eval-function t)
-
 (provide 'magit)
 
 ;; rest of magit core
