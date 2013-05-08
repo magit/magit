@@ -19,7 +19,7 @@
 
 ;; This plug-in overrides the keybindings in magit-key-mode with
 ;; simpler keybindings; it does this by picking the most obviously
-;; used command in each key group
+;; used command in each key group.
 
 ;;; Code:
 
