@@ -100,16 +100,16 @@
 
 ;;; magit-blame.el tests
 
-(ert-deftest magit-blame-mode ()
-  (let ((dummy-filename "foo"))
-    (with-temp-git-repo repo
-      (with-temp-buffer
-        (insert "dummy content")
-        (write-file (format "%s/%s" repo dummy-filename)))
-      (magit-status repo)
-      (magit-stage-all t)
-      (magit-log-edit)
-      (insert "dummy message")
-      (magit-log-edit-commit)
-      (with-opened-file (format "%s/%s" repo dummy-filename)
-        (should (magit-blame-mode))))))
+;; (ert-deftest magit-blame-mode ()
+;;   (let ((dummy-filename "foo"))
+;;     (with-temp-git-repo repo
+;;       (with-temp-buffer
+;;         (insert "dummy content")
+;;         (write-file (format "%s/%s" repo dummy-filename)))
+;;       (magit-status repo)
+;;       (magit-stage-all t)
+;;       (magit-log-edit)
+;;       (insert "dummy message")
+;;       (magit-log-edit-commit)
+;;       (with-opened-file (format "%s/%s" repo dummy-filename)
+;;         (should (magit-blame-mode))))))
