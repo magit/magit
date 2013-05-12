@@ -140,6 +140,11 @@ git commit messages"
 default comments in git commit messages"
   :group 'git-commit-faces)
 
+(defface git-commit-skip-magit-header-face
+  '((t :inherit font-lock-preprocessor-face))
+  "Face used to highlight the magit header that should be skipped"
+  :group 'git-commit-faces)
+
 (defun git-commit-end-session ()
   "Save the buffer and end the session.
 
@@ -480,6 +485,8 @@ Known comment headings are provided by `git-commit-comment-headings'."
      ("^\\s<\t\\(?:\\([^:]+\\):\\s-+\\)?\\(.*\\)$"
       (1 'git-commit-comment-action-face t t)
       (2 'git-commit-comment-file-face t))
+     (,git-commit-skip-magit-header-regexp
+      (0 'git-commit-skip-magit-header-face))
      (,(concat "^\\("
                (regexp-opt git-commit-known-pseudo-headers)
                ":\\)\\(\s.*\\)$")
