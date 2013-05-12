@@ -288,21 +288,15 @@ before any trailing comments git or the user might have
 inserted."
   (save-excursion
     (goto-char (point-max))
-    (if (not (re-search-backward "^\\S<[^\s:]+:.*$" nil t))
-	;; no headers yet, so we'll search backwards for a good place
-	;; to insert them
-	(if (not (re-search-backward "^[^#].*?.*$" nil t))
-	    ;; no comment lines anywhere before end-of-buffer, so we
-	    ;; want to insert right there
-	    (point-max)
-	  ;; there's some comments at the end, so we want to insert
-	  ;; before those
-	  (beginning-of-line)
-	  (forward-line 1)
-	  (point))
-      ;; we're at the last header, and we want the line right after
-      ;; that to insert further headers
-      (beginning-of-line)
+    (if (not (re-search-backward "^\\S<+$" nil t))
+	;; no comment lines anywhere before end-of-buffer, so we
+	;; want to insert right there
+	(point-max)
+      ;; there's some comments at the end, so we want to insert before
+      ;; those; keep going until we find the first non-empty line
+      ;; NOTE: if there is no newline at the end of (point),
+      ;; (forward-line 1) will take us to (point-at-eol).
+      (if (eq (point-at-bol) (point-at-eol)) (re-search-backward "^.+$" nil t))
       (forward-line 1)
       (point))))
 
