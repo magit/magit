@@ -6731,7 +6731,8 @@ This can be added to `magit-mode-hook' for example"
 (magit-define-command grep (&optional pattern)
   (interactive)
   (let ((pattern (or pattern
-                     (read-string "git grep: " (word-at-point)))))
+                     (read-string "git grep: "
+                                  (shell-quote-argument (grep-tag-default))))))
     (with-current-buffer (generate-new-buffer "*Magit Grep*")
       (let ((default-directory (magit-get-top-dir default-directory)))
         (insert magit-git-executable " "
