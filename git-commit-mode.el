@@ -300,6 +300,33 @@ inserted."
       (forward-line 1)
       (point))))
 
+(defun git-commit-determine-pre-for-pseudo-header ()
+  "Find the characters to insert before the pseudo header.
+Returns either zero, one or two newlines after computation.
+
+`point' either points to an empty line (with a non-empty previous
+line) or the end of a non-empty line."
+  (let ((pre "")
+	(prev-line nil))
+    (if (not (eq (point) (point-at-bol)))
+	(progn
+	  (setq pre (concat pre "\n"))
+	  (setq prev-line (thing-at-point 'line)))
+      ;; else: (point) is at an empty line
+      (when (not (eq (point) (point-min)))
+	(setq prev-line
+	      (save-excursion
+		(forward-line -1)
+		(thing-at-point 'line)))))
+
+    ;; we have prev-line now; if it doesn't match any known pseudo
+    ;; header, add a newline
+    (when prev-line
+      (if (not (delq nil (mapcar (lambda (pseudo-header) (string-match pseudo-header prev-line))
+				 git-commit-known-pseudo-headers)))
+	  (setq pre (concat pre "\n"))))
+    pre))
+
 (defun git-commit-insert-header (type name email)
   "Insert a header into the commit message.
 The inserted headers have the format 'TYPE: NAME <EMAIL>'.
@@ -308,16 +335,11 @@ The header is inserted at the position returned by
 `git-commit-find-pseudo-header-position'.  When this position
 isn't after an existing header or a newline, an extra newline is
 inserted before the header."
-  (let* ((header-at (git-commit-find-pseudo-header-position))
-         (prev-line (or (save-excursion
-                          (goto-char (- header-at 1))
-                          (thing-at-point 'line)) ""))
-         (pre       (if (or (string-match "^[^\s:]+:.+$" prev-line)
-                            (string-match "\\`\\s-*$" prev-line))
-                        "" "\n")))
+  (let ((header-at (git-commit-find-pseudo-header-position)))
     (save-excursion
       (goto-char header-at)
-      (insert (format "%s%s: %s <%s>\n" pre type name email)))))
+      (let ((pre (git-commit-determine-pre-for-pseudo-header)))
+	(insert (format "%s%s: %s <%s>\n" pre type name email))))))
 
 (defun git-commit-insert-header-as-self (type)
   "Insert a header with the name and email address of the current user.
