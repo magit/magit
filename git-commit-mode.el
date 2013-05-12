@@ -280,6 +280,15 @@ If the above mechanism fails, the value of the variable
    (git-commit-git-config-var "user.email")
    user-mail-address))
 
+(defconst git-commit-known-pseudo-headers
+  '("Signed-off-by"
+    "Acked-by"
+    "Cc"
+    "Reported-by"
+    "Tested-by"
+    "Reviewed-by")
+  "A list of git pseudo headers to be highlighted.")
+
 (defun git-commit-find-pseudo-header-position ()
   "Find the position at which commit pseudo headers should be inserted.
 
@@ -390,15 +399,6 @@ minibuffer."
 
 (git-define-git-commit "cc" "Cc")
 (git-define-git-commit "reported" "Reported-by")
-
-(defconst git-commit-known-pseudo-headers
-  '("Signed-off-by"
-    "Acked-by"
-    "Cc"
-    "Reported-by"
-    "Tested-by"
-    "Reviewed-by")
-  "A list of git pseudo headers to be highlighted.")
 
 (defconst git-commit-comment-headings-alist
   '(("Not currently on any branch." . git-commit-no-branch-face)
