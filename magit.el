@@ -285,6 +285,11 @@ will cause all changes to be staged, after a confirmation."
   :group 'magit
   :type 'boolean)
 
+(defcustom magit-commit-no-verify nil
+  "Bypass the pre-commit and commit-msg hooks when committing."
+  :group 'magit
+  :type 'boolean)
+
 (defcustom magit-sha1-abbrev-length 7
   "The number of digits to show when a sha1 is displayed in abbreviated form."
   :group 'magit
@@ -5006,6 +5011,7 @@ even if `magit-set-upstream-on-push's value is `refuse'."
     (define-key map (kbd "C-c C-a") 'magit-log-edit-toggle-amending)
     (define-key map (kbd "C-c C-s") 'magit-log-edit-toggle-signoff)
     (define-key map (kbd "C-c C-v") 'magit-log-edit-toggle-gpgsign)
+    (define-key map (kbd "C-c C-n") 'magit-log-edit-toggle-no-verify)
     (define-key map (kbd "C-c C-t") 'magit-log-edit-toggle-author)
     (define-key map (kbd "C-c C-e") 'magit-log-edit-toggle-allow-empty)
     (define-key map (kbd "M-p") 'log-edit-previous-comment)
@@ -5043,6 +5049,13 @@ even if `magit-set-upstream-on-push's value is `refuse'."
                      (equal gpg-sign-field "yes")
                    magit-commit-gpgsign))
      :help "If selected the commit will be signed."]
+    ["No Verify" magit-log-edit-toggle-no-verify
+     :style toggle
+     :selected (let ((no-verify-field (magit-log-edit-get-field 'no-verify)))
+                 (if no-verify-field
+                     (equal no-verify-field "yes")
+                   magit-commit-no-verify))
+     :help "If selected the commit will bypass the pre-commit and commit-msg hooks."]
     ["Author" magit-log-edit-toggle-author
      :style toggle
      :selected (magit-log-edit-get-field 'author)
@@ -5195,6 +5208,10 @@ environment (potentially empty)."
          (gpg-sign (if gpg-sign-field
                        (equal (cdr gpg-sign-field) "yes")
                      magit-commit-gpgsign))
+         (no-verify-field (assq 'no-verify fields))
+         (no-verify (if no-verify-field
+                       (equal (cdr no-verify-field) "yes")
+                     magit-commit-no-verify))
          (tag-rev (cdr (assq 'tag-rev fields)))
          (tag-name (cdr (assq 'tag-name fields)))
          (author (cdr (assq 'author fields)))
@@ -5239,7 +5256,8 @@ environment (potentially empty)."
                                 (when amend '("--amend"))
                                 (when allow-empty '("--allow-empty"))
                                 (when sign-off '("--signoff"))
-                                (when gpg-sign '("-S")))))))))
+                                (when gpg-sign '("-S"))
+                                (when no-verify '("--no-verify")))))))))
     ;; shouldn't we kill that buffer altogether?
     (erase-buffer)
     ;; potentially the local environment has been altered with settings that
@@ -5286,6 +5304,12 @@ environment (potentially empty)."
 \(i.e., whether eventual commit does 'git commit -S')"
   (interactive)
   (magit-log-edit-toggle-field 'gpg-sign (not magit-commit-gpgsign)))
+
+(defun magit-log-edit-toggle-no-verify ()
+  "Toggle whether this commit will bypass the pre-commit and commit-msg hooks.
+\(i.e., whether eventual commit does 'git commit --no-verify')"
+  (interactive)
+  (magit-log-edit-toggle-field 'no-verify (not magit-commit-no-verify)))
 
 (defun magit-log-edit-toggle-author ()
   "Toggle whether this commit will include an author.
