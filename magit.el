@@ -488,7 +488,7 @@ Many Magit faces inherit from this one by default."
 
 (defface magit-branch
   '((t :inherit magit-header))
-  "Face for the current branch."
+  "Face for branches."
   :group 'magit-faces)
 
 (defface magit-diff-file-header
