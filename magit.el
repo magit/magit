@@ -58,7 +58,7 @@
 ;; Copyright (C) 2008, 2009 Marius Vollmer.
 ;; Copyright (C) 2010 Mark Hepburn.
 ;; Copyright (C) 2012 Miles Bader.
-;; Copyright (C) 2010, 2011, 2012 Moritz Bunkus.
+;; Copyright (C) 2010, 2011, 2012, 2013 Moritz Bunkus.
 ;; Copyright (C) 2010 Nathan Weizenbaum.
 ;; Copyright (C) 2012 Nic Ferier.
 ;; Copyright (C) 2012 Nick Alcock.
@@ -144,12 +144,14 @@
   (require 'grep))
 
 (require 'cl-lib)
+(require 'epa)
 
 (require 'log-edit)
 (require 'easymenu)
 (require 'diff-mode)
 (require 'ansi-color)
 (require 'thingatpt)
+(require 'ring)
 
 ;; Silences byte-compiler warnings
 (eval-and-compile
@@ -805,6 +807,7 @@ This is calculated from `magit-highlight-indentation'.")
     (define-key map (kbd "k") 'magit-discard-item)
     (define-key map (kbd "C") 'magit-add-log)
     (define-key map (kbd "X") 'magit-reset-working-tree)
+    (define-key map (kbd "y") 'magit-cherry)
     (define-key map (kbd "z") 'magit-key-mode-popup-stashing)
     map))
 
@@ -986,11 +989,17 @@ contents as well.  Don't follow symlinks."
 (defun magit-builtin-completing-read (prompt choices &optional predicate require-match
                                              initial-input hist def)
   "Magit wrapper for standard `completing-read' function."
-  (completing-read (if (and def (> (length prompt) 2)
-                            (string-equal ": " (substring prompt -2)))
-                       (format "%s (default %s): " (substring prompt 0 -2) def)
-                     prompt)
-                   choices predicate require-match initial-input hist def))
+  (let ((reply (completing-read
+                (if (and def (> (length prompt) 2)
+                         (string-equal ": " (substring prompt -2)))
+                    (format "%s (default %s): " (substring prompt 0 -2) def)
+                  prompt)
+                choices predicate require-match initial-input hist def)))
+    (if (string= reply "")
+        (if require-match
+            (error "Nothing selected")
+          nil)
+      reply)))
 
 (defun magit-completing-read (prompt collection &optional predicate require-match
                                      initial-input hist def)
@@ -1450,17 +1459,16 @@ PROMPT and UNINTERESTING are passed to `magit-read-rev'."
                 (match-string 1 branch)
               branch)))))
 
-(defun magit-read-remote (&optional prompt def)
+(defun magit-read-remote (&optional prompt def require-match)
   "Read the name of a remote.
 PROMPT is used as the prompt, and defaults to \"Remote\".
-DEF is the default value."
-  (let* ((prompt (or prompt "Remote"))
-         (def (or def (magit-guess-remote)))
-         (remotes (magit-git-lines "remote"))
-
-         (reply (magit-completing-read (concat prompt ": ") remotes
-                                       nil nil nil nil def)))
-    (if (string= reply "") nil reply)))
+DEF is the default value.  If optional REQUIRE-MATCH is non-nil then
+the user is not allowed to exit unless the input is or completes to
+an existing remote."
+  (magit-completing-read (concat prompt ": ")
+                         (magit-git-lines "remote")
+                         nil require-match nil nil
+                         (or def (magit-guess-remote))))
 
 (defun magit-read-remote-branch (remote &optional prompt default)
   (let* ((prompt (or prompt (format "Remote branch (in %s)" remote)))
@@ -2080,103 +2088,131 @@ Refinements can be undone with `magit-unrefine-section'."
         (delete-overlay magit-highlight-overlay)))))
 
 (defun magit-section-context-type (section)
-  (if (null section)
-      '()
+  (when section
     (let ((c (or (magit-section-type section)
-                 (if (symbolp (magit-section-title section))
-                     (magit-section-title section)))))
-      (if c
-          (cons c (magit-section-context-type
-                   (magit-section-parent section)))
-        '()))))
+                 (and (symbolp (magit-section-title section))
+                      (magit-section-title section)))))
+      (when c
+        (cons c (magit-section-context-type
+                 (magit-section-parent section)))))))
 
-(defun magit-prefix-p (prefix list)
-  "Return non-nil if PREFIX is a prefix of LIST.
+(defun magit-prefix-p (l1 l2)
+  "Return non-nil if list L1 is a prefix of list L1.
+L1 is a prefix of L2 if each of it's element is `equal' to the
+element at the same position in L2.  As a special case `*' in
+L1 matches zero or more arbitrary elements in L2."
+  (or (null l1)
+      (if (eq (car l1) '*)
+          (or (magit-prefix-p (cdr l1) l2)
+              (and l2
+                   (magit-prefix-p l1 (cdr l2))))
+        (and l2
+             (equal (car l1) (car l2))
+             (magit-prefix-p (cdr l1) (cdr l2))))))
 
-PREFIX and LIST should both be lists.  If the car of PREFIX is
-the symbol `*', then return non-nil if the cdr of PREFIX is a
-sublist of LIST (as if `*' matched zero or more arbitrary
-elements of LIST)"
-  ;;; Very schemish...
-  (or (null prefix)
-      (if (eq (car prefix) '*)
-          (or (magit-prefix-p (cdr prefix) list)
-              (and (not (null list))
-                   (magit-prefix-p prefix (cdr list))))
-        (and (not (null list))
-             (equal (car prefix) (car list))
-             (magit-prefix-p (cdr prefix) (cdr list))))))
+(defun magit-section-match (condition &optional section)
+  "Return t if the context type of SECTION matches CONDITION.
+
+CONDITION is a list beginning with the type of the least narrow
+section and recursively the more narrow sections.  It may also
+contain wildcards (see `magit-prefix-p').
+
+Optional SECTION is a section, if it is nil use the current
+section."
+  (magit-prefix-p (reverse condition)
+                  (magit-section-context-type
+                   (or section (magit-current-section)))))
 
 (defmacro magit-section-case (head &rest clauses)
-  "Make different action depending of current section.
+  "Choose among clauses depending on the current section.
 
-HEAD is (SECTION INFO &optional OPNAME),
-  SECTION will be bind to the current section,
-  INFO will be bind to the info's of the current section,
-  OPNAME is a string that will be used to describe current action,
+Each clause looks like (SECTION-TYPE BODY...).  The current
+section is compared against SECTION-TYPE; the corresponding
+BODY is evaluated and it's value returned.  If no clause
+succeeds return nil.
 
-CLAUSES is a list of CLAUSE, each clause is (SECTION-TYPE &BODY)
-where SECTION-TYPE describe section where BODY will be run.
+SECTION-TYPE is a list of symbols identifying a section and it's
+section context; beginning with the most narrow section.  Whether
+a clause succeeds is determined using `magit-section-match'.
+A SECTION-TYPE of t is allowed only in the final clause, and
+matches if no other SECTION-TYPE matches.
 
-This returns non-nil if some section matches. If the
-corresponding body return a non-nil value, it is returned,
-otherwise it returns t.
+While evaluating the selected BODY SECTION is dynamically bound
+to the current section and INFO to information about this
+section (see `magit-section-info').
 
-If no section matches, this returns nil if no OPNAME was given
-and throws an error otherwise."
+\(fn (SECTION INFO) (SECTION-TYPE BODY...)...)"
   (declare (indent 1))
   (let ((section (car head))
-        (info (cadr head))
-        (type (make-symbol "*type*"))
-        (context (make-symbol "*context*"))
-        (opname (car (cddr head))))
+        (info (cadr head)))
     `(let* ((,section (magit-current-section))
-            (,info (and ,section (magit-section-info ,section)))
-            (,type (and ,section (magit-section-type ,section)))
-            (,context (magit-section-context-type ,section)))
+            (,info (and ,section (magit-section-info ,section))))
        (cond ,@(mapcar (lambda (clause)
-                         (if (eq (car clause) t)
-                             `(t (or (progn ,@(cdr clause))
-                                     t))
-                           (let ((prefix (reverse (car clause)))
-                                 (body (cdr clause)))
-                             `((magit-prefix-p ',prefix ,context)
-                               (or (progn ,@body)
-                                   t)))))
-                       clauses)
-             ,@(when opname
-                 `(((run-hook-with-args-until-success
-                     ',(intern (format "magit-%s-action-hook" opname))))
-                   ((not ,type)
-                    (error "Nothing to %s here" ,opname))
-                   (t
-                    (error "Can't %s a %s"
-                           ,opname
-                           (or (get ,type 'magit-description)
-                               ,type)))))))))
+                         (let ((condition (car clause)))
+                           `(,(if (eq condition t) t
+                                `(magit-section-match ',condition ,section))
+                             ,@(cdr clause))))
+                       clauses)))))
+
+(defconst magit-section-action-success
+  (make-symbol "magit-section-action-success"))
 
 (defmacro magit-section-action (head &rest clauses)
-  (declare (indent 1))
-  `(magit-with-refresh
-     (magit-section-case ,head ,@clauses)))
+  "Choose among action clauses depending on the current section.
 
-(defmacro magit-add-action (head &rest clauses)
-  "Add additional actions to a pre-existing operator.
-The syntax is identical to `magit-section-case', except that
-OPNAME is mandatory and specifies the operation to which to add
-the actions."
+Like `magit-section-case' (which see) but if no CLAUSE succeeds
+try additional CLAUSES added with `magit-add-action-clauses'.
+Return the value of BODY of the clause that succeeded.
+
+Each use of `magit-section-action' should use an unique OPNAME.
+
+\(fn (SECTION INFO OPNAME) (SECTION-TYPE BODY...)...)"
   (declare (indent 1))
-  (let ((section (car head))
-        (info (nth 1 head))
-        (type (nth 2 head)))
-    `(add-hook ',(intern (format "magit-%s-action-hook" type))
-               (lambda ()
-                 ,(macroexpand
-                   ;; Don't pass in the opname so we don't recursively
-                   ;; run the hook again, and so we don't throw an
-                   ;; error if no action matches.
-                   `(magit-section-case (,section ,info)
-                      ,@clauses))))))
+  (let ((opname (make-symbol "*opname*"))
+        (value (make-symbol "*value*"))
+        (disallowed (car (or (assq t clauses)
+                             (assq 'otherwise clauses)))))
+    (when disallowed
+      (error "%s is an invalid section type" disallowed))
+    `(magit-with-refresh
+       (let* ((,opname ,(car (cddr head)))
+              (,value
+               (magit-section-case ,(butlast head)
+                 ,@clauses
+                 ((run-hook-with-args-until-success
+                   ',(intern (format "magit-%s-action-hook" opname))))
+                 (t
+                  (let* ((section (magit-current-section))
+                         (type (and section (magit-section-type section))))
+                    (if type
+                        (error "Can't %s a %s" ,opname
+                               (or (get type 'magit-description) type))
+                      (error "Nothing to %s here" ,opname)))))))
+         (unless (eq ,value magit-section-action-success)
+           ,value)))))
+
+(defmacro magit-add-action-clauses (head &rest clauses)
+  "Add additional clauses to the OPCODE section action.
+
+Add to the section action with the same OPNAME additional
+CLAUSES.  If none of the default clauses defined using
+`magit-section-action' succeed try the clauses added with this
+function (which can be used multiple times with the same OPNAME).
+
+See `magit-section-case' for more information on SECTION, INFO
+and CLAUSES.
+
+\(fn (SECTION INFO OPNAME) (SECTION-TYPE BODY...)...)"
+  (declare (indent 1))
+  `(add-hook ',(intern (format "magit-%s-action-hook" (car (cddr head))))
+             (lambda ()
+               ,(macroexpand
+                 `(magit-section-case ,(butlast head)
+                    ,@(mapcar (lambda (clause)
+                                `(,(car clause)
+                                  (or (progn ,@(cdr clause))
+                                      magit-section-action-success)))
+                              clauses))))))
 
 (defun magit-wash-sequence (func)
   "Run FUNC until end of buffer is reached.
@@ -2319,24 +2355,29 @@ magit-topgit and magit-svn"
                        (equal (process-exit-status magit-process) 0))
                  (setq magit-process nil))
                (magit-set-mode-line-process nil)
-               (magit-need-refresh magit-process-client-buffer))
+               (with-current-buffer magit-process-client-buffer
+                 (when (derived-mode-p 'magit-mode)
+                   (magit-need-refresh magit-process-client-buffer))))
               (t
                (setq successp
                      (equal (apply 'process-file cmd nil buf nil args) 0))
                (magit-set-mode-line-process nil)
-               (magit-need-refresh magit-process-client-buffer))))
+               (with-current-buffer magit-process-client-buffer
+                 (when (derived-mode-p 'magit-mode)
+                   (magit-need-refresh magit-process-client-buffer))))))
       (or successp
           noerror
           (error
-           "%s ... [Hit %s or see buffer %s for details]"
+           "%s ... [%s buffer %s for details]"
            (or (with-current-buffer (get-buffer magit-process-buffer-name)
                  (when (re-search-backward
                         (concat "^error: \\(.*\\)" paragraph-separate) nil t)
                    (match-string 1)))
                "Git failed")
            (with-current-buffer magit-process-client-buffer
-             (key-description (car (where-is-internal
-                                    'magit-display-process))))
+             (let ((key (key-description (car (where-is-internal
+                                               'magit-display-process)))))
+               (if key (format "Hit %s to see" key) "See")))
            magit-process-buffer-name))
       successp)))
 
@@ -2949,7 +2990,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
 
 (defun magit-diffstat-item-status (diffstat)
   "Return 'completed or 'incomplete depending on the processed status"
-  (caddr (magit-section-info diffstat)))
+  (car (cddr (magit-section-info diffstat))))
 
 (defun magit-wash-other-file ()
   (if (looking-at "^? \\(.*\\)$")
@@ -4701,13 +4742,13 @@ With a prefix arg, also remove untracked files.  With two prefix args, remove ig
 
 (defun magit-rewrite-set-used ()
   (interactive)
-  (magit-section-action (item info)
+  (magit-section-case (item info)
     ((pending commit)
      (magit-rewrite-set-commit-property info 'used t))))
 
 (defun magit-rewrite-set-unused ()
   (interactive)
-  (magit-section-action (item info)
+  (magit-section-case (item info)
     ((pending commit)
      (magit-rewrite-set-commit-property info 'used nil))))
 
@@ -4885,49 +4926,64 @@ typing and automatically refreshes the status buffer."
                   nil nil nil t))))
 
 (magit-define-command push-tags ()
-  "Push tags."
+  "Push tags to a remote repository.
+
+Push tags to the current branch's remote.  If that isn't set push
+to \"origin\" or if that remote doesn't exit but only a single
+remote is defined use that.  Otherwise or with a prefix argument
+ask the user what remote to use."
   (interactive)
-  (magit-run-git-async "push" "--tags"))
+  (let* ((branch  (magit-get-current-branch))
+         (remotes (magit-git-lines "remote"))
+         (remote  (or (and branch (magit-get-remote branch))
+                      (car (member  "origin" remotes))
+                      (and (= (length remotes) 1)
+                           (car remotes)))))
+    (when (or current-prefix-arg (not remote))
+      (setq remote (magit-read-remote "Push to remote: ")))
+    (magit-run-git-async "push" remote "--tags")))
 
 (magit-define-command push ()
   "Push the current branch to a remote repository.
 
-With no prefix argument, ask `magit-get-remote' what remote to
-use for this branch.
+By default push to the remote specified by the git-config(1) option
+branch.<name>.remote or else origin.  Otherwise or with a prefix
+argument instead ask the user what remote to push to.
 
-With a prefix arg \(e.g., \\[universal-argument] \\[magit-push]), \
-ask user instead.
-
-With \\[universal-argument] \\[universal-argument] as prefix, \
-also prompt user for the remote branch;
-otherwise, try to use the branch.<name>.merge git-config(1)
-option, falling back to something hairy if that is unset."
+When pushing to branch.<name>.remote push to the branch specified by
+branch.<name>.merge.  When pushing to another remote or if the latter
+option is not set push to the remote branch with the same name as the
+local branch being pushed.  With two or more prefix arguments instead
+ask the user what branch to push to.  In this last case actually push
+even if `magit-set-upstream-on-push's value is `refuse'."
   (interactive)
   (let* ((branch (or (magit-get-current-branch)
                      (error "Don't push a detached head.  That's gross")))
-         (branch-remote (magit-get-remote branch))
+         (branch-remote (and branch (magit-get "branch" branch "remote")))
+         (origin-remote (and (magit-get "remote" "origin" "url") "origin"))
          (push-remote (if (or current-prefix-arg
-                              (not branch-remote))
-                          (magit-read-remote (format "Push %s to remote"
-                                                     branch)
-                                             branch-remote)
-                        branch-remote))
+                              (and (not branch-remote)
+                                   (not origin-remote)))
+                          (magit-read-remote
+                           (format "Push %s to remote" branch)
+                           (or branch-remote origin-remote))
+                        (or branch-remote origin-remote)))
          (ref-branch (or (and (>= (prefix-numeric-value current-prefix-arg) 16)
-                              (magit-read-remote-branch
-                               push-remote (format "Push %s as branch" branch)))
-                         (magit-get "branch" branch "merge"))))
+                              (concat "refs/heads/"
+                                      (magit-read-remote-branch
+                                       push-remote
+                                       (format "Push %s as branch" branch))))
+                         (and (equal branch-remote push-remote)
+                              (magit-get "branch" branch "merge")))))
     (if (and (not ref-branch)
              (eq magit-set-upstream-on-push 'refuse))
-        (error "Not pushing since no upstream has been set.")
+        (error "Not pushing since no upstream has been set")
       (let ((set-upstream-on-push (and (not ref-branch)
                                        (or (eq magit-set-upstream-on-push 'dontask)
                                            (and (or (eq magit-set-upstream-on-push t)
                                                     (and (not branch-remote)
                                                          (eq magit-set-upstream-on-push 'askifnotset)))
                                                 (yes-or-no-p "Set upstream while pushing? "))))))
-        (if (and (not branch-remote)
-                 (not current-prefix-arg))
-            (magit-set push-remote "branch" branch "remote"))
         (apply 'magit-run-git-async "push" "-v" push-remote
                (if ref-branch
                    (format "%s:%s" branch ref-branch)
@@ -4938,8 +4994,10 @@ option, falling back to something hairy if that is unset."
         ;; Although git will automatically set up the remote,
         ;; it doesn't set up the branch to merge (at least as of Git 1.6.6.1),
         ;; so we have to do that manually.
-        (unless ref-branch
-          (magit-set (concat "refs/heads/" branch) "branch" branch "merge"))))))
+        (when (and ref-branch
+                   (or set-upstream-on-push
+                       (member "-u" magit-custom-options)))
+          (magit-set ref-branch "branch" branch "merge"))))))
 
 ;;; Log edit mode
 
@@ -6259,7 +6317,7 @@ With a prefix argument, visit in other window."
 
 (defun magit-show-item-or-scroll-up ()
   (interactive)
-  (magit-section-action (item info)
+  (magit-section-case (item info)
     ((commit)
      (magit-show-commit info #'scroll-up))
     ((stash)
@@ -6269,7 +6327,7 @@ With a prefix argument, visit in other window."
 
 (defun magit-show-item-or-scroll-down ()
   (interactive)
-  (magit-section-action (item info)
+  (magit-section-case (item info)
     ((commit)
      (magit-show-commit info #'scroll-down))
     ((stash)
@@ -6743,10 +6801,35 @@ This can be added to `magit-mode-hook' for example"
         (grep-mode)
         (pop-to-buffer (current-buffer))))))
 
+(defconst magit-font-lock-keywords
+  (eval-when-compile
+    `((,(concat "(\\(" (regexp-opt
+                     '("magit-define-level-shower"
+                       "magit-define-section-jumper"
+                       "magit-define-inserter"
+                       "magit-define-command"))
+                "\\)\\>[ \t'\(]*\\(\\sw+\\)?")
+       (1 font-lock-keyword-face)
+       (2 font-lock-function-name-face nil t))
+      (,(concat "(" (regexp-opt
+                     '("magit-with-refresh"
+                       "magit-with-silent-modifications"
+                       "magit-with-section"
+                       "magit-create-buffer-sections"
+                       "magit-section-action"
+                       "magit-add-action-clauses"
+                       "with-magit-tmp-buffer"
+                       "magit-create-log-buffer-sections"
+                       "magit-with-revert-confirmation"
+                       "magit-visiting-file-item") t)
+                "\\>")
+       . 1))))
+
 (provide 'magit)
 
 ;; rest of magit core
 (require 'magit-key-mode)
 (require 'magit-bisect)
+(require 'magit-cherry)
 
 ;;; magit.el ends here

@@ -2,7 +2,7 @@ VERSION=$(shell git describe --tags --dirty)
 EMACS=emacs
 PREFIX=/usr/local
 SYSCONFDIR=/etc
-ELS=magit.el magit-svn.el magit-topgit.el magit-stgit.el magit-key-mode.el magit-bisect.el magit-wip.el rebase-mode.el magit-blame.el
+ELS=magit.el magit-svn.el magit-topgit.el magit-stgit.el magit-key-mode.el magit-bisect.el magit-wip.el rebase-mode.el magit-blame.el magit-cherry.el
 ELS_CONTRIB=contrib/magit-simple-keys.el contrib/magit-classic-theme.el
 ELCS=$(ELS:.el=.elc)
 ELCS_CONTRIB=$(ELS_CONTRIB:.el=.elc)
@@ -16,12 +16,12 @@ INSTALL_INFO = install-info
 .PHONY=install
 
 EFLAGS=
-BATCH=$(EMACS) $(EFLAGS) -batch -q -no-site-file -eval \
-  "(setq load-path (cons (expand-file-name \".\") load-path))"
+BATCH=$(EMACS) $(EFLAGS) -batch -Q -L .
+COMPILE=$(BATCH) -f batch-byte-compile
 
 
 %.elc: %.el
-	$(BATCH) --eval '(byte-compile-file "$<")'
+	$(COMPILE) $<
 
 all: core docs contrib
 
@@ -38,11 +38,15 @@ magit-pkg.el: magit-pkg.el.in
 	sed -e s/@VERSION@/$(VERSION)/ < $< > $@
 
 50magit.el: $(ELS) magit.elc
-	$(BATCH) -eval "(progn (defvar generated-autoload-file nil) (let ((generated-autoload-file \"$(CURDIR)/50magit.el\") (make-backup-files nil)) (update-directory-autoloads \".\")))"
+	$(BATCH) -eval "\
+(progn (defvar generated-autoload-file nil)\
+  (let ((generated-autoload-file \"$(CURDIR)/50magit.el\")\
+        (make-backup-files nil))\
+    (update-directory-autoloads \".\")))"
 
 magit.elc: magit.el
 	sed -e "s/@GIT_DEV_VERSION@/$(VERSION)/" < magit.el > magit.tmp.el #NO_DIST
-	$(BATCH) --eval '(byte-compile-file "magit.tmp.el")' #NO_DIST
+	$(COMPILE) magit.tmp.el #NO_DIST
 	mv magit.tmp.elc magit.elc #NO_DIST
 	rm magit.tmp.el #NO_DIST
 
