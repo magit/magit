@@ -4144,6 +4144,14 @@ if FULLY-QUALIFIED-NAME is non-nil."
 
 (declare-function magit--bisect-info-for-status "magit-bisect" (branch))
 
+(defvar magit-status-line-align-to 9)
+
+(defun magit-insert-status-line (keyword string &rest args)
+  (insert keyword ":"
+          (make-string (max 1 (- magit-status-line-align-to
+                                 (length keyword))) ?\ )
+          (apply 'format string args) "\n"))
+
 (defun magit-refresh-status ()
   (magit-create-buffer-sections
     (magit-with-section 'status nil
@@ -4158,25 +4166,27 @@ if FULLY-QUALIFIED-NAME is non-nil."
                     "--abbrev-commit"
                     (format "--abbrev=%s" magit-sha1-abbrev-length)
                     "--pretty=oneline"))
-             (no-commit (not head)))
+             (no-commit (not head))
+             (merge-heads (magit-file-lines (concat (magit-git-dir) "MERGE_HEAD")))
+             (rebase (magit-rebase-info)))
         (when remote-string
-          (insert "Remote:   " remote-string "\n"))
-        (insert (format "Local:    %s %s\n"
-                        (propertize (magit--bisect-info-for-status branch)
-                                    'face 'magit-branch)
-                        (abbreviate-file-name default-directory)))
-        (insert (format "Head:     %s\n"
-                        (if no-commit "nothing commited (yet)" head)))
-        (let ((merge-heads (magit-file-lines (concat (magit-git-dir)
-                                                     "MERGE_HEAD"))))
-          (if merge-heads
-              (insert (format "Merging:   %s\n"
-                              (mapconcat 'identity
-                                         (mapcar 'magit-name-rev merge-heads)
-                                         ", ")))))
-        (let ((rebase (magit-rebase-info)))
-          (if rebase
-              (insert (apply 'format "Rebasing: onto %s (%s of %s); Press \"R\" to Abort, Skip, or Continue\n" rebase))))
+          (magit-insert-status-line "Remote" remote-string))
+        (magit-insert-status-line
+         "Local" "%s %s"
+         (propertize (magit--bisect-info-for-status branch)
+                     'face 'magit-branch)
+         (abbreviate-file-name default-directory))
+        (magit-insert-status-line
+         "Head" (if no-commit "nothing commited (yet)" head))
+        (when merge-heads
+          (magit-insert-status-line
+           "Merging"
+           (mapconcat 'identity (mapcar 'magit-name-rev merge-heads) ", ")))
+        (when rebase
+          (apply 'magit-insert-status-line
+                 "Rebasing"
+                 " onto %s (%s of %s); Press \"R\" to Abort, Skip, or Continue\n"
+                 rebase))
         (insert "\n")
         (magit-git-exit-code "update-index" "--refresh")
         (magit-insert-stashes)
