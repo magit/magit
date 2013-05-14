@@ -3633,7 +3633,7 @@ must return a string which will represent the log line.")
 (make-variable-buffer-local 'magit-log-author-date-overlay)
 
 (defun magit-log-make-author-date-overlay (author date)
-  (let ((overlay (make-overlay (point) (point))))
+  (let ((overlay (make-overlay (point) (1+ (point)))))
     (setq author (propertize author 'face 'magit-log-author)
           date (delete "ago" (split-string date "[ ,]+"))
           date (propertize (concat (format "%2s %5s"
@@ -3645,6 +3645,7 @@ must return a string which will represent the log line.")
                                                (nth 3 date))))
                            'face 'magit-log-date))
     (overlay-put overlay 'magit-log-overlay (cons author date))
+    (overlay-put overlay 'evaporate t)
     (setq magit-log-author-date-overlay
           (cons overlay magit-log-author-date-overlay))
     (if (> (length author) magit-log-author-string-length)
@@ -3698,14 +3699,12 @@ must return a string which will represent the log line.")
 
 (defun magit-log-initialize-author-date-overlay ()
   (when (derived-mode-p 'magit-log-mode)
-    (setq magit-log-author-date-string-length 0)
-    (setq magit-log-author-string-length 0)
-    (setq magit-log-date-string-length 0)
-    (when magit-log-author-date-overlay
-      (mapc #'delete-overlay magit-log-author-date-overlay)
-      (setq magit-log-author-date-overlay nil)
-      (remove-hook 'window-configuration-change-hook
-                   'magit-log-display-author-date t))))
+    (setq magit-log-author-date-string-length 0
+          magit-log-author-string-length 0
+          magit-log-date-string-length 0
+          magit-log-author-date-overlay nil)
+    (remove-hook 'window-configuration-change-hook
+                 'magit-log-display-author-date t)))
 
 (defun magit-log-create-author-date-overlay ()
   (when (derived-mode-p 'magit-log-mode)
