@@ -3618,19 +3618,12 @@ must return a string which will represent the log line.")
 
 (defvar magit-log-author-date-string-length nil
   "only use in `*magit-log*' buffer.")
-(make-variable-buffer-local 'magit-log-author-date-string-length)
-
 (defvar magit-log-author-string-length nil
   "only use in `*magit-log*' buffer.")
-(make-variable-buffer-local 'magit-log-author-string-length)
-
 (defvar magit-log-date-string-length nil
   "only use in `*magit-log*' buffer.")
-(make-variable-buffer-local 'magit-log-date-string-length)
-
 (defvar magit-log-author-date-overlay nil
   "only use in `*magit-log*' buffer.")
-(make-variable-buffer-local 'magit-log-author-date-overlay)
 
 (defun magit-log-make-author-date-overlay (author date)
   (let ((overlay (make-overlay (point) (point))))
@@ -3697,10 +3690,10 @@ must return a string which will represent the log line.")
                             magit-log-author-date-string-length)))
 
 (defun magit-log-initialize-author-date-overlay ()
-  (when (derived-mode-p 'magit-log-mode)
-    (setq magit-log-author-date-string-length 0)
-    (setq magit-log-author-string-length 0)
-    (setq magit-log-date-string-length 0)
+  (when (equal magit-log-buffer-name (buffer-name))
+    (set (make-local-variable 'magit-log-author-date-string-length) 0)
+    (set (make-local-variable 'magit-log-author-string-length) 0)
+    (set (make-local-variable 'magit-log-date-string-length) 0)
     (when magit-log-author-date-overlay
       (mapc #'delete-overlay magit-log-author-date-overlay)
       (setq magit-log-author-date-overlay nil)
