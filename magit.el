@@ -880,10 +880,12 @@ in STR."
 (make-variable-buffer-local 'magit-have-abbrev)
 (put 'magit-have-abbrev 'permanent-local t)
 
-(defun magit-configure-have-graph ()
-  (if (eq magit-have-graph 'unset)
-      (let ((res (magit-git-exit-code "log" "--graph" "--max-count=0")))
-        (setq magit-have-graph (eq res 0)))))
+(defun magit-configure-have-graph (&optional disable-t)
+  (if disable-t
+      (setq magit-have-graph nil)
+    (if (eq magit-have-graph 'unset)
+        (let ((res (magit-git-exit-code "log" "--graph" "--max-count=0")))
+          (setq magit-have-graph (eq res 0))))))
 
 (defun magit-configure-have-decorate ()
   (if (eq magit-have-decorate 'unset)
@@ -3618,19 +3620,12 @@ must return a string which will represent the log line.")
 
 (defvar magit-log-author-date-string-length nil
   "only use in `*magit-log*' buffer.")
-(make-variable-buffer-local 'magit-log-author-date-string-length)
-
 (defvar magit-log-author-string-length nil
   "only use in `*magit-log*' buffer.")
-(make-variable-buffer-local 'magit-log-author-string-length)
-
 (defvar magit-log-date-string-length nil
   "only use in `*magit-log*' buffer.")
-(make-variable-buffer-local 'magit-log-date-string-length)
-
 (defvar magit-log-author-date-overlay nil
   "only use in `*magit-log*' buffer.")
-(make-variable-buffer-local 'magit-log-author-date-overlay)
 
 (defun magit-log-make-author-date-overlay (author date)
   (let ((overlay (make-overlay (point) (point))))
@@ -3697,10 +3692,10 @@ must return a string which will represent the log line.")
                             magit-log-author-date-string-length)))
 
 (defun magit-log-initialize-author-date-overlay ()
-  (when (derived-mode-p 'magit-log-mode)
-    (setq magit-log-author-date-string-length 0)
-    (setq magit-log-author-string-length 0)
-    (setq magit-log-date-string-length 0)
+  (when (equal magit-log-buffer-name (buffer-name))
+    (set (make-local-variable 'magit-log-author-date-string-length) 0)
+    (set (make-local-variable 'magit-log-author-string-length) 0)
+    (set (make-local-variable 'magit-log-date-string-length) 0)
     (when magit-log-author-date-overlay
       (mapc #'delete-overlay magit-log-author-date-overlay)
       (setq magit-log-author-date-overlay nil)
@@ -5607,8 +5602,8 @@ With a non numeric prefix ARG, show all entries"
     (magit-refresh)
     (goto-char old-point)))
 
-(defun magit-refresh-log-buffer (range style args)
-  (magit-configure-have-graph)
+(defun magit-refresh-log-buffer (range style args &optional no-graph)
+  (magit-configure-have-graph no-graph)
   (magit-configure-have-decorate)
   (magit-configure-have-abbrev)
   (setq magit-current-range range)
@@ -5678,6 +5673,20 @@ With a non numeric prefix ARG, show all entries"
     (magit-buffer-switch magit-log-buffer-name)
     (magit-mode-init topdir 'magit-log-mode #'magit-refresh-log-buffer range
                      'long args)))
+
+(magit-define-command log-simple (&optional ask-for-range &rest extra-args)
+  (interactive)
+  (let* ((log-range (if ask-for-range
+                        (magit-read-rev-range "Log" "HEAD")
+                      "HEAD"))
+         (topdir (magit-get-top-dir default-directory))
+         (args (nconc (list (magit-rev-range-to-git log-range))
+                      magit-custom-options
+                      extra-args))
+         (magit-log-cutoff-length 1000))
+    (magit-buffer-switch magit-log-buffer-name)
+    (magit-mode-init topdir 'magit-log-mode #'magit-refresh-log-buffer log-range
+                     'oneline args t)))
 
 ;;; Reflog
 

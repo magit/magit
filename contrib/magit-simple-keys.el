@@ -26,7 +26,7 @@
 (require 'magit)
 
 (defvar magit-key-mode-mapping
-  '((logging magit-display-log)
+  '((logging magit-log-simple)
     (running magit-shell-command)
     (fetching magit-fetch-current)
     (pushing magit-push)
