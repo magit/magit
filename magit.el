@@ -488,7 +488,12 @@ Many Magit faces inherit from this one by default."
 
 (defface magit-branch
   '((t :inherit magit-header))
-  "Face for the current branch."
+  "Face for branches."
+  :group 'magit-faces)
+
+(defface magit-tag
+  '((t :inherit magit-header))
+  "Face for tags."
   :group 'magit-faces)
 
 (defface magit-diff-file-header
@@ -1165,6 +1170,45 @@ Read `completing-read' documentation for the meaning of the argument."
     (if pos
         (substring head 11)
       nil)))
+
+(defun magit-get-current-tag (&optional with-distance-p)
+  "Return the closest tag reachable from \"HEAD\".
+
+If optional WITH-DISTANCE-P is non-nil then return (TAG COMMITS
+DIRTY) where COMMITS is the number of commits in \"HEAD\" but not
+in TAG and DIRTY is t if there are uncommitted changes, nil
+otherwise."
+  (let ((tag (magit-git-string "describe" "--long" "--tags" "--dirty")))
+    (save-match-data
+      (when tag
+        (string-match
+         "\\(.+\\)-\\(?:0[0-9]*\\|\\([0-9]+\\)\\)-g[0-9a-z]+\\(-dirty\\)?$" tag)
+        (if with-distance-p
+            (list (match-string 1 tag)
+                  (string-to-number (or (match-string 2 tag) "0"))
+                  (and (match-string 3 tag) t))
+          (match-string 1 tag))))))
+
+(defun magit-get-next-tag (&optional with-distance-p)
+  "Return the closest tag from which \"HEAD\" is reachable.
+
+If no such tag can be found or if the distance is 0 (in which
+case it is the current tag, not the next) return nil instead.
+
+If optional WITH-DISTANCE-P is non-nil then return (TAG COMMITS)
+where COMMITS is the number of commits in TAG but not in \"HEAD\"."
+  (let ((tag (magit-git-string
+              "describe" "--long" "--tags" "--contains" "HEAD"))
+        cnt)
+    (save-match-data
+      (when tag
+        (string-match "\\(.+?\\)\\(?:\\^0\\|~\\([0-9]+\\)\\)?$" tag)
+        (setq cnt (match-string 2 tag)
+              tag (match-string 1 tag))
+        (unless (equal tag (car (magit-get-current-tag t)))
+          (if with-distance-p
+              (list tag (string-to-number cnt))
+            tag))))))
 
 (defun magit-get-remote (branch)
   "Return the name of the remote for BRANCH.
@@ -4109,6 +4153,14 @@ if FULLY-QUALIFIED-NAME is non-nil."
 
 (declare-function magit--bisect-info-for-status "magit-bisect" (branch))
 
+(defvar magit-status-line-align-to 9)
+
+(defun magit-insert-status-line (keyword string &rest args)
+  (insert keyword ":"
+          (make-string (max 1 (- magit-status-line-align-to
+                                 (length keyword))) ?\ )
+          (apply 'format string args) "\n"))
+
 (defun magit-refresh-status ()
   (magit-create-buffer-sections
     (magit-with-section 'status nil
@@ -4123,25 +4175,51 @@ if FULLY-QUALIFIED-NAME is non-nil."
                     "--abbrev-commit"
                     (format "--abbrev=%s" magit-sha1-abbrev-length)
                     "--pretty=oneline"))
-             (no-commit (not head)))
+             (no-commit (not head))
+             (merge-heads (magit-file-lines (concat (magit-git-dir) "MERGE_HEAD")))
+             (current-tag (magit-get-current-tag t))
+             (next-tag (magit-get-next-tag t))
+             (both-tags (and current-tag next-tag t))
+             (rebase (magit-rebase-info)))
         (when remote-string
-          (insert "Remote:   " remote-string "\n"))
-        (insert (format "Local:    %s %s\n"
-                        (propertize (magit--bisect-info-for-status branch)
-                                    'face 'magit-branch)
-                        (abbreviate-file-name default-directory)))
-        (insert (format "Head:     %s\n"
-                        (if no-commit "nothing commited (yet)" head)))
-        (let ((merge-heads (magit-file-lines (concat (magit-git-dir)
-                                                     "MERGE_HEAD"))))
-          (if merge-heads
-              (insert (format "Merging:   %s\n"
-                              (mapconcat 'identity
-                                         (mapcar 'magit-name-rev merge-heads)
-                                         ", ")))))
-        (let ((rebase (magit-rebase-info)))
-          (if rebase
-              (insert (apply 'format "Rebasing: onto %s (%s of %s); Press \"R\" to Abort, Skip, or Continue\n" rebase))))
+          (magit-insert-status-line "Remote" remote-string))
+        (magit-insert-status-line
+         "Local" "%s %s"
+         (propertize (magit--bisect-info-for-status branch)
+                     'face 'magit-branch)
+         (abbreviate-file-name default-directory))
+        (magit-insert-status-line
+         "Head" (if no-commit "nothing commited (yet)" head))
+        (when (or current-tag next-tag)
+          (magit-insert-status-line
+           (if both-tags "Tags" "Tag")
+           (concat
+            (and current-tag
+                 (concat
+                  (propertize (car current-tag) 'face 'magit-tag)
+                  (and (> (cadr current-tag) 0)
+                       (concat " ("
+                               (propertize (format "%s" (cadr current-tag))
+                                           'face 'magit-branch)
+                               " behind)"))))
+            (and both-tags ", ")
+            (and next-tag
+                 (concat
+                  (propertize (car next-tag) 'face 'magit-tag)
+                  (and (> (cadr next-tag) 0)
+                       (concat " ("
+                               (propertize (format "%s" (cadr next-tag))
+                                           'face 'magit-tag)
+                               " ahead)")))))))
+        (when merge-heads
+          (magit-insert-status-line
+           "Merging"
+           (mapconcat 'identity (mapcar 'magit-name-rev merge-heads) ", ")))
+        (when rebase
+          (apply 'magit-insert-status-line
+                 "Rebasing"
+                 " onto %s (%s of %s); Press \"R\" to Abort, Skip, or Continue\n"
+                 rebase))
         (insert "\n")
         (magit-git-exit-code "update-index" "--refresh")
         (magit-insert-stashes)
