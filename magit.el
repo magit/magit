@@ -2296,11 +2296,17 @@ magit-topgit and magit-svn"
 (defvar magit-process-buffer-name "*magit-process*"
   "Buffer name for running git commands.")
 
+(defvar magit--disable-async nil)
+
 (defun magit-run* (cmd-and-args
                    &optional logline noerase noerror nowait input)
-  (if (and magit-process
-           (get-buffer magit-process-buffer-name))
-      (error "Git is already running"))
+  (when magit-process
+    (let* ((buf (get-buffer magit-process-buffer-name))
+           (str (and buf (with-current-buffer buf
+                           (buffer-substring-no-properties
+                            (point-min) (point-max))))))
+      (when buf
+        (error "Git is already running %S" str))))
   (let ((cmd (car cmd-and-args))
         (args (cdr cmd-and-args))
         (dir default-directory)
@@ -2325,7 +2331,7 @@ magit-topgit and magit-svn"
         (insert "$ " (or logline
                          (mapconcat 'identity cmd-and-args " "))
                 "\n")
-        (cond (nowait
+        (cond ((and nowait (not magit--disable-async))
                (setq magit-process
                      (let ((process-connection-type magit-process-connection-type))
                        (apply 'magit-start-process cmd buf cmd args)))

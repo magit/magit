@@ -52,7 +52,8 @@
   (magit-stage-all t)
   (magit-log-edit)
   (insert msg)
-  (magit-log-edit-commit))
+  (magit-log-edit-commit)
+  (sit-for 10))
 
 (defun magit-tests-section-has-item-title (title &optional section-path)
   (let ((children (magit-section-children
@@ -128,6 +129,10 @@
           (write-file (format "%s/%s" repo-client dummy-filename)))
         (magit-status repo-client)
         (magit-tests--commit-all "an unpushed commit")
+        (message "--- %s %s %s"
+                 (magit-tests--get-latest-sha1)
+                 (current-buffer)
+                 default-directory)
         (magit-tests-section-has-item-title (magit-tests--get-latest-sha1) '(unpushed))
 
         (with-temp-buffer
@@ -135,6 +140,10 @@
           (write-file (format "%s/%s" repo-client dummy-filename)))
         (magit-status repo-client)
         (magit-tests--commit-all "an unpushed commit #2")
+        (message "--- %s %s %s"
+                 (magit-tests--get-latest-sha1)
+                 (current-buffer)
+                 default-directory)
         (magit-tests-section-has-item-title (magit-tests--get-latest-sha1) '(unpushed))))))
 
 (ert-deftest magit-get-boolean ()
