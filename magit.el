@@ -1160,6 +1160,45 @@ Read `completing-read' documentation for the meaning of the argument."
         (substring head 11)
       nil)))
 
+(defun magit-get-current-tag (&optional with-distance-p)
+  "Return the closest tag reachable from \"HEAD\".
+
+If optional WITH-DISTANCE-P is non-nil then return (TAG COMMITS
+DIRTY) where COMMITS is the number of commits in \"HEAD\" but not
+in TAG and DIRTY is t if there are uncommitted changes, nil
+otherwise."
+  (let ((tag (magit-git-string "describe" "--long" "--tags" "--dirty")))
+    (save-match-data
+      (when tag
+        (string-match
+         "\\(.+\\)-\\(?:0[0-9]*\\|\\([0-9]+\\)\\)-g[0-9a-z]+\\(-dirty\\)?$" tag)
+        (if with-distance-p
+            (list (match-string 1 tag)
+                  (string-to-number (or (match-string 2 tag) "0"))
+                  (and (match-string 3 tag) t))
+          (match-string 1 tag))))))
+
+(defun magit-get-next-tag (&optional with-distance-p)
+  "Return the closest tag from which \"HEAD\" is reachable.
+
+If no such tag can be found or if the distance is 0 (in which
+case it is the current tag, not the next) return nil instead.
+
+If optional WITH-DISTANCE-P is non-nil then return (TAG COMMITS)
+where COMMITS is the number of commits in TAG but not in \"HEAD\"."
+  (let ((tag (magit-git-string
+              "describe" "--long" "--tags" "--contains" "HEAD"))
+        cnt)
+    (save-match-data
+      (when tag
+        (string-match "\\(.+?\\)\\(?:\\^0\\|~\\([0-9]+\\)\\)?$" tag)
+        (setq cnt (match-string 2 tag)
+              tag (match-string 1 tag))
+        (unless (equal tag (car (magit-get-current-tag t)))
+          (if with-distance-p
+              (list tag (string-to-number cnt))
+            tag))))))
+
 (defun magit-get-remote (branch)
   "Return the name of the remote for BRANCH.
 If branch is nil or it has no remote, but a remote named
