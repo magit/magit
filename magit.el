@@ -491,6 +491,11 @@ Many Magit faces inherit from this one by default."
   "Face for branches."
   :group 'magit-faces)
 
+(defface magit-tag
+  '((t :inherit magit-header))
+  "Face for tags."
+  :group 'magit-faces)
+
 (defface magit-diff-file-header
   '((t :inherit diff-file-header))
   "Face for diff file header lines."
@@ -4168,6 +4173,9 @@ if FULLY-QUALIFIED-NAME is non-nil."
                     "--pretty=oneline"))
              (no-commit (not head))
              (merge-heads (magit-file-lines (concat (magit-git-dir) "MERGE_HEAD")))
+             (current-tag (magit-get-current-tag t))
+             (next-tag (magit-get-next-tag t))
+             (both-tags (and current-tag next-tag t))
              (rebase (magit-rebase-info)))
         (when remote-string
           (magit-insert-status-line "Remote" remote-string))
@@ -4178,6 +4186,27 @@ if FULLY-QUALIFIED-NAME is non-nil."
          (abbreviate-file-name default-directory))
         (magit-insert-status-line
          "Head" (if no-commit "nothing commited (yet)" head))
+        (when (or current-tag next-tag)
+          (magit-insert-status-line
+           (if both-tags "Tags" "Tag")
+           (concat
+            (and current-tag
+                 (concat
+                  (propertize (car current-tag) 'face 'magit-tag)
+                  (and (> (cadr current-tag) 0)
+                       (concat " ("
+                               (propertize (format "%s" (cadr current-tag))
+                                           'face 'magit-branch)
+                               " behind)"))))
+            (and both-tags ", ")
+            (and next-tag
+                 (concat
+                  (propertize (car next-tag) 'face 'magit-tag)
+                  (and (> (cadr next-tag) 0)
+                       (concat " ("
+                               (propertize (format "%s" (cadr next-tag))
+                                           'face 'magit-tag)
+                               " ahead)")))))))
         (when merge-heads
           (magit-insert-status-line
            "Merging"
