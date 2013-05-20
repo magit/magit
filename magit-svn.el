@@ -35,6 +35,8 @@
   (require 'cl-lib)
   (require 'find-lisp))
 
+(declare-function find-lisp-find-files-internal 'find-lisp)
+
 (defcustom magit-svn-externals-dir ".git_externals"
   "Directory from repository root that stores cloned SVN externals."
   :group 'magit

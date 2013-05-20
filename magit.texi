@@ -56,6 +56,7 @@ maintain compatibility are still welcome.
 * Rewriting::
 * Pushing and Pulling::
 * Bisecting::
+* Finding commits not merged upstream::
 * Submodules::
 * Using Magit Extensions::
 * Using Git Directly::
@@ -893,6 +894,30 @@ The revisions left to test can be visualized in gitk with @kbd{B v}.
 
 When you're finished bisecting you have to reset the session with
 @kbd{B r}.
+
+
+@node Finding commits not merged upstream
+@chapter Finding commits not merged upstream
+
+One of the comforts of git is that it can tell you which commits have
+been merged upstream but not locally and vice versa.  Git's
+sub-command for this is @code{cherry} (not to be confused with
+@code{cherry-pick}).  Magit has support for this by invoking
+@code{magit-cherry} which is bound to @kbd{y} by default.
+
+Magit will then ask you first for the upstream revision (which
+defaults to the currently tracked remote branch if any) and the head
+revision (which defaults to the current branch) to use in the
+comparison.  You will then see a new buffer in which all commits are
+listed with a directional marker, their revision and the commit
+message's first line.  The directional marker is either @code{+}
+indicating a commit that's present in upstream but not in head or
+@code{-} which indicates a commit present in head but not in upstream.
+
+From this list you can use the usual key bindings for cherry-picking
+individual commits (@kbd{a} for cherry-picking without committing and
+@kbd{A} for the same plus the automatic commit).  The buffer is
+refreshed automatically after each cherry-pick.
 
 
 @node Using Magit Extensions

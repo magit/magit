@@ -201,16 +201,16 @@
              (magit-mode-init dir 'magit-commit-mode
                               #'magit-stgit--refresh-patch-buffer patch))))))
 
-(magit-add-action (item info "visit")
+(magit-add-action-clauses (item info "visit")
   ((series)
    (magit-stgit--show-patch info)
    (pop-to-buffer magit-commit-buffer-name)))
 
-(magit-add-action (item info "apply")
+(magit-add-action-clauses (item info "apply")
   ((series)
    (magit-run magit-stgit-executable "goto" info)))
 
-(magit-add-action (item info "discard")
+(magit-add-action-clauses (item info "discard")
   ((series)
    (let ((patch (or magit-stgit--marked-patch info)))
      (if (yes-or-no-p (format "Delete patch '%s' in series? " patch))
@@ -225,7 +225,7 @@
             nil
           patch)))
 
-(magit-add-action (item info "mark")
+(magit-add-action-clauses (item info "mark")
   ((series)
    (magit-stgit--set-marked-patch info)
    (magit-refresh-all)))

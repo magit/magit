@@ -412,7 +412,6 @@ the key combination highlighted before the description."
   (let ((buf (get-buffer-create (format magit-key-mode-buf-name
                                         (symbol-name for-group)))))
     (setq magit-key-mode-last-buffer buf)
-    (delete-other-windows)
     (split-window-vertically)
     (other-window 1)
     (switch-to-buffer buf)
