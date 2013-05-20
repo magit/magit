@@ -150,6 +150,7 @@
 (require 'diff-mode)
 (require 'ansi-color)
 (require 'thingatpt)
+(require 'ring)
 
 ;; Silences byte-compiler warnings
 (eval-and-compile
