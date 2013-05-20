@@ -17,11 +17,14 @@ INSTALL_INFO = install-info
 
 EFLAGS=
 BATCH=$(EMACS) $(EFLAGS) -batch -Q -L .
-COMPILE=$(BATCH) -f batch-byte-compile
-
+# flet is "obsolete", but there is no valid alternative.  We surpress
+# these warning so that other warning are not overlocked because of
+# the flet noise.
+BATCHC=$(BATCH) -eval "(progn (require 'cl) \
+(put 'flet 'byte-obsolete-info nil))" -f batch-byte-compile
 
 %.elc: %.el
-	$(COMPILE) $<
+	@$(BATCHC) $<
 
 all: core docs contrib
 
@@ -46,7 +49,7 @@ magit-pkg.el: magit-pkg.el.in
 
 magit.elc: magit.el
 	sed -e "s/@GIT_DEV_VERSION@/$(VERSION)/" < magit.el > magit.tmp.el #NO_DIST
-	$(COMPILE) magit.tmp.el #NO_DIST
+	@$(BATCHC) magit.tmp.el #NO_DIST
 	mv magit.tmp.elc magit.elc #NO_DIST
 	rm magit.tmp.el #NO_DIST
 
