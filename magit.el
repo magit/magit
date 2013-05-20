@@ -92,8 +92,15 @@
 (eval-when-compile (require 'view))
 (declare-function view-mode 'view)
 (eval-when-compile (require 'iswitchb))
+(declare-function iswitchb-read-buffer 'iswitchb)
 (eval-when-compile (require 'ido))
+(declare-function ido-completing-read 'ido)
 (eval-when-compile (require 'ediff))
+(declare-function ediff-cleanup-mess 'ediff)
+(eval-when-compile (require 'eshell))
+(declare-function eshell-parse-arguments 'eshell)
+(eval-when-compile (require 'server))
+(declare-function server-running-p 'server)
 
 ;; Dummy to be used by the defcustoms when first loading the file.
 (eval-when (load eval)
@@ -4219,8 +4226,6 @@ If there is no default remote, ask for one."
                  "branch" branch "merge"))
     (apply 'magit-run-git-async "pull" "-v" magit-custom-options)))
 
-(eval-when-compile (require 'eshell))
-
 (defun magit-parse-arguments (command)
   (require 'eshell)
   (with-temp-buffer
@@ -5550,8 +5555,6 @@ With a prefix argument, visit in other window."
     ((commit)
      (kill-new info)
      (message "%s" info))))
-
-(eval-when-compile (require 'server))
 
 (defun magit-server-running-p ()
   "Test whether server is running (works with < 23 as well).
