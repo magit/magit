@@ -140,9 +140,6 @@
 
 ;;; Code:
 
-(eval-when-compile
-  (require 'grep))
-
 (require 'cl-lib)
 
 (require 'log-edit)
@@ -151,6 +148,7 @@
 (require 'ansi-color)
 (require 'thingatpt)
 (require 'ring)
+(require 'grep)
 
 ;; Silences byte-compiler warnings
 (eval-and-compile
