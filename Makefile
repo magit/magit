@@ -16,12 +16,15 @@ INSTALL_INFO = install-info
 .PHONY=install
 
 EFLAGS=
-BATCH=$(EMACS) $(EFLAGS) -batch -q -no-site-file -eval \
-  "(setq load-path (cons (expand-file-name \".\") load-path))"
-
+BATCH=$(EMACS) $(EFLAGS) -batch -Q -L .
+# flet is "obsolete", but there is no valid alternative.  We surpress
+# these warning so that other warning are not overlocked because of
+# the flet noise.
+BATCHC=$(BATCH) -eval "(progn (require 'cl) \
+(put 'flet 'byte-obsolete-info nil))" -f batch-byte-compile
 
 %.elc: %.el
-	$(BATCH) --eval '(byte-compile-file "$<")'
+	@$(BATCHC) $<
 
 all: core docs contrib
 
@@ -38,11 +41,15 @@ magit-pkg.el: magit-pkg.el.in
 	sed -e s/@VERSION@/$(VERSION)/ < $< > $@
 
 50magit.el: $(ELS) magit.elc
-	$(BATCH) -eval "(progn (defvar generated-autoload-file nil) (let ((generated-autoload-file \"$(CURDIR)/50magit.el\") (make-backup-files nil)) (update-directory-autoloads \".\")))"
+	$(BATCH) -eval "\
+(progn (defvar generated-autoload-file nil)\
+  (let ((generated-autoload-file \"$(CURDIR)/50magit.el\")\
+        (make-backup-files nil))\
+    (update-directory-autoloads \".\")))"
 
 magit.elc: magit.el
 	sed -e "s/@GIT_DEV_VERSION@/$(VERSION)/" < magit.el > magit.tmp.el #NO_DIST
-	$(BATCH) --eval '(byte-compile-file "magit.tmp.el")' #NO_DIST
+	@$(BATCHC) magit.tmp.el #NO_DIST
 	mv magit.tmp.elc magit.elc #NO_DIST
 	rm magit.tmp.el #NO_DIST
 
