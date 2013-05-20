@@ -166,6 +166,8 @@
 (declare-function ediff-cleanup-mess 'ediff)
 (eval-when-compile (require 'eshell))
 (declare-function eshell-parse-arguments 'eshell)
+(eval-when-compile (require 'server))
+(declare-function server-running-p 'server)
 
 ;; Dummy to be used by the defcustoms when first loading the file.
 (cl-eval-when (load eval)
@@ -4933,8 +4935,6 @@ Values entered by the user because of prefix arguments are not saved with git co
             (when choose-branch
                (list (format "refs/heads/%s:refs/remotes/%s/%s" chosen-branch-merge-name chosen-branch-remote chosen-branch-merge-name)))))))
 
-(eval-when-compile (require 'eshell))
-
 (defun magit-parse-arguments (command)
   (require 'eshell)
   (with-temp-buffer
@@ -6404,9 +6404,6 @@ With a prefix argument, visit in other window."
     ((commit)
      (kill-new info)
      (message "%s" info))))
-
-(eval-when-compile (require 'server))
-(declare-function server-running-p 'server)
 
 (defun magit-server-running-p ()
   "Test whether server is running (works with < 23 as well).
