@@ -6895,7 +6895,14 @@ This can be added to `magit-mode-hook' for example"
                        "magit-with-revert-confirmation"
                        "magit-visiting-file-item") t)
                 "\\>")
-       . 1))))
+       . 1)))
+  "Magit expressions to highlight in Emacs-Lisp mode.
+To highlight Magit expressions add something like this to your
+init file:
+
+  (require 'magit)
+  (font-lock-add-keywords 'emacs-lisp-mode
+                          magit-font-lock-keywords)")
 
 (provide 'magit)
 
