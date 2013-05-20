@@ -3001,7 +3001,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
 
 (defun magit-diffstat-item-status (diffstat)
   "Return 'completed or 'incomplete depending on the processed status"
-  (caddr (magit-section-info diffstat)))
+  (car (cddr (magit-section-info diffstat))))
 
 (defun magit-wash-other-file ()
   (if (looking-at "^? \\(.*\\)$")
