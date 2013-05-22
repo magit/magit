@@ -3221,7 +3221,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
 
 (defun magit-insert-diff (file status)
   (let ((cmd magit-git-executable)
-        (args (append (list "diff")
+        (args (append (list "-c" "diff.submodule=short" "diff")
                       (list (magit-diff-U-arg))
                       magit-diff-options
                       (list "--" file))))
