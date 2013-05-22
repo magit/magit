@@ -1200,18 +1200,14 @@ case it is the current tag, not the next) return nil instead.
 
 If optional WITH-DISTANCE-P is non-nil then return (TAG COMMITS)
 where COMMITS is the number of commits in TAG but not in \"HEAD\"."
-  (let ((tag (magit-git-string
-              "describe" "--long" "--tags" "--contains" "HEAD"))
-        cnt)
+  (let ((rev (magit-git-string "describe" "--contains" "HEAD")))
     (save-match-data
-      (when tag
-        (string-match "\\(.+?\\)\\(?:\\^0\\|~\\([0-9]+\\)\\)?$" tag)
-        (setq cnt (match-string 2 tag)
-              tag (match-string 1 tag))
-        (unless (equal tag (car (magit-get-current-tag t)))
-          (if with-distance-p
-              (list tag (string-to-number cnt))
-            tag))))))
+      (when (and rev (string-match "^[^^~]+" rev))
+        (let ((tag (match-string 0 rev)))
+          (unless (equal tag (magit-get-current-tag))
+            (if with-distance-p
+                (list tag (car (magit-rev-diff-count tag "HEAD")))
+              tag)))))))
 
 (defun magit-get-remote (branch)
   "Return the name of the remote for BRANCH.
@@ -1258,6 +1254,15 @@ non-nil, then autocompletion will offer directory names."
   ;; If REF is ambiguous, rev-parse just prints errors,
   ;; so magit-git-string returns nil.
   (not (magit-git-string "rev-parse" "--abbrev-ref" ref)))
+
+(defun magit-rev-diff-count (a b)
+  "Return the commits in A but not B and vice versa.
+Return a list of two integers: (A>B B>A)."
+  (mapcar 'string-to-number
+          (split-string (magit-git-string
+                         "rev-list" "--count" "--left-right"
+                         (concat a "..." b))
+                        "\t")))
 
 (defun magit-name-rev (rev &optional no-trim)
   "Return a human-readable name for REV.
