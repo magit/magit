@@ -879,12 +879,15 @@ in STR."
 (defvar magit-have-graph 'unset)
 (defvar magit-have-decorate 'unset)
 (defvar magit-have-abbrev 'unset)
+(defvar magit-have-config-param 'unset)
 (make-variable-buffer-local 'magit-have-graph)
 (put 'magit-have-graph 'permanent-local t)
 (make-variable-buffer-local 'magit-have-decorate)
 (put 'magit-have-decorate 'permanent-local t)
 (make-variable-buffer-local 'magit-have-abbrev)
 (put 'magit-have-abbrev 'permanent-local t)
+(make-variable-buffer-local 'magit-have-config-param)
+(put 'magit-have-config-param 'permanent-local t)
 
 (defun magit-configure-have-graph ()
   (if (eq magit-have-graph 'unset)
@@ -900,6 +903,11 @@ in STR."
   (if (eq magit-have-abbrev 'unset)
       (let ((res (magit-git-exit-code "log" "--no-abbrev-commit" "--max-count=0")))
         (setq magit-have-abbrev (eq res 0)))))
+
+(defun magit-configure-have-config-param ()
+  (when (eq magit-have-config-param 'unset)
+    (setq magit-have-config-param
+          (eq (magit-git-exit-code "-c" "g.o=v" "config" "g.o") 0))))
 
 ;;; Compatibilities
 
@@ -3185,9 +3193,11 @@ Customize `magit-diff-refine-hunk' to change the default mode."
 (defvar magit-diff-options nil)
 
 (defun magit-insert-diff (file status)
+  (magit-configure-have-config-param)
   (let ((cmd magit-git-executable)
-        (args (append (list "-c" "diff.submodule=short" "diff")
-                      (list (magit-diff-U-arg))
+        (args (append (and magit-have-config-param
+                           (list "-c" "diff.submodule=short"))
+                      (list "diff" (magit-diff-U-arg))
                       magit-diff-options
                       (list "--" file))))
     (let ((p (point)))
