@@ -68,6 +68,7 @@ command-line).")
       ("-pr" "Pickaxe regex" "--pickaxe-regex")
       ("-n" "Name only" "--name-only")
       ("-am" "All match" "--all-match")
+      ("-ab" "All branches" "--branches")
       ("-al" "All" "--all"))
      (arguments
       ("=r" "Relative" "--relative=" read-directory-name)
@@ -76,7 +77,9 @@ command-line).")
       ("=<" "Before" "--before=" read-from-minibuffer)
       ("=s" "Pickaxe search" "-S" read-from-minibuffer)
       ("=a" "Author" "--author=" read-from-minibuffer)
-      ("=g" "Grep" "--grep=" read-from-minibuffer)))
+      ("=g" "Grep" "--grep=" read-from-minibuffer)
+      ("=b" "Branches" "--branches=" magit-read-rev-with-default)
+      ("=R" "Remotes" "--remotes=" read-from-minibuffer)))
 
     (running
      (actions
@@ -373,7 +376,7 @@ command that's eventually invoked.")
   (let ((args '()))
     ;; why can't maphash return a list?!
     (maphash (lambda (k v)
-               (push (concat k (shell-quote-argument v)) args))
+               (push (concat k v) args))
              magit-key-mode-current-args)
     (let ((magit-custom-options (append args magit-key-mode-current-options))
           (current-prefix-arg (or current-prefix-arg magit-key-mode-prefix)))
