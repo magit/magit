@@ -5957,6 +5957,9 @@ This is only non-nil in wazzup buffers.")
 This is only meaningful in wazzup buffers.")
 (make-variable-buffer-local 'magit-wazzup-all-p)
 
+(defvar magit-wazzup-only-branches nil
+  "Non-nil if wazzup should only consider branches")
+
 (defun magit-wazzup-toggle-ignore (branch edit)
   (let ((ignore-file (concat (magit-git-dir) "info/wazzup-exclude")))
     (if edit
@@ -5980,7 +5983,9 @@ This is only meaningful in wazzup buffers.")
       (magit-with-section 'wazzupbuf nil
         (insert (format "Wazzup, %s\n\n" branch-desc))
         (let* ((excluded (magit-file-lines (concat (magit-git-dir) "info/wazzup-exclude")))
-               (all-branches (magit-list-interesting-refs))
+               (all-branches (magit-list-interesting-refs
+                              '(lambda (ref)
+                                 (and magit-wazzup-only-branches (not (string-match-p "heads" ref))))))
                (branches (if all all-branches
                            (delq nil (mapcar
                                       (lambda (b)
