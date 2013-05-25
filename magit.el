@@ -5746,7 +5746,9 @@ With a non numeric prefix ARG, show all entries"
   (setq magit-current-range range)
   (magit-create-log-buffer-sections
     (apply #'magit-git-section nil
-           (magit-rev-range-describe range "Commits")
+           (if (or (member "--all" args) (member "--all-match" args))
+               "Commits"
+             (magit-rev-range-describe range "Commits"))
            (apply-partially 'magit-wash-color-log style)
            `("log"
              ,(format "--max-count=%s" magit-log-cutoff-length)
