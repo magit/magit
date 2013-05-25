@@ -882,6 +882,8 @@ in STR."
 (defvar magit-have-decorate 'unset)
 (defvar magit-have-abbrev 'unset)
 (defvar magit-have-config-param 'unset)
+(defvar magit-have-grep-reflog 'unset)
+
 (make-variable-buffer-local 'magit-have-graph)
 (put 'magit-have-graph 'permanent-local t)
 (make-variable-buffer-local 'magit-have-decorate)
@@ -890,6 +892,8 @@ in STR."
 (put 'magit-have-abbrev 'permanent-local t)
 (make-variable-buffer-local 'magit-have-config-param)
 (put 'magit-have-config-param 'permanent-local t)
+(make-variable-buffer-local 'magit-have-grep-reflog)
+(put 'magit-have-grep-reflog 'permanent-local t)
 
 (defun magit-configure-have-graph ()
   (if (eq magit-have-graph 'unset)
@@ -910,6 +914,12 @@ in STR."
   (when (eq magit-have-config-param 'unset)
     (setq magit-have-config-param
           (eq (magit-git-exit-code "-c" "g.o=v" "config" "g.o") 0))))
+
+(defun magit-configure-have-grep-reflog ()
+  (when (eq magit-have-grep-reflog 'unset)
+    (setq magit-have-grep-reflog
+          (eq (magit-git-exit-code "log" "--walk-reflogs" "--grep-reflog"
+                                   "." "--max-count=0") 0))))
 
 ;;; Compatibilities
 
@@ -4618,14 +4628,23 @@ If no branch is found near the cursor return nil."
             (magit-section-info (magit-section-parent item)))
            ((commit)
             (magit-name-rev (substring info 0 magit-sha1-abbrev-length)))
-           ((wazzup) info)
-           (t (let ((lines (magit-git-lines "reflog")))
-                (while (and lines
-                            (not (string-match "moving from \\(.+?\\) to"
-                                               (car lines))))
-                  (setq lines (cdr lines)))
-                (when lines
-                  (match-string 1 (car lines))))))))
+           ((wazzup)
+            info)
+           (t
+            (magit-configure-have-grep-reflog)
+            (let ((lines
+                   (if magit-have-grep-reflog
+                       (magit-git-lines "log"
+                                        "--pretty=oneline" "--max-count=1"
+                                        "--walk-reflogs" "--grep-reflog"
+                                        "moving from")
+                     (magit-git-lines "reflog"))))
+              (while (and lines
+                          (not (string-match "moving from \\([^\s\t]+?\\) to"
+                                             (car lines))))
+                (setq lines (cdr lines)))
+              (when lines
+                (match-string 1 (car lines))))))))
     (when (stringp branch)
       branch)))
 
