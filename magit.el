@@ -4182,6 +4182,13 @@ if FULLY-QUALIFIED-NAME is non-nil."
 (defvar magit-status-line-align-to 9)
 
 (defun magit-insert-status-line (keyword string &rest args)
+  "Insert a status line in a magit buffer
+
+KEYWORD describe what this status line is
+STRING is the format use to print the ARGS
+
+Never use a string from git as STRING as it might containg format
+specifier"
   (insert keyword ":"
           (make-string (max 1 (- magit-status-line-align-to
                                  (length keyword))) ?\ )
@@ -4208,38 +4215,41 @@ if FULLY-QUALIFIED-NAME is non-nil."
              (both-tags (and current-tag next-tag t))
              (rebase (magit-rebase-info)))
         (when remote-string
-          (magit-insert-status-line "Remote" remote-string))
+          (magit-insert-status-line "Remote" "%s" remote-string))
         (magit-insert-status-line
          "Local" "%s %s"
          (propertize (magit--bisect-info-for-status branch)
                      'face 'magit-branch)
          (abbreviate-file-name default-directory))
         (magit-insert-status-line
-         "Head" (if no-commit "nothing commited (yet)" head))
+         "Head" "%s" (if no-commit "nothing commited (yet)" head))
         (when (or current-tag next-tag)
           (magit-insert-status-line
            (if both-tags "Tags" "Tag")
-           (concat
-            (and current-tag
-                 (concat
-                  (propertize (car current-tag) 'face 'magit-tag)
-                  (and (> (cadr current-tag) 0)
-                       (concat " ("
-                               (propertize (format "%s" (cadr current-tag))
-                                           'face 'magit-branch)
-                               " behind)"))))
-            (and both-tags ", ")
-            (and next-tag
-                 (concat
-                  (propertize (car next-tag) 'face 'magit-tag)
-                  (and (> (cadr next-tag) 0)
-                       (concat " ("
-                               (propertize (format "%s" (cadr next-tag))
-                                           'face 'magit-tag)
-                               " ahead)")))))))
+           "%s%s%s"
+           (if current-tag
+               (concat
+                (propertize (car current-tag) 'face 'magit-tag)
+                (and (> (cadr current-tag) 0)
+                     (concat " ("
+                             (propertize (format "%s" (cadr current-tag))
+                                         'face 'magit-branch)
+                             " behind)")))
+               "")
+           (if both-tags ", " "")
+           (if next-tag
+               (concat
+                (propertize (car next-tag) 'face 'magit-tag)
+                (and (> (cadr next-tag) 0)
+                     (concat " ("
+                             (propertize (format "%s" (cadr next-tag))
+                                         'face 'magit-tag)
+                             " ahead)")))
+               "")))
         (when merge-heads
           (magit-insert-status-line
            "Merging"
+           "%s"
            (mapconcat 'identity (mapcar 'magit-name-rev merge-heads) ", ")))
         (when rebase
           (apply 'magit-insert-status-line
