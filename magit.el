@@ -4215,7 +4215,7 @@ if FULLY-QUALIFIED-NAME is non-nil."
                              'face 'magit-branch)
                  " " (abbreviate-file-name default-directory)))
         (magit-insert-status-line
-         "Head" (if no-commit "nothing commited (yet)" head))
+         "Head" (if no-commit "nothing committed (yet)" head))
         (when (or current-tag next-tag)
           (magit-insert-status-line
            (if both-tags "Tags" "Tag")
