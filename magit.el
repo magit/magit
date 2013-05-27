@@ -4181,11 +4181,11 @@ if FULLY-QUALIFIED-NAME is non-nil."
 
 (defvar magit-status-line-align-to 9)
 
-(defun magit-insert-status-line (keyword string &rest args)
-  (insert keyword ":"
+(defun magit-insert-status-line (heading info-string)
+  (insert heading ":"
           (make-string (max 1 (- magit-status-line-align-to
-                                 (length keyword))) ?\ )
-          (apply 'format string args) "\n"))
+                                 (length heading))) ?\ )
+          info-string "\n"))
 
 (defun magit-refresh-status ()
   (magit-create-buffer-sections
@@ -4210,10 +4210,10 @@ if FULLY-QUALIFIED-NAME is non-nil."
         (when remote-string
           (magit-insert-status-line "Remote" remote-string))
         (magit-insert-status-line
-         "Local" "%s %s"
-         (propertize (magit--bisect-info-for-status branch)
-                     'face 'magit-branch)
-         (abbreviate-file-name default-directory))
+         "Local"
+         (concat (propertize (magit--bisect-info-for-status branch)
+                             'face 'magit-branch)
+                 " " (abbreviate-file-name default-directory)))
         (magit-insert-status-line
          "Head" (if no-commit "nothing commited (yet)" head))
         (when (or current-tag next-tag)
