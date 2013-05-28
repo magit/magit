@@ -1,3 +1,4 @@
+;;; run-test.el --- run Magit tests
 ;; Usage:
 ;;
 ;;   emacs -Q -l tests/run-test.el           # interactive mode
@@ -33,3 +34,5 @@
 (if noninteractive
     (ert-run-tests-batch-and-exit)
   (ert t))
+
+;;; run-test.el ends here

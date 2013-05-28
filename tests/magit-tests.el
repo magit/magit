@@ -1,3 +1,5 @@
+;;; magit-tests.el --- define Magit tests
+
 (require 'ert)
 (eval-when-compile (require 'cl-lib))
 
@@ -8,6 +10,8 @@
 
 (require 'magit)
 (require 'magit-blame)
+
+;;; Utilities
 
 (defmacro with-temp-git-repo (repo &rest body)
   (declare (indent 1) (debug t))
@@ -158,3 +162,5 @@
       (magit-tests--commit-all "dummy message")
       (with-opened-file (format "%s/%s" repo dummy-filename)
         (should (magit-blame-mode))))))
+
+;;; magit-tests.el ends here
