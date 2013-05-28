@@ -2761,18 +2761,17 @@ Please see the manual for a complete description of Magit.
 (defun magit-refresh-wrapper (func)
   (if magit-refresh-pending
       (funcall func)
-    (let* ((dir default-directory)
-           (status-buffer (magit-find-status-buffer dir))
-           (magit-refresh-needing-buffers nil)
-           (magit-refresh-pending t))
+    (let ((magit-refresh-pending t)
+          (magit-refresh-needing-buffers nil)
+          (status-buffer (magit-find-status-buffer default-directory)))
       (unwind-protect
           (funcall func)
         (when magit-refresh-needing-buffers
-          (magit-revert-buffers dir)
-          (dolist (b (if (not (memq status-buffer magit-refresh-needing-buffers))
-                         (cons status-buffer magit-refresh-needing-buffers)
-                       magit-refresh-needing-buffers))
-            (magit-refresh-buffer b)))))))
+          (magit-revert-buffers default-directory)
+          (mapc 'magit-refresh-buffer magit-refresh-needing-buffers))
+        (when (and status-buffer
+                   (not (memq status-buffer magit-refresh-needing-buffers)))
+          (magit-refresh-buffer status-buffer))))))
 
 (defun magit-need-refresh (&optional buffer)
   "Mark BUFFER as needing to be refreshed.
