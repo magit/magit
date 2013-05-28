@@ -59,10 +59,11 @@
   (magit-log-edit-commit))
 
 (defun magit-tests-section-has-item-title (title &optional section-path)
-  (let ((children (magit-section-children
-                   (or (and section-path
-                            (magit-find-section section-path
-                                                magit-top-section))))))
+  (let* ((section  (and section-path
+                        (magit-find-section section-path
+                                            magit-top-section)))
+         (children (and section
+                        (magit-section-children section))))
     (should (member title
                     (mapcar 'magit-section-title children)))))
 
