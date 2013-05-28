@@ -2602,10 +2602,12 @@ magit-topgit and magit-svn"
 (make-variable-buffer-local 'magit-refresh-args)
 (put 'magit-refresh-args 'permanent-local t)
 
-(defvar last-point)
+(defvar magit-last-point nil)
+(make-variable-buffer-local 'magit-last-point)
+(put 'magit-last-point 'permanent-local t)
 
 (defun magit-remember-point ()
-  (setq last-point (point)))
+  (setq magit-last-point (point)))
 
 (defun magit-invisible-region-end (pos)
   (while (and (not (= pos (point-max))) (invisible-p pos))
@@ -2630,7 +2632,7 @@ end, except when that would move point back to where it was
 before the last command."
   (if (invisible-p (point))
       (let ((end (magit-invisible-region-end (point))))
-        (goto-char (if (= end last-point)
+        (goto-char (if (= end magit-last-point)
                        (magit-invisible-region-start (point))
                      end))))
   (setq disable-point-adjustment t))
