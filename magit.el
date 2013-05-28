@@ -2768,11 +2768,11 @@ Please see the manual for a complete description of Magit.
       (unwind-protect
           (funcall func)
         (when magit-refresh-needing-buffers
-          (magit-revert-buffers default-directory)
           (mapc 'magit-refresh-buffer magit-refresh-needing-buffers))
         (when (and status-buffer
                    (not (memq status-buffer magit-refresh-needing-buffers)))
-          (magit-refresh-buffer status-buffer))))))
+          (magit-refresh-buffer status-buffer))
+        (magit-revert-buffers default-directory)))))
 
 (defun magit-need-refresh (&optional buffer)
   "Mark BUFFER as needing to be refreshed.
