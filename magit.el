@@ -2776,8 +2776,12 @@ Please see the manual for a complete description of Magit.
 
 (defun magit-need-refresh (&optional buffer)
   "Mark BUFFER as needing to be refreshed.
-If optional BUFFER is nil, use the current buffer."
-  (cl-pushnew (or buffer (current-buffer)) magit-refresh-needing-buffers :test 'eq))
+If optional BUFFER is nil, use the current buffer.  If the
+buffer's mode doesn't derive from `magit-mode' do nothing."
+  (with-current-buffer (or buffer (current-buffer))
+    (when (derived-mode-p 'magit-mode)
+      (cl-pushnew (current-buffer)
+                  magit-refresh-needing-buffers :test 'eq))))
 
 (defun magit-refresh ()
   "Refresh current buffer to match repository state.
