@@ -2637,10 +2637,12 @@ magit-topgit and magit-svn"
 (make-variable-buffer-local 'magit-refresh-args)
 (put 'magit-refresh-args 'permanent-local t)
 
-(defvar last-point)
+(defvar magit-last-point nil)
+(make-variable-buffer-local 'magit-last-point)
+(put 'magit-last-point 'permanent-local t)
 
 (defun magit-remember-point ()
-  (setq last-point (point)))
+  (setq magit-last-point (point)))
 
 (defun magit-invisible-region-end (pos)
   (while (and (not (= pos (point-max))) (invisible-p pos))
@@ -2665,7 +2667,7 @@ end, except when that would move point back to where it was
 before the last command."
   (if (invisible-p (point))
       (let ((end (magit-invisible-region-end (point))))
-        (goto-char (if (= end last-point)
+        (goto-char (if (= end magit-last-point)
                        (magit-invisible-region-start (point))
                      end))))
   (setq disable-point-adjustment t))
@@ -2766,8 +2768,7 @@ Please see the manual for a complete description of Magit.
 
 (defun magit-revert-buffers (dir &optional ignore-modtime)
   (dolist (buffer (buffer-list))
-    (when (and buffer
-               (buffer-file-name buffer)
+    (when (and (buffer-file-name buffer)
                ;; don't revert indirect buffers, as the parent will be reverted
                (not (buffer-base-buffer buffer))
                (magit-string-has-prefix-p (buffer-file-name buffer) dir)
@@ -2775,22 +2776,19 @@ Please see the manual for a complete description of Magit.
                (or ignore-modtime (not (verify-visited-file-modtime buffer)))
                (not (buffer-modified-p buffer)))
       (with-current-buffer buffer
-        (condition-case var
+        (condition-case err
             (revert-buffer t t nil)
-          (error (let ((signal-data (cadr var)))
-                   (cond (t (magit-bug-report signal-data))))))))))
+          (error (magit-bug-report (cadr err))))))))
 
 (defun magit-update-vc-modeline (dir)
   "Update the modeline for buffers representable by magit."
   (dolist (buffer (buffer-list))
-    (when (and buffer
-               (buffer-file-name buffer)
+    (when (and (buffer-file-name buffer)
                (magit-string-has-prefix-p (buffer-file-name buffer) dir))
       (with-current-buffer buffer
-        (condition-case var
+        (condition-case err
             (vc-find-file-hook)
-          (error (let ((signal-data (cadr var)))
-                   (cond (t (magit-bug-report signal-data))))))))))
+          (error (magit-bug-report (cadr err))))))))
 
 (defvar magit-refresh-needing-buffers nil)
 (defvar magit-refresh-pending nil)
@@ -2798,18 +2796,17 @@ Please see the manual for a complete description of Magit.
 (defun magit-refresh-wrapper (func)
   (if magit-refresh-pending
       (funcall func)
-    (let* ((dir default-directory)
-           (status-buffer (magit-find-status-buffer dir))
-           (magit-refresh-needing-buffers nil)
-           (magit-refresh-pending t))
+    (let ((magit-refresh-pending t)
+          (magit-refresh-needing-buffers nil)
+          (status-buffer (magit-find-status-buffer default-directory)))
       (unwind-protect
           (funcall func)
         (when magit-refresh-needing-buffers
-          (magit-revert-buffers dir)
-          (dolist (b (if (not (memq status-buffer magit-refresh-needing-buffers))
-                         (cons status-buffer magit-refresh-needing-buffers)
-                       magit-refresh-needing-buffers))
-            (magit-refresh-buffer b)))))))
+          (magit-revert-buffers default-directory)
+          (mapc 'magit-refresh-buffer magit-refresh-needing-buffers))
+        (when (and status-buffer
+                   (not (memq status-buffer magit-refresh-needing-buffers)))
+          (magit-refresh-buffer status-buffer))))))
 
 (defun magit-need-refresh (&optional buffer)
   "Mark BUFFER as needing to be refreshed.
@@ -4216,11 +4213,11 @@ if FULLY-QUALIFIED-NAME is non-nil."
 
 (defvar magit-status-line-align-to 9)
 
-(defun magit-insert-status-line (keyword string &rest args)
-  (insert keyword ":"
+(defun magit-insert-status-line (heading info-string)
+  (insert heading ":"
           (make-string (max 1 (- magit-status-line-align-to
-                                 (length keyword))) ?\ )
-          (apply 'format string args) "\n"))
+                                 (length heading))) ?\ )
+          info-string "\n"))
 
 (defun magit-refresh-status ()
   (magit-create-buffer-sections
@@ -4245,12 +4242,12 @@ if FULLY-QUALIFIED-NAME is non-nil."
         (when remote-string
           (magit-insert-status-line "Remote" remote-string))
         (magit-insert-status-line
-         "Local" "%s %s"
-         (propertize (magit--bisect-info-for-status branch)
-                     'face 'magit-branch)
-         (abbreviate-file-name default-directory))
+         "Local"
+         (concat (propertize (magit--bisect-info-for-status branch)
+                             'face 'magit-branch)
+                 " " (abbreviate-file-name default-directory)))
         (magit-insert-status-line
-         "Head" (if no-commit "nothing commited (yet)" head))
+         "Head" (if no-commit "nothing committed (yet)" head))
         (when (or current-tag next-tag)
           (magit-insert-status-line
            (if both-tags "Tags" "Tag")
