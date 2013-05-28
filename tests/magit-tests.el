@@ -3,10 +3,10 @@
 (require 'ert)
 (eval-when-compile (require 'cl-lib))
 
-(eval-when-compile
-  (unless (require 'mocker nil t)
-    (cl-defmacro mocker-let (specs &rest body)
-      (error "Skipping tests, mocker.el is not available"))))
+;; (eval-when-compile
+;;   (unless (require 'mocker nil t)
+;;     (cl-defmacro mocker-let (specs &rest body)
+;;       (error "Skipping tests, mocker.el is not available"))))
 
 (require 'magit)
 (require 'magit-blame)
@@ -72,33 +72,33 @@
   (with-temp-git-repo repo
     (should (magit-git-repo-p repo))))
 
-(ert-deftest magit-init-nested ()
-  (with-temp-git-repo repo
-    (mocker-let
-        ((yes-or-no-p (prompt)
-                      ((:input-matcher
-                        (lambda (p)
-                          (string-match "^There is a Git repository" p))
-                        :output t))))
-      (let ((nested-repo (concat repo "/nested")))
-        (make-directory nested-repo)
-        (magit-init nested-repo)
-        (should (magit-git-repo-p nested-repo))))
-    (should (magit-git-repo-p repo))))
+;; (ert-deftest magit-init-nested ()
+;;   (with-temp-git-repo repo
+;;     (mocker-let
+;;         ((yes-or-no-p (prompt)
+;;                       ((:input-matcher
+;;                         (lambda (p)
+;;                           (string-match "^There is a Git repository" p))
+;;                         :output t))))
+;;       (let ((nested-repo (concat repo "/nested")))
+;;         (make-directory nested-repo)
+;;         (magit-init nested-repo)
+;;         (should (magit-git-repo-p nested-repo))))
+;;     (should (magit-git-repo-p repo))))
 
-(ert-deftest magit-init-test-expansion ()
-  (let* ((dir "~/plop")
-         (exp-dir (file-name-as-directory (expand-file-name dir))))
-    (mocker-let
-        ;; make sure all steps have the expanded version of dir
-        ((magit-get-top-dir (dir)
-                            ((:input `(,exp-dir) :output nil)))
-         (file-directory-p (dir)
-                           ((:input `(,exp-dir) :output t)))
-         (magit-run* (args)
-                     ((:input `((,magit-git-executable "init"))
-                       :output t))))
-      (should (magit-init dir)))))
+;; (ert-deftest magit-init-test-expansion ()
+;;   (let* ((dir "~/plop")
+;;          (exp-dir (file-name-as-directory (expand-file-name dir))))
+;;     (mocker-let
+;;         ;; make sure all steps have the expanded version of dir
+;;         ((magit-get-top-dir (dir)
+;;                             ((:input `(,exp-dir) :output nil)))
+;;          (file-directory-p (dir)
+;;                            ((:input `(,exp-dir) :output t)))
+;;          (magit-run* (args)
+;;                      ((:input `((,magit-git-executable "init"))
+;;                        :output t))))
+;;       (should (magit-init dir)))))
 
 (ert-deftest magit-untracked-file ()
   (let ((dummy-filename "foo"))
