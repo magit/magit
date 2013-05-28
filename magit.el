@@ -2326,8 +2326,14 @@ magit-topgit and magit-svn"
 
 (defvar magit-process nil)
 (defvar magit-process-client-buffer nil)
+
 (defvar magit-process-buffer-name "*magit-process*"
   "Buffer name for running git commands.")
+
+(defconst magit-process-force-synchronous nil
+  "Force `magit-run*' to run all processes synchronously.
+This is automatically let-bound during tests and is only intended
+to be used during tests.  You should never set this youself.")
 
 (defun magit-run* (cmd-and-args
                    &optional logline noerase noerror nowait input)
@@ -2358,7 +2364,7 @@ magit-topgit and magit-svn"
         (insert "$ " (or logline
                          (mapconcat 'identity cmd-and-args " "))
                 "\n")
-        (cond (nowait
+        (cond ((and nowait (not magit-process-force-synchronous))
                (setq magit-process
                      (let ((process-connection-type magit-process-connection-type))
                        (apply 'magit-start-process cmd buf cmd args)))

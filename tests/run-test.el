@@ -31,8 +31,9 @@
 (load "magit-tests")
 
 ;; Run tests
-(if noninteractive
-    (ert-run-tests-batch-and-exit)
-  (ert t))
+(let ((magit-process-force-synchronous t))
+  (if noninteractive
+      (ert-run-tests-batch-and-exit)
+    (ert t)))
 
 ;;; run-test.el ends here
