@@ -377,10 +377,9 @@ command that's eventually invoked.")
              magit-key-mode-current-args)
     (let ((magit-custom-options (append args magit-key-mode-current-options))
           (current-prefix-arg (or current-prefix-arg magit-key-mode-prefix)))
-      (set-window-configuration magit-log-mode-window-conf)
+      (magit-key-mode-kill-buffer)
       (when func
-        (call-interactively func))
-      (magit-key-mode-kill-buffer))))
+        (call-interactively func)))))
 
 (defun magit-key-mode-add-argument (for-group arg-name input-func)
   (let ((input (funcall input-func (concat arg-name ": "))))
@@ -397,6 +396,7 @@ command that's eventually invoked.")
 
 (defun magit-key-mode-kill-buffer ()
   (interactive)
+  (set-window-configuration magit-log-mode-window-conf)
   (kill-buffer magit-key-mode-last-buffer))
 
 (defun magit-key-mode (for-group &optional original-opts)
@@ -404,6 +404,8 @@ command that's eventually invoked.")
 All commands, switches and options can be toggled/actioned with
 the key combination highlighted before the description."
   (interactive)
+  (when (buffer-live-p magit-key-mode-last-buffer)
+    (magit-key-mode-kill-buffer))
   ;; save the window config to restore it as was (no need to make this
   ;; buffer local)
   (setq magit-log-mode-window-conf
