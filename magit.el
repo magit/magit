@@ -5786,22 +5786,21 @@ With a non numeric prefix ARG, show all entries"
              (magit-rev-range-describe range "Commits"))
            (apply-partially 'magit-wash-color-log style)
            `("log"
-             ,(format "--max-count=%s" magit-log-cutoff-length)
+             ,(concat "--max-count=" magit-log-cutoff-length)
              "--abbrev-commit"
-             ,(format "--abbrev=%s" magit-sha1-abbrev-length)
-             ,@(cond ((eq style 'long) (append
-                                        (list "--stat" "-z")
-                                        (when magit-log-show-gpg-status
-                                          (list "--show-signature"))))
-                     ((eq style 'oneline)
-                      (let ((fmt
-                             (if magit-log-show-gpg-status
-                                 "%h%d %G?[%an][%ar]%s"
-                               "%h%d [%an][%ar]%s")))
-                        (list (format "--pretty=format:%s" fmt))))
-                     (t nil))
-             ,@(if magit-have-decorate (list "--decorate=full"))
-             ,@(if magit-have-graph (list "--graph"))
+             ,(concat "--abbrev=" magit-sha1-abbrev-length)
+             ,@(cl-case style
+                 (long
+                  (append (list "--stat" "-z")
+                          (when magit-log-show-gpg-status
+                            (list "--show-signature"))))
+                 (oneline
+                  (list (concat "--pretty=format:%h%d "
+                                (and magit-log-show-gpg-status "%G?")
+                                "[%an][%ar]%s")))
+                 (t nil))
+             ,@(and magit-have-decorate (list "--decorate=full"))
+             ,@(and magit-have-graph (list "--graph"))
              "--color"
              ,@args
              "--"))))
