@@ -584,8 +584,17 @@ Many Magit faces inherit from this one by default."
   :group 'magit-faces)
 
 (defface magit-item-highlight
-  '((t :inherit highlight))
-  "Face for highlighting the current item."
+  '((t :bold t))
+  ;; We used to inherit from `highlight', but:
+  "Face for highlighting the current item.
+
+This face should not set the background if the `magit-diff-*'
+faces, respectively the faces they inherit from, also make use of
+the `:background' face attribute.  Otherwise the diff faces won't
+have any effect.
+
+To disable highlighting of the current item completely, make this
+face inherit from `default' and remove all other attributes."
   :group 'magit-faces)
 
 (defface magit-item-mark
