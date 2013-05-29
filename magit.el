@@ -451,6 +451,11 @@ many spaces.  Otherwise, highlight neither."
                                (const :tag "Neither" nil))))
   :set 'magit-set-variable-and-refresh)
 
+(defcustom magit-highlight-current-diff-hunk t
+  "Highlight the currently selected diff hunk."
+  :group 'magit
+  :type 'boolean)
+
 (defcustom magit-diff-refine-hunk nil
   "Show fine (word-granularity) differences within diff hunks.
 
@@ -2143,7 +2148,9 @@ Refinements can be undone with `magit-unrefine-section'."
 (defun magit-highlight-section ()
   "Highlight current section if it has a type."
   (let ((section (magit-current-section)))
-    (when (not (eq section magit-highlighted-section))
+    (unless (or (eq section magit-highlighted-section)
+                (and (not magit-highlight-current-diff-hunk)
+                     (member (magit-section-type section) '(diff hunk))))
       (when magit-highlighted-section
         ;; remove any refinement from previous hunk
         (magit-unrefine-section magit-highlighted-section))
