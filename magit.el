@@ -2059,6 +2059,8 @@ function can be enriched by magit extension like magit-topgit and magit-svn"
 (defvar magit-process-client-buffer nil)
 (defvar magit-process-buffer-name "*magit-process*"
   "Buffer name for running git commands.")
+(defvar magit-process-log-buffer-name "*magit-process-log*"
+  "Buffer name for the running log of output from git commands.")
 
 (defun magit-run* (cmd-and-args
                    &optional logline noerase noerror nowait input)
@@ -2069,6 +2071,7 @@ function can be enriched by magit extension like magit-topgit and magit-svn"
         (args (cdr cmd-and-args))
         (dir default-directory)
         (buf (get-buffer-create magit-process-buffer-name))
+        (log-buf (get-buffer-create magit-process-log-buffer-name))
         (successp nil))
     (magit-set-mode-line-process
      (magit-process-indicator-from-command cmd-and-args))
@@ -2138,6 +2141,12 @@ function can be enriched by magit extension like magit-topgit and magit-svn"
                      (equal (apply 'process-file cmd nil buf nil args) 0))
                (magit-set-mode-line-process nil)
                (magit-need-refresh magit-process-client-buffer))))
+      ;; Append the contents of process-buffer to the log.
+      (with-current-buffer log-buf
+        (goto-char (point-max))
+        (insert "\n"))
+      (append-to-buffer log-buf (point-min) (point-max))
+      ;; Raise an error if the command failed.
       (or successp
           noerror
           (error
