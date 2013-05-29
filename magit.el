@@ -5858,7 +5858,8 @@ This is only non-nil in reflog buffers.")
   (setq magit-reflog-head head)
   (magit-create-log-buffer-sections
     (apply #'magit-git-section
-           'reflog (format "Local history of head %s" head) 'magit-wash-log "log"
+           'reflog (format "Local history of head %s" head)
+           'magit-wash-log "log"
            (append magit-git-log-options
                    (list
                     "--walk-reflogs"
