@@ -388,10 +388,10 @@ command that's eventually invoked.")
 
 (defun magit-key-mode-add-option (for-group option-name)
   "Toggles the appearance of OPTION-NAME in `magit-key-mode-current-options'."
-  (if (not (member option-name magit-key-mode-current-options))
-      (add-to-list 'magit-key-mode-current-options option-name)
-    (setq magit-key-mode-current-options
-          (delete option-name magit-key-mode-current-options)))
+  (if (member option-name magit-key-mode-current-options)
+      (setq magit-key-mode-current-options
+            (delete option-name magit-key-mode-current-options))
+    (add-to-list 'magit-key-mode-current-options option-name))
   (magit-key-mode-redraw for-group))
 
 (defun magit-key-mode (for-group &optional original-opts)
