@@ -370,17 +370,16 @@ that brought up the key-mode window, so it can be used by the
 command that's eventually invoked.")
 
 (defun magit-key-mode-command (func)
-  (let ((args '()))
-    ;; why can't maphash return a list?!
+  (let ((current-prefix-arg (or current-prefix-arg magit-key-mode-prefix))
+        (magit-custom-options magit-key-mode-current-options))
     (maphash (lambda (k v)
-               (push (concat k (shell-quote-argument v)) args))
+               (push (concat k (shell-quote-argument v))
+                     magit-custom-options))
              magit-key-mode-current-args)
-    (let ((magit-custom-options (append args magit-key-mode-current-options))
-          (current-prefix-arg (or current-prefix-arg magit-key-mode-prefix)))
-      (set-window-configuration magit-log-mode-window-conf)
-      (kill-buffer magit-key-mode-last-buffer)
-      (when func
-        (call-interactively func)))))
+    (set-window-configuration magit-log-mode-window-conf)
+    (kill-buffer magit-key-mode-last-buffer)
+    (when func
+      (call-interactively func))))
 
 (defun magit-key-mode-add-argument (for-group arg-name input-func)
   (let ((input (funcall input-func (concat arg-name ": "))))
