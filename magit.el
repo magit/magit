@@ -2744,12 +2744,12 @@ Please see the manual for a complete description of Magit.
 (defun magit-revert-buffers (dir &optional ignore-modtime)
   (dolist (buffer (buffer-list))
     (when (and (buffer-file-name buffer)
+               (not (buffer-modified-p buffer))
                ;; don't revert indirect buffers, as the parent will be reverted
                (not (buffer-base-buffer buffer))
                (magit-string-has-prefix-p (buffer-file-name buffer) dir)
                (file-readable-p (buffer-file-name buffer))
-               (or ignore-modtime (not (verify-visited-file-modtime buffer)))
-               (not (buffer-modified-p buffer)))
+               (or ignore-modtime (not (verify-visited-file-modtime buffer))))
       (with-current-buffer buffer
         (condition-case err
             (revert-buffer t t nil)
