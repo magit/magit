@@ -378,9 +378,9 @@ command that's eventually invoked.")
     (let ((magit-custom-options (append args magit-key-mode-current-options))
           (current-prefix-arg (or current-prefix-arg magit-key-mode-prefix)))
       (set-window-configuration magit-log-mode-window-conf)
+      (kill-buffer magit-key-mode-last-buffer)
       (when func
-        (call-interactively func))
-      (magit-key-mode-kill-buffer))))
+        (call-interactively func)))))
 
 (defun magit-key-mode-add-argument (for-group arg-name input-func)
   (let ((input (funcall input-func (concat arg-name ": "))))
@@ -394,10 +394,6 @@ command that's eventually invoked.")
     (setq magit-key-mode-current-options
           (delete option-name magit-key-mode-current-options)))
   (magit-key-mode-redraw for-group))
-
-(defun magit-key-mode-kill-buffer ()
-  (interactive)
-  (kill-buffer magit-key-mode-last-buffer))
 
 (defun magit-key-mode (for-group &optional original-opts)
   "Mode for magit key selection.
