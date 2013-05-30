@@ -1530,7 +1530,7 @@ PROMPT and UNINTERESTING are passed to `magit-read-rev'."
                 (match-string 1 branch)
               branch)))))
 
-(defun magit-read-remote (&optional prompt def require-match)
+(defun magit-read-remote (prompt &optional def require-match)
   "Read the name of a remote.
 PROMPT is used as the prompt, and defaults to \"Remote\".
 DEF is the default value.  If optional REQUIRE-MATCH is non-nil then
@@ -4944,7 +4944,7 @@ With a prefix arg, also remove untracked files.  With two prefix args, remove ig
 
 (magit-define-command fetch (remote)
   "Fetch from REMOTE."
-  (interactive (list (magit-read-remote)))
+  (interactive (list (magit-read-remote "Fetch remote")))
   (apply 'magit-run-git-async "fetch" remote magit-custom-options))
 
 (magit-define-command fetch-current ()
@@ -4953,7 +4953,7 @@ With a prefix arg, also remove untracked files.  With two prefix args, remove ig
 If there is no default remote, ask for one."
   (interactive)
   (magit-fetch (or (magit-get-current-remote)
-                   (magit-read-remote))))
+                   (magit-read-remote "Fetch remote"))))
 
 (magit-define-command remote-update ()
   "Update all remotes."
@@ -5049,7 +5049,7 @@ ask the user what remote to use."
                       (and (= (length remotes) 1)
                            (car remotes)))))
     (when (or current-prefix-arg (not remote))
-      (setq remote (magit-read-remote "Push to remote: ")))
+      (setq remote (magit-read-remote "Push to remote")))
     (magit-run-git-async "push" remote "--tags")))
 
 (magit-define-command push ()
