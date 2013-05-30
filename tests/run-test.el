@@ -4,7 +4,7 @@
 ;;   emacs -batch -Q -l tests/run-test.el    # batch mode
 
 ;; Setup `load-path'
-(let* ((test-dir (file-name-directory load-file-name))
+(let* ((test-dir (file-name-directory (or load-file-name buffer-file-name)))
        (root-dir (file-name-directory (directory-file-name test-dir)))
        (sitelisp (file-name-directory (directory-file-name root-dir))))
   (add-to-list 'load-path test-dir)
