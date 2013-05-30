@@ -1004,17 +1004,17 @@ contents as well.  Don't follow symlinks."
                                          choices)))))
     (iswitchb-read-buffer prompt (or initial-input def) require-match)))
 
-(defun magit-ido-completing-read (prompt choices &optional predicate require-match initial-input hist def)
+(defun magit-ido-completing-read (prompt choices &optional predicate require-match
+                                         initial-input hist def)
   "ido-based completing-read almost-replacement."
   (require 'ido)
-  (let ((selected (ido-completing-read prompt (if (consp (car choices))
-                                                  (mapcar #'car choices)
-                                                choices)
-                                       predicate require-match initial-input hist def)))
-    (if (consp (car choices))
-        (or (cdr (assoc selected choices))
-            selected)
-      selected)))
+  (let ((reply (ido-completing-read prompt (if (consp (car choices))
+                                               (mapcar #'car choices)
+                                             choices)
+                                    predicate require-match initial-input hist def)))
+    (or (and (consp (car choices))
+             (cdr (assoc reply choices)))
+        reply)))
 
 (defun magit-builtin-completing-read (prompt choices &optional predicate require-match
                                              initial-input hist def)
@@ -1457,9 +1457,9 @@ those."
                          'require-match
                          nil
                          'magit-read-file-hist
-                         (if buffer-file-name
-                             (let ((topdir-length (length (magit-get-top-dir default-directory))))
-                               (substring (buffer-file-name) topdir-length)))))
+                         (when buffer-file-name
+                           (substring (buffer-file-name)
+                                      (length (magit-get-top-dir default-directory))))))
 
 (defun magit-read-rev (prompt &optional default uninteresting)
   (let* ((interesting-refs (magit-list-interesting-refs
