@@ -1464,12 +1464,10 @@ those."
 (defun magit-read-rev (prompt &optional default uninteresting)
   (let* ((interesting-refs (magit-list-interesting-refs
                             (or uninteresting magit-uninteresting-refs)))
-         (reply (magit-completing-read (concat prompt ": ") interesting-refs
-                                       nil nil nil 'magit-read-rev-history default))
-         (rev (or (cdr (assoc reply interesting-refs)) reply)))
-    (if (string= rev "")
-        nil
-      rev)))
+         (reply (magit-completing-read (concat prompt ": ")
+                                       interesting-refs nil t nil
+                                       'magit-read-rev-history default)))
+    (or (cdr (assoc reply interesting-refs)) reply)))
 
 (defun magit-read-rev-with-default (prompt &optional no-trim uninteresting)
   "Ask user for revision like `magit-read-rev' but default is set
@@ -1479,15 +1477,14 @@ PROMPT and UNINTERESTING are passed to `magit-read-rev'."
   (magit-read-rev prompt (magit-default-rev no-trim) uninteresting))
 
 (defun magit-read-rev-range (op &optional def-beg def-end)
-  (let ((beg (magit-read-rev (format "%s start" op)
-                             def-beg)))
-    (if (not beg)
-        nil
-      (save-match-data
-        (if (string-match "^\\(.+\\)\\.\\.\\(.+\\)$" beg)
-            (cons (match-string 1 beg) (match-string 2 beg))
-          (let ((end (magit-read-rev (format "%s end" op) def-end)))
-            (cons beg end)))))))
+  (let ((beg (magit-read-rev (format "%s range or start" op) def-beg)))
+    (save-match-data
+      (if (string-match "^\\(.+\\)\\.\\.\\(.+\\)$" beg)
+          (cons (match-string 1 beg) (match-string 2 beg))
+        (cons beg (magit-completing-read (format "%s end op" op)
+                                         nil nil nil
+                                         'magit-read-rev-history
+                                         def-end))))))
 
 (defun magit-rev-to-git (rev)
   (or rev
@@ -4401,8 +4398,7 @@ when asking for user input."
   "Merge REVISION into the current 'HEAD'; commit unless merge fails.
 \('git merge REVISION')."
   (interactive (list (magit-read-rev "Merge" (magit-guess-branch))))
-  (if revision
-      (magit-run-git "merge" (magit-rev-to-git revision))))
+  (magit-run-git "merge" (magit-rev-to-git revision)))
 
 (magit-define-command manual-merge (revision)
   "Merge REVISION into the current 'HEAD'; commit unless merge fails.
@@ -4695,13 +4691,11 @@ If no branch is found near the cursor return nil."
   "Merge REVISION into the current 'HEAD'; leave changes uncommitted.
 With a prefix-arg, the merge will be squashed.
 \('git merge --no-commit [--squash|--no-ff] REVISION')."
-  (interactive
-   (list (magit-read-rev-with-default "Merge")))
-  (if revision
-      (apply 'magit-run-git
-             "merge"
-             (magit-rev-to-git revision)
-             magit-custom-options)))
+  (interactive (list (magit-read-rev-with-default "Merge")))
+  (apply 'magit-run-git
+         "merge"
+         (magit-rev-to-git revision)
+         magit-custom-options))
 
 ;;; Rebasing
 
@@ -4750,8 +4744,7 @@ If there is no rebase in progress return nil."
                                         (cons (concat "refs/heads/" current-branch)
                                               magit-uninteresting-refs)
                                       magit-uninteresting-refs))))
-          (if rev
-              (magit-run-git "rebase" (magit-rev-to-git rev))))
+          (magit-run-git "rebase" (magit-rev-to-git rev)))
       (let ((cursor-in-echo-area t)
             (message-log-max nil))
         (message "Rebase in progress. [A]bort, [S]kip, or [C]ontinue? ")
@@ -4779,10 +4772,9 @@ and staging area are lost.
                                      (or (magit-default-rev)
                                          "HEAD^"))
                      current-prefix-arg))
-  (when revision
-    (magit-run-git "reset" (if hard "--hard" "--soft")
-                   (magit-rev-to-git revision))
-    (magit-update-vc-modeline default-directory)))
+  (magit-run-git "reset" (if hard "--hard" "--soft")
+                 (magit-rev-to-git revision))
+  (magit-update-vc-modeline default-directory))
 
 (magit-define-command reset-head-hard (revision)
   "Switch 'HEAD' to REVISION, losing all changes.
@@ -5992,13 +5984,14 @@ restore the window state that was saved before ediff was called."
 
 (magit-define-command diff (range)
   (interactive (list (magit-read-rev-range "Diff")))
-  (if range
-      (let* ((dir default-directory)
-             (args (magit-rev-range-to-git range))
-             (buf (get-buffer-create "*magit-diff*")))
-        (display-buffer buf)
-        (with-current-buffer buf
-          (magit-mode-init dir 'magit-diff-mode #'magit-refresh-diff-buffer range args)))))
+  (let ((buf (get-buffer-create "*magit-diff*")))
+    (display-buffer buf)
+    (with-current-buffer buf
+      (magit-mode-init default-directory
+                       'magit-diff-mode
+                       #'magit-refresh-diff-buffer
+                       range
+                       (magit-rev-range-to-git range)))))
 
 (magit-define-command diff-working-tree (rev)
   (interactive (list (magit-read-rev-with-default "Diff with")))
