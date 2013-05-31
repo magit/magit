@@ -2290,6 +2290,9 @@ and CLAUSES.
                                       magit-section-action-success)))
                               clauses))))))
 
+(define-obsolete-function-alias 'magit-add-action
+  'magit-add-action-clauses "1.3.0")
+
 (defun magit-wash-sequence (func)
   "Run FUNC until end of buffer is reached.
 FUNC should leave point at the end of the modified region"
