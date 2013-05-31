@@ -4283,10 +4283,11 @@ if FULLY-QUALIFIED-NAME is non-nil."
            "Merging"
            (mapconcat 'identity (mapcar 'magit-name-rev merge-heads) ", ")))
         (when rebase
-          (apply 'magit-insert-status-line
-                 "Rebasing"
-                 " onto %s (%s of %s); Press \"R\" to Abort, Skip, or Continue\n"
-                 rebase))
+          (magit-insert-status-line
+           "Rebasing"
+           (apply 'format
+                  "onto %s (%s of %s); Press \"R\" to Abort, Skip, or Continue"
+                  rebase)))
         (insert "\n")
         (magit-git-exit-code "update-index" "--refresh")
         (magit-insert-stashes)
