@@ -142,7 +142,8 @@ command-line).")
      (man-page "git-tag")
      (actions
       ("t" "Lightweight" magit-tag)
-      ("a" "Annotated" magit-annotated-tag))
+      ("a" "Annotated" magit-annotated-tag)
+      ("k" "Delete" magit-delete-tag))
      (switches
       ("-f" "Force" "-f")))
 

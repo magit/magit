@@ -5560,24 +5560,34 @@ continue it.
 
 (magit-define-command tag (name rev)
   "Create a new lightweight tag with the given NAME at REV.
-\('git tag NAME')."
+\('git tag NAME REV')."
   (interactive
    (list
-    (read-string "Tag name: ")
+    (magit-read-tag "Tag name: ")
     (magit-read-rev "Place tag on: " (or (magit-default-rev) "HEAD"))))
   (apply #'magit-run-git "tag" (append magit-custom-options (list name rev))))
 
 (magit-define-command annotated-tag (name rev)
   "Start composing an annotated tag with the given NAME.
-Tag will point to the current 'HEAD'."
+\('git tag -a NAME REV')."
   (interactive
    (list
-    (read-string "Tag name: ")
+    (magit-read-tag "Tag name: ")
     (magit-read-rev "Place tag on: " (or (magit-default-rev) "HEAD"))))
   (magit-log-edit-set-field 'tag-name name)
   (magit-log-edit-set-field 'tag-rev rev)
   (magit-log-edit-set-field 'tag-options magit-custom-options)
   (magit-pop-to-log-edit "tag"))
+
+(magit-define-command delete-tag (name)
+  "Delete the tag with the given NAME.
+\('git tag -d NAME')."
+  (interactive (list (magit-read-tag "Delete Tag: " t)))
+  (apply #'magit-run-git "tag" "-d" (append magit-custom-options (list name))))
+
+(defun magit-read-tag (prompt &optional require-match)
+  (magit-completing-read prompt (magit-git-lines "tag") nil
+                         require-match nil magit-read-rev-history))
 
 ;;; Stashing
 
