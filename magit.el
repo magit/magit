@@ -5786,9 +5786,9 @@ With a non numeric prefix ARG, show all entries"
              (magit-rev-range-describe range "Commits"))
            (apply-partially 'magit-wash-color-log style)
            `("log"
-             ,(concat "--max-count=" magit-log-cutoff-length)
+             ,(format "--max-count=%s" magit-log-cutoff-length)
              "--abbrev-commit"
-             ,(concat "--abbrev=" magit-sha1-abbrev-length)
+             ,(format "--abbrev=%s" magit-sha1-abbrev-length)
              ,@(cl-case style
                  (long
                   (append (list "--stat" "-z")
