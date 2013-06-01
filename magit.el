@@ -5583,7 +5583,7 @@ continue it.
 
 (defun magit-read-tag (prompt &optional require-match)
   (magit-completing-read prompt (magit-git-lines "tag") nil
-                         require-match nil magit-read-rev-history))
+                         require-match nil 'magit-read-rev-history))
 
 ;;; Stashing
 
