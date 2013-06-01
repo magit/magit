@@ -6532,13 +6532,14 @@ Return values:
                        ())
                       (t (concat (executable-find "emacsclient")
                                  " -s " server-name))))
-        (message "Cannot find emacsclient, using default git editor, please check your PATH"))
+      (message "Cannot find emacsclient, using default git editor, please check your PATH"))
     (unwind-protect
         (magit-run-git-async "rebase" "-i"
                              (or (and commit (concat commit "^"))
-                                 (magit-read-rev "Interactively rebase to" (magit-guess-branch))))
-      (if old-editor
-          (setenv "GIT_EDITOR" old-editor)))))
+                                 (magit-read-rev "Interactively rebase to"
+                                                 (magit-guess-branch))))
+      (when old-editor
+        (setenv "GIT_EDITOR" old-editor)))))
 
 (define-derived-mode magit-branch-manager-mode magit-mode "Magit Branch"
   "Magit Branches")
@@ -6551,20 +6552,19 @@ With a prefix argument, kill the buffer instead."
 
 (defun magit--branch-name-at-point ()
   "Get the branch name in the line at point."
-  (let ((branch (magit-section-info (magit-current-section))))
-    (or branch (error "No branch at point"))))
+  (or (magit-section-info (magit-current-section))
+      (error "No branch at point")))
 
 (defun magit--branches-for-remote-repo (remote)
   "Return a list of remote branch names for REMOTE.
 These are the branch names with the remote name stripped."
-  (remq nil
-        (mapcar (lambda (line)
-                  (save-match-data
-                    (if (and (not (string-match-p " -> " line))
-                             (string-match (concat "^ +" remote "/\\([^ $]+\\)")
-                                           line))
-                        (match-string 1 line))))
-                (magit-git-lines "branch" "-r"))))
+  (cl-mapcan
+   (lambda (line)
+     (save-match-data
+       (when (and (not (string-match-p " -> " line))
+                  (string-match (concat "^ +" remote "/\\([^ $]+\\)") line))
+         (list (match-string 1 line)))))
+   (magit-git-lines "branch" "-r")))
 
 (defvar magit-branches-buffer-name "*magit-branches*")
 
@@ -6575,14 +6575,19 @@ These are the branch names with the remote name stripped."
 (defun magit-remote-part-of-branch (branch)
   (when (string-match-p "^\\(?:refs/\\)?remotes\\/" branch)
     (cl-loop for remote in (magit-git-lines "remote")
-             when (string-match-p (format "^\\(?:refs/\\)?remotes\\/%s\\/" (regexp-quote remote)) branch) return remote)))
+             when (string-match-p (format "^\\(?:refs/\\)?remotes\\/%s\\/"
+                                          (regexp-quote remote))
+                                  branch)
+             return remote)))
 
 (defun magit-branch-no-remote (branch)
   (let ((remote (magit-remote-part-of-branch branch)))
     (if remote
         (progn
           ;; This has to match if remote is non-nil
-          (cl-assert (string-match (format "^\\(?:refs/\\)?remotes\\/%s\\/\\(.*\\)" (regexp-quote remote)) branch)
+          (cl-assert (string-match (format "^\\(?:refs/\\)?remotes\\/%s\\/\\(.*\\)"
+                                           (regexp-quote remote))
+                                   branch)
                      'show-args "Unexpected string-match failure: %s %s")
           (match-string 1 branch))
       branch)))
