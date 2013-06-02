@@ -206,18 +206,6 @@ Return t if the commit may be performed, or nil otherwise."
     (yes-or-no-p "Buffer has style errors. Commit anyway?"))
    (t t)))
 
-(defun git-commit-log-edit-commit (&optional force)
-  "Finish edits and create a new commit.
-
-Check for stylistic errors in the current commit, and ask the
-user for confirmation depending on `git-commit-confirm-commit'.
-If FORCE is non-nil or if a raw prefix arg is given, commit
-immediately without asking."
-  (interactive "P")
-  (if (git-commit-may-do-commit force)
-      (call-interactively 'magit-log-edit-commit)
-    (message "Commit canceled due to stylistic errors.")))
-
 (defun git-commit-commit (&optional force)
   "Finish editing the commit message and commit.
 
@@ -590,12 +578,11 @@ basic structure of and errors in git commit messages."
 ;; key bindings to use our commit and header insertion bindings
 (eval-after-load 'magit
   #'(progn
-      (define-derived-mode magit-log-edit-mode git-commit-mode "Magit Log Edit")
+      (define-derived-mode magit-log-edit-mode git-commit-mode "Magit Log Edit"
+        (set (make-local-variable 'git-commit-commit-function)
+             (apply-partially #'call-interactively 'magit-log-edit-commit)))
       (substitute-key-definition 'magit-log-edit-toggle-signoff
                                  'git-commit-signoff
-                                 magit-log-edit-mode-map)
-      (substitute-key-definition 'magit-log-edit-commit
-                                 'git-commit-log-edit-commit
                                  magit-log-edit-mode-map)))
 
 ;;;###autoload
