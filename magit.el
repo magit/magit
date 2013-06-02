@@ -5490,10 +5490,15 @@ continue it.
             (author-name (or (getenv "GIT_AUTHOR_NAME") ""))
             (author-date (or (getenv "GIT_AUTHOR_DATE") "")))
         (if (not (string= author-email ""))
-            (magit-log-edit-set-field 'author (format "%s <%s>%s"
-                                                      (if (string= "" author-name) author-email author-name)
-                                                      author-email
-                                                      (if (string= "" author-date) "" (format ", %s" author-date))))))
+            (magit-log-edit-set-field
+             'author (format "%s <%s>%s"
+                             (if (string= "" author-name)
+                                 author-email
+                               author-name)
+                             author-email
+                             (if (string= "" author-date)
+                                 ""
+                               (format ", %s" author-date))))))
       (magit-pop-to-log-edit "commit"))))
 
 (defun magit-add-log ()
