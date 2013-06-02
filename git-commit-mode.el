@@ -151,6 +151,7 @@ default comments in git commit messages"
 If the current buffer has clients from the Emacs server, call
 `server-edit' to mark the buffer as done and let the clients
 continue, otherwise kill the buffer via `kill-buffer'."
+  (save-buffer)
   (if (and (fboundp 'server-edit)
            (boundp 'server-buffer-clients)
            server-buffer-clients)
@@ -229,7 +230,6 @@ Call `git-commit-commit-function' to actually perform the commit.
 
 Return t, if the commit was successful, or nil otherwise."
   (interactive "P")
-  (save-buffer)
   (if (git-commit-may-do-commit force)
       (funcall git-commit-commit-function)
     (message "Commit canceled due to stylistic errors.")))
