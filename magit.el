@@ -1181,13 +1181,13 @@ Read `completing-read' documentation for the meaning of the argument."
                             (magit-list-repos* dir 0)))
                   dirs))))
 
-(defun magit-get-top-dir (cwd)
-  (let ((cwd (expand-file-name (file-truename cwd))))
-    (when (file-directory-p cwd)
-      (let* ((default-directory (file-name-as-directory cwd))
-             (cdup (magit-git-string "rev-parse" "--show-cdup")))
-        (when cdup
-          (file-name-as-directory (expand-file-name cdup cwd)))))))
+(defun magit-get-top-dir (&optional cwd)
+  (setq cwd (expand-file-name (file-truename (or cwd default-directory))))
+  (when (file-directory-p cwd)
+    (let* ((default-directory (file-name-as-directory cwd))
+           (cdup (magit-git-string "rev-parse" "--show-cdup")))
+      (when cdup
+        (file-name-as-directory (expand-file-name cdup cwd))))))
 
 (defun magit-get-ref (ref)
   (magit-git-string "symbolic-ref" "-q" ref))
@@ -1267,8 +1267,7 @@ non-nil, then autocompletion will offer directory names."
                (error "Not a repository or a directory: %s" reply)))))
     (file-name-as-directory
      (read-directory-name "Git repository: "
-                          (or (magit-get-top-dir default-directory)
-                              default-directory)))))
+                          (or (magit-get-top-dir) default-directory)))))
 
 (defun magit-rev-parse (ref)
   "Return the SHA hash for REF."
@@ -1459,7 +1458,7 @@ those."
                          'magit-read-file-hist
                          (when buffer-file-name
                            (substring (buffer-file-name)
-                                      (length (magit-get-top-dir default-directory))))))
+                                      (length (magit-get-top-dir))))))
 
 (defun magit-read-rev (prompt &optional default uninteresting)
   (let* ((interesting-refs (magit-list-interesting-refs
@@ -2718,7 +2717,7 @@ Please see the manual for a complete description of Magit.
     result))
 
 (defun magit-find-buffer (submode &optional dir)
-  (let ((topdir (magit-get-top-dir (or dir default-directory))))
+  (let ((topdir (magit-get-top-dir dir)))
     (cl-find-if (lambda (buf)
                   (with-current-buffer buf
                     (and (eq major-mode submode)
@@ -4371,7 +4370,7 @@ when asking for user input."
                          (magit-read-top-dir
                           (> (prefix-numeric-value current-prefix-arg)
                              4))
-                       (or (magit-get-top-dir default-directory)
+                       (or (magit-get-top-dir)
                            (magit-read-top-dir nil)))))
   (let ((topdir (magit-get-top-dir dir)))
     (unless topdir
@@ -5832,7 +5831,7 @@ With a non numeric prefix ARG, show all entries"
   (let* ((log-range (if ask-for-range
                         (magit-read-rev-range "Log" "HEAD")
                       "HEAD"))
-         (topdir (magit-get-top-dir default-directory))
+         (topdir (magit-get-top-dir))
          (args (nconc (list (magit-rev-range-to-git log-range))
                       magit-custom-options
                       extra-args)))
@@ -5851,7 +5850,7 @@ With a non numeric prefix ARG, show all entries"
   (let* ((range (if ranged
                     (magit-read-rev-range "Long log" "HEAD")
                   "HEAD"))
-         (topdir (magit-get-top-dir default-directory))
+         (topdir (magit-get-top-dir))
          (args (append (list (magit-rev-range-to-git range))
                        magit-custom-options)))
     (magit-buffer-switch magit-log-buffer-name)
@@ -5888,7 +5887,7 @@ This is only non-nil in reflog buffers.")
   (let ((at (or (if ask-for-range
                     (magit-read-rev "Reflog of" (or (magit-guess-branch) "HEAD")))
                 "HEAD")))
-    (let* ((topdir (magit-get-top-dir default-directory))
+    (let* ((topdir (magit-get-top-dir))
            (args (magit-rev-to-git at)))
       (magit-buffer-switch "*magit-reflog*")
       (magit-mode-init topdir 'magit-reflog-mode
@@ -6097,7 +6096,7 @@ This is only meaningful in wazzup buffers.")
 
 (defun magit-wazzup (&optional all)
   (interactive "P")
-  (let ((topdir (magit-get-top-dir default-directory))
+  (let ((topdir (magit-get-top-dir))
         (current-branch (magit-get-current-branch)))
     (magit-buffer-switch "*magit-wazzup*")
     (magit-mode-init topdir 'magit-wazzup-mode
@@ -6111,8 +6110,7 @@ If FILENAME is absolute, return a path relative to the git
 repository containing it. Otherwise, return a path relative to
 the current git repository."
   (let ((topdir (expand-file-name
-                 (magit-get-top-dir (or (file-name-directory filename)
-                                        default-directory))))
+                 (magit-get-top-dir (file-name-directory filename))))
         (file (file-truename filename)))
     (when (and (not (string= topdir ""))
                ;; FILE must start with the git repository path
@@ -6160,7 +6158,7 @@ STYLE controls the display. It is either `'long',  `'oneline', or something else
 With a prefix argument or if no file is currently visited, ask
 for the file whose log must be displayed."
   (interactive "P")
-  (let ((topdir (magit-get-top-dir default-directory))
+  (let ((topdir (magit-get-top-dir))
         (current-file (magit-filename
                        (if (or current-prefix-arg (not buffer-file-name))
                            (magit-read-file-from-rev (magit-get-current-branch))
@@ -6759,7 +6757,7 @@ These are the branch names with the remote name stripped."
 
 (magit-define-command branch-manager ()
   (interactive)
-  (let ((topdir (magit-get-top-dir default-directory)))
+  (let ((topdir (magit-get-top-dir)))
     (magit-buffer-switch magit-branches-buffer-name)
     (magit-mode-init topdir 'magit-branch-manager-mode #'magit-refresh-branch-manager)))
 
@@ -6848,7 +6846,7 @@ These are the branch names with the remote name stripped."
   "Update the submodule of the current git repository.
 With a prefix arg, do a submodule update --init."
   (interactive "P")
-  (let ((default-directory (magit-get-top-dir default-directory)))
+  (let ((default-directory (magit-get-top-dir)))
     (apply #'magit-run-git-async "submodule" "update" (if init '("--init") ()))))
 
 (defun magit-submodule-update-init ()
@@ -6859,25 +6857,25 @@ With a prefix arg, do a submodule update --init."
 (defun magit-submodule-init ()
   "Initialize the submodules."
   (interactive)
-  (let ((default-directory (magit-get-top-dir default-directory)))
+  (let ((default-directory (magit-get-top-dir)))
     (magit-run-git-async "submodule" "init")))
 
 (defun magit-submodule-sync ()
   "Synchronizes submodule's remote URL configuration."
   (interactive)
-  (let ((default-directory (magit-get-top-dir default-directory)))
+  (let ((default-directory (magit-get-top-dir)))
     (magit-run-git-async "submodule" "sync")))
 
 (defun magit-run-git-gui ()
   "Run `git gui' for the current git repository."
   (interactive)
-  (let* ((default-directory (magit-get-top-dir default-directory)))
+  (let* ((default-directory (magit-get-top-dir)))
     (magit-start-process "Git Gui" nil magit-git-executable "gui")))
 
 (defun magit-run-gitk ()
   "Run `gitk --all' for the current git repository."
   (interactive)
-  (let ((default-directory (magit-get-top-dir default-directory)))
+  (let ((default-directory (magit-get-top-dir)))
     (cond
      ((eq system-type 'windows-nt)
       ;; Gitk is a shell script, and Windows doesn't know how to
@@ -6917,7 +6915,7 @@ This can be added to `magit-mode-hook' for example"
                      (read-string "git grep: "
                                   (shell-quote-argument (grep-tag-default))))))
     (with-current-buffer (generate-new-buffer "*Magit Grep*")
-      (let ((default-directory (magit-get-top-dir default-directory)))
+      (let ((default-directory (magit-get-top-dir)))
         (insert magit-git-executable " "
                 (mapconcat 'identity magit-git-standard-options " ")
                 " grep -n "
