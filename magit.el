@@ -694,6 +694,99 @@ face inherit from `default' and remove all other attributes."
     '((t :weight bold :foreground "PaleTurquoise")))
   "Face for valid gpg signatures."
   :group 'magit-faces)
+
+(defface magit-log-reflog-label-commit
+  '((((class color) (background light))
+     :box t
+     :background "LemonChiffon1"
+     :foreground "goldenrod4")
+    (((class color) (background dark))
+     :box t
+     :background "LemonChiffon1"
+     :foreground "goldenrod4"))
+  "Face for reflog subject labels shown in reflog buffer."
+  :group 'magit-faces)
+
+(defface magit-log-reflog-label-amend
+  '((t
+     :inherit magit-log-reflog-label-commit))
+  "Face for reflog subject labels shown in reflog buffer."
+  :group 'magit-faces)
+
+(defface magit-log-reflog-label-merge
+  '((t
+     :inherit magit-log-reflog-label-commit))
+  "Face for reflog subject labels shown in reflog buffer."
+  :group 'magit-faces)
+
+(defface magit-log-reflog-label-checkout
+  '((((class color) (background light))
+     :box t
+     :background "Grey85"
+     :foreground "LightSkyBlue4")
+    (((class color) (background dark))
+     :box t
+     :background "Grey13"
+     :foreground "LightSkyBlue1"))
+  "Face for reflog subject labels shown in reflog buffer."
+  :group 'magit-faces)
+
+(defface magit-log-reflog-label-reset
+  '((((class color) (background light))
+     :box t
+     :background "IndianRed1"
+     :foreground "IndianRed4")
+    (((class color) (background dark))
+     :box t
+     :background "IndianRed1"
+     :foreground "IndianRed4"))
+  "Face for reflog subject labels shown in reflog buffer."
+  :group 'magit-faces)
+
+(defface magit-log-reflog-label-rebase
+  '((((class color) (background light))
+     :box t
+     :background "Grey85"
+     :foreground "OliveDrab4")
+    (((class color) (background dark))
+     :box t
+     :background "Grey11"
+     :foreground "DarkSeaGreen2"))
+  "Face for reflog subject labels shown in reflog buffer."
+  :group 'magit-faces)
+
+(defface magit-log-reflog-label-cherry-pick
+'((((class color) (background light))
+     :box t
+     :background "light green"
+     :foreground "dark olive green")
+    (((class color) (background dark))
+     :box t
+     :background "light green"
+     :foreground "dark olive green"))
+  "Face for reflog subject labels shown in reflog buffer."
+  :group 'magit-faces)
+
+(defface magit-log-reflog-label-remote
+  '((((class color) (background light))
+     :box t
+     :background "Grey50")
+    (((class color) (background dark))
+     :box t
+     :background "Grey50"))
+  "Face for reflog subject labels shown in reflog buffer."
+  :group 'magit-faces)
+
+(defface magit-log-reflog-label-other
+  '((((class color) (background light))
+     :box t
+     :background "Grey50")
+    (((class color) (background dark))
+     :box t
+     :background "Grey50"))
+  "Face for reflog subject labels shown in reflog buffer."
+  :group 'magit-faces)
+
 
 (defvar magit-custom-options '()
   "List of custom options to pass to Git.
@@ -3536,6 +3629,11 @@ member of ARGS, or to the working file otherwise."
           )
   "Regexp for parsing format in `magit-git-log-options'.")
 
+(defvar magit-git-reflog-options
+  (list
+   "--pretty=format:* \C-?%h\C-?%gs"
+   (format "--abbrev=%s" magit-sha1-abbrev-length)))
+
 ;;
 ;; Regexps for parsing ref names
 ;;
@@ -3586,7 +3684,7 @@ Evaluate (man \"git-check-ref-format\") for details")
 
 (defconst magit-log-oneline-re
   (concat
-   "^\\(\\(?:[---_\\*|/.] ?\\)+ *\\)?"             ; graph   (1)
+   "\\(\\(?: ?[---_\\*|/.]+ \\)* *\\)"             ; graph   (1)
    "\\(?:"
    "\\([0-9a-fA-F]+\\)"                            ; sha1    (2)
    "\\(?:"                                         ; refs    (3)
@@ -3601,8 +3699,8 @@ Evaluate (man \"git-check-ref-format\") for details")
    " ?"
    "\\(?:"
    "\\([BG]\\)?"                                    ; gpg     (4)
-   "\\(\\[.*?\\]\\)"                                ; author  (5)
-   "\\(\\[.*?\\]\\)"                                ; date    (6)
+   "\\[\\(.*\\)\\]"                                 ; author  (5)
+   "\\[\\(.*\\)\\]"                                 ; date    (6)
    "\\)?"
    "\\(.+\\)?$"                                     ; msg     (7)
    ))
@@ -3622,6 +3720,15 @@ Evaluate (man \"git-check-ref-format\") for details")
    "\\)"
    "\\)?$"
    "\\)?"
+   "\\(.+\\)?$"                                    ; msg     (4)
+   ))
+
+(defconst magit-log-reflog-re
+  (concat
+   "^\\([^\C-?]+\\)\C-??"                          ; graph   (1)
+   "\\([^\C-?]+\\)\C-?"                            ; sha1    (2)
+   "\\([^:]+\\)?"                                  ; refsub  (3)
+   "\\(?:: \\)?"
    "\\(.+\\)?$"                                    ; msg     (4)
    ))
 
@@ -3676,6 +3783,44 @@ must return a string which will represent the log line.")
                            (list r 'magit-log-head-label-default))))))
         res))))
 
+(defvar magit-reflog-labels
+  '(("commit" . magit-log-reflog-label-commit)
+    ("amend" . magit-log-reflog-label-amend)
+    ("merge" . magit-log-reflog-label-merge)
+    ("checkout" . magit-log-reflog-label-checkout)
+    ("branch" . magit-log-reflog-label-checkout)
+    ("reset" . magit-log-reflog-label-reset)
+    ("rebase" . magit-log-reflog-label-rebase)
+    ("cherry-pick" . magit-log-reflog-label-cherry-pick)
+    ("initial" . magit-log-reflog-label-commit)
+    ("pull" . magit-log-reflog-label-remote)
+    ("clone" . magit-log-reflog-label-remote)))
+
+(defun magit-log-reflog-get-label-color (subject)
+  (let* ((subject-re (concat "\\([^ ]+\\)"
+                             " ?"
+                             "\\(\\(?: ?[^---(][^ ]+\\)+\\)?"
+                             " ?"
+                             "\\(\\(?: ?-[^ ]+\\)+\\)?"
+                             "\\(?: ?(\\([^)]+\\))\\)?"))
+         (match (string-match subject-re subject))
+         (command (and match (match-string 1 subject)))
+         (status (and match (match-string 2 subject)))
+         (option (and match (match-string 3 subject)))
+         (type (and match (match-string 4 subject)))
+         (label (if (string= command "commit")
+                    (or type command)
+                  command))
+         (text (if (string= command "commit")
+                   label
+                 (mapconcat #'identity
+                            (delq nil (list command option type status))
+                            " ")))
+         (colorizer (or (cdr (assoc label magit-reflog-labels))
+                        'magit-log-reflog-label-other)))
+    (format "%-8s : " (propertize text
+                                  'face colorizer))))
+
 (defun magit-present-log-line (line)
   "The default log line generator."
   (let ((graph (magit-log-line-chart line))
@@ -3683,6 +3828,7 @@ must return a string which will represent the log line.")
         (refs (magit-log-line-refs line))
         (author (magit-log-line-author line))
         (date (magit-log-line-date line))
+        (refsub (magit-log-line-refsub line))
         (message (magit-log-line-msg line))
         (gpg-status (magit-log-line-gpg line)))
     (let* ((string-refs
@@ -3705,6 +3851,8 @@ must return a string which will represent the log line.")
                  " "
                  graph
                  string-refs
+                 (when refsub
+                   (magit-log-reflog-get-label-color refsub))
                  (when message
                    (font-lock-append-text-property
                     0 (length message)
@@ -3842,39 +3990,39 @@ insert a line to tell how to insert more of them"
                (insert "type \"e\" to show more logs\n")))))))
 
 (cl-defstruct magit-log-line
-  chart sha1 author date msg refs gpg)
+  chart sha1 gpg author date msg refsub refs)
 
 (defun magit-parse-log-line (line style)
-  (let ((remove-surrounding-braces
-         (lambda (string)
-           (when string
-             (replace-regexp-in-string "\\(^\\[\\)\\|\\(\\]$\\)" "" string))))
-        (match-style-string
-         (lambda (short-pos long-pos)
-           (match-string (if (eq style 'long) long-pos short-pos) line)))
-        (line-re (cond ((eq style 'long) magit-log-longline-re)
-                         (t magit-log-oneline-re))))
+  (let* ((match-pos
+          (cond ((eq style 'long) 'long-pos)
+                ((eq style 'reflog) 'reflog-pos)
+                (t 'short-pos)))
+         (match-style-string
+          (lambda (short-pos long-pos reflog-pos)
+            (and (symbol-value match-pos)
+                 (match-string (symbol-value match-pos) line))))
+         (line-re (cond ((eq style 'long) magit-log-longline-re)
+                        ((eq style 'reflog) magit-log-reflog-re)
+                        (t magit-log-oneline-re))))
     (when (string-match line-re line)
       (make-magit-log-line
-       :chart (funcall match-style-string 1 1)
-       :sha1 (funcall match-style-string 2 2)
-       :author (funcall remove-surrounding-braces
-                        (when (not (eq style 'long)) (match-string 5 line)))
-       :date (funcall remove-surrounding-braces
-                      (when (not (eq style 'long)) (match-string 6 line)))
-       :gpg (when (not (eq style 'long))
-              (match-string 4 line))
-       :msg (funcall match-style-string 7 4)
-       :refs (when (funcall match-style-string 3 3)
-               (delq nil
-                     (mapcar
-                      (lambda (s)
-                        (and (not
-                              (or (string= s "tag:")
-                                  (string= s "HEAD"))) ; as of 1.6.6
-                             s))
-                      (split-string (funcall match-style-string 3 3)
-                                    "[(), ]" t))))))))
+       :chart  (funcall match-style-string 1   1   1)
+       :sha1   (funcall match-style-string 2   2   2)
+       :gpg    (funcall match-style-string 4   nil nil)
+       :author (funcall match-style-string 5   nil nil)
+       :date   (funcall match-style-string 6   nil nil)
+       :refsub (funcall match-style-string nil nil 3)
+       :msg    (funcall match-style-string 7   4   4)
+       :refs   (when (funcall match-style-string 3 3 nil)
+                 (delq nil
+                       (mapcar
+                        (lambda (s)
+                          (and (not
+                                (or (string= s "tag:")
+                                    (string= s "HEAD"))) ; as of 1.6.6
+                               s))
+                        (split-string (funcall match-style-string 3 3 nil)
+                                      "[(), ]" t))))))))
 
 (defun magit-wash-log-line (style)
   (beginning-of-line)
@@ -5869,8 +6017,9 @@ This is only non-nil in reflog buffers.")
   (magit-create-log-buffer-sections
     (apply #'magit-git-section
            'reflog (format "Local history of head %s" head)
-           'magit-wash-log "log"
-           (append magit-git-log-options
+           (apply-partially 'magit-wash-log 'reflog)
+           "log"
+           (append magit-git-reflog-options
                    (list
                     "--walk-reflogs"
                     (format "--max-count=%s" magit-log-cutoff-length)
