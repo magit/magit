@@ -1480,10 +1480,7 @@ PROMPT and UNINTERESTING are passed to `magit-read-rev'."
     (save-match-data
       (if (string-match "^\\(.+\\)\\.\\.\\(.+\\)$" beg)
           (cons (match-string 1 beg) (match-string 2 beg))
-        (cons beg (magit-completing-read (format "%s end op" op)
-                                         nil nil nil
-                                         'magit-read-rev-history
-                                         def-end))))))
+        (cons beg (magit-read-rev (format "%s end op: " op)))))))
 
 (defun magit-rev-to-git (rev)
   (or rev
