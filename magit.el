@@ -1460,13 +1460,16 @@ those."
                            (substring (buffer-file-name)
                                       (length (magit-get-top-dir))))))
 
-(defun magit-read-rev (prompt &optional default uninteresting)
+(defun magit-read-rev (prompt &optional default uninteresting noselection)
   (let* ((interesting-refs (magit-list-interesting-refs
                             (or uninteresting magit-uninteresting-refs)))
          (reply (magit-completing-read (concat prompt ": ")
-                                       interesting-refs nil t nil
-                                       'magit-read-rev-history default)))
-    (or (cdr (assoc reply interesting-refs)) reply)))
+                                       interesting-refs nil nil nil
+                                       'magit-read-rev-history default))
+         (rev (or (cdr (assoc reply interesting-refs)) reply)))
+    (unless (or rev noselection)
+      (error "No rev selected"))
+    rev))
 
 (defun magit-read-rev-with-default (prompt &optional no-trim uninteresting)
   "Ask user for revision like `magit-read-rev' but default is set
@@ -1480,10 +1483,7 @@ PROMPT and UNINTERESTING are passed to `magit-read-rev'."
     (save-match-data
       (if (string-match "^\\(.+\\)\\.\\.\\(.+\\)$" beg)
           (cons (match-string 1 beg) (match-string 2 beg))
-        (cons beg (magit-completing-read (format "%s end op" op)
-                                         nil nil nil
-                                         'magit-read-rev-history
-                                         def-end))))))
+        (cons beg (magit-read-rev (format "%s end" op) def-end nil t))))))
 
 (defun magit-rev-to-git (rev)
   (or rev
