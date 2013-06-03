@@ -2459,15 +2459,16 @@ magit-topgit and magit-svn"
                    (key-description (car (where-is-internal
                                           'magit-display-process))))
                "M-x magit-display-process")))
-    (with-current-buffer (process-buffer process)
-      (let ((inhibit-read-only t))
-        (goto-char (point-max))
-        (insert msg "\n")
-        (message (if successp msg
-                   (format "%s Hit %s or see buffer %s for details."
-                           msg key (current-buffer)))))
-      (unless (memq (process-status process) '(run open))
-        (dired-uncache default-directory)))
+    (when (buffer-live-p (process-buffer process))
+      (with-current-buffer (process-buffer process)
+        (let ((inhibit-read-only t))
+          (goto-char (point-max))
+          (insert msg "\n")
+          (message (if successp msg
+                     (format "%s Hit %s or see buffer %s for details."
+                             msg key (current-buffer)))))
+        (unless (memq (process-status process) '(run open))
+          (dired-uncache default-directory))))
     (setq magit-process nil)
     (magit-set-mode-line-process nil)
     (when (and (buffer-live-p magit-process-client-buffer)
@@ -2498,24 +2499,26 @@ magit-topgit and magit-svn"
                           "\n"))))
 
 (defun magit-process-filter (proc string)
-  (save-current-buffer
-    (set-buffer (process-buffer proc))
-    (let ((inhibit-read-only t))
-      (magit-username proc string)
-      (magit-password proc string)
-      (goto-char (process-mark proc))
-      ;; Find last ^M in string.  If one was found, ignore everything
-      ;; before it and delete the current line.
-      (let ((ret-pos (length string)))
-        (while (and (>= (setq ret-pos (1- ret-pos)) 0)
-                    (/= ?\r (aref string ret-pos))))
-        (cond ((>= ret-pos 0)
-               (goto-char (line-beginning-position))
-               (delete-region (point) (line-end-position))
-               (insert (substring string (+ ret-pos 1))))
-              (t
-               (insert string))))
-      (set-marker (process-mark proc) (point)))))
+  (if (buffer-live-p (process-buffer proc))
+      (save-current-buffer
+        (set-buffer (process-buffer proc))
+        (let ((inhibit-read-only t))
+          (magit-username proc string)
+          (magit-password proc string)
+          (goto-char (process-mark proc))
+          ;; Find last ^M in string.  If one was found, ignore everything
+          ;; before it and delete the current line.
+          (let ((ret-pos (length string)))
+            (while (and (>= (setq ret-pos (1- ret-pos)) 0)
+                        (/= ?\r (aref string ret-pos))))
+            (cond ((>= ret-pos 0)
+                   (goto-char (line-beginning-position))
+                   (delete-region (point) (line-end-position))
+                   (insert (substring string (+ ret-pos 1))))
+                  (t
+                   (insert string))))
+          (set-marker (process-mark proc) (point))))
+    (quit-process proc)))
 
 (defun magit-run (cmd &rest args)
   (magit-with-refresh
