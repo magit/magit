@@ -3600,7 +3600,7 @@ Evaluate (man \"git-check-ref-format\") for details")
    "\\)?"
    " ?"
    "\\(?:"
-   "\\([BG]\\)?"                                    ; gpg     (4)
+   "\\([BGUN]\\)?"                                  ; gpg     (4)
    "\\(\\[.*?\\]\\)"                                ; author  (5)
    "\\(\\[.*?\\]\\)"                                ; date    (6)
    "\\)?"
