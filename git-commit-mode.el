@@ -583,7 +583,10 @@ basic structure of and errors in git commit messages."
              (apply-partially #'call-interactively 'magit-log-edit-commit)))
       (substitute-key-definition 'magit-log-edit-toggle-signoff
                                  'git-commit-signoff
-                                 magit-log-edit-mode-map)))
+                                 magit-log-edit-mode-map)
+      (substitute-key-definition 'magit-log-edit-commit
+                                 'git-commit-commit
+                                  magit-log-edit-mode-map)))
 
 ;;;###autoload
 (dolist (pattern '("/COMMIT_EDITMSG\\'" "/NOTES_EDITMSG\\'"
