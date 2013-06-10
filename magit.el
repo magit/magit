@@ -322,6 +322,11 @@ Only considered when moving past the last entry with
   :group 'magit
   :type 'boolean)
 
+(defcustom magit-status-insert-tags-line nil
+  "Whether to display related tags in the status buffer."
+  :group 'magit
+  :type 'boolean)
+
 (defcustom magit-process-popup-time -1
   "Popup the process buffer if a command takes longer than this many seconds."
   :group 'magit
@@ -4221,6 +4226,33 @@ if FULLY-QUALIFIED-NAME is non-nil."
                                  (length heading))) ?\ )
           info-string "\n"))
 
+(defun magit-insert-status-tags-line ()
+  (when magit-status-insert-tags-line
+    (let* ((current-tag (magit-get-current-tag t))
+           (next-tag (magit-get-next-tag t))
+           (both-tags (and current-tag next-tag t)))
+      (when (or current-tag next-tag)
+        (magit-insert-status-line
+         (if both-tags "Tags" "Tag")
+         (concat
+          (and current-tag
+               (concat
+                (propertize (car current-tag) 'face 'magit-tag)
+                (and (> (cadr current-tag) 0)
+                     (concat " ("
+                             (propertize (format "%s" (cadr current-tag))
+                                         'face 'magit-branch)
+                             " behind)"))))
+          (and both-tags ", ")
+          (and next-tag
+               (concat
+                (propertize (car next-tag) 'face 'magit-tag)
+                (and (> (cadr next-tag) 0)
+                     (concat " ("
+                             (propertize (format "%s" (cadr next-tag))
+                                         'face 'magit-tag)
+                             " ahead)"))))))))))
+
 (defun magit-refresh-status ()
   (magit-create-buffer-sections
     (magit-with-section 'status nil
@@ -4237,9 +4269,6 @@ if FULLY-QUALIFIED-NAME is non-nil."
                     "--pretty=oneline"))
              (no-commit (not head))
              (merge-heads (magit-file-lines (concat (magit-git-dir) "MERGE_HEAD")))
-             (current-tag (magit-get-current-tag t))
-             (next-tag (magit-get-next-tag t))
-             (both-tags (and current-tag next-tag t))
              (rebase (magit-rebase-info)))
         (when remote-string
           (magit-insert-status-line "Remote" remote-string))
@@ -4250,27 +4279,7 @@ if FULLY-QUALIFIED-NAME is non-nil."
                  " " (abbreviate-file-name default-directory)))
         (magit-insert-status-line
          "Head" (if no-commit "nothing committed (yet)" head))
-        (when (or current-tag next-tag)
-          (magit-insert-status-line
-           (if both-tags "Tags" "Tag")
-           (concat
-            (and current-tag
-                 (concat
-                  (propertize (car current-tag) 'face 'magit-tag)
-                  (and (> (cadr current-tag) 0)
-                       (concat " ("
-                               (propertize (format "%s" (cadr current-tag))
-                                           'face 'magit-branch)
-                               " behind)"))))
-            (and both-tags ", ")
-            (and next-tag
-                 (concat
-                  (propertize (car next-tag) 'face 'magit-tag)
-                  (and (> (cadr next-tag) 0)
-                       (concat " ("
-                               (propertize (format "%s" (cadr next-tag))
-                                           'face 'magit-tag)
-                               " ahead)")))))))
+        (magit-insert-status-tags-line)
         (when merge-heads
           (magit-insert-status-line
            "Merging"
