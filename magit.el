@@ -173,6 +173,8 @@
   (defalias 'magit-set-variable-and-refresh 'set-default))
 
 
+;;; Options
+
 (defgroup magit nil
   "Controlling Git from Emacs."
   :prefix "magit-"
@@ -469,6 +471,8 @@ There are three possible settings:
   :set 'magit-set-variable-and-refresh)
 
 
+;;; Faces
+
 (defgroup magit-faces nil
   "Customize the appearance of Magit."
   :prefix "magit-"
@@ -694,7 +698,10 @@ face inherit from `default' and remove all other attributes."
     '((t :weight bold :foreground "PaleTurquoise")))
   "Face for valid gpg signatures."
   :group 'magit-faces)
+
 
+;;; Internal Variables
+
 (defvar magit-custom-options '()
   "List of custom options to pass to Git.
 Do not customize this (used in the `magit-key-mode' implementation).")
@@ -737,6 +744,8 @@ This is calculated from `magit-highlight-indentation'.")
   "The version of Magit that you're using.")
 
 
+;;; Keymaps
+
 (defvar magit-mode-map
   (let ((map (make-keymap)))
     (suppress-keymap map t)
