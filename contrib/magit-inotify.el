@@ -58,10 +58,10 @@ Argument EV contains the watch data."
          (data (gethash wd magit-inotify-data))
          (buffer (cadr data)))
     (if (buffer-live-p buffer)
-     (with-current-buffer buffer
-       (magit-refresh))
-     (inotify-rm-watch wd)
-     (remhash wd magit-inotify-data))))
+        (with-current-buffer buffer
+          (magit-refresh))
+      (inotify-rm-watch wd)
+      (remhash wd magit-inotify-data))))
 
 (defcustom magit-inotify-aspects '(modify create delete attrib onlydir)
   "Aspects to watch for.
