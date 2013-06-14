@@ -324,6 +324,11 @@ Only considered when moving past the last entry with
   :group 'magit
   :type 'boolean)
 
+(defvar magit-log-default-log-range "HEAD"
+  "Default range to be passed to `magit-log'. This can be a
+string (like \"HEAD~100..HEAD\") or a function that returns a
+string.")
+
 (defcustom magit-process-popup-time -1
   "Popup the process buffer if a command takes longer than this many seconds."
   :group 'magit
@@ -5839,7 +5844,9 @@ With a non numeric prefix ARG, show all entries"
   (interactive)
   (let* ((log-range (if ask-for-range
                         (magit-read-rev-range "Log" "HEAD")
-                      "HEAD"))
+                      (if (functionp magit-log-default-log-range)
+                          (funcall magit-log-default-log-range)
+                        magit-log-default-log-range)))
          (topdir (magit-get-top-dir))
          (args (nconc (list (magit-rev-range-to-git log-range))
                       magit-custom-options
