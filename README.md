@@ -60,7 +60,7 @@ choosing.
 
 Then install Magit (and its run-time dependencies):
 
-<kbd>M-x install-package RET magit RET</kbd>
+<kbd>M-x package-install RET magit RET</kbd>
 
 Development
 ===========
