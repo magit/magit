@@ -4510,25 +4510,21 @@ non-nil, then autocompletion will offer directory names."
 
 (defun magit-list-repos (dirs)
   (magit-remove-conflicts
-   (apply #'append
-          (mapcar (lambda (dir)
-                    (mapcar #'(lambda (repo)
-                                (cons (file-name-nondirectory repo)
-                                      repo))
-                            (magit-list-repos* dir 0)))
-                  dirs))))
+   (cl-loop for dir in dirs
+            append (cl-loop for repo in
+                            (magit-list-repos* dir magit-repo-dirs-depth)
+                    collect (cons (file-name-nondirectory repo) repo)))))
 
-(defun magit-list-repos* (dir level)
+(defun magit-list-repos* (dir depth)
+  "Return a list of repos found in DIR, recursing up to DEPTH levels deep."
   (if (magit-git-repo-p dir)
-      (list dir)
-    (apply #'append
-           (mapcar (lambda (entry)
-                     (unless (or (string= (substring entry -3) "/..")
-                                 (string= (substring entry -2) "/."))
-                       (magit-list-repos* entry (+ level 1))))
-                   (and (file-directory-p dir)
-                        (< level magit-repo-dirs-depth)
-                        (directory-files dir t nil t))))))
+      (list (expand-file-name dir))
+    (and (> depth 0)
+         (file-directory-p dir)
+         (not (member (file-name-nondirectory dir)
+                      '(".." ".")))
+         (cl-loop for entry in (directory-files dir t nil t)
+                  append (magit-list-repos* entry (1- depth))))))
 
 (defun magit-remove-conflicts (alist)
   (let ((dict (make-hash-table :test 'equal))
