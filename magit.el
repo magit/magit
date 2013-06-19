@@ -1163,6 +1163,22 @@ Read `completing-read' documentation for the meaning of the argument."
   "Return the .git directory for the current repository."
   (concat (expand-file-name (magit-git-string "rev-parse" "--git-dir")) "/"))
 
+(defun magit-is-inside-git-dir ()
+  "Returns true when inside git dir."
+  (equal "true" (magit-git-string "rev-parse" "--is-inside-git-dir")))
+
+(defun magit-is-bare-repository ()
+  "Returns true when the repository is bare."
+  (equal "true" (magit-git-string "rev-parse" "--is-bare-repository")))
+
+(defun magit-git-toplevel ()
+  "Returns the top level directory for the current repository."
+    (let ((toplevel (magit-git-string "rev-parse" "--show-toplevel")))
+      (cond (toplevel (file-name-as-directory toplevel))
+            ((and (magit-is-inside-git-dir)
+                  (not (magit-is-bare-repository)))
+             (expand-file-name "../" (magit-git-dir))))))
+
 (defun magit-no-commit-p ()
   "Return non-nil if there is no commit in the current git repository."
   (not (magit-git-string
