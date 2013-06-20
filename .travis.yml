@@ -22,4 +22,4 @@ before_install:
   - virtualenv_install_emacs --with-emacs=`which "$EMACS"` --marmalade
   - elpa-get mocker cl-lib
 script:
-  make clean core contrib test
+  make clean core contrib
