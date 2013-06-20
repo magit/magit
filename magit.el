@@ -6409,7 +6409,8 @@ With a prefix argument, visit in other window."
       ((hunk)
        (dired-jump other-window
                    (file-truename (magit-diff-item-file
-                                   (magit-hunk-item-diff item))))))))
+                                   (magit-hunk-item-diff item)))))
+      (nil (dired-jump other-window)))))
 
 (defun magit-visit-file-item (&optional other-window)
   "Visit current file associated with item.
