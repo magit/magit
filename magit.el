@@ -1193,7 +1193,8 @@ Read `completing-read' documentation for the meaning of the argument."
 
 (defun magit-git-dir ()
   "Return the .git directory for the current repository."
-  (concat (expand-file-name (magit-git-string "rev-parse" "--git-dir")) "/"))
+  (file-name-as-directory
+   (expand-file-name (magit-git-string "rev-parse" "--git-dir"))))
 
 (defun magit-no-commit-p ()
   "Return non-nil if there is no commit in the current git repository."
