@@ -125,7 +125,7 @@ work-in-progress ref."
 
 (defun turn-on-magit-wip-save ()
   (when (and (buffer-file-name)
-             (magit-get-top-dir default-directory)
+             (magit-get-top-dir)
              (member "wip-save" (magit-get-all "magit.extension")))
     (if (= (magit-git-exit-code "wip" "-h") 0)
         (magit-wip-save-mode 1)

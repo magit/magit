@@ -68,6 +68,7 @@ command-line).")
       ("-pr" "Pickaxe regex" "--pickaxe-regex")
       ("-n" "Name only" "--name-only")
       ("-am" "All match" "--all-match")
+      ("-ab" "All branches" "--branches")
       ("-al" "All" "--all"))
      (arguments
       ("=r" "Relative" "--relative=" read-directory-name)
@@ -76,7 +77,9 @@ command-line).")
       ("=<" "Before" "--before=" read-from-minibuffer)
       ("=s" "Pickaxe search" "-S" read-from-minibuffer)
       ("=a" "Author" "--author=" read-from-minibuffer)
-      ("=g" "Grep" "--grep=" read-from-minibuffer)))
+      ("=g" "Grep" "--grep=" read-from-minibuffer)
+      ("=b" "Branches" "--branches=" read-from-minibuffer)
+      ("=R" "Remotes" "--remotes=" read-from-minibuffer)))
 
     (running
      (actions
@@ -142,7 +145,8 @@ command-line).")
      (man-page "git-tag")
      (actions
       ("t" "Lightweight" magit-tag)
-      ("a" "Annotated" magit-annotated-tag))
+      ("a" "Annotated" magit-annotated-tag)
+      ("k" "Delete" magit-delete-tag))
      (switches
       ("-f" "Force" "-f")))
 
@@ -373,8 +377,7 @@ command that's eventually invoked.")
   (let ((current-prefix-arg (or current-prefix-arg magit-key-mode-prefix))
         (magit-custom-options magit-key-mode-current-options))
     (maphash (lambda (k v)
-               (push (concat k (shell-quote-argument v))
-                     magit-custom-options))
+               (push (concat k v) magit-custom-options))
              magit-key-mode-current-args)
     (set-window-configuration magit-log-mode-window-conf)
     (kill-buffer magit-key-mode-last-buffer)

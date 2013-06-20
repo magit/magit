@@ -78,7 +78,7 @@
   (when (magit-topgit-in-topic-p)
     (let* ((remote (magit-get "topgit" "remote"))
            (remote-update (if (or current-prefix-arg (not remote))
-                              (magit-read-remote)
+                              (magit-read-remote "Update remote")
                             remote)))
       (if (and (not remote)
                (not current-prefix-arg))
