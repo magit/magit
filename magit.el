@@ -325,6 +325,38 @@ Only considered when moving past the last entry with
   :group 'magit
   :type 'boolean)
 
+(defcustom magit-status-insert-tags-line nil
+  "Whether to display related tags in the status buffer.
+
+Also see option `magit-status-tags-line-subject' which controls how
+this information is displayed."
+  :group 'magit
+  :type 'boolean)
+
+(defcustom magit-status-tags-line-subject 'head
+  "Whether tag or head is the subject on tags line in status buffer.
+
+This controls how the words \"ahead\" and \"behind\" are used on
+the tags line in the status buffer.  The tags line does not
+actually display complete sentences, but when thinking about when
+to use which term, it helps imagining it did.  This option
+controls whether the tag names should be considered the subjects
+or objects in these sentences.
+
+`tag'   The previous tag is *behind* HEAD by N commits.
+        The next tag is *ahead* of HEAD by N commits.
+`head'  HEAD is *ahead* of the previous tag by N commits.
+        HEAD is *behind* the next tag by N commits.
+
+If the value is `tag' the commit counts are fontified; otherwise
+they are not (due to semantic considerations).
+
+Option `magit-status-insert-tags-line' has to be non-nil for this
+information to be displayed at all."
+  :group 'magit
+  :type '(choice (const :tag "tags are the subjects" tag)
+                 (const :tag "head is the subject" head)))
+
 (defcustom magit-process-popup-time -1
   "Popup the process buffer if a command takes longer than this many seconds."
   :group 'magit
@@ -1163,7 +1195,8 @@ Read `completing-read' documentation for the meaning of the argument."
 
 (defun magit-git-dir ()
   "Return the .git directory for the current repository."
-  (concat (expand-file-name (magit-git-string "rev-parse" "--git-dir")) "/"))
+  (file-name-as-directory
+   (expand-file-name (magit-git-string "rev-parse" "--git-dir"))))
 
 (defun magit-no-commit-p ()
   "Return non-nil if there is no commit in the current git repository."
@@ -1293,11 +1326,14 @@ non-nil, then autocompletion will offer directory names."
 (defun magit-rev-diff-count (a b)
   "Return the commits in A but not B and vice versa.
 Return a list of two integers: (A>B B>A)."
-  (mapcar 'string-to-number
-          (split-string (magit-git-string
-                         "rev-list" "--count" "--left-right"
-                         (concat a "..." b))
-                        "\t")))
+  ;; Kludge.  git < 1.7.2 does not support git rev-list --count
+  (let ((ac 0) (bc 0))
+    (dolist (commit (magit-git-lines "rev-list" "--left-right"
+                                     (concat a "..." b)))
+      (case (aref commit 0)
+        (?\< (incf ac))
+        (?\> (incf bc))))
+    (list ac bc)))
 
 (defun magit-name-rev (rev &optional no-trim)
   "Return a human-readable name for REV.
@@ -3611,7 +3647,7 @@ Evaluate (man \"git-check-ref-format\") for details")
    "\\)?"
    " ?"
    "\\(?:"
-   "\\([BG]\\)?"                                    ; gpg     (4)
+   "\\([BGUN]\\)?"                                  ; gpg     (4)
    "\\(\\[.*?\\]\\)"                                ; author  (5)
    "\\(\\[.*?\\]\\)"                                ; date    (6)
    "\\)?"
@@ -4232,6 +4268,31 @@ if FULLY-QUALIFIED-NAME is non-nil."
                                  (length heading))) ?\ )
           info-string "\n"))
 
+(defun magit-insert-status-tags-line ()
+  (when magit-status-insert-tags-line
+    (let* ((current-tag (magit-get-current-tag t))
+           (next-tag (magit-get-next-tag t))
+           (both-tags (and current-tag next-tag t))
+           (tag-subject (eq magit-status-tags-line-subject 'tag)))
+      (when (or current-tag next-tag)
+        (magit-insert-status-line
+         (if both-tags "Tags" "Tag")
+         (concat
+          (and current-tag (apply 'magit-format-status-tag-sentence
+                                  tag-subject current-tag))
+          (and both-tags ", ")
+          (and next-tag (apply 'magit-format-status-tag-sentence
+                               (not tag-subject) next-tag))))))))
+
+(defun magit-format-status-tag-sentence (behindp tag cnt &rest ignored)
+  (concat (propertize tag 'face 'magit-tag)
+          (and (> cnt 0)
+               (concat (if (eq magit-status-tags-line-subject 'tag)
+                           (concat " (" (propertize (format "%s" cnt)
+                                                    'face 'magit-branch))
+                         (format " (%i" cnt))
+                       " " (if behindp "behind" "ahead") ")"))))
+
 (defun magit-refresh-status ()
   (magit-create-buffer-sections
     (magit-with-section 'status nil
@@ -4248,9 +4309,6 @@ if FULLY-QUALIFIED-NAME is non-nil."
                     "--pretty=oneline"))
              (no-commit (not head))
              (merge-heads (magit-file-lines (concat (magit-git-dir) "MERGE_HEAD")))
-             (current-tag (magit-get-current-tag t))
-             (next-tag (magit-get-next-tag t))
-             (both-tags (and current-tag next-tag t))
              (rebase (magit-rebase-info)))
         (when remote-string
           (magit-insert-status-line "Remote" remote-string))
@@ -4261,27 +4319,7 @@ if FULLY-QUALIFIED-NAME is non-nil."
                  " " (abbreviate-file-name default-directory)))
         (magit-insert-status-line
          "Head" (if no-commit "nothing committed (yet)" head))
-        (when (or current-tag next-tag)
-          (magit-insert-status-line
-           (if both-tags "Tags" "Tag")
-           (concat
-            (and current-tag
-                 (concat
-                  (propertize (car current-tag) 'face 'magit-tag)
-                  (and (> (cadr current-tag) 0)
-                       (concat " ("
-                               (propertize (format "%s" (cadr current-tag))
-                                           'face 'magit-branch)
-                               " behind)"))))
-            (and both-tags ", ")
-            (and next-tag
-                 (concat
-                  (propertize (car next-tag) 'face 'magit-tag)
-                  (and (> (cadr next-tag) 0)
-                       (concat " ("
-                               (propertize (format "%s" (cadr next-tag))
-                                           'face 'magit-tag)
-                               " ahead)")))))))
+        (magit-insert-status-tags-line)
         (when merge-heads
           (magit-insert-status-line
            "Merging"
@@ -6377,7 +6415,8 @@ With a prefix argument, visit in other window."
       ((hunk)
        (dired-jump other-window
                    (file-truename (magit-diff-item-file
-                                   (magit-hunk-item-diff item))))))))
+                                   (magit-hunk-item-diff item)))))
+      (nil (dired-jump other-window)))))
 
 (defun magit-visit-file-item (&optional other-window)
   "Visit current file associated with item.
