@@ -9,7 +9,7 @@ ELCS_CONTRIB=$(ELS_CONTRIB:.el=.elc)
 DIST_FILES=$(ELS) Makefile magit.texi magit.info README.md magit.spec.in magit-pkg.el.in
 DIST_FILES_CONTRIB=$(ELS_CONTRIB) contrib/magit
 ELPA_FILES=$(ELS) magit.info dir magit-pkg.el
-ELISP_INSTALL_DIR=$(DESTDIR)$(PREFIX)/share/emacs/site-lisp
+ELISP_INSTALL_DIR=$(DESTDIR)$(PREFIX)/share/emacs/site-lisp/magit
 
 INSTALL_INFO = install-info
 
