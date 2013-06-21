@@ -95,7 +95,8 @@ command-line).")
       ("a" "All" magit-remote-update)
       ("o" "Other" magit-fetch))
      (switches
-      ("-p" "Prune" "--prune")))
+      ("-p" "Prune" "--prune")
+      ("-t" "Fetch tags" "--tags")))
 
     (pushing
      (man-page "git-push")
