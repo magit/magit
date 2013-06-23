@@ -972,24 +972,6 @@ in STR."
 ;;; Compatibilities
 
 (eval-and-compile
-  (defun magit-max-args-internal (function)
-    "Return the maximum number of arguments accepted by FUNCTION."
-    (if (symbolp function)
-        (setq function (symbol-function function)))
-    (if (subrp function)
-        (let ((max (cdr (subr-arity function))))
-          (if (eq 'many max)
-              most-positive-fixnum
-            max))
-      (if (eq 'macro (car-safe function))
-          (setq function (cdr function)))
-      (let ((arglist (if (byte-code-function-p function)
-                         (aref function 0)
-                       (cadr function))))
-        (if (memq '&rest arglist)
-            most-positive-fixnum
-          (length (remq '&optional arglist))))))
-
   (if (functionp 'start-file-process)
       (defalias 'magit-start-process 'start-file-process)
     (defalias 'magit-start-process 'start-process))
@@ -1011,21 +993,28 @@ Also, do not record undo information."
                 before-change-functions
                 after-change-functions)
             ,@body)))))
+  )
 
-  (if (>= (magit-max-args-internal 'delete-directory) 2)
-      (defalias 'magit-delete-directory 'delete-directory)
-    (defun magit-delete-directory (directory &optional recursive)
-      "Delete a directory named DIRECTORY.
-If RECURSIVE is non-nil, recursively delete all of DIRECTORY's
-contents as well.  Don't follow symlinks."
-      (if (or (file-symlink-p directory)
-              (not (file-directory-p directory)))
-          (delete-file directory)
-        (if recursive
-            ;; `directory-files-no-dot-files-regex' borrowed from Emacs 23
-            (dolist (file (directory-files directory 'full "\\([^.]\\|\\.\\([^.]\\|\\..\\)\\).*"))
-              (magit-delete-directory file recursive)))
-        (delete-directory directory)))))
+;; RECURSIVE has been introduced with Emacs 23.2, XEmacs still lacks it.
+;; This is copied and adapted from `tramp-compat-delete-directory'
+(defun magit-delete-directory (directory &optional recursive)
+  "Compatibility function for `delete-directory'."
+  (if (null recursive)
+      (delete-directory directory)
+    (condition-case nil
+        (funcall 'delete-directory directory recursive)
+      ;; This Emacs version does not support the RECURSIVE flag.  We
+      ;; use the implementation from Emacs 23.2.
+      (wrong-number-of-arguments
+       (setq directory (directory-file-name (expand-file-name directory)))
+       (if (not (file-symlink-p directory))
+           (mapc (lambda (file)
+                   (if (eq t (car (file-attributes file)))
+                       (org-delete-directory file recursive)
+                     (delete-file file)))
+                 (directory-files
+                  directory 'full "^\\([^.]\\|\\.\\([^.]\\|\\..\\)\\).*")))
+       (delete-directory directory)))))
 
 ;;; Utilities
 
