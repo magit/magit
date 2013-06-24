@@ -1552,7 +1552,9 @@ PROMPT and UNINTERESTING are passed to `magit-read-rev'."
     (if (cdr range)
         (format "%s from %s to %s" things
                 (magit-rev-describe (car range))
-                (magit-rev-describe (cdr range)))
+                (if (eq (cdr range) 'working)
+                    "working directory"
+                    (magit-rev-describe (cdr range))))
       (format "%s at %s" things (magit-rev-describe (car range))))))
 
 (defun magit-default-rev (&optional no-trim)
@@ -6016,7 +6018,7 @@ restore the window state that was saved before ediff was called."
     (magit-create-buffer-sections
       (apply #'magit-git-section
              'diffbuf
-             (magit-rev-range-describe range "Changes")
+             (magit-rev-range-describe magit-current-diff-range "Changes")
              'magit-wash-diffs
              "diff" (magit-diff-U-arg)
              `(,@(if magit-show-diffstat (list "--patch-with-stat"))
