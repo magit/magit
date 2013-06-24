@@ -1,5 +1,7 @@
-It's Magit!  An Emacs mode for Git [![Build Status](https://travis-ci.org/magit/magit.png?branch=maint,master,next)](https://travis-ci.org/magit/magit)
+It's Magit!  An Emacs mode for Git
 ==================================
+
+[![Build Status](https://travis-ci.org/magit/magit.png?branch=maint,master,next)](https://travis-ci.org/magit/magit)
 
 Magit is an interface to [Git][git] for [Emacs][emacs].
 
