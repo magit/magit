@@ -6,9 +6,6 @@ env:
     - EMACS=emacs
     - EMACS=emacs24
     - EMACS=emacs-snapshot
-matrix:
-  allow_failure:
-    - env: "EMACS=emacs-snapshot"
 before_install:
   - if [ "$EMACS" = "emacs24" ]; then
         sudo add-apt-repository -y ppa:cassou/emacs &&
