@@ -793,7 +793,7 @@ Also, do not record undo information."
        (if (not (file-symlink-p directory))
            (mapc (lambda (file)
                    (if (eq t (car (file-attributes file)))
-                       (org-delete-directory file recursive)
+                       (magit-delete-directory file recursive)
                      (delete-file file)))
                  (directory-files
                   directory 'full "^\\([^.]\\|\\.\\([^.]\\|\\..\\)\\).*")))
