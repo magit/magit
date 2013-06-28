@@ -30,6 +30,28 @@
 
 (eval-when-compile (require 'cl-lib))
 
+;;; Faces
+
+(defface magit-key-mode-header-face
+  '((t :inherit font-lock-keyword-face))
+  "Face for key mode header lines."
+  :group 'magit-faces)
+
+(defface magit-key-mode-button-face
+  '((t :inherit font-lock-builtin-face))
+  "Face for key mode buttons."
+  :group 'magit-faces)
+
+(defface magit-key-mode-switch-face
+  '((t :inherit font-lock-warning-face))
+  "Face for key mode switches."
+  :group 'magit-faces)
+
+(defface magit-key-mode-args-face
+  '((t :inherit widget-field))
+  "Face for key mode switch arguments."
+  :group 'magit-faces)
+
 ;;; Keygroups
 
 (defvar magit-key-mode-groups
@@ -482,7 +504,7 @@ the key combination highlighted before the description."
 
 (defun magit-key-mode-draw-header (header)
   "Draw a header with the correct face."
-  (insert (propertize header 'face 'font-lock-keyword-face) "\n"))
+  (insert (propertize header 'face 'magit-key-mode-header-face) "\n"))
 
 (defvar magit-key-mode-args-in-cols nil
   "When true, draw arguments in columns as with switches and options.")
@@ -496,7 +518,7 @@ the key combination highlighted before the description."
      (format "(%s) %s"
              (nth 2 x)
              (propertize (gethash (nth 2 x) magit-key-mode-current-args "")
-                         'face 'widget-field)))
+                         'face 'magit-key-mode-args-face)))
    (not magit-key-mode-args-in-cols)))
 
 (defun magit-key-mode-draw-switches (switches)
@@ -507,7 +529,7 @@ the key combination highlighted before the description."
    (lambda (x)
      (format "(%s)" (let ((s (nth 2 x)))
                       (if (member s magit-key-mode-current-options)
-                          (propertize s 'face 'font-lock-warning-face)
+                          (propertize s 'face 'magit-key-mode-switch-face)
                         s))))))
 
 (defun magit-key-mode-draw-actions (actions)
@@ -520,7 +542,7 @@ the key combination highlighted before the description."
     (magit-key-mode-draw-header section)
     (magit-key-mode-draw-in-cols
      (mapcar (lambda (x)
-               (let* ((head (propertize (car x) 'face 'font-lock-builtin-face))
+               (let* ((head (propertize (car x) 'face 'magit-key-mode-button-face))
                       (desc (nth 1 x))
                       (more (and maker (funcall maker x)))
                       (text (format " %s: %s%s%s"
