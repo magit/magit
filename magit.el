@@ -4323,11 +4323,11 @@ if FULLY-QUALIFIED-NAME is non-nil."
         (magit-insert-untracked-files)
         (magit-insert-pending-changes)
         (magit-insert-pending-commits)
-        (magit-insert-unpulled-commits remote remote-branch)
         (let ((staged (or no-commit (magit-anything-staged-p))))
           (magit-insert-unstaged-changes
            (if staged "Unstaged changes:" "Changes:"))
           (magit-insert-staged-changes staged no-commit))
+        (magit-insert-unpulled-commits remote remote-branch)
         (magit-insert-unpushed-commits remote remote-branch))))
   (run-hooks 'magit-refresh-status-hook))
 
