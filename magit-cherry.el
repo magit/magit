@@ -40,9 +40,7 @@
 
 (defun magit--refresh-cherry-buffer (cherry-upstream cherry-head)
   (magit-create-buffer-sections
-    (let ((branch-head (magit-git-string "log" "--max-count=1" "--abbrev-commit"
-                                         (format "--abbrev=%s" magit-sha1-abbrev-length)
-                                         "--pretty=oneline")))
+    (let ((branch-head (magit-format-commit "HEAD" "%h %s")))
       (insert-before-markers (format "Repository:  %s %s\n"
                                      (propertize (magit-get-current-branch) 'face 'magit-branch)
                                      (abbreviate-file-name default-directory))
