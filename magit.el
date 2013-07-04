@@ -4313,9 +4313,13 @@ if FULLY-QUALIFIED-NAME is non-nil."
         (when rebase
           (magit-insert-status-line
            "Rebasing"
-           (apply 'format
-                  "onto %s (%s of %s); Press \"R\" to Abort, Skip, or Continue"
-                  rebase)))
+           (format (concat "onto %s (%s of %s%s); "
+                           "Press \"R\" to Abort, Skip, or Continue")
+                   (nth 0 rebase) (nth 1 rebase) (nth 2 rebase)
+                   (if (nth 3 rebase)
+                       (concat "; failed: "
+                               (magit-format-commit (nth 3 rebase) "%h %s"))
+                     ""))))
         (insert "\n")
         (magit-git-exit-code "update-index" "--refresh")
         (magit-insert-stashes)
@@ -4739,14 +4743,18 @@ If there is no rebase in progress return nil."
             (magit-name-rev (car (magit-file-lines (concat git-dir "rebase-merge/onto"))))
 
             ;; How many commits we've gone through
-            (length (magit-file-lines (concat git-dir "rebase-merge/done")))
+            (length (magit-file-lines (concat git-dir
+                                              "rebase-merge/done")))
 
             ;; How many commits we have in total, without the comments
             ;; at the end of git-rebase-todo.backup
             (let ((todo-lines-with-comments (magit-file-lines (concat git-dir "rebase-merge/git-rebase-todo.backup"))))
               (cl-loop for i in todo-lines-with-comments
                        until (string= "" i)
-                       count i))))
+                       count i))
+
+            ;; ID of commit that failed to apply (if any)
+            (car (magit-file-lines (concat git-dir "rebase-merge/stopped-sha")))))
           ((and (file-exists-p (concat git-dir "rebase-apply"))
                 (file-exists-p (concat git-dir "rebase-apply/onto")))
            ;; we might be here because a non-interactive rebase failed: the
@@ -4760,6 +4768,11 @@ If there is no rebase in progress return nil."
 
             ;; How many commits we have in total
             (string-to-number (car (magit-file-lines (concat git-dir "rebase-apply/last"))))
+
+            ;; ID of commit that failed to apply (if any)
+            (car (magit-file-lines (concat git-dir
+                                           "rebase-apply/stopped-sha")))
+
             ))
           (t nil))))
 
