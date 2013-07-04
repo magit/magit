@@ -1474,6 +1474,7 @@ non-nil).  In addition, it will filter out revs involving HEAD."
 
 (defun magit-format-commit (commit format)
   (magit-git-string "log" "--max-count=1"
+                    (format "--abbrev=%s" magit-sha1-abbrev-length)
                     (concat "--pretty=format:" format)
                     commit))
 
