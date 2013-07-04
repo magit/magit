@@ -1,5 +1,7 @@
-It's Magit!  An Emacs mode for Git [![Build Status](https://travis-ci.org/magit/magit.png?branch=maint,master,next)](https://travis-ci.org/magit/magit)
+It's Magit!  An Emacs mode for Git
 ==================================
+
+[![Build Status](https://travis-ci.org/magit/magit.png?branch=maint,master,next)](https://travis-ci.org/magit/magit)
 
 Magit is an interface to [Git][git] for [Emacs][emacs].
 
@@ -17,7 +19,7 @@ To get started with Magit, run <kbd>M-x magit-status</kbd>.  If you
 are inside a Git repository this opens a buffer that summarizes its
 status.  Otherwise you are first prompted for a repository.  Read the
 short help for `magit-mode` (<kbd>C-h m</kbd> in the status buffer),
-make some changes to your files, stage (<kbd>s</kbd>), and commit
+make some changes to your files, then stage (<kbd>s</kbd>) and commit
 (<kbd>c</kbd>) them.
 
 For more details consult the Magit user manual.  You can read it
