@@ -3649,8 +3649,8 @@ Evaluate (man \"git-check-ref-format\") for details")
    " ?"
    "\\(?:"
    "\\([BGUN]\\)?"                                  ; gpg     (4)
-   "\\(\\[.*?\\]\\)"                                ; author  (5)
-   "\\(\\[.*?\\]\\)"                                ; date    (6)
+   "\\[\\(.*\\)\\]"                                 ; author  (5)
+   "\\[\\(.*\\)\\]"                                 ; date    (6)
    "\\)?"
    "\\(.+\\)?$"                                     ; msg     (7)
    ))
@@ -3893,36 +3893,32 @@ insert a line to tell how to insert more of them"
   chart sha1 author date msg refs gpg)
 
 (defun magit-parse-log-line (line style)
-  (let ((remove-surrounding-braces
-         (lambda (string)
-           (when string
-             (replace-regexp-in-string "\\(^\\[\\)\\|\\(\\]$\\)" "" string))))
-        (match-style-string
-         (lambda (short-pos long-pos)
-           (match-string (if (eq style 'long) long-pos short-pos) line)))
-        (line-re (cond ((eq style 'long) magit-log-longline-re)
-                         (t magit-log-oneline-re))))
-    (when (string-match line-re line)
+  ;; TODO make sure STYLE is never nil; then remove this
+  (unless style
+    (setq style 'oneline))
+  (when (string-match (cl-ecase style
+                        (oneline magit-log-oneline-re)
+                        (long    magit-log-longline-re))
+                      line)
+    (let ((match-style-string
+           (lambda (oneline long)
+             (when (symbol-value style)
+               (match-string (symbol-value style) line)))))
       (make-magit-log-line
-       :chart (funcall match-style-string 1 1)
-       :sha1 (funcall match-style-string 2 2)
-       :author (funcall remove-surrounding-braces
-                        (when (not (eq style 'long)) (match-string 5 line)))
-       :date (funcall remove-surrounding-braces
-                      (when (not (eq style 'long)) (match-string 6 line)))
-       :gpg (when (not (eq style 'long))
-              (match-string 4 line))
-       :msg (funcall match-style-string 7 4)
-       :refs (when (funcall match-style-string 3 3)
-               (delq nil
-                     (mapcar
-                      (lambda (s)
-                        (and (not
-                              (or (string= s "tag:")
-                                  (string= s "HEAD"))) ; as of 1.6.6
-                             s))
-                      (split-string (funcall match-style-string 3 3)
-                                    "[(), ]" t))))))))
+       :chart  (funcall match-style-string 1 1)
+       :sha1   (funcall match-style-string 2 2)
+       :author (funcall match-style-string 5 nil)
+       :date   (funcall match-style-string 6 nil)
+       :gpg    (funcall match-style-string 4 nil)
+       :msg    (funcall match-style-string 7 4)
+       :refs   (when (funcall match-style-string 3 3)
+                 (cl-mapcan
+                  (lambda (s)
+                    (unless (or (string= s "tag:")
+                                (string= s "HEAD")) ; as of 1.6.6
+                      (list s)))
+                  (split-string (funcall match-style-string 3 3)
+                                "[(), ]" t)))))))
 
 (defun magit-wash-log-line (style)
   (beginning-of-line)
