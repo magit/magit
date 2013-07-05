@@ -425,6 +425,11 @@ The function is given one argument, the status buffer."
                 (function-item pop-to-buffer)
                 (function :tag "Other")))
 
+(defcustom magit-restore-window-configuration nil
+  "Whether to restore old window configuration when killing a Magit buffer."
+  :group 'magit
+  :type 'boolean)
+
 (defcustom magit-rewrite-inclusive t
   "Whether magit includes the selected base commit in a rewrite operation.
 
@@ -762,6 +767,11 @@ operation after commit).")
 
 (defvar magit-tmp-buffer-name " *magit-tmp*")
 
+(defvar magit-previous-window-configuration nil
+  "The window configuration prior to switching to current Magit buffer.")
+(make-variable-buffer-local 'magit-previous-window-configuration)
+(put 'magit-previous-window-configuration 'permanent-local t)
+
 (defvar magit-read-file-hist nil)
 
 (defvar magit-current-indentation nil
@@ -916,7 +926,9 @@ in STR."
 (defun magit-buffer-switch (buf)
   (if (string-match "magit" (buffer-name))
       (switch-to-buffer buf)
-    (pop-to-buffer buf)))
+    (let ((winconf (current-window-configuration)))
+      (pop-to-buffer buf)
+      (setq magit-previous-window-configuration winconf))))
 
 ;;; Macros
 
@@ -4410,7 +4422,8 @@ when asking for user input."
                              4))
                        (or (magit-get-top-dir)
                            (magit-read-top-dir nil)))))
-  (let ((topdir (magit-get-top-dir dir)))
+  (let ((topdir (magit-get-top-dir dir))
+        (winconf (current-window-configuration)))
     (unless topdir
       (when (y-or-n-p (format "There is no Git repository in %S.  Create one? "
                               dir))
@@ -4425,6 +4438,7 @@ when asking for user input."
                               (file-name-nondirectory
                                (directory-file-name topdir)) "*")))))
         (funcall magit-status-buffer-switch-function buf)
+        (setq magit-previous-window-configuration winconf)
         (magit-mode-init topdir 'magit-status-mode #'magit-refresh-status)))))
 
 (magit-define-command automatic-merge (revision)
@@ -6586,7 +6600,10 @@ Return values:
   "Bury the buffer and delete its window.
 With a prefix argument, kill the buffer instead."
   (interactive "P")
-  (quit-window kill-buffer (selected-window)))
+  (let ((winconf magit-previous-window-configuration))
+    (quit-window kill-buffer (selected-window))
+    (when (and winconf magit-restore-window-configuration)
+      (set-window-configuration winconf))))
 
 (defun magit--branch-name-at-point ()
   "Get the branch name in the line at point."
