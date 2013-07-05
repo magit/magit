@@ -772,6 +772,10 @@ This is calculated from `magit-highlight-indentation'.")
 (defvar magit-bug-report-url
   "http://github.com/magit/magit/issues")
 
+(defvar magit-status-window-conf nil
+  "Store initial window configuration before starting `magit-status'.")
+(put 'magit-status-window-conf 'permanent-local t)
+
 (defconst magit-version "@GIT_DEV_VERSION@"
   "The version of Magit that you're using.")
 
@@ -916,7 +920,9 @@ in STR."
 (defun magit-buffer-switch (buf)
   (if (string-match "magit" (buffer-name))
       (switch-to-buffer buf)
-    (pop-to-buffer buf)))
+    (let ((winconf (current-window-configuration)))
+      (pop-to-buffer buf)
+      (set (make-local-variable 'magit-status-window-conf) winconf))))
 
 ;;; Macros
 
@@ -4410,7 +4416,8 @@ when asking for user input."
                              4))
                        (or (magit-get-top-dir)
                            (magit-read-top-dir nil)))))
-  (let ((topdir (magit-get-top-dir dir)))
+  (let ((topdir (magit-get-top-dir dir))
+        (winconf (current-window-configuration)))
     (unless topdir
       (when (y-or-n-p (format "There is no Git repository in %S.  Create one? "
                               dir))
@@ -4425,6 +4432,7 @@ when asking for user input."
                               (file-name-nondirectory
                                (directory-file-name topdir)) "*")))))
         (funcall magit-status-buffer-switch-function buf)
+        (set (make-local-variable 'magit-status-window-conf) winconf)
         (magit-mode-init topdir 'magit-status-mode #'magit-refresh-status)))))
 
 (magit-define-command automatic-merge (revision)
@@ -6586,7 +6594,9 @@ Return values:
   "Bury the buffer and delete its window.
 With a prefix argument, kill the buffer instead."
   (interactive "P")
-  (quit-window kill-buffer (selected-window)))
+  (let ((winconf magit-status-window-conf)) 
+    (quit-window kill-buffer (selected-window))
+    (and winconf (set-window-configuration winconf))))
 
 (defun magit--branch-name-at-point ()
   "Get the branch name in the line at point."
