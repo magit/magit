@@ -120,6 +120,8 @@
     (define-key map (kbd "a") 'rebase-mode-abort)
     (define-key map (kbd "C-c C-k") 'rebase-mode-abort)
 
+    (define-key map (kbd "RET") 'rebase-mode-show-commit)
+
     (define-key map (kbd "M-p") 'rebase-mode-move-line-up)
     (define-key map (kbd "M-n") 'rebase-mode-move-line-down)
     (define-key map (kbd "k") 'rebase-mode-kill-line)
@@ -292,6 +294,17 @@ exec line was commented out, also uncomment it."
   (interactive "P")
   (let ((inhibit-read-only t))
     (undo arg)))
+
+(defun rebase-mode-show-commit (&optional arg)
+  "Show current commit"
+  (interactive "P")
+  (save-excursion
+    (goto-char (point-at-bol))
+    (when (looking-at rebase-mode-action-line-re)
+      (let ((commit (match-string 2)))
+        (if (fboundp 'magit-show-commit)
+            (magit-show-commit commit nil nil 'select)
+          (shell-command (concat "git show " commit)))))))
 
 ;;;###autoload
 (define-derived-mode rebase-mode special-mode "Rebase"
