@@ -1544,11 +1544,13 @@ PROMPT and UNINTERESTING are passed to `magit-read-rev'."
       "mark"
     (magit-name-rev rev)))
 
-(defun magit-rev-range-describe (range things)
+(defun magit-rev-range-describe (range things &optional single-start)
   (or range
       (error "No revision range specified"))
   (if (stringp range)
-      (format "%s in %s" things range)
+      (if single-start
+          (format "%s from %s" things range)
+          (format "%s in %s" things range))
     (if (cdr range)
         (format "%s from %s to %s" things
                 (magit-rev-describe (car range))
@@ -6016,7 +6018,7 @@ restore the window state that was saved before ediff was called."
     (magit-create-buffer-sections
       (apply #'magit-git-section
              'diffbuf
-             (magit-rev-range-describe range "Changes")
+             (magit-rev-range-describe range "Changes" t)
              'magit-wash-diffs
              "diff" (magit-diff-U-arg)
              `(,@(if magit-show-diffstat (list "--patch-with-stat"))
