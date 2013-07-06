@@ -79,7 +79,6 @@
 ;; Copyright (C) 2010 Paul Stadig.
 ;; Copyright (C) 2009 Pavel Holejsovsky.
 ;; Copyright (C) 2012, 2013 Pekka Pessi.
-;; Copyright (C) 2011, 2012 Peter J Weisberg.
 ;; Copyright (C) 2011, 2012 Peter J. Weisberg.
 ;; Copyright (C) 2009, 2010, 2011, 2013 Phil Jackson.
 ;; Copyright (C) 2010 Philip Weaver.
@@ -114,8 +113,7 @@
 ;; Copyright (C) 2010, 2011 Tom Feist.
 ;; Copyright (C) 2010, 2011, 2012, 2013 Yann Hodique.
 ;; Copyright (C) 2013 acple.
-;; Copyright (C) 2012, 2013 cinsk@selune.
-;; Copyright (C) 2012, 2013 cinsk@torm.
+;; Copyright (C) 2012, 2013 cinsk.
 ;; Copyright (C) 2010 oscar.
 ;; Copyright (C) 2012 rabio.
 ;; Copyright (C) 2013 sabof.
