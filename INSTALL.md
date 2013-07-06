@@ -144,18 +144,27 @@ page by using this instead:
     $ make core
     $ sudo make install_core
 
-You might also want to compile and install the additional libraries in
-`contrib/`:
+You might also want to compile and install the additional libraries
+from `contrib/`:
 
     $ make contrib
     $ sudo make install_contrib
 
 In either case Emacs lisp libraries are put into
-`/usr/local/share/emacs/site-lisp/`, where Emacs should be able to
-find them.  Finally add this to your initialization file.
+`/usr/local/share/emacs/site-lisp/magit/`.
 
+Then add that directory to the `load-path` and load `magit` by adding
+these lines to your init file (`~/.emacs.d/init.el`).
+
+    (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/magit")
     (require 'magit)
 
+If you want to use Magit in an already running Emacs instance you also
+have to evaluate these forms by placing the cursor at the end of each
+line and then typing <kbd>C-x C-e</kbd>.
+
+If you have installed Emacs itself manually then the first line is
+likely not required.
 
 [contributing]: https://github.com/magit/magit/blob/maint/CONTRIBUTING.md
 [contributors]: https://github.com/magit/magit/contributors
