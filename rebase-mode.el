@@ -25,6 +25,7 @@
 ;;; Code:
 
 (require 'easymenu)
+(require 'rx)
 (require 'server)
 (declare-function server-edit "server") 
 
