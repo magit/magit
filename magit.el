@@ -2305,7 +2305,7 @@ Refinements can be undone with `magit-unrefine-section'."
                  (magit-section-parent section)))))))
 
 (defun magit-prefix-p (l1 l2)
-  "Return non-nil if list L1 is a prefix of list L1.
+  "Return non-nil if list L1 is a prefix of list L2.
 L1 is a prefix of L2 if each of it's element is `equal' to the
 element at the same position in L2.  As a special case `*' in
 L1 matches zero or more arbitrary elements in L2."
