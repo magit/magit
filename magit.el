@@ -502,6 +502,12 @@ There are three possible settings:
                  (const :tag "All" all))
   :set 'magit-set-variable-and-refresh)
 
+(defcustom magit-diff-whitespace t
+  "Enable whitespace in Git diffs."
+  :group 'magit
+  :type 'boolean
+  :set 'magit-set-variable-and-refresh)
+
 
 ;;; Faces
 
@@ -839,6 +845,7 @@ This is calculated from `magit-highlight-indentation'.")
     (define-key map (kbd "+") 'magit-diff-larger-hunks)
     (define-key map (kbd "0") 'magit-diff-default-hunks)
     (define-key map (kbd "h") 'magit-toggle-diff-refine-hunk)
+    (define-key map (kbd "W") 'magit-toggle-diff-whitespace)
     (define-key map (kbd "M-g") 'magit-goto-diffstats)
     map))
 
@@ -2961,6 +2968,30 @@ Customize `magit-diff-refine-hunk' to change the default mode."
     ;; `all' mode being turned on or off needs a complete refresh
     (when (or (eq old 'all) (eq new 'all))
       (magit-refresh))))
+
+(defun magit-toggle-diff-whitespace ()
+  "Turn whitespace in diffs on or off.
+
+Customize `magit-diff-whitespace' to change the default mode."
+  (interactive)
+
+  (let* ((new (not magit-diff-whitespace)))
+    (if new
+        (magit-enable-diff-whitespace)
+      (magit-disable-diff-whitespace))
+
+    (setq magit-diff-whitespace new)
+    (magit-refresh)))
+
+(defun magit-enable-diff-whitespace ()
+  "Don't ignore whitespace in Git diffs."
+  (interactive)
+  (setq magit-diff-options (remove "-w" magit-diff-options)))
+
+(defun magit-disable-diff-whitespace ()
+  "Ignore whitespace in Git diffs."
+  (interactive)
+  (add-to-list 'magit-diff-options "-w"))
 
 (defun magit-diff-line-file ()
   (cond ((looking-at "^diff --git ./\\(.*\\) ./\\(.*\\)$")
