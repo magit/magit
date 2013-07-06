@@ -1,6 +1,7 @@
 ;;; magit.el --- control Git from Emacs
 
 ;; Copyright (C) 2010 Aaron Culich.
+;; Copyright (C) 2013 Abdo Roig-Maranges.
 ;; Copyright (C) 2010, 2011 Alan Falloon.
 ;; Copyright (C) 2008, 2010 Alex Ott.
 ;; Copyright (C) 2008, 2009, 2010 Alexey Voinov.
@@ -21,20 +22,25 @@
 ;; Copyright (C) 2012 Christian Dietrich.
 ;; Copyright (C) 2010 Christian Kluge.
 ;; Copyright (C) 2012 Christopher Monsanto.
+;; Copyright (C) 2013 Cornelius Mika.
 ;; Copyright (C) 2011 Craig Andera.
 ;; Copyright (C) 2012 Dale Hagglund.
 ;; Copyright (C) 2012 Damien Cassou.
+;; Copyright (C) 2013 Dan LaManna.
 ;; Copyright (C) 2010 Daniel Brockman.
 ;; Copyright (C) 2008 Daniel Farina.
 ;; Copyright (C) 2012 Daniel Hackney.
 ;; Copyright (C) 2010, 2011 Dave Abrahams.
 ;; Copyright (C) 2010 David Abrahams.
 ;; Copyright (C) 2009 David Wallin.
+;; Copyright (C) 2013 Divye Kapoor.
 ;; Copyright (C) 2011 Dominique Quatravaux.
 ;; Copyright (C) 2011 Eli Barzilay.
 ;; Copyright (C) 2011, 2012 Eric Davis.
+;; Copyright (C) 2013 Felix Geller.
 ;; Copyright (C) 2011 George Kadianakis.
 ;; Copyright (C) 2011 Graham Clark.
+;; Copyright (C) 2013 Greg Sexton.
 ;; Copyright (C) 2009, 2010, 2011 Hannu Koivisto.
 ;; Copyright (C) 2012 Hans-Peter Deifel.
 ;; Copyright (C) 2009 Ian Eure.
@@ -47,8 +53,10 @@
 ;; Copyright (C) 2011 Julien Danjou.
 ;; Copyright (C) 2012 Justin Caratzas.
 ;; Copyright (C) 2011 Kimberly Wolk.
+;; Copyright (C) 2013 Laurent Laffont.
+;; Copyright (C) 2013 Lele Gaifax.
 ;; Copyright (C) 2010, 2011 Leo.
-;; Copyright (C) 2012 Leonardo Etcheverry.
+;; Copyright (C) 2012, 2013 Leonardo Etcheverry.
 ;; Copyright (C) 2011 Lluís Vilanova.
 ;; Copyright (C) 2011 Luke Amdor.
 ;; Copyright (C) 2011 Luís Borges de Oliveira.
@@ -58,21 +66,26 @@
 ;; Copyright (C) 2008, 2009 Marius Vollmer.
 ;; Copyright (C) 2010 Mark Hepburn.
 ;; Copyright (C) 2012 Miles Bader.
+;; Copyright (C) 2013 Mitchel Humpherys.
 ;; Copyright (C) 2010, 2011, 2012, 2013 Moritz Bunkus.
 ;; Copyright (C) 2010 Nathan Weizenbaum.
 ;; Copyright (C) 2012 Nic Ferier.
 ;; Copyright (C) 2012 Nick Alcock.
-;; Copyright (C) 2011, 2012 Nicolas Dudebout.
+;; Copyright (C) 2013 Nick Alexander.
+;; Copyright (C) 2013 Nick Dimiduk.
+;; Copyright (C) 2011, 2012, 2013 Nicolas Dudebout.
 ;; Copyright (C) 2011 Ole Arndt.
 ;; Copyright (C) 2010 Oscar Fuentes.
 ;; Copyright (C) 2010 Paul Stadig.
 ;; Copyright (C) 2009 Pavel Holejsovsky.
+;; Copyright (C) 2012, 2013 Pekka Pessi.
+;; Copyright (C) 2011, 2012 Peter J Weisberg.
 ;; Copyright (C) 2011, 2012 Peter J. Weisberg.
 ;; Copyright (C) 2009, 2010, 2011, 2013 Phil Jackson.
 ;; Copyright (C) 2010 Philip Weaver.
 ;; Copyright (C) 2011 Pieter Praet.
 ;; Copyright (C) 2012 Raimon Grau.
-;; Copyright (C) 2010, 2011, 2012 Ramkumar Ramachandra.
+;; Copyright (C) 2010, 2011, 2012, 2013 Ramkumar Ramachandra.
 ;; Copyright (C) 2010 Remco van 't Veer.
 ;; Copyright (C) 2009 René Stadler.
 ;; Copyright (C) 2010 Robert Boone.
@@ -81,21 +94,31 @@
 ;; Copyright (C) 2012 Romain Francoise.
 ;; Copyright (C) 2012 Ron Parker.
 ;; Copyright (C) 2012 Ryan C. Thompson.
-;; Copyright (C) 2009-2013 Rémi Vanicat.
-;; Copyright (C) 2011, 2012 Rüdiger Sonderfeld.
+;; Copyright (C) 2009, 2010, 2011, 2012, 2013 Rémi Vanicat.
+;; Copyright (C) 2011, 2012, 2013 Rüdiger Sonderfeld.
 ;; Copyright (C) 2012 Samuel Bronson.
+;; Copyright (C) 2013 Sanjoy Das.
 ;; Copyright (C) 2010 Sean Bryant.
-;; Copyright (C) 2009, 2011 Steve Purcell.
+;; Copyright (C) 2012, 2013 Sergey Vinokurov.
+;; Copyright (C) 2013 Servilio Afre Puentes.
+;; Copyright (C) 2009, 2011, 2013 Steve Purcell.
 ;; Copyright (C) 2012 Steven Chow.
+;; Copyright (C) 2012 Steven Thomas.
 ;; Copyright (C) 2012 Suhail Shergill.
+;; Copyright (C) 2013 Sébastien Gross.
 ;; Copyright (C) 2012, 2013 Takafumi Arakaki.
+;; Copyright (C) 2013 Thierry Volpiatto.
 ;; Copyright (C) 2010 Thomas Jost.
 ;; Copyright (C) 2011 Tibor Simko.
 ;; Copyright (C) 2010, 2012 Timo Juhani Lindfors.
 ;; Copyright (C) 2010, 2011 Tom Feist.
 ;; Copyright (C) 2010, 2011, 2012, 2013 Yann Hodique.
+;; Copyright (C) 2013 acple.
+;; Copyright (C) 2012, 2013 cinsk@selune.
+;; Copyright (C) 2012, 2013 cinsk@torm.
 ;; Copyright (C) 2010 oscar.
 ;; Copyright (C) 2012 rabio.
+;; Copyright (C) 2013 sabof.
 ;; Copyright (C) 2010, 2011 Ævar Arnfjörð Bjarmason.
 ;; Copyright (C) 2010 Óscar Fuentes.
 ;; Copyright (C) 2011 Štěpán Němec.
