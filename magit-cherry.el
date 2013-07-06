@@ -30,28 +30,36 @@
 
 (magit-define-command cherry (&optional upstream head)
   (interactive)
-  (let* ((local-branch (or (magit-get-current-branch)
-                           (error "Don't cherry on a detached head.")))
-         (topdir       (magit-get-top-dir default-directory))
-         (upstream     (or upstream (magit-read-rev "Upstream" (magit-format-ref (magit-remote-branch-for local-branch t)))))
-         (head         (or head     (magit-read-rev "Head"     local-branch))))
-    (magit-buffer-switch magit--cherry-buffer-name)
-    (magit-mode-init topdir 'magit-cherry-mode #'magit--refresh-cherry-buffer upstream head)))
+  (let ((branch (magit-get-current-branch)))
+    (if (not branch)
+        (error "Don't cherry on a detached head.")
+      (magit-buffer-switch magit--cherry-buffer-name)
+      (magit-mode-init
+       (magit-get-top-dir)
+       'magit-cherry-mode
+       #'magit--refresh-cherry-buffer
+       (or upstream (magit-read-rev "Upstream"
+                                    (magit-format-ref
+                                     (magit-remote-branch-for branch t))))
+       (or head (magit-read-rev "Head" branch))))))
 
 (defun magit--refresh-cherry-buffer (cherry-upstream cherry-head)
   (magit-create-buffer-sections
     (let ((branch-head (magit-format-commit "HEAD" "%h %s")))
-      (insert-before-markers (format "Repository:  %s %s\n"
-                                     (propertize (magit-get-current-branch) 'face 'magit-branch)
-                                     (abbreviate-file-name default-directory))
-                             (format "Branch head: %s\n" (or branch-head "nothing commited (yet)"))
-                             "\n"
-                             (format "%s means: present in '%s' but not in '%s'\n"
-                                     (propertize " - " 'face 'magit-diff-del) cherry-upstream cherry-head)
-                             (format "%s means: present in '%s' but not in '%s'\n"
-                                     (propertize " + " 'face 'magit-diff-add) cherry-head cherry-upstream)
-                             "\n"
-                             (propertize "Cherry commits:" 'face 'magit-section-title) "\n"))
+      (insert-before-markers
+       (format "Repository:  %s %s\n"
+               (propertize (magit-get-current-branch) 'face 'magit-branch)
+               (abbreviate-file-name default-directory))
+       (format "Branch head: %s\n" (or branch-head "nothing committed (yet)"))
+       "\n"
+       (format "%s means: present in '%s' but not in '%s'\n"
+               (propertize " - " 'face 'magit-diff-del)
+               cherry-upstream cherry-head)
+       (format "%s means: present in '%s' but not in '%s'\n"
+               (propertize " + " 'face 'magit-diff-add)
+               cherry-head cherry-upstream)
+       "\n"
+       (propertize "Cherry commits:" 'face 'magit-section-title) "\n"))
     (magit-git-section 'commit nil 'magit--wash-cherry-output
                        "cherry" "-v" cherry-upstream cherry-head)))
 
@@ -71,7 +79,9 @@
 
       ;; Re-create output and propertize properly.
       (insert (propertize (concat " " direction " ")
-                          'face (if (string= direction "+") 'magit-diff-add 'magit-diff-del))
+                          'face (if (string= direction "+")
+                                    'magit-diff-add
+                                  'magit-diff-del))
               " "
               (propertize revision 'face 'magit-log-sha1)
               " ")
