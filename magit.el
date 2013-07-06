@@ -426,6 +426,11 @@ The function is given one argument, the status buffer."
                 (function-item pop-to-buffer)
                 (function :tag "Other")))
 
+(defcustom magit-restore-window-configuration nil
+  "Whether to restore old window configuration when killing a Magit buffer."
+  :group 'magit
+  :type 'boolean)
+
 (defcustom magit-rewrite-inclusive t
   "Whether magit includes the selected base commit in a rewrite operation.
 
@@ -732,6 +737,96 @@ face inherit from `default' and remove all other attributes."
   "Face for valid gpg signatures."
   :group 'magit-faces)
 
+(defface magit-log-reflog-label-commit
+  '((((class color) (background light))
+     :box t
+     :background "LemonChiffon1"
+     :foreground "goldenrod4")
+    (((class color) (background dark))
+     :box t
+     :background "LemonChiffon1"
+     :foreground "goldenrod4"))
+  "Face for reflog subject labels shown in reflog buffer."
+  :group 'magit-faces)
+
+(defface magit-log-reflog-label-amend
+  '((t :inherit magit-log-reflog-label-commit))
+  "Face for reflog subject labels shown in reflog buffer."
+  :group 'magit-faces)
+
+(defface magit-log-reflog-label-merge
+  '((t :inherit magit-log-reflog-label-commit))
+  "Face for reflog subject labels shown in reflog buffer."
+  :group 'magit-faces)
+
+(defface magit-log-reflog-label-checkout
+  '((((class color) (background light))
+     :box t
+     :background "Grey85"
+     :foreground "LightSkyBlue4")
+    (((class color) (background dark))
+     :box t
+     :background "Grey13"
+     :foreground "LightSkyBlue1"))
+  "Face for reflog subject labels shown in reflog buffer."
+  :group 'magit-faces)
+
+(defface magit-log-reflog-label-reset
+  '((((class color) (background light))
+     :box t
+     :background "IndianRed1"
+     :foreground "IndianRed4")
+    (((class color) (background dark))
+     :box t
+     :background "IndianRed1"
+     :foreground "IndianRed4"))
+  "Face for reflog subject labels shown in reflog buffer."
+  :group 'magit-faces)
+
+(defface magit-log-reflog-label-rebase
+  '((((class color) (background light))
+     :box t
+     :background "Grey85"
+     :foreground "OliveDrab4")
+    (((class color) (background dark))
+     :box t
+     :background "Grey11"
+     :foreground "DarkSeaGreen2"))
+  "Face for reflog subject labels shown in reflog buffer."
+  :group 'magit-faces)
+
+(defface magit-log-reflog-label-cherry-pick
+'((((class color) (background light))
+     :box t
+     :background "light green"
+     :foreground "dark olive green")
+    (((class color) (background dark))
+     :box t
+     :background "light green"
+     :foreground "dark olive green"))
+  "Face for reflog subject labels shown in reflog buffer."
+  :group 'magit-faces)
+
+(defface magit-log-reflog-label-remote
+  '((((class color) (background light))
+     :box t
+     :background "Grey50")
+    (((class color) (background dark))
+     :box t
+     :background "Grey50"))
+  "Face for reflog subject labels shown in reflog buffer."
+  :group 'magit-faces)
+
+(defface magit-log-reflog-label-other
+  '((((class color) (background light))
+     :box t
+     :background "Grey50")
+    (((class color) (background dark))
+     :box t
+     :background "Grey50"))
+  "Face for reflog subject labels shown in reflog buffer."
+  :group 'magit-faces)
+
 
 ;;; Internal Variables
 
@@ -762,6 +857,11 @@ operation after commit).")
   "When non-nil magit will only list an untracked directory, not its contents.")
 
 (defvar magit-tmp-buffer-name " *magit-tmp*")
+
+(defvar magit-previous-window-configuration nil
+  "The window configuration prior to switching to current Magit buffer.")
+(make-variable-buffer-local 'magit-previous-window-configuration)
+(put 'magit-previous-window-configuration 'permanent-local t)
 
 (defvar magit-read-file-hist nil)
 
@@ -918,7 +1018,9 @@ in STR."
 (defun magit-buffer-switch (buf)
   (if (string-match "magit" (buffer-name))
       (switch-to-buffer buf)
-    (pop-to-buffer buf)))
+    (let ((winconf (current-window-configuration)))
+      (pop-to-buffer buf)
+      (setq magit-previous-window-configuration winconf))))
 
 ;;; Macros
 
@@ -1374,6 +1476,7 @@ non-nil).  In addition, it will filter out revs involving HEAD."
 
 (defun magit-format-commit (commit format)
   (magit-git-string "log" "--max-count=1"
+                    (format "--abbrev=%s" magit-sha1-abbrev-length)
                     (concat "--pretty=format:" format)
                     commit))
 
@@ -1554,7 +1657,9 @@ PROMPT and UNINTERESTING are passed to `magit-read-rev'."
     (if (cdr range)
         (format "%s from %s to %s" things
                 (magit-rev-describe (car range))
-                (magit-rev-describe (cdr range)))
+                (if (eq (cdr range) 'working)
+                    "working directory"
+                  (magit-rev-describe (cdr range))))
       (format "%s at %s" things (magit-rev-describe (car range))))))
 
 (defun magit-default-rev (&optional no-trim)
@@ -2203,7 +2308,7 @@ Refinements can be undone with `magit-unrefine-section'."
                  (magit-section-parent section)))))))
 
 (defun magit-prefix-p (l1 l2)
-  "Return non-nil if list L1 is a prefix of list L1.
+  "Return non-nil if list L1 is a prefix of list L2.
 L1 is a prefix of L2 if each of it's element is `equal' to the
 element at the same position in L2.  As a special case `*' in
 L1 matches zero or more arbitrary elements in L2."
@@ -3565,6 +3670,10 @@ member of ARGS, or to the working file otherwise."
 ;; --decorate=full otherwise some ref prefixes are stripped
 ;;  '("--pretty=format:* %H%d %s" "--decorate=full"))
 
+(defvar magit-git-reflog-options
+  (list "--pretty=format:* \C-?%h\C-?%gs"
+        (format "--abbrev=%s" magit-sha1-abbrev-length)))
+
 (defconst magit-unpushed-or-unpulled-commit-re
   (concat "^\\* "
           "\\([0-9a-fA-F]+\\) " ;; sha
@@ -3637,8 +3746,8 @@ Evaluate (man \"git-check-ref-format\") for details")
    " ?"
    "\\(?:"
    "\\([BGUN]\\)?"                                  ; gpg     (4)
-   "\\(\\[.*?\\]\\)"                                ; author  (5)
-   "\\(\\[.*?\\]\\)"                                ; date    (6)
+   "\\[\\(.*\\)\\]"                                 ; author  (5)
+   "\\[\\(.*\\)\\]"                                 ; date    (6)
    "\\)?"
    "\\(.+\\)?$"                                     ; msg     (7)
    ))
@@ -3660,6 +3769,19 @@ Evaluate (man \"git-check-ref-format\") for details")
    "\\)?"
    "\\(.+\\)?$"                                    ; msg     (4)
    ))
+
+(defconst magit-log-reflog-re
+  (concat "^\\([^\C-?]+\\)\C-??"                   ; graph   (1)
+          "\\([^\C-?]+\\)\C-?"                     ; sha1    (2)
+          "\\([^:]+\\)?"                           ; refsub  (3)
+          "\\(?:: \\)?"
+          "\\(.+\\)?$"))                           ; msg     (4)
+
+(defvar magit-reflog-subject-re
+  (concat "\\([^ ]+\\) ?"                          ; command (1)
+          "\\(\\(?: ?[^---(][^ ]+\\)+\\)? ?"       ; status  (2)
+          "\\(\\(?: ?-[^ ]+\\)+\\)?"               ; option  (3)
+          "\\(?: ?(\\([^)]+\\))\\)?"))             ; type    (4)
 
 (defvar magit-present-log-line-function 'magit-present-log-line
   "The function to use when generating a log line.
@@ -3712,6 +3834,38 @@ must return a string which will represent the log line.")
                            (list r 'magit-log-head-label-default))))))
         res))))
 
+(defvar magit-reflog-labels
+  '(("commit"      . magit-log-reflog-label-commit)
+    ("amend"       . magit-log-reflog-label-amend)
+    ("merge"       . magit-log-reflog-label-merge)
+    ("checkout"    . magit-log-reflog-label-checkout)
+    ("branch"      . magit-log-reflog-label-checkout)
+    ("reset"       . magit-log-reflog-label-reset)
+    ("rebase"      . magit-log-reflog-label-rebase)
+    ("cherry-pick" . magit-log-reflog-label-cherry-pick)
+    ("initial"     . magit-log-reflog-label-commit)
+    ("pull"        . magit-log-reflog-label-remote)
+    ("clone"       . magit-log-reflog-label-remote)))
+
+(defun magit-log-format-reflog (subject)
+  (let* ((match (string-match magit-reflog-subject-re subject))
+         (command (and match (match-string 1 subject)))
+         (status  (and match (match-string 2 subject)))
+         (option  (and match (match-string 3 subject)))
+         (type    (and match (match-string 4 subject)))
+         (label (if (string= command "commit")
+                    (or type command)
+                  command))
+         (text (if (string= command "commit")
+                   label
+                 (mapconcat #'identity
+                            (delq nil (list command option type status))
+                            " "))))
+    (format "%-11s "
+            (propertize text 'face
+                        (or (cdr (assoc label magit-reflog-labels))
+                            'magit-log-reflog-label-other)))))
+
 (defun magit-present-log-line (line)
   "The default log line generator."
   (let ((graph (magit-log-line-chart line))
@@ -3719,6 +3873,7 @@ must return a string which will represent the log line.")
         (refs (magit-log-line-refs line))
         (author (magit-log-line-author line))
         (date (magit-log-line-date line))
+        (refsub (magit-log-line-refsub line))
         (message (magit-log-line-msg line))
         (gpg-status (magit-log-line-gpg line)))
     (let* ((string-refs
@@ -3741,6 +3896,8 @@ must return a string which will represent the log line.")
                  " "
                  graph
                  string-refs
+                 (when refsub
+                   (magit-log-format-reflog refsub))
                  (when message
                    (font-lock-append-text-property
                     0 (length message)
@@ -3878,39 +4035,37 @@ insert a line to tell how to insert more of them"
                (insert "type \"e\" to show more logs\n")))))))
 
 (cl-defstruct magit-log-line
-  chart sha1 author date msg refs gpg)
+  chart sha1 author date msg refs gpg refsub)
 
 (defun magit-parse-log-line (line style)
-  (let ((remove-surrounding-braces
-         (lambda (string)
-           (when string
-             (replace-regexp-in-string "\\(^\\[\\)\\|\\(\\]$\\)" "" string))))
-        (match-style-string
-         (lambda (short-pos long-pos)
-           (match-string (if (eq style 'long) long-pos short-pos) line)))
-        (line-re (cond ((eq style 'long) magit-log-longline-re)
-                         (t magit-log-oneline-re))))
-    (when (string-match line-re line)
+  ;; TODO make sure STYLE is never nil; then remove this
+  (unless style
+    (setq style 'oneline))
+  (when (string-match (cl-ecase style
+                        (oneline magit-log-oneline-re)
+                        (long    magit-log-longline-re)
+                        (reflog  magit-log-reflog-re))
+                      line)
+    (let ((match-style-string
+           (lambda (oneline long reflog)
+             (when (symbol-value style)
+               (match-string (symbol-value style) line)))))
       (make-magit-log-line
-       :chart (funcall match-style-string 1 1)
-       :sha1 (funcall match-style-string 2 2)
-       :author (funcall remove-surrounding-braces
-                        (when (not (eq style 'long)) (match-string 5 line)))
-       :date (funcall remove-surrounding-braces
-                      (when (not (eq style 'long)) (match-string 6 line)))
-       :gpg (when (not (eq style 'long))
-              (match-string 4 line))
-       :msg (funcall match-style-string 7 4)
-       :refs (when (funcall match-style-string 3 3)
-               (delq nil
-                     (mapcar
-                      (lambda (s)
-                        (and (not
-                              (or (string= s "tag:")
-                                  (string= s "HEAD"))) ; as of 1.6.6
-                             s))
-                      (split-string (funcall match-style-string 3 3)
-                                    "[(), ]" t))))))))
+       :chart  (funcall match-style-string 1   1   1)
+       :sha1   (funcall match-style-string 2   2   2)
+       :author (funcall match-style-string 5   nil nil)
+       :date   (funcall match-style-string 6   nil nil)
+       :gpg    (funcall match-style-string 4   nil nil)
+       :msg    (funcall match-style-string 7   4   4)
+       :refsub (funcall match-style-string nil nil 3)
+       :refs   (when (funcall match-style-string 3 3 nil)
+                 (cl-mapcan
+                  (lambda (s)
+                    (unless (or (string= s "tag:")
+                                (string= s "HEAD")) ; as of 1.6.6
+                      (list s)))
+                  (split-string (funcall match-style-string 3 3 nil)
+                                "[(), ]" t)))))))
 
 (defun magit-wash-log-line (style)
   (beginning-of-line)
@@ -4290,12 +4445,7 @@ if FULLY-QUALIFIED-NAME is non-nil."
              (remote-rebase (and branch (magit-get-boolean "branch" branch "rebase")))
              (remote-branch (or (and branch (magit-remote-branch-for branch)) branch))
              (remote-string (magit-remote-string remote remote-branch remote-rebase))
-             (head (magit-git-string
-                    "log"
-                    "--max-count=1"
-                    "--abbrev-commit"
-                    (format "--abbrev=%s" magit-sha1-abbrev-length)
-                    "--pretty=oneline"))
+             (head (magit-format-commit "HEAD" "%h %s"))
              (no-commit (not head))
              (merge-heads (magit-file-lines (concat (magit-git-dir) "MERGE_HEAD")))
              (rebase (magit-rebase-info)))
@@ -4325,11 +4475,11 @@ if FULLY-QUALIFIED-NAME is non-nil."
         (magit-insert-untracked-files)
         (magit-insert-pending-changes)
         (magit-insert-pending-commits)
-        (magit-insert-unpulled-commits remote remote-branch)
         (let ((staged (or no-commit (magit-anything-staged-p))))
           (magit-insert-unstaged-changes
            (if staged "Unstaged changes:" "Changes:"))
           (magit-insert-staged-changes staged no-commit))
+        (magit-insert-unpulled-commits remote remote-branch)
         (magit-insert-unpushed-commits remote remote-branch))))
   (run-hooks 'magit-refresh-status-hook))
 
@@ -4410,7 +4560,8 @@ when asking for user input."
                              4))
                        (or (magit-get-top-dir)
                            (magit-read-top-dir nil)))))
-  (let ((topdir (magit-get-top-dir dir)))
+  (let ((topdir (magit-get-top-dir dir))
+        (winconf (current-window-configuration)))
     (unless topdir
       (when (y-or-n-p (format "There is no Git repository in %S.  Create one? "
                               dir))
@@ -4425,6 +4576,7 @@ when asking for user input."
                               (file-name-nondirectory
                                (directory-file-name topdir)) "*")))))
         (funcall magit-status-buffer-switch-function buf)
+        (setq magit-previous-window-configuration winconf)
         (magit-mode-init topdir 'magit-status-mode #'magit-refresh-status)))))
 
 (magit-define-command automatic-merge (revision)
@@ -5907,8 +6059,9 @@ This is only non-nil in reflog buffers.")
   (magit-create-log-buffer-sections
     (apply #'magit-git-section
            'reflog (format "Local history of head %s" head)
-           'magit-wash-log "log"
-           (append magit-git-log-options
+           (apply-partially 'magit-wash-log 'reflog)
+           "log"
+           (append magit-git-reflog-options
                    (list
                     "--walk-reflogs"
                     (format "--max-count=%s" magit-log-cutoff-length)
@@ -6018,7 +6171,7 @@ restore the window state that was saved before ediff was called."
     (magit-create-buffer-sections
       (apply #'magit-git-section
              'diffbuf
-             (magit-rev-range-describe range "Changes")
+             (magit-rev-range-describe magit-current-diff-range "Changes")
              'magit-wash-diffs
              "diff" (magit-diff-U-arg)
              `(,@(if magit-show-diffstat (list "--patch-with-stat"))
@@ -6586,7 +6739,10 @@ Return values:
   "Bury the buffer and delete its window.
 With a prefix argument, kill the buffer instead."
   (interactive "P")
-  (quit-window kill-buffer (selected-window)))
+  (let ((winconf magit-previous-window-configuration))
+    (quit-window kill-buffer (selected-window))
+    (when (and winconf magit-restore-window-configuration)
+      (set-window-configuration winconf))))
 
 (defun magit--branch-name-at-point ()
   "Get the branch name in the line at point."

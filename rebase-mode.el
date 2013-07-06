@@ -24,6 +24,8 @@
 
 ;;; Code:
 
+(require 'easymenu)
+(require 'rx)
 (require 'server)
 (declare-function server-edit "server") 
 
@@ -120,22 +122,21 @@
     (define-key map (kbd "a") 'rebase-mode-abort)
     (define-key map (kbd "C-c C-k") 'rebase-mode-abort)
 
+    (define-key map (kbd "RET") 'rebase-mode-show-commit)
+
     (define-key map (kbd "M-p") 'rebase-mode-move-line-up)
     (define-key map (kbd "M-n") 'rebase-mode-move-line-down)
     (define-key map (kbd "k") 'rebase-mode-kill-line)
     (define-key map (kbd "x") 'rebase-mode-exec)
 
     (define-key map (kbd "n") 'forward-line)
-    (define-key map (kbd "p") '(lambda(n)
-                                 (interactive "p")
-                                 (forward-line (* n -1))))
+    (define-key map (kbd "p") 'rebase-mode-backward-line)
     (define-key map [remap undo] 'rebase-mode-undo)
     map)
   "Keymap for rebase-mode.
 Note this will be added to by the top-level code which defines
 the edit functions.")
 
-(require 'easymenu)
 (easy-menu-define rebase-mode-menu rebase-mode-map
   "Rebase-mode menu"
   '("Rebase"
@@ -292,6 +293,23 @@ exec line was commented out, also uncomment it."
   (interactive "P")
   (let ((inhibit-read-only t))
     (undo arg)))
+
+(defun rebase-mode-show-commit (&optional arg)
+  "Show the commit on the current line if any."
+  (interactive "P")
+  (save-excursion
+    (goto-char (point-at-bol))
+    (when (looking-at rebase-mode-action-line-re)
+      (let ((commit (match-string 2)))
+        (if (fboundp 'magit-show-commit)
+            (magit-show-commit commit nil nil 'select)
+          (shell-command (concat "git show " commit)))))))
+
+(defun rebase-mode-backward-line (&optional n)
+  "Move N lines backward (forward if N is negative).
+Like `forward-line' but go into the opposite direction."
+  (interactive "p")
+  (forward-line (* n -1)))
 
 ;;;###autoload
 (define-derived-mode rebase-mode special-mode "Rebase"
