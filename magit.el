@@ -4443,12 +4443,7 @@ if FULLY-QUALIFIED-NAME is non-nil."
              (remote-rebase (and branch (magit-get-boolean "branch" branch "rebase")))
              (remote-branch (or (and branch (magit-remote-branch-for branch)) branch))
              (remote-string (magit-remote-string remote remote-branch remote-rebase))
-             (head (magit-git-string
-                    "log"
-                    "--max-count=1"
-                    "--abbrev-commit"
-                    (format "--abbrev=%s" magit-sha1-abbrev-length)
-                    "--pretty=oneline"))
+             (head (magit-format-commit "HEAD" "%h %s"))
              (no-commit (not head))
              (merge-heads (magit-file-lines (concat (magit-git-dir) "MERGE_HEAD")))
              (rebase (magit-rebase-info)))
