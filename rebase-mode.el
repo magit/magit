@@ -130,9 +130,7 @@
     (define-key map (kbd "x") 'rebase-mode-exec)
 
     (define-key map (kbd "n") 'forward-line)
-    (define-key map (kbd "p") '(lambda(n)
-                                 (interactive "p")
-                                 (forward-line (* n -1))))
+    (define-key map (kbd "p") 'rebase-mode-backward-line)
     (define-key map [remap undo] 'rebase-mode-undo)
     map)
   "Keymap for rebase-mode.
@@ -306,6 +304,12 @@ exec line was commented out, also uncomment it."
         (if (fboundp 'magit-show-commit)
             (magit-show-commit commit nil nil 'select)
           (shell-command (concat "git show " commit)))))))
+
+(defun rebase-mode-backward-line (&optional n)
+  "Move N lines backward (forward if N is negative).
+Like `forward-line' but go into the opposite direction."
+  (interactive "p")
+  (forward-line (* n -1)))
 
 ;;;###autoload
 (define-derived-mode rebase-mode special-mode "Rebase"
