@@ -1287,6 +1287,22 @@ Read `completing-read' documentation for the meaning of the argument."
   (file-name-as-directory
    (expand-file-name (magit-git-string "rev-parse" "--git-dir"))))
 
+(defun magit-is-inside-git-dir ()
+  "Returns true when inside git dir."
+  (equal "true" (magit-git-string "rev-parse" "--is-inside-git-dir")))
+
+(defun magit-is-bare-repository ()
+  "Returns true when the repository is bare."
+  (equal "true" (magit-git-string "rev-parse" "--is-bare-repository")))
+
+(defun magit-git-toplevel ()
+  "Returns the top level directory for the current repository."
+    (let ((toplevel (magit-git-string "rev-parse" "--show-toplevel")))
+      (cond (toplevel (file-name-as-directory toplevel))
+            ((and (magit-is-inside-git-dir)
+                  (not (magit-is-bare-repository)))
+             (expand-file-name "../" (magit-git-dir))))))
+
 (defun magit-no-commit-p ()
   "Return non-nil if there is no commit in the current git repository."
   (not (magit-git-string
@@ -4208,7 +4224,7 @@ insert a line to tell how to insert more of them"
 (defvar magit-commit-buffer-name "*magit-commit*"
   "Buffer name for displaying commit log messages.")
 
-(defun magit-show-commit (commit &optional scroll inhibit-history select)
+(defun magit-show-commit (commit &optional scroll inhibit-history select dir)
   "Show information about a commit.
 Show it in the buffer named by `magit-commit-buffer-name'.
 COMMIT can be any valid name for a commit in the current Git
@@ -4226,13 +4242,14 @@ is provided, call SCROLL's function definition in the commit
 window.  (`scroll-up' and `scroll-down' are typically passed in
 for this argument.)"
   (interactive (list (magit-read-rev "Show commit (hash or ref)")
-                     nil nil t))
+                     nil nil t nil))
   (when (magit-section-p commit)
     (setq commit (magit-section-info commit)))
   (unless (eql 0 (magit-git-exit-code "cat-file" "commit" commit))
     (error "%s is not a commit" commit))
-  (let ((dir default-directory)
-        (buf (get-buffer-create magit-commit-buffer-name)))
+  (unless dir
+    (setq dir (or (magit-git-toplevel) default-directory)))
+  (let ((buf (get-buffer-create magit-commit-buffer-name)))
     (cond
      ((and (equal magit-currently-shown-commit commit)
            ;; if it's empty then the buffer was killed
@@ -4269,8 +4286,7 @@ in `magit-commit-buffer-name'."
     (let ((histitem (pop magit-back-navigation-history)))
       (push (cons default-directory magit-currently-shown-commit)
             magit-forward-navigation-history)
-      (setq default-directory (car histitem))
-      (magit-show-commit (cdr histitem) nil 'inhibit-history))))
+      (magit-show-commit (cdr histitem) nil 'inhibit-history nil (car histitem)))))
 
 (defun magit-show-commit-forward (&optional ignored)
   ;; Ignore argument passed by push-button
@@ -4283,8 +4299,7 @@ in `magit-commit-buffer-name'."
     (let ((histitem (pop magit-forward-navigation-history)))
       (push (cons default-directory magit-currently-shown-commit)
             magit-back-navigation-history)
-      (setq default-directory (car histitem))
-      (magit-show-commit (cdr histitem) nil 'inhibit-history))))
+      (magit-show-commit (cdr histitem) nil 'inhibit-history nil (car histitem)))))
 
 (defvar magit-marked-commit nil)
 
