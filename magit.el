@@ -4231,7 +4231,7 @@ for this argument.)"
     (setq commit (magit-section-info commit)))
   (unless (eql 0 (magit-git-exit-code "cat-file" "commit" commit))
     (error "%s is not a commit" commit))
-  (let ((dir default-directory)
+  (let ((dir (magit-get-top-dir))
         (buf (get-buffer-create magit-commit-buffer-name)))
     (cond
      ((and (equal magit-currently-shown-commit commit)
