@@ -295,7 +295,7 @@ exec line was commented out, also uncomment it."
     (undo arg)))
 
 (defun rebase-mode-show-commit (&optional arg)
-  "Show current commit"
+  "Show the commit on the current line if any."
   (interactive "P")
   (save-excursion
     (goto-char (point-at-bol))
