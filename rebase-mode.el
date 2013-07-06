@@ -24,6 +24,7 @@
 
 ;;; Code:
 
+(require 'easymenu)
 (require 'server)
 (declare-function server-edit "server") 
 
@@ -137,7 +138,6 @@
 Note this will be added to by the top-level code which defines
 the edit functions.")
 
-(require 'easymenu)
 (easy-menu-define rebase-mode-menu rebase-mode-map
   "Rebase-mode menu"
   '("Rebase"
