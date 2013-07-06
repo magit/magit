@@ -114,6 +114,8 @@
 
 (defvar rebase-mode-map
   (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-m") 'rebase-mode-show-commit)
+
     (define-key map (kbd "q") 'server-edit)
     (define-key map (kbd "C-c C-c") 'server-edit)
 
