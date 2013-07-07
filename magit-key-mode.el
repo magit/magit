@@ -435,14 +435,16 @@ the key combination highlighted before the description."
     (delete-trailing-whitespace)
     (setq mode-name "magit-key-mode" major-mode 'magit-key-mode)
     (when current-exec
-      (setq new-exec-pos (cdr (assoc current-exec (magit-key-mode-build-exec-point-alist)))))
+      (setq new-exec-pos
+            (cdr (assoc current-exec
+                        (magit-key-mode-build-exec-point-alist)))))
     (if (and is-first actions-p)
-      (progn (goto-char actions-p)
-             (magit-key-mode-jump-to-next-exec))
+        (progn (goto-char actions-p)
+               (magit-key-mode-jump-to-next-exec))
       (if new-exec-pos
           (progn (goto-char new-exec-pos)
                  (skip-chars-forward " "))
-          (goto-char old-point))))
+        (goto-char old-point))))
   (setq buffer-read-only t)
   (fit-window-to-buffer))
 
