@@ -4725,17 +4725,17 @@ With prefix argument, add remaining untracked files as well.
 
 ;;; Branching
 
-(defun escape-branch-name (branch)
+(defun magit-escape-branch-name (branch)
   "Escape branch name BRANCH to remove problematic characters."
   (replace-regexp-in-string "[/]" "-" branch))
 
 (defun magit-default-tracking-name-remote-plus-branch (remote branch)
   "Use the remote name plus a hyphen plus the escaped branch name for tracking branches."
-  (concat remote "-" (escape-branch-name branch)))
+  (concat remote "-" (magit-escape-branch-name branch)))
 
 (defun magit-default-tracking-name-branch-only (remote branch)
   "Use just the escaped branch name for tracking branches."
-  (escape-branch-name branch))
+  (magit-escape-branch-name branch))
 
 (defun magit-get-tracking-name (remote branch)
   "Given a REMOTE and a BRANCH name, ask the user for a local
