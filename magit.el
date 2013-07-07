@@ -7011,8 +7011,6 @@ These are the branch names with the remote name stripped."
     (if (string= (magit-get-current-branch) local-branch)
         (magit-refresh-buffer (magit-find-status-buffer default-directory)))))
 
-(defvar magit-ediff-file)
-
 (defun magit-interactive-resolve (file)
   (require 'ediff)
   (let ((merge-status (magit-git-string "ls-files" "-u" "--" file))
