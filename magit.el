@@ -2713,7 +2713,7 @@ magit-topgit and magit-svn"
     (error "No Git commands have run"))
   (display-buffer magit-process-buffer-name))
 
-;;; Mode
+;;; Magit Mode
 
 ;; We define individual functions (instead of using lambda etc) so
 ;; that the online help can show something meaningful.
@@ -4423,7 +4423,7 @@ if FULLY-QUALIFIED-NAME is non-nil."
                     (concat "refs/remotes/" remote "/")))
                 (match-string 1 merge))))))
 
-;;; Status
+;;; Status Mode
 
 (defvar magit-remote-string-hook nil)
 
@@ -5340,7 +5340,7 @@ even if `magit-set-upstream-on-push's value is `refuse'."
                        (member "-u" magit-custom-options)))
           (magit-set ref-branch "branch" branch "merge"))))))
 
-;;; Log edit mode
+;;; Log Edit mode
 
 (defvar magit-log-edit-buffer-name "*magit-edit-log*"
   "Buffer name for composing commit messages.")
@@ -5740,6 +5740,8 @@ continue it.
                                (format ", %s" author-date))))))
       (magit-pop-to-log-edit "commit"))))
 
+;;; ChangeLog
+
 (defun magit-add-log ()
   (interactive)
   (cond ((magit-rebase-info)
@@ -6006,6 +6008,8 @@ With prefix argument, changes in staging area are kept.
      (magit-with-revert-confirmation
       (magit-apply-diff-item item "--reverse")))))
 
+;;; Log Mode
+
 (defun magit-log-show-more-entries (&optional arg)
   "Grow the number of log entries shown.
 
@@ -6060,6 +6064,8 @@ With a non numeric prefix ARG, show all entries"
 
 \\{magit-log-mode-map}"
   :group 'magit)
+
+;;; Logging
 
 (magit-define-command log-ranged ()
   (interactive)
@@ -6253,7 +6259,7 @@ restore the window state that was saved before ediff was called."
   (magit-diff (cons (magit-marked-commit)
                     (magit-commit-at-point))))
 
-;;; Wazzup
+;;; Wazzup Mode
 
 (defvar magit-wazzup-head nil
   "The integration head for the current wazzup buffer.
