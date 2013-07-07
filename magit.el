@@ -895,9 +895,6 @@ operation after commit).")
 This is calculated from `magit-highlight-indentation'.")
 (make-variable-buffer-local 'magit-current-indentation)
 
-(defvar magit-bug-report-url
-  "http://github.com/magit/magit/issues")
-
 (defconst magit-version "@GIT_DEV_VERSION@"
   "The version of Magit that you're using.")
 
@@ -1021,24 +1018,6 @@ This is calculated from `magit-highlight-indentation'.")
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "e") 'magit-diffstat-ediff)
     map))
-
-(defconst magit-bug-report-buffer "*magit-bug-report*"
-  "The buffer in which Magit output bug report messages.")
-
-(defun magit-bug-report (str)
-  "Asks the user to submit a bug report about the error described
-in STR."
-  (with-current-buffer (get-buffer-create magit-bug-report-buffer)
-    (erase-buffer)
-    (insert (format
-             (concat
-              "Magit unknown error: %s\n Please, with as much"
-              " information as possible, file a bug at\n %s\n"
-              "- Magit: %s\n"
-              "- Emacs: %s")
-             str magit-bug-report-url
-             magit-version (emacs-version))))
-  (switch-to-buffer-other-window magit-bug-report-buffer))
 
 ;;; Macros
 
@@ -7143,6 +7122,31 @@ This can be added to `magit-mode-hook' for example"
       (magit-git-insert (list "grep" "--line-number" pattern))
       (grep-mode)
       (pop-to-buffer (current-buffer)))))
+
+;;;; Magit Bugs Reports
+
+(defvar magit-bug-report-url
+  "http://github.com/magit/magit/issues")
+
+(defconst magit-bug-report-buffer "*magit-bug-report*"
+  "The buffer in which Magit output bug report messages.")
+
+(defun magit-bug-report (str)
+  "Asks the user to submit a bug report about the error described
+in STR."
+  (with-current-buffer (get-buffer-create magit-bug-report-buffer)
+    (erase-buffer)
+    (insert (format
+             (concat
+              "Magit unknown error: %s\n Please, with as much"
+              " information as possible, file a bug at\n %s\n"
+              "- Magit: %s\n"
+              "- Emacs: %s")
+             str magit-bug-report-url
+             magit-version (emacs-version))))
+  (switch-to-buffer-other-window magit-bug-report-buffer))
+
+;;;; Magit Font-Lock
 
 (defconst magit-font-lock-keywords
   (eval-when-compile
