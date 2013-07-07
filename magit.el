@@ -7125,15 +7125,14 @@ This can be added to `magit-mode-hook' for example"
 
 ;;;; Magit Bugs Reports
 
-(defvar magit-bug-report-url
-  "http://github.com/magit/magit/issues")
+(defconst magit-bug-report-url
+  "https://github.com/magit/magit/issues")
 
 (defconst magit-bug-report-buffer "*magit-bug-report*"
-  "The buffer in which Magit output bug report messages.")
+  "The buffer in which Magit outputs bug report messages.")
 
-(defun magit-bug-report (str)
-  "Asks the user to submit a bug report about the error described
-in STR."
+(defun magit-bug-report (string)
+  "Asks the user to submit a bug report about the error STRING."
   (with-current-buffer (get-buffer-create magit-bug-report-buffer)
     (erase-buffer)
     (insert (format
@@ -7142,7 +7141,7 @@ in STR."
               " information as possible, file a bug at\n %s\n"
               "- Magit: %s\n"
               "- Emacs: %s")
-             str magit-bug-report-url
+             string magit-bug-report-url
              magit-version (emacs-version))))
   (switch-to-buffer-other-window magit-bug-report-buffer))
 
