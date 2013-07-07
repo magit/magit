@@ -5333,9 +5333,7 @@ even if `magit-set-upstream-on-push's value is `refuse'."
     (define-key map (kbd "M-n") 'log-edit-next-comment)
     (define-key map (kbd "C-c C-k") 'magit-log-edit-cancel-log-message)
     (define-key map (kbd "C-c C-]") 'magit-log-edit-cancel-log-message)
-    (define-key map (kbd "C-x C-s") (lambda ()
-                                      (interactive)
-                                      (message "Not saved. Use C-c C-c to finalize this commit message.")))
+    (define-key map (kbd "C-x C-s") 'magit-log-edit-nop)
     map))
 
 (defvar magit-pre-log-edit-window-configuration nil)
@@ -5599,6 +5597,11 @@ environment (potentially empty)."
     (when magit-pre-log-edit-window-configuration
       (set-window-configuration magit-pre-log-edit-window-configuration)
       (setq magit-pre-log-edit-window-configuration nil))))
+
+(defun magit-log-edit-nop ()
+  "Tell user nothing was saved and how to actually do it."
+  (interactive)
+  (message "Not saved. Use C-c C-c to finalize this commit message."))
 
 (defun magit-log-edit-toggle-amending ()
   "Toggle whether this will be an amendment to the previous commit.
