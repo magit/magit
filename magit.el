@@ -2899,6 +2899,8 @@ Please see the manual for a complete description of Magit.
                    (equal default-directory dir)))
           (funcall func)))))
 
+;;;; Refresh Buffer
+
 (defun magit-refresh-buffer (&optional buffer)
   (with-current-buffer (or buffer (current-buffer))
     (let* ((old-line (line-number-at-pos))
@@ -4721,7 +4723,7 @@ With prefix argument, add remaining untracked files as well.
   (interactive)
   (magit-run-git "reset" "HEAD"))
 
-;;; Branches
+;;; Branching
 
 (defun escape-branch-name (branch)
   "Escape branch name BRANCH to remove problematic characters."
@@ -4876,7 +4878,7 @@ If no branch is found near the cursor return nil."
     (when (stringp branch)
       branch)))
 
-;;; Remotes
+;;; Remoting
 
 (defun magit-add-remote (remote url)
   "Add the REMOTE and fetch it.
@@ -5164,7 +5166,7 @@ With a prefix arg, also remove untracked files.  With two prefix args, remove ig
              (magit-rewrite-set-commit-property commit 'used t)
              (magit-rewrite-finish-step nil))))))
 
-;;; Updating, pull, and push
+;;; Fetching
 
 (magit-define-command fetch (remote)
   "Fetch from REMOTE."
@@ -5183,6 +5185,8 @@ If there is no default remote, ask for one."
   "Update all remotes."
   (interactive)
   (apply 'magit-run-git-async "remote" "update" magit-custom-options))
+
+;;; Pulling
 
 (magit-define-command pull ()
   "Run git pull.
@@ -5227,6 +5231,8 @@ Values entered by the user because of prefix arguments are not saved with git co
             (when choose-branch
                (list (format "refs/heads/%s:refs/remotes/%s/%s" chosen-branch-merge-name chosen-branch-remote chosen-branch-merge-name)))))))
 
+;;; Running
+
 (defun magit-parse-arguments (command)
   (require 'eshell)
   (with-temp-buffer
@@ -5257,6 +5263,8 @@ typing and automatically refreshes the status buffer."
                                 magit-git-standard-options)
                           args)
                   nil nil nil t))))
+
+;;; Pushing
 
 (magit-define-command push-tags ()
   "Push tags to a remote repository.
@@ -5788,7 +5796,7 @@ continue it.
                     (when (looking-at ":")
                       (forward-char 2)))))))))
 
-;;; Tags
+;;; Tagging
 
 (magit-define-command tag (name rev)
   "Create a new lightweight tag with the given NAME at REV.
@@ -6423,7 +6431,7 @@ for the file whose log must be displayed."
       ((hunk) (funcall show-file-from-diff (magit-hunk-item-diff item)))
       ((diff) (funcall show-file-from-diff item)))))
 
-;;; Miscellaneous
+;;; Key Mode Items
 
 (defun magit-edit-ignore-string (file)
   "Prompt the user for the string to be ignored.
@@ -6719,6 +6727,7 @@ With a prefix argument, visit in other window."
      (kill-new info)
      (message "%s" info))))
 
+;;; Interactive Rebase
 
 (defun magit-interactive-rebase ()
   "Start a git rebase -i session, old school-style."
@@ -6746,6 +6755,8 @@ With a prefix argument, visit in other window."
                                                  (magit-guess-branch))))
       (when old-editor
         (setenv "GIT_EDITOR" old-editor)))))
+
+;;; Branch Utilities
 
 (define-derived-mode magit-branch-manager-mode magit-mode "Magit Branch"
   "Magit Branches")
@@ -6994,6 +7005,8 @@ These are the branch names with the remote name stripped."
     (if (string= (magit-get-current-branch) local-branch)
         (magit-refresh-buffer (magit-find-status-buffer default-directory)))))
 
+;;; Interactive Resolve
+
 (defun magit-interactive-resolve (file)
   (require 'ediff)
   (let ((merge-status (magit-git-string "ls-files" "-u" "--" file))
@@ -7041,6 +7054,8 @@ These are the branch names with the remote name stripped."
     ((diff)
      (magit-interactive-resolve (cadr info)))))
 
+;;; Submoduling
+
 (defun magit-submodule-update (&optional init)
   "Update the submodule of the current git repository.
 With a prefix arg, do a submodule update --init."
@@ -7064,6 +7079,8 @@ With a prefix arg, do a submodule update --init."
   (interactive)
   (let ((default-directory (magit-get-top-dir)))
     (magit-run-git-async "submodule" "sync")))
+
+;;; Running (continued)
 
 (defun magit-run-git-gui ()
   "Run `git gui' for the current git repository."
@@ -7099,6 +7116,8 @@ With a prefix arg, do a submodule update --init."
      (t
       (magit-start-process "Gitk" nil magit-gitk-executable "--all")))))
 
+;;; Extensions
+
 (defun magit-load-config-extensions ()
   "Try to load magit extensions that are defined at git config layer.
 This can be added to `magit-mode-hook' for example"
@@ -7107,6 +7126,8 @@ This can be added to `magit-mode-hook' for example"
       (when (and (fboundp sym)
                  (not (eq sym 'magit-wip-save-mode)))
         (funcall sym 1)))))
+
+;;; Grepping
 
 (magit-define-command grep (&optional pattern)
   (interactive)
@@ -7123,6 +7144,7 @@ This can be added to `magit-mode-hook' for example"
       (grep-mode)
       (pop-to-buffer (current-buffer)))))
 
+;;; Miscellaneous
 ;;;; Magit Bugs Reports
 
 (defconst magit-bug-report-url
