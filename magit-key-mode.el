@@ -28,27 +28,6 @@
 
 (eval-when-compile (require 'cl-lib))
 
-(defvar magit-key-mode-key-maps nil
-  "This will be filled lazily with proper keymaps.
-These keymaps are created using `define-key' as they're requested.")
-
-(defvar magit-key-mode-buf-name "*magit-key: %s*"
-  "Format string to create the name of the magit-key buffer.")
-
-(defvar magit-key-mode-last-buffer nil
-  "Store the last magit-key buffer used.")
-
-(defvar magit-key-mode-current-args nil
-  "A hash-table of current argument set.
-These will eventually make it to the git command-line.")
-
-(defvar magit-key-mode-current-options nil
-  "Current option set.
-These will eventually make it to the git command-line.")
-
-(defvar magit-log-mode-window-conf nil
-  "Will hold the pre-menu configuration of magit.")
-
 ;;; Keygroups
 
 (defvar magit-key-mode-groups
@@ -317,6 +296,10 @@ The user is prompted for the key."
 
 ;;; Keymaps
 
+(defvar magit-key-mode-key-maps nil
+  "This will be filled lazily with proper keymaps.
+These keymaps are created using `define-key' as they're requested.")
+
 (defun magit-key-mode-build-keymap (for-group)
   "Construct a normal looking keymap for the key mode to use.
 Put it in `magit-key-mode-key-maps' for fast lookup."
@@ -369,6 +352,14 @@ Put it in `magit-key-mode-key-maps' for fast lookup."
   "Prefix argument to the command that brought up the key-mode window.
 For internal use.  Used by the command that's eventually invoked.")
 
+(defvar magit-key-mode-current-args nil
+  "A hash-table of current argument set.
+These will eventually make it to the git command-line.")
+
+(defvar magit-key-mode-current-options nil
+  "Current option set.
+These will eventually make it to the git command-line.")
+
 (defun magit-key-mode-command (func)
   (let ((current-prefix-arg (or current-prefix-arg magit-key-mode-prefix))
         (magit-custom-options magit-key-mode-current-options))
@@ -394,6 +385,15 @@ For internal use.  Used by the command that's eventually invoked.")
   (magit-key-mode-redraw for-group))
 
 ;;; Mode
+
+(defvar magit-key-mode-buf-name "*magit-key: %s*"
+  "Format string to create the name of the magit-key buffer.")
+
+(defvar magit-key-mode-last-buffer nil
+  "Store the last magit-key buffer used.")
+
+(defvar magit-log-mode-window-conf nil
+  "Will hold the pre-menu configuration of magit.")
 
 (defun magit-key-mode (for-group &optional original-opts)
   "Mode for magit key selection.
