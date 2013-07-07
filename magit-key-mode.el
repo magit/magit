@@ -366,7 +366,7 @@ These will eventually make it to the git command-line.")
     (maphash (lambda (k v)
                (push (concat k v) magit-custom-options))
              magit-key-mode-current-args)
-    (set-window-configuration magit-log-mode-window-conf)
+    (set-window-configuration magit-pre-key-mode-window-conf)
     (kill-buffer magit-key-mode-last-buffer)
     (when func
       (call-interactively func))))
@@ -392,7 +392,7 @@ These will eventually make it to the git command-line.")
 (defvar magit-key-mode-last-buffer nil
   "Store the last magit-key buffer used.")
 
-(defvar magit-log-mode-window-conf nil
+(defvar magit-pre-key-mode-window-conf nil
   "Will hold the pre-menu configuration of magit.")
 
 (defun magit-key-mode (for-group &optional original-opts)
@@ -402,7 +402,7 @@ the key combination highlighted before the description."
   (interactive)
   ;; save the window config to restore it as was (no need to make this
   ;; buffer local)
-  (setq magit-log-mode-window-conf
+  (setq magit-pre-key-mode-window-conf
         (current-window-configuration))
   ;; setup the mode, draw the buffer
   (let ((buf (get-buffer-create (format magit-key-mode-buf-name
