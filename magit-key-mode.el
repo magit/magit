@@ -299,17 +299,6 @@ The user is prompted for the key."
                  (error "Nothing at point to do."))))
     (call-interactively (lookup-key (current-local-map) key))))
 
-(defun magit-key-mode-build-exec-point-alist ()
-  (save-excursion
-    (goto-char (point-min))
-    (let* ((exec (get-text-property (point) 'key-group-executor))
-           (exec-alist (if exec `((,exec . ,(point))) nil)))
-      (cl-do nil ((eobp) (nreverse exec-alist))
-        (when (not (eq exec (get-text-property (point) 'key-group-executor)))
-          (setq exec (get-text-property (point) 'key-group-executor))
-          (when exec (push (cons exec (point)) exec-alist)))
-        (forward-char)))))
-
 (defun magit-key-mode-jump-to-next-exec ()
   "Jump to the next action/args/option point."
   (interactive)
@@ -456,6 +445,17 @@ the key combination highlighted before the description."
           (goto-char old-point))))
   (setq buffer-read-only t)
   (fit-window-to-buffer))
+
+(defun magit-key-mode-build-exec-point-alist ()
+  (save-excursion
+    (goto-char (point-min))
+    (let* ((exec (get-text-property (point) 'key-group-executor))
+           (exec-alist (if exec `((,exec . ,(point))) nil)))
+      (cl-do nil ((eobp) (nreverse exec-alist))
+        (when (not (eq exec (get-text-property (point) 'key-group-executor)))
+          (setq exec (get-text-property (point) 'key-group-executor))
+          (when exec (push (cons exec (point)) exec-alist)))
+        (forward-char)))))
 
 (defun magit-key-mode-draw-header (header)
   "Draw a header with the correct face."
