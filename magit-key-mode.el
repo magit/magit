@@ -181,15 +181,15 @@
       ("u" "Run" magit-bisect-run)
       ("v" "Visualize" magit-bisect-visualize))))
   "Holds the key, help, function mapping for the log-mode.
-If you modify this make sure you reset `magit-key-mode-key-maps'
+If you modify this make sure you reset `magit-key-mode-keymaps'
 to nil.")
 
 (defun magit-key-mode-delete-group (group)
-  "Delete a group from `magit-key-mode-key-maps'."
+  "Delete a group from `magit-key-mode-keymaps'."
   (let ((items (assoc group magit-key-mode-groups)))
     (when items
       ;; reset the cache
-      (setq magit-key-mode-key-maps nil)
+      (setq magit-key-mode-keymaps nil)
       ;; delete the whole group
       (setq magit-key-mode-groups
             (delq items magit-key-mode-groups))
@@ -198,7 +198,7 @@ to nil.")
     magit-key-mode-groups))
 
 (defun magit-key-mode-add-group (group)
-  "Add a new group to `magit-key-mode-key-maps'.
+  "Add a new group to `magit-key-mode-keymaps'.
 If there already is a group of that name then this will
 completely remove it and put in its place an empty one of the
 same name."
@@ -217,7 +217,7 @@ The option may be a switch, argument or action."
           (throw 'result t))))))
 
 (defun magit-key-mode-update-group (for-group thing &rest args)
-  "Abstraction for setting values in `magit-key-mode-key-maps'."
+  "Abstraction for setting values in `magit-key-mode-keymaps'."
   (let* ((options (magit-key-mode-options-for-group for-group))
          (things (assoc thing options))
          (key (car args)))
@@ -226,7 +226,7 @@ The option may be a switch, argument or action."
             (error "%s is already defined in the %s group." key for-group)
           (setcdr (cdr things) (cons args (cddr things))))
       (setcdr things (list args)))
-    (setq magit-key-mode-key-maps nil)
+    (setq magit-key-mode-keymaps nil)
     things))
 
 (defun magit-key-mode-insert-argument (for-group key desc arg read-func)
@@ -296,13 +296,13 @@ The user is prompted for the key."
 
 ;;; Keymaps
 
-(defvar magit-key-mode-key-maps nil
+(defvar magit-key-mode-keymaps nil
   "This will be filled lazily with proper keymaps.
 These keymaps are created using `define-key' as they're requested.")
 
 (defun magit-key-mode-build-keymap (for-group)
   "Construct a normal looking keymap for the key mode to use.
-Put it in `magit-key-mode-key-maps' for fast lookup."
+Put it in `magit-key-mode-keymaps' for fast lookup."
   (let* ((options (magit-key-mode-options-for-group for-group))
          (actions (cdr (assoc 'actions options)))
          (switches (cdr (assoc 'switches options)))
@@ -343,7 +343,7 @@ Put it in `magit-key-mode-key-maps' for fast lookup."
         (funcall defkey k `(magit-key-mode-add-argument
                             ',for-group ,(nth 2 k) ',(nth 3 k)))))
 
-    (push (cons for-group map) magit-key-mode-key-maps)
+    (push (cons for-group map) magit-key-mode-keymaps)
     map))
 
 ;;; Toggling and Running
@@ -427,7 +427,7 @@ the key combination highlighted before the description."
 
 (defun magit-key-mode-get-key-map (for-group)
   "Get or build the keymap for FOR-GROUP."
-  (or (cdr (assoc for-group magit-key-mode-key-maps))
+  (or (cdr (assoc for-group magit-key-mode-keymaps))
       (magit-key-mode-build-keymap for-group)))
 
 (defun magit-key-mode-redraw (for-group)
