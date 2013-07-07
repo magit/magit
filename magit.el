@@ -1040,13 +1040,6 @@ in STR."
              magit-version (emacs-version))))
   (switch-to-buffer-other-window magit-bug-report-buffer))
 
-(defun magit-buffer-switch (buf)
-  (if (string-match "magit" (buffer-name))
-      (switch-to-buffer buf)
-    (let ((winconf (current-window-configuration)))
-      (pop-to-buffer buf)
-      (setq magit-previous-window-configuration winconf))))
-
 ;;; Macros
 
 (defmacro magit-with-refresh (&rest body)
@@ -2994,6 +2987,24 @@ Also revert every unmodified buffer visiting files
 in the corresponding directories."
   (interactive)
   (magit-for-all-buffers #'magit-refresh-buffer default-directory))
+
+;;;; Switch Buffer
+
+(defun magit-buffer-switch (buf)
+  (if (string-match "magit" (buffer-name))
+      (switch-to-buffer buf)
+    (let ((winconf (current-window-configuration)))
+      (pop-to-buffer buf)
+      (setq magit-previous-window-configuration winconf))))
+
+(defun magit-quit-window (&optional kill-buffer)
+  "Bury the buffer and delete its window.
+With a prefix argument, kill the buffer instead."
+  (interactive "P")
+  (let ((winconf magit-previous-window-configuration))
+    (quit-window kill-buffer (selected-window))
+    (when (and winconf magit-restore-window-configuration)
+      (set-window-configuration winconf))))
 
 ;;; Untracked files
 
@@ -6757,15 +6768,6 @@ Return values:
 
 (define-derived-mode magit-branch-manager-mode magit-mode "Magit Branch"
   "Magit Branches")
-
-(defun magit-quit-window (&optional kill-buffer)
-  "Bury the buffer and delete its window.
-With a prefix argument, kill the buffer instead."
-  (interactive "P")
-  (let ((winconf magit-previous-window-configuration))
-    (quit-window kill-buffer (selected-window))
-    (when (and winconf magit-restore-window-configuration)
-      (set-window-configuration winconf))))
 
 (defun magit--branch-name-at-point ()
   "Get the branch name in the line at point."
