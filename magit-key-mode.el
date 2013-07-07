@@ -49,6 +49,8 @@ These will eventually make it to the git command-line.")
 (defvar magit-log-mode-window-conf nil
   "Will hold the pre-menu configuration of magit.")
 
+;;; Keygroups
+
 (defvar magit-key-mode-groups
   '((logging
      (man-page "git-log")
@@ -271,6 +273,8 @@ This includes switches, commands and arguments."
   (or (cdr (assoc for-group magit-key-mode-groups))
       (error "Unknown group '%s'" for-group)))
 
+;;; Commands
+
 (defun magit-key-mode-help (for-group)
   "Provide help for a key within FOR-GROUP.
 The user is prompted for the key."
@@ -310,6 +314,8 @@ The user is prompted for the key."
       (setq p (if (= p (point-max)) (point-min) (1+ p))))
     (goto-char p)
     (skip-chars-forward " ")))
+
+;;; Keymaps
 
 (defun magit-key-mode-build-keymap (for-group)
   "Construct a normal looking keymap for the key mode to use.
@@ -357,6 +363,8 @@ Put it in `magit-key-mode-key-maps' for fast lookup."
     (push (cons for-group map) magit-key-mode-key-maps)
     map))
 
+;;; Toggling and Running
+
 (defvar magit-key-mode-prefix nil
   "Prefix argument to the command that brought up the key-mode window.
 For internal use.  Used by the command that's eventually invoked.")
@@ -384,6 +392,8 @@ For internal use.  Used by the command that's eventually invoked.")
             (delete option-name magit-key-mode-current-options))
     (add-to-list 'magit-key-mode-current-options option-name))
   (magit-key-mode-redraw for-group))
+
+;;; Mode
 
 (defun magit-key-mode (for-group &optional original-opts)
   "Mode for magit key selection.
@@ -458,6 +468,8 @@ the key combination highlighted before the description."
           (setq exec (get-text-property (point) 'key-group-executor))
           (when exec (push (cons exec (point)) exec-alist)))
         (forward-char)))))
+
+;;; Draw Buffer
 
 (defun magit-key-mode-draw-header (header)
   "Draw a header with the correct face."
@@ -542,6 +554,8 @@ Return the point before the actions part, if any, nil otherwise."
     (magit-key-mode-draw-actions actions)
     (insert "\n")
     p))
+
+;;; Generate Groups
 
 (defun magit-key-mode-de-generate (group)
   "Unbind the function for GROUP."
