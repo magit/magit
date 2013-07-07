@@ -190,10 +190,6 @@
 (eval-when-compile (require 'server))
 (declare-function server-running-p 'server)
 
-;; Dummy to be used by the defcustoms when first loading the file.
-(cl-eval-when (load eval)
-  (defalias 'magit-set-variable-and-refresh 'set-default))
-
 
 ;;; Options
 
@@ -201,6 +197,14 @@
   "Controlling Git from Emacs."
   :prefix "magit-"
   :group 'tools)
+
+(defun magit-set-variable-and-refresh (symbol value)
+  "Set SYMBOL to VALUE and call `magit-refresh-all'."
+  (set-default symbol value)
+  ;; If magit isn't fully loaded yet no buffer that might
+  ;; need refreshing can exist and we can take a shortcut.
+  (when (featurep 'magit)
+    (magit-refresh-all)))
 
 (defcustom magit-git-executable "git"
   "The name of the Git executable."
@@ -1142,11 +1146,6 @@ Also, do not record undo information."
        (delete-directory directory)))))
 
 ;;; Utilities
-
-(defun magit-set-variable-and-refresh (symbol value)
-  "Set SYMBOL to VALUE and call `magit-refresh-all'."
-  (set-default symbol value)
-  (magit-refresh-all))
 
 (defun magit-iswitchb-completing-read (prompt choices &optional predicate require-match
                                               initial-input hist def)
