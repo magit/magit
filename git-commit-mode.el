@@ -285,7 +285,7 @@ before any trailing comments git or the user might have
 inserted."
   (save-excursion
     (goto-char (point-max))
-    (if (not (re-search-backward "^\\S<+$" nil t))
+    (if (not (re-search-backward "^\\S<.+$" nil t))
 	;; no comment lines anywhere before end-of-buffer, so we
 	;; want to insert right there
 	(point-max)
