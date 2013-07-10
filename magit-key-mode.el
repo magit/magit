@@ -1,6 +1,8 @@
 ;;; magit-key-mode.el --- interactively tune git invocation
 
-;; Copyright (C) 2010  Phil Jackson
+;; Copyright (C) 2010-2011  Phil Jackson
+
+;; Author: Phil Jackson <phil@shellarchive.co.uk>
 
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by

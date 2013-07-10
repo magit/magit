@@ -1,6 +1,8 @@
 ;;; magit-stgit.el --- StGit plug-in for Magit
 
-;; Copyright (C) 2011  Lluis Vilanova
+;; Copyright (C) 2011  Lluís Vilanova
+
+;; Author: Lluís Vilanova <vilanova@ac.upc.edu>
 
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by

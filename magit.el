@@ -1,52 +1,27 @@
 ;;; magit.el --- control Git from Emacs
 
-;; Copyright (C) 2010 Aaron Culich.
-;; Copyright (C) 2010 Alan Falloon.
-;; Copyright (C) 2008, 2010 Alex Ott.
-;; Copyright (C) 2008, 2009, 2010 Alexey Voinov.
-;; Copyright (C) 2010 Ben Walton.
-;; Copyright (C) 2010 Chris Bernard.
-;; Copyright (C) 2010 Christian Kluge.
-;; Copyright (C) 2008 Daniel Farina.
-;; Copyright (C) 2010 David Abrahams.
-;; Copyright (C) 2009 David Wallin.
-;; Copyright (C) 2009, 2010 Hannu Koivisto.
-;; Copyright (C) 2009 Ian Eure.
-;; Copyright (C) 2009 Jesse Alama.
-;; Copyright (C) 2009 John Wiegley.
-;; Copyright (C) 2012 Jonas Bernoulli.
-;; Copyright (C) 2010 Leo.
-;; Copyright (C) 2008, 2009 Marcin Bachry.
-;; Copyright (C) 2008, 2009 Marius Vollmer.
-;; Copyright (C) 2010 Mark Hepburn.
-;; Copyright (C) 2010 Moritz Bunkus.
-;; Copyright (C) 2010 Nathan Weizenbaum.
-;; Copyright (C) 2010 Oscar Fuentes.
-;; Copyright (C) 2009 Pavel Holejsovsky.
-;; Copyright (C) 2011-2012 Peter J Weisberg
-;; Copyright (C) 2009, 2010 Phil Jackson.
-;; Copyright (C) 2010 Philip Weaver.
-;; Copyright (C) 2010 Ramkumar Ramachandra.
-;; Copyright (C) 2010 Remco van 't Veer.
-;; Copyright (C) 2009 René Stadler.
-;; Copyright (C) 2010 Robin Green.
-;; Copyright (C) 2010 Roger Crew.
-;; Copyright (C) 2009-2013 Rémi Vanicat.
-;; Copyright (C) 2010 Sean Bryant.
-;; Copyright (C) 2009, 2011 Steve Purcell.
-;; Copyright (C) 2010 Timo Juhani Lindfors.
-;; Copyright (C) 2010, 2011 Yann Hodique.
-;; Copyright (C) 2010 Ævar Arnfjörð Bjarmason.
-;; Copyright (C) 2010 Óscar Fuentes.
+;; Copyright (C) 2008-2009  Marius Vollmer
+;; Copyright (C) 2009-2013  Rémi Vanicat
+;; Copyright (C) 2009-2011  Phil Jackson
+;; Copyright (C) 2010-2012  Moritz Bunkus
+;; Copyright (C) 2010-2013  Yann Hodique
+;; Copyright (C) 2011-2012  Peter J Weisberg
+;; Copyright (C) 2011-2012  Nicolas Dudebout
+;; Copyright (C) 2012-2013  Jonas Bernoulli
 
-;; Original Author: Marius Vollmer <marius.vollmer@nokia.com>
-;; Former Maintainer: Phil Jackson <phil@shellarchive.co.uk>
-;; Maintenance Group: https://github.com/organizations/magit/teams/53130
-;;   Currently composed of:
-;;   - Phil Jackson
-;;   - Peter J Weisberg
-;;   - Yann Hodique
-;;   - Rémi Vanicat
+;; All-Contributors: <https://github.com/magit/magit/contributors>
+;; All-Maintainers:  <https://github.com/magit?tab=members>
+
+;; Author: Marius Vollmer <marius.vollmer@nokia.com>
+;; Former-Maintainers:
+;;	Phil Jackson      <phil@shellarchive.co.uk>
+;;	Peter J Weisberg  <pj@irregularexpressions.net>
+;; Maintainers:
+;;	Jonas Bernoulli   <jonas@bernoul.li>
+;;	Yann Hodique      <yann.hodique@gmail.com>
+;;	Nicolas Dudebout  <nicolas.dudebout@gatech.edu>
+;;	Rémi Vanicat      <vanicat@debian.org>
+
 ;; Version: @GIT_DEV_VERSION@
 ;; Keywords: tools
 
