@@ -1,3 +1,26 @@
+;;; magit-bisect.el --- bisect support for Magit
+
+;; Copyright (C) 2011  Moritz Bunkus
+
+;; Magit is free software; you can redistribute it and/or modify it
+;; under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 3, or (at your option)
+;; any later version.
+;;
+;; Magit is distributed in the hope that it will be useful, but WITHOUT
+;; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+;; or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+;; License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with Magit.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; Control git-bisect from Magit.
+
+;;; Code:
+
 (require 'magit)
 
 (defvar magit--bisect-last-pos)
@@ -193,3 +216,4 @@ match REQUIRED-STATUS."
                             (abbreviate-file-name default-directory)))))))))
 
 (provide 'magit-bisect)
+;;; magit-bisect.el ends here

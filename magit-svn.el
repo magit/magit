@@ -7,7 +7,7 @@
 ;; Copyright (C) 2008  Marcin Bachry
 ;; Copyright (C) 2008, 2009  Marius Vollmer
 ;; Copyright (C) 2010  Yann Hodique
-;;
+
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation; either version 3, or (at your option)
@@ -23,7 +23,8 @@
 
 ;;; Commentary:
 
-;; This plug-in provides git-svn functionality as a separate component of Magit
+;; This plug-in provides git-svn functionality as a separate component
+;; of Magit.
 
 ;;; Code:
 
