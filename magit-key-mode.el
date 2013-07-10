@@ -30,7 +30,7 @@
 
 (defvar magit-key-mode-key-maps '()
   "This will be filled lazily with proper `define-key' built
-  keymaps as they're requested.")
+keymaps as they're requested.")
 
 (defvar magit-key-mode-buf-name "*magit-key*"
   "Name of the buffer.")
@@ -443,8 +443,7 @@ highlighted before the description."
   (insert (propertize header 'face 'font-lock-keyword-face) "\n"))
 
 (defvar magit-key-mode-args-in-cols nil
-  "When true, draw arguments in columns as with switches and
-  options.")
+  "When true, draw arguments in columns as with switches and options.")
 
 (defun magit-key-mode-draw-args (args)
   "Draw the args part of the menu."
@@ -489,9 +488,9 @@ highlighted before the description."
      one-col-each)))
 
 (defun magit-key-mode-draw-in-cols (strings one-col-each)
-  "Given a list of strings, print in columns (using `insert'). If
-ONE-COL-EACH is true then don't columify, but rather, draw each
-item on one line."
+  "Given a list of strings, print in columns (using `insert').
+If ONE-COL-EACH is true then don't columify, but rather, draw
+each item on one line."
   (let ((longest-act (apply 'max (mapcar 'length strings))))
     (while strings
       (let ((str (car strings)))
