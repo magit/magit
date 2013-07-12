@@ -3,6 +3,7 @@
 ;; Copyright (C) 2013 Rüdiger Sonderfeld
 
 ;; Author: Rüdiger Sonderfeld <ruediger@c-plusplus.de>
+;; Package-Requires: ((magit "1.3.0"))
 ;; Keywords: tools
 
 ;; This program is free software; you can redistribute it and/or modify
