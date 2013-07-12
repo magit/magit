@@ -5309,12 +5309,14 @@ even if `magit-set-upstream-on-push's value is `refuse'."
                            (format "Push %s to remote" branch)
                            (or branch-remote origin-remote))
                         (or branch-remote origin-remote)))
-         ref-branch)
+         ref-name ref-branch)
     (cond ((>= (prefix-numeric-value current-prefix-arg) 16)
-           (setq ref-branch (concat "refs/heads/"
-                                    (magit-read-remote-branch
-                                     push-remote
-                                     (format "Push %s as branch" branch)))))
+           (setq ref-name (magit-read-remote-branch
+                           push-remote
+                           (format "Push %s as branch" branch)))
+           (setq ref-branch (if (string-prefix-p "refs/" ref-name)
+                                ref-name
+                              (concat "refs/heads/" ref-name))))
           ((equal branch-remote push-remote)
            (setq ref-branch (magit-get "branch" branch "merge"))))
     (if (and (not ref-branch)
