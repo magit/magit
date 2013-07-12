@@ -4164,8 +4164,8 @@ insert a line to tell how to insert more of them"
             (second (magit-set-section nil 'commit (match-beginning 2) (match-end 2))))
         (magit-set-section-info (match-string 1) first)
         (magit-set-section-info (match-string 2) second))
-      (make-commit-button (match-beginning 1) (match-end 1))
-      (make-commit-button (match-beginning 2) (match-end 2)))
+      (magit-make-commit-button (match-beginning 1) (match-end 1))
+      (magit-make-commit-button (match-beginning 2) (match-end 2)))
      (t
       (setq magit-current-diff-range (cons (concat magit-current-diff-range "^")
                                            magit-current-diff-range)
@@ -4192,7 +4192,7 @@ insert a line to tell how to insert more of them"
             (start (match-beginning 1))
             (end (match-end 1)))
         (when (string-equal "commit" (magit-git-string "cat-file" "-t" sha1))
-          (make-commit-button start end)
+          (magit-make-commit-button start end)
           (let ((section (magit-set-section sha1 'commit start end)))
             (magit-set-section-info sha1 section)))))
     (beginning-of-line)
@@ -4216,7 +4216,7 @@ insert a line to tell how to insert more of them"
                               'follow-link t
                               'mouse-face 'magit-item-highlight)))))
 
-(defun make-commit-button (start end)
+(defun magit-make-commit-button (start end)
   (make-text-button start end
                     'help-echo "Visit commit"
                     'action (lambda (button)
