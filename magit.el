@@ -5309,22 +5309,24 @@ even if `magit-set-upstream-on-push's value is `refuse'."
                            (format "Push %s to remote" branch)
                            (or branch-remote origin-remote))
                         (or branch-remote origin-remote)))
-         (ref-branch (or (and (>= (prefix-numeric-value current-prefix-arg) 16)
-                              (concat "refs/heads/"
-                                      (magit-read-remote-branch
-                                       push-remote
-                                       (format "Push %s as branch" branch))))
-                         (and (equal branch-remote push-remote)
-                              (magit-get "branch" branch "merge")))))
+         ref-branch)
+    (cond ((>= (prefix-numeric-value current-prefix-arg) 16)
+           (setq ref-branch (concat "refs/heads/"
+                                    (magit-read-remote-branch
+                                     push-remote
+                                     (format "Push %s as branch" branch)))))
+          ((equal branch-remote push-remote)
+           (setq ref-branch (magit-get "branch" branch "merge"))))
     (if (and (not ref-branch)
              (eq magit-set-upstream-on-push 'refuse))
         (error "Not pushing since no upstream has been set")
-      (let ((set-upstream-on-push (and (not ref-branch)
-                                       (or (eq magit-set-upstream-on-push 'dontask)
-                                           (and (or (eq magit-set-upstream-on-push t)
-                                                    (and (not branch-remote)
-                                                         (eq magit-set-upstream-on-push 'askifnotset)))
-                                                (yes-or-no-p "Set upstream while pushing? "))))))
+      (let ((set-upstream-on-push
+             (and (not ref-branch)
+                  (or (eq magit-set-upstream-on-push 'dontask)
+                      (and (or (eq magit-set-upstream-on-push t)
+                               (and (not branch-remote)
+                                    (eq magit-set-upstream-on-push 'askifnotset)))
+                           (yes-or-no-p "Set upstream while pushing? "))))))
         (apply 'magit-run-git-async "push" "-v" push-remote
                (if ref-branch
                    (format "%s:%s" branch ref-branch)
