@@ -21,9 +21,10 @@
 
 ;;; Commentary:
 
-;; This module comes with a minor mode `magit-inotify' which tracks changes in
-;; the source tree using `inotify' and refreshes the magit status buffer.
-;; Emacs 24.4 is required to make this work because of the inotify support.
+;; This module comes with a minor mode `magit-inotify' which tracks
+;; changes in the source tree using `inotify' and refreshes the magit
+;; status buffer.  Emacs 24.4 is required to make this work because of
+;; the inotify support.
 
 ;;; Code:
 
