@@ -4728,6 +4728,15 @@ With a prefix-arg, the merge will be squashed.
          (magit-rev-to-git revision)
          magit-custom-options))
 
+(defun magit-merge-abort ()
+  "Abort current merge operation."
+  (interactive)
+  (let ((merge-heads (magit-file-lines (concat (magit-git-dir) "MERGE_HEAD"))))
+    (unless merge-heads
+      (error "No merge in progress"))
+    (when (yes-or-no-p "Abort merge? ")
+      (magit-run-git "merge" "--abort"))))
+
 ;;; Rebasing
 
 (defun magit-rebase-info ()
