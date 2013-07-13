@@ -2979,12 +2979,13 @@ Please see the manual for a complete description of Magit.
           (status-buffer (magit-find-status-buffer default-directory)))
       (unwind-protect
           (funcall func)
-        (when magit-refresh-needing-buffers
-          (mapc 'magit-refresh-buffer magit-refresh-needing-buffers))
-        (when (and status-buffer
-                   (not (memq status-buffer magit-refresh-needing-buffers)))
-          (magit-refresh-buffer status-buffer))
-        (magit-revert-buffers default-directory)))))
+        (let (magit-custom-options)
+          (when magit-refresh-needing-buffers
+            (mapc 'magit-refresh-buffer magit-refresh-needing-buffers))
+          (when (and status-buffer
+                     (not (memq status-buffer magit-refresh-needing-buffers)))
+            (magit-refresh-buffer status-buffer))
+          (magit-revert-buffers default-directory))))))
 
 (defun magit-need-refresh (&optional buffer)
   "Mark BUFFER as needing to be refreshed.
@@ -6114,8 +6115,8 @@ With a non numeric prefix ARG, show all entries"
                     (magit-read-rev-range "Long log" "HEAD")
                   "HEAD"))
          (topdir (magit-get-top-dir))
-         (args (append (list (magit-rev-range-to-git range))
-                       magit-custom-options)))
+         (args (nconc (list (magit-rev-range-to-git range))
+                      magit-custom-options)))
     (magit-buffer-switch magit-log-buffer-name)
     (magit-mode-init topdir 'magit-log-mode #'magit-refresh-log-buffer range
                      'long args)))
