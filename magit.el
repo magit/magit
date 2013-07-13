@@ -1248,6 +1248,13 @@ Read `completing-read' documentation for the meaning of the argument."
   (apply #'process-file magit-git-executable nil nil nil
          (append magit-git-standard-options args)))
 
+(defun magit-file-line (file)
+  (when (file-exists-p file)
+    (with-temp-buffer
+      (insert-file-contents file)
+      (buffer-substring-no-properties (point-min)
+                                      (line-end-position)))))
+
 (defun magit-file-lines (file)
   (when (file-exists-p file)
     (with-temp-buffer
