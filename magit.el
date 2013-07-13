@@ -4961,27 +4961,23 @@ If there is no rebase in progress return nil."
 
 (defun magit-rebase-step ()
   (interactive)
-  (let ((info (magit-rebase-info)))
-    (if (not info)
-        (let* ((current-branch (magit-get-current-branch))
-               (rev (magit-read-rev "Rebase to"
-                                    (magit-format-ref (magit-remote-branch-for current-branch t))
-                                    (if current-branch
-                                        (cons (concat "refs/heads/" current-branch)
-                                              magit-uninteresting-refs)
-                                      magit-uninteresting-refs))))
-          (magit-run-git "rebase" (magit-rev-to-git rev)))
+  (if (magit-rebase-info)
       (let ((cursor-in-echo-area t)
             (message-log-max nil))
         (message "Rebase in progress. [A]bort, [S]kip, or [C]ontinue? ")
-        (let ((reply (read-event)))
-          (cl-case reply
-            ((?A ?a)
-             (magit-run-git-async "rebase" "--abort"))
-            ((?S ?s)
-             (magit-run-git-async "rebase" "--skip"))
-            ((?C ?c)
-             (magit-run-git-async "rebase" "--continue"))))))))
+        (cl-case (read-event)
+          ((?A ?a) (magit-run-git-async "rebase" "--abort"))
+          ((?S ?s) (magit-run-git-async "rebase" "--skip"))
+          ((?C ?c) (magit-run-git-async "rebase" "--continue"))))
+    (let* ((branch (magit-get-current-branch))
+           (rev (magit-read-rev
+                 "Rebase to"
+                 (magit-format-ref (magit-remote-branch-for branch t))
+                 (if branch
+                     (cons (concat "refs/heads/" branch)
+                           magit-uninteresting-refs)
+                   magit-uninteresting-refs))))
+      (magit-run-git "rebase" (magit-rev-to-git rev)))))
 
 ;;; Resetting
 
