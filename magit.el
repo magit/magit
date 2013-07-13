@@ -4934,37 +4934,31 @@ With a prefix-arg, the merge will be squashed.
 
 (defun magit-rebase-info ()
   "Return a list indicating the state of an in-progress rebase.
-If there is no rebase in progress return nil."
-  (let ((git-dir (magit-git-dir)))
-    (cond ((file-exists-p (concat git-dir "rebase-merge"))
-           (list
-            ;; The commit we're rebasing onto, i.e. git rebase -i <onto>
-            (magit-name-rev (car (magit-file-lines (concat git-dir "rebase-merge/onto"))))
 
-            ;; How many commits we've gone through
-            (length (magit-file-lines (concat git-dir "rebase-merge/done")))
+The returned list has the form (ONTO DONE TOTAL).
+ONTO is the commit being rebased onto.
+DONE and TOTAL are integers with obvious meanings.
 
-            ;; How many commits we have in total, without the comments
-            ;; at the end of git-rebase-todo.backup
-            (let ((todo-lines-with-comments (magit-file-lines (concat git-dir "rebase-merge/git-rebase-todo.backup"))))
-              (cl-loop for i in todo-lines-with-comments
-                       until (string= "" i)
-                       count i))))
-          ((and (file-exists-p (concat git-dir "rebase-apply"))
-                (file-exists-p (concat git-dir "rebase-apply/onto")))
-           ;; we might be here because a non-interactive rebase failed: the
-           ;; patches didn't apply cleanly
-           (list
-            ;; The commit we're rebasing onto, i.e. git rebase -i <onto>
-            (magit-name-rev (car (magit-file-lines (concat git-dir "rebase-apply/onto"))))
-
-            ;; How many commits we've gone through
-            (- (string-to-number (car (magit-file-lines (concat git-dir "rebase-apply/next")))) 1)
-
-            ;; How many commits we have in total
-            (string-to-number (car (magit-file-lines (concat git-dir "rebase-apply/last"))))
-            ))
-          (t nil))))
+Return nil if there is no rebase in progress."
+  (let* ((g (magit-git-dir))
+         (m (expand-file-name "rebase-merge" g))
+         (a (expand-file-name "rebase-apply" g)))
+    (cond
+     ((file-exists-p m) ; interactive
+      (list
+       (magit-name-rev (magit-file-line  (expand-file-name "onto" m)))
+       (length         (magit-file-lines (expand-file-name "done" m)))
+       (with-temp-buffer
+         (insert-file-contents
+          (expand-file-name "git-rebase-todo.backup" m))
+         (cl-loop while (re-search-forward "^[^#\n]" nil t) count t))
+       ))
+     ((file-exists-p (expand-file-name "onto" a)) ; non-interactive
+      (list
+       (magit-name-rev       (magit-file-line (expand-file-name "onto" a)))
+       (1- (string-to-number (magit-file-line (expand-file-name "next" a))))
+       (string-to-number     (magit-file-line (expand-file-name "last" a)))
+       )))))
 
 (defun magit-rebase-step ()
   (interactive)
