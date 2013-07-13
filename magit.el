@@ -288,6 +288,11 @@ which generates a tracking name of the form \"REMOTE-BRANCHNAME\"."
                 (function-item magit-default-tracking-name-branch-only)
                 (function :tag "Other")))
 
+(defcustom magit-commit-mode-show-buttons t
+  "Whether to show navigation buttons in the *magit-commit* buffer."
+  :group 'magit
+  :type 'boolean)
+
 (defcustom magit-commit-all-when-nothing-staged 'ask
   "Determine what \\[magit-log-edit] does when nothing is staged.
 
@@ -4206,22 +4211,23 @@ insert a line to tell how to insert more of them"
     (when (looking-at "^diff")
       (magit-wash-diffs))
     (goto-char (point-max))
-    (insert "\n")
-    (if magit-back-navigation-history
+    (when magit-commit-mode-show-buttons
+      (insert "\n")
+      (when magit-back-navigation-history
         (magit-with-section "[back]" 'button
           (insert-text-button "[back]"
                               'help-echo "Previous commit"
                               'action 'magit-show-commit-backward
                               'follow-link t
                               'mouse-face 'magit-item-highlight)))
-    (insert " ")
-    (if magit-forward-navigation-history
+      (insert " ")
+      (when magit-forward-navigation-history
         (magit-with-section "[forward]" 'button
           (insert-text-button "[forward]"
                               'help-echo "Next commit"
                               'action 'magit-show-commit-forward
                               'follow-link t
-                              'mouse-face 'magit-item-highlight)))))
+                              'mouse-face 'magit-item-highlight))))))
 
 (defun magit-make-commit-button (start end)
   (make-text-button start end
