@@ -4516,7 +4516,11 @@ if FULLY-QUALIFIED-NAME is non-nil."
            "Rebasing"
            (apply 'format
                   "onto %s (%s of %s); Press \"R\" to Abort, Skip, or Continue"
-                  rebase)))
+                  rebase))
+          (when (nth 3 rebase)
+            (magit-insert-status-line
+             "Stopped"
+             (magit-format-commit (nth 3 rebase) "%h %s"))))
         (insert "\n")
         (magit-git-exit-code "update-index" "--refresh")
         (magit-insert-stashes)
@@ -4952,13 +4956,19 @@ Return nil if there is no rebase in progress."
          (insert-file-contents
           (expand-file-name "git-rebase-todo.backup" m))
          (cl-loop while (re-search-forward "^[^#\n]" nil t) count t))
-       ))
+       (magit-file-line (expand-file-name "stopped-sha" m))))
+
      ((file-exists-p (expand-file-name "onto" a)) ; non-interactive
       (list
        (magit-name-rev       (magit-file-line (expand-file-name "onto" a)))
        (1- (string-to-number (magit-file-line (expand-file-name "next" a))))
        (string-to-number     (magit-file-line (expand-file-name "last" a)))
-       )))))
+       (with-temp-buffer
+         (insert-file-contents
+          (car (directory-files a t "^[0-9]\\{4\\}$")))
+         (when (re-search-forward "^From \\([a-z0-9]\\{40\\}\\) "
+                                  (line-end-position) t)
+           (match-string 1))))))))
 
 (defun magit-rebase-step ()
   (interactive)
