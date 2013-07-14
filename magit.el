@@ -1569,25 +1569,18 @@ pair (START . END), then the range is START..END.")
 
 (defun magit-list-interesting-refs (&optional uninteresting)
   "Return interesting references as given by `git show-ref'.
-Removes references matching UNINTERESTING from the
-results. UNINTERESTING can be either a function taking a single
+Removes references matching UNINTERESTING from the results.
+UNINTERESTING can be either a function taking a single
 argument or a list of strings used as regexps."
-  (let ((refs ()))
-    (dolist (line (magit-git-lines "show-ref"))
-      (if (string-match "[^ ]+ +\\(.*\\)" line)
-          (let ((ref (match-string 1 line)))
-            (cond ((and (functionp uninteresting)
-                        (funcall uninteresting ref)))
-                  ((and (not (functionp uninteresting))
-                        (cl-loop for i in uninteresting thereis (string-match i ref))))
-                  (t
-                   (let ((fmt-ref (magit-format-ref ref)))
-                     (when fmt-ref
-                       (push (cons fmt-ref
-                                   (replace-regexp-in-string "^refs/heads/"
-                                                             "" ref))
-                             refs))))))))
-    (nreverse refs)))
+  (cl-loop for ref in (magit-git-lines "show-ref")
+           for ref =  (cadr (split-string ref " "))
+           unless  (if (functionp uninteresting)
+                       (funcall uninteresting ref)
+                     (cl-loop for i in uninteresting
+                              thereis (string-match i ref)))
+           collect (cons (magit-format-ref ref)
+                         (replace-regexp-in-string
+                          "^refs/heads/" "" ref))))
 
 (defun magit-format-ref (ref)
   "Convert fully-specified ref REF into its displayable form
