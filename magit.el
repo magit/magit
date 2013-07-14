@@ -4860,9 +4860,8 @@ With prefix, forces the move even if NEW already exists.
   (interactive (list (magit-read-rev-with-default "Old name")
                      (read-string "New name: ")
                      current-prefix-arg))
-  (magit-run-git "branch" (if force
-                              "-M"
-                            "-m")
+  (magit-run-git "branch"
+                 (if force "-M" "-m")
                  (magit-rev-to-git old) new))
 
 (defun magit-guess-branch ()
