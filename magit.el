@@ -1611,29 +1611,13 @@ according to `magit-remote-ref-format'"
               (match-string 1 ref)
               (match-string 2 ref))))))
 
-(defun magit-tree-contents (treeish)
-  "Return a list of all files under TREEISH.
-TREEISH can be a tree, a commit, or any reference to one of
-those."
-  (let ((return-value nil))
-    (with-temp-buffer
-      (magit-git-insert (list "ls-tree" "-r" treeish))
-      (if (eql 0 (buffer-size))
-          (error "%s is not a commit or tree." treeish))
-      (goto-char (point-min))
-      (while (search-forward-regexp "\t\\(.*\\)" nil 'noerror)
-        (push (match-string 1) return-value)))
-    return-value))
-
 (defvar magit-uninteresting-refs '("refs/remotes/\\([^/]+\\)/HEAD$" "refs/stash"))
 
 (defun magit-read-file-from-rev (revision)
   (magit-completing-read (format "Retrieve file from %s: " revision)
-                         (magit-tree-contents revision)
-                         nil
-                         'require-match
-                         nil
-                         'magit-read-file-hist
+                         (magit-git-lines "ls-tree" "--name-only" "HEAD")
+                         nil 'require-match
+                         nil 'magit-read-file-hist
                          (when buffer-file-name
                            (substring (buffer-file-name)
                                       (length (magit-get-top-dir))))))
