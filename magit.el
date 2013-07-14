@@ -4845,13 +4845,13 @@ Works with local or remote branches.
      (remote
       (magit-run-git-async "push" remote (concat ":refs/heads/" (magit-branch-no-remote branch))))
      (is-current
-      (when (y-or-n-p "Cannot delete current branch. Switch to master first? ")
+      (if (y-or-n-p "Cannot delete current branch. Switch to master first? ")
           (progn
             (magit-checkout "master")
             (apply 'magit-run-git args))
-          (message "The current branch was not deleted.")))
+        (message "The current branch was not deleted.")))
      (t
-            (apply 'magit-run-git args)))))
+      (apply 'magit-run-git args)))))
 
 (defun magit-move-branch (old new &optional force)
   "Rename or move branch OLD to NEW.
