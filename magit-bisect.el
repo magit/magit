@@ -33,7 +33,7 @@
   "Return t if a bisect session is running.
 If REQUIRED-STATUS is not nil then the current status must also
 match REQUIRED-STATUS."
-  (and (file-exists-p (concat (magit-git-dir) "BISECT_LOG"))
+  (and (file-exists-p (magit-git-dir "BISECT_LOG"))
        (or (not required-status)
            (eq (plist-get (magit--bisect-info) :status)
                required-status))))

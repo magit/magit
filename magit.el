@@ -1317,10 +1317,16 @@ Read `completing-read' documentation for the meaning of the argument."
 (defun magit-git-repo-p (dir)
   (file-exists-p (expand-file-name ".git" dir)))
 
-(defun magit-git-dir ()
-  "Return the .git directory for the current repository."
-  (file-name-as-directory
-   (expand-file-name (magit-git-string "rev-parse" "--git-dir"))))
+(defun magit-git-dir (&optional subdir)
+  "Return absolute path to the GIT_DIR for the current repository.
+If optional SUBDIR is non-nil it has to be a path relative to the
+GIT_DIR and its absolute path is returned"
+  (let ((gitdir (file-name-as-directory
+                 (expand-file-name
+                  (magit-git-string "rev-parse" "--git-dir")))))
+    (if subdir
+        (expand-file-name (convert-standard-filename subdir) gitdir)
+      gitdir)))
 
 (defun magit-no-commit-p ()
   "Return non-nil if there is no commit in the current git repository."
@@ -3588,7 +3594,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
     (error "Current buffer doesn't visit the index version of a file"))
   (when (y-or-n-p (format "Stage current version of %s" magit-file-name))
     (let ((buf (current-buffer))
-          (name (concat (magit-git-dir) "magit-add-index")))
+          (name (magit-git-dir "magit-add-index")))
       (with-temp-file name
         (insert-buffer-substring buf))
       (let ((hash
@@ -4502,7 +4508,7 @@ if FULLY-QUALIFIED-NAME is non-nil."
              (remote-string (magit-remote-string remote remote-branch remote-rebase))
              (head (magit-format-commit "HEAD" "%h %s"))
              (no-commit (not head))
-             (merge-heads (magit-file-lines (concat (magit-git-dir) "MERGE_HEAD")))
+             (merge-heads (magit-file-lines (magit-git-dir "MERGE_HEAD")))
              (rebase (magit-rebase-info)))
         (when remote-string
           (magit-insert-status-line "Remote" remote-string))
@@ -4950,9 +4956,8 @@ ONTO is the commit being rebased onto.
 DONE and TOTAL are integers with obvious meanings.
 
 Return nil if there is no rebase in progress."
-  (let* ((g (magit-git-dir))
-         (m (expand-file-name "rebase-merge" g))
-         (a (expand-file-name "rebase-apply" g)))
+  (let ((m (magit-git-dir "rebase-merge"))
+        (a (magit-git-dir "rebase-apply")))
     (cond
      ((file-exists-p m) ; interactive
       (list
@@ -5048,14 +5053,14 @@ With a prefix arg, also remove untracked files.  With two prefix args, remove ig
 ;;; Rewriting
 
 (defun magit-read-rewrite-info ()
-  (when (file-exists-p (concat (magit-git-dir) "magit-rewrite-info"))
+  (when (file-exists-p (magit-git-dir "magit-rewrite-info"))
     (with-temp-buffer
-      (insert-file-contents (concat (magit-git-dir) "magit-rewrite-info"))
+      (insert-file-contents (magit-git-dir "magit-rewrite-info"))
       (goto-char (point-min))
       (read (current-buffer)))))
 
 (defun magit-write-rewrite-info (info)
-  (with-temp-file (concat (magit-git-dir) "magit-rewrite-info")
+  (with-temp-file (magit-git-dir "magit-rewrite-info")
     (prin1 info (current-buffer))
     (princ "\n" (current-buffer))))
 
@@ -5577,7 +5582,7 @@ environment (potentially empty)."
                 allow-empty
                 amend
                 tag-name
-                (file-exists-p (concat (magit-git-dir) "MERGE_HEAD"))
+                (file-exists-p (magit-git-dir "MERGE_HEAD"))
                 (and commit-all
                      (not (magit-everything-clean-p))))
       (error "Refusing to create empty commit. Maybe you want to amend (%s) or allow-empty (%s)?"
@@ -5622,8 +5627,8 @@ environment (potentially empty)."
     (let ((magit-buf magit-buffer-internal))
       (bury-buffer)
       (set-buffer magit-buf))
-    (when (file-exists-p (concat (magit-git-dir) "MERGE_MSG"))
-      (delete-file (concat (magit-git-dir) "MERGE_MSG")))
+    (when (file-exists-p (magit-git-dir "MERGE_MSG"))
+      (delete-file (magit-git-dir "MERGE_MSG")))
     (magit-update-vc-modeline default-directory)
     (when magit-pre-log-edit-window-configuration
       (set-window-configuration magit-pre-log-edit-window-configuration)
@@ -5695,8 +5700,8 @@ This means that the eventual commit does 'git commit --allow-empty'."
           (current-window-configuration))
     (pop-to-buffer buf)
     (setq default-directory dir)
-    (when (file-exists-p (concat (magit-git-dir) "MERGE_MSG"))
-      (insert-file-contents (concat (magit-git-dir) "MERGE_MSG")))
+    (when (file-exists-p (magit-git-dir "MERGE_MSG"))
+      (insert-file-contents (magit-git-dir "MERGE_MSG")))
     (magit-log-edit-mode)
     (make-local-variable 'magit-buffer-internal)
     (setq magit-buffer-internal magit-buf)
@@ -6288,7 +6293,7 @@ This is only meaningful in wazzup buffers.")
 (make-variable-buffer-local 'magit-wazzup-all-p)
 
 (defun magit-wazzup-toggle-ignore (branch edit)
-  (let ((ignore-file (concat (magit-git-dir) "info/wazzup-exclude")))
+  (let ((ignore-file (magit-git-dir "info/wazzup-exclude")))
     (if edit
         (setq branch (read-string "Branch to ignore for wazzup: " branch)))
     (let ((ignored (magit-file-lines ignore-file)))
@@ -6309,7 +6314,7 @@ This is only meaningful in wazzup buffers.")
     (magit-create-buffer-sections
       (magit-with-section 'wazzupbuf nil
         (insert (format "Wazzup, %s\n\n" branch-desc))
-        (let* ((excluded (magit-file-lines (concat (magit-git-dir) "info/wazzup-exclude")))
+        (let* ((excluded (magit-file-lines (magit-git-dir "info/wazzup-exclude")))
                (all-branches (magit-list-interesting-refs))
                (branches (if all all-branches
                            (delq nil (mapcar
@@ -6471,7 +6476,7 @@ If EDIT-IGNORE-STRING is non-nil, prompt the user for the string
 to be ignored instead of using FILE.  The changes are written to
 .gitignore except if LOCAL is non-nil in which case they are
 written to .git/info/exclude."
-  (let* ((local-ignore-dir (concat (magit-git-dir) "info/"))
+  (let* ((local-ignore-dir (magit-git-dir "info/"))
          (ignore-file (if local
                           (concat local-ignore-dir "exclude")
                         ".gitignore")))
