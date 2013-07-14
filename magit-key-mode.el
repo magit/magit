@@ -47,6 +47,7 @@
       ("-f" "First parent" "--first-parent")
       ("-i" "Case insensitive patterns" "-i")
       ("-pr" "Pickaxe regex" "--pickaxe-regex")
+      ("-g" "Show Graph" "--graph")
       ("-n" "Name only" "--name-only")
       ("-am" "All match" "--all-match")
       ("-ab" "All branches" "--branches")
@@ -569,7 +570,10 @@ Return the point before the actions part, if any, nil otherwise."
      `(defun ,(intern (concat "magit-key-mode-popup-" (symbol-name group))) nil
         ,(concat "Key menu for " (symbol-name group))
         (interactive)
-        (magit-key-mode (quote ,group))))))
+        (magit-key-mode (quote ,group)
+                        ;; As a tempory solution it is okay to do this here.
+                        ,(when (eq group 'logging)
+                           '(and magit-have-graph (list "--graph"))))))))
 
 ;; create the interactive functions for the key mode popups (which are
 ;; applied in the top-level key maps)

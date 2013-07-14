@@ -6072,7 +6072,6 @@ With a non numeric prefix ARG, show all entries"
                                 "[%an][%ar]%s")))
                  (t nil))
              ,@(and magit-have-decorate (list "--decorate=full"))
-             ,@(and magit-have-graph (list "--graph"))
              "--color"
              ,@args
              "--"))))
