@@ -6348,6 +6348,8 @@ This is only meaningful in wazzup buffers.")
                      #'magit-refresh-wazzup-buffer
                      current-branch all)))
 
+;;; Logging (continued)
+
 (defun magit-filename (filename)
   "Return the path of FILENAME relative to its git repository.
 
@@ -6760,7 +6762,7 @@ With a prefix argument, visit in other window."
       (when old-editor
         (setenv "GIT_EDITOR" old-editor)))))
 
-;;; Branch Utilities
+;;; Branch Manager Mode
 
 (define-derived-mode magit-branch-manager-mode magit-mode "Magit Branch"
   "Magit Branches")
