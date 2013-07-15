@@ -145,9 +145,9 @@ work-in-progress ref."
                               (magit-git-lines
                                "ls-files" "--other" "--ignored"
                                "--exclude-standard" "--full-name")))))
-      (magit-run-git-async "wip" "save"
-                           (format-spec magit-wip-commit-message spec)
-                           "--editor" "--" filename)
+      (magit-run-git "wip" "save"
+                     (format-spec magit-wip-commit-message spec)
+                     "--editor" "--" filename)
       (when magit-wip-echo-area-message
         (message (format-spec magit-wip-echo-area-message spec))))))
 
