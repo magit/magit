@@ -2851,7 +2851,10 @@ Please see the manual for a complete description of Magit.
   (add-hook 'pre-command-hook #'magit-remember-point nil t)
   (add-hook 'post-command-hook #'magit-post-command-hook t t)
   (use-local-map magit-mode-map)
-  (setq magit-current-indentation (magit-indentation-for default-directory))
+  (setq magit-current-indentation
+        (cdr (cl-find-if (lambda (pair)
+                           (string-match-p (car pair) default-directory))
+                         magit-highlight-indentation :from-end)))
   ;; Emacs' normal method of showing trailing whitespace gives weird
   ;; results when `magit-whitespace-warning-face' is different from
   ;; `trailing-whitespace'.
@@ -2865,13 +2868,6 @@ Please see the manual for a complete description of Magit.
         magit-refresh-args refresh-args)
   (funcall submode)
   (magit-refresh-buffer))
-
-(defun magit-indentation-for (dir)
-  (let (result)
-    (dolist (pair magit-highlight-indentation)
-      (if (string-match-p (car pair) dir)
-          (setq result (cdr pair))))
-    result))
 
 (defun magit-find-buffer (submode &optional dir)
   (let ((topdir (magit-get-top-dir dir)))
