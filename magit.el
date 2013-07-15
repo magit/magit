@@ -1357,6 +1357,20 @@ GIT_DIR and its absolute path is returned"
       (when cdup
         (file-name-as-directory (expand-file-name cdup cwd))))))
 
+(defun magit-file-relative-name (filename)
+  "Return the path of FILENAME relative to its git repository.
+
+If FILENAME is absolute, return a path relative to the git
+repository containing it. Otherwise, return a path relative to
+the current git repository."
+  (let ((topdir (expand-file-name
+                 (magit-get-top-dir (file-name-directory filename))))
+        (file (file-truename filename)))
+    (when (and (not (string= topdir ""))
+               ;; FILE must start with the git repository path
+               (zerop (string-match-p (concat "\\`" topdir) file)))
+      (substring file (length topdir)))))
+
 (defun magit-get-ref (ref)
   (magit-git-string "symbolic-ref" "-q" ref))
 
@@ -6329,20 +6343,6 @@ restore the window state that was saved before ediff was called."
 
 ;;; Logging (continued)
 
-(defun magit-filename (filename)
-  "Return the path of FILENAME relative to its git repository.
-
-If FILENAME is absolute, return a path relative to the git
-repository containing it. Otherwise, return a path relative to
-the current git repository."
-  (let ((topdir (expand-file-name
-                 (magit-get-top-dir (file-name-directory filename))))
-        (file (file-truename filename)))
-    (when (and (not (string= topdir ""))
-               ;; FILE must start with the git repository path
-               (zerop (string-match-p (concat "\\`" topdir) file)))
-      (substring file (length topdir)))))
-
 ;; This variable is used to keep track of the current file in the
 ;; *magit-log* buffer when this one is dedicated to showing the log of
 ;; just 1 file.
@@ -6385,7 +6385,7 @@ With a prefix argument or if no file is currently visited, ask
 for the file whose log must be displayed."
   (interactive "P")
   (let ((topdir (magit-get-top-dir))
-        (current-file (magit-filename
+        (current-file (magit-file-relative-name
                        (if (or current-prefix-arg (not buffer-file-name))
                            (magit-read-file-from-rev (magit-get-current-branch))
                         buffer-file-name)))
