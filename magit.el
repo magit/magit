@@ -1269,12 +1269,6 @@ Read `completing-read' documentation for the meaning of the argument."
                       (cdr rev)
                     rev))))))
 
-(defun magit-write-file-lines (file lines)
-  (with-temp-buffer
-    (dolist (l lines)
-      (insert l "\n"))
-    (write-file file)))
-
 (defun magit-get (&rest keys)
   "Return the value of Git config entry specified by KEYS."
   (magit-git-string "config" (mapconcat 'identity keys ".")))
@@ -6276,7 +6270,10 @@ This is only meaningful in wazzup buffers.")
                (setq ignored (delete branch ignored))))
             (t
              (setq ignored (append ignored (list branch)))))
-      (magit-write-file-lines ignore-file ignored)
+      (with-temp-buffer
+        (dolist (l ignored)
+          (insert l "\n"))
+        (write-file ignore-file))
       (magit-need-refresh))))
 
 (defun magit-refresh-wazzup-buffer (head all)
