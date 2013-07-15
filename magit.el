@@ -1680,6 +1680,15 @@ PROMPT and UNINTERESTING are passed to `magit-read-rev'."
                 (match-string 1 branch)
               branch)))))
 
+(defun magit-commit-at-point (&optional noerror)
+  (let ((section (magit-current-section)))
+    (or (if (and section
+                 (eq (magit-section-type section) 'commit))
+            (magit-section-info section)
+          (get-text-property (point) 'revision))
+        (unless noerror
+          (error "No commit at point")))))
+
 (defun magit-read-remote (prompt &optional def require-match)
   "Read the name of a remote.
 PROMPT is used as the prompt, and defaults to \"Remote\".
@@ -5908,17 +5917,6 @@ With prefix argument, changes in staging area are kept.
                (magit-mode-init dir 'magit-diff-mode #'magit-refresh-diff-buffer
                                 range args)))))))
 ;;; Commits
-
-(defun magit-commit-at-point (&optional nil-ok-p)
-  (let* ((section (magit-current-section))
-         (commit (if (and section
-                          (eq (magit-section-type section) 'commit))
-                     (magit-section-info section)
-                 (get-text-property (point) 'revision))))
-    (if nil-ok-p
-        commit
-      (or commit
-          (error "No commit at point")))))
 
 (defun magit-apply-commit (commit &optional docommit noerase revert)
   (let* ((parent-id (magit-choose-parent-id commit "cherry-pick"))
