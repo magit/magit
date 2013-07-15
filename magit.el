@@ -1846,8 +1846,8 @@ Use the specified START and END positions."
   (put-text-property (magit-section-beginning section)
                      (magit-section-end section)
                      'magit-section section)
-  (dolist (s (magit-section-children section))
-    (magit-propertize-section s)))
+  (mapc 'magit-propertize-section
+        (magit-section-children section)))
 
 (defun magit-find-section (path top)
   "Find the section at the path PATH in subsection of section TOP."
