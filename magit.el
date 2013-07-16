@@ -1152,6 +1152,7 @@ Return values:
        (delete-directory directory)))))
 
 ;;; Utilities
+;;;; Minibuffer Input
 
 (defun magit-iswitchb-completing-read (prompt choices &optional predicate require-match
                                               initial-input hist def)
@@ -1199,6 +1200,8 @@ Read `completing-read' documentation for the meaning of the argument."
   (funcall magit-completing-read-function prompt collection predicate require-match
            initial-input hist def))
 
+;;;; Various Utilities (I)
+
 (defun magit-use-region-p ()
   (if (fboundp 'use-region-p)
       (use-region-p)
@@ -1210,6 +1213,8 @@ Read `completing-read' documentation for the meaning of the argument."
     (widen)
     (goto-char 1)
     (forward-line (1- line))))
+
+;;;; String Manipulation
 
 (defun magit-trim-line (str)
   (if (string= str "")
@@ -1269,6 +1274,8 @@ Read `completing-read' documentation for the meaning of the argument."
                       (cdr rev)
                     rev))))))
 
+;;;; Git Config
+
 (defun magit-get (&rest keys)
   "Return the value of Git config entry specified by KEYS."
   (magit-git-string "config" (mapconcat 'identity keys ".")))
@@ -1287,6 +1294,8 @@ Read `completing-read' documentation for the meaning of the argument."
   (if val
       (magit-git-string "config" (mapconcat 'identity keys ".") val)
     (magit-git-string "config" "--unset" (mapconcat 'identity keys "."))))
+
+;;;; Read Repository   (I)
 
 (defun magit-remove-conflicts (alist)
   (let ((dict (make-hash-table :test 'equal))
@@ -1308,6 +1317,8 @@ Read `completing-read' documentation for the meaning of the argument."
              dict)
     result))
 
+;;;; Git Low-Level     (I)
+
 (defun magit-git-repo-p (dir)
   (file-exists-p (expand-file-name ".git" dir)))
 
@@ -1326,6 +1337,8 @@ GIT_DIR and its absolute path is returned"
   "Return non-nil if there is no commit in the current git repository."
   (not (magit-git-string
         "rev-list" "HEAD" "--max-count=1")))
+
+;;;; Read Repository   (II)
 
 (defun magit-list-repos* (dir level)
   (if (magit-git-repo-p dir)
@@ -1348,6 +1361,8 @@ GIT_DIR and its absolute path is returned"
                                       repo))
                             (magit-list-repos* dir 0)))
                   dirs))))
+
+;;;; Git Low-Level     (II)
 
 (defun magit-get-top-dir (&optional cwd)
   (setq cwd (expand-file-name (file-truename (or cwd default-directory))))
@@ -1434,6 +1449,8 @@ Otherwise, return nil."
 (defun magit-ref-exists-p (ref)
   (= (magit-git-exit-code "show-ref" "--verify" ref) 0))
 
+;;;; Read Repository   (III)
+
 (defun magit-read-top-dir (dir)
   "Ask the user for a Git repository.
 The choices offered by auto-completion will be the repositories
@@ -1450,6 +1467,8 @@ non-nil, then autocompletion will offer directory names."
     (file-name-as-directory
      (read-directory-name "Git repository: "
                           (or (magit-get-top-dir) default-directory)))))
+
+;;;; Git Low-Level     (III)
 
 (defun magit-rev-parse (ref)
   "Return the SHA hash for REF."
@@ -1501,6 +1520,8 @@ non-nil).  In addition, it will filter out revs involving HEAD."
             (setq rev plain-name))))
       rev)))
 
+;;;; Various Utilities (II)
+
 (defun magit-highlight-line-whitespace ()
   (when (and magit-highlight-whitespace
              (or (derived-mode-p 'magit-status-mode)
@@ -1542,6 +1563,8 @@ non-nil).  In addition, it will filter out revs involving HEAD."
     (with-current-buffer buf
       (insert text))))
 
+;;;; Git Low-Level     (IV)
+
 (defun magit-file-uptodate-p (file)
   (eq (magit-git-exit-code "diff" "--quiet" "--" file) 0))
 
@@ -1554,6 +1577,8 @@ non-nil).  In addition, it will filter out revs involving HEAD."
 
 (defun magit-commit-parents (commit)
   (cdr (split-string (magit-git-string "rev-list" "-1" "--parents" commit))))
+
+;;;; Various Utilities (III)
 
 ;; XXX - let the user choose the parent
 
