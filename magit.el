@@ -4400,6 +4400,8 @@ in `magit-commit-buffer-name'."
       branch
     (concat remote "/" branch)))
 
+;;; Status Mode
+;;;; Status Sections
 
 (defun magit-wash-unpulled-or-unpushed ()
   (save-match-data
@@ -4422,7 +4424,6 @@ in `magit-commit-buffer-name'."
                (forward-line)))
            (forward-line))
          t)))))
-
 
 (magit-define-inserter unpulled-commits (remote branch)
   (when remote
@@ -4454,8 +4455,6 @@ if FULLY-QUALIFIED-NAME is non-nil."
                       "refs/heads/"
                     (concat "refs/remotes/" remote "/")))
                 (match-string 1 merge))))))
-
-;;; Status Mode
 
 (defvar magit-remote-string-hook nil)
 
@@ -4509,6 +4508,8 @@ if FULLY-QUALIFIED-NAME is non-nil."
                                                     'face 'magit-branch))
                          (format " (%i" cnt))
                        " " (if behindp "behind" "ahead") ")"))))
+
+;;;; Status Refresh and Commands
 
 (defun magit-refresh-status ()
   (magit-create-buffer-sections
@@ -4584,6 +4585,8 @@ if FULLY-QUALIFIED-NAME is non-nil."
 \\{magit-status-mode-map}"
   :group 'magit)
 
+;; (START "This does not belong here.")
+
 (defvar magit-default-directory nil)
 
 (defun magit-save-some-buffers (&optional msg pred)
@@ -4620,6 +4623,8 @@ As determined by the directory passed to `magit-status'."
   (and buffer-file-name
        (string= (magit-get-top-dir magit-default-directory)
                 (magit-get-top-dir (file-name-directory buffer-file-name)))))
+
+;; (END "This does not belong here.")
 
 ;;;###autoload
 (defun magit-status (dir)
