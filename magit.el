@@ -1024,12 +1024,6 @@ This is calculated from `magit-highlight-indentation'.")
     (define-key map (kbd "e") 'magit-diffstat-ediff)
     map))
 
-;;; Macros
-
-(defmacro magit-with-refresh (&rest body)
-  (declare (indent 0))
-  `(magit-refresh-wrapper (lambda () ,@body)))
-
 ;;; Git features
 
 (defvar magit-have-graph 'unset)
@@ -1152,6 +1146,7 @@ Return values:
        (delete-directory directory)))))
 
 ;;; Utilities
+;;;; Minibuffer Input
 
 (defun magit-iswitchb-completing-read (prompt choices &optional predicate require-match
                                               initial-input hist def)
@@ -1199,17 +1194,7 @@ Read `completing-read' documentation for the meaning of the argument."
   (funcall magit-completing-read-function prompt collection predicate require-match
            initial-input hist def))
 
-(defun magit-use-region-p ()
-  (if (fboundp 'use-region-p)
-      (use-region-p)
-    (and transient-mark-mode mark-active)))
-
-(defun magit-goto-line (line)
-  "Like `goto-line' but doesn't set the mark."
-  (save-restriction
-    (widen)
-    (goto-char 1)
-    (forward-line (1- line))))
+;;;; String Manipulation
 
 (defun magit-trim-line (str)
   (if (string= str "")
@@ -1269,6 +1254,8 @@ Read `completing-read' documentation for the meaning of the argument."
                       (cdr rev)
                     rev))))))
 
+;;;; Git Config
+
 (defun magit-get (&rest keys)
   "Return the value of Git config entry specified by KEYS."
   (magit-git-string "config" (mapconcat 'identity keys ".")))
@@ -1288,25 +1275,7 @@ Read `completing-read' documentation for the meaning of the argument."
       (magit-git-string "config" (mapconcat 'identity keys ".") val)
     (magit-git-string "config" "--unset" (mapconcat 'identity keys "."))))
 
-(defun magit-remove-conflicts (alist)
-  (let ((dict (make-hash-table :test 'equal))
-        (result nil))
-    (dolist (a alist)
-      (puthash (car a) (cons (cdr a) (gethash (car a) dict))
-               dict))
-    (maphash (lambda (key value)
-               (if (= (length value) 1)
-                   (push (cons key (car value)) result)
-                 (let ((sub (magit-remove-conflicts
-                             (mapcar (lambda (entry)
-                                       (let ((dir (directory-file-name
-                                                   (substring entry 0 (- (length key))))))
-                                         (cons (concat (file-name-nondirectory dir) "/" key)
-                                               entry)))
-                                     value))))
-                   (setq result (append result sub)))))
-             dict)
-    result))
+;;;; Git Low-Level
 
 (defun magit-git-repo-p (dir)
   (file-exists-p (expand-file-name ".git" dir)))
@@ -1326,28 +1295,6 @@ GIT_DIR and its absolute path is returned"
   "Return non-nil if there is no commit in the current git repository."
   (not (magit-git-string
         "rev-list" "HEAD" "--max-count=1")))
-
-(defun magit-list-repos* (dir level)
-  (if (magit-git-repo-p dir)
-      (list dir)
-    (apply #'append
-           (mapcar (lambda (entry)
-                     (unless (or (string= (substring entry -3) "/..")
-                                 (string= (substring entry -2) "/."))
-                       (magit-list-repos* entry (+ level 1))))
-                   (and (file-directory-p dir)
-                        (< level magit-repo-dirs-depth)
-                        (directory-files dir t nil t))))))
-
-(defun magit-list-repos (dirs)
-  (magit-remove-conflicts
-   (apply #'append
-          (mapcar (lambda (dir)
-                    (mapcar #'(lambda (repo)
-                                (cons (file-name-nondirectory repo)
-                                      repo))
-                            (magit-list-repos* dir 0)))
-                  dirs))))
 
 (defun magit-get-top-dir (&optional cwd)
   (setq cwd (expand-file-name (file-truename (or cwd default-directory))))
@@ -1434,23 +1381,6 @@ Otherwise, return nil."
 (defun magit-ref-exists-p (ref)
   (= (magit-git-exit-code "show-ref" "--verify" ref) 0))
 
-(defun magit-read-top-dir (dir)
-  "Ask the user for a Git repository.
-The choices offered by auto-completion will be the repositories
-under `magit-repo-dirs'.  If `magit-repo-dirs' is nil or DIR is
-non-nil, then autocompletion will offer directory names."
-  (if (and (not dir) magit-repo-dirs)
-      (let* ((repos (magit-list-repos magit-repo-dirs))
-             (reply (magit-completing-read "Git repository: " repos)))
-        (file-name-as-directory
-         (or (cdr (assoc reply repos))
-             (if (file-directory-p reply)
-                 (expand-file-name reply)
-               (error "Not a repository or a directory: %s" reply)))))
-    (file-name-as-directory
-     (read-directory-name "Git repository: "
-                          (or (magit-get-top-dir) default-directory)))))
-
 (defun magit-rev-parse (ref)
   "Return the SHA hash for REF."
   (magit-git-string "rev-parse" ref))
@@ -1501,6 +1431,25 @@ non-nil).  In addition, it will filter out revs involving HEAD."
             (setq rev plain-name))))
       rev)))
 
+(defun magit-file-uptodate-p (file)
+  (eq (magit-git-exit-code "diff" "--quiet" "--" file) 0))
+
+(defun magit-anything-staged-p ()
+  (not (eq (magit-git-exit-code "diff" "--quiet" "--cached") 0)))
+
+(defun magit-everything-clean-p ()
+  (and (not (magit-anything-staged-p))
+       (eq (magit-git-exit-code "diff" "--quiet") 0)))
+
+(defun magit-commit-parents (commit)
+  (cdr (split-string (magit-git-string "rev-list" "-1" "--parents" commit))))
+
+;;;; Various Utilities
+
+(defmacro magit-with-refresh (&rest body)
+  (declare (indent 0))
+  `(magit-refresh-wrapper (lambda () ,@body)))
+
 (defun magit-highlight-line-whitespace ()
   (when (and magit-highlight-whitespace
              (or (derived-mode-p 'magit-status-mode)
@@ -1516,6 +1465,18 @@ non-nil).  In addition, it will filter out revs involving HEAD."
                                      magit-current-indentation))))
         (overlay-put (make-overlay (match-beginning 1) (match-end 1))
                      'face 'magit-whitespace-warning-face))))
+
+(defun magit-use-region-p ()
+  (if (fboundp 'use-region-p)
+      (use-region-p)
+    (and transient-mark-mode mark-active)))
+
+(defun magit-goto-line (line)
+  "Like `goto-line' but doesn't set the mark."
+  (save-restriction
+    (widen)
+    (goto-char 1)
+    (forward-line (1- line))))
 
 (defun magit-put-line-property (prop val)
   (put-text-property (line-beginning-position) (line-beginning-position 2)
@@ -1537,19 +1498,6 @@ non-nil).  In addition, it will filter out revs involving HEAD."
                (line-beginning-position) (line-beginning-position 2))))
     (with-current-buffer buf
       (insert text))))
-
-(defun magit-file-uptodate-p (file)
-  (eq (magit-git-exit-code "diff" "--quiet" "--" file) 0))
-
-(defun magit-anything-staged-p ()
-  (not (eq (magit-git-exit-code "diff" "--quiet" "--cached") 0)))
-
-(defun magit-everything-clean-p ()
-  (and (not (magit-anything-staged-p))
-       (eq (magit-git-exit-code "diff" "--quiet") 0)))
-
-(defun magit-commit-parents (commit)
-  (cdr (split-string (magit-git-string "rev-list" "-1" "--parents" commit))))
 
 ;; XXX - let the user choose the parent
 
@@ -4632,6 +4580,67 @@ when asking for user input."
         (funcall magit-status-buffer-switch-function buf)
         (setq magit-previous-window-configuration winconf)
         (magit-mode-init topdir 'magit-status-mode #'magit-refresh-status)))))
+
+;;;; Read Repository
+
+(defun magit-read-top-dir (dir)
+  "Ask the user for a Git repository.
+The choices offered by auto-completion will be the repositories
+under `magit-repo-dirs'.  If `magit-repo-dirs' is nil or DIR is
+non-nil, then autocompletion will offer directory names."
+  (if (and (not dir) magit-repo-dirs)
+      (let* ((repos (magit-list-repos magit-repo-dirs))
+             (reply (magit-completing-read "Git repository: " repos)))
+        (file-name-as-directory
+         (or (cdr (assoc reply repos))
+             (if (file-directory-p reply)
+                 (expand-file-name reply)
+               (error "Not a repository or a directory: %s" reply)))))
+    (file-name-as-directory
+     (read-directory-name "Git repository: "
+                          (or (magit-get-top-dir) default-directory)))))
+
+(defun magit-list-repos (dirs)
+  (magit-remove-conflicts
+   (apply #'append
+          (mapcar (lambda (dir)
+                    (mapcar #'(lambda (repo)
+                                (cons (file-name-nondirectory repo)
+                                      repo))
+                            (magit-list-repos* dir 0)))
+                  dirs))))
+
+(defun magit-list-repos* (dir level)
+  (if (magit-git-repo-p dir)
+      (list dir)
+    (apply #'append
+           (mapcar (lambda (entry)
+                     (unless (or (string= (substring entry -3) "/..")
+                                 (string= (substring entry -2) "/."))
+                       (magit-list-repos* entry (+ level 1))))
+                   (and (file-directory-p dir)
+                        (< level magit-repo-dirs-depth)
+                        (directory-files dir t nil t))))))
+
+(defun magit-remove-conflicts (alist)
+  (let ((dict (make-hash-table :test 'equal))
+        (result nil))
+    (dolist (a alist)
+      (puthash (car a) (cons (cdr a) (gethash (car a) dict))
+               dict))
+    (maphash (lambda (key value)
+               (if (= (length value) 1)
+                   (push (cons key (car value)) result)
+                 (let ((sub (magit-remove-conflicts
+                             (mapcar (lambda (entry)
+                                       (let ((dir (directory-file-name
+                                                   (substring entry 0 (- (length key))))))
+                                         (cons (concat (file-name-nondirectory dir) "/" key)
+                                               entry)))
+                                     value))))
+                   (setq result (append result sub)))))
+             dict)
+    result))
 
 ;;; Merging
 
