@@ -1200,20 +1200,6 @@ Read `completing-read' documentation for the meaning of the argument."
   (funcall magit-completing-read-function prompt collection predicate require-match
            initial-input hist def))
 
-;;;; Various Utilities (I)
-
-(defun magit-use-region-p ()
-  (if (fboundp 'use-region-p)
-      (use-region-p)
-    (and transient-mark-mode mark-active)))
-
-(defun magit-goto-line (line)
-  "Like `goto-line' but doesn't set the mark."
-  (save-restriction
-    (widen)
-    (goto-char 1)
-    (forward-line (1- line))))
-
 ;;;; String Manipulation
 
 (defun magit-trim-line (str)
@@ -1464,7 +1450,7 @@ non-nil).  In addition, it will filter out revs involving HEAD."
 (defun magit-commit-parents (commit)
   (cdr (split-string (magit-git-string "rev-list" "-1" "--parents" commit))))
 
-;;;; Various Utilities (II)
+;;;; Various Utilities
 
 (defun magit-highlight-line-whitespace ()
   (when (and magit-highlight-whitespace
@@ -1481,6 +1467,18 @@ non-nil).  In addition, it will filter out revs involving HEAD."
                                      magit-current-indentation))))
         (overlay-put (make-overlay (match-beginning 1) (match-end 1))
                      'face 'magit-whitespace-warning-face))))
+
+(defun magit-use-region-p ()
+  (if (fboundp 'use-region-p)
+      (use-region-p)
+    (and transient-mark-mode mark-active)))
+
+(defun magit-goto-line (line)
+  "Like `goto-line' but doesn't set the mark."
+  (save-restriction
+    (widen)
+    (goto-char 1)
+    (forward-line (1- line))))
 
 (defun magit-put-line-property (prop val)
   (put-text-property (line-beginning-position) (line-beginning-position 2)
