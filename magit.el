@@ -1024,12 +1024,6 @@ This is calculated from `magit-highlight-indentation'.")
     (define-key map (kbd "e") 'magit-diffstat-ediff)
     map))
 
-;;; Macros
-
-(defmacro magit-with-refresh (&rest body)
-  (declare (indent 0))
-  `(magit-refresh-wrapper (lambda () ,@body)))
-
 ;;; Git features
 
 (defvar magit-have-graph 'unset)
@@ -1451,6 +1445,10 @@ non-nil).  In addition, it will filter out revs involving HEAD."
   (cdr (split-string (magit-git-string "rev-list" "-1" "--parents" commit))))
 
 ;;;; Various Utilities
+
+(defmacro magit-with-refresh (&rest body)
+  (declare (indent 0))
+  `(magit-refresh-wrapper (lambda () ,@body)))
 
 (defun magit-highlight-line-whitespace ()
   (when (and magit-highlight-whitespace
