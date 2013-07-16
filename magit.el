@@ -1488,10 +1488,6 @@ non-nil).  In addition, it will filter out revs involving HEAD."
                     (concat "--pretty=format:" format)
                     commit))
 
-(defun magit-current-line ()
-  (buffer-substring-no-properties (line-beginning-position)
-                                  (line-end-position)))
-
 (defun magit-insert-region (beg end buf)
   (let ((text (buffer-substring-no-properties beg end)))
     (with-current-buffer buf
@@ -3315,7 +3311,10 @@ Customize `magit-diff-refine-hunk' to change the default mode."
 
 (defun magit-wash-diff ()
   (let ((magit-section-hidden-default magit-hide-diffs))
-    (magit-with-section (magit-current-line) 'diff
+    (magit-with-section
+        (buffer-substring-no-properties (line-beginning-position)
+                                        (line-end-position))
+        'diff
       (magit-wash-diff-section))))
 
 (defun magit-diff-item-kind (diff)
