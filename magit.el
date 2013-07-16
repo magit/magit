@@ -1295,7 +1295,7 @@ Read `completing-read' documentation for the meaning of the argument."
       (magit-git-string "config" (mapconcat 'identity keys ".") val)
     (magit-git-string "config" "--unset" (mapconcat 'identity keys "."))))
 
-;;;; Git Low-Level     (I)
+;;;; Git Low-Level
 
 (defun magit-git-repo-p (dir)
   (file-exists-p (expand-file-name ".git" dir)))
@@ -1451,6 +1451,19 @@ non-nil).  In addition, it will filter out revs involving HEAD."
             (setq rev plain-name))))
       rev)))
 
+(defun magit-file-uptodate-p (file)
+  (eq (magit-git-exit-code "diff" "--quiet" "--" file) 0))
+
+(defun magit-anything-staged-p ()
+  (not (eq (magit-git-exit-code "diff" "--quiet" "--cached") 0)))
+
+(defun magit-everything-clean-p ()
+  (and (not (magit-anything-staged-p))
+       (eq (magit-git-exit-code "diff" "--quiet") 0)))
+
+(defun magit-commit-parents (commit)
+  (cdr (split-string (magit-git-string "rev-list" "-1" "--parents" commit))))
+
 ;;;; Various Utilities (II)
 
 (defun magit-highlight-line-whitespace ()
@@ -1493,23 +1506,6 @@ non-nil).  In addition, it will filter out revs involving HEAD."
                (line-beginning-position) (line-beginning-position 2))))
     (with-current-buffer buf
       (insert text))))
-
-;;;; Git Low-Level     (II)
-
-(defun magit-file-uptodate-p (file)
-  (eq (magit-git-exit-code "diff" "--quiet" "--" file) 0))
-
-(defun magit-anything-staged-p ()
-  (not (eq (magit-git-exit-code "diff" "--quiet" "--cached") 0)))
-
-(defun magit-everything-clean-p ()
-  (and (not (magit-anything-staged-p))
-       (eq (magit-git-exit-code "diff" "--quiet") 0)))
-
-(defun magit-commit-parents (commit)
-  (cdr (split-string (magit-git-string "rev-list" "-1" "--parents" commit))))
-
-;;;; Various Utilities (III)
 
 ;; XXX - let the user choose the parent
 
