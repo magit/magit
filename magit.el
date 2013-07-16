@@ -1631,7 +1631,7 @@ non-nil).  In addition, it will filter out revs involving HEAD."
         (error "Can't %s merge commits" op)
       nil)))
 
-;;; Revisions and ranges
+;;; Revisions and Ranges
 
 (defvar magit-current-range nil
   "The range described by the current buffer.
@@ -2575,7 +2575,7 @@ magit-topgit and magit-svn"
        (put ',fun 'definition-name ',sym)
        (put ',hook 'definition-name ',sym))))
 
-;;; Running commands
+;;; Running Commands
 
 (defun magit-set-mode-line-process (str)
   (let ((pr (if str (concat " " str) "")))
@@ -3032,7 +3032,7 @@ With a prefix argument, kill the buffer instead."
     (when (and winconf magit-restore-window-configuration)
       (set-window-configuration winconf))))
 
-;;; Untracked files
+;;; Untracked Files
 
 (defun magit-wash-untracked-file ()
   (if (looking-at "^? \\(.*\\)$")
@@ -5425,7 +5425,7 @@ even if `magit-set-upstream-on-push's value is `refuse'."
                        (member "-u" magit-custom-options)))
           (magit-set ref-branch "branch" branch "merge"))))))
 
-;;; Log Edit mode
+;;; Log Edit Mode
 
 (defvar magit-log-edit-buffer-name "*magit-edit-log*"
   "Buffer name for composing commit messages.")
