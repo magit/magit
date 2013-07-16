@@ -1811,6 +1811,8 @@ an existing remote."
   parent title beginning end children hidden type info
   needs-refresh-on-show)
 
+;;;; Section Variables
+
 (defvar magit-top-section nil
   "The top section of the current buffer.")
 (make-variable-buffer-local 'magit-top-section)
@@ -1827,6 +1829,25 @@ an existing remote."
 (make-variable-buffer-local 'magit-diffstat-cached-sections)
 (put 'magit-diffstat-cached-sections 'permanent-local t)
 
+;;;; Section Creation
+
+(defmacro magit-define-inserter (sym arglist &rest body)
+  (declare (indent defun))
+  (let ((fun (intern (format "magit-insert-%s" sym)))
+        (before (intern (format "magit-before-insert-%s-hook" sym)))
+        (after (intern (format "magit-after-insert-%s-hook" sym)))
+        (doc (format "Insert items for `%s'." sym)))
+    `(progn
+       (defvar ,before nil)
+       (defvar ,after nil)
+       (defun ,fun ,arglist
+         ,doc
+         (run-hooks ',before)
+         ,@body
+         (run-hooks ',after))
+       (put ',before 'definition-name ',sym)
+       (put ',after 'definition-name ',sym)
+       (put ',fun 'definition-name ',sym))))
 
 (defun magit-new-section (title type)
   "Create a new section with title TITLE and type TYPE in current buffer.
@@ -1878,6 +1899,60 @@ If TYPE is nil, the section won't be highlighted."
              (nreverse (magit-section-children ,s)))
        ,s)))
 
+(defun magit-insert-section (section-title-and-type
+                             buffer-title washer cmd &rest args)
+  "Run CMD and put its result in a new section.
+
+SECTION-TITLE-AND-TYPE is either a string that is the title of the section
+or (TITLE . TYPE) where TITLE is the title of the section and TYPE is its type.
+
+If there is no type, or if type is nil, the section won't be highlighted.
+
+BUFFER-TITLE is the inserted title of the section
+
+WASHER is a function that will be run after CMD.
+The buffer will be narrowed to the inserted text.
+It should add sectioning as needed for Magit interaction.
+
+CMD is an external command that will be run with ARGS as arguments."
+  (let* ((body-beg nil)
+         (section-title (if (consp section-title-and-type)
+                            (car section-title-and-type)
+                          section-title-and-type))
+         (section-type (if (consp section-title-and-type)
+                           (cdr section-title-and-type)
+                         nil))
+         (section
+          (magit-with-section section-title section-type
+            (if buffer-title
+                (insert (propertize buffer-title 'face 'magit-section-title)
+                        "\n"))
+            (setq body-beg (point))
+            (magit-cmd-insert cmd args)
+            (if (not (eq (char-before) ?\n))
+                (insert "\n"))
+            (if washer
+                (save-restriction
+                  (narrow-to-region body-beg (point))
+                  (goto-char (point-min))
+                  (funcall washer)
+                  (goto-char (point-max)))))))
+    (if (= body-beg (point))
+        (magit-cancel-section section)
+      (insert "\n"))
+    section))
+
+(defun magit-git-section (section-title-and-type
+                          buffer-title washer &rest args)
+  "Run Git and put its result in a new section.
+See `magit-insert-section' for meaning of the arguments"
+  (apply #'magit-insert-section
+         section-title-and-type
+         buffer-title
+         washer
+         magit-git-executable
+         (append magit-git-standard-options args)))
+
 (defun magit-set-section (title type start end)
   "Create a new section of title TITLE and type TYPE.
 Use the specified START and END positions."
@@ -1916,6 +1991,8 @@ Use the specified START and END positions."
                      'magit-section section)
   (mapc 'magit-propertize-section
         (magit-section-children section)))
+
+;;;; Section Searching
 
 (defun magit-find-section (path top)
   "Find the section at the path PATH in subsection of section TOP."
@@ -1980,59 +2057,7 @@ Use the specified START and END positions."
   (or (get-text-property pos 'magit-section)
       magit-top-section))
 
-(defun magit-insert-section (section-title-and-type
-                             buffer-title washer cmd &rest args)
-  "Run CMD and put its result in a new section.
-
-SECTION-TITLE-AND-TYPE is either a string that is the title of the section
-or (TITLE . TYPE) where TITLE is the title of the section and TYPE is its type.
-
-If there is no type, or if type is nil, the section won't be highlighted.
-
-BUFFER-TITLE is the inserted title of the section
-
-WASHER is a function that will be run after CMD.
-The buffer will be narrowed to the inserted text.
-It should add sectioning as needed for Magit interaction.
-
-CMD is an external command that will be run with ARGS as arguments."
-  (let* ((body-beg nil)
-         (section-title (if (consp section-title-and-type)
-                            (car section-title-and-type)
-                          section-title-and-type))
-         (section-type (if (consp section-title-and-type)
-                           (cdr section-title-and-type)
-                         nil))
-         (section
-          (magit-with-section section-title section-type
-            (if buffer-title
-                (insert (propertize buffer-title 'face 'magit-section-title)
-                        "\n"))
-            (setq body-beg (point))
-            (magit-cmd-insert cmd args)
-            (if (not (eq (char-before) ?\n))
-                (insert "\n"))
-            (if washer
-                (save-restriction
-                  (narrow-to-region body-beg (point))
-                  (goto-char (point-min))
-                  (funcall washer)
-                  (goto-char (point-max)))))))
-    (if (= body-beg (point))
-        (magit-cancel-section section)
-      (insert "\n"))
-    section))
-
-(defun magit-git-section (section-title-and-type
-                          buffer-title washer &rest args)
-  "Run Git and put its result in a new section.
-See `magit-insert-section' for meaning of the arguments"
-  (apply #'magit-insert-section
-         section-title-and-type
-         buffer-title
-         washer
-         magit-git-executable
-         (append magit-git-standard-options args)))
+;;;; Section Jumping
 
 (defun magit-goto-next-section ()
   "Go to the next section."
@@ -2125,6 +2150,25 @@ See `magit-insert-section' for meaning of the arguments"
       (if (called-interactively-p 'interactive)
           (message "No diffstats section found")))))
 
+(defmacro magit-define-section-jumper (sym title)
+  "Define an interactive function to go to section SYM.
+TITLE is the displayed title of the section."
+  (let ((fun (intern (format "magit-jump-to-%s" sym)))
+        (doc (format "Jump to section `%s'." title)))
+    `(progn
+       (defun ,fun ()
+         ,doc
+         (interactive)
+         (magit-goto-section-at-path '(,sym)))
+       (put ',fun 'definition-name ',sym))))
+
+(magit-define-section-jumper untracked "Untracked files")
+(magit-define-section-jumper unstaged  "Unstaged changes")
+(magit-define-section-jumper staged    "Staged changes")
+(magit-define-section-jumper unpushed  "Unpushed commits")
+
+;;;; Section Utilities
+
 (defun magit-for-all-sections (func &optional top)
   "Run FUNC on TOP and recursively on all its children.
 Default value for TOP is `magit-top-section'"
@@ -2133,6 +2177,14 @@ Default value for TOP is `magit-top-section'"
       (funcall func section)
       (dolist (c (magit-section-children section))
         (magit-for-all-sections func c)))))
+
+(defun magit-wash-sequence (func)
+  "Run FUNC until end of buffer is reached.
+FUNC should leave point at the end of the modified region"
+  (while (and (not (eobp))
+              (funcall func))))
+
+;;;; Section Visibility
 
 (defun magit-section-set-hidden (section hidden)
   "Hide SECTION if HIDDEN is not nil, show it otherwise."
@@ -2319,35 +2371,12 @@ One for all, one for current lineage."
      (magit-define-level-shower-1 ,level nil)
      (magit-define-level-shower-1 ,level t)))
 
-(defmacro magit-define-section-jumper (sym title)
-  "Define an interactive function to go to section SYM.
-TITLE is the displayed title of the section."
-  (let ((fun (intern (format "magit-jump-to-%s" sym)))
-        (doc (format "Jump to section `%s'." title)))
-    `(progn
-       (defun ,fun ()
-         ,doc
-         (interactive)
-         (magit-goto-section-at-path '(,sym)))
-       (put ',fun 'definition-name ',sym))))
+(magit-define-level-shower 1)
+(magit-define-level-shower 2)
+(magit-define-level-shower 3)
+(magit-define-level-shower 4)
 
-(defmacro magit-define-inserter (sym arglist &rest body)
-  (declare (indent defun))
-  (let ((fun (intern (format "magit-insert-%s" sym)))
-        (before (intern (format "magit-before-insert-%s-hook" sym)))
-        (after (intern (format "magit-after-insert-%s-hook" sym)))
-        (doc (format "Insert items for `%s'." sym)))
-    `(progn
-       (defvar ,before nil)
-       (defvar ,after nil)
-       (defun ,fun ,arglist
-         ,doc
-         (run-hooks ',before)
-         ,@body
-         (run-hooks ',after))
-       (put ',before 'definition-name ',sym)
-       (put ',after 'definition-name ',sym)
-       (put ',fun 'definition-name ',sym))))
+;;;; Section Highlighting
 
 (defvar magit-highlighted-section nil)
 
@@ -2398,6 +2427,8 @@ Refinements can be undone with `magit-unrefine-section'."
                           (magit-section-end section)
                           (current-buffer)))
         (delete-overlay magit-highlight-overlay)))))
+
+;;;; Section Actions
 
 (defun magit-section-context-type (section)
   (when section
@@ -2529,11 +2560,7 @@ and CLAUSES.
 (define-obsolete-function-alias 'magit-add-action
   'magit-add-action-clauses "1.3.0")
 
-(defun magit-wash-sequence (func)
-  "Run FUNC until end of buffer is reached.
-FUNC should leave point at the end of the modified region"
-  (while (and (not (eobp))
-              (funcall func))))
+;;; Command Macro
 
 (defmacro magit-define-command (sym arglist &rest body)
   "Macro to define a magit command.
@@ -2794,19 +2821,6 @@ magit-topgit and magit-svn"
   (display-buffer magit-process-buffer-name))
 
 ;;; Magit Mode
-
-;; We define individual functions (instead of using lambda etc) so
-;; that the online help can show something meaningful.
-
-(magit-define-section-jumper untracked "Untracked files")
-(magit-define-section-jumper unstaged  "Unstaged changes")
-(magit-define-section-jumper staged    "Staged changes")
-(magit-define-section-jumper unpushed  "Unpushed commits")
-
-(magit-define-level-shower 1)
-(magit-define-level-shower 2)
-(magit-define-level-shower 3)
-(magit-define-level-shower 4)
 
 (defvar magit-mode-hook nil "Hook run by `magit-mode'.")
 
