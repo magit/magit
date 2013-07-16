@@ -4274,6 +4274,8 @@ insert a line to tell how to insert more of them"
              "--cc"
              "-p" ,commit))))
 
+;;; Commit Mode
+
 (define-derived-mode magit-commit-mode magit-mode "Magit"
   "Mode to view a git commit.
 
@@ -6133,7 +6135,7 @@ With a non numeric prefix ARG, show all entries"
     (magit-mode-init topdir 'magit-log-mode #'magit-refresh-log-buffer range
                      'long args)))
 
-;;; Reflog
+;;; Reflog Mode
 
 (defvar magit-reflog-head nil
   "The HEAD of the reflog in the current buffer.
@@ -6262,6 +6264,8 @@ restore the window state that was saved before ediff was called."
              "diff" (magit-diff-U-arg)
              `(,@(if magit-show-diffstat (list "--patch-with-stat"))
                ,args "--")))))
+
+;;; Diff Mode
 
 (define-derived-mode magit-diff-mode magit-mode "Magit Diff"
   "Mode for looking at a git diff.
