@@ -2855,9 +2855,6 @@ before the last command."
                      end))))
   (setq disable-point-adjustment t))
 
-(defun magit-post-command-hook ()
-  (magit-correct-point-after-command)
-  (magit-highlight-section))
 
 (defun magit-mode ()
   "Review the status of a git repository and act on it.
@@ -2873,7 +2870,8 @@ Please see the manual for a complete description of Magit.
         mode-name "Magit"
         mode-line-process "")
   (add-hook 'pre-command-hook #'magit-remember-point nil t)
-  (add-hook 'post-command-hook #'magit-post-command-hook t t)
+  (add-hook 'post-command-hook #'magit-correct-point-after-command t t)
+  (add-hook 'post-command-hook #'magit-highlight-section t t)
   (use-local-map magit-mode-map)
   (setq magit-current-indentation
         (cdr (cl-find-if (lambda (pair)
