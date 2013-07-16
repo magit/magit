@@ -2602,7 +2602,7 @@ magit-topgit and magit-svn"
        (put ',fun 'definition-name ',sym)
        (put ',hook 'definition-name ',sym))))
 
-;;; Running Commands
+;;; Git Processes
 
 (defun magit-set-mode-line-process (str)
   (let ((pr (if str (concat " " str) "")))
@@ -7099,7 +7099,7 @@ With a prefix arg, do a submodule update --init."
   (let ((default-directory (magit-get-top-dir)))
     (magit-run-git-async "submodule" "sync")))
 
-;;; Running (continued)
+;;; External Tools
 
 (defun magit-run-git-gui ()
   "Run `git gui' for the current git repository."
