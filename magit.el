@@ -904,7 +904,8 @@ This is calculated from `magit-highlight-indentation'.")
   "The version of Magit that you're using.")
 
 
-;;; Keymaps
+;;; Keymaps and Menus
+;;;; Keymaps
 
 (defvar magit-mode-map
   (let ((map (make-keymap)))
@@ -996,6 +997,23 @@ This is calculated from `magit-highlight-indentation'.")
 (eval-after-load 'dired-x
   '(define-key magit-status-mode-map [remap dired-jump] 'magit-dired-jump))
 
+(defvar magit-log-edit-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c C-c") 'magit-log-edit-commit)
+    (define-key map (kbd "C-x #")   'magit-log-edit-commit)
+    (define-key map (kbd "C-c C-a") 'magit-log-edit-toggle-amending)
+    (define-key map (kbd "C-c C-s") 'magit-log-edit-toggle-signoff)
+    (define-key map (kbd "C-c C-v") 'magit-log-edit-toggle-gpgsign)
+    (define-key map (kbd "C-c C-n") 'magit-log-edit-toggle-no-verify)
+    (define-key map (kbd "C-c C-t") 'magit-log-edit-toggle-author)
+    (define-key map (kbd "C-c C-e") 'magit-log-edit-toggle-allow-empty)
+    (define-key map (kbd "M-p")     'log-edit-previous-comment)
+    (define-key map (kbd "M-n")     'log-edit-next-comment)
+    (define-key map (kbd "C-c C-k") 'magit-log-edit-cancel-log-message)
+    (define-key map (kbd "C-c C-]") 'magit-log-edit-cancel-log-message)
+    (define-key map (kbd "C-x C-s") 'magit-log-edit-nop)
+    map))
+
 (defvar magit-log-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd ".") 'magit-mark-item)
@@ -1023,6 +1041,112 @@ This is calculated from `magit-highlight-indentation'.")
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "e") 'magit-diffstat-ediff)
     map))
+
+;;;; Menus
+
+(easy-menu-define magit-mode-menu magit-mode-map
+  "Magit menu"
+  '("Magit"
+    ["Refresh" magit-refresh t]
+    ["Refresh all" magit-refresh-all t]
+    "---"
+    ["Stage" magit-stage-item t]
+    ["Stage all" magit-stage-all t]
+    ["Unstage" magit-unstage-item t]
+    ["Unstage all" magit-unstage-all t]
+    ["Commit" magit-log-edit t]
+    ["Add log entry" magit-add-log t]
+    ["Tag" magit-tag t]
+    ["Annotated tag" magit-annotated-tag t]
+    "---"
+    ["Diff working tree" magit-diff-working-tree t]
+    ["Diff" magit-diff t]
+    ("Log"
+     ["Short Log" magit-log t]
+     ["Long Log" magit-log-long t]
+     ["Reflog" magit-reflog t]
+     ["Extended..." magit-key-mode-popup-logging t])
+    "---"
+    ["Cherry pick" magit-cherry-pick-item t]
+    ["Apply" magit-apply-item t]
+    ["Revert" magit-revert-item t]
+    "---"
+    ["Ignore" magit-ignore-item t]
+    ["Ignore locally" magit-ignore-item-locally t]
+    ["Discard" magit-discard-item t]
+    ["Reset head" magit-reset-head t]
+    ["Reset working tree" magit-reset-working-tree t]
+    ["Stash" magit-stash t]
+    ["Snapshot" magit-stash-snapshot t]
+    "---"
+    ["Branch..." magit-checkout t]
+    ["Merge" magit-manual-merge t]
+    ["Interactive resolve" magit-interactive-resolve-item t]
+    ["Rebase" magit-rebase-step t]
+    ("Rewrite"
+     ["Start" magit-rewrite-start t]
+     ["Stop" magit-rewrite-stop t]
+     ["Finish" magit-rewrite-finish t]
+     ["Abort" magit-rewrite-abort t]
+     ["Set used" magit-rewrite-set-used t]
+     ["Set unused" magit-rewrite-set-unused t])
+    "---"
+    ["Push" magit-push t]
+    ["Pull" magit-pull t]
+    ["Remote update" magit-remote-update t]
+    ("Submodule"
+     ["Submodule update" magit-submodule-update t]
+     ["Submodule update and init" magit-submodule-update-init t]
+     ["Submodule init" magit-submodule-init t]
+     ["Submodule sync" magit-submodule-sync t])
+    "---"
+    ("Extensions")
+    "---"
+    ["Display Git output" magit-display-process t]
+    ["Quit Magit" magit-quit-window t]))
+
+(easy-menu-define magit-log-edit-mode-menu magit-log-edit-mode-map
+  "Log Edit menu"
+  '("Log Edit"
+    ["Previous" log-edit-previous-comment t]
+    ["Next" log-edit-next-comment t]
+    "-"
+    ["Amend" magit-log-edit-toggle-amending
+     :style toggle
+     :selected (string= (magit-log-edit-get-field 'amend) "yes")
+     :help "If selected this commit will be an amendment to the previous commit."]
+    ["Sign-Off" magit-log-edit-toggle-signoff
+     :style toggle
+     :selected (let ((sign-off-field (magit-log-edit-get-field 'sign-off)))
+                 (if sign-off-field
+                     (equal sign-off-field "yes")
+                   magit-commit-signoff))
+     :help "If selected a Signed-off-by line will be added."]
+    ["GPG Sign" magit-log-edit-toggle-gpgsign
+     :style toggle
+     :selected (let ((gpg-sign-field (magit-log-edit-get-field 'gpg-sign)))
+                 (if gpg-sign-field
+                     (equal gpg-sign-field "yes")
+                   magit-commit-gpgsign))
+     :help "If selected the commit will be signed."]
+    ["No Verify" magit-log-edit-toggle-no-verify
+     :style toggle
+     :selected (let ((no-verify-field (magit-log-edit-get-field 'no-verify)))
+                 (if no-verify-field
+                     (equal no-verify-field "yes")
+                   magit-commit-no-verify))
+     :help "If selected the commit will bypass the pre-commit and commit-msg hooks."]
+    ["Author" magit-log-edit-toggle-author
+     :style toggle
+     :selected (magit-log-edit-get-field 'author)
+     :help "If selected this commit will include an author."]
+    ["Allow Empty" magit-log-edit-toggle-allow-empty
+     :style toggle
+     :selected (string= (magit-log-edit-get-field 'allow-empty) "yes")
+     :help "If selected the commit is allowed to be empty."]
+    "-"
+    ["Cancel" magit-log-edit-cancel-log-message t]
+    ["Commit" magit-log-edit-commit t]))
 
 ;;; Git features
 
@@ -2683,67 +2807,6 @@ magit-topgit and magit-svn"
 (magit-define-level-shower 2)
 (magit-define-level-shower 3)
 (magit-define-level-shower 4)
-
-(easy-menu-define magit-mode-menu magit-mode-map
-  "Magit menu"
-  '("Magit"
-    ["Refresh" magit-refresh t]
-    ["Refresh all" magit-refresh-all t]
-    "---"
-    ["Stage" magit-stage-item t]
-    ["Stage all" magit-stage-all t]
-    ["Unstage" magit-unstage-item t]
-    ["Unstage all" magit-unstage-all t]
-    ["Commit" magit-log-edit t]
-    ["Add log entry" magit-add-log t]
-    ["Tag" magit-tag t]
-    ["Annotated tag" magit-annotated-tag t]
-    "---"
-    ["Diff working tree" magit-diff-working-tree t]
-    ["Diff" magit-diff t]
-    ("Log"
-     ["Short Log" magit-log t]
-     ["Long Log" magit-log-long t]
-     ["Reflog" magit-reflog t]
-     ["Extended..." magit-key-mode-popup-logging t])
-    "---"
-    ["Cherry pick" magit-cherry-pick-item t]
-    ["Apply" magit-apply-item t]
-    ["Revert" magit-revert-item t]
-    "---"
-    ["Ignore" magit-ignore-item t]
-    ["Ignore locally" magit-ignore-item-locally t]
-    ["Discard" magit-discard-item t]
-    ["Reset head" magit-reset-head t]
-    ["Reset working tree" magit-reset-working-tree t]
-    ["Stash" magit-stash t]
-    ["Snapshot" magit-stash-snapshot t]
-    "---"
-    ["Branch..." magit-checkout t]
-    ["Merge" magit-manual-merge t]
-    ["Interactive resolve" magit-interactive-resolve-item t]
-    ["Rebase" magit-rebase-step t]
-    ("Rewrite"
-     ["Start" magit-rewrite-start t]
-     ["Stop" magit-rewrite-stop t]
-     ["Finish" magit-rewrite-finish t]
-     ["Abort" magit-rewrite-abort t]
-     ["Set used" magit-rewrite-set-used t]
-     ["Set unused" magit-rewrite-set-unused t])
-    "---"
-    ["Push" magit-push t]
-    ["Pull" magit-pull t]
-    ["Remote update" magit-remote-update t]
-    ("Submodule"
-     ["Submodule update" magit-submodule-update t]
-     ["Submodule update and init" magit-submodule-update-init t]
-     ["Submodule init" magit-submodule-init t]
-     ["Submodule sync" magit-submodule-sync t])
-    "---"
-    ("Extensions")
-    "---"
-    ["Display Git output" magit-display-process t]
-    ["Quit Magit" magit-quit-window t]))
 
 (defvar magit-mode-hook nil "Hook run by `magit-mode'.")
 
@@ -5367,67 +5430,7 @@ even if `magit-set-upstream-on-push's value is `refuse'."
 (defvar magit-log-edit-buffer-name "*magit-edit-log*"
   "Buffer name for composing commit messages.")
 
-(defvar magit-log-edit-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-c") 'magit-log-edit-commit)
-    (define-key map (kbd "C-x #") 'magit-log-edit-commit)
-    (define-key map (kbd "C-c C-a") 'magit-log-edit-toggle-amending)
-    (define-key map (kbd "C-c C-s") 'magit-log-edit-toggle-signoff)
-    (define-key map (kbd "C-c C-v") 'magit-log-edit-toggle-gpgsign)
-    (define-key map (kbd "C-c C-n") 'magit-log-edit-toggle-no-verify)
-    (define-key map (kbd "C-c C-t") 'magit-log-edit-toggle-author)
-    (define-key map (kbd "C-c C-e") 'magit-log-edit-toggle-allow-empty)
-    (define-key map (kbd "M-p") 'log-edit-previous-comment)
-    (define-key map (kbd "M-n") 'log-edit-next-comment)
-    (define-key map (kbd "C-c C-k") 'magit-log-edit-cancel-log-message)
-    (define-key map (kbd "C-c C-]") 'magit-log-edit-cancel-log-message)
-    (define-key map (kbd "C-x C-s") 'magit-log-edit-nop)
-    map))
-
 (defvar magit-pre-log-edit-window-configuration nil)
-
-(easy-menu-define magit-log-edit-mode-menu magit-log-edit-mode-map
-  "Log Edit menu"
-  '("Log Edit"
-    ["Previous" log-edit-previous-comment t]
-    ["Next" log-edit-next-comment t]
-    "-"
-    ["Amend" magit-log-edit-toggle-amending
-     :style toggle
-     :selected (string= (magit-log-edit-get-field 'amend) "yes")
-     :help "If selected this commit will be an amendment to the previous commit."]
-    ["Sign-Off" magit-log-edit-toggle-signoff
-     :style toggle
-     :selected (let ((sign-off-field (magit-log-edit-get-field 'sign-off)))
-                 (if sign-off-field
-                     (equal sign-off-field "yes")
-                   magit-commit-signoff))
-     :help "If selected a Signed-off-by line will be added."]
-    ["GPG Sign" magit-log-edit-toggle-gpgsign
-     :style toggle
-     :selected (let ((gpg-sign-field (magit-log-edit-get-field 'gpg-sign)))
-                 (if gpg-sign-field
-                     (equal gpg-sign-field "yes")
-                   magit-commit-gpgsign))
-     :help "If selected the commit will be signed."]
-    ["No Verify" magit-log-edit-toggle-no-verify
-     :style toggle
-     :selected (let ((no-verify-field (magit-log-edit-get-field 'no-verify)))
-                 (if no-verify-field
-                     (equal no-verify-field "yes")
-                   magit-commit-no-verify))
-     :help "If selected the commit will bypass the pre-commit and commit-msg hooks."]
-    ["Author" magit-log-edit-toggle-author
-     :style toggle
-     :selected (magit-log-edit-get-field 'author)
-     :help "If selected this commit will include an author."]
-    ["Allow Empty" magit-log-edit-toggle-allow-empty
-     :style toggle
-     :selected (string= (magit-log-edit-get-field 'allow-empty) "yes")
-     :help "If selected the commit is allowed to be empty."]
-    "-"
-    ["Cancel" magit-log-edit-cancel-log-message t]
-    ["Commit" magit-log-edit-commit t]))
 
 (define-derived-mode magit-log-edit-mode text-mode "Magit Log Edit"
   ;; Recognize changelog-style paragraphs
