@@ -1811,6 +1811,8 @@ an existing remote."
   parent title beginning end children hidden type info
   needs-refresh-on-show)
 
+;;;; Section Variables
+
 (defvar magit-top-section nil
   "The top section of the current buffer.")
 (make-variable-buffer-local 'magit-top-section)
@@ -1827,6 +1829,7 @@ an existing remote."
 (make-variable-buffer-local 'magit-diffstat-cached-sections)
 (put 'magit-diffstat-cached-sections 'permanent-local t)
 
+;;;; Section Creation
 
 (defun magit-new-section (title type)
   "Create a new section with title TITLE and type TYPE in current buffer.
@@ -1916,6 +1919,8 @@ Use the specified START and END positions."
                      'magit-section section)
   (mapc 'magit-propertize-section
         (magit-section-children section)))
+
+;;;; Section Searching
 
 (defun magit-find-section (path top)
   "Find the section at the path PATH in subsection of section TOP."
@@ -2034,6 +2039,8 @@ See `magit-insert-section' for meaning of the arguments"
          magit-git-executable
          (append magit-git-standard-options args)))
 
+;;;; Section Jumping
+
 (defun magit-goto-next-section ()
   "Go to the next section."
   (interactive)
@@ -2125,6 +2132,8 @@ See `magit-insert-section' for meaning of the arguments"
       (if (called-interactively-p 'interactive)
           (message "No diffstats section found")))))
 
+;;;; Section Utilities
+
 (defun magit-for-all-sections (func &optional top)
   "Run FUNC on TOP and recursively on all its children.
 Default value for TOP is `magit-top-section'"
@@ -2133,6 +2142,8 @@ Default value for TOP is `magit-top-section'"
       (funcall func section)
       (dolist (c (magit-section-children section))
         (magit-for-all-sections func c)))))
+
+;;;; Section Visibility
 
 (defun magit-section-set-hidden (section hidden)
   "Hide SECTION if HIDDEN is not nil, show it otherwise."
@@ -2349,6 +2360,8 @@ TITLE is the displayed title of the section."
        (put ',after 'definition-name ',sym)
        (put ',fun 'definition-name ',sym))))
 
+;;;; Section Highlighting
+
 (defvar magit-highlighted-section nil)
 
 (defun magit-refine-section (section)
@@ -2398,6 +2411,8 @@ Refinements can be undone with `magit-unrefine-section'."
                           (magit-section-end section)
                           (current-buffer)))
         (delete-overlay magit-highlight-overlay)))))
+
+;;;; Section Actions
 
 (defun magit-section-context-type (section)
   (when section
@@ -2534,6 +2549,8 @@ and CLAUSES.
 FUNC should leave point at the end of the modified region"
   (while (and (not (eobp))
               (funcall func))))
+
+;;; Command Macro
 
 (defmacro magit-define-command (sym arglist &rest body)
   "Macro to define a magit command.
