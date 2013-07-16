@@ -2162,6 +2162,11 @@ TITLE is the displayed title of the section."
          (magit-goto-section-at-path '(,sym)))
        (put ',fun 'definition-name ',sym))))
 
+(magit-define-section-jumper untracked "Untracked files")
+(magit-define-section-jumper unstaged  "Unstaged changes")
+(magit-define-section-jumper staged    "Staged changes")
+(magit-define-section-jumper unpushed  "Unpushed commits")
+
 ;;;; Section Utilities
 
 (defun magit-for-all-sections (func &optional top)
@@ -2365,6 +2370,11 @@ One for all, one for current lineage."
   `(progn
      (magit-define-level-shower-1 ,level nil)
      (magit-define-level-shower-1 ,level t)))
+
+(magit-define-level-shower 1)
+(magit-define-level-shower 2)
+(magit-define-level-shower 3)
+(magit-define-level-shower 4)
 
 ;;;; Section Highlighting
 
@@ -2811,19 +2821,6 @@ magit-topgit and magit-svn"
   (display-buffer magit-process-buffer-name))
 
 ;;; Magit Mode
-
-;; We define individual functions (instead of using lambda etc) so
-;; that the online help can show something meaningful.
-
-(magit-define-section-jumper untracked "Untracked files")
-(magit-define-section-jumper unstaged  "Unstaged changes")
-(magit-define-section-jumper staged    "Staged changes")
-(magit-define-section-jumper unpushed  "Unpushed commits")
-
-(magit-define-level-shower 1)
-(magit-define-level-shower 2)
-(magit-define-level-shower 3)
-(magit-define-level-shower 4)
 
 (defvar magit-mode-hook nil "Hook run by `magit-mode'.")
 
