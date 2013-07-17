@@ -393,6 +393,12 @@ information to be displayed at all."
   :type '(choice (const :tag "tags are the subjects" tag)
                  (const :tag "head is the subject" head)))
 
+(defcustom magit-status-verbose-untracked t
+  "Whether to show the contents of or just the untracked directory."
+  :group 'magit
+  :type '(choice (const :tag "show only directory" nil)
+                 (const :tag "show directory contents" t)))
+
 (defcustom magit-process-popup-time -1
   "Popup the process buffer if a command takes longer than this many seconds."
   :group 'magit
@@ -883,9 +889,6 @@ operation after commit).")
   "History items that will be visited by successively going \"forward\".")
 (make-variable-buffer-local 'magit-forward-navigation-history)
 (put 'magit-forward-navigation-history 'permanent-local t)
-
-(defvar magit-omit-untracked-dir-contents nil
-  "When non-nil magit will only list an untracked directory, not its contents.")
 
 (defvar magit-tmp-buffer-name " *magit-tmp*")
 
@@ -3075,7 +3078,7 @@ With a prefix argument, kill the buffer instead."
              "Untracked files:"
              magit-wash-untracked-files
              "ls-files" "--others" "-t" "--exclude-standard"
-             ,@(when magit-omit-untracked-dir-contents
+             ,@(unless magit-status-verbose-untracked
                  '("--directory"))))))
 
 ;;; Diffs and Hunks
