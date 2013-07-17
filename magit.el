@@ -161,6 +161,9 @@
 
 ;;; Code:
 
+(defconst magit-version "@GIT_DEV_VERSION@"
+  "The version of Magit that you're using.")
+
 (require 'cl-lib)
 (require 'epa)
 
@@ -897,9 +900,6 @@ operation after commit).")
   "Indentation highlight used in the current buffer.
 This is calculated from `magit-highlight-indentation'.")
 (make-variable-buffer-local 'magit-current-indentation)
-
-(defconst magit-version "@GIT_DEV_VERSION@"
-  "The version of Magit that you're using.")
 
 
 ;;; Keymaps and Menus
