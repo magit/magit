@@ -4728,7 +4728,8 @@ non-nil, then autocompletion will offer directory names."
              dict)
     result))
 
-;;; Merging
+;;; Acting (1)
+;;;; Merging
 
 (magit-define-command automatic-merge (revision)
   "Merge REVISION into the current 'HEAD'; commit unless merge fails.
@@ -4748,7 +4749,7 @@ non-nil, then autocompletion will offer directory names."
     (when (file-exists-p ".git/MERGE_MSG")
         (magit-log-edit))))
 
-;;; Staging and Unstaging
+;;;; Stage and Unstage
 
 (defun magit-stage-item (&optional ask)
   "Add the item at point to the staging area.
@@ -4833,7 +4834,7 @@ With prefix argument, add remaining untracked files as well.
   (interactive)
   (magit-run-git "reset" "HEAD"))
 
-;;; Branching
+;;;; Branching
 
 (defun magit-escape-branch-name (branch)
   "Escape branch name BRANCH to remove problematic characters."
@@ -4987,7 +4988,7 @@ If no branch is found near the cursor return nil."
     (when (stringp branch)
       branch)))
 
-;;; Remoting
+;;;; Remoting
 
 (defun magit-add-remote (remote url)
   "Add the REMOTE and fetch it.
@@ -5020,7 +5021,7 @@ If no branch is found near the cursor return nil."
          info
        (magit-get-current-remote)))))
 
-;;; Merging
+;;;; Merging
 
 (defun magit-merge (revision)
   "Merge REVISION into the current 'HEAD'; leave changes uncommitted.
@@ -5032,7 +5033,7 @@ With a prefix-arg, the merge will be squashed.
          (magit-rev-to-git revision)
          magit-custom-options))
 
-;;; Rebasing
+;;;; Rebase
 
 (defun magit-rebase-info ()
   "Return a list indicating the state of an in-progress rebase.
@@ -5087,7 +5088,7 @@ Return nil if there is no rebase in progress."
                    magit-uninteresting-refs))))
       (magit-run-git "rebase" (magit-rev-to-git rev)))))
 
-;;; Resetting
+;;;; Reset
 
 (magit-define-command reset-head (revision &optional hard)
   "Switch 'HEAD' to REVISION, keeping prior working tree and staging area.
@@ -5136,7 +5137,7 @@ With a prefix arg, also remove untracked files.  With two prefix args, remove ig
                                            "-x"
                                          ""))))))
 
-;;; Rewriting
+;;;; Rewriting
 
 (defun magit-read-rewrite-info ()
   (when (file-exists-p (magit-git-dir "magit-rewrite-info"))
@@ -5270,7 +5271,7 @@ With a prefix arg, also remove untracked files.  With two prefix args, remove ig
              (magit-rewrite-set-commit-property commit 'used t)
              (magit-rewrite-finish-step nil))))))
 
-;;; Fetching
+;;;; Fetching
 
 (magit-define-command fetch (remote)
   "Fetch from REMOTE."
@@ -5290,7 +5291,7 @@ If there is no default remote, ask for one."
   (interactive)
   (apply 'magit-run-git-async "remote" "update" magit-custom-options))
 
-;;; Pulling
+;;;; Pulling
 
 (magit-define-command pull ()
   "Run git pull.
@@ -5335,7 +5336,7 @@ Values entered by the user because of prefix arguments are not saved with git co
             (when choose-branch
                (list (format "refs/heads/%s:refs/remotes/%s/%s" chosen-branch-merge-name chosen-branch-remote chosen-branch-merge-name)))))))
 
-;;; Running
+;;;; Running
 
 (defun magit-parse-arguments (command)
   (require 'eshell)
@@ -5368,7 +5369,7 @@ typing and automatically refreshes the status buffer."
                           args)
                   nil nil nil t))))
 
-;;; Pushing
+;;;; Pushing
 
 (magit-define-command push-tags ()
   "Push tags to a remote repository.
@@ -5846,7 +5847,8 @@ continue it.
                     (when (looking-at ":")
                       (forward-char 2)))))))))
 
-;;; Tagging
+;;; Acting (2)
+;;;; Tagging
 
 (magit-define-command tag (name rev)
   "Create a new lightweight tag with the given NAME at REV.
@@ -5879,7 +5881,7 @@ continue it.
   (magit-completing-read prompt (magit-git-lines "tag") nil
                          require-match nil 'magit-read-rev-history))
 
-;;; Stashing
+;;;; Stashing
 
 (defun magit-wash-stash ()
   (if (search-forward-regexp "stash@{\\(.*?\\)}" (line-end-position) t)
@@ -5966,7 +5968,7 @@ With prefix argument, changes in staging area are kept.
                     (args (magit-rev-range-to-git range)))
                (magit-mode-init dir 'magit-diff-mode #'magit-refresh-diff-buffer
                                 range args)))))))
-;;; Commits
+;;;; Apply
 
 (defun magit-apply-commit (commit &optional docommit noerase revert)
   (let* ((parent-id (magit-choose-parent-id commit "cherry-pick"))
@@ -6009,6 +6011,8 @@ With prefix argument, changes in staging area are kept.
     ((stash)
      (magit-run-git "stash" "apply" info))))
 
+;;;; Cherry-Pick
+
 (defun magit-cherry-pick-item ()
   (interactive)
   (magit-section-action (item info "cherry-pick")
@@ -6019,6 +6023,8 @@ With prefix argument, changes in staging area are kept.
      (magit-apply-commit info t))
     ((stash)
      (magit-run-git "stash" "pop" info))))
+
+;;;; Revert
 
 (defmacro magit-with-revert-confirmation (&rest body)
   `(when (or (not magit-revert-item-confirm)
@@ -6101,7 +6107,7 @@ With a non numeric prefix ARG, show all entries"
 \\{magit-log-mode-map}"
   :group 'magit)
 
-;;; Logging
+;;; Logging (A)
 
 (magit-define-command log-ranged ()
   (interactive)
@@ -6180,7 +6186,7 @@ This is only non-nil in reflog buffers.")
   (interactive)
   (magit-reflog t))
 
-;;; Diffing
+;;; Diffing (A)
 
 (defvar magit-ediff-buffers nil
   "List of buffers that may be killed by `magit-ediff-restore'.")
@@ -6379,7 +6385,8 @@ restore the window state that was saved before ediff was called."
                      #'magit-refresh-wazzup-buffer
                      current-branch all)))
 
-;;; Logging (continued)
+;;; Acting (3)
+;;;; File Log
 
 ;; This variable is used to keep track of the current file in the
 ;; *magit-log* buffer when this one is dedicated to showing the log of
@@ -6454,7 +6461,7 @@ for the file whose log must be displayed."
       ((hunk) (funcall show-file-from-diff (magit-hunk-item-diff item)))
       ((diff) (funcall show-file-from-diff item)))))
 
-;;; Key Mode Items
+;;;; Ignore
 
 (defun magit-edit-ignore-string (file)
   "Prompt the user for the string to be ignored.
@@ -6507,6 +6514,8 @@ written to .git/info/exclude."
   "Ignore the item at point locally only."
   (interactive)
   (magit--ignore-item current-prefix-arg t))
+
+;;;; Discard
 
 (defun magit-discard-diff (diff stagedp)
   (let ((kind (magit-diff-item-kind diff))
@@ -6581,6 +6590,8 @@ written to .git/info/exclude."
      (when (yes-or-no-p "Remove remote? ")
        (magit-remove-remote info)))))
 
+;;;; Move
+
 (defun magit-move-item ()
   (interactive)
   (magit-section-action (item info "move")
@@ -6598,6 +6609,8 @@ written to .git/info/exclude."
          (goto-char marker)
          ,@body))))
 
+;;;; ChangeLog
+
 (defun magit-add-change-log-entry-no-option (&optional other-window)
   "Add a change log entry for current change.
 With a prefix argument, edit in other window.
@@ -6610,6 +6623,8 @@ The name of the change log file is set by variable change-log-default-name."
 (defun magit-add-change-log-entry-other-window ()
   (interactive)
   (magit-visiting-file-item (call-interactively 'add-change-log-entry-other-window)))
+
+;;;; Dired
 
 (eval-after-load 'dired-x
   '(defun magit-dired-jump (&optional other-window)
@@ -6632,6 +6647,8 @@ With a prefix argument, visit in other window."
                    (file-truename (magit-diff-item-file
                                    (magit-hunk-item-diff item)))))
       (nil (dired-jump other-window)))))
+
+;;;; Visit
 
 (defun magit-visit-file-item (&optional other-window)
   "Visit current file associated with item.
@@ -6701,6 +6718,8 @@ With a prefix argument, visit in other window."
     ((longer)
      (magit-log-show-more-entries ()))))
 
+;;;; Show
+
 (defun magit-show-item-or-scroll-up ()
   (interactive)
   (magit-section-case (item info)
@@ -6721,6 +6740,8 @@ With a prefix argument, visit in other window."
     (t
      (scroll-down))))
 
+;;;; Mark
+
 (defun magit-mark-item (&optional unmark)
   (interactive "P")
   (if unmark
@@ -6730,6 +6751,8 @@ With a prefix argument, visit in other window."
        (magit-set-marked-commit (if (eq magit-marked-commit info)
                                     nil
                                   info))))))
+
+;;;; Describe
 
 (defun magit-describe-item ()
   (interactive)
@@ -7077,7 +7100,7 @@ These are the branch names with the remote name stripped."
     ((diff)
      (magit-interactive-resolve (cadr info)))))
 
-;;; Submoduling
+;;; Submoduling (A)
 
 (defun magit-submodule-update (&optional init)
   "Update the submodule of the current git repository.
@@ -7150,7 +7173,7 @@ This can be added to `magit-mode-hook' for example"
                  (not (eq sym 'magit-wip-save-mode)))
         (funcall sym 1)))))
 
-;;; Grepping
+;;; Grep (A)
 
 (magit-define-command grep (&optional pattern)
   (interactive)
