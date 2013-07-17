@@ -1113,7 +1113,7 @@ face inherit from `default' and remove all other attributes."
     ["Cancel" magit-log-edit-cancel-log-message t]
     ["Commit" magit-log-edit-commit t]))
 
-;;; Git features
+;;; Git Features
 
 (defvar magit-have-graph 'unset)
 (defvar magit-have-decorate 'unset)
