@@ -869,42 +869,6 @@ face inherit from `default' and remove all other attributes."
   :group 'magit-faces)
 
 
-;;; Internal Variables
-
-(defvar magit-read-rev-history nil
-  "The history of inputs to `magit-read-rev'.")
-
-(defvar magit-buffer-internal nil
-  "Track associated *magit* buffers.
-Do not customize this (used in the `magit-log-edit-mode' implementation
-to switch back to the *magit* buffer associated with a given commit
-operation after commit).")
-
-(defvar magit-back-navigation-history nil
-  "History items that will be visited by successively going \"back\".")
-(make-variable-buffer-local 'magit-back-navigation-history)
-(put 'magit-back-navigation-history 'permanent-local t)
-
-(defvar magit-forward-navigation-history nil
-  "History items that will be visited by successively going \"forward\".")
-(make-variable-buffer-local 'magit-forward-navigation-history)
-(put 'magit-forward-navigation-history 'permanent-local t)
-
-(defvar magit-tmp-buffer-name " *magit-tmp*")
-
-(defvar magit-previous-window-configuration nil
-  "The window configuration prior to switching to current Magit buffer.")
-(make-variable-buffer-local 'magit-previous-window-configuration)
-(put 'magit-previous-window-configuration 'permanent-local t)
-
-(defvar magit-read-file-hist nil)
-
-(defvar magit-current-indentation nil
-  "Indentation highlight used in the current buffer.
-This is calculated from `magit-highlight-indentation'.")
-(make-variable-buffer-local 'magit-current-indentation)
-
-
 ;;; Keymaps and Menus
 ;;;; Keymaps
 
@@ -1575,6 +1539,11 @@ non-nil).  In addition, it will filter out revs involving HEAD."
   (declare (indent 0))
   `(magit-refresh-wrapper (lambda () ,@body)))
 
+(defvar magit-current-indentation nil
+  "Indentation highlight used in the current buffer.
+This is calculated from `magit-highlight-indentation'.")
+(make-variable-buffer-local 'magit-current-indentation)
+
 (defun magit-highlight-line-whitespace ()
   (when (and magit-highlight-whitespace
              (or (derived-mode-p 'magit-status-mode)
@@ -1683,6 +1652,8 @@ according to `magit-remote-ref-format'"
 
 (defvar magit-uninteresting-refs '("refs/remotes/\\([^/]+\\)/HEAD$" "refs/stash"))
 
+(defvar magit-read-file-hist nil)
+
 (defun magit-read-file-from-rev (revision)
   (magit-completing-read (format "Retrieve file from %s: " revision)
                          (magit-git-lines "ls-tree" "--name-only" "HEAD")
@@ -1691,6 +1662,9 @@ according to `magit-remote-ref-format'"
                          (when buffer-file-name
                            (substring (buffer-file-name)
                                       (length (magit-get-top-dir))))))
+
+(defvar magit-read-rev-history nil
+  "The history of inputs to `magit-read-rev'.")
 
 (defun magit-read-rev (prompt &optional default uninteresting noselection)
   (let* ((interesting-refs (magit-list-interesting-refs
@@ -3033,6 +3007,11 @@ in the corresponding directories."
 
 ;;;; Switch Buffer
 
+(defvar magit-previous-window-configuration nil
+  "The window configuration prior to switching to current Magit buffer.")
+(make-variable-buffer-local 'magit-previous-window-configuration)
+(put 'magit-previous-window-configuration 'permanent-local t)
+
 (defun magit-buffer-switch (buf)
   (if (string-match "magit" (buffer-name))
       (switch-to-buffer buf)
@@ -3670,6 +3649,8 @@ argument) in the current window."
             (switch-to-buffer-other-window buffer))
         buffer))))
 
+(defvar magit-tmp-buffer-name " *magit-tmp*")
+
 (defmacro with-magit-tmp-buffer (var &rest body)
   (declare (indent 1)
            (debug (symbolp &rest form)))
@@ -4182,6 +4163,16 @@ insert a line to tell how to insert more of them"
   (magit-wash-log style))
 
 (defvar magit-currently-shown-commit nil)
+
+(defvar magit-back-navigation-history nil
+  "History items that will be visited by successively going \"back\".")
+(make-variable-buffer-local 'magit-back-navigation-history)
+(put 'magit-back-navigation-history 'permanent-local t)
+
+(defvar magit-forward-navigation-history nil
+  "History items that will be visited by successively going \"forward\".")
+(make-variable-buffer-local 'magit-forward-navigation-history)
+(put 'magit-forward-navigation-history 'permanent-local t)
 
 (defun magit-wash-commit ()
   (let ((magit-current-diff-range)
@@ -5456,6 +5447,12 @@ even if `magit-set-upstream-on-push's value is `refuse'."
   "Buffer name for composing commit messages.")
 
 (defvar magit-pre-log-edit-window-configuration nil)
+
+(defvar magit-buffer-internal nil
+  "Track associated *magit* buffers.
+Do not customize this (used in the `magit-log-edit-mode' implementation
+to switch back to the *magit* buffer associated with a given commit
+operation after commit).")
 
 (define-derived-mode magit-log-edit-mode text-mode "Magit Log Edit"
   ;; Recognize changelog-style paragraphs
