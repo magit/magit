@@ -84,8 +84,7 @@
     "---"
     ["Quit" magit-blame-mode t]))
 
-(defvar magit-blame-buffer-read-only)
-(make-variable-buffer-local 'magit-blame-buffer-read-only)
+(defvar-local magit-blame-buffer-read-only nil)
 
 ;;;###autoload
 (define-minor-mode magit-blame-mode
