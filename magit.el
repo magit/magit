@@ -2515,9 +2515,15 @@ magit-topgit and magit-svn"
 
 (defun magit-run* (cmd-and-args
                    &optional logline noerase noerror nowait input)
-  (if (and magit-process
-           (get-buffer magit-process-buffer-name))
-      (error "Git is already running"))
+  (when magit-process
+    (cl-case (process-status magit-process)
+      (run  (error "Git is already running"))
+      (stop (error "Git is stopped") )
+      ((exit signal)
+       (magit-bug-report
+        (concat "Git exited but Magit failed to cleanup"))
+       (message "Force Magit to cleanup")
+       (setq magit-process nil))))
   (let ((cmd (car cmd-and-args))
         (args (cdr cmd-and-args))
         (dir default-directory)
@@ -2575,6 +2581,8 @@ magit-topgit and magit-svn"
                        ;; which would modify the input (issue #20).
                        (let ((process-connection-type nil))
                          (apply 'magit-start-process cmd buf cmd args)))
+                 (set-process-sentinel magit-process
+                                       'magit-process-input-sentinel)
                  (set-process-filter magit-process 'magit-process-filter)
                  (process-send-region magit-process
                                       (point-min) (point-max))
@@ -2609,28 +2617,33 @@ magit-topgit and magit-svn"
 
 (autoload 'dired-uncache "dired")
 (defun magit-process-sentinel (process event)
-  (let ((msg (format "%s %s." (process-name process) (substring event 0 -1)))
-        (successp (string-match "^finished" event))
-        (key (if (buffer-live-p magit-process-client-buffer)
-                 (with-current-buffer magit-process-client-buffer
-                   (key-description (car (where-is-internal
-                                          'magit-display-process))))
-               "M-x magit-display-process")))
-    (with-current-buffer (process-buffer process)
-      (let ((inhibit-read-only t))
-        (goto-char (point-max))
-        (insert msg "\n")
-        (message (if successp msg
-                   (format "%s Hit %s or see buffer %s for details."
-                           msg key (current-buffer)))))
-      (unless (memq (process-status process) '(run open))
-        (dired-uncache default-directory)))
+  (when (memq (process-status process) '(exit signal))
     (setq magit-process nil)
-    (magit-set-mode-line-process nil)
-    (when (and (buffer-live-p magit-process-client-buffer)
-               (with-current-buffer magit-process-client-buffer
-                 (derived-mode-p 'magit-mode)))
-      (magit-refresh-buffer magit-process-client-buffer))))
+    (let ((msg (format "%s %s." (process-name process) (substring event 0 -1)))
+          (successp (string-match "^finished" event))
+          (key (if (buffer-live-p magit-process-client-buffer)
+                   (with-current-buffer magit-process-client-buffer
+                     (key-description (car (where-is-internal
+                                            'magit-display-process))))
+                 "M-x magit-display-process")))
+      (when (buffer-live-p (process-buffer process))
+        (with-current-buffer (process-buffer process)
+          (let ((inhibit-read-only t))
+            (goto-char (point-max))
+            (insert msg "\n")
+            (message (if successp msg
+                       (format "%s Hit %s or see buffer %s for details."
+                               msg key (current-buffer)))))
+          (dired-uncache default-directory)))
+      (magit-set-mode-line-process nil)
+      (when (and (buffer-live-p magit-process-client-buffer)
+                 (with-current-buffer magit-process-client-buffer
+                   (derived-mode-p 'magit-mode)))
+        (magit-refresh-buffer magit-process-client-buffer)))))
+
+(defun magit-process-input-sentinel (process event)
+  (when (memq (process-status process) '(exit signal))
+    (setq magit-process nil)))
 
 (defun magit-password (proc string)
   "Check if git/ssh asks for a password and ask the user for it."
