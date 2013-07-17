@@ -192,6 +192,7 @@
 
 
 ;;; Options
+;;;; Variables
 
 (defgroup magit nil
   "Controlling Git from Emacs."
@@ -538,8 +539,7 @@ There are three possible settings:
                  (const :tag "All" all))
   :set 'magit-set-variable-and-refresh)
 
-
-;;; Faces
+;;;; Faces
 
 (defgroup magit-faces nil
   "Customize the appearance of Magit."
