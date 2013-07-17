@@ -361,6 +361,10 @@ These will eventually make it to the git command-line.")
   "Current option set.
 These will eventually make it to the git command-line.")
 
+(defvar magit-custom-options nil
+  "List of custom options to pass to Git.
+Do not customize this (used in the `magit-key-mode' implementation).")
+
 (defun magit-key-mode-command (func)
   (let ((current-prefix-arg (or current-prefix-arg magit-key-mode-prefix))
         (magit-custom-options magit-key-mode-current-options))

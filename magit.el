@@ -161,6 +161,9 @@
 
 ;;; Code:
 
+(defconst magit-version "@GIT_DEV_VERSION@"
+  "The version of Magit that you're using.")
+
 (require 'cl-lib)
 (require 'epa)
 
@@ -189,6 +192,8 @@
 (declare-function eshell-parse-arguments 'eshell)
 (eval-when-compile (require 'server))
 (declare-function server-running-p 'server)
+
+(defvar magit-custom-options)
 
 
 ;;; Options
@@ -387,6 +392,12 @@ information to be displayed at all."
   :group 'magit
   :type '(choice (const :tag "tags are the subjects" tag)
                  (const :tag "head is the subject" head)))
+
+(defcustom magit-status-verbose-untracked t
+  "Whether to show the contents of or just the untracked directory."
+  :group 'magit
+  :type '(choice (const :tag "show only directory" nil)
+                 (const :tag "show directory contents" t)))
 
 (defcustom magit-process-popup-time -1
   "Popup the process buffer if a command takes longer than this many seconds."
@@ -856,52 +867,6 @@ face inherit from `default' and remove all other attributes."
      :background "Grey50"))
   "Face for reflog subject labels shown in reflog buffer."
   :group 'magit-faces)
-
-
-;;; Internal Variables
-
-(defvar magit-custom-options '()
-  "List of custom options to pass to Git.
-Do not customize this (used in the `magit-key-mode' implementation).")
-
-(defvar magit-read-rev-history nil
-  "The history of inputs to `magit-read-rev'.")
-
-(defvar magit-buffer-internal nil
-  "Track associated *magit* buffers.
-Do not customize this (used in the `magit-log-edit-mode' implementation
-to switch back to the *magit* buffer associated with a given commit
-operation after commit).")
-
-(defvar magit-back-navigation-history nil
-  "History items that will be visited by successively going \"back\".")
-(make-variable-buffer-local 'magit-back-navigation-history)
-(put 'magit-back-navigation-history 'permanent-local t)
-
-(defvar magit-forward-navigation-history nil
-  "History items that will be visited by successively going \"forward\".")
-(make-variable-buffer-local 'magit-forward-navigation-history)
-(put 'magit-forward-navigation-history 'permanent-local t)
-
-(defvar magit-omit-untracked-dir-contents nil
-  "When non-nil magit will only list an untracked directory, not its contents.")
-
-(defvar magit-tmp-buffer-name " *magit-tmp*")
-
-(defvar magit-previous-window-configuration nil
-  "The window configuration prior to switching to current Magit buffer.")
-(make-variable-buffer-local 'magit-previous-window-configuration)
-(put 'magit-previous-window-configuration 'permanent-local t)
-
-(defvar magit-read-file-hist nil)
-
-(defvar magit-current-indentation nil
-  "Indentation highlight used in the current buffer.
-This is calculated from `magit-highlight-indentation'.")
-(make-variable-buffer-local 'magit-current-indentation)
-
-(defconst magit-version "@GIT_DEV_VERSION@"
-  "The version of Magit that you're using.")
 
 
 ;;; Keymaps and Menus
@@ -1574,6 +1539,11 @@ non-nil).  In addition, it will filter out revs involving HEAD."
   (declare (indent 0))
   `(magit-refresh-wrapper (lambda () ,@body)))
 
+(defvar magit-current-indentation nil
+  "Indentation highlight used in the current buffer.
+This is calculated from `magit-highlight-indentation'.")
+(make-variable-buffer-local 'magit-current-indentation)
+
 (defun magit-highlight-line-whitespace ()
   (when (and magit-highlight-whitespace
              (or (derived-mode-p 'magit-status-mode)
@@ -1682,6 +1652,8 @@ according to `magit-remote-ref-format'"
 
 (defvar magit-uninteresting-refs '("refs/remotes/\\([^/]+\\)/HEAD$" "refs/stash"))
 
+(defvar magit-read-file-hist nil)
+
 (defun magit-read-file-from-rev (revision)
   (magit-completing-read (format "Retrieve file from %s: " revision)
                          (magit-git-lines "ls-tree" "--name-only" "HEAD")
@@ -1690,6 +1662,9 @@ according to `magit-remote-ref-format'"
                          (when buffer-file-name
                            (substring (buffer-file-name)
                                       (length (magit-get-top-dir))))))
+
+(defvar magit-read-rev-history nil
+  "The history of inputs to `magit-read-rev' and `magit-read-tag'.")
 
 (defun magit-read-rev (prompt &optional default uninteresting noselection)
   (let* ((interesting-refs (magit-list-interesting-refs
@@ -3032,6 +3007,11 @@ in the corresponding directories."
 
 ;;;; Switch Buffer
 
+(defvar magit-previous-window-configuration nil
+  "The window configuration prior to switching to current Magit buffer.")
+(make-variable-buffer-local 'magit-previous-window-configuration)
+(put 'magit-previous-window-configuration 'permanent-local t)
+
 (defun magit-buffer-switch (buf)
   (if (string-match "magit" (buffer-name))
       (switch-to-buffer buf)
@@ -3077,7 +3057,7 @@ With a prefix argument, kill the buffer instead."
              "Untracked files:"
              magit-wash-untracked-files
              "ls-files" "--others" "-t" "--exclude-standard"
-             ,@(when magit-omit-untracked-dir-contents
+             ,@(unless magit-status-verbose-untracked
                  '("--directory"))))))
 
 ;;; Diffs and Hunks
@@ -3669,6 +3649,8 @@ argument) in the current window."
             (switch-to-buffer-other-window buffer))
         buffer))))
 
+(defvar magit-tmp-buffer-name " *magit-tmp*")
+
 (defmacro with-magit-tmp-buffer (var &rest body)
   (declare (indent 1)
            (debug (symbolp &rest form)))
@@ -4181,6 +4163,16 @@ insert a line to tell how to insert more of them"
   (magit-wash-log style))
 
 (defvar magit-currently-shown-commit nil)
+
+(defvar magit-back-navigation-history nil
+  "History items that will be visited by successively going \"back\".")
+(make-variable-buffer-local 'magit-back-navigation-history)
+(put 'magit-back-navigation-history 'permanent-local t)
+
+(defvar magit-forward-navigation-history nil
+  "History items that will be visited by successively going \"forward\".")
+(make-variable-buffer-local 'magit-forward-navigation-history)
+(put 'magit-forward-navigation-history 'permanent-local t)
 
 (defun magit-wash-commit ()
   (let ((magit-current-diff-range)
@@ -5455,6 +5447,12 @@ even if `magit-set-upstream-on-push's value is `refuse'."
   "Buffer name for composing commit messages.")
 
 (defvar magit-pre-log-edit-window-configuration nil)
+
+(defvar magit-buffer-internal nil
+  "Track associated *magit* buffers.
+Do not customize this (used in the `magit-log-edit-mode' implementation
+to switch back to the *magit* buffer associated with a given commit
+operation after commit).")
 
 (define-derived-mode magit-log-edit-mode text-mode "Magit Log Edit"
   ;; Recognize changelog-style paragraphs
