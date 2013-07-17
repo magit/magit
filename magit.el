@@ -2744,7 +2744,7 @@ magit-topgit and magit-svn"
                  (derived-mode-p 'magit-mode)))
       (magit-refresh-buffer magit-process-client-buffer))))
 
-(defun magit-password (proc string)
+(defun magit-process-password-prompt (proc string)
   "Check if git/ssh asks for a password and ask the user for it."
   (let (ask)
     (cond ((or (string-match "^Enter passphrase for key '\\\(.*\\\)': $" string)
@@ -2756,7 +2756,7 @@ magit-topgit and magit-svn"
     (when ask
       (process-send-string proc (concat (read-passwd ask nil) "\n")))))
 
-(defun magit-username (proc string)
+(defun magit-process-username-prompt (proc string)
   "Check if git asks for a username and ask the user for it."
   (when (string-match "^Username for '\\\(.*\\\)':" string)
     (process-send-string proc
@@ -2770,8 +2770,8 @@ magit-topgit and magit-svn"
   (save-current-buffer
     (set-buffer (process-buffer proc))
     (let ((inhibit-read-only t))
-      (magit-username proc string)
-      (magit-password proc string)
+      (magit-process-username-prompt proc string)
+      (magit-process-password-prompt proc string)
       (goto-char (process-mark proc))
       ;; Find last ^M in string.  If one was found, ignore everything
       ;; before it and delete the current line.
