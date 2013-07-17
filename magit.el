@@ -2821,6 +2821,7 @@ magit-topgit and magit-svn"
   (display-buffer magit-process-buffer-name))
 
 ;;; Magit Mode
+;;;; Hooks
 
 (defvar magit-mode-hook nil "Hook run by `magit-mode'.")
 
@@ -2869,6 +2870,7 @@ before the last command."
                      end))))
   (setq disable-point-adjustment t))
 
+;;;; Initialize Mode
 
 (defun magit-mode ()
   "Review the status of a git repository and act on it.
@@ -2904,6 +2906,8 @@ Please see the manual for a complete description of Magit.
         magit-refresh-args refresh-args)
   (funcall submode)
   (magit-refresh-buffer))
+
+;;;; Find Buffer
 
 (defun magit-find-buffer (submode &optional dir)
   (let ((topdir (magit-get-top-dir dir)))
