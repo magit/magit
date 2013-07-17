@@ -190,6 +190,8 @@
 (eval-when-compile (require 'server))
 (declare-function server-running-p 'server)
 
+(defvar magit-custom-options)
+
 
 ;;; Options
 ;;;; Variables
@@ -859,10 +861,6 @@ face inherit from `default' and remove all other attributes."
 
 
 ;;; Internal Variables
-
-(defvar magit-custom-options '()
-  "List of custom options to pass to Git.
-Do not customize this (used in the `magit-key-mode' implementation).")
 
 (defvar magit-read-rev-history nil
   "The history of inputs to `magit-read-rev'.")
