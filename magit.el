@@ -1664,7 +1664,7 @@ according to `magit-remote-ref-format'"
                                       (length (magit-get-top-dir))))))
 
 (defvar magit-read-rev-history nil
-  "The history of inputs to `magit-read-rev'.")
+  "The history of inputs to `magit-read-rev' and `magit-read-tag'.")
 
 (defun magit-read-rev (prompt &optional default uninteresting noselection)
   (let* ((interesting-refs (magit-list-interesting-refs
