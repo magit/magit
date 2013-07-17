@@ -4660,7 +4660,10 @@ If ASK is set, ask for the file name rather than picking the one
 at point."
   (interactive "P")
   (if ask
-      (magit-run-git "add" (read-file-name "File to stage: "))
+      (magit-run-git "add"
+                     (file-relative-name
+                      (read-file-name "File to stage: " nil nil t)
+                      (magit-get-top-dir)))
     (magit-section-action (item info "stage")
       ((untracked file)
        (magit-run-git "add" info))
