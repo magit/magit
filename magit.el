@@ -1252,9 +1252,9 @@ Return a list of two integers: (A>B B>A)."
   (let ((ac 0) (bc 0))
     (dolist (commit (magit-git-lines "rev-list" "--left-right"
                                      (concat a "..." b)))
-      (case (aref commit 0)
-        (?\< (incf ac))
-        (?\> (incf bc))))
+      (cl-case (aref commit 0)
+        (?\< (cl-incf ac))
+        (?\> (cl-incf bc))))
     (list ac bc)))
 
 (defun magit-name-rev (rev &optional no-trim)
