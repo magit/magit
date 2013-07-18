@@ -3,7 +3,7 @@ EMACS=emacs
 PREFIX=/usr/local
 SYSCONFDIR=/etc
 ELS=magit.el magit-svn.el magit-topgit.el magit-stgit.el magit-key-mode.el magit-bisect.el magit-wip.el rebase-mode.el magit-blame.el magit-cherry.el
-ELS_CONTRIB=contrib/magit-simple-keys.el contrib/magit-classic-theme.el
+ELS_CONTRIB=contrib/magit-simple-keys.el
 ELCS=$(ELS:.el=.elc)
 ELCS_CONTRIB=$(ELS_CONTRIB:.el=.elc)
 DIST_FILES=$(ELS) Makefile magit.texi magit.info README.md magit.spec.in magit-pkg.el.in
