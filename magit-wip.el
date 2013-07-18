@@ -1,9 +1,9 @@
 ;;; magit-wip.el --- git-wip plug-in for Magit
 
-;; Copyright (C) 2012  Jonas Bernoulli
+;; Copyright (C) 2012-2013  Jonas Bernoulli
 ;; Copyright (C) 2012  Ryan C. Thompson
 
-;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
+;; Author: Jonas Bernoulli <jonas@bernoul.li>
 
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
