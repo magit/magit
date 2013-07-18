@@ -147,8 +147,7 @@ If USE-CACHE is non-nil then return the value of `magit-get-svn-ref-info-cache'.
         (let* ((ref (cadr (split-string fetch ":")))
                (ref-path (file-name-directory ref))
                (trunk-ref-name (file-name-nondirectory ref)))
-          (set (make-local-variable
-                'magit-svn-get-ref-info-cache)
+          (setq-local magit-svn-get-ref-info-cache
                 (list
                  (cons 'ref-path ref-path)
                  (cons 'trunk-ref-name trunk-ref-name)
