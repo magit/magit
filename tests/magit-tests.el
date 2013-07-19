@@ -1,6 +1,10 @@
 ;;; magit-tests.el --- tests for Magit
 
+;; We need `flet'.  `cl-flet' sucks.
 (require 'cl)
+(eval-when (load)
+  (put 'flet 'byte-obsolete-info nil))
+
 (require 'ert)
 
 (require 'magit)
