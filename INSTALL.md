@@ -55,9 +55,6 @@ Branch `master` (development)
   versions of Emacs is available from the GNU Elpa repository.  You
   can install it using `package.el` or get it [here][cl-lib].
 
-* `contrib/magit-inotify.el` requires `inotify` with is only available
-  from Emacs' `trunk` branch; it will be released with Emacs 24.4.
-
 * `magit-wip.el` requires the `git-wip` shell script available
   [here][git-wip].
 
