@@ -436,6 +436,13 @@ There are three possible settings:
                  (const :tag "All" all))
   :set 'magit-set-variable-and-refresh)
 
+;; Not an option to avoid advertising it.
+(defvar magit-rigid-key-bindings nil
+  "Use rigid key bindings instead of thematic key popups.
+If you enable this a lot of functionality is lost.  You most
+likely don't want that.  This variable only has an effect if
+set before loading libary `magit'.")
+
 ;;;; Faces
 
 (defgroup magit-faces nil
@@ -783,7 +790,6 @@ face inherit from `default' and remove all other attributes."
     (define-key map (kbd "g") 'magit-refresh)
     (define-key map (kbd "G") 'magit-refresh-all)
     (define-key map (kbd "?") 'magit-describe-item)
-    (define-key map (kbd "!") 'magit-key-mode-popup-running)
     (define-key map (kbd ":") 'magit-git-command)
     (define-key map (kbd "C-x 4 a") 'magit-add-change-log-entry-other-window)
     (define-key map (kbd "L") 'magit-add-change-log-entry-no-option)
@@ -792,23 +798,38 @@ face inherit from `default' and remove all other attributes."
     (define-key map (kbd "DEL") 'magit-show-item-or-scroll-down)
     (define-key map (kbd "C-w") 'magit-copy-item-as-kill)
     (define-key map (kbd "R") 'magit-rebase-step)
-    (define-key map (kbd "t") 'magit-key-mode-popup-tagging)
-    (define-key map (kbd "r") 'magit-key-mode-popup-rewriting)
-    (define-key map (kbd "P") 'magit-key-mode-popup-pushing)
-    (define-key map (kbd "f") 'magit-key-mode-popup-fetching)
-    (define-key map (kbd "b") 'magit-key-mode-popup-branching)
-    (define-key map (kbd "M") 'magit-key-mode-popup-remoting)
-    (define-key map (kbd "B") 'magit-key-mode-popup-bisecting)
-    (define-key map (kbd "F") 'magit-key-mode-popup-pulling)
-    (define-key map (kbd "l") 'magit-key-mode-popup-logging)
-    (define-key map (kbd "o") 'magit-key-mode-popup-submodule)
+    (cond (magit-rigid-key-bindings
+           (define-key map (kbd "m") 'magit-merge)
+           (define-key map (kbd "b") 'magit-checkout)
+           (define-key map (kbd "M") 'magit-branch-manager)
+           (define-key map (kbd "r") 'undefined)
+           (define-key map (kbd "f") 'magit-fetch-current)
+           (define-key map (kbd "F") 'magit-pull)
+           (define-key map (kbd "!") 'magit-shell-command)
+           (define-key map (kbd "P") 'magit-push)
+           (define-key map (kbd "t") 'magit-tag)
+           (define-key map (kbd "l") 'magit-log)
+           (define-key map (kbd "o") 'magit-submodule-update)
+           (define-key map (kbd "B") 'undefined))
+          (t
+           (define-key map (kbd "m") 'magit-key-mode-popup-merging)
+           (define-key map (kbd "b") 'magit-key-mode-popup-branching)
+           (define-key map (kbd "M") 'magit-key-mode-popup-remoting)
+           (define-key map (kbd "r") 'magit-key-mode-popup-rewriting)
+           (define-key map (kbd "f") 'magit-key-mode-popup-fetching)
+           (define-key map (kbd "F") 'magit-key-mode-popup-pulling)
+           (define-key map (kbd "!") 'magit-key-mode-popup-running)
+           (define-key map (kbd "P") 'magit-key-mode-popup-pushing)
+           (define-key map (kbd "t") 'magit-key-mode-popup-tagging)
+           (define-key map (kbd "l") 'magit-key-mode-popup-logging)
+           (define-key map (kbd "o") 'magit-key-mode-popup-submodule)
+           (define-key map (kbd "B") 'magit-key-mode-popup-bisecting)))
     (define-key map (kbd "$") 'magit-display-process)
     (define-key map (kbd "c") 'magit-log-edit)
     (define-key map (kbd "E") 'magit-interactive-rebase)
     (define-key map (kbd "e") 'magit-ediff)
     (define-key map (kbd "w") 'magit-wazzup)
     (define-key map (kbd "q") 'magit-quit-window)
-    (define-key map (kbd "m") 'magit-key-mode-popup-merging)
     (define-key map (kbd "x") 'magit-reset-head)
     (define-key map (kbd "v") 'magit-revert-item)
     (define-key map (kbd "a") 'magit-apply-item)
@@ -842,7 +863,9 @@ face inherit from `default' and remove all other attributes."
     (define-key map (kbd "C") 'magit-add-log)
     (define-key map (kbd "X") 'magit-reset-working-tree)
     (define-key map (kbd "y") 'magit-cherry)
-    (define-key map (kbd "z") 'magit-key-mode-popup-stashing)
+    (if magit-rigid-key-bindings
+        (define-key map (kbd "z") 'magit-stash)
+      (define-key map (kbd "z") 'magit-key-mode-popup-stashing))
     map))
 
 (eval-after-load 'dired-x
