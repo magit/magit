@@ -42,7 +42,7 @@
       (list 'set (list 'make-local-variable (list 'quote var)) val)))
 
   ;; Added in Emacs 24.3.
-  (unless (fboundp 'setq-local)
+  (unless (fboundp 'defvar-local)
     (defmacro defvar-local (var val &optional docstring)
       "Define VAR as a buffer-local variable with default value VAL.
 Like `defvar' but additionally marks the variable as being automatically
