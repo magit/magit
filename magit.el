@@ -53,8 +53,11 @@
 
 ;;; Code:
 
-(defconst magit-version "@GIT_DEV_VERSION@"
-  "The version of Magit that you're using.")
+(defvar magit-version 'undefined
+  "The version of Magit that you're using.
+Use the function by the same name instead of this variable.")
+;; The value is set at the end of this file, using the
+;; function `magit-version' which is also defined there.
 
 (require 'cl-lib)
 (require 'epa)
@@ -78,8 +81,13 @@
 (declare-function ediff-cleanup-mess 'ediff)
 (eval-when-compile (require 'eshell))
 (declare-function eshell-parse-arguments 'eshell)
+(eval-when-compile (require 'package))
+(declare-function package-version-join 'package)
+(declare-function package-desc-vers 'package)
+(declare-function package-desc-version 'package)
 
 (defvar magit-custom-options)
+(defvar package-alist)
 
 
 ;;; Options
@@ -4521,6 +4529,16 @@ non-nil, then autocompletion will offer directory names."
     (when (file-exists-p ".git/MERGE_MSG")
         (magit-log-edit))))
 
+(defun magit-merge (revision)
+  "Merge REVISION into the current 'HEAD'; leave changes uncommitted.
+With a prefix-arg, the merge will be squashed.
+\('git merge --no-commit [--squash|--no-ff] REVISION')."
+  (interactive (list (magit-read-rev-with-default "Merge")))
+  (apply 'magit-run-git
+         "merge"
+         (magit-rev-to-git revision)
+         magit-custom-options))
+
 ;;;; Stage and Unstage
 
 (defun magit-stage-item (&optional ask)
@@ -4795,18 +4813,6 @@ If no branch is found near the cursor return nil."
      (if (string= info ".")
          info
        (magit-get-current-remote)))))
-
-;;;; Merging
-
-(defun magit-merge (revision)
-  "Merge REVISION into the current 'HEAD'; leave changes uncommitted.
-With a prefix-arg, the merge will be squashed.
-\('git merge --no-commit [--squash|--no-ff] REVISION')."
-  (interactive (list (magit-read-rev-with-default "Merge")))
-  (apply 'magit-run-git
-         "merge"
-         (magit-rev-to-git revision)
-         magit-custom-options))
 
 ;;;; Rebase
 
@@ -6983,7 +6989,7 @@ This can be added to `magit-mode-hook' for example"
               "- Magit: %s\n"
               "- Emacs: %s")
              string magit-bug-report-url
-             magit-version (emacs-version))))
+             (magit-version) (emacs-version))))
   (switch-to-buffer-other-window magit-bug-report-buffer))
 
 ;;;; Magit Font-Lock
@@ -7008,7 +7014,10 @@ This can be added to `magit-mode-hook' for example"
                        "with-magit-tmp-buffer"
                        "magit-create-log-buffer-sections"
                        "magit-with-revert-confirmation"
-                       "magit-visiting-file-item") t)
+                       "magit-visiting-file-item"
+                       "magit-tests--with-temp-dir"
+                       "magit-tests--with-temp-repo"
+                       "magit-tests--with-temp-clone") t)
                 "\\>")
        . 1)))
   "Magit expressions to highlight in Emacs-Lisp mode.
@@ -7018,6 +7027,47 @@ init file:
   (require 'magit)
   (font-lock-add-keywords 'emacs-lisp-mode
                           magit-font-lock-keywords)")
+
+;;;; Magit Version
+
+(defun magit-version (&optional noerror)
+  "The version of Magit that you're using.\n\n\(fn)"
+  (interactive)
+  (let ((toplib (or load-file-name buffer-file-name)))
+    (unless (and toplib
+                 (equal (file-name-nondirectory toplib) "magit.el"))
+      (setq toplib (locate-library "magit.el")))
+    (when toplib
+      (let* ((dir (file-name-directory toplib))
+             (static (expand-file-name "magit-version.el" dir))
+             (gitdir (expand-file-name ".git" dir)))
+        (cond ((file-exists-p gitdir)
+               (setq magit-version
+                     (let ((default-directory dir))
+                       (magit-git-string "describe" "--tags" "--dirty")))
+               (ignore-errors (delete-file static)))
+              ((file-exists-p static)
+               (load-file static))
+              ((featurep 'package) ; shouldn't that make it easier?
+               (setq magit-version
+                     (or (ignore-errors ; < 24.4
+                           (package-version-join
+                            (package-desc-vers
+                             (cdr (assq 'magit package-alist)))))
+                         (ignore-errors ; = 24.4
+                           (package-version-join
+                            (package-desc-version
+                             (cadr (assq 'magit package-alist)))))))))))
+    (if (stringp magit-version)
+        (when (called-interactively-p 'any)
+          (message "magit-%s" magit-version))
+      (if noerror
+          (progn (setq magit-version 'error)
+                 (message "Cannot determine Magit's version"))
+        (error "Cannot determine Magit's version")))
+    magit-version))
+
+(cl-eval-when (load eval) (magit-version t))
 
 (provide 'magit)
 
