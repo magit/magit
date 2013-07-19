@@ -2429,17 +2429,20 @@ magit-topgit and magit-svn"
                        ;; which would modify the input (issue #20).
                        (let ((process-connection-type nil))
                          (apply 'magit-start-process cmd buf cmd args)))
-                 (set-process-sentinel magit-process
-                                       'magit-process-input-sentinel)
+                 (set-process-sentinel
+                  magit-process
+                  (lambda (process event)
+                    (when (memq (process-status process)
+                                '(exit signal))
+                      (setq successp
+                            (equal (process-exit-status magit-process) 0))
+                      (setq magit-process nil))))
                  (set-process-filter magit-process 'magit-process-filter)
                  (process-send-region magit-process
                                       (point-min) (point-max))
                  (process-send-eof magit-process)
-                 (while (equal (process-status magit-process) 'run)
-                   (sit-for 0.1 t))
-                 (setq successp
-                       (equal (process-exit-status magit-process) 0))
-                 (setq magit-process nil))
+                 (while magit-process
+                   (sit-for 0.1 t)))
                (magit-set-mode-line-process nil)
                (magit-need-refresh magit-process-client-buffer))
               (t
@@ -2488,10 +2491,6 @@ magit-topgit and magit-svn"
                  (with-current-buffer magit-process-client-buffer
                    (derived-mode-p 'magit-mode)))
         (magit-refresh-buffer magit-process-client-buffer)))))
-
-(defun magit-process-input-sentinel (process event)
-  (when (memq (process-status process) '(exit signal))
-    (setq magit-process nil)))
 
 (defun magit-process-password-prompt (proc string)
   "Check if git/ssh asks for a password and ask the user for it."
