@@ -5438,21 +5438,17 @@ environment (potentially empty)."
           (commit-buf (current-buffer)))
       (with-current-buffer (magit-find-status-buffer default-directory)
         (let ((process-environment env))
-          (cond (tag-name
-                 (apply #'magit-run-git-with-input commit-buf
-                        "tag" (append tag-options
-                                      (list tag-name "-a" "-F" "-" tag-rev))))
-                (t
-                 (apply #'magit-run-git-async-with-input commit-buf "commit"
-                        (append magit-custom-options
-                                '("-F" "-")
-                                (when (and commit-all (not allow-empty))
-                                  '("--all"))
-                                (when amend '("--amend"))
-                                (when allow-empty '("--allow-empty"))
-                                (when sign-off '("--signoff"))
-                                (when gpg-sign '("-S"))
-                                (when no-verify '("--no-verify")))))))))
+          (if tag-name
+              (apply #'magit-run-git-with-input commit-buf "tag"
+                     `(,@tag-options ,tag-name "-a" "-F" "-" ,tag-rev))
+            (apply #'magit-run-git-async-with-input commit-buf "commit"
+                   `(,@magit-custom-options "-F" "-"
+                     ,@(and commit-all (not allow-empty) (list "--all"))
+                     ,@(and amend       (list "--amend"))
+                     ,@(and allow-empty (list "--allow-empty"))
+                     ,@(and sign-off    (list "--signoff"))
+                     ,@(and gpg-sign    (list "-S"))
+                     ,@(and no-verify   (list "--no-verify"))))))))
     ;; shouldn't we kill that buffer altogether?
     (erase-buffer)
     ;; potentially the local environment has been altered with settings that
