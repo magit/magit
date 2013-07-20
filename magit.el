@@ -2531,7 +2531,10 @@ magit-topgit and magit-svn"
                (string-match "^Password for '\\\(.*\\\)':" string))
            (setq ask (format "Password for '%s': " (match-string 1 string))))
           ((string-match "^[pP]assword:" string)
-           (setq ask "Password:")))
+           (setq ask "Password:"))
+          ;; See http://www.yubico.com.
+          ((string-match "^Yubikey for .*: $" string)
+           (setq ask "Yubikey: " )))
     (when ask
       (process-send-string proc (concat (read-passwd ask nil) "\n")))))
 
