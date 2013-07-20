@@ -1332,6 +1332,10 @@ non-nil).  In addition, it will filter out revs involving HEAD."
 (defun magit-commit-parents (commit)
   (cdr (split-string (magit-git-string "rev-list" "-1" "--parents" commit))))
 
+(defun magit-assert-one-parent (commit command)
+  (when (> (length (magit-commit-parents commit)) 1)
+    (error (format "Cannot %s a merge commit" command))))
+
 ;;;; Various Utilities
 
 (defmacro magit-with-refresh (&rest body)
@@ -1390,14 +1394,6 @@ This is calculated from `magit-highlight-indentation'.")
                (line-beginning-position) (line-beginning-position 2))))
     (with-current-buffer buf
       (insert text))))
-
-;; XXX - let the user choose the parent
-
-(defun magit-choose-parent-id (commit op)
-  (let* ((parents (magit-commit-parents commit)))
-    (if (> (length parents) 1)
-        (error "Can't %s merge commits" op)
-      nil)))
 
 ;;; Revisions and Ranges
 
@@ -5773,13 +5769,11 @@ With prefix argument, changes in staging area are kept.
 ;;;; Apply
 
 (defun magit-apply-commit (commit &optional docommit noerase revert)
-  (let* ((parent-id (magit-choose-parent-id commit "cherry-pick"))
-         (success (magit-run-git* `(,(if revert "revert" "cherry-pick")
-                                    ,@(if parent-id
-                                          (list "-m" (number-to-string parent-id)))
-                                    ,@(if (not docommit) (list "--no-commit"))
-                                    ,commit)
-                                  nil noerase)))
+  (magit-assert-one-parent commit (if revert "revert" "cherry-pick"))
+  (let ((success (magit-run-git* `(,(if revert "revert" "cherry-pick")
+                                   ,@(if (not docommit) (list "--no-commit"))
+                                   ,commit)
+                                 nil noerase)))
     (when (and (not docommit) success)
       (cond (revert
              (magit-log-edit-append
