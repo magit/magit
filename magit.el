@@ -4522,8 +4522,8 @@ non-nil, then autocompletion will offer directory names."
   (magit-run-git "merge" (magit-rev-to-git revision)))
 
 (magit-define-command manual-merge (revision)
-  "Merge REVISION into the current 'HEAD'; commit unless merge fails.
-\('git merge REVISION')."
+  "Merge REVISION into the current 'HEAD'; leave changes uncommitted.
+\('git merge --no-commit REVISION')."
   (interactive (list (magit-read-rev "Merge" (magit-guess-branch))))
   (when revision
     (apply 'magit-run-git
@@ -4531,7 +4531,7 @@ non-nil, then autocompletion will offer directory names."
            (magit-rev-to-git revision)
            magit-custom-options)
     (when (file-exists-p ".git/MERGE_MSG")
-        (magit-log-edit))))
+      (magit-log-edit))))
 
 (defun magit-merge (revision)
   "Merge REVISION into the current 'HEAD'; leave changes uncommitted.
