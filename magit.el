@@ -5056,9 +5056,9 @@ With a prefix arg, also remove untracked files.  With two prefix args, remove ig
 (defun magit-rewrite-finish ()
   (interactive)
   (magit-with-refresh
-    (magit-rewrite-finish-step t)))
+    (magit-rewrite-finish-step)))
 
-(defun magit-rewrite-finish-step (first-p)
+(defun magit-rewrite-finish-step ()
   (let ((info (magit-read-rewrite-info)))
     (or info
         (error "No rewrite in progress"))
@@ -5071,9 +5071,9 @@ With a prefix arg, also remove untracked files.  With two prefix args, remove ig
            (commit (car first-unused)))
       (cond ((not first-unused)
              (magit-rewrite-stop t))
-            ((magit-apply-commit commit t (not first-p))
+            ((magit-apply-commit commit t)
              (magit-rewrite-set-commit-property commit 'used t)
-             (magit-rewrite-finish-step nil))))))
+             (magit-rewrite-finish-step))))))
 
 ;;;; Fetching
 
@@ -5768,12 +5768,11 @@ With prefix argument, changes in staging area are kept.
                                 range args)))))))
 ;;;; Apply
 
-(defun magit-apply-commit (commit &optional docommit noerase revert)
+(defun magit-apply-commit (commit &optional docommit revert)
   (magit-assert-one-parent commit (if revert "revert" "cherry-pick"))
   (let ((success (magit-run-git* `(,(if revert "revert" "cherry-pick")
                                    ,@(if (not docommit) (list "--no-commit"))
-                                   ,commit)
-                                 nil noerase)))
+                                   ,commit))))
     (when (and (not docommit) success)
       (cond (revert
              (magit-log-edit-append
@@ -5830,11 +5829,11 @@ With prefix argument, changes in staging area are kept.
   (magit-section-action (item info "revert")
     ((pending commit)
      (magit-with-revert-confirmation
-      (magit-apply-commit info nil nil t)
+      (magit-apply-commit info nil t)
       (magit-rewrite-set-commit-property info 'used nil)))
     ((commit)
      (magit-with-revert-confirmation
-      (magit-apply-commit info nil nil t)))
+      (magit-apply-commit info nil t)))
     ((unstaged *)
      ;; Asking the user is handled by `magit-discard-item'.
      (magit-discard-item))
