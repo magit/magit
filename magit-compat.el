@@ -28,7 +28,6 @@
 (declare-function magit-git-exit-code 'magit)
 
 ;;; Old Emacsen
-
 ;;;; Without Prefix
 
 (eval-and-compile
@@ -138,7 +137,6 @@ Return values:
        (delete-directory directory)))))
 
 ;;; Old Git
-
 ;;;; Common
 
 (defvar magit-have-config-param 'unset)
