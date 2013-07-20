@@ -53,8 +53,11 @@
 
 ;;; Code:
 
-(defconst magit-version "@GIT_DEV_VERSION@"
-  "The version of Magit that you're using.")
+(defvar magit-version 'undefined
+  "The version of Magit that you're using.
+Use the function by the same name instead of this variable.")
+;; The value is set at the end of this file, using the
+;; function `magit-version' which is also defined there.
 
 (require 'cl-lib)
 (require 'epa)
@@ -78,8 +81,13 @@
 (declare-function ediff-cleanup-mess 'ediff)
 (eval-when-compile (require 'eshell))
 (declare-function eshell-parse-arguments 'eshell)
+(eval-when-compile (require 'package))
+(declare-function package-version-join 'package)
+(declare-function package-desc-vers 'package)
+(declare-function package-desc-version 'package)
 
 (defvar magit-custom-options)
+(defvar package-alist)
 
 
 ;;; Options
@@ -436,6 +444,13 @@ There are three possible settings:
                  (const :tag "All" all))
   :set 'magit-set-variable-and-refresh)
 
+;; Not an option to avoid advertising it.
+(defvar magit-rigid-key-bindings nil
+  "Use rigid key bindings instead of thematic key popups.
+If you enable this a lot of functionality is lost.  You most
+likely don't want that.  This variable only has an effect if
+set before loading libary `magit'.")
+
 ;;;; Faces
 
 (defgroup magit-faces nil
@@ -783,7 +798,6 @@ face inherit from `default' and remove all other attributes."
     (define-key map (kbd "g") 'magit-refresh)
     (define-key map (kbd "G") 'magit-refresh-all)
     (define-key map (kbd "?") 'magit-describe-item)
-    (define-key map (kbd "!") 'magit-key-mode-popup-running)
     (define-key map (kbd ":") 'magit-git-command)
     (define-key map (kbd "C-x 4 a") 'magit-add-change-log-entry-other-window)
     (define-key map (kbd "L") 'magit-add-change-log-entry-no-option)
@@ -792,23 +806,38 @@ face inherit from `default' and remove all other attributes."
     (define-key map (kbd "DEL") 'magit-show-item-or-scroll-down)
     (define-key map (kbd "C-w") 'magit-copy-item-as-kill)
     (define-key map (kbd "R") 'magit-rebase-step)
-    (define-key map (kbd "t") 'magit-key-mode-popup-tagging)
-    (define-key map (kbd "r") 'magit-key-mode-popup-rewriting)
-    (define-key map (kbd "P") 'magit-key-mode-popup-pushing)
-    (define-key map (kbd "f") 'magit-key-mode-popup-fetching)
-    (define-key map (kbd "b") 'magit-key-mode-popup-branching)
-    (define-key map (kbd "M") 'magit-key-mode-popup-remoting)
-    (define-key map (kbd "B") 'magit-key-mode-popup-bisecting)
-    (define-key map (kbd "F") 'magit-key-mode-popup-pulling)
-    (define-key map (kbd "l") 'magit-key-mode-popup-logging)
-    (define-key map (kbd "o") 'magit-key-mode-popup-submodule)
+    (cond (magit-rigid-key-bindings
+           (define-key map (kbd "m") 'magit-merge)
+           (define-key map (kbd "b") 'magit-checkout)
+           (define-key map (kbd "M") 'magit-branch-manager)
+           (define-key map (kbd "r") 'undefined)
+           (define-key map (kbd "f") 'magit-fetch-current)
+           (define-key map (kbd "F") 'magit-pull)
+           (define-key map (kbd "!") 'magit-shell-command)
+           (define-key map (kbd "P") 'magit-push)
+           (define-key map (kbd "t") 'magit-tag)
+           (define-key map (kbd "l") 'magit-log)
+           (define-key map (kbd "o") 'magit-submodule-update)
+           (define-key map (kbd "B") 'undefined))
+          (t
+           (define-key map (kbd "m") 'magit-key-mode-popup-merging)
+           (define-key map (kbd "b") 'magit-key-mode-popup-branching)
+           (define-key map (kbd "M") 'magit-key-mode-popup-remoting)
+           (define-key map (kbd "r") 'magit-key-mode-popup-rewriting)
+           (define-key map (kbd "f") 'magit-key-mode-popup-fetching)
+           (define-key map (kbd "F") 'magit-key-mode-popup-pulling)
+           (define-key map (kbd "!") 'magit-key-mode-popup-running)
+           (define-key map (kbd "P") 'magit-key-mode-popup-pushing)
+           (define-key map (kbd "t") 'magit-key-mode-popup-tagging)
+           (define-key map (kbd "l") 'magit-key-mode-popup-logging)
+           (define-key map (kbd "o") 'magit-key-mode-popup-submodule)
+           (define-key map (kbd "B") 'magit-key-mode-popup-bisecting)))
     (define-key map (kbd "$") 'magit-display-process)
     (define-key map (kbd "c") 'magit-log-edit)
     (define-key map (kbd "E") 'magit-interactive-rebase)
     (define-key map (kbd "e") 'magit-ediff)
     (define-key map (kbd "w") 'magit-wazzup)
     (define-key map (kbd "q") 'magit-quit-window)
-    (define-key map (kbd "m") 'magit-key-mode-popup-merging)
     (define-key map (kbd "x") 'magit-reset-head)
     (define-key map (kbd "v") 'magit-revert-item)
     (define-key map (kbd "a") 'magit-apply-item)
@@ -842,7 +871,9 @@ face inherit from `default' and remove all other attributes."
     (define-key map (kbd "C") 'magit-add-log)
     (define-key map (kbd "X") 'magit-reset-working-tree)
     (define-key map (kbd "y") 'magit-cherry)
-    (define-key map (kbd "z") 'magit-key-mode-popup-stashing)
+    (if magit-rigid-key-bindings
+        (define-key map (kbd "z") 'magit-stash)
+      (define-key map (kbd "z") 'magit-key-mode-popup-stashing))
     map))
 
 (eval-after-load 'dired-x
@@ -4498,6 +4529,16 @@ non-nil, then autocompletion will offer directory names."
     (when (file-exists-p ".git/MERGE_MSG")
         (magit-log-edit))))
 
+(defun magit-merge (revision)
+  "Merge REVISION into the current 'HEAD'; leave changes uncommitted.
+With a prefix-arg, the merge will be squashed.
+\('git merge --no-commit [--squash|--no-ff] REVISION')."
+  (interactive (list (magit-read-rev-with-default "Merge")))
+  (apply 'magit-run-git
+         "merge"
+         (magit-rev-to-git revision)
+         magit-custom-options))
+
 ;;;; Stage and Unstage
 
 (defun magit-stage-item (&optional ask)
@@ -4772,18 +4813,6 @@ If no branch is found near the cursor return nil."
      (if (string= info ".")
          info
        (magit-get-current-remote)))))
-
-;;;; Merging
-
-(defun magit-merge (revision)
-  "Merge REVISION into the current 'HEAD'; leave changes uncommitted.
-With a prefix-arg, the merge will be squashed.
-\('git merge --no-commit [--squash|--no-ff] REVISION')."
-  (interactive (list (magit-read-rev-with-default "Merge")))
-  (apply 'magit-run-git
-         "merge"
-         (magit-rev-to-git revision)
-         magit-custom-options))
 
 ;;;; Rebase
 
@@ -6960,7 +6989,7 @@ This can be added to `magit-mode-hook' for example"
               "- Magit: %s\n"
               "- Emacs: %s")
              string magit-bug-report-url
-             magit-version (emacs-version))))
+             (magit-version) (emacs-version))))
   (switch-to-buffer-other-window magit-bug-report-buffer))
 
 ;;;; Magit Font-Lock
@@ -6985,7 +7014,10 @@ This can be added to `magit-mode-hook' for example"
                        "with-magit-tmp-buffer"
                        "magit-create-log-buffer-sections"
                        "magit-with-revert-confirmation"
-                       "magit-visiting-file-item") t)
+                       "magit-visiting-file-item"
+                       "magit-tests--with-temp-dir"
+                       "magit-tests--with-temp-repo"
+                       "magit-tests--with-temp-clone") t)
                 "\\>")
        . 1)))
   "Magit expressions to highlight in Emacs-Lisp mode.
@@ -6995,6 +7027,47 @@ init file:
   (require 'magit)
   (font-lock-add-keywords 'emacs-lisp-mode
                           magit-font-lock-keywords)")
+
+;;;; Magit Version
+
+(defun magit-version (&optional noerror)
+  "The version of Magit that you're using.\n\n\(fn)"
+  (interactive)
+  (let ((toplib (or load-file-name buffer-file-name)))
+    (unless (and toplib
+                 (equal (file-name-nondirectory toplib) "magit.el"))
+      (setq toplib (locate-library "magit.el")))
+    (when toplib
+      (let* ((dir (file-name-directory toplib))
+             (static (expand-file-name "magit-version.el" dir))
+             (gitdir (expand-file-name ".git" dir)))
+        (cond ((file-exists-p gitdir)
+               (setq magit-version
+                     (let ((default-directory dir))
+                       (magit-git-string "describe" "--tags" "--dirty")))
+               (ignore-errors (delete-file static)))
+              ((file-exists-p static)
+               (load-file static))
+              ((featurep 'package) ; shouldn't that make it easier?
+               (setq magit-version
+                     (or (ignore-errors ; < 24.4
+                           (package-version-join
+                            (package-desc-vers
+                             (cdr (assq 'magit package-alist)))))
+                         (ignore-errors ; = 24.4
+                           (package-version-join
+                            (package-desc-version
+                             (cadr (assq 'magit package-alist)))))))))))
+    (if (stringp magit-version)
+        (when (called-interactively-p 'any)
+          (message "magit-%s" magit-version))
+      (if noerror
+          (progn (setq magit-version 'error)
+                 (message "Cannot determine Magit's version"))
+        (error "Cannot determine Magit's version")))
+    magit-version))
+
+(cl-eval-when (load eval) (magit-version t))
 
 (provide 'magit)
 

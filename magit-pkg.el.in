@@ -1,3 +1,0 @@
-(define-package "magit" "@VERSION@"
-  "Control Git from Emacs."
-  '((cl-lib "0.2")))

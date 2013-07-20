@@ -40,34 +40,20 @@ If you install Magit using `package.el` then dependencies are
 automatically being taken care of.  Otherwise you have to track down
 dependencies and install them manually.
 
-Release `1.2.0` and branch `maint` (stable)
--------------------------------------------
-
-This release/branch only depends on libraries that are built into
-Emacs.
-
-Branch `master` (development)
------------------------------
-
 * `cl-lib` is a new library in Emacs 24.3.  Like the old `cl` it
   provides various Common Lisp forms, but differs in that symbols are
   prefixed with `cl-`.  A forward compatibility `cl-lib` for older
   versions of Emacs is available from the GNU Elpa repository.  You
   can install it using `package.el` or get it [here][cl-lib].
 
-* `contrib/magit-inotify.el` requires `inotify` with is only available
-  from Emacs' `trunk` branch; it will be released with Emacs 24.4.
+Optional Dependencies
+---------------------
 
 * `magit-wip.el` requires the `git-wip` shell script available
   [here][git-wip].
 
-Branch `next` (experimental)
-----------------------------
-
-Same as for `master`.
-
-Running tests
--------------
+Dependencies of Tests
+---------------------
 
 To run tests the following libraries are also required:
 
@@ -75,96 +61,98 @@ To run tests the following libraries are also required:
   starting with version 24.1.  You can also obtain an old version from
   the former development [repository][ert].
 
-* [`mocker`][mocker] a mocking framework
-
-* [`el-x`][el-x] various utilities (required by mocker)
-
 Installing from Git
 ===================
 
-If you want to live on the bleeding edge or just aren't that much into
-`package.el` the next best thing is to get Magit from Git.  This is
-also necessary if you want to contribute to Magit.
+If you want to contribute to Magit you should run it directly from the
+git repository.
 
-    git clone git://github.com/magit/magit.git
+First get the repository:
+
+    $ git clone git://github.com/magit/magit.git
 
 You then have the choice between the `maint` (stable), `master`
-(development), and `next` (experimental) branches.  The latter two
-depend on third-party libraries, which have to be properly installed
-for the following to succeed.
+(development), and `next` (experimental) branches.  Unless you have
+choosen `master` you need to create and checkout the branch.
 
-Start by adding the following lines to your init file:
+    $ git checkout -b BRANCH
 
-```lisp
-(add-to-list 'load-path "/path/to/magit-repo")
-(require 'magit)
-```
+Then you should byte compile the libraries and generate the
+documentation, though that is not required.
 
-If you intend to use contributed libraries also add this:
+    $ make core docs
 
-```lisp
-(add-to-list 'load-path "/path/to/magit-repo/contrib")
-```
+You can also do so manually.
 
-To finish the installation you can use `make` as explained in the
-tarball section below.  The only difference is that you have to skip
-the final `make install` step, since we already added the repository
-itself to the `load-path`.
-
-Or you could just do it manually, by running something like this:
-
-    $ emacs -Q -batch -L . -L ../DEPENDENCY -b batch-byte-compile *.el
+    $ emacs -Q -batch -L . [-L ../path/to/cl-lib] -b batch-byte-compile *.el
     $ makeinfo -o magit.info magit.texi
     $ ginstall-info --dir=dir magit.info
 
-and adding this to your initialization file:
+Then add this to you init file:
+
+```lisp
+(add-to-list 'load-path "/path/to/magit")
+(require 'magit)
+```
+
+And optionally to tell `info` about the documentation:
 
 ```lisp
 (eval-after-load 'info
   '(progn (info-initialize)
-          (add-to-list 'Info-directory-list "/path/to/magit-repo/")))
+          (add-to-list 'Info-directory-list "/path/to/magit/")))
 ```
+
+For a list of all make targets and variables see:
+
+    $ make help
 
 Installing from Tarball
 =======================
 
-Download and unpack [magit-1.2.0.tar.gz][download]. Then build and
-install as usual:
+Please consider using `package.el` instead.  Still here? Download and
+unpack [magit-1.3.0.tar.gz][download]. Then build
+and install as usual:
 
-    $ wget https://github.com/downloads/magit/magit/magit-1.2.0.tar.gz
-    $ tar -xf magit-1.2.0.tar.gz
-	$ cd magit-1.2.0
+    $ wget https://github.com/downloads/magit/magit/magit-1.3.0.tar.gz
+    $ tar -xf magit-1.3.0.tar.gz
+	$ cd magit-1.3.0
     $ make
     $ sudo make install
 
-This requires the `makeinfo` binary (usually available from a package
-named `texinfo`).  If you don't have it you can skip creating the info
-page by using this instead:
+This installs the Emacs lisp libraries and also the prebuild
+documentation from the tarball.  You may alternatively build the
+documentation yourself:
 
-    $ make core
-    $ sudo make install_core
+    $ make docs
+    $ sudo make install-docs
 
-You might also want to compile and install the additional libraries
-from `contrib/`:
+The `magit` shell script can be installed using:
 
-    $ make contrib
-    $ sudo make install_contrib
+    $ sudo make install-script
 
-In either case Emacs lisp libraries are put into
-`/usr/local/share/emacs/site-lisp/magit/`.
+For a list of all make targets and variables see:
 
-Then add that directory to the `load-path` and load `magit` by adding
-these lines to your init file (`~/.emacs.d/init.el`).
+    $ make help
 
-    (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/magit")
-    (require 'magit)
+By default the Emacs lisp libraries are installed in
+`/usr/local/share/emacs/site-lisp/magit/`.  Unless Emacs itself is
+also installed in `/usr/local/` you have to add that directory to the
+`load-path`.
 
-If you want to use Magit in an already running Emacs instance you also
-have to evaluate these forms by placing the cursor at the end of each
-line and then typing <kbd>C-x C-e</kbd>.
+```lisp
+(add-to-list 'load-path "/usr/local/share/emacs/site-lisp/magit")
+```
 
-If you have installed Emacs itself manually then the first line is
-likely not required.
+Then `magit` can be loaded:
+
+```lisp
+(require 'magit)
+```
+
+Add the above lines to your init file (`~/.emacs.el` or
+`~/.emacs.d/init.el`) and restart Emacs.
+
 
 [contributing]: https://github.com/magit/magit/blob/maint/CONTRIBUTING.md
 [contributors]: https://github.com/magit/magit/contributors
@@ -180,12 +168,10 @@ likely not required.
 [website]: http://magit.github.com/magit
 
 [cl-lib]: http://elpa.gnu.org/packages/cl-lib.html
-[el-x]: https://github.com/sigma/el-x
 [emacs]: http://www.gnu.org/software/emacs
 [ert]: https://github.com/ohler/ert
 [git-wip]: https://github.com/bartman/git-wip
 [git]: http://git-scm.com
 [marmalade]: http://marmalade-repo.org
 [melpa]: http://melpa.milkbox.net
-[mocker]: https://github.com/sigma/mocker.el
 [vc]: http://www.gnu.org/software/emacs/manual/html_node/emacs/Version-Control.html

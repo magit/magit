@@ -94,12 +94,10 @@ please read CONTRIBUTING.md ([weblink][contributing]).
 [website]: http://magit.github.com/magit
 
 [cl-lib]: http://elpa.gnu.org/packages/cl-lib.html
-[el-x]: https://github.com/sigma/el-x
 [emacs]: http://www.gnu.org/software/emacs
 [ert]: https://github.com/ohler/ert
 [git-wip]: https://github.com/bartman/git-wip
 [git]: http://git-scm.com
 [marmalade]: http://marmalade-repo.org
 [melpa]: http://melpa.milkbox.net
-[mocker]: https://github.com/sigma/mocker.el
 [vc]: http://www.gnu.org/software/emacs/manual/html_node/emacs/Version-Control.html
