@@ -2597,8 +2597,8 @@ magit-topgit and magit-svn"
   (message "Running %s %s" magit-git-executable (mapconcat 'identity args " "))
   (magit-run-git* args nil nil nil t))
 
-(defun magit-run-async-with-input (input cmd &rest args)
-  (magit-run* (cons cmd args) nil nil nil t input))
+(defun magit-run-git-async-with-input (input &rest args)
+  (magit-run-git* args nil nil nil t input))
 
 (defun magit-display-process ()
   "Display output from most recent git command."
@@ -5443,11 +5443,8 @@ environment (potentially empty)."
                         "tag" (append tag-options
                                       (list tag-name "-a" "-F" "-" tag-rev))))
                 (t
-                 (apply #'magit-run-async-with-input commit-buf
-                        magit-git-executable
-                        (append magit-git-standard-options
-                                '("commit")
-                                magit-custom-options
+                 (apply #'magit-run-git-async-with-input commit-buf "commit"
+                        (append magit-custom-options
                                 '("-F" "-")
                                 (when (and commit-all (not allow-empty))
                                   '("--all"))
