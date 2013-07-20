@@ -94,6 +94,7 @@ magit-version.el:
 	@printf ";; no-byte-compile: t\n" >> $@
 	@printf ";; no-update-autoloads: t\n" >> $@
 	@printf ";; coding: utf-8\n" >> $@
+	@printf ";; End:\n" >> $@
 	@printf ";;; magit-version.el ends here\n" >> $@
 
 loaddefs: $(LOADDEFS_FILE)
