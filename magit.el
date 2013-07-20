@@ -5856,8 +5856,8 @@ With prefix argument, changes in staging area are kept.
     ((commit)
      (magit-with-revert-confirmation
       (magit-apply-commit info nil nil t)))
-    ;; Reverting unstaged changes cannot be undone
     ((unstaged *)
+     ;; Asking the user is handled by `magit-discard-item'.
      (magit-discard-item))
     ((hunk)
      (magit-with-revert-confirmation
