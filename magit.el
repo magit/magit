@@ -118,11 +118,6 @@ Use the function by the same name instead of this variable.")
   :group 'magit
   :type 'string)
 
-(defcustom magit-git-standard-options '("--no-pager")
-  "Standard options when running Git."
-  :group 'magit
-  :type '(repeat string))
-
 (defcustom magit-repo-dirs nil
   "Directories containing Git repositories.
 Magit will look into these directories for Git repositories and
@@ -2579,6 +2574,9 @@ magit-topgit and magit-svn"
 (defun magit-run (cmd &rest args)
   (magit-with-refresh
     (magit-run* (cons cmd args))))
+
+(defvar magit-git-standard-options '("--no-pager")
+  "Standard options when running Git.")
 
 (defun magit-run-git* (subcmd-and-args
                        &optional logline noerase noerror nowait input)
