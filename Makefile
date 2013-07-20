@@ -11,6 +11,7 @@ ELS += magit-bisect.el
 ELS += magit-blame.el
 ELS += magit-cherry.el
 ELS += magit-compat.el
+ELS += magit-flow.el
 ELS += magit-key-mode.el
 ELS += magit-stgit.el
 ELS += magit-svn.el
