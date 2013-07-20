@@ -2580,25 +2580,24 @@ magit-topgit and magit-svn"
   (magit-with-refresh
     (magit-run* (cons cmd args))))
 
+(defun magit-run-git* (subcmd-and-args
+                       &optional logline noerase noerror nowait input)
+  (magit-run* (append (cons magit-git-executable
+                            magit-git-standard-options)
+                      subcmd-and-args)
+              logline noerase noerror nowait input))
+
 (defun magit-run-git (&rest args)
   (magit-with-refresh
-    (magit-run* (append (cons magit-git-executable
-                              magit-git-standard-options)
-                        args))))
+    (magit-run-git* args)))
 
 (defun magit-run-git-with-input (input &rest args)
   (magit-with-refresh
-    (magit-run* (append (cons magit-git-executable
-                              magit-git-standard-options)
-                        args)
-                nil nil nil nil input)))
+    (magit-run-git* args nil nil nil nil input)))
 
 (defun magit-run-git-async (&rest args)
   (message "Running %s %s" magit-git-executable (mapconcat 'identity args " "))
-  (magit-run* (append (cons magit-git-executable
-                            magit-git-standard-options)
-                      args)
-              nil nil nil t))
+  (magit-run-git* args nil nil nil t))
 
 (defun magit-run-async-with-input (input cmd &rest args)
   (magit-run* (cons cmd args) nil nil nil t input))
@@ -4376,7 +4375,7 @@ if FULLY-QUALIFIED-NAME is non-nil."
         (and (y-or-n-p (format "Directory %s does not exists.  Create it? " dir))
              (make-directory dir)))
       (let ((default-directory dir))
-        (magit-run* (list magit-git-executable "init"))))))
+        (magit-run-git* (list "init"))))))
 
 (define-derived-mode magit-status-mode magit-mode "Magit"
   "Mode for looking at git status.
@@ -5175,10 +5174,7 @@ typing and automatically refreshes the status buffer."
   (let ((args (magit-parse-arguments command))
         (magit-process-popup-time 0))
     (magit-with-refresh
-      (magit-run* (append (cons magit-git-executable
-                                magit-git-standard-options)
-                          args)
-                  nil nil nil t))))
+      (magit-run-git* args nil nil nil t))))
 
 ;;;; Pushing
 
@@ -5787,14 +5783,12 @@ With prefix argument, changes in staging area are kept.
 
 (defun magit-apply-commit (commit &optional docommit noerase revert)
   (let* ((parent-id (magit-choose-parent-id commit "cherry-pick"))
-         (success (magit-run* `(,magit-git-executable
-                                ,@magit-git-standard-options
-                                ,(if revert "revert" "cherry-pick")
-                                ,@(if parent-id
-                                      (list "-m" (number-to-string parent-id)))
-                                ,@(if (not docommit) (list "--no-commit"))
-                                ,commit)
-                              nil noerase)))
+         (success (magit-run-git* `(,(if revert "revert" "cherry-pick")
+                                    ,@(if parent-id
+                                          (list "-m" (number-to-string parent-id)))
+                                    ,@(if (not docommit) (list "--no-commit"))
+                                    ,commit)
+                                  nil noerase)))
     (when (and (not docommit) success)
       (cond (revert
              (magit-log-edit-append
