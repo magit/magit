@@ -21,7 +21,6 @@
 ;;	Nicolas Dudebout  <nicolas.dudebout@gatech.edu>
 ;;	Rémi Vanicat      <vanicat@debian.org>
 
-;; Version: @GIT_DEV_VERSION@
 ;; Keywords: tools
 
 ;; Magit is free software; you can redistribute it and/or modify it
