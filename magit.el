@@ -5071,7 +5071,7 @@ With a prefix arg, also remove untracked files.  With two prefix args, remove ig
            (commit (car first-unused)))
       (cond ((not first-unused)
              (magit-rewrite-stop t))
-            ((magit-apply-commit commit t)
+            ((magit-cherry-pick-commit commit)
              (magit-rewrite-set-commit-property commit 'used t)
              (magit-rewrite-finish-step))))))
 
@@ -5768,23 +5768,6 @@ With prefix argument, changes in staging area are kept.
                                 range args)))))))
 ;;;; Apply
 
-(defun magit-apply-commit (commit &optional docommit revert)
-  (magit-assert-one-parent commit (if revert "revert" "cherry-pick"))
-  (let ((success (magit-run-git* `(,(if revert "revert" "cherry-pick")
-                                   ,@(if (not docommit) (list "--no-commit"))
-                                   ,commit))))
-    (when (and (not docommit) success)
-      (cond (revert
-             (magit-log-edit-append
-              (magit-format-commit commit "Reverting \"%s\"")))
-            (t
-             (magit-log-edit-append
-              (magit-format-commit commit "%s%n%n%b"))
-             (magit-log-edit-set-field
-              'author
-              (magit-format-commit commit "%an <%ae>, %ai")))))
-    success))
-
 (defun magit-apply-item ()
   (interactive)
   (magit-section-action (item info "apply")
@@ -5804,18 +5787,31 @@ With prefix argument, changes in staging area are kept.
     ((stash)
      (magit-run-git "stash" "apply" info))))
 
+(defun magit-apply-commit (commit)
+  (magit-assert-one-parent commit "cherry-pick")
+  (when (magit-run-git* (list "cherry-pick" "--no-commit" commit))
+    (magit-log-edit-append
+     (magit-format-commit commit "%s%n%n%b"))
+    (magit-log-edit-set-field
+     'author
+     (magit-format-commit commit "%an <%ae>, %ai"))))
+
 ;;;; Cherry-Pick
 
 (defun magit-cherry-pick-item ()
   (interactive)
   (magit-section-action (item info "cherry-pick")
     ((pending commit)
-     (magit-apply-commit info t)
+     (magit-cherry-pick-commit info)
      (magit-rewrite-set-commit-property info 'used t))
     ((commit)
-     (magit-apply-commit info t))
+     (magit-cherry-pick-commit info))
     ((stash)
      (magit-run-git "stash" "pop" info))))
+
+(defun magit-cherry-pick-commit (commit)
+  (magit-assert-one-parent commit "cherry-pick")
+  (magit-run-git* (list "cherry-pick" commit)))
 
 ;;;; Revert
 
@@ -5829,11 +5825,11 @@ With prefix argument, changes in staging area are kept.
   (magit-section-action (item info "revert")
     ((pending commit)
      (magit-with-revert-confirmation
-      (magit-apply-commit info nil t)
+      (magit-revert-commit info)
       (magit-rewrite-set-commit-property info 'used nil)))
     ((commit)
      (magit-with-revert-confirmation
-      (magit-apply-commit info nil t)))
+      (magit-revert-commit info)))
     ((unstaged *)
      ;; Asking the user is handled by `magit-discard-item'.
      (magit-discard-item))
@@ -5843,6 +5839,12 @@ With prefix argument, changes in staging area are kept.
     ((diff)
      (magit-with-revert-confirmation
       (magit-apply-diff-item item "--reverse")))))
+
+(defun magit-revert-commit (commit)
+  (magit-assert-one-parent commit "revert")
+  (when (magit-run-git* (list "revert" "--no-commit" commit))
+    (magit-log-edit-append
+     (magit-format-commit commit "Reverting \"%s\""))))
 
 ;;; Log Mode
 
