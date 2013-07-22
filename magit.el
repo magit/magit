@@ -1494,13 +1494,18 @@ PROMPT and UNINTERESTING are passed to `magit-read-rev'."
       (magit-marked-commit)
     rev))
 
-(defun magit-rev-range-to-git (range)
+(defun magit-rev-range-to-git (range &optional common-ancestor)
+  "Convert RANGE to a proper argument to git.
+
+RANGE can ge a single ref, or can be a cons of (\"branch1\" . \"branch2\").
+If a cons cell and COMMON-ANCESTOR is non-nil, use the \"...\"
+common ancestor format."
   (or range
       (error "No revision range specified"))
   (if (stringp range)
       range
     (if (cdr range)
-        (format "%s..%s"
+        (format (if common-ancestor "%s...%s" "%s..%s")
                 (magit-rev-to-git (car range))
                 (magit-rev-to-git (cdr range)))
       (format "%s" (magit-rev-to-git (car range))))))
@@ -6070,8 +6075,8 @@ restore the window state that was saved before ediff was called."
 \\{magit-diff-mode-map}"
   :group 'magit)
 
-(magit-define-command diff (range)
-  (interactive (list (magit-read-rev-range "Diff")))
+(magit-define-command diff (range &optional common-ancestor)
+  (interactive (list (magit-read-rev-range "Diff") current-prefix-arg))
   (let ((buf (get-buffer-create "*magit-diff*")))
     (display-buffer buf)
     (with-current-buffer buf
@@ -6079,11 +6084,11 @@ restore the window state that was saved before ediff was called."
                        'magit-diff-mode
                        #'magit-refresh-diff-buffer
                        range
-                       (magit-rev-range-to-git range)))))
+                       (magit-rev-range-to-git range common-ancestor)))))
 
-(magit-define-command diff-working-tree (rev)
-  (interactive (list (magit-read-rev-with-default "Diff with")))
-  (magit-diff (or rev "HEAD")))
+(magit-define-command diff-working-tree (rev &optional common-ancestor)
+  (interactive (list (magit-read-rev-with-default "Diff with") current-prefix-arg))
+  (magit-diff (or rev "HEAD") common-ancestor))
 
 (defun magit-diff-with-mark ()
   (interactive)

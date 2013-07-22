@@ -479,7 +479,8 @@ simply show the two versions of the file.
 
 To show the changes from your working tree to another revision, type
 @kbd{d}.  To show the changes between two arbitrary revisions, type
-@kbd{D}.
+@kbd{D}.  If a prefix key is used with the latter, diffing will be
+done with the last common ancestor of the two branches.
 
 You can use @kbd{a} within the diff output to apply the changes to
 your working tree.  As usual when point is in a diff header for a
