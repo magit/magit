@@ -1092,6 +1092,9 @@ Read `completing-read' documentation for the meaning of the argument."
           (setq lines (cdr lines)))
       (nreverse lines))))
 
+(defvar magit-git-standard-options '("--no-pager")
+  "Standard options when running Git.")
+
 (defun magit-git-insert (args)
   (insert (magit-git-output args)))
 
@@ -2570,9 +2573,6 @@ magit-topgit and magit-svn"
 (defun magit-run (cmd &rest args)
   (magit-with-refresh
     (magit-run* (cons cmd args))))
-
-(defvar magit-git-standard-options '("--no-pager")
-  "Standard options when running Git.")
 
 (defun magit-run-git* (subcmd-and-args
                        &optional logline noerase noerror nowait input)
