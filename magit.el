@@ -5790,8 +5790,6 @@ With prefix argument, changes in staging area are kept.
 (defun magit-apply-commit (commit)
   (magit-assert-one-parent commit "cherry-pick")
   (when (magit-run-git* (list "cherry-pick" "--no-commit" commit))
-    (magit-log-edit-append
-     (magit-format-commit commit "%s%n%n%b"))
     (magit-log-edit-set-field
      'author
      (magit-format-commit commit "%an <%ae>, %ai"))))
@@ -5842,9 +5840,7 @@ With prefix argument, changes in staging area are kept.
 
 (defun magit-revert-commit (commit)
   (magit-assert-one-parent commit "revert")
-  (when (magit-run-git* (list "revert" "--no-commit" commit))
-    (magit-log-edit-append
-     (magit-format-commit commit "Reverting \"%s\""))))
+  (magit-run-git* (list "revert" "--no-commit" commit)))
 
 ;;; Log Mode
 
