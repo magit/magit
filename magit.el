@@ -3448,23 +3448,15 @@ argument) in the current window."
             (switch-to-buffer-other-window buffer))
         buffer))))
 
-(defvar magit-tmp-buffer-name " *magit-tmp*")
-
-(defmacro with-magit-tmp-buffer (var &rest body)
-  (declare (indent 1)
-           (debug (symbolp &rest form)))
-  `(let ((,var (generate-new-buffer magit-tmp-buffer-name)))
-     (unwind-protect
-         (progn ,@body)
-       (kill-buffer ,var))))
-
 (defun magit-apply-diff-item (diff &rest args)
   (when (zerop magit-diff-context-lines)
     (setq args (cons "--unidiff-zero" args)))
-  (with-magit-tmp-buffer tmp
-    (magit-insert-diff-item-patch diff tmp)
-    (apply #'magit-run-git-with-input tmp
-           "apply" (append args (list "-")))))
+  (let ((buf (generate-new-buffer " *magit-input*")))
+    (unwind-protect
+        (progn (magit-insert-diff-item-patch diff buf)
+               (apply #'magit-run-git-with-input buf
+                      "apply" (append args (list "-"))))
+      (kill-buffer buf))))
 
 (defun magit-apply-hunk-item* (hunk reverse &rest args)
   "Apply single hunk or part of a hunk to the index or working file.
@@ -3482,13 +3474,15 @@ member of ARGS, or to the working file otherwise."
     (when (and use-region zero-context)
       (error (concat "Not enough context to partially apply hunk.  "
                      "Use `+' to increase context.")))
-    (with-magit-tmp-buffer tmp
-      (if use-region
-          (magit-insert-hunk-item-region-patch
-           hunk reverse (region-beginning) (region-end) tmp)
-        (magit-insert-hunk-item-patch hunk tmp))
-      (apply #'magit-run-git-with-input tmp
-             "apply" (append args (list "-"))))))
+    (let ((buf (generate-new-buffer " *magit-input*")))
+      (unwind-protect
+          (progn (if use-region
+                     (magit-insert-hunk-item-region-patch
+                      hunk reverse (region-beginning) (region-end) buf)
+                   (magit-insert-hunk-item-patch hunk buf))
+                 (apply #'magit-run-git-with-input buf
+                        "apply" (append args (list "-"))))
+        (kill-buffer buf)))))
 
 (defun magit-apply-hunk-item (hunk &rest args)
   (apply #'magit-apply-hunk-item* hunk nil args))
@@ -7014,7 +7008,6 @@ This can be added to `magit-mode-hook' for example"
                        "magit-create-buffer-sections"
                        "magit-section-action"
                        "magit-add-action-clauses"
-                       "with-magit-tmp-buffer"
                        "magit-create-log-buffer-sections"
                        "magit-with-revert-confirmation"
                        "magit-visiting-file-item"
