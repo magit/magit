@@ -4455,12 +4455,9 @@ when asking for user input."
 
 (defun magit-progress-step ()
   (interactive)
-  (cond ((magit-merge-in-progress-p)
-         (magit-merge-abort))
-        ((magit-rebase-in-progress-p)
-         (magit-rebase-step))
-        (t
-         (error "No unfinished action in progress"))))
+  (if (magit-merge-in-progress-p)
+      (magit-merge-abort)
+    (magit-rebase-step)))
 
 ;;;; Read Repository
 
