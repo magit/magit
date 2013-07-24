@@ -82,16 +82,15 @@
            (remote-update (if (or current-prefix-arg (not remote))
                               (magit-read-remote "Update remote")
                             remote)))
-      (if (and (not remote)
-               (not current-prefix-arg))
-          (progn
-            (magit-set remote-update "topgit" "remote")
-            (magit-run magit-topgit-executable "remote"
-                       "--populate" remote-update)))
-      (magit-run magit-topgit-executable "remote" remote-update))
-    ;; We return nil anyway, as we also want regular "git remote update" to
-    ;; happen
-    nil))
+      (when (and (not remote)
+                 (not current-prefix-arg))
+        (magit-set remote-update "topgit" "remote")
+        (magit-run magit-topgit-executable "remote"
+                   "--populate" remote-update))
+      (magit-run magit-topgit-executable "remote" remote-update)))
+  ;; We always return nil, as we also want
+  ;; regular "git remote update" to happen.
+  nil)
 
 (defun magit-topgit-parse-flags (flags-string)
   (let ((flags (string-to-list flags-string))
@@ -160,27 +159,25 @@
   :lighter " Topgit" :require 'magit-topgit
   (or (derived-mode-p 'magit-mode)
       (error "This mode only makes sense with magit"))
-  (if magit-topgit-mode
-      (progn
-        (add-hook 'magit-after-insert-stashes-hook 'magit-insert-topics nil t)
-        (add-hook 'magit-create-branch-command-hook 'magit-topgit-create-branch nil t)
-        (add-hook 'magit-pull-command-hook 'magit-topgit-pull nil t)
-        (add-hook 'magit-remote-update-command-hook 'magit-topgit-remote-update nil t)
-        (add-hook 'magit-push-command-hook 'magit-topgit-push nil t)
-        ;; hide refs for top-bases namespace in any remote
-        (add-hook 'magit-log-remotes-color-hook
-                  'magit-topgit-get-remote-top-bases-color)
-        ;; hide refs in the top-bases namespace, as they're not meant for the user
-        (add-to-list 'magit-refs-namespaces magit-topgit-ignored-namespace))
-    (progn
-        (remove-hook 'magit-after-insert-stashes-hook 'magit-insert-topics t)
-        (remove-hook 'magit-create-branch-command-hook 'magit-topgit-create-branch t)
-        (remove-hook 'magit-pull-command-hook 'magit-topgit-pull t)
-        (remove-hook 'magit-remote-update-command-hook 'magit-topgit-remote-update t)
-        (remove-hook 'magit-push-command-hook 'magit-topgit-push t)
-        (remove-hook 'magit-log-remotes-color-hook
-                     'magit-topgit-get-remote-top-bases-color)
-        (delete magit-topgit-ignored-namespace magit-refs-namespaces)))
+  (cond
+   (magit-topgit-mode
+    (add-hook 'magit-after-insert-stashes-hook 'magit-insert-topics nil t)
+    (add-hook 'magit-create-branch-command-hook 'magit-topgit-create-branch nil t)
+    (add-hook 'magit-pull-command-hook 'magit-topgit-pull nil t)
+    (add-hook 'magit-remote-update-command-hook 'magit-topgit-remote-update nil t)
+    (add-hook 'magit-push-command-hook 'magit-topgit-push nil t)
+    ;; hide refs for top-bases namespace in any remote
+    (add-hook 'magit-log-remotes-color-hook 'magit-topgit-get-remote-top-bases-color)
+    ;; hide refs in the top-bases namespace, as they're not meant for the user
+    (add-to-list 'magit-refs-namespaces magit-topgit-ignored-namespace))
+   (t
+    (remove-hook 'magit-after-insert-stashes-hook 'magit-insert-topics t)
+    (remove-hook 'magit-create-branch-command-hook 'magit-topgit-create-branch t)
+    (remove-hook 'magit-pull-command-hook 'magit-topgit-pull t)
+    (remove-hook 'magit-remote-update-command-hook 'magit-topgit-remote-update t)
+    (remove-hook 'magit-push-command-hook 'magit-topgit-push t)
+    (remove-hook 'magit-log-remotes-color-hook 'magit-topgit-get-remote-top-bases-color)
+    (delete magit-topgit-ignored-namespace magit-refs-namespaces)))
   (when (called-interactively-p 'any)
     (magit-refresh)))
 
