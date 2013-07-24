@@ -32,8 +32,6 @@
 
 (eval-and-compile
 
-  ;; make-local-variable
-
   ;; Added in Emacs 24.3.
   (unless (fboundp 'setq-local)
     (defmacro setq-local (var val)
