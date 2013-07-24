@@ -1026,7 +1026,7 @@ face inherit from `default' and remove all other attributes."
     ["Cancel" magit-log-edit-cancel-log-message t]
     ["Commit" magit-log-edit-commit t]))
 
-;;; Utilities
+;;; Various Utilities
 ;;;; Minibuffer Input
 
 (defun magit-iswitchb-completing-read (prompt choices &optional predicate require-match
@@ -1075,7 +1075,7 @@ Read `completing-read' documentation for the meaning of the argument."
   (funcall magit-completing-read-function prompt collection predicate require-match
            initial-input hist def))
 
-;;;; String Manipulation
+;;;; String and File Utilities
 
 (defun magit-trim-line (str)
   (if (string= str "")
@@ -1091,6 +1091,40 @@ Read `completing-read' documentation for the meaning of the argument."
       (if (string= (car lines) "")
           (setq lines (cdr lines)))
       (nreverse lines))))
+
+(defun magit-file-line (file)
+  (when (file-exists-p file)
+    (with-temp-buffer
+      (insert-file-contents file)
+      (buffer-substring-no-properties (point-min)
+                                      (line-end-position)))))
+
+(defun magit-file-lines (file)
+  (when (file-exists-p file)
+    (with-temp-buffer
+      (insert-file-contents file)
+      (let ((rev (nreverse (split-string (buffer-string) "\n"))))
+        (nreverse (if (equal (car rev) "")
+                      (cdr rev)
+                    rev))))))
+
+(defun magit-put-line-property (prop val)
+  (put-text-property (line-beginning-position) (line-beginning-position 2)
+                     prop val))
+
+(defun magit-insert-region (beg end buf)
+  (let ((text (buffer-substring-no-properties beg end)))
+    (with-current-buffer buf
+      (insert text))))
+
+(defun magit-insert-current-line (buf)
+  (let ((text (buffer-substring-no-properties
+               (line-beginning-position) (line-beginning-position 2))))
+    (with-current-buffer buf
+      (insert text))))
+
+;;; Git Utilities
+;;;; Git Output
 
 (defvar magit-git-standard-options '("--no-pager")
   "Standard options when running Git.")
@@ -1121,22 +1155,6 @@ Read `completing-read' documentation for the meaning of the argument."
 (defun magit-git-exit-code (&rest args)
   (apply #'process-file magit-git-executable nil nil nil
          (append magit-git-standard-options args)))
-
-(defun magit-file-line (file)
-  (when (file-exists-p file)
-    (with-temp-buffer
-      (insert-file-contents file)
-      (buffer-substring-no-properties (point-min)
-                                      (line-end-position)))))
-
-(defun magit-file-lines (file)
-  (when (file-exists-p file)
-    (with-temp-buffer
-      (insert-file-contents file)
-      (let ((rev (nreverse (split-string (buffer-string) "\n"))))
-        (nreverse (if (equal (car rev) "")
-                      (cdr rev)
-                    rev))))))
 
 ;;;; Git Config
 
@@ -1339,32 +1357,15 @@ non-nil).  In addition, it will filter out revs involving HEAD."
   (when (> (length (magit-commit-parents commit)) 1)
     (error (format "Cannot %s a merge commit" command))))
 
-;;;; Various Utilities
-
-(defmacro magit-with-refresh (&rest body)
-  (declare (indent 0))
-  `(magit-refresh-wrapper (lambda () ,@body)))
-
-(defun magit-put-line-property (prop val)
-  (put-text-property (line-beginning-position) (line-beginning-position 2)
-                     prop val))
-
 (defun magit-format-commit (commit format)
   (magit-git-string "log" "--max-count=1"
                     (format "--abbrev=%s" magit-sha1-abbrev-length)
                     (concat "--pretty=format:" format)
                     commit))
 
-(defun magit-insert-region (beg end buf)
-  (let ((text (buffer-substring-no-properties beg end)))
-    (with-current-buffer buf
-      (insert text))))
-
-(defun magit-insert-current-line (buf)
-  (let ((text (buffer-substring-no-properties
-               (line-beginning-position) (line-beginning-position 2))))
-    (with-current-buffer buf
-      (insert text))))
+(defmacro magit-with-refresh (&rest body)
+  (declare (indent 0))
+  `(magit-refresh-wrapper (lambda () ,@body)))
 
 ;;; Revisions and Ranges
 
