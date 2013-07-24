@@ -51,6 +51,15 @@ buffer-local wherever it is set."
             (list 'make-variable-buffer-local (list 'quote var)))))
 
   ;; Added in Emacs 23.3.
+  (unless (fboundp 'string-prefix-p)
+    (defun string-prefix-p (str1 str2 &optional ignore-case)
+      "Return non-nil if STR1 is a prefix of STR2.
+If IGNORE-CASE is non-nil, the comparison is done without paying attention
+to case differences."
+      (eq t (compare-strings str1 nil nil
+                             str2 0 (length str1) ignore-case))))
+
+  ;; Added in Emacs 23.3.
   (unless (fboundp 'string-match-p)
     (defun string-match-p (regexp string &optional start)
       "Same as `string-match' but don't change the match data."

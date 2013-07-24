@@ -2736,16 +2736,13 @@ Please see the manual for a complete description of Magit.
             (set-window-point w (point)))
           (magit-highlight-section))))))
 
-(defun magit-string-has-prefix-p (string prefix)
-  (eq (compare-strings string nil (length prefix) prefix nil nil) t))
-
 (defun magit-revert-buffers (dir &optional ignore-modtime)
   (dolist (buffer (buffer-list))
     (when (and (buffer-file-name buffer)
                (not (buffer-modified-p buffer))
                ;; don't revert indirect buffers, as the parent will be reverted
                (not (buffer-base-buffer buffer))
-               (magit-string-has-prefix-p (buffer-file-name buffer) dir)
+               (string-prefix-p dir (buffer-file-name buffer) dir)
                (file-readable-p (buffer-file-name buffer))
                (or ignore-modtime (not (verify-visited-file-modtime buffer))))
       (with-current-buffer buffer
@@ -2757,7 +2754,7 @@ Please see the manual for a complete description of Magit.
   "Update the modeline for buffers representable by magit."
   (dolist (buffer (buffer-list))
     (when (and (buffer-file-name buffer)
-               (magit-string-has-prefix-p (buffer-file-name buffer) dir))
+               (string-prefix-p dir (buffer-file-name buffer)))
       (with-current-buffer buffer
         (condition-case err
             (vc-find-file-hook)
