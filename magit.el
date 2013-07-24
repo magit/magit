@@ -1370,13 +1370,6 @@ This is calculated from `magit-highlight-indentation'.")
       (use-region-p)
     (and transient-mark-mode mark-active)))
 
-(defun magit-goto-line (line)
-  "Like `goto-line' but doesn't set the mark."
-  (save-restriction
-    (widen)
-    (goto-char 1)
-    (forward-line (1- line))))
-
 (defun magit-put-line-property (prop val)
   (put-text-property (line-beginning-position) (line-beginning-position 2)
                      prop val))
@@ -2735,7 +2728,10 @@ Please see the manual for a complete description of Magit.
                  (forward-line section-line)
                  (forward-char line-char))
                 (t
-                 (magit-goto-line old-line)))
+                 (save-restriction
+                   (widen)
+                   (goto-char (point-min))
+                   (forward-line (1- old-line)))))
           (dolist (w (get-buffer-window-list (current-buffer)))
             (set-window-point w (point)))
           (magit-highlight-section))))))
