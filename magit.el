@@ -1345,26 +1345,6 @@ non-nil).  In addition, it will filter out revs involving HEAD."
   (declare (indent 0))
   `(magit-refresh-wrapper (lambda () ,@body)))
 
-(defvar-local magit-current-indentation nil
-  "Indentation highlight used in the current buffer.
-This is calculated from `magit-highlight-indentation'.")
-
-(defun magit-highlight-line-whitespace ()
-  (when (and magit-highlight-whitespace
-             (or (derived-mode-p 'magit-status-mode)
-                 (not (eq magit-highlight-whitespace 'status))))
-    (if (and magit-highlight-trailing-whitespace
-             (looking-at "^[-+].*?\\([ \t]+\\)$"))
-        (overlay-put (make-overlay (match-beginning 1) (match-end 1))
-                     'face 'magit-whitespace-warning-face))
-    (if (or (and (eq magit-current-indentation 'tabs)
-                 (looking-at "^[-+]\\( *\t[ \t]*\\)"))
-            (and (integerp magit-current-indentation)
-                 (looking-at (format "^[-+]\\([ \t]* \\{%s,\\}[ \t]*\\)"
-                                     magit-current-indentation))))
-        (overlay-put (make-overlay (match-beginning 1) (match-end 1))
-                     'face 'magit-whitespace-warning-face))))
-
 (defun magit-put-line-property (prop val)
   (put-text-property (line-beginning-position) (line-beginning-position 2)
                      prop val))
@@ -3215,6 +3195,26 @@ Customize `magit-diff-refine-hunk' to change the default mode."
          t)
         (t
          nil)))
+
+(defvar-local magit-current-indentation nil
+  "Indentation highlight used in the current buffer.
+This is calculated from `magit-highlight-indentation'.")
+
+(defun magit-highlight-line-whitespace ()
+  (when (and magit-highlight-whitespace
+             (or (derived-mode-p 'magit-status-mode)
+                 (not (eq magit-highlight-whitespace 'status))))
+    (if (and magit-highlight-trailing-whitespace
+             (looking-at "^[-+].*?\\([ \t]+\\)$"))
+        (overlay-put (make-overlay (match-beginning 1) (match-end 1))
+                     'face 'magit-whitespace-warning-face))
+    (if (or (and (eq magit-current-indentation 'tabs)
+                 (looking-at "^[-+]\\( *\t[ \t]*\\)"))
+            (and (integerp magit-current-indentation)
+                 (looking-at (format "^[-+]\\([ \t]* \\{%s,\\}[ \t]*\\)"
+                                     magit-current-indentation))))
+        (overlay-put (make-overlay (match-beginning 1) (match-end 1))
+                     'face 'magit-whitespace-warning-face))))
 
 (defun magit-looking-at-combined-diff-p ()
   (looking-at "@@@"))
