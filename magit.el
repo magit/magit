@@ -5692,19 +5692,20 @@ continue it.
 Working tree and staging area revert to the current 'HEAD'.
 With prefix argument, changes in staging area are kept.
 \('git stash save [--keep-index] DESCRIPTION')"
-  (interactive (list (read-string "Stash description: "
-                                  nil
+  (interactive (list (read-string "Stash description: " nil
                                   'magit-read-stash-history)))
-  (apply 'magit-run-git `("stash" "save" ,@magit-custom-options "--" ,description)))
+  (apply 'magit-run-git "stash" "save"
+         `(,@magit-custom-options "--" ,description)))
 
 (magit-define-command stash-snapshot ()
   "Create new stash of working tree and staging area; keep changes in place.
 \('git stash save \"Snapshot...\"; git stash apply stash@{0}')"
   (interactive)
   (magit-with-refresh
-    (apply 'magit-run-git `("stash" "save" ,@magit-custom-options
-                   ,(format-time-string "Snapshot taken at %Y-%m-%d %H:%M:%S"
-                                       (current-time))))
+    (apply 'magit-run-git "stash" "save"
+           `(,@magit-custom-options
+             ,(format-time-string "Snapshot taken at %Y-%m-%d %H:%M:%S"
+                                  (current-time))))
     (magit-run-git "stash" "apply" "stash@{0}")))
 
 (defvar magit-currently-shown-stash nil)
