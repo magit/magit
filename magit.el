@@ -1026,7 +1026,7 @@ face inherit from `default' and remove all other attributes."
     ["Cancel" magit-log-edit-cancel-log-message t]
     ["Commit" magit-log-edit-commit t]))
 
-;;; Utilities
+;;; Various Utilities
 ;;;; Minibuffer Input
 
 (defun magit-iswitchb-completing-read (prompt choices &optional predicate require-match
@@ -1075,7 +1075,7 @@ Read `completing-read' documentation for the meaning of the argument."
   (funcall magit-completing-read-function prompt collection predicate require-match
            initial-input hist def))
 
-;;;; String Manipulation
+;;;; String and File Utilities
 
 (defun magit-trim-line (str)
   (if (string= str "")
@@ -1091,6 +1091,40 @@ Read `completing-read' documentation for the meaning of the argument."
       (if (string= (car lines) "")
           (setq lines (cdr lines)))
       (nreverse lines))))
+
+(defun magit-file-line (file)
+  (when (file-exists-p file)
+    (with-temp-buffer
+      (insert-file-contents file)
+      (buffer-substring-no-properties (point-min)
+                                      (line-end-position)))))
+
+(defun magit-file-lines (file)
+  (when (file-exists-p file)
+    (with-temp-buffer
+      (insert-file-contents file)
+      (let ((rev (nreverse (split-string (buffer-string) "\n"))))
+        (nreverse (if (equal (car rev) "")
+                      (cdr rev)
+                    rev))))))
+
+(defun magit-put-line-property (prop val)
+  (put-text-property (line-beginning-position) (line-beginning-position 2)
+                     prop val))
+
+(defun magit-insert-region (beg end buf)
+  (let ((text (buffer-substring-no-properties beg end)))
+    (with-current-buffer buf
+      (insert text))))
+
+(defun magit-insert-current-line (buf)
+  (let ((text (buffer-substring-no-properties
+               (line-beginning-position) (line-beginning-position 2))))
+    (with-current-buffer buf
+      (insert text))))
+
+;;; Git Utilities
+;;;; Git Output
 
 (defvar magit-git-standard-options '("--no-pager")
   "Standard options when running Git.")
@@ -1121,22 +1155,6 @@ Read `completing-read' documentation for the meaning of the argument."
 (defun magit-git-exit-code (&rest args)
   (apply #'process-file magit-git-executable nil nil nil
          (append magit-git-standard-options args)))
-
-(defun magit-file-line (file)
-  (when (file-exists-p file)
-    (with-temp-buffer
-      (insert-file-contents file)
-      (buffer-substring-no-properties (point-min)
-                                      (line-end-position)))))
-
-(defun magit-file-lines (file)
-  (when (file-exists-p file)
-    (with-temp-buffer
-      (insert-file-contents file)
-      (let ((rev (nreverse (split-string (buffer-string) "\n"))))
-        (nreverse (if (equal (car rev) "")
-                      (cdr rev)
-                    rev))))))
 
 ;;;; Git Config
 
@@ -1339,64 +1357,15 @@ non-nil).  In addition, it will filter out revs involving HEAD."
   (when (> (length (magit-commit-parents commit)) 1)
     (error (format "Cannot %s a merge commit" command))))
 
-;;;; Various Utilities
-
-(defmacro magit-with-refresh (&rest body)
-  (declare (indent 0))
-  `(magit-refresh-wrapper (lambda () ,@body)))
-
-(defvar-local magit-current-indentation nil
-  "Indentation highlight used in the current buffer.
-This is calculated from `magit-highlight-indentation'.")
-
-(defun magit-highlight-line-whitespace ()
-  (when (and magit-highlight-whitespace
-             (or (derived-mode-p 'magit-status-mode)
-                 (not (eq magit-highlight-whitespace 'status))))
-    (if (and magit-highlight-trailing-whitespace
-             (looking-at "^[-+].*?\\([ \t]+\\)$"))
-        (overlay-put (make-overlay (match-beginning 1) (match-end 1))
-                     'face 'magit-whitespace-warning-face))
-    (if (or (and (eq magit-current-indentation 'tabs)
-                 (looking-at "^[-+]\\( *\t[ \t]*\\)"))
-            (and (integerp magit-current-indentation)
-                 (looking-at (format "^[-+]\\([ \t]* \\{%s,\\}[ \t]*\\)"
-                                     magit-current-indentation))))
-        (overlay-put (make-overlay (match-beginning 1) (match-end 1))
-                     'face 'magit-whitespace-warning-face))))
-
-(defun magit-use-region-p ()
-  (if (fboundp 'use-region-p)
-      (use-region-p)
-    (and transient-mark-mode mark-active)))
-
-(defun magit-goto-line (line)
-  "Like `goto-line' but doesn't set the mark."
-  (save-restriction
-    (widen)
-    (goto-char 1)
-    (forward-line (1- line))))
-
-(defun magit-put-line-property (prop val)
-  (put-text-property (line-beginning-position) (line-beginning-position 2)
-                     prop val))
-
 (defun magit-format-commit (commit format)
   (magit-git-string "log" "--max-count=1"
                     (format "--abbrev=%s" magit-sha1-abbrev-length)
                     (concat "--pretty=format:" format)
                     commit))
 
-(defun magit-insert-region (beg end buf)
-  (let ((text (buffer-substring-no-properties beg end)))
-    (with-current-buffer buf
-      (insert text))))
-
-(defun magit-insert-current-line (buf)
-  (let ((text (buffer-substring-no-properties
-               (line-beginning-position) (line-beginning-position 2))))
-    (with-current-buffer buf
-      (insert text))))
+(defmacro magit-with-refresh (&rest body)
+  (declare (indent 0))
+  `(magit-refresh-wrapper (lambda () ,@body)))
 
 ;;; Revisions and Ranges
 
@@ -2669,10 +2638,6 @@ Please see the manual for a complete description of Magit.
   (add-hook 'post-command-hook #'magit-correct-point-after-command t t)
   (add-hook 'post-command-hook #'magit-highlight-section t t)
   (use-local-map magit-mode-map)
-  (setq magit-current-indentation
-        (cdr (cl-find-if (lambda (pair)
-                           (string-match-p (car pair) default-directory))
-                         magit-highlight-indentation :from-end)))
   ;; Emacs' normal method of showing trailing whitespace gives weird
   ;; results when `magit-whitespace-warning-face' is different from
   ;; `trailing-whitespace'.
@@ -2735,13 +2700,13 @@ Please see the manual for a complete description of Magit.
                  (forward-line section-line)
                  (forward-char line-char))
                 (t
-                 (magit-goto-line old-line)))
+                 (save-restriction
+                   (widen)
+                   (goto-char (point-min))
+                   (forward-line (1- old-line)))))
           (dolist (w (get-buffer-window-list (current-buffer)))
             (set-window-point w (point)))
           (magit-highlight-section))))))
-
-(defun magit-string-has-prefix-p (string prefix)
-  (eq (compare-strings string nil (length prefix) prefix nil nil) t))
 
 (defun magit-revert-buffers (dir &optional ignore-modtime)
   (dolist (buffer (buffer-list))
@@ -2749,7 +2714,7 @@ Please see the manual for a complete description of Magit.
                (not (buffer-modified-p buffer))
                ;; don't revert indirect buffers, as the parent will be reverted
                (not (buffer-base-buffer buffer))
-               (magit-string-has-prefix-p (buffer-file-name buffer) dir)
+               (string-prefix-p dir (buffer-file-name buffer) dir)
                (file-readable-p (buffer-file-name buffer))
                (or ignore-modtime (not (verify-visited-file-modtime buffer))))
       (with-current-buffer buffer
@@ -2761,7 +2726,7 @@ Please see the manual for a complete description of Magit.
   "Update the modeline for buffers representable by magit."
   (dolist (buffer (buffer-list))
     (when (and (buffer-file-name buffer)
-               (magit-string-has-prefix-p (buffer-file-name buffer) dir))
+               (string-prefix-p dir (buffer-file-name buffer)))
       (with-current-buffer buffer
         (condition-case err
             (vc-find-file-hook)
@@ -3228,6 +3193,31 @@ Customize `magit-diff-refine-hunk' to change the default mode."
         (t
          nil)))
 
+(defun magit-highlight-line-whitespace ()
+  (when (and magit-highlight-whitespace
+             (or (derived-mode-p 'magit-status-mode)
+                 (not (eq magit-highlight-whitespace 'status))))
+    (let ((indent
+           (if (local-variable-p 'magit-highlight-indentation)
+               magit-highlight-indentation
+             (setq-local
+              magit-highlight-indentation
+              (cdr (cl-find-if (lambda (pair)
+                                 (string-match-p (car pair) default-directory))
+                               (default-value magit-highlight-indentation)
+                               :from-end))))))
+      (when (and magit-highlight-trailing-whitespace
+                 (looking-at "^[-+].*?\\([ \t]+\\)$"))
+        (overlay-put (make-overlay (match-beginning 1) (match-end 1))
+                     'face 'magit-whitespace-warning-face))
+      (when (or (and (eq indent 'tabs)
+                     (looking-at "^[-+]\\( *\t[ \t]*\\)"))
+                (and (integerp indent)
+                     (looking-at (format "^[-+]\\([ \t]* \\{%s,\\}[ \t]*\\)"
+                                         indent))))
+        (overlay-put (make-overlay (match-beginning 1) (match-end 1))
+                     'face 'magit-whitespace-warning-face)))))
+
 (defun magit-looking-at-combined-diff-p ()
   (looking-at "@@@"))
 
@@ -3448,23 +3438,15 @@ argument) in the current window."
             (switch-to-buffer-other-window buffer))
         buffer))))
 
-(defvar magit-tmp-buffer-name " *magit-tmp*")
-
-(defmacro with-magit-tmp-buffer (var &rest body)
-  (declare (indent 1)
-           (debug (symbolp &rest form)))
-  `(let ((,var (generate-new-buffer magit-tmp-buffer-name)))
-     (unwind-protect
-         (progn ,@body)
-       (kill-buffer ,var))))
-
 (defun magit-apply-diff-item (diff &rest args)
   (when (zerop magit-diff-context-lines)
     (setq args (cons "--unidiff-zero" args)))
-  (with-magit-tmp-buffer tmp
-    (magit-insert-diff-item-patch diff tmp)
-    (apply #'magit-run-git-with-input tmp
-           "apply" (append args (list "-")))))
+  (let ((buf (generate-new-buffer " *magit-input*")))
+    (unwind-protect
+        (progn (magit-insert-diff-item-patch diff buf)
+               (apply #'magit-run-git-with-input buf
+                      "apply" (append args (list "-"))))
+      (kill-buffer buf))))
 
 (defun magit-apply-hunk-item* (hunk reverse &rest args)
   "Apply single hunk or part of a hunk to the index or working file.
@@ -3482,13 +3464,15 @@ member of ARGS, or to the working file otherwise."
     (when (and use-region zero-context)
       (error (concat "Not enough context to partially apply hunk.  "
                      "Use `+' to increase context.")))
-    (with-magit-tmp-buffer tmp
-      (if use-region
-          (magit-insert-hunk-item-region-patch
-           hunk reverse (region-beginning) (region-end) tmp)
-        (magit-insert-hunk-item-patch hunk tmp))
-      (apply #'magit-run-git-with-input tmp
-             "apply" (append args (list "-"))))))
+    (let ((buf (generate-new-buffer " *magit-input*")))
+      (unwind-protect
+          (progn (if use-region
+                     (magit-insert-hunk-item-region-patch
+                      hunk reverse (region-beginning) (region-end) buf)
+                   (magit-insert-hunk-item-patch hunk buf))
+                 (apply #'magit-run-git-with-input buf
+                        "apply" (append args (list "-"))))
+        (kill-buffer buf)))))
 
 (defun magit-apply-hunk-item (hunk &rest args)
   (apply #'magit-apply-hunk-item* hunk nil args))
@@ -7014,7 +6998,6 @@ This can be added to `magit-mode-hook' for example"
                        "magit-create-buffer-sections"
                        "magit-section-action"
                        "magit-add-action-clauses"
-                       "with-magit-tmp-buffer"
                        "magit-create-log-buffer-sections"
                        "magit-with-revert-confirmation"
                        "magit-visiting-file-item"

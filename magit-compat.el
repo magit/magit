@@ -32,8 +32,6 @@
 
 (eval-and-compile
 
-  ;; make-local-variable
-
   ;; Added in Emacs 24.3.
   (unless (fboundp 'setq-local)
     (defmacro setq-local (var val)
@@ -49,6 +47,15 @@ buffer-local wherever it is set."
       (declare (debug defvar) (doc-string 3))
       (list 'progn (list 'defvar var val docstring)
             (list 'make-variable-buffer-local (list 'quote var)))))
+
+  ;; Added in Emacs 23.3.
+  (unless (fboundp 'string-prefix-p)
+    (defun string-prefix-p (str1 str2 &optional ignore-case)
+      "Return non-nil if STR1 is a prefix of STR2.
+If IGNORE-CASE is non-nil, the comparison is done without paying attention
+to case differences."
+      (eq t (compare-strings str1 nil nil
+                             str2 0 (length str1) ignore-case))))
 
   ;; Added in Emacs 23.3.
   (unless (fboundp 'string-match-p)
@@ -84,6 +91,12 @@ Also, do not record undo information."
       (defalias 'magit-start-process 'start-file-process)
     (defalias 'magit-start-process 'start-process))
   )
+
+;; Added in Emacs 22.2.
+(defun magit-use-region-p ()
+  (if (fboundp 'use-region-p)
+      (use-region-p)
+    (and transient-mark-mode mark-active)))
 
 ;; Added in Emacs 22.2.
 (defun magit-server-running-p ()
