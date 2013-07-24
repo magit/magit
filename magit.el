@@ -1365,11 +1365,6 @@ This is calculated from `magit-highlight-indentation'.")
         (overlay-put (make-overlay (match-beginning 1) (match-end 1))
                      'face 'magit-whitespace-warning-face))))
 
-(defun magit-use-region-p ()
-  (if (fboundp 'use-region-p)
-      (use-region-p)
-    (and transient-mark-mode mark-active)))
-
 (defun magit-put-line-property (prop val)
   (put-text-property (line-beginning-position) (line-beginning-position 2)
                      prop val))

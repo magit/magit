@@ -93,6 +93,12 @@ Also, do not record undo information."
   )
 
 ;; Added in Emacs 22.2.
+(defun magit-use-region-p ()
+  (if (fboundp 'use-region-p)
+      (use-region-p)
+    (and transient-mark-mode mark-active)))
+
+;; Added in Emacs 22.2.
 (defun magit-server-running-p ()
   "Test whether server is running.
 
