@@ -25,7 +25,7 @@ CPBIN ?= install -p -m 755
 MKDIR ?= install -p -m 755 -d
 
 MAKEINFO     ?= makeinfo
-INSTALL_INFO ?= ginstall-info
+INSTALL_INFO ?= install-info
 
 EMACS ?= emacs
 BATCH  = $(EMACS) $(EFLAGS) -batch -Q -L .
@@ -115,7 +115,7 @@ docs: magit.info dir
 dir: magit.info
 	$(INSTALL_INFO) --dir=$@ $<
 
-install: install-lisp install-loaddefs install-docs
+install: install-lisp install-docs
 install-all: install install-script
 
 install-lisp: lisp
