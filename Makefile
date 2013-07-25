@@ -25,7 +25,7 @@ CPBIN ?= install -p -m 755
 MKDIR ?= install -p -m 755 -d
 
 MAKEINFO     ?= makeinfo
-INSTALL_INFO ?= ginstall-info
+INSTALL_INFO ?= install-info
 
 EMACS ?= emacs
 BATCH  = $(EMACS) $(EFLAGS) -batch -Q -L .
