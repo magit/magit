@@ -3480,11 +3480,12 @@ member of ARGS, or to the working file otherwise."
 (defun magit-apply-hunk-item-reverse (hunk &rest args)
   (apply #'magit-apply-hunk-item* hunk t args))
 
-(magit-define-inserter unstaged-changes (title)
+(magit-define-inserter unstaged-changes ()
   (let ((magit-hide-diffs t)
         (magit-current-diff-range (cons 'index 'working)))
     (let ((magit-diff-options (append '() magit-diff-options)))
-      (magit-git-section 'unstaged title 'magit-wash-raw-diffs
+      (magit-git-section 'unstaged
+                         "Unstaged changes:" 'magit-wash-raw-diffs
                          "diff-files"))))
 
 (magit-define-inserter staged-changes (staged no-commit)
@@ -4330,7 +4331,7 @@ if FULLY-QUALIFIED-NAME is non-nil."
         (magit-insert-pending-changes)
         (magit-insert-pending-commits)
         (let ((staged (or no-commit (magit-anything-staged-p))))
-          (magit-insert-unstaged-changes "Unstaged changes:")
+          (magit-insert-unstaged-changes)
           (magit-insert-staged-changes staged no-commit))
         (magit-insert-unpulled-commits remote remote-branch)
         (magit-insert-unpushed-commits remote remote-branch))))
