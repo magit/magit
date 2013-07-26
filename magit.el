@@ -4330,8 +4330,7 @@ if FULLY-QUALIFIED-NAME is non-nil."
         (magit-insert-pending-changes)
         (magit-insert-pending-commits)
         (let ((staged (or no-commit (magit-anything-staged-p))))
-          (magit-insert-unstaged-changes
-           (if staged "Unstaged changes:" "Changes:"))
+          (magit-insert-unstaged-changes "Unstaged changes:")
           (magit-insert-staged-changes staged no-commit))
         (magit-insert-unpulled-commits remote remote-branch)
         (magit-insert-unpushed-commits remote remote-branch))))
