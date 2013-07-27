@@ -121,7 +121,7 @@ install-all: install install-script
 install-lisp: lisp
 	$(MKDIR) $(DESTDIR)$(lispdir)
 	$(CP) $(ELS) $(ELCS) magit-version.el $(DESTDIR)$(lispdir)
-	$(MKDIR) $(LOADDEFS_DIR)
+	$(MKDIR) $(DESTDIR)$(LOADDEFS_DIR)
 	$(CP) $(LOADDEFS_FILE) $(DESTDIR)$(LOADDEFS_DIR)/$(LOADDEFS_FILE)
 
 install-docs: docs
