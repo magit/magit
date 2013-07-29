@@ -821,7 +821,7 @@ face inherit from `default' and remove all other attributes."
     (define-key map (kbd "SPC") 'magit-show-item-or-scroll-up)
     (define-key map (kbd "DEL") 'magit-show-item-or-scroll-down)
     (define-key map (kbd "C-w") 'magit-copy-item-as-kill)
-    (define-key map (kbd "R") 'magit-progress-step)
+    (define-key map (kbd "R") 'magit-rebase-step)
     (cond (magit-rigid-key-bindings
            (define-key map (kbd "m") 'magit-merge)
            (define-key map (kbd "b") 'magit-checkout)
@@ -1301,13 +1301,6 @@ non-nil).  In addition, it will filter out revs involving HEAD."
 (defun magit-everything-clean-p ()
   (and (not (magit-anything-staged-p))
        (eq (magit-git-exit-code "diff" "--quiet") 0)))
-
-(defun magit-rebase-in-progress-p ()
-  (or (file-exists-p (magit-git-dir "rebase-apply"))
-      (file-exists-p (magit-git-dir "rebase-merge"))))
-
-(defun magit-merge-in-progress-p ()
-  (file-exists-p (magit-git-dir "MERGE_HEAD")))
 
 (defun magit-commit-parents (commit)
   (cdr (split-string (magit-git-string "rev-list" "-1" "--parents" commit))))
@@ -4370,7 +4363,7 @@ if FULLY-QUALIFIED-NAME is non-nil."
            "Merging"
            (concat
             (mapconcat 'identity (mapcar 'magit-name-rev merge-heads) ", ")
-            "; Press \"R\" to abort")))
+            "; Resolve conflicts, or press \"m A\" to Abort")))
         (when rebase
           (magit-insert-status-line
            "Rebasing"
@@ -4494,12 +4487,6 @@ when asking for user input."
         (setq magit-previous-window-configuration winconf)
         (magit-mode-init topdir 'magit-status-mode #'magit-refresh-status)))))
 
-(defun magit-progress-step ()
-  (interactive)
-  (if (magit-merge-in-progress-p)
-      (magit-merge-abort)
-    (magit-rebase-step)))
-
 ;;;; Read Repository
 
 (defun magit-read-top-dir (dir)
@@ -4597,7 +4584,7 @@ With a prefix-arg, the merge will be squashed.
 (defun magit-merge-abort ()
   "Abort the current merge operation."
   (interactive)
-  (if (magit-merge-in-progress-p)
+  (if (file-exists-p (magit-git-dir "MERGE_HEAD"))
       (when (yes-or-no-p "Abort merge?")
         (magit-run-git-async "merge" "--abort"))
     (error "No merge in progress")))
