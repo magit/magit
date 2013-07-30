@@ -1,6 +1,15 @@
 ;;; magit-compat.el --- compatibility code for Magit
 
-;; Copyright (C) 2013  Jonas Bernoulli
+;; Copyright (C) 2013  The Magit Project Developers.
+;;
+;; For a full list of contributors, see the AUTHORS file
+;; at the top-level directory of this distribution and at
+;; https://raw.github.com/magit/magit/master/AUTHORS
+
+;; Author: Jonas Bernoulli <jonas@bernoul.li>
+
+;; Contains code from GNU Emacs <https://www.gnu.org/software/emacs/>,
+;; released under the GNU General Public License version 3.
 
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by

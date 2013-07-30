@@ -1,9 +1,12 @@
 ;;; magit-log-edit.el --- major mode for editing Git commit messages
 
-;; Copyright (C) 2008  Marius Vollmer
-;; Copyright (C) 2010  Phil Jackson
+;; Copyright (C) 2008-2013  The Magit Project Developers.
+;;
+;; For a full list of contributors, see the AUTHORS file
+;; at the top-level directory of this distribution and at
+;; https://raw.github.com/magit/magit/master/AUTHORS
 
-;; Author: Marius Vollmer <marius.vollmer@nokia.com>
+;; Author: Marius Vollmer <marius.vollmer@gmail.com>
 
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
