@@ -30,6 +30,7 @@ MAKEINFO     ?= makeinfo
 INSTALL_INFO ?= install-info
 
 EMACS ?= emacs
+EFLAGS ?=
 BATCH  = $(EMACS) $(EFLAGS) -batch -Q -L .
 BATCHC = $(BATCH) -f batch-byte-compile
 
