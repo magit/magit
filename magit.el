@@ -4629,7 +4629,7 @@ With prefix argument, add remaining untracked files as well.
   "Remove all changes from staging area.
 \('git reset --mixed HEAD')."
   (interactive)
-  (magit-run-git "reset" "HEAD"))
+  (magit-run-git "reset" "HEAD" "--"))
 
 ;;;; Branching
 
@@ -4889,7 +4889,7 @@ and staging area are lost.
                                          "HEAD^"))
                      current-prefix-arg))
   (magit-run-git "reset" (if hard "--hard" "--soft")
-                 (magit-rev-to-git revision))
+                 (magit-rev-to-git revision) "--")
   (magit-update-vc-modeline default-directory))
 
 (magit-define-command reset-head-hard (revision)
@@ -5010,7 +5010,7 @@ With a prefix arg, also remove untracked files.  With two prefix args, remove ig
          (pending (magit-git-lines "rev-list" (concat base ".."))))
     (magit-write-rewrite-info `((orig ,orig)
                                 (pending ,@(mapcar #'list pending))))
-    (magit-run-git "reset" "--hard" base)))
+    (magit-run-git "reset" "--hard" base "--")))
 
 (defun magit-rewrite-stop (&optional noconfirm)
   (interactive)
@@ -5032,7 +5032,7 @@ With a prefix arg, also remove untracked files.  With two prefix args, remove ig
         (error "You have uncommitted changes"))
     (when (yes-or-no-p "Abort rewrite? ")
       (magit-write-rewrite-info nil)
-      (magit-run-git "reset" "--hard" orig))))
+      (magit-run-git "reset" "--hard" orig "--"))))
 
 (defun magit-rewrite-finish ()
   (interactive)
