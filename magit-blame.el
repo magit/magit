@@ -1,14 +1,15 @@
 ;;; magit-blame.el --- blame support for Magit
 
-;; Copyright (C) 2008  Linh Dang
-;; Copyright (C) 2008  Marius Vollmer
-;; Copyright (C) 2009  Tim Moore
-;; Copyright (C) 2010  Alexander Prusov
-;; Copyright (C) 2011  byplayer
-;; Copyright (C) 2012  Rüdiger Sonderfeld
-;; Copyright (C) 2012  Yann Hodique
+;; Copyright (C) 2012-2013  The Magit Project Developers.
+;;
+;; For a full list of contributors, see the AUTHORS.md file
+;; at the top-level directory of this distribution and at
+;; https://raw.github.com/magit/magit/master/AUTHORS.md
 
 ;; Author: Yann Hodique <yann.hodique@gmail.com>
+
+;; Contains code from Egg (Emacs Got Git) <https://github.com/byplayer/egg>,
+;; released under the GNU General Public License version 3 or later.
 
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by

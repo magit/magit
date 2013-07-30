@@ -1,6 +1,12 @@
 ;;; magit-flow.el --- git-flow plug-in for Magit
 
-;; Copyright (C) 2012  Phil Jackson
+;; Copyright (C) 2013  The Magit Project Developers.
+;;
+;; For a full list of contributors, see the AUTHORS.md file
+;; at the top-level directory of this distribution and at
+;; https://raw.github.com/magit/magit/master/AUTHORS.md
+
+;; Author: Phil Jackson <phil@shellarchive.co.uk>
 
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
