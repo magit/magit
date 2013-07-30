@@ -1,25 +1,12 @@
 ;;; magit.el --- control Git from Emacs
 
-;; Copyright (C) 2008-2009  Marius Vollmer
-;; Copyright (C) 2009-2013  Rémi Vanicat
-;; Copyright (C) 2009-2013  Phil Jackson
-;; Copyright (C) 2010-2013  Yann Hodique
-;; Copyright (C) 2011-2012  Peter J Weisberg
-;; Copyright (C) 2011-2012  Nicolas Dudebout
-;; Copyright (C) 2012-2013  Jonas Bernoulli
+;; Copyright (C) 2008-2013  The Magit Project Developers.
+;;
+;; For a full list of contributors, see the AUTHORS file
+;; at the top-level directory of this distribution and at
+;; https://raw.github.com/magit/magit/master/AUTHORS
 
-;; All-Contributors: <https://github.com/magit/magit/contributors>
-;; All-Maintainers:  <https://github.com/magit?tab=members>
-
-;; Author: Marius Vollmer <marius.vollmer@nokia.com>
-;; Former-Maintainers:
-;;	Phil Jackson      <phil@shellarchive.co.uk>
-;;	Peter J Weisberg  <pj@irregularexpressions.net>
-;; Maintainers:
-;;	Jonas Bernoulli   <jonas@bernoul.li>
-;;	Yann Hodique      <yann.hodique@gmail.com>
-;;	Nicolas Dudebout  <nicolas.dudebout@gatech.edu>
-;;	Rémi Vanicat      <vanicat@debian.org>
+;; Author: Marius Vollmer <marius.vollmer@gmail.com>
 
 ;; Keywords: tools
 
