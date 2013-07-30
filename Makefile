@@ -28,9 +28,10 @@ MKDIR ?= install -p -m 755 -d
 MAKEINFO     ?= makeinfo
 INSTALL_INFO ?= install-info
 
-EMACS ?= emacs
-BATCH  = $(EMACS) $(EFLAGS) -batch -Q -L .
-BATCHC = $(BATCH) -f batch-byte-compile
+EFLAGS ?=
+EMACS  ?= emacs
+BATCH   = $(EMACS) $(EFLAGS) -batch -Q -L .
+BATCHC  = $(BATCH) -f batch-byte-compile
 
 VERSION=$(shell \
   test -e .git && git describe --tags --dirty 2> /dev/null || \
