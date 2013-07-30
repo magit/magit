@@ -1,6 +1,8 @@
 PREFIX  ?= /usr/local
-lispdir ?= $(PREFIX)/share/emacs/site-lisp/magit
-infodir ?= $(PREFIX)/share/info
+datarootdir ?= $(PREFIX)/share
+lispdir ?= $(datarootdir)/emacs/site-lisp/magit
+infodir ?= $(datarootdir)/info
+docdir  ?= $(datarootdir)/doc/magit
 execdir ?= $(PREFIX)/bin
 
 LOADDEFS_FILE ?= magit-autoloads.el
@@ -78,6 +80,7 @@ help:
 	$(info Release Managment)
 	$(info =================)
 	$(info )
+	$(info make authors          - regenerate the AUTHORS file)
 	$(info make dist             - create old-school tarball)
 	$(info make marmalade        - create marmalade tarball)
 	@echo ""
@@ -107,13 +110,26 @@ $(LOADDEFS_FILE): $(ELS)
         (make-backup-files nil))\
     (update-directory-autoloads \".\")))"
 
-docs: magit.info dir
+docs: magit.info dir AUTHORS
 
 %.info: %.texi
 	$(MAKEINFO) $< -o $@
 
 dir: magit.info
 	$(INSTALL_INFO) --dir=$@ $<
+
+# Not a phony target, but needs to run *every* time.
+.PHONY: AUTHORS
+AUTHORS: AUTHORS.in
+	@printf "Generating AUTHORS file..."
+	@test -d .git \
+		&& (cat $< > $@ \
+			&& git log --pretty=format:'   %aN <%aE>' | sort -u >> $@ \
+			&& printf "FINISHED\n" ; ) \
+		|| printf "FAILED (non-fatal)\n"
+
+.PHONY: authors
+authors: AUTHORS
 
 install: install-lisp install-docs
 install-all: install install-script
@@ -128,6 +144,8 @@ install-docs: docs
 	$(MKDIR) $(DESTDIR)$(infodir)
 	$(CP) magit.info $(DESTDIR)$(infodir)
 	$(INSTALL_INFO) --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/magit.info
+	$(MKDIR) $(DESTDIR)$(docdir)
+	$(CP) AUTHORS $(DESTDIR)$(docdir)
 
 install-script: bin/magit
 	$(MKDIR) $(DESTDIR)$(execdir)
@@ -143,11 +161,11 @@ clean:
 	rm -fr magit-$(VERSION) magit.spec *.tar.gz *.tar
 	test -e .git || rm -f magit.info
 
-DIST_FILES  = $(ELS) magit-version.el Makefile
+DIST_FILES  = $(ELS) magit-version.el Makefile AUTHORS
 DIST_FILES += README.md INSTALL.md magit.texi magit.info dir
 DIST_FILES_BIN  = bin/magit
 
-ELPA_FILES = $(ELS) magit.info dir
+ELPA_FILES = $(ELS) magit.info dir AUTHORS
 
 dist: magit-$(VERSION).tar.gz
 
