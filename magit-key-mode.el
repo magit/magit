@@ -52,7 +52,6 @@
       ("-g" "Show Graph" "--graph")
       ("-n" "Name only" "--name-only")
       ("-am" "All match" "--all-match")
-      ("-ab" "All branches" "--branches")
       ("-al" "All" "--all"))
      (arguments
       ("=r" "Relative" "--relative=" read-directory-name)
