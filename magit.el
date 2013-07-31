@@ -5366,7 +5366,7 @@ even if `magit-set-upstream-on-push's value is `refuse'."
 \('git tag NAME REV')."
   (interactive
    (list
-    (magit-read-tag "Tag name: ")
+    (read-string "Tag name: ")
     (magit-read-rev "Place tag on: " (or (magit-default-rev) "HEAD"))))
   (apply #'magit-run-git "tag" (append magit-custom-options (list name rev))))
 
@@ -5375,7 +5375,7 @@ even if `magit-set-upstream-on-push's value is `refuse'."
 \('git tag -a NAME REV')."
   (interactive
    (list
-    (magit-read-tag "Tag name: ")
+    (read-string "Tag name: ")
     (magit-read-rev "Place tag on: " (or (magit-default-rev) "HEAD"))))
   (magit-log-edit-set-field 'tag-name name)
   (magit-log-edit-set-field 'tag-rev rev)
