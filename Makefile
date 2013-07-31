@@ -153,9 +153,9 @@ test: $(ELCS)
 
 .PHONY: clean
 clean:
-	rm -f $(ELCS) $(LOADDEFS_FILE) magit-version.el magit.info
+	rm -f $(ELCS) $(LOADDEFS_FILE) magit-version.el
 	rm -fr magit-$(VERSION) *.tar.gz *.tar
-	test -e .git || rm -f magit.info
+	-test ! -d .git && rm -f magit.info
 
 DIST_FILES  = $(ELS) magit-version.el Makefile
 DIST_FILES += README.md INSTALL.md magit.texi magit.info dir
