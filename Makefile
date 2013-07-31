@@ -42,10 +42,6 @@ VERSION=$(shell \
     (load-file \"magit-version.el\"))\
   (princ magit-version))")
 
-.PHONY: clean magit-version.el
-.PHONY: install-lisp install-docs install-script
-.PHONY: melpa melpa-push
-
 lisp:     $(ELCS) magit-version.el loaddefs
 all:      lisp docs
 
@@ -87,6 +83,8 @@ help:
 %.elc: %.el
 	@$(BATCHC) $<
 
+# Not a phony target, but needs to run *every* time.
+.PHONY: magit-version.el
 magit-version.el:
 	@printf "Generating magit-version.el\n"
 	@printf ";;; magit-version.el --- the Magit version you are using\n\n" > $@
@@ -120,17 +118,20 @@ dir: magit.info
 install: install-lisp install-docs
 install-all: install install-script
 
+.PHONY: install-lisp
 install-lisp: lisp
 	$(MKDIR) $(DESTDIR)$(lispdir)
 	$(CP) $(ELS) $(ELCS) magit-version.el $(DESTDIR)$(lispdir)
 	$(MKDIR) $(DESTDIR)$(LOADDEFS_DIR)
 	$(CP) $(LOADDEFS_FILE) $(DESTDIR)$(LOADDEFS_DIR)/$(LOADDEFS_FILE)
 
+.PHONY: install-docs
 install-docs: docs
 	$(MKDIR) $(DESTDIR)$(infodir)
 	$(CP) magit.info $(DESTDIR)$(infodir)
 	$(INSTALL_INFO) --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/magit.info
 
+.PHONY: install-script
 install-script: bin/magit
 	$(MKDIR) $(DESTDIR)$(execdir)
 	$(CPBIN) bin/magit $(DESTDIR)$(execdir)
@@ -140,6 +141,7 @@ test: $(ELCS)
 	(put 'flet 'byte-obsolete-info nil))" \
 	-l tests/magit-tests.el -f ert-run-tests-batch-and-exit
 
+.PHONY: clean
 clean:
 	rm -f $(ELCS) $(LOADDEFS_FILE) magit-version.el magit.info
 	rm -fr magit-$(VERSION) magit.spec *.tar.gz *.tar
