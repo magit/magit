@@ -79,6 +79,7 @@ help:
 	$(info ====)
 	$(info )
 	$(info make test             - run tests)
+	$(info make test-interactive - run tests interactively)
 	$(info )
 	$(info Release Managment)
 	$(info =================)
@@ -169,6 +170,12 @@ test: $(ELCS)
 	@$(BATCH) -eval "(progn (require 'cl) \
 	(put 'flet 'byte-obsolete-info nil))" \
 	-l tests/magit-tests.el -f ert-run-tests-batch-and-exit
+
+.PHONY: test-interactive
+test-interactive: $(ELCS)
+	@$(EMACS) $(EFLAGS) --quick --directory="." \
+		--eval "(progn (require 'cl) (put 'flet 'byte-obsolete-info nil))" \
+		--load="tests/magit-tests.el" --eval "(ert t)"
 
 .PHONY: clean
 clean:
