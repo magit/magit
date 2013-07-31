@@ -4783,7 +4783,9 @@ Works with local or remote branches.
   (interactive (list (magit-read-rev-with-default "Branch to delete" 'notrim)
                      current-prefix-arg))
   (let* ((remote (magit-remote-part-of-branch branch))
-         (is-current (string= branch (magit-get-current-branch)))
+         (current (magit-get-current-branch))
+         (is-current (string= branch current))
+         (is-master (string= branch "master"))
          (args (list "branch"
                      (if force "-D" "-d")
                      branch)))
@@ -4792,6 +4794,8 @@ Works with local or remote branches.
       (magit-run-git-async "push" remote
                            (concat ":refs/heads/"
                                    (magit-branch-no-remote branch))))
+     ((and is-current is-master)
+      (message "Cannot delete master branch while it's checked out."))
      (is-current
       (if (y-or-n-p "Cannot delete current branch. Switch to master first? ")
           (progn
