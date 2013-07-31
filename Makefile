@@ -43,9 +43,13 @@ VERSION=$(shell \
     (load-file \"magit-version.el\"))\
   (princ magit-version))")
 
+.PHONY: lisp
 lisp:     $(ELCS) magit-version.el loaddefs
+
+.PHONY: all
 all:      lisp docs
 
+.PHONY: help
 help:
 	$(info Getting Help)
 	$(info ============)
@@ -100,6 +104,7 @@ magit-version.el:
 	@printf ";; End:\n" >> $@
 	@printf ";;; magit-version.el ends here\n" >> $@
 
+.PHONY: loaddefs
 loaddefs: $(LOADDEFS_FILE)
 
 $(LOADDEFS_FILE): $(ELS)
@@ -109,6 +114,7 @@ $(LOADDEFS_FILE): $(ELS)
         (make-backup-files nil))\
     (update-directory-autoloads \".\")))"
 
+.PHONY: docs
 docs: magit.info dir AUTHORS
 
 %.info: %.texi
@@ -130,8 +136,11 @@ AUTHORS: AUTHORS.in
 .PHONY: authors
 authors: AUTHORS
 
+.PHONY: install
 install: install-lisp install-docs
-install-all: install install-script
+
+.PHONY: install-all
+install-all: install-lisp install-docs install-script
 
 .PHONY: install-lisp
 install-lisp: lisp
@@ -153,6 +162,7 @@ install-script: bin/magit
 	$(MKDIR) $(DESTDIR)$(execdir)
 	$(CPBIN) bin/magit $(DESTDIR)$(execdir)
 
+.PHONY: test
 test: $(ELCS)
 	@$(BATCH) -eval "(progn (require 'cl) \
 	(put 'flet 'byte-obsolete-info nil))" \
@@ -170,6 +180,7 @@ DIST_FILES_BIN  = bin/magit
 
 ELPA_FILES = $(ELS) magit.info dir AUTHORS
 
+.PHONY: dist
 dist: magit-$(VERSION).tar.gz
 
 magit-$(VERSION).tar.gz: $(DIST_FILES)
@@ -179,6 +190,7 @@ magit-$(VERSION).tar.gz: $(DIST_FILES)
 	tar -cvz --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar.gz magit-$(VERSION)
 	rm -rf magit-$(VERSION)
 
+.PHONY: marmalade
 marmalade: magit-$(VERSION).tar
 
 magit-$(VERSION).tar: $(ELPA_FILES)
