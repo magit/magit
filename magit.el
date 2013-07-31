@@ -6733,13 +6733,9 @@ With a prefix arg, do a submodule update --init."
 (defun magit--branches-for-remote-repo (remote)
   "Return a list of remote branch names for REMOTE.
 These are the branch names with the remote name stripped."
-  (cl-mapcan
-   (lambda (line)
-     (save-match-data
-       (when (and (not (string-match-p " -> " line))
-                  (string-match (concat "^ +" remote "/\\([^ $]+\\)") line))
-         (list (match-string 1 line)))))
-   (magit-git-lines "branch" "-r")))
+  (cl-loop for branch in (magit-git-lines "branch" "-r" "--list"
+                                          (format "%s/*" remote))
+           collect (substring branch (+ 3 (length remote)))))
 
 (defvar magit-branches-buffer-name "*magit-branches*")
 
