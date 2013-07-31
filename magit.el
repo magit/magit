@@ -55,7 +55,6 @@ Use the function by the same name instead of this variable.")
 (require 'grep)
 (require 'log-edit)
 (require 'ring)
-(require 'thingatpt)
 
 (eval-when-compile
   (require 'ediff)
