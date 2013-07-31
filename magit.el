@@ -67,7 +67,6 @@ Use the function by the same name instead of this variable.")
 (require 'epa)
 (require 'grep)
 (require 'ring)
-(require 'thingatpt)
 
 (eval-when-compile
   (require 'dired)
