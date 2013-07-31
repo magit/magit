@@ -171,7 +171,7 @@ test: $(ELCS)
 .PHONY: clean
 clean:
 	rm -f $(ELCS) $(LOADDEFS_FILE) magit-version.el magit.info
-	rm -fr magit-$(VERSION) magit.spec *.tar.gz *.tar
+	rm -fr magit-$(VERSION) *.tar.gz *.tar
 	test -e .git || rm -f magit.info
 
 DIST_FILES  = $(ELS) magit-version.el Makefile AUTHORS
