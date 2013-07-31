@@ -1346,7 +1346,7 @@ non-nil).  In addition, it will filter out revs involving HEAD."
 
 (defun magit-format-commit (commit format)
   (magit-git-string "log" "--max-count=1"
-                    (format "--abbrev=%s" magit-sha1-abbrev-length)
+                    (format "--abbrev=%d" magit-sha1-abbrev-length)
                     (concat "--pretty=format:" format)
                     commit))
 
@@ -3552,13 +3552,13 @@ member of ARGS, or to the working file otherwise."
 (defvar magit-git-log-options
   (list
    "--pretty=format:* %h %s"
-   (format "--abbrev=%s" magit-sha1-abbrev-length)))
+   (format "--abbrev=%d" magit-sha1-abbrev-length)))
 ;; --decorate=full otherwise some ref prefixes are stripped
 ;;  '("--pretty=format:* %H%d %s" "--decorate=full"))
 
 (defvar magit-git-reflog-options
   (list "--pretty=format:* \C-?%h\C-?%gs"
-        (format "--abbrev=%s" magit-sha1-abbrev-length)))
+        (format "--abbrev=%d" magit-sha1-abbrev-length)))
 
 (defconst magit-unpushed-or-unpulled-commit-re
   (concat "^\\* "
@@ -5925,9 +5925,9 @@ With a non numeric prefix ARG, show all entries"
              (magit-rev-range-describe range "Commits"))
            (apply-partially 'magit-wash-color-log style)
            `("log"
-             ,(format "--max-count=%s" magit-log-cutoff-length)
+             ,(format "--max-count=%d" magit-log-cutoff-length)
              "--abbrev-commit"
-             ,(format "--abbrev=%s" magit-sha1-abbrev-length)
+             ,(format "--abbrev=%d" magit-sha1-abbrev-length)
              ,@(cl-case style
                  (long
                   (append (list "--stat")
@@ -6003,7 +6003,7 @@ This is only non-nil in reflog buffers.")
            (append magit-git-reflog-options
                    (list
                     "--walk-reflogs"
-                    (format "--max-count=%s" magit-log-cutoff-length)
+                    (format "--max-count=%d" magit-log-cutoff-length)
                     args)))))
 
 (define-derived-mode magit-reflog-mode magit-log-mode "Magit Reflog"
@@ -6206,9 +6206,9 @@ restore the window state that was saved before ediff was called."
                                      ""))
                            'magit-wash-log
                            "log"
-                           (format "--max-count=%s" magit-log-cutoff-length)
+                           (format "--max-count=%d" magit-log-cutoff-length)
                            "--abbrev-commit"
-                           (format "--abbrev=%s" magit-sha1-abbrev-length)
+                           (format "--abbrev=%d" magit-sha1-abbrev-length)
                            "--graph"
                            "--pretty=oneline"
                            (format "%s..%s" head ref)
@@ -6257,9 +6257,9 @@ or something else."
            (magit-rev-range-describe range (format "Commits for file %s" file))
            (apply-partially 'magit-wash-log style)
            `("log"
-             ,(format "--max-count=%s" magit-log-cutoff-length)
+             ,(format "--max-count=%d" magit-log-cutoff-length)
              ,"--abbrev-commit"
-             ,(format "--abbrev=%s" magit-sha1-abbrev-length)
+             ,(format "--abbrev=%d" magit-sha1-abbrev-length)
              ,@(cond ((eq style 'long) (list "--stat" "-z"))
                      ((eq style 'oneline) (list "--pretty=oneline"))
                      (t nil))
@@ -6929,7 +6929,7 @@ These are the branch names with the remote name stripped."
            "branches" nil 'magit-wash-branches
            "branch"
            "-vva"
-           (format "--abbrev=%s" magit-sha1-abbrev-length)
+           (format "--abbrev=%d" magit-sha1-abbrev-length)
            magit-custom-options)))
 
 (magit-define-command branch-manager ()
