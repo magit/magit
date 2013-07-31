@@ -73,9 +73,9 @@ First get the repository:
 
 You then have the choice between the `maint` (stable), `master`
 (development), and `next` (experimental) branches.  Unless you have
-choosen `master` you need to create and checkout the branch.
+chosen `master` you need to create and checkout the branch.
 
-    $ git checkout -b BRANCH
+    $ git checkout -b LOCAL-BRANCH REMOTE-BRANCH
 
 Then you should byte compile the libraries and generate the
 documentation, though that is not required.
@@ -84,7 +84,7 @@ documentation, though that is not required.
 
 You can also do so manually.
 
-    $ emacs -Q -batch -L . [-L ../path/to/cl-lib] -b batch-byte-compile *.el
+    $ emacs -Q --batch -L . [-L ../path/to/cl-lib] -f batch-byte-compile *.el
     $ makeinfo -o magit.info magit.texi
     $ install-info --dir=dir magit.info
 
@@ -111,8 +111,7 @@ Installing from Tarball
 =======================
 
 Please consider using `package.el` instead.  Still here? Download and
-unpack [magit-1.3.0.tar.gz][download]. Then build and install as
-usual:
+unpack [magit-1.3.0.tar.gz][download]. Then build and install as usual:
 
     $ wget https://github.com/downloads/magit/magit/magit-1.3.0.tar.gz
     $ tar -xf magit-1.3.0.tar.gz
@@ -120,7 +119,7 @@ usual:
     $ make
     $ sudo make install
 
-This installs the Emacs lisp libraries and also the prebuild
+This installs the Emacs lisp libraries, as well as the prebuilt
 documentation from the tarball.  You may alternatively build the
 documentation yourself:
 
