@@ -6961,7 +6961,8 @@ These are the branch names with the remote name stripped."
     (when (string= (magit-get-current-branch) local-branch)
       (magit-refresh-buffer (magit-find-status-buffer default-directory)))))
 
-;;; External Tools
+;;; Miscellaneous
+;;;; External Tools
 
 (defun magit-run-git-gui ()
   "Run `git gui' for the current git repository."
@@ -6997,7 +6998,6 @@ These are the branch names with the remote name stripped."
      (t
       (magit-start-process "Gitk" nil magit-gitk-executable "--all")))))
 
-;;; Miscellaneous
 ;;;; Magit Extensions
 
 (defun magit-load-config-extensions ()
