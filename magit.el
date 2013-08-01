@@ -3248,7 +3248,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
               (cdr (cl-find-if (lambda (pair)
                                  (string-match-p (car pair) default-directory))
                                (default-value magit-highlight-indentation)
-                               :from-end))))))
+                               :from-end t))))))
       (when (and magit-highlight-trailing-whitespace
                  (looking-at "^[-+].*?\\([ \t]+\\)$"))
         (overlay-put (make-overlay (match-beginning 1) (match-end 1))
