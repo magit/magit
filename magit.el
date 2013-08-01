@@ -3741,13 +3741,13 @@ must return a string which will represent the log line.")
     (let* ((string-refs
             (when refs
               (let ((colored-labels
-                     (delete nil
-                             (mapcar (lambda (r)
-                                       (cl-destructuring-bind (label face)
-                                           (magit-ref-get-label-color r)
-                                         (and label
-                                              (propertize label 'face face))))
-                                     refs))))
+                     (cl-mapcan
+                      (lambda (r)
+                        (cl-destructuring-bind (label face)
+                            (magit-ref-get-label-color r)
+                          (when label
+                            (list (propertize label 'face face)))))
+                      refs)))
                 (concat
                  (mapconcat 'identity colored-labels " ")
                  " "))))
