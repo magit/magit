@@ -2758,7 +2758,7 @@ Please see the manual for a complete description of Magit.
                (not (buffer-modified-p buffer))
                ;; don't revert indirect buffers, as the parent will be reverted
                (not (buffer-base-buffer buffer))
-               (string-prefix-p dir (buffer-file-name buffer) dir)
+               (string-prefix-p dir (buffer-file-name buffer))
                (file-readable-p (buffer-file-name buffer))
                (or ignore-modtime (not (verify-visited-file-modtime buffer))))
       (with-current-buffer buffer
