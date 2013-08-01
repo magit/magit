@@ -1415,15 +1415,15 @@ pair (START . END), then the range is START..END.")
 Removes references matching UNINTERESTING from the results.
 UNINTERESTING can be either a function taking a single
 argument or a list of strings used as regexps."
-  (cl-loop for ref in (magit-git-lines "show-ref")
-           for ref =  (cadr (split-string ref " "))
+  (cl-loop for ref-line in (magit-git-lines "show-ref")
+           for ref-name =  (cadr (split-string ref-line " "))
            unless  (if (functionp uninteresting)
-                       (funcall uninteresting ref)
+                       (funcall uninteresting ref-name)
                      (cl-loop for i in uninteresting
-                              thereis (string-match i ref)))
-           collect (cons (magit-format-ref ref)
+                              thereis (string-match i ref-name)))
+           collect (cons (magit-format-ref ref-name)
                          (replace-regexp-in-string
-                          "^refs/heads/" "" ref))))
+                          "^refs/heads/" "" ref-name))))
 
 (defun magit-format-ref (ref)
   "Convert fully-specified ref REF into its displayable form
