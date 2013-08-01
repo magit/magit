@@ -6586,6 +6586,23 @@ With a prefix argument, visit in other window."
      (kill-new info)
      (message "%s" info))))
 
+;;;; Grep
+
+(magit-define-command grep (&optional pattern)
+  (interactive)
+  (let ((pattern (or pattern
+                     (read-string "git grep: "
+                                  (shell-quote-argument (grep-tag-default))))))
+    (with-current-buffer (generate-new-buffer "*Magit Grep*")
+      (setq default-directory (magit-get-top-dir))
+      (insert magit-git-executable " "
+              (mapconcat 'identity magit-git-standard-options " ")
+              " grep -n "
+              (shell-quote-argument pattern) "\n\n")
+      (magit-git-insert (list "grep" "--line-number" pattern))
+      (grep-mode)
+      (pop-to-buffer (current-buffer)))))
+
 ;;; Interactive Rebase
 
 (defun magit-interactive-rebase ()
@@ -6983,7 +7000,8 @@ With a prefix arg, do a submodule update --init."
      (t
       (magit-start-process "Gitk" nil magit-gitk-executable "--all")))))
 
-;;; Extensions
+;;; Miscellaneous
+;;;; Magit Extensions
 
 (defun magit-load-config-extensions ()
   "Try to load magit extensions that are defined at git config layer.
@@ -6994,24 +7012,6 @@ This can be added to `magit-mode-hook' for example"
                  (not (eq sym 'magit-wip-save-mode)))
         (funcall sym 1)))))
 
-;;; Grep (A)
-
-(magit-define-command grep (&optional pattern)
-  (interactive)
-  (let ((pattern (or pattern
-                     (read-string "git grep: "
-                                  (shell-quote-argument (grep-tag-default))))))
-    (with-current-buffer (generate-new-buffer "*Magit Grep*")
-      (setq default-directory (magit-get-top-dir))
-      (insert magit-git-executable " "
-              (mapconcat 'identity magit-git-standard-options " ")
-              " grep -n "
-              (shell-quote-argument pattern) "\n\n")
-      (magit-git-insert (list "grep" "--line-number" pattern))
-      (grep-mode)
-      (pop-to-buffer (current-buffer)))))
-
-;;; Miscellaneous
 ;;;; Magit Bugs Reports
 
 (defconst magit-bug-report-url
