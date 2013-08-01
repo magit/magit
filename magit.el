@@ -6588,20 +6588,19 @@ With a prefix argument, visit in other window."
 
 ;;;; Grep
 
-(magit-define-command grep (&optional pattern)
-  (interactive)
-  (let ((pattern (or pattern
-                     (read-string "git grep: "
-                                  (shell-quote-argument (grep-tag-default))))))
-    (with-current-buffer (generate-new-buffer "*Magit Grep*")
-      (setq default-directory (magit-get-top-dir))
-      (insert magit-git-executable " "
-              (mapconcat 'identity magit-git-standard-options " ")
-              " grep -n "
-              (shell-quote-argument pattern) "\n\n")
-      (magit-git-insert (list "grep" "--line-number" pattern))
-      (grep-mode)
-      (pop-to-buffer (current-buffer)))))
+(magit-define-command grep (pattern)
+  (interactive
+   (list (read-string "git grep: "
+                      (shell-quote-argument (grep-tag-default)))))
+  (with-current-buffer (generate-new-buffer "*Magit Grep*")
+    (setq default-directory (magit-get-top-dir))
+    (insert magit-git-executable " "
+            (mapconcat 'identity magit-git-standard-options " ")
+            " grep -n "
+            (shell-quote-argument pattern) "\n\n")
+    (magit-git-insert (list "grep" "--line-number" pattern))
+    (grep-mode)
+    (pop-to-buffer (current-buffer))))
 
 ;;; Interactive Rebase
 
