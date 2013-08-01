@@ -80,13 +80,13 @@ choosen `master` you need to create and checkout the branch.
 Then you should byte compile the libraries and generate the
 documentation, though that is not required.
 
-    $ make core docs
+    $ make lisp docs
 
 You can also do so manually.
 
     $ emacs -Q -batch -L . [-L ../path/to/cl-lib] -b batch-byte-compile *.el
     $ makeinfo -o magit.info magit.texi
-    $ ginstall-info --dir=dir magit.info
+    $ install-info --dir=dir magit.info
 
 Then add this to you init file:
 
@@ -95,7 +95,7 @@ Then add this to you init file:
 (require 'magit)
 ```
 
-And optionally to tell `info` about the documentation:
+And optionally tell `info` about the documentation:
 
 ```lisp
 (eval-after-load 'info
@@ -103,7 +103,7 @@ And optionally to tell `info` about the documentation:
           (add-to-list 'Info-directory-list "/path/to/magit/")))
 ```
 
-For a list of all make targets and variables see:
+For a list of all make targets see:
 
     $ make help
 
@@ -111,8 +111,8 @@ Installing from Tarball
 =======================
 
 Please consider using `package.el` instead.  Still here? Download and
-unpack [magit-1.3.0.tar.gz][download]. Then build
-and install as usual:
+unpack [magit-1.3.0.tar.gz][download]. Then build and install as
+usual:
 
     $ wget https://github.com/downloads/magit/magit/magit-1.3.0.tar.gz
     $ tar -xf magit-1.3.0.tar.gz
@@ -131,7 +131,7 @@ The `magit` shell script can be installed using:
 
     $ sudo make install-script
 
-For a list of all make targets and variables see:
+For a list of all make targets see:
 
     $ make help
 
