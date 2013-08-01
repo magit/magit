@@ -1081,7 +1081,7 @@ Read `completing-read' documentation for the meaning of the argument."
 
 (defun magit-file-line (file)
   "Return the first line of FILE as a string."
-  (when (file-exists-p file)
+  (when (file-regular-p file)
     (with-temp-buffer
       (insert-file-contents file)
       (buffer-substring-no-properties (point-min)
@@ -1090,7 +1090,7 @@ Read `completing-read' documentation for the meaning of the argument."
 (defun magit-file-lines (file)
   "Return a list of strings containing one element per line in FILE.
 If the last line is empty, it's trimmed."
-  (when (file-exists-p file)
+  (when (file-regular-p file)
     (with-temp-buffer
       (insert-file-contents file)
       (let ((rev (nreverse (split-string (buffer-string) "\n"))))
