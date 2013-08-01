@@ -1364,9 +1364,48 @@ non-nil).  In addition, it will filter out revs involving HEAD."
                     (concat "--pretty=format:" format)
                     commit))
 
+;;;; Git Macros
+
 (defmacro magit-with-refresh (&rest body)
   (declare (indent 0))
   `(magit-refresh-wrapper (lambda () ,@body)))
+
+(defmacro magit-with-git-editor-setup (&rest body)
+  "Ensure that `emacsclient' is used as `GIT_EDITOR'.
+
+Ensure that a git process started inside BODY uses `emacsclient'
+as its `GIT_EDITOR' to connect to the current Emacs instance.
+
+This is necessary because the user might not have setup
+`GIT_EDITOR' to use `emacsclient', the server might not be
+running in this Emacs instance, or multiple Emacs servers might
+be running.
+
+If necessary the environment is dynamically modified for forms in
+BODY.  And the server is started if it is not running yet (but it
+is not stopped again).
+
+Modifing the environment and/or starting the server can fail.  It
+that happens that is not considered an error; the forms in BODY
+are always evaluated.  The worst thing that could happen is that
+you end up in vi and don't know how to exit."
+  `(let ((old-editor (getenv "GIT_EDITOR")))
+     (unless (magit-server-running-p)
+       (server-start))
+     (if (executable-find "emacsclient")
+         (setenv "GIT_EDITOR"
+                 (cond ((string= server-name "server")
+                        (executable-find "emacsclient"))
+                       ((eq system-type 'windows-nt)
+                        (message "We don't know how to deal with non-default server name on windows")
+                        ())
+                       (t (concat (executable-find "emacsclient")
+                                  " -s " server-name))))
+       (message "Cannot find emacsclient, using default git editor, please check your PATH"))
+     (unwind-protect
+         (progn ,@body)
+       (when old-editor
+         (setenv "GIT_EDITOR" old-editor)))))
 
 ;;; Revisions and Ranges
 
@@ -4906,29 +4945,15 @@ Return nil if there is no rebase in progress."
 (defun magit-interactive-rebase ()
   "Start a git rebase -i session, old school-style."
   (interactive)
-  (unless (magit-server-running-p)
-    (server-start))
   (let* ((section (get-text-property (point) 'magit-section))
          (commit (and (member 'commit (magit-section-context-type section))
-                      (magit-section-info section)))
-         (old-editor (getenv "GIT_EDITOR")))
-    (if (executable-find "emacsclient")
-        (setenv "GIT_EDITOR"
-                (cond ((string= server-name "server")
-                       (executable-find "emacsclient"))
-                      ((eq system-type 'windows-nt)
-                       (message "We don't know how to deal with non-default server name on windows")
-                       ())
-                      (t (concat (executable-find "emacsclient")
-                                 " -s " server-name))))
-      (message "Cannot find emacsclient, using default git editor, please check your PATH"))
-    (unwind-protect
-        (magit-run-git-async "rebase" "-i"
-                             (or (and commit (concat commit "^"))
-                                 (magit-read-rev "Interactively rebase to"
-                                                 (magit-guess-branch))))
-      (when old-editor
-        (setenv "GIT_EDITOR" old-editor)))))
+                      (magit-section-info section))))
+    (magit-with-git-editor-setup
+     (magit-run-git-async "rebase" "-i"
+                          (if commit
+                              (concat commit "^")
+                            (magit-read-rev "Interactively rebase to"
+                                            (magit-guess-branch)))))))
 
 ;;;; Reset
 
