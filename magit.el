@@ -6602,6 +6602,33 @@ With a prefix argument, visit in other window."
     (grep-mode)
     (pop-to-buffer (current-buffer))))
 
+;;;; Submoduling
+
+(defun magit-submodule-update (&optional init)
+  "Update the submodule of the current git repository.
+With a prefix arg, do a submodule update --init."
+  (interactive "P")
+  (let ((default-directory (magit-get-top-dir)))
+    (apply #'magit-run-git-async "submodule" "update"
+           (and init '("--init")))))
+
+(defun magit-submodule-update-init ()
+  "Update and init the submodule of the current git repository."
+  (interactive)
+  (magit-submodule-update t))
+
+(defun magit-submodule-init ()
+  "Initialize the submodules."
+  (interactive)
+  (let ((default-directory (magit-get-top-dir)))
+    (magit-run-git-async "submodule" "init")))
+
+(defun magit-submodule-sync ()
+  "Synchronizes submodule's remote URL configuration."
+  (interactive)
+  (let ((default-directory (magit-get-top-dir)))
+    (magit-run-git-async "submodule" "sync")))
+
 ;;; Interactive Rebase
 
 (defun magit-interactive-rebase ()
@@ -6935,33 +6962,6 @@ These are the branch names with the remote name stripped."
   (magit-section-action (item info "resolv")
     ((diff)
      (magit-interactive-resolve (cadr info)))))
-
-;;; Submoduling (A)
-
-(defun magit-submodule-update (&optional init)
-  "Update the submodule of the current git repository.
-With a prefix arg, do a submodule update --init."
-  (interactive "P")
-  (let ((default-directory (magit-get-top-dir)))
-    (apply #'magit-run-git-async "submodule" "update"
-           (and init '("--init")))))
-
-(defun magit-submodule-update-init ()
-  "Update and init the submodule of the current git repository."
-  (interactive)
-  (magit-submodule-update t))
-
-(defun magit-submodule-init ()
-  "Initialize the submodules."
-  (interactive)
-  (let ((default-directory (magit-get-top-dir)))
-    (magit-run-git-async "submodule" "init")))
-
-(defun magit-submodule-sync ()
-  "Synchronizes submodule's remote URL configuration."
-  (interactive)
-  (let ((default-directory (magit-get-top-dir)))
-    (magit-run-git-async "submodule" "sync")))
 
 ;;; External Tools
 
