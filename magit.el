@@ -4888,9 +4888,10 @@ If no branch is found near the cursor return nil."
 (defun magit-rebase-info ()
   "Return a list indicating the state of an in-progress rebase.
 
-The returned list has the form (ONTO DONE TOTAL).
+The returned list has the form (ONTO DONE TOTAL STOPPED).
 ONTO is the commit being rebased onto.
 DONE and TOTAL are integers with obvious meanings.
+STOPPED is the SHA-1 of the commit at which rebase stopped.
 
 Return nil if there is no rebase in progress."
   (let ((m (magit-git-dir "rebase-merge"))
