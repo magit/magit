@@ -6168,10 +6168,8 @@ restore the window state that was saved before ediff was called."
                (setq ignored (delete branch ignored))))
             (t
              (setq ignored (append ignored (list branch)))))
-      (with-temp-buffer
-        (dolist (l ignored)
-          (insert l "\n"))
-        (write-file ignore-file))
+      (with-temp-file ignore-file
+        (insert (mapconcat 'identity ignored "\n")))
       (magit-need-refresh))))
 
 (defun magit-refresh-wazzup-buffer (head all)
