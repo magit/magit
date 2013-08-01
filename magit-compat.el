@@ -152,8 +152,7 @@ Return values:
 ;;; Old Git
 ;;;; Common
 
-(defvar magit-have-config-param 'unset)
-(make-variable-buffer-local 'magit-have-config-param)
+(defvar-local magit-have-config-param 'unset)
 (put 'magit-have-config-param 'permanent-local t)
 
 (defun magit-configure-have-config-param ()
@@ -163,15 +162,10 @@ Return values:
 
 ;;;; Config
 
-(defvar magit-have-graph 'unset)
-(defvar magit-have-decorate 'unset)
-(defvar magit-have-abbrev 'unset)
-(defvar magit-have-grep-reflog 'unset)
-
-(make-variable-buffer-local 'magit-have-graph)
-(make-variable-buffer-local 'magit-have-decorate)
-(make-variable-buffer-local 'magit-have-abbrev)
-(make-variable-buffer-local 'magit-have-grep-reflog)
+(defvar-local magit-have-graph 'unset)
+(defvar-local magit-have-decorate 'unset)
+(defvar-local magit-have-abbrev 'unset)
+(defvar-local magit-have-grep-reflog 'unset)
 
 (put 'magit-have-graph 'permanent-local t)
 (put 'magit-have-decorate 'permanent-local t)
