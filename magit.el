@@ -7009,7 +7009,7 @@ This can be added to `magit-mode-hook' for example"
                  (not (eq sym 'magit-wip-save-mode)))
         (funcall sym 1)))))
 
-;;;; Magit Bugs Reports
+;;;; Magit Bug Reports
 
 (defconst magit-bug-report-url
   "https://github.com/magit/magit/issues")
