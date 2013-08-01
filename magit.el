@@ -1389,23 +1389,22 @@ Modifing the environment and/or starting the server can fail.  It
 that happens that is not considered an error; the forms in BODY
 are always evaluated.  The worst thing that could happen is that
 you end up in vi and don't know how to exit."
-  `(let ((old-editor (getenv "GIT_EDITOR")))
+  `(let ((process-environment process-environment)
+         (emacsclient (executable-find "emacsclient")))
      (unless (magit-server-running-p)
        (server-start))
-     (if (executable-find "emacsclient")
-         (setenv "GIT_EDITOR"
-                 (cond ((string= server-name "server")
-                        (executable-find "emacsclient"))
-                       ((eq system-type 'windows-nt)
-                        (message "We don't know how to deal with non-default server name on windows")
-                        ())
-                       (t (concat (executable-find "emacsclient")
-                                  " -s " server-name))))
-       (message "Cannot find emacsclient, using default git editor, please check your PATH"))
-     (unwind-protect
-         (progn ,@body)
-       (when old-editor
-         (setenv "GIT_EDITOR" old-editor)))))
+     (cond
+      ((not emacsclient)
+       (message "Cannot find emacsclient (check $PATH); using default $GIT_EDITOR"))
+      ((string= server-name "server")
+       (setenv "GIT_EDITOR" emacsclient))
+      ((eq system-type 'windows-nt)
+       ;; Doing so might actually be possible - we just don't know how.
+       ;; Also we cannot experiment because we don't own a copy of Windows.
+       (message "Cannot set server name on Windows; using default $GIT_EDITOR"))
+      (t
+       (setenv "GIT_EDITOR" (format "%s -s %s" emacsclient server-name))))
+     ,@body))
 
 ;;; Revisions and Ranges
 
