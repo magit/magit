@@ -1053,6 +1053,7 @@ Read `completing-read' documentation for the meaning of the argument."
       (nreverse lines))))
 
 (defun magit-file-line (file)
+  "Return the first line of FILE as a string."
   (when (file-exists-p file)
     (with-temp-buffer
       (insert-file-contents file)
@@ -1060,6 +1061,8 @@ Read `completing-read' documentation for the meaning of the argument."
                                       (line-end-position)))))
 
 (defun magit-file-lines (file)
+  "Return a list of strings containing one element per line in FILE.
+If the last line is empty, it's trimmed."
   (when (file-exists-p file)
     (with-temp-buffer
       (insert-file-contents file)
