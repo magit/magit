@@ -32,8 +32,8 @@ Installation
 
 Emacs >=24.1 includes a facility that lets you easily download and
 install packages.  Using `package.el` is the easiest and recommended
-way to install Magit and its dependencies.  If you don't want use it
-see the extended installation instructions in INSTALL.md
+way to install Magit and its dependencies.  If you don't want to use
+it see the extended installation instructions in INSTALL.md
 ([weblink][installing]).
 
 The stable Magit version is available from the [Marmalade][marmalade]
@@ -43,7 +43,7 @@ Please note that *all* packages on Melpa are built from the upstream
 `master` branch.  If you generally want stable versions but the latest
 Magit use Marmalade and install Magit from Git.
 
-First tell `package.el` to use one of the package repository:
+First tell `package.el` to use one of the package repositories:
 
 ```lisp
 (add-to-list 'package-archives

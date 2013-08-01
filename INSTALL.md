@@ -12,7 +12,7 @@ Please note that *all* packages on Melpa are built from the upstream
 `master` branch.  If you generally want stable versions but the latest
 Magit use Marmalade and install Magit from Git.
 
-First tell `package.el` to use one of the package repository:
+First tell `package.el` to use one of the package repositories:
 
 ```lisp
 (add-to-list 'package-archives
