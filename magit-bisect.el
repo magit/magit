@@ -55,7 +55,8 @@ match REQUIRED-STATUS."
               (cond ((string= cmd "reset")
                      (list :status 'not-running))
                     ;; Bisecting: 78 revisions left to test after this (roughly 6 steps)
-                    ((string-match "^Bisecting:\\s-+\\([0-9]+\\).+roughly\\s-+\\([0-9]+\\)" first-line)
+                    ((string-match "^Bisecting:\\s-+\\([0-9]+\\).+roughly\\s-+\\([0-9]+\\)"
+                                   first-line)
                      (list :status 'running
                            :revs (match-string 1 first-line)
                            :steps (match-string 2 first-line)))
@@ -167,8 +168,10 @@ match REQUIRED-STATUS."
     (with-current-buffer buffer
       (setq-local magit--bisect-last-pos 0)
       (setq-local magit--bisect-tmp-file file))
-    (set-process-filter (get-buffer-process buffer) 'magit--bisect-run-filter)
-    (set-process-sentinel (get-buffer-process buffer) 'magit--bisect-run-sentinel)))
+    (set-process-filter (get-buffer-process buffer)
+                        'magit--bisect-run-filter)
+    (set-process-sentinel (get-buffer-process buffer)
+                          'magit--bisect-run-sentinel)))
 
 (defun magit--bisect-run-filter (process output)
   (with-current-buffer (process-buffer process)
@@ -179,15 +182,16 @@ match REQUIRED-STATUS."
         (goto-char magit--bisect-last-pos)
         (beginning-of-line)
         (while (< (point) (point-max))
-          (cond ( ;; Bisecting: 78 revisions left to test after this (roughly 6 steps)
-                 (looking-at "^Bisecting:\\s-+\\([0-9]+\\).+roughly\\s-+\\([0-9]+\\)")
-                 (setq new-info (list :status 'running
-                                      :revs (match-string 1)
-                                      :steps (match-string 2))))
-                ( ;; e2596955d9253a80aec9071c18079705597fa102 is the first bad commit
-                 (looking-at "^\\([a-f0-9]+\\)\\s-.*first bad commit")
-                 (setq new-info (list :status 'finished
-                                      :bad (match-string 1)))))
+          (cond
+           ( ;; Bisecting: 78 revisions left to test after this (roughly 6 steps)
+            (looking-at "^Bisecting:\\s-+\\([0-9]+\\).+roughly\\s-+\\([0-9]+\\)")
+            (setq new-info (list :status 'running
+                                 :revs (match-string 1)
+                                 :steps (match-string 2))))
+           ( ;; e2596955d9253a80aec9071c18079705597fa102 is the first bad commit
+            (looking-at "^\\([a-f0-9]+\\)\\s-.*first bad commit")
+            (setq new-info (list :status 'finished
+                                 :bad (match-string 1)))))
           (forward-line 1))
         (goto-char (point-max))
         (setq magit--bisect-last-pos (point))
@@ -212,7 +216,8 @@ match REQUIRED-STATUS."
             (beginning-of-line)
             (kill-line)
             (insert (format "Local:    %s %s"
-                            (propertize (magit--bisect-info-for-status (magit-get-current-branch))
+                            (propertize (magit--bisect-info-for-status
+                                         (magit-get-current-branch))
                                         'face 'magit-branch)
                             (abbreviate-file-name default-directory)))))))))
 

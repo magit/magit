@@ -114,7 +114,9 @@
               (when (plist-get flags :current)
                 (put-text-property beg end 'face 'magit-topgit-current))
               (when (plist-get flags :empty)
-                (put-text-property beg end 'face `(:strike-through t :inherit ,(get-text-property beg 'face)))))
+                (put-text-property
+                 beg end 'face
+                 `(:strike-through t :inherit ,(get-text-property beg 'face)))))
             (forward-line)))
       (delete-region (line-beginning-position) (1+ (line-end-position))))
     t))

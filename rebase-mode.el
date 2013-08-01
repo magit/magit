@@ -334,9 +334,9 @@ By default, this is the same except for the \"pick\" command."
             (command (intern (concat "rebase-mode-" (match-string 2)))))
         (when (fboundp command)
           (let ((overlay (make-overlay start end)))
-            (overlay-put overlay
-                         'display
-                         (key-description (where-is-internal command nil t)))))))))
+            (overlay-put
+             overlay 'display
+             (key-description (where-is-internal command nil t)))))))))
 
 (add-hook 'rebase-mode-hook 'rebase-mode-show-keybindings t)
 

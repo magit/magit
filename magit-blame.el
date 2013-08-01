@@ -171,14 +171,16 @@ boundaries from BEG to END, the return value is nil."
 (defun magit-blame-next-chunk (pos)
   "Go to the next blame chunk."
   (interactive "d")
-  (let ((next-chunk-pos (magit-find-next-overlay-change pos (point-max) :blame)))
+  (let ((next-chunk-pos
+         (magit-find-next-overlay-change pos (point-max) :blame)))
     (when next-chunk-pos
       (goto-char next-chunk-pos))))
 
 (defun magit-blame-previous-chunk (pos)
   "Go to the previous blame chunk."
   (interactive "d")
-  (let ((prev-chunk-pos (magit-find-next-overlay-change pos (point-min) :blame)))
+  (let ((prev-chunk-pos
+         (magit-find-next-overlay-change pos (point-min) :blame)))
     (when prev-chunk-pos
       (goto-char prev-chunk-pos))))
 
@@ -234,7 +236,9 @@ officially supported at the moment."
       (with-current-buffer blame-buf
         (goto-char (point-min))
         ;; search for a ful commit info
-        (while (re-search-forward "^\\([0-9a-f]\\{40\\}\\) \\([0-9]+\\) \\([0-9]+\\) \\([0-9]+\\)$" nil t)
+        (while (re-search-forward
+                "^\\([0-9a-f]\\{40\\}\\) \\([0-9]+\\) \\([0-9]+\\) \\([0-9]+\\)$"
+                nil t)
           (setq commit (match-string-no-properties 1)
                 old-line (string-to-number
                           (match-string-no-properties 2))

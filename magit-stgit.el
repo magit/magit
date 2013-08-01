@@ -138,15 +138,22 @@
         (delete-region (line-beginning-position) (line-end-position))
         (insert
          (cond ((string= empty "0")
-                (propertize (concat empty-str " " state " " descr) 'face 'magit-stgit-empty))
+                (propertize (concat empty-str " " state " " descr)
+                            'face 'magit-stgit-empty))
                ((string= magit-stgit--marked-patch patch)
-                (propertize (concat indent-str " " state " " descr) 'face 'magit-stgit-marked))
+                (propertize (concat indent-str " " state " " descr)
+                            'face 'magit-stgit-marked))
                ((string= state "+")
-                (concat indent-str " " (propertize state 'face 'magit-stgit-applied) " " descr))
+                (concat indent-str " "
+                        (propertize state
+                                    'face 'magit-stgit-applied) " " descr))
                ((string= state ">")
-                (propertize (concat indent-str " " state " " descr) 'face 'magit-stgit-current))
+                (propertize (concat indent-str " " state " " descr)
+                            'face 'magit-stgit-current))
                ((string= state "-")
-                (concat indent-str " " (propertize state 'face 'magit-stgit-other) " " descr))))
+                (concat indent-str " "
+                        (propertize state
+                                    'face 'magit-stgit-other) " " descr))))
         (goto-char (line-beginning-position))
         (magit-with-section patch 'series
           (magit-set-section-info patch)
@@ -236,7 +243,8 @@ If there is no marked patch in the series, refreshes the current
 patch.  Otherwise, refreshes the marked patch."
   (interactive)
   (if magit-stgit--marked-patch
-      (magit-run magit-stgit-executable "refresh" "-p" magit-stgit--marked-patch)
+      (magit-run magit-stgit-executable
+                 "refresh" "-p" magit-stgit--marked-patch)
     (magit-run magit-stgit-executable "refresh")))
 
 (defun magit-stgit-repair ()

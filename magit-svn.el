@@ -67,12 +67,14 @@
 (magit-define-command svn-create-branch (name)
   "Create svn branch NAME."
   (interactive "sBranch name: ")
-  (apply 'magit-run-git "svn" "branch" (append magit-custom-options (list name))))
+  (apply 'magit-run-git "svn" "branch"
+         (append magit-custom-options (list name))))
 
 (magit-define-command svn-create-tag (name)
   "Create svn tag NAME."
   (interactive "sTag name: ")
-  (apply 'magit-run-git "svn" "tag" (append magit-custom-options (list name))))
+  (apply 'magit-run-git "svn" "tag"
+         (append magit-custom-options (list name))))
 
 (magit-define-command svn-rebase ()
   "Run git-svn rebase."
@@ -137,7 +139,8 @@ doesn't repeatedly call it.")
   "Gather details about the current git-svn repository.
 Return nil if there isn't one.  Keys of the alist are ref-path,
 trunk-ref-name and local-ref-name.
-If USE-CACHE is non-nil then return the value of `magit-get-svn-ref-info-cache'."
+If USE-CACHE is non-nil then return the value of
+`magit-get-svn-ref-info-cache'."
   (if (and use-cache magit-svn-get-ref-info-cache)
       magit-svn-get-ref-info-cache
     (let* ((fetch (magit-get "svn-remote" "svn" "fetch"))
@@ -159,7 +162,8 @@ If USE-CACHE is non-nil then return the value of `magit-get-svn-ref-info-cache'.
                                                        "--grep" "git-svn" "-1")
                                      ""))
                          (goto-char (point-min))
-                         (cond ((re-search-forward "git-svn-id: \\(.+/.+?\\)@\\([0-9]+\\)" nil t)
+                         (cond ((re-search-forward
+                                 "git-svn-id: \\(.+/.+?\\)@\\([0-9]+\\)" nil t)
                                 (setq url (match-string 1)
                                       revision (match-string 2))
                                 (magit-svn-get-local-ref url))
