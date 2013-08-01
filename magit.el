@@ -5792,7 +5792,7 @@ restore the window state that was saved before ediff was called."
                        (magit-rev-range-to-git range)))))
 
 (magit-define-command diff-working-tree (rev)
-  (interactive (list (magit-read-rev-with-default "Diff with")))
+  (interactive (list (magit-read-rev-with-default "Diff working tree with")))
   (magit-diff (or rev "HEAD")))
 
 (defun magit-diff-with-mark ()
