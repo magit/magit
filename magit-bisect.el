@@ -41,7 +41,7 @@ match REQUIRED-STATUS."
 
 (defun magit--bisect-info ()
   (with-current-buffer (magit-find-status-buffer)
-    (or (if (local-variable-p 'magit--bisect-info) magit--bisect-info)
+    (or (and (local-variable-p 'magit--bisect-info) magit--bisect-info)
         (list :status (if (magit--bisecting-p) 'running 'not-running)))))
 
 (defun magit--bisect-cmd (&rest args)
@@ -85,8 +85,8 @@ match REQUIRED-STATUS."
 (defun magit-bisect-start ()
   "Start a bisect session."
   (interactive)
-  (if (magit--bisecting-p)
-      (error "Already bisecting"))
+  (when (magit--bisecting-p)
+    (error "Already bisecting"))
   (let ((bad (magit-read-rev "Start bisect with known bad revision" "HEAD"))
         (good (magit-read-rev "Good revision" (magit-default-rev))))
     (magit--bisect-cmd "start" bad good)))
@@ -191,15 +191,15 @@ match REQUIRED-STATUS."
           (forward-line 1))
         (goto-char (point-max))
         (setq magit--bisect-last-pos (point))
-        (if new-info
-            (with-current-buffer (magit-find-status-buffer)
-              (setq magit--bisect-info new-info)
-              (magit--bisect-update-status-buffer)))))))
+        (when new-info
+          (with-current-buffer (magit-find-status-buffer)
+            (setq magit--bisect-info new-info)
+            (magit--bisect-update-status-buffer)))))))
 
 (defun magit--bisect-run-sentinel (process event)
-  (if (string-match-p "^finish" event)
-      (with-current-buffer (process-buffer process)
-        (delete-file magit--bisect-tmp-file)))
+  (when (string-match-p "^finish" event)
+    (with-current-buffer (process-buffer process)
+      (delete-file magit--bisect-tmp-file)))
   (magit-process-sentinel process event))
 
 (defun magit--bisect-update-status-buffer ()

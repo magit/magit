@@ -50,8 +50,8 @@
   "Find commit for svn REVISION in BRANCH."
   (interactive
    (list (read-string "SVN revision: ")
-         (if current-prefix-arg
-             (read-string "In branch: "))))
+         (and current-prefix-arg
+              (read-string "In branch: "))))
   (let* ((sha (apply 'magit-git-string
                      `("svn"
                        "find-rev"
@@ -265,15 +265,15 @@ If USE-CACHE is non nil, use the cached information."
   (let ((unpulled-hook (lambda () (magit-insert-svn-unpulled t)))
         (unpushed-hook (lambda () (magit-insert-svn-unpushed t)))
         (remote-hook 'magit-svn-remote-string))
-    (if magit-svn-mode
-        (progn
-          (add-hook 'magit-after-insert-unpulled-commits-hook unpulled-hook nil t)
-          (add-hook 'magit-after-insert-unpushed-commits-hook unpushed-hook nil t)
-          (add-hook 'magit-remote-string-hook remote-hook nil t))
-      (progn
-        (remove-hook 'magit-after-insert-unpulled-commits-hook unpulled-hook t)
-        (remove-hook 'magit-after-insert-unpushed-commits-hook unpushed-hook t)
-        (remove-hook 'magit-remote-string-hook remote-hook t)))
+    (cond
+     (magit-svn-mode
+      (add-hook 'magit-after-insert-unpulled-commits-hook unpulled-hook nil t)
+      (add-hook 'magit-after-insert-unpushed-commits-hook unpushed-hook nil t)
+      (add-hook 'magit-remote-string-hook remote-hook nil t))
+     (t
+      (remove-hook 'magit-after-insert-unpulled-commits-hook unpulled-hook t)
+      (remove-hook 'magit-after-insert-unpushed-commits-hook unpushed-hook t)
+      (remove-hook 'magit-remote-string-hook remote-hook t)))
     (when (called-interactively-p 'any)
       (magit-refresh))))
 
