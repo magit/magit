@@ -4312,20 +4312,19 @@ if FULLY-QUALIFIED-NAME is non-nil."
           info-string "\n"))
 
 (defun magit-insert-status-tags-line ()
-  (when magit-status-insert-tags-line
-    (let* ((current-tag (magit-get-current-tag t))
-           (next-tag (magit-get-next-tag t))
-           (both-tags (and current-tag next-tag t))
-           (tag-subject (eq magit-status-tags-line-subject 'tag)))
-      (when (or current-tag next-tag)
-        (magit-insert-status-line
-         (if both-tags "Tags" "Tag")
-         (concat
-          (and current-tag (apply 'magit-format-status-tag-sentence
-                                  tag-subject current-tag))
-          (and both-tags ", ")
-          (and next-tag (apply 'magit-format-status-tag-sentence
-                               (not tag-subject) next-tag))))))))
+  (let* ((current-tag (magit-get-current-tag t))
+         (next-tag (magit-get-next-tag t))
+         (both-tags (and current-tag next-tag t))
+         (tag-subject (eq magit-status-tags-line-subject 'tag)))
+    (when (or current-tag next-tag)
+      (magit-insert-status-line
+       (if both-tags "Tags" "Tag")
+       (concat
+        (and current-tag (apply 'magit-format-status-tag-sentence
+                                tag-subject current-tag))
+        (and both-tags ", ")
+        (and next-tag (apply 'magit-format-status-tag-sentence
+                             (not tag-subject) next-tag)))))))
 
 (defun magit-format-status-tag-sentence (behindp tag cnt &rest ignored)
   (concat (propertize tag 'face 'magit-tag)
@@ -4359,7 +4358,8 @@ if FULLY-QUALIFIED-NAME is non-nil."
                  " " (abbreviate-file-name default-directory)))
         (magit-insert-status-line
          "Head" (if no-commit "nothing committed (yet)" head))
-        (magit-insert-status-tags-line)
+        (when magit-status-insert-tags-line
+          (magit-insert-status-tags-line))
         (when merge-heads
           (magit-insert-status-line
            "Merging"
