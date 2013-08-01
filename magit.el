@@ -4903,6 +4903,33 @@ Return nil if there is no rebase in progress."
                    magit-uninteresting-refs))))
       (magit-run-git "rebase" (magit-rev-to-git rev)))))
 
+(defun magit-interactive-rebase ()
+  "Start a git rebase -i session, old school-style."
+  (interactive)
+  (unless (magit-server-running-p)
+    (server-start))
+  (let* ((section (get-text-property (point) 'magit-section))
+         (commit (and (member 'commit (magit-section-context-type section))
+                      (magit-section-info section)))
+         (old-editor (getenv "GIT_EDITOR")))
+    (if (executable-find "emacsclient")
+        (setenv "GIT_EDITOR"
+                (cond ((string= server-name "server")
+                       (executable-find "emacsclient"))
+                      ((eq system-type 'windows-nt)
+                       (message "We don't know how to deal with non-default server name on windows")
+                       ())
+                      (t (concat (executable-find "emacsclient")
+                                 " -s " server-name))))
+      (message "Cannot find emacsclient, using default git editor, please check your PATH"))
+    (unwind-protect
+        (magit-run-git-async "rebase" "-i"
+                             (or (and commit (concat commit "^"))
+                                 (magit-read-rev "Interactively rebase to"
+                                                 (magit-guess-branch))))
+      (when old-editor
+        (setenv "GIT_EDITOR" old-editor)))))
+
 ;;;; Reset
 
 (magit-define-command reset-head (revision &optional hard)
@@ -6628,35 +6655,6 @@ With a prefix arg, do a submodule update --init."
   (interactive)
   (let ((default-directory (magit-get-top-dir)))
     (magit-run-git-async "submodule" "sync")))
-
-;;; Interactive Rebase
-
-(defun magit-interactive-rebase ()
-  "Start a git rebase -i session, old school-style."
-  (interactive)
-  (unless (magit-server-running-p)
-    (server-start))
-  (let* ((section (get-text-property (point) 'magit-section))
-         (commit (and (member 'commit (magit-section-context-type section))
-                      (magit-section-info section)))
-         (old-editor (getenv "GIT_EDITOR")))
-    (if (executable-find "emacsclient")
-        (setenv "GIT_EDITOR"
-                (cond ((string= server-name "server")
-                       (executable-find "emacsclient"))
-                      ((eq system-type 'windows-nt)
-                       (message "We don't know how to deal with non-default server name on windows")
-                       ())
-                      (t (concat (executable-find "emacsclient")
-                                 " -s " server-name))))
-      (message "Cannot find emacsclient, using default git editor, please check your PATH"))
-    (unwind-protect
-        (magit-run-git-async "rebase" "-i"
-                             (or (and commit (concat commit "^"))
-                                 (magit-read-rev "Interactively rebase to"
-                                                 (magit-guess-branch))))
-      (when old-editor
-        (setenv "GIT_EDITOR" old-editor)))))
 
 ;;; Branch Manager Mode
 
