@@ -4901,10 +4901,9 @@ Return nil if there is no rebase in progress."
       (list
        (magit-name-rev (magit-file-line  (expand-file-name "onto" m)))
        (length         (magit-file-lines (expand-file-name "done" m)))
-       (with-temp-buffer
-         (insert-file-contents
-          (expand-file-name "git-rebase-todo.backup" m))
-         (cl-loop while (re-search-forward "^[^#\n]" nil t) count t))
+       (cl-loop for line in (magit-file-lines
+                             (expand-file-name "git-rebase-todo.backup" m))
+                count (string-match "^[^#\n]" line))
        (magit-file-line (expand-file-name "stopped-sha" m))))
 
      ((file-regular-p (expand-file-name "onto" a)) ; non-interactive
@@ -4912,12 +4911,10 @@ Return nil if there is no rebase in progress."
        (magit-name-rev       (magit-file-line (expand-file-name "onto" a)))
        (1- (string-to-number (magit-file-line (expand-file-name "next" a))))
        (string-to-number     (magit-file-line (expand-file-name "last" a)))
-       (with-temp-buffer
-         (insert-file-contents
-          (car (directory-files a t "^[0-9]\\{4\\}$")))
-         (when (re-search-forward "^From \\([a-z0-9]\\{40\\}\\) "
-                                  (line-end-position) t)
-           (match-string 1))))))))
+       (let ((patch-header (magit-file-line
+                            (car (directory-files a t "^[0-9]\\{4\\}$")))))
+         (when (string-match "^From \\([a-z0-9]\\{40\\}\\) " patch-header)
+           (match-string 1 patch-header))))))))
 
 (defun magit-rebase-step ()
   (interactive)
