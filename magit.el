@@ -1060,16 +1060,13 @@ Read `completing-read' documentation for the meaning of the argument."
       (buffer-substring-no-properties (point-min)
                                       (line-end-position)))))
 
-(defun magit-file-lines (file)
+(defun magit-file-lines (file &optional keep-empty-lines)
   "Return a list of strings containing one element per line in FILE.
-If the last line is empty, it's trimmed."
+Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
   (when (file-regular-p file)
     (with-temp-buffer
       (insert-file-contents file)
-      (let ((rev (nreverse (split-string (buffer-string) "\n"))))
-        (nreverse (if (equal (car rev) "")
-                      (cdr rev)
-                    rev))))))
+      (split-string (buffer-string) "\n" (not keep-empty-lines)))))
 
 (defun magit-put-line-property (prop val)
   (put-text-property (line-beginning-position) (line-beginning-position 2)
