@@ -5971,9 +5971,9 @@ With a non numeric prefix ARG, show all entries"
                         (magit-read-rev-range "Log" "HEAD")
                       "HEAD"))
          (topdir (magit-get-top-dir))
-         (args (nconc (list (magit-rev-range-to-git log-range))
-                      magit-custom-options
-                      extra-args)))
+         (args (append (list (magit-rev-range-to-git log-range))
+                       magit-custom-options
+                       extra-args)))
     (magit-buffer-switch magit-log-buffer-name)
     (magit-mode-init topdir 'magit-log-mode #'magit-refresh-log-buffer log-range
                      'oneline args)))
@@ -5990,8 +5990,8 @@ With a non numeric prefix ARG, show all entries"
                     (magit-read-rev-range "Long log" "HEAD")
                   "HEAD"))
          (topdir (magit-get-top-dir))
-         (args (nconc (list (magit-rev-range-to-git range))
-                      magit-custom-options)))
+         (args (append (list (magit-rev-range-to-git range))
+                       magit-custom-options)))
     (magit-buffer-switch magit-log-buffer-name)
     (magit-mode-init topdir 'magit-log-mode #'magit-refresh-log-buffer range
                      'long args)))
