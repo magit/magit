@@ -4890,7 +4890,7 @@ Return nil if there is no rebase in progress."
   (let ((m (magit-git-dir "rebase-merge"))
         (a (magit-git-dir "rebase-apply")))
     (cond
-     ((file-exists-p m) ; interactive
+     ((file-directory-p m) ; interactive
       (list
        (magit-name-rev (magit-file-line  (expand-file-name "onto" m)))
        (length         (magit-file-lines (expand-file-name "done" m)))
@@ -4900,7 +4900,7 @@ Return nil if there is no rebase in progress."
          (cl-loop while (re-search-forward "^[^#\n]" nil t) count t))
        (magit-file-line (expand-file-name "stopped-sha" m))))
 
-     ((file-exists-p (expand-file-name "onto" a)) ; non-interactive
+     ((file-regular-p (expand-file-name "onto" a)) ; non-interactive
       (list
        (magit-name-rev       (magit-file-line (expand-file-name "onto" a)))
        (1- (string-to-number (magit-file-line (expand-file-name "next" a))))
