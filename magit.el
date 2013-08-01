@@ -4903,6 +4903,33 @@ Return nil if there is no rebase in progress."
                    magit-uninteresting-refs))))
       (magit-run-git "rebase" (magit-rev-to-git rev)))))
 
+(defun magit-interactive-rebase ()
+  "Start a git rebase -i session, old school-style."
+  (interactive)
+  (unless (magit-server-running-p)
+    (server-start))
+  (let* ((section (get-text-property (point) 'magit-section))
+         (commit (and (member 'commit (magit-section-context-type section))
+                      (magit-section-info section)))
+         (old-editor (getenv "GIT_EDITOR")))
+    (if (executable-find "emacsclient")
+        (setenv "GIT_EDITOR"
+                (cond ((string= server-name "server")
+                       (executable-find "emacsclient"))
+                      ((eq system-type 'windows-nt)
+                       (message "We don't know how to deal with non-default server name on windows")
+                       ())
+                      (t (concat (executable-find "emacsclient")
+                                 " -s " server-name))))
+      (message "Cannot find emacsclient, using default git editor, please check your PATH"))
+    (unwind-protect
+        (magit-run-git-async "rebase" "-i"
+                             (or (and commit (concat commit "^"))
+                                 (magit-read-rev "Interactively rebase to"
+                                                 (magit-guess-branch))))
+      (when old-editor
+        (setenv "GIT_EDITOR" old-editor)))))
+
 ;;;; Reset
 
 (magit-define-command reset-head (revision &optional hard)
@@ -6586,34 +6613,98 @@ With a prefix argument, visit in other window."
      (kill-new info)
      (message "%s" info))))
 
-;;; Interactive Rebase
+;;;; Grep
 
-(defun magit-interactive-rebase ()
-  "Start a git rebase -i session, old school-style."
+(magit-define-command grep (pattern)
+  (interactive
+   (list (read-string "git grep: "
+                      (shell-quote-argument (grep-tag-default)))))
+  (with-current-buffer (generate-new-buffer "*Magit Grep*")
+    (setq default-directory (magit-get-top-dir))
+    (insert magit-git-executable " "
+            (mapconcat 'identity magit-git-standard-options " ")
+            " grep -n "
+            (shell-quote-argument pattern) "\n\n")
+    (magit-git-insert (list "grep" "--line-number" pattern))
+    (grep-mode)
+    (pop-to-buffer (current-buffer))))
+
+;;;; Submoduling
+
+(defun magit-submodule-update (&optional init)
+  "Update the submodule of the current git repository.
+With a prefix arg, do a submodule update --init."
+  (interactive "P")
+  (let ((default-directory (magit-get-top-dir)))
+    (apply #'magit-run-git-async "submodule" "update"
+           (and init '("--init")))))
+
+(defun magit-submodule-update-init ()
+  "Update and init the submodule of the current git repository."
   (interactive)
-  (unless (magit-server-running-p)
-    (server-start))
-  (let* ((section (get-text-property (point) 'magit-section))
-         (commit (and (member 'commit (magit-section-context-type section))
-                      (magit-section-info section)))
-         (old-editor (getenv "GIT_EDITOR")))
-    (if (executable-find "emacsclient")
-        (setenv "GIT_EDITOR"
-                (cond ((string= server-name "server")
-                       (executable-find "emacsclient"))
-                      ((eq system-type 'windows-nt)
-                       (message "We don't know how to deal with non-default server name on windows")
-                       ())
-                      (t (concat (executable-find "emacsclient")
-                                 " -s " server-name))))
-      (message "Cannot find emacsclient, using default git editor, please check your PATH"))
-    (unwind-protect
-        (magit-run-git-async "rebase" "-i"
-                             (or (and commit (concat commit "^"))
-                                 (magit-read-rev "Interactively rebase to"
-                                                 (magit-guess-branch))))
-      (when old-editor
-        (setenv "GIT_EDITOR" old-editor)))))
+  (magit-submodule-update t))
+
+(defun magit-submodule-init ()
+  "Initialize the submodules."
+  (interactive)
+  (let ((default-directory (magit-get-top-dir)))
+    (magit-run-git-async "submodule" "init")))
+
+(defun magit-submodule-sync ()
+  "Synchronizes submodule's remote URL configuration."
+  (interactive)
+  (let ((default-directory (magit-get-top-dir)))
+    (magit-run-git-async "submodule" "sync")))
+
+;;;; Resolve
+
+(defun magit-interactive-resolve (file)
+  (require 'ediff)
+  (let ((merge-status (magit-git-string "ls-files" "-u" "--" file))
+        (base-buffer (generate-new-buffer (concat file ".base")))
+        (our-buffer (generate-new-buffer (concat file ".current")))
+        (their-buffer (generate-new-buffer (concat file ".merged")))
+        (windows (current-window-configuration)))
+    (unless merge-status
+      (error "Cannot resolve %s" file))
+    (with-current-buffer base-buffer
+      (when (string-match "^[0-9]+ [0-9a-f]+ 1" merge-status)
+        (insert (magit-git-output `("cat-file" "blob" ,(concat ":1:" file))))))
+    (with-current-buffer our-buffer
+      (when (string-match "^[0-9]+ [0-9a-f]+ 2" merge-status)
+        (insert (magit-git-output `("cat-file" "blob" ,(concat ":2:" file)))))
+      (let ((buffer-file-name file))
+        (normal-mode)))
+    (with-current-buffer their-buffer
+      (when (string-match "^[0-9]+ [0-9a-f]+ 3" merge-status)
+        (insert (magit-git-output `("cat-file" "blob" ,(concat ":3:" file)))))
+      (let ((buffer-file-name file))
+        (normal-mode)))
+    ;; We have now created the 3 buffer with ours, theirs and the ancestor files
+    (with-current-buffer (ediff-merge-buffers-with-ancestor
+                          our-buffer their-buffer base-buffer nil nil file)
+      (setq ediff-show-clashes-only t)
+      (setq-local magit-ediff-windows windows)
+      (make-local-variable 'ediff-quit-hook)
+      (add-hook 'ediff-quit-hook
+                (lambda ()
+                  (let ((buffer-A ediff-buffer-A)
+                        (buffer-B ediff-buffer-B)
+                        (buffer-C ediff-buffer-C)
+                        (buffer-Ancestor ediff-ancestor-buffer)
+                        (windows magit-ediff-windows))
+                    (ediff-cleanup-mess)
+                    (kill-buffer buffer-A)
+                    (kill-buffer buffer-B)
+                    (when (bufferp buffer-Ancestor)
+                      (kill-buffer buffer-Ancestor))
+                    (set-window-configuration windows)))))))
+
+(defun magit-interactive-resolve-item ()
+  (interactive)
+  (magit-section-action (item info "resolv")
+    ((diff)
+     (magit-interactive-resolve (cadr info)))))
 
 ;;; Branch Manager Mode
 
@@ -6870,84 +6961,8 @@ These are the branch names with the remote name stripped."
     (when (string= (magit-get-current-branch) local-branch)
       (magit-refresh-buffer (magit-find-status-buffer default-directory)))))
 
-;;; Interactive Resolve
-
-(defun magit-interactive-resolve (file)
-  (require 'ediff)
-  (let ((merge-status (magit-git-string "ls-files" "-u" "--" file))
-        (base-buffer (generate-new-buffer (concat file ".base")))
-        (our-buffer (generate-new-buffer (concat file ".current")))
-        (their-buffer (generate-new-buffer (concat file ".merged")))
-        (windows (current-window-configuration)))
-    (unless merge-status
-      (error "Cannot resolve %s" file))
-    (with-current-buffer base-buffer
-      (when (string-match "^[0-9]+ [0-9a-f]+ 1" merge-status)
-        (insert (magit-git-output `("cat-file" "blob" ,(concat ":1:" file))))))
-    (with-current-buffer our-buffer
-      (when (string-match "^[0-9]+ [0-9a-f]+ 2" merge-status)
-        (insert (magit-git-output `("cat-file" "blob" ,(concat ":2:" file)))))
-      (let ((buffer-file-name file))
-        (normal-mode)))
-    (with-current-buffer their-buffer
-      (when (string-match "^[0-9]+ [0-9a-f]+ 3" merge-status)
-        (insert (magit-git-output `("cat-file" "blob" ,(concat ":3:" file)))))
-      (let ((buffer-file-name file))
-        (normal-mode)))
-    ;; We have now created the 3 buffer with ours, theirs and the ancestor files
-    (with-current-buffer (ediff-merge-buffers-with-ancestor
-                          our-buffer their-buffer base-buffer nil nil file)
-      (setq ediff-show-clashes-only t)
-      (setq-local magit-ediff-windows windows)
-      (make-local-variable 'ediff-quit-hook)
-      (add-hook 'ediff-quit-hook
-                (lambda ()
-                  (let ((buffer-A ediff-buffer-A)
-                        (buffer-B ediff-buffer-B)
-                        (buffer-C ediff-buffer-C)
-                        (buffer-Ancestor ediff-ancestor-buffer)
-                        (windows magit-ediff-windows))
-                    (ediff-cleanup-mess)
-                    (kill-buffer buffer-A)
-                    (kill-buffer buffer-B)
-                    (when (bufferp buffer-Ancestor)
-                      (kill-buffer buffer-Ancestor))
-                    (set-window-configuration windows)))))))
-
-(defun magit-interactive-resolve-item ()
-  (interactive)
-  (magit-section-action (item info "resolv")
-    ((diff)
-     (magit-interactive-resolve (cadr info)))))
-
-;;; Submoduling (A)
-
-(defun magit-submodule-update (&optional init)
-  "Update the submodule of the current git repository.
-With a prefix arg, do a submodule update --init."
-  (interactive "P")
-  (let ((default-directory (magit-get-top-dir)))
-    (apply #'magit-run-git-async "submodule" "update"
-           (and init '("--init")))))
-
-(defun magit-submodule-update-init ()
-  "Update and init the submodule of the current git repository."
-  (interactive)
-  (magit-submodule-update t))
-
-(defun magit-submodule-init ()
-  "Initialize the submodules."
-  (interactive)
-  (let ((default-directory (magit-get-top-dir)))
-    (magit-run-git-async "submodule" "init")))
-
-(defun magit-submodule-sync ()
-  "Synchronizes submodule's remote URL configuration."
-  (interactive)
-  (let ((default-directory (magit-get-top-dir)))
-    (magit-run-git-async "submodule" "sync")))
-
-;;; External Tools
+;;; Miscellaneous
+;;;; External Tools
 
 (defun magit-run-git-gui ()
   "Run `git gui' for the current git repository."
@@ -6983,7 +6998,7 @@ With a prefix arg, do a submodule update --init."
      (t
       (magit-start-process "Gitk" nil magit-gitk-executable "--all")))))
 
-;;; Extensions
+;;;; Magit Extensions
 
 (defun magit-load-config-extensions ()
   "Try to load magit extensions that are defined at git config layer.
@@ -6994,25 +7009,7 @@ This can be added to `magit-mode-hook' for example"
                  (not (eq sym 'magit-wip-save-mode)))
         (funcall sym 1)))))
 
-;;; Grep (A)
-
-(magit-define-command grep (&optional pattern)
-  (interactive)
-  (let ((pattern (or pattern
-                     (read-string "git grep: "
-                                  (shell-quote-argument (grep-tag-default))))))
-    (with-current-buffer (generate-new-buffer "*Magit Grep*")
-      (setq default-directory (magit-get-top-dir))
-      (insert magit-git-executable " "
-              (mapconcat 'identity magit-git-standard-options " ")
-              " grep -n "
-              (shell-quote-argument pattern) "\n\n")
-      (magit-git-insert (list "grep" "--line-number" pattern))
-      (grep-mode)
-      (pop-to-buffer (current-buffer)))))
-
-;;; Miscellaneous
-;;;; Magit Bugs Reports
+;;;; Magit Bug Reports
 
 (defconst magit-bug-report-url
   "https://github.com/magit/magit/issues")
