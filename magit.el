@@ -854,6 +854,7 @@ face inherit from `default' and remove all other attributes."
     (define-key map (kbd "E") 'magit-interactive-rebase)
     (define-key map (kbd "e") 'magit-ediff)
     (define-key map (kbd "w") 'magit-wazzup)
+    (define-key map (kbd "y") 'magit-cherry)
     (define-key map (kbd "q") 'magit-quit-window)
     (define-key map (kbd "x") 'magit-reset-head)
     (define-key map (kbd "v") 'magit-revert-item)
@@ -887,7 +888,6 @@ face inherit from `default' and remove all other attributes."
     (define-key map (kbd "k") 'magit-discard-item)
     (define-key map (kbd "C") 'magit-add-log)
     (define-key map (kbd "X") 'magit-reset-working-tree)
-    (define-key map (kbd "y") 'magit-cherry)
     (if magit-rigid-key-bindings
         (define-key map (kbd "z") 'magit-stash)
       (define-key map (kbd "z") 'magit-key-mode-popup-stashing))
