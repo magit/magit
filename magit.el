@@ -1924,8 +1924,8 @@ Use the specified START and END positions."
                  (when (eq (magit-section-type sec) 'diffstats)
                    (throw 'section-found
                           (magit-section-beginning sec)))))))
-    (when pos
-      (goto-char pos)
+    (if pos
+        (goto-char pos)
       (when (called-interactively-p 'interactive)
         (message "No diffstats section found")))))
 
