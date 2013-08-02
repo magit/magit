@@ -2556,7 +2556,9 @@ magit-topgit and magit-svn"
            (setq ask "Password:"))
           ;; See http://www.yubico.com.
           ((string-match "^Yubikey for .*: $" string)
-           (setq ask "Yubikey: " )))
+           (setq ask "Yubikey: " ))
+          ((string-match "Enter passphrase: " string)
+           (setq ask "Enter passphrase: " )))
     (when ask
       (process-send-string proc (concat (read-passwd ask nil) "\n")))))
 
