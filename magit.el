@@ -2821,11 +2821,10 @@ Please see the manual for a complete description of Magit.
       (unwind-protect
           (funcall func)
         (let (magit-custom-options)
+          (when status-buffer
+            (cl-pushnew status-buffer magit-refresh-needing-buffers))
           (when magit-refresh-needing-buffers
             (mapc 'magit-refresh-buffer magit-refresh-needing-buffers))
-          (when (and status-buffer
-                     (not (memq status-buffer magit-refresh-needing-buffers)))
-            (magit-refresh-buffer status-buffer))
           (magit-revert-buffers default-directory))))))
 
 (defun magit-need-refresh (&optional buffer)
