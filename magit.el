@@ -331,6 +331,12 @@ If t, use ptys: this enables magit to prompt for passphrases when needed."
   :type '(choice (const :tag "pipe" nil)
                  (const :tag "pty" t)))
 
+(defcustom magit-process-yes-or-no-prompt
+  " [\[(]\\([Yy]\\(?:es\\)?\\)[/|]\\([Nn]o?\\)[\])]\\? ?$"
+  "Regexp matching Yes-or-No prompts of git and its subprocesses."
+  :group 'magit
+  :type 'regexp)
+
 (defcustom magit-process-password-prompts
   '("^\\(Enter \\)?[Pp]assphrase\\( for key '.*'\\)?: ?$"
     "^\\(Enter \\)?[Pp]assword\\( for '.*'\\)?: ?$"
@@ -2564,8 +2570,9 @@ magit-topgit and magit-svn"
   (save-current-buffer
     (set-buffer (process-buffer proc))
     (let ((inhibit-read-only t))
-      (magit-process-username-prompt proc string)
-      (magit-process-password-prompt proc string)
+      (magit-process-yes-or-no-prompt proc string)
+      (magit-process-username-prompt  proc string)
+      (magit-process-password-prompt  proc string)
       (goto-char (process-mark proc))
       ;; Find last ^M in string.  If one was found, ignore everything
       ;; before it and delete the current line.
@@ -2579,6 +2586,21 @@ magit-topgit and magit-svn"
               (t
                (insert string))))
       (set-marker (process-mark proc) (point)))))
+
+(defun magit-process-yes-or-no-prompt (proc string)
+  (let ((beg (string-match magit-process-yes-or-no-prompt string)))
+    (when beg
+      (process-send-string
+       proc
+       (concat (downcase
+                (match-string (if (let ((max-mini-window-height 30))
+                                    (yes-or-no-p
+                                     (save-match-data
+                                       (substring string 0 beg))))
+                                  1
+                                2)
+                              string))
+               "\n")))))
 
 (defun magit-process-password-prompt (proc string)
   "Forward password prompts to the user."
