@@ -2798,22 +2798,16 @@ Please see the manual for a complete description of Magit.
 (defun magit-revert-buffers (dir &optional ignore-modtime)
   (dolist (buffer (buffer-list))
     (when (and (buffer-file-name buffer)
-               (not (buffer-modified-p buffer))
-               ;; don't revert indirect buffers, as the parent will be reverted
-               (not (buffer-base-buffer buffer))
-               (string-prefix-p dir (buffer-file-name buffer) dir)
-               (file-readable-p (buffer-file-name buffer))
-               (or ignore-modtime (not (verify-visited-file-modtime buffer))))
-      (with-current-buffer buffer
-        (revert-buffer t t nil)))))
-
-(defun magit-update-vc-modeline (dir)
-  "Update the modeline for buffers representable by magit."
-  (dolist (buffer (buffer-list))
-    (when (and (buffer-file-name buffer)
                (string-prefix-p dir (buffer-file-name buffer)))
       (with-current-buffer buffer
-        (vc-find-file-hook)))))
+        (vc-find-file-hook))
+      (when (and (not (buffer-modified-p buffer))
+                 ;; don't revert indirect buffers, as the parent will be reverted
+                 (not (buffer-base-buffer buffer))
+                 (file-readable-p (buffer-file-name buffer))
+                 (or ignore-modtime (not (verify-visited-file-modtime buffer))))
+        (with-current-buffer buffer
+          (revert-buffer t t nil))))))
 
 (defvar magit-refresh-needing-buffers nil)
 (defvar magit-refresh-pending nil)
@@ -4789,8 +4783,7 @@ If REVISION is a remote branch, offer to create a local tracking branch.
   (when (and revision
              (not (magit-maybe-create-local-tracking-branch revision)))
     (magit-save-some-buffers)
-    (magit-run-git "checkout" (magit-rev-to-git revision))
-    (magit-update-vc-modeline default-directory)))
+    (magit-run-git "checkout" (magit-rev-to-git revision))))
 
 (defun magit-read-create-branch-args ()
   (let ((cur-branch (magit-get-current-branch))
@@ -4813,8 +4806,7 @@ Fails if working tree or staging area contain uncommitted changes.
     (apply #'magit-run-git
            "checkout" "-b"
            branch
-           (append magit-custom-options (list (magit-rev-to-git parent))))
-    (magit-update-vc-modeline default-directory)))
+           (append magit-custom-options (list (magit-rev-to-git parent))))))
 
 (defun magit-delete-branch (branch &optional force)
   "Delete the BRANCH.
@@ -5002,8 +4994,7 @@ and staging area are lost.
                                          "HEAD^"))
                      current-prefix-arg))
   (magit-run-git "reset" (if hard "--hard" "--soft")
-                 (magit-rev-to-git revision) "--")
-  (magit-update-vc-modeline default-directory))
+                 (magit-rev-to-git revision) "--"))
 
 (magit-define-command reset-head-hard (revision)
   "Switch 'HEAD' to REVISION, losing all changes.
@@ -5553,7 +5544,6 @@ environment (potentially empty)."
       (set-buffer magit-buf))
     (when (file-exists-p (magit-git-dir "MERGE_MSG"))
       (delete-file (magit-git-dir "MERGE_MSG")))
-    (magit-update-vc-modeline default-directory)
     (when magit-pre-log-edit-window-configuration
       (set-window-configuration magit-pre-log-edit-window-configuration)
       (setq magit-pre-log-edit-window-configuration nil))))
