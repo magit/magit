@@ -332,18 +332,17 @@ If t, use ptys: this enables magit to prompt for passphrases when needed."
                  (const :tag "pty" t)))
 
 (defcustom magit-process-password-prompts
-  '("^Enter passphrase for key '.*':"
-    "^.*'s password:"
-    "^Password for '.*':"
-    "^[pP]assword:"
-    "^Yubikey for .*:")
-  "Password prompts of git and its subprocesses."
+  '("^\\(Enter \\)?[Pp]assphrase\\( for key '.*'\\)?: ?$"
+    "^\\(Enter \\)?[Pp]assword\\( for '.*'\\)?: ?$"
+    "^.*'s password: ?$"
+    "^Yubikey for .*: ?$")
+  "List of regexps matching password prompts of git and its subprocesses."
   :group 'magit
   :type '(repeat (regexp)))
 
 (defcustom magit-process-username-prompts
-  '("^Username for '.*':")
-  "Username prompts of git and its subprocesses."
+  '("^Username for '.*': ?$")
+  "List of regexps matching username prompts of git and its subprocesses."
   :group 'magit
   :type '(repeat (regexp)))
 
