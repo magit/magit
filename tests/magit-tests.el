@@ -41,9 +41,8 @@
          (when ,buffer (kill-buffer ,buffer))))))
 
 (defun magit-tests--modify-file (filename)
-  (with-temp-buffer
-    (insert (symbol-name (gensym "content")))
-    (write-file (expand-file-name filename))))
+  (with-temp-file (expand-file-name filename)
+    (insert (symbol-name (gensym "content")))))
 
 (defun magit-tests--modify-and-commit (filename)
   (magit-tests--modify-file filename)
@@ -57,7 +56,7 @@
 
 (defun magit-tests--head-hash ()
   (magit-git-string
-   "rev-parse" (format "--short=%s" magit-sha1-abbrev-length) "HEAD"))
+   "rev-parse" (format "--short=%d" magit-sha1-abbrev-length) "HEAD"))
 
 (defun magit-tests--should-have-item-title (title section-path)
   (magit-status default-directory)

@@ -1,7 +1,12 @@
 ;;; rebase-mode -- edit git rebase files
 
-;; Copyright (C) 2010  Phil Jackson
-;; Copyright (C) 2011  Peter J Weisberg
+;; Copyright (C) 2010-2013  The Magit Project Developers.
+;;
+;; For a full list of contributors, see the AUTHORS file
+;; at the top-level directory of this distribution and at
+;; https://raw.github.com/magit/magit/master/AUTHORS
+
+;; Author: Phil Jackson <phil@shellarchive.co.uk>
 
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
@@ -28,6 +33,7 @@
 (require 'rx)
 (require 'server)
 (declare-function server-edit "server") 
+(require 'thingatpt)
 
 (defgroup rebase-mode nil
   "Customize Rebase Mode"
