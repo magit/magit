@@ -1285,7 +1285,6 @@ Convention prefix for topic branch creation.
 @menu
 * FAQ - Changes::
 * FAQ 1 - Troubleshooting::
-* FAQ 2 - Display issues::
 @end menu
 
 @node FAQ - Changes
@@ -1317,37 +1316,6 @@ How do I get raw error messages from git?
 
 If a command goes wrong, you can hit @kbd{$} to access the git process
 buffer.  There, the entire trace for the latest operation is available.
-
-@node FAQ 2 - Display issues
-@section Display issues
-
-@menu
-* FAQ 2-1::    How do I fix international characters display?
-@end menu
-
-@node FAQ 2-1
-@subsection Question 2.1
-
-How do I fix international characters display?
-
-@subsubheading Answer
-
-Please make sure your Magit buffer uses a compatible coding system.
-In the particular case of file names, git itself quotes them by
-default.  You can disable this with one of the following approaches:
-
-@example
-$ git config core.quotepath false
-@end example
-
-or
-
-@example
-(setq magit-git-standard-options (append magit-git-standard-options
-                                         '("-c" "core.quotepath=false")))
-@end example
-
-The latter might not work in old versions of git.
 
 @node GNU Free Documentation License
 @appendix GNU Free Documentation License
