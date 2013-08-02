@@ -1306,6 +1306,7 @@ basis).  See @ref{Activating extensions}.
 
 @menu
 * FAQ 1-1::    How do I get raw error messages from git?
+* FAQ 1-2::    Staging hunks with non-ASCII characters fails.
 @end menu
 
 @node FAQ 1-1
@@ -1317,6 +1318,33 @@ How do I get raw error messages from git?
 
 If a command goes wrong, you can hit @kbd{$} to access the git process
 buffer.  There, the entire trace for the latest operation is available.
+
+@node FAQ 1-2
+@subsection Question 1.2
+
+Staging hunks with non-ASCII characters fails.
+
+@subsubheading Answer
+
+An emacs misconfiguration can cause the following error when you attempt to stage a hunk with a non-ASCII character:
+
+@itemize @bullet
+@item
+The stage command fails, and the display area shows ``git failed''.
+
+@item
+The ``*magic-process*'' buffer (hit @kbd{$} to display it) shows
+an error message of ``git --no-pager apply --cached -: patch failed:
+patch does not apply''
+@end itemize
+
+This can happen when the coding-system of the magit buffer is not
+capable of representing the file's actual contents correctly. An easy
+fix is to add the following command to your ``.emacs.el'' file:
+
+@example
+(prefer-coding-system 'utf-8)
+@end example
 
 @node FAQ 2 - Display issues
 @section Display issues
