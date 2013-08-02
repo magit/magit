@@ -152,6 +152,22 @@ t          ask if --set-upstream should be used.
                  (const :tag "Refuse" refuse)
                  (const :tag "Always" dontask)))
 
+(defcustom magit-refresh-file-buffer-hook
+  '(magit-revert-buffer)
+  "List of functions to be called to refresh a file visiting buffer.
+
+After many Magit commands, this hook is run for each file
+visiting buffer inside the current git repository.
+
+The functions are called without any arguments and with the the
+file buffer current.  They have to ensure the same buffer is
+still current when they return which can be easily done using:
+
+  (with-current-buffer (current-buffer) DO-STUFF)"
+  :group 'magit
+  :type 'hook
+  :options '(magit-revert-buffer magit-update-vc-modeline))
+
 (defcustom magit-save-some-buffers t
   "Whether \\[magit-status] saves modified buffers before running.
 
@@ -2797,19 +2813,41 @@ Please see the manual for a complete description of Magit.
             (set-window-point w (point)))
           (magit-highlight-section))))))
 
-(defun magit-revert-buffers (dir &optional ignore-modtime)
-  (dolist (buffer (buffer-list))
-    (when (and (buffer-file-name buffer)
-               (string-prefix-p dir (buffer-file-name buffer)))
-      (with-current-buffer buffer
-        (vc-find-file-hook))
-      (when (and (not (buffer-modified-p buffer))
-                 ;; don't revert indirect buffers, as the parent will be reverted
-                 (not (buffer-base-buffer buffer))
-                 (file-readable-p (buffer-file-name buffer))
-                 (or ignore-modtime (not (verify-visited-file-modtime buffer))))
-        (with-current-buffer buffer
-          (revert-buffer t t nil))))))
+(defun magit-revert-buffer ()
+  "Replace current buffer text with the text of the visited file on disk.
+
+This is intended for use in `magit-refresh-file-buffer-hook'.
+It calls function `revert-buffer' (which see) but only after a
+few sanity checks."
+  (with-current-buffer (current-buffer)
+    (when (and (not (buffer-modified-p))
+               ;; Don't revert indirect buffers, as the parent would be
+               ;; reverted.
+               (not (buffer-base-buffer))
+               (not (verify-visited-file-modtime))
+               (file-readable-p (buffer-file-name)))
+      (revert-buffer t t nil))))
+
+(defun magit-update-vc-modeline ()
+  "Update the Vc status information in the modeline.
+
+By default the built-in Version Control package shows the status
+of file visiting buffers in the modeline.  Calling this function
+forces the status to be updated in the current buffer.
+
+This is intended for use in `magit-refresh-file-buffer-hook'.
+Because this can be a costly operation it is not part of the
+hook's default value.
+
+Unless you add this function to the hook you might also want to
+consider completely disabling Vc for git repositories.  To do so
+remove the symbol `Git' from `vc-handled-backends'."
+  ;; Don't use this directly so we can provide the above
+  ;; instructions.  Don't use an alias to avoid confusion.
+  (with-current-buffer (current-buffer)
+    (vc-find-file-hook)))
+
+;;;; Refresh Machinery
 
 (defvar magit-refresh-needing-buffers nil)
 (defvar magit-refresh-pending nil)
@@ -2822,12 +2860,19 @@ Please see the manual for a complete description of Magit.
           (status-buffer (magit-find-status-buffer default-directory)))
       (unwind-protect
           (funcall func)
+        ;; Refresh magit buffers.
         (let (magit-custom-options)
           (when status-buffer
             (cl-pushnew status-buffer magit-refresh-needing-buffers))
           (when magit-refresh-needing-buffers
-            (mapc 'magit-refresh-buffer magit-refresh-needing-buffers))
-          (magit-revert-buffers default-directory))))))
+            (mapc 'magit-refresh-buffer magit-refresh-needing-buffers)))
+        ;; Refresh file visiting buffers.
+        (dolist (buffer (buffer-list))
+          (when (and (buffer-file-name buffer)
+                     (string-prefix-p default-directory
+                                      (buffer-file-name buffer)))
+            (with-current-buffer buffer
+              (run-hooks 'magit-refresh-file-buffer-hook))))))))
 
 (defun magit-need-refresh (&optional buffer)
   "Mark BUFFER as needing to be refreshed.
