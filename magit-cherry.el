@@ -52,12 +52,12 @@
                (abbreviate-file-name default-directory))
        (format "Branch head: %s\n" (or branch-head "nothing committed (yet)"))
        "\n"
-       (format "%s means: present in '%s' but not in '%s'\n"
+       (format "%s means: equivalent exists in '%s'\n"
                (propertize " - " 'face 'magit-diff-del)
-               cherry-upstream cherry-head)
-       (format "%s means: present in '%s' but not in '%s'\n"
+               cherry-upstream)
+       (format "%s means: only exists in '%s'\n"
                (propertize " + " 'face 'magit-diff-add)
-               cherry-head cherry-upstream)
+               cherry-head)
        "\n"
        (propertize "Cherry commits:" 'face 'magit-section-title) "\n"))
     (magit-git-section 'commit nil 'magit--wash-cherry-output
