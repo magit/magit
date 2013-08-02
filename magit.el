@@ -331,6 +331,27 @@ If t, use ptys: this enables magit to prompt for passphrases when needed."
   :type '(choice (const :tag "pipe" nil)
                  (const :tag "pty" t)))
 
+(defcustom magit-process-yes-or-no-prompt
+  " [\[(]\\([Yy]\\(?:es\\)?\\)[/|]\\([Nn]o?\\)[\])]\\? ?$"
+  "Regexp matching Yes-or-No prompts of git and its subprocesses."
+  :group 'magit
+  :type 'regexp)
+
+(defcustom magit-process-password-prompts
+  '("^\\(Enter \\)?[Pp]assphrase\\( for key '.*'\\)?: ?$"
+    "^\\(Enter \\)?[Pp]assword\\( for '.*'\\)?: ?$"
+    "^.*'s password: ?$"
+    "^Yubikey for .*: ?$")
+  "List of regexps matching password prompts of git and its subprocesses."
+  :group 'magit
+  :type '(repeat (regexp)))
+
+(defcustom magit-process-username-prompts
+  '("^Username for '.*': ?$")
+  "List of regexps matching username prompts of git and its subprocesses."
+  :group 'magit
+  :type '(repeat (regexp)))
+
 (defcustom magit-completing-read-function 'magit-builtin-completing-read
   "Function to be called when requesting input from the user."
   :group 'magit
@@ -2545,37 +2566,13 @@ magit-topgit and magit-svn"
                    (derived-mode-p 'magit-mode)))
         (magit-refresh-buffer magit-process-client-buffer)))))
 
-(defun magit-process-password-prompt (proc string)
-  "Check if git/ssh asks for a password and ask the user for it."
-  (let (ask)
-    (cond ((or (string-match "^Enter passphrase for key '\\\(.*\\\)': $" string)
-               (string-match "^\\\(.*\\\)'s password:" string)
-               (string-match "^Password for '\\\(.*\\\)':" string))
-           (setq ask (format "Password for '%s': " (match-string 1 string))))
-          ((string-match "^[pP]assword:" string)
-           (setq ask "Password:"))
-          ;; See http://www.yubico.com.
-          ((string-match "^Yubikey for .*: $" string)
-           (setq ask "Yubikey: " )))
-    (when ask
-      (process-send-string proc (concat (read-passwd ask nil) "\n")))))
-
-(defun magit-process-username-prompt (proc string)
-  "Check if git asks for a username and ask the user for it."
-  (when (string-match "^Username for '\\\(.*\\\)':" string)
-    (process-send-string proc
-                         (concat
-                          (read-string (format "Username for '%s': "
-                                               (match-string 1 string))
-                                       nil nil (user-login-name))
-                          "\n"))))
-
 (defun magit-process-filter (proc string)
   (save-current-buffer
     (set-buffer (process-buffer proc))
     (let ((inhibit-read-only t))
-      (magit-process-username-prompt proc string)
-      (magit-process-password-prompt proc string)
+      (magit-process-yes-or-no-prompt proc string)
+      (magit-process-username-prompt  proc string)
+      (magit-process-password-prompt  proc string)
       (goto-char (process-mark proc))
       ;; Find last ^M in string.  If one was found, ignore everything
       ;; before it and delete the current line.
@@ -2589,6 +2586,47 @@ magit-topgit and magit-svn"
               (t
                (insert string))))
       (set-marker (process-mark proc) (point)))))
+
+(defun magit-process-yes-or-no-prompt (proc string)
+  (let ((beg (string-match magit-process-yes-or-no-prompt string)))
+    (when beg
+      (process-send-string
+       proc
+       (concat (downcase
+                (match-string (if (let ((max-mini-window-height 30))
+                                    (yes-or-no-p
+                                     (save-match-data
+                                       (substring string 0 beg))))
+                                  1
+                                2)
+                              string))
+               "\n")))))
+
+(defun magit-process-password-prompt (proc string)
+  "Forward password prompts to the user."
+  (let ((prompt (magit-process-match-prompt
+                 magit-process-password-prompts string)))
+    (when prompt
+      (process-send-string proc (concat (read-passwd prompt) "\n")))))
+
+(defun magit-process-username-prompt (proc string)
+  "Forward username prompts to the user."
+  (let ((prompt (magit-process-match-prompt
+                 magit-process-username-prompts string)))
+    (when prompt
+      (process-send-string proc
+                           (concat (read-string prompt nil nil
+                                                (user-login-name))
+                                   "\n")))))
+
+(defun magit-process-match-prompt (prompts string)
+  (when (cl-find-if (lambda (regex)
+                      (string-match regex string))
+                    prompts)
+    (let ((prompt (match-string 0 string)))
+      (cond ((string-match ": $" prompt) prompt)
+            ((string-match ":$"  prompt) (concat prompt " "))
+            (t                           (concat prompt ": "))))))
 
 (defun magit-run (cmd &rest args)
   (magit-with-refresh
