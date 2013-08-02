@@ -71,6 +71,7 @@ Use the function by the same name instead of this variable.")
 (require 'thingatpt)
 
 (eval-when-compile
+  (require 'dired)
   (require 'ediff)
   (require 'eshell)
   (require 'ido)
@@ -78,6 +79,7 @@ Use the function by the same name instead of this variable.")
   (require 'package nil t)
   (require 'view))
 
+(declare-function dired-uncache 'dired)
 (declare-function ediff-cleanup-mess 'ediff)
 (declare-function eshell-parse-arguments 'eshell)
 (declare-function ido-completing-read 'ido)
@@ -2537,7 +2539,6 @@ magit-topgit and magit-svn"
            magit-process-buffer-name))
       successp)))
 
-(autoload 'dired-uncache "dired")
 (defun magit-process-sentinel (process event)
   (when (memq (process-status process) '(exit signal))
     (setq magit-process nil)
@@ -2557,7 +2558,8 @@ magit-topgit and magit-svn"
                          msg
                        (format "%s Hit %s or see buffer %s for details."
                                msg key (current-buffer)))))
-          (dired-uncache default-directory)))
+          (when (featurep 'dired)
+            (dired-uncache default-directory))))
       (magit-set-mode-line-process nil)
       (when (and (buffer-live-p magit-process-client-buffer)
                  (with-current-buffer magit-process-client-buffer
