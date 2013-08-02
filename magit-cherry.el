@@ -36,18 +36,20 @@
 
 (magit-define-command cherry (&optional upstream head)
   (interactive)
-  (let ((branch (magit-get-current-branch)))
-    (if (not branch)
-        (error "Don't cherry on a detached head.")
-      (magit-buffer-switch magit--cherry-buffer-name)
-      (magit-mode-init
-       (magit-get-top-dir)
-       'magit-cherry-mode
-       #'magit--refresh-cherry-buffer
-       (or upstream (magit-read-rev "Upstream"
-                                    (magit-format-ref
-                                     (magit-remote-branch-for branch t))))
-       (or head (magit-read-rev "Head" branch))))))
+  (let* ((branch (or (magit-get-current-branch)
+                     (error "Don't cherry on a detached head.")))
+         (upstream (or upstream
+                       (magit-read-rev "Cherry upstream"
+                                       (magit-format-ref
+                                        (magit-remote-branch-for branch t)))))
+         (head (or head
+                   (magit-read-rev "Cherry head" branch))))
+    (magit-buffer-switch magit--cherry-buffer-name)
+    (magit-mode-init (magit-get-top-dir)
+                     'magit-cherry-mode
+                     #'magit--refresh-cherry-buffer
+                     upstream
+                     head)))
 
 (defun magit--refresh-cherry-buffer (cherry-upstream cherry-head)
   (magit-create-buffer-sections
