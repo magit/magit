@@ -2440,9 +2440,7 @@ magit-topgit and magit-svn"
       (run  (error "Git is already running"))
       (stop (error "Git is stopped") )
       ((exit signal)
-       (magit-bug-report
-        (concat "Git exited but Magit failed to cleanup"))
-       (message "Force Magit to cleanup")
+       (message "Git is not running anymore, but magit thinks it is")
        (setq magit-process nil))))
   (let ((cmd (car cmd-and-args))
         (args (cdr cmd-and-args))
@@ -2807,9 +2805,7 @@ Please see the manual for a complete description of Magit.
                (file-readable-p (buffer-file-name buffer))
                (or ignore-modtime (not (verify-visited-file-modtime buffer))))
       (with-current-buffer buffer
-        (condition-case err
-            (revert-buffer t t nil)
-          (error (magit-bug-report (cadr err))))))))
+        (revert-buffer t t nil)))))
 
 (defun magit-update-vc-modeline (dir)
   "Update the modeline for buffers representable by magit."
@@ -2817,9 +2813,7 @@ Please see the manual for a complete description of Magit.
     (when (and (buffer-file-name buffer)
                (string-prefix-p dir (buffer-file-name buffer)))
       (with-current-buffer buffer
-        (condition-case err
-            (vc-find-file-hook)
-          (error (magit-bug-report (cadr err))))))))
+        (vc-find-file-hook)))))
 
 (defvar magit-refresh-needing-buffers nil)
 (defvar magit-refresh-pending nil)
@@ -7070,28 +7064,6 @@ This can be added to `magit-mode-hook' for example"
       (when (and (fboundp sym)
                  (not (eq sym 'magit-wip-save-mode)))
         (funcall sym 1)))))
-
-;;;; Magit Bug Reports
-
-(defconst magit-bug-report-url
-  "https://github.com/magit/magit/issues")
-
-(defconst magit-bug-report-buffer "*magit-bug-report*"
-  "The buffer in which Magit outputs bug report messages.")
-
-(defun magit-bug-report (string)
-  "Asks the user to submit a bug report about the error STRING."
-  (with-current-buffer (get-buffer-create magit-bug-report-buffer)
-    (erase-buffer)
-    (insert (format
-             (concat
-              "Magit unknown error: %s\n Please, with as much"
-              " information as possible, file a bug at\n %s\n"
-              "- Magit: %s\n"
-              "- Emacs: %s")
-             string magit-bug-report-url
-             (magit-version) (emacs-version))))
-  (switch-to-buffer-other-window magit-bug-report-buffer))
 
 ;;;; Magit Font-Lock
 
