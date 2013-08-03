@@ -5309,59 +5309,55 @@ even if `magit-set-upstream-on-push's value is `refuse'."
 
 (defun magit-add-log ()
   (interactive)
-  (cond ((magit-rebase-info)
-         (when (y-or-n-p "Rebase in progress.  Continue it? ")
-           (magit-run-git-async "rebase" "--continue")))
-        (t
-         (let ((section (magit-current-section)))
-           (let ((fun (if (eq (magit-section-type section) 'hunk)
-                          (save-window-excursion
-                            (save-excursion
-                              (magit-visit-item)
-                              (add-log-current-defun)))
-                        nil))
-                 (file (magit-diff-item-file
-                        (cond ((eq (magit-section-type section) 'hunk)
-                               (magit-hunk-item-diff section))
-                              ((eq (magit-section-type section) 'diff)
-                               section)
-                              (t
-                               (error "No change at point"))))))
-             (magit-log-edit nil)
-             (goto-char (point-min))
-             (cond ((not (search-forward-regexp
-                          (format "^\\* %s" (regexp-quote file)) nil t))
-                    ;; No entry for file, create it.
-                    (goto-char (point-max))
-                    (insert (format "\n* %s" file))
-                    (when fun
-                      (insert (format " (%s)" fun)))
-                    (insert ": "))
-                   (fun
-                    ;; found entry for file, look for fun
-                    (let ((limit (or (save-excursion
-                                       (and (search-forward-regexp "^\\* "
-                                                                   nil t)
-                                            (match-beginning 0)))
-                                     (point-max))))
-                      (cond ((search-forward-regexp (format "(.*\\<%s\\>.*):"
-                                                            (regexp-quote fun))
-                                                    limit t)
-                             ;; found it, goto end of current entry
-                             (if (search-forward-regexp "^(" limit t)
-                                 (backward-char 2)
-                               (goto-char limit)))
-                            (t
-                             ;; not found, insert new entry
-                             (goto-char limit)
-                             (if (bolp)
-                                 (open-line 1)
-                               (newline))
-                             (insert (format "(%s): " fun))))))
-                   (t
-                    ;; found entry for file, look for beginning  it
-                    (when (looking-at ":")
-                      (forward-char 2)))))))))
+  (let ((section (magit-current-section)))
+    (let ((fun (if (eq (magit-section-type section) 'hunk)
+                   (save-window-excursion
+                     (save-excursion
+                       (magit-visit-item)
+                       (add-log-current-defun)))
+                 nil))
+          (file (magit-diff-item-file
+                 (cond ((eq (magit-section-type section) 'hunk)
+                        (magit-hunk-item-diff section))
+                       ((eq (magit-section-type section) 'diff)
+                        section)
+                       (t
+                        (error "No change at point"))))))
+      (magit-log-edit nil)
+      (goto-char (point-min))
+      (cond ((not (search-forward-regexp
+                   (format "^\\* %s" (regexp-quote file)) nil t))
+             ;; No entry for file, create it.
+             (goto-char (point-max))
+             (insert (format "\n* %s" file))
+             (when fun
+               (insert (format " (%s)" fun)))
+             (insert ": "))
+            (fun
+             ;; found entry for file, look for fun
+             (let ((limit (or (save-excursion
+                                (and (search-forward-regexp "^\\* "
+                                                            nil t)
+                                     (match-beginning 0)))
+                              (point-max))))
+               (cond ((search-forward-regexp (format "(.*\\<%s\\>.*):"
+                                                     (regexp-quote fun))
+                                             limit t)
+                      ;; found it, goto end of current entry
+                      (if (search-forward-regexp "^(" limit t)
+                          (backward-char 2)
+                        (goto-char limit)))
+                     (t
+                      ;; not found, insert new entry
+                      (goto-char limit)
+                      (if (bolp)
+                          (open-line 1)
+                        (newline))
+                      (insert (format "(%s): " fun))))))
+            (t
+             ;; found entry for file, look for beginning  it
+             (when (looking-at ":")
+               (forward-char 2)))))))
 
 ;;;; Tagging
 
