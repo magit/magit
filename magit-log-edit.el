@@ -193,8 +193,11 @@ continue it.
 
 (defvar magit-log-edit-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-c") 'magit-log-edit-commit)
     (define-key map (kbd "C-x #")   'magit-log-edit-commit)
+    (define-key map (kbd "C-c C-c") 'magit-log-edit-commit)
+    (define-key map (kbd "C-c C-k") 'magit-log-edit-cancel-log-message)
+    (define-key map (kbd "C-c C-]") 'magit-log-edit-cancel-log-message)
+    (define-key map (kbd "C-x C-s") 'magit-log-edit-nop)
     (define-key map (kbd "C-c C-a") 'magit-log-edit-toggle-amending)
     (define-key map (kbd "C-c C-s") 'magit-log-edit-toggle-signoff)
     (define-key map (kbd "C-c C-v") 'magit-log-edit-toggle-gpgsign)
@@ -203,9 +206,6 @@ continue it.
     (define-key map (kbd "C-c C-e") 'magit-log-edit-toggle-allow-empty)
     (define-key map (kbd "M-p")     'log-edit-previous-comment)
     (define-key map (kbd "M-n")     'log-edit-next-comment)
-    (define-key map (kbd "C-c C-k") 'magit-log-edit-cancel-log-message)
-    (define-key map (kbd "C-c C-]") 'magit-log-edit-cancel-log-message)
-    (define-key map (kbd "C-x C-s") 'magit-log-edit-nop)
     map))
 
 (defun magit-log-edit-commit ()
