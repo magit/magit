@@ -5305,7 +5305,7 @@ even if `magit-set-upstream-on-push's value is `refuse'."
                        (member "-u" magit-custom-options)))
           (magit-set ref-branch "branch" branch "merge"))))))
 
-;;; ChangeLog
+;;;; Commit
 
 (defun magit-add-log ()
   (interactive)
@@ -5363,7 +5363,6 @@ even if `magit-set-upstream-on-push's value is `refuse'."
                     (when (looking-at ":")
                       (forward-char 2)))))))))
 
-;;; Acting (2)
 ;;;; Tagging
 
 (magit-define-command tag (name rev)
@@ -5895,7 +5894,7 @@ restore the window state that was saved before ediff was called."
                      #'magit-refresh-wazzup-buffer
                      current-branch all)))
 
-;;; Acting (3)
+;;; Acting (2)
 ;;;; File Log
 
 ;; This variable is used to keep track of the current file in the
