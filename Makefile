@@ -13,6 +13,7 @@ ELS += magit-cherry.el
 ELS += magit-compat.el
 ELS += magit-flow.el
 ELS += magit-key-mode.el
+ELS += magit-log-edit.el
 ELS += magit-stgit.el
 ELS += magit-svn.el
 ELS += magit-topgit.el
