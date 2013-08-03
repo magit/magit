@@ -59,7 +59,7 @@ will cause all changes to be staged, after a confirmation."
 (defvar magit-log-edit-buffer-name "*magit-edit-log*"
   "Buffer name for composing commit messages.")
 
-(defvar magit-pre-log-edit-window-configuration nil)
+(defvar magit-log-edit-prev-window-configuration nil)
 
 (defvar magit-buffer-internal nil
   "Track associated *magit* buffers.
@@ -174,7 +174,7 @@ continue it.
   (let ((dir default-directory)
         (magit-buf (current-buffer))
         (buf (get-buffer-create magit-log-edit-buffer-name)))
-    (setq magit-pre-log-edit-window-configuration
+    (setq magit-log-edit-prev-window-configuration
           (current-window-configuration))
     (pop-to-buffer buf)
     (setq default-directory dir)
@@ -278,9 +278,9 @@ continue it.
       (set-buffer magit-buf))
     (when (file-exists-p (magit-git-dir "MERGE_MSG"))
       (delete-file (magit-git-dir "MERGE_MSG")))
-    (when magit-pre-log-edit-window-configuration
-      (set-window-configuration magit-pre-log-edit-window-configuration)
-      (setq magit-pre-log-edit-window-configuration nil))))
+    (when magit-log-edit-prev-window-configuration
+      (set-window-configuration magit-log-edit-prev-window-configuration)
+      (setq magit-log-edit-prev-window-configuration nil))))
 
 (defun magit-log-edit-cleanup ()
   (save-excursion
@@ -297,9 +297,9 @@ continue it.
              "Really cancel editing the log (any changes will be lost)?"))
     (erase-buffer)
     (bury-buffer)
-    (when magit-pre-log-edit-window-configuration
-      (set-window-configuration magit-pre-log-edit-window-configuration)
-      (setq magit-pre-log-edit-window-configuration nil))))
+    (when magit-log-edit-prev-window-configuration
+      (set-window-configuration magit-log-edit-prev-window-configuration)
+      (setq magit-log-edit-prev-window-configuration nil))))
 
 (defun magit-log-edit-nop ()
   "Tell user nothing was saved and how to actually do it."
