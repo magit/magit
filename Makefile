@@ -24,6 +24,7 @@ ELCS = $(ELS:.el=.elc)
 CP    ?= install -p -m 644
 CPBIN ?= install -p -m 755
 MKDIR ?= install -p -m 755 -d
+RM    ?= rm -rf
 
 MAKEINFO     ?= makeinfo
 INSTALL_INFO ?= install-info
@@ -153,9 +154,9 @@ test: $(ELCS)
 
 .PHONY: clean
 clean:
-	rm -f $(ELCS) $(LOADDEFS_FILE) magit-version.el
-	rm -fr magit-$(VERSION) *.tar.gz *.tar
-	-test ! -d .git && rm -f magit.info
+	$(RM) $(ELCS) $(LOADDEFS_FILE) magit-version.el
+	$(RM) magit-$(VERSION) *.tar.gz *.tar
+	-test ! -d .git && $(RM) magit.info
 
 DIST_FILES  = $(ELS) magit-version.el Makefile
 DIST_FILES += README.md INSTALL.md magit.texi magit.info dir
@@ -171,7 +172,7 @@ magit-$(VERSION).tar.gz: $(DIST_FILES)
 	$(CP) $(DIST_FILES) magit-$(VERSION)
 	$(CPBIN) $(DIST_FILES_BIN) magit-$(VERSION)/bin
 	tar -cvz --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar.gz magit-$(VERSION)
-	rm -rf magit-$(VERSION)
+	$(RM) magit-$(VERSION)
 
 .PHONY: marmalade
 marmalade: magit-$(VERSION).tar
@@ -180,4 +181,4 @@ magit-$(VERSION).tar: $(ELPA_FILES)
 	$(MKDIR) magit-$(VERSION)
 	$(CP) $(ELPA_FILES) magit-$(VERSION)
 	tar -cv --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar magit-$(VERSION)
-	rm -rf magit-$(VERSION)
+	$(RM) magit-$(VERSION)
