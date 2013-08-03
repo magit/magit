@@ -48,26 +48,24 @@ will cause all changes to be staged, after a confirmation."
                  (const :tag "Ask" ask)
                  (const :tag "Ask to stage everything" ask-stage)))
 
-;;; Mode
+;;; Keymaps
 
-(define-derived-mode magit-log-edit-mode text-mode "Magit Log Edit"
-  ;; Recognize changelog-style paragraphs
-  (setq-local paragraph-start (concat paragraph-start "\\|*\\|(")))
-
-;;;; Variables
-
-(defvar magit-log-edit-buffer-name "*magit-edit-log*"
-  "Buffer name for composing commit messages.")
-
-(defvar magit-log-edit-prev-window-configuration nil)
-
-(defvar magit-log-edit-status-buffer nil
-  "Track associated *magit* buffers.
-Do not customize this (used in the `magit-log-edit-mode' implementation
-to switch back to the *magit* buffer associated with a given commit
-operation after commit).")
-
-;;;; Menu
+(defvar magit-log-edit-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-x #")   'magit-log-edit-commit)
+    (define-key map (kbd "C-c C-c") 'magit-log-edit-commit)
+    (define-key map (kbd "C-c C-k") 'magit-log-edit-cancel-log-message)
+    (define-key map (kbd "C-c C-]") 'magit-log-edit-cancel-log-message)
+    (define-key map (kbd "C-x C-s") 'magit-log-edit-nop)
+    (define-key map (kbd "C-c C-a") 'magit-log-edit-toggle-amending)
+    (define-key map (kbd "C-c C-s") 'magit-log-edit-toggle-signoff)
+    (define-key map (kbd "C-c C-v") 'magit-log-edit-toggle-gpgsign)
+    (define-key map (kbd "C-c C-n") 'magit-log-edit-toggle-no-verify)
+    (define-key map (kbd "C-c C-t") 'magit-log-edit-toggle-author)
+    (define-key map (kbd "C-c C-e") 'magit-log-edit-toggle-allow-empty)
+    (define-key map (kbd "M-p")     'log-edit-previous-comment)
+    (define-key map (kbd "M-n")     'log-edit-next-comment)
+    map))
 
 (easy-menu-define magit-log-edit-mode-menu magit-log-edit-mode-map
   "Log Edit menu"
@@ -111,6 +109,27 @@ operation after commit).")
     "-"
     ["Cancel" magit-log-edit-cancel-log-message t]
     ["Commit" magit-log-edit-commit t]))
+
+;;; Mode
+
+(define-derived-mode magit-log-edit-mode text-mode "Magit Log Edit"
+  ;; Recognize changelog-style paragraphs
+  (setq-local paragraph-start (concat paragraph-start "\\|*\\|(")))
+
+;;;; Variables
+
+(defvar magit-log-edit-buffer-name "*magit-edit-log*"
+  "Buffer name for composing commit messages.")
+
+(defvar magit-log-edit-prev-window-configuration nil)
+
+(defvar magit-log-edit-status-buffer nil
+  "Track associated *magit* buffers.
+Do not customize this (used in the `magit-log-edit-mode' implementation
+to switch back to the *magit* buffer associated with a given commit
+operation after commit).")
+
+;;;; Menu
 
 ;;; Commands
 ;;;; Invocation
@@ -190,23 +209,6 @@ continue it.
     (insert str "\n")))
 
 ;;;; Mode Actions
-
-(defvar magit-log-edit-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-x #")   'magit-log-edit-commit)
-    (define-key map (kbd "C-c C-c") 'magit-log-edit-commit)
-    (define-key map (kbd "C-c C-k") 'magit-log-edit-cancel-log-message)
-    (define-key map (kbd "C-c C-]") 'magit-log-edit-cancel-log-message)
-    (define-key map (kbd "C-x C-s") 'magit-log-edit-nop)
-    (define-key map (kbd "C-c C-a") 'magit-log-edit-toggle-amending)
-    (define-key map (kbd "C-c C-s") 'magit-log-edit-toggle-signoff)
-    (define-key map (kbd "C-c C-v") 'magit-log-edit-toggle-gpgsign)
-    (define-key map (kbd "C-c C-n") 'magit-log-edit-toggle-no-verify)
-    (define-key map (kbd "C-c C-t") 'magit-log-edit-toggle-author)
-    (define-key map (kbd "C-c C-e") 'magit-log-edit-toggle-allow-empty)
-    (define-key map (kbd "M-p")     'log-edit-previous-comment)
-    (define-key map (kbd "M-n")     'log-edit-next-comment)
-    map))
 
 (defun magit-log-edit-commit ()
   "Finish edits and create new commit object.
