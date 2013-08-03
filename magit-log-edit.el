@@ -61,7 +61,7 @@ will cause all changes to be staged, after a confirmation."
 
 (defvar magit-log-edit-prev-window-configuration nil)
 
-(defvar magit-buffer-internal nil
+(defvar magit-log-edit-status-buffer nil
   "Track associated *magit* buffers.
 Do not customize this (used in the `magit-log-edit-mode' implementation
 to switch back to the *magit* buffer associated with a given commit
@@ -181,7 +181,7 @@ continue it.
     (when (file-exists-p (magit-git-dir "MERGE_MSG"))
       (insert-file-contents (magit-git-dir "MERGE_MSG")))
     (magit-log-edit-mode)
-    (setq-local magit-buffer-internal magit-buf)
+    (setq-local magit-log-edit-status-buffer magit-buf)
     (message "Type C-c C-c to %s (C-c C-k to cancel)." operation)))
 
 (defun magit-log-edit-append (str)
@@ -273,7 +273,7 @@ continue it.
     ;; potentially the local environment has been altered with settings that
     ;; were specific to this commit. Let's revert it
     (kill-local-variable 'process-environment)
-    (let ((magit-buf magit-buffer-internal))
+    (let ((magit-buf magit-log-edit-status-buffer))
       (bury-buffer)
       (set-buffer magit-buf))
     (when (file-exists-p (magit-git-dir "MERGE_MSG"))
