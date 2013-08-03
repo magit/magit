@@ -1500,7 +1500,7 @@ according to `magit-remote-ref-format'"
 
 (defun magit-read-file-from-rev (revision)
   (magit-completing-read (format "Retrieve file from %s: " revision)
-                         (magit-git-lines "ls-tree" "--name-only" "HEAD")
+                         (magit-git-lines "ls-tree" "--name-only" revision)
                          nil 'require-match
                          nil 'magit-read-file-hist
                          (when buffer-file-name
