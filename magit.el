@@ -5556,6 +5556,37 @@ With prefix argument, changes in staging area are kept.
   (magit-assert-one-parent commit "revert")
   (magit-run-git* (list "revert" "--no-commit" commit)))
 
+;;;; Logging
+
+(magit-define-command log (&optional range &rest extra-args)
+  (interactive)
+  (let ((args (append (list (magit-rev-range-to-git (or range "HEAD")))
+                      magit-custom-options
+                      extra-args)))
+    (magit-buffer-switch magit-log-buffer-name)
+    (magit-mode-init (magit-get-top-dir default-directory)
+                     #'magit-log-mode
+                     #'magit-refresh-log-buffer
+                     (or range "HEAD") 'oneline args)))
+
+(magit-define-command log-ranged (range)
+  (interactive (list (magit-read-rev-range "Log" "HEAD")))
+  (magit-log range))
+
+(magit-define-command log-long (&optional range)
+  (interactive)
+  (let ((args (cons (magit-rev-range-to-git (or range "HEAD"))
+                    magit-custom-options)))
+    (magit-buffer-switch magit-log-buffer-name)
+    (magit-mode-init (magit-get-top-dir default-directory)
+                     #'magit-log-mode
+                     #'magit-refresh-log-buffer
+                     (or range "HEAD") 'long args)))
+
+(magit-define-command log-long-ranged (range)
+  (interactive (list (magit-read-rev-range "Long Log" "HEAD")))
+  (magit-log-long range))
+
 ;;; Log Mode
 
 (defun magit-log-show-more-entries (&optional arg)
@@ -5608,44 +5639,6 @@ With a non numeric prefix ARG, show all entries"
 
 \\{magit-log-mode-map}"
   :group 'magit)
-
-;;; Logging (A)
-
-(magit-define-command log-ranged ()
-  (interactive)
-  (magit-log t))
-(define-obsolete-function-alias 'magit-display-log-ranged 'magit-log-ranged)
-
-(magit-define-command log (&optional ask-for-range &rest extra-args)
-  (interactive)
-  (let* ((log-range (if ask-for-range
-                        (magit-read-rev-range "Log" "HEAD")
-                      "HEAD"))
-         (topdir (magit-get-top-dir))
-         (args (nconc (list (magit-rev-range-to-git log-range))
-                      magit-custom-options
-                      extra-args)))
-    (magit-buffer-switch magit-log-buffer-name)
-    (magit-mode-init topdir 'magit-log-mode #'magit-refresh-log-buffer log-range
-                     'oneline args)))
-
-(define-obsolete-function-alias 'magit-display-log 'magit-log)
-
-(magit-define-command log-long-ranged ()
-  (interactive)
-  (magit-log-long t))
-
-(magit-define-command log-long (&optional ranged)
-  (interactive)
-  (let* ((range (if ranged
-                    (magit-read-rev-range "Long log" "HEAD")
-                  "HEAD"))
-         (topdir (magit-get-top-dir))
-         (args (nconc (list (magit-rev-range-to-git range))
-                      magit-custom-options)))
-    (magit-buffer-switch magit-log-buffer-name)
-    (magit-mode-init topdir 'magit-log-mode #'magit-refresh-log-buffer range
-                     'long args)))
 
 ;;; Reflog Mode
 
