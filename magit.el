@@ -5587,6 +5587,20 @@ With prefix argument, changes in staging area are kept.
   (interactive (list (magit-read-rev-range "Long Log" "HEAD")))
   (magit-log-long range))
 
+(magit-define-command reflog (rev)
+  (interactive (list (magit-read-rev "Reflog of"
+                                     (or (magit-guess-branch) "HEAD"))))
+  (let ((args (magit-rev-to-git rev)))
+    (magit-buffer-switch "*magit-reflog*")
+    (magit-mode-init (magit-get-top-dir default-directory)
+                     #'magit-reflog-mode
+                     #'magit-refresh-reflog-buffer
+                     rev args)))
+
+(magit-define-command reflog-head ()
+  (interactive)
+  (magit-reflog "HEAD"))
+
 ;;; Log Mode
 
 (defun magit-log-show-more-entries (&optional arg)
@@ -5664,22 +5678,6 @@ This is only non-nil in reflog buffers.")
 
 \\{magit-reflog-mode-map}"
   :group 'magit)
-
-(magit-define-command reflog (&optional ask-for-range)
-  (interactive)
-  (let ((at (or (and ask-for-range
-                     (magit-read-rev "Reflog of"
-                                     (or (magit-guess-branch) "HEAD")))
-                "HEAD")))
-    (let* ((topdir (magit-get-top-dir))
-           (args (magit-rev-to-git at)))
-      (magit-buffer-switch "*magit-reflog*")
-      (magit-mode-init topdir 'magit-reflog-mode
-                       #'magit-refresh-reflog-buffer at args))))
-
-(magit-define-command reflog-ranged ()
-  (interactive)
-  (magit-reflog t))
 
 ;;; Diffing (A)
 

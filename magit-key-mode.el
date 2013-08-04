@@ -38,11 +38,11 @@
      (actions
       ("l" "Short" magit-log)
       ("L" "Long" magit-log-long)
-      ("h" "Reflog" magit-reflog)
+      ("h" "Head Reflog" magit-reflog-head)
       ("f" "File log" magit-single-file-log)
       ("rl" "Ranged short" magit-log-ranged)
       ("rL" "Ranged long" magit-log-long-ranged)
-      ("rh" "Ranged reflog" magit-reflog-ranged))
+      ("rh" "Reflog" magit-reflog))
      (switches
       ("-m" "Only merge commits" "--merges")
       ("-do" "Date Order" "--date-order")
