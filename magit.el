@@ -339,7 +339,7 @@ If t, use ptys: this enables magit to prompt for passphrases when needed."
   :type 'regexp)
 
 (defcustom magit-process-password-prompt-regexps
-  '("^\\(Enter \\)?[Pp]assphrase\\( for key '.*'\\)?: ?$"
+  '("^\\(Enter \\)?[Pp]assphrase\\( for \\(RSA \\)?key '.*'\\)?: ?$"
     "^\\(Enter \\)?[Pp]assword\\( for '.*'\\)?: ?$"
     "^.*'s password: ?$"
     "^Yubikey for .*: ?$")
