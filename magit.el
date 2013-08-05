@@ -5562,9 +5562,10 @@ With prefix argument, changes in staging area are kept.
   (interactive)
   (let ((args (append (list (magit-rev-range-to-git (or range "HEAD")))
                       magit-custom-options
-                      extra-args)))
+                      extra-args))
+        (topdir (magit-get-top-dir default-directory)))
     (magit-buffer-switch magit-log-buffer-name)
-    (magit-mode-init (magit-get-top-dir default-directory)
+    (magit-mode-init topdir
                      #'magit-log-mode
                      #'magit-refresh-log-buffer
                      (or range "HEAD") 'oneline args)))
@@ -5576,9 +5577,10 @@ With prefix argument, changes in staging area are kept.
 (magit-define-command log-long (&optional range)
   (interactive)
   (let ((args (cons (magit-rev-range-to-git (or range "HEAD"))
-                    magit-custom-options)))
+                    magit-custom-options))
+        (topdir (magit-get-top-dir default-directory)))
     (magit-buffer-switch magit-log-buffer-name)
-    (magit-mode-init (magit-get-top-dir default-directory)
+    (magit-mode-init topdir
                      #'magit-log-mode
                      #'magit-refresh-log-buffer
                      (or range "HEAD") 'long args)))
@@ -5590,9 +5592,10 @@ With prefix argument, changes in staging area are kept.
 (magit-define-command reflog (rev)
   (interactive (list (magit-read-rev "Reflog of"
                                      (or (magit-guess-branch) "HEAD"))))
-  (let ((args (magit-rev-to-git rev)))
+  (let ((args (magit-rev-to-git rev))
+        (topdir (magit-get-top-dir default-directory)))
     (magit-buffer-switch "*magit-reflog*")
-    (magit-mode-init (magit-get-top-dir default-directory)
+    (magit-mode-init topdir
                      #'magit-reflog-mode
                      #'magit-refresh-reflog-buffer
                      rev args)))
