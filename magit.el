@@ -340,7 +340,8 @@ If t, use ptys: this enables magit to prompt for passphrases when needed."
    "[/|]"                  ;;   Slash or pipe.
    "\\([Nn]o?\\)"          ;;   Upper/lower-case "n", maybe followed by an "o".
    "[\])]"                 ;;   Closing square bracket or paren.
-   "\\? ?"                 ;;   Question mark, maybe followed by a trailing space.
+   " ?"                    ;;   Maybe a space.
+   "[?:] ?"                ;;   Question mark or colon, maybe followed by a trailing space.
    "$"                     ;;   @ EOL...
    )
   "Regexp matching Yes-or-No prompts of git and its subprocesses."
