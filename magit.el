@@ -332,13 +332,13 @@ If t, use ptys: this enables magit to prompt for passphrases when needed."
   :type '(choice (const :tag "pipe" nil)
                  (const :tag "pty" t)))
 
-(defcustom magit-process-yes-or-no-prompt
+(defcustom magit-process-yes-or-no-prompt-regexp
   " [\[(]\\([Yy]\\(?:es\\)?\\)[/|]\\([Nn]o?\\)[\])]\\? ?$"
   "Regexp matching Yes-or-No prompts of git and its subprocesses."
   :group 'magit
   :type 'regexp)
 
-(defcustom magit-process-password-prompts
+(defcustom magit-process-password-prompt-regexps
   '("^\\(Enter \\)?[Pp]assphrase\\( for key '.*'\\)?: ?$"
     "^\\(Enter \\)?[Pp]assword\\( for '.*'\\)?: ?$"
     "^.*'s password: ?$"
@@ -347,7 +347,7 @@ If t, use ptys: this enables magit to prompt for passphrases when needed."
   :group 'magit
   :type '(repeat (regexp)))
 
-(defcustom magit-process-username-prompts
+(defcustom magit-process-username-prompt-regexps
   '("^Username for '.*': ?$")
   "List of regexps matching username prompts of git and its subprocesses."
   :group 'magit
@@ -2524,7 +2524,7 @@ magit-topgit and magit-svn"
       (set-marker (process-mark proc) (point)))))
 
 (defun magit-process-yes-or-no-prompt (proc string)
-  (let ((beg (string-match magit-process-yes-or-no-prompt string)))
+  (let ((beg (string-match magit-process-yes-or-no-prompt-regexp string)))
     (when beg
       (process-send-string
        proc
@@ -2541,14 +2541,14 @@ magit-topgit and magit-svn"
 (defun magit-process-password-prompt (proc string)
   "Forward password prompts to the user."
   (let ((prompt (magit-process-match-prompt
-                 magit-process-password-prompts string)))
+                 magit-process-password-prompt-regexps string)))
     (when prompt
       (process-send-string proc (concat (read-passwd prompt) "\n")))))
 
 (defun magit-process-username-prompt (proc string)
   "Forward username prompts to the user."
   (let ((prompt (magit-process-match-prompt
-                 magit-process-username-prompts string)))
+                 magit-process-username-prompt-regexps string)))
     (when prompt
       (process-send-string proc
                            (concat (read-string prompt nil nil
