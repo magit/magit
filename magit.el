@@ -333,7 +333,16 @@ If t, use ptys: this enables magit to prompt for passphrases when needed."
                  (const :tag "pty" t)))
 
 (defcustom magit-process-yes-or-no-prompt-regexp
-  " [\[(]\\([Yy]\\(?:es\\)?\\)[/|]\\([Nn]o?\\)[\])]\\? ?$"
+  (concat                  ;; Match:
+   " "                     ;;   Leading space.
+   "[\[(]"                 ;;   Opening square bracket or paren.
+   "\\([Yy]\\(?:es\\)?\\)" ;;   Upper/lower-case "y", maybe followed by a shy "es"
+   "[/|]"                  ;;   Slash or pipe.
+   "\\([Nn]o?\\)"          ;;   Upper/lower-case "n", maybe followed by an "o".
+   "[\])]"                 ;;   Closing square bracket or paren.
+   "\\? ?"                 ;;   Question mark, maybe followed by a trailing space.
+   "$"                     ;;   @ EOL...
+   )
   "Regexp matching Yes-or-No prompts of git and its subprocesses."
   :group 'magit
   :type 'regexp)
