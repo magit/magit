@@ -2385,6 +2385,11 @@ magit-topgit and magit-svn"
         (dir default-directory)
         (buf (get-buffer-create magit-process-buffer-name))
         (successp nil))
+    (when (eq system-type 'windows-nt)
+      ;; Quote curly braces or Windows eats them.
+      (setq args (mapcar (apply-partially 'replace-regexp-in-string
+                                          "{\\([0-9]+\\)}" "\\\\{\\1\\\\}")
+                         args)))
     (magit-set-mode-line-process
      (magit-process-indicator-from-command cmd-and-args))
     (setq magit-process-client-buffer (current-buffer))
