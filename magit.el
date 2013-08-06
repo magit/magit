@@ -137,6 +137,8 @@ deep."
   :group 'magit
   :type 'integer)
 
+(custom-add-to-group 'magit 'vc-follow-symlinks 'custom-variable)
+
 (defcustom magit-set-upstream-on-push nil
   "Whether `magit-push' may use --set-upstream when pushing a branch.
 This only applies if the branch does not have an upstream set yet.
