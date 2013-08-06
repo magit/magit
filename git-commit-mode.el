@@ -577,7 +577,7 @@ basic structure of and errors in git commit messages."
 ;; Overwrite magit-log-edit-mode to derive from git-commit-mode, and change it's
 ;; key bindings to use our commit and header insertion bindings
 (eval-after-load 'magit
-  #'(progn
+  '(progn
       (define-derived-mode magit-log-edit-mode git-commit-mode "Magit Log Edit"
         (set (make-local-variable 'git-commit-commit-function)
              (apply-partially #'call-interactively 'magit-log-edit-commit)))
