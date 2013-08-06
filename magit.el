@@ -5540,11 +5540,10 @@ With prefix argument, changes in staging area are kept.
 
 ;;;; Logging
 
-(magit-define-command log (&optional range &rest extra-args)
+(magit-define-command log (&optional range)
   (interactive)
-  (let ((args (append (list (magit-rev-range-to-git (or range "HEAD")))
-                      magit-custom-options
-                      extra-args))
+  (let ((args (cons (magit-rev-range-to-git (or range "HEAD"))
+                    magit-custom-options))
         (topdir (magit-get-top-dir default-directory)))
     (magit-buffer-switch magit-log-buffer-name)
     (magit-mode-init topdir
