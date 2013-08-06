@@ -87,7 +87,7 @@
 
 The following `format'-like specs are supported:
 %f the full name of the file being saved
-#g the root of the git repository
+%g the root of the git repository
 %r the name of the file being saved,
    relative to the repository root."
   :group 'magit
@@ -98,7 +98,7 @@ The following `format'-like specs are supported:
 
 The following `format'-like specs are supported:
 %f the full name of the file being saved
-#g the root of the git repository
+%g the root of the git repository
 %r the name of the file being saved,
    relative to the repository root."
   :group 'magit
