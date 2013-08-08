@@ -4567,12 +4567,6 @@ non-nil, then autocompletion will offer directory names."
 ;;; Acting (1)
 ;;;; Merging
 
-(magit-define-command automatic-merge (revision)
-  "Merge REVISION into the current 'HEAD'; commit unless merge fails.
-\('git merge REVISION')."
-  (interactive (list (magit-read-rev "Merge" (magit-guess-branch))))
-  (magit-run-git "merge" (magit-rev-to-git revision)))
-
 (magit-define-command manual-merge (revision)
   "Merge REVISION into the current 'HEAD'; leave changes uncommitted.
 \('git merge --no-commit REVISION')."
