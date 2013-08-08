@@ -4586,9 +4586,8 @@ non-nil, then autocompletion will offer directory names."
       (magit-log-edit))))
 
 (defun magit-merge (revision)
-  "Merge REVISION into the current 'HEAD'; leave changes uncommitted.
-With a prefix-arg, the merge will be squashed.
-\('git merge --no-commit [--squash|--no-ff] REVISION')."
+  "Merge REVISION into the current 'HEAD'; commit unless merge fails.
+\('git merge REVISION')."
   (interactive (list (magit-read-rev-with-default "Merge")))
   (apply 'magit-run-git
          "merge"
