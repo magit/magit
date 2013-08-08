@@ -52,7 +52,6 @@
       ("-g" "Show Graph" "--graph")
       ("-n" "Name only" "--name-only")
       ("-am" "All match" "--all-match")
-      ("-ab" "All branches" "--branches")
       ("-al" "All" "--all"))
      (arguments
       ("=r" "Relative" "--relative=" read-directory-name)
@@ -147,7 +146,8 @@
     (merging
      (man-page "git-merge")
      (actions
-      ("m" "Merge" magit-manual-merge))
+      ("m" "Merge" magit-manual-merge)
+      ("A" "Abort" magit-merge-abort))
      (switches
       ("-ff" "Fast-forward only" "--ff-only")
       ("-nf" "No fast-forward" "--no-ff")
