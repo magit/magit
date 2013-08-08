@@ -959,7 +959,7 @@ face inherit from `default' and remove all other attributes."
     ["Snapshot" magit-stash-snapshot t]
     "---"
     ["Branch..." magit-checkout t]
-    ["Merge" magit-manual-merge t]
+    ["Merge" magit-merge t]
     ["Interactive resolve" magit-interactive-resolve-item t]
     ["Rebase" magit-rebase-step t]
     ("Rewrite"
@@ -4549,33 +4549,32 @@ non-nil, then autocompletion will offer directory names."
 ;;; Acting (1)
 ;;;; Merging
 
-(magit-define-command automatic-merge (revision)
-  "Merge REVISION into the current 'HEAD'; commit unless merge fails.
-\('git merge REVISION')."
-  (interactive (list (magit-read-rev "Merge" (magit-guess-branch))))
-  (magit-run-git "merge" (magit-rev-to-git revision)))
+(defcustom magit-merge-warn-dirty-worktree t
+  "Whether to issue a warning when attempting to start a merge in a dirty worktree."
+  :group 'magit
+  :type 'boolean
+  :package-version '(magit . "1.3.0"))
 
-(magit-define-command manual-merge (revision)
+(defun magit-merge-check-clean ()
+  (or (magit-everything-clean-p)
+      (not magit-merge-warn-dirty-worktree)
+      (yes-or-no-p "Running merge in a dirty worktree could cause data loss.  Continue?")))
+
+(defun magit-merge (revision &optional do-commit)
   "Merge REVISION into the current 'HEAD'; leave changes uncommitted.
 \('git merge --no-commit REVISION')."
-  (interactive (list (magit-read-rev "Merge" (magit-guess-branch))))
+  (interactive (list (when (magit-merge-check-clean)
+                       (magit-read-rev "Merge" (magit-guess-branch)))
+                     current-prefix-arg))
   (when revision
     (apply 'magit-run-git
-           "merge" "--no-commit"
+           "merge"
            (magit-rev-to-git revision)
-           magit-custom-options)
+           (if do-commit
+               magit-custom-options
+             (cons "--no-commit" magit-custom-options)))
     (when (file-exists-p ".git/MERGE_MSG")
       (magit-log-edit))))
-
-(defun magit-merge (revision)
-  "Merge REVISION into the current 'HEAD'; leave changes uncommitted.
-With a prefix-arg, the merge will be squashed.
-\('git merge --no-commit [--squash|--no-ff] REVISION')."
-  (interactive (list (magit-read-rev-with-default "Merge")))
-  (apply 'magit-run-git
-         "merge"
-         (magit-rev-to-git revision)
-         magit-custom-options))
 
 (defun magit-merge-abort ()
   "Abort the current merge operation."

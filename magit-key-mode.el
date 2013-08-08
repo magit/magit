@@ -146,7 +146,7 @@
     (merging
      (man-page "git-merge")
      (actions
-      ("m" "Merge" magit-manual-merge)
+      ("m" "Merge" magit-merge)
       ("A" "Abort" magit-merge-abort))
      (switches
       ("-ff" "Fast-forward only" "--ff-only")
