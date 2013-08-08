@@ -67,7 +67,6 @@ Use the function by the same name instead of this variable.")
 (require 'epa)
 (require 'grep)
 (require 'ring)
-(require 'thingatpt)
 
 (eval-when-compile
   (require 'dired)
@@ -822,7 +821,7 @@ face inherit from `default' and remove all other attributes."
     (define-key map (kbd "SPC") 'magit-show-item-or-scroll-up)
     (define-key map (kbd "DEL") 'magit-show-item-or-scroll-down)
     (define-key map (kbd "C-w") 'magit-copy-item-as-kill)
-    (define-key map (kbd "R") 'magit-progress-step)
+    (define-key map (kbd "R") 'magit-rebase-step)
     (cond (magit-rigid-key-bindings
            (define-key map (kbd "m") 'magit-merge)
            (define-key map (kbd "b") 'magit-checkout)
@@ -1303,13 +1302,6 @@ non-nil).  In addition, it will filter out revs involving HEAD."
   (and (not (magit-anything-staged-p))
        (eq (magit-git-exit-code "diff" "--quiet") 0)))
 
-(defun magit-rebase-in-progress-p ()
-  (or (file-exists-p (magit-git-dir "rebase-apply"))
-      (file-exists-p (magit-git-dir "rebase-merge"))))
-
-(defun magit-merge-in-progress-p ()
-  (file-exists-p (magit-git-dir "MERGE_HEAD")))
-
 (defun magit-commit-parents (commit)
   (cdr (split-string (magit-git-string "rev-list" "-1" "--parents" commit))))
 
@@ -1319,7 +1311,7 @@ non-nil).  In addition, it will filter out revs involving HEAD."
 
 (defun magit-format-commit (commit format)
   (magit-git-string "log" "--max-count=1"
-                    (format "--abbrev=%s" magit-sha1-abbrev-length)
+                    (format "--abbrev=%d" magit-sha1-abbrev-length)
                     (concat "--pretty=format:" format)
                     commit))
 
@@ -1381,15 +1373,15 @@ pair (START . END), then the range is START..END.")
 Removes references matching UNINTERESTING from the results.
 UNINTERESTING can be either a function taking a single
 argument or a list of strings used as regexps."
-  (cl-loop for ref in (magit-git-lines "show-ref")
-           for ref =  (cadr (split-string ref " "))
+  (cl-loop for ref-line in (magit-git-lines "show-ref")
+           for ref-name =  (cadr (split-string ref-line " "))
            unless  (if (functionp uninteresting)
-                       (funcall uninteresting ref)
+                       (funcall uninteresting ref-name)
                      (cl-loop for i in uninteresting
-                              thereis (string-match i ref)))
-           collect (cons (magit-format-ref ref)
+                              thereis (string-match i ref-name)))
+           collect (cons (magit-format-ref ref-name)
                          (replace-regexp-in-string
-                          "^refs/heads/" "" ref))))
+                          "^refs/heads/" "" ref-name))))
 
 (defun magit-format-ref (ref)
   "Convert fully-specified ref REF into its displayable form
@@ -3558,13 +3550,13 @@ member of ARGS, or to the working file otherwise."
 (defvar magit-git-log-options
   (list
    "--pretty=format:* %h %s"
-   (format "--abbrev=%s" magit-sha1-abbrev-length)))
+   (format "--abbrev=%d" magit-sha1-abbrev-length)))
 ;; --decorate=full otherwise some ref prefixes are stripped
 ;;  '("--pretty=format:* %H%d %s" "--decorate=full"))
 
 (defvar magit-git-reflog-options
   (list "--pretty=format:* \C-?%h\C-?%gs"
-        (format "--abbrev=%s" magit-sha1-abbrev-length)))
+        (format "--abbrev=%d" magit-sha1-abbrev-length)))
 
 (defconst magit-unpushed-or-unpulled-commit-re
   (concat "^\\* "
@@ -4371,7 +4363,7 @@ if FULLY-QUALIFIED-NAME is non-nil."
            "Merging"
            (concat
             (mapconcat 'identity (mapcar 'magit-name-rev merge-heads) ", ")
-            "; Press \"R\" to abort")))
+            "; Resolve conflicts, or press \"m A\" to Abort")))
         (when rebase
           (magit-insert-status-line
            "Rebasing"
@@ -4495,12 +4487,6 @@ when asking for user input."
         (setq magit-previous-window-configuration winconf)
         (magit-mode-init topdir 'magit-status-mode #'magit-refresh-status)))))
 
-(defun magit-progress-step ()
-  (interactive)
-  (if (magit-merge-in-progress-p)
-      (magit-merge-abort)
-    (magit-rebase-step)))
-
 ;;;; Read Repository
 
 (defun magit-read-top-dir (dir)
@@ -4522,25 +4508,21 @@ non-nil, then autocompletion will offer directory names."
 
 (defun magit-list-repos (dirs)
   (magit-remove-conflicts
-   (apply #'append
-          (mapcar (lambda (dir)
-                    (mapcar #'(lambda (repo)
-                                (cons (file-name-nondirectory repo)
-                                      repo))
-                            (magit-list-repos* dir 0)))
-                  dirs))))
+   (cl-loop for dir in dirs
+            append (cl-loop for repo in
+                            (magit-list-repos* dir magit-repo-dirs-depth)
+                    collect (cons (file-name-nondirectory repo) repo)))))
 
-(defun magit-list-repos* (dir level)
+(defun magit-list-repos* (dir depth)
+  "Return a list of repos found in DIR, recursing up to DEPTH levels deep."
   (if (magit-git-repo-p dir)
-      (list dir)
-    (apply #'append
-           (mapcar (lambda (entry)
-                     (unless (or (string= (substring entry -3) "/..")
-                                 (string= (substring entry -2) "/."))
-                       (magit-list-repos* entry (+ level 1))))
-                   (and (file-directory-p dir)
-                        (< level magit-repo-dirs-depth)
-                        (directory-files dir t nil t))))))
+      (list (expand-file-name dir))
+    (and (> depth 0)
+         (file-directory-p dir)
+         (not (member (file-name-nondirectory dir)
+                      '(".." ".")))
+         (cl-loop for entry in (directory-files dir t nil t)
+                  append (magit-list-repos* entry (1- depth))))))
 
 (defun magit-remove-conflicts (alist)
   (let ((dict (make-hash-table :test 'equal))
@@ -4598,7 +4580,7 @@ With a prefix-arg, the merge will be squashed.
 (defun magit-merge-abort ()
   "Abort the current merge operation."
   (interactive)
-  (if (magit-merge-in-progress-p)
+  (if (file-exists-p (magit-git-dir "MERGE_HEAD"))
       (when (yes-or-no-p "Abort merge?")
         (magit-run-git-async "merge" "--abort"))
     (error "No merge in progress")))
@@ -5558,11 +5540,10 @@ With prefix argument, changes in staging area are kept.
 
 ;;;; Logging
 
-(magit-define-command log (&optional range &rest extra-args)
+(magit-define-command log (&optional range)
   (interactive)
-  (let ((args (append (list (magit-rev-range-to-git (or range "HEAD")))
-                      magit-custom-options
-                      extra-args))
+  (let ((args (cons (magit-rev-range-to-git (or range "HEAD"))
+                    magit-custom-options))
         (topdir (magit-get-top-dir default-directory)))
     (magit-buffer-switch magit-log-buffer-name)
     (magit-mode-init topdir
@@ -5633,9 +5614,9 @@ With a non numeric prefix ARG, show all entries"
              (magit-rev-range-describe range "Commits"))
            (apply-partially 'magit-wash-color-log style)
            `("log"
-             ,(format "--max-count=%s" magit-log-cutoff-length)
+             ,(format "--max-count=%d" magit-log-cutoff-length)
              "--abbrev-commit"
-             ,(format "--abbrev=%s" magit-sha1-abbrev-length)
+             ,(format "--abbrev=%d" magit-sha1-abbrev-length)
              ,@(cl-case style
                  (long
                   (append (list "--stat")
@@ -5673,7 +5654,7 @@ This is only non-nil in reflog buffers.")
            (append magit-git-reflog-options
                    (list
                     "--walk-reflogs"
-                    (format "--max-count=%s" magit-log-cutoff-length)
+                    (format "--max-count=%d" magit-log-cutoff-length)
                     args)))))
 
 (define-derived-mode magit-reflog-mode magit-log-mode "Magit Reflog"
@@ -5860,9 +5841,9 @@ restore the window state that was saved before ediff was called."
                                      ""))
                            'magit-wash-log
                            "log"
-                           (format "--max-count=%s" magit-log-cutoff-length)
+                           (format "--max-count=%d" magit-log-cutoff-length)
                            "--abbrev-commit"
-                           (format "--abbrev=%s" magit-sha1-abbrev-length)
+                           (format "--abbrev=%d" magit-sha1-abbrev-length)
                            "--graph"
                            "--pretty=oneline"
                            (format "%s..%s" head ref)
@@ -5911,9 +5892,9 @@ or something else."
            (magit-rev-range-describe range (format "Commits for file %s" file))
            (apply-partially 'magit-wash-log style)
            `("log"
-             ,(format "--max-count=%s" magit-log-cutoff-length)
+             ,(format "--max-count=%d" magit-log-cutoff-length)
              ,"--abbrev-commit"
-             ,(format "--abbrev=%s" magit-sha1-abbrev-length)
+             ,(format "--abbrev=%d" magit-sha1-abbrev-length)
              ,@(cond ((eq style 'long) (list "--stat" "-z"))
                      ((eq style 'oneline) (list "--pretty=oneline"))
                      (t nil))
@@ -6383,13 +6364,9 @@ With a prefix arg, do a submodule update --init."
 (defun magit--branches-for-remote-repo (remote)
   "Return a list of remote branch names for REMOTE.
 These are the branch names with the remote name stripped."
-  (cl-mapcan
-   (lambda (line)
-     (save-match-data
-       (when (and (not (string-match-p " -> " line))
-                  (string-match (concat "^ +" remote "/\\([^ $]+\\)") line))
-         (list (match-string 1 line)))))
-   (magit-git-lines "branch" "-r")))
+  (cl-loop for branch in (magit-git-lines "branch" "-r" "--list"
+                                          (format "%s/*" remote))
+           collect (substring branch (+ 3 (length remote)))))
 
 (defvar magit-branches-buffer-name "*magit-branches*")
 
@@ -6583,7 +6560,7 @@ These are the branch names with the remote name stripped."
            "branches" nil 'magit-wash-branches
            "branch"
            "-vva"
-           (format "--abbrev=%s" magit-sha1-abbrev-length)
+           (format "--abbrev=%d" magit-sha1-abbrev-length)
            magit-custom-options)))
 
 (magit-define-command branch-manager ()

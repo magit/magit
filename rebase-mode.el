@@ -28,6 +28,7 @@
 (require 'rx)
 (require 'server)
 (declare-function server-edit "server") 
+(require 'thingatpt)
 
 (defgroup rebase-mode nil
   "Customize Rebase Mode"
