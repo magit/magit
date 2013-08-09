@@ -78,6 +78,40 @@
                                                'magit-wash-diffs
                                                "flow" "feature" "diff")))))))
 
+(defun magit-flow-hotfix-create ()
+  (interactive)
+  (let ((name (read-string "Create hotfix branch: ")))
+    (magit-run-git-flow "hotfix" "start" name)))
+
+(defun magit-flow-hotfix-list ()
+  "List the hotfix branches managed by flow."
+  (let ((current-hotfix nil)
+        (all-hotfixes nil))
+    (dolist (name (magit-run-git-lines-flow "hotfix" "list"))
+      ;; is this the branch we're on
+      (when (string-match "^\\* \\(.+\\)$" name 0)
+        (setq current-hotfix (match-string 1 name)))
+      ;; clean and append this line
+      (let ((clean-name (replace-regexp-in-string "^\\*? +\\(.+\\)" "\\1" name)))
+        (setq all-hotfixes (nconc all-hotfixes (list clean-name)))))
+    (cons current-hotfix all-hotfixes)))
+
+(defun magit-flow-hotfix-finish ()
+  (interactive)
+  (let* ((all (magit-flow-hotfix-list))
+         (current (car all))
+         (names (cdr all))
+         (name (magit-completing-read "Hotfix to finish: " names nil t current))
+         (tag (magit-read-tag)))
+    (magit-run-git-flow "hotfix" "finish" "-m" tag name)
+    (magit-display-process)))
+
+(defun magit-read-tag () 
+    (let* ((tag (read-string "Tag label (no spaces or punctuation): ")))
+      (if (string-match "" tag)
+          tag
+        (magit-read-tag))))
+
 (defvar magit-flow-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "o") 'magit-key-mode-popup-flow)
@@ -115,6 +149,18 @@
    "f"
    "Finish feature"
    'magit-flow-feature-finish)
+
+  (magit-key-mode-insert-action
+   'flow
+   "h"
+   "Create hotfix"
+   'magit-flow-hotfix-create)
+
+  (magit-key-mode-insert-action
+   'flow
+   "H"
+   "Finish hotfix"
+   'magit-flow-hotfix-finish)
 
   ;; generate and bind the menu popup function
   (magit-key-mode-generate 'flow))
