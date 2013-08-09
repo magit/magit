@@ -209,6 +209,26 @@
 If you modify this make sure you reset `magit-key-mode-keymaps'
 to nil.")
 
+(defface magit-key-mode-header-face
+  '((t :inherit font-lock-keyword-face))
+  "Face for key mode header lines."
+  :group 'magit-faces)
+
+(defface magit-key-mode-button-face
+  '((t :inherit font-lock-builtin-face))
+  "Face for key mode buttons."
+  :group 'magit-faces)
+
+(defface magit-key-mode-switch-face
+  '((t :inherit font-lock-warning-face))
+  "Face for key mode switches."
+  :group 'magit-faces)
+
+(defface magit-key-mode-args-face
+  '((t :inherit widget-field))
+  "Face for key mode switch arguments."
+  :group 'magit-faces)
+
 (defun magit-key-mode-delete-group (group)
   "Delete a group from `magit-key-mode-keymaps'."
   (let ((items (assoc group magit-key-mode-groups)))
