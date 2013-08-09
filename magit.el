@@ -1054,20 +1054,20 @@ Read `completing-read' documentation for the meaning of the argument."
       (nreverse lines))))
 
 (defun magit-file-line (file)
-  (when (file-exists-p file)
+  "Return the first line of FILE as a string."
+  (when (file-regular-p file)
     (with-temp-buffer
       (insert-file-contents file)
       (buffer-substring-no-properties (point-min)
                                       (line-end-position)))))
 
-(defun magit-file-lines (file)
-  (when (file-exists-p file)
+(defun magit-file-lines (file &optional keep-empty-lines)
+  "Return a list of strings containing one element per line in FILE.
+Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
+  (when (file-regular-p file)
     (with-temp-buffer
       (insert-file-contents file)
-      (let ((rev (nreverse (split-string (buffer-string) "\n"))))
-        (nreverse (if (equal (car rev) "")
-                      (cdr rev)
-                    rev))))))
+      (split-string (buffer-string) "\n" (not keep-empty-lines)))))
 
 (defun magit-put-line-property (prop val)
   (put-text-property (line-beginning-position) (line-beginning-position 2)
