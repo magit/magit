@@ -102,15 +102,9 @@
          (current (car all))
          (names (cdr all))
          (name (magit-completing-read "Hotfix to finish: " names nil t current))
-         (tag (magit-read-tag)))
+         (tag (magit-read-tag "Tag name: ")))
     (magit-run-git-flow "hotfix" "finish" "-m" tag name)
     (magit-display-process)))
-
-(defun magit-read-tag () 
-    (let* ((tag (read-string "Tag label (no spaces or punctuation): ")))
-      (if (string-match "" tag)
-          tag
-        (magit-read-tag))))
 
 (defvar magit-flow-mode-map
   (let ((map (make-sparse-keymap)))
