@@ -1257,14 +1257,21 @@ Otherwise, return nil."
 (defun magit-rev-diff-count (a b)
   "Return the commits in A but not B and vice versa.
 Return a list of two integers: (A>B B>A)."
-  ;; Kludge.  git < 1.7.2 does not support git rev-list --count
-  (let ((ac 0) (bc 0))
-    (dolist (commit (magit-git-lines "rev-list" "--left-right"
-                                     (concat a "..." b)))
-      (cl-case (aref commit 0)
-        (?\< (cl-incf ac))
-        (?\> (cl-incf bc))))
-    (list ac bc)))
+  (magit-configure-have-revlist-count)
+  (if magit-have-revlist-count
+      (mapcar 'string-to-number
+              (split-string (magit-git-string "rev-list"
+                                              "--count" "--left-right"
+                                              (concat a "..." b))
+                            "\t"))
+    ;; Kludge.  git < 1.7.2 does not support git rev-list --count
+    (let ((ac 0) (bc 0))
+      (dolist (commit (magit-git-lines "rev-list" "--left-right"
+                                       (concat a "..." b)))
+        (cl-case (aref commit 0)
+                 (?\< (cl-incf ac))
+                 (?\> (cl-incf bc))))
+      (list ac bc))))
 
 (defun magit-name-rev (rev &optional no-trim)
   "Return a human-readable name for REV.
@@ -5797,10 +5804,8 @@ restore the window state that was saved before ediff was called."
                (setq ignored (delete branch ignored))))
             (t
              (setq ignored (append ignored (list branch)))))
-      (with-temp-buffer
-        (dolist (l ignored)
-          (insert l "\n"))
-        (write-file ignore-file))
+      (with-temp-file ignore-file
+        (insert (mapconcat 'identity ignored "\n")))
       (magit-need-refresh))))
 
 (defun magit-refresh-wazzup-buffer (head all)

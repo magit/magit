@@ -152,8 +152,7 @@ Return values:
 ;;; Old Git
 ;;;; Common
 
-(defvar magit-have-config-param 'unset)
-(make-variable-buffer-local 'magit-have-config-param)
+(defvar-local magit-have-config-param 'unset)
 (put 'magit-have-config-param 'permanent-local t)
 
 (defun magit-configure-have-config-param ()
@@ -163,20 +162,17 @@ Return values:
 
 ;;;; Config
 
-(defvar magit-have-graph 'unset)
-(defvar magit-have-decorate 'unset)
-(defvar magit-have-abbrev 'unset)
-(defvar magit-have-grep-reflog 'unset)
-
-(make-variable-buffer-local 'magit-have-graph)
-(make-variable-buffer-local 'magit-have-decorate)
-(make-variable-buffer-local 'magit-have-abbrev)
-(make-variable-buffer-local 'magit-have-grep-reflog)
+(defvar-local magit-have-graph 'unset)
+(defvar-local magit-have-decorate 'unset)
+(defvar-local magit-have-abbrev 'unset)
+(defvar-local magit-have-grep-reflog 'unset)
+(defvar-local magit-have-revlist-count 'unset)
 
 (put 'magit-have-graph 'permanent-local t)
 (put 'magit-have-decorate 'permanent-local t)
 (put 'magit-have-abbrev 'permanent-local t)
 (put 'magit-have-grep-reflog 'permanent-local t)
+(put 'magit-have-revlist-count 'permanent-local t)
 
 (defun magit-configure-have-graph ()
   (when (eq magit-have-graph 'unset)
@@ -198,6 +194,12 @@ Return values:
     (setq magit-have-grep-reflog
           (= 0 (magit-git-exit-code
                 "log" "--walk-reflogs" "--grep-reflog" "." "-n" "0")))))
+
+(defun magit-configure-have-revlist-count ()
+  (when (eq magit-have-revlist-count 'unset)
+    (setq magit-have-revlist-count
+          (= 0 (magit-git-exit-code
+                "rev-list" "--count" "--left-right" "HEAD")))))
 
 (provide 'magit-compat)
 ;;; magit-compat.el ends here
