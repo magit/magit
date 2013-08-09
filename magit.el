@@ -1414,7 +1414,7 @@ according to `magit-remote-ref-format'"
 
 (defun magit-read-file-from-rev (revision)
   (magit-completing-read (format "Retrieve file from %s: " revision)
-                         (magit-git-lines "ls-tree" "--name-only" revision)
+                         (magit-git-lines "ls-tree" "-r" "--name-only" revision)
                          nil 'require-match
                          nil 'magit-read-file-hist
                          (when buffer-file-name
@@ -1884,8 +1884,8 @@ Use the specified START and END positions."
                  (when (eq (magit-section-type sec) 'diffstats)
                    (throw 'section-found
                           (magit-section-beginning sec)))))))
-    (when pos
-      (goto-char pos)
+    (if pos
+        (goto-char pos)
       (when (called-interactively-p 'interactive)
         (message "No diffstats section found")))))
 
@@ -3242,7 +3242,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
               (cdr (cl-find-if (lambda (pair)
                                  (string-match-p (car pair) default-directory))
                                (default-value magit-highlight-indentation)
-                               :from-end))))))
+                               :from-end t))))))
       (when (and magit-highlight-trailing-whitespace
                  (looking-at "^[-+].*?\\([ \t]+\\)$"))
         (overlay-put (make-overlay (match-beginning 1) (match-end 1))
@@ -4766,7 +4766,9 @@ Works with local or remote branches.
   (interactive (list (magit-read-rev-with-default "Branch to delete" 'notrim)
                      current-prefix-arg))
   (let* ((remote (magit-remote-part-of-branch branch))
-         (is-current (string= branch (magit-get-current-branch)))
+         (current (magit-get-current-branch))
+         (is-current (string= branch current))
+         (is-master (string= branch "master"))
          (args (list "branch"
                      (if force "-D" "-d")
                      branch)))
@@ -4775,6 +4777,8 @@ Works with local or remote branches.
       (magit-run-git-async "push" remote
                            (concat ":refs/heads/"
                                    (magit-branch-no-remote branch))))
+     ((and is-current is-master)
+      (message "Cannot delete master branch while it's checked out."))
      (is-current
       (if (y-or-n-p "Cannot delete current branch. Switch to master first? ")
           (progn
