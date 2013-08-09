@@ -4868,35 +4868,33 @@ If no branch is found near the cursor return nil."
 (defun magit-rebase-info ()
   "Return a list indicating the state of an in-progress rebase.
 
-The returned list has the form (ONTO DONE TOTAL).
+The returned list has the form (ONTO DONE TOTAL STOPPED).
 ONTO is the commit being rebased onto.
 DONE and TOTAL are integers with obvious meanings.
+STOPPED is the SHA-1 of the commit at which rebase stopped.
 
 Return nil if there is no rebase in progress."
   (let ((m (magit-git-dir "rebase-merge"))
         (a (magit-git-dir "rebase-apply")))
     (cond
-     ((file-exists-p m) ; interactive
+     ((file-directory-p m) ; interactive
       (list
        (magit-name-rev (magit-file-line  (expand-file-name "onto" m)))
        (length         (magit-file-lines (expand-file-name "done" m)))
-       (with-temp-buffer
-         (insert-file-contents
-          (expand-file-name "git-rebase-todo.backup" m))
-         (cl-loop while (re-search-forward "^[^#\n]" nil t) count t))
+       (cl-loop for line in (magit-file-lines
+                             (expand-file-name "git-rebase-todo.backup" m))
+                count (string-match "^[^#\n]" line))
        (magit-file-line (expand-file-name "stopped-sha" m))))
 
-     ((file-exists-p (expand-file-name "onto" a)) ; non-interactive
+     ((file-regular-p (expand-file-name "onto" a)) ; non-interactive
       (list
        (magit-name-rev       (magit-file-line (expand-file-name "onto" a)))
        (1- (string-to-number (magit-file-line (expand-file-name "next" a))))
        (string-to-number     (magit-file-line (expand-file-name "last" a)))
-       (with-temp-buffer
-         (insert-file-contents
-          (car (directory-files a t "^[0-9]\\{4\\}$")))
-         (when (re-search-forward "^From \\([a-z0-9]\\{40\\}\\) "
-                                  (line-end-position) t)
-           (match-string 1))))))))
+       (let ((patch-header (magit-file-line
+                            (car (directory-files a t "^[0-9]\\{4\\}$")))))
+         (when (string-match "^From \\([a-z0-9]\\{40\\}\\) " patch-header)
+           (match-string 1 patch-header))))))))
 
 (defun magit-rebase-step ()
   (interactive)
