@@ -136,6 +136,8 @@ deep."
   :group 'magit
   :type 'integer)
 
+(custom-add-to-group 'magit 'vc-follow-symlinks 'custom-variable)
+
 (defcustom magit-set-upstream-on-push nil
   "Whether `magit-push' may use --set-upstream when pushing a branch.
 This only applies if the branch does not have an upstream set yet.
@@ -853,6 +855,7 @@ face inherit from `default' and remove all other attributes."
     (define-key map (kbd "E") 'magit-interactive-rebase)
     (define-key map (kbd "e") 'magit-ediff)
     (define-key map (kbd "w") 'magit-wazzup)
+    (define-key map (kbd "y") 'magit-cherry)
     (define-key map (kbd "q") 'magit-quit-window)
     (define-key map (kbd "x") 'magit-reset-head)
     (define-key map (kbd "v") 'magit-revert-item)
@@ -886,7 +889,6 @@ face inherit from `default' and remove all other attributes."
     (define-key map (kbd "k") 'magit-discard-item)
     (define-key map (kbd "C") 'magit-add-log)
     (define-key map (kbd "X") 'magit-reset-working-tree)
-    (define-key map (kbd "y") 'magit-cherry)
     (if magit-rigid-key-bindings
         (define-key map (kbd "z") 'magit-stash)
       (define-key map (kbd "z") 'magit-key-mode-popup-stashing))
@@ -1052,20 +1054,20 @@ Read `completing-read' documentation for the meaning of the argument."
       (nreverse lines))))
 
 (defun magit-file-line (file)
-  (when (file-exists-p file)
+  "Return the first line of FILE as a string."
+  (when (file-regular-p file)
     (with-temp-buffer
       (insert-file-contents file)
       (buffer-substring-no-properties (point-min)
                                       (line-end-position)))))
 
-(defun magit-file-lines (file)
-  (when (file-exists-p file)
+(defun magit-file-lines (file &optional keep-empty-lines)
+  "Return a list of strings containing one element per line in FILE.
+Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
+  (when (file-regular-p file)
     (with-temp-buffer
       (insert-file-contents file)
-      (let ((rev (nreverse (split-string (buffer-string) "\n"))))
-        (nreverse (if (equal (car rev) "")
-                      (cdr rev)
-                    rev))))))
+      (split-string (buffer-string) "\n" (not keep-empty-lines)))))
 
 (defun magit-put-line-property (prop val)
   (put-text-property (line-beginning-position) (line-beginning-position 2)
@@ -1255,14 +1257,21 @@ Otherwise, return nil."
 (defun magit-rev-diff-count (a b)
   "Return the commits in A but not B and vice versa.
 Return a list of two integers: (A>B B>A)."
-  ;; Kludge.  git < 1.7.2 does not support git rev-list --count
-  (let ((ac 0) (bc 0))
-    (dolist (commit (magit-git-lines "rev-list" "--left-right"
-                                     (concat a "..." b)))
-      (cl-case (aref commit 0)
-        (?\< (cl-incf ac))
-        (?\> (cl-incf bc))))
-    (list ac bc)))
+  (magit-configure-have-revlist-count)
+  (if magit-have-revlist-count
+      (mapcar 'string-to-number
+              (split-string (magit-git-string "rev-list"
+                                              "--count" "--left-right"
+                                              (concat a "..." b))
+                            "\t"))
+    ;; Kludge.  git < 1.7.2 does not support git rev-list --count
+    (let ((ac 0) (bc 0))
+      (dolist (commit (magit-git-lines "rev-list" "--left-right"
+                                       (concat a "..." b)))
+        (cl-case (aref commit 0)
+                 (?\< (cl-incf ac))
+                 (?\> (cl-incf bc))))
+      (list ac bc))))
 
 (defun magit-name-rev (rev &optional no-trim)
   "Return a human-readable name for REV.
@@ -1412,7 +1421,7 @@ according to `magit-remote-ref-format'"
 
 (defun magit-read-file-from-rev (revision)
   (magit-completing-read (format "Retrieve file from %s: " revision)
-                         (magit-git-lines "ls-tree" "--name-only" revision)
+                         (magit-git-lines "ls-tree" "-r" "--name-only" revision)
                          nil 'require-match
                          nil 'magit-read-file-hist
                          (when buffer-file-name
@@ -1882,8 +1891,8 @@ Use the specified START and END positions."
                  (when (eq (magit-section-type sec) 'diffstats)
                    (throw 'section-found
                           (magit-section-beginning sec)))))))
-    (when pos
-      (goto-char pos)
+    (if pos
+        (goto-char pos)
       (when (called-interactively-p 'interactive)
         (message "No diffstats section found")))))
 
@@ -3240,7 +3249,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
               (cdr (cl-find-if (lambda (pair)
                                  (string-match-p (car pair) default-directory))
                                (default-value magit-highlight-indentation)
-                               :from-end))))))
+                               :from-end t))))))
       (when (and magit-highlight-trailing-whitespace
                  (looking-at "^[-+].*?\\([ \t]+\\)$"))
         (overlay-put (make-overlay (match-beginning 1) (match-end 1))
@@ -4764,7 +4773,9 @@ Works with local or remote branches.
   (interactive (list (magit-read-rev-with-default "Branch to delete" 'notrim)
                      current-prefix-arg))
   (let* ((remote (magit-remote-part-of-branch branch))
-         (is-current (string= branch (magit-get-current-branch)))
+         (current (magit-get-current-branch))
+         (is-current (string= branch current))
+         (is-master (string= branch "master"))
          (args (list "branch"
                      (if force "-D" "-d")
                      branch)))
@@ -4773,6 +4784,8 @@ Works with local or remote branches.
       (magit-run-git-async "push" remote
                            (concat ":refs/heads/"
                                    (magit-branch-no-remote branch))))
+     ((and is-current is-master)
+      (message "Cannot delete master branch while it's checked out."))
      (is-current
       (if (y-or-n-p "Cannot delete current branch. Switch to master first? ")
           (progn
@@ -4862,35 +4875,33 @@ If no branch is found near the cursor return nil."
 (defun magit-rebase-info ()
   "Return a list indicating the state of an in-progress rebase.
 
-The returned list has the form (ONTO DONE TOTAL).
+The returned list has the form (ONTO DONE TOTAL STOPPED).
 ONTO is the commit being rebased onto.
 DONE and TOTAL are integers with obvious meanings.
+STOPPED is the SHA-1 of the commit at which rebase stopped.
 
 Return nil if there is no rebase in progress."
   (let ((m (magit-git-dir "rebase-merge"))
         (a (magit-git-dir "rebase-apply")))
     (cond
-     ((file-exists-p m) ; interactive
+     ((file-directory-p m) ; interactive
       (list
        (magit-name-rev (magit-file-line  (expand-file-name "onto" m)))
        (length         (magit-file-lines (expand-file-name "done" m)))
-       (with-temp-buffer
-         (insert-file-contents
-          (expand-file-name "git-rebase-todo.backup" m))
-         (cl-loop while (re-search-forward "^[^#\n]" nil t) count t))
+       (cl-loop for line in (magit-file-lines
+                             (expand-file-name "git-rebase-todo.backup" m))
+                count (string-match "^[^#\n]" line))
        (magit-file-line (expand-file-name "stopped-sha" m))))
 
-     ((file-exists-p (expand-file-name "onto" a)) ; non-interactive
+     ((file-regular-p (expand-file-name "onto" a)) ; non-interactive
       (list
        (magit-name-rev       (magit-file-line (expand-file-name "onto" a)))
        (1- (string-to-number (magit-file-line (expand-file-name "next" a))))
        (string-to-number     (magit-file-line (expand-file-name "last" a)))
-       (with-temp-buffer
-         (insert-file-contents
-          (car (directory-files a t "^[0-9]\\{4\\}$")))
-         (when (re-search-forward "^From \\([a-z0-9]\\{40\\}\\) "
-                                  (line-end-position) t)
-           (match-string 1))))))))
+       (let ((patch-header (magit-file-line
+                            (car (directory-files a t "^[0-9]\\{4\\}$")))))
+         (when (string-match "^From \\([a-z0-9]\\{40\\}\\) " patch-header)
+           (match-string 1 patch-header))))))))
 
 (defun magit-rebase-step ()
   (interactive)
@@ -5793,10 +5804,8 @@ restore the window state that was saved before ediff was called."
                (setq ignored (delete branch ignored))))
             (t
              (setq ignored (append ignored (list branch)))))
-      (with-temp-buffer
-        (dolist (l ignored)
-          (insert l "\n"))
-        (write-file ignore-file))
+      (with-temp-file ignore-file
+        (insert (mapconcat 'identity ignored "\n")))
       (magit-need-refresh))))
 
 (defun magit-refresh-wazzup-buffer (head all)
