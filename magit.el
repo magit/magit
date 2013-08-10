@@ -92,6 +92,7 @@ Use the function by the same name instead of this variable.")
 
 (defvar magit-custom-options)
 (defvar package-alist)
+(defvar server-name)
 
 
 ;;; Options

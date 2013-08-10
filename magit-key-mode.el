@@ -30,6 +30,10 @@
 
 (eval-when-compile (require 'cl-lib))
 
+(defvar magit-key-mode-keymaps)
+(defvar magit-key-mode-last-buffer)
+(defvar magit-pre-key-mode-window-conf)
+
 ;;; Faces
 
 (defface magit-key-mode-header-face
