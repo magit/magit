@@ -170,7 +170,7 @@ commit was successful, or nil otherwise."
                                git-commit-end-session)
                 (function)))
 
-(defcustom git-commit-confirm-commit t
+(defcustom git-commit-confirm-commit nil
   "Whether to ask for confirmation before committing.
 
 If t, ask for confirmation before creating a commit with style
