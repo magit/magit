@@ -400,25 +400,28 @@ minibuffer."
 The `car' of each cell is the heading text, the `cdr' the face to
 use for fontification.")
 
-(defconst git-commit-skip-before-summary-regexp
-  "\\(?:\\(?:\\s-*\\|\\s<.*\\)\n\\)*"
-  "Regexp to skip empty lines and comments before the summary.
-
-Do not use this expression directly, instead call
-`git-commit-find-summary-regexp' to create a regular expression
-to match the summary line.")
-
 (defconst git-commit-summary-regexp
-   "\\(?:^\\(.\\{,50\\}\\)\\(.*?\\)$\\)"
-   "Regexp to match the summary line.
-
-Do not use this expression directly, instead call
-`git-commit-find-summary-regexp' to create a regular expression
-to match the summary line.")
-
-(defconst git-commit-nonempty-second-line-regexp
-  "\\(?:\n\\(.*\\)\\)?$"
-  "Regexp to match a nonempty line following the summary.
+  (rx
+   ;; Skip empty lines or comments before the summary
+   (zero-or-more
+    line-start
+    (or (one-or-more (syntax whitespace))
+        (and (syntax comment-start) (zero-or-more not-newline)))
+    "\n")
+   ;; The actual summary line
+   ;; Hack to force grouping, since for some stupid reason Emacs won't handle
+   ;; "line-start" in the middle of a regexp.  Fuck you, Emacs!
+   (= 1 line-start
+        (group (** 0 50 not-newline))      ; The real summary
+        (group (zero-or-more not-newline)) ; The overlong part
+        line-end)
+   ;; A non-empty second line
+   (optional
+    "\n"
+    (group (zero-or-more not-newline))
+    line-end)
+   )
+  "Regexp to match the summary line.
 
 Do not use this expression directly, instead call
 `git-commit-find-summary-regexp' to create a regular expression
@@ -445,13 +448,11 @@ The regular expression matches three groups.  The first group is
 the summary line, the second group contains any overlong part of
 the summary, and the third group contains a nonempty line
 following the summary line.  The latter two groups may be empty."
-  (format "\\`%s%s%s%s"
+  (format "\\`%s%s"
           (if (eq major-mode 'magit-log-edit-mode)
               git-commit-skip-magit-header-regexp
             "")
-          git-commit-skip-before-summary-regexp
-          git-commit-summary-regexp
-          git-commit-nonempty-second-line-regexp))
+          git-commit-summary-regexp))
 
 (defun git-commit-mode-summary-font-lock-keywords (&optional errors)
   "Create font lock keywords to fontify the Git summary.
