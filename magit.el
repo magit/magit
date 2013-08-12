@@ -355,6 +355,25 @@ If t, use ptys: this enables magit to prompt for passphrases when needed."
   :group 'magit
   :type '(repeat (regexp)))
 
+(defconst magit-server-window-type
+  '(choice
+    (const :tag "Use selected window"
+           :match (lambda (widget value)
+                    (not (functionp value)))
+           nil)
+    (function-item :tag "Display in new frame" switch-to-buffer-other-frame)
+    (function-item :tag "Use pop-to-buffer" pop-to-buffer)
+    (function :tag "Other function")))
+
+(defcustom magit-server-window-for-rebase server-window
+  "Function used to select a window for displaying interactive rebase buffers.
+It should take one argument (a buffer) and display and select it.
+A common value is `pop-to-buffer'.  It can also be nil in which
+case the selected window is used."
+  :group 'magit
+  :type magit-server-window-type
+  :set-after '(server-window))
+
 (defcustom magit-completing-read-function 'magit-builtin-completing-read
   "Function to be called when requesting input from the user."
   :group 'magit
@@ -1331,7 +1350,7 @@ non-nil).  In addition, it will filter out revs involving HEAD."
   (declare (indent 0))
   `(magit-refresh-wrapper (lambda () ,@body)))
 
-(defmacro magit-with-git-editor-setup (&rest body)
+(defmacro magit-with-git-editor-setup (server-window &rest body)
   "Ensure that `emacsclient' is used as `GIT_EDITOR'.
 
 Ensure that a git process started inside BODY uses `emacsclient'
@@ -1350,22 +1369,40 @@ Modifing the environment and/or starting the server can fail.  It
 that happens that is not considered an error; the forms in BODY
 are always evaluated.  The worst thing that could happen is that
 you end up in vi and don't know how to exit."
-  `(let ((process-environment process-environment)
-         (emacsclient (executable-find "emacsclient")))
-     (unless (magit-server-running-p)
-       (server-start))
-     (cond
-      ((not emacsclient)
-       (message "Cannot find emacsclient (check $PATH); using default $GIT_EDITOR"))
-      ((string= server-name "server")
-       (setenv "GIT_EDITOR" emacsclient))
-      ((eq system-type 'windows-nt)
-       ;; Doing so might actually be possible - we just don't know how.
-       ;; Also we cannot experiment because we don't own a copy of Windows.
-       (message "Cannot set server name on Windows; using default $GIT_EDITOR"))
-      (t
-       (setenv "GIT_EDITOR" (format "%s -s %s" emacsclient server-name))))
-     ,@body))
+  (declare (indent 1))
+  (let ((git-window (cl-gensym "git-server-window")))
+    `(let ((process-environment process-environment)
+           (emacsclient (executable-find "emacsclient"))
+           (,git-window ,server-window))
+
+       (unless (magit-server-running-p)
+         (server-start))
+       (cond
+        ((not emacsclient)
+         (message (concat "Cannot find emacsclient (check $PATH); "
+                          "using default $GIT_EDITOR")))
+        ((string= server-name "server")
+         (setenv "GIT_EDITOR" emacsclient))
+        ((eq system-type 'windows-nt)
+         ;; Doing so might actually be possible - we just don't know
+         ;; how.  Also we cannot experiment because we don't own a
+         ;; copy of Windows.
+         (message (concat "Cannot set server name on Windows; "
+                          "using default $GIT_EDITOR")))
+        (t
+         (setenv "GIT_EDITOR" (format "%s -s %s" emacsclient server-name))))
+       ;; Git has to be called asynchronously in BODY or we create a
+       ;; dead lock.  By the time `emacsclient' is called the dynamic
+       ;; binding is no longer in effect and our primitives don't
+       ;; support callbacks.  Temporarily the default value and
+       ;; restore it using a timer.
+       (unless (equal ,git-window server-window)
+         (run-at-time "0.2 sec" nil
+                      (apply-partially (lambda (value)
+                                         (setq server-window value))
+                                       server-window))
+         (setq-default server-window ,git-window))
+       ,@body)))
 
 ;;; Revisions and Ranges
 
@@ -4930,12 +4967,12 @@ Return nil if there is no rebase in progress."
   (let* ((section (get-text-property (point) 'magit-section))
          (commit (and (member 'commit (magit-section-context-type section))
                       (magit-section-info section))))
-    (magit-with-git-editor-setup
-     (magit-run-git-async "rebase" "-i"
-                          (if commit
-                              (concat commit "^")
-                            (magit-read-rev "Interactively rebase to"
-                                            (magit-guess-branch)))))))
+    (magit-with-git-editor-setup magit-server-window-for-rebase
+      (magit-run-git-async "rebase" "-i"
+                           (if commit
+                               (concat commit "^")
+                             (magit-read-rev "Interactively rebase to"
+                                             (magit-guess-branch)))))))
 
 ;;;; Reset
 
