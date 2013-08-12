@@ -6,7 +6,7 @@
 ;; Author: Sebastian Wiesner <lunaryorn@gmail.com>
 ;;      Florian Ragwitz <rafl@debian.org>
 ;; Maintainer: Sebastian Wiesner <lunaryorn@gmail.com>
-;; URL: https://github.com/lunaryorn/git-modes
+;; URL: https://github.com/magit/git-modes
 ;; Version: 0.14-cvs
 ;; Keywords: convenience vc git
 
