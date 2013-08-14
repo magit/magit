@@ -3,8 +3,14 @@
 ;; Copyright (C) 2010  Phil Jackson
 ;; Copyright (C) 2011  Peter J Weisberg
 
-;; Magit is free software; you can redistribute it and/or modify it
-;; under the terms of the GNU General Public License as published by
+;; Author: Phil Jackson <phil@shellarchive.co.uk>
+;; URL: https://github.com/magit/git-modes
+;; Keywords: convenience vc git
+
+;; This file is not part of GNU Emacs.
+
+;; This file is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation; either version 3, or (at your option)
 ;; any later version.
 ;;
