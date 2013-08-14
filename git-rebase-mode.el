@@ -100,18 +100,6 @@
                           (regexp ,(substring git-rebase-exec-line-re 1)))) t)
   "Regexp that matches a commented-out exec or action line in a rebase buffer.")
 
-(defvar git-rebase-mode-font-lock-keywords
-  (list
-   (list git-rebase-action-line-re
-         '(1 font-lock-keyword-face)
-         '(2 font-lock-builtin-face)
-         '(3 'git-rebase-description-face))
-   (list git-rebase-exec-line-re
-         '(1 font-lock-keyword-face))
-   (list (rx line-start (char "#") (* not-newline)) 0 font-lock-comment-face)
-   (list git-rebase-dead-line-re 0 ''git-rebase-killed-action-face t))
-  "Font lock keywords for Git-Rebase mode.")
-
 (defvar git-rebase-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "q")       'server-edit)
@@ -322,6 +310,18 @@ Rebase files are generated when you run 'git rebase -i' or run
 the rebase.  See the documentation for git-rebase (e.g., by
 running 'man git-rebase' at the command line) for details."
   (setq font-lock-defaults '(git-rebase-mode-font-lock-keywords t t)))
+
+(defvar git-rebase-mode-font-lock-keywords
+  (list
+   (list git-rebase-action-line-re
+         '(1 font-lock-keyword-face)
+         '(2 font-lock-builtin-face)
+         '(3 'git-rebase-description-face))
+   (list git-rebase-exec-line-re
+         '(1 font-lock-keyword-face))
+   (list (rx line-start (char "#") (* not-newline)) 0 font-lock-comment-face)
+   (list git-rebase-dead-line-re 0 ''git-rebase-killed-action-face t))
+  "Font lock keywords for Git-Rebase mode.")
 
 (defun git-rebase-show-keybindings ()
   "Modify the \"Commands:\" section of the comment Git generates
