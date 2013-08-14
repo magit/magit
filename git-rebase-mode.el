@@ -35,6 +35,8 @@
 (require 'server)
 (require 'thingatpt)
 
+;;; Options
+
 (defgroup git-rebase-mode nil
   "Customize Git-Rebase mode"
   :group 'tools)
@@ -60,6 +62,8 @@
   '((t :inherit font-lock-comment-face))
   "Face for one-line commit descriptions."
   :group 'git-rebase-mode-faces)
+
+;;; Regexps
 
 (defconst git-rebase-action-line-re
   (rx
@@ -99,6 +103,8 @@
                       (or (regexp ,(substring git-rebase-action-line-re 1))
                           (regexp ,(substring git-rebase-exec-line-re 1)))) t)
   "Regexp that matches a commented-out exec or action line in a rebase buffer.")
+
+;;; Keymaps
 
 (defvar git-rebase-mode-map
   (let ((map (make-sparse-keymap)))
@@ -140,6 +146,7 @@ the edit functions.")
     ["Abort" git-rebase-abort t]
     ["Done" server-edit t]))
 
+;;; Utilities
 
 (defun git-rebase-edit-line (change-to)
   "Change the keyword at the start of the current action line to
@@ -185,6 +192,8 @@ that of CHANGE-TO."
   (let ((line (thing-at-point 'line)))
     (and (eq (aref line 0) ?#)
          (string-match git-rebase-exec-line-re line))))
+
+;;; Commands
 
 (git-rebase-define-action pick)
 (git-rebase-define-action reword)
@@ -300,6 +309,8 @@ exec line was commented out, also uncomment it."
 Like `forward-line' but go into the opposite direction."
   (interactive "p")
   (forward-line (* n -1)))
+
+;;; Mode
 
 ;;;###autoload
 (define-derived-mode git-rebase-mode special-mode "Rebase"
