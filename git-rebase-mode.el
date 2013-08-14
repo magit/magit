@@ -112,14 +112,6 @@
    (list git-rebase-dead-line-re 0 ''git-rebase-killed-action-face t))
   "Font lock keywords for Git-Rebase mode.")
 
-(defvar key-to-action-map
-  '(("c" . "pick")
-    ("r" . "reword")
-    ("e" . "edit")
-    ("s" . "squash")
-    ("f" . "fixup"))
-  "Mapping from key to action.")
-
 (defvar git-rebase-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "q")       'server-edit)
@@ -129,6 +121,11 @@
     (define-key map [remap undo]    'git-rebase-undo)
     (define-key map (kbd "RET") 'git-rebase-show-commit)
     (define-key map (kbd "x")   'git-rebase-exec)
+    (define-key map (kbd "c")   'git-rebase-pick)
+    (define-key map (kbd "r")   'git-rebase-reword)
+    (define-key map (kbd "e")   'git-rebase-edit)
+    (define-key map (kbd "s")   'git-rebase-squash)
+    (define-key map (kbd "f")   'git-rebase-fixup)
     (define-key map (kbd "k")   'git-rebase-kill-line)
     (define-key map (kbd "p")   'git-rebase-backward-line)
     (define-key map (kbd "n")   'forward-line)
@@ -155,18 +152,6 @@ the edit functions.")
     ["Abort" git-rebase-abort t]
     ["Done" server-edit t]))
 
-;; create the functions which edit the action lines themselves (based
-;; on `key-to-action-map' above)
-(mapc (lambda (key-action)
-        (let ((fun-name (intern (concat "git-rebase-" (cdr key-action)))))
-          ;; define the function
-          (eval `(defun ,fun-name ()
-                   (interactive)
-                   (git-rebase-edit-line ,(cdr key-action))))
-
-          ;; bind the function in `git-rebase-mode-map'
-          (define-key git-rebase-mode-map (car key-action) fun-name)))
-      key-to-action-map)
 
 (defun git-rebase-edit-line (change-to)
   "Change the keyword at the start of the current action line to
@@ -180,6 +165,15 @@ that of CHANGE-TO."
       (goto-char start)
       (when git-rebase-auto-advance
         (forward-line)))))
+
+(defmacro git-rebase-define-action (sym)
+  (declare (indent defun))
+  (let ((fn (intern (format "git-rebase-%s" sym))))
+    `(progn
+       (defun ,fn ()
+	 (interactive)
+	 (git-rebase-edit-line ,(symbol-name sym)))
+       (put ',fn 'definition-name ',sym))))
 
 (defun git-rebase-looking-at-action ()
   "Return non-nil if looking at an action line."
@@ -203,6 +197,12 @@ that of CHANGE-TO."
   (let ((line (thing-at-point 'line)))
     (and (eq (aref line 0) ?#)
          (string-match git-rebase-exec-line-re line))))
+
+(git-rebase-define-action pick)
+(git-rebase-define-action reword)
+(git-rebase-define-action edit)
+(git-rebase-define-action squash)
+(git-rebase-define-action fixup)
 
 (defun git-rebase-move-line-up ()
   "Move the current action line up."
