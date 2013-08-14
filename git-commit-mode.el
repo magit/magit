@@ -46,12 +46,12 @@
 ;;
 ;; Provide commands to insert standard headers into commit messages.
 ;;
-;; - C-c C-x s or C-c C-s inserts Signed-off-by (`git-commit-signoff').
-;; - C-C C-x a inserts Acked-by (`git-commit-ack').
-;; - C-c C-x t inserts Tested-by (`git-commit-test').
-;; - C-c C-x r inserts Reviewed-by (`git-commit-review').
-;; - C-c C-x o inserts Cc (`git-commit-cc').
-;; - C-c C-x p inserts Reported-by (`git-commit-reported').
+;; - C-c C-s inserts Signed-off-by (`git-commit-signoff').
+;; - C-C C-a inserts Acked-by (`git-commit-ack').
+;; - C-c C-t inserts Tested-by (`git-commit-test').
+;; - C-c C-r inserts Reviewed-by (`git-commit-review').
+;; - C-c C-o inserts Cc (`git-commit-cc').
+;; - C-c C-p inserts Reported-by (`git-commit-reported').
 
 ;; * Committing
 ;;
@@ -60,14 +60,6 @@
 ;;
 ;; Check a buffer for stylistic errors before committing, and ask for
 ;; confirmation before committing with style errors.
-
-;; * Magit integration
-;;
-;; Overwrite `magit-log-edit-mode' to provide font locking and header insertion
-;; for Magit.
-;;
-;; Change the keymap of `magit-log-edit-mode' to use the header insertion of
-;; `git-commit-mode'.
 
 ;;; Code:
 
@@ -140,11 +132,6 @@ git commit messages"
 default comments in git commit messages"
   :group 'git-commit-faces)
 
-(defface git-commit-skip-magit-header-face
-  '((t :inherit font-lock-preprocessor-face))
-  "Face used to highlight the magit header that should be skipped"
-  :group 'git-commit-faces)
-
 (defun git-commit-end-session ()
   "Save the buffer and end the session.
 
@@ -187,7 +174,7 @@ Return t, if the current buffer has style errors, or nil
 otherwise."
   (save-excursion
     (goto-char (point-min))
-    (when (re-search-forward (git-commit-find-summary-regexp) nil t)
+    (when (re-search-forward git-commit-summary-regexp nil t)
       (or (string-match-p ".+" (or (match-string 2) ""))
           (string-match-p "^.+$" (or (match-string 3) ""))))))
 
@@ -402,6 +389,7 @@ use for fontification.")
 
 (defconst git-commit-summary-regexp
   (rx
+   string-start
    ;; Skip empty lines or comments before the summary
    (zero-or-more
     line-start
@@ -421,50 +409,19 @@ use for fontification.")
     (group (zero-or-more not-newline))
     line-end)
    )
-  "Regexp to match the summary line.
-
-Do not use this expression directly, instead call
-`git-commit-find-summary-regexp' to create a regular expression
-to match the summary line.")
-
-(defvar git-commit-skip-magit-header-regexp nil
-  "Regexp to skip magit header.
-
-This variable is nil until `magit' is loaded.
-
-Do not use this expression directly, instead call
-`git-commit-find-summary-regexp' to create a regular expression
-to match the summary line.")
-
-(defun git-commit-find-summary-regexp ()
-  "Create a regular expression to find the Git summary line.
-
-Return a regular expression that starts at the beginning of the
-buffer, skips over empty lines, comments and also over the magit
-header, if the current buffer is a `magit-log-edit-mode' buffer,
-and finds the summary line.
-
-The regular expression matches three groups.  The first group is
-the summary line, the second group contains any overlong part of
-the summary, and the third group contains a nonempty line
-following the summary line.  The latter two groups may be empty."
-  (format "\\`%s%s"
-          (if (eq major-mode 'magit-log-edit-mode)
-              git-commit-skip-magit-header-regexp
-            "")
-          git-commit-summary-regexp))
+  "Regexp to match the summary line.")
 
 (defun git-commit-mode-summary-font-lock-keywords (&optional errors)
   "Create font lock keywords to fontify the Git summary.
 
 If ERRORS is non-nil create keywords that highlight errors in the
 summary line, not the summary line itself."
-  (let ((regexp (git-commit-find-summary-regexp)))
-    (if errors
-        `(,regexp
-          (2 'git-commit-overlong-summary-face t t)
-          (3 'git-commit-nonempty-second-line-face t t))
-      `(,regexp (1 'git-commit-summary-face t)))))
+  (if errors
+      `(,git-commit-summary-regexp
+	(2 'git-commit-overlong-summary-face t t)
+	(3 'git-commit-nonempty-second-line-face t t))
+    `(,git-commit-summary-regexp
+      (1 'git-commit-summary-face t))))
 
 (defun git-commit-mode-heading-keywords ()
   "Create font lock keywords to fontify comment headings.
@@ -497,17 +454,20 @@ Known comment headings are provided by `git-commit-comment-headings'."
 
 (defvar git-commit-mode-map
   (let ((map (make-sparse-keymap)))
-    ;; Short shortcut ;) for the frequently used signoff header
+    (define-key map (kbd "C-c C-c") 'git-commit-commit)
     (define-key map (kbd "C-c C-s") 'git-commit-signoff)
-    ;; Verbose shortcuts for all headers to avoid conflicts with magit bindings
+    (define-key map (kbd "C-c C-a") 'git-commit-ack)
+    (define-key map (kbd "C-c C-t") 'git-commit-test)
+    (define-key map (kbd "C-c C-r") 'git-commit-review)
+    (define-key map (kbd "C-c C-o") 'git-commit-cc)
+    (define-key map (kbd "C-c C-p") 'git-commit-reported)
+    ;; Old bindings to avoid confusion
     (define-key map (kbd "C-c C-x s") 'git-commit-signoff)
     (define-key map (kbd "C-c C-x a") 'git-commit-ack)
     (define-key map (kbd "C-c C-x t") 'git-commit-test)
     (define-key map (kbd "C-c C-x r") 'git-commit-review)
     (define-key map (kbd "C-c C-x o") 'git-commit-cc)
     (define-key map (kbd "C-c C-x p") 'git-commit-reported)
-    ;; Committing
-    (define-key map (kbd "C-c C-c") 'git-commit-commit)
     map)
   "Key map used by `git-commit-mode'.")
 
@@ -564,32 +524,6 @@ basic structure of and errors in git commit messages."
   ;; Do not remember point location in commit messages
   (when (fboundp 'toggle-save-place)
     (toggle-save-place 0)))
-
-;;;###autoload
-;; Overwrite magit-log-edit-mode to derive from git-commit-mode, and change it's
-;; key bindings to use our commit and header insertion bindings
-(eval-after-load 'magit
-  '(progn
-     (setq git-commit-skip-magit-header-regexp
-           (format
-            "\\(?:\\(?:[A-Za-z0-9-_]+: *.*\n\\)*%s\\)?"
-            (regexp-quote magit-log-header-end)))
-
-     (defvar git-commit-magit-font-lock-keywords
-       `((,git-commit-skip-magit-header-regexp
-          (0 'git-commit-skip-magit-header-face)))
-       "Font lock keywords for Magit Log Edit Mode.")
-
-     (define-derived-mode magit-log-edit-mode git-commit-mode "Magit Log Edit"
-       (font-lock-add-keywords nil git-commit-magit-font-lock-keywords)
-       (set (make-local-variable 'git-commit-commit-function)
-            (apply-partially #'call-interactively 'magit-log-edit-commit)))
-      (substitute-key-definition 'magit-log-edit-toggle-signoff
-                                 'git-commit-signoff
-                                 magit-log-edit-mode-map)
-      (substitute-key-definition 'magit-log-edit-commit
-                                 'git-commit-commit
-                                  magit-log-edit-mode-map)))
 
 ;;;###autoload
 (dolist (pattern '("/COMMIT_EDITMSG\\'" "/NOTES_EDITMSG\\'"
