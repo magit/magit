@@ -13,12 +13,10 @@ ELS += magit-cherry.el
 ELS += magit-compat.el
 ELS += magit-flow.el
 ELS += magit-key-mode.el
-ELS += magit-log-edit.el
 ELS += magit-stgit.el
 ELS += magit-svn.el
 ELS += magit-topgit.el
 ELS += magit-wip.el
-ELS += rebase-mode.el
 ELCS = $(ELS:.el=.elc)
 
 CP    ?= install -p -m 644

@@ -60,6 +60,8 @@ Use the function by the same name instead of this variable.")
 
 (require 'magit-compat)
 
+(require 'git-commit-mode nil t)
+
 (require 'ansi-color)
 (require 'cl-lib)
 (require 'diff-mode)
@@ -67,6 +69,7 @@ Use the function by the same name instead of this variable.")
 (require 'epa)
 (require 'grep)
 (require 'ring)
+(require 'server)
 
 (eval-when-compile
   (require 'dired)
@@ -82,9 +85,6 @@ Use the function by the same name instead of this variable.")
 (declare-function eshell-parse-arguments 'eshell)
 (declare-function ido-completing-read 'ido)
 (declare-function iswitchb-read-buffer 'iswitchb)
-(declare-function magit-log-edit 'magit-log-edit)
-(declare-function magit-log-edit-set-field 'magit-log-edit)
-(declare-function magit-pop-to-log-edit 'magit-log-edit)
 (declare-function package-desc-vers 'package)
 (declare-function package-desc-version 'package)
 (declare-function package-version-join 'package)
@@ -92,7 +92,6 @@ Use the function by the same name instead of this variable.")
 
 (defvar magit-custom-options)
 (defvar package-alist)
-(defvar server-name)
 
 
 ;;; Options
@@ -208,21 +207,6 @@ which generates a tracking name of the form \"REMOTE-BRANCHNAME\"."
 
 (defcustom magit-commit-mode-show-buttons t
   "Whether to show navigation buttons in the *magit-commit* buffer."
-  :group 'magit
-  :type 'boolean)
-
-(defcustom magit-commit-signoff nil
-  "Add the \"Signed-off-by:\" line when committing."
-  :group 'magit
-  :type 'boolean)
-
-(defcustom magit-commit-gpgsign nil
-  "Use GPG to sign commits."
-  :group 'magit
-  :type 'boolean)
-
-(defcustom magit-commit-no-verify nil
-  "Bypass the pre-commit and commit-msg hooks when committing."
   :group 'magit
   :type 'boolean)
 
@@ -364,6 +348,14 @@ If t, use ptys: this enables magit to prompt for passphrases when needed."
     (function-item :tag "Display in new frame" switch-to-buffer-other-frame)
     (function-item :tag "Use pop-to-buffer" pop-to-buffer)
     (function :tag "Other function")))
+
+(defcustom magit-server-window-for-commit 'pop-to-buffer
+  "Function used to select a window for displaying commit message buffers.
+It should take one argument (a buffer) and display and select it.
+A common value is `pop-to-buffer'.  It can also be nil in which
+case the selected window is used."
+  :group 'magit
+  :type magit-server-window-type)
 
 (defcustom magit-server-window-for-rebase server-window
   "Function used to select a window for displaying interactive rebase buffers.
@@ -845,6 +837,7 @@ face inherit from `default' and remove all other attributes."
     (define-key map (kbd "C-w") 'magit-copy-item-as-kill)
     (define-key map (kbd "R") 'magit-rebase-step)
     (cond (magit-rigid-key-bindings
+           (define-key map (kbd "c") 'magit-commit)
            (define-key map (kbd "m") 'magit-merge)
            (define-key map (kbd "b") 'magit-checkout)
            (define-key map (kbd "M") 'magit-branch-manager)
@@ -858,6 +851,7 @@ face inherit from `default' and remove all other attributes."
            (define-key map (kbd "o") 'magit-submodule-update)
            (define-key map (kbd "B") 'undefined))
           (t
+           (define-key map (kbd "c") 'magit-key-mode-popup-committing)
            (define-key map (kbd "m") 'magit-key-mode-popup-merging)
            (define-key map (kbd "b") 'magit-key-mode-popup-branching)
            (define-key map (kbd "M") 'magit-key-mode-popup-remoting)
@@ -871,7 +865,6 @@ face inherit from `default' and remove all other attributes."
            (define-key map (kbd "o") 'magit-key-mode-popup-submodule)
            (define-key map (kbd "B") 'magit-key-mode-popup-bisecting)))
     (define-key map (kbd "$") 'magit-display-process)
-    (define-key map (kbd "c") 'magit-log-edit)
     (define-key map (kbd "E") 'magit-interactive-rebase)
     (define-key map (kbd "e") 'magit-ediff)
     (define-key map (kbd "w") 'magit-wazzup)
@@ -907,7 +900,6 @@ face inherit from `default' and remove all other attributes."
     (define-key map (kbd ".") 'magit-mark-item)
     (define-key map (kbd "=") 'magit-diff-with-mark)
     (define-key map (kbd "k") 'magit-discard-item)
-    (define-key map (kbd "C") 'magit-add-log)
     (define-key map (kbd "X") 'magit-reset-working-tree)
     (if magit-rigid-key-bindings
         (define-key map (kbd "z") 'magit-stash)
@@ -955,8 +947,7 @@ face inherit from `default' and remove all other attributes."
     ["Stage all" magit-stage-all t]
     ["Unstage" magit-unstage-item t]
     ["Unstage all" magit-unstage-all t]
-    ["Commit" magit-log-edit t]
-    ["Add log entry" magit-add-log t]
+    ["Commit" magit-key-mode-popup-committing t]
     ["Tag" magit-tag t]
     ["Annotated tag" magit-annotated-tag t]
     "---"
@@ -4621,7 +4612,7 @@ non-nil, then autocompletion will offer directory names."
                magit-custom-options
              (cons "--no-commit" magit-custom-options)))
     (when (file-exists-p ".git/MERGE_MSG")
-      (magit-log-edit))))
+      (magit-commit))))
 
 (defun magit-merge-abort ()
   "Abort the current merge operation."
@@ -5335,59 +5326,33 @@ even if `magit-set-upstream-on-push's value is `refuse'."
                        (member "-u" magit-custom-options)))
           (magit-set ref-branch "branch" branch "merge"))))))
 
-;;;; Commit
+;;;; Committing
 
-(defun magit-add-log ()
-  (interactive)
-  (let ((section (magit-current-section)))
-    (let ((fun (if (eq (magit-section-type section) 'hunk)
-                   (save-window-excursion
-                     (save-excursion
-                       (magit-visit-item)
-                       (add-log-current-defun)))
-                 nil))
-          (file (magit-diff-item-file
-                 (cond ((eq (magit-section-type section) 'hunk)
-                        (magit-hunk-item-diff section))
-                       ((eq (magit-section-type section) 'diff)
-                        section)
-                       (t
-                        (error "No change at point"))))))
-      (magit-log-edit nil)
-      (goto-char (point-min))
-      (cond ((not (search-forward-regexp
-                   (format "^\\* %s" (regexp-quote file)) nil t))
-             ;; No entry for file, create it.
-             (goto-char (point-max))
-             (insert (format "\n* %s" file))
-             (when fun
-               (insert (format " (%s)" fun)))
-             (insert ": "))
-            (fun
-             ;; found entry for file, look for fun
-             (let ((limit (or (save-excursion
-                                (and (search-forward-regexp "^\\* "
-                                                            nil t)
-                                     (match-beginning 0)))
-                              (point-max))))
-               (cond ((search-forward-regexp (format "(.*\\<%s\\>.*):"
-                                                     (regexp-quote fun))
-                                             limit t)
-                      ;; found it, goto end of current entry
-                      (if (search-forward-regexp "^(" limit t)
-                          (backward-char 2)
-                        (goto-char limit)))
-                     (t
-                      ;; not found, insert new entry
-                      (goto-char limit)
-                      (if (bolp)
-                          (open-line 1)
-                        (newline))
-                      (insert (format "(%s): " fun))))))
-            (t
-             ;; found entry for file, look for beginning  it
-             (when (looking-at ":")
-               (forward-char 2)))))))
+(defun magit-commit (&optional amendp)
+  "Create a new commit on HEAD.
+With a prefix argument amend to the commit at HEAD instead.
+
+Call 'git commit' without a commit message.  Git then connects to
+the Emacs server using 'emacsclient', bringing up a new buffer.
+When the user is done crafting the message Git resumes and uses
+the message from the file the message buffer was saved to.
+
+\('git commit [--amend]')."
+  (interactive "P")
+  (if (not (or (magit-anything-staged-p)
+               (member "--allow-empty" magit-custom-options)
+               (member "--all"         magit-custom-options)
+               (member "--amend"       magit-custom-options)
+               (and amendp (setq magit-custom-options
+                                 (cons "--amend"
+                                       magit-custom-options)))))
+      (if (and (magit-rebase-info)
+               (y-or-n-p "Nothing staged.  Continue in-progress rebase? "))
+          (magit-run-git-async "rebase" "--continue")
+        (error
+         "Nothing staged.  Set --allow-empty, --all, or --amend in popup."))
+    (magit-with-git-editor-setup magit-server-window-for-commit
+      (apply 'magit-run-git-async "commit" magit-custom-options))))
 
 ;;;; Tagging
 
@@ -5407,10 +5372,8 @@ even if `magit-set-upstream-on-push's value is `refuse'."
    (list
     (magit-read-tag "Tag name: ")
     (magit-read-rev "Place tag on: " (or (magit-default-rev) "HEAD"))))
-  (magit-log-edit-set-field 'tag-name name)
-  (magit-log-edit-set-field 'tag-rev rev)
-  (magit-log-edit-set-field 'tag-options magit-custom-options)
-  (magit-pop-to-log-edit "tag"))
+  (apply #'magit-run-git "tag" "-a"
+         (append magit-custom-options (list name rev))))
 
 (magit-define-command delete-tag (name)
   "Delete the tag with the given NAME.
@@ -5533,10 +5496,7 @@ With prefix argument, changes in staging area are kept.
 
 (defun magit-apply-commit (commit)
   (magit-assert-one-parent commit "cherry-pick")
-  (when (magit-run-git* (list "cherry-pick" "--no-commit" commit))
-    (magit-log-edit-set-field
-     'author
-     (magit-format-commit commit "%an <%ae>, %ai"))))
+  (magit-run-git "cherry-pick" "--no-commit" commit))
 
 ;;;; Cherry-Pick
 
@@ -6776,7 +6736,6 @@ init file:
 
 ;; rest of magit core
 (require 'magit-key-mode)
-(require 'magit-log-edit)
 (require 'magit-bisect)
 (require 'magit-cherry)
 
