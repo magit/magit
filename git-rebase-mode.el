@@ -33,7 +33,6 @@
 (require 'easymenu)
 (require 'rx)
 (require 'server)
-(declare-function server-edit "server") 
 (require 'thingatpt)
 
 (defgroup git-rebase-mode nil
