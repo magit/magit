@@ -122,22 +122,18 @@
 
 (defvar git-rebase-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "q") 'server-edit)
+    (define-key map (kbd "q")       'server-edit)
     (define-key map (kbd "C-c C-c") 'server-edit)
-
-    (define-key map (kbd "a") 'git-rebase-abort)
+    (define-key map (kbd "a")       'git-rebase-abort)
     (define-key map (kbd "C-c C-k") 'git-rebase-abort)
-
+    (define-key map [remap undo]    'git-rebase-undo)
     (define-key map (kbd "RET") 'git-rebase-show-commit)
-
+    (define-key map (kbd "x")   'git-rebase-exec)
+    (define-key map (kbd "k")   'git-rebase-kill-line)
+    (define-key map (kbd "p")   'git-rebase-backward-line)
+    (define-key map (kbd "n")   'forward-line)
     (define-key map (kbd "M-p") 'git-rebase-move-line-up)
     (define-key map (kbd "M-n") 'git-rebase-move-line-down)
-    (define-key map (kbd "k") 'git-rebase-kill-line)
-    (define-key map (kbd "x") 'git-rebase-exec)
-
-    (define-key map (kbd "n") 'forward-line)
-    (define-key map (kbd "p") 'git-rebase-backward-line)
-    (define-key map [remap undo] 'git-rebase-undo)
     map)
   "Keymap for Git-Rebase mode.
 Note this will be added to by the top-level code which defines
