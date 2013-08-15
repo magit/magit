@@ -167,17 +167,6 @@ confirmation before committing."
   :type '(choice (const :tag "On style errors" t)
                  (const :tag "Never" nil)))
 
-(defun git-commit-has-style-errors-p ()
-  "Check whether the current buffer has style errors.
-
-Return t, if the current buffer has style errors, or nil
-otherwise."
-  (save-excursion
-    (goto-char (point-min))
-    (when (re-search-forward git-commit-summary-regexp nil t)
-      (or (string-match-p ".+" (or (match-string 2) ""))
-          (string-match-p "^.+$" (or (match-string 3) ""))))))
-
 (defun git-commit-may-do-commit (&optional force)
   "Check whether a commit may be performed.
 
@@ -410,6 +399,17 @@ use for fontification.")
     line-end)
    )
   "Regexp to match the summary line.")
+
+(defun git-commit-has-style-errors-p ()
+  "Check whether the current buffer has style errors.
+
+Return t, if the current buffer has style errors, or nil
+otherwise."
+  (save-excursion
+    (goto-char (point-min))
+    (when (re-search-forward git-commit-summary-regexp nil t)
+      (or (string-match-p ".+" (or (match-string 2) ""))
+          (string-match-p "^.+$" (or (match-string 3) ""))))))
 
 (defun git-commit-mode-summary-font-lock-keywords (&optional errors)
   "Create font lock keywords to fontify the Git summary.
