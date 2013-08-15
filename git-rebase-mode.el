@@ -4,6 +4,7 @@
 ;; Copyright (C) 2011  Peter J Weisberg
 
 ;; Author: Phil Jackson <phil@shellarchive.co.uk>
+;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 ;; Homepage: https://github.com/magit/git-modes
 ;; Keywords: convenience vc git
 

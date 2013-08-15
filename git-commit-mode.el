@@ -1,11 +1,11 @@
 ;;; git-commit-mode.el --- Major mode for editing git commit messages -*- lexical-binding: t; -*-
 
-;; Copyright (c) 2012, 2013 Sebastian Wiesner <lunaryorn@gmail.com>
-;; Copyright (c) 2010 Florian Ragwitz.
+;; Copyright (c) 2010-2012  Florian Ragwitz
+;; Copyright (c) 2012-2013  Sebastian Wiesner
 
-;; Author: Sebastian Wiesner <lunaryorn@gmail.com>
-;;      Florian Ragwitz <rafl@debian.org>
-;; Maintainer: Sebastian Wiesner <lunaryorn@gmail.com>
+;; Authors: Sebastian Wiesner <lunaryorn@gmail.com>
+;;	Florian Ragwitz <rafl@debian.org>
+;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 ;; Version: 0.14-cvs
 ;; Homepage: https://github.com/magit/git-modes
 ;; Keywords: convenience vc git
