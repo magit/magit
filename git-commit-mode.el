@@ -261,9 +261,9 @@ inserted."
   (save-excursion
     (goto-char (point-max))
     (if (not (re-search-backward "^\\S<.+$" nil t))
-	;; no comment lines anywhere before end-of-buffer, so we
-	;; want to insert right there
-	(point-max)
+        ;; no comment lines anywhere before end-of-buffer, so we
+        ;; want to insert right there
+        (point-max)
       ;; there's some comments at the end, so we want to insert before
       ;; those; keep going until we find the first non-empty line
       ;; NOTE: if there is no newline at the end of (point),
@@ -279,25 +279,25 @@ Returns either zero, one or two newlines after computation.
 `point' either points to an empty line (with a non-empty previous
 line) or the end of a non-empty line."
   (let ((pre "")
-	(prev-line nil))
+        (prev-line nil))
     (if (not (eq (point) (point-at-bol)))
-	(progn
-	  (setq pre (concat pre "\n"))
-	  (setq prev-line (thing-at-point 'line)))
+        (progn
+          (setq pre (concat pre "\n"))
+          (setq prev-line (thing-at-point 'line)))
       ;; else: (point) is at an empty line
       (when (not (eq (point) (point-min)))
-	(setq prev-line
-	      (save-excursion
-		(forward-line -1)
-		(thing-at-point 'line)))))
+        (setq prev-line
+              (save-excursion
+                (forward-line -1)
+                (thing-at-point 'line)))))
 
     ;; we have prev-line now; if it doesn't match any known pseudo
     ;; header, add a newline
     (when prev-line
       (if (not (delq nil (mapcar (lambda (pseudo-header)
-				   (string-match pseudo-header prev-line))
-				 git-commit-known-pseudo-headers)))
-	  (setq pre (concat pre "\n"))))
+                                   (string-match pseudo-header prev-line))
+                                 git-commit-known-pseudo-headers)))
+          (setq pre (concat pre "\n"))))
     pre))
 
 (defun git-commit-insert-header (type name email)
@@ -312,7 +312,7 @@ inserted before the header."
     (save-excursion
       (goto-char header-at)
       (let ((pre (git-commit-determine-pre-for-pseudo-header)))
-	(insert (format "%s%s: %s <%s>\n" pre type name email))))))
+        (insert (format "%s%s: %s <%s>\n" pre type name email))))))
 
 (defun git-commit-insert-header-as-self (type)
   "Insert a header with the name and email address of the current user.
@@ -418,8 +418,8 @@ If ERRORS is non-nil create keywords that highlight errors in the
 summary line, not the summary line itself."
   (if errors
       `(,git-commit-summary-regexp
-	(2 'git-commit-overlong-summary-face t t)
-	(3 'git-commit-nonempty-second-line-face t t))
+        (2 'git-commit-overlong-summary-face t t)
+        (3 'git-commit-nonempty-second-line-face t t))
     `(,git-commit-summary-regexp
       (1 'git-commit-summary-face t))))
 
