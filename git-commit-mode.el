@@ -532,5 +532,7 @@ basic structure of and errors in git commit messages."
   (add-to-list 'auto-mode-alist (cons pattern 'git-commit-mode)))
 
 (provide 'git-commit-mode)
-
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
 ;;; git-commit-mode.el ends here

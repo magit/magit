@@ -363,4 +363,7 @@ By default, this is the same except for the \"pick\" command."
              '("git-rebase-todo" . git-rebase-mode))
 
 (provide 'git-rebase-mode)
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
 ;;; git-rebase-mode.el ends here
