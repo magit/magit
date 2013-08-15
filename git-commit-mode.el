@@ -2,12 +2,12 @@
 
 ;; Copyright (c) 2012, 2013 Sebastian Wiesner <lunaryorn@gmail.com>
 ;; Copyright (c) 2010 Florian Ragwitz.
-;;
+
 ;; Author: Sebastian Wiesner <lunaryorn@gmail.com>
 ;;      Florian Ragwitz <rafl@debian.org>
 ;; Maintainer: Sebastian Wiesner <lunaryorn@gmail.com>
-;; URL: https://github.com/magit/git-modes
 ;; Version: 0.14-cvs
+;; Homepage: https://github.com/magit/git-modes
 ;; Keywords: convenience vc git
 
 ;; This file is not part of GNU Emacs.

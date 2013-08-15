@@ -4,7 +4,7 @@
 ;; Copyright (C) 2011  Peter J Weisberg
 
 ;; Author: Phil Jackson <phil@shellarchive.co.uk>
-;; URL: https://github.com/magit/git-modes
+;; Homepage: https://github.com/magit/git-modes
 ;; Keywords: convenience vc git
 
 ;; This file is not part of GNU Emacs.
