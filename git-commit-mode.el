@@ -294,7 +294,8 @@ line) or the end of a non-empty line."
     ;; we have prev-line now; if it doesn't match any known pseudo
     ;; header, add a newline
     (when prev-line
-      (if (not (delq nil (mapcar (lambda (pseudo-header) (string-match pseudo-header prev-line))
+      (if (not (delq nil (mapcar (lambda (pseudo-header)
+				   (string-match pseudo-header prev-line))
 				 git-commit-known-pseudo-headers)))
 	  (setq pre (concat pre "\n"))))
     pre))
