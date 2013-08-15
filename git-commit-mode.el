@@ -132,21 +132,7 @@ git commit messages"
 default comments in git commit messages"
   :group 'git-commit-faces)
 
-(defun git-commit-end-session ()
-  "Save the buffer and end the session.
-
-If the current buffer has clients from the Emacs server, call
-`server-edit' to mark the buffer as done and let the clients
-continue, otherwise kill the buffer via `kill-buffer'."
-  (save-buffer)
-  (if (and (fboundp 'server-edit)
-           (boundp 'server-buffer-clients)
-           server-buffer-clients)
-      (server-edit) ; The message buffer comes from emacsclient
-    (kill-buffer)))
-
-(defcustom git-commit-commit-function
-  #'git-commit-end-session
+(defcustom git-commit-commit-function 'git-commit-end-session
   "Function called by `git-commit-commit' to actually perform a commit.
 
 The function is called without argument, with the current buffer
@@ -197,6 +183,19 @@ Return t, if the commit was successful, or nil otherwise."
   (if (git-commit-may-do-commit force)
       (funcall git-commit-commit-function)
     (message "Commit canceled due to stylistic errors.")))
+
+(defun git-commit-end-session ()
+  "Save the buffer and end the session.
+
+If the current buffer has clients from the Emacs server, call
+`server-edit' to mark the buffer as done and let the clients
+continue, otherwise kill the buffer via `kill-buffer'."
+  (save-buffer)
+  (if (and (fboundp 'server-edit)
+           (boundp 'server-buffer-clients)
+           server-buffer-clients)
+      (server-edit) ; The message buffer comes from emacsclient
+    (kill-buffer)))
 
 (defun git-commit-git-config-var (key)
   "Retrieve a git configuration value.
