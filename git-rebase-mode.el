@@ -1,4 +1,4 @@
-;;; git-rebase-mode -- Major mode for editing git rebase files
+;;; git-rebase-mode --- Major mode for editing git rebase files
 
 ;; Copyright (C) 2010  Phil Jackson
 ;; Copyright (C) 2011  Peter J Weisberg
