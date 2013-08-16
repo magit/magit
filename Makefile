@@ -103,6 +103,14 @@ magit-version.el:
 	@printf ";; End:\n" >> $@
 	@printf ";;; magit-version.el ends here\n" >> $@
 
+# Not a phony target, but needs to run *every* time.
+.PHONY: magit-pkg.el
+magit-pkg.el:
+	@printf "Generating magit-pkg.el\n"
+	@printf "(define-package \"magit\" \""$(VERSION)"\"\n" >  $@
+	@printf "  \"Control Git from Emacs.\"" >> $@
+	@printf "  '((cl-lib \"0.3\")))" >> $@
+
 .PHONY: loaddefs
 loaddefs: $(LOADDEFS_FILE)
 
@@ -177,8 +185,9 @@ magit-$(VERSION).tar.gz: $(DIST_FILES)
 .PHONY: marmalade
 marmalade: magit-$(VERSION).tar
 
-magit-$(VERSION).tar: $(ELPA_FILES)
+magit-$(VERSION).tar: $(ELPA_FILES) magit-pkg.el
 	$(MKDIR) magit-$(VERSION)
 	$(CP) $(ELPA_FILES) magit-$(VERSION)
+	$(CP) magit-pkg.el magit-$(VERSION)
 	tar -cv --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar magit-$(VERSION)
 	$(RM) magit-$(VERSION)
