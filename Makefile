@@ -101,15 +101,14 @@ magit-version.el:
 	@printf ";; End:\n" >> $@
 	@printf ";;; magit-version.el ends here\n" >> $@
 
-# Not a phony target, but needs to run *every* time.
-.PHONY: magit-pkg.el
+# FIXME The version string has to be set manually for now.
 magit-pkg.el:
 	@printf "Generating magit-pkg.el\n"
-	@printf "(define-package \"magit\" \""$(VERSION)"\"\n" > $@
-	@printf "  \"Control Git from Emacs.\""      >> $@
-	@printf "  '((cl-lib \"0.3\")"               >> $@
-	@printf "    (git-commit-mode \"0.14.0\")"   >> $@
-	@printf "    (git-rebase-mode \"0.14.0\")))" >> $@
+	@printf "(define-package \"magit\" \"1.2.1-git\"\n" > $@
+	@printf "  \"Control Git from Emacs.\"\n"      >> $@
+	@printf "  '((cl-lib \"0.3\")\n"               >> $@
+	@printf "    (git-commit-mode \"0.14.0\")\n"   >> $@
+	@printf "    (git-rebase-mode \"0.14.0\")))\n" >> $@
 
 .PHONY: loaddefs
 loaddefs: $(LOADDEFS_FILE)
