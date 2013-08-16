@@ -169,6 +169,19 @@
       ("-u" "Include untracked files" "--include-untracked")
       ("-a" "Include all files" "--all")))
 
+    (committing
+     (man-page "git-commit")
+     (actions
+      ("c" "Commit" magit-commit))
+     (switches
+      ("-a" "Replace the tip of current branch" "--amend")
+      ("-A" "Stage all modified and deleted files" "--all")
+      ("-e" "Allow empty commit" "--allow-empty")
+      ("-n" "Bypass git hooks" "--no-verify")
+      ("-s" "Add Signed-off-by line" "--signoff"))
+     (arguments
+      ("=g" "Sign using gpg" "--gpg-sign=" read-string)))
+
     (merging
      (man-page "git-merge")
      (actions

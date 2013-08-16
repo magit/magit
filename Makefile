@@ -13,24 +13,24 @@ ELS += magit-cherry.el
 ELS += magit-compat.el
 ELS += magit-flow.el
 ELS += magit-key-mode.el
-ELS += magit-log-edit.el
 ELS += magit-stgit.el
 ELS += magit-svn.el
 ELS += magit-topgit.el
 ELS += magit-wip.el
-ELS += rebase-mode.el
 ELCS = $(ELS:.el=.elc)
 
 CP    ?= install -p -m 644
 CPBIN ?= install -p -m 755
 MKDIR ?= install -p -m 755 -d
+RM    ?= rm -rf
 
 MAKEINFO     ?= makeinfo
 INSTALL_INFO ?= install-info
 
-EMACS ?= emacs
-BATCH  = $(EMACS) $(EFLAGS) -batch -Q -L .
-BATCHC = $(BATCH) -f batch-byte-compile
+EFLAGS ?=
+EMACS  ?= emacs
+BATCH   = $(EMACS) $(EFLAGS) -batch -Q -L .
+BATCHC  = $(BATCH) -f batch-byte-compile
 
 VERSION=$(shell \
   test -e .git && git describe --tags --dirty 2> /dev/null || \
@@ -41,13 +41,13 @@ VERSION=$(shell \
     (load-file \"magit-version.el\"))\
   (princ magit-version))")
 
-.PHONY: clean magit-version.el
-.PHONY: install-lisp install-docs install-script
-.PHONY: melpa melpa-push
-
+.PHONY: lisp
 lisp:     $(ELCS) magit-version.el loaddefs
+
+.PHONY: all
 all:      lisp docs
 
+.PHONY: help
 help:
 	$(info Getting Help)
 	$(info ============)
@@ -86,6 +86,8 @@ help:
 %.elc: %.el
 	@$(BATCHC) $<
 
+# Not a phony target, but needs to run *every* time.
+.PHONY: magit-version.el
 magit-version.el:
 	@printf "Generating magit-version.el\n"
 	@printf ";;; magit-version.el --- the Magit version you are using\n\n" > $@
@@ -99,6 +101,17 @@ magit-version.el:
 	@printf ";; End:\n" >> $@
 	@printf ";;; magit-version.el ends here\n" >> $@
 
+# Not a phony target, but needs to run *every* time.
+.PHONY: magit-pkg.el
+magit-pkg.el:
+	@printf "Generating magit-pkg.el\n"
+	@printf "(define-package \"magit\" \""$(VERSION)"\"\n" > $@
+	@printf "  \"Control Git from Emacs.\""      >> $@
+	@printf "  '((cl-lib \"0.3\")"               >> $@
+	@printf "    (git-commit-mode \"0.14.0\")"   >> $@
+	@printf "    (git-rebase-mode \"0.14.0\")))" >> $@
+
+.PHONY: loaddefs
 loaddefs: $(LOADDEFS_FILE)
 
 $(LOADDEFS_FILE): $(ELS)
@@ -108,6 +121,7 @@ $(LOADDEFS_FILE): $(ELS)
         (make-backup-files nil))\
     (update-directory-autoloads \".\")))"
 
+.PHONY: docs
 docs: magit.info dir
 
 %.info: %.texi
@@ -116,33 +130,41 @@ docs: magit.info dir
 dir: magit.info
 	$(INSTALL_INFO) --dir=$@ $<
 
+.PHONY: install
 install: install-lisp install-docs
-install-all: install install-script
 
+.PHONY: install-all
+install-all: install-lisp install-docs install-script
+
+.PHONY: install-lisp
 install-lisp: lisp
 	$(MKDIR) $(DESTDIR)$(lispdir)
 	$(CP) $(ELS) $(ELCS) magit-version.el $(DESTDIR)$(lispdir)
 	$(MKDIR) $(DESTDIR)$(LOADDEFS_DIR)
 	$(CP) $(LOADDEFS_FILE) $(DESTDIR)$(LOADDEFS_DIR)/$(LOADDEFS_FILE)
 
+.PHONY: install-docs
 install-docs: docs
 	$(MKDIR) $(DESTDIR)$(infodir)
 	$(CP) magit.info $(DESTDIR)$(infodir)
 	$(INSTALL_INFO) --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/magit.info
 
+.PHONY: install-script
 install-script: bin/magit
 	$(MKDIR) $(DESTDIR)$(execdir)
 	$(CPBIN) bin/magit $(DESTDIR)$(execdir)
 
+.PHONY: test
 test: $(ELCS)
 	@$(BATCH) -eval "(progn (require 'cl) \
 	(put 'flet 'byte-obsolete-info nil))" \
 	-l tests/magit-tests.el -f ert-run-tests-batch-and-exit
 
+.PHONY: clean
 clean:
-	rm -f $(ELCS) $(LOADDEFS_FILE) magit-version.el magit.info
-	rm -fr magit-$(VERSION) magit.spec *.tar.gz *.tar
-	test -e .git || rm -f magit.info
+	$(RM) $(ELCS) $(LOADDEFS_FILE) magit-version.el
+	$(RM) magit-$(VERSION) *.tar.gz *.tar
+	-test ! -d .git && $(RM) magit.info
 
 DIST_FILES  = $(ELS) magit-version.el Makefile
 DIST_FILES += README.md INSTALL.md magit.texi magit.info dir
@@ -150,6 +172,7 @@ DIST_FILES_BIN  = bin/magit
 
 ELPA_FILES = $(ELS) magit.info dir
 
+.PHONY: dist
 dist: magit-$(VERSION).tar.gz
 
 magit-$(VERSION).tar.gz: $(DIST_FILES)
@@ -157,12 +180,14 @@ magit-$(VERSION).tar.gz: $(DIST_FILES)
 	$(CP) $(DIST_FILES) magit-$(VERSION)
 	$(CPBIN) $(DIST_FILES_BIN) magit-$(VERSION)/bin
 	tar -cvz --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar.gz magit-$(VERSION)
-	rm -rf magit-$(VERSION)
+	$(RM) magit-$(VERSION)
 
+.PHONY: marmalade
 marmalade: magit-$(VERSION).tar
 
-magit-$(VERSION).tar: $(ELPA_FILES)
+magit-$(VERSION).tar: $(ELPA_FILES) magit-pkg.el
 	$(MKDIR) magit-$(VERSION)
 	$(CP) $(ELPA_FILES) magit-$(VERSION)
+	$(CP) magit-pkg.el magit-$(VERSION)
 	tar -cv --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar magit-$(VERSION)
-	rm -rf magit-$(VERSION)
+	$(RM) magit-$(VERSION)
