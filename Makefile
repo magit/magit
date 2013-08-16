@@ -13,12 +13,10 @@ ELS += magit-cherry.el
 ELS += magit-compat.el
 ELS += magit-flow.el
 ELS += magit-key-mode.el
-ELS += magit-log-edit.el
 ELS += magit-stgit.el
 ELS += magit-svn.el
 ELS += magit-topgit.el
 ELS += magit-wip.el
-ELS += rebase-mode.el
 ELCS = $(ELS:.el=.elc)
 
 CP    ?= install -p -m 644
@@ -107,9 +105,11 @@ magit-version.el:
 .PHONY: magit-pkg.el
 magit-pkg.el:
 	@printf "Generating magit-pkg.el\n"
-	@printf "(define-package \"magit\" \""$(VERSION)"\"\n" >  $@
-	@printf "  \"Control Git from Emacs.\"" >> $@
-	@printf "  '((cl-lib \"0.3\")))" >> $@
+	@printf "(define-package \"magit\" \""$(VERSION)"\"\n" > $@
+	@printf "  \"Control Git from Emacs.\""      >> $@
+	@printf "  '((cl-lib \"0.3\")"               >> $@
+	@printf "    (git-commit-mode \"0.14.0\")"   >> $@
+	@printf "    (git-rebase-mode \"0.14.0\")))" >> $@
 
 .PHONY: loaddefs
 loaddefs: $(LOADDEFS_FILE)
