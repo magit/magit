@@ -318,14 +318,24 @@ If t, use ptys: this enables magit to prompt for passphrases when needed."
   :type '(choice (const :tag "pipe" nil)
                  (const :tag "pty" t)))
 
-(defcustom magit-process-yes-or-no-prompt
-  " [\[(]\\([Yy]\\(?:es\\)?\\)[/|]\\([Nn]o?\\)[\])]\\? ?$"
+(defcustom magit-process-yes-or-no-prompt-regexp
+  (concat                  ;; Match:
+   " "                     ;;   Leading space.
+   "[\[(]"                 ;;   Opening square bracket or paren.
+   "\\([Yy]\\(?:es\\)?\\)" ;;   Upper/lower-case "y", maybe followed by a shy "es"
+   "[/|]"                  ;;   Slash or pipe.
+   "\\([Nn]o?\\)"          ;;   Upper/lower-case "n", maybe followed by an "o".
+   "[\])]"                 ;;   Closing square bracket or paren.
+   " ?"                    ;;   Maybe a space.
+   "[?:] ?"                ;;   Question mark or colon, maybe followed by a trailing space.
+   "$"                     ;;   @ EOL...
+   )
   "Regexp matching Yes-or-No prompts of git and its subprocesses."
   :group 'magit
   :type 'regexp)
 
-(defcustom magit-process-password-prompts
-  '("^\\(Enter \\)?[Pp]assphrase\\( for key '.*'\\)?: ?$"
+(defcustom magit-process-password-prompt-regexps
+  '("^\\(Enter \\)?[Pp]assphrase\\( for \\(RSA \\)?key '.*'\\)?: ?$"
     "^\\(Enter \\)?[Pp]assword\\( for '.*'\\)?: ?$"
     "^.*'s password: ?$"
     "^Yubikey for .*: ?$")
@@ -333,7 +343,7 @@ If t, use ptys: this enables magit to prompt for passphrases when needed."
   :group 'magit
   :type '(repeat (regexp)))
 
-(defcustom magit-process-username-prompts
+(defcustom magit-process-username-prompt-regexps
   '("^Username for '.*': ?$")
   "List of regexps matching username prompts of git and its subprocesses."
   :group 'magit
@@ -2554,31 +2564,27 @@ magit-topgit and magit-svn"
       (set-marker (process-mark proc) (point)))))
 
 (defun magit-process-yes-or-no-prompt (proc string)
-  (let ((beg (string-match magit-process-yes-or-no-prompt string)))
+  (let ((beg (string-match magit-process-yes-or-no-prompt-regexp string)))
     (when beg
-      (process-send-string
-       proc
-       (concat (downcase
-                (match-string (if (let ((max-mini-window-height 30))
-                                    (yes-or-no-p
-                                     (save-match-data
-                                       (substring string 0 beg))))
-                                  1
-                                2)
-                              string))
-               "\n")))))
+      (let* ((max-mini-window-height 30)
+             (answer (yes-or-no-p (substring string 0 beg)))
+             (reply (concat
+                     (downcase
+                      (match-string (if answer 1 2) string))
+                     "\n")))
+        (process-send-string proc reply)))))
 
 (defun magit-process-password-prompt (proc string)
   "Forward password prompts to the user."
   (let ((prompt (magit-process-match-prompt
-                 magit-process-password-prompts string)))
+                 magit-process-password-prompt-regexps string)))
     (when prompt
       (process-send-string proc (concat (read-passwd prompt) "\n")))))
 
 (defun magit-process-username-prompt (proc string)
   "Forward username prompts to the user."
   (let ((prompt (magit-process-match-prompt
-                 magit-process-username-prompts string)))
+                 magit-process-username-prompt-regexps string)))
     (when prompt
       (process-send-string proc
                            (concat (read-string prompt nil nil
