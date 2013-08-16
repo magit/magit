@@ -41,10 +41,10 @@ VERSION=$(shell \
   (princ magit-version))")
 
 .PHONY: lisp
-lisp:     $(ELCS) magit-version.el loaddefs
+lisp: $(ELCS) magit-version.el loaddefs
 
 .PHONY: all
-all:      lisp docs
+all: lisp docs
 
 .PHONY: help
 help:
