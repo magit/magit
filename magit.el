@@ -2554,19 +2554,15 @@ magit-topgit and magit-svn"
       (set-marker (process-mark proc) (point)))))
 
 (defun magit-process-yes-or-no-prompt (proc string)
-  (let ((beg (string-match magit-process-yes-or-no-prompt-regexp string)))
+  (let ((beg (string-match magit-process-yes-or-no-prompt string))
+        (max-mini-window-height 30))
     (when beg
       (process-send-string
        proc
-       (concat (downcase
-                (match-string (if (let ((max-mini-window-height 30))
-                                    (yes-or-no-p
-                                     (save-match-data
-                                       (substring string 0 beg))))
-                                  1
-                                2)
-                              string))
-               "\n")))))
+       (downcase
+        (concat (match-string (if (yes-or-no-p (substring string 0 beg)) 1 2)
+                              string)
+                "\n"))))))
 
 (defun magit-process-password-prompt (proc string)
   "Forward password prompts to the user."
