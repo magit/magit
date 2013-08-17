@@ -95,12 +95,7 @@ Use the function by the same name instead of this variable.")
 
 
 ;;; Options
-;;;; Variables
-
-(defgroup magit nil
-  "Controlling Git from Emacs."
-  :prefix "magit-"
-  :group 'tools)
+;;;; Setters
 
 (defun magit-set-variable-and-refresh (symbol value)
   "Set SYMBOL to VALUE and call `magit-refresh-all'."
@@ -109,6 +104,26 @@ Use the function by the same name instead of this variable.")
   ;; need refreshing can exist and we can take a shortcut.
   (when (featurep 'magit)
     (magit-refresh-all)))
+
+(defun magit-set-default-diff-options (symbol value)
+  "Set the default for `magit-diff-options' based on popup value.
+Also set the local value in all Magit buffers and refresh them.
+\n(fn)" ; The arguments are an internal implementation detail.
+  (interactive (list 'magit-diff-options magit-custom-options))
+  (set-default symbol value)
+  (when (featurep 'magit)
+    (dolist (buffer (buffer-list))
+      (when (derived-mode-p 'magit-mode)
+        (with-current-buffer buffer
+          (setq-local magit-diff-options value)
+          (magit-refresh-buffer))))))
+
+;;;; Variables
+
+(defgroup magit nil
+  "Controlling Git from Emacs."
+  :prefix "magit-"
+  :group 'tools)
 
 (defcustom magit-git-executable "git"
   "The name of the Git executable."
@@ -457,6 +472,36 @@ many spaces.  Otherwise, highlight neither."
                                (integer :tag "Spaces" :value ,tab-width)
                                (const :tag "Neither" nil))))
   :set 'magit-set-variable-and-refresh)
+
+(defcustom magit-diff-options nil
+  "Git options used to display diffs.
+For more information about the options see man:git-diff.
+This variable can be conveniently set in Magit buffers
+using `magit-key-mode-popup-diff-options' (bound to \
+\\<magit-mode-map>\\[magit-key-mode-popup-diff-options])."
+  :group 'magit
+  :type '(set :greedy t
+              (const :tag
+                     "--minimal              Show smallest possible diff"
+                     "--minimal")
+              (const :tag
+                     "--patience             Use patience diff algorithm"
+                     "--patience")
+              (const :tag
+                     "--histogram            Use histogram diff algorithm"
+                     "--histogram")
+              (const :tag
+                     "--ignore-space-change  Ignore whitespace changes"
+                     "--ignore-space-change")
+              (const :tag
+                     "--ignore-all-space     Ignore all whitespace"
+                     "--ignore-all-space")
+              (const :tag
+                     "--function-context     Show surrounding functions"
+                     "--function-context"))
+  :set 'magit-set-default-diff-options)
+
+(put 'magit-diff-options 'permanent-local t)
 
 (defcustom magit-diff-refine-hunk nil
   "Show fine (word-granularity) differences within diff hunks.
@@ -879,7 +924,8 @@ face inherit from `default' and remove all other attributes."
     (define-key map (kbd "-") 'magit-diff-smaller-hunks)
     (define-key map (kbd "+") 'magit-diff-larger-hunks)
     (define-key map (kbd "0") 'magit-diff-default-hunks)
-    (define-key map (kbd "h") 'magit-toggle-diff-refine-hunk)
+    (define-key map (kbd "h") 'magit-key-mode-popup-diff-options)
+    (define-key map (kbd "H") 'magit-toggle-diff-refine-hunk)
     (define-key map (kbd "M-g") 'magit-goto-diffstats)
     map))
 
@@ -2930,6 +2976,28 @@ With a prefix argument, kill the buffer instead."
   (setq magit-diff-context-lines 3)
   (magit-refresh))
 
+(defun magit-set-diff-options ()
+  "Set local `magit-diff-options' based on popup state.
+And refresh the current Magit buffer."
+  (interactive)
+  (setq-local magit-diff-options magit-custom-options)
+  (magit-refresh))
+
+;; `magit-set-default-diff-options' is defined in "Options"/"Setters".
+
+(defun magit-save-default-diff-options ()
+  "Set and save the default for `magit-diff-options' based on popup value.
+Also set the local value in all Magit buffers and refresh them."
+  (interactive)
+  (customize-save-variable 'magit-diff-options magit-custom-options))
+
+(defun magit-reset-diff-options ()
+  "Reset local `magit-diff-options' to default value.
+And refresh the current Magit buffer."
+  (interactive)
+  (setq-local magit-diff-options (default-value 'magit-diff-options))
+  (magit-refresh))
+
 (defun magit-toggle-diff-refine-hunk (&optional other)
   "Turn diff-hunk refining on or off.
 
@@ -3301,8 +3369,6 @@ Customize `magit-diff-refine-hunk' to change the default mode."
   ;; diff-refine-hunk can't handle git's combined diff output (--cc)
   (unless (magit-looking-at-combined-diff-p)
     (diff-refine-hunk)))
-
-(defvar magit-diff-options nil)
 
 (defun magit-insert-diff (file status)
   (magit-configure-have-config-param)
