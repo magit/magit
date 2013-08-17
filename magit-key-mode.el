@@ -179,8 +179,7 @@
       ("-e" "Allow empty commit" "--allow-empty")
       ("-n" "Bypass git hooks" "--no-verify")
       ("-s" "Add Signed-off-by line" "--signoff"))
-     (arguments
-      ("=g" "Sign using gpg" "--gpg-sign=" read-string)))
+      ("-S" "Sign using gpg" "--gpg-sign"))
 
     (merging
      (man-page "git-merge")
