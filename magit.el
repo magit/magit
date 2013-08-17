@@ -4607,7 +4607,8 @@ non-nil, then autocompletion will offer directory names."
                magit-custom-options
              (cons "--no-commit" magit-custom-options)))
     (when (file-exists-p ".git/MERGE_MSG")
-      (magit-commit))))
+      (let ((magit-custom-options nil))
+        (magit-commit)))))
 
 (defun magit-merge-abort ()
   "Abort the current merge operation."
