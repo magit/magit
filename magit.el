@@ -1658,7 +1658,7 @@ Sections created inside BODY will become children of the new
 section. BODY must leave point at the end of the created section.
 
 If TYPE is nil, the section won't be highlighted."
-  (declare (indent 2))
+  (declare (indent 2) (debug (form form body)))
   (let ((s (make-symbol "*section*")))
     `(let* ((,s (magit-new-section ,title ,type))
             (magit-top-section ,s))
@@ -1734,6 +1734,9 @@ Use the specified START and END positions."
     section))
 
 (defun magit-set-section-info (info &optional section)
+  "set the info of SECTION
+
+If SECTION is nil, default to setting `magit-top-section'"
   (setf (magit-section-info (or section magit-top-section)) info))
 
 (defun magit-set-section-needs-refresh-on-show (flag &optional section)
@@ -1743,7 +1746,7 @@ Use the specified START and END positions."
 
 (defmacro magit-create-buffer-sections (&rest body)
   "Empty current buffer of text and Magit's sections, and then evaluate BODY."
-  (declare (indent 0))
+  (declare (indent 0) (debug t))
   `(let ((inhibit-read-only t))
      (erase-buffer)
      (let ((magit-old-top-section magit-top-section))
@@ -3937,7 +3940,7 @@ must return a string which will represent the log line.")
 
 if the number of logs inserted in the buffer is `magit-log-cutoff-length'
 insert a line to tell how to insert more of them"
-  (declare (indent 0))
+  (declare (indent 0) (debug t))
   `(let ((magit-log-count 0) (inhibit-read-only t))
      (magit-create-buffer-sections
        (magit-with-section 'log nil
@@ -5506,6 +5509,7 @@ With prefix argument, changes in staging area are kept.
 ;;;; Revert
 
 (defmacro magit-with-revert-confirmation (&rest body)
+  (declare (debug t))
   `(when (or (not magit-revert-item-confirm)
              (yes-or-no-p "Really revert this item? "))
      ,@body))
@@ -6077,6 +6081,7 @@ written to .git/info/exclude."
      (call-interactively 'magit-rename-remote))))
 
 (defmacro magit-visiting-file-item (&rest body)
+  (declare (debug t))
   `(let ((marker (save-window-excursion
                    (magit-visit-file-item)
                    (set-marker (make-marker) (point)))))
