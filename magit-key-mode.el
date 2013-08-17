@@ -153,11 +153,11 @@
     (tagging
      (man-page "git-tag")
      (actions
-      ("t" "Lightweight" magit-tag)
-      ("a" "Annotated" magit-annotated-tag)
+      ("t" "Create" magit-tag)
       ("k" "Delete" magit-delete-tag))
      (switches
-      ("-f" "Force" "-f")
+      ("-a" "Annotate" "--annotate")
+      ("-f" "Force" "--force")
       ("-s" "Sign" "--sign")))
 
     (stashing

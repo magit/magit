@@ -949,7 +949,6 @@ face inherit from `default' and remove all other attributes."
     ["Unstage all" magit-unstage-all t]
     ["Commit" magit-key-mode-popup-committing t]
     ["Tag" magit-tag t]
-    ["Annotated tag" magit-annotated-tag t]
     "---"
     ["Diff working tree" magit-diff-working-tree t]
     ["Diff" magit-diff t]
@@ -5353,29 +5352,21 @@ the message from the file the message buffer was saved to.
 ;;;; Tagging
 
 (magit-define-command tag (name rev)
-  "Create a new lightweight tag with the given NAME at REV.
-\('git tag NAME REV')."
-  (interactive
-   (list
-    (magit-read-tag "Tag name: ")
-    (magit-read-rev "Place tag on: " (or (magit-default-rev) "HEAD"))))
-  (apply #'magit-run-git "tag" (append magit-custom-options (list name rev))))
-
-(magit-define-command annotated-tag (name rev)
-  "Start composing an annotated tag with the given NAME.
-\('git tag -a NAME REV')."
-  (interactive
-   (list
-    (magit-read-tag "Tag name: ")
-    (magit-read-rev "Place tag on: " (or (magit-default-rev) "HEAD"))))
-  (apply #'magit-run-git "tag" "-a"
+  "Create a new tag with the given NAME at REV.
+With a prefix argument annotate the tag.
+\('git tag [-a] NAME REV')."
+  (interactive (list (magit-read-tag "Tag name: ")
+                     (magit-read-rev "Place tag on: "
+                                     (or (magit-default-rev) "HEAD"))))
+  (apply #'magit-run-git-async "tag"
          (append magit-custom-options (list name rev))))
 
 (magit-define-command delete-tag (name)
   "Delete the tag with the given NAME.
 \('git tag -d NAME')."
   (interactive (list (magit-read-tag "Delete Tag: " t)))
-  (apply #'magit-run-git "tag" "-d" (append magit-custom-options (list name))))
+  (apply #'magit-run-git "tag" "-d"
+         (append magit-custom-options (list name))))
 
 (defun magit-read-tag (prompt &optional require-match)
   (magit-completing-read prompt (magit-git-lines "tag") nil
