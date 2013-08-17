@@ -157,7 +157,8 @@
       ("a" "Annotated" magit-annotated-tag)
       ("k" "Delete" magit-delete-tag))
      (switches
-      ("-f" "Force" "-f")))
+      ("-f" "Force" "-f")
+      ("-s" "Sign" "--sign")))
 
     (stashing
      (man-page "git-stash")
