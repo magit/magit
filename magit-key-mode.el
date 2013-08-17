@@ -153,11 +153,12 @@
     (tagging
      (man-page "git-tag")
      (actions
-      ("t" "Lightweight" magit-tag)
-      ("a" "Annotated" magit-annotated-tag)
+      ("t" "Create" magit-tag)
       ("k" "Delete" magit-delete-tag))
      (switches
-      ("-f" "Force" "-f")))
+      ("-a" "Annotate" "--annotate")
+      ("-f" "Force" "--force")
+      ("-s" "Sign" "--sign")))
 
     (stashing
      (man-page "git-stash")
@@ -179,8 +180,7 @@
       ("-e" "Allow empty commit" "--allow-empty")
       ("-n" "Bypass git hooks" "--no-verify")
       ("-s" "Add Signed-off-by line" "--signoff"))
-     (arguments
-      ("=g" "Sign using gpg" "--gpg-sign=" read-string)))
+      ("-S" "Sign using gpg" "--gpg-sign"))
 
     (merging
      (man-page "git-merge")
