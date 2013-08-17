@@ -95,12 +95,7 @@ Use the function by the same name instead of this variable.")
 
 
 ;;; Options
-;;;; Variables
-
-(defgroup magit nil
-  "Controlling Git from Emacs."
-  :prefix "magit-"
-  :group 'tools)
+;;;; Setters
 
 (defun magit-set-variable-and-refresh (symbol value)
   "Set SYMBOL to VALUE and call `magit-refresh-all'."
@@ -109,6 +104,13 @@ Use the function by the same name instead of this variable.")
   ;; need refreshing can exist and we can take a shortcut.
   (when (featurep 'magit)
     (magit-refresh-all)))
+
+;;;; Variables
+
+(defgroup magit nil
+  "Controlling Git from Emacs."
+  :prefix "magit-"
+  :group 'tools)
 
 (defcustom magit-git-executable "git"
   "The name of the Git executable."
