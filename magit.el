@@ -1409,8 +1409,8 @@ you end up in vi and don't know how to exit."
   (let ((git-window (cl-gensym "git-server-window")))
     `(let ((process-environment process-environment)
            (emacsclient (executable-find "emacsclient"))
+           (magit-process-popup-time -1)
            (,git-window ,server-window))
-
        (unless (magit-server-running-p)
          (server-start))
        (cond
