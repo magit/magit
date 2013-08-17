@@ -222,7 +222,23 @@
       ("r" "Reset" magit-bisect-reset)
       ("s" "Start" magit-bisect-start)
       ("u" "Run" magit-bisect-run)
-      ("v" "Visualize" magit-bisect-visualize))))
+      ("v" "Visualize" magit-bisect-visualize)))
+
+    (diff-options
+     (actions
+      ("s" "Set" magit-set-diff-options)
+      ("d" "Set default" magit-set-default-diff-options)
+      ("c" "Save default" magit-save-default-diff-options)
+      ("r" "Reset to default" magit-reset-diff-options)
+      ("h" "Toggle Hunk Refinement" magit-toggle-diff-refine-hunk))
+     (switches
+      ("-m" "Show smallest possible diff" "--minimal")
+      ("-p" "Use patience diff algorithm" "--patience")
+      ("-h" "Use histogram diff algorithm" "--histogram")
+      ("-b" "Ignore whitespace changes" "--ignore-space-change")
+      ("-w" "Ignore all whitespace" "--ignore-all-space")
+      ("-W" "Show surrounding functions" "--function-context"))
+     ))
   "Holds the key, help, function mapping for the log-mode.
 If you modify this make sure you reset `magit-key-mode-keymaps'
 to nil.")
@@ -618,10 +634,16 @@ Return the point before the actions part, if any, nil otherwise."
      `(defun ,(intern (concat "magit-key-mode-popup-" (symbol-name group))) nil
         ,(concat "Key menu for " (symbol-name group))
         (interactive)
-        (magit-key-mode (quote ,group)
-                        ;; As a tempory solution it is okay to do this here.
-                        ,(when (eq group 'logging)
-                           '(and magit-have-graph (list "--graph"))))))))
+        (magit-key-mode
+         (quote ,group)
+         ;; As a tempory kludge it is okay to do this here.
+         ,(cl-case group
+            (logging
+             '(when magit-have-graph
+                (list "--graph")))
+            (diff-options
+             '(when (local-variable-p 'magit-diff-options)
+                magit-diff-options))))))))
 
 ;; create the interactive functions for the key mode popups (which are
 ;; applied in the top-level key maps)
