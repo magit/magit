@@ -1407,11 +1407,17 @@ are always evaluated.  The worst thing that could happen is that
 you end up in vi and don't know how to exit."
   (declare (indent 1))
   (let ((window (cl-gensym "window"))
+        (bindir (cl-gensym "bindir"))
         (client (cl-gensym "client")))
     `(let* ((process-environment process-environment)
             (magit-process-popup-time -1)
             (,window ,server-window)
-            (,client (executable-find "emacsclient")))
+            (,bindir (file-name-directory
+                      (cdr (assq 'args (process-attributes (emacs-pid))))))
+            (,client (and ,bindir
+                          (expand-file-name "emacsclient" ,bindir))))
+       (unless (and ,client (file-executable-p ,client))
+         (setq ,client (executable-find "emacsclient")))
        (unless (magit-server-running-p)
          (server-start))
        (cond
