@@ -1406,19 +1406,20 @@ that happens that is not considered an error; the forms in BODY
 are always evaluated.  The worst thing that could happen is that
 you end up in vi and don't know how to exit."
   (declare (indent 1))
-  (let ((git-window (cl-gensym "git-server-window")))
-    `(let ((process-environment process-environment)
-           (emacsclient (executable-find "emacsclient"))
-           (magit-process-popup-time -1)
-           (,git-window ,server-window))
+  (let ((window (cl-gensym "window"))
+        (client (cl-gensym "client")))
+    `(let* ((process-environment process-environment)
+            (magit-process-popup-time -1)
+            (,window ,server-window)
+            (,client (executable-find "emacsclient")))
        (unless (magit-server-running-p)
          (server-start))
        (cond
-        ((not emacsclient)
+        ((not ,client)
          (message (concat "Cannot find emacsclient (check $PATH); "
                           "using default $GIT_EDITOR")))
         ((string= server-name "server")
-         (setenv "GIT_EDITOR" emacsclient))
+         (setenv "GIT_EDITOR" ,client))
         ((eq system-type 'windows-nt)
          ;; Doing so might actually be possible - we just don't know
          ;; how.  Also we cannot experiment because we don't own a
@@ -1426,18 +1427,18 @@ you end up in vi and don't know how to exit."
          (message (concat "Cannot set server name on Windows; "
                           "using default $GIT_EDITOR")))
         (t
-         (setenv "GIT_EDITOR" (format "%s -s %s" emacsclient server-name))))
+         (setenv "GIT_EDITOR" (format "%s -s %s" ,client server-name))))
        ;; Git has to be called asynchronously in BODY or we create a
        ;; dead lock.  By the time `emacsclient' is called the dynamic
        ;; binding is no longer in effect and our primitives don't
-       ;; support callbacks.  Temporarily the default value and
-       ;; restore it using a timer.
-       (unless (equal ,git-window server-window)
+       ;; support callbacks.  Temporarily set the default value and
+       ;; restore the old value using a timer.
+       (unless (equal ,window server-window)
          (run-at-time "0.2 sec" nil
                       (apply-partially (lambda (value)
                                          (setq server-window value))
                                        server-window))
-         (setq-default server-window ,git-window))
+         (setq-default server-window ,window))
        ,@body)))
 
 ;;; Revisions and Ranges
