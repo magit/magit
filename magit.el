@@ -5414,8 +5414,7 @@ the message from the file the message buffer was saved to.
                (member "--all"         magit-custom-options)
                (member "--amend"       magit-custom-options)
                (and amendp (setq magit-custom-options
-                                 (cons "--amend"
-                                       magit-custom-options)))))
+                                 (cons "--amend" magit-custom-options)))))
       (if (and (magit-rebase-info)
                (y-or-n-p "Nothing staged.  Continue in-progress rebase? "))
           (magit-run-git-async "rebase" "--continue")
@@ -5426,21 +5425,22 @@ the message from the file the message buffer was saved to.
 
 ;;;; Tagging
 
-(magit-define-command tag (name rev &optional args)
+(magit-define-command tag (name rev &optional amendp)
   "Create a new tag with the given NAME at REV.
 With a prefix argument annotate the tag.
 \('git tag [-a] NAME REV')."
   (interactive (list (magit-read-tag "Tag name: ")
                      (magit-read-rev "Place tag on: "
                                      (or (magit-default-rev) "HEAD"))
-                     (and current-prefix-arg (list "-a"))))
-  (if (or (member "-a" args)
-          (member "-a" magit-custom-options))
+                     current-prefix-arg))
+  (if (or (member "-a" magit-custom-options)
+          (and amendp (setq magit-custom-options
+                            (cons "-a" magit-custom-options))))
       (magit-with-git-editor-setup magit-server-window-for-commit
         (apply #'magit-run-git-async "tag"
-               (append magit-custom-options args (list name rev))))
+               (append magit-custom-options (list name rev))))
     (apply #'magit-run-git "tag"
-           (append magit-custom-options args (list name rev)))))
+           (append magit-custom-options (list name rev)))))
 
 (magit-define-command delete-tag (name)
   "Delete the tag with the given NAME.
