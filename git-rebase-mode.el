@@ -110,8 +110,8 @@
 
 (defvar git-rebase-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "q")       'server-edit)
-    (define-key map (kbd "C-c C-c") 'server-edit)
+    (define-key map (kbd "q")       'git-rebase-server-edit)
+    (define-key map (kbd "C-c C-c") 'git-rebase-server-edit)
     (define-key map (kbd "a")       'git-rebase-abort)
     (define-key map (kbd "C-c C-k") 'git-rebase-abort)
     (define-key map [remap undo]    'git-rebase-undo)
@@ -228,6 +228,12 @@ that of CHANGE-TO."
       (forward-line -1)
       (move-to-column col))))
 
+(defun git-rebase-server-edit ()
+  "Save the action buffer and end the session."
+  (interactive)
+  (save-buffer)
+  (server-edit))
+
 (defun git-rebase-abort ()
   "Abort this rebase.
 This is dune by emptying the buffer, saving and closing server
@@ -236,7 +242,7 @@ connection."
   (when (or (not (buffer-modified-p))
             (y-or-n-p "Abort this rebase? "))
     (let ((buffer-read-only nil))
-      (delete-region (point-min) (point-max))
+      (erase-buffer)
       (save-buffer)
       (server-edit))))
 
