@@ -1487,7 +1487,10 @@ you end up in vi and don't know how to exit."
                           "using default $GIT_EDITOR")))
         (t
          (setenv "GIT_EDITOR" (format "%s -s %s%s" ,client
-                                      (or server-socket-dir "")
+                                      (or (ignore-errors
+                                            (file-name-as-directory
+                                             server-socket-dir))
+                                          "")
                                       server-name))))
        ;; Git has to be called asynchronously in BODY or we create a
        ;; dead lock.  By the time `emacsclient' is called the dynamic
