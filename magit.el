@@ -4207,6 +4207,7 @@ insert a line to tell how to insert more of them"
            `(,@(and magit-have-abbrev   (list "--no-abbrev-commit"))
              ,@(and magit-have-decorate (list "--decorate=full"))
              ,@(and magit-show-diffstat (list "--stat"))
+             ,@magit-diff-options
              "--cc"
              "-p" ,commit))))
 
