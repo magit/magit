@@ -148,18 +148,18 @@ this option.
 
 Possible values are:
 
-`any'   If $GIT_EDITOR is set use that regardless of its value.
-        Else if $EDITOR is set use that regardless of its value.
+`any'   If $GIT_EDITOR is set, use that regardless of its value.
+        Else if $EDITOR is set, use that regardless of its value.
         Else fallback to letting Magit guess.
 t       Use $GIT_EDITOR if it contains substring \"emacsclient\".
-        Else use $GIT_EDITOR if it contains \"emacsclient\".
+        Else use $EDITOR if it contains \"emacsclient\".
         Else fallback to letting Magit guess.
 nil     Let Magit guess proper $GIT_EDITOR.
 STRING  Explicitly set $GIT_EDITOR.  This is a single string,
         arguments are separated using whitespace.
 
 In most cases it is better to properly set $GIT_EDITOR system
-wide instead configuring this option.  Add something like this
+wide instead of configuring this option.  Add something like this
 to an appropriate file:
 
     export GIT_EDITOR=\"[/path/to/]emacsclient -a [/path/to/]emacs\""
@@ -1487,7 +1487,10 @@ you end up in vi and don't know how to exit."
                           "using default $GIT_EDITOR")))
         (t
          (setenv "GIT_EDITOR" (format "%s -s %s%s" ,client
-                                      (or server-socket-dir "")
+                                      (or (ignore-errors
+                                            (file-name-as-directory
+                                             server-socket-dir))
+                                          "")
                                       server-name))))
        ;; Git has to be called asynchronously in BODY or we create a
        ;; dead lock.  By the time `emacsclient' is called the dynamic
