@@ -5039,10 +5039,9 @@ Return nil if there is no rebase in progress."
                       (magit-section-info section))))
     (magit-with-git-editor-setup magit-server-window-for-rebase
       (magit-run-git-async "rebase" "-i"
-                           (if commit
-                               (concat commit "^")
-                             (magit-read-rev "Interactively rebase to"
-                                             (magit-guess-branch)))))))
+                           (or commit
+                               (magit-read-rev "Interactively rebase to"
+                                               (magit-guess-branch)))))))
 
 ;;;; Reset
 
