@@ -1435,7 +1435,9 @@ you end up in vi and don't know how to exit."
          (message (concat "Cannot set server name on Windows; "
                           "using default $GIT_EDITOR")))
         (t
-         (setenv "GIT_EDITOR" (format "%s -s %s" ,client server-name))))
+         (setenv "GIT_EDITOR" (format "%s -s %s%s" ,client
+                                      (or server-socket-dir "")
+                                      server-name))))
        ;; Git has to be called asynchronously in BODY or we create a
        ;; dead lock.  By the time `emacsclient' is called the dynamic
        ;; binding is no longer in effect and our primitives don't
