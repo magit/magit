@@ -5435,7 +5435,7 @@ the message from the file the message buffer was saved to.
 
 ;;;; Tagging
 
-(magit-define-command tag (name rev &optional amendp)
+(magit-define-command tag (name rev &optional annotate)
   "Create a new tag with the given NAME at REV.
 With a prefix argument annotate the tag.
 \('git tag [--annotate] NAME REV')."
@@ -5444,8 +5444,8 @@ With a prefix argument annotate the tag.
                                      (or (magit-default-rev) "HEAD"))
                      current-prefix-arg))
   (if (or (member "--annotate" magit-custom-options)
-          (and amendp (setq magit-custom-options
-                            (cons "--annotate" magit-custom-options))))
+          (and annotate (setq magit-custom-options
+                              (cons "--annotate" magit-custom-options))))
       (magit-with-git-editor-setup magit-server-window-for-commit
         (apply #'magit-run-git-async "tag"
                (append magit-custom-options (list name rev))))
