@@ -1412,8 +1412,10 @@ you end up in vi and don't know how to exit."
     `(let* ((process-environment process-environment)
             (magit-process-popup-time -1)
             (,window ,server-window)
-            (,bindir (file-name-directory
-                      (cdr (assq 'args (process-attributes (emacs-pid))))))
+            (,bindir (ignore-errors
+                       (file-name-directory
+                        (cdr (assq 'args
+                                   (process-attributes (emacs-pid)))))))
             (,client (and ,bindir
                           (expand-file-name "emacsclient" ,bindir))))
        (unless (and ,client (file-executable-p ,client))
