@@ -130,6 +130,47 @@ Also set the local value in all Magit buffers and refresh them.
   :group 'magit
   :type 'string)
 
+(defcustom magit-git-editor t
+  "The $GIT_EDITOR used by special git subprocesses.
+
+Some actions (most importantly committing) create a git subprocess
+which then connects to an editor to get more information from the
+user (e.g. the commit message).  That editor should be the Emacs
+process used to initiate the action.  To make this possible Magit
+starts the server if it is not running yet and optionally sets
+$GIT_EDITOR around calls to such subprocesses.
+
+There are multiple ways in which users can (not) have configured
+client/server interaction.  The `magit-with-git-editor-setup'
+macro is used to sanitize user settings.  However this does not
+always work, and it might therefore be necessary to customize
+this option.
+
+Possible values are:
+
+`any'   If $GIT_EDITOR is set use that regardless of its value.
+        Else if $EDITOR is set use that regardless of its value.
+        Else fallback to letting Magit guess.
+t       Use $GIT_EDITOR if it contains substring \"emacsclient\".
+        Else use $GIT_EDITOR if it contains \"emacsclient\".
+        Else fallback to letting Magit guess.
+nil     Let Magit guess proper $GIT_EDITOR.
+STRING  Explicitly set $GIT_EDITOR.  This is a single string,
+        arguments are separated using whitespace.
+
+In most cases it is better to properly set $GIT_EDITOR system
+wide instead configuring this option.  Add something like this
+to an appropriate file:
+
+    export GIT_EDITOR=\"[/path/to/]emacsclient -a [/path/to/]emacs\""
+  :group 'magit
+  :type
+  '(choice
+    (const  :tag "Use any $GIT_EDITOR or $EDITOR" any)
+    (const  :tag "Use $GIT_EDITOR or $EDITOR containing \"emacsclient\"" t)
+    (const  :tag "Let Magit guess" nil)
+    (string :tag "Set explicitly")))
+
 (defcustom magit-gitk-executable
   (concat (file-name-directory magit-git-executable) "gitk")
   "The name of the Gitk executable."
@@ -1423,6 +1464,16 @@ you end up in vi and don't know how to exit."
        (unless (magit-server-running-p)
          (server-start))
        (cond
+        ((or (and (eq magit-git-editor 'any)
+                  (or (getenv "GIT_EDITOR")
+                      (getenv "EDITOR")))
+             (and (eq magit-git-editor t)
+                  (if (getenv "GIT_EDITOR")
+                      (string-match-p "emacsclient" (getenv "GIT_EDITOR"))
+                    (ignore-errors
+                      (string-match-p "emacsclient" (getenv "EDITOR")))))))
+        ((stringp magit-git-editor)
+         (setenv "GIT_EDITOR" magit-git-editor))
         ((not ,client)
          (message (concat "Cannot find emacsclient (check $PATH); "
                           "using default $GIT_EDITOR")))
