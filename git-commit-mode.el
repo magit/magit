@@ -152,6 +152,16 @@ confirmation before committing."
   :type '(choice (const :tag "On style errors" t)
                  (const :tag "Never" nil)))
 
+(defcustom git-commit-confirm-cancel t
+  "Whether to ask for confirmation before cancelling a commit.
+
+If t, ask for confirmation before cancelling a commit, unless
+the cancellation is forced.  If nil, never ask for confirmation
+before cancelling."
+  :group 'git-commit
+  :type '(choice (const :tag "Always" t)
+                 (const :tag "Never" nil)))
+
 (defun git-commit-may-do-commit (&optional force)
   "Check whether a commit may be performed.
 
@@ -182,6 +192,20 @@ Return t, if the commit was successful, or nil otherwise."
   (if (git-commit-may-do-commit force)
       (funcall git-commit-commit-function)
     (message "Commit canceled due to stylistic errors.")))
+
+(defun git-commit-cancel (&optional force)
+  "Abort the commit.
+
+Ask for confirmation depending on `git-commit-confirm-cancel'.
+If FORCE is non-nil or if a raw prefix arg is given, cancel
+without confirming."
+  (interactive "P")
+  (when (or force
+            (not git-commit-confirm-cancel)
+            (yes-or-no-p
+             "Cancel commit (your commit message will be lost)?"))
+    (erase-buffer)
+    (funcall git-commit-commit-function)))
 
 (defun git-commit-end-session ()
   "Save the buffer and end the session.
@@ -454,6 +478,7 @@ Known comment headings are provided by `git-commit-comment-headings'."
 (defvar git-commit-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-c") 'git-commit-commit)
+    (define-key map (kbd "C-c C-k") 'git-commit-cancel)
     (define-key map (kbd "C-c C-s") 'git-commit-signoff)
     (define-key map (kbd "C-c C-a") 'git-commit-ack)
     (define-key map (kbd "C-c C-t") 'git-commit-test)
