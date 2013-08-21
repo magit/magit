@@ -403,6 +403,10 @@ Put it in `magit-key-mode-keymaps' for fast lookup."
         (funcall defkey k `(magit-key-mode-add-argument
                             ',for-group ,(nth 2 k) ',(nth 3 k)))))
 
+    ;; allow easier access to arguments and switches with SPC
+    (define-key map (kbd "SPC") (lookup-key map "-"))
+    (define-key map (kbd "SPC SPC") (lookup-key map "="))
+
     (push (cons for-group map) magit-key-mode-keymaps)
     map))
 
