@@ -6,7 +6,18 @@
 ;; at the top-level directory of this distribution and at
 ;; https://raw.github.com/magit/magit/master/AUTHORS
 
-;; Author: Marius Vollmer <marius.vollmer@gmail.com>
+;; Author:
+;;   Marius Vollmer <marius.vollmer@gmail.com>
+;;
+;; Maintainers:
+;;   Jonas Bernoulli <jonas@bernoul.li>
+;;   Nicolas Dudebout <nicolas.dudebout@gatech.edu>
+;;   Rémi Vanicat <vanicat@debian.org>
+;;   Yann Hodique <yann.hodique@gmail.com>
+;;
+;; Retired Maintainers:
+;;   Peter J. Weisberg <pj@irregularexpressions.net>
+;;   Phil Jackson <phil@shellarchive.co.uk>
 
 ;; Keywords: tools
 
