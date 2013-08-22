@@ -90,6 +90,7 @@ Use the function by the same name instead of this variable.")
 (declare-function package-version-join 'package)
 (declare-function view-mode 'view)
 
+(defvar git-commit-commit-function)
 (defvar magit-custom-options)
 (defvar package-alist)
 
@@ -130,52 +131,40 @@ Also set the local value in all Magit buffers and refresh them.
   :group 'magit
   :type 'string)
 
-(defcustom magit-git-editor t
-  "The $GIT_EDITOR used by special git subprocesses.
-
-Some actions (most importantly committing) create a git subprocess
-which then connects to an editor to get more information from the
-user (e.g. the commit message).  That editor should be the Emacs
-process used to initiate the action.  To make this possible Magit
-starts the server if it is not running yet and optionally sets
-$GIT_EDITOR around calls to such subprocesses.
-
-There are multiple ways in which users can (not) have configured
-client/server interaction.  The `magit-with-git-editor-setup'
-macro is used to sanitize user settings.  However this does not
-always work, and it might therefore be necessary to customize
-this option.
-
-Possible values are:
-
-`any'   If $GIT_EDITOR is set, use that regardless of its value.
-        Else if $EDITOR is set, use that regardless of its value.
-        Else fallback to letting Magit guess.
-t       Use $GIT_EDITOR if it contains substring \"emacsclient\".
-        Else use $EDITOR if it contains \"emacsclient\".
-        Else fallback to letting Magit guess.
-nil     Let Magit guess proper $GIT_EDITOR.
-STRING  Explicitly set $GIT_EDITOR.  This is a single string,
-        arguments are separated using whitespace.
-
-In most cases it is better to properly set $GIT_EDITOR system
-wide instead of configuring this option.  Add something like this
-to an appropriate file:
-
-    export GIT_EDITOR=\"[/path/to/]emacsclient -a [/path/to/]emacs\""
-  :group 'magit
-  :type
-  '(choice
-    (const  :tag "Use any $GIT_EDITOR or $EDITOR" any)
-    (const  :tag "Use $GIT_EDITOR or $EDITOR containing \"emacsclient\"" t)
-    (const  :tag "Let Magit guess" nil)
-    (string :tag "Set explicitly")))
-
 (defcustom magit-gitk-executable
   (concat (file-name-directory magit-git-executable) "gitk")
   "The name of the Gitk executable."
   :group 'magit
   :type 'string)
+
+(defcustom magit-emacsclient-executable
+  (let ((version (format "%s.%s"
+                         emacs-major-version
+                         emacs-minor-version)))
+    (or (let ((exec-path (list invocation-directory)))
+          (or (executable-find (format "emacsclient-%s" version))
+              (executable-find (format "emacsclient-%s.exe" version))
+              (executable-find "emacsclient")
+              (executable-find "emacsclient.exe")))
+        (executable-find (format "emacsclient-%s" version))
+        (executable-find (format "emacsclient-%s.exe" version))
+        (executable-find "emacsclient")
+        (executable-find "emacsclient.exe")))
+  "The Emacsclient executable.
+
+The default value is the full path to the emacsclient executable
+located in the same directory as the executable of the current
+Emacs instance.  If the emacsclient cannot be located in that
+directory then the first executable found anywhere on the
+`exec-path' is used instead.
+
+If no executable can be located then nil becomes the default
+value, and some important Magit commands will fallback to an
+alternative code path.  However `magit-interactive-rebase'
+will stop working at all."
+  :group 'magit
+  :type '(choice (string :tag "Executable")
+                 (const :tag "Don't use Emacsclient" nil)))
 
 (defcustom magit-repo-dirs nil
   "Directories containing Git repositories.
@@ -1181,6 +1170,74 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
     (with-current-buffer buf
       (insert text))))
 
+;;;; Emacsclient Support
+
+(defmacro magit-with-emacsclient (server-window &rest body)
+  "Arrange for Git to use Emacsclient as \"the git editor\".
+
+Git processes that use \"the editor\" have to be asynchronous.
+The use of this macro ensures that such processes inside BODY use
+Emacsclient as \"the editor\" by setting the environment variable
+$GIT_EDITOR accordingly around calls to Git and starting the
+server if necessary."
+  (declare (indent 1))
+  `(let* ((process-environment process-environment)
+          (magit-process-popup-time -1))
+     ;; Make sure the client is usable.
+     (magit-assert-emacsclient "use `magit-with-emacsclient'")
+     ;; Make sure the server is running.
+     (unless server-process
+       (if (server-running-p "server")
+           (unless (eq system-type 'windows-nt)
+             (setq server-name (format "server%s" (emacs-pid)))
+             (server-start))
+         (server-start)))
+     ;; Tell Git to use the client.
+     (setenv "GIT_EDITOR"
+             (concat magit-emacsclient-executable
+                     ;; Tell Emacsclient to use this server,
+                     ;; if necessary and possible.
+                     (unless (or (equal server-name "server")
+                                 (eq system-type 'windows-nt))
+                       (concat "--socket-name="
+                               (ignore-errors
+                                 (file-name-as-directory
+                                  server-socket-dir))
+                               server-name))))
+     ;; As last resort fallback to a new Emacs instance.
+     (setenv "ALTERNATE_EDITOR"
+             (or (ignore-errors
+                   (cdr (assq 'args (process-attributes (emacs-pid)))))
+                 "emacs"))
+     ;; Git has to be called asynchronously in BODY or we create a
+     ;; dead lock.  By the time Emacsclient is called the dynamic
+     ;; binding is no longer in effect and our primitives don't
+     ;; support callbacks.  Temporarily set the default value and
+     ;; restore the old value using a timer.
+     (let ((window ,server-window))
+       (unless (equal window server-window)
+         (run-at-time "0.2 sec" nil
+                      (apply-partially (lambda (value)
+                                         (setq server-window value))
+                                       server-window))
+         (setq-default server-window window)))
+     ,@body))
+
+(defun magit-use-emacsclient-p ()
+  (and magit-emacsclient-executable
+       (cl-find-if #'display-graphic-p (terminal-list))
+       (not (and (fboundp 'tramp-tramp-file-p)
+                 (tramp-tramp-file-p default-directory)))))
+
+(defun magit-assert-emacsclient (action)
+  (unless magit-emacsclient-executable
+    (error "Cannot %s when `magit-emacsclient-executable' is nil" action))
+  (unless (cl-find-if #'display-graphic-p (terminal-list))
+    (error "Cannot %s when no window system is available" action))
+  (when (and (fboundp 'tramp-file-name-p)
+             (tramp-file-name-p default-directory))
+    (error "Cannot %s when accessing repository using tramp" action)))
+
 ;;; Git Utilities
 ;;;; Git Output
 
@@ -1426,84 +1483,6 @@ non-nil).  In addition, it will filter out revs involving HEAD."
 (defmacro magit-with-refresh (&rest body)
   (declare (indent 0))
   `(magit-refresh-wrapper (lambda () ,@body)))
-
-(defmacro magit-with-git-editor-setup (server-window &rest body)
-  "Ensure that `emacsclient' is used as `GIT_EDITOR'.
-
-Ensure that a git process started inside BODY uses `emacsclient'
-as its `GIT_EDITOR' to connect to the current Emacs instance.
-
-This is necessary because the user might not have setup
-`GIT_EDITOR' to use `emacsclient', the server might not be
-running in this Emacs instance, or multiple Emacs servers might
-be running.
-
-If necessary the environment is dynamically modified for forms in
-BODY.  And the server is started if it is not running yet (but it
-is not stopped again).
-
-Modifing the environment and/or starting the server can fail.  It
-that happens that is not considered an error; the forms in BODY
-are always evaluated.  The worst thing that could happen is that
-you end up in vi and don't know how to exit."
-  (declare (indent 1))
-  (let ((window (cl-gensym "window"))
-        (bindir (cl-gensym "bindir"))
-        (client (cl-gensym "client")))
-    `(let* ((process-environment process-environment)
-            (magit-process-popup-time -1)
-            (,window ,server-window)
-            (,bindir (ignore-errors
-                       (file-name-directory
-                        (cdr (assq 'args
-                                   (process-attributes (emacs-pid)))))))
-            (,client (and ,bindir
-                          (expand-file-name "emacsclient" ,bindir))))
-       (unless (and ,client (file-executable-p ,client))
-         (setq ,client (executable-find "emacsclient")))
-       (unless (magit-server-running-p)
-         (server-start))
-       (cond
-        ((or (and (eq magit-git-editor 'any)
-                  (or (getenv "GIT_EDITOR")
-                      (getenv "EDITOR")))
-             (and (eq magit-git-editor t)
-                  (if (getenv "GIT_EDITOR")
-                      (string-match-p "emacsclient" (getenv "GIT_EDITOR"))
-                    (ignore-errors
-                      (string-match-p "emacsclient" (getenv "EDITOR")))))))
-        ((stringp magit-git-editor)
-         (setenv "GIT_EDITOR" magit-git-editor))
-        ((not ,client)
-         (message (concat "Cannot find emacsclient (check $PATH); "
-                          "using default $GIT_EDITOR")))
-        ((string= server-name "server")
-         (setenv "GIT_EDITOR" ,client))
-        ((eq system-type 'windows-nt)
-         ;; Doing so might actually be possible - we just don't know
-         ;; how.  Also we cannot experiment because we don't own a
-         ;; copy of Windows.
-         (message (concat "Cannot set server name on Windows; "
-                          "using default $GIT_EDITOR")))
-        (t
-         (setenv "GIT_EDITOR" (format "%s -s %s%s" ,client
-                                      (or (ignore-errors
-                                            (file-name-as-directory
-                                             server-socket-dir))
-                                          "")
-                                      server-name))))
-       ;; Git has to be called asynchronously in BODY or we create a
-       ;; dead lock.  By the time `emacsclient' is called the dynamic
-       ;; binding is no longer in effect and our primitives don't
-       ;; support callbacks.  Temporarily set the default value and
-       ;; restore the old value using a timer.
-       (unless (equal ,window server-window)
-         (run-at-time "0.2 sec" nil
-                      (apply-partially (lambda (value)
-                                         (setq server-window value))
-                                       server-window))
-         (setq-default server-window ,window))
-       ,@body)))
 
 ;;; Revisions and Ranges
 
@@ -5091,10 +5070,11 @@ Return nil if there is no rebase in progress."
 (defun magit-interactive-rebase ()
   "Start a git rebase -i session, old school-style."
   (interactive)
+  (magit-assert-emacsclient "rebase")
   (let* ((section (get-text-property (point) 'magit-section))
          (commit (and (member 'commit (magit-section-context-type section))
                       (magit-section-info section))))
-    (magit-with-git-editor-setup magit-server-window-for-rebase
+    (magit-with-emacsclient magit-server-window-for-rebase
       (magit-run-git-async "rebase" "-i"
                            (if commit
                                (concat commit "^")
@@ -5467,12 +5447,6 @@ even if `magit-set-upstream-on-push's value is `refuse'."
 (defun magit-commit (&optional amendp)
   "Create a new commit on HEAD.
 With a prefix argument amend to the commit at HEAD instead.
-
-Call 'git commit' without a commit message.  Git then connects to
-the Emacs server using 'emacsclient', bringing up a new buffer.
-When the user is done crafting the message Git resumes and uses
-the message from the file the message buffer was saved to.
-
 \('git commit [--amend]')."
   (interactive "P")
   (if (not (or (magit-anything-staged-p)
@@ -5486,8 +5460,30 @@ the message from the file the message buffer was saved to.
           (magit-run-git-async "rebase" "--continue")
         (error
          "Nothing staged.  Set --allow-empty, --all, or --amend in popup."))
-    (magit-with-git-editor-setup magit-server-window-for-commit
-      (apply 'magit-run-git-async "commit" magit-custom-options))))
+    (magit-commit-internal "commit" magit-custom-options)))
+
+(defun magit-commit-internal (subcmd args)
+  (if (magit-use-emacsclient-p)
+      (magit-with-emacsclient magit-server-window-for-commit
+        (apply 'magit-run-git-async subcmd args))
+    (require 'git-commit-mode)
+    (let ((topdir (magit-get-top-dir)))
+      (with-current-buffer
+          (find-file-noselect (magit-git-dir "COMMIT_EDITMSG"))
+        (funcall (if (functionp magit-server-window-for-commit)
+                     magit-server-window-for-commit
+                   'switch-to-buffer)
+                 (current-buffer))
+        (setq-local git-commit-commit-function
+                    (apply-partially
+                     (lambda (default-directory subcmd args)
+                       (save-buffer)
+                       (kill-buffer)
+                       (apply 'magit-run-git subcmd args))
+                     topdir subcmd
+                     `("--cleanup=strip"
+                       ,(concat "--file=" (buffer-file-name))
+                       ,@args)))))))
 
 ;;;; Tagging
 
@@ -5499,14 +5495,11 @@ With a prefix argument annotate the tag.
                      (magit-read-rev "Place tag on: "
                                      (or (magit-default-rev) "HEAD"))
                      current-prefix-arg))
-  (if (or (member "--annotate" magit-custom-options)
-          (and annotate (setq magit-custom-options
-                              (cons "--annotate" magit-custom-options))))
-      (magit-with-git-editor-setup magit-server-window-for-commit
-        (apply #'magit-run-git-async "tag"
-               (append magit-custom-options (list name rev))))
-    (apply #'magit-run-git "tag"
-           (append magit-custom-options (list name rev)))))
+  (let ((args (append magit-custom-options (list name rev))))
+    (if (or (member "--annotate" args)
+            (and annotate (setq args (cons "--annotate" args))))
+        (magit-commit-internal "tag" args)
+      (apply #'magit-run-git "tag" args))))
 
 (magit-define-command delete-tag (name)
   "Delete the tag with the given NAME.
