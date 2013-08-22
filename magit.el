@@ -138,18 +138,18 @@ Also set the local value in all Magit buffers and refresh them.
   :type 'string)
 
 (defcustom magit-emacsclient-executable
-  (or (let ((exec-path (list invocation-directory))
-            (version (format "%s.%s"
-                             emacs-major-version
-                             emacs-minor-version)))
-        (or (executable-find (format "emacsclient-%s" version))
-            (executable-find (format "emacsclient-%s.exe" version))
-            (executable-find "emacsclient")
-            (executable-find "emacsclient.exe")))
-      (executable-find (format "emacsclient-%s" version))
-      (executable-find (format "emacsclient-%s.exe" version))
-      (executable-find "emacsclient")
-      (executable-find "emacsclient.exe"))
+  (let ((version (format "%s.%s"
+                         emacs-major-version
+                         emacs-minor-version)))
+    (or (let ((exec-path (list invocation-directory)))
+          (or (executable-find (format "emacsclient-%s" version))
+              (executable-find (format "emacsclient-%s.exe" version))
+              (executable-find "emacsclient")
+              (executable-find "emacsclient.exe")))
+        (executable-find (format "emacsclient-%s" version))
+        (executable-find (format "emacsclient-%s.exe" version))
+        (executable-find "emacsclient")
+        (executable-find "emacsclient.exe")))
   "The Emacsclient executable.
 
 The default value is the full path to the emacsclient executable
