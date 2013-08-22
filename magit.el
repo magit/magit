@@ -2656,8 +2656,7 @@ magit-topgit and magit-svn"
         (magit-refresh-buffer magit-process-client-buffer)))))
 
 (defun magit-process-filter (proc string)
-  (save-current-buffer
-    (set-buffer (process-buffer proc))
+  (with-current-buffer (process-buffer proc)
     (let ((inhibit-read-only t))
       (magit-process-yes-or-no-prompt proc string)
       (magit-process-username-prompt  proc string)
@@ -5592,7 +5591,6 @@ With prefix argument, changes in staging area are kept.
            (setq magit-currently-shown-stash stash-id)
            (display-buffer buf)
            (with-current-buffer buf
-             (set-buffer buf)
              (goto-char (point-min))
              (let* ((range (cons (concat stash "^2^") stash))
                     (magit-current-diff-range range)
