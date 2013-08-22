@@ -165,13 +165,11 @@ Return values:
 (defvar-local magit-have-graph 'unset)
 (defvar-local magit-have-decorate 'unset)
 (defvar-local magit-have-abbrev 'unset)
-(defvar-local magit-have-grep-reflog 'unset)
 (defvar-local magit-have-revlist-count 'unset)
 
 (put 'magit-have-graph 'permanent-local t)
 (put 'magit-have-decorate 'permanent-local t)
 (put 'magit-have-abbrev 'permanent-local t)
-(put 'magit-have-grep-reflog 'permanent-local t)
 (put 'magit-have-revlist-count 'permanent-local t)
 
 (defun magit-configure-have-graph ()
@@ -188,12 +186,6 @@ Return values:
   (when (eq magit-have-abbrev 'unset)
     (setq magit-have-abbrev
           (= 0 (magit-git-exit-code "log" "--no-abbrev-commit" "-n" "0")))))
-
-(defun magit-configure-have-grep-reflog ()
-  (when (eq magit-have-grep-reflog 'unset)
-    (setq magit-have-grep-reflog
-          (= 0 (magit-git-exit-code
-                "log" "--walk-reflogs" "--grep-reflog" "." "-n" "0")))))
 
 (defun magit-configure-have-revlist-count ()
   (when (eq magit-have-revlist-count 'unset)
