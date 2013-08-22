@@ -1287,6 +1287,11 @@ the current git repository."
     (when (and head (string-match "^refs/heads/" head))
       (substring head 11))))
 
+(defun magit-get-previous-branch ()
+  "Return the refname of the previously checked out branch.
+Return nil if the previously checked out branch no longer exists."
+  (magit-name-rev (magit-git-string "rev-parse" "--verify" "@{-1}")))
+
 (defun magit-get-current-tag (&optional with-distance-p)
   "Return the closest tag reachable from \"HEAD\".
 
@@ -4985,20 +4990,7 @@ If no branch is found near the cursor return nil."
            ((wazzup)
             info)
            (t
-            (magit-configure-have-grep-reflog)
-            (let ((lines
-                   (if magit-have-grep-reflog
-                       (magit-git-lines "log"
-                                        "--pretty=oneline" "--max-count=1"
-                                        "--walk-reflogs" "--grep-reflog"
-                                        "moving from")
-                     (magit-git-lines "reflog"))))
-              (while (and lines
-                          (not (string-match "moving from \\([^\s\t]+?\\) to"
-                                             (car lines))))
-                (setq lines (cdr lines)))
-              (when lines
-                (match-string 1 (car lines))))))))
+            (magit-get-previous-branch)))))
     (when (stringp branch)
       branch)))
 
