@@ -1463,20 +1463,28 @@ you end up in vi and don't know how to exit."
                         (cdr (assq 'args
                                    (process-attributes (emacs-pid)))))))
             (,client (and ,bindir
-                          (expand-file-name "emacsclient" ,bindir))))
+                          (expand-file-name "emacsclient" ,bindir)))
+            (env-giteditor (getenv "GIT_EDITOR"))
+            (env-editor (getenv "EDITOR")))
        (unless (and ,client (file-executable-p ,client))
          (setq ,client (executable-find "emacsclient")))
        (unless (magit-server-running-p)
          (server-start))
        (cond
         ((or (and (eq magit-git-editor 'any)
-                  (or (getenv "GIT_EDITOR")
-                      (getenv "EDITOR")))
+                  (or env-giteditor
+                      env-editor))
              (and (eq magit-git-editor t)
-                  (if (getenv "GIT_EDITOR")
-                      (string-match-p "emacsclient" (getenv "GIT_EDITOR"))
+                  (if env-giteditor
+                      (and (string-match-p "emacsclient" env-giteditor)
+                           (not (string-match-p
+                                 " -\\(nw\\|t\\|-tty\\|c\\|-create-frame\\)"
+                                 env-giteditor)))
                     (ignore-errors
-                      (string-match-p "emacsclient" (getenv "EDITOR")))))))
+                      (and (string-match-p "emacsclient" env-editor)
+                           (not (string-match-p
+                                 " -\\(nw\\|t\\|-tty\\|c\\|-create-frame\\)"
+                                 env-editor))))))))
         ((stringp magit-git-editor)
          (setenv "GIT_EDITOR" magit-git-editor))
         ((not ,client)
