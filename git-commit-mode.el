@@ -152,21 +152,6 @@ confirmation before committing."
   :type '(choice (const :tag "On style errors" t)
                  (const :tag "Never" nil)))
 
-(defun git-commit-may-do-commit (&optional force)
-  "Check whether a commit may be performed.
-
-Check for stylistic errors in the current message, unless FORCE
-is non-nil.  If stylistic errors are found, ask the user to
-confirm commit depending on `git-commit-confirm-commit'.
-
-Return t if the commit may be performed, or nil otherwise."
-  (cond
-   ((or force (not git-commit-confirm-commit))
-    t)
-   ((git-commit-has-style-errors-p)
-    (yes-or-no-p "Buffer has style errors. Commit anyway?"))
-   (t t)))
-
 (defun git-commit-commit (&optional force)
   "Finish editing the commit message and commit.
 
@@ -179,7 +164,10 @@ Call `git-commit-commit-function' to actually perform the commit.
 
 Return t, if the commit was successful, or nil otherwise."
   (interactive "P")
-  (if (git-commit-may-do-commit force)
+  (if (or force
+          (not git-commit-confirm-commit)
+          (or (not (git-commit-has-style-errors-p))
+              (yes-or-no-p "Buffer has style errors.  Commit anyway?")))
       (funcall git-commit-commit-function)
     (message "Commit canceled due to stylistic errors.")))
 
