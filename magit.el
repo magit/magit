@@ -1471,9 +1471,15 @@ you end up in vi and don't know how to exit."
                       env-editor))
              (and (eq magit-git-editor t)
                   (if env-giteditor
-                      (string-match-p "emacsclient" env-giteditor)
+                      (and (string-match-p "emacsclient" env-giteditor)
+                           (not (string-match-p
+                                 " -\\(nw\\|t\\|-tty\\|c\\|-create-frame\\)"
+                                 env-giteditor)))
                     (ignore-errors
-                      (string-match-p "emacsclient" env-editor))))))
+                      (and (string-match-p "emacsclient" env-editor)
+                           (not (string-match-p
+                                 " -\\(nw\\|t\\|-tty\\|c\\|-create-frame\\)"
+                                 env-editor))))))))
         ((stringp magit-git-editor)
          (setenv "GIT_EDITOR" magit-git-editor))
         ((not ,client)
