@@ -131,17 +131,6 @@ git commit messages"
 default comments in git commit messages"
   :group 'git-commit-faces)
 
-(defcustom git-commit-commit-function 'git-commit-end-session
-  "Function called by `git-commit-commit' to actually perform a commit.
-
-The function is called without argument, with the current buffer
-being the commit message buffer.  It shall return t, if the
-commit was successful, or nil otherwise."
-  :group 'git-commit
-  :type '(radio (function-item :doc "Save the buffer and end the session."
-                               git-commit-end-session)
-                (function)))
-
 (defcustom git-commit-confirm-commit nil
   "Whether to ask for confirmation before committing.
 
@@ -152,15 +141,9 @@ confirmation before committing."
   :type '(choice (const :tag "On style errors" t)
                  (const :tag "Never" nil)))
 
-(defcustom git-commit-confirm-abort t
-  "Whether to ask for confirmation before cancelling a commit.
-
-If t, ask for confirmation before cancelling a commit, unless
-the cancellation is forced.  If nil, never ask for confirmation
-before cancelling."
-  :group 'git-commit
-  :type '(choice (const :tag "Always" t)
-                 (const :tag "Never" nil)))
+(defvar git-commit-commit-hook nil
+  "Hook run at the end of `git-commit-commit'.
+Only use this if you know what you are doing.")
 
 (defun git-commit-commit (&optional force)
   "Finish editing the commit message and commit.
@@ -174,39 +157,35 @@ Call `git-commit-commit-function' to actually perform the commit.
 
 Return t, if the commit was successful, or nil otherwise."
   (interactive "P")
-  (if (or force
-          (not git-commit-confirm-commit)
-          (or (not (git-commit-has-style-errors-p))
-              (yes-or-no-p "Buffer has style errors.  Commit anyway?")))
-      (funcall git-commit-commit-function)
-    (message "Commit canceled due to stylistic errors.")))
+  (if (and git-commit-confirm-commit
+           (git-commit-has-style-errors-p)
+           (not force)
+           (not (y-or-n-p "Commit despite stylistic errors?")))
+      (message "Commit canceled due to stylistic errors.")
+    (save-buffer)
+    (if (git-commit-buffer-clients)
+        (server-edit)
+      (kill-buffer))
+    (run-hook-with-args 'git-commit-commit-hook)))
 
-(defun git-commit-abort (&optional force)
+(defun git-commit-abort ()
   "Abort the commit.
-
-Ask for confirmation depending on `git-commit-confirm-abort'.
-If FORCE is non-nil or if a raw prefix arg is given, cancel
-without confirming."
-  (interactive "P")
-  (when (or force
-            (not git-commit-confirm-abort)
-            (yes-or-no-p
-             "Cancel commit (your commit message will be lost)?"))
-    (erase-buffer)
-    (funcall git-commit-commit-function)))
-
-(defun git-commit-end-session ()
-  "Save the buffer and end the session.
-
-If the current buffer has clients from the Emacs server, call
-`server-edit' to mark the buffer as done and let the clients
-continue, otherwise kill the buffer via `kill-buffer'."
+The commit message is saved to the kill ring."
+  (interactive)
   (save-buffer)
-  (if (and (fboundp 'server-edit)
-           (boundp 'server-buffer-clients)
-           server-buffer-clients)
-      (server-edit) ; The message buffer comes from emacsclient
-    (kill-buffer)))
+  (kill-ring-save (point-min) (point-max))
+  (let ((clients (git-commit-buffer-clients)))
+    (if clients
+        (dolist (client clients)
+          (server-send-string client "-error Commit aborted by user")
+          (delete-process client))
+      (kill-buffer)))
+  (message "Commit aborted.  Message saved to kill ring."))
+
+(defun git-commit-buffer-clients ()
+  (and (fboundp 'server-edit)
+       (boundp 'server-buffer-clients)
+       server-buffer-clients))
 
 (defun git-commit-git-config-var (key)
   "Retrieve a git configuration value.
