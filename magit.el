@@ -5474,16 +5474,15 @@ With a prefix argument amend to the commit at HEAD instead.
                      magit-server-window-for-commit
                    'switch-to-buffer)
                  (current-buffer))
-        (setq-local git-commit-commit-function
-                    (apply-partially
-                     (lambda (default-directory subcmd args)
-                       (save-buffer)
-                       (kill-buffer)
-                       (apply 'magit-run-git subcmd args))
-                     topdir subcmd
-                     `("--cleanup=strip"
-                       ,(concat "--file=" (buffer-file-name))
-                       ,@args)))))))
+        (add-hook 'git-commit-commit-hook
+                  (apply-partially
+                   (lambda (default-directory args)
+                     (magit-run-git* args))
+                   topdir `(,subcmd
+                            ,"--cleanup=strip"
+                            ,(concat "--file=" file)
+                            ,@args))
+                  nil t)))))
 
 ;;;; Tagging
 
