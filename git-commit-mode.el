@@ -142,7 +142,7 @@ confirmation before committing."
                  (const :tag "Never" nil)))
 
 (defvar git-commit-commit-hook nil
-  "Hook run at the end of `git-commit-commit'.
+  "Hook run by `git-commit-commit' unless clients exist.
 Only use this if you know what you are doing.")
 
 (defun git-commit-commit (&optional force)
@@ -165,8 +165,8 @@ Return t, if the commit was successful, or nil otherwise."
     (save-buffer)
     (if (git-commit-buffer-clients)
         (server-edit)
-      (kill-buffer))
-    (run-hook-with-args 'git-commit-commit-hook)))
+      (run-hook-with-args 'git-commit-commit-hook)
+      (kill-buffer))))
 
 (defun git-commit-abort ()
   "Abort the commit.
