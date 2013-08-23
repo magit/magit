@@ -5471,7 +5471,9 @@ With a prefix argument amend to the commit at HEAD instead.
                      (magit-run-git* args))
                    topdir `(,subcmd
                             ,"--cleanup=strip"
-                            ,(concat "--file=" (buffer-file-name))
+                            ,(concat "--file=" (file-relative-name
+                                                (buffer-file-name)
+                                                topdir))
                             ,@args))
                   nil t)))))
 
