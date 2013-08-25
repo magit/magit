@@ -5460,7 +5460,10 @@ With a prefix argument amend to the commit at HEAD instead.
     (require 'git-commit-mode)
     (let ((topdir (magit-get-top-dir)))
       (with-current-buffer
-          (find-file-noselect (magit-git-dir "COMMIT_EDITMSG"))
+          (find-file-noselect
+           (magit-git-dir (if (equal subcmd "tag")
+                              "TAG_EDITMSG"
+                            "COMMIT_EDITMSG")))
         (funcall (if (functionp magit-server-window-for-commit)
                      magit-server-window-for-commit
                    'switch-to-buffer)
