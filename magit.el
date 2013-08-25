@@ -2871,7 +2871,7 @@ few sanity checks."
                ;; Don't revert indirect buffers, as the parent would be
                ;; reverted.
                (not (buffer-base-buffer))
-               (not (verify-visited-file-modtime))
+               (not (verify-visited-file-modtime (current-buffer)))
                (file-readable-p (buffer-file-name)))
       (revert-buffer t t nil))))
 
