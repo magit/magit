@@ -4571,7 +4571,7 @@ if FULLY-QUALIFIED-NAME is non-nil."
 
 (defvar magit-default-directory nil)
 
-(defun magit-save-some-buffers (&optional msg pred)
+(defun magit-save-some-buffers (&optional msg pred topdir)
   "Save some buffers if variable `magit-save-some-buffers' is non-nil.
 If variable `magit-save-some-buffers' is set to `dontask' then
 don't ask the user before saving the buffers, just go ahead and
@@ -4587,7 +4587,7 @@ If PRED is a zero-argument function, it indicates for each buffer whether
 to consider it or not when called with that buffer current."
   (interactive)
   (let ((predicate-function (or pred magit-save-some-buffers-predicate))
-        (magit-default-directory default-directory))
+        (magit-default-directory (or topdir default-directory)))
     (if magit-save-some-buffers
         (save-some-buffers
          (eq magit-save-some-buffers 'dontask)
@@ -4632,8 +4632,7 @@ when asking for user input."
         (magit-init dir)
         (setq topdir (magit-get-top-dir dir))))
     (when topdir
-      (let ((default-directory topdir))
-        (magit-save-some-buffers))
+      (magit-save-some-buffers topdir)
       (let ((buf (or (magit-find-status-buffer topdir)
                      (generate-new-buffer
                       (concat "*magit: "
