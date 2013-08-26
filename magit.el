@@ -1233,8 +1233,8 @@ server if necessary."
     (error "Cannot %s when `magit-emacsclient-executable' is nil" action))
   (unless (cl-find-if #'display-graphic-p (terminal-list))
     (error "Cannot %s when no window system is available" action))
-  (when (and (fboundp 'tramp-file-name-p)
-             (tramp-file-name-p default-directory))
+  (when (and (fboundp 'tramp-tramp-file-p)
+             (tramp-tramp-file-p default-directory))
     (error "Cannot %s when accessing repository using tramp" action)))
 
 ;;; Git Utilities
