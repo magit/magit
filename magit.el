@@ -90,7 +90,6 @@ Use the function by the same name instead of this variable.")
 (declare-function package-version-join 'package)
 (declare-function view-mode 'view)
 
-(defvar git-commit-commit-function)
 (defvar magit-custom-options)
 (defvar package-alist)
 
