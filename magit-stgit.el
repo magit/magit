@@ -1,6 +1,10 @@
 ;;; magit-stgit.el --- StGit plug-in for Magit
 
-;; Copyright (C) 2011  Lluís Vilanova
+;; Copyright (C) 2011-2013  The Magit Project Developers.
+;;
+;; For a full list of contributors, see the AUTHORS.md file
+;; at the top-level directory of this distribution and at
+;; https://raw.github.com/magit/magit/master/AUTHORS.md
 
 ;; Author: Lluís Vilanova <vilanova@ac.upc.edu>
 
