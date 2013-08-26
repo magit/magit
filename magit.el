@@ -5060,7 +5060,7 @@ Return nil if there is no rebase in progress."
 (defun magit-interactive-rebase ()
   "Start a git rebase -i session, old school-style."
   (interactive)
-  (magit-assert-emacsclient "rebase")
+  (magit-assert-emacsclient "rebase interactively")
   (let* ((section (get-text-property (point) 'magit-section))
          (commit (and (member 'commit (magit-section-context-type section))
                       (magit-section-info section))))
