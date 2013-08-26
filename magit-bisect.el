@@ -1,6 +1,10 @@
 ;;; magit-bisect.el --- bisect support for Magit
 
-;; Copyright (C) 2011  Moritz Bunkus
+;; Copyright (C) 2011-2013  The Magit Project Developers.
+;;
+;; For a full list of contributors, see the AUTHORS.md file
+;; at the top-level directory of this distribution and at
+;; https://raw.github.com/magit/magit/master/AUTHORS.md
 
 ;; Author: Moritz Bunkus <moritz@bunkus.org>
 

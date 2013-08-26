@@ -1,6 +1,8 @@
 PREFIX  ?= /usr/local
-lispdir ?= $(PREFIX)/share/emacs/site-lisp/magit
-infodir ?= $(PREFIX)/share/info
+datarootdir ?= $(PREFIX)/share
+lispdir ?= $(datarootdir)/emacs/site-lisp/magit
+infodir ?= $(datarootdir)/info
+docdir  ?= $(datarootdir)/doc/magit
 execdir ?= $(PREFIX)/bin
 
 LOADDEFS_FILE ?= magit-autoloads.el
@@ -79,6 +81,7 @@ help:
 	$(info Release Managment)
 	$(info =================)
 	$(info )
+	$(info make authors          - regenerate the AUTHORS.md file)
 	$(info make dist             - create old-school tarball)
 	$(info make marmalade        - create marmalade tarball)
 	@echo ""
@@ -121,13 +124,26 @@ $(LOADDEFS_FILE): $(ELS)
 	(update-directory-autoloads \".\")))"
 
 .PHONY: docs
-docs: magit.info dir
+docs: magit.info dir AUTHORS.md
 
 %.info: %.texi
 	$(MAKEINFO) $< -o $@
 
 dir: magit.info
 	$(INSTALL_INFO) --dir=$@ $<
+
+# Not a phony target, but needs to run *every* time.
+.PHONY: AUTHORS.md
+AUTHORS.md: AUTHORS.md.in
+	@printf "Generating AUTHORS.md file..."
+	@test -d .git \
+		&& (cat $< > $@ \
+			&& git log --pretty=format:'- %aN <%aE>' | sort -u >> $@ \
+			&& printf "FINISHED\n" ; ) \
+		|| printf "FAILED (non-fatal)\n"
+
+.PHONY: authors
+authors: AUTHORS.md
 
 .PHONY: install
 install: install-lisp install-docs
@@ -147,6 +163,8 @@ install-docs: docs
 	$(MKDIR) $(DESTDIR)$(infodir)
 	$(CP) magit.info $(DESTDIR)$(infodir)
 	$(INSTALL_INFO) --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/magit.info
+	$(MKDIR) $(DESTDIR)$(docdir)
+	$(CP) AUTHORS.md $(DESTDIR)$(docdir)
 
 .PHONY: install-script
 install-script: bin/magit
@@ -174,11 +192,11 @@ clean:
 	$(RM) magit-$(VERSION) *.tar.gz *.tar
 	-test ! -d .git && $(RM) magit.info
 
-DIST_FILES  = $(ELS) magit-version.el Makefile
+DIST_FILES  = $(ELS) magit-version.el Makefile AUTHORS.md
 DIST_FILES += README.md INSTALL.md magit.texi magit.info dir
 DIST_FILES_BIN  = bin/magit
 
-ELPA_FILES = $(ELS) magit.info dir
+ELPA_FILES = $(ELS) magit.info dir AUTHORS.md
 
 .PHONY: dist
 dist: magit-$(VERSION).tar.gz

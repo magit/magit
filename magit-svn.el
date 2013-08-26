@@ -1,13 +1,10 @@
 ;;; magit-svn.el --- git-svn plug-in for Magit
 
-;; Copyright (C) 2008  Alex Ott
-;; Copyright (C) 2008  Linh Dang
-;; Copyright (C) 2008  Marcin Bachry
-;; Copyright (C) 2008-2009  Marius Vollmer
-;; Copyright (C) 2009  Alexey Voinov
-;; Copyright (C) 2009  John Wiegley
-;; Copyright (C) 2010  Yann Hodique
-;; Copyright (C) 2010-2011  Phil Jackson
+;; Copyright (C) 2010-2013  The Magit Project Developers.
+;;
+;; For a full list of contributors, see the AUTHORS.md file
+;; at the top-level directory of this distribution and at
+;; https://raw.github.com/magit/magit/master/AUTHORS.md
 
 ;; Author: Phil Jackson <phil@shellarchive.co.uk>
 
