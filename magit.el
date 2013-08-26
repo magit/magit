@@ -2951,11 +2951,11 @@ in the corresponding directories."
   "The window configuration prior to switching to current Magit buffer.")
 (put 'magit-previous-window-configuration 'permanent-local t)
 
-(defun magit-buffer-switch (buf)
+(defun magit-buffer-switch (buffer &optional switch-function)
   (if (string-match "magit" (buffer-name))
-      (switch-to-buffer buf)
+      (switch-to-buffer buffer)
     (let ((winconf (current-window-configuration)))
-      (pop-to-buffer buf)
+      (funcall (or switch-function 'pop-to-buffer) buffer)
       (setq magit-previous-window-configuration winconf))))
 
 (defun magit-quit-window (&optional kill-buffer)
@@ -4624,8 +4624,7 @@ when asking for user input."
                              4))
                        (or (magit-get-top-dir)
                            (magit-read-top-dir nil)))))
-  (let ((topdir (magit-get-top-dir dir))
-        (winconf (current-window-configuration)))
+  (let ((topdir (magit-get-top-dir dir)))
     (unless topdir
       (when (y-or-n-p
              (format "There is no Git repository in %S.  Create one? " dir))
@@ -4638,8 +4637,7 @@ when asking for user input."
                       (concat "*magit: "
                               (file-name-nondirectory
                                (directory-file-name topdir)) "*")))))
-        (funcall magit-status-buffer-switch-function buf)
-        (setq magit-previous-window-configuration winconf)
+        (magit-buffer-switch buf magit-status-buffer-switch-function)
         (magit-mode-init topdir 'magit-status-mode #'magit-refresh-status)))))
 
 ;;;; Read Repository
