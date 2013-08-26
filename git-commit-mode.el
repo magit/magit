@@ -54,8 +54,7 @@
 
 ;;;; Committing
 
-;; C-c C-c finishes a commit.  By default this means to save and kill the
-;; buffer.  Customize `git-commit-commit-function' to change this behaviour.
+;; C-c C-c finishes a commit.
 ;;
 ;; Check a buffer for stylistic errors before committing, and ask for
 ;; confirmation before committing with style errors.
@@ -152,8 +151,6 @@ Check for stylistic errors in the current commit, and ask the
 user for confirmation depending on `git-commit-confirm-commit'.
 If FORCE is non-nil or if a raw prefix arg is given, commit
 immediately without asking.
-
-Call `git-commit-commit-function' to actually perform the commit.
 
 Return t, if the commit was successful, or nil otherwise."
   (interactive "P")
