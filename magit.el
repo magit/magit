@@ -90,7 +90,6 @@ Use the function by the same name instead of this variable.")
 (declare-function package-version-join 'package)
 (declare-function view-mode 'view)
 
-(defvar git-commit-commit-function)
 (defvar magit-custom-options)
 (defvar package-alist)
 
@@ -1234,8 +1233,8 @@ server if necessary."
     (error "Cannot %s when `magit-emacsclient-executable' is nil" action))
   (unless (cl-find-if #'display-graphic-p (terminal-list))
     (error "Cannot %s when no window system is available" action))
-  (when (and (fboundp 'tramp-file-name-p)
-             (tramp-file-name-p default-directory))
+  (when (and (fboundp 'tramp-tramp-file-p)
+             (tramp-tramp-file-p default-directory))
     (error "Cannot %s when accessing repository using tramp" action)))
 
 ;;; Git Utilities
@@ -5061,7 +5060,7 @@ Return nil if there is no rebase in progress."
 (defun magit-interactive-rebase ()
   "Start a git rebase -i session, old school-style."
   (interactive)
-  (magit-assert-emacsclient "rebase")
+  (magit-assert-emacsclient "rebase interactively")
   (let* ((section (get-text-property (point) 'magit-section))
          (commit (and (member 'commit (magit-section-context-type section))
                       (magit-section-info section))))
