@@ -372,19 +372,13 @@ use for fontification.")
     (or (one-or-more (syntax whitespace))
         (and (syntax comment-start) (zero-or-more not-newline)))
     "\n")
-   ;; The actual summary line
-   ;; Hack to force grouping, since for some stupid reason Emacs won't handle
-   ;; "line-start" in the middle of a regexp.  Fuck you, Emacs!
-   (= 1 line-start
-        (group (** 0 50 not-newline))      ; The real summary
-        (group (zero-or-more not-newline)) ; The overlong part
-        line-end)
-   ;; A non-empty second line
-   (optional
-    "\n"
-    (group (zero-or-more not-newline))
-    line-end)
-   )
+   ;; The summary line
+   (group (** 0 50 not-newline))      ; The real summary
+   (group (zero-or-more not-newline)) ; The overlong part
+   ;; A non-empty non-comment second line
+   (optional "\n"
+             (group (not (any "#" "\n")) (one-or-more not-newline))
+             line-end))
   "Regexp to match the summary line.")
 
 (defun git-commit-has-style-errors-p ()
