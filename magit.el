@@ -4676,6 +4676,7 @@ non-nil, then autocompletion will offer directory names."
 
 (defun magit-remove-conflicts (alist)
   (let ((dict (make-hash-table :test 'equal))
+        (alist (delete-dups alist))
         (result nil))
     (dolist (a alist)
       (puthash (car a) (cons (cdr a) (gethash (car a) dict))
