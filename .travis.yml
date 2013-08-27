@@ -1,6 +1,8 @@
 # 'elisp' isn't supported and 'c' is less noisy than the default
 language: c
 env:
+  global:
+    - FETCH=curl -fsSkL --retry 9 --retry-delay 9 https://raw.github.com/
   matrix:
     - EMACS=emacs AKA=emacs23
     - EMACS=emacs24
@@ -12,8 +14,13 @@ before_install:
   - sudo add-apt-repository -y ppa:cassou/emacs
   - sudo apt-get update -qq
   - sudo apt-get install -qq $EMACS
-  - curl -fsSkL --retry 9 --retry-delay 9 https://raw.github.com/ohler/ert/c619b56c5bc6a866e33787489545b87d79973205/lisp/emacs-lisp/ert.el -o ert.el
-  - test $EMACS = emacs && curl -fsSkL --retry 9 --retry-delay 9 https://raw.github.com/emacsmirror/cl-lib/master/cl-lib.el -o cl-lib.el || true
+install:
+  - ${FETCH}magit/git-modes/master/git-commit-mode.el -o git-commit-mode.el
+  - ${FETCH}magit/git-modes/master/git-rebase-mode.el -o git-rebase-mode.el
+  - if test $EMACS = emacs; then
+      ${FETCH}ohler/ert/fb3c278d/lisp/emacs-lisp/ert.el -o ert.el
+      ${FETCH}emacsmirror/cl-lib/master/cl-lib.el -o cl-lib.el
+    fi
   - git tag 0
 script:
   - make

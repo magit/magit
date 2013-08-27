@@ -46,11 +46,23 @@ dependencies and install them manually.
   versions of Emacs is available from the GNU Elpa repository.  You
   can install it using `package.el` or get it [here][cl-lib].
 
+* `git-commit-mode` which is part of the [git-modes][git-modes]
+  repository and available as a separate package from Melpa.
+
+* `git-rebase-mode` which is part of the [git-modes][git-modes]
+  repository and available as a separate package from Melpa.
+
 Optional Dependencies
 ---------------------
 
-* `magit-wip.el` requires the `git-wip` shell script available
-  [here][git-wip].
+The following libraries build on third-party tools or git subcommands
+that are not installed by the Git base-package on some distributions:
+
+* `magit-flow.el` requires  [`gitflow`][gitflow].
+* `magit-stgit.el` requires [`stgit`][stgit].
+* `magit-svn.el` requires the official Git subcommand `svn`.
+* `magit-topgit.el` requires [`topgit`][topgit].
+* `magit-wip.el` requires [`git-wip`][git-wip].
 
 Dependencies of Tests
 ---------------------
@@ -171,6 +183,9 @@ Add the above lines to your init file (`~/.emacs.el` or
 [ert]: https://github.com/ohler/ert
 [git-wip]: https://github.com/bartman/git-wip
 [git]: http://git-scm.com
+[gitflow]: https://github.com/nvie/gitflow
 [marmalade]: http://marmalade-repo.org
 [melpa]: http://melpa.milkbox.net
+[stgit]: http://www.procode.org/stgit
+[topgit]: https://github.com/greenrd/topgit
 [vc]: http://www.gnu.org/software/emacs/manual/html_node/emacs/Version-Control.html

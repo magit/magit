@@ -55,7 +55,8 @@ Use the function by the same name instead of this variable.")
 
 (require 'magit-compat)
 
-(require 'git-commit-mode nil t)
+(require 'git-commit-mode)
+(require 'git-rebase-mode)
 
 (require 'ansi-color)
 (require 'cl-lib)
@@ -5452,7 +5453,6 @@ With a prefix argument amend to the commit at HEAD instead.
   (if (magit-use-emacsclient-p)
       (magit-with-emacsclient magit-server-window-for-commit
         (apply 'magit-run-git-async subcmd args))
-    (require 'git-commit-mode)
     (let ((topdir (magit-get-top-dir)))
       (with-current-buffer
           (find-file-noselect
