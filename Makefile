@@ -104,10 +104,11 @@ magit-version.el:
 	@printf ";; End:\n" >> $@
 	@printf ";;; magit-version.el ends here\n" >> $@
 
-# FIXME The version string has to be set manually for now.
+# Not a phony target, but needs to run *every* time.
+.PHONY: magit-pkg.el
 magit-pkg.el:
 	@printf "Generating magit-pkg.el\n"
-	@printf "(define-package \"magit\" \"1.2.1-git\"\n" > $@
+	@printf "(define-package \"magit\" \""$(VERSION)"\"\n" > $@
 	@printf "  \"Control Git from Emacs.\"\n"      >> $@
 	@printf "  '((cl-lib \"0.3\")\n"               >> $@
 	@printf "    (git-commit-mode \"0.14.0\")\n"   >> $@
