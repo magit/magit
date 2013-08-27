@@ -241,8 +241,50 @@
       ("-h" "Use histogram diff algorithm" "--histogram")
       ("-b" "Ignore whitespace changes" "--ignore-space-change")
       ("-w" "Ignore all whitespace" "--ignore-all-space")
-      ("-W" "Show surrounding functions" "--function-context"))
-     ))
+      ("-W" "Show surrounding functions" "--function-context")))
+
+    (format-patch
+     (man-page "git-format-patch")
+     (actions
+      ("O" "Format patch" magit-format-patch)
+      ("m" "Open patch(es) in mail buffers" magit-format-patch-as-message))
+     ;; The following switches and arguments are not used because they
+     ;; don't seem that commonly useful to me (maybe I'm wrong).
+     ;;
+     ;; ("-n" "use [PATCH n/m] even with a single patch" "--numbered")
+     ;; ("-N" "use [PATCH] even with multiple patches" "--no-numbered")
+     ;; ("=a" "attach the patch (Boundary)" "--attach=" read-from-minibuffer)
+     ;; ("=I" "inline the patch (Boundary)" "--inline=" read-from-minibuffer)
+     ;; ("=T" "enable message threading, styles: shallow, deep"
+     ;;  "--thread=" read-from-minibuffer)
+     (switches
+      ("-s" "print patches to standard out" "--stdout")
+      ("-S" "add Signed-off-by:" "--signoff")
+      ("-C" "generate a cover letter" "--cover-letter")
+      ("-n" "use simple number sequence for output file names"
+       "--numbered-files")
+      ("-k" "don't strip/add [PATCH]" "--keep-subject")
+      ("-B" "don't output binary diffs" "--no-binary")
+      ("-i" "don't include a patch matching a commit upstream"
+       "--ignore-if-in-upstream")
+      ("-p" "show patch format instead of default (patch + stat)" "--no-stat"))
+     (arguments
+      ("=o" "store resulting files in <dir>" "--output-directory="
+       read-directory-name)
+      ("=v" "mark the series as Nth re-roll" "--reroll-count="
+       read-number)
+      ("=P" "Use [<prefix>] instead of [PATCH]" "--subject-prefix="
+       read-from-minibuffer)
+      ("=N" "start numbering patches at <n> instead of 1" "--start-number="
+       read-number)
+      ("=S" "Signature" "--signature=" read-from-minibuffer)
+      ("=h" "add email header" "--add-header=" read-from-minibuffer)
+      ("=t" "add To: header" "--to=" read-from-minibuffer)
+      ("=c" "add Cc: header" "--cc=" read-from-minibuffer)
+      ("=f" "set From address to <ident>" "--from=" read-from-minibuffer)
+      ("=r" "make first mail a reply to <message-id>" "--in-reply-to="
+       read-from-minibuffer)))
+    )
   "Holds the key, help, function mapping for the log-mode.
 If you modify this make sure you reset `magit-key-mode-keymaps'
 to nil.")

@@ -943,6 +943,7 @@ face inherit from `default' and remove all other attributes."
            (define-key map (kbd "t") 'magit-tag)
            (define-key map (kbd "l") 'magit-log)
            (define-key map (kbd "o") 'magit-submodule-update)
+           (define-key map (kbd "O") 'magit-format-patch)
            (define-key map (kbd "B") 'undefined))
           (t
            (define-key map (kbd "c") 'magit-key-mode-popup-committing)
@@ -957,6 +958,7 @@ face inherit from `default' and remove all other attributes."
            (define-key map (kbd "t") 'magit-key-mode-popup-tagging)
            (define-key map (kbd "l") 'magit-key-mode-popup-logging)
            (define-key map (kbd "o") 'magit-key-mode-popup-submodule)
+           (define-key map (kbd "O") 'magit-key-mode-popup-format-patch)
            (define-key map (kbd "B") 'magit-key-mode-popup-bisecting)))
     (define-key map (kbd "$") 'magit-display-process)
     (define-key map (kbd "E") 'magit-interactive-rebase)
@@ -3023,6 +3025,68 @@ With a prefix argument, kill the buffer instead."
              "ls-files" "--others" "-t" "--exclude-standard"
              ,@(unless magit-status-verbose-untracked
                  '("--directory"))))))
+
+;;; Format Patches and Send Messages
+(declare-function mail-text "sendmail" ())
+(defun magit-mail-from-patch (patches)
+  (require 'sendmail)
+  (let* ((headers-end (or (string-match "^$" patches)
+                          (error "missing patch delimiter")))
+         (patch-end (string-match "^From " patches headers-end))
+         (patch (substring patches 0 patch-end))
+         (marker 0)
+         headers)
+    ;; collect email fields for transfer to the mail buffer
+    (while (string-match "^\\([[:alpha:]]+\\): \\([^\n]+\\)"
+                         patch marker)
+      (setf marker (match-end 0))
+      (push (cons (intern (downcase (match-string 1 patch)))
+                  (match-string 2 patch))
+            headers))
+    ;; open the mail buffer with collected fields
+    (mail nil
+          (cdr (assoc 'to headers))
+          (cdr (assoc 'subject headers))
+          (cdr (assoc 'in-reply-to headers))
+          (cdr (assoc 'cc headers))
+          nil
+          ;; after sending send any subsequent messages
+          (when patch-end
+            `(((lambda (buf)
+                 ;; set as not modified to avoid user prompt
+                 (pop-to-buffer buf)
+                 (set-buffer-modified-p nil)) "*mail*")
+              (magit-mail-from-patch ,(substring patches patch-end)))))
+    (mail-text)
+    (save-excursion (insert (substring patch headers-end)))
+    ;; use this instead of `mail-send-and-exit' to keep this buffer on top
+    (when patch-end
+      (local-set-key (kbd "C-c C-c") 'mail-send))))
+
+(defun magit-format-patch (&optional as-message)
+  "Format Patches and write to disk or view in magit."
+  (interactive "P")
+  (let* ((since (magit-read-rev-with-default "since: "))
+         (output (apply #'magit-git-string "format-patch"
+                        (append magit-custom-options (list since)))))
+    (cond
+     (as-message (magit-mail-from-patch output))
+     ((member "--stdout" magit-custom-options)
+      (with-current-buffer (find-file-noselect (magit-git-dir "FORMAT_PATCH"))
+        (funcall (if (functionp magit-server-window-for-commit)
+                     magit-server-window-for-commit
+                   'switch-to-buffer)
+                 (current-buffer))
+        (delete-region (point-min) (point-max))
+        (insert output)
+        (goto-char (point-min))))
+     (t (message "%s" output)))))
+
+(defun magit-format-patch-as-message ()
+  "Format Patches and open the results in a message buffer."
+  (interactive)
+  (cl-pushnew "--stdout" magit-custom-options)
+  (magit-format-patch 'as-message))
 
 ;;; Diffs and Hunks
 
