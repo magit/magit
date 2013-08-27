@@ -363,23 +363,30 @@ minibuffer."
 The `car' of each cell is the heading text, the `cdr' the face to
 use for fontification.")
 
-(defconst git-commit-summary-regexp
-  (rx
-   string-start
+(defun git-commit-build-summary-regexp (max-summary-col)
+  (concat
    ;; Skip empty lines or comments before the summary
-   (zero-or-more
-    line-start
-    (or (one-or-more (syntax whitespace))
-        (and (syntax comment-start) (zero-or-more not-newline)))
-    "\n")
+   "\\`\\(?:^\\(?:\\s-+\\|\\s<.*\\)\n\\)*"
    ;; The summary line
-   (group (** 0 50 not-newline))      ; The real summary
-   (group (zero-or-more not-newline)) ; The overlong part
-   ;; A non-empty non-comment second line
-   (optional "\n"
-             (group (not (any "#" "\n")) (one-or-more not-newline))
-             line-end))
+   (format "\\(.\\{0,%d\\}\\)\\(.*\\)\n" max-summary-col)
+   ;; Non-empty non-comment second line
+   "\\(?:[^\n#].+\\)?"))
+
+(defvar git-commit-summary-regexp nil
   "Regexp to match the summary line.")
+
+(defcustom git-commit-max-summary-line-length 50
+  "Fontify characters beyond this column in summary lines as errors."
+  :group 'git-commit
+  :type 'number
+  :initialize
+  (lambda (symbol value)
+    (let ((val (eval value)))
+      ;; set the value
+      (set-default symbol val)
+      ;; update `git-commit-summary-regexp'
+      (set-default 'git-commit-summary-regexp
+                   (git-commit-build-summary-regexp val)))))
 
 (defun git-commit-has-style-errors-p ()
   "Check whether the current buffer has style errors.
