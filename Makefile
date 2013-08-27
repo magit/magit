@@ -24,7 +24,7 @@ ELCS = $(ELS:.el=.elc)
 CP    ?= install -p -m 644
 CPBIN ?= install -p -m 755
 MKDIR ?= install -p -m 755 -d
-RM    ?= rm -rf
+RMDIR ?= rm -rf
 
 MAKEINFO     ?= makeinfo
 INSTALL_INFO ?= install-info
@@ -189,8 +189,8 @@ test-interactive: $(ELCS)
 
 .PHONY: clean
 clean:
-	$(RM) $(ELCS) $(LOADDEFS_FILE) magit-version.el
-	$(RM) magit-$(VERSION) *.tar.gz *.tar
+	$(RM) $(ELCS) $(LOADDEFS_FILE) magit-version.el *.tar.gz *.tar
+	$(RMDIR) magit-$(VERSION)
 	test -e .git || $(RM) magit.info
 
 DIST_FILES  = $(ELS) magit-version.el Makefile AUTHORS.md
