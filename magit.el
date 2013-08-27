@@ -2947,8 +2947,7 @@ in the corresponding directories."
 
 ;;;; Switch Buffer
 
-(defvar-local magit-previous-window-configuration nil
-  "The window configuration prior to switching to current Magit buffer.")
+(defvar-local magit-previous-window-configuration nil)
 (put 'magit-previous-window-configuration 'permanent-local t)
 
 (defun magit-buffer-switch (buffer &optional switch-function)
@@ -2956,7 +2955,9 @@ in the corresponding directories."
       (switch-to-buffer buffer)
     (let ((winconf (current-window-configuration)))
       (funcall (or switch-function 'pop-to-buffer) buffer)
-      (setq magit-previous-window-configuration winconf))))
+      (unless (or magit-previous-window-configuration
+                  (get-buffer-window buffer (selected-frame)))
+        (setq magit-previous-window-configuration winconf)))))
 
 (defun magit-quit-window (&optional kill-buffer)
   "Bury the buffer and delete its window.
@@ -2964,8 +2965,10 @@ With a prefix argument, kill the buffer instead."
   (interactive "P")
   (let ((winconf magit-previous-window-configuration))
     (quit-window kill-buffer (selected-window))
-    (when (and winconf magit-restore-window-configuration)
-      (set-window-configuration winconf))))
+    (when winconf
+      (when magit-restore-window-configuration
+        (set-window-configuration winconf))
+      (setq magit-restore-window-configuration nil))))
 
 ;;; Untracked Files
 
