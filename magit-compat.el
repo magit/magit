@@ -29,15 +29,14 @@
 ;; This file contains code needed for compatibility
 ;; with older versions of GNU Emacs and Git.
 
+;; Magit requires at least GNU Emacs 23.2.
+;; The minimal Git version is unknown at this point.
+
 ;;; Code:
 
-(eval-when-compile (require 'server))
-
-(declare-function server-running-p 'server)
 (declare-function magit-git-exit-code 'magit)
 
 ;;; Old Emacsen
-;;;; Without Prefix
 
 (eval-and-compile
 
@@ -72,91 +71,7 @@ to case differences."
       "Same as `string-match' but don't change the match data."
       (let ((inhibit-changing-match-data t))
         (string-match regexp string start))))
-
-  ;; Added in Emacs 22.2.
-  (unless (fboundp 'declare-function)
-    (defmacro declare-function (&rest args)))
   )
-
-;;;; With Prefix
-
-(eval-and-compile
-
-  ;; Added in Emacs 23.2.
-  (if (fboundp 'with-silent-modifications)
-      (defalias 'magit-with-silent-modifications 'with-silent-modifications)
-    (defmacro magit-with-silent-modifications (&rest body)
-      "Execute body without changing `buffer-modified-p'.
-Also, do not record undo information."
-      `(set-buffer-modified-p
-        (prog1 (buffer-modified-p)
-          (let ((buffer-undo-list t)
-                before-change-functions
-                after-change-functions)
-            ,@body)))))
-
-  ;; Added in Emacs 22.2.
-  (if (fboundp 'start-file-process)
-      (defalias 'magit-start-process 'start-file-process)
-    (defalias 'magit-start-process 'start-process))
-  )
-
-;; Added in Emacs 22.2.
-(defun magit-use-region-p ()
-  (if (fboundp 'use-region-p)
-      (use-region-p)
-    (and transient-mark-mode mark-active)))
-
-;; Added in Emacs 22.2.
-(defun magit-server-running-p ()
-  "Test whether server is running.
-
-Return values:
-  nil              the server is definitely not running.
-  t                the server seems to be running.
-  something else   we cannot determine whether it's running without using
-                   commands which may have to wait for a long time."
-  (require 'server)
-  (if (functionp 'server-running-p)
-      (server-running-p)
-    (condition-case nil
-        (if server-use-tcp
-            (with-temp-buffer
-              (insert-file-contents-literally
-               (expand-file-name server-name server-auth-dir))
-              (or (and (looking-at "127\\.0\\.0\\.1:[0-9]+ \\([0-9]+\\)")
-                       (assq 'comm
-                             (process-attributes
-                              (string-to-number (match-string 1))))
-                       t)
-                  :other))
-          (delete-process
-           (make-network-process
-            :name "server-client-test" :family 'local :server nil :noquery t
-            :service (expand-file-name server-name server-socket-dir)))
-          t)
-      (file-error nil))))
-
-;; RECURSIVE has been introduced in Emacs 23.2, XEmacs still lacks it.
-;; This is copied and adapted from `tramp-compat-delete-directory'
-(defun magit-delete-directory (directory &optional recursive)
-  "Compatibility function for `delete-directory'."
-  (if (null recursive)
-      (delete-directory directory)
-    (condition-case nil
-        (funcall 'delete-directory directory recursive)
-      ;; This Emacs version does not support the RECURSIVE flag.  We
-      ;; use the implementation from Emacs 23.2.
-      (wrong-number-of-arguments
-       (setq directory (directory-file-name (expand-file-name directory)))
-       (if (not (file-symlink-p directory))
-           (mapc (lambda (file)
-                   (if (eq t (car (file-attributes file)))
-                       (magit-delete-directory file recursive)
-                     (delete-file file)))
-                 (directory-files
-                  directory 'full "^\\([^.]\\|\\.\\([^.]\\|\\..\\)\\).*")))
-       (delete-directory directory)))))
 
 ;;; Old Git
 ;;;; Common

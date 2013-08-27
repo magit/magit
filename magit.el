@@ -53,6 +53,9 @@ Use the function by the same name instead of this variable.")
 ;; The value is set at the end of this file, using the
 ;; function `magit-version' which is also defined there.
 
+(when (version< emacs-version "23.2")
+  (error "Magit requires at least GNU Emacs 23.2"))
+
 (require 'magit-compat)
 
 (require 'git-commit-mode nil t)
@@ -2534,7 +2537,7 @@ magit-topgit and magit-svn"
                (setq magit-process
                      (let ((process-connection-type
                             magit-process-connection-type))
-                       (apply 'magit-start-process cmd buf cmd args)))
+                       (apply 'start-file-process cmd buf cmd args)))
                (set-process-sentinel magit-process 'magit-process-sentinel)
                (set-process-filter magit-process 'magit-process-filter)
                (when input
@@ -2563,7 +2566,7 @@ magit-topgit and magit-svn"
                        ;; Don't use a pty, because it would set icrnl
                        ;; which would modify the input (issue #20).
                        (let ((process-connection-type nil))
-                         (apply 'magit-start-process cmd buf cmd args)))
+                         (apply 'start-file-process cmd buf cmd args)))
                  (set-process-sentinel
                   magit-process
                   (lambda (process event)
@@ -3609,12 +3612,12 @@ argument) in the current window."
           (string-match "^\\(.*\\)\t" checkout-string)
           (with-current-buffer buffer
             (let ((tmpname (match-string 1 checkout-string)))
-              (magit-with-silent-modifications
+              (with-silent-modifications
                (insert-file-contents tmpname nil nil nil t))
               (delete-file tmpname)))))
        (t
         (with-current-buffer buffer
-          (magit-with-silent-modifications
+          (with-silent-modifications
            (magit-git-insert (list "cat-file" "-p"
                                    (concat commit ":" filename)))))))
       (with-current-buffer buffer
@@ -3646,18 +3649,17 @@ This function is the core of magit's stage, unstage, apply, and
 revert operations.  HUNK (or the portion of it selected by the
 region) will be applied to either the index, if \"--cached\" is a
 member of ARGS, or to the working file otherwise."
-  (let ((zero-context (zerop magit-diff-context-lines))
-        (use-region (magit-use-region-p)))
+  (let ((zero-context (zerop magit-diff-context-lines)))
     (when zero-context
       (setq args (cons "--unidiff-zero" args)))
     (when reverse
       (setq args (cons "--reverse" args)))
-    (when (and use-region zero-context)
+    (when (and (use-region-p) zero-context)
       (error (concat "Not enough context to partially apply hunk.  "
                      "Use `+' to increase context.")))
     (let ((buf (generate-new-buffer " *magit-input*")))
       (unwind-protect
-          (progn (if use-region
+          (progn (if (use-region-p)
                      (magit-insert-hunk-item-region-patch
                       hunk reverse (region-beginning) (region-end) buf)
                    (magit-insert-hunk-item-patch hunk buf))
@@ -6144,21 +6146,21 @@ written to .git/info/exclude."
      (when (yes-or-no-p (format "Delete %s? " info))
        (if (and (file-directory-p info)
                 (not (file-symlink-p info)))
-           (magit-delete-directory info 'recursive)
+           (delete-directory info 'recursive)
          (delete-file info))
        (magit-refresh-buffer)))
     ((untracked)
      (when (yes-or-no-p "Delete all untracked files and directories? ")
        (magit-run-git "clean" "-df")))
     ((unstaged diff hunk)
-     (when (yes-or-no-p (if (magit-use-region-p)
+     (when (yes-or-no-p (if (use-region-p)
                             "Discard changes in region? "
                           "Discard hunk? "))
        (magit-apply-hunk-item-reverse item)))
     ((staged diff hunk)
      (if (magit-file-uptodate-p (magit-diff-item-file
                                  (magit-hunk-item-diff item)))
-         (when (yes-or-no-p (if (magit-use-region-p)
+         (when (yes-or-no-p (if (use-region-p)
                                 "Discard changes in region? "
                               "Discard hunk? "))
            (magit-apply-hunk-item-reverse item "--index"))
@@ -6733,7 +6735,7 @@ These are the branch names with the remote name stripped."
   "Run `git gui' for the current git repository."
   (interactive)
   (let* ((default-directory (magit-get-top-dir)))
-    (magit-start-process "Git Gui" nil magit-git-executable "gui")))
+    (start-file-process "Git Gui" nil magit-git-executable "gui")))
 
 (defun magit-run-gitk ()
   "Run `gitk --all' for the current git repository."
@@ -6759,9 +6761,9 @@ These are the branch names with the remote name stripped."
                         (getenv "PATH")
                         (replace-regexp-in-string "/" "\\\\" git-bin-dir))
                 process-environment))
-        (magit-start-process "Gitk" nil "sh" magit-gitk-executable "--all")))
+        (start-file-process "Gitk" nil "sh" magit-gitk-executable "--all")))
      (t
-      (magit-start-process "Gitk" nil magit-gitk-executable "--all")))))
+      (start-file-process "Gitk" nil magit-gitk-executable "--all")))))
 
 ;;;; Magit Extensions
 
@@ -6788,7 +6790,6 @@ This can be added to `magit-mode-hook' for example"
        (2 font-lock-function-name-face nil t))
       (,(concat "(" (regexp-opt
                      '("magit-with-refresh"
-                       "magit-with-silent-modifications"
                        "magit-with-section"
                        "magit-create-buffer-sections"
                        "magit-section-action"
