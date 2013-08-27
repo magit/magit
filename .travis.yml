@@ -2,7 +2,7 @@
 language: c
 env:
   global:
-    - FETCH=curl -fsSkL --retry 9 --retry-delay 9 https://raw.github.com/
+    - CURL=curl -fsSkL --retry 9 --retry-delay 9
   matrix:
     - EMACS=emacs AKA=emacs23
     - EMACS=emacs24
@@ -15,11 +15,11 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq $EMACS
 install:
-  - ${FETCH}magit/git-modes/master/git-commit-mode.el -o git-commit-mode.el
-  - ${FETCH}magit/git-modes/master/git-rebase-mode.el -o git-rebase-mode.el
+  - $CURL https://raw.github.com/magit/git-modes/master/git-commit-mode.el -o git-commit-mode.el
+  - $CURL https://raw.github.com/magit/git-modes/master/git-rebase-mode.el -o git-rebase-mode.el
   - if test $EMACS = emacs; then
-      ${FETCH}ohler/ert/fb3c278d/lisp/emacs-lisp/ert.el -o ert.el
-      ${FETCH}emacsmirror/cl-lib/master/cl-lib.el -o cl-lib.el
+      $CURL https://raw.github.com/ohler/ert/fb3c278d/lisp/emacs-lisp/ert.el -o ert.el
+      $CURL https://raw.github.com/emacsmirror/cl-lib/master/cl-lib.el -o cl-lib.el
     fi
   - git tag 0
 script:
