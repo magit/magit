@@ -191,7 +191,7 @@ test-interactive: $(ELCS)
 clean:
 	$(RM) $(ELCS) $(LOADDEFS_FILE) magit-version.el
 	$(RM) magit-$(VERSION) *.tar.gz *.tar
-	-test ! -d .git && $(RM) magit.info
+	test -e .git || $(RM) magit.info
 
 DIST_FILES  = $(ELS) magit-version.el Makefile AUTHORS.md
 DIST_FILES += README.md INSTALL.md magit.texi magit.info dir
