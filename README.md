@@ -12,6 +12,16 @@ features.
 
 Magit supports GNU Emacs 22.1 or later; 24.1 or later is recommended.
 
+Getting Help
+============
+
+When something breaks please see the
+[curated list of known issues][knownissues] and the [FAQ][faq].  If
+that doesn't help check the list of [all open issues][issues].
+
+If everything else fails please open a [new issue][issues] or ask for
+help on the [mailing list][group].
+
 Getting Started
 ===============
 
@@ -84,9 +94,11 @@ please read CONTRIBUTING.md ([weblink][contributing]).
 [contributors]: https://github.com/magit/magit/contributors
 [development]: http://github.com/magit/magit
 [download]: https://github.com/downloads/magit/magit/magit-1.2.0.tar.gz
+[faq]: https://github.com/magit/magit/wiki/FAQ
 [group]: https://groups.google.com/forum/?fromgroups#!forum/magit
 [installing]: https://github.com/magit/magit/blob/maint/INSTALL.md
 [issues]: https://github.com/magit/magit/issues
+[knownissues]: https://github.com/magit/magit/wiki/Known-issues
 [manual]: http://magit.github.com/magit/magit.html
 [owners]: https://github.com/magit?tab=members
 [pulls]: https://github.com/magit/magit/pulls
