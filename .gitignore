@@ -5,6 +5,7 @@
 /magit-*.tar
 /magit-*.tar.gz
 /magit-autoloads.el
+/magit-pkg.el
 /magit-version.el
 /magit.aux
 /magit.cp
