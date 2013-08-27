@@ -29,7 +29,7 @@ RMDIR ?= rm -rf
 MAKEINFO     ?= makeinfo
 INSTALL_INFO ?= install-info
 
-EFLAGS ?=
+EFLAGS ?= -L ../git-modes
 EMACS  ?= emacs
 BATCH   = $(EMACS) $(EFLAGS) -batch -Q -L .
 BATCHC  = $(BATCH) -f batch-byte-compile
