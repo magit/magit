@@ -2952,7 +2952,7 @@ in the corresponding directories."
 (put 'magit-previous-window-configuration 'permanent-local t)
 
 (defun magit-buffer-switch (buffer &optional switch-function)
-  (if (string-match "magit" (buffer-name))
+  (if (derived-mode-p 'magit-mode)
       (switch-to-buffer buffer)
     (let ((winconf (current-window-configuration)))
       (funcall (or switch-function 'pop-to-buffer) buffer)
