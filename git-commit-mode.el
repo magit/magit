@@ -262,12 +262,9 @@ Also see `git-commit-insert-header'."
   (git-commit-insert-header
    type
    (or (getenv "GIT_AUTHOR_NAME")
-       (getenv "GIT_COMMITTER_NAME")
        (ignore-errors (car (process-lines "git" "config" "user.name")))
        user-full-name)
    (or (getenv "GIT_AUTHOR_EMAIL")
-       (getenv "GIT_COMMITTER_EMAIL")
-       (getenv "EMAIL")
        (ignore-errors (car (process-lines "git" "config" "user.email")))
        user-mail-address)))
 
