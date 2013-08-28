@@ -549,7 +549,7 @@ There are three possible settings:
                  (const :tag "All" all))
   :set 'magit-set-variable-and-refresh)
 
-(defcustom magit-expand-staged-on-commit t
+(defcustom magit-expand-staged-on-commit nil
   "Whether to expand staged changes when creating a commit.
 When this is non-nil and `magit-commit' is called from the
 status buffer expand the section containing staged changes."
