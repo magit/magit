@@ -2378,7 +2378,8 @@ section (see `magit-section-info').
             (,info (and ,section (magit-section-info ,section))))
        (cond ,@(mapcar (lambda (clause)
                          (let ((condition (car clause)))
-                           `(,(if (eq condition t) t
+                           `(,(if (eq condition t)
+                                  t
                                 `(magit-section-match ',condition ,section))
                              ,@(cdr clause))))
                        clauses)))))
@@ -2397,26 +2398,25 @@ Each use of `magit-section-action' should use an unique OPNAME.
 
 \(fn (SECTION INFO OPNAME) (SECTION-TYPE BODY...)...)"
   (declare (indent 1))
-  (let ((opname (make-symbol "*opname*"))
-        (value (make-symbol "*value*"))
+  (let ((value (make-symbol "*value*"))
+        (opname (car (cddr head)))
         (disallowed (car (or (assq t clauses)
                              (assq 'otherwise clauses)))))
     (when disallowed
       (error "%s is an invalid section type" disallowed))
     `(magit-with-refresh
-       (let* ((,opname ,(car (cddr head)))
-              (,value
-               (magit-section-case ,(butlast head)
-                 ,@clauses
-                 ((run-hook-with-args-until-success
-                   ',(intern (format "magit-%s-action-hook" opname))))
-                 (t
-                  (let* ((section (magit-current-section))
-                         (type (and section (magit-section-type section))))
-                    (if type
-                        (error "Can't %s a %s" ,opname
-                               (or (get type 'magit-description) type))
-                      (error "Nothing to %s here" ,opname)))))))
+       (let ((,value
+              (magit-section-case ,(butlast head)
+                ,@clauses
+                (t
+                 (or (run-hook-with-args-until-success
+                      ',(intern (format "magit-%s-action-hook" opname)))
+                     (let* ((section (magit-current-section))
+                            (type (and section (magit-section-type section))))
+                       (if type
+                           (error ,(format "Can't %s a %%s" opname)
+                                  (or (get type 'magit-description) type))
+                         (error ,(format "Nothing to %s here" opname)))))))))
          (unless (eq ,value magit-section-action-success)
            ,value)))))
 
