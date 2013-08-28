@@ -32,11 +32,12 @@ INSTALL_INFO ?= install-info
 EFLAGS ?= -L ../git-modes
 EMACS  ?= emacs
 BATCH   = $(EMACS) $(EFLAGS) -batch -Q -L .
+BATCHE  = $(BATCH) -eval
 BATCHC  = $(BATCH) -f batch-byte-compile
 
 VERSION=$(shell \
   test -e .git && git describe --tags --dirty 2> /dev/null || \
-  $(BATCH) --eval "(progn\
+  $(BATCHE) "(progn\
   (require 'cl)\
   (flet ((message (&rest _) _))\
     (load-file \"magit-version.el\"))\
@@ -118,7 +119,7 @@ magit-pkg.el:
 loaddefs: $(LOADDEFS_FILE)
 
 $(LOADDEFS_FILE): $(ELS)
-	@$(BATCH) -eval "(progn\
+	@$(BATCHE) "(progn\
 	(defvar generated-autoload-file nil)\
 	(let ((generated-autoload-file \"$(CURDIR)/$(LOADDEFS_FILE)\")\
 	  (make-backup-files nil))\
@@ -174,7 +175,7 @@ install-script: bin/magit
 
 .PHONY: test
 test: $(ELCS)
-	@$(BATCH) -eval "(progn\
+	@$(BATCHE) "(progn\
 	(require 'cl) \
 	(put 'flet 'byte-obsolete-info nil))" \
 	-l tests/magit-tests.el -f ert-run-tests-batch-and-exit
