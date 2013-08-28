@@ -10,7 +10,7 @@ provide a unified interface to various version control systems, Magit
 only supports Git and can therefor take full advantage of its native
 features.
 
-Magit supports GNU Emacs 22.1 or later; 24.1 or later is recommended.
+Magit supports GNU Emacs 23.2 or later; 24.1 or later is recommended.
 
 Getting Help
 ============
