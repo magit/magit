@@ -549,6 +549,13 @@ There are three possible settings:
                  (const :tag "All" all))
   :set 'magit-set-variable-and-refresh)
 
+(defcustom magit-expand-staged-on-commit t
+  "Whether to expand staged changes when creating a commit.
+When this is non-nil and `magit-commit' is called from the
+status buffer expand the section containing staged changes."
+  :group 'magit
+  :type 'boolean)
+
 ;; Not an option to avoid advertising it.
 (defvar magit-rigid-key-bindings nil
   "Use rigid key bindings instead of thematic key popups.
@@ -5456,6 +5463,11 @@ With a prefix argument amend to the commit at HEAD instead.
           (magit-run-git-async "rebase" "--continue")
         (error
          "Nothing staged.  Set --allow-empty, --all, or --amend in popup."))
+    (when (and magit-expand-staged-on-commit
+               (derived-mode-p 'magit-status-mode))
+      (magit-jump-to-staged)
+      (magit-expand-section)
+      (recenter 0))
     (magit-commit-internal "commit" magit-custom-options)))
 
 (defun magit-commit-internal (subcmd args)
