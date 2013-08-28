@@ -39,7 +39,7 @@
 
 ;;; Options
 
-(defgroup git-rebase-mode nil
+(defgroup git-rebase nil
   "Customize Git-Rebase mode"
   :group 'tools)
 
@@ -48,22 +48,22 @@
   :group 'git-rebase-mode
   :type 'boolean)
 
-(defgroup git-rebase-mode-faces nil
+(defgroup git-rebase-faces nil
   "Customize Git-Rebase mode faces."
   :group 'faces
-  :group 'git-rebase-mode)
+  :group 'git-rebase)
 
 (defface git-rebase-killed-action-face
   '((((class color))
      :inherit font-lock-comment-face
      :strike-through t))
   "Action lines in the rebase TODO list that have been commented out."
-  :group 'git-rebase-mode-faces)
+  :group 'git-rebase-faces)
 
 (defface git-rebase-description-face
   '((t :inherit font-lock-comment-face))
   "Face for one-line commit descriptions."
-  :group 'git-rebase-mode-faces)
+  :group 'git-rebase-faces)
 
 ;;; Regexps
 
