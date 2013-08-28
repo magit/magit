@@ -122,8 +122,8 @@ $(LOADDEFS_FILE): $(ELS)
 	@$(BATCHE) "(progn\
 	(defvar generated-autoload-file nil)\
 	(let ((generated-autoload-file \"$(CURDIR)/$(LOADDEFS_FILE)\")\
-	  (make-backup-files nil))\
-	(update-directory-autoloads \".\")))"
+	      (make-backup-files nil))\
+	  (update-directory-autoloads \".\")))"
 
 .PHONY: docs
 docs: magit.info dir AUTHORS.md
