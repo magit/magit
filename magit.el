@@ -2364,8 +2364,7 @@ SECTION-TYPE is a list of symbols identifying a section and it's
 section context; beginning with the most narrow section.  Whether
 a clause succeeds is determined using `magit-section-match'.
 A SECTION-TYPE of t is allowed only in the final clause, and
-matches if no other SECTION-TYPE matches.  If SECTION-TYPE starts
-with `:eval' it succeeds when its cdr evalutes to t.
+matches if no other SECTION-TYPE matches.
 
 While evaluating the selected BODY SECTION is dynamically bound
 to the current section and INFO to information about this
@@ -2379,10 +2378,9 @@ section (see `magit-section-info').
             (,info (and ,section (magit-section-info ,section))))
        (cond ,@(mapcar (lambda (clause)
                          (let ((condition (car clause)))
-                           `(,(cond
-                                ((eq condition t) t)
-                                ((eq (car condition) :eval) (cdr condition))
-                                (t `(magit-section-match ',condition ,section)))
+                           `(,(if (eq condition t)
+                                  t
+                                `(magit-section-match ',condition ,section))
                              ,@(cdr clause))))
                        clauses)))))
 
@@ -2400,25 +2398,25 @@ Each use of `magit-section-action' should use an unique OPNAME.
 
 \(fn (SECTION INFO OPNAME) (SECTION-TYPE BODY...)...)"
   (declare (indent 1))
-  (let ((opname (car (cddr head)))
-        (value (make-symbol "*value*"))
+  (let ((value (make-symbol "*value*"))
+        (opname (car (cddr head)))
         (disallowed (car (or (assq t clauses)
                              (assq 'otherwise clauses)))))
     (when disallowed
       (error "%s is an invalid section type" disallowed))
     `(magit-with-refresh
-       (let* ((,value
-               (magit-section-case ,(butlast head)
-                 ,@clauses
-                 ((:eval run-hook-with-args-until-success
-                   ',(intern (format "magit-%s-action-hook" opname))))
-                 (t
-                  (let* ((section (magit-current-section))
-                         (type (and section (magit-section-type section))))
-                    (if type
-                        (error "Can't %s a %s" ,opname
-                               (or (get type 'magit-description) type))
-                      (error "Nothing to %s here" ,opname)))))))
+       (let ((,value
+              (magit-section-case ,(butlast head)
+                ,@clauses
+                (t
+                 (or (run-hook-with-args-until-success
+                      ',(intern (format "magit-%s-action-hook" opname)))
+                     (let* ((section (magit-current-section))
+                            (type (and section (magit-section-type section))))
+                       (if type
+                           (error ,(format "Can't %s a %%s" opname)
+                                  (or (get type 'magit-description) type))
+                         (error ,(format "Nothing to %s here" opname)))))))))
          (unless (eq ,value magit-section-action-success)
            ,value)))))
 
