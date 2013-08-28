@@ -2951,16 +2951,17 @@ in the corresponding directories."
 
 ;;;; Switch Buffer
 
-(defvar-local magit-previous-window-configuration nil
-  "The window configuration prior to switching to current Magit buffer.")
+(defvar-local magit-previous-window-configuration nil)
 (put 'magit-previous-window-configuration 'permanent-local t)
 
-(defun magit-buffer-switch (buf)
-  (if (string-match "magit" (buffer-name))
-      (switch-to-buffer buf)
+(defun magit-buffer-switch (buffer &optional switch-function)
+  (if (derived-mode-p 'magit-mode)
+      (switch-to-buffer buffer)
     (let ((winconf (current-window-configuration)))
-      (pop-to-buffer buf)
-      (setq magit-previous-window-configuration winconf))))
+      (funcall (or switch-function 'pop-to-buffer) buffer)
+      (unless (or magit-previous-window-configuration
+                  (get-buffer-window buffer (selected-frame)))
+        (setq magit-previous-window-configuration winconf)))))
 
 (defun magit-quit-window (&optional kill-buffer)
   "Bury the buffer and delete its window.
@@ -2968,8 +2969,10 @@ With a prefix argument, kill the buffer instead."
   (interactive "P")
   (let ((winconf magit-previous-window-configuration))
     (quit-window kill-buffer (selected-window))
-    (when (and winconf magit-restore-window-configuration)
-      (set-window-configuration winconf))))
+    (when winconf
+      (when magit-restore-window-configuration
+        (set-window-configuration winconf))
+      (setq magit-restore-window-configuration nil))))
 
 ;;; Untracked Files
 
@@ -4575,7 +4578,7 @@ if FULLY-QUALIFIED-NAME is non-nil."
 
 (defvar magit-default-directory nil)
 
-(defun magit-save-some-buffers (&optional msg pred)
+(defun magit-save-some-buffers (&optional msg pred topdir)
   "Save some buffers if variable `magit-save-some-buffers' is non-nil.
 If variable `magit-save-some-buffers' is set to `dontask' then
 don't ask the user before saving the buffers, just go ahead and
@@ -4591,7 +4594,7 @@ If PRED is a zero-argument function, it indicates for each buffer whether
 to consider it or not when called with that buffer current."
   (interactive)
   (let ((predicate-function (or pred magit-save-some-buffers-predicate))
-        (magit-default-directory default-directory))
+        (magit-default-directory (or topdir default-directory)))
     (if magit-save-some-buffers
         (save-some-buffers
          (eq magit-save-some-buffers 'dontask)
@@ -4628,23 +4631,20 @@ when asking for user input."
                              4))
                        (or (magit-get-top-dir)
                            (magit-read-top-dir nil)))))
-  (let ((topdir (magit-get-top-dir dir))
-        (winconf (current-window-configuration)))
+  (let ((topdir (magit-get-top-dir dir)))
     (unless topdir
       (when (y-or-n-p
              (format "There is no Git repository in %S.  Create one? " dir))
         (magit-init dir)
         (setq topdir (magit-get-top-dir dir))))
     (when topdir
-      (let ((default-directory topdir))
-        (magit-save-some-buffers))
+      (magit-save-some-buffers topdir)
       (let ((buf (or (magit-find-status-buffer topdir)
                      (generate-new-buffer
                       (concat "*magit: "
                               (file-name-nondirectory
                                (directory-file-name topdir)) "*")))))
-        (funcall magit-status-buffer-switch-function buf)
-        (setq magit-previous-window-configuration winconf)
+        (magit-buffer-switch buf magit-status-buffer-switch-function)
         (magit-mode-init topdir 'magit-status-mode #'magit-refresh-status)))))
 
 ;;;; Read Repository
