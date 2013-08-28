@@ -112,7 +112,8 @@ Also set the local value in all Magit buffers and refresh them.
     (dolist (buffer (buffer-list))
       (when (derived-mode-p 'magit-mode)
         (with-current-buffer buffer
-          (setq-local magit-diff-options value)
+          (with-no-warnings
+            (setq-local magit-diff-options value))
           (magit-refresh-buffer))))))
 
 ;;;; Variables
