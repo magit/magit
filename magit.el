@@ -6804,6 +6804,22 @@ These are the branch names with the remote name stripped."
   (let* ((default-directory (magit-get-top-dir)))
     (magit-start-process "Git Gui" nil magit-git-executable "gui")))
 
+(defun magit-run-git-gui-blame (commit filename &optional linenum)
+  "Run `git gui blame' on the given FILENAME and COMMIT.
+When the current buffer is visiting FILENAME instruct
+blame to center around the line point is on."
+  (interactive
+   (let* ((revision (magit-read-rev "Retrieve file from revision" "HEAD"))
+          (filename (magit-read-file-from-rev revision)))
+     (list revision filename
+           (and (equal filename
+                       (magit-file-relative-name (buffer-file-name)))
+                (line-number-at-pos)))))
+  (let ((default-directory (magit-get-top-dir default-directory)))
+    (apply 'magit-start-process "Git Blame" nil magit-git-executable
+           "gui" "blame" commit filename
+           (and linenum (list (format "--line=%d" linenum))))))
+
 (defun magit-run-gitk ()
   "Run `gitk --all' for the current git repository."
   (interactive)
