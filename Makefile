@@ -120,6 +120,7 @@ loaddefs: $(LOADDEFS_FILE)
 
 $(LOADDEFS_FILE): $(ELS)
 	@$(BATCHE) "(progn\
+	(setq vc-handled-backends nil)\
 	(defvar generated-autoload-file nil)\
 	(let ((generated-autoload-file \"$(CURDIR)/$(LOADDEFS_FILE)\")\
 	      (make-backup-files nil))\
