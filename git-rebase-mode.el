@@ -45,7 +45,7 @@
 
 (defcustom git-rebase-auto-advance nil
   "If non-nil, moves point forward a line after running an action."
-  :group 'git-rebase-mode
+  :group 'git-rebase
   :type 'boolean)
 
 (defgroup git-rebase-faces nil
