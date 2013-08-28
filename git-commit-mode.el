@@ -184,52 +184,6 @@ The commit message is saved to the kill ring."
        (boundp 'server-buffer-clients)
        server-buffer-clients))
 
-(defun git-commit-git-config-var (key)
-  "Retrieve a git configuration value.
-Invokes 'git config --get' to retrieve the value for the
-configuration key KEY."
-  (ignore-errors
-      (car (process-lines "git" "config" "--get" key))))
-
-(defun git-commit-first-env-var (&rest vars)
-  "Get the value of the first defined environment variable.
-Walk VARS, call `getenv' on each element and return the first
-non-nil return value of `getenv'."
-  (let ((current vars)
-        (val nil))
-    (while (and (not val) current)
-      (setq val (getenv (car current)))
-      (setq current (cdr current)))
-    val))
-
-(defun git-commit-committer-name ()
-  "Get the git committer name of the current user.
-This uses the same mechanism git itself uses.  That is, using the
-value of the 'GIT_AUTHOR_NAME' or 'GIT_COMMITTER_NAME'
-environment variables, or the 'user.name' git configuration
-variable.
-
-If the above mechanism fails, the value of the variable
-`user-full-name' is used."
-  (or
-   (git-commit-first-env-var "GIT_AUTHOR_NAME" "GIT_COMMITTER_NAME")
-   (git-commit-git-config-var "user.name")
-   user-full-name))
-
-(defun git-commit-committer-email ()
-  "Get the git committer email address of the current user.
-This uses the same mechanism git itself uses.  That is, using the
-value of the 'GIT_AUTHOR_EMAIL', 'GIT_COMMITTER_EMAIL', or
-'EMAIL' environment variables, or the 'user.email' git
-configuration variable.
-
-If the above mechanism fails, the value of the variable
-`user-email-address' is used."
-  (or
-   (git-commit-first-env-var "GIT_AUTHOR_EMAIL" "GIT_COMMITTER_EMAIL" "EMAIL")
-   (git-commit-git-config-var "user.email")
-   user-mail-address))
-
 (defconst git-commit-known-pseudo-headers
   '("Signed-off-by"
     "Acked-by"
@@ -289,7 +243,7 @@ line) or the end of a non-empty line."
 
 (defun git-commit-insert-header (type name email)
   "Insert a header into the commit message.
-The inserted headers have the format 'TYPE: NAME <EMAIL>'.
+The inserted header has the format 'TYPE: NAME <EMAIL>'.
 
 The header is inserted at the position returned by
 `git-commit-find-pseudo-header-position'.  When this position
@@ -302,15 +256,20 @@ inserted before the header."
         (insert (format "%s%s: %s <%s>\n" pre type name email))))))
 
 (defun git-commit-insert-header-as-self (type)
-  "Insert a header with the name and email address of the current user.
-Call `git-commit-insert-header' with the user name and email
-address provided by `git-commit-committer-name' and
-`git-commit-committer-email'.
-
-TYPE is passed along unmodified."
-  (let ((committer-name (git-commit-committer-name))
-        (committer-email (git-commit-committer-email)))
-    (git-commit-insert-header type committer-name committer-email)))
+  "Insert a header with the name and email of the current user.
+The inserted header has the format 'TYPE: NAME <EMAIL>'.
+Also see `git-commit-insert-header'."
+  (git-commit-insert-header
+   type
+   (or (getenv "GIT_AUTHOR_NAME")
+       (getenv "GIT_COMMITTER_NAME")
+       (ignore-errors (car (process-lines "git" "config" "user.name")))
+       user-full-name)
+   (or (getenv "GIT_AUTHOR_EMAIL")
+       (getenv "GIT_COMMITTER_EMAIL")
+       (getenv "EMAIL")
+       (ignore-errors (car (process-lines "git" "config" "user.email")))
+       user-mail-address)))
 
 (defmacro git-define-git-commit-self (action header)
   "Create function git-commit-ACTION.
