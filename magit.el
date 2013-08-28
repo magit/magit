@@ -123,6 +123,10 @@ Also set the local value in all Magit buffers and refresh them.
   :prefix "magit-"
   :group 'tools)
 
+(custom-add-to-group 'magit 'git-commit 'custom-group)
+(custom-add-to-group 'magit 'git-rebase 'custom-group)
+(custom-add-to-group 'magit 'vc-follow-symlinks 'custom-variable)
+
 (defcustom magit-git-executable "git"
   "The name of the Git executable."
   :group 'magit
@@ -177,8 +181,6 @@ When looking for a Git repository below the directories in
 deep."
   :group 'magit
   :type 'integer)
-
-(custom-add-to-group 'magit 'vc-follow-symlinks 'custom-variable)
 
 (defcustom magit-set-upstream-on-push nil
   "Whether `magit-push' may use --set-upstream when pushing a branch.
@@ -561,6 +563,9 @@ set before loading libary `magit'.")
   :prefix "magit-"
   :group 'faces
   :group 'magit)
+
+(custom-add-to-group 'magit-faces 'git-commit-faces 'custom-group)
+(custom-add-to-group 'magit-faces 'git-rebase-faces 'custom-group)
 
 (defface magit-header
   '((t :inherit header-line))
