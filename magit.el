@@ -130,14 +130,13 @@ Also set the local value in all Magit buffers and refresh them.
 (custom-add-to-group 'magit 'git-rebase 'custom-group)
 (custom-add-to-group 'magit 'vc-follow-symlinks 'custom-variable)
 
-(defcustom magit-git-executable "git"
-  "The name of the Git executable."
+(defcustom magit-git-executable (executable-find "git")
+  "The Git executable."
   :group 'magit
   :type 'string)
 
-(defcustom magit-gitk-executable
-  (concat (file-name-directory magit-git-executable) "gitk")
-  "The name of the Gitk executable."
+(defcustom magit-gitk-executable (executable-find "gitk")
+  "The Gitk executable."
   :group 'magit
   :type 'string)
 
@@ -169,6 +168,24 @@ will stop working at all."
   :group 'magit
   :type '(choice (string :tag "Executable")
                  (const :tag "Don't use Emacsclient" nil)))
+
+(defcustom magit-quote-curly-braces
+  (and (eq system-type 'windows-nt)
+       (let ((case-fold t))
+         (string-match-p "cygwin" magit-git-executable))
+       t)
+  "Whether curly braces should be quoted when calling git.
+This may be necessary when using Windows.  On all other system
+types this must always be nil.
+
+We are not certain when quoting is needed, but it appears it is
+needed when using Cygwin Git but not when using stand-alone Git.
+The default value is set based on that assumptions.  If this
+turns out to be wrong you can customize this option but please
+also comment on issue #816."
+  :group 'magit
+  :set-after '(magit-git-executable)
+  :type 'boolean)
 
 (defcustom magit-repo-dirs nil
   "Directories containing Git repositories.
@@ -2526,8 +2543,7 @@ magit-topgit and magit-svn"
         (dir default-directory)
         (buf (get-buffer-create magit-process-buffer-name))
         (successp nil))
-    (when (eq system-type 'windows-nt)
-      ;; Quote curly braces or Windows eats them.
+    (when magit-quote-curly-braces
       (setq args (mapcar (apply-partially 'replace-regexp-in-string
                                           "{\\([0-9]+\\)}" "\\\\{\\1\\\\}")
                          args)))
@@ -6845,19 +6861,25 @@ blame to center around the line point is on."
       ;; implementation of "sh" and everything else it needs, but
       ;; Windows users might not have added the directory where it's
       ;; installed to their path
-      (let ((git-bin-dir (file-name-directory magit-gitk-executable))
-            (exec-path exec-path)
+      (let* ((git-bin-dir
+             ;; According to #824, when using stand-alone installation
+             ;; Gitk maybe installed in ...cmd or ...bin; while Sh
+             ;; is installed in ...bin.
+             (expand-file-name "bin"
+                               (file-name-directory
+                                (directory-file-name
+                                 (file-name-directory
+                                  magit-gitk-executable)))))
+            ;; Adding it onto the end so that anything the user
+            ;; specified will get tried first.  Emacs looks in
+            ;; exec-path; PATH is the environment variable inherited by
+            ;; the process.  I need to change both.
+            (exec-path (append exec-path (list git-bin-dir)))
             (process-environment process-environment))
-        (when git-bin-dir
-          ;; Adding it onto the end so that anything the user
-          ;; specified will get tried first.  Emacs looks in
-          ;; exec-path; PATH is the environment variable inherited by
-          ;; the process.  I need to change both.
-          (setq exec-path (append exec-path (list git-bin-dir)))
-          (push (format "PATH=%s;%s"
+        (setenv "PATH"
+                (format "%s;%s"
                         (getenv "PATH")
-                        (replace-regexp-in-string "/" "\\\\" git-bin-dir))
-                process-environment))
+                        (replace-regexp-in-string "/" "\\\\" git-bin-dir)))
         (start-file-process "Gitk" nil "sh" magit-gitk-executable "--all")))
      (t
       (start-file-process "Gitk" nil magit-gitk-executable "--all")))))
