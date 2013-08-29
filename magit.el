@@ -621,6 +621,16 @@ Many Magit faces inherit from this one by default."
   "Face for lines in a diff that have been added."
   :group 'magit-faces)
 
+(defface magit-diff-del
+  '((t :inherit diff-removed))
+  "Face for lines in a diff that have been deleted."
+  :group 'magit-faces)
+
+(defface magit-diff-none
+  '((t :inherit diff-context))
+  "Face for lines in a diff that are unchanged."
+  :group 'magit-faces)
+
 (defface magit-diff-merge-current
   '((t :inherit font-lock-preprocessor-face))
   "Face for merge conflict marker 'current' line."
@@ -639,16 +649,6 @@ Many Magit faces inherit from this one by default."
 (defface magit-diff-merge-proposed
   '((t :inherit font-lock-preprocessor-face))
   "Face for merge conflict marker 'proposed' line."
-  :group 'magit-faces)
-
-(defface magit-diff-none
-  '((t :inherit diff-context))
-  "Face for lines in a diff that are unchanged."
-  :group 'magit-faces)
-
-(defface magit-diff-del
-  '((t :inherit diff-removed))
-  "Face for lines in a diff that have been deleted."
   :group 'magit-faces)
 
 (defface magit-log-graph
