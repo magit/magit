@@ -169,6 +169,24 @@ will stop working at all."
   :type '(choice (string :tag "Executable")
                  (const :tag "Don't use Emacsclient" nil)))
 
+(defcustom magit-quote-curly-braces
+  (and (eq system-type 'windows-nt)
+       (let ((case-fold t))
+         (string-match-p "cygwin" magit-git-executable))
+       t)
+  "Whether curly braces should be quoted when calling git.
+This may be necessary when using Windows.  On all other system
+types this must always be nil.
+
+We are not certain when quoting is needed, but it appears it is
+needed when using Cygwin Git but not when using stand-alone Git.
+The default value is set based on that assumptions.  If this
+turns out to be wrong you can customize this option but please
+also comment on issue #816."
+  :group 'magit
+  :set-after '(magit-git-executable)
+  :type 'boolean)
+
 (defcustom magit-repo-dirs nil
   "Directories containing Git repositories.
 Magit will look into these directories for Git repositories and
@@ -2525,8 +2543,7 @@ magit-topgit and magit-svn"
         (dir default-directory)
         (buf (get-buffer-create magit-process-buffer-name))
         (successp nil))
-    (when (eq system-type 'windows-nt)
-      ;; Quote curly braces or Windows eats them.
+    (when magit-quote-curly-braces
       (setq args (mapcar (apply-partially 'replace-regexp-in-string
                                           "{\\([0-9]+\\)}" "\\\\{\\1\\\\}")
                          args)))
