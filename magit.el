@@ -559,6 +559,60 @@ There are three possible settings:
                  (const :tag "All" all))
   :set 'magit-set-variable-and-refresh)
 
+(defcustom magit-diff-use-overlays t
+  "Whether to use overlays to highlight various diffs components.
+
+Visualizing added and removed lines in diffs using the background
+color conflicts with also using the background color to highlight
+the current item.  This can be overcome by using overlays in both
+cases - but this comes with a performance penalty, which might or
+might not be noticable.
+
+When the background color is used in both cases then using text
+properties for changes lines is not an option because overlays
+always override text properties and that would cause the changed
+lines inside the selected hunk to lose their distinct look.  This
+also effects diff hunk and diff file headers, but that isn't as
+severe.
+
+Multiple solutions to this problem exist:
+
+1. Use overlays with a higher priority than the highlighting to
+   set the background color of added/remove lines.  When this
+   option is non-nil (the default) this is exactly what is done.
+
+2. Highlight the current item with something other than the
+   background color.  One possibility is to make the selected
+   item bold, which is quiet ugly but always works.
+
+   This used to be the default and we relied on theme authors or
+   the user herself to override this using the third option below.
+
+   Setting this option to nil causes `magit-item-hightlight's
+   default to use bold for highlighting.  (It's default is set
+   after the possibly customized value of this option is set.)
+
+3. Use the foreground color to give added/removed lines a distinct
+   look and continue to use the background color for highlighting
+   the selected item.
+
+Both the first and third option are visually appealing.  While
+the first is the default, the third is actually the preferred
+option because it not only looks okay but also doesn't come with
+a performance penaltiy.
+
+Because using overlays is less efficient than using properties
+the first (and default) option is not a good fit when you often
+deal with large diffs.  In that case you either have to live with
+the the performance issue, use the second option, or take the
+time to implement the third for the theme you are using yourself.
+
+The faces involved in this are `magit-item-highlight',
+`magit-diff-add', `magit-diff-del', `magit-diff-none',
+`magit-diff-hunk-header' and `magit-diff-file-header'."
+  :group 'magit
+  :type 'boolean)
+
 (defcustom magit-expand-staged-on-commit nil
   "Whether to expand staged changes when creating a commit.
 When this is non-nil and `magit-commit' is called from the
@@ -580,6 +634,10 @@ set before loading libary `magit'.")
   :prefix "magit-"
   :group 'faces
   :group 'magit)
+
+;; Add to faces group because it affects `magit-item-highlight's
+;; default, and because the doc-strings of many faces refer to it.
+(custom-add-to-group 'magit-faces 'magit-diff-use-overlays 'custom-group)
 
 (custom-add-to-group 'magit-faces 'git-commit-faces 'custom-group)
 (custom-add-to-group 'magit-faces 'git-rebase-faces 'custom-group)
@@ -618,17 +676,20 @@ Many Magit faces inherit from this one by default."
 
 (defface magit-diff-add
   '((t :inherit diff-added))
-  "Face for lines in a diff that have been added."
+  "Face for lines in a diff that have been added.
+Also see option `magit-diff-use-overlays'."
   :group 'magit-faces)
 
 (defface magit-diff-del
   '((t :inherit diff-removed))
-  "Face for lines in a diff that have been deleted."
+  "Face for lines in a diff that have been deleted.
+Also see option `magit-diff-use-overlays'."
   :group 'magit-faces)
 
 (defface magit-diff-none
   '((t :inherit diff-context))
-  "Face for lines in a diff that are unchanged."
+  "Face for lines in a diff that are unchanged.
+Also see option `magit-diff-use-overlays'."
   :group 'magit-faces)
 
 (defface magit-diff-merge-current
@@ -692,18 +753,13 @@ Many Magit faces inherit from this one by default."
   :group 'magit-faces)
 
 (defface magit-item-highlight
-  '((t :bold t))
-  ;; We used to inherit from `highlight', but:
+  (if magit-diff-use-overlays
+      '((t :background "grey"))
+    '((t :bold t)))
   "Face for highlighting the current item.
-
-This face should not set the background if the `magit-diff-*'
-faces, respectively the faces they inherit from, also make use of
-the `:background' face attribute.  Otherwise the diff faces won't
-have any effect.
-
-To disable highlighting of the current item completely, make this
-face inherit from `default' and remove all other attributes."
-  :group 'magit-faces)
+Also see option `magit-diff-use-overlays'."
+  :group 'magit-faces
+  :set-after '(magit-diff-use-overlays))
 
 (defface magit-item-mark
   '((t :inherit secondary-selection))
@@ -1175,10 +1231,6 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
     (with-temp-buffer
       (insert-file-contents file)
       (split-string (buffer-string) "\n" (not keep-empty-lines)))))
-
-(defun magit-put-line-property (prop val)
-  (put-text-property (line-beginning-position) (line-beginning-position 2)
-                     prop val))
 
 (defun magit-insert-region (beg end buf)
   (let ((text (buffer-substring-no-properties beg end)))
@@ -3171,12 +3223,12 @@ Customize `magit-diff-refine-hunk' to change the default mode."
             (magit-set-section-info (list 'diffstat
                                           file 'incomplete f-begin f-end))
             (insert remaining)
-            (magit-put-line-property 'keymap magit-diffstat-keymap)
-
+            (put-text-property (line-beginning-position)
+                               (line-beginning-position 2)
+                               'keymap magit-diffstat-keymap)
             (insert "\n")
             (add-to-list 'magit-diffstat-cached-sections
                          magit-top-section))
-
           ;; (insert (propertize (concat " "
           ;;                             (propertize file
           ;;                                         'face
@@ -3202,7 +3254,6 @@ Customize `magit-diff-refine-hunk' to change the default mode."
             (goto-char (point-min))
             (magit-with-section "diffstats" 'diffstats
               (insert title-line)
-              ;;(magit-put-line-property 'face 'magit-section-title)
               (insert "\n")
               (setq-local magit-diffstat-cached-sections nil)
               (magit-wash-sequence #'magit-wash-diffstat))
@@ -3210,18 +3261,10 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                   (nreverse magit-diffstat-cached-sections))
             (insert "\n")))))))
 
-(defun magit-wash-diffstats-postwork (file &optional section)
-  (let ((sec (or section
-                 (and (boundp 'magit-diffstat-cached-sections)
-                      (pop magit-diffstat-cached-sections)))))
-    (when sec
-      (let* ((info (magit-section-info sec))
-             (begin (nth 3 info))
-             (end (nth 4 info)))
-        (put-text-property begin end
-                          'face 'magit-diff-file-header)
-        (magit-set-section-info (list 'diffstat file 'completed)
-                                sec)))))
+(defun magit-wash-diffstats-postwork (file)
+  (when magit-diffstat-cached-sections
+    (magit-set-section-info (list 'diffstat file 'completed)
+                            (pop magit-diffstat-cached-sections))))
 
 (defun magit-diffstat-item-kind (diffstat)
   (car (magit-section-info diffstat)))
@@ -3337,13 +3380,18 @@ Customize `magit-diff-refine-hunk' to change the default mode."
              (magit-insert-diff-title status file file2)
              (when (search-forward-regexp
                     "\\(--- \\(.*\\)\n\\+\\+\\+ \\(.*\\)\n\\)" nil t)
-               (when (match-string 1)
-                 (add-text-properties (match-beginning 1) (match-end 1)
-                                      '(face magit-diff-hunk-header))
-                 (add-text-properties (match-beginning 2) (match-end 2)
-                                      '(face magit-diff-file-header))
-                 (add-text-properties (match-beginning 3) (match-end 3)
-                                      '(face magit-diff-file-header))))
+               (let ((set-face
+                      (lambda (subexp face)
+                        (if magit-diff-use-overlays
+                            (overlay-put (make-overlay (match-beginning subexp)
+                                                       (match-end subexp))
+                                         'face face)
+                          (put-text-property (match-beginning subexp)
+                                             (match-end subexp)
+                                             'face face)))))
+                 (funcall set-face 1 'magit-diff-hunk-header)
+                 (funcall set-face 2 'magit-diff-file-header)
+                 (funcall set-face 3 'magit-diff-file-header)))
              (goto-char end)
              (let ((magit-section-hidden-default nil))
                (magit-wash-sequence #'magit-wash-hunk))))
@@ -3375,10 +3423,18 @@ Customize `magit-diff-refine-hunk' to change the default mode."
   (cond ((looking-at "\\(^@+\\)[^@]*@+.*")
          (let ((n-columns (1- (length (match-string 1))))
                (head (match-string 0))
-               (hunk-start-pos (point)))
+               (hunk-start-pos (point))
+               (set-line-face
+                (lambda (face)
+                  (if magit-diff-use-overlays
+                      (overlay-put (make-overlay (line-beginning-position)
+                                                 (line-beginning-position 2))
+                                   'face face)
+                    (put-text-property (line-beginning-position)
+                                       (line-beginning-position 2)
+                                       'face face)))))
            (magit-with-section head 'hunk
-             (add-text-properties (match-beginning 0) (match-end 0)
-                                  '(face magit-diff-hunk-header))
+             (funcall set-line-face 'magit-diff-hunk-header)
              (forward-line)
              (while (not (or (eobp)
                              (looking-at "^diff\\|^@@")))
@@ -3387,19 +3443,19 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                               (point) (min (+ (point) n-columns) (point-max))))
                      (line (buffer-substring-no-properties (point) (line-end-position))))
                  (cond ((string-match "^[\\+]+<<<<<<< " line)
-                        (magit-put-line-property 'face 'magit-diff-merge-current))
+                        (funcall set-line-face 'magit-diff-merge-current))
                        ((string-match "^[\\+]+=======" line)
-                        (magit-put-line-property 'face 'magit-diff-merge-separator))
+                        (funcall set-line-face 'magit-diff-merge-separator))
                        ((string-match "^[\\+]+|||||||" line)
-                        (magit-put-line-property 'face 'magit-diff-merge-diff3-separator))
+                        (funcall set-line-face 'magit-diff-merge-diff3-separator))
                        ((string-match "^[\\+]+>>>>>>> " line)
-                        (magit-put-line-property 'face 'magit-diff-merge-proposed))
+                        (funcall set-line-face 'magit-diff-merge-proposed))
                        ((string-match "\\+" prefix)
-                        (magit-put-line-property 'face 'magit-diff-add))
+                        (funcall set-line-face 'magit-diff-add))
                        ((string-match "-" prefix)
-                        (magit-put-line-property 'face 'magit-diff-del))
+                        (funcall set-line-face 'magit-diff-del))
                        (t
-                        (magit-put-line-property 'face 'magit-diff-none))))
+                        (funcall set-line-face 'magit-diff-none))))
                (forward-line)))
 
            (when (eq magit-diff-refine-hunk 'all)
