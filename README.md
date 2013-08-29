@@ -11,6 +11,8 @@ only supports Git and can therefor take full advantage of its native
 features.
 
 Magit supports GNU Emacs 23.2 or later; 24.1 or later is recommended.
+Magit supports Git 1.7.2.5 or later; 1.8 or later is recommended.
+These are the ancient versions in Debian oldstable.
 
 Getting Help
 ============
