@@ -130,14 +130,13 @@ Also set the local value in all Magit buffers and refresh them.
 (custom-add-to-group 'magit 'git-rebase 'custom-group)
 (custom-add-to-group 'magit 'vc-follow-symlinks 'custom-variable)
 
-(defcustom magit-git-executable "git"
-  "The name of the Git executable."
+(defcustom magit-git-executable (executable-find "git")
+  "The Git executable."
   :group 'magit
   :type 'string)
 
-(defcustom magit-gitk-executable
-  (concat (file-name-directory magit-git-executable) "gitk")
-  "The name of the Gitk executable."
+(defcustom magit-gitk-executable (executable-find "gitk")
+  "The Gitk executable."
   :group 'magit
   :type 'string)
 
