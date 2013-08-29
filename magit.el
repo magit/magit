@@ -6861,19 +6861,25 @@ blame to center around the line point is on."
       ;; implementation of "sh" and everything else it needs, but
       ;; Windows users might not have added the directory where it's
       ;; installed to their path
-      (let ((git-bin-dir (file-name-directory magit-gitk-executable))
-            (exec-path exec-path)
+      (let* ((git-bin-dir
+             ;; According to #824, when using stand-alone installation
+             ;; Gitk maybe installed in ...cmd or ...bin; while Sh
+             ;; is installed in ...bin.
+             (expand-file-name "bin"
+                               (file-name-directory
+                                (directory-file-name
+                                 (file-name-directory
+                                  magit-gitk-executable)))))
+            ;; Adding it onto the end so that anything the user
+            ;; specified will get tried first.  Emacs looks in
+            ;; exec-path; PATH is the environment variable inherited by
+            ;; the process.  I need to change both.
+            (exec-path (append exec-path (list git-bin-dir)))
             (process-environment process-environment))
-        (when git-bin-dir
-          ;; Adding it onto the end so that anything the user
-          ;; specified will get tried first.  Emacs looks in
-          ;; exec-path; PATH is the environment variable inherited by
-          ;; the process.  I need to change both.
-          (setq exec-path (append exec-path (list git-bin-dir)))
-          (push (format "PATH=%s;%s"
+        (setenv "PATH"
+                (format "%s;%s"
                         (getenv "PATH")
-                        (replace-regexp-in-string "/" "\\\\" git-bin-dir))
-                process-environment))
+                        (replace-regexp-in-string "/" "\\\\" git-bin-dir)))
         (start-file-process "Gitk" nil "sh" magit-gitk-executable "--all")))
      (t
       (start-file-process "Gitk" nil magit-gitk-executable "--all")))))
