@@ -146,7 +146,7 @@ the edit functions.")
     ["Execute" git-rebase-exec t]
     "---"
     ["Abort" git-rebase-abort t]
-    ["Done" server-edit t]))
+    ["Done" git-rebase-server-edit t]))
 
 ;;; Utilities
 
