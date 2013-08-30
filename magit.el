@@ -171,7 +171,7 @@ will stop working at all."
 
 (defcustom magit-quote-curly-braces
   (and (eq system-type 'windows-nt)
-       (let ((case-fold t))
+       (let ((case-fold-search t))
          (string-match-p "cygwin" magit-git-executable))
        t)
   "Whether curly braces should be quoted when calling git.
