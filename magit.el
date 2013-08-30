@@ -438,16 +438,6 @@ case the selected window is used."
                 (function-item magit-builtin-completing-read)
                 (function :tag "Other")))
 
-(defcustom magit-create-branch-behaviour 'at-head
-  "Where magit will create a new branch if not supplied a branchname or ref.
-
-The value 'at-head means a new branch will be created at the tip
-of your current branch, while the value 'at-point means magit
-will try to find a valid reference at point..."
-  :group 'magit
-  :type '(choice (const :tag "at HEAD" at-head)
-                 (const :tag "at point" at-point)))
-
 (defcustom magit-status-buffer-switch-function 'pop-to-buffer
   "Function for `magit-status' to use for switching to the status buffer.
 
@@ -4921,21 +4911,15 @@ If REVISION is a remote branch, offer to create a local tracking branch.
     (magit-save-some-buffers)
     (magit-run-git "checkout" (magit-rev-to-git revision))))
 
-(defun magit-read-create-branch-args ()
-  (let ((cur-branch (magit-get-current-branch))
-        (cur-point (magit-default-rev)))
-    (list (read-string "Create branch: ")
-          (magit-read-rev
-           "Parent"
-           (cond ((eq magit-create-branch-behaviour 'at-point) cur-point)
-                 ((eq magit-create-branch-behaviour 'at-head) cur-branch)
-                 (t cur-branch))))))
-
 (magit-define-command create-branch (branch parent)
   "Switch 'HEAD' to new BRANCH at revision PARENT and update working tree.
 Fails if working tree or staging area contain uncommitted changes.
 \('git checkout -b BRANCH REVISION')."
-  (interactive (magit-read-create-branch-args))
+  (interactive
+   (list (read-string "Create branch: ")
+         (magit-read-rev "Parent" (or (magit-name-rev
+                                       (magit-commit-at-point 'noerror))
+                                      (magit-get-current-branch)))))
   (when (and branch (not (string= branch ""))
              parent)
     (magit-save-some-buffers)
