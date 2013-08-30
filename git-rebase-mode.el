@@ -321,7 +321,7 @@ Like `forward-line' but go into the opposite direction."
 ;;; Mode
 
 ;;;###autoload
-(define-derived-mode git-rebase-mode special-mode "Rebase"
+(define-derived-mode git-rebase-mode special-mode "Git Rebase"
   "Major mode for editing of a Git rebase file.
 
 Rebase files are generated when you run 'git rebase -i' or run
