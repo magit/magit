@@ -1538,11 +1538,13 @@ UNINTERESTING can be either a function taking a single
 argument or a list of strings used as regexps."
   (cl-loop for ref-line in (magit-git-lines "show-ref")
            for ref-name =  (cadr (split-string ref-line " "))
-           unless  (if (functionp uninteresting)
-                       (funcall uninteresting ref-name)
-                     (cl-loop for i in uninteresting
-                              thereis (string-match i ref-name)))
-           collect (cons (magit-format-ref ref-name)
+           with ref-fmt
+           unless (or (if (functionp uninteresting)
+                          (funcall uninteresting ref-name)
+                        (cl-loop for i in uninteresting
+                                 thereis (string-match i ref-name)))
+                      (not (setq ref-fmt (magit-format-ref ref-name))))
+           collect (cons ref-fmt
                          (replace-regexp-in-string
                           "^refs/heads/" "" ref-name))))
 
