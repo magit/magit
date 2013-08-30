@@ -102,6 +102,7 @@ Contributors
 - Nick Alexander <nalexander@mozilla.com>
 - Nick Dimiduk <ndimiduk@gmail.com>
 - Nicolas Dudebout <nicolas.dudebout@gatech.edu>
+- Noam Postavsky <npostavs@users.sourceforge.net>
 - Ole Arndt <oliver.arndt@cegedim.com>
 - Óscar Fuentes <ofv@wanadoo.es>
 - Paul Stadig <paul@stadig.name>
