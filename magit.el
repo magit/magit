@@ -2985,14 +2985,15 @@ in the corresponding directories."
 (defun magit-buffer-switch (buffer &optional switch-function)
   (if (derived-mode-p 'magit-mode)
       (switch-to-buffer buffer)
-    (let ((winconf (current-window-configuration))
-          (magit-bufs (cl-loop for buf in (buffer-list)
-                               when (with-current-buffer buf
-                                      (derived-mode-p 'magit-mode))
-                               collect buf)))
+    (let* ((winconf (current-window-configuration))
+           (magit-bufs (cl-loop for buf in (buffer-list)
+                                when (with-current-buffer buf
+                                       (derived-mode-p 'magit-mode))
+                                collect buf))
+           (visible-bufs-p (cl-loop for b in magit-bufs
+                                    never (get-buffer-window b 'visible))))
       (funcall (or switch-function 'pop-to-buffer) buffer)
-      (when (cl-loop for b in magit-bufs
-                     never (get-buffer-window b 'visible))
+      (when visible-bufs-p
         (setq magit-previous-window-configuration winconf)))))
 
 (defun magit-quit-window (&optional kill-buffer)
