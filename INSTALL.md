@@ -184,6 +184,7 @@ Add the above lines to your init file (`~/.emacs.el` or
 [git-wip]: https://github.com/bartman/git-wip
 [git]: http://git-scm.com
 [gitflow]: https://github.com/nvie/gitflow
+[git-modes]: https://github.com/magit/git-modes
 [marmalade]: http://marmalade-repo.org
 [melpa]: http://melpa.milkbox.net
 [stgit]: http://www.procode.org/stgit
