@@ -2985,10 +2985,14 @@ in the corresponding directories."
 (defun magit-buffer-switch (buffer &optional switch-function)
   (if (derived-mode-p 'magit-mode)
       (switch-to-buffer buffer)
-    (let ((winconf (current-window-configuration)))
+    (let ((winconf (current-window-configuration))
+          (magit-bufs (cl-loop for buf in (buffer-list)
+                               when (with-current-buffer buf
+                                      (derived-mode-p 'magit-mode))
+                               collect buf)))
       (funcall (or switch-function 'pop-to-buffer) buffer)
-      (unless (or magit-previous-window-configuration
-                  (get-buffer-window buffer (selected-frame)))
+      (when (cl-loop for b in magit-bufs
+                     never (get-buffer-window b 'visible))
         (setq magit-previous-window-configuration winconf)))))
 
 (defun magit-quit-window (&optional kill-buffer)
@@ -2997,10 +3001,8 @@ With a prefix argument, kill the buffer instead."
   (interactive "P")
   (let ((winconf magit-previous-window-configuration))
     (quit-window kill-buffer (selected-window))
-    (when winconf
-      (when magit-restore-window-configuration
-        (set-window-configuration winconf))
-      (setq magit-previous-window-configuration nil))))
+    (when (and winconf magit-restore-window-configuration)
+      (set-window-configuration winconf))))
 
 ;;; Untracked Files
 
