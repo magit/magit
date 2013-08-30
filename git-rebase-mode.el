@@ -209,8 +209,10 @@ that of CHANGE-TO."
   (when (git-rebase-looking-at-action-or-exec)
     (let ((buffer-read-only nil)
           (col (current-column)))
-      (transpose-lines 1)
-      (forward-line -2)
+      (goto-char (point-at-bol))
+      (unless (bobp)
+        (transpose-lines 1)
+        (forward-line -2))
       (move-to-column col))))
 
 (defun git-rebase-move-line-down ()
