@@ -2990,7 +2990,7 @@ With a prefix argument, kill the buffer instead."
     (when winconf
       (when magit-restore-window-configuration
         (set-window-configuration winconf))
-      (setq magit-restore-window-configuration nil))))
+      (setq magit-previous-window-configuration nil))))
 
 ;;; Untracked Files
 
