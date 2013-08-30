@@ -368,6 +368,13 @@ There are three possible settings:
                  (const :tag "All" all))
   :set 'magit-set-variable-and-refresh)
 
+(defcustom commit-template "./.git/COMMIT_EDITMSG"
+  "Path to custom message template file. If nil, no custom
+message will be inserted to *magit-edit-log* buffer. The path can
+be relative as well as absolute."
+  :group 'magit
+  :type 'string)
+
 (defvar magit-current-indentation nil
   "Indentation highlight used in the current buffer.
 This is calculated from `magit-highlight-indentation'.")
@@ -4572,6 +4579,16 @@ This means that the eventual commit does 'git commit --allow-empty'."
     (magit-log-edit-mode)
     (make-local-variable 'magit-buffer-internal)
     (setq magit-buffer-internal magit-buf)
+    (with-current-buffer magit-log-edit-buffer-name
+      (if (= (point-min) (point-max))
+	  (progn
+	    (goto-char (point-min))
+	    (if (file-exists-p commit-template)
+		(insert (format "%s" (with-temp-buffer
+				       (insert-file-contents commit-template)
+				       (buffer-string)))))))
+      (goto-char (point-min))
+      (end-of-line))
     (message "Type C-c C-c to %s (C-c C-k to cancel)." operation)))
 
 (defun magit-log-edit (&optional arg)
