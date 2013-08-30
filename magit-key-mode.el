@@ -284,6 +284,24 @@
       ("=f" "set From address to <ident>" "--from=" read-from-minibuffer)
       ("=r" "make first mail a reply to <message-id>" "--in-reply-to="
        read-from-minibuffer)))
+
+    (apply-mailbox
+     (man-page "git-am")
+     (actions
+      ("j" "Apply Mailbox" magit-apply-mailbox))
+     (switches
+      ("-s" "add a Signed-off-by line to the commit message" "--signoff")
+      ("-3" "allow fall back on 3way merging if needed" "--3way")
+      ("-k" "pass -k flag to git-mailinfo" "--keep")
+      ("-c" "strip everything before a scissors line" "--scissors")
+      ("-p" "pass it through git-apply" "-p")
+      ("-r" "override error message when patch failure occurs" "--resolvemsg")
+      ("-d" "lie about committer date" "--committer-date-is-author-date")
+      ("-D" "use current timestamp for author date" "--ignore-date")
+      ("-b" "pass -b flag to git-mailinfo" "--keep-non-patch"))
+     (arguments
+      ("=p" "format the patch(es) are in" "--patch-format")))
+
     )
   "Holds the key, help, function mapping for the log-mode.
 If you modify this make sure you reset `magit-key-mode-keymaps'
