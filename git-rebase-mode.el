@@ -123,6 +123,7 @@
     (define-key map (kbd "s")   'git-rebase-squash)
     (define-key map (kbd "f")   'git-rebase-fixup)
     (define-key map (kbd "k")   'git-rebase-kill-line)
+    (define-key map (kbd "C-k") 'git-rebase-kill-line)
     (define-key map (kbd "p")   'git-rebase-backward-line)
     (define-key map (kbd "n")   'forward-line)
     (define-key map (kbd "M-p") 'git-rebase-move-line-up)
