@@ -3687,17 +3687,18 @@ This function is the core of magit's stage, unstage, apply, and
 revert operations.  HUNK (or the portion of it selected by the
 region) will be applied to either the index, if \"--cached\" is a
 member of ARGS, or to the working file otherwise."
-  (let ((zero-context (zerop magit-diff-context-lines)))
+  (let ((zero-context (zerop magit-diff-context-lines))
+        (use-region (use-region-p)))
     (when zero-context
       (setq args (cons "--unidiff-zero" args)))
     (when reverse
       (setq args (cons "--reverse" args)))
-    (when (and (use-region-p) zero-context)
+    (when (and use-region zero-context)
       (error (concat "Not enough context to partially apply hunk.  "
                      "Use `+' to increase context.")))
     (let ((buf (generate-new-buffer " *magit-input*")))
       (unwind-protect
-          (progn (if (use-region-p)
+          (progn (if use-region
                      (magit-insert-hunk-item-region-patch
                       hunk reverse (region-beginning) (region-end) buf)
                    (magit-insert-hunk-item-patch hunk buf))
