@@ -209,7 +209,7 @@ magit-$(VERSION).tar.gz: $(DIST_FILES)
 	$(CP) $(DIST_FILES) magit-$(VERSION)
 	$(CPBIN) $(DIST_FILES_BIN) magit-$(VERSION)/bin
 	tar -cvz --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar.gz magit-$(VERSION)
-	$(RM) magit-$(VERSION)
+	$(RMDIR) magit-$(VERSION)
 
 .PHONY: marmalade
 marmalade: magit-$(VERSION).tar
@@ -219,4 +219,4 @@ magit-$(VERSION).tar: $(ELPA_FILES) magit-pkg.el
 	$(CP) $(ELPA_FILES) magit-$(VERSION)
 	$(CP) magit-pkg.el magit-$(VERSION)
 	tar -cv --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar magit-$(VERSION)
-	$(RM) magit-$(VERSION)
+	$(RMDIR) magit-$(VERSION)
