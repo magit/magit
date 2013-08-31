@@ -5471,7 +5471,7 @@ With a prefix argument amend to the commit at HEAD instead.
     (when (and magit-expand-staged-on-commit
                (derived-mode-p 'magit-status-mode))
       (magit-jump-to-staged)
-      (magit-expand-section)
+      (magit-show-level 4 nil)
       (recenter 0))
     (magit-commit-internal "commit" magit-custom-options)))
 
