@@ -45,8 +45,8 @@ Installation
 Emacs >=24.1 includes a facility that lets you easily download and
 install packages.  Using `package.el` is the easiest and recommended
 way to install Magit and its dependencies.  If you don't want to use
-it see the extended installation instructions in INSTALL.md
-([weblink][installing]).
+it see the extended installation instructions in
+[INSTALL.md][installing].
 
 The stable Magit version is available from the [Marmalade][marmalade]
 package repository.  If you want to install the development version
@@ -111,7 +111,7 @@ have contributed.
 To report bugs and make feature requests please use the
 [issue tracker][issues] and Github [pull requests][pulls].  You may
 also use Magit's [Google group][group].  Before making a pull request
-please read CONTRIBUTING.md ([weblink][contributing]).
+please read [CONTRIBUTING.md][contributing].
 
 
 [contributing]: https://github.com/magit/magit/blob/maint/CONTRIBUTING.md
