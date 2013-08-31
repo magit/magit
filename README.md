@@ -76,6 +76,28 @@ Then install Magit (and its run-time dependencies):
 
 <kbd>M-x package-install RET magit RET</kbd>
 
+Dependencies
+============
+
+If you install Magit using `package.el` then dependencies are
+automatically being taken care of.  Otherwise you have to track down
+dependencies and install them manually.
+
+* `cl-lib` is a new library in Emacs 24.3.  Like the old `cl` it
+  provides various Common Lisp forms, but differs in that symbols are
+  prefixed with `cl-`.  A forward compatibility `cl-lib` for older
+  versions of Emacs is available from the GNU Elpa repository.  You
+  can install it using `package.el` or get it [here][cl-lib].
+
+* `git-commit-mode` which is part of the [git-modes][git-modes]
+  repository and available as a separate package from Melpa.
+
+* `git-rebase-mode` which is part of the [git-modes][git-modes]
+  repository and available as a separate package from Melpa.
+
+Some Magit libraries depend on third-party tools or optional git
+subcommands.  See [INSTALL.md][installing] for more information.
+
 Development
 ===========
 
