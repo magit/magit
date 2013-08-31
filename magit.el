@@ -171,7 +171,7 @@ will stop working at all."
 
 (defcustom magit-quote-curly-braces
   (and (eq system-type 'windows-nt)
-       (let ((case-fold t))
+       (let ((case-fold-search t))
          (string-match-p "cygwin" magit-git-executable))
        t)
   "Whether curly braces should be quoted when calling git.
@@ -437,16 +437,6 @@ case the selected window is used."
                 (function-item magit-ido-completing-read)
                 (function-item magit-builtin-completing-read)
                 (function :tag "Other")))
-
-(defcustom magit-create-branch-behaviour 'at-head
-  "Where magit will create a new branch if not supplied a branchname or ref.
-
-The value 'at-head means a new branch will be created at the tip
-of your current branch, while the value 'at-point means magit
-will try to find a valid reference at point..."
-  :group 'magit
-  :type '(choice (const :tag "at HEAD" at-head)
-                 (const :tag "at point" at-point)))
 
 (defcustom magit-status-buffer-switch-function 'pop-to-buffer
   "Function for `magit-status' to use for switching to the status buffer.
@@ -3690,17 +3680,18 @@ This function is the core of magit's stage, unstage, apply, and
 revert operations.  HUNK (or the portion of it selected by the
 region) will be applied to either the index, if \"--cached\" is a
 member of ARGS, or to the working file otherwise."
-  (let ((zero-context (zerop magit-diff-context-lines)))
+  (let ((zero-context (zerop magit-diff-context-lines))
+        (use-region (use-region-p)))
     (when zero-context
       (setq args (cons "--unidiff-zero" args)))
     (when reverse
       (setq args (cons "--reverse" args)))
-    (when (and (use-region-p) zero-context)
+    (when (and use-region zero-context)
       (error (concat "Not enough context to partially apply hunk.  "
                      "Use `+' to increase context.")))
     (let ((buf (generate-new-buffer " *magit-input*")))
       (unwind-protect
-          (progn (if (use-region-p)
+          (progn (if use-region
                      (magit-insert-hunk-item-region-patch
                       hunk reverse (region-beginning) (region-end) buf)
                    (magit-insert-hunk-item-patch hunk buf))
@@ -4924,21 +4915,15 @@ If REVISION is a remote branch, offer to create a local tracking branch.
     (magit-save-some-buffers)
     (magit-run-git "checkout" (magit-rev-to-git revision))))
 
-(defun magit-read-create-branch-args ()
-  (let ((cur-branch (magit-get-current-branch))
-        (cur-point (magit-default-rev)))
-    (list (read-string "Create branch: ")
-          (magit-read-rev
-           "Parent"
-           (cond ((eq magit-create-branch-behaviour 'at-point) cur-point)
-                 ((eq magit-create-branch-behaviour 'at-head) cur-branch)
-                 (t cur-branch))))))
-
 (magit-define-command create-branch (branch parent)
   "Switch 'HEAD' to new BRANCH at revision PARENT and update working tree.
 Fails if working tree or staging area contain uncommitted changes.
 \('git checkout -b BRANCH REVISION')."
-  (interactive (magit-read-create-branch-args))
+  (interactive
+   (list (read-string "Create branch: ")
+         (magit-read-rev "Parent" (or (magit-name-rev
+                                       (magit-commit-at-point 'noerror))
+                                      (magit-get-current-branch)))))
   (when (and branch (not (string= branch ""))
              parent)
     (magit-save-some-buffers)
@@ -6851,9 +6836,11 @@ blame to center around the line point is on."
                        (magit-file-relative-name (buffer-file-name)))
                 (line-number-at-pos)))))
   (let ((default-directory (magit-get-top-dir default-directory)))
-    (apply 'magit-start-process "Git Blame" nil magit-git-executable
-           "gui" "blame" commit filename
-           (and linenum (list (format "--line=%d" linenum))))))
+    (apply 'start-file-process "Git Gui Blame" nil
+           magit-git-executable "gui" "blame"
+           (list (and linenum (format "--line=%d" linenum))
+                 commit
+                 filename))))
 
 (defun magit-run-gitk ()
   "Run `gitk --all' for the current git repository."
