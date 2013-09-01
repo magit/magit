@@ -3072,7 +3072,7 @@ With a prefix argument, kill the buffer instead."
 
 (defun magit-diff-default-hunks ()
   "Reset context for diff hunks to the default size."
-  (interactive "")
+  (interactive)
   (setq magit-diff-context-lines 3)
   (magit-refresh))
 
