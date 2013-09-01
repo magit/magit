@@ -3569,15 +3569,15 @@ Customize `magit-diff-refine-hunk' to change the default mode."
     (forward-line)
     (let ((copy-op (if reverse "+" "-")))
       (while (< (point) (magit-section-end hunk))
-        (if (and (<= beg (point)) (< (point) end))
-            (magit-insert-current-line buf)
-          (cond ((looking-at " ")
-                 (magit-insert-current-line buf))
-                ((looking-at copy-op)
-                 (let ((text (buffer-substring-no-properties
-                              (+ (point) 1) (line-beginning-position 2))))
-                   (with-current-buffer buf
-                     (insert " " text))))))
+        (cond ((and (<= beg (point)) (< (point) end))
+               (magit-insert-current-line buf))
+              ((looking-at " ")
+               (magit-insert-current-line buf))
+              ((looking-at copy-op)
+               (let ((text (buffer-substring-no-properties
+                            (+ (point) 1) (line-beginning-position 2))))
+                 (with-current-buffer buf
+                   (insert " " text)))))
         (forward-line))))
   (with-current-buffer buf
     (diff-fixup-modifs (point-min) (point-max))))
