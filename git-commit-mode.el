@@ -325,7 +325,7 @@ use for fontification.")
 (defun git-commit-build-summary-regexp (max-summary-col)
   (concat
    ;; Skip empty lines or comments before the summary
-   "\\`\\(?:^\\(?:\\s-+\\|\\s<.*\\)\n\\)*"
+   "\\`\\(?:^\\(?:\\s-*\\|\\s<.*\\)\n\\)*"
    ;; The summary line
    (format "\\(.\\{0,%d\\}\\)\\(.*\\)" max-summary-col)
    ;; Non-empty non-comment second line
