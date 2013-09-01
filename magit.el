@@ -450,7 +450,7 @@ The function is given one argument, the status buffer."
 (defcustom magit-restore-window-configuration nil
   "Whether quitting a Magit buffer restores previous window configuration.
 
-Function `magit-buffer-switch' is used to display and
+Function `magit-display-mode-buffer' is used to display and
 select Magit buffers.  Unless the buffer was already displayed in
 a window of the selected frame it also stores the previous window
 configuration.  If this option is non-nil that configuration will
@@ -2981,12 +2981,12 @@ in the corresponding directories."
   (interactive)
   (magit-for-all-buffers #'magit-refresh-buffer default-directory))
 
-;;;; Switch Buffer
+;;;; Display Buffer
 
 (defvar-local magit-previous-window-configuration nil)
 (put 'magit-previous-window-configuration 'permanent-local t)
 
-(defun magit-buffer-switch (buffer &optional switch-function)
+(defun magit-display-mode-buffer (buffer &optional switch-function)
   "Display BUFFER in some window and select it.
 This is intended for buffers whose major mode derive from Magit
 mode.
@@ -3013,7 +3013,7 @@ derives from Magit mode; or else use `switch-to-buffer'."
 With a prefix argument, kill the buffer instead.
 
 If `magit-restore-window-configuration' is non-nil and the last
-configuration stored by `magit-buffer-switch' originates
+configuration stored by `magit-display-mode-buffer' originates
 from the selected frame then restore it after burrying/killing
 the buffer.  Finally reset the window configuration to nil."
   (interactive "P")
@@ -4699,7 +4699,7 @@ when asking for user input."
                       (concat "*magit: "
                               (file-name-nondirectory
                                (directory-file-name topdir)) "*")))))
-        (magit-buffer-switch buf magit-status-buffer-switch-function)
+        (magit-display-mode-buffer buf magit-status-buffer-switch-function)
         (magit-mode-init topdir 'magit-status-mode #'magit-refresh-status)))))
 
 ;;;; Read Repository
@@ -5793,7 +5793,7 @@ With prefix argument, changes in staging area are kept.
   (let ((args (cons (magit-rev-range-to-git (or range "HEAD"))
                     magit-custom-options))
         (topdir (magit-get-top-dir default-directory)))
-    (magit-buffer-switch magit-log-buffer-name)
+    (magit-display-mode-buffer magit-log-buffer-name)
     (magit-mode-init topdir
                      #'magit-log-mode
                      #'magit-refresh-log-buffer
@@ -5808,7 +5808,7 @@ With prefix argument, changes in staging area are kept.
   (let ((args (cons (magit-rev-range-to-git (or range "HEAD"))
                     magit-custom-options))
         (topdir (magit-get-top-dir default-directory)))
-    (magit-buffer-switch magit-log-buffer-name)
+    (magit-display-mode-buffer magit-log-buffer-name)
     (magit-mode-init topdir
                      #'magit-log-mode
                      #'magit-refresh-log-buffer
@@ -5823,7 +5823,7 @@ With prefix argument, changes in staging area are kept.
                                      (or (magit-guess-branch) "HEAD"))))
   (let ((args (magit-rev-to-git rev))
         (topdir (magit-get-top-dir default-directory)))
-    (magit-buffer-switch "*magit-reflog*")
+    (magit-display-mode-buffer "*magit-reflog*")
     (magit-mode-init topdir
                      #'magit-reflog-mode
                      #'magit-refresh-reflog-buffer
@@ -6106,7 +6106,7 @@ restore the window state that was saved before ediff was called."
   (interactive "P")
   (let ((topdir (magit-get-top-dir))
         (current-branch (magit-get-current-branch)))
-    (magit-buffer-switch "*magit-wazzup*")
+    (magit-display-mode-buffer "*magit-wazzup*")
     (magit-mode-init topdir 'magit-wazzup-mode
                      #'magit-refresh-wazzup-buffer
                      current-branch all)))
@@ -6161,7 +6161,7 @@ for the file whose log must be displayed."
                            (magit-read-file-from-rev (magit-get-current-branch))
                          buffer-file-name)))
         (range "HEAD"))
-    (magit-buffer-switch magit-log-buffer-name)
+    (magit-display-mode-buffer magit-log-buffer-name)
     (magit-mode-init topdir 'magit-log-mode
                      #'magit-refresh-file-log-buffer
                      current-file range 'oneline)))
@@ -6813,7 +6813,7 @@ These are the branch names with the remote name stripped."
 (magit-define-command branch-manager ()
   (interactive)
   (let ((topdir (magit-get-top-dir)))
-    (magit-buffer-switch magit-branches-buffer-name)
+    (magit-display-mode-buffer magit-branches-buffer-name)
     (magit-mode-init topdir 'magit-branch-manager-mode
                      #'magit-refresh-branch-manager)))
 
