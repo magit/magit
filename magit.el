@@ -561,17 +561,68 @@ using `magit-key-mode-popup-diff-options' (bound to \
 
 There are three possible settings:
 
-  nil means to never show fine differences
-
-  t means to only show fine differences for the currently
-  selected diff hunk
-
-  `all' means to always show fine differences for all displayed diff hunks"
+nil    never show fine differences
+t      show fine differences for the selected diff hunk only
+`all'  show fine differences for all displayed diff hunks"
   :group 'magit
   :type '(choice (const :tag "Never" nil)
                  (const :tag "Selected only" t)
                  (const :tag "All" all))
   :set 'magit-set-variable-and-refresh)
+
+(defcustom magit-diff-use-overlays t
+  "Whether to use overlays to highlight various diffs components.
+
+Visualizing added and removed lines in diffs using the background
+color conflicts with also using the background color to highlight
+the current item.  This can be overcome by using overlays in both
+cases - but this comes with a performance penalty, which might or
+might not be noticable.
+
+When the background color is used in both cases then using text
+properties for changes lines is not an option because overlays
+always override text properties and that would cause the changed
+lines inside the selected hunk to lose their distinct look.  This
+also effects diff hunk and diff file headers, but that isn't as
+severe.
+
+Multiple solutions to this problem exist:
+
+1. Use overlays with a higher priority than the highlighting to
+   set the background color of added/remove lines.  When this
+   option is non-nil (the default) this is exactly what is done.
+
+2. Highlight the current item with something other than the
+   background color.  One possibility is to make the selected
+   item bold, which is quiet ugly but always works.
+
+   This used to be the default and we relied on theme authors or
+   the user herself to override this using the third option below.
+
+   Setting this option to nil causes `magit-item-hightlight's
+   default to use bold for highlighting.  (It's default is set
+   after the possibly customized value of this option is set.)
+
+3. Use the foreground color to give added/removed lines a distinct
+   look and continue to use the background color for highlighting
+   the selected item.
+
+Both the first and third option are visually appealing.  While
+the first is the default, the third is actually the preferred
+option because it not only looks okay but also doesn't come with
+a performance penaltiy.
+
+Because using overlays is less efficient than using properties
+the first (and default) option is not a good fit when you often
+deal with large diffs.  In that case you either have to live with
+the the performance issue, use the second option, or take the
+time to implement the third for the theme you are using yourself.
+
+The faces involved in this are `magit-item-highlight',
+`magit-diff-add', `magit-diff-del', `magit-diff-none',
+`magit-diff-hunk-header' and `magit-diff-file-header'."
+  :group 'magit
+  :type 'boolean)
 
 (defcustom magit-expand-staged-on-commit nil
   "Whether to expand staged changes when creating a commit.
@@ -603,6 +654,10 @@ set before loading libary `magit'.")
   :prefix "magit-"
   :group 'faces
   :group 'magit)
+
+;; Add to faces group because it affects `magit-item-highlight's
+;; default, and because the doc-strings of many faces refer to it.
+(custom-add-to-group 'magit-faces 'magit-diff-use-overlays 'custom-group)
 
 (custom-add-to-group 'magit-faces 'git-commit-faces 'custom-group)
 (custom-add-to-group 'magit-faces 'git-rebase-faces 'custom-group)
@@ -641,7 +696,20 @@ Many Magit faces inherit from this one by default."
 
 (defface magit-diff-add
   '((t :inherit diff-added))
-  "Face for lines in a diff that have been added."
+  "Face for lines in a diff that have been added.
+Also see option `magit-diff-use-overlays'."
+  :group 'magit-faces)
+
+(defface magit-diff-del
+  '((t :inherit diff-removed))
+  "Face for lines in a diff that have been deleted.
+Also see option `magit-diff-use-overlays'."
+  :group 'magit-faces)
+
+(defface magit-diff-none
+  '((t :inherit diff-context))
+  "Face for lines in a diff that are unchanged.
+Also see option `magit-diff-use-overlays'."
   :group 'magit-faces)
 
 (defface magit-diff-merge-current
@@ -662,16 +730,6 @@ Many Magit faces inherit from this one by default."
 (defface magit-diff-merge-proposed
   '((t :inherit font-lock-preprocessor-face))
   "Face for merge conflict marker 'proposed' line."
-  :group 'magit-faces)
-
-(defface magit-diff-none
-  '((t :inherit diff-context))
-  "Face for lines in a diff that are unchanged."
-  :group 'magit-faces)
-
-(defface magit-diff-del
-  '((t :inherit diff-removed))
-  "Face for lines in a diff that have been deleted."
   :group 'magit-faces)
 
 (defface magit-log-graph
@@ -715,18 +773,13 @@ Many Magit faces inherit from this one by default."
   :group 'magit-faces)
 
 (defface magit-item-highlight
-  '((t :bold t))
-  ;; We used to inherit from `highlight', but:
+  (if magit-diff-use-overlays
+      '((t :background "grey"))
+    '((t :bold t)))
   "Face for highlighting the current item.
-
-This face should not set the background if the `magit-diff-*'
-faces, respectively the faces they inherit from, also make use of
-the `:background' face attribute.  Otherwise the diff faces won't
-have any effect.
-
-To disable highlighting of the current item completely, make this
-face inherit from `default' and remove all other attributes."
-  :group 'magit-faces)
+Also see option `magit-diff-use-overlays'."
+  :group 'magit-faces
+  :set-after '(magit-diff-use-overlays))
 
 (defface magit-item-mark
   '((t :inherit secondary-selection))
@@ -1198,10 +1251,6 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
     (with-temp-buffer
       (insert-file-contents file)
       (split-string (buffer-string) "\n" (not keep-empty-lines)))))
-
-(defun magit-put-line-property (prop val)
-  (put-text-property (line-beginning-position) (line-beginning-position 2)
-                     prop val))
 
 (defun magit-insert-region (beg end buf)
   (let ((text (buffer-substring-no-properties beg end)))
@@ -2296,55 +2345,33 @@ One for all, one for current lineage."
 
 ;;;; Section Highlighting
 
-(defvar magit-highlighted-section nil)
-
-(defun magit-refine-section (section)
-  "Apply temporary refinements to the display of SECTION.
-Refinements can be undone with `magit-unrefine-section'."
-  (let ((type (and section (magit-section-type section))))
-    (cond ((and (eq type 'hunk)
-                magit-diff-refine-hunk
-                (not (eq magit-diff-refine-hunk 'all)))
-           ;; Refine the current hunk to show fine details, using
-           ;; diff-mode machinery.
-           (save-excursion
-             (goto-char (magit-section-beginning magit-highlighted-section))
-             (magit-maybe-diff-refine-hunk))))))
-
-(defun magit-unrefine-section (section)
-  "Remove refinements to the display of SECTION done by `magit-refine-section'."
-  (let ((type (and section (magit-section-type section))))
-    (cond ((and (eq type 'hunk)
-                magit-diff-refine-hunk
-                (not (eq magit-diff-refine-hunk 'all)))
-           ;; XXX this should be in some diff-mode function, like
-           ;; `diff-unrefine-hunk'
-           (remove-overlays (magit-section-beginning section)
-                            (magit-section-end section)
-                            'diff-mode 'fine)))))
-
-(defvar magit-highlight-overlay nil)
+(defvar-local magit-highlighted-section nil)
+(defvar-local magit-highlight-overlay nil)
 
 (defun magit-highlight-section ()
   "Highlight current section if it has a type."
-  (let ((section (magit-current-section)))
-    (when (not (eq section magit-highlighted-section))
-      (when magit-highlighted-section
-        ;; remove any refinement from previous hunk
-        (magit-unrefine-section magit-highlighted-section))
+  (let ((section (magit-current-section))
+        (refinep (lambda ()
+                   (and magit-highlighted-section
+                        (eq magit-diff-refine-hunk t)
+                        (eq (magit-section-type magit-highlighted-section)
+                            'hunk)))))
+    (unless (eq section magit-highlighted-section)
+      (when (funcall refinep)
+        (magit-diff-unrefine-hunk magit-highlighted-section))
       (setq magit-highlighted-section section)
       (unless magit-highlight-overlay
-        (let ((ov (make-overlay 1 1)))
-          (overlay-put ov 'face 'magit-item-highlight)
-          (setq magit-highlight-overlay ov)))
-      (if (and section (magit-section-type section))
-          (progn
-            (magit-refine-section section)
-            (move-overlay magit-highlight-overlay
-                          (magit-section-beginning section)
-                          (magit-section-end section)
-                          (current-buffer)))
-        (delete-overlay magit-highlight-overlay)))))
+        (overlay-put (setq magit-highlight-overlay (make-overlay 1 1))
+                     'face 'magit-item-highlight))
+      (cond ((and section (magit-section-type section))
+             (when (funcall refinep)
+               (magit-diff-refine-hunk section))
+             (move-overlay magit-highlight-overlay
+                           (magit-section-beginning section)
+                           (magit-section-end section)
+                           (current-buffer)))
+            (t
+             (delete-overlay magit-highlight-overlay))))))
 
 ;;;; Section Actions
 
@@ -3091,7 +3118,7 @@ the buffer.  Finally reset the window configuration to nil."
 
 (defun magit-diff-default-hunks ()
   "Reset context for diff hunks to the default size."
-  (interactive "")
+  (interactive)
   (setq magit-diff-context-lines 3)
   (magit-refresh))
 
@@ -3132,27 +3159,35 @@ If hunk refining is off, then hunk refining is turned on, in
 
 Customize `magit-diff-refine-hunk' to change the default mode."
   (interactive "P")
-  (let* ((old magit-diff-refine-hunk)
-         (new
-          (if other
-              (if (eq old 'all) t 'all)
-            (not old))))
+  (let ((hunk (and magit-highlighted-section
+                   (eq (magit-section-type magit-highlighted-section) 'hunk)
+                   magit-highlighted-section))
+        (old magit-diff-refine-hunk))
+    (setq-local magit-diff-refine-hunk
+                (if other
+                    (if (eq old 'all) t 'all)
+                  (not old)))
+    (cond ((or (eq old 'all)
+               (eq magit-diff-refine-hunk 'all))
+           (magit-refresh))
+          ((not hunk))
+          (magit-diff-refine-hunk
+           (magit-diff-refine-hunk hunk))
+          (t
+           (magit-diff-unrefine-hunk hunk)))
+    (message "magit-diff-refine-hunk: %s" magit-diff-refine-hunk)))
 
-    ;; remove any old refining in currently highlighted section
-    (when (and magit-highlighted-section old (not (eq old 'all)))
-      (magit-unrefine-section magit-highlighted-section))
+(defun magit-diff-refine-hunk (hunk)
+  (save-excursion
+    (goto-char (magit-section-beginning hunk))
+    ;; `diff-refine-hunk' does not handle combined diffs.
+    (unless (looking-at "@@@")
+      (diff-refine-hunk))))
 
-    ;; set variable to new value locally
-    (setq-local magit-diff-refine-hunk new)
-
-    ;; if now highlighting in "selected only" mode, turn refining back
-    ;; on in the current section
-    (when (and magit-highlighted-section new (not (eq new 'all)))
-      (magit-refine-section magit-highlighted-section))
-
-    ;; `all' mode being turned on or off needs a complete refresh
-    (when (or (eq old 'all) (eq new 'all))
-      (magit-refresh))))
+(defun magit-diff-unrefine-hunk (hunk)
+  (remove-overlays (magit-section-beginning hunk)
+                   (magit-section-end hunk)
+                   'diff-mode 'fine))
 
 (defun magit-diff-line-file ()
   (cond ((looking-at "^diff --git ./\\(.*\\) ./\\(.*\\)$")
@@ -3177,61 +3212,60 @@ Customize `magit-diff-refine-hunk' to change the default mode."
   (call-interactively 'magit-ediff))
 
 (defun magit-wash-diffstat (&optional guess)
-  (let ((entry-regexp "^ ?\\(.*?\\)\\( +| +.*\\)$"))
-    (when (looking-at entry-regexp)
-      (let ((file (match-string-no-properties 1))
-            (remaining (match-string-no-properties 2)))
-        (delete-region (point) (+ (line-end-position) 1))
-        (magit-with-section "diffstat" 'diffstat
-          ;;(magit-set-section-info 'incomplete)
+  (when (looking-at "^ ?\\(.*?\\)\\( +| +.*\\)$")
+    (let ((file (match-string-no-properties 1))
+          (remaining (match-string-no-properties 2)))
+      (delete-region (point) (+ (line-end-position) 1))
+      (magit-with-section "diffstat" 'diffstat
+        ;;(magit-set-section-info 'incomplete)
 
-          ;; diffstat entries will look like
-          ;;
-          ;; ' PSEUDO-FILE-NAME | +++---'
-          ;;
-          ;; Since PSEUDO-FILE-NAME is not always real pathname, we
-          ;; don't know the pathname yet.  Thus, section info will be
-          ;; (diffstat FILE incomplete MARKER-BEGIN MARKER-END) for
-          ;; now, where MARKER-BEGIN points the beginning of the
-          ;; PSEUDO-FILE-NAME, MARKER-END points the end of the
-          ;; PSEUDO-FILE-NAME, and FILE will be abbreviated filename.
-          ;; Later in `magit-wash-diff-or-other-file`, the section
-          ;; info will be updated.
+        ;; diffstat entries will look like
+        ;;
+        ;; ' PSEUDO-FILE-NAME | +++---'
+        ;;
+        ;; Since PSEUDO-FILE-NAME is not always real pathname, we
+        ;; don't know the pathname yet.  Thus, section info will be
+        ;; (diffstat FILE incomplete MARKER-BEGIN MARKER-END) for
+        ;; now, where MARKER-BEGIN points the beginning of the
+        ;; PSEUDO-FILE-NAME, MARKER-END points the end of the
+        ;; PSEUDO-FILE-NAME, and FILE will be abbreviated filename.
+        ;; Later in `magit-wash-diff-or-other-file`, the section
+        ;; info will be updated.
 
-          ;; Note that FILE is the 2nd element of the section-info;
-          ;; this is intentional, so that `magit-diff-item-file` can
-          ;; return the FILE part.
+        ;; Note that FILE is the 2nd element of the section-info;
+        ;; this is intentional, so that `magit-diff-item-file` can
+        ;; return the FILE part.
 
-           ;; (list 'diffstat
-           ;;       (or (and (> (length file) 3)
-           ;;                (string-equal (substring file 0 3) "...")
-           ;;                (message "got the invalid file here")
-           ;;                'truncated)
-           ;;           file)))
+        ;; (list 'diffstat
+        ;;       (or (and (> (length file) 3)
+        ;;                (string-equal (substring file 0 3) "...")
+        ;;                (message "got the invalid file here")
+        ;;                'truncated)
+        ;;           file)))
 
-          (insert " ")
-          (let ((f-begin (point-marker)) f-end)
-            (insert file)
-            (setq f-end (point-marker))
+        (insert " ")
+        (let ((f-begin (point-marker)) f-end)
+          (insert file)
+          (setq f-end (point-marker))
 
-            (magit-set-section-info (list 'diffstat
-                                          file 'incomplete f-begin f-end))
-            (insert remaining)
-            (magit-put-line-property 'keymap magit-diffstat-keymap)
-
-            (insert "\n")
-            (add-to-list 'magit-diffstat-cached-sections
-                         magit-top-section))
-
-          ;; (insert (propertize (concat " "
-          ;;                             (propertize file
-          ;;                                         'face
-          ;;                                         'magit-diff-file-header)
-          ;;                             remaining)
-          ;;                     'keymap
-          ;;                     magit-diffstat-keymap)
-          ;;         "\n")
-          )))))
+          (magit-set-section-info (list 'diffstat
+                                        file 'incomplete f-begin f-end))
+          (insert remaining)
+          (put-text-property (line-beginning-position)
+                             (line-beginning-position 2)
+                             'keymap magit-diffstat-keymap)
+          (insert "\n")
+          (add-to-list 'magit-diffstat-cached-sections
+                       magit-top-section))
+        ;; (insert (propertize (concat " "
+        ;;                             (propertize file
+        ;;                                         'face
+        ;;                                         'magit-diff-file-header)
+        ;;                             remaining)
+        ;;                     'keymap
+        ;;                     magit-diffstat-keymap)
+        ;;         "\n")
+        ))))
 
 (defun magit-wash-diffstats ()
   (let ((entry-regexp "^ ?\\(.*?\\)\\( +| +.*\\)$")
@@ -3248,7 +3282,6 @@ Customize `magit-diff-refine-hunk' to change the default mode."
             (goto-char (point-min))
             (magit-with-section "diffstats" 'diffstats
               (insert title-line)
-              ;;(magit-put-line-property 'face 'magit-section-title)
               (insert "\n")
               (setq-local magit-diffstat-cached-sections nil)
               (magit-wash-sequence #'magit-wash-diffstat))
@@ -3256,18 +3289,10 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                   (nreverse magit-diffstat-cached-sections))
             (insert "\n")))))))
 
-(defun magit-wash-diffstats-postwork (file &optional section)
-  (let ((sec (or section
-                 (and (boundp 'magit-diffstat-cached-sections)
-                      (pop magit-diffstat-cached-sections)))))
-    (when sec
-      (let* ((info (magit-section-info sec))
-             (begin (nth 3 info))
-             (end (nth 4 info)))
-        (put-text-property begin end
-                          'face 'magit-diff-file-header)
-        (magit-set-section-info (list 'diffstat file 'completed)
-                                sec)))))
+(defun magit-wash-diffstats-postwork (file)
+  (when magit-diffstat-cached-sections
+    (magit-set-section-info (list 'diffstat file 'completed)
+                            (pop magit-diffstat-cached-sections))))
 
 (defun magit-diffstat-item-kind (diffstat)
   (car (magit-section-info diffstat)))
@@ -3285,15 +3310,14 @@ Customize `magit-diff-refine-hunk' to change the default mode."
   (car (cddr (magit-section-info diffstat))))
 
 (defun magit-wash-other-file ()
-  (if (looking-at "^? \\(.*\\)$")
-      (let ((file (match-string-no-properties 1)))
-        (magit-wash-diffstats-postwork file)
-        (delete-region (point) (+ (line-end-position) 1))
-        (magit-with-section file 'file
-          (magit-set-section-info file)
-          (insert "\tNew      " file "\n"))
-        t)
-    nil))
+  (when (looking-at "^? \\(.*\\)$")
+    (let ((file (match-string-no-properties 1)))
+      (magit-wash-diffstats-postwork file)
+      (delete-region (point) (+ (line-end-position) 1))
+      (magit-with-section file 'file
+        (magit-set-section-info file)
+        (insert "\tNew      " file "\n"))
+      t)))
 
 (defvar magit-hide-diffs nil)
 
@@ -3327,18 +3351,18 @@ Customize `magit-diff-refine-hunk' to change the default mode."
         (second-start (progn (forward-line 1)
                              (search-forward-regexp "^diff")
                              (beginning-of-line)
-                             (point-marker))))
-    (let ((magit-indentation-level (+ magit-indentation-level 1)))
-      (save-restriction
-        (narrow-to-region first-start second-start)
-        (goto-char (point-min))
-        (magit-with-section file 'diff
-          (magit-wash-diff-section)))
-      (save-restriction
-        (narrow-to-region second-start (point-max))
-        (goto-char (point-min))
-        (magit-with-section file 'diff
-          (magit-wash-diff-section))))))
+                             (point-marker)))
+        (magit-indentation-level (+ magit-indentation-level 1)))
+    (save-restriction
+      (narrow-to-region first-start second-start)
+      (goto-char (point-min))
+      (magit-with-section file 'diff
+        (magit-wash-diff-section)))
+    (save-restriction
+      (narrow-to-region second-start (point-max))
+      (goto-char (point-min))
+      (magit-with-section file 'diff
+        (magit-wash-diff-section)))))
 
 (defun magit-wash-diff-section ()
   (cond ((looking-at "^\\* Unmerged path \\(.*\\)")
@@ -3383,19 +3407,22 @@ Customize `magit-diff-refine-hunk' to change the default mode."
              (magit-insert-diff-title status file file2)
              (when (search-forward-regexp
                     "\\(--- \\(.*\\)\n\\+\\+\\+ \\(.*\\)\n\\)" nil t)
-               (when (match-string 1)
-                 (add-text-properties (match-beginning 1) (match-end 1)
-                                      '(face magit-diff-hunk-header))
-                 (add-text-properties (match-beginning 2) (match-end 2)
-                                      '(face magit-diff-file-header))
-                 (add-text-properties (match-beginning 3) (match-end 3)
-                                      '(face magit-diff-file-header))))
+               (let ((set-face
+                      (lambda (subexp face)
+                        (if magit-diff-use-overlays
+                            (overlay-put (make-overlay (match-beginning subexp)
+                                                       (match-end subexp))
+                                         'face face)
+                          (put-text-property (match-beginning subexp)
+                                             (match-end subexp)
+                                             'face face)))))
+                 (funcall set-face 1 'magit-diff-hunk-header)
+                 (funcall set-face 2 'magit-diff-file-header)
+                 (funcall set-face 3 'magit-diff-file-header)))
              (goto-char end)
              (let ((magit-section-hidden-default nil))
                (magit-wash-sequence #'magit-wash-hunk))))
-         t)
-        (t
-         nil)))
+         t)))
 
 (defun magit-wash-diff ()
   (let ((magit-section-hidden-default magit-hide-diffs))
@@ -3418,43 +3445,46 @@ Customize `magit-diff-refine-hunk' to change the default mode."
   (nth 3 (magit-section-info diff)))
 
 (defun magit-wash-hunk ()
-  (cond ((looking-at "\\(^@+\\)[^@]*@+.*")
-         (let ((n-columns (1- (length (match-string 1))))
-               (head (match-string 0))
-               (hunk-start-pos (point)))
-           (magit-with-section head 'hunk
-             (add-text-properties (match-beginning 0) (match-end 0)
-                                  '(face magit-diff-hunk-header))
-             (forward-line)
-             (while (not (or (eobp)
-                             (looking-at "^diff\\|^@@")))
-               (magit-highlight-line-whitespace)
-               (let ((prefix (buffer-substring-no-properties
-                              (point) (min (+ (point) n-columns) (point-max))))
-                     (line (buffer-substring-no-properties (point) (line-end-position))))
-                 (cond ((string-match "^[\\+]+<<<<<<< " line)
-                        (magit-put-line-property 'face 'magit-diff-merge-current))
-                       ((string-match "^[\\+]+=======" line)
-                        (magit-put-line-property 'face 'magit-diff-merge-separator))
-                       ((string-match "^[\\+]+|||||||" line)
-                        (magit-put-line-property 'face 'magit-diff-merge-diff3-separator))
-                       ((string-match "^[\\+]+>>>>>>> " line)
-                        (magit-put-line-property 'face 'magit-diff-merge-proposed))
-                       ((string-match "\\+" prefix)
-                        (magit-put-line-property 'face 'magit-diff-add))
-                       ((string-match "-" prefix)
-                        (magit-put-line-property 'face 'magit-diff-del))
-                       (t
-                        (magit-put-line-property 'face 'magit-diff-none))))
-               (forward-line)))
-
-           (when (eq magit-diff-refine-hunk 'all)
-             (save-excursion
-               (goto-char hunk-start-pos)
-               (magit-maybe-diff-refine-hunk))))
-         t)
-        (t
-         nil)))
+  (when (looking-at "\\(^@+\\)[^@]*@+.*")
+    (let ((n-columns (1- (length (match-string 1))))
+          (head (match-string 0))
+          (hunk-start-pos (point))
+          (set-line-face
+           (lambda (face)
+             (if magit-diff-use-overlays
+                 (overlay-put (make-overlay (line-beginning-position)
+                                            (line-beginning-position 2))
+                              'face face)
+               (put-text-property (line-beginning-position)
+                                  (line-beginning-position 2)
+                                  'face face)))))
+      (magit-with-section head 'hunk
+        (funcall set-line-face 'magit-diff-hunk-header)
+        (forward-line)
+        (while (not (or (eobp)
+                        (looking-at "^diff\\|^@@")))
+          (magit-highlight-line-whitespace)
+          (let ((prefix (buffer-substring-no-properties
+                         (point) (min (+ (point) n-columns) (point-max))))
+                (line (buffer-substring-no-properties (point) (line-end-position))))
+            (cond ((string-match "^[\\+]+<<<<<<< " line)
+                   (funcall set-line-face 'magit-diff-merge-current))
+                  ((string-match "^[\\+]+=======" line)
+                   (funcall set-line-face 'magit-diff-merge-separator))
+                  ((string-match "^[\\+]+|||||||" line)
+                   (funcall set-line-face 'magit-diff-merge-diff3-separator))
+                  ((string-match "^[\\+]+>>>>>>> " line)
+                   (funcall set-line-face 'magit-diff-merge-proposed))
+                  ((string-match "\\+" prefix)
+                   (funcall set-line-face 'magit-diff-add))
+                  ((string-match "-" prefix)
+                   (funcall set-line-face 'magit-diff-del))
+                  (t
+                   (funcall set-line-face 'magit-diff-none))))
+          (forward-line))
+        (when (eq magit-diff-refine-hunk 'all)
+          (magit-diff-refine-hunk (magit-current-section)))))
+    t))
 
 (defun magit-highlight-line-whitespace ()
   (when (and magit-highlight-whitespace
@@ -3481,14 +3511,6 @@ Customize `magit-diff-refine-hunk' to change the default mode."
         (overlay-put (make-overlay (match-beginning 1) (match-end 1))
                      'face 'magit-whitespace-warning-face)))))
 
-(defun magit-looking-at-combined-diff-p ()
-  (looking-at "@@@"))
-
-(defun magit-maybe-diff-refine-hunk ()
-  ;; diff-refine-hunk can't handle git's combined diff output (--cc)
-  (unless (magit-looking-at-combined-diff-p)
-    (diff-refine-hunk)))
-
 (defun magit-insert-diff (file status)
   (magit-configure-have-config-param)
   (let ((cmd magit-git-executable)
@@ -3496,21 +3518,20 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                            (list "-c" "diff.submodule=short"))
                       (list "diff" (magit-diff-U-arg))
                       magit-diff-options
-                      (list "--" file))))
-    (let ((p (point)))
-      (magit-git-insert args)
-      (unless (eq (char-before) ?\n)
-        (insert "\n"))
-      (save-restriction
-        (narrow-to-region p (point))
-        (goto-char p)
-        (cond
-         ((eq status 'typechange)
-          (magit-insert-diff-title status file file)
-          (magit-wash-typechange-section file))
-         (t
-          (magit-wash-diff-section)))
-        (goto-char (point-max))))))
+                      (list "--" file)))
+        (beg (point)))
+    (magit-git-insert args)
+    (unless (eq (char-before) ?\n)
+      (insert "\n"))
+    (save-restriction
+      (narrow-to-region beg (point))
+      (goto-char beg)
+      (cond ((eq status 'typechange)
+             (magit-insert-diff-title status file file)
+             (magit-wash-typechange-section file))
+            (t
+             (magit-wash-diff-section)))
+      (goto-char (point-max)))))
 
 (defvar magit-last-raw-diff nil)
 (defvar magit-ignore-unmerged-raw-diffs nil)
@@ -3520,41 +3541,40 @@ Customize `magit-diff-refine-hunk' to change the default mode."
     (magit-wash-sequence #'magit-wash-raw-diff)))
 
 (defun magit-wash-raw-diff ()
-  (if (looking-at
-       ":\\([0-7]+\\) \\([0-7]+\\) [0-9a-f]+ [0-9a-f]+ \\(.\\)[0-9]*\t\\([^\t\n]+\\)$")
-      (let ((old-perm (match-string-no-properties 1))
-            (new-perm (match-string-no-properties 2))
-            (status (cl-case (string-to-char (match-string-no-properties 3))
-                      (?A 'new)
-                      (?D 'deleted)
-                      (?M 'modified)
-                      (?U 'unmerged)
-                      (?T 'typechange)
-                      (t     nil)))
-            (file (match-string-no-properties 4)))
-        ;; If this is for the same file as the last diff, ignore it.
-        ;; Unmerged files seem to get two entries.
-        ;; We also ignore unmerged files when told so.
-        (if (or (equal file magit-last-raw-diff)
-                (and magit-ignore-unmerged-raw-diffs (eq status 'unmerged)))
+  (when (looking-at
+         ":\\([0-7]+\\) \\([0-7]+\\) [0-9a-f]+ [0-9a-f]+ \\(.\\)[0-9]*\t\\([^\t\n]+\\)$")
+    (let ((old-perm (match-string-no-properties 1))
+          (new-perm (match-string-no-properties 2))
+          (status (cl-case (string-to-char (match-string-no-properties 3))
+                    (?A 'new)
+                    (?D 'deleted)
+                    (?M 'modified)
+                    (?U 'unmerged)
+                    (?T 'typechange)
+                    (t     nil)))
+          (file (match-string-no-properties 4)))
+      ;; If this is for the same file as the last diff, ignore it.
+      ;; Unmerged files seem to get two entries.
+      ;; We also ignore unmerged files when told so.
+      (if (or (equal file magit-last-raw-diff)
+              (and magit-ignore-unmerged-raw-diffs (eq status 'unmerged)))
+          (delete-region (point) (+ (line-end-position) 1))
+        (setq magit-last-raw-diff file)
+        ;; The 'diff' section that is created here will not work with
+        ;; magit-insert-diff-item-patch etc when we leave it empty.
+        ;; Luckily, raw diffs are only produced for staged and
+        ;; unstaged changes, and we never call
+        ;; magit-insert-diff-item-patch on them.  This is a bit
+        ;; brittle, of course.
+        (let ((magit-section-hidden-default magit-hide-diffs))
+          (magit-with-section file 'diff
             (delete-region (point) (+ (line-end-position) 1))
-          (setq magit-last-raw-diff file)
-          ;; The 'diff' section that is created here will not work with
-          ;; magit-insert-diff-item-patch etc when we leave it empty.
-          ;; Luckily, raw diffs are only produced for staged and
-          ;; unstaged changes, and we never call
-          ;; magit-insert-diff-item-patch on them.  This is a bit
-          ;; brittle, of course.
-          (let ((magit-section-hidden-default magit-hide-diffs))
-            (magit-with-section file 'diff
-              (delete-region (point) (+ (line-end-position) 1))
-              (if (not (magit-section-hidden magit-top-section))
-                  (magit-insert-diff file status)
-                (magit-set-section-info (list status file nil))
-                (magit-set-section-needs-refresh-on-show t)
-                (magit-insert-diff-title status file nil)))))
-        t)
-    nil))
+            (if (not (magit-section-hidden magit-top-section))
+                (magit-insert-diff file status)
+              (magit-set-section-info (list status file nil))
+              (magit-set-section-needs-refresh-on-show t)
+              (magit-insert-diff-title status file nil)))))
+      t)))
 
 (defun magit-hunk-item-diff (hunk)
   (let ((diff (magit-section-parent hunk)))
@@ -3563,26 +3583,28 @@ Customize `magit-diff-refine-hunk' to change the default mode."
     diff))
 
 (defun magit-diff-item-insert-header (diff buf)
-  (let ((beg (save-excursion
-               (goto-char (magit-section-beginning diff))
-               (forward-line)
-               (point)))
-        (end (if (magit-section-children diff)
-                 (magit-section-beginning (car (magit-section-children diff)))
-               (magit-section-end diff))))
-    (magit-insert-region beg end buf)))
+  (magit-insert-region (save-excursion
+                         (goto-char (magit-section-beginning diff))
+                         (forward-line)
+                         (point))
+                       (if (magit-section-children diff)
+                           (magit-section-beginning
+                            (car (magit-section-children diff)))
+                         (magit-section-end diff))
+                       buf))
 
 (defun magit-insert-diff-item-patch (diff buf)
-  (let ((beg (save-excursion
-               (goto-char (magit-section-beginning diff))
-               (forward-line)
-               (point)))
-        (end (magit-section-end diff)))
-    (magit-insert-region beg end buf)))
+  (magit-insert-region (save-excursion
+                         (goto-char (magit-section-beginning diff))
+                         (forward-line)
+                         (point))
+                       (magit-section-end diff)
+                       buf))
 
 (defun magit-insert-hunk-item-patch (hunk buf)
   (magit-diff-item-insert-header (magit-hunk-item-diff hunk) buf)
-  (magit-insert-region (magit-section-beginning hunk) (magit-section-end hunk)
+  (magit-insert-region (magit-section-beginning hunk)
+                       (magit-section-end hunk)
                        buf))
 
 (defun magit-insert-hunk-item-region-patch (hunk reverse beg end buf)
@@ -3593,23 +3615,18 @@ Customize `magit-diff-refine-hunk' to change the default mode."
     (forward-line)
     (let ((copy-op (if reverse "+" "-")))
       (while (< (point) (magit-section-end hunk))
-        (if (and (<= beg (point)) (< (point) end))
-            (magit-insert-current-line buf)
-          (cond ((looking-at " ")
-                 (magit-insert-current-line buf))
-                ((looking-at copy-op)
-                 (let ((text (buffer-substring-no-properties
-                              (+ (point) 1) (line-beginning-position 2))))
-                   (with-current-buffer buf
-                     (insert " " text))))))
+        (cond ((and (<= beg (point)) (< (point) end))
+               (magit-insert-current-line buf))
+              ((looking-at " ")
+               (magit-insert-current-line buf))
+              ((looking-at copy-op)
+               (let ((text (buffer-substring-no-properties
+                            (+ (point) 1) (line-beginning-position 2))))
+                 (with-current-buffer buf
+                   (insert " " text)))))
         (forward-line))))
   (with-current-buffer buf
     (diff-fixup-modifs (point-min) (point-max))))
-
-(defun magit-hunk-item-is-conflict-p (hunk)
-  ;;; XXX - Using the title is a bit too clever...
-  (string-match "^diff --cc"
-                (magit-section-title (magit-hunk-item-diff hunk))))
 
 (defun magit-hunk-item-target-line (hunk)
   (save-excursion
@@ -3750,24 +3767,24 @@ member of ARGS, or to the working file otherwise."
 
 (magit-define-inserter unstaged-changes ()
   (let ((magit-hide-diffs t)
-        (magit-current-diff-range (cons 'index 'working)))
-    (let ((magit-diff-options (append '() magit-diff-options)))
-      (magit-git-section 'unstaged
-                         "Unstaged changes:" 'magit-wash-raw-diffs
-                         "diff-files"))))
+        (magit-current-diff-range (cons 'index 'working))
+        (magit-diff-options (append '() magit-diff-options)))
+    (magit-git-section 'unstaged
+                       "Unstaged changes:" 'magit-wash-raw-diffs
+                       "diff-files")))
 
 (magit-define-inserter staged-changes (staged no-commit)
-  (let ((magit-current-diff-range (cons "HEAD" 'index)))
-    (when staged
-      (let ((magit-hide-diffs t)
-            (base (if no-commit
-                      (magit-git-string "mktree")
-                    "HEAD")))
-        (let ((magit-diff-options (append '("--cached") magit-diff-options))
-              (magit-ignore-unmerged-raw-diffs t))
-          (magit-git-section 'staged "Staged changes:" 'magit-wash-raw-diffs
-                             "diff-index" "--cached"
-                             base))))))
+  (when staged
+    (let ((magit-current-diff-range (cons "HEAD" 'index))
+          (magit-hide-diffs t)
+          (base (if no-commit
+                    (magit-git-string "mktree")
+                  "HEAD"))
+          (magit-diff-options (append '("--cached") magit-diff-options))
+          (magit-ignore-unmerged-raw-diffs t))
+      (magit-git-section 'staged "Staged changes:" 'magit-wash-raw-diffs
+                         "diff-index" "--cached"
+                         base))))
 
 ;;; Logs and Commits
 
@@ -4829,10 +4846,12 @@ at point."
        (apply #'magit-run-git "add" "--"
               (magit-git-lines "ls-files" "--other" "--exclude-standard")))
       ((unstaged diff hunk)
-       (when (magit-hunk-item-is-conflict-p item)
-         (error (concat "Can't stage individual resolution hunks.  "
-                        "Please stage the whole file.")))
-       (magit-apply-hunk-item item "--cached"))
+       (if (string-match "^diff --cc"
+                         ;; XXX Using the title is a bit too clever.
+                         (magit-section-title (magit-hunk-item-diff item)))
+           (error (concat "Can't stage individual resolution hunks.  "
+                          "Please stage the whole file."))
+         (magit-apply-hunk-item item "--cached")))
       ((unstaged diff)
        (magit-run-git "add" "-u" (magit-diff-item-file item)))
       ((unstaged)
