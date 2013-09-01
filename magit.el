@@ -1293,6 +1293,71 @@ server if necessary."
   (apply #'process-file magit-git-executable nil nil nil
          (append magit-git-standard-options args)))
 
+;;;; Decode filenames that were C-like-encoded by git
+(defconst magit-filename-decode-alist '(("\\b" . "\x08")
+                                        ("\\t" . "\x09")
+                                        ("\\n" . "\x0A")
+                                        ("\\v" . "\x0B")
+                                        ("\\f" . "\x0C")
+                                        ("\\r" . "\x0D")
+                                        ("\\\"" . "\x22")
+                                        ("\\\\" . "\x5C"))
+  "Alist of chars that might appear in quoted strings along with their meaning.")
+
+(defun magit-filename-decode--one-char ()
+  "Decode one git C-like-encoded character and move point past it.
+Most characters decode to themselves, except backslashes (escape
+character) and double quotes (it signals an end-of-string).
+
+Return value is non-nil if one character was successfully
+decoded, nil if end-of-string was reached, and an error is thrown
+otherwise."
+  ;; re-search-forward vs looking-at in order to move point.
+  (let ((result t)) ; most cases must return non-nil, so I assume t.
+    (cond ((re-search-forward (concat "\\="
+                                      (regexp-opt
+                                       (mapcar #'car magit-filename-decode-alist)))
+                              nil t)
+           (replace-match (cdr (assoc
+                                (match-string 0)
+                                magit-filename-decode-alist)) t t))
+          ((re-search-forward "\\=\\\\\\([0-3][0-7][0-7]\\)" nil t)
+           (replace-match (format "%c"
+                                  (string-to-number
+                                   (match-string 1)
+                                   8)) t t))
+          ((eq (char-after) ?\")
+           (setq result nil))           ; end of string
+          ((eq (char-after) ?\\)
+           (error "Unexpected escaping character."))
+          (t
+           (forward-char)))
+    result))
+
+(defun magit-filename-decode (string &optional locale)
+  "Decode STRING (e.g. output of `git status --porcelain'), using
+LOCALE, defaulting to the value of `locale-coding-system'."
+  (decode-coding-string
+   (with-temp-buffer
+     (insert string)
+     (goto-char (point-min))
+     (cond
+      ;; The string is...
+      ;; 1. C-like encoded
+      ((looking-at "\"")
+       (set-buffer-multibyte nil)
+       (delete-char 1)                  ; opening quote
+       (while (magit-filename-decode--one-char))
+       (delete-char 1)                  ; closing quote
+       (set-buffer-multibyte t))
+      ;; 2. not encoded
+      ((not (search-forward "\"" nil 'goto-limit)))
+      ;; 3. ???
+      (t (error "Invalid filename: %s" string)))
+     (unless (eobp) (warn "Garbage at end of string: %s" string))
+     (buffer-string))
+   (or locale locale-coding-system)))
+
 ;;;; Git Config
 
 (defun magit-get (&rest keys)
@@ -2996,7 +3061,7 @@ With a prefix argument, kill the buffer instead."
 
 (defun magit-wash-untracked-file ()
   (if (looking-at "^? \\(.*\\)$")
-      (let ((file (match-string-no-properties 1)))
+      (let ((file (magit-filename-decode (match-string-no-properties 1))))
         (delete-region (point) (+ (line-end-position) 1))
         (magit-with-section file 'file
           (magit-set-section-info file)
@@ -3109,7 +3174,10 @@ Customize `magit-diff-refine-hunk' to change the default mode."
       (magit-refresh))))
 
 (defun magit-diff-line-file ()
-  (cond ((looking-at "^diff --git ./\\(.*\\) ./\\(.*\\)$")
+  (cond ((looking-at "^diff --git \\(\".*\"\\) \\(\".*\"\\)$")
+         ;; this re matches some paths incorrectly
+         (substring (magit-filename-decode (match-string-no-properties 2)) 2))
+        ((looking-at "^diff --git ./\\(.*\\) ./\\(.*\\)$")
          (match-string-no-properties 2))
         ((looking-at "^diff --cc +\\(.*\\)$")
          (match-string-no-properties 1))
@@ -3134,6 +3202,8 @@ Customize `magit-diff-refine-hunk' to change the default mode."
   (let ((entry-regexp "^ ?\\(.*?\\)\\( +| +.*\\)$"))
     (when (looking-at entry-regexp)
       (let ((file (match-string-no-properties 1))
+            ;; the above is a pseudo filename, don't run magit-filename-decode
+            ;; on it.
             (remaining (match-string-no-properties 2)))
         (delete-region (point) (+ (line-end-position) 1))
         (magit-with-section "diffstat" 'diffstat
@@ -3240,7 +3310,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
 
 (defun magit-wash-other-file ()
   (if (looking-at "^? \\(.*\\)$")
-      (let ((file (match-string-no-properties 1)))
+      (let ((file (magit-filename-decode (match-string-no-properties 1))))
         (magit-wash-diffstats-postwork file)
         (delete-region (point) (+ (line-end-position) 1))
         (magit-with-section file 'file
@@ -3296,7 +3366,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
 
 (defun magit-wash-diff-section ()
   (cond ((looking-at "^\\* Unmerged path \\(.*\\)")
-         (let ((file (match-string-no-properties 1)))
+         (let ((file (magit-filename-decode (match-string-no-properties 1))))
            (delete-region (point) (line-end-position))
            (insert "\tUnmerged " file "\n")
            (magit-set-section-info (list 'unmerged file nil))
@@ -3485,7 +3555,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                       (?U 'unmerged)
                       (?T 'typechange)
                       (t     nil)))
-            (file (match-string-no-properties 4)))
+            (file (magit-filename-decode (match-string-no-properties 4))))
         ;; If this is for the same file as the last diff, ignore it.
         ;; Unmerged files seem to get two entries.
         ;; We also ignore unmerged files when told so.
