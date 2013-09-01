@@ -2563,31 +2563,31 @@ magit-topgit and magit-svn"
                          (mapconcat 'identity cmd-and-args " "))
                 "\n")
         (cond (nowait
-               (setq magit-process
-                     (let ((process-connection-type
-                            magit-process-connection-type))
-                       (apply 'start-file-process cmd buf cmd args)))
-               (set-process-sentinel magit-process 'magit-process-sentinel)
-               (set-process-filter magit-process 'magit-process-filter)
-               (when input
-                 (with-current-buffer input
-                   (process-send-region magit-process
-                                        (point-min) (point-max)))
-                 (process-send-eof magit-process)
-                 (sit-for 0.1 t))
-               (cond ((= magit-process-popup-time 0)
-                      (pop-to-buffer (process-buffer magit-process)))
-                     ((> magit-process-popup-time 0)
-                      (run-with-timer
-                       magit-process-popup-time nil
-                       (function
-                        (lambda (buf)
-                          (with-current-buffer buf
-                            (when magit-process
-                              (display-buffer (process-buffer magit-process))
-                              (goto-char (point-max))))))
-                       (current-buffer))))
-               (setq successp t))
+               (let ((magit-process
+                      (let ((process-connection-type
+                             magit-process-connection-type))
+                        (apply 'start-file-process cmd buf cmd args))))
+                 (set-process-sentinel magit-process 'magit-process-sentinel)
+                 (set-process-filter magit-process 'magit-process-filter)
+                 (when input
+                   (with-current-buffer input
+                     (process-send-region magit-process
+                                          (point-min) (point-max)))
+                   (process-send-eof magit-process)
+                   (sit-for 0.1 t))
+                 (cond ((= magit-process-popup-time 0)
+                        (pop-to-buffer (process-buffer magit-process)))
+                       ((> magit-process-popup-time 0)
+                        (run-with-timer
+                         magit-process-popup-time nil
+                         (function
+                          (lambda (buf)
+                            (with-current-buffer buf
+                              (when magit-process
+                                (display-buffer (process-buffer magit-process))
+                                (goto-char (point-max))))))
+                         (current-buffer))))
+                 (setq successp t)))
               (input
                (with-current-buffer input
                  (setq default-directory dir)
