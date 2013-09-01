@@ -4766,16 +4766,15 @@ non-nil, then autocompletion will offer directory names."
 
 ;;;; Stage and Unstage
 
-(defun magit-stage-item (&optional ask)
+(defun magit-stage-item (&optional file)
   "Add the item at point to the staging area.
-If ASK is set, ask for the file name rather than picking the one
-at point."
-  (interactive "P")
-  (if ask
-      (magit-run-git "add"
-                     (file-relative-name
-                      (read-file-name "File to stage: " nil nil t)
-                      (magit-get-top-dir)))
+With a prefix argument, prompt for a file to be staged instead."
+  (interactive
+   (when current-prefix-arg
+     (list (file-relative-name (read-file-name "File to stage: " nil nil t)
+                               (magit-get-top-dir)))))
+  (if file
+      (magit-run-git "add" file)
     (magit-section-action (item info "stage")
       ((untracked file)
        (magit-run-git "add" info))
