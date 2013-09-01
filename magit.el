@@ -3582,11 +3582,6 @@ Customize `magit-diff-refine-hunk' to change the default mode."
   (with-current-buffer buf
     (diff-fixup-modifs (point-min) (point-max))))
 
-(defun magit-hunk-item-is-conflict-p (hunk)
-  ;;; XXX - Using the title is a bit too clever...
-  (string-match "^diff --cc"
-                (magit-section-title (magit-hunk-item-diff hunk))))
-
 (defun magit-hunk-item-target-line (hunk)
   (save-excursion
     (beginning-of-line)
@@ -4805,10 +4800,12 @@ at point."
        (apply #'magit-run-git "add" "--"
               (magit-git-lines "ls-files" "--other" "--exclude-standard")))
       ((unstaged diff hunk)
-       (when (magit-hunk-item-is-conflict-p item)
-         (error (concat "Can't stage individual resolution hunks.  "
-                        "Please stage the whole file.")))
-       (magit-apply-hunk-item item "--cached"))
+       (if (string-match "^diff --cc"
+                         ;; XXX Using the title is a bit too clever.
+                         (magit-section-title (magit-hunk-item-diff item)))
+           (error (concat "Can't stage individual resolution hunks.  "
+                          "Please stage the whole file."))
+         (magit-apply-hunk-item item "--cached")))
       ((unstaged diff)
        (magit-run-git "add" "-u" (magit-diff-item-file item)))
       ((unstaged)
