@@ -38,6 +38,13 @@
 (defvar magit-key-mode-last-buffer)
 (defvar magit-pre-key-mode-window-conf)
 
+;;; Options
+
+(defcustom magit-key-mode-show-usage t
+  "Whether to show usage information when entering a popup."
+  :group 'magit
+  :type 'boolean)
+
 ;;; Faces
 
 (defface magit-key-mode-header-face
@@ -488,10 +495,10 @@ the key combination highlighted before the description."
          (make-hash-table))
     (set (make-local-variable 'magit-key-mode-prefix) current-prefix-arg)
     (magit-key-mode-redraw for-group))
-  (message
-   (concat
-    "Type a prefix key to toggle it. Run 'actions' with their prefixes. "
-    "'?' for more help.")))
+  (when magit-key-mode-show-usage
+    (message (concat "Type a prefix key to toggle it. "
+                     "Run 'actions' with their prefixes. "
+                     "'?' for more help."))))
 
 (defun magit-key-mode-get-key-map (for-group)
   "Get or build the keymap for FOR-GROUP."
