@@ -3166,61 +3166,60 @@ Customize `magit-diff-refine-hunk' to change the default mode."
   (call-interactively 'magit-ediff))
 
 (defun magit-wash-diffstat (&optional guess)
-  (let ((entry-regexp "^ ?\\(.*?\\)\\( +| +.*\\)$"))
-    (when (looking-at entry-regexp)
-      (let ((file (match-string-no-properties 1))
-            (remaining (match-string-no-properties 2)))
-        (delete-region (point) (+ (line-end-position) 1))
-        (magit-with-section "diffstat" 'diffstat
-          ;;(magit-set-section-info 'incomplete)
+  (when (looking-at "^ ?\\(.*?\\)\\( +| +.*\\)$")
+    (let ((file (match-string-no-properties 1))
+          (remaining (match-string-no-properties 2)))
+      (delete-region (point) (+ (line-end-position) 1))
+      (magit-with-section "diffstat" 'diffstat
+        ;;(magit-set-section-info 'incomplete)
 
-          ;; diffstat entries will look like
-          ;;
-          ;; ' PSEUDO-FILE-NAME | +++---'
-          ;;
-          ;; Since PSEUDO-FILE-NAME is not always real pathname, we
-          ;; don't know the pathname yet.  Thus, section info will be
-          ;; (diffstat FILE incomplete MARKER-BEGIN MARKER-END) for
-          ;; now, where MARKER-BEGIN points the beginning of the
-          ;; PSEUDO-FILE-NAME, MARKER-END points the end of the
-          ;; PSEUDO-FILE-NAME, and FILE will be abbreviated filename.
-          ;; Later in `magit-wash-diff-or-other-file`, the section
-          ;; info will be updated.
+        ;; diffstat entries will look like
+        ;;
+        ;; ' PSEUDO-FILE-NAME | +++---'
+        ;;
+        ;; Since PSEUDO-FILE-NAME is not always real pathname, we
+        ;; don't know the pathname yet.  Thus, section info will be
+        ;; (diffstat FILE incomplete MARKER-BEGIN MARKER-END) for
+        ;; now, where MARKER-BEGIN points the beginning of the
+        ;; PSEUDO-FILE-NAME, MARKER-END points the end of the
+        ;; PSEUDO-FILE-NAME, and FILE will be abbreviated filename.
+        ;; Later in `magit-wash-diff-or-other-file`, the section
+        ;; info will be updated.
 
-          ;; Note that FILE is the 2nd element of the section-info;
-          ;; this is intentional, so that `magit-diff-item-file` can
-          ;; return the FILE part.
+        ;; Note that FILE is the 2nd element of the section-info;
+        ;; this is intentional, so that `magit-diff-item-file` can
+        ;; return the FILE part.
 
-           ;; (list 'diffstat
-           ;;       (or (and (> (length file) 3)
-           ;;                (string-equal (substring file 0 3) "...")
-           ;;                (message "got the invalid file here")
-           ;;                'truncated)
-           ;;           file)))
+        ;; (list 'diffstat
+        ;;       (or (and (> (length file) 3)
+        ;;                (string-equal (substring file 0 3) "...")
+        ;;                (message "got the invalid file here")
+        ;;                'truncated)
+        ;;           file)))
 
-          (insert " ")
-          (let ((f-begin (point-marker)) f-end)
-            (insert file)
-            (setq f-end (point-marker))
+        (insert " ")
+        (let ((f-begin (point-marker)) f-end)
+          (insert file)
+          (setq f-end (point-marker))
 
-            (magit-set-section-info (list 'diffstat
-                                          file 'incomplete f-begin f-end))
-            (insert remaining)
-            (put-text-property (line-beginning-position)
-                               (line-beginning-position 2)
-                               'keymap magit-diffstat-keymap)
-            (insert "\n")
-            (add-to-list 'magit-diffstat-cached-sections
-                         magit-top-section))
-          ;; (insert (propertize (concat " "
-          ;;                             (propertize file
-          ;;                                         'face
-          ;;                                         'magit-diff-file-header)
-          ;;                             remaining)
-          ;;                     'keymap
-          ;;                     magit-diffstat-keymap)
-          ;;         "\n")
-          )))))
+          (magit-set-section-info (list 'diffstat
+                                        file 'incomplete f-begin f-end))
+          (insert remaining)
+          (put-text-property (line-beginning-position)
+                             (line-beginning-position 2)
+                             'keymap magit-diffstat-keymap)
+          (insert "\n")
+          (add-to-list 'magit-diffstat-cached-sections
+                       magit-top-section))
+        ;; (insert (propertize (concat " "
+        ;;                             (propertize file
+        ;;                                         'face
+        ;;                                         'magit-diff-file-header)
+        ;;                             remaining)
+        ;;                     'keymap
+        ;;                     magit-diffstat-keymap)
+        ;;         "\n")
+        ))))
 
 (defun magit-wash-diffstats ()
   (let ((entry-regexp "^ ?\\(.*?\\)\\( +| +.*\\)$")
@@ -3265,15 +3264,14 @@ Customize `magit-diff-refine-hunk' to change the default mode."
   (car (cddr (magit-section-info diffstat))))
 
 (defun magit-wash-other-file ()
-  (if (looking-at "^? \\(.*\\)$")
-      (let ((file (match-string-no-properties 1)))
-        (magit-wash-diffstats-postwork file)
-        (delete-region (point) (+ (line-end-position) 1))
-        (magit-with-section file 'file
-          (magit-set-section-info file)
-          (insert "\tNew      " file "\n"))
-        t)
-    nil))
+  (when (looking-at "^? \\(.*\\)$")
+    (let ((file (match-string-no-properties 1)))
+      (magit-wash-diffstats-postwork file)
+      (delete-region (point) (+ (line-end-position) 1))
+      (magit-with-section file 'file
+        (magit-set-section-info file)
+        (insert "\tNew      " file "\n"))
+      t)))
 
 (defvar magit-hide-diffs nil)
 
@@ -3378,9 +3376,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
              (goto-char end)
              (let ((magit-section-hidden-default nil))
                (magit-wash-sequence #'magit-wash-hunk))))
-         t)
-        (t
-         nil)))
+         t)))
 
 (defun magit-wash-diff ()
   (let ((magit-section-hidden-default magit-hide-diffs))
@@ -3403,48 +3399,46 @@ Customize `magit-diff-refine-hunk' to change the default mode."
   (nth 3 (magit-section-info diff)))
 
 (defun magit-wash-hunk ()
-  (cond ((looking-at "\\(^@+\\)[^@]*@+.*")
-         (let ((n-columns (1- (length (match-string 1))))
-               (head (match-string 0))
-               (hunk-start-pos (point))
-               (set-line-face
-                (lambda (face)
-                  (if magit-diff-use-overlays
-                      (overlay-put (make-overlay (line-beginning-position)
-                                                 (line-beginning-position 2))
-                                   'face face)
-                    (put-text-property (line-beginning-position)
-                                       (line-beginning-position 2)
-                                       'face face)))))
-           (magit-with-section head 'hunk
-             (funcall set-line-face 'magit-diff-hunk-header)
-             (forward-line)
-             (while (not (or (eobp)
-                             (looking-at "^diff\\|^@@")))
-               (magit-highlight-line-whitespace)
-               (let ((prefix (buffer-substring-no-properties
-                              (point) (min (+ (point) n-columns) (point-max))))
-                     (line (buffer-substring-no-properties (point) (line-end-position))))
-                 (cond ((string-match "^[\\+]+<<<<<<< " line)
-                        (funcall set-line-face 'magit-diff-merge-current))
-                       ((string-match "^[\\+]+=======" line)
-                        (funcall set-line-face 'magit-diff-merge-separator))
-                       ((string-match "^[\\+]+|||||||" line)
-                        (funcall set-line-face 'magit-diff-merge-diff3-separator))
-                       ((string-match "^[\\+]+>>>>>>> " line)
-                        (funcall set-line-face 'magit-diff-merge-proposed))
-                       ((string-match "\\+" prefix)
-                        (funcall set-line-face 'magit-diff-add))
-                       ((string-match "-" prefix)
-                        (funcall set-line-face 'magit-diff-del))
-                       (t
-                        (funcall set-line-face 'magit-diff-none))))
-               (forward-line))
-             (when (eq magit-diff-refine-hunk 'all)
-               (magit-diff-refine-hunk (magit-current-section)))))
-         t)
-        (t
-         nil)))
+  (when (looking-at "\\(^@+\\)[^@]*@+.*")
+    (let ((n-columns (1- (length (match-string 1))))
+          (head (match-string 0))
+          (hunk-start-pos (point))
+          (set-line-face
+           (lambda (face)
+             (if magit-diff-use-overlays
+                 (overlay-put (make-overlay (line-beginning-position)
+                                            (line-beginning-position 2))
+                              'face face)
+               (put-text-property (line-beginning-position)
+                                  (line-beginning-position 2)
+                                  'face face)))))
+      (magit-with-section head 'hunk
+        (funcall set-line-face 'magit-diff-hunk-header)
+        (forward-line)
+        (while (not (or (eobp)
+                        (looking-at "^diff\\|^@@")))
+          (magit-highlight-line-whitespace)
+          (let ((prefix (buffer-substring-no-properties
+                         (point) (min (+ (point) n-columns) (point-max))))
+                (line (buffer-substring-no-properties (point) (line-end-position))))
+            (cond ((string-match "^[\\+]+<<<<<<< " line)
+                   (funcall set-line-face 'magit-diff-merge-current))
+                  ((string-match "^[\\+]+=======" line)
+                   (funcall set-line-face 'magit-diff-merge-separator))
+                  ((string-match "^[\\+]+|||||||" line)
+                   (funcall set-line-face 'magit-diff-merge-diff3-separator))
+                  ((string-match "^[\\+]+>>>>>>> " line)
+                   (funcall set-line-face 'magit-diff-merge-proposed))
+                  ((string-match "\\+" prefix)
+                   (funcall set-line-face 'magit-diff-add))
+                  ((string-match "-" prefix)
+                   (funcall set-line-face 'magit-diff-del))
+                  (t
+                   (funcall set-line-face 'magit-diff-none))))
+          (forward-line))
+        (when (eq magit-diff-refine-hunk 'all)
+          (magit-diff-refine-hunk (magit-current-section)))))
+    t))
 
 (defun magit-highlight-line-whitespace ()
   (when (and magit-highlight-whitespace
@@ -3478,21 +3472,20 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                            (list "-c" "diff.submodule=short"))
                       (list "diff" (magit-diff-U-arg))
                       magit-diff-options
-                      (list "--" file))))
-    (let ((p (point)))
-      (magit-git-insert args)
-      (unless (eq (char-before) ?\n)
-        (insert "\n"))
-      (save-restriction
-        (narrow-to-region p (point))
-        (goto-char p)
-        (cond
-         ((eq status 'typechange)
-          (magit-insert-diff-title status file file)
-          (magit-wash-typechange-section file))
-         (t
-          (magit-wash-diff-section)))
-        (goto-char (point-max))))))
+                      (list "--" file)))
+        (beg (point)))
+    (magit-git-insert args)
+    (unless (eq (char-before) ?\n)
+      (insert "\n"))
+    (save-restriction
+      (narrow-to-region beg (point))
+      (goto-char beg)
+      (cond ((eq status 'typechange)
+             (magit-insert-diff-title status file file)
+             (magit-wash-typechange-section file))
+            (t
+             (magit-wash-diff-section)))
+      (goto-char (point-max)))))
 
 (defvar magit-last-raw-diff nil)
 (defvar magit-ignore-unmerged-raw-diffs nil)
