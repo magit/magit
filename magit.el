@@ -547,12 +547,9 @@ using `magit-key-mode-popup-diff-options' (bound to \
 
 There are three possible settings:
 
-  nil means to never show fine differences
-
-  t means to only show fine differences for the currently
-  selected diff hunk
-
-  `all' means to always show fine differences for all displayed diff hunks"
+nil    never show fine differences
+t      show fine differences for the selected diff hunk only
+`all'  show fine differences for all displayed diff hunks"
   :group 'magit
   :type '(choice (const :tag "Never" nil)
                  (const :tag "Selected only" t)
@@ -2325,55 +2322,33 @@ One for all, one for current lineage."
 
 ;;;; Section Highlighting
 
-(defvar magit-highlighted-section nil)
-
-(defun magit-refine-section (section)
-  "Apply temporary refinements to the display of SECTION.
-Refinements can be undone with `magit-unrefine-section'."
-  (let ((type (and section (magit-section-type section))))
-    (cond ((and (eq type 'hunk)
-                magit-diff-refine-hunk
-                (not (eq magit-diff-refine-hunk 'all)))
-           ;; Refine the current hunk to show fine details, using
-           ;; diff-mode machinery.
-           (save-excursion
-             (goto-char (magit-section-beginning magit-highlighted-section))
-             (magit-maybe-diff-refine-hunk))))))
-
-(defun magit-unrefine-section (section)
-  "Remove refinements to the display of SECTION done by `magit-refine-section'."
-  (let ((type (and section (magit-section-type section))))
-    (cond ((and (eq type 'hunk)
-                magit-diff-refine-hunk
-                (not (eq magit-diff-refine-hunk 'all)))
-           ;; XXX this should be in some diff-mode function, like
-           ;; `diff-unrefine-hunk'
-           (remove-overlays (magit-section-beginning section)
-                            (magit-section-end section)
-                            'diff-mode 'fine)))))
-
-(defvar magit-highlight-overlay nil)
+(defvar-local magit-highlighted-section nil)
+(defvar-local magit-highlight-overlay nil)
 
 (defun magit-highlight-section ()
   "Highlight current section if it has a type."
-  (let ((section (magit-current-section)))
-    (when (not (eq section magit-highlighted-section))
-      (when magit-highlighted-section
-        ;; remove any refinement from previous hunk
-        (magit-unrefine-section magit-highlighted-section))
+  (let ((section (magit-current-section))
+        (refinep (lambda ()
+                   (and magit-highlighted-section
+                        (eq magit-diff-refine-hunk t)
+                        (eq (magit-section-type magit-highlighted-section)
+                            'hunk)))))
+    (unless (eq section magit-highlighted-section)
+      (when (funcall refinep)
+        (magit-diff-unrefine-hunk magit-highlighted-section))
       (setq magit-highlighted-section section)
       (unless magit-highlight-overlay
-        (let ((ov (make-overlay 1 1)))
-          (overlay-put ov 'face 'magit-item-highlight)
-          (setq magit-highlight-overlay ov)))
-      (if (and section (magit-section-type section))
-          (progn
-            (magit-refine-section section)
-            (move-overlay magit-highlight-overlay
-                          (magit-section-beginning section)
-                          (magit-section-end section)
-                          (current-buffer)))
-        (delete-overlay magit-highlight-overlay)))))
+        (overlay-put (setq magit-highlight-overlay (make-overlay 1 1))
+                     'face 'magit-item-highlight))
+      (cond ((and section (magit-section-type section))
+             (when (funcall refinep)
+               (magit-diff-refine-hunk section))
+             (move-overlay magit-highlight-overlay
+                           (magit-section-beginning section)
+                           (magit-section-end section)
+                           (current-buffer)))
+            (t
+             (delete-overlay magit-highlight-overlay))))))
 
 ;;;; Section Actions
 
@@ -3138,27 +3113,35 @@ If hunk refining is off, then hunk refining is turned on, in
 
 Customize `magit-diff-refine-hunk' to change the default mode."
   (interactive "P")
-  (let* ((old magit-diff-refine-hunk)
-         (new
-          (if other
-              (if (eq old 'all) t 'all)
-            (not old))))
+  (let ((hunk (and magit-highlighted-section
+                   (eq (magit-section-type magit-highlighted-section) 'hunk)
+                   magit-highlighted-section))
+        (old magit-diff-refine-hunk))
+    (setq-local magit-diff-refine-hunk
+                (if other
+                    (if (eq old 'all) t 'all)
+                  (not old)))
+    (cond ((or (eq old 'all)
+               (eq magit-diff-refine-hunk 'all))
+           (magit-refresh))
+          ((not hunk))
+          (magit-diff-refine-hunk
+           (magit-diff-refine-hunk hunk))
+          (t
+           (magit-diff-unrefine-hunk hunk)))
+    (message "magit-diff-refine-hunk: %s" magit-diff-refine-hunk)))
 
-    ;; remove any old refining in currently highlighted section
-    (when (and magit-highlighted-section old (not (eq old 'all)))
-      (magit-unrefine-section magit-highlighted-section))
+(defun magit-diff-refine-hunk (hunk)
+  (save-excursion
+    (goto-char (magit-section-beginning hunk))
+    ;; `diff-refine-hunk' does not handle combined diffs.
+    (unless (looking-at "@@@")
+      (diff-refine-hunk))))
 
-    ;; set variable to new value locally
-    (setq-local magit-diff-refine-hunk new)
-
-    ;; if now highlighting in "selected only" mode, turn refining back
-    ;; on in the current section
-    (when (and magit-highlighted-section new (not (eq new 'all)))
-      (magit-refine-section magit-highlighted-section))
-
-    ;; `all' mode being turned on or off needs a complete refresh
-    (when (or (eq old 'all) (eq new 'all))
-      (magit-refresh))))
+(defun magit-diff-unrefine-hunk (hunk)
+  (remove-overlays (magit-section-beginning hunk)
+                   (magit-section-end hunk)
+                   'diff-mode 'fine))
 
 (defun magit-diff-line-file ()
   (cond ((looking-at "^diff --git ./\\(.*\\) ./\\(.*\\)$")
@@ -3456,12 +3439,9 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                         (funcall set-line-face 'magit-diff-del))
                        (t
                         (funcall set-line-face 'magit-diff-none))))
-               (forward-line)))
-
-           (when (eq magit-diff-refine-hunk 'all)
-             (save-excursion
-               (goto-char hunk-start-pos)
-               (magit-maybe-diff-refine-hunk))))
+               (forward-line))
+             (when (eq magit-diff-refine-hunk 'all)
+               (magit-diff-refine-hunk (magit-current-section)))))
          t)
         (t
          nil)))
@@ -3490,14 +3470,6 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                                          indent))))
         (overlay-put (make-overlay (match-beginning 1) (match-end 1))
                      'face 'magit-whitespace-warning-face)))))
-
-(defun magit-looking-at-combined-diff-p ()
-  (looking-at "@@@"))
-
-(defun magit-maybe-diff-refine-hunk ()
-  ;; diff-refine-hunk can't handle git's combined diff output (--cc)
-  (unless (magit-looking-at-combined-diff-p)
-    (diff-refine-hunk)))
 
 (defun magit-insert-diff (file status)
   (magit-configure-have-config-param)
