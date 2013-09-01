@@ -471,7 +471,7 @@ basic structure of and errors in git commit messages."
        (concat paragraph-start "\\|*\\|("))
   ;; Do not remember point location in commit messages
   (when (fboundp 'toggle-save-place)
-    (toggle-save-place 0)))
+    (setq save-place nil)))
 
 ;;;###autoload
 (dolist (pattern '("/COMMIT_EDITMSG\\'" "/NOTES_EDITMSG\\'"
