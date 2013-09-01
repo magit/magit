@@ -2869,11 +2869,35 @@ Please see the manual for a complete description of Magit.
     (setq show-trailing-whitespace nil))
   (run-mode-hooks 'magit-mode-hook))
 
-(defun magit-mode-init (dir submode refresh-func &rest refresh-args)
+(defmacro magit-mode-setup (buffer mode refresh-func &rest refresh-args)
+  "Display and select BUFFER turn on MODE and refresh a first time.
+Display BUFFER using `magit-display-mode-buffer', then turn on
+MODE in BUFFER, set the local value of `magit-refresh-function'
+to REFRESH-FUNC and that of `magit-refresh-args' to REFRESH-ARGS
+and finally \"refresh\" a first time.  All arguments are
+evaluated before switching to BUFFER."
+  (let ((d (cl-gensym "directory"))
+        (m (cl-gensym "mode"))
+        (f (cl-gensym "func"))
+        (a (cl-gensym "args")))
+    `(let ((,d (magit-get-top-dir default-directory))
+           (,m ,mode)         ; Eval time should not make a difference.
+           (,f ,refresh-func) ; Be careful and keep doc-string simple.
+           (,a (list ,@refresh-args)))
+       (magit-display-mode-buffer ,buffer)
+       (apply #'magit-mode-init ,d ,m ,f ,a))))
+
+(defun magit-mode-init (dir mode refresh-func &rest refresh-args)
+  "Turn on MODE and refresh in the current buffer.
+Turn on MODE, set the local value of `magit-refresh-function' to
+REFRESH-FUNC and that of `magit-refresh-args' to REFRESH-ARGS and
+finally \"refresh\" a first time.
+
+Also see `magit-mode-setup', a more convenient variant."
   (setq default-directory dir
         magit-refresh-function refresh-func
         magit-refresh-args refresh-args)
-  (funcall submode)
+  (funcall mode)
   (magit-refresh-buffer))
 
 ;;;; Find Buffer
@@ -5820,14 +5844,13 @@ With prefix argument, changes in staging area are kept.
 
 (magit-define-command log (&optional range)
   (interactive)
-  (let ((args (cons (magit-rev-range-to-git (or range "HEAD"))
-                    magit-custom-options))
-        (topdir (magit-get-top-dir default-directory)))
-    (magit-display-mode-buffer magit-log-buffer-name)
-    (magit-mode-init topdir
-                     #'magit-log-mode
-                     #'magit-refresh-log-buffer
-                     (or range "HEAD") 'oneline args)))
+  (unless range (setq range "HEAD"))
+  (magit-mode-setup magit-log-buffer-name
+                    #'magit-log-mode
+                    #'magit-refresh-log-buffer
+                    range 'oneline
+                    (cons (magit-rev-range-to-git range)
+                          magit-custom-options)))
 
 (magit-define-command log-ranged (range)
   (interactive (list (magit-read-rev-range "Log" "HEAD")))
@@ -5835,14 +5858,13 @@ With prefix argument, changes in staging area are kept.
 
 (magit-define-command log-long (&optional range)
   (interactive)
-  (let ((args (cons (magit-rev-range-to-git (or range "HEAD"))
-                    magit-custom-options))
-        (topdir (magit-get-top-dir default-directory)))
-    (magit-display-mode-buffer magit-log-buffer-name)
-    (magit-mode-init topdir
-                     #'magit-log-mode
-                     #'magit-refresh-log-buffer
-                     (or range "HEAD") 'long args)))
+  (unless range (setq range "HEAD"))
+  (magit-mode-setup magit-log-buffer-name
+                    #'magit-log-mode
+                    #'magit-refresh-log-buffer
+                    range 'long
+                    (cons (magit-rev-range-to-git range)
+                          magit-custom-options)))
 
 (magit-define-command log-long-ranged (range)
   (interactive (list (magit-read-rev-range "Long Log" "HEAD")))
@@ -5851,13 +5873,10 @@ With prefix argument, changes in staging area are kept.
 (magit-define-command reflog (rev)
   (interactive (list (magit-read-rev "Reflog of"
                                      (or (magit-guess-branch) "HEAD"))))
-  (let ((args (magit-rev-to-git rev))
-        (topdir (magit-get-top-dir default-directory)))
-    (magit-display-mode-buffer "*magit-reflog*")
-    (magit-mode-init topdir
-                     #'magit-reflog-mode
-                     #'magit-refresh-reflog-buffer
-                     rev args)))
+  (magit-mode-setup "*magit-reflog*"
+                    #'magit-reflog-mode
+                    #'magit-refresh-reflog-buffer
+                    rev (magit-rev-to-git rev)))
 
 (magit-define-command reflog-head ()
   (interactive)
@@ -6134,12 +6153,11 @@ restore the window state that was saved before ediff was called."
 
 (defun magit-wazzup (&optional all)
   (interactive "P")
-  (let ((topdir (magit-get-top-dir))
-        (current-branch (magit-get-current-branch)))
-    (magit-display-mode-buffer "*magit-wazzup*")
-    (magit-mode-init topdir 'magit-wazzup-mode
-                     #'magit-refresh-wazzup-buffer
-                     current-branch all)))
+  (magit-mode-setup "*magit-wazzup*"
+                    #'magit-wazzup-mode
+                    #'magit-refresh-wazzup-buffer
+                    (magit-get-current-branch)
+                    all))
 
 ;;; Acting (2)
 ;;;; File Log
@@ -6185,16 +6203,14 @@ or something else."
 With a prefix argument or if no file is currently visited, ask
 for the file whose log must be displayed."
   (interactive "P")
-  (let ((topdir (magit-get-top-dir))
-        (current-file (magit-file-relative-name
-                       (if (or current-prefix-arg (not buffer-file-name))
-                           (magit-read-file-from-rev (magit-get-current-branch))
-                         buffer-file-name)))
-        (range "HEAD"))
-    (magit-display-mode-buffer magit-log-buffer-name)
-    (magit-mode-init topdir 'magit-log-mode
-                     #'magit-refresh-file-log-buffer
-                     current-file range 'oneline)))
+  (magit-mode-setup magit-log-buffer-name
+                    #'magit-log-mode
+                    #'magit-refresh-file-log-buffer
+                    (magit-file-relative-name
+                     (if (or current-prefix-arg (not buffer-file-name))
+                         (magit-read-file-from-rev (magit-get-current-branch))
+                       buffer-file-name))
+                    "HEAD" 'oneline))
 
 (magit-define-command single-file-log (&optional ranged)
   (interactive)
@@ -6842,10 +6858,9 @@ These are the branch names with the remote name stripped."
 
 (magit-define-command branch-manager ()
   (interactive)
-  (let ((topdir (magit-get-top-dir)))
-    (magit-display-mode-buffer magit-branches-buffer-name)
-    (magit-mode-init topdir 'magit-branch-manager-mode
-                     #'magit-refresh-branch-manager)))
+  (magit-mode-setup magit-branches-buffer-name
+                    #'magit-branch-manager-mode
+                    #'magit-refresh-branch-manager))
 
 (defun magit-change-what-branch-tracks ()
   "Change which remote branch the current branch tracks."
