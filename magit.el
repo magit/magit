@@ -3537,26 +3537,28 @@ Customize `magit-diff-refine-hunk' to change the default mode."
     diff))
 
 (defun magit-diff-item-insert-header (diff buf)
-  (let ((beg (save-excursion
-               (goto-char (magit-section-beginning diff))
-               (forward-line)
-               (point)))
-        (end (if (magit-section-children diff)
-                 (magit-section-beginning (car (magit-section-children diff)))
-               (magit-section-end diff))))
-    (magit-insert-region beg end buf)))
+  (magit-insert-region (save-excursion
+                         (goto-char (magit-section-beginning diff))
+                         (forward-line)
+                         (point))
+                       (if (magit-section-children diff)
+                           (magit-section-beginning
+                            (car (magit-section-children diff)))
+                         (magit-section-end diff))
+                       buf))
 
 (defun magit-insert-diff-item-patch (diff buf)
-  (let ((beg (save-excursion
-               (goto-char (magit-section-beginning diff))
-               (forward-line)
-               (point)))
-        (end (magit-section-end diff)))
-    (magit-insert-region beg end buf)))
+  (magit-insert-region (save-excursion
+                         (goto-char (magit-section-beginning diff))
+                         (forward-line)
+                         (point))
+                       (magit-section-end diff)
+                       buf))
 
 (defun magit-insert-hunk-item-patch (hunk buf)
   (magit-diff-item-insert-header (magit-hunk-item-diff hunk) buf)
-  (magit-insert-region (magit-section-beginning hunk) (magit-section-end hunk)
+  (magit-insert-region (magit-section-beginning hunk)
+                       (magit-section-end hunk)
                        buf))
 
 (defun magit-insert-hunk-item-region-patch (hunk reverse beg end buf)
