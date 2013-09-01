@@ -327,9 +327,15 @@ use for fontification.")
    ;; Skip empty lines or comments before the summary
    "\\`\\(?:^\\(?:\\s-+\\|\\s<.*\\)\n\\)*"
    ;; The summary line
-   (format "\\(.\\{0,%d\\}\\)\\(.*\\)\n" max-summary-col)
+   (format "\\(.\\{0,%d\\}\\)\\(.*\\)" max-summary-col)
    ;; Non-empty non-comment second line
-   "\\([^\n#].*\\)?"))
+   ;;
+   ;; For instant highlighting of non-empty second lines in font-lock,
+   ;; the last capturing group must capture the empty string ("") in
+   ;; "summary line\n".
+   ;; That's why the simpler regex "\\(?:\n\\([^\n#].*\\)\\)?",
+   ;; which captures 'nil', can't be used.
+   "\\(?:\n\\#\\|\n\\(.*\\)\\)?"))
 
 (defvar git-commit-summary-regexp nil
   "Regexp to match the summary line.")
