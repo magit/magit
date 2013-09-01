@@ -329,7 +329,7 @@ use for fontification.")
    ;; The summary line
    (format "\\(.\\{0,%d\\}\\)\\(.*\\)\n" max-summary-col)
    ;; Non-empty non-comment second line
-   "\\(?:[^\n#].+\\)?"))
+   "\\([^\n#].*\\)?"))
 
 (defvar git-commit-summary-regexp nil
   "Regexp to match the summary line.")
