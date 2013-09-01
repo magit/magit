@@ -43,7 +43,7 @@
                             (magit-remote-branch-for branch t)))
            (magit-read-rev "Cherry head" branch))))
   (let ((topdir (magit-get-top-dir default-directory)))
-    (magit-buffer-switch magit--cherry-buffer-name)
+    (magit-display-mode-buffer magit--cherry-buffer-name)
     (magit-mode-init topdir
                      #'magit-cherry-mode
                      #'magit--refresh-cherry-buffer
