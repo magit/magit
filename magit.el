@@ -561,10 +561,19 @@ There are three possible settings:
 
 (defcustom magit-expand-staged-on-commit nil
   "Whether to expand staged changes when creating a commit.
-When this is non-nil and `magit-commit' is called from the
-status buffer expand the section containing staged changes."
+When this is non-nil and the current buffer is the status buffer
+expand the section containing staged changes.  If this is `full'
+always expand all subsections; if it is t subsections that were
+previously hidden remain hidden.
+
+In the event that expanding very large patches takes a long time
+\\<global-map>\\[keyboard-quit] can be used to abort that step.
+This is especially useful when you would normally not look at the
+changes, e.g. because you are committing some binary files."
   :group 'magit
-  :type 'boolean)
+  :type '(choice (const :tag "Expand all subsections" full)
+                 (const :tag "Expand top section" t)
+                 (const :tag "Don't expand" nil)))
 
 ;; Not an option to avoid advertising it.
 (defvar magit-rigid-key-bindings nil
@@ -5471,7 +5480,10 @@ With a prefix argument amend to the commit at HEAD instead.
     (when (and magit-expand-staged-on-commit
                (derived-mode-p 'magit-status-mode))
       (magit-jump-to-staged)
-      (magit-expand-section)
+      (with-local-quit
+        (if (eq magit-expand-staged-on-commit 'full)
+            (magit-show-level 4 nil)
+          (magit-expand-section)))
       (recenter 0))
     (magit-commit-internal "commit" magit-custom-options)))
 
