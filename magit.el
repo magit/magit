@@ -3305,18 +3305,18 @@ Customize `magit-diff-refine-hunk' to change the default mode."
         (second-start (progn (forward-line 1)
                              (search-forward-regexp "^diff")
                              (beginning-of-line)
-                             (point-marker))))
-    (let ((magit-indentation-level (+ magit-indentation-level 1)))
-      (save-restriction
-        (narrow-to-region first-start second-start)
-        (goto-char (point-min))
-        (magit-with-section file 'diff
-          (magit-wash-diff-section)))
-      (save-restriction
-        (narrow-to-region second-start (point-max))
-        (goto-char (point-min))
-        (magit-with-section file 'diff
-          (magit-wash-diff-section))))))
+                             (point-marker)))
+        (magit-indentation-level (+ magit-indentation-level 1)))
+    (save-restriction
+      (narrow-to-region first-start second-start)
+      (goto-char (point-min))
+      (magit-with-section file 'diff
+        (magit-wash-diff-section)))
+    (save-restriction
+      (narrow-to-region second-start (point-max))
+      (goto-char (point-min))
+      (magit-with-section file 'diff
+        (magit-wash-diff-section)))))
 
 (defun magit-wash-diff-section ()
   (cond ((looking-at "^\\* Unmerged path \\(.*\\)")
@@ -3495,41 +3495,40 @@ Customize `magit-diff-refine-hunk' to change the default mode."
     (magit-wash-sequence #'magit-wash-raw-diff)))
 
 (defun magit-wash-raw-diff ()
-  (if (looking-at
-       ":\\([0-7]+\\) \\([0-7]+\\) [0-9a-f]+ [0-9a-f]+ \\(.\\)[0-9]*\t\\([^\t\n]+\\)$")
-      (let ((old-perm (match-string-no-properties 1))
-            (new-perm (match-string-no-properties 2))
-            (status (cl-case (string-to-char (match-string-no-properties 3))
-                      (?A 'new)
-                      (?D 'deleted)
-                      (?M 'modified)
-                      (?U 'unmerged)
-                      (?T 'typechange)
-                      (t     nil)))
-            (file (match-string-no-properties 4)))
-        ;; If this is for the same file as the last diff, ignore it.
-        ;; Unmerged files seem to get two entries.
-        ;; We also ignore unmerged files when told so.
-        (if (or (equal file magit-last-raw-diff)
-                (and magit-ignore-unmerged-raw-diffs (eq status 'unmerged)))
+  (when (looking-at
+         ":\\([0-7]+\\) \\([0-7]+\\) [0-9a-f]+ [0-9a-f]+ \\(.\\)[0-9]*\t\\([^\t\n]+\\)$")
+    (let ((old-perm (match-string-no-properties 1))
+          (new-perm (match-string-no-properties 2))
+          (status (cl-case (string-to-char (match-string-no-properties 3))
+                    (?A 'new)
+                    (?D 'deleted)
+                    (?M 'modified)
+                    (?U 'unmerged)
+                    (?T 'typechange)
+                    (t     nil)))
+          (file (match-string-no-properties 4)))
+      ;; If this is for the same file as the last diff, ignore it.
+      ;; Unmerged files seem to get two entries.
+      ;; We also ignore unmerged files when told so.
+      (if (or (equal file magit-last-raw-diff)
+              (and magit-ignore-unmerged-raw-diffs (eq status 'unmerged)))
+          (delete-region (point) (+ (line-end-position) 1))
+        (setq magit-last-raw-diff file)
+        ;; The 'diff' section that is created here will not work with
+        ;; magit-insert-diff-item-patch etc when we leave it empty.
+        ;; Luckily, raw diffs are only produced for staged and
+        ;; unstaged changes, and we never call
+        ;; magit-insert-diff-item-patch on them.  This is a bit
+        ;; brittle, of course.
+        (let ((magit-section-hidden-default magit-hide-diffs))
+          (magit-with-section file 'diff
             (delete-region (point) (+ (line-end-position) 1))
-          (setq magit-last-raw-diff file)
-          ;; The 'diff' section that is created here will not work with
-          ;; magit-insert-diff-item-patch etc when we leave it empty.
-          ;; Luckily, raw diffs are only produced for staged and
-          ;; unstaged changes, and we never call
-          ;; magit-insert-diff-item-patch on them.  This is a bit
-          ;; brittle, of course.
-          (let ((magit-section-hidden-default magit-hide-diffs))
-            (magit-with-section file 'diff
-              (delete-region (point) (+ (line-end-position) 1))
-              (if (not (magit-section-hidden magit-top-section))
-                  (magit-insert-diff file status)
-                (magit-set-section-info (list status file nil))
-                (magit-set-section-needs-refresh-on-show t)
-                (magit-insert-diff-title status file nil)))))
-        t)
-    nil))
+            (if (not (magit-section-hidden magit-top-section))
+                (magit-insert-diff file status)
+              (magit-set-section-info (list status file nil))
+              (magit-set-section-needs-refresh-on-show t)
+              (magit-insert-diff-title status file nil)))))
+      t)))
 
 (defun magit-hunk-item-diff (hunk)
   (let ((diff (magit-section-parent hunk)))
@@ -3725,24 +3724,24 @@ member of ARGS, or to the working file otherwise."
 
 (magit-define-inserter unstaged-changes ()
   (let ((magit-hide-diffs t)
-        (magit-current-diff-range (cons 'index 'working)))
-    (let ((magit-diff-options (append '() magit-diff-options)))
-      (magit-git-section 'unstaged
-                         "Unstaged changes:" 'magit-wash-raw-diffs
-                         "diff-files"))))
+        (magit-current-diff-range (cons 'index 'working))
+        (magit-diff-options (append '() magit-diff-options)))
+    (magit-git-section 'unstaged
+                       "Unstaged changes:" 'magit-wash-raw-diffs
+                       "diff-files")))
 
 (magit-define-inserter staged-changes (staged no-commit)
-  (let ((magit-current-diff-range (cons "HEAD" 'index)))
-    (when staged
-      (let ((magit-hide-diffs t)
-            (base (if no-commit
-                      (magit-git-string "mktree")
-                    "HEAD")))
-        (let ((magit-diff-options (append '("--cached") magit-diff-options))
-              (magit-ignore-unmerged-raw-diffs t))
-          (magit-git-section 'staged "Staged changes:" 'magit-wash-raw-diffs
-                             "diff-index" "--cached"
-                             base))))))
+  (when staged
+    (let ((magit-current-diff-range (cons "HEAD" 'index))
+          (magit-hide-diffs t)
+          (base (if no-commit
+                    (magit-git-string "mktree")
+                  "HEAD"))
+          (magit-diff-options (append '("--cached") magit-diff-options))
+          (magit-ignore-unmerged-raw-diffs t))
+      (magit-git-section 'staged "Staged changes:" 'magit-wash-raw-diffs
+                         "diff-index" "--cached"
+                         base))))
 
 ;;; Logs and Commits
 
