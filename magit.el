@@ -6032,6 +6032,8 @@ restore the window state that was saved before ediff was called."
     (set-window-configuration magit-ediff-windows)
     (set-buffer buf)))
 
+;;; Diff Mode
+
 (defun magit-refresh-diff-buffer (range args)
   (let ((magit-current-diff-range (cond
                                    ((stringp range)
@@ -6049,8 +6051,6 @@ restore the window state that was saved before ediff was called."
              "diff" (magit-diff-U-arg)
              `(,@(and magit-show-diffstat (list "--patch-with-stat"))
                ,args "--")))))
-
-;;; Diff Mode
 
 (define-derived-mode magit-diff-mode magit-mode "Magit Diff"
   "Mode for looking at a git diff.
