@@ -1252,11 +1252,6 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
       (insert-file-contents file)
       (split-string (buffer-string) "\n" (not keep-empty-lines)))))
 
-(defun magit-insert-region (beg end buf)
-  (let ((text (buffer-substring-no-properties beg end)))
-    (with-current-buffer buf
-      (insert text))))
-
 (defun magit-insert-current-line (buf)
   (let ((text (buffer-substring-no-properties
                (line-beginning-position) (line-beginning-position 2))))
@@ -3646,6 +3641,11 @@ Customize `magit-diff-refine-hunk' to change the default mode."
   (magit-insert-region (magit-section-beginning hunk)
                        (magit-section-end hunk)
                        buf))
+
+(defun magit-insert-region (beg end buf)
+  (let ((text (buffer-substring-no-properties beg end)))
+    (with-current-buffer buf
+      (insert text))))
 
 (defun magit-insert-hunk-item-region-patch (hunk reverse beg end buf)
   (magit-diff-item-insert-header (magit-hunk-item-diff hunk) buf)
