@@ -1263,6 +1263,21 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
     (with-current-buffer buf
       (insert text))))
 
+(defun magit-buffer-file-name (&optional relative)
+  (let ((topdir (magit-get-top-dir))
+        (filename (or buffer-file-name
+                  (when (buffer-base-buffer)
+                    (with-current-buffer (buffer-base-buffer)
+                      buffer-file-name))
+                  magit-file-name)))
+    (cond ((not filename))
+          (relative
+           (file-relative-name filename topdir))
+          ((not (file-name-absolute-p filename))
+           (expand-file-name filename topdir))
+          (t
+           filename))))
+
 ;;;; Emacsclient Support
 
 (defmacro magit-with-emacsclient (server-window &rest body)
@@ -1642,9 +1657,7 @@ according to `magit-remote-ref-format'"
                          (magit-git-lines "ls-tree" "-r" "--name-only" revision)
                          nil 'require-match
                          nil 'magit-read-file-hist
-                         (when buffer-file-name
-                           (substring (buffer-file-name)
-                                      (length (magit-get-top-dir))))))
+                         (magit-buffer-file-name t)))
 
 (defvar magit-read-rev-history nil
   "The history of inputs to `magit-read-rev' and `magit-read-tag'.")
