@@ -5960,7 +5960,7 @@ This is only non-nil in reflog buffers.")
 \\{magit-reflog-mode-map}"
   :group 'magit)
 
-;;; Diffing (A)
+;;; Ediff Support
 
 (defvar magit-ediff-buffers nil
   "List of buffers that may be killed by `magit-ediff-restore'.")
