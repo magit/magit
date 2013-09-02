@@ -2541,9 +2541,9 @@ magit-topgit and magit-svn"
        (defun ,fun ,arglist
          ,doc
          ,inter
-         (or (run-hook-with-args-until-success
-              ',hook ,@(remq '&optional (remq '&rest arglist)))
-             ,@instr))
+         (unless (run-hook-with-args-until-success
+                  ',hook ,@(remq '&optional (remq '&rest arglist)))
+           ,@instr))
        (put ',fun 'definition-name ',sym)
        (put ',hook 'definition-name ',sym))))
 
@@ -3059,7 +3059,7 @@ Then display and select BUFFER using SWITCH-FUNCTION.  If that is
 nil either use `pop-to-buffer' if the current buffer's major mode
 derives from Magit mode; or else use `switch-to-buffer'."
   (unless (get-buffer-window buffer (selected-frame))
-    (with-current-buffer buffer
+    (with-current-buffer (get-buffer-create buffer)
       (setq magit-previous-window-configuration
             (current-window-configuration))))
   (funcall (or switch-function
