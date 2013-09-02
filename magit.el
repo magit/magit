@@ -3051,7 +3051,7 @@ in the corresponding directories."
 This is intended for buffers whose major mode derive from Magit
 mode.
 
-Unless BUFFER is already diplayed in the selected frame store the
+Unless BUFFER is already displayed in the selected frame store the
 previous window configuration as a buffer local value, so that it
 can later be restored by `magit-quit-window'.
 
