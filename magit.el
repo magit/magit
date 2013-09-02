@@ -1252,12 +1252,6 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
       (insert-file-contents file)
       (split-string (buffer-string) "\n" (not keep-empty-lines)))))
 
-(defun magit-insert-current-line (buf)
-  (let ((text (buffer-substring-no-properties
-               (line-beginning-position) (line-beginning-position 2))))
-    (with-current-buffer buf
-      (insert text))))
-
 (defvar-local magit-file-name ()
   "Name of file the buffer shows a different version of.")
 
@@ -3655,15 +3649,17 @@ Customize `magit-diff-refine-hunk' to change the default mode."
     (forward-line)
     (let ((copy-op (if reverse "+" "-")))
       (while (< (point) (magit-section-end hunk))
-        (cond ((and (<= beg (point)) (< (point) end))
-               (magit-insert-current-line buf))
-              ((looking-at " ")
-               (magit-insert-current-line buf))
-              ((looking-at copy-op)
-               (let ((text (buffer-substring-no-properties
-                            (+ (point) 1) (line-beginning-position 2))))
-                 (with-current-buffer buf
-                   (insert " " text)))))
+        (let ((text (cond ((or (and (<= beg (point)) (< (point) end))
+                               (looking-at " "))
+                           (buffer-substring-no-properties
+                            (line-beginning-position)
+                            (line-beginning-position 2)))
+                          ((looking-at copy-op)
+                           (concat " " (buffer-substring-no-properties
+                                        (1+ (line-beginning-position))
+                                        (line-beginning-position 2)))))))
+          (with-current-buffer buf
+            (insert text)))
         (forward-line))))
   (with-current-buffer buf
     (diff-fixup-modifs (point-min) (point-max))))
