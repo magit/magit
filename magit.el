@@ -4535,7 +4535,7 @@ if FULLY-QUALIFIED-NAME is non-nil."
                          (format " (%i" cnt))
                        " " (if behindp "behind" "ahead") ")"))))
 
-;;;; Status Refresh and Commands
+;;;; Status Refresh
 
 (defun magit-refresh-status ()
   (magit-create-buffer-sections
@@ -4594,7 +4594,7 @@ if FULLY-QUALIFIED-NAME is non-nil."
 \\{magit-status-mode-map}"
   :group 'magit)
 
-;; (START "This does not belong here.")
+;;;; Save Buffers
 
 (defvar magit-default-directory nil)
 
@@ -4633,7 +4633,7 @@ As determined by the directory passed to `magit-status'."
        (string= (magit-get-top-dir magit-default-directory)
                 (magit-get-top-dir (file-name-directory buffer-file-name)))))
 
-;; (END "This does not belong here.")
+;;;; Status Commands
 
 ;;;###autoload
 (defun magit-status (dir)
