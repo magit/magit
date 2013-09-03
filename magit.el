@@ -2875,22 +2875,18 @@ Please see the manual for a complete description of Magit.
   (run-mode-hooks 'magit-mode-hook))
 
 (defmacro magit-mode-setup (buffer mode refresh-func &rest refresh-args)
-  "Display and select BUFFER turn on MODE and refresh a first time.
+  "Display and select BUFFER, turn on MODE, and refresh a first time.
 Display BUFFER using `magit-display-mode-buffer', then turn on
 MODE in BUFFER, set the local value of `magit-refresh-function'
 to REFRESH-FUNC and that of `magit-refresh-args' to REFRESH-ARGS
 and finally \"refresh\" a first time.  All arguments are
 evaluated before switching to BUFFER."
-  (let ((d (cl-gensym "directory"))
-        (m (cl-gensym "mode"))
-        (f (cl-gensym "func"))
-        (a (cl-gensym "args")))
-    `(let ((,d (magit-get-top-dir default-directory))
-           (,m ,mode)         ; Eval time should not make a difference.
-           (,f ,refresh-func) ; Be careful and keep doc-string simple.
-           (,a (list ,@refresh-args)))
+  (let ((init-args (cl-gensym "init-args")))
+    `(let ((,init-args (list ,(magit-get-top-dir default-directory)
+                             ,mode ,refresh-func
+                             ,@refresh-args)))
        (magit-display-mode-buffer ,buffer)
-       (apply #'magit-mode-init ,d ,m ,f ,a))))
+       (apply #'magit-mode-init ,init-args))))
 
 (defun magit-mode-init (dir mode refresh-func &rest refresh-args)
   "Turn on MODE and refresh in the current buffer.
