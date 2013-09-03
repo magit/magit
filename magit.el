@@ -373,7 +373,8 @@ be \"upstream/next\"."
   :type '(choice (const :tag "name (remote)" branch-then-remote)
                  (const :tag "remote/name" remote-slash-branch)))
 
-(defcustom magit-process-connection-type (not (eq system-type 'cygwin))
+(defcustom magit-process-connection-type
+  (not (memq system-type '(cygwin windows-nt)))
   "Connection type used for the git process.
 
 If nil, use pipes: this is usually more efficient, and works on Cygwin.
