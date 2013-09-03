@@ -6893,10 +6893,11 @@ argument) in the current window."
            (magit-git-insert (list "cat-file" "-p"
                                    (concat commit ":" filename)))))))
       (with-current-buffer buffer
-        (let ((buffer-file-name filename))
-          (normal-mode)
-          (setq magit-file-name filename)
-          (setq magit-show-current-version commit))
+        (let ((buffer-file-name
+               (expand-file-name filename (magit-get-top-dir))))
+          (normal-mode))
+        (setq magit-file-name filename)
+        (setq magit-show-current-version commit)
         (goto-char (point-min)))
       (if select
           (if prefix
