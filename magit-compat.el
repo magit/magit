@@ -79,12 +79,13 @@ to case differences."
 (defvar-local magit-have-config-param 'unset)
 (put 'magit-have-config-param 'permanent-local t)
 
+;; Added in Git 1.7.2.
 (defun magit-configure-have-config-param ()
   (when (eq magit-have-config-param 'unset)
     (setq magit-have-config-param
           (= 0 (magit-git-exit-code "-c" "g.o=v" "config" "g.o")))))
 
-;;;; Config
+;;;; Subcommands
 
 (defvar-local magit-have-graph 'unset)
 (defvar-local magit-have-decorate 'unset)
@@ -96,21 +97,27 @@ to case differences."
 (put 'magit-have-abbrev 'permanent-local t)
 (put 'magit-have-revlist-count 'permanent-local t)
 
+;; Added in Git 1.5.6.
 (defun magit-configure-have-graph ()
   (when (eq magit-have-graph 'unset)
     (setq magit-have-graph
           (= 0 (magit-git-exit-code "log" "--graph" "-n" "0")))))
 
+;; Added in Git 1.6.5.
 (defun magit-configure-have-decorate ()
   (when (eq magit-have-decorate 'unset)
     (setq magit-have-decorate
           (= 0 (magit-git-exit-code "log" "--decorate=full" "-n" "0")))))
 
+;; The name doesn't reflect what this function actually test, so it
+;; is no suprise it is used under wrong assumptions in some cases.
+;; Added in Git 1.7.6 (not in RelNotes).
 (defun magit-configure-have-abbrev ()
   (when (eq magit-have-abbrev 'unset)
     (setq magit-have-abbrev
           (= 0 (magit-git-exit-code "log" "--no-abbrev-commit" "-n" "0")))))
 
+;; Added in Git 1.7.2 (not in RelNotes).
 (defun magit-configure-have-revlist-count ()
   (when (eq magit-have-revlist-count 'unset)
     (setq magit-have-revlist-count
