@@ -2613,9 +2613,7 @@ magit-topgit and magit-svn"
                 "\n")
         (cond (nowait
                (setq magit-process
-                     (let ((process-connection-type
-                            magit-process-connection-type))
-                       (apply 'start-file-process cmd buf cmd args)))
+                     (magit-start-file-process buf input cmd args))
                (set-process-sentinel magit-process 'magit-process-sentinel)
                (set-process-filter magit-process 'magit-process-filter)
                (when input
@@ -2641,10 +2639,7 @@ magit-topgit and magit-svn"
                (with-current-buffer input
                  (setq default-directory dir)
                  (setq magit-process
-                       ;; Don't use a pty, because it would set icrnl
-                       ;; which would modify the input (issue #20).
-                       (let ((process-connection-type nil))
-                         (apply 'start-file-process cmd buf cmd args)))
+                       (magit-start-file-process buf t cmd args))
                  (set-process-sentinel
                   magit-process
                   (lambda (process event)
@@ -2681,6 +2676,15 @@ magit-topgit and magit-svn"
                (if key (format "Hit %s to see" key) "See")))
            magit-process-buffer-name))
       successp)))
+
+(defun magit-start-file-process (buffer inputp program args)
+  (let ((process-connection-type
+         (if inputp
+             ;; Don't use a pty, because it would set icrnl
+             ;; which would modify the input (issue #20).
+             nil
+           magit-process-connection-type)))
+    (apply 'start-file-process "magit" buffer program args)))
 
 (defun magit-process-sentinel (process event)
   (when (memq (process-status process) '(exit signal))
