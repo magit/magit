@@ -2882,7 +2882,7 @@ to REFRESH-FUNC and that of `magit-refresh-args' to REFRESH-ARGS
 and finally \"refresh\" a first time.  All arguments are
 evaluated before switching to BUFFER."
   (let ((init-args (cl-gensym "init-args")))
-    `(let ((,init-args (list ,(magit-get-top-dir default-directory)
+    `(let ((,init-args (list (magit-get-top-dir default-directory)
                              ,mode ,refresh-func
                              ,@refresh-args)))
        (magit-display-mode-buffer ,buffer)
