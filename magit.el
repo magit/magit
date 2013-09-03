@@ -1256,19 +1256,17 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
   "Name of file the buffer shows a different version of.")
 
 (defun magit-buffer-file-name (&optional relative)
-  (let ((topdir (magit-get-top-dir))
-        (filename (or buffer-file-name
-                  (when (buffer-base-buffer)
-                    (with-current-buffer (buffer-base-buffer)
-                      buffer-file-name))
-                  magit-file-name)))
-    (cond ((not filename))
-          (relative
-           (file-relative-name filename topdir))
-          ((not (file-name-absolute-p filename))
-           (expand-file-name filename topdir))
-          (t
-           filename))))
+  (let* ((topdir (magit-get-top-dir))
+         (filename (or buffer-file-name
+                       (when (buffer-base-buffer)
+                         (with-current-buffer (buffer-base-buffer)
+                           buffer-file-name))
+                       (when magit-file-name
+                         (expand-file-name magit-file-name topdir)))))
+    (when filename
+      (if relative
+          (file-relative-name filename topdir)
+        filename))))
 
 ;;;; Emacsclient Support
 
