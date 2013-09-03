@@ -1398,15 +1398,15 @@ server if necessary."
 (defun magit-git-repo-p (dir)
   (file-exists-p (expand-file-name ".git" dir)))
 
-(defun magit-git-dir (&optional subdir)
+(defun magit-git-dir (&optional path)
   "Return absolute path to the GIT_DIR for the current repository.
-If optional SUBDIR is non-nil it has to be a path relative to the
+If optional PATH is non-nil it has to be a path relative to the
 GIT_DIR and its absolute path is returned"
   (let ((gitdir (file-name-as-directory
                  (expand-file-name
                   (magit-git-string "rev-parse" "--git-dir")))))
-    (if subdir
-        (expand-file-name (convert-standard-filename subdir) gitdir)
+    (if path
+        (expand-file-name (convert-standard-filename path) gitdir)
       gitdir)))
 
 (defun magit-no-commit-p ()
