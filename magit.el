@@ -1252,16 +1252,23 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
       (insert-file-contents file)
       (split-string (buffer-string) "\n" (not keep-empty-lines)))))
 
-(defun magit-insert-region (beg end buf)
-  (let ((text (buffer-substring-no-properties beg end)))
-    (with-current-buffer buf
-      (insert text))))
+(defvar-local magit-file-name ()
+  "Name of file the buffer shows a different version of.")
 
-(defun magit-insert-current-line (buf)
-  (let ((text (buffer-substring-no-properties
-               (line-beginning-position) (line-beginning-position 2))))
-    (with-current-buffer buf
-      (insert text))))
+(defun magit-buffer-file-name (&optional relative)
+  (let ((topdir (magit-get-top-dir))
+        (filename (or buffer-file-name
+                  (when (buffer-base-buffer)
+                    (with-current-buffer (buffer-base-buffer)
+                      buffer-file-name))
+                  magit-file-name)))
+    (cond ((not filename))
+          (relative
+           (file-relative-name filename topdir))
+          ((not (file-name-absolute-p filename))
+           (expand-file-name filename topdir))
+          (t
+           filename))))
 
 ;;;; Emacsclient Support
 
@@ -1642,9 +1649,7 @@ according to `magit-remote-ref-format'"
                          (magit-git-lines "ls-tree" "-r" "--name-only" revision)
                          nil 'require-match
                          nil 'magit-read-file-hist
-                         (when buffer-file-name
-                           (substring (buffer-file-name)
-                                      (length (magit-get-top-dir))))))
+                         (magit-buffer-file-name t)))
 
 (defvar magit-read-rev-history nil
   "The history of inputs to `magit-read-rev' and `magit-read-tag'.")
@@ -2870,22 +2875,18 @@ Please see the manual for a complete description of Magit.
   (run-mode-hooks 'magit-mode-hook))
 
 (defmacro magit-mode-setup (buffer mode refresh-func &rest refresh-args)
-  "Display and select BUFFER turn on MODE and refresh a first time.
+  "Display and select BUFFER, turn on MODE, and refresh a first time.
 Display BUFFER using `magit-display-mode-buffer', then turn on
 MODE in BUFFER, set the local value of `magit-refresh-function'
 to REFRESH-FUNC and that of `magit-refresh-args' to REFRESH-ARGS
 and finally \"refresh\" a first time.  All arguments are
 evaluated before switching to BUFFER."
-  (let ((d (cl-gensym "directory"))
-        (m (cl-gensym "mode"))
-        (f (cl-gensym "func"))
-        (a (cl-gensym "args")))
-    `(let ((,d (magit-get-top-dir default-directory))
-           (,m ,mode)         ; Eval time should not make a difference.
-           (,f ,refresh-func) ; Be careful and keep doc-string simple.
-           (,a (list ,@refresh-args)))
+  (let ((init-args (cl-gensym "init-args")))
+    `(let ((,init-args (list ,(magit-get-top-dir default-directory)
+                             ,mode ,refresh-func
+                             ,@refresh-args)))
        (magit-display-mode-buffer ,buffer)
-       (apply #'magit-mode-init ,d ,m ,f ,a))))
+       (apply #'magit-mode-init ,init-args))))
 
 (defun magit-mode-init (dir mode refresh-func &rest refresh-args)
   "Turn on MODE and refresh in the current buffer.
@@ -3631,6 +3632,11 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                        (magit-section-end hunk)
                        buf))
 
+(defun magit-insert-region (beg end buf)
+  (let ((text (buffer-substring-no-properties beg end)))
+    (with-current-buffer buf
+      (insert text))))
+
 (defun magit-insert-hunk-item-region-patch (hunk reverse beg end buf)
   (magit-diff-item-insert-header (magit-hunk-item-diff hunk) buf)
   (save-excursion
@@ -3639,15 +3645,17 @@ Customize `magit-diff-refine-hunk' to change the default mode."
     (forward-line)
     (let ((copy-op (if reverse "+" "-")))
       (while (< (point) (magit-section-end hunk))
-        (cond ((and (<= beg (point)) (< (point) end))
-               (magit-insert-current-line buf))
-              ((looking-at " ")
-               (magit-insert-current-line buf))
-              ((looking-at copy-op)
-               (let ((text (buffer-substring-no-properties
-                            (+ (point) 1) (line-beginning-position 2))))
-                 (with-current-buffer buf
-                   (insert " " text)))))
+        (let ((text (cond ((or (and (<= beg (point)) (< (point) end))
+                               (looking-at " "))
+                           (buffer-substring-no-properties
+                            (line-beginning-position)
+                            (line-beginning-position 2)))
+                          ((looking-at copy-op)
+                           (concat " " (buffer-substring-no-properties
+                                        (1+ (line-beginning-position))
+                                        (line-beginning-position 2)))))))
+          (with-current-buffer buf
+            (insert text)))
         (forward-line))))
   (with-current-buffer buf
     (diff-fixup-modifs (point-min) (point-max))))
@@ -3667,85 +3675,6 @@ Customize `magit-diff-refine-hunk' to change the default mode."
             (setq target (+ target 1)))
           (forward-line))
         target))))
-
-(defvar-local magit-file-name ()
-  "Name of file the buffer shows a different version of.")
-
-(defvar-local magit-show-current-version ()
-  "Which version of MAGIT-FILE-NAME is shown in this buffer.")
-
-(defun magit-save-index ()
-  "Add the content of current file as if it was the index."
-  (interactive)
-  (unless (eq magit-show-current-version 'index)
-    (error "Current buffer doesn't visit the index version of a file"))
-  (when (y-or-n-p (format "Stage current version of %s" magit-file-name))
-    (let ((buf (current-buffer))
-          (name (magit-git-dir "magit-add-index")))
-      (with-temp-file name
-        (insert-buffer-substring buf))
-      (let ((hash (magit-git-string "hash-object" "-t" "blob" "-w"
-                                    (concat "--path=" magit-file-name)
-                                    "--" name))
-            (perm (substring (magit-git-string "ls-files" "-s"
-                                               magit-file-name)
-                             0 6)))
-        (magit-run-git "update-index" "--cacheinfo"
-                       perm hash magit-file-name)))))
-
-(defun magit-show (commit filename &optional select prefix)
-  "Return a buffer containing the file FILENAME, as stored in COMMIT.
-
-COMMIT may be one of the following:
-- A string with the name of a commit, such as \"HEAD\" or
-  \"dae86e\".  See 'git help revisions' for syntax.
-- The symbol 'index, indicating that you want the version in
-  Git's index or staging area.
-- The symbol 'working, indicating that you want the version in
-  the working directory.  In this case you'll get a buffer
-  visiting the file.  If there's already a buffer visiting that
-  file, you'll get that one.
-
-When called interactively or when SELECT is non-nil, make the
-buffer active, either in another window or (with a prefix
-argument) in the current window."
-  (interactive
-   (let* ((revision (magit-read-rev "Retrieve file from revision"))
-          (filename (magit-read-file-from-rev revision)))
-     (list revision filename t current-prefix-arg)))
-  (if (eq commit 'working)
-      (find-file-noselect filename)
-    (let ((buffer (create-file-buffer
-                   (format "%s.%s" filename
-                           (replace-regexp-in-string
-                            ".*/" "" (prin1-to-string commit t))))))
-      (cond
-       ((eq commit 'index)
-        (let ((checkout-string (magit-git-string "checkout-index"
-                                                 "--temp"
-                                                 filename)))
-          (string-match "^\\(.*\\)\t" checkout-string)
-          (with-current-buffer buffer
-            (let ((tmpname (match-string 1 checkout-string)))
-              (with-silent-modifications
-               (insert-file-contents tmpname nil nil nil t))
-              (delete-file tmpname)))))
-       (t
-        (with-current-buffer buffer
-          (with-silent-modifications
-           (magit-git-insert (list "cat-file" "-p"
-                                   (concat commit ":" filename)))))))
-      (with-current-buffer buffer
-        (let ((buffer-file-name filename))
-          (normal-mode)
-          (setq magit-file-name filename)
-          (setq magit-show-current-version commit))
-        (goto-char (point-min)))
-      (if select
-          (if prefix
-              (switch-to-buffer buffer)
-            (switch-to-buffer-other-window buffer))
-        buffer))))
 
 (defun magit-apply-diff-item (diff &rest args)
   (when (zerop magit-diff-context-lines)
@@ -4602,7 +4531,7 @@ if FULLY-QUALIFIED-NAME is non-nil."
                          (format " (%i" cnt))
                        " " (if behindp "behind" "ahead") ")"))))
 
-;;;; Status Refresh and Commands
+;;;; Status Refresh
 
 (defun magit-refresh-status ()
   (magit-create-buffer-sections
@@ -4655,31 +4584,13 @@ if FULLY-QUALIFIED-NAME is non-nil."
         (magit-insert-unpushed-commits remote remote-branch))))
   (run-hooks 'magit-refresh-status-hook))
 
-(defun magit-init (dir)
-  "Initialize git repository in the DIR directory."
-  (interactive (list (read-directory-name "Directory for Git repository: ")))
-  (let* ((dir (file-name-as-directory (expand-file-name dir)))
-         (topdir (magit-get-top-dir dir)))
-    (when (or (not topdir)
-              (yes-or-no-p
-               (format
-                (if (string-equal topdir dir)
-                    "There is already a Git repository in %s. Reinitialize? "
-                  "There is a Git repository in %s. Create another in %s? ")
-                topdir dir)))
-      (unless (file-directory-p dir)
-        (and (y-or-n-p (format "Directory %s does not exists.  Create it? " dir))
-             (make-directory dir)))
-      (let ((default-directory dir))
-        (magit-run-git* (list "init"))))))
-
 (define-derived-mode magit-status-mode magit-mode "Magit"
   "Mode for looking at git status.
 
 \\{magit-status-mode-map}"
   :group 'magit)
 
-;; (START "This does not belong here.")
+;;;; Save Buffers
 
 (defvar magit-default-directory nil)
 
@@ -4718,7 +4629,7 @@ As determined by the directory passed to `magit-status'."
        (string= (magit-get-top-dir magit-default-directory)
                 (magit-get-top-dir (file-name-directory buffer-file-name)))))
 
-;; (END "This does not belong here.")
+;;;; Status Commands
 
 ;;;###autoload
 (defun magit-status (dir)
@@ -4751,6 +4662,24 @@ when asking for user input."
                                (directory-file-name topdir)) "*")))))
         (magit-display-mode-buffer buf magit-status-buffer-switch-function)
         (magit-mode-init topdir 'magit-status-mode #'magit-refresh-status)))))
+
+(defun magit-init (dir)
+  "Initialize git repository in the DIR directory."
+  (interactive (list (read-directory-name "Directory for Git repository: ")))
+  (let* ((dir (file-name-as-directory (expand-file-name dir)))
+         (topdir (magit-get-top-dir dir)))
+    (when (or (not topdir)
+              (yes-or-no-p
+               (format
+                (if (string-equal topdir dir)
+                    "There is already a Git repository in %s. Reinitialize? "
+                  "There is a Git repository in %s. Create another in %s? ")
+                topdir dir)))
+      (unless (file-directory-p dir)
+        (and (y-or-n-p (format "Directory %s does not exists.  Create it? " dir))
+             (make-directory dir)))
+      (let ((default-directory dir))
+        (magit-run-git* (list "init"))))))
 
 ;;;; Read Repository
 
@@ -5960,13 +5889,16 @@ This is only non-nil in reflog buffers.")
 \\{magit-reflog-mode-map}"
   :group 'magit)
 
-;;; Diffing (A)
+;;; Ediff Support
 
 (defvar magit-ediff-buffers nil
   "List of buffers that may be killed by `magit-ediff-restore'.")
 
 (defvar magit-ediff-windows nil
   "The window configuration that will be restored when Ediff is finished.")
+
+(defvar-local magit-show-current-version ()
+  "Which version of MAGIT-FILE-NAME is shown in this buffer.")
 
 (defun magit-ediff ()
   "View the current DIFF section in ediff."
@@ -6032,6 +5964,27 @@ restore the window state that was saved before ediff was called."
     (set-window-configuration magit-ediff-windows)
     (set-buffer buf)))
 
+(defun magit-save-index ()
+  "Add the content of current file as if it was the index."
+  (interactive)
+  (unless (eq magit-show-current-version 'index)
+    (error "Current buffer doesn't visit the index version of a file"))
+  (when (y-or-n-p (format "Stage current version of %s" magit-file-name))
+    (let ((buf (current-buffer))
+          (name (magit-git-dir "magit-add-index")))
+      (with-temp-file name
+        (insert-buffer-substring buf))
+      (let ((hash (magit-git-string "hash-object" "-t" "blob" "-w"
+                                    (concat "--path=" magit-file-name)
+                                    "--" name))
+            (perm (substring (magit-git-string "ls-files" "-s"
+                                               magit-file-name)
+                             0 6)))
+        (magit-run-git "update-index" "--cacheinfo"
+                       perm hash magit-file-name)))))
+
+;;; Diff Mode
+
 (defun magit-refresh-diff-buffer (range args)
   (let ((magit-current-diff-range (cond
                                    ((stringp range)
@@ -6049,8 +6002,6 @@ restore the window state that was saved before ediff was called."
              "diff" (magit-diff-U-arg)
              `(,@(and magit-show-diffstat (list "--patch-with-stat"))
                ,args "--")))))
-
-;;; Diff Mode
 
 (define-derived-mode magit-diff-mode magit-mode "Magit Diff"
   "Mode for looking at a git diff.
@@ -6895,6 +6846,62 @@ These are the branch names with the remote name stripped."
       (magit-refresh-buffer (magit-find-status-buffer default-directory)))))
 
 ;;; Miscellaneous
+;;;; Miscellaneous Commands
+
+(defun magit-show (commit filename &optional select prefix)
+  "Return a buffer containing the file FILENAME, as stored in COMMIT.
+
+COMMIT may be one of the following:
+- A string with the name of a commit, such as \"HEAD\" or
+  \"dae86e\".  See 'git help revisions' for syntax.
+- The symbol 'index, indicating that you want the version in
+  Git's index or staging area.
+- The symbol 'working, indicating that you want the version in
+  the working directory.  In this case you'll get a buffer
+  visiting the file.  If there's already a buffer visiting that
+  file, you'll get that one.
+
+When called interactively or when SELECT is non-nil, make the
+buffer active, either in another window or (with a prefix
+argument) in the current window."
+  (interactive
+   (let* ((revision (magit-read-rev "Retrieve file from revision"))
+          (filename (magit-read-file-from-rev revision)))
+     (list revision filename t current-prefix-arg)))
+  (if (eq commit 'working)
+      (find-file-noselect filename)
+    (let ((buffer (create-file-buffer
+                   (format "%s.%s" filename
+                           (replace-regexp-in-string
+                            ".*/" "" (prin1-to-string commit t))))))
+      (cond
+       ((eq commit 'index)
+        (let ((checkout-string (magit-git-string "checkout-index"
+                                                 "--temp"
+                                                 filename)))
+          (string-match "^\\(.*\\)\t" checkout-string)
+          (with-current-buffer buffer
+            (let ((tmpname (match-string 1 checkout-string)))
+              (with-silent-modifications
+               (insert-file-contents tmpname nil nil nil t))
+              (delete-file tmpname)))))
+       (t
+        (with-current-buffer buffer
+          (with-silent-modifications
+           (magit-git-insert (list "cat-file" "-p"
+                                   (concat commit ":" filename)))))))
+      (with-current-buffer buffer
+        (let ((buffer-file-name filename))
+          (normal-mode)
+          (setq magit-file-name filename)
+          (setq magit-show-current-version commit))
+        (goto-char (point-min)))
+      (if select
+          (if prefix
+              (switch-to-buffer buffer)
+            (switch-to-buffer-other-window buffer))
+        buffer))))
+
 ;;;; External Tools
 
 (defun magit-run-git-gui ()
