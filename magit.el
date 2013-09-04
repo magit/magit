@@ -1377,7 +1377,8 @@ server if necessary."
                     "\\\\[^0-7]"
                     (lambda (match)
                       (string (read (concat "?" match))))
-                    (substring path 1 -1)))
+                    (substring path 1 -1)
+                    t t))
     (let* (strings
            bytes
            (merge (lambda ()
