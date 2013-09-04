@@ -1371,28 +1371,9 @@ server if necessary."
          (append magit-git-standard-options args)))
 
 (defun magit-decode-git-path (path)
-  (if (not (eq (aref path 0) ?\"))
-      path
-    (setq path (replace-regexp-in-string
-                    "\\\\[^0-7]"
-                    (lambda (match)
-                      (string (read (concat "?" match))))
-                    (substring path 1 -1)))
-    (let* (strings
-           bytes
-           (merge (lambda ()
-                    (when bytes
-                      (push (string-as-multibyte
-                             (apply 'unibyte-string (nreverse bytes)))
-                            strings)))))
-      (while (string-match "\\\\\\([0-7]\\{3\\}\\)" path)
-        (when (> (match-beginning 0) 0)
-          (push (substring path 0 (1- (match-beginning 1))) strings)
-          (funcall merge))
-        (push (string-to-number (match-string 1 path) 8) bytes)
-        (setq path (substring path (match-end 0))))
-      (funcall merge)
-      (apply 'concat (nreverse (cons path strings))))))
+  (if (eq (aref path 0) ?\")
+      (string-as-multibyte (read path))
+    path))
 
 ;;;; Git Config
 
