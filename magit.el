@@ -1370,6 +1370,30 @@ server if necessary."
   (apply #'process-file magit-git-executable nil nil nil
          (append magit-git-standard-options args)))
 
+(defun magit-decode-git-path (path)
+  (if (not (eq (aref path 0) ?\"))
+      path
+    (setq path (replace-regexp-in-string
+                    "\\\\[^0-7]"
+                    (lambda (match)
+                      (string (read (concat "?" match))))
+                    (substring path 1 -1)))
+    (let* (strings
+           bytes
+           (merge (lambda ()
+                    (when bytes
+                      (push (string-as-multibyte
+                             (apply 'unibyte-string (nreverse bytes)))
+                            strings)))))
+      (while (string-match "\\\\\\([0-7]\\{3\\}\\)" path)
+        (when (> (match-beginning 0) 0)
+          (push (substring path 0 (1- (match-beginning 1))) strings)
+          (funcall merge))
+        (push (string-to-number (match-string 1 path) 8) bytes)
+        (setq path (substring path (match-end 0))))
+      (funcall merge)
+      (apply 'concat (nreverse (cons path strings))))))
+
 ;;;; Git Config
 
 (defun magit-get (&rest keys)
@@ -3092,7 +3116,7 @@ the buffer.  Finally reset the window configuration to nil."
 
 (defun magit-wash-untracked-file ()
   (if (looking-at "^? \\(.*\\)$")
-      (let ((file (match-string-no-properties 1)))
+      (let ((file (magit-decode-git-path (match-string-no-properties 1))))
         (delete-region (point) (+ (line-end-position) 1))
         (magit-with-section file 'file
           (magit-set-section-info file)
@@ -3213,7 +3237,9 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                    'diff-mode 'fine))
 
 (defun magit-diff-line-file ()
-  (cond ((looking-at "^diff --git ./\\(.*\\) ./\\(.*\\)$")
+  (cond ((looking-at "^diff --git \\(\".*\"\\) \\(\".*\"\\)$")
+         (substring (magit-decode-git-path (match-string-no-properties 2)) 2))
+        ((looking-at "^diff --git ./\\(.*\\) ./\\(.*\\)$")
          (match-string-no-properties 2))
         ((looking-at "^diff --cc +\\(.*\\)$")
          (match-string-no-properties 1))
@@ -3236,6 +3262,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
 
 (defun magit-wash-diffstat (&optional guess)
   (when (looking-at "^ ?\\(.*?\\)\\( +| +.*\\)$")
+    ;; Don't decode pseudo filename.
     (let ((file (match-string-no-properties 1))
           (remaining (match-string-no-properties 2)))
       (delete-region (point) (+ (line-end-position) 1))
@@ -3334,7 +3361,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
 
 (defun magit-wash-other-file ()
   (when (looking-at "^? \\(.*\\)$")
-    (let ((file (match-string-no-properties 1)))
+    (let ((file (magit-decode-git-path (match-string-no-properties 1))))
       (magit-wash-diffstats-postwork file)
       (delete-region (point) (+ (line-end-position) 1))
       (magit-with-section file 'file
@@ -3389,7 +3416,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
 
 (defun magit-wash-diff-section ()
   (cond ((looking-at "^\\* Unmerged path \\(.*\\)")
-         (let ((file (match-string-no-properties 1)))
+         (let ((file (magit-decode-git-path (match-string-no-properties 1))))
            (delete-region (point) (line-end-position))
            (insert "\tUnmerged " file "\n")
            (magit-set-section-info (list 'unmerged file nil))
@@ -3575,7 +3602,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                     (?U 'unmerged)
                     (?T 'typechange)
                     (t     nil)))
-          (file (match-string-no-properties 4)))
+          (file (magit-decode-git-path (match-string-no-properties 4))))
       ;; If this is for the same file as the last diff, ignore it.
       ;; Unmerged files seem to get two entries.
       ;; We also ignore unmerged files when told so.
