@@ -2459,7 +2459,7 @@ Return the value of BODY of the clause that succeeded.
 Each use of `magit-section-action' should use an unique OPNAME.
 
 \(fn (SECTION INFO OPNAME) (SECTION-TYPE BODY...)...)"
-  (declare (indent 1))
+  (declare (indent 1) (debug (sexp &rest (sexp body))))
   (let ((value (make-symbol "*value*"))
         (opname (car (cddr head)))
         (disallowed (car (or (assq t clauses)
