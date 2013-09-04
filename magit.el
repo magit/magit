@@ -6248,7 +6248,8 @@ written to .git/info/exclude."
         (file (magit-diff-item-file diff)))
     (cond ((eq kind 'deleted)
            (when (yes-or-no-p (format "Resurrect %s? " file))
-             (magit-run-git "reset" "-q" "--" file)
+             (when stagedp
+               (magit-run-git "reset" "-q" "--" file))
              (magit-run-git "checkout" "--" file)))
           ((eq kind 'new)
            (when (yes-or-no-p (format "Delete %s? " file))
