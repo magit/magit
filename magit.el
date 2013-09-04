@@ -1019,6 +1019,7 @@ Also see option `magit-diff-use-overlays'."
            (define-key map (kbd "t") 'magit-tag)
            (define-key map (kbd "l") 'magit-log)
            (define-key map (kbd "o") 'magit-submodule-update)
+           (define-key map (kbd "j") 'magit-apply-mailbox)
            (define-key map (kbd "B") 'undefined))
           (t
            (define-key map (kbd "c") 'magit-key-mode-popup-committing)
@@ -1033,6 +1034,7 @@ Also see option `magit-diff-use-overlays'."
            (define-key map (kbd "t") 'magit-key-mode-popup-tagging)
            (define-key map (kbd "l") 'magit-key-mode-popup-logging)
            (define-key map (kbd "o") 'magit-key-mode-popup-submodule)
+           (define-key map (kbd "j") 'magit-key-mode-popup-apply-mailbox)
            (define-key map (kbd "B") 'magit-key-mode-popup-bisecting)))
     (define-key map (kbd "$") 'magit-display-process)
     (define-key map (kbd "E") 'magit-interactive-rebase)
@@ -3143,6 +3145,13 @@ the buffer.  Finally reset the window configuration to nil."
              "ls-files" "--others" "-t" "--exclude-standard"
              ,@(unless magit-status-verbose-untracked
                  '("--directory"))))))
+
+;;; Apply Mailbox Files
+(defun magit-apply-mailbox (&optional file-or-dir)
+  (interactive "fmbox or Maildir file or directory: ")
+  (message "%s"
+           (apply #'magit-git-string "am"
+                  (append magit-custom-options (list file-or-dir)))))
 
 ;;; Diffs and Hunks
 
