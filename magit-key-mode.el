@@ -248,8 +248,68 @@
       ("-h" "Use histogram diff algorithm" "--histogram")
       ("-b" "Ignore whitespace changes" "--ignore-space-change")
       ("-w" "Ignore all whitespace" "--ignore-all-space")
-      ("-W" "Show surrounding functions" "--function-context"))
-     ))
+      ("-W" "Show surrounding functions" "--function-context")))
+
+    (format-patch
+     (man-page "git-format-patch")
+     (actions
+      ("O" "Format patch" magit-format-patch)
+      ("m" "Open patch(es) in mail buffers" magit-format-patch-as-message))
+     ;; The following switches and arguments are not used because they
+     ;; don't seem that commonly useful to me (maybe I'm wrong).
+     ;;
+     ;; ("-n" "use [PATCH n/m] even with a single patch" "--numbered")
+     ;; ("-N" "use [PATCH] even with multiple patches" "--no-numbered")
+     ;; ("=a" "attach the patch (Boundary)" "--attach=" read-from-minibuffer)
+     ;; ("=I" "inline the patch (Boundary)" "--inline=" read-from-minibuffer)
+     ;; ("=T" "enable message threading, styles: shallow, deep"
+     ;;  "--thread=" read-from-minibuffer)
+     (switches
+      ("-s" "print patches to standard out" "--stdout")
+      ("-S" "add Signed-off-by:" "--signoff")
+      ("-C" "generate a cover letter" "--cover-letter")
+      ("-n" "use simple number sequence for output file names"
+       "--numbered-files")
+      ("-k" "don't strip/add [PATCH]" "--keep-subject")
+      ("-B" "don't output binary diffs" "--no-binary")
+      ("-i" "don't include a patch matching a commit upstream"
+       "--ignore-if-in-upstream")
+      ("-p" "show patch format instead of default (patch + stat)" "--no-stat"))
+     (arguments
+      ("=o" "store resulting files in <dir>" "--output-directory="
+       read-directory-name)
+      ("=v" "mark the series as Nth re-roll" "--reroll-count="
+       read-number)
+      ("=P" "Use [<prefix>] instead of [PATCH]" "--subject-prefix="
+       read-from-minibuffer)
+      ("=N" "start numbering patches at <n> instead of 1" "--start-number="
+       read-number)
+      ("=S" "Signature" "--signature=" read-from-minibuffer)
+      ("=h" "add email header" "--add-header=" read-from-minibuffer)
+      ("=t" "add To: header" "--to=" read-from-minibuffer)
+      ("=c" "add Cc: header" "--cc=" read-from-minibuffer)
+      ("=f" "set From address to <ident>" "--from=" read-from-minibuffer)
+      ("=r" "make first mail a reply to <message-id>" "--in-reply-to="
+       read-from-minibuffer)))
+
+    (apply-mailbox
+     (man-page "git-am")
+     (actions
+      ("j" "Apply Mailbox" magit-apply-mailbox))
+     (switches
+      ("-s" "add a Signed-off-by line to the commit message" "--signoff")
+      ("-3" "allow fall back on 3way merging if needed" "--3way")
+      ("-k" "pass -k flag to git-mailinfo" "--keep")
+      ("-c" "strip everything before a scissors line" "--scissors")
+      ("-p" "pass it through git-apply" "-p")
+      ("-r" "override error message when patch failure occurs" "--resolvemsg")
+      ("-d" "lie about committer date" "--committer-date-is-author-date")
+      ("-D" "use current timestamp for author date" "--ignore-date")
+      ("-b" "pass -b flag to git-mailinfo" "--keep-non-patch"))
+     (arguments
+      ("=p" "format the patch(es) are in" "--patch-format")))
+
+    )
   "Holds the key, help, function mapping for the log-mode.
 If you modify this make sure you reset `magit-key-mode-keymaps'
 to nil.")
@@ -640,27 +700,60 @@ Return the point before the actions part, if any, nil otherwise."
 
 (defun magit-key-mode-generate (group)
   "Generate the key-group menu for GROUP."
-  (let ((opts (magit-key-mode-options-for-group group)))
+  (let* ((opts (magit-key-mode-options-for-group group))
+         (immediate (member group magit-immediate-commands))
+         (arg (if immediate 'options 'no-options)))
     (eval
-     `(defun ,(intern (concat "magit-key-mode-popup-" (symbol-name group))) nil
-        ,(concat "Key menu for " (symbol-name group))
-        (interactive)
-        (magit-key-mode
-         (quote ,group)
-         ;; As a tempory kludge it is okay to do this here.
-         ,(cl-case group
-            (logging
-             '(when magit-have-graph
-                (list "--graph")))
-            (diff-options
-             '(when (local-variable-p 'magit-diff-options)
-                magit-diff-options))))))))
+     `(defun ,(intern (concat "magit-key-mode-popup-" (symbol-name group)))
+        (&optional ,arg)
+        ,(if immediate
+             (format "Run %s.\nWith prefix argument show %s Key menu."
+                     group group)
+           (format "Key menu for %s.\nWith prefix argument run %s directly."
+                   group group))
+        (interactive "P")
+        (message "showing options %s" ,(if immediate arg `(not ,arg)))
+        (if ,(if immediate arg `(not ,arg))
+            ;; pop up the full menu
+            (magit-key-mode
+             (quote ,group)
+             ;; As a tempory kludge it is okay to do this here.
+             ,(cl-case group
+                (logging
+                 '(when magit-have-graph
+                    (list "--graph")))
+                (diff-options
+                 '(when (local-variable-p 'magit-diff-options)
+                    magit-diff-options))))
+          ;; execute the action with the same key binding directly
+          (let ((keys (this-command-keys)))
+            (call-interactively
+             (third (assoc (subseq keys (1- (length keys)))
+                           ',(cdr (assoc 'actions opts)))))))))))
 
 ;; create the interactive functions for the key mode popups (which are
 ;; applied in the top-level key maps)
-(mapc (lambda (g)
-        (magit-key-mode-generate (car g)))
-      magit-key-mode-groups)
+(defcustom magit-immediate-commands nil
+  "Actions listed here are run immediately instead of displaying options.
+The options for these commands may still be viewed by invoking
+the commands with a prefix argument.  Values should be keys from
+`magit-key-mode-groups'.  When this variable is set action
+functions will be automatically regenerated using
+`magit-key-mode-generate'."
+  :group 'git-commit
+  :type `(repeat
+          (choice
+           ,@(mapcar (lambda (g)
+                       `(const :tag ,(symbol-name (car g)) ,(car g)))
+                     magit-key-mode-groups)))
+  :initialize
+  (lambda (symbol value)
+    (let ((val (eval value)))
+      ;; set the value
+      (set-default symbol val)
+      ;; update group functions
+      (mapc (lambda (g) (magit-key-mode-generate (car g)))
+            magit-key-mode-groups))))
 
 (provide 'magit-key-mode)
 ;;; magit-key-mode.el ends here

@@ -1019,6 +1019,8 @@ Also see option `magit-diff-use-overlays'."
            (define-key map (kbd "t") 'magit-tag)
            (define-key map (kbd "l") 'magit-log)
            (define-key map (kbd "o") 'magit-submodule-update)
+           (define-key map (kbd "O") 'magit-format-patch)
+           (define-key map (kbd "j") 'magit-apply-mailbox)
            (define-key map (kbd "B") 'undefined))
           (t
            (define-key map (kbd "c") 'magit-key-mode-popup-committing)
@@ -1033,6 +1035,8 @@ Also see option `magit-diff-use-overlays'."
            (define-key map (kbd "t") 'magit-key-mode-popup-tagging)
            (define-key map (kbd "l") 'magit-key-mode-popup-logging)
            (define-key map (kbd "o") 'magit-key-mode-popup-submodule)
+           (define-key map (kbd "O") 'magit-key-mode-popup-format-patch)
+           (define-key map (kbd "j") 'magit-key-mode-popup-apply-mailbox)
            (define-key map (kbd "B") 'magit-key-mode-popup-bisecting)))
     (define-key map (kbd "$") 'magit-display-process)
     (define-key map (kbd "E") 'magit-interactive-rebase)
@@ -2636,31 +2640,31 @@ magit-topgit and magit-svn"
                          (mapconcat 'identity cmd-and-args " "))
                 "\n")
         (cond (nowait
-               (setq magit-process
-                     (let ((process-connection-type
-                            magit-process-connection-type))
-                       (apply 'start-file-process cmd buf cmd args)))
-               (set-process-sentinel magit-process 'magit-process-sentinel)
-               (set-process-filter magit-process 'magit-process-filter)
-               (when input
-                 (with-current-buffer input
-                   (process-send-region magit-process
-                                        (point-min) (point-max)))
-                 (process-send-eof magit-process)
-                 (sit-for 0.1 t))
-               (cond ((= magit-process-popup-time 0)
-                      (pop-to-buffer (process-buffer magit-process)))
-                     ((> magit-process-popup-time 0)
-                      (run-with-timer
-                       magit-process-popup-time nil
-                       (function
-                        (lambda (buf)
-                          (with-current-buffer buf
-                            (when magit-process
-                              (display-buffer (process-buffer magit-process))
-                              (goto-char (point-max))))))
-                       (current-buffer))))
-               (setq successp t))
+               (let ((magit-process
+                      (let ((process-connection-type
+                             magit-process-connection-type))
+                        (apply 'start-file-process cmd buf cmd args))))
+                 (set-process-sentinel magit-process 'magit-process-sentinel)
+                 (set-process-filter magit-process 'magit-process-filter)
+                 (when input
+                   (with-current-buffer input
+                     (process-send-region magit-process
+                                          (point-min) (point-max)))
+                   (process-send-eof magit-process)
+                   (sit-for 0.1 t))
+                 (cond ((= magit-process-popup-time 0)
+                        (pop-to-buffer (process-buffer magit-process)))
+                       ((> magit-process-popup-time 0)
+                        (run-with-timer
+                         magit-process-popup-time nil
+                         (function
+                          (lambda (buf)
+                            (with-current-buffer buf
+                              (when magit-process
+                                (display-buffer (process-buffer magit-process))
+                                (goto-char (point-max))))))
+                         (current-buffer))))
+                 (setq successp t)))
               (input
                (with-current-buffer input
                  (setq default-directory dir)
@@ -3143,6 +3147,75 @@ the buffer.  Finally reset the window configuration to nil."
              "ls-files" "--others" "-t" "--exclude-standard"
              ,@(unless magit-status-verbose-untracked
                  '("--directory"))))))
+
+;;; Format Patches and Send Messages
+(declare-function mail-text "sendmail" ())
+(defun magit-mail-from-patch (patches)
+  (require 'sendmail)
+  (let* ((headers-end (or (string-match "^$" patches)
+                          (error "missing patch delimiter")))
+         (patch-end (string-match "^From " patches headers-end))
+         (patch (substring patches 0 patch-end))
+         (marker 0)
+         headers)
+    ;; collect email fields for transfer to the mail buffer
+    (while (string-match "^\\([[:alpha:]]+\\): \\([^\n]+\\)"
+                         patch marker)
+      (setf marker (match-end 0))
+      (push (cons (intern (downcase (match-string 1 patch)))
+                  (match-string 2 patch))
+            headers))
+    ;; open the mail buffer with collected fields
+    (mail nil
+          (cdr (assoc 'to headers))
+          (cdr (assoc 'subject headers))
+          (cdr (assoc 'in-reply-to headers))
+          (cdr (assoc 'cc headers))
+          nil
+          ;; after sending send any subsequent messages
+          (when patch-end
+            `(((lambda (buf)
+                 ;; set as not modified to avoid user prompt
+                 (pop-to-buffer buf)
+                 (set-buffer-modified-p nil)) "*mail*")
+              (magit-mail-from-patch ,(substring patches patch-end)))))
+    (mail-text)
+    (save-excursion (insert (substring patch headers-end)))
+    ;; use this instead of `mail-send-and-exit' to keep this buffer on top
+    (when patch-end
+      (local-set-key (kbd "C-c C-c") 'mail-send))))
+
+(defun magit-format-patch (&optional as-message)
+  "Format Patches and write to disk or view in magit."
+  (interactive "P")
+  (let* ((since (magit-read-rev-with-default "since: "))
+         (output (apply #'magit-git-string "format-patch"
+                        (append magit-custom-options (list since)))))
+    (cond
+     (as-message (magit-mail-from-patch output))
+     ((member "--stdout" magit-custom-options)
+      (with-current-buffer (find-file-noselect (magit-git-dir "FORMAT_PATCH"))
+        (funcall (if (functionp magit-server-window-for-commit)
+                     magit-server-window-for-commit
+                   'switch-to-buffer)
+                 (current-buffer))
+        (delete-region (point-min) (point-max))
+        (insert output)
+        (goto-char (point-min))))
+     (t (message "%s" output)))))
+
+(defun magit-format-patch-as-message ()
+  "Format Patches and open the results in a message buffer."
+  (interactive)
+  (cl-pushnew "--stdout" magit-custom-options)
+  (magit-format-patch 'as-message))
+
+;;; Apply Mailbox Files
+(defun magit-apply-mailbox (&optional file-or-dir)
+  (interactive "fmbox or Maildir file or directory: ")
+  (message "%s"
+           (apply #'magit-git-string "am"
+                  (append magit-custom-options (list file-or-dir)))))
 
 ;;; Diffs and Hunks
 
