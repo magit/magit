@@ -640,6 +640,19 @@ changes, e.g. because you are committing some binary files."
                  (const :tag "Expand top section" t)
                  (const :tag "Don't expand" nil)))
 
+(defcustom magit-use-shell-command nil
+  "Whether to use shell-command-to-string to exec git command.
+some nvironment(ex.Windows & gnu-pack emacs) too slow default process-file.
+and shell-command-to-string faster than process-file.
+
+There are three possible settings:
+
+nil    use process-file (default)
+t      use shell-command-to-string
+" 
+  :group 'magit
+  :type 'boolean)
+
 ;; Not an option to avoid advertising it.
 (defvar magit-rigid-key-bindings nil
   "Use rigid key bindings instead of thematic key popups.
@@ -1352,13 +1365,25 @@ server if necessary."
 (defun magit-cmd-insert (cmd args)
   (insert (magit-cmd-output cmd args)))
 
-(defun magit-cmd-output (cmd args)
+(defun magit-cmd-output-shell (cmd args)
+  (let* ((arg (apply #'concatenate 'string 
+                     (mapcar #'(lambda (x) (concatenate 'string " " x)) args)))
+	 ;; execute git command
+         (cmd-output  (shell-command-to-string (concatenate 'string cmd arg))))
+    cmd-output))
+
+(defun magit-cmd-output-process (cmd args)
   (with-output-to-string
     (with-current-buffer standard-output
       (apply #'process-file
-             cmd
-             nil (list t nil) nil
-             args))))
+	     cmd
+	     nil (list t nil) nil
+	     args))))
+
+(defun magit-cmd-output (cmd args)
+  (if magit-use-shell-command
+      (magit-cmd-output-shell cmd args)
+    (magit-cmd-output-process cmd args)))
 
 (defun magit-git-string (&rest args)
   (magit-trim-line (magit-git-output args)))
@@ -1366,9 +1391,21 @@ server if necessary."
 (defun magit-git-lines (&rest args)
   (magit-split-lines (magit-git-output args)))
 
-(defun magit-git-exit-code (&rest args)
+(defun magit-git-exit-code-shell (&rest args)
+  (let* ((arg (apply #'concatenate 'string 
+                     (mapcar #'(lambda (x) (concatenate 'string " " x)) (append magit-git-standard-options args))))
+         (cmd-output  (shell-command-to-string (concatenate 'string arg)))
+         (print cmd-output)))
+  (if (eq t (equal "0" (shell-command-to-string "echo -n $?"))) 1 0))
+
+(defun magit-git-exit-code-process (&rest args)
   (apply #'process-file magit-git-executable nil nil nil
          (append magit-git-standard-options args)))
+
+(defun magit-git-exit-code (&rest args)
+  (if magit-use-shell-command
+      (apply #'magit-git-exit-code-shell args)
+    (apply #'magit-git-exit-code-process args)))
 
 (defun magit-decode-git-path (path)
   (if (eq (aref path 0) ?\")
@@ -2667,8 +2704,14 @@ magit-topgit and magit-svn"
                (magit-set-mode-line-process nil)
                (magit-need-refresh magit-process-client-buffer))
               (t
-               (setq successp
-                     (equal (apply 'process-file cmd nil buf nil args) 0))
+               (if magit-use-shell-command
+                   (let* ((exec-cmd (apply #'concatenate 'string 
+                                           (mapcar #'(lambda (x) (concatenate 'string " " x)) args)))
+                          (exec-cmd-output (shell-command-to-string (concatenate 'string "git " exec-cmd))))
+                     (insert exec-cmd-output)
+                     (setq successp (equal "0" (shell-command-to-string "echo -n $?"))))
+                 (setq successp
+                       (equal (apply 'process-file cmd nil buf nil args) 0)))
                (magit-set-mode-line-process nil)
                (magit-need-refresh magit-process-client-buffer))))
       (or successp
@@ -3755,13 +3798,13 @@ member of ARGS, or to the working file otherwise."
 ;; the parser too easily
 (defvar magit-git-log-options
   (list
-   "--pretty=format:* %h %s"
+   "--pretty=format:\"* %h %s\""
    (format "--abbrev=%d" magit-sha1-abbrev-length)))
 ;; --decorate=full otherwise some ref prefixes are stripped
 ;;  '("--pretty=format:* %H%d %s" "--decorate=full"))
 
 (defvar magit-git-reflog-options
-  (list "--pretty=format:* \C-?%h\C-?%gs"
+  (list "--pretty=format:\"* \C-?%h\C-?%gs\""
         (format "--abbrev=%d" magit-sha1-abbrev-length)))
 
 (defconst magit-unpushed-or-unpulled-commit-re
@@ -4333,8 +4376,11 @@ for this argument.)"
                      nil nil t))
   (when (magit-section-p commit)
     (setq commit (magit-section-info commit)))
-  (unless (eql 0 (magit-git-exit-code "cat-file" "commit" commit))
-    (error "%s is not a commit" commit))
+  (if magit-use-shell-command 
+      (unless (eql 1 (magit-git-exit-code "cat-file" "commit" commit))
+        (error "%s is not a commit" commit))
+    (unless (eql 0 (magit-git-exit-code "cat-file" "commit" commit))
+      (error "%s is not a commit" commit)))
   (let ((dir (magit-get-top-dir))
         (buf (get-buffer-create magit-commit-buffer-name)))
     (cond
@@ -4551,7 +4597,7 @@ if FULLY-QUALIFIED-NAME is non-nil."
              (remote-rebase (and branch (magit-get-boolean "branch" branch "rebase")))
              (remote-branch (or (and branch (magit-remote-branch-for branch)) branch))
              (remote-string (magit-remote-string remote remote-branch remote-rebase))
-             (head (magit-format-commit "HEAD" "%h %s"))
+             (head (magit-format-commit "HEAD" "\"%h %s\""))
              (no-commit (not head))
              (merge-heads (magit-file-lines (magit-git-dir "MERGE_HEAD")))
              (rebase (magit-rebase-info)))
@@ -5193,8 +5239,8 @@ With two prefix args, remove ignored files as well."
               (insert (magit-git-string
                        "log" "--max-count=1"
                        (if used
-                           "--pretty=format:. %s"
-                         "--pretty=format:* %s")
+                           "--pretty=format:\". %s\""
+                         "--pretty=format:\"* %s\"")
                        commit "--")
                       "\n")))))
       (insert "\n"))))
@@ -5859,7 +5905,7 @@ With a non numeric prefix ARG, show all entries"
                           (when magit-log-show-gpg-status
                             (list "--show-signature"))))
                  (oneline
-                  (list (concat "--pretty=format:%h%d "
+                  (list (concat "--pretty=format:\"%h%d \""
                                 (and magit-log-show-gpg-status "%G?")
                                 "[%an][%ar]%s")))
                  (t nil))
