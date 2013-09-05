@@ -5743,7 +5743,7 @@ With prefix argument, changes in staging area are kept.
 
 (defun magit-cherry-pick-commit (commit)
   (magit-assert-one-parent commit "cherry-pick")
-  (magit-run-git* (list "cherry-pick" commit)))
+  (magit-run-git "cherry-pick" commit))
 
 ;;;; Revert
 
@@ -5775,7 +5775,7 @@ With prefix argument, changes in staging area are kept.
 
 (defun magit-revert-commit (commit)
   (magit-assert-one-parent commit "revert")
-  (magit-run-git* (list "revert" "--no-commit" commit)))
+  (magit-run-git "revert" "--no-commit" commit))
 
 ;;;; Logging
 
