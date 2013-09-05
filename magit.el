@@ -2564,9 +2564,6 @@ magit-topgit and magit-svn"
   (message "Running %s %s" magit-git-executable (mapconcat 'identity args " "))
   (magit-run-git* args nil nil nil t))
 
-(defun magit-run-git-async-with-input (input &rest args)
-  (magit-run-git* args nil nil nil t input))
-
 (defun magit-run-git* (subcmd-and-args
                        &optional logline noerase noerror nowait input)
   (magit-run* (append (cons magit-git-executable
