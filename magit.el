@@ -2575,7 +2575,6 @@ magit-topgit and magit-svn"
               logline noerase noerror nowait input))
 
 (defvar magit-process nil)
-(defvar magit-process-client-buffer nil)
 (defvar magit-process-buffer-name "*magit-process*"
   "Buffer name for running git commands.")
 
@@ -2590,8 +2589,9 @@ magit-topgit and magit-svn"
        (setq magit-process nil))))
   (let ((cmd (car cmd-and-args))
         (args (cdr cmd-and-args))
-        (dir default-directory)
-        (buf (get-buffer-create magit-process-buffer-name))
+        (default-dir default-directory)
+        (process-buf (get-buffer-create magit-process-buffer-name))
+        (command-buf (current-buffer))
         (successp nil))
     (when magit-quote-curly-braces
       (setq args (mapcar (apply-partially 'replace-regexp-in-string
@@ -2599,8 +2599,8 @@ magit-topgit and magit-svn"
                          args)))
     (magit-set-mode-line-process
      (magit-process-indicator-from-command cmd-and-args))
-    (setq magit-process-client-buffer (current-buffer))
-    (with-current-buffer buf
+    (with-current-buffer process-buf
+      (setq default-directory default-dir)
       (view-mode 1)
       (setq-local view-no-disable-on-exit t)
       (setq view-exit-action
@@ -2609,7 +2609,6 @@ magit-topgit and magit-svn"
                 (bury-buffer))))
       (setq buffer-read-only t)
       (let ((inhibit-read-only t))
-        (setq default-directory dir)
         (if noerase
             (goto-char (point-max))
           (erase-buffer))
@@ -2622,8 +2621,10 @@ magit-topgit and magit-svn"
                             magit-process-connection-type))
                        (apply 'start-file-process
                               (file-name-nondirectory cmd)
-                              buf cmd args)))
-               (set-process-sentinel magit-process 'magit-process-sentinel)
+                              process-buf cmd args)))
+               (set-process-sentinel
+                magit-process
+                (apply-partially #'magit-process-sentinel command-buf))
                (set-process-filter magit-process 'magit-process-filter)
                (when input
                  (with-current-buffer input
@@ -2632,7 +2633,7 @@ magit-topgit and magit-svn"
                  (process-send-eof magit-process)
                  (sit-for 0.1 t))
                (cond ((= magit-process-popup-time 0)
-                      (pop-to-buffer (process-buffer magit-process)))
+                      (pop-to-buffer process-buf))
                      ((> magit-process-popup-time 0)
                       (run-with-timer
                        magit-process-popup-time nil
@@ -2640,20 +2641,20 @@ magit-topgit and magit-svn"
                         (lambda (buf)
                           (with-current-buffer buf
                             (when magit-process
-                              (display-buffer (process-buffer magit-process))
+                              (display-buffer process-buf)
                               (goto-char (point-max))))))
                        (current-buffer))))
                (setq successp t))
               (input
                (with-current-buffer input
-                 (setq default-directory dir)
+                 (setq default-directory default-dir)
                  (setq magit-process
                        ;; Don't use a pty, because it would set icrnl
                        ;; which would modify the input (issue #20).
                        (let ((process-connection-type nil))
                          (apply 'start-file-process
                                 (file-name-nondirectory cmd)
-                                buf cmd args)))
+                                process-buf cmd args)))
                  (set-process-sentinel
                   magit-process
                   (lambda (process event)
@@ -2669,35 +2670,35 @@ magit-topgit and magit-svn"
                  (while magit-process
                    (sit-for 0.1 t)))
                (magit-set-mode-line-process nil)
-               (magit-need-refresh magit-process-client-buffer))
+               (magit-need-refresh command-buf))
               (t
                (setq successp
-                     (equal (apply 'process-file cmd nil buf nil args) 0))
+                     (equal (apply 'process-file cmd nil process-buf nil args) 0))
                (magit-set-mode-line-process nil)
-               (magit-need-refresh magit-process-client-buffer))))
+               (magit-need-refresh command-buf))))
       (or successp
           noerror
           (error
            "%s ... [%s buffer %s for details]"
-           (or (with-current-buffer (get-buffer magit-process-buffer-name)
+           (or (with-current-buffer process-buf
                  (when (re-search-backward
                         (concat "^error: \\(.*\\)" paragraph-separate) nil t)
                    (match-string 1)))
                "Git failed")
-           (with-current-buffer magit-process-client-buffer
+           (with-current-buffer command-buf
              (let ((key (key-description (car (where-is-internal
                                                'magit-display-process)))))
                (if key (format "Hit %s to see" key) "See")))
-           magit-process-buffer-name))
+           (buffer-name process-buf)))
       successp)))
 
-(defun magit-process-sentinel (process event)
+(defun magit-process-sentinel (command-buf process event)
   (when (memq (process-status process) '(exit signal))
     (setq magit-process nil)
     (let ((msg (format "%s %s." (process-name process) (substring event 0 -1)))
           (successp (string-match "^finished" event))
-          (key (if (buffer-live-p magit-process-client-buffer)
-                   (with-current-buffer magit-process-client-buffer
+          (key (if (buffer-live-p command-buf)
+                   (with-current-buffer command-buf
                      (key-description (car (where-is-internal
                                             'magit-display-process))))
                  "M-x magit-display-process")))
@@ -2713,10 +2714,10 @@ magit-topgit and magit-svn"
           (when (featurep 'dired)
             (dired-uncache default-directory))))
       (magit-set-mode-line-process nil)
-      (when (and (buffer-live-p magit-process-client-buffer)
-                 (with-current-buffer magit-process-client-buffer
+      (when (and (buffer-live-p command-buf)
+                 (with-current-buffer command-buf
                    (derived-mode-p 'magit-mode)))
-        (magit-refresh-buffer magit-process-client-buffer)))))
+        (magit-refresh-buffer command-buf)))))
 
 (defun magit-process-filter (proc string)
   (with-current-buffer (process-buffer proc)
