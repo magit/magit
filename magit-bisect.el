@@ -29,7 +29,8 @@
 
 (require 'magit)
 
-(defvar magit--bisect-last-pos)
+(defvar-local magit--bisect-last-pos nil)
+(put 'magit--bisect-info 'permanent-local t)
 
 (defvar-local magit--bisect-info nil)
 (put 'magit--bisect-info 'permanent-local t)
@@ -170,7 +171,7 @@ match REQUIRED-STATUS."
     (magit-display-process)
     (setq buffer (get-buffer magit-process-buffer-name))
     (with-current-buffer buffer
-      (setq-local magit--bisect-last-pos 0))
+      (setq magit--bisect-last-pos 0))
     (set-process-filter (get-buffer-process buffer)
                         'magit--bisect-run-filter)
     (set-process-sentinel (get-buffer-process buffer)
