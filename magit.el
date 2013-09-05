@@ -2632,18 +2632,7 @@ magit-topgit and magit-svn"
                                         (point-min) (point-max)))
                  (process-send-eof magit-process)
                  (sit-for 0.1 t))
-               (cond ((= magit-process-popup-time 0)
-                      (pop-to-buffer process-buf))
-                     ((> magit-process-popup-time 0)
-                      (run-with-timer
-                       magit-process-popup-time nil
-                       (function
-                        (lambda (buf)
-                          (with-current-buffer buf
-                            (when magit-process
-                              (display-buffer process-buf)
-                              (goto-char (point-max))))))
-                       (current-buffer))))
+               (magit-display-process magit-process)
                (setq successp t))
               (input
                (with-current-buffer input
@@ -2793,12 +2782,31 @@ magit-topgit and magit-svn"
         (t
          (concat (car comps) " " (cadr comps)))))
 
-(defun magit-display-process ()
-  "Display output from most recent git command."
+(defun magit-display-process (&optional process buffer)
+  "Display output from most recent Git process.
+
+Non-interactively the behaviour depends on the optional PROCESS
+and BUFFER arguments.  If non-nil display BUFFER (provided it is
+still alive).  Otherwise if PROCESS is non-nil display its buffer
+but only if it is still alive after `magit-process-popup-time'
+seconds.  Finally if both PROCESS and BUFFER are nil display the
+buffer of the most recent process, like in the interactive case."
   (interactive)
-  (unless (get-buffer magit-process-buffer-name)
-    (error "No Git commands have run"))
-  (display-buffer magit-process-buffer-name))
+  (cond ((not process)
+         (unless buffer
+           (setq buffer (get-buffer magit-process-buffer-name))
+           (unless buffer
+             (error "No Git commands have run"))
+           (when (buffer-live-p buffer)
+             (display-buffer buffer)
+             (with-current-buffer buffer
+               (goto-char (point-max))))))
+        ((= magit-process-popup-time 0)
+         (magit-display-process nil (process-buffer process)))
+        ((> magit-process-popup-time 0)
+         (run-with-timer magit-process-popup-time
+                         nil #'magit-display-process
+                         nil (process-buffer process)))))
 
 ;;; Magit Mode
 ;;;; Hooks
