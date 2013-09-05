@@ -145,6 +145,7 @@
       ("k" "Delete" magit-delete-branch)
       ("b" "Checkout" magit-checkout))
      (switches
+      ("-t" "Set upstream configuration" "--track")
       ("-m" "Merged to HEAD" "--merged")
       ("-M" "Merged to master" "--merged=master")
       ("-n" "Not merged to HEAD" "--no-merged")
