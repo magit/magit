@@ -2620,7 +2620,9 @@ magit-topgit and magit-svn"
                (setq magit-process
                      (let ((process-connection-type
                             magit-process-connection-type))
-                       (apply 'start-file-process cmd buf cmd args)))
+                       (apply 'start-file-process
+                              (file-name-nondirectory cmd)
+                              buf cmd args)))
                (set-process-sentinel magit-process 'magit-process-sentinel)
                (set-process-filter magit-process 'magit-process-filter)
                (when input
@@ -2649,7 +2651,9 @@ magit-topgit and magit-svn"
                        ;; Don't use a pty, because it would set icrnl
                        ;; which would modify the input (issue #20).
                        (let ((process-connection-type nil))
-                         (apply 'start-file-process cmd buf cmd args)))
+                         (apply 'start-file-process
+                                (file-name-nondirectory cmd)
+                                buf cmd args)))
                  (set-process-sentinel
                   magit-process
                   (lambda (process event)
