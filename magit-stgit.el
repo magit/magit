@@ -48,7 +48,7 @@
 (require 'magit)
 (eval-when-compile (require 'cl-lib))
 
-;;; Customizables:
+;;; Options
 
 (defcustom magit-stgit-executable "stg"
   "The name of the StGit executable."
@@ -80,7 +80,7 @@
   "Face for an empty stgit patch."
   :group 'magit-faces)
 
-;;; Common code:
+;;; Common code
 
 (defvar-local magit-stgit--enabled nil
   "Whether this buffer has StGit support.")
@@ -112,7 +112,7 @@
   (magit-with-refresh
     (magit-run* (cons magit-stgit-executable args))))
 
-;;; Menu:
+;;; Menu
 
 (easy-menu-define magit-stgit-extension-menu
   nil
@@ -132,7 +132,7 @@
                     '("Extensions")
                     magit-stgit-extension-menu)
 
-;;; Series section:
+;;; Series section
 
 (defun magit-stgit--wash-patch ()
   (if (search-forward-regexp "^\\(.\\)\\(.\\) \\([^\s]*\\)\\(\s*# ?\\)\\(.*\\)"
@@ -180,7 +180,7 @@
                           "Series:" 'magit-stgit--wash-series
                           magit-stgit-executable "series" "-a" "-d" "-e")))
 
-;;; Actions:
+;;; Actions
 
 ;; Copy of `magit-refresh-commit-buffer' (version 1.0.0)
 (defun magit-stgit--refresh-patch-buffer (patch)
@@ -243,7 +243,7 @@
    (magit-stgit--set-marked-patch info)
    (magit-refresh-all)))
 
-;;; Commands:
+;;; Commands
 
 (defun magit-stgit-refresh ()
   "Refresh the contents of a patch in an StGit series.
