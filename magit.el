@@ -2766,10 +2766,6 @@ magit-topgit and magit-svn"
             ((string-match ":$"  prompt) (concat prompt " "))
             (t                           (concat prompt ": "))))))
 
-(defun magit-run (cmd &rest args)
-  (magit-with-refresh
-    (magit-run* (cons cmd args))))
-
 (defun magit-run-git* (subcmd-and-args
                        &optional logline noerase noerror nowait input)
   (magit-run* (append (cons magit-git-executable

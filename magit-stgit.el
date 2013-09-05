@@ -108,6 +108,10 @@
 (defvar-local magit-stgit--marked-patch nil
   "The (per-buffer) currently marked patch in an StGit series.")
 
+(defun magit-run-stgit (&rest args)
+  (magit-with-refresh
+    (magit-run* (cons magit-stgit-executable args))))
+
 ;;; Menu:
 
 (easy-menu-define magit-stgit-extension-menu
@@ -219,7 +223,7 @@
 
 (magit-add-action-clauses (item info "apply")
   ((series)
-   (magit-run magit-stgit-executable "goto" info)))
+   (magit-run-stgit "goto" info)))
 
 (magit-add-action-clauses (item info "discard")
   ((series)
@@ -227,7 +231,7 @@
      (when (yes-or-no-p (format "Delete patch '%s' in series? " patch))
        (when (string= magit-stgit--marked-patch patch)
          (setq magit-stgit--marked-patch nil))
-       (magit-run magit-stgit-executable "delete" patch)))))
+       (magit-run-stgit "delete" patch)))))
 
 (defun magit-stgit--set-marked-patch (patch)
   (setq magit-stgit--marked-patch
@@ -247,9 +251,8 @@ If there is no marked patch in the series, refreshes the current
 patch.  Otherwise, refreshes the marked patch."
   (interactive)
   (if magit-stgit--marked-patch
-      (magit-run magit-stgit-executable
-                 "refresh" "-p" magit-stgit--marked-patch)
-    (magit-run magit-stgit-executable "refresh")))
+      (magit-run-stgit "refresh" "-p" magit-stgit--marked-patch)
+    (magit-run-stgit "refresh")))
 
 (defun magit-stgit-repair ()
   "Repair StGit metadata if branch was modified with git commands.
@@ -257,7 +260,7 @@ In the case of Git commits these will be imported as new patches
 into the series."
   (interactive)
   (message "Repairing series...")
-  (magit-run magit-stgit-executable "repair")
+  (magit-run-stgit "repair")
   (message ""))
 
 (defun magit-stgit-rebase ()
@@ -267,10 +270,10 @@ into the series."
     (when (yes-or-no-p "Update remotes? ")
       (message "Updating remotes...")
       (magit-run-git-async "remote" "update"))
-    (magit-run magit-stgit-executable "rebase"
-               (format "remotes/%s/%s"
-                       (magit-get-current-remote)
-                       (magit-get-current-branch)))))
+    (magit-run-stgit "rebase"
+                     (format "remotes/%s/%s"
+                             (magit-get-current-remote)
+                             (magit-get-current-branch)))))
 
 ;;;###autoload
 (define-minor-mode magit-stgit-mode "StGit support for Magit"
