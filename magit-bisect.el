@@ -30,7 +30,7 @@
 (require 'magit)
 
 (defvar magit--bisect-last-pos)
-(defvar magit--bisect-tmp-file)
+
 (defvar-local magit--bisect-info nil)
 (put 'magit--bisect-info 'permanent-local t)
 
@@ -160,7 +160,7 @@ match REQUIRED-STATUS."
                           'magit-bisect-mode-history)))
   (unless (magit--bisecting-p)
     (error "Not bisecting"))
-  (let ((file (make-temp-file "magit-bisect-run"))
+  (let ((file (magit-git-dir "magit-bisect-run"))
         buffer)
     (with-temp-buffer
       (insert "#!/bin/sh\n" command "\n")
@@ -170,8 +170,7 @@ match REQUIRED-STATUS."
     (magit-display-process)
     (setq buffer (get-buffer magit-process-buffer-name))
     (with-current-buffer buffer
-      (setq-local magit--bisect-last-pos 0)
-      (setq-local magit--bisect-tmp-file file))
+      (setq-local magit--bisect-last-pos 0))
     (set-process-filter (get-buffer-process buffer)
                         'magit--bisect-run-filter)
     (set-process-sentinel (get-buffer-process buffer)
@@ -207,7 +206,7 @@ match REQUIRED-STATUS."
 (defun magit--bisect-run-sentinel (process event)
   (when (string-match-p "^finish" event)
     (with-current-buffer (process-buffer process)
-      (delete-file magit--bisect-tmp-file)))
+      (delete-file (magit-git-dir "magit-bisect-run"))))
   (magit-process-sentinel process event))
 
 (defun magit--bisect-update-status-buffer ()
