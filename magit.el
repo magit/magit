@@ -2552,22 +2552,27 @@ magit-topgit and magit-svn"
 
 ;;; Git Processes
 
-(defun magit-set-mode-line-process (str)
-  (let ((pr (if str (concat " " str) "")))
-    (save-excursion
-      (magit-for-all-buffers (lambda ()
-                               (setq mode-line-process pr))))))
+(defun magit-run-git (&rest args)
+  (magit-with-refresh
+    (magit-run-git* args)))
 
-(defun magit-process-indicator-from-command (comps)
-  (when (magit-prefix-p (cons magit-git-executable
-                              magit-git-standard-options)
-                        comps)
-    (setq comps (nthcdr (+ (length magit-git-standard-options) 1) comps)))
-  (cond ((or (null (cdr comps))
-             (not (member (car comps) '("remote"))))
-         (car comps))
-        (t
-         (concat (car comps) " " (cadr comps)))))
+(defun magit-run-git-with-input (input &rest args)
+  (magit-with-refresh
+    (magit-run-git* args nil nil nil nil input)))
+
+(defun magit-run-git-async (&rest args)
+  (message "Running %s %s" magit-git-executable (mapconcat 'identity args " "))
+  (magit-run-git* args nil nil nil t))
+
+(defun magit-run-git-async-with-input (input &rest args)
+  (magit-run-git* args nil nil nil t input))
+
+(defun magit-run-git* (subcmd-and-args
+                       &optional logline noerase noerror nowait input)
+  (magit-run* (append (cons magit-git-executable
+                            magit-git-standard-options)
+                      subcmd-and-args)
+              logline noerase noerror nowait input))
 
 (defvar magit-process nil)
 (defvar magit-process-client-buffer nil)
@@ -2766,27 +2771,22 @@ magit-topgit and magit-svn"
             ((string-match ":$"  prompt) (concat prompt " "))
             (t                           (concat prompt ": "))))))
 
-(defun magit-run-git* (subcmd-and-args
-                       &optional logline noerase noerror nowait input)
-  (magit-run* (append (cons magit-git-executable
-                            magit-git-standard-options)
-                      subcmd-and-args)
-              logline noerase noerror nowait input))
+(defun magit-set-mode-line-process (str)
+  (let ((pr (if str (concat " " str) "")))
+    (save-excursion
+      (magit-for-all-buffers (lambda ()
+                               (setq mode-line-process pr))))))
 
-(defun magit-run-git (&rest args)
-  (magit-with-refresh
-    (magit-run-git* args)))
-
-(defun magit-run-git-with-input (input &rest args)
-  (magit-with-refresh
-    (magit-run-git* args nil nil nil nil input)))
-
-(defun magit-run-git-async (&rest args)
-  (message "Running %s %s" magit-git-executable (mapconcat 'identity args " "))
-  (magit-run-git* args nil nil nil t))
-
-(defun magit-run-git-async-with-input (input &rest args)
-  (magit-run-git* args nil nil nil t input))
+(defun magit-process-indicator-from-command (comps)
+  (when (magit-prefix-p (cons magit-git-executable
+                              magit-git-standard-options)
+                        comps)
+    (setq comps (nthcdr (+ (length magit-git-standard-options) 1) comps)))
+  (cond ((or (null (cdr comps))
+             (not (member (car comps) '("remote"))))
+         (car comps))
+        (t
+         (concat (car comps) " " (cadr comps)))))
 
 (defun magit-display-process ()
   "Display output from most recent git command."
