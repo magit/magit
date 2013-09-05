@@ -3728,18 +3728,19 @@ member of ARGS, or to the working file otherwise."
                        "Unstaged changes:" 'magit-wash-raw-diffs
                        "diff-files")))
 
-(magit-define-inserter staged-changes (staged no-commit)
-  (when staged
-    (let ((magit-current-diff-range (cons "HEAD" 'index))
-          (magit-hide-diffs t)
-          (base (if no-commit
-                    (magit-git-string "mktree")
-                  "HEAD"))
-          (magit-diff-options (append '("--cached") magit-diff-options))
-          (magit-ignore-unmerged-raw-diffs t))
-      (magit-git-section 'staged "Staged changes:" 'magit-wash-raw-diffs
-                         "diff-index" "--cached"
-                         base))))
+(magit-define-inserter staged-changes ()
+  (let ((no-commit (= (magit-git-exit-code "log" "-n" "1" "HEAD") 1)))
+    (when (or no-commit (magit-anything-staged-p))
+      (let ((magit-current-diff-range (cons "HEAD" 'index))
+            (magit-hide-diffs t)
+            (base (if no-commit
+                      (magit-git-string "mktree")
+                    "HEAD"))
+            (magit-diff-options (append '("--cached") magit-diff-options))
+            (magit-ignore-unmerged-raw-diffs t))
+        (magit-git-section 'staged "Staged changes:" 'magit-wash-raw-diffs
+                           "diff-index" "--cached"
+                           base)))))
 
 ;;; Logs and Commits
 
@@ -4544,7 +4545,6 @@ if FULLY-QUALIFIED-NAME is non-nil."
              (remote-branch (or (and branch (magit-remote-branch-for branch)) branch))
              (remote-string (magit-remote-string remote remote-branch remote-rebase))
              (head (magit-format-commit "HEAD" "%h %s"))
-             (no-commit (not head))
              (merge-heads (magit-file-lines (magit-git-dir "MERGE_HEAD")))
              (rebase (magit-rebase-info)))
         (when remote-string
@@ -4554,8 +4554,7 @@ if FULLY-QUALIFIED-NAME is non-nil."
          (concat (propertize (magit--bisect-info-for-status branch)
                              'face 'magit-branch)
                  " " (abbreviate-file-name default-directory)))
-        (magit-insert-status-line
-         "Head" (if no-commit "nothing committed (yet)" head))
+        (magit-insert-status-line "Head" (or head "nothing committed (yet)"))
         (magit-insert-status-tags-line)
         (when merge-heads
           (magit-insert-status-line
@@ -4579,9 +4578,8 @@ if FULLY-QUALIFIED-NAME is non-nil."
         (magit-insert-untracked-files)
         (magit-insert-pending-changes)
         (magit-insert-pending-commits)
-        (let ((staged (or no-commit (magit-anything-staged-p))))
-          (magit-insert-unstaged-changes)
-          (magit-insert-staged-changes staged no-commit))
+        (magit-insert-unstaged-changes)
+        (magit-insert-staged-changes)
         (magit-insert-unpulled-commits remote remote-branch)
         (magit-insert-unpushed-commits remote remote-branch))))
   (run-hooks 'magit-refresh-status-hook))
