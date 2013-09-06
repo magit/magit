@@ -863,6 +863,18 @@ Also see option `magit-diff-use-overlays'."
   "Face for local branch head labels shown in log buffer."
   :group 'magit-faces)
 
+(defface magit-log-head-label-head
+  '((((class color) (background light))
+     :box t
+     :background "Grey70"
+     :foreground "Black")
+    (((class color) (background dark))
+     :box t
+     :background "Grey20"
+     :foreground "White"))
+  "Face for working branch head labels shown in log buffer."
+  :group 'magit-faces)
+
 (defface magit-log-head-label-default
   '((((class color) (background light))
      :box t
@@ -3897,7 +3909,8 @@ must return a string which will represent the log line.")
       (list suffix 'magit-log-head-label-remote)))
 
 (defvar magit-refs-namespaces
-  '(("tags" . magit-log-head-label-tags)
+  '(("HEAD" . magit-log-head-label-head)
+    ("tags" . magit-log-head-label-tags)
     ("remotes" magit-log-get-remotes-color)
     ("heads" . magit-log-head-label-local)
     ("patches" magit-log-get-patches-color)
