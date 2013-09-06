@@ -4510,6 +4510,11 @@ if FULLY-QUALIFIED-NAME is non-nil."
                                  (length heading))) ?\ )
           info-string "\n"))
 
+(defun magit-insert-status-head-line ()
+  (magit-insert-status-line "Head"
+    (or (magit-format-commit "HEAD" "%h %s")
+        "nothing committed (yet)")))
+
 (defun magit-insert-status-tags-line ()
   (when magit-status-insert-tags-line
     (let* ((current-tag (magit-get-current-tag t))
@@ -4544,7 +4549,6 @@ if FULLY-QUALIFIED-NAME is non-nil."
              (remote-rebase (and branch (magit-get-boolean "branch" branch "rebase")))
              (remote-branch (or (and branch (magit-remote-branch-for branch)) branch))
              (remote-string (magit-remote-string remote remote-branch remote-rebase))
-             (head (magit-format-commit "HEAD" "%h %s"))
              (merge-heads (magit-file-lines (magit-git-dir "MERGE_HEAD")))
              (rebase (magit-rebase-info)))
         (when remote-string
@@ -4553,7 +4557,7 @@ if FULLY-QUALIFIED-NAME is non-nil."
           (concat (propertize (magit--bisect-info-for-status branch)
                               'face 'magit-branch)
                   " " (abbreviate-file-name default-directory)))
-        (magit-insert-status-line "Head" (or head "nothing committed (yet)"))
+        (magit-insert-status-head-line)
         (magit-insert-status-tags-line)
         (when merge-heads
           (magit-insert-status-line "Merging"
