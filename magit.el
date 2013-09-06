@@ -5093,9 +5093,12 @@ Return nil if there is no rebase in progress."
           ((?S ?s) (magit-run-git-async "rebase" "--skip"))
           ((?C ?c) (magit-run-git-async "rebase" "--continue"))))
     (let* ((branch (magit-get-current-branch))
+           (default (magit-default-rev))
            (rev (magit-read-rev
                  "Rebase to"
-                 (magit-format-ref (magit-remote-branch-for branch t))
+                 (if (string= branch default)
+                     (magit-format-ref (magit-remote-branch-for branch t))
+                   default)
                  (if branch
                      (cons (concat "refs/heads/" branch)
                            magit-uninteresting-refs)
