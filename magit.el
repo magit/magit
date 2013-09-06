@@ -3798,13 +3798,13 @@ member of ARGS, or to the working file otherwise."
 ;; the parser too easily
 (defvar magit-git-log-options
   (list
-   "--pretty=format:\"* %h %s\""
+   "--pretty=format:* %h %s"
    (format "--abbrev=%d" magit-sha1-abbrev-length)))
 ;; --decorate=full otherwise some ref prefixes are stripped
 ;;  '("--pretty=format:* %H%d %s" "--decorate=full"))
 
 (defvar magit-git-reflog-options
-  (list "--pretty=format:\"* \C-?%h\C-?%gs\""
+  (list "--pretty=format:* \C-?%h\C-?%gs"
         (format "--abbrev=%d" magit-sha1-abbrev-length)))
 
 (defconst magit-unpushed-or-unpulled-commit-re
@@ -4597,7 +4597,7 @@ if FULLY-QUALIFIED-NAME is non-nil."
              (remote-rebase (and branch (magit-get-boolean "branch" branch "rebase")))
              (remote-branch (or (and branch (magit-remote-branch-for branch)) branch))
              (remote-string (magit-remote-string remote remote-branch remote-rebase))
-             (head (magit-format-commit "HEAD" "\"%h %s\""))
+             (head (magit-format-commit "HEAD" "%h %s"))
              (no-commit (not head))
              (merge-heads (magit-file-lines (magit-git-dir "MERGE_HEAD")))
              (rebase (magit-rebase-info)))
@@ -5239,8 +5239,8 @@ With two prefix args, remove ignored files as well."
               (insert (magit-git-string
                        "log" "--max-count=1"
                        (if used
-                           "--pretty=format:\". %s\""
-                         "--pretty=format:\"* %s\"")
+                           "--pretty=format:. %s"
+                         "--pretty=format:* %s")
                        commit "--")
                       "\n")))))
       (insert "\n"))))
@@ -5905,7 +5905,7 @@ With a non numeric prefix ARG, show all entries"
                           (when magit-log-show-gpg-status
                             (list "--show-signature"))))
                  (oneline
-                  (list (concat "--pretty=format:\"%h%d \""
+                  (list (concat "--pretty=format:%h%d "
                                 (and magit-log-show-gpg-status "%G?")
                                 "[%an][%ar]%s")))
                  (t nil))
