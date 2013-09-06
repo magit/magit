@@ -4157,8 +4157,7 @@ insert a line to tell how to insert more of them"
        :refs   (when (funcall match-style-string 3 3 nil)
                  (cl-mapcan
                   (lambda (s)
-                    (unless (or (string= s "tag:")
-                                (string= s "HEAD")) ; as of 1.6.6
+                    (unless (string= s "tag:")
                       (list s)))
                   (split-string (funcall match-style-string 3 3 nil)
                                 "[(), ]" t)))))))
