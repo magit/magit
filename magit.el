@@ -1394,8 +1394,7 @@ server if necessary."
 (defun magit-git-exit-code-shell (&rest args)
   (let* ((arg (apply #'concatenate 'string 
                      (mapcar #'(lambda (x) (concatenate 'string " " x)) (append magit-git-standard-options args))))
-         (cmd-output  (shell-command-to-string (concatenate 'string arg)))
-         (print cmd-output)))
+         (cmd-output  (shell-command-to-string (concatenate 'string arg)))))
   (if (eq t (equal "0" (shell-command-to-string "echo -n $?"))) 1 0))
 
 (defun magit-git-exit-code-process (&rest args)
