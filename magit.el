@@ -4504,6 +4504,7 @@ if FULLY-QUALIFIED-NAME is non-nil."
 (defvar magit-status-line-align-to 9)
 
 (defun magit-insert-status-line (heading info-string)
+  (declare (indent 1))
   (insert heading ":"
           (make-string (max 1 (- magit-status-line-align-to
                                  (length heading))) ?\ )
@@ -4516,14 +4517,13 @@ if FULLY-QUALIFIED-NAME is non-nil."
            (both-tags (and current-tag next-tag t))
            (tag-subject (eq magit-status-tags-line-subject 'tag)))
       (when (or current-tag next-tag)
-        (magit-insert-status-line
-         (if both-tags "Tags" "Tag")
-         (concat
-          (and current-tag (apply 'magit-format-status-tag-sentence
-                                  tag-subject current-tag))
-          (and both-tags ", ")
-          (and next-tag (apply 'magit-format-status-tag-sentence
-                               (not tag-subject) next-tag))))))))
+        (magit-insert-status-line (if both-tags "Tags" "Tag")
+          (concat
+           (and current-tag (apply 'magit-format-status-tag-sentence
+                                   tag-subject current-tag))
+           (and both-tags ", ")
+           (and next-tag (apply 'magit-format-status-tag-sentence
+                                (not tag-subject) next-tag))))))))
 
 (defun magit-format-status-tag-sentence (behindp tag cnt &rest ignored)
   (concat (propertize tag 'face 'magit-tag)
@@ -4549,29 +4549,25 @@ if FULLY-QUALIFIED-NAME is non-nil."
              (rebase (magit-rebase-info)))
         (when remote-string
           (magit-insert-status-line "Remote" remote-string))
-        (magit-insert-status-line
-         "Local"
-         (concat (propertize (magit--bisect-info-for-status branch)
-                             'face 'magit-branch)
-                 " " (abbreviate-file-name default-directory)))
+        (magit-insert-status-line "Local"
+          (concat (propertize (magit--bisect-info-for-status branch)
+                              'face 'magit-branch)
+                  " " (abbreviate-file-name default-directory)))
         (magit-insert-status-line "Head" (or head "nothing committed (yet)"))
         (magit-insert-status-tags-line)
         (when merge-heads
-          (magit-insert-status-line
-           "Merging"
-           (concat
-            (mapconcat 'identity (mapcar 'magit-name-rev merge-heads) ", ")
-            "; Resolve conflicts, or press \"m A\" to Abort")))
+          (magit-insert-status-line "Merging"
+            (concat
+             (mapconcat 'identity (mapcar 'magit-name-rev merge-heads) ", ")
+             "; Resolve conflicts, or press \"m A\" to Abort")))
         (when rebase
-          (magit-insert-status-line
-           "Rebasing"
-           (apply 'format
-                  "onto %s (%s of %s); Press \"R\" to Abort, Skip, or Continue"
-                  rebase))
+          (magit-insert-status-line "Rebasing"
+            (apply 'format
+                   "onto %s (%s of %s); Press \"R\" to Abort, Skip, or Continue"
+                   rebase))
           (when (nth 3 rebase)
-            (magit-insert-status-line
-             "Stopped"
-             (magit-format-commit (nth 3 rebase) "%h %s"))))
+            (magit-insert-status-line "Stopped"
+              (magit-format-commit (nth 3 rebase) "%h %s"))))
         (insert "\n")
         (magit-git-exit-code "update-index" "--refresh")
         (magit-insert-stashes)
