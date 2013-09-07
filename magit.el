@@ -1223,19 +1223,6 @@ Read `completing-read' documentation for the meaning of the argument."
 
 ;;;; String and File Utilities
 
-(defun magit-trim-line (str)
-  (unless (string= str "")
-    (if (equal (elt str (- (length str) 1)) ?\n)
-        (substring str 0 (- (length str) 1))
-      str)))
-
-(defun magit-split-lines (str)
-  (unless (string= str "")
-    (let ((lines (nreverse (split-string str "\n"))))
-      (when (string= (car lines) "")
-        (setq lines (cdr lines)))
-      (nreverse lines))))
-
 (defun magit-file-line (file)
   "Return the first line of FILE as a string."
   (when (file-regular-p file)
@@ -1342,6 +1329,35 @@ server if necessary."
 (defvar magit-git-standard-options '("--no-pager")
   "Standard options when running Git.")
 
+(defun magit-git-string (&rest args)
+  "Execute Git with ARGS, returning the first line of its output.
+If there is no output return nil.  If the output begins with a
+newline return an empty string."
+  (with-temp-buffer
+    (apply 'call-process magit-git-executable nil (list t nil) nil
+           (append magit-git-standard-options args))
+    (goto-char (point-min))
+    (unless (= (point-min) (point-max))
+      (buffer-substring-no-properties
+       (line-beginning-position)
+       (line-end-position)))))
+
+(defun magit-git-lines (&rest args)
+  "Execute Git with ARGS, returning its output as a list of lines.
+Empty lines anywhere in the output are omitted."
+  (with-temp-buffer
+    (apply 'call-process magit-git-executable nil (list t nil) nil
+           (append magit-git-standard-options args))
+    (goto-char (point-min))
+    (let (lines)
+      (while (not (eobp))
+        (let ((beg (line-beginning-position))
+              (end (line-end-position)))
+          (unless (= beg end)
+            (push (buffer-substring-no-properties beg end) lines)))
+        (forward-line 1))
+      (nreverse lines))))
+
 (defun magit-git-insert (args)
   (insert (magit-git-output args)))
 
@@ -1359,12 +1375,6 @@ server if necessary."
              cmd
              nil (list t nil) nil
              args))))
-
-(defun magit-git-string (&rest args)
-  (magit-trim-line (magit-git-output args)))
-
-(defun magit-git-lines (&rest args)
-  (magit-split-lines (magit-git-output args)))
 
 (defun magit-git-exit-code (&rest args)
   (apply #'process-file magit-git-executable nil nil nil
