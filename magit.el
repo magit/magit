@@ -1359,10 +1359,7 @@ Empty lines anywhere in the output are omitted."
       (nreverse lines))))
 
 (defun magit-git-insert (args)
-  (insert (magit-git-output args)))
-
-(defun magit-git-output (args)
-  (magit-cmd-output magit-git-executable
+  (magit-cmd-insert magit-git-executable
                     (append magit-git-standard-options args)))
 
 (defun magit-cmd-insert (cmd args)
@@ -6576,15 +6573,15 @@ With a prefix arg, do a submodule update --init."
       (error "Cannot resolve %s" file))
     (with-current-buffer base-buffer
       (when (string-match "^[0-9]+ [0-9a-f]+ 1" merge-status)
-        (insert (magit-git-output `("cat-file" "blob" ,(concat ":1:" file))))))
+        (magit-git-insert `("cat-file" "blob" ,(concat ":1:" file)))))
     (with-current-buffer our-buffer
       (when (string-match "^[0-9]+ [0-9a-f]+ 2" merge-status)
-        (insert (magit-git-output `("cat-file" "blob" ,(concat ":2:" file)))))
+        (magit-git-insert `("cat-file" "blob" ,(concat ":2:" file))))
       (let ((buffer-file-name file))
         (normal-mode)))
     (with-current-buffer their-buffer
       (when (string-match "^[0-9]+ [0-9a-f]+ 3" merge-status)
-        (insert (magit-git-output `("cat-file" "blob" ,(concat ":3:" file)))))
+        (magit-git-insert `("cat-file" "blob" ,(concat ":3:" file))))
       (let ((buffer-file-name file))
         (normal-mode)))
     ;; We have now created the 3 buffer with ours, theirs and the ancestor files
