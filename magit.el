@@ -1363,15 +1363,12 @@ Empty lines anywhere in the output are omitted."
                     (append magit-git-standard-options args)))
 
 (defun magit-cmd-insert (cmd args)
-  (insert (magit-cmd-output cmd args)))
-
-(defun magit-cmd-output (cmd args)
-  (with-output-to-string
-    (with-current-buffer standard-output
-      (apply #'process-file
-             cmd
-             nil (list t nil) nil
-             args))))
+  (insert (with-output-to-string
+            (with-current-buffer standard-output
+              (apply #'process-file
+                     cmd nil
+                     (list t nil) nil
+                     args)))))
 
 (defun magit-git-exit-code (&rest args)
   (apply #'process-file magit-git-executable nil nil nil
