@@ -6426,46 +6426,29 @@ With a prefix argument, visit in other window."
   "Visit current file associated with item.
 With a prefix argument, visit in other window."
   (interactive "P")
-  (magit-section-action (item info "visit-file")
-    ((untracked file)
-     (funcall
-      (if other-window 'find-file-other-window 'find-file)
-      info))
-    ((diff)
-     (let ((file (magit-diff-item-file item)))
-       (cond ((not (file-exists-p file))
-              (error "Can't visit deleted file: %s" file))
-             ((file-directory-p file)
-              (magit-status file))
-             (t
-              (funcall
-               (if other-window 'find-file-other-window 'find-file)
-               file)))))
-    ((diffstat)
-     (let ((file (magit-diffstat-item-file item)))
-       (cond ((null file)
-              (error "Can't get pathname for this file"))
-             ((not (file-exists-p file))
-              (error "Can't visit deleted file: %s" file))
-             ((file-directory-p file)
-              (magit-status file))
-             (t
-              (funcall
-               (if other-window 'find-file-other-window 'find-file)
-               file)))))
-    ((hunk)
-     (let ((file (magit-diff-item-file (magit-hunk-item-diff item)))
-           (line (magit-hunk-item-target-line item))
-           (column (current-column)))
-       (unless (file-exists-p file)
-         (error "Can't visit deleted file: %s" file))
-       (funcall
-        (if other-window 'find-file-other-window 'find-file)
-        file)
-       (goto-char (point-min))
-       (forward-line (1- line))
-       (when (> column 0)
-         (move-to-column (1- column)))))))
+  (let* (line
+         column
+         (file
+          (magit-section-action (item info "visit-file")
+            ((untracked file) info)
+            ((diff)           (magit-diff-item-file item))
+            ((diffstat)       (magit-diffstat-item-file item))
+            ((hunk)
+             (setq line (magit-hunk-item-target-line item)
+                   column (current-column))
+             (magit-diff-item-file (magit-hunk-item-diff item))))))
+    (unless file
+      (error "Can't get pathname for this file"))
+    (unless (file-exists-p file)
+      (error "Can't visit deleted file: %s" file))
+    (cond ((file-directory-p file) (magit-status file))
+          (other-window            (find-file-other-window file))
+          (t                       (find-file file)))
+    (when line
+      (goto-char (point-min))
+      (forward-line (1- line))
+      (when (> column 0)
+        (move-to-column (1- column))))))
 
 (defun magit-visit-item (&optional other-window)
   "Visit current item.
