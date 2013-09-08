@@ -141,7 +141,7 @@
      (actions
       ("v" "Branch manager" magit-branch-manager)
       ("c" "Create" magit-create-branch)
-      ("r" "Rename" magit-move-branch)
+      ("r" "Rename" magit-rename-branch)
       ("k" "Delete" magit-delete-branch)
       ("b" "Checkout" magit-checkout))
      (switches

@@ -1099,7 +1099,7 @@ Also see option `magit-diff-use-overlays'."
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "c") 'magit-create-branch)
     (define-key map (kbd "a") 'magit-add-remote)
-    (define-key map (kbd "r") 'magit-move-item)
+    (define-key map (kbd "r") 'magit-rename-item)
     (define-key map (kbd "k") 'magit-discard-item)
     (define-key map (kbd "T") 'magit-change-what-branch-tracks)
     map))
@@ -4995,9 +4995,9 @@ Works with local or remote branches.
      (t
       (apply 'magit-run-git args)))))
 
-(defun magit-move-branch (old new &optional force)
-  "Rename or move branch OLD to NEW.
-With prefix, forces the move even if NEW already exists.
+(defun magit-rename-branch (old new &optional force)
+  "Rename branch OLD to NEW.
+With prefix, forces the rename even if NEW already exists.
 \('git branch [-m|-M] OLD NEW')."
   (interactive (list (magit-read-rev-with-default "Old name")
                      (read-string "New name: ")
@@ -6333,13 +6333,13 @@ written to .git/info/exclude."
      (when (yes-or-no-p "Remove remote? ")
        (magit-remove-remote info)))))
 
-;;;; Move
+;;;; Rename
 
-(defun magit-move-item ()
+(defun magit-rename-item ()
   (interactive)
-  (magit-section-action (item info "move")
+  (magit-section-action (item info "rename")
     ((branch)
-     (call-interactively 'magit-move-branch))
+     (call-interactively 'magit-rename-branch))
     ((remote)
      (call-interactively 'magit-rename-remote))))
 
