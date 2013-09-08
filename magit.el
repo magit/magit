@@ -5787,6 +5787,33 @@ With prefix argument, changes in staging area are kept.
   (magit-assert-one-parent commit "revert")
   (magit-run-git "revert" "--no-commit" commit))
 
+;;;; Submoduling
+
+(defun magit-submodule-update (&optional init)
+  "Update the submodule of the current git repository.
+With a prefix arg, do a submodule update --init."
+  (interactive "P")
+  (let ((default-directory (magit-get-top-dir)))
+    (apply #'magit-run-git-async "submodule" "update"
+           (and init '("--init")))))
+
+(defun magit-submodule-update-init ()
+  "Update and init the submodule of the current git repository."
+  (interactive)
+  (magit-submodule-update t))
+
+(defun magit-submodule-init ()
+  "Initialize the submodules."
+  (interactive)
+  (let ((default-directory (magit-get-top-dir)))
+    (magit-run-git-async "submodule" "init")))
+
+(defun magit-submodule-sync ()
+  "Synchronizes submodule's remote URL configuration."
+  (interactive)
+  (let ((default-directory (magit-get-top-dir)))
+    (magit-run-git-async "submodule" "sync")))
+
 ;;;; Logging
 
 (magit-define-command log (&optional range)
@@ -6535,33 +6562,6 @@ With a prefix argument, visit in other window."
     (magit-git-insert "grep" "--line-number" pattern)
     (grep-mode)
     (pop-to-buffer (current-buffer))))
-
-;;;; Submoduling
-
-(defun magit-submodule-update (&optional init)
-  "Update the submodule of the current git repository.
-With a prefix arg, do a submodule update --init."
-  (interactive "P")
-  (let ((default-directory (magit-get-top-dir)))
-    (apply #'magit-run-git-async "submodule" "update"
-           (and init '("--init")))))
-
-(defun magit-submodule-update-init ()
-  "Update and init the submodule of the current git repository."
-  (interactive)
-  (magit-submodule-update t))
-
-(defun magit-submodule-init ()
-  "Initialize the submodules."
-  (interactive)
-  (let ((default-directory (magit-get-top-dir)))
-    (magit-run-git-async "submodule" "init")))
-
-(defun magit-submodule-sync ()
-  "Synchronizes submodule's remote URL configuration."
-  (interactive)
-  (let ((default-directory (magit-get-top-dir)))
-    (magit-run-git-async "submodule" "sync")))
 
 ;;;; Resolve
 
