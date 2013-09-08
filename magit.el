@@ -1376,6 +1376,10 @@ Empty lines anywhere in the output are omitted."
   (apply #'process-file magit-git-executable nil nil nil
          (append magit-git-standard-options args)))
 
+(defun magit-git-success (&rest args)
+  "Execute Git with ARGS, returning t if its exit code is 0."
+  (= (apply 'magit-git-exit-code args) 0))
+
 ;;;; Git Config
 
 (defun magit-get (&rest keys)
@@ -1505,7 +1509,7 @@ Otherwise, return nil."
   (magit-get-remote (magit-get-current-branch)))
 
 (defun magit-ref-exists-p (ref)
-  (= (magit-git-exit-code "show-ref" "--verify" ref) 0))
+  (magit-git-success "show-ref" "--verify" ref) 0)
 
 (defun magit-rev-parse (ref)
   "Return the SHA hash for REF."
@@ -1565,14 +1569,14 @@ non-nil).  In addition, it will filter out revs involving HEAD."
       rev)))
 
 (defun magit-file-uptodate-p (file)
-  (eq (magit-git-exit-code "diff" "--quiet" "--" file) 0))
+  (magit-git-success "diff" "--quiet" "--" file))
 
 (defun magit-anything-staged-p ()
-  (not (eq (magit-git-exit-code "diff" "--quiet" "--cached") 0)))
+  (not (magit-git-success "diff" "--quiet" "--cached")))
 
 (defun magit-everything-clean-p ()
   (and (not (magit-anything-staged-p))
-       (eq (magit-git-exit-code "diff" "--quiet") 0)))
+       (magit-git-success "diff" "--quiet")))
 
 (defun magit-commit-parents (commit)
   (cdr (split-string (magit-git-string "rev-list" "-1" "--parents" commit))))
@@ -4337,7 +4341,7 @@ for this argument.)"
                      nil nil t))
   (when (magit-section-p commit)
     (setq commit (magit-section-info commit)))
-  (unless (eql 0 (magit-git-exit-code "cat-file" "commit" commit))
+  (unless (magit-git-success "cat-file" "commit" commit)
     (error "%s is not a commit" commit))
   (let ((dir (magit-get-top-dir))
         (buf (get-buffer-create magit-commit-buffer-name)))
