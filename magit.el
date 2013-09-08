@@ -5757,31 +5757,28 @@ With prefix argument, changes in staging area are kept.
 
 ;;;; Revert
 
-(defmacro magit-with-revert-confirmation (&rest body)
-  (declare (debug t))
-  `(when (or (not magit-revert-item-confirm)
-             (yes-or-no-p "Really revert this item? "))
-     ,@body))
-
 (defun magit-revert-item ()
   (interactive)
-  (magit-section-action (item info "revert")
-    ((pending commit)
-     (magit-with-revert-confirmation
-      (magit-revert-commit info)
-      (magit-rewrite-set-commit-property info 'used nil)))
-    ((commit)
-     (magit-with-revert-confirmation
-      (magit-revert-commit info)))
-    ((unstaged *)
-     ;; Asking the user is handled by `magit-discard-item'.
-     (magit-discard-item))
-    ((hunk)
-     (magit-with-revert-confirmation
-      (magit-apply-hunk-item-reverse item)))
-    ((diff)
-     (magit-with-revert-confirmation
-      (magit-apply-diff-item item "--reverse")))))
+  (cl-flet ((confirm ()
+              (or (yes-or-no-p "Really revert this item? ")
+                  (error "Abort"))))
+    (magit-section-action (item info "revert")
+      ((pending commit)
+       (confirm)
+       (magit-revert-commit info)
+       (magit-rewrite-set-commit-property info 'used nil))
+      ((commit)
+       (confirm)
+       (magit-revert-commit info))
+      ((unstaged *)
+       ;; This already asks for confirmation.
+       (magit-discard-item))
+      ((hunk)
+       (confirm)
+       (magit-apply-hunk-item-reverse item))
+      ((diff)
+       (confirm)
+       (magit-apply-diff-item item "--reverse")))))
 
 (defun magit-revert-commit (commit)
   (magit-assert-one-parent commit "revert")
