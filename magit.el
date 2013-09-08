@@ -1358,17 +1358,17 @@ Empty lines anywhere in the output are omitted."
         (forward-line 1))
       (nreverse lines))))
 
-(defun magit-git-insert (args)
-  (magit-cmd-insert magit-git-executable
-                    (append magit-git-standard-options args)))
+(defun magit-git-insert (&rest args)
+  (apply 'magit-cmd-insert magit-git-executable
+         (append magit-git-standard-options args)))
 
-(defun magit-cmd-insert (cmd args)
+(defun magit-cmd-insert (&rest args)
   (insert (with-output-to-string
             (with-current-buffer standard-output
               (apply #'process-file
-                     cmd nil
+                     (car args) nil
                      (list t nil) nil
-                     args)))))
+                     (cdr args))))))
 
 (defun magit-git-exit-code (&rest args)
   (apply #'process-file magit-git-executable nil nil nil
@@ -1897,7 +1897,7 @@ CMD is an external command that will be run with ARGS as arguments."
               (insert (propertize buffer-title 'face 'magit-section-title)
                       "\n"))
             (setq body-beg (point))
-            (magit-cmd-insert cmd args)
+            (apply 'magit-cmd-insert cmd args)
             (unless (eq (char-before) ?\n)
               (insert "\n"))
             (when washer
@@ -3553,7 +3553,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                       magit-diff-options
                       (list "--" file)))
         (beg (point)))
-    (magit-git-insert args)
+    (apply 'magit-git-insert args)
     (unless (eq (char-before) ?\n)
       (insert "\n"))
     (save-restriction
@@ -6526,7 +6526,7 @@ With a prefix argument, visit in other window."
             (mapconcat 'identity magit-git-standard-options " ")
             " grep -n "
             (shell-quote-argument pattern) "\n\n")
-    (magit-git-insert (list "grep" "--line-number" pattern))
+    (magit-git-insert "grep" "--line-number" pattern)
     (grep-mode)
     (pop-to-buffer (current-buffer))))
 
@@ -6570,15 +6570,15 @@ With a prefix arg, do a submodule update --init."
       (error "Cannot resolve %s" file))
     (with-current-buffer base-buffer
       (when (string-match "^[0-9]+ [0-9a-f]+ 1" merge-status)
-        (magit-git-insert `("cat-file" "blob" ,(concat ":1:" file)))))
+        (magit-git-insert "cat-file" "blob" (concat ":1:" file))))
     (with-current-buffer our-buffer
       (when (string-match "^[0-9]+ [0-9a-f]+ 2" merge-status)
-        (magit-git-insert `("cat-file" "blob" ,(concat ":2:" file))))
+        (magit-git-insert "cat-file" "blob" (concat ":2:" file)))
       (let ((buffer-file-name file))
         (normal-mode)))
     (with-current-buffer their-buffer
       (when (string-match "^[0-9]+ [0-9a-f]+ 3" merge-status)
-        (magit-git-insert `("cat-file" "blob" ,(concat ":3:" file))))
+        (magit-git-insert "cat-file" "blob" (concat ":3:" file)))
       (let ((buffer-file-name file))
         (normal-mode)))
     ;; We have now created the 3 buffer with ours, theirs and the ancestor files
@@ -6900,8 +6900,8 @@ argument) in the current window."
        (t
         (with-current-buffer buffer
           (with-silent-modifications
-           (magit-git-insert (list "cat-file" "-p"
-                                   (concat commit ":" filename)))))))
+           (magit-git-insert "cat-file" "-p"
+                             (concat commit ":" filename))))))
       (with-current-buffer buffer
         (let ((buffer-file-name
                (expand-file-name filename (magit-get-top-dir))))

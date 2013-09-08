@@ -124,11 +124,9 @@
     (with-current-buffer buffer
       (save-restriction
         (with-temp-buffer
-          (magit-git-insert (append
-                             (list "blame" "--porcelain")
-                             (and magit-blame-ignore-whitespace (list "-w"))
-                             (list "--" (file-name-nondirectory
-                                         (buffer-file-name buffer)))))
+          (apply 'magit-git-insert "blame" "--porcelain"
+                 `(,@(and magit-blame-ignore-whitespace (list "-w")) "--"
+                   ,(file-name-nondirectory (buffer-file-name buffer))))
           (magit-blame-parse buffer (current-buffer)))))))
 
 (defun magit-blame-locate-commit (pos)
