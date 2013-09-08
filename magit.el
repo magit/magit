@@ -6239,20 +6239,20 @@ filename FILE."
          (extension-in-dir (concat (file-name-directory file) extension))
          (filename (file-name-nondirectory file))
          (completions (list extension extension-in-dir filename file)))
-    (magit-completing-read "File to ignore: "
+    (magit-completing-read "File/pattern to ignore: "
                            completions nil nil nil nil file)))
 
-(defun magit-ignore-file (file &optional edit-ignore-string local)
+(defun magit-ignore-file (file &optional edit local)
   "Add FILE to the list of files to ignore.
-If EDIT-IGNORE-STRING is non-nil, prompt the user for the string
-to be ignored instead of using FILE.  The changes are written to
-.gitignore except if LOCAL is non-nil in which case they are
-written to .git/info/exclude."
+If EDIT is non-nil, prompt the user for the string to be ignored
+instead of using FILE.  The changes are written to .gitignore
+except if LOCAL is non-nil in which case they are written to
+.git/info/exclude."
   (let* ((local-ignore-dir (magit-git-dir "info/"))
          (ignore-file (if local
                           (concat local-ignore-dir "exclude")
                         ".gitignore")))
-    (when edit-ignore-string
+    (when edit
       (setq file (magit-edit-ignore-string file)))
     (when (and local (not (file-exists-p local-ignore-dir)))
       (make-directory local-ignore-dir t))
@@ -6266,23 +6266,21 @@ written to .git/info/exclude."
       (write-region nil nil ignore-file))
     (magit-need-refresh)))
 
-(defun magit--ignore-item (arg &optional local)
-  (interactive)
+(defun magit-ignore-item (edit local)
+  "Ignore the item at point.
+With a prefix argument edit the ignore string."
+  (interactive "P")
   (magit-section-action (item info "ignore")
     ((untracked file)
-     (magit-ignore-file (concat "/" info) current-prefix-arg local))
+     (magit-ignore-file (concat "/" info) edit local))
     ((wazzup)
-     (magit-wazzup-toggle-ignore info current-prefix-arg))))
+     (magit-wazzup-toggle-ignore info edit))))
 
-(defun magit-ignore-item ()
-  "Ignore the item at point."
-  (interactive)
-  (magit--ignore-item current-prefix-arg))
-
-(defun magit-ignore-item-locally ()
-  "Ignore the item at point locally only."
-  (interactive)
-  (magit--ignore-item current-prefix-arg t))
+(defun magit-ignore-item-locally (edit)
+  "Ignore the item at point locally only.
+With a prefix argument edit the ignore string."
+  (interactive "P")
+  (magit-ignore-item edit t))
 
 ;;;; Discard
 
