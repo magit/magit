@@ -6343,6 +6343,8 @@ written to .git/info/exclude."
     ((remote)
      (call-interactively 'magit-rename-remote))))
 
+;;;; ChangeLog
+
 (defmacro magit-visiting-file-item (&rest body)
   (declare (debug t))
   `(let ((marker (save-window-excursion
@@ -6352,8 +6354,6 @@ written to .git/info/exclude."
        (with-current-buffer (marker-buffer marker)
          (goto-char marker)
          ,@body))))
-
-;;;; ChangeLog
 
 (defun magit-add-change-log-entry-no-option (&optional other-window)
   "Add a change log entry for current change.
