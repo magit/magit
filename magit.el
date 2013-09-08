@@ -1359,6 +1359,7 @@ Empty lines anywhere in the output are omitted."
       (nreverse lines))))
 
 (defun magit-git-insert (&rest args)
+  "Execute Git with ARGS, inserting its output at point."
   (apply 'magit-cmd-insert magit-git-executable
          (append magit-git-standard-options args)))
 
@@ -1371,6 +1372,7 @@ Empty lines anywhere in the output are omitted."
                      (cdr args))))))
 
 (defun magit-git-exit-code (&rest args)
+  "Execute Git with ARGS, returning its exit code."
   (apply #'process-file magit-git-executable nil nil nil
          (append magit-git-standard-options args)))
 
