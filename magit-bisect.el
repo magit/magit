@@ -29,8 +29,9 @@
 
 (require 'magit)
 
-(defvar magit--bisect-last-pos)
-(defvar magit--bisect-tmp-file)
+(defvar-local magit--bisect-last-pos nil)
+(put 'magit--bisect-info 'permanent-local t)
+
 (defvar-local magit--bisect-info nil)
 (put 'magit--bisect-info 'permanent-local t)
 
@@ -160,22 +161,21 @@ match REQUIRED-STATUS."
                           'magit-bisect-mode-history)))
   (unless (magit--bisecting-p)
     (error "Not bisecting"))
-  (let ((file (make-temp-file "magit-bisect-run"))
-        buffer)
+  (let ((file (magit-git-dir "magit-bisect-run"))
+        process buffer)
     (with-temp-buffer
       (insert "#!/bin/sh\n" command "\n")
       (write-region (point-min) (point-max) file))
     (set-file-modes file #o755)
-    (magit-run-git-async "bisect" "run" file)
+    (setq process (magit-run-git-async "bisect" "run" file)
+          buffer  (process-buffer process))
     (magit-display-process)
-    (setq buffer (get-buffer magit-process-buffer-name))
     (with-current-buffer buffer
-      (setq-local magit--bisect-last-pos 0)
-      (setq-local magit--bisect-tmp-file file))
-    (set-process-filter (get-buffer-process buffer)
-                        'magit--bisect-run-filter)
-    (set-process-sentinel (get-buffer-process buffer)
-                          'magit--bisect-run-sentinel)))
+      (setq magit--bisect-last-pos 0))
+    (set-process-filter process 'magit--bisect-run-filter)
+    (set-process-sentinel process
+                          (apply-partially 'magit--bisect-run-sentinel
+                                           buffer))))
 
 (defun magit--bisect-run-filter (process output)
   (with-current-buffer (process-buffer process)
@@ -204,11 +204,11 @@ match REQUIRED-STATUS."
             (setq magit--bisect-info new-info)
             (magit--bisect-update-status-buffer)))))))
 
-(defun magit--bisect-run-sentinel (process event)
+(defun magit--bisect-run-sentinel (command-buf process event)
   (when (string-match-p "^finish" event)
     (with-current-buffer (process-buffer process)
-      (delete-file magit--bisect-tmp-file)))
-  (magit-process-sentinel process event))
+      (delete-file (magit-git-dir "magit-bisect-run"))))
+  (magit-process-sentinel command-buf process event))
 
 (defun magit--bisect-update-status-buffer ()
   (with-current-buffer (magit-find-status-buffer)

@@ -48,7 +48,7 @@
 (require 'magit)
 (eval-when-compile (require 'cl-lib))
 
-;;; Customizables:
+;;; Options
 
 (defcustom magit-stgit-executable "stg"
   "The name of the StGit executable."
@@ -80,7 +80,7 @@
   "Face for an empty stgit patch."
   :group 'magit-faces)
 
-;;; Common code:
+;;; Common code
 
 (defvar-local magit-stgit--enabled nil
   "Whether this buffer has StGit support.")
@@ -108,7 +108,11 @@
 (defvar-local magit-stgit--marked-patch nil
   "The (per-buffer) currently marked patch in an StGit series.")
 
-;;; Menu:
+(defun magit-run-stgit (&rest args)
+  (magit-with-refresh
+    (magit-run* (cons magit-stgit-executable args))))
+
+;;; Menu
 
 (easy-menu-define magit-stgit-extension-menu
   nil
@@ -128,7 +132,7 @@
                     '("Extensions")
                     magit-stgit-extension-menu)
 
-;;; Series section:
+;;; Series section
 
 (defun magit-stgit--wash-patch ()
   (if (search-forward-regexp "^\\(.\\)\\(.\\) \\([^\s]*\\)\\(\s*# ?\\)\\(.*\\)"
@@ -176,7 +180,7 @@
                           "Series:" 'magit-stgit--wash-series
                           magit-stgit-executable "series" "-a" "-d" "-e")))
 
-;;; Actions:
+;;; Actions
 
 ;; Copy of `magit-refresh-commit-buffer' (version 1.0.0)
 (defun magit-stgit--refresh-patch-buffer (patch)
@@ -219,7 +223,7 @@
 
 (magit-add-action-clauses (item info "apply")
   ((series)
-   (magit-run magit-stgit-executable "goto" info)))
+   (magit-run-stgit "goto" info)))
 
 (magit-add-action-clauses (item info "discard")
   ((series)
@@ -227,7 +231,7 @@
      (when (yes-or-no-p (format "Delete patch '%s' in series? " patch))
        (when (string= magit-stgit--marked-patch patch)
          (setq magit-stgit--marked-patch nil))
-       (magit-run magit-stgit-executable "delete" patch)))))
+       (magit-run-stgit "delete" patch)))))
 
 (defun magit-stgit--set-marked-patch (patch)
   (setq magit-stgit--marked-patch
@@ -239,7 +243,7 @@
    (magit-stgit--set-marked-patch info)
    (magit-refresh-all)))
 
-;;; Commands:
+;;; Commands
 
 (defun magit-stgit-refresh ()
   "Refresh the contents of a patch in an StGit series.
@@ -247,9 +251,8 @@ If there is no marked patch in the series, refreshes the current
 patch.  Otherwise, refreshes the marked patch."
   (interactive)
   (if magit-stgit--marked-patch
-      (magit-run magit-stgit-executable
-                 "refresh" "-p" magit-stgit--marked-patch)
-    (magit-run magit-stgit-executable "refresh")))
+      (magit-run-stgit "refresh" "-p" magit-stgit--marked-patch)
+    (magit-run-stgit "refresh")))
 
 (defun magit-stgit-repair ()
   "Repair StGit metadata if branch was modified with git commands.
@@ -257,7 +260,7 @@ In the case of Git commits these will be imported as new patches
 into the series."
   (interactive)
   (message "Repairing series...")
-  (magit-run magit-stgit-executable "repair")
+  (magit-run-stgit "repair")
   (message ""))
 
 (defun magit-stgit-rebase ()
@@ -267,10 +270,10 @@ into the series."
     (when (yes-or-no-p "Update remotes? ")
       (message "Updating remotes...")
       (magit-run-git-async "remote" "update"))
-    (magit-run magit-stgit-executable "rebase"
-               (format "remotes/%s/%s"
-                       (magit-get-current-remote)
-                       (magit-get-current-branch)))))
+    (magit-run-stgit "rebase"
+                     (format "remotes/%s/%s"
+                             (magit-get-current-remote)
+                             (magit-get-current-branch)))))
 
 ;;;###autoload
 (define-minor-mode magit-stgit-mode "StGit support for Magit"

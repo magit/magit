@@ -46,7 +46,11 @@
   "Face for section titles."
   :group 'magit-faces)
 
-;;; Topic branches (using topgit)
+
+(defun magit-run-topgit (nowait &rest args)
+  (magit-with-refresh
+    (magit-run* (cons magit-topgit-executable args)
+                nil nil nil nowait)))
 
 (defun magit-topgit-in-topic-p ()
   (and (file-exists-p ".topdeps")
@@ -54,16 +58,11 @@
 
 (defun magit-topgit-create-branch (branch parent)
   (when (zerop (or (string-match magit-topgit-branch-prefix branch) -1))
-    (magit-run* (list magit-topgit-executable "create"
-                      branch (magit-rev-to-git parent))
-                nil nil nil t)
-    t))
+    (magit-run-topgit t "create" branch (magit-rev-to-git parent))))
 
 (defun magit-topgit-pull ()
   (when (magit-topgit-in-topic-p)
-    (magit-run* (list magit-topgit-executable "update")
-                nil nil nil t)
-    t))
+    (magit-run-topgit t "update")))
 
 (defun magit-topgit-push ()
   (when (magit-topgit-in-topic-p)
@@ -76,8 +75,7 @@
       (when (and (not remote)
                  (not current-prefix-arg))
         (magit-set push-remote "topgit" "remote"))
-      (magit-run magit-topgit-executable "push" "-r" push-remote))
-    t))
+      (magit-run-topgit nil "push" "-r" push-remote))))
 
 (defun magit-topgit-remote-update (&optional remote)
   (when (magit-topgit-in-topic-p)
@@ -88,9 +86,8 @@
       (when (and (not remote)
                  (not current-prefix-arg))
         (magit-set remote-update "topgit" "remote")
-        (magit-run magit-topgit-executable "remote"
-                   "--populate" remote-update))
-      (magit-run magit-topgit-executable "remote" remote-update)))
+        (magit-run-topgit nil "remote" "--populate" remote-update))
+      (magit-run-topgit nil "remote" remote-update)))
   ;; We always return nil, as we also want
   ;; regular "git remote update" to happen.
   nil)
