@@ -4483,24 +4483,6 @@ if FULLY-QUALIFIED-NAME is non-nil."
                     (concat "refs/remotes/" remote "/")))
                 (match-string 1 merge))))))
 
-(defvar magit-remote-string-hook nil)
-
-(defun magit-remote-string (remote remote-branch remote-rebase)
-  (cond
-   ((and (string= "." remote) remote-branch)
-    (concat
-     (when remote-rebase "onto ")
-     "branch "
-     (propertize remote-branch 'face 'magit-branch)))
-   ((and remote remote-branch)
-    (concat
-     (when remote-rebase "onto ")
-     (propertize remote-branch 'face 'magit-branch)
-     " @ " remote
-     " (" (magit-get "remote" remote "url") ")"))
-   (t
-    (run-hook-with-args-until-success 'magit-remote-string-hook))))
-
 (defvar magit-status-line-align-to 9)
 
 (defun magit-insert-status-line (heading info-string)
@@ -4518,6 +4500,23 @@ if FULLY-QUALIFIED-NAME is non-nil."
                               "(detached)"))
                         'face 'magit-branch)
             " " (abbreviate-file-name default-directory))))
+
+(defun magit-insert-status-remote-line ()
+  (let ((branch (magit-get-current-branch)))
+    (when branch
+      (let ((remote (magit-get "branch" branch "remote"))
+            (merge  (magit-remote-branch-for branch)))
+        (unless (or merge (equal remote "."))
+          (setq merge branch))
+        (when (and remote merge)
+          (setq merge (propertize merge 'face 'magit-branch))
+          (magit-insert-status-line "Remote"
+            (concat
+             (and (magit-get-boolean "branch" branch "rebase") "onto ")
+             (if (string= "." remote)
+                 (concat "branch " merge)
+               (concat merge " @ " remote
+                       " (" (magit-get "remote" remote "url") ")")))))))))
 
 (defun magit-insert-status-head-line ()
   (magit-insert-status-line "Head"
@@ -4574,12 +4573,9 @@ if FULLY-QUALIFIED-NAME is non-nil."
     (magit-with-section 'status nil
       (let* ((branch (magit-get-current-branch))
              (remote (and branch (magit-get "branch" branch "remote")))
-             (remote-rebase (and branch (magit-get-boolean "branch" branch "rebase")))
-             (remote-branch (or (and branch (magit-remote-branch-for branch)) branch))
-             (remote-string (magit-remote-string remote remote-branch remote-rebase)))
+             (remote-branch (or (and branch (magit-remote-branch-for branch)) branch)))
         (magit-insert-status-local-line)
-        (when remote-string
-          (magit-insert-status-line "Remote" remote-string))
+        (magit-insert-status-remote-line)
         (magit-insert-status-head-line)
         (magit-insert-status-tags-line)
         (magit-insert-status-merge-line)
