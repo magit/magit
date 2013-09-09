@@ -176,21 +176,21 @@ If USE-CACHE is non nil, use the cached information."
   (let ((info (magit-svn-get-ref-info use-cache)))
     (cdr (assoc 'local-ref info))))
 
-(magit-define-inserter svn-unpulled (&optional use-cache)
+(magit-define-inserter svn-unpulled ()
   (when (magit-svn-enabled)
     (apply #'magit-git-section
            'svn-unpulled "Unpulled commits (SVN):" 'magit-wash-log "log"
            (append magit-git-log-options
                    (list
-                    (format "HEAD..%s" (magit-svn-get-ref use-cache)))))))
+                    (format "HEAD..%s" (magit-svn-get-ref t)))))))
 
-(magit-define-inserter svn-unpushed (&optional use-cache)
+(magit-define-inserter svn-unpushed ()
   (when (magit-svn-enabled)
     (apply #'magit-git-section
            'svn-unpushed "Unpushed commits (SVN):" 'magit-wash-log "log"
            (append magit-git-log-options
                    (list
-                    (format "%s..HEAD" (magit-svn-get-ref use-cache)))))))
+                    (format "%s..HEAD" (magit-svn-get-ref t)))))))
 
 (magit-define-section-jumper svn-unpushed  "Unpushed commits (SVN)")
 
@@ -263,20 +263,22 @@ If USE-CACHE is non nil, use the cached information."
   :lighter " SVN" :require 'magit-svn :keymap 'magit-svn-mode-map
   (or (derived-mode-p 'magit-mode)
       (error "This mode only makes sense with magit"))
-  (let ((unpulled-hook (lambda () (magit-insert-svn-unpulled t)))
-        (unpushed-hook (lambda () (magit-insert-svn-unpushed t)))
-        (remote-hook 'magit-svn-remote-string))
-    (cond
-     (magit-svn-mode
-      (add-hook 'magit-after-insert-unpulled-commits-hook unpulled-hook nil t)
-      (add-hook 'magit-after-insert-unpushed-commits-hook unpushed-hook nil t)
-      (add-hook 'magit-remote-string-hook remote-hook nil t))
-     (t
-      (remove-hook 'magit-after-insert-unpulled-commits-hook unpulled-hook t)
-      (remove-hook 'magit-after-insert-unpushed-commits-hook unpushed-hook t)
-      (remove-hook 'magit-remote-string-hook remote-hook t)))
-    (when (called-interactively-p 'any)
-      (magit-refresh))))
+  (cond (magit-svn-mode
+         (add-hook 'magit-after-insert-unpulled-commits-hook
+                   'magit-insert-svn-unpulled nil t)
+         (add-hook 'magit-after-insert-unpushed-commits-hook
+                   'magit-insert-svn-unpushed nil t)
+         (add-hook 'magit-remote-string-hook
+                   'magit-svn-remote-string nil t))
+        (t
+         (remove-hook 'magit-after-insert-unpulled-commits-hook
+                      'magit-insert-svn-unpulled t)
+         (remove-hook 'magit-after-insert-unpushed-commits-hook
+                      'magit-insert-svn-unpushed t)
+         (remove-hook 'magit-remote-string-hook
+                      'magit-svn-remote-string t)))
+  (when (called-interactively-p 'any)
+    (magit-refresh)))
 
 ;;;###autoload
 (defun turn-on-magit-svn ()
