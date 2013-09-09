@@ -1620,24 +1620,21 @@ argument or a list of strings used as regexps."
 (defun magit-format-ref (ref)
   "Convert fully-specified ref REF into its displayable form
 according to `magit-remote-ref-format'"
-  (cond
-   ((null ref)
-    nil)
-   ((string-match "refs/heads/\\(.*\\)" ref)
-    (match-string 1 ref))
-   ((string-match "refs/tags/\\(.*\\)" ref)
-    (format (if (eq magit-remote-ref-format 'branch-then-remote)
-                "%s (tag)"
-              "%s")
-            (match-string 1 ref)))
-   ((string-match "refs/remotes/\\([^/]+\\)/\\(.+\\)" ref)
-    (if (eq magit-remote-ref-format 'branch-then-remote)
-        (format "%s (%s)"
-                (match-string 2 ref)
-                (match-string 1 ref))
-      (format "%s/%s"
-              (match-string 1 ref)
-              (match-string 2 ref))))))
+  (cond ((null ref)
+         nil)
+        ((string-match "refs/heads/\\(.*\\)" ref)
+         (match-string 1 ref))
+        ((string-match "refs/tags/\\(.*\\)" ref)
+         (format (if (eq magit-remote-ref-format 'branch-then-remote)
+                     "%s (tag)"
+                   "%s")
+                 (match-string 1 ref)))
+        ((string-match "refs/remotes/\\([^/]+\\)/\\(.+\\)" ref)
+         (if (eq magit-remote-ref-format 'branch-then-remote)
+             (format "%s (%s)"
+                     (match-string 2 ref)
+                     (match-string 1 ref))
+           (substring ref 13)))))
 
 (defvar magit-uninteresting-refs
   '("refs/remotes/\\([^/]+\\)/HEAD$" "refs/stash"))
