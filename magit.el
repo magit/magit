@@ -1099,7 +1099,7 @@ Also see option `magit-diff-use-overlays'."
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "c") 'magit-create-branch)
     (define-key map (kbd "a") 'magit-add-remote)
-    (define-key map (kbd "r") 'magit-move-item)
+    (define-key map (kbd "r") 'magit-rename-item)
     (define-key map (kbd "k") 'magit-discard-item)
     (define-key map (kbd "T") 'magit-change-what-branch-tracks)
     map))
@@ -4995,9 +4995,9 @@ Works with local or remote branches.
      (t
       (apply 'magit-run-git args)))))
 
-(defun magit-move-branch (old new &optional force)
-  "Rename or move branch OLD to NEW.
-With prefix, forces the move even if NEW already exists.
+(defun magit-rename-branch (old new &optional force)
+  "Rename branch OLD to NEW.
+With prefix, forces the rename even if NEW already exists.
 \('git branch [-m|-M] OLD NEW')."
   (interactive (list (magit-read-rev-with-default "Old name")
                      (read-string "New name: ")
@@ -5757,35 +5757,59 @@ With prefix argument, changes in staging area are kept.
 
 ;;;; Revert
 
-(defmacro magit-with-revert-confirmation (&rest body)
-  (declare (debug t))
-  `(when (or (not magit-revert-item-confirm)
-             (yes-or-no-p "Really revert this item? "))
-     ,@body))
-
 (defun magit-revert-item ()
   (interactive)
-  (magit-section-action (item info "revert")
-    ((pending commit)
-     (magit-with-revert-confirmation
-      (magit-revert-commit info)
-      (magit-rewrite-set-commit-property info 'used nil)))
-    ((commit)
-     (magit-with-revert-confirmation
-      (magit-revert-commit info)))
-    ((unstaged *)
-     ;; Asking the user is handled by `magit-discard-item'.
-     (magit-discard-item))
-    ((hunk)
-     (magit-with-revert-confirmation
-      (magit-apply-hunk-item-reverse item)))
-    ((diff)
-     (magit-with-revert-confirmation
-      (magit-apply-diff-item item "--reverse")))))
+  (cl-flet ((confirm ()
+              (or (yes-or-no-p "Really revert this item? ")
+                  (error "Abort"))))
+    (magit-section-action (item info "revert")
+      ((pending commit)
+       (confirm)
+       (magit-revert-commit info)
+       (magit-rewrite-set-commit-property info 'used nil))
+      ((commit)
+       (confirm)
+       (magit-revert-commit info))
+      ((unstaged *)
+       ;; This already asks for confirmation.
+       (magit-discard-item))
+      ((hunk)
+       (confirm)
+       (magit-apply-hunk-item-reverse item))
+      ((diff)
+       (confirm)
+       (magit-apply-diff-item item "--reverse")))))
 
 (defun magit-revert-commit (commit)
   (magit-assert-one-parent commit "revert")
   (magit-run-git "revert" "--no-commit" commit))
+
+;;;; Submoduling
+
+(defun magit-submodule-update (&optional init)
+  "Update the submodule of the current git repository.
+With a prefix arg, do a submodule update --init."
+  (interactive "P")
+  (let ((default-directory (magit-get-top-dir)))
+    (apply #'magit-run-git-async "submodule" "update"
+           (and init '("--init")))))
+
+(defun magit-submodule-update-init ()
+  "Update and init the submodule of the current git repository."
+  (interactive)
+  (magit-submodule-update t))
+
+(defun magit-submodule-init ()
+  "Initialize the submodules."
+  (interactive)
+  (let ((default-directory (magit-get-top-dir)))
+    (magit-run-git-async "submodule" "init")))
+
+(defun magit-submodule-sync ()
+  "Synchronizes submodule's remote URL configuration."
+  (interactive)
+  (let ((default-directory (magit-get-top-dir)))
+    (magit-run-git-async "submodule" "sync")))
 
 ;;;; Logging
 
@@ -6212,20 +6236,20 @@ filename FILE."
          (extension-in-dir (concat (file-name-directory file) extension))
          (filename (file-name-nondirectory file))
          (completions (list extension extension-in-dir filename file)))
-    (magit-completing-read "File to ignore: "
+    (magit-completing-read "File/pattern to ignore: "
                            completions nil nil nil nil file)))
 
-(defun magit-ignore-file (file &optional edit-ignore-string local)
+(defun magit-ignore-file (file &optional edit local)
   "Add FILE to the list of files to ignore.
-If EDIT-IGNORE-STRING is non-nil, prompt the user for the string
-to be ignored instead of using FILE.  The changes are written to
-.gitignore except if LOCAL is non-nil in which case they are
-written to .git/info/exclude."
+If EDIT is non-nil, prompt the user for the string to be ignored
+instead of using FILE.  The changes are written to .gitignore
+except if LOCAL is non-nil in which case they are written to
+.git/info/exclude."
   (let* ((local-ignore-dir (magit-git-dir "info/"))
          (ignore-file (if local
                           (concat local-ignore-dir "exclude")
                         ".gitignore")))
-    (when edit-ignore-string
+    (when edit
       (setq file (magit-edit-ignore-string file)))
     (when (and local (not (file-exists-p local-ignore-dir)))
       (make-directory local-ignore-dir t))
@@ -6239,23 +6263,21 @@ written to .git/info/exclude."
       (write-region nil nil ignore-file))
     (magit-need-refresh)))
 
-(defun magit--ignore-item (arg &optional local)
-  (interactive)
+(defun magit-ignore-item (edit local)
+  "Ignore the item at point.
+With a prefix argument edit the ignore string."
+  (interactive "P")
   (magit-section-action (item info "ignore")
     ((untracked file)
-     (magit-ignore-file (concat "/" info) current-prefix-arg local))
+     (magit-ignore-file (concat "/" info) edit local))
     ((wazzup)
-     (magit-wazzup-toggle-ignore info current-prefix-arg))))
+     (magit-wazzup-toggle-ignore info edit))))
 
-(defun magit-ignore-item ()
-  "Ignore the item at point."
-  (interactive)
-  (magit--ignore-item current-prefix-arg))
-
-(defun magit-ignore-item-locally ()
-  "Ignore the item at point locally only."
-  (interactive)
-  (magit--ignore-item current-prefix-arg t))
+(defun magit-ignore-item-locally (edit)
+  "Ignore the item at point locally only.
+With a prefix argument edit the ignore string."
+  (interactive "P")
+  (magit-ignore-item edit t))
 
 ;;;; Discard
 
@@ -6333,15 +6355,17 @@ written to .git/info/exclude."
      (when (yes-or-no-p "Remove remote? ")
        (magit-remove-remote info)))))
 
-;;;; Move
+;;;; Rename
 
-(defun magit-move-item ()
+(defun magit-rename-item ()
   (interactive)
-  (magit-section-action (item info "move")
+  (magit-section-action (item info "rename")
     ((branch)
-     (call-interactively 'magit-move-branch))
+     (call-interactively 'magit-rename-branch))
     ((remote)
      (call-interactively 'magit-rename-remote))))
+
+;;;; ChangeLog
 
 (defmacro magit-visiting-file-item (&rest body)
   (declare (debug t))
@@ -6352,8 +6376,6 @@ written to .git/info/exclude."
        (with-current-buffer (marker-buffer marker)
          (goto-char marker)
          ,@body))))
-
-;;;; ChangeLog
 
 (defun magit-add-change-log-entry-no-option (&optional other-window)
   "Add a change log entry for current change.
@@ -6401,46 +6423,29 @@ With a prefix argument, visit in other window."
   "Visit current file associated with item.
 With a prefix argument, visit in other window."
   (interactive "P")
-  (magit-section-action (item info "visit-file")
-    ((untracked file)
-     (funcall
-      (if other-window 'find-file-other-window 'find-file)
-      info))
-    ((diff)
-     (let ((file (magit-diff-item-file item)))
-       (cond ((not (file-exists-p file))
-              (error "Can't visit deleted file: %s" file))
-             ((file-directory-p file)
-              (magit-status file))
-             (t
-              (funcall
-               (if other-window 'find-file-other-window 'find-file)
-               file)))))
-    ((diffstat)
-     (let ((file (magit-diffstat-item-file item)))
-       (cond ((null file)
-              (error "Can't get pathname for this file"))
-             ((not (file-exists-p file))
-              (error "Can't visit deleted file: %s" file))
-             ((file-directory-p file)
-              (magit-status file))
-             (t
-              (funcall
-               (if other-window 'find-file-other-window 'find-file)
-               file)))))
-    ((hunk)
-     (let ((file (magit-diff-item-file (magit-hunk-item-diff item)))
-           (line (magit-hunk-item-target-line item))
-           (column (current-column)))
-       (unless (file-exists-p file)
-         (error "Can't visit deleted file: %s" file))
-       (funcall
-        (if other-window 'find-file-other-window 'find-file)
-        file)
-       (goto-char (point-min))
-       (forward-line (1- line))
-       (when (> column 0)
-         (move-to-column (1- column)))))))
+  (let* (line
+         column
+         (file
+          (magit-section-action (item info "visit-file")
+            ((untracked file) info)
+            ((diff)           (magit-diff-item-file item))
+            ((diffstat)       (magit-diffstat-item-file item))
+            ((hunk)
+             (setq line (magit-hunk-item-target-line item)
+                   column (current-column))
+             (magit-diff-item-file (magit-hunk-item-diff item))))))
+    (unless file
+      (error "Can't get pathname for this file"))
+    (unless (file-exists-p file)
+      (error "Can't visit deleted file: %s" file))
+    (cond ((file-directory-p file) (magit-status file))
+          (other-window            (find-file-other-window file))
+          (t                       (find-file file)))
+    (when line
+      (goto-char (point-min))
+      (forward-line (1- line))
+      (when (> column 0)
+        (move-to-column (1- column))))))
 
 (defun magit-visit-item (&optional other-window)
   "Visit current item.
@@ -6535,33 +6540,6 @@ With a prefix argument, visit in other window."
     (magit-git-insert "grep" "--line-number" pattern)
     (grep-mode)
     (pop-to-buffer (current-buffer))))
-
-;;;; Submoduling
-
-(defun magit-submodule-update (&optional init)
-  "Update the submodule of the current git repository.
-With a prefix arg, do a submodule update --init."
-  (interactive "P")
-  (let ((default-directory (magit-get-top-dir)))
-    (apply #'magit-run-git-async "submodule" "update"
-           (and init '("--init")))))
-
-(defun magit-submodule-update-init ()
-  "Update and init the submodule of the current git repository."
-  (interactive)
-  (magit-submodule-update t))
-
-(defun magit-submodule-init ()
-  "Initialize the submodules."
-  (interactive)
-  (let ((default-directory (magit-get-top-dir)))
-    (magit-run-git-async "submodule" "init")))
-
-(defun magit-submodule-sync ()
-  "Synchronizes submodule's remote URL configuration."
-  (interactive)
-  (let ((default-directory (magit-get-top-dir)))
-    (magit-run-git-async "submodule" "sync")))
 
 ;;;; Resolve
 
@@ -7009,6 +6987,7 @@ This can be added to `magit-mode-hook' for example"
                        "magit-with-section"
                        "magit-create-buffer-sections"
                        "magit-section-action"
+                       "magit-section-case"
                        "magit-add-action-clauses"
                        "magit-create-log-buffer-sections"
                        "magit-with-revert-confirmation"
