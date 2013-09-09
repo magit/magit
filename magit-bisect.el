@@ -72,20 +72,18 @@ match REQUIRED-STATUS."
                      (list :status 'error)))))))
   (magit-refresh))
 
-(defun magit--bisect-info-for-status (branch)
+(defun magit--bisect-info-for-status ()
   "Return bisect info suitable for display in the status buffer."
-  (let* ((info (magit--bisect-info))
-         (status (plist-get info :status)))
-    (cond ((eq status 'not-running)
-           (or branch "(detached)"))
-          ((eq status 'running)
-           (format "(bisecting; %s revisions & %s steps left)"
-                   (or (plist-get info :revs) "unknown number of")
-                   (or (plist-get info :steps) "unknown number of")))
-          ((eq status 'finished)
-           (format "(bisected: first bad revision is %s)" (plist-get info :bad)))
-          (t
-           "(bisecting; unknown error occured)"))))
+  (let ((info (magit--bisect-info)))
+    (cl-case (plist-get info :status)
+      (running
+       (format "(bisecting; %s revisions & %s steps left)"
+               (or (plist-get info :revs) "unknown number of")
+               (or (plist-get info :steps) "unknown number of")))
+      (finished
+       (format "(bisected: first bad revision is %s)" (plist-get info :bad)))
+      (t
+       "(bisecting; unknown error occured)"))))
 
 (defun magit-bisect-start ()
   "Start a bisect session."
@@ -202,28 +200,19 @@ match REQUIRED-STATUS."
         (when new-info
           (with-current-buffer (magit-find-status-buffer)
             (setq magit--bisect-info new-info)
-            (magit--bisect-update-status-buffer)))))))
+            (save-excursion
+              (let ((inhibit-read-only t))
+                (goto-char (point-min))
+                (when (re-search-forward "^Local:" nil t)
+                  (beginning-of-line)
+                  (kill-line)
+                  (magit-insert-status-local-line))))))))))
 
 (defun magit--bisect-run-sentinel (process event)
   (when (string-match-p "^finish" event)
     (with-current-buffer (process-buffer process)
       (delete-file magit--bisect-tmp-file)))
   (magit-process-sentinel process event))
-
-(defun magit--bisect-update-status-buffer ()
-  (with-current-buffer (magit-find-status-buffer)
-    (save-excursion
-      (save-match-data
-        (let ((inhibit-read-only t))
-          (goto-char (point-min))
-          (when (search-forward-regexp "Local:" nil t)
-            (beginning-of-line)
-            (kill-line)
-            (insert (format "Local:    %s %s"
-                            (propertize (magit--bisect-info-for-status
-                                         (magit-get-current-branch))
-                                        'face 'magit-branch)
-                            (abbreviate-file-name default-directory)))))))))
 
 (provide 'magit-bisect)
 ;;; magit-bisect.el ends here

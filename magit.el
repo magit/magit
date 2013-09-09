@@ -85,6 +85,8 @@ Use the function by the same name instead of this variable.")
 (declare-function eshell-parse-arguments 'eshell)
 (declare-function ido-completing-read 'ido)
 (declare-function iswitchb-read-buffer 'iswitchb)
+(declare-function magit--bisect-info-for-status 'magit-bisect)
+(declare-function magit--bisecting-p 'magit-bisect)
 (declare-function package-desc-vers 'package)
 (declare-function package-desc-version 'package)
 (declare-function package-version-join 'package)
@@ -4499,8 +4501,6 @@ if FULLY-QUALIFIED-NAME is non-nil."
    (t
     (run-hook-with-args-until-success 'magit-remote-string-hook))))
 
-(declare-function magit--bisect-info-for-status "magit-bisect" (branch))
-
 (defvar magit-status-line-align-to 9)
 
 (defun magit-insert-status-line (heading info-string)
@@ -4509,6 +4509,15 @@ if FULLY-QUALIFIED-NAME is non-nil."
           (make-string (max 1 (- magit-status-line-align-to
                                  (length heading))) ?\ )
           info-string "\n"))
+
+(defun magit-insert-status-local-line ()
+  (magit-insert-status-line "Local"
+    (concat (propertize (if (magit--bisecting-p)
+                            (magit--bisect-info-for-status)
+                          (or (magit-get-current-branch)
+                              "(detached)"))
+                        'face 'magit-branch)
+            " " (abbreviate-file-name default-directory))))
 
 (defun magit-insert-status-head-line ()
   (magit-insert-status-line "Head"
@@ -4568,12 +4577,9 @@ if FULLY-QUALIFIED-NAME is non-nil."
              (remote-rebase (and branch (magit-get-boolean "branch" branch "rebase")))
              (remote-branch (or (and branch (magit-remote-branch-for branch)) branch))
              (remote-string (magit-remote-string remote remote-branch remote-rebase)))
+        (magit-insert-status-local-line)
         (when remote-string
           (magit-insert-status-line "Remote" remote-string))
-        (magit-insert-status-line "Local"
-          (concat (propertize (magit--bisect-info-for-status branch)
-                              'face 'magit-branch)
-                  " " (abbreviate-file-name default-directory)))
         (magit-insert-status-head-line)
         (magit-insert-status-tags-line)
         (magit-insert-status-merge-line)
