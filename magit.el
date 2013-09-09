@@ -4539,6 +4539,25 @@ if FULLY-QUALIFIED-NAME is non-nil."
                          (format " (%i" cnt))
                        " " (if behindp "behind" "ahead") ")"))))
 
+(defun magit-insert-status-merge-line ()
+  (let ((heads (magit-file-lines (magit-git-dir "MERGE_HEAD"))))
+    (when heads
+      (magit-insert-status-line "Merging"
+        (concat
+         (mapconcat 'identity (mapcar 'magit-name-rev heads) ", ")
+         "; Resolve conflicts, or press \"m A\" to Abort")))))
+
+(defun magit-insert-status-rebase-lines ()
+  (let ((rebase (magit-rebase-info)))
+    (when rebase
+      (magit-insert-status-line "Rebasing"
+        (apply 'format
+               "onto %s (%s of %s); Press \"R\" to Abort, Skip, or Continue"
+               rebase))
+      (when (nth 3 rebase)
+        (magit-insert-status-line "Stopped"
+          (magit-format-commit (nth 3 rebase) "%h %s"))))))
+
 ;;;; Status Refresh
 
 (defun magit-refresh-status ()
@@ -4548,9 +4567,7 @@ if FULLY-QUALIFIED-NAME is non-nil."
              (remote (and branch (magit-get "branch" branch "remote")))
              (remote-rebase (and branch (magit-get-boolean "branch" branch "rebase")))
              (remote-branch (or (and branch (magit-remote-branch-for branch)) branch))
-             (remote-string (magit-remote-string remote remote-branch remote-rebase))
-             (merge-heads (magit-file-lines (magit-git-dir "MERGE_HEAD")))
-             (rebase (magit-rebase-info)))
+             (remote-string (magit-remote-string remote remote-branch remote-rebase)))
         (when remote-string
           (magit-insert-status-line "Remote" remote-string))
         (magit-insert-status-line "Local"
@@ -4559,19 +4576,8 @@ if FULLY-QUALIFIED-NAME is non-nil."
                   " " (abbreviate-file-name default-directory)))
         (magit-insert-status-head-line)
         (magit-insert-status-tags-line)
-        (when merge-heads
-          (magit-insert-status-line "Merging"
-            (concat
-             (mapconcat 'identity (mapcar 'magit-name-rev merge-heads) ", ")
-             "; Resolve conflicts, or press \"m A\" to Abort")))
-        (when rebase
-          (magit-insert-status-line "Rebasing"
-            (apply 'format
-                   "onto %s (%s of %s); Press \"R\" to Abort, Skip, or Continue"
-                   rebase))
-          (when (nth 3 rebase)
-            (magit-insert-status-line "Stopped"
-              (magit-format-commit (nth 3 rebase) "%h %s"))))
+        (magit-insert-status-merge-line)
+        (magit-insert-status-rebase-lines)
         (insert "\n")
         (magit-git-exit-code "update-index" "--refresh")
         (magit-insert-stashes)
