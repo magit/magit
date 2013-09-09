@@ -1444,6 +1444,59 @@ the current git repository."
     (when (and head (string-match "^refs/heads/" head))
       (substring head 11))))
 
+(defun magit-get-tracked-branch (&optional branch qualified pretty)
+  "Return the name of the tracking branch the local branch name BRANCH.
+
+If optional QUALIFIED is non-nil return the full branch path,
+otherwise try to shorten it to a name (which may fail).  If
+optional PRETTY is non-nil additionally format the branch name
+according to option `magit-remote-ref-format'."
+  (unless branch
+    (setq branch (magit-get-current-branch)))
+  (when branch
+    (let ((remote (magit-get "branch" branch "remote"))
+          (merge  (magit-get "branch" branch "merge")))
+      (when (and (not merge)
+                 (not (equal remote ".")))
+        (setq merge branch))
+      (when (and remote merge)
+        (if (string= remote ".")
+            (cond (qualified merge)
+                  ((string-match "^refs/heads/" merge)
+                   (substring merge 11))
+                  ((string-match "^refs/" merge)
+                   merge))
+          (let* ((fetch (mapcar (lambda (f) (split-string f "[+:]" t))
+                                (magit-get-all "remote" remote "fetch")))
+                 (match (cadr (assoc merge fetch))))
+            (unless match
+              (let* ((prefix (nreverse (split-string merge "/")))
+                     (unique (list (car prefix))))
+                (setq prefix (cdr prefix))
+                (setq fetch
+                      (cl-mapcan
+                       (lambda (f)
+                         (cl-destructuring-bind (from to) f
+                           (setq from (nreverse (split-string from "/")))
+                           (when (equal (car from) "*")
+                             (list (list (cdr from) to)))))
+                       fetch))
+                (while (and prefix (not match))
+                  (if (setq match (cadr (assoc prefix fetch)))
+                      (setq match (concat (substring match 0 -1)
+                                          (mapconcat 'identity
+                                                     (nreverse unique)
+                                                     "/")))
+                    (setq unique (cons (car prefix) unique)
+                          prefix (cdr prefix))))))
+            (cond ((not match) nil)
+                  (qualified match)
+                  ((string-match "^refs/remotes/" match)
+                   (if pretty
+                       (substring match (+ 14 (length match)))
+                     (substring match 13)))
+                  (t match))))))))
+
 (defun magit-get-previous-branch ()
   "Return the refname of the previously checked out branch.
 Return nil if the previously checked out branch no longer exists."
@@ -4465,21 +4518,6 @@ in `magit-commit-buffer-name'."
                     (format "%s..HEAD"
                             (magit-remote-branch-name remote branch)))))))
 
-(defun magit-remote-branch-for (local-branch &optional fully-qualified-name)
-  "Guess the remote branch name that LOCAL-BRANCH is tracking.
-Gives a fully qualified name (e.g., refs/remotes/origin/master)
-if FULLY-QUALIFIED-NAME is non-nil."
-  (let ((merge  (magit-get "branch" local-branch "merge"))
-        (remote (magit-get "branch" local-branch "remote")))
-    (save-match-data
-      (when (and merge remote
-                 (string-match "^refs/heads/\\(.+\\)" merge))
-        (concat (when fully-qualified-name
-                  (if (string= "." remote)
-                      "refs/heads/"
-                    (concat "refs/remotes/" remote "/")))
-                (match-string 1 merge))))))
-
 (defvar magit-status-line-align-to 9)
 
 (defun magit-insert-status-line (heading info-string)
@@ -4499,21 +4537,20 @@ if FULLY-QUALIFIED-NAME is non-nil."
             " " (abbreviate-file-name default-directory))))
 
 (defun magit-insert-status-remote-line ()
-  (let ((branch (magit-get-current-branch)))
-    (when branch
-      (let ((remote (magit-get "branch" branch "remote"))
-            (merge  (magit-remote-branch-for branch)))
-        (unless (or merge (equal remote "."))
-          (setq merge branch))
-        (when (and remote merge)
-          (setq merge (propertize merge 'face 'magit-branch))
-          (magit-insert-status-line "Remote"
-            (concat
-             (and (magit-get-boolean "branch" branch "rebase") "onto ")
-             (if (string= "." remote)
-                 (concat "branch " merge)
-               (concat merge " @ " remote
-                       " (" (magit-get "remote" remote "url") ")")))))))))
+  (let* ((branch  (magit-get-current-branch))
+         (remote  (magit-get "branch" branch "remote"))
+         (tracked (magit-get-tracked-branch branch)))
+    (when tracked
+      (setq tracked (propertize tracked 'face 'magit-branch))
+      (magit-insert-status-line "Remote"
+        (concat
+         (and (magit-get-boolean "branch" branch "rebase") "onto ")
+         (if (string= "." remote)
+             (concat "branch " tracked)
+           (when (string-match (concat "^" remote) tracked)
+             (setq tracked (substring tracked (1+ (length remote)))))
+           (concat tracked " @ " remote
+                   " (" (magit-get "remote" remote "url") ")")))))))
 
 (defun magit-insert-status-head-line ()
   (magit-insert-status-line "Head"
@@ -4570,7 +4607,7 @@ if FULLY-QUALIFIED-NAME is non-nil."
     (magit-with-section 'status nil
       (let* ((branch (magit-get-current-branch))
              (remote (and branch (magit-get "branch" branch "remote")))
-             (remote-branch (or (and branch (magit-remote-branch-for branch)) branch)))
+             (remote-branch (or (and branch (magit-get-tracked-branch branch)) branch)))
         (magit-insert-status-local-line)
         (magit-insert-status-remote-line)
         (magit-insert-status-head-line)
@@ -5090,7 +5127,7 @@ Return nil if there is no rebase in progress."
     (let* ((branch (magit-get-current-branch))
            (rev (magit-read-rev
                  "Rebase to"
-                 (magit-format-ref (magit-remote-branch-for branch t))
+                 (magit-get-tracked-branch branch nil t)
                  (if branch
                      (cons (concat "refs/heads/" branch)
                            magit-uninteresting-refs)
@@ -6704,7 +6741,7 @@ These are the branch names with the remote name stripped."
          "")
        ;; tracking information
        (if (and tracking
-                (equal (magit-remote-branch-for branch t)
+                (equal (magit-get-tracked-branch branch t)
                        (concat "refs/remotes/" tracking)))
            (concat " ["
                    ;; getting rid of the tracking branch name if it is

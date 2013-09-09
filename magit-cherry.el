@@ -39,8 +39,7 @@
    (let ((branch (or (magit-get-current-branch)
                      (error "Don't cherry on a detached head."))))
      (list (magit-read-rev "Cherry upstream"
-                           (magit-format-ref
-                            (magit-remote-branch-for branch t)))
+                           (magit-get-tracked-branch branch nil t))
            (magit-read-rev "Cherry head" branch))))
   (let ((topdir (magit-get-top-dir default-directory)))
     (magit-display-mode-buffer magit--cherry-buffer-name)
