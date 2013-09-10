@@ -3192,7 +3192,7 @@ the buffer.  Finally reset the window configuration to nil."
   (let ((magit-old-top-section nil))
     (magit-wash-sequence #'magit-wash-untracked-file)))
 
-(defun magit-insert-untracked-files ()
+(magit-define-inserter untracked-files ()
   (unless (string= (magit-get "status" "showUntrackedFiles") "no")
     (apply 'magit-git-section
            `(untracked
