@@ -7,6 +7,7 @@
 ;; https://raw.github.com/magit/magit/master/AUTHORS.md
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
+;; Package: magit
 
 ;; Contains code from GNU Emacs <https://www.gnu.org/software/emacs/>,
 ;; released under the GNU General Public License version 3 or later.

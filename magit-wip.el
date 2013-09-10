@@ -7,6 +7,8 @@
 ;; https://raw.github.com/magit/magit/master/AUTHORS.md
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
+;; Keywords: vc tools
+;; Package: magit
 
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by

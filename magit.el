@@ -16,7 +16,8 @@
 ;;	Peter J. Weisberg <pj@irregularexpressions.net>
 ;;	Phil Jackson      <phil@shellarchive.co.uk>
 
-;; Keywords: tools
+;; Keywords: vc tools
+;; Package: magit
 ;; Package-Requires: ((cl-lib "0.3") (git-commit-mode "0.14.0") (git-rebase-mode "0.14.0"))
 
 ;; Magit is free software; you can redistribute it and/or modify it

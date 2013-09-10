@@ -7,6 +7,7 @@
 ;; https://raw.github.com/magit/magit/master/AUTHORS.md
 
 ;; Author: Yann Hodique <yann.hodique@gmail.com>
+;; Package: magit
 
 ;; Contains code from Egg (Emacs Got Git) <https://github.com/byplayer/egg>,
 ;; released under the GNU General Public License version 3 or later.

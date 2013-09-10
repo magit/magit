@@ -7,6 +7,9 @@
 ;; https://raw.github.com/magit/magit/master/AUTHORS.md
 
 ;; Author: Phil Jackson <phil@shellarchive.co.uk>
+;; Keywords: vc tools
+;; Package: magit-flow
+;; Package-Requires: ((magit "1.3.0"))
 
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
