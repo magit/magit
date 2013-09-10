@@ -5878,13 +5878,13 @@ With a prefix arg, do a submodule update --init."
   (interactive (list (magit-read-rev-range "Long Log" "HEAD")))
   (magit-log-long range))
 
-(magit-define-command reflog (rev)
+(magit-define-command reflog (ref)
   (interactive (list (magit-read-rev "Reflog of"
                                      (or (magit-guess-branch) "HEAD"))))
   (magit-mode-setup "*magit-reflog*"
                     #'magit-reflog-mode
                     #'magit-refresh-reflog-buffer
-                    rev (magit-rev-to-git rev)))
+                    ref))
 
 (magit-define-command reflog-head ()
   (interactive)
@@ -5941,15 +5941,15 @@ With a non numeric prefix ARG, show all entries"
   "The HEAD of the reflog in the current buffer.
 This is only non-nil in reflog buffers.")
 
-(defun magit-refresh-reflog-buffer (head args)
-  (setq magit-reflog-head head)
+(defun magit-refresh-reflog-buffer (ref)
+  (setq magit-reflog-head ref)
   (magit-create-log-buffer-sections
-    (apply #'magit-git-section 'reflog
-           (format "Local history of head %s" head)
-           (apply-partially 'magit-wash-log 'reflog)
-           "log" magit-reflog-format
-           (magit-diff-abbrev-arg)
-           (list "--walk-reflogs" (magit-log-cutoff-length-arg) args))))
+    (magit-git-section 'reflog (format "Local history of branch %s" ref)
+                       (apply-partially 'magit-wash-log 'reflog)
+                       "log" magit-reflog-format
+                       (magit-diff-abbrev-arg)
+                       "--walk-reflogs" (magit-log-cutoff-length-arg)
+                       (magit-rev-to-git ref))))
 
 (define-derived-mode magit-reflog-mode magit-log-mode "Magit Reflog"
   "Mode for looking at git reflog.
