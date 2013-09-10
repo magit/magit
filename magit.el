@@ -5597,12 +5597,10 @@ With a prefix argument amend to the commit at HEAD instead.
                        (add-log-current-defun)))
                  nil))
           (file (magit-diff-item-file
-                 (cond ((eq (magit-section-type section) 'hunk)
-                        (magit-hunk-item-diff section))
-                       ((eq (magit-section-type section) 'diff)
-                        section)
-                       (t
-                        (error "No change at point")))))
+                 (cl-case (magit-section-type section)
+                   (hunk (magit-hunk-item-diff section))
+                   (diff section)
+                   (t    (error "No change at point")))))
           (buffer (cl-find-if (lambda (buf)
                                 (with-current-buffer buf
                                   (derived-mode-p 'git-commit-mode)))
@@ -6212,8 +6210,9 @@ or something else."
            "log" (magit-log-cutoff-length-arg)
            "--decorate=full" "--abbrev-commit" "--graph"
            (magit-diff-abbrev-arg)
-           `(,@(cond ((eq style 'long) (list "--stat" "-z"))
-                     ((eq style 'oneline) (list "--pretty=oneline")))
+           `(,@(cl-case style
+                 (long    (list "--stat" "-z"))
+                 (oneline (list "--pretty=oneline")))
              "--" ,file))))
 
 (defun magit-file-log (&optional all)
@@ -6308,21 +6307,21 @@ With a prefix argument edit the ignore string."
 ;;;; Discard
 
 (defun magit-discard-diff (diff stagedp)
-  (let ((kind (magit-diff-item-kind diff))
-        (file (magit-diff-item-file diff)))
-    (cond ((eq kind 'deleted)
-           (when (yes-or-no-p (format "Resurrect %s? " file))
-             (when stagedp
-               (magit-run-git "reset" "-q" "--" file))
-             (magit-run-git "checkout" "--" file)))
-          ((eq kind 'new)
-           (when (yes-or-no-p (format "Delete %s? " file))
-             (magit-run-git "rm" "-f" "--" file)))
-          (t
-           (when (yes-or-no-p (format "Discard changes to %s? " file))
-             (if stagedp
-                 (magit-run-git "checkout" "HEAD" "--" file)
-               (magit-run-git "checkout" "--" file)))))))
+  (let ((file (magit-diff-item-file diff)))
+    (cl-case (magit-diff-item-kind diff)
+      (deleted
+       (when (yes-or-no-p (format "Resurrect %s? " file))
+         (when stagedp
+           (magit-run-git "reset" "-q" "--" file))
+         (magit-run-git "checkout" "--" file)))
+      (new
+       (when (yes-or-no-p (format "Delete %s? " file))
+         (magit-run-git "rm" "-f" "--" file)))
+      (t
+       (when (yes-or-no-p (format "Discard changes to %s? " file))
+         (if stagedp
+             (magit-run-git "checkout" "HEAD" "--" file)
+           (magit-run-git "checkout" "--" file)))))))
 
 (defun magit-discard-item ()
   (interactive)
