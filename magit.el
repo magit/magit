@@ -3852,24 +3852,16 @@ member of ARGS, or to the working file otherwise."
 (defun magit-log-cutoff-length-arg ()
   (format "--max-count=%d" magit-log-cutoff-length))
 
-;; Note: making this a plain defcustom would probably let users break
-;; the parser too easily
-(defvar magit-git-log-options
-  (list "--pretty=format:* %h %s" (magit-diff-abbrev-arg)))
-;; --decorate=full otherwise some ref prefixes are stripped
-;;  '("--pretty=format:* %H%d %s" "--decorate=full"))
+(defvar magit-reflog-format "--format=format:* \C-?%h\C-?%gs")
 
-(defvar magit-git-reflog-options
-  (list "--pretty=format:* \C-?%h\C-?%gs" (magit-diff-abbrev-arg)))
+(defvar magit-log-format "--format=format:* %h %s")
 
 (defconst magit-unpushed-or-unpulled-commit-re
   (concat "^\\* "
-          "\\([0-9a-fA-F]+\\) " ;; sha
-          "\\(.*\\)$"           ;; message
-          )
-  "Regexp for parsing format in `magit-git-log-options'.")
+          "\\([0-9a-fA-F]+\\) " ; sha
+          "\\(.*\\)$")          ; message
+  "Regexp for parsing `magit-log-format'.")
 
-;;
 ;; Regexps for parsing ref names
 ;;
 ;; see the `git-check-ref-format' manpage for details
@@ -4540,20 +4532,20 @@ in `magit-commit-buffer-name'."
 (magit-define-inserter unpulled-commits ()
   (let ((tracked (magit-get-tracked-branch nil t)))
     (when tracked
-      (apply #'magit-git-section
-             'unpulled "Unpulled commits:"
-             #'magit-wash-unpulled-or-unpushed "log"
-             (append magit-git-log-options
-                     (list (concat "HEAD.." tracked)))))))
+      (magit-git-section 'unpulled "Unpulled commits:"
+                         #'magit-wash-unpulled-or-unpushed
+                         "log" magit-log-format
+                         (magit-diff-abbrev-arg)
+                         (concat "HEAD.." tracked)))))
 
 (magit-define-inserter unpushed-commits ()
   (let ((tracked (magit-get-tracked-branch nil t)))
     (when tracked
-      (apply #'magit-git-section
-             'unpushed "Unpushed commits:"
-             #'magit-wash-unpulled-or-unpushed "log"
-             (append magit-git-log-options
-                     (list (concat tracked "..HEAD")))))))
+      (magit-git-section 'unpushed "Unpushed commits:"
+                         #'magit-wash-unpulled-or-unpushed
+                         "log" magit-log-format
+                         (magit-diff-abbrev-arg)
+                         (concat tracked "..HEAD")))))
 
 (defvar magit-status-line-align-to 9)
 
@@ -5952,13 +5944,12 @@ This is only non-nil in reflog buffers.")
 (defun magit-refresh-reflog-buffer (head args)
   (setq magit-reflog-head head)
   (magit-create-log-buffer-sections
-    (apply #'magit-git-section
-           'reflog (format "Local history of head %s" head)
+    (apply #'magit-git-section 'reflog
+           (format "Local history of head %s" head)
            (apply-partially 'magit-wash-log 'reflog)
-           "log"
-           (append magit-git-reflog-options
-                   (list "--walk-reflogs" (magit-log-cutoff-length-arg)
-                         args)))))
+           "log" magit-reflog-format
+           (magit-diff-abbrev-arg)
+           (list "--walk-reflogs" (magit-log-cutoff-length-arg) args))))
 
 (define-derived-mode magit-reflog-mode magit-log-mode "Magit Reflog"
   "Mode for looking at git reflog.
