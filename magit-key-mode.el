@@ -141,10 +141,11 @@
      (actions
       ("v" "Branch manager" magit-branch-manager)
       ("c" "Create" magit-create-branch)
-      ("r" "Rename" magit-move-branch)
+      ("r" "Rename" magit-rename-branch)
       ("k" "Delete" magit-delete-branch)
       ("b" "Checkout" magit-checkout))
      (switches
+      ("-t" "Set upstream configuration" "--track")
       ("-m" "Merged to HEAD" "--merged")
       ("-M" "Merged to master" "--merged=master")
       ("-n" "Not merged to HEAD" "--no-merged")

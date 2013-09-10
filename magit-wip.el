@@ -137,7 +137,7 @@ You can activate it with git config magit.extension wip-save.
   (when (and (buffer-file-name)
              (magit-get-top-dir)
              (member "wip-save" (magit-get-all "magit.extension")))
-    (if (= (magit-git-exit-code "wip" "-h") 0)
+    (if (magit-git-success "wip" "-h")
         (magit-wip-save-mode 1)
       (message "Git command 'git wip' cannot be found"))))
 

@@ -34,7 +34,7 @@
 
 ;;; Code:
 
-(declare-function magit-git-exit-code 'magit)
+(declare-function magit-git-success 'magit)
 
 ;;; Old Emacsen
 
@@ -83,7 +83,7 @@ to case differences."
 (defun magit-configure-have-config-param ()
   (when (eq magit-have-config-param 'unset)
     (setq magit-have-config-param
-          (= 0 (magit-git-exit-code "-c" "g.o=v" "config" "g.o")))))
+          (magit-git-success "-c" "g.o=v" "config" "g.o"))))
 
 ;;;; Subcommands
 
@@ -101,13 +101,13 @@ to case differences."
 (defun magit-configure-have-graph ()
   (when (eq magit-have-graph 'unset)
     (setq magit-have-graph
-          (= 0 (magit-git-exit-code "log" "--graph" "-n" "0")))))
+          (magit-git-success "log" "--graph" "-n" "0"))))
 
 ;; Added in Git 1.6.5.
 (defun magit-configure-have-decorate ()
   (when (eq magit-have-decorate 'unset)
     (setq magit-have-decorate
-          (= 0 (magit-git-exit-code "log" "--decorate=full" "-n" "0")))))
+          (magit-git-success "log" "--decorate=full" "-n" "0"))))
 
 ;; The name doesn't reflect what this function actually test, so it
 ;; is no suprise it is used under wrong assumptions in some cases.
@@ -115,14 +115,13 @@ to case differences."
 (defun magit-configure-have-abbrev ()
   (when (eq magit-have-abbrev 'unset)
     (setq magit-have-abbrev
-          (= 0 (magit-git-exit-code "log" "--no-abbrev-commit" "-n" "0")))))
+          (magit-git-success "log" "--no-abbrev-commit" "-n" "0"))))
 
 ;; Added in Git 1.7.2 (not in RelNotes).
 (defun magit-configure-have-revlist-count ()
   (when (eq magit-have-revlist-count 'unset)
     (setq magit-have-revlist-count
-          (= 0 (magit-git-exit-code
-                "rev-list" "--count" "--left-right" "HEAD")))))
+          (magit-git-success "rev-list" "--count" "--left-right" "HEAD"))))
 
 (provide 'magit-compat)
 ;;; magit-compat.el ends here
