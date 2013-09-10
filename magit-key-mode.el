@@ -652,8 +652,7 @@ Return the point before the actions part, if any, nil otherwise."
          ;; As a tempory kludge it is okay to do this here.
          ,(cl-case group
             (logging
-             '(when magit-have-graph
-                (list "--graph")))
+             '(list "--graph"))
             (diff-options
              '(when (local-variable-p 'magit-diff-options)
                 magit-diff-options))))))))

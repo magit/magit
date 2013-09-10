@@ -6,7 +6,6 @@
 ;; at the top-level directory of this distribution and at
 ;; https://raw.github.com/magit/magit/master/AUTHORS.md
 
-;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Package: magit
 
 ;; Contains code from GNU Emacs <https://www.gnu.org/software/emacs/>,
@@ -27,11 +26,13 @@
 
 ;;; Commentary:
 
-;; This file contains code needed for compatibility
-;; with older versions of GNU Emacs and Git.
+;; This file contains code needed for compatibility with older
+;; versions of GNU Emacs.  It used to also contain feature checks
+;; for older versions of Git but that is currently not necessary.
 
-;; Magit requires at least GNU Emacs 23.2.
-;; The minimal Git version is unknown at this point.
+;; Magit requires at least GNU Emacs 23.2.  The minimal Git version
+;; is 1.7.2.5.  These are the versions used by Debian oldstable
+;; (6.0, Squeeze).
 
 ;;; Code:
 
@@ -73,56 +74,6 @@ to case differences."
       (let ((inhibit-changing-match-data t))
         (string-match regexp string start))))
   )
-
-;;; Old Git
-;;;; Common
-
-(defvar-local magit-have-config-param 'unset)
-(put 'magit-have-config-param 'permanent-local t)
-
-;; Added in Git 1.7.2.
-(defun magit-configure-have-config-param ()
-  (when (eq magit-have-config-param 'unset)
-    (setq magit-have-config-param
-          (magit-git-success "-c" "g.o=v" "config" "g.o"))))
-
-;;;; Subcommands
-
-(defvar-local magit-have-graph 'unset)
-(defvar-local magit-have-decorate 'unset)
-(defvar-local magit-have-abbrev 'unset)
-(defvar-local magit-have-revlist-count 'unset)
-
-(put 'magit-have-graph 'permanent-local t)
-(put 'magit-have-decorate 'permanent-local t)
-(put 'magit-have-abbrev 'permanent-local t)
-(put 'magit-have-revlist-count 'permanent-local t)
-
-;; Added in Git 1.5.6.
-(defun magit-configure-have-graph ()
-  (when (eq magit-have-graph 'unset)
-    (setq magit-have-graph
-          (magit-git-success "log" "--graph" "-n" "0"))))
-
-;; Added in Git 1.6.5.
-(defun magit-configure-have-decorate ()
-  (when (eq magit-have-decorate 'unset)
-    (setq magit-have-decorate
-          (magit-git-success "log" "--decorate=full" "-n" "0"))))
-
-;; The name doesn't reflect what this function actually test, so it
-;; is no suprise it is used under wrong assumptions in some cases.
-;; Added in Git 1.7.6 (not in RelNotes).
-(defun magit-configure-have-abbrev ()
-  (when (eq magit-have-abbrev 'unset)
-    (setq magit-have-abbrev
-          (magit-git-success "log" "--no-abbrev-commit" "-n" "0"))))
-
-;; Added in Git 1.7.2 (not in RelNotes).
-(defun magit-configure-have-revlist-count ()
-  (when (eq magit-have-revlist-count 'unset)
-    (setq magit-have-revlist-count
-          (magit-git-success "rev-list" "--count" "--left-right" "HEAD"))))
 
 (provide 'magit-compat)
 ;;; magit-compat.el ends here

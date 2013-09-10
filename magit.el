@@ -1628,21 +1628,11 @@ Otherwise, return nil."
 (defun magit-rev-diff-count (a b)
   "Return the commits in A but not B and vice versa.
 Return a list of two integers: (A>B B>A)."
-  (magit-configure-have-revlist-count)
-  (if magit-have-revlist-count
-      (mapcar 'string-to-number
-              (split-string (magit-git-string "rev-list"
-                                              "--count" "--left-right"
-                                              (concat a "..." b))
-                            "\t"))
-    ;; Kludge.  git < 1.7.2 does not support git rev-list --count
-    (let ((ac 0) (bc 0))
-      (dolist (commit (magit-git-lines "rev-list" "--left-right"
-                                       (concat a "..." b)))
-        (cl-case (aref commit 0)
-                 (?\< (cl-incf ac))
-                 (?\> (cl-incf bc))))
-      (list ac bc))))
+  (mapcar 'string-to-number
+          (split-string (magit-git-string "rev-list"
+                                          "--count" "--left-right"
+                                          (concat a "..." b))
+                        "\t")))
 
 (defun magit-name-rev (rev &optional no-trim)
   "Return a human-readable name for REV.
@@ -3655,15 +3645,9 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                      'face 'magit-whitespace-warning-face)))))
 
 (defun magit-insert-diff (file status)
-  (magit-configure-have-config-param)
-  (let ((cmd magit-git-executable)
-        (args (append (and magit-have-config-param
-                           (list "-c" "diff.submodule=short"))
-                      (list "diff" (magit-diff-U-arg))
-                      magit-diff-options
-                      (list "--" file)))
-        (beg (point)))
-    (apply 'magit-git-insert args)
+  (let ((beg (point)))
+    (apply 'magit-git-insert "-c" "diff.submodule=short" "diff"
+           `(,(magit-diff-U-arg) ,@magit-diff-options "--" ,file))
     (unless (eq (char-before) ?\n)
       (insert "\n"))
     (save-restriction
@@ -4397,20 +4381,14 @@ insert a line to tell how to insert more of them"
                     'face 'magit-log-sha1))
 
 (defun magit-refresh-commit-buffer (commit)
-  (magit-configure-have-abbrev)
-  (magit-configure-have-decorate)
   (magit-create-buffer-sections
     (apply #'magit-git-section nil nil
            'magit-wash-commit
-           "log"
-           "--max-count=1"
-           "--pretty=medium"
-           `(,@(and magit-have-abbrev   (list "--no-abbrev-commit"))
-             ,@(and magit-have-decorate (list "--decorate=full"))
-             ,@(and magit-show-diffstat (list "--stat"))
-             ,@magit-diff-options
-             "--cc"
-             "-p" ,commit))))
+           "log" "-1" "--decorate=full"
+           "--pretty=medium" "--no-abbrev-commit"
+           "--cc" "-p" commit
+           `(,@(and magit-show-diffstat (list "--stat"))
+             ,@magit-diff-options))))
 
 ;;; Commit Mode
 
@@ -5939,9 +5917,6 @@ With a non numeric prefix ARG, show all entries"
     (goto-char old-point)))
 
 (defun magit-refresh-log-buffer (range style args)
-  (magit-configure-have-graph)
-  (magit-configure-have-decorate)
-  (magit-configure-have-abbrev)
   (setq magit-current-range range)
   (magit-create-log-buffer-sections
     (apply #'magit-git-section nil
@@ -5949,24 +5924,19 @@ With a non numeric prefix ARG, show all entries"
                "Commits"
              (magit-rev-range-describe range "Commits"))
            (apply-partially 'magit-wash-color-log style)
-           `("log"
-             ,(format "--max-count=%d" magit-log-cutoff-length)
-             "--abbrev-commit"
-             ,(format "--abbrev=%d" magit-sha1-abbrev-length)
-             ,@(cl-case style
+           "log" (format "--max-count=%d" magit-log-cutoff-length)
+           "--decorate=full" "--abbrev-commit" "--color"
+           (format "--abbrev=%d" magit-sha1-abbrev-length)
+           `(,@(cl-case style
                  (long
-                  (append (list "--stat")
-                          (when magit-log-show-gpg-status
-                            (list "--show-signature"))))
+                  (if magit-log-show-gpg-status
+                      (list "--stat" "--show-signature")
+                    (list "--stat")))
                  (oneline
                   (list (concat "--pretty=format:%h%d "
                                 (and magit-log-show-gpg-status "%G?")
-                                "[%an][%ar]%s")))
-                 (t nil))
-             ,@(and magit-have-decorate (list "--decorate=full"))
-             "--color"
-             ,@args
-             "--"))))
+                                "[%an][%ar]%s"))))
+             ,@args "--"))))
 
 (define-derived-mode magit-log-mode magit-mode "Magit Log"
   "Mode for looking at git log.
@@ -6237,26 +6207,18 @@ FILE is the path of the file whose log must be displayed.
 
 STYLE controls the display.  It is either `long', `oneline',
 or something else."
-  (magit-configure-have-graph)
-  (magit-configure-have-decorate)
-  (magit-configure-have-abbrev)
   (setq magit-current-range range)
   (setq magit-file-log-file file)
   (magit-create-log-buffer-sections
     (apply #'magit-git-section nil
            (magit-rev-range-describe range (format "Commits for file %s" file))
            (apply-partially 'magit-wash-log style)
-           `("log"
-             ,(format "--max-count=%d" magit-log-cutoff-length)
-             ,"--abbrev-commit"
-             ,(format "--abbrev=%d" magit-sha1-abbrev-length)
-             ,@(cond ((eq style 'long) (list "--stat" "-z"))
-                     ((eq style 'oneline) (list "--pretty=oneline"))
-                     (t nil))
-             ,@(and magit-have-decorate (list "--decorate=full"))
-             ,@(and magit-have-graph (list "--graph"))
-             "--"
-             ,file))))
+           "log" (format "--max-count=%d" magit-log-cutoff-length)
+           "--decorate=full" "--abbrev-commit" "--graph"
+           (format "--abbrev=%d" magit-sha1-abbrev-length)
+           `(,@(cond ((eq style 'long) (list "--stat" "-z"))
+                     ((eq style 'oneline) (list "--pretty=oneline")))
+             "--" ,file))))
 
 (defun magit-file-log (&optional all)
   "Display the log for the currently visited file or another one.
