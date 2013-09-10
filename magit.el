@@ -4467,12 +4467,6 @@ in `magit-commit-buffer-name'."
   (or magit-marked-commit
       (error "No commit marked")))
 
-(defun magit-remote-branch-name (remote branch)
-  "Get the name of the branch BRANCH on remote REMOTE."
-  (if (string= remote ".")
-      branch
-    (concat remote "/" branch)))
-
 ;;; Status Mode
 ;;;; Status Sections
 
@@ -4498,25 +4492,23 @@ in `magit-commit-buffer-name'."
            (forward-line))
          t)))))
 
-(magit-define-inserter unpulled-commits (remote branch)
-  (when remote
-    (apply #'magit-git-section
-           'unpulled "Unpulled commits:"
-           #'magit-wash-unpulled-or-unpushed "log"
-           (append magit-git-log-options
-                   (list
-                    (format "HEAD..%s"
-                            (magit-remote-branch-name remote branch)))))))
+(magit-define-inserter unpulled-commits ()
+  (let ((tracked (magit-get-tracked-branch nil t)))
+    (when tracked
+      (apply #'magit-git-section
+             'unpulled "Unpulled commits:"
+             #'magit-wash-unpulled-or-unpushed "log"
+             (append magit-git-log-options
+                     (list (concat "HEAD.." tracked)))))))
 
-(magit-define-inserter unpushed-commits (remote branch)
-  (when remote
-    (apply #'magit-git-section
-           'unpushed "Unpushed commits:"
-           #'magit-wash-unpulled-or-unpushed "log"
-           (append magit-git-log-options
-                   (list
-                    (format "%s..HEAD"
-                            (magit-remote-branch-name remote branch)))))))
+(magit-define-inserter unpushed-commits ()
+  (let ((tracked (magit-get-tracked-branch nil t)))
+    (when tracked
+      (apply #'magit-git-section
+             'unpushed "Unpushed commits:"
+             #'magit-wash-unpulled-or-unpushed "log"
+             (append magit-git-log-options
+                     (list (concat tracked "..HEAD")))))))
 
 (defvar magit-status-line-align-to 9)
 
@@ -4605,9 +4597,7 @@ in `magit-commit-buffer-name'."
 (defun magit-refresh-status ()
   (magit-create-buffer-sections
     (magit-with-section 'status nil
-      (let* ((branch (magit-get-current-branch))
-             (remote (and branch (magit-get "branch" branch "remote")))
-             (remote-branch (or (and branch (magit-get-tracked-branch branch)) branch)))
+      (progn
         (magit-insert-status-local-line)
         (magit-insert-status-remote-line)
         (magit-insert-status-head-line)
@@ -4622,8 +4612,8 @@ in `magit-commit-buffer-name'."
         (magit-insert-pending-commits)
         (magit-insert-unstaged-changes)
         (magit-insert-staged-changes)
-        (magit-insert-unpulled-commits remote remote-branch)
-        (magit-insert-unpushed-commits remote remote-branch))))
+        (magit-insert-unpulled-commits)
+        (magit-insert-unpushed-commits))))
   (run-hooks 'magit-refresh-status-hook))
 
 (define-derived-mode magit-status-mode magit-mode "Magit"
