@@ -1470,8 +1470,7 @@ GIT_DIR and its absolute path is returned"
 
 (defun magit-no-commit-p ()
   "Return non-nil if there is no commit in the current git repository."
-  (not (magit-git-string
-        "rev-list" "HEAD" "--max-count=1")))
+  (not (magit-git-string "rev-list" "-1" "HEAD")))
 
 (defun magit-get-top-dir (&optional cwd)
   (setq cwd (expand-file-name (file-truename (or cwd default-directory))))
@@ -1680,10 +1679,9 @@ non-nil).  In addition, it will filter out revs involving HEAD."
     (error (format "Cannot %s a merge commit" command))))
 
 (defun magit-format-commit (commit format)
-  (magit-git-string "log" "--max-count=1"
-                    (format "--abbrev=%d" magit-sha1-abbrev-length)
-                    (concat "--pretty=format:" format)
-                    commit))
+  (magit-git-string "log" "-1" commit
+                    (magit-diff-abbrev-arg)
+                    (concat "--pretty=format:" format)))
 
 ;;;; Git Macros
 
@@ -3234,6 +3232,9 @@ the buffer.  Finally reset the window configuration to nil."
 (defun magit-diff-U-arg ()
   (format "-U%d" magit-diff-context-lines))
 
+(defun magit-diff-abbrev-arg ()
+  (format "--abbrev=%d" magit-sha1-abbrev-length))
+
 (defun magit-diff-smaller-hunks (&optional count)
   "Decrease the context for diff hunks by COUNT."
   (interactive "p")
@@ -3833,7 +3834,7 @@ member of ARGS, or to the working file otherwise."
                        "diff-files")))
 
 (magit-define-inserter staged-changes ()
-  (let ((no-commit (= (magit-git-exit-code "log" "-n" "1" "HEAD") 1)))
+  (let ((no-commit (= (magit-git-exit-code "log" "-1" "HEAD") 1)))
     (when (or no-commit (magit-anything-staged-p))
       (let ((magit-current-diff-range (cons "HEAD" 'index))
             (magit-hide-diffs t)
@@ -3848,18 +3849,18 @@ member of ARGS, or to the working file otherwise."
 
 ;;; Logs and Commits
 
+(defun magit-log-cutoff-length-arg ()
+  (format "--max-count=%d" magit-log-cutoff-length))
+
 ;; Note: making this a plain defcustom would probably let users break
 ;; the parser too easily
 (defvar magit-git-log-options
-  (list
-   "--pretty=format:* %h %s"
-   (format "--abbrev=%d" magit-sha1-abbrev-length)))
+  (list "--pretty=format:* %h %s" (magit-diff-abbrev-arg)))
 ;; --decorate=full otherwise some ref prefixes are stripped
 ;;  '("--pretty=format:* %H%d %s" "--decorate=full"))
 
 (defvar magit-git-reflog-options
-  (list "--pretty=format:* \C-?%h\C-?%gs"
-        (format "--abbrev=%d" magit-sha1-abbrev-length)))
+  (list "--pretty=format:* \C-?%h\C-?%gs" (magit-diff-abbrev-arg)))
 
 (defconst magit-unpushed-or-unpulled-commit-re
   (concat "^\\* "
@@ -5245,7 +5246,7 @@ With two prefix args, remove ignored files as well."
             (magit-with-section commit 'commit
               (magit-set-section-info commit)
               (insert (magit-git-string
-                       "log" "--max-count=1"
+                       "log" "-1"
                        (if used
                            "--pretty=format:. %s"
                          "--pretty=format:* %s")
@@ -5924,9 +5925,9 @@ With a non numeric prefix ARG, show all entries"
                "Commits"
              (magit-rev-range-describe range "Commits"))
            (apply-partially 'magit-wash-color-log style)
-           "log" (format "--max-count=%d" magit-log-cutoff-length)
+           "log" (magit-log-cutoff-length-arg)
            "--decorate=full" "--abbrev-commit" "--color"
-           (format "--abbrev=%d" magit-sha1-abbrev-length)
+           (magit-diff-abbrev-arg)
            `(,@(cl-case style
                  (long
                   (if magit-log-show-gpg-status
@@ -5958,10 +5959,8 @@ This is only non-nil in reflog buffers.")
            (apply-partially 'magit-wash-log 'reflog)
            "log"
            (append magit-git-reflog-options
-                   (list
-                    "--walk-reflogs"
-                    (format "--max-count=%d" magit-log-cutoff-length)
-                    args)))))
+                   (list "--walk-reflogs" (magit-log-cutoff-length-arg)
+                         args)))))
 
 (define-derived-mode magit-reflog-mode magit-log-mode "Magit Reflog"
   "Mode for looking at git reflog.
@@ -6166,12 +6165,9 @@ restore the window state that was saved before ediff was called."
                                        " (normally ignored)"
                                      ""))
                            'magit-wash-log
-                           "log"
-                           (format "--max-count=%d" magit-log-cutoff-length)
-                           "--abbrev-commit"
-                           (format "--abbrev=%d" magit-sha1-abbrev-length)
-                           "--graph"
-                           "--pretty=oneline"
+                           "log" (magit-log-cutoff-length-arg)
+                           "--abbrev-commit" "--graph" "--pretty=oneline"
+                           (magit-diff-abbrev-arg)
                            (format "%s..%s" head ref)
                            "--"))))
                   (magit-set-section-info ref section))))))))))
@@ -6213,9 +6209,9 @@ or something else."
     (apply #'magit-git-section nil
            (magit-rev-range-describe range (format "Commits for file %s" file))
            (apply-partially 'magit-wash-log style)
-           "log" (format "--max-count=%d" magit-log-cutoff-length)
+           "log" (magit-log-cutoff-length-arg)
            "--decorate=full" "--abbrev-commit" "--graph"
-           (format "--abbrev=%d" magit-sha1-abbrev-length)
+           (magit-diff-abbrev-arg)
            `(,@(cond ((eq style 'long) (list "--stat" "-z"))
                      ((eq style 'oneline) (list "--pretty=oneline")))
              "--" ,file))))
@@ -6829,9 +6825,7 @@ These are the branch names with the remote name stripped."
   (magit-create-buffer-sections
     (apply #'magit-git-section
            "branches" nil 'magit-wash-branches
-           "branch"
-           "-vva"
-           (format "--abbrev=%d" magit-sha1-abbrev-length)
+           "branch" "-vva" (magit-diff-abbrev-arg)
            magit-custom-options)))
 
 (magit-define-command branch-manager ()
