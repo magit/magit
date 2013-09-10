@@ -309,6 +309,36 @@ Only considered when moving past the last entry with
   :group 'magit
   :type 'boolean)
 
+(defcustom magit-status-insert-sections-hook
+  '(magit-insert-status-local-line
+    magit-insert-status-remote-line
+    magit-insert-status-head-line
+    magit-insert-status-tags-line
+    magit-insert-status-merge-line
+    magit-insert-status-rebase-lines
+    magit-insert-empty-line
+    magit-insert-stashes
+    magit-insert-untracked-files
+    magit-insert-pending-changes
+    magit-insert-pending-commits
+    magit-insert-unstaged-changes
+    magit-insert-staged-changes
+    magit-insert-unpulled-commits
+    magit-insert-unpushed-commits)
+  "Hook run to insert sections into the status buffer.
+
+This option allows reordering the sections and adding sections
+that are by default displayed in other Magit buffers.  Doing the
+latter is currently not recommended because not all functions
+that insert sections have been adapted yet.  Only inserters that
+take no argument can be used and some functions exist that begin
+with the `magit-insert-' prefix but do not insert a section.
+
+Note that there are already plans to improve this and to add
+similar hooks for other Magit modes."
+  :group 'magit
+  :type 'hook)
+
 (defcustom magit-status-insert-tags-line nil
   "Whether to display related tags in the status buffer.
 
@@ -4592,28 +4622,16 @@ in `magit-commit-buffer-name'."
         (magit-insert-status-line "Stopped"
           (magit-format-commit (nth 3 rebase) "%h %s"))))))
 
+(defun magit-insert-empty-line ()
+  (insert "\n"))
+
 ;;;; Status Refresh
 
 (defun magit-refresh-status ()
+  (magit-git-exit-code "update-index" "--refresh")
   (magit-create-buffer-sections
     (magit-with-section 'status nil
-      (progn
-        (magit-insert-status-local-line)
-        (magit-insert-status-remote-line)
-        (magit-insert-status-head-line)
-        (magit-insert-status-tags-line)
-        (magit-insert-status-merge-line)
-        (magit-insert-status-rebase-lines)
-        (insert "\n")
-        (magit-git-exit-code "update-index" "--refresh")
-        (magit-insert-stashes)
-        (magit-insert-untracked-files)
-        (magit-insert-pending-changes)
-        (magit-insert-pending-commits)
-        (magit-insert-unstaged-changes)
-        (magit-insert-staged-changes)
-        (magit-insert-unpulled-commits)
-        (magit-insert-unpushed-commits))))
+      (run-hooks 'magit-status-insert-sections-hook)))
   (run-hooks 'magit-refresh-status-hook))
 
 (define-derived-mode magit-status-mode magit-mode "Magit"
