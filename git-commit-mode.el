@@ -35,8 +35,8 @@
 ;; to the guidelines for commit messages (see
 ;; http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html).
 ;;
-;; Highlight the first line (aka "summary") specially if it exceeds 54
-;; characters.
+;; Highlight the first line (aka "summary") specially if it exceeds 50
+;; characters (configurable using `git-commit-summary-max-length').
 ;;
 ;; Enable `auto-fill-mode' and set the `fill-column' to 72 according to the
 ;; aforementioned guidelines.
@@ -81,6 +81,11 @@ confirmation before committing."
   :group 'git-commit
   :type '(choice (const :tag "On style errors" t)
                  (const :tag "Never" nil)))
+
+(defcustom git-commit-summary-max-length 50
+  "Fontify characters beyond this column in summary lines as errors."
+  :group 'git-commit
+  :type 'number)
 
 (defgroup git-commit-faces nil
   "Faces for highlighting git commit messages"
@@ -353,12 +358,12 @@ minibuffer."
 The `car' of each cell is the heading text, the `cdr' the face to
 use for fontification.")
 
-(defun git-commit-build-summary-regexp (max-summary-col)
+(defun git-commit-summary-regexp ()
   (concat
    ;; Skip empty lines or comments before the summary
    "\\`\\(?:^\\(?:\\s-*\\|\\s<.*\\)\n\\)*"
    ;; The summary line
-   (format "\\(.\\{0,%d\\}\\)\\(.*\\)" max-summary-col)
+   (format "\\(.\\{0,%d\\}\\)\\(.*\\)" git-commit-summary-max-length)
    ;; Non-empty non-comment second line
    ;;
    ;; For instant highlighting of non-empty second lines in font-lock,
@@ -368,22 +373,6 @@ use for fontification.")
    ;; which captures 'nil', can't be used.
    "\\(?:\n\\#\\|\n\\(.*\\)\\)?"))
 
-(defvar git-commit-summary-regexp nil
-  "Regexp to match the summary line.")
-
-(defcustom git-commit-max-summary-line-length 50
-  "Fontify characters beyond this column in summary lines as errors."
-  :group 'git-commit
-  :type 'number
-  :initialize
-  (lambda (symbol value)
-    (let ((val (eval value)))
-      ;; set the value
-      (set-default symbol val)
-      ;; update `git-commit-summary-regexp'
-      (set-default 'git-commit-summary-regexp
-                   (git-commit-build-summary-regexp val)))))
-
 (defun git-commit-has-style-errors-p ()
   "Check whether the current buffer has style errors.
 
@@ -391,7 +380,7 @@ Return t, if the current buffer has style errors, or nil
 otherwise."
   (save-excursion
     (goto-char (point-min))
-    (when (re-search-forward git-commit-summary-regexp nil t)
+    (when (re-search-forward (git-commit-summary-regexp) nil t)
       (or (string-match-p ".+" (or (match-string 2) ""))
           (string-match-p "^.+$" (or (match-string 3) ""))))))
 
@@ -401,10 +390,10 @@ otherwise."
 If ERRORS is non-nil create keywords that highlight errors in the
 summary line, not the summary line itself."
   (if errors
-      `(,git-commit-summary-regexp
+      `(,(git-commit-summary-regexp)
         (2 'git-commit-overlong-summary-face t t)
         (3 'git-commit-nonempty-second-line-face t t))
-    `(,git-commit-summary-regexp
+    `(,(git-commit-summary-regexp)
       (1 'git-commit-summary-face t))))
 
 (defun git-commit-mode-heading-keywords ()
