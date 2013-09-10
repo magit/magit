@@ -190,7 +190,7 @@
       ("c" "Commit" magit-commit))
      (switches
       ("-r" "Replace the tip of current branch" "--amend")
-      ("-A" "Stage all modified and deleted files" "--all")
+      ("-a" "Stage all modified and deleted files" "--all")
       ("-e" "Allow empty commit" "--allow-empty")
       ("-n" "Bypass git hooks" "--no-verify")
       ("-s" "Add Signed-off-by line" "--signoff")
