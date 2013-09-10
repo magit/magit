@@ -897,6 +897,18 @@ Also see option `magit-diff-use-overlays'."
   "Face for local branch head labels shown in log buffer."
   :group 'magit-faces)
 
+(defface magit-log-head-label-head
+  '((((class color) (background light))
+     :box t
+     :background "Grey70"
+     :foreground "Black")
+    (((class color) (background dark))
+     :box t
+     :background "Grey20"
+     :foreground "White"))
+  "Face for working branch head labels shown in log buffer."
+  :group 'magit-faces)
+
 (defface magit-log-head-label-default
   '((((class color) (background light))
      :box t
@@ -3998,32 +4010,31 @@ must return a string which will represent the log line.")
       (list suffix 'magit-log-head-label-remote)))
 
 (defvar magit-refs-namespaces
-  '(("tags" . magit-log-head-label-tags)
+  '(("HEAD" . magit-log-head-label-head)
+    ("tags" . magit-log-head-label-tags)
     ("remotes" magit-log-get-remotes-color)
     ("heads" . magit-log-head-label-local)
     ("patches" magit-log-get-patches-color)
     ("bisect" magit-log-get-bisect-state-color)))
 
 (defun magit-ref-get-label-color (r)
-  (let ((uninteresting (cl-loop for re in magit-uninteresting-refs
-                                thereis (string-match re r))))
-    (if uninteresting (list nil nil)
-      (let* ((ref-re "\\(?:tag: \\)?refs/\\(?:\\([^/]+\\)/\\)?\\(.+\\)")
-             (label (and (string-match ref-re r)
-                         (match-string 2 r)))
-             (res (let ((colorizer
-                         (cdr (assoc (match-string 1 r)
-                                     magit-refs-namespaces))))
-                    (cond ((null colorizer)
-                           (list r 'magit-log-head-label-default))
-                          ((symbolp colorizer)
-                           (list label colorizer))
-                          ((listp colorizer)
-                           (funcall (car colorizer)
-                                    (match-string 2 r)))
-                          (t
-                           (list r 'magit-log-head-label-default))))))
-        res))))
+  (if (cl-loop for re in magit-uninteresting-refs
+               thereis (string-match re r))
+      (list nil nil)
+    (let* ((ref-re "\\(?:refs/\\([^/]+\\)/\\)?\\(.+\\)")
+           (match-style (when (string-match ref-re r)
+                          (string= r (match-string 2 r))))
+           (label (match-string 2 r))
+           (colorizer (cdr (assoc (if match-style
+                                      label
+                                    (match-string 1 r))
+                                  magit-refs-namespaces))))
+      (cond ((null colorizer)
+             (list label 'magit-log-head-label-default))
+            ((symbolp colorizer)
+             (list label colorizer))
+            ((listp colorizer)
+             (funcall (car colorizer) label))))))
 
 (defvar magit-reflog-labels
   '(("commit"      . magit-log-reflog-label-commit)
@@ -4247,8 +4258,7 @@ insert a line to tell how to insert more of them"
        :refs   (when (funcall match-style-string 3 3 nil)
                  (cl-mapcan
                   (lambda (s)
-                    (unless (or (string= s "tag:")
-                                (string= s "HEAD")) ; as of 1.6.6
+                    (unless (string= s "tag:")
                       (list s)))
                   (split-string (funcall match-style-string 3 3 nil)
                                 "[(), ]" t)))))))
