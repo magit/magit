@@ -5043,20 +5043,17 @@ With prefix, forces the rename even if NEW already exists.
 (defun magit-guess-branch ()
   "Return a branch name depending on the context of cursor.
 If no branch is found near the cursor return nil."
-  (let ((branch                  ; may be t.  see `magit-section-case'
-         (magit-section-case (item info)
-           ((branch)
-            (magit-section-info (magit-current-section)))
-           ((wazzup commit)
-            (magit-section-info (magit-section-parent item)))
-           ((commit)
-            (magit-name-rev (substring info 0 magit-sha1-abbrev-length)))
-           ((wazzup)
-            info)
-           (t
-            (magit-get-previous-branch)))))
-    (when (stringp branch)
-      branch)))
+  (magit-section-case (item info)
+    ((branch)
+     (magit-section-info (magit-current-section)))
+    ((wazzup commit)
+     (magit-section-info (magit-section-parent item)))
+    ((commit)
+     (magit-name-rev (substring info 0 magit-sha1-abbrev-length)))
+    ((wazzup)
+     info)
+    (t
+     (magit-get-previous-branch))))
 
 ;;;; Remoting
 
