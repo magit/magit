@@ -4501,10 +4501,6 @@ in `magit-commit-buffer-name'."
                      (magit-section-end section)
                      (current-buffer))))))
 
-(defun magit-set-marked-commit (commit)
-  (setq magit-marked-commit commit)
-  (magit-refresh-marked-commits))
-
 ;;; Status Mode
 ;;;; Status Sections
 
@@ -6500,12 +6496,12 @@ With a prefix argument, visit in other window."
 (defun magit-mark-item (&optional unmark)
   (interactive "P")
   (if unmark
-      (magit-set-marked-commit nil)
+      (setq magit-marked-commit nil)
     (magit-section-action (item info "mark")
       ((commit)
-       (magit-set-marked-commit (if (eq magit-marked-commit info)
-                                    nil
-                                  info))))))
+       (setq magit-marked-commit
+             (if (eq magit-marked-commit info) nil info)))))
+  (magit-refresh-marked-commits))
 
 ;;;; Describe
 
