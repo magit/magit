@@ -4170,16 +4170,16 @@ must return a string which will represent the log line.")
                                             author-date)))))
        magit-log-author-date-overlay)
       (setq magit-log-author-date-string-length max-length))
-    (magit-log-display-author-date)
+    (magit-log-refresh-author-date)
     (when magit-log-author-date-overlay
       (add-hook 'window-configuration-change-hook
-                'magit-log-display-author-date
+                'magit-log-refresh-author-date
                 nil t))))
 
 (defvar magit-log-buffer-name "*magit-log*"
   "Buffer name for display of log entries.")
 
-(defun magit-log-display-author-date ()
+(defun magit-log-refresh-author-date ()
   (with-selected-window (get-buffer-window)
     (set-window-margins nil (car (window-margins))
                         magit-log-author-date-string-length)))
@@ -4190,7 +4190,7 @@ must return a string which will represent the log line.")
         magit-log-date-string-length 0
         magit-log-author-date-overlay nil)
   (remove-hook 'window-configuration-change-hook
-               'magit-log-display-author-date t))
+               'magit-log-refresh-author-date t))
 
 (defvar magit-log-count ()
   "Internal var used to count the number of logs actually added in a buffer.")
