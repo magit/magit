@@ -5044,16 +5044,11 @@ With prefix, forces the rename even if NEW already exists.
   "Return a branch name depending on the context of cursor.
 If no branch is found near the cursor return nil."
   (magit-section-case (item info)
-    ((branch)
-     (magit-section-info (magit-current-section)))
-    ((wazzup commit)
-     (magit-section-info (magit-section-parent item)))
-    ((commit)
-     (magit-name-rev info))
-    ((wazzup)
-     info)
-    (t
-     (magit-get-previous-branch))))
+    ((branch)        (magit-section-info (magit-current-section)))
+    ((wazzup commit) (magit-section-info (magit-section-parent item)))
+    ((commit)        (magit-name-rev info))
+    ((wazzup)        info)
+    (t               (magit-get-previous-branch))))
 
 ;;;; Remoting
 
