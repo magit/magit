@@ -3038,14 +3038,6 @@ Also see `magit-mode-setup', a more convenient variant."
 (defun magit-find-status-buffer (&optional dir)
   (magit-find-buffer 'magit-status-mode dir))
 
-(defun magit-for-all-buffers (func &optional dir)
-  (dolist (buf (buffer-list))
-    (with-current-buffer buf
-      (when (and (derived-mode-p 'magit-mode)
-                 (or (null dir)
-                     (equal default-directory dir)))
-        (funcall func)))))
-
 ;;;; Refresh Buffer
 
 (defun magit-refresh-buffer (&optional buffer)
@@ -3163,6 +3155,14 @@ Also revert every unmodified buffer visiting files
 in the corresponding directories."
   (interactive)
   (magit-for-all-buffers #'magit-refresh-buffer default-directory))
+
+(defun magit-for-all-buffers (func &optional dir)
+  (dolist (buf (buffer-list))
+    (with-current-buffer buf
+      (when (and (derived-mode-p 'magit-mode)
+                 (or (null dir)
+                     (equal default-directory dir)))
+        (funcall func)))))
 
 ;;;; Display Buffer
 
