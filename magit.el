@@ -6077,14 +6077,12 @@ restore the window state that was saved before ediff was called."
   (interactive (list (magit-read-rev-with-default "Diff working tree with")))
   (magit-diff (or rev "HEAD")))
 
-(defun magit-diff-with-mark ()
-  (interactive)
+(defun magit-diff-with-mark (commit)
+  (interactive (list (or (magit-commit-at-point)
+                         (magit-read-rev "Diff"))))
   (unless magit-marked-commit
     (error "No commit marked"))
-  (let ((commit (magit-commit-at-point)))
-    (if commit
-        (magit-diff (cons magit-marked-commit commit))
-      (error "No commit at point"))))
+  (magit-diff (cons magit-marked-commit commit)))
 
 ;;; Wazzup Mode
 
