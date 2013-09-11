@@ -5136,19 +5136,18 @@ Return nil if there is no rebase in progress."
                    magit-uninteresting-refs))))
       (magit-run-git "rebase" (magit-rev-to-git rev)))))
 
-(defun magit-interactive-rebase ()
+(defun magit-interactive-rebase (commit)
   "Start a git rebase -i session, old school-style."
-  (interactive)
+  (interactive
+   (let* ((section (get-text-property (point) 'magit-section))
+          (commit (and (member 'commit (magit-section-context-type section))
+                       (magit-section-info section))))
+     (list (if commit
+               (concat commit "^")
+             (magit-read-rev "Interactively rebase to" (magit-guess-branch))))))
   (magit-assert-emacsclient "rebase interactively")
-  (let* ((section (get-text-property (point) 'magit-section))
-         (commit (and (member 'commit (magit-section-context-type section))
-                      (magit-section-info section))))
-    (magit-with-emacsclient magit-server-window-for-rebase
-      (magit-run-git-async "rebase" "-i"
-                           (if commit
-                               (concat commit "^")
-                             (magit-read-rev "Interactively rebase to"
-                                             (magit-guess-branch)))))))
+  (magit-with-emacsclient magit-server-window-for-rebase
+    (magit-run-git-async "rebase" "-i" commit)))
 
 ;;;; Reset
 
