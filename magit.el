@@ -1655,9 +1655,10 @@ Return a list of two integers: (A>B B>A)."
 
 (defun magit-name-rev (rev &optional no-trim)
   "Return a human-readable name for REV.
-Unlike git name-rev, this will remove tags/ and remotes/ prefixes
-if that can be done unambiguously (unless optional arg NO-TRIM is
-non-nil).  In addition, it will filter out revs involving HEAD."
+Unlike `git name-rev', this will remove \"tags/\" and \"remotes/\"
+prefixes if that can be done unambiguously (unless optional arg
+NO-TRIM is non-nil).  In addition, it will filter out revs
+involving HEAD."
   (when rev
     (let ((name (magit-git-string "name-rev" "--no-undefined" "--name-only" rev)))
       ;; There doesn't seem to be a way of filtering HEAD out from name-rev,
@@ -1785,7 +1786,7 @@ according to `magit-remote-ref-format'"
 (defun magit-read-rev-with-default (prompt &optional no-trim uninteresting)
   "Ask user for revision like `magit-read-rev' but default is set
 appropriately depending on context.  If NO-TRIM is non-nil, strip
-off prefixes such as \"ref/remotes/\" (see `magit-name-rev').
+off prefixes such as \"refs/remotes/\" (see `magit-name-rev').
 PROMPT and UNINTERESTING are passed to `magit-read-rev'."
   (magit-read-rev prompt (magit-default-rev no-trim) uninteresting))
 
@@ -1816,7 +1817,7 @@ PROMPT and UNINTERESTING are passed to `magit-read-rev'."
                  (magit-rev-to-git (car range))
                  (magit-rev-to-git (cdr range))))
         (t
-         (format "%s" (magit-rev-to-git (car range))))))
+         (magit-rev-to-git (car range)))))
 
 (defun magit-rev-describe (rev)
   (cond ((not rev)
@@ -2045,8 +2046,7 @@ Use the specified START and END positions."
     section))
 
 (defun magit-set-section-info (info &optional section)
-  "set the info of SECTION
-
+  "Set the info of SECTION.
 If SECTION is nil, default to setting `magit-top-section'"
   (setf (magit-section-info (or section magit-top-section)) info))
 
@@ -2056,7 +2056,7 @@ If SECTION is nil, default to setting `magit-top-section'"
         flag))
 
 (defmacro magit-create-buffer-sections (&rest body)
-  "Empty current buffer of text and Magit's sections, and then evaluate BODY."
+  "Empty current buffer of text and Magit's sections, and then eval BODY."
   (declare (indent 0) (debug t))
   `(let ((inhibit-read-only t))
      (erase-buffer)
@@ -5162,8 +5162,7 @@ and staging area are lost.
                                              (if current-prefix-arg
                                                  "Hard reset"
                                                "Reset"))
-                                     (or (magit-default-rev)
-                                         "HEAD^"))
+                                     (or (magit-default-rev) "HEAD^"))
                      current-prefix-arg))
   (magit-run-git "reset" (if hard "--hard" "--soft")
                  (magit-rev-to-git revision) "--"))
@@ -5173,8 +5172,7 @@ and staging area are lost.
 Uncomitted changes in both working tree and staging area are lost.
 \('git reset --hard REVISION')."
   (interactive (list (magit-read-rev (format "Hard reset head to")
-                                     (or (magit-default-rev)
-                                         "HEAD"))))
+                                     (or (magit-default-rev) "HEAD"))))
   (magit-reset-head revision t))
 
 (magit-define-command reset-working-tree (&optional arg)
