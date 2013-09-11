@@ -2263,11 +2263,10 @@ TITLE is the displayed title of the section."
   (mapc (apply-partially 'magit-map-sections function)
         (magit-section-children section)))
 
-(defun magit-wash-sequence (func)
-  "Run FUNC until end of buffer is reached.
-FUNC should leave point at the end of the modified region"
-  (while (and (not (eobp))
-              (funcall func))))
+(defun magit-wash-sequence (function)
+  "Repeatedly call FUNCTION until it returns nil or eob is reached.
+FUNCTION has to move point forward or return nil."
+  (while (and (not (eobp)) (funcall function))))
 
 ;;;; Section Visibility
 
