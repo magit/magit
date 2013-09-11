@@ -2883,8 +2883,8 @@ magit-topgit and magit-svn"
 (defun magit-set-mode-line-process (str)
   (let ((pr (if str (concat " " str) "")))
     (save-excursion
-      (magit-for-all-buffers (lambda ()
-                               (setq mode-line-process pr))))))
+      (magit-map-magit-buffers (lambda ()
+                                 (setq mode-line-process pr))))))
 
 (defun magit-process-indicator-from-command (comps)
   (when (magit-prefix-p (cons magit-git-executable
@@ -3154,9 +3154,9 @@ in the corresponding directory."
 Also revert every unmodified buffer visiting files
 in the corresponding directories."
   (interactive)
-  (magit-for-all-buffers #'magit-refresh-buffer default-directory))
+  (magit-map-magit-buffers #'magit-refresh-buffer default-directory))
 
-(defun magit-for-all-buffers (func &optional dir)
+(defun magit-map-magit-buffers (func &optional dir)
   (dolist (buf (buffer-list))
     (with-current-buffer buf
       (when (and (derived-mode-p 'magit-mode)
@@ -4483,7 +4483,7 @@ in `magit-commit-buffer-name'."
 (put 'magit-mark-overlay 'permanent-local t)
 
 (defun magit-refresh-marked-commits ()
-  (magit-for-all-buffers #'magit-refresh-marked-commits-in-buffer))
+  (magit-map-magit-buffers #'magit-refresh-marked-commits-in-buffer))
 
 (defun magit-refresh-marked-commits-in-buffer ()
   (unless magit-mark-overlay
