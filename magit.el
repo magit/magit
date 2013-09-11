@@ -4475,6 +4475,8 @@ in `magit-commit-buffer-name'."
       (setq default-directory (car histitem))
       (magit-show-commit (cdr histitem) nil 'inhibit-history))))
 
+;;; Commit Mark
+
 (defvar magit-marked-commit nil)
 
 (defvar-local magit-mark-overlay nil)
