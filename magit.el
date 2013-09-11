@@ -2773,12 +2773,12 @@ magit-topgit and magit-svn"
                  (process-send-eof magit-process)
                  (while magit-process
                    (sit-for 0.1 t)))
-               (magit-set-mode-line-process nil)
+               (magit-set-mode-line-process)
                (magit-need-refresh command-buf))
               (t
                (setq successp
                      (equal (apply 'process-file cmd nil process-buf nil args) 0))
-               (magit-set-mode-line-process nil)
+               (magit-set-mode-line-process)
                (magit-need-refresh command-buf))))
       (or successp
           noerror
@@ -2817,7 +2817,7 @@ magit-topgit and magit-svn"
                                msg key (current-buffer)))))
           (when (featurep 'dired)
             (dired-uncache default-directory))))
-      (magit-set-mode-line-process nil)
+      (magit-set-mode-line-process)
       (when (and (buffer-live-p command-buf)
                  (with-current-buffer command-buf
                    (derived-mode-p 'magit-mode)))
@@ -2880,11 +2880,9 @@ magit-topgit and magit-svn"
             ((string-match ":$"  prompt) (concat prompt " "))
             (t                           (concat prompt ": "))))))
 
-(defun magit-set-mode-line-process (str)
-  (let ((pr (if str (concat " " str) "")))
-    (save-excursion
-      (magit-map-magit-buffers (lambda ()
-                                 (setq mode-line-process pr))))))
+(defun magit-set-mode-line-process (&optional string)
+  (magit-map-magit-buffers
+   (apply-partially (lambda (s) (setq mode-line-process s)) string)))
 
 (defun magit-process-indicator-from-command (comps)
   (when (magit-prefix-p (cons magit-git-executable
@@ -2893,9 +2891,9 @@ magit-topgit and magit-svn"
     (setq comps (nthcdr (+ (length magit-git-standard-options) 1) comps)))
   (cond ((or (null (cdr comps))
              (not (member (car comps) '("remote"))))
-         (car comps))
+         (concat " " (car comps)))
         (t
-         (concat (car comps) " " (cadr comps)))))
+         (concat " " (car comps) " " (cadr comps)))))
 
 (defun magit-display-process (&optional process buffer)
   "Display output from most recent Git process.
