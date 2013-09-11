@@ -2257,14 +2257,14 @@ TITLE is the displayed title of the section."
 
 ;;;; Section Utilities
 
-(defun magit-for-all-sections (func &optional top)
+(defun magit-map-sections (func &optional top)
   "Run FUNC on TOP and recursively on all its children.
 Default value for TOP is `magit-top-section'"
   (let ((section (or top magit-top-section)))
     (when section
       (funcall func section)
       (dolist (c (magit-section-children section))
-        (magit-for-all-sections func c)))))
+        (magit-map-sections func c)))))
 
 (defun magit-wash-sequence (func)
   "Run FUNC until end of buffer is reached.
@@ -4489,7 +4489,7 @@ in `magit-commit-buffer-name'."
       (overlay-put ov 'face 'magit-item-mark)
       (setq magit-mark-overlay ov)))
   (delete-overlay magit-mark-overlay)
-  (magit-for-all-sections
+  (magit-map-sections
    (lambda (section)
      (when (and (eq (magit-section-type section) 'commit)
                 (equal (magit-section-info section)
