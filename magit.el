@@ -4136,7 +4136,7 @@ must return a string which will represent the log line.")
     (when (> (length date) magit-log-date-string-length)
       (setq magit-log-date-string-length (length date)))))
 
-(defun magit-log-set-author-date-overlays ()
+(defun magit-log-create-author-date-overlays ()
   (when magit-log-author-date-overlay
     (let* ((author-length magit-log-author-string-length)
            (date-length magit-log-date-string-length)
@@ -4169,7 +4169,12 @@ must return a string which will represent the log line.")
                                       (list '(margin right-margin)
                                             author-date)))))
        magit-log-author-date-overlay)
-      (setq magit-log-author-date-string-length max-length))))
+      (setq magit-log-author-date-string-length max-length))
+    (magit-log-display-author-date)
+    (when magit-log-author-date-overlay
+      (add-hook 'window-configuration-change-hook
+                'magit-log-display-author-date
+                nil t))))
 
 (defvar magit-log-buffer-name "*magit-log*"
   "Buffer name for display of log entries.")
@@ -4186,15 +4191,6 @@ must return a string which will represent the log line.")
         magit-log-author-date-overlay nil)
   (remove-hook 'window-configuration-change-hook
                'magit-log-display-author-date t))
-
-(defun magit-log-create-author-date-overlay ()
-  (magit-log-set-author-date-overlays)
-  (magit-log-display-author-date)
-  (when magit-log-author-date-overlay
-    (add-hook 'window-configuration-change-hook
-              'magit-log-display-author-date
-              nil t)))
-
 
 (defvar magit-log-count ()
   "Internal var used to count the number of logs actually added in a buffer.")
@@ -4274,7 +4270,7 @@ insert a line to tell how to insert more of them"
       (magit-log-initialize-author-date-overlay))
     (magit-wash-sequence (apply-partially 'magit-wash-log-line style))
     (when (derived-mode-p 'magit-log-mode)
-      (magit-log-create-author-date-overlay))))
+      (magit-log-create-author-date-overlays))))
 
 (defun magit-wash-color-log (&optional style)
   (let ((ansi-color-apply-face-function
