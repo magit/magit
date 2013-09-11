@@ -4180,22 +4180,21 @@ must return a string which will represent the log line.")
                         magit-log-author-date-string-length)))
 
 (defun magit-log-initialize-author-date-overlay ()
-  (when (derived-mode-p 'magit-log-mode)
-    (setq magit-log-author-date-string-length 0
-          magit-log-author-string-length 0
-          magit-log-date-string-length 0
-          magit-log-author-date-overlay nil)
-    (remove-hook 'window-configuration-change-hook
-                 'magit-log-display-author-date t)))
+  (setq magit-log-author-date-string-length 0
+        magit-log-author-string-length 0
+        magit-log-date-string-length 0
+        magit-log-author-date-overlay nil)
+  (remove-hook 'window-configuration-change-hook
+               'magit-log-display-author-date t))
 
 (defun magit-log-create-author-date-overlay ()
-  (when (derived-mode-p 'magit-log-mode)
-    (magit-log-set-author-date-overlays)
-    (magit-log-display-author-date)
-    (when magit-log-author-date-overlay
-      (add-hook 'window-configuration-change-hook
-                'magit-log-display-author-date
-                nil t))))
+  (magit-log-set-author-date-overlays)
+  (magit-log-display-author-date)
+  (when magit-log-author-date-overlay
+    (add-hook 'window-configuration-change-hook
+              'magit-log-display-author-date
+              nil t)))
+
 
 (defvar magit-log-count ()
   "Internal var used to count the number of logs actually added in a buffer.")
@@ -4271,9 +4270,11 @@ insert a line to tell how to insert more of them"
 
 (defun magit-wash-log (&optional style)
   (let ((magit-old-top-section nil))
-    (magit-log-initialize-author-date-overlay)
+    (when (derived-mode-p 'magit-log-mode)
+      (magit-log-initialize-author-date-overlay))
     (magit-wash-sequence (apply-partially 'magit-wash-log-line style))
-    (magit-log-create-author-date-overlay)))
+    (when (derived-mode-p 'magit-log-mode)
+      (magit-log-create-author-date-overlay))))
 
 (defun magit-wash-color-log (&optional style)
   (let ((ansi-color-apply-face-function
