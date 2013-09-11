@@ -4481,9 +4481,8 @@ in `magit-commit-buffer-name'."
 
 (defun magit-refresh-marked-commits-in-buffer ()
   (unless magit-mark-overlay
-    (let ((ov (make-overlay 1 1)))
-      (overlay-put ov 'face 'magit-item-mark)
-      (setq magit-mark-overlay ov)))
+    (setq magit-mark-overlay (make-overlay 1 1))
+    (overlay-put magit-mark-overlay 'face 'magit-item-mark))
   (delete-overlay magit-mark-overlay)
   (magit-map-sections
    (lambda (section)
