@@ -808,7 +808,14 @@ Also see option `magit-diff-use-overlays'."
 
 (defface magit-item-highlight
   (if magit-diff-use-overlays
-      '((t :background "grey"))
+      '((((class color) (background light))
+         :background "darkseagreen2")
+        (((class color) (background dark))
+         :background "darkolivegreen")
+        (((class color) (min-colors 8))
+         :background "blue"
+         :foreground "white")
+        (t :inverse-video t))
     '((t :bold t)))
   "Face for highlighting the current item.
 Also see option `magit-diff-use-overlays'."
