@@ -5049,7 +5049,7 @@ If no branch is found near the cursor return nil."
     ((wazzup commit)
      (magit-section-info (magit-section-parent item)))
     ((commit)
-     (magit-name-rev (substring info 0 magit-sha1-abbrev-length)))
+     (magit-name-rev info))
     ((wazzup)
      info)
     (t
