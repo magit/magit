@@ -1796,11 +1796,13 @@ PROMPT and UNINTERESTING are passed to `magit-read-rev'."
           (cons (match-string 1 beg) (match-string 2 beg))
         (cons beg (magit-read-rev (format "%s end" op) def-end nil t))))))
 
+(defvar magit-marked-commit) ; tempory kludge
+
 (defun magit-rev-to-git (rev)
   (cond ((not rev)
          (error "No revision specified"))
         ((string= rev ".")
-         (magit-marked-commit))
+         magit-marked-commit)
         (t
          rev)))
 
@@ -4501,10 +4503,6 @@ in `magit-commit-buffer-name'."
   (setq magit-marked-commit commit)
   (magit-refresh-marked-commits))
 
-(defun magit-marked-commit ()
-  (or magit-marked-commit
-      (error "No commit marked")))
-
 ;;; Status Mode
 ;;;; Status Sections
 
@@ -6081,9 +6079,11 @@ restore the window state that was saved before ediff was called."
 
 (defun magit-diff-with-mark ()
   (interactive)
+  (unless magit-marked-commit
+    (error "No commit marked"))
   (let ((commit (magit-commit-at-point)))
     (if commit
-        (magit-diff (cons (magit-marked-commit) commit))
+        (magit-diff (cons magit-marked-commit commit))
       (error "No commit at point"))))
 
 ;;; Wazzup Mode
