@@ -1839,21 +1839,18 @@ PROMPT and UNINTERESTING are passed to `magit-read-rev'."
          (format "%s at %s" things (magit-rev-describe (car range))))))
 
 (defun magit-default-rev (&optional no-trim)
-  (or (magit-name-rev (magit-commit-at-point t) no-trim)
+  (or (magit-name-rev (magit-commit-at-point) no-trim)
       (let ((branch (magit-guess-branch)))
         (when branch
           (if (string-match "^refs/\\(.*\\)" branch)
               (match-string 1 branch)
             branch)))))
 
-(defun magit-commit-at-point (&optional noerror)
+(defun magit-commit-at-point ()
   (let ((section (magit-current-section)))
-    (or (if (and section
-                 (eq (magit-section-type section) 'commit))
-            (magit-section-info section)
-          (get-text-property (point) 'revision))
-        (unless noerror
-          (error "No commit at point")))))
+    (if (and section (eq (magit-section-type section) 'commit))
+        (magit-section-info section)
+      (get-text-property (point) 'revision))))
 
 (defun magit-read-remote (prompt &optional def require-match)
   "Read the name of a remote.
@@ -4990,9 +4987,9 @@ Fails if working tree or staging area contain uncommitted changes.
 \('git checkout -b BRANCH REVISION')."
   (interactive
    (list (read-string "Create branch: ")
-         (magit-read-rev "Parent" (or (magit-name-rev
-                                       (magit-commit-at-point 'noerror))
-                                      (magit-get-current-branch)))))
+         (magit-read-rev "Parent"
+                         (or (magit-name-rev (magit-commit-at-point))
+                             (magit-get-current-branch)))))
   (when (and branch (not (string= branch ""))
              parent)
     (magit-save-some-buffers)
@@ -6092,8 +6089,10 @@ restore the window state that was saved before ediff was called."
 
 (defun magit-diff-with-mark ()
   (interactive)
-  (magit-diff (cons (magit-marked-commit)
-                    (magit-commit-at-point))))
+  (let ((commit (magit-commit-at-point)))
+    (if commit
+        (magit-diff (cons (magit-marked-commit) commit))
+      (error "No commit at point"))))
 
 ;;; Wazzup Mode
 
