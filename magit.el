@@ -2257,14 +2257,11 @@ TITLE is the displayed title of the section."
 
 ;;;; Section Utilities
 
-(defun magit-map-sections (func &optional top)
-  "Run FUNC on TOP and recursively on all its children.
-Default value for TOP is `magit-top-section'"
-  (let ((section (or top magit-top-section)))
-    (when section
-      (funcall func section)
-      (dolist (c (magit-section-children section))
-        (magit-map-sections func c)))))
+(defun magit-map-sections (function section)
+  "Apply FUNCTION to SECTION and recursively its subsections."
+  (funcall function section)
+  (mapc (apply-partially 'magit-map-sections function)
+        (magit-section-children section)))
 
 (defun magit-wash-sequence (func)
   "Run FUNC until end of buffer is reached.
@@ -4497,7 +4494,8 @@ in `magit-commit-buffer-name'."
        (move-overlay magit-mark-overlay
                      (magit-section-beginning section)
                      (magit-section-end section)
-                     (current-buffer))))))
+                     (current-buffer))))
+   magit-top-section))
 
 ;;; Status Mode
 ;;;; Status Sections
