@@ -3852,7 +3852,7 @@ member of ARGS, or to the working file otherwise."
                        "diff-files")))
 
 (magit-define-inserter staged-changes ()
-  (let ((no-commit (= (magit-git-exit-code "log" "-1" "HEAD") 1)))
+  (let ((no-commit (not (magit-git-success "log" "-1" "HEAD"))))
     (when (or no-commit (magit-anything-staged-p))
       (let ((magit-current-diff-range (cons "HEAD" 'index))
             (magit-hide-diffs t)
