@@ -3250,6 +3250,37 @@ the buffer.  Finally reset the window configuration to nil."
 ;;__ FIXME The parens indicate preliminary subsections.
 ;;__ See https://gist.github.com/tarsius/6539717 for
 ;;__ an attempt to make sense of this disorder.
+;;;; (section info for diff)
+
+(defun magit-diff-item-kind (diff)
+  (car (magit-section-info diff)))
+
+(defun magit-diff-item-file (diff)
+  (cadr (magit-section-info diff)))
+
+(defun magit-diff-item-file2 (diff)
+  (car (cddr (magit-section-info diff))))
+
+(defun magit-diff-item-range (diff)
+  (nth 3 (magit-section-info diff)))
+
+;;;; (section info for diffstat)
+
+(defun magit-diffstat-item-kind (diffstat)
+  (car (magit-section-info diffstat)))
+
+(defun magit-diffstat-item-file (diffstat)
+  (let ((file (cadr (magit-section-info diffstat))))
+    ;; Git diffstat may shorten long pathname with the prefix "..."
+    ;; (e.g. ".../long/sub/dir/file" or "...longfilename")
+    (save-match-data
+      (unless (string-match "\\`\\.\\.\\." file)
+        file))))
+
+(defun magit-diffstat-item-status (diffstat)
+  "Return 'completed or 'incomplete depending on the processed status"
+  (car (cddr (magit-section-info diffstat))))
+
 ;;;; (diff context)
 
 (defvar magit-diff-context-lines 3)
@@ -3349,19 +3380,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                    (magit-section-end hunk)
                    'diff-mode 'fine))
 
-;;;; (used by "wash top-section")
-
-(defun magit-diff-line-file ()
-  (cond ((looking-at "^diff --git \\(\".*\"\\) \\(\".*\"\\)$")
-         (substring (magit-decode-git-path (match-string-no-properties 2)) 2))
-        ((looking-at "^diff --git ./\\(.*\\) ./\\(.*\\)$")
-         (match-string-no-properties 2))
-        ((looking-at "^diff --cc +\\(.*\\)$")
-         (match-string-no-properties 1))
-        (t
-         nil)))
-
-;;;; (wash diffs, part 1)
+;;;; (wash diffs)
 
 (defun magit-wash-diffs ()
   (magit-wash-diffstats)
@@ -3371,13 +3390,15 @@ Customize `magit-diff-refine-hunk' to change the default mode."
   (or (magit-wash-diff)
       (magit-wash-other-file)))
 
-;;;; (ediff support)
-
-(defun magit-diffstat-ediff ()
-  (interactive)
-  (magit-goto-diff-section-at-file
-   (magit-diff-item-file (magit-current-section)))
-  (call-interactively 'magit-ediff))
+(defun magit-wash-other-file ()
+  (when (looking-at "^? \\(.*\\)$")
+    (let ((file (magit-decode-git-path (match-string-no-properties 1))))
+      (magit-wash-diffstats-postwork file)
+      (delete-region (point) (+ (line-end-position) 1))
+      (magit-with-section file 'file
+        (magit-set-section-info file)
+        (insert "\tNew      " file "\n"))
+      t)))
 
 ;;;; (wash diffstats)
 
@@ -3464,35 +3485,6 @@ Customize `magit-diff-refine-hunk' to change the default mode."
   (when magit-diffstat-cached-sections
     (magit-set-section-info (list 'diffstat file 'completed)
                             (pop magit-diffstat-cached-sections))))
-
-;;;; (section info for diffstat)
-
-(defun magit-diffstat-item-kind (diffstat)
-  (car (magit-section-info diffstat)))
-
-(defun magit-diffstat-item-file (diffstat)
-  (let ((file (cadr (magit-section-info diffstat))))
-    ;; Git diffstat may shorten long pathname with the prefix "..."
-    ;; (e.g. ".../long/sub/dir/file" or "...longfilename")
-    (save-match-data
-      (unless (string-match "\\`\\.\\.\\." file)
-        file))))
-
-(defun magit-diffstat-item-status (diffstat)
-  "Return 'completed or 'incomplete depending on the processed status"
-  (car (cddr (magit-section-info diffstat))))
-
-;;;; (wash diffs, part 2)
-
-(defun magit-wash-other-file ()
-  (when (looking-at "^? \\(.*\\)$")
-    (let ((file (magit-decode-git-path (match-string-no-properties 1))))
-      (magit-wash-diffstats-postwork file)
-      (delete-region (point) (+ (line-end-position) 1))
-      (magit-with-section file 'file
-        (magit-set-section-info file)
-        (insert "\tNew      " file "\n"))
-      t)))
 
 ;;;; (wash top-section, mostly and disorganized)
 ;;__ TODO sort internally
@@ -3602,6 +3594,16 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                (magit-wash-sequence #'magit-wash-hunk))))
          t)))
 
+(defun magit-diff-line-file ()
+  (cond ((looking-at "^diff --git \\(\".*\"\\) \\(\".*\"\\)$")
+         (substring (magit-decode-git-path (match-string-no-properties 2)) 2))
+        ((looking-at "^diff --git ./\\(.*\\) ./\\(.*\\)$")
+         (match-string-no-properties 2))
+        ((looking-at "^diff --cc +\\(.*\\)$")
+         (match-string-no-properties 1))
+        (t
+         nil)))
+
 (defun magit-wash-diff ()
   (let ((magit-section-hidden-default magit-hide-diffs))
     (magit-with-section
@@ -3609,20 +3611,6 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                                         (line-end-position))
         'diff
       (magit-wash-diff-section))))
-
-;;;; (section info for diff)
-
-(defun magit-diff-item-kind (diff)
-  (car (magit-section-info diff)))
-
-(defun magit-diff-item-file (diff)
-  (cadr (magit-section-info diff)))
-
-(defun magit-diff-item-file2 (diff)
-  (car (cddr (magit-section-info diff))))
-
-(defun magit-diff-item-range (diff)
-  (nth 3 (magit-section-info diff)))
 
 ;;;; (wash hunks)
 
@@ -3905,6 +3893,28 @@ member of ARGS, or to the working file otherwise."
 
 ;;; Logs
 ;;__ FIXME The parens indicate preliminary subsections.
+;;;; (utilities)
+
+(cl-defstruct magit-log-line
+  chart sha1 author date msg refs gpg refsub)
+
+(defvar magit-log-count ()
+  "Internal var used to count the number of logs actually added in a buffer.")
+
+(defmacro magit-create-log-buffer-sections (&rest body)
+  "Empty current buffer of text and magit's section, and then evaluate BODY.
+
+if the number of logs inserted in the buffer is `magit-log-cutoff-length'
+insert a line to tell how to insert more of them"
+  (declare (indent 0) (debug t))
+  `(let ((magit-log-count 0) (inhibit-read-only t))
+     (magit-create-buffer-sections
+       (magit-with-section 'log nil
+         ,@body
+         (when (= magit-log-count magit-log-cutoff-length)
+           (magit-with-section "longer"  'longer
+             (insert "type \"e\" to show more logs\n")))))))
+
 ;;;; (variables for washing, mostly)
 
 (defun magit-log-cutoff-length-arg ()
@@ -4234,28 +4244,6 @@ must return a string which will represent the log line.")
         magit-log-author-date-overlay nil)
   (remove-hook 'window-configuration-change-hook
                'magit-log-refresh-author-date t))
-
-;;;; (counter, macro, and defstruct)
-
-(defvar magit-log-count ()
-  "Internal var used to count the number of logs actually added in a buffer.")
-
-(defmacro magit-create-log-buffer-sections (&rest body)
-  "Empty current buffer of text and magit's section, and then evaluate BODY.
-
-if the number of logs inserted in the buffer is `magit-log-cutoff-length'
-insert a line to tell how to insert more of them"
-  (declare (indent 0) (debug t))
-  `(let ((magit-log-count 0) (inhibit-read-only t))
-     (magit-create-buffer-sections
-       (magit-with-section 'log nil
-         ,@body
-         (when (= magit-log-count magit-log-cutoff-length)
-           (magit-with-section "longer"  'longer
-             (insert "type \"e\" to show more logs\n")))))))
-
-(cl-defstruct magit-log-line
-  chart sha1 author date msg refs gpg refsub)
 
 ;;;; (washing)
 
@@ -6027,6 +6015,12 @@ This is only non-nil in reflog buffers.")
        (t
         (magit-ediff* (magit-show (car range) file2)
                       (magit-show (cdr range) file1)))))))
+
+(defun magit-diffstat-ediff ()
+  (interactive)
+  (magit-goto-diff-section-at-file
+   (magit-diff-item-file (magit-current-section)))
+  (call-interactively 'magit-ediff))
 
 (defun magit-ediff-add-cleanup ()
   (make-local-variable 'magit-ediff-buffers)
