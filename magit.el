@@ -4148,26 +4148,26 @@ must return a string which will represent the log line.")
            (date-length-string (number-to-string date-length))
            (format-string (concat "%-" author-length-string "s "
                                   "%-" date-length-string "s")))
-      (mapc
-       #'(lambda (overlay)
-           (let* ((data (overlay-get overlay 'magit-log-overlay))
-                  (author (car data))
-                  (date (cdr data))
-                  (author-date
-                   (format format-string
-                           (if (< author-length (length author))
-                               (concat
-                                (substring author
-                                           0 (1- author-length))
-                                (propertize "-" 'face
-                                            'magit-log-author-date-cutoff))
-                             author)
-                           date)))
-             (overlay-put overlay 'before-string
-                          (propertize " " 'display
-                                      (list '(margin right-margin)
-                                            author-date)))))
-       magit-log-author-date-overlay)
+      (mapc (lambda (overlay)
+              (let* ((data (overlay-get overlay 'magit-log-overlay))
+                     (author (car data))
+                     (date (cdr data))
+                     (author-date
+                      (format format-string
+                              (if (< author-length (length author))
+                                  (concat
+                                   (substring author
+                                              0 (1- author-length))
+                                   (propertize
+                                    "-" 'face
+                                    'magit-log-author-date-cutoff))
+                                author)
+                              date)))
+                (overlay-put overlay 'before-string
+                             (propertize " " 'display
+                                         (list '(margin right-margin)
+                                               author-date)))))
+            magit-log-author-date-overlay)
       (setq magit-log-author-date-string-length max-length))
     (magit-log-refresh-author-date)
     (when magit-log-author-date-overlay
