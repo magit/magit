@@ -277,6 +277,12 @@ which generates a tracking name of the form \"REMOTE-BRANCHNAME\"."
   :group 'magit
   :type 'boolean)
 
+(defcustom magit-merge-warn-dirty-worktree t
+  "Whether to issue a warning when attempting to start a merge in a dirty worktree."
+  :group 'magit
+  :type 'boolean
+  :package-version '(magit . "1.3.0"))
+
 (defcustom magit-sha1-abbrev-length 7
   "The number of digits to show when a sha1 is displayed in abbreviated form."
   :group 'magit
@@ -304,6 +310,11 @@ Only considered when moving past the last entry with
   "Show author and date for each commit in short log mode."
   :group 'magit
   :type 'boolean)
+
+(defcustom magit-log-author-date-max-length 25
+  "max of author-date margin length."
+  :type 'integer
+  :group 'magit)
 
 (defcustom magit-log-show-gpg-status nil
   "Display signature verification information as part of the log."
@@ -4098,11 +4109,6 @@ must return a string which will represent the log line.")
         (magit-log-make-author-date-overlay author date))
       lhs)))
 
-(defcustom magit-log-author-date-max-length 25
-  "max of author-date margin length."
-  :type 'integer
-  :group 'magit)
-
 (defvar-local magit-log-author-date-string-length nil)
 (defvar-local magit-log-author-string-length nil)
 (defvar-local magit-log-date-string-length nil)
@@ -4796,12 +4802,6 @@ non-nil, then autocompletion will offer directory names."
 
 ;;; Acting (1)
 ;;;; Merging
-
-(defcustom magit-merge-warn-dirty-worktree t
-  "Whether to issue a warning when attempting to start a merge in a dirty worktree."
-  :group 'magit
-  :type 'boolean
-  :package-version '(magit . "1.3.0"))
 
 (defun magit-merge-check-clean ()
   (or (magit-everything-clean-p)
