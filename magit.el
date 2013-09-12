@@ -4184,7 +4184,7 @@ must return a string which will represent the log line.")
     (set-window-margins nil (car (window-margins))
                         magit-log-author-date-string-length)))
 
-(defun magit-log-initialize-author-date-overlay ()
+(defun magit-log-setup-author-date ()
   (setq magit-log-author-date-string-length 0
         magit-log-author-string-length 0
         magit-log-date-string-length 0
@@ -4267,7 +4267,7 @@ insert a line to tell how to insert more of them"
 (defun magit-wash-log (&optional style)
   (let ((magit-old-top-section nil))
     (when (derived-mode-p 'magit-log-mode)
-      (magit-log-initialize-author-date-overlay))
+      (magit-log-setup-author-date))
     (magit-wash-sequence (apply-partially 'magit-wash-log-line style))
     (when (derived-mode-p 'magit-log-mode)
       (magit-log-create-author-date-overlays))))
