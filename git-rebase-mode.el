@@ -131,9 +131,7 @@
     (define-key map (kbd "M-<up>") 'git-rebase-move-line-up)
     (define-key map (kbd "M-<down>") 'git-rebase-move-line-down)
     map)
-  "Keymap for Git-Rebase mode.
-Note that this will be added to the top-level code which defines
-the edit functions.")
+  "Keymap for Git-Rebase mode.")
 
 (easy-menu-define git-rebase-mode-menu git-rebase-mode-map
   "Git-Rebase mode menu"
