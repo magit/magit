@@ -74,6 +74,7 @@ Use the function by the same name instead of this variable.")
 
 (eval-when-compile
   (require 'dired)
+  (require 'dired-x)
   (require 'ediff)
   (require 'eshell)
   (require 'ido)
@@ -81,6 +82,7 @@ Use the function by the same name instead of this variable.")
   (require 'package nil t)
   (require 'view))
 
+(declare-function dired-jump 'dired-x)
 (declare-function dired-uncache 'dired)
 (declare-function ediff-cleanup-mess 'ediff)
 (declare-function eshell-parse-arguments 'eshell)
