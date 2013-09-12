@@ -4233,9 +4233,11 @@ must return a string which will represent the log line.")
   "Buffer name for display of log entries.")
 
 (defun magit-log-refresh-author-date ()
-  (with-selected-window (get-buffer-window)
-    (set-window-margins nil (car (window-margins))
-                        magit-log-author-date-string-length)))
+  (let ((window (get-buffer-window)))
+    (when window
+      (with-selected-window window
+        (set-window-margins nil (car (window-margins))
+                            magit-log-author-date-string-length)))))
 
 (defun magit-log-setup-author-date ()
   (setq magit-log-author-date-string-length 0
