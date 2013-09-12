@@ -312,7 +312,7 @@ Only considered when moving past the last entry with
   :type 'boolean)
 
 (defcustom magit-log-author-date-max-length 25
-  "max of author-date margin length."
+  "The maximum width of the author-date margin in log buffers."
   :type 'integer
   :group 'magit)
 
