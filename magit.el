@@ -4103,17 +4103,10 @@ must return a string which will represent the log line.")
   :type 'integer
   :group 'magit)
 
-(defvar-local magit-log-author-date-string-length nil
-  "only use in `*magit-log*' buffer.")
-
-(defvar-local magit-log-author-string-length nil
-  "only use in `*magit-log*' buffer.")
-
-(defvar-local magit-log-date-string-length nil
-  "only use in `*magit-log*' buffer.")
-
-(defvar-local magit-log-author-date-overlay nil
-  "only use in `*magit-log*' buffer.")
+(defvar-local magit-log-author-date-string-length nil)
+(defvar-local magit-log-author-string-length nil)
+(defvar-local magit-log-date-string-length nil)
+(defvar-local magit-log-author-date-overlay nil)
 
 (defun magit-log-make-author-date-overlay (author date)
   (let ((overlay (make-overlay (point) (1+ (point)))))
