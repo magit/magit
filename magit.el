@@ -3860,7 +3860,7 @@ member of ARGS, or to the working file otherwise."
                            "diff-index" "--cached"
                            base)))))
 
-;;; Logs and Commits
+;;; Logs
 
 (defun magit-log-cutoff-length-arg ()
   (format "--max-count=%d" magit-log-cutoff-length))
@@ -4274,6 +4274,8 @@ insert a line to tell how to insert more of them"
     (ansi-color-apply-on-region (point-min) (point-max)))
   (magit-wash-log style))
 
+;;; Commit Mode
+
 (defvar magit-currently-shown-commit nil)
 
 (defvar-local magit-back-navigation-history nil
@@ -4379,8 +4381,6 @@ insert a line to tell how to insert more of them"
            "--cc" "-p" commit
            `(,@(and magit-show-diffstat (list "--stat"))
              ,@magit-diff-options))))
-
-;;; Commit Mode
 
 (define-derived-mode magit-commit-mode magit-mode "Magit"
   "Mode to view a git commit.
