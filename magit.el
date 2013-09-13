@@ -1400,11 +1400,11 @@ server if necessary."
 If there is no output return nil.  If the output begins with a
 newline return an empty string."
   (with-temp-buffer
-    (apply 'call-process magit-git-executable nil (list t nil) nil
+    (apply 'process-file magit-git-executable nil (list t nil) nil
            (append magit-git-standard-options args))
     (goto-char (point-min))
     (unless (= (point-min) (point-max))
-      (buffer-substring-no-properties
+      (buffer-substring-no-propertcies
        (line-beginning-position)
        (line-end-position)))))
 
@@ -1412,7 +1412,7 @@ newline return an empty string."
   "Execute Git with ARGS, returning its output as a list of lines.
 Empty lines anywhere in the output are omitted."
   (with-temp-buffer
-    (apply 'call-process magit-git-executable nil (list t nil) nil
+    (apply 'process-file magit-git-executable nil (list t nil) nil
            (append magit-git-standard-options args))
     (goto-char (point-min))
     (let (lines)
