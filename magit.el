@@ -1571,7 +1571,7 @@ according to option `magit-remote-ref-format'."
                   (qualified match)
                   ((string-match "^refs/remotes/" match)
                    (if pretty
-                       (substring match (+ 14 (length match)))
+                       (magit-format-ref match)
                      (substring match 13)))
                   (t match))))))))
 
