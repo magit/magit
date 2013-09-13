@@ -1404,7 +1404,7 @@ newline return an empty string."
            (append magit-git-standard-options args))
     (goto-char (point-min))
     (unless (= (point-min) (point-max))
-      (buffer-substring-no-propertcies
+      (buffer-substring-no-properties
        (line-beginning-position)
        (line-end-position)))))
 
