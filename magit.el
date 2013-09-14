@@ -5571,26 +5571,27 @@ With a prefix argument amend to the commit at HEAD instead.
   (if (magit-use-emacsclient-p)
       (magit-with-emacsclient magit-server-window-for-commit
         (apply 'magit-run-git-async subcmd args))
-    (let ((topdir (magit-get-top-dir)))
-      (with-current-buffer
-          (find-file-noselect
-           (magit-git-dir (if (equal subcmd "tag")
-                              "TAG_EDITMSG"
-                            "COMMIT_EDITMSG")))
+    (let ((topdir (magit-get-top-dir))
+          (editmsg (magit-git-dir (if (equal subcmd "tag")
+                                      "TAG_EDITMSG"
+                                    "COMMIT_EDITMSG"))))
+      (with-current-buffer (find-file-noselect editmsg)
         (funcall (if (functionp magit-server-window-for-commit)
                      magit-server-window-for-commit
                    'switch-to-buffer)
                  (current-buffer))
         (add-hook 'git-commit-commit-hook
                   (apply-partially
-                   (lambda (default-directory args)
-                     (magit-run-git* args))
-                   topdir `(,subcmd
-                            ,"--cleanup=strip"
-                            ,(concat "--file=" (file-relative-name
-                                                (buffer-file-name)
-                                                topdir))
-                            ,@args))
+                   (lambda (default-directory editmsg args)
+                     (magit-run-git* args)
+                     (ignore-errors (delete-file editmsg)))
+                   topdir editmsg
+                   `(,subcmd
+                     ,"--cleanup=strip"
+                     ,(concat "--file=" (file-relative-name
+                                         (buffer-file-name)
+                                         topdir))
+                     ,@args))
                   nil t)))))
 
 (defun magit-commit-add-log ()
