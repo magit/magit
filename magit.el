@@ -5568,6 +5568,7 @@ With a prefix argument amend to the commit at HEAD instead.
     (magit-commit-internal "commit" magit-custom-options)))
 
 (defun magit-commit-internal (subcmd args)
+  (setq git-commit-previous-winconf (current-window-configuration))
   (if (magit-use-emacsclient-p)
       (magit-with-emacsclient magit-server-window-for-commit
         (apply 'magit-run-git-async subcmd args))
