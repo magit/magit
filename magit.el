@@ -5584,7 +5584,7 @@ With a prefix argument amend to the commit at HEAD instead.
         (add-hook 'git-commit-commit-hook
                   (apply-partially
                    (lambda (default-directory editmsg args)
-                     (magit-run-git* args)
+                     (apply 'magit-run-git args)
                      (ignore-errors (delete-file editmsg)))
                    topdir editmsg
                    `(,subcmd
