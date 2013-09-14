@@ -5155,7 +5155,8 @@ Return nil if there is no rebase in progress."
         (cl-case (read-event)
           ((?A ?a) (magit-run-git-async "rebase" "--abort"))
           ((?S ?s) (magit-run-git-async "rebase" "--skip"))
-          ((?C ?c) (magit-run-git-async "rebase" "--continue"))))
+          ((?C ?c) (magit-with-emacsclient magit-server-for-commit
+                     (magit-run-git-async "rebase" "--continue")))))
     (let* ((branch (magit-get-current-branch))
            (rev (magit-read-rev
                  "Rebase to"
