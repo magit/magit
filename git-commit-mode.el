@@ -147,6 +147,23 @@ default comments in git commit messages"
   "Hook run by `git-commit-commit' unless clients exist.
 Only use this if you know what you are doing.")
 
+(defvar git-commit-previous-winconf nil)
+
+(defmacro git-commit-restore-previous-winconf (&rest body)
+  "Run BODY and then restore `git-commit-previous-winconf'.
+When `git-commit-previous-winconf' is nil or was created from
+another frame do nothing."
+  (declare (indent 0))
+  (let ((winconf (make-symbol "winconf"))
+        (frame   (make-symbol "frame")))
+    `(let ((,winconf git-commit-previous-winconf)
+           (,frame (selected-frame)))
+       ,@body
+       (when (and ,winconf
+                  (equal ,frame (window-configuration-frame ,winconf)))
+         (set-window-configuration ,winconf)
+         (setq git-commit-previous-winconf nil)))))
+
 (defun git-commit-commit (&optional force)
   "Finish editing the commit message and commit.
 
@@ -163,10 +180,11 @@ Return t, if the commit was successful, or nil otherwise."
            (not (y-or-n-p "Commit despite stylistic errors?")))
       (message "Commit canceled due to stylistic errors.")
     (save-buffer)
-    (if (git-commit-buffer-clients)
-        (server-edit)
-      (run-hook-with-args 'git-commit-commit-hook)
-      (kill-buffer))))
+    (git-commit-restore-previous-winconf
+      (if (git-commit-buffer-clients)
+          (server-edit)
+        (run-hook-with-args 'git-commit-commit-hook)
+        (kill-buffer)))))
 
 (defun git-commit-abort ()
   "Abort the commit.
@@ -174,12 +192,13 @@ The commit message is saved to the kill ring."
   (interactive)
   (save-buffer)
   (kill-ring-save (point-min) (point-max))
-  (let ((clients (git-commit-buffer-clients)))
-    (if clients
-        (dolist (client clients)
-          (server-send-string client "-error Commit aborted by user")
-          (delete-process client))
-      (kill-buffer)))
+  (git-commit-restore-previous-winconf
+    (let ((clients (git-commit-buffer-clients)))
+      (if clients
+          (dolist (client clients)
+            (server-send-string client "-error Commit aborted by user")
+            (delete-process client))
+        (kill-buffer))))
   (message "Commit aborted.  Message saved to kill ring."))
 
 (defun git-commit-buffer-clients ()
