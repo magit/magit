@@ -497,9 +497,16 @@ basic structure of and errors in git commit messages."
   ;; Recognize changelog-style paragraphs
   (set (make-local-variable 'paragraph-start)
        (concat paragraph-start "\\|*\\|("))
+  ;; Treat lines starting with a hash/pound as comments
+  (setq comment-start "#")
   ;; Do not remember point location in commit messages
   (when (fboundp 'toggle-save-place)
-    (setq save-place nil)))
+    (setq save-place nil))
+  ;; If the commit summary is empty, insert a newline after point
+  (when (string= "" (buffer-substring-no-properties
+                     (line-beginning-position)
+                     (line-end-position)))
+    (open-line 1)))
 
 ;;;###autoload
 (dolist (pattern '("/COMMIT_EDITMSG\\'" "/NOTES_EDITMSG\\'"
