@@ -192,6 +192,7 @@
       ("-r" "Replace the tip of current branch" "--amend")
       ("-a" "Stage all modified and deleted files" "--all")
       ("-e" "Allow empty commit" "--allow-empty")
+      ("-v" "Show diff of changes to be committed" "--verbose")
       ("-n" "Bypass git hooks" "--no-verify")
       ("-s" "Add Signed-off-by line" "--signoff")
       ("-S" "Sign using gpg" "--gpg-sign")))
