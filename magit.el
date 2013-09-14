@@ -1632,7 +1632,7 @@ Otherwise, return nil."
   (magit-get-remote (magit-get-current-branch)))
 
 (defun magit-ref-exists-p (ref)
-  (magit-git-success "show-ref" "--verify" ref) 0)
+  (magit-git-success "show-ref" "--verify" ref))
 
 (defun magit-rev-parse (ref)
   "Return the SHA hash for REF."
