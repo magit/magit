@@ -71,6 +71,7 @@ Use the function by the same name instead of this variable.")
 (require 'grep)
 (require 'ring)
 (require 'server)
+(require 'thingatpt)
 
 (eval-when-compile
   (require 'dired)
@@ -4451,7 +4452,8 @@ Noninteractively, if the commit is already displayed and SCROLL
 is provided, call SCROLL's function definition in the commit
 window.  (`scroll-up' and `scroll-down' are typically passed in
 for this argument.)"
-  (interactive (list (magit-read-rev "Show commit (hash or ref)")
+  (interactive (list (magit-read-rev "Show commit (hash or ref)"
+                                     (word-at-point))
                      nil nil t))
   (when (magit-section-p commit)
     (setq commit (magit-section-info commit)))
