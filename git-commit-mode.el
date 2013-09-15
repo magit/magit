@@ -411,6 +411,8 @@ otherwise."
       (or (string-match-p ".+" (or (match-string 2) ""))
           (string-match-p "^.+$" (or (match-string 3) ""))))))
 
+;;; Font-Lock
+
 (defun git-commit-mode-summary-font-lock-keywords (&optional errors)
   "Create font lock keywords to fontify the Git summary.
 
@@ -452,16 +454,6 @@ Known comment headings are provided by `git-commit-comment-headings'."
      (eval . (git-commit-mode-summary-font-lock-keywords t)))
    (git-commit-mode-heading-keywords)))
 
-;;; Mode
-
-(defvar git-commit-mode-syntax-table
-  (let ((table (make-syntax-table text-mode-syntax-table)))
-    (modify-syntax-entry ?# "<" table)
-    (modify-syntax-entry ?\n ">" table)
-    (modify-syntax-entry ?\r ">" table)
-    table)
-  "Syntax table used by `git-commit-mode'.")
-
 (defun git-commit-font-lock-diff ()
   "Add font lock on diff."
   (save-excursion
@@ -486,6 +478,16 @@ Known comment headings are provided by `git-commit-comment-headings'."
                        (buffer-string))))
           (delete-region beg (point-max))
           (insert text))))))
+
+;;; Mode
+
+(defvar git-commit-mode-syntax-table
+  (let ((table (make-syntax-table text-mode-syntax-table)))
+    (modify-syntax-entry ?# "<" table)
+    (modify-syntax-entry ?\n ">" table)
+    (modify-syntax-entry ?\r ">" table)
+    table)
+  "Syntax table used by `git-commit-mode'.")
 
 ;;;###autoload
 (define-derived-mode git-commit-mode text-mode "Git Commit"
