@@ -64,6 +64,9 @@
 (require 'saveplace)
 (require 'server)
 
+;;; Options
+;;;; Variables
+
 (defgroup git-commit nil
   "Mode for editing git commit messages"
   :prefix "git-commit-"
@@ -84,6 +87,8 @@ confirmation before committing."
   :prefix "git-commit-"
   :group 'git-commit
   :group 'faces)
+
+;;;; Faces
 
 (defface git-commit-summary-face
   '((t :inherit font-lock-type-face))
@@ -142,6 +147,8 @@ git commit messages"
   "Face used to highlight what has happened to files in the
 default comments in git commit messages"
   :group 'git-commit-faces)
+
+;;; Committing
 
 (defvar git-commit-commit-hook nil
   "Hook run by `git-commit-commit' unless clients exist.
@@ -205,6 +212,8 @@ The commit message is saved to the kill ring."
   (and (fboundp 'server-edit)
        (boundp 'server-buffer-clients)
        server-buffer-clients))
+
+;;; Headers
 
 (defconst git-commit-known-pseudo-headers
   '("Signed-off-by"
@@ -426,6 +435,8 @@ Known comment headings are provided by `git-commit-comment-headings'."
      ;; everything
      (eval . (git-commit-mode-summary-font-lock-keywords t)))
    (git-commit-mode-heading-keywords)))
+
+;;; Mode
 
 (defvar git-commit-mode-map
   (let ((map (make-sparse-keymap)))
