@@ -369,17 +369,17 @@ minibuffer."
               (read-string "Email: ")))
        (git-commit-insert-header ,header name email))))
 
-(git-define-git-commit "cc" "Cc")
-(git-define-git-commit "reported" "Reported-by")
+(git-define-git-commit "cc"        "Cc")
+(git-define-git-commit "reported"  "Reported-by")
 (git-define-git-commit "suggested" "Suggested-by")
 
 (defconst git-commit-comment-headings-alist
-  '(("Not currently on any branch." . git-commit-no-branch-face)
-    ("Changes to be committed:" . git-commit-comment-heading-face)
-    ("Untracked files:" . git-commit-comment-heading-face)
-    ("Changed but not updated:" . git-commit-comment-heading-face)
+  '(("Not currently on any branch."   . git-commit-no-branch-face)
+    ("Changes to be committed:"       . git-commit-comment-heading-face)
+    ("Untracked files:"               . git-commit-comment-heading-face)
+    ("Changed but not updated:"       . git-commit-comment-heading-face)
     ("Changes not staged for commit:" . git-commit-comment-heading-face)
-    ("Unmerged paths:" . git-commit-comment-heading-face))
+    ("Unmerged paths:"                . git-commit-comment-heading-face))
   "Headings in message comments.
 
 The `car' of each cell is the heading text, the `cdr' the face to
@@ -483,7 +483,7 @@ Known comment headings are provided by `git-commit-comment-headings'."
 
 (defvar git-commit-mode-syntax-table
   (let ((table (make-syntax-table text-mode-syntax-table)))
-    (modify-syntax-entry ?# "<" table)
+    (modify-syntax-entry ?#  "<" table)
     (modify-syntax-entry ?\n ">" table)
     (modify-syntax-entry ?\r ">" table)
     table)
