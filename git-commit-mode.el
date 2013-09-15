@@ -92,6 +92,13 @@ confirmation before committing."
   :group 'git-commit
   :type 'number)
 
+(defcustom git-commit-known-pseudo-headers
+  '("Signed-off-by" "Acked-by" "Cc"
+    "Reported-by" "Tested-by" "Reviewed-by")
+  "A list of git pseudo headers to be highlighted."
+  :group 'git-commit
+  :type '(repeat string))
+
 ;;;; Faces
 
 (defgroup git-commit-faces nil
@@ -224,15 +231,6 @@ The commit message is saved to the kill ring."
        server-buffer-clients))
 
 ;;; Headers
-
-(defconst git-commit-known-pseudo-headers
-  '("Signed-off-by"
-    "Acked-by"
-    "Cc"
-    "Reported-by"
-    "Tested-by"
-    "Reviewed-by")
-  "A list of git pseudo headers to be highlighted.")
 
 (defun git-commit-find-pseudo-header-position ()
   "Find the position at which commit pseudo headers should be inserted.
@@ -410,7 +408,7 @@ Known comment headings are provided by `git-commit-comment-headings'."
                            (1 ',(cdr cell) t)))
           git-commit-comment-headings-alist))
 
-(defvar git-commit-mode-font-lock-keywords
+(defun git-commit-mode-font-lock-keywords ()
   (append
    `(("^\\s<.*$" . 'font-lock-comment-face)
      ("^\\s<\\s-On branch \\(.*\\)$" (1 'git-commit-branch-face t))
@@ -493,7 +491,7 @@ This mode helps with editing git commit messages both by
 providing commands to do common tasks, and by highlighting the
 basic structure of and errors in git commit messages."
   ;; Font locking
-  (setq font-lock-defaults '(git-commit-mode-font-lock-keywords t))
+  (setq font-lock-defaults (list (git-commit-mode-font-lock-keywords) t))
   (set (make-local-variable 'font-lock-multiline) t)
   (git-commit-font-lock-diff)
   ;; Filling according to the guidelines
