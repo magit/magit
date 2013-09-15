@@ -5610,13 +5610,18 @@ With a prefix argument amend to the commit at HEAD instead.
                   (hunk (magit-hunk-item-diff section))
                   (diff section)
                   (t    (error "No change at point")))))
-         (buffer (cl-find-if (lambda (buf)
-                               (with-current-buffer buf
-                                 (derived-mode-p 'git-commit-mode)))
-                             (append (buffer-list (selected-frame))
-                                     (buffer-list)))))
+         (locate-buffer (lambda ()
+                          (cl-find-if
+                           (lambda (buf)
+                             (with-current-buffer buf
+                               (derived-mode-p 'git-commit-mode)))
+                           (append (buffer-list (selected-frame))
+                                   (buffer-list)))))
+         (buffer (funcall locate-buffer)))
     (unless buffer
-      (error "No commit message buffer found"))
+      (magit-commit)
+      (while (not (setq buffer (funcall locate-buffer)))
+        (sit-for 0.01)))
     (pop-to-buffer buffer)
     (goto-char (point-min))
     (cond ((not (search-forward-regexp
