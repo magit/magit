@@ -1085,6 +1085,7 @@ Also see option `magit-diff-use-overlays'."
            (define-key map (kbd "t") 'magit-tag)
            (define-key map (kbd "l") 'magit-log)
            (define-key map (kbd "o") 'magit-submodule-update)
+           (define-key map (kbd "j") 'magit-apply-mailbox)
            (define-key map (kbd "B") 'undefined))
           (t
            (define-key map (kbd "c") 'magit-key-mode-popup-committing)
@@ -1099,6 +1100,7 @@ Also see option `magit-diff-use-overlays'."
            (define-key map (kbd "t") 'magit-key-mode-popup-tagging)
            (define-key map (kbd "l") 'magit-key-mode-popup-logging)
            (define-key map (kbd "o") 'magit-key-mode-popup-submodule)
+           (define-key map (kbd "j") 'magit-key-mode-popup-apply-mailbox)
            (define-key map (kbd "B") 'magit-key-mode-popup-bisecting)))
     (define-key map (kbd "$") 'magit-display-process)
     (define-key map (kbd "E") 'magit-interactive-rebase)
@@ -4652,11 +4654,11 @@ in `magit-commit-buffer-name'."
 (defun magit-insert-status-rebase-lines ()
   (let ((rebase (magit-rebase-info)))
     (when rebase
-      (magit-insert-status-line "Rebasing"
+      (magit-insert-status-line (if (nth 4 rebase) "Applying" "Rebasing")
         (apply 'format
                "onto %s (%s of %s); Press \"R\" to Abort, Skip, or Continue"
                rebase))
-      (when (nth 3 rebase)
+      (when (and (null (nth 4 rebase)) (nth 3 rebase))
         (magit-insert-status-line "Stopped"
           (magit-format-commit (nth 3 rebase) "%h %s"))))))
 
@@ -5118,10 +5120,11 @@ If no branch is found near the cursor return nil."
 (defun magit-rebase-info ()
   "Return a list indicating the state of an in-progress rebase.
 
-The returned list has the form (ONTO DONE TOTAL STOPPED).
+The returned list has the form (ONTO DONE TOTAL STOPPED AM).
 ONTO is the commit being rebased onto.
 DONE and TOTAL are integers with obvious meanings.
 STOPPED is the SHA-1 of the commit at which rebase stopped.
+AM is non-nil if current rebase is actually a git-am
 
 Return nil if there is no rebase in progress."
   (let ((m (magit-git-dir "rebase-merge"))
@@ -5134,7 +5137,8 @@ Return nil if there is no rebase in progress."
        (cl-loop for line in (magit-file-lines
                              (expand-file-name "git-rebase-todo.backup" m))
                 count (string-match "^[^#\n]" line))
-       (magit-file-line (expand-file-name "stopped-sha" m))))
+       (magit-file-line (expand-file-name "stopped-sha" m))
+       nil))
 
      ((file-regular-p (expand-file-name "onto" a)) ; non-interactive
       (list
@@ -5144,27 +5148,41 @@ Return nil if there is no rebase in progress."
        (let ((patch-header (magit-file-line
                             (car (directory-files a t "^[0-9]\\{4\\}$")))))
          (when (string-match "^From \\([a-z0-9]\\{40\\}\\) " patch-header)
-           (match-string 1 patch-header))))))))
+           (match-string 1 patch-header)))))
+
+     ((file-regular-p (expand-file-name "applying" a)) ; am
+      (list
+       (magit-name-rev       "HEAD")
+       (1- (string-to-number (magit-file-line (expand-file-name "next" a))))
+       (string-to-number     (magit-file-line (expand-file-name "last" a)))
+       (let ((patch-header (magit-file-line
+                            (car (directory-files a t "^[0-9]\\{4\\}$")))))
+         (when (string-match "^From \\([a-z0-9]\\{40\\}\\) " patch-header)
+           (match-string 1 patch-header)))
+       t)))))
 
 (defun magit-rebase-step ()
   (interactive)
-  (if (magit-rebase-info)
-      (let ((cursor-in-echo-area t)
-            (message-log-max nil))
-        (message "Rebase in progress. [A]bort, [S]kip, or [C]ontinue? ")
-        (cl-case (read-event)
-          ((?A ?a) (magit-run-git-async "rebase" "--abort"))
-          ((?S ?s) (magit-run-git-async "rebase" "--skip"))
-          ((?C ?c) (magit-run-git-async "rebase" "--continue"))))
-    (let* ((branch (magit-get-current-branch))
-           (rev (magit-read-rev
-                 "Rebase to"
-                 (magit-get-tracked-branch branch nil t)
-                 (if branch
-                     (cons (concat "refs/heads/" branch)
-                           magit-uninteresting-refs)
-                   magit-uninteresting-refs))))
-      (magit-run-git "rebase" (magit-rev-to-git rev)))))
+  (let ((rebase (magit-rebase-info)))
+    (if rebase
+        (let ((cursor-in-echo-area t)
+              (message-log-max nil)
+              (am (nth 4 rebase)))
+          (message "%s in progress. [A]bort, [S]kip, or [C]ontinue? "
+                   (if am "Apply mailbox" "Rebase"))
+          (cl-case (read-event)
+            ((?A ?a) (magit-run-git-async (if am "am" "rebase") "--abort"))
+            ((?S ?s) (magit-run-git-async (if am "am" "rebase") "--skip"))
+            ((?C ?c) (magit-run-git-async (if am "am" "rebase") "--continue"))))
+        (let* ((branch (magit-get-current-branch))
+               (rev (magit-read-rev
+                     "Rebase to"
+                     (magit-get-tracked-branch branch nil t)
+                     (if branch
+                         (cons (concat "refs/heads/" branch)
+                               magit-uninteresting-refs)
+                       magit-uninteresting-refs))))
+          (magit-run-git "rebase" (magit-rev-to-git rev))))))
 
 (defun magit-interactive-rebase (commit)
   "Start a git rebase -i session, old school-style."
@@ -5178,6 +5196,14 @@ Return nil if there is no rebase in progress."
   (magit-assert-emacsclient "rebase interactively")
   (magit-with-emacsclient magit-server-window-for-rebase
     (magit-run-git-async "rebase" "-i" commit)))
+
+;;;; AM
+
+(defun magit-apply-mailbox (&optional file-or-dir)
+  (interactive "fmbox or Maildir file or directory: ")
+  (magit-with-emacsclient magit-server-window-for-rebase
+    (magit-run-git-async "am" file-or-dir))
+  (magit-refresh))
 
 ;;;; Reset
 
