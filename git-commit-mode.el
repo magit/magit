@@ -92,13 +92,13 @@ confirmation before committing."
   :group 'git-commit
   :type 'number)
 
+;;;; Faces
+
 (defgroup git-commit-faces nil
   "Faces for highlighting git commit messages"
   :prefix "git-commit-"
   :group 'git-commit
   :group 'faces)
-
-;;;; Faces
 
 (defface git-commit-summary-face
   '((t :inherit font-lock-type-face))
