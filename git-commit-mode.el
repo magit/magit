@@ -61,6 +61,8 @@
 
 ;;; Code:
 
+(require 'log-edit)
+(require 'ring)
 (require 'saveplace)
 (require 'server)
 
@@ -81,6 +83,20 @@ confirmation before committing."
   :group 'git-commit
   :type '(choice (const :tag "On style errors" t)
                  (const :tag "Never" nil)))
+
+(defcustom git-commit-mode-hook nil
+  "Hook run when entering Git Commit mode."
+  :options '(git-commit-save-message flyspell-mode)
+  :type 'hook
+  :group 'git-commit)
+
+(defcustom git-commit-kill-buffer-hook '(git-commit-save-message)
+  "Hook run when killing a Git Commit mode buffer.
+This hook is run by both `git-commit-commit'
+and `git-commit-abort'."
+  :options '(git-commit-save-message)
+  :type 'hook
+  :group 'git-commit)
 
 (defgroup git-commit-faces nil
   "Faces for highlighting git commit messages"
@@ -187,6 +203,7 @@ Return t, if the commit was successful, or nil otherwise."
            (not (y-or-n-p "Commit despite stylistic errors?")))
       (message "Commit canceled due to stylistic errors.")
     (save-buffer)
+    (run-hooks 'git-commit-kill-buffer-hook)
     (git-commit-restore-previous-winconf
       (if (git-commit-buffer-clients)
           (server-edit)
@@ -198,7 +215,7 @@ Return t, if the commit was successful, or nil otherwise."
 The commit message is saved to the kill ring."
   (interactive)
   (save-buffer)
-  (kill-ring-save (point-min) (point-max))
+  (run-hooks 'git-commit-kill-buffer-hook)
   (git-commit-restore-previous-winconf
     (let ((clients (git-commit-buffer-clients)))
       (if clients
@@ -206,12 +223,39 @@ The commit message is saved to the kill ring."
             (server-send-string client "-error Commit aborted by user")
             (delete-process client))
         (kill-buffer))))
-  (message "Commit aborted.  Message saved to kill ring."))
+  (message (concat "Commit aborted."
+                   (when (memq 'git-commit-save-message
+                               git-commit-kill-buffer-hook)
+                     "  Message saved to `log-edit-comment-ring'."))))
 
 (defun git-commit-buffer-clients ()
   (and (fboundp 'server-edit)
        (boundp 'server-buffer-clients)
        server-buffer-clients))
+
+;;; History
+
+(defun git-commit-save-message ()
+  "Save current message to `log-edit-comment-ring'."
+  (interactive)
+  (let ((message (buffer-string)))
+    (when (or (ring-empty-p log-edit-comment-ring)
+              (not (equal message (ring-ref log-edit-comment-ring 0))))
+      (ring-insert log-edit-comment-ring message))))
+
+(defun git-commit-prev-message (arg)
+  "Cycle backward through message history, after saving current message.
+With a numeric prefix ARG, go back ARG comments."
+  (interactive "*p")
+  (git-commit-save-message)
+  (log-edit-previous-comment arg))
+
+(defun git-commit-next-message (arg)
+  "Cycle forward through message history, after saving current message.
+With a numeric prefix ARG, go forward ARG comments."
+  (interactive "*p")
+  (git-commit-save-message)
+  (log-edit-next-comment arg))
 
 ;;; Headers
 
@@ -448,6 +492,9 @@ Known comment headings are provided by `git-commit-comment-headings'."
     (define-key map (kbd "C-c C-r") 'git-commit-review)
     (define-key map (kbd "C-c C-o") 'git-commit-cc)
     (define-key map (kbd "C-c C-p") 'git-commit-reported)
+    (define-key map (kbd "C-c M-s") 'git-commit-save-message)
+    (define-key map (kbd "M-p")     'git-commit-prev-message)
+    (define-key map (kbd "M-n")     'git-commit-next-message)
     ;; Old bindings to avoid confusion
     (define-key map (kbd "C-c C-x s") 'git-commit-signoff)
     (define-key map (kbd "C-c C-x a") 'git-commit-ack)
