@@ -94,7 +94,7 @@ confirmation before committing."
 
 (defcustom git-commit-known-pseudo-headers
   '("Signed-off-by" "Acked-by" "Cc"
-    "Reported-by" "Tested-by" "Reviewed-by")
+    "Suggested-by" "Reported-by" "Tested-by" "Reviewed-by")
   "A list of git pseudo headers to be highlighted."
   :group 'git-commit
   :type '(repeat string))
@@ -348,6 +348,7 @@ minibuffer."
 
 (git-define-git-commit "cc" "Cc")
 (git-define-git-commit "reported" "Reported-by")
+(git-define-git-commit "suggested" "Suggested-by")
 
 (defconst git-commit-comment-headings-alist
   '(("Not currently on any branch." . git-commit-no-branch-face)
@@ -440,6 +441,7 @@ Known comment headings are provided by `git-commit-comment-headings'."
     (define-key map (kbd "C-c C-r") 'git-commit-review)
     (define-key map (kbd "C-c C-o") 'git-commit-cc)
     (define-key map (kbd "C-c C-p") 'git-commit-reported)
+    (define-key map (kbd "C-c C-i") 'git-commit-suggested)
     ;; Old bindings to avoid confusion
     (define-key map (kbd "C-c C-x s") 'git-commit-signoff)
     (define-key map (kbd "C-c C-x a") 'git-commit-ack)
