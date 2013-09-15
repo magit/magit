@@ -165,6 +165,29 @@ git commit messages"
 default comments in git commit messages"
   :group 'git-commit-faces)
 
+;;; Keymap
+
+(defvar git-commit-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c C-c") 'git-commit-commit)
+    (define-key map (kbd "C-c C-k") 'git-commit-abort)
+    (define-key map (kbd "C-c C-s") 'git-commit-signoff)
+    (define-key map (kbd "C-c C-a") 'git-commit-ack)
+    (define-key map (kbd "C-c C-t") 'git-commit-test)
+    (define-key map (kbd "C-c C-r") 'git-commit-review)
+    (define-key map (kbd "C-c C-o") 'git-commit-cc)
+    (define-key map (kbd "C-c C-p") 'git-commit-reported)
+    (define-key map (kbd "C-c C-i") 'git-commit-suggested)
+    ;; Old bindings to avoid confusion
+    (define-key map (kbd "C-c C-x s") 'git-commit-signoff)
+    (define-key map (kbd "C-c C-x a") 'git-commit-ack)
+    (define-key map (kbd "C-c C-x t") 'git-commit-test)
+    (define-key map (kbd "C-c C-x r") 'git-commit-review)
+    (define-key map (kbd "C-c C-x o") 'git-commit-cc)
+    (define-key map (kbd "C-c C-x p") 'git-commit-reported)
+    map)
+  "Key map used by `git-commit-mode'.")
+
 ;;; Committing
 
 (defvar git-commit-commit-hook nil
@@ -430,27 +453,6 @@ Known comment headings are provided by `git-commit-comment-headings'."
    (git-commit-mode-heading-keywords)))
 
 ;;; Mode
-
-(defvar git-commit-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-c") 'git-commit-commit)
-    (define-key map (kbd "C-c C-k") 'git-commit-abort)
-    (define-key map (kbd "C-c C-s") 'git-commit-signoff)
-    (define-key map (kbd "C-c C-a") 'git-commit-ack)
-    (define-key map (kbd "C-c C-t") 'git-commit-test)
-    (define-key map (kbd "C-c C-r") 'git-commit-review)
-    (define-key map (kbd "C-c C-o") 'git-commit-cc)
-    (define-key map (kbd "C-c C-p") 'git-commit-reported)
-    (define-key map (kbd "C-c C-i") 'git-commit-suggested)
-    ;; Old bindings to avoid confusion
-    (define-key map (kbd "C-c C-x s") 'git-commit-signoff)
-    (define-key map (kbd "C-c C-x a") 'git-commit-ack)
-    (define-key map (kbd "C-c C-x t") 'git-commit-test)
-    (define-key map (kbd "C-c C-x r") 'git-commit-review)
-    (define-key map (kbd "C-c C-x o") 'git-commit-cc)
-    (define-key map (kbd "C-c C-x p") 'git-commit-reported)
-    map)
-  "Key map used by `git-commit-mode'.")
 
 (defvar git-commit-mode-syntax-table
   (let ((table (make-syntax-table text-mode-syntax-table)))
