@@ -84,9 +84,9 @@ confirmation before committing."
   :type '(choice (const :tag "On style errors" t)
                  (const :tag "Never" nil)))
 
-(defcustom git-commit-mode-hook nil
+(defcustom git-commit-mode-hook '(flyspell-mode)
   "Hook run when entering Git Commit mode."
-  :options '(git-commit-save-message flyspell-mode)
+  :options '(flyspell-mode git-commit-save-message)
   :type 'hook
   :group 'git-commit)
 
