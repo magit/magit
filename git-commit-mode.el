@@ -84,9 +84,9 @@ confirmation before committing."
   :type '(choice (const :tag "On style errors" t)
                  (const :tag "Never" nil)))
 
-(defcustom git-commit-mode-hook '(flyspell-mode)
+(defcustom git-commit-mode-hook '(turn-on-auto-fill flyspell-mode)
   "Hook run when entering Git Commit mode."
-  :options '(flyspell-mode git-commit-save-message)
+  :options '(turn-on-auto-fill flyspell-mode git-commit-save-message)
   :type 'hook
   :group 'git-commit)
 
@@ -551,7 +551,6 @@ basic structure of and errors in git commit messages."
   (git-commit-font-lock-diff)
   ;; Filling according to the guidelines
   (setq fill-column 72)
-  (turn-on-auto-fill)
   ;; Recognize changelog-style paragraphs
   (set (make-local-variable 'paragraph-start)
        (concat paragraph-start "\\|*\\|("))
