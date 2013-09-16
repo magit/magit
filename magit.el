@@ -5546,26 +5546,27 @@ even if `magit-set-upstream-on-push's value is `refuse'."
 With a prefix argument amend to the commit at HEAD instead.
 \('git commit [--amend]')."
   (interactive "P")
-  (if (not (or (magit-anything-staged-p)
-               (member "--allow-empty" magit-custom-options)
-               (member "--all"         magit-custom-options)
-               (member "--amend"       magit-custom-options)
-               (and amendp (setq magit-custom-options
-                                 (cons "--amend" magit-custom-options)))))
-      (if (and (magit-rebase-info)
-               (y-or-n-p "Nothing staged.  Continue in-progress rebase? "))
-          (magit-run-git-async "rebase" "--continue")
-        (error
-         "Nothing staged.  Set --allow-empty, --all, or --amend in popup."))
-    (when (and magit-expand-staged-on-commit
-               (derived-mode-p 'magit-status-mode))
-      (magit-jump-to-staged)
-      (with-local-quit
-        (if (eq magit-expand-staged-on-commit 'full)
-            (magit-show-level 4 nil)
-          (magit-expand-section)))
-      (recenter 0))
-    (magit-commit-internal "commit" magit-custom-options)))
+  (let ((args magit-custom-options))
+    (when amendp
+      (setq args (cons "--amend" args)))
+    (if (not (or (magit-anything-staged-p)
+                 (member "--allow-empty" args)
+                 (member "--all" args)
+                 (member "--amend" args)))
+        (if (and (magit-rebase-info)
+                 (y-or-n-p "Nothing staged.  Continue in-progress rebase? "))
+            (magit-run-git-async "rebase" "--continue")
+          (error
+           "Nothing staged.  Set --allow-empty, --all, or --amend in popup."))
+      (when (and magit-expand-staged-on-commit
+                 (derived-mode-p 'magit-status-mode))
+        (magit-jump-to-staged)
+        (with-local-quit
+          (if (eq magit-expand-staged-on-commit 'full)
+              (magit-show-level 4 nil)
+            (magit-expand-section)))
+        (recenter 0))
+      (magit-commit-internal "commit" args))))
 
 (defun magit-commit-internal (subcmd args)
   (setq git-commit-previous-winconf (current-window-configuration))
