@@ -566,6 +566,13 @@ basic structure of and errors in git commit messages."
                      (line-end-position)))
     (open-line 1)))
 
+(defun git-commit-mode-flyspell-verify ()
+  (not (nth 4 (syntax-ppss)))) ; not inside a comment
+
+(eval-after-load 'flyspell
+  '(put 'git-commit-mode 'flyspell-mode-predicate
+        'git-commit-mode-flyspell-verify))
+
 ;;;###autoload
 (dolist (pattern '("/COMMIT_EDITMSG\\'" "/NOTES_EDITMSG\\'"
                    "/MERGE_MSG\\'" "/TAG_EDITMSG\\'"
