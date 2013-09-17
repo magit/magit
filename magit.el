@@ -58,8 +58,6 @@ Use the function by the same name instead of this variable.")
 (when (version< emacs-version "23.2")
   (error "Magit requires at least GNU Emacs 23.2"))
 
-(require 'magit-compat)
-
 (require 'git-commit-mode)
 (require 'git-rebase-mode)
 
@@ -97,6 +95,41 @@ Use the function by the same name instead of this variable.")
 
 (defvar magit-custom-options)
 (defvar package-alist)
+
+(eval-and-compile
+
+  ;; Added in Emacs 24.3.
+  (unless (fboundp 'setq-local)
+    (defmacro setq-local (var val)
+      "Set variable VAR to value VAL in current buffer."
+      (list 'set (list 'make-local-variable (list 'quote var)) val)))
+
+  ;; Added in Emacs 24.3.
+  (unless (fboundp 'defvar-local)
+    (defmacro defvar-local (var val &optional docstring)
+      "Define VAR as a buffer-local variable with default value VAL.
+Like `defvar' but additionally marks the variable as being automatically
+buffer-local wherever it is set."
+      (declare (debug defvar) (doc-string 3))
+      (list 'progn (list 'defvar var val docstring)
+            (list 'make-variable-buffer-local (list 'quote var)))))
+
+  ;; Added in Emacs 23.3.
+  (unless (fboundp 'string-prefix-p)
+    (defun string-prefix-p (str1 str2 &optional ignore-case)
+      "Return non-nil if STR1 is a prefix of STR2.
+If IGNORE-CASE is non-nil, the comparison is done without paying attention
+to case differences."
+      (eq t (compare-strings str1 nil nil
+                             str2 0 (length str1) ignore-case))))
+
+  ;; Added in Emacs 23.3.
+  (unless (fboundp 'string-match-p)
+    (defun string-match-p (regexp string &optional start)
+      "Same as `string-match' but don't change the match data."
+      (let ((inhibit-changing-match-data t))
+        (string-match regexp string start))))
+  )
 
 
 ;;; Options
