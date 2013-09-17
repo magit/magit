@@ -356,6 +356,11 @@ Only considered when moving past the last entry with
   :group 'magit
   :type 'boolean)
 
+(defcustom magit-mode-hook nil
+  "Hook run when entering a Magit mode derived mode."
+  :group 'magit
+  :type 'hook)
+
 (defcustom magit-status-insert-sections-hook
   '(magit-insert-status-local-line
     magit-insert-status-remote-line
@@ -2945,8 +2950,6 @@ buffer of the most recent process, like in the interactive case."
 
 ;;; Magit Mode
 ;;;; Hooks
-
-(defvar magit-mode-hook nil "Hook run by `magit-mode'.")
 
 (put 'magit-mode 'mode-class 'special)
 
