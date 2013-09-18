@@ -1518,11 +1518,15 @@ GIT_DIR and its absolute path is returned"
 
 (defun magit-get-top-dir (&optional cwd)
   (setq cwd (expand-file-name (file-truename (or cwd default-directory))))
-  (when (file-directory-p cwd)
-    (let* ((default-directory (file-name-as-directory cwd))
-           (cdup (magit-git-string "rev-parse" "--show-cdup")))
-      (when cdup
-        (file-name-as-directory (expand-file-name cdup cwd))))))
+  (save-match-data
+    (when (file-directory-p cwd)
+      (let* ((default-directory (file-name-as-directory cwd))
+             (cdup (magit-git-string "rev-parse" "--show-cdup")))
+        (cond
+         (cdup
+          (file-name-as-directory (expand-file-name cdup cwd)))
+         ((string-match "^\\(.*\\)/\\.git/" cwd)
+          (file-name-as-directory (match-string 1 cwd))))))))
 
 (defun magit-file-relative-name (filename)
   "Return the path of FILENAME relative to its git repository.
