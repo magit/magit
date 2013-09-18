@@ -5822,7 +5822,8 @@ With prefix argument, changes in staging area are kept.
   (interactive)
   (let ((confirm
          (lambda ()
-           (or (yes-or-no-p "Really revert this item? ")
+           (or (not magit-revert-item-confirm)
+               (yes-or-no-p "Really revert this item? ")
                (error "Abort")))))
     (magit-section-action (item info "revert")
       ((pending commit)
