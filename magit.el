@@ -353,14 +353,6 @@ similar hooks for other Magit modes."
   :group 'magit
   :type 'hook)
 
-(defcustom magit-status-insert-tags-line nil
-  "Whether to display related tags in the status buffer.
-
-Also see option `magit-status-tags-line-subject' which controls how
-this information is displayed."
-  :group 'magit
-  :type 'boolean)
-
 (defcustom magit-status-tags-line-subject 'head
   "Whether tag or head is the subject on tags line in status buffer.
 
@@ -377,10 +369,7 @@ or objects in these sentences.
         HEAD is *behind* the next tag by N commits.
 
 If the value is `tag' the commit counts are fontified; otherwise
-they are not (due to semantic considerations).
-
-Option `magit-status-insert-tags-line' has to be non-nil for this
-information to be displayed at all."
+they are not (due to semantic considerations)."
   :group 'magit
   :type '(choice (const :tag "tags are the subjects" tag)
                  (const :tag "head is the subject" head)))
@@ -4618,19 +4607,19 @@ in `magit-commit-buffer-name'."
         "nothing committed (yet)")))
 
 (defun magit-insert-status-tags-line ()
-  (when magit-status-insert-tags-line
-    (let* ((current-tag (magit-get-current-tag t))
-           (next-tag (magit-get-next-tag t))
-           (both-tags (and current-tag next-tag t))
-           (tag-subject (eq magit-status-tags-line-subject 'tag)))
-      (when (or current-tag next-tag)
-        (magit-insert-status-line (if both-tags "Tags" "Tag")
-          (concat
-           (and current-tag (apply 'magit-format-status-tag-sentence
-                                   tag-subject current-tag))
-           (and both-tags ", ")
-           (and next-tag (apply 'magit-format-status-tag-sentence
-                                (not tag-subject) next-tag))))))))
+  (let* ((current-tag (magit-get-current-tag t))
+         (next-tag (magit-get-next-tag t))
+         (both-tags (and current-tag next-tag t))
+         (tag-subject (eq magit-status-tags-line-subject 'tag)))
+    (when (or current-tag next-tag)
+      (magit-insert-status-line
+       (if both-tags "Tags" "Tag")
+       (concat
+        (and current-tag (apply 'magit-format-status-tag-sentence
+                                tag-subject current-tag))
+        (and both-tags ", ")
+        (and next-tag (apply 'magit-format-status-tag-sentence
+                             (not tag-subject) next-tag)))))))
 
 (defun magit-format-status-tag-sentence (behindp tag cnt &rest ignored)
   (concat (propertize tag 'face 'magit-tag)
