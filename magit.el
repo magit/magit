@@ -4220,10 +4220,9 @@ must return a string which will represent the log line.")
             magit-log-author-date-overlay)
       (setq magit-log-author-date-string-length max-length))
     (magit-log-refresh-author-date)
-    (when magit-log-author-date-overlay
-      (add-hook 'window-configuration-change-hook
-                'magit-log-refresh-author-date
-                nil t))))
+    (add-hook 'window-configuration-change-hook
+              'magit-log-refresh-author-date
+              nil t)))
 
 (defvar magit-log-buffer-name "*magit-log*"
   "Buffer name for display of log entries.")
