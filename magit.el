@@ -2907,14 +2907,13 @@ seconds.  Finally if both PROCESS and BUFFER are nil display the
 buffer of the most recent process, like in the interactive case."
   (interactive)
   (cond ((not process)
-         (unless buffer
-           (setq buffer (get-buffer magit-process-buffer-name))
-           (unless buffer
+         (or buffer
+             (setq buffer (get-buffer magit-process-buffer-name))
              (error "No Git commands have run"))
-           (when (buffer-live-p buffer)
-             (display-buffer buffer)
-             (with-current-buffer buffer
-               (goto-char (point-max))))))
+         (when (buffer-live-p buffer)
+           (display-buffer buffer)
+           (with-current-buffer buffer
+             (goto-char (point-max)))))
         ((= magit-process-popup-time 0)
          (magit-display-process nil (process-buffer process)))
         ((> magit-process-popup-time 0)
