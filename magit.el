@@ -704,7 +704,7 @@ set before loading libary `magit'.")
 
 ;; Add to faces group because it affects `magit-item-highlight's
 ;; default, and because the doc-strings of many faces refer to it.
-(custom-add-to-group 'magit-faces 'magit-diff-use-overlays 'custom-group)
+(custom-add-to-group 'magit-faces 'magit-diff-use-overlays 'custom-variable)
 
 (custom-add-to-group 'magit-faces 'git-commit-faces 'custom-group)
 (custom-add-to-group 'magit-faces 'git-rebase-faces 'custom-group)
