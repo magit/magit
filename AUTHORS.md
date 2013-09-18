@@ -102,6 +102,7 @@ Contributors
 - Nick Alexander <nalexander@mozilla.com>
 - Nick Dimiduk <ndimiduk@gmail.com>
 - Nicolas Dudebout <nicolas.dudebout@gatech.edu>
+- Nicolas Richard <theonewiththeevillook@yahoo.fr>
 - Noam Postavsky <npostavs@users.sourceforge.net>
 - Ole Arndt <oliver.arndt@cegedim.com>
 - Óscar Fuentes <ofv@wanadoo.es>
@@ -145,5 +146,6 @@ Contributors
 - Thomas Jost <thomas.jost@gmail.com>
 - Tibor Simko <tibor.simko@cern.ch>
 - Timo Juhani Lindfors <timo.lindfors@iki.fi>
+- Ting-Yu Lin <aethanyc@gmail.com>
 - Tom Feist <shabble@metavore.org>
 - Yann Hodique <yann.hodique@gmail.com>
