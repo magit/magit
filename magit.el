@@ -416,9 +416,9 @@ they'll be of the form \"remote/branch\".  I.e. something that's
 listed as \"remotes/upstream/next\" by \"git branch -l -a\" will
 be \"upstream/next\"."
   :group 'magit
-  :version "1.3.0"
   :type '(choice (const :tag "branch (remote)" branch-then-remote)
-                 (const :tag "remote/branch" remote-slash-branch)))
+                 (const :tag "remote/branch" remote-slash-branch))
+  :package-version '(magit . "1.3.0"))
 
 (defcustom magit-process-connection-type (not (eq system-type 'cygwin))
   "Connection type used for the git process.
