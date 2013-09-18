@@ -4581,7 +4581,6 @@ in `magit-commit-buffer-name'."
 (defvar magit-status-line-align-to 9)
 
 (defun magit-insert-status-line (heading info-string)
-  (declare (indent 1))
   (insert heading ":"
           (make-string (max 1 (- magit-status-line-align-to
                                  (length heading))) ?\ )
