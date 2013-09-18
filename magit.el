@@ -6549,7 +6549,7 @@ With a prefix argument, visit in other window."
     (magit-section-action (item info "mark")
       ((commit)
        (setq magit-marked-commit
-             (if (eq magit-marked-commit info) nil info)))))
+             (if (equal magit-marked-commit info) nil info)))))
   (magit-refresh-marked-commits))
 
 ;;;; Describe
