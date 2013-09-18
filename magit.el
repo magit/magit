@@ -6310,7 +6310,7 @@ except if LOCAL is non-nil in which case they are written to
       (write-region nil nil ignore-file))
     (magit-need-refresh)))
 
-(defun magit-ignore-item (edit local)
+(defun magit-ignore-item (edit &optional local)
   "Ignore the item at point.
 With a prefix argument edit the ignore string."
   (interactive "P")
