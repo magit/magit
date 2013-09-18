@@ -158,9 +158,8 @@ If USE-CACHE is non-nil then return the value of
                  ;; the way that git-svn does it.
                  (cons 'local-ref
                        (with-temp-buffer
-                         (insert (or (magit-git-string "log" "--first-parent"
-                                                       "--grep" "git-svn" "-1")
-                                     ""))
+                         (magit-git-insert "log" "-1" "--first-parent"
+                                           "--grep" "git-svn")
                          (goto-char (point-min))
                          (cond ((re-search-forward
                                  "git-svn-id: \\(.+/.+?\\)@\\([0-9]+\\)" nil t)

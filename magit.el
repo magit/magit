@@ -58,8 +58,6 @@ Use the function by the same name instead of this variable.")
 (when (version< emacs-version "23.2")
   (error "Magit requires at least GNU Emacs 23.2"))
 
-(require 'magit-compat)
-
 (require 'git-commit-mode)
 (require 'git-rebase-mode)
 
@@ -97,6 +95,41 @@ Use the function by the same name instead of this variable.")
 
 (defvar magit-custom-options)
 (defvar package-alist)
+
+(eval-and-compile
+
+  ;; Added in Emacs 24.3.
+  (unless (fboundp 'setq-local)
+    (defmacro setq-local (var val)
+      "Set variable VAR to value VAL in current buffer."
+      (list 'set (list 'make-local-variable (list 'quote var)) val)))
+
+  ;; Added in Emacs 24.3.
+  (unless (fboundp 'defvar-local)
+    (defmacro defvar-local (var val &optional docstring)
+      "Define VAR as a buffer-local variable with default value VAL.
+Like `defvar' but additionally marks the variable as being automatically
+buffer-local wherever it is set."
+      (declare (debug defvar) (doc-string 3))
+      (list 'progn (list 'defvar var val docstring)
+            (list 'make-variable-buffer-local (list 'quote var)))))
+
+  ;; Added in Emacs 23.3.
+  (unless (fboundp 'string-prefix-p)
+    (defun string-prefix-p (str1 str2 &optional ignore-case)
+      "Return non-nil if STR1 is a prefix of STR2.
+If IGNORE-CASE is non-nil, the comparison is done without paying attention
+to case differences."
+      (eq t (compare-strings str1 nil nil
+                             str2 0 (length str1) ignore-case))))
+
+  ;; Added in Emacs 23.3.
+  (unless (fboundp 'string-match-p)
+    (defun string-match-p (regexp string &optional start)
+      "Same as `string-match' but don't change the match data."
+      (let ((inhibit-changing-match-data t))
+        (string-match regexp string start))))
+  )
 
 
 ;;; Options
@@ -322,6 +355,11 @@ Only considered when moving past the last entry with
   "Display signature verification information as part of the log."
   :group 'magit
   :type 'boolean)
+
+(defcustom magit-mode-hook nil
+  "Hook run when entering a Magit mode derived mode."
+  :group 'magit
+  :type 'hook)
 
 (defcustom magit-status-insert-sections-hook
   '(magit-insert-status-local-line
@@ -2913,8 +2951,6 @@ buffer of the most recent process, like in the interactive case."
 ;;; Magit Mode
 ;;;; Hooks
 
-(defvar magit-mode-hook nil "Hook run by `magit-mode'.")
-
 (put 'magit-mode 'mode-class 'special)
 
 (defvar-local magit-refresh-function nil)
@@ -5260,13 +5296,15 @@ With two prefix args, remove ignored files as well."
   (interactive)
   (magit-section-case (item info)
     ((pending commit)
-     (magit-rewrite-set-commit-property info 'used t))))
+     (magit-rewrite-set-commit-property info 'used t)
+     (magit-refresh))))
 
 (defun magit-rewrite-set-unused ()
   (interactive)
   (magit-section-case (item info)
     ((pending commit)
-     (magit-rewrite-set-commit-property info 'used nil))))
+     (magit-rewrite-set-commit-property info 'used nil)
+     (magit-refresh))))
 
 (magit-define-inserter pending-changes ()
   (let* ((info (magit-read-rewrite-info))
