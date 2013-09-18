@@ -3143,9 +3143,9 @@ remove the symbol `Git' from `vc-handled-backends'."
           (funcall func)
         ;; Refresh magit buffers.
         (let (magit-custom-options)
-          (when status-buffer
-            (cl-pushnew status-buffer magit-refresh-needing-buffers))
           (when magit-refresh-needing-buffers
+            (when status-buffer
+              (cl-pushnew status-buffer magit-refresh-needing-buffers))
             (mapc 'magit-refresh-buffer magit-refresh-needing-buffers)))
         ;; Refresh file visiting buffers.
         (dolist (buffer (buffer-list))
