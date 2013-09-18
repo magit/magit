@@ -5844,9 +5844,10 @@ With prefix argument, changes in staging area are kept.
 
 (defun magit-revert-item ()
   (interactive)
-  (cl-flet ((confirm ()
-              (or (yes-or-no-p "Really revert this item? ")
-                  (error "Abort"))))
+  (cl-letf (((symbol-function 'confirm)
+             #'(lambda ()
+                 (or (yes-or-no-p "Really revert this item? ")
+                     (error "Abort")))))
     (magit-section-action (item info "revert")
       ((pending commit)
        (confirm)
