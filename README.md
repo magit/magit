@@ -134,6 +134,7 @@ please read [CONTRIBUTING.md][contributing].
 [ert]: https://github.com/ohler/ert
 [git-wip]: https://github.com/bartman/git-wip
 [git]: http://git-scm.com
+[git-modes]: https://github.com/magit/git-modes
 [marmalade]: http://marmalade-repo.org
 [melpa]: http://melpa.milkbox.net
 [vc]: http://www.gnu.org/software/emacs/manual/html_node/emacs/Version-Control.html
