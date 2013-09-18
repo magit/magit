@@ -5297,13 +5297,15 @@ With two prefix args, remove ignored files as well."
   (interactive)
   (magit-section-case (item info)
     ((pending commit)
-     (magit-rewrite-set-commit-property info 'used t))))
+     (magit-rewrite-set-commit-property info 'used t)
+     (magit-refresh))))
 
 (defun magit-rewrite-set-unused ()
   (interactive)
   (magit-section-case (item info)
     ((pending commit)
-     (magit-rewrite-set-commit-property info 'used nil))))
+     (magit-rewrite-set-commit-property info 'used nil)
+     (magit-refresh))))
 
 (magit-define-inserter pending-changes ()
   (let* ((info (magit-read-rewrite-info))
