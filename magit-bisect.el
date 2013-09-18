@@ -31,7 +31,7 @@
 (require 'magit)
 
 (defvar-local magit--bisect-last-pos nil)
-(put 'magit--bisect-info 'permanent-local t)
+(put 'magit--bisect-last-pos 'permanent-local t)
 
 (defvar-local magit--bisect-info nil)
 (put 'magit--bisect-info 'permanent-local t)
@@ -166,8 +166,9 @@ match REQUIRED-STATUS."
       (insert "#!/bin/sh\n" command "\n")
       (write-region (point-min) (point-max) file))
     (set-file-modes file #o755)
-    (setq process (magit-run-git-async "bisect" "run" file)
-          buffer  (process-buffer process))
+    (magit-run-git-async "bisect" "run" file)
+    (setq buffer  (get-buffer magit-process-buffer-name)
+          process (get-buffer-process buffer))
     (magit-display-process)
     (with-current-buffer buffer
       (setq magit--bisect-last-pos 0))
