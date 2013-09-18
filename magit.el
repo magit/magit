@@ -399,15 +399,15 @@ Autocompletion is used by functions like `magit-checkout',
 `magit-interactive-rebase' and others which offer branch name
 completion.
 
-The value 'name-then-remote means remotes will be of the form
-\"branch (remote)\", while the value 'remote-slash-name means that
+The value 'branch-then-remote means remotes will be of the form
+\"branch (remote)\", while the value 'remote-slash-branch means that
 they'll be of the form \"remote/branch\".  I.e. something that's
 listed as \"remotes/upstream/next\" by \"git branch -l -a\" will
 be \"upstream/next\"."
   :group 'magit
-  :version "1.3.0"
   :type '(choice (const :tag "branch (remote)" branch-then-remote)
-                 (const :tag "remote/branch" remote-slash-branch)))
+                 (const :tag "remote/branch" remote-slash-branch))
+  :package-version '(magit . "1.3.0"))
 
 (defcustom magit-process-connection-type (not (eq system-type 'cygwin))
   "Connection type used for the git process.
@@ -6868,7 +6868,7 @@ These are the branch names with the remote name stripped."
     (unless (string= (or new-tracked "") "")
       (cond (;; Match refs that are unknown in the local repository if
              ;; `magit-remote-ref-format' is set to
-             ;; `name-then-remote'. Can be useful if you want to
+             ;; `branch-then-remote'. Can be useful if you want to
              ;; create a new branch in a remote repository.
              (string-match "^\\([^ ]+\\) +(\\(.+\\))$" ; 1: branch name; 2: remote name
                            new-tracked)
