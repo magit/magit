@@ -31,7 +31,7 @@
 (require 'magit)
 
 (defvar-local magit--bisect-last-pos nil)
-(put 'magit--bisect-info 'permanent-local t)
+(put 'magit--bisect-last-pos 'permanent-local t)
 
 (defvar-local magit--bisect-info nil)
 (put 'magit--bisect-info 'permanent-local t)
