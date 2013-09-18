@@ -4299,12 +4299,11 @@ must return a string which will represent the log line.")
     t))
 
 (defun magit-wash-log (&optional style)
-  (let ((magit-old-top-section nil))
-    (when (derived-mode-p 'magit-log-mode)
-      (magit-log-setup-author-date))
+  (let ((magit-old-top-section nil)
+        (in-log-mode (derived-mode-p 'magit-log-mode)))
+    (when in-log-mode (magit-log-setup-author-date))
     (magit-wash-sequence (apply-partially 'magit-wash-log-line style))
-    (when (derived-mode-p 'magit-log-mode)
-      (magit-log-create-author-date-overlays))))
+    (when in-log-mode (magit-log-create-author-date-overlays))))
 
 (defun magit-wash-color-log (&optional style)
   (let ((ansi-color-apply-face-function
