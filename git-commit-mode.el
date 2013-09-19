@@ -553,7 +553,7 @@ basic structure of and errors in git commit messages."
   (set (make-local-variable 'paragraph-start)
        (concat paragraph-start "\\|*\\|("))
   ;; Treat lines starting with a hash/pound as comments
-  (setq comment-start "#")
+  (set (make-local-variable 'comment-start) "#")
   ;; Do not remember point location in commit messages
   (when (fboundp 'toggle-save-place)
     (setq save-place nil))
