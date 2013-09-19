@@ -33,7 +33,11 @@
 (defvar magit--cherry-buffer-name "*magit-cherry*")
 
 (define-derived-mode magit-cherry-mode magit-mode "Magit Cherry"
-  "Magit Cherry")
+  "Mode for looking at git cherry.
+
+\\{magit-cherry-mode-map}
+Unless shadowed by the mode specific bindings above bindings from
+the parent keymap `magit-mode-map' are also available.")
 
 (magit-define-command cherry (upstream head)
   (interactive

@@ -1145,16 +1145,26 @@ Also see option `magit-diff-use-overlays'."
     (define-key map (kbd "h") 'magit-key-mode-popup-diff-options)
     (define-key map (kbd "H") 'magit-toggle-diff-refine-hunk)
     (define-key map (kbd "M-g") 'magit-goto-diffstats)
-    map))
+    map)
+  "Parent keymap for all keymaps of modes derived from `magit-mode'.")
 
 (defvar magit-commit-mode-map
   (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map magit-mode-map)
     (define-key map (kbd "C-c C-b") 'magit-show-commit-backward)
     (define-key map (kbd "C-c C-f") 'magit-show-commit-forward)
-    map))
+    map)
+  "Keymap for `magit-commit-mode'.")
+
+(defvar magit-stash-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map magit-mode-map)
+    map)
+  "Keymap for `magit-stash-mode'.")
 
 (defvar magit-status-mode-map
   (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map magit-mode-map)
     (define-key map (kbd "s") 'magit-stage-item)
     (define-key map (kbd "S") 'magit-stage-all)
     (define-key map (kbd "u") 'magit-unstage-item)
@@ -1169,38 +1179,60 @@ Also see option `magit-diff-use-overlays'."
     (if magit-rigid-key-bindings
         (define-key map (kbd "z") 'magit-stash)
       (define-key map (kbd "z") 'magit-key-mode-popup-stashing))
-    map))
+    map)
+  "Keymap for `magit-status-mode'.")
 
 (eval-after-load 'dired-x
   '(define-key magit-status-mode-map [remap dired-jump] 'magit-dired-jump))
 
 (defvar magit-log-mode-map
   (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map magit-mode-map)
     (define-key map (kbd ".") 'magit-mark-item)
     (define-key map (kbd "=") 'magit-diff-with-mark)
     (define-key map (kbd "e") 'magit-log-show-more-entries)
-    map))
+    map)
+  "Keymap for `magit-log-mode'.")
+
+(defvar magit-reflog-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map magit-log-mode-map)
+    (define-key map (kbd "e") 'magit-log-show-more-entries)
+    map)
+  "Keymap for `magit-reflog-mode'.")
+
+(defvar magit-diff-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map magit-mode-map)
+    map)
+  "Keymap for `magit-diff-mode'.")
 
 (defvar magit-wazzup-mode-map
   (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map magit-mode-map)
     (define-key map (kbd ".") 'magit-mark-item)
     (define-key map (kbd "=") 'magit-diff-with-mark)
     (define-key map (kbd "i") 'magit-ignore-item)
-    map))
+    map)
+  "Keymap for `magit-wazzup-mode'.")
 
 (defvar magit-branch-manager-mode-map
   (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map magit-mode-map)
     (define-key map (kbd "c") 'magit-create-branch)
     (define-key map (kbd "a") 'magit-add-remote)
     (define-key map (kbd "r") 'magit-rename-item)
     (define-key map (kbd "k") 'magit-discard-item)
     (define-key map (kbd "T") 'magit-change-what-branch-tracks)
-    map))
+    map)
+  "Keymap for `magit-branch-manager-mode'.")
 
 (defvar magit-diffstat-keymap
   (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map magit-mode-map)
     (define-key map (kbd "e") 'magit-diffstat-ediff)
-    map))
+    map)
+  "Keymap for `magit-diffstat-mode'.")
 
 (easy-menu-define magit-mode-menu magit-mode-map
   "Magit menu"
@@ -2996,7 +3028,7 @@ before the last command."
 ;;;; Initialize Mode
 
 (defun magit-mode ()
-  "Review the status of a git repository and act on it.
+  "Parent major mode from which Magit major modes inherit.
 
 Please see the manual for a complete description of Magit.
 
@@ -4445,9 +4477,11 @@ must return a string which will represent the log line.")
              ,@magit-diff-options))))
 
 (define-derived-mode magit-commit-mode magit-mode "Magit"
-  "Mode to view a git commit.
+  "Mode for locking at a git commit.
 
-\\{magit-commit-mode-map}"
+\\{magit-commit-mode-map}
+Unless shadowed by the mode specific bindings above bindings from
+the parent keymap `magit-mode-map' are also available."
   :group 'magit)
 
 (defvar magit-commit-buffer-name "*magit-commit*"
@@ -4697,7 +4731,9 @@ in `magit-commit-buffer-name'."
 (define-derived-mode magit-status-mode magit-mode "Magit"
   "Mode for looking at git status.
 
-\\{magit-status-mode-map}"
+\\{magit-status-mode-map}
+Unless shadowed by the mode specific bindings above bindings from
+the parent keymap `magit-mode-map' are also available."
   :group 'magit)
 
 ;;;; Save Buffers
@@ -5767,7 +5803,9 @@ With prefix argument, changes in staging area are kept.
 (define-derived-mode magit-stash-mode magit-mode "Magit Stash"
   "Mode for looking at a git stash.
 
-\\{magit-stash-mode-map}"
+\\{magit-stash-mode-map}
+Unless shadowed by the mode specific bindings above bindings from
+the parent keymap `magit-mode-map' are also available."
   :group 'magit)
 
 (defvar magit-stash-buffer-name "*magit-stash*"
@@ -5980,7 +6018,9 @@ With a non numeric prefix ARG, show all entries"
 (define-derived-mode magit-log-mode magit-mode "Magit Log"
   "Mode for looking at git log.
 
-\\{magit-log-mode-map}"
+\\{magit-log-mode-map}
+Unless shadowed by the mode specific bindings above bindings from
+the parent keymap `magit-mode-map' are also available."
   :group 'magit)
 
 ;;; Reflog Mode
@@ -6002,7 +6042,9 @@ This is only non-nil in reflog buffers.")
 (define-derived-mode magit-reflog-mode magit-log-mode "Magit Reflog"
   "Mode for looking at git reflog.
 
-\\{magit-reflog-mode-map}"
+\\{magit-reflog-mode-map}
+Unless shadowed by the mode specific bindings above bindings from
+the parent keymap `magit-log-mode-map' are also available."
   :group 'magit)
 
 ;;; Ediff Support
@@ -6128,7 +6170,9 @@ restore the window state that was saved before ediff was called."
 (define-derived-mode magit-diff-mode magit-mode "Magit Diff"
   "Mode for looking at a git diff.
 
-\\{magit-diff-mode-map}"
+\\{magit-diff-mode-map}
+Unless shadowed by the mode specific bindings above bindings from
+the parent keymap `magit-mode-map' are also available."
   :group 'magit)
 
 (magit-define-command diff (range)
@@ -6218,9 +6262,11 @@ restore the window state that was saved before ediff was called."
                   (magit-set-section-info ref section))))))))))
 
 (define-derived-mode magit-wazzup-mode magit-mode "Magit Wazzup"
-  "Mode for looking at commits that could be merged from other branches.
+  "Mode for looking at git commits unique to other branches.
 
-\\{magit-wazzup-mode-map}"
+\\{magit-wazzup-mode-map}
+Unless shadowed by the mode specific bindings above bindings from
+the parent keymap `magit-mode-map' are also available."
   :group 'magit)
 
 (defun magit-wazzup (&optional all)
@@ -6669,7 +6715,11 @@ With a prefix argument, visit in other window."
 ;;;; (the mode)
 
 (define-derived-mode magit-branch-manager-mode magit-mode "Magit Branch"
-  "Magit Branches")
+  "Mode for looking at a git diff.
+
+\\{magit-diff-mode-map}
+Unless shadowed by the mode specific bindings above bindings from
+the parent keymap `magit-mode-map' are also available.")
 
 ;;;; (wacky utilities)
 
