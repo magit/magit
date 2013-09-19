@@ -431,17 +431,14 @@ they are not (due to semantic considerations)."
   :type 'boolean)
 
 (defcustom magit-remote-ref-format 'remote-slash-branch
-  "What format to use for autocompleting refs, in pariticular for remotes.
+  "How to format refs when autocompleting, in particular for remotes.
 
 Autocompletion is used by functions like `magit-checkout',
 `magit-interactive-rebase' and others which offer branch name
 completion.
 
-The value 'branch-then-remote means remotes will be of the form
-\"branch (remote)\", while the value 'remote-slash-branch means that
-they'll be of the form \"remote/branch\".  I.e. something that's
-listed as \"remotes/upstream/next\" by \"git branch -l -a\" will
-be \"upstream/next\"."
+`remote-slash-branch'  Format refs as \"remote/branch\".
+`branch-then-remote'   Format refs as \"branch (remote)\"."
   :group 'magit
   :type '(choice (const :tag "branch (remote)" branch-then-remote)
                  (const :tag "remote/branch" remote-slash-branch))
