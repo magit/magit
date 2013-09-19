@@ -2983,8 +2983,6 @@ buffer of the most recent process, like in the interactive case."
 ;;; Magit Mode
 ;;;; Hooks
 
-(put 'magit-mode 'mode-class 'special)
-
 (defvar-local magit-refresh-function nil)
 (put 'magit-refresh-function 'permanent-local t)
 
@@ -3027,29 +3025,23 @@ before the last command."
 
 ;;;; Initialize Mode
 
-(defun magit-mode ()
+(define-derived-mode magit-mode special-mode "Magit"
   "Parent major mode from which Magit major modes inherit.
 
 Please see the manual for a complete description of Magit.
 
 \\{magit-mode-map}"
-  (kill-all-local-variables)
   (buffer-disable-undo)
-  (setq buffer-read-only t
-        truncate-lines t
-        major-mode 'magit-mode
-        mode-name "Magit"
-        mode-line-process "")
-  (add-hook 'pre-command-hook #'magit-remember-point nil t)
+  (setq truncate-lines t)
+  (add-hook 'pre-command-hook  #'magit-remember-point nil t)
   (add-hook 'post-command-hook #'magit-correct-point-after-command t t)
   (add-hook 'post-command-hook #'magit-highlight-section t t)
-  (use-local-map magit-mode-map)
   ;; Emacs' normal method of showing trailing whitespace gives weird
   ;; results when `magit-whitespace-warning-face' is different from
   ;; `trailing-whitespace'.
-  (when (and magit-highlight-whitespace magit-highlight-trailing-whitespace)
-    (setq show-trailing-whitespace nil))
-  (run-mode-hooks 'magit-mode-hook))
+  (when (and magit-highlight-whitespace
+             magit-highlight-trailing-whitespace)
+    (setq show-trailing-whitespace nil)))
 
 (defmacro magit-mode-setup (buffer mode refresh-func &rest refresh-args)
   "Display and select BUFFER, turn on MODE, and refresh a first time.
