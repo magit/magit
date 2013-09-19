@@ -1478,15 +1478,7 @@ Empty lines anywhere in the output are omitted."
   (with-temp-buffer
     (apply 'process-file magit-git-executable nil (list t nil) nil
            (append magit-git-standard-options args))
-    (goto-char (point-min))
-    (let (lines)
-      (while (not (eobp))
-        (let ((beg (line-beginning-position))
-              (end (line-end-position)))
-          (unless (= beg end)
-            (push (buffer-substring-no-properties beg end) lines)))
-        (forward-line 1))
-      (nreverse lines))))
+    (split-string (buffer-string) "\n" 'omit-nulls)))
 
 (defun magit-git-insert (&rest args)
   "Execute Git with ARGS, inserting its output at point."
