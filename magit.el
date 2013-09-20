@@ -94,6 +94,7 @@ Use the function by the same name instead of this variable.")
 (declare-function view-mode 'view)
 
 (defvar magit-custom-options)
+(defvar magit-log-buffer-name)
 (defvar package-alist)
 
 (eval-and-compile
@@ -1294,7 +1295,7 @@ Also see option `magit-diff-use-overlays'."
     ["Display Git output" magit-display-process t]
     ["Quit Magit" magit-quit-window t]))
 
-;;; Various Utilities
+;;; Various Utilities (1)
 ;;;; Minibuffer Input
 
 (defun magit-iswitchb-completing-read
@@ -4273,9 +4274,6 @@ must return a string which will represent the log line.")
               'magit-log-refresh-author-date
               nil t)))
 
-(defvar magit-log-buffer-name "*magit-log*"
-  "Buffer name for display of log entries.")
-
 (defun magit-log-refresh-author-date ()
   (let ((window (get-buffer-window)))
     (when window
@@ -4361,6 +4359,8 @@ must return a string which will represent the log line.")
   (magit-wash-log style))
 
 ;;; Commit Mode
+;;__ FIXME The parens indicate preliminary subsections.
+;;;; (variables, TODO make unnecessary)
 
 (defvar magit-currently-shown-commit nil)
 
@@ -4371,6 +4371,81 @@ must return a string which will represent the log line.")
 (defvar-local magit-forward-navigation-history nil
   "History items that will be visited by successively going \"forward\".")
 (put 'magit-forward-navigation-history 'permanent-local t)
+
+;;;; (core)
+
+(define-derived-mode magit-commit-mode magit-mode "Magit"
+  "Mode for locking at a git commit.
+
+\\{magit-commit-mode-map}
+Unless shadowed by the mode specific bindings above bindings from
+the parent keymap `magit-mode-map' are also available."
+  :group 'magit)
+
+(defvar magit-commit-buffer-name "*magit-commit*"
+  "Buffer name for displaying commit log messages.")
+
+(defun magit-show-commit (commit &optional scroll inhibit-history select)
+  "Show information about a commit.
+Show it in the buffer named by `magit-commit-buffer-name'.
+COMMIT can be any valid name for a commit in the current Git
+repository.
+
+When called interactively or when SELECT is non-nil, switch to
+the commit buffer using `pop-to-buffer'.
+
+Unless INHIBIT-HISTORY is non-nil, the commit currently shown
+will be pushed onto `magit-back-navigation-history' and
+`magit-forward-navigation-history' will be cleared.
+
+Noninteractively, if the commit is already displayed and SCROLL
+is provided, call SCROLL's function definition in the commit
+window.  (`scroll-up' and `scroll-down' are typically passed in
+for this argument.)"
+  (interactive (list (magit-read-rev-with-default "Show commit (hash or ref)")
+                     nil nil t))
+  (when (magit-section-p commit)
+    (setq commit (magit-section-info commit)))
+  (unless (magit-git-success "cat-file" "commit" commit)
+    (error "%s is not a commit" commit))
+  (let ((dir (magit-get-top-dir))
+        (buf (get-buffer-create magit-commit-buffer-name)))
+    (cond
+     ((and (equal magit-currently-shown-commit commit)
+           ;; if it's empty then the buffer was killed
+           (with-current-buffer buf
+             (> (length (buffer-string)) 1)))
+      (let ((win (get-buffer-window buf)))
+        (cond ((not win)
+               (display-buffer buf))
+              (scroll
+               (with-selected-window win
+                 (funcall scroll))))))
+     (commit
+      (display-buffer buf)
+      (with-current-buffer buf
+        (unless inhibit-history
+          (push (cons default-directory magit-currently-shown-commit)
+                magit-back-navigation-history)
+          (setq magit-forward-navigation-history nil))
+        (setq magit-currently-shown-commit commit)
+        (goto-char (point-min))
+        (magit-mode-init dir 'magit-commit-mode
+                         #'magit-refresh-commit-buffer commit))))
+    (when select
+      (pop-to-buffer buf))))
+
+(defun magit-refresh-commit-buffer (commit)
+  (magit-create-buffer-sections
+    (apply #'magit-git-section nil nil
+           'magit-wash-commit
+           "log" "-1" "--decorate=full"
+           "--pretty=medium" "--no-abbrev-commit"
+           "--cc" "-p" commit
+           `(,@(and magit-show-diffstat (list "--stat"))
+             ,@magit-diff-options))))
+
+;;;; (washing)
 
 (defun magit-wash-commit ()
   (let ((magit-current-diff-range)
@@ -4458,76 +4533,7 @@ must return a string which will represent the log line.")
                     'mouse-face 'magit-item-highlight
                     'face 'magit-log-sha1))
 
-(defun magit-refresh-commit-buffer (commit)
-  (magit-create-buffer-sections
-    (apply #'magit-git-section nil nil
-           'magit-wash-commit
-           "log" "-1" "--decorate=full"
-           "--pretty=medium" "--no-abbrev-commit"
-           "--cc" "-p" commit
-           `(,@(and magit-show-diffstat (list "--stat"))
-             ,@magit-diff-options))))
-
-(define-derived-mode magit-commit-mode magit-mode "Magit"
-  "Mode for locking at a git commit.
-
-\\{magit-commit-mode-map}
-Unless shadowed by the mode specific bindings above bindings from
-the parent keymap `magit-mode-map' are also available."
-  :group 'magit)
-
-(defvar magit-commit-buffer-name "*magit-commit*"
-  "Buffer name for displaying commit log messages.")
-
-(defun magit-show-commit (commit &optional scroll inhibit-history select)
-  "Show information about a commit.
-Show it in the buffer named by `magit-commit-buffer-name'.
-COMMIT can be any valid name for a commit in the current Git
-repository.
-
-When called interactively or when SELECT is non-nil, switch to
-the commit buffer using `pop-to-buffer'.
-
-Unless INHIBIT-HISTORY is non-nil, the commit currently shown
-will be pushed onto `magit-back-navigation-history' and
-`magit-forward-navigation-history' will be cleared.
-
-Noninteractively, if the commit is already displayed and SCROLL
-is provided, call SCROLL's function definition in the commit
-window.  (`scroll-up' and `scroll-down' are typically passed in
-for this argument.)"
-  (interactive (list (magit-read-rev-with-default "Show commit (hash or ref)")
-                     nil nil t))
-  (when (magit-section-p commit)
-    (setq commit (magit-section-info commit)))
-  (unless (magit-git-success "cat-file" "commit" commit)
-    (error "%s is not a commit" commit))
-  (let ((dir (magit-get-top-dir))
-        (buf (get-buffer-create magit-commit-buffer-name)))
-    (cond
-     ((and (equal magit-currently-shown-commit commit)
-           ;; if it's empty then the buffer was killed
-           (with-current-buffer buf
-             (> (length (buffer-string)) 1)))
-      (let ((win (get-buffer-window buf)))
-        (cond ((not win)
-               (display-buffer buf))
-              (scroll
-               (with-selected-window win
-                 (funcall scroll))))))
-     (commit
-      (display-buffer buf)
-      (with-current-buffer buf
-        (unless inhibit-history
-          (push (cons default-directory magit-currently-shown-commit)
-                magit-back-navigation-history)
-          (setq magit-forward-navigation-history nil))
-        (setq magit-currently-shown-commit commit)
-        (goto-char (point-min))
-        (magit-mode-init dir 'magit-commit-mode
-                         #'magit-refresh-commit-buffer commit))))
-    (when select
-      (pop-to-buffer buf))))
+;;;; (history)
 
 (defun magit-show-commit-backward (&optional ignored)
   ;; Ignore argument passed by push-button
@@ -4651,7 +4657,57 @@ the parent keymap `magit-mode-map' are also available."
    magit-top-section))
 
 ;;; Status Mode
-;;;; Status Sections
+;;__ FIXME The parens indicate preliminary subsections.
+;;;; (core)
+
+(define-derived-mode magit-status-mode magit-mode "Magit"
+  "Mode for looking at git status.
+
+\\{magit-status-mode-map}
+Unless shadowed by the mode specific bindings above bindings from
+the parent keymap `magit-mode-map' are also available."
+  :group 'magit)
+
+;;;###autoload
+(defun magit-status (dir)
+  "Open a Magit status buffer for the Git repository containing DIR.
+If DIR is not within a Git repository, offer to create a Git
+repository in DIR.
+
+Interactively, a prefix argument means to ask the user which Git
+repository to use even if `default-directory' is under Git
+control.  Two prefix arguments means to ignore `magit-repo-dirs'
+when asking for user input."
+  (interactive (list (if current-prefix-arg
+                         (magit-read-top-dir
+                          (> (prefix-numeric-value current-prefix-arg)
+                             4))
+                       (or (magit-get-top-dir)
+                           (magit-read-top-dir nil)))))
+  (let ((topdir (magit-get-top-dir dir)))
+    (unless topdir
+      (when (y-or-n-p
+             (format "There is no Git repository in %S.  Create one? " dir))
+        (magit-init dir)
+        (setq topdir (magit-get-top-dir dir))))
+    (when topdir
+      (magit-save-some-buffers topdir)
+      (let ((buf (or (magit-find-status-buffer topdir)
+                     (generate-new-buffer
+                      (concat "*magit: "
+                              (file-name-nondirectory
+                               (directory-file-name topdir)) "*")))))
+        (magit-display-mode-buffer buf magit-status-buffer-switch-function)
+        (magit-mode-init topdir 'magit-status-mode #'magit-refresh-status)))))
+
+(defun magit-refresh-status ()
+  (magit-git-exit-code "update-index" "--refresh")
+  (magit-create-buffer-sections
+    (magit-with-section 'status nil
+      (run-hooks 'magit-status-insert-sections-hook)))
+  (run-hooks 'magit-refresh-status-hook))
+
+;;;; (sections)
 
 (defun magit-wash-unpulled-or-unpushed ()
   (save-match-data
@@ -4783,23 +4839,7 @@ the parent keymap `magit-mode-map' are also available."
 (defun magit-insert-empty-line ()
   (insert "\n"))
 
-;;;; Status Refresh
-
-(defun magit-refresh-status ()
-  (magit-git-exit-code "update-index" "--refresh")
-  (magit-create-buffer-sections
-    (magit-with-section 'status nil
-      (run-hooks 'magit-status-insert-sections-hook)))
-  (run-hooks 'magit-refresh-status-hook))
-
-(define-derived-mode magit-status-mode magit-mode "Magit"
-  "Mode for looking at git status.
-
-\\{magit-status-mode-map}
-Unless shadowed by the mode specific bindings above bindings from
-the parent keymap `magit-mode-map' are also available."
-  :group 'magit)
-
+;;; Various Utilities (2)
 ;;;; Save Buffers
 
 (defvar magit-default-directory nil)
@@ -4838,58 +4878,6 @@ As determined by the directory passed to `magit-status'."
   (and buffer-file-name
        (string= (magit-get-top-dir magit-default-directory)
                 (magit-get-top-dir (file-name-directory buffer-file-name)))))
-
-;;;; Status Commands
-
-;;;###autoload
-(defun magit-status (dir)
-  "Open a Magit status buffer for the Git repository containing DIR.
-If DIR is not within a Git repository, offer to create a Git
-repository in DIR.
-
-Interactively, a prefix argument means to ask the user which Git
-repository to use even if `default-directory' is under Git
-control.  Two prefix arguments means to ignore `magit-repo-dirs'
-when asking for user input."
-  (interactive (list (if current-prefix-arg
-                         (magit-read-top-dir
-                          (> (prefix-numeric-value current-prefix-arg)
-                             4))
-                       (or (magit-get-top-dir)
-                           (magit-read-top-dir nil)))))
-  (let ((topdir (magit-get-top-dir dir)))
-    (unless topdir
-      (when (y-or-n-p
-             (format "There is no Git repository in %S.  Create one? " dir))
-        (magit-init dir)
-        (setq topdir (magit-get-top-dir dir))))
-    (when topdir
-      (magit-save-some-buffers topdir)
-      (let ((buf (or (magit-find-status-buffer topdir)
-                     (generate-new-buffer
-                      (concat "*magit: "
-                              (file-name-nondirectory
-                               (directory-file-name topdir)) "*")))))
-        (magit-display-mode-buffer buf magit-status-buffer-switch-function)
-        (magit-mode-init topdir 'magit-status-mode #'magit-refresh-status)))))
-
-(defun magit-init (dir)
-  "Initialize git repository in the DIR directory."
-  (interactive (list (read-directory-name "Directory for Git repository: ")))
-  (let* ((dir (file-name-as-directory (expand-file-name dir)))
-         (topdir (magit-get-top-dir dir)))
-    (when (or (not topdir)
-              (yes-or-no-p
-               (format
-                (if (string-equal topdir dir)
-                    "There is already a Git repository in %s. Reinitialize? "
-                  "There is a Git repository in %s. Create another in %s? ")
-                topdir dir)))
-      (unless (file-directory-p dir)
-        (and (y-or-n-p (format "Directory %s does not exists.  Create it? " dir))
-             (make-directory dir)))
-      (let ((default-directory dir))
-        (magit-run-git* (list "init"))))))
 
 ;;;; Read Repository
 
@@ -5979,20 +5967,16 @@ With a prefix arg, do a submodule update --init."
 
 ;;; Log Mode
 
-(defun magit-log-show-more-entries (&optional arg)
-  "Grow the number of log entries shown.
+(define-derived-mode magit-log-mode magit-mode "Magit Log"
+  "Mode for looking at git log.
 
-With no prefix optional ARG, show twice as many log entries.
-With a numerical prefix ARG, add this number to the number of shown log entries.
-With a non numeric prefix ARG, show all entries"
-  (interactive "P")
-  (setq-local magit-log-cutoff-length
-              (cond ((numberp arg) (+ magit-log-cutoff-length arg))
-                    (arg magit-log-infinite-length)
-                    (t (* magit-log-cutoff-length 2))))
-  (let ((old-point (point)))
-    (magit-refresh)
-    (goto-char old-point)))
+\\{magit-log-mode-map}
+Unless shadowed by the mode specific bindings above bindings from
+the parent keymap `magit-mode-map' are also available."
+  :group 'magit)
+
+(defvar magit-log-buffer-name "*magit-log*"
+  "Buffer name for display of log entries.")
 
 (defun magit-refresh-log-buffer (range style args)
   (setq magit-current-range range)
@@ -6016,19 +6000,37 @@ With a non numeric prefix ARG, show all entries"
                                 "[%an][%ar]%s"))))
              ,@args "--"))))
 
-(define-derived-mode magit-log-mode magit-mode "Magit Log"
-  "Mode for looking at git log.
+(defun magit-log-show-more-entries (&optional arg)
+  "Grow the number of log entries shown.
 
-\\{magit-log-mode-map}
-Unless shadowed by the mode specific bindings above bindings from
-the parent keymap `magit-mode-map' are also available."
-  :group 'magit)
+With no prefix optional ARG, show twice as many log entries.
+With a numerical prefix ARG, add this number to the number of shown log entries.
+With a non numeric prefix ARG, show all entries"
+  (interactive "P")
+  (setq-local magit-log-cutoff-length
+              (cond ((numberp arg) (+ magit-log-cutoff-length arg))
+                    (arg magit-log-infinite-length)
+                    (t (* magit-log-cutoff-length 2))))
+  (let ((old-point (point)))
+    (magit-refresh)
+    (goto-char old-point)))
 
 ;;; Reflog Mode
+;;;; (variables, TODO make unnecessary)
 
 (defvar-local magit-reflog-head nil
   "The HEAD of the reflog in the current buffer.
 This is only non-nil in reflog buffers.")
+
+;;;; (core)
+
+(define-derived-mode magit-reflog-mode magit-log-mode "Magit Reflog"
+  "Mode for looking at git reflog.
+
+\\{magit-reflog-mode-map}
+Unless shadowed by the mode specific bindings above bindings from
+the parent keymap `magit-log-mode-map' are also available."
+  :group 'magit)
 
 (defun magit-refresh-reflog-buffer (ref)
   (setq magit-reflog-head ref)
@@ -6039,14 +6041,6 @@ This is only non-nil in reflog buffers.")
                        (magit-diff-abbrev-arg)
                        "--walk-reflogs" (magit-log-cutoff-length-arg)
                        (magit-rev-to-git ref))))
-
-(define-derived-mode magit-reflog-mode magit-log-mode "Magit Reflog"
-  "Mode for looking at git reflog.
-
-\\{magit-reflog-mode-map}
-Unless shadowed by the mode specific bindings above bindings from
-the parent keymap `magit-log-mode-map' are also available."
-  :group 'magit)
 
 ;;; Ediff Support
 
@@ -6150,24 +6144,6 @@ restore the window state that was saved before ediff was called."
 
 ;;; Diff Mode
 
-(defun magit-refresh-diff-buffer (range args)
-  (let ((magit-current-diff-range (cond
-                                   ((stringp range)
-                                    (cons range 'working))
-                                   ((null (cdr range))
-                                    (cons (car range) 'working))
-                                   (t
-                                    range))))
-    (setq magit-current-range range)
-    (magit-create-buffer-sections
-      (apply #'magit-git-section
-             'diffbuf
-             (magit-rev-range-describe magit-current-diff-range "Changes")
-             'magit-wash-diffs
-             "diff" (magit-diff-U-arg)
-             `(,@(and magit-show-diffstat (list "--patch-with-stat"))
-               ,args "--")))))
-
 (define-derived-mode magit-diff-mode magit-mode "Magit Diff"
   "Mode for looking at a git diff.
 
@@ -6198,22 +6174,41 @@ the parent keymap `magit-mode-map' are also available."
     (error "No commit marked"))
   (magit-diff (cons magit-marked-commit commit)))
 
+(defun magit-refresh-diff-buffer (range args)
+  (let ((magit-current-diff-range (cond
+                                   ((stringp range)
+                                    (cons range 'working))
+                                   ((null (cdr range))
+                                    (cons (car range) 'working))
+                                   (t
+                                    range))))
+    (setq magit-current-range range)
+    (magit-create-buffer-sections
+      (apply #'magit-git-section
+             'diffbuf
+             (magit-rev-range-describe magit-current-diff-range "Changes")
+             'magit-wash-diffs
+             "diff" (magit-diff-U-arg)
+             `(,@(and magit-show-diffstat (list "--patch-with-stat"))
+               ,args "--")))))
+
 ;;; Wazzup Mode
 
-(defun magit-wazzup-toggle-ignore (branch edit)
-  (let ((ignore-file (magit-git-dir "info/wazzup-exclude")))
-    (when edit
-      (setq branch (read-string "Branch to ignore for wazzup: " branch)))
-    (let ((ignored (magit-file-lines ignore-file)))
-      (cond ((member branch ignored)
-             (when (or (not edit)
-                       (y-or-n-p "Branch %s is already ignored.  Unignore? "))
-               (setq ignored (delete branch ignored))))
-            (t
-             (setq ignored (append ignored (list branch)))))
-      (with-temp-file ignore-file
-        (insert (mapconcat 'identity ignored "\n")))
-      (magit-need-refresh))))
+(define-derived-mode magit-wazzup-mode magit-mode "Magit Wazzup"
+  "Mode for looking at git commits unique to other branches.
+
+\\{magit-wazzup-mode-map}
+Unless shadowed by the mode specific bindings above bindings from
+the parent keymap `magit-mode-map' are also available."
+  :group 'magit)
+
+(defun magit-wazzup (&optional all)
+  (interactive "P")
+  (magit-mode-setup "*magit-wazzup*"
+                    #'magit-wazzup-mode
+                    #'magit-refresh-wazzup-buffer
+                    (magit-get-current-branch)
+                    all))
 
 (defun magit-refresh-wazzup-buffer (head all)
   (let ((branch-desc (or head "(detached) HEAD")))
@@ -6262,21 +6257,20 @@ the parent keymap `magit-mode-map' are also available."
                            "--"))))
                   (magit-set-section-info ref section))))))))))
 
-(define-derived-mode magit-wazzup-mode magit-mode "Magit Wazzup"
-  "Mode for looking at git commits unique to other branches.
-
-\\{magit-wazzup-mode-map}
-Unless shadowed by the mode specific bindings above bindings from
-the parent keymap `magit-mode-map' are also available."
-  :group 'magit)
-
-(defun magit-wazzup (&optional all)
-  (interactive "P")
-  (magit-mode-setup "*magit-wazzup*"
-                    #'magit-wazzup-mode
-                    #'magit-refresh-wazzup-buffer
-                    (magit-get-current-branch)
-                    all))
+(defun magit-wazzup-toggle-ignore (branch edit)
+  (let ((ignore-file (magit-git-dir "info/wazzup-exclude")))
+    (when edit
+      (setq branch (read-string "Branch to ignore for wazzup: " branch)))
+    (let ((ignored (magit-file-lines ignore-file)))
+      (cond ((member branch ignored)
+             (when (or (not edit)
+                       (y-or-n-p "Branch %s is already ignored.  Unignore? "))
+               (setq ignored (delete branch ignored))))
+            (t
+             (setq ignored (append ignored (list branch)))))
+      (with-temp-file ignore-file
+        (insert (mapconcat 'identity ignored "\n")))
+      (magit-need-refresh))))
 
 ;;; Acting (2)
 ;;;; File Log
@@ -6713,7 +6707,7 @@ With a prefix argument, visit in other window."
 
 ;;; Branch Manager Mode
 ;;__ FIXME The parens indicate preliminary subsections.
-;;;; (the mode)
+;;;; (core)
 
 (define-derived-mode magit-branch-manager-mode magit-mode "Magit Branch"
   "Mode for looking at a git diff.
@@ -6721,6 +6715,21 @@ With a prefix argument, visit in other window."
 \\{magit-diff-mode-map}
 Unless shadowed by the mode specific bindings above bindings from
 the parent keymap `magit-mode-map' are also available.")
+
+(defvar magit-branches-buffer-name "*magit-branches*")
+
+(magit-define-command branch-manager ()
+  (interactive)
+  (magit-mode-setup magit-branches-buffer-name
+                    #'magit-branch-manager-mode
+                    #'magit-refresh-branch-manager))
+
+(defun magit-refresh-branch-manager ()
+  (magit-create-buffer-sections
+    (apply #'magit-git-section
+           "branches" nil 'magit-wash-branches
+           "branch" "-vva" (magit-diff-abbrev-arg)
+           magit-custom-options)))
 
 ;;;; (wacky utilities)
 
@@ -6735,8 +6744,6 @@ These are the branch names with the remote name stripped."
   (cl-loop for branch in (magit-git-lines "branch" "-r" "--list"
                                           (format "%s/*" remote))
            collect (substring branch (+ 3 (length remote)))))
-
-(defvar magit-branches-buffer-name "*magit-branches*")
 
 (defun magit--is-branch-at-point-remote ()
   "Return non-nil if the branch at point is a remote tracking branch."
@@ -6924,21 +6931,6 @@ These are the branch names with the remote name stripped."
              (set-marker marker nil)))
           markers)))
 
-;;;; (refresh and invocation)
-
-(defun magit-refresh-branch-manager ()
-  (magit-create-buffer-sections
-    (apply #'magit-git-section
-           "branches" nil 'magit-wash-branches
-           "branch" "-vva" (magit-diff-abbrev-arg)
-           magit-custom-options)))
-
-(magit-define-command branch-manager ()
-  (interactive)
-  (magit-mode-setup magit-branches-buffer-name
-                    #'magit-branch-manager-mode
-                    #'magit-refresh-branch-manager))
-
 ;;;; (wacky non-generic set-tracked)
 
 (defun magit-change-what-branch-tracks ()
@@ -6975,6 +6967,24 @@ These are the branch names with the remote name stripped."
 
 ;;; Miscellaneous
 ;;;; Miscellaneous Commands
+
+(defun magit-init (dir)
+  "Initialize git repository in the DIR directory."
+  (interactive (list (read-directory-name "Directory for Git repository: ")))
+  (let* ((dir (file-name-as-directory (expand-file-name dir)))
+         (topdir (magit-get-top-dir dir)))
+    (when (or (not topdir)
+              (yes-or-no-p
+               (format
+                (if (string-equal topdir dir)
+                    "There is already a Git repository in %s. Reinitialize? "
+                  "There is a Git repository in %s. Create another in %s? ")
+                topdir dir)))
+      (unless (file-directory-p dir)
+        (and (y-or-n-p (format "Directory %s does not exists.  Create it? " dir))
+             (make-directory dir)))
+      (let ((default-directory dir))
+        (magit-run-git* (list "init"))))))
 
 (defun magit-show (commit filename &optional select prefix)
   "Return a buffer containing the file FILENAME, as stored in COMMIT.
