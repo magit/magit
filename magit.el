@@ -4342,20 +4342,18 @@ must return a string which will represent the log line.")
       (forward-line))
     t))
 
-(defun magit-wash-log (&optional style)
+(defun magit-wash-log (&optional style color)
+  (when color
+    (let ((ansi-color-apply-face-function
+           (lambda (beg end face)
+             (when face
+               (put-text-property beg end 'font-lock-face face)))))
+      (ansi-color-apply-on-region (point-min) (point-max))))
   (let ((magit-old-top-section nil)
         (in-log-mode (derived-mode-p 'magit-log-mode)))
     (when in-log-mode (magit-log-setup-author-date))
     (magit-wash-sequence (apply-partially 'magit-wash-log-line style))
     (when in-log-mode (magit-log-create-author-date-overlays))))
-
-(defun magit-wash-color-log (&optional style)
-  (let ((ansi-color-apply-face-function
-         (lambda (beg end face)
-           (when face
-             (put-text-property beg end 'font-lock-face face)))))
-    (ansi-color-apply-on-region (point-min) (point-max)))
-  (magit-wash-log style))
 
 ;;; Commit Mode
 ;;__ FIXME The parens indicate preliminary subsections.
@@ -5989,7 +5987,7 @@ the parent keymap `magit-mode-map' are also available."
            (if (or (member "--all" args) (member "--all-match" args))
                "Commits"
              (magit-rev-range-describe range "Commits"))
-           (apply-partially 'magit-wash-color-log style)
+           (apply-partially 'magit-wash-log style 'color)
            "log" (magit-log-cutoff-length-arg)
            "--decorate=full" "--abbrev-commit" "--color"
            (magit-diff-abbrev-arg)
