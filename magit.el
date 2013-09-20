@@ -4294,50 +4294,49 @@ must return a string which will represent the log line.")
   (when (string-match (cl-ecase style
                         (oneline magit-log-oneline-re)
                         (long    magit-log-longline-re)
-                        (reflog  magit-log-reflog-re))
+                        (reflog  magit-log-reflog-re)
+                        (unique  magit-unpushed-or-unpulled-commit-re))
                       line)
     (let ((match-style-string
-           (lambda (oneline long reflog)
+           (lambda (oneline long reflog unique)
              (when (symbol-value style)
                (match-string (symbol-value style) line)))))
       (make-magit-log-line
-       :graph  (funcall match-style-string 1   1   1)
-       :sha1   (funcall match-style-string 2   2   2)
-       :author (funcall match-style-string 5   nil nil)
-       :date   (funcall match-style-string 6   nil nil)
-       :gpg    (funcall match-style-string 4   nil nil)
-       :msg    (funcall match-style-string 7   4   4)
-       :refsub (funcall match-style-string nil nil 3)
-       :refs   (when (funcall match-style-string 3 3 nil)
+       :graph  (funcall match-style-string 1   1   1   nil)
+       :sha1   (funcall match-style-string 2   2   2   1)
+       :author (funcall match-style-string 5   nil nil nil)
+       :date   (funcall match-style-string 6   nil nil nil)
+       :gpg    (funcall match-style-string 4   nil nil nil)
+       :msg    (funcall match-style-string 7   4   4   2)
+       :refsub (funcall match-style-string nil nil 3   nil)
+       :refs   (when (funcall match-style-string 3 3 nil nil)
                  (cl-mapcan
                   (lambda (s)
                     (unless (string= s "tag:")
                       (list s)))
-                  (split-string (funcall match-style-string 3 3 nil)
+                  (split-string (funcall match-style-string 3 3 nil nil)
                                 "[(), ]" t)))))))
 
 (defun magit-wash-log-line (style)
   (beginning-of-line)
   (let* ((bol (point-at-bol))
          (eol (point-at-eol))
-         (line (magit-parse-log-line
-                (buffer-substring bol eol)
-                style)))
+         (line (magit-parse-log-line (buffer-substring bol eol)
+                                     style)))
     (if line
-        (progn
+        (let ((sha1 (magit-log-line-sha1 line)))
           (delete-region bol eol)
           (insert (funcall magit-present-log-line-function line))
           (goto-char bol)
-          (let ((sha1 (magit-log-line-sha1 line)))
-            (if sha1
-                (magit-with-section sha1 'commit
-                  (when magit-log-count
-                    (setq magit-log-count (1+ magit-log-count)))
-                  (magit-set-section-info sha1)
-                  (forward-line))
-              (forward-line))))
-      (forward-line))
-    t))
+          (if sha1
+              (magit-with-section sha1 'commit
+                (when magit-log-count
+                  (cl-incf magit-log-count))
+                (magit-set-section-info sha1)
+                (forward-line))
+            (forward-line)))
+      (forward-line)))
+  t)
 
 (defun magit-wash-log (style &optional color)
   (when color
@@ -4703,33 +4702,11 @@ when asking for user input."
 
 ;;;; (sections)
 
-(defun magit-wash-unpulled-or-unpushed ()
-  (save-match-data
-    (let ((magit-old-top-section nil))
-      (magit-wash-sequence
-       (lambda ()
-         (beginning-of-line)
-         (if (looking-at magit-unpushed-or-unpulled-commit-re)
-             (let* ((sha1 (match-string 1))
-                    (bol (point-at-bol))
-                    (line (make-magit-log-line :sha1 sha1
-                                               :msg (match-string 2))))
-               (delete-region bol (point-at-eol))
-               (insert (funcall magit-present-log-line-function line))
-               (goto-char bol)
-               (if sha1
-                   (magit-with-section sha1 'commit
-                     (magit-set-section-info sha1)
-                     (forward-line))
-                 (forward-line)))
-           (forward-line))
-         t)))))
-
 (magit-define-inserter unpulled-commits ()
   (let ((tracked (magit-get-tracked-branch nil t)))
     (when tracked
       (magit-git-section 'unpulled "Unpulled commits:"
-                         #'magit-wash-unpulled-or-unpushed
+                         (apply-partially 'magit-wash-log 'unique)
                          "log" magit-log-format
                          (magit-diff-abbrev-arg)
                          (concat "HEAD.." tracked)))))
@@ -4738,7 +4715,7 @@ when asking for user input."
   (let ((tracked (magit-get-tracked-branch nil t)))
     (when tracked
       (magit-git-section 'unpushed "Unpushed commits:"
-                         #'magit-wash-unpulled-or-unpushed
+                         (apply-partially 'magit-wash-log 'unique)
                          "log" magit-log-format
                          (magit-diff-abbrev-arg)
                          (concat tracked "..HEAD")))))
