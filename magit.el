@@ -4773,19 +4773,22 @@ when asking for user input."
 
 (defun magit-insert-status-remote-line ()
   (let* ((branch  (magit-get-current-branch))
-         (remote  (magit-get "branch" branch "remote"))
          (tracked (magit-get-tracked-branch branch)))
     (when tracked
-      (setq tracked (propertize tracked 'face 'magit-branch))
       (magit-insert-status-line "Remote"
-        (concat
-         (and (magit-get-boolean "branch" branch "rebase") "onto ")
-         (if (string= "." remote)
-             (concat "branch " tracked)
-           (when (string-match (concat "^" remote) tracked)
-             (setq tracked (substring tracked (1+ (length remote)))))
-           (concat tracked " @ " remote
-                   " (" (magit-get "remote" remote "url") ")")))))))
+        (concat (and (magit-get-boolean "branch" branch "rebase") "onto ")
+                (magit-format-tracked-line tracked branch))))))
+
+(defun magit-format-tracked-line (tracked branch)
+  (when tracked
+    (setq tracked (propertize tracked 'face 'magit-branch))
+    (let ((remote (magit-get "branch" branch "remote")))
+      (concat (if (string= "." remote)
+                  (concat "branch " tracked)
+                (when (string-match (concat "^" remote) tracked)
+                  (setq tracked (substring tracked (1+ (length remote)))))
+                (concat tracked " @ " remote
+                        " (" (magit-get "remote" remote "url") ")"))))))
 
 (defun magit-insert-status-head-line ()
   (magit-insert-status-line "Head"
