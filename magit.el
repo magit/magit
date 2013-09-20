@@ -4557,6 +4557,73 @@ in `magit-commit-buffer-name'."
       (setq default-directory (car histitem))
       (magit-show-commit (cdr histitem) nil 'inhibit-history))))
 
+;;; Stash Mode
+;;__ FIXME The parens indicate preliminary subsections.
+;;;; (variables, TODO make unnecessary)
+
+(defvar magit-currently-shown-stash nil)
+
+;;;; (core)
+
+(define-derived-mode magit-stash-mode magit-mode "Magit Stash"
+  "Mode for looking at a git stash.
+
+\\{magit-stash-mode-map}
+Unless shadowed by the mode specific bindings above bindings from
+the parent keymap `magit-mode-map' are also available."
+  :group 'magit)
+
+(defvar magit-stash-buffer-name "*magit-stash*"
+  "Buffer name for displaying a stash.")
+
+(defun magit-show-stash (stash &optional scroll)
+  (when (magit-section-p stash)
+    (setq stash (magit-section-info stash)))
+  (let ((dir default-directory)
+        (buf (get-buffer-create magit-stash-buffer-name))
+        (stash-id (magit-git-string "rev-list" "-1" stash)))
+    (cond ((and (equal magit-currently-shown-stash stash-id)
+                (with-current-buffer buf
+                  (> (length (buffer-string)) 1)))
+           (let ((win (get-buffer-window buf)))
+             (cond ((not win)
+                    (display-buffer buf))
+                   (scroll
+                    (with-selected-window win
+                      (funcall scroll))))))
+          (t
+           (setq magit-currently-shown-stash stash-id)
+           (display-buffer buf)
+           (with-current-buffer buf
+             (goto-char (point-min))
+             (let* ((range (cons (concat stash "^2^") stash))
+                    (magit-current-diff-range range)
+                    (args (magit-rev-range-to-git range)))
+               (magit-mode-init dir 'magit-diff-mode #'magit-refresh-diff-buffer
+                                range args)))))))
+
+;;;; (washing)
+
+(defun magit-wash-stashes ()
+  (let ((magit-old-top-section nil))
+    (magit-wash-sequence #'magit-wash-stash)))
+
+(defun magit-wash-stash ()
+  (if (search-forward-regexp "stash@{\\(.*?\\)}" (line-end-position) t)
+      (let ((stash (match-string-no-properties 0))
+            (name (match-string-no-properties 1)))
+        (delete-region (match-beginning 0) (match-end 0))
+        (goto-char (match-beginning 0))
+        (fixup-whitespace)
+        (goto-char (line-beginning-position))
+        (insert name)
+        (goto-char (line-beginning-position))
+        (magit-with-section stash 'stash
+          (magit-set-section-info stash)
+          (forward-line)))
+    (forward-line))
+  t)
+
 ;;; Commit Mark
 
 (defvar magit-marked-commit nil)
@@ -4625,6 +4692,11 @@ in `magit-commit-buffer-name'."
                          "log" magit-log-format
                          (magit-diff-abbrev-arg)
                          (concat tracked "..HEAD")))))
+
+(magit-define-inserter stashes ()
+  (magit-git-section 'stashes
+                     "Stashes:" 'magit-wash-stashes
+                     "stash" "list"))
 
 (defvar magit-status-line-align-to 9)
 
@@ -5741,31 +5813,6 @@ With a prefix argument annotate the tag.
 
 ;;;; Stashing
 
-(defun magit-wash-stash ()
-  (if (search-forward-regexp "stash@{\\(.*?\\)}" (line-end-position) t)
-      (let ((stash (match-string-no-properties 0))
-            (name (match-string-no-properties 1)))
-        (delete-region (match-beginning 0) (match-end 0))
-        (goto-char (match-beginning 0))
-        (fixup-whitespace)
-        (goto-char (line-beginning-position))
-        (insert name)
-        (goto-char (line-beginning-position))
-        (magit-with-section stash 'stash
-          (magit-set-section-info stash)
-          (forward-line)))
-    (forward-line))
-  t)
-
-(defun magit-wash-stashes ()
-  (let ((magit-old-top-section nil))
-    (magit-wash-sequence #'magit-wash-stash)))
-
-(magit-define-inserter stashes ()
-  (magit-git-section 'stashes
-                     "Stashes:" 'magit-wash-stashes
-                     "stash" "list"))
-
 (defvar magit-read-stash-history nil
   "The history of inputs to `magit-stash'.")
 
@@ -5790,44 +5837,6 @@ With prefix argument, changes in staging area are kept.
                                   (current-time))))
     (magit-run-git "stash" "apply" "stash@{0}")))
 
-(defvar magit-currently-shown-stash nil)
-
-(define-derived-mode magit-stash-mode magit-mode "Magit Stash"
-  "Mode for looking at a git stash.
-
-\\{magit-stash-mode-map}
-Unless shadowed by the mode specific bindings above bindings from
-the parent keymap `magit-mode-map' are also available."
-  :group 'magit)
-
-(defvar magit-stash-buffer-name "*magit-stash*"
-  "Buffer name for displaying a stash.")
-
-(defun magit-show-stash (stash &optional scroll)
-  (when (magit-section-p stash)
-    (setq stash (magit-section-info stash)))
-  (let ((dir default-directory)
-        (buf (get-buffer-create magit-stash-buffer-name))
-        (stash-id (magit-git-string "rev-list" "-1" stash)))
-    (cond ((and (equal magit-currently-shown-stash stash-id)
-                (with-current-buffer buf
-                  (> (length (buffer-string)) 1)))
-           (let ((win (get-buffer-window buf)))
-             (cond ((not win)
-                    (display-buffer buf))
-                   (scroll
-                    (with-selected-window win
-                      (funcall scroll))))))
-          (t
-           (setq magit-currently-shown-stash stash-id)
-           (display-buffer buf)
-           (with-current-buffer buf
-             (goto-char (point-min))
-             (let* ((range (cons (concat stash "^2^") stash))
-                    (magit-current-diff-range range)
-                    (args (magit-rev-range-to-git range)))
-               (magit-mode-init dir 'magit-diff-mode #'magit-refresh-diff-buffer
-                                range args)))))))
 ;;;; Apply
 
 (defun magit-apply-item ()
