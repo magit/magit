@@ -4770,6 +4770,7 @@ when asking for user input."
         (magit-display-mode-buffer buf magit-status-buffer-switch-function)
         (magit-mode-init topdir 'magit-status-mode #'magit-refresh-status)))))
 
+;;;###autoload
 (defun magit-init (dir)
   "Initialize git repository in the DIR directory."
   (interactive (list (read-directory-name "Directory for Git repository: ")))
@@ -6269,6 +6270,7 @@ or something else."
                  (oneline (list "--pretty=oneline")))
              "--" ,file))))
 
+;;;###autoload
 (defun magit-file-log (&optional all)
   "Display the log for the currently visited file or another one.
 
