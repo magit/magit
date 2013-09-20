@@ -3941,7 +3941,7 @@ member of ARGS, or to the working file otherwise."
 ;;;; (utilities)
 
 (cl-defstruct magit-log-line
-  chart sha1 author date msg refs gpg refsub)
+  graph sha1 author date msg refs gpg refsub)
 
 (defvar magit-log-count ()
   "Internal var used to count the number of logs actually added in a buffer.")
@@ -4078,7 +4078,7 @@ Evaluate (man \"git-check-ref-format\") for details")
 
 (defvar magit-present-log-line-function 'magit-present-log-line
   "The function to use when generating a log line.
-It takes four args: CHART, SHA1, REFS and MESSAGE.  The function
+It takes four args: GRAPH, SHA1, REFS and MESSAGE.  The function
 must return a string which will represent the log line.")
 
 (defun magit-log-get-bisect-state-color (suffix)
@@ -4162,7 +4162,7 @@ must return a string which will represent the log line.")
 
 (defun magit-present-log-line (line)
   "The default log line generator."
-  (let ((graph (magit-log-line-chart line))
+  (let ((graph (magit-log-line-graph line))
         (sha1 (magit-log-line-sha1 line))
         (refs (magit-log-line-refs line))
         (author (magit-log-line-author line))
@@ -4304,7 +4304,7 @@ must return a string which will represent the log line.")
              (when (symbol-value style)
                (match-string (symbol-value style) line)))))
       (make-magit-log-line
-       :chart  (funcall match-style-string 1   1   1)
+       :graph  (funcall match-style-string 1   1   1)
        :sha1   (funcall match-style-string 2   2   2)
        :author (funcall match-style-string 5   nil nil)
        :date   (funcall match-style-string 6   nil nil)
