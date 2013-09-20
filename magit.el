@@ -95,6 +95,7 @@ Use the function by the same name instead of this variable.")
 
 (defvar magit-custom-options)
 (defvar magit-log-buffer-name)
+(defvar magit-reflog-buffer-name)
 (defvar package-alist)
 
 (eval-and-compile
@@ -2751,8 +2752,9 @@ magit-topgit and magit-svn"
               logline noerase noerror nowait input))
 
 (defvar magit-process nil)
+
 (defvar magit-process-buffer-name "*magit-process*"
-  "Buffer name for running git commands.")
+  "Name of buffer where output of processes is put.")
 
 (defun magit-run* (cmd-and-args
                    &optional logline noerase noerror nowait input)
@@ -4383,7 +4385,7 @@ the parent keymap `magit-mode-map' are also available."
   :group 'magit)
 
 (defvar magit-commit-buffer-name "*magit-commit*"
-  "Buffer name for displaying commit log messages.")
+  "Name of buffer used to display a commit.")
 
 (defun magit-show-commit (commit &optional scroll inhibit-history select)
   "Show information about a commit.
@@ -4580,7 +4582,7 @@ the parent keymap `magit-mode-map' are also available."
   :group 'magit)
 
 (defvar magit-stash-buffer-name "*magit-stash*"
-  "Buffer name for displaying a stash.")
+  "Name of buffer used to display a stash.")
 
 (defun magit-show-stash (stash &optional scroll)
   (when (magit-section-p stash)
@@ -5956,7 +5958,7 @@ With a prefix arg, do a submodule update --init."
 (magit-define-command reflog (ref)
   (interactive (list (magit-read-rev "Reflog of"
                                      (or (magit-guess-branch) "HEAD"))))
-  (magit-mode-setup "*magit-reflog*"
+  (magit-mode-setup magit-reflog-buffer-name
                     #'magit-reflog-mode
                     #'magit-refresh-reflog-buffer
                     ref))
@@ -5976,7 +5978,7 @@ the parent keymap `magit-mode-map' are also available."
   :group 'magit)
 
 (defvar magit-log-buffer-name "*magit-log*"
-  "Buffer name for display of log entries.")
+  "Name of buffer used to display log entries.")
 
 (defun magit-refresh-log-buffer (range style args)
   (setq magit-current-range range)
@@ -6023,6 +6025,9 @@ With a non numeric prefix ARG, show all entries"
 This is only non-nil in reflog buffers.")
 
 ;;;; (core)
+
+(defvar magit-reflog-buffer-name "*magit-reflog*"
+  "Name of buffer used to display reflog entries.")
 
 (define-derived-mode magit-reflog-mode magit-log-mode "Magit Reflog"
   "Mode for looking at git reflog.
@@ -6152,9 +6157,12 @@ Unless shadowed by the mode specific bindings above bindings from
 the parent keymap `magit-mode-map' are also available."
   :group 'magit)
 
+(defvar magit-diff-buffer-name "*magit-diff*"
+  "Name of buffer used to display a diff.")
+
 (magit-define-command diff (range)
   (interactive (list (magit-read-rev-range "Diff")))
-  (let ((buf (get-buffer-create "*magit-diff*")))
+  (let ((buf (get-buffer-create magit-diff-buffer-name)))
     (display-buffer buf)
     (with-current-buffer buf
       (magit-mode-init default-directory
@@ -6202,9 +6210,12 @@ Unless shadowed by the mode specific bindings above bindings from
 the parent keymap `magit-mode-map' are also available."
   :group 'magit)
 
+(defvar magit-wazzup-buffer-name "*magit-wazzup*"
+  "Name of buffer used to display commits not merged in commit.")
+
 (defun magit-wazzup (&optional all)
   (interactive "P")
-  (magit-mode-setup "*magit-wazzup*"
+  (magit-mode-setup magit-wazzup-buffer-name
                     #'magit-wazzup-mode
                     #'magit-refresh-wazzup-buffer
                     (magit-get-current-branch)
@@ -6716,7 +6727,8 @@ With a prefix argument, visit in other window."
 Unless shadowed by the mode specific bindings above bindings from
 the parent keymap `magit-mode-map' are also available.")
 
-(defvar magit-branches-buffer-name "*magit-branches*")
+(defvar magit-branches-buffer-name "*magit-branches*"
+  "Name of branch used to display and manage branches.")
 
 (magit-define-command branch-manager ()
   (interactive)

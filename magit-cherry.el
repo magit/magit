@@ -30,10 +30,11 @@
 
 (require 'magit)
 
-(defvar magit--cherry-buffer-name "*magit-cherry*")
+(defvar magit-cherry-buffer-name "*magit-cherry*"
+  "Name of buffer used to display commits not merged upstream.")
 
 (define-derived-mode magit-cherry-mode magit-mode "Magit Cherry"
-  "Mode for looking at git cherry.
+  "Mode for looking at commits not merged upstream.
 
 \\{magit-cherry-mode-map}
 Unless shadowed by the mode specific bindings above bindings from
@@ -47,7 +48,7 @@ the parent keymap `magit-mode-map' are also available.")
                            (magit-get-tracked-branch branch nil t))
            (magit-read-rev "Cherry head" branch))))
   (let ((topdir (magit-get-top-dir default-directory)))
-    (magit-display-mode-buffer magit--cherry-buffer-name)
+    (magit-display-mode-buffer magit-cherry-buffer-name)
     (magit-mode-init topdir
                      #'magit-cherry-mode
                      #'magit--refresh-cherry-buffer

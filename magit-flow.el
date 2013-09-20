@@ -75,7 +75,7 @@
 
 (defun magit-flow-feature-diff ()
   (let ((dir default-directory)
-        (buf (get-buffer-create "*magit-diff*")))
+        (buf (get-buffer-create magit-diff-buffer-name)))
     (display-buffer buf)
     (with-current-buffer buf
       (magit-mode-init dir
