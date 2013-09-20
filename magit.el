@@ -4291,9 +4291,6 @@ must return a string which will represent the log line.")
 ;;;; (washing)
 
 (defun magit-parse-log-line (line style)
-  ;; TODO make sure STYLE is never nil; then remove this
-  (unless style
-    (setq style 'oneline))
   (when (string-match (cl-ecase style
                         (oneline magit-log-oneline-re)
                         (long    magit-log-longline-re)
@@ -4342,7 +4339,7 @@ must return a string which will represent the log line.")
       (forward-line))
     t))
 
-(defun magit-wash-log (&optional style color)
+(defun magit-wash-log (style &optional color)
   (when color
     (let ((ansi-color-apply-face-function
            (lambda (beg end face)
@@ -6268,7 +6265,7 @@ the parent keymap `magit-mode-map' are also available."
                                    (if (member ref excluded)
                                        " (normally ignored)"
                                      ""))
-                           'magit-wash-log
+                           (apply-partially 'magit-wash-log 'oneline)
                            "log" (magit-log-cutoff-length-arg)
                            "--abbrev-commit" "--graph" "--pretty=oneline"
                            (magit-diff-abbrev-arg)
