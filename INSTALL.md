@@ -58,7 +58,6 @@ Optional Dependencies
 The following libraries build on third-party tools or git subcommands
 that are not installed by the Git base-package on some distributions:
 
-* `magit-flow.el` requires  [`gitflow`][gitflow].
 * `magit-stgit.el` requires [`stgit`][stgit].
 * `magit-svn.el` requires the official Git subcommand `svn`.
 * `magit-topgit.el` requires [`topgit`][topgit].
