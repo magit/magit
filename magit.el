@@ -4013,9 +4013,6 @@ insert a line to tell how to insert more of them"
 
 ;;;; (variables for washing, mostly)
 
-(defun magit-log-cutoff-length-arg ()
-  (format "--max-count=%d" magit-log-cutoff-length))
-
 ;; Regexps for parsing ref names
 ;;
 ;; see the `git-check-ref-format' manpage for details
@@ -4123,6 +4120,9 @@ Evaluate (man \"git-check-ref-format\") for details")
           "\\(?: ?(\\([^)]+\\))\\)?"))             ; type    (4)
 
 (defconst magit-log-format "--format=format:* %h %s")
+
+(defun magit-log-cutoff-length-arg ()
+  (format "--max-count=%d" magit-log-cutoff-length))
 
 ;;;; (line generator)
 
