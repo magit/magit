@@ -2184,6 +2184,18 @@ If SECTION is nil, default to setting `magit-top-section'"
        (magit-section-set-hidden magit-top-section
                                  (magit-section-hidden magit-top-section)))))
 
+(defvar magit-log-count nil)
+
+(defmacro magit-create-log-buffer-sections (&rest body)
+  (declare (indent 0) (debug t))
+  `(let ((magit-log-count 0) (inhibit-read-only t))
+     (magit-create-buffer-sections
+       (magit-with-section 'log nil
+         ,@body
+         (when (= magit-log-count magit-log-cutoff-length)
+           (magit-with-section "longer"  'longer
+             (insert "type \"e\" to show more logs\n")))))))
+
 (defun magit-propertize-section (section)
   "Add text-property needed for SECTION."
   (put-text-property (magit-section-beginning section)
@@ -3993,23 +4005,6 @@ member of ARGS, or to the working file otherwise."
 
 (cl-defstruct magit-log-line
   graph sha1 author date msg refs gpg refsub)
-
-(defvar magit-log-count ()
-  "Internal var used to count the number of logs actually added in a buffer.")
-
-(defmacro magit-create-log-buffer-sections (&rest body)
-  "Empty current buffer of text and magit's section, and then evaluate BODY.
-
-if the number of logs inserted in the buffer is `magit-log-cutoff-length'
-insert a line to tell how to insert more of them"
-  (declare (indent 0) (debug t))
-  `(let ((magit-log-count 0) (inhibit-read-only t))
-     (magit-create-buffer-sections
-       (magit-with-section 'log nil
-         ,@body
-         (when (= magit-log-count magit-log-cutoff-length)
-           (magit-with-section "longer"  'longer
-             (insert "type \"e\" to show more logs\n")))))))
 
 ;;;; (variables for washing, mostly)
 
