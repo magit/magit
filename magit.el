@@ -3999,14 +3999,12 @@ member of ARGS, or to the working file otherwise."
                            "diff-index" "--cached"
                            base)))))
 
-;;; Logs
-;;__ FIXME The parens indicate preliminary subsections.
-;;;; (utilities)
+;;; Log Washing
 
 (cl-defstruct magit-log-line
   graph sha1 author date msg refs gpg refsub)
 
-;;;; (variables for washing, mostly)
+;;;; Log Washing Variables
 
 ;; Regexps for parsing ref names
 ;;
@@ -4119,7 +4117,7 @@ Evaluate (man \"git-check-ref-format\") for details")
 (defun magit-log-cutoff-length-arg ()
   (format "--max-count=%d" magit-log-cutoff-length))
 
-;;;; (line generator)
+;;;; Log Washing Functions
 
 (defun magit-format-log-line (line)
   (let ((graph  (magit-log-line-graph line))
@@ -4161,8 +4159,6 @@ Evaluate (man \"git-check-ref-format\") for details")
                        'magit-log-message)
                msg)
               msg))))
-
-;;;; (washing)
 
 (defun magit-parse-log-line (line style)
   (when (string-match (cl-ecase style
