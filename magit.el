@@ -4162,7 +4162,70 @@ Evaluate (man \"git-check-ref-format\") for details")
                msg)
               msg))))
 
-;;;; (author overlays)
+;;;; (washing)
+
+(defun magit-parse-log-line (line style)
+  (when (string-match (cl-ecase style
+                        (oneline magit-log-oneline-re)
+                        (long    magit-log-longline-re)
+                        (reflog  magit-log-reflog-re)
+                        (unique  magit-log-unique-re))
+                      line)
+    (let ((match-style-string
+           (lambda (oneline long reflog unique)
+             (when (symbol-value style)
+               (match-string (symbol-value style) line)))))
+      (make-magit-log-line
+       :graph  (funcall match-style-string 1   1   1   nil)
+       :sha1   (funcall match-style-string 2   2   2   1)
+       :author (funcall match-style-string 5   nil nil nil)
+       :date   (funcall match-style-string 6   nil nil nil)
+       :gpg    (funcall match-style-string 4   nil nil nil)
+       :msg    (funcall match-style-string 7   4   4   2)
+       :refsub (funcall match-style-string nil nil 3   nil)
+       :refs   (when (funcall match-style-string 3 3 nil nil)
+                 (cl-mapcan
+                  (lambda (s)
+                    (unless (string= s "tag:")
+                      (list s)))
+                  (split-string (funcall match-style-string 3 3 nil nil)
+                                "[(), ]" t)))))))
+
+(defun magit-wash-log-line (style)
+  (beginning-of-line)
+  (let* ((bol (point-at-bol))
+         (eol (point-at-eol))
+         (line (magit-parse-log-line (buffer-substring bol eol)
+                                     style)))
+    (if line
+        (let ((sha1 (magit-log-line-sha1 line)))
+          (delete-region bol eol)
+          (insert (magit-format-log-line line))
+          (goto-char bol)
+          (if sha1
+              (magit-with-section sha1 'commit
+                (when magit-log-count
+                  (cl-incf magit-log-count))
+                (magit-set-section-info sha1)
+                (forward-line))
+            (forward-line)))
+      (forward-line)))
+  t)
+
+(defun magit-wash-log (style &optional color)
+  (when color
+    (let ((ansi-color-apply-face-function
+           (lambda (beg end face)
+             (when face
+               (put-text-property beg end 'font-lock-face face)))))
+      (ansi-color-apply-on-region (point-min) (point-max))))
+  (let ((magit-old-top-section nil)
+        (in-log-mode (derived-mode-p 'magit-log-mode)))
+    (when in-log-mode (magit-log-setup-author-date))
+    (magit-wash-sequence (apply-partially 'magit-wash-log-line style))
+    (when in-log-mode (magit-log-create-author-date-overlays))))
+
+;;;; Log Author/Date Overlays
 
 (defvar-local magit-log-author-date-string-length nil)
 (defvar-local magit-log-author-string-length nil)
@@ -4243,69 +4306,6 @@ Evaluate (man \"git-check-ref-format\") for details")
         magit-log-author-date-overlay nil)
   (remove-hook 'window-configuration-change-hook
                'magit-log-refresh-author-date t))
-
-;;;; (washing)
-
-(defun magit-parse-log-line (line style)
-  (when (string-match (cl-ecase style
-                        (oneline magit-log-oneline-re)
-                        (long    magit-log-longline-re)
-                        (reflog  magit-log-reflog-re)
-                        (unique  magit-log-unique-re))
-                      line)
-    (let ((match-style-string
-           (lambda (oneline long reflog unique)
-             (when (symbol-value style)
-               (match-string (symbol-value style) line)))))
-      (make-magit-log-line
-       :graph  (funcall match-style-string 1   1   1   nil)
-       :sha1   (funcall match-style-string 2   2   2   1)
-       :author (funcall match-style-string 5   nil nil nil)
-       :date   (funcall match-style-string 6   nil nil nil)
-       :gpg    (funcall match-style-string 4   nil nil nil)
-       :msg    (funcall match-style-string 7   4   4   2)
-       :refsub (funcall match-style-string nil nil 3   nil)
-       :refs   (when (funcall match-style-string 3 3 nil nil)
-                 (cl-mapcan
-                  (lambda (s)
-                    (unless (string= s "tag:")
-                      (list s)))
-                  (split-string (funcall match-style-string 3 3 nil nil)
-                                "[(), ]" t)))))))
-
-(defun magit-wash-log-line (style)
-  (beginning-of-line)
-  (let* ((bol (point-at-bol))
-         (eol (point-at-eol))
-         (line (magit-parse-log-line (buffer-substring bol eol)
-                                     style)))
-    (if line
-        (let ((sha1 (magit-log-line-sha1 line)))
-          (delete-region bol eol)
-          (insert (magit-format-log-line line))
-          (goto-char bol)
-          (if sha1
-              (magit-with-section sha1 'commit
-                (when magit-log-count
-                  (cl-incf magit-log-count))
-                (magit-set-section-info sha1)
-                (forward-line))
-            (forward-line)))
-      (forward-line)))
-  t)
-
-(defun magit-wash-log (style &optional color)
-  (when color
-    (let ((ansi-color-apply-face-function
-           (lambda (beg end face)
-             (when face
-               (put-text-property beg end 'font-lock-face face)))))
-      (ansi-color-apply-on-region (point-min) (point-max))))
-  (let ((magit-old-top-section nil)
-        (in-log-mode (derived-mode-p 'magit-log-mode)))
-    (when in-log-mode (magit-log-setup-author-date))
-    (magit-wash-sequence (apply-partially 'magit-wash-log-line style))
-    (when in-log-mode (magit-log-create-author-date-overlays))))
 
 ;;; Commit Mode
 ;;__ FIXME The parens indicate preliminary subsections.
