@@ -4016,8 +4016,6 @@ insert a line to tell how to insert more of them"
 (defun magit-log-cutoff-length-arg ()
   (format "--max-count=%d" magit-log-cutoff-length))
 
-(defvar magit-reflog-format "--format=format:* \C-?%h\C-?%gs")
-
 (defvar magit-log-format "--format=format:* %h %s")
 
 ;; Regexps for parsing ref names
@@ -5979,7 +5977,7 @@ the parent keymap `magit-log-mode-map' are also available."
   (magit-create-log-buffer-sections
     (magit-git-section 'reflog (format "Local history of branch %s" ref)
                        (apply-partially 'magit-wash-log 'reflog)
-                       "log" magit-reflog-format
+                       "log" "--format=format:* \C-?%h\C-?%gs"
                        (magit-diff-abbrev-arg)
                        "--walk-reflogs" (magit-log-cutoff-length-arg)
                        (magit-rev-to-git ref))))
