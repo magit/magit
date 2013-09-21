@@ -190,6 +190,7 @@
       ("c" "Commit" magit-commit))
      (switches
       ("-r" "Replace the tip of current branch" "--amend")
+      ("-R" "Claim authorship and reset author date" "--reset-author")
       ("-a" "Stage all modified and deleted files" "--all")
       ("-e" "Allow empty commit" "--allow-empty")
       ("-v" "Show diff of changes to be committed" "--verbose")
