@@ -4076,11 +4076,6 @@ Evaluate (man \"git-check-ref-format\") for details")
           "\\(\\(?: ?-[^ ]+\\)+\\)?"               ; option  (3)
           "\\(?: ?(\\([^)]+\\))\\)?"))             ; type    (4)
 
-(defvar magit-present-log-line-function 'magit-present-log-line
-  "The function to use when generating a log line.
-It takes four args: GRAPH, SHA1, REFS and MESSAGE.  The function
-must return a string which will represent the log line.")
-
 (defun magit-log-get-bisect-state-color (suffix)
   (list suffix
         (if (string= suffix "bad")
@@ -4322,7 +4317,7 @@ must return a string which will represent the log line.")
     (if line
         (let ((sha1 (magit-log-line-sha1 line)))
           (delete-region bol eol)
-          (insert (funcall magit-present-log-line-function line))
+          (insert (magit-present-log-line line))
           (goto-char bol)
           (if sha1
               (magit-with-section sha1 'commit
