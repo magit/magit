@@ -4116,7 +4116,7 @@ Evaluate (man \"git-check-ref-format\") for details")
           "\\(?:: \\)?"
           "\\(.+\\)?$"))                           ; msg     (4)
 
-(defvar magit-reflog-subject-re
+(defconst magit-reflog-subject-re
   (concat "\\([^ ]+\\) ?"                          ; command (1)
           "\\(\\(?: ?[^---(][^ ]+\\)+\\)? ?"       ; status  (2)
           "\\(\\(?: ?-[^ ]+\\)+\\)?"               ; option  (3)
