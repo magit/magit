@@ -5881,6 +5881,27 @@ With a prefix arg, do a submodule update --init."
   (interactive (list (magit-read-rev-range "Long Log" "HEAD")))
   (magit-log-long range))
 
+(defvar-local magit-file-log-file nil)
+
+(magit-define-command single-file-log (&optional ranged)
+  (interactive)
+  (magit-file-log))
+
+(defun magit-file-log (&optional all)
+  "Display the log for the currently visited file or another one.
+
+With a prefix argument or if no file is currently visited, ask
+for the file whose log must be displayed."
+  (interactive "P")
+  (magit-mode-setup magit-log-buffer-name
+                    #'magit-log-mode
+                    #'magit-refresh-file-log-buffer
+                    (magit-file-relative-name
+                     (if (or current-prefix-arg (not buffer-file-name))
+                         (magit-read-file-from-rev (magit-get-current-branch))
+                       buffer-file-name))
+                    "HEAD" 'oneline))
+
 (magit-define-command reflog (ref)
   (interactive (list (magit-read-rev "Reflog of"
                                      (or (magit-guess-branch) "HEAD"))))
@@ -5927,6 +5948,29 @@ the parent keymap `magit-mode-map' are also available."
                                 (and magit-log-show-gpg-status "%G?")
                                 "[%an][%ar]%s"))))
              ,@args "--"))))
+
+(defun magit-refresh-file-log-buffer (file range style)
+  "Refresh the current file-log buffer by calling git.
+
+FILE is the path of the file whose log must be displayed.
+
+`magit-current-range' will be set to the value of RANGE.
+
+STYLE controls the display.  It is either `long', `oneline',
+or something else."
+  (setq magit-current-range range)
+  (setq magit-file-log-file file)
+  (magit-create-log-buffer-sections
+    (apply #'magit-git-section nil
+           (magit-rev-range-describe range (format "Commits for file %s" file))
+           (apply-partially 'magit-wash-log style)
+           "log" (magit-log-cutoff-length-arg)
+           "--decorate=full" "--abbrev-commit" "--graph"
+           (magit-diff-abbrev-arg)
+           `(,@(cl-case style
+                 (long    (list "--stat" "-z"))
+                 (oneline (list "--pretty=oneline")))
+             "--" ,file))))
 
 (defun magit-log-show-more-entries (&optional arg)
   "Grow the number of log entries shown.
@@ -6252,72 +6296,6 @@ the parent keymap `magit-mode-map' are also available."
       (magit-need-refresh))))
 
 ;;; Acting (2)
-;;;; File Log
-
-;; This variable is used to keep track of the current file in the
-;; *magit-log* buffer when this one is dedicated to showing the log of
-;; just 1 file.
-(defvar-local magit-file-log-file nil)
-
-(defun magit-refresh-file-log-buffer (file range style)
-  "Refresh the current file-log buffer by calling git.
-
-FILE is the path of the file whose log must be displayed.
-
-`magit-current-range' will be set to the value of RANGE.
-
-STYLE controls the display.  It is either `long', `oneline',
-or something else."
-  (setq magit-current-range range)
-  (setq magit-file-log-file file)
-  (magit-create-log-buffer-sections
-    (apply #'magit-git-section nil
-           (magit-rev-range-describe range (format "Commits for file %s" file))
-           (apply-partially 'magit-wash-log style)
-           "log" (magit-log-cutoff-length-arg)
-           "--decorate=full" "--abbrev-commit" "--graph"
-           (magit-diff-abbrev-arg)
-           `(,@(cl-case style
-                 (long    (list "--stat" "-z"))
-                 (oneline (list "--pretty=oneline")))
-             "--" ,file))))
-
-(defun magit-file-log (&optional all)
-  "Display the log for the currently visited file or another one.
-
-With a prefix argument or if no file is currently visited, ask
-for the file whose log must be displayed."
-  (interactive "P")
-  (magit-mode-setup magit-log-buffer-name
-                    #'magit-log-mode
-                    #'magit-refresh-file-log-buffer
-                    (magit-file-relative-name
-                     (if (or current-prefix-arg (not buffer-file-name))
-                         (magit-read-file-from-rev (magit-get-current-branch))
-                       buffer-file-name))
-                    "HEAD" 'oneline))
-
-(magit-define-command single-file-log (&optional ranged)
-  (interactive)
-  (magit-file-log))
-
-(defun magit-show-file-revision ()
-  "Open a new buffer showing the current file in the revision at point."
-  (interactive)
-  (let ((show-file-from-diff
-         (lambda (item)
-           (switch-to-buffer-other-window
-            (magit-show (cdr (magit-diff-item-range item))
-                        (magit-diff-item-file item))))))
-    (magit-section-action (item info "show")
-      ((commit)
-       (let ((current-file (or magit-file-log-file
-                               (magit-read-file-from-rev info))))
-         (switch-to-buffer-other-window
-          (magit-show info current-file))))
-      ((hunk) (funcall show-file-from-diff (magit-hunk-item-diff item)))
-      ((diff) (funcall show-file-from-diff item)))))
-
 ;;;; Ignore
 
 (defun magit-edit-ignore-string (file)
@@ -6965,6 +6943,23 @@ These are the branch names with the remote name stripped."
              (make-directory dir)))
       (let ((default-directory dir))
         (magit-run-git* (list "init"))))))
+
+(defun magit-show-file-revision ()
+  "Open a new buffer showing the current file in the revision at point."
+  (interactive)
+  (let ((show-file-from-diff
+         (lambda (item)
+           (switch-to-buffer-other-window
+            (magit-show (cdr (magit-diff-item-range item))
+                        (magit-diff-item-file item))))))
+    (magit-section-action (item info "show")
+      ((commit)
+       (let ((current-file (or magit-file-log-file
+                               (magit-read-file-from-rev info))))
+         (switch-to-buffer-other-window
+          (magit-show info current-file))))
+      ((hunk) (funcall show-file-from-diff (magit-hunk-item-diff item)))
+      ((diff) (funcall show-file-from-diff item)))))
 
 (defun magit-show (commit filename &optional select prefix)
   "Return a buffer containing the file FILENAME, as stored in COMMIT.
