@@ -6685,15 +6685,15 @@ With a prefix argument, visit in other window."
     (unless merge-status
       (error "Cannot resolve %s" file))
     (with-current-buffer base-buffer
-      (when (string-match "^[0-9]+ [0-9a-f]+ 1" (first merge-status))
+      (when (string-match "^[0-9]+ [0-9a-f]+ 1" (nth 0 merge-status))
         (magit-git-insert "cat-file" "blob" (concat ":1:" file))))
     (with-current-buffer our-buffer
-      (when (string-match "^[0-9]+ [0-9a-f]+ 2" (second merge-status))
+      (when (string-match "^[0-9]+ [0-9a-f]+ 2" (nth 1 merge-status))
         (magit-git-insert "cat-file" "blob" (concat ":2:" file)))
       (let ((buffer-file-name file))
         (normal-mode)))
     (with-current-buffer their-buffer
-      (when (string-match "^[0-9]+ [0-9a-f]+ 3" (third merge-status))
+      (when (string-match "^[0-9]+ [0-9a-f]+ 3" (nth 2 merge-status))
         (magit-git-insert "cat-file" "blob" (concat ":3:" file)))
       (let ((buffer-file-name file))
         (normal-mode)))
