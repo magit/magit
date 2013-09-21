@@ -1943,6 +1943,57 @@ an existing remote."
     (unless (string= reply "")
       reply)))
 
+;;;; Reference Labels
+
+;; TODO loose the "log" substring and use this
+;; where ever it could and should be used.
+
+(defvar magit-refs-namespaces
+  '(("HEAD" . magit-log-head-label-head)
+    ("tags" . magit-log-head-label-tags)
+    ("remotes" magit-log-get-remotes-color)
+    ("heads" . magit-log-head-label-local)
+    ("patches" magit-log-get-patches-color)
+    ("bisect" magit-log-get-bisect-state-color)))
+
+(defun magit-ref-get-label-color (r)
+  (if (cl-loop for re in magit-uninteresting-refs
+               thereis (string-match re r))
+      (list nil nil)
+    (let* ((ref-re "\\(?:refs/\\([^/]+\\)/\\)?\\(.+\\)")
+           (match-style (when (string-match ref-re r)
+                          (string= r (match-string 2 r))))
+           (label (match-string 2 r))
+           (colorizer (cdr (assoc (if match-style
+                                      label
+                                    (match-string 1 r))
+                                  magit-refs-namespaces))))
+      (cond ((null colorizer)
+             (list label 'magit-log-head-label-default))
+            ((symbolp colorizer)
+             (list label colorizer))
+            ((listp colorizer)
+             (funcall (car colorizer) label))))))
+
+(defvar magit-log-remotes-color-hook nil)
+
+(defun magit-log-get-remotes-color (suffix)
+  (or (run-hook-with-args-until-success
+       'magit-log-remotes-color-hook suffix)
+      (list suffix 'magit-log-head-label-remote)))
+
+(defun magit-log-get-patches-color (suffix)
+  (list (and (string-match ".+/\\(.+\\)" suffix)
+             (match-string 1 suffix))
+        'magit-log-head-label-patches))
+
+(defun magit-log-get-bisect-state-color (suffix)
+  (list suffix
+        (if (string= suffix "bad")
+            'magit-log-head-label-bisect-bad
+          'magit-log-head-label-bisect-good)))
+
+
 ;;; Sections
 
 ;; A buffer in magit-mode is organized into hierarchical sections.
@@ -4076,83 +4127,6 @@ Evaluate (man \"git-check-ref-format\") for details")
           "\\(\\(?: ?-[^ ]+\\)+\\)?"               ; option  (3)
           "\\(?: ?(\\([^)]+\\))\\)?"))             ; type    (4)
 
-(defun magit-log-get-bisect-state-color (suffix)
-  (list suffix
-        (if (string= suffix "bad")
-            'magit-log-head-label-bisect-bad
-          'magit-log-head-label-bisect-good)))
-
-(defun magit-log-get-patches-color (suffix)
-  (list (and (string-match ".+/\\(.+\\)" suffix)
-             (match-string 1 suffix))
-        'magit-log-head-label-patches))
-
-(defvar magit-log-remotes-color-hook nil)
-
-(defun magit-log-get-remotes-color (suffix)
-  (or (run-hook-with-args-until-success
-       'magit-log-remotes-color-hook suffix)
-      (list suffix 'magit-log-head-label-remote)))
-
-(defvar magit-refs-namespaces
-  '(("HEAD" . magit-log-head-label-head)
-    ("tags" . magit-log-head-label-tags)
-    ("remotes" magit-log-get-remotes-color)
-    ("heads" . magit-log-head-label-local)
-    ("patches" magit-log-get-patches-color)
-    ("bisect" magit-log-get-bisect-state-color)))
-
-(defun magit-ref-get-label-color (r)
-  (if (cl-loop for re in magit-uninteresting-refs
-               thereis (string-match re r))
-      (list nil nil)
-    (let* ((ref-re "\\(?:refs/\\([^/]+\\)/\\)?\\(.+\\)")
-           (match-style (when (string-match ref-re r)
-                          (string= r (match-string 2 r))))
-           (label (match-string 2 r))
-           (colorizer (cdr (assoc (if match-style
-                                      label
-                                    (match-string 1 r))
-                                  magit-refs-namespaces))))
-      (cond ((null colorizer)
-             (list label 'magit-log-head-label-default))
-            ((symbolp colorizer)
-             (list label colorizer))
-            ((listp colorizer)
-             (funcall (car colorizer) label))))))
-
-(defvar magit-reflog-labels
-  '(("commit"      . magit-log-reflog-label-commit)
-    ("amend"       . magit-log-reflog-label-amend)
-    ("merge"       . magit-log-reflog-label-merge)
-    ("checkout"    . magit-log-reflog-label-checkout)
-    ("branch"      . magit-log-reflog-label-checkout)
-    ("reset"       . magit-log-reflog-label-reset)
-    ("rebase"      . magit-log-reflog-label-rebase)
-    ("cherry-pick" . magit-log-reflog-label-cherry-pick)
-    ("initial"     . magit-log-reflog-label-commit)
-    ("pull"        . magit-log-reflog-label-remote)
-    ("clone"       . magit-log-reflog-label-remote)))
-
-(defun magit-log-format-reflog (subject)
-  (let* ((match (string-match magit-reflog-subject-re subject))
-         (command (and match (match-string 1 subject)))
-         (status  (and match (match-string 2 subject)))
-         (option  (and match (match-string 3 subject)))
-         (type    (and match (match-string 4 subject)))
-         (label (if (string= command "commit")
-                    (or type command)
-                  command))
-         (text (if (string= command "commit")
-                   label
-                 (mapconcat #'identity
-                            (delq nil (list command option type status))
-                            " "))))
-    (format "%-11s "
-            (propertize text 'face
-                        (or (cdr (assoc label magit-reflog-labels))
-                            'magit-log-reflog-label-other)))))
-
 ;;;; (line generator)
 
 (defun magit-format-log-line (line)
@@ -6010,6 +5984,40 @@ the parent keymap `magit-log-mode-map' are also available."
                        (magit-diff-abbrev-arg)
                        "--walk-reflogs" (magit-log-cutoff-length-arg)
                        (magit-rev-to-git ref))))
+
+;;;; (action labels)
+
+(defvar magit-reflog-labels
+  '(("commit"      . magit-log-reflog-label-commit)
+    ("amend"       . magit-log-reflog-label-amend)
+    ("merge"       . magit-log-reflog-label-merge)
+    ("checkout"    . magit-log-reflog-label-checkout)
+    ("branch"      . magit-log-reflog-label-checkout)
+    ("reset"       . magit-log-reflog-label-reset)
+    ("rebase"      . magit-log-reflog-label-rebase)
+    ("cherry-pick" . magit-log-reflog-label-cherry-pick)
+    ("initial"     . magit-log-reflog-label-commit)
+    ("pull"        . magit-log-reflog-label-remote)
+    ("clone"       . magit-log-reflog-label-remote)))
+
+(defun magit-log-format-reflog (subject)
+  (let* ((match (string-match magit-reflog-subject-re subject))
+         (command (and match (match-string 1 subject)))
+         (status  (and match (match-string 2 subject)))
+         (option  (and match (match-string 3 subject)))
+         (type    (and match (match-string 4 subject)))
+         (label (if (string= command "commit")
+                    (or type command)
+                  command))
+         (text (if (string= command "commit")
+                   label
+                 (mapconcat #'identity
+                            (delq nil (list command option type status))
+                            " "))))
+    (format "%-11s "
+            (propertize text 'face
+                        (or (cdr (assoc label magit-reflog-labels))
+                            'magit-log-reflog-label-other)))))
 
 ;;; Ediff Support
 
