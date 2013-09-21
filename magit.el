@@ -4020,12 +4020,6 @@ insert a line to tell how to insert more of them"
 
 (defvar magit-log-format "--format=format:* %h %s")
 
-(defconst magit-unpushed-or-unpulled-commit-re
-  (concat "^\\* "
-          "\\([0-9a-fA-F]+\\) " ; sha
-          "\\(.*\\)$")          ; message
-  "Regexp for parsing `magit-log-format'.")
-
 ;; Regexps for parsing ref names
 ;;
 ;; see the `git-check-ref-format' manpage for details
@@ -4113,6 +4107,11 @@ Evaluate (man \"git-check-ref-format\") for details")
    "\\)?"
    "\\(.+\\)?$"                                    ; msg     (4)
    ))
+
+(defconst magit-log-unique-re
+  (concat "^\\* "
+          "\\([0-9a-fA-F]+\\) "                    ; sha     (1)
+          "\\(.*\\)$"))                            ; msg     (2)
 
 (defconst magit-log-reflog-re
   (concat "^\\([^\C-?]+\\)\C-??"                   ; graph   (1)
@@ -4259,7 +4258,7 @@ Evaluate (man \"git-check-ref-format\") for details")
                         (oneline magit-log-oneline-re)
                         (long    magit-log-longline-re)
                         (reflog  magit-log-reflog-re)
-                        (unique  magit-unpushed-or-unpulled-commit-re))
+                        (unique  magit-log-unique-re))
                       line)
     (let ((match-style-string
            (lambda (oneline long reflog unique)
