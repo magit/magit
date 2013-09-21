@@ -4155,8 +4155,7 @@ Evaluate (man \"git-check-ref-format\") for details")
 
 ;;;; (line generator)
 
-(defun magit-present-log-line (line)
-  "The default log line generator."
+(defun magit-format-log-line (line)
   (let ((graph  (magit-log-line-graph line))
         (sha1   (magit-log-line-sha1 line))
         (author (magit-log-line-author line))
@@ -4317,7 +4316,7 @@ Evaluate (man \"git-check-ref-format\") for details")
     (if line
         (let ((sha1 (magit-log-line-sha1 line)))
           (delete-region bol eol)
-          (insert (magit-present-log-line line))
+          (insert (magit-format-log-line line))
           (goto-char bol)
           (if sha1
               (magit-with-section sha1 'commit
