@@ -134,8 +134,8 @@
           (magit-git-standard-options nil))
       (apply 'magit-git-section section title washer args))))
 
-(magit-define-inserter topics ()
-  (magit-topgit-section 'topics
+(magit-define-inserter topgit-topics ()
+  (magit-topgit-section 'topgit-topics
                         "Topics:" 'magit-topgit-wash-topics
                         "summary"))
 
@@ -166,7 +166,7 @@
       (error "This mode only makes sense with magit"))
   (cond
    (magit-topgit-mode
-    (add-hook 'magit-after-insert-stashes-hook 'magit-insert-topics nil t)
+    (add-hook 'magit-after-insert-stashes-hook 'magit-insert-topgit-topics nil t)
     (add-hook 'magit-create-branch-command-hook 'magit-topgit-create-branch nil t)
     (add-hook 'magit-pull-command-hook 'magit-topgit-pull nil t)
     (add-hook 'magit-remote-update-command-hook 'magit-topgit-remote-update nil t)
@@ -176,7 +176,7 @@
     ;; hide refs in the top-bases namespace, as they're not meant for the user
     (add-to-list 'magit-refs-namespaces magit-topgit-ignored-namespace))
    (t
-    (remove-hook 'magit-after-insert-stashes-hook 'magit-insert-topics t)
+    (remove-hook 'magit-after-insert-stashes-hook 'magit-insert-topgit-topics t)
     (remove-hook 'magit-create-branch-command-hook 'magit-topgit-create-branch t)
     (remove-hook 'magit-pull-command-hook 'magit-topgit-pull t)
     (remove-hook 'magit-remote-update-command-hook 'magit-topgit-remote-update t)
