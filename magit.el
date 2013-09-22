@@ -4898,7 +4898,7 @@ non-nil, then autocompletion will offer directory names."
                           (or (magit-get-top-dir) default-directory)))))
 
 (defun magit-list-repos (dirs)
-  (magit-remove-conflicts
+  (magit-list-repos-remove-conflicts
    (cl-loop for dir in dirs
             append (cl-loop for repo in
                             (magit-list-repos* dir magit-repo-dirs-depth)
@@ -4915,7 +4915,7 @@ non-nil, then autocompletion will offer directory names."
          (cl-loop for entry in (directory-files dir t nil t)
                   append (magit-list-repos* entry (1- depth))))))
 
-(defun magit-remove-conflicts (alist)
+(defun magit-list-repos-remove-conflicts (alist)
   (let ((dict (make-hash-table :test 'equal))
         (alist (delete-dups alist))
         (result nil))
@@ -4926,7 +4926,7 @@ non-nil, then autocompletion will offer directory names."
      (lambda (key value)
        (if (= (length value) 1)
            (push (cons key (car value)) result)
-         (let ((sub (magit-remove-conflicts
+         (let ((sub (magit-list-repos-remove-conflicts
                      (mapcar
                       (lambda (entry)
                         (let ((dir (directory-file-name
