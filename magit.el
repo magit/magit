@@ -1819,12 +1819,12 @@ according to `magit-remote-ref-format'"
 
 (defvar magit-read-file-hist nil)
 
-(defun magit-read-file-from-rev (revision)
+(defun magit-read-file-from-rev (revision &optional default)
   (magit-completing-read (format "Retrieve file from %s: " revision)
                          (magit-git-lines "ls-tree" "-r" "--name-only" revision)
                          nil 'require-match
                          nil 'magit-read-file-hist
-                         (magit-buffer-file-name t)))
+                         (or default (magit-buffer-file-name t))))
 
 (defvar magit-read-rev-history nil
   "The history of inputs to `magit-read-rev' and `magit-read-tag'.")
