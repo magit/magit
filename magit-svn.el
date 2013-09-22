@@ -196,7 +196,7 @@ If USE-CACHE is non nil, use the cached information."
 
 (magit-define-section-jumper svn-unpushed  "Unpushed commits (SVN)")
 
-(defun magit-svn-insert-status-remote-line ()
+(defun magit-insert-svn-remote-line ()
   (let ((svn-info (magit-svn-get-ref-info)))
     (when svn-info
       (magit-insert-status-line "Remote"
@@ -272,14 +272,14 @@ If USE-CACHE is non nil, use the cached information."
          (add-hook 'magit-after-insert-unpushed-commits-hook
                    'magit-insert-svn-unpushed nil t)
          (add-hook 'magit-after-insert-remote-line-hook
-                   'magit-svn-insert-status-remote-line nil t))
+                   'magit-insert-svn-remote-line nil t))
         (t
          (remove-hook 'magit-after-insert-unpulled-commits-hook
                       'magit-insert-svn-unpulled t)
          (remove-hook 'magit-after-insert-unpushed-commits-hook
                       'magit-insert-svn-unpushed t)
          (remove-hook 'magit-after-insert-remote-line-hook
-                      'magit-svn-insert-status-remote-line t)))
+                      'magit-insert-svn-remote-line t)))
   (when (called-interactively-p 'any)
     (magit-refresh)))
 
