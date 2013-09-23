@@ -2096,23 +2096,9 @@ If TYPE is nil, the section won't be highlighted."
        ,s)))
 
 (defun magit-insert-section
-  (section-title-and-type buffer-title washer cmd &rest args)
-  "Run CMD and put its result in a new section.
-
-SECTION-TITLE-AND-TYPE is either a string that is the title of
-the section or (TITLE . TYPE) where TITLE is the title of the
-section and TYPE is its type.
-
-If there is no type, or if type is nil, the section won't be
-highlighted.
-
-BUFFER-TITLE is the inserted title of the section
-
-WASHER is a function that will be run after CMD.  The buffer will
-be narrowed to the inserted text.  It should add sectioning as
-needed for Magit interaction.
-
-CMD is an external command that will be run with ARGS as arguments."
+  (section-title-and-type buffer-title washer program &rest args)
+  "Run PROGRAM with ARGS and put the output into a new section.
+Like `magit-git-section' (which see) but run PROGRAM instead of Git."
   (let* ((body-beg nil)
          (section-title (if (consp section-title-and-type)
                             (car section-title-and-type)
@@ -2126,7 +2112,7 @@ CMD is an external command that will be run with ARGS as arguments."
               (insert (propertize buffer-title 'face 'magit-section-title)
                       "\n"))
             (setq body-beg (point))
-            (apply 'magit-cmd-insert cmd args)
+            (apply 'magit-cmd-insert program args)
             (unless (eq (char-before) ?\n)
               (insert "\n"))
             (when washer
@@ -2142,8 +2128,20 @@ CMD is an external command that will be run with ARGS as arguments."
 
 (defun magit-git-section (section-title-and-type
                           buffer-title washer &rest args)
-  "Run Git and put its result in a new section.
-See `magit-insert-section' for meaning of the arguments"
+  "Run Git with ARGS and put the output into a new section.
+
+SECTION-TITLE-AND-TYPE is either a string that is the title of
+the section or (TITLE . TYPE) where TITLE is the title of the
+section and TYPE is its type.
+
+If there is no type, or if type is nil, the section won't be
+highlighted.
+
+BUFFER-TITLE is the inserted title of the section
+
+WASHER is a function that will be run after CMD.  The buffer will
+be narrowed to the inserted text.  It should add sectioning as
+needed for Magit interaction."
   (apply #'magit-insert-section
          section-title-and-type
          buffer-title
@@ -7099,11 +7097,10 @@ This can be added to `magit-mode-hook' for example"
                      '("magit-with-refresh"
                        "magit-with-section"
                        "magit-create-buffer-sections"
+                       "magit-create-log-buffer-sections"
                        "magit-section-action"
                        "magit-section-case"
                        "magit-add-action-clauses"
-                       "magit-create-log-buffer-sections"
-                       "magit-with-revert-confirmation"
                        "magit-visiting-file-item"
                        "magit-tests--with-temp-dir"
                        "magit-tests--with-temp-repo"
