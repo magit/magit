@@ -77,7 +77,7 @@
       ("l" "Short" magit-log)
       ("L" "Long" magit-log-long)
       ("h" "Head Reflog" magit-reflog-head)
-      ("f" "File log" magit-single-file-log)
+      ("f" "File log" magit-file-log)
       ("rl" "Ranged short" magit-log-ranged)
       ("rL" "Ranged long" magit-log-long-ranged)
       ("rh" "Reflog" magit-reflog))
