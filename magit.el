@@ -1516,7 +1516,7 @@ Empty lines anywhere in the output are omitted."
   "Return all values of the Git config entry specified by KEYS."
   (magit-git-lines "config" "--get-all" (mapconcat 'identity keys ".")))
 
-(defun magit-get-boolean (&rest keys)
+(defun magit-config-get-bool (&rest keys)
   "Return the boolean value of Git config entry specified by KEYS."
   (equal (magit-git-string "config" "--bool" (mapconcat 'identity keys "."))
          "true"))
@@ -4698,7 +4698,7 @@ when asking for user input."
          (tracked (magit-get-tracked-branch branch)))
     (when tracked
       (magit-insert-status-line "Remote"
-        (concat (and (magit-get-boolean "branch" branch "rebase") "onto ")
+        (concat (and (magit-config-get-bool "branch" branch "rebase") "onto ")
                 (magit-format-tracked-line tracked branch))))))
 
 (defun magit-format-tracked-line (tracked branch)
