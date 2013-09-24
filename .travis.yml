@@ -7,9 +7,9 @@ env:
     - EMACS=emacs AKA=emacs23
     - EMACS=emacs24
     - EMACS=emacs-snapshot
-# matrix:
-#   allow_failures:
-#     - env: EMACS=emacs-snapshot
+matrix:
+  allow_failures:
+    - env: EMACS=emacs-snapshot
 before_install:
   - sudo add-apt-repository -y ppa:cassou/emacs
   - sudo apt-get update -qq
