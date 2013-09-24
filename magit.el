@@ -5097,9 +5097,10 @@ Works with local or remote branches.
   "Rename branch OLD to NEW.
 With prefix, forces the rename even if NEW already exists.
 \('git branch [-m|-M] OLD NEW')."
-  (interactive (list (magit-read-rev-with-default "Old name")
-                     (read-string "New name: ")
-                     current-prefix-arg))
+  (interactive
+   (let* ((old (magit-read-rev-with-default "Old name"))
+          (new (read-string "New name: " old)))
+     (list old new current-prefix-arg)))
   (magit-run-git "branch"
                  (if force "-M" "-m")
                  (magit-rev-to-git old) new))
