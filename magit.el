@@ -109,13 +109,13 @@ Use the function by the same name instead of this variable.")
 
 (eval-and-compile
 
-  ;; Added in Emacs 24.3.
+  ;; Added in Emacs 24.3 (mirrors/emacs@b335efc3).
   (unless (fboundp 'setq-local)
     (defmacro setq-local (var val)
       "Set variable VAR to value VAL in current buffer."
       (list 'set (list 'make-local-variable (list 'quote var)) val)))
 
-  ;; Added in Emacs 24.3.
+  ;; Added in Emacs 24.3 (mirrors/emacs@b335efc3).
   (unless (fboundp 'defvar-local)
     (defmacro defvar-local (var val &optional docstring)
       "Define VAR as a buffer-local variable with default value VAL.
@@ -125,7 +125,7 @@ buffer-local wherever it is set."
       (list 'progn (list 'defvar var val docstring)
             (list 'make-variable-buffer-local (list 'quote var)))))
 
-  ;; Added in Emacs 23.3.
+  ;; Added in Emacs 23.2 (mirrors/emacs@35006704).
   (unless (fboundp 'string-prefix-p)
     (defun string-prefix-p (str1 str2 &optional ignore-case)
       "Return non-nil if STR1 is a prefix of STR2.
@@ -134,7 +134,7 @@ to case differences."
       (eq t (compare-strings str1 nil nil
                              str2 0 (length str1) ignore-case))))
 
-  ;; Added in Emacs 23.3.
+  ;; Added in Emacs 23.1 (mirrors/emacs@b70a256f).
   (unless (fboundp 'string-match-p)
     (defun string-match-p (regexp string &optional start)
       "Same as `string-match' but don't change the match data."
