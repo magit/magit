@@ -2138,9 +2138,9 @@ highlighted.
 
 BUFFER-TITLE is the inserted title of the section
 
-WASHER is a function that will be run after CMD.  The buffer will
-be narrowed to the inserted text.  It should add sectioning as
-needed for Magit interaction."
+WASHER is a function that will be run after inserting Git's output.
+The buffer will be narrowed to the inserted text.  It should add
+sectioning as needed for Magit interaction."
   (apply #'magit-insert-section
          section-title-and-type
          buffer-title
