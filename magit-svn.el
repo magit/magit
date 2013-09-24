@@ -181,7 +181,7 @@ If USE-CACHE is non nil, use the cached information."
 (magit-define-inserter svn-unpulled ()
   (when (magit-svn-enabled)
     (magit-git-section 'svn-unpulled "Unpulled commits (SVN):"
-                       #'magit-wash-log
+                       (apply-partially 'magit-wash-log 'unique)
                        "log" magit-log-format
                        (magit-diff-abbrev-arg)
                        (format "HEAD..%s" (magit-svn-get-ref t)))))
@@ -189,7 +189,7 @@ If USE-CACHE is non nil, use the cached information."
 (magit-define-inserter svn-unpushed ()
   (when (magit-svn-enabled)
     (magit-git-section 'svn-unpushed "Unpushed commits (SVN):"
-                       #'magit-wash-log
+                       (apply-partially 'magit-wash-log 'unique)
                        "log" magit-log-format
                        (magit-diff-abbrev-arg)
                        (format "%s..HEAD" (magit-svn-get-ref t)))))
@@ -271,14 +271,14 @@ If USE-CACHE is non nil, use the cached information."
                    'magit-insert-svn-unpulled nil t)
          (add-hook 'magit-after-insert-unpushed-commits-hook
                    'magit-insert-svn-unpushed nil t)
-         (add-hook 'magit-after-insert-remote-line-hook
+         (add-hook 'magit-after-insert-status-remote-line-hook
                    'magit-insert-svn-remote-line nil t))
         (t
          (remove-hook 'magit-after-insert-unpulled-commits-hook
                       'magit-insert-svn-unpulled t)
          (remove-hook 'magit-after-insert-unpushed-commits-hook
                       'magit-insert-svn-unpushed t)
-         (remove-hook 'magit-after-insert-remote-line-hook
+         (remove-hook 'magit-after-insert-status-remote-line-hook
                       'magit-insert-svn-remote-line t)))
   (when (called-interactively-p 'any)
     (magit-refresh)))
