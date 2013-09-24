@@ -4867,8 +4867,8 @@ non-nil, then autocompletion will offer directory names."
 ;;;; Merging
 
 (defun magit-merge-check-clean ()
-  (or (magit-everything-clean-p)
-      (not magit-merge-warn-dirty-worktree)
+  (or (not magit-merge-warn-dirty-worktree)
+      (magit-everything-clean-p)
       (yes-or-no-p "Running merge in a dirty worktree could cause data loss.  Continue?")))
 
 (defun magit-merge (revision &optional do-commit)
