@@ -2097,8 +2097,7 @@ If TYPE is nil, the section won't be highlighted."
 
 (defun magit-insert-section
   (section-title-and-type buffer-title washer program &rest args)
-  "Run PROGRAM with ARGS and put the output into a new section.
-Like `magit-git-section' (which see) but run PROGRAM instead of Git."
+  "Run PROGRAM with ARGS and put the output into a new section."
   (let* ((body-beg nil)
          (section-title (if (consp section-title-and-type)
                             (car section-title-and-type)
