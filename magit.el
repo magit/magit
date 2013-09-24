@@ -6216,7 +6216,7 @@ the parent keymap `magit-mode-map' are also available."
   :group 'magit)
 
 (defvar magit-wazzup-buffer-name "*magit-wazzup*"
-  "Name of buffer used to display commits not merged in commit.")
+  "Name of buffer used to display commits not merged into current HEAD.")
 
 (defun magit-wazzup (&optional all)
   (interactive "P")
