@@ -6668,7 +6668,7 @@ Unless shadowed by the mode specific bindings above bindings from
 the parent keymap `magit-mode-map' are also available.")
 
 (defvar magit-branches-buffer-name "*magit-branches*"
-  "Name of branch used to display and manage branches.")
+  "Name of buffer used to display and manage branches.")
 
 (magit-define-command branch-manager ()
   (interactive)
