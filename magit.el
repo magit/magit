@@ -5101,9 +5101,13 @@ With prefix, forces the rename even if NEW already exists.
    (let* ((old (magit-read-rev-with-default "Old name"))
           (new (read-string "New name: " old)))
      (list old new current-prefix-arg)))
-  (magit-run-git "branch"
-                 (if force "-M" "-m")
-                 (magit-rev-to-git old) new))
+  (if (or (null old) (string= old "")
+          (null new) (string= new "")
+          (string= old new))
+      (message "Cannot rename branch \"%s\" to \"%s\"." old new)
+    (magit-run-git "branch"
+                   (if force "-M" "-m")
+                   (magit-rev-to-git old) new)))
 
 (defun magit-guess-branch ()
   "Return a branch name depending on the context of cursor.
