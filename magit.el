@@ -5137,8 +5137,10 @@ If no branch is found near the cursor return nil."
 (defun magit-rename-remote (old new)
   "Rename remote OLD to NEW.
 \('git remote rename OLD NEW')."
-  (interactive (list (magit-read-remote "Old name")
-                     (read-string "New name: ")))
+  (interactive
+   (let* ((old (magit-read-remote "Old name"))
+          (new (read-string "New name: " old)))
+     (list old new)))
   (magit-run-git "remote" "rename" old new))
 
 (defun magit-guess-remote ()
