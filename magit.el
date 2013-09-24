@@ -6208,7 +6208,7 @@ the parent keymap `magit-mode-map' are also available."
 ;;; Wazzup Mode
 
 (define-derived-mode magit-wazzup-mode magit-mode "Magit Wazzup"
-  "Mode for looking at git commits unique to other branches.
+  "Mode for looking at git commits not merged into current HEAD.
 
 \\{magit-wazzup-mode-map}
 Unless shadowed by the mode specific bindings above bindings from
