@@ -4693,7 +4693,7 @@ when asking for user input."
                         'face 'magit-branch)
             " " (abbreviate-file-name default-directory))))
 
-(defun magit-insert-status-remote-line ()
+(magit-define-inserter status-remote-line ()
   (let* ((branch  (magit-get-current-branch))
          (tracked (magit-get-tracked-branch branch)))
     (when tracked
