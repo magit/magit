@@ -20,6 +20,9 @@
 ;; Package: magit
 ;; Package-Requires: ((cl-lib "0.3") (git-commit-mode "0.14.0") (git-rebase-mode "0.14.0"))
 
+;; Contains code from GNU Emacs <https://www.gnu.org/software/emacs/>,
+;; released under the GNU General Public License version 3 or later.
+
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation; either version 3, or (at your option)
