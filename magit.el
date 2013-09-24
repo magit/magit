@@ -4318,7 +4318,7 @@ Evaluate (man \"git-check-ref-format\") for details")
 ;;;; (core)
 
 (define-derived-mode magit-commit-mode magit-mode "Magit"
-  "Mode for locking at a git commit.
+  "Mode for looking at a git commit.
 
 \\{magit-commit-mode-map}
 Unless shadowed by the mode specific bindings above bindings from
