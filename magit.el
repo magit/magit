@@ -20,9 +20,8 @@
 ;; Package: magit
 ;; Package-Requires: ((cl-lib "0.3") (git-commit-mode "0.14.0") (git-rebase-mode "0.14.0"))
 
-;; Magit requires at least GNU Emacs 23.2.  The minimal Git version
-;; is 1.7.2.5.  These are the versions used by Debian oldstable
-;; (6.0, Squeeze).
+;; Magit requires at least GNU Emacs 23.2 and Git 1.7.2.5.
+;; These are the versions shipped by Debian oldstable (6.0, Squeeze).
 
 ;; Contains code from GNU Emacs <https://www.gnu.org/software/emacs/>,
 ;; released under the GNU General Public License version 3 or later.
