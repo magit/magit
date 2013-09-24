@@ -98,6 +98,9 @@ Use the function by the same name instead of this variable.")
 (defvar magit-reflog-buffer-name)
 (defvar package-alist)
 
+;;; Compatibility
+;;;; Emacs
+
 (eval-and-compile
 
   ;; Added in Emacs 24.3.
