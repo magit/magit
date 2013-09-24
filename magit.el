@@ -4872,8 +4872,9 @@ non-nil, then autocompletion will offer directory names."
       (yes-or-no-p "Running merge in a dirty worktree could cause data loss.  Continue?")))
 
 (defun magit-merge (revision &optional do-commit)
-  "Merge REVISION into the current 'HEAD'; leave changes uncommitted.
-\('git merge --no-commit REVISION')."
+  "Merge REVISION into the current 'HEAD', leaving changes uncommitted.
+With a prefix argument, skip editing the log message and commit.
+\('git merge [--no-commit] REVISION')."
   (interactive (list (when (magit-merge-check-clean)
                        (magit-read-rev "Merge" (magit-guess-branch)))
                      current-prefix-arg))
