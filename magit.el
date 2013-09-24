@@ -4384,9 +4384,10 @@ for this argument.)"
            'magit-wash-commit
            "log" "-1" "--decorate=full"
            "--pretty=medium" "--no-abbrev-commit"
-           "--cc" "-p" commit
+           "--cc" "-p"
            `(,@(and magit-show-diffstat (list "--stat"))
-             ,@magit-diff-options))))
+             ,@magit-diff-options
+             ,commit))))
 
 ;;;; (washing)
 
