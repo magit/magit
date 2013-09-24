@@ -37,8 +37,8 @@
   "Mode for looking at commits not merged upstream.
 
 \\{magit-cherry-mode-map}
-Unless shadowed by the mode specific bindings above bindings from
-the parent keymap `magit-mode-map' are also available.")
+Unless shadowed by the mode specific bindings above, bindings
+from the parent keymap `magit-mode-map' are also available.")
 
 (magit-define-command cherry (upstream head)
   (interactive
