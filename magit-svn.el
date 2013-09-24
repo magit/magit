@@ -106,7 +106,7 @@
 
 (defun magit-svn-get-local-ref (url)
   (let* ((branches (cons (magit-config-get-value "svn-remote" "svn" "fetch")
-                        (magit-get-all "svn-remote" "svn" "branches")))
+                        (magit-config-get-list "svn-remote" "svn" "branches")))
          (branches (apply 'nconc
                           (mapcar 'magit-svn-expand-braces-in-branches
                                   branches)))

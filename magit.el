@@ -1512,7 +1512,7 @@ Empty lines anywhere in the output are omitted."
   "Return the value of Git config entry specified by KEYS."
   (magit-git-string "config" (mapconcat 'identity keys ".")))
 
-(defun magit-get-all (&rest keys)
+(defun magit-config-get-list (&rest keys)
   "Return all values of the Git config entry specified by KEYS."
   (magit-git-lines "config" "--get-all" (mapconcat 'identity keys ".")))
 
@@ -1600,7 +1600,7 @@ according to option `magit-remote-ref-format'."
                   ((string-match "^refs/" merge)
                    merge))
           (let* ((fetch (mapcar (lambda (f) (split-string f "[+:]" t))
-                                (magit-get-all "remote" remote "fetch")))
+                                (magit-config-get-list "remote" remote "fetch")))
                  (match (cadr (assoc merge fetch))))
             (unless match
               (let* ((prefix (nreverse (split-string merge "/")))
@@ -7075,7 +7075,7 @@ blame to center around the line point is on."
 (defun magit-load-config-extensions ()
   "Try to load magit extensions that are defined at git config layer.
 This can be added to `magit-mode-hook' for example"
-  (dolist (ext (magit-get-all "magit.extension"))
+  (dolist (ext (magit-config-get-list "magit.extension"))
     (let ((sym (intern (format "magit-%s-mode" ext))))
       (when (and (fboundp sym)
                  (not (eq sym 'magit-wip-save-mode)))
