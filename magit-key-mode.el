@@ -413,7 +413,7 @@ Put it in `magit-key-mode-keymaps' for fast lookup."
       (dolist (k actions)
         (funcall defkey k `(magit-key-mode-command ',(nth 2 k))))
       (dolist (k switches)
-        (funcall defkey k `(magit-key-mode-add-option ',for-group ,(nth 2 k))))
+        (funcall defkey k `(magit-key-mode-toggle-option ',for-group ,(nth 2 k))))
       (dolist (k arguments)
         (funcall defkey k `(magit-key-mode-add-argument
                             ',for-group ,(nth 2 k) ',(nth 3 k)))))
@@ -455,7 +455,7 @@ Do not customize this (used in the `magit-key-mode' implementation).")
     (puthash arg-name input magit-key-mode-current-args)
     (magit-key-mode-redraw for-group)))
 
-(defun magit-key-mode-add-option (for-group option-name)
+(defun magit-key-mode-toggle-option (for-group option-name)
   "Toggles the appearance of OPTION-NAME in `magit-key-mode-current-options'."
   (if (member option-name magit-key-mode-current-options)
       (setq magit-key-mode-current-options
