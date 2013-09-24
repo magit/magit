@@ -5098,12 +5098,17 @@ Works with local or remote branches.
   "Rename branch OLD to NEW.
 With prefix, forces the rename even if NEW already exists.
 \('git branch [-m|-M] OLD NEW')."
-  (interactive (list (magit-read-rev-with-default "Old name")
-                     (read-string "New name: ")
-                     current-prefix-arg))
-  (magit-run-git "branch"
-                 (if force "-M" "-m")
-                 (magit-rev-to-git old) new))
+  (interactive
+   (let* ((old (magit-read-rev-with-default "Old name"))
+          (new (read-string "New name: " old)))
+     (list old new current-prefix-arg)))
+  (if (or (null old) (string= old "")
+          (null new) (string= new "")
+          (string= old new))
+      (message "Cannot rename branch \"%s\" to \"%s\"." old new)
+    (magit-run-git "branch"
+                   (if force "-M" "-m")
+                   (magit-rev-to-git old) new)))
 
 (defun magit-guess-branch ()
   "Return a branch name depending on the context of cursor.
@@ -5133,9 +5138,15 @@ If no branch is found near the cursor return nil."
 (defun magit-rename-remote (old new)
   "Rename remote OLD to NEW.
 \('git remote rename OLD NEW')."
-  (interactive (list (magit-read-remote "Old name")
-                     (read-string "New name: ")))
-  (magit-run-git "remote" "rename" old new))
+  (interactive
+   (let* ((old (magit-read-remote "Old name"))
+          (new (read-string "New name: " old)))
+     (list old new)))
+  (if (or (null old) (string= old "")
+          (null new) (string= new "")
+          (string= old new))
+      (message "Cannot rename remote \"%s\" to \"%s\"." old new)
+    (magit-run-git "remote" "rename" old new)))
 
 (defun magit-guess-remote ()
   (magit-section-case (item info)
