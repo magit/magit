@@ -1695,9 +1695,7 @@ Otherwise, return nil."
 
 (defun magit-ref-ambiguous-p (ref)
   "Return whether or not REF is ambiguous."
-  ;; If REF is ambiguous, rev-parse just prints errors,
-  ;; so magit-git-string returns nil.
-  (not (magit-git-string "rev-parse" "--abbrev-ref" ref)))
+  (not (magit-git-success "rev-parse" "--abbrev-ref" ref)))
 
 (defun magit-rev-diff-count (a b)
   "Return the commits in A but not B and vice versa.
