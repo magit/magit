@@ -77,7 +77,7 @@
                           remote)))
       (when (and (not remote)
                  (not current-prefix-arg))
-        (magit-set push-remote "topgit" "remote"))
+        (magit-config-set push-remote "topgit" "remote"))
       (magit-run-topgit nil "push" "-r" push-remote))))
 
 (defun magit-topgit-remote-update (&optional remote)
@@ -88,7 +88,7 @@
                             remote)))
       (when (and (not remote)
                  (not current-prefix-arg))
-        (magit-set remote-update "topgit" "remote")
+        (magit-config-set remote-update "topgit" "remote")
         (magit-run-topgit nil "remote" "--populate" remote-update))
       (magit-run-topgit nil "remote" remote-update)))
   ;; We always return nil, as we also want

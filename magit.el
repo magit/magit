@@ -1521,7 +1521,7 @@ Empty lines anywhere in the output are omitted."
   (equal (magit-git-string "config" "--bool" (mapconcat 'identity keys "."))
          "true"))
 
-(defun magit-set (val &rest keys)
+(defun magit-config-set (val &rest keys)
   "Set Git config settings specified by KEYS to VAL."
   (if val
       (magit-git-string "config" (mapconcat 'identity keys ".") val)
@@ -5449,10 +5449,10 @@ user because of prefix arguments are not saved with git config."
             branch-merge-name)))
     (when (and (not branch-remote)
                (not choose-remote))
-      (magit-set chosen-branch-remote "branch" branch "remote"))
+      (magit-config-set chosen-branch-remote "branch" branch "remote"))
     (when (and (not branch-merge-name)
                (not choose-branch))
-      (magit-set (format "%s" chosen-branch-merge-name)
+      (magit-config-set (format "%s" chosen-branch-merge-name)
                  "branch" branch "merge"))
     (apply 'magit-run-git-async "pull" "-v"
            (append
@@ -5573,7 +5573,7 @@ even if `magit-set-upstream-on-push's value is `refuse'."
         (when (and ref-branch
                    (or set-upstream-on-push
                        (member "-u" magit-custom-options)))
-          (magit-set ref-branch "branch" branch "merge"))))))
+          (magit-config-set ref-branch "branch" branch "merge"))))))
 
 ;;;; Committing
 
@@ -6911,8 +6911,8 @@ These are the branch names with the remote name stripped."
              (setq new-remote (match-string 1 new-tracked)
                    new-branch (concat "refs/heads/" (match-string 2 new-tracked))))
             (t (error "Cannot parse the remote and branch name"))))
-    (magit-set new-remote "branch" local-branch "remote")
-    (magit-set new-branch "branch" local-branch "merge")
+    (magit-config-set new-remote "branch" local-branch "remote")
+    (magit-config-set new-branch "branch" local-branch "merge")
     (magit-branch-manager)
     (when (string= (magit-get-current-branch) local-branch)
       (magit-refresh-buffer (magit-find-status-buffer default-directory)))))
