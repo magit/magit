@@ -6660,9 +6660,9 @@ With a prefix argument, visit in other window."
 ;;;; (core)
 
 (define-derived-mode magit-branch-manager-mode magit-mode "Magit Branch"
-  "Mode for looking at a git diff.
+  "Mode for looking at git branches.
 
-\\{magit-diff-mode-map}
+\\{magit-branch-manager-mode-map}
 Unless shadowed by the mode specific bindings above bindings from
 the parent keymap `magit-mode-map' are also available.")
 
