@@ -1508,7 +1508,7 @@ Empty lines anywhere in the output are omitted."
 
 ;;;; Git Config
 
-(defun magit-get (&rest keys)
+(defun magit-config-get-value (&rest keys)
   "Return the value of Git config entry specified by KEYS."
   (magit-git-string "config" (mapconcat 'identity keys ".")))
 
@@ -1587,8 +1587,8 @@ according to option `magit-remote-ref-format'."
   (unless branch
     (setq branch (magit-get-current-branch)))
   (when branch
-    (let ((remote (magit-get "branch" branch "remote"))
-          (merge  (magit-get "branch" branch "merge")))
+    (let ((remote (magit-config-get-value "branch" branch "remote"))
+          (merge  (magit-config-get-value "branch" branch "merge")))
       (when (and (not merge)
                  (not (equal remote ".")))
         (setq merge branch))
@@ -1674,8 +1674,8 @@ where COMMITS is the number of commits in TAG but not in \"HEAD\"."
   "Return the name of the remote for BRANCH.
 If branch is nil or it has no remote, but a remote named
 \"origin\" exists, return that.  Otherwise, return nil."
-  (let ((remote (or (and branch (magit-get "branch" branch "remote"))
-                    (and (magit-get "remote" "origin" "url") "origin"))))
+  (let ((remote (or (and branch (magit-config-get-value "branch" branch "remote"))
+                    (and (magit-config-get-value "remote" "origin" "url") "origin"))))
     (unless (string= remote "")
       remote)))
 
@@ -3343,7 +3343,7 @@ the buffer.  Finally reset the window configuration to nil."
     (magit-wash-sequence #'magit-wash-untracked-file)))
 
 (magit-define-inserter untracked-files ()
-  (unless (string= (magit-get "status" "showUntrackedFiles") "no")
+  (unless (string= (magit-config-get-value "status" "showUntrackedFiles") "no")
     (apply 'magit-git-section
            `(untracked
              "Untracked files:"
@@ -4704,13 +4704,13 @@ when asking for user input."
 (defun magit-format-tracked-line (tracked branch)
   (when tracked
     (setq tracked (propertize tracked 'face 'magit-branch))
-    (let ((remote (magit-get "branch" branch "remote")))
+    (let ((remote (magit-config-get-value "branch" branch "remote")))
       (concat (if (string= "." remote)
                   (concat "branch " tracked)
                 (when (string-match (concat "^" remote) tracked)
                   (setq tracked (substring tracked (1+ (length remote)))))
                 (concat tracked " @ " remote
-                        " (" (magit-get "remote" remote "url") ")"))))))
+                        " (" (magit-config-get-value "remote" remote "url") ")"))))))
 
 (defun magit-insert-status-head-line ()
   (magit-insert-status-line "Head"
@@ -5426,7 +5426,7 @@ user because of prefix arguments are not saved with git config."
   (interactive)
   (let* ((branch (magit-get-current-branch))
          (branch-remote (magit-get-remote branch))
-         (branch-merge (magit-get "branch" branch "merge"))
+         (branch-merge (magit-config-get-value "branch" branch "merge"))
          (branch-merge-name (and branch-merge
                              (save-match-data
                                (string-match "^refs/heads/\\(.+\\)" branch-merge)
@@ -5531,8 +5531,8 @@ even if `magit-set-upstream-on-push's value is `refuse'."
   (interactive)
   (let* ((branch (or (magit-get-current-branch)
                      (error "Don't push a detached head.  That's gross")))
-         (branch-remote (and branch (magit-get "branch" branch "remote")))
-         (origin-remote (and (magit-get "remote" "origin" "url") "origin"))
+         (branch-remote (and branch (magit-config-get-value "branch" branch "remote")))
+         (origin-remote (and (magit-config-get-value "remote" "origin" "url") "origin"))
          (push-remote (if (or current-prefix-arg
                               (and (not branch-remote)
                                    (not origin-remote)))
@@ -5549,7 +5549,7 @@ even if `magit-set-upstream-on-push's value is `refuse'."
                                 ref-name
                               (concat "refs/heads/" ref-name))))
           ((equal branch-remote push-remote)
-           (setq ref-branch (magit-get "branch" branch "merge"))))
+           (setq ref-branch (magit-config-get-value "branch" branch "merge"))))
     (if (and (not ref-branch)
              (eq magit-set-upstream-on-push 'refuse))
         (error "Not pushing since no upstream has been set")
@@ -6789,7 +6789,7 @@ These are the branch names with the remote name stripped."
            (concat " ["
                    ;; getting rid of the tracking branch name if it is
                    ;; the same as the branch name
-                   (let* ((tracking-remote (magit-get "branch" branch "remote"))
+                   (let* ((tracking-remote (magit-config-get-value "branch" branch "remote"))
                           (tracking-branch (substring tracking
                                                       (+ 1 (length tracking-remote)))))
                      (propertize (if (string= branch tracking-branch)
@@ -6821,8 +6821,8 @@ These are the branch names with the remote name stripped."
 
 (defun magit-wash-remote-branches-group (group)
   (let* ((remote-name (car group))
-         (url (magit-get "remote" remote-name "url"))
-         (push-url (magit-get "remote" remote-name "pushurl"))
+         (url (magit-config-get-value "remote" remote-name "url"))
+         (push-url (magit-config-get-value "remote" remote-name "pushurl"))
          (urls (concat url (if push-url
                                (concat ", "push-url)
                              "")))

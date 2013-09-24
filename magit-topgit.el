@@ -71,7 +71,7 @@
   (when (magit-topgit-in-topic-p)
     (let* ((branch (or (magit-get-current-branch)
                        (error "Don't push a detached head.  That's gross")))
-           (remote (magit-get "topgit" "remote"))
+           (remote (magit-config-get-value "topgit" "remote"))
            (push-remote (if (or current-prefix-arg (not remote))
                             (magit-read-remote (format "Push %s to" branch))
                           remote)))
@@ -82,7 +82,7 @@
 
 (defun magit-topgit-remote-update (&optional remote)
   (when (magit-topgit-in-topic-p)
-    (let* ((remote (magit-get "topgit" "remote"))
+    (let* ((remote (magit-config-get-value "topgit" "remote"))
            (remote-update (if (or current-prefix-arg (not remote))
                               (magit-read-remote "Update remote")
                             remote)))
