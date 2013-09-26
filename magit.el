@@ -5978,7 +5978,9 @@ or something else."
            (magit-diff-abbrev-arg)
            `(,@(cl-case style
                  (long    (list "--stat"))
-                 (oneline (list "--pretty=oneline")))
+                 (oneline
+                  (list (concat "--pretty=format:%h%d "
+                                "[%an][%ar]%s"))))
              ,@args
              "--" ,file))))
 
