@@ -5900,10 +5900,8 @@ With a prefix arg, do a submodule update --init."
 With a prefix argument or if no file is currently visited, ask
 for the file whose log must be displayed."
   (interactive
-   (list (magit-file-relative-name
-          (if (or current-prefix-arg (not buffer-file-name))
-              (magit-read-file-from-rev (magit-get-current-branch))
-            buffer-file-name))))
+   (list (magit-read-file-from-rev (magit-get-current-branch)
+                                   (magit-buffer-file-name t))))
   (magit-mode-setup magit-log-buffer-name
                     #'magit-log-mode
                     #'magit-refresh-file-log-buffer
