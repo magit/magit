@@ -5970,9 +5970,9 @@ or something else."
   (magit-create-log-buffer-sections
     (apply #'magit-git-section nil
            (magit-rev-range-describe range (format "Commits for file %s" file))
-           (apply-partially 'magit-wash-log style)
+           (apply-partially 'magit-wash-log style 'color)
            "log" (magit-log-cutoff-length-arg)
-           "--decorate=full" "--abbrev-commit" "--graph"
+           "--decorate=full" "--abbrev-commit" "--color" "--graph"
            (magit-diff-abbrev-arg)
            `(,@(cl-case style
                  (long    (list "--stat" "-z"))
