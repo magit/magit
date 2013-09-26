@@ -1164,12 +1164,6 @@ Also see option `magit-diff-use-overlays'."
     map)
   "Keymap for `magit-commit-mode'.")
 
-(defvar magit-stash-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-mode-map)
-    map)
-  "Keymap for `magit-stash-mode'.")
-
 (defvar magit-status-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
@@ -4514,14 +4508,6 @@ in `magit-commit-buffer-name'."
 (defvar magit-currently-shown-stash nil)
 
 ;;;; (core)
-
-(define-derived-mode magit-stash-mode magit-mode "Magit Stash"
-  "Mode for looking at a git stash.
-
-\\{magit-stash-mode-map}
-Unless shadowed by the mode specific bindings above, bindings
-from the parent keymap `magit-mode-map' are also available."
-  :group 'magit)
 
 (defvar magit-stash-buffer-name "*magit-stash*"
   "Name of buffer used to display a stash.")
