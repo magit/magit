@@ -1466,8 +1466,8 @@ newline return an empty string."
   (with-temp-buffer
     (apply 'process-file magit-git-executable nil (list t nil) nil
            (append magit-git-standard-options args))
-    (goto-char (point-min))
-    (unless (= (point-min) (point-max))
+    (unless (= 0 (buffer-size))
+      (goto-char (point-min))
       (buffer-substring-no-properties
        (line-beginning-position)
        (line-end-position)))))
