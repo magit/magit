@@ -168,19 +168,19 @@ boundaries from BEG to END, the return value is nil."
               ;; no matching overlay found, keep looking
               (setq ov-pos next-ov-pos))))))))
 
-(defun magit-blame-next-chunk (pos)
+(defun magit-blame-next-chunk ()
   "Go to the next blame chunk."
-  (interactive "d")
+  (interactive)
   (let ((next-chunk-pos
-         (magit-find-next-overlay-change pos (point-max) :blame)))
+         (magit-find-next-overlay-change (point) (point-max) :blame)))
     (when next-chunk-pos
       (goto-char next-chunk-pos))))
 
-(defun magit-blame-previous-chunk (pos)
+(defun magit-blame-previous-chunk ()
   "Go to the previous blame chunk."
-  (interactive "d")
+  (interactive)
   (let ((prev-chunk-pos
-         (magit-find-next-overlay-change pos (point-min) :blame)))
+         (magit-find-next-overlay-change (point) (point-min) :blame)))
     (when prev-chunk-pos
       (goto-char prev-chunk-pos))))
 
