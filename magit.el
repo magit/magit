@@ -5967,7 +5967,7 @@ or something else."
            (magit-rev-range-describe range (format "Commits for file %s" file))
            (apply-partially 'magit-wash-log style 'color)
            "log" (magit-log-cutoff-length-arg)
-           "--decorate=full" "--abbrev-commit" "--color" "--graph"
+           "--decorate=full" "--abbrev-commit" "--color"
            (magit-diff-abbrev-arg)
            `(,@(cl-case style
                  (long    (list "--stat" "-z"))
