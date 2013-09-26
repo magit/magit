@@ -2147,9 +2147,9 @@ highlighted.
 
 BUFFER-TITLE is the inserted title of the section
 
-WASHER is a function that will be run after CMD.  The buffer will
-be narrowed to the inserted text.  It should add sectioning as
-needed for Magit interaction."
+WASHER is a function that will be run after inserting Git's output.
+The buffer will be narrowed to the inserted text.  It should add
+sectioning as needed for Magit interaction."
   (apply #'magit-insert-section
          section-title-and-type
          buffer-title
@@ -4326,11 +4326,11 @@ Evaluate (man \"git-check-ref-format\") for details")
 ;;;; (core)
 
 (define-derived-mode magit-commit-mode magit-mode "Magit"
-  "Mode for locking at a git commit.
+  "Mode for looking at a git commit.
 
 \\{magit-commit-mode-map}
-Unless shadowed by the mode specific bindings above bindings from
-the parent keymap `magit-mode-map' are also available."
+Unless shadowed by the mode specific bindings above, bindings
+from the parent keymap `magit-mode-map' are also available."
   :group 'magit)
 
 (defvar magit-commit-buffer-name "*magit-commit*"
@@ -4527,8 +4527,8 @@ in `magit-commit-buffer-name'."
   "Mode for looking at a git stash.
 
 \\{magit-stash-mode-map}
-Unless shadowed by the mode specific bindings above bindings from
-the parent keymap `magit-mode-map' are also available."
+Unless shadowed by the mode specific bindings above, bindings
+from the parent keymap `magit-mode-map' are also available."
   :group 'magit)
 
 (defvar magit-stash-buffer-name "*magit-stash*"
@@ -4616,8 +4616,8 @@ the parent keymap `magit-mode-map' are also available."
   "Mode for looking at git status.
 
 \\{magit-status-mode-map}
-Unless shadowed by the mode specific bindings above bindings from
-the parent keymap `magit-mode-map' are also available."
+Unless shadowed by the mode specific bindings above, bindings
+from the parent keymap `magit-mode-map' are also available."
   :group 'magit)
 
 ;;;###autoload
@@ -5935,8 +5935,8 @@ for the file whose log must be displayed."
   "Mode for looking at git log.
 
 \\{magit-log-mode-map}
-Unless shadowed by the mode specific bindings above bindings from
-the parent keymap `magit-mode-map' are also available."
+Unless shadowed by the mode specific bindings above, bindings
+from the parent keymap `magit-mode-map' are also available."
   :group 'magit)
 
 (defvar magit-log-buffer-name "*magit-log*"
@@ -6018,8 +6018,8 @@ This is only non-nil in reflog buffers.")
   "Mode for looking at git reflog.
 
 \\{magit-reflog-mode-map}
-Unless shadowed by the mode specific bindings above bindings from
-the parent keymap `magit-log-mode-map' are also available."
+Unless shadowed by the mode specific bindings above, bindings
+from the parent keymap `magit-log-mode-map' are also available."
   :group 'magit)
 
 (defun magit-refresh-reflog-buffer (ref)
@@ -6172,8 +6172,8 @@ restore the window state that was saved before ediff was called."
   "Mode for looking at a git diff.
 
 \\{magit-diff-mode-map}
-Unless shadowed by the mode specific bindings above bindings from
-the parent keymap `magit-mode-map' are also available."
+Unless shadowed by the mode specific bindings above, bindings
+from the parent keymap `magit-mode-map' are also available."
   :group 'magit)
 
 (defvar magit-diff-buffer-name "*magit-diff*"
@@ -6230,15 +6230,15 @@ the parent keymap `magit-mode-map' are also available."
 ;;; Wazzup Mode
 
 (define-derived-mode magit-wazzup-mode magit-mode "Magit Wazzup"
-  "Mode for looking at git commits unique to other branches.
+  "Mode for looking at git commits not merged into current HEAD.
 
 \\{magit-wazzup-mode-map}
-Unless shadowed by the mode specific bindings above bindings from
-the parent keymap `magit-mode-map' are also available."
+Unless shadowed by the mode specific bindings above, bindings
+from the parent keymap `magit-mode-map' are also available."
   :group 'magit)
 
 (defvar magit-wazzup-buffer-name "*magit-wazzup*"
-  "Name of buffer used to display commits not merged in commit.")
+  "Name of buffer used to display commits not merged into current HEAD.")
 
 (defun magit-wazzup (&optional all)
   (interactive "P")
@@ -6682,14 +6682,14 @@ With a prefix argument, visit in other window."
 ;;;; (core)
 
 (define-derived-mode magit-branch-manager-mode magit-mode "Magit Branch"
-  "Mode for looking at a git diff.
+  "Mode for looking at git branches.
 
-\\{magit-diff-mode-map}
-Unless shadowed by the mode specific bindings above bindings from
-the parent keymap `magit-mode-map' are also available.")
+\\{magit-branch-manager-mode-map}
+Unless shadowed by the mode specific bindings above, bindings
+from the parent keymap `magit-mode-map' are also available.")
 
 (defvar magit-branches-buffer-name "*magit-branches*"
-  "Name of branch used to display and manage branches.")
+  "Name of buffer used to display and manage branches.")
 
 (magit-define-command branch-manager ()
   (interactive)
