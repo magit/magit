@@ -1234,7 +1234,7 @@ Also see option `magit-diff-use-overlays'."
     (set-keymap-parent map magit-mode-map)
     (define-key map (kbd "e") 'magit-diffstat-ediff)
     map)
-  "Keymap for `magit-diffstat-mode'.")
+  "Keymap for diffstats in `magit-commit-mode' and `magit-diff-mode'.")
 
 (easy-menu-define magit-mode-menu magit-mode-map
   "Magit menu"
