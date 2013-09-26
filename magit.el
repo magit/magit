@@ -5975,9 +5975,13 @@ or something else."
            "--decorate=full" "--abbrev-commit" "--color"
            (magit-diff-abbrev-arg)
            `(,@(cl-case style
-                 (long    (list "--stat"))
+                 (long
+                  (if magit-log-show-gpg-status
+                      (list "--stat" "--show-signature")
+                    (list "--stat")))
                  (oneline
                   (list (concat "--pretty=format:%h%d "
+                                (and magit-log-show-gpg-status "%G?")
                                 "[%an][%ar]%s"))))
              ,@args
              "--" ,file))))
