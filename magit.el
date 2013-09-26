@@ -6466,7 +6466,6 @@ variable change-log-default-name."
     "Visit current item.
 With a prefix argument, visit in other window."
     (interactive "P")
-    (require 'dired-x)
     (magit-section-action (item info "dired-jump")
       ((untracked file)
        (dired-jump other-window (file-truename info)))
