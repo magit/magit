@@ -144,17 +144,16 @@
 (defun magit-find-next-overlay-change (beg end prop)
   "Return the next position after BEG where an overlay matching a
 property PROP starts or ends. If there are no matching overlay
-boundaries from BEG to END, the return value is nil."
-  (when (> beg end)
-    (let ((swap beg))
-      (setq beg end end swap)))
+boundaries from BEG to END, the return value is nil. If beg is
+after end, the the previous position is return."
   (save-excursion
     (goto-char beg)
     (catch 'found
-      (let ((ov-pos beg))
+      (let ((ov-pos beg)
+            (search-next (if (> beg end) 'previous-overlay-change 'next-overlay-change)))
         ;; iterate through overlay changes from BEG to END
-        (while (< ov-pos end)
-          (let* ((next-ov-pos (next-overlay-change ov-pos))
+        (while (not (= ov-pos end))
+          (let* ((next-ov-pos (funcall search-next ov-pos))
                  ;; search for an overlay with a PROP property
                  (next-ov
                   (let ((overlays (overlays-at next-ov-pos)))
