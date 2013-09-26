@@ -5934,13 +5934,17 @@ from the parent keymap `magit-mode-map' are also available."
 (defvar magit-log-buffer-name "*magit-log*"
   "Name of buffer used to display log entries.")
 
-(defun magit-refresh-log-buffer (style range args)
+(defun magit-refresh-log-buffer (style range args &optional file)
   (setq magit-current-range range)
   (magit-create-log-buffer-sections
     (apply #'magit-git-section nil
-           (if (or (member "--all" args) (member "--all-match" args))
-               "Commits"
-             (magit-rev-range-describe range "Commits"))
+           (cond (file
+                  (magit-rev-range-describe
+                   range (format "Commits for file %s" file)))
+                 ((or (member "--all" args) (member "--all-match" args))
+                  "Commits")
+                 (t
+                  (magit-rev-range-describe range "Commits")))
            (apply-partially 'magit-wash-log style 'color)
            "log" (magit-log-cutoff-length-arg)
            "--decorate=full" "--abbrev-commit" "--color"
