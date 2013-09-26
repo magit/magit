@@ -1762,9 +1762,10 @@ involving HEAD."
     (error (format "Cannot %s a merge commit" command))))
 
 (defun magit-format-commit (commit format)
-  (magit-git-string "log" "-1" commit
+  (magit-git-string "log" "-1"
                     (magit-diff-abbrev-arg)
-                    (concat "--pretty=format:" format)))
+                    (concat "--pretty=format:" format)
+                    commit))
 
 ;;;; Git Macros
 
@@ -4391,9 +4392,10 @@ for this argument.)"
            'magit-wash-commit
            "log" "-1" "--decorate=full"
            "--pretty=medium" "--no-abbrev-commit"
-           "--cc" "-p" commit
+           "--cc" "-p"
            `(,@(and magit-show-diffstat (list "--stat"))
-             ,@magit-diff-options))))
+             ,@magit-diff-options
+             ,commit))))
 
 ;;;; (washing)
 
