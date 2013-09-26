@@ -207,6 +207,34 @@ default comments in git commit messages"
     map)
   "Key map used by `git-commit-mode'.")
 
+;;; Menu
+
+(require 'easymenu)
+(easy-menu-define git-commit-mode-menu git-commit-mode-map
+  "Git Commit Mode Menu"
+  '("Commit"
+    ["Previous" git-commit-prev-message t]
+    ["Next" git-commit-next-message t]
+    "-"
+    ["Ack" git-commit-ack :active t
+     :help "Insert an 'Acked-by' header"]
+    ["Sign-Off" git-commit-signoff :active t
+     :help "Insert a 'Signed-off-by' header"]
+    ["Tested-by" git-commit-test :active t
+     :help "Insert a 'Tested-by' header"]
+    ["Reviewed-by" git-commit-review :active t
+     :help "Insert a 'Reviewed-by' header"]
+    ["CC" git-commit-cc t
+     :help "Insert a 'Cc' header"]
+    ["Reported" git-commit-reported :active t
+     :help "Insert a 'Reported-by' header"]
+    ["Suggested" git-commit-suggested t
+     :help "Insert a 'Suggested-by' header"]
+    "-"
+    ["Save" git-commit-save-message t]
+    ["Cancel" git-commit-abort t]
+    ["Commit" git-commit-commit t]))
+
 ;;; Committing
 
 (defvar git-commit-commit-hook nil
