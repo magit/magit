@@ -5870,7 +5870,7 @@ With a prefix arg, do a submodule update --init."
   (magit-mode-setup magit-log-buffer-name
                     #'magit-log-mode
                     #'magit-refresh-log-buffer
-                    range 'oneline
+                    'oneline range
                     (cons (magit-rev-range-to-git range)
                           magit-custom-options)))
 
@@ -5884,7 +5884,7 @@ With a prefix arg, do a submodule update --init."
   (magit-mode-setup magit-log-buffer-name
                     #'magit-log-mode
                     #'magit-refresh-log-buffer
-                    range 'long
+                    'long range
                     (cons (magit-rev-range-to-git range)
                           magit-custom-options)))
 
@@ -5934,7 +5934,7 @@ from the parent keymap `magit-mode-map' are also available."
 (defvar magit-log-buffer-name "*magit-log*"
   "Name of buffer used to display log entries.")
 
-(defun magit-refresh-log-buffer (range style args)
+(defun magit-refresh-log-buffer (style range args)
   (setq magit-current-range range)
   (magit-create-log-buffer-sections
     (apply #'magit-git-section nil
