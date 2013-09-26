@@ -1179,6 +1179,7 @@ Also see option `magit-diff-use-overlays'."
     (define-key map (kbd "U") 'magit-unstage-all)
     (define-key map (kbd "i") 'magit-ignore-item)
     (define-key map (kbd "I") 'magit-ignore-item-locally)
+    (define-key map (kbd "j") 'magit-section-jump-map)
     (define-key map (kbd ".") 'magit-mark-item)
     (define-key map (kbd "=") 'magit-diff-with-mark)
     (define-key map (kbd "k") 'magit-discard-item)
@@ -1241,6 +1242,19 @@ Also see option `magit-diff-use-overlays'."
     (define-key map (kbd "e") 'magit-diffstat-ediff)
     map)
   "Keymap for `magit-diffstat-mode'.")
+
+(defvar magit-section-jump-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "z") 'magit-jump-to-stashes)
+    (define-key map (kbd "n") 'magit-jump-to-untracked)
+    (define-key map (kbd "u") 'magit-jump-to-unstaged)
+    (define-key map (kbd "s") 'magit-jump-to-staged)
+    (define-key map (kbd "f") 'magit-jump-to-unpulled)
+    (define-key map (kbd "p") 'magit-jump-to-unpushed)
+    (define-key map (kbd "r") 'magit-jump-to-pending)
+    map)
+  "Submap for jumping to sections in `magit-status-mode'.")
+(fset 'magit-section-jump-map magit-section-jump-map)
 
 (easy-menu-define magit-mode-menu magit-mode-map
   "Magit menu"
@@ -2374,10 +2388,13 @@ TITLE is the displayed title of the section."
          (magit-goto-section-at-path '(,sym)))
        (put ',fun 'definition-name ',sym))))
 
+(magit-define-section-jumper stashes   "Stashes")
 (magit-define-section-jumper untracked "Untracked files")
 (magit-define-section-jumper unstaged  "Unstaged changes")
 (magit-define-section-jumper staged    "Staged changes")
+(magit-define-section-jumper unpulled  "Unpulled commits")
 (magit-define-section-jumper unpushed  "Unpushed commits")
+(magit-define-section-jumper pending   "Pending commits")
 
 ;;;; Section Utilities
 
