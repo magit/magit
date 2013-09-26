@@ -5975,7 +5975,7 @@ or something else."
            "--decorate=full" "--abbrev-commit" "--color"
            (magit-diff-abbrev-arg)
            `(,@(cl-case style
-                 (long    (list "--stat" "-z"))
+                 (long    (list "--stat"))
                  (oneline (list "--pretty=oneline")))
              ,@args
              "--" ,file))))
