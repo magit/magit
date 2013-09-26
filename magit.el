@@ -5905,7 +5905,7 @@ for the file whose log must be displayed."
   (magit-mode-setup magit-log-buffer-name
                     #'magit-log-mode
                     #'magit-refresh-file-log-buffer
-                    'oneline "HEAD" file))
+                    'oneline "HEAD" nil file))
 
 (magit-define-command reflog (ref)
   (interactive (list (magit-read-rev "Reflog of"
@@ -5954,7 +5954,7 @@ from the parent keymap `magit-mode-map' are also available."
                                 "[%an][%ar]%s"))))
              ,@args "--"))))
 
-(defun magit-refresh-file-log-buffer (style range file)
+(defun magit-refresh-file-log-buffer (style range args file)
   "Refresh the current file-log buffer by calling git.
 
 FILE is the path of the file whose log must be displayed.
@@ -5975,6 +5975,7 @@ or something else."
            `(,@(cl-case style
                  (long    (list "--stat" "-z"))
                  (oneline (list "--pretty=oneline")))
+             ,@args
              "--" ,file))))
 
 (defun magit-log-show-more-entries (&optional arg)
