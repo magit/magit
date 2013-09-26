@@ -5895,15 +5895,10 @@ With a prefix arg, do a submodule update --init."
 (defvar-local magit-file-log-file nil)
 
 (magit-define-command file-log (file)
-  "Display the log for the currently visited file or another one.
-
-With a prefix argument or if no file is currently visited, ask
-for the file whose log must be displayed."
+  "Display the log for the currently visited file or another one."
   (interactive
-   (list (magit-file-relative-name
-          (if (or current-prefix-arg (not buffer-file-name))
-              (magit-read-file-from-rev (magit-get-current-branch))
-            buffer-file-name))))
+   (list (magit-read-file-from-rev (magit-get-current-branch)
+                                   (magit-buffer-file-name t))))
   (magit-mode-setup magit-log-buffer-name
                     #'magit-log-mode
                     #'magit-refresh-file-log-buffer
