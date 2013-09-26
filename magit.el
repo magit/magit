@@ -5963,14 +5963,6 @@ from the parent keymap `magit-mode-map' are also available."
              ,@args "--"))))
 
 (defun magit-refresh-file-log-buffer (style range args file)
-  "Refresh the current file-log buffer by calling git.
-
-FILE is the path of the file whose log must be displayed.
-
-`magit-current-range' will be set to the value of RANGE.
-
-STYLE controls the display.  It is either `long', `oneline',
-or something else."
   (setq magit-current-range range)
   (setq magit-file-log-file file)
   (magit-create-log-buffer-sections
