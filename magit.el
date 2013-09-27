@@ -6719,7 +6719,7 @@ from the parent keymap `magit-mode-map' are also available.")
 
     (magit-with-section branch 'branch
       (magit-set-section-info branch)
-      (insert-before-markers
+      (insert
        ;; sha1
        (propertize (or sha1
                        (make-string magit-sha1-abbrev-length ? ))
