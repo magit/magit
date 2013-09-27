@@ -6712,7 +6712,8 @@ from the parent keymap `magit-mode-map' are also available.")
          (behind      (match-string 6))
          (other-ref   (match-string 7))
          (name        (magit-branch-no-remote branch))
-         (current     (string-match-p "^\\*" marker)))
+         (current     (string-match-p "^\\*" marker))
+         (branch-face (and (equal marker "* ") 'magit-branch)))
     ;; the current line is deleted before being reconstructed
     (delete-region (point)
                    (line-beginning-position 2))
@@ -6730,9 +6731,7 @@ from the parent keymap `magit-mode-map' are also available.")
            "# "
          "  ")
        ;; branch name
-       (apply 'propertize (magit-branch-no-remote branch)
-              (if current
-                  '(face magit-branch)))
+       (propertize (magit-branch-no-remote branch) 'face branch-face)
        ;; other ref that this branch is pointing to
        (if other-ref
            (concat " -> " (substring other-ref (+ 1 (length remote-name))))
@@ -6758,9 +6757,7 @@ from the parent keymap `magit-mode-map' are also available.")
                      "")
                    (if ahead
                        (concat "ahead "
-                               (propertize ahead
-                                           'face (if current
-                                                     'magit-branch))
+                               (propertize ahead 'face branch-face)
                                (if behind
                                    ", "
                                  ""))
