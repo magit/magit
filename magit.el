@@ -6728,7 +6728,7 @@ from the parent keymap `magit-mode-map' are also available.")
        ;; current marker
        marker
        ;; branch name
-       (propertize (magit-branch-no-remote branch) 'face branch-face)
+       (propertize name 'face branch-face)
        ;; other ref that this branch is pointing to
        (if other-ref
            (concat " -> " (substring other-ref (+ 1 (length remote-name))))
