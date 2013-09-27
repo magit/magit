@@ -6713,10 +6713,7 @@ from the parent keymap `magit-mode-map' are also available.")
          (other-ref   (match-string 7))
          (name        (magit-branch-no-remote branch))
          (branch-face (and (equal marker "* ") 'magit-branch)))
-    ;; the current line is deleted before being reconstructed
-    (delete-region (point)
-                   (line-beginning-position 2))
-
+    (delete-region (point) (line-beginning-position 2))
     (magit-with-section branch 'branch
       (magit-set-section-info branch)
       (insert (propertize (or sha1
