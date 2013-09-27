@@ -6681,46 +6681,7 @@ from the parent keymap `magit-mode-map' are also available.")
            "branch" "-vva" (magit-diff-abbrev-arg)
            magit-custom-options)))
 
-;;;; (wacky utilities)
-
-(defun magit--branch-name-at-point ()
-  "Get the branch name in the line at point."
-  (or (magit-section-info (magit-current-section))
-      (error "No branch at point")))
-
-(defun magit--branches-for-remote-repo (remote)
-  "Return a list of remote branch names for REMOTE.
-These are the branch names with the remote name stripped."
-  (cl-loop for branch in (magit-git-lines "branch" "-r" "--list"
-                                          (format "%s/*" remote))
-           collect (substring branch (+ 3 (length remote)))))
-
-(defun magit--is-branch-at-point-remote ()
-  "Return non-nil if the branch at point is a remote tracking branch."
-  (magit-remote-part-of-branch (magit--branch-name-at-point)))
-
-(defun magit-remote-part-of-branch (branch)
-  (when (string-match-p "^\\(?:refs/\\)?remotes\\/" branch)
-    (cl-loop for remote in (magit-git-lines "remote")
-             when (string-match-p (format "^\\(?:refs/\\)?remotes\\/%s\\/"
-                                          (regexp-quote remote))
-                                  branch)
-             return remote)))
-
-(defun magit-branch-no-remote (branch)
-  (let ((remote (magit-remote-part-of-branch branch)))
-    (if remote
-        (progn
-          ;; This has to match if remote is non-nil
-          (cl-assert (string-match
-                      (format "^\\(?:refs/\\)?remotes\\/%s\\/\\(.*\\)"
-                              (regexp-quote remote))
-                      branch)
-                     'show-args "Unexpected string-match failure: %s %s")
-          (match-string 1 branch))
-      branch)))
-
-;;;; (washing)
+;;;; Branch List Washing
 
 (defun magit-wash-branch-line (&optional remote-name)
   (looking-at (concat
@@ -6881,7 +6842,44 @@ These are the branch names with the remote name stripped."
              (set-marker marker nil)))
           markers)))
 
-;;;; (wacky non-generic set-tracked)
+;;;; (wacky utilities)
+
+(defun magit--branch-name-at-point ()
+  "Get the branch name in the line at point."
+  (or (magit-section-info (magit-current-section))
+      (error "No branch at point")))
+
+(defun magit--branches-for-remote-repo (remote)
+  "Return a list of remote branch names for REMOTE.
+These are the branch names with the remote name stripped."
+  (cl-loop for branch in (magit-git-lines "branch" "-r" "--list"
+                                          (format "%s/*" remote))
+           collect (substring branch (+ 3 (length remote)))))
+
+(defun magit--is-branch-at-point-remote ()
+  "Return non-nil if the branch at point is a remote tracking branch."
+  (magit-remote-part-of-branch (magit--branch-name-at-point)))
+
+(defun magit-remote-part-of-branch (branch)
+  (when (string-match-p "^\\(?:refs/\\)?remotes\\/" branch)
+    (cl-loop for remote in (magit-git-lines "remote")
+             when (string-match-p (format "^\\(?:refs/\\)?remotes\\/%s\\/"
+                                          (regexp-quote remote))
+                                  branch)
+             return remote)))
+
+(defun magit-branch-no-remote (branch)
+  (let ((remote (magit-remote-part-of-branch branch)))
+    (if remote
+        (progn
+          ;; This has to match if remote is non-nil
+          (cl-assert (string-match
+                      (format "^\\(?:refs/\\)?remotes\\/%s\\/\\(.*\\)"
+                              (regexp-quote remote))
+                      branch)
+                     'show-args "Unexpected string-match failure: %s %s")
+          (match-string 1 branch))
+      branch)))
 
 (defun magit-change-what-branch-tracks ()
   "Change which remote branch the current branch tracks."
