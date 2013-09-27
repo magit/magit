@@ -87,6 +87,7 @@ match REQUIRED-STATUS."
       (t
        "(bisecting; unknown error occured)"))))
 
+;;;###autoload
 (defun magit-bisect-start ()
   "Start a bisect session."
   (interactive)
@@ -96,6 +97,7 @@ match REQUIRED-STATUS."
         (good (magit-read-rev "Good revision" (magit-default-rev))))
     (magit--bisect-cmd "start" bad good)))
 
+;;;###autoload
 (defun magit-bisect-reset ()
   "Quit a bisect session."
   (interactive)
@@ -103,6 +105,7 @@ match REQUIRED-STATUS."
     (error "Not bisecting"))
   (magit--bisect-cmd "reset"))
 
+;;;###autoload
 (defun magit-bisect-good ()
   "Tell git that the current revision is good during a bisect session."
   (interactive)
@@ -110,6 +113,7 @@ match REQUIRED-STATUS."
     (error "Not bisecting"))
   (magit--bisect-cmd "good"))
 
+;;;###autoload
 (defun magit-bisect-bad ()
   "Tell git that the current revision is bad during a bisect session."
   (interactive)
@@ -117,6 +121,7 @@ match REQUIRED-STATUS."
     (error "Not bisecting"))
   (magit--bisect-cmd "bad"))
 
+;;;###autoload
 (defun magit-bisect-skip ()
   "Tell git to skip the current revision during a bisect session."
   (interactive)
@@ -124,6 +129,7 @@ match REQUIRED-STATUS."
     (error "Not bisecting"))
   (magit--bisect-cmd "skip"))
 
+;;;###autoload
 (defun magit-bisect-log ()
   "Show the bisect log."
   (interactive)
@@ -132,6 +138,7 @@ match REQUIRED-STATUS."
   (magit-run-git "bisect" "log")
   (magit-display-process))
 
+;;;###autoload
 (defun magit-bisect-visualize ()
   "Show the remaining suspects with gitk."
   (interactive)
@@ -149,6 +156,7 @@ match REQUIRED-STATUS."
 (defvar magit-bisect-mode-history nil
   "Previously run bisect commands.")
 
+;;;###autoload
 (defun magit-bisect-run (command)
   "Bisect automatically by running commands after each step."
   (interactive

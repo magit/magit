@@ -46,6 +46,7 @@
 Unless shadowed by the mode specific bindings above, bindings
 from the parent keymap `magit-mode-map' are also available.")
 
+;;;###autoload (autoload 'magit-cherry "magit")
 (magit-define-command cherry (upstream head)
   (interactive
    (let ((branch (or (magit-get-current-branch)
