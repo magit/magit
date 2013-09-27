@@ -6888,15 +6888,11 @@ These are the branch names with the remote name stripped."
                                   (not (string-match-p "refs/remotes/" ref)))))
          new-remote new-branch)
     (progn
-      (cond (;; Match refs that are unknown in the local repository if
-             ;; `magit-remote-ref-format' is set to
-             ;; `branch-then-remote'. Can be useful if you want to
-             ;; create a new branch in a remote repository.
-             (string-match "^\\([^ ]+\\) +(\\(.+\\))$" ; 1: branch name; 2: remote name
+      (cond ((string-match "^\\([^ ]+\\) +(\\(.+\\))$"
                            track)
              (setq new-remote (match-string 2 track)
                    new-branch (concat "refs/heads/" (match-string 1 track))))
-            ((string-match "^\\(?:refs/remotes/\\)?\\([^/]+\\)/\\(.+\\)" ; 1: remote name; 2: branch name
+            ((string-match "^\\(?:refs/remotes/\\)?\\([^/]+\\)/\\(.+\\)"
                            track)
              (setq new-remote (match-string 1 track)
                    new-branch (concat "refs/heads/" (match-string 2 track))))
