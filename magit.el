@@ -4962,15 +4962,19 @@ With a prefix argument, prompt for a file to be staged instead."
 With a prefix argument, add remaining untracked files as well.
 \('git add [-u] .')."
   (interactive "P")
-  (if including-untracked
-      (magit-run-git "add" ".")
-    (magit-run-git "add" "-u" ".")))
+  (if (yes-or-no-p "Stage all changes")
+      (if including-untracked
+          (magit-run-git "add" ".")
+        (magit-run-git "add" "-u" "."))
+    (error "Abort")))
 
 (defun magit-unstage-all ()
   "Remove all changes from staging area.
 \('git reset --mixed HEAD')."
   (interactive)
-  (magit-run-git "reset" "HEAD" "--"))
+  (if (yes-or-no-p "Unstage all changes")
+      (magit-run-git "reset" "HEAD" "--")
+    (error "Abort")))
 
 ;;;; Branching
 
