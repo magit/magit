@@ -6882,31 +6882,29 @@ These are the branch names with the remote name stripped."
   (interactive)
   (when (magit--is-branch-at-point-remote)
     (error "Cannot modify a remote branch"))
-  (let* ((local-branch (magit--branch-name-at-point))
-         (new-tracked (magit-read-rev  "Track branch"
-                                       nil
-                                       (lambda (ref)
-                                         (not (string-match-p "refs/remotes/"
-                                                              ref)))))
+  (let* ((branch (magit--branch-name-at-point))
+         (track (magit-read-rev "Track branch" nil
+                                (lambda (ref)
+                                  (not (string-match-p "refs/remotes/" ref)))))
          new-remote new-branch)
-    (unless (string= (or new-tracked "") "")
+    (unless (string= (or track "") "")
       (cond (;; Match refs that are unknown in the local repository if
              ;; `magit-remote-ref-format' is set to
              ;; `branch-then-remote'. Can be useful if you want to
              ;; create a new branch in a remote repository.
              (string-match "^\\([^ ]+\\) +(\\(.+\\))$" ; 1: branch name; 2: remote name
-                           new-tracked)
-             (setq new-remote (match-string 2 new-tracked)
-                   new-branch (concat "refs/heads/" (match-string 1 new-tracked))))
+                           track)
+             (setq new-remote (match-string 2 track)
+                   new-branch (concat "refs/heads/" (match-string 1 track))))
             ((string-match "^\\(?:refs/remotes/\\)?\\([^/]+\\)/\\(.+\\)" ; 1: remote name; 2: branch name
-                           new-tracked)
-             (setq new-remote (match-string 1 new-tracked)
-                   new-branch (concat "refs/heads/" (match-string 2 new-tracked))))
+                           track)
+             (setq new-remote (match-string 1 track)
+                   new-branch (concat "refs/heads/" (match-string 2 track))))
             (t (error "Cannot parse the remote and branch name"))))
-    (magit-set new-remote "branch" local-branch "remote")
-    (magit-set new-branch "branch" local-branch "merge")
+    (magit-set new-remote "branch" branch "remote")
+    (magit-set new-branch "branch" branch "merge")
     (magit-branch-manager)
-    (when (string= (magit-get-current-branch) local-branch)
+    (when (string= (magit-get-current-branch) branch)
       (magit-refresh-buffer (magit-find-status-buffer default-directory)))))
 
 ;;; Miscellaneous
