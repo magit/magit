@@ -4209,9 +4209,11 @@ Evaluate (man \"git-check-ref-format\") for details")
       (ansi-color-apply-on-region (point-min) (point-max))))
   (let ((magit-old-top-section nil)
         (use-author-date (eq style 'oneline)))
-    (when use-author-date (magit-log-setup-author-date))
+    (when use-author-date
+      (magit-log-setup-author-date))
     (magit-wash-sequence (apply-partially 'magit-wash-log-line style))
-    (when use-author-date (magit-log-create-author-date-overlays))))
+    (when use-author-date
+      (magit-log-create-author-date-overlays))))
 
 ;;;; Log Author/Date Overlays
 
