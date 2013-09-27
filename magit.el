@@ -1184,7 +1184,6 @@ Also see option `magit-diff-use-overlays'."
 (defvar magit-reflog-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-log-mode-map)
-    (define-key map (kbd "e") 'magit-log-show-more-entries)
     map)
   "Keymap for `magit-reflog-mode'.")
 
