@@ -1611,11 +1611,9 @@ according to option `magit-remote-ref-format'."
                 (while (and prefix (not match))
                   (if (setq match (cadr (assoc prefix fetch)))
                       (setq match (concat (substring match 0 -1)
-                                          (mapconcat 'identity
-                                                     unique
-                                                     "/")))
-                    (setq unique (cons (car prefix) unique)
-                          prefix (cdr prefix))))))
+                                          (mapconcat 'identity unique "/")))
+                    (push (car prefix) unique)
+                    (setq prefix (cdr prefix))))))
             (cond ((not match) nil)
                   (qualified match)
                   ((string-match "^refs/remotes/" match)
