@@ -1091,7 +1091,6 @@ Also see option `magit-diff-use-overlays'."
     (define-key map (kbd "SPC") 'magit-show-item-or-scroll-up)
     (define-key map (kbd "DEL") 'magit-show-item-or-scroll-down)
     (define-key map (kbd "C-w") 'magit-copy-item-as-kill)
-    (define-key map (kbd "R") 'magit-rebase-step)
     (cond (magit-rigid-key-bindings
            (define-key map (kbd "c") 'magit-commit)
            (define-key map (kbd "m") 'magit-merge)
@@ -1124,6 +1123,7 @@ Also see option `magit-diff-use-overlays'."
            (define-key map (kbd "z") 'magit-key-mode-popup-stashing)))
     (define-key map (kbd "$") 'magit-display-process)
     (define-key map (kbd "E") 'magit-interactive-rebase)
+    (define-key map (kbd "R") 'magit-rebase-step)
     (define-key map (kbd "e") 'magit-ediff)
     (define-key map (kbd "w") 'magit-wazzup)
     (define-key map (kbd "y") 'magit-cherry)
