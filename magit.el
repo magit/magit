@@ -6887,7 +6887,7 @@ These are the branch names with the remote name stripped."
                                 (lambda (ref)
                                   (not (string-match-p "refs/remotes/" ref)))))
          new-remote new-branch)
-    (unless (string= (or track "") "")
+    (progn
       (cond (;; Match refs that are unknown in the local repository if
              ;; `magit-remote-ref-format' is set to
              ;; `branch-then-remote'. Can be useful if you want to
