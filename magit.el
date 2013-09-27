@@ -4207,12 +4207,11 @@ Evaluate (man \"git-check-ref-format\") for details")
              (when face
                (put-text-property beg end 'font-lock-face face)))))
       (ansi-color-apply-on-region (point-min) (point-max))))
-  (let ((magit-old-top-section nil)
-        (use-author-date (eq style 'oneline)))
-    (when use-author-date
+  (let ((magit-old-top-section nil))
+    (when (eq style 'oneline)
       (magit-log-setup-author-date))
     (magit-wash-sequence (apply-partially 'magit-wash-log-line style))
-    (when use-author-date
+    (when (eq style 'oneline)
       (magit-log-create-author-date-overlays))))
 
 ;;;; Log Author/Date Overlays
