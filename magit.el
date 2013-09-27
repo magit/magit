@@ -6719,54 +6719,35 @@ from the parent keymap `magit-mode-map' are also available.")
 
     (magit-with-section branch 'branch
       (magit-set-section-info branch)
-      (insert
-       ;; sha1
-       (propertize (or sha1
-                       (make-string magit-sha1-abbrev-length ? ))
-                   'face 'magit-log-sha1)
-       " "
-       ;; current marker
-       marker
-       ;; branch name
-       (propertize name 'face branch-face)
-       ;; other ref that this branch is pointing to
-       (if other-ref
-           (concat " -> " (substring other-ref (+ 1 (length remote-name))))
-         "")
-       ;; tracking information
-       (if (and tracking
-                (equal (magit-get-tracked-branch branch t)
-                       (concat "refs/remotes/" tracking)))
-           (concat " ["
-                   ;; getting rid of the tracking branch name if it is
-                   ;; the same as the branch name
-                   (let* ((tracking-remote (magit-get "branch" branch "remote"))
-                          (tracking-branch (substring tracking
-                                                      (+ 1 (length tracking-remote)))))
-                     (propertize (if (string= branch tracking-branch)
-                                     (concat "@ " tracking-remote)
-                                   (concat tracking-branch " @ " tracking-remote))
-                                 'face 'magit-log-head-label-remote))
-                   ;; ahead/behind information
-                   (if (or ahead
-                           behind)
-                       ": "
-                     "")
-                   (if ahead
-                       (concat "ahead "
-                               (propertize ahead 'face branch-face)
-                               (if behind
-                                   ", "
-                                 ""))
-                     "")
-                   (if behind
-                       (concat "behind "
-                               (propertize behind
-                                           'face 'magit-log-head-label-remote))
-                     "")
-                   "]")
-         "")
-       "\n"))))
+      (insert (propertize (or sha1
+                              (make-string magit-sha1-abbrev-length ? ))
+                          'face 'magit-log-sha1)
+              " " marker
+              (propertize name 'face branch-face))
+       (when other-ref
+         (insert " -> " (substring other-ref (+ 1 (length remote-name)))))
+       (when (and tracking
+                  (equal (magit-get-tracked-branch branch t)
+                         (concat "refs/remotes/" tracking)))
+         (insert " [")
+         ;; getting rid of the tracking branch name if it is
+         ;; the same as the branch name
+         (let* ((tracking-remote (magit-get "branch" branch "remote"))
+                (tracking-branch (substring tracking
+                                            (+ 1 (length tracking-remote)))))
+           (insert (propertize (if (string= branch tracking-branch)
+                                   (concat "@ " tracking-remote)
+                                 (concat tracking-branch " @ " tracking-remote))
+                               'face 'magit-log-head-label-remote)))
+         (when (or ahead behind)
+           (insert ":")
+           (and ahead (insert "ahead " (propertize ahead 'face branch-face)))
+           (and ahead behind (insert ", "))
+           (and behind (insert "behind "
+                               (propertize behind 'face
+                                           'magit-log-head-label-remote))))
+         (insert "]"))
+       (insert "\n"))))
 
 (defun magit-wash-remote-branches-group (group)
   (let* ((remote-name (car group))
