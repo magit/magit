@@ -1612,7 +1612,7 @@ according to option `magit-remote-ref-format'."
                   (if (setq match (cadr (assoc prefix fetch)))
                       (setq match (concat (substring match 0 -1)
                                           (mapconcat 'identity
-                                                     (nreverse unique)
+                                                     unique
                                                      "/")))
                     (setq unique (cons (car prefix) unique)
                           prefix (cdr prefix))))))
