@@ -6712,7 +6712,6 @@ from the parent keymap `magit-mode-map' are also available.")
          (behind      (match-string 6))
          (other-ref   (match-string 7))
          (name        (magit-branch-no-remote branch))
-         (current     (string-match-p "^\\*" marker))
          (branch-face (and (equal marker "* ") 'magit-branch)))
     ;; the current line is deleted before being reconstructed
     (delete-region (point)
@@ -6727,9 +6726,7 @@ from the parent keymap `magit-mode-map' are also available.")
                    'face 'magit-log-sha1)
        " "
        ;; current marker
-       (if current
-           "# "
-         "  ")
+       marker
        ;; branch name
        (propertize (magit-branch-no-remote branch) 'face branch-face)
        ;; other ref that this branch is pointing to
