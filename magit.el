@@ -6886,19 +6886,18 @@ These are the branch names with the remote name stripped."
          (track (magit-read-rev "Track branch" nil
                                 (lambda (ref)
                                   (not (string-match-p "refs/remotes/" ref)))))
-         new-remote new-branch)
-    (progn
-      (cond ((string-match "^\\([^ ]+\\) +(\\(.+\\))$"
-                           track)
-             (setq new-remote (match-string 2 track)
-                   new-branch (concat "refs/heads/" (match-string 1 track))))
-            ((string-match "^\\(?:refs/remotes/\\)?\\([^/]+\\)/\\(.+\\)"
-                           track)
-             (setq new-remote (match-string 1 track)
-                   new-branch (concat "refs/heads/" (match-string 2 track))))
-            (t (error "Cannot parse the remote and branch name"))))
-    (magit-set new-remote "branch" branch "remote")
-    (magit-set new-branch "branch" branch "merge")
+         (track-
+          (cond ((string-match "^\\([^ ]+\\) +(\\(.+\\))$" track)
+                 (cons (match-string 2 track)
+                       (concat "refs/heads/" (match-string 1 track))))
+                ((string-match "^\\(?:refs/remotes/\\)?\\([^/]+\\)/\\(.+\\)"
+                               track)
+                 (cons (match-string 1 track)
+                       (concat "refs/heads/" (match-string 2 track))))
+                (t
+                 (error "Cannot parse the remote and branch name")))))
+    (magit-set (car track-) "branch" branch "remote")
+    (magit-set (cdr track-) "branch" branch "merge")
     (magit-branch-manager)
     (when (string= (magit-get-current-branch) branch)
       (magit-refresh-buffer (magit-find-status-buffer default-directory)))))
