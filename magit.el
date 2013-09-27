@@ -6684,29 +6684,23 @@ from the parent keymap `magit-mode-map' are also available.")
 ;;;; Branch List Washing
 
 (defconst magit-wash-branch-line-re
-  (concat
-               "^\\([ *] \\)"                 ; 1: current branch marker
-               "\\(.+?\\) +"                  ; 2: branch name
-
-               "\\(?:"
-
-               "\\([0-9a-fA-F]+\\)"           ; 3: sha1
-               " "
-               "\\(?:\\["
-               "\\([^:\n]+?\\)"               ; 4: tracking
-               "\\(?:: \\)?"
-               "\\(?:ahead \\([0-9]+\\)\\)?"  ; 5: ahead
-               "\\(?:, \\)?"
-               "\\(?:behind \\([0-9]+\\)\\)?" ; 6: behind
-               "\\] \\)?"
-               "\\(?:.*\\)"                   ; message
-
-               "\\|"                          ; or
-
-               "-> "                          ; the pointer to
-               "\\(.+\\)"                     ; 7: a ref
-
-               "\\)\n"))
+  (concat "^\\([ *] \\)"                 ; 1: current branch marker
+          "\\(.+?\\) +"                  ; 2: branch name
+          "\\(?:"
+          "\\([0-9a-fA-F]+\\)"           ; 3: sha1
+          " "
+          "\\(?:\\["
+          "\\([^:\n]+?\\)"               ; 4: tracking
+          "\\(?:: \\)?"
+          "\\(?:ahead \\([0-9]+\\)\\)?"  ; 5: ahead
+          "\\(?:, \\)?"
+          "\\(?:behind \\([0-9]+\\)\\)?" ; 6: behind
+          "\\] \\)?"
+          "\\(?:.*\\)"                   ; message
+          "\\|"                          ; or
+          "-> "                          ; the pointer to
+          "\\(.+\\)"                     ; 7: a ref
+          "\\)\n"))
 
 (defun magit-wash-branch-line (&optional remote-name)
   (looking-at magit-wash-branch-line-re)
