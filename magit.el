@@ -2138,7 +2138,8 @@ sectioning as needed for Magit interaction."
          buffer-title
          washer
          magit-git-executable
-         (append magit-git-standard-options args)))
+         (delete nil
+                 (append magit-git-standard-options args))))
 
 (defun magit-set-section (title type start end)
   "Create a new section of title TITLE and type TYPE.
