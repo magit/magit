@@ -6683,8 +6683,8 @@ from the parent keymap `magit-mode-map' are also available.")
 
 ;;;; Branch List Washing
 
-(defun magit-wash-branch-line (&optional remote-name)
-  (looking-at (concat
+(defconst magit-wash-branch-line-re
+  (concat
                "^\\([ *] \\)"                 ; 1: current branch marker
                "\\(.+?\\) +"                  ; 2: branch name
 
@@ -6708,6 +6708,8 @@ from the parent keymap `magit-mode-map' are also available.")
 
                "\\)\n"))
 
+(defun magit-wash-branch-line (&optional remote-name)
+  (looking-at magit-wash-branch-line-re)
   (let* ((current-string (match-string 1))
          (branch         (match-string 2))
          (sha1           (match-string 3))
