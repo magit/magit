@@ -6732,12 +6732,11 @@ from the parent keymap `magit-mode-map' are also available.")
          (insert " [")
          ;; getting rid of the tracking branch name if it is
          ;; the same as the branch name
-         (let* ((tracking-remote (magit-get "branch" branch "remote"))
-                (tracking-branch (substring tracking
-                                            (+ 1 (length tracking-remote)))))
-           (insert (propertize (if (string= branch tracking-branch)
-                                   (concat "@ " tracking-remote)
-                                 (concat tracking-branch " @ " tracking-remote))
+         (let* ((remote (magit-get "branch" branch "remote"))
+                (merge  (substring tracking (+ 1 (length remote)))))
+           (insert (propertize (if (string= branch merge)
+                                   (concat "@ " remote)
+                                 (concat merge " @ " remote))
                                'face 'magit-log-head-label-remote)))
          (when (or ahead behind)
            (insert ":")
