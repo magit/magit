@@ -1143,6 +1143,8 @@ Also see option `magit-diff-use-overlays'."
     (define-key map (kbd "S") 'magit-stage-all)
     (define-key map (kbd "U") 'magit-unstage-all)
     (define-key map (kbd "X") 'magit-reset-working-tree)
+    (define-key map (kbd "C-c C-c") 'magit-key-mode-popup-dispatch)
+    (define-key map (kbd "C-c C-e") 'magit-key-mode-popup-dispatch)
     map)
   "Parent keymap for all keymaps of modes derived from `magit-mode'.")
 
