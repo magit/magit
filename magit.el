@@ -6779,7 +6779,7 @@ from the parent keymap `magit-mode-map' are also available.")
          (url (magit-get "remote" remote-name "url"))
          (push-url (magit-get "remote" remote-name "pushurl"))
          (urls (concat url (if push-url
-                               (concat ", "push-url)
+                               (concat ", " push-url)
                              "")))
          (marker (cadr group)))
 
