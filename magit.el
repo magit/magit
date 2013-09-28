@@ -3869,24 +3869,6 @@ Customize `magit-diff-refine-hunk' to change the default mode."
     (with-current-buffer buf
       (insert text))))
 
-;;;; (utility used elsewhere)
-
-(defun magit-hunk-item-target-line (hunk)
-  (save-excursion
-    (beginning-of-line)
-    (let ((line (line-number-at-pos)))
-      (goto-char (magit-section-beginning hunk))
-      (unless (looking-at "@@+ .* \\+\\([0-9]+\\)\\(,[0-9]+\\)? @@+")
-        (error "Hunk header not found"))
-      (let ((target (string-to-number (match-string 1))))
-        (forward-line)
-        (while (< (line-number-at-pos) line)
-          ;; XXX - deal with combined diffs
-          (unless (looking-at "-")
-            (setq target (+ target 1)))
-          (forward-line))
-        target))))
-
 ;;;; (apply)
 
 (defun magit-apply-diff-item (diff &rest args)
@@ -6495,6 +6477,22 @@ With a prefix argument, visit in other window."
       (forward-line (1- line))
       (when (> column 0)
         (move-to-column (1- column))))))
+
+(defun magit-hunk-item-target-line (hunk)
+  (save-excursion
+    (beginning-of-line)
+    (let ((line (line-number-at-pos)))
+      (goto-char (magit-section-beginning hunk))
+      (unless (looking-at "@@+ .* \\+\\([0-9]+\\)\\(,[0-9]+\\)? @@+")
+        (error "Hunk header not found"))
+      (let ((target (string-to-number (match-string 1))))
+        (forward-line)
+        (while (< (line-number-at-pos) line)
+          ;; XXX - deal with combined diffs
+          (unless (looking-at "-")
+            (setq target (+ target 1)))
+          (forward-line))
+        target))))
 
 (defun magit-visit-item (&optional other-window)
   "Visit current item.
