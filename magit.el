@@ -3716,15 +3716,13 @@ Customize `magit-diff-refine-hunk' to change the default mode."
              (magit-wash-diff-section)))
       (goto-char (point-max)))))
 
-(defvar magit-ignore-unmerged-raw-diffs nil)
-
-(defun magit-wash-raw-diffs ()
+(defun magit-wash-raw-diffs (&optional staged)
   (let (previous)
     (magit-wash-sequence
      (lambda ()
-       (setq previous (magit-wash-raw-diff previous))))))
+       (setq previous (magit-wash-raw-diff previous staged))))))
 
-(defun magit-wash-raw-diff (previous)
+(defun magit-wash-raw-diff (previous staged)
   (when (looking-at
          ":\\([0-7]+\\) \\([0-7]+\\) [0-9a-f]+ [0-9a-f]+ \\(.\\)[0-9]*\t\\([^\t\n]+\\)$")
     (let ((old-perm (match-string-no-properties 1))
@@ -3738,11 +3736,10 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                     (?U 'unmerged)
                     (?X 'unknown)))
           (file (magit-decode-git-path (match-string-no-properties 4))))
-      ;; If this is for the same file as the last diff, ignore it.
-      ;; Unmerged files seem to get two entries.
-      ;; We also ignore unmerged files when told so.
-      (if (or (equal file previous)
-              (and magit-ignore-unmerged-raw-diffs (eq status 'unmerged)))
+      (if (or ;; Unmerged files get two entries; we ignore the second.
+              (equal file previous)
+              ;; Ignore staged, unmerged files.
+              (and staged (eq status 'unmerged)))
           (delete-region (point) (+ (line-end-position) 1))
         ;; The 'diff' section that is created here will not work with
         ;; magit-insert-diff-item-patch etc when we leave it empty.
@@ -4534,9 +4531,9 @@ when asking for user input."
             (base (if no-commit
                       (magit-git-string "mktree")
                     "HEAD"))
-            (magit-diff-options (append '("--cached") magit-diff-options))
-            (magit-ignore-unmerged-raw-diffs t))
-        (magit-git-section 'staged "Staged changes:" 'magit-wash-raw-diffs
+            (magit-diff-options (append '("--cached") magit-diff-options)))
+        (magit-git-section 'staged "Staged changes:"
+                           (apply-partially #'magit-wash-raw-diffs t)
                            "diff-index" "--cached"
                            base)))))
 
