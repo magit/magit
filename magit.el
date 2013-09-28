@@ -3431,11 +3431,9 @@ Customize `magit-diff-refine-hunk' to change the default mode."
 
 (defun magit-wash-diffs ()
   (magit-wash-diffstats)
-  (magit-wash-sequence #'magit-wash-diff-or-other-file))
-
-(defun magit-wash-diff-or-other-file ()
-  (or (magit-wash-diff)
-      (magit-wash-other-file)))
+  (magit-wash-sequence (lambda ()
+                         (or (magit-wash-diff)
+                             (magit-wash-other-file)))))
 
 (defun magit-wash-diff ()
   (let ((magit-section-hidden-default magit-hide-diffs))
