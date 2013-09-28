@@ -1086,7 +1086,7 @@ Also see option `magit-diff-use-overlays'."
     (define-key map (kbd "?") 'magit-describe-item)
     (define-key map (kbd ":") 'magit-git-command)
     (define-key map (kbd "C-x 4 a") 'magit-add-change-log-entry-other-window)
-    (define-key map (kbd "L") 'magit-add-change-log-entry-no-option)
+    (define-key map (kbd "L") 'magit-add-change-log-entry)
     (define-key map (kbd "RET") 'magit-visit-item)
     (define-key map (kbd "SPC") 'magit-show-item-or-scroll-up)
     (define-key map (kbd "DEL") 'magit-show-item-or-scroll-down)
@@ -6441,16 +6441,15 @@ With a prefix argument edit the ignore string."
          (goto-char marker)
          ,@body))))
 
-(defun magit-add-change-log-entry-no-option (&optional other-window)
-  "Add a change log entry for current change.
-With a prefix argument, edit in other window.
-The name of the change log file is set by
-variable change-log-default-name."
-  (interactive "P")
+(defun magit-add-change-log-entry (&optional whoami file-name other-window)
+  "Find change log file and add date entry and item for current change.
+This differs from `add-change-log-entry' (which see) in that
+it acts on the current hunk in a Magit buffer instead of on
+a position in a file-visiting buffer."
+  (interactive (list current-prefix-arg
+		     (prompt-for-change-log-name)))
   (magit-visiting-file-item
-   (if other-window
-       (add-change-log-entry-other-window)
-     (add-change-log-entry))))
+   (add-change-log-entry whoami file-name other-window)))
 
 (defun magit-add-change-log-entry-other-window ()
   (interactive)
