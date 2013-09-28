@@ -3468,8 +3468,6 @@ Customize `magit-diff-refine-hunk' to change the default mode."
         (insert "\tNew      " file "\n"))
       t)))
 
-;;;; (wash diffstats)
-
 (defun magit-wash-diffstat (&optional guess)
   (when (looking-at "^ ?\\(.*?\\)\\( +| +.*\\)$")
     ;; Don't decode pseudo filename.
@@ -3553,9 +3551,6 @@ Customize `magit-diff-refine-hunk' to change the default mode."
   (when magit-diffstat-cached-sections
     (magit-set-section-info (list 'diffstat file 'completed)
                             (pop magit-diffstat-cached-sections))))
-
-;;;; (wash top-section, mostly and disorganized)
-;;__ TODO sort internally
 
 (defvar magit-hide-diffs nil)
 
