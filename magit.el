@@ -3314,31 +3314,6 @@ the buffer.  Finally reset the window configuration to nil."
           (with-current-buffer buffer
             (setq magit-previous-window-configuration nil)))))))
 
-;;; Untracked Files
-
-(defun magit-wash-untracked-files ()
-  (magit-wash-sequence
-   (lambda ()
-     (let ((magit-old-top-section nil))
-       (when (looking-at "^? \\(.*\\)$")
-         (let ((file (magit-decode-git-path
-                      (match-string-no-properties 1))))
-           (delete-region (point) (+ (line-end-position) 1))
-           (magit-with-section file 'file
-             (magit-set-section-info file)
-             (insert "\t" file "\n")))
-         t)))))
-
-(magit-define-inserter untracked-files ()
-  (unless (string= (magit-get "status" "showUntrackedFiles") "no")
-    (apply 'magit-git-section
-           `(untracked
-             "Untracked files:"
-             magit-wash-untracked-files
-             "ls-files" "--others" "-t" "--exclude-standard"
-             ,@(unless magit-status-verbose-untracked
-                 '("--directory"))))))
-
 ;;; Diffs and Hunks
 ;;__ FIXME The parens indicate preliminary subsections.
 ;;__ See https://gist.github.com/tarsius/6539717 for
@@ -3960,30 +3935,6 @@ member of ARGS, or to the working file otherwise."
 (defun magit-apply-hunk-item-reverse (hunk &rest args)
   (apply #'magit-apply-hunk-item* hunk t args))
 
-;;;; (section inserters)
-
-(magit-define-inserter unstaged-changes ()
-  (let ((magit-hide-diffs t)
-        (magit-current-diff-range (cons 'index 'working))
-        (magit-diff-options (append '() magit-diff-options)))
-    (magit-git-section 'unstaged
-                       "Unstaged changes:" 'magit-wash-raw-diffs
-                       "diff-files")))
-
-(magit-define-inserter staged-changes ()
-  (let ((no-commit (not (magit-git-success "log" "-1" "HEAD"))))
-    (when (or no-commit (magit-anything-staged-p))
-      (let ((magit-current-diff-range (cons "HEAD" 'index))
-            (magit-hide-diffs t)
-            (base (if no-commit
-                      (magit-git-string "mktree")
-                    "HEAD"))
-            (magit-diff-options (append '("--cached") magit-diff-options))
-            (magit-ignore-unmerged-raw-diffs t))
-        (magit-git-section 'staged "Staged changes:" 'magit-wash-raw-diffs
-                           "diff-index" "--cached"
-                           base)))))
-
 ;;; Log Washing
 
 (cl-defstruct magit-log-line
@@ -4580,8 +4531,6 @@ in `magit-commit-buffer-name'."
    magit-top-section))
 
 ;;; Status Mode
-;;__ FIXME The parens indicate preliminary subsections.
-;;;; (core)
 
 (define-derived-mode magit-status-mode magit-mode "Magit"
   "Mode for looking at git status.
@@ -4630,7 +4579,90 @@ when asking for user input."
       (run-hooks 'magit-status-insert-sections-hook)))
   (run-hooks 'magit-refresh-status-hook))
 
-;;;; (sections)
+;;; Status Sections
+;;;; Real Sections
+
+(magit-define-inserter stashes ()
+  (magit-git-section 'stashes
+                     "Stashes:" 'magit-wash-stashes
+                     "stash" "list"))
+
+(magit-define-inserter untracked-files ()
+  (unless (string= (magit-get "status" "showUntrackedFiles") "no")
+    (apply 'magit-git-section
+           `(untracked
+             "Untracked files:"
+             magit-wash-untracked-files
+             "ls-files" "--others" "-t" "--exclude-standard"
+             ,@(unless magit-status-verbose-untracked
+                 '("--directory"))))))
+
+(defun magit-wash-untracked-files ()
+  (magit-wash-sequence
+   (lambda ()
+     (let ((magit-old-top-section nil))
+       (when (looking-at "^? \\(.*\\)$")
+         (let ((file (magit-decode-git-path
+                      (match-string-no-properties 1))))
+           (delete-region (point) (+ (line-end-position) 1))
+           (magit-with-section file 'file
+             (magit-set-section-info file)
+             (insert "\t" file "\n")))
+         t)))))
+
+(magit-define-inserter pending-commits ()
+  (let* ((info (magit-read-rewrite-info))
+         (pending (cdr (assq 'pending info))))
+    (when pending
+      (magit-with-section 'pending nil
+        (insert (propertize "Pending commits:\n"
+                            'face 'magit-section-title))
+        (dolist (p pending)
+          (let* ((commit (car p))
+                 (properties (cdr p))
+                 (used (plist-get properties 'used)))
+            (magit-with-section commit 'commit
+              (magit-set-section-info commit)
+              (insert (magit-git-string
+                       "log" "-1"
+                       (if used
+                           "--pretty=format:. %s"
+                         "--pretty=format:* %s")
+                       commit "--")
+                      "\n")))))
+      (insert "\n"))))
+
+(magit-define-inserter pending-changes ()
+  (let* ((info (magit-read-rewrite-info))
+         (orig (cadr (assq 'orig info))))
+    (when orig
+      (let ((magit-hide-diffs t))
+        (magit-git-section 'pending-changes
+                           "Pending changes"
+                           'magit-wash-diffs
+                           "diff" (magit-diff-U-arg) "-R" orig)))))
+
+(magit-define-inserter unstaged-changes ()
+  (let ((magit-hide-diffs t)
+        (magit-current-diff-range (cons 'index 'working))
+        (magit-diff-options (append '() magit-diff-options)))
+    (magit-git-section 'unstaged
+                       "Unstaged changes:" 'magit-wash-raw-diffs
+                       "diff-files")))
+
+(magit-define-inserter staged-changes ()
+  (let ((no-commit (not (magit-git-success "log" "-1" "HEAD"))))
+    (when (or no-commit (magit-anything-staged-p))
+      (let ((magit-current-diff-range (cons "HEAD" 'index))
+            (magit-hide-diffs t)
+            (base (if no-commit
+                      (magit-git-string "mktree")
+                    "HEAD"))
+            (magit-diff-options (append '("--cached") magit-diff-options))
+            (magit-ignore-unmerged-raw-diffs t))
+        (magit-git-section 'staged "Staged changes:" 'magit-wash-raw-diffs
+                           "diff-index" "--cached"
+                           base)))))
 
 (magit-define-inserter unpulled-commits ()
   (let ((tracked (magit-get-tracked-branch nil t)))
@@ -4650,10 +4682,7 @@ when asking for user input."
                          (magit-diff-abbrev-arg)
                          (concat tracked "..HEAD")))))
 
-(magit-define-inserter stashes ()
-  (magit-git-section 'stashes
-                     "Stashes:" 'magit-wash-stashes
-                     "stash" "list"))
+;;;; Line Sections
 
 (defvar magit-status-line-align-to 9)
 
@@ -5265,28 +5294,6 @@ With two prefix args, remove ignored files as well."
     (prin1 info (current-buffer))
     (princ "\n" (current-buffer))))
 
-(magit-define-inserter pending-commits ()
-  (let* ((info (magit-read-rewrite-info))
-         (pending (cdr (assq 'pending info))))
-    (when pending
-      (magit-with-section 'pending nil
-        (insert (propertize "Pending commits:\n"
-                            'face 'magit-section-title))
-        (dolist (p pending)
-          (let* ((commit (car p))
-                 (properties (cdr p))
-                 (used (plist-get properties 'used)))
-            (magit-with-section commit 'commit
-              (magit-set-section-info commit)
-              (insert (magit-git-string
-                       "log" "-1"
-                       (if used
-                           "--pretty=format:. %s"
-                         "--pretty=format:* %s")
-                       commit "--")
-                      "\n")))))
-      (insert "\n"))))
-
 (defun magit-rewrite-set-commit-property (commit prop value)
   (let* ((info (magit-read-rewrite-info))
          (pending (cdr (assq 'pending info)))
@@ -5309,16 +5316,6 @@ With two prefix args, remove ignored files as well."
     ((pending commit)
      (magit-rewrite-set-commit-property info 'used nil)
      (magit-refresh))))
-
-(magit-define-inserter pending-changes ()
-  (let* ((info (magit-read-rewrite-info))
-         (orig (cadr (assq 'orig info))))
-    (when orig
-      (let ((magit-hide-diffs t))
-        (magit-git-section 'pending-changes
-                           "Pending changes"
-                           'magit-wash-diffs
-                           "diff" (magit-diff-U-arg) "-R" orig)))))
 
 (defun magit-rewrite-start (from &optional onto)
   (interactive (list (magit-read-rev-with-default "Rewrite from")))
