@@ -3800,12 +3800,6 @@ Customize `magit-diff-refine-hunk' to change the default mode."
               (magit-insert-diff-title status file nil)))))
       t)))
 
-(defun magit-hunk-item-diff (hunk)
-  (let ((diff (magit-section-parent hunk)))
-    (or (eq (magit-section-type diff) 'diff)
-        (error "Huh?  Parent of hunk not a diff"))
-    diff))
-
 (defun magit-diff-item-insert-header (diff buf)
   (magit-insert-region (magit-section-content-beginning diff)
                        (if (magit-section-children diff)
@@ -3820,7 +3814,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                        buf))
 
 (defun magit-insert-hunk-item-patch (hunk buf)
-  (magit-diff-item-insert-header (magit-hunk-item-diff hunk) buf)
+  (magit-diff-item-insert-header (magit-section-parent hunk) buf)
   (magit-insert-region (magit-section-beginning hunk)
                        (magit-section-end hunk)
                        buf))
@@ -3831,7 +3825,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
       (insert text))))
 
 (defun magit-insert-hunk-item-region-patch (hunk reverse beg end buf)
-  (magit-diff-item-insert-header (magit-hunk-item-diff hunk) buf)
+  (magit-diff-item-insert-header (magit-section-parent hunk) buf)
   (save-excursion
     (goto-char (magit-section-beginning hunk))
     (magit-insert-current-line buf)
@@ -4848,7 +4842,7 @@ With a prefix argument, prompt for a file to be staged instead."
       ((unstaged diff hunk)
        (if (string-match "^diff --cc"
                          ;; XXX Using the title is a bit too clever.
-                         (magit-section-title (magit-hunk-item-diff item)))
+                         (magit-section-title (magit-section-parent item)))
            (error (concat "Can't stage individual resolution hunks.  "
                           "Please stage the whole file."))
          (magit-apply-hunk-item item "--cached")))
@@ -5555,7 +5549,7 @@ With a prefix argument amend to the commit at HEAD instead.
                 nil))
          (file (magit-diff-item-file
                 (cl-case (magit-section-type section)
-                  (hunk (magit-hunk-item-diff section))
+                  (hunk (magit-section-parent section))
                   (diff section)
                   (t    (error "No change at point")))))
          (locate-buffer (lambda ()
@@ -6335,7 +6329,7 @@ With a prefix argument edit the ignore string."
        (magit-apply-hunk-item-reverse item)))
     ((staged diff hunk)
      (if (magit-file-uptodate-p (magit-diff-item-file
-                                 (magit-hunk-item-diff item)))
+                                 (magit-section-parent item)))
          (when (yes-or-no-p (if (use-region-p)
                                 "Discard changes in region? "
                               "Discard hunk? "))
@@ -6431,7 +6425,7 @@ With a prefix argument, visit in other window."
       ((hunk)
        (dired-jump other-window
                    (file-truename (magit-diff-item-file
-                                   (magit-hunk-item-diff item)))))
+                                   (magit-section-parent item)))))
       (nil (dired-jump other-window)))))
 
 ;;;; Visit
@@ -6450,7 +6444,7 @@ With a prefix argument, visit in other window."
             ((hunk)
              (setq line (magit-hunk-item-target-line item)
                    column (current-column))
-             (magit-diff-item-file (magit-hunk-item-diff item))))))
+             (magit-diff-item-file (magit-section-parent item))))))
     (unless file
       (error "Can't get pathname for this file"))
     (unless (file-exists-p file)
@@ -6920,7 +6914,7 @@ These are the branch names with the remote name stripped."
                                (magit-read-file-from-rev info))))
          (switch-to-buffer-other-window
           (magit-show info current-file))))
-      ((hunk) (funcall show-file-from-diff (magit-hunk-item-diff item)))
+      ((hunk) (funcall show-file-from-diff (magit-section-parent item)))
       ((diff) (funcall show-file-from-diff item)))))
 
 (defun magit-show (commit filename &optional select prefix)
