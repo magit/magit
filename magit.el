@@ -3450,6 +3450,14 @@ Customize `magit-diff-refine-hunk' to change the default mode."
   (or (magit-wash-diff)
       (magit-wash-other-file)))
 
+(defun magit-wash-diff ()
+  (let ((magit-section-hidden-default magit-hide-diffs))
+    (magit-with-section
+        (buffer-substring-no-properties (line-beginning-position)
+                                        (line-end-position))
+        'diff
+      (magit-wash-diff-section))))
+
 (defun magit-wash-other-file ()
   (when (looking-at "^? \\(.*\\)$")
     (let ((file (magit-decode-git-path (match-string-no-properties 1))))
@@ -3663,14 +3671,6 @@ Customize `magit-diff-refine-hunk' to change the default mode."
          (match-string-no-properties 1))
         (t
          nil)))
-
-(defun magit-wash-diff ()
-  (let ((magit-section-hidden-default magit-hide-diffs))
-    (magit-with-section
-        (buffer-substring-no-properties (line-beginning-position)
-                                        (line-end-position))
-        'diff
-      (magit-wash-diff-section))))
 
 ;;;; (wash hunks)
 
