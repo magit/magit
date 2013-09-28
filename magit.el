@@ -3341,11 +3341,7 @@ the buffer.  Finally reset the window configuration to nil."
           (with-current-buffer buffer
             (setq magit-previous-window-configuration nil)))))))
 
-;;; Diffs and Hunks
-;;__ FIXME The parens indicate preliminary subsections.
-;;__ See https://gist.github.com/tarsius/6539717 for
-;;__ an attempt to make sense of this disorder.
-;;;; (diff context)
+;;; Diff Options
 
 (defvar magit-diff-context-lines 3)
 
@@ -3373,8 +3369,6 @@ the buffer.  Finally reset the window configuration to nil."
   (setq magit-diff-context-lines 3)
   (magit-refresh))
 
-;;;; (diff options)
-
 (defun magit-set-diff-options ()
   "Set local `magit-diff-options' based on popup state.
 And refresh the current Magit buffer."
@@ -3397,6 +3391,8 @@ And refresh the current Magit buffer."
   (setq-local magit-diff-options (default-value 'magit-diff-options))
   (magit-refresh))
 
+;;; Diff Washing
+;;__ FIXME The parens indicate preliminary subsections.
 ;;;; (hunk refinement)
 
 (defun magit-toggle-diff-refine-hunk (&optional other)
