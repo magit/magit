@@ -3769,13 +3769,14 @@ Customize `magit-diff-refine-hunk' to change the default mode."
          ":\\([0-7]+\\) \\([0-7]+\\) [0-9a-f]+ [0-9a-f]+ \\(.\\)[0-9]*\t\\([^\t\n]+\\)$")
     (let ((old-perm (match-string-no-properties 1))
           (new-perm (match-string-no-properties 2))
-          (status (cl-case (string-to-char (match-string-no-properties 3))
+          (status (cl-ecase (string-to-char (match-string-no-properties 3))
                     (?A 'new)
+                    (?C 'copy)
                     (?D 'deleted)
                     (?M 'modified)
-                    (?U 'unmerged)
                     (?T 'typechange)
-                    (t     nil)))
+                    (?U 'unmerged)
+                    (?X 'unknown)))
           (file (magit-decode-git-path (match-string-no-properties 4))))
       ;; If this is for the same file as the last diff, ignore it.
       ;; Unmerged files seem to get two entries.
