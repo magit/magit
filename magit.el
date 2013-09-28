@@ -3566,7 +3566,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                       (point-marker))))
            (magit-wash-diffstats-postwork file)
 
-           (let* ((status (cond
+           (let  ((status (cond
                            ((looking-at "^diff --cc")
                             'unmerged)
                            ((save-excursion
