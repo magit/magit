@@ -3466,32 +3466,6 @@ Customize `magit-diff-refine-hunk' to change the default mode."
           (remaining (match-string-no-properties 2)))
       (delete-region (point) (+ (line-end-position) 1))
       (magit-with-section "diffstat" 'diffstat
-        ;;(magit-set-section-info 'incomplete)
-
-        ;; diffstat entries will look like
-        ;;
-        ;; ' PSEUDO-FILE-NAME | +++---'
-        ;;
-        ;; Since PSEUDO-FILE-NAME is not always real pathname, we
-        ;; don't know the pathname yet.  Thus, section info will be
-        ;; (diffstat FILE incomplete MARKER-BEGIN MARKER-END) for
-        ;; now, where MARKER-BEGIN points the beginning of the
-        ;; PSEUDO-FILE-NAME, MARKER-END points the end of the
-        ;; PSEUDO-FILE-NAME, and FILE will be abbreviated filename.
-        ;; Later in `magit-wash-diff-or-other-file`, the section
-        ;; info will be updated.
-
-        ;; Note that FILE is the 2nd element of the section-info;
-        ;; this is intentional, so that `magit-diff-item-file` can
-        ;; return the FILE part.
-
-        ;; (list 'diffstat
-        ;;       (or (and (> (length file) 3)
-        ;;                (string-equal (substring file 0 3) "...")
-        ;;                (message "got the invalid file here")
-        ;;                'truncated)
-        ;;           file)))
-
         (insert " ")
         (let ((f-begin (point-marker)) f-end)
           (insert file)
@@ -3505,16 +3479,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                              'keymap magit-diffstat-keymap)
           (insert "\n")
           (add-to-list 'magit-diffstat-cached-sections
-                       magit-top-section))
-        ;; (insert (propertize (concat " "
-        ;;                             (propertize file
-        ;;                                         'face
-        ;;                                         'magit-diff-file-header)
-        ;;                             remaining)
-        ;;                     'keymap
-        ;;                     magit-diffstat-keymap)
-        ;;         "\n")
-        ))))
+                       magit-top-section))))))
 
 (defun magit-wash-diffstats ()
   (let ((entry-regexp "^ ?\\(.*?\\)\\( +| +.*\\)$")
