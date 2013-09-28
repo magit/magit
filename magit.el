@@ -3504,8 +3504,6 @@ Customize `magit-diff-refine-hunk' to change the default mode."
 
 (defvar magit-hide-diffs nil)
 
-(defvar magit-indentation-level 1)
-
 (defun magit-insert-diff-title (status file file2)
   (let ((status-text (cl-case status
                        ((unmerged)
@@ -3523,7 +3521,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                         (format "Typechange %s" file))
                        (t
                         (format "?          %s" file)))))
-    (insert (make-string magit-indentation-level ?\t) status-text "\n")))
+    (insert "\t" status-text "\n")))
 
 (defvar magit-current-diff-range nil
   "Used internally when setting up magit diff sections.")
@@ -3534,8 +3532,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
         (second-start (progn (forward-line 1)
                              (search-forward-regexp "^diff")
                              (beginning-of-line)
-                             (point-marker)))
-        (magit-indentation-level (+ magit-indentation-level 1)))
+                             (point-marker))))
     (save-restriction
       (narrow-to-region first-start second-start)
       (goto-char (point-min))
