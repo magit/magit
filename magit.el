@@ -3752,7 +3752,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
         ;; brittle, of course.
         (let ((magit-section-hidden-default magit-hide-diffs))
           (magit-with-section file 'diff
-            (delete-region (point) (+ (line-end-position) 1))
+            (delete-region (point) (1+ (line-end-position)))
             (if (not (magit-section-hidden magit-top-section))
                 (magit-insert-diff file status)
               (magit-set-section-info (list status file nil))
