@@ -3716,14 +3716,15 @@ Customize `magit-diff-refine-hunk' to change the default mode."
              (magit-wash-diff-section)))
       (goto-char (point-max)))))
 
-(defvar magit-last-raw-diff nil)
 (defvar magit-ignore-unmerged-raw-diffs nil)
 
 (defun magit-wash-raw-diffs ()
-  (let ((magit-last-raw-diff nil))
-    (magit-wash-sequence #'magit-wash-raw-diff)))
+  (let (previous)
+    (magit-wash-sequence
+     (lambda ()
+       (setq previous (magit-wash-raw-diff previous))))))
 
-(defun magit-wash-raw-diff ()
+(defun magit-wash-raw-diff (previous)
   (when (looking-at
          ":\\([0-7]+\\) \\([0-7]+\\) [0-9a-f]+ [0-9a-f]+ \\(.\\)[0-9]*\t\\([^\t\n]+\\)$")
     (let ((old-perm (match-string-no-properties 1))
@@ -3740,10 +3741,9 @@ Customize `magit-diff-refine-hunk' to change the default mode."
       ;; If this is for the same file as the last diff, ignore it.
       ;; Unmerged files seem to get two entries.
       ;; We also ignore unmerged files when told so.
-      (if (or (equal file magit-last-raw-diff)
+      (if (or (equal file previous)
               (and magit-ignore-unmerged-raw-diffs (eq status 'unmerged)))
           (delete-region (point) (+ (line-end-position) 1))
-        (setq magit-last-raw-diff file)
         ;; The 'diff' section that is created here will not work with
         ;; magit-insert-diff-item-patch etc when we leave it empty.
         ;; Luckily, raw diffs are only produced for staged and
@@ -3758,7 +3758,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
               (magit-set-section-info (list status file nil))
               (magit-set-section-needs-refresh-on-show t)
               (magit-insert-diff-title status file nil)))))
-      t)))
+      file)))
 
 (defun magit-diff-item-insert-header (diff buf)
   (magit-insert-region (magit-section-content-beginning diff)
