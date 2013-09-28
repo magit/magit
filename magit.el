@@ -2000,6 +2000,12 @@ an existing remote."
   parent title beginning end children hidden type info
   needs-refresh-on-show)
 
+(defun magit-section-content-beginning (section)
+  (save-excursion
+    (goto-char (magit-section-beginning section))
+    (forward-line)
+    (point)))
+
 (defun magit-diff-item-kind (diff)
   (car (magit-section-info diff)))
 
@@ -3801,10 +3807,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
     diff))
 
 (defun magit-diff-item-insert-header (diff buf)
-  (magit-insert-region (save-excursion
-                         (goto-char (magit-section-beginning diff))
-                         (forward-line)
-                         (point))
+  (magit-insert-region (magit-section-content-beginning diff)
                        (if (magit-section-children diff)
                            (magit-section-beginning
                             (car (magit-section-children diff)))
@@ -3812,10 +3815,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                        buf))
 
 (defun magit-insert-diff-item-patch (diff buf)
-  (magit-insert-region (save-excursion
-                         (goto-char (magit-section-beginning diff))
-                         (forward-line)
-                         (point))
+  (magit-insert-region (magit-section-content-beginning diff)
                        (magit-section-end diff)
                        buf))
 
