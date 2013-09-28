@@ -3316,25 +3316,18 @@ the buffer.  Finally reset the window configuration to nil."
 
 ;;; Untracked Files
 
-(defun magit-wash-untracked-file ()
-  (if (looking-at "^? \\(.*\\)$")
-      (let ((file (magit-decode-git-path (match-string-no-properties 1))))
-        (delete-region (point) (+ (line-end-position) 1))
-        (magit-with-section file 'file
-          (magit-set-section-info file)
-          (insert "\t" file "\n"))
-        t)
-    nil))
-
 (defun magit-wash-untracked-files ()
-  ;; Setting magit-old-top-section to nil speeds up washing: no time
-  ;; is wasted looking up the old visibility, which doesn't matter for
-  ;; untracked files.
-  ;;
-  ;; XXX - speed this up in a more general way.
-  ;;
-  (let ((magit-old-top-section nil))
-    (magit-wash-sequence #'magit-wash-untracked-file)))
+  (magit-wash-sequence
+   (lambda ()
+     (let ((magit-old-top-section nil))
+       (when (looking-at "^? \\(.*\\)$")
+         (let ((file (magit-decode-git-path
+                      (match-string-no-properties 1))))
+           (delete-region (point) (+ (line-end-position) 1))
+           (magit-with-section file 'file
+             (magit-set-section-info file)
+             (insert "\t" file "\n")))
+         t)))))
 
 (magit-define-inserter untracked-files ()
   (unless (string= (magit-get "status" "showUntrackedFiles") "no")
