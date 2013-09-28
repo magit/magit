@@ -2000,6 +2000,33 @@ an existing remote."
   parent title beginning end children hidden type info
   needs-refresh-on-show)
 
+(defun magit-diff-item-kind (diff)
+  (car (magit-section-info diff)))
+
+(defun magit-diff-item-file (diff)
+  (cadr (magit-section-info diff)))
+
+(defun magit-diff-item-file2 (diff)
+  (car (cddr (magit-section-info diff))))
+
+(defun magit-diff-item-range (diff)
+  (nth 3 (magit-section-info diff)))
+
+(defun magit-diffstat-item-kind (diffstat)
+  (car (magit-section-info diffstat)))
+
+(defun magit-diffstat-item-file (diffstat)
+  (let ((file (cadr (magit-section-info diffstat))))
+    ;; Git diffstat may shorten long pathname with the prefix "..."
+    ;; (e.g. ".../long/sub/dir/file" or "...longfilename")
+    (save-match-data
+      (unless (string-match "\\`\\.\\.\\." file)
+        file))))
+
+(defun magit-diffstat-item-status (diffstat)
+  "Return 'completed or 'incomplete depending on the processed status"
+  (car (cddr (magit-section-info diffstat))))
+
 ;;;; Section Variables
 
 (defvar-local magit-top-section nil
@@ -3318,37 +3345,6 @@ the buffer.  Finally reset the window configuration to nil."
 ;;__ FIXME The parens indicate preliminary subsections.
 ;;__ See https://gist.github.com/tarsius/6539717 for
 ;;__ an attempt to make sense of this disorder.
-;;;; (section info for diff)
-
-(defun magit-diff-item-kind (diff)
-  (car (magit-section-info diff)))
-
-(defun magit-diff-item-file (diff)
-  (cadr (magit-section-info diff)))
-
-(defun magit-diff-item-file2 (diff)
-  (car (cddr (magit-section-info diff))))
-
-(defun magit-diff-item-range (diff)
-  (nth 3 (magit-section-info diff)))
-
-;;;; (section info for diffstat)
-
-(defun magit-diffstat-item-kind (diffstat)
-  (car (magit-section-info diffstat)))
-
-(defun magit-diffstat-item-file (diffstat)
-  (let ((file (cadr (magit-section-info diffstat))))
-    ;; Git diffstat may shorten long pathname with the prefix "..."
-    ;; (e.g. ".../long/sub/dir/file" or "...longfilename")
-    (save-match-data
-      (unless (string-match "\\`\\.\\.\\." file)
-        file))))
-
-(defun magit-diffstat-item-status (diffstat)
-  "Return 'completed or 'incomplete depending on the processed status"
-  (car (cddr (magit-section-info diffstat))))
-
 ;;;; (diff context)
 
 (defvar magit-diff-context-lines 3)
