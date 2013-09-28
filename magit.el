@@ -2029,10 +2029,6 @@ an existing remote."
       (unless (string-match "\\`\\.\\.\\." file)
         file))))
 
-(defun magit-diffstat-item-status (diffstat)
-  "Return 'completed or 'incomplete depending on the processed status"
-  (car (cddr (magit-section-info diffstat))))
-
 ;;;; Section Variables
 
 (defvar-local magit-top-section nil
