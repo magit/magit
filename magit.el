@@ -6431,16 +6431,6 @@ With a prefix argument edit the ignore string."
 
 ;;;; ChangeLog
 
-(defmacro magit-visiting-file-item (&rest body)
-  (declare (debug t))
-  `(let ((marker (save-window-excursion
-                   (magit-visit-file-item)
-                   (set-marker (make-marker) (point)))))
-     (save-excursion
-       (with-current-buffer (marker-buffer marker)
-         (goto-char marker)
-         ,@body))))
-
 (defun magit-add-change-log-entry (&optional whoami file-name other-window)
   "Find change log file and add date entry and item for current change.
 This differs from `add-change-log-entry' (which see) in that
@@ -6448,8 +6438,13 @@ it acts on the current hunk in a Magit buffer instead of on
 a position in a file-visiting buffer."
   (interactive (list current-prefix-arg
 		     (prompt-for-change-log-name)))
-  (magit-visiting-file-item
-   (add-change-log-entry whoami file-name other-window)))
+  (let ((marker (save-window-excursion
+                  (magit-visit-file-item)
+                  (set-marker (make-marker) (point)))))
+    (save-excursion
+      (with-current-buffer (marker-buffer marker)
+        (goto-char marker)
+        (add-change-log-entry whoami file-name other-window)))))
 
 (defun magit-add-change-log-entry-other-window (&optional whoami file-name)
   (interactive (and current-prefix-arg
