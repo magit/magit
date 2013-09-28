@@ -6438,12 +6438,14 @@ it acts on the current hunk in a Magit buffer instead of on
 a position in a file-visiting buffer."
   (interactive (list current-prefix-arg
 		     (prompt-for-change-log-name)))
-  (let ((marker (save-window-excursion
-                  (magit-visit-file-item)
-                  (set-marker (make-marker) (point)))))
+  (let (buf pos)
+    (save-window-excursion
+      (magit-visit-file-item)
+      (setq buf (current-buffer)
+            pos (point)))
     (save-excursion
-      (with-current-buffer (marker-buffer marker)
-        (goto-char marker)
+      (with-current-buffer buf
+        (goto-char pos)
         (add-change-log-entry whoami file-name other-window)))))
 
 (defun magit-add-change-log-entry-other-window (&optional whoami file-name)
