@@ -6451,10 +6451,11 @@ a position in a file-visiting buffer."
   (magit-visiting-file-item
    (add-change-log-entry whoami file-name other-window)))
 
-(defun magit-add-change-log-entry-other-window ()
-  (interactive)
-  (magit-visiting-file-item
-   (call-interactively 'add-change-log-entry-other-window)))
+(defun magit-add-change-log-entry-other-window (&optional whoami file-name)
+  (interactive (and current-prefix-arg
+                    (list current-prefix-arg
+                          (prompt-for-change-log-name))))
+  (magit-add-change-log-entry whoami file-name t))
 
 ;;;; Dired
 
