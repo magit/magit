@@ -4889,7 +4889,7 @@ With a prefix argument, skip editing the log message and commit.
         (magit-run-git-async "merge" "--abort"))
     (error "No merge in progress")))
 
-;;;; Stage and Unstage
+;;;; Stage
 
 (defun magit-stage-item (&optional file)
   "Add the item at point to the staging area.
@@ -4933,6 +4933,18 @@ With a prefix argument, prompt for a file to be staged instead."
       ((diff)
        (error "Can't stage this diff")))))
 
+;;;###autoload
+(defun magit-stage-all (&optional including-untracked)
+  "Add all remaining changes in tracked files to staging area.
+With a prefix argument, add remaining untracked files as well.
+\('git add [-u] .')."
+  (interactive "P")
+  (if including-untracked
+      (magit-run-git "add" ".")
+    (magit-run-git "add" "-u" ".")))
+
+;;;; Unstage
+
 (defun magit-unstage-item ()
   "Remove the item at point from the staging area."
   (interactive)
@@ -4962,16 +4974,6 @@ With a prefix argument, prompt for a file to be staged instead."
      (error "Can't unstage this hunk"))
     ((diff)
      (error "Can't unstage this diff"))))
-
-;;;###autoload
-(defun magit-stage-all (&optional including-untracked)
-  "Add all remaining changes in tracked files to staging area.
-With a prefix argument, add remaining untracked files as well.
-\('git add [-u] .')."
-  (interactive "P")
-  (if including-untracked
-      (magit-run-git "add" ".")
-    (magit-run-git "add" "-u" ".")))
 
 ;;;###autoload
 (defun magit-unstage-all ()
