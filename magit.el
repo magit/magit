@@ -7026,7 +7026,8 @@ blame to center around the line point is on."
           (filename (magit-read-file-from-rev revision)))
      (list revision filename
            (and (equal filename
-                       (magit-file-relative-name (buffer-file-name)))
+                       (ignore-errors
+                         (magit-file-relative-name (buffer-file-name))))
                 (line-number-at-pos)))))
   (let ((default-directory (magit-get-top-dir default-directory)))
     (apply 'start-file-process "Git Gui Blame" nil
