@@ -141,48 +141,19 @@
     (when sha1
       (magit-show-commit sha1))))
 
-(defun magit-find-next-overlay-change (beg end prop)
-  "Return the next position after BEG where an overlay matching a
-property PROP starts or ends. If there are no matching overlay
-boundaries from BEG to END, the return value is nil."
-  (when (> beg end)
-    (let ((swap beg))
-      (setq beg end end swap)))
-  (save-excursion
-    (goto-char beg)
-    (catch 'found
-      (let ((ov-pos beg))
-        ;; iterate through overlay changes from BEG to END
-        (while (< ov-pos end)
-          (let* ((next-ov-pos (next-overlay-change ov-pos))
-                 ;; search for an overlay with a PROP property
-                 (next-ov
-                  (let ((overlays (overlays-at next-ov-pos)))
-                    (while (and overlays
-                                (not (overlay-get (car overlays) prop)))
-                      (setq overlays (cdr overlays)))
-                    (car overlays))))
-            (if next-ov
-                ;; found the next overlay with prop PROP at next-ov-pos
-                (throw 'found next-ov-pos)
-              ;; no matching overlay found, keep looking
-              (setq ov-pos next-ov-pos))))))))
-
-(defun magit-blame-next-chunk (pos)
+(defun magit-blame-next-chunk ()
   "Go to the next blame chunk."
-  (interactive "d")
-  (let ((next-chunk-pos
-         (magit-find-next-overlay-change pos (point-max) :blame)))
-    (when next-chunk-pos
-      (goto-char next-chunk-pos))))
+  (interactive)
+  (let ((next (next-single-property-change (point) :blame)))
+    (when next
+      (goto-char next))))
 
-(defun magit-blame-previous-chunk (pos)
+(defun magit-blame-previous-chunk ()
   "Go to the previous blame chunk."
-  (interactive "d")
-  (let ((prev-chunk-pos
-         (magit-find-next-overlay-change pos (point-min) :blame)))
-    (when prev-chunk-pos
-      (goto-char prev-chunk-pos))))
+  (interactive)
+  (let ((prev (previous-single-property-change (point) :blame)))
+    (when prev
+      (goto-char prev))))
 
 (defcustom magit-time-format-string "%Y-%m-%dT%T%z"
   "How to format time in magit-blame header."
