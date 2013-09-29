@@ -6638,23 +6638,6 @@ With a prefix argument, visit in other window."
      (kill-new info)
      (message "%s" info))))
 
-;;;; Grep
-
-;;;###autoload (autoload 'magit-grep "magit")
-(magit-define-command grep (pattern)
-  (interactive
-   (list (read-string "git grep: "
-                      (shell-quote-argument (grep-tag-default)))))
-  (with-current-buffer (generate-new-buffer "*Magit Grep*")
-    (setq default-directory (magit-get-top-dir))
-    (insert magit-git-executable " "
-            (mapconcat 'identity magit-git-standard-options " ")
-            " grep -n "
-            (shell-quote-argument pattern) "\n\n")
-    (magit-git-insert "grep" "--line-number" pattern)
-    (grep-mode)
-    (pop-to-buffer (current-buffer))))
-
 ;;;; Resolve
 
 (defun magit-interactive-resolve (file)
@@ -7062,6 +7045,21 @@ argument) in the current window."
               (switch-to-buffer buffer)
             (switch-to-buffer-other-window buffer))
         buffer))))
+
+;;;###autoload (autoload 'magit-grep "magit")
+(magit-define-command grep (pattern)
+  (interactive
+   (list (read-string "git grep: "
+                      (shell-quote-argument (grep-tag-default)))))
+  (with-current-buffer (generate-new-buffer "*Magit Grep*")
+    (setq default-directory (magit-get-top-dir))
+    (insert magit-git-executable " "
+            (mapconcat 'identity magit-git-standard-options " ")
+            " grep -n "
+            (shell-quote-argument pattern) "\n\n")
+    (magit-git-insert "grep" "--line-number" pattern)
+    (grep-mode)
+    (pop-to-buffer (current-buffer))))
 
 ;;;; External Tools
 
