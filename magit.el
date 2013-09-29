@@ -1428,7 +1428,7 @@ server if necessary."
      ;; restore the old value using a timer.
      (let ((window ,server-window))
        (unless (equal window server-window)
-         (run-at-time "0.2 sec" nil
+         (run-at-time "1 sec" nil
                       (apply-partially (lambda (value)
                                          (setq server-window value))
                                        server-window))
