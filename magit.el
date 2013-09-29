@@ -7032,9 +7032,9 @@ blame to center around the line point is on."
   (let ((default-directory (magit-get-top-dir default-directory)))
     (apply 'start-file-process "Git Gui Blame" nil
            magit-git-executable "gui" "blame"
-           (list (and linenum (format "--line=%d" linenum))
-                 commit
-                 filename))))
+           `(,@(and linenum (list (format "--line=%d" linenum)))
+             ,commit
+             ,filename))))
 
 (defun magit-run-gitk ()
   "Run `gitk --all' for the current git repository."
