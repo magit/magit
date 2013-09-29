@@ -248,6 +248,7 @@
 
 ;;; Commands
 
+;;;###autoload
 (defun magit-stgit-refresh ()
   "Refresh the contents of a patch in an StGit series.
 If there is no marked patch in the series, refreshes the current
@@ -257,6 +258,7 @@ patch.  Otherwise, refreshes the marked patch."
       (magit-run-stgit "refresh" "-p" magit-stgit--marked-patch)
     (magit-run-stgit "refresh")))
 
+;;;###autoload
 (defun magit-stgit-repair ()
   "Repair StGit metadata if branch was modified with git commands.
 In the case of Git commits these will be imported as new patches
@@ -266,6 +268,7 @@ into the series."
   (magit-run-stgit "repair")
   (message ""))
 
+;;;###autoload
 (defun magit-stgit-rebase ()
   "Rebase an StGit patch series."
   (interactive)

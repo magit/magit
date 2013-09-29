@@ -46,6 +46,7 @@
 
 ;; git svn commands
 
+;;;###autoload (autoload 'magit-svn-find-rev "magit")
 (magit-define-command svn-find-rev (rev &optional branch)
   "Find commit for svn REVISION in BRANCH."
   (interactive
@@ -64,28 +65,33 @@
            sha))
       (error "Revision %s could not be mapped to a commit" rev))))
 
+;;;###autoload (autoload 'magit-svn-create-branch "magit")
 (magit-define-command svn-create-branch (name)
   "Create svn branch NAME."
   (interactive "sBranch name: ")
   (apply 'magit-run-git "svn" "branch"
          (append magit-custom-options (list name))))
 
+;;;###autoload (autoload 'magit-svn-create-tag "magit")
 (magit-define-command svn-create-tag (name)
   "Create svn tag NAME."
   (interactive "sTag name: ")
   (apply 'magit-run-git "svn" "tag"
          (append magit-custom-options (list name))))
 
+;;;###autoload (autoload 'magit-svn-rebase "magit")
 (magit-define-command svn-rebase ()
   "Run git-svn rebase."
   (interactive)
   (apply 'magit-run-git-async "svn" "rebase" magit-custom-options))
 
+;;;###autoload (autoload 'magit-svn-dcommit "magit")
 (magit-define-command svn-dcommit ()
   "Run git-svn dcommit."
   (interactive)
   (apply 'magit-run-git-async "svn" "dcommit" magit-custom-options))
 
+;;;###autoload (autoload 'magit-svn-remote-update "magit")
 (magit-define-command svn-remote-update ()
   "Run git-svn fetch."
   (interactive)
@@ -204,6 +210,7 @@ If USE-CACHE is non nil, use the cached information."
                 " @ "
                 (cdr (assoc 'revision svn-info)))))))
 
+;;;###autoload
 (defun magit-svn-fetch-externals()
   "Loops through all external repos found by `magit-svn-external-directories'
    and runs git svn fetch, and git svn rebase on each of them."
