@@ -1092,7 +1092,6 @@ Also see option `magit-diff-use-overlays'."
     (define-key map (kbd "SPC") 'magit-show-item-or-scroll-up)
     (define-key map (kbd "DEL") 'magit-show-item-or-scroll-down)
     (define-key map (kbd "C-w") 'magit-copy-item-as-kill)
-    (define-key map (kbd "R") 'magit-rebase-step)
     (cond (magit-rigid-key-bindings
            (define-key map (kbd "c") 'magit-commit)
            (define-key map (kbd "m") 'magit-merge)
@@ -1106,7 +1105,8 @@ Also see option `magit-diff-use-overlays'."
            (define-key map (kbd "t") 'magit-tag)
            (define-key map (kbd "l") 'magit-log)
            (define-key map (kbd "o") 'magit-submodule-update)
-           (define-key map (kbd "B") 'undefined))
+           (define-key map (kbd "B") 'undefined)
+           (define-key map (kbd "z") 'magit-stash))
           (t
            (define-key map (kbd "c") 'magit-key-mode-popup-committing)
            (define-key map (kbd "m") 'magit-key-mode-popup-merging)
@@ -1120,9 +1120,11 @@ Also see option `magit-diff-use-overlays'."
            (define-key map (kbd "t") 'magit-key-mode-popup-tagging)
            (define-key map (kbd "l") 'magit-key-mode-popup-logging)
            (define-key map (kbd "o") 'magit-key-mode-popup-submodule)
-           (define-key map (kbd "B") 'magit-key-mode-popup-bisecting)))
+           (define-key map (kbd "B") 'magit-key-mode-popup-bisecting)
+           (define-key map (kbd "z") 'magit-key-mode-popup-stashing)))
     (define-key map (kbd "$") 'magit-display-process)
     (define-key map (kbd "E") 'magit-interactive-rebase)
+    (define-key map (kbd "R") 'magit-rebase-step)
     (define-key map (kbd "e") 'magit-ediff)
     (define-key map (kbd "w") 'magit-wazzup)
     (define-key map (kbd "y") 'magit-cherry)
@@ -1139,6 +1141,11 @@ Also see option `magit-diff-use-overlays'."
     (define-key map (kbd "h") 'magit-key-mode-popup-diff-options)
     (define-key map (kbd "H") 'magit-toggle-diff-refine-hunk)
     (define-key map (kbd "M-g") 'magit-goto-diffstats)
+    (define-key map (kbd "S") 'magit-stage-all)
+    (define-key map (kbd "U") 'magit-unstage-all)
+    (define-key map (kbd "X") 'magit-reset-working-tree)
+    (define-key map (kbd "C-c C-c") 'magit-key-mode-popup-dispatch)
+    (define-key map (kbd "C-c C-e") 'magit-key-mode-popup-dispatch)
     map)
   "Parent keymap for all keymaps of modes derived from `magit-mode'.")
 
@@ -1154,9 +1161,7 @@ Also see option `magit-diff-use-overlays'."
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
     (define-key map (kbd "s") 'magit-stage-item)
-    (define-key map (kbd "S") 'magit-stage-all)
     (define-key map (kbd "u") 'magit-unstage-item)
-    (define-key map (kbd "U") 'magit-unstage-all)
     (define-key map (kbd "i") 'magit-ignore-item)
     (define-key map (kbd "I") 'magit-ignore-item-locally)
     (define-key map (kbd "j") 'magit-section-jump-map)
@@ -1164,10 +1169,6 @@ Also see option `magit-diff-use-overlays'."
     (define-key map (kbd "=") 'magit-diff-with-mark)
     (define-key map (kbd "k") 'magit-discard-item)
     (define-key map (kbd "C") 'magit-commit-add-log)
-    (define-key map (kbd "X") 'magit-reset-working-tree)
-    (if magit-rigid-key-bindings
-        (define-key map (kbd "z") 'magit-stash)
-      (define-key map (kbd "z") 'magit-key-mode-popup-stashing))
     map)
   "Keymap for `magit-status-mode'.")
 
@@ -1186,7 +1187,6 @@ Also see option `magit-diff-use-overlays'."
 (defvar magit-reflog-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-log-mode-map)
-    (define-key map (kbd "e") 'magit-log-show-more-entries)
     map)
   "Keymap for `magit-reflog-mode'.")
 
@@ -4963,9 +4963,10 @@ With a prefix argument, prompt for a file to be staged instead."
 With a prefix argument, add remaining untracked files as well.
 \('git add [-u] .')."
   (interactive "P")
-  (if including-untracked
-      (magit-run-git "add" ".")
-    (magit-run-git "add" "-u" ".")))
+  (when (yes-or-no-p "Stage all changes?")
+    (if including-untracked
+        (magit-run-git "add" ".")
+      (magit-run-git "add" "-u" "."))))
 
 ;;;; Unstage
 
@@ -5004,7 +5005,8 @@ With a prefix argument, add remaining untracked files as well.
   "Remove all changes from staging area.
 \('git reset --mixed HEAD')."
   (interactive)
-  (magit-run-git "reset" "HEAD" "--"))
+  (when (yes-or-no-p "Unstage all changes?")
+    (magit-run-git "reset" "HEAD" "--")))
 
 ;;;; Branching
 

@@ -71,7 +71,36 @@
 ;;; Keygroups
 
 (defvar magit-key-mode-groups
-  '((logging
+  '((dispatch
+     (actions
+      ("b" "Branching"       magit-key-mode-popup-branching)
+      ("B" "Bisecting"       magit-key-mode-popup-bisecting)
+      ("c" "Committing"      magit-key-mode-popup-committing)
+      ("d" "Diff worktree"   magit-diff-working-tree)
+      ("D" "Diff"            magit-diff)
+      ("f" "Fetching"        magit-key-mode-popup-fetching)
+      ("F" "Pulling"         magit-key-mode-popup-pulling)
+      ("g" "Refresh Buffers" magit-refresh-all)
+      ("l" "Logging"         magit-key-mode-popup-logging)
+      ("m" "Merging"         magit-key-mode-popup-merging)
+      ("M" "Remoting"        magit-key-mode-popup-remoting)
+      ("P" "Pushing"         magit-key-mode-popup-pushing)
+      ("o" "Submoduling"     magit-key-mode-popup-submodule)
+      ("r" "Rewriting"       magit-key-mode-popup-rewriting)
+      ("s" "Show Status"     magit-status)
+      ("S" "Stage all"       magit-stage-all)
+      ("t" "Tagging"         magit-key-mode-popup-tagging)
+      ("U" "Unstage all"     magit-unstage-all)
+      ("v" "Show Commit"     magit-show-commit)
+      ("V" "Show File"       magit-show)
+      ("w" "Wazzup"          magit-wazzup)
+      ("X" "Reset worktree"  magit-reset-working-tree)
+      ("y" "Cherry"          magit-cherry)
+      ("z" "Stashing"        magit-key-mode-popup-stashing)
+      ("!" "Running"         magit-key-mode-popup-running)
+      ("$" "Show Process"    magit-display-process)))
+
+    (logging
      (man-page "git-log")
      (actions
       ("l" "Short" magit-log)
