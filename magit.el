@@ -368,7 +368,6 @@ Only considered when moving past the last entry with
     magit-insert-empty-line
     magit-insert-stashes
     magit-insert-untracked-files
-    magit-insert-pending-changes
     magit-insert-pending-commits
     magit-insert-unstaged-changes
     magit-insert-staged-changes
@@ -4636,16 +4635,6 @@ when asking for user input."
                        commit "--")
                       "\n")))))
       (insert "\n"))))
-
-(magit-define-inserter pending-changes ()
-  (let* ((info (magit-read-rewrite-info))
-         (orig (cadr (assq 'orig info))))
-    (when orig
-      (let ((magit-hide-diffs t))
-        (magit-git-section 'pending-changes
-                           "Pending changes"
-                           'magit-wash-diffs
-                           "diff" (magit-diff-U-arg) "-R" orig)))))
 
 (magit-define-inserter unstaged-changes ()
   (let ((magit-hide-diffs t)

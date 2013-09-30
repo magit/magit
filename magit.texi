@@ -231,8 +231,8 @@ status buffer shows the differences between the current branch and the
 tracking branch.  See @ref{Pushing and Pulling} for more information.
 
 During a history rewriting session, the status buffer shows the
-@emph{Pending changes} and @emph{Pending commits} sections.  See
-@ref{Rewriting} for more details.
+@emph{Pending changes} sections.  See @ref{Rewriting} for more
+details.
 
 @node Untracked files
 @chapter Untracked files
@@ -804,12 +804,6 @@ all of them.
 
 You can change the @kbd{*} and @kbd{.} marks of a pending commit
 explicitly with @kbd{r *} and @kbd{r .}.
-
-In addition to a list of pending commits, the status buffer will show
-the @emph{Pending changes}.  This section shows the diff between the
-original head and the current head.  You can use it to review the
-changes that you still need to rewrite, and you can apply hunks from
-it, like from any other diff.
 
 @node Pushing and Pulling
 @chapter Pushing and Pulling
