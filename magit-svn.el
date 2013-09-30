@@ -111,12 +111,12 @@
       (mapcar (lambda (p) (concat prefix p suffix ":" rhs p)) pieces))))
 
 (defun magit-svn-get-local-ref (url)
-  (let* ((branches (cons (magit-get "svn-remote" "svn" "fetch")
-                        (magit-get-all "svn-remote" "svn" "branches")))
+  (let* ((branches (cons (magit-config-get-value "svn-remote" "svn" "fetch")
+                        (magit-config-get-list "svn-remote" "svn" "branches")))
          (branches (apply 'nconc
                           (mapcar 'magit-svn-expand-braces-in-branches
                                   branches)))
-        (base-url (magit-get "svn-remote" "svn" "url"))
+        (base-url (magit-config-get-value "svn-remote" "svn" "url"))
         (result nil))
     (while branches
       (let* ((pats (split-string (pop branches) ":"))
@@ -149,7 +149,7 @@ If USE-CACHE is non-nil then return the value of
 `magit-get-svn-ref-info-cache'."
   (if (and use-cache magit-svn-get-ref-info-cache)
       magit-svn-get-ref-info-cache
-    (let* ((fetch (magit-get "svn-remote" "svn" "fetch"))
+    (let* ((fetch (magit-config-get-value "svn-remote" "svn" "fetch"))
            (url)
            (revision))
       (when fetch
@@ -173,7 +173,7 @@ If USE-CACHE is non-nil then return the value of
                                       revision (match-string 2))
                                 (magit-svn-get-local-ref url))
                                (t
-                                (setq url (magit-get "svn-remote" "svn" "url"))
+                                (setq url (magit-config-get-value "svn-remote" "svn" "url"))
                                 nil))))
                  (cons 'revision revision)
                  (cons 'url url))))))))

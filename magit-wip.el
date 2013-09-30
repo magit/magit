@@ -137,7 +137,7 @@ repository where wip-save is enabled in git config.
 You can activate it with git config magit.extension wip-save."
   (when (and (buffer-file-name)
              (magit-get-top-dir)
-             (member "wip-save" (magit-get-all "magit.extension")))
+             (member "wip-save" (magit-config-get-list "magit.extension")))
     (if (magit-git-success "wip" "-h")
         (magit-wip-save-mode 1)
       (message "Git command 'git wip' cannot be found"))))

@@ -117,12 +117,12 @@
 (ert-deftest magit-config-get-boolean ()
   (magit-tests--with-temp-repo
     (magit-run* (list magit-git-executable "config" "a.b" "true"))
-    (should (magit-get-boolean "a.b"))
-    (should (magit-get-boolean "a" "b"))
+    (should (magit-config-get-bool "a.b"))
+    (should (magit-config-get-bool "a" "b"))
 
     (magit-run* (list magit-git-executable "config" "a.b" "false"))
-    (should-not (magit-get-boolean "a.b"))
-    (should-not (magit-get-boolean "a" "b"))))
+    (should-not (magit-config-get-bool "a.b"))
+    (should-not (magit-config-get-bool "a" "b"))))
 
 ;;;; magit-blame.el
 
