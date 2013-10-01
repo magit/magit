@@ -5630,7 +5630,7 @@ With prefix argument, changes in staging area are kept.
                       "apply" (append args (list "-"))))
       (kill-buffer buf))))
 
-(defun magit-apply-hunk-item* (hunk &rest args)
+(defun magit-apply-hunk-item (hunk &rest args)
   "Apply single hunk or part of a hunk to the index or working file.
 
 This function is the core of magit's stage, unstage, apply, and
@@ -5654,11 +5654,8 @@ member of ARGS, or to the working file otherwise."
                         "apply" (append args (list "-"))))
         (kill-buffer buf)))))
 
-(defun magit-apply-hunk-item (hunk &rest args)
-  (apply #'magit-apply-hunk-item* hunk args))
-
 (defun magit-apply-hunk-item-reverse (hunk &rest args)
-  (apply #'magit-apply-hunk-item* hunk "--reverse" args))
+  (apply #'magit-apply-hunk-item hunk "--reverse" args))
 
 ;;;; Cherry-Pick
 
