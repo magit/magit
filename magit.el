@@ -358,6 +358,20 @@ Only considered when moving past the last entry with
   :group 'magit
   :type 'hook)
 
+(defcustom magit-commit-all-when-nothing-staged 'ask
+  "Determine what \\[magit-log-edit] does when nothing is staged.
+
+Setting this to nil will make it do nothing, setting it to t will
+arrange things so that the actual commit command will use the
+\"--all\" option, setting it to `ask' will first ask for
+confirmation whether to do this, and setting it to `ask-stage'
+will cause all changes to be staged, after a confirmation."
+  :group 'magit
+  :type '(choice (const :tag "No" nil)
+                 (const :tag "Always" t)
+                 (const :tag "Ask" ask)
+                 (const :tag "Ask to stage everything" ask-stage)))
+
 (defcustom magit-status-insert-sections-hook
   '(magit-insert-status-local-line
     magit-insert-status-remote-line
@@ -5608,6 +5622,14 @@ With a prefix argument amend to the commit at HEAD instead.
   (let ((args magit-custom-options))
     (when amendp
       (setq args (cons "--amend" args)))
+    (if (and magit-commit-all-when-nothing-staged
+             (not (magit-anything-staged-p))
+             (cond ((eq magit-commit-all-when-nothing-staged 'ask-stage)
+                    (and (y-or-n-p "Nothing staged.  Stage everything now? ") (magit-stage-all) nil))
+                   ((eq magit-commit-all-when-nothing-staged 'ask)
+                    (y-or-n-p "Nothing staged.  Commit all unstaged changes? "))
+                   (t magit-commit-all-when-nothing-staged)))
+        (setq args (cons "--all" args)))
     (if (not (or (magit-anything-staged-p)
                  (member "--allow-empty" args)
                  (member "--all" args)
