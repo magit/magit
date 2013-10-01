@@ -422,6 +422,18 @@ they are not (due to semantic considerations)."
                  (const :tag "Immediately" 0)
                  (integer :tag "After this many seconds")))
 
+(defcustom magit-stage-all-confirm t
+  "Require acknowledgment before staging all changes."
+  :package-version '(magit . "1.3.0")
+  :group 'magit
+  :type 'boolean)
+
+(defcustom magit-unstage-all-confirm t
+  "Require acknowledgment before unstaging all changes."
+  :package-version '(magit . "1.3.0")
+  :group 'magit
+  :type 'boolean)
+
 (defcustom magit-revert-item-confirm t
   "Require acknowledgment before reverting an item."
   :group 'magit
@@ -4820,7 +4832,8 @@ With a prefix argument, prompt for a file to be staged instead."
 With a prefix argument, add remaining untracked files as well.
 \('git add [-u] .')."
   (interactive "P")
-  (when (yes-or-no-p "Stage all changes?")
+  (when (or (not magit-stage-all-confirm)
+            (yes-or-no-p "Stage all changes?"))
     (if including-untracked
         (magit-run-git "add" ".")
       (magit-run-git "add" "-u" "."))))
@@ -4862,7 +4875,8 @@ With a prefix argument, add remaining untracked files as well.
   "Remove all changes from staging area.
 \('git reset --mixed HEAD')."
   (interactive)
-  (when (yes-or-no-p "Unstage all changes?")
+  (when (or (not magit-unstage-all-confirm)
+            (yes-or-no-p "Unstage all changes?"))
     (magit-run-git "reset" "HEAD" "--")))
 
 ;;;; Branching

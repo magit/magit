@@ -96,7 +96,8 @@
   (magit-tests--with-temp-repo
     (magit-tests--modify-file "file")
     (magit-status default-directory)
-    (magit-stage-all t)
+    (let ((magit-stage-all-confirm nil))
+      (magit-stage-all t))
     (magit-tests--should-have-item-title "file" '(staged))))
 
 (ert-deftest magit-status-unpushed ()
