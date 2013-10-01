@@ -3505,23 +3505,10 @@ Customize `magit-diff-refine-hunk' to change the default mode."
 (defvar magit-hide-diffs nil)
 
 (defun magit-insert-diff-title (status file file2)
-  (let ((status-text (cl-case status
-                       ((unmerged)
-                        (format "Unmerged   %s" file))
-                       ((new)
-                        (format "New        %s" file))
-                       ((deleted)
-                        (format "Deleted    %s" file))
-                       ((renamed)
-                        (format "Renamed    %s   (from %s)"
-                                file file2))
-                       ((modified)
-                        (format "Modified   %s" file))
-                       ((typechange)
-                        (format "Typechange %s" file))
-                       (t
-                        (format "?          %s" file)))))
-    (insert "\t" status-text "\n")))
+  (insert (format "\t%-10s " (capitalize (symbol-name status)))
+          file
+          (if (eq status 'renamed) (format "   (from %s)" file2) "")
+          "\n"))
 
 (defvar magit-current-diff-range nil
   "Used internally when setting up magit diff sections.")
