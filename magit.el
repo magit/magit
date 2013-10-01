@@ -2962,6 +2962,7 @@ magit-topgit and magit-svn"
       (set-marker (process-mark proc) (point)))))
 
 (defun magit-process-yes-or-no-prompt (proc string)
+  "Forward yes-or-no prompts to the user."
   (let ((beg (string-match magit-process-yes-or-no-prompt-regexp string))
         (max-mini-window-height 30))
     (when beg
