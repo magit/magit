@@ -1989,6 +1989,7 @@ an existing remote."
 
 
 ;;; Sections
+;;;; Section Struct
 
 ;; A buffer in magit-mode is organized into hierarchical sections.
 ;; These sections are used for navigation and for hiding parts of the
