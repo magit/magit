@@ -2004,6 +2004,12 @@ an existing remote."
   parent title beginning end children hidden type info
   needs-refresh-on-show)
 
+(defun magit-section-content-beginning (section)
+  (save-excursion
+    (goto-char (magit-section-beginning section))
+    (forward-line)
+    (point)))
+
 (defun magit-diff-item-kind (diff)
   (car (magit-section-info diff)))
 
@@ -2026,10 +2032,6 @@ an existing remote."
     (save-match-data
       (unless (string-match "\\`\\.\\.\\." file)
         file))))
-
-(defun magit-diffstat-item-status (diffstat)
-  "Return 'completed or 'incomplete depending on the processed status"
-  (car (cddr (magit-section-info diffstat))))
 
 ;;;; Section Variables
 
@@ -3434,11 +3436,9 @@ Customize `magit-diff-refine-hunk' to change the default mode."
 
 (defun magit-wash-diffs ()
   (magit-wash-diffstats)
-  (magit-wash-sequence #'magit-wash-diff-or-other-file))
-
-(defun magit-wash-diff-or-other-file ()
-  (or (magit-wash-diff)
-      (magit-wash-other-file)))
+  (magit-wash-sequence (lambda ()
+                         (or (magit-wash-diff)
+                             (magit-wash-other-file)))))
 
 (defun magit-wash-diff ()
   (let ((magit-section-hidden-default magit-hide-diffs))
@@ -3465,32 +3465,6 @@ Customize `magit-diff-refine-hunk' to change the default mode."
           (remaining (match-string-no-properties 2)))
       (delete-region (point) (+ (line-end-position) 1))
       (magit-with-section "diffstat" 'diffstat
-        ;;(magit-set-section-info 'incomplete)
-
-        ;; diffstat entries will look like
-        ;;
-        ;; ' PSEUDO-FILE-NAME | +++---'
-        ;;
-        ;; Since PSEUDO-FILE-NAME is not always real pathname, we
-        ;; don't know the pathname yet.  Thus, section info will be
-        ;; (diffstat FILE incomplete MARKER-BEGIN MARKER-END) for
-        ;; now, where MARKER-BEGIN points the beginning of the
-        ;; PSEUDO-FILE-NAME, MARKER-END points the end of the
-        ;; PSEUDO-FILE-NAME, and FILE will be abbreviated filename.
-        ;; Later in `magit-wash-diff-or-other-file`, the section
-        ;; info will be updated.
-
-        ;; Note that FILE is the 2nd element of the section-info;
-        ;; this is intentional, so that `magit-diff-item-file` can
-        ;; return the FILE part.
-
-        ;; (list 'diffstat
-        ;;       (or (and (> (length file) 3)
-        ;;                (string-equal (substring file 0 3) "...")
-        ;;                (message "got the invalid file here")
-        ;;                'truncated)
-        ;;           file)))
-
         (insert " ")
         (let ((f-begin (point-marker)) f-end)
           (insert file)
@@ -3504,16 +3478,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                              'keymap magit-diffstat-keymap)
           (insert "\n")
           (add-to-list 'magit-diffstat-cached-sections
-                       magit-top-section))
-        ;; (insert (propertize (concat " "
-        ;;                             (propertize file
-        ;;                                         'face
-        ;;                                         'magit-diff-file-header)
-        ;;                             remaining)
-        ;;                     'keymap
-        ;;                     magit-diffstat-keymap)
-        ;;         "\n")
-        ))))
+                       magit-top-section))))))
 
 (defun magit-wash-diffstats ()
   (let ((entry-regexp "^ ?\\(.*?\\)\\( +| +.*\\)$")
@@ -3544,26 +3509,11 @@ Customize `magit-diff-refine-hunk' to change the default mode."
 
 (defvar magit-hide-diffs nil)
 
-(defvar magit-indentation-level 1)
-
 (defun magit-insert-diff-title (status file file2)
-  (let ((status-text (cl-case status
-                       ((unmerged)
-                        (format "Unmerged   %s" file))
-                       ((new)
-                        (format "New        %s" file))
-                       ((deleted)
-                        (format "Deleted    %s" file))
-                       ((renamed)
-                        (format "Renamed    %s   (from %s)"
-                                file file2))
-                       ((modified)
-                        (format "Modified   %s" file))
-                       ((typechange)
-                        (format "Typechange %s" file))
-                       (t
-                        (format "?          %s" file)))))
-    (insert (make-string magit-indentation-level ?\t) status-text "\n")))
+  (insert (format "\t%-10s " (capitalize (symbol-name status)))
+          file
+          (if (eq status 'renamed) (format "   (from %s)" file2) "")
+          "\n"))
 
 (defvar magit-current-diff-range nil
   "Used internally when setting up magit diff sections.")
@@ -3574,8 +3524,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
         (second-start (progn (forward-line 1)
                              (search-forward-regexp "^diff")
                              (beginning-of-line)
-                             (point-marker)))
-        (magit-indentation-level (+ magit-indentation-level 1)))
+                             (point-marker))))
     (save-restriction
       (narrow-to-region first-start second-start)
       (goto-char (point-min))
@@ -3604,7 +3553,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                       (point-marker))))
            (magit-wash-diffstats-postwork file)
 
-           (let* ((status (cond
+           (let  ((status (cond
                            ((looking-at "^diff --cc")
                             'unmerged)
                            ((save-excursion
@@ -3756,33 +3705,31 @@ Customize `magit-diff-refine-hunk' to change the default mode."
              (magit-wash-diff-section)))
       (goto-char (point-max)))))
 
-(defvar magit-last-raw-diff nil)
-(defvar magit-ignore-unmerged-raw-diffs nil)
+(defun magit-wash-raw-diffs (&optional staged)
+  (let (previous)
+    (magit-wash-sequence
+     (lambda ()
+       (setq previous (magit-wash-raw-diff previous staged))))))
 
-(defun magit-wash-raw-diffs ()
-  (let ((magit-last-raw-diff nil))
-    (magit-wash-sequence #'magit-wash-raw-diff)))
-
-(defun magit-wash-raw-diff ()
+(defun magit-wash-raw-diff (previous staged)
   (when (looking-at
          ":\\([0-7]+\\) \\([0-7]+\\) [0-9a-f]+ [0-9a-f]+ \\(.\\)[0-9]*\t\\([^\t\n]+\\)$")
     (let ((old-perm (match-string-no-properties 1))
           (new-perm (match-string-no-properties 2))
-          (status (cl-case (string-to-char (match-string-no-properties 3))
+          (status (cl-ecase (string-to-char (match-string-no-properties 3))
                     (?A 'new)
+                    (?C 'copy)
                     (?D 'deleted)
                     (?M 'modified)
-                    (?U 'unmerged)
                     (?T 'typechange)
-                    (t     nil)))
+                    (?U 'unmerged)
+                    (?X 'unknown)))
           (file (magit-decode-git-path (match-string-no-properties 4))))
-      ;; If this is for the same file as the last diff, ignore it.
-      ;; Unmerged files seem to get two entries.
-      ;; We also ignore unmerged files when told so.
-      (if (or (equal file magit-last-raw-diff)
-              (and magit-ignore-unmerged-raw-diffs (eq status 'unmerged)))
+      (if (or ;; Unmerged files get two entries; we ignore the second.
+              (equal file previous)
+              ;; Ignore staged, unmerged files.
+              (and staged (eq status 'unmerged)))
           (delete-region (point) (+ (line-end-position) 1))
-        (setq magit-last-raw-diff file)
         ;; The 'diff' section that is created here will not work with
         ;; magit-insert-diff-item-patch etc when we leave it empty.
         ;; Luckily, raw diffs are only produced for staged and
@@ -3791,25 +3738,16 @@ Customize `magit-diff-refine-hunk' to change the default mode."
         ;; brittle, of course.
         (let ((magit-section-hidden-default magit-hide-diffs))
           (magit-with-section file 'diff
-            (delete-region (point) (+ (line-end-position) 1))
+            (delete-region (point) (1+ (line-end-position)))
             (if (not (magit-section-hidden magit-top-section))
                 (magit-insert-diff file status)
               (magit-set-section-info (list status file nil))
               (magit-set-section-needs-refresh-on-show t)
               (magit-insert-diff-title status file nil)))))
-      t)))
-
-(defun magit-hunk-item-diff (hunk)
-  (let ((diff (magit-section-parent hunk)))
-    (or (eq (magit-section-type diff) 'diff)
-        (error "Huh?  Parent of hunk not a diff"))
-    diff))
+      file)))
 
 (defun magit-diff-item-insert-header (diff buf)
-  (magit-insert-region (save-excursion
-                         (goto-char (magit-section-beginning diff))
-                         (forward-line)
-                         (point))
+  (magit-insert-region (magit-section-content-beginning diff)
                        (if (magit-section-children diff)
                            (magit-section-beginning
                             (car (magit-section-children diff)))
@@ -3817,15 +3755,12 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                        buf))
 
 (defun magit-insert-diff-item-patch (diff buf)
-  (magit-insert-region (save-excursion
-                         (goto-char (magit-section-beginning diff))
-                         (forward-line)
-                         (point))
+  (magit-insert-region (magit-section-content-beginning diff)
                        (magit-section-end diff)
                        buf))
 
 (defun magit-insert-hunk-item-patch (hunk buf)
-  (magit-diff-item-insert-header (magit-hunk-item-diff hunk) buf)
+  (magit-diff-item-insert-header (magit-section-parent hunk) buf)
   (magit-insert-region (magit-section-beginning hunk)
                        (magit-section-end hunk)
                        buf))
@@ -3836,7 +3771,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
       (insert text))))
 
 (defun magit-insert-hunk-item-region-patch (hunk reverse beg end buf)
-  (magit-diff-item-insert-header (magit-hunk-item-diff hunk) buf)
+  (magit-diff-item-insert-header (magit-section-parent hunk) buf)
   (save-excursion
     (goto-char (magit-section-beginning hunk))
     (magit-insert-current-line buf)
@@ -4588,9 +4523,9 @@ when asking for user input."
             (base (if no-commit
                       (magit-git-string "mktree")
                     "HEAD"))
-            (magit-diff-options (append '("--cached") magit-diff-options))
-            (magit-ignore-unmerged-raw-diffs t))
-        (magit-git-section 'staged "Staged changes:" 'magit-wash-raw-diffs
+            (magit-diff-options (append '("--cached") magit-diff-options)))
+        (magit-git-section 'staged "Staged changes:"
+                           (apply-partially #'magit-wash-raw-diffs t)
                            "diff-index" "--cached"
                            base)))))
 
@@ -4858,7 +4793,7 @@ With a prefix argument, prompt for a file to be staged instead."
       ((unstaged diff hunk)
        (if (string-match "^diff --cc"
                          ;; XXX Using the title is a bit too clever.
-                         (magit-section-title (magit-hunk-item-diff item)))
+                         (magit-section-title (magit-section-parent item)))
            (error (concat "Can't stage individual resolution hunks.  "
                           "Please stage the whole file."))
          (magit-apply-hunk-item item "--cached")))
@@ -5591,7 +5526,7 @@ With a prefix argument amend to the commit at HEAD instead.
                 nil))
          (file (magit-diff-item-file
                 (cl-case (magit-section-type section)
-                  (hunk (magit-hunk-item-diff section))
+                  (hunk (magit-section-parent section))
                   (diff section)
                   (t    (error "No change at point")))))
          (locate-buffer (lambda ()
@@ -5735,37 +5670,32 @@ With prefix argument, changes in staging area are kept.
                       "apply" (append args (list "-"))))
       (kill-buffer buf))))
 
-(defun magit-apply-hunk-item* (hunk reverse &rest args)
+(defun magit-apply-hunk-item (hunk &rest args)
   "Apply single hunk or part of a hunk to the index or working file.
 
 This function is the core of magit's stage, unstage, apply, and
 revert operations.  HUNK (or the portion of it selected by the
 region) will be applied to either the index, if \"--cached\" is a
 member of ARGS, or to the working file otherwise."
-  (let ((zero-context (zerop magit-diff-context-lines))
-        (use-region (use-region-p)))
-    (when zero-context
-      (setq args (cons "--unidiff-zero" args)))
-    (when reverse
-      (setq args (cons "--reverse" args)))
-    (when (and use-region zero-context)
-      (error (concat "Not enough context to partially apply hunk.  "
-                     "Use `+' to increase context.")))
+  (let ((use-region (use-region-p)))
+    (when (zerop magit-diff-context-lines)
+      (setq args (cons "--unidiff-zero" args))
+      (when use-region
+        (error (concat "Not enough context to partially apply hunk.  "
+                       "Use `+' to increase context."))))
     (let ((buf (generate-new-buffer " *magit-input*")))
       (unwind-protect
           (progn (if use-region
                      (magit-insert-hunk-item-region-patch
-                      hunk reverse (region-beginning) (region-end) buf)
+                      hunk (member "--reverse" args)
+                      (region-beginning) (region-end) buf)
                    (magit-insert-hunk-item-patch hunk buf))
                  (apply #'magit-run-git-with-input buf
                         "apply" (append args (list "-"))))
         (kill-buffer buf)))))
 
-(defun magit-apply-hunk-item (hunk &rest args)
-  (apply #'magit-apply-hunk-item* hunk nil args))
-
 (defun magit-apply-hunk-item-reverse (hunk &rest args)
-  (apply #'magit-apply-hunk-item* hunk t args))
+  (apply #'magit-apply-hunk-item hunk "--reverse" args))
 
 ;;;; Cherry-Pick
 
@@ -6390,7 +6320,7 @@ With a prefix argument edit the ignore string."
        (magit-apply-hunk-item-reverse item)))
     ((staged diff hunk)
      (if (magit-file-uptodate-p (magit-diff-item-file
-                                 (magit-hunk-item-diff item)))
+                                 (magit-section-parent item)))
          (when (yes-or-no-p (if (use-region-p)
                                 "Discard changes in region? "
                               "Discard hunk? "))
@@ -6488,7 +6418,7 @@ With a prefix argument, visit in other window."
       ((hunk)
        (dired-jump other-window
                    (file-truename (magit-diff-item-file
-                                   (magit-hunk-item-diff item)))))
+                                   (magit-section-parent item)))))
       (nil (dired-jump other-window)))))
 
 ;;;; Visit
@@ -6507,7 +6437,7 @@ With a prefix argument, visit in other window."
             ((hunk)
              (setq line (magit-hunk-item-target-line item)
                    column (current-column))
-             (magit-diff-item-file (magit-hunk-item-diff item))))))
+             (magit-diff-item-file (magit-section-parent item))))))
     (unless file
       (error "Can't get pathname for this file"))
     (unless (file-exists-p file)
@@ -6964,7 +6894,7 @@ These are the branch names with the remote name stripped."
                                (magit-read-file-from-rev info))))
          (switch-to-buffer-other-window
           (magit-show info current-file))))
-      ((hunk) (funcall show-file-from-diff (magit-hunk-item-diff item)))
+      ((hunk) (funcall show-file-from-diff (magit-section-parent item)))
       ((diff) (funcall show-file-from-diff item)))))
 
 ;;;###autoload
