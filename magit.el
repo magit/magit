@@ -6628,148 +6628,76 @@ from the parent keymap `magit-mode-map' are also available.")
            "branch" "-vva" (magit-diff-abbrev-arg)
            magit-custom-options)))
 
-;;;; (wacky utilities)
+;;;; Branch List Washing
 
-(defun magit--branch-name-at-point ()
-  "Get the branch name in the line at point."
-  (or (magit-section-info (magit-current-section))
-      (error "No branch at point")))
-
-(defun magit--branches-for-remote-repo (remote)
-  "Return a list of remote branch names for REMOTE.
-These are the branch names with the remote name stripped."
-  (cl-loop for branch in (magit-git-lines "branch" "-r" "--list"
-                                          (format "%s/*" remote))
-           collect (substring branch (+ 3 (length remote)))))
-
-(defun magit--is-branch-at-point-remote ()
-  "Return non-nil if the branch at point is a remote tracking branch."
-  (magit-remote-part-of-branch (magit--branch-name-at-point)))
-
-(defun magit-remote-part-of-branch (branch)
-  (when (string-match-p "^\\(?:refs/\\)?remotes\\/" branch)
-    (cl-loop for remote in (magit-git-lines "remote")
-             when (string-match-p (format "^\\(?:refs/\\)?remotes\\/%s\\/"
-                                          (regexp-quote remote))
-                                  branch)
-             return remote)))
-
-(defun magit-branch-no-remote (branch)
-  (let ((remote (magit-remote-part-of-branch branch)))
-    (if remote
-        (progn
-          ;; This has to match if remote is non-nil
-          (cl-assert (string-match
-                      (format "^\\(?:refs/\\)?remotes\\/%s\\/\\(.*\\)"
-                              (regexp-quote remote))
-                      branch)
-                     'show-args "Unexpected string-match failure: %s %s")
-          (match-string 1 branch))
-      branch)))
-
-;;;; (washing)
+(defconst magit-wash-branch-line-re
+  (concat "^\\([ *] \\)"                 ; 1: current branch marker
+          "\\(.+?\\) +"                  ; 2: branch name
+          "\\(?:"
+          "\\([0-9a-fA-F]+\\)"           ; 3: sha1
+          " "
+          "\\(?:\\["
+          "\\([^:\n]+?\\)"               ; 4: tracking
+          "\\(?:: \\)?"
+          "\\(?:ahead \\([0-9]+\\)\\)?"  ; 5: ahead
+          "\\(?:, \\)?"
+          "\\(?:behind \\([0-9]+\\)\\)?" ; 6: behind
+          "\\] \\)?"
+          "\\(?:.*\\)"                   ; message
+          "\\|"                          ; or
+          "-> "                          ; the pointer to
+          "\\(.+\\)"                     ; 7: a ref
+          "\\)\n"))
 
 (defun magit-wash-branch-line (&optional remote-name)
-  (looking-at (concat
-               "^\\([ *] \\)"                 ; 1: current branch marker
-               "\\(.+?\\) +"                  ; 2: branch name
-
-               "\\(?:"
-
-               "\\([0-9a-fA-F]+\\)"           ; 3: sha1
-               " "
-               "\\(?:\\["
-               "\\([^:\n]+?\\)"               ; 4: tracking
-               "\\(?:: \\)?"
-               "\\(?:ahead \\([0-9]+\\)\\)?"  ; 5: ahead
-               "\\(?:, \\)?"
-               "\\(?:behind \\([0-9]+\\)\\)?" ; 6: behind
-               "\\] \\)?"
-               "\\(?:.*\\)"                   ; message
-
-               "\\|"                          ; or
-
-               "-> "                          ; the pointer to
-               "\\(.+\\)"                     ; 7: a ref
-
-               "\\)\n"))
-
-  (let* ((current-string (match-string 1))
-         (branch         (match-string 2))
-         (sha1           (match-string 3))
-         (tracking       (match-string 4))
-         (ahead          (match-string 5))
-         (behind         (match-string 6))
-         (other-ref      (match-string 7))
-         (current (string-match-p "^\\*" current-string)))
-
-    ;; the current line is deleted before being reconstructed
-    (delete-region (point)
-                   (line-beginning-position 2))
-
+  (looking-at magit-wash-branch-line-re)
+  (let* ((marker      (match-string 1))
+         (branch      (match-string 2))
+         (sha1        (match-string 3))
+         (tracking    (match-string 4))
+         (ahead       (match-string 5))
+         (behind      (match-string 6))
+         (other-ref   (match-string 7))
+         (name        (magit-branch-no-remote branch))
+         (branch-face (and (equal marker "* ") 'magit-branch)))
+    (delete-region (point) (line-beginning-position 2))
     (magit-with-section branch 'branch
       (magit-set-section-info branch)
-      (insert-before-markers
-       ;; sha1
-       (propertize (or sha1
-                       (make-string magit-sha1-abbrev-length ? ))
-                   'face 'magit-log-sha1)
-       " "
-       ;; current marker
-       (if current
-           "# "
-         "  ")
-       ;; branch name
-       (apply 'propertize (magit-branch-no-remote branch)
-              (if current
-                  '(face magit-branch)))
-       ;; other ref that this branch is pointing to
-       (if other-ref
-           (concat " -> " (substring other-ref (+ 1 (length remote-name))))
-         "")
-       ;; tracking information
-       (if (and tracking
-                (equal (magit-get-tracked-branch branch t)
-                       (concat "refs/remotes/" tracking)))
-           (concat " ["
-                   ;; getting rid of the tracking branch name if it is
-                   ;; the same as the branch name
-                   (let* ((tracking-remote (magit-get "branch" branch "remote"))
-                          (tracking-branch (substring tracking
-                                                      (+ 1 (length tracking-remote)))))
-                     (propertize (if (string= branch tracking-branch)
-                                     (concat "@ " tracking-remote)
-                                   (concat tracking-branch " @ " tracking-remote))
-                                 'face 'magit-log-head-label-remote))
-                   ;; ahead/behind information
-                   (if (or ahead
-                           behind)
-                       ": "
-                     "")
-                   (if ahead
-                       (concat "ahead "
-                               (propertize ahead
-                                           'face (if current
-                                                     'magit-branch))
-                               (if behind
-                                   ", "
-                                 ""))
-                     "")
-                   (if behind
-                       (concat "behind "
-                               (propertize behind
-                                           'face 'magit-log-head-label-remote))
-                     "")
-                   "]")
-         "")
-       "\n"))))
+      (insert (propertize (or sha1
+                              (make-string magit-sha1-abbrev-length ? ))
+                          'face 'magit-log-sha1)
+              " " marker
+              (propertize name 'face branch-face))
+       (when other-ref
+         (insert " -> " (substring other-ref (+ 1 (length remote-name)))))
+       (when (and tracking
+                  (equal (magit-get-tracked-branch branch t)
+                         (concat "refs/remotes/" tracking)))
+         (insert " [")
+         ;; getting rid of the tracking branch name if it is
+         ;; the same as the branch name
+         (let* ((remote (magit-get "branch" branch "remote"))
+                (merge  (substring tracking (+ 1 (length remote)))))
+           (insert (propertize (if (string= branch merge)
+                                   (concat "@ " remote)
+                                 (concat merge " @ " remote))
+                               'face 'magit-log-head-label-remote)))
+         (when (or ahead behind)
+           (insert ":")
+           (and ahead (insert "ahead " (propertize ahead 'face branch-face)))
+           (and ahead behind (insert ", "))
+           (and behind (insert "behind "
+                               (propertize behind 'face
+                                           'magit-log-head-label-remote))))
+         (insert "]"))
+       (insert "\n"))))
 
 (defun magit-wash-remote-branches-group (group)
   (let* ((remote-name (car group))
          (url (magit-get "remote" remote-name "url"))
          (push-url (magit-get "remote" remote-name "pushurl"))
          (urls (concat url (if push-url
-                               (concat ", "push-url)
+                               (concat ", " push-url)
                              "")))
          (marker (cadr group)))
 
@@ -6828,38 +6756,68 @@ These are the branch names with the remote name stripped."
              (set-marker marker nil)))
           markers)))
 
-;;;; (wacky non-generic set-tracked)
+;;;; (wacky utilities)
+
+(defun magit--branch-name-at-point ()
+  "Get the branch name in the line at point."
+  (or (magit-section-info (magit-current-section))
+      (error "No branch at point")))
+
+(defun magit--branches-for-remote-repo (remote)
+  "Return a list of remote branch names for REMOTE.
+These are the branch names with the remote name stripped."
+  (cl-loop for branch in (magit-git-lines "branch" "-r" "--list"
+                                          (format "%s/*" remote))
+           collect (substring branch (+ 3 (length remote)))))
+
+(defun magit--is-branch-at-point-remote ()
+  "Return non-nil if the branch at point is a remote tracking branch."
+  (magit-remote-part-of-branch (magit--branch-name-at-point)))
+
+(defun magit-remote-part-of-branch (branch)
+  (when (string-match-p "^\\(?:refs/\\)?remotes\\/" branch)
+    (cl-loop for remote in (magit-git-lines "remote")
+             when (string-match-p (format "^\\(?:refs/\\)?remotes\\/%s\\/"
+                                          (regexp-quote remote))
+                                  branch)
+             return remote)))
+
+(defun magit-branch-no-remote (branch)
+  (let ((remote (magit-remote-part-of-branch branch)))
+    (if remote
+        (progn
+          ;; This has to match if remote is non-nil
+          (cl-assert (string-match
+                      (format "^\\(?:refs/\\)?remotes\\/%s\\/\\(.*\\)"
+                              (regexp-quote remote))
+                      branch)
+                     'show-args "Unexpected string-match failure: %s %s")
+          (match-string 1 branch))
+      branch)))
 
 (defun magit-change-what-branch-tracks ()
   "Change which remote branch the current branch tracks."
   (interactive)
   (when (magit--is-branch-at-point-remote)
     (error "Cannot modify a remote branch"))
-  (let* ((local-branch (magit--branch-name-at-point))
-         (new-tracked (magit-read-rev  "Change tracked branch to"
-                                       nil
-                                       (lambda (ref)
-                                         (not (string-match-p "refs/remotes/"
-                                                              ref)))))
-         new-remote new-branch)
-    (unless (string= (or new-tracked "") "")
-      (cond (;; Match refs that are unknown in the local repository if
-             ;; `magit-remote-ref-format' is set to
-             ;; `branch-then-remote'. Can be useful if you want to
-             ;; create a new branch in a remote repository.
-             (string-match "^\\([^ ]+\\) +(\\(.+\\))$" ; 1: branch name; 2: remote name
-                           new-tracked)
-             (setq new-remote (match-string 2 new-tracked)
-                   new-branch (concat "refs/heads/" (match-string 1 new-tracked))))
-            ((string-match "^\\(?:refs/remotes/\\)?\\([^/]+\\)/\\(.+\\)" ; 1: remote name; 2: branch name
-                           new-tracked)
-             (setq new-remote (match-string 1 new-tracked)
-                   new-branch (concat "refs/heads/" (match-string 2 new-tracked))))
-            (t (error "Cannot parse the remote and branch name"))))
-    (magit-set new-remote "branch" local-branch "remote")
-    (magit-set new-branch "branch" local-branch "merge")
+  (let* ((branch (magit--branch-name-at-point))
+         (track (magit-read-rev "Track branch" nil
+                                (lambda (ref)
+                                  (not (string-match-p "refs/remotes/" ref)))))
+         (track-
+          (cond ((string-match "^\\([^ ]+\\) +(\\(.+\\))$" track)
+                 (cons (match-string 2 track)
+                       (concat "refs/heads/" (match-string 1 track))))
+                ((string-match "^\\(?:refs/remotes/\\)?\\([^/]+\\)/\\(.+\\)"
+                               track)
+                 (cons (match-string 1 track)
+                       (concat "refs/heads/" (match-string 2 track))))
+                (t
+                 (error "Cannot parse the remote and branch name")))))
+    (magit-set (car track-) "branch" branch "remote")
+    (magit-set (cdr track-) "branch" branch "merge")
     (magit-branch-manager)
-    (when (string= (magit-get-current-branch) local-branch)
+    (when (string= (magit-get-current-branch) branch)
       (magit-refresh-buffer (magit-find-status-buffer default-directory)))))
 
 ;;; Miscellaneous
