@@ -2931,7 +2931,7 @@ magit-topgit and magit-svn"
             (insert msg "\n")
             (message (if successp
                          msg
-                       (format "%s Hit %s or see buffer %s for details."
+                       (format "%s  Hit %s or see buffer %s for details."
                                msg key (current-buffer)))))
           (when (featurep 'dired)
             (dired-uncache default-directory))))
@@ -4910,7 +4910,7 @@ With a prefix argument, skip editing the log message and commit.
   "Abort the current merge operation."
   (interactive)
   (if (file-exists-p (magit-git-dir "MERGE_HEAD"))
-      (when (yes-or-no-p "Abort merge?")
+      (when (yes-or-no-p "Abort merge? ")
         (magit-run-git-async "merge" "--abort"))
     (error "No merge in progress")))
 
