@@ -3441,7 +3441,8 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                              (magit-wash-other-file)))))
 
 (defun magit-wash-diff ()
-  (let ((magit-section-hidden-default magit-hide-diffs))
+  (let ((magit-section-hidden-default
+         (not (derived-mode-p 'magit-diff-mode 'magit-commit-mode))))
     (magit-with-section
         (buffer-substring-no-properties (line-beginning-position)
                                         (line-end-position))
@@ -3506,8 +3507,6 @@ Customize `magit-diff-refine-hunk' to change the default mode."
   (when magit-diffstat-cached-sections
     (magit-set-section-info (list 'diffstat file 'completed)
                             (pop magit-diffstat-cached-sections))))
-
-(defvar magit-hide-diffs nil)
 
 (defun magit-insert-diff-title (status file file2)
   (insert (format "\t%-10s " (capitalize (symbol-name status)))
@@ -3736,7 +3735,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
         ;; unstaged changes, and we never call
         ;; magit-insert-diff-item-patch on them.  This is a bit
         ;; brittle, of course.
-        (let ((magit-section-hidden-default magit-hide-diffs))
+        (let ((magit-section-hidden-default t))
           (magit-with-section file 'diff
             (delete-region (point) (1+ (line-end-position)))
             (if (not (magit-section-hidden magit-top-section))
@@ -4501,15 +4500,13 @@ when asking for user input."
   (let* ((info (magit-read-rewrite-info))
          (orig (cadr (assq 'orig info))))
     (when orig
-      (let ((magit-hide-diffs t))
-        (magit-git-section 'pending-changes
-                           "Pending changes"
-                           'magit-wash-diffs
-                           "diff" (magit-diff-U-arg) "-R" orig)))))
+      (magit-git-section 'pending-changes
+                         "Pending changes"
+                         'magit-wash-diffs
+                         "diff" (magit-diff-U-arg) "-R" orig))))
 
 (magit-define-inserter unstaged-changes ()
-  (let ((magit-hide-diffs t)
-        (magit-current-diff-range (cons 'index 'working))
+  (let ((magit-current-diff-range (cons 'index 'working))
         (magit-diff-options (append '() magit-diff-options)))
     (magit-git-section 'unstaged
                        "Unstaged changes:" 'magit-wash-raw-diffs
@@ -4519,7 +4516,6 @@ when asking for user input."
   (let ((no-commit (not (magit-git-success "log" "-1" "HEAD"))))
     (when (or no-commit (magit-anything-staged-p))
       (let ((magit-current-diff-range (cons "HEAD" 'index))
-            (magit-hide-diffs t)
             (base (if no-commit
                       (magit-git-string "mktree")
                     "HEAD"))
