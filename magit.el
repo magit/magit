@@ -422,6 +422,12 @@ they are not (due to semantic considerations)."
                  (const :tag "Immediately" 0)
                  (integer :tag "After this many seconds")))
 
+(defcustom magit-process-keep-history nil
+  "Whether to always prevent clearing the process buffer."
+  :package-version '(magit . "1.3.0")
+  :group 'magit
+  :type 'boolean)
+
 (defcustom magit-revert-item-confirm t
   "Require acknowledgment before reverting an item."
   :group 'magit
@@ -2842,8 +2848,10 @@ magit-topgit and magit-svn"
                 (bury-buffer))))
       (setq buffer-read-only t)
       (let ((inhibit-read-only t))
-        (if noerase
-            (goto-char (point-max))
+        (if (or magit-process-keep-history noerase)
+            (progn
+              (goto-char (point-max))
+              (unless (bobp) (insert "\n")))
           (erase-buffer))
         (insert "$ " (or logline
                          (mapconcat 'identity cmd-and-args " "))
