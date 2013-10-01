@@ -5630,7 +5630,7 @@ With prefix argument, changes in staging area are kept.
                       "apply" (append args (list "-"))))
       (kill-buffer buf))))
 
-(defun magit-apply-hunk-item* (hunk reverse &rest args)
+(defun magit-apply-hunk-item* (hunk &rest args)
   "Apply single hunk or part of a hunk to the index or working file.
 
 This function is the core of magit's stage, unstage, apply, and
@@ -5643,23 +5643,22 @@ member of ARGS, or to the working file otherwise."
       (when use-region
         (error (concat "Not enough context to partially apply hunk.  "
                        "Use `+' to increase context."))))
-    (when reverse
-      (setq args (cons "--reverse" args)))
     (let ((buf (generate-new-buffer " *magit-input*")))
       (unwind-protect
           (progn (if use-region
                      (magit-insert-hunk-item-region-patch
-                      hunk reverse (region-beginning) (region-end) buf)
+                      hunk (member "--reverse" args)
+                      (region-beginning) (region-end) buf)
                    (magit-insert-hunk-item-patch hunk buf))
                  (apply #'magit-run-git-with-input buf
                         "apply" (append args (list "-"))))
         (kill-buffer buf)))))
 
 (defun magit-apply-hunk-item (hunk &rest args)
-  (apply #'magit-apply-hunk-item* hunk nil args))
+  (apply #'magit-apply-hunk-item* hunk args))
 
 (defun magit-apply-hunk-item-reverse (hunk &rest args)
-  (apply #'magit-apply-hunk-item* hunk t args))
+  (apply #'magit-apply-hunk-item* hunk "--reverse" args))
 
 ;;;; Cherry-Pick
 
