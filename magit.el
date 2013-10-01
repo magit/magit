@@ -4832,7 +4832,7 @@ With a prefix argument, add remaining untracked files as well.
   (interactive)
   (magit-section-action (item info "unstage")
     ((staged diff hunk)
-     (magit-apply-hunk-item-reverse item "--cached"))
+     (magit-apply-hunk-item item "--reverse" "--cached"))
     ((staged diff)
      (when (eq (car info) 'unmerged)
        (error "Can't unstage an unmerged file.  Resolve it first"))
@@ -5691,9 +5691,6 @@ member of ARGS, or to the working file otherwise."
                         "apply" (append args (list "-"))))
         (kill-buffer buf)))))
 
-(defun magit-apply-hunk-item-reverse (hunk &rest args)
-  (apply #'magit-apply-hunk-item hunk "--reverse" args))
-
 ;;;; Cherry-Pick
 
 (defun magit-cherry-pick-item ()
@@ -5733,7 +5730,7 @@ member of ARGS, or to the working file otherwise."
        (magit-discard-item))
       ((hunk)
        (funcall confirm)
-       (magit-apply-hunk-item-reverse item))
+       (magit-apply-hunk-item item "--reverse"))
       ((diff)
        (funcall confirm)
        (magit-apply-diff-item item "--reverse")))))
@@ -6314,14 +6311,14 @@ With a prefix argument edit the ignore string."
      (when (yes-or-no-p (if (use-region-p)
                             "Discard changes in region? "
                           "Discard hunk? "))
-       (magit-apply-hunk-item-reverse item)))
+       (magit-apply-hunk-item item "--reverse")))
     ((staged diff hunk)
      (if (magit-file-uptodate-p (magit-diff-item-file
                                  (magit-section-parent item)))
          (when (yes-or-no-p (if (use-region-p)
                                 "Discard changes in region? "
                               "Discard hunk? "))
-           (magit-apply-hunk-item-reverse item "--index"))
+           (magit-apply-hunk-item item "--reverse" "--index"))
        (error "Can't discard this hunk.  Please unstage it first")))
     ((unstaged diff)
      (magit-discard-diff item nil))
