@@ -1900,7 +1900,8 @@ PROMPT and UNINTERESTING are passed to `magit-read-rev'."
   (or (magit-name-rev (magit-commit-at-point) no-trim)
       (let ((branch (magit-guess-branch)))
         (when branch
-          (if (string-match "^refs/\\(.*\\)" branch)
+          (if (and (not no-trim)
+                   (string-match "^refs/\\(.*\\)" branch))
               (match-string 1 branch)
             branch)))))
 
