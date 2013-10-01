@@ -3391,10 +3391,6 @@ And refresh the current Magit buffer."
   (setq-local magit-diff-options (default-value 'magit-diff-options))
   (magit-refresh))
 
-;;; Diff Washing
-;;__ FIXME The parens indicate preliminary subsections.
-;;;; (hunk refinement)
-
 (defun magit-toggle-diff-refine-hunk (&optional other)
   "Turn diff-hunk refining on or off.
 
@@ -3428,18 +3424,8 @@ Customize `magit-diff-refine-hunk' to change the default mode."
            (magit-diff-unrefine-hunk hunk)))
     (message "magit-diff-refine-hunk: %s" magit-diff-refine-hunk)))
 
-(defun magit-diff-refine-hunk (hunk)
-  (save-excursion
-    (goto-char (magit-section-beginning hunk))
-    ;; `diff-refine-hunk' does not handle combined diffs.
-    (unless (looking-at "@@@")
-      (diff-refine-hunk))))
-
-(defun magit-diff-unrefine-hunk (hunk)
-  (remove-overlays (magit-section-beginning hunk)
-                   (magit-section-end hunk)
-                   'diff-mode 'fine))
-
+;;; Diff Washing
+;;__ FIXME The parens indicate preliminary subsections.
 ;;;; (wash diffs)
 
 (defun magit-wash-diffs ()
@@ -3735,6 +3721,18 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                                          indent))))
         (overlay-put (make-overlay (match-beginning 1) (match-end 1))
                      'face 'magit-whitespace-warning-face)))))
+
+(defun magit-diff-refine-hunk (hunk)
+  (save-excursion
+    (goto-char (magit-section-beginning hunk))
+    ;; `diff-refine-hunk' does not handle combined diffs.
+    (unless (looking-at "@@@")
+      (diff-refine-hunk))))
+
+(defun magit-diff-unrefine-hunk (hunk)
+  (remove-overlays (magit-section-beginning hunk)
+                   (magit-section-end hunk)
+                   'diff-mode 'fine))
 
 ;;;; (wash raw diffs)
 
