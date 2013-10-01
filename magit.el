@@ -3425,8 +3425,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
     (message "magit-diff-refine-hunk: %s" magit-diff-refine-hunk)))
 
 ;;; Diff Washing
-;;__ FIXME The parens indicate preliminary subsections.
-;;;; (wash diffs)
+;;;; Diff Washing
 
 (defun magit-wash-diffs ()
   (magit-wash-diffstats)
@@ -3653,7 +3652,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
         (t
          nil)))
 
-;;;; (wash hunks)
+;;;; Hunk Washing
 
 (defun magit-wash-hunk ()
   (when (looking-at "\\(^@+\\)[^@]*@+.*")
@@ -3734,7 +3733,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                    (magit-section-end hunk)
                    'diff-mode 'fine))
 
-;;;; (wash raw diffs)
+;;;; Raw Diff Washing
 
 (defun magit-insert-diff (file status)
   (let ((beg (point)))
