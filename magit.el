@@ -2003,6 +2003,33 @@ an existing remote."
   parent title beginning end children hidden type info
   needs-refresh-on-show)
 
+(defun magit-diff-item-kind (diff)
+  (car (magit-section-info diff)))
+
+(defun magit-diff-item-file (diff)
+  (cadr (magit-section-info diff)))
+
+(defun magit-diff-item-file2 (diff)
+  (car (cddr (magit-section-info diff))))
+
+(defun magit-diff-item-range (diff)
+  (nth 3 (magit-section-info diff)))
+
+(defun magit-diffstat-item-kind (diffstat)
+  (car (magit-section-info diffstat)))
+
+(defun magit-diffstat-item-file (diffstat)
+  (let ((file (cadr (magit-section-info diffstat))))
+    ;; Git diffstat may shorten long pathname with the prefix "..."
+    ;; (e.g. ".../long/sub/dir/file" or "...longfilename")
+    (save-match-data
+      (unless (string-match "\\`\\.\\.\\." file)
+        file))))
+
+(defun magit-diffstat-item-status (diffstat)
+  "Return 'completed or 'incomplete depending on the processed status"
+  (car (cddr (magit-section-info diffstat))))
+
 ;;;; Section Variables
 
 (defvar-local magit-top-section nil
@@ -3318,42 +3345,7 @@ the buffer.  Finally reset the window configuration to nil."
           (with-current-buffer buffer
             (setq magit-previous-window-configuration nil)))))))
 
-;;; Diffs and Hunks
-;;__ FIXME The parens indicate preliminary subsections.
-;;__ See https://gist.github.com/tarsius/6539717 for
-;;__ an attempt to make sense of this disorder.
-;;;; (section info for diff)
-
-(defun magit-diff-item-kind (diff)
-  (car (magit-section-info diff)))
-
-(defun magit-diff-item-file (diff)
-  (cadr (magit-section-info diff)))
-
-(defun magit-diff-item-file2 (diff)
-  (car (cddr (magit-section-info diff))))
-
-(defun magit-diff-item-range (diff)
-  (nth 3 (magit-section-info diff)))
-
-;;;; (section info for diffstat)
-
-(defun magit-diffstat-item-kind (diffstat)
-  (car (magit-section-info diffstat)))
-
-(defun magit-diffstat-item-file (diffstat)
-  (let ((file (cadr (magit-section-info diffstat))))
-    ;; Git diffstat may shorten long pathname with the prefix "..."
-    ;; (e.g. ".../long/sub/dir/file" or "...longfilename")
-    (save-match-data
-      (unless (string-match "\\`\\.\\.\\." file)
-        file))))
-
-(defun magit-diffstat-item-status (diffstat)
-  "Return 'completed or 'incomplete depending on the processed status"
-  (car (cddr (magit-section-info diffstat))))
-
-;;;; (diff context)
+;;; Diff Options
 
 (defvar magit-diff-context-lines 3)
 
@@ -3381,8 +3373,6 @@ the buffer.  Finally reset the window configuration to nil."
   (setq magit-diff-context-lines 3)
   (magit-refresh))
 
-;;;; (diff options)
-
 (defun magit-set-diff-options ()
   "Set local `magit-diff-options' based on popup state.
 And refresh the current Magit buffer."
@@ -3404,8 +3394,6 @@ And refresh the current Magit buffer."
   (interactive)
   (setq-local magit-diff-options (default-value 'magit-diff-options))
   (magit-refresh))
-
-;;;; (hunk refinement)
 
 (defun magit-toggle-diff-refine-hunk (&optional other)
   "Turn diff-hunk refining on or off.
@@ -3440,19 +3428,8 @@ Customize `magit-diff-refine-hunk' to change the default mode."
            (magit-diff-unrefine-hunk hunk)))
     (message "magit-diff-refine-hunk: %s" magit-diff-refine-hunk)))
 
-(defun magit-diff-refine-hunk (hunk)
-  (save-excursion
-    (goto-char (magit-section-beginning hunk))
-    ;; `diff-refine-hunk' does not handle combined diffs.
-    (unless (looking-at "@@@")
-      (diff-refine-hunk))))
-
-(defun magit-diff-unrefine-hunk (hunk)
-  (remove-overlays (magit-section-beginning hunk)
-                   (magit-section-end hunk)
-                   'diff-mode 'fine))
-
-;;;; (wash diffs)
+;;; Diff Washing
+;;;; Diff Washing
 
 (defun magit-wash-diffs ()
   (magit-wash-diffstats)
@@ -3461,6 +3438,14 @@ Customize `magit-diff-refine-hunk' to change the default mode."
 (defun magit-wash-diff-or-other-file ()
   (or (magit-wash-diff)
       (magit-wash-other-file)))
+
+(defun magit-wash-diff ()
+  (let ((magit-section-hidden-default magit-hide-diffs))
+    (magit-with-section
+        (buffer-substring-no-properties (line-beginning-position)
+                                        (line-end-position))
+        'diff
+      (magit-wash-diff-section))))
 
 (defun magit-wash-other-file ()
   (when (looking-at "^? \\(.*\\)$")
@@ -3471,8 +3456,6 @@ Customize `magit-diff-refine-hunk' to change the default mode."
         (magit-set-section-info file)
         (insert "\tNew      " file "\n"))
       t)))
-
-;;;; (wash diffstats)
 
 (defun magit-wash-diffstat (&optional guess)
   (when (looking-at "^ ?\\(.*?\\)\\( +| +.*\\)$")
@@ -3557,9 +3540,6 @@ Customize `magit-diff-refine-hunk' to change the default mode."
   (when magit-diffstat-cached-sections
     (magit-set-section-info (list 'diffstat file 'completed)
                             (pop magit-diffstat-cached-sections))))
-
-;;;; (wash top-section, mostly and disorganized)
-;;__ TODO sort internally
 
 (defvar magit-hide-diffs nil)
 
@@ -3676,15 +3656,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
         (t
          nil)))
 
-(defun magit-wash-diff ()
-  (let ((magit-section-hidden-default magit-hide-diffs))
-    (magit-with-section
-        (buffer-substring-no-properties (line-beginning-position)
-                                        (line-end-position))
-        'diff
-      (magit-wash-diff-section))))
-
-;;;; (wash hunks)
+;;;; Hunk Washing
 
 (defun magit-wash-hunk ()
   (when (looking-at "\\(^@+\\)[^@]*@+.*")
@@ -3753,7 +3725,19 @@ Customize `magit-diff-refine-hunk' to change the default mode."
         (overlay-put (make-overlay (match-beginning 1) (match-end 1))
                      'face 'magit-whitespace-warning-face)))))
 
-;;;; (wash raw diffs)
+(defun magit-diff-refine-hunk (hunk)
+  (save-excursion
+    (goto-char (magit-section-beginning hunk))
+    ;; `diff-refine-hunk' does not handle combined diffs.
+    (unless (looking-at "@@@")
+      (diff-refine-hunk))))
+
+(defun magit-diff-unrefine-hunk (hunk)
+  (remove-overlays (magit-section-beginning hunk)
+                   (magit-section-end hunk)
+                   'diff-mode 'fine))
+
+;;;; Raw Diff Washing
 
 (defun magit-insert-diff (file status)
   (let ((beg (point)))
@@ -3876,68 +3860,6 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                (line-beginning-position) (line-beginning-position 2))))
     (with-current-buffer buf
       (insert text))))
-
-;;;; (utility used elsewhere)
-
-(defun magit-hunk-item-target-line (hunk)
-  (save-excursion
-    (beginning-of-line)
-    (let ((line (line-number-at-pos)))
-      (goto-char (magit-section-beginning hunk))
-      (unless (looking-at "@@+ .* \\+\\([0-9]+\\)\\(,[0-9]+\\)? @@+")
-        (error "Hunk header not found"))
-      (let ((target (string-to-number (match-string 1))))
-        (forward-line)
-        (while (< (line-number-at-pos) line)
-          ;; XXX - deal with combined diffs
-          (unless (looking-at "-")
-            (setq target (+ target 1)))
-          (forward-line))
-        target))))
-
-;;;; (apply)
-
-(defun magit-apply-diff-item (diff &rest args)
-  (when (zerop magit-diff-context-lines)
-    (setq args (cons "--unidiff-zero" args)))
-  (let ((buf (generate-new-buffer " *magit-input*")))
-    (unwind-protect
-        (progn (magit-insert-diff-item-patch diff buf)
-               (apply #'magit-run-git-with-input buf
-                      "apply" (append args (list "-"))))
-      (kill-buffer buf))))
-
-(defun magit-apply-hunk-item* (hunk reverse &rest args)
-  "Apply single hunk or part of a hunk to the index or working file.
-
-This function is the core of magit's stage, unstage, apply, and
-revert operations.  HUNK (or the portion of it selected by the
-region) will be applied to either the index, if \"--cached\" is a
-member of ARGS, or to the working file otherwise."
-  (let ((zero-context (zerop magit-diff-context-lines))
-        (use-region (use-region-p)))
-    (when zero-context
-      (setq args (cons "--unidiff-zero" args)))
-    (when reverse
-      (setq args (cons "--reverse" args)))
-    (when (and use-region zero-context)
-      (error (concat "Not enough context to partially apply hunk.  "
-                     "Use `+' to increase context.")))
-    (let ((buf (generate-new-buffer " *magit-input*")))
-      (unwind-protect
-          (progn (if use-region
-                     (magit-insert-hunk-item-region-patch
-                      hunk reverse (region-beginning) (region-end) buf)
-                   (magit-insert-hunk-item-patch hunk buf))
-                 (apply #'magit-run-git-with-input buf
-                        "apply" (append args (list "-"))))
-        (kill-buffer buf)))))
-
-(defun magit-apply-hunk-item (hunk &rest args)
-  (apply #'magit-apply-hunk-item* hunk nil args))
-
-(defun magit-apply-hunk-item-reverse (hunk &rest args)
-  (apply #'magit-apply-hunk-item* hunk t args))
 
 ;;; Log Washing
 
@@ -5801,6 +5723,48 @@ With prefix argument, changes in staging area are kept.
   (magit-assert-one-parent commit "cherry-pick")
   (magit-run-git "cherry-pick" "--no-commit" commit))
 
+(defun magit-apply-diff-item (diff &rest args)
+  (when (zerop magit-diff-context-lines)
+    (setq args (cons "--unidiff-zero" args)))
+  (let ((buf (generate-new-buffer " *magit-input*")))
+    (unwind-protect
+        (progn (magit-insert-diff-item-patch diff buf)
+               (apply #'magit-run-git-with-input buf
+                      "apply" (append args (list "-"))))
+      (kill-buffer buf))))
+
+(defun magit-apply-hunk-item* (hunk reverse &rest args)
+  "Apply single hunk or part of a hunk to the index or working file.
+
+This function is the core of magit's stage, unstage, apply, and
+revert operations.  HUNK (or the portion of it selected by the
+region) will be applied to either the index, if \"--cached\" is a
+member of ARGS, or to the working file otherwise."
+  (let ((zero-context (zerop magit-diff-context-lines))
+        (use-region (use-region-p)))
+    (when zero-context
+      (setq args (cons "--unidiff-zero" args)))
+    (when reverse
+      (setq args (cons "--reverse" args)))
+    (when (and use-region zero-context)
+      (error (concat "Not enough context to partially apply hunk.  "
+                     "Use `+' to increase context.")))
+    (let ((buf (generate-new-buffer " *magit-input*")))
+      (unwind-protect
+          (progn (if use-region
+                     (magit-insert-hunk-item-region-patch
+                      hunk reverse (region-beginning) (region-end) buf)
+                   (magit-insert-hunk-item-patch hunk buf))
+                 (apply #'magit-run-git-with-input buf
+                        "apply" (append args (list "-"))))
+        (kill-buffer buf)))))
+
+(defun magit-apply-hunk-item (hunk &rest args)
+  (apply #'magit-apply-hunk-item* hunk nil args))
+
+(defun magit-apply-hunk-item-reverse (hunk &rest args)
+  (apply #'magit-apply-hunk-item* hunk t args))
+
 ;;;; Cherry-Pick
 
 (defun magit-cherry-pick-item ()
@@ -6554,6 +6518,22 @@ With a prefix argument, visit in other window."
       (forward-line (1- line))
       (when (> column 0)
         (move-to-column (1- column))))))
+
+(defun magit-hunk-item-target-line (hunk)
+  (save-excursion
+    (beginning-of-line)
+    (let ((line (line-number-at-pos)))
+      (goto-char (magit-section-beginning hunk))
+      (unless (looking-at "@@+ .* \\+\\([0-9]+\\)\\(,[0-9]+\\)? @@+")
+        (error "Hunk header not found"))
+      (let ((target (string-to-number (match-string 1))))
+        (forward-line)
+        (while (< (line-number-at-pos) line)
+          ;; XXX - deal with combined diffs
+          (unless (looking-at "-")
+            (setq target (+ target 1)))
+          (forward-line))
+        target))))
 
 (defun magit-visit-item (&optional other-window)
   "Visit current item.
