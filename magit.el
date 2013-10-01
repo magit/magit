@@ -3862,6 +3862,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
       (insert text))))
 
 ;;; Log Washing
+;;;; Log Line Struct
 
 (cl-defstruct magit-log-line
   graph sha1 author date msg refs gpg refsub)
