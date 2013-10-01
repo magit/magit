@@ -428,6 +428,12 @@ they are not (due to semantic considerations)."
   :group 'magit
   :type 'boolean)
 
+(defcustom magit-unstage-all-confirm t
+  "Require acknowledgment before unstaging all changes."
+  :package-version '(magit . "1.3.0")
+  :group 'magit
+  :type 'boolean)
+
 (defcustom magit-revert-item-confirm t
   "Require acknowledgment before reverting an item."
   :group 'magit
@@ -5013,7 +5019,8 @@ With a prefix argument, add remaining untracked files as well.
   "Remove all changes from staging area.
 \('git reset --mixed HEAD')."
   (interactive)
-  (when (yes-or-no-p "Unstage all changes?")
+  (when (or (not magit-unstage-all-confirm)
+            (yes-or-no-p "Unstage all changes?"))
     (magit-run-git "reset" "HEAD" "--")))
 
 ;;;; Branching
