@@ -5928,7 +5928,7 @@ for the file whose log must be displayed."
                     #'magit-refresh-file-log-buffer
                     (magit-file-relative-name
                      (if (or current-prefix-arg (not buffer-file-name))
-                         (magit-read-file-from-rev (magit-get-current-branch))
+                         (magit-read-file-from-rev "HEAD")
                        buffer-file-name))
                     "HEAD" 'oneline))
 
