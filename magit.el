@@ -5622,14 +5622,14 @@ With a prefix argument amend to the commit at HEAD instead.
   (let ((args magit-custom-options))
     (when amendp
       (setq args (cons "--amend" args)))
-    (if (and magit-commit-all-when-nothing-staged
-             (not (magit-anything-staged-p))
-             (cond ((eq magit-commit-all-when-nothing-staged 'ask-stage)
-                    (and (y-or-n-p "Nothing staged.  Stage everything now? ") (magit-stage-all) nil))
-                   ((eq magit-commit-all-when-nothing-staged 'ask)
-                    (y-or-n-p "Nothing staged.  Commit all unstaged changes? "))
-                   (t magit-commit-all-when-nothing-staged)))
-        (setq args (cons "--all" args)))
+    (when (and magit-commit-all-when-nothing-staged
+               (not (magit-anything-staged-p))
+               (cond ((eq magit-commit-all-when-nothing-staged 'ask-stage)
+                      (and (y-or-n-p "Nothing staged.  Stage everything now? ") (magit-stage-all) nil))
+                     ((eq magit-commit-all-when-nothing-staged 'ask)
+                      (y-or-n-p "Nothing staged.  Commit all unstaged changes? "))
+                     (t magit-commit-all-when-nothing-staged)))
+      (setq args (cons "--all" args)))
     (if (not (or (magit-anything-staged-p)
                  (member "--allow-empty" args)
                  (member "--all" args)
