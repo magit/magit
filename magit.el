@@ -5901,8 +5901,10 @@ With a prefix arg, do a submodule update --init."
                                    (magit-buffer-file-name t))))
   (magit-mode-setup magit-log-buffer-name
                     #'magit-log-mode
-                    #'magit-refresh-file-log-buffer
-                    file "HEAD" 'oneline))
+                    #'magit-refresh-log-buffer
+                    'oneline "HEAD"
+                    magit-custom-options
+                    file))
 
 (magit-define-command reflog (ref)
   (interactive (list (magit-read-rev "Reflog of"
@@ -5956,29 +5958,6 @@ from the parent keymap `magit-mode-map' are also available."
                                 "[%an][%ar]%s"))))
              ,@args "--"
              ,@(and file (list file))))))
-
-(defun magit-refresh-file-log-buffer (file range style)
-  "Refresh the current file-log buffer by calling git.
-
-FILE is the path of the file whose log must be displayed.
-
-`magit-current-range' will be set to the value of RANGE.
-
-STYLE controls the display.  It is either `long', `oneline',
-or something else."
-  (setq magit-current-range range)
-  (setq magit-file-log-file file)
-  (magit-create-log-buffer-sections
-    (apply #'magit-git-section nil
-           (magit-rev-range-describe range (format "Commits for file %s" file))
-           (apply-partially 'magit-wash-log style)
-           "log" (magit-log-cutoff-length-arg)
-           "--decorate=full" "--abbrev-commit" "--graph"
-           (magit-diff-abbrev-arg)
-           `(,@(cl-case style
-                 (long    (list "--stat" "-z"))
-                 (oneline (list "--pretty=oneline")))
-             "--" ,file))))
 
 (defun magit-log-show-more-entries (&optional arg)
   "Grow the number of log entries shown.
