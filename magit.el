@@ -726,6 +726,11 @@ changes, e.g. because you are committing some binary files."
                  (const :tag "Expand top section" t)
                  (const :tag "Don't expand" nil)))
 
+(defcustom magit-show-merge-commits-in-status-buffer t
+  "Whether merge commits should be shown in the status buffer."
+  :group 'magit
+  :type 'boolean)
+
 ;; Not an option to avoid advertising it.
 (defvar magit-rigid-key-bindings nil
   "Use rigid key bindings instead of thematic key popups.
@@ -2190,7 +2195,8 @@ sectioning as needed for Magit interaction."
          buffer-title
          washer
          magit-git-executable
-         (append magit-git-standard-options args)))
+         (delete nil
+                 (append magit-git-standard-options args))))
 
 (defun magit-set-section (title type start end)
   "Create a new section of title TITLE and type TYPE.
@@ -4553,6 +4559,8 @@ when asking for user input."
                          (apply-partially 'magit-wash-log 'unique)
                          "log" magit-log-format
                          (magit-diff-abbrev-arg)
+                         (unless magit-show-merge-commits-in-status-buffer
+                           "--no-merges")
                          (concat "HEAD.." tracked)))))
 
 (magit-define-inserter unpushed-commits ()
@@ -4562,6 +4570,8 @@ when asking for user input."
                          (apply-partially 'magit-wash-log 'unique)
                          "log" magit-log-format
                          (magit-diff-abbrev-arg)
+                         (unless magit-show-merge-commits-in-status-buffer
+                           "--no-merges")
                          (concat tracked "..HEAD")))))
 
 ;;;; Line Sections
