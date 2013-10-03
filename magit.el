@@ -4064,6 +4064,8 @@ Evaluate (man \"git-check-ref-format\") for details")
              (when face
                (put-text-property beg end 'font-lock-face face)))))
       (ansi-color-apply-on-region (point-min) (point-max))))
+  (when (eq style 'cherry)
+    (reverse-region (point-min) (point-max)))
   (let ((magit-old-top-section nil))
     (when (eq style 'oneline)
       (magit-log-setup-author-date))
