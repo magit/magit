@@ -4596,6 +4596,22 @@ when asking for user input."
                          (magit-diff-abbrev-arg)
                          (concat tracked "..HEAD")))))
 
+(magit-define-inserter unpulled-cherries ()
+  (let ((tracked (magit-get-tracked-branch nil t)))
+    (when tracked
+      (magit-git-section 'unpulled "Unpulled commits:"
+                         (apply-partially 'magit-wash-log 'cherry)
+                         "cherry" "-v" (magit-diff-abbrev-arg)
+                         (magit-get-current-branch) tracked))))
+
+(magit-define-inserter unpushed-cherries ()
+  (let ((tracked (magit-get-tracked-branch nil t)))
+    (when tracked
+      (magit-git-section 'unpulled "Unpulled commits:"
+                         (apply-partially 'magit-wash-log 'cherry)
+                         "cherry" "-v" (magit-diff-abbrev-arg)
+                         tracked))))
+
 ;;;; Line Sections
 
 (defvar magit-status-line-align-to 9)
