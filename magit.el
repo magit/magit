@@ -868,6 +868,14 @@ Also see option `magit-diff-use-overlays'."
   "Face for the message element of the log output."
   :group 'magit-faces)
 
+(defface magit-cherry-unmatched
+  '((t :foreground "magenta"))
+  "Face for unmatched cherry commits.")
+
+(defface magit-cherry-equivalent
+  '((t :foreground "cyan"))
+  "Face for equivalent cherry commits.")
+
 (defface magit-item-highlight
   (if magit-diff-use-overlays
       '((((class color) (background light))
@@ -3974,8 +3982,8 @@ Evaluate (man \"git-check-ref-format\") for details")
     (concat (when cherry
               (concat (propertize cherry 'face
                                   (if (string= cherry "+")
-                                      'magit-diff-add
-                                    'magit-diff-del))
+                                      'magit-cherry-equivalent
+                                    'magit-cherry-unmatched))
                       " "))
             (if sha1
                 (propertize sha1 'face 'magit-log-sha1)
@@ -6002,9 +6010,9 @@ from the parent keymap `magit-mode-map' are also available.")
 (defun magit-insert-cherry-help-lines ()
   (when (derived-mode-p 'magit-cherry-mode)
     (insert "\n")
-    (magit-insert-status-line (propertize "-" 'face 'magit-diff-del)
-      (format "equivalent in both refs"))
-    (magit-insert-status-line (propertize "+" 'face 'magit-diff-add)
+    (magit-insert-status-line (propertize "-" 'face 'magit-cherry-unmatched)
+      (format "equivalent exists in both refs"))
+    (magit-insert-status-line (propertize "+" 'face 'magit-cherry-equivalent)
       "unmatched commit tree")))
 
 (magit-define-inserter cherry-commits ()
