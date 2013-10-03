@@ -1202,6 +1202,12 @@ Also see option `magit-diff-use-overlays'."
     map)
   "Keymap for `magit-log-mode'.")
 
+(defvar magit-cherry-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map magit-mode-map)
+    map)
+  "Keymap for `magit-cherry-mode'.")
+
 (defvar magit-reflog-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-log-mode-map)
@@ -5914,6 +5920,84 @@ With a non numeric prefix ARG, show all entries"
     (magit-refresh)
     (goto-char old-point)))
 
+;;; Cherry Mode
+
+(define-derived-mode magit-cherry-mode magit-mode "Magit Cherry"
+  "Mode for looking at commits not merged upstream.
+
+\\{magit-cherry-mode-map}
+Unless shadowed by the mode specific bindings above, bindings
+from the parent keymap `magit-mode-map' are also available.")
+
+(defvar magit-cherry-buffer-name "*magit-cherry*"
+  "Name of buffer used to display commits not merged upstream.")
+
+;;;###autoload (autoload 'magit-cherry "magit")
+(magit-define-command cherry (upstream head)
+  (interactive
+   (let ((branch (or (magit-get-current-branch)
+                     (error "Don't cherry on a detached head."))))
+     (list (magit-read-rev "Cherry upstream"
+                           (magit-get-tracked-branch branch nil t))
+           (magit-read-rev "Cherry head" branch))))
+  (let ((topdir (magit-get-top-dir default-directory)))
+    (magit-display-mode-buffer magit-cherry-buffer-name)
+    (magit-mode-init topdir
+                     #'magit-cherry-mode
+                     #'magit--refresh-cherry-buffer
+                     upstream
+                     head)))
+
+(defun magit--refresh-cherry-buffer (cherry-upstream cherry-head)
+  (magit-create-buffer-sections
+    (let ((branch-head (magit-format-commit "HEAD" "%h %s")))
+      (insert-before-markers
+       (format "Repository:  %s %s\n"
+               (propertize (magit-get-current-branch) 'face 'magit-branch)
+               (abbreviate-file-name default-directory))
+       (format "Branch head: %s\n" (or branch-head "nothing committed (yet)"))
+       "\n"
+       (format "%s means: equivalent exists in '%s'\n"
+               (propertize " - " 'face 'magit-diff-del)
+               cherry-upstream)
+       (format "%s means: only exists in '%s'\n"
+               (propertize " + " 'face 'magit-diff-add)
+               cherry-head)
+       "\n"
+       (propertize "Cherry commits:" 'face 'magit-section-title) "\n"))
+    (magit-git-section 'commit nil 'magit--wash-cherry-output
+                       "cherry" "-v" cherry-upstream cherry-head)))
+
+(defun magit--wash-cherry-output ()
+  (while (looking-at "^\\(\\+\\|-\\) +\\([0-9a-f]+ *\\)")
+    (let* ((summary-start (match-end 2))
+           (direction (match-string 1))
+           (revision  (replace-regexp-in-string " +" "" (match-string 2))))
+      ;; Delete direction mark and revision before reconstructing
+      ;; them.
+      (beginning-of-line)
+      (delete-region (point) summary-start)
+
+      ;; Re-create output and propertize properly.
+      (insert (propertize (concat " " direction " ")
+                          'face (if (string= direction "+")
+                                    'magit-diff-add
+                                  'magit-diff-del))
+              " "
+              (propertize revision 'face 'magit-log-sha1)
+              " ")
+
+      ;; Set section info to commit's SHA
+      (let ((section (magit-set-section revision 'commit
+                                        (line-beginning-position)
+                                        (min (1+ (line-end-position))
+                                             (point-max)))))
+        (magit-set-section-info revision section))
+
+      ;; Go to beginning of next line.
+      (beginning-of-line)
+      (forward-line))))
+
 ;;; Reflog Mode
 ;;;; (variables, TODO make unnecessary)
 
@@ -7119,6 +7203,5 @@ init file:
 ;; rest of magit core
 (require 'magit-key-mode)
 (require 'magit-bisect)
-(require 'magit-cherry)
 
 ;;; magit.el ends here
