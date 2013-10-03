@@ -5975,13 +5975,11 @@ from the parent keymap `magit-mode-map' are also available.")
   "Name of buffer used to display commits not merged upstream.")
 
 ;;;###autoload (autoload 'magit-cherry "magit")
-(magit-define-command cherry (upstream head)
+(magit-define-command cherry (head upstream)
   (interactive
-   (let ((branch (or (magit-get-current-branch)
-                     (error "Don't cherry on a detached head."))))
-     (list (magit-read-rev "Cherry upstream"
-                           (magit-get-tracked-branch branch nil t))
-           (magit-read-rev "Cherry head" branch))))
+   (let  ((head (magit-read-rev "Cherry head" (magit-get-current-branch))))
+     (list head (magit-read-rev "Cherry upstream"
+                                (magit-get-tracked-branch head nil t)))))
   (magit-mode-setup magit-cherry-buffer-name
                     #'magit-cherry-mode
                     #'magit-refresh-cherry-buffer
