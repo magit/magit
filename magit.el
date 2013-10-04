@@ -3201,6 +3201,7 @@ Also see `magit-mode-setup', a more convenient variant."
   (with-current-buffer (or buffer (current-buffer))
     (let* ((old-line (line-number-at-pos))
            (old-point (point))
+           (old-window-start (window-start))
            (old-section (magit-current-section))
            (old-path (and old-section
                           (magit-section-path (magit-current-section)))))
@@ -3214,6 +3215,7 @@ Also see `magit-mode-setup', a more convenient variant."
           (apply magit-refresh-function
                  magit-refresh-args))
         (magit-refresh-marked-commits-in-buffer)
+        (set-window-start (selected-window) old-window-start)
         (let ((s (and old-path (magit-find-section old-path magit-top-section))))
           (cond (s
                  (goto-char (magit-section-beginning s))
