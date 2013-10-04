@@ -6785,7 +6785,6 @@ from the parent keymap `magit-mode-map' are also available.")
                    for end-markers on (cdr markers)
                    for marker = (cl-loop for x in end-markers thereis x)
                    collect (list remote marker))))
-
     ;; actual displaying of information
     (magit-with-section "local" nil
       (insert-before-markers (propertize "Local:" 'face 'magit-section-title)
@@ -6793,11 +6792,8 @@ from the parent keymap `magit-mode-map' are also available.")
       (magit-set-section-info ".")
       (magit-wash-branches-between-point-and-marker
        (cl-loop for x in markers thereis x)))
-
     (insert-before-markers "\n")
-
     (mapc 'magit-wash-remote-branches-group remote-groups)
-
     ;; make sure markers point to nil so that they can be garbage collected
     (mapc (lambda (marker)
             (when marker
