@@ -353,6 +353,16 @@ Only considered when moving past the last entry with
   :group 'magit
   :type 'boolean)
 
+(defcustom magit-cherry-insert-sections-hook
+  '(magit-insert-cherry-head-line
+    magit-insert-cherry-upstream-line
+    magit-insert-cherry-help-lines
+    magit-insert-empty-line
+    magit-insert-cherry-commits)
+  "Hook run to insert sections into the cherry buffer."
+  :group 'magit
+  :type 'hook)
+
 (defcustom magit-mode-hook nil
   "Hook run when entering a Magit mode derived mode."
   :group 'magit
@@ -858,6 +868,14 @@ Also see option `magit-diff-use-overlays'."
   "Face for the message element of the log output."
   :group 'magit-faces)
 
+(defface magit-cherry-unmatched
+  '((t :foreground "magenta"))
+  "Face for unmatched cherry commits.")
+
+(defface magit-cherry-equivalent
+  '((t :foreground "cyan"))
+  "Face for equivalent cherry commits.")
+
 (defface magit-item-highlight
   (if magit-diff-use-overlays
       '((((class color) (background light))
@@ -1201,6 +1219,12 @@ Also see option `magit-diff-use-overlays'."
     (define-key map (kbd "e") 'magit-log-show-more-entries)
     map)
   "Keymap for `magit-log-mode'.")
+
+(defvar magit-cherry-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map magit-mode-map)
+    map)
+  "Keymap for `magit-cherry-mode'.")
 
 (defvar magit-reflog-mode-map
   (let ((map (make-sparse-keymap)))
@@ -3821,7 +3845,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
 ;;;; Log Line Struct
 
 (cl-defstruct magit-log-line
-  graph sha1 author date msg refs gpg refsub)
+  graph sha1 author date msg refs gpg refsub cherry)
 
 ;;;; Log Washing Variables
 
@@ -3918,6 +3942,11 @@ Evaluate (man \"git-check-ref-format\") for details")
           "\\([0-9a-fA-F]+\\) "                    ; sha     (1)
           "\\(.*\\)$"))                            ; msg     (2)
 
+(defconst magit-log-cherry-re
+  (concat "^\\([-+]\\) "                           ; cherry  (1)
+          "\\([0-9a-fA-F]+\\) "                    ; sha1    (2)
+          "\\(.*\\)$"))                            ; msg     (3)
+
 (defconst magit-log-reflog-re
   (concat "^\\([^\C-?]+\\)\C-??"                   ; graph   (1)
           "\\([^\C-?]+\\)\C-?"                     ; sha1    (2)
@@ -3946,10 +3975,17 @@ Evaluate (man \"git-check-ref-format\") for details")
         (msg    (magit-log-line-msg line))
         (refs   (magit-log-line-refs line))
         (gpg    (magit-log-line-gpg line))
-        (refsub (magit-log-line-refsub line)))
+        (refsub (magit-log-line-refsub line))
+        (cherry (magit-log-line-cherry line)))
     (when (and magit-log-show-author-date author date)
       (magit-log-make-author-date-overlay author date))
-    (concat (if sha1
+    (concat (when cherry
+              (concat (propertize cherry 'face
+                                  (if (string= cherry "+")
+                                      'magit-cherry-equivalent
+                                    'magit-cherry-unmatched))
+                      " "))
+            (if sha1
                 (propertize sha1 'face 'magit-log-sha1)
               (make-string magit-sha1-abbrev-length ? ))
             " "
@@ -3984,26 +4020,28 @@ Evaluate (man \"git-check-ref-format\") for details")
                         (oneline magit-log-oneline-re)
                         (long    magit-log-longline-re)
                         (reflog  magit-log-reflog-re)
-                        (unique  magit-log-unique-re))
+                        (unique  magit-log-unique-re)
+                        (cherry  magit-log-cherry-re))
                       line)
     (let ((match-style-string
-           (lambda (oneline long reflog unique)
+           (lambda (oneline long reflog unique cherry)
              (when (symbol-value style)
                (match-string (symbol-value style) line)))))
       (make-magit-log-line
-       :graph  (funcall match-style-string 1   1   1   nil)
-       :sha1   (funcall match-style-string 2   2   2   1)
-       :author (funcall match-style-string 5   nil nil nil)
-       :date   (funcall match-style-string 6   nil nil nil)
-       :gpg    (funcall match-style-string 4   nil nil nil)
-       :msg    (funcall match-style-string 7   4   4   2)
-       :refsub (funcall match-style-string nil nil 3   nil)
-       :refs   (when (funcall match-style-string 3 3 nil nil)
+       :graph  (funcall match-style-string 1   1   1   nil nil)
+       :sha1   (funcall match-style-string 2   2   2   1   2)
+       :author (funcall match-style-string 5   nil nil nil nil)
+       :date   (funcall match-style-string 6   nil nil nil nil)
+       :gpg    (funcall match-style-string 4   nil nil nil nil)
+       :msg    (funcall match-style-string 7   4   4   2   3)
+       :refsub (funcall match-style-string nil nil 3   nil nil)
+       :cherry (funcall match-style-string nil nil nil nil 1)
+       :refs   (when (funcall match-style-string 3 3 nil nil nil)
                  (cl-mapcan
                   (lambda (s)
                     (unless (string= s "tag:")
                       (list s)))
-                  (split-string (funcall match-style-string 3 3 nil nil)
+                  (split-string (funcall match-style-string 3 3 nil nil nil)
                                 "[(), ]" t)))))))
 
 (defun magit-wash-log-line (style)
@@ -4034,6 +4072,8 @@ Evaluate (man \"git-check-ref-format\") for details")
              (when face
                (put-text-property beg end 'font-lock-face face)))))
       (ansi-color-apply-on-region (point-min) (point-max))))
+  (when (eq style 'cherry)
+    (reverse-region (point-min) (point-max)))
   (let ((magit-old-top-section nil))
     (when (eq style 'oneline)
       (magit-log-setup-author-date))
@@ -4563,6 +4603,22 @@ when asking for user input."
                          "log" magit-log-format
                          (magit-diff-abbrev-arg)
                          (concat tracked "..HEAD")))))
+
+(magit-define-inserter unpulled-cherries ()
+  (let ((tracked (magit-get-tracked-branch nil t)))
+    (when tracked
+      (magit-git-section 'unpulled "Unpulled commits:"
+                         (apply-partially 'magit-wash-log 'cherry)
+                         "cherry" "-v" (magit-diff-abbrev-arg)
+                         (magit-get-current-branch) tracked))))
+
+(magit-define-inserter unpushed-cherries ()
+  (let ((tracked (magit-get-tracked-branch nil t)))
+    (when tracked
+      (magit-git-section 'unpulled "Unpulled commits:"
+                         (apply-partially 'magit-wash-log 'cherry)
+                         "cherry" "-v" (magit-diff-abbrev-arg)
+                         tracked))))
 
 ;;;; Line Sections
 
@@ -5914,6 +5970,58 @@ With a non numeric prefix ARG, show all entries"
     (magit-refresh)
     (goto-char old-point)))
 
+;;; Cherry Mode
+
+(define-derived-mode magit-cherry-mode magit-mode "Magit Cherry"
+  "Mode for looking at commits not merged upstream.
+
+\\{magit-cherry-mode-map}
+Unless shadowed by the mode specific bindings above, bindings
+from the parent keymap `magit-mode-map' are also available.")
+
+(defvar magit-cherry-buffer-name "*magit-cherry*"
+  "Name of buffer used to display commits not merged upstream.")
+
+;;;###autoload (autoload 'magit-cherry "magit")
+(magit-define-command cherry (head upstream)
+  (interactive
+   (let  ((head (magit-read-rev "Cherry head" (magit-get-current-branch))))
+     (list head (magit-read-rev "Cherry upstream"
+                                (magit-get-tracked-branch head nil t)))))
+  (magit-mode-setup magit-cherry-buffer-name
+                    #'magit-cherry-mode
+                    #'magit-refresh-cherry-buffer
+                    upstream head))
+
+(defun magit-refresh-cherry-buffer (upstream head)
+  (magit-create-buffer-sections
+    (magit-with-section 'cherry nil
+      (run-hooks 'magit-cherry-insert-sections-hook))))
+
+(defun magit-insert-cherry-head-line ()
+  (magit-insert-status-line "Head"
+    (concat (propertize (cadr magit-refresh-args) 'face 'magit-branch) " "
+            (abbreviate-file-name default-directory))))
+
+(defun magit-insert-cherry-upstream-line ()
+  (magit-insert-status-line "Upstream"
+    (propertize (car magit-refresh-args) 'face 'magit-branch)))
+
+(defun magit-insert-cherry-help-lines ()
+  (when (derived-mode-p 'magit-cherry-mode)
+    (insert "\n")
+    (magit-insert-status-line (propertize "-" 'face 'magit-cherry-unmatched)
+      (format "equivalent exists in both refs"))
+    (magit-insert-status-line (propertize "+" 'face 'magit-cherry-equivalent)
+      "unmatched commit tree")))
+
+(magit-define-inserter cherry-commits ()
+  (apply #'magit-git-section
+         'commit "Cherry commits:"
+         (apply-partially 'magit-wash-log 'cherry)
+         "cherry" "-v" (magit-diff-abbrev-arg)
+         magit-refresh-args))
+
 ;;; Reflog Mode
 ;;;; (variables, TODO make unnecessary)
 
@@ -7068,6 +7176,5 @@ init file:
 ;; rest of magit core
 (require 'magit-key-mode)
 (require 'magit-bisect)
-(require 'magit-cherry)
 
 ;;; magit.el ends here
