@@ -6765,9 +6765,7 @@ from the parent keymap `magit-mode-map' are also available.")
   (save-restriction
     (narrow-to-region (point) marker)
     (magit-wash-sequence
-     (if remote-name
-         (apply-partially 'magit-wash-branch-line remote-name)
-       #'magit-wash-branch-line))))
+     (apply-partially 'magit-wash-branch-line remote-name))))
 
 (defun magit-wash-branches ()
   ;; get the names of the remotes
