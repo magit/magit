@@ -6749,11 +6749,8 @@ from the parent keymap `magit-mode-map' are also available.")
   (let* ((remote-name (car group))
          (url (magit-get "remote" remote-name "url"))
          (push-url (magit-get "remote" remote-name "pushurl"))
-         (urls (concat url (if push-url
-                               (concat ", " push-url)
-                             "")))
+         (urls (concat url (and push-url (concat ", " push-url))))
          (marker (cadr group)))
-
     (magit-with-section (concat "remote:" remote-name) 'remote
       (magit-set-section-info remote-name)
       (insert-before-markers (propertize (format "%s (%s):" remote-name urls)
