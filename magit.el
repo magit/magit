@@ -1993,6 +1993,12 @@ an existing remote."
     ("patches" magit-log-get-patches-color)
     ("bisect" magit-log-get-bisect-state-color)))
 
+(defun magit-format-ref-label (ref)
+  (cl-destructuring-bind (label face)
+      (magit-ref-get-label-color ref)
+    (when label
+      (list (propertize label 'face face)))))
+
 (defun magit-ref-get-label-color (r)
   (if (cl-loop for re in magit-uninteresting-refs
                thereis (string-match re r))
@@ -3991,17 +3997,10 @@ Evaluate (man \"git-check-ref-format\") for details")
             " "
             graph
             (when refs
-              (concat
-	       (mapconcat 'identity
-			  (cl-mapcan
-			   (lambda (r)
-			     (cl-destructuring-bind (label face)
-				 (magit-ref-get-label-color r)
-			       (when label
-				 (list (propertize label 'face face)))))
-			   refs)
-			  " ")
-	       " "))
+              (concat (mapconcat 'identity
+                                 (cl-mapcan #'magit-format-ref-label refs)
+                                 " ")
+                      " "))
             (when refsub
               (magit-log-format-reflog refsub))
             (when msg
