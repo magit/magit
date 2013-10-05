@@ -6271,12 +6271,16 @@ from the parent keymap `magit-mode-map' are also available."
   "Name of buffer used to display commits not merged into current HEAD.")
 
 ;;;###autoload
-(defun magit-wazzup ()
-  (interactive)
+(defun magit-wazzup (branch)
+  (interactive
+   (let ((branch (magit-get-current-branch)))
+     (list (if current-prefix-arg
+               (magit-read-rev "Wazzup branch" branch)
+             branch))))
   (magit-mode-setup magit-wazzup-buffer-name
                     #'magit-wazzup-mode
                     #'magit-refresh-wazzup-buffer
-                    (magit-get-current-branch)))
+                    branch))
 
 (defun magit-refresh-wazzup-buffer (head)
   (magit-create-buffer-sections
