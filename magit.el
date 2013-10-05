@@ -1982,7 +1982,7 @@ an existing remote."
 
 ;;;; Reference Labels
 
-;; TODO loose the "log" substring and use this
+;; TODO lose the "log" substring and use this
 ;; where ever it could and should be used.
 
 (defvar magit-refs-namespaces
