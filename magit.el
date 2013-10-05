@@ -6316,14 +6316,13 @@ from the parent keymap `magit-mode-map' are also available."
           (cond
            ((and old (not (magit-section-hidden old)))
             (let ((beg (point)))
-              (magit-git-insert "log" magit-log-format
+              (magit-git-insert "cherry" "-v"
                                 (magit-diff-abbrev-arg)
-                                (concat head ".." upstream))
-              (insert "\n")
+                                head upstream)
               (save-restriction
                 (narrow-to-region beg (point))
                 (goto-char (point-min))
-                (magit-wash-log 'unique))))
+                (magit-wash-log 'cherry))))
            (t
             (setf (magit-section-hidden magit-top-section) t)
             (setf (magit-section-needs-refresh-on-show magit-top-section) t)
