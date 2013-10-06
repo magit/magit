@@ -353,6 +353,14 @@ Only considered when moving past the last entry with
   :group 'magit
   :type 'boolean)
 
+(defcustom magit-wazzup-insert-sections-hook
+  '(magit-insert-wazzup-head-line
+    magit-insert-empty-line
+    magit-insert-wazzup-branches)
+  "Hook run to insert sections into the wazzup buffer."
+  :group 'magit
+  :type 'hook)
+
 (defcustom magit-cherry-insert-sections-hook
   '(magit-insert-cherry-head-line
     magit-insert-cherry-upstream-line
@@ -1982,7 +1990,7 @@ an existing remote."
 
 ;;;; Reference Labels
 
-;; TODO loose the "log" substring and use this
+;; TODO lose the "log" substring and use this
 ;; where ever it could and should be used.
 
 (defvar magit-refs-namespaces
@@ -1992,6 +2000,12 @@ an existing remote."
     ("heads" . magit-log-head-label-local)
     ("patches" magit-log-get-patches-color)
     ("bisect" magit-log-get-bisect-state-color)))
+
+(defun magit-format-ref-label (ref)
+  (cl-destructuring-bind (label face)
+      (magit-ref-get-label-color ref)
+    (when label
+      (list (propertize label 'face face)))))
 
 (defun magit-ref-get-label-color (r)
   (if (cl-loop for re in magit-uninteresting-refs
@@ -3991,17 +4005,10 @@ Evaluate (man \"git-check-ref-format\") for details")
             " "
             graph
             (when refs
-              (concat
-	       (mapconcat 'identity
-			  (cl-mapcan
-			   (lambda (r)
-			     (cl-destructuring-bind (label face)
-				 (magit-ref-get-label-color r)
-			       (when label
-				 (list (propertize label 'face face)))))
-			   refs)
-			  " ")
-	       " "))
+              (concat (mapconcat 'identity
+                                 (cl-mapcan #'magit-format-ref-label refs)
+                                 " ")
+                      " "))
             (when refsub
               (magit-log-format-reflog refsub))
             (when msg
@@ -6264,75 +6271,62 @@ from the parent keymap `magit-mode-map' are also available."
   "Name of buffer used to display commits not merged into current HEAD.")
 
 ;;;###autoload
-(defun magit-wazzup (&optional all)
-  (interactive "P")
+(defun magit-wazzup (branch)
+  (interactive
+   (let ((branch (magit-get-current-branch)))
+     (list (if current-prefix-arg
+               (magit-read-rev "Wazzup branch" branch)
+             branch))))
   (magit-mode-setup magit-wazzup-buffer-name
                     #'magit-wazzup-mode
                     #'magit-refresh-wazzup-buffer
-                    (magit-get-current-branch)
-                    all))
+                    branch))
 
-(defun magit-refresh-wazzup-buffer (head all)
-  (let ((branch-desc (or head "(detached) HEAD")))
-    (unless head (setq head "HEAD"))
-    (magit-create-buffer-sections
-      (magit-with-section 'wazzupbuf nil
-        (insert (format "Wazzup, %s\n\n" branch-desc))
-        (let* ((excluded (magit-file-lines
-                          (magit-git-dir "info/wazzup-exclude")))
-               (all-branches (magit-list-interesting-refs))
-               (branches (if all
-                             all-branches
-                           (delq nil (mapcar
-                                      (lambda (b)
-                                        (and (not
-                                              (member (cdr b) excluded))
-                                             b))
-                                      all-branches))))
-               (reported (make-hash-table :test #'equal)))
-          (dolist (branch branches)
-            (let* ((name (car branch))
-                   (ref (cdr branch))
-                   (hash (magit-rev-parse ref))
-                   (reported-branch (gethash hash reported)))
-              (unless (or (and reported-branch
-                               (string= (file-name-nondirectory ref)
-                                        reported-branch))
-                          (not (magit-git-string "merge-base" head ref)))
-                (puthash hash (file-name-nondirectory ref) reported)
-                (let* ((n (length (magit-git-lines "log" "--pretty=oneline"
-                                                   (concat head ".." ref))))
-                       (section
-                        (let ((magit-section-hidden-default t))
-                          (magit-git-section
-                           (cons ref 'wazzup)
-                           (format "%s unmerged commits in %s%s"
-                                   n name
-                                   (if (member ref excluded)
-                                       " (normally ignored)"
-                                     ""))
-                           (apply-partially 'magit-wash-log 'oneline)
-                           "log" (magit-log-cutoff-length-arg)
-                           "--abbrev-commit" "--graph" "--pretty=oneline"
-                           (magit-diff-abbrev-arg)
-                           (format "%s..%s" head ref)
-                           "--"))))
-                  (magit-set-section-info ref section))))))))))
+(defun magit-refresh-wazzup-buffer (head)
+  (magit-create-buffer-sections
+    (magit-with-section 'wazzupbuf nil
+      (run-hooks 'magit-wazzup-insert-sections-hook))))
 
-(defun magit-wazzup-toggle-ignore (branch edit)
-  (let ((ignore-file (magit-git-dir "info/wazzup-exclude")))
-    (when edit
-      (setq branch (read-string "Branch to ignore for wazzup: " branch)))
-    (let ((ignored (magit-file-lines ignore-file)))
-      (cond ((member branch ignored)
-             (when (or (not edit)
-                       (y-or-n-p "Branch %s is already ignored.  Unignore? "))
-               (setq ignored (delete branch ignored))))
-            (t
-             (setq ignored (append ignored (list branch)))))
-      (with-temp-file ignore-file
-        (insert (mapconcat 'identity ignored "\n")))
-      (magit-need-refresh))))
+(magit-define-inserter wazzup-head-line ()
+  (magit-insert-status-line "Head"
+    (concat (propertize (car magit-refresh-args) 'face 'magit-branch) " "
+            (abbreviate-file-name default-directory))))
+
+(magit-define-inserter wazzup-branches ()
+  (dolist (upstream (magit-git-lines "show-ref"))
+    (setq  upstream (cadr (split-string upstream " ")))
+    (when (and (not (string-match-p "HEAD$" upstream))
+               (string-match-p "^refs/\\(heads\\|remotes\\)/" upstream))
+      (magit-insert-wazzup-commits upstream (car magit-refresh-args)))))
+
+(defun magit-insert-wazzup-commits (upstream head)
+  (let ((count (string-to-number
+                (magit-git-string "rev-list" "--count" "--right-only"
+                                  (concat head "..." upstream)))))
+    (when (> count 0)
+      (let* ((old (and magit-old-top-section
+                       (cl-find-if
+                        (lambda (c)
+                          (equal (magit-section-title c) upstream))
+                        (magit-section-children magit-old-top-section))))
+             (magit-section-hidden-default (not old)))
+        (magit-with-section upstream 'wazzup
+          (insert (format "%3s %s\n" count
+                          (car (magit-format-ref-label upstream))))
+          (cond
+           ((and old (not (magit-section-hidden old)))
+            (let ((beg (point)))
+              (magit-git-insert "cherry" "-v"
+                                (magit-diff-abbrev-arg)
+                                head upstream)
+              (save-restriction
+                (narrow-to-region beg (point))
+                (goto-char (point-min))
+                (magit-wash-log 'cherry))))
+           (t
+            (setf (magit-section-hidden magit-top-section) t)
+            (setf (magit-section-needs-refresh-on-show magit-top-section) t)
+            )))))))
 
 ;;; Acting (2)
 ;;;; Ignore
@@ -6378,9 +6372,7 @@ With a prefix argument edit the ignore string."
   (interactive "P")
   (magit-section-action (item info "ignore")
     ((untracked file)
-     (magit-ignore-file (concat "/" info) edit local))
-    ((wazzup)
-     (magit-wazzup-toggle-ignore info edit))))
+     (magit-ignore-file (concat "/" info) edit local))))
 
 (defun magit-ignore-item-locally (edit)
   "Ignore the item at point locally only.
