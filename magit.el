@@ -3276,7 +3276,9 @@ few sanity checks."
     (unless (or (buffer-base-buffer)
                 (buffer-modified-p)
                 (verify-visited-file-modtime (current-buffer))
-                (not (file-readable-p (buffer-file-name))))
+                (not (file-readable-p (buffer-file-name)))
+                (not (magit-git-success "ls-files" "--error-unmatched"
+                                        (buffer-file-name))))
       (revert-buffer t t nil))))
 
 (defun magit-update-vc-modeline ()
