@@ -3274,8 +3274,6 @@ It calls function `revert-buffer' (which see) but only after a
 few sanity checks."
   (with-current-buffer (current-buffer)
     (when (and (not (buffer-modified-p))
-               ;; Don't revert indirect buffers, as the parent would be
-               ;; reverted.
                (not (buffer-base-buffer))
                (not (verify-visited-file-modtime (current-buffer)))
                (file-readable-p (buffer-file-name)))
