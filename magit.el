@@ -7028,11 +7028,15 @@ argument) in the current window."
 ;;;###autoload
 (defun magit-run-git-gui-blame (commit filename &optional linenum)
   "Run `git gui blame' on the given FILENAME and COMMIT.
-When the current buffer is visiting FILENAME instruct
-blame to center around the line point is on."
+Interactively run it for the current file and the HEAD, with a
+prefix let the user choose.  When the current buffer is visiting
+FILENAME instruct blame to center around the line point is on."
   (interactive
-   (let* ((revision (magit-read-rev "Retrieve file from revision" "HEAD"))
-          (filename (magit-read-file-from-rev revision)))
+   (let (revision filename)
+     (if current-prefix-arg
+         (setq revision (magit-read-rev "Retrieve file from revision" "HEAD")
+               filename (magit-read-file-from-rev revision))
+       (setq revision "HEAD" filename (magit-buffer-file-name t)))
      (list revision filename
            (and (equal filename
                        (ignore-errors
