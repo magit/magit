@@ -1428,6 +1428,7 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
                        (when magit-file-name
                          (expand-file-name magit-file-name topdir)))))
     (when filename
+      (setq filename (file-truename filename))
       (if relative
           (file-relative-name filename topdir)
         filename))))
