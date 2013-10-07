@@ -1865,11 +1865,13 @@ according to `magit-remote-ref-format'"
 (defun magit-read-file-from-rev (revision &optional default)
   (unless revision
     (setq revision "HEAD"))
-  (magit-completing-read (format "Retrieve file from %s: " revision)
-                         (magit-git-lines "ls-tree" "-r" "--name-only" revision)
-                         nil 'require-match
-                         nil 'magit-read-file-hist
-                         (or default (magit-buffer-file-name t))))
+  (let ((default-directory (magit-get-top-dir)))
+    (magit-completing-read
+     (format "Retrieve file from %s: " revision)
+     (magit-git-lines "ls-tree" "-r" "--name-only" revision)
+     nil 'require-match
+     nil 'magit-read-file-hist
+     (or default (magit-buffer-file-name t)))))
 
 (defvar magit-read-rev-history nil
   "The history of inputs to `magit-read-rev' and `magit-read-tag'.")
