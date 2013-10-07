@@ -3273,10 +3273,10 @@ This is intended for use in `magit-refresh-file-buffer-hook'.
 It calls function `revert-buffer' (which see) but only after a
 few sanity checks."
   (with-current-buffer (current-buffer)
-    (when (and (not (buffer-base-buffer))
-               (not (buffer-modified-p))
-               (not (verify-visited-file-modtime (current-buffer)))
-               (file-readable-p (buffer-file-name)))
+    (unless (or (buffer-base-buffer)
+                (buffer-modified-p)
+                (verify-visited-file-modtime (current-buffer))
+                (not (file-readable-p (buffer-file-name))))
       (revert-buffer t t nil))))
 
 (defun magit-update-vc-modeline ()
