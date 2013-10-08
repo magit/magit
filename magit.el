@@ -4625,7 +4625,7 @@ when asking for user input."
 (magit-define-inserter unpushed-cherries ()
   (let ((tracked (magit-get-tracked-branch nil t)))
     (when tracked
-      (magit-git-section 'unpulled "Unpulled commits:"
+      (magit-git-section 'unpushed "Unpushed commits:"
                          (apply-partially 'magit-wash-log 'cherry)
                          "cherry" "-v" (magit-diff-abbrev-arg)
                          tracked))))
