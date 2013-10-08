@@ -5576,10 +5576,12 @@ With a prefix argument amend to the commit at HEAD instead.
       (magit-commit-maybe-expand)
       (magit-commit-internal "commit" args))))
 
-(defun magit-commit-maybe-expand ()
+(defun magit-commit-maybe-expand (&optional unstaged)
   (when (and magit-expand-staged-on-commit
              (derived-mode-p 'magit-status-mode))
-    (magit-jump-to-staged t)))
+    (if unstaged
+        (magit-jump-to-unstaged t)
+      (magit-jump-to-staged t))))
 
 (defun magit-commit-internal (subcmd args)
   (setq git-commit-previous-winconf (current-window-configuration))
