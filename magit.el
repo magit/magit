@@ -3426,7 +3426,8 @@ the buffer.  Finally reset the window configuration to nil."
         (set-window-configuration winconf)
         (when (buffer-live-p buffer)
           (with-current-buffer buffer
-            (setq magit-previous-window-configuration nil)))))))
+            (setq magit-previous-window-configuration nil)))))
+    (run-hook-with-args 'magit-quit-window-hook buffer)))
 
 ;;; Diff Options
 
