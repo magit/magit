@@ -4470,9 +4470,25 @@ in `magit-commit-buffer-name'."
 (define-derived-mode magit-status-mode magit-mode "Magit"
   "Mode for looking at git status.
 
-\\{magit-status-mode-map}
-Unless shadowed by the mode specific bindings above, bindings
-from the parent keymap `magit-mode-map' are also available."
+More usefull key are:
+
+  - \\[magit-stage-item] for git add
+  - \\[magit-unstage-item] to unstage an uncommited change
+  - \\[magit-key-mode-popup-committing] for git commit
+  - \\[magit-key-mode-popup-logging] for git log
+  - \\[magit-key-mode-popup-pulling] for git pull
+  - \\[magit-key-mode-popup-fetching] for git fetch
+  - \\[magit-key-mode-popup-pushing] for git push
+  - \\[magit-key-mode-popup-merging] for git merge
+  - \\[magit-key-mode-popup-branching] for git branch
+  - \\[magit-visit-item] to view or edit something
+  - \\[magit-cherry-pick-item] to apply a stash, commit, ....
+  - \\[magit-revert-item] to revert a commit
+  - \\[magit-cherry] to review cherry pickable commit
+  - \\[magit-ediff] to show diff, or resolve conflict with ediff
+
+
+\\{magit-status-mode-map}"
   :group 'magit)
 
 ;;;###autoload
