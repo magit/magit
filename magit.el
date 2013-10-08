@@ -5575,12 +5575,7 @@ With a prefix argument amend to the commit at HEAD instead.
            "Nothing staged.  Set --allow-empty, --all, or --amend in popup."))
       (when (and magit-expand-staged-on-commit
                  (derived-mode-p 'magit-status-mode))
-        (magit-jump-to-staged)
-        (with-local-quit
-          (if (eq magit-expand-staged-on-commit 'full)
-              (magit-show-level 4 nil)
-            (magit-expand-section)))
-        (recenter 0))
+        (magit-jump-to-staged t))
       (magit-commit-internal "commit" args))))
 
 (defun magit-commit-internal (subcmd args)
