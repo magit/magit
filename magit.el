@@ -5564,17 +5564,23 @@ With a prefix argument amend to the commit at HEAD instead.
   (let ((args magit-custom-options))
     (when amendp
       (setq args (cons "--amend" args)))
-    (if (not (or (magit-anything-staged-p)
-                 (member "--allow-empty" args)
-                 (member "--all" args)
-                 (member "--amend" args)))
-        (if (and (magit-rebase-info)
-                 (y-or-n-p "Nothing staged.  Continue in-progress rebase? "))
-            (magit-run-git-async "rebase" "--continue")
-          (error
-           "Nothing staged.  Set --allow-empty, --all, or --amend in popup."))
+    (when (setq args (magit-commit-assert args))
       (magit-commit-maybe-expand)
       (magit-commit-internal "commit" args))))
+
+(defun magit-commit-assert (args)
+  (cond
+   ((or (magit-anything-staged-p)
+        (member "--allow-empty" args)
+        (member "--all" args)
+        (member "--amend" args))
+    (or args (list "--")))
+   ((and (magit-rebase-info)
+         (y-or-n-p "Nothing staged.  Continue in-progress rebase? "))
+    (magit-run-git-async "rebase" "--continue")
+    nil)
+   (t
+    (error "Nothing staged.  Set --allow-empty, --all, or --amend in popup."))))
 
 (defun magit-commit-maybe-expand (&optional unstaged)
   (when (and magit-expand-staged-on-commit
