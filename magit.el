@@ -304,6 +304,12 @@ which generates a tracking name of the form \"REMOTE-BRANCHNAME\"."
                 (function-item magit-default-tracking-name-branch-only)
                 (function :tag "Other")))
 
+(defcustom magit-commit-ask-to-stage t
+  "Whether to ask to stage everything when committing and nothing is staged."
+  :group 'magit
+  :type 'boolean
+  :package-version '(magit . "1.3.0"))
+
 (defcustom magit-commit-mode-show-buttons t
   "Whether to show navigation buttons in the *magit-commit* buffer."
   :group 'magit
@@ -5579,6 +5585,11 @@ With a prefix argument amend to the commit at HEAD instead.
          (y-or-n-p "Nothing staged.  Continue in-progress rebase? "))
     (magit-run-git-async "rebase" "--continue")
     nil)
+   (magit-commit-ask-to-stage
+    (magit-commit-maybe-expand t)
+    (when (y-or-n-p "Nothing staged.  Stage and commit everything? ")
+      (magit-run-git "add" "-u" ".")
+      (or args (list "--"))))
    (t
     (error "Nothing staged.  Set --allow-empty, --all, or --amend in popup."))))
 
