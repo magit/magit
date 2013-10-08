@@ -1128,7 +1128,7 @@ Also see option `magit-diff-use-overlays'."
     (define-key map (kbd "M-S") 'magit-show-level-4-all)
     (define-key map (kbd "g") 'magit-refresh)
     (define-key map (kbd "G") 'magit-refresh-all)
-    (define-key map (kbd "?") 'magit-describe-item)
+    (define-key map (kbd "?") 'describe-mode)
     (define-key map (kbd ":") 'magit-git-command)
     (define-key map (kbd "C-x 4 a") 'magit-add-change-log-entry-other-window)
     (define-key map (kbd "L") 'magit-add-change-log-entry)
