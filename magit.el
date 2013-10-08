@@ -5573,10 +5573,13 @@ With a prefix argument amend to the commit at HEAD instead.
             (magit-run-git-async "rebase" "--continue")
           (error
            "Nothing staged.  Set --allow-empty, --all, or --amend in popup."))
-      (when (and magit-expand-staged-on-commit
-                 (derived-mode-p 'magit-status-mode))
-        (magit-jump-to-staged t))
+      (magit-commit-maybe-expand)
       (magit-commit-internal "commit" args))))
+
+(defun magit-commit-maybe-expand ()
+  (when (and magit-expand-staged-on-commit
+             (derived-mode-p 'magit-status-mode))
+    (magit-jump-to-staged t)))
 
 (defun magit-commit-internal (subcmd args)
   (setq git-commit-previous-winconf (current-window-configuration))
