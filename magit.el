@@ -4340,9 +4340,18 @@ in `magit-commit-buffer-name'."
 (define-derived-mode magit-status-mode magit-mode "Magit"
   "Mode for looking at git status.
 
-\\{magit-status-mode-map}
-Unless shadowed by the mode specific bindings above, bindings
-from the parent keymap `magit-mode-map' are also available."
+\\<magit-status-mode-map>Type `\\[magit-stage-item]` to stage (add) an item, \
+`\\[magit-unstage-item]` to unstage it.
+Type `\\[magit-key-mode-popup-committing]` to have a popup to commit, type \
+`\\[magit-key-mode-popup-dispatch]` to see others
+available popup.
+Type `\\[magit-visit-item]` to visit something, and \
+`\\[magit-toggle-section]` to show or hide section.
+
+More information can be found in Info node `(magit)Status'
+
+Other key binding:
+\\{magit-status-mode-map}"
   :group 'magit)
 
 ;;;###autoload
