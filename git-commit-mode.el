@@ -282,8 +282,9 @@ The commit message is saved to the kill ring."
   "Save current message to `log-edit-comment-ring'."
   (interactive)
   (let ((message (buffer-string)))
-    (when (or (ring-empty-p log-edit-comment-ring)
-              (not (equal message (ring-ref log-edit-comment-ring 0))))
+    (when (and (string-match "^\\s-*\\sw" message)
+               (or (ring-empty-p log-edit-comment-ring)
+                   (not (equal message (ring-ref log-edit-comment-ring 0)))))
       (ring-insert log-edit-comment-ring message))))
 
 (defun git-commit-prev-message (arg)
