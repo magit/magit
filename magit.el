@@ -6072,9 +6072,19 @@ This is only non-nil in reflog buffers.")
 (define-derived-mode magit-reflog-mode magit-log-mode "Magit Reflog"
   "Mode for looking at git reflog.
 
-\\{magit-reflog-mode-map}
-Unless shadowed by the mode specific bindings above, bindings
-from the parent keymap `magit-log-mode-map' are also available."
+\\<magit-reflog-mode-map>Type `\\[magit-visit-item]` to visit a commit, and \
+`\\[magit-show-item-or-scroll-up]` to just show it.
+Type `\\[magit-diff-working-tree]` to see the diff between current commit and \
+your working tree,
+Type `\\[magit-diff]` to see the between any two version.
+Type `\\[magit-reset-head]` to reset your head to the current commit, and \
+`\\[magit-apply-item]` to apply its change
+to your working tree and `\\[magit-cherry-pick-item]` to cherry pick it.
+
+More information can be found in Info node `(magit)Reflogs'
+
+Other key binding:
+\\{magit-reflog-mode-map}"
   :group 'magit)
 
 (defun magit-refresh-reflog-buffer (ref)
