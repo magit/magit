@@ -284,7 +284,7 @@ The commit message is saved to the kill ring."
   (let ((message (buffer-string)))
     (when (and (string-match "^\\s-*\\sw" message)
                (or (ring-empty-p log-edit-comment-ring)
-                   (not (equal message (ring-ref log-edit-comment-ring 0)))))
+                   (not (ring-member log-edit-comment-ring message))))
       (ring-insert log-edit-comment-ring message))))
 
 (defun git-commit-prev-message (arg)
