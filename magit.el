@@ -4057,6 +4057,13 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 (define-derived-mode magit-commit-mode magit-mode "Magit"
   "Mode for looking at a git commit.
 
+\\<magit-commit-mode-map>Type \\[magit-visit-item] to visit the changed file, \
+`\\[magit-toggle-section]` to hide or show a hunk,
+`\\[magit-diff-larger-hunks]` and `\\[magit-diff-smaller-hunks] to change the \
+size of the hunks.
+Type `\\[magit-apply-item]` to apply a change to your worktree and \
+`\\[magit-revert-item]` to reverse it.
+
 \\{magit-commit-mode-map}
 Unless shadowed by the mode specific bindings above, bindings
 from the parent keymap `magit-mode-map' are also available."
