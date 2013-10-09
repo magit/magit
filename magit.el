@@ -5945,9 +5945,20 @@ With a prefix argument show the log graph."
 (define-derived-mode magit-log-mode magit-mode "Magit Log"
   "Mode for looking at git log.
 
-\\{magit-log-mode-map}
-Unless shadowed by the mode specific bindings above, bindings
-from the parent keymap `magit-mode-map' are also available."
+\\<magit-log-mode-map>Type `\\[magit-visit-item]` to visit a commit, and \
+`\\[magit-show-item-or-scroll-up]` to just show it.
+Type `\\[magit-log-show-more-entries]` to show more commits, \
+and `\\[magit-refresh]` to refresh the log.
+Type `\\[magit-diff-working-tree]` to see the diff between current commit and your working tree,
+Type `\\[magit-diff]` to see diff between any two version
+Type `\\[magit-apply-item]` to apply the change of the current commit to your wortree,
+and `\\[magit-cherry-pick-item]` to apply and commit the result.
+Type `\\[magit-revert-item]` to revert a commit, and `\\[magit-reset-head]` reset your current head to a commit,
+
+More information can be found in Info node `(magit)History'
+
+Other key binding:
+\\{magit-log-mode-map}"
   :group 'magit)
 
 (defvar magit-log-buffer-name "*magit-log*"
