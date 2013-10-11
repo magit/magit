@@ -3242,6 +3242,7 @@ Also see `magit-mode-setup', a more convenient variant."
   (with-current-buffer buffer
     (let* ((old-line (line-number-at-pos))
            (old-point (point))
+           (old-window (selected-window))
            (old-section (magit-current-section))
            (old-path (and old-section
                           (magit-section-path (magit-current-section)))))
@@ -3264,6 +3265,7 @@ Also see `magit-mode-setup', a more convenient variant."
                    (widen)
                    (goto-char (point-min))
                    (forward-line (1- old-line)))))))
+      (unrecord-window-buffer old-window buffer)
       (dolist (w (get-buffer-window-list buffer nil t))
         (set-window-point w (point)))
       (magit-highlight-section)
