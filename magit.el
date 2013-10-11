@@ -2479,6 +2479,23 @@ TITLE is the displayed title of the section."
 FUNCTION has to move point forward or return nil."
   (while (and (not (eobp)) (funcall function))))
 
+(defun magit-section-siblings (section &optional direction)
+  (let ((parent (magit-section-parent section)))
+    (when parent
+      (let ((siblings (magit-section-children parent)))
+        (cl-ecase direction
+          ((prev) (member section (reverse siblings)))
+          ((next) (member section siblings))
+          (nil siblings))))))
+
+(defun magit-region-siblings (&optional key)
+  (mapcar (or key #'identity)
+          (cl-intersection
+           (magit-section-siblings
+            (magit-find-section-at (min (mark) (point))) 'next)
+           (magit-section-siblings
+            (magit-find-section-at (max (mark) (point))) 'prev))))
+
 ;;;; Section Visibility
 
 (defun magit-section-set-hidden (section hidden)
