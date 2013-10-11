@@ -3238,10 +3238,12 @@ Also see `magit-mode-setup', a more convenient variant."
 
 ;;;; Refresh Buffer
 
-(defun magit-refresh-buffer (&optional buffer)
-  (with-current-buffer (or buffer (current-buffer))
+(cl-defun magit-refresh-buffer (&optional (buffer (current-buffer)))
+  (with-current-buffer buffer
     (let* ((old-line (line-number-at-pos))
            (old-point (point))
+           (old-window (selected-window))
+           (old-window-start (window-start))
            (old-section (magit-current-section))
            (old-path (and old-section
                           (magit-section-path (magit-current-section)))))
@@ -3254,7 +3256,6 @@ Also see `magit-mode-setup', a more convenient variant."
         (when magit-refresh-function
           (apply magit-refresh-function
                  magit-refresh-args))
-        (magit-refresh-marked-commits-in-buffer)
         (let ((s (and old-path (magit-find-section old-path magit-top-section))))
           (cond (s
                  (goto-char (magit-section-beginning s))
@@ -3264,10 +3265,13 @@ Also see `magit-mode-setup', a more convenient variant."
                  (save-restriction
                    (widen)
                    (goto-char (point-min))
-                   (forward-line (1- old-line)))))
-          (dolist (w (get-buffer-window-list (current-buffer)))
-            (set-window-point w (point)))
-          (magit-highlight-section))))))
+                   (forward-line (1- old-line)))))))
+      (unrecord-window-buffer old-window buffer)
+      (dolist (w (get-buffer-window-list buffer nil t))
+        (set-window-point w (point))
+        (set-window-start w old-window-start t))
+      (magit-highlight-section)
+      (magit-refresh-marked-commits-in-buffer))))
 
 (defun magit-revert-buffer ()
   "Replace current buffer text with the text of the visited file on disk.
