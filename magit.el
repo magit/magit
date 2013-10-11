@@ -126,7 +126,7 @@ buffer-local wherever it is set."
             (list 'make-variable-buffer-local (list 'quote var)))))
 
   ;; Added in Emacs ???
-  (unless (fboundp 'defvar-local)
+  (unless (fboundp 'unrecord-window-buffer)
     (defun unrecord-window-buffer (&optional window buffer)
       "Unrecord BUFFER in WINDOW.
 WINDOW must be a live window and defaults to the selected one.
