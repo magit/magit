@@ -6235,9 +6235,17 @@ restore the window state that was saved before ediff was called."
 (define-derived-mode magit-diff-mode magit-mode "Magit Diff"
   "Mode for looking at a git diff.
 
-\\{magit-diff-mode-map}
-Unless shadowed by the mode specific bindings above, bindings
-from the parent keymap `magit-mode-map' are also available."
+\\<magit-diff-mode-map>Type \\[magit-visit-item] to visit the changed file, \
+`\\[magit-toggle-section]` to hide or show a hunk,
+`\\[magit-diff-larger-hunks]` and `\\[magit-diff-smaller-hunks] to change \
+the size of the hunks.
+Type `\\[magit-apply-item]` to apply a change to your worktree and \
+`\\[magit-revert-item]` to reverse it.
+You can also use `\\[magit-ediff]` to see the current change with ediff.
+
+More information can be found in Info node `(magit)Diffing'
+
+\\{magit-diff-mode-map}"
   :group 'magit)
 
 (defvar magit-diff-buffer-name "*magit-diff*"
