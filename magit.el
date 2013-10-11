@@ -3264,7 +3264,7 @@ Also see `magit-mode-setup', a more convenient variant."
                    (widen)
                    (goto-char (point-min))
                    (forward-line (1- old-line)))))))
-      (dolist (w (get-buffer-window-list buffer))
+      (dolist (w (get-buffer-window-list buffer nil t))
         (set-window-point w (point)))
       (magit-highlight-section)
       (magit-refresh-marked-commits-in-buffer))))
