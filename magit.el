@@ -3254,7 +3254,6 @@ Also see `magit-mode-setup', a more convenient variant."
         (when magit-refresh-function
           (apply magit-refresh-function
                  magit-refresh-args))
-        (magit-refresh-marked-commits-in-buffer)
         (let ((s (and old-path (magit-find-section old-path magit-top-section))))
           (cond (s
                  (goto-char (magit-section-beginning s))
@@ -3267,7 +3266,8 @@ Also see `magit-mode-setup', a more convenient variant."
                    (forward-line (1- old-line)))))))
       (dolist (w (get-buffer-window-list buffer))
         (set-window-point w (point)))
-      (magit-highlight-section))))
+      (magit-highlight-section)
+      (magit-refresh-marked-commits-in-buffer))))
 
 (defun magit-revert-buffer ()
   "Replace current buffer text with the text of the visited file on disk.
