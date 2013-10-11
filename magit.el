@@ -3264,10 +3264,10 @@ Also see `magit-mode-setup', a more convenient variant."
                  (save-restriction
                    (widen)
                    (goto-char (point-min))
-                   (forward-line (1- old-line)))))
-          (dolist (w (get-buffer-window-list buffer))
-            (set-window-point w (point)))
-          (magit-highlight-section))))))
+                   (forward-line (1- old-line)))))))
+      (dolist (w (get-buffer-window-list buffer))
+        (set-window-point w (point)))
+      (magit-highlight-section))))
 
 (defun magit-revert-buffer ()
   "Replace current buffer text with the text of the visited file on disk.
