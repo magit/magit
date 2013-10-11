@@ -125,20 +125,6 @@ buffer-local wherever it is set."
       (list 'progn (list 'defvar var val docstring)
             (list 'make-variable-buffer-local (list 'quote var)))))
 
-  ;; Added in Emacs ???
-  (unless (fboundp 'unrecord-window-buffer)
-    (defun unrecord-window-buffer (&optional window buffer)
-      "Unrecord BUFFER in WINDOW.
-WINDOW must be a live window and defaults to the selected one.
-BUFFER must be a live buffer and defaults to the buffer of
-WINDOW."
-      (let* ((window (window-normalize-window window t))
-             (buffer (or buffer (window-buffer window))))
-        (set-window-prev-buffers
-         window (assq-delete-all buffer (window-prev-buffers window)))
-        (set-window-next-buffers
-         window (delq buffer (window-next-buffers window))))))
-
   )
 
 
