@@ -3238,8 +3238,8 @@ Also see `magit-mode-setup', a more convenient variant."
 
 ;;;; Refresh Buffer
 
-(defun magit-refresh-buffer (&optional buffer)
-  (with-current-buffer (or buffer (current-buffer))
+(cl-defun magit-refresh-buffer (&optional (buffer (current-buffer)))
+  (with-current-buffer buffer
     (let* ((old-line (line-number-at-pos))
            (old-point (point))
            (old-section (magit-current-section))
@@ -3265,7 +3265,7 @@ Also see `magit-mode-setup', a more convenient variant."
                    (widen)
                    (goto-char (point-min))
                    (forward-line (1- old-line)))))
-          (dolist (w (get-buffer-window-list (current-buffer)))
+          (dolist (w (get-buffer-window-list buffer))
             (set-window-point w (point)))
           (magit-highlight-section))))))
 
