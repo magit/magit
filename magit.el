@@ -3106,7 +3106,7 @@ magit-topgit and magit-svn"
         (t
          (concat " " (car comps) " " (cadr comps)))))
 
-(defun magit-display-process (&optional process buffer)
+(defun magit-display-process (&optional process buffer display-func)
   "Display output from most recent Git process.
 
 Non-interactively the behaviour depends on the optional PROCESS
@@ -3114,22 +3114,27 @@ and BUFFER arguments.  If non-nil display BUFFER (provided it is
 still alive).  Otherwise if PROCESS is non-nil display its buffer
 but only if it is still alive after `magit-process-popup-time'
 seconds.  Finally if both PROCESS and BUFFER are nil display the
-buffer of the most recent process, like in the interactive case."
+buffer of the most recent process, like in the interactive case.
+
+By default, the process buffer is displayed using `display-buffer',
+but this can be overridden using the optional argument DISPLAY-FUNC."
   (interactive)
   (cond ((not process)
          (or buffer
              (setq buffer (get-buffer magit-process-buffer-name))
              (error "No Git commands have run"))
          (when (buffer-live-p buffer)
-           (display-buffer buffer)
+           (funcall (or display-func 'display-buffer) buffer)
            (with-current-buffer buffer
              (goto-char (point-max)))))
         ((= magit-process-popup-time 0)
-         (magit-display-process nil (process-buffer process)))
+         (magit-display-process nil (process-buffer process)
+                                'pop-to-buffer))
         ((> magit-process-popup-time 0)
          (run-with-timer magit-process-popup-time
                          nil #'magit-display-process
-                         nil (process-buffer process)))))
+                         nil (process-buffer process)
+                         'pop-to-buffer))))
 
 ;;; Magit Mode
 ;;;; Hooks
