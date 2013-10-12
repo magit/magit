@@ -310,6 +310,18 @@ which generates a tracking name of the form \"REMOTE-BRANCHNAME\"."
   :type 'boolean
   :package-version '(magit . "1.3.0"))
 
+(defcustom magit-commit-extend-override-date nil
+  "Whether using `magit-commit-extend' changes the committer date."
+  :group 'magit
+  :type 'boolean
+  :package-version '(magit . "1.3.0"))
+
+(defcustom magit-commit-reword-override-date nil
+  "Whether using `magit-commit-reword' changes the committer date."
+  :group 'magit
+  :type 'boolean
+  :package-version '(magit . "1.3.0"))
+
 (defcustom magit-commit-mode-show-buttons t
   "Whether to show navigation buttons in the *magit-commit* buffer."
   :group 'magit
@@ -5582,6 +5594,46 @@ With a prefix argument amend to the commit at HEAD instead.
   (interactive)
   (magit-commit-maybe-expand)
   (magit-commit-internal "commit" (cons "--amend" magit-custom-options)))
+
+;;;###autoload
+(defun magit-commit-extend (&optional override-date)
+  "Amend the last commit, without editing the message.
+With a prefix argument do change the committer date, otherwise
+don't.  The option `magit-commit-extend-override-date' can be
+used to inverse the meaning of the prefix argument.
+\('git commit --no-edit --amend [--keep-date]')."
+  (interactive (list (if current-prefix-arg
+                         (not magit-commit-reword-override-date)
+                       magit-commit-reword-override-date)))
+  (magit-commit-maybe-expand)
+  (let ((process-environment process-environment))
+    (unless override-date
+      (setenv "GIT_COMMITTER_DATE"
+              (magit-git-string "log" "-1" "--format:format=%cd")))
+    (magit-commit-internal "commit" (nconc (list "--no-edit" "--amend")
+                                           magit-custom-options))))
+
+;;;###autoload
+(defun magit-commit-reword (&optional override-date)
+  "Reword the last commit, ignoring staged changes.
+
+With a prefix argument do change the committer date, otherwise
+don't.  The option `magit-commit-rewrite-override-date' can be
+used to inverse the meaning of the prefix argument.
+
+Non-interactively respect the optional OVERRIDE-DATE argument
+and ignore the option.
+
+\('git commit --only --amend')."
+  (interactive (list (if current-prefix-arg
+                         (not magit-commit-reword-override-date)
+                       magit-commit-reword-override-date)))
+  (let ((process-environment process-environment))
+    (unless override-date
+      (setenv "GIT_COMMITTER_DATE"
+              (magit-git-string "log" "-1" "--format:format=%cd")))
+    (magit-commit-internal "commit" (nconc (list "--only" "--amend")
+                                           magit-custom-options))))
 
 (defun magit-commit-assert (args)
   (cond

@@ -217,7 +217,9 @@
      (man-page "git-commit")
      (actions
       ("c" "Commit" magit-commit)
-      ("a" "Amend"  magit-commit-amend))
+      ("a" "Amend"  magit-commit-amend)
+      ("e" "Extend" magit-commit-extend)
+      ("r" "Reword" magit-commit-reword))
      (switches
       ("-r" "Replace the tip of current branch" "--amend")
       ("-R" "Claim authorship and reset author date" "--reset-author")
