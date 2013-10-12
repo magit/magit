@@ -1769,7 +1769,7 @@ involving HEAD."
   (magit-git-success "diff" "--quiet" "--" file))
 
 (defun magit-anything-staged-p ()
-  (not (magit-git-success "diff" "--quiet" "--cached")))
+  (not (magit-git-success "diff-index" "--cached" "--quiet" "HEAD" "--")))
 
 (defun magit-everything-clean-p ()
   (and (not (magit-anything-staged-p))
