@@ -5575,6 +5575,14 @@ With a prefix argument amend to the commit at HEAD instead.
       (magit-commit-maybe-expand)
       (magit-commit-internal "commit" args))))
 
+;;;###autoload
+(defun magit-commit-amend ()
+  "Amend the last commit.
+\('git commit --amend')."
+  (interactive)
+  (magit-commit-maybe-expand)
+  (magit-commit-internal "commit" (cons "--amend" magit-custom-options)))
+
 (defun magit-commit-assert (args)
   (cond
    ((or (magit-anything-staged-p)
