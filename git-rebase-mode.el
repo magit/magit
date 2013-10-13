@@ -372,7 +372,7 @@ By default, this is the same except for the \"pick\" command."
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist
-             '("git-rebase-todo" . git-rebase-mode))
+             '("/git-rebase-todo\\'" . git-rebase-mode))
 
 (provide 'git-rebase-mode)
 ;; Local Variables:
