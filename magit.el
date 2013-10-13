@@ -3121,7 +3121,7 @@ buffer of the most recent process, like in the interactive case."
              (setq buffer (get-buffer magit-process-buffer-name))
              (error "No Git commands have run"))
          (when (buffer-live-p buffer)
-           (display-buffer buffer)
+           (pop-to-buffer buffer)
            (with-current-buffer buffer
              (goto-char (point-max)))))
         ((= magit-process-popup-time 0)
