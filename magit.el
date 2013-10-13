@@ -2479,6 +2479,23 @@ TITLE is the displayed title of the section."
 FUNCTION has to move point forward or return nil."
   (while (and (not (eobp)) (funcall function))))
 
+(defun magit-section-siblings (section &optional direction)
+  (let ((parent (magit-section-parent section)))
+    (when parent
+      (let ((siblings (magit-section-children parent)))
+        (cl-ecase direction
+          ((prev) (member section (reverse siblings)))
+          ((next) (member section siblings))
+          (nil siblings))))))
+
+(defun magit-region-siblings (&optional key)
+  (mapcar (or key #'identity)
+          (cl-intersection
+           (magit-section-siblings
+            (magit-find-section-at (min (mark) (point))) 'next)
+           (magit-section-siblings
+            (magit-find-section-at (max (mark) (point))) 'prev))))
+
 ;;;; Section Visibility
 
 (defun magit-section-set-hidden (section hidden)
@@ -4874,7 +4891,10 @@ With a prefix argument, prompt for a file to be staged instead."
       (magit-run-git "add" file)
     (magit-section-action (item info "stage")
       ((untracked file)
-       (magit-run-git "add" info))
+       (apply #'magit-run-git "add"
+              (if (use-region-p)
+                  (magit-region-siblings #'magit-section-info)
+                (list info))))
       ((untracked)
        (apply #'magit-run-git "add" "--"
               (magit-git-lines "ls-files" "--other" "--exclude-standard")))
@@ -4886,7 +4906,10 @@ With a prefix argument, prompt for a file to be staged instead."
                           "Please stage the whole file."))
          (magit-apply-hunk-item item "--cached")))
       ((unstaged diff)
-       (magit-run-git "add" "-u" (magit-diff-item-file item)))
+       (apply #'magit-run-git "add" "-u"
+              (if (use-region-p)
+                  (magit-region-siblings #'magit-diff-item-file)
+                (list (magit-diff-item-file item)))))
       ((unstaged)
        (magit-stage-all))
       ((staged *)
@@ -4928,9 +4951,12 @@ With a prefix argument, add remaining untracked files as well.
     ((staged diff)
      (when (eq (car info) 'unmerged)
        (error "Can't unstage an unmerged file.  Resolve it first"))
-     (if (magit-no-commit-p)
-         (magit-run-git "rm" "--cached" "--" (magit-diff-item-file item))
-       (magit-run-git "reset" "-q" "HEAD" "--" (magit-diff-item-file item))))
+     (let ((files (if (use-region-p)
+                      (magit-region-siblings #'magit-diff-item-file)
+                    (list (magit-diff-item-file item)))))
+       (if (magit-no-commit-p)
+           (apply #'magit-run-git "rm" "--cached" "--" files)
+         (apply #'magit-run-git "reset" "-q" "HEAD" "--" files))))
     ((staged)
      (magit-unstage-all))
     ((unstaged *)
