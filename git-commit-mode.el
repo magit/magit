@@ -63,7 +63,6 @@
 
 (require 'log-edit)
 (require 'ring)
-(require 'saveplace)
 (require 'server)
 
 ;;; Options
@@ -583,7 +582,7 @@ basic structure of and errors in git commit messages."
   ;; Treat lines starting with a hash/pound as comments
   (set (make-local-variable 'comment-start) "#")
   ;; Do not remember point location in commit messages
-  (when (fboundp 'toggle-save-place)
+  (when (boundp 'save-place)
     (setq save-place nil))
   ;; If the commit summary is empty, insert a newline after point
   (when (string= "" (buffer-substring-no-properties
