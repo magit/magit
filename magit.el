@@ -674,59 +674,53 @@ t      show fine differences for the selected diff hunk only
                  (const :tag "All" all))
   :set 'magit-set-variable-and-refresh)
 
-(defcustom magit-diff-use-overlays t
-  "Whether to use overlays to highlight various diffs components.
+(defcustom magit-item-highlight-face 'magit-item-highlight
+  "The face used to highlight the current section.
 
-Visualizing added and removed lines in diffs using the background
-color conflicts with also using the background color to highlight
-the current item.  This can be overcome by using overlays in both
-cases - but this comes with a performance penalty, which might or
-might not be noticable.
+By default the highlighting of the current section is done using
+the background color specified by face `magit-item-highlight'.
 
-When the background color is used in both cases then using text
-properties for changes lines is not an option because overlays
-always override text properties and that would cause the changed
-lines inside the selected hunk to lose their distinct look.  This
-also effects diff hunk and diff file headers, but that isn't as
-severe.
+If you don't want to use the background to do the highlighting,
+this *might* by as easy as customizing that face.  However if you
+are using a theme, which in turn sets the background color of
+that face then, due to limitations in face inheritance when using
+themes, you might be forced to use another face.
 
-Multiple solutions to this problem exist:
+Unfortunately it is only possible to override a face attribute,
+set by a theme, but not to drop it entirely.  This means that one
+has to explicitly use the `default' background color, to make it
+appear *as if* the background wasn't used.
 
-1. Use overlays with a higher priority than the highlighting to
-   set the background color of added/remove lines.  When this
-   option is non-nil (the default) this is exactly what is done.
-
-2. Highlight the current item with something other than the
-   background color.  One possibility is to make the selected
-   item bold, which is quiet ugly but always works.
-
-   This used to be the default and we relied on theme authors or
-   the user herself to override this using the third option below.
-
-   Setting this option to nil causes `magit-item-hightlight's
-   default to use bold for highlighting.  (It's default is set
-   after the possibly customized value of this option is set.)
-
-3. Use the foreground color to give added/removed lines a distinct
-   look and continue to use the background color for highlighting
-   the selected item.
-
-Both the first and third option are visually appealing.  While
-the first is the default, the third is actually the preferred
-option because it not only looks okay but also doesn't come with
-a performance penaltiy.
-
-Because using overlays is less efficient than using properties
-the first (and default) option is not a good fit when you often
-deal with large diffs.  In that case you either have to live with
-the the performance issue, use the second option, or take the
-time to implement the third for the theme you are using yourself.
-
-The faces involved in this are `magit-item-highlight',
-`magit-diff-add', `magit-diff-del', `magit-diff-none',
-`magit-diff-hunk-header' and `magit-diff-file-header'."
+One reason you might want to *not* use the background, is that
+doing so forces the use of overlays for some components of diffs.
+Using overlays potentially degrades performance when generating
+large diffs.  Also see option `magit-diff-use-overlays'."
+  :package-version '(magit . "1.3.0")
   :group 'magit
-  :type 'boolean)
+  :type '(choice (const magit-item-highlight)
+                 (const bold)
+                 (face  :tag "Other face")
+                 (const :tag "Don't highlight" nil)))
+
+(defcustom magit-diff-use-overlays
+  (not (eq magit-item-highlight-face 'bold))
+  "Whether to use overlays to highlight various diff components.
+
+This has to be non-nil if the current section is highlighted by
+changing the background color.  Otherwise background colors that
+hold semantic meaning, like that of the added and removed lines
+in diffs, as well as section headings, would be shadowed by the
+highlighting.
+
+To select the face used for highlighting customize the option
+`magit-item-highlight-face'.  If you set that to `bold' or some
+other face that does not use the background then you can set this
+option to nil.  Doing so could potentially improve performance
+when generating large diffs."
+  :package-version '(magit . "1.3.0")
+  :group 'magit
+  :type 'boolean
+  :set-after '(magit-item-highlight-face))
 
 (defcustom magit-expand-staged-on-commit nil
   "Whether to expand staged changes when creating a commit.
@@ -759,10 +753,7 @@ set before loading libary `magit'.")
   :group 'faces
   :group 'magit)
 
-;; Add to faces group because it affects `magit-item-highlight's
-;; default, and because the doc-strings of many faces refer to it.
-(custom-add-to-group 'magit-faces 'magit-diff-use-overlays 'custom-variable)
-
+(custom-add-to-group 'magit-faces 'magit-item-highlight-face 'custom-variable)
 (custom-add-to-group 'magit-faces 'git-commit-faces 'custom-group)
 (custom-add-to-group 'magit-faces 'git-rebase-faces 'custom-group)
 
@@ -800,20 +791,17 @@ Many Magit faces inherit from this one by default."
 
 (defface magit-diff-add
   '((t :inherit diff-added))
-  "Face for lines in a diff that have been added.
-Also see option `magit-diff-use-overlays'."
+  "Face for lines in a diff that have been added."
   :group 'magit-faces)
 
 (defface magit-diff-del
   '((t :inherit diff-removed))
-  "Face for lines in a diff that have been deleted.
-Also see option `magit-diff-use-overlays'."
+  "Face for lines in a diff that have been deleted."
   :group 'magit-faces)
 
 (defface magit-diff-none
   '((t :inherit diff-context))
-  "Face for lines in a diff that are unchanged.
-Also see option `magit-diff-use-overlays'."
+  "Face for lines in a diff that are unchanged."
   :group 'magit-faces)
 
 (defface magit-diff-merge-current
@@ -885,23 +873,12 @@ Also see option `magit-diff-use-overlays'."
   "Face for equivalent cherry commits.")
 
 (defface magit-item-highlight
-  (if magit-diff-use-overlays
-      '((((class color) (background light))
-         :background "darkseagreen2")
-        (((class color) (background dark))
-         :background "darkolivegreen")
-        (((class color) (min-colors 8))
-         :background "blue"
-         :foreground "white")
-        (t :inverse-video t))
-    '((t :bold t)))
-  "Face for highlighting the current item.
-Also see option `magit-diff-use-overlays'."
-  :group 'magit-faces
-  :set-after '(magit-diff-use-overlays))
+  '((t :inherit secondary-selection))
+  "Face for highlighting the current item."
+  :group 'magit-faces)
 
 (defface magit-item-mark
-  '((t :inherit secondary-selection))
+  '((t :inherit highlight))
   "Face for highlighting marked item."
   :group 'magit-faces)
 
@@ -2707,7 +2684,7 @@ One for all, one for current lineage."
       (setq magit-highlighted-section section)
       (unless magit-highlight-overlay
         (overlay-put (setq magit-highlight-overlay (make-overlay 1 1))
-                     'face 'magit-item-highlight))
+                     'face magit-item-highlight-face))
       (cond ((and section (magit-section-type section))
              (when (funcall refinep)
                (magit-diff-refine-hunk section))
@@ -4351,7 +4328,7 @@ for this argument.)"
                               'help-echo "Previous commit"
                               'action 'magit-show-commit-backward
                               'follow-link t
-                              'mouse-face 'magit-item-highlight)))
+                              'mouse-face magit-item-highlight-face)))
       (insert " ")
       (when magit-forward-navigation-history
         (magit-with-section "[forward]" 'button
@@ -4359,7 +4336,7 @@ for this argument.)"
                               'help-echo "Next commit"
                               'action 'magit-show-commit-forward
                               'follow-link t
-                              'mouse-face 'magit-item-highlight))))))
+                              'mouse-face magit-item-highlight-face))))))
 
 (defun magit-make-commit-button (start end)
   (make-text-button start end
@@ -4369,7 +4346,7 @@ for this argument.)"
                                 (goto-char button)
                                 (magit-visit-item)))
                     'follow-link t
-                    'mouse-face 'magit-item-highlight
+                    'mouse-face magit-item-highlight-face
                     'face 'magit-log-sha1))
 
 ;;;; (history)
