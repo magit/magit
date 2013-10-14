@@ -6324,9 +6324,21 @@ More information can be found in Info node `(magit)Diffing'
 (define-derived-mode magit-wazzup-mode magit-mode "Magit Wazzup"
   "Mode for looking at git commits not merged into current HEAD.
 
-\\{magit-wazzup-mode-map}
-Unless shadowed by the mode specific bindings above, bindings
-from the parent keymap `magit-mode-map' are also available."
+\\<magit-wazzup-mode-map>Type `\\[magit-toggle-section]` to show or hide \
+section, `\\[magit-visit-item]` to visit an item \
+`\\[magit-show-item-or-scroll-up]` to show it.
+Type `\\[magit-diff-working-tree]` to display change with your working tree, \
+and `\\[magit-diff]` to display change
+between any two commit.
+Type `\\[magit-cherry-pick-item]` to cherry-pick a commit, and \
+`\\[magit-apply-item]` to apply its change to your
+working tree, without committing, and `\\[magit-key-mode-popup-merging]` \
+to merge those change.
+Type `\\[magit-refresh]` to refresh current buffer.
+
+More information can be found in Info node `(magit)Wazzup'
+
+\\{magit-wazzup-mode-map}"
   :group 'magit)
 
 (defvar magit-wazzup-buffer-name "*magit-wazzup*"
