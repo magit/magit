@@ -3279,7 +3279,7 @@ few sanity checks."
                 (buffer-modified-p)
                 (verify-visited-file-modtime (current-buffer))
                 (not (file-readable-p (buffer-file-name)))
-                (not (magit-git-success "ls-files" "--error-unmatched"
+                (not (magit-git-success "ls-files" "--error-unmatch"
                                         (buffer-file-name))))
       (revert-buffer t t nil))))
 
