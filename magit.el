@@ -3869,7 +3869,8 @@ Customize `magit-diff-refine-hunk' to change the default mode."
 ;;;; Log Washing Variables
 
 (defconst magit-log-oneline-re
-  (concat "^\\(?4:\\(?:[-_/|\\*o.] ?\\)+ *\\)?"    ; graph
+  (concat "^"
+          "\\(?4:\\(?:[-_/|\\*o.] ?\\)+ *\\)?"     ; graph
           "\\(?:"
           "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
           "\\(?:\\(?3:([^()]+)\\) \\)?"            ; refs
@@ -3880,7 +3881,8 @@ Customize `magit-diff-refine-hunk' to change the default mode."
           "\\)?$"))
 
 (defconst magit-log-longline-re
-  (concat "^\\(?4:\\(?:[-_/|\\*o.] ?\\)+ *\\)?"    ; graph
+  (concat "^"
+          "\\(?4:\\(?:[-_/|\\*o.] ?\\)+ *\\)?"     ; graph
           "\\(?:"
           "\\(?:commit \\(?1:[0-9a-fA-F]+\\)"      ; sha1
           "\\(?: \\(?3:([^()]+)\\)\\)?\\)"         ; refs
@@ -3893,12 +3895,14 @@ Customize `magit-diff-refine-hunk' to change the default mode."
           "\\(?2:.*\\)$"))                         ; msg
 
 (defconst magit-log-cherry-re
-  (concat "^\\(?8:[-+]\\) "                        ; cherry
+  (concat "^"
+          "\\(?8:[-+]\\) "                         ; cherry
           "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
           "\\(?2:.*\\)$"))                         ; msg
 
 (defconst magit-log-reflog-re
-  (concat "^\\(?4:[^\C-?]+\\)\C-??"                ; graph FIXME
+  (concat "^"
+          "\\(?4:[^\C-?]+\\)\C-??"                 ; graph FIXME
           "\\(?1:[^\C-?]+\\)\C-?"                  ; sha1
           "\\(?9:[^:]+\\)?"                        ; refsub
           "\\(?:: \\)?"
