@@ -3930,19 +3930,17 @@ Customize `magit-diff-refine-hunk' to change the default mode."
   (let* ((bol (point-at-bol))
          (eol (point-at-eol))
          (line (magit-parse-log-line (buffer-substring bol eol)
-                                     style)))
-    (if line
-        (let ((sha1 (magit-log-line-sha1 line)))
-          (delete-region bol eol)
-          (insert (magit-format-log-line line))
-          (goto-char bol)
-          (if sha1
-              (magit-with-section sha1 'commit
-                (when magit-log-count
-                  (cl-incf magit-log-count))
-                (magit-set-section-info sha1)
-                (forward-line))
-            (forward-line)))
+                                     style))
+         (sha1 (magit-log-line-sha1 line)))
+    (delete-region bol eol)
+    (insert (magit-format-log-line line))
+    (goto-char bol)
+    (if sha1
+        (magit-with-section sha1 'commit
+          (when magit-log-count
+            (cl-incf magit-log-count))
+          (magit-set-section-info sha1)
+          (forward-line))
       (forward-line)))
   t)
 
