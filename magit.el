@@ -3861,40 +3861,40 @@ Customize `magit-diff-refine-hunk' to change the default mode."
 ;;;; Log Washing Variables
 
 (defconst magit-log-oneline-re
-  (concat "^\\(\\(?:[-_/|\\*o.] ?\\)+ *\\)?"       ; graph   (1)
+  (concat "^\\(?4:\\(?:[-_/|\\*o.] ?\\)+ *\\)?"    ; graph
           "\\(?:"
-          "\\([0-9a-fA-F]+\\) "                    ; sha1    (2)
-          "\\(?:\\(([^()]+)\\) \\)?"               ; refs    (3)
-          "\\([BGUN]\\)?"                          ; gpg     (4)
-          "\\[\\([^]]*\\)\\]"                      ; author  (5)
-          "\\[\\([^]]*\\)\\]"                      ; date    (6)
-          "\\(.+\\)"                               ; msg     (7)
+          "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
+          "\\(?:\\(?3:([^()]+)\\) \\)?"            ; refs
+          "\\(?7:[BGUN]\\)?"                       ; gpg
+          "\\[\\(?5:[^]]*\\)\\]"                   ; author
+          "\\[\\(?6:[^]]*\\)\\]"                   ; date
+          "\\(?2:.+\\)"                            ; msg
           "\\)?$"))
 
 (defconst magit-log-longline-re
-  (concat "^\\(\\(?:[-_/|\\*o.] ?\\)+ *\\)?"       ; graph   (1)
+  (concat "^\\(?4:\\(?:[-_/|\\*o.] ?\\)+ *\\)?"    ; graph
           "\\(?:"
-          "\\(?:commit \\([0-9a-fA-F]+\\)"         ; sha1    (2)
-          "\\(?: \\(([^()]+)\\)\\)?\\)"            ; refs    (3)
+          "\\(?:commit \\(?1:[0-9a-fA-F]+\\)"      ; sha1
+          "\\(?: \\(?3:([^()]+)\\)\\)?\\)"         ; refs
           "\\|"
-          "\\(.+\\)\\)$"))                         ; "msg"   (4)
+          "\\(?2:.+\\)\\)$"))                      ; "msg"
 
 (defconst magit-log-unique-re
   (concat "^\\* "
-          "\\([0-9a-fA-F]+\\) "                    ; sha     (1)
-          "\\(.*\\)$"))                            ; msg     (2)
+          "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
+          "\\(?2:.*\\)$"))                         ; msg
 
 (defconst magit-log-cherry-re
-  (concat "^\\([-+]\\) "                           ; cherry  (1)
-          "\\([0-9a-fA-F]+\\) "                    ; sha1    (2)
-          "\\(.*\\)$"))                            ; msg     (3)
+  (concat "^\\(?8:[-+]\\) "                        ; cherry
+          "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
+          "\\(?2:.*\\)$"))                         ; msg
 
 (defconst magit-log-reflog-re
-  (concat "^\\([^\C-?]+\\)\C-??"                   ; graph   (1)
-          "\\([^\C-?]+\\)\C-?"                     ; sha1    (2)
-          "\\([^:]+\\)?"                           ; refsub  (3)
+  (concat "^\\(?4:[^\C-?]+\\)\C-??"                ; graph FIXME
+          "\\(?1:[^\C-?]+\\)\C-?"                  ; sha1
+          "\\(?9:[^:]+\\)?"                        ; refsub
           "\\(?:: \\)?"
-          "\\(.+\\)?$"))                           ; msg     (4)
+          "\\(?2:.+\\)?$"))                        ; msg
 
 (defconst magit-reflog-subject-re
   (concat "\\([^ ]+\\) ?"                          ; command (1)
@@ -3927,24 +3927,20 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                 (unique  magit-log-unique-re)
                 (cherry  magit-log-cherry-re)
                 (reflog  magit-log-reflog-re)))
-  (let* ((match  (lambda (oneline long reflog unique cherry)
-                   (when (symbol-value style)
-                     (match-string (symbol-value style)))))
-         (graph  (funcall match 1   1   1   nil nil))
-         (hash   (funcall match 2   2   2   1   2))
-         (author (funcall match 5   nil nil nil nil))
-         (date   (funcall match 6   nil nil nil nil))
-         (msg    (funcall match 7   4   4   2   3))
-         (gpg    (funcall match 4   nil nil nil nil))
-         (refsub (funcall match nil nil 3   nil nil))
-         (cherry (funcall match nil nil nil nil 1))
-         (refs   (when (funcall match 3 3 nil nil nil)
-                   (cl-mapcan
-                    (lambda (s)
-                      (unless (string= s "tag:")
-                        (list s)))
-                    (split-string (funcall match 3 3 nil nil nil)
-                                  "[(), ]" t)))))
+  (let ((hash   (match-string 1))
+        (msg    (match-string 2))
+        (graph  (match-string 4))
+        (author (match-string 5))
+        (date   (match-string 6))
+        (gpg    (match-string 7))
+        (cherry (match-string 8))
+        (refsub (match-string 9))
+        (refs   (when (match-string 3)
+                  (cl-mapcan
+                   (lambda (s)
+                     (unless (string= s "tag:")
+                       (list s)))
+                   (split-string (match-string 3) "[(), ]" t)))))
     (delete-region (point) (point-at-eol))
     (when (and magit-log-show-author-date author date)
       (magit-log-make-author-date-overlay author date))
