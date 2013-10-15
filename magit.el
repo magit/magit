@@ -3916,13 +3916,8 @@ Evaluate (man \"git-check-ref-format\") for details")
   (concat "^\\(\\(?:[---_\\*|/.] ?\\)+ *\\)?"      ; graph   (1)
           "\\(?:"
           "\\([0-9a-fA-F]+\\)"                     ; sha1    (2)
-          "\\(?:"                                  ; refs    (3)
-          " "
-          "\\("
-          "("
-          magit-refname-re "\\(?:, " magit-refname-re "\\)*"
-          ")"
-          "\\)"
+          "\\(?: "
+          "\\(("magit-refname-re"\\(?:, "magit-refname-re"\\)*)\\)" ; refs    (3)
           "\\)?"
           "\\)?"
           " ?"
@@ -3938,13 +3933,8 @@ Evaluate (man \"git-check-ref-format\") for details")
           "\\(?:"
           "commit "
           "\\([0-9a-fA-F]+\\)"                     ; sha1    (2)
-          "\\(?:"
-          " "
-          "\\("                                    ; refs    (3)
-          "("
-          magit-refname-re "\\(?:, " magit-refname-re "\\)*"
-          ")"
-          "\\)"
+          "\\(?: "
+          "\\(("magit-refname-re"\\(?:, "magit-refname-re"\\)*)\\)" ; refs    (3)
           "\\)?$"
           "\\)?"
           "\\(.+\\)?$"))                           ; msg     (4)
