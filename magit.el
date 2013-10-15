@@ -1377,6 +1377,14 @@ Read `completing-read' documentation for the meaning of the argument."
 
 ;;;; String and File Utilities
 
+(defmacro magit-bind-match-strings (varlist &rest body)
+  (declare (indent 1))
+  (let ((i 0))
+    `(let ,(mapcar (lambda (var)
+                     (list var (list 'match-string (cl-incf i))))
+                   varlist)
+       ,@body)))
+
 (defun magit-file-line (file)
   "Return the first line of FILE as a string."
   (when (file-regular-p file)
@@ -3927,20 +3935,8 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                 (unique  magit-log-unique-re)
                 (cherry  magit-log-cherry-re)
                 (reflog  magit-log-reflog-re)))
-  (let ((hash   (match-string 1))
-        (msg    (match-string 2))
-        (graph  (match-string 4))
-        (author (match-string 5))
-        (date   (match-string 6))
-        (gpg    (match-string 7))
-        (cherry (match-string 8))
-        (refsub (match-string 9))
-        (refs   (when (match-string 3)
-                  (cl-mapcan
-                   (lambda (s)
-                     (unless (string= s "tag:")
-                       (list s)))
-                   (split-string (match-string 3) "[(), ]" t)))))
+  (magit-bind-match-strings
+      (hash msg refs graph author date gpg cherry refsub)
     (delete-region (point) (point-at-eol))
     (when (and magit-log-show-author-date author date)
       (magit-log-make-author-date-overlay author date))
@@ -3955,7 +3951,12 @@ Customize `magit-diff-refine-hunk' to change the default mode."
     (when graph
       (insert graph))
     (when refs
-      (insert (mapconcat 'identity (cl-mapcan #'magit-format-ref-label refs)
+      (insert (mapconcat 'identity
+                         (cl-mapcan
+                          (lambda (ref)
+                            (unless (string= ref "tag:")
+                              (list (car (magit-format-ref-label ref)))))
+                          (split-string refs "[(), ]" t))
                          " ") " "))
     (when refsub
       (insert (magit-log-format-reflog refsub)))
