@@ -3927,13 +3927,8 @@ Evaluate (man \"git-check-ref-format\") for details")
 
 (defconst magit-log-longline-re
   (concat "^\\(\\(?:[-_/|\\*o.] ?\\)+ *\\)?"       ; graph   (1)
-          "\\(?:"
-          "commit "
-          "\\([0-9a-fA-F]+\\)"                     ; sha1    (2)
-          "\\(?: "
-          "\\(("magit-refname-re"\\(?:, "magit-refname-re"\\)*)\\)" ; refs    (3)
-          "\\)?$"
-          "\\)?"
+          "\\(?:commit \\([0-9a-fA-F]+\\)"         ; sha1    (2)
+          "\\(?: \\(("magit-refname-re"\\(?:, "magit-refname-re"\\)*)\\)\\)?$\\)?" ; refs    (3)
           "\\(.+\\)?$"))                           ; msg     (4)
 
 (defconst magit-log-unique-re
