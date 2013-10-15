@@ -3956,7 +3956,8 @@ Customize `magit-diff-refine-hunk' to change the default mode."
     (when graph
       (insert graph))
     (when (and hash (eq style 'long))
-      (insert (propertize hash 'face 'magit-log-sha1) " "))
+      (insert (propertize (if refs hash (magit-rev-parse hash))
+                          'face 'magit-log-sha1) " "))
     (when refs
       (insert (mapconcat 'identity
                          (cl-mapcan
