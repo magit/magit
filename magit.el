@@ -3919,13 +3919,11 @@ Evaluate (man \"git-check-ref-format\") for details")
           "\\(?:"
           "\\(("magit-refname-re"\\(?:, "magit-refname-re"\\)*)\\)" ; refs    (3)
           " \\)?"
-          "\\)?"
-          "\\(?:"
           "\\([BGUN]\\)?"                          ; gpg     (4)
           "\\[\\([^]]*\\)\\]"                      ; author  (5)
           "\\[\\([^]]*\\)\\]"                      ; date    (6)
-          "\\)?"
-          "\\(.+\\)?$"))                           ; msg     (7)
+          "\\(.+\\)"                               ; msg     (7)
+          "\\)?$"))
 
 (defconst magit-log-longline-re
   (concat "\\(\\(?: ?[---_\\*|/.]+ \\)* *\\)"      ; graph   (1)
