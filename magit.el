@@ -3978,9 +3978,6 @@ Evaluate (man \"git-check-ref-format\") for details")
 
 (defconst magit-log-format "--format=format:* %h %s")
 
-(defun magit-log-cutoff-length-arg ()
-  (format "--max-count=%d" magit-log-cutoff-length))
-
 ;;;; Log Washing Functions
 
 (defun magit-format-log-line (line)
@@ -5958,7 +5955,8 @@ from the parent keymap `magit-mode-map' are also available."
                  (t
                   (magit-rev-range-describe range "Commits")))
            (apply-partially 'magit-wash-log style 'color)
-           "log" (magit-log-cutoff-length-arg)
+           "log"
+           (format "--max-count=%d" magit-log-cutoff-length)
            "--decorate=full" "--abbrev-commit" "--color"
            (magit-diff-abbrev-arg)
            `(,@(cl-case style
@@ -6067,8 +6065,11 @@ from the parent keymap `magit-log-mode-map' are also available."
                        (apply-partially 'magit-wash-log 'reflog)
                        "log" "--format=format:* \C-?%h\C-?%gs"
                        (magit-diff-abbrev-arg)
-                       "--walk-reflogs" (magit-log-cutoff-length-arg)
+                       "--walk-reflogs"
+                       (format "--max-count=%d" magit-log-cutoff-length)
                        (magit-rev-to-git ref))))
+
+
 
 ;;;; (action labels)
 
