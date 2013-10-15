@@ -3984,7 +3984,13 @@ Customize `magit-diff-refine-hunk' to change the default mode."
           (when magit-log-count
             (cl-incf magit-log-count))
           (magit-set-section-info hash)
-          (forward-line))
+          (forward-line)
+          (when (eq style 'long)
+            (magit-wash-sequence
+             (lambda ()
+               (looking-at magit-log-longline-re)
+               (when (match-string 2)
+                 (magit-wash-log-line 'long))))))
       (forward-line)))
   t)
 
