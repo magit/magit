@@ -3913,45 +3913,41 @@ Evaluate (man \"git-check-ref-format\") for details")
 Evaluate (man \"git-check-ref-format\") for details")
 
 (defconst magit-log-oneline-re
-  (concat
-   "^\\(\\(?:[---_\\*|/.] ?\\)+ *\\)?"             ; graph   (1)
-   "\\(?:"
-   "\\([0-9a-fA-F]+\\)"                            ; sha1    (2)
-   "\\(?:"                                         ; refs    (3)
-   " "
-   "\\("
-   "("
-   magit-refname-re "\\(?:, " magit-refname-re "\\)*"
-   ")"
-   "\\)"
-   "\\)?"
-   "\\)?"
-   " ?"
-   "\\(?:"
-   "\\([BGUN]\\)?"                                  ; gpg     (4)
-   "\\[\\([^]]*\\)\\]"                              ; author  (5)
-   "\\[\\([^]]*\\)\\]"                              ; date    (6)
-   "\\)?"
-   "\\(.+\\)?$"                                     ; msg     (7)
-   ))
+  (concat "^\\(\\(?:[---_\\*|/.] ?\\)+ *\\)?"      ; graph   (1)
+          "\\(?:"
+          "\\([0-9a-fA-F]+\\)"                     ; sha1    (2)
+          "\\(?:"                                  ; refs    (3)
+          " "
+          "\\("
+          "("
+          magit-refname-re "\\(?:, " magit-refname-re "\\)*"
+          ")"
+          "\\)"
+          "\\)?"
+          "\\)?"
+          " ?"
+          "\\(?:"
+          "\\([BGUN]\\)?"                          ; gpg     (4)
+          "\\[\\([^]]*\\)\\]"                      ; author  (5)
+          "\\[\\([^]]*\\)\\]"                      ; date    (6)
+          "\\)?"
+          "\\(.+\\)?$"))                           ; msg     (7)
 
 (defconst magit-log-longline-re
-  (concat
-   "\\(\\(?: ?[---_\\*|/.]+ \\)* *\\)"             ; graph   (1)
-   "\\(?:"
-   "commit "
-   "\\([0-9a-fA-F]+\\)"                            ; sha1    (2)
-   "\\(?:"
-   " "
-   "\\("                                           ; refs    (3)
-   "("
-   magit-refname-re "\\(?:, " magit-refname-re "\\)*"
-   ")"
-   "\\)"
-   "\\)?$"
-   "\\)?"
-   "\\(.+\\)?$"                                    ; msg     (4)
-   ))
+  (concat "\\(\\(?: ?[---_\\*|/.]+ \\)* *\\)"      ; graph   (1)
+          "\\(?:"
+          "commit "
+          "\\([0-9a-fA-F]+\\)"                     ; sha1    (2)
+          "\\(?:"
+          " "
+          "\\("                                    ; refs    (3)
+          "("
+          magit-refname-re "\\(?:, " magit-refname-re "\\)*"
+          ")"
+          "\\)"
+          "\\)?$"
+          "\\)?"
+          "\\(.+\\)?$"))                           ; msg     (4)
 
 (defconst magit-log-unique-re
   (concat "^\\* "
