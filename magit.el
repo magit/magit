@@ -3858,11 +3858,6 @@ Customize `magit-diff-refine-hunk' to change the default mode."
       (insert text))))
 
 ;;; Log Washing
-;;;; Log Line Struct
-
-(cl-defstruct magit-log-line
-  graph sha1 author date msg refs gpg refsub cherry)
-
 ;;;; Log Washing Variables
 
 (defconst magit-log-oneline-re
@@ -3926,15 +3921,59 @@ Customize `magit-diff-refine-hunk' to change the default mode."
       (magit-log-create-author-date-overlays))))
 
 (defun magit-wash-log-line (style)
-  (beginning-of-line)
-  (let* ((bol (point-at-bol))
-         (eol (point-at-eol))
-         (line (magit-parse-log-line (buffer-substring bol eol)
-                                     style))
-         (sha1 (magit-log-line-sha1 line)))
-    (delete-region bol eol)
-    (insert (magit-format-log-line line))
-    (goto-char bol)
+  (looking-at (cl-ecase style
+                (oneline magit-log-oneline-re)
+                (long    magit-log-longline-re)
+                (unique  magit-log-unique-re)
+                (cherry  magit-log-cherry-re)
+                (reflog  magit-log-reflog-re)))
+  (let* ((match  (lambda (oneline long reflog unique cherry)
+                   (when (symbol-value style)
+                     (match-string (symbol-value style)))))
+         (graph  (funcall match 1   1   1   nil nil))
+         (sha1   (funcall match 2   2   2   1   2))
+         (author (funcall match 5   nil nil nil nil))
+         (date   (funcall match 6   nil nil nil nil))
+         (msg    (funcall match 7   4   4   2   3))
+         (gpg    (funcall match 4   nil nil nil nil))
+         (refsub (funcall match nil nil 3   nil nil))
+         (cherry (funcall match nil nil nil nil 1))
+         (refs   (when (funcall match 3 3 nil nil nil)
+                   (cl-mapcan
+                    (lambda (s)
+                      (unless (string= s "tag:")
+                        (list s)))
+                    (split-string (funcall match 3 3 nil nil nil)
+                                  "[(), ]" t)))))
+    (delete-region (point) (point-at-eol))
+    (when (and magit-log-show-author-date author date)
+      (magit-log-make-author-date-overlay author date))
+    (when cherry
+      (insert (propertize cherry 'face
+                          (if (string= cherry "+")
+                              'magit-cherry-equivalent
+                            'magit-cherry-unmatched)) " "))
+    (if sha1
+        (insert (propertize sha1 'face 'magit-log-sha1) " ")
+      (insert (make-string (1+ magit-sha1-abbrev-length) ? )))
+    (when graph
+      (insert graph))
+    (when refs
+      (insert (mapconcat 'identity (cl-mapcan #'magit-format-ref-label refs)
+                         " ") " "))
+    (when refsub
+      (insert (magit-log-format-reflog refsub)))
+    (when msg
+      (font-lock-append-text-property
+       0 (length msg)
+       'face (if gpg
+                 (if (string= gpg "B")
+                     'error
+                   'magit-valid-signature)
+               'magit-log-message)
+       msg)
+      (insert msg))
+    (goto-char (line-beginning-position))
     (if sha1
         (magit-with-section sha1 'commit
           (when magit-log-count
@@ -3943,76 +3982,6 @@ Customize `magit-diff-refine-hunk' to change the default mode."
           (forward-line))
       (forward-line)))
   t)
-
-(defun magit-parse-log-line (line style)
-  (string-match (cl-ecase style
-                  (oneline magit-log-oneline-re)
-                  (long    magit-log-longline-re)
-                  (reflog  magit-log-reflog-re)
-                  (unique  magit-log-unique-re)
-                  (cherry  magit-log-cherry-re))
-                line)
-  (let ((match-style-string
-         (lambda (oneline long reflog unique cherry)
-           (when (symbol-value style)
-             (match-string (symbol-value style) line)))))
-    (make-magit-log-line
-     :graph  (funcall match-style-string 1   1   1   nil nil)
-     :sha1   (funcall match-style-string 2   2   2   1   2)
-     :author (funcall match-style-string 5   nil nil nil nil)
-     :date   (funcall match-style-string 6   nil nil nil nil)
-     :gpg    (funcall match-style-string 4   nil nil nil nil)
-     :msg    (funcall match-style-string 7   4   4   2   3)
-     :refsub (funcall match-style-string nil nil 3   nil nil)
-     :cherry (funcall match-style-string nil nil nil nil 1)
-     :refs   (when (funcall match-style-string 3 3 nil nil nil)
-               (cl-mapcan
-                (lambda (s)
-                  (unless (string= s "tag:")
-                    (list s)))
-                (split-string (funcall match-style-string 3 3 nil nil nil)
-                              "[(), ]" t))))))
-
-(defun magit-format-log-line (line)
-  (let ((graph  (magit-log-line-graph line))
-        (sha1   (magit-log-line-sha1 line))
-        (author (magit-log-line-author line))
-        (date   (magit-log-line-date line))
-        (msg    (magit-log-line-msg line))
-        (refs   (magit-log-line-refs line))
-        (gpg    (magit-log-line-gpg line))
-        (refsub (magit-log-line-refsub line))
-        (cherry (magit-log-line-cherry line)))
-    (when (and magit-log-show-author-date author date)
-      (magit-log-make-author-date-overlay author date))
-    (concat (when cherry
-              (concat (propertize cherry 'face
-                                  (if (string= cherry "+")
-                                      'magit-cherry-equivalent
-                                    'magit-cherry-unmatched))
-                      " "))
-            (if sha1
-                (propertize sha1 'face 'magit-log-sha1)
-              (make-string magit-sha1-abbrev-length ? ))
-            " "
-            graph
-            (when refs
-              (concat (mapconcat 'identity
-                                 (cl-mapcan #'magit-format-ref-label refs)
-                                 " ")
-                      " "))
-            (when refsub
-              (magit-log-format-reflog refsub))
-            (when msg
-              (font-lock-append-text-property
-               0 (length msg)
-               'face (if gpg
-                         (if (string= gpg "B")
-                             'error
-                           'magit-valid-signature)
-                       'magit-log-message)
-               msg)
-              msg))))
 
 ;;;; Log Author/Date Overlays
 
