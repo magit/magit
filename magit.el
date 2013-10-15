@@ -3865,60 +3865,11 @@ Customize `magit-diff-refine-hunk' to change the default mode."
 
 ;;;; Log Washing Variables
 
-;; Regexps for parsing ref names
-;;
-;; see the `git-check-ref-format' manpage for details
-
-(defconst magit-ref-nonchars "\000-\037\177 ~^:?*[\\"
-  "Characters specifically disallowed from appearing in Git symbolic refs.
-
-Evaluate (man \"git-check-ref-format\") for details")
-
-(defconst magit-ref-nonslash-re
-  (concat "\\(?:"
-          ;; "no slash-separated component can begin with a dot ." (rule 1)
-          "[^" magit-ref-nonchars "./]"
-          ;; "cannot have two consecutive dots ..  anywhere." (rule 3)
-          "\\.?"
-          "\\)*")
-  "Regexp that matches the non-slash parts of a ref name.
-
-Evaluate (man \"git-check-ref-format\") for details")
-
-(defconst magit-refname-re
-  (concat
-   "\\(?:HEAD\\|"
-
-   "\\(?:tag: \\)?"
-
-   ;; optional non-slash sequence at the beginning
-   magit-ref-nonslash-re
-
-   ;; any number of slash-prefixed sequences
-   "\\(?:"
-   "/"
-   magit-ref-nonslash-re
-   "\\)*"
-
-   "/" ;; "must contain at least one /." (rule 2)
-   magit-ref-nonslash-re
-
-   ;; "cannot end with a slash / nor a dot .." (rule 5)
-   "[^" magit-ref-nonchars "./]"
-
-   "\\)"
-   )
-  "Regexp that matches a git symbolic reference name.
-
-Evaluate (man \"git-check-ref-format\") for details")
-
 (defconst magit-log-oneline-re
   (concat "^\\(\\(?:[-_/|\\*o.] ?\\)+ *\\)?"       ; graph   (1)
           "\\(?:"
           "\\([0-9a-fA-F]+\\) "                    ; sha1    (2)
-          "\\(?:"
-          "\\(("magit-refname-re"\\(?:, "magit-refname-re"\\)*)\\)" ; refs    (3)
-          " \\)?"
+          "\\(?:\\(([^()]+)\\) \\)?"               ; refs    (3)
           "\\([BGUN]\\)?"                          ; gpg     (4)
           "\\[\\([^]]*\\)\\]"                      ; author  (5)
           "\\[\\([^]]*\\)\\]"                      ; date    (6)
@@ -3929,7 +3880,7 @@ Evaluate (man \"git-check-ref-format\") for details")
   (concat "^\\(\\(?:[-_/|\\*o.] ?\\)+ *\\)?"       ; graph   (1)
           "\\(?:"
           "\\(?:commit \\([0-9a-fA-F]+\\)"         ; sha1    (2)
-          "\\(?: \\(("magit-refname-re"\\(?:, "magit-refname-re"\\)*)\\)\\)?\\)" ; refs    (3)
+          "\\(?: \\(([^()]+)\\)\\)?\\)"            ; refs    (3)
           "\\|"
           "\\(.+\\)\\)$"))                         ; "msg"   (4)
 
