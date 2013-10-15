@@ -3949,11 +3949,14 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                           (if (string= cherry "+")
                               'magit-cherry-equivalent
                             'magit-cherry-unmatched)) " "))
-    (if hash
-        (insert (propertize hash 'face 'magit-log-sha1) " ")
-      (insert (make-string (1+ magit-sha1-abbrev-length) ? )))
+    (unless (eq style 'long)
+      (if hash
+          (insert (propertize hash 'face 'magit-log-sha1) " ")
+        (insert (make-string (1+ magit-sha1-abbrev-length) ? ))))
     (when graph
       (insert graph))
+    (when (and hash (eq style 'long))
+      (insert (propertize hash 'face 'magit-log-sha1) " "))
     (when refs
       (insert (mapconcat 'identity
                          (cl-mapcan
