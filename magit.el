@@ -3915,12 +3915,11 @@ Evaluate (man \"git-check-ref-format\") for details")
 (defconst magit-log-oneline-re
   (concat "^\\(\\(?:[---_\\*|/.] ?\\)+ *\\)?"      ; graph   (1)
           "\\(?:"
-          "\\([0-9a-fA-F]+\\)"                     ; sha1    (2)
-          "\\(?: "
+          "\\([0-9a-fA-F]+\\) "                    ; sha1    (2)
+          "\\(?:"
           "\\(("magit-refname-re"\\(?:, "magit-refname-re"\\)*)\\)" ; refs    (3)
+          " \\)?"
           "\\)?"
-          "\\)?"
-          " ?"
           "\\(?:"
           "\\([BGUN]\\)?"                          ; gpg     (4)
           "\\[\\([^]]*\\)\\]"                      ; author  (5)
