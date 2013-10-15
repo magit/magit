@@ -3913,7 +3913,7 @@ Evaluate (man \"git-check-ref-format\") for details")
 Evaluate (man \"git-check-ref-format\") for details")
 
 (defconst magit-log-oneline-re
-  (concat "^\\(\\(?:[---_\\*|/.] ?\\)+ *\\)?"      ; graph   (1)
+  (concat "^\\(\\(?:[-_/|\\*o.] ?\\)+ *\\)?"       ; graph   (1)
           "\\(?:"
           "\\([0-9a-fA-F]+\\) "                    ; sha1    (2)
           "\\(?:"
@@ -3926,7 +3926,7 @@ Evaluate (man \"git-check-ref-format\") for details")
           "\\)?$"))
 
 (defconst magit-log-longline-re
-  (concat "\\(\\(?: ?[---_\\*|/.]+ \\)* *\\)"      ; graph   (1)
+  (concat "^\\(\\(?:[-_/|\\*o.] ?\\)+ *\\)?"       ; graph   (1)
           "\\(?:"
           "commit "
           "\\([0-9a-fA-F]+\\)"                     ; sha1    (2)
