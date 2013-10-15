@@ -1377,6 +1377,14 @@ Read `completing-read' documentation for the meaning of the argument."
 
 ;;;; String and File Utilities
 
+(defmacro magit-bind-match-strings (varlist &rest body)
+  (declare (indent 1))
+  (let ((i 0))
+    `(let ,(mapcar (lambda (var)
+                     (list var (list 'match-string (cl-incf i))))
+                   varlist)
+       ,@body)))
+
 (defun magit-file-line (file)
   "Return the first line of FILE as a string."
   (when (file-regular-p file)
@@ -3858,117 +3866,47 @@ Customize `magit-diff-refine-hunk' to change the default mode."
       (insert text))))
 
 ;;; Log Washing
-;;;; Log Line Struct
-
-(cl-defstruct magit-log-line
-  graph sha1 author date msg refs gpg refsub cherry)
-
 ;;;; Log Washing Variables
 
-;; Regexps for parsing ref names
-;;
-;; see the `git-check-ref-format' manpage for details
-
-(defconst magit-ref-nonchars "\000-\037\177 ~^:?*[\\"
-  "Characters specifically disallowed from appearing in Git symbolic refs.
-
-Evaluate (man \"git-check-ref-format\") for details")
-
-(defconst magit-ref-nonslash-re
-  (concat "\\(?:"
-          ;; "no slash-separated component can begin with a dot ." (rule 1)
-          "[^" magit-ref-nonchars "./]"
-          ;; "cannot have two consecutive dots ..  anywhere." (rule 3)
-          "\\.?"
-          "\\)*")
-  "Regexp that matches the non-slash parts of a ref name.
-
-Evaluate (man \"git-check-ref-format\") for details")
-
-(defconst magit-refname-re
-  (concat
-   "\\(?:HEAD\\|"
-
-   "\\(?:tag: \\)?"
-
-   ;; optional non-slash sequence at the beginning
-   magit-ref-nonslash-re
-
-   ;; any number of slash-prefixed sequences
-   "\\(?:"
-   "/"
-   magit-ref-nonslash-re
-   "\\)*"
-
-   "/" ;; "must contain at least one /." (rule 2)
-   magit-ref-nonslash-re
-
-   ;; "cannot end with a slash / nor a dot .." (rule 5)
-   "[^" magit-ref-nonchars "./]"
-
-   "\\)"
-   )
-  "Regexp that matches a git symbolic reference name.
-
-Evaluate (man \"git-check-ref-format\") for details")
-
 (defconst magit-log-oneline-re
-  (concat
-   "^\\(\\(?:[---_\\*|/.] ?\\)+ *\\)?"             ; graph   (1)
-   "\\(?:"
-   "\\([0-9a-fA-F]+\\)"                            ; sha1    (2)
-   "\\(?:"                                         ; refs    (3)
-   " "
-   "\\("
-   "("
-   magit-refname-re "\\(?:, " magit-refname-re "\\)*"
-   ")"
-   "\\)"
-   "\\)?"
-   "\\)?"
-   " ?"
-   "\\(?:"
-   "\\([BGUN]\\)?"                                  ; gpg     (4)
-   "\\[\\([^]]*\\)\\]"                              ; author  (5)
-   "\\[\\([^]]*\\)\\]"                              ; date    (6)
-   "\\)?"
-   "\\(.+\\)?$"                                     ; msg     (7)
-   ))
+  (concat "^"
+          "\\(?4:\\(?:[-_/|\\*o.] ?\\)+ *\\)?"     ; graph
+          "\\(?:"
+          "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
+          "\\(?:\\(?3:([^()]+)\\) \\)?"            ; refs
+          "\\(?7:[BGUN]\\)?"                       ; gpg
+          "\\[\\(?5:[^]]*\\)\\]"                   ; author
+          "\\[\\(?6:[^]]*\\)\\]"                   ; date
+          "\\(?2:.+\\)"                            ; msg
+          "\\)?$"))
 
 (defconst magit-log-longline-re
-  (concat
-   "\\(\\(?: ?[---_\\*|/.]+ \\)* *\\)"             ; graph   (1)
-   "\\(?:"
-   "commit "
-   "\\([0-9a-fA-F]+\\)"                            ; sha1    (2)
-   "\\(?:"
-   " "
-   "\\("                                           ; refs    (3)
-   "("
-   magit-refname-re "\\(?:, " magit-refname-re "\\)*"
-   ")"
-   "\\)"
-   "\\)?$"
-   "\\)?"
-   "\\(.+\\)?$"                                    ; msg     (4)
-   ))
+  (concat "^"
+          "\\(?4:\\(?:[-_/|\\*o.] ?\\)+ *\\)?"     ; graph
+          "\\(?:"
+          "\\(?:commit \\(?1:[0-9a-fA-F]+\\)"      ; sha1
+          "\\(?: \\(?3:([^()]+)\\)\\)?\\)"         ; refs
+          "\\|"
+          "\\(?2:.+\\)\\)$"))                      ; "msg"
 
 (defconst magit-log-unique-re
   (concat "^\\* "
-          "\\([0-9a-fA-F]+\\) "                    ; sha     (1)
-          "\\(.*\\)$"))                            ; msg     (2)
+          "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
+          "\\(?2:.*\\)$"))                         ; msg
 
 (defconst magit-log-cherry-re
-  (concat "^\\([-+]\\) "                           ; cherry  (1)
-          "\\([0-9a-fA-F]+\\) "                    ; sha1    (2)
-          "\\(.*\\)$"))                            ; msg     (3)
+  (concat "^"
+          "\\(?8:[-+]\\) "                         ; cherry
+          "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
+          "\\(?2:.*\\)$"))                         ; msg
 
 (defconst magit-log-reflog-re
-  (concat "^\\([^\C-?]+\\)\C-??"                   ; graph   (1)
-          "\\([^\C-?]+\\)\C-?"                     ; sha1    (2)
-          "\\([^:]+\\)?"                           ; refsub  (3)
+  (concat "^"
+          "\\(?4:[^\C-?]+\\)\C-??"                 ; graph FIXME
+          "\\(?1:[^\C-?]+\\)\C-?"                  ; sha1
+          "\\(?9:[^:]+\\)?"                        ; refsub
           "\\(?:: \\)?"
-          "\\(.+\\)?$"))                           ; msg     (4)
+          "\\(?2:.+\\)?$"))                        ; msg
 
 (defconst magit-reflog-subject-re
   (concat "\\([^ ]+\\) ?"                          ; command (1)
@@ -3976,103 +3914,7 @@ Evaluate (man \"git-check-ref-format\") for details")
           "\\(\\(?: ?-[^ ]+\\)+\\)?"               ; option  (3)
           "\\(?: ?(\\([^)]+\\))\\)?"))             ; type    (4)
 
-(defconst magit-log-format "--format=format:* %h %s")
-
-(defun magit-log-cutoff-length-arg ()
-  (format "--max-count=%d" magit-log-cutoff-length))
-
 ;;;; Log Washing Functions
-
-(defun magit-format-log-line (line)
-  (let ((graph  (magit-log-line-graph line))
-        (sha1   (magit-log-line-sha1 line))
-        (author (magit-log-line-author line))
-        (date   (magit-log-line-date line))
-        (msg    (magit-log-line-msg line))
-        (refs   (magit-log-line-refs line))
-        (gpg    (magit-log-line-gpg line))
-        (refsub (magit-log-line-refsub line))
-        (cherry (magit-log-line-cherry line)))
-    (when (and magit-log-show-author-date author date)
-      (magit-log-make-author-date-overlay author date))
-    (concat (when cherry
-              (concat (propertize cherry 'face
-                                  (if (string= cherry "+")
-                                      'magit-cherry-equivalent
-                                    'magit-cherry-unmatched))
-                      " "))
-            (if sha1
-                (propertize sha1 'face 'magit-log-sha1)
-              (make-string magit-sha1-abbrev-length ? ))
-            " "
-            graph
-            (when refs
-              (concat (mapconcat 'identity
-                                 (cl-mapcan #'magit-format-ref-label refs)
-                                 " ")
-                      " "))
-            (when refsub
-              (magit-log-format-reflog refsub))
-            (when msg
-              (font-lock-append-text-property
-               0 (length msg)
-               'face (if gpg
-                         (if (string= gpg "B")
-                             'error
-                           'magit-valid-signature)
-                       'magit-log-message)
-               msg)
-              msg))))
-
-(defun magit-parse-log-line (line style)
-  (when (string-match (cl-ecase style
-                        (oneline magit-log-oneline-re)
-                        (long    magit-log-longline-re)
-                        (reflog  magit-log-reflog-re)
-                        (unique  magit-log-unique-re)
-                        (cherry  magit-log-cherry-re))
-                      line)
-    (let ((match-style-string
-           (lambda (oneline long reflog unique cherry)
-             (when (symbol-value style)
-               (match-string (symbol-value style) line)))))
-      (make-magit-log-line
-       :graph  (funcall match-style-string 1   1   1   nil nil)
-       :sha1   (funcall match-style-string 2   2   2   1   2)
-       :author (funcall match-style-string 5   nil nil nil nil)
-       :date   (funcall match-style-string 6   nil nil nil nil)
-       :gpg    (funcall match-style-string 4   nil nil nil nil)
-       :msg    (funcall match-style-string 7   4   4   2   3)
-       :refsub (funcall match-style-string nil nil 3   nil nil)
-       :cherry (funcall match-style-string nil nil nil nil 1)
-       :refs   (when (funcall match-style-string 3 3 nil nil nil)
-                 (cl-mapcan
-                  (lambda (s)
-                    (unless (string= s "tag:")
-                      (list s)))
-                  (split-string (funcall match-style-string 3 3 nil nil nil)
-                                "[(), ]" t)))))))
-
-(defun magit-wash-log-line (style)
-  (beginning-of-line)
-  (let* ((bol (point-at-bol))
-         (eol (point-at-eol))
-         (line (magit-parse-log-line (buffer-substring bol eol)
-                                     style)))
-    (if line
-        (let ((sha1 (magit-log-line-sha1 line)))
-          (delete-region bol eol)
-          (insert (magit-format-log-line line))
-          (goto-char bol)
-          (if sha1
-              (magit-with-section sha1 'commit
-                (when magit-log-count
-                  (cl-incf magit-log-count))
-                (magit-set-section-info sha1)
-                (forward-line))
-            (forward-line)))
-      (forward-line)))
-  t)
 
 (defun magit-wash-log (style &optional color)
   (when color
@@ -4089,6 +3931,68 @@ Evaluate (man \"git-check-ref-format\") for details")
     (magit-wash-sequence (apply-partially 'magit-wash-log-line style))
     (when (eq style 'oneline)
       (magit-log-create-author-date-overlays))))
+
+(defun magit-wash-log-line (style)
+  (looking-at (cl-ecase style
+                (oneline magit-log-oneline-re)
+                (long    magit-log-longline-re)
+                (unique  magit-log-unique-re)
+                (cherry  magit-log-cherry-re)
+                (reflog  magit-log-reflog-re)))
+  (magit-bind-match-strings
+      (hash msg refs graph author date gpg cherry refsub)
+    (delete-region (point) (point-at-eol))
+    (when (and magit-log-show-author-date author date)
+      (magit-log-make-author-date-overlay author date))
+    (when cherry
+      (insert (propertize cherry 'face
+                          (if (string= cherry "+")
+                              'magit-cherry-equivalent
+                            'magit-cherry-unmatched)) " "))
+    (unless (eq style 'long)
+      (if hash
+          (insert (propertize hash 'face 'magit-log-sha1) " ")
+        (insert (make-string (1+ magit-sha1-abbrev-length) ? ))))
+    (when graph
+      (insert graph))
+    (when (and hash (eq style 'long))
+      (insert (propertize (if refs hash (magit-rev-parse hash))
+                          'face 'magit-log-sha1) " "))
+    (when refs
+      (insert (mapconcat 'identity
+                         (cl-mapcan
+                          (lambda (ref)
+                            (unless (string= ref "tag:")
+                              (list (car (magit-format-ref-label ref)))))
+                          (split-string refs "[(), ]" t))
+                         " ") " "))
+    (when refsub
+      (insert (magit-log-format-reflog refsub)))
+    (when msg
+      (font-lock-append-text-property
+       0 (length msg)
+       'face (if gpg
+                 (if (string= gpg "B")
+                     'error
+                   'magit-valid-signature)
+               'magit-log-message)
+       msg)
+      (insert msg))
+    (goto-char (line-beginning-position))
+    (if hash
+        (magit-with-section hash 'commit
+          (when magit-log-count
+            (cl-incf magit-log-count))
+          (magit-set-section-info hash)
+          (forward-line)
+          (when (eq style 'long)
+            (magit-wash-sequence
+             (lambda ()
+               (looking-at magit-log-longline-re)
+               (when (match-string 2)
+                 (magit-wash-log-line 'long))))))
+      (forward-line)))
+  t)
 
 ;;;; Log Author/Date Overlays
 
@@ -4600,7 +4504,7 @@ when asking for user input."
     (when tracked
       (magit-git-section 'unpulled "Unpulled commits:"
                          (apply-partially 'magit-wash-log 'unique)
-                         "log" magit-log-format
+                         "log" "--format=format:* %h %s"
                          (magit-diff-abbrev-arg)
                          (concat "HEAD.." tracked)))))
 
@@ -4609,7 +4513,7 @@ when asking for user input."
     (when tracked
       (magit-git-section 'unpushed "Unpushed commits:"
                          (apply-partially 'magit-wash-log 'unique)
-                         "log" magit-log-format
+                         "log" "--format=format:* %h %s"
                          (magit-diff-abbrev-arg)
                          (concat tracked "..HEAD")))))
 
@@ -5958,7 +5862,8 @@ from the parent keymap `magit-mode-map' are also available."
                  (t
                   (magit-rev-range-describe range "Commits")))
            (apply-partially 'magit-wash-log style 'color)
-           "log" (magit-log-cutoff-length-arg)
+           "log"
+           (format "--max-count=%d" magit-log-cutoff-length)
            "--decorate=full" "--abbrev-commit" "--color"
            (magit-diff-abbrev-arg)
            `(,@(cl-case style
@@ -6067,8 +5972,11 @@ from the parent keymap `magit-log-mode-map' are also available."
                        (apply-partially 'magit-wash-log 'reflog)
                        "log" "--format=format:* \C-?%h\C-?%gs"
                        (magit-diff-abbrev-arg)
-                       "--walk-reflogs" (magit-log-cutoff-length-arg)
+                       "--walk-reflogs"
+                       (format "--max-count=%d" magit-log-cutoff-length)
                        (magit-rev-to-git ref))))
+
+
 
 ;;;; (action labels)
 
