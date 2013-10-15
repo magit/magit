@@ -3931,7 +3931,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                    (when (symbol-value style)
                      (match-string (symbol-value style)))))
          (graph  (funcall match 1   1   1   nil nil))
-         (sha1   (funcall match 2   2   2   1   2))
+         (hash   (funcall match 2   2   2   1   2))
          (author (funcall match 5   nil nil nil nil))
          (date   (funcall match 6   nil nil nil nil))
          (msg    (funcall match 7   4   4   2   3))
@@ -3953,8 +3953,8 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                           (if (string= cherry "+")
                               'magit-cherry-equivalent
                             'magit-cherry-unmatched)) " "))
-    (if sha1
-        (insert (propertize sha1 'face 'magit-log-sha1) " ")
+    (if hash
+        (insert (propertize hash 'face 'magit-log-sha1) " ")
       (insert (make-string (1+ magit-sha1-abbrev-length) ? )))
     (when graph
       (insert graph))
@@ -3974,11 +3974,11 @@ Customize `magit-diff-refine-hunk' to change the default mode."
        msg)
       (insert msg))
     (goto-char (line-beginning-position))
-    (if sha1
-        (magit-with-section sha1 'commit
+    (if hash
+        (magit-with-section hash 'commit
           (when magit-log-count
             (cl-incf magit-log-count))
-          (magit-set-section-info sha1)
+          (magit-set-section-info hash)
           (forward-line))
       (forward-line)))
   t)
