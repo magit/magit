@@ -3976,8 +3976,6 @@ Evaluate (man \"git-check-ref-format\") for details")
           "\\(\\(?: ?-[^ ]+\\)+\\)?"               ; option  (3)
           "\\(?: ?(\\([^)]+\\))\\)?"))             ; type    (4)
 
-(defconst magit-log-format "--format=format:* %h %s")
-
 ;;;; Log Washing Functions
 
 (defun magit-format-log-line (line)
@@ -4597,7 +4595,7 @@ when asking for user input."
     (when tracked
       (magit-git-section 'unpulled "Unpulled commits:"
                          (apply-partially 'magit-wash-log 'unique)
-                         "log" magit-log-format
+                         "log" "--format=format:* %h %s"
                          (magit-diff-abbrev-arg)
                          (concat "HEAD.." tracked)))))
 
@@ -4606,7 +4604,7 @@ when asking for user input."
     (when tracked
       (magit-git-section 'unpushed "Unpushed commits:"
                          (apply-partially 'magit-wash-log 'unique)
-                         "log" magit-log-format
+                         "log" "--format=format:* %h %s"
                          (magit-diff-abbrev-arg)
                          (concat tracked "..HEAD")))))
 
