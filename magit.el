@@ -2015,11 +2015,8 @@ an existing remote."
 (defun magit-diff-item-range (diff)
   (nth 3 (magit-section-info diff)))
 
-(defun magit-diffstat-item-kind (diffstat)
-  (car (magit-section-info diffstat)))
-
 (defun magit-diffstat-item-file (diffstat)
-  (let ((file (cadr (magit-section-info diffstat))))
+  (let ((file (car (magit-section-info diffstat))))
     ;; Git diffstat may shorten long pathname with the prefix "..."
     ;; (e.g. ".../long/sub/dir/file" or "...longfilename")
     (save-match-data
@@ -3487,9 +3484,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
         (let ((f-begin (point-marker)) f-end)
           (insert file)
           (setq f-end (point-marker))
-
-          (magit-set-section-info (list 'diffstat
-                                        file 'incomplete f-begin f-end))
+          (magit-set-section-info (list file 'incomplete f-begin f-end))
           (insert remaining)
           (put-text-property (line-beginning-position)
                              (line-beginning-position 2)
@@ -3522,7 +3517,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
 
 (defun magit-wash-diffstats-postwork (file)
   (when magit-diffstat-cached-sections
-    (magit-set-section-info (list 'diffstat file 'completed)
+    (magit-set-section-info (list file 'completed)
                             (pop magit-diffstat-cached-sections))))
 
 (defun magit-insert-diff-title (status file file2)
