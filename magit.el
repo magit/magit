@@ -3436,19 +3436,13 @@ Customize `magit-diff-refine-hunk' to change the default mode."
         'diff
       (magit-wash-diff-section))))
 
-(defun magit-wash-diffstat (&optional guess)
+(defun magit-wash-diffstat ()
   (when (looking-at "^ ?\\(.*?\\)\\( +| +.*\\)$")
-    (let ((file (match-string-no-properties 1))
-          (remaining (match-string-no-properties 2)))
+    (let ((line (match-string-no-properties 0)))
       (delete-region (point) (+ (line-end-position) 1))
       (magit-with-section 'diffstat 'diffstat
-        (insert " ")
-        (let ((f-begin (point-marker)) f-end)
-          (insert file)
-          (setq f-end (point-marker))
-          (insert remaining)
-          (insert "\n")
-          (push magit-top-section magit-diffstat-cached-sections))))))
+        (insert line "\n")
+        (push magit-top-section magit-diffstat-cached-sections)))))
 
 (defun magit-wash-diffstats ()
   (let ((entry-regexp "^ ?\\(.*?\\)\\( +| +.*\\)$")
