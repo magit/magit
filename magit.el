@@ -2002,13 +2002,13 @@ an existing remote."
     (point)))
 
 (defun magit-diff-item-kind (diff)
-  (car (magit-section-info diff)))
+  (nth 0 (magit-section-info diff)))
 
 (defun magit-diff-item-file (diff)
-  (cadr (magit-section-info diff)))
+  (nth 1 (magit-section-info diff)))
 
 (defun magit-diff-item-file2 (diff)
-  (car (cddr (magit-section-info diff))))
+  (nth 2 (magit-section-info diff)))
 
 (defun magit-diff-item-range (diff)
   (nth 3 (magit-section-info diff)))
