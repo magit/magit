@@ -1891,18 +1891,11 @@ PROMPT and UNINTERESTING are passed to `magit-read-rev'."
 
 ;;;; (worrisome to-git converters)
 
-(defun magit-rev-to-git (rev)
-  rev)
-
 (defun magit-rev-range-to-git (range)
   (cond ((stringp range)
          range)
         ((cdr range)
-         (format "%s..%s"
-                 (magit-rev-to-git (car range))
-                 (magit-rev-to-git (cdr range))))
-        (t
-         (magit-rev-to-git (car range)))))
+         (concat (car range) ".." (cdr range)))))
 
 (defun magit-rev-describe (rev)
   (magit-name-rev rev))
@@ -4727,9 +4720,7 @@ With a prefix argument, skip editing the log message and commit.
                        (magit-read-rev "Merge" (magit-guess-branch)))
                      current-prefix-arg))
   (when revision
-    (apply 'magit-run-git
-           "merge"
-           (magit-rev-to-git revision)
+    (apply 'magit-run-git "merge" revision
            (if do-commit
                magit-custom-options
              (cons "--no-commit" magit-custom-options)))
@@ -4911,7 +4902,7 @@ If REVISION is a remote branch, offer to create a local tracking branch.
   (when (and revision
              (not (magit-maybe-create-local-tracking-branch revision)))
     (magit-save-some-buffers)
-    (magit-run-git "checkout" (magit-rev-to-git revision))))
+    (magit-run-git "checkout" revision)))
 
 ;;;###autoload (autoload 'magit-create-branch "magit")
 (magit-define-command create-branch (branch parent)
@@ -4929,7 +4920,7 @@ Fails if working tree or staging area contain uncommitted changes.
     (apply #'magit-run-git
            "checkout" "-b"
            branch
-           (append magit-custom-options (list (magit-rev-to-git parent))))))
+           (append magit-custom-options (list parent)))))
 
 ;;;###autoload
 (defun magit-delete-branch (branch &optional force)
@@ -4976,9 +4967,7 @@ With prefix, forces the rename even if NEW already exists.
           (null new) (string= new "")
           (string= old new))
       (message "Cannot rename branch \"%s\" to \"%s\"." old new)
-    (magit-run-git "branch"
-                   (if force "-M" "-m")
-                   (magit-rev-to-git old) new)))
+    (magit-run-git "branch" (if force "-M" "-m") old new)))
 
 (defun magit-guess-branch ()
   "Return a branch name depending on the context of cursor.
@@ -5084,7 +5073,7 @@ Return nil if there is no rebase in progress."
                      (cons (concat "refs/heads/" branch)
                            magit-uninteresting-refs)
                    magit-uninteresting-refs))))
-      (magit-run-git "rebase" (magit-rev-to-git rev)))))
+      (magit-run-git "rebase" rev))))
 
 ;;;###autoload
 (defun magit-interactive-rebase (commit)
@@ -5115,8 +5104,7 @@ and staging area are lost.
                                                "Reset"))
                                      (or (magit-default-rev) "HEAD^"))
                      current-prefix-arg))
-  (magit-run-git "reset" (if hard "--hard" "--soft")
-                 (magit-rev-to-git revision) "--"))
+  (magit-run-git "reset" (if hard "--hard" "--soft") revision "--"))
 
 ;;;###autoload (autoload 'magit-reset-head-hard "magit")
 (magit-define-command reset-head-hard (revision)
@@ -5961,9 +5949,7 @@ from the parent keymap `magit-log-mode-map' are also available."
                        (magit-diff-abbrev-arg)
                        "--walk-reflogs"
                        (format "--max-count=%d" magit-log-cutoff-length)
-                       (magit-rev-to-git ref))))
-
-
+                       ref)))
 
 ;;;; (action labels)
 
