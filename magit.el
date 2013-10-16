@@ -2013,14 +2013,6 @@ an existing remote."
 (defun magit-diff-item-range (diff)
   (nth 3 (magit-section-info diff)))
 
-(defun magit-diffstat-item-file (diffstat)
-  (let ((file (car (magit-section-info diffstat))))
-    ;; Git diffstat may shorten long pathname with the prefix "..."
-    ;; (e.g. ".../long/sub/dir/file" or "...longfilename")
-    (save-match-data
-      (unless (string-match "\\`\\.\\.\\." file)
-        file))))
-
 ;;;; Section Variables
 
 (defvar-local magit-top-section nil
@@ -6321,10 +6313,7 @@ With a prefix argument, visit in other window."
       ((diff)
        (dired-jump other-window (file-truename (magit-diff-item-file item))))
       ((diffstat)
-       (let ((file (magit-diffstat-item-file item)))
-         (if file
-             (dired-jump other-window (file-truename file))
-           (error "Can't get the pathname for this file"))))
+       (dired-jump other-window (file-truename (car (magit-section-info item)))))
       ((hunk)
        (dired-jump other-window
                    (file-truename (magit-diff-item-file
@@ -6343,7 +6332,7 @@ With a prefix argument, visit in other window."
           (magit-section-action (item info "visit-file")
             ((untracked file) info)
             ((diff)           (magit-diff-item-file item))
-            ((diffstat)       (magit-diffstat-item-file item))
+            ((diffstat)       (car (magit-section-info item)))
             ((hunk)
              (setq line (magit-hunk-item-target-line item)
                    column (current-column))
