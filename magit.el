@@ -1162,7 +1162,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "0") 'magit-diff-default-hunks)
     (define-key map (kbd "h") 'magit-key-mode-popup-diff-options)
     (define-key map (kbd "H") 'magit-toggle-diff-refine-hunk)
-    (define-key map (kbd "M-g") 'magit-goto-diffstats)
+    (define-key map (kbd "M-g") 'magit-jump-to-diffstats)
     (define-key map (kbd "S") 'magit-stage-all)
     (define-key map (kbd "U") 'magit-unstage-all)
     (define-key map (kbd "X") 'magit-reset-working-tree)
@@ -2363,19 +2363,6 @@ If SECTION is nil, default to setting `magit-top-section'"
     (when pos
       (goto-char pos))))
 
-(defun magit-goto-diffstats ()
-  "Go to the diffstats section if exists"
-  (interactive)
-  (let ((pos (catch 'section-found
-               (dolist (sec (magit-section-children magit-top-section))
-                 (when (eq (magit-section-type sec) 'diffstats)
-                   (throw 'section-found
-                          (magit-section-beginning sec)))))))
-    (if pos
-        (goto-char pos)
-      (when (called-interactively-p 'interactive)
-        (message "No diffstats section found")))))
-
 (defmacro magit-define-section-jumper (sym title)
   "Define an interactive function to go to section SYM.
 TITLE is the displayed title of the section."
@@ -2395,6 +2382,7 @@ TITLE is the displayed title of the section."
 (magit-define-section-jumper unpulled  "Unpulled commits")
 (magit-define-section-jumper unpushed  "Unpushed commits")
 (magit-define-section-jumper pending   "Pending commits")
+(magit-define-section-jumper diffstats "Diffstats")
 
 ;;;; Section Utilities
 
