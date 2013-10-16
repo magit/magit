@@ -3438,7 +3438,6 @@ Customize `magit-diff-refine-hunk' to change the default mode."
 
 (defun magit-wash-diffstat (&optional guess)
   (when (looking-at "^ ?\\(.*?\\)\\( +| +.*\\)$")
-    ;; Don't decode pseudo filename.
     (let ((file (match-string-no-properties 1))
           (remaining (match-string-no-properties 2)))
       (delete-region (point) (+ (line-end-position) 1))
