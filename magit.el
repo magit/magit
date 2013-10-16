@@ -5829,7 +5829,7 @@ from the parent keymap `magit-mode-map' are also available."
            (cond (file
                   (magit-rev-range-describe
                    range (format "Commits for file %s" file)))
-                 ((or (member "--all" args) (member "--all-match" args))
+                 ((member "--all" args)
                   "Commits")
                  (t
                   (magit-rev-range-describe range "Commits")))
