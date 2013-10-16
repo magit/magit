@@ -3448,8 +3448,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
           (setq f-end (point-marker))
           (insert remaining)
           (insert "\n")
-          (add-to-list 'magit-diffstat-cached-sections
-                       magit-top-section))))))
+          (push magit-top-section magit-diffstat-cached-sections))))))
 
 (defun magit-wash-diffstats ()
   (let ((entry-regexp "^ ?\\(.*?\\)\\( +| +.*\\)$")
