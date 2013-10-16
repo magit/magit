@@ -4281,7 +4281,7 @@ in `magit-commit-buffer-name'."
              (goto-char (point-min))
              (magit-mode-init dir 'magit-diff-mode
                               #'magit-refresh-diff-buffer
-                              (concat stash "^2^.." stash)))))))
+                              (concat stash "^2^.." stash) nil))))))
 
 ;;;; (washing)
 
@@ -5737,9 +5737,7 @@ With a prefix arg, do a submodule update --init."
   (magit-mode-setup magit-log-buffer-name
                     #'magit-log-mode
                     #'magit-refresh-log-buffer
-                    'oneline range
-                    (cons (magit-rev-range-to-git range)
-                          magit-custom-options)))
+                    'oneline range magit-custom-options))
 
 ;;;###autoload (autoload 'magit-log-ranged "magit")
 (magit-define-command log-ranged (range)
@@ -5753,9 +5751,7 @@ With a prefix arg, do a submodule update --init."
   (magit-mode-setup magit-log-buffer-name
                     #'magit-log-mode
                     #'magit-refresh-log-buffer
-                    'long range
-                    (cons (magit-rev-range-to-git range)
-                          magit-custom-options)))
+                    'long range magit-custom-options))
 
 ;;;###autoload (autoload 'magit-log-long-ranged "magit")
 (magit-define-command log-long-ranged (range)
@@ -5831,7 +5827,7 @@ from the parent keymap `magit-mode-map' are also available."
                   (list (concat "--pretty=format:%h%d "
                                 (and magit-log-show-gpg-status "%G?")
                                 "[%an][%ar]%s"))))
-             ,@args "--"
+             ,@args ,range "--"
              ,@(and file (list file))))))
 
 (defun magit-log-show-more-entries (&optional arg)
