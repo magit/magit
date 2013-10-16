@@ -1249,13 +1249,6 @@ Many Magit faces inherit from this one by default."
     map)
   "Keymap for `magit-branch-manager-mode'.")
 
-(defvar magit-diffstat-keymap
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-mode-map)
-    (define-key map (kbd "e") 'magit-diffstat-ediff)
-    map)
-  "Keymap for diffstats in `magit-commit-mode' and `magit-diff-mode'.")
-
 (defvar magit-section-jump-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "z") 'magit-jump-to-stashes)
@@ -3464,9 +3457,6 @@ Customize `magit-diff-refine-hunk' to change the default mode."
           (setq f-end (point-marker))
           (magit-set-section-info (list file 'incomplete f-begin f-end))
           (insert remaining)
-          (put-text-property (line-beginning-position)
-                             (line-beginning-position 2)
-                             'keymap magit-diffstat-keymap)
           (insert "\n")
           (add-to-list 'magit-diffstat-cached-sections
                        magit-top-section))))))
@@ -5933,6 +5923,9 @@ from the parent keymap `magit-log-mode-map' are also available."
 (defun magit-ediff ()
   "View the current DIFF section in ediff."
   (interactive)
+  (when (eq (magit-section-type (magit-current-section)) 'diffstat)
+    (magit-goto-diff-section-at-file
+     (magit-diff-item-file (magit-current-section))))
   (let ((diff (magit-current-section)))
     (when (magit-section-hidden diff)
       ;; Range is not set until the first time the diff is visible.
@@ -5962,12 +5955,6 @@ from the parent keymap `magit-log-mode-map' are also available."
        (t
         (magit-ediff* (magit-show (car range) file2)
                       (magit-show (cdr range) file1)))))))
-
-(defun magit-diffstat-ediff ()
-  (interactive)
-  (magit-goto-diff-section-at-file
-   (magit-diff-item-file (magit-current-section)))
-  (call-interactively 'magit-ediff))
 
 (defun magit-ediff-add-cleanup ()
   (make-local-variable 'magit-ediff-buffers)
