@@ -2104,9 +2104,10 @@ If TYPE is nil, the section won't be highlighted."
   (let ((s (make-symbol "*section*")))
     `(let* ((,s (magit-new-section ,title ,type))
             (magit-top-section ,s))
-       (setf (magit-section-beginning ,s) (point))
+       (setf (magit-section-beginning ,s) (point-marker))
        ,@body
-       (setf (magit-section-end ,s) (point))
+       (set-marker-insertion-type (magit-section-beginning ,s) t)
+       (setf (magit-section-end ,s) (point-marker))
        (setf (magit-section-children ,s)
              (nreverse (magit-section-children ,s)))
        ,s)))
