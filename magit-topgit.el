@@ -61,7 +61,7 @@
 
 (defun magit-topgit-create-branch (branch parent)
   (when (zerop (or (string-match magit-topgit-branch-prefix branch) -1))
-    (magit-run-topgit t "create" branch (magit-rev-to-git parent))))
+    (magit-run-topgit t "create" branch parent)))
 
 (defun magit-topgit-pull ()
   (when (magit-topgit-in-topic-p)

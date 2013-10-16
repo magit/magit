@@ -101,6 +101,7 @@ Use the function by the same name instead of this variable.")
 
 (defvar magit-custom-options)
 (defvar magit-log-buffer-name)
+(defvar magit-marked-commit)
 (defvar magit-reflog-buffer-name)
 (defvar package-alist)
 
@@ -1797,15 +1798,6 @@ involving HEAD."
 ;;__ FIXME The parens indicate preliminary subsections.
 ;;;; (insane "rev" reading)
 
-(defvar-local magit-current-range nil
-  "The range described by the current buffer.
-This is only non-nil in diff and log buffers.
-
-This has three possible (non-nil) forms.  If it's a string REF or
-a singleton list (REF), then the range is from REF to the current
-working directory state (or HEAD in a log buffer).  If it's a
-pair (START . END), then the range is START..END.")
-
 (defun magit-list-interesting-refs (&optional uninteresting)
   "Return interesting references as given by `git show-ref'.
 Removes references matching UNINTERESTING from the results.
@@ -1868,6 +1860,8 @@ according to `magit-remote-ref-format'"
                                        interesting-refs nil nil nil
                                        'magit-read-rev-history default))
          (rev (or (cdr (assoc reply interesting-refs)) reply)))
+    (when (equal rev ".")
+      (setq rev magit-marked-commit))
     (unless (or rev noselection)
       (error "No rev selected"))
     rev))
@@ -1885,52 +1879,6 @@ PROMPT and UNINTERESTING are passed to `magit-read-rev'."
       (if (string-match "^\\(.+\\)\\.\\.\\(.+\\)$" beg)
           (cons (match-string 1 beg) (match-string 2 beg))
         (cons beg (magit-read-rev (format "%s end" op) def-end nil t))))))
-
-;;;; (worrisome to-git converters)
-
-(defvar magit-marked-commit) ; tempory kludge
-
-(defun magit-rev-to-git (rev)
-  (cond ((not rev)
-         (error "No revision specified"))
-        ((string= rev ".")
-         magit-marked-commit)
-        (t
-         rev)))
-
-(defun magit-rev-range-to-git (range)
-  (cond ((not range)
-         (error "No revision range specified"))
-        ((stringp range)
-         range)
-        ((cdr range)
-         (format "%s..%s"
-                 (magit-rev-to-git (car range))
-                 (magit-rev-to-git (cdr range))))
-        (t
-         (magit-rev-to-git (car range)))))
-
-(defun magit-rev-describe (rev)
-  (cond ((not rev)
-         (error "No revision specified"))
-        ((string= rev ".")
-         "mark")
-        (t
-         (magit-name-rev rev))))
-
-(defun magit-rev-range-describe (range things)
-  (cond ((not range)
-         (error "No revision range specified"))
-        ((stringp range)
-         (format "%s in %s" things range))
-        ((cdr range)
-         (format "%s from %s to %s" things
-                 (magit-rev-describe (car range))
-                 (if (eq (cdr range) 'working)
-                     "working directory"
-                   (magit-rev-describe (cdr range)))))
-        (t
-         (format "%s at %s" things (magit-rev-describe (car range))))))
 
 ;;;; (default and at-point stuff)
 
@@ -4314,11 +4262,9 @@ in `magit-commit-buffer-name'."
            (display-buffer buf)
            (with-current-buffer buf
              (goto-char (point-min))
-             (let* ((range (cons (concat stash "^2^") stash))
-                    (magit-current-diff-range range)
-                    (args (magit-rev-range-to-git range)))
-               (magit-mode-init dir 'magit-diff-mode #'magit-refresh-diff-buffer
-                                range args)))))))
+             (magit-mode-init dir 'magit-diff-mode
+                              #'magit-refresh-diff-buffer
+                              (concat stash "^2^.." stash) nil))))))
 
 ;;;; (washing)
 
@@ -4740,9 +4686,7 @@ With a prefix argument, skip editing the log message and commit.
                        (magit-read-rev "Merge" (magit-guess-branch)))
                      current-prefix-arg))
   (when revision
-    (apply 'magit-run-git
-           "merge"
-           (magit-rev-to-git revision)
+    (apply 'magit-run-git "merge" revision
            (if do-commit
                magit-custom-options
              (cons "--no-commit" magit-custom-options)))
@@ -4924,7 +4868,7 @@ If REVISION is a remote branch, offer to create a local tracking branch.
   (when (and revision
              (not (magit-maybe-create-local-tracking-branch revision)))
     (magit-save-some-buffers)
-    (magit-run-git "checkout" (magit-rev-to-git revision))))
+    (magit-run-git "checkout" revision)))
 
 ;;;###autoload (autoload 'magit-create-branch "magit")
 (magit-define-command create-branch (branch parent)
@@ -4942,7 +4886,7 @@ Fails if working tree or staging area contain uncommitted changes.
     (apply #'magit-run-git
            "checkout" "-b"
            branch
-           (append magit-custom-options (list (magit-rev-to-git parent))))))
+           (append magit-custom-options (list parent)))))
 
 ;;;###autoload
 (defun magit-delete-branch (branch &optional force)
@@ -4989,9 +4933,7 @@ With prefix, forces the rename even if NEW already exists.
           (null new) (string= new "")
           (string= old new))
       (message "Cannot rename branch \"%s\" to \"%s\"." old new)
-    (magit-run-git "branch"
-                   (if force "-M" "-m")
-                   (magit-rev-to-git old) new)))
+    (magit-run-git "branch" (if force "-M" "-m") old new)))
 
 (defun magit-guess-branch ()
   "Return a branch name depending on the context of cursor.
@@ -5097,7 +5039,7 @@ Return nil if there is no rebase in progress."
                      (cons (concat "refs/heads/" branch)
                            magit-uninteresting-refs)
                    magit-uninteresting-refs))))
-      (magit-run-git "rebase" (magit-rev-to-git rev)))))
+      (magit-run-git "rebase" rev))))
 
 ;;;###autoload
 (defun magit-interactive-rebase (commit)
@@ -5128,8 +5070,7 @@ and staging area are lost.
                                                "Reset"))
                                      (or (magit-default-rev) "HEAD^"))
                      current-prefix-arg))
-  (magit-run-git "reset" (if hard "--hard" "--soft")
-                 (magit-rev-to-git revision) "--"))
+  (magit-run-git "reset" (if hard "--hard" "--soft") revision "--"))
 
 ;;;###autoload (autoload 'magit-reset-head-hard "magit")
 (magit-define-command reset-head-hard (revision)
@@ -5779,9 +5720,7 @@ With a prefix arg, do a submodule update --init."
   (magit-mode-setup magit-log-buffer-name
                     #'magit-log-mode
                     #'magit-refresh-log-buffer
-                    'oneline range
-                    (cons (magit-rev-range-to-git range)
-                          magit-custom-options)))
+                    'oneline range magit-custom-options))
 
 ;;;###autoload (autoload 'magit-log-ranged "magit")
 (magit-define-command log-ranged (range)
@@ -5795,9 +5734,7 @@ With a prefix arg, do a submodule update --init."
   (magit-mode-setup magit-log-buffer-name
                     #'magit-log-mode
                     #'magit-refresh-log-buffer
-                    'long range
-                    (cons (magit-rev-range-to-git range)
-                          magit-custom-options)))
+                    'long range magit-custom-options))
 
 ;;;###autoload (autoload 'magit-log-long-ranged "magit")
 (magit-define-command log-long-ranged (range)
@@ -5850,17 +5787,14 @@ from the parent keymap `magit-mode-map' are also available."
   "Name of buffer used to display log entries.")
 
 (defun magit-refresh-log-buffer (style range args &optional file)
-  (setq magit-current-range range)
   (setq magit-file-log-file file)
+  (when (consp range)
+    (setq range (concat (car range) ".." (cdr range))))
   (magit-create-log-buffer-sections
     (apply #'magit-git-section nil
-           (cond (file
-                  (magit-rev-range-describe
-                   range (format "Commits for file %s" file)))
-                 ((or (member "--all" args) (member "--all-match" args))
-                  "Commits")
-                 (t
-                  (magit-rev-range-describe range "Commits")))
+           (concat "Commits"
+                   (and file  (concat " for file " file))
+                   (and range (concat " in " range)))
            (apply-partially 'magit-wash-log style 'color)
            "log"
            (format "--max-count=%d" magit-log-cutoff-length)
@@ -5875,7 +5809,7 @@ from the parent keymap `magit-mode-map' are also available."
                   (list (concat "--pretty=format:%h%d "
                                 (and magit-log-show-gpg-status "%G?")
                                 "[%an][%ar]%s"))))
-             ,@args "--"
+             ,@args ,range "--"
              ,@(and file (list file))))))
 
 (defun magit-log-show-more-entries (&optional arg)
@@ -5974,9 +5908,7 @@ from the parent keymap `magit-log-mode-map' are also available."
                        (magit-diff-abbrev-arg)
                        "--walk-reflogs"
                        (format "--max-count=%d" magit-log-cutoff-length)
-                       (magit-rev-to-git ref))))
-
-
+                       ref)))
 
 ;;;; (action labels)
 
@@ -6127,7 +6059,7 @@ from the parent keymap `magit-mode-map' are also available."
   "Name of buffer used to display a diff.")
 
 ;;;###autoload (autoload 'magit-diff "magit")
-(magit-define-command diff (range)
+(magit-define-command diff (range &optional working)
   (interactive (list (magit-read-rev-range "Diff")))
   (let ((buf (get-buffer-create magit-diff-buffer-name)))
     (display-buffer buf)
@@ -6135,13 +6067,12 @@ from the parent keymap `magit-mode-map' are also available."
       (magit-mode-init default-directory
                        'magit-diff-mode
                        #'magit-refresh-diff-buffer
-                       range
-                       (magit-rev-range-to-git range)))))
+                       range working))))
 
 ;;;###autoload (autoload 'magit-diff-working-tree "magit")
 (magit-define-command diff-working-tree (rev)
   (interactive (list (magit-read-rev-with-default "Diff working tree with")))
-  (magit-diff (or rev "HEAD")))
+  (magit-diff (or rev "HEAD") t))
 
 (defun magit-diff-with-mark (marked commit)
   (interactive
@@ -6156,25 +6087,27 @@ from the parent keymap `magit-mode-map' are also available."
                          (cons (concat "refs/heads/" current)
                                magit-uninteresting-refs))))))
      (list marked commit)))
-  (magit-diff (cons marked commit)))
+  (magit-diff (concat marked ".." commit)))
 
-(defun magit-refresh-diff-buffer (range args)
-  (let ((magit-current-diff-range (cond
-                                   ((stringp range)
-                                    (cons range 'working))
-                                   ((null (cdr range))
-                                    (cons (car range) 'working))
-                                   (t
-                                    range))))
-    (setq magit-current-range range)
+(defun magit-refresh-diff-buffer (range working)
+  (let ((magit-current-diff-range
+         (cond (working (cons range 'working))
+               ((consp range)
+                (prog1 range
+                  (setq range (concat (car range) ".." (cdr range)))))
+               ((string-match "^\\([^.]+\\)\\.\\.\\([^.]\\)$" range)
+                (cons (match-string 1 range)
+                      (match-string 2 range))))))
     (magit-create-buffer-sections
       (apply #'magit-git-section
              'diffbuf
-             (magit-rev-range-describe magit-current-diff-range "Changes")
+             (if working
+                 (format "Changes from %s to working tree" range)
+               (format "Changes in %s" range))
              'magit-wash-diffs
              "diff" (magit-diff-U-arg)
              `(,@(and magit-show-diffstat (list "--patch-with-stat"))
-               ,args "--")))))
+               ,range "--")))))
 
 ;;; Wazzup Mode
 
