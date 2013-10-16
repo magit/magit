@@ -3445,26 +3445,16 @@ Customize `magit-diff-refine-hunk' to change the default mode."
         (push magit-top-section magit-diffstat-cached-sections)))))
 
 (defun magit-wash-diffstats ()
-  (let ((entry-regexp "^ ?\\(.*?\\)\\( +| +.*\\)$")
-        (title-regexp "^ ?\\([0-9]+ +files? change.*\\)\n+")
-        (pos (point)))
-    (save-restriction
-      (save-match-data
-        (when (and (looking-at entry-regexp)
-                   (re-search-forward title-regexp nil t))
-          (let ((title-line (match-string-no-properties 1))
-                (stat-end (point-marker)))
-            (delete-region (match-beginning 0) (match-end 0))
-            (narrow-to-region pos stat-end)
-            (goto-char (point-min))
-            (magit-with-section 'diffstats 'diffstats
-              (insert title-line)
-              (insert "\n")
-              (setq-local magit-diffstat-cached-sections nil)
-              (magit-wash-sequence #'magit-wash-diffstat))
-            (setq magit-diffstat-cached-sections
-                  (nreverse magit-diffstat-cached-sections))
-            (insert "\n")))))))
+  (let ((beg (point)))
+    (when (re-search-forward "^ ?\\([0-9]+ +files? change[^\n]*\n\\)" nil t)
+      (let ((heading (match-string-no-properties 1)))
+        (delete-region (match-beginning 0) (match-end 0))
+        (goto-char beg)
+        (magit-with-section 'diffstats 'diffstats
+          (insert heading)
+          (magit-wash-sequence #'magit-wash-diffstat)))
+      (setq magit-diffstat-cached-sections
+            (nreverse magit-diffstat-cached-sections)))))
 
 (defun magit-wash-diffstats-postwork (file)
   (when magit-diffstat-cached-sections
