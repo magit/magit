@@ -1889,14 +1889,6 @@ PROMPT and UNINTERESTING are passed to `magit-read-rev'."
           (cons (match-string 1 beg) (match-string 2 beg))
         (cons beg (magit-read-rev (format "%s end" op) def-end nil t))))))
 
-;;;; (worrisome to-git converters)
-
-(defun magit-rev-range-to-git (range)
-  (cond ((stringp range)
-         range)
-        ((cdr range)
-         (concat (car range) ".." (cdr range)))))
-
 ;;;; (default and at-point stuff)
 
 (defun magit-default-rev (&optional no-trim)
