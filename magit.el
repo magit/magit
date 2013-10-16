@@ -5824,15 +5824,13 @@ from the parent keymap `magit-mode-map' are also available."
 (defun magit-refresh-log-buffer (style range args &optional file)
   (setq magit-current-range range)
   (setq magit-file-log-file file)
+  (when (consp range)
+    (setq range (concat (car range) ".." (cdr range))))
   (magit-create-log-buffer-sections
     (apply #'magit-git-section nil
-           (cond (file
-                  (magit-rev-range-describe
-                   range (format "Commits for file %s" file)))
-                 ((member "--all" args)
-                  "Commits")
-                 (t
-                  (magit-rev-range-describe range "Commits")))
+           (concat "Commits"
+                   (and file  (concat " for file " file))
+                   (and range (concat " in " range)))
            (apply-partially 'magit-wash-log style 'color)
            "log"
            (format "--max-count=%d" magit-log-cutoff-length)
