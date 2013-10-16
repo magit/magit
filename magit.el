@@ -4291,11 +4291,9 @@ in `magit-commit-buffer-name'."
            (display-buffer buf)
            (with-current-buffer buf
              (goto-char (point-min))
-             (let* ((range (cons (concat stash "^2^") stash))
-                    (magit-current-diff-range range)
-                    (args (magit-rev-range-to-git range)))
-               (magit-mode-init dir 'magit-diff-mode #'magit-refresh-diff-buffer
-                                range args)))))))
+             (magit-mode-init dir 'magit-diff-mode
+                              #'magit-refresh-diff-buffer
+                              (concat stash "^2^.." stash)))))))
 
 ;;;; (washing)
 
@@ -6095,7 +6093,7 @@ from the parent keymap `magit-mode-map' are also available."
   "Name of buffer used to display a diff.")
 
 ;;;###autoload (autoload 'magit-diff "magit")
-(magit-define-command diff (range)
+(magit-define-command diff (range &optional working)
   (interactive (list (magit-read-rev-range "Diff")))
   (let ((buf (get-buffer-create magit-diff-buffer-name)))
     (display-buffer buf)
@@ -6103,13 +6101,12 @@ from the parent keymap `magit-mode-map' are also available."
       (magit-mode-init default-directory
                        'magit-diff-mode
                        #'magit-refresh-diff-buffer
-                       range
-                       (magit-rev-range-to-git range)))))
+                       range working))))
 
 ;;;###autoload (autoload 'magit-diff-working-tree "magit")
 (magit-define-command diff-working-tree (rev)
   (interactive (list (magit-read-rev-with-default "Diff working tree with")))
-  (magit-diff (or rev "HEAD")))
+  (magit-diff (or rev "HEAD") t))
 
 (defun magit-diff-with-mark (marked commit)
   (interactive
@@ -6124,25 +6121,28 @@ from the parent keymap `magit-mode-map' are also available."
                          (cons (concat "refs/heads/" current)
                                magit-uninteresting-refs))))))
      (list marked commit)))
-  (magit-diff (cons marked commit)))
+  (magit-diff (concat marked ".." commit)))
 
-(defun magit-refresh-diff-buffer (range args)
-  (let ((magit-current-diff-range (cond
-                                   ((stringp range)
-                                    (cons range 'working))
-                                   ((null (cdr range))
-                                    (cons (car range) 'working))
-                                   (t
-                                    range))))
+(defun magit-refresh-diff-buffer (range working)
+  (let ((magit-current-diff-range
+         (cond (working (cons range 'working))
+               ((consp range)
+                (prog1 range
+                  (setq range (concat (car range) ".." (cdr range)))))
+               ((string-match "^\\([^.]+\\)\\.\\.\\([^.]\\)$" range)
+                (cons (match-string 1 range)
+                      (match-string 2 range))))))
     (setq magit-current-range range)
     (magit-create-buffer-sections
       (apply #'magit-git-section
              'diffbuf
-             (magit-rev-range-describe magit-current-diff-range "Changes")
+             (if working
+                 (format "Changes from %s to working tree" range)
+               (format "Changes in %s" range))
              'magit-wash-diffs
              "diff" (magit-diff-U-arg)
              `(,@(and magit-show-diffstat (list "--patch-with-stat"))
-               ,args "--")))))
+               ,range "--")))))
 
 ;;; Wazzup Mode
 
