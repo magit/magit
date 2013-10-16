@@ -3466,8 +3466,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
 
 (defun magit-wash-diffstats-postwork (file)
   (when magit-diffstat-cached-sections
-    (magit-set-section-info (list file 'completed)
-                            (pop magit-diffstat-cached-sections))))
+    (magit-set-section-info file (pop magit-diffstat-cached-sections))))
 
 (defun magit-insert-diff-title (status file file2)
   (insert (format "\t%-10s " (capitalize (symbol-name status)))
@@ -6302,7 +6301,7 @@ With a prefix argument, visit in other window."
       ((diff)
        (dired-jump other-window (file-truename (magit-diff-item-file item))))
       ((diffstat)
-       (dired-jump other-window (file-truename (car (magit-section-info item)))))
+       (dired-jump other-window (file-truename (magit-section-info item))))
       ((hunk)
        (dired-jump other-window
                    (file-truename (magit-diff-item-file
@@ -6321,7 +6320,7 @@ With a prefix argument, visit in other window."
           (magit-section-action (item info "visit-file")
             ((untracked file) info)
             ((diff)           (magit-diff-item-file item))
-            ((diffstat)       (car (magit-section-info item)))
+            ((diffstat)       (magit-section-info item))
             ((hunk)
              (setq line (magit-hunk-item-target-line item)
                    column (current-column))
