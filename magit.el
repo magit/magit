@@ -1897,18 +1897,6 @@ PROMPT and UNINTERESTING are passed to `magit-read-rev'."
         ((cdr range)
          (concat (car range) ".." (cdr range)))))
 
-(defun magit-rev-range-describe (range things)
-  (cond ((stringp range)
-         (format "%s in %s" things range))
-        ((cdr range)
-         (format "%s from %s to %s" things
-                 (magit-name-rev (car range))
-                 (if (eq (cdr range) 'working)
-                     "working directory"
-                   (magit-name-rev (cdr range)))))
-        (t
-         (format "%s at %s" things (magit-name-rev (car range))))))
-
 ;;;; (default and at-point stuff)
 
 (defun magit-default-rev (&optional no-trim)
