@@ -631,6 +631,11 @@ many spaces.  Otherwise, highlight neither."
                                (const :tag "Neither" nil))))
   :set 'magit-set-variable-and-refresh)
 
+(defcustom magit-show-diffstat t
+  "Whether to shod diffstat in diff and commit buffers."
+  :group 'magit
+  :type 'boolean)
+
 (defcustom magit-diff-options nil
   "Git options used to display diffs.
 For more information about the options see man:git-diff.
@@ -1162,7 +1167,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "0") 'magit-diff-default-hunks)
     (define-key map (kbd "h") 'magit-key-mode-popup-diff-options)
     (define-key map (kbd "H") 'magit-toggle-diff-refine-hunk)
-    (define-key map (kbd "M-g") 'magit-goto-diffstats)
+    (define-key map (kbd "M-g") 'magit-jump-to-diffstats)
     (define-key map (kbd "S") 'magit-stage-all)
     (define-key map (kbd "U") 'magit-unstage-all)
     (define-key map (kbd "X") 'magit-reset-working-tree)
@@ -1243,13 +1248,6 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "T") 'magit-change-what-branch-tracks)
     map)
   "Keymap for `magit-branch-manager-mode'.")
-
-(defvar magit-diffstat-keymap
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-mode-map)
-    (define-key map (kbd "e") 'magit-diffstat-ediff)
-    map)
-  "Keymap for diffstats in `magit-commit-mode' and `magit-diff-mode'.")
 
 (defvar magit-section-jump-map
   (let ((map (make-sparse-keymap)))
@@ -2004,27 +2002,16 @@ an existing remote."
     (point)))
 
 (defun magit-diff-item-kind (diff)
-  (car (magit-section-info diff)))
+  (nth 0 (magit-section-info diff)))
 
 (defun magit-diff-item-file (diff)
-  (cadr (magit-section-info diff)))
+  (nth 1 (magit-section-info diff)))
 
 (defun magit-diff-item-file2 (diff)
-  (car (cddr (magit-section-info diff))))
+  (nth 2 (magit-section-info diff)))
 
 (defun magit-diff-item-range (diff)
   (nth 3 (magit-section-info diff)))
-
-(defun magit-diffstat-item-kind (diffstat)
-  (car (magit-section-info diffstat)))
-
-(defun magit-diffstat-item-file (diffstat)
-  (let ((file (cadr (magit-section-info diffstat))))
-    ;; Git diffstat may shorten long pathname with the prefix "..."
-    ;; (e.g. ".../long/sub/dir/file" or "...longfilename")
-    (save-match-data
-      (unless (string-match "\\`\\.\\.\\." file)
-        file))))
 
 ;;;; Section Variables
 
@@ -2035,9 +2022,6 @@ an existing remote."
 (defvar magit-old-top-section nil)
 
 (defvar magit-section-hidden-default nil)
-
-(defvar magit-show-diffstat t
-  "If non-nil, diff and commit log will display diffstat.")
 
 (defvar-local magit-diffstat-cached-sections nil)
 (put 'magit-diffstat-cached-sections 'permanent-local t)
@@ -2366,19 +2350,6 @@ If SECTION is nil, default to setting `magit-top-section'"
     (when pos
       (goto-char pos))))
 
-(defun magit-goto-diffstats ()
-  "Go to the diffstats section if exists"
-  (interactive)
-  (let ((pos (catch 'section-found
-               (dolist (sec (magit-section-children magit-top-section))
-                 (when (eq (magit-section-type sec) 'diffstats)
-                   (throw 'section-found
-                          (magit-section-beginning sec)))))))
-    (if pos
-        (goto-char pos)
-      (when (called-interactively-p 'interactive)
-        (message "No diffstats section found")))))
-
 (defmacro magit-define-section-jumper (sym title)
   "Define an interactive function to go to section SYM.
 TITLE is the displayed title of the section."
@@ -2398,6 +2369,7 @@ TITLE is the displayed title of the section."
 (magit-define-section-jumper unpulled  "Unpulled commits")
 (magit-define-section-jumper unpushed  "Unpushed commits")
 (magit-define-section-jumper pending   "Pending commits")
+(magit-define-section-jumper diffstats "Diffstats")
 
 ;;;; Section Utilities
 
@@ -3453,9 +3425,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
 
 (defun magit-wash-diffs ()
   (magit-wash-diffstats)
-  (magit-wash-sequence (lambda ()
-                         (or (magit-wash-diff)
-                             (magit-wash-other-file)))))
+  (magit-wash-sequence #'magit-wash-diff))
 
 (defun magit-wash-diff ()
   (let ((magit-section-hidden-default
@@ -3466,64 +3436,37 @@ Customize `magit-diff-refine-hunk' to change the default mode."
         'diff
       (magit-wash-diff-section))))
 
-(defun magit-wash-other-file ()
-  (when (looking-at "^? \\(.*\\)$")
-    (let ((file (magit-decode-git-path (match-string-no-properties 1))))
-      (magit-wash-diffstats-postwork file)
-      (delete-region (point) (+ (line-end-position) 1))
-      (magit-with-section file 'file
-        (magit-set-section-info file)
-        (insert "\tNew      " file "\n"))
-      t)))
-
-(defun magit-wash-diffstat (&optional guess)
-  (when (looking-at "^ ?\\(.*?\\)\\( +| +.*\\)$")
-    ;; Don't decode pseudo filename.
-    (let ((file (match-string-no-properties 1))
-          (remaining (match-string-no-properties 2)))
-      (delete-region (point) (+ (line-end-position) 1))
-      (magit-with-section "diffstat" 'diffstat
-        (insert " ")
-        (let ((f-begin (point-marker)) f-end)
-          (insert file)
-          (setq f-end (point-marker))
-
-          (magit-set-section-info (list 'diffstat
-                                        file 'incomplete f-begin f-end))
-          (insert remaining)
-          (put-text-property (line-beginning-position)
-                             (line-beginning-position 2)
-                             'keymap magit-diffstat-keymap)
-          (insert "\n")
-          (add-to-list 'magit-diffstat-cached-sections
-                       magit-top-section))))))
-
 (defun magit-wash-diffstats ()
-  (let ((entry-regexp "^ ?\\(.*?\\)\\( +| +.*\\)$")
-        (title-regexp "^ ?\\([0-9]+ +files? change.*\\)\n+")
-        (pos (point)))
-    (save-restriction
-      (save-match-data
-        (when (and (looking-at entry-regexp)
-                   (re-search-forward title-regexp nil t))
-          (let ((title-line (match-string-no-properties 1))
-                (stat-end (point-marker)))
-            (delete-region (match-beginning 0) (match-end 0))
-            (narrow-to-region pos stat-end)
-            (goto-char (point-min))
-            (magit-with-section "diffstats" 'diffstats
-              (insert title-line)
-              (insert "\n")
-              (setq-local magit-diffstat-cached-sections nil)
-              (magit-wash-sequence #'magit-wash-diffstat))
-            (setq magit-diffstat-cached-sections
-                  (nreverse magit-diffstat-cached-sections))
-            (insert "\n")))))))
+  (let ((beg (point)))
+    (when (re-search-forward "^ ?\\([0-9]+ +files? change[^\n]*\n\\)" nil t)
+      (let ((heading (match-string-no-properties 1)))
+        (delete-region (match-beginning 0) (match-end 0))
+        (goto-char beg)
+        (magit-with-section 'diffstats 'diffstats
+          (insert heading)
+          (magit-wash-sequence #'magit-wash-diffstat)))
+      (setq magit-diffstat-cached-sections
+            (nreverse magit-diffstat-cached-sections)))))
+
+(defun magit-wash-diffstat ()
+  (when (looking-at
+         "^ ?\\(.*?\\)\\( +| +\\)\\([0-9]+\\) \\([+]*\\)?\\([-]*\\)?$")
+    (let ((file (match-string-no-properties 1))
+          (sep  (match-string-no-properties 2))
+          (cnt  (match-string-no-properties 3))
+          (add  (match-string-no-properties 4))
+          (del  (match-string-no-properties 5)))
+      (delete-region (point) (1+ (line-end-position)))
+      (magit-with-section 'diffstat 'diffstat
+        (insert " " file sep cnt " ")
+        (when add (insert (propertize add 'face 'magit-diff-add)))
+        (when del (insert (propertize del 'face 'magit-diff-del)))
+        (insert "\n")
+        (push magit-top-section magit-diffstat-cached-sections)))))
 
 (defun magit-wash-diffstats-postwork (file)
   (when magit-diffstat-cached-sections
-    (magit-set-section-info (list 'diffstat file 'completed)
-                            (pop magit-diffstat-cached-sections))))
+    (magit-set-section-info file (pop magit-diffstat-cached-sections))))
 
 (defun magit-insert-diff-title (status file file2)
   (insert (format "\t%-10s " (capitalize (symbol-name status)))
@@ -3553,13 +3496,15 @@ Customize `magit-diff-refine-hunk' to change the default mode."
         (magit-wash-diff-section)))))
 
 (defun magit-wash-diff-section ()
-  (cond ((looking-at "^\\* Unmerged path \\(.*\\)")
+  (cond ((re-search-forward "^\\* Unmerged path \\(.*\\)" nil t)
+         (forward-line 0)
          (let ((file (magit-decode-git-path (match-string-no-properties 1))))
            (delete-region (point) (line-end-position))
            (insert "\tUnmerged " file "\n")
            (magit-set-section-info (list 'unmerged file nil))
            t))
-        ((looking-at "^diff")
+        ((re-search-forward "^diff" nil t)
+         (forward-line 0)
          (let ((file (magit-diff-line-file))
                (end (save-excursion
                       (forward-line) ;; skip over "diff" line
@@ -5958,6 +5903,9 @@ from the parent keymap `magit-log-mode-map' are also available."
 (defun magit-ediff ()
   "View the current DIFF section in ediff."
   (interactive)
+  (when (eq (magit-section-type (magit-current-section)) 'diffstat)
+    (magit-goto-diff-section-at-file
+     (magit-diff-item-file (magit-current-section))))
   (let ((diff (magit-current-section)))
     (when (magit-section-hidden diff)
       ;; Range is not set until the first time the diff is visible.
@@ -5987,12 +5935,6 @@ from the parent keymap `magit-log-mode-map' are also available."
        (t
         (magit-ediff* (magit-show (car range) file2)
                       (magit-show (cdr range) file1)))))))
-
-(defun magit-diffstat-ediff ()
-  (interactive)
-  (magit-goto-diff-section-at-file
-   (magit-diff-item-file (magit-current-section)))
-  (call-interactively 'magit-ediff))
 
 (defun magit-ediff-add-cleanup ()
   (make-local-variable 'magit-ediff-buffers)
@@ -6359,10 +6301,7 @@ With a prefix argument, visit in other window."
       ((diff)
        (dired-jump other-window (file-truename (magit-diff-item-file item))))
       ((diffstat)
-       (let ((file (magit-diffstat-item-file item)))
-         (if file
-             (dired-jump other-window (file-truename file))
-           (error "Can't get the pathname for this file"))))
+       (dired-jump other-window (file-truename (magit-section-info item))))
       ((hunk)
        (dired-jump other-window
                    (file-truename (magit-diff-item-file
@@ -6381,7 +6320,7 @@ With a prefix argument, visit in other window."
           (magit-section-action (item info "visit-file")
             ((untracked file) info)
             ((diff)           (magit-diff-item-file item))
-            ((diffstat)       (magit-diffstat-item-file item))
+            ((diffstat)       (magit-section-info item))
             ((hunk)
              (setq line (magit-hunk-item-target-line item)
                    column (current-column))
