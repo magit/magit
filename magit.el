@@ -101,6 +101,7 @@ Use the function by the same name instead of this variable.")
 
 (defvar magit-custom-options)
 (defvar magit-log-buffer-name)
+(defvar magit-marked-commit)
 (defvar magit-reflog-buffer-name)
 (defvar package-alist)
 
@@ -1868,6 +1869,8 @@ according to `magit-remote-ref-format'"
                                        interesting-refs nil nil nil
                                        'magit-read-rev-history default))
          (rev (or (cdr (assoc reply interesting-refs)) reply)))
+    (when (equal rev ".")
+      (setq rev magit-marked-commit))
     (unless (or rev noselection)
       (error "No rev selected"))
     rev))
@@ -1888,13 +1891,8 @@ PROMPT and UNINTERESTING are passed to `magit-read-rev'."
 
 ;;;; (worrisome to-git converters)
 
-(defvar magit-marked-commit) ; tempory kludge
-
 (defun magit-rev-to-git (rev)
-  (cond ((string= rev ".")
-         magit-marked-commit)
-        (t
-         rev)))
+  rev)
 
 (defun magit-rev-range-to-git (range)
   (cond ((stringp range)
@@ -1907,10 +1905,7 @@ PROMPT and UNINTERESTING are passed to `magit-read-rev'."
          (magit-rev-to-git (car range)))))
 
 (defun magit-rev-describe (rev)
-  (cond ((string= rev ".")
-         "mark")
-        (t
-         (magit-name-rev rev))))
+  (magit-name-rev rev))
 
 (defun magit-rev-range-describe (range things)
   (cond ((stringp range)
