@@ -3449,11 +3449,19 @@ Customize `magit-diff-refine-hunk' to change the default mode."
             (nreverse magit-diffstat-cached-sections)))))
 
 (defun magit-wash-diffstat ()
-  (when (looking-at "^ ?\\(.*?\\)\\( +| +.*\\)$")
-    (let ((line (match-string-no-properties 0)))
-      (delete-region (point) (+ (line-end-position) 1))
+  (when (looking-at
+         "^ ?\\(.*?\\)\\( +| +\\)\\([0-9]+\\) \\([+]*\\)?\\([-]*\\)?$")
+    (let ((file (match-string-no-properties 1))
+          (sep  (match-string-no-properties 2))
+          (cnt  (match-string-no-properties 3))
+          (add  (match-string-no-properties 4))
+          (del  (match-string-no-properties 5)))
+      (delete-region (point) (1+ (line-end-position)))
       (magit-with-section 'diffstat 'diffstat
-        (insert line "\n")
+        (insert " " file sep cnt " ")
+        (when add (insert (propertize add 'face 'magit-diff-add)))
+        (when del (insert (propertize del 'face 'magit-diff-del)))
+        (insert "\n")
         (push magit-top-section magit-diffstat-cached-sections)))))
 
 (defun magit-wash-diffstats-postwork (file)
