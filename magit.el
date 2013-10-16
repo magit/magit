@@ -1798,15 +1798,6 @@ involving HEAD."
 ;;__ FIXME The parens indicate preliminary subsections.
 ;;;; (insane "rev" reading)
 
-(defvar-local magit-current-range nil
-  "The range described by the current buffer.
-This is only non-nil in diff and log buffers.
-
-This has three possible (non-nil) forms.  If it's a string REF or
-a singleton list (REF), then the range is from REF to the current
-working directory state (or HEAD in a log buffer).  If it's a
-pair (START . END), then the range is START..END.")
-
 (defun magit-list-interesting-refs (&optional uninteresting)
   "Return interesting references as given by `git show-ref'.
 Removes references matching UNINTERESTING from the results.
@@ -5796,7 +5787,6 @@ from the parent keymap `magit-mode-map' are also available."
   "Name of buffer used to display log entries.")
 
 (defun magit-refresh-log-buffer (style range args &optional file)
-  (setq magit-current-range range)
   (setq magit-file-log-file file)
   (when (consp range)
     (setq range (concat (car range) ".." (cdr range))))
@@ -6108,7 +6098,6 @@ from the parent keymap `magit-mode-map' are also available."
                ((string-match "^\\([^.]+\\)\\.\\.\\([^.]\\)$" range)
                 (cons (match-string 1 range)
                       (match-string 2 range))))))
-    (setq magit-current-range range)
     (magit-create-buffer-sections
       (apply #'magit-git-section
              'diffbuf
