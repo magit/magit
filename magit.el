@@ -99,10 +99,12 @@ Use the function by the same name instead of this variable.")
 (declare-function package-version-join 'package)
 (declare-function view-mode 'view)
 
+(defvar magit-commit-buffer-name)
 (defvar magit-custom-options)
 (defvar magit-log-buffer-name)
 (defvar magit-marked-commit)
 (defvar magit-reflog-buffer-name)
+(defvar magit-refresh-args)
 (defvar package-alist)
 
 ;;; Compatibility
@@ -2328,7 +2330,9 @@ If SECTION is nil, default to setting `magit-top-section'"
     (forward-line -1)
     (magit-goto-next-section))
    ((and (eq (magit-section-type section) 'commit)
-         (derived-mode-p 'magit-log-mode))
+         (derived-mode-p 'magit-log-mode)
+         (or (eq (car magit-refresh-args) 'oneline)
+             (get-buffer-window magit-commit-buffer-name)))
     (magit-show-commit section))))
 
 (defun magit-goto-section-at-path (path)
