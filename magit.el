@@ -631,6 +631,11 @@ many spaces.  Otherwise, highlight neither."
                                (const :tag "Neither" nil))))
   :set 'magit-set-variable-and-refresh)
 
+(defcustom magit-show-diffstat t
+  "Whether to shod diffstat in diff and commit buffers."
+  :group 'magit
+  :type 'boolean)
+
 (defcustom magit-diff-options nil
   "Git options used to display diffs.
 For more information about the options see man:git-diff.
@@ -2032,9 +2037,6 @@ an existing remote."
 (defvar magit-old-top-section nil)
 
 (defvar magit-section-hidden-default nil)
-
-(defvar magit-show-diffstat t
-  "If non-nil, diff and commit log will display diffstat.")
 
 (defvar-local magit-diffstat-cached-sections nil)
 (put 'magit-diffstat-cached-sections 'permanent-local t)
