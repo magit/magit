@@ -3526,13 +3526,15 @@ Customize `magit-diff-refine-hunk' to change the default mode."
         (magit-wash-diff-section)))))
 
 (defun magit-wash-diff-section ()
-  (cond ((looking-at "^\\* Unmerged path \\(.*\\)")
+  (cond ((re-search-forward "^\\* Unmerged path \\(.*\\)" nil t)
+         (forward-line 0)
          (let ((file (magit-decode-git-path (match-string-no-properties 1))))
            (delete-region (point) (line-end-position))
            (insert "\tUnmerged " file "\n")
            (magit-set-section-info (list 'unmerged file nil))
            t))
-        ((looking-at "^diff")
+        ((re-search-forward "^diff" nil t)
+         (forward-line 0)
          (let ((file (magit-diff-line-file))
                (end (save-excursion
                       (forward-line) ;; skip over "diff" line
