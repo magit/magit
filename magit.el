@@ -3447,7 +3447,6 @@ Customize `magit-diff-refine-hunk' to change the default mode."
         (let ((f-begin (point-marker)) f-end)
           (insert file)
           (setq f-end (point-marker))
-          (magit-set-section-info (list file 'incomplete f-begin f-end))
           (insert remaining)
           (insert "\n")
           (add-to-list 'magit-diffstat-cached-sections
