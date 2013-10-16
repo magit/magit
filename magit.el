@@ -3479,7 +3479,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
     (let ((file (match-string-no-properties 1))
           (remaining (match-string-no-properties 2)))
       (delete-region (point) (+ (line-end-position) 1))
-      (magit-with-section "diffstat" 'diffstat
+      (magit-with-section 'diffstat 'diffstat
         (insert " ")
         (let ((f-begin (point-marker)) f-end)
           (insert file)
@@ -3506,7 +3506,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
             (delete-region (match-beginning 0) (match-end 0))
             (narrow-to-region pos stat-end)
             (goto-char (point-min))
-            (magit-with-section "diffstats" 'diffstats
+            (magit-with-section 'diffstats 'diffstats
               (insert title-line)
               (insert "\n")
               (setq-local magit-diffstat-cached-sections nil)
