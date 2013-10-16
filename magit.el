@@ -1891,17 +1891,13 @@ PROMPT and UNINTERESTING are passed to `magit-read-rev'."
 (defvar magit-marked-commit) ; tempory kludge
 
 (defun magit-rev-to-git (rev)
-  (cond ((not rev)
-         (error "No revision specified"))
-        ((string= rev ".")
+  (cond ((string= rev ".")
          magit-marked-commit)
         (t
          rev)))
 
 (defun magit-rev-range-to-git (range)
-  (cond ((not range)
-         (error "No revision range specified"))
-        ((stringp range)
+  (cond ((stringp range)
          range)
         ((cdr range)
          (format "%s..%s"
@@ -1911,17 +1907,13 @@ PROMPT and UNINTERESTING are passed to `magit-read-rev'."
          (magit-rev-to-git (car range)))))
 
 (defun magit-rev-describe (rev)
-  (cond ((not rev)
-         (error "No revision specified"))
-        ((string= rev ".")
+  (cond ((string= rev ".")
          "mark")
         (t
          (magit-name-rev rev))))
 
 (defun magit-rev-range-describe (range things)
-  (cond ((not range)
-         (error "No revision range specified"))
-        ((stringp range)
+  (cond ((stringp range)
          (format "%s in %s" things range))
         ((cdr range)
          (format "%s from %s to %s" things
