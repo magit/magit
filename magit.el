@@ -2318,7 +2318,7 @@ If SECTION is nil, default to setting `magit-top-section'"
          (previous-sibling (magit-find-section-before* beginning siblings)))
     (if previous-sibling
         (magit-goto-section previous-sibling)
-      (magit-goto-parent-section))))
+      (magit-goto-previous-section))))
 
 (defun magit-goto-section (section)
   (goto-char (magit-section-beginning section))
