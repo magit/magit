@@ -136,7 +136,7 @@ match REQUIRED-STATUS."
   (unless (magit--bisecting-p)
     (error "Not bisecting"))
   (magit-run-git "bisect" "log")
-  (magit-display-process))
+  (magit-process-display))
 
 ;;;###autoload
 (defun magit-bisect-visualize ()
@@ -146,7 +146,7 @@ match REQUIRED-STATUS."
     (error "Not bisecting"))
   (magit-run-git "bisect" "visualize")
   (unless (getenv "DISPLAY")
-    (magit-display-process)))
+    (magit-process-display)))
 
 (easy-mmode-defmap magit-bisect-minibuffer-local-map
   '(("\C-i" . comint-dynamic-complete-filename))
@@ -177,7 +177,7 @@ match REQUIRED-STATUS."
     (magit-run-git-async "bisect" "run" file)
     (setq buffer  (get-buffer magit-process-buffer-name)
           process (get-buffer-process buffer))
-    (magit-display-process)
+    (magit-process-display)
     (with-current-buffer buffer
       (setq magit--bisect-last-pos 0))
     (set-process-filter process 'magit--bisect-run-filter)

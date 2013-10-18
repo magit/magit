@@ -98,7 +98,7 @@
       ("y" "Cherry"          magit-cherry)
       ("z" "Stashing"        magit-key-mode-popup-stashing)
       ("!" "Running"         magit-key-mode-popup-running)
-      ("$" "Show Process"    magit-display-process)))
+      ("$" "Show Process"    magit-process-display)))
 
     (logging
      (man-page "git-log")
