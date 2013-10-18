@@ -2936,12 +2936,14 @@ magit-topgit and magit-svn"
   (when (memq (process-status process) '(exit signal))
     (setq magit-process nil)
     (let ((msg (format "%s %s." (process-name process) (substring event 0 -1)))
+          (timer (process-get process 'magit-process-timer))
           (successp (string-match "^finished" event))
           (key (if (buffer-live-p command-buf)
                    (with-current-buffer command-buf
                      (key-description (car (where-is-internal
                                             'magit-process-display))))
                  "M-x magit-process-display")))
+      (when timer (cancel-timer timer))
       (when (buffer-live-p (process-buffer process))
         (with-current-buffer (process-buffer process)
           (let ((inhibit-read-only t))
@@ -3049,8 +3051,9 @@ magit-topgit and magit-svn"
      ((= magit-process-popup-time 0)
       (magit-process-display buffer))
      ((> magit-process-popup-time 0)
-      (run-with-timer magit-process-popup-time nil
-                      #'magit-process-display buffer)))))
+      (process-put process 'magit-process-timer
+                   (run-with-timer magit-process-popup-time nil
+                                   #'magit-process-display buffer))))))
 
 ;;; Magit Mode
 ;;;; Hooks
