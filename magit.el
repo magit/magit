@@ -4772,7 +4772,9 @@ With a prefix argument, add remaining untracked files as well.
 \('git reset --mixed HEAD')."
   (interactive)
   (when (or (not magit-unstage-all-confirm)
-            (not (magit-anything-unstaged-p))
+            (and (not (magit-anything-unstaged-p))
+                 (not (magit-git-lines "ls-files" "--others" "-t"
+                                       "--exclude-standard")))
             (yes-or-no-p "Unstage all changes?"))
     (magit-run-git "reset" "HEAD" "--")))
 
