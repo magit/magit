@@ -444,7 +444,11 @@ they are not (due to semantic considerations)."
                  (integer :tag "After this many seconds")))
 
 (defcustom magit-stage-all-confirm t
-  "Require acknowledgment before staging all changes."
+  "Whether to require confirmation before staging all changes.
+This reduces the risk of accidentally losing the index.  If
+nothing at all is stage yet, then always stage without requiring
+confirmation, because it can be undone without the risk of losing
+a carefully crafted index."
   :package-version '(magit . "1.3.0")
   :group 'magit
   :type 'boolean)
@@ -4712,6 +4716,7 @@ With a prefix argument, add remaining untracked files as well.
 \('git add [-u] .')."
   (interactive "P")
   (when (or (not magit-stage-all-confirm)
+            (not (magit-anything-staged-p))
             (yes-or-no-p "Stage all changes?"))
     (if including-untracked
         (magit-run-git "add" ".")
