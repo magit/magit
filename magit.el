@@ -444,13 +444,21 @@ they are not (due to semantic considerations)."
                  (integer :tag "After this many seconds")))
 
 (defcustom magit-stage-all-confirm t
-  "Require acknowledgment before staging all changes."
+  "Whether to require confirmation before staging all changes.
+This reduces the risk of accidentally losing the index.  If
+nothing at all is stage yet, then always stage without requiring
+confirmation, because it can be undone without the risk of losing
+a carefully crafted index."
   :package-version '(magit . "1.3.0")
   :group 'magit
   :type 'boolean)
 
 (defcustom magit-unstage-all-confirm t
-  "Require acknowledgment before unstaging all changes."
+  "Whether to require confirmation before unstaging all changes.
+This reduces the risk of accidentally losing of the index.  If
+there are no staged changes at all, then always unstage without
+confirmation, because it can be undone without the risk of losing
+a carefully crafted index."
   :package-version '(magit . "1.3.0")
   :group 'magit
   :type 'boolean)
@@ -1769,7 +1777,10 @@ involving HEAD."
   (magit-git-success "diff" "--quiet" "--" file))
 
 (defun magit-anything-staged-p ()
-  (not (magit-git-success "diff" "--quiet" "--cached")))
+  (not (magit-git-success "diff-index" "--cached" "--quiet" "HEAD" "--")))
+
+(defun magit-anything-unstaged-p ()
+  (not (magit-git-success "diff-files" "--quiet" "--")))
 
 (defun magit-everything-clean-p ()
   (and (not (magit-anything-staged-p))
@@ -4709,6 +4720,7 @@ With a prefix argument, add remaining untracked files as well.
 \('git add [-u] .')."
   (interactive "P")
   (when (or (not magit-stage-all-confirm)
+            (not (magit-anything-staged-p))
             (yes-or-no-p "Stage all changes?"))
     (if including-untracked
         (magit-run-git "add" ".")
@@ -4755,6 +4767,7 @@ With a prefix argument, add remaining untracked files as well.
 \('git reset --mixed HEAD')."
   (interactive)
   (when (or (not magit-unstage-all-confirm)
+            (not (magit-anything-unstaged-p))
             (yes-or-no-p "Unstage all changes?"))
     (magit-run-git "reset" "HEAD" "--")))
 
