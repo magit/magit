@@ -1159,7 +1159,7 @@ Many Magit faces inherit from this one by default."
            (define-key map (kbd "o") 'magit-key-mode-popup-submodule)
            (define-key map (kbd "B") 'magit-key-mode-popup-bisecting)
            (define-key map (kbd "z") 'magit-key-mode-popup-stashing)))
-    (define-key map (kbd "$") 'magit-display-process)
+    (define-key map (kbd "$") 'magit-process-display)
     (define-key map (kbd "E") 'magit-interactive-rebase)
     (define-key map (kbd "R") 'magit-rebase-step)
     (define-key map (kbd "e") 'magit-ediff)
@@ -1329,7 +1329,7 @@ Many Magit faces inherit from this one by default."
     "---"
     ("Extensions")
     "---"
-    ["Display Git output" magit-display-process t]
+    ["Display Git output" magit-process-display t]
     ["Quit Magit" magit-quit-window t]))
 
 ;;; Various Utilities (1)
@@ -2894,7 +2894,7 @@ magit-topgit and magit-svn"
                                         (point-min) (point-max)))
                  (process-send-eof magit-process)
                  (sit-for 0.1 t))
-               (magit-display-process magit-process)
+               (magit-process-timed-display magit-process)
                (setq successp t))
               (input
                (with-current-buffer input
@@ -2938,7 +2938,7 @@ magit-topgit and magit-svn"
                "Git failed")
            (with-current-buffer command-buf
              (let ((key (key-description (car (where-is-internal
-                                               'magit-display-process)))))
+                                               'magit-process-display)))))
                (if key (format "Hit %s to see" key) "See")))
            (buffer-name process-buf)))
       successp)))
@@ -2947,12 +2947,14 @@ magit-topgit and magit-svn"
   (when (memq (process-status process) '(exit signal))
     (setq magit-process nil)
     (let ((msg (format "%s %s." (process-name process) (substring event 0 -1)))
+          (timer (process-get process 'magit-process-timer))
           (successp (string-match "^finished" event))
           (key (if (buffer-live-p command-buf)
                    (with-current-buffer command-buf
                      (key-description (car (where-is-internal
-                                            'magit-display-process))))
-                 "M-x magit-display-process")))
+                                            'magit-process-display))))
+                 "M-x magit-process-display")))
+      (when timer (cancel-timer timer))
       (when (buffer-live-p (process-buffer process))
         (with-current-buffer (process-buffer process)
           (let ((inhibit-read-only t))
@@ -3043,30 +3045,26 @@ magit-topgit and magit-svn"
         (t
          (concat " " (car comps) " " (cadr comps)))))
 
-(defun magit-display-process (&optional process buffer)
-  "Display output from most recent Git process.
-
-Non-interactively the behaviour depends on the optional PROCESS
-and BUFFER arguments.  If non-nil display BUFFER (provided it is
-still alive).  Otherwise if PROCESS is non-nil display its buffer
-but only if it is still alive after `magit-process-popup-time'
-seconds.  Finally if both PROCESS and BUFFER are nil display the
-buffer of the most recent process, like in the interactive case."
+(defun magit-process-display (&optional buffer)
+  "Display output from most recent Git process."
   (interactive)
-  (cond ((not process)
-         (or buffer
-             (setq buffer (get-buffer magit-process-buffer-name))
-             (error "No Git commands have run"))
-         (when (buffer-live-p buffer)
-           (pop-to-buffer buffer)
-           (with-current-buffer buffer
-             (goto-char (point-max)))))
-        ((= magit-process-popup-time 0)
-         (magit-display-process nil (process-buffer process)))
-        ((> magit-process-popup-time 0)
-         (run-with-timer magit-process-popup-time
-                         nil #'magit-display-process
-                         nil (process-buffer process)))))
+  (setq buffer (or buffer (get-buffer magit-process-buffer-name)
+                   (error "No Git commands have run")))
+  (when (buffer-live-p buffer)
+    (with-current-buffer buffer
+      (goto-char (point-max)))
+    (pop-to-buffer buffer)))
+
+(defun magit-process-timed-display (process)
+  "Display output of PROCESS in `magit-process-popup-time' seconds."
+  (let ((buffer (process-buffer process)))
+    (cond
+     ((= magit-process-popup-time 0)
+      (magit-process-display buffer))
+     ((> magit-process-popup-time 0)
+      (process-put process 'magit-process-timer
+                   (run-with-timer magit-process-popup-time nil
+                                   #'magit-process-display buffer))))))
 
 ;;; Magit Mode
 ;;;; Hooks
