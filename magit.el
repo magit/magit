@@ -3064,9 +3064,12 @@ buffer of the most recent process, like in the interactive case."
         ((= magit-process-popup-time 0)
          (magit-display-process nil (process-buffer process)))
         ((> magit-process-popup-time 0)
-         (run-with-timer magit-process-popup-time
-                         nil #'magit-display-process
-                         nil (process-buffer process)))))
+         (run-with-timer magit-process-popup-time nil
+                         (lambda (p)
+                           (when (eq (process-status p) 'run)
+                             (magit-display-process
+                              nil (process-buffer p))))
+                         process))))
 
 ;;; Magit Mode
 ;;;; Hooks
