@@ -6968,4 +6968,6 @@ init file:
 (require 'magit-key-mode)
 (require 'magit-bisect)
 
+(require 'magit-log-edit nil t)
+
 ;;; magit.el ends here
