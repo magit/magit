@@ -454,7 +454,11 @@ a carefully crafted index."
   :type 'boolean)
 
 (defcustom magit-unstage-all-confirm t
-  "Require acknowledgment before unstaging all changes."
+  "Whether to require confirmation before unstaging all changes.
+This reduces the risk of accidentally losing of the index.  If
+there are no staged changes at all, then always unstage without
+confirmation, because it can be undone without the risk of losing
+a carefully crafted index."
   :package-version '(magit . "1.3.0")
   :group 'magit
   :type 'boolean)
@@ -4763,6 +4767,7 @@ With a prefix argument, add remaining untracked files as well.
 \('git reset --mixed HEAD')."
   (interactive)
   (when (or (not magit-unstage-all-confirm)
+            (not (magit-anything-unstaged-p))
             (yes-or-no-p "Unstage all changes?"))
     (magit-run-git "reset" "HEAD" "--")))
 
