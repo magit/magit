@@ -444,16 +444,33 @@ they are not (due to semantic considerations)."
                  (integer :tag "After this many seconds")))
 
 (defcustom magit-stage-all-confirm t
-  "Require acknowledgment before staging all changes."
+  "Require acknowledgment before staging all changes.
+
+A value of nil means never ask.
+A value of `safe' means only ask when there are already staged changes.
+A value of `looks-safe' is like `safe' but only checks the status buffer.
+A value of t mean always ask."
   :package-version '(magit . "1.3.0")
   :group 'magit
-  :type 'boolean)
+  :type '(choice (const t)
+                 (const safe)
+                 (const looks-safe)
+                 (const nil)))
 
 (defcustom magit-unstage-all-confirm t
-  "Require acknowledgment before unstaging all changes."
+  "Require acknowledgment before unstaging all changes.
+
+A value of nil means never ask.
+A value of `safe' means only ask when there are already unstaged
+changes or untracked files.
+A value of `looks-safe' is like `safe' but only checks the status buffer.
+A value of t mean always ask."
   :package-version '(magit . "1.3.0")
   :group 'magit
-  :type 'boolean)
+  :type '(choice (const t)
+                 (const safe)
+                 (const looks-safe)
+                 (const nil)))
 
 (defcustom magit-process-keep-history nil
   "Whether to always prevent clearing the process buffer."
@@ -1770,6 +1787,12 @@ involving HEAD."
 
 (defun magit-anything-staged-p ()
   (not (magit-git-success "diff" "--quiet" "--cached")))
+
+(defun magit-anything-unstaged-p ()
+  (or (not (magit-git-success "diff" "--quiet")) ; tracked
+      (magit-git-success "ls-files" "--others"   ; untracked
+                         "--exclude-standard" "--directory"
+                         "--error-unmatch" ".")))
 
 (defun magit-everything-clean-p ()
   (and (not (magit-anything-staged-p))
@@ -4709,6 +4732,10 @@ With a prefix argument, add remaining untracked files as well.
 \('git add [-u] .')."
   (interactive "P")
   (when (or (not magit-stage-all-confirm)
+            (and (eq magit-stage-all-confirm 'safe)
+                 (not (magit-anything-staged-p)))
+            (and (eq magit-stage-all-confirm 'looks-safe) magit-top-section
+                 (not (magit-find-section '(staged) magit-top-section)))
             (yes-or-no-p "Stage all changes?"))
     (if including-untracked
         (magit-run-git "add" ".")
@@ -4755,6 +4782,11 @@ With a prefix argument, add remaining untracked files as well.
 \('git reset --mixed HEAD')."
   (interactive)
   (when (or (not magit-unstage-all-confirm)
+            (and (eq magit-unstage-all-confirm 'safe)
+                 (not (magit-anything-unstaged-p)))
+            (and (eq magit-unstage-all-confirm 'looks-safe) magit-top-section
+                 (not (magit-find-section '(unstaged) magit-top-section))
+                 (not (magit-find-section '(untracked) magit-top-section)))
             (yes-or-no-p "Unstage all changes?"))
     (magit-run-git "reset" "HEAD" "--")))
 
