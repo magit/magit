@@ -2310,8 +2310,7 @@ If SECTION is nil, default to setting `magit-top-section'"
 (defun magit-goto-next-sibling-section ()
   "Go to the next sibling section."
   (interactive)
-  (let* ((initial (point))
-         (section (magit-current-section))
+  (let* ((section (magit-current-section))
          (end (- (magit-section-end section) 1))
          (parent (magit-section-parent section))
          (siblings (and parent (magit-section-children parent)))
@@ -2330,7 +2329,7 @@ If SECTION is nil, default to setting `magit-top-section'"
          (previous-sibling (magit-find-section-before* beginning siblings)))
     (if previous-sibling
         (magit-goto-section previous-sibling)
-      (magit-goto-parent-section))))
+      (magit-goto-previous-section))))
 
 (defun magit-goto-section (section)
   (goto-char (magit-section-beginning section))
