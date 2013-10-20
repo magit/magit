@@ -3440,6 +3440,8 @@ Customize `magit-diff-refine-hunk' to change the default mode."
 
 (defun magit-wash-diffs ()
   (magit-wash-diffstats)
+  (and (re-search-forward "^diff" nil t)
+       (goto-char (line-beginning-position)))
   (magit-wash-sequence #'magit-wash-diff))
 
 (defun magit-wash-diff ()
