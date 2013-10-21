@@ -6039,7 +6039,7 @@ from the parent keymap `magit-mode-map' are also available."
   (interactive (list (magit-read-rev-with-default "Diff working tree with")))
   (magit-diff (or rev "HEAD") t))
 
-(defun magit-diff-with-mark (marked commit)
+(defun magit-diff-with-mark (range)
   (interactive
    (let* ((marked (or magit-marked-commit (error "No commit marked")))
           (current (magit-get-current-branch))
@@ -6051,8 +6051,8 @@ from the parent keymap `magit-mode-map' are also available."
                        (when is-current
                          (cons (concat "refs/heads/" current)
                                magit-uninteresting-refs))))))
-     (list marked commit)))
-  (magit-diff (concat marked ".." commit)))
+     (list (concat marked ".." commit))))
+  (magit-diff range))
 
 (defun magit-refresh-diff-buffer (range working)
   (let ((magit-current-diff-range
