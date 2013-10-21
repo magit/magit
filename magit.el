@@ -6189,7 +6189,13 @@ With a prefix argument edit the ignore string."
   (interactive "P")
   (magit-section-action (item info "ignore")
     ((untracked file)
-     (magit-ignore-file (concat "/" info) edit local))))
+     (magit-ignore-file (concat "/" info) edit local))
+    ((diff)
+     (let ((file (magit-section-title item)))
+       (when (yes-or-no-p
+              (format "%s is tracked.  Untrack and ignore? " file))
+         (magit-run-git "rm" "--cached" file)
+         (magit-ignore-file (concat "/" file) edit local))))))
 
 (defun magit-ignore-item-locally (edit)
   "Ignore the item at point locally only.
