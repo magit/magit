@@ -2236,6 +2236,26 @@ If SECTION is nil, default to setting `magit-top-section'"
       (append (magit-section-path parent)
               (list (magit-section-title section))))))
 
+(defun magit-section-numpath (section)
+  "Return the numeric path of SECTION.
+
+Like `magit-section-path' but uses child index instead of title."
+  (let (parent numpath)
+    (while (setq parent (magit-section-parent section))
+      (push (cl-position section (magit-section-children parent)) numpath)
+      (setq section parent))
+    numpath))
+
+(defun magit-find-section-by-num (numpath top)
+  "Return the section at NUMPATH relative to TOP."
+  (let ((secs (magit-section-children top)))
+    (if (or (null numpath) (null secs))
+        top
+      (let* ((pos (car numpath))
+             (sec (nth pos secs)))
+        (if sec (magit-find-section-by-num (cdr numpath) sec)
+          (magit-find-section-after (magit-section-end top)))))))
+
 (defun magit-find-section-after (pos)
   "Find the first section that begins after POS."
   (magit-find-section-after* pos (list magit-top-section)))
@@ -3184,8 +3204,8 @@ Also see `magit-mode-setup', a more convenient variant."
            (old-window (selected-window))
            (old-window-start (window-start))
            (old-section (magit-current-section))
-           (old-path (and old-section
-                          (magit-section-path (magit-current-section)))))
+           (old-path (and old-section (magit-section-path old-section)))
+           (old-lpos (and old-section (magit-section-numpath old-section))))
       (beginning-of-line)
       (let ((section-line (and old-section
                                (count-lines
@@ -3195,11 +3215,16 @@ Also see `magit-mode-setup', a more convenient variant."
         (when magit-refresh-function
           (apply magit-refresh-function
                  magit-refresh-args))
-        (let ((s (and old-path (magit-find-section old-path magit-top-section))))
+        (let* ((s-by-name
+                (and old-path (magit-find-section old-path magit-top-section)))
+               (s-by-num
+                (and old-lpos (magit-find-section-by-num old-lpos magit-top-section)))
+               (s (or s-by-name s-by-num)))
           (cond (s
                  (goto-char (magit-section-beginning s))
-                 (forward-line section-line)
-                 (forward-char line-char))
+                 (when s-by-name
+                  (forward-line section-line)
+                  (forward-char line-char)))
                 (t
                  (save-restriction
                    (widen)
