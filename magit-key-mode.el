@@ -543,7 +543,6 @@ the key combination highlighted before the description."
     (set (make-local-variable
           'magit-key-mode-current-args)
          (make-hash-table))
-    (set (make-local-variable 'magit-key-mode-prefix) current-prefix-arg)
     (magit-key-mode-redraw for-group))
   (when magit-key-mode-show-usage
     (message (concat "Type a prefix key to toggle it. "
@@ -688,28 +687,73 @@ Return the point before the actions part, if any, nil otherwise."
   (fmakunbound
    (intern (concat "magit-key-mode-popup-" (symbol-name group)))))
 
+(defcustom magit-command-defaults
+  `((logging      nil ("--graph")))
+  "Specify default actions and flags for interactive commands.
+
+Actions listed here are run immediately bypassing the command pop
+up window, flags listed here are applied automatically.  Invoking
+the interactive command with a prefix argument will default to
+the normal behavior bypassing the application of default actions
+or flags.  Alternately actions and flags may be specified to only
+be applied when a prefix argument is given.
+
+Elements of this list should have the following structure
+
+  (KEY DEFAULT-ACTION (DEFAULT-FLAGS) INVERT)
+
+Where KEY should be a key from `magit-key-mode-groups',
+DEFAULT-ACTION should be an action function from the related
+entry in `magit-key-mode-groups', (DEFAULT-FLAGS) should be a
+list of flags from the switches in the related entry in
+`magit-key-mode-groups' and optional element INVERT specifies
+that the actions and flags should only be applied when a prefix
+argument is used."
+  :group 'git-commit
+  :type `(repeat
+          (list (choice
+                 ,@(mapcar (lambda (g)
+                             `(const :tag ,(symbol-name (car g)) ,(car g)))
+                           magit-key-mode-groups))
+                symbol
+                (list string)
+                boolean)))
+
 (defun magit-key-mode-generate (group)
   "Generate the key-group menu for GROUP."
   (let ((opts (magit-key-mode-options-for-group group)))
     (eval
-     `(defun ,(intern (concat "magit-key-mode-popup-" (symbol-name group))) nil
-        ,(concat "Key menu for " (symbol-name group))
-        (interactive)
-        (magit-key-mode
-         (quote ,group)
-         ;; As a tempory kludge it is okay to do this here.
-         ,(cl-case group
-            (logging
-             '(list "--graph"))
-            (diff-options
-             '(when (local-variable-p 'magit-diff-options)
-                magit-diff-options))))))))
+     `(defun ,(intern (concat "magit-key-mode-popup-" (symbol-name group)))
+        (&optional arg)
+        ,(format
+          (concat
+           "Key menu for %s.\n"
+           "Default flags or action taken from `magit-command-defaults'.")
+          group)
+        (interactive "P")
+        (let* ((defaults (cdr (assoc (quote ,group) magit-command-defaults)))
+               (default-action (nth 0 defaults))
+               (default-flags (nth 1 defaults))
+               (default-inverse (nth 2 defaults)))
+          ;; display local diff options
+          ,(when (eq group 'diff-options)
+             `(when (local-variable-p 'magit-diff-options)
+                (setq default-flags (append magit-diff-options default-flags))))
+          (if (or (and (not arg) (not default-inverse))
+                  (and      arg       default-inverse))
+              ;; apply defaults
+              (if default-action
+                  ;; execute the action with the same key binding directly
+                  (let ((magit-custom-options default-flags))
+                    (call-interactively default-action))
+                ;; pop up the menu with default-args populated
+                (magit-key-mode (quote ,group) default-flags))
+            ;; pop up the full menu, skip all defaults
+            (magit-key-mode (quote ,group))))))))
 
 ;; create the interactive functions for the key mode popups (which are
 ;; applied in the top-level key maps)
-(mapc (lambda (g)
-        (magit-key-mode-generate (car g)))
-      magit-key-mode-groups)
+(mapc (lambda (g) (magit-key-mode-generate (car g))) magit-key-mode-groups)
 
 (provide 'magit-key-mode)
 ;;; magit-key-mode.el ends here
