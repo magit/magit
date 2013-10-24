@@ -5010,6 +5010,20 @@ Return nil if there is no rebase in progress."
       (magit-run-git "rebase" rev))))
 
 ;;;###autoload
+(defun magit-commit-fixup (revision)
+  "Create a commit with --fixup to another revision."
+  (interactive (list (magit-read-rev "create !fixup commit to"
+                                     (or (magit-default-rev) "HEAD^"))))
+  (magit-run-git "commit" "--fixup" revision "--"))
+
+;;;###autoload
+(defun magit-commit-squash (revision)
+  "Create a commit with --squash to another revision."
+  (interactive (list (magit-read-rev "create !squash commit to"
+                                     (or (magit-default-rev) "HEAD^"))))
+  (magit-run-git "commit" "--squash" revision "--"))
+
+;;;###autoload
 (defun magit-interactive-rebase (commit)
   "Start a git rebase -i session, old school-style."
   (interactive
@@ -5021,7 +5035,7 @@ Return nil if there is no rebase in progress."
              (magit-read-rev "Interactively rebase to" (magit-guess-branch))))))
   (magit-assert-emacsclient "rebase interactively")
   (magit-with-emacsclient magit-server-window-for-rebase
-    (magit-run-git-async "rebase" "-i" commit)))
+    (magit-run-git-async "rebase" "-i" "--autosquash" commit)))
 
 ;;;; Reset
 
