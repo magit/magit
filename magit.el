@@ -4912,6 +4912,9 @@ If no branch is found near the cursor return nil."
     ((branch)        (magit-section-info (magit-current-section)))
     ((wazzup commit) (magit-section-info (magit-section-parent item)))
     ((commit)        (magit-name-rev info))
+    ((unpulled)      (magit-name-rev
+                      (magit-section-info
+                       (car (magit-section-children (magit-current-section))))))
     ((wazzup)        info)
     (t               (magit-get-previous-branch))))
 
