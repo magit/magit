@@ -2255,7 +2255,8 @@ Like `magit-section-path' but uses child index instead of title."
         top
       (let* ((pos (car numpath))
              (sec (nth pos secs)))
-        (and sec (magit-find-section-by-num (cdr numpath) sec))))))
+        (or (and sec (magit-find-section-by-num (cdr numpath) sec))
+            (magit-find-section-after (magit-section-end top)))))))
 
 (defun magit-find-section-after (pos)
   "Find the first section that begins after POS."
