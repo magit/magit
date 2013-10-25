@@ -6052,11 +6052,12 @@ from the parent keymap `magit-mode-map' are also available."
 ;;;###autoload (autoload 'magit-diff "magit")
 (magit-define-command diff (range &optional working)
   (interactive (list (magit-read-rev-range "Diff")))
-  (let ((buf (get-buffer-create magit-diff-buffer-name)))
+  (let ((buf (get-buffer-create magit-diff-buffer-name))
+        (dir default-directory))
     (display-buffer buf)
     (with-current-buffer buf
-      (magit-mode-init default-directory
-                       'magit-diff-mode
+      (magit-mode-init dir
+                       #'magit-diff-mode
                        #'magit-refresh-diff-buffer
                        range working))))
 
