@@ -469,6 +469,11 @@ a carefully crafted index."
   :group 'magit
   :type 'boolean)
 
+(defcustom magit-show-child-count nil
+  "Whether to append the number of childen to section headings."
+  :group 'magit
+  :type 'boolean)
+
 (defcustom magit-revert-item-confirm t
   "Require acknowledgment before reverting an item."
   :group 'magit
@@ -2117,6 +2122,7 @@ If TYPE is nil, the section won't be highlighted."
   "Run PROGRAM with ARGS and put the output into a new section.
 Like `magit-git-section' (which see) but run PROGRAM instead of Git."
   (let* ((body-beg nil)
+         (children nil)
          (section-title (if (consp section-title-and-type)
                             (car section-title-and-type)
                           section-title-and-type))
@@ -2137,7 +2143,14 @@ Like `magit-git-section' (which see) but run PROGRAM instead of Git."
                 (narrow-to-region body-beg (point))
                 (goto-char (point-min))
                 (funcall washer)
-                (goto-char (point-max)))))))
+                (goto-char (point-max))))
+            (when (and buffer-title magit-show-child-count
+                       (> (setq children (length (magit-section-children
+                                                  magit-top-section))) 0))
+              (save-excursion
+                (goto-char (- body-beg 2))
+                (insert-before-markers-and-inherit
+                 (format " (%i)" children)))))))
     (if (= body-beg (point))
         (magit-cancel-section section)
       (insert "\n"))
