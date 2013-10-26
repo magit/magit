@@ -2149,8 +2149,9 @@ Like `magit-git-section' (which see) but run PROGRAM instead of Git."
                                                   magit-top-section))) 0))
               (save-excursion
                 (goto-char (- body-beg 2))
-                (insert-before-markers-and-inherit
-                 (format " (%i)" children)))))))
+                (when (looking-at ":")
+                  (insert-before-markers-and-inherit
+                   (format " (%i)" children))))))))
     (if (= body-beg (point))
         (magit-cancel-section section)
       (insert "\n"))
