@@ -6065,7 +6065,7 @@ from the parent keymap `magit-mode-map' are also available."
   "Name of buffer used to display a diff.")
 
 ;;;###autoload (autoload 'magit-diff "magit")
-(magit-define-command diff (range &optional working)
+(magit-define-command diff (range &optional working args)
   (interactive (list (magit-read-rev-range "Diff")))
   (let ((buf (get-buffer-create magit-diff-buffer-name))
         (dir default-directory))
@@ -6074,12 +6074,24 @@ from the parent keymap `magit-mode-map' are also available."
       (magit-mode-init dir
                        #'magit-diff-mode
                        #'magit-refresh-diff-buffer
-                       range working))))
+                       range working args))))
 
 ;;;###autoload (autoload 'magit-diff-working-tree "magit")
 (magit-define-command diff-working-tree (rev)
   (interactive (list (magit-read-rev-with-default "Diff working tree with")))
   (magit-diff (or rev "HEAD") t))
+
+;;;###autoload (autoload 'magit-diff-working-tree "magit")
+(magit-define-command diff-staged ()
+  "Show differences between index and HEAD."
+  (interactive)
+  (magit-diff nil nil (list "--cached")))
+
+;;;###autoload (autoload 'magit-diff-working-tree "magit")
+(magit-define-command diff-unstaged ()
+  "Show differences between working tree and index."
+  (interactive)
+  (magit-diff nil))
 
 (defun magit-diff-with-mark (range)
   (interactive
@@ -6096,9 +6108,10 @@ from the parent keymap `magit-mode-map' are also available."
      (list (concat marked ".." commit))))
   (magit-diff range))
 
-(defun magit-refresh-diff-buffer (range working)
+(defun magit-refresh-diff-buffer (range working args)
   (let ((magit-current-diff-range
          (cond (working (cons range 'working))
+               ((null range) nil)
                ((consp range)
                 (prog1 range
                   (setq range (concat (car range) ".." (cdr range)))))
@@ -6108,13 +6121,18 @@ from the parent keymap `magit-mode-map' are also available."
     (magit-create-buffer-sections
       (apply #'magit-git-section
              'diffbuf
-             (if working
-                 (format "Changes from %s to working tree" range)
-               (format "Changes in %s" range))
+             (cond (working
+                    (format "Changes from %s to working tree" range))
+                   ((not range)
+                    (if (member "--cached" args)
+                        "Staged changes"
+                      "Unstaged changes"))
+                   (t
+                    (format "Changes in %s" range)))
              'magit-wash-diffs
              "diff" (magit-diff-U-arg)
              `(,@(and magit-show-diffstat (list "--patch-with-stat"))
-               ,range "--")))))
+               ,@(and range (list range)) ,@args "--")))))
 
 ;;; Wazzup Mode
 
