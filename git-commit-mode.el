@@ -346,17 +346,14 @@ before any trailing comments git or the user might have
 inserted."
   (save-excursion
     (goto-char (point-max))
-    (if (not (re-search-backward "^\\S<.+$" nil t))
-        ;; no comment lines anywhere before end-of-buffer, so we
-        ;; want to insert right there
-        (point-max)
-      ;; there's some comments at the end, so we want to insert before
-      ;; those; keep going until we find the first non-empty line
-      ;; NOTE: if there is no newline at the end of (point),
-      ;; (forward-line 1) will take us to (point-at-eol).
-      (if (eq (point-at-bol) (point-at-eol)) (re-search-backward "^.+$" nil t))
-      (forward-line 1)
-      (point))))
+    (if (re-search-backward "^[^#\n]" nil t)
+        ;; we found last non-empty non-comment line, headers go after
+        (forward-line 1)
+      ;; there's only blanks & comments, headers go before comments
+      (goto-char (point-min))
+      (and (re-search-forward "^#" nil t) (forward-line 0)))
+    (skip-chars-forward "\n")
+    (point)))
 
 (defun git-commit-determine-pre-for-pseudo-header ()
   "Find the characters to insert before the pseudo header.
