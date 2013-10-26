@@ -1102,6 +1102,8 @@ Many Magit faces inherit from this one by default."
 
 ;;; Keymaps
 
+(define-key git-commit-mode (kbd "C-c d") 'magit-diff-staged)
+
 (defvar magit-mode-map
   (let ((map (make-keymap)))
     (suppress-keymap map t)
