@@ -488,12 +488,6 @@ they are not (due to semantic considerations)."
   :type '(choice (const :tag "tags are the subjects" tag)
                  (const :tag "head is the subject" head)))
 
-(defcustom magit-status-verbose-untracked t
-  "Whether to show the contents of or just the untracked directory."
-  :group 'magit
-  :type '(choice (const :tag "show only directory" nil)
-                 (const :tag "show directory contents" t)))
-
 (defcustom magit-process-popup-time -1
   "Popup the process buffer if a command takes longer than this many seconds."
   :group 'magit
@@ -4352,23 +4346,16 @@ when asking for user input."
     "stash" "list"))
 
 (defun magit-insert-untracked-files ()
-  (unless (string= (magit-get "status" "showUntrackedFiles") "no")
-    (magit-git-insert-section (untracked "Untracked files:")
-        #'magit-wash-untracked-files
-      "ls-files" "--others" "-t" "--exclude-standard"
-      (and magit-status-verbose-untracked "--directory"))))
-
-(defun magit-wash-untracked-files ()
-  (magit-wash-sequence
-   (lambda ()
-     (when (looking-at "^? \\(.*\\)$")
-       (let ((file (magit-decode-git-path
-                    (match-string-no-properties 1))))
-         (delete-region (point) (+ (line-end-position) 1))
-         (magit-with-section (section file file)
-           (setf (magit-section-info section) file)
-           (insert "\t" file "\n")))
-       t))))
+  (magit-with-section (section untracked 'untracked "Untracked files:" t)
+    (let ((files (cl-mapcan (lambda (f) (when (eq (aref f 0) ??) (list f)))
+                            (magit-git-lines "status" "--porcelain" "-u"))))
+      (if (not files)
+          (setq section nil)
+        (dolist (file files)
+          (setq file (magit-decode-git-path (substring file 3)))
+          (magit-with-section (section file 'file)
+            (insert "\t" file "\n")))
+        (insert "\n")))))
 
 (defun magit-insert-pending-commits ()
   (let* ((info (magit-read-rewrite-info))
