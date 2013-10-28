@@ -7034,7 +7034,7 @@ init file:
                            (package-version-join
                             (package-desc-vers
                              (cdr (assq 'magit package-alist)))))
-                         (ignore-errors ; => 24.3.50
+                         (ignore-errors ; >= 24.3.50
                            (package-version-join
                             (package-desc-version
                              (cadr (assq 'magit package-alist)))))))))))
