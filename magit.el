@@ -7028,9 +7028,9 @@ init file:
                (ignore-errors (delete-file static)))
               ((file-exists-p static)
                (load-file static))
-              ((featurep 'package) ; shouldn't that make it easier?
+              ((featurep 'package)
                (setq magit-version
-                     (or (ignore-errors ; < 24.4
+                     (or (ignore-errors ; < 24.3.50
                            (package-version-join
                             (package-desc-vers
                              (cdr (assq 'magit package-alist)))))
