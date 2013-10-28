@@ -139,7 +139,9 @@ buffer-local wherever it is set."
   (set-default symbol value)
   ;; If magit isn't fully loaded yet no buffer that might
   ;; need refreshing can exist and we can take a shortcut.
-  (when (featurep 'magit)
+  ;; We also don't want everything to repeatedly refresh
+  ;; when evaluating this file.
+  (when (and (featurep 'magit) (not buffer-file-name))
     (magit-refresh-all)))
 
 (defun magit-set-default-diff-options (symbol value)
@@ -148,7 +150,7 @@ Also set the local value in all Magit buffers and refresh them.
 \n(fn)" ; The arguments are an internal implementation detail.
   (interactive (list 'magit-diff-options magit-custom-options))
   (set-default symbol value)
-  (when (featurep 'magit)
+  (when (and (featurep 'magit) (not buffer-file-name))
     (dolist (buffer (buffer-list))
       (when (derived-mode-p 'magit-mode)
         (with-current-buffer buffer
