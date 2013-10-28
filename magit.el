@@ -4247,7 +4247,7 @@ in `magit-commit-buffer-name'."
              (goto-char (point-min))
              (magit-mode-init dir 'magit-diff-mode
                               #'magit-refresh-diff-buffer
-                              (concat stash "^2^.." stash) nil))))))
+                              (concat stash "^2^.." stash)))))))
 
 ;;;; (washing)
 
@@ -6110,7 +6110,7 @@ from the parent keymap `magit-mode-map' are also available."
      (list (concat marked ".." commit))))
   (magit-diff range))
 
-(defun magit-refresh-diff-buffer (range working args)
+(defun magit-refresh-diff-buffer (range &optional working args)
   (let ((magit-current-diff-range
          (cond (working (cons range 'working))
                ((null range) nil)
