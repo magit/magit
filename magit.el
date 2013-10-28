@@ -6504,18 +6504,7 @@ With a prefix argument, visit in other window."
              (if (equal magit-marked-commit info) nil info)))))
   (magit-refresh-marked-commits))
 
-;;;; Describe
-
-(defun magit-describe-item ()
-  (interactive)
-  (let ((section (magit-current-section)))
-    (message "Section: %s %s-%s %S %S %S"
-             (magit-section-type section)
-             (magit-section-beginning section)
-             (magit-section-end section)
-             (magit-section-title section)
-             (magit-section-info section)
-             (magit-section-context-type section))))
+;;;; Kill
 
 (defun magit-copy-item-as-kill ()
   "Copy sha1 of commit at point into kill ring."
@@ -6964,6 +6953,19 @@ FILENAME instruct blame to center around the line point is on."
         (start-file-process "Gitk" nil "sh" magit-gitk-executable "--all")))
      (t
       (start-file-process "Gitk" nil magit-gitk-executable "--all")))))
+
+;;;; Maintenance Tools
+
+(defun magit-describe-item ()
+  (interactive)
+  (let ((section (magit-current-section)))
+    (message "Section: %s %s-%s %S %S %S"
+             (magit-section-type section)
+             (magit-section-beginning section)
+             (magit-section-end section)
+             (magit-section-title section)
+             (magit-section-info section)
+             (magit-section-context-type section))))
 
 ;;;; Magit Extensions
 
