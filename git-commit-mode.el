@@ -197,6 +197,9 @@ default comments in git commit messages"
     (define-key map (kbd "M-p")     'git-commit-prev-message)
     (define-key map (kbd "M-n")     'git-commit-next-message)
     (define-key map [remap server-edit]         'git-commit-commit)
+    (define-key map [remap kill-buffer]         'git-commit-abort)
+    (define-key map [remap ido-kill-buffer]     'git-commit-abort)
+    (define-key map [remap ibuffer-kill-buffer] 'git-commit-abort)
     ;; Old bindings to avoid confusion
     (define-key map (kbd "C-c C-x s") 'git-commit-signoff)
     (define-key map (kbd "C-c C-x a") 'git-commit-ack)
