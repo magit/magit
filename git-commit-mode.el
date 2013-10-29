@@ -290,6 +290,7 @@ The commit message is saved to the kill ring."
   (interactive)
   (save-buffer)
   (run-hooks 'git-commit-kill-buffer-hook)
+  (remove-hook 'kill-buffer-hook 'server-kill-buffer t)
   (git-commit-restore-previous-winconf
     (let ((clients (git-commit-buffer-clients)))
       (if clients
