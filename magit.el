@@ -309,6 +309,45 @@ which generates a tracking name of the form \"REMOTE-BRANCHNAME\"."
                 (function-item magit-default-tracking-name-branch-only)
                 (function :tag "Other")))
 
+(defcustom magit-commit-ask-to-stage t
+  "Whether to ask to stage everything when committing and nothing is staged."
+  :group 'magit
+  :type 'boolean
+  :package-version '(magit . "1.3.0"))
+
+(defcustom magit-commit-extend-override-date nil
+  "Whether using `magit-commit-extend' changes the committer date."
+  :group 'magit
+  :type 'boolean
+  :package-version '(magit . "1.3.0"))
+
+(defcustom magit-commit-reword-override-date nil
+  "Whether using `magit-commit-reword' changes the committer date."
+  :group 'magit
+  :type 'boolean
+  :package-version '(magit . "1.3.0"))
+
+(defcustom magit-commit-squash-commit nil
+  "Whether to target the marked or current commit when squashing.
+
+When this is nil then the command `magit-commit-fixup' and
+`magit-commit-squash' always require that the user explicitly
+selects a commit.  This is also the case when these commands are
+used with a prefix argument, in which case this option is ignored.
+
+Otherwise this controls which commit to target, either the
+current or marked commit.  Or if both can be used, which should
+be preferred."
+  :group 'magit
+  :type
+  '(choice
+    (const :tag "Always prompt" nil)
+    (const :tag "Prefer current commit, else use marked" current-or-marked)
+    (const :tag "Prefer marked commit, else use current" marked-or-current)
+    (const :tag "Use current commit, if any" current)
+    (const :tag "Use marked commit, if any" marked))
+  :package-version '(magit . "1.3.0"))
+
 (defcustom magit-commit-mode-show-buttons t
   "Whether to show navigation buttons in the *magit-commit* buffer."
   :group 'magit
@@ -2388,13 +2427,20 @@ If SECTION is nil, default to setting `magit-top-section'"
 (defmacro magit-define-section-jumper (sym title)
   "Define an interactive function to go to section SYM.
 TITLE is the displayed title of the section."
-  (let ((fun (intern (format "magit-jump-to-%s" sym)))
-        (doc (format "Jump to section `%s'." title)))
+  (let ((fun (intern (format "magit-jump-to-%s" sym))))
     `(progn
-       (defun ,fun ()
-         ,doc
-         (interactive)
-         (magit-goto-section-at-path '(,sym)))
+       (defun ,fun (&optional expand) ,(format "\
+Jump to section '%s'.
+With a prefix argument also expand it." title)
+         (interactive "P")
+         (if (magit-goto-section-at-path '(,sym))
+             (when expand
+               (with-local-quit
+                 (if (eq magit-expand-staged-on-commit 'full)
+                     (magit-show-level 4 nil)
+                   (magit-expand-section)))
+               (recenter 0))
+           (message ,(format "Section '%s' wasn't found" title))))
        (put ',fun 'definition-name ',sym))))
 
 (magit-define-section-jumper stashes   "Stashes")
@@ -3373,7 +3419,8 @@ the buffer.  Finally reset the window configuration to nil."
         (set-window-configuration winconf)
         (when (buffer-live-p buffer)
           (with-current-buffer buffer
-            (setq magit-previous-window-configuration nil)))))))
+            (setq magit-previous-window-configuration nil)))))
+    (run-hook-with-args 'magit-quit-window-hook buffer)))
 
 ;;; Diff Options
 
@@ -5418,24 +5465,146 @@ With a prefix argument amend to the commit at HEAD instead.
   (let ((args magit-custom-options))
     (when amendp
       (setq args (cons "--amend" args)))
-    (if (not (or (magit-anything-staged-p)
-                 (member "--allow-empty" args)
-                 (member "--all" args)
-                 (member "--amend" args)))
-        (if (and (magit-rebase-info)
-                 (y-or-n-p "Nothing staged.  Continue in-progress rebase? "))
-            (magit-run-git-async "rebase" "--continue")
-          (error
-           "Nothing staged.  Set --allow-empty, --all, or --amend in popup."))
-      (when (and magit-expand-staged-on-commit
-                 (derived-mode-p 'magit-status-mode))
-        (magit-jump-to-staged)
-        (with-local-quit
-          (if (eq magit-expand-staged-on-commit 'full)
-              (magit-show-level 4 nil)
-            (magit-expand-section)))
-        (recenter 0))
+    (when (setq args (magit-commit-assert args))
+      (magit-commit-maybe-expand)
       (magit-commit-internal "commit" args))))
+
+;;;###autoload
+(defun magit-commit-amend ()
+  "Amend the last commit.
+\('git commit --amend')."
+  (interactive)
+  (magit-commit-maybe-expand)
+  (magit-commit-internal "commit" (cons "--amend" magit-custom-options)))
+
+;;;###autoload
+(defun magit-commit-extend (&optional override-date)
+  "Amend the last commit, without editing the message.
+With a prefix argument do change the committer date, otherwise
+don't.  The option `magit-commit-extend-override-date' can be
+used to inverse the meaning of the prefix argument.
+\('git commit --no-edit --amend [--keep-date]')."
+  (interactive (list (if current-prefix-arg
+                         (not magit-commit-reword-override-date)
+                       magit-commit-reword-override-date)))
+  (magit-commit-maybe-expand)
+  (let ((process-environment process-environment))
+    (unless override-date
+      (setenv "GIT_COMMITTER_DATE"
+              (magit-git-string "log" "-1" "--format:format=%cd")))
+    (magit-commit-internal "commit" (nconc (list "--no-edit" "--amend")
+                                           magit-custom-options))))
+
+;;;###autoload
+(defun magit-commit-reword (&optional override-date)
+  "Reword the last commit, ignoring staged changes.
+
+With a prefix argument do change the committer date, otherwise
+don't.  The option `magit-commit-rewrite-override-date' can be
+used to inverse the meaning of the prefix argument.
+
+Non-interactively respect the optional OVERRIDE-DATE argument
+and ignore the option.
+
+\('git commit --only --amend')."
+  (interactive (list (if current-prefix-arg
+                         (not magit-commit-reword-override-date)
+                       magit-commit-reword-override-date)))
+  (let ((process-environment process-environment))
+    (unless override-date
+      (setenv "GIT_COMMITTER_DATE"
+              (magit-git-string "log" "-1" "--format:format=%cd")))
+    (magit-commit-internal "commit" (nconc (list "--only" "--amend")
+                                           magit-custom-options))))
+
+(defvar-local magit-commit-squash-args  nil)
+(defvar-local magit-commit-squash-fixup nil)
+
+;;;###autoload
+(defun magit-commit-fixup (&optional commit)
+  "Create a fixup commit.
+With a prefix argument the user is always queried for the commit
+to be fixed.  Otherwise the current or marked commit may be used
+depending on the value of option `magit-commit-squash-commit'.
+\('git commit [--no-edit] --fixup=COMMIT')."
+  (interactive (list (magit-commit-squash-commit)))
+  (magit-commit-squash commit t))
+
+;;;###autoload
+(defun magit-commit-squash (&optional commit fixup)
+  "Create a squash commit.
+With a prefix argument the user is always queried for the commit
+to be fixed.  Otherwise the current or marked commit may be used
+depending on the value of option `magit-commit-squash-commit'.
+\('git commit [--no-edit] --fixup=COMMIT')."
+  (interactive (list (magit-commit-squash-commit)))
+  (let ((args magit-custom-options))
+    (cond
+     ((not commit)
+      (magit-commit-assert args)
+      (magit-log)
+      (setq magit-commit-squash-args  args
+            magit-commit-squash-fixup fixup)
+      (add-hook 'magit-mark-commit-hook 'magit-commit-squash-marked t t)
+      (add-hook 'magit-quit-window-hook 'magit-commit-squash-abort t t)
+      (message "Select commit using \".\", or abort using \"q\""))
+     ((setq args (magit-commit-assert args))
+      (when (eq args t) (setq args nil))
+      (magit-commit-internal
+       "commit"
+       (nconc (list "--no-edit"
+                    (concat (if fixup "--fixup=" "--squash=") commit))
+              args))))))
+
+(defun magit-commit-squash-commit ()
+  (unless (or current-prefix-arg
+              (eq magit-commit-squash-commit nil))
+    (let ((current (magit-commit-at-point)))
+      (cl-ecase magit-commit-squash-commit
+        (current-or-marked (or current magit-marked-commit))
+        (marked-or-current (or magit-marked-commit current))
+        (current current)
+        (marked magit-marked-commit)))))
+
+(defun magit-commit-squash-marked ()
+  (when magit-marked-commit
+    (magit-commit-squash magit-marked-commit magit-commit-squash-fixup))
+  (kill-local-variable 'magit-commit-squash-fixup)
+  (remove-hook 'magit-mark-commit-hook 'magit-commit-squash-marked t)
+  (remove-hook 'magit-quit-window-hook 'magit-commit-squash-abort t)
+  (magit-quit-window))
+
+(defun magit-commit-squash-abort (buffer)
+  (when (buffer-live-p buffer)
+    (with-current-buffer buffer
+      (remove-hook 'magit-mark-commit-hook 'magit-commit-squash-marked t)
+      (remove-hook 'magit-quit-window-hook 'magit-commit-squash-abort t))))
+
+(defun magit-commit-assert (args)
+  (cond
+   ((or (magit-anything-staged-p)
+        (member "--allow-empty" args)
+        (member "--all" args)
+        (member "--amend" args))
+    (or args (list "--")))
+   ((and (magit-rebase-info)
+         (y-or-n-p "Nothing staged.  Continue in-progress rebase? "))
+    (magit-run-git-async "rebase" "--continue")
+    nil)
+   (magit-commit-ask-to-stage
+    (magit-commit-maybe-expand t)
+    (when (y-or-n-p "Nothing staged.  Stage and commit everything? ")
+      (magit-run-git "add" "-u" ".")
+      (or args (list "--"))))
+   (t
+    (error "Nothing staged.  Set --allow-empty, --all, or --amend in popup."))))
+
+(defun magit-commit-maybe-expand (&optional unstaged)
+  (when (and magit-expand-staged-on-commit
+             (derived-mode-p 'magit-status-mode))
+    (if unstaged
+        (magit-jump-to-unstaged t)
+      (magit-jump-to-staged t))))
 
 (defun magit-commit-internal (subcmd args)
   (setq git-commit-previous-winconf (current-window-configuration))
@@ -6502,7 +6671,8 @@ With a prefix argument, visit in other window."
       ((commit)
        (setq magit-marked-commit
              (if (equal magit-marked-commit info) nil info)))))
-  (magit-refresh-marked-commits))
+  (magit-refresh-marked-commits)
+  (run-hooks 'magit-mark-commit-hook))
 
 ;;;; Kill
 
