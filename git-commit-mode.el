@@ -630,11 +630,21 @@ basic structure of and errors in git commit messages."
   '(put 'git-commit-mode 'flyspell-mode-predicate
         'git-commit-mode-flyspell-verify))
 
+(defvar git-commit-auto-mode-regexps
+  '("/COMMIT_EDITMSG\\'"    "/TAG_EDITMSG\\'"
+    "/PULLREQ_EDITMSG\\'" "/NOTES_EDITMSG\\'" "/MERGE_MSG\\'"))
+
+(defun git-commit-auto-mode-enable ()
+  (dolist (p git-commit-auto-mode-regexps)
+    (add-to-list 'auto-mode-alist (cons p 'git-commit-mode))))
+
+(defun git-commit-auto-mode-disable ()
+  (dolist (p git-commit-auto-mode-regexps)
+    (setq auto-mode-alist
+          (delete (cons p 'git-commit-mode) 'auto-mode-alist))))
+
 ;;;###autoload
-(dolist (pattern '("/COMMIT_EDITMSG\\'" "/NOTES_EDITMSG\\'"
-                   "/MERGE_MSG\\'" "/TAG_EDITMSG\\'"
-                   "/PULLREQ_EDITMSG\\'"))
-  (add-to-list 'auto-mode-alist (cons pattern 'git-commit-mode)))
+(git-commit-auto-mode-enable)
 
 (provide 'git-commit-mode)
 ;; Local Variables:
