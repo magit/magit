@@ -29,6 +29,19 @@
 
 ;; A major mode for editing Git commit messages.
 
+;;;; Activation
+
+;; The variable `auto-mode-alist' has to be explicitly extended, by
+;; adding this to your init file.
+;;
+;;    (require 'git-commit-mode)    ; unless autoloaded
+;;    (git-commit-auto-mode-enable)
+;;
+;; Loading `magit' takes care of this, so if you use that, you can
+;; skip the above.  Unless you also have `magit-log-edit' installed,
+;; in which case `magit' assumes you want to use that instead of this
+;; library.
+
 ;;;; Formatting
 
 ;; Highlight the formatting of git commit messages and indicate errors according
@@ -642,9 +655,6 @@ basic structure of and errors in git commit messages."
   (dolist (p git-commit-auto-mode-regexps)
     (setq auto-mode-alist
           (delete (cons p 'git-commit-mode) 'auto-mode-alist))))
-
-;;;###autoload
-(git-commit-auto-mode-enable)
 
 (provide 'git-commit-mode)
 ;; Local Variables:
