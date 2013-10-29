@@ -593,7 +593,18 @@ basic structure of and errors in git commit messages."
   (when (string= "" (buffer-substring-no-properties
                      (line-beginning-position)
                      (line-end-position)))
-    (open-line 1)))
+    (open-line 1))
+  ;; Make the wrong usage info from `server-execute' go way
+  (run-with-timer 0.01 nil (lambda (m) (message "%s" m))
+                  (substitute-command-keys
+                   (concat "Type \\[git-commit-commit] "
+                           (let ((n (buffer-file-name)))
+                             (cond ((equal n "TAG_EDITMSG") "to tag")
+                                   ((or (equal n "NOTES_EDITMSG")
+                                        (equal n "PULLREQ_EDITMSG"))
+                                    "when done")
+                                   (t "to commit")))
+                           " (\\[git-commit-abort] to abort)."))))
 
 (defun git-commit-mode-flyspell-verify ()
   (not (nth 4 (syntax-ppss)))) ; not inside a comment
