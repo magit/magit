@@ -7059,6 +7059,9 @@ init file:
 (require 'magit-key-mode)
 (require 'magit-bisect)
 
-(require 'magit-log-edit nil t)
+;; If `magit-log-edit' is available we have no choice but to assume
+;; the user wants to use it.  Otherwise we enable the new commit mode.
+(or (require 'magit-log-edit nil t)
+    (git-commit-auto-mode-enable))
 
 ;;; magit.el ends here
