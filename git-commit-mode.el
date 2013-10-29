@@ -278,6 +278,8 @@ Return t, if the commit was successful, or nil otherwise."
       (message "Commit canceled due to stylistic errors.")
     (save-buffer)
     (run-hooks 'git-commit-kill-buffer-hook)
+    (remove-hook 'kill-buffer-query-functions
+                 'git-commit-kill-buffer-noop t)
     (git-commit-restore-previous-winconf
       (if (git-commit-buffer-clients)
           (server-edit)
@@ -291,6 +293,7 @@ The commit message is saved to the kill ring."
   (save-buffer)
   (run-hooks 'git-commit-kill-buffer-hook)
   (remove-hook 'kill-buffer-hook 'server-kill-buffer t)
+  (remove-hook 'kill-buffer-query-functions 'git-commit-kill-buffer-noop t)
   (git-commit-restore-previous-winconf
     (let ((clients (git-commit-buffer-clients)))
       (if clients
@@ -599,6 +602,9 @@ basic structure of and errors in git commit messages."
                      (line-beginning-position)
                      (line-end-position)))
     (open-line 1))
+  ;; Make sure `git-commit-abort' cannot be by-passed
+  (add-hook 'kill-buffer-query-functions
+            'git-commit-kill-buffer-noop nil t)
   ;; Make the wrong usage info from `server-execute' go way
   (run-with-timer 0.01 nil (lambda (m) (message "%s" m))
                   (substitute-command-keys
@@ -610,6 +616,12 @@ basic structure of and errors in git commit messages."
                                     "when done")
                                    (t "to commit")))
                            " (\\[git-commit-abort] to abort)."))))
+
+(defun git-commit-kill-buffer-noop ()
+  (message
+   (substitute-command-keys
+    "Don't kill this buffer.  Instead abort using \\[git-commit-abort]."))
+  nil)
 
 (defun git-commit-mode-flyspell-verify ()
   (not (nth 4 (syntax-ppss)))) ; not inside a comment
