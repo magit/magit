@@ -1953,14 +1953,6 @@ REFS is provided (even if nil), filter that instead."
           (cons (match-string 1 beg) (match-string 2 beg))
         (cons beg (magit-read-rev (format "%s end" op) def-end nil t))))))
 
-;;;; (default and at-point stuff)
-
-(defun magit-commit-at-point ()
-  (magit-section-case (item info)
-    ((commit) info)))
-
-;;;; (more reading)
-
 (defun magit-read-remote (prompt &optional def require-match)
   "Read the name of a remote.
 PROMPT is used as the prompt, and defaults to \"Remote\".
