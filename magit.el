@@ -4847,9 +4847,8 @@ Fails if working tree or staging area contain uncommitted changes.
 \('git checkout -b BRANCH REVISION')."
   (interactive
    (list (read-string "Create branch: ")
-         (magit-read-rev "Parent"
-                         (or (magit-name-rev (magit-commit-at-point))
-                             (magit-get-current-branch)))))
+         (magit-read-rev "Parent" (or (magit-guess-branch)
+                                      (magit-get-current-branch)))))
   (cond ((run-hook-with-args-until-success
           'magit-create-branch-hook branch parent))
         ((and branch (not (string= branch "")))
