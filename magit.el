@@ -4864,7 +4864,9 @@ If the branch is the current one, offers to switch to `master' first.
 With prefix, forces the removal even if it hasn't been merged.
 Works with local or remote branches.
 \('git branch [-d|-D] BRANCH' or 'git push <remote-part-of-BRANCH> :refs/heads/BRANCH')."
-  (interactive (list (magit-read-rev "Branch to delete" (magit-default-rev t))
+  (interactive (list (magit-read-rev "Branch to delete"
+                                     (or (magit-name-rev (magit-commit-at-point) t)
+                                         (magit-guess-branch)))
                      current-prefix-arg))
   (let* ((remote (magit-remote-part-of-branch branch))
          (current (magit-get-current-branch))
