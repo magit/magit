@@ -6722,9 +6722,7 @@ These are the branch names with the remote name stripped."
   (when (magit--is-branch-at-point-remote)
     (error "Cannot modify a remote branch"))
   (let* ((branch (magit--branch-name-at-point))
-         (track (magit-read-rev "Track branch" nil
-                                (lambda (ref)
-                                  (not (string-match-p "refs/remotes/" ref)))))
+         (track (magit-read-rev "Track branch"))
          (track-
           (cond ((string-match "^\\([^ ]+\\) +(\\(.+\\))$" track)
                  (cons (match-string 2 track)
