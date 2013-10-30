@@ -5523,7 +5523,7 @@ With a prefix argument annotate the tag.
 \('git tag [--annotate] NAME REV')."
   (interactive (list (magit-read-tag "Tag name: ")
                      (magit-read-rev "Place tag on: "
-                                     (or (magit-default-rev) "HEAD"))
+                                     (or (magit-guess-branch) "HEAD"))
                      current-prefix-arg))
   (let ((args (append magit-custom-options (list name rev))))
     (if (or (member "--sign" args)
