@@ -273,20 +273,21 @@ If USE-CACHE is non nil, use the cached information."
   :lighter " SVN" :require 'magit-svn :keymap 'magit-svn-mode-map
   (or (derived-mode-p 'magit-mode)
       (error "This mode only makes sense with magit"))
-  (cond (magit-svn-mode
-         (add-hook 'magit-after-insert-unpulled-commits-hook
-                   'magit-insert-svn-unpulled nil t)
-         (add-hook 'magit-after-insert-unpushed-commits-hook
-                   'magit-insert-svn-unpushed nil t)
-         (add-hook 'magit-after-insert-status-remote-line-hook
-                   'magit-insert-svn-remote-line nil t))
-        (t
-         (remove-hook 'magit-after-insert-unpulled-commits-hook
-                      'magit-insert-svn-unpulled t)
-         (remove-hook 'magit-after-insert-unpushed-commits-hook
-                      'magit-insert-svn-unpushed t)
-         (remove-hook 'magit-after-insert-status-remote-line-hook
-                      'magit-insert-svn-remote-line t)))
+  (cond
+   (magit-svn-mode
+    (magit-add-section-hook 'magit-status-sections-hook
+                            'magit-insert-svn-unpulled
+                            'magit-insert-unpulled-commits t t)
+    (magit-add-section-hook 'magit-status-sections-hook
+                            'magit-insert-svn-unpushed
+                            'magit-insert-unpushed-commits t t)
+    (magit-add-section-hook 'magit-status-insert-sections-hook
+                            'magit-insert-svn-remote-line
+                            'magit-insert-status-remote-line t t))
+   (t
+    (remove-hook 'magit-status-sections-hook 'magit-insert-svn-unpulled t)
+    (remove-hook 'magit-status-sections-hook 'magit-insert-svn-unpushed t)
+    (remove-hook 'magit-status-sections-hook 'magit-insert-svn-remote-line t)))
   (when (called-interactively-p 'any)
     (magit-refresh)))
 
