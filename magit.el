@@ -1920,6 +1920,10 @@ REFS is provided (even if nil), filter that instead."
 (defvar magit-read-rev-history nil
   "The history of inputs to `magit-read-rev' and `magit-read-tag'.")
 
+(defun magit-read-tag (prompt &optional require-match)
+  (magit-completing-read prompt (magit-git-lines "tag") nil
+                         require-match nil 'magit-read-rev-history))
+
 (defun magit-read-rev (prompt &optional default uninteresting noselection)
   (let* ((interesting-refs
           (mapcar (lambda (elt)
@@ -5521,10 +5525,6 @@ With a prefix argument annotate the tag.
   (interactive (list (magit-read-tag "Delete Tag: " t)))
   (apply #'magit-run-git "tag" "-d"
          (append magit-custom-options (list name))))
-
-(defun magit-read-tag (prompt &optional require-match)
-  (magit-completing-read prompt (magit-git-lines "tag") nil
-                         require-match nil 'magit-read-rev-history))
 
 ;;;; Stashing
 
