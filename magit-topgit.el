@@ -166,7 +166,9 @@
       (error "This mode only makes sense with magit"))
   (cond
    (magit-topgit-mode
-    (add-hook 'magit-after-insert-stashes-hook 'magit-insert-topgit-topics nil t)
+    (magit-add-section-hook 'magit-status-sections-hook
+                            'magit-insert-topgit-topics
+                            'magit-insert-stashes t t)
     (add-hook 'magit-create-branch-command-hook 'magit-topgit-create-branch nil t)
     (add-hook 'magit-pull-command-hook 'magit-topgit-pull nil t)
     (add-hook 'magit-remote-update-command-hook 'magit-topgit-remote-update nil t)
