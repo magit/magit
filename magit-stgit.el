@@ -177,7 +177,7 @@
     (let ((magit-old-top-section nil))
       (magit-wash-sequence #'magit-stgit--wash-patch)))
 
-(magit-define-inserter stgit-series ()
+(defun magit-insert-stgit-series ()
   (when (executable-find magit-stgit-executable)
     (magit-insert-section 'series
                           "Series:" 'magit-stgit--wash-series
@@ -287,8 +287,10 @@ into the series."
   (or (derived-mode-p 'magit-mode)
       (error "This mode only makes sense with magit"))
   (if magit-stgit-mode
-      (add-hook  'magit-after-insert-stashes-hook 'magit-insert-stgit-series nil t)
-    (remove-hook 'magit-after-insert-stashes-hook 'magit-insert-stgit-series t))
+      (magit-add-section-hook 'magit-status-sections-hook
+                              'magit-insert-stgit-series
+                              'magit-insert-stashes t t)
+    (remove-hook 'magit-status-sections-hook 'magit-insert-stgit-series t))
   (when (called-interactively-p 'any)
     (magit-refresh)))
 
