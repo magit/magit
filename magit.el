@@ -648,6 +648,36 @@ many spaces.  Otherwise, highlight neither."
                                (const :tag "Neither" nil))))
   :set 'magit-set-variable-and-refresh)
 
+(defcustom magit-refs-namespaces
+  '(("^\\(HEAD\\)$"              magit-log-head-label-head nil)
+    ("^refs/tags/\\(.+\\)"       magit-log-head-label-tags nil)
+    ("^refs/heads/\\(.+\\)"      magit-log-head-label-local nil)
+    ("^refs/remotes/\\(.+\\)"    magit-log-head-label-remote nil)
+    ("^refs/bisect/\\(bad\\)"    magit-log-head-label-bisect-bad nil)
+    ("^refs/bisect/\\(good.*\\)" magit-log-head-label-bisect-good nil)
+    ("^refs/wip/\\(.+\\)"        magit-log-head-label-wip nil)
+    ("^refs/patches/\\(.+\\)"    magit-log-head-label-patches nil)
+    ("\\(.+\\)"                  magit-log-head-label-default nil))
+  "How different refs should be formatted for display.
+
+Each entry controls how a certain type of ref is displayed, and
+has the form (REGEXP FACE FORMATTER).  REGEXP is a regular
+expression used to match full refs.  The first entry whose REGEXP
+matches the reference is used.  The first regexp submatch becomes
+the \"label\" that represents the ref and is propertized with
+font FONT.  If FORMATTER is non-nil it should be a function that
+takes two arguments, the full ref and the face.  It is supposed
+to return a propertized label that represents the ref.
+
+Currently this variable is only used in logs and the branch
+manager but it will be used in more places in the future."
+  :group 'magit
+  :type '(repeat
+          (list regexp
+                face
+                (choice (const :tag "first submatch is label" nil)
+                        (function :tag "format using function")))))
+
 (defcustom magit-show-diffstat t
   "Whether to shod diffstat in diff and commit buffers."
   :group 'magit
@@ -1002,6 +1032,18 @@ Many Magit faces inherit from this one by default."
      :box t
      :background "Grey50"))
   "Face for unknown ref labels shown in log buffer."
+  :group 'magit-faces)
+
+(defface magit-log-head-label-wip
+  '((((class color) (background light))
+     :box t
+     :background "Grey95"
+     :foreground "LightSkyBlue3")
+    (((class color) (background dark))
+     :box t
+     :background "Grey07"
+     :foreground "LightSkyBlue4"))
+  "Face for git-wip labels shown in log buffer."
   :group 'magit-faces)
 
 (defface magit-valid-signature
@@ -1820,29 +1862,28 @@ involving HEAD."
 ;;__ FIXME The parens indicate preliminary subsections.
 ;;;; (insane "rev" reading)
 
-(defun magit-list-interesting-refs (&optional uninteresting)
+(cl-defun magit-list-interesting-refs (&optional uninteresting
+                                                 (refs nil srefs))
   "Return interesting references as given by `git show-ref'.
 Removes references matching UNINTERESTING from the results.
 UNINTERESTING can be either a function taking a single
-argument or a list of strings used as regexps."
-  (cl-loop for ref-line in (magit-git-lines "show-ref")
-           for ref-name =  (cadr (split-string ref-line " "))
-           with ref-fmt
+argument or a list of strings used as regexps.  If optional
+REFS is provided (even if nil), filter that instead."
+  (cl-loop for ref in (if srefs
+                          refs
+                        (mapcar (lambda (l)
+                                  (cadr (split-string l " ")))
+                                (magit-git-lines "show-ref")))
+           with label
            unless (or (if (functionp uninteresting)
-                          (funcall uninteresting ref-name)
+                          (funcall uninteresting ref)
                         (cl-loop for i in uninteresting
-                                 thereis (string-match i ref-name)))
-                      (not (setq ref-fmt (magit-format-ref ref-name))))
-           collect (cons ref-fmt
-                         (replace-regexp-in-string
-                          "^refs/heads/" "" ref-name))))
+                                 thereis (string-match i ref)))
+                      (not (setq label (magit-format-ref ref))))
+           collect (cons label ref)))
 
 (defun magit-format-ref (ref)
-  "Convert fully-specified ref REF into its displayable form
-according to `magit-remote-ref-format'"
-  (cond ((null ref)
-         nil)
-        ((string-match "refs/heads/\\(.*\\)" ref)
+  (cond ((string-match "refs/heads/\\(.*\\)" ref)
          (match-string 1 ref))
         ((string-match "refs/tags/\\(.*\\)" ref)
          (format (if (eq magit-remote-ref-format 'branch-then-remote)
@@ -1854,10 +1895,14 @@ according to `magit-remote-ref-format'"
              (format "%s (%s)"
                      (match-string 2 ref)
                      (match-string 1 ref))
-           (substring ref 13)))))
+           (substring ref 13)))
+        (t ref)))
 
 (defvar magit-uninteresting-refs
-  '("refs/remotes/\\([^/]+\\)/HEAD$" "refs/stash"))
+  '("^refs/stash$"
+    "^refs/remotes/[^/]+/HEAD$"
+    "^refs/remotes/[^/]+/top-bases$"
+    "^refs/top-bases$"))
 
 (defvar magit-read-file-hist nil)
 
@@ -1876,8 +1921,13 @@ according to `magit-remote-ref-format'"
   "The history of inputs to `magit-read-rev' and `magit-read-tag'.")
 
 (defun magit-read-rev (prompt &optional default uninteresting noselection)
-  (let* ((interesting-refs (magit-list-interesting-refs
-                            (or uninteresting magit-uninteresting-refs)))
+  (let* ((interesting-refs
+          (mapcar (lambda (elt)
+                    (setcdr elt (replace-regexp-in-string
+                                 "^refs/heads/" "" (cdr elt)))
+                    elt)
+                  (magit-list-interesting-refs
+                   (or uninteresting magit-uninteresting-refs))))
          (reply (magit-completing-read (concat prompt ": ")
                                        interesting-refs nil nil nil
                                        'magit-read-rev-history default))
@@ -1948,60 +1998,14 @@ an existing remote."
 
 ;;;; Reference Labels
 
-;; TODO lose the "log" substring and use this
-;; where ever it could and should be used.
-
-(defvar magit-refs-namespaces
-  '(("HEAD" . magit-log-head-label-head)
-    ("tags" . magit-log-head-label-tags)
-    ("remotes" magit-log-get-remotes-color)
-    ("heads" . magit-log-head-label-local)
-    ("patches" magit-log-get-patches-color)
-    ("bisect" magit-log-get-bisect-state-color)))
-
 (defun magit-format-ref-label (ref)
-  (cl-destructuring-bind (label face)
-      (magit-ref-get-label-color ref)
-    (when label
-      (list (propertize label 'face face)))))
-
-(defun magit-ref-get-label-color (r)
-  (if (cl-loop for re in magit-uninteresting-refs
-               thereis (string-match re r))
-      (list nil nil)
-    (let* ((ref-re "\\(?:refs/\\([^/]+\\)/\\)?\\(.+\\)")
-           (match-style (when (string-match ref-re r)
-                          (string= r (match-string 2 r))))
-           (label (match-string 2 r))
-           (colorizer (cdr (assoc (if match-style
-                                      label
-                                    (match-string 1 r))
-                                  magit-refs-namespaces))))
-      (cond ((null colorizer)
-             (list label 'magit-log-head-label-default))
-            ((symbolp colorizer)
-             (list label colorizer))
-            ((listp colorizer)
-             (funcall (car colorizer) label))))))
-
-(defvar magit-log-remotes-color-hook nil)
-
-(defun magit-log-get-remotes-color (suffix)
-  (or (run-hook-with-args-until-success
-       'magit-log-remotes-color-hook suffix)
-      (list suffix 'magit-log-head-label-remote)))
-
-(defun magit-log-get-patches-color (suffix)
-  (list (and (string-match ".+/\\(.+\\)" suffix)
-             (match-string 1 suffix))
-        'magit-log-head-label-patches))
-
-(defun magit-log-get-bisect-state-color (suffix)
-  (list suffix
-        (if (string= suffix "bad")
-            'magit-log-head-label-bisect-bad
-          'magit-log-head-label-bisect-good)))
-
+  (cl-destructuring-bind (re face fn)
+      (cl-find-if (lambda (ns)
+                    (string-match (car ns) ref))
+                  magit-refs-namespaces)
+    (if fn
+        (funcall fn ref face)
+      (propertize (or (match-string 1 ref) ref) 'face face))))
 
 ;;; Sections
 ;;;; Section Struct
@@ -3878,17 +3882,14 @@ Customize `magit-diff-refine-hunk' to change the default mode."
         (insert (make-string (1+ magit-sha1-abbrev-length) ? ))))
     (when graph
       (insert graph))
+    (when refs
+      (setq refs (mapcar 'cdr (magit-list-interesting-refs
+                               nil (split-string refs "[(), ]" t)))))
     (when (and hash (eq style 'long))
       (insert (propertize (if refs hash (magit-rev-parse hash))
                           'face 'magit-log-sha1) " "))
     (when refs
-      (insert (mapconcat 'identity
-                         (cl-mapcan
-                          (lambda (ref)
-                            (unless (string= ref "tag:")
-                              (list (car (magit-format-ref-label ref)))))
-                          (split-string refs "[(), ]" t))
-                         " ") " "))
+      (insert (mapconcat 'magit-format-ref-label refs " ") " "))
     (when refsub
       (insert (magit-log-format-reflog refsub)))
     (when msg

@@ -30,16 +30,11 @@
 ;; This requires the third-party git command "git wip" which is available
 ;; from https://github.com/bartman/git-wip.
 
-;; The global mode `magit-wip-mode' provides highlighting of wip refs in
-;; Magit buffers while the local mode `magit-wip-save-mode' commits to
-;; such a ref when saving a file-visiting buffer.
-
 ;; To enable `magit-wip-save-mode' enable `global-magit-wip-save-mode'
 ;; and use the Magit extension mechanism to select the repositories in
 ;; which you want to use a work-in-progress ref.  Usually you also want
 ;; to enable `magit-wip-mode'.
 ;;
-;;   (magit-wip-mode 1)
 ;;   (global-magit-wip-save-mode 1)
 ;;
 ;;   $ git config --add magit.extension wip-save           # or
@@ -54,36 +49,9 @@
 (require 'magit)
 (require 'format-spec)
 
-;;; Magit Wip Mode.
-
-(defface magit-log-head-label-wip
-  '((((class color) (background light))
-     :box t
-     :background "Grey95"
-     :foreground "LightSkyBlue3")
-    (((class color) (background dark))
-     :box t
-     :background "Grey07"
-     :foreground "LightSkyBlue4"))
-  "Face for git-wip labels shown in log buffer."
-  :group 'magit-faces)
-
-(defun magit-log-get-wip-color (suffix)
-  (list (concat "(WIP) " suffix)
-        'magit-log-head-label-wip))
-
-(defconst magit-wip-refs-namespace
-  '("wip" magit-log-get-wip-color))
-
-;;;###autoload
-(define-minor-mode magit-wip-mode
-  "In Magit log buffers; give wip refs a special appearance."
-  :group 'magit
-  :global t
-  (if magit-wip-mode
-      (add-to-list 'magit-refs-namespaces magit-wip-refs-namespace 'append)
-    (setq magit-refs-namespaces
-          (delete magit-wip-refs-namespace magit-refs-namespaces))))
+(defun magit-wip-mode (&rest ignore)
+  (message "magit-wip-mode is obsolete and doesn't do anything"))
+(make-obsolete 'magit-wip-mode "This mode is a noop now" "2.0.0")
 
 ;;; Magit Wip Save Mode.
 
