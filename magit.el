@@ -1950,12 +1950,11 @@ REFS is provided (even if nil), filter that instead."
 
 ;;;; (default and at-point stuff)
 
-(defun magit-default-rev (&optional no-trim)
-  (or (magit-name-rev (magit-commit-at-point) no-trim)
+(defun magit-default-rev ()
+  (or (magit-name-rev (magit-commit-at-point))
       (let ((branch (magit-guess-branch)))
         (when branch
-          (if (and (not no-trim)
-                   (string-match "^refs/\\(.*\\)" branch))
+          (if (string-match "^refs/\\(.*\\)" branch)
               (match-string 1 branch)
             branch)))))
 
