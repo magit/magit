@@ -6704,7 +6704,7 @@ from the parent keymap `magit-mode-map' are also available.")
   (interactive)
   (when (magit--is-branch-at-point-remote)
     (error "Cannot modify a remote branch"))
-  (let* ((branch (magit--branch-name-at-point))
+  (let* ((branch (magit-guess-branch))
          (track (magit-read-rev "Track branch"))
          (track-
           (cond ((string-match "^\\([^ ]+\\) +(\\(.+\\))$" track)
