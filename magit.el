@@ -4859,9 +4859,7 @@ Works with local or remote branches.
                      branch)))
     (cond
      (remote
-      (magit-run-git-async "push" remote
-                           (concat ":refs/heads/"
-                                   (magit-branch-no-remote branch))))
+      (magit-run-git-async "push" remote (magit-branch-no-remote branch)))
      ((and is-current is-master)
       (message "Cannot delete master branch while it's checked out."))
      (is-current
