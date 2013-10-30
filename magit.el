@@ -1964,9 +1964,8 @@ PROMPT is passed to `magit-read-rev'."
             branch)))))
 
 (defun magit-commit-at-point ()
-  (let ((section (magit-current-section)))
-    (when (and section (eq (magit-section-type section) 'commit))
-      (magit-section-info section))))
+  (magit-section-case (item info)
+    ((commit) info)))
 
 ;;;; (more reading)
 
