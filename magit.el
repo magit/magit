@@ -6670,27 +6670,6 @@ from the parent keymap `magit-mode-map' are also available.")
 
 ;;;; (wacky utilities)
 
-(defun magit-remote-part-of-branch (branch)
-  (when (string-match-p "^\\(?:refs/\\)?remotes/" branch)
-    (cl-loop for remote in (magit-git-lines "remote")
-             when (string-match-p (format "^\\(?:refs/\\)?remotes/%s/"
-                                          (regexp-quote remote))
-                                  branch)
-             return remote)))
-
-(defun magit-branch-no-remote (branch)
-  (let ((remote (magit-remote-part-of-branch branch)))
-    (if remote
-        (progn
-          ;; This has to match if remote is non-nil
-          (cl-assert (string-match
-                      (format "^\\(?:refs/\\)?remotes/%s/\\(.*\\)"
-                              (regexp-quote remote))
-                      branch)
-                     'show-args "Unexpected string-match failure: %s %s")
-          (match-string 1 branch))
-      branch)))
-
 (defun magit-change-what-branch-tracks ()
   "Change which remote branch the current branch tracks."
   (interactive)
