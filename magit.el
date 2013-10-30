@@ -1859,7 +1859,8 @@ according to `magit-remote-ref-format'"
 (defvar magit-uninteresting-refs
   '("^refs/stash$"
     "^refs/remotes/[^/]+/HEAD$"
-    ))
+    "^refs/remotes/[^/]+/top-bases$"
+    "^refs/top-bases$"))
 
 (defvar magit-read-file-hist nil)
 

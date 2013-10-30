@@ -149,16 +149,6 @@
   ((topic)
    (magit-checkout info)))
 
-(defun magit-topgit-get-top-bases-color (suffix)
-  (list nil nil))
-
-(defun magit-topgit-get-remote-top-bases-color (suffix)
-  (when (string-match "^\\(?:[^/]+\\)/top-bases" suffix)
-    (list nil nil)))
-
-(defconst magit-topgit-ignored-namespace
-  '("top-bases" magit-topgit-get-top-bases-color))
-
 ;;;###autoload
 (define-minor-mode magit-topgit-mode "Topgit support for Magit"
   :lighter " Topgit" :require 'magit-topgit
@@ -172,19 +162,13 @@
     (add-hook 'magit-create-branch-hook 'magit-topgit-create-branch nil t)
     (add-hook 'magit-remote-update-hook 'magit-topgit-remote-update nil t)
     (add-hook 'magit-pull-hook 'magit-topgit-pull nil t)
-    (add-hook 'magit-push-hook 'magit-topgit-push nil t)
-    ;; hide refs for top-bases namespace in any remote
-    (add-hook 'magit-log-remotes-color-hook 'magit-topgit-get-remote-top-bases-color)
-    ;; hide refs in the top-bases namespace, as they're not meant for the user
-    (add-to-list 'magit-refs-namespaces magit-topgit-ignored-namespace))
+    (add-hook 'magit-push-hook 'magit-topgit-push nil t))
    (t
     (remove-hook 'magit-status-sections-hook 'magit-insert-topgit-topics t)
     (remove-hook 'magit-create-branch-hook 'magit-topgit-create-branch t)
     (remove-hook 'magit-remote-update-hook 'magit-topgit-remote-update t)
     (remove-hook 'magit-pull-hook 'magit-topgit-pull t)
-    (remove-hook 'magit-push-hook 'magit-topgit-push t)
-    (remove-hook 'magit-log-remotes-color-hook 'magit-topgit-get-remote-top-bases-color)
-    (delete magit-topgit-ignored-namespace magit-refs-namespaces)))
+    (remove-hook 'magit-push-hook 'magit-topgit-push t)))
   (when (called-interactively-p 'any)
     (magit-refresh)))
 
