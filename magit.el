@@ -6669,10 +6669,6 @@ from the parent keymap `magit-mode-map' are also available.")
 
 ;;;; (wacky utilities)
 
-(defun magit--is-branch-at-point-remote ()
-  "Return non-nil if the branch at point is a remote tracking branch."
-  (magit-remote-part-of-branch (magit-guess-branch)))
-
 (defun magit-remote-part-of-branch (branch)
   (when (string-match-p "^\\(?:refs/\\)?remotes/" branch)
     (cl-loop for remote in (magit-git-lines "remote")
@@ -6697,8 +6693,6 @@ from the parent keymap `magit-mode-map' are also available.")
 (defun magit-change-what-branch-tracks ()
   "Change which remote branch the current branch tracks."
   (interactive)
-  (when (magit--is-branch-at-point-remote)
-    (error "Cannot modify a remote branch"))
   (let* ((branch (magit-guess-branch))
          (track (magit-read-rev "Track branch"))
          (track-
