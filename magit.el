@@ -2406,6 +2406,56 @@ TITLE is the displayed title of the section."
 (magit-define-section-jumper pending   "Pending commits")
 (magit-define-section-jumper diffstats "Diffstats")
 
+;;;; Section Hooks
+
+(defun magit-add-section-hook (hook function &optional at append local)
+  "Add to the value of section hook HOOK the function FUNCTION.
+
+Add FUNCTION at the beginning of the hook list unless optional
+APPEND is non-nil, in which case FUNCTION is added at the end.
+If FUNCTION already is a member then move it to the new location.
+
+If optional AT is non-nil and a member of the hook list, then add
+FUNCTION next to that instead.  Add before or after AT depending
+on APPEND.  If only FUNCTION is a member of the list, then leave
+it where ever it already is.
+
+If optional LOCAL is non-nil, then modify the hook's buffer-local
+value rather than its global value.  This makes the hook local by
+copying the default value.  That copy is then modified.
+
+HOOK should be a symbol.  If HOOK is void, it is first set to nil.
+HOOK's value must not be a single hook function.  FUNCTION should
+be a function that takes no arguments and inserts one or multiple
+sections at point, moving point forward.  FUNCTION may choose not
+to insert its section(s), when doing so would not make sense.  It
+should not be abused for other side-effects.  To remove FUNCTION
+again use `remove-hook'."
+  (or (boundp hook) (set hook nil))
+  (or (default-boundp hook) (set-default hook nil))
+  (let ((value (if local
+                   (if (local-variable-p hook)
+                       (symbol-value hook)
+                     (unless (local-variable-if-set-p hook)
+                       (make-local-variable hook))
+                     (copy-sequence (default-value hook)))
+                 (default-value hook))))
+    (if at
+        (when (setq at (member at value))
+          (setq value (delq function value))
+          (if append
+              (push function (cdr at))
+            (push (car at) (cdr at))
+            (setcar at function)))
+      (setq value (delq function value)))
+    (unless (member function value)
+      (setq value (if append
+                      (append value (list function))
+                    (cons function value))))
+    (if local
+        (set hook value)
+      (set-default hook value))))
+
 ;;;; Section Utilities
 
 (defun magit-map-sections (function section)
