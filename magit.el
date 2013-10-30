@@ -655,6 +655,7 @@ many spaces.  Otherwise, highlight neither."
     ("^refs/remotes/\\(.+\\)"    magit-log-head-label-remote nil)
     ("^refs/bisect/\\(bad\\)"    magit-log-head-label-bisect-bad nil)
     ("^refs/bisect/\\(good.*\\)" magit-log-head-label-bisect-good nil)
+    ("^refs/wip/\\(.+\\)"        magit-log-head-label-wip nil)
     ("^refs/\\(patches/.+\\)"    magit-log-head-label-patches nil)
     ("\\(.+\\)"                  magit-log-head-label-default nil))
   "How different refs should be formatted for display.
