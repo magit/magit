@@ -1841,8 +1841,6 @@ REFS is provided (even if nil), filter that instead."
            collect (cons label ref)))
 
 (defun magit-format-ref (ref)
-  "Convert fully-specified ref REF into its displayable form
-according to `magit-remote-ref-format'"
   (cond ((null ref)
          nil)
         ((string-match "refs/heads/\\(.*\\)" ref)
