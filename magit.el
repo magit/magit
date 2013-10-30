@@ -5394,51 +5394,52 @@ local branch being pushed.  With two or more prefix arguments instead
 ask the user what branch to push to.  In this last case actually push
 even if `magit-set-upstream-on-push's value is `refuse'."
   (interactive)
-  (let* ((branch (or (magit-get-current-branch)
-                     (error "Don't push a detached head.  That's gross")))
-         (branch-remote (and branch (magit-get "branch" branch "remote")))
-         (origin-remote (and (magit-get "remote" "origin" "url") "origin"))
-         (push-remote (if (or current-prefix-arg
-                              (and (not branch-remote)
-                                   (not origin-remote)))
-                          (magit-read-remote
-                           (format "Push %s to remote" branch)
-                           (or branch-remote origin-remote))
-                        (or branch-remote origin-remote)))
-         ref-name ref-branch)
-    (cond ((>= (prefix-numeric-value current-prefix-arg) 16)
-           (setq ref-name (magit-read-remote-branch
-                           push-remote
-                           (format "Push %s as branch" branch)))
-           (setq ref-branch (if (string-prefix-p "refs/" ref-name)
-                                ref-name
-                              (concat "refs/heads/" ref-name))))
-          ((equal branch-remote push-remote)
-           (setq ref-branch (magit-get "branch" branch "merge"))))
-    (if (and (not ref-branch)
-             (eq magit-set-upstream-on-push 'refuse))
-        (error "Not pushing since no upstream has been set")
-      (let ((set-upstream-on-push
-             (and (not ref-branch)
-                  (or (eq magit-set-upstream-on-push 'dontask)
-                      (and (or (eq magit-set-upstream-on-push t)
-                               (and (not branch-remote)
-                                    (eq magit-set-upstream-on-push 'askifnotset)))
-                           (yes-or-no-p "Set upstream while pushing? "))))))
-        (apply 'magit-run-git-async "push" "-v" push-remote
-               (if ref-branch
-                   (format "%s:%s" branch ref-branch)
-                 branch)
-               (if set-upstream-on-push
-                   (cons "--set-upstream" magit-custom-options)
-                 magit-custom-options))
-        ;; Although git will automatically set up the remote,
-        ;; it doesn't set up the branch to merge (at least as of Git 1.6.6.1),
-        ;; so we have to do that manually.
-        (when (and ref-branch
-                   (or set-upstream-on-push
-                       (member "-u" magit-custom-options)))
-          (magit-set ref-branch "branch" branch "merge"))))))
+  (or (run-hook-with-args-until-success 'magit-push-hook)
+      (let* ((branch (or (magit-get-current-branch)
+                         (error "Don't push a detached head.  That's gross")))
+             (branch-remote (and branch (magit-get "branch" branch "remote")))
+             (origin-remote (and (magit-get "remote" "origin" "url") "origin"))
+             (push-remote (if (or current-prefix-arg
+                                  (and (not branch-remote)
+                                       (not origin-remote)))
+                              (magit-read-remote
+                               (format "Push %s to remote" branch)
+                               (or branch-remote origin-remote))
+                            (or branch-remote origin-remote)))
+             ref-name ref-branch)
+        (cond ((>= (prefix-numeric-value current-prefix-arg) 16)
+               (setq ref-name (magit-read-remote-branch
+                               push-remote
+                               (format "Push %s as branch" branch)))
+               (setq ref-branch (if (string-prefix-p "refs/" ref-name)
+                                    ref-name
+                                  (concat "refs/heads/" ref-name))))
+              ((equal branch-remote push-remote)
+               (setq ref-branch (magit-get "branch" branch "merge"))))
+        (if (and (not ref-branch)
+                 (eq magit-set-upstream-on-push 'refuse))
+            (error "Not pushing since no upstream has been set")
+          (let ((set-upstream-on-push
+                 (and (not ref-branch)
+                      (or (eq magit-set-upstream-on-push 'dontask)
+                          (and (or (eq magit-set-upstream-on-push t)
+                                   (and (not branch-remote)
+                                        (eq magit-set-upstream-on-push 'askifnotset)))
+                               (yes-or-no-p "Set upstream while pushing? "))))))
+            (apply 'magit-run-git-async "push" "-v" push-remote
+                   (if ref-branch
+                       (format "%s:%s" branch ref-branch)
+                     branch)
+                   (if set-upstream-on-push
+                       (cons "--set-upstream" magit-custom-options)
+                     magit-custom-options))
+            ;; Although git will automatically set up the remote,
+            ;; it doesn't set up the branch to merge (at least as of Git 1.6.6.1),
+            ;; so we have to do that manually.
+            (when (and ref-branch
+                       (or set-upstream-on-push
+                           (member "-u" magit-custom-options)))
+              (magit-set ref-branch "branch" branch "merge")))))))
 
 ;;;; Committing
 
