@@ -5064,7 +5064,7 @@ and staging area are lost.
                                              (if current-prefix-arg
                                                  "Hard reset"
                                                "Reset"))
-                                     (or (magit-default-rev) "HEAD^"))
+                                     (or (magit-guess-branch) "HEAD^"))
                      current-prefix-arg))
   (magit-run-git "reset" (if hard "--hard" "--soft") revision "--"))
 
@@ -5074,7 +5074,7 @@ and staging area are lost.
 Uncomitted changes in both working tree and staging area are lost.
 \('git reset --hard REVISION')."
   (interactive (list (magit-read-rev (format "Hard reset head to")
-                                     (or (magit-default-rev) "HEAD"))))
+                                     (or (magit-guess-branch) "HEAD"))))
   (magit-reset-head revision t))
 
 ;;;###autoload
