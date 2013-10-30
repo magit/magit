@@ -3251,40 +3251,6 @@ the buffer.  Finally reset the window configuration to nil."
       (magit-highlight-section)
       (magit-refresh-marked-commits-in-buffer))))
 
-(defun magit-revert-buffer ()
-  "Replace current buffer text with the text of the visited file on disk.
-
-This is intended for use in `magit-refresh-file-buffer-hook'.
-It calls function `revert-buffer' (which see) but only after a
-few sanity checks."
-  (with-current-buffer (current-buffer)
-    (unless (or (buffer-base-buffer)
-                (buffer-modified-p)
-                (verify-visited-file-modtime (current-buffer))
-                (not (file-readable-p (buffer-file-name)))
-                (not (magit-git-success "ls-files" "--error-unmatch"
-                                        (buffer-file-name))))
-      (revert-buffer t t nil))))
-
-(defun magit-update-vc-modeline ()
-  "Update the Vc status information in the modeline.
-
-By default the built-in Version Control package shows the status
-of file visiting buffers in the modeline.  Calling this function
-forces the status to be updated in the current buffer.
-
-This is intended for use in `magit-refresh-file-buffer-hook'.
-Because this can be a costly operation it is not part of the
-hook's default value.
-
-Unless you add this function to the hook you might also want to
-consider completely disabling Vc for git repositories.  To do so
-remove the symbol `Git' from `vc-handled-backends'."
-  ;; Don't use this directly so we can provide the above
-  ;; instructions.  Don't use an alias to avoid confusion.
-  (with-current-buffer (current-buffer)
-    (vc-find-file-hook)))
-
 ;;;; Mode Utilities
 
 (defun magit-map-magit-buffers (func &optional dir)
@@ -3345,6 +3311,40 @@ Also revert every unmodified buffer visiting files
 in the corresponding directories."
   (interactive)
   (magit-map-magit-buffers #'magit-refresh-buffer default-directory))
+
+(defun magit-revert-buffer ()
+  "Replace current buffer text with the text of the visited file on disk.
+
+This is intended for use in `magit-refresh-file-buffer-hook'.
+It calls function `revert-buffer' (which see) but only after a
+few sanity checks."
+  (with-current-buffer (current-buffer)
+    (unless (or (buffer-base-buffer)
+                (buffer-modified-p)
+                (verify-visited-file-modtime (current-buffer))
+                (not (file-readable-p (buffer-file-name)))
+                (not (magit-git-success "ls-files" "--error-unmatch"
+                                        (buffer-file-name))))
+      (revert-buffer t t nil))))
+
+(defun magit-update-vc-modeline ()
+  "Update the Vc status information in the modeline.
+
+By default the built-in Version Control package shows the status
+of file visiting buffers in the modeline.  Calling this function
+forces the status to be updated in the current buffer.
+
+This is intended for use in `magit-refresh-file-buffer-hook'.
+Because this can be a costly operation it is not part of the
+hook's default value.
+
+Unless you add this function to the hook you might also want to
+consider completely disabling Vc for git repositories.  To do so
+remove the symbol `Git' from `vc-handled-backends'."
+  ;; Don't use this directly so we can provide the above
+  ;; instructions.  Don't use an alias to avoid confusion.
+  (with-current-buffer (current-buffer)
+    (vc-find-file-hook)))
 
 ;;; Diff Options
 
