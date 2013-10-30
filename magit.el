@@ -1434,7 +1434,7 @@ Many Magit faces inherit from this one by default."
 
 Read `completing-read' documentation for the meaning of the argument."
   (funcall magit-completing-read-function
-           prompt collection predicate
+           (concat prompt ": ") collection predicate
            require-match initial-input hist def))
 
 ;;;; String and File Utilities
@@ -1911,7 +1911,7 @@ REFS is provided (even if nil), filter that instead."
     (setq revision "HEAD"))
   (let ((default-directory (magit-get-top-dir)))
     (magit-completing-read
-     (format "Retrieve file from %s: " revision)
+     (format "Retrieve file from %s" revision)
      (magit-git-lines "ls-tree" "-r" "-t" "--name-only" revision)
      nil 'require-match
      nil 'magit-read-file-hist
@@ -1932,8 +1932,7 @@ REFS is provided (even if nil), filter that instead."
                     elt)
                   (magit-list-interesting-refs
                    (or uninteresting magit-uninteresting-refs))))
-         (reply (magit-completing-read (concat prompt ": ")
-                                       interesting-refs nil nil nil
+         (reply (magit-completing-read prompt interesting-refs nil nil nil
                                        'magit-read-rev-history default))
          (rev (or (cdr (assoc reply interesting-refs)) reply)))
     (when (equal rev ".")
@@ -1958,14 +1957,13 @@ REFS is provided (even if nil), filter that instead."
         (cons beg (magit-read-rev (format "%s end" op) def-end nil t))))))
 
 (defun magit-read-remote (prompt &optional default require-match)
-  (magit-completing-read (concat prompt ": ")
-                         (magit-git-lines "remote")
+  (magit-completing-read prompt (magit-git-lines "remote")
                          nil require-match nil nil
                          (or default (magit-guess-remote))))
 
 (defun magit-read-remote-branch (prompt remote &optional default)
   (let ((branch (magit-completing-read
-                 (concat prompt ": ")
+                 prompt
                  (cl-mapcan
                   (lambda (b)
                     (and (not (string-match " -> " b))
@@ -4575,7 +4573,7 @@ under `magit-repo-dirs'.  If `magit-repo-dirs' is nil or DIR is
 non-nil, then autocompletion will offer directory names."
   (if (and (not dir) magit-repo-dirs)
       (let* ((repos (magit-list-repos magit-repo-dirs))
-             (reply (magit-completing-read "Git repository: " repos)))
+             (reply (magit-completing-read "Git repository" repos)))
         (file-name-as-directory
          (or (cdr (assoc reply repos))
              (if (file-directory-p reply)
@@ -5507,8 +5505,8 @@ With a prefix argument amend to the commit at HEAD instead.
   "Create a new tag with the given NAME at REV.
 With a prefix argument annotate the tag.
 \('git tag [--annotate] NAME REV')."
-  (interactive (list (magit-read-tag "Tag name: ")
-                     (magit-read-rev "Place tag on: "
+  (interactive (list (magit-read-tag "Tag name")
+                     (magit-read-rev "Place tag on"
                                      (or (magit-guess-branch) "HEAD"))
                      current-prefix-arg))
   (let ((args (append magit-custom-options (list name rev))))
@@ -5522,7 +5520,7 @@ With a prefix argument annotate the tag.
 (defun magit-delete-tag (name)
   "Delete the tag with the given NAME.
 \('git tag -d NAME')."
-  (interactive (list (magit-read-tag "Delete Tag: " t)))
+  (interactive (list (magit-read-tag "Delete Tag" t)))
   (apply #'magit-run-git "tag" "-d"
          (append magit-custom-options (list name))))
 
@@ -6188,7 +6186,7 @@ filename FILE."
          (extension-in-dir (concat (file-name-directory file) extension))
          (filename (file-name-nondirectory file))
          (completions (list extension extension-in-dir filename file)))
-    (magit-completing-read "File/pattern to ignore: "
+    (magit-completing-read "File/pattern to ignore"
                            completions nil nil nil nil file)))
 
 (defun magit-ignore-file (file &optional edit local)
