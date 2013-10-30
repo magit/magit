@@ -94,7 +94,7 @@ match REQUIRED-STATUS."
   (when (magit--bisecting-p)
     (error "Already bisecting"))
   (let ((bad (magit-read-rev "Start bisect with known bad revision" "HEAD"))
-        (good (magit-read-rev "Good revision" (magit-default-rev))))
+        (good (magit-read-rev "Good revision" (magit-guess-branch))))
     (magit--bisect-cmd "start" bad good)))
 
 ;;;###autoload
