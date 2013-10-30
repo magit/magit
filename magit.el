@@ -1957,7 +1957,7 @@ an existing remote."
 (defvar magit-refs-namespaces
   '(("HEAD" . magit-log-head-label-head)
     ("tags" . magit-log-head-label-tags)
-    ("remotes" magit-log-get-remotes-color)
+    ("remotes" . magit-log-head-label-remote)
     ("heads" . magit-log-head-label-local)
     ("patches" magit-log-get-patches-color)
     ("bisect" magit-log-get-bisect-state-color)))
@@ -1986,13 +1986,6 @@ an existing remote."
              (list label colorizer))
             ((listp colorizer)
              (funcall (car colorizer) label))))))
-
-(defvar magit-log-remotes-color-hook nil)
-
-(defun magit-log-get-remotes-color (suffix)
-  (or (run-hook-with-args-until-success
-       'magit-log-remotes-color-hook suffix)
-      (list suffix 'magit-log-head-label-remote)))
 
 (defun magit-log-get-patches-color (suffix)
   (list (and (string-match ".+/\\(.+\\)" suffix)
