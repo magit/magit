@@ -1959,9 +1959,8 @@ REFS is provided (even if nil), filter that instead."
                          nil require-match nil nil
                          (or default (magit-guess-remote))))
 
-(defun magit-read-remote-branch (remote &optional prompt default)
-  (let* ((prompt (or prompt (format "Remote branch (in %s)" remote)))
-         (branches (cl-mapcan
+(defun magit-read-remote-branch (prompt remote &optional default)
+  (let* ((branches (cl-mapcan
                     (lambda (b)
                       (and (not (string-match " -> " b))
                            (string-match (format "^ *%s/\\(.*\\)$"
@@ -5238,9 +5237,9 @@ user because of prefix arguments are not saved with git config."
                 branch-remote))
              (chosen-branch-merge-name
               (if branch-needed
-                  (magit-read-remote-branch chosen-branch-remote
-                                            (format "Pull branch from remote %s"
-                                                    chosen-branch-remote))
+                  (magit-read-remote-branch (format "Pull branch from remote %s"
+                                                    chosen-branch-remote)
+                                            chosen-branch-remote)
                 branch-merge-name)))
         (when (and (not branch-remote)
                    (not choose-remote))
@@ -5343,8 +5342,8 @@ even if `magit-set-upstream-on-push's value is `refuse'."
              ref-name ref-branch)
         (cond ((>= (prefix-numeric-value current-prefix-arg) 16)
                (setq ref-name (magit-read-remote-branch
-                               push-remote
-                               (format "Push %s as branch" branch)))
+                               (format "Push %s as branch" branch)
+                               push-remote))
                (setq ref-branch (if (string-prefix-p "refs/" ref-name)
                                     ref-name
                                   (concat "refs/heads/" ref-name))))
