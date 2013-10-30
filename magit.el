@@ -1941,8 +1941,7 @@ REFS is provided (even if nil), filter that instead."
 (defun magit-read-rev-with-default (prompt)
   (magit-read-rev prompt
                   (or (magit-name-rev (magit-commit-at-point))
-                      (let ((branch (or (magit-guess-branch)
-                                        (magit-get-previous-branch))))
+                      (let ((branch (or (magit-guess-branch) "HEAD")))
                         (when branch
                           (if (string-match "^refs/\\(.*\\)" branch)
                               (match-string 1 branch)
