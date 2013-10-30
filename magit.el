@@ -648,6 +648,35 @@ many spaces.  Otherwise, highlight neither."
                                (const :tag "Neither" nil))))
   :set 'magit-set-variable-and-refresh)
 
+(defcustom magit-refs-namespaces
+  '(("^\\(HEAD\\)$"              magit-log-head-label-head nil)
+    ("^refs/tags/\\(.+\\)"       magit-log-head-label-tags nil)
+    ("^refs/heads/\\(.+\\)"      magit-log-head-label-local nil)
+    ("^refs/remotes/\\(.+\\)"    magit-log-head-label-remote nil)
+    ("^refs/bisect/\\(bad\\)"    magit-log-head-label-bisect-bad nil)
+    ("^refs/bisect/\\(good.*\\)" magit-log-head-label-bisect-good nil)
+    ("^refs/\\(patches/.+\\)"    magit-log-head-label-patches nil)
+    ("\\(.+\\)"                  magit-log-head-label-default nil))
+  "How different refs should be formatted for display.
+
+Each entry controls how a certain type of ref is displayed, and
+has the form (REGEXP FACE FORMATTER).  REGEXP is a regular
+expression used to match full refs.  The first entry whose REGEXP
+matches the reference is used.  The first regexp submatch becomes
+the \"label\" that represents the ref and is propertized with
+font FONT.  If FORMATTER is non-nil it should be a function that
+takes two arguments, the full ref and the face.  It is supposed
+to return a propertized label that represents the ref.
+
+Currently this variable is only used in logs and the branch
+manager but it will be used in more places in the future."
+  :group 'magit
+  :type '(repeat
+          (list regexp
+                face
+                (choice (const :tag "first submatch is label" nil)
+                        (function :tag "format using function")))))
+
 (defcustom magit-show-diffstat t
   "Whether to shod diffstat in diff and commit buffers."
   :group 'magit
@@ -1967,16 +1996,6 @@ an existing remote."
       reply)))
 
 ;;;; Reference Labels
-
-(defvar magit-refs-namespaces
-  '(("^\\(HEAD\\)$"              magit-log-head-label-head nil)
-    ("^refs/tags/\\(.+\\)"       magit-log-head-label-tags nil)
-    ("^refs/remotes/\\(.+\\)"    magit-log-head-label-remote nil)
-    ("^refs/heads/\\(.+\\)"      magit-log-head-label-local nil)
-    ("^refs/\\(patches/.+\\)"    magit-log-head-label-patches nil)
-    ("^refs/bisect/\\(bad\\)"    magit-log-head-label-bisect-bad nil)
-    ("^refs/bisect/\\(good.*\\)" magit-log-head-label-bisect-good nil)
-    ("\\(.+\\)"                  magit-log-head-label-default nil)))
 
 (defun magit-format-ref-label (ref)
   (cl-destructuring-bind (re face fn)
