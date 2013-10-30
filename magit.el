@@ -6639,7 +6639,7 @@ from the parent keymap `magit-mode-map' are also available.")
           (append (mapcar (lambda (remote)
                             (save-excursion
                               (when (search-forward-regexp
-                                     (concat "^  remotes\\/" remote) nil t)
+                                     (concat "^  remotes/" remote) nil t)
                                 (beginning-of-line)
                                 (point-marker))))
                           remotes)
@@ -6686,9 +6686,9 @@ These are the branch names with the remote name stripped."
   (magit-remote-part-of-branch (magit--branch-name-at-point)))
 
 (defun magit-remote-part-of-branch (branch)
-  (when (string-match-p "^\\(?:refs/\\)?remotes\\/" branch)
+  (when (string-match-p "^\\(?:refs/\\)?remotes/" branch)
     (cl-loop for remote in (magit-git-lines "remote")
-             when (string-match-p (format "^\\(?:refs/\\)?remotes\\/%s\\/"
+             when (string-match-p (format "^\\(?:refs/\\)?remotes/%s/"
                                           (regexp-quote remote))
                                   branch)
              return remote)))
@@ -6699,7 +6699,7 @@ These are the branch names with the remote name stripped."
         (progn
           ;; This has to match if remote is non-nil
           (cl-assert (string-match
-                      (format "^\\(?:refs/\\)?remotes\\/%s\\/\\(.*\\)"
+                      (format "^\\(?:refs/\\)?remotes/%s/\\(.*\\)"
                               (regexp-quote remote))
                       branch)
                      'show-args "Unexpected string-match failure: %s %s")
