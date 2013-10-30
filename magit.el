@@ -1862,6 +1862,12 @@ involving HEAD."
 ;;__ FIXME The parens indicate preliminary subsections.
 ;;;; (insane "rev" reading)
 
+(defvar magit-uninteresting-refs
+  '("^refs/stash$"
+    "^refs/remotes/[^/]+/HEAD$"
+    "^refs/remotes/[^/]+/top-bases$"
+    "^refs/top-bases$"))
+
 (cl-defun magit-list-interesting-refs (&optional uninteresting
                                                  (refs nil srefs))
   (cl-loop for ref in (if srefs
@@ -1870,7 +1876,13 @@ involving HEAD."
                                   (cadr (split-string l " ")))
                                 (magit-git-lines "show-ref")))
            with label
-           unless (or (cl-loop for i in uninteresting
+           unless (or (cl-loop for i in
+                               (cl-typecase uninteresting
+                                 (null magit-uninteresting-refs)
+                                 (list uninteresting)
+                                 (string (cons (format "^refs/heads/%s$"
+                                                       uninteresting)
+                                               magit-uninteresting-refs)))
                                thereis (string-match i ref))
                       (not (setq label (magit-format-ref ref))))
            collect (cons label ref)))
@@ -1890,12 +1902,6 @@ involving HEAD."
                      (match-string 1 ref))
            (substring ref 13)))
         (t ref)))
-
-(defvar magit-uninteresting-refs
-  '("^refs/stash$"
-    "^refs/remotes/[^/]+/HEAD$"
-    "^refs/remotes/[^/]+/top-bases$"
-    "^refs/top-bases$"))
 
 (defvar magit-read-file-hist nil)
 
@@ -1923,8 +1929,7 @@ involving HEAD."
                     (setcdr elt (replace-regexp-in-string
                                  "^refs/heads/" "" (cdr elt)))
                     elt)
-                  (magit-list-interesting-refs
-                   (or uninteresting magit-uninteresting-refs))))
+                  (magit-list-interesting-refs uninteresting)))
          (reply (magit-completing-read prompt interesting-refs nil nil nil
                                        'magit-read-rev-history default))
          (rev (or (cdr (assoc reply interesting-refs)) reply)))
@@ -4813,10 +4818,7 @@ If REVISION is a remote branch, offer to create a local tracking branch.
            (magit-read-rev (format "Switch from '%s' to" current-branch)
                            (unless (string= current-branch default)
                              default)
-                           (if current-branch
-                               (cons (concat "refs/heads/" current-branch "$")
-                                     magit-uninteresting-refs)
-                             magit-uninteresting-refs)))))
+                           current-branch))))
   (unless (magit-maybe-create-local-tracking-branch revision)
     (magit-save-some-buffers)
     (magit-run-git "checkout" revision)))
@@ -4999,11 +5001,8 @@ Return nil if there is no rebase in progress."
       (let* ((branch (magit-get-current-branch))
              (rev (magit-read-rev
                    "Rebase to"
-                   (magit-get-tracked-branch branch nil t)
-                   (if branch
-                       (cons (concat "refs/heads/" branch)
-                             magit-uninteresting-refs)
-                     magit-uninteresting-refs))))
+                   (magit-get-tracked-branch branch)
+                   branch)))
         (magit-run-git "rebase" rev)))))
 
 ;;;###autoload
@@ -6065,9 +6064,7 @@ from the parent keymap `magit-mode-map' are also available."
                       (magit-read-rev
                        (format "Diff marked commit %s with" marked)
                        (unless is-current current)
-                       (when is-current
-                         (cons (concat "refs/heads/" current)
-                               magit-uninteresting-refs))))))
+                       current))))
      (list (concat marked ".." commit))))
   (magit-diff range))
 
