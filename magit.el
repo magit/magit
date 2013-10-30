@@ -5266,7 +5266,8 @@ If there is no default remote, ask for one."
 (magit-define-command remote-update ()
   "Update all remotes."
   (interactive)
-  (apply 'magit-run-git-async "remote" "update" magit-custom-options))
+  (or (run-hook-with-args-until-success 'magit-remote-update-hook)
+      (apply 'magit-run-git-async "remote" "update" magit-custom-options)))
 
 ;;;; Pulling
 
