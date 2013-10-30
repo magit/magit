@@ -1820,22 +1820,27 @@ involving HEAD."
 ;;__ FIXME The parens indicate preliminary subsections.
 ;;;; (insane "rev" reading)
 
-(defun magit-list-interesting-refs (&optional uninteresting)
+(cl-defun magit-list-interesting-refs (&optional uninteresting
+                                                 (refs nil srefs))
   "Return interesting references as given by `git show-ref'.
 Removes references matching UNINTERESTING from the results.
 UNINTERESTING can be either a function taking a single
-argument or a list of strings used as regexps."
-  (cl-loop for ref-line in (magit-git-lines "show-ref")
-           for ref-name =  (cadr (split-string ref-line " "))
-           with ref-fmt
+argument or a list of strings used as regexps.  If optional
+REFS is provided (even if nil), filter that instead."
+  (cl-loop for ref in (if srefs
+                          refs
+                        (mapcar (lambda (l)
+                                  (cadr (split-string l " ")))
+                                (magit-git-lines "show-ref")))
+           with label
            unless (or (if (functionp uninteresting)
-                          (funcall uninteresting ref-name)
+                          (funcall uninteresting ref)
                         (cl-loop for i in uninteresting
-                                 thereis (string-match i ref-name)))
-                      (not (setq ref-fmt (magit-format-ref ref-name))))
-           collect (cons ref-fmt
+                                 thereis (string-match i ref)))
+                      (not (setq label (magit-format-ref ref))))
+           collect (cons label
                          (replace-regexp-in-string
-                          "^refs/heads/" "" ref-name))))
+                          "^refs/heads/" "" ref))))
 
 (defun magit-format-ref (ref)
   "Convert fully-specified ref REF into its displayable form
