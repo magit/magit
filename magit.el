@@ -3285,6 +3285,16 @@ remove the symbol `Git' from `vc-handled-backends'."
   (with-current-buffer (current-buffer)
     (vc-find-file-hook)))
 
+;;;; Mode Utilities
+
+(defun magit-map-magit-buffers (func &optional dir)
+  (dolist (buf (buffer-list))
+    (with-current-buffer buf
+      (when (and (derived-mode-p 'magit-mode)
+                 (or (null dir)
+                     (equal default-directory dir)))
+        (funcall func)))))
+
 ;;;; Refresh Machinery
 
 (defvar magit-refresh-needing-buffers nil)
@@ -3335,14 +3345,6 @@ Also revert every unmodified buffer visiting files
 in the corresponding directories."
   (interactive)
   (magit-map-magit-buffers #'magit-refresh-buffer default-directory))
-
-(defun magit-map-magit-buffers (func &optional dir)
-  (dolist (buf (buffer-list))
-    (with-current-buffer buf
-      (when (and (derived-mode-p 'magit-mode)
-                 (or (null dir)
-                     (equal default-directory dir)))
-        (funcall func)))))
 
 ;;; Diff Options
 
