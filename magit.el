@@ -1954,11 +1954,6 @@ REFS is provided (even if nil), filter that instead."
         (cons beg (magit-read-rev (format "%s end" op) def-end nil t))))))
 
 (defun magit-read-remote (prompt &optional def require-match)
-  "Read the name of a remote.
-PROMPT is used as the prompt, and defaults to \"Remote\".
-DEF is the default value.  If optional REQUIRE-MATCH is non-nil then
-the user is not allowed to exit unless the input is or completes to
-an existing remote."
   (magit-completing-read (concat prompt ": ")
                          (magit-git-lines "remote")
                          nil require-match nil nil
