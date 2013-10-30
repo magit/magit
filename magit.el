@@ -6085,7 +6085,7 @@ from the parent keymap `magit-mode-map' are also available."
    (let* ((marked (or magit-marked-commit (error "No commit marked")))
           (current (magit-get-current-branch))
           (is-current (string= (magit-name-rev marked) current))
-          (commit (or (magit-commit-at-point)
+          (commit (or (magit-guess-branch)
                       (magit-read-rev
                        (format "Diff marked commit %s with" marked)
                        (unless is-current current)
