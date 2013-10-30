@@ -3884,10 +3884,9 @@ Customize `magit-diff-refine-hunk' to change the default mode."
                           'face 'magit-log-sha1) " "))
     (when refs
       (insert (mapconcat 'identity
-                         (cl-mapcan
+                         (cl-mapcar
                           (lambda (ref)
-                            (unless (string= ref "tag:")
-                              (list (car (magit-format-ref-label ref)))))
+                            (car (magit-format-ref-label ref)))
                           (split-string refs "[(), ]" t))
                          " ") " "))
     (when refsub
