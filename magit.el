@@ -1853,7 +1853,8 @@ REFS is provided (even if nil), filter that instead."
              (format "%s (%s)"
                      (match-string 2 ref)
                      (match-string 1 ref))
-           (substring ref 13)))))
+           (substring ref 13)))
+        (t ref)))
 
 (defvar magit-uninteresting-refs
   '("^refs/stash$"
