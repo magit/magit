@@ -46,8 +46,8 @@
 
 ;; git svn commands
 
-;;;###autoload (autoload 'magit-svn-find-rev "magit")
-(magit-define-command svn-find-rev (rev &optional branch)
+;;;###autoload
+(defun magit-svn-find-rev (rev &optional branch)
   "Find commit for svn REVISION in BRANCH."
   (interactive
    (list (read-string "SVN revision: ")
@@ -65,34 +65,34 @@
            sha))
       (error "Revision %s could not be mapped to a commit" rev))))
 
-;;;###autoload (autoload 'magit-svn-create-branch "magit")
-(magit-define-command svn-create-branch (name)
+;;;###autoload
+(defun magit-svn-create-branch (name)
   "Create svn branch NAME."
   (interactive "sBranch name: ")
   (apply 'magit-run-git "svn" "branch"
          (append magit-custom-options (list name))))
 
-;;;###autoload (autoload 'magit-svn-create-tag "magit")
-(magit-define-command svn-create-tag (name)
+;;;###autoload
+(defun magit-svn-create-tag (name)
   "Create svn tag NAME."
   (interactive "sTag name: ")
   (apply 'magit-run-git "svn" "tag"
          (append magit-custom-options (list name))))
 
-;;;###autoload (autoload 'magit-svn-rebase "magit")
-(magit-define-command svn-rebase ()
+;;;###autoload
+(defun magit-svn-rebase ()
   "Run git-svn rebase."
   (interactive)
   (apply 'magit-run-git-async "svn" "rebase" magit-custom-options))
 
-;;;###autoload (autoload 'magit-svn-dcommit "magit")
-(magit-define-command svn-dcommit ()
+;;;###autoload
+(defun magit-svn-dcommit ()
   "Run git-svn dcommit."
   (interactive)
   (apply 'magit-run-git-async "svn" "dcommit" magit-custom-options))
 
-;;;###autoload (autoload 'magit-svn-remote-update "magit")
-(magit-define-command svn-remote-update ()
+;;;###autoload
+(defun magit-svn-remote-update ()
   "Run git-svn fetch."
   (interactive)
   (when (magit-svn-enabled)
