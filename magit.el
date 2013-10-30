@@ -1841,9 +1841,7 @@ REFS is provided (even if nil), filter that instead."
            collect (cons label ref)))
 
 (defun magit-format-ref (ref)
-  (cond ((null ref)
-         nil)
-        ((string-match "refs/heads/\\(.*\\)" ref)
+  (cond ((string-match "refs/heads/\\(.*\\)" ref)
          (match-string 1 ref))
         ((string-match "refs/tags/\\(.*\\)" ref)
          (format (if (eq magit-remote-ref-format 'branch-then-remote)
