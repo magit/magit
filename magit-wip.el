@@ -56,18 +56,6 @@
 
 ;;; Magit Wip Mode.
 
-(defface magit-log-head-label-wip
-  '((((class color) (background light))
-     :box t
-     :background "Grey95"
-     :foreground "LightSkyBlue3")
-    (((class color) (background dark))
-     :box t
-     :background "Grey07"
-     :foreground "LightSkyBlue4"))
-  "Face for git-wip labels shown in log buffer."
-  :group 'magit-faces)
-
 (defun magit-log-get-wip-color (suffix)
   (list (concat "(WIP) " suffix)
         'magit-log-head-label-wip))
