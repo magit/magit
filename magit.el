@@ -1952,7 +1952,8 @@ REFS is provided (even if nil), filter that instead."
 
 (defun magit-default-rev ()
   (or (magit-name-rev (magit-commit-at-point))
-      (let ((branch (magit-guess-branch)))
+      (let ((branch (or (magit-guess-branch)
+                        (magit-get-previous-branch))))
         (when branch
           (if (string-match "^refs/\\(.*\\)" branch)
               (match-string 1 branch)
@@ -4646,7 +4647,9 @@ non-nil, then autocompletion will offer directory names."
   "Merge REVISION into the current 'HEAD', leaving changes uncommitted.
 With a prefix argument, skip editing the log message and commit.
 \('git merge [--no-commit] REVISION')."
-  (interactive (list (magit-read-rev "Merge" (magit-guess-branch))
+  (interactive (list (magit-read-rev "Merge"
+                                     (or (magit-guess-branch)
+                                         (magit-get-previous-branch)))
                      current-prefix-arg))
   (when (or (magit-everything-clean-p)
             (not magit-merge-warn-dirty-worktree)
@@ -4863,7 +4866,9 @@ If the branch is the current one, offers to switch to `master' first.
 With prefix, forces the removal even if it hasn't been merged.
 Works with local or remote branches.
 \('git branch [-d|-D] BRANCH' or 'git push <remote-part-of-BRANCH> :refs/heads/BRANCH')."
-  (interactive (list (magit-read-rev "Branch to delete" (magit-guess-branch))
+  (interactive (list (magit-read-rev "Branch to delete"
+                                     (or (magit-guess-branch)
+                                         (magit-get-previous-branch)))
                      current-prefix-arg))
   (let* ((remote (magit-remote-part-of-branch branch))
          (current (magit-get-current-branch))
@@ -4909,8 +4914,7 @@ If no branch is found near the cursor return nil."
     ((branch)        (magit-section-info (magit-current-section)))
     ((wazzup commit) (magit-section-info (magit-section-parent item)))
     ((commit)        (magit-name-rev info))
-    ((wazzup)        info)
-    (t               (magit-get-previous-branch))))
+    ((wazzup)        info)))
 
 ;;;; Remoting
 
