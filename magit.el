@@ -4830,7 +4830,8 @@ If REVISION is a remote branch, offer to create a local tracking branch.
 \('git checkout [-b] REVISION')."
   (interactive
    (list (let ((current-branch (magit-get-current-branch))
-               (default (magit-default-rev)))
+               (default (or (magit-guess-branch)
+                            (magit-get-previous-branch))))
            (magit-read-rev (format "Switch from '%s' to" current-branch)
                            (unless (string= current-branch default)
                              default)
