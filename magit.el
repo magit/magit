@@ -4858,7 +4858,7 @@ Fails if working tree or staging area contain uncommitted changes.
                              (magit-get-current-branch)))))
   (cond ((run-hook-with-args-until-success
           'magit-create-branch-hook branch parent))
-        ((and parent branch (not (string= branch "")))
+        ((and branch (not (string= branch "")))
          (magit-save-some-buffers)
          (apply #'magit-run-git "checkout" "-b" branch
                 (append magit-custom-options (list parent))))))
