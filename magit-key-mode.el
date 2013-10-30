@@ -251,7 +251,7 @@
     (apply-mailbox
      (man-page "git-am")
      (actions
-      ("j" "Apply Mailbox" magit-apply-mailbox))
+      ("J" "Apply Mailbox" magit-apply-mailbox))
      (switches
       ("-s" "add a Signed-off-by line to the commit message" "--signoff")
       ("-3" "allow fall back on 3way merging if needed" "--3way")
