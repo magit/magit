@@ -1953,11 +1953,11 @@ REFS is provided (even if nil), filter that instead."
           (cons (match-string 1 beg) (match-string 2 beg))
         (cons beg (magit-read-rev (format "%s end" op) def-end nil t))))))
 
-(defun magit-read-remote (prompt &optional def require-match)
+(defun magit-read-remote (prompt &optional default require-match)
   (magit-completing-read (concat prompt ": ")
                          (magit-git-lines "remote")
                          nil require-match nil nil
-                         (or def (magit-guess-remote))))
+                         (or default (magit-guess-remote))))
 
 (defun magit-read-remote-branch (remote &optional prompt default)
   (let* ((prompt (or prompt (format "Remote branch (in %s)" remote)))
