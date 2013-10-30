@@ -1938,12 +1938,12 @@ REFS is provided (even if nil), filter that instead."
       (error "No rev selected"))
     rev))
 
-(defun magit-read-rev-with-default (prompt &optional no-trim uninteresting)
+(defun magit-read-rev-with-default (prompt &optional no-trim)
   "Ask user for revision like `magit-read-rev' but default is set
 appropriately depending on context.  If NO-TRIM is non-nil, strip
 off prefixes such as \"refs/remotes/\" (see `magit-name-rev').
-PROMPT and UNINTERESTING are passed to `magit-read-rev'."
-  (magit-read-rev prompt (magit-default-rev no-trim) uninteresting))
+PROMPT is passed to `magit-read-rev'."
+  (magit-read-rev prompt (magit-default-rev no-trim)))
 
 (defun magit-read-rev-range (op &optional def-beg def-end)
   (let ((beg (magit-read-rev (format "%s range or start" op) def-beg)))
