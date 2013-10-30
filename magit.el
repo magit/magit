@@ -6578,7 +6578,6 @@ from the parent keymap `magit-mode-map' are also available.")
          (ahead       (match-string 5))
          (behind      (match-string 6))
          (other-ref   (match-string 7))
-         (name        (magit-branch-no-remote branch))
          (branch-face (and (equal marker "* ") 'magit-branch)))
     (delete-region (point) (line-beginning-position 2))
     (magit-with-section branch 'branch
@@ -6587,7 +6586,10 @@ from the parent keymap `magit-mode-map' are also available.")
                               (make-string magit-sha1-abbrev-length ? ))
                           'face 'magit-log-sha1)
               " " marker
-              (propertize name 'face branch-face))
+              (propertize (if (string-match-p "^remote/" branch)
+                              (substring branch 7)
+                            branch)
+                          'face branch-face))
        (when other-ref
          (insert " -> " (substring other-ref (+ 1 (length remote-name)))))
        (when (and tracking
