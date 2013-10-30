@@ -3879,15 +3879,17 @@ Customize `magit-diff-refine-hunk' to change the default mode."
         (insert (make-string (1+ magit-sha1-abbrev-length) ? ))))
     (when graph
       (insert graph))
+    (when refs
+      (setq refs (mapcar 'cdr (magit-list-interesting-refs
+                               nil (split-string refs "[(), ]" t)))))
     (when (and hash (eq style 'long))
       (insert (propertize (if refs hash (magit-rev-parse hash))
                           'face 'magit-log-sha1) " "))
     (when refs
       (insert (mapconcat 'identity
-                         (cl-mapcar
-                          (lambda (ref)
-                            (car (magit-format-ref-label ref)))
-                          (split-string refs "[(), ]" t))
+                         (mapcar (lambda (ref)
+                                   (car (magit-format-ref-label ref)))
+                                 refs)
                          " ") " "))
     (when refsub
       (insert (magit-log-format-reflog refsub)))
