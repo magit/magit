@@ -6669,11 +6669,6 @@ from the parent keymap `magit-mode-map' are also available.")
 
 ;;;; (wacky utilities)
 
-(defun magit--branch-name-at-point ()
-  "Get the branch name in the line at point."
-  (or (magit-section-info (magit-current-section))
-      (error "No branch at point")))
-
 (defun magit--is-branch-at-point-remote ()
   "Return non-nil if the branch at point is a remote tracking branch."
   (magit-remote-part-of-branch (magit-guess-branch)))
