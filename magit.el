@@ -6674,13 +6674,6 @@ from the parent keymap `magit-mode-map' are also available.")
   (or (magit-section-info (magit-current-section))
       (error "No branch at point")))
 
-(defun magit--branches-for-remote-repo (remote)
-  "Return a list of remote branch names for REMOTE.
-These are the branch names with the remote name stripped."
-  (cl-loop for branch in (magit-git-lines "branch" "-r" "--list"
-                                          (format "%s/*" remote))
-           collect (substring branch (+ 3 (length remote)))))
-
 (defun magit--is-branch-at-point-remote ()
   "Return non-nil if the branch at point is a remote tracking branch."
   (magit-remote-part-of-branch (magit--branch-name-at-point)))
