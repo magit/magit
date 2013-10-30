@@ -4850,26 +4850,27 @@ Works with local or remote branches.
                                      (or (magit-guess-branch)
                                          (magit-get-previous-branch)))
                      current-prefix-arg))
-  (let* ((remote (magit-remote-part-of-branch branch))
-         (current (magit-get-current-branch))
-         (is-current (string= branch current))
-         (is-master (string= branch "master"))
-         (args (list "branch"
-                     (if force "-D" "-d")
-                     branch)))
-    (cond
-     (remote
-      (magit-run-git-async "push" remote (magit-branch-no-remote branch)))
-     ((and is-current is-master)
-      (message "Cannot delete master branch while it's checked out."))
-     (is-current
-      (if (y-or-n-p "Cannot delete current branch. Switch to master first? ")
-          (progn
-            (magit-checkout "master")
-            (apply 'magit-run-git args))
-        (message "The current branch was not deleted.")))
-     (t
-      (apply 'magit-run-git args)))))
+  (if (string-match "^\\(?:refs/\\)?remotes/\\([^/]+\\)/\\(.+\\)" branch)
+      (magit-run-git-async "push"
+                           (match-string 1 branch)
+                           (match-string 2 branch))
+    (let* ((current (magit-get-current-branch))
+           (is-current (string= branch current))
+           (is-master (string= branch "master"))
+           (args (list "branch"
+                       (if force "-D" "-d")
+                       branch)))
+      (cond
+       ((and is-current is-master)
+        (message "Cannot delete master branch while it's checked out."))
+       (is-current
+        (if (y-or-n-p "Cannot delete current branch. Switch to master first? ")
+            (progn
+              (magit-checkout "master")
+              (apply 'magit-run-git args))
+          (message "The current branch was not deleted.")))
+       (t
+        (apply 'magit-run-git args))))))
 
 ;;;###autoload
 (defun magit-rename-branch (old new &optional force)
