@@ -6656,10 +6656,10 @@ from the parent keymap `magit-mode-map' are also available.")
          (marker (cadr group)))
     (magit-with-section (concat "remote:" remote-name) 'remote
       (magit-set-section-info remote-name)
-      (insert-before-markers (propertize (format "%s (%s):" remote-name urls)
-                                         'face 'magit-section-title) "\n")
+      (insert (propertize (format "%s (%s):" remote-name urls)
+                          'face 'magit-section-title) "\n")
       (magit-wash-branches-between-point-and-marker marker remote-name))
-    (insert-before-markers "\n")))
+    (insert "\n")))
 
 (defun magit-wash-branches-between-point-and-marker (marker &optional remote-name)
   (save-restriction
@@ -6690,12 +6690,12 @@ from the parent keymap `magit-mode-map' are also available.")
                    collect (list remote marker))))
     ;; actual displaying of information
     (magit-with-section "local" nil
-      (insert-before-markers (propertize "Local:" 'face 'magit-section-title)
+      (insert (propertize "Local:" 'face 'magit-section-title)
                              "\n")
       (magit-set-section-info ".")
       (magit-wash-branches-between-point-and-marker
        (cl-loop for x in markers thereis x)))
-    (insert-before-markers "\n")
+    (insert "\n")
     (mapc 'magit-wash-remote-branches-group remote-groups)
     ;; make sure markers point to nil so that they can be garbage collected
     (mapc (lambda (marker)
