@@ -3261,7 +3261,7 @@ the buffer.  Finally reset the window configuration to nil."
                      (equal default-directory dir)))
         (funcall func)))))
 
-;;;; Refresh Machinery
+;;; Refresh Machinery
 
 (defvar magit-refresh-needing-buffers nil)
 (defvar magit-refresh-pending nil)
