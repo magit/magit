@@ -287,8 +287,10 @@ into the series."
   (or (derived-mode-p 'magit-mode)
       (error "This mode only makes sense with magit"))
   (if magit-stgit-mode
-      (add-hook  'magit-after-insert-stashes-hook 'magit-insert-stgit-series nil t)
-    (remove-hook 'magit-after-insert-stashes-hook 'magit-insert-stgit-series t))
+      (magit-add-section-hook 'magit-status-sections-hook
+                              'magit-insert-stgit-series
+                              'magit-insert-stashes t t)
+    (remove-hook 'magit-status-sections-hook 'magit-insert-stgit-series t))
   (when (called-interactively-p 'any)
     (magit-refresh)))
 
