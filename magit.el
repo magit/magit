@@ -1864,21 +1864,14 @@ involving HEAD."
 
 (cl-defun magit-list-interesting-refs (&optional uninteresting
                                                  (refs nil srefs))
-  "Return interesting references as given by `git show-ref'.
-Removes references matching UNINTERESTING from the results.
-UNINTERESTING can be either a function taking a single
-argument or a list of strings used as regexps.  If optional
-REFS is provided (even if nil), filter that instead."
   (cl-loop for ref in (if srefs
                           refs
                         (mapcar (lambda (l)
                                   (cadr (split-string l " ")))
                                 (magit-git-lines "show-ref")))
            with label
-           unless (or (if (functionp uninteresting)
-                          (funcall uninteresting ref)
-                        (cl-loop for i in uninteresting
-                                 thereis (string-match i ref)))
+           unless (or (cl-loop for i in uninteresting
+                               thereis (string-match i ref))
                       (not (setq label (magit-format-ref ref))))
            collect (cons label ref)))
 
