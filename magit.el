@@ -6676,7 +6676,7 @@ from the parent keymap `magit-mode-map' are also available.")
 
 (defun magit--is-branch-at-point-remote ()
   "Return non-nil if the branch at point is a remote tracking branch."
-  (magit-remote-part-of-branch (magit--branch-name-at-point)))
+  (magit-remote-part-of-branch (magit-guess-branch)))
 
 (defun magit-remote-part-of-branch (branch)
   (when (string-match-p "^\\(?:refs/\\)?remotes/" branch)
