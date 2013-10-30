@@ -184,7 +184,7 @@ If USE-CACHE is non nil, use the cached information."
   (let ((info (magit-svn-get-ref-info use-cache)))
     (cdr (assoc 'local-ref info))))
 
-(magit-define-inserter svn-unpulled ()
+(defun magit-insert-svn-unpulled ()
   (when (magit-svn-enabled)
     (magit-git-section 'svn-unpulled "Unpulled commits (SVN):"
                        (apply-partially 'magit-wash-log 'unique)
@@ -192,7 +192,7 @@ If USE-CACHE is non nil, use the cached information."
                        (magit-diff-abbrev-arg)
                        (format "HEAD..%s" (magit-svn-get-ref t)))))
 
-(magit-define-inserter svn-unpushed ()
+(defun magit-insert-svn-unpushed ()
   (when (magit-svn-enabled)
     (magit-git-section 'svn-unpushed "Unpushed commits (SVN):"
                        (apply-partially 'magit-wash-log 'unique)

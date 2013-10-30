@@ -2052,24 +2052,6 @@ an existing remote."
 
 ;;;; Section Creation
 
-(defmacro magit-define-inserter (sym arglist &rest body)
-  (declare (indent defun))
-  (let ((fun (intern (format "magit-insert-%s" sym)))
-        (before (intern (format "magit-before-insert-%s-hook" sym)))
-        (after (intern (format "magit-after-insert-%s-hook" sym)))
-        (doc (format "Insert items for `%s'." sym)))
-    `(progn
-       (defvar ,before nil)
-       (defvar ,after nil)
-       (defun ,fun ,arglist
-         ,doc
-         (run-hooks ',before)
-         ,@body
-         (run-hooks ',after))
-       (put ',before 'definition-name ',sym)
-       (put ',after 'definition-name ',sym)
-       (put ',fun 'definition-name ',sym))))
-
 (defun magit-new-section (title type)
   "Create a new section with title TITLE and type TYPE in current buffer.
 
@@ -4401,12 +4383,12 @@ when asking for user input."
 ;;; Status Sections
 ;;;; Real Sections
 
-(magit-define-inserter stashes ()
+(defun magit-insert-stashes ()
   (magit-git-section 'stashes
                      "Stashes:" 'magit-wash-stashes
                      "stash" "list"))
 
-(magit-define-inserter untracked-files ()
+(defun magit-insert-untracked-files ()
   (unless (string= (magit-get "status" "showUntrackedFiles") "no")
     (apply 'magit-git-section
            `(untracked
@@ -4429,7 +4411,7 @@ when asking for user input."
              (insert "\t" file "\n")))
          t)))))
 
-(magit-define-inserter pending-commits ()
+(defun magit-insert-pending-commits ()
   (let* ((info (magit-read-rewrite-info))
          (pending (cdr (assq 'pending info))))
     (when pending
@@ -4451,7 +4433,7 @@ when asking for user input."
                       "\n")))))
       (insert "\n"))))
 
-(magit-define-inserter pending-changes ()
+(defun magit-insert-pending-changes ()
   (let* ((info (magit-read-rewrite-info))
          (orig (cadr (assq 'orig info))))
     (when orig
@@ -4460,14 +4442,14 @@ when asking for user input."
                          'magit-wash-diffs
                          "diff" (magit-diff-U-arg) "-R" orig))))
 
-(magit-define-inserter unstaged-changes ()
+(defun magit-insert-unstaged-changes ()
   (let ((magit-current-diff-range (cons 'index 'working))
         (magit-diff-options (append '() magit-diff-options)))
     (magit-git-section 'unstaged
                        "Unstaged changes:" 'magit-wash-raw-diffs
                        "diff-files")))
 
-(magit-define-inserter staged-changes ()
+(defun magit-insert-staged-changes ()
   (let ((no-commit (not (magit-git-success "log" "-1" "HEAD"))))
     (when (or no-commit (magit-anything-staged-p))
       (let ((magit-current-diff-range (cons "HEAD" 'index))
@@ -4480,7 +4462,7 @@ when asking for user input."
                            "diff-index" "--cached"
                            base)))))
 
-(magit-define-inserter unpulled-commits ()
+(defun magit-insert-unpulled-commits ()
   (let ((tracked (magit-get-tracked-branch nil t)))
     (when tracked
       (magit-git-section 'unpulled "Unpulled commits:"
@@ -4489,7 +4471,7 @@ when asking for user input."
                          (magit-diff-abbrev-arg)
                          (concat "HEAD.." tracked)))))
 
-(magit-define-inserter unpushed-commits ()
+(defun magit-insert-unpushed-commits ()
   (let ((tracked (magit-get-tracked-branch nil t)))
     (when tracked
       (magit-git-section 'unpushed "Unpushed commits:"
@@ -4498,7 +4480,7 @@ when asking for user input."
                          (magit-diff-abbrev-arg)
                          (concat tracked "..HEAD")))))
 
-(magit-define-inserter unpulled-cherries ()
+(defun magit-insert-unpulled-cherries ()
   (let ((tracked (magit-get-tracked-branch nil t)))
     (when tracked
       (magit-git-section 'unpulled "Unpulled commits:"
@@ -4506,7 +4488,7 @@ when asking for user input."
                          "cherry" "-v" (magit-diff-abbrev-arg)
                          (magit-get-current-branch) tracked))))
 
-(magit-define-inserter unpushed-cherries ()
+(defun magit-insert-unpushed-cherries ()
   (let ((tracked (magit-get-tracked-branch nil t)))
     (when tracked
       (magit-git-section 'unpushed "Unpushed commits:"
@@ -4534,7 +4516,7 @@ when asking for user input."
                         'face 'magit-branch)
             " " (abbreviate-file-name default-directory))))
 
-(magit-define-inserter status-remote-line ()
+(defun magit-insert-status-remote-line ()
   (let* ((branch  (magit-get-current-branch))
          (tracked (magit-get-tracked-branch branch)))
     (when tracked
@@ -5935,7 +5917,7 @@ from the parent keymap `magit-mode-map' are also available.")
     (magit-insert-status-line (propertize "+" 'face 'magit-cherry-equivalent)
       "unmatched commit tree")))
 
-(magit-define-inserter cherry-commits ()
+(defun magit-cherry-commits ()
   (apply #'magit-git-section
          'commit "Cherry commits:"
          (apply-partially 'magit-wash-log 'cherry)
@@ -6218,12 +6200,12 @@ from the parent keymap `magit-mode-map' are also available."
     (magit-with-section 'wazzupbuf nil
       (run-hooks 'magit-wazzup-insert-sections-hook))))
 
-(magit-define-inserter wazzup-head-line ()
+(defun magit-wazzup-head-line ()
   (magit-insert-status-line "Head"
     (concat (propertize (car magit-refresh-args) 'face 'magit-branch) " "
             (abbreviate-file-name default-directory))))
 
-(magit-define-inserter wazzup-branches ()
+(defun magit-wazzup-branches ()
   (dolist (upstream (magit-git-lines "show-ref"))
     (setq  upstream (cadr (split-string upstream " ")))
     (when (and (not (string-match-p "HEAD$" upstream))
@@ -7035,7 +7017,6 @@ This can be added to `magit-mode-hook' for example"
     `((,(concat "(\\(" (regexp-opt
                      '("magit-define-level-shower"
                        "magit-define-section-jumper"
-                       "magit-define-inserter"
                        "magit-define-command"))
                 "\\)\\>[ \t'\(]*\\(\\sw+\\)?")
        (1 font-lock-keyword-face)

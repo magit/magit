@@ -134,7 +134,7 @@
           (magit-git-standard-options nil))
       (apply 'magit-git-section section title washer args))))
 
-(magit-define-inserter topgit-topics ()
+(defun magit-insert-topgit-topics ()
   (magit-topgit-section 'topgit-topics
                         "Topics:" 'magit-topgit-wash-topics
                         "summary"))
@@ -178,7 +178,7 @@
     ;; hide refs in the top-bases namespace, as they're not meant for the user
     (add-to-list 'magit-refs-namespaces magit-topgit-ignored-namespace))
    (t
-    (remove-hook 'magit-after-insert-stashes-hook 'magit-insert-topgit-topics t)
+    (remove-hook 'magit-status-sections-hook 'magit-insert-topgit-topics t)
     (remove-hook 'magit-create-branch-command-hook 'magit-topgit-create-branch t)
     (remove-hook 'magit-pull-command-hook 'magit-topgit-pull t)
     (remove-hook 'magit-remote-update-command-hook 'magit-topgit-remote-update t)
