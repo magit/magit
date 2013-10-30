@@ -1939,7 +1939,14 @@ REFS is provided (even if nil), filter that instead."
     rev))
 
 (defun magit-read-rev-with-default (prompt)
-  (magit-read-rev prompt (magit-default-rev)))
+  (magit-read-rev prompt
+                  (or (magit-name-rev (magit-commit-at-point))
+                      (let ((branch (or (magit-guess-branch)
+                                        (magit-get-previous-branch))))
+                        (when branch
+                          (if (string-match "^refs/\\(.*\\)" branch)
+                              (match-string 1 branch)
+                            branch))))))
 
 (defun magit-read-rev-range (op &optional def-beg def-end)
   (let ((beg (magit-read-rev (format "%s range or start" op) def-beg)))
@@ -1949,15 +1956,6 @@ REFS is provided (even if nil), filter that instead."
         (cons beg (magit-read-rev (format "%s end" op) def-end nil t))))))
 
 ;;;; (default and at-point stuff)
-
-(defun magit-default-rev ()
-  (or (magit-name-rev (magit-commit-at-point))
-      (let ((branch (or (magit-guess-branch)
-                        (magit-get-previous-branch))))
-        (when branch
-          (if (string-match "^refs/\\(.*\\)" branch)
-              (match-string 1 branch)
-            branch)))))
 
 (defun magit-commit-at-point ()
   (magit-section-case (item info)
