@@ -4648,20 +4648,17 @@ non-nil, then autocompletion will offer directory names."
 ;;; Acting (1)
 ;;;; Merging
 
-(defun magit-merge-check-clean ()
-  (or (not magit-merge-warn-dirty-worktree)
-      (magit-everything-clean-p)
-      (yes-or-no-p "Running merge in a dirty worktree could cause data loss.  Continue?")))
-
 ;;;###autoload
 (defun magit-merge (revision &optional do-commit)
   "Merge REVISION into the current 'HEAD', leaving changes uncommitted.
 With a prefix argument, skip editing the log message and commit.
 \('git merge [--no-commit] REVISION')."
-  (interactive (list (when (magit-merge-check-clean)
-                       (magit-read-rev "Merge" (magit-guess-branch)))
+  (interactive (list (magit-read-rev "Merge" (magit-guess-branch))
                      current-prefix-arg))
-  (when revision
+  (when (or (magit-everything-clean-p)
+            (not magit-merge-warn-dirty-worktree)
+            (yes-or-no-p
+             "Running merge in a dirty worktree could cause data loss.  Continue?"))
     (apply 'magit-run-git "merge" revision
            (if do-commit
                magit-custom-options
