@@ -1838,9 +1838,7 @@ REFS is provided (even if nil), filter that instead."
                         (cl-loop for i in uninteresting
                                  thereis (string-match i ref)))
                       (not (setq label (magit-format-ref ref))))
-           collect (cons label
-                         (replace-regexp-in-string
-                          "^refs/heads/" "" ref))))
+           collect (cons label ref)))
 
 (defun magit-format-ref (ref)
   "Convert fully-specified ref REF into its displayable form
@@ -1884,8 +1882,13 @@ according to `magit-remote-ref-format'"
   "The history of inputs to `magit-read-rev' and `magit-read-tag'.")
 
 (defun magit-read-rev (prompt &optional default uninteresting noselection)
-  (let* ((interesting-refs (magit-list-interesting-refs
-                            (or uninteresting magit-uninteresting-refs)))
+  (let* ((interesting-refs
+          (mapcar (lambda (elt)
+                    (setcdr elt (replace-regexp-in-string
+                                 "^refs/heads/" "" (cdr elt)))
+                    elt)
+                  (magit-list-interesting-refs
+                   (or uninteresting magit-uninteresting-refs))))
          (reply (magit-completing-read (concat prompt ": ")
                                        interesting-refs nil nil nil
                                        'magit-read-rev-history default))
