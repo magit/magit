@@ -4901,13 +4901,12 @@ Fails if working tree or staging area contain uncommitted changes.
          (magit-read-rev "Parent"
                          (or (magit-name-rev (magit-commit-at-point))
                              (magit-get-current-branch)))))
-  (when (and branch (not (string= branch ""))
-             parent)
-    (magit-save-some-buffers)
-    (apply #'magit-run-git
-           "checkout" "-b"
-           branch
-           (append magit-custom-options (list parent)))))
+  (cond ((run-hook-with-args-until-success
+          'magit-create-branch-hook branch parent))
+        ((and parent branch (not (string= branch "")))
+         (magit-save-some-buffers)
+         (apply #'magit-run-git "checkout" "-b" branch
+                (append magit-custom-options (list parent))))))
 
 ;;;###autoload
 (defun magit-delete-branch (branch &optional force)

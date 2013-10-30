@@ -169,7 +169,7 @@
     (magit-add-section-hook 'magit-status-sections-hook
                             'magit-insert-topgit-topics
                             'magit-insert-stashes t t)
-    (add-hook 'magit-create-branch-command-hook 'magit-topgit-create-branch nil t)
+    (add-hook 'magit-create-branch-hook 'magit-topgit-create-branch nil t)
     (add-hook 'magit-pull-command-hook 'magit-topgit-pull nil t)
     (add-hook 'magit-remote-update-command-hook 'magit-topgit-remote-update nil t)
     (add-hook 'magit-push-command-hook 'magit-topgit-push nil t)
@@ -179,7 +179,7 @@
     (add-to-list 'magit-refs-namespaces magit-topgit-ignored-namespace))
    (t
     (remove-hook 'magit-status-sections-hook 'magit-insert-topgit-topics t)
-    (remove-hook 'magit-create-branch-command-hook 'magit-topgit-create-branch t)
+    (remove-hook 'magit-create-branch-hook 'magit-topgit-create-branch t)
     (remove-hook 'magit-pull-command-hook 'magit-topgit-pull t)
     (remove-hook 'magit-remote-update-command-hook 'magit-topgit-remote-update t)
     (remove-hook 'magit-push-command-hook 'magit-topgit-push t)
