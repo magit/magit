@@ -1960,17 +1960,18 @@ REFS is provided (even if nil), filter that instead."
                          (or default (magit-guess-remote))))
 
 (defun magit-read-remote-branch (prompt remote &optional default)
-  (let* ((branches (cl-mapcan
-                    (lambda (b)
-                      (and (not (string-match " -> " b))
-                           (string-match (format "^ *%s/\\(.*\\)$"
-                                                 (regexp-quote remote)) b)
-                           (list (match-string 1 b))))
-                    (magit-git-lines "branch" "-r")))
-         (reply (magit-completing-read (concat prompt ": ") branches
-                                       nil nil nil nil default)))
-    (unless (string= reply "")
-      reply)))
+  (let ((branch (magit-completing-read
+                 (concat prompt ": ")
+                 (cl-mapcan
+                  (lambda (b)
+                    (and (not (string-match " -> " b))
+                         (string-match (format "^ *%s/\\(.*\\)$"
+                                               (regexp-quote remote)) b)
+                         (list (match-string 1 b))))
+                  (magit-git-lines "branch" "-r"))
+                 nil nil nil nil default)))
+    (unless (string= branch "")
+      branch)))
 
 ;;;; Reference Labels
 
