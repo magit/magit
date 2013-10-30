@@ -1857,7 +1857,9 @@ according to `magit-remote-ref-format'"
            (substring ref 13)))))
 
 (defvar magit-uninteresting-refs
-  '("refs/remotes/\\([^/]+\\)/HEAD$" "refs/stash"))
+  '("^refs/stash$"
+    "^refs/remotes/[^/]+/HEAD$"
+    ))
 
 (defvar magit-read-file-hist nil)
 
