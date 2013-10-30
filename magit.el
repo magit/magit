@@ -1968,53 +1968,24 @@ an existing remote."
 
 ;;;; Reference Labels
 
-;; TODO lose the "log" substring and use this
-;; where ever it could and should be used.
-
 (defvar magit-refs-namespaces
-  '(("HEAD" . magit-log-head-label-head)
-    ("tags" . magit-log-head-label-tags)
-    ("remotes" . magit-log-head-label-remote)
-    ("heads" . magit-log-head-label-local)
-    ("patches" magit-log-get-patches-color)
-    ("bisect" magit-log-get-bisect-state-color)))
+  '(("^\\(HEAD\\)$"              magit-log-head-label-head nil)
+    ("^refs/tags/\\(.+\\)"       magit-log-head-label-tags nil)
+    ("^refs/remotes/\\(.+\\)"    magit-log-head-label-remote nil)
+    ("^refs/heads/\\(.+\\)"      magit-log-head-label-local nil)
+    ("^refs/\\(patches/.+\\)"    magit-log-head-label-patches nil)
+    ("^refs/bisect/\\(bad\\)"    magit-log-head-label-bisect-bad nil)
+    ("^refs/bisect/\\(good.*\\)" magit-log-head-label-bisect-good nil)
+    ("\\(.+\\)"                  magit-log-head-label-default nil)))
 
 (defun magit-format-ref-label (ref)
-  (cl-destructuring-bind (label face)
-      (magit-ref-get-label-color ref)
-    (when label
-      (list (propertize label 'face face)))))
-
-(defun magit-ref-get-label-color (r)
-  (if (cl-loop for re in magit-uninteresting-refs
-               thereis (string-match re r))
-      (list nil nil)
-    (let* ((ref-re "\\(?:refs/\\([^/]+\\)/\\)?\\(.+\\)")
-           (match-style (when (string-match ref-re r)
-                          (string= r (match-string 2 r))))
-           (label (match-string 2 r))
-           (colorizer (cdr (assoc (if match-style
-                                      label
-                                    (match-string 1 r))
-                                  magit-refs-namespaces))))
-      (cond ((null colorizer)
-             (list label 'magit-log-head-label-default))
-            ((symbolp colorizer)
-             (list label colorizer))
-            ((listp colorizer)
-             (funcall (car colorizer) label))))))
-
-(defun magit-log-get-patches-color (suffix)
-  (list (and (string-match ".+/\\(.+\\)" suffix)
-             (match-string 1 suffix))
-        'magit-log-head-label-patches))
-
-(defun magit-log-get-bisect-state-color (suffix)
-  (list suffix
-        (if (string= suffix "bad")
-            'magit-log-head-label-bisect-bad
-          'magit-log-head-label-bisect-good)))
-
+  (cl-destructuring-bind (re face fn)
+      (cl-find-if (lambda (ns)
+                    (string-match (car ns) ref))
+                  magit-refs-namespaces)
+    (if fn
+        (funcall fn ref face)
+      (propertize (or (match-string 1 ref) ref) 'face face))))
 
 ;;; Sections
 ;;;; Section Struct
@@ -3898,11 +3869,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
       (insert (propertize (if refs hash (magit-rev-parse hash))
                           'face 'magit-log-sha1) " "))
     (when refs
-      (insert (mapconcat 'identity
-                         (mapcar (lambda (ref)
-                                   (car (magit-format-ref-label ref)))
-                                 refs)
-                         " ") " "))
+      (insert (mapconcat 'magit-format-ref-label refs " ") " "))
     (when refsub
       (insert (magit-log-format-reflog refsub)))
     (when msg
