@@ -576,8 +576,8 @@ Function `magit-display-mode-buffer' is used to display and
 select Magit buffers.  Unless the buffer was already displayed in
 a window of the selected frame it also stores the previous window
 configuration.  If this option is non-nil that configuration will
-later be restored by `magit-quit-window', provided the buffer has
-not since been displayed in another frame.
+later be restored by `magit-mode-quit-window', provided the
+buffer has not since been displayed in another frame.
 
 This works best when only two windows are usually displayed in a
 frame.  If this isn't the case setting this to t might often lead
@@ -1218,7 +1218,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "e") 'magit-ediff)
     (define-key map (kbd "w") 'magit-wazzup)
     (define-key map (kbd "y") 'magit-cherry)
-    (define-key map (kbd "q") 'magit-quit-window)
+    (define-key map (kbd "q") 'magit-mode-quit-window)
     (define-key map (kbd "x") 'magit-reset-head)
     (define-key map (kbd "v") 'magit-revert-item)
     (define-key map (kbd "a") 'magit-apply-item)
@@ -1383,7 +1383,7 @@ Many Magit faces inherit from this one by default."
     ("Extensions")
     "---"
     ["Display Git output" magit-display-process t]
-    ["Quit Magit" magit-quit-window t]))
+    ["Quit Magit" magit-mode-quit-window t]))
 
 ;;; Various Utilities (1)
 ;;;; Minibuffer Input
@@ -3123,7 +3123,7 @@ BUFFER may be a buffer or a string, the name of a buffer.
 
 Unless BUFFER is already displayed in the selected frame store the
 previous window configuration as a buffer local value, so that it
-can later be restored by `magit-quit-window'.
+can later be restored by `magit-mode-quit-window'.
 
 Then display and select BUFFER using SWITCH-FUNCTION.  If that is
 nil either use `pop-to-buffer' if the current buffer's major mode
@@ -3154,7 +3154,7 @@ Magit mode."
 (defun magit-find-status-buffer (&optional dir)
   (magit-find-buffer 'magit-status-mode dir))
 
-(defun magit-quit-window (&optional kill-buffer)
+(defun magit-mode-quit-window (&optional kill-buffer)
   "Bury the current buffer and delete its window.
 With a prefix argument, kill the buffer instead.
 
