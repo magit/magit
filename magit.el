@@ -3151,9 +3151,6 @@ Magit mode."
                                 topdir))))
                 (buffer-list))))
 
-(defun magit-find-status-buffer (&optional dir)
-  (magit-find-buffer 'magit-status-mode dir))
-
 (defun magit-mode-quit-window (&optional kill-buffer)
   "Bury the current buffer and delete its window.
 With a prefix argument, kill the buffer instead.
@@ -3267,7 +3264,7 @@ before the last command."
       (funcall func)
     (let ((magit-refresh-pending t)
           (magit-refresh-needing-buffers nil)
-          (status-buffer (magit-find-status-buffer default-directory)))
+          (status-buffer (magit-find-buffer 'magit-status-mode)))
       (unwind-protect
           (funcall func)
         ;; Refresh magit buffers.
@@ -4297,7 +4294,7 @@ when asking for user input."
         (setq topdir (magit-get-top-dir dir))))
     (when topdir
       (magit-save-some-buffers topdir)
-      (let ((buf (or (magit-find-status-buffer topdir)
+      (let ((buf (or (magit-find-buffer 'magit-status-mode topdir)
                      (generate-new-buffer
                       (concat "*magit: "
                               (file-name-nondirectory
@@ -6685,7 +6682,7 @@ from the parent keymap `magit-mode-map' are also available.")
     (magit-set (cdr track-) "branch" branch "merge")
     (magit-branch-manager)
     (when (string= (magit-get-current-branch) branch)
-      (magit-mode-refresh-buffer (magit-find-status-buffer default-directory)))))
+      (magit-mode-refresh-buffer (magit-find-buffer 'magit-status-mode)))))
 
 ;;; Miscellaneous
 ;;;; Miscellaneous Commands
