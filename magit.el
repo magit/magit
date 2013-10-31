@@ -3065,12 +3065,6 @@ buffer of the most recent process, like in the interactive case."
 ;;; Magit Mode
 ;;;; Hooks
 
-(defvar-local magit-refresh-function nil)
-(put 'magit-refresh-function 'permanent-local t)
-
-(defvar-local magit-refresh-args nil)
-(put 'magit-refresh-args 'permanent-local t)
-
 (defvar-local magit-last-point nil)
 (put 'magit-last-point 'permanent-local t)
 
@@ -3124,6 +3118,12 @@ Please see the manual for a complete description of Magit.
   (when (and magit-highlight-whitespace
              magit-highlight-trailing-whitespace)
     (setq show-trailing-whitespace nil)))
+
+(defvar-local magit-refresh-function nil)
+(put 'magit-refresh-function 'permanent-local t)
+
+(defvar-local magit-refresh-args nil)
+(put 'magit-refresh-args 'permanent-local t)
 
 (defmacro magit-mode-setup (buffer mode refresh-func &rest refresh-args)
   "Display and select BUFFER, turn on MODE, and refresh a first time.
