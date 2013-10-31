@@ -156,7 +156,7 @@ Also set the local value in all Magit buffers and refresh them.
         (with-current-buffer buffer
           (with-no-warnings
             (setq-local magit-diff-options value))
-          (magit-refresh-buffer))))))
+          (magit-mode-refresh-buffer))))))
 
 ;;;; Variables
 
@@ -2959,7 +2959,7 @@ and CLAUSES.
       (when (and (buffer-live-p command-buf)
                  (with-current-buffer command-buf
                    (derived-mode-p 'magit-mode)))
-        (magit-refresh-buffer command-buf)))))
+        (magit-mode-refresh-buffer command-buf)))))
 
 (defun magit-process-filter (proc string)
   (with-current-buffer (process-buffer proc)
@@ -3112,7 +3112,7 @@ Also see `magit-mode-setup', a more convenient variant."
         magit-refresh-function refresh-func
         magit-refresh-args refresh-args)
   (funcall mode)
-  (magit-refresh-buffer))
+  (magit-mode-refresh-buffer))
 
 (defvar-local magit-previous-window-configuration nil)
 (put 'magit-previous-window-configuration 'permanent-local t)
@@ -3173,7 +3173,7 @@ the buffer.  Finally reset the window configuration to nil."
           (with-current-buffer buffer
             (setq magit-previous-window-configuration nil)))))))
 
-(cl-defun magit-refresh-buffer (&optional (buffer (current-buffer)))
+(cl-defun magit-mode-refresh-buffer (&optional (buffer (current-buffer)))
   (with-current-buffer buffer
     (let* ((old-line (line-number-at-pos))
            (old-point (point))
@@ -3273,7 +3273,7 @@ before the last command."
           (when status-buffer
             (cl-pushnew status-buffer magit-refresh-needing-buffers))
           (when magit-refresh-needing-buffers
-            (mapc 'magit-refresh-buffer magit-refresh-needing-buffers)))
+            (mapc 'magit-mode-refresh-buffer magit-refresh-needing-buffers)))
         ;; Refresh file visiting buffers.
         (dolist (buffer (buffer-list))
           (when (and (buffer-file-name buffer)
@@ -3304,7 +3304,7 @@ in the corresponding directory."
 Also revert every unmodified buffer visiting files
 in the corresponding directories."
   (interactive)
-  (magit-map-magit-buffers #'magit-refresh-buffer default-directory))
+  (magit-map-magit-buffers #'magit-mode-refresh-buffer default-directory))
 
 (defun magit-revert-buffer ()
   "Replace current buffer text with the text of the visited file on disk.
@@ -6244,7 +6244,7 @@ With a prefix argument edit the ignore string."
                 (not (file-symlink-p info)))
            (delete-directory info 'recursive)
          (delete-file info))
-       (magit-refresh-buffer)))
+       (magit-mode-refresh-buffer)))
     ((untracked)
      (when (yes-or-no-p "Delete all untracked files and directories? ")
        (magit-run-git "clean" "-df")))
@@ -6683,7 +6683,7 @@ from the parent keymap `magit-mode-map' are also available.")
     (magit-set (cdr track-) "branch" branch "merge")
     (magit-branch-manager)
     (when (string= (magit-get-current-branch) branch)
-      (magit-refresh-buffer (magit-find-status-buffer default-directory)))))
+      (magit-mode-refresh-buffer (magit-find-status-buffer default-directory)))))
 
 ;;; Miscellaneous
 ;;;; Miscellaneous Commands
