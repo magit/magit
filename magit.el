@@ -55,6 +55,8 @@
 
 ;;; Code:
 
+(declare-function git-commit-auto-mode-enable "git-commit-mode" ())
+
 (defvar magit-version 'undefined
   "The version of Magit that you're using.
 Use the function by the same name instead of this variable.")
