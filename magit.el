@@ -3119,8 +3119,7 @@ Also see `magit-mode-setup', a more convenient variant."
 
 (defun magit-display-mode-buffer (buffer &optional switch-function)
   "Display BUFFER in some window and select it.
-This is intended for buffers whose major mode derive from Magit
-mode.
+BUFFER may be a buffer or a string, the name of a buffer.
 
 Unless BUFFER is already displayed in the selected frame store the
 previous window configuration as a buffer local value, so that it
@@ -3128,7 +3127,10 @@ can later be restored by `magit-quit-window'.
 
 Then display and select BUFFER using SWITCH-FUNCTION.  If that is
 nil either use `pop-to-buffer' if the current buffer's major mode
-derives from Magit mode; or else use `switch-to-buffer'."
+derives from Magit mode; or else use `switch-to-buffer'.
+
+This is only intended for buffers whose major modes derive from
+Magit mode."
   (unless (get-buffer-window buffer (selected-frame))
     (with-current-buffer (get-buffer-create buffer)
       (setq magit-previous-window-configuration
