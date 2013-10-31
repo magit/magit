@@ -64,7 +64,12 @@ Use the function by the same name instead of this variable.")
 (when (version< emacs-version "23.2")
   (error "Magit requires at least GNU Emacs 23.2"))
 
-(require 'git-commit-mode)
+;; Users may choose to use `magit-log-edit' instead of the preferred
+;; `git-commit-mode', by simply putting it on the `load-path'.  If
+;; it can be found there then it is loaded at the end of this file.
+(unless (locate-library "magit-log-edit")
+  (require 'git-commit-mode))
+
 (require 'git-rebase-mode)
 
 (require 'ansi-color)
@@ -99,6 +104,7 @@ Use the function by the same name instead of this variable.")
 (declare-function package-version-join 'package)
 (declare-function view-mode 'view)
 
+(defvar git-commit-previous-winconf)
 (defvar magit-commit-buffer-name)
 (defvar magit-custom-options)
 (defvar magit-log-buffer-name)
@@ -165,8 +171,9 @@ Also set the local value in all Magit buffers and refresh them.
   :prefix "magit-"
   :group 'tools)
 
-(custom-add-to-group 'magit 'git-commit 'custom-group)
-(custom-add-to-group 'magit 'git-rebase 'custom-group)
+(when (featurep 'git-commit-mode)
+  (custom-add-to-group 'magit 'git-commit 'custom-group)
+  (custom-add-to-group 'magit 'git-rebase 'custom-group))
 (custom-add-to-group 'magit 'vc-follow-symlinks 'custom-variable)
 
 (defcustom magit-git-executable "git"
@@ -807,8 +814,9 @@ set before loading libary `magit'.")
   :group 'magit)
 
 (custom-add-to-group 'magit-faces 'magit-item-highlight-face 'custom-variable)
-(custom-add-to-group 'magit-faces 'git-commit-faces 'custom-group)
-(custom-add-to-group 'magit-faces 'git-rebase-faces 'custom-group)
+(when (featurep 'git-commit-mode)
+  (custom-add-to-group 'magit-faces 'git-commit-faces 'custom-group)
+  (custom-add-to-group 'magit-faces 'git-rebase-faces 'custom-group))
 
 (defface magit-header
   '((t :inherit header-line))
@@ -1146,7 +1154,8 @@ Many Magit faces inherit from this one by default."
 
 ;;; Keymaps
 
-(define-key git-commit-mode-map (kbd "C-c C-d") 'magit-diff-staged)
+(when (boundp 'git-commit-mode-map)
+  (define-key git-commit-mode-map (kbd "C-c C-d") 'magit-diff-staged))
 
 (defvar magit-mode-map
   (let ((map (make-keymap)))
@@ -6969,9 +6978,10 @@ init file:
 (require 'magit-key-mode)
 (require 'magit-bisect)
 
-;; If `magit-log-edit' is available we have no choice but to assume
-;; the user wants to use it.  Otherwise we enable the new commit mode.
-(or (require 'magit-log-edit nil t)
-    (git-commit-auto-mode-enable))
+;; If `magit-log-edit' is available and `git-commit-mode' is not
+;; loaded, then we have no choice but to assume the user actually
+;; wants to use the former.
+(unless (featurep 'git-commit-mode)
+  (require 'magit-log-edit nil t))
 
 ;;; magit.el ends here
