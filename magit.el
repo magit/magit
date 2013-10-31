@@ -572,7 +572,7 @@ The function is given one argument, the status buffer."
 (defcustom magit-restore-window-configuration nil
   "Whether quitting a Magit buffer restores previous window configuration.
 
-Function `magit-display-mode-buffer' is used to display and
+Function `magit-mode-display-buffer' is used to display and
 select Magit buffers.  Unless the buffer was already displayed in
 a window of the selected frame it also stores the previous window
 configuration.  If this option is non-nil that configuration will
@@ -3089,7 +3089,7 @@ Please see the manual for a complete description of Magit.
 
 (defmacro magit-mode-setup (buffer mode refresh-func &rest refresh-args)
   "Display and select BUFFER, turn on MODE, and refresh a first time.
-Display BUFFER using `magit-display-mode-buffer', then turn on
+Display BUFFER using `magit-mode-display-buffer', then turn on
 MODE in BUFFER, set the local value of `magit-refresh-function'
 to REFRESH-FUNC and that of `magit-refresh-args' to REFRESH-ARGS
 and finally \"refresh\" a first time.  All arguments are
@@ -3098,7 +3098,7 @@ evaluated before switching to BUFFER."
     `(let ((,init-args (list (magit-get-top-dir default-directory)
                              ,mode ,refresh-func
                              ,@refresh-args)))
-       (magit-display-mode-buffer ,buffer)
+       (magit-mode-display-buffer ,buffer)
        (apply #'magit-mode-init ,init-args))))
 
 (defun magit-mode-init (dir mode refresh-func &rest refresh-args)
@@ -3117,7 +3117,7 @@ Also see `magit-mode-setup', a more convenient variant."
 (defvar-local magit-previous-window-configuration nil)
 (put 'magit-previous-window-configuration 'permanent-local t)
 
-(defun magit-display-mode-buffer (buffer &optional switch-function)
+(defun magit-mode-display-buffer (buffer &optional switch-function)
   "Display BUFFER in some window and select it.
 BUFFER may be a buffer or a string, the name of a buffer.
 
@@ -3159,7 +3159,7 @@ Magit mode."
 With a prefix argument, kill the buffer instead.
 
 If `magit-restore-window-configuration' is non-nil and the last
-configuration stored by `magit-display-mode-buffer' originates
+configuration stored by `magit-mode-display-buffer' originates
 from the selected frame then restore it after burrying/killing
 the buffer.  Finally reset the window configuration to nil."
   (interactive "P")
@@ -4302,7 +4302,7 @@ when asking for user input."
                       (concat "*magit: "
                               (file-name-nondirectory
                                (directory-file-name topdir)) "*")))))
-        (magit-display-mode-buffer buf magit-status-buffer-switch-function)
+        (magit-mode-display-buffer buf magit-status-buffer-switch-function)
         (magit-mode-init topdir 'magit-status-mode #'magit-refresh-status)))))
 
 (defun magit-refresh-status ()
