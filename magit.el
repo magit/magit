@@ -6086,8 +6086,7 @@ With a prefix argument show the log graph."
                                      (or (magit-guess-branch) "HEAD"))))
   (magit-mode-setup magit-reflog-buffer-name
                     #'magit-reflog-mode
-                    #'magit-refresh-reflog-buffer
-                    ref))
+                    #'magit-refresh-reflog-buffer ref))
 
 ;;;###autoload
 (defun magit-reflog-head ()
@@ -6191,8 +6190,7 @@ Other key binding:
                                 (magit-get-tracked-branch head nil t)))))
   (magit-mode-setup magit-cherry-buffer-name
                     #'magit-cherry-mode
-                    #'magit-refresh-cherry-buffer
-                    upstream head))
+                    #'magit-refresh-cherry-buffer upstream head))
 
 (defun magit-refresh-cherry-buffer (upstream head)
   (magit-create-buffer-sections
@@ -6519,8 +6517,7 @@ More information can be found in Info node `(magit)Wazzup'
              branch))))
   (magit-mode-setup magit-wazzup-buffer-name
                     #'magit-wazzup-mode
-                    #'magit-refresh-wazzup-buffer
-                    branch))
+                    #'magit-refresh-wazzup-buffer branch))
 
 (defun magit-refresh-wazzup-buffer (head)
   (magit-create-buffer-sections
