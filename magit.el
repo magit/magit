@@ -3063,7 +3063,8 @@ buffer of the most recent process, like in the interactive case."
                          process))))
 
 ;;; Magit Mode
-;;;; Hooks
+;;__ FIXME The parens indicate preliminary subsections.
+;;;; (section kludges)
 
 (defvar-local magit-last-point nil)
 (put 'magit-last-point 'permanent-local t)
