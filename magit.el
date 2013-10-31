@@ -4858,7 +4858,7 @@ Works with local or remote branches.
   (if (string-match "^\\(?:refs/\\)?remotes/\\([^/]+\\)/\\(.+\\)" branch)
       (magit-run-git-async "push"
                            (match-string 1 branch)
-                           (match-string 2 branch))
+                           (concat ":" (match-string 2 branch)))
     (let* ((current (magit-get-current-branch))
            (is-current (string= branch current))
            (is-master (string= branch "master"))
