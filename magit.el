@@ -6590,8 +6590,8 @@ from the parent keymap `magit-mode-map' are also available.")
                               (make-string magit-sha1-abbrev-length ? ))
                           'face 'magit-log-sha1)
               " " marker
-              (propertize (if (string-match-p "^remote/" branch)
-                              (substring branch 7)
+              (propertize (if (string-match-p "^remotes/" branch)
+                              (substring branch 8)
                             branch)
                           'face branch-face))
        (when other-ref
