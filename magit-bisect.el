@@ -46,13 +46,13 @@ match REQUIRED-STATUS."
                required-status))))
 
 (defun magit--bisect-info ()
-  (with-current-buffer (magit-find-status-buffer)
+  (with-current-buffer (magit-find-buffer 'magit-status-mode)
     (or (and (local-variable-p 'magit--bisect-info) magit--bisect-info)
         (list :status (if (magit--bisecting-p) 'running 'not-running)))))
 
 (defun magit--bisect-cmd (&rest args)
   "Run `git bisect ...' and update the status buffer."
-  (with-current-buffer (magit-find-status-buffer)
+  (with-current-buffer (magit-find-buffer 'magit-status-mode)
     (let* ((output (apply 'magit-git-lines (append '("bisect") args)))
            (cmd (car args))
            (first-line (car output)))
@@ -208,7 +208,7 @@ match REQUIRED-STATUS."
         (goto-char (point-max))
         (setq magit--bisect-last-pos (point))
         (when new-info
-          (with-current-buffer (magit-find-status-buffer)
+          (with-current-buffer (magit-find-buffer 'magit-status-mode)
             (setq magit--bisect-info new-info)
             (save-excursion
               (let ((inhibit-read-only t))
