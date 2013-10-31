@@ -3151,27 +3151,6 @@ Magit mode."
                                 topdir))))
                 (buffer-list))))
 
-(defun magit-mode-quit-window (&optional kill-buffer)
-  "Bury the current buffer and delete its window.
-With a prefix argument, kill the buffer instead.
-
-If `magit-restore-window-configuration' is non-nil and the last
-configuration stored by `magit-mode-display-buffer' originates
-from the selected frame then restore it after burrying/killing
-the buffer.  Finally reset the window configuration to nil."
-  (interactive "P")
-  (let ((winconf magit-previous-window-configuration)
-        (buffer (current-buffer))
-        (frame (selected-frame)))
-    (quit-window kill-buffer (selected-window))
-    (when winconf
-      (when (and magit-restore-window-configuration
-                 (equal frame (window-configuration-frame winconf)))
-        (set-window-configuration winconf)
-        (when (buffer-live-p buffer)
-          (with-current-buffer buffer
-            (setq magit-previous-window-configuration nil)))))))
-
 (cl-defun magit-mode-refresh-buffer (&optional (buffer (current-buffer)))
   (with-current-buffer buffer
     (let* ((old-line (line-number-at-pos))
@@ -3207,6 +3186,27 @@ the buffer.  Finally reset the window configuration to nil."
         (set-window-start w old-window-start t))
       (magit-highlight-section)
       (magit-refresh-marked-commits-in-buffer))))
+
+(defun magit-mode-quit-window (&optional kill-buffer)
+  "Bury the current buffer and delete its window.
+With a prefix argument, kill the buffer instead.
+
+If `magit-restore-window-configuration' is non-nil and the last
+configuration stored by `magit-mode-display-buffer' originates
+from the selected frame then restore it after burrying/killing
+the buffer.  Finally reset the window configuration to nil."
+  (interactive "P")
+  (let ((winconf magit-previous-window-configuration)
+        (buffer (current-buffer))
+        (frame (selected-frame)))
+    (quit-window kill-buffer (selected-window))
+    (when winconf
+      (when (and magit-restore-window-configuration
+                 (equal frame (window-configuration-frame winconf)))
+        (set-window-configuration winconf)
+        (when (buffer-live-p buffer)
+          (with-current-buffer buffer
+            (setq magit-previous-window-configuration nil)))))))
 
 ;;;; Mode Utilities
 
