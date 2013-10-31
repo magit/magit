@@ -3064,7 +3064,7 @@ buffer of the most recent process, like in the interactive case."
 
 ;;; Magit Mode
 ;;__ FIXME The parens indicate preliminary subsections.
-;;;; Initialize Mode
+;;;; Mode Foundation
 
 (define-derived-mode magit-mode special-mode "Magit"
   "Parent major mode from which Magit major modes inherit.
@@ -3116,8 +3116,6 @@ Also see `magit-mode-setup', a more convenient variant."
         magit-refresh-args refresh-args)
   (funcall mode)
   (magit-refresh-buffer))
-
-;;;; Display Buffer
 
 (defvar-local magit-previous-window-configuration nil)
 (put 'magit-previous-window-configuration 'permanent-local t)
@@ -3177,8 +3175,6 @@ the buffer.  Finally reset the window configuration to nil."
         (when (buffer-live-p buffer)
           (with-current-buffer buffer
             (setq magit-previous-window-configuration nil)))))))
-
-;;;; Refresh Buffer
 
 (cl-defun magit-refresh-buffer (&optional (buffer (current-buffer)))
   (with-current-buffer buffer
