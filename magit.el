@@ -156,7 +156,7 @@ Also set the local value in all Magit buffers and refresh them.
         (with-current-buffer buffer
           (with-no-warnings
             (setq-local magit-diff-options value))
-          (magit-refresh-buffer))))))
+          (magit-mode-refresh-buffer))))))
 
 ;;;; Variables
 
@@ -572,12 +572,12 @@ The function is given one argument, the status buffer."
 (defcustom magit-restore-window-configuration nil
   "Whether quitting a Magit buffer restores previous window configuration.
 
-Function `magit-display-mode-buffer' is used to display and
+Function `magit-mode-display-buffer' is used to display and
 select Magit buffers.  Unless the buffer was already displayed in
 a window of the selected frame it also stores the previous window
 configuration.  If this option is non-nil that configuration will
-later be restored by `magit-quit-window', provided the buffer has
-not since been displayed in another frame.
+later be restored by `magit-mode-quit-window', provided the
+buffer has not since been displayed in another frame.
 
 This works best when only two windows are usually displayed in a
 frame.  If this isn't the case setting this to t might often lead
@@ -1218,7 +1218,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "e") 'magit-ediff)
     (define-key map (kbd "w") 'magit-wazzup)
     (define-key map (kbd "y") 'magit-cherry)
-    (define-key map (kbd "q") 'magit-quit-window)
+    (define-key map (kbd "q") 'magit-mode-quit-window)
     (define-key map (kbd "x") 'magit-reset-head)
     (define-key map (kbd "v") 'magit-revert-item)
     (define-key map (kbd "a") 'magit-apply-item)
@@ -1383,7 +1383,7 @@ Many Magit faces inherit from this one by default."
     ("Extensions")
     "---"
     ["Display Git output" magit-display-process t]
-    ["Quit Magit" magit-quit-window t]))
+    ["Quit Magit" magit-mode-quit-window t]))
 
 ;;; Various Utilities (1)
 ;;;; Minibuffer Input
@@ -2959,7 +2959,7 @@ and CLAUSES.
       (when (and (buffer-live-p command-buf)
                  (with-current-buffer command-buf
                    (derived-mode-p 'magit-mode)))
-        (magit-refresh-buffer command-buf)))))
+        (magit-mode-refresh-buffer command-buf)))))
 
 (defun magit-process-filter (proc string)
   (with-current-buffer (process-buffer proc)
@@ -3063,49 +3063,8 @@ buffer of the most recent process, like in the interactive case."
                          process))))
 
 ;;; Magit Mode
-;;;; Hooks
-
-(defvar-local magit-refresh-function nil)
-(put 'magit-refresh-function 'permanent-local t)
-
-(defvar-local magit-refresh-args nil)
-(put 'magit-refresh-args 'permanent-local t)
-
-(defvar-local magit-last-point nil)
-(put 'magit-last-point 'permanent-local t)
-
-(defun magit-remember-point ()
-  (setq magit-last-point (point)))
-
-(defun magit-invisible-region-end (pos)
-  (while (and (not (= pos (point-max))) (invisible-p pos))
-    (setq pos (next-char-property-change pos)))
-  pos)
-
-(defun magit-invisible-region-start (pos)
-  (while (and (not (= pos (point-min))) (invisible-p pos))
-    (setq pos (1- (previous-char-property-change pos))))
-  pos)
-
-(defun magit-correct-point-after-command ()
-  "Move point outside of invisible regions.
-
-Emacs often leaves point in invisible regions, it seems.  To fix
-this, we move point ourselves and never let Emacs do its own
-adjustments.
-
-When point has to be moved out of an invisible region, it can be
-moved to its end or its beginning.  We usually move it to its
-end, except when that would move point back to where it was
-before the last command."
-  (when (invisible-p (point))
-    (let ((end (magit-invisible-region-end (point))))
-      (goto-char (if (= end magit-last-point)
-                     (magit-invisible-region-start (point))
-                   end))))
-  (setq disable-point-adjustment t))
-
-;;;; Initialize Mode
+;;__ FIXME The parens indicate preliminary subsections.
+;;;; Mode Foundation
 
 (define-derived-mode magit-mode special-mode "Magit"
   "Parent major mode from which Magit major modes inherit.
@@ -3125,9 +3084,12 @@ Please see the manual for a complete description of Magit.
              magit-highlight-trailing-whitespace)
     (setq show-trailing-whitespace nil)))
 
+(defvar-local magit-refresh-function nil)
+(defvar-local magit-refresh-args nil)
+
 (defmacro magit-mode-setup (buffer mode refresh-func &rest refresh-args)
   "Display and select BUFFER, turn on MODE, and refresh a first time.
-Display BUFFER using `magit-display-mode-buffer', then turn on
+Display BUFFER using `magit-mode-display-buffer', then turn on
 MODE in BUFFER, set the local value of `magit-refresh-function'
 to REFRESH-FUNC and that of `magit-refresh-args' to REFRESH-ARGS
 and finally \"refresh\" a first time.  All arguments are
@@ -3136,7 +3098,7 @@ evaluated before switching to BUFFER."
     `(let ((,init-args (list (magit-get-top-dir default-directory)
                              ,mode ,refresh-func
                              ,@refresh-args)))
-       (magit-display-mode-buffer ,buffer)
+       (magit-mode-display-buffer ,buffer)
        (apply #'magit-mode-init ,init-args))))
 
 (defun magit-mode-init (dir mode refresh-func &rest refresh-args)
@@ -3150,9 +3112,34 @@ Also see `magit-mode-setup', a more convenient variant."
         magit-refresh-function refresh-func
         magit-refresh-args refresh-args)
   (funcall mode)
-  (magit-refresh-buffer))
+  (magit-mode-refresh-buffer))
 
-;;;; Find Buffer
+(defvar-local magit-previous-window-configuration nil)
+(put 'magit-previous-window-configuration 'permanent-local t)
+
+(defun magit-mode-display-buffer (buffer &optional switch-function)
+  "Display BUFFER in some window and select it.
+BUFFER may be a buffer or a string, the name of a buffer.
+
+Unless BUFFER is already displayed in the selected frame store the
+previous window configuration as a buffer local value, so that it
+can later be restored by `magit-mode-quit-window'.
+
+Then display and select BUFFER using SWITCH-FUNCTION.  If that is
+nil either use `pop-to-buffer' if the current buffer's major mode
+derives from Magit mode; or else use `switch-to-buffer'.
+
+This is only intended for buffers whose major modes derive from
+Magit mode."
+  (unless (get-buffer-window buffer (selected-frame))
+    (with-current-buffer (get-buffer-create buffer)
+      (setq magit-previous-window-configuration
+            (current-window-configuration))))
+  (funcall (or switch-function
+               (if (derived-mode-p 'magit-mode)
+                   'switch-to-buffer
+                 'pop-to-buffer))
+           buffer))
 
 (defun magit-find-buffer (submode &optional dir)
   (let ((topdir (magit-get-top-dir dir)))
@@ -3164,12 +3151,7 @@ Also see `magit-mode-setup', a more convenient variant."
                                 topdir))))
                 (buffer-list))))
 
-(defun magit-find-status-buffer (&optional dir)
-  (magit-find-buffer 'magit-status-mode dir))
-
-;;;; Refresh Buffer
-
-(cl-defun magit-refresh-buffer (&optional (buffer (current-buffer)))
+(cl-defun magit-mode-refresh-buffer (&optional (buffer (current-buffer)))
   (with-current-buffer buffer
     (let* ((old-line (line-number-at-pos))
            (old-point (point))
@@ -3205,6 +3187,124 @@ Also see `magit-mode-setup', a more convenient variant."
       (magit-highlight-section)
       (magit-refresh-marked-commits-in-buffer))))
 
+(defun magit-mode-quit-window (&optional kill-buffer)
+  "Bury the current buffer and delete its window.
+With a prefix argument, kill the buffer instead.
+
+If `magit-restore-window-configuration' is non-nil and the last
+configuration stored by `magit-mode-display-buffer' originates
+from the selected frame then restore it after burrying/killing
+the buffer.  Finally reset the window configuration to nil."
+  (interactive "P")
+  (let ((winconf magit-previous-window-configuration)
+        (buffer (current-buffer))
+        (frame (selected-frame)))
+    (quit-window kill-buffer (selected-window))
+    (when winconf
+      (when (and magit-restore-window-configuration
+                 (equal frame (window-configuration-frame winconf)))
+        (set-window-configuration winconf)
+        (when (buffer-live-p buffer)
+          (with-current-buffer buffer
+            (setq magit-previous-window-configuration nil)))))))
+
+;;;; Mode Utilities
+
+(defun magit-map-magit-buffers (func &optional dir)
+  (dolist (buf (buffer-list))
+    (with-current-buffer buf
+      (when (and (derived-mode-p 'magit-mode)
+                 (or (null dir)
+                     (equal default-directory dir)))
+        (funcall func)))))
+
+;;;; (section kludges)
+
+(defvar-local magit-last-point nil)
+(put 'magit-last-point 'permanent-local t)
+
+(defun magit-remember-point ()
+  (setq magit-last-point (point)))
+
+(defun magit-invisible-region-end (pos)
+  (while (and (not (= pos (point-max))) (invisible-p pos))
+    (setq pos (next-char-property-change pos)))
+  pos)
+
+(defun magit-invisible-region-start (pos)
+  (while (and (not (= pos (point-min))) (invisible-p pos))
+    (setq pos (1- (previous-char-property-change pos))))
+  pos)
+
+(defun magit-correct-point-after-command ()
+  "Move point outside of invisible regions.
+
+Emacs often leaves point in invisible regions, it seems.  To fix
+this, we move point ourselves and never let Emacs do its own
+adjustments.
+
+When point has to be moved out of an invisible region, it can be
+moved to its end or its beginning.  We usually move it to its
+end, except when that would move point back to where it was
+before the last command."
+  (when (invisible-p (point))
+    (let ((end (magit-invisible-region-end (point))))
+      (goto-char (if (= end magit-last-point)
+                     (magit-invisible-region-start (point))
+                   end))))
+  (setq disable-point-adjustment t))
+
+;;; Refresh Machinery
+
+(defvar magit-refresh-needing-buffers nil)
+(defvar magit-refresh-pending nil)
+
+(defun magit-refresh-wrapper (func)
+  (if magit-refresh-pending
+      (funcall func)
+    (let ((magit-refresh-pending t)
+          (magit-refresh-needing-buffers nil)
+          (status-buffer (magit-find-buffer 'magit-status-mode)))
+      (unwind-protect
+          (funcall func)
+        ;; Refresh magit buffers.
+        (let (magit-custom-options)
+          (when status-buffer
+            (cl-pushnew status-buffer magit-refresh-needing-buffers))
+          (when magit-refresh-needing-buffers
+            (mapc 'magit-mode-refresh-buffer magit-refresh-needing-buffers)))
+        ;; Refresh file visiting buffers.
+        (dolist (buffer (buffer-list))
+          (when (and (buffer-file-name buffer)
+                     (string-prefix-p default-directory
+                                      (buffer-file-name buffer)))
+            (with-current-buffer buffer
+              (run-hooks 'magit-refresh-file-buffer-hook))))))))
+
+(defun magit-need-refresh (&optional buffer)
+  "Mark BUFFER as needing to be refreshed.
+If optional BUFFER is nil, use the current buffer.  If the
+buffer's mode doesn't derive from `magit-mode' do nothing."
+  (with-current-buffer (or buffer (current-buffer))
+    (when (derived-mode-p 'magit-mode)
+      (cl-pushnew (current-buffer)
+                  magit-refresh-needing-buffers :test 'eq))))
+
+(defun magit-refresh ()
+  "Refresh current buffer to match repository state.
+Also revert every unmodified buffer visiting files
+in the corresponding directory."
+  (interactive)
+  (magit-with-refresh
+    (magit-need-refresh)))
+
+(defun magit-refresh-all ()
+  "Refresh all magit buffers to match respective repository states.
+Also revert every unmodified buffer visiting files
+in the corresponding directories."
+  (interactive)
+  (magit-map-magit-buffers #'magit-mode-refresh-buffer default-directory))
+
 (defun magit-revert-buffer ()
   "Replace current buffer text with the text of the visited file on disk.
 
@@ -3238,113 +3338,6 @@ remove the symbol `Git' from `vc-handled-backends'."
   ;; instructions.  Don't use an alias to avoid confusion.
   (with-current-buffer (current-buffer)
     (vc-find-file-hook)))
-
-;;;; Refresh Machinery
-
-(defvar magit-refresh-needing-buffers nil)
-(defvar magit-refresh-pending nil)
-
-(defun magit-refresh-wrapper (func)
-  (if magit-refresh-pending
-      (funcall func)
-    (let ((magit-refresh-pending t)
-          (magit-refresh-needing-buffers nil)
-          (status-buffer (magit-find-status-buffer default-directory)))
-      (unwind-protect
-          (funcall func)
-        ;; Refresh magit buffers.
-        (let (magit-custom-options)
-          (when status-buffer
-            (cl-pushnew status-buffer magit-refresh-needing-buffers))
-          (when magit-refresh-needing-buffers
-            (mapc 'magit-refresh-buffer magit-refresh-needing-buffers)))
-        ;; Refresh file visiting buffers.
-        (dolist (buffer (buffer-list))
-          (when (and (buffer-file-name buffer)
-                     (string-prefix-p default-directory
-                                      (buffer-file-name buffer)))
-            (with-current-buffer buffer
-              (run-hooks 'magit-refresh-file-buffer-hook))))))))
-
-(defun magit-need-refresh (&optional buffer)
-  "Mark BUFFER as needing to be refreshed.
-If optional BUFFER is nil, use the current buffer.  If the
-buffer's mode doesn't derive from `magit-mode' do nothing."
-  (with-current-buffer (or buffer (current-buffer))
-    (when (derived-mode-p 'magit-mode)
-      (cl-pushnew (current-buffer)
-                  magit-refresh-needing-buffers :test 'eq))))
-
-(defun magit-refresh ()
-  "Refresh current buffer to match repository state.
-Also revert every unmodified buffer visiting files
-in the corresponding directory."
-  (interactive)
-  (magit-with-refresh
-    (magit-need-refresh)))
-
-(defun magit-refresh-all ()
-  "Refresh all magit buffers to match respective repository states.
-Also revert every unmodified buffer visiting files
-in the corresponding directories."
-  (interactive)
-  (magit-map-magit-buffers #'magit-refresh-buffer default-directory))
-
-(defun magit-map-magit-buffers (func &optional dir)
-  (dolist (buf (buffer-list))
-    (with-current-buffer buf
-      (when (and (derived-mode-p 'magit-mode)
-                 (or (null dir)
-                     (equal default-directory dir)))
-        (funcall func)))))
-
-;;;; Display Buffer
-
-(defvar-local magit-previous-window-configuration nil)
-(put 'magit-previous-window-configuration 'permanent-local t)
-
-(defun magit-display-mode-buffer (buffer &optional switch-function)
-  "Display BUFFER in some window and select it.
-This is intended for buffers whose major mode derive from Magit
-mode.
-
-Unless BUFFER is already displayed in the selected frame store the
-previous window configuration as a buffer local value, so that it
-can later be restored by `magit-quit-window'.
-
-Then display and select BUFFER using SWITCH-FUNCTION.  If that is
-nil either use `pop-to-buffer' if the current buffer's major mode
-derives from Magit mode; or else use `switch-to-buffer'."
-  (unless (get-buffer-window buffer (selected-frame))
-    (with-current-buffer (get-buffer-create buffer)
-      (setq magit-previous-window-configuration
-            (current-window-configuration))))
-  (funcall (or switch-function
-               (if (derived-mode-p 'magit-mode)
-                   'switch-to-buffer
-                 'pop-to-buffer))
-           buffer))
-
-(defun magit-quit-window (&optional kill-buffer)
-  "Bury the current buffer and delete its window.
-With a prefix argument, kill the buffer instead.
-
-If `magit-restore-window-configuration' is non-nil and the last
-configuration stored by `magit-display-mode-buffer' originates
-from the selected frame then restore it after burrying/killing
-the buffer.  Finally reset the window configuration to nil."
-  (interactive "P")
-  (let ((winconf magit-previous-window-configuration)
-        (buffer (current-buffer))
-        (frame (selected-frame)))
-    (quit-window kill-buffer (selected-window))
-    (when winconf
-      (when (and magit-restore-window-configuration
-                 (equal frame (window-configuration-frame winconf)))
-        (set-window-configuration winconf)
-        (when (buffer-live-p buffer)
-          (with-current-buffer buffer
-            (setq magit-previous-window-configuration nil)))))))
 
 ;;; Diff Options
 
@@ -4301,12 +4294,12 @@ when asking for user input."
         (setq topdir (magit-get-top-dir dir))))
     (when topdir
       (magit-save-some-buffers topdir)
-      (let ((buf (or (magit-find-status-buffer topdir)
+      (let ((buf (or (magit-find-buffer 'magit-status-mode topdir)
                      (generate-new-buffer
                       (concat "*magit: "
                               (file-name-nondirectory
                                (directory-file-name topdir)) "*")))))
-        (magit-display-mode-buffer buf magit-status-buffer-switch-function)
+        (magit-mode-display-buffer buf magit-status-buffer-switch-function)
         (magit-mode-init topdir 'magit-status-mode #'magit-refresh-status)))))
 
 (defun magit-refresh-status ()
@@ -6250,7 +6243,7 @@ With a prefix argument edit the ignore string."
                 (not (file-symlink-p info)))
            (delete-directory info 'recursive)
          (delete-file info))
-       (magit-refresh-buffer)))
+       (magit-mode-refresh-buffer)))
     ((untracked)
      (when (yes-or-no-p "Delete all untracked files and directories? ")
        (magit-run-git "clean" "-df")))
@@ -6689,7 +6682,7 @@ from the parent keymap `magit-mode-map' are also available.")
     (magit-set (cdr track-) "branch" branch "merge")
     (magit-branch-manager)
     (when (string= (magit-get-current-branch) branch)
-      (magit-refresh-buffer (magit-find-status-buffer default-directory)))))
+      (magit-mode-refresh-buffer (magit-find-buffer 'magit-status-mode)))))
 
 ;;; Miscellaneous
 ;;;; Miscellaneous Commands
