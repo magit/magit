@@ -636,6 +636,10 @@ basic structure of and errors in git commit messages."
                    "/PULLREQ_EDITMSG\\'"))
   (add-to-list 'auto-mode-alist (cons pattern 'git-commit-mode)))
 
+(defun git-commit-auto-mode-enable ()
+  (message "git-commit-auto-mode-enable is obsolete and doesn't do anything"))
+(make-obsolete 'git-commit-auto-mode-enable "This mode is a noop now" "")
+
 (provide 'git-commit-mode)
 ;; Local Variables:
 ;; indent-tabs-mode: nil
