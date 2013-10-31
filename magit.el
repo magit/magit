@@ -5838,7 +5838,7 @@ from the parent keymap `magit-mode-map' are also available.")
     (magit-insert-status-line (propertize "+" 'face 'magit-cherry-equivalent)
       "unmatched commit tree")))
 
-(defun magit-cherry-commits ()
+(defun magit-insert-cherry-commits ()
   (apply #'magit-git-section
          'commit "Cherry commits:"
          (apply-partially 'magit-wash-log 'cherry)
