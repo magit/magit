@@ -176,6 +176,13 @@ Also set the local value in all Magit buffers and refresh them.
   (custom-add-to-group 'magit 'git-rebase 'custom-group))
 (custom-add-to-group 'magit 'vc-follow-symlinks 'custom-variable)
 
+(define-obsolete-variable-alias 'magit-cherry-insert-sections-hook
+  'magit-cherry-sections-hook "2.0.0")
+(define-obsolete-variable-alias 'magit-status-insert-sections-hook
+  'magit-status-sections-hook "2.0.0")
+(define-obsolete-variable-alias 'magit-wazzup-insert-sections-hook
+  'magit-wazzup-sections-hook "2.0.0")
+
 (defcustom magit-git-executable "git"
   "The name of the Git executable."
   :group 'magit
@@ -365,7 +372,7 @@ Only considered when moving past the last entry with
   :group 'magit
   :type 'boolean)
 
-(defcustom magit-wazzup-insert-sections-hook
+(defcustom magit-wazzup-sections-hook
   '(magit-insert-wazzup-head-line
     magit-insert-empty-line
     magit-insert-wazzup-branches)
@@ -373,7 +380,7 @@ Only considered when moving past the last entry with
   :group 'magit
   :type 'hook)
 
-(defcustom magit-cherry-insert-sections-hook
+(defcustom magit-cherry-sections-hook
   '(magit-insert-cherry-head-line
     magit-insert-cherry-upstream-line
     magit-insert-cherry-help-lines
@@ -388,7 +395,7 @@ Only considered when moving past the last entry with
   :group 'magit
   :type 'hook)
 
-(defcustom magit-status-insert-sections-hook
+(defcustom magit-status-sections-hook
   '(magit-insert-status-local-line
     magit-insert-status-remote-line
     magit-insert-status-head-line
@@ -4318,7 +4325,7 @@ when asking for user input."
   (magit-git-exit-code "update-index" "--refresh")
   (magit-create-buffer-sections
     (magit-with-section 'status nil
-      (run-hooks 'magit-status-insert-sections-hook)))
+      (run-hooks 'magit-status-sections-hook)))
   (run-hooks 'magit-refresh-status-hook))
 
 ;;; Status Sections
@@ -5828,7 +5835,7 @@ from the parent keymap `magit-mode-map' are also available.")
 (defun magit-refresh-cherry-buffer (upstream head)
   (magit-create-buffer-sections
     (magit-with-section 'cherry nil
-      (run-hooks 'magit-cherry-insert-sections-hook))))
+      (run-hooks 'magit-cherry-sections-hook))))
 
 (defun magit-insert-cherry-head-line ()
   (magit-insert-status-line "Head"
@@ -6126,7 +6133,7 @@ from the parent keymap `magit-mode-map' are also available."
 (defun magit-refresh-wazzup-buffer (head)
   (magit-create-buffer-sections
     (magit-with-section 'wazzupbuf nil
-      (run-hooks 'magit-wazzup-insert-sections-hook))))
+      (run-hooks 'magit-wazzup-sections-hook))))
 
 (defun magit-wazzup-head-line ()
   (magit-insert-status-line "Head"
