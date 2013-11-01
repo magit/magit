@@ -3873,7 +3873,8 @@ Customize `magit-diff-refine-hunk' to change the default mode."
       (insert graph))
     (when refs
       (setq refs (mapcar 'cdr (magit-list-interesting-refs
-                               nil (split-string refs "[(), ]" t)))))
+                               nil (split-string
+                                    refs "\\(tag: \\|[(), ]\\)" t)))))
     (when (and hash (eq style 'long))
       (insert (propertize (if refs hash (magit-rev-parse hash))
                           'face 'magit-log-sha1) " "))
