@@ -6161,7 +6161,7 @@ from the parent keymap `magit-mode-map' are also available."
              (magit-section-hidden-default (not old)))
         (magit-with-section upstream 'wazzup
           (insert (format "%3s %s\n" count
-                          (car (magit-format-ref-label upstream))))
+                          (magit-format-ref-label upstream)))
           (cond
            ((and old (not (magit-section-hidden old)))
             (let ((beg (point)))
