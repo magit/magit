@@ -6141,7 +6141,7 @@ from the parent keymap `magit-mode-map' are also available."
     (concat (propertize (car magit-refresh-args) 'face 'magit-branch) " "
             (abbreviate-file-name default-directory))))
 
-(defun magit-wazzup-branches ()
+(defun magit-insert-wazzup-branches ()
   (dolist (upstream (magit-git-lines "show-ref"))
     (setq  upstream (cadr (split-string upstream " ")))
     (when (and (not (string-match-p "HEAD$" upstream))
