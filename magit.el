@@ -6136,7 +6136,7 @@ from the parent keymap `magit-mode-map' are also available."
     (magit-with-section 'wazzupbuf nil
       (run-hooks 'magit-wazzup-sections-hook))))
 
-(defun magit-wazzup-head-line ()
+(defun magit-insert-wazzup-head-line ()
   (magit-insert-status-line "Head"
     (concat (propertize (car magit-refresh-args) 'face 'magit-branch) " "
             (abbreviate-file-name default-directory))))
