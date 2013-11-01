@@ -6136,12 +6136,12 @@ from the parent keymap `magit-mode-map' are also available."
     (magit-with-section 'wazzupbuf nil
       (run-hooks 'magit-wazzup-sections-hook))))
 
-(defun magit-wazzup-head-line ()
+(defun magit-insert-wazzup-head-line ()
   (magit-insert-status-line "Head"
     (concat (propertize (car magit-refresh-args) 'face 'magit-branch) " "
             (abbreviate-file-name default-directory))))
 
-(defun magit-wazzup-branches ()
+(defun magit-insert-wazzup-branches ()
   (dolist (upstream (magit-git-lines "show-ref"))
     (setq  upstream (cadr (split-string upstream " ")))
     (when (and (not (string-match-p "HEAD$" upstream))
