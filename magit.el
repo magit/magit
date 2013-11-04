@@ -1709,7 +1709,7 @@ GIT_DIR and its absolute path is returned"
   "Return the path of FILENAME relative to its git repository.
 
 If FILENAME is absolute, return a path relative to the git
-repository containing it. Otherwise, return a path relative to
+repository containing it.  Otherwise, return a path relative to
 the current git repository."
   (let ((topdir (expand-file-name
                  (magit-get-top-dir (file-name-directory filename))))
@@ -2126,7 +2126,7 @@ If TYPE is nil, the section won't be highlighted."
   "Create a new section of title TITLE and type TYPE and evaluate BODY there.
 
 Sections created inside BODY will become children of the new
-section. BODY must leave point at the end of the created section.
+section.  BODY must leave point at the end of the created section.
 
 If TYPE is nil, the section won't be highlighted."
   (declare (indent 2) (debug (form form body)))
@@ -2395,7 +2395,7 @@ If SECTION is nil, default to setting `magit-top-section'"
 
 
 (defun magit-goto-diff-section-at-file (file)
-  "Go to the section containing by the pathname, FILE"
+  "Go to the section containing by the pathname, FILE."
   (let ((pos (catch 'diff-section-found
                (dolist (sec (magit-section-children magit-top-section))
                  (when (and (eq (magit-section-type sec) 'diff)
@@ -3473,7 +3473,7 @@ the refining mode (`selected' or `all') is switched.
 If hunk refining is off, then hunk refining is turned on, in
 `all' mode (all hunks refined).
 
-Customize `magit-diff-refine-hunk' to change the default mode."
+Customize variable `magit-diff-refine-hunk' to change the default mode."
   (interactive "P")
   (let ((hunk (and magit-highlighted-section
                    (eq (magit-section-type magit-highlighted-section) 'hunk)
@@ -4224,7 +4224,7 @@ in `magit-commit-buffer-name'."
   (interactive)
   (with-current-buffer magit-commit-buffer-name
     (unless magit-back-navigation-history
-      (error "No previous commit."))
+      (error "No previous commit"))
     (let ((histitem (pop magit-back-navigation-history)))
       (push (cons default-directory magit-currently-shown-commit)
             magit-forward-navigation-history)
@@ -4238,7 +4238,7 @@ in `magit-commit-buffer-name'."
   (interactive)
   (with-current-buffer magit-commit-buffer-name
     (unless magit-forward-navigation-history
-      (error "No next commit."))
+      (error "No next commit"))
     (let ((histitem (pop magit-forward-navigation-history)))
       (push (cons default-directory magit-currently-shown-commit)
             magit-back-navigation-history)
@@ -4851,7 +4851,7 @@ tracking brach name suggesting a sensible default."
             (read-string (format "Call local branch (%s): " default-name)
                          nil nil default-name)))
       (when (magit-ref-exists-p (concat "refs/heads/" chosen-name))
-        (error "'%s' already exists." chosen-name))
+        (error "'%s' already exists" chosen-name))
       chosen-name)))
 
 (defun magit-maybe-create-local-tracking-branch (rev)
@@ -4925,7 +4925,7 @@ Works with local or remote branches.
        ((and is-current is-master)
         (message "Cannot delete master branch while it's checked out."))
        (is-current
-        (if (y-or-n-p "Cannot delete current branch. Switch to master first? ")
+        (if (y-or-n-p "Cannot delete current branch.  Switch to master first? ")
             (progn
               (magit-checkout "master")
               (apply 'magit-run-git args))
@@ -5182,7 +5182,7 @@ With two prefix args, remove ignored files as well."
                        (and (eq magit-rewrite-inclusive 'ask)
                             (y-or-n-p "Include selected revision in rewrite? ")))
                    (or (car (magit-commit-parents from))
-                       (error "Can't rewrite a parentless commit."))
+                       (error "Can't rewrite a parentless commit"))
                  from))
          (pending (magit-git-lines "rev-list" (concat base ".."))))
     (magit-write-rewrite-info `((orig ,orig)
@@ -5570,7 +5570,7 @@ depending on the value of option `magit-commit-squash-commit'.
       (magit-run-git "add" "-u" ".")
       (or args (list "--"))))
    (t
-    (error "Nothing staged.  Set --allow-empty, --all, or --amend in popup."))))
+    (error "Nothing staged.  Set --allow-empty, --all, or --amend in popup"))))
 
 (defun magit-commit-maybe-expand (&optional unstaged)
   (when (and magit-expand-staged-on-commit
@@ -6179,7 +6179,7 @@ restore the window state that was saved before ediff was called."
   (interactive)
   (unless (eq magit-show-current-version 'index)
     (error "Current buffer doesn't visit the index version of a file"))
-  (when (y-or-n-p (format "Stage current version of %s" magit-file-name))
+  (when (y-or-n-p (format "Stage current version of %s? " magit-file-name))
     (let ((buf (current-buffer))
           (name (magit-git-dir "magit-add-index")))
       (with-temp-file name
