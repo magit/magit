@@ -6777,6 +6777,14 @@ With a prefix argument, visit in other window."
 (define-derived-mode magit-branch-manager-mode magit-mode "Magit Branch"
   "Mode for looking at git branches.
 
+\\<magit-branch-manager-mode-map>Type `\\[magit-visit-item]` to checkout a branch, `\\[magit-reset-head]' to reset current branch,
+you can also merge the branch with `\\[magit-key-mode-popup-merging]`
+
+Type `\\[magit-discard-item]' to delet a branch, or `\\[universal-argument] \\[magit-discard-item]' to force the deletion.
+Type `\\[magit-rename-item]' to Rename a branch.
+
+More information can be found in Info node `(magit)The branch list'
+
 \\{magit-branch-manager-mode-map}
 Unless shadowed by the mode specific bindings above, bindings
 from the parent keymap `magit-mode-map' are also available.")
