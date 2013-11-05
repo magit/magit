@@ -3475,11 +3475,7 @@ Customize `magit-diff-refine-hunk' to change the default mode."
 (defun magit-wash-diffstat ()
   (when (looking-at
          "^ ?\\(.*?\\)\\( +| +\\)\\([0-9]+\\) \\([+]*\\)?\\([-]*\\)?$")
-    (let ((file (match-string-no-properties 1))
-          (sep  (match-string-no-properties 2))
-          (cnt  (match-string-no-properties 3))
-          (add  (match-string-no-properties 4))
-          (del  (match-string-no-properties 5)))
+    (magit-bind-match-strings (file sep cnt add del)
       (delete-region (point) (1+ (line-end-position)))
       (magit-with-section 'diffstat 'diffstat
         (insert " " file sep cnt " ")
