@@ -1459,8 +1459,7 @@ Read `completing-read' documentation for the meaning of the argument."
   (declare (indent 1))
   (let ((i 0))
     `(let ,(mapcar (lambda (var)
-                     (list var (list 'match-string-no-properties
-                                     (cl-incf i))))
+                     (list var (list 'match-string (cl-incf i))))
                    varlist)
        ,@body)))
 
