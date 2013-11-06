@@ -188,9 +188,10 @@ test-interactive: $(ELCS)
 
 .PHONY: clean
 clean:
-	$(RM) $(ELCS) $(LOADDEFS_FILE) magit-version.el *.tar.gz *.tar
-	$(RMDIR) magit-$(VERSION)
-	test -e .git || $(RM) magit.info
+	@echo "Cleaning..."
+	@$(RM) $(ELCS) $(LOADDEFS_FILE) magit-version.el *.tar.gz *.tar
+	@$(RMDIR) magit-$(VERSION)
+	@test -e .git || $(RM) magit.info
 
 DIST_FILES  = $(ELS) magit-version.el Makefile AUTHORS.md
 DIST_FILES += README.md INSTALL.md magit.texi magit.info dir
