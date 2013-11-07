@@ -316,7 +316,9 @@ The commit message is saved to the kill ring."
 (defun git-commit-save-message ()
   "Save current message to `log-edit-comment-ring'."
   (interactive)
-  (let ((message (buffer-string)))
+  (let ((message (buffer-substring
+                  (point-min)
+                  (git-commit-find-pseudo-header-position))))
     (when (and (string-match "^\\s-*\\sw" message)
                (or (ring-empty-p log-edit-comment-ring)
                    (not (ring-member log-edit-comment-ring message))))
@@ -327,14 +329,15 @@ The commit message is saved to the kill ring."
 With a numeric prefix ARG, go back ARG comments."
   (interactive "*p")
   (git-commit-save-message)
-  (log-edit-previous-comment arg))
+  (save-restriction
+    (narrow-to-region (point-min) (git-commit-find-pseudo-header-position))
+    (log-edit-previous-comment arg)))
 
 (defun git-commit-next-message (arg)
   "Cycle forward through message history, after saving current message.
 With a numeric prefix ARG, go forward ARG comments."
   (interactive "*p")
-  (git-commit-save-message)
-  (log-edit-next-comment arg))
+  (git-commit-prev-message (- arg)))
 
 ;;; Headers
 
