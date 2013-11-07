@@ -2367,13 +2367,20 @@ If SECTION is nil, default to setting `magit-top-section'"
 (defmacro magit-define-section-jumper (sym title)
   "Define an interactive function to go to section SYM.
 TITLE is the displayed title of the section."
-  (let ((fun (intern (format "magit-jump-to-%s" sym)))
-        (doc (format "Jump to section `%s'." title)))
+  (let ((fun (intern (format "magit-jump-to-%s" sym))))
     `(progn
-       (defun ,fun ()
-         ,doc
-         (interactive)
-         (magit-goto-section-at-path '(,sym)))
+       (defun ,fun (&optional expand) ,(format "\
+Jump to section '%s'.
+With a prefix argument also expand it." title)
+         (interactive "P")
+         (if (magit-goto-section-at-path '(,sym))
+             (when expand
+               (with-local-quit
+                 (if (eq magit-expand-staged-on-commit 'full)
+                     (magit-show-level 4 nil)
+                   (magit-expand-section)))
+               (recenter 0))
+           (message ,(format "Section '%s' wasn't found" title))))
        (put ',fun 'definition-name ',sym))))
 
 (magit-define-section-jumper stashes   "Stashes")
