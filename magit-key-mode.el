@@ -219,7 +219,9 @@
       ("c" "Commit" magit-commit)
       ("a" "Amend"  magit-commit-amend)
       ("e" "Extend" magit-commit-extend)
-      ("r" "Reword" magit-commit-reword))
+      ("r" "Reword" magit-commit-reword)
+      ("f" "Fixup"  magit-commit-fixup)
+      ("s" "Squash" magit-commit-squash))
      (switches
       ("-r" "Replace the tip of current branch" "--amend")
       ("-R" "Claim authorship and reset author date" "--reset-author")
