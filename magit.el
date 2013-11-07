@@ -6491,7 +6491,8 @@ With a prefix argument, visit in other window."
       ((commit)
        (setq magit-marked-commit
              (if (equal magit-marked-commit info) nil info)))))
-  (magit-refresh-marked-commits))
+  (magit-refresh-marked-commits)
+  (run-hooks 'magit-mark-commit-hook))
 
 ;;;; Kill
 
