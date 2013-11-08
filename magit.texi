@@ -934,7 +934,6 @@ refreshed automatically after each cherry-pick.
 * Interfacing with Subversion::
 * Interfacing with Topgit::
 * Interfacing with StGit::
-* Developing Extensions::
 @end menu
 
 @node Activating extensions
@@ -1031,111 +1030,6 @@ as well as you can delete them using the ``discard'' action.
 Additionally, the @code{magit-stgit-refresh} and
 @code{magit-stgit-rebase} commands let you perform the respective StGit
 operations.
-
-@node Developing Extensions
-@section Developing Extensions
-
-Magit provides a generic mechanism to allow cooperation with Git-related
-systems, such as foreign VCS, patch systems,…
-
-In particular it allows to:
-
-@itemize @bullet
-@item
-Define sections to display specific information about the current state
-of the repository, and place them relatively to existing sections.
-
-@code{magit-define-inserter} automagically defines two hooks called
-@code{magit-before-insert-SECTION-hook} and
-@code{magit-after-insert-SECTION-hook} that allow to generate and place
-more sections.
-
-In the following example, we use the builtin ``stashes'' section to
-place our own ``foo'' one.
-
-@example
-(magit-define-inserter foo ()
-  (magit-git-section 'foo
-                     "Foo:" 'foo-wash-function
-                     "foo" "arg1" "arg2"))
-(add-hook 'magit-after-insert-stashes-hook 'magit-insert-foo)
-@end example
-
-@item
-Define new types of objects in those sections.
-
-The function @code{foo-wash-function} defined above post-processes each
-line of the output of the ``git foo arg1 arg2'' command, and is able to
-associate a type to certain lines.
-
-A simple implementation could be:
-
-@example
-(defun foo-wash-function ()
-  (let ((foo (buffer-substring (line-beginning-position) (line-end-position))))
-    (goto-char (line-beginning-position))
-    (magit-with-section foo 'foo
-      (magit-set-section-info foo)
-      (forward-line))))
-@end example
-
-In this case, every line of the command output is transformed into an
-object of type @code{'foo}.
-
-@item
-Alter behavior of generic commands to dispatch them correctly to the
-relevant system, optionally making use of the newly defined types.
-
-@example
-(magit-add-action (item info "discard")
-  ((foo)
-   (do-something-meaningful-for-discarding-a-foo)))
-@end example
-
-This will alter the behavior of @kbd{k}, when applied to those objects.
-
-@item
-Plug a different logic into basic commands, to reflect the presence of
-the extension.
-
-@code{magit-define-command} automagically defines
-a @code{magit-CMD-command-hook} that can contain a list of functions to
-call before the actual core code.  Execution stops after the first hook
-that returns a non-nil value.  This leaves room for extension logic.
-
-@example
-(add-hook 'magit-create-branch-command-hook 'foo-create-branch)
-@end example
-
-The function @code{foo-create-branch} will be called each time an
-attempt is made to create a branch, and can, for example, react to
-a certain name convention.
-
-@item
-Define new commands and associated menu.
-
-This part is not really specific to extensions, except that menus take
-place in the ``Extensions'' submenu.
-
-@end itemize
-
-It is suggested that Magit extensions authors stick to the convention of
-making extensions minor modes.  This has many advantages, including the
-fact that users are able to toggle extensions, and that it's easy to
-configure a specific set of extensions for a given repository.
-
-Shipped extensions can serve as an example of how to develop
-new extensions.
-
-Basically a @code{foo} extension should provide a @code{magit-foo-mode}
-minor mode, as well as a @code{turn-on-magit-foo} function.  The main
-task of the minor mode is to register/unregister the various hooks that
-the extension requires.  The registered actions on the other hand can be
-left alone and activated globally, since they can be run only on
-displayed items, which won't happen when the minor mode is off.
-
-Don't forget to call @code{magit-refresh} when the minor mode is toggled
-interactively, so that the relevant sections can be shown or hidden.
 
 @node Using Git Directly
 @chapter Using Git Directly
