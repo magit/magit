@@ -6375,7 +6375,7 @@ With a prefix argument, visit in other window."
   (let* (line
          column
          (file
-          (magit-section-action (item info "visit-file")
+          (magit-section-action (item info "visit-file" t)
             ((untracked file) info)
             ((diff)           (magit-diff-item-file item))
             ((diffstat)       (magit-section-info item))
