@@ -6732,7 +6732,7 @@ from the parent keymap `magit-mode-map' are also available.")
            (switch-to-buffer-other-window
             (magit-show (cdr (magit-diff-item-range item))
                         (magit-diff-item-file item))))))
-    (magit-section-action (item info "show")
+    (magit-section-action (item info "show" t)
       ((commit)
        (let ((current-file (or magit-file-log-file
                                (magit-read-file-from-rev info))))
