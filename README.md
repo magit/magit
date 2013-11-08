@@ -3,7 +3,8 @@
 It's Magit!  An Emacs mode for Git
 ==================================
 
-Magit is an interface to [Git][git] for [Emacs][emacs].
+Magit is an interface to the version control system [Git][git],
+implemented as an [Emacs][emacs] extension.
 
 Unlike Emacs's native [Version Control][vc] package which strives to
 provide a unified interface to various version control systems, Magit

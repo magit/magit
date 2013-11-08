@@ -30,6 +30,11 @@ Texts.  A copy of the license is included in the section entitled
 Magit is an interface to the version control system Git, implemented
 as an Emacs extension.
 
+Unlike Emacs's native Version Control package which strives to
+provide a unified interface to various version control systems, Magit
+only supports Git and can therefor better take advantage of its native
+features.
+
 Magit supports GNU Emacs 23.2 or later; 24.1 or later is recommended.
 Magit supports Git 1.7.2.5 or later; 1.8.2 or later is recommended.
 The minimal versions are those available in ancient Debian oldstable.
