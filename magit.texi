@@ -34,6 +34,14 @@ intend to investigate and fix bugs that only appear in unsupported
 versions.  Patches to fix bugs in other emacsen or volunteers to
 maintain compatibility are still welcome.
 
+When something breaks please see the curated list of known issues
+(https://github.com/magit/magit/wiki/Known-issues) and the FAQ
+(https://github.com/magit/magit/wiki/FAQ).  If that doesn't help check
+the list of all open issues (https://github.com/magit/magit/issues).
+
+If everything else fails please open a new issue or ask for help on
+the mailing list (https://groups.google.com/forum/?fromgroups#!forum/magit).
+
 @menu
 * Introduction::
 * Acknowledgments::
@@ -60,7 +68,6 @@ maintain compatibility are still welcome.
 * Submodules::
 * Using Magit Extensions::
 * Using Git Directly::
-* Frequently Asked Questions::
 * GNU Free Documentation License::
 @end menu
 
@@ -1137,44 +1144,6 @@ For situations when Magit doesn't do everything you need, you can run
 raw Git commands using @kbd{:}.  This will prompt for a Git command, run
 it, and refresh the status buffer.  The output can be viewed by typing
 @kbd{$}.
-
-@node Frequently Asked Questions
-@chapter Frequently Asked Questions
-
-@menu
-* FAQ - Changes::
-* FAQ 1 - Troubleshooting::
-@end menu
-
-@node FAQ - Changes
-@section Changes
-
-@itemize @bullet
-
-@item
-v1.1: Changed the way extensions work.  Previously, they were enabled
-unconditionally once the library was loaded.  Now they are minor modes
-that need to be activated explicitly (potentially on a per-repository
-basis).  See @ref{Activating extensions}.
-
-@end itemize
-
-@node FAQ 1 - Troubleshooting
-@section Troubleshooting
-
-@menu
-* FAQ 1-1::    How do I get raw error messages from git?
-@end menu
-
-@node FAQ 1-1
-@subsection Question 1.1
-
-How do I get raw error messages from git?
-
-@subsubheading Answer
-
-If a command goes wrong, you can hit @kbd{$} to access the git process
-buffer.  There, the entire trace for the latest operation is available.
 
 @node GNU Free Documentation License
 @appendix GNU Free Documentation License
