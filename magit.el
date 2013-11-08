@@ -6353,7 +6353,7 @@ a position in a file-visiting buffer."
     "Visit current item.
 With a prefix argument, visit in other window."
     (interactive "P")
-    (magit-section-action (item info "dired-jump")
+    (magit-section-action (item info "dired-jump" t)
       ((untracked file)
        (dired-jump other-window (file-truename info)))
       ((diff)
