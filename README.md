@@ -14,16 +14,6 @@ Magit supports GNU Emacs 23.2 or later; 24.1 or later is recommended.
 Magit supports Git 1.7.2.5 or later; 1.8.2 or later is recommended.
 These are the versions in ancient Debian oldstable.
 
-Getting Help
-============
-
-When something breaks please see the
-[curated list of known issues][knownissues] and the [FAQ][faq].  If
-that doesn't help check the list of [all open issues][issues].
-
-If everything else fails please open a [new issue][issues] or ask for
-help on the [mailing list][group].
-
 Getting Started
 ===============
 
@@ -38,6 +28,16 @@ For more details consult the Magit user manual.  You can read it
 [on the web][manual] or in Emacs with <kbd>C-u C-h i magit.info</kbd>.
 
 Magit also has a [website][website].
+
+Getting Help
+============
+
+When something breaks please see the
+[curated list of known issues][knownissues] and the [FAQ][faq].  If
+that doesn't help check the list of [all open issues][issues].
+
+If everything else fails please open a [new issue][issues] or ask for
+help on the [mailing list][group].
 
 Installation
 ============
