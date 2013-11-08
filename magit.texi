@@ -772,6 +772,12 @@ Magit has several commands that can simplify the book keeping
 associated with rewriting.  These commands all start with the @kbd{r}
 prefix key.
 
+(Unless you already do so, we recommend that you don't use the
+functionality described here.  It is semi-deprecated and will be
+removed once its unique features have been ported to the @code{git
+rebase --interactive} workflow.  Even now the latter is almost always
+the better option.)
+
 Typing @kbd{r b} will start a rewrite operation.  You will be prompted
 for a @emph{base} commit.  This commit and all subsequent commits up
 until the current head are then put in a list of @emph{Pending
