@@ -132,12 +132,44 @@ docs: magit.info dir AUTHORS.md
 dir: magit.info
 	$(INSTALL_INFO) --dir=$@ $<
 
+define AUTHORS_HEADER
+Authors
+=======
+
+Also see https://github.com/magit/magit/graphs/contributors.
+Names below are sorted alphabetically.
+
+Author
+------
+
+- Marius Vollmer <marius.vollmer@gmail.com>
+
+Maintainers
+-----------
+
+- Jonas Bernoulli <jonas@bernoul.li>
+- Nicolas Dudebout <nicolas.dudebout@gatech.edu>
+- Rémi Vanicat <vanicat@debian.org>
+- Yann Hodique <yann.hodique@gmail.com>
+
+Retired Maintainers
+-------------------
+
+- Peter J. Weisberg <pj@irregularexpressions.net>
+- Phil Jackson <phil@shellarchive.co.uk>
+
+Contributors
+------------
+
+endef
+export AUTHORS_HEADER
+
 # Not a phony target, but needs to run *every* time.
 .PHONY: AUTHORS.md
-AUTHORS.md: AUTHORS.md.in
+AUTHORS.md:
 	@printf "Generating AUTHORS.md file..."
 	@test -d .git \
-		&& (cat $< > $@ \
+		&& (echo "$$AUTHORS_HEADER" > $@ \
 			&& git log --pretty=format:'- %aN <%aE>' | sort -u >> $@ \
 			&& printf "FINISHED\n" ; ) \
 		|| printf "FAILED (non-fatal)\n"
@@ -194,7 +226,7 @@ clean:
 	@test -e .git || $(RM) magit.info
 
 DIST_FILES  = $(ELS) magit-version.el Makefile AUTHORS.md
-DIST_FILES += README.md INSTALL.md magit.texi magit.info dir
+DIST_FILES += README.md magit.texi magit.info dir
 DIST_FILES_BIN  = bin/magit
 
 ELPA_FILES = $(ELS) magit.info dir AUTHORS.md
