@@ -2769,7 +2769,10 @@ Return the value of BODY of the clause that succeeded.
 
 Each use of `magit-section-action' should use an unique OPNAME.
 
-\(fn (SECTION INFO OPNAME) (SECTION-TYPE BODY...)...)"
+If optional REFRESH is non-nil, then refresh Magit buffers after
+the action has run.
+
+\(fn (SECTION INFO OPNAME [NOREFRESH]) (SECTION-TYPE BODY...)...)"
   (declare (indent 1) (debug (sexp &rest (sexp body))))
   (let ((value (make-symbol "*value*"))
         (opname (car (cddr head)))
@@ -2777,9 +2780,9 @@ Each use of `magit-section-action' should use an unique OPNAME.
                              (assq 'otherwise clauses)))))
     (when disallowed
       (error "%s is an invalid section type" disallowed))
-    `(magit-with-refresh
-       (let ((,value
-              (magit-section-case ,(butlast head)
+    `(,(if (nth 3 head) 'progn 'magit-with-refresh)
+      (let ((,value
+             (magit-section-case ,(list (car head) (cadr head))
                 ,@clauses
                 (t
                  (or (run-hook-with-args-until-success
@@ -2864,6 +2867,7 @@ and CLAUSES.
       (setq args (mapcar (apply-partially 'replace-regexp-in-string
                                           "{\\([0-9]+\\)}" "\\\\{\\1\\\\}")
                          args)))
+    (magit-need-refresh command-buf)
     (magit-set-mode-line-process
      (magit-process-indicator-from-command cmd-and-args))
     (with-current-buffer process-buf
@@ -2927,13 +2931,11 @@ and CLAUSES.
                  (process-send-eof magit-process)
                  (while magit-process
                    (sit-for 0.1 t)))
-               (magit-set-mode-line-process)
-               (magit-need-refresh command-buf))
+               (magit-set-mode-line-process))
               (t
                (setq successp
                      (equal (apply 'process-file cmd nil process-buf nil args) 0))
-               (magit-set-mode-line-process)
-               (magit-need-refresh command-buf))))
+               (magit-set-mode-line-process))))
       (or successp
           noerror
           (error
@@ -2972,10 +2974,7 @@ and CLAUSES.
           (when (featurep 'dired)
             (dired-uncache default-directory))))
       (magit-set-mode-line-process)
-      (when (and (buffer-live-p command-buf)
-                 (with-current-buffer command-buf
-                   (derived-mode-p 'magit-mode)))
-        (magit-mode-refresh-buffer command-buf)))))
+      (magit-refresh))))
 
 (defun magit-process-filter (proc string)
   (with-current-buffer (process-buffer proc)
@@ -3310,17 +3309,21 @@ buffer's mode doesn't derive from `magit-mode' do nothing."
                   magit-refresh-needing-buffers :test 'eq))))
 
 (defun magit-refresh ()
-  "Refresh current buffer to match repository state.
+  "Refresh current buffer and possibly others that need to be refreshed.
+Refresh the current buffer and Magit buffers of the same
+repository that were previously marked as needing to be
+refreshed.  The status buffer is always refreshed, even
+when not explicitly marked as needing to be refreshed.
 Also revert every unmodified buffer visiting files
-in the corresponding directory."
+in the current repository."
   (interactive)
   (magit-with-refresh
     (magit-need-refresh)))
 
 (defun magit-refresh-all ()
-  "Refresh all magit buffers to match respective repository states.
+  "Refresh all Magit buffers of the current repository.
 Also revert every unmodified buffer visiting files
-in the corresponding directories."
+in the current repository."
   (interactive)
   (magit-map-magit-buffers #'magit-mode-refresh-buffer default-directory))
 
@@ -5289,10 +5292,8 @@ typing and automatically refreshes the status buffer."
   (interactive
    (list (read-string "Run git like this: " nil 'magit-git-command-history)))
   (require 'pcomplete)
-  (let ((args (magit-parse-arguments command))
-        (magit-process-popup-time 0))
-    (magit-with-refresh
-      (magit-run-git* args nil nil nil t))))
+  (let ((magit-process-popup-time 0))
+    (magit-run-git* (magit-parse-arguments command) nil nil nil t)))
 
 ;;;; Pushing
 
@@ -6352,7 +6353,7 @@ a position in a file-visiting buffer."
     "Visit current item.
 With a prefix argument, visit in other window."
     (interactive "P")
-    (magit-section-action (item info "dired-jump")
+    (magit-section-action (item info "dired-jump" t)
       ((untracked file)
        (dired-jump other-window (file-truename info)))
       ((diff)
@@ -6374,7 +6375,7 @@ With a prefix argument, visit in other window."
   (let* (line
          column
          (file
-          (magit-section-action (item info "visit-file")
+          (magit-section-action (item info "visit-file" t)
             ((untracked file) info)
             ((diff)           (magit-diff-item-file item))
             ((diffstat)       (magit-section-info item))
@@ -6415,7 +6416,7 @@ With a prefix argument, visit in other window."
   "Visit current item.
 With a prefix argument, visit in other window."
   (interactive "P")
-  (magit-section-action (item info "visit")
+  (magit-section-action (item info "visit" t)
     ((untracked file)
      (call-interactively 'magit-visit-file-item))
     ((diff)
@@ -6462,7 +6463,7 @@ With a prefix argument, visit in other window."
   (interactive "P")
   (if unmark
       (setq magit-marked-commit nil)
-    (magit-section-action (item info "mark")
+    (magit-section-action (item info "mark") ; ?
       ((commit)
        (setq magit-marked-commit
              (if (equal magit-marked-commit info) nil info)))))
@@ -6473,7 +6474,7 @@ With a prefix argument, visit in other window."
 (defun magit-copy-item-as-kill ()
   "Copy sha1 of commit at point into kill ring."
   (interactive)
-  (magit-section-action (item info "copy")
+  (magit-section-action (item info "copy" t)
     ((commit)
      (kill-new info)
      (message "%s" info))))
@@ -6524,7 +6525,7 @@ With a prefix argument, visit in other window."
 
 (defun magit-interactive-resolve-item ()
   (interactive)
-  (magit-section-action (item info "resolv")
+  (magit-section-action (item info "resolv" t)
     ((diff)
      (magit-interactive-resolve (cadr info)))))
 
@@ -6731,7 +6732,7 @@ from the parent keymap `magit-mode-map' are also available.")
            (switch-to-buffer-other-window
             (magit-show (cdr (magit-diff-item-range item))
                         (magit-diff-item-file item))))))
-    (magit-section-action (item info "show")
+    (magit-section-action (item info "show" t)
       ((commit)
        (let ((current-file (or magit-file-log-file
                                (magit-read-file-from-rev info))))
