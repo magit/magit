@@ -2769,7 +2769,10 @@ Return the value of BODY of the clause that succeeded.
 
 Each use of `magit-section-action' should use an unique OPNAME.
 
-\(fn (SECTION INFO OPNAME) (SECTION-TYPE BODY...)...)"
+If optional REFRESH is non-nil, then refresh Magit buffers after
+the action has run.
+
+\(fn (SECTION INFO OPNAME [NOREFRESH]) (SECTION-TYPE BODY...)...)"
   (declare (indent 1) (debug (sexp &rest (sexp body))))
   (let ((value (make-symbol "*value*"))
         (opname (car (cddr head)))
@@ -2777,9 +2780,9 @@ Each use of `magit-section-action' should use an unique OPNAME.
                              (assq 'otherwise clauses)))))
     (when disallowed
       (error "%s is an invalid section type" disallowed))
-    `(magit-with-refresh
-       (let ((,value
-              (magit-section-case ,(butlast head)
+    `(,(if (nth 3 head) 'progn 'magit-with-refresh)
+      (let ((,value
+             (magit-section-case ,(list (car head) (cadr head))
                 ,@clauses
                 (t
                  (or (run-hook-with-args-until-success
