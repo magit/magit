@@ -5289,10 +5289,8 @@ typing and automatically refreshes the status buffer."
   (interactive
    (list (read-string "Run git like this: " nil 'magit-git-command-history)))
   (require 'pcomplete)
-  (let ((args (magit-parse-arguments command))
-        (magit-process-popup-time 0))
-    (magit-with-refresh
-      (magit-run-git* args nil nil nil t))))
+  (let ((magit-process-popup-time 0))
+    (magit-run-git* (magit-parse-arguments command) nil nil nil t)))
 
 ;;;; Pushing
 
