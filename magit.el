@@ -2864,6 +2864,7 @@ and CLAUSES.
       (setq args (mapcar (apply-partially 'replace-regexp-in-string
                                           "{\\([0-9]+\\)}" "\\\\{\\1\\\\}")
                          args)))
+    (magit-need-refresh command-buf)
     (magit-set-mode-line-process
      (magit-process-indicator-from-command cmd-and-args))
     (with-current-buffer process-buf
@@ -2927,13 +2928,11 @@ and CLAUSES.
                  (process-send-eof magit-process)
                  (while magit-process
                    (sit-for 0.1 t)))
-               (magit-set-mode-line-process)
-               (magit-need-refresh command-buf))
+               (magit-set-mode-line-process))
               (t
                (setq successp
                      (equal (apply 'process-file cmd nil process-buf nil args) 0))
-               (magit-set-mode-line-process)
-               (magit-need-refresh command-buf))))
+               (magit-set-mode-line-process))))
       (or successp
           noerror
           (error
