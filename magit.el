@@ -6474,7 +6474,7 @@ With a prefix argument, visit in other window."
 (defun magit-copy-item-as-kill ()
   "Copy sha1 of commit at point into kill ring."
   (interactive)
-  (magit-section-action (item info "copy")
+  (magit-section-action (item info "copy" t)
     ((commit)
      (kill-new info)
      (message "%s" info))))
