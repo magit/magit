@@ -194,7 +194,7 @@ clean:
 	@test -e .git || $(RM) magit.info
 
 DIST_FILES  = $(ELS) magit-version.el Makefile AUTHORS.md
-DIST_FILES += README.md INSTALL.md magit.texi magit.info dir
+DIST_FILES += README.md magit.texi magit.info dir
 DIST_FILES_BIN  = bin/magit
 
 ELPA_FILES = $(ELS) magit.info dir AUTHORS.md
