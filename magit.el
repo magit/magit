@@ -6525,7 +6525,7 @@ With a prefix argument, visit in other window."
 
 (defun magit-interactive-resolve-item ()
   (interactive)
-  (magit-section-action (item info "resolv")
+  (magit-section-action (item info "resolv" t)
     ((diff)
      (magit-interactive-resolve (cadr info)))))
 
