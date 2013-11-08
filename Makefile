@@ -136,7 +136,8 @@ define AUTHORS_HEADER
 Authors
 =======
 
-Names Sorted Alphabetically:
+Also see https://github.com/magit/magit/graphs/contributors.
+Names below are sorted alphabetically.
 
 Author
 ------
