@@ -3310,17 +3310,21 @@ buffer's mode doesn't derive from `magit-mode' do nothing."
                   magit-refresh-needing-buffers :test 'eq))))
 
 (defun magit-refresh ()
-  "Refresh current buffer to match repository state.
+  "Refresh current buffer and possibly others that need to be refreshed.
+Refresh the current buffer and Magit buffers of the same
+repository that were previously marked as needing to be
+refreshed.  The status buffer is always refreshed, even
+when not explicitly marked as needing to be refreshed.
 Also revert every unmodified buffer visiting files
-in the corresponding directory."
+in the current repository."
   (interactive)
   (magit-with-refresh
     (magit-need-refresh)))
 
 (defun magit-refresh-all ()
-  "Refresh all magit buffers to match respective repository states.
+  "Refresh all Magit buffers of the current repository.
 Also revert every unmodified buffer visiting files
-in the corresponding directories."
+in the current repository."
   (interactive)
   (magit-map-magit-buffers #'magit-mode-refresh-buffer default-directory))
 
