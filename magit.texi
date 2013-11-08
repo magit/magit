@@ -106,25 +106,14 @@ recent command.  You can switch to it with @kbd{$}.
 @node Acknowledgments
 @chapter Acknowledgments
 
-Marius Vollmer started the whole project.  Thanks !
+Our thank goes to all current and past contributors, Marius Vollmer
+who started the project, and all retired and current maintainers,
+Phil Jackson, Peter J. Weisberg, Rémi Vanicat, Nicolas Dudebout,
+Yann Hodique, and Jonas Bernoulli.
 
-From day one of the first Magit announcement, John Wiegley has
-contributed numerous fixes, UI improvements, and new features.
-Thanks!
-
-Linh Dang and Christian Neukirchen also contributed from day one.
-Thanks!
-
-Phil Hagelberg joined a few days later.  Thanks!
-
-Alex Ott contributed support for git svn.  Thanks!
-
-Marcin Bachry contributed bug fixes and support for decorated logs.
-Thanks!
-
-Alexey Voinov fixed bugs.  Thanks!
-
-Rémi Vanicat helped with Tramp support.  Thanks!
+(For a full list of contributors, see the AUTHORS.md file
+at the top-level directory of this distribution and at
+https://raw.github.com/magit/magit/master/AUTHORS.md)
 
 @node Sections
 @chapter Sections
