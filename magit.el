@@ -2971,10 +2971,7 @@ and CLAUSES.
           (when (featurep 'dired)
             (dired-uncache default-directory))))
       (magit-set-mode-line-process)
-      (when (and (buffer-live-p command-buf)
-                 (with-current-buffer command-buf
-                   (derived-mode-p 'magit-mode)))
-        (magit-mode-refresh-buffer command-buf)))))
+      (magit-refresh))))
 
 (defun magit-process-filter (proc string)
   (with-current-buffer (process-buffer proc)
