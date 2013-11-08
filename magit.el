@@ -6463,7 +6463,7 @@ With a prefix argument, visit in other window."
   (interactive "P")
   (if unmark
       (setq magit-marked-commit nil)
-    (magit-section-action (item info "mark")
+    (magit-section-action (item info "mark") ; ?
       ((commit)
        (setq magit-marked-commit
              (if (equal magit-marked-commit info) nil info)))))
