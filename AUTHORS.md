@@ -1,7 +1,8 @@
 Authors
 =======
 
-Names Sorted Alphabetically:
+Also see https://github.com/magit/magit/graphs/contributors.
+Names below are sorted alphabetically.
 
 Author
 ------
@@ -64,8 +65,10 @@ Contributors
 - Dominique Quatravaux <domq@google.com>
 - Eli Barzilay <eli@barzilay.org>
 - Eric Davis <ed@npri.org>
+- Eric Schulte <schulte.eric@gmail.com>
 - Evgkeni Sampelnikof <esabof@gmail.com>
 - Felix Geller <fgeller@gmail.com>
+- Feng Li <fengli@blackmagicdesign.com>
 - George Kadianakis <desnacked@gmail.com>
 - Graham Clark <grclark@gmail.com>
 - Greg Sexton <gregsexton@gmail.com>
@@ -142,6 +145,7 @@ Contributors
 - Steve Purcell <steve@sanityinc.com>
 - Suhail Shergill <suhailshergill@gmail.com>
 - Takafumi Arakaki <aka.tkf@gmail.com>
+- Teruki Shigitani <teruki.shigitani@gmail.com>
 - Thierry Volpiatto <thierry.volpiatto@gmail.com>
 - Thomas Jost <thomas.jost@gmail.com>
 - Tibor Simko <tibor.simko@cern.ch>
