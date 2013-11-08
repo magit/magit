@@ -84,19 +84,20 @@ Magit is not a complete interface to Git; it just aims to make the
 most common Git operations convenient.  Thus, Magit will likely not
 save you from learning Git itself.
 
-This manual provides a tour of all Magit features.  It does not give an
+This manual provides a tour of many Magit features.  It isn't an
 introduction to version control in general, or to Git in particular.
 
-The main entry point to Magit is @kbd{M-x magit-status}, which will
-put you in Magit's status buffer.  You will be using it frequently, so
-it is probably a good idea to bind @code{magit-status} to a key of
-your choice.
+The main entry point to Magit is @kbd{M-x magit-status}, which puts
+you in Magit's status buffer.  You will be using it frequently, so it
+is probably a good idea to globally bind @code{magit-status} to a key
+of your choice.
 
 In addition to the status buffer, Magit will also create buffers that
 show lists of commits, buffers with diffs, and other kinds of buffers.
-All these buffers are in @code{magit-mode} and have the same key
-bindings.  Not all commands make sense in all contexts, but a given
-key will always do the same thing in all Magit buffers.
+All these buffers are in a mode derived from @code{magit-mode} and
+have the similar key bindings.  Not all commands make sense in all
+contexts, but a given key will do the same thing in different Magit
+buffers.
 
 Naturally, Magit runs the @code{git} command to do most of the work.
 The @code{*magit-process*} buffer contains the transcript of the most
