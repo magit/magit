@@ -6416,7 +6416,7 @@ With a prefix argument, visit in other window."
   "Visit current item.
 With a prefix argument, visit in other window."
   (interactive "P")
-  (magit-section-action (item info "visit")
+  (magit-section-action (item info "visit" t)
     ((untracked file)
      (call-interactively 'magit-visit-file-item))
     ((diff)
