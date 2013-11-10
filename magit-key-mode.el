@@ -69,7 +69,7 @@
   :group 'magit-faces)
 
 ;;; Keygroups
-
+;;;###autoload
 (defvar magit-key-mode-groups
   '((dispatch
      (actions
@@ -715,6 +715,8 @@ Return the point before the actions part, if any, nil otherwise."
 (mapc (lambda (g)
         (magit-key-mode-generate (car g)))
       magit-key-mode-groups)
+
+;;;###autoload (mapc (lambda (g) (eval `(autoload ',(intern (concat "magit-key-mode-popup-" (symbol-name (car g)))) "magit-key-mode" ,(concat "Key menu for " (symbol-name (car g))) t))) magit-key-mode-groups)
 
 (provide 'magit-key-mode)
 ;;; magit-key-mode.el ends here
