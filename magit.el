@@ -768,7 +768,7 @@ using `magit-key-mode-popup-diff-options' (bound to \
 
 (put 'magit-diff-options 'permanent-local t)
 
-(defcustom magit-diff-refine-hunk nil
+(defcustom magit-diff-refine-hunk t
   "Show fine (word-granularity) differences within diff hunks.
 
 There are three possible settings:
