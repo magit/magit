@@ -2578,12 +2578,16 @@ true, shown otherwise."
         (magit-section-set-hidden section flag-or-func)))))
 
 (defun magit-show-section ()
-  "Show current section."
+  "Show the contents of the current section."
   (interactive)
   (magit-section-hideshow nil))
 
 (defun magit-hide-section ()
-  "Hide current section."
+  "Hide the contents of the current section.
+
+Warning:  Hiding all the files in a section header can be
+misleading.  The appearance of a bare section header is supposed
+to be the hint that the section contains hidden files."
   (interactive)
   (magit-section-hideshow t))
 
@@ -2598,21 +2602,32 @@ true, shown otherwise."
   (magit-section-hideshow #'magit-section-expand))
 
 (defun magit-toggle-file-section ()
-  "Like `magit-toggle-section' but toggle at file granularity."
+  "Like `magit-toggle-section' but toggle at file granularity.
+
+Will collapse entire diff even when the point is in a hunk."
   (interactive)
   (when (eq 'hunk (car (magit-section-context-type (magit-current-section))))
     (magit-goto-parent-section))
   (magit-toggle-section))
 
 (defun magit-toggle-section ()
-  "Toggle hidden status of current section."
+  "Toggle hidden status of current section.
+
+Show/hide the diff for a file in a \"changes\" section.
+
+Show/hide all of the files in a section when the point is on a
+section header.
+
+Warning:  Hiding all the files in a section header can be
+misleading.  The appearance of a bare section header is supposed
+to be the hint that the section contains hidden files."
   (interactive)
   (magit-section-hideshow
    (lambda (s)
      (magit-section-set-hidden s (not (magit-section-hidden s))))))
 
 (defun magit-expand-collapse-section ()
-  "Toggle hidden status of subsections of current section."
+  "Toggle the hidden status of all subsections of the current section."
   (interactive)
   (magit-section-hideshow
    (lambda (s)
@@ -2622,7 +2637,7 @@ true, shown otherwise."
             (magit-section-collapse s))))))
 
 (defun magit-cycle-section ()
-  "Cycle between expanded, hidden and collapsed state for current section.
+  "Cycle between expanded, hidden and collapsed state for the current section.
 
 Hidden: only the first line of the section is shown
 Collapsed: only the first line of the subsection is shown
@@ -2672,8 +2687,8 @@ Do this in on ancestors and descendants of current section."
     (call-interactively 'magit-show-level-1)))
 
 (defun magit-show-only-files-all ()
-  "Show section that are files, but not their subsection.
-Do this for all sections"
+  "Show section that are files, but not their subsection,
+and do this for all sections."
   (interactive)
   (if (derived-mode-p 'magit-status-mode)
       (call-interactively 'magit-show-level-2-all)
@@ -4342,11 +4357,12 @@ in `magit-commit-buffer-name'."
 
 \\<magit-status-mode-map>Type `\\[magit-stage-item]` to stage (add) an item, \
 `\\[magit-unstage-item]` to unstage it.
-Type `\\[magit-key-mode-popup-committing]` to have a popup to commit, type \
-`\\[magit-key-mode-popup-dispatch]` to see others
-available popup.
-Type `\\[magit-visit-item]` to visit something, and \
-`\\[magit-toggle-section]` to show or hide section.
+Type `\\[magit-key-mode-popup-committing]` to enter the commit menu.
+Type `\\[magit-visit-item]` to visit something (e.g. a file or a commit).
+Type `\\[magit-toggle-section]` to show or hide a section or item (e.g. the
+changes to a file, or the chagnes in a commit).
+
+Type `\\[magit-key-mode-popup-dispatch]` to see other available sub-menus.
 
 More information can be found in Info node `(magit)Status'
 
@@ -4778,9 +4794,11 @@ With a prefix argument, prompt for a file to be staged instead."
          (magit-goto-parent-section)
          (magit-stage-item)))
       ((hunk)
-       (error "Can't stage this hunk"))
+       (error "Can't stage hunks from a diff buffer
+\(Type TAB in status buffer to show the diff)"))
       ((diff)
-       (error "Can't stage this diff")))))
+       (error "Can't stage a diff from a diff buffer
+\(Type TAB in status buffer to show the diff)")))))
 
 ;;;###autoload
 (defun magit-stage-all (&optional including-untracked)
@@ -5721,8 +5739,12 @@ With a prefix argument annotate the tag.
 (defun magit-stash (description)
   "Create new stash of working tree and staging area named DESCRIPTION.
 Working tree and staging area revert to the current 'HEAD'.
-With prefix argument, changes in staging area are kept.
-\('git stash save [--keep-index] DESCRIPTION')"
+With a prefix argument, changes in staging area (index) are kept in the working
+directory (i.e. the stash contains only the changes not yet staged for commit).
+\('git stash save [--keep-index] DESCRIPTION')
+
+Apply and keep stash with `magit-apply-item' (type \\[magit-apply-item]),
+or pop it with `magit-cherry-pick-item' (type \\[magit-cherry-pick-item])."
   (interactive (list (read-string "Stash description: " nil
                                   'magit-read-stash-history)))
   (apply 'magit-run-git "stash" "save"
@@ -5743,6 +5765,13 @@ With prefix argument, changes in staging area are kept.
 ;;;; Apply
 
 (defun magit-apply-item ()
+  "Generic function to operate on item under cursor:
+
+Apply a (pending) commit with '--no-commit'.
+
+Apply a hunk or a diff.
+
+Apply a stash using 'git stash apply' thus keeping the stash."
   (interactive)
   (magit-section-action (item info "apply")
     ((pending commit)
@@ -5801,7 +5830,13 @@ member of ARGS, or to the working file otherwise."
 
 ;;;; Cherry-Pick
 
+;; xxx this function is either horribly named, or overloaded with functionality
+;; confusing commits and stashes...
 (defun magit-cherry-pick-item ()
+  "EITHER:
+Cherry pick and apply a (pending) commit.
+OR:
+Apply and remove the stash (git stash pop) on the line under the point."
   (interactive)
   (magit-section-action (item info "cherry-pick")
     ((pending commit)
