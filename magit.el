@@ -503,7 +503,7 @@ they are not (due to semantic considerations)."
 (defcustom magit-stage-all-confirm t
   "Whether to require confirmation before staging all changes.
 This reduces the risk of accidentally losing the index.  If
-nothing at all is stage yet, then always stage without requiring
+nothing at all is staged yet, then always stage without requiring
 confirmation, because it can be undone without the risk of losing
 a carefully crafted index."
   :package-version '(magit . "1.3.0")
@@ -2663,7 +2663,7 @@ on ancestors and descendants of current section."
         (magit-section-show-level (car path) 0 level (cdr path))))))
 
 (defun magit-show-only-files ()
-  "Show section that are files, but not there subsection.
+  "Show section that are files, but not their subsection.
 
 Do this in on ancestors and descendants of current section."
   (interactive)
@@ -2672,7 +2672,7 @@ Do this in on ancestors and descendants of current section."
     (call-interactively 'magit-show-level-1)))
 
 (defun magit-show-only-files-all ()
-  "Show section that are files, but not there subsection.
+  "Show section that are files, but not their subsection.
 Do this for all sections"
   (interactive)
   (if (derived-mode-p 'magit-status-mode)
