@@ -480,7 +480,11 @@ simply show the two versions of the file.
 
 To show the changes from your working tree to another revision, type
 @kbd{d}.  To show the changes between two arbitrary revisions, type
-@kbd{D}.
+@kbd{D}.  To show the changes in any given item, type @kbd{=}, where the
+item is a file containing changes (this is like pressing @kbd{TAB}, but
+instead of expanding the diffs in the status buffer the diffs are shown
+in a new @code{*magit-diff*} buffer), or possibly a commit (this is the
+same as visiting the commit with @kbd{RET}).
 
 You can use @kbd{a} within the diff output to apply the changes to
 your working tree.  As usual when point is in a diff header for a
@@ -488,7 +492,8 @@ file, all changes for that file are applied, and when it is in a hunk,
 only that hunk is.  When the region is active, the applied changes are
 restricted to that region.
 
-Typing @kbd{v} will apply the selected changes in reverse.
+Typing @kbd{v} will apply the selected changes in reverse, i.e. revert,
+or remove, the selected changes from your working tree.
 
 @node Tagging
 @chapter Tagging

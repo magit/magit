@@ -1313,7 +1313,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "I") 'magit-ignore-item-locally)
     (define-key map (kbd "j") 'magit-section-jump-map)
     (define-key map (kbd ".") 'magit-mark-item)
-    (define-key map (kbd "=") 'magit-diff-with-mark)
+    (define-key map (kbd "=") 'magit-diff-item)
     (define-key map (kbd "k") 'magit-discard-item)
     (define-key map (kbd "C") 'magit-commit-add-log)
     map)
@@ -6320,6 +6320,29 @@ More information can be found in Info node `(magit)Diffing'
   "Show differences between index and HEAD."
   (interactive)
   (magit-diff nil nil (list "--cached")))
+
+;;;###autoload
+(defun magit-diff-item (&optional file)
+  "Show differences between the file at the point and the index.
+\\<magit-status-mode-map>\
+When the point is on a commit it will visit it (as if typing \\[magit-visit-item]).
+With a prefix argument, prompt for a file (or commit) to be diffed instead."
+  (interactive
+   (when current-prefix-arg
+     (list (file-relative-name (read-file-name "File to diff: " nil nil t)
+                               (magit-get-top-dir)))))
+  (if file
+      (magit-diff nil nil (list "--" file))
+    (magit-section-action (item info "diff-file")
+      ;; xxx how to detect when point is on section header?
+      ;; todo: if point is on "Unstaged changes" header then just call
+      ;; `magit-diff-working-tree'
+      ((staged *)
+       (magit-diff nil nil (list "--cached" "--" (cadr info))))
+      ((unstaged *)
+       (magit-diff nil nil (list "--" (cadr info))))
+      ((commit)
+       (magit-show-commit info nil nil 'select)))))
 
 ;;;###autoload
 (defun magit-diff-unstaged ()
