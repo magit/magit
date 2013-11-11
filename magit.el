@@ -4057,9 +4057,9 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 (define-derived-mode magit-commit-mode magit-mode "Magit"
   "Mode for looking at a git commit.
 
-\\<magit-commit-mode-map>Type \\[magit-visit-item] to visit the changed file, \
+\\<magit-commit-mode-map>Type `\\[magit-visit-item]` to visit the changed file, \
 `\\[magit-toggle-section]` to hide or show a hunk,
-`\\[magit-diff-larger-hunks]` and `\\[magit-diff-smaller-hunks] to change the \
+`\\[magit-diff-larger-hunks]` and `\\[magit-diff-smaller-hunks]` to change the \
 size of the hunks.
 Type `\\[magit-apply-item]` to apply a change to your worktree and \
 `\\[magit-revert-item]` to reverse it.
@@ -6247,9 +6247,9 @@ restore the window state that was saved before ediff was called."
 (define-derived-mode magit-diff-mode magit-mode "Magit Diff"
   "Mode for looking at a git diff.
 
-\\<magit-diff-mode-map>Type \\[magit-visit-item] to visit the changed file, \
+\\<magit-diff-mode-map>Type `\\[magit-visit-item]` to visit the changed file, \
 `\\[magit-toggle-section]` to hide or show a hunk,
-`\\[magit-diff-larger-hunks]` and `\\[magit-diff-smaller-hunks] to change \
+`\\[magit-diff-larger-hunks]` and `\\[magit-diff-smaller-hunks]` to change \
 the size of the hunks.
 Type `\\[magit-apply-item]` to apply a change to your worktree and \
 `\\[magit-revert-item]` to reverse it.
