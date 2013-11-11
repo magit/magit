@@ -1382,29 +1382,36 @@ Many Magit faces inherit from this one by default."
   "Submap for jumping to sections in `magit-status-mode'.")
 (fset 'magit-section-jump-map magit-section-jump-map)
 
-(easy-menu-define magit-mode-menu magit-mode-map
+(easy-menu-define magit-mode-menu (list magit-mode-map magit-status-mode-map)
   "Magit menu"
   '("Magit"
     ["Refresh" magit-refresh t]
     ["Refresh all" magit-refresh-all t]
     "---"
+    ["Visit" magit-visit-item t]
+    "---"
     ["Stage" magit-stage-item t]
     ["Stage all" magit-stage-all t]
     ["Unstage" magit-unstage-item t]
     ["Unstage all" magit-unstage-all t]
-    ["Commit" magit-key-mode-popup-committing t]
+    ("Commit"
+     ["Commit" magit-commit t]
+     ["Extended..." magit-key-mode-popup-committing t])
     ["Add log entry" magit-commit-add-log t]
-    ["Tag" magit-tag t]
+    ("Tag"
+     ["Tag" magit-tag t]
+     ["Extended..." magit-key-mode-popup-tagging t])
     "---"
     ["Diff working tree" magit-diff-working-tree t]
-    ["Diff" magit-diff t]
+    ["Diff range" magit-diff t]
+    ["Diff item" magit-diff-item t]
     ("Log"
      ["Short Log" magit-log t]
      ["Long Log" magit-log-long t]
      ["Reflog" magit-reflog t]
      ["Extended..." magit-key-mode-popup-logging t])
     "---"
-    ["Cherry pick" magit-cherry-pick-item t]
+    ["Cherry pick (or pop stash)" magit-cherry-pick-item t]
     ["Apply" magit-apply-item t]
     ["Revert" magit-revert-item t]
     "---"
@@ -1413,13 +1420,22 @@ Many Magit faces inherit from this one by default."
     ["Discard" magit-discard-item t]
     ["Reset head" magit-reset-head t]
     ["Reset working tree" magit-reset-working-tree t]
-    ["Stash" magit-stash t]
+    ("Stash"
+     ["Stash" magit-stash t]
+     ["Extended..." magit-key-mode-popup-stashing t])
     ["Snapshot" magit-stash-snapshot t]
     "---"
-    ["Branch..." magit-checkout t]
-    ["Merge" magit-merge t]
+    ["Checkout" magit-checkout t]
+    ("Branch"
+     ["Branch Manager" magit-branch-manager t]
+     ["Extended...." magit-key-mode-popup-branching t])
+    ("Merge"
+     ["Merge" magit-merge t]
+     ["Extended..." magit-key-mode-popup-merging t])
     ["Interactive resolve" magit-interactive-resolve-item t]
-    ["Rebase" magit-rebase-step t]
+    ("Rebase"
+     ["Rebase or Continue" magit-rebase-step t]
+     ["Interactive Rebase" magit-interactive-rebase t])
     ("Rewrite"
      ["Start" magit-rewrite-start t]
      ["Stop" magit-rewrite-stop t]
@@ -1428,9 +1444,18 @@ Many Magit faces inherit from this one by default."
      ["Set used" magit-rewrite-set-used t]
      ["Set unused" magit-rewrite-set-unused t])
     "---"
-    ["Push" magit-push t]
-    ["Pull" magit-pull t]
+    ("Push"
+     ["Push" magit-push t]
+     ["Extended..." magit-key-mode-popup-pushing t])
+    ("Pull"
+     ["Pull" magit-pull t]
+     ["Extended..." magit-key-mode-popup-pulling t])
+    ("Fetch"
+     ["Fetch current" magit-fetch-current t]
+     ["Fetch other..." magit-fetch t]
+     ["Extended..." magit-key-mode-popup-fetching t])
     ["Remote update" magit-remote-update t]
+    "---"
     ("Submodule"
      ["Submodule update" magit-submodule-update t]
      ["Submodule update and init" magit-submodule-update-init t]
