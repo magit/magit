@@ -909,7 +909,7 @@ Many Magit faces inherit from this one by default."
   :group 'magit-faces)
 
 (defface magit-diff-none
-  '((t :inherit default))
+  '((t :inherit diff-context))
   "Face for lines in a diff that are unchanged."
   :group 'magit-faces)
 
