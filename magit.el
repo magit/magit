@@ -442,6 +442,7 @@ Only considered when moving past the last entry with
     magit-insert-status-merge-line
     magit-insert-status-rebase-lines
     magit-insert-empty-line
+    magit-insert-bisect-rest
     magit-insert-stashes
     magit-insert-untracked-files
     magit-insert-pending-changes
@@ -3868,6 +3869,12 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
           "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
           "\\(?2:.*\\)$"))                         ; msg
 
+(defconst magit-log-bisect-vis-re
+  (concat "^"
+          "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
+          "\\(?:\\(?3:([^()]+)\\) \\)?"            ; refs
+          "\\(?2:.+\\)$"))                         ; msg
+
 (defconst magit-log-reflog-re
   (concat "^"
           "\\(?4:[^\C-?]+\\)\C-??"                 ; graph FIXME
@@ -3906,7 +3913,8 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                 (long    magit-log-long-re)
                 (unique  magit-log-unique-re)
                 (cherry  magit-log-cherry-re)
-                (reflog  magit-log-reflog-re)))
+                (reflog  magit-log-reflog-re)
+                (bisect-vis magit-log-bisect-re)))
   (magit-bind-match-strings
       (hash msg refs graph author date gpg cherry refsub)
     (delete-region (point) (point-at-eol))
@@ -4607,6 +4615,15 @@ when asking for user input."
        (format "(bisected: first bad revision is %s)" (plist-get info :bad)))
       (t
        "(bisecting; unknown error occured)"))))
+
+(defun magit-insert-bisect-rest ()
+  (when (magit-bisecting-p)
+    (magit-git-section 'bisect-view "Bisect Rest:"
+                       (apply-partially 'magit-wash-log 'bisect-vis)
+                       "bisect" "visualize" "git" "log"
+                       "--decorate=full" "--abbrev-commit"
+                       (magit-diff-abbrev-arg)
+                       "--pretty=format:%h%d %s")))
 
 (defvar-local magit--bisect-info nil)
 (put 'magit--bisect-info 'permanent-local t)
