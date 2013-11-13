@@ -220,7 +220,7 @@ directory then the first executable found anywhere on the
 If no executable can be located then nil becomes the default
 value, and some important Magit commands will fallback to an
 alternative code path.  However `magit-interactive-rebase'
-will stop working at all."
+will stop working completely."
   :group 'magit
   :type '(choice (string :tag "Executable")
                  (const :tag "Don't use Emacsclient" nil)))
@@ -2765,7 +2765,7 @@ current section."
        (magit-show-level ,level ,all))))
 
 (defmacro magit-define-level-shower (level)
-  "Define two interactive function to show function of level LEVEL.
+  "Define two interactive functions to show function of level LEVEL.
 One for all, one for current lineage."
   `(progn
      (magit-define-level-shower-1 ,level nil)
@@ -3171,12 +3171,13 @@ and CLAUSES.
 (defun magit-display-process (&optional process buffer)
   "Display output from most recent Git process.
 
-Non-interactively the behaviour depends on the optional PROCESS
-and BUFFER arguments.  If non-nil display BUFFER (provided it is
-still alive).  Otherwise if PROCESS is non-nil display its buffer
-but only if it is still alive after `magit-process-popup-time'
-seconds.  Finally if both PROCESS and BUFFER are nil display the
-buffer of the most recent process, like in the interactive case."
+When called non-interactively the behaviour depends on the
+optional PROCESS and BUFFER arguments.  If BUFFER is non-nil then
+display it (provided it is still alive).  Otherwise if PROCESS is
+non-nil display its buffer but only if it is still alive after
+`magit-process-popup-time' seconds.  Finally, if both PROCESS and
+BUFFER are nil display the buffer of the most recent process,
+like in the interactive case."
   (interactive)
   (cond ((not process)
          (or buffer
@@ -3429,13 +3430,13 @@ buffer's mode doesn't derive from `magit-mode' do nothing."
                   magit-refresh-needing-buffers :test 'eq))))
 
 (defun magit-refresh ()
-  "Refresh current buffer and possibly others that need to be refreshed.
-Refresh the current buffer and Magit buffers of the same
-repository that were previously marked as needing to be
-refreshed.  The status buffer is always refreshed, even
-when not explicitly marked as needing to be refreshed.
-Also revert every unmodified buffer visiting files
-in the current repository."
+  "Refresh the current buffer and possibly others.
+Refreshes the current buffer and all Magit buffers that are
+related to the same repository and that were previously marked as
+needing to be refreshed.  The status buffer is always refreshed,
+even when not explicitly marked as needing to be refreshed.  Also
+revert every unmodified buffer visiting any file in the current
+repository."
   (interactive)
   (magit-with-refresh
     (magit-need-refresh)))
@@ -3448,8 +3449,7 @@ in the current repository."
   (magit-map-magit-buffers #'magit-mode-refresh-buffer default-directory))
 
 (defun magit-revert-buffer ()
-  "Replace current buffer text with the text of the visited file on disk.
-
+  "Replace the current buffer content with that of the file on disk.
 This is intended for use in `magit-refresh-file-buffer-hook'.
 It calls function `revert-buffer' (which see) but only after a
 few sanity checks."
@@ -4777,7 +4777,8 @@ non-nil, then autocompletion will offer directory names."
 ;;;###autoload
 (defun magit-merge (revision &optional do-commit)
   "Merge REVISION into the current 'HEAD', leaving changes uncommitted.
-With a prefix argument, skip editing the log message and commit.
+With a prefix argument, skip editing the log message and allow
+the commit (i.e. do not supply the \"--no-commit\" option).
 \('git merge [--no-commit] REVISION')."
   (interactive (list (magit-read-rev "Merge"
                                      (or (magit-guess-branch)
@@ -4977,7 +4978,7 @@ If REVISION is a remote branch, offer to create a local tracking branch.
 ;;;###autoload
 (defun magit-create-branch (branch parent)
   "Switch 'HEAD' to new BRANCH at revision PARENT and update working tree.
-Fails if working tree or staging area contain uncommitted changes.
+Fails if the working tree or the staging area contain uncommitted changes.
 \('git checkout -b BRANCH REVISION')."
   (interactive
    (list (read-string "Create branch: ")
@@ -4993,8 +4994,8 @@ Fails if working tree or staging area contain uncommitted changes.
 ;;;###autoload
 (defun magit-delete-branch (branch &optional force)
   "Delete the BRANCH.
-If the branch is the current one, offers to switch to `master' first.
-With prefix, forces the removal even if it hasn't been merged.
+If BRANCH is the current one, offers to switch to \"master\" first.
+With a prefix, forces the removal even if it hasn't been merged.
 Works with local or remote branches.
 \('git branch [-d|-D] BRANCH' or 'git push <remote-part-of-BRANCH> :refs/heads/BRANCH')."
   (interactive (list (magit-read-rev "Branch to delete"
@@ -5013,9 +5014,9 @@ Works with local or remote branches.
                        branch)))
       (cond
        ((and is-current is-master)
-        (message "Cannot delete master branch while it's checked out."))
+        (message "Cannot delete master branch while it is checked out."))
        (is-current
-        (if (y-or-n-p "Cannot delete current branch.  Switch to master first? ")
+        (if (y-or-n-p "Cannot delete current branch.  Switch to master first?")
             (progn
               (magit-checkout "master")
               (apply 'magit-run-git args))
@@ -5026,7 +5027,7 @@ Works with local or remote branches.
 ;;;###autoload
 (defun magit-rename-branch (old new &optional force)
   "Rename branch OLD to NEW.
-With prefix, forces the rename even if NEW already exists.
+With a prefix, forces the rename even if NEW already exists.
 \('git branch [-m|-M] OLD NEW')."
   (interactive
    (let* ((old (magit-read-rev-with-default "Old name"))
@@ -5183,8 +5184,8 @@ Return nil if there is no rebase in progress."
 (defun magit-reset-head (revision &optional hard)
   "Switch 'HEAD' to REVISION, keeping prior working tree and staging area.
 Any differences from REVISION become new changes to be committed.
-With prefix argument, all uncommitted changes in working tree
-and staging area are lost.
+With a prefix, all uncommitted changes in working tree and
+staging area are lost.
 \('git reset [--soft|--hard] REVISION')."
   (interactive (list (magit-read-rev (format "%s head to"
                                              (if current-prefix-arg
@@ -5208,8 +5209,8 @@ Uncomitted changes in both working tree and staging area are lost.
   "Revert working tree and clear changes from staging area.
 \('git reset --hard HEAD').
 
-With a prefix arg, also remove untracked files.
-With two prefix args, remove ignored files as well."
+With a prefix, also remove untracked files.
+With two prefixes, remove ignored files as well."
   (interactive "p")
   (let ((include-untracked (>= arg 4))
         (include-ignored (>= arg 16)))
@@ -5356,11 +5357,11 @@ If there is no default remote, ask for one."
 If there is no default remote, the user is prompted for one and
 its values is saved with git config.  If there is no default
 merge branch, the user is prompted for one and its values is
-saved with git config.  With a prefix argument, the default
-remote is not used and the user is prompted for a remote.  With
-two prefix arguments, the default merge branch is not used and
-the user is prompted for a merge branch.  Values entered by the
-user because of prefix arguments are not saved with git config."
+saved with git config.  With a prefix argument, the default remote is not
+used and the user is prompted for a remote.  With two prefix arguments,
+the default merge branch is not used and the user is prompted for
+a merge branch.  Values entered by the user because of prefix
+arguments are not saved with git config."
   (interactive)
   (or (run-hook-with-args-until-success 'magit-pull-hook)
       (let* ((branch (magit-get-current-branch))
@@ -5892,7 +5893,8 @@ member of ARGS, or to the working file otherwise."
   "EITHER:
 Cherry pick and apply a (pending) commit.
 OR:
-Apply and remove the stash (git stash pop) on the line under the point."
+Apply and remove the stash on the line at the point.
+\(git stash pop item)"
   (interactive)
   (magit-section-action (item info "cherry-pick")
     ((pending commit)
@@ -5910,6 +5912,7 @@ Apply and remove the stash (git stash pop) on the line under the point."
 ;;;; Revert
 
 (defun magit-revert-item ()
+  "Revert the item at the point."
   (interactive)
   (let ((confirm
          (lambda ()
@@ -6038,13 +6041,19 @@ With a prefix argument show the log graph."
 
 \\<magit-log-mode-map>Type `\\[magit-visit-item]` to visit a commit, and \
 `\\[magit-show-item-or-scroll-up]` to just show it.
+
 Type `\\[magit-log-show-more-entries]` to show more commits, \
 and `\\[magit-refresh]` to refresh the log.
+
 Type `\\[magit-diff-working-tree]` to see the diff between current commit and your working tree,
+
 Type `\\[magit-diff]` to see diff between any two version
-Type `\\[magit-apply-item]` to apply the change of the current commit to your wortree,
+
+Type `\\[magit-apply-item]` to apply the change of the current commit to your working tree,
 and `\\[magit-cherry-pick-item]` to apply and commit the result.
-Type `\\[magit-revert-item]` to revert a commit, and `\\[magit-reset-head]` reset your current head to a commit,
+
+Type `\\[magit-revert-item]` to revert a commit, and `\\[magit-reset-head]` to reset your current head to
+a specific revision.
 
 More information can be found in Info node `(magit)History'
 
@@ -6084,9 +6093,10 @@ Other key binding:
 (defun magit-log-show-more-entries (&optional arg)
   "Grow the number of log entries shown.
 
-With no prefix optional ARG, show twice as many log entries.
-With a numerical prefix ARG, add this number to the number of shown log entries.
-With a non numeric prefix ARG, show all entries"
+With no prefix argument or ARG is nil, show twice as many log
+entries.  With a numerical ARG or a prefix pargument, add this
+number to the number of shown log entries.  With a non-numeric
+ARG, show all entries"
   (interactive "P")
   (setq-local magit-log-cutoff-length
               (cond ((numberp arg) (+ magit-log-cutoff-length arg))
@@ -6542,18 +6552,19 @@ filename FILE."
     (magit-completing-read "File/pattern to ignore"
                            completions nil nil nil nil file)))
 
-(defun magit-ignore-file (file &optional edit local)
-  "Add FILE to the list of files to ignore.
-If EDIT is non-nil, prompt the user for the string to be ignored
-instead of using FILE.  The changes are written to .gitignore
-except if LOCAL is non-nil in which case they are written to
-.git/info/exclude."
+(defun magit-ignore-file (filename &optional edit local)
+  "Add FILENAME to the list of files to ignore.
+If EDIT is non-nil, prompt the user for the string (a
+gitignore(5) pattern) to be ignored instead of using FILENAME.
+The FILENAME (or string) is written to \".gitignore\" except if
+LOCAL is non-nil in which case it is written to
+\".git/info/exclude\"."
   (let* ((local-ignore-dir (magit-git-dir "info/"))
          (ignore-file (if local
                           (concat local-ignore-dir "exclude")
                         ".gitignore")))
     (when edit
-      (setq file (magit-edit-ignore-string file)))
+      (setq filename (magit-edit-ignore-string filename)))
     (when (and local (not (file-exists-p local-ignore-dir)))
       (make-directory local-ignore-dir t))
     (with-temp-buffer
@@ -6562,13 +6573,20 @@ except if LOCAL is non-nil in which case they are written to
       (goto-char (point-max))
       (unless (bolp)
         (insert "\n"))
-      (insert file "\n")
+      (insert filename "\n")
       (write-region nil nil ignore-file))
     (magit-need-refresh)))
 
 (defun magit-ignore-item (edit &optional local)
-  "Ignore the item at point.
-With a prefix argument edit the ignore string."
+  "Ignore the item at the point.
+With a prefix argument prompts the user to edit the ignore string.
+
+Item is expected to be an untracked file or a diff.  If the
+latter then the user is invited to untrack the file containing
+the diff.
+
+Calls `magit-ignore-file' with the filename of the item and with
+EDIT and LOCAL."
   (interactive "P")
   (magit-section-action (item info "ignore")
     ((untracked file)
@@ -6581,8 +6599,10 @@ With a prefix argument edit the ignore string."
          (magit-ignore-file (concat "/" file) edit local))))))
 
 (defun magit-ignore-item-locally (edit)
-  "Ignore the item at point locally only.
-With a prefix argument edit the ignore string."
+  "Ignore the item at the point locally only.
+With a prefix argument edit the ignore string.
+
+Calls `magit-ignore-item' with EDIT and with LOCAL set to `t'."
   (interactive "P")
   (magit-ignore-item edit t))
 
@@ -6606,6 +6626,7 @@ With a prefix argument edit the ignore string."
            (magit-run-git "checkout" "--" file)))))))
 
 (defun magit-discard-item ()
+  "Discard the item at the point."
   (interactive)
   (magit-section-action (item info "discard")
     ((untracked file)
@@ -6705,7 +6726,7 @@ a position in a file-visiting buffer."
 (eval-after-load 'dired-x
   '(defun magit-dired-jump (&optional other-window)
     "Visit current item.
-With a prefix argument, visit in other window."
+With a prefix argument, visit in an other window."
     (interactive "P")
     (magit-section-action (item info "dired-jump" t)
       ((untracked file)
@@ -6724,7 +6745,7 @@ With a prefix argument, visit in other window."
 
 (defun magit-visit-file-item (&optional other-window)
   "Visit current file associated with item.
-With a prefix argument, visit in other window."
+With a prefix argument, visit in an other window."
   (interactive "P")
   (let* (line
          column
@@ -6768,7 +6789,7 @@ With a prefix argument, visit in other window."
 
 (defun magit-visit-item (&optional other-window)
   "Visit current item.
-With a prefix argument, visit in other window."
+With a prefix argument, visit in an other window."
   (interactive "P")
   (magit-section-action (item info "visit" t)
     ((untracked file)
@@ -6827,7 +6848,7 @@ With a prefix argument, visit in other window."
 ;;;; Kill
 
 (defun magit-copy-item-as-kill ()
-  "Copy sha1 of commit at point into kill ring."
+  "Copy the SHA1 of the commit at the point into the kill ring."
   (interactive)
   (magit-section-action (item info "copy" t)
     ((commit)
@@ -7187,13 +7208,16 @@ argument) in the current window."
 ;;;###autoload
 (defun magit-run-git-gui-blame (commit filename &optional linenum)
   "Run `git gui blame' on the given FILENAME and COMMIT.
-Interactively run it for the current file and the HEAD, with a
-prefix let the user choose.  When the current buffer is visiting
-FILENAME instruct blame to center around the line point is on."
+NOTE:  the \"git gui\" sub-command is not always available.
+When called interactively, run the command for the current file
+and the HEAD.  When called with a prefix argument let the user
+choose the COMMIT and FILENAME.  When the current buffer is
+visiting FILENAME instruct blame to center around the line the
+point is on."
   (interactive
    (let (revision filename)
      (if current-prefix-arg
-         (setq revision (magit-read-rev "Retrieve file from revision" "HEAD")
+         (setq revision (magit-read-rev "Retrieve from revision" "HEAD")
                filename (magit-read-file-from-rev revision))
        (setq revision "HEAD" filename (magit-buffer-file-name t)))
      (list revision filename
