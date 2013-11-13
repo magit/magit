@@ -1915,9 +1915,7 @@ involving HEAD."
   (declare (indent 0))
   `(magit-refresh-wrapper (lambda () ,@body)))
 
-;;; Revisions and Ranges
-;;__ FIXME The parens indicate preliminary subsections.
-;;;; (insane "rev" reading)
+;;; Revisions
 
 (defvar magit-uninteresting-refs
   '("^refs/stash$"
@@ -2029,8 +2027,6 @@ involving HEAD."
                  nil nil nil nil default)))
     (unless (string= branch "")
       branch)))
-
-;;;; Reference Labels
 
 (defun magit-format-ref-label (ref)
   (cl-destructuring-bind (re face fn)
