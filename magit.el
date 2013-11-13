@@ -4677,11 +4677,8 @@ when asking for user input."
         (magit-with-section 'bisect-log 'bisect-log
           (insert hash " is the first bad commit\n"))))))
 
-(defun magit-bisecting-p (&optional required-status)
-  (and (file-exists-p (magit-git-dir "BISECT_LOG"))
-       (or (not required-status)
-           (eq (plist-get (magit--bisect-info) :status)
-               required-status))))
+(defun magit-bisecting-p ()
+  (file-exists-p (magit-git-dir "BISECT_LOG")))
 
 (defun magit--bisect-info ()
   (with-current-buffer (magit-find-buffer 'magit-status-mode)
