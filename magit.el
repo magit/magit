@@ -6003,30 +6003,11 @@ With a prefix arg, do a submodule update --init."
   (interactive)
   (magit-run-git-bisect "skip"))
 
-(easy-mmode-defmap magit-bisect-minibuffer-local-map
-  '(("\C-i" . comint-dynamic-complete-filename))
-  "Keymap for minibuffer prompting of rebase command."
-  :inherit minibuffer-local-map)
-
-(defvar magit-bisect-mode-history nil
-  "Previously run bisect commands.")
-
 ;;;###autoload
-(defun magit-bisect-run (command)
+(defun magit-bisect-run (cmdline)
   "Bisect automatically by running commands after each step."
-  (interactive
-   (list
-    (read-from-minibuffer "Run command (like this): "
-                          ""
-                          magit-bisect-minibuffer-local-map
-                          nil
-                          'magit-bisect-mode-history)))
-  (let ((file (magit-git-dir "magit-bisect-run")))
-    (with-temp-buffer
-      (insert "#!/bin/sh\n" command "\n")
-      (write-region (point-min) (point-max) file))
-    (set-file-modes file #o755)
-    (magit-run-git-bisect "run" (list file))))
+  (interactive (list (read-shell-command "Bisect shell command: ")))
+  (magit-run-git-bisect "run" (list cmdline)))
 
 (defun magit-run-git-bisect (subcommand &optional args no-assert)
   (unless (or no-assert (magit-bisecting-p))
