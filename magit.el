@@ -443,6 +443,7 @@ Only considered when moving past the last entry with
     magit-insert-status-rebase-lines
     magit-insert-empty-line
     magit-insert-bisect-rest
+    magit-insert-bisect-log
     magit-insert-stashes
     magit-insert-untracked-files
     magit-insert-pending-changes
@@ -4624,6 +4625,12 @@ when asking for user input."
                        "--decorate=full" "--abbrev-commit"
                        (magit-diff-abbrev-arg)
                        "--pretty=format:%h%d %s")))
+
+(defun magit-insert-bisect-log ()
+  (when (magit-bisecting-p)
+    (magit-git-section 'bisect-log "Bisect Log:"
+                       nil
+                       "bisect" "log")))
 
 (defvar-local magit--bisect-info nil)
 (put 'magit--bisect-info 'permanent-local t)
