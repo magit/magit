@@ -1903,21 +1903,13 @@ involving HEAD."
   (when (> (length (magit-commit-parents commit)) 1)
     (error (format "Cannot %s a merge commit" command))))
 
-(defun magit-format-commit (commit format)
-  (magit-git-string "log" "-1"
-                    (magit-diff-abbrev-arg)
-                    (concat "--pretty=format:" format)
-                    commit))
-
 ;;;; Git Macros
 
 (defmacro magit-with-refresh (&rest body)
   (declare (indent 0))
   `(magit-refresh-wrapper (lambda () ,@body)))
 
-;;; Revisions and Ranges
-;;__ FIXME The parens indicate preliminary subsections.
-;;;; (insane "rev" reading)
+;;; Revisions
 
 (defvar magit-uninteresting-refs
   '("^refs/stash$"
@@ -2030,8 +2022,6 @@ involving HEAD."
     (unless (string= branch "")
       branch)))
 
-;;;; Reference Labels
-
 (defun magit-format-ref-label (ref)
   (cl-destructuring-bind (re face fn)
       (cl-find-if (lambda (ns)
@@ -2040,6 +2030,22 @@ involving HEAD."
     (if fn
         (funcall fn ref face)
       (propertize (or (match-string 1 ref) ref) 'face face))))
+
+(defun magit-format-ref-labels (string)
+  (save-match-data
+    (mapconcat 'magit-format-ref-label
+               (mapcar 'cdr
+                       (magit-list-interesting-refs
+                        nil (split-string string "\\(tag: \\|[(), ]\\)" t)))
+               " ")))
+
+(defun magit-format-rev-summary (rev)
+  (let ((s (magit-git-string "log" "-1" (magit-diff-abbrev-arg)
+                             (concat "--pretty=format:%h %s") rev)))
+    (when s
+      (string-match " " s)
+      (put-text-property 0 (match-beginning 0) 'face 'magit-log-sha1 s)
+      s)))
 
 ;;; Sections
 ;;;; Section Struct
@@ -3844,7 +3850,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
           "\\(?2:.+\\)"                            ; msg
           "\\)?$"))
 
-(defconst magit-log-longline-re
+(defconst magit-log-long-re
   (concat "^"
           "\\(?4:\\(?:[-_/|\\*o.] ?\\)+ *\\)?"     ; graph
           "\\(?:"
@@ -3899,7 +3905,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 (defun magit-wash-log-line (style)
   (looking-at (cl-ecase style
                 (oneline magit-log-oneline-re)
-                (long    magit-log-longline-re)
+                (long    magit-log-long-re)
                 (unique  magit-log-unique-re)
                 (cherry  magit-log-cherry-re)
                 (reflog  magit-log-reflog-re)))
@@ -3919,15 +3925,11 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
         (insert (make-string (1+ magit-sha1-abbrev-length) ? ))))
     (when graph
       (insert graph))
-    (when refs
-      (setq refs (mapcar 'cdr (magit-list-interesting-refs
-                               nil (split-string
-                                    refs "\\(tag: \\|[(), ]\\)" t)))))
     (when (and hash (eq style 'long))
       (insert (propertize (if refs hash (magit-rev-parse hash))
                           'face 'magit-log-sha1) " "))
     (when refs
-      (insert (mapconcat 'magit-format-ref-label refs " ") " "))
+      (insert (magit-format-ref-labels refs) " "))
     (when refsub
       (insert (magit-log-format-reflog refsub)))
     (when msg
@@ -3950,7 +3952,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
           (when (eq style 'long)
             (magit-wash-sequence
              (lambda ()
-               (looking-at magit-log-longline-re)
+               (looking-at magit-log-long-re)
                (when (match-string 2)
                  (magit-wash-log-line 'long))))))
       (forward-line)))
@@ -4137,12 +4139,11 @@ for this argument.)"
 ;;;; (washing)
 
 (defun magit-wash-commit ()
-  (let ((magit-current-diff-range)
+  (let ((magit-current-diff-range (buffer-substring-no-properties 7 48))
         (merge-commit))
-    (when (looking-at "^commit \\([0-9a-fA-F]\\{40\\}\\)")
-      (setq magit-current-diff-range (match-string 1))
-      (add-text-properties (match-beginning 1) (match-end 1)
-                           '(face magit-log-sha1)))
+    (put-text-property 7 48 'face 'magit-log-sha1)
+    (when (re-search-forward "\\((.+)\\)$" (line-end-position) t)
+      (replace-match (magit-format-ref-labels (match-string 1))) t t nil 1)
     (cond
      ((search-forward-regexp
        "^Merge: \\([0-9a-fA-F]+\\) \\([0-9a-fA-F]+\\)$" nil t)
@@ -4163,9 +4164,7 @@ for this argument.)"
             (cons (concat magit-current-diff-range "^")
                   magit-current-diff-range))
       (setq merge-commit nil)))
-
-    (search-forward-regexp "^$")        ; point at the beginning of log msgs
-
+    (search-forward-regexp "^$")
     (when magit-show-diffstat
       (let ((pos (point)))
         (save-excursion
@@ -4177,7 +4176,6 @@ for this argument.)"
             (insert "\n")
 
             (magit-wash-diffstats)))))
-
     (while (and
             (search-forward-regexp
              "\\(\\b[0-9a-fA-F]\\{4,40\\}\\b\\)\\|\\(^diff\\)" nil 'noerror)
@@ -4550,8 +4548,7 @@ when asking for user input."
 
 (defun magit-insert-status-head-line ()
   (magit-insert-status-line "Head"
-    (or (magit-format-commit "HEAD" "%h %s")
-        "nothing committed (yet)")))
+    (or (magit-format-rev-summary "HEAD") "nothing committed yet")))
 
 (defun magit-insert-status-tags-line ()
   (let* ((current-tag (magit-get-current-tag t))
@@ -4594,7 +4591,7 @@ when asking for user input."
                rebase))
       (when (and (null (nth 4 rebase)) (nth 3 rebase))
         (magit-insert-status-line "Stopped"
-          (magit-format-commit (nth 3 rebase) "%h %s"))))))
+          (magit-format-rev-summary (nth 3 rebase)))))))
 
 (defun magit-insert-empty-line ()
   (insert "\n"))
