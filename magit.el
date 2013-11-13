@@ -4137,12 +4137,9 @@ for this argument.)"
 ;;;; (washing)
 
 (defun magit-wash-commit ()
-  (let ((magit-current-diff-range)
+  (let ((magit-current-diff-range (buffer-substring-no-properties 7 48))
         (merge-commit))
-    (when (looking-at "^commit \\([0-9a-fA-F]\\{40\\}\\)")
-      (setq magit-current-diff-range (match-string 1))
-      (add-text-properties (match-beginning 1) (match-end 1)
-                           '(face magit-log-sha1)))
+    (put-text-property 7 48 'face 'magit-log-sha1)
     (cond
      ((search-forward-regexp
        "^Merge: \\([0-9a-fA-F]+\\) \\([0-9a-fA-F]+\\)$" nil t)
