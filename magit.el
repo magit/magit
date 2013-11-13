@@ -1903,12 +1903,6 @@ involving HEAD."
   (when (> (length (magit-commit-parents commit)) 1)
     (error (format "Cannot %s a merge commit" command))))
 
-(defun magit-format-commit (commit format)
-  (magit-git-string "log" "-1"
-                    (magit-diff-abbrev-arg)
-                    (concat "--pretty=format:" format)
-                    commit))
-
 ;;;; Git Macros
 
 (defmacro magit-with-refresh (&rest body)
@@ -2044,6 +2038,14 @@ involving HEAD."
                        (magit-list-interesting-refs
                         nil (split-string string "\\(tag: \\|[(), ]\\)" t)))
                " ")))
+
+(defun magit-format-rev-summary (rev)
+  (let ((s (magit-git-string "log" "-1" (magit-diff-abbrev-arg)
+                             (concat "--pretty=format:%h %s") rev)))
+    (when s
+      (string-match " " s)
+      (put-text-property 0 (match-beginning 0) 'face 'magit-log-sha1 s)
+      s)))
 
 ;;; Sections
 ;;;; Section Struct
@@ -4546,8 +4548,7 @@ when asking for user input."
 
 (defun magit-insert-status-head-line ()
   (magit-insert-status-line "Head"
-    (or (magit-format-commit "HEAD" "%h %s")
-        "nothing committed (yet)")))
+    (or (magit-format-rev-summary "HEAD") "nothing committed yet")))
 
 (defun magit-insert-status-tags-line ()
   (let* ((current-tag (magit-get-current-tag t))
@@ -4590,7 +4591,7 @@ when asking for user input."
                rebase))
       (when (and (null (nth 4 rebase)) (nth 3 rebase))
         (magit-insert-status-line "Stopped"
-          (magit-format-commit (nth 3 rebase) "%h %s"))))))
+          (magit-format-rev-summary (nth 3 rebase)))))))
 
 (defun magit-insert-empty-line ()
   (insert "\n"))
