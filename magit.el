@@ -3889,6 +3889,12 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
           "\\(?:\\(?3:([^()]+)\\) \\)?"            ; refs
           "\\(?2:.+\\)$"))                         ; msg
 
+(defconst magit-log-bisect-log-re
+  (concat "^# "
+	  "\\(?3:bad:\\|skip:\\|good:\\) "         ; "refs"
+	  "\\[\\(?1:[^]]+\\)\\] "                  ; sha1
+	  "\\(?2:.+\\)$"))                         ; msg
+
 (defconst magit-log-reflog-re
   (concat "^"
           "\\(?4:[^\C-?]+\\)\C-??"                 ; graph FIXME
@@ -3928,7 +3934,8 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                 (unique  magit-log-unique-re)
                 (cherry  magit-log-cherry-re)
                 (reflog  magit-log-reflog-re)
-                (bisect-vis magit-log-bisect-vis-re)))
+                (bisect-vis magit-log-bisect-vis-re)
+                (bisect-log magit-log-bisect-log-re)))
   (magit-bind-match-strings
       (hash msg refs graph author date gpg cherry refsub)
     (delete-region (point) (point-at-eol))
@@ -4642,11 +4649,28 @@ when asking for user input."
 (defun magit-insert-bisect-log ()
   (when (magit-bisecting-p)
     (magit-git-section 'bisect-log "Bisect Log:"
-                       nil
+                       'magit-wash-bisect-log
                        "bisect" "log")))
 
-(defvar-local magit--bisect-info nil)
-(put 'magit--bisect-info 'permanent-local t)
+(defun magit-wash-bisect-log ()
+  (let ((magit-section-hidden-default t) beg)
+    (while (progn (setq beg (point-marker))
+		  (re-search-forward "^\\(git bisect [^\n]+\n\\)" nil t))
+      (let ((heading (match-string-no-properties 1)))
+	(delete-region (match-beginning 0) (match-end 0))
+	(save-restriction
+	  (narrow-to-region beg (point))
+	  (goto-char (point-min))
+	  (magit-with-section 'bisect-log 'bisect-log
+	    (insert heading)
+	    (magit-wash-sequence
+	     (apply-partially 'magit-wash-log-line 'bisect-log))))))
+    (when (re-search-forward
+           "# first bad commit: \\[\\([a-z0-9]\\{40\\}\\)\\] [^\n]+\n" nil t)
+      (let ((hash (match-string-no-properties 1)))
+	(delete-region (match-beginning 0) (match-end 0))
+        (magit-with-section 'bisect-log 'bisect-log
+          (insert hash " is the first bad commit\n"))))))
 
 (defun magit-bisecting-p (&optional required-status)
   (and (file-exists-p (magit-git-dir "BISECT_LOG"))
