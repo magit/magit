@@ -4144,6 +4144,8 @@ for this argument.)"
   (let ((magit-current-diff-range (buffer-substring-no-properties 7 48))
         (merge-commit))
     (put-text-property 7 48 'face 'magit-log-sha1)
+    (when (re-search-forward "\\((.+)\\)$" (line-end-position) t)
+      (replace-match (magit-format-ref-labels (match-string 1))) t t nil 1)
     (cond
      ((search-forward-regexp
        "^Merge: \\([0-9a-fA-F]+\\) \\([0-9a-fA-F]+\\)$" nil t)
