@@ -3947,6 +3947,8 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                               'magit-cherry-equivalent
                             'magit-cherry-unmatched)) " "))
     (unless (eq style 'long)
+      (when (eq style 'bisect-log)
+	(setq hash (magit-git-string "rev-parse" "--short" hash)))
       (if hash
           (insert (propertize hash 'face 'magit-log-sha1) " ")
         (insert (make-string (1+ magit-sha1-abbrev-length) ? ))))
