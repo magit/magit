@@ -5978,7 +5978,7 @@ With a prefix arg, do a submodule update --init."
        (error "Already bisecting")
      (list (magit-read-rev "Start bisect with known bad revision" "HEAD")
            (magit-read-rev "Good revision" (magit-guess-branch)))))
-  (magit-run-git-bisect "start" bad good))
+  (magit-run-git-bisect "start" (list bad good) t))
 
 ;;;###autoload
 (defun magit-bisect-reset ()
@@ -5988,22 +5988,16 @@ With a prefix arg, do a submodule update --init."
 ;;;###autoload
 (defun magit-bisect-good ()
   (interactive)
-  (unless (magit-bisecting-p 'running)
-    (error "Not bisecting"))
   (magit-run-git-bisect "good"))
 
 ;;;###autoload
 (defun magit-bisect-bad ()
   (interactive)
-  (unless (magit-bisecting-p 'running)
-    (error "Not bisecting"))
   (magit-run-git-bisect "bad"))
 
 ;;;###autoload
 (defun magit-bisect-skip ()
   (interactive)
-  (unless (magit-bisecting-p 'running)
-    (error "Not bisecting"))
   (magit-run-git-bisect "skip"))
 
 (easy-mmode-defmap magit-bisect-minibuffer-local-map
@@ -6027,8 +6021,6 @@ With a prefix arg, do a submodule update --init."
                           magit-bisect-minibuffer-local-map
                           nil
                           'magit-bisect-mode-history)))
-  (unless (magit-bisecting-p)
-    (error "Not bisecting"))
   (let ((file (magit-git-dir "magit-bisect-run"))
         process buffer)
     (with-temp-buffer
@@ -6083,7 +6075,9 @@ With a prefix arg, do a submodule update --init."
                   (kill-line)
                   (magit-insert-status-local-line))))))))))
 
-(defun magit-run-git-bisect (&rest args)
+(defun magit-run-git-bisect (subcommand &optional args no-assert)
+  (unless (or no-assert (magit-bisecting-p))
+    (error "Not bisecting"))
   (with-current-buffer (magit-find-buffer 'magit-status-mode)
     (let* ((output (apply 'magit-git-lines (append '("bisect") args)))
            (first-line (car output)))
