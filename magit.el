@@ -3914,7 +3914,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                 (unique  magit-log-unique-re)
                 (cherry  magit-log-cherry-re)
                 (reflog  magit-log-reflog-re)
-                (bisect-vis magit-log-bisect-re)))
+                (bisect-vis magit-log-bisect-vis-re)))
   (magit-bind-match-strings
       (hash msg refs graph author date gpg cherry refsub)
     (delete-region (point) (point-at-eol))
@@ -5962,15 +5962,6 @@ With a prefix arg, do a submodule update --init."
     (error "Not bisecting"))
   (magit-run-git "bisect" "log")
   (magit-display-process))
-
-;;;###autoload
-(defun magit-bisect-visualize ()
-  (interactive)
-  (unless (magit-bisecting-p)
-    (error "Not bisecting"))
-  (magit-run-git "bisect" "visualize")
-  (unless (getenv "DISPLAY")
-    (magit-display-process)))
 
 (easy-mmode-defmap magit-bisect-minibuffer-local-map
   '(("\C-i" . comint-dynamic-complete-filename))
