@@ -5985,8 +5985,9 @@ With a prefix arg, do a submodule update --init."
 ;;;###autoload
 (defun magit-bisect-reset ()
   (interactive)
-  (magit-run-git "bisect" "reset")
-  (ignore-errors (delete-file (magit-git-dir "BISECT_CMD_OUTPUT"))))
+  (when (yes-or-no-p "Reset bisect?")
+    (magit-run-git "bisect" "reset")
+    (ignore-errors (delete-file (magit-git-dir "BISECT_CMD_OUTPUT")))))
 
 ;;;###autoload
 (defun magit-bisect-good ()
