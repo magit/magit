@@ -709,6 +709,7 @@ many spaces.  Otherwise, highlight neither."
     ("^refs/heads/\\(.+\\)"      magit-log-head-label-local nil)
     ("^refs/remotes/\\(.+\\)"    magit-log-head-label-remote nil)
     ("^refs/bisect/\\(bad\\)"    magit-log-head-label-bisect-bad nil)
+    ("^refs/bisect/\\(skip.*\\)" magit-log-head-label-bisect-skip nil)
     ("^refs/bisect/\\(good.*\\)" magit-log-head-label-bisect-good nil)
     ("^refs/wip/\\(.+\\)"        magit-log-head-label-wip nil)
     ("^refs/patches/\\(.+\\)"    magit-log-head-label-patches nil)
@@ -1001,6 +1002,18 @@ Many Magit faces inherit from this one by default."
      :background "light green"
      :foreground "dark olive green"))
   "Face for good bisect refs."
+  :group 'magit-faces)
+
+(defface magit-log-head-label-bisect-skip
+  '((((class color) (background light))
+     :box t
+     :background "light goldenrod"
+     :foreground "dark goldenrod")
+    (((class color) (background dark))
+     :box t
+     :background "light goldenrod"
+     :foreground "dark goldenrod"))
+  "Face for skipped bisect refs."
   :group 'magit-faces)
 
 (defface magit-log-head-label-bisect-bad
