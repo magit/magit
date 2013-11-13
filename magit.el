@@ -4560,10 +4560,7 @@ when asking for user input."
 
 (defun magit-insert-status-local-line ()
   (magit-insert-status-line "Local"
-    (concat (propertize (if (magit-bisecting-p)
-                            (magit--bisect-info-for-status)
-                          (or (magit-get-current-branch)
-                              "(detached)"))
+    (concat (propertize (or (magit-get-current-branch) "(detached)")
                         'face 'magit-branch)
             " " (abbreviate-file-name default-directory))))
 
@@ -4634,18 +4631,6 @@ when asking for user input."
       (when (and (null (nth 4 rebase)) (nth 3 rebase))
         (magit-insert-status-line "Stopped"
           (magit-format-rev-summary (nth 3 rebase)))))))
-
-(defun magit--bisect-info-for-status ()
-  (let ((info (magit--bisect-info)))
-    (cl-case (plist-get info :status)
-      (running
-       (format "(bisecting; %s revisions & %s steps left)"
-               (or (plist-get info :revs) "unknown number of")
-               (or (plist-get info :steps) "unknown number of")))
-      (finished
-       (format "(bisected: first bad revision is %s)" (plist-get info :bad)))
-      (t
-       "(bisecting; unknown error occured)"))))
 
 (defun magit-insert-bisect-rest ()
   (when (magit-bisecting-p)
