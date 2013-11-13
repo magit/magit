@@ -2907,11 +2907,11 @@ and CLAUSES.
   (magit-run-git* args nil nil nil t))
 
 (defun magit-run-git* (subcmd-and-args
-                       &optional logline noerase noerror nowait input)
+                       &optional logline noerase noerror nowait input filter)
   (magit-run* (append (cons magit-git-executable
                             magit-git-standard-options)
                       subcmd-and-args)
-              logline noerase noerror nowait input))
+              logline noerase noerror nowait input filter))
 
 (defvar magit-process nil)
 
@@ -2919,7 +2919,7 @@ and CLAUSES.
   "Name of buffer where output of processes is put.")
 
 (defun magit-run* (cmd-and-args
-                   &optional logline noerase noerror nowait input)
+                   &optional logline noerase noerror nowait input filter)
   (when magit-process
     (cl-case (process-status magit-process)
       (run  (error "Git is already running"))
@@ -2932,6 +2932,7 @@ and CLAUSES.
         (default-dir default-directory)
         (process-buf (get-buffer-create magit-process-buffer-name))
         (command-buf (current-buffer))
+        (tmp-buf nil)
         (successp nil))
     (when magit-quote-curly-braces
       (setq args (mapcar (apply-partially 'replace-regexp-in-string
@@ -2968,7 +2969,8 @@ and CLAUSES.
                (set-process-sentinel
                 magit-process
                 (apply-partially #'magit-process-sentinel command-buf))
-               (set-process-filter magit-process 'magit-process-filter)
+               (set-process-filter magit-process
+                                   (or filter 'magit-process-filter))
                (when input
                  (with-current-buffer input
                    (process-send-region magit-process
@@ -2977,8 +2979,9 @@ and CLAUSES.
                  (sit-for 0.1 t))
                (magit-display-process magit-process)
                (setq successp t))
-              (input
-               (with-current-buffer input
+              ((or input filter)
+               (with-current-buffer
+                   (or input (setq tmp-buf (generate-new-buffer " *temp*")))
                  (setq default-directory default-dir)
                  (setq magit-process
                        ;; Don't use a pty, because it would set icrnl
@@ -2995,12 +2998,14 @@ and CLAUSES.
                       (setq successp
                             (equal (process-exit-status magit-process) 0))
                       (setq magit-process nil))))
-                 (set-process-filter magit-process 'magit-process-filter)
+                 (set-process-filter magit-process
+                                     (or filter 'magit-process-filter))
                  (process-send-region magit-process
                                       (point-min) (point-max))
                  (process-send-eof magit-process)
                  (while magit-process
                    (sit-for 0.1 t)))
+               (when tmp-buf (kill-buffer tmp-buf))
                (magit-set-mode-line-process))
               (t
                (setq successp
