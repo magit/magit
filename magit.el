@@ -2041,6 +2041,14 @@ involving HEAD."
         (funcall fn ref face)
       (propertize (or (match-string 1 ref) ref) 'face face))))
 
+(defun magit-format-ref-labels (string)
+  (save-match-data
+    (mapconcat 'magit-format-ref-label
+               (mapcar 'cdr
+                       (magit-list-interesting-refs
+                        nil (split-string string "\\(tag: \\|[(), ]\\)" t)))
+               " ")))
+
 ;;; Sections
 ;;;; Section Struct
 
