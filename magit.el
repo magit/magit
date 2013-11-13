@@ -6004,14 +6004,6 @@ With a prefix arg, do a submodule update --init."
     (error "Not bisecting"))
   (magit--bisect-cmd "skip"))
 
-;;;###autoload
-(defun magit-bisect-log ()
-  (interactive)
-  (unless (magit-bisecting-p)
-    (error "Not bisecting"))
-  (magit-run-git "bisect" "log")
-  (magit-display-process))
-
 (easy-mmode-defmap magit-bisect-minibuffer-local-map
   '(("\C-i" . comint-dynamic-complete-filename))
   "Keymap for minibuffer prompting of rebase command."

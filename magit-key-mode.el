@@ -284,7 +284,6 @@
       ("b" "Bad" magit-bisect-bad)
       ("g" "Good" magit-bisect-good)
       ("k" "Skip" magit-bisect-skip)
-      ("l" "Log" magit-bisect-log)
       ("r" "Reset" magit-bisect-reset)
       ("s" "Start" magit-bisect-start)
       ("u" "Run" magit-bisect-run)))
