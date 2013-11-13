@@ -3844,7 +3844,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
           "\\(?2:.+\\)"                            ; msg
           "\\)?$"))
 
-(defconst magit-log-longline-re
+(defconst magit-log-long-re
   (concat "^"
           "\\(?4:\\(?:[-_/|\\*o.] ?\\)+ *\\)?"     ; graph
           "\\(?:"
@@ -3899,7 +3899,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 (defun magit-wash-log-line (style)
   (looking-at (cl-ecase style
                 (oneline magit-log-oneline-re)
-                (long    magit-log-longline-re)
+                (long    magit-log-long-re)
                 (unique  magit-log-unique-re)
                 (cherry  magit-log-cherry-re)
                 (reflog  magit-log-reflog-re)))
@@ -3950,7 +3950,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
           (when (eq style 'long)
             (magit-wash-sequence
              (lambda ()
-               (looking-at magit-log-longline-re)
+               (looking-at magit-log-long-re)
                (when (match-string 2)
                  (magit-wash-log-line 'long))))))
       (forward-line)))
