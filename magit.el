@@ -4163,9 +4163,7 @@ for this argument.)"
             (cons (concat magit-current-diff-range "^")
                   magit-current-diff-range))
       (setq merge-commit nil)))
-
-    (search-forward-regexp "^$")        ; point at the beginning of log msgs
-
+    (search-forward-regexp "^$")
     (when magit-show-diffstat
       (let ((pos (point)))
         (save-excursion
@@ -4177,7 +4175,6 @@ for this argument.)"
             (insert "\n")
 
             (magit-wash-diffstats)))))
-
     (while (and
             (search-forward-regexp
              "\\(\\b[0-9a-fA-F]\\{4,40\\}\\b\\)\\|\\(^diff\\)" nil 'noerror)
