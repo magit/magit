@@ -5915,9 +5915,7 @@ With a prefix arg, do a submodule update --init."
 ;;;###autoload
 (defun magit-bisect-reset ()
   (interactive)
-  (unless (magit-bisecting-p)
-    (error "Not bisecting"))
-  (magit--bisect-cmd "reset"))
+  (magit-run-git "bisect" "reset"))
 
 ;;;###autoload
 (defun magit-bisect-good ()
@@ -6037,13 +6035,10 @@ With a prefix arg, do a submodule update --init."
 (defun magit--bisect-cmd (&rest args)
   (with-current-buffer (magit-find-buffer 'magit-status-mode)
     (let* ((output (apply 'magit-git-lines (append '("bisect") args)))
-           (cmd (car args))
            (first-line (car output)))
       (save-match-data
         (setq magit--bisect-info
-              (cond ((string= cmd "reset")
-                     (list :status 'not-running))
-                    ((string-match "^Bisecting:\\s-+\\([0-9]+\\).+roughly\\s-+\\([0-9]+\\)"
+              (cond ((string-match "^Bisecting:\\s-+\\([0-9]+\\).+roughly\\s-+\\([0-9]+\\)"
                                    first-line)
                      (list :status 'running
                            :revs (match-string 1 first-line)
