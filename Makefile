@@ -9,7 +9,6 @@ LOADDEFS_FILE ?= magit-autoloads.el
 LOADDEFS_DIR  ?= $(lispdir)
 
 ELS  = magit.el
-ELS += magit-bisect.el
 ELS += magit-blame.el
 ELS += magit-key-mode.el
 ELS += magit-stgit.el

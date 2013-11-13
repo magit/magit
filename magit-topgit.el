@@ -110,8 +110,8 @@
           (delete-char 8)
           (insert "\t")
           (goto-char (line-beginning-position))
-          (magit-with-section topic 'topic
-            (magit-set-section-info topic)
+          (magit-with-section (section topic topic)
+            (setf (magit-section-info section) topic)
             (let ((beg (1+ (line-beginning-position)))
                   (end (line-end-position)))
               (when (plist-get flags :current)
@@ -132,7 +132,7 @@
   (when (executable-find magit-topgit-executable)
     (let ((magit-git-executable magit-topgit-executable)
           (magit-git-standard-options nil))
-      (apply 'magit-git-section section title washer args))))
+      (apply #'magit-git-section section title washer args))))
 
 (defun magit-insert-topgit-topics ()
   (magit-topgit-section 'topgit-topics
