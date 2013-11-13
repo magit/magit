@@ -7225,12 +7225,14 @@ point is on."
                        (ignore-errors
                          (magit-file-relative-name (buffer-file-name))))
                 (line-number-at-pos)))))
-  (let ((default-directory (magit-get-top-dir default-directory)))
-    (apply 'start-file-process "Git Gui Blame" nil
-           magit-git-executable "gui" "blame"
-           `(,@(and linenum (list (format "--line=%d" linenum)))
-             ,commit
-             ,filename))))
+  (if (not filename)
+      (error "Could not determine filename.")
+    (let ((default-directory (magit-get-top-dir default-directory)))
+      (apply 'start-file-process "Git Gui Blame" nil
+             magit-git-executable "gui" "blame"
+             `(,@(and linenum (list (format "--line=%d" linenum)))
+               ,commit
+               ,filename)))))
 
 ;;;###autoload
 (defun magit-run-gitk ()
