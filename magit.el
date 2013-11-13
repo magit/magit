@@ -97,8 +97,6 @@ Use the function by the same name instead of this variable.")
 (declare-function eshell-parse-arguments 'eshell)
 (declare-function ido-completing-read 'ido)
 (declare-function iswitchb-read-buffer 'iswitchb)
-(declare-function magit--bisect-info-for-status 'magit-bisect)
-(declare-function magit--bisecting-p 'magit-bisect)
 (declare-function package-desc-vers 'package)
 (declare-function package-desc-version 'package)
 (declare-function package-version-join 'package)
@@ -444,6 +442,9 @@ Only considered when moving past the last entry with
     magit-insert-status-merge-line
     magit-insert-status-rebase-lines
     magit-insert-empty-line
+    magit-insert-bisect-output
+    magit-insert-bisect-rest
+    magit-insert-bisect-log
     magit-insert-stashes
     magit-insert-untracked-files
     magit-insert-pending-changes
@@ -709,9 +710,13 @@ many spaces.  Otherwise, highlight neither."
     ("^refs/heads/\\(.+\\)"      magit-log-head-label-local nil)
     ("^refs/remotes/\\(.+\\)"    magit-log-head-label-remote nil)
     ("^refs/bisect/\\(bad\\)"    magit-log-head-label-bisect-bad nil)
+    ("^refs/bisect/\\(skip.*\\)" magit-log-head-label-bisect-skip nil)
     ("^refs/bisect/\\(good.*\\)" magit-log-head-label-bisect-good nil)
     ("^refs/wip/\\(.+\\)"        magit-log-head-label-wip nil)
     ("^refs/patches/\\(.+\\)"    magit-log-head-label-patches nil)
+    ("^\\(bad\\):"               magit-log-head-label-bisect-bad nil)
+    ("^\\(skip\\):"              magit-log-head-label-bisect-skip nil)
+    ("^\\(good\\):"              magit-log-head-label-bisect-good nil)
     ("\\(.+\\)"                  magit-log-head-label-default nil))
   "How different refs should be formatted for display.
 
@@ -1001,6 +1006,18 @@ Many Magit faces inherit from this one by default."
      :background "light green"
      :foreground "dark olive green"))
   "Face for good bisect refs."
+  :group 'magit-faces)
+
+(defface magit-log-head-label-bisect-skip
+  '((((class color) (background light))
+     :box t
+     :background "light goldenrod"
+     :foreground "dark goldenrod")
+    (((class color) (background dark))
+     :box t
+     :background "light goldenrod"
+     :foreground "dark goldenrod"))
+  "Face for skipped bisect refs."
   :group 'magit-faces)
 
 (defface magit-log-head-label-bisect-bad
@@ -2891,11 +2908,11 @@ and CLAUSES.
   (magit-run-git* args nil nil nil t))
 
 (defun magit-run-git* (subcmd-and-args
-                       &optional logline noerase noerror nowait input)
+                       &optional logline noerase noerror nowait input filter)
   (magit-run* (append (cons magit-git-executable
                             magit-git-standard-options)
                       subcmd-and-args)
-              logline noerase noerror nowait input))
+              logline noerase noerror nowait input filter))
 
 (defvar magit-process nil)
 
@@ -2903,7 +2920,7 @@ and CLAUSES.
   "Name of buffer where output of processes is put.")
 
 (defun magit-run* (cmd-and-args
-                   &optional logline noerase noerror nowait input)
+                   &optional logline noerase noerror nowait input filter)
   (when magit-process
     (cl-case (process-status magit-process)
       (run  (error "Git is already running"))
@@ -2916,6 +2933,7 @@ and CLAUSES.
         (default-dir default-directory)
         (process-buf (get-buffer-create magit-process-buffer-name))
         (command-buf (current-buffer))
+        (tmp-buf nil)
         (successp nil))
     (when magit-quote-curly-braces
       (setq args (mapcar (apply-partially 'replace-regexp-in-string
@@ -2952,7 +2970,8 @@ and CLAUSES.
                (set-process-sentinel
                 magit-process
                 (apply-partially #'magit-process-sentinel command-buf))
-               (set-process-filter magit-process 'magit-process-filter)
+               (set-process-filter magit-process
+                                   (or filter 'magit-process-filter))
                (when input
                  (with-current-buffer input
                    (process-send-region magit-process
@@ -2961,8 +2980,9 @@ and CLAUSES.
                  (sit-for 0.1 t))
                (magit-display-process magit-process)
                (setq successp t))
-              (input
-               (with-current-buffer input
+              ((or input filter)
+               (with-current-buffer
+                   (or input (setq tmp-buf (generate-new-buffer " *temp*")))
                  (setq default-directory default-dir)
                  (setq magit-process
                        ;; Don't use a pty, because it would set icrnl
@@ -2979,12 +2999,14 @@ and CLAUSES.
                       (setq successp
                             (equal (process-exit-status magit-process) 0))
                       (setq magit-process nil))))
-                 (set-process-filter magit-process 'magit-process-filter)
+                 (set-process-filter magit-process
+                                     (or filter 'magit-process-filter))
                  (process-send-region magit-process
                                       (point-min) (point-max))
                  (process-send-eof magit-process)
                  (while magit-process
                    (sit-for 0.1 t)))
+               (when tmp-buf (kill-buffer tmp-buf))
                (magit-set-mode-line-process))
               (t
                (setq successp
@@ -3870,6 +3892,18 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
           "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
           "\\(?2:.*\\)$"))                         ; msg
 
+(defconst magit-log-bisect-vis-re
+  (concat "^"
+          "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
+          "\\(?:\\(?3:([^()]+)\\) \\)?"            ; refs
+          "\\(?2:.+\\)$"))                         ; msg
+
+(defconst magit-log-bisect-log-re
+  (concat "^# "
+	  "\\(?3:bad:\\|skip:\\|good:\\) "         ; "refs"
+	  "\\[\\(?1:[^]]+\\)\\] "                  ; sha1
+	  "\\(?2:.+\\)$"))                         ; msg
+
 (defconst magit-log-reflog-re
   (concat "^"
           "\\(?4:[^\C-?]+\\)\C-??"                 ; graph FIXME
@@ -3908,7 +3942,9 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                 (long    magit-log-long-re)
                 (unique  magit-log-unique-re)
                 (cherry  magit-log-cherry-re)
-                (reflog  magit-log-reflog-re)))
+                (reflog  magit-log-reflog-re)
+                (bisect-vis magit-log-bisect-vis-re)
+                (bisect-log magit-log-bisect-log-re)))
   (magit-bind-match-strings
       (hash msg refs graph author date gpg cherry refsub)
     (delete-region (point) (point-at-eol))
@@ -3920,6 +3956,8 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                               'magit-cherry-equivalent
                             'magit-cherry-unmatched)) " "))
     (unless (eq style 'long)
+      (when (eq style 'bisect-log)
+	(setq hash (magit-git-string "rev-parse" "--short" hash)))
       (if hash
           (insert (propertize hash 'face 'magit-log-sha1) " ")
         (insert (make-string (1+ magit-sha1-abbrev-length) ? ))))
@@ -4511,6 +4549,9 @@ when asking for user input."
 
 (defvar magit-status-line-align-to 9)
 
+(defun magit-insert-empty-line ()
+  (insert "\n"))
+
 (defun magit-insert-status-line (heading info-string)
   (declare (indent 1))
   (insert heading ":"
@@ -4520,10 +4561,7 @@ when asking for user input."
 
 (defun magit-insert-status-local-line ()
   (magit-insert-status-line "Local"
-    (concat (propertize (if (magit--bisecting-p)
-                            (magit--bisect-info-for-status)
-                          (or (magit-get-current-branch)
-                              "(detached)"))
+    (concat (propertize (or (magit-get-current-branch) "(detached)")
                         'face 'magit-branch)
             " " (abbreviate-file-name default-directory))))
 
@@ -4574,6 +4612,8 @@ when asking for user input."
                          (format " (%i" cnt))
                        " " (if behindp "behind" "ahead") ")"))))
 
+;;;; Progress Sections
+
 (defun magit-insert-status-merge-line ()
   (let ((heads (magit-file-lines (magit-git-dir "MERGE_HEAD"))))
     (when heads
@@ -4593,8 +4633,64 @@ when asking for user input."
         (magit-insert-status-line "Stopped"
           (magit-format-rev-summary (nth 3 rebase)))))))
 
-(defun magit-insert-empty-line ()
-  (insert "\n"))
+(defun magit-insert-bisect-output ()
+  (when (magit-bisecting-p)
+    (let ((magit-section-hidden-default t)
+          (lines
+           (or (magit-file-lines (magit-git-dir "BISECT_CMD_OUTPUT"))
+               (list "Bisecting: (no saved bisect output)"
+                     "It appears you have invoked `git bisect' from a shell."
+                     "There is nothing wrong with that, we just cannot display"
+                     "anything useful here.  Consult the shell output instead.")))
+          (done-re "^[a-z0-9]\\{40\\} is the first bad commit$"))
+      (magit-with-section 'bisect-output nil
+        (insert
+         (propertize
+          (or (and (string-match done-re (car lines)) (pop lines))
+              (cl-find-if (apply-partially 'string-match done-re) lines)
+              (pop lines))
+          'face 'magit-section-title) "\n")
+        (dolist (line lines)
+          (insert line "\n"))))
+    (insert "\n")))
+
+(defun magit-insert-bisect-rest ()
+  (when (magit-bisecting-p)
+    (magit-git-section 'bisect-view "Bisect Rest:"
+                       (apply-partially 'magit-wash-log 'bisect-vis)
+                       "bisect" "visualize" "git" "log"
+                       "--decorate=full" "--abbrev-commit"
+                       (magit-diff-abbrev-arg)
+                       "--pretty=format:%h%d %s")))
+
+(defun magit-insert-bisect-log ()
+  (when (magit-bisecting-p)
+    (magit-git-section 'bisect-log "Bisect Log:"
+                       'magit-wash-bisect-log
+                       "bisect" "log")))
+
+(defun magit-wash-bisect-log ()
+  (let ((magit-section-hidden-default t) beg)
+    (while (progn (setq beg (point-marker))
+		  (re-search-forward "^\\(git bisect [^\n]+\n\\)" nil t))
+      (let ((heading (match-string-no-properties 1)))
+	(delete-region (match-beginning 0) (match-end 0))
+	(save-restriction
+	  (narrow-to-region beg (point))
+	  (goto-char (point-min))
+	  (magit-with-section 'bisect-log 'bisect-log
+	    (insert heading)
+	    (magit-wash-sequence
+	     (apply-partially 'magit-wash-log-line 'bisect-log))))))
+    (when (re-search-forward
+           "# first bad commit: \\[\\([a-z0-9]\\{40\\}\\)\\] [^\n]+\n" nil t)
+      (let ((hash (match-string-no-properties 1)))
+	(delete-region (match-beginning 0) (match-end 0))
+        (magit-with-section 'bisect-log 'bisect-log
+          (insert hash " is the first bad commit\n"))))))
+
+(defun magit-bisecting-p ()
+  (file-exists-p (magit-git-dir "BISECT_LOG")))
 
 ;;; Various Utilities (2)
 ;;;; Save Buffers
@@ -5874,6 +5970,67 @@ With a prefix arg, do a submodule update --init."
   (interactive)
   (let ((default-directory (magit-get-top-dir)))
     (magit-run-git-async "submodule" "sync")))
+
+;;;; Bisecting
+
+;;;###autoload
+(defun magit-bisect-start (bad good)
+  (interactive
+   (if (magit-bisecting-p)
+       (error "Already bisecting")
+     (list (magit-read-rev "Start bisect with known bad revision" "HEAD")
+           (magit-read-rev "Good revision" (magit-guess-branch)))))
+  (magit-run-git-bisect "start" (list bad good) t))
+
+;;;###autoload
+(defun magit-bisect-reset ()
+  (interactive)
+  (when (yes-or-no-p "Reset bisect?")
+    (magit-run-git "bisect" "reset")
+    (ignore-errors (delete-file (magit-git-dir "BISECT_CMD_OUTPUT")))))
+
+;;;###autoload
+(defun magit-bisect-good ()
+  (interactive)
+  (magit-run-git-bisect "good"))
+
+;;;###autoload
+(defun magit-bisect-bad ()
+  (interactive)
+  (magit-run-git-bisect "bad"))
+
+;;;###autoload
+(defun magit-bisect-skip ()
+  (interactive)
+  (magit-run-git-bisect "skip"))
+
+;;;###autoload
+(defun magit-bisect-run (cmdline)
+  "Bisect automatically by running commands after each step."
+  (interactive (list (read-shell-command "Bisect shell command: ")))
+  (magit-run-git-bisect "run" (list cmdline)))
+
+(defun magit-run-git-bisect (subcommand &optional args no-assert)
+  (unless (or no-assert (magit-bisecting-p))
+    (error "Not bisecting"))
+  (let ((file (magit-git-dir "BISECT_CMD_OUTPUT")))
+    (ignore-errors (delete-file file))
+    (magit-with-refresh
+      (magit-run-git*
+       (nconc (list "bisect" subcommand) args)
+       nil nil nil nil nil
+       (lambda (process string)
+         (when (buffer-live-p (process-buffer process))
+           (with-current-buffer (process-buffer process)
+             (goto-char (process-mark process))
+             (insert string)
+             (set-marker (process-mark process) (point))))
+         (with-temp-file file
+           (when (file-exists-p file)
+             (insert-file-contents file)
+             (goto-char (point-max)))
+           (insert string)
+           (write-region (point-min) (point-max) file)))))))
 
 ;;;; Logging
 
@@ -7228,7 +7385,6 @@ init file:
 
 ;; rest of magit core
 (require 'magit-key-mode)
-(require 'magit-bisect)
 
 ;; If `magit-log-edit' is available and `git-commit-mode' is not
 ;; loaded, then we have no choice but to assume the user actually
