@@ -4521,7 +4521,7 @@ when asking for user input."
 
 (defun magit-insert-status-local-line ()
   (magit-insert-status-line "Local"
-    (concat (propertize (if (magit--bisecting-p)
+    (concat (propertize (if (magit-bisecting-p)
                             (magit--bisect-info-for-status)
                           (or (magit-get-current-branch)
                               "(detached)"))
@@ -4611,7 +4611,7 @@ when asking for user input."
 (defvar-local magit--bisect-info nil)
 (put 'magit--bisect-info 'permanent-local t)
 
-(defun magit--bisecting-p (&optional required-status)
+(defun magit-bisecting-p (&optional required-status)
   (and (file-exists-p (magit-git-dir "BISECT_LOG"))
        (or (not required-status)
            (eq (plist-get (magit--bisect-info) :status)
@@ -4620,7 +4620,7 @@ when asking for user input."
 (defun magit--bisect-info ()
   (with-current-buffer (magit-find-buffer 'magit-status-mode)
     (or (and (local-variable-p 'magit--bisect-info) magit--bisect-info)
-        (list :status (if (magit--bisecting-p) 'running 'not-running)))))
+        (list :status (if (magit-bisecting-p) 'running 'not-running)))))
 
 ;;; Various Utilities (2)
 ;;;; Save Buffers
@@ -5906,7 +5906,7 @@ With a prefix arg, do a submodule update --init."
 ;;;###autoload
 (defun magit-bisect-start ()
   (interactive)
-  (when (magit--bisecting-p)
+  (when (magit-bisecting-p)
     (error "Already bisecting"))
   (let ((bad (magit-read-rev "Start bisect with known bad revision" "HEAD"))
         (good (magit-read-rev "Good revision" (magit-guess-branch))))
@@ -5915,35 +5915,35 @@ With a prefix arg, do a submodule update --init."
 ;;;###autoload
 (defun magit-bisect-reset ()
   (interactive)
-  (unless (magit--bisecting-p)
+  (unless (magit-bisecting-p)
     (error "Not bisecting"))
   (magit--bisect-cmd "reset"))
 
 ;;;###autoload
 (defun magit-bisect-good ()
   (interactive)
-  (unless (magit--bisecting-p 'running)
+  (unless (magit-bisecting-p 'running)
     (error "Not bisecting"))
   (magit--bisect-cmd "good"))
 
 ;;;###autoload
 (defun magit-bisect-bad ()
   (interactive)
-  (unless (magit--bisecting-p 'running)
+  (unless (magit-bisecting-p 'running)
     (error "Not bisecting"))
   (magit--bisect-cmd "bad"))
 
 ;;;###autoload
 (defun magit-bisect-skip ()
   (interactive)
-  (unless (magit--bisecting-p 'running)
+  (unless (magit-bisecting-p 'running)
     (error "Not bisecting"))
   (magit--bisect-cmd "skip"))
 
 ;;;###autoload
 (defun magit-bisect-log ()
   (interactive)
-  (unless (magit--bisecting-p)
+  (unless (magit-bisecting-p)
     (error "Not bisecting"))
   (magit-run-git "bisect" "log")
   (magit-display-process))
@@ -5951,7 +5951,7 @@ With a prefix arg, do a submodule update --init."
 ;;;###autoload
 (defun magit-bisect-visualize ()
   (interactive)
-  (unless (magit--bisecting-p)
+  (unless (magit-bisecting-p)
     (error "Not bisecting"))
   (magit-run-git "bisect" "visualize")
   (unless (getenv "DISPLAY")
@@ -5978,7 +5978,7 @@ With a prefix arg, do a submodule update --init."
                           magit-bisect-minibuffer-local-map
                           nil
                           'magit-bisect-mode-history)))
-  (unless (magit--bisecting-p)
+  (unless (magit-bisecting-p)
     (error "Not bisecting"))
   (let ((file (magit-git-dir "magit-bisect-run"))
         process buffer)
