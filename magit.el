@@ -5967,13 +5967,13 @@ With a prefix arg, do a submodule update --init."
 ;;;; Bisecting
 
 ;;;###autoload
-(defun magit-bisect-start ()
-  (interactive)
-  (when (magit-bisecting-p)
-    (error "Already bisecting"))
-  (let ((bad (magit-read-rev "Start bisect with known bad revision" "HEAD"))
-        (good (magit-read-rev "Good revision" (magit-guess-branch))))
-    (magit--bisect-cmd "start" bad good)))
+(defun magit-bisect-start (bad good)
+  (interactive
+   (if (magit-bisecting-p)
+       (error "Already bisecting")
+     (list (magit-read-rev "Start bisect with known bad revision" "HEAD")
+           (magit-read-rev "Good revision" (magit-guess-branch)))))
+  (magit--bisect-cmd "start" bad good))
 
 ;;;###autoload
 (defun magit-bisect-reset ()
