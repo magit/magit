@@ -442,6 +442,7 @@ Only considered when moving past the last entry with
     magit-insert-status-merge-line
     magit-insert-status-rebase-lines
     magit-insert-empty-line
+    magit-insert-bisect-output
     magit-insert-bisect-rest
     magit-insert-bisect-log
     magit-insert-stashes
@@ -4631,6 +4632,27 @@ when asking for user input."
       (when (and (null (nth 4 rebase)) (nth 3 rebase))
         (magit-insert-status-line "Stopped"
           (magit-format-rev-summary (nth 3 rebase)))))))
+
+(defun magit-insert-bisect-output ()
+  (when (magit-bisecting-p)
+    (let ((magit-section-hidden-default t)
+          (lines
+           (or (magit-file-lines (magit-git-dir "BISECT_CMD_OUTPUT"))
+               (list "Bisecting: (no saved bisect output)"
+                     "It appears you have invoked `git bisect' from a shell."
+                     "There is nothing wrong with that, we just cannot display"
+                     "anything useful here.  Consult the shell output instead.")))
+          (done-re "^[a-z0-9]\\{40\\} is the first bad commit$"))
+      (magit-with-section 'bisect-output nil
+        (insert
+         (propertize
+          (or (and (string-match done-re (car lines)) (pop lines))
+              (cl-find-if (apply-partially 'string-match done-re) lines)
+              (pop lines))
+          'face 'magit-section-title) "\n")
+        (dolist (line lines)
+          (insert line "\n"))))
+    (insert "\n")))
 
 (defun magit-insert-bisect-rest ()
   (when (magit-bisecting-p)
