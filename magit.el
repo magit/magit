@@ -4511,6 +4511,9 @@ when asking for user input."
 
 (defvar magit-status-line-align-to 9)
 
+(defun magit-insert-empty-line ()
+  (insert "\n"))
+
 (defun magit-insert-status-line (heading info-string)
   (declare (indent 1))
   (insert heading ":"
@@ -4592,9 +4595,6 @@ when asking for user input."
       (when (and (null (nth 4 rebase)) (nth 3 rebase))
         (magit-insert-status-line "Stopped"
           (magit-format-rev-summary (nth 3 rebase)))))))
-
-(defun magit-insert-empty-line ()
-  (insert "\n"))
 
 ;;; Various Utilities (2)
 ;;;; Save Buffers
