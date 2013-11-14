@@ -256,6 +256,11 @@ deep."
   :group 'magit
   :type 'integer)
 
+(defcustom magit-show-remote-branches t
+  "Whether to show remote branches in the branch manager."
+  :group 'magit
+  :type 'boolean)
+
 (defcustom magit-set-upstream-on-push nil
   "Whether `magit-push' may use --set-upstream when pushing a branch.
 This only applies if the branch does not have an upstream set yet.
@@ -6951,11 +6956,12 @@ from the parent keymap `magit-mode-map' are also available.")
                     #'magit-refresh-branch-manager))
 
 (defun magit-refresh-branch-manager ()
-  (magit-create-buffer-sections
-    (apply #'magit-git-section
-           "branches" nil 'magit-wash-branches
-           "branch" "-vva" (magit-diff-abbrev-arg)
-           magit-custom-options)))
+  (let ((flags (if magit-show-remote-branches "-vva" "-vv")))
+    (magit-create-buffer-sections
+      (apply #'magit-git-section
+             "branches" nil 'magit-wash-branches
+             "branch" flags (magit-diff-abbrev-arg)
+             magit-custom-options))))
 
 ;;;; Branch List Washing
 
