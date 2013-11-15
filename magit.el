@@ -2018,7 +2018,8 @@ involving HEAD."
     (save-match-data
       (if (string-match "^\\(.+\\)\\.\\.\\(.+\\)$" beg)
           (cons (match-string 1 beg) (match-string 2 beg))
-        (cons beg (magit-read-rev (format "%s end" op) def-end nil t))))))
+        (let ((end (magit-read-rev (format "%s end" op) def-end nil t)))
+          (if end (cons beg end) beg))))))
 
 (defun magit-read-remote (prompt &optional default require-match)
   (magit-completing-read prompt (magit-git-lines "remote")
