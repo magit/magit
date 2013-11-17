@@ -4387,7 +4387,7 @@ when asking for user input."
   (let* ((info (magit-read-rewrite-info))
          (orig (cadr (assq 'orig info))))
     (when orig
-      (magit-git-section 'pending-changes "Pending changes"
+      (magit-git-section 'pending-changes "Pending changes:"
                          #'magit-wash-diffs
                          "diff" (magit-diff-U-arg) "-R" orig))))
 
