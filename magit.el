@@ -2090,32 +2090,26 @@ involving HEAD."
 
 ;;;; Section Creation
 
-(defun magit-new-section (type title &optional dont-highlight)
-  (let* ((s (make-magit-section :parent magit-top-section
-                                :title title
-                                :type type
-                                :highlight (not dont-highlight)
-                                :hidden magit-section-hidden-default))
-         (old (and magit-old-top-section
-                   (magit-find-section (magit-section-path s)
-                                       magit-old-top-section))))
-    (if magit-top-section
-        (push s (magit-section-children magit-top-section))
-      (setq magit-top-section s))
-    (when old
-      (setf (magit-section-hidden s) (magit-section-hidden old)))
-    s))
-
 (defmacro magit-with-section (arglist &rest body)
   (declare (indent 1) (debug ((form form &optional form) body)))
   (let ((s (car arglist)))
-    `(let* ((,s (magit-new-section ,(nth 1 arglist)
-                                   ,(nth 2 arglist)
-                                   ,(nth 3 arglist)))
-            (magit-top-section ,s))
-       (setf (magit-section-beginning ,s) (point-marker))
-       (setf (magit-section-content-beginning ,s) (point-marker))
-       ,@body
+    `(let ((,s (make-magit-section
+                :type  ,(nth 1 arglist)
+                :title ,(nth 2 arglist)
+                :hidden magit-section-hidden-default
+                :highlight (not ,(nth 3 arglist))
+                :parent magit-top-section
+                :beginning (point-marker)
+                :content-beginning (point-marker))))
+       (let ((old (and magit-old-top-section
+                       (magit-find-section (magit-section-path ,s)
+                                           magit-old-top-section))))
+         (if magit-top-section
+             (push ,s (magit-section-children magit-top-section))
+           (setq magit-top-section ,s))
+         (when old
+           (setf (magit-section-hidden ,s) (magit-section-hidden old))))
+       (let ((magit-top-section ,s)) ,@body)
        (when ,s
          (set-marker-insertion-type (magit-section-beginning ,s) t)
          (set-marker-insertion-type (magit-section-content-beginning ,s) t)
