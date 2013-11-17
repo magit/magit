@@ -6431,28 +6431,22 @@ More information can be found in Info node `(magit)Wazzup'
                 (magit-git-string "rev-list" "--count" "--right-only"
                                   (concat head "..." upstream)))))
     (when (> count 0)
-      (let  ((old (and magit-old-top-section
-                       (cl-find-if
-                        (lambda (c)
-                          (equal (magit-section-title c) upstream))
-                        (magit-section-children magit-old-top-section)))))
-        (magit-with-section (section 'wazzup upstream nil (not old))
-          (insert (format "%3s %s\n" count
-                          (magit-format-ref-label upstream)))
-          (cond
-           ((and old (not (magit-section-hidden old)))
-            (let ((beg (point)))
-              (magit-git-insert "cherry" "-v"
-                                (magit-diff-abbrev-arg)
-                                head upstream)
-              (save-restriction
-                (narrow-to-region beg (point))
-                (goto-char (point-min))
-                (magit-wash-log 'cherry))))
-           (t
-            (setf (magit-section-hidden section) t)
-            (setf (magit-section-needs-refresh-on-show section) t)
-            )))))))
+      (magit-with-section (section 'wazzup upstream nil t)
+        (insert (format "%3s %s\n" count
+                        (magit-format-ref-label upstream)))
+        (cond
+         ((magit-section-hidden section)
+          (setf (magit-section-hidden section) t)
+          (setf (magit-section-needs-refresh-on-show section) t))
+         (t
+          (let ((beg (point)))
+            (magit-git-insert "cherry" "-v"
+                              (magit-diff-abbrev-arg)
+                              head upstream)
+            (save-restriction
+              (narrow-to-region beg (point))
+              (goto-char (point-min))
+              (magit-wash-log 'cherry)))))))))
 
 ;;; Acting (2)
 ;;;; Ignore
