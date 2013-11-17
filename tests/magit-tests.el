@@ -64,7 +64,8 @@
                   (mapcar 'magit-section-title
                           (magit-section-children
                            (magit-find-section section-path
-                                               magit-top-section))))))
+                                               magit-root-section))))))
+
 ;;; Tests
 ;;;; magit.el
 ;;;;; init

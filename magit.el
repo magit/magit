@@ -2066,7 +2066,7 @@ involving HEAD."
       s)))
 
 ;;; Sections
-;;;; Section Struct
+;;;; Section Core
 
 (cl-defstruct magit-section
   type title info
@@ -2075,15 +2075,17 @@ involving HEAD."
   diff-status diff-file2 diff-range
   parent children)
 
-;;;; Section Variables
-
-(defvar-local magit-top-section nil
+(defvar-local magit-root-section nil
   "The top section of the current buffer.")
-(put 'magit-top-section 'permanent-local t)
-
-(defvar magit-old-top-section nil)
+(put 'magit-root-section 'permanent-local t)
 
 ;;;; Section Creation
+
+(defvar magit-with-section--parent nil
+  "For use by `magit-with-section' only.")
+
+(defvar magit-with-section--oldroot nil
+  "For use by `magit-with-section' only.")
 
 (defmacro magit-with-section (arglist &rest body)
   "\n\n(fn (NAME TYPE &optional TITLE HEADING NOHIGHLIGHT COLLAPSE) &rest ARGS)"
@@ -2093,19 +2095,23 @@ involving HEAD."
                 :type ',(nth 1 arglist)
                 :title ,(nth 2 arglist)
                 :highlight (not ,(nth 4 arglist))
-                :parent magit-top-section
                 :beginning (point-marker)
-                :content-beginning (point-marker))))
+                :content-beginning (point-marker)
+                :parent magit-with-section--parent)))
        (setf (magit-section-hidden ,s)
-             (let ((old (and magit-old-top-section
+             (let ((old (and magit-with-section--oldroot
                              (magit-find-section (magit-section-path ,s)
-                                                 magit-old-top-section))))
+                                                 magit-with-section--oldroot))))
                (if old
                    (magit-section-hidden old)
                  ,(nth 5 arglist))))
-       (unless magit-top-section
-         (setq magit-top-section ,s))
-       (let ((magit-top-section ,s)) ,@body)
+       (let ((magit-with-section--parent ,s)
+             (magit-with-section--oldroot
+              (or magit-with-section--oldroot
+                  (unless magit-with-section--parent
+                    (prog1 magit-root-section
+                      (setq magit-root-section ,s))))))
+         ,@body)
        (when ,s
          (set-marker-insertion-type (magit-section-content-beginning ,s) t)
          (let ((heading ,(nth 3 arglist)))
@@ -2140,7 +2146,7 @@ involving HEAD."
                  (unless (get-text-property (point) 'magit-section)
                    (put-text-property (point) next 'magit-section ,s))
                  (goto-char next)))))
-         (unless (eq ,s magit-top-section)
+         (unless (eq ,s magit-root-section)
            (push ,s (magit-section-children (magit-section-parent ,s)))))
        ,s)))
 
@@ -2183,10 +2189,8 @@ involving HEAD."
   (declare (indent 0) (debug t))
   `(let ((inhibit-read-only t))
      (erase-buffer)
-     (let ((magit-old-top-section magit-top-section))
-       (setq magit-top-section nil)
-       ,@body
-       (magit-section-set-hidden magit-top-section nil))))
+     ,@body
+     (magit-section-set-hidden magit-root-section nil)))
 
 ;;;; Section Searching
 
@@ -2210,7 +2214,7 @@ involving HEAD."
 
 (defun magit-find-section-after (pos)
   "Find the first section that begins after POS."
-  (magit-find-section-after* pos (list magit-top-section)))
+  (magit-find-section-after* pos (list magit-root-section)))
 
 (defun magit-find-section-after* (pos secs)
   "Find the first section that begins after POS in the list SECS
@@ -2253,7 +2257,7 @@ involving HEAD."
 (defun magit-find-section-at (pos)
   "Return the Magit section at POS."
   (or (get-text-property pos 'magit-section)
-      magit-top-section))
+      magit-root-section))
 
 ;;;; Section Jumping
 
@@ -2319,7 +2323,7 @@ involving HEAD."
 
 (defun magit-goto-section-at-path (path)
   "Go to the section described by PATH."
-  (let ((sec (magit-find-section path magit-top-section)))
+  (let ((sec (magit-find-section path magit-root-section)))
     (if sec
         (goto-char (magit-section-beginning sec))
       (message "No such section"))))
@@ -2328,7 +2332,7 @@ involving HEAD."
 (defun magit-goto-diff-section-at-file (file)
   "Go to the section containing by the pathname, FILE."
   (let ((pos (catch 'diff-section-found
-               (dolist (sec (magit-section-children magit-top-section))
+               (dolist (sec (magit-section-children magit-root-section))
                  (when (and (eq (magit-section-type sec) 'diff)
                             (string-equal (magit-section-title sec) file))
                    (throw 'diff-section-found
@@ -2589,7 +2593,7 @@ If ALL is non nil, do this in all sections, otherwise do it only
 on ancestors and descendants of current section."
   (magit-with-refresh
     (if all
-        (magit-section-show-level magit-top-section 0 level nil)
+        (magit-section-show-level magit-root-section 0 level nil)
       (let ((path (reverse (magit-section-lineage (magit-current-section)))))
         (magit-section-show-level (car path) 0 level (cdr path))))))
 
@@ -3171,7 +3175,7 @@ Magit mode."
         (when magit-refresh-function
           (apply magit-refresh-function
                  magit-refresh-args))
-        (let ((s (and old-path (magit-find-section old-path magit-top-section))))
+        (let ((s (and old-path (magit-find-section old-path magit-root-section))))
           (cond (s
                  (goto-char (magit-section-beginning s))
                  (forward-line section-line)
@@ -4266,7 +4270,7 @@ in `magit-commit-buffer-name'."
                      (magit-section-beginning section)
                      (magit-section-end section)
                      (current-buffer))))
-   magit-top-section))
+   magit-root-section))
 
 ;;; Status Mode
 
