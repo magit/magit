@@ -2146,7 +2146,8 @@ involving HEAD."
                  (unless (get-text-property (point) 'magit-section)
                    (put-text-property (point) next 'magit-section ,s))
                  (goto-char next)))))
-         (unless (eq ,s magit-root-section)
+         (if (eq ,s magit-root-section)
+             (magit-section-set-hidden magit-root-section nil)
            (push ,s (magit-section-children (magit-section-parent ,s)))))
        ,s)))
 
@@ -2189,8 +2190,7 @@ involving HEAD."
   (declare (indent 0) (debug t))
   `(let ((inhibit-read-only t))
      (erase-buffer)
-     ,@body
-     (magit-section-set-hidden magit-root-section nil)))
+     ,@body))
 
 ;;;; Section Searching
 
