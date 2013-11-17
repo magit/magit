@@ -61,7 +61,7 @@
     (if sha
         (magit-show-commit
          (magit-with-section (section 'commit sha)
-           (magit-set-section-info sha)
+           (setf (magit-section-info section) sha)
            sha))
       (error "Revision %s could not be mapped to a commit" rev))))
 

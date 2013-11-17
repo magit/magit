@@ -2190,11 +2190,6 @@ Use the specified START and END positions."
     (setf (magit-section-end section) end)
     section))
 
-(defun magit-set-section-info (info &optional section)
-  "Set the info of SECTION.
-If SECTION is nil, default to setting `magit-top-section'"
-  (setf (magit-section-info (or section magit-top-section)) info))
-
 (defun magit-set-section-needs-refresh-on-show (flag &optional section)
   (setf (magit-section-needs-refresh-on-show
          (or section magit-top-section))
@@ -3489,7 +3484,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
     (magit-with-section (section 'diff (buffer-substring-no-properties
                                         (line-beginning-position)
                                         (line-end-position)))
-      (magit-wash-diff-section))))
+      (magit-wash-diff-section section))))
 
 (defun magit-wash-diffstats ()
   (let ((beg (point)))
@@ -3517,7 +3512,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 
 (defun magit-wash-diffstats-postwork (file)
   (when magit-diffstat-cached-sections
-    (magit-set-section-info file (pop magit-diffstat-cached-sections))))
+    (setf (magit-section-info (pop magit-diffstat-cached-sections)) file)))
 
 (defun magit-insert-diff-title (status file file2)
   (insert (format "\t%-10s " (capitalize (symbol-name status)))
@@ -3528,8 +3523,8 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 (defvar magit-current-diff-range nil
   "Used internally when setting up magit diff sections.")
 
-(defun magit-wash-typechange-section (file)
-  (magit-set-section-info (list 'typechange file))
+(defun magit-wash-typechange-section (section file)
+  (setf (magit-section-info section) (list 'typechange file))
   (let ((first-start (point-marker))
         (second-start (progn (forward-line 1)
                              (search-forward-regexp "^diff")
@@ -3539,20 +3534,20 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
       (narrow-to-region first-start second-start)
       (goto-char (point-min))
       (magit-with-section (section 'diff file)
-        (magit-wash-diff-section)))
+        (magit-wash-diff-section section)))
     (save-restriction
       (narrow-to-region second-start (point-max))
       (goto-char (point-min))
       (magit-with-section (section 'diff file)
-        (magit-wash-diff-section)))))
+        (magit-wash-diff-section section)))))
 
-(defun magit-wash-diff-section ()
+(defun magit-wash-diff-section (section)
   (cond ((re-search-forward "^\\* Unmerged path \\(.*\\)" nil t)
          (forward-line 0)
          (let ((file (magit-decode-git-path (match-string-no-properties 1))))
            (delete-region (point) (line-end-position))
            (insert "\tUnmerged " file "\n")
-           (magit-set-section-info (list 'unmerged file nil))
+           (setf (magit-section-info section) (list 'unmerged file nil))
            t))
         ((re-search-forward "^diff" nil t)
          (forward-line 0)
@@ -3584,10 +3579,9 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                              (search-forward-regexp "^rename from \\(.*\\)"
                                                     end t))
                            (match-string-no-properties 1)))))
-             (magit-set-section-info (list status
-                                           file
-                                           (or file2 file)
-                                           magit-current-diff-range))
+             (setf (magit-section-info section)
+                   (list status file (or file2 file)
+                         magit-current-diff-range))
              (magit-insert-diff-title status file file2)
              (when (search-forward-regexp
                     "\\(--- \\(.*\\)\n\\+\\+\\+ \\(.*\\)\n\\)" nil t)
@@ -3701,7 +3695,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 
 ;;;; Raw Diff Washing
 
-(defun magit-insert-diff (file status)
+(defun magit-insert-diff (section file status)
   (let ((beg (point)))
     (apply 'magit-git-insert "-c" "diff.submodule=short" "diff"
            `(,(magit-diff-U-arg) ,@magit-diff-options "--" ,file))
@@ -3712,9 +3706,9 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
       (goto-char beg)
       (cond ((eq status 'typechange)
              (magit-insert-diff-title status file file)
-             (magit-wash-typechange-section file))
+             (magit-wash-typechange-section section file))
             (t
-             (magit-wash-diff-section)))
+             (magit-wash-diff-section section)))
       (goto-char (point-max)))))
 
 (defun magit-wash-raw-diffs (&optional staged)
@@ -3753,8 +3747,8 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
           (magit-with-section (section 'diff file)
             (delete-region (point) (1+ (line-end-position)))
             (if (not hidden)
-                (magit-insert-diff file status)
-              (magit-set-section-info (list status file nil))
+                (magit-insert-diff section file status)
+              (setf (magit-section-info section) (list status file nil))
               (magit-set-section-needs-refresh-on-show t)
               (magit-insert-diff-title status file nil)))))
       file)))
@@ -3936,9 +3930,9 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
     (goto-char (line-beginning-position))
     (if hash
         (magit-with-section (section 'commit hash)
+          (setf (magit-section-info section) hash)
           (when magit-log-count
             (cl-incf magit-log-count))
-          (magit-set-section-info hash)
           (forward-line)
           (when (eq style 'long)
             (magit-wash-sequence
@@ -4140,15 +4134,17 @@ for this argument.)"
        "^Merge: \\([0-9a-fA-F]+\\) \\([0-9a-fA-F]+\\)$" nil t)
       (setq magit-current-diff-range (cons (cons (match-string 1)
                                                  (match-string 2))
-                                           magit-current-diff-range)
-            merge-commit t)
-      (let ((first  (magit-set-section 'commit nil
-                                       (match-beginning 1) (match-end 1)))
-            (second (magit-set-section 'commit nil
-                                       (match-beginning 2) (match-end 2))))
-        (magit-set-section-info (match-string 1) first)
-        (magit-set-section-info (match-string 2) second))
+                                           magit-current-diff-range))
+      (setq merge-commit t)
+      (setf (magit-section-info (magit-set-section  'commit nil
+                                                    (match-beginning 1)
+                                                    (match-end 1)))
+            (match-string 1))
       (magit-make-commit-button (match-beginning 1) (match-end 1))
+      (setf (magit-section-info (magit-set-section  'commit nil
+                                                    (match-beginning 2)
+                                                    (match-end 2)))
+            (match-string 2))
       (magit-make-commit-button (match-beginning 2) (match-end 2)))
      (t
       (setq magit-current-diff-range
@@ -4176,8 +4172,8 @@ for this argument.)"
             (end (match-end 1)))
         (when (string-equal "commit" (magit-git-string "cat-file" "-t" sha1))
           (magit-make-commit-button start end)
-          (let ((section (magit-set-section 'commit sha1 start end)))
-            (magit-set-section-info sha1 section)))))
+          (setf (magit-section-info (magit-set-section 'commit sha1 start end))
+                sha1))))
     (beginning-of-line)
     (when (looking-at "^diff")
       (magit-wash-diffs))
@@ -4293,7 +4289,7 @@ in `magit-commit-buffer-name'."
         (insert name)
         (goto-char (line-beginning-position))
         (magit-with-section (section 'stash stash)
-          (magit-set-section-info stash)
+          (setf (magit-section-info section) stash)
           (forward-line)))
     (forward-line))
   t)
@@ -4406,7 +4402,7 @@ when asking for user input."
                       (match-string-no-properties 1))))
            (delete-region (point) (+ (line-end-position) 1))
            (magit-with-section (section 'file file)
-             (magit-set-section-info file)
+             (setf (magit-section-info section) file)
              (insert "\t" file "\n")))
          t)))))
 
@@ -4422,7 +4418,7 @@ when asking for user input."
                  (properties (cdr p))
                  (used (plist-get properties 'used)))
             (magit-with-section (section 'commit commit)
-              (magit-set-section-info commit)
+              (setf (magit-section-info section) commit)
               (insert (magit-git-string
                        "log" "-1"
                        (if used
@@ -4845,7 +4841,7 @@ With a prefix argument, add remaining untracked files as well.
     ((staged diff hunk)
      (magit-apply-hunk-item item "--reverse" "--cached"))
     ((staged diff)
-     (when (eq (car info) 'unmerged)
+     (when (eq info 'unmerged)
        (error "Can't unstage an unmerged file.  Resolve it first"))
      (let ((files (if (use-region-p)
                       (magit-region-siblings #'magit-diff-item-file)
@@ -6936,7 +6932,7 @@ from the parent keymap `magit-mode-map' are also available.")
          (branch-face (and (equal marker "* ") 'magit-branch)))
     (delete-region (point) (line-beginning-position 2))
     (magit-with-section (section 'branch branch)
-      (magit-set-section-info branch)
+      (setf (magit-section-info section) branch)
       (insert (propertize (or sha1
                               (make-string magit-sha1-abbrev-length ? ))
                           'face 'magit-log-sha1)
@@ -6976,7 +6972,7 @@ from the parent keymap `magit-mode-map' are also available.")
          (urls (concat url (and push-url (concat ", " push-url))))
          (marker (cadr group)))
     (magit-with-section (section 'remote (concat "remote:" remote-name))
-      (magit-set-section-info remote-name)
+      (setf (magit-section-info section) remote-name)
       (insert (propertize (format "%s (%s):" remote-name urls)
                           'face 'magit-section-title) "\n")
       (magit-wash-branches-between-point-and-marker marker remote-name))
@@ -7012,7 +7008,7 @@ from the parent keymap `magit-mode-map' are also available.")
     ;; actual displaying of information
     (magit-with-section (section 'local 'local)
       (insert (propertize "Local:" 'face 'magit-section-title) "\n")
-      (magit-set-section-info ".")
+      (setf (magit-section-info section) ".")
       (magit-wash-branches-between-point-and-marker
        (cl-loop for x in markers thereis x)))
     (insert "\n")

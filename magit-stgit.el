@@ -167,7 +167,7 @@
                                     'face 'magit-stgit-other) " " descr))))
         (goto-char (line-beginning-position))
         (magit-with-section (section 'series patch)
-          (magit-set-section-info patch)
+          (setf (magit-section-info section) patch)
           (goto-char (line-end-position)))
         (forward-line))
     (delete-region (line-beginning-position) (1+ (line-end-position))))
