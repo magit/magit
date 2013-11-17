@@ -4349,9 +4349,7 @@ when asking for user input."
   (let* ((info (magit-read-rewrite-info))
          (pending (cdr (assq 'pending info))))
     (when pending
-      (magit-with-section (section 'pending 'pending nil t)
-        (insert (propertize "Pending commits:\n"
-                            'face 'magit-section-title))
+      (magit-with-section (section 'pending 'pending "Pending commits:" t)
         (dolist (p pending)
           (let* ((commit (car p))
                  (properties (cdr p))
