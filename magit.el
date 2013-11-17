@@ -2069,8 +2069,10 @@ involving HEAD."
 ;;;; Section Struct
 
 (cl-defstruct magit-section
-  parent title beginning end children hidden type info
-  needs-refresh-on-show highlight)
+  type title info
+  beginning end
+  hidden needs-refresh-on-show highlight
+  parent children)
 
 (defun magit-section-content-beginning (section)
   (save-excursion
