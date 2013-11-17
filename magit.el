@@ -3674,8 +3674,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 (defun magit-wash-raw-diff (previous staged)
   (when (looking-at
          ":\\([0-7]+\\) \\([0-7]+\\) [0-9a-f]+ [0-9a-f]+ \\(.\\)[0-9]*\t\\([^\t\n]+\\)$")
-    (let ((old-perm (match-string-no-properties 1))
-          (new-perm (match-string-no-properties 2))
+    (let ((file (magit-decode-git-path (match-string-no-properties 4)))
           (status (cl-ecase (string-to-char (match-string-no-properties 3))
                     (?A 'new)
                     (?C 'copy)
@@ -3683,8 +3682,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                     (?M 'modified)
                     (?T 'typechange)
                     (?U 'unmerged)
-                    (?X 'unknown)))
-          (file (magit-decode-git-path (match-string-no-properties 4))))
+                    (?X 'unknown))))
       (if (or ;; Unmerged files get two entries; we ignore the second.
               (equal file previous)
               ;; Ignore staged, unmerged files.
