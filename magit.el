@@ -2186,12 +2186,6 @@ involving HEAD."
        ,washer
      magit-git-executable "--no-pager" ,@args))
 
-(defmacro magit-create-buffer-sections (&rest body)
-  (declare (indent 0) (debug t))
-  `(let ((inhibit-read-only t))
-     (erase-buffer)
-     ,@body))
-
 ;;;; Section Searching
 
 (defun magit-find-section (path top)
@@ -3167,12 +3161,14 @@ Magit mode."
            (old-path (and old-section
                           (magit-section-path (magit-current-section)))))
       (beginning-of-line)
-      (let ((section-line (and old-section
+      (let ((inhibit-read-only t)
+            (section-line (and old-section
                                (count-lines
                                 (magit-section-beginning old-section)
                                 (point))))
             (line-char (- old-point (point))))
         (when magit-refresh-function
+          (erase-buffer)
           (apply magit-refresh-function
                  magit-refresh-args))
         (let ((s (and old-path (magit-find-section old-path magit-root-section))))
@@ -4074,13 +4070,12 @@ for this argument.)"
       (pop-to-buffer buf))))
 
 (defun magit-refresh-commit-buffer (commit)
-  (magit-create-buffer-sections
-    (magit-git-insert-section (commitbuf nil)
-        #'magit-wash-commit
-      "log" "-1" "--decorate=full"
-      "--pretty=medium" "--no-abbrev-commit"
-      "--cc" "-p" (and magit-show-diffstat "--stat")
-      magit-diff-options commit)))
+  (magit-git-insert-section (commitbuf nil)
+      #'magit-wash-commit
+    "log" "-1" "--decorate=full"
+    "--pretty=medium" "--no-abbrev-commit"
+    "--cc" "-p" (and magit-show-diffstat "--stat")
+    magit-diff-options commit))
 
 ;;;; (washing)
 
@@ -4325,9 +4320,8 @@ when asking for user input."
 
 (defun magit-refresh-status ()
   (magit-git-exit-code "update-index" "--refresh")
-  (magit-create-buffer-sections
-    (magit-with-section (section status 'status nil t)
-      (run-hooks 'magit-status-sections-hook)))
+  (magit-with-section (section status 'status nil t)
+    (run-hooks 'magit-status-sections-hook))
   (run-hooks 'magit-refresh-status-hook))
 
 ;;; Status Sections
@@ -6012,25 +6006,24 @@ Other key binding:
   (setq magit-file-log-file file)
   (when (consp range)
     (setq range (concat (car range) ".." (cdr range))))
-  (magit-create-buffer-sections
-    (let ((magit-log-count 0))
-      (magit-git-insert-section
-          (logbuf (concat "Commits"
-                          (and file  (concat " for file " file))
-                          (and range (concat " in " range))))
-          (apply-partially 'magit-wash-log style 'color t)
-        "log"
-        (format "--max-count=%d" magit-log-cutoff-length)
-        "--decorate=full" "--abbrev-commit" "--color"
-        (magit-diff-abbrev-arg)
-        (cl-case style
-          (long    (if magit-log-show-gpg-status
-                       (list "--stat" "--show-signature")
-                     "--stat"))
-          (oneline (concat "--pretty=format:%h%d "
-                           (and magit-log-show-gpg-status "%G?")
-                           "[%an][%ar]%s")))
-        args range "--" file))))
+  (let ((magit-log-count 0))
+    (magit-git-insert-section
+        (logbuf (concat "Commits"
+                        (and file  (concat " for file " file))
+                        (and range (concat " in " range))))
+        (apply-partially 'magit-wash-log style 'color t)
+      "log"
+      (format "--max-count=%d" magit-log-cutoff-length)
+      "--decorate=full" "--abbrev-commit" "--color"
+      (magit-diff-abbrev-arg)
+      (cl-case style
+        (long    (if magit-log-show-gpg-status
+                     (list "--stat" "--show-signature")
+                   "--stat"))
+        (oneline (concat "--pretty=format:%h%d "
+                         (and magit-log-show-gpg-status "%G?")
+                         "[%an][%ar]%s")))
+      args range "--" file)))
 
 (defun magit-log-show-more-entries (&optional arg)
   "Grow the number of log entries shown.
@@ -6082,9 +6075,8 @@ Other key binding:
                     #'magit-refresh-cherry-buffer upstream head))
 
 (defun magit-refresh-cherry-buffer (upstream head)
-  (magit-create-buffer-sections
-    (magit-with-section (section cherry 'cherry nil t)
-      (run-hooks 'magit-cherry-sections-hook))))
+  (magit-with-section (section cherry 'cherry nil t)
+    (run-hooks 'magit-cherry-sections-hook)))
 
 (defun magit-insert-cherry-head-line ()
   (magit-insert-status-line "Head"
@@ -6140,14 +6132,13 @@ Other key binding:
 
 (defun magit-refresh-reflog-buffer (ref)
   (setq magit-reflog-head ref)
-  (magit-create-buffer-sections
-    (let ((magit-log-count 0))
-      (magit-git-insert-section
-          (reflogbuf (format "Local history of branch %s" ref))
-          (apply-partially 'magit-wash-log 'reflog t)
-        "log" "--format=format:* \C-?%h\C-?%gs"
-        (magit-diff-abbrev-arg) "--walk-reflogs"
-        (format "--max-count=%d" magit-log-cutoff-length) ref))))
+  (let ((magit-log-count 0))
+    (magit-git-insert-section
+        (reflogbuf (format "Local history of branch %s" ref))
+        (apply-partially 'magit-wash-log 'reflog t)
+      "log" "--format=format:* \C-?%h\C-?%gs"
+      (magit-diff-abbrev-arg) "--walk-reflogs"
+      (format "--max-count=%d" magit-log-cutoff-length) ref)))
 
 ;;;; (action labels)
 
@@ -6354,20 +6345,19 @@ More information can be found in Info node `(magit)Diffing'
                ((string-match "^\\([^.]+\\)\\.\\.\\([^.]\\)$" range)
                 (cons (match-string 1 range)
                       (match-string 2 range))))))
-    (magit-create-buffer-sections
-      (magit-git-insert-section
-          (diffbuf (cond (working
-                          (format "Changes from %s to working tree" range))
-                         ((not range)
-                          (if (member "--cached" args)
-                              "Staged changes"
-                            "Unstaged changes"))
-                         (t
-                          (format "Changes in %s" range))))
-          #'magit-wash-diffs
-        "diff" (magit-diff-U-arg)
-        (and magit-show-diffstat "--patch-with-stat")
-        range args "--"))))
+    (magit-git-insert-section
+        (diffbuf (cond (working
+                        (format "Changes from %s to working tree" range))
+                       ((not range)
+                        (if (member "--cached" args)
+                            "Staged changes"
+                          "Unstaged changes"))
+                       (t
+                        (format "Changes in %s" range))))
+        #'magit-wash-diffs
+      "diff" (magit-diff-U-arg)
+      (and magit-show-diffstat "--patch-with-stat")
+      range args "--")))
 
 ;;; Wazzup Mode
 
@@ -6406,9 +6396,8 @@ More information can be found in Info node `(magit)Wazzup'
                     #'magit-refresh-wazzup-buffer branch))
 
 (defun magit-refresh-wazzup-buffer (head)
-  (magit-create-buffer-sections
-    (magit-with-section (section wazzupbuf 'wazzupbuf nil t)
-      (run-hooks 'magit-wazzup-sections-hook))))
+  (magit-with-section (section wazzupbuf 'wazzupbuf nil t)
+    (run-hooks 'magit-wazzup-sections-hook)))
 
 (defun magit-insert-wazzup-head-line ()
   (magit-insert-status-line "Head"
@@ -6831,10 +6820,9 @@ from the parent keymap `magit-mode-map' are also available.")
                     #'magit-refresh-branch-manager))
 
 (defun magit-refresh-branch-manager ()
-  (magit-create-buffer-sections
-    (magit-git-insert-section (branchbuf nil)
-        #'magit-wash-branches
-      "branch" "-vva" (magit-diff-abbrev-arg) magit-custom-options)))
+  (magit-git-insert-section (branchbuf nil)
+      #'magit-wash-branches
+    "branch" "-vva" (magit-diff-abbrev-arg) magit-custom-options))
 
 ;;;; Branch List Washing
 
@@ -7195,7 +7183,6 @@ This can be added to `magit-mode-hook' for example"
                        "magit-with-section"
                        "magit-cmd-insert-section"
                        "magit-git-insert-section"
-                       "magit-create-buffer-sections"
                        "magit-section-action"
                        "magit-section-case"
                        "magit-add-action-clauses"
