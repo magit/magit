@@ -4155,21 +4155,13 @@ for this argument.)"
     (when magit-commit-mode-show-buttons
       (insert "\n")
       (when magit-back-navigation-history
-        (magit-with-section (section 'button "[back]")
-          (insert-text-button "[back]"
-                              'help-echo "Previous commit"
-                              'action 'magit-show-commit-backward
-                              'follow-link t
-                              'mouse-face magit-item-highlight-face)))
+        (magit-insert-commit-navigation-button
+         "[back]" "Previous commit" 'magit-show-commit-backward))
       (when magit-forward-navigation-history
         (when magit-back-navigation-history
           (insert " "))
-        (magit-with-section (section 'button "[forward]")
-          (insert-text-button "[forward]"
-                              'help-echo "Next commit"
-                              'action 'magit-show-commit-forward
-                              'follow-link t
-                              'mouse-face magit-item-highlight-face))))))
+        (magit-insert-commit-navigation-button
+         "[forward]"  "Next commit" 'magit-show-commit-forward)))))
 
 (defun magit-make-commit-button (start end)
   (let ((hash (buffer-substring-no-properties start end)))
@@ -4187,6 +4179,14 @@ for this argument.)"
                         'face 'magit-log-sha1))))
 
 ;;;; (history)
+
+(defun magit-insert-commit-navigation-button (label help-echo action)
+  (magit-with-section (section 'button label)
+    (insert-text-button label
+                        'help-echo help-echo
+                        'action action
+                        'follow-link t
+                        'mouse-face magit-item-highlight-face)))
 
 (defun magit-show-commit-backward (&optional ignored)
   ;; Ignore argument passed by push-button
