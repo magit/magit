@@ -203,9 +203,9 @@ If USE-CACHE is non nil, use the cached information."
 (defun magit-insert-svn-remote-line ()
   (let ((svn-info (magit-svn-get-ref-info)))
     (when svn-info
-      (magit-insert-status-line "Remote"
-        (concat (cdr (assoc 'url svn-info))
-                " @ "
+      (magit-insert-line-section (line)
+        (concat "Remote: "
+                (cdr (assoc 'url svn-info)) " @ "
                 (cdr (assoc 'revision svn-info)))))))
 
 ;;;###autoload

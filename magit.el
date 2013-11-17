@@ -2188,6 +2188,20 @@ involving HEAD."
        ,washer
      magit-git-executable "--no-pager" ,@args))
 
+(defmacro magit-insert-line-section (arglist line)
+  "\n\n(fn (TYPE &optional INFO) line)"
+  (declare (indent 1))
+  (let ((l (cl-gensym "line")))
+    `(let ((,l (concat ,line "\n")))
+       (when (string-match "^\\([^:]+\\):\\( \\)" ,l)
+         (setq ,l (replace-match
+                   (make-string (max 1 (- magit-status-line-align-to
+                                          (length (match-string 1 ,l))))
+                                ?\s)
+                   t t ,l 2)))
+       (magit-with-section (section ,(car arglist) ',(car arglist) ,l t)
+         (setf (magit-section-info section) ,(cadr arglist))))))
+
 ;;;; Section Searching
 
 (defun magit-find-section (path top)
@@ -4436,16 +4450,10 @@ when asking for user input."
 (defun magit-insert-empty-line ()
   (insert "\n"))
 
-(defun magit-insert-status-line (heading info-string)
-  (declare (indent 1))
-  (insert heading ":"
-          (make-string (max 1 (- magit-status-line-align-to
-                                 (length heading))) ?\ )
-          info-string "\n"))
-
 (defun magit-insert-status-local-line ()
-  (magit-insert-status-line "Local"
-    (concat (propertize (or (magit-get-current-branch) "(detached)")
+  (magit-insert-line-section (line)
+    (concat "Local: "
+            (propertize (or (magit-get-current-branch) "(detached)")
                         'face 'magit-branch)
             " " (abbreviate-file-name default-directory))))
 
@@ -4453,8 +4461,9 @@ when asking for user input."
   (let* ((branch  (magit-get-current-branch))
          (tracked (magit-get-tracked-branch branch)))
     (when tracked
-      (magit-insert-status-line "Remote"
-        (concat (and (magit-get-boolean "branch" branch "rebase") "onto ")
+      (magit-insert-line-section (line)
+        (concat "Remote: "
+                (and (magit-get-boolean "branch" branch "rebase") "onto ")
                 (magit-format-tracked-line tracked branch))))))
 
 (defun magit-format-tracked-line (tracked branch)
@@ -4469,8 +4478,9 @@ when asking for user input."
                         " (" (magit-get "remote" remote "url") ")"))))))
 
 (defun magit-insert-status-head-line ()
-  (magit-insert-status-line "Head"
-    (or (magit-format-rev-summary "HEAD") "nothing committed yet")))
+  (magit-insert-line-section (line)
+    (concat "Head: " (or (magit-format-rev-summary "HEAD")
+                         "nothing committed yet"))))
 
 (defun magit-insert-status-tags-line ()
   (let* ((current-tag (magit-get-current-tag t))
@@ -4478,14 +4488,14 @@ when asking for user input."
          (both-tags (and current-tag next-tag t))
          (tag-subject (eq magit-status-tags-line-subject 'tag)))
     (when (or current-tag next-tag)
-      (magit-insert-status-line
-       (if both-tags "Tags" "Tag")
-       (concat
-        (and current-tag (apply 'magit-format-status-tag-sentence
-                                tag-subject current-tag))
-        (and both-tags ", ")
-        (and next-tag (apply 'magit-format-status-tag-sentence
-                             (not tag-subject) next-tag)))))))
+      (magit-insert-line-section (line)
+        (concat
+         (if both-tags "Tags: " "Tag: ")
+         (and current-tag (apply 'magit-format-status-tag-sentence
+                                 tag-subject current-tag))
+         (and both-tags ", ")
+         (and next-tag (apply 'magit-format-status-tag-sentence
+                              (not tag-subject) next-tag)))))))
 
 (defun magit-format-status-tag-sentence (behindp tag cnt &rest ignored)
   (concat (propertize tag 'face 'magit-tag)
@@ -4501,21 +4511,24 @@ when asking for user input."
 (defun magit-insert-status-merge-line ()
   (let ((heads (magit-file-lines (magit-git-dir "MERGE_HEAD"))))
     (when heads
-      (magit-insert-status-line "Merging"
+      (magit-insert-line-section (line)
         (concat
+         "Merging: "
          (mapconcat 'identity (mapcar 'magit-name-rev heads) ", ")
          "; Resolve conflicts, or press \"m A\" to Abort")))))
 
 (defun magit-insert-status-rebase-lines ()
   (let ((rebase (magit-rebase-info)))
     (when rebase
-      (magit-insert-status-line (if (nth 4 rebase) "Applying" "Rebasing")
+      (magit-insert-line-section (line)
         (apply 'format
-               "onto %s (%s of %s); Press \"R\" to Abort, Skip, or Continue"
+               "%s: onto %s (%s of %s); Press \"R\" to Abort, Skip, or Continue"
+               (if (nth 4 rebase) "Applying" "Rebasing")
                rebase))
       (when (and (null (nth 4 rebase)) (nth 3 rebase))
-        (magit-insert-status-line "Stopped"
-          (magit-format-rev-summary (nth 3 rebase)))))))
+        (magit-insert-line-section (line)
+          (concat "Stopped: "
+                  (magit-format-rev-summary (nth 3 rebase))))))))
 
 (defun magit-insert-bisect-output ()
   (when (magit-bisecting-p)
@@ -6079,21 +6092,25 @@ Other key binding:
     (run-hooks 'magit-cherry-sections-hook)))
 
 (defun magit-insert-cherry-head-line ()
-  (magit-insert-status-line "Head"
-    (concat (propertize (cadr magit-refresh-args) 'face 'magit-branch) " "
+  (magit-insert-line-section (line)
+    (concat "Head: "
+            (propertize (cadr magit-refresh-args) 'face 'magit-branch) " "
             (abbreviate-file-name default-directory))))
 
 (defun magit-insert-cherry-upstream-line ()
-  (magit-insert-status-line "Upstream"
-    (propertize (car magit-refresh-args) 'face 'magit-branch)))
+  (magit-insert-line-section (line)
+    (concat "Upstream: "
+            (propertize (car magit-refresh-args) 'face 'magit-branch))))
 
 (defun magit-insert-cherry-help-lines ()
   (when (derived-mode-p 'magit-cherry-mode)
     (insert "\n")
-    (magit-insert-status-line (propertize "-" 'face 'magit-cherry-unmatched)
-      (format "equivalent exists in both refs"))
-    (magit-insert-status-line (propertize "+" 'face 'magit-cherry-equivalent)
-      "unmatched commit tree")))
+    (magit-insert-line-section (line)
+      (concat (propertize "-" 'face 'magit-cherry-unmatched)
+              " equivalent exists in both refs"))
+    (magit-insert-line-section (line)
+      (concat (propertize "+" 'face 'magit-cherry-equivalent)
+              " unmatched commit tree"))))
 
 (defun magit-insert-cherry-commits ()
   (magit-git-insert-section (cherries "Cherry commits:")
@@ -6400,8 +6417,9 @@ More information can be found in Info node `(magit)Wazzup'
     (run-hooks 'magit-wazzup-sections-hook)))
 
 (defun magit-insert-wazzup-head-line ()
-  (magit-insert-status-line "Head"
-    (concat (propertize (car magit-refresh-args) 'face 'magit-branch) " "
+  (magit-insert-line-section (line)
+    (concat "Head: "
+            (propertize (car magit-refresh-args) 'face 'magit-branch) " "
             (abbreviate-file-name default-directory))))
 
 (defun magit-insert-wazzup-branches ()
