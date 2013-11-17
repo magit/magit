@@ -60,8 +60,8 @@
                        ,@(when branch (list branch))))))
     (if sha
         (magit-show-commit
-         (magit-with-section sha 'commit
-           (magit-set-section-info sha)
+         (magit-with-section (section commit sha)
+           (setf (magit-section-info section) sha)
            sha))
       (error "Revision %s could not be mapped to a commit" rev))))
 
@@ -186,28 +186,26 @@ If USE-CACHE is non nil, use the cached information."
 
 (defun magit-insert-svn-unpulled ()
   (when (magit-svn-enabled)
-    (magit-git-section 'svn-unpulled "Unpulled commits (SVN):"
-                       (apply-partially 'magit-wash-log 'unique)
-                       "log" "--format=format:* %h %s"
-                       (magit-diff-abbrev-arg)
-                       (format "HEAD..%s" (magit-svn-get-ref t)))))
+    (magit-git-insert-section (svn-unpulled "Unpulled commits (SVN):")
+        (apply-partially 'magit-wash-log 'unique)
+      "log" "--format=format:* %h %s" (magit-diff-abbrev-arg)
+      (format "HEAD..%s" (magit-svn-get-ref t)))))
 
 (defun magit-insert-svn-unpushed ()
   (when (magit-svn-enabled)
-    (magit-git-section 'svn-unpushed "Unpushed commits (SVN):"
-                       (apply-partially 'magit-wash-log 'unique)
-                       "log" "--format=format:* %h %s"
-                       (magit-diff-abbrev-arg)
-                       (format "%s..HEAD" (magit-svn-get-ref t)))))
+    (magit-git-insert-section (svn-unpushed "Unpushed commits (SVN):")
+        (apply-partially 'magit-wash-log 'unique)
+      "log" "--format=format:* %h %s" (magit-diff-abbrev-arg)
+      (format "%s..HEAD" (magit-svn-get-ref t)))))
 
 (magit-define-section-jumper svn-unpushed  "Unpushed commits (SVN)")
 
 (defun magit-insert-svn-remote-line ()
   (let ((svn-info (magit-svn-get-ref-info)))
     (when svn-info
-      (magit-insert-status-line "Remote"
-        (concat (cdr (assoc 'url svn-info))
-                " @ "
+      (magit-insert-line-section (line)
+        (concat "Remote: "
+                (cdr (assoc 'url svn-info)) " @ "
                 (cdr (assoc 'revision svn-info)))))))
 
 ;;;###autoload
