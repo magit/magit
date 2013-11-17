@@ -2121,15 +2121,6 @@ involving HEAD."
       (setf (magit-section-hidden s) (magit-section-hidden old)))
     s))
 
-(defun magit-cancel-section (section)
-  (delete-region (magit-section-beginning section)
-                 (magit-section-end section))
-  (let ((parent (magit-section-parent section)))
-    (if parent
-        (setf (magit-section-children parent)
-              (delq section (magit-section-children parent)))
-      (setq magit-top-section nil))))
-
 (defmacro magit-with-section (arglist &rest body)
   (declare (indent 1) (debug ((form form &optional form) body)))
   (let ((s (car arglist)))
@@ -2172,7 +2163,13 @@ involving HEAD."
                   (insert-before-markers-and-inherit
                    (format " (%i)" children))))))))
     (if (= body-beg (point))
-        (magit-cancel-section section)
+        (let ((parent (magit-section-parent section)))
+          (delete-region (magit-section-beginning section)
+                         (magit-section-end section))
+          (if parent
+              (setf (magit-section-children parent)
+                    (delq section (magit-section-children parent)))
+            (setq magit-top-section nil)))
       (insert "\n"))
     section))
 
