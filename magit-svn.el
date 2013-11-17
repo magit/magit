@@ -60,7 +60,7 @@
                        ,@(when branch (list branch))))))
     (if sha
         (magit-show-commit
-         (magit-with-section (section 'commit sha)
+         (magit-with-section (section commit sha)
            (setf (magit-section-info section) sha)
            sha))
       (error "Revision %s could not be mapped to a commit" rev))))
