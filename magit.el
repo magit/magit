@@ -5889,9 +5889,17 @@ member of ARGS, or to the working file otherwise."
 ;; confusing commits and stashes...
 (defun magit-cherry-pick-item ()
   "EITHER:
-Cherry pick and apply a (pending) commit.
+Cherry pick and apply the (pending) commit on the line at the
+point.
+\(git cherry-pick item)
+
 OR:
 Apply and remove the stash on the line at the point.
+Fix any conflicts and then use `magit-unstage-all' (type `\\[magit-unstage-all]`), as
+many times as necessary to mark conflicts as fixed and unstage
+the result of the conflict resolution, and finally remove (i.e.
+drop) the stash explicitly (type `\\[magit-discard-item]` with the point on
+the stash).
 \(git stash pop item)"
   (interactive)
   (magit-section-action (item info "cherry-pick")
