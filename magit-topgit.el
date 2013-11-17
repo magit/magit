@@ -132,7 +132,7 @@
   (when (executable-find magit-topgit-executable)
     (let ((magit-git-executable magit-topgit-executable)
           (magit-git-standard-options nil))
-      (apply 'magit-git-section section title washer args))))
+      (apply #'magit-git-section section title washer args))))
 
 (defun magit-insert-topgit-topics ()
   (magit-topgit-section 'topgit-topics

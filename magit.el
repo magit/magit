@@ -4118,7 +4118,7 @@ for this argument.)"
 (defun magit-refresh-commit-buffer (commit)
   (magit-create-buffer-sections
     (apply #'magit-git-section nil nil
-           'magit-wash-commit
+           #'magit-wash-commit
            "log" "-1" "--decorate=full"
            "--pretty=medium" "--no-abbrev-commit"
            "--cc" "-p"
@@ -4385,19 +4385,16 @@ when asking for user input."
 ;;;; Real Sections
 
 (defun magit-insert-stashes ()
-  (magit-git-section 'stashes
-                     "Stashes:" 'magit-wash-stashes
+  (magit-git-section 'stashes "Stashes:"
+                     #'magit-wash-stashes
                      "stash" "list"))
 
 (defun magit-insert-untracked-files ()
   (unless (string= (magit-get "status" "showUntrackedFiles") "no")
-    (apply 'magit-git-section
-           `(untracked
-             "Untracked files:"
-             magit-wash-untracked-files
-             "ls-files" "--others" "-t" "--exclude-standard"
-             ,@(unless magit-status-verbose-untracked
-                 '("--directory"))))))
+    (apply #'magit-git-section 'untracked "Untracked files:"
+           #'magit-wash-untracked-files
+           "ls-files" "--others" "-t" "--exclude-standard"
+           (and magit-status-verbose-untracked (list "--directory")))))
 
 (defun magit-wash-untracked-files ()
   (magit-wash-sequence
@@ -4438,16 +4435,15 @@ when asking for user input."
   (let* ((info (magit-read-rewrite-info))
          (orig (cadr (assq 'orig info))))
     (when orig
-      (magit-git-section 'pending-changes
-                         "Pending changes"
-                         'magit-wash-diffs
+      (magit-git-section 'pending-changes "Pending changes"
+                         #'magit-wash-diffs
                          "diff" (magit-diff-U-arg) "-R" orig))))
 
 (defun magit-insert-unstaged-changes ()
   (let ((magit-current-diff-range (cons 'index 'working))
         (magit-diff-options (append '() magit-diff-options)))
-    (magit-git-section 'unstaged
-                       "Unstaged changes:" 'magit-wash-raw-diffs
+    (magit-git-section 'unstaged "Unstaged changes:"
+                       #'magit-wash-raw-diffs
                        "diff-files")))
 
 (defun magit-insert-staged-changes ()
@@ -4460,8 +4456,7 @@ when asking for user input."
             (magit-diff-options (append '("--cached") magit-diff-options)))
         (magit-git-section 'staged "Staged changes:"
                            (apply-partially #'magit-wash-raw-diffs t)
-                           "diff-index" "--cached"
-                           base)))))
+                           "diff-index" "--cached" base)))))
 
 (defun magit-insert-unpulled-commits ()
   (let ((tracked (magit-get-tracked-branch nil t)))
@@ -6167,8 +6162,7 @@ Other key binding:
       "unmatched commit tree")))
 
 (defun magit-insert-cherry-commits ()
-  (apply #'magit-git-section
-         'commit "Cherry commits:"
+  (apply #'magit-git-section 'commit "Cherry commits:"
          (apply-partially 'magit-wash-log 'cherry)
          "cherry" "-v" (magit-diff-abbrev-arg)
          magit-refresh-args))
@@ -6420,8 +6414,7 @@ More information can be found in Info node `(magit)Diffing'
                 (cons (match-string 1 range)
                       (match-string 2 range))))))
     (magit-create-buffer-sections
-      (apply #'magit-git-section
-             'diffbuf
+      (apply #'magit-git-section 'diffbuf
              (cond (working
                     (format "Changes from %s to working tree" range))
                    ((not range)
@@ -6904,8 +6897,8 @@ from the parent keymap `magit-mode-map' are also available.")
 
 (defun magit-refresh-branch-manager ()
   (magit-create-buffer-sections
-    (apply #'magit-git-section
-           "branches" nil 'magit-wash-branches
+    (apply #'magit-git-section "branches" nil
+           #'magit-wash-branches
            "branch" "-vva" (magit-diff-abbrev-arg)
            magit-custom-options)))
 
