@@ -3813,7 +3813,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 
 ;;;; Log Washing Functions
 
-(defun magit-wash-log (style &optional color)
+(defun magit-wash-log (style &optional color longer)
   (when color
     (let ((ansi-color-apply-face-function
            (lambda (beg end face)
@@ -3825,6 +3825,10 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
   (when (eq style 'oneline)
     (magit-log-setup-author-date))
   (magit-wash-sequence (apply-partially 'magit-wash-log-line style))
+  (when longer
+    (when (= magit-log-count magit-log-cutoff-length)
+      (magit-with-section (section 'longer 'longer)
+        (insert "\ntype \"e\" to show more history\n"))))
   (when (eq style 'oneline)
     (magit-log-create-author-date-overlays)))
 
@@ -5997,32 +6001,28 @@ Other key binding:
   (setq magit-file-log-file file)
   (when (consp range)
     (setq range (concat (car range) ".." (cdr range))))
-  (let ((magit-log-count 0))
-    (magit-create-buffer-sections
-      (magit-with-section (section 'log 'log nil t)
-        (apply #'magit-git-section 'logbuf
-               (concat "Commits"
-                       (and file  (concat " for file " file))
-                       (and range (concat " in " range)))
-               (apply-partially 'magit-wash-log style 'color)
-               "log"
-               (format "--max-count=%d" magit-log-cutoff-length)
-               "--decorate=full" "--abbrev-commit" "--color"
-               (magit-diff-abbrev-arg)
-               `(,@(cl-case style
-                     (long
-                      (if magit-log-show-gpg-status
-                          (list "--stat" "--show-signature")
-                        (list "--stat")))
-                     (oneline
-                      (list (concat "--pretty=format:%h%d "
-                                    (and magit-log-show-gpg-status "%G?")
-                                    "[%an][%ar]%s"))))
-                 ,@args ,range "--"
-                 ,@(and file (list file))))
-        (when (= magit-log-count magit-log-cutoff-length)
-          (magit-with-section (section 'longer 'longer)
-            (insert "type \"e\" to show more logs\n")))))))
+  (magit-create-buffer-sections
+    (let ((magit-log-count 0))
+      (apply #'magit-git-section 'logbuf
+             (concat "Commits"
+                     (and file  (concat " for file " file))
+                     (and range (concat " in " range)))
+             (apply-partially 'magit-wash-log style 'color t)
+             "log"
+             (format "--max-count=%d" magit-log-cutoff-length)
+             "--decorate=full" "--abbrev-commit" "--color"
+             (magit-diff-abbrev-arg)
+             `(,@(cl-case style
+                   (long
+                    (if magit-log-show-gpg-status
+                        (list "--stat" "--show-signature")
+                      (list "--stat")))
+                   (oneline
+                    (list (concat "--pretty=format:%h%d "
+                                  (and magit-log-show-gpg-status "%G?")
+                                  "[%an][%ar]%s"))))
+               ,@args ,range "--"
+               ,@(and file (list file)))))))
 
 (defun magit-log-show-more-entries (&optional arg)
   "Grow the number of log entries shown.
@@ -6133,20 +6133,16 @@ Other key binding:
 
 (defun magit-refresh-reflog-buffer (ref)
   (setq magit-reflog-head ref)
-  (let ((magit-log-count 0))
-    (magit-create-buffer-sections
-      (magit-with-section (section 'log 'log nil t)
-        (magit-git-section 'reflogbuf
-                           (format "Local history of branch %s" ref)
-                           (apply-partially 'magit-wash-log 'reflog)
-                           "log" "--format=format:* \C-?%h\C-?%gs"
-                           (magit-diff-abbrev-arg)
-                           "--walk-reflogs"
-                           (format "--max-count=%d" magit-log-cutoff-length)
-                           ref)
-        (when (= magit-log-count magit-log-cutoff-length)
-          (magit-with-section (section 'longer 'longer)
-            (insert "type \"e\" to show more logs\n")))))))
+  (magit-create-buffer-sections
+    (let ((magit-log-count 0))
+      (magit-git-section 'reflogbuf
+                         (format "Local history of branch %s" ref)
+                         (apply-partially 'magit-wash-log 'reflog t)
+                         "log" "--format=format:* \C-?%h\C-?%gs"
+                         (magit-diff-abbrev-arg)
+                         "--walk-reflogs"
+                         (format "--max-count=%d" magit-log-cutoff-length)
+                         ref))))
 
 ;;;; (action labels)
 
