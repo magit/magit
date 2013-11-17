@@ -2096,19 +2096,20 @@ involving HEAD."
     `(let ((,s (make-magit-section
                 :type  ,(nth 1 arglist)
                 :title ,(nth 2 arglist)
-                :hidden magit-section-hidden-default
                 :highlight (not ,(nth 3 arglist))
                 :parent magit-top-section
                 :beginning (point-marker)
                 :content-beginning (point-marker))))
-       (let ((old (and magit-old-top-section
-                       (magit-find-section (magit-section-path ,s)
-                                           magit-old-top-section))))
-         (if magit-top-section
-             (push ,s (magit-section-children magit-top-section))
-           (setq magit-top-section ,s))
-         (when old
-           (setf (magit-section-hidden ,s) (magit-section-hidden old))))
+       (setf (magit-section-hidden ,s)
+             (let ((old (and magit-old-top-section
+                             (magit-find-section (magit-section-path ,s)
+                                                 magit-old-top-section))))
+               (if old
+                   (magit-section-hidden old)
+                 magit-section-hidden-default)))
+       (if magit-top-section
+           (push ,s (magit-section-children magit-top-section))
+         (setq magit-top-section ,s))
        (let ((magit-top-section ,s)) ,@body)
        (when ,s
          (set-marker-insertion-type (magit-section-beginning ,s) t)
