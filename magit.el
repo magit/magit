@@ -2129,10 +2129,10 @@ involving HEAD."
               (delq section (magit-section-children parent)))
       (setq magit-top-section nil))))
 
-(defmacro magit-with-section (title type &rest body)
-  (declare (indent 2) (debug (form form body)))
+(defmacro magit-with-section (arglist &rest body)
+  (declare (indent 1) (debug ((form form) body)))
   (let ((s (make-symbol "*section*")))
-    `(let* ((,s (magit-new-section ,title ,type))
+    `(let* ((,s (magit-new-section ,(car arglist) ,(cadr arglist)))
             (magit-top-section ,s))
        (setf (magit-section-beginning ,s) (point-marker))
        ,@body
@@ -2153,7 +2153,7 @@ involving HEAD."
                            (cdr section-title-and-type)
                          nil))
          (section
-          (magit-with-section section-title section-type
+          (magit-with-section (section-title section-type)
             (when buffer-title
               (insert (propertize buffer-title 'face 'magit-section-title)
                       "\n"))
@@ -2215,7 +2215,7 @@ If SECTION is nil, default to setting `magit-top-section'"
        (setq magit-top-section nil)
        ,@body
        (when (null magit-top-section)
-         (magit-with-section 'top nil
+         (magit-with-section ('top nil)
            (insert "(empty)\n")))
        (magit-propertize-section magit-top-section)
        (magit-section-set-hidden magit-top-section
@@ -2227,10 +2227,10 @@ If SECTION is nil, default to setting `magit-top-section'"
   (declare (indent 0) (debug t))
   `(let ((magit-log-count 0) (inhibit-read-only t))
      (magit-create-buffer-sections
-       (magit-with-section 'log nil
+       (magit-with-section ('log nil)
          ,@body
          (when (= magit-log-count magit-log-cutoff-length)
-           (magit-with-section "longer"  'longer
+           (magit-with-section ("longer"  'longer)
              (insert "type \"e\" to show more logs\n")))))))
 
 (defun magit-propertize-section (section)
@@ -3493,10 +3493,10 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 (defun magit-wash-diff ()
   (let ((magit-section-hidden-default
          (not (derived-mode-p 'magit-diff-mode 'magit-commit-mode))))
-    (magit-with-section
-        (buffer-substring-no-properties (line-beginning-position)
-                                        (line-end-position))
-        'diff
+    (magit-with-section ((buffer-substring-no-properties
+                          (line-beginning-position)
+                          (line-end-position))
+                         'diff)
       (magit-wash-diff-section))))
 
 (defun magit-wash-diffstats ()
@@ -3505,7 +3505,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
       (let ((heading (match-string-no-properties 1)))
         (delete-region (match-beginning 0) (match-end 0))
         (goto-char beg)
-        (magit-with-section 'diffstats 'diffstats
+        (magit-with-section ('diffstats 'diffstats)
           (insert heading)
           (magit-wash-sequence #'magit-wash-diffstat)))
       (setq magit-diffstat-cached-sections
@@ -3516,7 +3516,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
          "^ ?\\(.*?\\)\\( +| +\\)\\([0-9]+\\) \\([+]*\\)?\\([-]*\\)?$")
     (magit-bind-match-strings (file sep cnt add del)
       (delete-region (point) (1+ (line-end-position)))
-      (magit-with-section 'diffstat 'diffstat
+      (magit-with-section ('diffstat 'diffstat)
         (insert " " file sep cnt " ")
         (when add (insert (propertize add 'face 'magit-diff-add)))
         (when del (insert (propertize del 'face 'magit-diff-del)))
@@ -3546,12 +3546,12 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
     (save-restriction
       (narrow-to-region first-start second-start)
       (goto-char (point-min))
-      (magit-with-section file 'diff
+      (magit-with-section (file 'diff)
         (magit-wash-diff-section)))
     (save-restriction
       (narrow-to-region second-start (point-max))
       (goto-char (point-min))
-      (magit-with-section file 'diff
+      (magit-with-section (file 'diff)
         (magit-wash-diff-section)))))
 
 (defun magit-wash-diff-section ()
@@ -3642,7 +3642,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                (put-text-property (line-beginning-position)
                                   (line-beginning-position 2)
                                   'face face)))))
-      (magit-with-section head 'hunk
+      (magit-with-section (head 'hunk)
         (funcall set-line-face 'magit-diff-hunk-header)
         (forward-line)
         (while (not (or (eobp)
@@ -3757,7 +3757,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
         ;; magit-insert-diff-item-patch on them.  This is a bit
         ;; brittle, of course.
         (let ((magit-section-hidden-default t))
-          (magit-with-section file 'diff
+          (magit-with-section (file 'diff)
             (delete-region (point) (1+ (line-end-position)))
             (if (not (magit-section-hidden magit-top-section))
                 (magit-insert-diff file status)
@@ -3942,7 +3942,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
       (insert msg))
     (goto-char (line-beginning-position))
     (if hash
-        (magit-with-section hash 'commit
+        (magit-with-section (hash 'commit)
           (when magit-log-count
             (cl-incf magit-log-count))
           (magit-set-section-info hash)
@@ -4192,7 +4192,7 @@ for this argument.)"
     (when magit-commit-mode-show-buttons
       (insert "\n")
       (when magit-back-navigation-history
-        (magit-with-section "[back]" 'button
+        (magit-with-section ("[back]" 'button)
           (insert-text-button "[back]"
                               'help-echo "Previous commit"
                               'action 'magit-show-commit-backward
@@ -4200,7 +4200,7 @@ for this argument.)"
                               'mouse-face magit-item-highlight-face)))
       (insert " ")
       (when magit-forward-navigation-history
-        (magit-with-section "[forward]" 'button
+        (magit-with-section ("[forward]" 'button)
           (insert-text-button "[forward]"
                               'help-echo "Next commit"
                               'action 'magit-show-commit-forward
@@ -4299,7 +4299,7 @@ in `magit-commit-buffer-name'."
         (goto-char (line-beginning-position))
         (insert name)
         (goto-char (line-beginning-position))
-        (magit-with-section stash 'stash
+        (magit-with-section (stash 'stash)
           (magit-set-section-info stash)
           (forward-line)))
     (forward-line))
@@ -4385,7 +4385,7 @@ when asking for user input."
 (defun magit-refresh-status ()
   (magit-git-exit-code "update-index" "--refresh")
   (magit-create-buffer-sections
-    (magit-with-section 'status nil
+    (magit-with-section ('status nil)
       (run-hooks 'magit-status-sections-hook)))
   (run-hooks 'magit-refresh-status-hook))
 
@@ -4415,7 +4415,7 @@ when asking for user input."
          (let ((file (magit-decode-git-path
                       (match-string-no-properties 1))))
            (delete-region (point) (+ (line-end-position) 1))
-           (magit-with-section file 'file
+           (magit-with-section (file 'file)
              (magit-set-section-info file)
              (insert "\t" file "\n")))
          t)))))
@@ -4424,14 +4424,14 @@ when asking for user input."
   (let* ((info (magit-read-rewrite-info))
          (pending (cdr (assq 'pending info))))
     (when pending
-      (magit-with-section 'pending nil
+      (magit-with-section ('pending nil)
         (insert (propertize "Pending commits:\n"
                             'face 'magit-section-title))
         (dolist (p pending)
           (let* ((commit (car p))
                  (properties (cdr p))
                  (used (plist-get properties 'used)))
-            (magit-with-section commit 'commit
+            (magit-with-section (commit 'commit)
               (magit-set-section-info commit)
               (insert (magit-git-string
                        "log" "-1"
@@ -4603,7 +4603,7 @@ when asking for user input."
                      "There is nothing wrong with that, we just cannot display"
                      "anything useful here.  Consult the shell output instead.")))
           (done-re "^[a-z0-9]\\{40\\} is the first bad commit$"))
-      (magit-with-section 'bisect-output nil
+      (magit-with-section ('bisect-output nil)
         (insert
          (propertize
           (or (and (string-match done-re (car lines)) (pop lines))
@@ -4638,7 +4638,7 @@ when asking for user input."
 	(save-restriction
 	  (narrow-to-region beg (point))
 	  (goto-char (point-min))
-	  (magit-with-section 'bisect-log 'bisect-log
+	  (magit-with-section ('bisect-log 'bisect-log)
 	    (insert heading)
 	    (magit-wash-sequence
 	     (apply-partially 'magit-wash-log-line 'bisect-log))))))
@@ -4646,7 +4646,7 @@ when asking for user input."
            "# first bad commit: \\[\\([a-z0-9]\\{40\\}\\)\\] [^\n]+\n" nil t)
       (let ((hash (match-string-no-properties 1)))
 	(delete-region (match-beginning 0) (match-end 0))
-        (magit-with-section 'bisect-log 'bisect-log
+        (magit-with-section ('bisect-log 'bisect-log)
           (insert hash " is the first bad commit\n"))))))
 
 (defun magit-bisecting-p ()
@@ -6154,7 +6154,7 @@ Other key binding:
 
 (defun magit-refresh-cherry-buffer (upstream head)
   (magit-create-buffer-sections
-    (magit-with-section 'cherry nil
+    (magit-with-section ('cherry nil)
       (run-hooks 'magit-cherry-sections-hook))))
 
 (defun magit-insert-cherry-head-line ()
@@ -6481,7 +6481,7 @@ More information can be found in Info node `(magit)Wazzup'
 
 (defun magit-refresh-wazzup-buffer (head)
   (magit-create-buffer-sections
-    (magit-with-section 'wazzupbuf nil
+    (magit-with-section ('wazzupbuf nil)
       (run-hooks 'magit-wazzup-sections-hook))))
 
 (defun magit-insert-wazzup-head-line ()
@@ -6507,7 +6507,7 @@ More information can be found in Info node `(magit)Wazzup'
                           (equal (magit-section-title c) upstream))
                         (magit-section-children magit-old-top-section))))
              (magit-section-hidden-default (not old)))
-        (magit-with-section upstream 'wazzup
+        (magit-with-section (upstream 'wazzup)
           (insert (format "%3s %s\n" count
                           (magit-format-ref-label upstream)))
           (cond
@@ -6949,7 +6949,7 @@ from the parent keymap `magit-mode-map' are also available.")
          (other-ref   (match-string 7))
          (branch-face (and (equal marker "* ") 'magit-branch)))
     (delete-region (point) (line-beginning-position 2))
-    (magit-with-section branch 'branch
+    (magit-with-section (branch 'branch)
       (magit-set-section-info branch)
       (insert (propertize (or sha1
                               (make-string magit-sha1-abbrev-length ? ))
@@ -6989,7 +6989,7 @@ from the parent keymap `magit-mode-map' are also available.")
          (push-url (magit-get "remote" remote-name "pushurl"))
          (urls (concat url (and push-url (concat ", " push-url))))
          (marker (cadr group)))
-    (magit-with-section (concat "remote:" remote-name) 'remote
+    (magit-with-section ((concat "remote:" remote-name) 'remote)
       (magit-set-section-info remote-name)
       (insert (propertize (format "%s (%s):" remote-name urls)
                           'face 'magit-section-title) "\n")
@@ -7024,9 +7024,8 @@ from the parent keymap `magit-mode-map' are also available.")
                    for marker = (cl-loop for x in end-markers thereis x)
                    collect (list remote marker))))
     ;; actual displaying of information
-    (magit-with-section "local" nil
-      (insert (propertize "Local:" 'face 'magit-section-title)
-                             "\n")
+    (magit-with-section ("local" nil)
+      (insert (propertize "Local:" 'face 'magit-section-title) "\n")
       (magit-set-section-info ".")
       (magit-wash-branches-between-point-and-marker
        (cl-loop for x in markers thereis x)))
