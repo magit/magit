@@ -2125,6 +2125,8 @@ involving HEAD."
                  'face 'magit-section-title))
                (insert "\n"))))
          (set-marker-insertion-type (magit-section-beginning ,s) t)
+         (goto-char (max (point) ; smaller if there is no content
+                         (magit-section-content-beginning ,s)))
          (setf (magit-section-end ,s) (point-marker))
          (setf (magit-section-children ,s)
                (nreverse (magit-section-children ,s)))
