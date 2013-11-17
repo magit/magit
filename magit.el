@@ -2163,13 +2163,17 @@ involving HEAD."
                   (insert-before-markers-and-inherit
                    (format " (%i)" children))))))))
     (if (= body-beg (point))
-        (let ((parent (magit-section-parent section)))
-          (delete-region (magit-section-beginning section)
-                         (magit-section-end section))
+        (let ((parent (magit-section-parent section))
+              (beg (magit-section-beginning section)))
+          (unless (= beg 1)
+            (delete-region beg (magit-section-end section)))
           (if parent
               (setf (magit-section-children parent)
                     (delq section (magit-section-children parent)))
-            (setq magit-top-section nil)))
+            (setq magit-top-section nil)
+            (when (= beg 1)
+              (magit-with-section (section 'top 'top t)
+                (insert "(empty)\n")))))
       (insert "\n"))
     section))
 
@@ -2186,9 +2190,6 @@ involving HEAD."
      (let ((magit-old-top-section magit-top-section))
        (setq magit-top-section nil)
        ,@body
-       (when (null magit-top-section)
-         (magit-with-section (section 'top 'top t)
-           (insert "(empty)\n")))
        (magit-propertize-section magit-top-section)
        (magit-section-set-hidden magit-top-section
                                  (magit-section-hidden magit-top-section)))))
