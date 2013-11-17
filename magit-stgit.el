@@ -179,20 +179,18 @@
 
 (defun magit-insert-stgit-series ()
   (when (executable-find magit-stgit-executable)
-    (magit-insert-section 'series
-                          "Series:" 'magit-stgit--wash-series
-                          magit-stgit-executable "series" "-a" "-d" "-e")))
+    (magit-cmd-insert-section (series "Series:")
+        'magit-stgit--wash-series
+      magit-stgit-executable "series" "-a" "-d" "-e")))
 
 ;;; Actions
 
 ;; Copy of `magit-refresh-commit-buffer' (version 1.0.0)
 (defun magit-stgit--refresh-patch-buffer (patch)
   (magit-create-buffer-sections
-    (magit-insert-section 'stgit-patch nil
-                       'magit-wash-commit
-                       magit-stgit-executable
-                       "show"
-                       patch)))
+    (magit-cmd-insert-section (stgit-patch)
+        'magit-wash-commit
+      magit-stgit-executable "show" patch)))
 
 ;; Copy of `magit-show-commit' (version 1.0.0)
 (defun magit-stgit--show-patch (patch &optional scroll)

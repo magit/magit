@@ -186,19 +186,17 @@ If USE-CACHE is non nil, use the cached information."
 
 (defun magit-insert-svn-unpulled ()
   (when (magit-svn-enabled)
-    (magit-git-section 'svn-unpulled "Unpulled commits (SVN):"
-                       (apply-partially 'magit-wash-log 'unique)
-                       "log" "--format=format:* %h %s"
-                       (magit-diff-abbrev-arg)
-                       (format "HEAD..%s" (magit-svn-get-ref t)))))
+    (magit-git-insert-section (svn-unpulled "Unpulled commits (SVN):")
+        (apply-partially 'magit-wash-log 'unique)
+      "log" "--format=format:* %h %s" (magit-diff-abbrev-arg)
+      (format "HEAD..%s" (magit-svn-get-ref t)))))
 
 (defun magit-insert-svn-unpushed ()
   (when (magit-svn-enabled)
-    (magit-git-section 'svn-unpushed "Unpushed commits (SVN):"
-                       (apply-partially 'magit-wash-log 'unique)
-                       "log" "--format=format:* %h %s"
-                       (magit-diff-abbrev-arg)
-                       (format "%s..HEAD" (magit-svn-get-ref t)))))
+    (magit-git-insert-section (svn-unpushed "Unpushed commits (SVN):")
+        (apply-partially 'magit-wash-log 'unique)
+      "log" "--format=format:* %h %s" (magit-diff-abbrev-arg)
+      (format "%s..HEAD" (magit-svn-get-ref t)))))
 
 (magit-define-section-jumper svn-unpushed  "Unpushed commits (SVN)")
 
