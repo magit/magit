@@ -851,6 +851,8 @@ changes, e.g. because you are committing some binary files."
                  (const :tag "Expand top section" t)
                  (const :tag "Don't expand" nil)))
 
+(defvar magit-status-line-align-to 9)
+
 ;; Not an option to avoid advertising it.
 (defvar magit-rigid-key-bindings nil
   "Use rigid key bindings instead of thematic key popups.
@@ -4430,8 +4432,6 @@ when asking for user input."
         "cherry" "-v" (magit-diff-abbrev-arg) tracked))))
 
 ;;;; Line Sections
-
-(defvar magit-status-line-align-to 9)
 
 (defun magit-insert-empty-line ()
   (insert "\n"))
