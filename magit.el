@@ -2089,27 +2089,40 @@ involving HEAD."
 ;;;; Section Creation
 
 (defmacro magit-with-section (arglist &rest body)
-  (declare (indent 1) (debug ((form form &optional form form) body)))
-  (let ((s (car arglist)))
+  (declare (indent 1) (debug ((form form &optional form form form) body)))
+  (let ((s (car arglist))
+        (h (cl-gensym "heading")))
     `(let ((,s (make-magit-section
                 :type  ,(nth 1 arglist)
                 :title ,(nth 2 arglist)
-                :highlight (not ,(nth 3 arglist))
+                :highlight (not ,(nth 4 arglist))
                 :parent magit-top-section
                 :beginning (point-marker)
-                :content-beginning (point-marker))))
+                :content-beginning (point-marker)))
+           (,h ,(nth 3 arglist)))
        (setf (magit-section-hidden ,s)
              (let ((old (and magit-old-top-section
                              (magit-find-section (magit-section-path ,s)
                                                  magit-old-top-section))))
                (if old
                    (magit-section-hidden old)
-                 ,(nth 4 arglist))))
+                 ,(nth 5 arglist))))
+       (when ,h
+         (insert (propertize ,h 'face 'magit-section-title) "\n")
+         (setf (magit-section-content-beginning ,s) (point-marker)))
        (if magit-top-section
            (push ,s (magit-section-children magit-top-section))
          (setq magit-top-section ,s))
        (let ((magit-top-section ,s)) ,@body)
        (when ,s
+         (let (c)
+           (when (and ,h magit-show-child-count
+                      (> (setq c (length (magit-section-children ,s))) 0))
+             (save-excursion
+               (goto-char (- (magit-section-content-beginning ,s) 2))
+               (when (looking-at ":")
+                 (insert-before-markers-and-inherit
+                  (format " (%i)" c))))))
          (set-marker-insertion-type (magit-section-beginning ,s) t)
          (set-marker-insertion-type (magit-section-content-beginning ,s) t)
          (setf (magit-section-end ,s) (point-marker))
@@ -2118,29 +2131,17 @@ involving HEAD."
        ,s)))
 
 (defun magit-insert-section (type heading washer program &rest args)
-  (let* ((children nil)
-         (section
-          (magit-with-section (section type type t)
-            (when heading
-              (insert (propertize heading 'face 'magit-section-title) "\n")
-              (setf (magit-section-content-beginning section) (point-marker)))
-            (apply 'magit-cmd-insert program args)
-            (unless (eq (char-before) ?\n)
-              (insert "\n"))
-            (when washer
-              (save-restriction
-                (narrow-to-region (magit-section-content-beginning section) (point))
-                (goto-char (point-min))
-                (funcall washer)
-                (goto-char (point-max))))
-            (when (and heading magit-show-child-count
-                       (> (setq children (length (magit-section-children
-                                                  magit-top-section))) 0))
-              (save-excursion
-                (goto-char (- (magit-section-content-beginning section) 2))
-                (when (looking-at ":")
-                  (insert-before-markers-and-inherit
-                   (format " (%i)" children))))))))
+  (let ((section
+         (magit-with-section (section type type heading t)
+           (apply 'magit-cmd-insert program args)
+           (unless (eq (char-before) ?\n)
+             (insert "\n"))
+           (when washer
+             (save-restriction
+               (narrow-to-region (magit-section-content-beginning section) (point))
+               (goto-char (point-min))
+               (funcall washer)
+               (goto-char (point-max)))))))
     (if (= (magit-section-content-beginning section) (point))
         (let ((parent (magit-section-parent section))
               (beg (magit-section-beginning section)))
@@ -2151,7 +2152,7 @@ involving HEAD."
                     (delq section (magit-section-children parent)))
             (setq magit-top-section nil)
             (when (= beg 1)
-              (magit-with-section (section 'top 'top t)
+              (magit-with-section (section 'top 'top nil t)
                 (insert "(empty)\n")))))
       (insert "\n"))
     section))
@@ -3685,7 +3686,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                   (equal file previous)
                   ;; Ignore staged, unmerged files.
                   (and staged (eq status 'unmerged)))
-        (magit-with-section (section 'diff file nil
+        (magit-with-section (section 'diff file nil nil
                                      (not (derived-mode-p
                                            'magit-diff-mode
                                            'magit-commit-mode)))
@@ -4312,7 +4313,7 @@ when asking for user input."
 (defun magit-refresh-status ()
   (magit-git-exit-code "update-index" "--refresh")
   (magit-create-buffer-sections
-    (magit-with-section (section 'status 'status t)
+    (magit-with-section (section 'status 'status nil t)
       (run-hooks 'magit-status-sections-hook)))
   (run-hooks 'magit-refresh-status-hook))
 
@@ -4348,7 +4349,7 @@ when asking for user input."
   (let* ((info (magit-read-rewrite-info))
          (pending (cdr (assq 'pending info))))
     (when pending
-      (magit-with-section (section 'pending 'pending t)
+      (magit-with-section (section 'pending 'pending nil t)
         (insert (propertize "Pending commits:\n"
                             'face 'magit-section-title))
         (dolist (p pending)
@@ -6004,7 +6005,7 @@ Other key binding:
     (setq range (concat (car range) ".." (cdr range))))
   (let ((magit-log-count 0))
     (magit-create-buffer-sections
-      (magit-with-section (section 'log 'log t)
+      (magit-with-section (section 'log 'log nil t)
         (apply #'magit-git-section 'logbuf
                (concat "Commits"
                        (and file  (concat " for file " file))
@@ -6080,7 +6081,7 @@ Other key binding:
 
 (defun magit-refresh-cherry-buffer (upstream head)
   (magit-create-buffer-sections
-    (magit-with-section (section 'cherry 'cherry t)
+    (magit-with-section (section 'cherry 'cherry nil t)
       (run-hooks 'magit-cherry-sections-hook))))
 
 (defun magit-insert-cherry-head-line ()
@@ -6140,7 +6141,7 @@ Other key binding:
   (setq magit-reflog-head ref)
   (let ((magit-log-count 0))
     (magit-create-buffer-sections
-      (magit-with-section (section 'log 'log t)
+      (magit-with-section (section 'log 'log nil t)
         (magit-git-section 'reflogbuf
                            (format "Local history of branch %s" ref)
                            (apply-partially 'magit-wash-log 'reflog)
@@ -6411,7 +6412,7 @@ More information can be found in Info node `(magit)Wazzup'
 
 (defun magit-refresh-wazzup-buffer (head)
   (magit-create-buffer-sections
-    (magit-with-section (section 'wazzupbuf 'wazzupbuf t)
+    (magit-with-section (section 'wazzupbuf 'wazzupbuf nil t)
       (run-hooks 'magit-wazzup-sections-hook))))
 
 (defun magit-insert-wazzup-head-line ()
@@ -6431,7 +6432,7 @@ More information can be found in Info node `(magit)Wazzup'
                 (magit-git-string "rev-list" "--count" "--right-only"
                                   (concat head "..." upstream)))))
     (when (> count 0)
-      (magit-with-section (section 'wazzup upstream nil t)
+      (magit-with-section (section 'wazzup upstream nil nil t)
         (insert (format "%3s %s\n" count
                         (magit-format-ref-label upstream)))
         (cond
