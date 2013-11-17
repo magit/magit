@@ -2105,7 +2105,7 @@ involving HEAD."
 
 ;;;; Section Creation
 
-(defun magit-new-section (title type)
+(defun magit-new-section (type title)
   (let* ((s (make-magit-section :parent magit-top-section
                                 :title title
                                 :type type
@@ -2132,7 +2132,7 @@ involving HEAD."
 (defmacro magit-with-section (arglist &rest body)
   (declare (indent 1) (debug ((form form) body)))
   (let ((s (make-symbol "*section*")))
-    `(let* ((,s (magit-new-section ,(cadr arglist) ,(car arglist)))
+    `(let* ((,s (magit-new-section ,(car arglist) ,(cadr arglist)))
             (magit-top-section ,s))
        (setf (magit-section-beginning ,s) (point-marker))
        ,@body
@@ -2192,7 +2192,7 @@ involving HEAD."
 (defun magit-set-section (title type start end)
   "Create a new section of title TITLE and type TYPE.
 Use the specified START and END positions."
-  (let ((section (magit-new-section title type)))
+  (let ((section (magit-new-section type title)))
     (setf (magit-section-beginning section) start)
     (setf (magit-section-end section) end)
     section))
