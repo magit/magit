@@ -6914,8 +6914,8 @@ from the parent keymap `magit-mode-map' are also available.")
     (magit-with-section
         (section 'remote remote (format "%s (%s):" remote urls) t)
       (setf (magit-section-info section) remote)
-      (magit-wash-branches-between-point-and-marker marker remote))
-    (insert "\n")))
+      (magit-wash-branches-between-point-and-marker marker remote)
+      (insert "\n"))))
 
 (defun magit-wash-branches-between-point-and-marker (marker &optional remote-name)
   (save-restriction
@@ -6948,8 +6948,8 @@ from the parent keymap `magit-mode-map' are also available.")
     (magit-with-section (section 'local 'local "Local:" t)
       (setf (magit-section-info section) ".")
       (magit-wash-branches-between-point-and-marker
-       (cl-loop for x in markers thereis x)))
-    (insert "\n")
+       (cl-loop for x in markers thereis x))
+      (insert "\n"))
     (mapc 'magit-wash-remote-branches-group remote-groups)
     ;; make sure markers point to nil so that they can be garbage collected
     (mapc (lambda (marker)
