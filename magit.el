@@ -2083,15 +2083,13 @@ involving HEAD."
 
 (defvar magit-old-top-section nil)
 
-(defvar magit-section-hidden-default nil)
-
 (defvar-local magit-diffstat-cached-sections nil)
 (put 'magit-diffstat-cached-sections 'permanent-local t)
 
 ;;;; Section Creation
 
 (defmacro magit-with-section (arglist &rest body)
-  (declare (indent 1) (debug ((form form &optional form) body)))
+  (declare (indent 1) (debug ((form form &optional form form) body)))
   (let ((s (car arglist)))
     `(let ((,s (make-magit-section
                 :type  ,(nth 1 arglist)
@@ -2106,7 +2104,7 @@ involving HEAD."
                                                  magit-old-top-section))))
                (if old
                    (magit-section-hidden old)
-                 magit-section-hidden-default)))
+                 ,(nth 4 arglist))))
        (if magit-top-section
            (push ,s (magit-section-children magit-top-section))
          (setq magit-top-section ,s))
@@ -3433,12 +3431,13 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
   (magit-wash-sequence #'magit-wash-diff))
 
 (defun magit-wash-diff ()
-  (let ((magit-section-hidden-default
-         (not (derived-mode-p 'magit-diff-mode 'magit-commit-mode))))
-    (magit-with-section (section 'diff (buffer-substring-no-properties
-                                        (line-beginning-position)
-                                        (line-end-position)))
-      (magit-wash-diff-section section))))
+  (magit-with-section (section 'diff (buffer-substring-no-properties
+                                      (line-beginning-position)
+                                      (line-end-position))
+                               nil
+                               (not (derived-mode-p 'magit-diff-mode
+                                                    'magit-commit-mode)))
+      (magit-wash-diff-section section)))
 
 (defun magit-wash-diffstats ()
   (let ((beg (point)))
@@ -3554,8 +3553,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                  (funcall set-face 2 'magit-diff-file-header)
                  (funcall set-face 3 'magit-diff-file-header)))
              (goto-char end)
-             (let ((magit-section-hidden-default nil))
-               (magit-wash-sequence #'magit-wash-hunk))))
+             (magit-wash-sequence #'magit-wash-hunk)))
          t)))
 
 (defun magit-diff-line-file ()
@@ -3698,9 +3696,8 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
         ;; unstaged changes, and we never call
         ;; magit-insert-diff-item-patch on them.  This is a bit
         ;; brittle, of course.
-        (let ((magit-section-hidden-default t)
-              (hidden (magit-section-hidden magit-top-section)))
-          (magit-with-section (section 'diff file)
+        (let ((hidden (magit-section-hidden magit-top-section)))
+          (magit-with-section (section 'diff file nil t)
             (delete-region (point) (1+ (line-end-position)))
             (if (not hidden)
                 (magit-insert-diff section file status)
@@ -4530,15 +4527,14 @@ when asking for user input."
 
 (defun magit-insert-bisect-output ()
   (when (magit-bisecting-p)
-    (let ((magit-section-hidden-default t)
-          (lines
+    (let ((lines
            (or (magit-file-lines (magit-git-dir "BISECT_CMD_OUTPUT"))
                (list "Bisecting: (no saved bisect output)"
                      "It appears you have invoked `git bisect' from a shell."
                      "There is nothing wrong with that, we just cannot display"
                      "anything useful here.  Consult the shell output instead.")))
           (done-re "^[a-z0-9]\\{40\\} is the first bad commit$"))
-      (magit-with-section (section 'bisect-output 'bisect-output t)
+      (magit-with-section (section 'bisect-output 'bisect-output t t)
         (insert
          (propertize
           (or (and (string-match done-re (car lines)) (pop lines))
@@ -6445,13 +6441,12 @@ More information can be found in Info node `(magit)Wazzup'
                 (magit-git-string "rev-list" "--count" "--right-only"
                                   (concat head "..." upstream)))))
     (when (> count 0)
-      (let* ((old (and magit-old-top-section
+      (let  ((old (and magit-old-top-section
                        (cl-find-if
                         (lambda (c)
                           (equal (magit-section-title c) upstream))
-                        (magit-section-children magit-old-top-section))))
-             (magit-section-hidden-default (not old)))
-        (magit-with-section (section 'wazzup upstream)
+                        (magit-section-children magit-old-top-section)))))
+        (magit-with-section (section 'wazzup upstream nil (not old))
           (insert (format "%3s %s\n" count
                           (magit-format-ref-label upstream)))
           (cond
