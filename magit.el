@@ -6725,6 +6725,9 @@ Calls `magit-ignore-item' with EDIT and with LOCAL set to `t'."
 ;;;; Rename
 
 (defun magit-rename-item ()
+  "Rename the branch or remote the point is at.
+
+\(cannot currently rename any other type of item)"
   (interactive)
   (magit-section-action (item info "rename")
     ((branch)
