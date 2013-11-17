@@ -2083,9 +2083,6 @@ involving HEAD."
 
 (defvar magit-old-top-section nil)
 
-(defvar-local magit-diffstat-cached-sections nil)
-(put 'magit-diffstat-cached-sections 'permanent-local t)
-
 ;;;; Section Creation
 
 (defmacro magit-with-section (arglist &rest body)
@@ -3436,6 +3433,9 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                                       (line-beginning-position)
                                       (line-end-position)))
       (magit-wash-diff-section section)))
+
+(defvar-local magit-diffstat-cached-sections nil)
+(put 'magit-diffstat-cached-sections 'permanent-local t)
 
 (defun magit-wash-diffstats ()
   (let ((beg (point)))
