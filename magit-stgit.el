@@ -166,7 +166,7 @@
                         (propertize state
                                     'face 'magit-stgit-other) " " descr))))
         (goto-char (line-beginning-position))
-        (magit-with-section (patch 'series)
+        (magit-with-section ('series patch)
           (magit-set-section-info patch)
           (goto-char (line-end-position)))
         (forward-line))
