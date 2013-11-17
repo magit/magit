@@ -2182,14 +2182,6 @@ involving HEAD."
          magit-git-executable
          (append magit-git-standard-options args)))
 
-(defun magit-set-section (type title start end)
-  "Create a new section of title TITLE and type TYPE.
-Use the specified START and END positions."
-  (let ((section (magit-new-section type title)))
-    (setf (magit-section-beginning section) start)
-    (setf (magit-section-end section) end)
-    section))
-
 (defmacro magit-create-buffer-sections (&rest body)
   (declare (indent 0) (debug t))
   `(let ((inhibit-read-only t))
@@ -4131,15 +4123,7 @@ for this argument.)"
                                                  (match-string 2))
                                            magit-current-diff-range))
       (setq merge-commit t)
-      (setf (magit-section-info (magit-set-section  'commit nil
-                                                    (match-beginning 1)
-                                                    (match-end 1)))
-            (match-string 1))
       (magit-make-commit-button (match-beginning 1) (match-end 1))
-      (setf (magit-section-info (magit-set-section  'commit nil
-                                                    (match-beginning 2)
-                                                    (match-end 2)))
-            (match-string 2))
       (magit-make-commit-button (match-beginning 2) (match-end 2)))
      (t
       (setq magit-current-diff-range
@@ -4156,19 +4140,14 @@ for this argument.)"
             (delete-region (match-beginning 0)
                            (+ (match-end 0) 1))
             (insert "\n")
-
             (magit-wash-diffstats)))))
     (while (and
             (search-forward-regexp
              "\\(\\b[0-9a-fA-F]\\{4,40\\}\\b\\)\\|\\(^diff\\)" nil 'noerror)
             (not (match-string 2)))
-      (let ((sha1 (match-string 1))
-            (start (match-beginning 1))
-            (end (match-end 1)))
-        (when (string-equal "commit" (magit-git-string "cat-file" "-t" sha1))
-          (magit-make-commit-button start end)
-          (setf (magit-section-info (magit-set-section 'commit sha1 start end))
-                sha1))))
+      (when (string-equal (magit-git-string "cat-file" "-t" (match-string 1))
+                          "commit")
+        (magit-make-commit-button (match-beginning 1) (match-end 1))))
     (beginning-of-line)
     (when (looking-at "^diff")
       (magit-wash-diffs))
@@ -4192,15 +4171,19 @@ for this argument.)"
                               'mouse-face magit-item-highlight-face))))))
 
 (defun magit-make-commit-button (start end)
-  (make-text-button start end
-                    'help-echo "Visit commit"
-                    'action (lambda (button)
-                              (save-excursion
-                                (goto-char button)
-                                (magit-visit-item)))
-                    'follow-link t
-                    'mouse-face magit-item-highlight-face
-                    'face 'magit-log-sha1))
+  (let ((hash (buffer-substring-no-properties start end)))
+    (delete-region start end)
+    (magit-with-section (section 'commit hash)
+      (setf (magit-section-info section) hash)
+      (make-text-button start end
+                        'help-echo "Visit commit"
+                        'action (lambda (button)
+                                  (save-excursion
+                                    (goto-char button)
+                                    (magit-visit-item)))
+                        'follow-link t
+                        'mouse-face magit-item-highlight-face
+                        'face 'magit-log-sha1))))
 
 ;;;; (history)
 
