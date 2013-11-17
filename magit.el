@@ -2070,7 +2070,7 @@ involving HEAD."
 
 (cl-defstruct magit-section
   parent title beginning end children hidden type info
-  needs-refresh-on-show)
+  needs-refresh-on-show highlight)
 
 (defun magit-section-content-beginning (section)
   (save-excursion
@@ -2105,10 +2105,11 @@ involving HEAD."
 
 ;;;; Section Creation
 
-(defun magit-new-section (type title)
+(defun magit-new-section (type title &optional dont-highlight)
   (let* ((s (make-magit-section :parent magit-top-section
                                 :title title
                                 :type type
+                                :highlight (not dont-highlight)
                                 :hidden magit-section-hidden-default))
          (old (and magit-old-top-section
                    (magit-find-section (magit-section-path s)
@@ -2130,9 +2131,11 @@ involving HEAD."
       (setq magit-top-section nil))))
 
 (defmacro magit-with-section (arglist &rest body)
-  (declare (indent 1) (debug ((form form) body)))
+  (declare (indent 1) (debug ((form form &optional form) body)))
   (let ((s (make-symbol "*section*")))
-    `(let* ((,s (magit-new-section ,(car arglist) ,(cadr arglist)))
+    `(let* ((,s (magit-new-section ,(nth 0 arglist)
+                                   ,(nth 1 arglist)
+                                   ,(nth 2 arglist)))
             (magit-top-section ,s))
        (setf (magit-section-beginning ,s) (point-marker))
        ,@body
@@ -2142,18 +2145,11 @@ involving HEAD."
              (nreverse (magit-section-children ,s)))
        ,s)))
 
-(defun magit-insert-section
-  (section-title-and-type buffer-title washer program &rest args)
+(defun magit-insert-section (type buffer-title washer program &rest args)
   (let* ((body-beg nil)
          (children nil)
-         (section-title (if (consp section-title-and-type)
-                            (car section-title-and-type)
-                          section-title-and-type))
-         (section-type (if (consp section-title-and-type)
-                           (cdr section-title-and-type)
-                         nil))
          (section
-          (magit-with-section (section-type section-title)
+          (magit-with-section (type type t)
             (when buffer-title
               (insert (propertize buffer-title 'face 'magit-section-title)
                       "\n"))
@@ -2180,11 +2176,8 @@ involving HEAD."
       (insert "\n"))
     section))
 
-(defun magit-git-section (section-title-and-type
-                          buffer-title washer &rest args)
-  (apply #'magit-insert-section
-         section-title-and-type
-         buffer-title
+(defun magit-git-section (type buffer-title washer &rest args)
+  (apply #'magit-insert-section type buffer-title
          washer
          magit-git-executable
          (append magit-git-standard-options args)))
@@ -2215,7 +2208,7 @@ If SECTION is nil, default to setting `magit-top-section'"
        (setq magit-top-section nil)
        ,@body
        (when (null magit-top-section)
-         (magit-with-section (nil 'top)
+         (magit-with-section ('top 'top t)
            (insert "(empty)\n")))
        (magit-propertize-section magit-top-section)
        (magit-section-set-hidden magit-top-section
@@ -2227,7 +2220,7 @@ If SECTION is nil, default to setting `magit-top-section'"
   (declare (indent 0) (debug t))
   `(let ((magit-log-count 0) (inhibit-read-only t))
      (magit-create-buffer-sections
-       (magit-with-section (nil 'log)
+       (magit-with-section ('log 'log t)
          ,@body
          (when (= magit-log-count magit-log-cutoff-length)
            (magit-with-section ('longer "longer")
@@ -2708,7 +2701,7 @@ One for all, one for current lineage."
       (unless magit-highlight-overlay
         (overlay-put (setq magit-highlight-overlay (make-overlay 1 1))
                      'face magit-item-highlight-face))
-      (cond ((and section (magit-section-type section))
+      (cond ((and section (magit-section-highlight section))
              (when (funcall refinep)
                (magit-diff-refine-hunk section))
              (move-overlay magit-highlight-overlay
@@ -4384,7 +4377,7 @@ when asking for user input."
 (defun magit-refresh-status ()
   (magit-git-exit-code "update-index" "--refresh")
   (magit-create-buffer-sections
-    (magit-with-section (nil 'status)
+    (magit-with-section ('status 'status t)
       (run-hooks 'magit-status-sections-hook)))
   (run-hooks 'magit-refresh-status-hook))
 
@@ -4423,7 +4416,7 @@ when asking for user input."
   (let* ((info (magit-read-rewrite-info))
          (pending (cdr (assq 'pending info))))
     (when pending
-      (magit-with-section (nil 'pending)
+      (magit-with-section ('pending 'pending t)
         (insert (propertize "Pending commits:\n"
                             'face 'magit-section-title))
         (dolist (p pending)
@@ -4602,7 +4595,7 @@ when asking for user input."
                      "There is nothing wrong with that, we just cannot display"
                      "anything useful here.  Consult the shell output instead.")))
           (done-re "^[a-z0-9]\\{40\\} is the first bad commit$"))
-      (magit-with-section (nil 'bisect-output)
+      (magit-with-section ('bisect-output 'bisect-output t)
         (insert
          (propertize
           (or (and (string-match done-re (car lines)) (pop lines))
@@ -6153,7 +6146,7 @@ Other key binding:
 
 (defun magit-refresh-cherry-buffer (upstream head)
   (magit-create-buffer-sections
-    (magit-with-section (nil 'cherry)
+    (magit-with-section ('cherry 'cherry t)
       (run-hooks 'magit-cherry-sections-hook))))
 
 (defun magit-insert-cherry-head-line ()
@@ -6480,7 +6473,7 @@ More information can be found in Info node `(magit)Wazzup'
 
 (defun magit-refresh-wazzup-buffer (head)
   (magit-create-buffer-sections
-    (magit-with-section (nil 'wazzupbuf)
+    (magit-with-section ('wazzup 'wazzupbuf t)
       (run-hooks 'magit-wazzup-sections-hook))))
 
 (defun magit-insert-wazzup-head-line ()
