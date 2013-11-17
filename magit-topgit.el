@@ -110,7 +110,7 @@
           (delete-char 8)
           (insert "\t")
           (goto-char (line-beginning-position))
-          (magit-with-section ('topic topic)
+          (magit-with-section (section 'topic topic)
             (magit-set-section-info topic)
             (let ((beg (1+ (line-beginning-position)))
                   (end (line-end-position)))
