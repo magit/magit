@@ -2189,7 +2189,7 @@ involving HEAD."
          magit-git-executable
          (append magit-git-standard-options args)))
 
-(defun magit-set-section (title type start end)
+(defun magit-set-section (type title start end)
   "Create a new section of title TITLE and type TYPE.
 Use the specified START and END positions."
   (let ((section (magit-new-section type title)))
@@ -4148,9 +4148,9 @@ for this argument.)"
                                                  (match-string 2))
                                            magit-current-diff-range)
             merge-commit t)
-      (let ((first  (magit-set-section nil 'commit
+      (let ((first  (magit-set-section 'commit nil
                                        (match-beginning 1) (match-end 1)))
-            (second (magit-set-section nil 'commit
+            (second (magit-set-section 'commit nil
                                        (match-beginning 2) (match-end 2))))
         (magit-set-section-info (match-string 1) first)
         (magit-set-section-info (match-string 2) second))
@@ -4182,7 +4182,7 @@ for this argument.)"
             (end (match-end 1)))
         (when (string-equal "commit" (magit-git-string "cat-file" "-t" sha1))
           (magit-make-commit-button start end)
-          (let ((section (magit-set-section sha1 'commit start end)))
+          (let ((section (magit-set-section 'commit sha1 start end)))
             (magit-set-section-info sha1 section)))))
     (beginning-of-line)
     (when (looking-at "^diff")
