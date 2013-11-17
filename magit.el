@@ -2136,14 +2136,13 @@ involving HEAD."
              (nreverse (magit-section-children ,s)))
        ,s)))
 
-(defun magit-insert-section (type buffer-title washer program &rest args)
+(defun magit-insert-section (type heading washer program &rest args)
   (let* ((body-beg nil)
          (children nil)
          (section
           (magit-with-section (section type type t)
-            (when buffer-title
-              (insert (propertize buffer-title 'face 'magit-section-title)
-                      "\n"))
+            (when heading
+              (insert (propertize heading 'face 'magit-section-title) "\n"))
             (setq body-beg (point))
             (apply 'magit-cmd-insert program args)
             (unless (eq (char-before) ?\n)
@@ -2154,7 +2153,7 @@ involving HEAD."
                 (goto-char (point-min))
                 (funcall washer)
                 (goto-char (point-max))))
-            (when (and buffer-title magit-show-child-count
+            (when (and heading magit-show-child-count
                        (> (setq children (length (magit-section-children
                                                   magit-top-section))) 0))
               (save-excursion
@@ -2177,8 +2176,8 @@ involving HEAD."
       (insert "\n"))
     section))
 
-(defun magit-git-section (type buffer-title washer &rest args)
-  (apply #'magit-insert-section type buffer-title
+(defun magit-git-section (type heading washer &rest args)
+  (apply #'magit-insert-section type heading
          washer
          magit-git-executable
          (append magit-git-standard-options args)))
