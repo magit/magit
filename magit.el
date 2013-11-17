@@ -2142,7 +2142,7 @@ involving HEAD."
                (goto-char (point-min))
                (funcall washer)
                (goto-char (point-max)))))))
-    (if (= (magit-section-content-beginning section) (point))
+    (if (= (point) (magit-section-content-beginning section))
         (let ((parent (magit-section-parent section))
               (beg (magit-section-beginning section)))
           (unless (= beg 1)
