@@ -166,8 +166,8 @@
                         (propertize state
                                     'face 'magit-stgit-other) " " descr))))
         (goto-char (line-beginning-position))
-        (magit-with-section patch 'series
-          (magit-set-section-info patch)
+        (magit-with-section (section series patch)
+          (setf (magit-section-info section) patch)
           (goto-char (line-end-position)))
         (forward-line))
     (delete-region (line-beginning-position) (1+ (line-end-position))))
@@ -179,20 +179,17 @@
 
 (defun magit-insert-stgit-series ()
   (when (executable-find magit-stgit-executable)
-    (magit-insert-section 'series
-                          "Series:" 'magit-stgit--wash-series
-                          magit-stgit-executable "series" "-a" "-d" "-e")))
+    (magit-cmd-insert-section (series "Series:")
+        'magit-stgit--wash-series
+      magit-stgit-executable "series" "-a" "-d" "-e")))
 
 ;;; Actions
 
 ;; Copy of `magit-refresh-commit-buffer' (version 1.0.0)
 (defun magit-stgit--refresh-patch-buffer (patch)
-  (magit-create-buffer-sections
-    (magit-insert-section nil nil
-                       'magit-wash-commit
-                       magit-stgit-executable
-                       "show"
-                       patch)))
+  (magit-cmd-insert-section (stgit-patch)
+      'magit-wash-commit
+    magit-stgit-executable "show" patch))
 
 ;; Copy of `magit-show-commit' (version 1.0.0)
 (defun magit-stgit--show-patch (patch &optional scroll)
