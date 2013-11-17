@@ -2070,15 +2070,9 @@ involving HEAD."
 
 (cl-defstruct magit-section
   type title info
-  beginning end
+  beginning content-beginning end
   hidden needs-refresh-on-show highlight
   parent children)
-
-(defun magit-section-content-beginning (section)
-  (save-excursion
-    (goto-char (magit-section-beginning section))
-    (forward-line)
-    (point)))
 
 (defun magit-diff-item-kind (diff)
   (nth 0 (magit-section-info diff)))
@@ -2131,27 +2125,28 @@ involving HEAD."
                                    ,(nth 3 arglist)))
             (magit-top-section ,s))
        (setf (magit-section-beginning ,s) (point-marker))
+       (setf (magit-section-content-beginning ,s) (point-marker))
        ,@body
        (set-marker-insertion-type (magit-section-beginning ,s) t)
+       (set-marker-insertion-type (magit-section-content-beginning ,s) t)
        (setf (magit-section-end ,s) (point-marker))
        (setf (magit-section-children ,s)
              (nreverse (magit-section-children ,s)))
        ,s)))
 
 (defun magit-insert-section (type heading washer program &rest args)
-  (let* ((body-beg nil)
-         (children nil)
+  (let* ((children nil)
          (section
           (magit-with-section (section type type t)
             (when heading
-              (insert (propertize heading 'face 'magit-section-title) "\n"))
-            (setq body-beg (point))
+              (insert (propertize heading 'face 'magit-section-title) "\n")
+              (setf (magit-section-content-beginning section) (point-marker)))
             (apply 'magit-cmd-insert program args)
             (unless (eq (char-before) ?\n)
               (insert "\n"))
             (when washer
               (save-restriction
-                (narrow-to-region body-beg (point))
+                (narrow-to-region (magit-section-content-beginning section) (point))
                 (goto-char (point-min))
                 (funcall washer)
                 (goto-char (point-max))))
@@ -2159,11 +2154,11 @@ involving HEAD."
                        (> (setq children (length (magit-section-children
                                                   magit-top-section))) 0))
               (save-excursion
-                (goto-char (- body-beg 2))
+                (goto-char (- (magit-section-content-beginning section) 2))
                 (when (looking-at ":")
                   (insert-before-markers-and-inherit
                    (format " (%i)" children))))))))
-    (if (= body-beg (point))
+    (if (= (magit-section-content-beginning section) (point))
         (let ((parent (magit-section-parent section))
               (beg (magit-section-beginning section)))
           (unless (= beg 1)
