@@ -3443,8 +3443,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
       (let ((heading (match-string-no-properties 1)))
         (delete-region (match-beginning 0) (match-end 0))
         (goto-char beg)
-        (magit-with-section (section 'diffstats 'diffstats)
-          (insert heading)
+        (magit-with-section (section 'diffstats 'diffstats heading)
           (magit-wash-sequence #'magit-wash-diffstat)))
       (setq magit-diffstat-cached-sections
             (nreverse magit-diffstat-cached-sections)))))
