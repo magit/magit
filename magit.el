@@ -3822,12 +3822,11 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
       (ansi-color-apply-on-region (point-min) (point-max))))
   (when (eq style 'cherry)
     (reverse-region (point-min) (point-max)))
-  (let ((magit-old-top-section nil))
-    (when (eq style 'oneline)
-      (magit-log-setup-author-date))
-    (magit-wash-sequence (apply-partially 'magit-wash-log-line style))
-    (when (eq style 'oneline)
-      (magit-log-create-author-date-overlays))))
+  (when (eq style 'oneline)
+    (magit-log-setup-author-date))
+  (magit-wash-sequence (apply-partially 'magit-wash-log-line style))
+  (when (eq style 'oneline)
+    (magit-log-create-author-date-overlays)))
 
 (defun magit-wash-log-line (style)
   (looking-at (cl-ecase style
@@ -4213,8 +4212,7 @@ in `magit-commit-buffer-name'."
 ;;;; (washing)
 
 (defun magit-wash-stashes ()
-  (let ((magit-old-top-section nil))
-    (magit-wash-sequence #'magit-wash-stash)))
+  (magit-wash-sequence #'magit-wash-stash))
 
 (defun magit-wash-stash ()
   (if (search-forward-regexp "stash@{\\(.*?\\)}" (line-end-position) t)
@@ -4334,15 +4332,14 @@ when asking for user input."
 (defun magit-wash-untracked-files ()
   (magit-wash-sequence
    (lambda ()
-     (let ((magit-old-top-section nil))
-       (when (looking-at "^? \\(.*\\)$")
-         (let ((file (magit-decode-git-path
-                      (match-string-no-properties 1))))
-           (delete-region (point) (+ (line-end-position) 1))
-           (magit-with-section (section 'file file)
-             (setf (magit-section-info section) file)
-             (insert "\t" file "\n")))
-         t)))))
+     (when (looking-at "^? \\(.*\\)$")
+       (let ((file (magit-decode-git-path
+                    (match-string-no-properties 1))))
+         (delete-region (point) (+ (line-end-position) 1))
+         (magit-with-section (section 'file file)
+           (setf (magit-section-info section) file)
+           (insert "\t" file "\n")))
+       t))))
 
 (defun magit-insert-pending-commits ()
   (let* ((info (magit-read-rewrite-info))
