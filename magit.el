@@ -2131,27 +2131,27 @@ involving HEAD."
        ,s)))
 
 (defun magit-insert-section (type heading washer program &rest args)
-  (let ((section
-         (magit-with-section (section type type heading t)
-           (apply 'magit-cmd-insert program args)
-           (unless (eq (char-before) ?\n)
-             (insert "\n"))
-           (when washer
-             (save-restriction
-               (narrow-to-region (magit-section-content-beginning section) (point))
-               (goto-char (point-min))
-               (funcall washer)
-               (goto-char (point-max)))))))
-    (if (= (point) (magit-section-content-beginning section))
-        (let ((parent (magit-section-parent section))
-              (beg (magit-section-beginning section)))
+  (magit-with-section (section type type heading t)
+    (apply 'magit-cmd-insert program args)
+    (unless (eq (char-before) ?\n)
+      (insert "\n"))
+    (when washer
+      (save-restriction
+        (narrow-to-region (magit-section-content-beginning section) (point))
+        (goto-char (point-min))
+        (funcall washer)
+        (goto-char (point-max))))
+    (let ((parent   (magit-section-parent section))
+          (head-beg (magit-section-beginning section))
+          (body-beg (magit-section-content-beginning section)))
+      (if (= (point) body-beg)
           (if (not parent)
               (insert "(empty)\n")
-            (delete-region beg (magit-section-end section))
+            (delete-region head-beg body-beg)
             (setf (magit-section-children parent)
                   (delq section (magit-section-children parent)))
-            (setq section nil)))
-      (insert "\n"))))
+            (setq section nil))
+        (insert "\n")))))
 
 (defun magit-git-section (type heading washer &rest args)
   (apply #'magit-insert-section type heading
