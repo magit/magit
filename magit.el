@@ -6897,7 +6897,7 @@ from the parent keymap `magit-mode-map' are also available.")
 
 (defun magit-refresh-branch-manager ()
   (magit-create-buffer-sections
-    (apply #'magit-git-section "branches" nil
+    (apply #'magit-git-section 'branchbuf nil
            #'magit-wash-branches
            "branch" "-vva" (magit-diff-abbrev-arg)
            magit-custom-options)))
@@ -7009,7 +7009,7 @@ from the parent keymap `magit-mode-map' are also available.")
                    for marker = (cl-loop for x in end-markers thereis x)
                    collect (list remote marker))))
     ;; actual displaying of information
-    (magit-with-section ("local" nil)
+    (magit-with-section ('local 'local)
       (insert (propertize "Local:" 'face 'magit-section-title) "\n")
       (magit-set-section-info ".")
       (magit-wash-branches-between-point-and-marker
