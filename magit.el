@@ -2072,19 +2072,8 @@ involving HEAD."
   type title info
   beginning content-beginning end
   hidden needs-refresh-on-show highlight
+  diff-status diff-file2 diff-range
   parent children)
-
-(defun magit-diff-item-kind (diff)
-  (nth 0 (magit-section-info diff)))
-
-(defun magit-diff-item-file (diff)
-  (nth 1 (magit-section-info diff)))
-
-(defun magit-diff-item-file2 (diff)
-  (nth 2 (magit-section-info diff)))
-
-(defun magit-diff-item-range (diff)
-  (nth 3 (magit-section-info diff)))
 
 ;;;; Section Variables
 
@@ -2339,7 +2328,7 @@ involving HEAD."
   (let ((pos (catch 'diff-section-found
                (dolist (sec (magit-section-children magit-top-section))
                  (when (and (eq (magit-section-type sec) 'diff)
-                            (string-equal (magit-diff-item-file sec) file))
+                            (string-equal (magit-section-title sec) file))
                    (throw 'diff-section-found
                           (magit-section-beginning sec)))))))
     (when pos
@@ -3516,7 +3505,8 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
          (let ((file (magit-decode-git-path (match-string-no-properties 1))))
            (delete-region (point) (line-end-position))
            (insert "\tUnmerged " file "\n")
-           (setf (magit-section-info section) (list 'unmerged file nil))
+           (setf (magit-section-diff-status section) 'unmerged)
+           (setf (magit-section-info section) file)
            t))
         ((re-search-forward "^diff" nil t)
          (forward-line 0)
@@ -3548,9 +3538,10 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                              (search-forward-regexp "^rename from \\(.*\\)"
                                                     end t))
                            (match-string-no-properties 1)))))
-             (setf (magit-section-info section)
-                   (list status file (or file2 file)
-                         magit-current-diff-range))
+             (setf (magit-section-diff-status section) status)
+             (setf (magit-section-info        section) file)
+             (setf (magit-section-diff-file2  section) (or file2 file))
+             (setf (magit-section-diff-range  section) magit-current-diff-range)
              (magit-insert-diff-title status file file2)
              (when (search-forward-regexp
                     "\\(--- \\(.*\\)\n\\+\\+\\+ \\(.*\\)\n\\)" nil t)
@@ -3717,7 +3708,8 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
             (delete-region (point) (1+ (line-end-position)))
             (if (not hidden)
                 (magit-insert-diff section file status)
-              (setf (magit-section-info section) (list status file nil))
+              (setf (magit-section-diff-status section) status)
+              (setf (magit-section-info section) file)
               (setf (magit-section-needs-refresh-on-show section) t)
               (magit-insert-diff-title status file nil)))))
       file)))
@@ -4762,8 +4754,8 @@ With a prefix argument, prompt for a file to be staged instead."
       ((unstaged diff)
        (apply #'magit-run-git "add" "-u"
               (if (use-region-p)
-                  (magit-region-siblings #'magit-diff-item-file)
-                (list (magit-diff-item-file item)))))
+                  (magit-region-siblings #'magit-section-title)
+                (list (magit-section-title item)))))
       ((unstaged)
        (magit-stage-all))
       ((staged *)
@@ -4807,8 +4799,8 @@ With a prefix argument, add remaining untracked files as well.
      (when (eq info 'unmerged)
        (error "Can't unstage an unmerged file.  Resolve it first"))
      (let ((files (if (use-region-p)
-                      (magit-region-siblings #'magit-diff-item-file)
-                    (list (magit-diff-item-file item)))))
+                      (magit-region-siblings #'magit-section-title)
+                    (list (magit-section-title item)))))
        (if (magit-no-commit-p)
            (apply #'magit-run-git "rm" "--cached" "--" files)
          (apply #'magit-run-git "reset" "-q" "HEAD" "--" files))))
@@ -5633,7 +5625,7 @@ depending on the value of option `magit-commit-squash-commit'.
                       (magit-visit-item)
                       (add-log-current-defun)))
                 nil))
-         (file (magit-diff-item-file
+         (file (magit-section-title
                 (cl-case (magit-section-type section)
                   (hunk (magit-section-parent section))
                   (diff section)
@@ -6229,7 +6221,7 @@ Other key binding:
   (interactive)
   (when (eq (magit-section-type (magit-current-section)) 'diffstat)
     (magit-goto-diff-section-at-file
-     (magit-diff-item-file (magit-current-section))))
+     (magit-section-title (magit-current-section))))
   (let ((diff (magit-current-section)))
     (when (magit-section-hidden diff)
       ;; Range is not set until the first time the diff is visible.
@@ -6242,14 +6234,14 @@ Other key binding:
       (setq diff (magit-section-parent diff)))
     (unless (eq 'diff (magit-section-type diff))
       (error "No diff at this location"))
-    (let* ((type (magit-diff-item-kind diff))
-           (file1 (magit-diff-item-file diff))
-           (file2 (magit-diff-item-file2 diff))
-           (range (magit-diff-item-range diff)))
+    (let* ((status (magit-section-diff-status diff))
+           (file1  (magit-section-title diff))
+           (file2  (magit-section-diff-file2 diff))
+           (range  (magit-section-diff-range diff)))
       (cond
-       ((memq type '(new deleted typechange))
-        (message "Why ediff a %s file?" type))
-       ((and (eq type 'unmerged)
+       ((memq status '(new deleted typechange))
+        (message "Why ediff a %s file?" status))
+       ((and (eq status 'unmerged)
              (eq (cdr range) 'working))
         (magit-interactive-resolve file1))
        ((consp (car range))
@@ -6542,8 +6534,8 @@ With a prefix argument edit the ignore string."
 ;;;; Discard
 
 (defun magit-discard-diff (diff stagedp)
-  (let ((file (magit-diff-item-file diff)))
-    (cl-case (magit-diff-item-kind diff)
+  (let ((file (magit-section-title diff)))
+    (cl-case (magit-section-diff-status diff)
       (deleted
        (when (yes-or-no-p (format "Resurrect %s? " file))
          (when stagedp
@@ -6577,7 +6569,7 @@ With a prefix argument edit the ignore string."
                           "Discard hunk? "))
        (magit-apply-hunk-item item "--reverse")))
     ((staged diff hunk)
-     (if (magit-file-uptodate-p (magit-diff-item-file
+     (if (magit-file-uptodate-p (magit-section-title
                                  (magit-section-parent item)))
          (when (yes-or-no-p (if (use-region-p)
                                 "Discard changes in region? "
@@ -6587,7 +6579,7 @@ With a prefix argument edit the ignore string."
     ((unstaged diff)
      (magit-discard-diff item nil))
     ((staged diff)
-     (if (magit-file-uptodate-p (magit-diff-item-file item))
+     (if (magit-file-uptodate-p (magit-section-title item))
          (magit-discard-diff item t)
        (error (concat "Can't discard staged changes to this file. "
                       "Please unstage it first"))))
@@ -6664,12 +6656,12 @@ With a prefix argument, visit in other window."
       ((untracked file)
        (dired-jump other-window (file-truename info)))
       ((diff)
-       (dired-jump other-window (file-truename (magit-diff-item-file item))))
+       (dired-jump other-window (file-truename (magit-section-title item))))
       ((diffstat)
        (dired-jump other-window (file-truename (magit-section-info item))))
       ((hunk)
        (dired-jump other-window
-                   (file-truename (magit-diff-item-file
+                   (file-truename (magit-section-title
                                    (magit-section-parent item)))))
       (nil (dired-jump other-window)))))
 
@@ -6684,12 +6676,12 @@ With a prefix argument, visit in other window."
          (file
           (magit-section-action (item info "visit-file" t)
             ((untracked file) info)
-            ((diff)           (magit-diff-item-file item))
+            ((diff)           (magit-section-title item))
             ((diffstat)       (magit-section-info item))
             ((hunk)
              (setq line (magit-hunk-item-target-line item)
                    column (current-column))
-             (magit-diff-item-file (magit-section-parent item))))))
+             (magit-section-title (magit-section-parent item))))))
     (unless file
       (error "Can't get pathname for this file"))
     (unless (file-exists-p file)
@@ -7045,8 +7037,8 @@ from the parent keymap `magit-mode-map' are also available.")
   (let ((show-file-from-diff
          (lambda (item)
            (switch-to-buffer-other-window
-            (magit-show (cdr (magit-diff-item-range item))
-                        (magit-diff-item-file item))))))
+            (magit-show (cdr (magit-section-diff-range item))
+                        (magit-section-title item))))))
     (magit-section-action (item info "show" t)
       ((commit)
        (let ((current-file (or magit-file-log-file
