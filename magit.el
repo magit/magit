@@ -2068,15 +2068,6 @@ involving HEAD."
 ;;; Sections
 ;;;; Section Struct
 
-;; A buffer in magit-mode is organized into hierarchical sections.
-;; These sections are used for navigation and for hiding parts of the
-;; buffer.
-;;
-;; Most sections also represent the objects that Magit works with,
-;; such as files, diffs, hunks, commits, etc.  The 'type' of a section
-;; identifies what kind of object it represents (if any), and the
-;; parent and grand-parent, etc provide the context.
-
 (cl-defstruct magit-section
   parent title beginning end children hidden type info
   needs-refresh-on-show)
