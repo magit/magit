@@ -2190,11 +2190,6 @@ Use the specified START and END positions."
     (setf (magit-section-end section) end)
     section))
 
-(defun magit-set-section-needs-refresh-on-show (flag &optional section)
-  (setf (magit-section-needs-refresh-on-show
-         (or section magit-top-section))
-        flag))
-
 (defmacro magit-create-buffer-sections (&rest body)
   (declare (indent 0) (debug t))
   `(let ((inhibit-read-only t))
@@ -3508,7 +3503,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
         (when add (insert (propertize add 'face 'magit-diff-add)))
         (when del (insert (propertize del 'face 'magit-diff-del)))
         (insert "\n")
-        (push magit-top-section magit-diffstat-cached-sections)))))
+        (push section magit-diffstat-cached-sections)))))
 
 (defun magit-wash-diffstats-postwork (file)
   (when magit-diffstat-cached-sections
@@ -3749,7 +3744,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
             (if (not hidden)
                 (magit-insert-diff section file status)
               (setf (magit-section-info section) (list status file nil))
-              (magit-set-section-needs-refresh-on-show t)
+              (setf (magit-section-needs-refresh-on-show section) t)
               (magit-insert-diff-title status file nil)))))
       file)))
 
@@ -6503,8 +6498,8 @@ More information can be found in Info node `(magit)Wazzup'
                 (goto-char (point-min))
                 (magit-wash-log 'cherry))))
            (t
-            (setf (magit-section-hidden magit-top-section) t)
-            (setf (magit-section-needs-refresh-on-show magit-top-section) t)
+            (setf (magit-section-hidden section) t)
+            (setf (magit-section-needs-refresh-on-show section) t)
             )))))))
 
 ;;; Acting (2)
