@@ -2115,13 +2115,6 @@ involving HEAD."
 ;;;; Section Creation
 
 (defun magit-new-section (title type)
-  "Create a new section with title TITLE and type TYPE in current buffer.
-
-If `magit-top-section' buffer local value is nil, the new section
-will be the new top-section; otherwise the new-section will be a
-child of the current top-section.
-
-If TYPE is nil, the section won't be highlighted."
   (let* ((s (make-magit-section :parent magit-top-section
                                 :title title
                                 :type type
@@ -2137,7 +2130,6 @@ If TYPE is nil, the section won't be highlighted."
     s))
 
 (defun magit-cancel-section (section)
-  "Delete the section SECTION."
   (delete-region (magit-section-beginning section)
                  (magit-section-end section))
   (let ((parent (magit-section-parent section)))
@@ -2147,12 +2139,6 @@ If TYPE is nil, the section won't be highlighted."
       (setq magit-top-section nil))))
 
 (defmacro magit-with-section (title type &rest body)
-  "Create a new section of title TITLE and type TYPE and evaluate BODY there.
-
-Sections created inside BODY will become children of the new
-section.  BODY must leave point at the end of the created section.
-
-If TYPE is nil, the section won't be highlighted."
   (declare (indent 2) (debug (form form body)))
   (let ((s (make-symbol "*section*")))
     `(let* ((,s (magit-new-section ,title ,type))
@@ -2167,8 +2153,6 @@ If TYPE is nil, the section won't be highlighted."
 
 (defun magit-insert-section
   (section-title-and-type buffer-title washer program &rest args)
-  "Run PROGRAM with ARGS and put the output into a new section.
-Like `magit-git-section' (which see) but run PROGRAM instead of Git."
   (let* ((body-beg nil)
          (children nil)
          (section-title (if (consp section-title-and-type)
@@ -2207,20 +2191,6 @@ Like `magit-git-section' (which see) but run PROGRAM instead of Git."
 
 (defun magit-git-section (section-title-and-type
                           buffer-title washer &rest args)
-  "Run Git with ARGS and put the output into a new section.
-
-SECTION-TITLE-AND-TYPE is either a string that is the title of
-the section or (TITLE . TYPE) where TITLE is the title of the
-section and TYPE is its type.
-
-If there is no type, or if type is nil, the section won't be
-highlighted.
-
-BUFFER-TITLE is the inserted title of the section
-
-WASHER is a function that will be run after inserting Git's output.
-The buffer will be narrowed to the inserted text.  It should add
-sectioning as needed for Magit interaction."
   (apply #'magit-insert-section
          section-title-and-type
          buffer-title
@@ -2247,7 +2217,6 @@ If SECTION is nil, default to setting `magit-top-section'"
         flag))
 
 (defmacro magit-create-buffer-sections (&rest body)
-  "Empty current buffer of text and Magit's sections, and then eval BODY."
   (declare (indent 0) (debug t))
   `(let ((inhibit-read-only t))
      (erase-buffer)
@@ -2274,7 +2243,6 @@ If SECTION is nil, default to setting `magit-top-section'"
              (insert "type \"e\" to show more logs\n")))))))
 
 (defun magit-propertize-section (section)
-  "Add text-property needed for SECTION."
   (put-text-property (magit-section-beginning section)
                      (magit-section-end section)
                      'magit-section section)
