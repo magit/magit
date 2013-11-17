@@ -2116,11 +2116,12 @@ involving HEAD."
        (setf (magit-section-beginning ,s) (point-marker))
        (setf (magit-section-content-beginning ,s) (point-marker))
        ,@body
-       (set-marker-insertion-type (magit-section-beginning ,s) t)
-       (set-marker-insertion-type (magit-section-content-beginning ,s) t)
-       (setf (magit-section-end ,s) (point-marker))
-       (setf (magit-section-children ,s)
-             (nreverse (magit-section-children ,s)))
+       (when ,s
+         (set-marker-insertion-type (magit-section-beginning ,s) t)
+         (set-marker-insertion-type (magit-section-content-beginning ,s) t)
+         (setf (magit-section-end ,s) (point-marker))
+         (setf (magit-section-children ,s)
+               (nreverse (magit-section-children ,s))))
        ,s)))
 
 (defun magit-insert-section (type heading washer program &rest args)
