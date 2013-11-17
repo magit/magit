@@ -188,7 +188,7 @@
 ;; Copy of `magit-refresh-commit-buffer' (version 1.0.0)
 (defun magit-stgit--refresh-patch-buffer (patch)
   (magit-create-buffer-sections
-    (magit-insert-section nil nil
+    (magit-insert-section 'stgit-patch nil
                        'magit-wash-commit
                        magit-stgit-executable
                        "show"

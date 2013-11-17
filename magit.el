@@ -4117,7 +4117,7 @@ for this argument.)"
 
 (defun magit-refresh-commit-buffer (commit)
   (magit-create-buffer-sections
-    (apply #'magit-git-section nil nil
+    (apply #'magit-git-section 'commitbuf nil
            #'magit-wash-commit
            "log" "-1" "--decorate=full"
            "--pretty=medium" "--no-abbrev-commit"
@@ -6069,7 +6069,7 @@ Other key binding:
   (when (consp range)
     (setq range (concat (car range) ".." (cdr range))))
   (magit-create-log-buffer-sections
-    (apply #'magit-git-section nil
+    (apply #'magit-git-section 'logbuf
            (concat "Commits"
                    (and file  (concat " for file " file))
                    (and range (concat " in " range)))
