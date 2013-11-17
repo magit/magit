@@ -6911,10 +6911,9 @@ from the parent keymap `magit-mode-map' are also available.")
          (push-url (magit-get "remote" remote "pushurl"))
          (urls (concat url (and push-url (concat ", " push-url))))
          (marker (cadr group)))
-    (magit-with-section (section 'remote remote)
+    (magit-with-section
+        (section 'remote remote (format "%s (%s):" remote urls))
       (setf (magit-section-info section) remote)
-      (insert (propertize (format "%s (%s):" remote urls)
-                          'face 'magit-section-title) "\n")
       (magit-wash-branches-between-point-and-marker marker remote))
     (insert "\n")))
 
@@ -6946,8 +6945,7 @@ from the parent keymap `magit-mode-map' are also available.")
                    for marker = (cl-loop for x in end-markers thereis x)
                    collect (list remote marker))))
     ;; actual displaying of information
-    (magit-with-section (section 'local 'local)
-      (insert (propertize "Local:" 'face 'magit-section-title) "\n")
+    (magit-with-section (section 'local 'local "Local:")
       (setf (magit-section-info section) ".")
       (magit-wash-branches-between-point-and-marker
        (cl-loop for x in markers thereis x)))
