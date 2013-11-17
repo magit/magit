@@ -6430,9 +6430,10 @@ More information can be found in Info node `(magit)Wazzup'
                 (magit-git-string "rev-list" "--count" "--right-only"
                                   (concat head "..." upstream)))))
     (when (> count 0)
-      (magit-with-section (section 'wazzup upstream nil nil t)
-        (insert (format "%3s %s\n" count
-                        (magit-format-ref-label upstream)))
+      (magit-with-section
+          (section 'wazzup upstream
+                   (format "%3s %s\n" count (magit-format-ref-label upstream))
+                   nil t)
         (cond
          ((magit-section-hidden section)
           (setf (magit-section-hidden section) t)
