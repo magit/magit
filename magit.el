@@ -6044,7 +6044,7 @@ Other key binding:
                  ,@args ,range "--"
                  ,@(and file (list file))))
         (when (= magit-log-count magit-log-cutoff-length)
-          (magit-with-section (section 'longer "longer")
+          (magit-with-section (section 'longer 'longer)
             (insert "type \"e\" to show more logs\n")))))))
 
 (defun magit-log-show-more-entries (&optional arg)
@@ -6168,7 +6168,7 @@ Other key binding:
                            (format "--max-count=%d" magit-log-cutoff-length)
                            ref)
         (when (= magit-log-count magit-log-cutoff-length)
-          (magit-with-section (section 'longer "longer")
+          (magit-with-section (section 'longer 'longer)
             (insert "type \"e\" to show more logs\n")))))))
 
 ;;;; (action labels)
@@ -6937,7 +6937,7 @@ from the parent keymap `magit-mode-map' are also available.")
          (push-url (magit-get "remote" remote-name "pushurl"))
          (urls (concat url (and push-url (concat ", " push-url))))
          (marker (cadr group)))
-    (magit-with-section (section 'remote (concat "remote:" remote-name))
+    (magit-with-section (section 'remote remote-name)
       (setf (magit-section-info section) remote-name)
       (insert (propertize (format "%s (%s):" remote-name urls)
                           'face 'magit-section-title) "\n")
