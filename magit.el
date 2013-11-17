@@ -6200,7 +6200,7 @@ Other key binding:
 (defun magit-refresh-reflog-buffer (ref)
   (setq magit-reflog-head ref)
   (magit-create-log-buffer-sections
-    (magit-git-section 'reflog (format "Local history of branch %s" ref)
+    (magit-git-section 'reflogbuf (format "Local history of branch %s" ref)
                        (apply-partially 'magit-wash-log 'reflog)
                        "log" "--format=format:* \C-?%h\C-?%gs"
                        (magit-diff-abbrev-arg)
@@ -6466,7 +6466,7 @@ More information can be found in Info node `(magit)Wazzup'
 
 (defun magit-refresh-wazzup-buffer (head)
   (magit-create-buffer-sections
-    (magit-with-section ('wazzup 'wazzupbuf t)
+    (magit-with-section ('wazzupbuf 'wazzupbuf t)
       (run-hooks 'magit-wazzup-sections-hook))))
 
 (defun magit-insert-wazzup-head-line ()
