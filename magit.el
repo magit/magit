@@ -5786,13 +5786,20 @@ With a prefix argument annotate the tag.
 ;;;###autoload
 (defun magit-stash (description)
   "Create new stash of working tree and staging area named DESCRIPTION.
-Working tree and staging area revert to the current 'HEAD'.
-With a prefix argument, changes in staging area (index) are kept in the working
-directory (i.e. the stash contains only the changes not yet staged for commit).
+The working tree and the staging area (index) revert to the
+current 'HEAD'.  With a prefix argument, changes in staging
+area (index) are kept in the working directory (i.e. only the
+modifications not yet in the staging area (index) are removed
+from the working directory, and, N.B., the stash will also
+contain the changes in the staging area).
 \('git stash save [--keep-index] DESCRIPTION')
 
-Apply and keep stash with `magit-apply-item' (type \\[magit-apply-item]),
-or pop it with `magit-cherry-pick-item' (type \\[magit-cherry-pick-item])."
+\\<magit-status-mode-map>Apply and keep stash with `magit-apply-item' (type `\\[magit-apply-item]`),
+or pop it (i.e. apply and remove it) with `magit-cherry-pick-item'
+(type `\\[magit-cherry-pick-item]`).
+
+N.B.: if you do use the \"--keep-index\" option, then you must re-apply (pop) the
+stash before you commit!"
   (interactive (list (read-string "Stash description: " nil
                                   'magit-read-stash-history)))
   (apply 'magit-run-git "stash" "save"
