@@ -2110,8 +2110,7 @@ involving HEAD."
        (when ,h
          (insert (propertize ,h 'face 'magit-section-title) "\n")
          (setf (magit-section-content-beginning ,s) (point-marker)))
-       (if magit-top-section
-           (push ,s (magit-section-children magit-top-section))
+       (unless magit-top-section
          (setq magit-top-section ,s))
        (let ((magit-top-section ,s)) ,@body)
        (when ,s
@@ -2127,7 +2126,9 @@ involving HEAD."
          (set-marker-insertion-type (magit-section-content-beginning ,s) t)
          (setf (magit-section-end ,s) (point-marker))
          (setf (magit-section-children ,s)
-               (nreverse (magit-section-children ,s))))
+               (nreverse (magit-section-children ,s)))
+         (unless (eq ,s magit-top-section)
+           (push ,s (magit-section-children (magit-section-parent ,s)))))
        ,s)))
 
 (defun magit-insert-section (type heading washer program &rest args)
@@ -2148,8 +2149,6 @@ involving HEAD."
           (if (not parent)
               (insert "(empty)\n")
             (delete-region head-beg body-beg)
-            (setf (magit-section-children parent)
-                  (delq section (magit-section-children parent)))
             (setq section nil))
         (insert "\n")))))
 
