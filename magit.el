@@ -4161,8 +4161,9 @@ for this argument.)"
                               'action 'magit-show-commit-backward
                               'follow-link t
                               'mouse-face magit-item-highlight-face)))
-      (insert " ")
       (when magit-forward-navigation-history
+        (when magit-back-navigation-history
+          (insert " "))
         (magit-with-section (section 'button "[forward]")
           (insert-text-button "[forward]"
                               'help-echo "Next commit"
