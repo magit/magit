@@ -3683,14 +3683,13 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                     (?T 'typechange)
                     (?U 'unmerged)
                     (?X 'unknown))))
-      (if (or ;; Unmerged files get two entries; we ignore the second.
-              (equal file previous)
-              ;; Ignore staged, unmerged files.
-              (and staged (eq status 'unmerged)))
-          (delete-region (point) (+ (line-end-position) 1))
+      (delete-region (point) (1+ (line-end-position)))
+      (unless (or ;; Unmerged files get two entries; we ignore the second.
+                  (equal file previous)
+                  ;; Ignore staged, unmerged files.
+                  (and staged (eq status 'unmerged)))
         (let ((hidden (magit-section-hidden magit-top-section)))
           (magit-with-section (section 'diff file nil t)
-            (delete-region (point) (1+ (line-end-position)))
             (if (not hidden)
                 (magit-insert-diff section file status)
               (setf (magit-section-diff-status section) status)
