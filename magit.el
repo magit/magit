@@ -3433,10 +3433,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 (defun magit-wash-diff ()
   (magit-with-section (section 'diff (buffer-substring-no-properties
                                       (line-beginning-position)
-                                      (line-end-position))
-                               nil
-                               (not (derived-mode-p 'magit-diff-mode
-                                                    'magit-commit-mode)))
+                                      (line-end-position)))
       (magit-wash-diff-section section)))
 
 (defun magit-wash-diffstats ()
@@ -3688,14 +3685,16 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                   (equal file previous)
                   ;; Ignore staged, unmerged files.
                   (and staged (eq status 'unmerged)))
-        (let ((hidden (magit-section-hidden magit-top-section)))
-          (magit-with-section (section 'diff file nil t)
-            (if (not hidden)
-                (magit-insert-diff section file status)
-              (setf (magit-section-diff-status section) status)
-              (setf (magit-section-info section) file)
-              (setf (magit-section-needs-refresh-on-show section) t)
-              (magit-insert-diff-title status file nil)))))
+        (magit-with-section (section 'diff file nil
+                                     (not (derived-mode-p
+                                           'magit-diff-mode
+                                           'magit-commit-mode)))
+          (if (not (magit-section-hidden section))
+              (magit-insert-diff section file status)
+            (setf (magit-section-diff-status section) status)
+            (setf (magit-section-info section) file)
+            (setf (magit-section-needs-refresh-on-show section) t)
+            (magit-insert-diff-title status file nil))))
       file)))
 
 (defun magit-diff-item-insert-header (diff buf)
