@@ -2090,16 +2090,14 @@ involving HEAD."
 
 (defmacro magit-with-section (arglist &rest body)
   (declare (indent 1) (debug ((form form &optional form form form) body)))
-  (let ((s (car arglist))
-        (h (cl-gensym "heading")))
+  (let ((s (car arglist)))
     `(let ((,s (make-magit-section
                 :type  ,(nth 1 arglist)
                 :title ,(nth 2 arglist)
                 :highlight (not ,(nth 4 arglist))
                 :parent magit-top-section
                 :beginning (point-marker)
-                :content-beginning (point-marker)))
-           (,h ,(nth 3 arglist)))
+                :content-beginning (point-marker))))
        (setf (magit-section-hidden ,s)
              (let ((old (and magit-old-top-section
                              (magit-find-section (magit-section-path ,s)
@@ -2107,23 +2105,26 @@ involving HEAD."
                (if old
                    (magit-section-hidden old)
                  ,(nth 5 arglist))))
-       (when ,h
-         (insert (propertize ,h 'face 'magit-section-title) "\n")
-         (setf (magit-section-content-beginning ,s) (point-marker)))
        (unless magit-top-section
          (setq magit-top-section ,s))
        (let ((magit-top-section ,s)) ,@body)
        (when ,s
-         (let (c)
-           (when (and ,h magit-show-child-count
-                      (> (setq c (length (magit-section-children ,s))) 0))
-             (save-excursion
-               (goto-char (- (magit-section-content-beginning ,s) 2))
-               (when (looking-at ":")
-                 (insert-before-markers-and-inherit
-                  (format " (%i)" c))))))
-         (set-marker-insertion-type (magit-section-beginning ,s) t)
          (set-marker-insertion-type (magit-section-content-beginning ,s) t)
+         (let ((heading ,(nth 3 arglist)))
+           (when heading
+             (save-excursion
+               (goto-char (magit-section-beginning ,s))
+               (insert
+                (propertize
+                 (let (c)
+                   (if (and magit-show-child-count
+                            (string-match-p ":$" heading)
+                            (> (setq c (length (magit-section-children ,s))) 0))
+                       (format "%s (%s):" (substring heading 0 -1) c)
+                     heading))
+                 'face 'magit-section-title))
+               (insert "\n"))))
+         (set-marker-insertion-type (magit-section-beginning ,s) t)
          (setf (magit-section-end ,s) (point-marker))
          (setf (magit-section-children ,s)
                (nreverse (magit-section-children ,s)))
