@@ -3690,12 +3690,6 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
               ;; Ignore staged, unmerged files.
               (and staged (eq status 'unmerged)))
           (delete-region (point) (+ (line-end-position) 1))
-        ;; The 'diff' section that is created here will not work with
-        ;; magit-insert-diff-item-patch etc when we leave it empty.
-        ;; Luckily, raw diffs are only produced for staged and
-        ;; unstaged changes, and we never call
-        ;; magit-insert-diff-item-patch on them.  This is a bit
-        ;; brittle, of course.
         (let ((hidden (magit-section-hidden magit-top-section)))
           (magit-with-section (section 'diff file nil t)
             (delete-region (point) (1+ (line-end-position)))
