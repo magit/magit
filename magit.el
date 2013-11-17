@@ -2130,6 +2130,16 @@ involving HEAD."
          (setf (magit-section-end ,s) (point-marker))
          (setf (magit-section-children ,s)
                (nreverse (magit-section-children ,s)))
+         (save-excursion
+           (goto-char (magit-section-beginning ,s))
+           (let ((end (magit-section-end ,s)))
+             (while (< (point) end)
+               (let ((next (or (next-single-property-change
+                                (point) 'magit-section)
+                               end)))
+                 (unless (get-text-property (point) 'magit-section)
+                   (put-text-property (point) next 'magit-section ,s))
+                 (goto-char next)))))
          (unless (eq ,s magit-top-section)
            (push ,s (magit-section-children (magit-section-parent ,s)))))
        ,s)))
@@ -2176,16 +2186,7 @@ involving HEAD."
      (let ((magit-old-top-section magit-top-section))
        (setq magit-top-section nil)
        ,@body
-       (magit-propertize-section magit-top-section)
-       (magit-section-set-hidden magit-top-section
-                                 (magit-section-hidden magit-top-section)))))
-
-(defun magit-propertize-section (section)
-  (put-text-property (magit-section-beginning section)
-                     (magit-section-end section)
-                     'magit-section section)
-  (mapc 'magit-propertize-section
-        (magit-section-children section)))
+       (magit-section-set-hidden magit-top-section nil))))
 
 ;;;; Section Searching
 
