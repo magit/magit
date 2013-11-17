@@ -7090,7 +7090,8 @@ argument) in the current window."
             (mapconcat 'identity magit-git-standard-options " ")
             " grep -n "
             (shell-quote-argument pattern) "\n\n")
-    (magit-git-insert "grep" "--line-number" pattern)
+    (magit-git-insert "grep" "--line-number" "--color" pattern)
+    (ansi-color-apply-on-region (point-min) (point-max))
     (grep-mode)
     (pop-to-buffer (current-buffer))))
 
