@@ -7108,14 +7108,16 @@ argument) in the current window."
 (defun magit-run-git-gui-blame (commit filename &optional linenum)
   "Run `git gui blame' on the given FILENAME and COMMIT.
 Interactively run it for the current file and the HEAD, with a
-prefix let the user choose.  When the current buffer is visiting
-FILENAME instruct blame to center around the line point is on."
+prefix or when the current file cannot be determined let the user
+choose.  When the current buffer is visiting FILENAME instruct
+blame to center around the line point is on."
   (interactive
    (let (revision filename)
-     (if current-prefix-arg
-         (setq revision (magit-read-rev "Retrieve file from revision" "HEAD")
-               filename (magit-read-file-from-rev revision))
-       (setq revision "HEAD" filename (magit-buffer-file-name t)))
+     (when (or current-prefix-arg
+               (not (and (setq revision "HEAD")
+                         (setq filename (magit-buffer-file-name t)))))
+       (setq revision (magit-read-rev "Retrieve from revision" "HEAD")
+             filename (magit-read-file-from-rev revision)))
      (list revision filename
            (and (equal filename
                        (ignore-errors
