@@ -19,7 +19,7 @@ ELCS = $(ELS:.el=.elc)
 
 CP    ?= install -p -m 644
 CPBIN ?= install -p -m 755
-MKDIR ?= install -p -m 755 -d
+MKDIR ?= install -m 755 -d
 RMDIR ?= rm -rf
 
 MAKEINFO     ?= makeinfo
