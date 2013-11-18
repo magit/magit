@@ -3458,10 +3458,12 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
   (magit-wash-sequence #'magit-wash-diff))
 
 (defun magit-wash-diff ()
-  (magit-with-section (section diff (buffer-substring-no-properties
-                                     (line-beginning-position)
-                                     (line-end-position)))
-      (magit-wash-diff-section section)))
+  (let (ret)
+    (magit-with-section (section diff (buffer-substring-no-properties
+                                       (line-beginning-position)
+                                       (line-end-position)))
+      (setq ret (magit-wash-diff-section section)))
+    ret))
 
 (defvar-local magit-diffstat-cached-sections nil)
 (put 'magit-diffstat-cached-sections 'permanent-local t)
