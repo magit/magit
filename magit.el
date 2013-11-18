@@ -743,6 +743,28 @@ manager but it will be used in more places in the future."
   :group 'magit
   :type 'boolean)
 
+(define-widget 'magit-diff-option-find-renames 'string
+  "widget for setting diff option find-renames"
+  :match
+  (lambda (widget value) (string-match "^-M" value))
+  :value-to-internal
+  (lambda (widget value)
+    (if (string-match "^-M\\(.*\\)$" value) (match-string 1 value) ""))
+  :value-to-external
+  (lambda (widget value) (concat "-M" value))
+  :valid-regexp "^\\([0-9]+%?\\)?$")
+
+(define-widget 'magit-diff-option-find-copies 'string
+  "widget for setting diff option find-copies"
+  :match
+  (lambda (widget value) (string-match "^-C" value))
+  :value-to-internal
+  (lambda (widget value)
+    (if (string-match "^-C\\(.*\\)$" value) (match-string 1 value) ""))
+  :value-to-external
+  (lambda (widget value) (concat "-C" value))
+  :valid-regexp "^\\([0-9]+%?\\)?$")
+
 (defcustom magit-diff-options nil
   "Git options used to display diffs.
 For more information about the options see man:git-diff.
@@ -768,7 +790,11 @@ using `magit-key-mode-popup-diff-options' (bound to \
                      "--ignore-all-space")
               (const :tag
                      "--function-context     Show surrounding functions"
-                     "--function-context"))
+                     "--function-context")
+              (magit-diff-option-find-renames
+               :tag  "-M[<n>]                Detect renames.  n")
+              (magit-diff-option-find-copies
+               :tag  "-C[<n>]                Detect copies.   n"))
   :set 'magit-set-default-diff-options)
 
 (put 'magit-diff-options 'permanent-local t)
