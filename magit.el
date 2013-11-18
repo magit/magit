@@ -2078,7 +2078,10 @@ involving HEAD."
   parent children)
 
 (defvar-local magit-root-section nil
-  "The top section of the current buffer.")
+  "The root section in the current buffer.
+All other sections are descendants of this section.  The value
+of this variable is set by `magit-with-section' and you should
+never modify it.")
 (put 'magit-root-section 'permanent-local t)
 
 ;;;; Section Creation
