@@ -4402,7 +4402,7 @@ when asking for user input."
 
 (defun magit-insert-unstaged-changes ()
   (let ((magit-current-diff-range (cons 'index 'working))
-        (magit-diff-options (append '() magit-diff-options)))
+        (magit-diff-options (copy-sequence magit-diff-options)))
     (magit-git-insert-section (unstaged "Unstaged changes:")
         #'magit-wash-raw-diffs
       "diff-files")))
