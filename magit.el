@@ -7013,11 +7013,11 @@ from the parent keymap `magit-mode-map' are also available.")
       ((diff) (funcall show-file-from-diff item)))))
 
 ;;;###autoload
-(defun magit-show (commit filename &optional switch-function)
+(defun magit-show (rev file &optional switch-function)
   "Display and select a buffer containing FILE as stored in REV.
 
-COMMIT may be one of the following:
-- A string with the name of a commit, such as \"HEAD\" or
+REV may be one of the following:
+- A string with the name of a rev, such as \"HEAD\" or
   \"dae86e\".  See 'git help revisions' for syntax.
 - The symbol 'index, indicating that you want the version in
   Git's index or staging area.
@@ -7032,20 +7032,20 @@ SWITCH-FUNCTION to switch to the buffer, if that is nil simply
 return the buffer, without displaying it."
   (interactive
    (let* ((revision (magit-read-rev "Retrieve file from revision"))
-          (filename (magit-read-file-from-rev revision)))
-     (list revision filename current-prefix-arg)))
-  (if (eq commit 'working)
-      (find-file-noselect filename)
-    (let* ((name (format "%s.%s" filename
-                         (if (symbolp commit)
-                             (format "@{%s}" commit)
-                           (replace-regexp-in-string "/" ":" commit))))
+          (file (magit-read-file-from-rev revision)))
+     (list revision file current-prefix-arg)))
+  (if (eq rev 'working)
+      (find-file-noselect file)
+    (let* ((name (format "%s.%s" file
+                         (if (symbolp rev)
+                             (format "@{%s}" rev)
+                           (replace-regexp-in-string "/" ":" rev))))
            (buffer (create-file-buffer name)))
       (cond
-       ((eq commit 'index)
+       ((eq rev 'index)
         (let ((checkout-string (magit-git-string "checkout-index"
                                                  "--temp"
-                                                 filename)))
+                                                 file)))
           (string-match "^\\(.*\\)\t" checkout-string)
           (with-current-buffer buffer
             (let ((tmpname (match-string 1 checkout-string)))
@@ -7056,13 +7056,13 @@ return the buffer, without displaying it."
         (with-current-buffer buffer
           (with-silent-modifications
            (magit-git-insert "cat-file" "-p"
-                             (concat commit ":" filename))))))
+                             (concat rev ":" file))))))
       (with-current-buffer buffer
         (let ((buffer-file-name
-               (expand-file-name filename (magit-get-top-dir))))
+               (expand-file-name file (magit-get-top-dir))))
           (normal-mode))
-        (setq magit-file-name filename)
-        (setq magit-show-current-version commit)
+        (setq magit-file-name file)
+        (setq magit-show-current-version rev)
         (goto-char (point-min))
         (funcall (if (called-interactively-p 'any)
                      (if switch-function 'switch-to-buffer 'pop-to-buffer)
