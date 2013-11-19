@@ -3923,7 +3923,10 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 (defvar-local magit-log-author-date-overlay nil)
 
 (defun magit-log-make-author-date-overlay (author date)
-  (let ((overlay (make-overlay (point) (1+ (point)))))
+  (let ((overlay
+         (make-overlay (point)
+                       (line-beginning-position 2)
+                       nil t)))
     (setq author (propertize author 'face 'magit-log-author)
           date (delete "ago" (split-string date "[ ,]+"))
           date (propertize (concat (format "%2s %5s"
