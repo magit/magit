@@ -7040,7 +7040,14 @@ return the buffer, without displaying it."
                          (if (symbolp rev)
                              (format "@{%s}" rev)
                            (replace-regexp-in-string "/" ":" rev))))
-           (buffer (create-file-buffer name)))
+           (buffer (get-buffer name)))
+      (when buffer
+        (with-current-buffer buffer
+          (unless (and (equal file magit-file-name)
+                       (equal rev  magit-show-current-version))
+            (setq buffer nil))))
+      (unless buffer
+        (setq buffer (create-file-buffer name)))
       (cond
        ((eq rev 'index)
         (let ((checkout-string (magit-git-string "checkout-index"
