@@ -7001,15 +7001,14 @@ from the parent keymap `magit-mode-map' are also available.")
   (interactive)
   (let ((show-file-from-diff
          (lambda (item)
-           (switch-to-buffer-other-window
-            (magit-show (cdr (magit-section-diff-range item))
-                        (magit-section-title item))))))
+           (magit-show (cdr (magit-section-diff-range item))
+                       (magit-section-title item)
+                       'pop-to-buffer))))
     (magit-section-action (item info "show" t)
       ((commit)
        (let ((current-file (or magit-file-log-file
                                (magit-read-file-from-rev info))))
-         (switch-to-buffer-other-window
-          (magit-show info current-file))))
+         (magit-show info current-file 'pop-to-buffer)))
       ((hunk) (funcall show-file-from-diff (magit-section-parent item)))
       ((diff) (funcall show-file-from-diff item)))))
 
