@@ -6214,6 +6214,7 @@ Other key binding:
            (file1  (magit-section-title diff))
            (file2  (magit-section-diff-file2 diff))
            (range  (magit-section-diff-range diff)))
+      (message "1: %S" range)
       (cond
        ((memq status '(new deleted typechange))
         (message "Why ediff a %s file?" status))
@@ -6996,44 +6997,29 @@ from the parent keymap `magit-mode-map' are also available.")
         (magit-run-git* (list "init"))))))
 
 ;;;###autoload
-(defun magit-show-file-revision ()
-  "Open a new buffer showing the current file in the revision at point."
-  (interactive)
-  (let ((show-file-from-diff
-         (lambda (item)
-           (magit-show (cdr (magit-section-diff-range item))
-                       (magit-section-title item)
-                       'pop-to-buffer))))
-    (magit-section-action (item info "show" t)
-      ((commit)
-       (let ((current-file (or magit-file-log-file
-                               (magit-read-file-from-rev info))))
-         (magit-show info current-file 'pop-to-buffer)))
-      ((hunk) (funcall show-file-from-diff (magit-section-parent item)))
-      ((diff) (funcall show-file-from-diff item)))))
-
-;;;###autoload
 (defun magit-show (rev file &optional switch-function)
   "Display and select a buffer containing FILE as stored in REV.
 
-REV may be one of the following:
-- A string with the name of a rev, such as \"HEAD\" or
-  \"dae86e\".  See 'git help revisions' for syntax.
-- The symbol 'index, indicating that you want the version in
-  Git's index or staging area.
-- The symbol 'working, indicating that you want the version in
-  the working directory.  In this case you'll get a buffer
-  visiting the file.  If there's already a buffer visiting that
-  file, you'll get that one.
-
-Then select the buffer using `pop-to-buffer' or with a prefix
-argument using `switch-to-buffer'.  Non-interactivity use
+Insert the contents of FILE as stored in the revision REV into a
+buffer.  Then select the buffer using `pop-to-buffer' or with a
+prefix argument using `switch-to-buffer'.  Non-interactivity use
 SWITCH-FUNCTION to switch to the buffer, if that is nil simply
 return the buffer, without displaying it."
+  ;; REV may also be one of the symbols `index' or `working' but
+  ;; that is for internal use by the `interactive' form only.
   (interactive
-   (let* ((revision (magit-read-rev "Retrieve file from revision"))
-          (file (magit-read-file-from-rev revision)))
-     (list revision file current-prefix-arg)))
+   (let (rev file section)
+     (magit-section-case (item info)
+       ((commit) (setq file magit-file-log-file rev info))
+       ((hunk)   (setq section (magit-section-parent item)))
+       ((diff)   (setq section item)))
+     (if section
+         (setq rev  (cdr (magit-section-diff-range section))
+               file (magit-section-info section))
+       (setq rev (magit-get-current-branch)))
+     (list (magit-read-rev "Retrieve file from revision" rev)
+           (magit-read-file-from-rev rev file)
+           current-prefix-arg)))
   (if (eq rev 'working)
       (find-file-noselect file)
     (let* ((name (format "%s.%s" file
