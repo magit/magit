@@ -7046,27 +7046,18 @@ return the buffer, without displaying it."
           (unless (and (equal file magit-file-name)
                        (equal rev  magit-show-current-version))
             (setq buffer nil))))
-      (unless buffer
-        (setq buffer (create-file-buffer name)))
-      (cond
-       ((eq rev 'index)
-        (let ((checkout-string (magit-git-string "checkout-index"
-                                                 "--temp"
-                                                 file)))
-          (string-match "^\\(.*\\)\t" checkout-string)
-          (with-current-buffer buffer
-            (let ((tmpname (match-string 1 checkout-string)))
-              (with-silent-modifications
-               (insert-file-contents tmpname nil nil nil t))
-              (delete-file tmpname)))))
-       (t
-        (with-current-buffer buffer
-          (with-silent-modifications
-           (magit-git-insert "cat-file" "-p"
-                             (concat rev ":" file))))))
-      (with-current-buffer buffer
-        (let ((buffer-file-name
-               (expand-file-name file (magit-get-top-dir))))
+      (with-current-buffer
+          (or buffer (create-file-buffer name))
+        (with-silent-modifications
+          (if (eq rev 'index)
+              (let ((checkout-string (magit-git-string "checkout-index"
+                                                       "--temp" file)))
+                (string-match "^\\(.*\\)\t" checkout-string)
+                (let ((tmpname (match-string 1 checkout-string)))
+                  (insert-file-contents tmpname nil nil nil t)
+                  (delete-file tmpname)))
+            (magit-git-insert "cat-file" "-p" (concat rev ":" file))))
+        (let ((buffer-file-name (expand-file-name file (magit-get-top-dir))))
           (normal-mode))
         (setq magit-file-name file)
         (setq magit-show-current-version rev)
