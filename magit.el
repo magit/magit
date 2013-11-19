@@ -7050,12 +7050,12 @@ return the buffer, without displaying it."
           (or buffer (create-file-buffer name))
         (with-silent-modifications
           (if (eq rev 'index)
-              (let ((checkout-string (magit-git-string "checkout-index"
-                                                       "--temp" file)))
-                (string-match "^\\(.*\\)\t" checkout-string)
-                (let ((tmpname (match-string 1 checkout-string)))
-                  (insert-file-contents tmpname nil nil nil t)
-                  (delete-file tmpname)))
+              (let ((temp (car (split-string
+                                (magit-git-string "checkout-index"
+                                                  "--temp" file)
+                                "\t"))))
+                (insert-file-contents temp nil nil nil t)
+                (delete-file temp))
             (magit-git-insert "cat-file" "-p" (concat rev ":" file))))
         (let ((buffer-file-name (expand-file-name file (magit-get-top-dir))))
           (normal-mode))
