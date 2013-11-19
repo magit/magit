@@ -6215,6 +6215,7 @@ Other key binding:
            (file1  (magit-section-title diff))
            (file2  (magit-section-diff-file2 diff))
            (range  (magit-section-diff-range diff)))
+      (message "1: %S" range)
       (cond
        ((memq status '(new deleted typechange))
         (message "Why ediff a %s file?" status))
@@ -6997,78 +6998,61 @@ from the parent keymap `magit-mode-map' are also available.")
         (magit-run-git* (list "init"))))))
 
 ;;;###autoload
-(defun magit-show-file-revision ()
-  "Open a new buffer showing the current file in the revision at point."
-  (interactive)
-  (let ((show-file-from-diff
-         (lambda (item)
-           (switch-to-buffer-other-window
-            (magit-show (cdr (magit-section-diff-range item))
-                        (magit-section-title item))))))
-    (magit-section-action (item info "show" t)
-      ((commit)
-       (let ((current-file (or magit-file-log-file
-                               (magit-read-file-from-rev info))))
-         (switch-to-buffer-other-window
-          (magit-show info current-file))))
-      ((hunk) (funcall show-file-from-diff (magit-section-parent item)))
-      ((diff) (funcall show-file-from-diff item)))))
+(defun magit-show (rev file &optional switch-function)
+  "Display and select a buffer containing FILE as stored in REV.
 
-;;;###autoload
-(defun magit-show (commit filename &optional select prefix)
-  "Return a buffer containing the file FILENAME, as stored in COMMIT.
-
-COMMIT may be one of the following:
-- A string with the name of a commit, such as \"HEAD\" or
-  \"dae86e\".  See 'git help revisions' for syntax.
-- The symbol 'index, indicating that you want the version in
-  Git's index or staging area.
-- The symbol 'working, indicating that you want the version in
-  the working directory.  In this case you'll get a buffer
-  visiting the file.  If there's already a buffer visiting that
-  file, you'll get that one.
-
-When called interactively or when SELECT is non-nil, make the
-buffer active, either in another window or (with a prefix
-argument) in the current window."
+Insert the contents of FILE as stored in the revision REV into a
+buffer.  Then select the buffer using `pop-to-buffer' or with a
+prefix argument using `switch-to-buffer'.  Non-interactivity use
+SWITCH-FUNCTION to switch to the buffer, if that is nil simply
+return the buffer, without displaying it."
+  ;; REV may also be one of the symbols `index' or `working' but
+  ;; that is for internal use by the `interactive' form only.
   (interactive
-   (let* ((revision (magit-read-rev "Retrieve file from revision"))
-          (filename (magit-read-file-from-rev revision)))
-     (list revision filename t current-prefix-arg)))
-  (if (eq commit 'working)
-      (find-file-noselect filename)
-    (let ((buffer (create-file-buffer
-                   (format "%s.%s" filename
-                           (replace-regexp-in-string
-                            ".*/" "" (prin1-to-string commit t))))))
-      (cond
-       ((eq commit 'index)
-        (let ((checkout-string (magit-git-string "checkout-index"
-                                                 "--temp"
-                                                 filename)))
-          (string-match "^\\(.*\\)\t" checkout-string)
-          (with-current-buffer buffer
-            (let ((tmpname (match-string 1 checkout-string)))
-              (with-silent-modifications
-               (insert-file-contents tmpname nil nil nil t))
-              (delete-file tmpname)))))
-       (t
+   (let (rev file section)
+     (magit-section-case (item info)
+       ((commit) (setq file magit-file-log-file rev info))
+       ((hunk)   (setq section (magit-section-parent item)))
+       ((diff)   (setq section item)))
+     (if section
+         (setq rev  (cdr (magit-section-diff-range section))
+               file (magit-section-info section))
+       (setq rev (magit-get-current-branch)))
+     (list (magit-read-rev "Retrieve file from revision" rev)
+           (magit-read-file-from-rev rev file)
+           current-prefix-arg)))
+  (if (eq rev 'working)
+      (find-file-noselect file)
+    (let* ((name (format "%s.%s" file
+                         (if (symbolp rev)
+                             (format "@{%s}" rev)
+                           (replace-regexp-in-string "/" ":" rev))))
+           (buffer (get-buffer name)))
+      (when buffer
         (with-current-buffer buffer
-          (with-silent-modifications
-           (magit-git-insert "cat-file" "-p"
-                             (concat commit ":" filename))))))
-      (with-current-buffer buffer
-        (let ((buffer-file-name
-               (expand-file-name filename (magit-get-top-dir))))
+          (unless (and (equal file magit-file-name)
+                       (equal rev  magit-show-current-version))
+            (setq buffer nil))))
+      (with-current-buffer
+          (or buffer (create-file-buffer name))
+        (with-silent-modifications
+          (if (eq rev 'index)
+              (let ((temp (car (split-string
+                                (magit-git-string "checkout-index"
+                                                  "--temp" file)
+                                "\t"))))
+                (insert-file-contents temp nil nil nil t)
+                (delete-file temp))
+            (magit-git-insert "cat-file" "-p" (concat rev ":" file))))
+        (let ((buffer-file-name (expand-file-name file (magit-get-top-dir))))
           (normal-mode))
-        (setq magit-file-name filename)
-        (setq magit-show-current-version commit)
-        (goto-char (point-min)))
-      (if select
-          (if prefix
-              (switch-to-buffer buffer)
-            (switch-to-buffer-other-window buffer))
-        buffer))))
+        (setq magit-file-name file)
+        (setq magit-show-current-version rev)
+        (goto-char (point-min))
+        (funcall (if (called-interactively-p 'any)
+                     (if switch-function 'switch-to-buffer 'pop-to-buffer)
+                   (or switch-function 'identity))
+                 (current-buffer))))))
 
 (if (featurep 'vc-git)
     (defalias 'magit-grep 'vc-git-grep)
