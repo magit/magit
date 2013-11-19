@@ -4354,6 +4354,7 @@ when asking for user input."
         (dolist (file files)
           (setq file (magit-decode-git-path (substring file 3)))
           (magit-with-section (section file file)
+            (setf (magit-section-info section) file)
             (insert "\t" file "\n")))
         (insert "\n")))))
 
