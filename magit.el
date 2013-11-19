@@ -3458,12 +3458,10 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
   (magit-wash-sequence #'magit-wash-diff))
 
 (defun magit-wash-diff ()
-  (let (ret)
-    (magit-with-section (section diff (buffer-substring-no-properties
-                                       (line-beginning-position)
-                                       (line-end-position)))
-      (setq ret (magit-wash-diff-section section)))
-    ret))
+  (magit-with-section (section diff (buffer-substring-no-properties
+                                     (line-beginning-position)
+                                     (line-end-position)))
+    (setq section (magit-wash-diff-section section))))
 
 (defvar-local magit-diffstat-cached-sections nil)
 (put 'magit-diffstat-cached-sections 'permanent-local t)
@@ -3530,7 +3528,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
            (insert "\tUnmerged " file "\n")
            (setf (magit-section-diff-status section) 'unmerged)
            (setf (magit-section-info section) file)
-           t))
+           section))
         ((re-search-forward "^diff" nil t)
          (forward-line 0)
          (let ((file (magit-diff-line-file))
@@ -3582,7 +3580,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                  (funcall set-face 3 'magit-diff-file-header)))
              (goto-char end)
              (magit-wash-sequence #'magit-wash-hunk)))
-         t)))
+         section)))
 
 (defun magit-diff-line-file ()
   (cond ((looking-at "^diff --git \\(\".*\"\\) \\(\".*\"\\)$")
