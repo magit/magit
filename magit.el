@@ -2294,24 +2294,24 @@ never modify it.")
   "Go to the next sibling section."
   (interactive)
   (let* ((section (magit-current-section))
-         (end (- (magit-section-end section) 1))
-         (parent (magit-section-parent section))
-         (siblings (and parent (magit-section-children parent)))
-         (next-sibling (magit-find-section-after* end siblings)))
-    (if next-sibling
-        (magit-goto-section next-sibling)
+         (parent  (magit-section-parent section))
+         (next    (and parent (magit-find-section-after*
+                               (1- (magit-section-end section))
+                               (magit-section-children parent)))))
+    (if next
+        (magit-goto-section next)
       (magit-goto-next-section))))
 
 (defun magit-goto-previous-sibling-section ()
   "Go to the previous sibling section."
   (interactive)
   (let* ((section (magit-current-section))
-         (beginning (magit-section-beginning section))
-         (parent (magit-section-parent section))
-         (siblings (and parent (magit-section-children parent)))
-         (previous-sibling (magit-find-section-before* beginning siblings)))
-    (if previous-sibling
-        (magit-goto-section previous-sibling)
+         (parent  (magit-section-parent section))
+         (prev    (and parent (magit-find-section-before*
+                               (magit-section-beginning section)
+                               (magit-section-children parent)))))
+    (if prev
+        (magit-goto-section prev)
       (magit-goto-previous-section))))
 
 (defun magit-goto-section (section)
