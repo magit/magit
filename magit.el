@@ -3635,7 +3635,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                    (funcall set-line-face 'magit-diff-none))))
           (forward-line))
         (when (eq magit-diff-refine-hunk 'all)
-          (magit-diff-refine-hunk (magit-current-section)))))
+          (magit-diff-refine-hunk section))))
     t))
 
 (defun magit-highlight-line-whitespace ()
