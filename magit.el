@@ -7014,8 +7014,8 @@ from the parent keymap `magit-mode-map' are also available.")
       ((diff) (funcall show-file-from-diff item)))))
 
 ;;;###autoload
-(defun magit-show (commit filename &optional select prefix)
-  "Return a buffer containing the file FILENAME, as stored in COMMIT.
+(defun magit-show (commit filename &optional switch-function)
+  "Display and select a buffer containing FILE as stored in REV.
 
 COMMIT may be one of the following:
 - A string with the name of a commit, such as \"HEAD\" or
@@ -7027,13 +7027,14 @@ COMMIT may be one of the following:
   visiting the file.  If there's already a buffer visiting that
   file, you'll get that one.
 
-When called interactively or when SELECT is non-nil, make the
-buffer active, either in another window or (with a prefix
-argument) in the current window."
+Then select the buffer using `pop-to-buffer' or with a prefix
+argument using `switch-to-buffer'.  Non-interactivity use
+SWITCH-FUNCTION to switch to the buffer, if that is nil simply
+return the buffer, without displaying it."
   (interactive
    (let* ((revision (magit-read-rev "Retrieve file from revision"))
           (filename (magit-read-file-from-rev revision)))
-     (list revision filename t current-prefix-arg)))
+     (list revision filename current-prefix-arg)))
   (if (eq commit 'working)
       (find-file-noselect filename)
     (let ((buffer (create-file-buffer
@@ -7062,12 +7063,11 @@ argument) in the current window."
           (normal-mode))
         (setq magit-file-name filename)
         (setq magit-show-current-version commit)
-        (goto-char (point-min)))
-      (if select
-          (if prefix
-              (switch-to-buffer buffer)
-            (switch-to-buffer-other-window buffer))
-        buffer))))
+        (goto-char (point-min))
+        (funcall (if (called-interactively-p 'any)
+                     (if switch-function 'switch-to-buffer 'pop-to-buffer)
+                   (or switch-function 'identity))
+                 (current-buffer))))))
 
 (if (featurep 'vc-git)
     (defalias 'magit-grep 'vc-git-grep)
