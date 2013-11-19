@@ -3867,8 +3867,6 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
   (magit-bind-match-strings
       (hash msg refs graph author date gpg cherry refsub)
     (delete-region (point) (point-at-eol))
-    (when (and magit-log-show-author-date author date)
-      (magit-log-make-author-date-overlay author date))
     (when cherry
       (insert (propertize cherry 'face
                           (if (string= cherry "+")
@@ -3900,6 +3898,8 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
        msg)
       (insert msg))
     (goto-char (line-beginning-position))
+    (when (and magit-log-show-author-date author date)
+      (magit-log-make-author-date-overlay author date))
     (if hash
         (magit-with-section (section commit hash)
           (setf (magit-section-info section) hash)
