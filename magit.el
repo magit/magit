@@ -7036,10 +7036,11 @@ return the buffer, without displaying it."
      (list revision filename current-prefix-arg)))
   (if (eq commit 'working)
       (find-file-noselect filename)
-    (let ((buffer (create-file-buffer
-                   (format "%s.%s" filename
-                           (replace-regexp-in-string
-                            ".*/" "" (prin1-to-string commit t))))))
+    (let* ((name (format "%s.%s" filename
+                         (if (symbolp commit)
+                             (format "@{%s}" commit)
+                           (replace-regexp-in-string "/" ":" commit))))
+           (buffer (create-file-buffer name)))
       (cond
        ((eq commit 'index)
         (let ((checkout-string (magit-git-string "checkout-index"
