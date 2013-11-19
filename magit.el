@@ -7069,21 +7069,9 @@ argument) in the current window."
             (switch-to-buffer-other-window buffer))
         buffer))))
 
-;;;###autoload
-(defun magit-grep (pattern)
-  (interactive
-   (list (read-string "git grep: "
-                      (shell-quote-argument (grep-tag-default)))))
-  (with-current-buffer (generate-new-buffer "*Magit Grep*")
-    (setq default-directory (magit-get-top-dir))
-    (insert magit-git-executable " "
-            (mapconcat 'identity magit-git-standard-options " ")
-            " grep -n "
-            (shell-quote-argument pattern) "\n\n")
-    (magit-git-insert "grep" "--line-number" "--color" pattern)
-    (ansi-color-apply-on-region (point-min) (point-max))
-    (grep-mode)
-    (pop-to-buffer (current-buffer))))
+(if (featurep 'vc-git)
+    (defalias 'magit-grep 'vc-git-grep)
+  (defalias 'magit-grep 'lgrep))
 
 ;;;; External Tools
 
