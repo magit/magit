@@ -7016,7 +7016,8 @@ return the buffer, without displaying it."
      (if section
          (setq rev  (cdr (magit-section-diff-range section))
                file (magit-section-info section))
-       (setq rev (magit-get-current-branch)))
+       (unless rev
+         (setq rev (magit-get-current-branch))))
      (list (magit-read-rev "Retrieve file from revision" rev)
            (magit-read-file-from-rev rev file)
            current-prefix-arg)))
