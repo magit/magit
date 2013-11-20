@@ -2117,18 +2117,18 @@ never modify it.")
            (when heading
              (save-excursion
                (goto-char (magit-section-beginning ,s))
-               (insert
+               (insert-before-markers
                 (if (string-match-p "\n$" heading)
                     (substring heading 0 -1)
-		  (propertize
-		   (let (c)
-		     (if (and magit-show-child-count
+                  (propertize
+                   (let (c)
+                     (if (and magit-show-child-count
                               (string-match-p ":$" heading)
-			      (> (setq c (length (magit-section-children ,s))) 0))
-			 (format "%s (%s):" (substring heading 0 -1) c)
-		       heading))
-		   'face 'magit-section-title)))
-               (insert "\n"))))
+                              (> (setq c (length (magit-section-children ,s))) 0))
+                         (format "%s (%s):" (substring heading 0 -1) c)
+                       heading))
+                   'face 'magit-section-title))
+                "\n"))))
          (set-marker-insertion-type (magit-section-beginning ,s) t)
          (goto-char (max (point) ; smaller if there is no content
                          (magit-section-content-beginning ,s)))
