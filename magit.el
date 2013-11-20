@@ -2335,18 +2335,6 @@ never modify it.")
         (goto-char (magit-section-beginning sec))
       (message "No such section"))))
 
-
-(defun magit-goto-diff-section-at-file (file)
-  "Go to the section containing by the pathname, FILE."
-  (let ((pos (catch 'diff-section-found
-               (dolist (sec (magit-section-children magit-root-section))
-                 (when (and (eq (magit-section-type sec) 'diff)
-                            (string-equal (magit-section-title sec) file))
-                   (throw 'diff-section-found
-                          (magit-section-beginning sec)))))))
-    (when pos
-      (goto-char pos))))
-
 (defmacro magit-define-section-jumper (sym title)
   "Define an interactive function to go to section SYM.
 TITLE is the displayed title of the section."
@@ -2454,6 +2442,13 @@ FUNCTION has to move point forward or return nil."
             (magit-find-section-at (min (mark) (point))) 'next)
            (magit-section-siblings
             (magit-find-section-at (max (mark) (point))) 'prev))))
+
+(defun magit-diff-section-for-diffstat (section)
+  (let ((file (magit-section-info section)))
+    (cl-find-if (lambda (s)
+                  (and (eq (magit-section-type s) 'diff)
+                       (string-equal (magit-section-info s) file)))
+                (magit-section-children magit-root-section))))
 
 ;;;; Section Visibility
 
@@ -6196,10 +6191,9 @@ Other key binding:
 (defun magit-ediff ()
   "View the current DIFF section in ediff."
   (interactive)
-  (when (eq (magit-section-type (magit-current-section)) 'diffstat)
-    (magit-goto-diff-section-at-file
-     (magit-section-title (magit-current-section))))
   (let ((diff (magit-current-section)))
+    (when (eq (magit-section-type (magit-current-section)) 'diffstat)
+      (setq diff (magit-diff-section-for-diffstat diff)))
     (when (magit-section-hidden diff)
       ;; Range is not set until the first time the diff is visible.
       ;; This somewhat hackish code makes sure it's been visible at
