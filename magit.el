@@ -6215,7 +6215,6 @@ Other key binding:
            (file1  (magit-section-title diff))
            (file2  (magit-section-diff-file2 diff))
            (range  (magit-section-diff-range diff)))
-      (message "1: %S" range)
       (cond
        ((memq status '(new deleted typechange))
         (message "Why ediff a %s file?" status))
