@@ -7006,7 +7006,7 @@ prefix argument using `switch-to-buffer'.  Non-interactivity use
 SWITCH-FUNCTION to switch to the buffer, if that is nil simply
 return the buffer, without displaying it."
   ;; REV may also be one of the symbols `index' or `working' but
-  ;; that is for internal use by the `interactive' form only.
+  ;; that is only intended for use by `magit-ediff'.
   (interactive
    (let (rev file section)
      (magit-section-case (item info)
