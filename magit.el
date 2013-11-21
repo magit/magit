@@ -1431,7 +1431,7 @@ Many Magit faces inherit from this one by default."
     "---"
     ["Branch..." magit-checkout t]
     ["Merge" magit-merge t]
-    ["Interactive resolve" magit-interactive-resolve-item t]
+    ["Interactive resolve" magit-interactive-resolve t]
     ["Rebase" magit-rebase-step t]
     ("Rewrite"
      ["Start" magit-rewrite-start t]
@@ -6276,13 +6276,10 @@ restore the window state that was saved before ediff was called."
         (magit-run-git "update-index" "--cacheinfo"
                        perm hash magit-file-name)))))
 
-(defun magit-interactive-resolve-item ()
-  (interactive)
-  (magit-section-action (item info "resolv" t)
-    ((diff)
-     (magit-interactive-resolve (cadr info)))))
-
+;;;###autoload
 (defun magit-interactive-resolve (file)
+  (interactive (list (magit-section-case (item info)
+                       ((diff) (cadr info)))))
   (require 'ediff)
   (let ((merge-status (magit-git-lines "ls-files" "-u" "--" file))
         (base-buffer (generate-new-buffer (concat file ".base")))
