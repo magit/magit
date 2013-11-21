@@ -6633,6 +6633,29 @@ With a prefix argument, visit in other window."
 
 ;;;; Visit
 
+(defun magit-visit-item (&optional other-window)
+  "Visit current item.
+With a prefix argument, visit in other window."
+  (interactive "P")
+  (magit-section-action (item info "visit" t)
+    ((untracked file)
+     (call-interactively 'magit-visit-file-item))
+    ((diff)
+     (call-interactively 'magit-visit-file-item))
+    ((diffstat)
+     (call-interactively 'magit-visit-file-item))
+    ((hunk)
+     (call-interactively 'magit-visit-file-item))
+    ((commit)
+     (magit-show-commit info nil nil 'select))
+    ((stash)
+     (magit-show-stash info)
+     (pop-to-buffer magit-stash-buffer-name))
+    ((branch)
+     (magit-checkout info))
+    ((longer)
+     (magit-log-show-more-entries ()))))
+
 (defun magit-visit-file-item (&optional other-window)
   "Visit current file associated with item.
 With a prefix argument, visit in other window."
@@ -6676,29 +6699,6 @@ With a prefix argument, visit in other window."
             (setq target (+ target 1)))
           (forward-line))
         target))))
-
-(defun magit-visit-item (&optional other-window)
-  "Visit current item.
-With a prefix argument, visit in other window."
-  (interactive "P")
-  (magit-section-action (item info "visit" t)
-    ((untracked file)
-     (call-interactively 'magit-visit-file-item))
-    ((diff)
-     (call-interactively 'magit-visit-file-item))
-    ((diffstat)
-     (call-interactively 'magit-visit-file-item))
-    ((hunk)
-     (call-interactively 'magit-visit-file-item))
-    ((commit)
-     (magit-show-commit info nil nil 'select))
-    ((stash)
-     (magit-show-stash info)
-     (pop-to-buffer magit-stash-buffer-name))
-    ((branch)
-     (magit-checkout info))
-    ((longer)
-     (magit-log-show-more-entries ()))))
 
 ;;;; Show
 
