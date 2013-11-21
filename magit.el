@@ -3862,8 +3862,6 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
   (magit-bind-match-strings
       (hash msg refs graph author date gpg cherry refsub)
     (delete-region (point) (point-at-eol))
-    (when (and magit-log-show-author-date author date)
-      (magit-log-make-author-date-overlay author date))
     (when cherry
       (insert (propertize cherry 'face
                           (if (string= cherry "+")
@@ -3895,6 +3893,8 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
        msg)
       (insert msg))
     (goto-char (line-beginning-position))
+    (when (and magit-log-show-author-date author date)
+      (magit-log-make-author-date-overlay author date))
     (if hash
         (magit-with-section (section commit hash)
           (setf (magit-section-info section) hash)
@@ -3918,7 +3918,10 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 (defvar-local magit-log-author-date-overlay nil)
 
 (defun magit-log-make-author-date-overlay (author date)
-  (let ((overlay (make-overlay (point) (1+ (point)))))
+  (let ((overlay
+         (make-overlay (point)
+                       (line-beginning-position 2)
+                       nil t)))
     (setq author (propertize author 'face 'magit-log-author)
           date (delete "ago" (split-string date "[ ,]+"))
           date (propertize (concat (format "%2s %5s"
