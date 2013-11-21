@@ -4342,8 +4342,12 @@ when asking for user input."
 
 (defun magit-insert-untracked-files ()
   (magit-with-section (section untracked 'untracked "Untracked files:" t)
-    (let ((files (cl-mapcan (lambda (f) (when (eq (aref f 0) ??) (list f)))
-                            (magit-git-lines "status" "--porcelain" "-u"))))
+    (let ((files (cl-mapcan
+                  (lambda (f)
+                    (when (eq (aref f 0) ??) (list f)))
+                  (magit-git-lines
+                   "status" "--porcelain"
+                   (concat "-u" (magit-get "status.showUntrackedFiles"))))))
       (if (not files)
           (setq section nil)
         (dolist (file files)
