@@ -6218,12 +6218,22 @@ Other key binding:
              (eq (cdr range) 'working))
         (magit-interactive-resolve file1))
        ((consp (car range))
-        (magit-ediff* (magit-show (caar range) file2)
-                      (magit-show (cdar range) file2)
-                      (magit-show (cdr range) file1)))
+        (magit-ediff-buffers3 (magit-show (caar range) file2)
+                              (magit-show (cdar range) file2)
+                              (magit-show (cdr range) file1)))
        (t
-        (magit-ediff* (magit-show (car range) file2)
-                      (magit-show (cdr range) file1)))))))
+        (magit-ediff-buffers  (magit-show (car range) file2)
+                              (magit-show (cdr range) file1)))))))
+
+(defun magit-ediff-buffers (a b)
+  (setq magit-ediff-buffers (list a b))
+  (setq magit-ediff-windows (current-window-configuration))
+  (ediff-buffers a b '(magit-ediff-add-cleanup)))
+
+(defun magit-ediff-buffers3 (a b c)
+  (setq magit-ediff-buffers (list a b c))
+  (setq magit-ediff-windows (current-window-configuration))
+  (ediff-buffers3 a b c '(magit-ediff-add-cleanup)))
 
 (defun magit-ediff-add-cleanup ()
   (make-local-variable 'magit-ediff-buffers)
@@ -6233,13 +6243,6 @@ Other key binding:
   (setq-default magit-ediff-windows ())
 
   (add-hook 'ediff-cleanup-hook 'magit-ediff-restore 'append 'local))
-
-(defun magit-ediff* (a b &optional c)
-  (setq magit-ediff-buffers (list a b c))
-  (setq magit-ediff-windows (current-window-configuration))
-  (if c
-      (ediff-buffers3 a b c '(magit-ediff-add-cleanup))
-    (ediff-buffers a b '(magit-ediff-add-cleanup))))
 
 (defun magit-ediff-restore ()
   "Kill any buffers in `magit-ediff-buffers' that are not visiting files and
