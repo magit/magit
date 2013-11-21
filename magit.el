@@ -4141,7 +4141,6 @@ for this argument.)"
 
 (defun magit-make-commit-button (start end)
   (let ((hash (buffer-substring-no-properties start end)))
-    (delete-region start end)
     (magit-with-section (section commit hash)
       (setf (magit-section-info section) hash)
       (make-text-button start end
