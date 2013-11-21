@@ -3495,7 +3495,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
   (setf (magit-section-info section) (list 'typechange file))
   (let ((first-start (point-marker))
         (second-start (progn (forward-line 1)
-                             (search-forward-regexp "^diff")
+                             (re-search-forward "^diff")
                              (beginning-of-line)
                              (point-marker))))
     (save-restriction
@@ -3523,7 +3523,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
          (let ((file (magit-diff-line-file))
                (end (save-excursion
                       (forward-line) ;; skip over "diff" line
-                      (if (search-forward-regexp "^diff\\|^@@" nil t)
+                      (if (re-search-forward "^diff\\|^@@" nil t)
                           (goto-char (match-beginning 0))
                         (goto-char (point-max)))
                       (point-marker))))
@@ -3533,19 +3533,19 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                            ((looking-at "^diff --cc")
                             'unmerged)
                            ((save-excursion
-                              (search-forward-regexp "^new file" end t))
+                              (re-search-forward "^new file" end t))
                             'new)
                            ((save-excursion
-                              (search-forward-regexp "^deleted" end t))
+                              (re-search-forward "^deleted" end t))
                             'deleted)
                            ((save-excursion
-                              (search-forward-regexp "^rename" end t))
+                              (re-search-forward "^rename" end t))
                             'renamed)
                            (t
                             'modified)))
                   (file2 (cond
                           ((save-excursion
-                             (search-forward-regexp "^rename from \\(.*\\)"
+                             (re-search-forward "^rename from \\(.*\\)"
                                                     end t))
                            (match-string-no-properties 1)))))
              (setf (magit-section-diff-status section) status)
@@ -3553,7 +3553,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
              (setf (magit-section-diff-file2  section) (or file2 file))
              (setf (magit-section-diff-range  section) magit-current-diff-range)
              (magit-insert-diff-title status file file2)
-             (when (search-forward-regexp
+             (when (re-search-forward
                     "\\(--- \\(.*\\)\n\\+\\+\\+ \\(.*\\)\n\\)" nil t)
                (let ((set-face
                       (lambda (subexp face)
@@ -4094,7 +4094,7 @@ for this argument.)"
     (when (re-search-forward "\\((.+)\\)$" (line-end-position) t)
       (replace-match (magit-format-ref-labels (match-string 1))) t t nil 1)
     (cond
-     ((search-forward-regexp
+     ((re-search-forward
        "^Merge: \\([0-9a-fA-F]+\\) \\([0-9a-fA-F]+\\)$" nil t)
       (setq magit-current-diff-range (cons (cons (match-string 1)
                                                  (match-string 2))
@@ -4107,19 +4107,18 @@ for this argument.)"
             (cons (concat magit-current-diff-range "^")
                   magit-current-diff-range))
       (setq merge-commit nil)))
-    (search-forward-regexp "^$")
+    (re-search-forward "^$")
     (when magit-show-diffstat
       (let ((pos (point)))
         (save-excursion
           (forward-char)
-          (when (search-forward-regexp (if merge-commit "^$" "^---$")
-                                       nil t)
+          (when (re-search-forward (if merge-commit "^$" "^---$") nil t)
             (delete-region (match-beginning 0)
                            (+ (match-end 0) 1))
             (insert "\n")
             (magit-wash-diffstats)))))
     (while (and
-            (search-forward-regexp
+            (re-search-forward
              "\\(\\b[0-9a-fA-F]\\{4,40\\}\\b\\)\\|\\(^diff\\)" nil 'noerror)
             (not (match-string 2)))
       (when (string-equal (magit-git-string "cat-file" "-t" (match-string 1))
@@ -4234,7 +4233,7 @@ in `magit-commit-buffer-name'."
   (magit-wash-sequence #'magit-wash-stash))
 
 (defun magit-wash-stash ()
-  (if (search-forward-regexp "stash@{\\(.*?\\)}" (line-end-position) t)
+  (if (re-search-forward "stash@{\\(.*?\\)}" (line-end-position) t)
       (let ((stash (match-string-no-properties 0))
             (name (match-string-no-properties 1)))
         (delete-region (match-beginning 0) (match-end 0))
@@ -5633,8 +5632,8 @@ depending on the value of option `magit-commit-squash-commit'.
         (sit-for 0.01)))
     (pop-to-buffer buffer)
     (goto-char (point-min))
-    (cond ((not (search-forward-regexp
-                 (format "^\\* %s" (regexp-quote file)) nil t))
+    (cond ((not (re-search-forward (format "^\\* %s" (regexp-quote file))
+                                   nil t))
            ;; No entry for file, create it.
            (goto-char (point-max))
            (insert (format "\n* %s" file))
@@ -5644,15 +5643,14 @@ depending on the value of option `magit-commit-squash-commit'.
           (fun
            ;; found entry for file, look for fun
            (let ((limit (or (save-excursion
-                              (and (search-forward-regexp "^\\* "
-                                                          nil t)
+                              (and (re-search-forward "^\\* " nil t)
                                    (match-beginning 0)))
                             (point-max))))
-             (cond ((search-forward-regexp (format "(.*\\<%s\\>.*):"
-                                                   (regexp-quote fun))
-                                           limit t)
+             (cond ((re-search-forward
+                     (format "(.*\\<%s\\>.*):" (regexp-quote fun))
+                     limit t)
                     ;; found it, goto end of current entry
-                    (if (search-forward-regexp "^(" limit t)
+                    (if (re-search-forward "^(" limit t)
                         (backward-char 2)
                       (goto-char limit)))
                    (t
@@ -6922,7 +6920,7 @@ from the parent keymap `magit-mode-map' are also available.")
          (markers
           (append (mapcar (lambda (remote)
                             (save-excursion
-                              (when (search-forward-regexp
+                              (when (re-search-forward
                                      (concat "^  remotes/" remote) nil t)
                                 (beginning-of-line)
                                 (point-marker))))

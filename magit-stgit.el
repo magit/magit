@@ -138,8 +138,8 @@
 ;;; Series section
 
 (defun magit-stgit--wash-patch ()
-  (if (search-forward-regexp "^\\(.\\)\\(.\\) \\([^\s]*\\)\\(\s*# ?\\)\\(.*\\)"
-                             (line-end-position) t)
+  (if (re-search-forward "^\\(.\\)\\(.\\) \\([^\s]*\\)\\(\s*# ?\\)\\(.*\\)"
+                         (line-end-position) t)
       (let* ((empty-str "[empty] ")
              (indent-str (make-string (string-bytes empty-str) ?\ ))
              (empty (match-string 1))

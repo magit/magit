@@ -103,7 +103,7 @@
 
 (defun magit-topgit-wash-topic ()
   (let ((fmt "^\\(.\\{7\\}\\)\\s-\\(\\S-+\\)\\s-+\\(.*\\)"))
-    (if (search-forward-regexp fmt (line-end-position) t)
+    (if (re-search-forward fmt (line-end-position) t)
         (let ((flags (magit-topgit-parse-flags (match-string 1)))
               (topic (match-string 2)))
           (goto-char (line-beginning-position))
