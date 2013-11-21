@@ -6276,6 +6276,54 @@ restore the window state that was saved before ediff was called."
         (magit-run-git "update-index" "--cacheinfo"
                        perm hash magit-file-name)))))
 
+(defun magit-interactive-resolve-item ()
+  (interactive)
+  (magit-section-action (item info "resolv" t)
+    ((diff)
+     (magit-interactive-resolve (cadr info)))))
+
+(defun magit-interactive-resolve (file)
+  (require 'ediff)
+  (let ((merge-status (magit-git-lines "ls-files" "-u" "--" file))
+        (base-buffer (generate-new-buffer (concat file ".base")))
+        (our-buffer (generate-new-buffer (concat file ".current")))
+        (their-buffer (generate-new-buffer (concat file ".merged")))
+        (windows (current-window-configuration)))
+    (unless merge-status
+      (error "Cannot resolve %s" file))
+    (with-current-buffer base-buffer
+      (when (string-match "^[0-9]+ [0-9a-f]+ 1" (nth 0 merge-status))
+        (magit-git-insert "cat-file" "blob" (concat ":1:" file))))
+    (with-current-buffer our-buffer
+      (when (string-match "^[0-9]+ [0-9a-f]+ 2" (nth 1 merge-status))
+        (magit-git-insert "cat-file" "blob" (concat ":2:" file)))
+      (let ((buffer-file-name file))
+        (normal-mode)))
+    (with-current-buffer their-buffer
+      (when (string-match "^[0-9]+ [0-9a-f]+ 3" (nth 2 merge-status))
+        (magit-git-insert "cat-file" "blob" (concat ":3:" file)))
+      (let ((buffer-file-name file))
+        (normal-mode)))
+    ;; We have now created the 3 buffer with ours, theirs and the ancestor files
+    (with-current-buffer (ediff-merge-buffers-with-ancestor
+                          our-buffer their-buffer base-buffer nil nil file)
+      (setq ediff-show-clashes-only t)
+      (setq-local magit-ediff-windows windows)
+      (make-local-variable 'ediff-quit-hook)
+      (add-hook 'ediff-quit-hook
+                (lambda ()
+                  (let ((buffer-A ediff-buffer-A)
+                        (buffer-B ediff-buffer-B)
+                        (buffer-C ediff-buffer-C)
+                        (buffer-Ancestor ediff-ancestor-buffer)
+                        (windows magit-ediff-windows))
+                    (ediff-cleanup-mess)
+                    (kill-buffer buffer-A)
+                    (kill-buffer buffer-B)
+                    (when (bufferp buffer-Ancestor)
+                      (kill-buffer buffer-Ancestor))
+                    (set-window-configuration windows)))))))
+
 ;;; Diff Mode
 
 (define-derived-mode magit-diff-mode magit-mode "Magit Diff"
@@ -6736,56 +6784,6 @@ With a prefix argument, visit in other window."
     ((commit)
      (kill-new info)
      (message "%s" info))))
-
-;;;; Resolve
-
-(defun magit-interactive-resolve (file)
-  (require 'ediff)
-  (let ((merge-status (magit-git-lines "ls-files" "-u" "--" file))
-        (base-buffer (generate-new-buffer (concat file ".base")))
-        (our-buffer (generate-new-buffer (concat file ".current")))
-        (their-buffer (generate-new-buffer (concat file ".merged")))
-        (windows (current-window-configuration)))
-    (unless merge-status
-      (error "Cannot resolve %s" file))
-    (with-current-buffer base-buffer
-      (when (string-match "^[0-9]+ [0-9a-f]+ 1" (nth 0 merge-status))
-        (magit-git-insert "cat-file" "blob" (concat ":1:" file))))
-    (with-current-buffer our-buffer
-      (when (string-match "^[0-9]+ [0-9a-f]+ 2" (nth 1 merge-status))
-        (magit-git-insert "cat-file" "blob" (concat ":2:" file)))
-      (let ((buffer-file-name file))
-        (normal-mode)))
-    (with-current-buffer their-buffer
-      (when (string-match "^[0-9]+ [0-9a-f]+ 3" (nth 2 merge-status))
-        (magit-git-insert "cat-file" "blob" (concat ":3:" file)))
-      (let ((buffer-file-name file))
-        (normal-mode)))
-    ;; We have now created the 3 buffer with ours, theirs and the ancestor files
-    (with-current-buffer (ediff-merge-buffers-with-ancestor
-                          our-buffer their-buffer base-buffer nil nil file)
-      (setq ediff-show-clashes-only t)
-      (setq-local magit-ediff-windows windows)
-      (make-local-variable 'ediff-quit-hook)
-      (add-hook 'ediff-quit-hook
-                (lambda ()
-                  (let ((buffer-A ediff-buffer-A)
-                        (buffer-B ediff-buffer-B)
-                        (buffer-C ediff-buffer-C)
-                        (buffer-Ancestor ediff-ancestor-buffer)
-                        (windows magit-ediff-windows))
-                    (ediff-cleanup-mess)
-                    (kill-buffer buffer-A)
-                    (kill-buffer buffer-B)
-                    (when (bufferp buffer-Ancestor)
-                      (kill-buffer buffer-Ancestor))
-                    (set-window-configuration windows)))))))
-
-(defun magit-interactive-resolve-item ()
-  (interactive)
-  (magit-section-action (item info "resolv" t)
-    ((diff)
-     (magit-interactive-resolve (cadr info)))))
 
 ;;; Branch Manager Mode
 ;;__ FIXME The parens indicate preliminary subsections.
