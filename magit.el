@@ -4468,9 +4468,12 @@ when asking for user input."
                         " (" (magit-get "remote" remote "url") ")"))))))
 
 (defun magit-insert-status-head-line ()
-  (magit-insert-line-section (line)
-    (concat "Head: " (or (magit-format-rev-summary "HEAD")
-                         "nothing committed yet"))))
+  (let ((hash (magit-git-string "rev-parse" "HEAD")))
+    (if hash
+        (magit-insert-line-section (commit hash)
+          (concat "Head: " (magit-format-rev-summary "HEAD")))
+      (magit-insert-line-section (no-commit)
+        "Head: nothing committed yet"))))
 
 (defun magit-insert-status-tags-line ()
   (let* ((current-tag (magit-get-current-tag t))
