@@ -3537,6 +3537,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                             'new)
                            ((save-excursion
                               (re-search-forward "^deleted" end t))
+                            (setf (magit-section-hidden section) t)
                             'deleted)
                            ((save-excursion
                               (re-search-forward "^rename" end t))
