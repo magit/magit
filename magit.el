@@ -4477,7 +4477,7 @@ when asking for user input."
                         " (" (magit-get "remote" remote "url") ")"))))))
 
 (defun magit-insert-status-head-line ()
-  (let ((hash (magit-git-string "rev-parse" "HEAD")))
+  (let ((hash (magit-git-string "rev-parse" "--verify" "HEAD")))
     (if hash
         (magit-insert-line-section (commit hash)
           (concat "Head: " (magit-format-rev-summary "HEAD")))
