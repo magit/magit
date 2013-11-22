@@ -128,6 +128,8 @@
       ("=a" "Author" "--author=" read-from-minibuffer)
       ("=g" "Grep messages" "--grep=" read-from-minibuffer)
       ("=G" "Grep patches" "-G" read-from-minibuffer)
+      ("=L" "Trace evolution of line range [long log only]"
+       "-L" magit-read-file-trace)
       ("=s" "Pickaxe search" "-S" read-from-minibuffer)
       ("=b" "Branches" "--branches=" read-from-minibuffer)
       ("=R" "Remotes" "--remotes=" read-from-minibuffer)))

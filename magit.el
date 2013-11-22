@@ -1978,6 +1978,14 @@ involving HEAD."
      nil 'magit-read-file-hist
      (or default (magit-buffer-file-name t)))))
 
+(defun magit-read-file-trace (ignored)
+  (let ((file  (magit-read-file-from-rev "HEAD"))
+        (trace (read-string "Trace: ")))
+    (if (string-match
+         "^\\(/.+/\\|:[^:]+\\|[0-9]+,[-+]?[0-9]+\\)\\(:\\)?$" trace)
+        (concat trace (or (match-string 2 trace) ":") file)
+      (error "Trace is invalid, see man git-log"))))
+
 (defvar magit-read-rev-history nil
   "The history of inputs to `magit-read-rev' and `magit-read-tag'.")
 
