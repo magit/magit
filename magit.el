@@ -4097,9 +4097,9 @@ for this argument.)"
 ;;;; (washing)
 
 (defun magit-wash-commit ()
-  (let ((magit-current-diff-range (buffer-substring-no-properties 7 48))
+  (let ((magit-current-diff-range (buffer-substring-no-properties 8 48))
         (merge-commit))
-    (put-text-property 7 48 'face 'magit-log-sha1)
+    (put-text-property 8 48 'face 'magit-log-sha1)
     (when (re-search-forward "\\((.+)\\)$" (line-end-position) t)
       (replace-match (magit-format-ref-labels (match-string 1))) t t nil 1)
     (cond
