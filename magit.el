@@ -7131,10 +7131,16 @@ blame to center around the line point is on."
 
 (defun magit-describe-item ()
   (interactive)
-  (let ((section (magit-current-section)))
-    (message "Section: %s %s-%s %S %S %S"
+  (let* ((section (magit-current-section))
+         (head-beg (magit-section-beginning section))
+         (body-beg (magit-section-content-beginning section)))
+    (message "Section: %s %s%s-%s %S %S %S"
              (magit-section-type section)
              (marker-position (magit-section-beginning section))
+             (if (and body-beg (not (= body-beg head-beg))
+                      (< body-beg (magit-section-end section)))
+                 (format "-%s" (marker-position body-beg))
+               "")
              (marker-position (magit-section-end section))
              (magit-section-title section)
              (magit-section-info section)
