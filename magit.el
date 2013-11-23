@@ -4755,8 +4755,8 @@ With a prefix argument, prompt for a file to be staged instead."
       ((unstaged diff)
        (apply #'magit-run-git "add" "-u"
               (if (use-region-p)
-                  (magit-region-siblings #'magit-section-title)
-                (list (magit-section-title item)))))
+                  (magit-region-siblings #'magit-section-info)
+                (list (magit-section-info item)))))
       ((unstaged)
        (magit-stage-all))
       ((staged *)
@@ -4800,8 +4800,8 @@ With a prefix argument, add remaining untracked files as well.
      (when (eq info 'unmerged)
        (error "Can't unstage an unmerged file.  Resolve it first"))
      (let ((files (if (use-region-p)
-                      (magit-region-siblings #'magit-section-title)
-                    (list (magit-section-title item)))))
+                      (magit-region-siblings #'magit-section-info)
+                    (list (magit-section-info item)))))
        (if (magit-no-commit-p)
            (apply #'magit-run-git "rm" "--cached" "--" files)
          (apply #'magit-run-git "reset" "-q" "HEAD" "--" files))))
@@ -5626,7 +5626,7 @@ depending on the value of option `magit-commit-squash-commit'.
                       (magit-visit-item)
                       (add-log-current-defun)))
                 nil))
-         (file (magit-section-title
+         (file (magit-section-info
                 (cl-case (magit-section-type section)
                   (hunk (magit-section-parent section))
                   (diff section)
@@ -6221,7 +6221,7 @@ Other key binding:
     (unless (eq 'diff (magit-section-type diff))
       (error "No diff at this location"))
     (let* ((status (magit-section-diff-status diff))
-           (file1  (magit-section-title diff))
+           (file1  (magit-section-info diff))
            (file2  (magit-section-diff-file2 diff))
            (range  (magit-section-diff-range diff)))
       (cond
@@ -6546,7 +6546,7 @@ With a prefix argument edit the ignore string."
     ((untracked file)
      (magit-ignore-file (concat "/" info) edit local))
     ((diff)
-     (let ((file (magit-section-title item)))
+     (let ((file (magit-section-info item)))
        (when (yes-or-no-p
               (format "%s is tracked.  Untrack and ignore? " file))
          (magit-run-git "rm" "--cached" file)
@@ -6561,7 +6561,7 @@ With a prefix argument edit the ignore string."
 ;;;; Discard
 
 (defun magit-discard-diff (diff stagedp)
-  (let ((file (magit-section-title diff)))
+  (let ((file (magit-section-info diff)))
     (cl-case (magit-section-diff-status diff)
       (deleted
        (when (yes-or-no-p (format "Resurrect %s? " file))
@@ -6596,7 +6596,7 @@ With a prefix argument edit the ignore string."
                           "Discard hunk? "))
        (magit-apply-hunk-item item "--reverse")))
     ((staged diff hunk)
-     (if (magit-file-uptodate-p (magit-section-title
+     (if (magit-file-uptodate-p (magit-section-info
                                  (magit-section-parent item)))
          (when (yes-or-no-p (if (use-region-p)
                                 "Discard changes in region? "
@@ -6606,7 +6606,7 @@ With a prefix argument edit the ignore string."
     ((unstaged diff)
      (magit-discard-diff item nil))
     ((staged diff)
-     (if (magit-file-uptodate-p (magit-section-title item))
+     (if (magit-file-uptodate-p (magit-section-info item))
          (magit-discard-diff item t)
        (error (concat "Can't discard staged changes to this file. "
                       "Please unstage it first"))))
@@ -6683,12 +6683,12 @@ With a prefix argument, visit in other window."
       ((untracked file)
        (dired-jump other-window (file-truename info)))
       ((diff)
-       (dired-jump other-window (file-truename (magit-section-title item))))
+       (dired-jump other-window (file-truename (magit-section-info item))))
       ((diffstat)
        (dired-jump other-window (file-truename (magit-section-info item))))
       ((hunk)
        (dired-jump other-window
-                   (file-truename (magit-section-title
+                   (file-truename (magit-section-info
                                    (magit-section-parent item)))))
       (nil (dired-jump other-window)))))
 
@@ -6718,12 +6718,12 @@ With a prefix argument, visit in other window."
          (file
           (magit-section-action (item info "visit-file" t)
             ((untracked file) info)
-            ((diff)           (magit-section-title item))
+            ((diff)           (magit-section-info item))
             ((diffstat)       (magit-section-info item))
             ((hunk)
              (setq line (magit-hunk-item-target-line item)
                    column (current-column))
-             (magit-section-title (magit-section-parent item))))))
+             (magit-section-info (magit-section-parent item))))))
     (unless file
       (error "Can't get pathname for this file"))
     (unless (file-exists-p file)
