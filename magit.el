@@ -7134,8 +7134,8 @@ blame to center around the line point is on."
   (let ((section (magit-current-section)))
     (message "Section: %s %s-%s %S %S %S"
              (magit-section-type section)
-             (magit-section-beginning section)
-             (magit-section-end section)
+             (marker-position (magit-section-beginning section))
+             (marker-position (magit-section-end section))
              (magit-section-title section)
              (magit-section-info section)
              (magit-section-context-type section))))
