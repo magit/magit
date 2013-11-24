@@ -4949,8 +4949,8 @@ If no branch is found near the cursor return nil."
 (defun magit-add-remote (remote url)
   "Add the REMOTE and fetch it.
 \('git remote add REMOTE URL')."
-  (interactive (list (read-string "Add remote: ")
-                     (read-string "URL: ")))
+  (interactive (list (read-string "Remote name: ")
+                     (read-string "Remote url: ")))
   (magit-run-git-async "remote" "add" "-f" remote url))
 
 ;;;###autoload
