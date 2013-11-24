@@ -2025,6 +2025,13 @@ involving HEAD."
         (let ((end (magit-read-rev (format "%s end" op) def-end nil t)))
           (if end (cons beg end) beg))))))
 
+(defun magit-read-stash (prompt)
+  (let ((n (read-number "Show stash: " 0))
+        (l (1- (length (magit-git-lines "stash" "list")))))
+    (if (> n l)
+        (error "No stash older than stash@{%i}" l)
+      (format "stash@{%i}" l))))
+
 (defun magit-read-remote (prompt &optional default require-match)
   (magit-completing-read prompt (magit-git-lines "remote")
                          nil require-match nil nil
