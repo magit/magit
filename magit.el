@@ -6664,24 +6664,6 @@ a position in a file-visiting buffer."
 
 ;;;; Visit
 
-(eval-after-load 'dired-x
-  '(defun magit-dired-jump (&optional other-window)
-    "Visit current item.
-With a prefix argument, visit in other window."
-    (interactive "P")
-    (magit-section-action (item info "dired-jump" t)
-      ((untracked file)
-       (dired-jump other-window (file-truename info)))
-      ((diff)
-       (dired-jump other-window (file-truename (magit-section-info item))))
-      ((diffstat)
-       (dired-jump other-window (file-truename (magit-section-info item))))
-      ((hunk)
-       (dired-jump other-window
-                   (file-truename (magit-section-info
-                                   (magit-section-parent item)))))
-      (nil (dired-jump other-window)))))
-
 (defun magit-visit-item (&optional other-window)
   "Visit current item.
 With a prefix argument, visit in other window."
@@ -6740,6 +6722,24 @@ With a prefix argument, visit in other window."
             (setq target (+ target 1)))
           (forward-line))
         target))))
+
+(eval-after-load 'dired-x
+  '(defun magit-dired-jump (&optional other-window)
+    "Visit current item.
+With a prefix argument, visit in other window."
+    (interactive "P")
+    (magit-section-action (item info "dired-jump" t)
+      ((untracked file)
+       (dired-jump other-window (file-truename info)))
+      ((diff)
+       (dired-jump other-window (file-truename (magit-section-info item))))
+      ((diffstat)
+       (dired-jump other-window (file-truename (magit-section-info item))))
+      ((hunk)
+       (dired-jump other-window
+                   (file-truename (magit-section-info
+                                   (magit-section-parent item)))))
+      (nil (dired-jump other-window)))))
 
 ;;;###autoload
 (defun magit-show (rev file &optional switch-function)
