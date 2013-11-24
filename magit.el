@@ -1374,6 +1374,7 @@ Many Magit faces inherit from this one by default."
 (defvar magit-branch-manager-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
+    (define-key map (kbd "RET") 'magit-checkout-branch-at-point)
     (define-key map (kbd "c") 'magit-create-branch)
     (define-key map (kbd "a") 'magit-add-remote)
     (define-key map (kbd "r") 'magit-rename-item)
@@ -4909,6 +4910,16 @@ If REVISION is a remote branch, offer to create a local tracking branch.
     (magit-run-git "checkout" revision)))
 
 ;;;###autoload
+(defun magit-checkout-branch-at-point ()
+  "Checkout the branch at point.
+If there is no branch at point, then prompt for one."
+  (interactive)
+  (let ((branch (magit-section-case (item info) ((branch) info))))
+    (if branch
+        (magit-checkout branch)
+      (call-interactively 'magit-checkout))))
+
+;;;###autoload
 (defun magit-create-branch (branch parent)
   "Switch 'HEAD' to new BRANCH at revision PARENT and update working tree.
 Fails if working tree or staging area contain uncommitted changes.
@@ -6689,8 +6700,7 @@ With a prefix argument, visit in other window."
     ((diffstat)       (magit-visit-file-item other-window))
     ((hunk)           (magit-visit-file-item other-window))
     ((commit)         (magit-show-commit info nil nil 'select))
-    ((stash)          (magit-show-stash info  nil t))
-    ((branch)         (magit-checkout info))))
+    ((stash)          (magit-show-stash info  nil t))))
 
 (defun magit-visit-file-item (&optional other-window)
   (let* (line
