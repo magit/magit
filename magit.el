@@ -6696,7 +6696,7 @@ With a prefix argument, visit in other window."
     (unless (file-exists-p file)
       (error "Can't visit deleted file: %s" file))
     (if (file-directory-p file)
-        (magit-status file)
+        (progn (require 'dired-x) (dired-jump other-window file))
       (if other-window
           (find-file-other-window file)
         (find-file file))
