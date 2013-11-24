@@ -6680,9 +6680,6 @@ With a prefix argument, visit in other window."
     ((longer)         (magit-log-show-more-entries ()))))
 
 (defun magit-visit-file-item (&optional other-window)
-  "Visit current file associated with item.
-With a prefix argument, visit in other window."
-  (interactive "P")
   (let* (line
          column
          (file
