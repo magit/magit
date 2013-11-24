@@ -4957,7 +4957,7 @@ If no branch is found near the cursor return nil."
 (defun magit-remove-remote (remote)
   "Delete the REMOTE.
 \('git remote rm REMOTE')."
-  (interactive (list (magit-read-remote "Remote to delete")))
+  (interactive (list (magit-read-remote "Delete remote")))
   (magit-run-git "remote" "rm" remote))
 
 ;;;###autoload
