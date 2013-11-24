@@ -6822,22 +6822,16 @@ return the buffer, without displaying it."
 (defun magit-show-item-or-scroll-up ()
   (interactive)
   (magit-section-case (item info)
-    ((commit)
-     (magit-show-commit info #'scroll-up))
-    ((stash)
-     (magit-show-stash info #'scroll-up))
-    (t
-     (scroll-up))))
+    ((commit) (magit-show-commit info #'scroll-up))
+    ((stash)  (magit-show-stash info #'scroll-up))
+    (t        (scroll-up))))
 
 (defun magit-show-item-or-scroll-down ()
   (interactive)
   (magit-section-case (item info)
-    ((commit)
-     (magit-show-commit info #'scroll-down))
-    ((stash)
-     (magit-show-stash info #'scroll-down))
-    (t
-     (scroll-down))))
+    ((commit) (magit-show-commit info #'scroll-down))
+    ((stash)  (magit-show-stash info #'scroll-down))
+    (t        (scroll-down))))
 
 ;;;; Mark
 
