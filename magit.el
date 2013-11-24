@@ -6662,7 +6662,7 @@ a position in a file-visiting buffer."
                           (prompt-for-change-log-name))))
   (magit-add-change-log-entry whoami file-name t))
 
-;;;; Dired
+;;;; Visit
 
 (eval-after-load 'dired-x
   '(defun magit-dired-jump (&optional other-window)
@@ -6681,8 +6681,6 @@ With a prefix argument, visit in other window."
                    (file-truename (magit-section-info
                                    (magit-section-parent item)))))
       (nil (dired-jump other-window)))))
-
-;;;; Visit
 
 (defun magit-visit-item (&optional other-window)
   "Visit current item.
@@ -6742,8 +6740,6 @@ With a prefix argument, visit in other window."
             (setq target (+ target 1)))
           (forward-line))
         target))))
-
-;;;; Show
 
 (defun magit-show-item-or-scroll-up ()
   (interactive)
