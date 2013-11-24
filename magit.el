@@ -2342,7 +2342,7 @@ never modify it.")
          (derived-mode-p 'magit-log-mode)
          (or (eq (car magit-refresh-args) 'oneline)
              (get-buffer-window magit-commit-buffer-name)))
-    (magit-show-commit section t))))
+    (magit-show-commit (magit-section-info section) t))))
 
 (defun magit-goto-section-at-path (path)
   "Go to the section described by PATH."
@@ -4052,8 +4052,6 @@ from the parent keymap `magit-mode-map' are also available."
   "Show information about COMMIT."
   (interactive (list (magit-read-rev-with-default
                       "Show commit (hash or ref)")))
-  (when (magit-section-p commit)
-    (setq commit (magit-section-info commit)))
   (unless (magit-git-success "cat-file" "commit" commit)
     (error "%s is not a commit" commit))
   (let ((dir (magit-get-top-dir))
@@ -4063,7 +4061,6 @@ from the parent keymap `magit-mode-map' are also available."
         (push (cons default-directory magit-currently-shown-commit)
               magit-back-navigation-history)
         (setq magit-forward-navigation-history nil))
-      (setq magit-currently-shown-commit commit)
       (goto-char (point-min))
       (magit-mode-display-buffer buf (if noselect
                                          'display-buffer
@@ -4227,8 +4224,6 @@ in `magit-commit-buffer-name'."
 ;;;###autoload
 (defun magit-show-stash (stash &optional noselect)
   (interactive (list (magit-read-stash "Show stash (number): ")))
-  (when (magit-section-p stash)
-    (setq stash (magit-section-info stash)))
   (let ((dir default-directory)
         (buf (get-buffer-create magit-stash-buffer-name)))
     (with-current-buffer buf
