@@ -6690,8 +6690,7 @@ With a prefix argument, visit in other window."
     ((hunk)           (magit-visit-file-item other-window))
     ((commit)         (magit-show-commit info nil nil 'select))
     ((stash)          (magit-show-stash info  nil t))
-    ((branch)         (magit-checkout info))
-    ((longer)         (magit-log-show-more-entries ()))))
+    ((branch)         (magit-checkout info))))
 
 (defun magit-visit-file-item (&optional other-window)
   (let* (line
