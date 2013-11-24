@@ -4098,6 +4098,20 @@ for this argument.)"
     (when select
       (pop-to-buffer buf))))
 
+(defun magit-show-item-or-scroll-up ()
+  (interactive)
+  (magit-section-case (item info)
+    ((commit) (magit-show-commit info #'scroll-up))
+    ((stash)  (magit-show-stash info #'scroll-up))
+    (t        (scroll-up))))
+
+(defun magit-show-item-or-scroll-down ()
+  (interactive)
+  (magit-section-case (item info)
+    ((commit) (magit-show-commit info #'scroll-down))
+    ((stash)  (magit-show-stash info #'scroll-down))
+    (t        (scroll-down))))
+
 (defun magit-refresh-commit-buffer (commit)
   (magit-git-insert-section (commitbuf nil)
       #'magit-wash-commit
@@ -6818,20 +6832,6 @@ return the buffer, without displaying it."
                      (if switch-function 'switch-to-buffer 'pop-to-buffer)
                    (or switch-function 'identity))
                  (current-buffer))))))
-
-(defun magit-show-item-or-scroll-up ()
-  (interactive)
-  (magit-section-case (item info)
-    ((commit) (magit-show-commit info #'scroll-up))
-    ((stash)  (magit-show-stash info #'scroll-up))
-    (t        (scroll-up))))
-
-(defun magit-show-item-or-scroll-down ()
-  (interactive)
-  (magit-section-case (item info)
-    ((commit) (magit-show-commit info #'scroll-down))
-    ((stash)  (magit-show-stash info #'scroll-down))
-    (t        (scroll-down))))
 
 ;;;; Mark
 
