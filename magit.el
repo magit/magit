@@ -4220,7 +4220,9 @@ in `magit-commit-buffer-name'."
 (defvar magit-stash-buffer-name "*magit-stash*"
   "Name of buffer used to display a stash.")
 
-(defun magit-show-stash (stash &optional scroll)
+;;;###autoload
+(defun magit-show-stash (stash &optional scroll select)
+  (interactive (list (magit-read-stash "Show stash (number): ")))
   (when (magit-section-p stash)
     (setq stash (magit-section-info stash)))
   (let ((dir default-directory)
@@ -4242,7 +4244,9 @@ in `magit-commit-buffer-name'."
              (goto-char (point-min))
              (magit-mode-init dir 'magit-diff-mode
                               #'magit-refresh-diff-buffer
-                              (concat stash "^2^.." stash)))))))
+                              (concat stash "^2^.." stash)))))
+    (when select
+      (pop-to-buffer buf))))
 
 ;;;; (washing)
 
@@ -6681,8 +6685,7 @@ With a prefix argument, visit in other window."
     ((diffstat)       (magit-visit-file-item other-window))
     ((hunk)           (magit-visit-file-item other-window))
     ((commit)         (magit-show-commit info nil nil 'select))
-    ((stash)          (magit-show-stash info)
-                      (pop-to-buffer magit-stash-buffer-name))
+    ((stash)          (magit-show-stash info  nil t))
     ((branch)         (magit-checkout info))
     ((longer)         (magit-log-show-more-entries ()))))
 
