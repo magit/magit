@@ -4084,7 +4084,7 @@ from the parent keymap `magit-mode-map' are also available."
                       cmd 'magit-show-commit
                       buf magit-commit-buffer-name))
       ((stash)  (setq rev info
-                      cmd 'magit-show-stash
+                      cmd 'magit-diff-stash
                       buf magit-stash-buffer-name)))
     (if rev
         (if (and (setq buf (get-buffer buf))
@@ -6369,7 +6369,7 @@ More information can be found in Info node `(magit)Diffing'
   (magit-diff nil))
 
 ;;;###autoload
-(defun magit-show-stash (stash &optional noselect)
+(defun magit-diff-stash (stash &optional noselect)
   (interactive (list (magit-read-stash "Show stash (number): ")))
   (let ((dir default-directory)
         (buf (get-buffer-create magit-stash-buffer-name)))
@@ -6679,7 +6679,7 @@ With a prefix argument, visit in other window."
     ((diffstat)       (magit-visit-file-item other-window))
     ((hunk)           (magit-visit-file-item other-window))
     ((commit)         (magit-show-commit info))
-    ((stash)          (magit-show-stash info))))
+    ((stash)          (magit-diff-stash info))))
 
 (defun magit-visit-file-item (&optional other-window)
   (let* (line
