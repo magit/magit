@@ -3862,7 +3862,11 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
   (when longer
     (when (= magit-log-count magit-log-cutoff-length)
       (magit-with-section (section longer 'longer)
-        (insert "\ntype \"e\" to show more history\n"))))
+        (insert-text-button "type \"e\" to show more history"
+                            'action (lambda (button)
+                                      (magit-log-show-more-entries))
+                            'follow-link t
+                            'mouse-face magit-item-highlight-face))))
   (when (eq style 'oneline)
     (magit-log-create-author-date-overlays)))
 
