@@ -6725,7 +6725,7 @@ With a prefix argument, visit in other window."
 
 ;;;###autoload
 (defun magit-dired-jump (&optional other-window)
-  "Visit current item.
+  "Visit current item in dired.
 With a prefix argument, visit in other window."
   (interactive "P")
   (require 'dired-x)
