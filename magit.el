@@ -5790,7 +5790,7 @@ member of ARGS, or to the working file otherwise."
   (let ((confirm
          (lambda ()
            (or (not magit-revert-item-confirm)
-               (yes-or-no-p "Really revert this item? ")
+               (yes-or-no-p "Revert this item? ")
                (error "Abort")))))
     (magit-section-action (item info "revert")
       ((pending commit)
