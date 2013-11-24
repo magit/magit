@@ -4976,14 +4976,11 @@ If no branch is found near the cursor return nil."
 
 (defun magit-guess-remote ()
   (magit-section-case (item info)
-    ((branch)
-     (magit-section-info (magit-section-parent item)))
-    ((remote)
-     info)
-    (t
-     (if (string= info ".")
-         info
-       (magit-get-current-remote)))))
+    ((branch) (magit-section-info (magit-section-parent item)))
+    ((remote) info)
+    (t (if (string= info ".")
+           info
+         (magit-get-current-remote)))))
 
 ;;;; Rebase
 
