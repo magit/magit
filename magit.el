@@ -6695,14 +6695,16 @@ With a prefix argument, visit in other window."
       (error "Can't get pathname for this file"))
     (unless (file-exists-p file)
       (error "Can't visit deleted file: %s" file))
-    (cond ((file-directory-p file) (magit-status file))
-          (other-window            (find-file-other-window file))
-          (t                       (find-file file)))
-    (when line
-      (goto-char (point-min))
-      (forward-line (1- line))
-      (when (> column 0)
-        (move-to-column (1- column))))))
+    (if (file-directory-p file)
+        (magit-status file)
+      (if other-window
+          (find-file-other-window file)
+        (find-file file))
+      (when line
+        (goto-char (point-min))
+        (forward-line (1- line))
+        (when (> column 0)
+          (move-to-column (1- column)))))))
 
 (defun magit-hunk-item-target-line (hunk)
   (save-excursion
