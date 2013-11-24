@@ -4058,7 +4058,6 @@ from the parent keymap `magit-mode-map' are also available."
     (error "%s is not a commit" commit))
   (let ((dir (magit-get-top-dir))
         (buf (get-buffer-create magit-commit-buffer-name)))
-    (display-buffer buf)
     (with-current-buffer buf
       (unless inhibit-history
         (push (cons default-directory magit-currently-shown-commit)
@@ -4066,10 +4065,11 @@ from the parent keymap `magit-mode-map' are also available."
         (setq magit-forward-navigation-history nil))
       (setq magit-currently-shown-commit commit)
       (goto-char (point-min))
+      (magit-mode-display-buffer buf (if noselect
+                                         'display-buffer
+                                       'pop-to-buffer))
       (magit-mode-init dir 'magit-commit-mode
-                       #'magit-refresh-commit-buffer commit))
-    (unless noselect
-      (pop-to-buffer buf))))
+                       #'magit-refresh-commit-buffer commit))))
 
 (defun magit-show-item-or-scroll-up ()
   (interactive)
@@ -4239,14 +4239,14 @@ in `magit-commit-buffer-name'."
         (buf (get-buffer-create magit-stash-buffer-name))
         (stash-id (magit-git-string "rev-list" "-1" stash)))
     (setq magit-currently-shown-stash stash-id)
-    (display-buffer buf)
     (with-current-buffer buf
       (goto-char (point-min))
+      (magit-mode-display-buffer buf (if noselect
+                                         'display-buffer
+                                       'pop-to-buffer))
       (magit-mode-init dir 'magit-diff-mode
                        #'magit-refresh-diff-buffer
-                       (concat stash "^2^.." stash)))
-    (unless noselect
-      (pop-to-buffer buf))))
+                       (concat stash "^2^.." stash)))))
 
 ;;;; (washing)
 
