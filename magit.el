@@ -6729,18 +6729,15 @@ With a prefix argument, visit in other window."
 With a prefix argument, visit in other window."
   (interactive "P")
   (require 'dired-x)
-  (magit-section-action (item info "dired-jump" t)
-    ((untracked file)
-     (dired-jump other-window (file-truename info)))
-    ((diff)
-     (dired-jump other-window (file-truename (magit-section-info item))))
-    ((diffstat)
-     (dired-jump other-window (file-truename (magit-section-info item))))
-    ((hunk)
-     (dired-jump other-window
-                 (file-truename (magit-section-info
-                                 (magit-section-parent item)))))
-    (nil (dired-jump other-window))))
+  (dired-jump
+   other-window
+   (file-truename
+    (magit-section-action (item info "dired-jump" t)
+      ((untracked file) info)
+      ((diffstat)       (magit-section-info item))
+      ((diff)           (magit-section-info item))
+      ((hunk)           (magit-section-info (magit-section-parent item)))
+      (nil              nil)))))
 
 ;;;###autoload
 (defun magit-show (rev file &optional switch-function)
