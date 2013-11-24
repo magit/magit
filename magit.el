@@ -4094,7 +4094,12 @@ from the parent keymap `magit-mode-map' are also available."
                  (with-current-buffer buf
                    (equal rev (car magit-refresh-args))))
             (with-selected-window win
-              (funcall fn))
+              (condition-case err
+                  (funcall fn)
+                (error
+                 (goto-char (cl-case fn
+                              (scroll-up   (point-min))
+                              (scroll-down (point-max)))))))
           (funcall cmd rev t))
       (call-interactively 'magit-show-commit))))
 
