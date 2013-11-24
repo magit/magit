@@ -4220,12 +4220,6 @@ in `magit-commit-buffer-name'."
       (magit-show-commit (cdr histitem) nil 'inhibit-history))))
 
 ;;; Stash Mode
-;;__ FIXME The parens indicate preliminary subsections.
-;;;; (variables, TODO make unnecessary)
-
-(defvar magit-currently-shown-stash nil)
-
-;;;; (core)
 
 (defvar magit-stash-buffer-name "*magit-stash*"
   "Name of buffer used to display a stash.")
@@ -4236,9 +4230,7 @@ in `magit-commit-buffer-name'."
   (when (magit-section-p stash)
     (setq stash (magit-section-info stash)))
   (let ((dir default-directory)
-        (buf (get-buffer-create magit-stash-buffer-name))
-        (stash-id (magit-git-string "rev-list" "-1" stash)))
-    (setq magit-currently-shown-stash stash-id)
+        (buf (get-buffer-create magit-stash-buffer-name)))
     (with-current-buffer buf
       (goto-char (point-min))
       (magit-mode-display-buffer buf (if noselect
