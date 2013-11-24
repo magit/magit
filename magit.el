@@ -6119,13 +6119,6 @@ Other key binding:
     "cherry" "-v" (magit-diff-abbrev-arg) magit-refresh-args))
 
 ;;; Reflog Mode
-;;;; (variables, TODO make unnecessary)
-
-(defvar-local magit-reflog-head nil
-  "The HEAD of the reflog in the current buffer.
-This is only non-nil in reflog buffers.")
-
-;;;; (core)
 
 (defvar magit-reflog-buffer-name "*magit-reflog*"
   "Name of buffer used to display reflog entries.")
@@ -6149,7 +6142,6 @@ Other key binding:
   :group 'magit)
 
 (defun magit-refresh-reflog-buffer (ref)
-  (setq magit-reflog-head ref)
   (let ((magit-log-count 0))
     (magit-git-insert-section
         (reflogbuf (format "Local history of branch %s" ref))
@@ -6157,8 +6149,6 @@ Other key binding:
       "log" "--format=format:* \C-?%h\C-?%gs"
       (magit-diff-abbrev-arg) "--walk-reflogs"
       (format "--max-count=%d" magit-log-cutoff-length) ref)))
-
-;;;; (action labels)
 
 (defvar magit-reflog-labels
   '(("commit"      . magit-log-reflog-label-commit)
