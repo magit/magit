@@ -109,6 +109,7 @@ Use the function by the same name instead of this variable.")
 (defvar magit-marked-commit)
 (defvar magit-reflog-buffer-name)
 (defvar magit-refresh-args)
+(defvar magit-stash-buffer-name)
 (defvar package-alist)
 
 ;;; Compatibility
@@ -4216,46 +4217,6 @@ in `magit-commit-buffer-name'."
       (setq default-directory (car histitem))
       (magit-show-commit (cdr histitem) nil 'inhibit-history))))
 
-;;; Stash Mode
-
-(defvar magit-stash-buffer-name "*magit-stash*"
-  "Name of buffer used to display a stash.")
-
-;;;###autoload
-(defun magit-show-stash (stash &optional noselect)
-  (interactive (list (magit-read-stash "Show stash (number): ")))
-  (let ((dir default-directory)
-        (buf (get-buffer-create magit-stash-buffer-name)))
-    (with-current-buffer buf
-      (goto-char (point-min))
-      (magit-mode-display-buffer buf (if noselect
-                                         'display-buffer
-                                       'pop-to-buffer))
-      (magit-mode-init dir 'magit-diff-mode
-                       #'magit-refresh-diff-buffer
-                       (concat stash "^2^.." stash)))))
-
-;;;; (washing)
-
-(defun magit-wash-stashes ()
-  (magit-wash-sequence #'magit-wash-stash))
-
-(defun magit-wash-stash ()
-  (if (re-search-forward "stash@{\\(.*?\\)}" (line-end-position) t)
-      (let ((stash (match-string-no-properties 0))
-            (name (match-string-no-properties 1)))
-        (delete-region (match-beginning 0) (match-end 0))
-        (goto-char (match-beginning 0))
-        (fixup-whitespace)
-        (goto-char (line-beginning-position))
-        (insert name)
-        (goto-char (line-beginning-position))
-        (magit-with-section (section stash stash)
-          (setf (magit-section-info section) stash)
-          (forward-line)))
-    (forward-line))
-  t)
-
 ;;; Commit Mark
 
 (defvar magit-marked-commit nil)
@@ -4346,6 +4307,25 @@ when asking for user input."
   (magit-git-insert-section (stashes "Stashes:")
       #'magit-wash-stashes
     "stash" "list"))
+
+(defun magit-wash-stashes ()
+  (magit-wash-sequence #'magit-wash-stash))
+
+(defun magit-wash-stash ()
+  (if (re-search-forward "stash@{\\(.*?\\)}" (line-end-position) t)
+      (let ((stash (match-string-no-properties 0))
+            (name (match-string-no-properties 1)))
+        (delete-region (match-beginning 0) (match-end 0))
+        (goto-char (match-beginning 0))
+        (fixup-whitespace)
+        (goto-char (line-beginning-position))
+        (insert name)
+        (goto-char (line-beginning-position))
+        (magit-with-section (section stash stash)
+          (setf (magit-section-info section) stash)
+          (forward-line)))
+    (forward-line))
+  t)
 
 (defun magit-insert-untracked-files ()
   (magit-with-section (section untracked 'untracked "Untracked files:" t)
@@ -6356,6 +6336,9 @@ More information can be found in Info node `(magit)Diffing'
 (defvar magit-diff-buffer-name "*magit-diff*"
   "Name of buffer used to display a diff.")
 
+(defvar magit-stash-buffer-name "*magit-stash*"
+  "Name of buffer used to display a stash.")
+
 ;;;###autoload
 (defun magit-diff (range &optional working args)
   (interactive (list (magit-read-rev-range "Diff")))
@@ -6384,6 +6367,20 @@ More information can be found in Info node `(magit)Diffing'
   "Show differences between working tree and index."
   (interactive)
   (magit-diff nil))
+
+;;;###autoload
+(defun magit-show-stash (stash &optional noselect)
+  (interactive (list (magit-read-stash "Show stash (number): ")))
+  (let ((dir default-directory)
+        (buf (get-buffer-create magit-stash-buffer-name)))
+    (with-current-buffer buf
+      (goto-char (point-min))
+      (magit-mode-display-buffer buf (if noselect
+                                         'display-buffer
+                                       'pop-to-buffer))
+      (magit-mode-init dir 'magit-diff-mode
+                       #'magit-refresh-diff-buffer
+                       (concat stash "^2^.." stash)))))
 
 (defun magit-diff-with-mark (range)
   (interactive
