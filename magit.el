@@ -4096,7 +4096,7 @@ from the parent keymap `magit-mode-map' are also available."
             (with-selected-window win
               (funcall fn))
           (funcall cmd rev t))
-      (funcall fn))))
+      (call-interactively 'magit-show-commit))))
 
 (defun magit-refresh-commit-buffer (commit)
   (magit-git-insert-section (commitbuf nil)
