@@ -6311,12 +6311,12 @@ restore the window state that was saved before ediff was called."
       (when (string-match "^[0-9]+ [0-9a-f]+ 2" (nth 1 merge-status))
         (magit-git-insert "cat-file" "blob" (concat ":2:" file)))
       (let ((buffer-file-name file))
-        (normal-mode)))
+        (normal-mode t)))
     (with-current-buffer their-buffer
       (when (string-match "^[0-9]+ [0-9a-f]+ 3" (nth 2 merge-status))
         (magit-git-insert "cat-file" "blob" (concat ":3:" file)))
       (let ((buffer-file-name file))
-        (normal-mode)))
+        (normal-mode t)))
     ;; We have now created the 3 buffer with ours, theirs and the ancestor files
     (with-current-buffer (ediff-merge-buffers-with-ancestor
                           our-buffer their-buffer base-buffer nil nil file)
