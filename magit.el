@@ -4304,28 +4304,18 @@ when asking for user input."
 ;;;; Real Sections
 
 (defun magit-insert-stashes ()
-  (magit-git-insert-section (stashes "Stashes:")
-      #'magit-wash-stashes
-    "stash" "list"))
-
-(defun magit-wash-stashes ()
-  (magit-wash-sequence #'magit-wash-stash))
-
-(defun magit-wash-stash ()
-  (if (re-search-forward "stash@{\\(.*?\\)}" (line-end-position) t)
-      (let ((stash (match-string-no-properties 0))
-            (name (match-string-no-properties 1)))
-        (delete-region (match-beginning 0) (match-end 0))
-        (goto-char (match-beginning 0))
-        (fixup-whitespace)
-        (goto-char (line-beginning-position))
-        (insert name)
-        (goto-char (line-beginning-position))
-        (magit-with-section (section stash stash)
-          (setf (magit-section-info section) stash)
-          (forward-line)))
-    (forward-line))
-  t)
+  (let ((stashes (magit-git-lines "stash" "list")))
+    (when stashes
+      (magit-with-section (section stashes 'stashes "Stashes:" t)
+        (dolist (stash stashes)
+          (string-match "^\\(stash@{\\([0-9]+\\)}\\): \\(.+\\)$" stash)
+          (let ((stash (match-string 1 stash))
+                (number (match-string 2 stash))
+                (message (match-string 3 stash)))
+            (magit-with-section (section stash stash)
+              (setf (magit-section-info section) stash)
+              (insert number ": " message "\n"))))
+        (insert "\n")))))
 
 (defun magit-insert-untracked-files ()
   (magit-with-section (section untracked 'untracked "Untracked files:" t)
