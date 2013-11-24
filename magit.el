@@ -2342,7 +2342,7 @@ never modify it.")
          (derived-mode-p 'magit-log-mode)
          (or (eq (car magit-refresh-args) 'oneline)
              (get-buffer-window magit-commit-buffer-name)))
-    (magit-show-commit section))))
+    (magit-show-commit section t))))
 
 (defun magit-goto-section-at-path (path)
   "Go to the section described by PATH."
@@ -4048,69 +4048,55 @@ from the parent keymap `magit-mode-map' are also available."
   "Name of buffer used to display a commit.")
 
 ;;;###autoload
-(defun magit-show-commit (commit &optional scroll inhibit-history select)
-  "Show information about a commit.
-Show it in the buffer named by `magit-commit-buffer-name'.
-COMMIT can be any valid name for a commit in the current Git
-repository.
-
-When called interactively or when SELECT is non-nil, switch to
-the commit buffer using `pop-to-buffer'.
-
-Unless INHIBIT-HISTORY is non-nil, the commit currently shown
-will be pushed onto `magit-back-navigation-history' and
-`magit-forward-navigation-history' will be cleared.
-
-Noninteractively, if the commit is already displayed and SCROLL
-is provided, call SCROLL's function definition in the commit
-window.  (`scroll-up' and `scroll-down' are typically passed in
-for this argument.)"
-  (interactive (list (magit-read-rev-with-default "Show commit (hash or ref)")
-                     nil nil t))
+(defun magit-show-commit (commit &optional noselect inhibit-history)
+  "Show information about COMMIT."
+  (interactive (list (magit-read-rev-with-default
+                      "Show commit (hash or ref)")))
   (when (magit-section-p commit)
     (setq commit (magit-section-info commit)))
   (unless (magit-git-success "cat-file" "commit" commit)
     (error "%s is not a commit" commit))
   (let ((dir (magit-get-top-dir))
         (buf (get-buffer-create magit-commit-buffer-name)))
-    (cond
-     ((and (equal magit-currently-shown-commit commit)
-           ;; if it's empty then the buffer was killed
-           (with-current-buffer buf
-             (> (length (buffer-string)) 1)))
-      (let ((win (get-buffer-window buf)))
-        (cond ((not win)
-               (display-buffer buf))
-              (scroll
-               (with-selected-window win
-                 (funcall scroll))))))
-     (commit
-      (display-buffer buf)
-      (with-current-buffer buf
-        (unless inhibit-history
-          (push (cons default-directory magit-currently-shown-commit)
-                magit-back-navigation-history)
-          (setq magit-forward-navigation-history nil))
-        (setq magit-currently-shown-commit commit)
-        (goto-char (point-min))
-        (magit-mode-init dir 'magit-commit-mode
-                         #'magit-refresh-commit-buffer commit))))
-    (when select
+    (display-buffer buf)
+    (with-current-buffer buf
+      (unless inhibit-history
+        (push (cons default-directory magit-currently-shown-commit)
+              magit-back-navigation-history)
+        (setq magit-forward-navigation-history nil))
+      (setq magit-currently-shown-commit commit)
+      (goto-char (point-min))
+      (magit-mode-init dir 'magit-commit-mode
+                       #'magit-refresh-commit-buffer commit))
+    (unless noselect
       (pop-to-buffer buf))))
 
 (defun magit-show-item-or-scroll-up ()
   (interactive)
-  (magit-section-case (item info)
-    ((commit) (magit-show-commit info #'scroll-up))
-    ((stash)  (magit-show-stash info #'scroll-up))
-    (t        (scroll-up))))
+  (magit-show-item-or-scroll 'scroll-up))
 
 (defun magit-show-item-or-scroll-down ()
   (interactive)
-  (magit-section-case (item info)
-    ((commit) (magit-show-commit info #'scroll-down))
-    ((stash)  (magit-show-stash info #'scroll-down))
-    (t        (scroll-down))))
+  (magit-show-item-or-scroll 'scroll-down))
+
+(defun magit-show-item-or-scroll (fn)
+  (let (rev cmd buf win)
+    (magit-section-case (item info)
+      ((commit) (setq rev info
+                      cmd 'magit-show-commit
+                      buf magit-commit-buffer-name))
+      ((stash)  (setq rev info
+                      cmd 'magit-show-stash
+                      buf magit-stash-buffer-name)))
+    (if rev
+        (if (and (setq buf (get-buffer buf))
+                 (setq win (get-buffer-window buf))
+                 (with-current-buffer buf
+                   (equal rev (car magit-refresh-args))))
+            (with-selected-window win
+              (funcall fn))
+          (funcall cmd rev t))
+      (funcall fn))))
 
 (defun magit-refresh-commit-buffer (commit)
   (magit-git-insert-section (commitbuf nil)
@@ -4240,31 +4226,21 @@ in `magit-commit-buffer-name'."
   "Name of buffer used to display a stash.")
 
 ;;;###autoload
-(defun magit-show-stash (stash &optional scroll select)
+(defun magit-show-stash (stash &optional noselect)
   (interactive (list (magit-read-stash "Show stash (number): ")))
   (when (magit-section-p stash)
     (setq stash (magit-section-info stash)))
   (let ((dir default-directory)
         (buf (get-buffer-create magit-stash-buffer-name))
         (stash-id (magit-git-string "rev-list" "-1" stash)))
-    (cond ((and (equal magit-currently-shown-stash stash-id)
-                (with-current-buffer buf
-                  (> (length (buffer-string)) 1)))
-           (let ((win (get-buffer-window buf)))
-             (cond ((not win)
-                    (display-buffer buf))
-                   (scroll
-                    (with-selected-window win
-                      (funcall scroll))))))
-          (t
-           (setq magit-currently-shown-stash stash-id)
-           (display-buffer buf)
-           (with-current-buffer buf
-             (goto-char (point-min))
-             (magit-mode-init dir 'magit-diff-mode
-                              #'magit-refresh-diff-buffer
-                              (concat stash "^2^.." stash)))))
-    (when select
+    (setq magit-currently-shown-stash stash-id)
+    (display-buffer buf)
+    (with-current-buffer buf
+      (goto-char (point-min))
+      (magit-mode-init dir 'magit-diff-mode
+                       #'magit-refresh-diff-buffer
+                       (concat stash "^2^.." stash)))
+    (unless noselect
       (pop-to-buffer buf))))
 
 ;;;; (washing)
@@ -6713,8 +6689,8 @@ With a prefix argument, visit in other window."
     ((diff)           (magit-visit-file-item other-window))
     ((diffstat)       (magit-visit-file-item other-window))
     ((hunk)           (magit-visit-file-item other-window))
-    ((commit)         (magit-show-commit info nil nil 'select))
-    ((stash)          (magit-show-stash info  nil t))))
+    ((commit)         (magit-show-commit info))
+    ((stash)          (magit-show-stash info))))
 
 (defun magit-visit-file-item (&optional other-window)
   (let* (line
