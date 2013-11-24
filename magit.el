@@ -7044,7 +7044,7 @@ return the buffer, without displaying it."
                 (delete-file temp))
             (magit-git-insert "cat-file" "-p" (concat rev ":" file))))
         (let ((buffer-file-name (expand-file-name file (magit-get-top-dir))))
-          (normal-mode))
+          (normal-mode t))
         (setq magit-file-name file)
         (setq magit-show-current-version rev)
         (goto-char (point-min))
