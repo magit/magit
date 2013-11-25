@@ -1587,10 +1587,7 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
           (file-relative-name filename topdir)
         filename))))
 
-(defun magit-format-duration (duration spec &optional width)
-  (unless width
-    (setq width (apply 'max (nconc (mapcar 'cadr spec)
-                                   (mapcar 'cl-caddr spec)))))
+(defun magit-format-duration (duration spec width)
   (cl-destructuring-bind (char unit units weight)
       (car spec)
     (let ((cnt (round (/ duration weight 1.0))))
