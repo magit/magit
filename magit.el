@@ -400,9 +400,12 @@ Only considered when moving past the last entry with
 (defcustom magit-log-show-margin t
   "Whether to use a margin when showing `oneline' logs.
 When non-nil the author name and date are displayed in the margin
-of the log buffer if that contains a `oneline' log."
+of the log buffer if that contains a `oneline' log.  This can be
+toggled temporarily using the command `magit-log-toggle-margin'."
   :group 'magit
   :type 'boolean)
+
+(put 'magit-log-show-margin 'permanent-local t)
 
 (defcustom magit-log-margin-spec '(25 nil magit-duration-spec)
   "How to format the margin for `oneline' logs.
@@ -411,7 +414,8 @@ When the log buffer contains a `oneline' log, then it optionally
 uses the right margin to display the author name and author date.
 This option controls how that margin is formatted, the other
 option affecting this is `magit-log-show-margin'; if that is nil
-then no margin is displayed at all.
+then no margin is displayed at all.  To toggle this temporarily
+use the command `magit-log-show-margin'.
 
 Logs that are shown together with other non-log information (e.g.
 in the status buffer) are never accompanied by a margin.  The
@@ -1389,6 +1393,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd ".") 'magit-mark-item)
     (define-key map (kbd "=") 'magit-diff-with-mark)
     (define-key map (kbd "e") 'magit-log-show-more-entries)
+    (define-key map (kbd "h") 'magit-log-toggle-margin)
     map)
   "Keymap for `magit-log-mode'.")
 
@@ -3933,6 +3938,8 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 
 (defvar magit-log-count nil)
 
+(defvar-local magit-log-margin-timeunit-width nil)
+
 ;;;; Log Washing Functions
 
 (defun magit-wash-log (style &optional color longer)
@@ -6051,6 +6058,20 @@ Other key binding:
   (save-excursion
     (goto-char (point-min))
     (magit-format-log-margin)))
+
+(defun magit-log-toggle-margin ()
+  "Show or hide the log margin.
+This command can only be used inside log buffers (usually
+*magit-log*) and only if that displays a `oneline' log.
+Also see option `magit-log-show-margin'."
+  (interactive)
+  (if (derived-mode-p 'magit-log-mode)
+      (if (eq (car magit-refresh-args) 'oneline)
+          (progn (setq-local magit-log-show-margin
+                             (not magit-log-show-margin))
+                 (magit-refresh))
+        (error "The log margin cannot be used with \"long\" log"))
+    (error "The log margin cannot be used outside of log buffers")))
 
 (defun magit-log-show-more-entries (&optional arg)
   "Grow the number of log entries shown.
