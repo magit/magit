@@ -402,7 +402,7 @@ Only considered when moving past the last entry with
   :group 'magit
   :type 'boolean)
 
-(defcustom magit-log-author-date-max-length 25
+(defcustom magit-log-margin-width 25
   "The maximum width of the author-date margin in log buffers."
   :type 'integer
   :group 'magit)
@@ -3994,9 +3994,9 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
     (let* ((author-length magit-log-author-string-length)
            (date-length magit-log-date-string-length)
            (max-length (if (< (+ author-length date-length 1)
-                              magit-log-author-date-max-length)
+                              magit-log-margin-width)
                            (+ author-length date-length 1)
-                         magit-log-author-date-max-length))
+                         magit-log-margin-width))
            (author-length (- max-length date-length 1))
            (author-length-string (number-to-string author-length))
            (date-length-string (number-to-string date-length))
