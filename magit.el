@@ -404,7 +404,7 @@ of the log buffer if that contains a `oneline' log."
   :group 'magit
   :type 'boolean)
 
-(defcustom magit-log-time-unit-as-character t
+(defcustom magit-log-time-unit-as-character nil
   "Whether to abbreviate time units to a single character.
 Currently this is used only in the log margin, but might later
 be used elsewhere too."
