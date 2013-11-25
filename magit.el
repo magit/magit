@@ -4030,8 +4030,8 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                      'face 'magit-log-author)
          " "
          (propertize (magit-format-duration
-                      (abs (- (truncate (float-time))
-                              (string-to-number date)))
+                      (abs (truncate (- (float-time)
+                                        (string-to-number date))))
                       magit-duration-spec width)
                      'face 'magit-log-date)
          (propertize " " 'face 'fringe))
