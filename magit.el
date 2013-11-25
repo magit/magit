@@ -397,12 +397,21 @@ Only considered when moving past the last entry with
   :group 'magit
   :type 'boolean)
 
-(defcustom magit-log-show-author-date t
-  "Show author and date for each commit in short log mode."
+(defcustom magit-log-show-margin t
+  "Whether to use a margin when showing `oneline' logs.
+When non-nil the author name and date are displayed in the margin
+of the log buffer if that contains a `oneline' log."
   :group 'magit
   :type 'boolean)
 
-(defcustom magit-log-author-date-max-length 25
+(defcustom magit-log-time-unit-as-character t
+  "Whether to abbreviate time units to a single character.
+Currently this is used only in the log margin, but might later
+be used elsewhere too."
+  :group 'magit
+  :type 'boolean)
+
+(defcustom magit-log-margin-width 25
   "The maximum width of the author-date margin in log buffers."
   :type 'integer
   :group 'magit)
@@ -846,6 +855,38 @@ changes, e.g. because you are committing some binary files."
                  (const :tag "Expand top section" t)
                  (const :tag "Don't expand" nil)))
 
+(defcustom magit-duration-spec
+  `((?Y "year"   "years"   ,(round (* 60 60 24 365.2425)))
+    (?M "month"  "months"  ,(round (* 60 60 24 30.436875)))
+    (?w "week"   "weeks"   ,(* 60 60 24 7))
+    (?d "day"    "days"    ,(* 60 60 24))
+    (?h "hour"   "hours"   ,(* 60 60))
+    (?m "minute" "minutes" 60)
+    (?s "second" "seconds" 1))
+  "Units used to display durations in a human format.
+The value is a list of time units, beginning with the longest.
+Each element has the form ((CHAR UNIT UNITS SECONDS)..).  UNIT
+is the time unit, UNITS is the plural of that unit.  CHAR is a
+character that can be used as abbreviation and must be unique
+amoung all elements.  SECONDS is the number of seconds in one
+UNIT.
+
+This option is used by function `magit-format-log-margin'.
+Also see option `magit-log-time-unit-as-character'."
+  :group 'magit
+  :type '(repeat (list (character :tag "Unit character")
+                       (string    :tag "Unit singular string")
+                       (string    :tag "Unit plural string")
+                       (integer   :tag "Seconds in unit"))))
+
+(defcustom magit-ellipsis ?…
+  "Character appended to abreviated text.
+Currently this is used only in the log margin, but might later
+be used elsewhere too.  Filenames that were abbreviated by Git
+are left as-is."
+  :group 'magit
+  :type 'character)
+
 (defvar magit-status-line-align-to 9)
 
 ;; Not an option to avoid advertising it.
@@ -957,12 +998,6 @@ Many Magit faces inherit from this one by default."
     (((class color) (background dark))
      :foreground "tomato"))
   "Face for the author element of the log output."
-  :group 'magit-faces)
-
-(defface magit-log-author-date-cutoff
-  '((t :inherit magit-log-author
-       :bold t))
-  "Face for the author element's cutoff mark."
   :group 'magit-faces)
 
 (defface magit-log-date
@@ -1551,6 +1586,48 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
       (if relative
           (file-relative-name filename topdir)
         filename))))
+
+(defun magit-format-duration (duration spec &optional width)
+  (unless width
+    (setq width (apply 'max (nconc (mapcar 'cadr spec)
+                                   (mapcar 'cl-caddr spec)))))
+  (cl-destructuring-bind (char unit units weight)
+      (car spec)
+    (let ((cnt (round (/ duration weight 1.0))))
+      (if (or (not (cdr spec))
+              (>= (/ duration weight) 1))
+          (if (= width 1)
+              (format "%3i%c" cnt char)
+            (format (format "%%3i %%-%is" width) cnt
+                    (if (= cnt 1) unit units)))
+        (magit-format-duration duration (cdr spec) width)))))
+
+;;;; Buffer Margins
+
+(defun magit-set-buffer-margin (width enable)
+  (let ((window (get-buffer-window)))
+    (when window
+      (with-selected-window window
+        (set-window-margins nil (car (window-margins)) (if enable width 0))
+        (let ((fn (apply-partially
+                   (lambda (width)
+                     (let ((window (get-buffer-window)))
+                       (when window
+                         (with-selected-window window
+                           (set-window-margins nil (car (window-margins))
+                                               width)))))
+                   width)))
+          (if enable
+              (add-hook  'window-configuration-change-hook fn nil t)
+            (remove-hook 'window-configuration-change-hook fn t)))))))
+
+(defun magit-make-margin-overlay (&rest strings)
+  (let ((o (make-overlay (point) (line-end-position) nil t)))
+    (overlay-put o 'evaporate t)
+    (overlay-put o 'before-string
+                 (propertize "o" 'display
+                             (list '(margin right-margin)
+                                   (apply #'concat strings))))))
 
 ;;;; Emacsclient Support
 
@@ -3858,8 +3935,6 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
       (ansi-color-apply-on-region (point-min) (point-max))))
   (when (eq style 'cherry)
     (reverse-region (point-min) (point-max)))
-  (when (eq style 'oneline)
-    (magit-log-setup-author-date))
   (magit-wash-sequence (apply-partially 'magit-wash-log-line style))
   (when longer
     (when (= magit-log-count magit-log-cutoff-length)
@@ -3869,8 +3944,9 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                                       (magit-log-show-more-entries))
                             'follow-link t
                             'mouse-face magit-item-highlight-face))))
-  (when (eq style 'oneline)
-    (magit-log-create-author-date-overlays)))
+  (magit-set-buffer-margin magit-log-margin-width
+                           (and (derived-mode-p 'magit-log-mode)
+                                (eq style 'oneline))))
 
 (defun magit-wash-log-line (style)
   (looking-at (cl-ecase style
@@ -3884,8 +3960,6 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
   (magit-bind-match-strings
       (hash msg refs graph author date gpg cherry refsub)
     (delete-region (point) (point-at-eol))
-    (when (and magit-log-show-author-date author date)
-      (magit-log-make-author-date-overlay author date))
     (when cherry
       (insert (propertize cherry 'face
                           (if (string= cherry "+")
@@ -3917,6 +3991,8 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
        msg)
       (insert msg))
     (goto-char (line-beginning-position))
+    (when magit-log-show-margin
+      (magit-format-log-margin author date))
     (if hash
         (magit-with-section (section commit hash)
           (setf (magit-section-info section) hash)
@@ -3932,87 +4008,37 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
       (forward-line)))
   t)
 
-;;;; Log Author/Date Overlays
-
-(defvar-local magit-log-author-date-string-length nil)
-(defvar-local magit-log-author-string-length nil)
-(defvar-local magit-log-date-string-length nil)
-(defvar-local magit-log-author-date-overlay nil)
-
-(defun magit-log-make-author-date-overlay (author date)
-  (let ((overlay (make-overlay (point) (1+ (point)))))
-    (setq author (propertize author 'face 'magit-log-author)
-          date (delete "ago" (split-string date "[ ,]+"))
-          date (propertize (concat (format "%2s %5s"
-                                           (nth 0 date)
-                                           (nth 1 date))
-                                   (when (nth 2 date)
-                                     (format " %2s %1.1s "
-                                             (nth 2 date)
-                                             (nth 3 date))))
-                           'face 'magit-log-date))
-    (overlay-put overlay 'magit-log-overlay (cons author date))
-    (overlay-put overlay 'evaporate t)
-    (setq magit-log-author-date-overlay
-          (cons overlay magit-log-author-date-overlay))
-    (when (> (length author) magit-log-author-string-length)
-      (setq magit-log-author-string-length (length author)))
-    (when (> (length date) magit-log-date-string-length)
-      (setq magit-log-date-string-length (length date)))))
-
-(defun magit-log-create-author-date-overlays ()
-  (when magit-log-author-date-overlay
-    (let* ((author-length magit-log-author-string-length)
-           (date-length magit-log-date-string-length)
-           (max-length (if (< (+ author-length date-length 1)
-                              magit-log-author-date-max-length)
-                           (+ author-length date-length 1)
-                         magit-log-author-date-max-length))
-           (author-length (- max-length date-length 1))
-           (author-length-string (number-to-string author-length))
-           (date-length-string (number-to-string date-length))
-           (format-string (concat "%-" author-length-string "s "
-                                  "%-" date-length-string "s")))
-      (mapc (lambda (overlay)
-              (let* ((data (overlay-get overlay 'magit-log-overlay))
-                     (author (car data))
-                     (date (cdr data))
-                     (author-date
-                      (format format-string
-                              (if (< author-length (length author))
-                                  (concat
-                                   (substring author
-                                              0 (1- author-length))
-                                   (propertize
-                                    "-" 'face
-                                    'magit-log-author-date-cutoff))
-                                author)
-                              date)))
-                (overlay-put overlay 'before-string
-                             (propertize " " 'display
-                                         (list '(margin right-margin)
-                                               author-date)))))
-            magit-log-author-date-overlay)
-      (setq magit-log-author-date-string-length max-length))
-    (magit-log-refresh-author-date)
-    (add-hook 'window-configuration-change-hook
-              'magit-log-refresh-author-date
-              nil t)))
-
-(defun magit-log-refresh-author-date ()
-  (let ((window (get-buffer-window)))
-    (when window
-      (with-selected-window window
-        (set-window-margins nil (car (window-margins))
-                            magit-log-author-date-string-length)))))
-
-(defun magit-log-setup-author-date ()
-  (setq magit-log-author-date-string-length 0
-        magit-log-author-string-length 0
-        magit-log-date-string-length 0
-        magit-log-author-date-overlay nil)
-  (remove-hook 'window-configuration-change-hook
-               'magit-log-refresh-author-date t))
+(defun magit-format-log-margin (&optional author date)
+  (let ((width
+         (if magit-log-time-unit-as-character
+             1
+           (+ (apply 'max (nconc (mapcar 'cadr magit-duration-spec)
+                                 (mapcar 'cl-caddr magit-duration-spec)))
+              1)))) ; separator
+    (if author
+        (magit-make-margin-overlay
+         (propertize (let ((room (- magit-log-margin-width
+                                    (length author)
+                                    1     ; separator
+                                    3     ; number wide
+                                    width ; of time unit
+                                    1)))  ; pseudo fringe
+                       (if (< room 0)
+                           (concat (substring author 0 (1- room))
+                                   (make-string 1 magit-ellipsis))
+                         (concat author (make-string room ?\s))))
+                     'face 'magit-log-author)
+         " "
+         (propertize (magit-format-duration
+                      (abs (- (truncate (float-time))
+                              (string-to-number date)))
+                      magit-duration-spec width)
+                     'face 'magit-log-date)
+         (propertize " " 'face 'fringe))
+      (magit-make-margin-overlay
+       (propertize (make-string (1- magit-log-margin-width) ?\s)
+                   'face 'default)
+       (propertize " " 'face 'fringe)))))
 
 ;;; Commit Mode
 ;;__ FIXME The parens indicate preliminary subsections.
@@ -6011,8 +6037,12 @@ Other key binding:
                    "--stat"))
         (oneline (concat "--pretty=format:%h%d "
                          (and magit-log-show-gpg-status "%G?")
-                         "[%an][%ar]%s")))
-      args range "--" file)))
+                         "[%an][%at]%s")))
+      args range "--" file))
+  (when (eq style 'oneline)
+    (save-excursion
+      (goto-char (point-min))
+      (magit-format-log-margin))))
 
 (defun magit-log-show-more-entries (&optional arg)
   "Grow the number of log entries shown.
