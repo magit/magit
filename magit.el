@@ -1552,6 +1552,25 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
           (file-relative-name filename topdir)
         filename))))
 
+;;;; Buffer Margins
+
+(defun magit-set-buffer-margin (width enable)
+  (let ((window (get-buffer-window)))
+    (when window
+      (with-selected-window window
+        (set-window-margins nil (car (window-margins)) (if enable width 0))
+        (let ((fn (apply-partially
+                   (lambda (width)
+                     (let ((window (get-buffer-window)))
+                       (when window
+                         (with-selected-window window
+                           (set-window-margins nil (car (window-margins))
+                                               width)))))
+                   width)))
+          (if enable
+              (add-hook  'window-configuration-change-hook fn nil t)
+            (remove-hook 'window-configuration-change-hook fn t)))))))
+
 ;;;; Emacsclient Support
 
 (defmacro magit-with-emacsclient (server-window &rest body)
