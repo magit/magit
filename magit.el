@@ -1571,6 +1571,14 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
               (add-hook  'window-configuration-change-hook fn nil t)
             (remove-hook 'window-configuration-change-hook fn t)))))))
 
+(defun magit-make-margin-overlay (&rest strings)
+  (let ((o (make-overlay (point) (line-end-position) nil t)))
+    (overlay-put o 'evaporate t)
+    (overlay-put o 'before-string
+                 (propertize "o" 'display
+                             (list '(margin right-margin)
+                                   (apply #'concat strings))))))
+
 ;;;; Emacsclient Support
 
 (defmacro magit-with-emacsclient (server-window &rest body)
