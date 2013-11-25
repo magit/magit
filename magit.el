@@ -4012,16 +4012,17 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
   (let ((width
          (if magit-log-time-unit-as-character
              1
-           (+ (apply 'max (nconc (mapcar 'cadr magit-duration-spec)
-                                 (mapcar 'cl-caddr magit-duration-spec)))
-              1)))) ; separator
+           (apply 'max (nconc (mapcar (lambda (e) (length (nth 1 e)))
+                                      magit-duration-spec)
+                              (mapcar (lambda (e) (length (nth 2 e)))
+                                      magit-duration-spec))))))
     (if author
         (magit-make-margin-overlay
          (propertize (let ((room (- magit-log-margin-width
                                     (length author)
                                     1     ; separator
                                     3     ; number wide
-                                    width ; of time unit
+                                    width (if (> width 1) 1 0)
                                     1)))  ; pseudo fringe
                        (if (< room 0)
                            (concat (substring author 0 (1- room))
