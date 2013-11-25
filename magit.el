@@ -967,12 +967,6 @@ Many Magit faces inherit from this one by default."
   "Face for the author element of the log output."
   :group 'magit-faces)
 
-(defface magit-log-author-date-cutoff
-  '((t :inherit magit-log-author
-       :bold t))
-  "Face for the author element's cutoff mark."
-  :group 'magit-faces)
-
 (defface magit-log-date
   '((t))
   "Face for the date element of the log output."
@@ -4018,9 +4012,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                                   (concat
                                    (substring author
                                               0 (1- author-length))
-                                   (propertize
-                                    magit-ellipsis 'face
-                                    'magit-log-author-date-cutoff))
+                                    magit-ellipsis)
                                 author)
                               date)))
                 (overlay-put overlay 'before-string
