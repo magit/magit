@@ -4019,20 +4019,17 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
     (if author
         (magit-make-margin-overlay
          (propertize (let ((room (- magit-log-margin-width
-                                    (length author)
                                     1     ; separator
                                     3     ; number wide
                                     width (if (> width 1) 1 0)
                                     1)))  ; pseudo fringe
-                       (if (< room 0)
-                           (concat (substring author 0 (1- room))
-                                   (make-string 1 magit-ellipsis))
-                         (concat author (make-string room ?\s))))
+                       (truncate-string-to-width author room nil ?\s
+                                                 (make-string 1 magit-ellipsis)))
                      'face 'magit-log-author)
          " "
          (propertize (magit-format-duration
-                      (abs (- (truncate (float-time))
-                              (string-to-number date)))
+                      (abs (truncate (- (float-time)
+                                        (string-to-number date))))
                       magit-duration-spec width)
                      'face 'magit-log-date)
          (propertize " " 'face 'fringe))
