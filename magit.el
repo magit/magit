@@ -404,17 +404,32 @@ of the log buffer if that contains a `oneline' log."
   :group 'magit
   :type 'boolean)
 
-(defcustom magit-log-time-unit-as-character nil
-  "Whether to abbreviate time units to a single character.
-Currently this is used only in the log margin, but might later
-be used elsewhere too."
-  :group 'magit
-  :type 'boolean)
+(defcustom magit-log-margin-spec '(25 nil magit-duration-spec)
+  "How to format the margin for `oneline' logs.
 
-(defcustom magit-log-margin-width 25
-  "The maximum width of the author-date margin in log buffers."
-  :type 'integer
-  :group 'magit)
+When the log buffer contains a `oneline' log, then it optionally
+uses the right margin to display the author name and author date.
+This option controls how that margin is formatted, the other
+option affecting this is `magit-log-show-margin'; if that is nil
+then no margin is displayed at all.
+
+Logs that are shown together with other non-log information (e.g.
+in the status buffer) are never accompanied by a margin.  The
+same applies to `long' logs, in this case because that would be
+redundant.
+
+The value has the form (WIDTH CHARACTERP DURATION-SPEC).  The
+width of the margin is controlled using WIDTH, an integer.  When
+CHARACTERP is non-nil time units are shown as single characters,
+otherwise the full name of the unit is displayed.  DURATION-SPEC
+has to be a variable, its value controls which time units are
+used, how many seconds they contain, and what their names are."
+  :group 'magit
+  :type '(list (integer  :tag "Margin width")
+               (choice   :tag "Time unit style"
+                         (const :tag "Character" t)
+                         (const :tag "Word" nil))
+               (variable :tag "Duration spec variable")))
 
 (defcustom magit-duration-spec
   `((?Y "year"   "years"   ,(round (* 60 60 24 365.2425)))
@@ -430,10 +445,7 @@ Each element has the form ((CHAR UNIT UNITS SECONDS)..).  UNIT
 is the time unit, UNITS is the plural of that unit.  CHAR is a
 character that can be used as abbreviation and must be unique
 amoung all elements.  SECONDS is the number of seconds in one
-UNIT.
-
-This option is used by function `magit-format-log-margin'.
-Also see option `magit-log-time-unit-as-character'."
+UNIT.  Also see option `magit-log-margin-spec'."
   :group 'magit
   :type '(repeat (list (character :tag "Unit character")
                        (string    :tag "Unit singular string")
@@ -3940,10 +3952,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                             'action (lambda (button)
                                       (magit-log-show-more-entries))
                             'follow-link t
-                            'mouse-face magit-item-highlight-face))))
-  (magit-set-buffer-margin magit-log-margin-width
-                           (and (derived-mode-p 'magit-log-mode)
-                                (eq style 'oneline))))
+                            'mouse-face magit-item-highlight-face)))))
 
 (defun magit-wash-log-line (style)
   (looking-at (cl-ecase style
@@ -3988,8 +3997,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
        msg)
       (insert msg))
     (goto-char (line-beginning-position))
-    (when magit-log-show-margin
-      (magit-format-log-margin author date))
+    (magit-format-log-margin author date)
     (if hash
         (magit-with-section (section commit hash)
           (setf (magit-section-info section) hash)
@@ -4006,37 +4014,28 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
   t)
 
 (defun magit-format-log-margin (&optional author date)
-  (let ((width
-         (if magit-log-time-unit-as-character
-             1
-           (apply 'max (nconc (mapcar (lambda (e) (length (nth 1 e)))
-                                      magit-duration-spec)
-                              (mapcar (lambda (e) (length (nth 2 e)))
-                                      magit-duration-spec))))))
-    (if author
+  (when (and magit-log-show-margin
+             (eq (car magit-refresh-args) 'oneline))
+    (cl-destructuring-bind (width characterp duration-spec)
+        magit-log-margin-spec
+      (if author
+          (magit-make-margin-overlay
+           (propertize (truncate-string-to-width
+                        author (- width 1 3 (if characterp 0 1)
+                                  magit-log-margin-timeunit-width 1)
+                        nil ?\s (make-string 1 magit-ellipsis))
+                       'face 'magit-log-author)
+           " "
+           (propertize (magit-format-duration
+                        (abs (truncate (- (float-time)
+                                          (string-to-number date))))
+                        (symbol-value duration-spec)
+                        magit-log-margin-timeunit-width)
+                       'face 'magit-log-date)
+           (propertize " " 'face 'fringe))
         (magit-make-margin-overlay
-         (propertize (let ((room (- magit-log-margin-width
-                                    (length author)
-                                    1     ; separator
-                                    3     ; number wide
-                                    width (if (> width 1) 1 0)
-                                    1)))  ; pseudo fringe
-                       (if (< room 0)
-                           (concat (substring author 0 (1- room))
-                                   (make-string 1 magit-ellipsis))
-                         (concat author (make-string room ?\s))))
-                     'face 'magit-log-author)
-         " "
-         (propertize (magit-format-duration
-                      (abs (- (truncate (float-time))
-                              (string-to-number date)))
-                      magit-duration-spec width)
-                     'face 'magit-log-date)
-         (propertize " " 'face 'fringe))
-      (magit-make-margin-overlay
-       (propertize (make-string (1- magit-log-margin-width) ?\s)
-                   'face 'default)
-       (propertize " " 'face 'fringe)))))
+         (propertize (make-string (1- width) ?\s) 'face 'default)
+         (propertize " " 'face 'fringe))))))
 
 ;;; Commit Mode
 ;;__ FIXME The parens indicate preliminary subsections.
@@ -6016,6 +6015,18 @@ Other key binding:
   "Name of buffer used to display log entries.")
 
 (defun magit-refresh-log-buffer (style range args &optional file)
+  (magit-set-buffer-margin (car magit-log-margin-spec)
+                           (and magit-log-show-margin
+                                (eq (car magit-refresh-args) 'oneline)))
+  (cl-destructuring-bind (width characterp duration-spec)
+      magit-log-margin-spec
+    (setq magit-log-margin-timeunit-width
+          (if characterp
+              1
+            (apply 'max (mapcar (lambda (e)
+                                  (max (length (nth 1 e))
+                                       (length (nth 2 e))))
+                                (symbol-value duration-spec))))))
   (setq magit-file-log-file file)
   (when (consp range)
     (setq range (concat (car range) ".." (cdr range))))
@@ -6037,10 +6048,9 @@ Other key binding:
                          (and magit-log-show-gpg-status "%G?")
                          "[%an][%at]%s")))
       args range "--" file))
-  (when (eq style 'oneline)
-    (save-excursion
-      (goto-char (point-min))
-      (magit-format-log-margin))))
+  (save-excursion
+    (goto-char (point-min))
+    (magit-format-log-margin)))
 
 (defun magit-log-show-more-entries (&optional arg)
   "Grow the number of log entries shown.
