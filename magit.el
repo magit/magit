@@ -1554,6 +1554,21 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
           (file-relative-name filename topdir)
         filename))))
 
+(defun magit-format-duration (duration spec &optional width)
+  (unless width
+    (setq width (apply 'max (nconc (mapcar 'cadr spec)
+                                   (mapcar 'cl-caddr spec)))))
+  (cl-destructuring-bind (char unit units weight)
+      (car spec)
+    (let ((cnt (round (/ duration weight 1.0))))
+      (if (or (not (cdr spec))
+              (>= (/ duration weight) 1))
+          (if (= width 1)
+              (format "%3i%c" cnt char)
+            (format (format "%%3i %%-%is" width) cnt
+                    (if (= cnt 1) unit units)))
+        (magit-format-duration duration (cdr spec) width)))))
+
 ;;;; Buffer Margins
 
 (defun magit-set-buffer-margin (width enable)
