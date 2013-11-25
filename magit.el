@@ -416,6 +416,30 @@ be used elsewhere too."
   :type 'integer
   :group 'magit)
 
+(defcustom magit-duration-spec
+  `((?Y "year"   "years"   ,(round (* 60 60 24 365.2425)))
+    (?M "month"  "months"  ,(round (* 60 60 24 30.436875)))
+    (?w "week"   "weeks"   ,(* 60 60 24 7))
+    (?d "day"    "days"    ,(* 60 60 24))
+    (?h "hour"   "hours"   ,(* 60 60))
+    (?m "minute" "minutes" 60)
+    (?s "second" "seconds" 1))
+  "Units used to display durations in a human format.
+The value is a list of time units, beginning with the longest.
+Each element has the form ((CHAR UNIT UNITS SECONDS)..).  UNIT
+is the time unit, UNITS is the plural of that unit.  CHAR is a
+character that can be used as abbreviation and must be unique
+amoung all elements.  SECONDS is the number of seconds in one
+UNIT.
+
+This option is used by function `magit-format-log-margin'.
+Also see option `magit-log-time-unit-as-character'."
+  :group 'magit
+  :type '(repeat (list (character :tag "Unit character")
+                       (string    :tag "Unit singular string")
+                       (string    :tag "Unit plural string")
+                       (integer   :tag "Seconds in unit"))))
+
 (defcustom magit-log-show-gpg-status nil
   "Display signature verification information as part of the log."
   :group 'magit
@@ -854,30 +878,6 @@ changes, e.g. because you are committing some binary files."
   :type '(choice (const :tag "Expand all subsections" full)
                  (const :tag "Expand top section" t)
                  (const :tag "Don't expand" nil)))
-
-(defcustom magit-duration-spec
-  `((?Y "year"   "years"   ,(round (* 60 60 24 365.2425)))
-    (?M "month"  "months"  ,(round (* 60 60 24 30.436875)))
-    (?w "week"   "weeks"   ,(* 60 60 24 7))
-    (?d "day"    "days"    ,(* 60 60 24))
-    (?h "hour"   "hours"   ,(* 60 60))
-    (?m "minute" "minutes" 60)
-    (?s "second" "seconds" 1))
-  "Units used to display durations in a human format.
-The value is a list of time units, beginning with the longest.
-Each element has the form ((CHAR UNIT UNITS SECONDS)..).  UNIT
-is the time unit, UNITS is the plural of that unit.  CHAR is a
-character that can be used as abbreviation and must be unique
-amoung all elements.  SECONDS is the number of seconds in one
-UNIT.
-
-This option is used by function `magit-format-log-margin'.
-Also see option `magit-log-time-unit-as-character'."
-  :group 'magit
-  :type '(repeat (list (character :tag "Unit character")
-                       (string    :tag "Unit singular string")
-                       (string    :tag "Unit plural string")
-                       (integer   :tag "Seconds in unit"))))
 
 (defcustom magit-ellipsis ?…
   "Character appended to abreviated text.
