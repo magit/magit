@@ -846,6 +846,14 @@ changes, e.g. because you are committing some binary files."
                  (const :tag "Expand top section" t)
                  (const :tag "Don't expand" nil)))
 
+(defcustom magit-ellipsis ?…
+  "Character appended to abreviated text.
+Currently this is used only in the log margin, but might later
+be used elsewhere too.  Filenames that were abbreviated by Git
+are left as-is."
+  :group 'magit
+  :type 'character)
+
 (defvar magit-status-line-align-to 9)
 
 ;; Not an option to avoid advertising it.
@@ -4011,7 +4019,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                                    (substring author
                                               0 (1- author-length))
                                    (propertize
-                                    "-" 'face
+                                    magit-ellipsis 'face
                                     'magit-log-author-date-cutoff))
                                 author)
                               date)))
