@@ -5602,6 +5602,10 @@ depending on the value of option `magit-commit-squash-commit'.
           (editmsg (magit-git-dir (if (equal subcmd "tag")
                                       "TAG_EDITMSG"
                                     "COMMIT_EDITMSG"))))
+      (when (and (member "--amend" args)
+                 (not (file-exists-p editmsg)))
+        (with-temp-file editmsg
+          (magit-git-insert "log" "-1" "--format=format:%B" "HEAD")))
       (with-current-buffer (find-file-noselect editmsg)
         (funcall (if (functionp magit-server-window-for-commit)
                      magit-server-window-for-commit
