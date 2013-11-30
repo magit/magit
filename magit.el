@@ -3880,7 +3880,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 
 (defconst magit-log-oneline-re
   (concat "^"
-          "\\(?4:\\(?:[-_/|\\*o.] ?\\)+ *\\)?"     ; graph
+          "\\(?4:\\(?:[-_/|\\*o. ]\\)+ *\\)?"      ; graph
           "\\(?:"
           "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
           "\\(?:\\(?3:([^()]+)\\) \\)?"            ; refs
