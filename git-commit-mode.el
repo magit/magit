@@ -326,6 +326,9 @@ The commit message is saved to the kill ring."
     (when (and (string-match "^\\s-*\\sw" message)
                (or (ring-empty-p log-edit-comment-ring)
                    (not (ring-member log-edit-comment-ring message))))
+      ;; if index is nil, we end up cycling back to message we just saved!
+      (unless log-edit-comment-ring-index
+        (setq log-edit-comment-ring-index 0))
       (ring-insert log-edit-comment-ring message))))
 
 (defun git-commit-prev-message (arg)
