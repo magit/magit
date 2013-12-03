@@ -6783,12 +6783,13 @@ With a prefix argument, visit in other window."
   (dired-jump
    other-window
    (file-truename
-    (magit-section-action (item info "dired-jump" t)
-      ((untracked file) info)
-      ((diffstat)       (magit-section-info item))
-      ((diff)           (magit-section-info item))
-      ((hunk)           (magit-section-info (magit-section-parent item)))
-      (nil              nil)))))
+    (or (magit-section-action (item info "dired-jump" t)
+          ((untracked file) info)
+          ((diffstat)       (magit-section-info item))
+          ((diff)           (magit-section-info item))
+          ((hunk)           (magit-section-info (magit-section-parent item)))
+          (nil              nil))
+        default-directory))))
 
 ;;;###autoload
 (defun magit-show (rev file &optional switch-function)
