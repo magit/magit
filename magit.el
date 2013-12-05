@@ -1671,7 +1671,6 @@ server if necessary."
                      ;; Tell Emacsclient to use this server,
                      ;; if necessary and possible.
                      (unless (or (equal server-name "server")
-                                 (eq system-type 'windows-nt)
                                  server-use-tcp)
                        (concat " --socket-name="
                                (expand-file-name server-name
