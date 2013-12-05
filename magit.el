@@ -1658,6 +1658,9 @@ server if necessary."
           (magit-process-popup-time -1))
      ;; Make sure the client is usable.
      (magit-assert-emacsclient "use `magit-with-emacsclient'")
+     ;; Make sure server-use-tcp's value is valid.
+     (unless (featurep 'make-network-process '(:family local))
+       (setq server-use-tcp t))
      ;; Make sure the server is running.
      (unless server-process
        (when (server-running-p server-name)
