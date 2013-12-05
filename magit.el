@@ -6788,7 +6788,7 @@ With a prefix argument, visit in other window."
       ((diffstat)       (magit-section-info item))
       ((diff)           (magit-section-info item))
       ((hunk)           (magit-section-info (magit-section-parent item)))
-      (nil              nil)))))
+      (nil              default-directory)))))
 
 ;;;###autoload
 (defun magit-show (rev file &optional switch-function)
