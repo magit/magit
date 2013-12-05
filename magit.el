@@ -6069,13 +6069,15 @@ This command can only be used inside log buffers (usually
 *magit-log*) and only if that displays a `oneline' log.
 Also see option `magit-log-show-margin'."
   (interactive)
-  (if (derived-mode-p 'magit-log-mode)
-      (if (eq (car magit-refresh-args) 'oneline)
-          (progn (setq-local magit-log-show-margin
-                             (not magit-log-show-margin))
-                 (magit-refresh))
-        (error "The log margin cannot be used with \"long\" log"))
-    (error "The log margin cannot be used outside of log buffers")))
+  (unless (derived-mode-p 'magit-log-mode)
+    (error "The log margin cannot be used outside of log buffers"))
+  (unless (eq (car magit-refresh-args) 'oneline)
+    (error "The log margin cannot be used with \"long\" log"))
+  (if magit-log-show-margin
+      (magit-set-buffer-margin (car magit-log-margin-spec)
+                               (not (cdr (window-margins))))
+    (setq-local magit-log-show-margin t)
+    (magit-refresh)))
 
 (defun magit-log-show-more-entries (&optional arg)
   "Grow the number of log entries shown.
