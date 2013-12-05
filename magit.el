@@ -6854,7 +6854,8 @@ return the buffer, without displaying it."
           (goto-char (point-min)))))
     (when switch-function
       (with-current-buffer buffer
-        (funcall switch-function (current-buffer))))))
+        (funcall switch-function (current-buffer))))
+    buffer))
 
 ;;;; Mark
 
