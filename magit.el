@@ -6826,10 +6826,10 @@ return the buffer, without displaying it."
   (let (buffer)
     (if (eq rev 'working)
         (setq buffer (find-file-noselect file))
-      (let* ((name (format "%s.%s" file
-                           (if (symbolp rev)
-                               (format "@{%s}" rev)
-                             (replace-regexp-in-string "/" ":" rev)))))
+      (let ((name (format "%s.%s" file
+                          (if (symbolp rev)
+                              (format "@{%s}" rev)
+                            (replace-regexp-in-string "/" ":" rev)))))
         (setq buffer (get-buffer name))
         (when buffer
           (with-current-buffer buffer
