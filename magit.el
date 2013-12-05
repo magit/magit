@@ -6815,41 +6815,46 @@ return the buffer, without displaying it."
                file (magit-section-info section))
        (unless rev
          (setq rev (magit-get-current-branch))))
-     (list (magit-read-rev "Retrieve file from revision" rev)
-           (magit-read-file-from-rev rev file)
-           current-prefix-arg)))
-  (if (eq rev 'working)
-      (find-file-noselect file)
-    (let* ((name (format "%s.%s" file
-                         (if (symbolp rev)
-                             (format "@{%s}" rev)
-                           (replace-regexp-in-string "/" ":" rev))))
-           (buffer (get-buffer name)))
-      (when buffer
-        (with-current-buffer buffer
-          (unless (and (equal file magit-file-name)
-                       (equal rev  magit-show-current-version))
-            (setq buffer nil))))
-      (with-current-buffer
-          (or buffer (create-file-buffer name))
-        (with-silent-modifications
-          (if (eq rev 'index)
-              (let ((temp (car (split-string
-                                (magit-git-string "checkout-index"
-                                                  "--temp" file)
-                                "\t"))))
-                (insert-file-contents temp nil nil nil t)
-                (delete-file temp))
-            (magit-git-insert "cat-file" "-p" (concat rev ":" file))))
-        (let ((buffer-file-name (expand-file-name file (magit-get-top-dir))))
-          (normal-mode t))
-        (setq magit-file-name file)
-        (setq magit-show-current-version rev)
-        (goto-char (point-min))
-        (funcall (if (called-interactively-p 'any)
-                     (if switch-function 'switch-to-buffer 'pop-to-buffer)
-                   (or switch-function 'identity))
-                 (current-buffer))))))
+     (setq rev  (magit-read-rev "Retrieve file from revision" rev)
+           file (cl-case rev
+                  (working (read-file-name "Find file: "))
+                  (index   (magit-read-file-from-rev "HEAD" file))
+                  (t       (magit-read-file-from-rev rev file))))
+     (list rev file (if current-prefix-arg
+                        'switch-to-buffer
+                      'pop-to-buffer))))
+  (let (buffer)
+    (if (eq rev 'working)
+        (setq buffer (find-file-noselect file))
+      (let* ((name (format "%s.%s" file
+                           (if (symbolp rev)
+                               (format "@{%s}" rev)
+                             (replace-regexp-in-string "/" ":" rev)))))
+        (setq buffer (get-buffer name))
+        (when buffer
+          (with-current-buffer buffer
+            (unless (and (equal file magit-file-name)
+                         (equal rev  magit-show-current-version))
+              (setq buffer nil))))
+        (with-current-buffer
+            (or buffer (setq buffer (create-file-buffer name)))
+          (with-silent-modifications
+            (if (eq rev 'index)
+                (let ((temp (car (split-string
+                                  (magit-git-string "checkout-index"
+                                                    "--temp" file)
+                                  "\t"))))
+                  (insert-file-contents temp nil nil nil t)
+                  (delete-file temp))
+              (magit-git-insert "cat-file" "-p" (concat rev ":" file))))
+          (let ((buffer-file-name (expand-file-name file (magit-get-top-dir))))
+            (normal-mode t))
+          (setq magit-file-name file)
+          (setq magit-show-current-version rev)
+          (goto-char (point-min)))))
+    (when switch-function
+      (with-current-buffer buffer
+        (funcall switch-function (current-buffer))))))
 
 ;;;; Mark
 
