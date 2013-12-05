@@ -1668,13 +1668,12 @@ server if necessary."
      ;; Tell Git to use the client.
      (setenv "GIT_EDITOR"
              (concat magit-emacsclient-executable
-                     ;; Tell Emacsclient to use this server,
-                     ;; if necessary and possible.
-                     (unless (or (equal server-name "server")
-                                 server-use-tcp)
-                       (concat " --socket-name="
-                               (expand-file-name server-name
-                                                 server-socket-dir)))))
+     ;; Tell the client where the server is, if necessary.
+                     (and (not server-use-tcp)
+                          (not (equal server-name "server"))
+                          (concat " --socket-name="
+                                  (expand-file-name server-name
+                                                    server-socket-dir)))))
      (when server-use-tcp
        (setenv "EMACS_SERVER_FILE"
                (expand-file-name server-name server-auth-dir)))
