@@ -1660,11 +1660,9 @@ server if necessary."
      (magit-assert-emacsclient "use `magit-with-emacsclient'")
      ;; Make sure the server is running.
      (unless server-process
-       (if (server-running-p "server")
-           (unless (eq system-type 'windows-nt)
-             (setq server-name (format "server%s" (emacs-pid)))
-             (server-start))
-         (server-start)))
+       (when (server-running-p server-name)
+         (setq server-name (format "server%s" (emacs-pid))))
+       (server-start))
      ;; Tell Git to use the client.
      (setenv "GIT_EDITOR"
              (concat magit-emacsclient-executable
