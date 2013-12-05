@@ -1661,7 +1661,9 @@ server if necessary."
      ;; Make sure the server is running.
      (unless server-process
        (when (server-running-p server-name)
-         (setq server-name (format "server%s" (emacs-pid))))
+         (setq server-name (format "server%s" (emacs-pid)))
+         (when (server-running-p server-name)
+           (server-force-delete server-name)))
        (server-start))
      ;; Tell Git to use the client.
      (setenv "GIT_EDITOR"
