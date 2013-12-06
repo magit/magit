@@ -4136,7 +4136,7 @@ from the parent keymap `magit-mode-map' are also available."
   (magit-git-insert-section (commitbuf nil)
       #'magit-wash-commit
     "log" "-1" "--decorate=full"
-    "--pretty=medium" "--no-abbrev-commit"
+    "--pretty=medium"
     "--cc" "-p" (and magit-show-diffstat "--stat")
     magit-diff-options commit))
 
