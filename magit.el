@@ -789,10 +789,18 @@ manager but it will be used in more places in the future."
 
 (defcustom magit-diff-options nil
   "Git options used to display diffs.
+
 For more information about the options see man:git-diff.
 This variable can be conveniently set in Magit buffers
 using `magit-key-mode-popup-diff-options' (bound to \
-\\<magit-mode-map>\\[magit-key-mode-popup-diff-options])."
+\\<magit-mode-map>\\[magit-key-mode-popup-diff-options]).
+
+Please note that not all of these options are supported by older
+versions of Git, which could become a problem if you use tramp to
+access repositories on a system with such a version.  If you see
+whitespace where you would have expected a diff, this likely is
+the cause, and the only (currently) workaround is to not make the
+problematic option a member of the default value."
   :group 'magit
   :type '(set :greedy t
               (const :tag
