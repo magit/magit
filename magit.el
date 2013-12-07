@@ -6910,7 +6910,7 @@ return the buffer, without displaying it."
 \\<magit-branch-manager-mode-map>Type `\\[magit-visit-item]` to checkout a branch, `\\[magit-reset-head]' to reset current branch,
 you can also merge the branch with `\\[magit-key-mode-popup-merging]`
 
-Type `\\[magit-discard-item]' to delet a branch, or `\\[universal-argument] \\[magit-discard-item]' to force the deletion.
+Type `\\[magit-discard-item]' to delete a branch, or `\\[universal-argument] \\[magit-discard-item]' to force the deletion.
 Type `\\[magit-rename-item]' to Rename a branch.
 
 More information can be found in Info node `(magit)The branch list'
