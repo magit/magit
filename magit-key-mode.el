@@ -542,6 +542,7 @@ the key combination highlighted before the description."
     (other-window 1)
     (switch-to-buffer buf)
     (kill-all-local-variables)
+    (set (make-local-variable 'scroll-margin) 0)
     (set (make-local-variable
           'magit-key-mode-current-options)
          original-opts)
