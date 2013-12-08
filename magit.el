@@ -5528,6 +5528,8 @@ and ignore the option.
 (defvar-local magit-commit-squash-args  nil)
 (defvar-local magit-commit-squash-fixup nil)
 
+(defvar magit-commit-unmark-after-squash t)
+
 ;;;###autoload
 (defun magit-commit-fixup (&optional commit)
   "Create a fixup commit.
@@ -5577,6 +5579,8 @@ depending on the value of option `magit-commit-squash-commit'.
 (defun magit-commit-squash-marked ()
   (when magit-marked-commit
     (magit-commit-squash magit-marked-commit magit-commit-squash-fixup))
+  (when magit-commit-unmark-after-squash
+    (setq magit-marked-commit nil))
   (kill-local-variable 'magit-commit-squash-fixup)
   (remove-hook 'magit-mark-commit-hook 'magit-commit-squash-marked t)
   (remove-hook 'magit-mode-quit-window-hook 'magit-commit-squash-abort t)
