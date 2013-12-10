@@ -131,11 +131,12 @@ docs: magit.info dir AUTHORS.md
 dir: magit.info
 	$(INSTALL_INFO) --dir=$@ $<
 
+CONTRIBUTORS_URL = https://github.com/magit/magit/graphs/contributors
 define AUTHORS_HEADER
 Authors
 =======
 
-Also see https://github.com/magit/magit/graphs/contributors.
+Also see $(CONTRIBUTORS_URL).
 Names below are sorted alphabetically.
 
 Author
