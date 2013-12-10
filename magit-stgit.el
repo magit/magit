@@ -297,4 +297,7 @@ into the series."
   (magit-stgit-mode 1))
 
 (provide 'magit-stgit)
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
 ;;; magit-stgit.el ends here

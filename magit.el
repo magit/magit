@@ -7292,4 +7292,7 @@ init file:
 (unless (featurep 'git-commit-mode)
   (require 'magit-log-edit nil t))
 
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
 ;;; magit.el ends here

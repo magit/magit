@@ -178,4 +178,7 @@
   (magit-topgit-mode 1))
 
 (provide 'magit-topgit)
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
 ;;; magit-topgit.el ends here

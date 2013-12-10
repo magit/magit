@@ -288,4 +288,7 @@ officially supported at the moment."
           (overlay-put ov 'before-string blame))))))
 
 (provide 'magit-blame)
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
 ;;; magit-blame.el ends here

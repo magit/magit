@@ -295,4 +295,7 @@ If USE-CACHE is non nil, use the cached information."
   (magit-svn-mode 1))
 
 (provide 'magit-svn)
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
 ;;; magit-svn.el ends here

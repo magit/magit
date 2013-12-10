@@ -131,4 +131,7 @@ You can activate it with git config magit.extension wip-save."
         (message (format-spec magit-wip-echo-area-message spec))))))
 
 (provide 'magit-wip)
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
 ;;; magit-wip.el ends here
