@@ -203,11 +203,11 @@ export AUTHORS_HEADER
 # Not a phony target, but needs to run *every* time.
 .PHONY: AUTHORS.md
 AUTHORS.md: .mailmap
-	@printf "Generating AUTHORS.md file..."
+	@printf "Generating AUTHORS.md..."
 	@test -d .git \
 		&& (printf "$$AUTHORS_HEADER\n" > $@ \
 			&& git log --pretty=format:'- %aN <%aE>' | sort -u >> $@ \
-			&& printf "FINISHED\n" ; ) \
+			&& printf "done\n" ; ) \
 		|| printf "FAILED (non-fatal)\n"
 
 .PHONY: authors
