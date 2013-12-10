@@ -3906,7 +3906,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
           "\\(?7:[BGUN]\\)?"                       ; gpg
           "\\[\\(?5:[^]]*\\)\\]"                   ; author
           "\\[\\(?6:[^]]*\\)\\]"                   ; date
-          "\\(?2:.+\\)"                            ; msg
+          "\\(?2:.*\\)"                            ; msg
           "\\)?$"))
 
 (defconst magit-log-long-re
