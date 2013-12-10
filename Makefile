@@ -143,6 +143,7 @@ Jonas Bernoulli <jonas@bernoul.li> <jonasbernoulli@gmail.com>
 Leo Liu <sdl.web@gmail.com>
 Marc Herbert <marc.herbert@gmail.com> <marc.herbert+git@gmail.com>
 Marc Herbert <marc.herbert@gmail.com> <Marc.Herbert+git@gmail.com>
+Marcel Wolf <mwolf@ml1.net> marcel-wolf
 Marius Vollmer <marius.vollmer@gmail.com> <marius.vollmer@nokia.com>
 Marius Vollmer <marius.vollmer@gmail.com> <marius.vollmer@uni-dortmund.de>
 Marius Vollmer <marius.vollmer@gmail.com> <mvo@bright.(none)>
