@@ -81,7 +81,7 @@ help:
 	$(info make authors          - regenerate the AUTHORS.md file)
 	$(info make dist             - create old-school tarball)
 	$(info make marmalade        - create marmalade tarball)
-	@echo ""
+	@printf "\n"
 
 %.elc: %.el
 	@$(BATCHC) $<
@@ -131,11 +131,49 @@ docs: magit.info dir AUTHORS.md
 dir: magit.info
 	$(INSTALL_INFO) --dir=$@ $<
 
+define MAILMAP
+Alex Ott <alexott@gmail.com> <ott@flash.lan>
+Seong-Kook Shin <cinsky@gmail.com>
+David Abrahams <dave@boostpro.com>
+Evgkeni Sampelnikof <esabof@gmail.com> <faceoffuture@yahoo.gr>
+Evgkeni Sampelnikof <esabof@gmail.com> <sabof@example.com>
+Graham Clark <grclark@gmail.com> <gcla@moria.(none)>
+Jesse Alama <jesse.alama@gmail.com> <alama@stanford.edu>
+Jonas Bernoulli <jonas@bernoul.li> <jonasbernoulli@gmail.com>
+Leo Liu <sdl.web@gmail.com>
+Marc Herbert <marc.herbert@gmail.com> <marc.herbert+git@gmail.com>
+Marc Herbert <marc.herbert@gmail.com> <Marc.Herbert+git@gmail.com>
+Marcel Wolf <mwolf@ml1.net> marcel-wolf
+Marius Vollmer <marius.vollmer@gmail.com> <marius.vollmer@nokia.com>
+Marius Vollmer <marius.vollmer@gmail.com> <marius.vollmer@uni-dortmund.de>
+Marius Vollmer <marius.vollmer@gmail.com> <mvo@bright.(none)>
+Marius Vollmer <marius.vollmer@gmail.com> <mvo@esdhcp03984.research.nokia.com>
+Marius Vollmer <marius.vollmer@gmail.com> <mvo@manamana.(none)>
+Noam Postavsky <npostavs@users.sourceforge.net>
+Óscar Fuentes <ofv@wanadoo.es> Oscar Fuentes <ofv@wanadoo.es>
+Óscar Fuentes <ofv@wanadoo.es> <oscar@nc10>
+Óscar Fuentes <ofv@wanadoo.es> <oscar@qcore>
+Peter J. Weisberg <pj@irregularexpressions.net>
+Rémi Vanicat <vanicat@debian.org> <github.20.vanicat@mamber.net>
+Sébastien Gross <seb@chezwam.org> <seb•ɑƬ•chezwam•ɖɵʈ•org>
+Yann Hodique <yann.hodique@gmail.com> <yann.hodique@bromium.com>
+Yann Hodique <yann.hodique@gmail.com> <yhodique@vmware.com>
+endef
+export MAILMAP
+
+# Not a phony target, but needs to run *every* time.
+.PHONY: .mailmap
+.mailmap:
+	@printf "Generating .mailmap..."
+	@printf "$$MAILMAP\n" > $@
+	@printf "done\n"
+
+CONTRIBUTORS_URL = https://github.com/magit/magit/graphs/contributors
 define AUTHORS_HEADER
 Authors
 =======
 
-Also see https://github.com/magit/magit/graphs/contributors.
+Also see $(CONTRIBUTORS_URL).
 Names below are sorted alphabetically.
 
 Author
@@ -165,12 +203,12 @@ export AUTHORS_HEADER
 
 # Not a phony target, but needs to run *every* time.
 .PHONY: AUTHORS.md
-AUTHORS.md:
-	@printf "Generating AUTHORS.md file..."
+AUTHORS.md: .mailmap
+	@printf "Generating AUTHORS.md..."
 	@test -d .git \
-		&& (echo "$$AUTHORS_HEADER" > $@ \
+		&& (printf "$$AUTHORS_HEADER\n" > $@ \
 			&& git log --pretty=format:'- %aN <%aE>' | sort -u >> $@ \
-			&& printf "FINISHED\n" ; ) \
+			&& printf "done\n" ; ) \
 		|| printf "FAILED (non-fatal)\n"
 
 .PHONY: authors

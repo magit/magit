@@ -71,6 +71,7 @@ Contributors
 - Feng Li <fengli@blackmagicdesign.com>
 - George Kadianakis <desnacked@gmail.com>
 - Graham Clark <grclark@gmail.com>
+- Greg A. Woods <woods@planix.com>
 - Greg Sexton <gregsexton@gmail.com>
 - Hannu Koivisto <azure@iki.fi>
 - Hans-Peter Deifel <hpdeifel@gmx.de>
@@ -91,15 +92,18 @@ Contributors
 - Lluís Vilanova <vilanova@ac.upc.edu>
 - Luís Borges de Oliveira <lbo@siscog.pt>
 - Luke Amdor <luke.amdor@gmail.com>
+- Marcel Wolf <mwolf@ml1.net>
 - Marc Herbert <marc.herbert@gmail.com>
 - Marcin Bachry <hegel666@gmail.com>
 - Marco Craveiro <marco.craveiro@gmail.com>
 - Marius Vollmer <marius.vollmer@gmail.com>
 - Mark Hepburn <Mark.Hepburn@csiro.au>
+- Matus Goljer <dota.keys@gmail.com>
 - Miles Bader <miles@gnu.org>
 - Mitchel Humpherys <mitch.special@gmail.com>
 - Moritz Bunkus <moritz@bunkus.org>
 - Nathan Weizenbaum <nex342@gmail.com>
+- Nguyễn Tuấn Anh <ubolonton@gmail.com>
 - Nic Ferier <nic@ferrier.me.uk>
 - Nick Alcock <nick.alcock@oracle.com>
 - Nick Alexander <nalexander@mozilla.com>
@@ -128,6 +132,7 @@ Contributors
 - Roger Crew <crew@cs.stanford.edu>
 - Romain Francoise <romain@orebokech.com>
 - Ron Parker <rparker@a123systems.com>
+- Roy Crihfield <rscrihf@gmail.com>
 - Rüdiger Sonderfeld <ruediger@c-plusplus.de>
 - Ryan C. Thompson <rct@thompsonclan.org>
 - Samuel Bronson <naesten@gmail.com>
