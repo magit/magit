@@ -81,7 +81,7 @@ help:
 	$(info make authors          - regenerate the AUTHORS.md file)
 	$(info make dist             - create old-school tarball)
 	$(info make marmalade        - create marmalade tarball)
-	@echo ""
+	@printf "\n"
 
 %.elc: %.el
 	@$(BATCHC) $<
@@ -205,7 +205,7 @@ export AUTHORS_HEADER
 AUTHORS.md: .mailmap
 	@printf "Generating AUTHORS.md file..."
 	@test -d .git \
-		&& (echo "$$AUTHORS_HEADER" > $@ \
+		&& (printf "$$AUTHORS_HEADER\n" > $@ \
 			&& git log --pretty=format:'- %aN <%aE>' | sort -u >> $@ \
 			&& printf "FINISHED\n" ; ) \
 		|| printf "FAILED (non-fatal)\n"
