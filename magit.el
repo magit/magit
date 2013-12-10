@@ -5946,7 +5946,8 @@ With a prefix arg, do a submodule update --init."
 (defun magit-run-git-bisect (subcommand &optional args no-assert)
   (unless (or no-assert (magit-bisecting-p))
     (error "Not bisecting"))
-  (let ((file (magit-git-dir "BISECT_CMD_OUTPUT")))
+  (let ((file (magit-git-dir "BISECT_CMD_OUTPUT"))
+        (default-directory (magit-get-top-dir)))
     (ignore-errors (delete-file file))
     (magit-with-refresh
       (magit-run-git*
