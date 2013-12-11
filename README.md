@@ -34,11 +34,18 @@ To get started with Magit, run <kbd>M-x magit-status</kbd>.  If you
 are inside a Git repository this opens a buffer that summarizes its
 status.  Otherwise you are first prompted for a repository.  Read the
 short help for `magit-status-mode` (<kbd>C-h m</kbd> in the status
-buffer), make some changes to your files, then stage (<kbd>s</kbd>)
-and commit (<kbd>c</kbd>) them.
+buffer).
+
+Then edit and save some files files, refresh the status buffer
+(<kbd>g</kbd>), stage changes (<kbd>s</kbd>) and commit (<kbd>c</kbd>)
+them.
 
 For more details consult the Magit user manual.  You can read with
 <kbd>C-u C-h i magit.info</kbd> or [on the web][manual].
+
+We can also strongly recommend [this][mastering-intro] introduction
+from the *Mastering Emacs* blog.  It even describes some new features
+that are not yet documented in the manual.
 
 Magit also has a [website][website].
 
@@ -269,6 +276,7 @@ please read [CONTRIBUTING.md][contributing].
 [gitflow]: https://github.com/nvie/gitflow
 [git-modes]: https://github.com/magit/git-modes
 [marmalade]: http://marmalade-repo.org
+[mastering-intro]: http://www.masteringemacs.org/articles/2013/12/06/introduction-magit-emacs-mode-git
 [melpa]: http://melpa.milkbox.net
 [melpa-intro]: http://melpa.milkbox.net/#/getting-started
 [stgit]: http://www.procode.org/stgit
