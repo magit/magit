@@ -6,14 +6,14 @@ It's Magit!  An Emacs mode for Git
 Magit is an interface to the version control system [Git][git],
 implemented as an [Emacs][emacs] extension.
 
-Unlike Emacs's native [Version Control][vc] package which strives to
+Unlike Emacs' native [Version Control][vc] package which strives to
 provide a unified interface to various version control systems, Magit
 only supports Git and can therefor better take advantage of its native
 features.
 
 Magit supports GNU Emacs 23.2 or later; 24.1 or later is recommended.
 Magit supports Git 1.7.2.5 or later; 1.8.2 or later is recommended.
-The minimal versions are those available in ancient Debian oldstable.
+The minimal versions are those available in Debian oldstable.
 
 Table of Contents
 =================
@@ -37,8 +37,8 @@ short help for `magit-status-mode` (<kbd>C-h m</kbd> in the status
 buffer), make some changes to your files, then stage (<kbd>s</kbd>)
 and commit (<kbd>c</kbd>) them.
 
-For more details consult the Magit user manual.  You can read it
-[on the web][manual] or in Emacs with <kbd>C-u C-h i magit.info</kbd>.
+For more details consult the Magit user manual.  You can read with
+<kbd>C-u C-h i magit.info</kbd> or [on the web][manual].
 
 Magit also has a [website][website].
 
@@ -92,7 +92,7 @@ Then install Magit (and its run-time dependencies):
 ### Installing from Git
 
 If you want to contribute to Magit you should run it directly from the
-git repository.
+Git repository.
 
 First get the repository:
 
