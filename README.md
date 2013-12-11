@@ -40,8 +40,10 @@ Then edit and save some files files, refresh the status buffer
 (<kbd>g</kbd>), stage changes (<kbd>s</kbd>) and commit (<kbd>c</kbd>)
 them.
 
-For more details consult the Magit user manual.  You can read with
-<kbd>C-u C-h i magit.info</kbd> or [on the web][manual].
+For more details consult the Magit user manual.  You can read it with
+<kbd>C-u C-h i magit.info</kbd> or [on the web][manual].  Both manuals
+are currently outdated (the latter more so) but that will be addressed
+soonish).
 
 We can also strongly recommend [this][mastering-intro] introduction
 from the *Mastering Emacs* blog.  It even describes some new features
