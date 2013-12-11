@@ -270,6 +270,7 @@ please read [CONTRIBUTING.md][contributing].
 [git-modes]: https://github.com/magit/git-modes
 [marmalade]: http://marmalade-repo.org
 [melpa]: http://melpa.milkbox.net
+[melpa-intro]: http://melpa.milkbox.net/#/getting-started
 [stgit]: http://www.procode.org/stgit
 [topgit]: https://github.com/greenrd/topgit
 [vc]: http://www.gnu.org/software/emacs/manual/html_node/emacs/Version-Control.html
