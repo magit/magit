@@ -21,7 +21,7 @@ Table of Contents
 * [Getting Started](#getting-started)
 * [Getting Help](#getting-help)
 * [Installation](#installation)
-  * [Installing with `package.el`](#installing-with-packageel)
+  * [Installing from Melpa](#installing-from-melpa)
   * [Installing from Git](#installing-from-git)
   * [Installing from Tarball](#installing-from-tarball)
 * [Dependencies](#dependencies)
@@ -55,39 +55,46 @@ help on the [mailing list][group].
 Installation
 ============
 
-Emacs >=24.1 includes a facility that lets you easily download and
-install packages.  Using `package.el` is the easiest and recommended
-way to install Magit and its dependencies.
+Beginning with version 24.1 Emacs includes a package management
+facility known as Elpa or `package.el`.  Using an Elpa package
+repository is the easiest and recommended way to install and update
+Magit and its dependencies.
 
-### Installing with `package.el`
+### Installing from Melpa
 
-The stable Magit version is available from the [Marmalade][marmalade]
-package repository.  If you want to install the development version
-(the `master` branch) use the [Melpa][melpa] repository instead.
-Please note that *all* packages on Melpa are built from the upstream
-`master` branch.  If you generally want stable versions but the latest
-Magit use Marmalade and install Magit from Git.
+Magit is available from both of the two big Elpa repositories,
+[Marmalade][marmalade] (stable releases) and [Melpa][melpa]
+(snapshots).
 
-First tell `package.el` to use one of the package repositories:
+Because the latest Magit release is very outdated we recommend the use
+of the development version from Melpa, for the time being.  (If you
+are using the development version of Emacs, then you *have to* do so.)
+
+To install Magit, first enable the use of the Melpa repository by
+following the [instructions][melpa-intro] provided by the Melpa
+project.
+
+Assuming that you are using Emacs 24, haven't configured `package.el`
+yet, and want to only install Magit and its dependencies from Melpa
+(and otherwise the stable versions from Marmalade), add the following
+to you init file (`~/.emacs.el` or `~/.emacs.d/init.el`):
 
 ```lisp
+(require 'package)
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(add-to-list 'package-archives-enable-alist
+             '("melpa" "magit" "git-commit-mode" "git-rebase-mode"))
 ```
 
-**or**
+(Otherwise adjust according to the linked instructions).
 
-```lisp
-(add-to-list 'package-archives
-             '("marmalade" . "http://marmalade-repo.org/packages/") t)
-```
+Then install `melpa` and `magit`:
 
-For details please see the website of the package repository of your
-choosing.
-
-Then install Magit (and its run-time dependencies):
-
+<kbd>M-x package-install RET melpa RET</kbd>
 <kbd>M-x package-install RET magit RET</kbd>
+
+Dependencies are installed automatically.
 
 ### Installing from Git
 
@@ -98,20 +105,22 @@ First get the repository:
 
     $ git clone git://github.com/magit/magit.git
 
-You then have the choice between the `maint` (stable), `master`
-(development), and `next` (experimental) branches.  Unless you have
-chosen `master` you need to create and checkout the branch.
-
-    $ git checkout -b LOCAL-BRANCH REMOTE-BRANCH
-
 Then you should byte compile the libraries and generate the
 documentation, though that is not required.
 
     $ make lisp docs
 
+Unless all dependencies are installed at `../DEPENDENCY` you have to
+tell `make` where to find them, e.g.:
+
+    $ EFLAGS="-L /path/to/git-modes" make lisp docs
+
+If you are using an Emacs version before 24.3, then you also have to
+install `cl-lib` and tell `make` where to find it.
+
 You can also do so manually.
 
-    $ emacs -Q --batch -L . [-L ../path/to/cl-lib] -f batch-byte-compile *.el
+    $ emacs -Q --batch -L . -L /path/to/DEPENCENCY -f batch-byte-compile *.el
     $ makeinfo -o magit.info magit.texi
     $ install-info --dir=dir magit.info
 
@@ -119,29 +128,43 @@ Then add this to you init file:
 
 ```lisp
 (add-to-list 'load-path "/path/to/magit")
-(require 'magit)
-```
-
-And optionally tell `info` about the documentation:
-
-```lisp
 (eval-after-load 'info
   '(progn (info-initialize)
           (add-to-list 'Info-directory-list "/path/to/magit/")))
+(require 'magit)
 ```
 
-For a list of all make targets see:
+To view available make targets:
 
     $ make help
 
+To update use:
+
+    $ git pull
+    $ make lisp docs
+
+Before creating a pull request always run:
+
+    $ make lisp test
+
 ### Installing from Tarball
 
-Please consider using `package.el` instead.  Still here? Download and
-unpack [magit-1.3.0.tar.gz][download]. Then build and install as usual:
+This is only intended for users who have been doing this sort of thing
+for years.  Installing from a tarball isn't particularly difficult but
+because we are only providing this as an alternative method we are a
+bit light on documentation, so it helps to have done this before.
 
-    $ wget https://github.com/downloads/magit/magit/magit-1.3.0.tar.gz
-    $ tar -xf magit-1.3.0.tar.gz
-	$ cd magit-1.3.0
+Also most steps have to be repeated every time you want to update.
+
+Because the latest Magit release is very outdated, please consider
+installing the development version even if tarballs are your thing.
+
+Download and unpack [magit-1.2.0.tar.gz][download]. Then build and
+install as usual:
+
+    $ wget https://github.com/downloads/magit/magit/magit-1.2.0.tar.gz
+    $ tar -xf magit-1.2.0.tar.gz
+	$ cd magit-1.2.0
     $ make
     $ sudo make install
 
@@ -151,14 +174,6 @@ documentation yourself:
 
     $ make docs
     $ sudo make install-docs
-
-The `magit` shell script can be installed using:
-
-    $ sudo make install-script
-
-For a list of all make targets see:
-
-    $ make help
 
 By default the Emacs lisp libraries are installed in
 `/usr/local/share/emacs/site-lisp/magit/`.  Unless Emacs itself is
@@ -175,8 +190,7 @@ Then `magit` can be loaded:
 (require 'magit)
 ```
 
-Add the above lines to your init file (`~/.emacs.el` or
-`~/.emacs.d/init.el`) and restart Emacs.
+Add the above lines to your init file and restart Emacs.
 
 Dependencies
 ============
