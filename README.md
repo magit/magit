@@ -247,7 +247,7 @@ also use Magit's [Google group][group].  Before making a pull request
 please read [CONTRIBUTING.md][contributing].
 
 
-[contributing]: https://github.com/magit/magit/blob/maint/CONTRIBUTING.md
+[contributing]: https://github.com/magit/magit/blob/master/CONTRIBUTING.md
 [contributors]: https://github.com/magit/magit/contributors
 [development]: http://github.com/magit/magit
 [download]: https://github.com/downloads/magit/magit/magit-1.2.0.tar.gz
