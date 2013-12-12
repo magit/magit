@@ -71,11 +71,10 @@ Magit and its dependencies.
 
 Magit is available from both of the two big Elpa repositories,
 [Marmalade][marmalade] (stable releases) and [Melpa][melpa]
-(snapshots).
-
-Because the latest Magit release is very outdated we recommend the use
-of the development version from Melpa, for the time being.  (If you
-are using the development version of Emacs, then you *have to* do so.)
+(snapshots).  Because the latest Magit release is very outdated we
+recommend the use of the development version from Melpa, for the time
+being.  (If you are using the development version of Emacs, then you
+have to do so.)
 
 To install Magit, first enable the use of the Melpa repository by
 following the [instructions][melpa-intro] provided by the Melpa
@@ -125,12 +124,6 @@ tell `make` where to find them, e.g.:
 If you are using an Emacs version before 24.3, then you also have to
 install `cl-lib` and tell `make` where to find it.
 
-You can also do so manually.
-
-    $ emacs -Q --batch -L . -L /path/to/DEPENCENCY -f batch-byte-compile *.el
-    $ makeinfo -o magit.info magit.texi
-    $ install-info --dir=dir magit.info
-
 Then add this to you init file:
 
 ```lisp
@@ -153,6 +146,12 @@ To update use:
 Before creating a pull request always run:
 
     $ make lisp test
+
+You may also build Magit manually:
+
+    $ emacs -Q --batch -L . -L /path/to/DEPENCENCY -f batch-byte-compile *.el
+    $ makeinfo -o magit.info magit.texi
+    $ install-info --dir=dir magit.info
 
 ### Installing from Tarball
 
