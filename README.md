@@ -262,11 +262,11 @@ please read [CONTRIBUTING.md][contributing].
 [group]: https://groups.google.com/forum/?fromgroups#!forum/magit
 [issues]: https://github.com/magit/magit/issues
 [knownissues]: https://github.com/magit/magit/wiki/Known-issues
-[manual]: http://magit.github.com/magit/documentation.html
+[manual]: http://magit.github.io/documentation.html
 [owners]: https://github.com/magit?tab=members
 [pulls]: https://github.com/magit/magit/pulls
 [screencast]: http://vimeo.com/2871241
-[website]: http://magit.github.com/magit
+[website]: http://magit.github.io
 
 [cl-lib]: http://elpa.gnu.org/packages/cl-lib.html
 [emacs]: http://www.gnu.org/software/emacs
