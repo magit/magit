@@ -123,7 +123,7 @@ $(LOADDEFS_FILE): $(ELS)
 	  (update-directory-autoloads \".\")))"
 
 .PHONY: docs
-docs: magit.info dir AUTHORS.md
+docs: magit.info dir
 
 %.info: %.texi
 	$(MAKEINFO) $< -o $@
