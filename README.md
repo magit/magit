@@ -41,9 +41,7 @@ Then edit and save some files files, refresh the status buffer
 them.
 
 For more details consult the Magit user manual.  You can read it with
-<kbd>C-u C-h i magit.info</kbd> or [on the web][manual].  Both manuals
-are currently outdated (the latter more so) but that will be addressed
-soonish).
+<kbd>C-u C-h i magit.info</kbd> or [on the web][manual].
 
 We can also strongly recommend [this][mastering-intro] introduction
 from the *Mastering Emacs* blog.  It even describes some new features
@@ -264,7 +262,7 @@ please read [CONTRIBUTING.md][contributing].
 [group]: https://groups.google.com/forum/?fromgroups#!forum/magit
 [issues]: https://github.com/magit/magit/issues
 [knownissues]: https://github.com/magit/magit/wiki/Known-issues
-[manual]: http://magit.github.com/magit/magit.html
+[manual]: http://magit.github.com/magit/documentation.html
 [owners]: https://github.com/magit?tab=members
 [pulls]: https://github.com/magit/magit/pulls
 [screencast]: http://vimeo.com/2871241
