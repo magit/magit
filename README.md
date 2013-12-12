@@ -185,7 +185,7 @@ install as usual:
 ```sh
 $ wget https://github.com/downloads/magit/magit/magit-1.2.0.tar.gz
 $ tar -xf magit-1.2.0.tar.gz
-d magit-1.2.0
+$ cd magit-1.2.0
 $ make
 $ sudo make install
 ```
