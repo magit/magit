@@ -68,9 +68,9 @@ the mailing list (https://groups.google.com/forum/?fromgroups#!forum/magit).
 * Interactive Rebasing::
 * Rewriting::
 * Pushing and Pulling::
+* Submodules::
 * Bisecting::
 * Finding commits not merged upstream::
-* Submodules::
 * Using Magit Extensions::
 * Using Git Directly::
 * GNU Free Documentation License::
