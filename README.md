@@ -109,17 +109,23 @@ Git repository.
 
 First get the repository:
 
-    $ git clone git://github.com/magit/magit.git
+```sh
+$ git clone git://github.com/magit/magit.git
+```
 
 Then you should byte compile the libraries and generate the
 documentation, though that is not required.
 
-    $ make lisp docs
+```sh
+$ make lisp docs
+```
 
 Unless all dependencies are installed at `../DEPENDENCY` you have to
 tell `make` where to find them, e.g.:
 
-    $ EFLAGS="-L /path/to/git-modes" make lisp docs
+```sh
+$ EFLAGS="-L /path/to/git-modes" make lisp docs
+```
 
 If you are using an Emacs version before 24.3, then you also have to
 install `cl-lib` and tell `make` where to find it.
@@ -136,22 +142,30 @@ Then add this to you init file:
 
 To view available make targets:
 
-    $ make help
+```sh
+$ make help
+```
 
 To update use:
 
-    $ git pull
-    $ make lisp docs
+```sh
+$ git pull
+$ make lisp docs
+```
 
 Before creating a pull request always run:
 
-    $ make lisp test
+```sh
+$ make lisp test
+```
 
 You may also build Magit manually:
 
-    $ emacs -Q --batch -L . -L /path/to/DEPENCENCY -f batch-byte-compile *.el
-    $ makeinfo -o magit.info magit.texi
-    $ install-info --dir=dir magit.info
+```sh
+$ emacs -Q --batch -L . -L /path/to/DEPENCENCY -f batch-byte-compile *.el
+$ makeinfo -o magit.info magit.texi
+$ install-info --dir=dir magit.info
+```
 
 ### Installing from Tarball
 
@@ -168,18 +182,22 @@ installing the development version even if tarballs are your thing.
 Download and unpack [magit-1.2.0.tar.gz][download]. Then build and
 install as usual:
 
-    $ wget https://github.com/downloads/magit/magit/magit-1.2.0.tar.gz
-    $ tar -xf magit-1.2.0.tar.gz
-	$ cd magit-1.2.0
-    $ make
-    $ sudo make install
+```sh
+$ wget https://github.com/downloads/magit/magit/magit-1.2.0.tar.gz
+$ tar -xf magit-1.2.0.tar.gz
+d magit-1.2.0
+$ make
+$ sudo make install
+```
 
 This installs the Emacs lisp libraries, as well as the prebuilt
 documentation from the tarball.  You may alternatively build the
 documentation yourself:
 
-    $ make docs
-    $ sudo make install-docs
+```sh
+$ make docs
+$ sudo make install-docs
+```
 
 By default the Emacs lisp libraries are installed in
 `/usr/local/share/emacs/site-lisp/magit/`.  Unless Emacs itself is
