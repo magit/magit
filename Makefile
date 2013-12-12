@@ -260,7 +260,7 @@ clean:
 	@echo "Cleaning..."
 	@$(RM) $(ELCS) $(LOADDEFS_FILE) magit-version.el *.tar.gz *.tar .mailmap
 	@$(RMDIR) magit-$(VERSION)
-	@test -e .git || $(RM) magit.info
+	@test ! -e .git || $(RM) magit.info
 
 DIST_FILES  = $(ELS) magit-version.el Makefile AUTHORS.md
 DIST_FILES += README.md magit.texi magit.info dir
