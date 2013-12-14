@@ -4314,7 +4314,7 @@ Other key binding:
   :group 'magit)
 
 ;;;###autoload
-(defun magit-status (dir)
+(defun magit-status (dir &optional same-window)
   "Open a Magit status buffer for the Git repository containing DIR.
 If DIR is not within a Git repository, offer to create a Git
 repository in DIR.
@@ -4322,7 +4322,9 @@ repository in DIR.
 Interactively, a prefix argument means to ask the user which Git
 repository to use even if `default-directory' is under Git
 control.  Two prefix arguments means to ignore `magit-repo-dirs'
-when asking for user input."
+when asking for user input.
+
+\(fn DIR)" ; don't confuse beginners with SAME-WINDOW
   (interactive (list (if current-prefix-arg
                          (magit-read-top-dir
                           (> (prefix-numeric-value current-prefix-arg)
@@ -4342,7 +4344,10 @@ when asking for user input."
                       (concat "*magit: "
                               (file-name-nondirectory
                                (directory-file-name topdir)) "*")))))
-        (magit-mode-display-buffer buf magit-status-buffer-switch-function)
+        (magit-mode-display-buffer
+         buf (if (called-interactively-p 'any)
+                 magit-status-buffer-switch-function
+               (if same-window 'switch-to-buffer 'pop-to-buffer)))
         (magit-mode-init topdir 'magit-status-mode #'magit-refresh-status)))))
 
 (defun magit-refresh-status ()
