@@ -1317,6 +1317,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "C-x 4 a") 'magit-add-change-log-entry-other-window)
     (define-key map (kbd "L") 'magit-add-change-log-entry)
     (define-key map (kbd "RET") 'magit-visit-item)
+    (define-key map (kbd "C-<return>") 'magit-dired-jump)
     (define-key map (kbd "SPC") 'magit-show-item-or-scroll-up)
     (define-key map (kbd "DEL") 'magit-show-item-or-scroll-down)
     (define-key map (kbd "C-w") 'magit-copy-item-as-kill)
@@ -4314,7 +4315,7 @@ Other key binding:
   :group 'magit)
 
 ;;;###autoload
-(defun magit-status (dir)
+(defun magit-status (dir &optional same-window)
   "Open a Magit status buffer for the Git repository containing DIR.
 If DIR is not within a Git repository, offer to create a Git
 repository in DIR.
@@ -4322,7 +4323,9 @@ repository in DIR.
 Interactively, a prefix argument means to ask the user which Git
 repository to use even if `default-directory' is under Git
 control.  Two prefix arguments means to ignore `magit-repo-dirs'
-when asking for user input."
+when asking for user input.
+
+\(fn DIR)" ; don't confuse beginners with SAME-WINDOW
   (interactive (list (if current-prefix-arg
                          (magit-read-top-dir
                           (> (prefix-numeric-value current-prefix-arg)
@@ -4342,7 +4345,10 @@ when asking for user input."
                       (concat "*magit: "
                               (file-name-nondirectory
                                (directory-file-name topdir)) "*")))))
-        (magit-mode-display-buffer buf magit-status-buffer-switch-function)
+        (magit-mode-display-buffer
+         buf (if (called-interactively-p 'any)
+                 magit-status-buffer-switch-function
+               (if same-window 'switch-to-buffer 'pop-to-buffer)))
         (magit-mode-init topdir 'magit-status-mode #'magit-refresh-status)))))
 
 (defun magit-refresh-status ()
@@ -6776,7 +6782,9 @@ With a prefix argument, visit in other window."
     (unless (file-exists-p file)
       (error "Can't visit deleted file: %s" file))
     (if (file-directory-p file)
-        (progn (require 'dired-x) (dired-jump other-window file))
+        (if (equal (magit-get-top-dir file) (magit-get-top-dir))
+            (magit-dired-jump other-window)
+          (magit-status file (not other-window)))
       (if other-window
           (find-file-other-window file)
         (find-file file))
