@@ -125,8 +125,7 @@
     t))
 
 (defun magit-topgit-wash-topics ()
-  (let ((magit-old-top-section nil))
-    (magit-wash-sequence #'magit-topgit-wash-topic)))
+  (magit-wash-sequence #'magit-topgit-wash-topic))
 
 (defun magit-topgit-section (section title washer &rest args)
   (when (executable-find magit-topgit-executable)

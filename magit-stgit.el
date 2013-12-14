@@ -174,8 +174,7 @@
   t)
 
 (defun magit-stgit--wash-series ()
-    (let ((magit-old-top-section nil))
-      (magit-wash-sequence #'magit-stgit--wash-patch)))
+  (magit-wash-sequence #'magit-stgit--wash-patch))
 
 (defun magit-insert-stgit-series ()
   (when (executable-find magit-stgit-executable)
