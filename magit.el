@@ -6766,23 +6766,22 @@ With a prefix argument, visit in other window."
     ((stash)          (magit-diff-stash info))))
 
 (defun magit-visit-file-item (&optional other-window)
-  (let* (line
-         column
-         (file
-          (magit-section-action (item info "visit-file" t)
-            ((untracked file) info)
-            ((diff)           (magit-section-info item))
-            ((diffstat)       (magit-section-info item))
-            ((hunk)
-             (setq line (magit-hunk-item-target-line item)
-                   column (current-column))
-             (magit-section-info (magit-section-parent item))))))
+  (let (file line column)
+    (setq file (magit-section-action (item info "visit-file" t)
+                 ((untracked file) info)
+                 ((diff)           (magit-section-info item))
+                 ((diffstat)       (magit-section-info item))
+                 ((hunk)
+                  (setq line (magit-hunk-item-target-line item)
+                        column (current-column))
+                  (magit-section-info (magit-section-parent item)))))
     (unless file
       (error "Can't get pathname for this file"))
     (unless (file-exists-p file)
       (error "Can't visit deleted file: %s" file))
     (if (file-directory-p file)
-        (if (equal (magit-get-top-dir file) (magit-get-top-dir))
+        (if (equal (magit-get-top-dir file)
+                   (magit-get-top-dir))
             (magit-dired-jump other-window)
           (magit-status file (not other-window)))
       (if other-window
