@@ -85,29 +85,6 @@
 
 ;;; Common code
 
-(defvar-local magit-stgit--enabled nil
-  "Whether this buffer has StGit support.")
-
-(defvar magit-stgit-mode)
-
-(defun magit-stgit--enabled ()
-  "Whether this buffer has StGit support enabled."
-  (if (assoc 'magit-stgit--enabled (buffer-local-variables))
-      magit-stgit--enabled
-    (setq magit-stgit--enabled
-          (and magit-stgit-mode
-               (not (null
-                     (member (concat (magit-get-current-branch) ".stgit")
-                             (mapcar #'(lambda (line)
-                                         (string-match "^\\*?\s*\\([^\s]*\\)"
-                                                       line)
-                                         (match-string 1 line))
-                                     (magit-git-lines "branch")))))))))
-
-(defun magit-stgit--enabled-reset ()
-  "Reset the StGit enabled state."
-  (kill-local-variable 'magit-stgit--enabled))
-
 (defvar-local magit-stgit--marked-patch nil
   "The (per-buffer) currently marked patch in an StGit series.")
 
@@ -120,9 +97,7 @@
 (easy-menu-define magit-stgit-extension-menu
   nil
   "StGit extension menu"
-  '("StGit"
-    :active (magit-stgit--enabled)
-
+  '("StGit" :visible magit-stgit-mode
     ["Refresh patch" magit-stgit-refresh
      :help "Refresh the contents of a patch in an StGit series"]
     ["Repair" magit-stgit-repair
