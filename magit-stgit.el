@@ -148,14 +148,11 @@ into the series."
 (defun magit-stgit-show (patch)
   "Show diff of a StGit patch."
   (interactive (list (magit-stgit-read-patch "Show patch" t)))
-  (let ((dir default-directory)
-        (buf (get-buffer-create magit-stgit-patch-buffer-name)))
-    (with-current-buffer buf
-      (magit-mode-display-buffer buf)
-      (magit-mode-init dir
-                       #'magit-commit-mode
-                       #'magit-stgit-refresh-patch-buffer
-                       patch))))
+  (magit-mode-setup magit-stgit-patch-buffer-name
+                    #'pop-to-buffer
+                    #'magit-commit-mode
+                    #'magit-stgit-refresh-patch-buffer
+                    patch))
 
 (defun magit-stgit-refresh-patch-buffer (patch)
   (magit-cmd-insert-section (stgit-patch)

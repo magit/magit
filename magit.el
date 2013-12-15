@@ -77,6 +77,7 @@ Use the function by the same name instead of this variable.")
 (require 'diff-mode)
 (require 'easymenu)
 (require 'epa)
+(require 'format-spec)
 (require 'grep)
 (require 'ring)
 (require 'server)
@@ -110,6 +111,7 @@ Use the function by the same name instead of this variable.")
 (defvar magit-reflog-buffer-name)
 (defvar magit-refresh-args)
 (defvar magit-stash-buffer-name)
+(defvar magit-status-buffer-name)
 (defvar package-alist)
 
 ;;; Compatibility
@@ -3227,19 +3229,24 @@ Please see the manual for a complete description of Magit.
 (defvar-local magit-refresh-args nil)
 (put 'magit-refresh-args 'permanent-local t)
 
-(defmacro magit-mode-setup (buffer mode refresh-func &rest refresh-args)
+(defmacro magit-mode-setup
+  (buffer switch-func mode refresh-func &rest refresh-args)
   "Display and select BUFFER, turn on MODE, and refresh a first time.
 Display BUFFER using `magit-mode-display-buffer', then turn on
 MODE in BUFFER, set the local value of `magit-refresh-function'
 to REFRESH-FUNC and that of `magit-refresh-args' to REFRESH-ARGS
 and finally \"refresh\" a first time.  All arguments are
 evaluated before switching to BUFFER."
-  (let ((init-args (cl-gensym "init-args")))
-    `(let ((,init-args (list (magit-get-top-dir default-directory)
-                             ,mode ,refresh-func
-                             ,@refresh-args)))
-       (magit-mode-display-buffer ,buffer)
-       (apply #'magit-mode-init ,init-args))))
+  (let ((mode-symb (cl-gensym "mode-symb"))
+        (init-args (cl-gensym "init-args"))
+        (buf-symb  (cl-gensym "buf-symb")))
+    `(let* ((,mode-symb ,mode)
+            (,init-args (list (magit-get-top-dir default-directory)
+                              ,mode-symb ,refresh-func ,@refresh-args))
+            (,buf-symb  (magit-mode-display-buffer
+                         ,buffer ,mode-symb ,switch-func)))
+       (with-current-buffer ,buf-symb
+         (apply #'magit-mode-init ,init-args)))))
 
 (defun magit-mode-init (dir mode refresh-func &rest refresh-args)
   "Turn on MODE and refresh in the current buffer.
@@ -3257,9 +3264,10 @@ Also see `magit-mode-setup', a more convenient variant."
 (defvar-local magit-previous-window-configuration nil)
 (put 'magit-previous-window-configuration 'permanent-local t)
 
-(defun magit-mode-display-buffer (buffer &optional switch-function)
+(defun magit-mode-display-buffer (buffer mode &optional switch-function)
   "Display BUFFER in some window and select it.
-BUFFER may be a buffer or a string, the name of a buffer.
+BUFFER may be a buffer or a string, the name of a buffer.  Return
+the buffer.
 
 Unless BUFFER is already displayed in the selected frame store the
 previous window configuration as a buffer local value, so that it
@@ -3271,6 +3279,10 @@ derives from Magit mode; or else use `switch-to-buffer'.
 
 This is only intended for buffers whose major modes derive from
 Magit mode."
+  (cond ((stringp buffer)
+         (setq buffer (magit-mode-get-buffer-create buffer mode)))
+        ((not (bufferp buffer))
+         (signal 'wrong-type-argument (list 'bufferp nil))))
   (unless (get-buffer-window buffer (selected-frame))
     (with-current-buffer (get-buffer-create buffer)
       (setq magit-previous-window-configuration
@@ -3279,17 +3291,31 @@ Magit mode."
                (if (derived-mode-p 'magit-mode)
                    'switch-to-buffer
                  'pop-to-buffer))
-           buffer))
+           buffer)
+  buffer)
 
-(defun magit-find-buffer (submode &optional dir)
-  (let ((topdir (magit-get-top-dir dir)))
-    (cl-find-if (lambda (buf)
-                  (with-current-buffer buf
-                    (and (eq major-mode submode)
-                         default-directory
-                         (equal (expand-file-name default-directory)
-                                topdir))))
-                (buffer-list))))
+(defun magit-mode-get-buffer (format mode &optional topdir create)
+  (if (not (string-match-p "%[Tt]" format))
+      (funcall (if create #'get-buffer-create #'get-buffer) format)
+    (unless topdir
+      (setq topdir (magit-get-top-dir)))
+    (let ((name (format-spec
+                 format `((?T . ,topdir)
+                          (?t . ,(file-name-nondirectory
+                                  (directory-file-name topdir)))))))
+      (or (cl-find-if
+           (lambda (buf)
+             (with-current-buffer buf
+               (and (or (not mode) (eq major-mode mode))
+                    (equal (expand-file-name default-directory) topdir)
+                    (string-match-p (format "^%s\\(?:<[0-9]+>\\)?$"
+                                            (regexp-quote name))
+                                    (buffer-name)))))
+           (buffer-list))
+          (and create (generate-new-buffer name))))))
+
+(defun magit-mode-get-buffer-create (format mode &optional topdir)
+  (magit-mode-get-buffer format mode topdir t))
 
 (cl-defun magit-mode-refresh-buffer (&optional (buffer (current-buffer)))
   (with-current-buffer buffer
@@ -3407,7 +3433,8 @@ before the last command."
       (funcall func)
     (let ((magit-refresh-pending t)
           (magit-refresh-needing-buffers nil)
-          (status-buffer (magit-find-buffer 'magit-status-mode)))
+          (status-buffer (magit-mode-get-buffer magit-status-buffer-name
+                                                'magit-status-mode)))
       (unwind-protect
           (funcall func)
         ;; Refresh magit buffers.
@@ -4111,19 +4138,19 @@ from the parent keymap `magit-mode-map' are also available."
                       "Show commit (hash or ref)")))
   (unless (magit-git-success "cat-file" "commit" commit)
     (error "%s is not a commit" commit))
-  (let ((dir (magit-get-top-dir))
-        (buf (get-buffer-create magit-commit-buffer-name)))
-    (with-current-buffer buf
-      (unless inhibit-history
-        (push (cons default-directory magit-currently-shown-commit)
-              magit-back-navigation-history)
-        (setq magit-forward-navigation-history nil))
-      (goto-char (point-min))
-      (magit-mode-display-buffer buf (if noselect
-                                         'display-buffer
-                                       'pop-to-buffer))
-      (magit-mode-init dir 'magit-commit-mode
-                       #'magit-refresh-commit-buffer commit))))
+  (with-current-buffer (magit-mode-get-buffer-create
+                        magit-commit-buffer-name
+                        'magit-commit-mode)
+    (unless inhibit-history
+      (push (cons default-directory magit-currently-shown-commit)
+            magit-back-navigation-history)
+      (setq magit-forward-navigation-history nil))
+    (goto-char (point-min)))
+  (magit-mode-setup magit-commit-buffer-name
+                    (if noselect 'display-buffer 'pop-to-buffer)
+                    #'magit-commit-mode
+                    #'magit-refresh-commit-buffer
+                    commit))
 
 (defun magit-show-item-or-scroll-up ()
   (interactive)
@@ -4318,6 +4345,9 @@ Other key binding:
 \\{magit-status-mode-map}"
   :group 'magit)
 
+(defvar magit-status-buffer-name "*magit: %t*"
+  "Name of buffer used to display a repository's status.")
+
 ;;;###autoload
 (defun magit-status (dir &optional same-window)
   "Open a Magit status buffer for the Git repository containing DIR.
@@ -4337,23 +4367,21 @@ when asking for user input.
                        (or (magit-get-top-dir)
                            (magit-read-top-dir nil)))))
   (let ((topdir (magit-get-top-dir dir)))
-    (unless topdir
-      (when (y-or-n-p
-             (format "There is no Git repository in %S.  Create one? " dir))
-        (magit-init dir)
-        (setq topdir (magit-get-top-dir dir))))
-    (when topdir
-      (magit-save-some-buffers topdir)
-      (let ((buf (or (magit-find-buffer 'magit-status-mode topdir)
-                     (generate-new-buffer
-                      (concat "*magit: "
-                              (file-name-nondirectory
-                               (directory-file-name topdir)) "*")))))
-        (magit-mode-display-buffer
-         buf (if (called-interactively-p 'any)
-                 magit-status-buffer-switch-function
-               (if same-window 'switch-to-buffer 'pop-to-buffer)))
-        (magit-mode-init topdir 'magit-status-mode #'magit-refresh-status)))))
+    (when (or topdir
+              (and (yes-or-no-p
+                    (format "There is no Git repository in %s.  Create one? "
+                            dir))
+                   (magit-init dir)
+                   (setq topdir (magit-get-top-dir dir))))
+      (let ((default-directory topdir))
+        (magit-mode-setup magit-status-buffer-name
+                          (if (called-interactively-p 'any)
+                              magit-status-buffer-switch-function
+                            (if same-window
+                                'switch-to-buffer
+                              'pop-to-buffer))
+                          #'magit-status-mode
+                          #'magit-refresh-status)))))
 
 (defun magit-refresh-status ()
   (magit-git-exit-code "update-index" "--refresh")
@@ -5982,7 +6010,7 @@ With a prefix arg, do a submodule update --init."
 (defun magit-log (&optional range)
   (interactive)
   (unless range (setq range "HEAD"))
-  (magit-mode-setup magit-log-buffer-name
+  (magit-mode-setup magit-log-buffer-name nil
                     #'magit-log-mode
                     #'magit-refresh-log-buffer
                     'oneline range magit-custom-options))
@@ -5996,7 +6024,7 @@ With a prefix arg, do a submodule update --init."
 (defun magit-log-long (&optional range)
   (interactive)
   (unless range (setq range "HEAD"))
-  (magit-mode-setup magit-log-buffer-name
+  (magit-mode-setup magit-log-buffer-name nil
                     #'magit-log-mode
                     #'magit-refresh-log-buffer
                     'long range magit-custom-options))
@@ -6016,7 +6044,7 @@ With a prefix argument show the log graph."
    (list (magit-read-file-from-rev (magit-get-current-branch)
                                    (magit-buffer-file-name t))
          current-prefix-arg))
-  (magit-mode-setup magit-log-buffer-name
+  (magit-mode-setup magit-log-buffer-name nil
                     #'magit-log-mode
                     #'magit-refresh-log-buffer
                     'oneline "HEAD"
@@ -6028,7 +6056,7 @@ With a prefix argument show the log graph."
 (defun magit-reflog (ref)
   (interactive (list (magit-read-rev "Reflog of"
                                      (or (magit-guess-branch) "HEAD"))))
-  (magit-mode-setup magit-reflog-buffer-name
+  (magit-mode-setup magit-reflog-buffer-name nil
                     #'magit-reflog-mode
                     #'magit-refresh-reflog-buffer ref))
 
@@ -6160,7 +6188,7 @@ Other key binding:
    (let  ((head (magit-read-rev "Cherry head" (magit-get-current-branch))))
      (list head (magit-read-rev "Cherry upstream"
                                 (magit-get-tracked-branch head nil t)))))
-  (magit-mode-setup magit-cherry-buffer-name
+  (magit-mode-setup magit-cherry-buffer-name nil
                     #'magit-cherry-mode
                     #'magit-refresh-cherry-buffer upstream head))
 
@@ -6430,14 +6458,10 @@ More information can be found in Info node `(magit)Diffing'
 ;;;###autoload
 (defun magit-diff (range &optional working args)
   (interactive (list (magit-read-rev-range "Diff")))
-  (let ((buf (get-buffer-create magit-diff-buffer-name))
-        (dir default-directory))
-    (display-buffer buf)
-    (with-current-buffer buf
-      (magit-mode-init dir
-                       #'magit-diff-mode
-                       #'magit-refresh-diff-buffer
-                       range working args))))
+  (magit-mode-setup magit-diff-buffer-name
+                    #'pop-to-buffer
+                    #'magit-diff-mode
+                    #'magit-refresh-diff-buffer range working args))
 
 ;;;###autoload
 (defun magit-diff-working-tree (rev)
@@ -6459,16 +6483,15 @@ More information can be found in Info node `(magit)Diffing'
 ;;;###autoload
 (defun magit-diff-stash (stash &optional noselect)
   (interactive (list (magit-read-stash "Show stash (number): ")))
-  (let ((dir default-directory)
-        (buf (get-buffer-create magit-stash-buffer-name)))
-    (with-current-buffer buf
-      (goto-char (point-min))
-      (magit-mode-display-buffer buf (if noselect
-                                         'display-buffer
-                                       'pop-to-buffer))
-      (magit-mode-init dir 'magit-diff-mode
-                       #'magit-refresh-diff-buffer
-                       (concat stash "^2^.." stash)))))
+  (with-current-buffer (magit-mode-get-buffer-create
+                        magit-commit-buffer-name
+                        'magit-commit-mode)
+    (goto-char (point-min)))
+  (magit-mode-setup magit-commit-buffer-name
+                    (if noselect 'display-buffer 'pop-to-buffer)
+                    #'magit-diff-mode
+                    #'magit-refresh-diff-buffer
+                    (concat stash "^2^.." stash)))
 
 (defun magit-diff-with-mark (range)
   (interactive
@@ -6539,7 +6562,7 @@ More information can be found in Info node `(magit)Wazzup'
      (list (if current-prefix-arg
                (magit-read-rev "Wazzup branch" branch)
              branch))))
-  (magit-mode-setup magit-wazzup-buffer-name
+  (magit-mode-setup magit-wazzup-buffer-name nil
                     #'magit-wazzup-mode
                     #'magit-refresh-wazzup-buffer branch))
 
@@ -6941,7 +6964,7 @@ from the parent keymap `magit-mode-map' are also available.")
 ;;;###autoload
 (defun magit-branch-manager ()
   (interactive)
-  (magit-mode-setup magit-branches-buffer-name
+  (magit-mode-setup magit-branches-buffer-name nil
                     #'magit-branch-manager-mode
                     #'magit-refresh-branch-manager))
 
@@ -7088,8 +7111,7 @@ from the parent keymap `magit-mode-map' are also available.")
     (magit-set (car track-) "branch" branch "remote")
     (magit-set (cdr track-) "branch" branch "merge")
     (magit-branch-manager)
-    (when (string= (magit-get-current-branch) branch)
-      (magit-mode-refresh-buffer (magit-find-buffer 'magit-status-mode)))))
+    (magit-refresh)))
 
 ;;; Miscellaneous
 ;;;; Miscellaneous Commands
