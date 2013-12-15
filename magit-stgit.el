@@ -64,11 +64,6 @@
   "Face for the current stgit patch."
   :group 'magit-faces)
 
-(defface magit-stgit-marked
-  '((t :inherit magit-stgit-current))
-  "Face for a marked stgit patch."
-  :group 'magit-faces)
-
 (defface magit-stgit-applied
   '((t :inherit magit-cherry-equivalent))
   "Face for an applied stgit patch."
@@ -91,9 +86,6 @@
 
 ;;; Variables
 
-(defvar-local magit-stgit-marked-patch nil
-  "The (per-buffer) currently marked patch in an StGit series.")
-
 (defvar magit-stgit-patch-buffer-name "*magit-stgit-patch*"
   "Name of buffer used to display a stgit patch.")
 
@@ -113,8 +105,7 @@
 
 (defun magit-stgit-read-patch (prompt)
   (magit-completing-read prompt (magit-stgit-lines "series" "--noprefix")
-                         nil nil nil 'magit-read-rev-history
-                         magit-stgit-marked-patch))
+                         nil nil nil 'magit-read-rev-history))
 
 ;;; Commands
 
@@ -154,18 +145,7 @@ into the series."
 (defun magit-stgit-discard (patch)
   "Discard a StGit patch."
   (interactive (list (magit-stgit-read-patch "Discard patch")))
-  (when (string= patch magit-stgit-marked-patch)
-    (setq magit-stgit-marked-patch nil))
   (magit-run-stgit "delete" patch))
-
-;;;###autoload
-(defun magit-stgit-mark (patch)
-  "Mark a StGit patch."
-  (interactive (list (magit-stgit-read-patch "Mark patch")))
-  (setq magit-stgit-marked-patch
-        (unless (string= magit-stgit-marked-patch patch)
-          patch))
-  (magit-refresh))
 
 ;;;###autoload
 (defun magit-stgit-show (patch)
@@ -221,10 +201,6 @@ into the series."
    (when (yes-or-no-p (format "Discard patch `%s'? " info))
      (magit-stgit-discard info))))
 
-(magit-add-action-clauses (item info "mark")
-  ((stgit-patch)
-   (magit-stgit-mark info)))
-
 (easy-menu-define magit-stgit-extension-menu nil
   "StGit extension menu"
   '("StGit" :visible magit-stgit-mode
@@ -262,9 +238,6 @@ into the series."
                                 ((equal state "!") 'magit-stgit-hidden)
                                 (t (error "Unknown stgit patch state: %s"
                                           state))))
-              (if (equal patch magit-stgit-marked-patch)
-                  (propertize "<" 'face 'magit-stgit-marked)
-                " ")
               (propertize empty 'face 'magit-stgit-empty) " "
               (propertize patch 'face 'magit-stgit-patch) " "
               (propertize msg   'face 'magit-stgit))
