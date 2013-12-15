@@ -189,14 +189,14 @@
          (setq magit-stgit-marked-patch nil))
        (magit-run-stgit "delete" patch)))))
 
-(defun magit-stgit-set-marked-patch (patch)
+(defun magit-stgit-mark-patch (patch)
   (setq magit-stgit-marked-patch
         (unless (string= magit-stgit-marked-patch patch)
           patch)))
 
 (magit-add-action-clauses (item info "mark")
   ((series)
-   (magit-stgit-set-marked-patch info)
+   (magit-stgit-mark-patch info)
    (magit-refresh-all)))
 
 ;;; Commands
