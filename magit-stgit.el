@@ -85,7 +85,7 @@
 
 ;;; Common code
 
-(defvar-local magit-stgit--marked-patch nil
+(defvar-local magit-stgit-marked-patch nil
   "The (per-buffer) currently marked patch in an StGit series.")
 
 (defun magit-run-stgit (&rest args)
@@ -112,7 +112,7 @@
 
 ;;; Series section
 
-(defun magit-stgit--wash-patch ()
+(defun magit-stgit-wash-patch ()
   (if (re-search-forward "^\\(.\\)\\(.\\) \\([^\s]*\\)\\(\s*# ?\\)\\(.*\\)"
                          (line-end-position) t)
       (let* ((empty-str "[empty] ")
@@ -126,7 +126,7 @@
          (cond ((string= empty "0")
                 (propertize (concat empty-str " " state " " descr)
                             'face 'magit-stgit-empty))
-               ((string= magit-stgit--marked-patch patch)
+               ((string= magit-stgit-marked-patch patch)
                 (propertize (concat indent-str " " state " " descr)
                             'face 'magit-stgit-marked))
                ((string= state "+")
@@ -148,25 +148,25 @@
     (delete-region (line-beginning-position) (1+ (line-end-position))))
   t)
 
-(defun magit-stgit--wash-series ()
-  (magit-wash-sequence #'magit-stgit--wash-patch))
+(defun magit-stgit-wash-series ()
+  (magit-wash-sequence #'magit-stgit-wash-patch))
 
 (defun magit-insert-stgit-series ()
   (when (executable-find magit-stgit-executable)
     (magit-cmd-insert-section (series "Series:")
-        'magit-stgit--wash-series
+        'magit-stgit-wash-series
       magit-stgit-executable "series" "-a" "-d" "-e")))
 
 ;;; Actions
 
 ;; Copy of `magit-refresh-commit-buffer' (version 1.0.0)
-(defun magit-stgit--refresh-patch-buffer (patch)
+(defun magit-stgit-refresh-patch-buffer (patch)
   (magit-cmd-insert-section (stgit-patch)
       'magit-wash-commit
     magit-stgit-executable "show" patch))
 
 ;; Copy of `magit-show-commit' (version 1.0.0)
-(defun magit-stgit--show-patch (patch &optional scroll)
+(defun magit-stgit-show-patch (patch &optional scroll)
   (when (magit-section-p patch)
     (setq patch (magit-section-info patch)))
   (let ((dir default-directory)
@@ -188,11 +188,11 @@
              (set-buffer buf)
              (goto-char (point-min))
              (magit-mode-init dir 'magit-commit-mode
-                              #'magit-stgit--refresh-patch-buffer patch))))))
+                              #'magit-stgit-refresh-patch-buffer patch))))))
 
 (magit-add-action-clauses (item info "visit")
   ((series)
-   (magit-stgit--show-patch info)
+   (magit-stgit-show-patch info)
    (pop-to-buffer magit-commit-buffer-name)))
 
 (magit-add-action-clauses (item info "apply")
@@ -201,20 +201,20 @@
 
 (magit-add-action-clauses (item info "discard")
   ((series)
-   (let ((patch (or magit-stgit--marked-patch info)))
+   (let ((patch (or magit-stgit-marked-patch info)))
      (when (yes-or-no-p (format "Delete patch '%s' in series? " patch))
-       (when (string= magit-stgit--marked-patch patch)
-         (setq magit-stgit--marked-patch nil))
+       (when (string= magit-stgit-marked-patch patch)
+         (setq magit-stgit-marked-patch nil))
        (magit-run-stgit "delete" patch)))))
 
-(defun magit-stgit--set-marked-patch (patch)
-  (setq magit-stgit--marked-patch
-        (unless (string= magit-stgit--marked-patch patch)
+(defun magit-stgit-set-marked-patch (patch)
+  (setq magit-stgit-marked-patch
+        (unless (string= magit-stgit-marked-patch patch)
           patch)))
 
 (magit-add-action-clauses (item info "mark")
   ((series)
-   (magit-stgit--set-marked-patch info)
+   (magit-stgit-set-marked-patch info)
    (magit-refresh-all)))
 
 ;;; Commands
@@ -225,8 +225,8 @@
 If there is no marked patch in the series, refreshes the current
 patch.  Otherwise, refreshes the marked patch."
   (interactive)
-  (if magit-stgit--marked-patch
-      (magit-run-stgit "refresh" "-p" magit-stgit--marked-patch)
+  (if magit-stgit-marked-patch
+      (magit-run-stgit "refresh" "-p" magit-stgit-marked-patch)
     (magit-run-stgit "refresh")))
 
 ;;;###autoload
