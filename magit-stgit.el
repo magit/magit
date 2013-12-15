@@ -188,9 +188,13 @@ into the series."
 
 ;;; Mode
 
+(defvar magit-stgit-mode-lighter " Stg")
+
 ;;;###autoload
-(define-minor-mode magit-stgit-mode "StGit support for Magit"
-  :lighter " Stg" :require 'magit-stgit
+(define-minor-mode magit-stgit-mode
+  "StGit support for Magit"
+  :lighter magit-stgit-mode-lighter
+  :require 'magit-stgit
   (or (derived-mode-p 'magit-mode)
       (error "This mode only makes sense with magit"))
   (if magit-stgit-mode
