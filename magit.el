@@ -4138,20 +4138,19 @@ from the parent keymap `magit-mode-map' are also available."
                       "Show commit (hash or ref)")))
   (unless (magit-git-success "cat-file" "commit" commit)
     (error "%s is not a commit" commit))
-  (let ((dir (magit-get-top-dir))
-        (buf (get-buffer-create magit-commit-buffer-name)))
-    (with-current-buffer buf
-      (unless inhibit-history
-        (push (cons default-directory magit-currently-shown-commit)
-              magit-back-navigation-history)
-        (setq magit-forward-navigation-history nil))
-      (goto-char (point-min))
-      (magit-mode-display-buffer buf 'magit-commit-mode
-                                 (if noselect
-                                     'display-buffer
-                                   'pop-to-buffer))
-      (magit-mode-init dir 'magit-commit-mode
-                       #'magit-refresh-commit-buffer commit))))
+  (with-current-buffer (magit-mode-get-buffer-create
+                        magit-commit-buffer-name
+                        'magit-commit-mode)
+    (unless inhibit-history
+      (push (cons default-directory magit-currently-shown-commit)
+            magit-back-navigation-history)
+      (setq magit-forward-navigation-history nil))
+    (goto-char (point-min)))
+  (magit-mode-setup magit-commit-buffer-name
+                    (if noselect 'display-buffer 'pop-to-buffer)
+                    #'magit-commit-mode
+                    #'magit-refresh-commit-buffer
+                    commit))
 
 (defun magit-show-item-or-scroll-up ()
   (interactive)
