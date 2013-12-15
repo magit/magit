@@ -43,8 +43,6 @@
 ;; - Let the user select which files must be included in a refresh.
 ;; - Missing actions for `magit-show-item-or-scroll-up' and
 ;;   `magit-show-item-or-scroll-down'.
-;; - Marking a patch is slow and refreshes all buffers, which resets their
-;;   position (i.e., the buffer is shown from its first line).
 
 ;;; Code:
 
@@ -192,12 +190,12 @@
 (defun magit-stgit-mark-patch (patch)
   (setq magit-stgit-marked-patch
         (unless (string= magit-stgit-marked-patch patch)
-          patch)))
+          patch))
+  (magit-refresh))
 
 (magit-add-action-clauses (item info "mark")
   ((series)
-   (magit-stgit-mark-patch info)
-   (magit-refresh-all)))
+   (magit-stgit-mark-patch info)))
 
 ;;; Commands
 
