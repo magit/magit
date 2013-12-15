@@ -92,24 +92,6 @@
   (magit-with-refresh
     (magit-run* (cons magit-stgit-executable args))))
 
-;;; Menu
-
-(easy-menu-define magit-stgit-extension-menu
-  nil
-  "StGit extension menu"
-  '("StGit" :visible magit-stgit-mode
-    ["Refresh patch" magit-stgit-refresh
-     :help "Refresh the contents of a patch in an StGit series"]
-    ["Repair" magit-stgit-repair
-     :help "Repair StGit metadata if branch was modified with git commands"]
-    ["Rebase series" magit-stgit-rebase
-     :help "Rebase an StGit patch series"]
-    ))
-
-(easy-menu-add-item 'magit-mode-menu
-                    '("Extensions")
-                    magit-stgit-extension-menu)
-
 ;;; Series section
 
 (defun magit-stgit-wash-patch ()
@@ -252,6 +234,8 @@ into the series."
                              (magit-get-current-remote)
                              (magit-get-current-branch)))))
 
+;;; Mode
+
 ;;;###autoload
 (define-minor-mode magit-stgit-mode "StGit support for Magit"
   :lighter " Stg" :require 'magit-stgit
@@ -269,6 +253,19 @@ into the series."
 (defun turn-on-magit-stgit ()
   "Unconditionally turn on `magit-stgit-mode'."
   (magit-stgit-mode 1))
+
+(easy-menu-define magit-stgit-extension-menu nil
+  "StGit extension menu"
+  '("StGit" :visible magit-stgit-mode
+    ["Refresh patch" magit-stgit-refresh
+     :help "Refresh the contents of a patch in an StGit series"]
+    ["Repair" magit-stgit-repair
+     :help "Repair StGit metadata if branch was modified with git commands"]
+    ["Rebase series" magit-stgit-rebase
+     :help "Rebase an StGit patch series"]))
+
+(easy-menu-add-item 'magit-mode-menu '("Extensions")
+                    magit-stgit-extension-menu)
 
 (provide 'magit-stgit)
 ;; Local Variables:
