@@ -153,25 +153,6 @@
         'magit-stgit-wash-series
       magit-stgit-executable "series" "-a" "-d" "-e")))
 
-;;; Actions
-
-(magit-add-action-clauses (item info "visit")
-  ((series)
-   (magit-stgit-show-patch info)))
-
-(magit-add-action-clauses (item info "apply")
-  ((series)
-   (magit-run-stgit "goto" info)))
-
-(magit-add-action-clauses (item info "discard")
-  ((series)
-   (when (yes-or-no-p (format "Discard patch `%s'? " info))
-     (magit-stgit-discard info))))
-
-(magit-add-action-clauses (item info "mark")
-  ((series)
-   (magit-stgit-mark-patch info)))
-
 ;;; Commands
 
 ;;;###autoload
@@ -261,6 +242,23 @@ into the series."
 (defun turn-on-magit-stgit ()
   "Unconditionally turn on `magit-stgit-mode'."
   (magit-stgit-mode 1))
+
+(magit-add-action-clauses (item info "visit")
+  ((series)
+   (magit-stgit-show-patch info)))
+
+(magit-add-action-clauses (item info "apply")
+  ((series)
+   (magit-run-stgit "goto" info)))
+
+(magit-add-action-clauses (item info "discard")
+  ((series)
+   (when (yes-or-no-p (format "Discard patch `%s'? " info))
+     (magit-stgit-discard info))))
+
+(magit-add-action-clauses (item info "mark")
+  ((series)
+   (magit-stgit-mark-patch info)))
 
 (easy-menu-define magit-stgit-extension-menu nil
   "StGit extension menu"
