@@ -169,7 +169,7 @@ into the series."
 
 ;;;###autoload
 (defun magit-stgit-show (patch)
-  (interactive (list (magit-stgit-read-patch "Patch name")))
+  (interactive (list (magit-stgit-read-patch "Show patch")))
   (let ((dir default-directory)
         (buf (get-buffer-create magit-stgit-patch-buffer-name)))
     (with-current-buffer buf
