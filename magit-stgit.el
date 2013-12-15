@@ -138,17 +138,17 @@ into the series."
 
 ;;;###autoload
 (defun magit-stgit-rebase ()
-  "Rebase an StGit patch series."
+  "Rebase a StGit patch series."
   (interactive)
-  (when (magit-get-current-remote)
-    (when (yes-or-no-p "Update remotes? ")
-      (message "Updating remotes...")
-      (magit-run-git-async "remote" "update")
-      (message "Updating remotes...done"))
-    (magit-run-stgit "rebase"
-                     (format "remotes/%s/%s"
-                             (magit-get-current-remote)
-                             (magit-get-current-branch)))))
+  (let ((remote (magit-get-current-remote))
+        (branch (magit-get-current-branch)))
+    (if (not (and remote branch))
+        (error "Branch has no upstream")
+      (when (y-or-n-p "Update remote first? ")
+        (message "Updating remote...")
+        (magit-run-git-async "remote" "update" remote)
+        (message "Updating remote...done"))
+      (magit-run-stgit "rebase" (format "remotes/%s/%s" remote branch)))))
 
 ;;;###autoload
 (defun magit-stgit-discard (patch)
