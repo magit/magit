@@ -1385,6 +1385,8 @@ Many Magit faces inherit from this one by default."
     (set-keymap-parent map magit-mode-map)
     (define-key map (kbd "C-c C-b") 'magit-show-commit-backward)
     (define-key map (kbd "C-c C-f") 'magit-show-commit-forward)
+    (define-key map (kbd "SPC") 'scroll-up)
+    (define-key map (kbd "DEL") 'scroll-down)
     map)
   "Keymap for `magit-commit-mode'.")
 
@@ -1431,6 +1433,8 @@ Many Magit faces inherit from this one by default."
 (defvar magit-diff-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
+    (define-key map (kbd "SPC") 'scroll-up)
+    (define-key map (kbd "DEL") 'scroll-down)
     map)
   "Keymap for `magit-diff-mode'.")
 
