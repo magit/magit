@@ -228,7 +228,8 @@ into the series."
   (when (magit-get-current-remote)
     (when (yes-or-no-p "Update remotes? ")
       (message "Updating remotes...")
-      (magit-run-git-async "remote" "update"))
+      (magit-run-git-async "remote" "update")
+      (message "Updating remotes...done"))
     (magit-run-stgit "rebase"
                      (format "remotes/%s/%s"
                              (magit-get-current-remote)
