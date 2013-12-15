@@ -6459,14 +6459,10 @@ More information can be found in Info node `(magit)Diffing'
 ;;;###autoload
 (defun magit-diff (range &optional working args)
   (interactive (list (magit-read-rev-range "Diff")))
-  (let ((buf (get-buffer-create magit-diff-buffer-name))
-        (dir default-directory))
-    (display-buffer buf)
-    (with-current-buffer buf
-      (magit-mode-init dir
-                       #'magit-diff-mode
-                       #'magit-refresh-diff-buffer
-                       range working args))))
+  (magit-mode-setup magit-diff-buffer-name
+                    #'pop-to-buffer
+                    #'magit-diff-mode
+                    #'magit-refresh-diff-buffer range working args))
 
 ;;;###autoload
 (defun magit-diff-working-tree (rev)
