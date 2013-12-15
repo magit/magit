@@ -155,23 +155,6 @@
 
 ;;; Actions
 
-(defun magit-stgit-refresh-patch-buffer (patch)
-  (magit-cmd-insert-section (stgit-patch)
-      #'magit-wash-commit
-    magit-stgit-executable "show" patch))
-
-;;;###autoload
-(defun magit-stgit-show-patch (patch)
-  (interactive (list (magit-stgit-read-patch "Patch name")))
-  (let ((dir default-directory)
-        (buf (get-buffer-create magit-stgit-patch-buffer-name)))
-    (with-current-buffer buf
-      (magit-mode-display-buffer buf)
-      (magit-mode-init dir
-                       #'magit-commit-mode
-                       #'magit-stgit-refresh-patch-buffer
-                       patch))))
-
 (magit-add-action-clauses (item info "visit")
   ((series)
    (magit-stgit-show-patch info)))
@@ -241,6 +224,23 @@ into the series."
         (unless (string= magit-stgit-marked-patch patch)
           patch))
   (magit-refresh))
+
+;;;###autoload
+(defun magit-stgit-show-patch (patch)
+  (interactive (list (magit-stgit-read-patch "Patch name")))
+  (let ((dir default-directory)
+        (buf (get-buffer-create magit-stgit-patch-buffer-name)))
+    (with-current-buffer buf
+      (magit-mode-display-buffer buf)
+      (magit-mode-init dir
+                       #'magit-commit-mode
+                       #'magit-stgit-refresh-patch-buffer
+                       patch))))
+
+(defun magit-stgit-refresh-patch-buffer (patch)
+  (magit-cmd-insert-section (stgit-patch)
+      #'magit-wash-commit
+    magit-stgit-executable "show" patch))
 
 ;;; Mode
 
