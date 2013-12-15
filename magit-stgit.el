@@ -119,13 +119,11 @@
 ;;; Commands
 
 ;;;###autoload
-(defun magit-stgit-refresh ()
-  "Refresh the contents of a patch in an StGit series.
-If there is no marked patch in the series, refreshes the current
-patch.  Otherwise, refreshes the marked patch."
-  (interactive)
-  (if magit-stgit-marked-patch
-      (magit-run-stgit "refresh" "-p" magit-stgit-marked-patch)
+(defun magit-stgit-refresh (&optional patch)
+  "Refresh a StGit patch."
+  (interactive (list (magit-stgit-read-patch "Refresh patch")))
+  (if patch
+      (magit-run-stgit "refresh" "-p" patch)
     (magit-run-stgit "refresh")))
 
 ;;;###autoload
