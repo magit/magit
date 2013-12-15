@@ -4368,19 +4368,21 @@ when asking for user input.
                        (or (magit-get-top-dir)
                            (magit-read-top-dir nil)))))
   (let ((topdir (magit-get-top-dir dir)))
-    (unless topdir
-      (when (y-or-n-p
-             (format "There is no Git repository in %S.  Create one? " dir))
-        (magit-init dir)
-        (setq topdir (magit-get-top-dir dir))))
-    (when topdir
-      (magit-save-some-buffers topdir)
-      (magit-mode-display-buffer
-       magit-status-buffer-name 'magit-status-mode
-       (if (called-interactively-p 'any)
-           magit-status-buffer-switch-function
-         (if same-window 'switch-to-buffer 'pop-to-buffer)))
-      (magit-mode-init topdir 'magit-status-mode #'magit-refresh-status))))
+    (when (or topdir
+              (and (yes-or-no-p
+                    (format "There is no Git repository in %s.  Create one? "
+                            dir))
+                   (magit-init dir)
+                   (setq topdir (magit-get-top-dir dir))))
+      (let ((default-directory topdir))
+        (magit-mode-setup magit-status-buffer-name
+                          (if (called-interactively-p 'any)
+                              magit-status-buffer-switch-function
+                            (if same-window
+                                'switch-to-buffer
+                              'pop-to-buffer))
+                          #'magit-status-mode
+                          #'magit-refresh-status)))))
 
 (defun magit-refresh-status ()
   (magit-git-exit-code "update-index" "--refresh")
