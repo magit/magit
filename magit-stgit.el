@@ -203,12 +203,6 @@
          (setq magit-stgit-marked-patch nil))
        (magit-run-stgit "delete" patch)))))
 
-(defun magit-stgit-mark-patch (patch)
-  (setq magit-stgit-marked-patch
-        (unless (string= magit-stgit-marked-patch patch)
-          patch))
-  (magit-refresh))
-
 (magit-add-action-clauses (item info "mark")
   ((series)
    (magit-stgit-mark-patch info)))
@@ -248,6 +242,15 @@ into the series."
                      (format "remotes/%s/%s"
                              (magit-get-current-remote)
                              (magit-get-current-branch)))))
+
+;;;###autoload
+(defun magit-stgit-mark-patch (patch)
+  "Mark a StGit patch."
+  (interactive (list (magit-stgit-read-patch "Mark patch")))
+  (setq magit-stgit-marked-patch
+        (unless (string= magit-stgit-marked-patch patch)
+          patch))
+  (magit-refresh))
 
 ;;; Mode
 
