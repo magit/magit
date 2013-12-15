@@ -103,16 +103,18 @@
     (apply 'process-file magit-stgit-executable nil (list t nil) nil args)
     (split-string (buffer-string) "\n" 'omit-nulls)))
 
-(defun magit-stgit-read-patch (prompt)
+(defun magit-stgit-read-patch (prompt &optional require-match)
   (magit-completing-read prompt (magit-stgit-lines "series" "--noprefix")
-                         nil nil nil 'magit-read-rev-history))
+                         nil require-match
+                         nil 'magit-read-rev-history))
 
 ;;; Commands
 
 ;;;###autoload
 (defun magit-stgit-refresh (&optional patch)
   "Refresh a StGit patch."
-  (interactive (list (magit-stgit-read-patch "Refresh patch")))
+  (interactive
+   (list (magit-stgit-read-patch "Refresh patch (default top)")))
   (if patch
       (magit-run-stgit "refresh" "-p" patch)
     (magit-run-stgit "refresh")))
@@ -144,12 +146,12 @@ into the series."
 ;;;###autoload
 (defun magit-stgit-discard (patch)
   "Discard a StGit patch."
-  (interactive (list (magit-stgit-read-patch "Discard patch")))
+  (interactive (list (magit-stgit-read-patch "Discard patch" t)))
   (magit-run-stgit "delete" patch))
 
 ;;;###autoload
 (defun magit-stgit-show (patch)
-  (interactive (list (magit-stgit-read-patch "Show patch")))
+  (interactive (list (magit-stgit-read-patch "Show patch" t)))
   (let ((dir default-directory)
         (buf (get-buffer-create magit-stgit-patch-buffer-name)))
     (with-current-buffer buf
