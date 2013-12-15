@@ -6484,17 +6484,15 @@ More information can be found in Info node `(magit)Diffing'
 ;;;###autoload
 (defun magit-diff-stash (stash &optional noselect)
   (interactive (list (magit-read-stash "Show stash (number): ")))
-  (let ((dir default-directory)
-        (buf (get-buffer-create magit-stash-buffer-name)))
-    (with-current-buffer buf
-      (goto-char (point-min))
-      (magit-mode-display-buffer buf 'magit-diff-mode
-                                 (if noselect
-                                     'display-buffer
-                                   'pop-to-buffer))
-      (magit-mode-init dir 'magit-diff-mode
-                       #'magit-refresh-diff-buffer
-                       (concat stash "^2^.." stash)))))
+  (with-current-buffer (magit-mode-get-buffer-create
+                        magit-commit-buffer-name
+                        'magit-commit-mode)
+    (goto-char (point-min)))
+  (magit-mode-setup magit-commit-buffer-name
+                    (if noselect 'display-buffer 'pop-to-buffer)
+                    #'magit-diff-mode
+                    #'magit-refresh-diff-buffer
+                    (concat stash "^2^.." stash)))
 
 (defun magit-diff-with-mark (range)
   (interactive
