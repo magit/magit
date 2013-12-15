@@ -238,50 +238,35 @@ into the series."
 
 ;;; Series Section
 
+(defconst magit-stgit-patch-re
+  "^\\(.\\)\\([-+>!]\\) \\([^ ]+\\) +# \\(.+\\)$")
+
 (defun magit-insert-stgit-series ()
   (when magit-stgit-mode
-    (magit-cmd-insert-section (stgit-series "Patch series:")
-        'magit-stgit-wash-series
-      magit-stgit-executable "series" "-a" "-d" "-e")))
-
-(defun magit-stgit-wash-series ()
-  (magit-wash-sequence #'magit-stgit-wash-patch))
+    (magit-cmd-insert-section (series "Patch series:")
+        (apply-partially 'magit-wash-sequence 'magit-stgit-wash-patch)
+      magit-stgit-executable "series" "--all" "--empty" "--description")))
 
 (defun magit-stgit-wash-patch ()
-  (if (re-search-forward "^\\(.\\)\\(.\\) \\([^\s]*\\)\\(\s*# ?\\)\\(.*\\)"
-                         (line-end-position) t)
-      (let* ((empty-str "[empty] ")
-             (indent-str (make-string (string-bytes empty-str) ?\ ))
-             (empty (match-string 1))
-             (state (match-string 2))
-             (patch (match-string 3))
-             (descr (match-string 5)))
-        (delete-region (line-beginning-position) (line-end-position))
-        (insert
-         (cond ((string= empty "0")
-                (propertize (concat empty-str " " state " " descr)
-                            'face 'magit-stgit-empty))
-               ((string= magit-stgit-marked-patch patch)
-                (propertize (concat indent-str " " state " " descr)
-                            'face 'magit-stgit-marked))
-               ((string= state "+")
-                (concat indent-str " "
-                        (propertize state
-                                    'face 'magit-stgit-applied) " " descr))
-               ((string= state ">")
-                (propertize (concat indent-str " " state " " descr)
-                            'face 'magit-stgit-current))
-               ((string= state "-")
-                (concat indent-str " "
-                        (propertize state
-                                    'face 'magit-stgit-unapplied) " " descr))))
-        (goto-char (line-beginning-position))
-        (magit-with-section (section stgit-patch patch)
-          (setf (magit-section-info section) patch)
-          (goto-char (line-end-position)))
-        (forward-line))
-    (delete-region (line-beginning-position) (1+ (line-end-position))))
-  t)
+  (looking-at magit-stgit-patch-re)
+  (magit-bind-match-strings (empty state patch msg)
+    (delete-region (point) (point-at-eol))
+    (magit-with-section (section stgit-patch patch)
+      (setf (magit-section-info section) patch)
+      (insert (propertize state 'face
+                          (cond ((equal state ">") 'magit-stgit-current)
+                                ((equal state "+") 'magit-stgit-applied)
+                                ((equal state "-") 'magit-stgit-unapplied)
+                                ((equal state "!") 'magit-stgit-hidden)
+                                (t (error "Unknown stgit patch state: %s"
+                                          state))))
+              (if (equal patch magit-stgit-marked-patch)
+                  (propertize "<" 'face 'magit-stgit-marked)
+                " ")
+              (propertize empty 'face 'magit-stgit-empty) " "
+              (propertize patch 'face 'magit-stgit-patch) " "
+              (propertize msg   'face 'magit-stgit))
+      (forward-line))))
 
 (provide 'magit-stgit)
 ;; Local Variables:
