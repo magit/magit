@@ -54,29 +54,39 @@
   :group 'magit
   :type 'string)
 
-(defface magit-stgit-applied
-  '((t :inherit magit-diff-add))
-  "Face for an applied stgit patch."
+(defface magit-stgit-patch
+  '((t :inherit magit-log-sha1))
+  "Face for name of a stgit patch."
   :group 'magit-faces)
 
 (defface magit-stgit-current
-  '((t :inherit magit-item-highlight))
+  '((t :inherit magit-log-sha1))
   "Face for the current stgit patch."
   :group 'magit-faces)
 
-(defface magit-stgit-other
-  '((t :inherit magit-diff-del))
-  "Face for a non-applied stgit patch."
-  :group 'magit-faces)
-
 (defface magit-stgit-marked
-  '((t :inherit magit-item-mark))
+  '((t :inherit magit-stgit-current))
   "Face for a marked stgit patch."
   :group 'magit-faces)
 
+(defface magit-stgit-applied
+  '((t :inherit magit-cherry-equivalent))
+  "Face for an applied stgit patch."
+  :group 'magit-faces)
+
+(defface magit-stgit-unapplied
+  '((t :inherit magit-cherry-unmatched))
+  "Face for an unapplied stgit patch."
+  :group 'magit-faces)
+
 (defface magit-stgit-empty
-  '((t :inherit magit-item-mark))
+  '((t :inherit magit-diff-del))
   "Face for an empty stgit patch."
+  :group 'magit-faces)
+
+(defface magit-stgit-hidden
+  '((t :inherit magit-diff-empty))
+  "Face for an hidden stgit patch."
   :group 'magit-faces)
 
 ;;; Variables
@@ -135,7 +145,7 @@
                ((string= state "-")
                 (concat indent-str " "
                         (propertize state
-                                    'face 'magit-stgit-other) " " descr))))
+                                    'face 'magit-stgit-unapplied) " " descr))))
         (goto-char (line-beginning-position))
         (magit-with-section (section stgit-patch patch)
           (setf (magit-section-info section) patch)
