@@ -3972,14 +3972,14 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
   (when (eq style 'cherry)
     (reverse-region (point-min) (point-max)))
   (magit-wash-sequence (apply-partially 'magit-wash-log-line style))
-  (when longer
-    (when (= magit-log-count magit-log-cutoff-length)
-      (magit-with-section (section longer 'longer)
-        (insert-text-button "type \"e\" to show more history"
-                            'action (lambda (button)
-                                      (magit-log-show-more-entries))
-                            'follow-link t
-                            'mouse-face magit-item-highlight-face)))))
+  (when (and longer
+             (= magit-log-count magit-log-cutoff-length))
+    (magit-with-section (section longer 'longer)
+      (insert-text-button "type \"e\" to show more history"
+                          'action (lambda (button)
+                                    (magit-log-show-more-entries))
+                          'follow-link t
+                          'mouse-face magit-item-highlight-face))))
 
 (defun magit-wash-log-line (style)
   (looking-at (cl-ecase style
