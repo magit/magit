@@ -159,7 +159,7 @@ into the series."
   (magit-run-stgit "delete" patch))
 
 ;;;###autoload
-(defun magit-stgit-mark-patch (patch)
+(defun magit-stgit-mark (patch)
   "Mark a StGit patch."
   (interactive (list (magit-stgit-read-patch "Mark patch")))
   (setq magit-stgit-marked-patch
@@ -223,7 +223,7 @@ into the series."
 
 (magit-add-action-clauses (item info "mark")
   ((stgit-patch)
-   (magit-stgit-mark-patch info)))
+   (magit-stgit-mark info)))
 
 (easy-menu-define magit-stgit-extension-menu nil
   "StGit extension menu"
