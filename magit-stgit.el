@@ -197,11 +197,8 @@
 
 (magit-add-action-clauses (item info "discard")
   ((series)
-   (let ((patch (or magit-stgit-marked-patch info)))
-     (when (yes-or-no-p (format "Delete patch '%s' in series? " patch))
-       (when (string= magit-stgit-marked-patch patch)
-         (setq magit-stgit-marked-patch nil))
-       (magit-run-stgit "delete" patch)))))
+   (when (yes-or-no-p (format "Discard patch `%s'? " info))
+     (magit-stgit-discard info))))
 
 (magit-add-action-clauses (item info "mark")
   ((series)
@@ -242,6 +239,14 @@ into the series."
                      (format "remotes/%s/%s"
                              (magit-get-current-remote)
                              (magit-get-current-branch)))))
+
+;;;###autoload
+(defun magit-stgit-discard (patch)
+  "Discard a StGit patch."
+  (interactive (list (magit-stgit-read-patch "Discard patch")))
+  (when (string= patch magit-stgit-marked-patch)
+    (setq magit-stgit-marked-patch nil))
+  (magit-run-stgit "delete" patch))
 
 ;;;###autoload
 (defun magit-stgit-mark-patch (patch)
