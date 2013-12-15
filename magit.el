@@ -3229,7 +3229,8 @@ Please see the manual for a complete description of Magit.
 (defvar-local magit-refresh-args nil)
 (put 'magit-refresh-args 'permanent-local t)
 
-(defmacro magit-mode-setup (buffer mode refresh-func &rest refresh-args)
+(defmacro magit-mode-setup
+  (buffer switch-func mode refresh-func &rest refresh-args)
   "Display and select BUFFER, turn on MODE, and refresh a first time.
 Display BUFFER using `magit-mode-display-buffer', then turn on
 MODE in BUFFER, set the local value of `magit-refresh-function'
@@ -3242,7 +3243,8 @@ evaluated before switching to BUFFER."
     `(let* ((,mode-symb ,mode)
             (,init-args (list (magit-get-top-dir default-directory)
                               ,mode-symb ,refresh-func ,@refresh-args))
-            (,buf-symb  (magit-mode-display-buffer ,buffer ,mode-symb)))
+            (,buf-symb  (magit-mode-display-buffer
+                         ,buffer ,mode-symb ,switch-func)))
        (with-current-buffer ,buf-symb
          (apply #'magit-mode-init ,init-args)))))
 
@@ -6007,7 +6009,7 @@ With a prefix arg, do a submodule update --init."
 (defun magit-log (&optional range)
   (interactive)
   (unless range (setq range "HEAD"))
-  (magit-mode-setup magit-log-buffer-name
+  (magit-mode-setup magit-log-buffer-name nil
                     #'magit-log-mode
                     #'magit-refresh-log-buffer
                     'oneline range magit-custom-options))
@@ -6021,7 +6023,7 @@ With a prefix arg, do a submodule update --init."
 (defun magit-log-long (&optional range)
   (interactive)
   (unless range (setq range "HEAD"))
-  (magit-mode-setup magit-log-buffer-name
+  (magit-mode-setup magit-log-buffer-name nil
                     #'magit-log-mode
                     #'magit-refresh-log-buffer
                     'long range magit-custom-options))
@@ -6041,7 +6043,7 @@ With a prefix argument show the log graph."
    (list (magit-read-file-from-rev (magit-get-current-branch)
                                    (magit-buffer-file-name t))
          current-prefix-arg))
-  (magit-mode-setup magit-log-buffer-name
+  (magit-mode-setup magit-log-buffer-name nil
                     #'magit-log-mode
                     #'magit-refresh-log-buffer
                     'oneline "HEAD"
@@ -6053,7 +6055,7 @@ With a prefix argument show the log graph."
 (defun magit-reflog (ref)
   (interactive (list (magit-read-rev "Reflog of"
                                      (or (magit-guess-branch) "HEAD"))))
-  (magit-mode-setup magit-reflog-buffer-name
+  (magit-mode-setup magit-reflog-buffer-name nil
                     #'magit-reflog-mode
                     #'magit-refresh-reflog-buffer ref))
 
@@ -6185,7 +6187,7 @@ Other key binding:
    (let  ((head (magit-read-rev "Cherry head" (magit-get-current-branch))))
      (list head (magit-read-rev "Cherry upstream"
                                 (magit-get-tracked-branch head nil t)))))
-  (magit-mode-setup magit-cherry-buffer-name
+  (magit-mode-setup magit-cherry-buffer-name nil
                     #'magit-cherry-mode
                     #'magit-refresh-cherry-buffer upstream head))
 
@@ -6565,7 +6567,7 @@ More information can be found in Info node `(magit)Wazzup'
      (list (if current-prefix-arg
                (magit-read-rev "Wazzup branch" branch)
              branch))))
-  (magit-mode-setup magit-wazzup-buffer-name
+  (magit-mode-setup magit-wazzup-buffer-name nil
                     #'magit-wazzup-mode
                     #'magit-refresh-wazzup-buffer branch))
 
@@ -6967,7 +6969,7 @@ from the parent keymap `magit-mode-map' are also available.")
 ;;;###autoload
 (defun magit-branch-manager ()
   (interactive)
-  (magit-mode-setup magit-branches-buffer-name
+  (magit-mode-setup magit-branches-buffer-name nil
                     #'magit-branch-manager-mode
                     #'magit-refresh-branch-manager))
 
