@@ -86,6 +86,10 @@
 (defvar-local magit-stgit-marked-patch nil
   "The (per-buffer) currently marked patch in an StGit series.")
 
+
+(defvar magit-stgit-patch-history nil
+  "Input history for `magit-stgit-read-patch'.")
+
 ;;; Utilities
 
 (defun magit-run-stgit (&rest args)
@@ -96,6 +100,11 @@
   (with-temp-buffer
     (apply 'process-file magit-stgit-executable nil (list t nil) nil args)
     (split-string (buffer-string) "\n" 'omit-nulls)))
+
+(defun magit-stgit-read-patch (prompt)
+  (magit-completing-read prompt (magit-stgit-lines "series" "--noprefix")
+                         nil nil nil 'magit-read-rev-history
+                         magit-stgit-marked-patch))
 
 ;;; Series section
 
