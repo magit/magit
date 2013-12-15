@@ -26,21 +26,15 @@
 
 ;;; Commentary:
 
-;; This plug-in provides StGit functionality as a separate component of Magit.
+;; This package provides very basic support for StGit.
 
-;; Available actions:
-;; - visit: Shows the patch at point in the series (stg show)
-;; - apply: Goes to the patch at point in the series (stg goto)
-;; - discard: Deletes the marked/at point patch in the series (stg delete)
+;; When `magit-stgit-mode' is turned on the current patch series is
+;; displayed in the status buffer.  Additionally a few Emacs commands
+;; are defined that wrap around StGit commands.  These commands are
+;; also available as "section actions".
 
-;; Available commands:
-;; - `magit-stgit-refresh': Refresh the marked/at point patch in the series
-;;   (stg refresh)
-;; - `magit-stgit-repair': Repair the StGit metadata (stg repair)
-;; - `magit-stgit-rebase': Rebase the whole series (stg rebase)
-
-;; TODO:
-;; - Let the user select which files must be included in a refresh.
+;; If you are looking for full fledged StGit support in Emacs, then
+;; have a look at `stgit.el' which is distributed with StGit.
 
 ;;; Code:
 
