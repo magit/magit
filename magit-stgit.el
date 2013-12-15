@@ -219,7 +219,7 @@ into the series."
   (interactive)
   (message "Repairing series...")
   (magit-run-stgit "repair")
-  (message ""))
+  (message "Repairing series...done"))
 
 ;;;###autoload
 (defun magit-stgit-rebase ()
