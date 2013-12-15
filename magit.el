@@ -3236,12 +3236,15 @@ MODE in BUFFER, set the local value of `magit-refresh-function'
 to REFRESH-FUNC and that of `magit-refresh-args' to REFRESH-ARGS
 and finally \"refresh\" a first time.  All arguments are
 evaluated before switching to BUFFER."
-  (let ((init-args (cl-gensym "init-args")))
-    `(let ((,init-args (list (magit-get-top-dir default-directory)
-                             ,mode ,refresh-func
-                             ,@refresh-args)))
-       (magit-mode-display-buffer ,buffer)
-       (apply #'magit-mode-init ,init-args))))
+  (let ((mode-symb (cl-gensym "mode-symb"))
+        (init-args (cl-gensym "init-args"))
+        (buf-symb  (cl-gensym "buf-symb")))
+    `(let* ((,mode-symb ,mode)
+            (,init-args (list (magit-get-top-dir default-directory)
+                              ,mode-symb ,refresh-func ,@refresh-args))
+            (,buf-symb  (magit-mode-display-buffer ,buffer ,mode-symb)))
+       (with-current-buffer ,buf-symb
+         (apply #'magit-mode-init ,init-args)))))
 
 (defun magit-mode-init (dir mode refresh-func &rest refresh-args)
   "Turn on MODE and refresh in the current buffer.
@@ -3259,9 +3262,10 @@ Also see `magit-mode-setup', a more convenient variant."
 (defvar-local magit-previous-window-configuration nil)
 (put 'magit-previous-window-configuration 'permanent-local t)
 
-(defun magit-mode-display-buffer (buffer &optional switch-function)
+(defun magit-mode-display-buffer (buffer mode &optional switch-function)
   "Display BUFFER in some window and select it.
-BUFFER may be a buffer or a string, the name of a buffer.
+BUFFER may be a buffer or a string, the name of a buffer.  Return
+the buffer.
 
 Unless BUFFER is already displayed in the selected frame store the
 previous window configuration as a buffer local value, so that it
@@ -3273,6 +3277,10 @@ derives from Magit mode; or else use `switch-to-buffer'.
 
 This is only intended for buffers whose major modes derive from
 Magit mode."
+  (cond ((stringp buffer)
+         (setq buffer (magit-mode-get-buffer-create buffer mode)))
+        ((not (bufferp buffer))
+         (signal 'wrong-type-argument (list 'bufferp nil))))
   (unless (get-buffer-window buffer (selected-frame))
     (with-current-buffer (get-buffer-create buffer)
       (setq magit-previous-window-configuration
@@ -3281,7 +3289,8 @@ Magit mode."
                (if (derived-mode-p 'magit-mode)
                    'switch-to-buffer
                  'pop-to-buffer))
-           buffer))
+           buffer)
+  buffer)
 
 (defun magit-mode-get-buffer (format mode &optional topdir create)
   (if (not (string-match-p "%[Tt]" format))
@@ -4135,9 +4144,10 @@ from the parent keymap `magit-mode-map' are also available."
               magit-back-navigation-history)
         (setq magit-forward-navigation-history nil))
       (goto-char (point-min))
-      (magit-mode-display-buffer buf (if noselect
-                                         'display-buffer
-                                       'pop-to-buffer))
+      (magit-mode-display-buffer buf 'magit-commit-mode
+                                 (if noselect
+                                     'display-buffer
+                                   'pop-to-buffer))
       (magit-mode-init dir 'magit-commit-mode
                        #'magit-refresh-commit-buffer commit))))
 
@@ -4364,8 +4374,7 @@ when asking for user input.
     (when topdir
       (magit-save-some-buffers topdir)
       (magit-mode-display-buffer
-       (magit-mode-get-buffer-create magit-status-buffer-name
-                                     'magit-status-mode topdir)
+       magit-status-buffer-name 'magit-status-mode
        (if (called-interactively-p 'any)
            magit-status-buffer-switch-function
          (if same-window 'switch-to-buffer 'pop-to-buffer)))
@@ -6479,9 +6488,10 @@ More information can be found in Info node `(magit)Diffing'
         (buf (get-buffer-create magit-stash-buffer-name)))
     (with-current-buffer buf
       (goto-char (point-min))
-      (magit-mode-display-buffer buf (if noselect
-                                         'display-buffer
-                                       'pop-to-buffer))
+      (magit-mode-display-buffer buf 'magit-diff-mode
+                                 (if noselect
+                                     'display-buffer
+                                   'pop-to-buffer))
       (magit-mode-init dir 'magit-diff-mode
                        #'magit-refresh-diff-buffer
                        (concat stash "^2^.." stash)))))
