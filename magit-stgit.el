@@ -53,6 +53,8 @@
   :group 'magit
   :type 'string)
 
+;;; Faces
+
 (defface magit-stgit-patch
   '((t :inherit magit-log-sha1))
   "Face for name of a stgit patch."
