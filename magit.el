@@ -77,6 +77,7 @@ Use the function by the same name instead of this variable.")
 (require 'diff-mode)
 (require 'easymenu)
 (require 'epa)
+(require 'format-spec)
 (require 'grep)
 (require 'ring)
 (require 'server)
@@ -110,6 +111,7 @@ Use the function by the same name instead of this variable.")
 (defvar magit-reflog-buffer-name)
 (defvar magit-refresh-args)
 (defvar magit-stash-buffer-name)
+(defvar magit-status-buffer-name)
 (defvar package-alist)
 
 ;;; Compatibility
@@ -3281,15 +3283,28 @@ Magit mode."
                  'pop-to-buffer))
            buffer))
 
-(defun magit-find-buffer (submode &optional dir)
-  (let ((topdir (magit-get-top-dir dir)))
-    (cl-find-if (lambda (buf)
-                  (with-current-buffer buf
-                    (and (eq major-mode submode)
-                         default-directory
-                         (equal (expand-file-name default-directory)
-                                topdir))))
-                (buffer-list))))
+(defun magit-mode-get-buffer (format mode &optional topdir create)
+  (if (not (string-match-p "%[Tt]" format))
+      (funcall (if create #'get-buffer-create #'get-buffer) format)
+    (unless topdir
+      (setq topdir (magit-get-top-dir)))
+    (let ((name (format-spec
+                 format `((?T . ,topdir)
+                          (?t . ,(file-name-nondirectory
+                                  (directory-file-name topdir)))))))
+      (or (cl-find-if
+           (lambda (buf)
+             (with-current-buffer buf
+               (and (or (not mode) (eq major-mode mode))
+                    (equal (expand-file-name default-directory) topdir)
+                    (string-match-p (format "^%s\\(?:<[0-9]+>\\)?$"
+                                            (regexp-quote name))
+                                    (buffer-name)))))
+           (buffer-list))
+          (and create (generate-new-buffer name))))))
+
+(defun magit-mode-get-buffer-create (format mode &optional topdir)
+  (magit-mode-get-buffer format mode topdir t))
 
 (cl-defun magit-mode-refresh-buffer (&optional (buffer (current-buffer)))
   (with-current-buffer buffer
@@ -3407,7 +3422,8 @@ before the last command."
       (funcall func)
     (let ((magit-refresh-pending t)
           (magit-refresh-needing-buffers nil)
-          (status-buffer (magit-find-buffer 'magit-status-mode)))
+          (status-buffer (magit-mode-get-buffer magit-status-buffer-name
+                                                'magit-status-mode)))
       (unwind-protect
           (funcall func)
         ;; Refresh magit buffers.
@@ -4318,6 +4334,9 @@ Other key binding:
 \\{magit-status-mode-map}"
   :group 'magit)
 
+(defvar magit-status-buffer-name "*magit: %t*"
+  "Name of buffer used to display a repository's status.")
+
 ;;;###autoload
 (defun magit-status (dir &optional same-window)
   "Open a Magit status buffer for the Git repository containing DIR.
@@ -4344,16 +4363,13 @@ when asking for user input.
         (setq topdir (magit-get-top-dir dir))))
     (when topdir
       (magit-save-some-buffers topdir)
-      (let ((buf (or (magit-find-buffer 'magit-status-mode topdir)
-                     (generate-new-buffer
-                      (concat "*magit: "
-                              (file-name-nondirectory
-                               (directory-file-name topdir)) "*")))))
-        (magit-mode-display-buffer
-         buf (if (called-interactively-p 'any)
-                 magit-status-buffer-switch-function
-               (if same-window 'switch-to-buffer 'pop-to-buffer)))
-        (magit-mode-init topdir 'magit-status-mode #'magit-refresh-status)))))
+      (magit-mode-display-buffer
+       (magit-mode-get-buffer-create magit-status-buffer-name
+                                     'magit-status-mode topdir)
+       (if (called-interactively-p 'any)
+           magit-status-buffer-switch-function
+         (if same-window 'switch-to-buffer 'pop-to-buffer)))
+      (magit-mode-init topdir 'magit-status-mode #'magit-refresh-status))))
 
 (defun magit-refresh-status ()
   (magit-git-exit-code "update-index" "--refresh")
