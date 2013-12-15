@@ -81,14 +81,21 @@
   "Face for an empty stgit patch."
   :group 'magit-faces)
 
-;;; Common code
+;;; Variables
 
 (defvar-local magit-stgit-marked-patch nil
   "The (per-buffer) currently marked patch in an StGit series.")
 
+;;; Utilities
+
 (defun magit-run-stgit (&rest args)
   (magit-with-refresh
     (magit-run* (cons magit-stgit-executable args))))
+
+(defun magit-stgit-lines (&rest args)
+  (with-temp-buffer
+    (apply 'process-file magit-stgit-executable nil (list t nil) nil args)
+    (split-string (buffer-string) "\n" 'omit-nulls)))
 
 ;;; Series section
 
