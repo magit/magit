@@ -137,7 +137,7 @@
                         (propertize state
                                     'face 'magit-stgit-other) " " descr))))
         (goto-char (line-beginning-position))
-        (magit-with-section (section series patch)
+        (magit-with-section (section stgit-patch patch)
           (setf (magit-section-info section) patch)
           (goto-char (line-end-position)))
         (forward-line))
@@ -149,7 +149,7 @@
 
 (defun magit-insert-stgit-series ()
   (when magit-stgit-mode
-    (magit-cmd-insert-section (series "Series:")
+    (magit-cmd-insert-section (stgit-series "Patch series:")
         'magit-stgit-wash-series
       magit-stgit-executable "series" "-a" "-d" "-e")))
 
@@ -244,20 +244,20 @@ into the series."
   (magit-stgit-mode 1))
 
 (magit-add-action-clauses (item info "visit")
-  ((series)
+  ((stgit-patch)
    (magit-stgit-show-patch info)))
 
 (magit-add-action-clauses (item info "apply")
-  ((series)
+  ((stgit-patch)
    (magit-run-stgit "goto" info)))
 
 (magit-add-action-clauses (item info "discard")
-  ((series)
+  ((stgit-patch)
    (when (yes-or-no-p (format "Discard patch `%s'? " info))
      (magit-stgit-discard info))))
 
 (magit-add-action-clauses (item info "mark")
-  ((series)
+  ((stgit-patch)
    (magit-stgit-mark-patch info)))
 
 (easy-menu-define magit-stgit-extension-menu nil
