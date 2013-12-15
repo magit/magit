@@ -148,7 +148,7 @@
   (magit-wash-sequence #'magit-stgit-wash-patch))
 
 (defun magit-insert-stgit-series ()
-  (when (executable-find magit-stgit-executable)
+  (when magit-stgit-mode
     (magit-cmd-insert-section (series "Series:")
         'magit-stgit-wash-series
       magit-stgit-executable "series" "-a" "-d" "-e")))
