@@ -45,7 +45,6 @@
 ;;; Code:
 
 (require 'magit)
-(eval-when-compile (require 'cl-lib))
 
 ;;; Options
 
