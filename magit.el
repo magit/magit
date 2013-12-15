@@ -7088,8 +7088,7 @@ from the parent keymap `magit-mode-map' are also available.")
     (magit-set (car track-) "branch" branch "remote")
     (magit-set (cdr track-) "branch" branch "merge")
     (magit-branch-manager)
-    (when (string= (magit-get-current-branch) branch)
-      (magit-mode-refresh-buffer (magit-find-buffer 'magit-status-mode)))))
+    (magit-refresh)))
 
 ;;; Miscellaneous
 ;;;; Miscellaneous Commands
