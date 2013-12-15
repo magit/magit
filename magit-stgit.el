@@ -41,8 +41,6 @@
 
 ;; TODO:
 ;; - Let the user select which files must be included in a refresh.
-;; - Missing actions for `magit-show-item-or-scroll-up' and
-;;   `magit-show-item-or-scroll-down'.
 
 ;;; Code:
 
@@ -86,6 +84,8 @@
 (defvar-local magit-stgit-marked-patch nil
   "The (per-buffer) currently marked patch in an StGit series.")
 
+(defvar magit-stgit-patch-buffer-name "*magit-stgit-patch*"
+  "Name of buffer used to display a stgit patch.")
 
 (defvar magit-stgit-patch-history nil
   "Input history for `magit-stgit-read-patch'.")
@@ -155,41 +155,26 @@
 
 ;;; Actions
 
-;; Copy of `magit-refresh-commit-buffer' (version 1.0.0)
 (defun magit-stgit-refresh-patch-buffer (patch)
   (magit-cmd-insert-section (stgit-patch)
-      'magit-wash-commit
+      #'magit-wash-commit
     magit-stgit-executable "show" patch))
 
-;; Copy of `magit-show-commit' (version 1.0.0)
-(defun magit-stgit-show-patch (patch &optional scroll)
-  (when (magit-section-p patch)
-    (setq patch (magit-section-info patch)))
+;;;###autoload
+(defun magit-stgit-show-patch (patch)
+  (interactive (list (magit-stgit-read-patch "Patch name")))
   (let ((dir default-directory)
-        (buf (get-buffer-create magit-commit-buffer-name)))
-    (cond ((and (equal magit-currently-shown-commit patch)
-                ;; if it's empty then the buffer was killed
-                (with-current-buffer buf
-                  (> (length (buffer-string)) 1)))
-           (let ((win (get-buffer-window buf)))
-             (cond ((not win)
-                    (display-buffer buf))
-                   (scroll
-                    (with-selected-window win
-                      (funcall scroll))))))
-          (t
-           (setq magit-currently-shown-commit patch)
-           (display-buffer buf)
-           (with-current-buffer buf
-             (set-buffer buf)
-             (goto-char (point-min))
-             (magit-mode-init dir 'magit-commit-mode
-                              #'magit-stgit-refresh-patch-buffer patch))))))
+        (buf (get-buffer-create magit-stgit-patch-buffer-name)))
+    (with-current-buffer buf
+      (magit-mode-display-buffer buf)
+      (magit-mode-init dir
+                       #'magit-commit-mode
+                       #'magit-stgit-refresh-patch-buffer
+                       patch))))
 
 (magit-add-action-clauses (item info "visit")
   ((series)
-   (magit-stgit-show-patch info)
-   (pop-to-buffer magit-commit-buffer-name)))
+   (magit-stgit-show-patch info)))
 
 (magit-add-action-clauses (item info "apply")
   ((series)
