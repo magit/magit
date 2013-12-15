@@ -146,6 +146,7 @@ into the series."
 
 ;;;###autoload
 (defun magit-stgit-show (patch)
+  "Show diff of a StGit patch."
   (interactive (list (magit-stgit-read-patch "Show patch" t)))
   (let ((dir default-directory)
         (buf (get-buffer-create magit-stgit-patch-buffer-name)))
