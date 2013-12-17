@@ -49,11 +49,18 @@
   "Face for section titles."
   :group 'magit-faces)
 
-
-(defun magit-run-topgit (nowait &rest args)
+(defun magit-run-topgit (&rest args)
   (magit-with-refresh
-    (magit-run* (cons magit-topgit-executable args)
-                nil nil nil nowait)))
+    (magit-run-topgit* args)))
+
+(defun magit-run-topgit-async (&rest args)
+  (message "Running %s %s" magit-topgit-executable
+           (mapconcat 'identity args " "))
+  (magit-run-topgit* args nil t))
+
+(defun magit-run-topgit* (subcmd-and-args &optional nowait input)
+  (magit-run* (cons magit-topgit-executable subcmd-and-args)
+              nil nil nil nowait input))
 
 (defun magit-topgit-in-topic-p ()
   (and (file-exists-p ".topdeps")
@@ -61,11 +68,11 @@
 
 (defun magit-topgit-create-branch (branch parent)
   (when (zerop (or (string-match magit-topgit-branch-prefix branch) -1))
-    (magit-run-topgit t "create" branch parent)))
+    (magit-run-topgit-async "create" branch parent)))
 
 (defun magit-topgit-pull ()
   (when (magit-topgit-in-topic-p)
-    (magit-run-topgit t "update")))
+    (magit-run-topgit-async "update")))
 
 (defun magit-topgit-push ()
   (when (magit-topgit-in-topic-p)
@@ -78,7 +85,7 @@
       (when (and (not remote)
                  (not current-prefix-arg))
         (magit-set push-remote "topgit" "remote"))
-      (magit-run-topgit nil "push" "-r" push-remote))))
+      (magit-run-topgit "push" "-r" push-remote))))
 
 (defun magit-topgit-remote-update (&optional remote)
   (when (magit-topgit-in-topic-p)
@@ -89,8 +96,8 @@
       (when (and (not remote)
                  (not current-prefix-arg))
         (magit-set remote-update "topgit" "remote")
-        (magit-run-topgit nil "remote" "--populate" remote-update))
-      (magit-run-topgit nil "remote" remote-update)))
+        (magit-run-topgit "remote" "--populate" remote-update))
+      (magit-run-topgit "remote" remote-update)))
   ;; We always return nil, as we also want
   ;; regular "git remote update" to happen.
   nil)
@@ -141,8 +148,7 @@
 (magit-add-action-clauses (item info "discard")
   ((topic)
    (when (yes-or-no-p "Discard topic? ")
-     (magit-run* (list magit-topgit-executable "delete" "-f" info)
-                 nil nil nil t))))
+     (magit-run-topgit-async "delete" "-f" info))))
 
 (magit-add-action-clauses (item info "visit")
   ((topic)
