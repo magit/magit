@@ -13,6 +13,14 @@ a single well-defined target each).
 Please also make sure you check that byte-compilation completes
 without errors or warnings, and that tests run without failures.
 
+First you will have to add dependencies of magit `git-rebase-mode` and `git-commit-mode` in
+your working directory.
+
+    $ curl https://raw.github.com/magit/git-modes/master/git-commit-mode.el -o git-commit-mode.el
+    $ curl https://raw.github.com/magit/git-modes/master/git-rebase-mode.el -o git-rebase-mode.e
+
+After that run
+
     $ make lisp test
 
 Bonus points if you add tests to cover the feature you're hacking.
