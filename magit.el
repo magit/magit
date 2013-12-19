@@ -6049,7 +6049,8 @@ With a prefix argument show the log graph."
                     #'magit-refresh-log-buffer
                     'oneline "HEAD"
                     `(,@(and use-graph (list "--graph"))
-                      ,@magit-custom-options)
+                      ,@magit-custom-options
+                      "--follow")
                     file))
 
 ;;;###autoload
