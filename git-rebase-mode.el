@@ -33,7 +33,6 @@
 ;;; Code:
 
 (require 'easymenu)
-(require 'rx)
 (require 'server)
 (require 'thingatpt)
 
@@ -68,42 +67,20 @@
 ;;; Regexps
 
 (defconst git-rebase-action-line-re
-  (rx
-   line-start
-   (? "#")
-   (group
-    (|
-     (any "presf")
-     "pick"
-     "reword"
-     "edit"
-     "squash"
-     "fixup"))
-   (char space)
-   (group
-    (** 4 40 hex-digit)) ;sha1
-   (char space)
-   (group
-    (* not-newline)))
+  (concat "^#?"
+          "\\([efprs]\\|pick\\|reword\\|edit\\|squash\\|fixup\\) "
+          "\\([a-z0-9]\\{4,40\\}\\) "
+          "\\(.*\\)")
   "Regexp that matches an action line in a rebase buffer.")
 
 (defconst git-rebase-exec-line-re
-  (rx
-   line-start
-   (? "#")
-   (group
-    (| "x"
-       "exec"))
-   (char space)
-   (group
-    (* not-newline)))
+  "^#?\\(x\\|exec\\)[[:space:]]\\(.*\\)"
   "Regexp that matches an exec line in a rebase buffer.")
 
 (defconst git-rebase-dead-line-re
-  (rx-to-string `(and line-start
-                      (char ?#)
-                      (or (regexp ,(substring git-rebase-action-line-re 1))
-                          (regexp ,(substring git-rebase-exec-line-re 1)))) t)
+  (format "^#\\(?:%s\\|%s\\)"
+          git-rebase-action-line-re
+          git-rebase-exec-line-re)
   "Regexp that matches a commented-out exec or action line in a rebase buffer.")
 
 ;;; Keymaps
@@ -342,7 +319,7 @@ running 'man git-rebase' at the command line) for details."
          '(3 'git-rebase-description-face))
    (list git-rebase-exec-line-re
          '(1 font-lock-keyword-face))
-   (list (rx line-start (char "#") (* not-newline)) 0 font-lock-comment-face)
+   (list "^#.*" 0 font-lock-comment-face)
    (list git-rebase-dead-line-re 0 ''git-rebase-killed-action-face t))
   "Font lock keywords for Git-Rebase mode.")
 
