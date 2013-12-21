@@ -209,6 +209,7 @@
     (stashing
      (man-page "git-stash")
      (actions
+      ("v" "View" magit-diff-stash)
       ("z" "Save" magit-stash)
       ("s" "Snapshot" magit-stash-snapshot)
       ("a" "Apply" magit-stash-apply)
