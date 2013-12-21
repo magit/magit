@@ -313,7 +313,7 @@ exec line was commented out, also uncomment it."
       (let ((commit (match-string 2)))
         (if (fboundp 'magit-show-commit)
             (let ((default-directory (expand-file-name "../../")))
-              (magit-show-commit commit nil nil 'select))
+              (magit-show-commit commit))
           (shell-command (concat "git show " commit)))))))
 
 (defun git-rebase-backward-line (&optional n)
