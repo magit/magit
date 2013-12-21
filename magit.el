@@ -4393,7 +4393,7 @@ when asking for user input.
 ;;;; Real Sections
 
 (defun magit-insert-stashes ()
-  (let ((stashes (magit-git-lines "stash" "list")))
+  (let ((stashes (magit-git-lines "stash" "list" "--date=default")))
     (when stashes
       (magit-with-section (section stashes 'stashes "Stashes:" t)
         (dolist (stash stashes)
