@@ -312,15 +312,13 @@ running 'man git-rebase' at the command line) for details."
   (setq font-lock-defaults '(git-rebase-mode-font-lock-keywords t t)))
 
 (defvar git-rebase-mode-font-lock-keywords
-  (list
-   (list git-rebase-action-line-re
-         '(1 font-lock-keyword-face)
-         '(2 font-lock-builtin-face)
-         '(3 'git-rebase-description-face))
-   (list git-rebase-exec-line-re
-         '(1 font-lock-keyword-face))
-   (list "^#.*" 0 font-lock-comment-face)
-   (list git-rebase-dead-line-re 0 ''git-rebase-killed-action-face t))
+  `((,git-rebase-action-line-re
+     (1 font-lock-keyword-face)
+     (2 font-lock-builtin-face)
+     (3 'git-rebase-description-face))
+    (,git-rebase-exec-line-re 1 font-lock-keyword-face)
+    ("^#.*"                   0 font-lock-comment-face)
+    (,git-rebase-dead-line-re 0 'git-rebase-killed-action-face t))
   "Font lock keywords for Git-Rebase mode.")
 
 (defun git-rebase-mode-show-keybindings ()
