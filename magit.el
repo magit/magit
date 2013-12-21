@@ -5796,12 +5796,11 @@ With prefix argument, changes in staging area are kept.
   "Create new stash of working tree and staging area; keep changes in place.
 \('git stash save \"Snapshot...\"; git stash apply stash@{0}')"
   (interactive)
-  (magit-with-refresh
-    (apply 'magit-run-git "stash" "save"
-           `(,@magit-custom-options
-             ,(format-time-string "Snapshot taken at %Y-%m-%d %H:%M:%S"
-                                  (current-time))))
-    (magit-run-git "stash" "apply" "stash@{0}")))
+  (apply 'magit-run-git*
+         `(("stash" "save" ,@magit-custom-options
+            ,(format-time-string "Snapshot taken at %Y-%m-%d %H:%M:%S"
+                                 (current-time)))))
+  (magit-run-git "stash" "apply" "stash@{0}"))
 
 (defun magit-stash-apply (stash)
   "Apply a stash on top of the current working tree state.
