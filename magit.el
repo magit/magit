@@ -6658,22 +6658,22 @@ except if LOCAL is non-nil in which case they are written to
       (unless (bolp)
         (insert "\n"))
       (insert file "\n")
-      (write-region nil nil ignore-file))
-    (magit-need-refresh)))
+      (write-region nil nil ignore-file))))
 
 (defun magit-ignore-item (edit &optional local)
   "Ignore the item at point.
 With a prefix argument edit the ignore string."
   (interactive "P")
-  (magit-section-action (item info "ignore")
+  (magit-section-action (item info "ignore" t)
     ((untracked file)
-     (magit-ignore-file (concat "/" info) edit local))
+     (magit-ignore-file (concat "/" info) edit local)
+     (magit-refresh))
     ((diff)
      (let ((file (magit-section-info item)))
        (when (yes-or-no-p
               (format "%s is tracked.  Untrack and ignore? " file))
-         (magit-run-git "rm" "--cached" file)
-         (magit-ignore-file (concat "/" file) edit local))))))
+         (magit-ignore-file (concat "/" file) edit local)
+         (magit-run-git "rm" "--cached" file))))))
 
 (defun magit-ignore-item-locally (edit)
   "Ignore the item at point locally only.
