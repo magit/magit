@@ -2727,11 +2727,10 @@ Expanded: everything is shown."
   "Show section whose level is less than LEVEL, hide the others.
 If ALL is non nil, do this in all sections, otherwise do it only
 on ancestors and descendants of current section."
-  (magit-with-refresh
-    (if all
-        (magit-section-show-level magit-root-section 0 level nil)
-      (let ((path (reverse (magit-section-lineage (magit-current-section)))))
-        (magit-section-show-level (car path) 0 level (cdr path))))))
+  (if all
+      (magit-section-show-level magit-root-section 0 level nil)
+    (let ((path (reverse (magit-section-lineage (magit-current-section)))))
+      (magit-section-show-level (car path) 0 level (cdr path)))))
 
 (defun magit-show-only-files ()
   "Show section that are files, but not their subsection.
