@@ -8,7 +8,7 @@ implemented as an [Emacs][emacs] extension.
 
 Unlike Emacs' native [Version Control][vc] package which strives to
 provide a unified interface to various version control systems, Magit
-only supports Git and can therefor better take advantage of its native
+only supports Git and can therefore better take advantage of its native
 features.
 
 Magit supports GNU Emacs 23.2 or later; 24.1 or later is recommended.
@@ -36,7 +36,7 @@ status.  Otherwise you are first prompted for a repository.  Read the
 short help for `magit-status-mode` (<kbd>C-h m</kbd> in the status
 buffer).
 
-Then edit and save some files files, refresh the status buffer
+Then edit and save some files, refresh the status buffer
 (<kbd>g</kbd>), stage changes (<kbd>s</kbd>) and commit (<kbd>c</kbd>)
 them.
 
