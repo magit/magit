@@ -5804,6 +5804,53 @@ With prefix argument, changes in staging area are kept.
                                   (current-time))))
     (magit-run-git "stash" "apply" "stash@{0}")))
 
+
+(defun magit-get-stash-titles ()
+  "Retrieve titles of currently shown stash sections, do not run git."
+  (let ((stash-sections (magit-find-section '(stashes) magit-root-section)))
+    (when (null stash-sections)
+      (error "No stashes found, please try refreshing"))
+    (mapcar #'magit-section-title (magit-section-children stash-sections))))
+
+;;;###autoload
+(defun magit-stash-pop (stash-title)
+  (interactive (list (let ((titles (magit-get-stash-titles)))
+                       (completing-read "Stash to pop: "
+                                        titles
+                                        nil
+                                        t ;; require match
+                                        (car titles)))))
+  (magit-with-refresh
+    (apply 'magit-run-git "stash" "pop"
+           `(,@magit-custom-options
+             ,stash-name))))
+
+;;;###autoload
+(defun magit-stash-apply (stash-title)
+  (interactive (list (let ((titles (magit-get-stash-titles)))
+                       (completing-read "Stash to apply: "
+                                        titles
+                                        nil
+                                        t ;; require match
+                                        (car titles)))))
+  (magit-with-refresh
+    (apply 'magit-run-git "stash" "apply"
+           `(,@magit-custom-options
+             ,stash-name))))
+
+;;;###autoload
+(defun magit-stash-drop (stash-title)
+  (interactive (list (let ((titles (magit-get-stash-titles)))
+                       (completing-read "Stash to drop: "
+                                        titles
+                                        nil
+                                        t ;; require match
+                                        (car titles)))))
+  (magit-with-refresh
+    (apply 'magit-run-git "stash" "drop"
+           `(,@magit-custom-options
+             ,stash-name))))
+
 ;;;; Apply
 
 (defun magit-apply-item ()

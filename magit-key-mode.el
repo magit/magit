@@ -210,7 +210,10 @@
      (man-page "git-stash")
      (actions
       ("z" "Save" magit-stash)
-      ("s" "Snapshot" magit-stash-snapshot))
+      ("s" "Snapshot" magit-stash-snapshot)
+      ("p" "Pop" magit-stash-pop)
+      ("a" "Apply" magit-stash-apply)
+      ("d" "Drop" magit-stash-drop))
      (switches
       ("-k" "Keep index" "--keep-index")
       ("-u" "Include untracked files" "--include-untracked")
