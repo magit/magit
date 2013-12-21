@@ -87,6 +87,7 @@
       ("P" "Pushing"         magit-key-mode-popup-pushing)
       ("o" "Submoduling"     magit-key-mode-popup-submodule)
       ("r" "Rewriting"       magit-key-mode-popup-rewriting)
+      ("R" "Rebasing"        magit-rebase-step)
       ("s" "Show Status"     magit-status)
       ("S" "Stage all"       magit-stage-all)
       ("t" "Tagging"         magit-key-mode-popup-tagging)
