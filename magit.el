@@ -5804,6 +5804,24 @@ With prefix argument, changes in staging area are kept.
                                   (current-time))))
     (magit-run-git "stash" "apply" "stash@{0}")))
 
+(defun magit-stash-apply (stash)
+  "Apply a stash on top of the current working tree state.
+\('git stash apply stash@{N}')"
+  (interactive (list (magit-read-stash "Apply stash (number): ")))
+  (magit-run-git "stash" "apply" stash))
+
+(defun magit-stash-pop (stash)
+  "Apply a stash on top of working tree state and remove from stash list.
+\('git stash pop stash@{N}')"
+  (interactive (list (magit-read-stash "Pop stash (number): ")))
+  (magit-run-git "stash" "pop" stash))
+
+(defun magit-stash-drop (stash)
+  "Remove a stash from the stash list.
+\('git stash drop stash@{N}')"
+  (interactive (list (magit-read-stash "Drop stash (number): ")))
+  (magit-run-git "stash" "drop" stash))
+
 ;;;; Apply
 
 (defun magit-apply-item ()
@@ -5823,7 +5841,7 @@ With prefix argument, changes in staging area are kept.
     ((diff)
      (magit-apply-diff-item item))
     ((stash)
-     (magit-run-git "stash" "apply" info))))
+     (magit-stash-apply info))))
 
 (defun magit-apply-commit (commit)
   (magit-assert-one-parent commit "cherry-pick")
@@ -5874,7 +5892,7 @@ member of ARGS, or to the working file otherwise."
     ((commit)
      (magit-cherry-pick-commit info))
     ((stash)
-     (magit-run-git "stash" "pop" info))))
+     (magit-stash-pop info))))
 
 (defun magit-cherry-pick-commit (commit)
   (magit-assert-one-parent commit "cherry-pick")
@@ -6732,7 +6750,7 @@ With a prefix argument edit the ignore string."
      (error "Can't discard this diff"))
     ((stash)
      (when (yes-or-no-p "Discard stash? ")
-       (magit-run-git "stash" "drop" info)))
+       (magit-stash-drop info)))
     ((branch)
      (when (yes-or-no-p (if current-prefix-arg
                             (concat "Force delete branch [" info "]? ")
