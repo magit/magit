@@ -79,6 +79,7 @@ Use the function by the same name instead of this variable.")
 (require 'epa)
 (require 'format-spec)
 (require 'grep)
+(require 'help-mode)
 (require 'ring)
 (require 'server)
 
@@ -365,10 +366,13 @@ be preferred."
     (const :tag "Use marked commit, if any" marked))
   :package-version '(magit . "1.3.0"))
 
-(defcustom magit-commit-mode-show-buttons t
-  "Whether to show navigation buttons in the *magit-commit* buffer."
+(defcustom magit-show-xref-buttons '(magit-diff-mode magit-commit-mode)
+  "List of modes whose buffers may should contain history buttons.
+Currently only `magit-diff-mode' and `magit-commit-mode' are
+supported."
   :group 'magit
-  :type 'boolean)
+  :type '(repeat (choice (const magit-diff-mode)
+                         (const magit-commit-mode))))
 
 (defcustom magit-merge-warn-dirty-worktree t
   "Whether to issue a warning when attempting to start a merge in a dirty worktree."
@@ -1385,8 +1389,8 @@ Many Magit faces inherit from this one by default."
 (defvar magit-commit-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
-    (define-key map (kbd "C-c C-b") 'magit-show-commit-backward)
-    (define-key map (kbd "C-c C-f") 'magit-show-commit-forward)
+    (define-key map (kbd "C-c C-b") 'magit-go-backward)
+    (define-key map (kbd "C-c C-f") 'magit-go-forward)
     (define-key map (kbd "SPC") 'scroll-up)
     (define-key map (kbd "DEL") 'scroll-down)
     map)
@@ -1435,6 +1439,8 @@ Many Magit faces inherit from this one by default."
 (defvar magit-diff-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
+    (define-key map (kbd "C-c C-b") 'magit-go-backward)
+    (define-key map (kbd "C-c C-f") 'magit-go-forward)
     (define-key map (kbd "SPC") 'scroll-up)
     (define-key map (kbd "DEL") 'scroll-down)
     map)
@@ -3254,6 +3260,13 @@ REFRESH-FUNC and that of `magit-refresh-args' to REFRESH-ARGS and
 finally \"refresh\" a first time.
 
 Also see `magit-mode-setup', a more convenient variant."
+  (cl-case mode
+    (magit-commit-mode
+     (magit-setup-xref (cons #'magit-show-commit refresh-args))
+     (goto-char (point-min)))
+    (magit-diff-mode
+     (magit-setup-xref (cons #'magit-diff refresh-args))
+     (goto-char (point-min))))
   (setq default-directory dir
         magit-refresh-function refresh-func
         magit-refresh-args refresh-args)
@@ -3421,6 +3434,60 @@ before the last command."
                      (magit-invisible-region-start (point))
                    end))))
   (setq disable-point-adjustment t))
+
+;;;; Buffer History
+
+(defun magit-go-backward ()
+  "Move backward in current buffer's history."
+  (interactive)
+  (if help-xref-stack
+      (help-xref-go-back (current-buffer))
+    (error "No previous entry in buffer's history")))
+
+(defun magit-go-forward ()
+  "Move forward in current buffer's history."
+  (interactive)
+  (if help-xref-forward-stack
+      (help-xref-go-forward (current-buffer))
+    (error "No next entry in buffer's history")))
+
+(defun magit-xref-insert-buttons ()
+  (when (and (or (eq magit-show-xref-buttons t)
+                 (apply 'derived-mode-p magit-show-xref-buttons))
+	     (or help-xref-stack help-xref-forward-stack))
+    (insert "\n")
+    (when help-xref-stack
+      (magit-xref-insert-button help-back-label
+                                'magit-xref-backward))
+    (when help-xref-forward-stack
+      (when help-xref-stack
+	(insert " "))
+      (magit-xref-insert-button help-forward-label
+                                'magit-xref-forward))))
+
+(defun magit-xref-insert-button (label type)
+  (magit-with-section (section button label)
+    (insert-text-button label 'type type
+                        'help-args (list (current-buffer)))))
+
+(define-button-type 'magit-xref-backward
+  :supertype 'help-back
+  'mouse-face magit-item-highlight-face
+  'help-echo (purecopy "mouse-2, RET: go back to previous history entry"))
+
+(define-button-type 'magit-xref-forward
+  :supertype 'help-forward
+  'mouse-face magit-item-highlight-face
+  'help-echo (purecopy "mouse-2, RET: go back to next history entry"))
+
+(defun magit-setup-xref (item)
+  (when help-xref-stack-item
+    (push (cons (point) help-xref-stack-item) help-xref-stack)
+    (setq help-xref-forward-stack nil))
+  (when (called-interactively-p 'interactive)
+    (let ((tail (nthcdr 10 help-xref-stack)))
+      (if tail (setcdr tail nil))))
+  (setq help-xref-stack-item item))
 
 ;;; Refresh Machinery
 
@@ -3602,7 +3669,9 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
   (magit-wash-diffstats)
   (and (re-search-forward "^diff" nil t)
        (goto-char (line-beginning-position)))
-  (magit-wash-sequence #'magit-wash-diff))
+  (magit-wash-sequence #'magit-wash-diff)
+  (goto-char (point-max))
+  (magit-xref-insert-buttons))
 
 (defun magit-wash-diff ()
   (magit-with-section (section diff (buffer-substring-no-properties
@@ -4097,20 +4166,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
          (propertize " " 'face 'fringe))))))
 
 ;;; Commit Mode
-;;__ FIXME The parens indicate preliminary subsections.
-;;;; (variables, TODO make unnecessary)
-
-(defvar magit-currently-shown-commit nil)
-
-(defvar-local magit-back-navigation-history nil
-  "History items that will be visited by successively going \"back\".")
-(put 'magit-back-navigation-history 'permanent-local t)
-
-(defvar-local magit-forward-navigation-history nil
-  "History items that will be visited by successively going \"forward\".")
-(put 'magit-forward-navigation-history 'permanent-local t)
-
-;;;; (core)
+;;;; Commit Core
 
 (define-derived-mode magit-commit-mode magit-mode "Magit"
   "Mode for looking at a git commit.
@@ -4131,20 +4187,12 @@ from the parent keymap `magit-mode-map' are also available."
   "Name of buffer used to display a commit.")
 
 ;;;###autoload
-(defun magit-show-commit (commit &optional noselect inhibit-history)
+(defun magit-show-commit (commit &optional noselect)
   "Show information about COMMIT."
   (interactive (list (magit-read-rev-with-default
                       "Show commit (hash or ref)")))
   (unless (magit-git-success "cat-file" "commit" commit)
     (error "%s is not a commit" commit))
-  (with-current-buffer (magit-mode-get-buffer-create
-                        magit-commit-buffer-name
-                        'magit-commit-mode)
-    (unless inhibit-history
-      (push (cons default-directory magit-currently-shown-commit)
-            magit-back-navigation-history)
-      (setq magit-forward-navigation-history nil))
-    (goto-char (point-min)))
   (magit-mode-setup magit-commit-buffer-name
                     (if noselect 'display-buffer 'pop-to-buffer)
                     #'magit-commit-mode
@@ -4205,7 +4253,7 @@ stash at point, then prompt for a commit."
     "--cc" "-p" (and magit-show-diffstat "--stat")
     magit-diff-options commit))
 
-;;;; (washing)
+;;;; Commit Washing
 
 (defun magit-wash-commit ()
   (looking-at "^commit \\([a-z0-9]+\\)\\(?: \\(.+\\)\\)?$")
@@ -4242,19 +4290,7 @@ stash at point, then prompt for a commit."
   (when magit-show-diffstat
     (magit-wash-diffstats))
   (forward-line)
-  (when (looking-at "^diff")
-    (magit-wash-diffs))
-  (when magit-commit-mode-show-buttons
-    (goto-char (point-max))
-    (insert "\n")
-    (when magit-back-navigation-history
-      (magit-insert-commit-navigation-button
-       "[back]" "Previous commit" 'magit-show-commit-backward))
-    (when magit-forward-navigation-history
-      (when magit-back-navigation-history
-        (insert " "))
-      (magit-insert-commit-navigation-button
-       "[forward]"  "Next commit" 'magit-show-commit-forward))))
+  (magit-wash-diffs))
 
 (defun magit-insert-commit-button (hash)
   (magit-with-section (section commit hash)
@@ -4268,44 +4304,6 @@ stash at point, then prompt for a commit."
                         'follow-link t
                         'mouse-face magit-item-highlight-face
                         'face 'magit-log-sha1)))
-
-;;;; (history)
-
-(defun magit-insert-commit-navigation-button (label help-echo action)
-  (magit-with-section (section button label)
-    (insert-text-button label
-                        'help-echo help-echo
-                        'action action
-                        'follow-link t
-                        'mouse-face magit-item-highlight-face)))
-
-(defun magit-show-commit-backward (&optional ignored)
-  ;; Ignore argument passed by push-button
-  "Show the commit at the head of `magit-back-navigation-history'
-in `magit-commit-buffer-name'."
-  (interactive)
-  (with-current-buffer magit-commit-buffer-name
-    (unless magit-back-navigation-history
-      (error "No previous commit"))
-    (let ((histitem (pop magit-back-navigation-history)))
-      (push (cons default-directory magit-currently-shown-commit)
-            magit-forward-navigation-history)
-      (setq default-directory (car histitem))
-      (magit-show-commit (cdr histitem) nil 'inhibit-history))))
-
-(defun magit-show-commit-forward (&optional ignored)
-  ;; Ignore argument passed by push-button
-  "Show the commit at the head of `magit-forward-navigation-history'
-in `magit-commit-buffer-name'."
-  (interactive)
-  (with-current-buffer magit-commit-buffer-name
-    (unless magit-forward-navigation-history
-      (error "No next commit"))
-    (let ((histitem (pop magit-forward-navigation-history)))
-      (push (cons default-directory magit-currently-shown-commit)
-            magit-back-navigation-history)
-      (setq default-directory (car histitem))
-      (magit-show-commit (cdr histitem) nil 'inhibit-history))))
 
 ;;; Commit Mark
 
@@ -6556,10 +6554,6 @@ A Stash consist of more than just one commit.  This command uses
 a special diff range so that the stashed changes actually were a
 single commit."
   (interactive (list (magit-read-stash "Show stash (number): ")))
-  (with-current-buffer (magit-mode-get-buffer-create
-                        magit-commit-buffer-name
-                        'magit-commit-mode)
-    (goto-char (point-min)))
   (magit-mode-setup magit-commit-buffer-name
                     (if noselect 'display-buffer 'pop-to-buffer)
                     #'magit-diff-mode
