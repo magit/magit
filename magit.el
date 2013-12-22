@@ -6378,7 +6378,7 @@ Other key binding:
     (let* ((status (magit-section-diff-status diff))
            (file1  (magit-section-info diff))
            (file2  (magit-section-diff-file2 diff))
-           (range  (magit-section-diff-range diff)))
+           (range  (magit-diff-range diff)))
       (cond
        ((memq status '(new deleted typechange))
         (message "Why ediff a %s file?" status))
@@ -6402,6 +6402,15 @@ Other key binding:
   (setq magit-ediff-buffers (list a b c))
   (setq magit-ediff-windows (current-window-configuration))
   (ediff-buffers3 a b c '(magit-ediff-add-cleanup)))
+
+(defun magit-diff-range (diff)
+  (if (eq major-mode 'magit-commit-mode)
+      (let ((revs (split-string
+                   (magit-git-string "rev-list" "-1" "--parents"
+                                     (car (last magit-refresh-args))))))
+        (when (<= (length revs) 3)
+          revs))
+    (magit-section-diff-range diff)))
 
 (defun magit-ediff-add-cleanup ()
   (make-local-variable 'magit-ediff-buffers)
@@ -6947,7 +6956,7 @@ return the buffer, without displaying it."
        ((hunk)   (setq section (magit-section-parent item)))
        ((diff)   (setq section item)))
      (if section
-         (setq rev  (cdr (magit-section-diff-range section))
+         (setq rev  (cdr (magit-diff-range section))
                file (magit-section-info section))
        (unless rev
          (setq rev (magit-get-current-branch))))
