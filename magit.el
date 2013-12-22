@@ -4208,72 +4208,66 @@ stash at point, then prompt for a commit."
 ;;;; (washing)
 
 (defun magit-wash-commit ()
-  (let ((magit-current-diff-range (buffer-substring-no-properties 8 48))
-        (merge-commit))
-    (put-text-property 8 48 'face 'magit-log-sha1)
-    (when (re-search-forward "\\((.+)\\)$" (line-end-position) t)
-      (replace-match (magit-format-ref-labels (match-string 1))) t t nil 1)
-    (cond
-     ((re-search-forward
-       "^Merge: \\([0-9a-fA-F]+\\) \\([0-9a-fA-F]+\\)$" nil t)
-      (setq magit-current-diff-range (cons (cons (match-string 1)
-                                                 (match-string 2))
-                                           magit-current-diff-range))
-      (setq merge-commit t)
-      (magit-make-commit-button (match-beginning 1) (match-end 1))
-      (magit-make-commit-button (match-beginning 2) (match-end 2)))
-     (t
-      (setq magit-current-diff-range
-            (cons (concat magit-current-diff-range "^")
-                  magit-current-diff-range))
-      (setq merge-commit nil)))
-    (re-search-forward "^$")
-    (when magit-show-diffstat
-      (let ((pos (point)))
-        (save-excursion
-          (forward-char)
-          (when (re-search-forward (if merge-commit "^$" "^---$") nil t)
-            (delete-region (match-beginning 0)
-                           (+ (match-end 0) 1))
-            (insert "\n")
-            (magit-wash-diffstats)))))
-    (while (and
-            (re-search-forward
-             "\\(\\b[0-9a-fA-F]\\{4,40\\}\\b\\)\\|\\(^diff\\)" nil 'noerror)
-            (not (match-string 2)))
-      (when (string-equal (magit-git-string "cat-file" "-t" (match-string 1))
-                          "commit")
-        (magit-make-commit-button (match-beginning 1) (match-end 1))))
-    (beginning-of-line)
-    (when (looking-at "^diff")
-      (magit-wash-diffs))
+  (looking-at "^commit \\([a-z0-9]+\\)\\(?: \\(.+\\)\\)?$")
+  (let ((rev  (match-string 1))
+        (refs (match-string 2)))
+    (delete-region (point) (1+ (line-end-position)))
+    (magit-with-section
+        (section headers 'headers
+         (concat (propertize rev 'face 'magit-log-sha1)
+                 (and refs (concat " "(magit-format-ref-labels refs)))
+                 "\n"))
+      (while (re-search-forward "^\\([a-z]+\\): +\\(.+\\)$" nil t)
+        (when (string-match-p (match-string 1) "Merge")
+          (let ((revs (match-string 2)))
+            (delete-region (match-beginning 2) (match-end 2))
+            (dolist (rev (split-string revs))
+              (magit-insert-commit-button rev)
+              (insert ?\s)))))
+      (forward-line)))
+  (forward-line)
+  (let ((bound (save-excursion
+                 (when (re-search-forward "^diff" nil t)
+                   (copy-marker (match-beginning 0)))))
+        (summary (buffer-substring-no-properties
+                  (point) (line-end-position))))
+    (delete-region (point) (1+ (line-end-position)))
+    (magit-with-section (section message 'message (concat summary "\n"))
+      (cond ((re-search-forward "^---" bound t)
+             (goto-char (match-beginning 0))
+             (delete-region (match-beginning 0) (match-end 0)))
+            ((re-search-forward "^.[^ ]" bound t)
+             (goto-char (1- (match-beginning 0)))))))
+  (forward-line)
+  (when magit-show-diffstat
+    (magit-wash-diffstats))
+  (forward-line)
+  (when (looking-at "^diff")
+    (magit-wash-diffs))
+  (when magit-commit-mode-show-buttons
     (goto-char (point-max))
-    (when magit-commit-mode-show-buttons
-      (insert "\n")
+    (insert "\n")
+    (when magit-back-navigation-history
+      (magit-insert-commit-navigation-button
+       "[back]" "Previous commit" 'magit-show-commit-backward))
+    (when magit-forward-navigation-history
       (when magit-back-navigation-history
-        (magit-insert-commit-navigation-button
-         "[back]" "Previous commit" 'magit-show-commit-backward))
-      (when magit-forward-navigation-history
-        (when magit-back-navigation-history
-          (insert " "))
-        (magit-insert-commit-navigation-button
-         "[forward]"  "Next commit" 'magit-show-commit-forward)))))
+        (insert " "))
+      (magit-insert-commit-navigation-button
+       "[forward]"  "Next commit" 'magit-show-commit-forward))))
 
-(defun magit-make-commit-button (start end)
-  (let ((hash (buffer-substring-no-properties start end)))
-    (delete-region start end)
-    (goto-char start)
-    (magit-with-section (section commit hash)
-      (setf (magit-section-info section) hash)
-      (insert-text-button hash
-                          'help-echo "Visit commit"
-                          'action (lambda (button)
-                                    (save-excursion
-                                      (goto-char button)
-                                      (magit-visit-item)))
-                          'follow-link t
-                          'mouse-face magit-item-highlight-face
-                          'face 'magit-log-sha1))))
+(defun magit-insert-commit-button (hash)
+  (magit-with-section (section commit hash)
+    (setf (magit-section-info section) hash)
+    (insert-text-button hash
+                        'help-echo "Visit commit"
+                        'action (lambda (button)
+                                  (save-excursion
+                                    (goto-char button)
+                                    (magit-visit-item)))
+                        'follow-link t
+                        'mouse-face magit-item-highlight-face
+                        'face 'magit-log-sha1)))
 
 ;;;; (history)
 
@@ -6378,7 +6372,7 @@ Other key binding:
     (let* ((status (magit-section-diff-status diff))
            (file1  (magit-section-info diff))
            (file2  (magit-section-diff-file2 diff))
-           (range  (magit-section-diff-range diff)))
+           (range  (magit-diff-range diff)))
       (cond
        ((memq status '(new deleted typechange))
         (message "Why ediff a %s file?" status))
@@ -6402,6 +6396,15 @@ Other key binding:
   (setq magit-ediff-buffers (list a b c))
   (setq magit-ediff-windows (current-window-configuration))
   (ediff-buffers3 a b c '(magit-ediff-add-cleanup)))
+
+(defun magit-diff-range (diff)
+  (if (eq major-mode 'magit-commit-mode)
+      (let ((revs (split-string
+                   (magit-git-string "rev-list" "-1" "--parents"
+                                     (car (last magit-refresh-args))))))
+        (when (<= (length revs) 3)
+          revs))
+    (magit-section-diff-range diff)))
 
 (defun magit-ediff-add-cleanup ()
   (make-local-variable 'magit-ediff-buffers)
@@ -6947,7 +6950,7 @@ return the buffer, without displaying it."
        ((hunk)   (setq section (magit-section-parent item)))
        ((diff)   (setq section item)))
      (if section
-         (setq rev  (cdr (magit-section-diff-range section))
+         (setq rev  (cdr (magit-diff-range section))
                file (magit-section-info section))
        (unless rev
          (setq rev (magit-get-current-branch))))
