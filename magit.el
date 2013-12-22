@@ -366,10 +366,13 @@ be preferred."
     (const :tag "Use marked commit, if any" marked))
   :package-version '(magit . "1.3.0"))
 
-(defcustom magit-commit-mode-show-buttons t
-  "Whether to show navigation buttons in the *magit-commit* buffer."
+(defcustom magit-show-xref-buttons '(magit-diff-mode magit-commit-mode)
+  "List of modes whose buffers may should contain history buttons.
+Currently only `magit-diff-mode' and `magit-commit-mode' are
+supported."
   :group 'magit
-  :type 'boolean)
+  :type '(repeat (choice (const magit-diff-mode)
+                         (const magit-commit-mode))))
 
 (defcustom magit-merge-warn-dirty-worktree t
   "Whether to issue a warning when attempting to start a merge in a dirty worktree."
@@ -1436,6 +1439,8 @@ Many Magit faces inherit from this one by default."
 (defvar magit-diff-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
+    (define-key map (kbd "C-c C-b") 'magit-go-backward)
+    (define-key map (kbd "C-c C-f") 'magit-go-forward)
     (define-key map (kbd "SPC") 'scroll-up)
     (define-key map (kbd "DEL") 'scroll-down)
     map)
@@ -3255,6 +3260,13 @@ REFRESH-FUNC and that of `magit-refresh-args' to REFRESH-ARGS and
 finally \"refresh\" a first time.
 
 Also see `magit-mode-setup', a more convenient variant."
+  (cl-case mode
+    (magit-commit-mode
+     (magit-setup-xref (cons #'magit-show-commit refresh-args))
+     (goto-char (point-min)))
+    (magit-diff-mode
+     (magit-setup-xref (cons #'magit-diff refresh-args))
+     (goto-char (point-min))))
   (setq default-directory dir
         magit-refresh-function refresh-func
         magit-refresh-args refresh-args)
@@ -3440,7 +3452,8 @@ before the last command."
     (error "No next entry in buffer's history")))
 
 (defun magit-xref-insert-buttons ()
-  (when (and magit-commit-mode-show-buttons
+  (when (and (or (eq magit-show-xref-buttons t)
+                 (apply 'derived-mode-p magit-show-xref-buttons))
 	     (or help-xref-stack help-xref-forward-stack))
     (insert "\n")
     (when help-xref-stack
@@ -3656,7 +3669,9 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
   (magit-wash-diffstats)
   (and (re-search-forward "^diff" nil t)
        (goto-char (line-beginning-position)))
-  (magit-wash-sequence #'magit-wash-diff))
+  (magit-wash-sequence #'magit-wash-diff)
+  (goto-char (point-max))
+  (magit-xref-insert-buttons))
 
 (defun magit-wash-diff ()
   (magit-with-section (section diff (buffer-substring-no-properties
@@ -4178,11 +4193,6 @@ from the parent keymap `magit-mode-map' are also available."
                       "Show commit (hash or ref)")))
   (unless (magit-git-success "cat-file" "commit" commit)
     (error "%s is not a commit" commit))
-  (with-current-buffer (magit-mode-get-buffer-create
-                        magit-commit-buffer-name
-                        'magit-commit-mode)
-    (magit-setup-xref (list #'magit-show-commit commit))
-    (goto-char (point-min)))
   (magit-mode-setup magit-commit-buffer-name
                     (if noselect 'display-buffer 'pop-to-buffer)
                     #'magit-commit-mode
@@ -4280,9 +4290,7 @@ stash at point, then prompt for a commit."
   (when magit-show-diffstat
     (magit-wash-diffstats))
   (forward-line)
-  (when (looking-at "^diff")
-    (magit-wash-diffs))
-  (magit-xref-insert-buttons))
+  (magit-wash-diffs))
 
 (defun magit-insert-commit-button (hash)
   (magit-with-section (section commit hash)
@@ -6546,10 +6554,6 @@ A Stash consist of more than just one commit.  This command uses
 a special diff range so that the stashed changes actually were a
 single commit."
   (interactive (list (magit-read-stash "Show stash (number): ")))
-  (with-current-buffer (magit-mode-get-buffer-create
-                        magit-commit-buffer-name
-                        'magit-commit-mode)
-    (goto-char (point-min)))
   (magit-mode-setup magit-commit-buffer-name
                     (if noselect 'display-buffer 'pop-to-buffer)
                     #'magit-diff-mode
