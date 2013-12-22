@@ -4208,35 +4208,44 @@ stash at point, then prompt for a commit."
 ;;;; (washing)
 
 (defun magit-wash-commit ()
-  (put-text-property 8 48 'face 'magit-log-sha1)
-  (when (re-search-forward "\\((.+)\\)$" (line-end-position) t)
-    (replace-match (magit-format-ref-labels (match-string 1))) t t nil 1)
-  (when (re-search-forward
-         "^Merge: \\([0-9a-fA-F]+\\) \\([0-9a-fA-F]+\\)$" nil t)
-    (magit-make-commit-button (match-beginning 1) (match-end 1))
-    (magit-make-commit-button (match-beginning 2) (match-end 2)))
-  (re-search-forward "^$")
+  (looking-at "^commit \\([a-z0-9]+\\)\\(?: \\(.+\\)\\)?$")
+  (let ((rev  (match-string 1))
+        (refs (match-string 2)))
+    (delete-region (point) (1+ (line-end-position)))
+    (magit-with-section
+        (section headers 'headers
+         (concat (propertize rev 'face 'magit-log-sha1)
+                 (and refs (concat " "(magit-format-ref-labels refs)))
+                 "\n"))
+      (while (re-search-forward "^\\([a-z]+\\): +\\(.+\\)$" nil t)
+        (when (string-match-p (match-string 1) "Merge")
+          (let ((revs (match-string 2)))
+            (delete-region (match-beginning 2) (match-end 2))
+            (dolist (rev (split-string revs))
+              (magit-insert-commit-button rev)
+              (insert ?\s)))))
+      (forward-line)))
+  (forward-line)
+  (let ((bound (save-excursion
+                 (when (re-search-forward "^diff" nil t)
+                   (copy-marker (match-beginning 0)))))
+        (summary (buffer-substring-no-properties
+                  (point) (line-end-position))))
+    (delete-region (point) (1+ (line-end-position)))
+    (magit-with-section (section message 'message (concat summary "\n"))
+      (cond ((re-search-forward "^---" bound t)
+             (goto-char (match-beginning 0))
+             (delete-region (match-beginning 0) (match-end 0)))
+            ((re-search-forward "^.[^ ]" bound t)
+             (goto-char (1- (match-beginning 0)))))))
+  (forward-line)
   (when magit-show-diffstat
-    (let ((pos (point)))
-      (save-excursion
-        (forward-char)
-        (when (re-search-forward "^\\(---\\)?$" nil t)
-          (delete-region (match-beginning 0)
-                         (+ (match-end 0) 1))
-          (insert "\n")
-          (magit-wash-diffstats)))))
-  (while (and
-          (re-search-forward
-           "\\(\\b[0-9a-fA-F]\\{4,40\\}\\b\\)\\|\\(^diff\\)" nil 'noerror)
-          (not (match-string 2)))
-    (when (string-equal (magit-git-string "cat-file" "-t" (match-string 1))
-                        "commit")
-      (magit-make-commit-button (match-beginning 1) (match-end 1))))
-  (beginning-of-line)
+    (magit-wash-diffstats))
+  (forward-line)
   (when (looking-at "^diff")
     (magit-wash-diffs))
-  (goto-char (point-max))
   (when magit-commit-mode-show-buttons
+    (goto-char (point-max))
     (insert "\n")
     (when magit-back-navigation-history
       (magit-insert-commit-navigation-button
@@ -4247,21 +4256,18 @@ stash at point, then prompt for a commit."
       (magit-insert-commit-navigation-button
        "[forward]"  "Next commit" 'magit-show-commit-forward))))
 
-(defun magit-make-commit-button (start end)
-  (let ((hash (buffer-substring-no-properties start end)))
-    (delete-region start end)
-    (goto-char start)
-    (magit-with-section (section commit hash)
-      (setf (magit-section-info section) hash)
-      (insert-text-button hash
-                          'help-echo "Visit commit"
-                          'action (lambda (button)
-                                    (save-excursion
-                                      (goto-char button)
-                                      (magit-visit-item)))
-                          'follow-link t
-                          'mouse-face magit-item-highlight-face
-                          'face 'magit-log-sha1))))
+(defun magit-insert-commit-button (hash)
+  (magit-with-section (section commit hash)
+    (setf (magit-section-info section) hash)
+    (insert-text-button hash
+                        'help-echo "Visit commit"
+                        'action (lambda (button)
+                                  (save-excursion
+                                    (goto-char button)
+                                    (magit-visit-item)))
+                        'follow-link t
+                        'mouse-face magit-item-highlight-face
+                        'face 'magit-log-sha1)))
 
 ;;;; (history)
 
