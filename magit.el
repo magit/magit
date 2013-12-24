@@ -1743,7 +1743,7 @@ server if necessary."
 ;;; Git Utilities
 ;;;; Git Output
 
-(defvar magit-git-standard-options '("--no-pager")
+(defvar magit-git-standard-options '("--no-pager" "-c" "color.diff=false")
   "Standard options when running Git.")
 
 (defun magit-git-string (&rest args)
