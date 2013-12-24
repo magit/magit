@@ -79,8 +79,8 @@
 
 (defconst git-rebase-dead-line-re
   (format "^#\\(?:%s\\|%s\\)"
-          git-rebase-action-line-re
-          git-rebase-exec-line-re)
+          (substring git-rebase-action-line-re 1)
+          (substring git-rebase-exec-line-re 1))
   "Regexp that matches a commented-out exec or action line in a rebase buffer.")
 
 ;;; Keymaps
