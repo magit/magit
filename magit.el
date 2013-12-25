@@ -73,6 +73,7 @@ Use the function by the same name instead of this variable.")
 (require 'git-rebase-mode)
 
 (require 'ansi-color)
+(require 'autorevert)
 (require 'cl-lib)
 (require 'diff-mode)
 (require 'easymenu)
@@ -277,21 +278,17 @@ t          ask if --set-upstream should be used.
                  (const :tag "Refuse" refuse)
                  (const :tag "Always" dontask)))
 
-(defcustom magit-refresh-file-buffer-hook
-  '(magit-revert-buffer)
-  "List of functions to be called to refresh a file visiting buffer.
+(defcustom magit-turn-on-auto-revert-mode t
+  "Whether to automatically turn on Auto-Revert mode.
+When this option is non-nil `auto-revert-mode' is automatically
+turned on in buffers that visit a file in a Git repository.
 
-After many Magit commands, this hook is run for each file
-visiting buffer inside the current git repository.
-
-The functions are called without any arguments and with the the
-file buffer current.  They have to ensure the same buffer is
-still current when they return which can be easily done using:
-
-  (with-current-buffer (current-buffer) DO-STUFF)"
+Alternatively you might want to set this to nil and instead
+enable `global-auto-revert-mode'.  Also consider additionally
+setting option `auto-revert-check-vc-info' to t.  Also see
+function `magit-maybe-turn-on-auto-revert-mode'."
   :group 'magit
-  :type 'hook
-  :options '(magit-revert-buffer magit-update-vc-modeline))
+  :type 'boolean)
 
 (defcustom magit-save-some-buffers t
   "Whether \\[magit-status] saves modified buffers before running.
@@ -3503,19 +3500,14 @@ before the last command."
                                                 'magit-status-mode)))
       (unwind-protect
           (funcall func)
-        ;; Refresh magit buffers.
         (let (magit-custom-options)
           (when status-buffer
             (cl-pushnew status-buffer magit-refresh-needing-buffers))
           (when magit-refresh-needing-buffers
             (mapc 'magit-mode-refresh-buffer magit-refresh-needing-buffers)))
-        ;; Refresh file visiting buffers.
-        (dolist (buffer (buffer-list))
-          (when (and (buffer-file-name buffer)
-                     (string-prefix-p default-directory
-                                      (buffer-file-name buffer)))
-            (with-current-buffer buffer
-              (run-hooks 'magit-refresh-file-buffer-hook))))))))
+        (mapc 'magit-mode-refresh-buffer magit-refresh-needing-buffers)
+        (when (or global-auto-revert-mode auto-revert-buffer-list)
+          (auto-revert-buffers))))))
 
 (defun magit-need-refresh (&optional buffer)
   "Mark BUFFER as needing to be refreshed.
@@ -3545,39 +3537,20 @@ in the current repository."
   (interactive)
   (magit-map-magit-buffers #'magit-mode-refresh-buffer default-directory))
 
-(defun magit-revert-buffer ()
-  "Replace current buffer text with the text of the visited file on disk.
+(defun magit-maybe-turn-on-auto-revert-mode ()
+  "Turn on Auto-Revert mode if file is inside a Git repository.
+This function is intended as a hook for `find-file-hook'. It
+turns on `auto-revert-mode' if `magit-turn-on-auto-revert-mode'
+is non-nil, the buffer is visiting a file in a Git repository,
+and no variation of the Auto-Revert mode is already active."
+  (when (and magit-turn-on-auto-revert-mode
+             (not auto-revert-mode)
+             (not auto-revert-tail-mode)
+             (not global-auto-revert-mode)
+             (magit-get-top-dir))
+    (auto-revert-mode 1)))
 
-This is intended for use in `magit-refresh-file-buffer-hook'.
-It calls function `revert-buffer' (which see) but only after a
-few sanity checks."
-  (with-current-buffer (current-buffer)
-    (unless (or (buffer-base-buffer)
-                (buffer-modified-p)
-                (verify-visited-file-modtime (current-buffer))
-                (not (file-readable-p (buffer-file-name)))
-                (not (magit-git-success "ls-files" "--error-unmatch"
-                                        (buffer-file-name))))
-      (revert-buffer t t nil))))
-
-(defun magit-update-vc-modeline ()
-  "Update the Vc status information in the modeline.
-
-By default the built-in Version Control package shows the status
-of file visiting buffers in the modeline.  Calling this function
-forces the status to be updated in the current buffer.
-
-This is intended for use in `magit-refresh-file-buffer-hook'.
-Because this can be a costly operation it is not part of the
-hook's default value.
-
-Unless you add this function to the hook you might also want to
-consider completely disabling Vc for git repositories.  To do so
-remove the symbol `Git' from `vc-handled-backends'."
-  ;; Don't use this directly so we can provide the above
-  ;; instructions.  Don't use an alias to avoid confusion.
-  (with-current-buffer (current-buffer)
-    (vc-find-file-hook)))
+(add-hook 'find-file-hook 'magit-maybe-turn-on-auto-revert-mode)
 
 ;;; Diff Options
 
