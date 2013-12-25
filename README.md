@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/magit/magit.png?branch=maint,master,next)](https://travis-ci.org/magit/magit)
+[![Build Status](http://img.shields.io/travis-ci/magit/magit.png)](https://travis-ci.org/magit/magit)
+[![Gittip](http://img.shields.io/gittip/magitians.png)](https://www.gittip.com/magitians)
 
 It's Magit!  An Emacs mode for Git
 ==================================
@@ -67,6 +68,9 @@ Magit is [hosted on Github][development].  Please contribute by
 suggesting features on the [issue tracker][issues] or by making code
 contributions using [pull requests][pulls].  Before opening a pull
 request make sure to read the brief [guidelines][contributing].
+
+Please also consider supporting development using [gittip][gittip].
+Thank you!
 
 Magit was started by [Marius Vollmer][marius] and is now maintained
 by [Jonas Bernoulli][jonas].  Other Magitians (former maintainers)
@@ -313,6 +317,7 @@ To run tests the following libraries are also required:
 [git-wip]: https://github.com/bartman/git-wip
 [git]: http://git-scm.com
 [gitflow]: https://github.com/nvie/gitflow
+[gittip]: https://www.gittip.com/magitians
 [git-modes]: https://github.com/magit/git-modes
 [marmalade]: http://marmalade-repo.org
 [mastering-intro]: http://www.masteringemacs.org/articles/2013/12/06/introduction-magit-emacs-mode-git
