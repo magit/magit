@@ -20,13 +20,13 @@ Table of Contents
 
 * [Getting Started](#getting-started)
 * [Getting Help](#getting-help)
+* [Contributions](#contributions)
 * [Installation](#installation)
   * [Installing from Melpa](#installing-from-melpa)
   * [Installing from Marmalade](#installing-from-marmalade)
   * [Installing from Git](#installing-from-git)
   * [Installing from Tarball](#installing-from-tarball)
 * [Dependencies](#dependencies)
-* [Development](#development)
 
 Getting Started
 ===============
@@ -59,6 +59,24 @@ If that doesn't help check the list of [all open issues][issues].
 
 If everything else fails please open a [new issue][issues] or ask for
 help on the [mailing list][group].
+
+Contributions
+=============
+
+Magit is [hosted on Github][development].  Please contribute by
+suggesting features on the [issue tracker][issues] or by making code
+contributions using [pull requests][pulls].  Before opening a pull
+request make sure to read the brief [guidelines][contributing].
+
+Magit was started by [Marius Vollmer][marius] and is now maintained
+by [Jonas Bernoulli][jonas].  Other Magitians (former maintainers)
+are [Nicolas Dudebout][nicolas], [Peter J. Weisberg][peter],
+[Phil Jackson][phil], [Rémi Vanicat][remi], and [Yann Hodique][yann].
+
+Many more people have [contributed code][contributors] and suggested
+features.
+
+Thanks to all of you, may (the history of) the source be with you!
 
 Installation
 ============
@@ -266,21 +284,6 @@ To run tests the following libraries are also required:
   starting with version 24.1.  You can also obtain an old version from
   the former development [repository][ert].
 
-Development
-===========
-
-Magit's canonical source repository is
-[hosted on Github][development].
-
-Magit was started by Marius Vollmer and is now collectively maintained
-by the [Magit Owners Team][owners].  [Many more people][contributors]
-have contributed.
-
-To report bugs and make feature requests please use the
-[issue tracker][issues] and Github [pull requests][pulls].  You may
-also use Magit's [Google group][group].  Before making a pull request
-please read [CONTRIBUTING.md][contributing].
-
 
 [contributing]: https://github.com/magit/magit/blob/master/CONTRIBUTING.md
 [contributors]: https://github.com/magit/magit/contributors
@@ -295,6 +298,14 @@ please read [CONTRIBUTING.md][contributing].
 [pulls]: https://github.com/magit/magit/pulls
 [screencast]: http://vimeo.com/2871241
 [website]: http://magit.github.io
+
+[jonas]: https://github.com/tarsius
+[marius]: https://github.com/mvollmer
+[nicolas]: https://github.com/dudebout
+[peter]: https://github.com/pjweisberg
+[phil]: https://github.com/philjackson
+[remi]: https://github.com/vanicat
+[yann]: https://github.com/sigma
 
 [cl-lib]: http://elpa.gnu.org/packages/cl-lib.html
 [emacs]: http://www.gnu.org/software/emacs
