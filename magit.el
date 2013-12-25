@@ -5204,7 +5204,7 @@ With two prefix args, remove ignored files as well."
     (when p
       (setf (cdr p) (plist-put (cdr p) prop value))
       (magit-write-rewrite-info info)
-      (magit-need-refresh))))
+      (magit-refresh))))
 
 (defun magit-rewrite-set-used ()
   (interactive)
