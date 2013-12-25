@@ -50,8 +50,8 @@
   :group 'magit-faces)
 
 (defun magit-run-topgit (&rest args)
-  (magit-with-refresh
-    (magit-run-topgit* args)))
+  (magit-run-topgit* args)
+  (magit-refresh))
 
 (defun magit-run-topgit-async (&rest args)
   (message "Running %s %s" magit-topgit-executable

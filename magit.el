@@ -2038,12 +2038,6 @@ involving HEAD."
   (when (> (length (magit-commit-parents commit)) 1)
     (error (format "Cannot %s a merge commit" command))))
 
-;;;; Git Macros
-
-(defmacro magit-with-refresh (&rest body)
-  (declare (indent 0))
-  `(magit-refresh-wrapper (lambda () ,@body)))
-
 ;;; Revisions
 
 (defvar magit-uninteresting-refs
@@ -2942,12 +2936,12 @@ and CLAUSES.
 ;;; Git Processes
 
 (defun magit-run-git (&rest args)
-  (magit-with-refresh
-    (magit-run-git* args)))
+  (magit-run-git* args)
+  (magit-refresh))
 
 (defun magit-run-git-with-input (input &rest args)
-  (magit-with-refresh
-    (magit-run-git* args nil nil nil nil input)))
+  (magit-run-git* args nil nil nil nil input)
+  (magit-refresh))
 
 (defun magit-run-git-async (&rest args)
   (message "Running %s %s" magit-git-executable (mapconcat 'identity args " "))
@@ -2985,7 +2979,6 @@ and CLAUSES.
       (setq args (mapcar (apply-partially 'replace-regexp-in-string
                                           "{\\([0-9]+\\)}" "\\\\{\\1\\\\}")
                          args)))
-    (magit-need-refresh command-buf)
     (magit-set-mode-line-process
      (magit-process-indicator-from-command cmd-and-args))
     (with-current-buffer process-buf
@@ -3096,7 +3089,7 @@ and CLAUSES.
           (when (featurep 'dired)
             (dired-uncache default-directory))))
       (magit-set-mode-line-process)
-      (magit-refresh))))
+      (magit-refresh (and (buffer-live-p command-buf) command-buf)))))
 
 (defun magit-process-filter (proc string)
   (with-current-buffer (process-buffer proc)
@@ -3482,56 +3475,39 @@ before the last command."
       (if tail (setcdr tail nil))))
   (setq help-xref-stack-item item))
 
-;;; Refresh Machinery
+;;;; Refresh Machinery
 
-(defvar magit-refresh-needing-buffers nil)
-(defvar magit-refresh-pending nil)
+(defun magit-refresh (&optional buffer)
+  "Refresh the current and the status buffer of the current repository.
+Also run `auto-revert-buffers', which reverts file visiting buffers,
+provided one of the Auto-Revert modes is active.  Also see option
+`magit-turn-on-auto-revert-mode'.
 
-(defun magit-refresh-wrapper (func)
-  (if magit-refresh-pending
-      (funcall func)
-    (let ((magit-refresh-pending t)
-          (magit-refresh-needing-buffers nil)
-          (status-buffer (magit-mode-get-buffer magit-status-buffer-name
-                                                'magit-status-mode)))
-      (unwind-protect
-          (funcall func)
-        (let (magit-custom-options)
-          (when status-buffer
-            (cl-pushnew status-buffer magit-refresh-needing-buffers))
-          (when magit-refresh-needing-buffers
-            (mapc 'magit-mode-refresh-buffer magit-refresh-needing-buffers)))
-        (mapc 'magit-mode-refresh-buffer magit-refresh-needing-buffers)
-        (when (or global-auto-revert-mode auto-revert-buffer-list)
-          (auto-revert-buffers))))))
-
-(defun magit-need-refresh (&optional buffer)
-  "Mark BUFFER as needing to be refreshed.
-If optional BUFFER is nil, use the current buffer.  If the
-buffer's mode doesn't derive from `magit-mode' do nothing."
-  (with-current-buffer (or buffer (current-buffer))
+Non-interactively, if optional BUFFER is non-nil, that is refreshed
+instead of the current buffer."
+  (interactive (list (current-buffer)))
+  (unless buffer
+    (setq buffer (current-buffer)))
+  (with-current-buffer buffer
     (when (derived-mode-p 'magit-mode)
-      (cl-pushnew (current-buffer)
-                  magit-refresh-needing-buffers :test 'eq))))
-
-(defun magit-refresh ()
-  "Refresh current buffer and possibly others that need to be refreshed.
-Refresh the current buffer and Magit buffers of the same
-repository that were previously marked as needing to be
-refreshed.  The status buffer is always refreshed, even
-when not explicitly marked as needing to be refreshed.
-Also revert every unmodified buffer visiting files
-in the current repository."
-  (interactive)
-  (magit-with-refresh
-    (magit-need-refresh)))
+      (magit-mode-refresh-buffer buffer))
+    (let (status)
+      (when (and (not (eq major-mode 'magit-status-mode))
+                 (setq status (magit-mode-get-buffer
+                               magit-status-buffer-name
+                               'magit-status-mode)))
+        (magit-mode-refresh-buffer status))))
+  (when (or global-auto-revert-mode auto-revert-buffer-list)
+    (auto-revert-buffers)))
 
 (defun magit-refresh-all ()
   "Refresh all Magit buffers of the current repository.
-Also revert every unmodified buffer visiting files
-in the current repository."
+Also run `auto-revert-buffers', which reverts file visiting buffers,
+provided one of the Auto-Revert modes is active.  Also see option
+`magit-turn-on-auto-revert-mode'."
   (interactive)
-  (magit-map-magit-buffers #'magit-mode-refresh-buffer default-directory))
+  (magit-map-magit-buffers #'magit-mode-refresh-buffer default-directory)
+  (auto-revert-buffers))
 
 (defun magit-maybe-turn-on-auto-revert-mode ()
   "Turn on Auto-Revert mode if file is inside a Git repository.
@@ -5262,8 +5238,8 @@ With two prefix args, remove ignored files as well."
 
 (defun magit-rewrite-finish ()
   (interactive)
-  (magit-with-refresh
-    (magit-rewrite-finish-step)))
+  (magit-rewrite-finish-step)
+  (magit-refresh))
 
 (defun magit-rewrite-finish-step ()
   (let ((info (magit-read-rewrite-info)))
@@ -6002,22 +5978,22 @@ to test.  This command lets Git choose a different one."
   (let ((file (magit-git-dir "BISECT_CMD_OUTPUT"))
         (default-directory (magit-get-top-dir)))
     (ignore-errors (delete-file file))
-    (magit-with-refresh
-      (magit-run-git*
-       (nconc (list "bisect" subcommand) args)
-       nil nil nil nil nil
-       (lambda (process string)
-         (when (buffer-live-p (process-buffer process))
-           (with-current-buffer (process-buffer process)
-             (goto-char (process-mark process))
-             (insert string)
-             (set-marker (process-mark process) (point))))
-         (with-temp-file file
-           (when (file-exists-p file)
-             (insert-file-contents file)
-             (goto-char (point-max)))
+    (magit-run-git*
+     (nconc (list "bisect" subcommand) args)
+     nil nil nil nil nil
+     (lambda (process string)
+       (when (buffer-live-p (process-buffer process))
+         (with-current-buffer (process-buffer process)
+           (goto-char (process-mark process))
            (insert string)
-           (write-region (point-min) (point-max) file)))))))
+           (set-marker (process-mark process) (point))))
+       (with-temp-file file
+         (when (file-exists-p file)
+           (insert-file-contents file)
+           (goto-char (point-max)))
+         (insert string)
+         (write-region (point-min) (point-max) file))))
+    (magit-refresh)))
 
 ;;;; Logging
 
@@ -7299,8 +7275,7 @@ This can be added to `magit-mode-hook' for example"
        (1 font-lock-keyword-face)
        (2 font-lock-function-name-face nil t))
       (,(concat "(" (regexp-opt
-                     '("magit-with-refresh"
-                       "magit-with-section"
+                     '("magit-with-section"
                        "magit-cmd-insert-section"
                        "magit-git-insert-section"
                        "magit-insert-line-section"
