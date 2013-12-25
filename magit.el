@@ -2935,12 +2935,14 @@ and CLAUSES.
 ;;; Git Processes
 
 (defun magit-run-git (&rest args)
-  (magit-run-git* args)
-  (magit-refresh))
+  (unwind-protect
+      (magit-run-git* args)
+    (magit-refresh)))
 
 (defun magit-run-git-with-input (input &rest args)
-  (magit-run-git* args nil nil nil nil input)
-  (magit-refresh))
+  (unwind-protect
+      (magit-run-git* args nil nil nil nil input)
+    (magit-refresh)))
 
 (defun magit-run-git-async (&rest args)
   (message "Running %s %s" magit-git-executable (mapconcat 'identity args " "))
