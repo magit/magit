@@ -7,14 +7,13 @@
 ;; https://raw.github.com/magit/magit/master/AUTHORS.md
 
 ;; Author: Marius Vollmer <marius.vollmer@gmail.com>
-;; Maintainers:
-;;	Jonas Bernoulli   <jonas@bernoul.li>
-;;	Nicolas Dudebout  <nicolas.dudebout@gatech.edu>
-;;	Rémi Vanicat      <vanicat@debian.org>
-;;	Yann Hodique      <yann.hodique@gmail.com>
+;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 ;; Former-Maintainers:
+;;	Nicolas Dudebout  <nicolas.dudebout@gatech.edu>
 ;;	Peter J. Weisberg <pj@irregularexpressions.net>
 ;;	Phil Jackson      <phil@shellarchive.co.uk>
+;;	Rémi Vanicat      <vanicat@debian.org>
+;;	Yann Hodique      <yann.hodique@gmail.com>
 
 ;; Keywords: vc tools
 ;; Package: magit
