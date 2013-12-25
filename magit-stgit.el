@@ -90,8 +90,8 @@
 ;;; Utilities
 
 (defun magit-run-stgit (&rest args)
-  (magit-with-refresh
-    (magit-run* (cons magit-stgit-executable args))))
+  (magit-run* (cons magit-stgit-executable args))
+  (magit-refresh))
 
 (defun magit-stgit-lines (&rest args)
   (with-temp-buffer
