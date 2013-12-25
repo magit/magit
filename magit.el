@@ -2890,10 +2890,7 @@ Return the value of BODY of the clause that succeeded.
 
 Each use of `magit-section-action' should use an unique OPNAME.
 
-If optional REFRESH is non-nil, then refresh Magit buffers after
-the action has run.
-
-\(fn (SECTION INFO OPNAME [NOREFRESH]) (SECTION-TYPE BODY...)...)"
+\(fn (SECTION INFO OPNAME) (SECTION-TYPE BODY...)...)"
   (declare (indent 1) (debug (sexp &rest (sexp body))))
   (let ((value (make-symbol "*value*"))
         (opname (car (cddr head)))
@@ -2901,21 +2898,20 @@ the action has run.
                              (assq 'otherwise clauses)))))
     (when disallowed
       (error "%s is an invalid section type" disallowed))
-    `(,(if (nth 3 head) 'progn 'magit-with-refresh)
-      (let ((,value
-             (magit-section-case ,(list (car head) (cadr head))
-                ,@clauses
-                (t
-                 (or (run-hook-with-args-until-success
-                      ',(intern (format "magit-%s-action-hook" opname)))
-                     (let* ((section (magit-current-section))
-                            (type (and section (magit-section-type section))))
-                       (if type
-                           (error ,(format "Can't %s a %%s" opname)
-                                  (or (get type 'magit-description) type))
-                         (error ,(format "Nothing to %s here" opname)))))))))
-         (unless (eq ,value magit-section-action-success)
-           ,value)))))
+    `(let ((,value
+            (magit-section-case ,(list (car head) (cadr head))
+              ,@clauses
+              (t
+               (or (run-hook-with-args-until-success
+                    ',(intern (format "magit-%s-action-hook" opname)))
+                   (let* ((section (magit-current-section))
+                          (type (and section (magit-section-type section))))
+                     (if type
+                         (error ,(format "Can't %s a %%s" opname)
+                                (or (get type 'magit-description) type))
+                       (error ,(format "Nothing to %s here" opname)))))))))
+       (unless (eq ,value magit-section-action-success)
+         ,value))))
 
 (defmacro magit-add-action-clauses (head &rest clauses)
   "Add additional clauses to the OPCODE section action.
@@ -6693,7 +6689,7 @@ except if LOCAL is non-nil in which case they are written to
   "Ignore the item at point.
 With a prefix argument edit the ignore string."
   (interactive "P")
-  (magit-section-action (item info "ignore" t)
+  (magit-section-action (item info "ignore")
     ((untracked file)
      (magit-ignore-file (concat "/" info) edit local)
      (magit-refresh))
@@ -6836,7 +6832,7 @@ on a position in a file-visiting buffer."
   "Visit current item.
 With a prefix argument, visit in other window."
   (interactive "P")
-  (magit-section-action (item info "visit" t)
+  (magit-section-action (item info "visit")
     ((untracked file) (magit-visit-file-item info other-window))
     ((diff)           (magit-visit-file-item info other-window))
     ((diffstat)       (magit-visit-file-item info other-window))
@@ -6892,7 +6888,7 @@ With a prefix argument, visit in other window."
   (dired-jump
    other-window
    (file-truename
-    (magit-section-action (item info "dired-jump" t)
+    (magit-section-action (item info "dired-jump")
       ((untracked file) info)
       ((diffstat)       (magit-section-info item))
       ((diff)           (magit-section-info item))
@@ -6972,7 +6968,7 @@ default when prompting for a commit."
   (interactive "P")
   (if unmark
       (setq magit-marked-commit nil)
-    (magit-section-action (item info "mark" t)
+    (magit-section-action (item info "mark")
       ((commit)
        (setq magit-marked-commit
              (if (equal magit-marked-commit info) nil info)))))
@@ -6984,7 +6980,7 @@ default when prompting for a commit."
 (defun magit-copy-item-as-kill ()
   "Copy sha1 of commit at point into kill ring."
   (interactive)
-  (magit-section-action (item info "copy" t)
+  (magit-section-action (item info "copy")
     ((commit)
      (kill-new info)
      (message "%s" info))))
