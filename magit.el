@@ -3205,8 +3205,6 @@ Please see the manual for a complete description of Magit.
 \\{magit-mode-map}"
   (buffer-disable-undo)
   (setq truncate-lines t)
-  (add-hook 'pre-command-hook  #'magit-remember-point nil t)
-  (add-hook 'post-command-hook #'magit-correct-point-after-command t t)
   (add-hook 'post-command-hook #'magit-highlight-section t t)
   ;; Emacs' normal method of showing trailing whitespace gives weird
   ;; results when `magit-whitespace-warning-face' is different from
@@ -3385,42 +3383,6 @@ the buffer.  Finally reset the window configuration to nil."
                  (or (null dir)
                      (equal default-directory dir)))
         (funcall func)))))
-
-;;;; (section kludges)
-
-(defvar-local magit-last-point nil)
-(put 'magit-last-point 'permanent-local t)
-
-(defun magit-remember-point ()
-  (setq magit-last-point (point)))
-
-(defun magit-invisible-region-end (pos)
-  (while (and (not (= pos (point-max))) (invisible-p pos))
-    (setq pos (next-char-property-change pos)))
-  pos)
-
-(defun magit-invisible-region-start (pos)
-  (while (and (not (= pos (point-min))) (invisible-p pos))
-    (setq pos (1- (previous-char-property-change pos))))
-  pos)
-
-(defun magit-correct-point-after-command ()
-  "Move point outside of invisible regions.
-
-Emacs often leaves point in invisible regions, it seems.  To fix
-this, we move point ourselves and never let Emacs do its own
-adjustments.
-
-When point has to be moved out of an invisible region, it can be
-moved to its end or its beginning.  We usually move it to its
-end, except when that would move point back to where it was
-before the last command."
-  (when (invisible-p (point))
-    (let ((end (magit-invisible-region-end (point))))
-      (goto-char (if (= end magit-last-point)
-                     (magit-invisible-region-start (point))
-                   end))))
-  (setq disable-point-adjustment t))
 
 ;;;; Buffer History
 
