@@ -49,18 +49,24 @@
   "Face for section titles."
   :group 'magit-faces)
 
+;;; Processes
+
 (defun magit-run-topgit (&rest args)
-  (magit-run-topgit* args)
+  (apply #'magit-call-topgit args)
   (magit-refresh))
+
+(defun magit-call-topgit (&rest args)
+  (apply #'magit-call-process magit-topgit-executable args))
 
 (defun magit-run-topgit-async (&rest args)
   (message "Running %s %s" magit-topgit-executable
            (mapconcat 'identity args " "))
-  (magit-run-topgit* args nil t))
+  (apply #'magit-start-topgit nil args))
 
-(defun magit-run-topgit* (subcmd-and-args &optional nowait input)
-  (magit-run* (cons magit-topgit-executable subcmd-and-args)
-              nil nil nil nowait input))
+(defun magit-start-topgit (&optional input &rest args)
+  (apply #'magit-start-process magit-topgit-executable input args))
+
+;;; (rest)
 
 (defun magit-topgit-in-topic-p ()
   (and (file-exists-p ".topdeps")
@@ -96,7 +102,7 @@
       (when (and (not remote)
                  (not current-prefix-arg))
         (magit-set remote-update "topgit" "remote")
-        (magit-run-topgit "remote" "--populate" remote-update))
+        (magit-call-topgit "remote" "--populate" remote-update))
       (magit-run-topgit "remote" remote-update)))
   ;; We always return nil, as we also want
   ;; regular "git remote update" to happen.

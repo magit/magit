@@ -69,27 +69,25 @@
 (defun magit-svn-create-branch (name)
   "Create svn branch NAME."
   (interactive "sBranch name: ")
-  (apply 'magit-run-git "svn" "branch"
-         (append magit-custom-options (list name))))
+  (magit-run-git "svn" "branch" magit-custom-options name))
 
 ;;;###autoload
 (defun magit-svn-create-tag (name)
   "Create svn tag NAME."
   (interactive "sTag name: ")
-  (apply 'magit-run-git "svn" "tag"
-         (append magit-custom-options (list name))))
+  (magit-run-git "svn" "tag" magit-custom-options name))
 
 ;;;###autoload
 (defun magit-svn-rebase ()
   "Run git-svn rebase."
   (interactive)
-  (apply 'magit-run-git-async "svn" "rebase" magit-custom-options))
+  (magit-run-git-async "svn" "rebase" magit-custom-options))
 
 ;;;###autoload
 (defun magit-svn-dcommit ()
   "Run git-svn dcommit."
   (interactive)
-  (apply 'magit-run-git-async "svn" "dcommit" magit-custom-options))
+  (magit-run-git-async "svn" "dcommit" magit-custom-options))
 
 ;;;###autoload
 (defun magit-svn-remote-update ()
