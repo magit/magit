@@ -2989,7 +2989,7 @@ and CLAUSES.
       ((exit signal)
        (message "Git is not running anymore, but magit thinks it is")
        (setq magit-process nil))))
-  (let ((cmd (car cmd-and-args))
+  (let ((program (car cmd-and-args))
         (args (magit-git-quote-arguments (cdr cmd-and-args)))
         (default-dir default-directory)
         (process-buf (get-buffer-create magit-process-buffer-name))
@@ -2999,10 +2999,7 @@ and CLAUSES.
       (setq default-directory default-dir)
       (view-mode 1)
       (setq-local view-no-disable-on-exit t)
-      (setq view-exit-action
-            (lambda (buffer)
-              (with-current-buffer buffer
-                (bury-buffer))))
+      (setq view-exit-action #'bury-buffer)
       (setq buffer-read-only t)
       (let ((inhibit-read-only t))
         (if (or magit-process-keep-history noerase)
@@ -3013,32 +3010,31 @@ and CLAUSES.
         (insert "$ " (or logline
                          (mapconcat 'identity cmd-and-args " "))
                 "\n")
-        (cond (nowait
-               (setq magit-process
-                     (let ((process-connection-type
-                            ;; Don't use a pty, because it would set icrnl
-                            ;; which would modify the input (issue #20).
-                            (and (not input) magit-process-connection-type)))
-                       (apply 'start-file-process
-                              (file-name-nondirectory cmd)
-                              process-buf cmd args)))
-               (set-process-sentinel
-                magit-process
-                (apply-partially #'magit-process-sentinel command-buf))
-               (set-process-filter magit-process 'magit-process-filter)
-               (when input
-                 (with-current-buffer input
-                   (process-send-region magit-process
-                                        (point-min) (point-max)))
-                 (process-send-eof magit-process)
-                 (sit-for 0.1 t))
-               (magit-process-display-buffer (or magit-process 'finished))
-               t)
-              (t
-               (let ((status (apply 'process-file cmd nil
-                                    process-buf nil args)))
-                 (or noerror (magit-process-finish
-                              command-buf process-buf status)))))))))
+        (if nowait
+            (let* ((process-connection-type
+                    ;; Don't use a pty, because it would set icrnl
+                    ;; which would modify the input (issue #20).
+                    (and (not input) magit-process-connection-type))
+                   (process (apply 'start-file-process
+                                   (file-name-nondirectory program)
+                                   process-buf program args)))
+              (setq magit-process   process)
+              (set-process-sentinel process (apply-partially
+                                             #'magit-process-sentinel
+                                             command-buf))
+              (set-process-filter   process #'magit-process-filter)
+              (set-process-buffer   process process-buf)
+              (when input
+                (with-current-buffer input
+                  (process-send-region process (point-min) (point-max))
+                  (process-send-eof    process))
+                (sit-for 0.1 t))
+              (magit-process-display-buffer (or magit-process 'finished))
+              t)
+          (let ((status (apply 'process-file program
+                               nil process-buf nil args)))
+            (or noerror (magit-process-finish
+                         command-buf process-buf status))))))))
 
 (defun magit-process-finish (command-buf process-buf status &optional noerror)
   (or (= status 0)
