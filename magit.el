@@ -2940,9 +2940,9 @@ and CLAUSES.
     (magit-refresh)))
 
 (defun magit-run-git-with-input (input &rest args)
-  (unwind-protect
-      (magit-run-git* args nil nil nil nil input)
-    (magit-refresh)))
+  (magit-run-git* args nil nil nil t input)
+  (magit-process-wait)
+  (magit-refresh))
 
 (defun magit-run-git-async (&rest args)
   (message "Running %s %s" magit-git-executable (mapconcat 'identity args " "))
@@ -3145,6 +3145,10 @@ and CLAUSES.
       (cond ((string-match ": $" prompt) prompt)
             ((string-match ":$"  prompt) (concat prompt " "))
             (t                           (concat prompt ": "))))))
+
+(defun magit-process-wait ()
+  (while magit-process
+    (sit-for 0.1 t)))
 
 (defun magit-process-set-mode-line (args)
   (when (magit-prefix-p (cons magit-git-executable
