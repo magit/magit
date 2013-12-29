@@ -3017,7 +3017,7 @@ and CLAUSES.
                                         (point-min) (point-max)))
                  (process-send-eof magit-process)
                  (sit-for 0.1 t))
-               (magit-process-display-buffer magit-process))
+               (magit-process-display-buffer (or magit-process 'finished)))
               ((or input filter)
                (with-current-buffer
                    (or input (setq tmp-buf (generate-new-buffer " *temp*")))
@@ -3173,7 +3173,8 @@ but only if it is still alive after `magit-process-popup-time'
 seconds.  Finally if both PROCESS and BUFFER are nil display the
 buffer of the most recent process, like in the interactive case."
   (interactive)
-  (cond ((not process)
+  (cond ((eq process 'finished))
+        ((not process)
          (or buffer
              (setq buffer (get-buffer magit-process-buffer-name))
              (error "No Git commands have run"))
