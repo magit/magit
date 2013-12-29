@@ -7157,7 +7157,7 @@ from the parent keymap `magit-mode-map' are also available.")
         (and (y-or-n-p (format "Directory %s does not exists.  Create it? " dir))
              (make-directory dir)))
       (let ((default-directory dir))
-        (magit-run-git* (list "init"))))))
+        (magit-run-git "init")))))
 
 (if (featurep 'vc-git)
     (defalias 'magit-grep 'vc-git-grep)
