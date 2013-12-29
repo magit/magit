@@ -1350,7 +1350,7 @@ Many Magit faces inherit from this one by default."
            (define-key map (kbd "o") 'magit-key-mode-popup-submodule)
            (define-key map (kbd "B") 'magit-key-mode-popup-bisecting)
            (define-key map (kbd "z") 'magit-key-mode-popup-stashing)))
-    (define-key map (kbd "$") 'magit-process-display-buffer)
+    (define-key map (kbd "$") 'magit-process)
     (define-key map (kbd "E") 'magit-interactive-rebase)
     (define-key map (kbd "R") 'magit-rebase-step)
     (define-key map (kbd "e") 'magit-ediff)
@@ -1534,7 +1534,7 @@ Many Magit faces inherit from this one by default."
     "---"
     ("Extensions")
     "---"
-    ["Display Git output" magit-process-display-buffer t]
+    ["Display Git output" magit-process t]
     ["Quit Magit" magit-mode-quit-window t]))
 
 ;;; Various Utilities (1)
@@ -2947,6 +2947,14 @@ and CLAUSES.
 ;;; Git Processes
 ;;;; Process Mode
 
+(defun magit-process ()
+  "Display Magit process buffer."
+  (interactive)
+  (let ((buf (magit-process-buffer)))
+    (if (buffer-live-p buf)
+        (pop-to-buffer buf)
+      (error "Process buffer doesn't exist"))))
+
 (define-derived-mode magit-process-mode magit-mode "Magit Process"
   "Mode for looking at git process output."
   (view-mode 1)
@@ -3060,7 +3068,7 @@ and CLAUSES.
               (process-send-region process (point-min) (point-max))
               (process-send-eof    process))
             (sit-for 0.1 t))
-          (magit-process-display-buffer (or magit-process 'finished))
+          (magit-process-display-buffer process)
           t)
       (let ((status (apply 'process-file program
                            nil process-buf nil args)))
@@ -3209,34 +3217,20 @@ and CLAUSES.
 (defun magit-process-unset-mode-line ()
   (magit-map-magit-buffers (lambda () (setq mode-line-process nil))))
 
-(defun magit-process-display-buffer (&optional process buffer)
-  "Display output from most recent Git process.
-
-Non-interactively the behaviour depends on the optional PROCESS
-and BUFFER arguments.  If non-nil display BUFFER (provided it is
-still alive).  Otherwise if PROCESS is non-nil display its buffer
-but only if it is still alive after `magit-process-popup-time'
-seconds.  Finally if both PROCESS and BUFFER are nil display the
-buffer of the most recent process, like in the interactive case."
-  (interactive)
-  (cond ((eq process 'finished))
-        ((not process)
-         (or buffer
-             (setq buffer (magit-process-buffer))
-             (error "No Git commands have run"))
-         (when (buffer-live-p buffer)
-           (pop-to-buffer buffer)
-           (with-current-buffer buffer
-             (goto-char (point-max)))))
-        ((= magit-process-popup-time 0)
-         (magit-process-display-buffer nil (process-buffer process)))
-        ((> magit-process-popup-time 0)
-         (run-with-timer magit-process-popup-time nil
-                         (lambda (p)
-                           (when (eq (process-status p) 'run)
-                             (magit-process-display-buffer
-                              nil (process-buffer p))))
-                         process))))
+(defun magit-process-display-buffer (process)
+  (when (process-live-p process)
+    (let ((buf (process-buffer process)))
+      (cond ((not (buffer-live-p buf)))
+            ((= magit-process-popup-time 0)
+             (pop-to-buffer buf))
+            ((> magit-process-popup-time 0)
+             (run-with-timer magit-process-popup-time nil
+                             (lambda (p)
+                               (when (eq (process-status p) 'run)
+                                 (let ((buf (process-buffer p)))
+                                   (when (buffer-live-p buf)
+                                     (pop-to-buffer buf)))))
+                             process))))))
 
 ;;; Magit Mode
 ;;__ FIXME The parens indicate preliminary subsections.
