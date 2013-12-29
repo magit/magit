@@ -3002,7 +3002,7 @@ and CLAUSES.
 
 ;;;; Process Api
 
-(defvar magit-process nil)
+(defvar magit-this-process nil)
 
 (defun magit-run-git (&rest args)
   (unwind-protect
@@ -3016,8 +3016,8 @@ and CLAUSES.
 
 (defun magit-run-git-with-logfile (file &rest args)
   (magit-run-git* args nil nil t)
-  (process-put magit-process 'logfile file)
-  (set-process-filter magit-process 'magit-process-logfile-filter)
+  (process-put magit-this-process 'logfile file)
+  (set-process-filter magit-this-process 'magit-process-logfile-filter)
   (magit-process-wait)
   (magit-refresh))
 
@@ -3034,13 +3034,6 @@ and CLAUSES.
 (defun magit-run* (cmd-and-args &optional noerror nowait input)
   (when (and input (not nowait))
     (error "Only asynchronous processes can receive input"))
-  (when magit-process
-    (cl-case (process-status magit-process)
-      (run  (error "Git is already running"))
-      (stop (error "Git is stopped") )
-      ((exit signal)
-       (message "Git is not running anymore, but magit thinks it is")
-       (setq magit-process nil))))
   (let* ((program (car cmd-and-args))
          (args (magit-git-quote-arguments (cdr cmd-and-args)))
          (setup (magit-process-setup program args))
@@ -3054,7 +3047,6 @@ and CLAUSES.
                (process (apply 'start-file-process
                                (file-name-nondirectory program)
                                process-buf program args)))
-          (setq magit-process   process)
           (set-process-sentinel process #'magit-process-sentinel)
           (set-process-filter   process #'magit-process-filter)
           (set-process-buffer   process process-buf)
@@ -3068,6 +3060,7 @@ and CLAUSES.
               (process-send-region process (point-min) (point-max))
               (process-send-eof    process))
             (sit-for 0.1 t))
+          (setq magit-this-process process)
           (magit-process-display-buffer process)
           t)
       (let ((status (apply 'process-file program
@@ -3115,7 +3108,6 @@ and CLAUSES.
 (defun magit-process-sentinel (process event)
   (when (memq (process-status process) '(exit signal))
     (setq event (substring event 0 -1))
-    (setq magit-process nil)
     (when (buffer-live-p (process-buffer process))
       (with-current-buffer (process-buffer process)
         (let ((inhibit-read-only t))
@@ -3127,6 +3119,8 @@ and CLAUSES.
     (if (string-match "^finished" event)
         (message (concat (capitalize (process-name process)) " finished"))
       (magit-process-finish process t))
+    (when (eq process magit-this-process)
+      (setq magit-this-process nil))
     (magit-refresh (and (buffer-live-p (process-get process 'command-buf))
                         (process-get process 'command-buf)))))
 
@@ -3202,7 +3196,8 @@ and CLAUSES.
             (t                           (concat prompt ": "))))))
 
 (defun magit-process-wait ()
-  (while magit-process
+  (while (and magit-this-process
+              (eq (process-status magit-this-process) 'run))
     (sit-for 0.1 t)))
 
 (defun magit-process-set-mode-line (program args)
