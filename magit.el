@@ -3016,6 +3016,7 @@ and CLAUSES.
          (append magit-git-standard-options args)))
 
 (defun magit-call-process (program &rest args)
+  (setq args (magit-flatten-onelevel args))
   (cl-destructuring-bind (process-buf . section)
       (magit-process-setup program args)
     (magit-process-finish
@@ -3041,7 +3042,7 @@ and CLAUSES.
 
 (defun magit-run-git-async (&rest args)
   (message "Running %s %s" magit-git-executable
-           (mapconcat 'identity args " "))
+           (mapconcat 'identity (magit-flatten-onelevel args) " "))
   (apply #'magit-start-git nil args))
 
 (defun magit-start-git (&optional input &rest args)
@@ -3049,6 +3050,7 @@ and CLAUSES.
          (append magit-git-standard-options args)))
 
 (defun magit-start-process (program &optional input &rest args)
+  (setq args (magit-flatten-onelevel args))
   (cl-destructuring-bind (process-buf . section)
       (magit-process-setup program args)
     (let* ((process-connection-type
@@ -4750,10 +4752,8 @@ With a prefix argument, skip editing the log message and commit.
             (not magit-merge-warn-dirty-worktree)
             (yes-or-no-p
              "Running merge in a dirty worktree could cause data loss.  Continue?"))
-    (apply 'magit-run-git "merge" revision
-           (if do-commit
-               magit-custom-options
-             (cons "--no-commit" magit-custom-options)))
+    (magit-run-git "merge" revision magit-custom-options
+                   (unless do-commit "--no-commit"))
     (when (file-exists-p ".git/MERGE_MSG")
       (let ((magit-custom-options nil))
         (magit-commit)))))
@@ -4780,13 +4780,13 @@ With a prefix argument, prompt for a file to be staged instead."
       (magit-run-git "add" file)
     (magit-section-action (item info "stage")
       ((untracked file)
-       (apply #'magit-run-git "add"
-              (if (use-region-p)
-                  (magit-region-siblings #'magit-section-info)
-                (list info))))
+       (magit-run-git "add"
+                      (if (use-region-p)
+                          (magit-region-siblings #'magit-section-info)
+                        info)))
       ((untracked)
-       (apply #'magit-run-git "add" "--"
-              (magit-git-lines "ls-files" "--other" "--exclude-standard")))
+       (magit-run-git "add" "--" (magit-git-lines "ls-files" "--other"
+                                                  "--exclude-standard")))
       ((unstaged diff hunk)
        (if (string-match "^diff --cc"
                          ;; XXX Using the title is a bit too clever.
@@ -4795,10 +4795,10 @@ With a prefix argument, prompt for a file to be staged instead."
                           "Please stage the whole file."))
          (magit-apply-hunk-item item "--cached")))
       ((unstaged diff)
-       (apply #'magit-run-git "add" "-u"
-              (if (use-region-p)
-                  (magit-region-siblings #'magit-section-info)
-                (list (magit-section-info item)))))
+       (magit-run-git "add" "-u"
+                      (if (use-region-p)
+                          (magit-region-siblings #'magit-section-info)
+                        info)))
       ((unstaged)
        (magit-stage-all))
       ((staged *)
@@ -4845,8 +4845,8 @@ With a prefix argument, add remaining untracked files as well.
                       (magit-region-siblings #'magit-section-info)
                     (list (magit-section-info item)))))
        (if (magit-no-commit-p)
-           (apply #'magit-run-git "rm" "--cached" "--" files)
-         (apply #'magit-run-git "reset" "-q" "HEAD" "--" files))))
+           (magit-run-git "rm" "--cached" "--" files)
+         (magit-run-git "reset" "-q" "HEAD" "--" files))))
     ((staged)
      (magit-unstage-all))
     ((unstaged *)
@@ -4958,8 +4958,8 @@ Fails if working tree or staging area contain uncommitted changes.
           'magit-create-branch-hook branch parent))
         ((and branch (not (string= branch "")))
          (magit-save-some-buffers)
-         (apply #'magit-run-git "checkout" "-b" branch
-                (append magit-custom-options (list parent))))))
+         (magit-run-git "checkout" magit-custom-options
+                        "-b" branch parent))))
 
 ;;;###autoload
 (defun magit-delete-branch (branch &optional force)
@@ -4989,10 +4989,10 @@ Works with local or remote branches.
         (if (y-or-n-p "Cannot delete current branch.  Switch to master first? ")
             (progn
               (magit-checkout "master")
-              (apply 'magit-run-git args))
+              (magit-run-git args))
           (message "The current branch was not deleted.")))
        (t
-        (apply 'magit-run-git args))))))
+        (magit-run-git args))))))
 
 ;;;###autoload
 (defun magit-rename-branch (old new &optional force)
@@ -5299,7 +5299,7 @@ With two prefix args, remove ignored files as well."
 (defun magit-fetch (remote)
   "Fetch from REMOTE."
   (interactive (list (magit-read-remote "Fetch remote")))
-  (apply 'magit-run-git-async "fetch" remote magit-custom-options))
+  (magit-run-git-async "fetch" remote magit-custom-options))
 
 ;;;###autoload
 (defun magit-fetch-current ()
@@ -5315,7 +5315,7 @@ If there is no default remote, ask for one."
   "Update all remotes."
   (interactive)
   (or (run-hook-with-args-until-success 'magit-remote-update-hook)
-      (apply 'magit-run-git-async "remote" "update" magit-custom-options)))
+      (magit-run-git-async "remote" "update" magit-custom-options)))
 
 ;;;; Pulling
 
@@ -5363,16 +5363,14 @@ user because of prefix arguments are not saved with git config."
                    (not choose-branch))
           (magit-set (format "%s" chosen-branch-merge-name)
                      "branch" branch "merge"))
-        (apply 'magit-run-git-async "pull" "-v"
-               (append
-                magit-custom-options
-                (when choose-remote
-                  (list chosen-branch-remote))
-                (when choose-branch
-                  (list (format "refs/heads/%s:refs/remotes/%s/%s"
-                                chosen-branch-merge-name
-                                chosen-branch-remote
-                                chosen-branch-merge-name))))))))
+        (magit-run-git-async
+         "pull" "-v" magit-custom-options
+         (and choose-remote chosen-branch-remote)
+         (and choose-branch
+              (list (format "refs/heads/%s:refs/remotes/%s/%s"
+                            chosen-branch-merge-name
+                            chosen-branch-remote
+                            chosen-branch-merge-name)))))))
 
 ;;;; Running
 
@@ -5470,13 +5468,12 @@ even if `magit-set-upstream-on-push's value is `refuse'."
                                    (and (not branch-remote)
                                         (eq magit-set-upstream-on-push 'askifnotset)))
                                (yes-or-no-p "Set upstream while pushing? "))))))
-            (apply 'magit-run-git-async "push" "-v" push-remote
-                   (if ref-branch
-                       (format "%s:%s" branch ref-branch)
-                     branch)
-                   (if set-upstream-on-push
-                       (cons "--set-upstream" magit-custom-options)
-                     magit-custom-options))
+            (magit-run-git-async "push" "-v" push-remote
+                                 (if ref-branch
+                                     (format "%s:%s" branch ref-branch)
+                                   branch)
+                                 (and set-upstream-on-push "--set-upstream")
+                                 magit-custom-options)
             ;; Although git will automatically set up the remote,
             ;; it doesn't set up the branch to merge (at least as of Git 1.6.6.1),
             ;; so we have to do that manually.
@@ -5645,7 +5642,7 @@ depending on the value of option `magit-commit-squash-commit'.
   (setq git-commit-previous-winconf (current-window-configuration))
   (if (magit-use-emacsclient-p)
       (magit-with-emacsclient magit-server-window-for-commit
-        (apply 'magit-run-git-async subcmd args))
+        (magit-run-git-async subcmd args))
     (let ((topdir (magit-get-top-dir))
           (editmsg (magit-git-dir (if (equal subcmd "tag")
                                       "TAG_EDITMSG"
@@ -5662,7 +5659,7 @@ depending on the value of option `magit-commit-squash-commit'.
         (add-hook 'git-commit-commit-hook
                   (apply-partially
                    (lambda (default-directory editmsg args)
-                     (apply 'magit-run-git args)
+                     (magit-run-git args)
                      (ignore-errors (delete-file editmsg)))
                    topdir editmsg
                    `(,subcmd
@@ -5751,15 +5748,14 @@ With a prefix argument annotate the tag.
             (member "--annotate" args)
             (and annotate (setq args (cons "--annotate" args))))
         (magit-commit-internal "tag" args)
-      (apply #'magit-run-git "tag" args))))
+      (magit-run-git "tag" args))))
 
 ;;;###autoload
 (defun magit-delete-tag (name)
   "Delete the tag with the given NAME.
 \('git tag -d NAME')."
   (interactive (list (magit-read-tag "Delete Tag" t)))
-  (apply #'magit-run-git "tag" "-d"
-         (append magit-custom-options (list name))))
+  (magit-run-git "tag" "-d" magit-custom-options name))
 
 ;;;; Stashing
 
@@ -5774,18 +5770,17 @@ With prefix argument, changes in staging area are kept.
 \('git stash save [--keep-index] DESCRIPTION')"
   (interactive (list (read-string "Stash description: " nil
                                   'magit-read-stash-history)))
-  (apply 'magit-run-git "stash" "save"
-         `(,@magit-custom-options "--" ,description)))
+  (magit-run-git "stash" "save" magit-custom-options "--" description))
 
 ;;;###autoload
 (defun magit-stash-snapshot ()
   "Create new stash of working tree and staging area; keep changes in place.
 \('git stash save \"Snapshot...\"; git stash apply stash@{0}')"
   (interactive)
-  (apply 'magit-call-git
-         `(("stash" "save" ,@magit-custom-options
-            ,(format-time-string "Snapshot taken at %Y-%m-%d %H:%M:%S"
-                                 (current-time)))))
+  (magit-call-git "stash" "save" magit-custom-options
+                  (format-time-string
+                   "Snapshot taken at %Y-%m-%d %H:%M:%S"
+                   (current-time)))
   (magit-run-git "stash" "apply" "stash@{0}"))
 
 (defun magit-stash-apply (stash)
@@ -5838,8 +5833,7 @@ With prefix argument, changes in staging area are kept.
   (let ((buf (generate-new-buffer " *magit-input*")))
     (unwind-protect
         (progn (magit-insert-diff-item-patch diff buf)
-               (apply #'magit-run-git-with-input buf
-                      "apply" (append args (list "-"))))
+               (magit-run-git-with-input buf "apply" args "-"))
       (kill-buffer buf))))
 
 (defun magit-apply-hunk-item (hunk &rest args)
@@ -5862,8 +5856,7 @@ member of ARGS, or to the working file otherwise."
                       hunk (member "--reverse" args)
                       (region-beginning) (region-end) buf)
                    (magit-insert-hunk-item-patch hunk buf))
-                 (apply #'magit-run-git-with-input buf
-                        "apply" (append args (list "-"))))
+                 (magit-run-git-with-input buf "apply" args "-"))
         (kill-buffer buf)))))
 
 ;;;; Cherry-Pick
@@ -5926,8 +5919,7 @@ working tree."
 With a prefix arg, do a submodule update --init."
   (interactive "P")
   (let ((default-directory (magit-get-top-dir)))
-    (apply #'magit-run-git-async "submodule" "update"
-           (and init '("--init")))))
+    (magit-run-git-async "submodule" "update" (and init "--init"))))
 
 ;;;###autoload
 (defun magit-submodule-update-init ()
@@ -6011,8 +6003,7 @@ to test.  This command lets Git choose a different one."
   (let ((file (magit-git-dir "BISECT_CMD_OUTPUT"))
         (default-directory (magit-get-top-dir)))
     (ignore-errors (delete-file file))
-    (apply 'magit-run-git-with-logfile
-           file (nconc (list "bisect" subcommand) args))
+    (magit-run-git-with-logfile file "bisect" subcommand args)
     (magit-process-wait)
     (magit-refresh)))
 
