@@ -2298,7 +2298,8 @@ never modify it.")
   (declare (indent 2))
   `(magit-cmd-insert-section ,arglist
        ,washer
-     magit-git-executable "--no-pager" ,@args))
+     magit-git-executable
+     magit-git-standard-options ,@args))
 
 (defmacro magit-insert-line-section (arglist line)
   "\n\n(fn (TYPE &optional INFO) line)"
