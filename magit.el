@@ -2930,7 +2930,7 @@ and CLAUSES.
 (define-obsolete-function-alias 'magit-add-action
   'magit-add-action-clauses "1.3.0")
 
-;;; Git Processes
+;;; Processes
 ;;;; Process Commands
 
 (defun magit-process ()
