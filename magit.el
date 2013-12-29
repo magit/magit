@@ -2934,6 +2934,8 @@ and CLAUSES.
 
 ;;; Git Processes
 
+(defvar magit-process nil)
+
 (defun magit-run-git (&rest args)
   (unwind-protect
       (magit-run-git* args)
@@ -2941,6 +2943,13 @@ and CLAUSES.
 
 (defun magit-run-git-with-input (input &rest args)
   (magit-run-git* args nil nil nil t input)
+  (magit-process-wait)
+  (magit-refresh))
+
+(defun magit-run-git-with-logfile (file &rest args)
+  (magit-run-git* args nil nil nil t)
+  (process-put magit-process 'logfile file)
+  (set-process-filter magit-process 'magit-process-logfile-filter)
   (magit-process-wait)
   (magit-refresh))
 
@@ -2954,8 +2963,6 @@ and CLAUSES.
                             magit-git-standard-options)
                       subcmd-and-args)
               logline noerase noerror nowait input filter))
-
-(defvar magit-process nil)
 
 (defvar magit-process-buffer-name "*magit-process*"
   "Name of buffer where output of processes is put.")
@@ -3107,6 +3114,16 @@ and CLAUSES.
               (t
                (insert string))))
       (set-marker (process-mark proc) (point)))))
+
+(defun magit-process-logfile-filter (process string)
+  (magit-process-filter process string)
+  (let ((file (process-get process 'logfile)))
+    (with-temp-file file
+      (when (file-exists-p file)
+        (insert-file-contents file)
+        (goto-char (point-max)))
+      (insert string)
+      (write-region (point-min) (point-max) file))))
 
 (defun magit-process-yes-or-no-prompt (proc string)
   "Forward yes-or-no prompts to the user."
@@ -5982,21 +5999,9 @@ to test.  This command lets Git choose a different one."
   (let ((file (magit-git-dir "BISECT_CMD_OUTPUT"))
         (default-directory (magit-get-top-dir)))
     (ignore-errors (delete-file file))
-    (magit-run-git*
-     (nconc (list "bisect" subcommand) args)
-     nil nil nil nil nil
-     (lambda (process string)
-       (when (buffer-live-p (process-buffer process))
-         (with-current-buffer (process-buffer process)
-           (goto-char (process-mark process))
-           (insert string)
-           (set-marker (process-mark process) (point))))
-       (with-temp-file file
-         (when (file-exists-p file)
-           (insert-file-contents file)
-           (goto-char (point-max)))
-         (insert string)
-         (write-region (point-min) (point-max) file))))
+    (apply 'magit-run-git-with-logfile
+           file (nconc (list "bisect" subcommand) args))
+    (magit-process-wait)
     (magit-refresh)))
 
 ;;;; Logging
