@@ -3064,9 +3064,10 @@ and CLAUSES.
           t)
       (let ((status (apply 'process-file program
                            nil process-buf nil args)))
-        (or noerror (magit-process-finish
-                     (list (current-buffer) process-buf
-                           status section)))))))
+        (magit-process-finish (list (current-buffer)
+                                    process-buf
+                                    status section))
+        (or (= status 0) noerror)))))
 
 ;;;; Process Internals
 
@@ -3081,9 +3082,9 @@ and CLAUSES.
         (when (featurep 'dired)
           (dired-uncache default-directory))))
     (magit-process-unset-mode-line)
-    (if (string-match "^finished" event)
-        (message (concat (capitalize (process-name process)) " finished"))
-      (magit-process-finish process t))
+    (when (string-match "^finished" event)
+      (message (concat (capitalize (process-name process)) " finished")))
+    (magit-process-finish process)
     (when (eq process magit-this-process)
       (setq magit-this-process nil))
     (magit-refresh (and (buffer-live-p (process-get process 'command-buf))
@@ -3180,8 +3181,8 @@ and CLAUSES.
 (defvar magit-process-error-message-re
   (concat "^\\(?:error\\|fatal\\|git\\): \\(.*\\)" paragraph-separate))
 
-(defun magit-process-finish (process &optional noerror)
-  (let (command-buf process-buf status)
+(defun magit-process-finish (process)
+  (let (command-buf process-buf status section)
     (if (listp process)
         (setq command-buf (nth 0 process)
               process-buf (nth 1 process)
@@ -3192,8 +3193,7 @@ and CLAUSES.
             status      (process-exit-status process)
             section     (process-get process 'section)))
     (or (= status 0)
-        (funcall
-         (if noerror 'message 'error)
+        (message ; `error' would prevent refresh
          "%s ... [%s buffer %s for details]"
          (or (and (buffer-live-p process-buf)
                   (with-current-buffer process-buf
