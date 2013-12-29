@@ -3096,7 +3096,7 @@ variable `magit-process-buffer-name'."
     (magit-process-finish
      (let ((inhibit-read-only t))
        (apply #'process-file program nil process-buf nil args))
-     process-buf (current-buffer) section)))
+     process-buf (current-buffer) default-directory section)))
 
 (defun magit-run-git-with-input (input &rest args)
   "Call Git in a separate process.
@@ -3239,8 +3239,6 @@ repository are reverted using `auto-revert-buffers'."
   "Default sentinel used by `magit-start-process'."
   (when (memq (process-status process) '(exit signal))
     (setq event (substring event 0 -1))
-    (when (featurep 'dired)
-      (dired-uncache (process-get process 'default-dir)))
     (magit-process-unset-mode-line)
     (when (string-match "^finished" event)
       (message (concat (capitalize (process-name process)) " finished")))
@@ -3343,12 +3341,16 @@ repository are reverted using `auto-revert-buffers'."
 (defvar magit-process-error-message-re
   (concat "^\\(?:error\\|fatal\\|git\\): \\(.*\\)" paragraph-separate))
 
-(defun magit-process-finish (arg &optional process-buf command-buf section)
+(defun magit-process-finish (arg &optional process-buf command-buf
+                                 default-dir section)
   (unless (integerp arg)
     (setq process-buf (process-buffer arg)
           command-buf (process-get arg 'command-buf)
+          default-dir (process-get arg 'default-dir)
           section     (process-get arg 'section)
           arg         (process-exit-status arg)))
+  (when (featurep 'dired)
+    (dired-uncache default-dir))
   (when (buffer-live-p process-buf)
     (with-current-buffer process-buf
       (let ((inhibit-read-only t)
