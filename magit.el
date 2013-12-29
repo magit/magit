@@ -2975,7 +2975,7 @@ and CLAUSES.
         (process-buf (get-buffer-create magit-process-buffer-name))
         (command-buf (current-buffer))
         (tmp-buf nil)
-        (successp nil))
+        (status 0))
     (when magit-quote-curly-braces
       (setq args (mapcar (apply-partially 'replace-regexp-in-string
                                           "{\\([0-9]+\\)}" "\\\\{\\1\\\\}")
@@ -3017,8 +3017,7 @@ and CLAUSES.
                                         (point-min) (point-max)))
                  (process-send-eof magit-process)
                  (sit-for 0.1 t))
-               (magit-display-process magit-process)
-               (setq successp t))
+               (magit-display-process magit-process))
               ((or input filter)
                (with-current-buffer
                    (or input (setq tmp-buf (generate-new-buffer " *temp*")))
@@ -3035,8 +3034,7 @@ and CLAUSES.
                   (lambda (process event)
                     (when (memq (process-status process)
                                 '(exit signal))
-                      (setq successp
-                            (equal (process-exit-status magit-process) 0))
+                      (setq status (process-exit-status magit-process))
                       (setq magit-process nil))))
                  (set-process-filter magit-process
                                      (or filter 'magit-process-filter))
@@ -3048,24 +3046,27 @@ and CLAUSES.
                (when tmp-buf (kill-buffer tmp-buf))
                (magit-process-unset-mode-line))
               (t
-               (setq successp
-                     (equal (apply 'process-file cmd nil process-buf nil args) 0))
-               (magit-process-unset-mode-line))))
-      (or successp
-          noerror
-          (error
-           "%s ... [%s buffer %s for details]"
-           (or (with-current-buffer process-buf
-                 (when (re-search-backward
-                        (concat "^error: \\(.*\\)" paragraph-separate) nil t)
-                   (match-string 1)))
-               "Git failed")
-           (with-current-buffer command-buf
-             (let ((key (key-description (car (where-is-internal
-                                               'magit-display-process)))))
-               (if key (format "Hit %s to see" key) "See")))
-           (buffer-name process-buf)))
-      successp)))
+               (setq status (apply 'process-file cmd nil
+                                   process-buf nil args))))
+        (or nowait noerror
+            (magit-process-finish command-buf process-buf status))))))
+
+(defun magit-process-finish (command-buf process-buf status)
+  (or (= status 0)
+      (error
+       "%s ... [%s buffer %s for details]"
+       (or (and (buffer-live-p process-buf)
+                (with-current-buffer process-buf
+                  (when (re-search-backward
+                         (concat "^error: \\(.*\\)" paragraph-separate) nil t)
+                    (match-string 1))))
+           "Git failed")
+       (let ((key (and (buffer-live-p command-buf)
+                       (with-current-buffer command-buf
+                         (car (where-is-internal
+                               'magit-display-process))))))
+         (if key (format "Hit %s to see" (key-description key)) "See"))
+       (buffer-name process-buf))))
 
 (defun magit-process-sentinel (command-buf process event)
   (when (memq (process-status process) '(exit signal))
