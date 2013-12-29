@@ -3009,32 +3009,33 @@ and CLAUSES.
           (erase-buffer))
         (insert "$ " (or logline
                          (mapconcat 'identity cmd-and-args " "))
-                "\n")
-        (if nowait
-            (let* ((process-connection-type
-                    ;; Don't use a pty, because it would set icrnl
-                    ;; which would modify the input (issue #20).
-                    (and (not input) magit-process-connection-type))
-                   (process (apply 'start-file-process
-                                   (file-name-nondirectory program)
-                                   process-buf program args)))
-              (setq magit-process   process)
-              (set-process-sentinel process (apply-partially
-                                             #'magit-process-sentinel
-                                             command-buf))
-              (set-process-filter   process #'magit-process-filter)
-              (set-process-buffer   process process-buf)
-              (when input
-                (with-current-buffer input
-                  (process-send-region process (point-min) (point-max))
-                  (process-send-eof    process))
-                (sit-for 0.1 t))
-              (magit-process-display-buffer (or magit-process 'finished))
-              t)
-          (let ((status (apply 'process-file program
-                               nil process-buf nil args)))
-            (or noerror (magit-process-finish
-                         command-buf process-buf status))))))))
+
+                "\n")))
+    (if nowait
+        (let* ((process-connection-type
+                ;; Don't use a pty, because it would set icrnl
+                ;; which would modify the input (issue #20).
+                (and (not input) magit-process-connection-type))
+               (process (apply 'start-file-process
+                               (file-name-nondirectory program)
+                               process-buf program args)))
+          (setq magit-process   process)
+          (set-process-sentinel process (apply-partially
+                                         #'magit-process-sentinel
+                                         command-buf))
+          (set-process-filter   process #'magit-process-filter)
+          (set-process-buffer   process process-buf)
+          (when input
+            (with-current-buffer input
+              (process-send-region process (point-min) (point-max))
+              (process-send-eof    process))
+            (sit-for 0.1 t))
+          (magit-process-display-buffer (or magit-process 'finished))
+          t)
+      (let ((status (apply 'process-file program
+                           nil process-buf nil args)))
+        (or noerror (magit-process-finish
+                     command-buf process-buf status))))))
 
 (defun magit-process-finish (command-buf process-buf status &optional noerror)
   (or (= status 0)
