@@ -2035,7 +2035,7 @@ involving HEAD."
       (string-as-multibyte (read path))
     path))
 
-;;; Revisions
+;;;; Git Revisions
 
 (defvar magit-uninteresting-refs
   '("^refs/stash$"
