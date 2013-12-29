@@ -1296,6 +1296,18 @@ Many Magit faces inherit from this one by default."
   "Face for reflog subject labels shown in reflog buffer."
   :group 'magit-faces)
 
+(defface magit-process-ok
+  '((t :inherit magit-header
+       :foreground "green"))
+  "Face for zero exit-status."
+  :group 'magit-faces)
+
+(defface magit-process-ng
+  '((t :inherit magit-header
+       :foreground "red"))
+  "Face for non-zero exit-status."
+  :group 'magit-faces)
+
 
 ;;; Keymaps
 
@@ -3342,6 +3354,17 @@ repository are reverted using `auto-revert-buffers'."
           command-buf (process-get arg 'command-buf)
           section     (process-get arg 'section)
           arg         (process-exit-status arg)))
+  (when (buffer-live-p process-buf)
+    (with-current-buffer process-buf
+      (let ((inhibit-read-only t)
+            (mark (magit-section-beginning section)))
+        (set-marker-insertion-type mark nil)
+        (goto-char mark)
+        (insert (propertize (format "%3s " arg)
+                            'magit-section section
+                            'face (if (= arg 0)
+                                      'magit-process-ok
+                                    'magit-process-ng))))))
   (unless (= arg 0)
     (message ; `error' would prevent refresh
      "%s ... [%s buffer %s for details]"
