@@ -2969,6 +2969,8 @@ and CLAUSES.
 
 (defun magit-run* (cmd-and-args
                    &optional logline noerase noerror nowait input)
+  (when (and input (not nowait))
+    (error "Only asynchronous processes can receive input"))
   (when magit-process
     (cl-case (process-status magit-process)
       (run  (error "Git is already running"))
@@ -2980,9 +2982,7 @@ and CLAUSES.
         (args (cdr cmd-and-args))
         (default-dir default-directory)
         (process-buf (get-buffer-create magit-process-buffer-name))
-        (command-buf (current-buffer))
-        (tmp-buf nil)
-        (status 0))
+        (command-buf (current-buffer)))
     (when magit-quote-curly-braces
       (setq args (mapcar (apply-partially 'replace-regexp-in-string
                                           "{\\([0-9]+\\)}" "\\\\{\\1\\\\}")
@@ -3025,38 +3025,13 @@ and CLAUSES.
                                         (point-min) (point-max)))
                  (process-send-eof magit-process)
                  (sit-for 0.1 t))
-               (magit-process-display-buffer (or magit-process 'finished)))
-              (input
-               (with-current-buffer
-                   (or input (setq tmp-buf (generate-new-buffer " *temp*")))
-                 (setq default-directory default-dir)
-                 (setq magit-process
-                       ;; Don't use a pty, because it would set icrnl
-                       ;; which would modify the input (issue #20).
-                       (let ((process-connection-type nil))
-                         (apply 'start-file-process
-                                (file-name-nondirectory cmd)
-                                process-buf cmd args)))
-                 (set-process-sentinel
-                  magit-process
-                  (lambda (process event)
-                    (when (memq (process-status process)
-                                '(exit signal))
-                      (setq status (process-exit-status magit-process))
-                      (setq magit-process nil))))
-                 (set-process-filter magit-process 'magit-process-filter)
-                 (process-send-region magit-process
-                                      (point-min) (point-max))
-                 (process-send-eof magit-process)
-                 (while magit-process
-                   (sit-for 0.1 t)))
-               (when tmp-buf (kill-buffer tmp-buf))
-               (magit-process-unset-mode-line))
+               (magit-process-display-buffer (or magit-process 'finished))
+               t)
               (t
-               (setq status (apply 'process-file cmd nil
-                                   process-buf nil args))))
-        (or nowait noerror
-            (magit-process-finish command-buf process-buf status))))))
+               (let ((status (apply 'process-file cmd nil
+                                    process-buf nil args)))
+                 (or noerror (magit-process-finish
+                              command-buf process-buf status)))))))))
 
 (defun magit-process-finish (command-buf process-buf status &optional noerror)
   (or (= status 0)
