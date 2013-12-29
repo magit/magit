@@ -3070,26 +3070,28 @@ and CLAUSES.
 
 (defun magit-process-sentinel (command-buf process event)
   (when (memq (process-status process) '(exit signal))
+    (setq event (substring event 0 -1))
     (setq magit-process nil)
-    (let ((msg (format "%s %s." (process-name process) (substring event 0 -1)))
-          (successp (string-match "^finished" event))
-          (key (if (buffer-live-p command-buf)
-                   (with-current-buffer command-buf
-                     (key-description (car (where-is-internal
-                                            'magit-display-process))))
-                 "M-x magit-display-process")))
-      (when (buffer-live-p (process-buffer process))
-        (with-current-buffer (process-buffer process)
-          (let ((inhibit-read-only t))
-            (goto-char (point-max))
-            (insert msg "\n")
-            (message (if successp
+    (when (buffer-live-p (process-buffer process))
+      (with-current-buffer (process-buffer process)
+        (let ((inhibit-read-only t))
+          (goto-char (point-max))
+          (insert (process-name process) " " event ".\n"))
+        (when (featurep 'dired)
+          (dired-uncache default-directory))))
+    (magit-process-unset-mode-line)
+    (let ((msg (format "%s %s." (process-name process) event)))
+      (message (if (string-match "^finished" event)
+                   msg
+                 (format "%s  Hit %s or see buffer %s for details."
                          msg
-                       (format "%s  Hit %s or see buffer %s for details."
-                               msg key (current-buffer)))))
-          (when (featurep 'dired)
-            (dired-uncache default-directory))))
-      (magit-process-unset-mode-line)
+                         (if (buffer-live-p command-buf)
+                             (with-current-buffer command-buf
+                               (key-description
+                                (car (where-is-internal
+                                      'magit-display-process))))
+                           "M-x magit-display-process")
+                         (current-buffer))))
       (magit-refresh (and (buffer-live-p command-buf) command-buf)))))
 
 (defun magit-process-filter (proc string)
