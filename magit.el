@@ -2980,8 +2980,7 @@ and CLAUSES.
       (setq args (mapcar (apply-partially 'replace-regexp-in-string
                                           "{\\([0-9]+\\)}" "\\\\{\\1\\\\}")
                          args)))
-    (magit-process-set-mode-line
-     (magit-process-indicator-from-command cmd-and-args))
+    (magit-process-set-mode-line cmd-and-args)
     (with-current-buffer process-buf
       (setq default-directory default-dir)
       (view-mode 1)
@@ -3150,20 +3149,19 @@ and CLAUSES.
             ((string-match ":$"  prompt) (concat prompt " "))
             (t                           (concat prompt ": "))))))
 
-(defun magit-process-set-mode-line (&optional string)
-  (magit-map-magit-buffers
-   (apply-partially (lambda (s) (setq mode-line-process s)) string)))
-
-(defun magit-process-indicator-from-command (comps)
+(defun magit-process-set-mode-line (args)
   (when (magit-prefix-p (cons magit-git-executable
                               magit-git-standard-options)
-                        comps)
-    (setq comps (nthcdr (+ (length magit-git-standard-options) 1) comps)))
-  (cond ((or (null (cdr comps))
-             (not (member (car comps) '("remote"))))
-         (concat " " (car comps)))
-        (t
-         (concat " " (car comps) " " (cadr comps)))))
+                        args)
+    (setq args (nthcdr (+ (length magit-git-standard-options) 1) args)))
+  (magit-map-magit-buffers
+   (apply-partially
+    (lambda (s) (setq mode-line-process s))
+    (cond ((or (null (cdr args))
+               (not (member (car args) '("remote"))))
+           (concat " " (car args)))
+          (t
+           (concat " " (car args) " " (cadr args)))))))
 
 (defun magit-process-unset-mode-line ()
   (magit-map-magit-buffers (lambda () (setq mode-line-process nil))))
