@@ -3058,8 +3058,7 @@ and CLAUSES.
           (when input
             (with-current-buffer input
               (process-send-region process (point-min) (point-max))
-              (process-send-eof    process))
-            (sit-for 0.1 t))
+              (process-send-eof    process)))
           (setq magit-this-process process)
           (magit-process-display-buffer process)
           t)
