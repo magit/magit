@@ -137,10 +137,10 @@
 
     (running
      (actions
-      ("!" "Command from root" magit-shell-command)
-      (":" "Git command" magit-git-command)
-      ("g" "git gui" magit-run-git-gui)
-      ("k" "gitk" magit-run-gitk)))
+      ("!" "Git Subcommand (from root)" magit-git-command-topdir)
+      (":" "Git Subcommand (from pwd)" magit-git-command)
+      ("g" "Git Gui" magit-run-git-gui)
+      ("k" "Gitk" magit-run-gitk)))
 
     (fetching
      (man-page "git-fetch")

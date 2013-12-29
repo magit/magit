@@ -19,7 +19,7 @@
 (defmacro magit-tests--with-temp-repo (&rest body)
   (declare (indent 0) (debug t))
   `(magit-tests--with-temp-dir
-     (magit-run* (list magit-git-executable "init" "."))
+     (magit-call-git "init" ".")
      ,@body))
 
 (defmacro magit-tests--with-temp-clone (url &rest body)
@@ -27,7 +27,7 @@
   (let ((repo (gensym)))
     `(let ((,repo ,(or url 'default-directory)))
        (magit-tests--with-temp-dir
-         (magit-run* (list magit-git-executable "clone" ,repo "."))
+         (magit-call-git "clone" ,repo ".")
          ,@body))))
 
 (defmacro magit-tests--with-open-file (filename &rest body)
@@ -46,13 +46,12 @@
 
 (defun magit-tests--modify-and-commit (filename)
   (magit-tests--modify-file filename)
-  (magit-run* (list magit-git-executable "add" filename))
-  (magit-run* (list magit-git-executable
-                    "-c" "user.name=foo bar"
-                    "-c" "user.email=foo@bar.baz"
-                    "commit"
-                    "-m" (symbol-name (gensym "message"))
-                    "--" filename)))
+  (magit-call-git "add" filename)
+  (magit-call-git "-c" "user.name=foo bar"
+                  "-c" "user.email=foo@bar.baz"
+                  "commit"
+                  "-m" (symbol-name (gensym "message"))
+                  "--" filename))
 
 (defun magit-tests--head-hash ()
   (magit-git-string
@@ -118,11 +117,11 @@
 
 (ert-deftest magit-config-get-boolean ()
   (magit-tests--with-temp-repo
-    (magit-run* (list magit-git-executable "config" "a.b" "true"))
+    (magit-call-git "config" "a.b" "true")
     (should (magit-get-boolean "a.b"))
     (should (magit-get-boolean "a" "b"))
 
-    (magit-run* (list magit-git-executable "config" "a.b" "false"))
+    (magit-call-git "config" "a.b" "false")
     (should-not (magit-get-boolean "a.b"))
     (should-not (magit-get-boolean "a" "b"))))
 
