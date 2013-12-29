@@ -2931,7 +2931,7 @@ and CLAUSES.
   'magit-add-action-clauses "1.3.0")
 
 ;;; Git Processes
-;;;; Process Mode
+;;;; Process Commands
 
 (defun magit-process ()
   "Display Magit process buffer."
@@ -2940,6 +2940,34 @@ and CLAUSES.
     (if (buffer-live-p buf)
         (pop-to-buffer buf)
       (error "Process buffer doesn't exist"))))
+
+(defvar magit-git-command-history nil)
+
+;;;###autoload
+(defun magit-git-command (command)
+  "Perform arbitrary Git COMMAND.
+
+Similar to `magit-shell-command', but involves slightly less
+typing and automatically refreshes the status buffer."
+  (interactive
+   (list (read-string "Run git like this: " nil 'magit-git-command-history)))
+  (magit-mode-display-buffer magit-process-buffer-name 'magit-process-mode)
+  (apply 'magit-run-git-async (magit-parse-arguments command)))
+
+;;;###autoload
+(defun magit-shell-command (command)
+  "Perform arbitrary shell COMMAND."
+  (interactive "sCommand: ")
+  (magit-mode-display-buffer magit-process-buffer-name 'magit-process-mode)
+  (magit-run-git-async (magit-parse-arguments command)))
+
+(defun magit-parse-arguments (command)
+  (require 'eshell)
+  (with-temp-buffer
+    (insert command)
+    (mapcar 'eval (eshell-parse-arguments (point-min) (point-max)))))
+
+;;;; Process Mode
 
 (define-derived-mode magit-process-mode magit-mode "Magit Process"
   "Mode for looking at git process output."
@@ -5539,34 +5567,6 @@ user because of prefix arguments are not saved with git config."
                             chosen-branch-merge-name
                             chosen-branch-remote
                             chosen-branch-merge-name)))))))
-
-;;;; Running
-
-(defun magit-parse-arguments (command)
-  (require 'eshell)
-  (with-temp-buffer
-    (insert command)
-    (mapcar 'eval (eshell-parse-arguments (point-min) (point-max)))))
-
-;;;###autoload
-(defun magit-shell-command (command)
-  "Perform arbitrary shell COMMAND."
-  (interactive "sCommand: ")
-  (magit-mode-display-buffer magit-process-buffer-name 'magit-process-mode)
-  (magit-run-git-async (magit-parse-arguments command)))
-
-(defvar magit-git-command-history nil)
-
-;;;###autoload
-(defun magit-git-command (command)
-  "Perform arbitrary Git COMMAND.
-
-Similar to `magit-shell-command', but involves slightly less
-typing and automatically refreshes the status buffer."
-  (interactive
-   (list (read-string "Run git like this: " nil 'magit-git-command-history)))
-  (magit-mode-display-buffer magit-process-buffer-name 'magit-process-mode)
-  (apply 'magit-run-git-async (magit-parse-arguments command)))
 
 ;;;; Pushing
 
