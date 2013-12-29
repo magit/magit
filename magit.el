@@ -3033,14 +3033,51 @@ Empty lines anywhere in the output are omitted."
     (split-string (buffer-string) "\n" 'omit-nulls)))
 
 (defun magit-run-git (&rest args)
+  "Call Git synchronously in a separate process, and refresh.
+
+The arguments ARGS specify command line arguments.  The first
+level of ARGS is flattened, so each member of ARGS has to be a
+string or a list of strings.
+
+Option `magit-git-executable' specifies which Git executable is
+used.  The arguments in option `magit-git-standard-options' are
+prepended to ARGS.
+
+After Git returns, the current buffer (if it is a Magit buffer)
+as well as the current repository's status buffer are refreshed.
+Unmodified buffers visiting files in the repository are reverted
+using `auto-revert-buffers'.
+
+Process output goes into a new section in a buffer specified by
+variable `magit-process-buffer-name'."
   (apply #'magit-call-git args)
   (magit-refresh))
 
 (defun magit-call-git (&rest args)
+  "Call Git synchronously in a separate process.
+
+The arguments ARGS specify command line arguments.  The first
+level of ARGS is flattened, so each member of ARGS has to be a
+string or a list of strings.
+
+Option `magit-git-executable' specifies which Git executable is
+used.  The arguments in option `magit-git-standard-options' are
+prepended to ARGS.
+
+Process output goes into a new section in a buffer specified by
+variable `magit-process-buffer-name'."
   (apply #'magit-call-process magit-git-executable
          (append magit-git-standard-options args)))
 
 (defun magit-call-process (program &rest args)
+  "Call PROGRAM synchronously in a separate process.
+
+The arguments ARGS specify command line arguments.  The first
+level of ARGS is flattened, so each member of ARGS has to be a
+string or a list of strings.
+
+Process output goes into a new section in a buffer specified by
+variable `magit-process-buffer-name'."
   (setq args (magit-flatten-onelevel args))
   (cl-destructuring-bind (process-buf . section)
       (magit-process-setup program args)
@@ -3050,11 +3087,35 @@ Empty lines anywhere in the output are omitted."
      process-buf (current-buffer) section)))
 
 (defun magit-run-git-with-input (input &rest args)
+  "Call Git in a separate process.
+
+The first argument, INPUT, has to be a buffer or the name of an
+existing buffer.  The content of that buffer is used as the
+process' standard input.
+
+The remaining arguments, ARGS, specify command line arguments.
+The first level of ARGS is flattened, so each member of ARGS has
+to be a string or a list of strings.
+
+Option `magit-git-executable' specifies which Git executable is
+used.  The arguments in option `magit-git-standard-options' are
+prepended to ARGS.
+
+After Git returns, the current buffer (if it is a Magit buffer)
+as well as the current repository's status buffer are refreshed.
+Unmodified buffers visiting files in the repository are reverted
+using `auto-revert-buffers'.
+
+This function actually starts a asynchronous process, but it then
+waits for that process to return."
   (apply #'magit-start-git input args)
   (magit-process-wait)
   (magit-refresh))
 
 (defun magit-run-git-with-logfile (file &rest args)
+  "Call Git in a separate process and log its output.
+And log the output to FILE.  This function might have a
+short halflive.  See `magit-run-git' for more information."
   (apply #'magit-start-git nil args)
   (process-put magit-this-process 'logfile file)
   (set-process-filter magit-this-process 'magit-process-logfile-filter)
@@ -3066,15 +3127,73 @@ Empty lines anywhere in the output are omitted."
 (defvar magit-this-process nil)
 
 (defun magit-run-git-async (&rest args)
+  "Start Git, prepare for refresh, and return the process object.
+
+If optional argument INPUT is non-nil, it has to be a buffer or
+the name of an existing buffer.  The content of that buffer is
+used as the process' standard input.
+
+The remaining arguments, ARGS, specify command line arguments.
+The first level of ARGS is flattened, so each member of ARGS has
+to be a string or a list of strings.
+
+Display the command line arguments in the echo area.
+
+After Git returns some buffers are refreshed: the buffer that was
+current when `magit-start-process' was called (if it is a Magit
+buffer and still alive), as well as the respective Magit status
+buffer.  Unmodified buffers visiting files in the repository are
+reverted using `auto-revert-buffers'.
+
+See `magit-start-process' for more information."
   (message "Running %s %s" magit-git-executable
            (mapconcat 'identity (magit-flatten-onelevel args) " "))
   (apply #'magit-start-git nil args))
 
 (defun magit-start-git (&optional input &rest args)
+  "Start Git, prepare for refresh, and return the process object.
+
+If optional argument INPUT is non-nil, it has to be a buffer or
+the name of an existing buffer.  The buffer content becomes the
+processes standard input.
+
+The remaining arguments, ARGS, specify command line arguments.
+The first level of ARGS is flattened, so each member of ARGS has
+to be a string or a list of strings.
+
+After Git returns some buffers are refreshed: the buffer that was
+current when `magit-start-process' was called (if it is a Magit
+buffer and still alive), as well as the respective Magit status
+buffer.  Unmodified buffers visiting files in the repository are
+reverted using `auto-revert-buffers'.
+
+See `magit-start-process' for more information."
   (apply #'magit-start-process magit-git-executable input
          (append magit-git-standard-options args)))
 
 (defun magit-start-process (program &optional input &rest args)
+  "Start PROGRAM, prepare for refresh, and return the process object.
+
+If optional argument INPUT is non-nil, it has to be a buffer or
+the name of an existing buffer.  The buffer content becomes the
+processes standard input.
+
+The remaining arguments, ARGS, specify command line arguments.
+The first level of ARGS is flattened, so each member of ARGS has
+to be a string or a list of strings.
+
+The process is started using `start-file-process' and then setup
+to use the sentinel `magit-process-sentinel' and the filter
+`magit-process-filter'.  Information required by these functions
+is stored in the process object.  When this function returns the
+process has not started to run yet so it is possible to override
+the sentinel and filter.
+
+After the process returns, `magit-process-sentinel' refreshes the
+buffer that was current when `magit-start-process' was called (if
+it is a Magit buffer and still alive), as well as the respective
+Magit status buffer.  Unmodified buffers visiting files in the
+repository are reverted using `auto-revert-buffers'."
   (setq args (magit-flatten-onelevel args))
   (cl-destructuring-bind (process-buf . section)
       (magit-process-setup program args)
@@ -3105,6 +3224,7 @@ Empty lines anywhere in the output are omitted."
 ;;;; Process Internals
 
 (defun magit-process-sentinel (process event)
+  "Default sentinel used by `magit-start-process'."
   (when (memq (process-status process) '(exit signal))
     (setq event (substring event 0 -1))
     (when (buffer-live-p (process-buffer process))
@@ -3124,6 +3244,7 @@ Empty lines anywhere in the output are omitted."
                         (process-get process 'command-buf)))))
 
 (defun magit-process-filter (proc string)
+  "Default filter used by `magit-start-process'."
   (with-current-buffer (process-buffer proc)
     (let ((inhibit-read-only t))
       (magit-process-yes-or-no-prompt proc string)
@@ -3147,6 +3268,7 @@ Empty lines anywhere in the output are omitted."
       (set-marker (process-mark proc) (point)))))
 
 (defun magit-process-logfile-filter (process string)
+  "Special filter used by `magit-run-git-with-logfile'."
   (magit-process-filter process string)
   (let ((file (process-get process 'logfile)))
     (with-temp-file file
