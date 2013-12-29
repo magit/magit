@@ -2980,7 +2980,7 @@ and CLAUSES.
       (setq args (mapcar (apply-partially 'replace-regexp-in-string
                                           "{\\([0-9]+\\)}" "\\\\{\\1\\\\}")
                          args)))
-    (magit-set-mode-line-process
+    (magit-process-set-mode-line
      (magit-process-indicator-from-command cmd-and-args))
     (with-current-buffer process-buf
       (setq default-directory default-dir)
@@ -3047,11 +3047,11 @@ and CLAUSES.
                  (while magit-process
                    (sit-for 0.1 t)))
                (when tmp-buf (kill-buffer tmp-buf))
-               (magit-set-mode-line-process))
+               (magit-process-set-mode-line))
               (t
                (setq successp
                      (equal (apply 'process-file cmd nil process-buf nil args) 0))
-               (magit-set-mode-line-process))))
+               (magit-process-set-mode-line))))
       (or successp
           noerror
           (error
@@ -3089,7 +3089,7 @@ and CLAUSES.
                                msg key (current-buffer)))))
           (when (featurep 'dired)
             (dired-uncache default-directory))))
-      (magit-set-mode-line-process)
+      (magit-process-set-mode-line)
       (magit-refresh (and (buffer-live-p command-buf) command-buf)))))
 
 (defun magit-process-filter (proc string)
@@ -3150,7 +3150,7 @@ and CLAUSES.
             ((string-match ":$"  prompt) (concat prompt " "))
             (t                           (concat prompt ": "))))))
 
-(defun magit-set-mode-line-process (&optional string)
+(defun magit-process-set-mode-line (&optional string)
   (magit-map-magit-buffers
    (apply-partially (lambda (s) (setq mode-line-process s)) string)))
 
