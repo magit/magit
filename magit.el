@@ -2992,8 +2992,7 @@ and CLAUSES.
   (let ((program (car cmd-and-args))
         (args (magit-git-quote-arguments (cdr cmd-and-args)))
         (default-dir default-directory)
-        (process-buf (get-buffer-create magit-process-buffer-name))
-        (command-buf (current-buffer)))
+        (process-buf (get-buffer-create magit-process-buffer-name)))
     (magit-process-set-mode-line cmd-and-args)
     (with-current-buffer process-buf
       (setq default-directory default-dir)
@@ -3020,11 +3019,11 @@ and CLAUSES.
                                (file-name-nondirectory program)
                                process-buf program args)))
           (setq magit-process   process)
-          (set-process-sentinel process (apply-partially
-                                         #'magit-process-sentinel
-                                         command-buf))
+          (set-process-sentinel process #'magit-process-sentinel)
           (set-process-filter   process #'magit-process-filter)
           (set-process-buffer   process process-buf)
+          (process-put process 'command-buf (current-buffer))
+          (process-put process 'default-dir default-directory)
           (when input
             (with-current-buffer input
               (process-send-region process (point-min) (point-max))
@@ -3035,7 +3034,7 @@ and CLAUSES.
       (let ((status (apply 'process-file program
                            nil process-buf nil args)))
         (or noerror (magit-process-finish
-                     command-buf process-buf status))))))
+                     (current-buffer) process-buf status))))))
 
 (defun magit-process-finish (command-buf process-buf status &optional noerror)
   (or (= status 0)
@@ -3055,7 +3054,7 @@ and CLAUSES.
          (if key (format "Hit %s to see" (key-description key)) "See"))
        (buffer-name process-buf))))
 
-(defun magit-process-sentinel (command-buf process event)
+(defun magit-process-sentinel (process event)
   (when (memq (process-status process) '(exit signal))
     (setq event (substring event 0 -1))
     (setq magit-process nil)
@@ -3069,10 +3068,11 @@ and CLAUSES.
     (magit-process-unset-mode-line)
     (if (string-match "^finished" event)
         (message (concat (capitalize (process-name process)) " finished"))
-      (magit-process-finish command-buf
+      (magit-process-finish (process-get process 'command-buf)
                             (process-buffer process)
                             (process-exit-status process) t))
-    (magit-refresh (and (buffer-live-p command-buf) command-buf))))
+    (magit-refresh (and (buffer-live-p (process-get process 'command-buf))
+                        (process-get process 'command-buf)))))
 
 (defun magit-process-filter (proc string)
   (with-current-buffer (process-buffer proc)
