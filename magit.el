@@ -3064,9 +3064,8 @@ and CLAUSES.
           t)
       (let ((status (apply 'process-file program
                            nil process-buf nil args)))
-        (magit-process-finish (list (current-buffer)
-                                    process-buf
-                                    status section))
+        (magit-process-finish (list status process-buf
+                                    (current-buffer) section))
         (or (= status 0) noerror)))))
 
 ;;;; Process Internals
@@ -3181,35 +3180,31 @@ and CLAUSES.
 (defvar magit-process-error-message-re
   (concat "^\\(?:error\\|fatal\\|git\\): \\(.*\\)" paragraph-separate))
 
-(defun magit-process-finish (process)
-  (let (command-buf process-buf status section)
-    (if (listp process)
-        (setq command-buf (nth 0 process)
-              process-buf (nth 1 process)
-              status      (nth 2 process)
-              section     (nth 3 process))
-      (setq command-buf (process-get process 'command-buf)
-            process-buf (process-buffer process)
-            status      (process-exit-status process)
-            section     (process-get process 'section)))
-    (or (= status 0)
-        (message ; `error' would prevent refresh
-         "%s ... [%s buffer %s for details]"
-         (or (and (buffer-live-p process-buf)
-                  (with-current-buffer process-buf
-                    (save-excursion
-                      (goto-char (magit-section-end section))
-                      (when (re-search-backward
-                             magit-process-error-message-re nil
-                             (magit-section-content-beginning section))
-                        (match-string 1)))))
-             "Git failed")
-         (let ((key (and (buffer-live-p command-buf)
-                         (with-current-buffer command-buf
-                           (car (where-is-internal
-                                 'magit-process-display-buffer))))))
-           (if key (format "Hit %s to see" (key-description key)) "See"))
-         (buffer-name process-buf)))))
+(defun magit-process-finish (arg &optional process-buf command-buf section)
+  (unless (integerp arg)
+    (setq process-buf (process-buffer arg)
+          command-buf (process-get arg 'command-buf)
+          section     (process-get arg 'section)
+          arg         (process-exit-status arg)))
+  (unless (= arg 0)
+    (message ; `error' would prevent refresh
+     "%s ... [%s buffer %s for details]"
+     (or (and (buffer-live-p process-buf)
+              (with-current-buffer process-buf
+                (save-excursion
+                  (goto-char (magit-section-end section))
+                  (when (re-search-backward
+                         magit-process-error-message-re nil
+                         (magit-section-content-beginning section))
+                    (match-string 1)))))
+         "Git failed")
+     (let ((key (and (buffer-live-p command-buf)
+                     (with-current-buffer command-buf
+                       (car (where-is-internal
+                             'magit-process-display-buffer))))))
+       (if key (format "Hit %s to see" (key-description key)) "See"))
+     (buffer-name process-buf)))
+  arg)
 
 (defun magit-process-display-buffer (process)
   (when (process-live-p process)
