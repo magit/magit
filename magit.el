@@ -3239,11 +3239,6 @@ repository are reverted using `auto-revert-buffers'."
   "Default sentinel used by `magit-start-process'."
   (when (memq (process-status process) '(exit signal))
     (setq event (substring event 0 -1))
-    (when (buffer-live-p (process-buffer process))
-      (with-current-buffer (process-buffer process)
-        (let ((inhibit-read-only t))
-          (goto-char (process-mark process))
-          (insert-and-inherit (process-name process) " " event ".\n"))))
     (when (featurep 'dired)
       (dired-uncache (process-get process 'default-dir)))
     (magit-process-unset-mode-line)
