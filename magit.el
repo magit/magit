@@ -3047,11 +3047,11 @@ and CLAUSES.
                  (while magit-process
                    (sit-for 0.1 t)))
                (when tmp-buf (kill-buffer tmp-buf))
-               (magit-process-set-mode-line))
+               (magit-process-unset-mode-line))
               (t
                (setq successp
                      (equal (apply 'process-file cmd nil process-buf nil args) 0))
-               (magit-process-set-mode-line))))
+               (magit-process-unset-mode-line))))
       (or successp
           noerror
           (error
@@ -3089,7 +3089,7 @@ and CLAUSES.
                                msg key (current-buffer)))))
           (when (featurep 'dired)
             (dired-uncache default-directory))))
-      (magit-process-set-mode-line)
+      (magit-process-unset-mode-line)
       (magit-refresh (and (buffer-live-p command-buf) command-buf)))))
 
 (defun magit-process-filter (proc string)
@@ -3164,6 +3164,9 @@ and CLAUSES.
          (concat " " (car comps)))
         (t
          (concat " " (car comps) " " (cadr comps)))))
+
+(defun magit-process-unset-mode-line ()
+  (magit-map-magit-buffers (lambda () (setq mode-line-process nil))))
 
 (defun magit-display-process (&optional process buffer)
   "Display output from most recent Git process.
