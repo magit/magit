@@ -2953,7 +2953,7 @@ and CLAUSES.
     (magit-refresh)))
 
 (defun magit-run-git-with-input (input &rest args)
-  (magit-run-git* args nil nil t input)
+  (magit-run-git* args nil t input)
   (magit-process-wait)
   (magit-refresh))
 
@@ -2966,18 +2966,18 @@ and CLAUSES.
 
 (defun magit-run-git-async (&rest args)
   (message "Running %s %s" magit-git-executable (mapconcat 'identity args " "))
-  (magit-run-git* args nil nil t))
+  (magit-run-git* args nil t))
 
-(defun magit-run-git* (subcmd-and-args &optional noerase noerror nowait input)
+(defun magit-run-git* (subcmd-and-args &optional noerror nowait input)
   (magit-run* (append (cons magit-git-executable
                             magit-git-standard-options)
                       subcmd-and-args)
-              noerase noerror nowait input))
+              noerror nowait input))
 
 (defvar magit-process-buffer-name "*magit-process*"
   "Name of buffer where output of processes is put.")
 
-(defun magit-run* (cmd-and-args &optional noerase noerror nowait input)
+(defun magit-run* (cmd-and-args &optional noerror nowait input)
   (when (and input (not nowait))
     (error "Only asynchronous processes can receive input"))
   (when magit-process
@@ -2999,7 +2999,7 @@ and CLAUSES.
       (setq view-exit-action #'bury-buffer)
       (setq buffer-read-only t)
       (let ((inhibit-read-only t))
-        (if (or magit-process-keep-history noerase)
+        (if magit-process-keep-history
             (progn
               (goto-char (point-max))
               (unless (bobp) (insert "\n")))
@@ -5343,7 +5343,7 @@ user because of prefix arguments are not saved with git config."
   (interactive "sCommand: ")
   (let ((args (magit-parse-arguments command))
         (magit-process-popup-time 0))
-    (magit-run* args nil nil t)))
+    (magit-run* args nil t)))
 
 (defvar magit-git-command-history nil)
 
