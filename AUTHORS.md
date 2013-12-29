@@ -48,6 +48,7 @@ Contributors
 - Chris Bernard <cebernard@gmail.com>
 - Chris Done <chrisdone@gmail.com>
 - Chris Moore <dooglus@gmail.com>
+- Chris Ring <chris@ringthis.com>
 - Christian Dietrich <christian.dietrich@informatik.uni-erlangen.de>
 - Christian Kluge <ckfrakturfreak@web.de>
 - Christopher Monsanto <chris@monsan.to>
@@ -60,6 +61,7 @@ Contributors
 - Daniel Hackney <dan@haxney.org>
 - Dan LaManna <dan.lamanna@gmail.com>
 - David Abrahams <dave@boostpro.com>
+- David Hull <david.hull@openx.com>
 - David Wallin <david.wallin@gmail.com>
 - Divye Kapoor <divye@google.com>
 - Dominique Quatravaux <domq@google.com>
@@ -117,10 +119,12 @@ Contributors
 - Pavel Holejsovsky <pavel.holejsovsky@upek.com>
 - Pekka Pessi <nospam@pessi.fi>
 - Peter J. Weisberg <pj@irregularexpressions.net>
+- Philippe Vaucher <philippe@stvs.ch>
 - Philipp Haselwarter <philipp@haselwarter.org>
 - Philip Weaver <philip.weaver@gmail.com>
 - Phil Jackson <phil@shellarchive.co.uk>
 - Pieter Praet <pieter@praet.org>
+- Prathamesh Sonpatki <csonpatki@gmail.com>
 - rabio <rabiodev@o2.pl>
 - Raimon Grau <raimonster@gmail.com>
 - Ramkumar Ramachandra <artagnon@gmail.com>
