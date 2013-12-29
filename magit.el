@@ -110,6 +110,7 @@ Use the function by the same name instead of this variable.")
 (defvar magit-custom-options)
 (defvar magit-log-buffer-name)
 (defvar magit-marked-commit)
+(defvar magit-process-buffer-name)
 (defvar magit-reflog-buffer-name)
 (defvar magit-refresh-args)
 (defvar magit-stash-buffer-name)
@@ -558,6 +559,14 @@ they are not (due to semantic considerations)."
   :type '(choice (const :tag "Never" -1)
                  (const :tag "Immediately" 0)
                  (integer :tag "After this many seconds")))
+
+(defcustom magit-process-log-max 32
+  "Maximum number of sections to keep in a process log buffer.
+When adding a new section would go beyond the limit set here,
+then the older half of the sections are remove.  Sections that
+belong to processes that are still running are never removed."
+  :group 'magit
+  :type 'integer)
 
 (defcustom magit-stage-all-confirm t
   "Whether to require confirmation before staging all changes.
@@ -2218,6 +2227,7 @@ involving HEAD."
   beginning content-beginning end
   hidden needs-refresh-on-show highlight
   diff-status diff-file2 diff-range
+  process
   parent children)
 
 (defvar-local magit-root-section nil
@@ -2977,7 +2987,27 @@ and CLAUSES.
   (let ((inhibit-read-only t)
         (dir default-directory)
         (buf (magit-process-buffer)))
-    (unless buf
+    (if buf
+        (with-current-buffer buf
+          (let* ((head nil)
+                 (tail (magit-section-children magit-root-section))
+                 (count (length tail)))
+            (when (> (1+ count) magit-process-log-max)
+              (while (and (cdr tail)
+                          (> count (/ magit-process-log-max 2)))
+                (let* ((section (car tail))
+                       (process (magit-section-process section)))
+                  (cond ((not process))
+                        ((memq (process-status process) '(exit signal))
+                         (delete-region (magit-section-beginning section)
+                                        (1+ (magit-section-end section)))
+                         (pop tail)
+                         (cl-decf count))
+                        (t
+                         (pop tail)
+                         (push section head)))))
+              (setf (magit-section-children magit-root-section)
+                    (nconc (reverse head) tail)))))
       (with-current-buffer (setq buf (magit-process-buffer nil t))
         (magit-process-mode)
         (let ((section (magit-with-section (section processbuf nil nil t)
@@ -3066,6 +3096,7 @@ and CLAUSES.
       (process-put process 'section section)
       (process-put process 'command-buf (current-buffer))
       (process-put process 'default-dir default-directory)
+      (setf (magit-section-process section) process)
       (with-current-buffer process-buf
         (set-marker (process-mark process) (point)))
       (when input
