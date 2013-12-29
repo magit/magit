@@ -3019,25 +3019,33 @@ and CLAUSES.
       (let ((status (apply 'process-file program
                            nil process-buf nil args)))
         (or noerror (magit-process-finish
-                     (current-buffer) process-buf status))))))
+                     (list (current-buffer) process-buf status)))))))
 
-(defun magit-process-finish (command-buf process-buf status &optional noerror)
-  (or (= status 0)
-      (funcall
-       (if noerror 'message 'error)
-       "%s ... [%s buffer %s for details]"
-       (or (and (buffer-live-p process-buf)
-                (with-current-buffer process-buf
-                  (when (re-search-backward
-                         (concat "^error: \\(.*\\)" paragraph-separate) nil t)
-                    (match-string 1))))
-           "Git failed")
-       (let ((key (and (buffer-live-p command-buf)
-                       (with-current-buffer command-buf
-                         (car (where-is-internal
-                               'magit-process-display-buffer))))))
-         (if key (format "Hit %s to see" (key-description key)) "See"))
-       (buffer-name process-buf))))
+(defun magit-process-finish (process &optional noerror)
+  (let (command-buf process-buf status)
+    (if (listp process)
+        (setq command-buf (nth 0 process)
+              process-buf (nth 1 process)
+              status      (nth 2 process))
+      (setq command-buf (process-get process 'command-buf)
+            process-buf (process-buffer process)
+            status      (process-exit-status process)))
+    (or (= status 0)
+        (funcall
+         (if noerror 'message 'error)
+         "%s ... [%s buffer %s for details]"
+         (or (and (buffer-live-p process-buf)
+                  (with-current-buffer process-buf
+                    (when (re-search-backward
+                           (concat "^error: \\(.*\\)" paragraph-separate) nil t)
+                      (match-string 1))))
+             "Git failed")
+         (let ((key (and (buffer-live-p command-buf)
+                         (with-current-buffer command-buf
+                           (car (where-is-internal
+                                 'magit-process-display-buffer))))))
+           (if key (format "Hit %s to see" (key-description key)) "See"))
+         (buffer-name process-buf)))))
 
 (defun magit-process-sentinel (process event)
   (when (memq (process-status process) '(exit signal))
@@ -3053,9 +3061,7 @@ and CLAUSES.
     (magit-process-unset-mode-line)
     (if (string-match "^finished" event)
         (message (concat (capitalize (process-name process)) " finished"))
-      (magit-process-finish (process-get process 'command-buf)
-                            (process-buffer process)
-                            (process-exit-status process) t))
+      (magit-process-finish process t))
     (magit-refresh (and (buffer-live-p (process-get process 'command-buf))
                         (process-get process 'command-buf)))))
 
