@@ -3021,6 +3021,9 @@ and CLAUSES.
         (or noerror (magit-process-finish
                      (list (current-buffer) process-buf status)))))))
 
+(defvar magit-process-error-message-re
+  (concat "^error: \\(.*\\)" paragraph-separate))
+
 (defun magit-process-finish (process &optional noerror)
   (let (command-buf process-buf status)
     (if (listp process)
@@ -3037,7 +3040,7 @@ and CLAUSES.
          (or (and (buffer-live-p process-buf)
                   (with-current-buffer process-buf
                     (when (re-search-backward
-                           (concat "^error: \\(.*\\)" paragraph-separate) nil t)
+                           magit-process-error-message-re nil t)
                       (match-string 1))))
              "Git failed")
          (let ((key (and (buffer-live-p command-buf)
