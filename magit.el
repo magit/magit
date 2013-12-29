@@ -3061,12 +3061,10 @@ and CLAUSES.
               (process-send-eof    process)))
           (setq magit-this-process process)
           (magit-process-display-buffer process)
-          t)
-      (let ((status (apply 'process-file program
-                           nil process-buf nil args)))
-        (magit-process-finish (list status process-buf
-                                    (current-buffer) section))
-        (or (= status 0) noerror)))))
+          process)
+      (magit-process-finish
+       (apply 'process-file program nil process-buf nil args)
+       process-buf (current-buffer) section))))
 
 ;;;; Process Internals
 
