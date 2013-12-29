@@ -3008,11 +3008,10 @@ Run Git in the root of the current repository."
                         ((memq (process-status process) '(exit signal))
                          (delete-region (magit-section-beginning section)
                                         (1+ (magit-section-end section)))
-                         (pop tail)
                          (cl-decf count))
                         (t
-                         (pop tail)
-                         (push section head)))))
+                         (push section head))))
+                (pop tail))
               (setf (magit-section-children magit-root-section)
                     (nconc (reverse head) tail)))))
       (with-current-buffer (setq buf (magit-process-buffer nil t))
