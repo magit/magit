@@ -3051,9 +3051,10 @@ and CLAUSES.
         (or nowait noerror
             (magit-process-finish command-buf process-buf status))))))
 
-(defun magit-process-finish (command-buf process-buf status)
+(defun magit-process-finish (command-buf process-buf status &optional noerror)
   (or (= status 0)
-      (error
+      (funcall
+       (if noerror 'message 'error)
        "%s ... [%s buffer %s for details]"
        (or (and (buffer-live-p process-buf)
                 (with-current-buffer process-buf
@@ -3080,19 +3081,12 @@ and CLAUSES.
         (when (featurep 'dired)
           (dired-uncache default-directory))))
     (magit-process-unset-mode-line)
-    (let ((msg (format "%s %s." (process-name process) event)))
-      (message (if (string-match "^finished" event)
-                   msg
-                 (format "%s  Hit %s or see buffer %s for details."
-                         msg
-                         (if (buffer-live-p command-buf)
-                             (with-current-buffer command-buf
-                               (key-description
-                                (car (where-is-internal
-                                      'magit-display-process))))
-                           "M-x magit-display-process")
-                         (current-buffer))))
-      (magit-refresh (and (buffer-live-p command-buf) command-buf)))))
+    (if (string-match "^finished" event)
+        (message (concat (capitalize (process-name process)) " finished"))
+      (magit-process-finish command-buf
+                            (process-buffer process)
+                            (process-exit-status process) t))
+    (magit-refresh (and (buffer-live-p command-buf) command-buf))))
 
 (defun magit-process-filter (proc string)
   (with-current-buffer (process-buffer proc)
