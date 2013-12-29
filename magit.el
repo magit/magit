@@ -3502,41 +3502,41 @@ Magit mode."
 
 (cl-defun magit-mode-refresh-buffer (&optional (buffer (current-buffer)))
   (with-current-buffer buffer
-    (let* ((old-line (line-number-at-pos))
-           (old-point (point))
-           (old-window (selected-window))
-           (old-window-start (window-start))
-           (old-section (magit-current-section))
-           (old-path (and old-section
-                          (magit-section-path (magit-current-section)))))
-      (beginning-of-line)
-      (let ((inhibit-read-only t)
-            (section-line (and old-section
-                               (count-lines
-                                (magit-section-beginning old-section)
-                                (point))))
-            (line-char (- old-point (point))))
-        (when magit-refresh-function
+    (when magit-refresh-function
+      (let* ((old-line (line-number-at-pos))
+             (old-point (point))
+             (old-window (selected-window))
+             (old-window-start (window-start))
+             (old-section (magit-current-section))
+             (old-path (and old-section
+                            (magit-section-path (magit-current-section)))))
+        (beginning-of-line)
+        (let ((inhibit-read-only t)
+              (section-line (and old-section
+                                 (count-lines
+                                  (magit-section-beginning old-section)
+                                  (point))))
+              (line-char (- old-point (point))))
           (erase-buffer)
           (apply magit-refresh-function
-                 magit-refresh-args))
-        (let ((s (and old-path (magit-find-section old-path magit-root-section))))
-          (cond (s
-                 (goto-char (magit-section-beginning s))
-                 (forward-line section-line)
-                 (forward-char line-char))
-                (t
-                 (save-restriction
-                   (widen)
-                   (goto-char (point-min))
-                   (forward-line (1- old-line)))))))
-      (when (fboundp 'unrecord-window-buffer)
-        (unrecord-window-buffer old-window buffer))
-      (dolist (w (get-buffer-window-list buffer nil t))
-        (set-window-point w (point))
-        (set-window-start w old-window-start t))
-      (magit-highlight-section)
-      (magit-refresh-marked-commits-in-buffer))))
+                 magit-refresh-args)
+          (let ((s (and old-path (magit-find-section old-path magit-root-section))))
+            (cond (s
+                   (goto-char (magit-section-beginning s))
+                   (forward-line section-line)
+                   (forward-char line-char))
+                  (t
+                   (save-restriction
+                     (widen)
+                     (goto-char (point-min))
+                     (forward-line (1- old-line)))))))
+        (when (fboundp 'unrecord-window-buffer)
+          (unrecord-window-buffer old-window buffer))
+        (dolist (w (get-buffer-window-list buffer nil t))
+          (set-window-point w (point))
+          (set-window-start w old-window-start t))
+        (magit-highlight-section)
+        (magit-refresh-marked-commits-in-buffer)))))
 
 (defun magit-mode-quit-window (&optional kill-buffer)
   "Bury the current buffer and delete its window.
