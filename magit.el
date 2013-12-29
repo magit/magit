@@ -2958,17 +2958,17 @@ and CLAUSES.
   (magit-run-git* args nil nil nil t))
 
 (defun magit-run-git* (subcmd-and-args
-                       &optional logline noerase noerror nowait input filter)
+                       &optional logline noerase noerror nowait input)
   (magit-run* (append (cons magit-git-executable
                             magit-git-standard-options)
                       subcmd-and-args)
-              logline noerase noerror nowait input filter))
+              logline noerase noerror nowait input))
 
 (defvar magit-process-buffer-name "*magit-process*"
   "Name of buffer where output of processes is put.")
 
 (defun magit-run* (cmd-and-args
-                   &optional logline noerase noerror nowait input filter)
+                   &optional logline noerase noerror nowait input)
   (when magit-process
     (cl-case (process-status magit-process)
       (run  (error "Git is already running"))
@@ -3016,8 +3016,7 @@ and CLAUSES.
                (set-process-sentinel
                 magit-process
                 (apply-partially #'magit-process-sentinel command-buf))
-               (set-process-filter magit-process
-                                   (or filter 'magit-process-filter))
+               (set-process-filter magit-process 'magit-process-filter)
                (when input
                  (with-current-buffer input
                    (process-send-region magit-process
@@ -3025,7 +3024,7 @@ and CLAUSES.
                  (process-send-eof magit-process)
                  (sit-for 0.1 t))
                (magit-process-display-buffer (or magit-process 'finished)))
-              ((or input filter)
+              (input
                (with-current-buffer
                    (or input (setq tmp-buf (generate-new-buffer " *temp*")))
                  (setq default-directory default-dir)
@@ -3043,8 +3042,7 @@ and CLAUSES.
                                 '(exit signal))
                       (setq status (process-exit-status magit-process))
                       (setq magit-process nil))))
-                 (set-process-filter magit-process
-                                     (or filter 'magit-process-filter))
+                 (set-process-filter magit-process 'magit-process-filter)
                  (process-send-region magit-process
                                       (point-min) (point-max))
                  (process-send-eof magit-process)
