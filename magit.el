@@ -114,6 +114,7 @@ Use the function by the same name instead of this variable.")
 (defvar magit-refresh-args)
 (defvar magit-stash-buffer-name)
 (defvar magit-status-buffer-name)
+(defvar magit-this-process)
 (defvar package-alist)
 
 ;;; Compatibility
@@ -3001,70 +3002,74 @@ and CLAUSES.
         (cons (current-buffer) section)))))
 
 ;;;; Process Api
-
-(defvar magit-this-process nil)
+;;;;; Synchronous Processes
 
 (defun magit-run-git (&rest args)
-  (unwind-protect
-      (magit-run-git* args)
-    (magit-refresh)))
+  (apply #'magit-call-git args)
+  (magit-refresh))
+
+(defun magit-call-git (&rest args)
+  (apply #'magit-call-process magit-git-executable
+         (append magit-git-standard-options args)))
+
+(defun magit-call-process (program &rest args)
+  (cl-destructuring-bind (process-buf . section)
+      (magit-process-setup program args)
+    (magit-process-finish
+     (let ((inhibit-read-only t))
+       (apply #'process-file program nil process-buf nil args))
+     process-buf (current-buffer) section)))
 
 (defun magit-run-git-with-input (input &rest args)
-  (magit-run-git* args nil t input)
+  (apply #'magit-start-git input args)
   (magit-process-wait)
   (magit-refresh))
 
 (defun magit-run-git-with-logfile (file &rest args)
-  (magit-run-git* args nil nil t)
+  (apply #'magit-start-git nil args)
   (process-put magit-this-process 'logfile file)
   (set-process-filter magit-this-process 'magit-process-logfile-filter)
   (magit-process-wait)
   (magit-refresh))
 
+;;;;; Asynchronous Processes
+
+(defvar magit-this-process nil)
+
 (defun magit-run-git-async (&rest args)
-  (message "Running %s %s" magit-git-executable (mapconcat 'identity args " "))
-  (magit-run-git* args nil t))
+  (message "Running %s %s" magit-git-executable
+           (mapconcat 'identity args " "))
+  (apply #'magit-start-git nil args))
 
-(defun magit-run-git* (subcmd-and-args &optional noerror nowait input)
-  (magit-run* (append (cons magit-git-executable
-                            magit-git-standard-options)
-                      subcmd-and-args)
-              noerror nowait input))
+(defun magit-start-git (&optional input &rest args)
+  (apply #'magit-start-process magit-git-executable input
+         (append magit-git-standard-options args)))
 
-(defun magit-run* (cmd-and-args &optional noerror nowait input)
-  (when (and input (not nowait))
-    (error "Only asynchronous processes can receive input"))
-  (let* ((program (car cmd-and-args))
-         (args (magit-git-quote-arguments (cdr cmd-and-args)))
-         (setup (magit-process-setup program args))
-         (process-buf (car setup))
-         (section (cdr setup)))
-    (if nowait
-        (let* ((process-connection-type
-                ;; Don't use a pty, because it would set icrnl
-                ;; which would modify the input (issue #20).
-                (and (not input) magit-process-connection-type))
-               (process (apply 'start-file-process
-                               (file-name-nondirectory program)
-                               process-buf program args)))
-          (set-process-sentinel process #'magit-process-sentinel)
-          (set-process-filter   process #'magit-process-filter)
-          (set-process-buffer   process process-buf)
-          (process-put process 'section section)
-          (process-put process 'command-buf (current-buffer))
-          (process-put process 'default-dir default-directory)
-          (with-current-buffer process-buf
-            (set-marker (process-mark process) (point)))
-          (when input
-            (with-current-buffer input
-              (process-send-region process (point-min) (point-max))
-              (process-send-eof    process)))
-          (setq magit-this-process process)
-          (magit-process-display-buffer process)
-          process)
-      (magit-process-finish
-       (apply 'process-file program nil process-buf nil args)
-       process-buf (current-buffer) section))))
+(defun magit-start-process (program &optional input &rest args)
+  (cl-destructuring-bind (process-buf . section)
+      (magit-process-setup program args)
+    (let* ((process-connection-type
+            ;; Don't use a pty, because it would set icrnl
+            ;; which would modify the input (issue #20).
+            (and (not input) magit-process-connection-type))
+           (process (apply 'start-file-process
+                           (file-name-nondirectory program)
+                           process-buf program args)))
+      (set-process-sentinel process #'magit-process-sentinel)
+      (set-process-filter   process #'magit-process-filter)
+      (set-process-buffer   process process-buf)
+      (process-put process 'section section)
+      (process-put process 'command-buf (current-buffer))
+      (process-put process 'default-dir default-directory)
+      (with-current-buffer process-buf
+        (set-marker (process-mark process) (point)))
+      (when input
+        (with-current-buffer input
+          (process-send-region process (point-min) (point-max))
+          (process-send-eof    process)))
+      (setq magit-this-process process)
+      (magit-process-display-buffer process)
+      process)))
 
 ;;;; Process Internals
 
@@ -5379,7 +5384,7 @@ user because of prefix arguments are not saved with git config."
   "Perform arbitrary shell COMMAND."
   (interactive "sCommand: ")
   (magit-mode-display-buffer magit-process-buffer-name 'magit-process-mode)
-  (magit-run* (magit-parse-arguments command) nil t))
+  (magit-run-git-async (magit-parse-arguments command)))
 
 (defvar magit-git-command-history nil)
 
@@ -5774,7 +5779,7 @@ With prefix argument, changes in staging area are kept.
   "Create new stash of working tree and staging area; keep changes in place.
 \('git stash save \"Snapshot...\"; git stash apply stash@{0}')"
   (interactive)
-  (apply 'magit-run-git*
+  (apply 'magit-call-git
          `(("stash" "save" ,@magit-custom-options
             ,(format-time-string "Snapshot taken at %Y-%m-%d %H:%M:%S"
                                  (current-time)))))
