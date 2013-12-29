@@ -3022,7 +3022,7 @@ and CLAUSES.
                      (list (current-buffer) process-buf status)))))))
 
 (defvar magit-process-error-message-re
-  (concat "^error: \\(.*\\)" paragraph-separate))
+  (concat "^\\(?:error\\|fatal\\|git\\): \\(.*\\)" paragraph-separate))
 
 (defun magit-process-finish (process &optional noerror)
   (let (command-buf process-buf status)
