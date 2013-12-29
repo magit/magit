@@ -1566,7 +1566,7 @@ Many Magit faces inherit from this one by default."
     ["Display Git output" magit-process t]
     ["Quit Magit" magit-mode-quit-window t]))
 
-;;; Various Utilities (1)
+;;; Utilities (1)
 ;;;; Minibuffer Input
 
 (defun magit-iswitchb-completing-read
@@ -1618,7 +1618,7 @@ Read `completing-read' documentation for the meaning of the argument."
            (concat prompt ": ") collection predicate
            require-match initial-input hist def))
 
-;;;; Various² Utilities
+;;;; Various Utilities
 
 (defmacro magit-bind-match-strings (varlist &rest body)
   (declare (indent 1))
@@ -4840,7 +4840,7 @@ when asking for user input.
 (defun magit-bisecting-p ()
   (file-exists-p (magit-git-dir "BISECT_LOG")))
 
-;;; Various Utilities (2)
+;;; Utilities (2)
 ;;;; Save Buffers
 
 (defvar magit-default-directory nil)
