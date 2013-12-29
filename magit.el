@@ -1643,6 +1643,17 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
                     (if (= cnt 1) unit units)))
         (magit-format-duration duration (cdr spec) width)))))
 
+(defun magit-git-quote-arguments (args)
+  "Quote each argument in list ARGS as an argument to Git.
+Except when `magit-quote-curly-braces' is non-nil ARGS is
+returned unchanged.  This is required to works around
+strangeness of the Windows \"Powershell\"."
+  (if magit-quote-curly-braces
+      (mapcar (apply-partially 'replace-regexp-in-string
+                               "{\\([0-9]+\\)}" "\\\\{\\1\\\\}")
+              args)
+    args))
+
 ;;;; Buffer Margins
 
 (defun magit-set-buffer-margin (width enable)
@@ -2979,14 +2990,10 @@ and CLAUSES.
        (message "Git is not running anymore, but magit thinks it is")
        (setq magit-process nil))))
   (let ((cmd (car cmd-and-args))
-        (args (cdr cmd-and-args))
+        (args (magit-git-quote-arguments (cdr cmd-and-args)))
         (default-dir default-directory)
         (process-buf (get-buffer-create magit-process-buffer-name))
         (command-buf (current-buffer)))
-    (when magit-quote-curly-braces
-      (setq args (mapcar (apply-partially 'replace-regexp-in-string
-                                          "{\\([0-9]+\\)}" "\\\\{\\1\\\\}")
-                         args)))
     (magit-process-set-mode-line cmd-and-args)
     (with-current-buffer process-buf
       (setq default-directory default-dir)
