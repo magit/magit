@@ -3009,7 +3009,9 @@ and CLAUSES.
         (cond (nowait
                (setq magit-process
                      (let ((process-connection-type
-                            magit-process-connection-type))
+                            ;; Don't use a pty, because it would set icrnl
+                            ;; which would modify the input (issue #20).
+                            (and (not input) magit-process-connection-type)))
                        (apply 'start-file-process
                               (file-name-nondirectory cmd)
                               process-buf cmd args)))
