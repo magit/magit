@@ -2274,7 +2274,7 @@ never modify it.")
   `(magit-with-section (section ,(car arglist)
                                 ',(car arglist)
                                 ,(cadr arglist) t)
-     (apply 'magit-cmd-insert ,program
+     (apply #'process-file ,program nil (list t nil) nil
             (magit-flatten-onelevel (list ,@args)))
      (unless (eq (char-before) ?\n)
        (insert "\n"))
@@ -3020,16 +3020,8 @@ newline return an empty string."
 
 (defun magit-git-insert (&rest args)
   "Execute Git with ARGS, inserting its output at point."
-  (apply #'magit-cmd-insert magit-git-executable
+  (apply #'process-file magit-git-executable nil (list t nil) nil
          (append magit-git-standard-options args)))
-
-(defun magit-cmd-insert (&rest args)
-  (insert (with-output-to-string
-            (with-current-buffer standard-output
-              (apply #'process-file
-                     (car args) nil
-                     (list t nil) nil
-                     (cdr args))))))
 
 (defun magit-git-lines (&rest args)
   "Execute Git with ARGS, returning its output as a list of lines.
