@@ -1783,7 +1783,6 @@ server if necessary."
              (tramp-tramp-file-p default-directory))
     (error "Cannot %s when accessing repository using tramp" action)))
 
-;;; Git Utilities
 ;;;; Git Config
 
 (defun magit-get (&rest keys)
