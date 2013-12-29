@@ -2993,7 +2993,7 @@ and CLAUSES.
         (args (magit-git-quote-arguments (cdr cmd-and-args)))
         (default-dir default-directory)
         (process-buf (get-buffer-create magit-process-buffer-name)))
-    (magit-process-set-mode-line cmd-and-args)
+    (magit-process-set-mode-line program args)
     (with-current-buffer process-buf
       (setq default-directory default-dir)
       (view-mode 1)
@@ -3146,19 +3146,14 @@ and CLAUSES.
   (while magit-process
     (sit-for 0.1 t)))
 
-(defun magit-process-set-mode-line (args)
-  (when (magit-prefix-p (cons magit-git-executable
-                              magit-git-standard-options)
-                        args)
-    (setq args (nthcdr (+ (length magit-git-standard-options) 1) args)))
+(defun magit-process-set-mode-line (program args)
+  (when (equal program magit-git-executable)
+    (setq args (nthcdr (1+ (length magit-git-standard-options)) args)))
   (magit-map-magit-buffers
-   (apply-partially
-    (lambda (s) (setq mode-line-process s))
-    (cond ((or (null (cdr args))
-               (not (member (car args) '("remote"))))
-           (concat " " (car args)))
-          (t
-           (concat " " (car args) " " (cadr args)))))))
+   (apply-partially (lambda (s)
+                      (setq mode-line-process s))
+                    (concat " " program
+                            (and args (concat " " (car args)))))))
 
 (defun magit-process-unset-mode-line ()
   (magit-map-magit-buffers (lambda () (setq mode-line-process nil))))
