@@ -60,7 +60,7 @@
 
 (defun magit-run-topgit* (subcmd-and-args &optional nowait input)
   (magit-run* (cons magit-topgit-executable subcmd-and-args)
-              nil nil nil nowait input))
+              nil nil nowait input))
 
 (defun magit-topgit-in-topic-p ()
   (and (file-exists-p ".topdeps")

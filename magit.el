@@ -2953,12 +2953,12 @@ and CLAUSES.
     (magit-refresh)))
 
 (defun magit-run-git-with-input (input &rest args)
-  (magit-run-git* args nil nil nil t input)
+  (magit-run-git* args nil nil t input)
   (magit-process-wait)
   (magit-refresh))
 
 (defun magit-run-git-with-logfile (file &rest args)
-  (magit-run-git* args nil nil nil t)
+  (magit-run-git* args nil nil t)
   (process-put magit-process 'logfile file)
   (set-process-filter magit-process 'magit-process-logfile-filter)
   (magit-process-wait)
@@ -2966,20 +2966,18 @@ and CLAUSES.
 
 (defun magit-run-git-async (&rest args)
   (message "Running %s %s" magit-git-executable (mapconcat 'identity args " "))
-  (magit-run-git* args nil nil nil t))
+  (magit-run-git* args nil nil t))
 
-(defun magit-run-git* (subcmd-and-args
-                       &optional logline noerase noerror nowait input)
+(defun magit-run-git* (subcmd-and-args &optional noerase noerror nowait input)
   (magit-run* (append (cons magit-git-executable
                             magit-git-standard-options)
                       subcmd-and-args)
-              logline noerase noerror nowait input))
+              noerase noerror nowait input))
 
 (defvar magit-process-buffer-name "*magit-process*"
   "Name of buffer where output of processes is put.")
 
-(defun magit-run* (cmd-and-args
-                   &optional logline noerase noerror nowait input)
+(defun magit-run* (cmd-and-args &optional noerase noerror nowait input)
   (when (and input (not nowait))
     (error "Only asynchronous processes can receive input"))
   (when magit-process
@@ -3006,10 +3004,7 @@ and CLAUSES.
               (goto-char (point-max))
               (unless (bobp) (insert "\n")))
           (erase-buffer))
-        (insert "$ " (or logline
-                         (mapconcat 'identity cmd-and-args " "))
-
-                "\n")))
+        (insert "$ " (mapconcat 'identity cmd-and-args " ") "\n")))
     (if nowait
         (let* ((process-connection-type
                 ;; Don't use a pty, because it would set icrnl
@@ -5348,7 +5343,7 @@ user because of prefix arguments are not saved with git config."
   (interactive "sCommand: ")
   (let ((args (magit-parse-arguments command))
         (magit-process-popup-time 0))
-    (magit-run* args nil nil nil t)))
+    (magit-run* args nil nil t)))
 
 (defvar magit-git-command-history nil)
 
