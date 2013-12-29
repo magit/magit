@@ -1590,7 +1590,7 @@ Read `completing-read' documentation for the meaning of the argument."
            (concat prompt ": ") collection predicate
            require-match initial-input hist def))
 
-;;;; String and File Utilities
+;;;; Various² Utilities
 
 (defmacro magit-bind-match-strings (varlist &rest body)
   (declare (indent 1))
@@ -1655,6 +1655,12 @@ strangeness of the Windows \"Powershell\"."
                                "{\\([0-9]+\\)}" "\\\\{\\1\\\\}")
               args)
     args))
+
+(defun magit-flatten-onelevel (list)
+  (cl-mapcan (lambda (elt)
+               (cond ((consp elt) (copy-sequence elt))
+                     (elt (list elt))))
+             list))
 
 ;;;; Buffer Margins
 
@@ -2300,10 +2306,7 @@ never modify it.")
                                 ',(car arglist)
                                 ,(cadr arglist) t)
      (apply 'magit-cmd-insert ,program
-            (cl-mapcan (lambda (arg)
-                         (cond ((consp arg) (copy-sequence arg))
-                               (arg (list arg))))
-                       (list ,@args)))
+            (magit-flatten-onelevel (list ,@args)))
      (unless (eq (char-before) ?\n)
        (insert "\n"))
      (save-restriction
