@@ -577,12 +577,6 @@ a carefully crafted index."
   :group 'magit
   :type 'boolean)
 
-(defcustom magit-process-keep-history nil
-  "Whether to always prevent clearing the process buffer."
-  :package-version '(magit . "1.3.0")
-  :group 'magit
-  :type 'boolean)
-
 (defcustom magit-show-child-count nil
   "Whether to append the number of childen to section headings."
   :group 'magit
@@ -2999,11 +2993,7 @@ and CLAUSES.
       (setq view-exit-action #'bury-buffer)
       (setq buffer-read-only t)
       (let ((inhibit-read-only t))
-        (if magit-process-keep-history
-            (progn
-              (goto-char (point-max))
-              (unless (bobp) (insert "\n")))
-          (erase-buffer))
+        (erase-buffer)
         (insert "$ " (mapconcat 'identity cmd-and-args " ") "\n")))
     (if nowait
         (let* ((process-connection-type
