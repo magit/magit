@@ -5368,7 +5368,7 @@ typing and automatically refreshes the status buffer."
    (list (read-string "Run git like this: " nil 'magit-git-command-history)))
   (require 'pcomplete)
   (let ((magit-process-popup-time 0))
-    (magit-run-git* (magit-parse-arguments command) nil nil nil t)))
+    (apply 'magit-run-git-async (magit-parse-arguments command))))
 
 ;;;; Pushing
 
