@@ -1355,7 +1355,7 @@ Many Magit faces inherit from this one by default."
            (define-key map (kbd "o") 'magit-key-mode-popup-submodule)
            (define-key map (kbd "B") 'magit-key-mode-popup-bisecting)
            (define-key map (kbd "z") 'magit-key-mode-popup-stashing)))
-    (define-key map (kbd "$") 'magit-display-process)
+    (define-key map (kbd "$") 'magit-process-display-buffer)
     (define-key map (kbd "E") 'magit-interactive-rebase)
     (define-key map (kbd "R") 'magit-rebase-step)
     (define-key map (kbd "e") 'magit-ediff)
@@ -1533,7 +1533,7 @@ Many Magit faces inherit from this one by default."
     "---"
     ("Extensions")
     "---"
-    ["Display Git output" magit-display-process t]
+    ["Display Git output" magit-process-display-buffer t]
     ["Quit Magit" magit-mode-quit-window t]))
 
 ;;; Various Utilities (1)
@@ -3017,7 +3017,7 @@ and CLAUSES.
                                         (point-min) (point-max)))
                  (process-send-eof magit-process)
                  (sit-for 0.1 t))
-               (magit-display-process magit-process))
+               (magit-process-display-buffer magit-process))
               ((or input filter)
                (with-current-buffer
                    (or input (setq tmp-buf (generate-new-buffer " *temp*")))
@@ -3065,7 +3065,7 @@ and CLAUSES.
        (let ((key (and (buffer-live-p command-buf)
                        (with-current-buffer command-buf
                          (car (where-is-internal
-                               'magit-display-process))))))
+                               'magit-process-display-buffer))))))
          (if key (format "Hit %s to see" (key-description key)) "See"))
        (buffer-name process-buf))))
 
@@ -3163,7 +3163,7 @@ and CLAUSES.
 (defun magit-process-unset-mode-line ()
   (magit-map-magit-buffers (lambda () (setq mode-line-process nil))))
 
-(defun magit-display-process (&optional process buffer)
+(defun magit-process-display-buffer (&optional process buffer)
   "Display output from most recent Git process.
 
 Non-interactively the behaviour depends on the optional PROCESS
@@ -3182,12 +3182,12 @@ buffer of the most recent process, like in the interactive case."
            (with-current-buffer buffer
              (goto-char (point-max)))))
         ((= magit-process-popup-time 0)
-         (magit-display-process nil (process-buffer process)))
+         (magit-process-display-buffer nil (process-buffer process)))
         ((> magit-process-popup-time 0)
          (run-with-timer magit-process-popup-time nil
                          (lambda (p)
                            (when (eq (process-status p) 'run)
-                             (magit-display-process
+                             (magit-process-display-buffer
                               nil (process-buffer p))))
                          process))))
 
