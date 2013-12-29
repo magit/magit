@@ -193,6 +193,13 @@ Also set the local value in all Magit buffers and refresh them.
   :group 'magit
   :type 'string)
 
+(defcustom magit-git-standard-options '("--no-pager")
+  "Standard options when running Git.
+Be careful what you add here, especially if you are using
+tramp to connect to servers with ancient Git versions."
+  :group 'magit
+  :type '(repeat string))
+
 (defcustom magit-gitk-executable (executable-find "gitk")
   "The Gitk executable."
   :group 'magit
@@ -1766,9 +1773,6 @@ server if necessary."
 
 ;;; Git Utilities
 ;;;; Git Output
-
-(defvar magit-git-standard-options '("--no-pager")
-  "Standard options when running Git.")
 
 (defun magit-git-string (&rest args)
   "Execute Git with ARGS, returning the first line of its output.
