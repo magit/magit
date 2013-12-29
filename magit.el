@@ -1356,7 +1356,7 @@ Many Magit faces inherit from this one by default."
            (define-key map (kbd "f") 'magit-fetch-current)
            (define-key map (kbd "F") 'magit-pull)
            (define-key map (kbd "J") 'magit-apply-mailbox)
-           (define-key map (kbd "!") 'magit-shell-command)
+           (define-key map (kbd "!") 'magit-git-command-topdir)
            (define-key map (kbd "P") 'magit-push)
            (define-key map (kbd "t") 'magit-tag)
            (define-key map (kbd "l") 'magit-log)
@@ -2944,28 +2944,36 @@ and CLAUSES.
 (defvar magit-git-command-history nil)
 
 ;;;###autoload
-(defun magit-git-command (command)
-  "Perform arbitrary Git COMMAND.
-
-Similar to `magit-shell-command', but involves slightly less
-typing and automatically refreshes the status buffer."
+(defun magit-git-command (args directory)
+  "Execute a Git subcommand asynchronously, displaying the output.
+With a prefix argument run Git in the root of the current
+repository."
   (interactive
-   (list (read-string "Run git like this: " nil 'magit-git-command-history)))
-  (magit-mode-display-buffer magit-process-buffer-name 'magit-process-mode)
-  (apply 'magit-run-git-async (magit-parse-arguments command)))
-
-;;;###autoload
-(defun magit-shell-command (command)
-  "Perform arbitrary shell COMMAND."
-  (interactive "sCommand: ")
-  (magit-mode-display-buffer magit-process-buffer-name 'magit-process-mode)
-  (magit-run-git-async (magit-parse-arguments command)))
-
-(defun magit-parse-arguments (command)
+   (let ((dir (if current-prefix-arg
+                  (or (magit-get-top-dir)
+                      (error "Not inside a Git repository"))
+                default-directory)))
+     (list (read-string (format "Git subcommand (in %s): "
+                                default-directory)
+                        nil 'magit-git-command-history)
+           dir)))
   (require 'eshell)
-  (with-temp-buffer
-    (insert command)
-    (mapcar 'eval (eshell-parse-arguments (point-min) (point-max)))))
+  (magit-mode-display-buffer magit-process-buffer-name
+                             'magit-process-mode
+                             'pop-to-buffer)
+  (goto-char (point-max))
+  (let ((default-directory directory))
+    (magit-run-git-async ; fixme
+     (with-temp-buffer
+       (insert args)
+       (mapcar 'eval (eshell-parse-arguments (point-min)
+                                             (point-max)))))))
+
+(defun magit-git-command-topdir (args)
+  "Execute a Git subcommand asynchronously, displaying the output.
+Run Git in the root of the current repository."
+  (interactive)
+  (call-interactively #'magit-git-command nil (list 4)))
 
 ;;;; Process Mode
 
