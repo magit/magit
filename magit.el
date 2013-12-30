@@ -2961,7 +2961,7 @@ repository."
                              'pop-to-buffer)
   (goto-char (point-max))
   (let ((default-directory directory))
-    (magit-run-git-async ; fixme
+    (magit-run-git-async
      (with-temp-buffer
        (insert args)
        (mapcar 'eval (eshell-parse-arguments (point-min)
