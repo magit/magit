@@ -4433,7 +4433,7 @@ stash at point, then prompt for a commit."
   (magit-git-insert-section (commitbuf nil)
       #'magit-wash-commit
     "log" "-1" "--decorate=full"
-    "--pretty=medium"
+    "--pretty=medium" (magit-diff-U-arg)
     "--cc" "-p" (and magit-show-diffstat "--stat")
     magit-diff-options commit))
 
