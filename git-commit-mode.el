@@ -290,6 +290,10 @@ Return t, if the commit was successful, or nil otherwise."
   "Abort the commit.
 The commit message is saved to the kill ring."
   (interactive)
+  (when (< emacs-major-version 24)
+    ;; Emacsclient doesn't exit with non-zero when -error is used.
+    ;; Instead cause Git to error out by feeding it an empty file.
+    (erase-buffer))
   (save-buffer)
   (run-hooks 'git-commit-kill-buffer-hook)
   (remove-hook 'kill-buffer-hook 'server-kill-buffer t)
