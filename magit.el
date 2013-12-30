@@ -2952,8 +2952,7 @@ repository."
                   (or (magit-get-top-dir)
                       (error "Not inside a Git repository"))
                 default-directory)))
-     (list (read-string (format "Git subcommand (in %s): "
-                                default-directory)
+     (list (read-string (format "Git subcommand (in %s): " dir)
                         nil 'magit-git-command-history)
            dir)))
   (require 'eshell)
