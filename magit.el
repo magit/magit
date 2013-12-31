@@ -5876,6 +5876,7 @@ depending on the value of option `magit-commit-squash-commit'.
                                    nil t))
            ;; No entry for file, create it.
            (goto-char (point-max))
+           (forward-comment -1000)
            (insert (format "\n* %s" file))
            (when fun
              (insert (format " (%s)" fun)))
@@ -5892,10 +5893,12 @@ depending on the value of option `magit-commit-squash-commit'.
                     ;; found it, goto end of current entry
                     (if (re-search-forward "^(" limit t)
                         (backward-char 2)
-                      (goto-char limit)))
+                      (goto-char limit))
+                    (forward-comment -1000))
                    (t
                     ;; not found, insert new entry
                     (goto-char limit)
+                    (forward-comment -1000)
                     (if (bolp)
                         (open-line 1)
                       (newline))
