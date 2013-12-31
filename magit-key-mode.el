@@ -236,8 +236,9 @@
       ("-e" "Allow empty commit" "--allow-empty")
       ("-v" "Show diff of changes to be committed" "--verbose")
       ("-n" "Bypass git hooks" "--no-verify")
-      ("-s" "Add Signed-off-by line" "--signoff")
-      ("-S" "Sign using gpg" "--gpg-sign")))
+      ("-s" "Add Signed-off-by line" "--signoff"))
+     (arguments
+      ("=S" "Sign using gpg" "--gpg-sign=" magit-read-gpg-secret-key)))
 
     (merging
      (man-page "git-merge")

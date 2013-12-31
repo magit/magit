@@ -1618,6 +1618,23 @@ Read `completing-read' documentation for the meaning of the argument."
            (concat prompt ": ") collection predicate
            require-match initial-input hist def))
 
+(defvar magit-gpg-secret-key-hist nil)
+
+(defun magit-read-gpg-secret-key (prompt)
+  (let ((keys (mapcar
+               (lambda (key)
+                 (list (epg-sub-key-id (car (epg-key-sub-key-list key)))
+                       (let ((id-obj (car (epg-key-user-id-list key)))
+                             (id-str nil))
+                         (when id-obj
+                           (setq id-str (epg-user-id-string id-obj))
+                           (if (stringp id-str)
+                               id-str
+                             (epg-decode-dn id-obj))))))
+               (epg-list-keys (epg-make-context epa-protocol) nil t))))
+  (magit-completing-read prompt keys nil t nil nil
+                         (or (car magit-gpg-secret-key-hist) (car keys)))))
+
 ;;;; Various Utilities
 
 (defmacro magit-bind-match-strings (varlist &rest body)
