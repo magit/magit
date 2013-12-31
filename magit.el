@@ -6530,8 +6530,8 @@ Other key binding:
       (let ((revs (split-string
                    (magit-git-string "rev-list" "-1" "--parents"
                                      (car (last magit-refresh-args))))))
-        (when (<= (length revs) 3)
-          revs))
+        (when (= (length revs) 2)
+          (cons (car revs) (cadr revs))))
     (magit-section-diff-range diff)))
 
 (defun magit-ediff-add-cleanup ()
@@ -7074,7 +7074,7 @@ return the buffer, without displaying it."
        ((hunk)   (setq section (magit-section-parent item)))
        ((diff)   (setq section item)))
      (if section
-         (setq rev  (cdr (magit-diff-range section))
+         (setq rev  (cadr (magit-diff-range section))
                file (magit-section-info section))
        (unless rev
          (setq rev (magit-get-current-branch))))
