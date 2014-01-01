@@ -3014,49 +3014,6 @@ Run Git in the root of the current repository."
           (set-marker-insertion-type (magit-section-content-beginning s) nil)
           (current-buffer)))))
 
-(defun magit-process-setup (program args)
-  (magit-process-set-mode-line program args)
-  (let ((buf (magit-process-buffer)))
-    (if  buf
-        (with-current-buffer buf
-          (let* ((inhibit-read-only t)
-                 (head nil)
-                 (tail (magit-section-children magit-root-section))
-                 (count (length tail)))
-            (when (> (1+ count) magit-process-log-max)
-              (while (and (cdr tail)
-                          (> count (/ magit-process-log-max 2)))
-                (let* ((section (car tail))
-                       (process (magit-section-process section)))
-                  (cond ((not process))
-                        ((memq (process-status process) '(exit signal))
-                         (delete-region (magit-section-beginning section)
-                                        (1+ (magit-section-end section)))
-                         (cl-decf count))
-                        (t
-                         (push section head))))
-                (pop tail))
-              (setf (magit-section-children magit-root-section)
-                    (nconc (reverse head) tail)))))
-      (setq buf (magit-process-buffer nil t)))
-    (with-current-buffer buf
-      (goto-char (1- (point-max)))
-      (let* ((inhibit-read-only t)
-             (magit-with-section--parent magit-root-section)
-             ;; Kids, don't do this ^^^^ at home.
-             (section (magit-with-section
-                          (section
-                           process nil
-                           (mapconcat 'identity (cons program args) " "))
-                        (insert "\n"))))
-        (set-marker-insertion-type
-         (magit-section-content-beginning section) nil)
-        (unless (get-buffer-window (current-buffer) t)
-          (magit-section-set-hidden section t))
-        (insert "\n")
-        (backward-char 2)
-        (cons (current-buffer) section)))))
-
 ;;;; Process Api
 ;;;;; Synchronous Processes
 
@@ -3285,6 +3242,49 @@ repository are reverted using `auto-revert-buffers'."
       process)))
 
 ;;;; Process Internals
+
+(defun magit-process-setup (program args)
+  (magit-process-set-mode-line program args)
+  (let ((buf (magit-process-buffer)))
+    (if  buf
+        (with-current-buffer buf
+          (let* ((inhibit-read-only t)
+                 (head nil)
+                 (tail (magit-section-children magit-root-section))
+                 (count (length tail)))
+            (when (> (1+ count) magit-process-log-max)
+              (while (and (cdr tail)
+                          (> count (/ magit-process-log-max 2)))
+                (let* ((section (car tail))
+                       (process (magit-section-process section)))
+                  (cond ((not process))
+                        ((memq (process-status process) '(exit signal))
+                         (delete-region (magit-section-beginning section)
+                                        (1+ (magit-section-end section)))
+                         (cl-decf count))
+                        (t
+                         (push section head))))
+                (pop tail))
+              (setf (magit-section-children magit-root-section)
+                    (nconc (reverse head) tail)))))
+      (setq buf (magit-process-buffer nil t)))
+    (with-current-buffer buf
+      (goto-char (1- (point-max)))
+      (let* ((inhibit-read-only t)
+             (magit-with-section--parent magit-root-section)
+             ;; Kids, don't do this ^^^^ at home.
+             (section (magit-with-section
+                          (section
+                           process nil
+                           (mapconcat 'identity (cons program args) " "))
+                        (insert "\n"))))
+        (set-marker-insertion-type
+         (magit-section-content-beginning section) nil)
+        (unless (get-buffer-window (current-buffer) t)
+          (magit-section-set-hidden section t))
+        (insert "\n")
+        (backward-char 2)
+        (cons (current-buffer) section)))))
 
 (defun magit-process-sentinel (process event)
   "Default sentinel used by `magit-start-process'."
