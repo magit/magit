@@ -6551,7 +6551,7 @@ Other key binding:
                    (magit-git-string "rev-list" "-1" "--parents"
                                      (car (last magit-refresh-args))))))
         (when (= (length revs) 2)
-          (cons (car revs) (cadr revs))))
+          (cons (cadr revs) (car revs))))
     (magit-section-diff-range diff)))
 
 (defun magit-ediff-add-cleanup ()
