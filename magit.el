@@ -2973,9 +2973,8 @@ repository."
                         nil 'magit-git-command-history)
            dir)))
   (require 'eshell)
-  (magit-mode-display-buffer magit-process-buffer-name
-                             'magit-process-mode
-                             'pop-to-buffer)
+  (magit-mode-display-buffer (magit-process-buffer nil t)
+                             'magit-process-mode 'pop-to-buffer)
   (goto-char (point-max))
   (let ((default-directory directory))
     (magit-run-git-async
@@ -3002,17 +3001,26 @@ Run Git in the root of the current repository."
   "Name of buffer where output of processes is put.")
 
 (defun magit-process-buffer (&optional topdir create)
-  (magit-mode-get-buffer magit-process-buffer-name
-                         'magit-process-mode topdir create))
+  (or (magit-mode-get-buffer magit-process-buffer-name
+                             'magit-process-mode topdir)
+      (with-current-buffer (magit-mode-get-buffer-create
+                            magit-process-buffer-name
+                            'magit-process-mode topdir)
+        (magit-process-mode)
+        (let* ((inhibit-read-only t)
+               (s (magit-with-section (section processbuf nil nil t)
+                    (insert "\n"))))
+          (set-marker-insertion-type (magit-section-beginning s) nil)
+          (set-marker-insertion-type (magit-section-content-beginning s) nil)
+          (current-buffer)))))
 
 (defun magit-process-setup (program args)
   (magit-process-set-mode-line program args)
-  (let ((inhibit-read-only t)
-        (dir default-directory)
-        (buf (magit-process-buffer)))
-    (if buf
+  (let ((buf (magit-process-buffer)))
+    (if  buf
         (with-current-buffer buf
-          (let* ((head nil)
+          (let* ((inhibit-read-only t)
+                 (head nil)
                  (tail (magit-section-children magit-root-section))
                  (count (length tail)))
             (when (> (1+ count) magit-process-log-max)
@@ -3030,18 +3038,11 @@ Run Git in the root of the current repository."
                 (pop tail))
               (setf (magit-section-children magit-root-section)
                     (nconc (reverse head) tail)))))
-      (with-current-buffer (setq buf (magit-process-buffer nil t))
-        (magit-process-mode)
-        (let ((section (magit-with-section (section processbuf nil nil t)
-                         (insert "\n"))))
-          (set-marker-insertion-type
-           (magit-section-beginning section) nil)
-          (set-marker-insertion-type
-           (magit-section-content-beginning section) nil))))
+      (setq buf (magit-process-buffer nil t)))
     (with-current-buffer buf
-      (setq default-directory dir)
       (goto-char (1- (point-max)))
-      (let* ((magit-with-section--parent magit-root-section)
+      (let* ((inhibit-read-only t)
+             (magit-with-section--parent magit-root-section)
              ;; Kids, don't do this ^^^^ at home.
              (section (magit-with-section
                           (section
