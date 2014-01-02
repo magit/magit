@@ -3254,18 +3254,16 @@ repository are reverted using `auto-revert-buffers'."
       (let* ((inhibit-read-only t)
              (magit-with-section--parent magit-root-section)
              ;; Kids, don't do this ^^^^ at home.
-             (section (magit-with-section
-                          (section
-                           process nil
-                           (mapconcat 'identity (cons program args) " "))
-                        (insert "\n"))))
-        (set-marker-insertion-type
-         (magit-section-content-beginning section) nil)
+             (s (magit-with-section
+                    (section process nil
+                             (mapconcat 'identity (cons program args) " "))
+                  (insert "\n"))))
+        (set-marker-insertion-type (magit-section-content-beginning s) nil)
         (unless (get-buffer-window (current-buffer) t)
-          (magit-section-set-hidden section t))
+          (magit-section-set-hidden s t))
         (insert "\n")
         (backward-char 2)
-        (cons (current-buffer) section)))))
+        (cons (current-buffer) s)))))
 
 (defun magit-process-truncate-log (buffer)
   (with-current-buffer buffer
