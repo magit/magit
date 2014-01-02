@@ -1875,6 +1875,25 @@ the current git repository."
     (when (and head (string-match "^refs/heads/" head))
       (substring head 11))))
 
+(defun magit-get-remote/branch (&optional branch verify)
+  "Return the remote-tracking branch of BRANCH used for pulling.
+Return a string of the form \"REMOTE/BRANCH\".
+
+If optional BRANCH is nil return the remote-tracking branch of
+the current branch.  If optional VERIFY is non-nil verify that
+the remote branch exists; else return nil."
+  (save-match-data
+    (let (remote remote-branch remote/branch)
+      (and (or branch (setq branch (magit-get-current-branch)))
+           (setq remote (magit-get "branch" branch "remote"))
+           (setq remote-branch (magit-get "branch" branch "merge"))
+           (string-match "^refs/heads/\\(.+\\)" remote-branch)
+           (setq remote/branch
+                 (concat remote "/" (match-string 1 remote-branch)))
+           (or (not verify)
+               (magit-git-success "rev-parse" "--verify" remote/branch))
+           remote/branch))))
+
 (defun magit-get-tracked-branch (&optional branch qualified pretty)
   "Return the name of the tracking branch the local branch name BRANCH.
 
