@@ -3269,14 +3269,14 @@ repository are reverted using `auto-revert-buffers'."
 
 (defun magit-process-truncate-log (buffer)
   (with-current-buffer buffer
-    (let* ((inhibit-read-only t)
-           (head nil)
+    (let* ((head nil)
            (tail (magit-section-children magit-root-section))
            (count (length tail)))
       (when (> (1+ count) magit-process-log-max)
         (while (and (cdr tail)
                     (> count (/ magit-process-log-max 2)))
-          (let* ((section (car tail))
+          (let* ((inhibit-read-only t)
+                 (section (car tail))
                  (process (magit-section-process section)))
             (cond ((not process))
                   ((memq (process-status process) '(exit signal))
