@@ -5645,42 +5645,42 @@ even if `magit-set-upstream-on-push's value is `refuse'."
   (interactive)
   (let* ((branch (or (magit-get-current-branch)
                      (error "Don't push a detached head.  That's gross")))
-         (branch-remote (and branch (magit-get "branch" branch "remote")))
-         (origin-remote (and (magit-get "remote" "origin" "url") "origin"))
-         (push-remote (if (or arg
-                              (and (not branch-remote)
-                                   (not origin-remote)))
+         (auto-remote (magit-get-remote branch))
+         (used-remote (if (or arg (not auto-remote))
                           (magit-read-remote
-                           (format "Push %s to remote" branch)
-                           (or branch-remote origin-remote))
-                        (or branch-remote origin-remote)))
-         ref-name ref-branch)
-    (cond ((>= (prefix-numeric-value arg) 16)
-           (setq ref-name (magit-read-remote-branch
-                           (format "Push %s as branch" branch)
-                           push-remote))
-           (setq ref-branch (if (string-prefix-p "refs/" ref-name)
-                                ref-name
-                              (concat "refs/heads/" ref-name))))
-          ((equal branch-remote push-remote)
-           (setq ref-branch (magit-get "branch" branch "merge"))))
-    (if (and (not ref-branch)
-             (eq magit-set-upstream-on-push 'refuse))
-        (error "Not pushing since no upstream has been set")
-      (magit-run-git-async
-       "push" "-v" push-remote
-       (if ref-branch
-           (format "%s:%s" branch ref-branch)
-         branch)
-       (and (not ref-branch)
-            (or (eq magit-set-upstream-on-push 'dontask)
-                (and (or (eq magit-set-upstream-on-push t)
-                         (and (not branch-remote)
-                              (eq magit-set-upstream-on-push
-                                  'askifnotset)))
-                     (yes-or-no-p "Set upstream while pushing? ")))
-            "--set-upstream")
-       magit-custom-options))))
+                           (format "Push %s to remote" branch) auto-remote)
+                        auto-remote))
+         (auto-branch (and (equal used-remote auto-remote)
+                           (magit-get "branch" branch "merge")))
+         (used-branch
+          (if (>= (prefix-numeric-value arg) 16)
+              (concat "refs/heads/"
+                      (magit-read-remote-branch
+                       (format "Push %s as branch" branch)
+                       used-remote auto-branch))
+            auto-branch)))
+    (cond ;; Pushing to what's already configured.
+          ((and auto-branch
+                (equal auto-branch used-branch)
+                (equal auto-remote used-remote)))
+          ;; Setting upstream because of magit-custom-options.
+          ((member "-u" magit-custom-options))
+          ;; Two prefix arguments; ignore magit-set-upstream-on-push.
+          ((>= (prefix-numeric-value arg) 16)
+           (and (yes-or-no-p "Set upstream while pushing? ")
+                (setq magit-custom-options
+                      (cons "-u" magit-custom-options))))
+          ;; Else honor magit-set-upstream-on-push.
+          ((eq magit-set-upstream-on-push 'refuse)
+           (error "Not pushing since no upstream has been set."))
+          ((or (eq magit-set-upstream-on-push 'dontask)
+               (and (eq magit-set-upstream-on-push t)
+                    (yes-or-no-p "Set upstream while pushing? ")))
+           (setq magit-custom-options (cons "-u" magit-custom-options))))
+    (magit-run-git-async
+     "push" "-v" used-remote
+     (if used-branch (format "%s:%s" branch used-branch) branch)
+     magit-custom-options)))
 
 ;;;; Committing
 
