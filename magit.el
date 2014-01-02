@@ -5652,12 +5652,11 @@ even if `magit-set-upstream-on-push's value is `refuse'."
                         auto-remote))
          (auto-branch (and (equal used-remote auto-remote)
                            (magit-get "branch" branch "merge")))
-         (used-branch
-          (if (>= (prefix-numeric-value arg) 16)
-              (magit-read-remote-branch
-               (format "Push %s as branch" branch)
-               used-remote auto-branch)
-            auto-branch)))
+         (used-branch (if (>= (prefix-numeric-value arg) 16)
+                          (magit-read-remote-branch
+                           (format "Push %s as branch" branch)
+                           used-remote auto-branch)
+                        auto-branch)))
     (cond ;; Pushing to what's already configured.
           ((and auto-branch
                 (equal auto-branch used-branch)
