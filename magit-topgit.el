@@ -80,7 +80,7 @@
   (when (magit-topgit-in-topic-p)
     (magit-run-topgit-async "update")))
 
-(defun magit-topgit-push ()
+(defun magit-topgit-push (arg)
   (when (magit-topgit-in-topic-p)
     (let* ((branch (or (magit-get-current-branch)
                        (error "Don't push a detached head.  That's gross")))
@@ -91,7 +91,8 @@
       (when (and (not remote)
                  (not current-prefix-arg))
         (magit-set push-remote "topgit" "remote"))
-      (magit-run-topgit "push" "-r" push-remote))))
+      (magit-run-topgit "push" "-r" push-remote))
+    t))
 
 (defun magit-topgit-remote-update (&optional remote)
   (when (magit-topgit-in-topic-p)
