@@ -5642,7 +5642,7 @@ option is not set push to the remote branch with the same name as the
 local branch being pushed.  With two or more prefix arguments instead
 ask the user what branch to push to.  In this last case actually push
 even if `magit-set-upstream-on-push's value is `refuse'."
-  (interactive)
+  (interactive "P")
   (let* ((branch (or (magit-get-current-branch)
                      (error "Don't push a detached head.  That's gross")))
          (auto-remote (magit-get-remote branch))
