@@ -1,6 +1,6 @@
 ;;; magit-topgit.el --- topgit plug-in for Magit
 
-;; Copyright (C) 2010-2013  The Magit Project Developers.
+;; Copyright (C) 2010-2014  The Magit Project Developers
 ;;
 ;; For a full list of contributors, see the AUTHORS.md file
 ;; at the top-level directory of this distribution and at
