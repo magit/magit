@@ -2183,7 +2183,7 @@ involving HEAD."
         (l (1- (length (magit-git-lines "stash" "list")))))
     (if (> n l)
         (error "No stash older than stash@{%i}" l)
-      (format "stash@{%i}" l))))
+      (format "stash@{%i}" n))))
 
 (defun magit-read-remote (prompt &optional default require-match)
   (magit-completing-read prompt (magit-git-lines "remote")
