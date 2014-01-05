@@ -688,6 +688,16 @@ case the selected window is used."
                 (function-item magit-builtin-completing-read)
                 (function :tag "Other")))
 
+(defcustom magit-read-directory-name 'read-directory-name
+  "Function used to read the directory name."
+  :group 'magit
+  :type 'function)
+
+(defcustom magit-read-file-name 'read-file-name
+  "Function used to read the file name."
+  :group 'magit
+  :type 'function)
+
 (defcustom magit-status-buffer-switch-function 'pop-to-buffer
   "Function for `magit-status' to use for switching to the status buffer.
 
@@ -4935,8 +4945,8 @@ non-nil, then autocompletion will offer directory names."
                  (expand-file-name reply)
                (error "Not a repository or a directory: %s" reply)))))
     (file-name-as-directory
-     (read-directory-name "Git repository: "
-                          (or (magit-get-top-dir) default-directory)))))
+     (funcall magit-read-directory-name "Git repository: "
+              (or (magit-get-top-dir) default-directory)))))
 
 (defun magit-list-repos (dirs)
   (magit-list-repos-remove-conflicts
@@ -5017,7 +5027,7 @@ With a prefix argument, skip editing the log message and commit.
 With a prefix argument, prompt for a file to be staged instead."
   (interactive
    (when current-prefix-arg
-     (list (file-relative-name (read-file-name "File to stage: " nil nil t)
+     (list (file-relative-name (funcall magit-read-file-name "File to stage: " nil nil t)
                                (magit-get-top-dir)))))
   (if file
       (magit-run-git "add" file)
@@ -7127,7 +7137,7 @@ return the buffer, without displaying it."
          (setq rev (magit-get-current-branch))))
      (setq rev  (magit-read-rev "Retrieve file from revision" rev)
            file (cl-case rev
-                  (working (read-file-name "Find file: "))
+                  (working (funcall magit-read-file-name "Find file: "))
                   (index   (magit-read-file-from-rev "HEAD" file))
                   (t       (magit-read-file-from-rev rev file))))
      (list rev file (if current-prefix-arg
@@ -7374,7 +7384,7 @@ from the parent keymap `magit-mode-map' are also available.")
 ;;;###autoload
 (defun magit-init (dir)
   "Initialize git repository in the DIR directory."
-  (interactive (list (read-directory-name "Directory for Git repository: ")))
+  (interactive (list (funcall magit-read-directory-name "Directory for Git repository: ")))
   (let* ((dir (file-name-as-directory (expand-file-name dir)))
          (topdir (magit-get-top-dir dir)))
     (when (or (not topdir)
