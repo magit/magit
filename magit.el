@@ -6053,7 +6053,8 @@ With prefix argument, changes in staging area are kept.
   (let ((buf (generate-new-buffer " *magit-input*")))
     (unwind-protect
         (progn (magit-insert-diff-item-patch diff buf)
-               (magit-run-git-with-input buf "apply" args "-"))
+               (magit-run-git-with-input
+                buf "apply" args "--ignore-space-change" "-"))
       (kill-buffer buf))))
 
 (defun magit-apply-hunk-item (hunk &rest args)
@@ -6076,7 +6077,8 @@ member of ARGS, or to the working file otherwise."
                       hunk (member "--reverse" args)
                       (region-beginning) (region-end) buf)
                    (magit-insert-hunk-item-patch hunk buf))
-                 (magit-run-git-with-input buf "apply" args "-"))
+                 (magit-run-git-with-input
+                  buf "apply" args "--ignore-space-change" "-"))
         (kill-buffer buf)))))
 
 ;;;; Cherry-Pick
