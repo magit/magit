@@ -37,7 +37,7 @@ features.
 
 Magit supports GNU Emacs 23.2 or later; 24.1 or later is recommended.
 Magit supports Git 1.7.2.5 or later; 1.8.2 or later is recommended.
-The minimal versions are those available in ancient Debian oldstable.
+The minimal versions are those available in Debian oldstable.
 
 When something breaks please see the curated list of known issues
 (https://github.com/magit/magit/wiki/Known-issues) and the FAQ
@@ -266,19 +266,18 @@ untracked files are deleted.
 @chapter Staging and Committing
 
 Committing with Git is a two step process: first you add the changes
-you want to commit to a 'staging area', and then you commit them to
-the repository.  This allows you to only commit a subset of your local
-changes.
+you want to commit to a 'staging area' or 'index', and then you commit
+them to the repository.  This allows you to only commit a subset of
+the changes in the working tree.  If you are not familiar with this
+concept yet, then you should change that as soon as possible using one
+of the fine Git tutorials.  If you don't, then Git and by extension
+Magit will seem rather strange.
 
-Magit allows you to ignore the staging area if you wish.  As long as
-your staging area is unused, Magit will show your uncomitted changes
-in a section named @emph{Changes}.
-
-When the staging area is in use, Magit uses two sections:
-@emph{Unstaged changes} and @emph{Staged changes}.  The @emph{Staged
-changes} section shows the changes that will be included in the next
-commit, while the @emph{Unstaged changes} section shows the changes
-that will be left out.
+Magit shows uncommitted changes in two sections, depending on whether
+the changes have been staged yet.  The @emph{Staged changes} section
+shows the changes that will be included in the next commit, while the
+@emph{Unstaged changes} section shows the changes that will be left
+out.
 
 To move an unstaged hunk into the staging area, move point into the
 hunk and type @kbd{s}.  Likewise, to unstage a hunk, move point into
@@ -311,19 +310,19 @@ and @kbd{u}.
 Before committing, you should write a short description of the
 changes.
 
-Type @kbd{c} to pop up a buffer where you can write your change
+Type @kbd{c c} to pop up a buffer where you can write your change
 description.  Once you are happy with the description, type @kbd{C-c
 C-c} in that buffer to perform the commit.
 
 If you want to write changes in a @file{ChangeLog} file, you can use
 @kbd{C-x 4 a} on a diff hunk.
 
-Typing @kbd{c} when the staging area is unused is a special situation.
-Normally, the next commit would be empty, but you can configure Magit
-to do something more useful by customizing the
+Typing @kbd{c c} when the staging area is unused is a special
+situation.  Normally, the next commit would be empty, but you can
+configure Magit to do something more useful by customizing the
 @code{magit-commit-all-when-nothing-staged} variable.  One choice is
 to instruct the subsequent @kbd{C-c C-c} to commit all changes.
-Another choice is stage everything at the time of hitting @kbd{c}.
+Another choice is stage everything at the time of hitting @kbd{c c}.
 
 You can type @kbd{C-c C-a} in the buffer with the change description
 to toggle a flag that determines whether the next commit will
@@ -334,27 +333,9 @@ Typing @kbd{M-n} or @kbd{M-p} will cycle through the
 messages. This is particularly useful if you have a hook that
 occasionally causes git to refuse your commit.
 
-Typing @kbd{C-c C-s} will toggle the @code{--signoff} option.  The
-default is determined by the @code{magit-commit-signoff} customization
-variable.
-
-Typing @kbd{C-c C-e} will toggle the @code{--allow-empty} option.  This
-allows you to make commits that serve as notes, without including any
-changes.
-
-Typing @kbd{C-c C-t} will toggle the option to specify the name and
-email address for the commit's author.  The default is determined by
-the @code{user.name} and @code{user.email} git configuration settings.
-
-If you change your mind and don't want to go ahead with your commit
-while you are in the @code{*magit-log-edit*} buffer, you can just
-switch to another buffer, continue editing there, staging and
-unstaging things until you are happy, and then return to the
-@code{*magit-log-edit*} buffer, maybe via @kbd{C-x b}, or by hitting
-@kbd{c} again in a Magit buffer.
-
-If you want to erase the @code{*magit-log-edit*} buffer and bury it,
-you can hit @kbd{C-c C-k} in it.
+To abort a commit use @kbd{C-c C-k}.  The commit message is saved and
+can later be retrieved in the commit message buffer using @kbd{M-p}
+and @kbd{M-a}.
 
 Typing @kbd{C} will also pop up the change description buffer, but in
 addition, it will try to insert a ChangeLog-style entry for the change
