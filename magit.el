@@ -5640,27 +5640,34 @@ ask the user what remote to use."
 (defun magit-push ()
   "Push the current branch to a remote repository.
 
-This runs the `magit-push-remote' hook until one of the hook
-functions returns non-nil (which does not necessarily indicating
-that pushing actually succeeded).  Each function is called with
-this command's prefix argument as only argument.  By default the
-only hook function is `magit-push-dwim' (which see)."
+This command runs the `magit-push-remote' hook.  By default that
+means running `magit-push-dwim'.  So unless you have customized
+the hook this command behaves like this:
+
+With a single prefix argument ask the user what branch to push
+to.  With two or more prefix arguments also ask the user what
+remote to push to.  Otherwise use the remote and branch as
+configured using the Git variables `branch.<name>.remote' and
+`branch.<name>.merge'.  If the former is undefined ask the user.
+If the latter is undefined push without specifing the remote
+branch explicitly.
+
+Also see option `magit-set-upstream-on-push'."
   (interactive)
   (run-hook-with-args-until-success 'magit-push-hook current-prefix-arg))
 
 (defun magit-push-dwim (arg)
   "Push the current branch to a remote repository.
 
-By default push to the remote specified by the git-config(1) option
-branch.<name>.remote or else origin.  Otherwise or with a prefix
-argument instead ask the user what remote to push to.
+With a single prefix argument ask the user what branch to push
+to.  With two or more prefix arguments also ask the user what
+remote to push to.  Otherwise use the remote and branch as
+configured using the Git variables `branch.<name>.remote' and
+`branch.<name>.merge'.  If the former is undefined ask the user.
+If the latter is undefined push without specifing the remote
+branch explicitly.
 
-When pushing to branch.<name>.remote push to the branch specified by
-branch.<name>.merge.  When pushing to another remote or if the latter
-option is not set push to the remote branch with the same name as the
-local branch being pushed.  With two or more prefix arguments instead
-ask the user what branch to push to.  In this last case actually push
-even if `magit-set-upstream-on-push's value is `refuse'."
+Also see option `magit-set-upstream-on-push'."
   (interactive "P")
   (let* ((branch (or (magit-get-current-branch)
                      (error "Don't push a detached head.  That's gross")))
