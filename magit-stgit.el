@@ -212,7 +212,7 @@ into the series."
 ;;; Series Section
 
 (defconst magit-stgit-patch-re
-  "^\\(.\\)\\([-+>!]\\) \\([^ ]+\\) +# \\(.*\\)$")
+  "^\\(.\\)\\([-+>!]\\) \\([^ ]+\\)\\( +\\)# \\(.*\\)$")
 
 (defun magit-insert-stgit-series ()
   (when magit-stgit-mode
@@ -222,7 +222,7 @@ into the series."
 
 (defun magit-stgit-wash-patch ()
   (looking-at magit-stgit-patch-re)
-  (magit-bind-match-strings (empty state patch msg)
+  (magit-bind-match-strings (empty state patch spacing msg)
     (delete-region (point) (point-at-eol))
     (magit-with-section (section stgit-patch patch)
       (setf (magit-section-info section) patch)
@@ -238,8 +238,9 @@ into the series."
                   (propertize "[empty]" 'face 'magit-stgit-empty)
                 "       ")
               " "
-              (propertize patch 'face 'magit-stgit-patch) " "
-              msg)
+              (propertize patch 'face 'magit-stgit-patch))
+      (unless (string= msg "")
+          (insert spacing msg))
       (forward-line))))
 
 (provide 'magit-stgit)
