@@ -212,7 +212,7 @@ into the series."
 ;;; Series Section
 
 (defconst magit-stgit-patch-re
-  "^\\(.\\)\\([-+>!]\\) \\([^ ]+\\) +# \\(.+\\)$")
+  "^\\(.\\)\\([-+>!]\\) \\([^ ]+\\) +# \\(.*\\)$")
 
 (defun magit-insert-stgit-series ()
   (when magit-stgit-mode
