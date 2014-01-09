@@ -270,7 +270,7 @@ deep."
   :group 'magit
   :type 'integer)
 
-(defcustom magit-push-hook 'magit-push-dwim
+(defcustom magit-push-hook '(magit-push-dwim)
   "Hook run by `magit-push' to actually do the work.
 See `magit-push' and `magit-push-dwim' for more information."
   :group 'magit
