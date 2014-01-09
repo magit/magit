@@ -233,7 +233,11 @@ into the series."
                                 ((equal state "!") 'magit-stgit-hidden)
                                 (t (error "Unknown stgit patch state: %s"
                                           state))))
-              (propertize empty 'face 'magit-stgit-empty) " "
+              " "
+              (if (string= empty "0")
+                  (propertize "[empty]" 'face 'magit-stgit-empty)
+                "       ")
+              " "
               (propertize patch 'face 'magit-stgit-patch) " "
               msg)
       (forward-line))))
