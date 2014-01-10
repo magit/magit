@@ -67,8 +67,7 @@
   "Action lines in the rebase TODO list that have been commented out."
   :group 'git-rebase-faces)
 
-(defface git-rebase-description-face
-  '((t :inherit font-lock-comment-face))
+(defface git-rebase-description-face nil
   "Face for one-line commit descriptions."
   :group 'git-rebase-faces)
 
