@@ -40,7 +40,7 @@
 ;;;; Variables
 
 (defgroup git-rebase nil
-  "Customize Git-Rebase mode"
+  "Mode for editing Git rebase sequences."
   :group 'tools)
 
 (defcustom git-rebase-auto-advance nil
@@ -51,7 +51,7 @@
 ;;;; Faces
 
 (defgroup git-rebase-faces nil
-  "Customize Git-Rebase mode faces."
+  "Faces used by Git-Rebase mode."
   :group 'faces
   :group 'git-rebase)
 
@@ -64,14 +64,14 @@
   :group 'git-rebase-faces)
 
 (defface git-rebase-description nil
-  "Face for one-line commit descriptions."
+  "Face for commit descriptions."
   :group 'git-rebase-faces)
 
 (defface git-rebase-killed-action
   '((((class color))
      :inherit font-lock-comment-face
      :strike-through t))
-  "Action lines in the rebase TODO list that have been commented out."
+  "Face for commented action and exec lines."
   :group 'git-rebase-faces)
 
 (define-obsolete-face-alias 'git-rebase-description-face
@@ -86,17 +86,17 @@
           "\\([efprs]\\|pick\\|reword\\|edit\\|squash\\|fixup\\) "
           "\\([a-z0-9]\\{4,40\\}\\) "
           "\\(.*\\)")
-  "Regexp that matches an action line in a rebase buffer.")
+  "Regexp matching action lines in rebase buffers.")
 
 (defconst git-rebase-exec-line-re
   "^#?\\(x\\|exec\\)[[:space:]]\\(.*\\)"
-  "Regexp that matches an exec line in a rebase buffer.")
+  "Regexp matching exec lines in rebase buffer.")
 
 (defconst git-rebase-dead-line-re
   (format "^#\\(?:%s\\|%s\\)"
           (substring git-rebase-action-line-re 1)
           (substring git-rebase-exec-line-re 1))
-  "Regexp that matches a commented-out exec or action line in a rebase buffer.")
+  "Regexp matching commented action and exex lines in rebase buffers.")
 
 ;;; Keymaps
 
@@ -144,8 +144,6 @@
 ;;; Utilities
 
 (defun git-rebase-edit-line (change-to)
-  "Change the keyword at the start of the current action line to
-that of CHANGE-TO."
   (when (git-rebase-looking-at-action)
     (let ((buffer-read-only nil)
           (start (point)))
