@@ -69,7 +69,7 @@
 ;;;; Variables
 
 (defgroup git-commit nil
-  "Mode for editing git commit messages"
+  "Mode for editing Git commit messages."
   :prefix "git-commit-"
   :group 'tools)
 
@@ -117,7 +117,7 @@ and `git-commit-abort'."
 ;;;; Faces
 
 (defgroup git-commit-faces nil
-  "Faces for highlighting git commit messages"
+  "Faces for highlighting Git commit messages."
   :prefix "git-commit-"
   :group 'git-commit
   :group 'faces)
