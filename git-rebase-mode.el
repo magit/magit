@@ -102,6 +102,7 @@
 
 (defvar git-rebase-mode-map
   (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map special-mode-map)
     (define-key map (kbd "q")       'git-rebase-server-edit)
     (define-key map (kbd "C-c C-c") 'git-rebase-server-edit)
     (define-key map (kbd "a")       'git-rebase-abort)
