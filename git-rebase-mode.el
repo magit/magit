@@ -52,6 +52,14 @@
   :group 'faces
   :group 'git-rebase)
 
+(defface git-rebase-hash
+  '((((class color) (background light))
+     :foreground "firebrick")
+    (((class color) (background dark))
+     :foreground "tomato"))
+  "Face for commit hashes."
+  :group 'git-rebase-faces)
+
 (defface git-rebase-killed-action-face
   '((((class color))
      :inherit font-lock-comment-face
@@ -314,7 +322,7 @@ running 'man git-rebase' at the command line) for details."
 (defvar git-rebase-mode-font-lock-keywords
   `((,git-rebase-action-line-re
      (1 font-lock-keyword-face)
-     (2 font-lock-builtin-face)
+     (2 'git-rebase-hash)
      (3 'git-rebase-description-face))
     (,git-rebase-exec-line-re 1 font-lock-keyword-face)
     ("^#.*"                   0 font-lock-comment-face)
