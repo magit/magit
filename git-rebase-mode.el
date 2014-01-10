@@ -60,15 +60,15 @@
   "Face for commit hashes."
   :group 'git-rebase-faces)
 
+(defface git-rebase-description nil
+  "Face for one-line commit descriptions."
+  :group 'git-rebase-faces)
+
 (defface git-rebase-killed-action
   '((((class color))
      :inherit font-lock-comment-face
      :strike-through t))
   "Action lines in the rebase TODO list that have been commented out."
-  :group 'git-rebase-faces)
-
-(defface git-rebase-description nil
-  "Face for one-line commit descriptions."
   :group 'git-rebase-faces)
 
 (define-obsolete-face-alias 'git-rebase-description-face
