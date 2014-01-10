@@ -37,6 +37,7 @@
 (require 'thingatpt)
 
 ;;; Options
+;;;; Variables
 
 (defgroup git-rebase nil
   "Customize Git-Rebase mode"
@@ -46,6 +47,8 @@
   "If non-nil, moves point forward a line after running an action."
   :group 'git-rebase
   :type 'boolean)
+
+;;;; Faces
 
 (defgroup git-rebase-faces nil
   "Customize Git-Rebase mode faces."
