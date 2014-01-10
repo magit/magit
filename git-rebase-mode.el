@@ -60,16 +60,21 @@
   "Face for commit hashes."
   :group 'git-rebase-faces)
 
-(defface git-rebase-killed-action-face
+(defface git-rebase-killed-action
   '((((class color))
      :inherit font-lock-comment-face
      :strike-through t))
   "Action lines in the rebase TODO list that have been commented out."
   :group 'git-rebase-faces)
 
-(defface git-rebase-description-face nil
+(defface git-rebase-description nil
   "Face for one-line commit descriptions."
   :group 'git-rebase-faces)
+
+(define-obsolete-face-alias 'git-rebase-description-face
+  'git-rebase-description "1.0.0")
+(define-obsolete-face-alias 'git-rebase-killed-action-face
+  'git-rebase-killed-action "1.0.0")
 
 ;;; Regexps
 
@@ -322,10 +327,10 @@ running 'man git-rebase' at the command line) for details."
   `((,git-rebase-action-line-re
      (1 font-lock-keyword-face)
      (2 'git-rebase-hash)
-     (3 'git-rebase-description-face))
+     (3 'git-rebase-description))
     (,git-rebase-exec-line-re 1 font-lock-keyword-face)
     ("^#.*"                   0 font-lock-comment-face)
-    (,git-rebase-dead-line-re 0 'git-rebase-killed-action-face t))
+    (,git-rebase-dead-line-re 0 'git-rebase-killed-action t))
   "Font lock keywords for Git-Rebase mode.")
 
 (defun git-rebase-mode-show-keybindings ()
