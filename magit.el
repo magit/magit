@@ -564,6 +564,13 @@ they are not (due to semantic considerations)."
   :type '(choice (const :tag "tags are the subjects" tag)
                  (const :tag "head is the subject" head)))
 
+(defcustom magit-status-show-sequence-help t
+  "Whether to show instructions on how to proceed a stopped action.
+When this is non-nil and a commit failed to apply during a merge
+or rebase, then show instructions on how to continue."
+  :group 'magit
+  :type 'boolean)
+
 (defcustom magit-process-popup-time -1
   "Popup the process buffer if a command takes longer than this many seconds."
   :group 'magit
@@ -4804,16 +4811,17 @@ when asking for user input.
         (concat
          "Merging: "
          (mapconcat 'identity (mapcar 'magit-name-rev heads) ", ")
-         "; Resolve conflicts, or press \"m A\" to Abort")))))
+         (and magit-status-show-sequence-help
+              "; Resolve conflicts, or press \"m A\" to Abort"))))))
 
 (defun magit-insert-status-rebase-lines ()
   (let ((rebase (magit-rebase-info)))
     (when rebase
       (magit-insert-line-section (line)
-        (apply 'format
-               "%s: onto %s (%s of %s); Press \"R\" to Abort, Skip, or Continue"
-               (if (nth 4 rebase) "Applying" "Rebasing")
-               rebase))
+        (concat (if (nth 4 rebase) "Applying" "Rebasing")
+               (apply 'format ": onto %s (%s of %s)" rebase)
+               (and magit-status-show-sequence-help
+                    "; Press \"R\" to Abort, Skip, or Continue")))
       (when (and (null (nth 4 rebase)) (nth 3 rebase))
         (magit-insert-line-section (line)
           (concat "Stopped: "
