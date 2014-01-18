@@ -818,7 +818,7 @@ manager but it will be used in more places in the future."
                         (function :tag "format using function")))))
 
 (defcustom magit-show-diffstat t
-  "Whether to shod diffstat in diff and commit buffers."
+  "Whether to show diffstat in diff and commit buffers."
   :group 'magit
   :type 'boolean)
 
