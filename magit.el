@@ -173,8 +173,8 @@ Also set the local value in all Magit buffers and refresh them.
 
 (defgroup magit nil
   "Controlling Git from Emacs."
-  :prefix "magit-"
-  :group 'tools)
+  :group 'tools
+  :prefix "magit-")
 
 (when (featurep 'git-commit-mode)
   (custom-add-to-group 'magit 'git-commit 'custom-group)
@@ -706,8 +706,8 @@ A common value is `pop-to-buffer'.  It can also be nil in which
 case the selected window is used."
   :package-version '(magit . "2.0.0")
   :group 'magit
-  :type magit-server-window-type
-  :set-after '(server-window))
+  :set-after '(server-window)
+  :type magit-server-window-type)
 
 (defcustom magit-completing-read-function 'magit-builtin-completing-read
   "Function to be called when requesting input from the user."
@@ -774,17 +774,17 @@ See `magit-highlight-trailing-whitespace',
 `magit-highlight-indentation'.  The symbol t means in all diffs,
 `status' means only in the status buffer, and nil means nowhere."
   :group 'magit
+  :set 'magit-set-variable-and-refresh
   :type '(choice (const :tag "Always" t)
                  (const :tag "Never" nil)
-                 (const :tag "In status buffer" status))
-  :set 'magit-set-variable-and-refresh)
+                 (const :tag "In status buffer" status)))
 
 (defcustom magit-highlight-trailing-whitespace t
   "Whether to highlight whitespace at the end of a line in diffs.
 Used only when `magit-highlight-whitespace' is non-nil."
   :group 'magit
-  :type 'boolean
-  :set 'magit-set-variable-and-refresh)
+  :set 'magit-set-variable-and-refresh
+  :type 'boolean)
 
 (defcustom magit-highlight-indentation nil
   "Highlight the \"wrong\" indentation style.
@@ -800,11 +800,11 @@ If the value is `tabs', highlight indentation with tabs.  If the
 value is an integer, highlight indentation with at least that
 many spaces.  Otherwise, highlight neither."
   :group 'magit
+  :set 'magit-set-variable-and-refresh
   :type `(repeat (cons (string :tag "Directory regexp")
                        (choice (const :tag "Tabs" tabs)
                                (integer :tag "Spaces" :value ,tab-width)
-                               (const :tag "Neither" nil))))
-  :set 'magit-set-variable-and-refresh)
+                               (const :tag "Neither" nil))))) ;^FIXME
 
 (defcustom magit-refs-namespaces
   '(("^\\(HEAD\\)$"              magit-log-head-label-head nil)
@@ -863,6 +863,7 @@ the cause, and the only (currently) workaround is to not make the
 problematic option a member of the default value."
   :package-version '(magit . "2.0.0")
   :group 'magit
+  :set 'magit-set-default-diff-options
   :type '(set :greedy t
               (const :tag
                      "--minimal              Show smallest possible diff"
@@ -881,8 +882,7 @@ problematic option a member of the default value."
                      "--ignore-all-space")
               (const :tag
                      "--function-context     Show surrounding functions"
-                     "--function-context"))
-  :set 'magit-set-default-diff-options)
+                     "--function-context")))
 
 (put 'magit-diff-options 'permanent-local t)
 
@@ -945,8 +945,8 @@ option to nil.  Doing so could potentially improve performance
 when generating large diffs."
   :package-version '(magit . "2.0.0")
   :group 'magit
-  :type 'boolean
-  :set-after '(magit-item-highlight-face))
+  :set-after '(magit-item-highlight-face)
+  :type 'boolean)
 
 (defcustom magit-expand-staged-on-commit nil
   "Whether to expand staged changes when creating a commit.
