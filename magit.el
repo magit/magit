@@ -6520,7 +6520,7 @@ Other key binding:
                  (mapconcat #'identity
                             (delq nil (list command option type status))
                             " "))))
-    (format "%-11s "
+    (format "%-16s "
             (propertize text 'face
                         (or (cdr (assoc label magit-reflog-labels))
                             'magit-log-reflog-label-other)))))
