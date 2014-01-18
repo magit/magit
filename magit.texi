@@ -5,6 +5,10 @@
 @documentencoding utf-8
 @c %**end of header
 
+@macro magit{url, text}
+@uref{https://github.com/magit/magit/\url\, \text\}
+@end macro
+
 @dircategory Emacs
 @direntry
 * Magit: (magit).        Using Git from Emacs with Magit.
@@ -39,13 +43,14 @@ Magit supports GNU Emacs 23.2 or later; 24.1 or later is recommended.
 Magit supports Git 1.7.2.5 or later; 1.8.2 or later is recommended.
 The minimal versions are those available in Debian oldstable.
 
-When something breaks please see the curated list of known issues
-(https://github.com/magit/magit/wiki/Known-issues) and the FAQ
-(https://github.com/magit/magit/wiki/FAQ).  If that doesn't help check
-the list of all open issues (https://github.com/magit/magit/issues).
+When something breaks please see the curated list of
+@magit{wiki/Known-Issues, known issues} and the @magit{wiki/FAQ, FAQ}.
+If that doesn't help check the list of all open issues @magit{issues,
+issues}.
 
 If everything else fails please open a new issue or ask for help on
-the mailing list (https://groups.google.com/forum/?fromgroups#!forum/magit).
+the @uref{https://groups.google.com/forum/?fromgroups#!forum/magit,
+mailing list}.
 
 @menu
 * Introduction::
@@ -116,9 +121,9 @@ who started the project, and all retired and current maintainers,
 Phil Jackson, Peter J. Weisberg, Rémi Vanicat, Nicolas Dudebout,
 Yann Hodique, and Jonas Bernoulli.
 
-(For a full list of contributors, see the AUTHORS.md file
-at the top-level directory of this distribution and at
-https://raw.github.com/magit/magit/master/AUTHORS.md)
+For a full list of contributors, see the AUTHORS.md file at the
+top-level directory of this distribution or at
+@magit{tree/master/AUTHORS.md}.
 
 @node Sections
 @chapter Sections
@@ -974,10 +979,11 @@ in.
 @node Interfacing with Topgit
 @section Interfacing with Topgit
 
-Topgit (http://repo.or.cz/r/topgit.git) is a patch queue manager that
-aims at being close as possible to raw Git, which makes it easy to use
-with Magit.  In particular, it does not require to use a different set of
-commands for ``commit'', ``update'',… operations.
+@uref{http://repo.or.cz/r/topgit.git, Topgit} is a patch queue manager
+that aims at being close as possible to raw Git, which makes it easy
+to use with Magit.  In particular, it does not require to use a
+different set of commands for ``commit'', ``update'', and other
+operations.
 
 @file{magit-topgit.el} provides basic integration with Magit, mostly by
 providing a ``Topics'' section.
@@ -995,12 +1001,12 @@ of conflicts.
 @node Interfacing with StGit
 @section Interfacing with StGit
 
-StGit (http://www.procode.org/stgit) is a Python application providing
-similar functionality to Quilt (i.e. pushing/popping patches to/from a
-stack) on top of Git.  These operations are performed using Git commands
-and the patches are stored as Git commit objects, allowing easy merging
-of the StGit patches into other repositories using standard Git
-functionality.
+@uref{http://www.procode.org/stgit, StGit} is a Python application
+providing similar functionality to Quilt (i.e. pushing/popping patches
+to/from a stack) on top of Git.  These operations are performed using
+Git commands and the patches are stored as Git commit objects,
+allowing easy merging of the StGit patches into other repositories
+using standard Git functionality.
 
 @file{magit-stgit.el} provides basic integration with Magit, mostly by
 providing a ``Series'' section, whose patches can be seen as regular
