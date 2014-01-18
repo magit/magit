@@ -5068,7 +5068,7 @@ With a prefix argument, add remaining untracked files as well.
   (interactive "P")
   (when (or (not magit-stage-all-confirm)
             (not (magit-anything-staged-p))
-            (yes-or-no-p "Stage all changes?"))
+            (yes-or-no-p "Stage all changes? "))
     (if including-untracked
         (magit-run-git "add" ".")
       (magit-run-git "add" "-u" "."))))
@@ -5117,7 +5117,7 @@ With a prefix argument, add remaining untracked files as well.
             (and (not (magit-anything-unstaged-p))
                  (not (magit-git-lines "ls-files" "--others" "-t"
                                        "--exclude-standard")))
-            (yes-or-no-p "Unstage all changes?"))
+            (yes-or-no-p "Unstage all changes? "))
     (magit-run-git "reset" "HEAD" "--")))
 
 ;;;; Branching
