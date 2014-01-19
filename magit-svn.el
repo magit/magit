@@ -63,7 +63,7 @@
          (magit-with-section (section commit sha)
            (setf (magit-section-info section) sha)
            sha))
-      (error "Revision %s could not be mapped to a commit" rev))))
+      (user-error "Revision %s could not be mapped to a commit" rev))))
 
 ;;;###autoload
 (defun magit-svn-create-branch (name)
@@ -268,7 +268,7 @@ If USE-CACHE is non nil, use the cached information."
 (define-minor-mode magit-svn-mode "SVN support for Magit"
   :lighter " SVN" :require 'magit-svn :keymap 'magit-svn-mode-map
   (or (derived-mode-p 'magit-mode)
-      (error "This mode only makes sense with magit"))
+      (user-error "This mode only makes sense with magit"))
   (cond
    (magit-svn-mode
     (magit-add-section-hook 'magit-status-sections-hook

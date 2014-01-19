@@ -94,7 +94,7 @@
   :keymap magit-blame-map
   :lighter " blame"
   (unless (buffer-file-name)
-    (error "Current buffer has no associated file!"))
+    (user-error "Current buffer has no associated file!"))
   (when (and (buffer-modified-p)
              (y-or-n-p (format "save %s first? " (buffer-file-name))))
     (save-buffer))
