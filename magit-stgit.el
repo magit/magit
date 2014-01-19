@@ -131,7 +131,7 @@ into the series."
   (let ((remote (magit-get-current-remote))
         (branch (magit-get-current-branch)))
     (if (not (and remote branch))
-        (error "Branch has no upstream")
+        (user-error "Branch has no upstream")
       (when (y-or-n-p "Update remote first? ")
         (message "Updating remote...")
         (magit-run-git-async "remote" "update" remote)
@@ -169,7 +169,7 @@ into the series."
   :lighter magit-stgit-mode-lighter
   :require 'magit-stgit
   (or (derived-mode-p 'magit-mode)
-      (error "This mode only makes sense with magit"))
+      (user-error "This mode only makes sense with magit"))
   (if magit-stgit-mode
       (magit-add-section-hook 'magit-status-sections-hook
                               'magit-insert-stgit-series
@@ -231,8 +231,8 @@ into the series."
                                 ((equal state "+") 'magit-stgit-applied)
                                 ((equal state "-") 'magit-stgit-unapplied)
                                 ((equal state "!") 'magit-stgit-hidden)
-                                (t (error "Unknown stgit patch state: %s"
-                                          state))))
+                                (t (user-error "Unknown stgit patch state: %s"
+                                               state))))
               (propertize empty 'face 'magit-stgit-empty) " "
               (propertize patch 'face 'magit-stgit-patch) " "
               msg)

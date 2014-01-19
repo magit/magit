@@ -355,7 +355,7 @@ The option may be a switch, argument or action."
          (key (car args)))
     (if (cdr things)
         (if (magit-key-mode-key-defined-p for-group key)
-            (error "%s is already defined in the %s group." key for-group)
+            (user-error "%s is already defined in the %s group." key for-group)
           (setcdr (cdr things) (cons args (cddr things))))
       (setcdr things (list args)))
     (setq magit-key-mode-keymaps nil)
@@ -382,7 +382,7 @@ DESC should be a brief description of the binding."
   "Retrieve the options for the group FOR-GROUP.
 This includes switches, commands and arguments."
   (or (cdr (assoc for-group magit-key-mode-groups))
-      (error "Unknown group '%s'" for-group)))
+      (user-error "Unknown group '%s'" for-group)))
 
 ;;; Commands
 
@@ -404,14 +404,14 @@ The user is prompted for the key."
       ((equal seq "?")
        (if man-page
            (man man-page)
-         (error "No man page associated with `%s'" for-group)))
-      (t (error "No help associated with `%s'" seq)))))
+         (user-error "No man page associated with `%s'" for-group)))
+      (t (user-error "No help associated with `%s'" seq)))))
 
 (defun magit-key-mode-exec-at-point ()
   "Run action/args/option at point."
   (interactive)
   (let ((key (or (get-text-property (point) 'key-group-executor)
-                 (error "Nothing at point to do."))))
+                 (user-error "Nothing at point to do."))))
     (call-interactively (lookup-key (current-local-map) key))))
 
 (defun magit-key-mode-jump-to-next-exec ()
