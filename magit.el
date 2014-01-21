@@ -4304,7 +4304,8 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 (defconst magit-log-reflog-re
   (concat "^"
           "\\(?1:[^ ]+\\) "                        ; sha1
-          "\\(?9:merge\\|[^:]+\\)?:? ?"            ; refsub
+          "[^@]+@{\\(?9:[^}]+\\)} "                ; refsel
+          "\\(?10:merge\\|[^:]+\\)?:? ?"           ; refsub
           "\\(?2:.+\\)?$"))                        ; msg
 
 (defconst magit-reflog-subject-re
@@ -4347,7 +4348,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                 (bisect-vis magit-log-bisect-vis-re)
                 (bisect-log magit-log-bisect-log-re)))
   (magit-bind-match-strings
-      (hash msg refs graph author date gpg cherry refsub)
+      (hash msg refs graph author date gpg cherry refsel refsub)
     (delete-region (point) (point-at-eol))
     (when cherry
       (insert (propertize cherry 'face
@@ -4370,6 +4371,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
     (when refs
       (insert (magit-format-ref-labels refs) " "))
     (when refsub
+      (insert (format "%-2s " refsel))
       (insert (magit-log-format-reflog refsub)))
     (when msg
       (font-lock-append-text-property
@@ -6522,7 +6524,7 @@ Other key binding:
     (magit-git-insert-section
         (reflogbuf (format "Local history of branch %s" ref))
         (apply-partially 'magit-wash-log 'reflog t)
-      "reflog" "show" "--format=format:%h %gs"
+      "reflog" "show" "--format=format:%h %gd %gs"
       (magit-diff-abbrev-arg)
       (format "--max-count=%d" magit-log-cutoff-length) ref)))
 
