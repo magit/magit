@@ -4303,8 +4303,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 
 (defconst magit-log-reflog-re
   (concat "^"
-          "\\(?4:[^\C-?]+\\)\C-??"                 ; graph FIXME
-          "\\(?1:[^\C-?]+\\)\C-?"                  ; sha1
+          "\\(?1:[^ ]+\\) "                        ; sha1
           "\\(?9:[^:]+\\)?"                        ; refsub
           "\\(?:: \\)?"
           "\\(?2:.+\\)?$"))                        ; msg
@@ -6525,7 +6524,7 @@ Other key binding:
     (magit-git-insert-section
         (reflogbuf (format "Local history of branch %s" ref))
         (apply-partially 'magit-wash-log 'reflog t)
-      "log" "--format=format:* \C-?%h\C-?%gs"
+      "log" "--format=format:%h %gs"
       (magit-diff-abbrev-arg) "--walk-reflogs"
       (format "--max-count=%d" magit-log-cutoff-length) ref)))
 
