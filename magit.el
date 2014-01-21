@@ -445,15 +445,17 @@ toggled temporarily using the command `magit-log-toggle-margin'."
 
 When the log buffer contains a `oneline' log, then it optionally
 uses the right margin to display the author name and author date.
-This option controls how that margin is formatted, the other
-option affecting this is `magit-log-show-margin'; if that is nil
-then no margin is displayed at all.  To toggle this temporarily
-use the command `magit-log-show-margin'.
+This is also supported in the reflog buffer.
 
 Logs that are shown together with other non-log information (e.g.
 in the status buffer) are never accompanied by a margin.  The
 same applies to `long' logs, in this case because that would be
 redundant.
+
+This option controls how that margin is formatted, the other
+option affecting this is `magit-log-show-margin'; if that is nil
+then no margin is displayed at all.  To toggle this temporarily
+use the command `magit-log-show-margin'.
 
 The value has the form (WIDTH CHARACTERP DURATION-SPEC).  The
 width of the margin is controlled using WIDTH, an integer.  When
@@ -4317,6 +4319,8 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 (defconst magit-log-reflog-re
   (concat "^"
           "\\(?1:[^ ]+\\) "                        ; sha1
+          "\\[\\(?5:[^]]*\\)\\] "                  ; author
+          "\\(?6:[^ ]*\\) "                        ; date
           "[^@]+@{\\(?9:[^}]+\\)} "                ; refsel
           "\\(?10:merge\\|[^:]+\\)?:? ?"           ; refsub
           "\\(?2:.+\\)?$"))                        ; msg
@@ -4412,8 +4416,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
   t)
 
 (defun magit-format-log-margin (&optional author date)
-  (when (and magit-log-show-margin
-             (eq (car magit-refresh-args) 'oneline))
+  (when magit-log-show-margin
     (cl-destructuring-bind (width characterp duration-spec)
         magit-log-margin-spec
       (if author
@@ -6411,8 +6414,8 @@ Also see option `magit-log-show-margin'."
   (interactive)
   (unless (derived-mode-p 'magit-log-mode)
     (error "The log margin cannot be used outside of log buffers"))
-  (unless (eq (car magit-refresh-args) 'oneline)
-    (error "The log margin cannot be used with \"long\" log"))
+  (when (eq (car magit-refresh-args) 'long)
+    (error "The log margin cannot be used with verbose logs"))
   (if magit-log-show-margin
       (magit-set-buffer-margin (car magit-log-margin-spec)
                                (not (cdr (window-margins))))
@@ -6523,11 +6526,12 @@ Other key binding:
   :group 'magit)
 
 (defun magit-refresh-reflog-buffer (ref)
+  (magit-log-margin-set-timeunit-width)
   (let ((magit-log-count 0))
     (magit-git-insert-section
         (reflogbuf (format "Local history of branch %s" ref))
         (apply-partially 'magit-wash-log 'reflog t)
-      "reflog" "show" "--format=format:%h %gd %gs"
+      "reflog" "show" "--format=format:%h [%an] %ct %gd %gs"
       (magit-diff-abbrev-arg)
       (format "--max-count=%d" magit-log-cutoff-length) ref)))
 
