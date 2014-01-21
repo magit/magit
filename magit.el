@@ -4304,8 +4304,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 (defconst magit-log-reflog-re
   (concat "^"
           "\\(?1:[^ ]+\\) "                        ; sha1
-          "\\(?9:[^:]+\\)?"                        ; refsub
-          "\\(?:: \\)?"
+          "\\(?9:merge\\|[^:]+\\)?:? ?"            ; refsub
           "\\(?2:.+\\)?$"))                        ; msg
 
 (defconst magit-reflog-subject-re
