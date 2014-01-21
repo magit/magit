@@ -4309,7 +4309,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 
 (defconst magit-reflog-subject-re
   (concat "\\([^ ]+\\) ?"                          ; command (1)
-          "\\(\\(?: ?[^---(][^ ]+\\)+\\)? ?"       ; status  (2)
+          "\\(\\(?: ?[^-(][^ ]+\\)+\\)? ?"         ; status  (2)
           "\\(\\(?: ?-[^ ]+\\)+\\)?"               ; option  (3)
           "\\(?: ?(\\([^)]+\\))\\)?"))             ; type    (4)
 
