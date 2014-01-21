@@ -1773,6 +1773,19 @@ strangeness of the Windows \"Powershell\"."
                              (list '(margin right-margin)
                                    (apply #'concat strings))))))
 
+(defvar-local magit-log-margin-timeunit-width nil)
+
+(defun magit-log-margin-set-timeunit-width ()
+  (cl-destructuring-bind (width characterp duration-spec)
+      magit-log-margin-spec
+    (setq magit-log-margin-timeunit-width
+          (if characterp
+              1
+            (apply 'max (mapcar (lambda (e)
+                                  (max (length (nth 1 e))
+                                       (length (nth 2 e))))
+                                (symbol-value duration-spec)))))))
+
 ;;;; Emacsclient Support
 
 (defmacro magit-with-emacsclient (server-window &rest body)
@@ -4315,8 +4328,6 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 
 (defvar magit-log-count nil)
 
-(defvar-local magit-log-margin-timeunit-width nil)
-
 ;;;; Log Washing Functions
 
 (defun magit-wash-log (style &optional color longer)
@@ -6366,15 +6377,7 @@ Other key binding:
   (magit-set-buffer-margin (car magit-log-margin-spec)
                            (and magit-log-show-margin
                                 (eq (car magit-refresh-args) 'oneline)))
-  (cl-destructuring-bind (width characterp duration-spec)
-      magit-log-margin-spec
-    (setq magit-log-margin-timeunit-width
-          (if characterp
-              1
-            (apply 'max (mapcar (lambda (e)
-                                  (max (length (nth 1 e))
-                                       (length (nth 2 e))))
-                                (symbol-value duration-spec))))))
+  (magit-log-margin-set-timeunit-width)
   (setq magit-file-log-file file)
   (when (consp range)
     (setq range (concat (car range) ".." (cdr range))))
