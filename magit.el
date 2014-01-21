@@ -4309,9 +4309,8 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 
 (defconst magit-reflog-subject-re
   (concat "\\([^ ]+\\) ?"                          ; command (1)
-          "\\(\\(?: ?[^-(][^ ]+\\)+\\)? ?"         ; status  (2)
-          "\\(\\(?: ?-[^ ]+\\)+\\)?"               ; option  (3)
-          "\\(?: ?(\\([^)]+\\))\\)?"))             ; type    (4)
+          "\\(\\(?: ?-[^ ]+\\)+\\)?"               ; option  (2)
+          "\\(?: ?(\\([^)]+\\))\\)?"))             ; type    (3)
 
 (defvar magit-log-count nil)
 
@@ -6543,16 +6542,15 @@ Other key binding:
 (defun magit-log-format-reflog (subject)
   (let* ((match (string-match magit-reflog-subject-re subject))
          (command (and match (match-string 1 subject)))
-         (status  (and match (match-string 2 subject)))
-         (option  (and match (match-string 3 subject)))
-         (type    (and match (match-string 4 subject)))
+         (option  (and match (match-string 2 subject)))
+         (type    (and match (match-string 3 subject)))
          (label (if (string= command "commit")
                     (or type command)
                   command))
          (text (if (string= command "commit")
                    label
                  (mapconcat #'identity
-                            (delq nil (list command option type status))
+                            (delq nil (list command option type))
                             " "))))
     (format "%-16s "
             (propertize text 'face
