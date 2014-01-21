@@ -6522,8 +6522,8 @@ Other key binding:
     (magit-git-insert-section
         (reflogbuf (format "Local history of branch %s" ref))
         (apply-partially 'magit-wash-log 'reflog t)
-      "log" "--format=format:%h %gs"
-      (magit-diff-abbrev-arg) "--walk-reflogs"
+      "reflog" "show" "--format=format:%h %gs"
+      (magit-diff-abbrev-arg)
       (format "--max-count=%d" magit-log-cutoff-length) ref)))
 
 (defvar magit-reflog-labels
