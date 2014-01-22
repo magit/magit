@@ -48,6 +48,12 @@
   :group 'git-rebase
   :type 'boolean)
 
+(defcustom git-rebase-remove-instructions nil
+  "Whether to remove the instructions from the rebase buffer.
+Because you have seen them before and can still remember."
+  :group 'git-rebase
+  :type 'boolean)
+
 ;;;; Faces
 
 (defgroup git-rebase-faces nil
@@ -323,7 +329,10 @@ Rebase files are generated when you run 'git rebase -i' or run
 `magit-interactive-rebase'.  They describe how Git should perform
 the rebase.  See the documentation for git-rebase (e.g., by
 running 'man git-rebase' at the command line) for details."
-  (setq font-lock-defaults '(git-rebase-mode-font-lock-keywords t t)))
+  (setq font-lock-defaults '(git-rebase-mode-font-lock-keywords t t))
+  (when git-rebase-remove-instructions
+    (let ((inhibit-read-only t))
+      (flush-lines "^\\($\\|#\\)"))))
 
 (defvar git-rebase-mode-font-lock-keywords
   `((,git-rebase-action-line-re
