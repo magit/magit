@@ -449,15 +449,17 @@ toggled temporarily using the command `magit-log-toggle-margin'."
 
 When the log buffer contains a `oneline' log, then it optionally
 uses the right margin to display the author name and author date.
-This option controls how that margin is formatted, the other
-option affecting this is `magit-log-show-margin'; if that is nil
-then no margin is displayed at all.  To toggle this temporarily
-use the command `magit-log-show-margin'.
+This is also supported in the reflog buffer.
 
 Logs that are shown together with other non-log information (e.g.
 in the status buffer) are never accompanied by a margin.  The
 same applies to `long' logs, in this case because that would be
 redundant.
+
+This option controls how that margin is formatted, the other
+option affecting this is `magit-log-show-margin'; if that is nil
+then no margin is displayed at all.  To toggle this temporarily
+use the command `magit-log-show-margin'.
 
 The value has the form (WIDTH CHARACTERP DURATION-SPEC).  The
 width of the margin is controlled using WIDTH, an integer.  When
@@ -1776,6 +1778,19 @@ strangeness of the Windows \"Powershell\"."
                  (propertize "o" 'display
                              (list '(margin right-margin)
                                    (apply #'concat strings))))))
+
+(defvar-local magit-log-margin-timeunit-width nil)
+
+(defun magit-log-margin-set-timeunit-width ()
+  (cl-destructuring-bind (width characterp duration-spec)
+      magit-log-margin-spec
+    (setq magit-log-margin-timeunit-width
+          (if characterp
+              1
+            (apply 'max (mapcar (lambda (e)
+                                  (max (length (nth 1 e))
+                                       (length (nth 2 e))))
+                                (symbol-value duration-spec)))))))
 
 ;;;; Emacsclient Support
 
@@ -4307,21 +4322,19 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 
 (defconst magit-log-reflog-re
   (concat "^"
-          "\\(?4:[^\C-?]+\\)\C-??"                 ; graph FIXME
-          "\\(?1:[^\C-?]+\\)\C-?"                  ; sha1
-          "\\(?9:[^:]+\\)?"                        ; refsub
-          "\\(?:: \\)?"
+          "\\(?1:[^ ]+\\) "                        ; sha1
+          "\\[\\(?5:[^]]*\\)\\] "                  ; author
+          "\\(?6:[^ ]*\\) "                        ; date
+          "[^@]+@{\\(?9:[^}]+\\)} "                ; refsel
+          "\\(?10:merge\\|[^:]+\\)?:? ?"           ; refsub
           "\\(?2:.+\\)?$"))                        ; msg
 
 (defconst magit-reflog-subject-re
   (concat "\\([^ ]+\\) ?"                          ; command (1)
-          "\\(\\(?: ?[^---(][^ ]+\\)+\\)? ?"       ; status  (2)
-          "\\(\\(?: ?-[^ ]+\\)+\\)?"               ; option  (3)
-          "\\(?: ?(\\([^)]+\\))\\)?"))             ; type    (4)
+          "\\(\\(?: ?-[^ ]+\\)+\\)?"               ; option  (2)
+          "\\(?: ?(\\([^)]+\\))\\)?"))             ; type    (3)
 
 (defvar magit-log-count nil)
-
-(defvar-local magit-log-margin-timeunit-width nil)
 
 ;;;; Log Washing Functions
 
@@ -4354,7 +4367,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                 (bisect-vis magit-log-bisect-vis-re)
                 (bisect-log magit-log-bisect-log-re)))
   (magit-bind-match-strings
-      (hash msg refs graph author date gpg cherry refsub)
+      (hash msg refs graph author date gpg cherry refsel refsub)
     (delete-region (point) (point-at-eol))
     (when cherry
       (insert (propertize cherry 'face
@@ -4377,6 +4390,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
     (when refs
       (insert (magit-format-ref-labels refs) " "))
     (when refsub
+      (insert (format "%-2s " refsel))
       (insert (magit-log-format-reflog refsub)))
     (when msg
       (font-lock-append-text-property
@@ -4406,8 +4420,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
   t)
 
 (defun magit-format-log-margin (&optional author date)
-  (when (and magit-log-show-margin
-             (eq (car magit-refresh-args) 'oneline))
+  (when magit-log-show-margin
     (cl-destructuring-bind (width characterp duration-spec)
         magit-log-margin-spec
       (if author
@@ -6371,15 +6384,7 @@ Other key binding:
   (magit-set-buffer-margin (car magit-log-margin-spec)
                            (and magit-log-show-margin
                                 (eq (car magit-refresh-args) 'oneline)))
-  (cl-destructuring-bind (width characterp duration-spec)
-      magit-log-margin-spec
-    (setq magit-log-margin-timeunit-width
-          (if characterp
-              1
-            (apply 'max (mapcar (lambda (e)
-                                  (max (length (nth 1 e))
-                                       (length (nth 2 e))))
-                                (symbol-value duration-spec))))))
+  (magit-log-margin-set-timeunit-width)
   (setq magit-file-log-file file)
   (when (consp range)
     (setq range (concat (car range) ".." (cdr range))))
@@ -6413,8 +6418,8 @@ Also see option `magit-log-show-margin'."
   (interactive)
   (unless (derived-mode-p 'magit-log-mode)
     (user-error "The log margin cannot be used outside of log buffers"))
-  (unless (eq (car magit-refresh-args) 'oneline)
-    (user-error "The log margin cannot be used with \"long\" log"))
+  (when (eq (car magit-refresh-args) 'long)
+    (user-error "The log margin cannot be used with verbose logs"))
   (if magit-log-show-margin
       (magit-set-buffer-margin (car magit-log-margin-spec)
                                (not (cdr (window-margins))))
@@ -6525,12 +6530,13 @@ Other key binding:
   :group 'magit)
 
 (defun magit-refresh-reflog-buffer (ref)
+  (magit-log-margin-set-timeunit-width)
   (let ((magit-log-count 0))
     (magit-git-insert-section
         (reflogbuf (format "Local history of branch %s" ref))
         (apply-partially 'magit-wash-log 'reflog t)
-      "log" "--format=format:* \C-?%h\C-?%gs"
-      (magit-diff-abbrev-arg) "--walk-reflogs"
+      "reflog" "show" "--format=format:%h [%an] %ct %gd %gs"
+      (magit-diff-abbrev-arg)
       (format "--max-count=%d" magit-log-cutoff-length) ref)))
 
 (defvar magit-reflog-labels
@@ -6549,16 +6555,15 @@ Other key binding:
 (defun magit-log-format-reflog (subject)
   (let* ((match (string-match magit-reflog-subject-re subject))
          (command (and match (match-string 1 subject)))
-         (status  (and match (match-string 2 subject)))
-         (option  (and match (match-string 3 subject)))
-         (type    (and match (match-string 4 subject)))
+         (option  (and match (match-string 2 subject)))
+         (type    (and match (match-string 3 subject)))
          (label (if (string= command "commit")
                     (or type command)
                   command))
          (text (if (string= command "commit")
                    label
                  (mapconcat #'identity
-                            (delq nil (list command option type status))
+                            (delq nil (list command option type))
                             " "))))
     (format "%-16s "
             (propertize text 'face
