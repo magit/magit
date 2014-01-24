@@ -353,6 +353,9 @@ The option may be a switch, argument or action."
   (let* ((options (magit-key-mode-options-for-group for-group))
          (things (assoc thing options))
          (key (car args)))
+    (unless things
+      (setq things (list thing))
+      (setcdr options (cons things (cdr options))))
     (if (cdr things)
         (if (magit-key-mode-key-defined-p for-group key)
             (error "%s is already defined in the %s group." key for-group)
