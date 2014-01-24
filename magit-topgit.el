@@ -83,7 +83,7 @@
 (defun magit-topgit-push (arg)
   (when (magit-topgit-in-topic-p)
     (let* ((branch (or (magit-get-current-branch)
-                       (error "Don't push a detached head.  That's gross")))
+                       (user-error "Don't push a detached head.  That's gross")))
            (remote (magit-get "topgit" "remote"))
            (push-remote (if (or current-prefix-arg (not remote))
                             (magit-read-remote (format "Push %s to" branch))
@@ -165,7 +165,7 @@
 (define-minor-mode magit-topgit-mode "Topgit support for Magit"
   :lighter " Topgit" :require 'magit-topgit
   (or (derived-mode-p 'magit-mode)
-      (error "This mode only makes sense with magit"))
+      (user-error "This mode only makes sense with magit"))
   (cond
    (magit-topgit-mode
     (magit-add-section-hook 'magit-status-sections-hook
