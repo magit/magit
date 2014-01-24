@@ -41,48 +41,58 @@
 (require 'magit)
 
 ;;; Options
+;;;; Variables
+
+(defgroup magit-stgit nil
+  "StGit support for Magit."
+  :group 'magit)
 
 (defcustom magit-stgit-executable "stg"
   "The name of the StGit executable."
-  :group 'magit
+  :group 'magit-stgit
   :type 'string)
 
 (defcustom magit-stgit-show-patch-name t
   "Whether to prefix patch messages with the patch name, in patch series."
-  :group 'magit
+  :group 'magit-stgit
   :type 'boolean)
 
-;;; Faces
+;;;; Faces
+
+(defgroup magit-stgit-faces nil
+  "Faces used by Magit-StGit."
+  :group 'magit-stgit
+  :group 'magit-faces)
 
 (defface magit-stgit-patch
   '((t :inherit magit-log-sha1))
   "Face for name of a stgit patch."
-  :group 'magit-faces)
+  :group 'magit-stgit-faces)
 
 (defface magit-stgit-current
   '((t :inherit magit-log-sha1))
   "Face for the current stgit patch."
-  :group 'magit-faces)
+  :group 'magit-stgit-faces)
 
 (defface magit-stgit-applied
   '((t :inherit magit-cherry-equivalent))
   "Face for an applied stgit patch."
-  :group 'magit-faces)
+  :group 'magit-stgit-faces)
 
 (defface magit-stgit-unapplied
   '((t :inherit magit-cherry-unmatched))
   "Face for an unapplied stgit patch."
-  :group 'magit-faces)
+  :group 'magit-stgit-faces)
 
 (defface magit-stgit-empty
   '((t :inherit magit-diff-del))
   "Face for an empty stgit patch."
-  :group 'magit-faces)
+  :group 'magit-stgit-faces)
 
 (defface magit-stgit-hidden
   '((t :inherit magit-diff-empty))
   "Face for an hidden stgit patch."
-  :group 'magit-faces)
+  :group 'magit-stgit-faces)
 
 ;;; Variables
 
