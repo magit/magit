@@ -7304,7 +7304,8 @@ from the parent keymap `magit-mode-map' are also available.")
           "\\)\n"))
 
 (defun magit-wash-branch-line (&optional remote-name)
-  (looking-at magit-wash-branch-line-re)
+  (when (looking-at magit-wash-branch-line-re)
+  ;; ^ Kludge for #1162.  v Don't reindent for now.
   (let* ((marker      (match-string 1))
          (branch      (match-string 2))
          (sha1        (match-string 3))
@@ -7346,7 +7347,7 @@ from the parent keymap `magit-mode-map' are also available.")
                                (propertize behind 'face
                                            'magit-log-head-label-remote))))
          (insert "]"))
-       (insert "\n"))))
+       (insert "\n")))))
 
 (defun magit-wash-remote-branches-group (group)
   (let* ((remote (car group))
@@ -7419,7 +7420,6 @@ from the parent keymap `magit-mode-map' are also available.")
                  (user-error "Cannot parse the remote and branch name")))))
     (magit-set (car track-) "branch" branch "remote")
     (magit-set (cdr track-) "branch" branch "merge")
-    (magit-branch-manager)
     (magit-refresh)))
 
 ;;; Miscellaneous
