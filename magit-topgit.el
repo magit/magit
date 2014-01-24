@@ -34,6 +34,13 @@
 (require 'magit)
 (eval-when-compile (require 'cl-lib))
 
+;;; Options
+;;;; Variables
+
+(defgroup magit-topgit nil
+  "Topgit support for Magit."
+  :group 'magit)
+
 (defcustom magit-topgit-executable "tg"
   "The name of the TopGit executable."
   :group 'magit
@@ -44,10 +51,17 @@
   :group 'magit
   :type 'string)
 
+;;;; Faces
+
+(defgroup magit-topgit-faces nil
+  "Faces used by Magit-Topgit."
+  :group 'magit-topgit
+  :group 'magit-faces)
+
 (defface magit-topgit-current
   '((t :weight bold :inherit magit-branch))
   "Face for section titles."
-  :group 'magit-faces)
+  :group 'magit-topgit-faces)
 
 ;;; Processes
 
