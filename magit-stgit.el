@@ -47,6 +47,11 @@
   :group 'magit
   :type 'string)
 
+(defcustom magit-stgit-show-patch-name t
+  "Whether to prefix patch messages with the patch name, in patch series."
+  :group 'magit
+  :type 'boolean)
+
 ;;; Faces
 
 (defface magit-stgit-patch
@@ -233,9 +238,10 @@ into the series."
                                 ((equal state "!") 'magit-stgit-hidden)
                                 (t (user-error "Unknown stgit patch state: %s"
                                                state))))
-              (propertize empty 'face 'magit-stgit-empty) " "
-              (propertize patch 'face 'magit-stgit-patch) " "
-              msg)
+              (propertize empty 'face 'magit-stgit-empty) " ")
+      (when magit-stgit-show-patch-name
+        (insert (propertize patch 'face 'magit-stgit-patch) " "))
+      (insert msg)
       (forward-line))))
 
 (provide 'magit-stgit)
