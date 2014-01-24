@@ -7420,7 +7420,6 @@ from the parent keymap `magit-mode-map' are also available.")
                  (user-error "Cannot parse the remote and branch name")))))
     (magit-set (car track-) "branch" branch "remote")
     (magit-set (cdr track-) "branch" branch "merge")
-    (magit-branch-manager)
     (magit-refresh)))
 
 ;;; Miscellaneous
