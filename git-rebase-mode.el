@@ -40,7 +40,7 @@
 ;;;; Variables
 
 (defgroup git-rebase nil
-  "Mode for editing Git rebase sequences."
+  "Edit Git rebase sequences."
   :group 'tools)
 
 (defcustom git-rebase-auto-advance nil

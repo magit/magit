@@ -69,7 +69,7 @@
 ;;;; Variables
 
 (defgroup git-commit nil
-  "Mode for editing Git commit messages."
+  "Edit Git commit messages."
   :prefix "git-commit-"
   :group 'tools)
 
