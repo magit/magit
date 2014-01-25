@@ -4712,6 +4712,7 @@ when asking for user input.
                              4))
                        (or (magit-get-top-dir)
                            (magit-read-top-dir nil)))))
+  (magit-save-some-buffers)
   (let ((topdir (magit-get-top-dir dir)))
     (when (or topdir
               (and (yes-or-no-p
