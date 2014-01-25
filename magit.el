@@ -1793,7 +1793,7 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
                     (if (= cnt 1) unit units)))
         (magit-format-duration duration (cdr spec) width)))))
 
-(defun magit-git-quote-arguments (args)
+(defun magit-process-quote-arguments (args)
   "Quote each argument in list ARGS as an argument to Git.
 Except when `magit-process-quote-curly-braces' is non-nil ARGS is
 returned unchanged.  This is required to works around strangeness
