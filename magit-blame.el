@@ -58,8 +58,7 @@
   :group 'magit-faces)
 
 (defface magit-blame-sha1
-  '((t :inherit (magit-log-sha1
-                 magit-blame-header)))
+  '((t :inherit (magit-log-sha1 magit-blame-header)))
   "Face for blame sha1."
   :group 'magit-faces)
 
