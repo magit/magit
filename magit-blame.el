@@ -80,7 +80,7 @@
 
 ;;; Keymaps
 
-(defconst magit-blame-map
+(defvar magit-blame-map
   (let ((map (make-sparse-keymap "Magit:Blame")))
     (define-key map (kbd "l") 'magit-blame-locate-commit)
     (define-key map (kbd "RET") 'magit-blame-locate-commit)
