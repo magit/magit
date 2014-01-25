@@ -53,7 +53,11 @@
   (message "magit-wip-mode is obsolete and doesn't do anything"))
 (make-obsolete 'magit-wip-mode "This mode is a noop now" "2.0.0")
 
-;;; Magit Wip Save Mode.
+;;; Options
+
+(defgroup magit-wip nil
+  "Git-Wip support for Magit."
+  :group 'magit-extensions)
 
 (defcustom magit-wip-commit-message "WIP %r"
   "Commit message for git-wip commits.
@@ -63,7 +67,7 @@ The following `format'-like specs are supported:
 %g the root of the git repository
 %r the name of the file being saved,
    relative to the repository root."
-  :group 'magit
+  :group 'magit-wip
   :type 'string)
 
 (defcustom magit-wip-echo-area-message "Wrote %f (wip)"
@@ -74,10 +78,12 @@ The following `format'-like specs are supported:
 %g the root of the git repository
 %r the name of the file being saved,
    relative to the repository root."
-  :group 'magit
+  :group 'magit-wip
   :type '(choice (const :tag "No message" nil) string))
 
 (defvar magit-wip-save-mode-lighter " Wip")
+
+;;; Mode
 
 ;;;###autoload
 (define-minor-mode magit-wip-save-mode

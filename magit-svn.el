@@ -39,12 +39,18 @@
 
 (declare-function find-lisp-find-files-internal 'find-lisp)
 
+;;; Options
+
+(defgroup magit-svn nil
+  "Git-Svn support for Magit."
+  :group 'magit-extensions)
+
 (defcustom magit-svn-externals-dir ".git_externals"
   "Directory from repository root that stores cloned SVN externals."
-  :group 'magit
+  :group 'magit-svn
   :type 'string)
 
-;; git svn commands
+;;; Commands
 
 ;;;###autoload
 (defun magit-svn-find-rev (rev &optional branch)
@@ -95,6 +101,8 @@
   (interactive)
   (when (magit-svn-enabled)
     (magit-run-git-async "svn" "fetch")))
+
+;;; Utilities
 
 (defun magit-svn-enabled ()
   (not (null (magit-svn-get-ref-info t))))
@@ -228,6 +236,8 @@ If USE-CACHE is non nil, use the cached information."
                                     (string-equal file ".git"))
                                  'find-lisp-default-directory-predicate))
 
+;;; Keymaps
+
 (easy-menu-define magit-svn-extension-menu
   nil
   "Git SVN extension menu"
@@ -263,6 +273,8 @@ If USE-CACHE is non nil, use the cached information."
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "N") 'magit-key-mode-popup-svn)
     map))
+
+;;; Mode
 
 ;;;###autoload
 (define-minor-mode magit-svn-mode "SVN support for Magit"
