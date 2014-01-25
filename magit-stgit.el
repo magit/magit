@@ -45,7 +45,7 @@
 
 (defgroup magit-stgit nil
   "StGit support for Magit."
-  :group 'magit)
+  :group 'magit-extensions)
 
 (defcustom magit-stgit-executable "stg"
   "The name of the StGit executable."

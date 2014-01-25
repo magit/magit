@@ -39,16 +39,16 @@
 
 (defgroup magit-topgit nil
   "Topgit support for Magit."
-  :group 'magit)
+  :group 'magit-extensions)
 
 (defcustom magit-topgit-executable "tg"
   "The name of the TopGit executable."
-  :group 'magit
+  :group 'magit-topgit
   :type 'string)
 
 (defcustom magit-topgit-branch-prefix "t/"
   "Convention prefix for topic branch creation."
-  :group 'magit
+  :group 'magit-topgit
   :type 'string)
 
 ;;;; Faces
