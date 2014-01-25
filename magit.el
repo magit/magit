@@ -1793,17 +1793,6 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
                     (if (= cnt 1) unit units)))
         (magit-format-duration duration (cdr spec) width)))))
 
-(defun magit-process-quote-arguments (args)
-  "Quote each argument in list ARGS as an argument to Git.
-Except when `magit-process-quote-curly-braces' is non-nil ARGS is
-returned unchanged.  This is required to works around strangeness
-of the Windows \"Powershell\"."
-  (if magit-process-quote-curly-braces
-      (mapcar (apply-partially 'replace-regexp-in-string
-                               "{\\([0-9]+\\)}" "\\\\{\\1\\\\}")
-              args)
-    args))
-
 (defun magit-flatten-onelevel (list)
   (cl-mapcan (lambda (elt)
                (cond ((consp elt) (copy-sequence elt))
@@ -3583,6 +3572,17 @@ repository are reverted using `auto-revert-buffers'."
                                    (when (buffer-live-p buf)
                                      (pop-to-buffer buf)))))
                              process))))))
+
+(defun magit-process-quote-arguments (args)
+  "Quote each argument in list ARGS as an argument to Git.
+Except when `magit-process-quote-curly-braces' is non-nil ARGS is
+returned unchanged.  This is required to works around strangeness
+of the Windows \"Powershell\"."
+  (if magit-process-quote-curly-braces
+      (mapcar (apply-partially 'replace-regexp-in-string
+                               "{\\([0-9]+\\)}" "\\\\{\\1\\\\}")
+              args)
+    args))
 
 ;;; Magit Mode
 ;;__ FIXME The parens indicate preliminary subsections.
