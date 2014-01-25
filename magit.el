@@ -7205,16 +7205,19 @@ return the buffer, without displaying it."
           (with-current-buffer buffer
             (if (and (equal file magit-file-name)
                      (equal rev  magit-show-current-version))
-                (erase-buffer)
+                (let ((inhibit-read-only t))
+                  (erase-buffer))
               (setq buffer nil))))
         (with-current-buffer
             (or buffer (setq buffer (create-file-buffer name)))
+          (setq buffer-read-only t)
           (with-silent-modifications
             (if (eq rev 'index)
                 (let ((temp (car (split-string
                                   (magit-git-string "checkout-index"
                                                     "--temp" file)
-                                  "\t"))))
+                                  "\t")))
+                      (inhibit-read-only t))
                   (insert-file-contents temp nil nil nil t)
                   (delete-file temp))
               (magit-git-insert "cat-file" "-p" (concat rev ":" file))))
