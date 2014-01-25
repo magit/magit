@@ -403,7 +403,7 @@ a carefully crafted index."
   :type 'boolean)
 
 (defcustom magit-save-some-buffers t
-  "Whether \\[magit-status] saves modified buffers before running.
+  "Whether certain commands save modified buffers before running.
 
 nil        don't save buffers.
 t          ask which buffers to save.
