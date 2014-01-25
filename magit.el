@@ -212,6 +212,9 @@ Also set the local value in all Magit buffers and refresh them.
   :group 'magit
   :group 'faces)
 
+(when (featurep 'gitattributes-mode)
+  (custom-add-to-group 'magit-modes 'gitattributes-mode 'custom-group))
+
 (when (featurep 'git-commit-mode)
   (custom-add-to-group 'magit-modes 'git-commit       'custom-group)
   (custom-add-to-group 'magit-faces 'git-commit-faces 'custom-group))
