@@ -4214,12 +4214,18 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                                      (not (derived-mode-p
                                            'magit-diff-mode
                                            'magit-commit-mode)))
-          (if (not (magit-section-hidden section))
-              (magit-insert-diff section file status)
-            (setf (magit-section-diff-status section) status)
-            (setf (magit-section-info section) file)
-            (setf (magit-section-needs-refresh-on-show section) t)
-            (magit-insert-diff-title status file nil))))
+          (magit-insert-diff section file status)
+          ;; Issue #1128 finally proved that this is not only
+          ;; misguided and leads to unnecessary complications,
+          ;; but that it also leads to bugs, which cannot be
+          ;; resolved without nuking this performance kludge.
+          ;; (if (not (magit-section-hidden section))
+          ;;     (magit-insert-diff section file status)
+          ;;   (setf (magit-section-diff-status section) status)
+          ;;   (setf (magit-section-info section) file)
+          ;;   (setf (magit-section-needs-refresh-on-show section) t)
+          ;;   (magit-insert-diff-title status file nil))
+          ))
       file)))
 
 (defun magit-diff-item-insert-header (diff buf)
