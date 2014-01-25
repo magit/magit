@@ -303,7 +303,7 @@ belong to processes that are still running are never removed."
   :group 'magit-process
   :type 'integer)
 
-(defcustom magit-quote-curly-braces
+(defcustom magit-process-quote-curly-braces
   (and (eq system-type 'windows-nt)
        (let ((case-fold-search t))
          (string-match-p "cygwin" magit-git-executable))
@@ -1401,6 +1401,9 @@ Many Magit faces inherit from this one by default."
 (define-obsolete-variable-alias 'magit-wazzup-insert-sections-hook
   'magit-wazzup-sections-hook "2.0.0")
 
+(define-obsolete-variable-alias 'magit-quote-curly-braces
+  'magit-process-quote-curly-braces "2.0.0")
+
 
 ;;; Keymaps
 
@@ -1792,10 +1795,10 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
 
 (defun magit-git-quote-arguments (args)
   "Quote each argument in list ARGS as an argument to Git.
-Except when `magit-quote-curly-braces' is non-nil ARGS is
-returned unchanged.  This is required to works around
-strangeness of the Windows \"Powershell\"."
-  (if magit-quote-curly-braces
+Except when `magit-process-quote-curly-braces' is non-nil ARGS is
+returned unchanged.  This is required to works around strangeness
+of the Windows \"Powershell\"."
+  (if magit-process-quote-curly-braces
       (mapcar (apply-partially 'replace-regexp-in-string
                                "{\\([0-9]+\\)}" "\\\\{\\1\\\\}")
               args)
