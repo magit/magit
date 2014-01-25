@@ -7203,8 +7203,9 @@ return the buffer, without displaying it."
         (setq buffer (get-buffer name))
         (when buffer
           (with-current-buffer buffer
-            (unless (and (equal file magit-file-name)
-                         (equal rev  magit-show-current-version))
+            (if (and (equal file magit-file-name)
+                     (equal rev  magit-show-current-version))
+                (erase-buffer)
               (setq buffer nil))))
         (with-current-buffer
             (or buffer (setq buffer (create-file-buffer name)))
