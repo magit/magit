@@ -3194,7 +3194,7 @@ using `auto-revert-buffers'.
 
 Process output goes into a new section in a buffer specified by
 variable `magit-process-buffer-name'."
-  (apply #'magit-call-git args)
+  (apply #'magit-call-git (magit-process-quote-arguments args))
   (magit-refresh))
 
 (defun magit-call-git (&rest args)
@@ -3313,7 +3313,8 @@ reverted using `auto-revert-buffers'.
 
 See `magit-start-process' for more information."
   (apply #'magit-start-process magit-git-executable input
-         (append magit-git-standard-options args)))
+         (append magit-git-standard-options
+                 (magit-process-quote-arguments args))))
 
 (defun magit-start-process (program &optional input &rest args)
   "Start PROGRAM, prepare for refresh, and return the process object.
