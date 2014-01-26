@@ -588,7 +588,7 @@ which generates a tracking name of the form \"REMOTE-BRANCHNAME\"."
   :type 'hook)
 
 (defcustom magit-show-xref-buttons '(magit-diff-mode magit-commit-mode)
-  "List of modes whose buffers may should contain history buttons.
+  "List of modes whose buffers should contain history buttons.
 Currently only `magit-diff-mode' and `magit-commit-mode' are
 supported."
   :package-version '(magit . "2.0.0")
