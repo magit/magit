@@ -1581,7 +1581,6 @@ set before loading libary `magit'.")
 (defvar magit-branch-manager-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
-    (define-key map (kbd "RET") 'magit-checkout-branch-at-point)
     (define-key map (kbd "c") 'magit-create-branch)
     (define-key map (kbd "a") 'magit-add-remote)
     (define-key map (kbd "r") 'magit-rename-item)
@@ -5298,16 +5297,6 @@ If REVISION is a remote branch, offer to create a local tracking branch.
     (magit-run-git "checkout" revision)))
 
 ;;;###autoload
-(defun magit-checkout-branch-at-point ()
-  "Checkout the branch at point.
-If there is no branch at point, then prompt for one."
-  (interactive)
-  (let ((branch (magit-section-case (item info) ((branch) info))))
-    (if branch
-        (magit-checkout branch)
-      (call-interactively 'magit-checkout))))
-
-;;;###autoload
 (defun magit-create-branch (branch parent)
   "Switch 'HEAD' to new BRANCH at revision PARENT and update working tree.
 Fails if working tree or staging area contain uncommitted changes.
@@ -7170,7 +7159,8 @@ With a prefix argument, visit in other window."
                        (magit-hunk-item-target-line item)
                        (current-column)))
     ((commit)         (magit-show-commit info))
-    ((stash)          (magit-diff-stash info))))
+    ((stash)          (magit-diff-stash info))
+    ((branch)         (magit-checkout info))))
 
 (defun magit-visit-file-item (file &optional other-window line column)
   (unless file
