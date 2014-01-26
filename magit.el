@@ -674,6 +674,7 @@ manager but it will be used in more places in the future."
     magit-insert-status-merge-line
     magit-insert-status-rebase-lines
     magit-insert-empty-line
+    magit-insert-rebase-sequence
     magit-insert-bisect-output
     magit-insert-bisect-rest
     magit-insert-bisect-log
@@ -4936,6 +4937,27 @@ when asking for user input.
         (magit-insert-line-section (line)
           (concat "Stopped: "
                   (magit-format-rev-summary (nth 3 rebase))))))))
+
+(defun magit-insert-rebase-sequence ()
+  (let ((f (magit-git-dir "rebase-merge/git-rebase-todo")))
+    (when (file-exists-p f)
+      (magit-with-section (section rebase-todo 'rebase-todo "Rebasing:" t)
+        (cl-loop
+         for line in (magit-file-lines f)
+         when (string-match
+               "^\\(pick\\|reword\\|edit\\|squash\\|fixup\\) \\([^ ]+\\) \\(.*\\)$"
+               line)
+         do (let ((cmd  (match-string 1 line))
+                  (hash (match-string 2 line))
+                  (msg  (match-string 3 line)))
+              (magit-with-section (section commit hash)
+                (setf (magit-section-info section) hash)
+                (insert cmd " ")
+                (insert (propertize
+                         (magit-git-string "rev-parse" "--short" hash)
+                         'face 'magit-log-sha1))
+                (insert " " msg "\n"))))
+        (insert "\n")))))
 
 (defun magit-insert-bisect-output ()
   (when (magit-bisecting-p)
