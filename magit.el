@@ -2704,12 +2704,26 @@ FUNCTION has to move point forward or return nil."
           (nil siblings))))))
 
 (defun magit-section-region-siblings (&optional key)
-  (mapcar (or key #'identity)
-          (cl-intersection
-           (magit-section-siblings
-            (magit-find-section-at (min (mark) (point))) 'next)
-           (magit-section-siblings
-            (magit-find-section-at (max (mark) (point))) 'prev))))
+  (let ((beg (magit-find-section-at (region-beginning)))
+        (end (magit-find-section-at (region-end))))
+    (if (eq beg end)
+        (list (if key (funcall key beg) beg))
+      (goto-char (region-end))
+      (when (bolp)
+        (setq end (magit-find-section-at (1- (point)))))
+      (while (> (length (magit-section-path beg))
+                (length (magit-section-path end)))
+        (setq beg (magit-section-parent beg)))
+      (while (> (length (magit-section-path end))
+                (length (magit-section-path beg)))
+        (setq end (magit-section-parent end)))
+      (let* ((parent   (magit-section-parent beg))
+             (siblings (magit-section-children parent)))
+        (if (eq parent (magit-section-parent end))
+            (mapcar (or key #'identity)
+                    (cl-intersection (memq beg siblings)
+                                     (memq end (reverse siblings))))
+          (user-error "Ambitious cross-section region"))))))
 
 (defun magit-diff-section-for-diffstat (section)
   (let ((file (magit-section-info section)))
