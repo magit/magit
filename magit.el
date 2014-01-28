@@ -5190,12 +5190,7 @@ With a prefix argument, prompt for a file to be staged instead."
        (magit-run-git "add" "--" (magit-git-lines "ls-files" "--other"
                                                   "--exclude-standard")))
       ((unstaged diff hunk)
-       (if (string-match "^diff --cc"
-                         ;; XXX Using the title is a bit too clever.
-                         (magit-section-title (magit-section-parent item)))
-           (user-error (concat "Can't stage individual resolution hunks.  "
-                               "Please stage the whole file."))
-         (magit-apply-hunk-item item "--cached")))
+       (magit-apply-hunk-item item "--cached"))
       ((unstaged diff)
        (magit-run-git "add" "-u"
                       (if (use-region-p)
@@ -6220,6 +6215,10 @@ This function is the core of magit's stage, unstage, apply, and
 revert operations.  HUNK (or the portion of it selected by the
 region) will be applied to either the index, if \"--cached\" is a
 member of ARGS, or to the working file otherwise."
+  (when (string-match "^diff --cc"
+                      (magit-section-title (magit-section-parent hunk)))
+    (user-error (concat "Cannot un-/stage individual resolution hunks.  "
+                        "Please stage the whole file.")))
   (let ((use-region (use-region-p)))
     (when (zerop magit-diff-context-lines)
       (setq args (cons "--unidiff-zero" args))
