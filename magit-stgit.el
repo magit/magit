@@ -172,7 +172,10 @@ into the series."
 (defun magit-stgit-refresh-patch-buffer (patch)
   (magit-cmd-insert-section (stgit-patch)
       #'magit-wash-commit
-    magit-stgit-executable "show" "--diff-opts=--decorate=full" patch))
+    magit-stgit-executable "show"
+    "--diff-opts=--decorate=full"
+    (when magit-show-diffstat "--diff-opts=--patch-with-stat")
+    patch))
 
 ;;; Mode
 
