@@ -3049,12 +3049,10 @@ Each use of `magit-section-action' should use an unique OPNAME.
               (t
                (or (run-hook-with-args-until-success
                     ',(intern (format "magit-%s-action-hook" opname)))
-                   (let* ((section (magit-current-section))
-                          (type (and section (magit-section-type section))))
-                     (if type
-                         (user-error ,(format "Can't %s a %%s" opname)
-                                     (or (get type 'magit-description) type))
-                       (user-error ,(format "Nothing to %s here" opname)))))))))
+                   (if (magit-current-section)
+                       (user-error ,(format "Cannot %s this section" opname))
+                     (user-error ,(format "Nothing to %s here" opname))
+                     ))))))
        (unless (eq ,value magit-section-action-success)
          ,value))))
 
