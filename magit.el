@@ -5200,15 +5200,6 @@ With a prefix argument, prompt for a file to be staged instead."
        (magit-stage-all))
       ((staged *)
        (user-error "Already staged"))
-      ((diff diff)
-       (save-excursion
-         (magit-goto-parent-section)
-         (magit-stage-item)))
-      ((diff diff hunk)
-       (save-excursion
-         (magit-goto-parent-section)
-         (magit-goto-parent-section)
-         (magit-stage-item)))
       ((hunk)
        (user-error "Can't stage this hunk"))
       ((diff)
@@ -5248,15 +5239,6 @@ With a prefix argument, add remaining untracked files as well.
      (magit-unstage-all))
     ((unstaged *)
      (user-error "Already unstaged"))
-    ((diff diff)
-     (save-excursion
-       (magit-goto-parent-section)
-       (magit-unstage-item)))
-    ((diff diff hunk)
-     (save-excursion
-       (magit-goto-parent-section)
-       (magit-goto-parent-section)
-       (magit-unstage-item)))
     ((hunk)
      (user-error "Can't unstage this hunk"))
     ((diff)
@@ -7116,15 +7098,6 @@ With a prefix argument edit the ignore string."
          (magit-discard-diff item t)
        (user-error "Can't discard staged changes to this file.  \
 Please unstage it first")))
-    ((diff diff)
-     (save-excursion
-       (magit-goto-parent-section)
-       (magit-discard-item)))
-    ((diff diff hunk)
-     (save-excursion
-       (magit-goto-parent-section)
-       (magit-goto-parent-section)
-       (magit-discard-item)))
     ((hunk)
      (user-error "Can't discard this hunk"))
     ((diff)
