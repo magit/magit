@@ -2703,7 +2703,7 @@ FUNCTION has to move point forward or return nil."
           ((next) (member section siblings))
           (nil siblings))))))
 
-(defun magit-region-siblings (&optional key)
+(defun magit-section-region-siblings (&optional key)
   (mapcar (or key #'identity)
           (cl-intersection
            (magit-section-siblings
@@ -5170,7 +5170,7 @@ With a prefix argument, prompt for a file to be staged instead."
       ((untracked file)
        (magit-run-git "add"
                       (if (use-region-p)
-                          (magit-region-siblings #'magit-section-info)
+                          (magit-section-region-siblings #'magit-section-info)
                         info)))
       ((untracked)
        (magit-run-git "add" "--" (magit-git-lines "ls-files" "--other"
@@ -5185,7 +5185,7 @@ With a prefix argument, prompt for a file to be staged instead."
       ((unstaged diff)
        (magit-run-git "add" "-u"
                       (if (use-region-p)
-                          (magit-region-siblings #'magit-section-info)
+                          (magit-section-region-siblings #'magit-section-info)
                         info)))
       ((unstaged)
        (magit-stage-all))
@@ -5230,7 +5230,7 @@ With a prefix argument, add remaining untracked files as well.
      (when (eq info 'unmerged)
        (user-error "Can't unstage an unmerged file.  Resolve it first"))
      (let ((files (if (use-region-p)
-                      (magit-region-siblings #'magit-section-info)
+                      (magit-section-region-siblings #'magit-section-info)
                     (list (magit-section-info item)))))
        (if (magit-no-commit-p)
            (magit-run-git "rm" "--cached" "--" files)
