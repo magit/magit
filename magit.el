@@ -5416,7 +5416,7 @@ return the buffer, without displaying it."
         (funcall switch-function (current-buffer))))
     buffer))
 
-;;; Acting (1)
+;;; Act
 ;;;; Merging
 
 ;;;###autoload
@@ -7085,62 +7085,6 @@ into the selected branch."
               (goto-char (point-min))
               (magit-wash-log 'cherry)))))))))
 
-;;; Acting (2)
-;;;; Ignore
-
-(defun magit-ignore-edit-string (file)
-  "Prompt the user for the string to be ignored.
-A list of predefined values with wildcards is derived from the
-filename FILE."
-  (let* ((extension (concat "*." (file-name-extension file)))
-         (extension-in-dir (concat (file-name-directory file) extension))
-         (filename (file-name-nondirectory file))
-         (completions (list extension extension-in-dir filename file)))
-    (magit-completing-read "File/pattern to ignore"
-                           completions nil nil nil nil file)))
-
-(defun magit-ignore-file (file &optional edit local)
-  "Add FILE to the list of files to ignore.
-If EDIT is non-nil, prompt the user for the string to be ignored
-instead of using FILE.  The changes are written to .gitignore
-except if LOCAL is non-nil in which case they are written to
-.git/info/exclude."
-  (let* ((local-ignore-dir (magit-git-dir "info/"))
-         (ignore-file (if local
-                          (concat local-ignore-dir "exclude")
-                        ".gitignore")))
-    (when edit
-      (setq file (magit-ignore-edit-string file)))
-    (when (and local (not (file-exists-p local-ignore-dir)))
-      (make-directory local-ignore-dir t))
-    (with-temp-buffer
-      (when (file-exists-p ignore-file)
-        (insert-file-contents ignore-file))
-      (goto-char (point-max))
-      (unless (bolp)
-        (insert "\n"))
-      (insert file "\n")
-      (write-region nil nil ignore-file))))
-
-(defun magit-ignore-item (edit &optional local)
-  "Ignore the item at point.
-With a prefix argument edit the ignore string."
-  (interactive "P")
-  (magit-section-action ignore (info)
-    ([file untracked]
-     (magit-ignore-file (concat "/" info) edit local)
-     (magit-refresh))
-    (diff
-     (when (yes-or-no-p (format "%s is tracked.  Untrack and ignore? " info))
-       (magit-ignore-file (concat "/" info) edit local)
-       (magit-run-git "rm" "--cached" info)))))
-
-(defun magit-ignore-item-locally (edit)
-  "Ignore the item at point locally only.
-With a prefix argument edit the ignore string."
-  (interactive "P")
-  (magit-ignore-item edit t))
-
 ;;; Branch Manager Mode
 ;;__ FIXME The parens indicate preliminary subsections.
 ;;;; (core)
@@ -7348,6 +7292,59 @@ from the parent keymap `magit-mode-map' are also available.")
   (magit-section-action copy (info)
     (commit (kill-new info)
             (message "%s" info))))
+
+(defun magit-ignore-item (edit &optional local)
+  "Ignore the item at point.
+With a prefix argument edit the ignore string."
+  (interactive "P")
+  (magit-section-action ignore (info)
+    ([file untracked]
+     (magit-ignore-file (concat "/" info) edit local)
+     (magit-refresh))
+    (diff
+     (when (yes-or-no-p (format "%s is tracked.  Untrack and ignore? " info))
+       (magit-ignore-file (concat "/" info) edit local)
+       (magit-run-git "rm" "--cached" info)))))
+
+(defun magit-ignore-item-locally (edit)
+  "Ignore the item at point locally only.
+With a prefix argument edit the ignore string."
+  (interactive "P")
+  (magit-ignore-item edit t))
+
+(defun magit-ignore-file (file &optional edit local)
+  "Add FILE to the list of files to ignore.
+If EDIT is non-nil, prompt the user for the string to be ignored
+instead of using FILE.  The changes are written to .gitignore
+except if LOCAL is non-nil in which case they are written to
+.git/info/exclude."
+  (let* ((local-ignore-dir (magit-git-dir "info/"))
+         (ignore-file (if local
+                          (concat local-ignore-dir "exclude")
+                        ".gitignore")))
+    (when edit
+      (setq file (magit-ignore-edit-string file)))
+    (when (and local (not (file-exists-p local-ignore-dir)))
+      (make-directory local-ignore-dir t))
+    (with-temp-buffer
+      (when (file-exists-p ignore-file)
+        (insert-file-contents ignore-file))
+      (goto-char (point-max))
+      (unless (bolp)
+        (insert "\n"))
+      (insert file "\n")
+      (write-region nil nil ignore-file))))
+
+(defun magit-ignore-edit-string (file)
+  "Prompt the user for the string to be ignored.
+A list of predefined values with wildcards is derived from the
+filename FILE."
+  (let* ((extension (concat "*." (file-name-extension file)))
+         (extension-in-dir (concat (file-name-directory file) extension))
+         (filename (file-name-nondirectory file))
+         (completions (list extension extension-in-dir filename file)))
+    (magit-completing-read "File/pattern to ignore"
+                           completions nil nil nil nil file)))
 
 ;;;; Commit Mark
 
