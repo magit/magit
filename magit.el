@@ -2334,7 +2334,7 @@ involving HEAD."
 ;;;; Section Core
 
 (cl-defstruct magit-section
-  type title info
+  type info
   beginning content-beginning end
   hidden needs-refresh-on-show highlight
   diff-status diff-file2 diff-range
@@ -2357,12 +2357,12 @@ never modify it.")
   "For use by `magit-with-section' only.")
 
 (defmacro magit-with-section (arglist &rest body)
-  "\n\n(fn (NAME TYPE &optional TITLE HEADING NOHIGHLIGHT COLLAPSE) &rest ARGS)"
+  "\n\n(fn (NAME TYPE &optional INFO HEADING NOHIGHLIGHT COLLAPSE) &rest ARGS)"
   (declare (indent 1) (debug ((form form &optional form form form) body)))
   (let ((s (car arglist)))
     `(let ((,s (make-magit-section
                 :type ',(nth 1 arglist)
-                :title ,(nth 2 arglist)
+                :info  ,(nth 2 arglist)
                 :highlight (not ,(nth 4 arglist))
                 :beginning (point-marker)
                 :content-beginning (point-marker)
@@ -2475,7 +2475,7 @@ never modify it.")
       top
     (let ((secs (magit-section-children top)))
       (while (and secs (not (equal (car path)
-                                   (magit-section-title (car secs)))))
+                                   (magit-section-info (car secs)))))
         (setq secs (cdr secs)))
       (when (car secs)
         (magit-find-section (cdr path) (car secs))))))
@@ -2485,7 +2485,7 @@ never modify it.")
   (let ((parent (magit-section-parent section)))
     (when parent
       (append (magit-section-path parent)
-              (list (magit-section-title section))))))
+              (list (magit-section-info section))))))
 
 (defun magit-find-section-after (pos)
   "Find the first section that begins after POS."
@@ -4233,7 +4233,6 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
           (if (not (magit-section-hidden section))
               (magit-insert-diff section file status)
             (setf (magit-section-diff-status section) status)
-            (setf (magit-section-info section) file)
             (setf (magit-section-needs-refresh-on-show section) t)
             (magit-insert-diff-title status file nil))))
       file)))
@@ -4422,7 +4421,6 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
     (magit-format-log-margin author date)
     (if hash
         (magit-with-section (section commit hash)
-          (setf (magit-section-info section) hash)
           (when magit-log-count
             (cl-incf magit-log-count))
           (forward-line)
@@ -4587,7 +4585,6 @@ stash at point, then prompt for a commit."
 
 (defun magit-insert-commit-button (hash)
   (magit-with-section (section commit hash)
-    (setf (magit-section-info section) hash)
     (insert-text-button hash
                         'help-echo "Visit commit"
                         'action (lambda (button)
@@ -4701,7 +4698,6 @@ when asking for user input.
                 (number (match-string 2 stash))
                 (message (match-string 3 stash)))
             (magit-with-section (section stash stash)
-              (setf (magit-section-info section) stash)
               (insert number ": " message "\n"))))
         (insert "\n")))))
 
@@ -4718,7 +4714,6 @@ when asking for user input.
         (dolist (file files)
           (setq file (magit-decode-git-path (substring file 3)))
           (magit-with-section (section file file)
-            (setf (magit-section-info section) file)
             (insert "\t" file "\n")))
         (insert "\n")))))
 
@@ -4732,7 +4727,6 @@ when asking for user input.
                  (properties (cdr p))
                  (used (plist-get properties 'used)))
             (magit-with-section (section commit commit)
-              (setf (magit-section-info section) commit)
               (insert (magit-git-string
                        "log" "-1"
                        (if used
@@ -4913,7 +4907,6 @@ when asking for user input.
                   (hash (match-string 2 line))
                   (msg  (match-string 3 line)))
               (magit-with-section (section commit hash)
-                (setf (magit-section-info section) hash)
                 (insert cmd " ")
                 (insert (propertize
                          (magit-git-string "rev-parse" "--short" hash)
@@ -6143,8 +6136,7 @@ This function is the core of magit's stage, unstage, apply, and
 revert operations.  HUNK (or the portion of it selected by the
 region) will be applied to either the index, if \"--cached\" is a
 member of ARGS, or to the working file otherwise."
-  (when (string-match "^diff --cc"
-                      (magit-section-title (magit-section-parent hunk)))
+  (when (string-match "^diff --cc" (magit-section-parent-info hunk))
     (user-error (concat "Cannot un-/stage individual resolution hunks.  "
                         "Please stage the whole file.")))
   (let ((use-region (use-region-p)))
@@ -7302,7 +7294,6 @@ from the parent keymap `magit-mode-map' are also available.")
          (branch-face (and (equal marker "* ") 'magit-branch)))
     (delete-region (point) (line-beginning-position 2))
     (magit-with-section (section branch branch)
-      (setf (magit-section-info section) branch)
       (insert (propertize (or sha1
                               (make-string magit-sha1-abbrev-length ? ))
                           'face 'magit-log-sha1)
@@ -7343,7 +7334,6 @@ from the parent keymap `magit-mode-map' are also available.")
          (marker (cadr group)))
     (magit-with-section
         (section remote remote (format "%s (%s):" remote urls) t)
-      (setf (magit-section-info section) remote)
       (magit-wash-branches-between-point-and-marker marker remote)
       (insert "\n"))))
 
@@ -7375,8 +7365,7 @@ from the parent keymap `magit-mode-map' are also available.")
                    for marker = (cl-loop for x in end-markers thereis x)
                    collect (list remote marker))))
     ;; actual displaying of information
-    (magit-with-section (section local 'local "Local:" t)
-      (setf (magit-section-info section) ".")
+    (magit-with-section (section local "." "Local:" t)
       (magit-wash-branches-between-point-and-marker
        (cl-loop for x in markers thereis x))
       (insert "\n"))
@@ -7513,7 +7502,7 @@ This command is intended for debugging purposes."
   (let* ((section (magit-current-section))
          (head-beg (magit-section-beginning section))
          (body-beg (magit-section-content-beginning section)))
-    (message "Section: %s %s%s-%s %S %S %S"
+    (message "Section: %s %s%s-%s %S %S"
              (magit-section-type section)
              (marker-position (magit-section-beginning section))
              (if (and body-beg (not (= body-beg head-beg))
@@ -7521,7 +7510,6 @@ This command is intended for debugging purposes."
                  (format "-%s" (marker-position body-beg))
                "")
              (marker-position (magit-section-end section))
-             (magit-section-title section)
              (magit-section-info section)
              (magit-section-context-type section))))
 
