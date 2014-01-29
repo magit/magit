@@ -2976,15 +2976,17 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
              (magit-section-match-1 (cdr l1) (cdr l2))))))
 
 (defun magit-section-match (condition &optional section)
-  (if (listp condition)
-      (cl-find t condition :test
-               (lambda (_ condition)
-                 (magit-section-match condition section)))
-    (magit-section-match-1 (if (symbolp condition)
-                               (list condition)
-                             (append condition nil))
-                           (magit-section-context-type
-                            (or section (magit-current-section))))))
+  (cond ((eq condition t) t)
+        ((listp condition)
+         (cl-find t condition :test
+                  (lambda (_ condition)
+                    (magit-section-match condition section))))
+        (t
+         (magit-section-match-1 (if (symbolp condition)
+                                    (list condition)
+                                  (append condition nil))
+                                (magit-section-context-type
+                                 (or section (magit-current-section)))))))
 
 (defmacro magit-section-case (head &rest clauses)
   (declare (indent 1))
@@ -2993,11 +2995,8 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
     `(let* ((,section (magit-current-section))
             (,info (and ,section (magit-section-info ,section))))
        (cond ,@(mapcar (lambda (clause)
-                         (let ((condition (car clause)))
-                           `(,(if (eq condition t)
-                                  t
-                                `(magit-section-match ',condition ,section))
-                             ,@(cdr clause))))
+                         `((magit-section-match ',(car clause) ,section)
+                           ,@(cdr clause)))
                        clauses)))))
 
 (defconst magit-section-action-success
