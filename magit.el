@@ -2823,7 +2823,7 @@ true, shown otherwise."
 (defun magit-toggle-file-section ()
   "Like `magit-toggle-section' but toggle at file granularity."
   (interactive)
-  (when (eq 'hunk (car (magit-section-context-type (magit-current-section))))
+  (when (eq (magit-section-type (magit-current-section)) 'hunk)
     (magit-goto-parent-section))
   (magit-toggle-section))
 
@@ -5436,13 +5436,11 @@ Return nil if there is no rebase in progress."
 ;;;###autoload
 (defun magit-interactive-rebase (commit)
   "Start a git rebase -i session, old school-style."
-  (interactive
-   (let* ((section (get-text-property (point) 'magit-section))
-          (commit (and (member 'commit (magit-section-context-type section))
-                       (magit-section-info section))))
-     (list (if commit
-               (concat commit "^")
-             (magit-read-rev "Interactively rebase to" (magit-guess-branch))))))
+  (interactive (let ((commit (magit-section-case (info) (commit info))))
+                 (list (if commit
+                           (concat commit "^")
+                         (magit-read-rev "Interactively rebase to"
+                                         (magit-guess-branch))))))
   (magit-assert-emacsclient "rebase interactively")
   (magit-with-emacsclient magit-server-window-for-rebase
     (magit-run-git-async "rebase" "-i" commit)))
