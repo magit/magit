@@ -167,13 +167,11 @@
                         "summary"))
 
 (magit-add-action-clauses (item info "discard")
-  ((topic)
-   (when (yes-or-no-p "Discard topic? ")
-     (magit-run-topgit-async "delete" "-f" info))))
+  (topic (when (yes-or-no-p "Discard topic? ")
+           (magit-run-topgit-async "delete" "-f" info))))
 
 (magit-add-action-clauses (item info "visit")
-  ((topic)
-   (magit-checkout info)))
+  (topic (magit-checkout info)))
 
 ;;;###autoload
 (define-minor-mode magit-topgit-mode "Topgit support for Magit"

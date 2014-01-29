@@ -202,17 +202,14 @@ into the series."
   (magit-stgit-mode 1))
 
 (magit-add-action-clauses (item info "visit")
-  ((stgit-patch)
-   (magit-stgit-show info)))
+  (stgit-patch (magit-stgit-show info)))
 
 (magit-add-action-clauses (item info "apply")
-  ((stgit-patch)
-   (magit-run-stgit "goto" info)))
+  (stgit-patch (magit-run-stgit "goto" info)))
 
 (magit-add-action-clauses (item info "discard")
-  ((stgit-patch)
-   (when (yes-or-no-p (format "Discard patch `%s'? " info))
-     (magit-stgit-discard info))))
+  (stgit-patch (when (yes-or-no-p (format "Discard patch `%s'? " info))
+		 (magit-stgit-discard info))))
 
 (easy-menu-define magit-stgit-extension-menu nil
   "StGit extension menu"
