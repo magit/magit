@@ -7163,15 +7163,6 @@ With a prefix argument edit the ignore string."
   (interactive "P")
   (magit-ignore-item edit t))
 
-;;;; Rename
-
-(defun magit-rename-item ()
-  "Rename the item at point."
-  (interactive)
-  (magit-section-action rename ()
-    (branch (call-interactively 'magit-rename-branch))
-    (remote (call-interactively 'magit-rename-remote))))
-
 ;;;; ChangeLog
 
 ;;;###autoload
@@ -7378,7 +7369,14 @@ from the parent keymap `magit-mode-map' are also available.")
              (set-marker marker nil)))
           markers)))
 
-;;;; (wacky utilities)
+;;;; (commands)
+
+(defun magit-rename-item ()
+  "Rename the item at point."
+  (interactive)
+  (magit-section-action rename ()
+    (branch (call-interactively 'magit-rename-branch))
+    (remote (call-interactively 'magit-rename-remote))))
 
 (defun magit-change-what-branch-tracks ()
   "Change which remote branch the current branch tracks."
