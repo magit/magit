@@ -4929,66 +4929,6 @@ As determined by the directory passed to `magit-status'."
        (string= (magit-get-top-dir magit-default-directory)
                 (magit-get-top-dir (file-name-directory buffer-file-name)))))
 
-;;;; Read Repository
-
-(defun magit-read-top-dir (dir)
-  "Ask the user for a Git repository.
-The choices offered by auto-completion will be the repositories
-under `magit-repo-dirs'.  If `magit-repo-dirs' is nil or DIR is
-non-nil, then autocompletion will offer directory names."
-  (if (and (not dir) magit-repo-dirs)
-      (let* ((repos (magit-list-repos magit-repo-dirs))
-             (reply (magit-completing-read "Git repository" repos)))
-        (file-name-as-directory
-         (or (cdr (assoc reply repos))
-             (if (file-directory-p reply)
-                 (expand-file-name reply)
-               (user-error "Not a repository or a directory: %s" reply)))))
-    (file-name-as-directory
-     (read-directory-name "Git repository: "
-                          (or (magit-get-top-dir) default-directory)))))
-
-(defun magit-list-repos (dirs)
-  (magit-list-repos-remove-conflicts
-   (cl-loop for dir in dirs
-            append (cl-loop for repo in
-                            (magit-list-repos* dir magit-repo-dirs-depth)
-                    collect (cons (file-name-nondirectory repo) repo)))))
-
-(defun magit-list-repos* (dir depth)
-  "Return a list of repos found in DIR, recursing up to DEPTH levels deep."
-  (if (magit-git-repo-p dir)
-      (list (expand-file-name dir))
-    (and (> depth 0)
-         (file-directory-p dir)
-         (not (member (file-name-nondirectory dir)
-                      '(".." ".")))
-         (cl-loop for entry in (directory-files dir t nil t)
-                  append (magit-list-repos* entry (1- depth))))))
-
-(defun magit-list-repos-remove-conflicts (alist)
-  (let ((dict (make-hash-table :test 'equal))
-        (alist (delete-dups alist))
-        (result nil))
-    (dolist (a alist)
-      (puthash (car a) (cons (cdr a) (gethash (car a) dict))
-               dict))
-    (maphash
-     (lambda (key value)
-       (if (= (length value) 1)
-           (push (cons key (car value)) result)
-         (let ((sub (magit-list-repos-remove-conflicts
-                     (mapcar
-                      (lambda (entry)
-                        (let ((dir (directory-file-name
-                                    (substring entry 0 (- (length key))))))
-                          (cons (concat (file-name-nondirectory dir) "/" key)
-                                entry)))
-                      value))))
-           (setq result (append result sub)))))
-     dict)
-    result))
-
 ;;; Apply
 ;;;; Apply Commands
 ;;;;; Apply
@@ -7403,6 +7343,66 @@ on a position in a file-visiting buffer."
                     (list current-prefix-arg
                           (prompt-for-change-log-name))))
   (magit-add-change-log-entry whoami file-name t))
+
+;;;; Read Repository
+
+(defun magit-read-top-dir (dir)
+  "Ask the user for a Git repository.
+The choices offered by auto-completion will be the repositories
+under `magit-repo-dirs'.  If `magit-repo-dirs' is nil or DIR is
+non-nil, then autocompletion will offer directory names."
+  (if (and (not dir) magit-repo-dirs)
+      (let* ((repos (magit-list-repos magit-repo-dirs))
+             (reply (magit-completing-read "Git repository" repos)))
+        (file-name-as-directory
+         (or (cdr (assoc reply repos))
+             (if (file-directory-p reply)
+                 (expand-file-name reply)
+               (user-error "Not a repository or a directory: %s" reply)))))
+    (file-name-as-directory
+     (read-directory-name "Git repository: "
+                          (or (magit-get-top-dir) default-directory)))))
+
+(defun magit-list-repos (dirs)
+  (magit-list-repos-remove-conflicts
+   (cl-loop for dir in dirs
+            append (cl-loop for repo in
+                            (magit-list-repos* dir magit-repo-dirs-depth)
+                    collect (cons (file-name-nondirectory repo) repo)))))
+
+(defun magit-list-repos* (dir depth)
+  "Return a list of repos found in DIR, recursing up to DEPTH levels deep."
+  (if (magit-git-repo-p dir)
+      (list (expand-file-name dir))
+    (and (> depth 0)
+         (file-directory-p dir)
+         (not (member (file-name-nondirectory dir)
+                      '(".." ".")))
+         (cl-loop for entry in (directory-files dir t nil t)
+                  append (magit-list-repos* entry (1- depth))))))
+
+(defun magit-list-repos-remove-conflicts (alist)
+  (let ((dict (make-hash-table :test 'equal))
+        (alist (delete-dups alist))
+        (result nil))
+    (dolist (a alist)
+      (puthash (car a) (cons (cdr a) (gethash (car a) dict))
+               dict))
+    (maphash
+     (lambda (key value)
+       (if (= (length value) 1)
+           (push (cons key (car value)) result)
+         (let ((sub (magit-list-repos-remove-conflicts
+                     (mapcar
+                      (lambda (entry)
+                        (let ((dir (directory-file-name
+                                    (substring entry 0 (- (length key))))))
+                          (cons (concat (file-name-nondirectory dir) "/" key)
+                                entry)))
+                      value))))
+           (setq result (append result sub)))))
+     dict)
+    result))
 
 ;;;; External Tools
 
