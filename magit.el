@@ -7081,23 +7081,31 @@ on a position in a file-visiting buffer."
 
 ;;;; Visit
 
-(defun magit-visit-item (&optional other-window)
+(defun magit-visit-item (&optional other-window revision)
   "Visit current item.
-With a prefix argument, visit in other window."
+With a prefix argument, visit in other window.
+When revision, visit the item at a specified revision"
   (interactive "P")
   (magit-section-action (item info "visit")
     ((untracked file) (magit-visit-file-item info other-window))
-    ((diff)           (magit-visit-file-item info other-window))
-    ((diffstat)       (magit-visit-file-item info other-window))
+    ((diff)           (magit-visit-file-item info other-window nil nil revision))
+    ((diffstat)       (magit-visit-file-item info other-window nil nil revision))
     ((hunk)           (magit-visit-file-item
                        (magit-section-info (magit-section-parent item))
                        other-window
                        (magit-hunk-item-target-line item)
-                       (current-column)))
+                       (current-column) revision))
     ((commit)         (magit-show-commit info))
     ((stash)          (magit-diff-stash info))))
 
-(defun magit-visit-file-item (file &optional other-window line column)
+(defun magit-visit-item-before-commit (&optional other-window)
+  "Visit current item of a commit at the revision just before this commit.
+With a prefix argument, visit in other window."
+  (interactive "P")
+  (magit-visit-item other-window
+                    (concat (buffer-substring (point-min) (+ (point-min) magit-sha1-abbrev-length)) "^")))
+
+(defun magit-visit-file-item (file &optional other-window line column revision)
   (unless file
     (error "Can't get pathname for this file"))
   (unless (file-exists-p file)
@@ -7107,9 +7115,13 @@ With a prefix argument, visit in other window."
                  (magit-get-top-dir))
           (magit-dired-jump other-window)
         (magit-status file (not other-window)))
-    (if other-window
-        (find-file-other-window file)
-      (find-file file))
+
+    (if revision
+        (let ((switch (if other-window 'switch-to-buffer-other-window 'switch-to-buffer)))
+              (funcall switch (magit-show revision file)))
+      (if other-window
+          (find-file-other-window file)
+        (find-file file)))
     (when line
       (goto-char (point-min))
       (forward-line (1- line))
