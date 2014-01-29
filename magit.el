@@ -4548,32 +4548,6 @@ stash at point, then prompt for a commit."
                         'mouse-face magit-item-highlight-face
                         'face 'magit-log-sha1)))
 
-;;; Commit Mark
-
-(defvar magit-marked-commit nil)
-
-(defvar-local magit-mark-overlay nil)
-(put 'magit-mark-overlay 'permanent-local t)
-
-(defun magit-refresh-marked-commits ()
-  (magit-map-magit-buffers #'magit-refresh-marked-commits-in-buffer))
-
-(defun magit-refresh-marked-commits-in-buffer ()
-  (unless magit-mark-overlay
-    (setq magit-mark-overlay (make-overlay 1 1))
-    (overlay-put magit-mark-overlay 'face 'magit-item-mark))
-  (delete-overlay magit-mark-overlay)
-  (magit-map-sections
-   (lambda (section)
-     (when (and (eq (magit-section-type section) 'commit)
-                (equal (magit-section-info section)
-                       magit-marked-commit))
-       (move-overlay magit-mark-overlay
-                     (magit-section-beginning section)
-                     (magit-section-end section)
-                     (current-buffer))))
-   magit-root-section))
-
 ;;; Status Mode
 
 (define-derived-mode magit-status-mode magit-mode "Magit"
@@ -7198,21 +7172,6 @@ on a position in a file-visiting buffer."
                           (prompt-for-change-log-name))))
   (magit-add-change-log-entry whoami file-name t))
 
-;;;; Mark
-
-(defun magit-mark-item (&optional unmark)
-  "Mark the commit at point.
-Some commands act on the marked commit by default or use it as
-default when prompting for a commit."
-  (interactive "P")
-  (if unmark
-      (setq magit-marked-commit nil)
-    (magit-section-action mark (info)
-      (commit (setq magit-marked-commit
-                    (if (equal magit-marked-commit info) nil info)))))
-  (magit-refresh-marked-commits)
-  (run-hooks 'magit-mark-commit-hook))
-
 ;;;; Kill
 
 (defun magit-copy-item-as-kill ()
@@ -7422,6 +7381,45 @@ from the parent keymap `magit-mode-map' are also available.")
              (make-directory dir)))
       (let ((default-directory dir))
         (magit-run-git "init")))))
+
+;;;; Commit Mark
+
+(defvar magit-marked-commit nil)
+
+(defvar-local magit-mark-overlay nil)
+(put 'magit-mark-overlay 'permanent-local t)
+
+(defun magit-mark-item (&optional unmark)
+  "Mark the commit at point.
+Some commands act on the marked commit by default or use it as
+default when prompting for a commit."
+  (interactive "P")
+  (if unmark
+      (setq magit-marked-commit nil)
+    (magit-section-action mark (info)
+      (commit (setq magit-marked-commit
+                    (if (equal magit-marked-commit info) nil info)))))
+  (magit-refresh-marked-commits)
+  (run-hooks 'magit-mark-commit-hook))
+
+(defun magit-refresh-marked-commits ()
+  (magit-map-magit-buffers #'magit-refresh-marked-commits-in-buffer))
+
+(defun magit-refresh-marked-commits-in-buffer ()
+  (unless magit-mark-overlay
+    (setq magit-mark-overlay (make-overlay 1 1))
+    (overlay-put magit-mark-overlay 'face 'magit-item-mark))
+  (delete-overlay magit-mark-overlay)
+  (magit-map-sections
+   (lambda (section)
+     (when (and (eq (magit-section-type section) 'commit)
+                (equal (magit-section-info section)
+                       magit-marked-commit))
+       (move-overlay magit-mark-overlay
+                     (magit-section-beginning section)
+                     (magit-section-end section)
+                     (current-buffer))))
+   magit-root-section))
 
 ;;;; External Tools
 
