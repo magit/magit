@@ -2961,13 +2961,10 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
 ;;;; Section Actions
 
 (defun magit-section-context-type (section)
-  (when section
-    (let ((c (or (magit-section-type section)
-                 (and (symbolp (magit-section-title section))
-                      (magit-section-title section)))))
-      (when c
-        (cons c (magit-section-context-type
-                 (magit-section-parent section)))))))
+  (cons (magit-section-type section)
+        (let ((parent (magit-section-parent section)))
+          (when parent
+            (magit-section-context-type parent)))))
 
 (defun magit-section-match-1 (l1 l2)
   (or (null l1)
