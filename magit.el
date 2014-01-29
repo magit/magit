@@ -4237,57 +4237,6 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
             (magit-insert-diff-title status file nil))))
       file)))
 
-(defun magit-diff-item-insert-header (diff buf)
-  (magit-insert-region (magit-section-content-beginning diff)
-                       (if (magit-section-children diff)
-                           (magit-section-beginning
-                            (car (magit-section-children diff)))
-                         (magit-section-end diff))
-                       buf))
-
-(defun magit-insert-diff-item-patch (diff buf)
-  (magit-insert-region (magit-section-content-beginning diff)
-                       (magit-section-end diff)
-                       buf))
-
-(defun magit-insert-hunk-item-patch (hunk buf)
-  (magit-diff-item-insert-header (magit-section-parent hunk) buf)
-  (magit-insert-region (magit-section-beginning hunk)
-                       (magit-section-end hunk)
-                       buf))
-
-(defun magit-insert-region (beg end buf)
-  (let ((text (buffer-substring-no-properties beg end)))
-    (with-current-buffer buf
-      (insert text))))
-
-(defun magit-insert-hunk-item-region-patch (hunk reverse beg end buf)
-  (magit-diff-item-insert-header (magit-section-parent hunk) buf)
-  (save-excursion
-    (goto-char (magit-section-beginning hunk))
-    (magit-insert-current-line buf)
-    (forward-line)
-    (let ((copy-op (if reverse "+" "-")))
-      (while (< (point) (magit-section-end hunk))
-        (cond ((and (<= beg (point)) (< (point) end))
-               (magit-insert-current-line buf))
-              ((looking-at " ")
-               (magit-insert-current-line buf))
-              ((looking-at copy-op)
-               (let ((text (buffer-substring-no-properties
-                            (+ (point) 1) (line-beginning-position 2))))
-                 (with-current-buffer buf
-                   (insert " " text)))))
-        (forward-line))))
-  (with-current-buffer buf
-    (diff-fixup-modifs (point-min) (point-max))))
-
-(defun magit-insert-current-line (buf)
-  (let ((text (buffer-substring-no-properties
-               (line-beginning-position) (line-beginning-position 2))))
-    (with-current-buffer buf
-      (insert text))))
-
 ;;; Log Washing
 ;;;; Log Washing Variables
 
@@ -5074,38 +5023,22 @@ non-nil, then autocompletion will offer directory names."
      dict)
     result))
 
-;;; Acting (1)
-;;;; Merging
+;;; Apply
+;;;; Apply Commands
+;;;;; Apply
 
-;;;###autoload
-(defun magit-merge (revision &optional do-commit)
-  "Merge REVISION into the current 'HEAD', leaving changes uncommitted.
-With a prefix argument, skip editing the log message and commit.
-\('git merge [--no-commit] REVISION')."
-  (interactive (list (magit-read-rev "Merge"
-                                     (or (magit-guess-branch)
-                                         (magit-get-previous-branch)))
-                     current-prefix-arg))
-  (when (or (magit-everything-clean-p)
-            (not magit-merge-warn-dirty-worktree)
-            (yes-or-no-p
-             "Running merge in a dirty worktree could cause data loss.  Continue?"))
-    (magit-run-git "merge" revision magit-custom-options
-                   (unless do-commit "--no-commit"))
-    (when (file-exists-p ".git/MERGE_MSG")
-      (let ((magit-custom-options nil))
-        (magit-commit)))))
-
-;;;###autoload
-(defun magit-merge-abort ()
-  "Abort the current merge operation."
+(defun magit-apply-item ()
+  "Apply the item at point to the current working tree."
   (interactive)
-  (if (file-exists-p (magit-git-dir "MERGE_HEAD"))
-      (when (yes-or-no-p "Abort merge? ")
-        (magit-run-git-async "merge" "--abort"))
-    (user-error "No merge in progress")))
+  (magit-section-action apply (info)
+    (([* unstaged] [* staged])
+     (user-error "Change is already in your working tree"))
+    (hunk   (magit-apply-hunk-item it))
+    (diff   (magit-apply-diff-item it))
+    (stash  (magit-stash-apply info))
+    (commit (magit-apply-commit info))))
 
-;;;; Stage
+;;;;; Stage
 
 (defun magit-stage-item (&optional file)
   "Add the item at point to the staging area.
@@ -5152,7 +5085,7 @@ With a prefix argument, add remaining untracked files as well.
         (magit-run-git "add" ".")
       (magit-run-git "add" "-u" "."))))
 
-;;;; Unstage
+;;;;; Unstage
 
 (defun magit-unstage-item ()
   "Remove the item at point from the staging area."
@@ -5187,6 +5120,218 @@ With a prefix argument, add remaining untracked files as well.
                                        "--exclude-standard")))
             (yes-or-no-p "Unstage all changes? "))
     (magit-run-git "reset" "HEAD" "--")))
+
+;;;;; Discard
+
+(defun magit-discard-item ()
+  "Remove the change introduced by the item at point."
+  (interactive)
+  (magit-section-action discard (info parent-info)
+    ([file untracked]
+     (when (yes-or-no-p (format "Delete %s? " info))
+       (if (and (file-directory-p info)
+                (not (file-symlink-p info)))
+           (delete-directory info 'recursive)
+         (delete-file info))
+       (magit-refresh)))
+    (untracked
+     (when (yes-or-no-p "Delete all untracked files and directories? ")
+       (magit-run-git "clean" "-df")))
+    ([hunk diff unstaged]
+     (when (yes-or-no-p (if (use-region-p)
+                            "Discard changes in region? "
+                          "Discard hunk? "))
+       (magit-apply-hunk-item it "--reverse")))
+    ([hunk diff staged]
+     (if (magit-file-uptodate-p parent-info)
+         (when (yes-or-no-p (if (use-region-p)
+                                "Discard changes in region? "
+                              "Discard hunk? "))
+           (magit-apply-hunk-item it "--reverse" "--index"))
+       (user-error "Can't discard this hunk.  Please unstage it first")))
+    ([diff unstaged]
+     (magit-discard-diff it nil))
+    ([diff staged]
+     (if (magit-file-uptodate-p (magit-section-info it))
+         (magit-discard-diff it t)
+       (user-error "Can't discard staged changes to this file.  \
+Please unstage it first")))
+    (hunk   (user-error "Can't discard this hunk"))
+    (diff   (user-error "Can't discard this diff"))
+    (stash  (when (yes-or-no-p "Discard stash? ")
+              (magit-stash-drop info)))
+    (branch (when (yes-or-no-p
+                   (if current-prefix-arg
+                       (concat "Force delete branch [" info "]? ")
+                     (concat "Delete branch [" info "]? ")))
+              (magit-delete-branch info current-prefix-arg)))
+    (remote (when (yes-or-no-p "Remove remote? ")
+              (magit-remove-remote info)))))
+
+;;;;; Revert
+
+(defun magit-revert-item ()
+  "Revert the item at point.
+The change introduced by the item is reversed in the current
+working tree."
+  (interactive)
+  (magit-section-action revert (info)
+    ([* unstaged] (magit-discard-item))
+    (commit (when (or (not magit-revert-item-confirm)
+                      (yes-or-no-p "Revert this commit? "))
+              (magit-revert-commit info)))
+    (diff   (when (or (not magit-revert-item-confirm)
+                      (yes-or-no-p "Revert this diff? "))
+              (magit-apply-diff-item it "--reverse")))
+    (hunk   (when (or (not magit-revert-item-confirm)
+                      (yes-or-no-p "Revert this hunk? "))
+              (magit-apply-hunk-item it "--reverse")))))
+
+(defun magit-revert-commit (commit)
+  (magit-assert-one-parent commit "revert")
+  (magit-run-git "revert" "--no-commit" commit))
+
+;;;; Apply Core
+
+(defun magit-discard-diff (diff stagedp)
+  (let ((file (magit-section-info diff)))
+    (cl-case (magit-section-diff-status diff)
+      (deleted
+       (when (yes-or-no-p (format "Resurrect %s? " file))
+         (when stagedp
+           (magit-run-git "reset" "-q" "--" file))
+         (magit-run-git "checkout" "--" file)))
+      (new
+       (when (yes-or-no-p (format "Delete %s? " file))
+         (magit-run-git "rm" "-f" "--" file)))
+      (t
+       (when (yes-or-no-p (format "Discard changes to %s? " file))
+         (if stagedp
+             (magit-run-git "checkout" "HEAD" "--" file)
+           (magit-run-git "checkout" "--" file)))))))
+
+(defun magit-apply-commit (commit)
+  (magit-assert-one-parent commit "cherry-pick")
+  (magit-run-git "cherry-pick" "--no-commit" commit))
+
+(defun magit-apply-diff-item (diff &rest args)
+  (when (zerop magit-diff-context-lines)
+    (setq args (cons "--unidiff-zero" args)))
+  (let ((buf (generate-new-buffer " *magit-input*")))
+    (unwind-protect
+        (progn (magit-insert-diff-item-patch diff buf)
+               (magit-run-git-with-input
+                buf "apply" args "--ignore-space-change" "-"))
+      (kill-buffer buf))))
+
+(defun magit-apply-hunk-item (hunk &rest args)
+  "Apply single hunk or part of a hunk to the index or working file.
+
+This function is the core of magit's stage, unstage, apply, and
+revert operations.  HUNK (or the portion of it selected by the
+region) will be applied to either the index, if \"--cached\" is a
+member of ARGS, or to the working file otherwise."
+  (when (string-match "^diff --cc" (magit-section-parent-info hunk))
+    (user-error (concat "Cannot un-/stage individual resolution hunks.  "
+                        "Please stage the whole file.")))
+  (let ((use-region (use-region-p)))
+    (when (zerop magit-diff-context-lines)
+      (setq args (cons "--unidiff-zero" args))
+      (when use-region
+        (user-error (concat "Not enough context to partially apply hunk.  "
+                            "Use `+' to increase context."))))
+    (let ((buf (generate-new-buffer " *magit-input*")))
+      (unwind-protect
+          (progn (if use-region
+                     (magit-insert-hunk-item-region-patch
+                      hunk (member "--reverse" args)
+                      (region-beginning) (region-end) buf)
+                   (magit-insert-hunk-item-patch hunk buf))
+                 (magit-run-git-with-input
+                  buf "apply" args "--ignore-space-change" "-"))
+        (kill-buffer buf)))))
+
+(defun magit-insert-diff-item-patch (diff buf)
+  (magit-insert-region (magit-section-content-beginning diff)
+                       (magit-section-end diff)
+                       buf))
+
+(defun magit-insert-hunk-item-patch (hunk buf)
+  (magit-diff-item-insert-header (magit-section-parent hunk) buf)
+  (magit-insert-region (magit-section-beginning hunk)
+                       (magit-section-end hunk)
+                       buf))
+
+(defun magit-insert-hunk-item-region-patch (hunk reverse beg end buf)
+  (magit-diff-item-insert-header (magit-section-parent hunk) buf)
+  (save-excursion
+    (goto-char (magit-section-beginning hunk))
+    (magit-insert-current-line buf)
+    (forward-line)
+    (let ((copy-op (if reverse "+" "-")))
+      (while (< (point) (magit-section-end hunk))
+        (cond ((and (<= beg (point)) (< (point) end))
+               (magit-insert-current-line buf))
+              ((looking-at " ")
+               (magit-insert-current-line buf))
+              ((looking-at copy-op)
+               (let ((text (buffer-substring-no-properties
+                            (+ (point) 1) (line-beginning-position 2))))
+                 (with-current-buffer buf
+                   (insert " " text)))))
+        (forward-line))))
+  (with-current-buffer buf
+    (diff-fixup-modifs (point-min) (point-max))))
+
+(defun magit-diff-item-insert-header (diff buf)
+  (magit-insert-region (magit-section-content-beginning diff)
+                       (if (magit-section-children diff)
+                           (magit-section-beginning
+                            (car (magit-section-children diff)))
+                         (magit-section-end diff))
+                       buf))
+
+(defun magit-insert-region (beg end buf)
+  (let ((text (buffer-substring-no-properties beg end)))
+    (with-current-buffer buf
+      (insert text))))
+
+(defun magit-insert-current-line (buf)
+  (let ((text (buffer-substring-no-properties
+               (line-beginning-position) (line-beginning-position 2))))
+    (with-current-buffer buf
+      (insert text))))
+
+;;; Acting (1)
+;;;; Merging
+
+;;;###autoload
+(defun magit-merge (revision &optional do-commit)
+  "Merge REVISION into the current 'HEAD', leaving changes uncommitted.
+With a prefix argument, skip editing the log message and commit.
+\('git merge [--no-commit] REVISION')."
+  (interactive (list (magit-read-rev "Merge"
+                                     (or (magit-guess-branch)
+                                         (magit-get-previous-branch)))
+                     current-prefix-arg))
+  (when (or (magit-everything-clean-p)
+            (not magit-merge-warn-dirty-worktree)
+            (yes-or-no-p
+             "Running merge in a dirty worktree could cause data loss.  Continue?"))
+    (magit-run-git "merge" revision magit-custom-options
+                   (unless do-commit "--no-commit"))
+    (when (file-exists-p ".git/MERGE_MSG")
+      (let ((magit-custom-options nil))
+        (magit-commit)))))
+
+;;;###autoload
+(defun magit-merge-abort ()
+  "Abort the current merge operation."
+  (interactive)
+  (if (file-exists-p (magit-git-dir "MERGE_HEAD"))
+      (when (yes-or-no-p "Abort merge? ")
+        (magit-run-git-async "merge" "--abort"))
+    (user-error "No merge in progress")))
 
 ;;;; Branching
 
@@ -6102,60 +6247,6 @@ With prefix argument, changes in staging area are kept.
   (interactive (list (magit-read-stash "Drop stash (number): ")))
   (magit-run-git "stash" "drop" stash))
 
-;;;; Apply
-
-(defun magit-apply-item ()
-  "Apply the item at point to the current working tree."
-  (interactive)
-  (magit-section-action apply (info)
-    (([* unstaged] [* staged])
-     (user-error "Change is already in your working tree"))
-    (hunk   (magit-apply-hunk-item it))
-    (diff   (magit-apply-diff-item it))
-    (stash  (magit-stash-apply info))
-    (commit (magit-apply-commit info))))
-
-(defun magit-apply-commit (commit)
-  (magit-assert-one-parent commit "cherry-pick")
-  (magit-run-git "cherry-pick" "--no-commit" commit))
-
-(defun magit-apply-diff-item (diff &rest args)
-  (when (zerop magit-diff-context-lines)
-    (setq args (cons "--unidiff-zero" args)))
-  (let ((buf (generate-new-buffer " *magit-input*")))
-    (unwind-protect
-        (progn (magit-insert-diff-item-patch diff buf)
-               (magit-run-git-with-input
-                buf "apply" args "--ignore-space-change" "-"))
-      (kill-buffer buf))))
-
-(defun magit-apply-hunk-item (hunk &rest args)
-  "Apply single hunk or part of a hunk to the index or working file.
-
-This function is the core of magit's stage, unstage, apply, and
-revert operations.  HUNK (or the portion of it selected by the
-region) will be applied to either the index, if \"--cached\" is a
-member of ARGS, or to the working file otherwise."
-  (when (string-match "^diff --cc" (magit-section-parent-info hunk))
-    (user-error (concat "Cannot un-/stage individual resolution hunks.  "
-                        "Please stage the whole file.")))
-  (let ((use-region (use-region-p)))
-    (when (zerop magit-diff-context-lines)
-      (setq args (cons "--unidiff-zero" args))
-      (when use-region
-        (user-error (concat "Not enough context to partially apply hunk.  "
-                            "Use `+' to increase context."))))
-    (let ((buf (generate-new-buffer " *magit-input*")))
-      (unwind-protect
-          (progn (if use-region
-                     (magit-insert-hunk-item-region-patch
-                      hunk (member "--reverse" args)
-                      (region-beginning) (region-end) buf)
-                   (magit-insert-hunk-item-patch hunk buf))
-                 (magit-run-git-with-input
-                  buf "apply" args "--ignore-space-change" "-"))
-        (kill-buffer buf)))))
-
 ;;;; Cherry-Pick
 
 (defun magit-cherry-pick-item ()
@@ -6168,29 +6259,6 @@ member of ARGS, or to the working file otherwise."
 (defun magit-cherry-pick-commit (commit)
   (magit-assert-one-parent commit "cherry-pick")
   (magit-run-git "cherry-pick" commit))
-
-;;;; Revert
-
-(defun magit-revert-item ()
-  "Revert the item at point.
-The change introduced by the item is reversed in the current
-working tree."
-  (interactive)
-  (magit-section-action revert (info)
-    ([* unstaged] (magit-discard-item))
-    (commit (when (or (not magit-revert-item-confirm)
-                      (yes-or-no-p "Revert this commit? "))
-              (magit-revert-commit info)))
-    (diff   (when (or (not magit-revert-item-confirm)
-                      (yes-or-no-p "Revert this diff? "))
-              (magit-apply-diff-item it "--reverse")))
-    (hunk   (when (or (not magit-revert-item-confirm)
-                      (yes-or-no-p "Revert this hunk? "))
-              (magit-apply-hunk-item it "--reverse")))))
-
-(defun magit-revert-commit (commit)
-  (magit-assert-one-parent commit "revert")
-  (magit-run-git "revert" "--no-commit" commit))
 
 ;;;; Submoduling
 
@@ -6963,70 +7031,6 @@ With a prefix argument edit the ignore string."
 With a prefix argument edit the ignore string."
   (interactive "P")
   (magit-ignore-item edit t))
-
-;;;; Discard
-
-(defun magit-discard-diff (diff stagedp)
-  (let ((file (magit-section-info diff)))
-    (cl-case (magit-section-diff-status diff)
-      (deleted
-       (when (yes-or-no-p (format "Resurrect %s? " file))
-         (when stagedp
-           (magit-run-git "reset" "-q" "--" file))
-         (magit-run-git "checkout" "--" file)))
-      (new
-       (when (yes-or-no-p (format "Delete %s? " file))
-         (magit-run-git "rm" "-f" "--" file)))
-      (t
-       (when (yes-or-no-p (format "Discard changes to %s? " file))
-         (if stagedp
-             (magit-run-git "checkout" "HEAD" "--" file)
-           (magit-run-git "checkout" "--" file)))))))
-
-(defun magit-discard-item ()
-  "Remove the change introduced by the item at point."
-  (interactive)
-  (magit-section-action discard (info parent-info)
-    ([file untracked]
-     (when (yes-or-no-p (format "Delete %s? " info))
-       (if (and (file-directory-p info)
-                (not (file-symlink-p info)))
-           (delete-directory info 'recursive)
-         (delete-file info))
-       (magit-refresh)))
-    (untracked
-     (when (yes-or-no-p "Delete all untracked files and directories? ")
-       (magit-run-git "clean" "-df")))
-    ([hunk diff unstaged]
-     (when (yes-or-no-p (if (use-region-p)
-                            "Discard changes in region? "
-                          "Discard hunk? "))
-       (magit-apply-hunk-item it "--reverse")))
-    ([hunk diff staged]
-     (if (magit-file-uptodate-p parent-info)
-         (when (yes-or-no-p (if (use-region-p)
-                                "Discard changes in region? "
-                              "Discard hunk? "))
-           (magit-apply-hunk-item it "--reverse" "--index"))
-       (user-error "Can't discard this hunk.  Please unstage it first")))
-    ([diff unstaged]
-     (magit-discard-diff it nil))
-    ([diff staged]
-     (if (magit-file-uptodate-p (magit-section-info it))
-         (magit-discard-diff it t)
-       (user-error "Can't discard staged changes to this file.  \
-Please unstage it first")))
-    (hunk   (user-error "Can't discard this hunk"))
-    (diff   (user-error "Can't discard this diff"))
-    (stash  (when (yes-or-no-p "Discard stash? ")
-              (magit-stash-drop info)))
-    (branch (when (yes-or-no-p
-                   (if current-prefix-arg
-                       (concat "Force delete branch [" info "]? ")
-                     (concat "Delete branch [" info "]? ")))
-              (magit-delete-branch info current-prefix-arg)))
-    (remote (when (yes-or-no-p "Remove remote? ")
-              (magit-remove-remote info)))))
 
 ;;;; Rename
 
