@@ -4528,7 +4528,7 @@ stash at point, then prompt for a commit."
 
 (defun magit-show-item-or-scroll (fn)
   (let (rev cmd buf win)
-    (magit-section-case (item info)
+    (magit-section-case (_ info)
       (commit (setq rev info
                     cmd 'magit-show-commit
                     buf magit-commit-buffer-name))
@@ -5538,14 +5538,14 @@ With two prefix args, remove ignored files as well."
 
 (defun magit-rewrite-set-used ()
   (interactive)
-  (magit-section-case (item info)
+  (magit-section-case (_ info)
     ([pending commit]
      (magit-rewrite-set-commit-property info 'used t)
      (magit-refresh))))
 
 (defun magit-rewrite-set-unused ()
   (interactive)
-  (magit-section-case (item info)
+  (magit-section-case (_ info)
     ([pending commit]
      (magit-rewrite-set-commit-property info 'used nil)
      (magit-refresh))))
@@ -6167,7 +6167,7 @@ member of ARGS, or to the working file otherwise."
 (defun magit-cherry-pick-item ()
   "Cherry-pick them item at point."
   (interactive)
-  (magit-section-action (item info "cherry-pick")
+  (magit-section-action (_ info "cherry-pick")
     ([pending commit]
      (magit-cherry-pick-commit info)
      (magit-rewrite-set-commit-property info 'used t))
@@ -6698,7 +6698,7 @@ restore the window state that was saved before ediff was called."
 ;;;###autoload
 (defun magit-interactive-resolve (file)
   "Resolve a merge conflict using Ediff."
-  (interactive (list (magit-section-case (item info) (diff (cadr info)))))
+  (interactive (list (magit-section-case (_ info) (diff (cadr info)))))
   (require 'ediff)
   (let ((merge-status (magit-git-lines "ls-files" "-u" "--" file))
         (base-buffer (generate-new-buffer (concat file ".base")))
@@ -7053,7 +7053,7 @@ Please unstage it first")))
 (defun magit-rename-item ()
   "Rename the item at point."
   (interactive)
-  (magit-section-action (item info "rename")
+  (magit-section-action (_ __ "rename")
     (branch (call-interactively 'magit-rename-branch))
     (remote (call-interactively 'magit-rename-remote))))
 
@@ -7232,7 +7232,7 @@ default when prompting for a commit."
   (interactive "P")
   (if unmark
       (setq magit-marked-commit nil)
-    (magit-section-action (item info "mark")
+    (magit-section-action (_ info "mark")
       (commit (setq magit-marked-commit
                     (if (equal magit-marked-commit info) nil info)))))
   (magit-refresh-marked-commits)
@@ -7243,7 +7243,7 @@ default when prompting for a commit."
 (defun magit-copy-item-as-kill ()
   "Copy sha1 of commit at point into kill ring."
   (interactive)
-  (magit-section-action (item info "copy")
+  (magit-section-action (_ info "copy")
     (commit (kill-new info)
             (message "%s" info))))
 
