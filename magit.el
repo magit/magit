@@ -7088,7 +7088,7 @@ into the selected branch."
 ;;; Acting (2)
 ;;;; Ignore
 
-(defun magit-edit-ignore-string (file)
+(defun magit-ignore-edit-string (file)
   "Prompt the user for the string to be ignored.
 A list of predefined values with wildcards is derived from the
 filename FILE."
@@ -7110,7 +7110,7 @@ except if LOCAL is non-nil in which case they are written to
                           (concat local-ignore-dir "exclude")
                         ".gitignore")))
     (when edit
-      (setq file (magit-edit-ignore-string file)))
+      (setq file (magit-ignore-edit-string file)))
     (when (and local (not (file-exists-p local-ignore-dir)))
       (make-directory local-ignore-dir t))
     (with-temp-buffer
