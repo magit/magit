@@ -5368,9 +5368,7 @@ With a prefix argument, visit in other window."
                  (nil default-directory)))))
 
 (defvar-local magit-file-log-file nil)
-
-(defvar-local magit-show-current-version ()
-  "Which version of MAGIT-FILE-NAME is shown in this buffer.")
+(defvar-local magit-show-current-version nil)
 
 ;;;###autoload
 (defun magit-show (rev file &optional switch-function)
