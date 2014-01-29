@@ -5526,6 +5526,26 @@ With two prefix args, remove ignored files as well."
       (magit-write-rewrite-info info)
       (magit-refresh))))
 
+(add-hook 'magit-apply-hook 'magit-rewrite-apply)
+(put  'magit-rewrite-apply 'magit-section-action-context [commit pending])
+(defun magit-rewrite-apply (commit)
+  (magit-apply-commit commit)
+  (magit-rewrite-set-commit-property commit 'used t))
+
+(add-hook 'magit-cherry-pick-hook 'magit-rewrite-pick)
+(put  'magit-rewrite-pick 'magit-section-action-context [commit pending])
+(defun magit-rewrite-pick (commit)
+  (magit-cherry-pick-commit commit)
+  (magit-rewrite-set-commit-property commit 'used t))
+
+(add-hook 'magit-revert-hook 'magit-rewrite-revert)
+(put  'magit-rewrite-revert 'magit-section-action-context [commit pending])
+(defun magit-rewrite-revert (commit)
+  (when (or (not magit-revert-item-confirm)
+            (yes-or-no-p "Revert this commit? "))
+    (magit-revert-commit commit)
+    (magit-rewrite-set-commit-property commit 'used nil)))
+
 (defun magit-rewrite-set-used ()
   (interactive)
   (magit-section-case (info)
@@ -6100,9 +6120,6 @@ With prefix argument, changes in staging area are kept.
   "Apply the item at point to the current working tree."
   (interactive)
   (magit-section-action apply (info)
-    ([commit pending]
-     (magit-apply-commit info)
-     (magit-rewrite-set-commit-property info 'used t))
     (([* unstaged] [* staged])
      (user-error "Change is already in your working tree"))
     (hunk   (magit-apply-hunk-item it))
@@ -6158,9 +6175,6 @@ member of ARGS, or to the working file otherwise."
   "Cherry-pick them item at point."
   (interactive)
   (magit-section-action cherry-pick (info)
-    ([commit pending]
-     (magit-cherry-pick-commit info)
-     (magit-rewrite-set-commit-property info 'used t))
     (commit (magit-cherry-pick-commit info))
     (stash  (magit-stash-pop info))))
 
@@ -6181,13 +6195,7 @@ working tree."
                (yes-or-no-p "Revert this item? ")
                (user-error "Abort")))))
     (magit-section-action revert (info)
-      ([commit pending]
-       (funcall confirm)
-       (magit-revert-commit info)
-       (magit-rewrite-set-commit-property info 'used nil))
-      ([* unstaged]
-       ;; This already asks for confirmation.
-       (magit-discard-item))
+      ([* unstaged] (magit-discard-item))
       (commit (funcall confirm)
               (magit-revert-commit info))
       (hunk   (funcall confirm)
