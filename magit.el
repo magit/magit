@@ -3009,7 +3009,7 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
                               (error "%s undefined for %s"
                                      'magit-section-action-context fn))
                           section)
-                     (funcall fn section)))
+                     (funcall fn (magit-section-info section))))
                  (magit-current-section))
                 (magit-section-case ,slots
                   ,@clauses
