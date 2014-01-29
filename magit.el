@@ -94,6 +94,10 @@ Use the function by the same name instead of this variable.")
   (require 'package nil t)
   (require 'view))
 
+(if (featurep 'vc-git)
+    (defalias 'magit-grep 'vc-git-grep)
+  (defalias 'magit-grep 'lgrep))
+
 (declare-function dired-jump 'dired-x)
 (declare-function dired-uncache 'dired)
 (declare-function ediff-cleanup-mess 'ediff)
@@ -7418,10 +7422,6 @@ from the parent keymap `magit-mode-map' are also available.")
              (make-directory dir)))
       (let ((default-directory dir))
         (magit-run-git "init")))))
-
-(if (featurep 'vc-git)
-    (defalias 'magit-grep 'vc-git-grep)
-  (defalias 'magit-grep 'lgrep))
 
 ;;;; External Tools
 
