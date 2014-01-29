@@ -7141,15 +7141,6 @@ With a prefix argument edit the ignore string."
   (interactive "P")
   (magit-ignore-item edit t))
 
-;;;; Kill
-
-(defun magit-copy-item-as-kill ()
-  "Copy sha1 of commit at point into kill ring."
-  (interactive)
-  (magit-section-action copy (info)
-    (commit (kill-new info)
-            (message "%s" info))))
-
 ;;; Branch Manager Mode
 ;;__ FIXME The parens indicate preliminary subsections.
 ;;;; (core)
@@ -7350,6 +7341,13 @@ from the parent keymap `magit-mode-map' are also available.")
              (make-directory dir)))
       (let ((default-directory dir))
         (magit-run-git "init")))))
+
+(defun magit-copy-item-as-kill ()
+  "Copy sha1 of commit at point into kill ring."
+  (interactive)
+  (magit-section-action copy (info)
+    (commit (kill-new info)
+            (message "%s" info))))
 
 ;;;; Commit Mark
 
