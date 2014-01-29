@@ -2976,11 +2976,15 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
              (magit-section-match-1 (cdr l1) (cdr l2))))))
 
 (defun magit-section-match (condition &optional section)
-  (magit-section-match-1 (if (symbolp condition)
-                             (list condition)
-                           (reverse (append condition nil)))
-                         (magit-section-context-type
-                          (or section (magit-current-section)))))
+  (if (listp condition)
+      (cl-find t condition :test
+               (lambda (_ condition)
+                 (magit-section-match condition section)))
+    (magit-section-match-1 (if (symbolp condition)
+                               (list condition)
+                             (reverse (append condition nil)))
+                           (magit-section-context-type
+                            (or section (magit-current-section))))))
 
 (defmacro magit-section-case (head &rest clauses)
   (declare (indent 1))
@@ -6109,9 +6113,7 @@ With prefix argument, changes in staging area are kept.
     ([pending commit]
      (magit-apply-commit info)
      (magit-rewrite-set-commit-property info 'used t))
-    ([unstaged *]
-     (user-error "Change is already in your working tree"))
-    ([staged *]
+    (([unstaged *] [staged *])
      (user-error "Change is already in your working tree"))
     (hunk   (magit-apply-hunk-item item))
     (diff   (magit-apply-diff-item item))
@@ -7093,18 +7095,16 @@ on a position in a file-visiting buffer."
 With a prefix argument, visit in other window."
   (interactive "P")
   (magit-section-action (item info "visit")
-    ([untracked file]
+    ((diff diffstat [untracked file])
      (magit-visit-file-item info other-window))
-    (diff     (magit-visit-file-item info other-window))
-    (diffstat (magit-visit-file-item info other-window))
-    (hunk     (magit-visit-file-item
-               (magit-section-info (magit-section-parent item))
-               other-window
-               (magit-hunk-item-target-line item)
-               (current-column)))
-    (commit   (magit-show-commit info))
-    (stash    (magit-diff-stash info))
-    (branch   (magit-checkout info))))
+    (hunk   (magit-visit-file-item
+             (magit-section-info (magit-section-parent item))
+             other-window
+             (magit-hunk-item-target-line item)
+             (current-column)))
+    (commit (magit-show-commit info))
+    (stash  (magit-diff-stash info))
+    (branch (magit-checkout info))))
 
 (defun magit-visit-file-item (file &optional other-window line column)
   (unless file
@@ -7147,15 +7147,13 @@ With a prefix argument, visit in other window."
 With a prefix argument, visit in other window."
   (interactive "P")
   (require 'dired-x)
-  (dired-jump
-   other-window
-   (file-truename
-    (magit-section-action (item info "dired-jump")
-      ([untracked file] info)
-      (diffstat (magit-section-info item))
-      (diff     (magit-section-info item))
-      (hunk     (magit-section-info (magit-section-parent item)))
-      (nil      default-directory)))))
+  (dired-jump other-window
+              (file-truename
+               (magit-section-action (item info "dired-jump")
+                 ([untracked file] info)
+                 ((diff diffstat) (magit-section-info item))
+                 (hunk (magit-section-info (magit-section-parent item)))
+                 (nil default-directory)))))
 
 ;;;###autoload
 (defun magit-show (rev file &optional switch-function)
