@@ -2694,6 +2694,10 @@ again use `remove-hook'."
 FUNCTION has to move point forward or return nil."
   (while (and (not (eobp)) (funcall function))))
 
+(defun magit-section-parent-info (section)
+  (setq section (magit-section-parent section))
+  (when section (magit-section-info   section)))
+
 (defun magit-section-siblings (section &optional direction)
   (let ((parent (magit-section-parent section)))
     (when parent
@@ -2988,24 +2992,24 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
                                 (magit-section-context-type
                                  (or section (magit-current-section)))))))
 
-(defmacro magit-section-case (head &rest clauses)
+(defmacro magit-section-case (slots &rest clauses)
   (declare (indent 1))
-  (let ((section (car head))
-        (info (cadr head)))
-    `(let* ((,section (magit-current-section))
-            (,info (and ,section (magit-section-info ,section))))
-       (cond ,@(mapcar (lambda (clause)
-                         `((magit-section-match ',(car clause) ,section)
-                           ,@(cdr clause)))
-                       clauses)))))
+  `(let* ((it (magit-current-section))
+          ,@(mapcar
+             (lambda (slot)
+               `(,slot (,(intern (format "magit-section-%s" slot)) it)))
+             slots))
+     (cond ,@(mapcar (lambda (clause)
+                       `((magit-section-match ',(car clause) it)
+                         ,@(cdr clause)))
+                     clauses))))
 
 (defconst magit-section-action-success
   (make-symbol "magit-section-action-success"))
 
-(defmacro magit-section-action (head &rest clauses)
-  (declare (indent 1) (debug (sexp &rest (sexp body))))
-  (let ((value (cl-gensym "value"))
-        (opname (car (cddr head))))
+(defmacro magit-section-action (opname slots &rest clauses)
+  (declare (indent 2) (debug (sexp &rest (sexp body))))
+  (let ((value (cl-gensym "value")))
     `(let ((,value
             (or (run-hook-wrapped
                  ',(intern (format "magit-%s-hook" opname))
@@ -3017,7 +3021,7 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
                           section)
                      (funcall fn section)))
                  (magit-current-section))
-                (magit-section-case ,(list (car head) (cadr head))
+                (magit-section-case ,slots
                   ,@clauses
                   (t (user-error
                       (if (magit-current-section)
@@ -4515,7 +4519,7 @@ stash at point, then prompt for a commit."
 
 (defun magit-show-item-or-scroll (fn)
   (let (rev cmd buf win)
-    (magit-section-case (_ info)
+    (magit-section-case (info)
       (commit (setq rev info
                     cmd 'magit-show-commit
                     buf magit-commit-buffer-name))
@@ -5122,7 +5126,7 @@ With a prefix argument, prompt for a file to be staged instead."
                                (magit-get-top-dir)))))
   (if file
       (magit-run-git "add" file)
-    (magit-section-action (item info "stage")
+    (magit-section-action stage (info)
       ([file untracked]
        (magit-run-git "add"
                       (if (use-region-p)
@@ -5132,7 +5136,7 @@ With a prefix argument, prompt for a file to be staged instead."
        (magit-run-git "add" "--" (magit-git-lines "ls-files" "--other"
                                                   "--exclude-standard")))
       ([hunk diff unstaged]
-       (magit-apply-hunk-item item "--cached"))
+       (magit-apply-hunk-item it "--cached"))
       ([diff unstaged]
        (magit-run-git "add" "-u"
                       (if (use-region-p)
@@ -5163,15 +5167,15 @@ With a prefix argument, add remaining untracked files as well.
 (defun magit-unstage-item ()
   "Remove the item at point from the staging area."
   (interactive)
-  (magit-section-action (item info "unstage")
+  (magit-section-action unstage (info)
     ([hunk diff staged]
-     (magit-apply-hunk-item item "--reverse" "--cached"))
+     (magit-apply-hunk-item it "--reverse" "--cached"))
     ([diff staged]
      (when (eq info 'unmerged)
        (user-error "Can't unstage an unmerged file.  Resolve it first"))
      (let ((files (if (use-region-p)
                       (magit-section-region-siblings #'magit-section-info)
-                    (list (magit-section-info item)))))
+                    (list info))))
        (if (magit-no-commit-p)
            (magit-run-git "rm" "--cached" "--" files)
          (magit-run-git "reset" "-q" "HEAD" "--" files))))
@@ -5318,9 +5322,9 @@ With prefix, forces the rename even if NEW already exists.
 (defun magit-guess-branch ()
   "Return a branch name depending on the context of cursor.
 If no branch is found near the cursor return nil."
-  (magit-section-case (item info)
-    (branch          (magit-section-info (magit-current-section)))
-    ([commit wazzup] (magit-section-info (magit-section-parent item)))
+  (magit-section-case (info parent-info)
+    (branch          info)
+    ([commit wazzup] parent-info)
     ([commit       ] (magit-name-rev info))
     ([       wazzup] info)))
 
@@ -5356,9 +5360,9 @@ If no branch is found near the cursor return nil."
     (magit-run-git "remote" "rename" old new)))
 
 (defun magit-guess-remote ()
-  (magit-section-case (item info)
+  (magit-section-case (info parent-info)
     (remote info)
-    (branch (magit-section-info (magit-section-parent item)))
+    (branch parent-info)
     (t      (if (string= info ".") info (magit-get-current-remote)))))
 
 ;;;; Rebase
@@ -5524,14 +5528,14 @@ With two prefix args, remove ignored files as well."
 
 (defun magit-rewrite-set-used ()
   (interactive)
-  (magit-section-case (_ info)
+  (magit-section-case (info)
     ([commit pending]
      (magit-rewrite-set-commit-property info 'used t)
      (magit-refresh))))
 
 (defun magit-rewrite-set-unused ()
   (interactive)
-  (magit-section-case (_ info)
+  (magit-section-case (info)
     ([commit pending]
      (magit-rewrite-set-commit-property info 'used nil)
      (magit-refresh))))
@@ -5875,7 +5879,7 @@ depending on the value of option `magit-commit-squash-commit'.
 (defun magit-commit-squash-commit ()
   (unless (or current-prefix-arg
               (eq magit-commit-squash-commit nil))
-    (let ((current (magit-section-case (_ info) (commit info))))
+    (let ((current (magit-section-case (info) (commit info))))
       (cl-ecase magit-commit-squash-commit
         (current-or-marked (or current magit-marked-commit))
         (marked-or-current (or magit-marked-commit current))
@@ -6095,14 +6099,14 @@ With prefix argument, changes in staging area are kept.
 (defun magit-apply-item ()
   "Apply the item at point to the current working tree."
   (interactive)
-  (magit-section-action (item info "apply")
+  (magit-section-action apply (info)
     ([commit pending]
      (magit-apply-commit info)
      (magit-rewrite-set-commit-property info 'used t))
     (([* unstaged] [* staged])
      (user-error "Change is already in your working tree"))
-    (hunk   (magit-apply-hunk-item item))
-    (diff   (magit-apply-diff-item item))
+    (hunk   (magit-apply-hunk-item it))
+    (diff   (magit-apply-diff-item it))
     (stash  (magit-stash-apply info))
     (commit (magit-apply-commit info))))
 
@@ -6153,7 +6157,7 @@ member of ARGS, or to the working file otherwise."
 (defun magit-cherry-pick-item ()
   "Cherry-pick them item at point."
   (interactive)
-  (magit-section-action (_ info "cherry-pick")
+  (magit-section-action cherry-pick (info)
     ([commit pending]
      (magit-cherry-pick-commit info)
      (magit-rewrite-set-commit-property info 'used t))
@@ -6176,7 +6180,7 @@ working tree."
            (or (not magit-revert-item-confirm)
                (yes-or-no-p "Revert this item? ")
                (user-error "Abort")))))
-    (magit-section-action (item info "revert")
+    (magit-section-action revert (info)
       ([commit pending]
        (funcall confirm)
        (magit-revert-commit info)
@@ -6187,9 +6191,9 @@ working tree."
       (commit (funcall confirm)
               (magit-revert-commit info))
       (hunk   (funcall confirm)
-              (magit-apply-hunk-item item "--reverse"))
+              (magit-apply-hunk-item it "--reverse"))
       (diff   (funcall confirm)
-              (magit-apply-diff-item item "--reverse")))))
+              (magit-apply-diff-item it "--reverse")))))
 
 (defun magit-revert-commit (commit)
   (magit-assert-one-parent commit "revert")
@@ -6684,7 +6688,7 @@ restore the window state that was saved before ediff was called."
 ;;;###autoload
 (defun magit-interactive-resolve (file)
   "Resolve a merge conflict using Ediff."
-  (interactive (list (magit-section-case (_ info) (diff (cadr info)))))
+  (interactive (list (magit-section-case (info) (diff (cadr info)))))
   (require 'ediff)
   (let ((merge-status (magit-git-lines "ls-files" "-u" "--" file))
         (base-buffer (generate-new-buffer (concat file ".base")))
@@ -6952,16 +6956,14 @@ except if LOCAL is non-nil in which case they are written to
   "Ignore the item at point.
 With a prefix argument edit the ignore string."
   (interactive "P")
-  (magit-section-action (item info "ignore")
+  (magit-section-action ignore (info)
     ([file untracked]
      (magit-ignore-file (concat "/" info) edit local)
      (magit-refresh))
     (diff
-     (let ((file (magit-section-info item)))
-       (when (yes-or-no-p
-              (format "%s is tracked.  Untrack and ignore? " file))
-         (magit-ignore-file (concat "/" file) edit local)
-         (magit-run-git "rm" "--cached" file))))))
+     (when (yes-or-no-p (format "%s is tracked.  Untrack and ignore? " info))
+       (magit-ignore-file (concat "/" info) edit local)
+       (magit-run-git "rm" "--cached" info)))))
 
 (defun magit-ignore-item-locally (edit)
   "Ignore the item at point locally only.
@@ -6991,7 +6993,7 @@ With a prefix argument edit the ignore string."
 (defun magit-discard-item ()
   "Remove the change introduced by the item at point."
   (interactive)
-  (magit-section-action (item info "discard")
+  (magit-section-action discard (info parent-info)
     ([file untracked]
      (when (yes-or-no-p (format "Delete %s? " info))
        (if (and (file-directory-p info)
@@ -7006,20 +7008,19 @@ With a prefix argument edit the ignore string."
      (when (yes-or-no-p (if (use-region-p)
                             "Discard changes in region? "
                           "Discard hunk? "))
-       (magit-apply-hunk-item item "--reverse")))
+       (magit-apply-hunk-item it "--reverse")))
     ([hunk diff staged]
-     (if (magit-file-uptodate-p (magit-section-info
-                                 (magit-section-parent item)))
+     (if (magit-file-uptodate-p parent-info)
          (when (yes-or-no-p (if (use-region-p)
                                 "Discard changes in region? "
                               "Discard hunk? "))
-           (magit-apply-hunk-item item "--reverse" "--index"))
+           (magit-apply-hunk-item it "--reverse" "--index"))
        (user-error "Can't discard this hunk.  Please unstage it first")))
     ([diff unstaged]
-     (magit-discard-diff item nil))
+     (magit-discard-diff it nil))
     ([diff staged]
-     (if (magit-file-uptodate-p (magit-section-info item))
-         (magit-discard-diff item t)
+     (if (magit-file-uptodate-p (magit-section-info it))
+         (magit-discard-diff it t)
        (user-error "Can't discard staged changes to this file.  \
 Please unstage it first")))
     (hunk   (user-error "Can't discard this hunk"))
@@ -7039,7 +7040,7 @@ Please unstage it first")))
 (defun magit-rename-item ()
   "Rename the item at point."
   (interactive)
-  (magit-section-action (_ __ "rename")
+  (magit-section-action rename ()
     (branch (call-interactively 'magit-rename-branch))
     (remote (call-interactively 'magit-rename-remote))))
 
@@ -7080,14 +7081,12 @@ on a position in a file-visiting buffer."
   "Visit current item.
 With a prefix argument, visit in other window."
   (interactive "P")
-  (magit-section-action (item info "visit")
+  (magit-section-action visit (info parent-info)
     ((diff diffstat [file untracked])
      (magit-visit-file-item info other-window))
-    (hunk   (magit-visit-file-item
-             (magit-section-info (magit-section-parent item))
-             other-window
-             (magit-hunk-item-target-line item)
-             (current-column)))
+    (hunk   (magit-visit-file-item parent-info other-window
+                                   (magit-hunk-item-target-line it)
+                                   (current-column)))
     (commit (magit-show-commit info))
     (stash  (magit-diff-stash info))
     (branch (magit-checkout info))))
@@ -7135,10 +7134,10 @@ With a prefix argument, visit in other window."
   (require 'dired-x)
   (dired-jump other-window
               (file-truename
-               (magit-section-action (item info "dired-jump")
+               (magit-section-action dired-jump (info parent-info)
                  ([file untracked] info)
-                 ((diff diffstat) (magit-section-info item))
-                 (hunk (magit-section-info (magit-section-parent item)))
+                 ((diff diffstat) info)
+                 (hunk parent-info)
                  (nil default-directory)))))
 
 ;;;###autoload
@@ -7154,10 +7153,10 @@ return the buffer, without displaying it."
   ;; that is only intended for use by `magit-ediff'.
   (interactive
    (let (rev file section)
-     (magit-section-case (item info)
+     (magit-section-case (info parent)
        (commit (setq file magit-file-log-file rev info))
-       (hunk   (setq section (magit-section-parent item)))
-       (diff   (setq section item)))
+       (hunk   (setq section parent))
+       (diff   (setq section it)))
      (if section
          (setq rev  (cadr (magit-diff-range section))
                file (magit-section-info section))
@@ -7218,7 +7217,7 @@ default when prompting for a commit."
   (interactive "P")
   (if unmark
       (setq magit-marked-commit nil)
-    (magit-section-action (_ info "mark")
+    (magit-section-action mark (info)
       (commit (setq magit-marked-commit
                     (if (equal magit-marked-commit info) nil info)))))
   (magit-refresh-marked-commits)
@@ -7229,7 +7228,7 @@ default when prompting for a commit."
 (defun magit-copy-item-as-kill ()
   "Copy sha1 of commit at point into kill ring."
   (interactive)
-  (magit-section-action (_ info "copy")
+  (magit-section-action copy (info)
     (commit (kill-new info)
             (message "%s" info))))
 
