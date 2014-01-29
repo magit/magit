@@ -3547,7 +3547,6 @@ of the Windows \"Powershell\"."
     args))
 
 ;;; Magit Mode
-;;__ FIXME The parens indicate preliminary subsections.
 ;;;; Mode Foundation
 
 (define-derived-mode magit-mode special-mode "Magit"
@@ -7088,7 +7087,6 @@ into the selected branch."
               (magit-wash-log 'cherry)))))))))
 
 ;;;; Branch Manager Mode
-;;__ FIXME The parens indicate preliminary subsections.
 ;;;;; (core)
 
 (define-derived-mode magit-branch-manager-mode magit-mode "Magit Branch"
