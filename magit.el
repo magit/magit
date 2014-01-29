@@ -4934,7 +4934,7 @@ As determined by the directory passed to `magit-status'."
 ;;; Porcelain
 ;;;; Apply
 ;;;;; Apply Commands
-;;;;; Apply
+;;;;;; Apply
 
 (defun magit-apply-item ()
   "Apply the item at point to the current working tree."
@@ -4947,7 +4947,7 @@ As determined by the directory passed to `magit-status'."
     (stash  (magit-stash-apply info))
     (commit (magit-apply-commit info))))
 
-;;;;; Stage
+;;;;;; Stage
 
 (defun magit-stage-item (&optional file)
   "Add the item at point to the staging area.
@@ -4994,7 +4994,7 @@ With a prefix argument, add remaining untracked files as well.
         (magit-run-git "add" ".")
       (magit-run-git "add" "-u" "."))))
 
-;;;;; Unstage
+;;;;;; Unstage
 
 (defun magit-unstage-item ()
   "Remove the item at point from the staging area."
@@ -5030,7 +5030,7 @@ With a prefix argument, add remaining untracked files as well.
             (yes-or-no-p "Unstage all changes? "))
     (magit-run-git "reset" "HEAD" "--")))
 
-;;;;; Discard
+;;;;;; Discard
 
 (defun magit-discard-item ()
   "Remove the change introduced by the item at point."
@@ -5077,7 +5077,7 @@ Please unstage it first")))
     (remote (when (yes-or-no-p "Remove remote? ")
               (magit-remove-remote info)))))
 
-;;;;; Revert
+;;;;;; Revert
 
 (defun magit-revert-item ()
   "Revert the item at point.
