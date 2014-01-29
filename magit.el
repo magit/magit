@@ -7508,7 +7508,7 @@ This can be added to `magit-mode-hook' for example"
                  (not (eq sym 'magit-wip-save-mode)))
         (funcall sym 1)))))
 
-;;;; Magit Font-Lock
+;;; magit.el ends soon
 
 (defconst magit-font-lock-keywords
   (eval-when-compile
@@ -7540,8 +7540,6 @@ init file:
   (require 'magit)
   (font-lock-add-keywords 'emacs-lisp-mode
                           magit-font-lock-keywords)")
-
-;;;; Magit Version
 
 (defun magit-version (&optional noerror)
   "The version of Magit that you're using.\n\n\(fn)"
@@ -7580,7 +7578,7 @@ init file:
         (user-error "Cannot determine Magit's version")))
     magit-version))
 
-;;; magit.el ends soon
+(cl-eval-when (load eval) (magit-version t))
 
 (define-obsolete-variable-alias 'magit-cherry-insert-sections-hook
   'magit-cherry-sections-hook "2.0.0")
@@ -7591,8 +7589,6 @@ init file:
 
 (define-obsolete-variable-alias 'magit-quote-curly-braces
   'magit-process-quote-curly-braces "2.0.0")
-
-(cl-eval-when (load eval) (magit-version t))
 
 (provide 'magit)
 
