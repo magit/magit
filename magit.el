@@ -2965,32 +2965,32 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
         (cons c (magit-section-context-type
                  (magit-section-parent section)))))))
 
-(defun magit-prefix-p (l1 l2)
+(defun magit-section-match-1 (l1 l2)
   "Return non-nil if list L1 is a prefix of list L2.
 L1 is a prefix of L2 if each of it's element is `equal' to the
 element at the same position in L2.  As a special case `*' in
 L1 matches zero or more arbitrary elements in L2."
   (or (null l1)
       (if (eq (car l1) '*)
-          (or (magit-prefix-p (cdr l1) l2)
+          (or (magit-section-match-1 (cdr l1) l2)
               (and l2
-                   (magit-prefix-p l1 (cdr l2))))
+                   (magit-section-match-1 l1 (cdr l2))))
         (and l2
              (equal (car l1) (car l2))
-             (magit-prefix-p (cdr l1) (cdr l2))))))
+             (magit-section-match-1 (cdr l1) (cdr l2))))))
 
 (defun magit-section-match (condition &optional section)
   "Return t if the context type of SECTION matches CONDITION.
 
 CONDITION is a list beginning with the type of the least narrow
 section and recursively the more narrow sections.  It may also
-contain wildcards (see `magit-prefix-p').
+contain wildcards (see `magit-section-match-1').
 
 Optional SECTION is a section, if it is nil use the current
 section."
-  (magit-prefix-p (reverse condition)
-                  (magit-section-context-type
-                   (or section (magit-current-section)))))
+  (magit-section-match-1 (reverse condition)
+                         (magit-section-context-type
+                          (or section (magit-current-section)))))
 
 (defmacro magit-section-case (head &rest clauses)
   "Choose among clauses depending on the current section.
