@@ -174,7 +174,7 @@ into the series."
       #'magit-wash-commit
     magit-stgit-executable "show"
     "--diff-opts=--decorate=full"
-    (when magit-show-diffstat "--diff-opts=--patch-with-stat")
+    (and magit-show-diffstat "--diff-opts=--patch-with-stat")
     patch))
 
 ;;; Mode
