@@ -2929,7 +2929,8 @@ One for all, one for current lineage."
 (defvar-local magit-highlight-overlay nil)
 
 (defun magit-highlight-section ()
-  "Highlight current section if it has a type."
+  "Highlight current section.
+If its HIGHLIGHT slot is nil, then don't highlight it."
   (let ((section (magit-current-section))
         (refinep (lambda ()
                    (and magit-highlighted-section
