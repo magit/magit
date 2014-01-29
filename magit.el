@@ -4409,7 +4409,8 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
          (propertize (make-string (1- width) ?\s) 'face 'default)
          (propertize " " 'face 'fringe))))))
 
-;;; Commit Mode
+;;; Modes (1)
+;;;; Commit Mode
 ;;;; Commit Core
 
 (define-derived-mode magit-commit-mode magit-mode "Magit"
@@ -4548,7 +4549,7 @@ stash at point, then prompt for a commit."
                         'mouse-face magit-item-highlight-face
                         'face 'magit-log-sha1)))
 
-;;; Status Mode
+;;;; Status Mode
 
 (define-derived-mode magit-status-mode magit-mode "Magit"
   "Mode for looking at git status.
@@ -6535,7 +6536,8 @@ With a prefix argument another branch can be chosen."
   (interactive)
   (magit-reflog "HEAD"))
 
-;;; Log Mode
+;;; Modes (2)
+;;;; Log Mode
 
 (define-derived-mode magit-log-mode magit-mode "Magit Log"
   "Mode for looking at git log.
@@ -6620,7 +6622,7 @@ With a non numeric prefix ARG, show all entries"
     (magit-refresh)
     (goto-char old-point)))
 
-;;; Cherry Mode
+;;;; Cherry Mode
 
 (define-derived-mode magit-cherry-mode magit-mode "Magit Cherry"
   "Mode for looking at commits not merged upstream.
@@ -6685,7 +6687,7 @@ Other key binding:
       (apply-partially 'magit-wash-log 'cherry)
     "cherry" "-v" (magit-diff-abbrev-arg) magit-refresh-args))
 
-;;; Reflog Mode
+;;;; Reflog Mode
 
 (defvar magit-reflog-buffer-name "*magit-reflog*"
   "Name of buffer used to display reflog entries.")
@@ -6749,7 +6751,7 @@ Other key binding:
                         (or (cdr (assoc label magit-reflog-labels))
                             'magit-log-reflog-label-other)))))
 
-;;; Ediff Support
+;;;; Ediff Support
 
 (defvar magit-ediff-buffers nil
   "List of buffers that may be killed by `magit-ediff-restore'.")
@@ -6900,7 +6902,7 @@ restore the window state that was saved before ediff was called."
                       (kill-buffer buffer-Ancestor))
                     (set-window-configuration windows)))))))
 
-;;; Diff Mode
+;;;; Diff Mode
 
 (define-derived-mode magit-diff-mode magit-mode "Magit Diff"
   "Mode for looking at a git diff.
@@ -7005,7 +7007,7 @@ If there is no commit at point, then prompt for one."
       (and magit-show-diffstat "--patch-with-stat")
       range args "--")))
 
-;;; Wazzup Mode
+;;;; Wazzup Mode
 
 (define-derived-mode magit-wazzup-mode magit-mode "Magit Wazzup"
   "Mode for looking at git commits not merged into current HEAD.
@@ -7085,9 +7087,9 @@ into the selected branch."
               (goto-char (point-min))
               (magit-wash-log 'cherry)))))))))
 
-;;; Branch Manager Mode
+;;;; Branch Manager Mode
 ;;__ FIXME The parens indicate preliminary subsections.
-;;;; (core)
+;;;;; (core)
 
 (define-derived-mode magit-branch-manager-mode magit-mode "Magit Branch"
   "Mode for looking at git branches.
@@ -7120,7 +7122,7 @@ from the parent keymap `magit-mode-map' are also available.")
       #'magit-wash-branches
     "branch" "-vva" (magit-diff-abbrev-arg) magit-custom-options))
 
-;;;; Branch List Washing
+;;;;; Branch List Washing
 
 (defconst magit-wash-branch-line-re
   (concat "^\\([ *] \\)"                 ; 1: current branch marker
@@ -7236,7 +7238,7 @@ from the parent keymap `magit-mode-map' are also available.")
              (set-marker marker nil)))
           markers)))
 
-;;;; (commands)
+;;;;; (commands)
 
 (defun magit-rename-item ()
   "Rename the item at point."
