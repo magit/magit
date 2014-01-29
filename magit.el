@@ -3004,39 +3004,27 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
 
 (defmacro magit-section-action (head &rest clauses)
   (declare (indent 1) (debug (sexp &rest (sexp body))))
-  (let ((value (make-symbol "*value*"))
-        (opname (car (cddr head)))
-        (disallowed (car (or (assq t clauses)
-                             (assq 'otherwise clauses)))))
-    (when disallowed
-      (user-error "%s is an invalid section type" disallowed))
+  (let ((value (cl-gensym "value"))
+        (opname (car (cddr head))))
     `(let ((,value
-            (magit-section-case ,(list (car head) (cadr head))
-              ,@clauses
-              (t
-               (or (run-hook-with-args-until-success
-                    ',(intern (format "magit-%s-action-hook" opname)))
-                   (if (magit-current-section)
-                       (user-error ,(format "Cannot %s this section" opname))
-                     (user-error ,(format "Nothing to %s here" opname))
-                     ))))))
+            (or (run-hook-wrapped
+                 ',(intern (format "magit-%s-hook" opname))
+                 (lambda (fn section)
+                   (when (magit-section-match
+                          (or (get fn 'magit-section-action-context)
+                              (error "%s undefined for %s"
+                                     'magit-section-action-context fn))
+                          section)
+                     (funcall fn section)))
+                 (magit-current-section))
+                (magit-section-case ,(list (car head) (cadr head))
+                  ,@clauses
+                  (t (user-error
+                      (if (magit-current-section)
+                          ,(format "Cannot %s this section" opname)
+                        ,(format "Nothing to %s here" opname))))))))
        (unless (eq ,value magit-section-action-success)
          ,value))))
-
-(defmacro magit-add-action-clauses (head &rest clauses)
-  (declare (indent 1))
-  `(add-hook ',(intern (format "magit-%s-action-hook" (car (cddr head))))
-             (lambda ()
-               ,(macroexpand
-                 `(magit-section-case ,(butlast head)
-                    ,@(mapcar (lambda (clause)
-                                `(,(car clause)
-                                  (or (progn ,@(cdr clause))
-                                      magit-section-action-success)))
-                              clauses))))))
-
-(define-obsolete-function-alias 'magit-add-action
-  'magit-add-action-clauses "2.0.0")
 
 ;;; Processes
 ;;;; Process Commands

@@ -157,7 +157,13 @@ into the series."
 (defun magit-stgit-discard (patch)
   "Discard a StGit patch."
   (interactive (list (magit-stgit-read-patch "Discard patch" t)))
-  (magit-run-stgit "delete" patch))
+  (when (yes-or-no-p (format "Discard patch `%s'? " patch))
+    (magit-run-stgit "delete" patch)))
+
+;;;###autoload
+(defun magit-stgit-goto (patch)
+  "Set PATCH as target of StGit push and pop operations."
+  (magit-run-stgit "goto" patch))
 
 ;;;###autoload
 (defun magit-stgit-show (patch)
@@ -188,28 +194,30 @@ into the series."
   :require 'magit-stgit
   (or (derived-mode-p 'magit-mode)
       (user-error "This mode only makes sense with magit"))
-  (if magit-stgit-mode
-      (magit-add-section-hook 'magit-status-sections-hook
-                              'magit-insert-stgit-series
-                              'magit-insert-stashes t t)
+  (cond
+   (magit-stgit-mode
+    (magit-add-section-hook 'magit-status-sections-hook
+			    'magit-insert-stgit-series
+			    'magit-insert-stashes t t)
+    (add-hook 'magit-visit-hook   'magit-stgit-show nil t)
+    (add-hook 'magit-apply-hook   'magit-stgit-goto nil t)
+    (add-hook 'magit-discard-hook 'magit-stgit-discard nil t))
+   (t
+    (remove-hook 'magit-visit-hook   'magit-stgit-show t)
+    (remove-hook 'magit-apply-hook   'magit-stgit-goto t)
+    (remove-hook 'magit-discard-hook 'magit-stgit-discard t))
     (remove-hook 'magit-status-sections-hook 'magit-insert-stgit-series t))
   (when (called-interactively-p 'any)
     (magit-refresh)))
+
+(put 'magit-stgit-show    'magit-section-action-context 'stgit-patch)
+(put 'magit-stgit-goto    'magit-section-action-context 'stgit-patch)
+(put 'magit-stgit-discard 'magit-section-action-context 'stgit-patch)
 
 ;;;###autoload
 (defun turn-on-magit-stgit ()
   "Unconditionally turn on `magit-stgit-mode'."
   (magit-stgit-mode 1))
-
-(magit-add-action-clauses (item info "visit")
-  (stgit-patch (magit-stgit-show info)))
-
-(magit-add-action-clauses (item info "apply")
-  (stgit-patch (magit-run-stgit "goto" info)))
-
-(magit-add-action-clauses (item info "discard")
-  (stgit-patch (when (yes-or-no-p (format "Discard patch `%s'? " info))
-		 (magit-stgit-discard info))))
 
 (easy-menu-define magit-stgit-extension-menu nil
   "StGit extension menu"
