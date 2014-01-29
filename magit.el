@@ -63,6 +63,8 @@ Use the function by the same name instead of this variable.")
 (when (version< emacs-version "23.2")
   (error "Magit requires at least GNU Emacs 23.2"))
 
+;;;; Dependencies
+
 ;; Users may choose to use `magit-log-edit' instead of the preferred
 ;; `git-commit-mode', by simply putting it on the `load-path'.  If
 ;; it can be found there then it is loaded at the end of this file.
@@ -94,6 +96,8 @@ Use the function by the same name instead of this variable.")
   (require 'package nil t)
   (require 'view))
 
+;;;; Declarations
+
 (if (featurep 'vc-git)
     (defalias 'magit-grep 'vc-git-grep)
   (defalias 'magit-grep 'lgrep))
@@ -122,8 +126,7 @@ Use the function by the same name instead of this variable.")
 (defvar magit-this-process)
 (defvar package-alist)
 
-;;; Compatibility
-;;;; Emacs
+;;;; Compatibility
 
 (eval-and-compile
 
@@ -146,38 +149,11 @@ buffer-local wherever it is set."
       (declare (debug defvar) (doc-string 3))
       (list 'progn (list 'defvar var val docstring)
             (list 'make-variable-buffer-local (list 'quote var)))))
-
   )
 
 
-;;; Options
-;;;; Setters
-
-(defun magit-set-variable-and-refresh (symbol value)
-  "Set SYMBOL to VALUE and call `magit-refresh-all'."
-  (set-default symbol value)
-  ;; If magit isn't fully loaded yet no buffer that might
-  ;; need refreshing can exist and we can take a shortcut.
-  ;; We also don't want everything to repeatedly refresh
-  ;; when evaluating this file.
-  (when (and (featurep 'magit) (not buffer-file-name))
-    (magit-refresh-all)))
-
-(defun magit-set-default-diff-options (symbol value)
-  "Set the default for `magit-diff-options' based on popup value.
-Also set the local value in all Magit buffers and refresh them.
-\n(fn)" ; The arguments are an internal implementation detail.
-  (interactive (list 'magit-diff-options magit-custom-options))
-  (set-default symbol value)
-  (when (and (featurep 'magit) (not buffer-file-name))
-    (dolist (buffer (buffer-list))
-      (when (derived-mode-p 'magit-mode)
-        (with-current-buffer buffer
-          (with-no-warnings
-            (setq-local magit-diff-options value))
-          (magit-mode-refresh-buffer))))))
-
-;;;; Groups
+;;; Settings
+;;;; Custom Groups
 
 (defgroup magit nil
   "Controlling Git from Emacs."
@@ -229,7 +205,7 @@ Also set the local value in all Magit buffers and refresh them.
 
 (custom-add-to-group 'magit 'vc-follow-symlinks 'custom-variable)
 
-;;;; Variables
+;;;; Custom Options
 ;;;;; Processes
 
 (defcustom magit-git-executable "git"
@@ -464,6 +440,16 @@ cumbersome to use from the status buffer.
                  (const :tag "Ask"   ask)))
 
 ;;;;; Highlighting
+
+(defun magit-set-variable-and-refresh (symbol value)
+  "Set SYMBOL to VALUE and call `magit-refresh-all'."
+  (set-default symbol value)
+  ;; If magit isn't fully loaded yet no buffer that might
+  ;; need refreshing can exist and we can take a shortcut.
+  ;; We also don't want everything to repeatedly refresh
+  ;; when evaluating this file.
+  (when (and (featurep 'magit) (not buffer-file-name))
+    (magit-refresh-all)))
 
 (defcustom magit-highlight-whitespace t
   "Specify where to highlight whitespace errors.
@@ -745,6 +731,20 @@ they are not (due to semantic considerations)."
                  (const :tag "head is the subject" head)))
 
 ;;;;;; Diff
+
+(defun magit-set-default-diff-options (symbol value)
+  "Set the default for `magit-diff-options' based on popup value.
+Also set the local value in all Magit buffers and refresh them.
+\n(fn)" ; The arguments are an internal implementation detail.
+  (interactive (list 'magit-diff-options magit-custom-options))
+  (set-default symbol value)
+  (when (and (featurep 'magit) (not buffer-file-name))
+    (dolist (buffer (buffer-list))
+      (when (derived-mode-p 'magit-mode)
+        (with-current-buffer buffer
+          (with-no-warnings
+            (setq-local magit-diff-options value))
+          (magit-mode-refresh-buffer))))))
 
 (defcustom magit-diff-options nil
   "Git options used to display diffs.
@@ -1044,7 +1044,7 @@ t          ask if --set-upstream should be used.
   :group 'magit-modes
   :type 'hook)
 
-;;;; Faces
+;;;; Custom Faces
 
 (defface magit-header
   '((t :inherit header-line))
@@ -1397,20 +1397,7 @@ Many Magit faces inherit from this one by default."
   "Face for non-zero exit-status."
   :group 'magit-faces)
 
-;;;; Obsolete
-
-(define-obsolete-variable-alias 'magit-cherry-insert-sections-hook
-  'magit-cherry-sections-hook "2.0.0")
-(define-obsolete-variable-alias 'magit-status-insert-sections-hook
-  'magit-status-sections-hook "2.0.0")
-(define-obsolete-variable-alias 'magit-wazzup-insert-sections-hook
-  'magit-wazzup-sections-hook "2.0.0")
-
-(define-obsolete-variable-alias 'magit-quote-curly-braces
-  'magit-process-quote-curly-braces "2.0.0")
-
-
-;;; Keymaps
+;;;; Keymaps
 
 ;; Not an option to avoid advertising it.
 (defvar magit-rigid-key-bindings nil
@@ -1673,6 +1660,7 @@ set before loading libary `magit'.")
     ["Display Git output" magit-process t]
     ["Quit Magit" magit-mode-quit-window t]))
 
+
 ;;; Utilities (1)
 ;;;; Minibuffer Input
 
@@ -7588,6 +7576,18 @@ init file:
                  (message "Cannot determine Magit's version"))
         (user-error "Cannot determine Magit's version")))
     magit-version))
+
+;;; magit.el ends soon
+
+(define-obsolete-variable-alias 'magit-cherry-insert-sections-hook
+  'magit-cherry-sections-hook "2.0.0")
+(define-obsolete-variable-alias 'magit-status-insert-sections-hook
+  'magit-status-sections-hook "2.0.0")
+(define-obsolete-variable-alias 'magit-wazzup-insert-sections-hook
+  'magit-wazzup-sections-hook "2.0.0")
+
+(define-obsolete-variable-alias 'magit-quote-curly-braces
+  'magit-process-quote-curly-braces "2.0.0")
 
 (cl-eval-when (load eval) (magit-version t))
 
