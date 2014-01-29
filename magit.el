@@ -2982,7 +2982,7 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
                  (magit-section-match condition section)))
     (magit-section-match-1 (if (symbolp condition)
                                (list condition)
-                             (reverse (append condition nil)))
+                             (append condition nil))
                            (magit-section-context-type
                             (or section (magit-current-section))))))
 
@@ -5136,7 +5136,7 @@ With a prefix argument, prompt for a file to be staged instead."
   (if file
       (magit-run-git "add" file)
     (magit-section-action (item info "stage")
-      ([untracked file]
+      ([file untracked]
        (magit-run-git "add"
                       (if (use-region-p)
                           (magit-section-region-siblings #'magit-section-info)
@@ -5144,16 +5144,16 @@ With a prefix argument, prompt for a file to be staged instead."
       (untracked
        (magit-run-git "add" "--" (magit-git-lines "ls-files" "--other"
                                                   "--exclude-standard")))
-      ([unstaged diff hunk]
+      ([hunk diff unstaged]
        (magit-apply-hunk-item item "--cached"))
-      ([unstaged diff]
+      ([diff unstaged]
        (magit-run-git "add" "-u"
                       (if (use-region-p)
                           (magit-section-region-siblings #'magit-section-info)
                         info)))
       (unstaged
        (magit-stage-all))
-      ([staged *]
+      ([* staged]
        (user-error "Already staged"))
       (hunk (user-error "Can't stage this hunk"))
       (diff (user-error "Can't stage this diff")))))
@@ -5177,9 +5177,9 @@ With a prefix argument, add remaining untracked files as well.
   "Remove the item at point from the staging area."
   (interactive)
   (magit-section-action (item info "unstage")
-    ([staged diff hunk]
+    ([hunk diff staged]
      (magit-apply-hunk-item item "--reverse" "--cached"))
-    ([staged diff]
+    ([diff staged]
      (when (eq info 'unmerged)
        (user-error "Can't unstage an unmerged file.  Resolve it first"))
      (let ((files (if (use-region-p)
@@ -5190,7 +5190,7 @@ With a prefix argument, add remaining untracked files as well.
          (magit-run-git "reset" "-q" "HEAD" "--" files))))
     (staged
      (magit-unstage-all))
-    ([unstaged *]
+    ([* unstaged]
      (user-error "Already unstaged"))
     (hunk (user-error "Can't unstage this hunk"))
     (diff (user-error "Can't unstage this diff"))))
@@ -5335,7 +5335,7 @@ If no branch is found near the cursor return nil."
     (branch (magit-section-info (magit-current-section)))
     (commit (magit-name-rev info))
     (wazzup info)
-    ([wazzup commit]
+    ([commit wazzup]
      (magit-section-info (magit-section-parent item)))))
 
 ;;;; Remoting
@@ -5539,14 +5539,14 @@ With two prefix args, remove ignored files as well."
 (defun magit-rewrite-set-used ()
   (interactive)
   (magit-section-case (_ info)
-    ([pending commit]
+    ([commit pending]
      (magit-rewrite-set-commit-property info 'used t)
      (magit-refresh))))
 
 (defun magit-rewrite-set-unused ()
   (interactive)
   (magit-section-case (_ info)
-    ([pending commit]
+    ([commit pending]
      (magit-rewrite-set-commit-property info 'used nil)
      (magit-refresh))))
 
@@ -6110,10 +6110,10 @@ With prefix argument, changes in staging area are kept.
   "Apply the item at point to the current working tree."
   (interactive)
   (magit-section-action (item info "apply")
-    ([pending commit]
+    ([commit pending]
      (magit-apply-commit info)
      (magit-rewrite-set-commit-property info 'used t))
-    (([unstaged *] [staged *])
+    (([* unstaged] [* staged])
      (user-error "Change is already in your working tree"))
     (hunk   (magit-apply-hunk-item item))
     (diff   (magit-apply-diff-item item))
@@ -6168,7 +6168,7 @@ member of ARGS, or to the working file otherwise."
   "Cherry-pick them item at point."
   (interactive)
   (magit-section-action (_ info "cherry-pick")
-    ([pending commit]
+    ([commit pending]
      (magit-cherry-pick-commit info)
      (magit-rewrite-set-commit-property info 'used t))
     (commit (magit-cherry-pick-commit info))
@@ -6191,11 +6191,11 @@ working tree."
                (yes-or-no-p "Revert this item? ")
                (user-error "Abort")))))
     (magit-section-action (item info "revert")
-      ([pending commit]
+      ([commit pending]
        (funcall confirm)
        (magit-revert-commit info)
        (magit-rewrite-set-commit-property info 'used nil))
-      ([unstaged *]
+      ([* unstaged]
        ;; This already asks for confirmation.
        (magit-discard-item))
       (commit (funcall confirm)
@@ -6967,7 +6967,7 @@ except if LOCAL is non-nil in which case they are written to
 With a prefix argument edit the ignore string."
   (interactive "P")
   (magit-section-action (item info "ignore")
-    ([untracked file]
+    ([file untracked]
      (magit-ignore-file (concat "/" info) edit local)
      (magit-refresh))
     (diff
@@ -7006,7 +7006,7 @@ With a prefix argument edit the ignore string."
   "Remove the change introduced by the item at point."
   (interactive)
   (magit-section-action (item info "discard")
-    ([untracked file]
+    ([file untracked]
      (when (yes-or-no-p (format "Delete %s? " info))
        (if (and (file-directory-p info)
                 (not (file-symlink-p info)))
@@ -7016,12 +7016,12 @@ With a prefix argument edit the ignore string."
     (untracked
      (when (yes-or-no-p "Delete all untracked files and directories? ")
        (magit-run-git "clean" "-df")))
-    ([unstaged diff hunk]
+    ([hunk diff unstaged]
      (when (yes-or-no-p (if (use-region-p)
                             "Discard changes in region? "
                           "Discard hunk? "))
        (magit-apply-hunk-item item "--reverse")))
-    ([staged diff hunk]
+    ([hunk diff staged]
      (if (magit-file-uptodate-p (magit-section-info
                                  (magit-section-parent item)))
          (when (yes-or-no-p (if (use-region-p)
@@ -7029,9 +7029,9 @@ With a prefix argument edit the ignore string."
                               "Discard hunk? "))
            (magit-apply-hunk-item item "--reverse" "--index"))
        (user-error "Can't discard this hunk.  Please unstage it first")))
-    ([unstaged diff]
+    ([diff unstaged]
      (magit-discard-diff item nil))
-    ([staged diff]
+    ([diff staged]
      (if (magit-file-uptodate-p (magit-section-info item))
          (magit-discard-diff item t)
        (user-error "Can't discard staged changes to this file.  \
@@ -7095,7 +7095,7 @@ on a position in a file-visiting buffer."
 With a prefix argument, visit in other window."
   (interactive "P")
   (magit-section-action (item info "visit")
-    ((diff diffstat [untracked file])
+    ((diff diffstat [file untracked])
      (magit-visit-file-item info other-window))
     (hunk   (magit-visit-file-item
              (magit-section-info (magit-section-parent item))
@@ -7150,7 +7150,7 @@ With a prefix argument, visit in other window."
   (dired-jump other-window
               (file-truename
                (magit-section-action (item info "dired-jump")
-                 ([untracked file] info)
+                 ([file untracked] info)
                  ((diff diffstat) (magit-section-info item))
                  (hunk (magit-section-info (magit-section-parent item)))
                  (nil default-directory)))))
