@@ -2966,10 +2966,6 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
                  (magit-section-parent section)))))))
 
 (defun magit-section-match-1 (l1 l2)
-  "Return non-nil if list L1 is a prefix of list L2.
-L1 is a prefix of L2 if each of it's element is `equal' to the
-element at the same position in L2.  As a special case `*' in
-L1 matches zero or more arbitrary elements in L2."
   (or (null l1)
       (if (eq (car l1) '*)
           (or (magit-section-match-1 (cdr l1) l2)
@@ -2980,37 +2976,11 @@ L1 matches zero or more arbitrary elements in L2."
              (magit-section-match-1 (cdr l1) (cdr l2))))))
 
 (defun magit-section-match (condition &optional section)
-  "Return t if the context type of SECTION matches CONDITION.
-
-CONDITION is a list beginning with the type of the least narrow
-section and recursively the more narrow sections.  It may also
-contain wildcards (see `magit-section-match-1').
-
-Optional SECTION is a section, if it is nil use the current
-section."
   (magit-section-match-1 (reverse condition)
                          (magit-section-context-type
                           (or section (magit-current-section)))))
 
 (defmacro magit-section-case (head &rest clauses)
-  "Choose among clauses depending on the current section.
-
-Each clause looks like (SECTION-TYPE BODY...).  The current
-section is compared against SECTION-TYPE; the corresponding
-BODY is evaluated and it's value returned.  If no clause
-succeeds return nil.
-
-SECTION-TYPE is a list of symbols identifying a section and it's
-section context; beginning with the most narrow section.  Whether
-a clause succeeds is determined using `magit-section-match'.
-A SECTION-TYPE of t is allowed only in the final clause, and
-matches if no other SECTION-TYPE matches.
-
-While evaluating the selected BODY SECTION is dynamically bound
-to the current section and INFO to information about this
-section (see `magit-section-info').
-
-\(fn (SECTION INFO) (SECTION-TYPE BODY...)...)"
   (declare (indent 1))
   (let ((section (car head))
         (info (cadr head)))
@@ -3028,15 +2998,6 @@ section (see `magit-section-info').
   (make-symbol "magit-section-action-success"))
 
 (defmacro magit-section-action (head &rest clauses)
-  "Choose among action clauses depending on the current section.
-
-Like `magit-section-case' (which see) but if no CLAUSE succeeds
-try additional CLAUSES added with `magit-add-action-clauses'.
-Return the value of BODY of the clause that succeeded.
-
-Each use of `magit-section-action' should use an unique OPNAME.
-
-\(fn (SECTION INFO OPNAME) (SECTION-TYPE BODY...)...)"
   (declare (indent 1) (debug (sexp &rest (sexp body))))
   (let ((value (make-symbol "*value*"))
         (opname (car (cddr head)))
@@ -3058,17 +3019,6 @@ Each use of `magit-section-action' should use an unique OPNAME.
          ,value))))
 
 (defmacro magit-add-action-clauses (head &rest clauses)
-  "Add additional clauses to the OPCODE section action.
-
-Add to the section action with the same OPNAME additional
-CLAUSES.  If none of the default clauses defined using
-`magit-section-action' succeed try the clauses added with this
-function (which can be used multiple times with the same OPNAME).
-
-See `magit-section-case' for more information on SECTION, INFO
-and CLAUSES.
-
-\(fn (SECTION INFO OPNAME) (SECTION-TYPE BODY...)...)"
   (declare (indent 1))
   `(add-hook ',(intern (format "magit-%s-action-hook" (car (cddr head))))
              (lambda ()
