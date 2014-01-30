@@ -662,6 +662,7 @@ manager but it will be used in more places in the future."
     magit-insert-status-head-line
     magit-insert-status-tags-line
     magit-insert-status-merge-line
+    magit-insert-status-cherry-pick-line
     magit-insert-status-rebase-lines
     magit-insert-empty-line
     magit-insert-rebase-sequence
@@ -4788,6 +4789,25 @@ when asking for user input.
 
 ;;;; Progress Sections
 
+(defun magit-insert-status-cherry-pick-line ()
+  (defvar-local magit-cherry-pick-key-backup nil)
+  (if (file-exists-p (magit-git-dir "CHERRY_PICK_HEAD"))
+      (progn
+        (magit-insert-line-section (line)
+          (concat
+           "Cherry-Picking: "
+           (with-temp-buffer
+             (insert-file-contents (magit-git-dir "CHERRY_PICK_HEAD"))
+             (buffer-substring (point-min) (+ (point-min) magit-sha1-abbrev-length)))
+           (and magit-status-show-sequence-help
+                "; Press \"C\" to Abort or Continue")))
+        (unless magit-cherry-pick-key-backup
+          (setq-local magit-cherry-pick-key-backup (lookup-key magit-status-mode-map (kbd "C"))))
+        (local-set-key (kbd "C") 'magit-cherry-pick-step))
+    (when magit-cherry-pick-key-backup
+      (local-set-key (kbd "C") magit-cherry-pick-key-backup)
+      (setq-local magit-cherry-pick-key-backup nil))))
+
 (defun magit-insert-status-merge-line ()
   (let ((heads (magit-file-lines (magit-git-dir "MERGE_HEAD"))))
     (when heads
@@ -6304,6 +6324,17 @@ With prefix argument, changes in staging area are kept.
 (defun magit-cherry-pick-commit (commit)
   (magit-assert-one-parent commit "cherry-pick")
   (magit-run-git "cherry-pick" commit))
+
+(defun magit-cherry-pick-step ()
+  "Continue or abort a cherry-pick."
+  (interactive)
+  (unless (file-exists-p (magit-git-dir "CHERRY_PICK_HEAD"))
+    (error "No cherry-pick on-going"))
+  (message "Cherry-pick in progress. [A]bort or [C]ontinue? ")
+  (cl-case (read-event)
+    ((?A ?a) (magit-run-git-async "cherry-pick" "--abort"))
+    ((?C ?c) (magit-with-emacsclient magit-server-window-for-commit
+                       (magit-run-git-async "cherry-pick" "--continue")))))
 
 ;;;;; Submoduling
 
