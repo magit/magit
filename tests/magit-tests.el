@@ -60,7 +60,7 @@
 (defun magit-tests--should-have-item-title (title section-path)
   (magit-status default-directory)
   (should (member title
-                  (mapcar 'magit-section-title
+                  (mapcar 'magit-section-info
                           (magit-section-children
                            (magit-find-section section-path
                                                magit-root-section))))))
