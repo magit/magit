@@ -5274,7 +5274,7 @@ With a prefix argument, visit in other window."
                  ([file untracked] info)
                  ((diff diffstat) info)
                  (hunk parent-info)
-                 (nil default-directory)))))
+                 (t default-directory)))))
 
 (defvar-local magit-file-log-file nil)
 (defvar-local magit-show-current-version nil)
