@@ -5268,13 +5268,15 @@ With a prefix argument, visit in other window."
 With a prefix argument, visit in other window."
   (interactive "P")
   (require 'dired-x)
-  (dired-jump other-window
-              (file-truename
-               (magit-section-action dired-jump (info parent-info)
-                 ([file untracked] info)
-                 ((diff diffstat) info)
-                 (hunk parent-info)
-                 (nil default-directory)))))
+  (condition-case nil
+      (dired-jump other-window
+                  (file-truename
+                   (magit-section-action dired-jump (info parent-info)
+                     ([file untracked] info)
+                     ((diff diffstat) info)
+                     (hunk parent-info)
+                     (nil default-directory))))
+    (error (call-interactively 'dired-jump))))
 
 (defvar-local magit-file-log-file nil)
 (defvar-local magit-show-current-version nil)
