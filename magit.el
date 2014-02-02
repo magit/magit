@@ -5650,7 +5650,7 @@ and staging area are lost.
                                              (if current-prefix-arg
                                                  "Hard reset"
                                                "Reset"))
-                                     (or (magit-guess-branch) "HEAD^"))
+                                     (or (magit-guess-branch) "HEAD"))
                      current-prefix-arg))
   (magit-run-git "reset" (if hard "--hard" "--soft") revision "--"))
 
