@@ -5254,7 +5254,7 @@ With a prefix argument, visit in other window."
 With a prefix argument, visit in other window."
   (interactive "P")
   (magit-visit-item other-window
-                    (concat (buffer-substring (point-min) (+ (point-min) magit-sha1-abbrev-length)) "^")))
+                    (concat (buffer-substring-no-properties (point-min) (+ (point-min) magit-sha1-abbrev-length)) "^")))
 
 (defun magit-hunk-item-target-line (hunk)
   (save-excursion

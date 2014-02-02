@@ -143,7 +143,7 @@
         (with-temp-buffer
           (apply 'magit-git-insert "blame" "--porcelain"
                  `(,@(and magit-blame-ignore-whitespace (list "-w"))
-                   ,@(buffer-local-value 'magit-show-current-version buffer) "--"
+                   ,@(and (eq '(nil) (buffer-local-value 'magit-show-current-version buffer)) nil) "--"
                    ,(or (and (buffer-file-name buffer) (file-name-nondirectory (buffer-file-name buffer)))
                         (buffer-local-value 'magit-file-name buffer))))
           (magit-blame-parse buffer (current-buffer)))))))
