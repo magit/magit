@@ -100,7 +100,7 @@ work-in-progress ref."
 ;;;###autoload
 (define-globalized-minor-mode global-magit-wip-save-mode
   magit-wip-save-mode turn-on-magit-wip-save
-  :group 'magit)
+  :group 'magit-wip)
 
 (defun turn-on-magit-wip-save ()
   "Conditionally turn on magit-wip-save-mode.
