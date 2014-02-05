@@ -4258,7 +4258,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
           "\\(?2:.+\\)\\)$"))                      ; "msg"
 
 (defconst magit-log-unique-re
-  (concat "^\\* "
+  (concat "^"
           "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
           "\\(?2:.*\\)$"))                         ; msg
 
@@ -4691,7 +4691,7 @@ when asking for user input.
         (magit-insert-unpulled-commits)
       (magit-git-insert-section (recent "Recent commits:")
           (apply-partially 'magit-wash-log 'unique)
-        "log" "--format=format:* %h %s" (magit-diff-abbrev-arg)
+        "log" "--format=format:%h %s" (magit-diff-abbrev-arg)
         "-n" 10))))
 
 (defun magit-insert-unpulled-commits ()
@@ -4699,7 +4699,7 @@ when asking for user input.
     (when tracked
       (magit-git-insert-section (unpulled "Unpulled commits:")
           (apply-partially 'magit-wash-log 'unique)
-        "log" "--format=format:* %h %s" (magit-diff-abbrev-arg)
+        "log" "--format=format:%h %s" (magit-diff-abbrev-arg)
         (concat "HEAD.." tracked)))))
 
 (defun magit-insert-unpushed-commits ()
@@ -4707,7 +4707,7 @@ when asking for user input.
     (when tracked
       (magit-git-insert-section (unpushed "Unpushed commits:")
           (apply-partially 'magit-wash-log 'unique)
-        "log" "--format=format:* %h %s" (magit-diff-abbrev-arg)
+        "log" "--format=format:%h %s" (magit-diff-abbrev-arg)
         (concat tracked "..HEAD")))))
 
 (defun magit-insert-unpulled-cherries ()
