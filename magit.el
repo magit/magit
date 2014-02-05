@@ -5581,7 +5581,8 @@ Return nil if there is no rebase in progress."
        (let ((patch-header (magit-file-line
                             (car (directory-files a t "^[0-9]\\{4\\}$")))))
          (when (string-match "^From \\([a-z0-9]\\{40\\}\\) " patch-header)
-           (match-string 1 patch-header)))))
+           (match-string 1 patch-header)))
+       nil))
 
      ((file-regular-p (expand-file-name "applying" a)) ; am
       (list
