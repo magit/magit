@@ -3845,13 +3845,13 @@ instead of the current buffer."
     (auto-revert-buffers)))
 
 (defun magit-refresh-all ()
-  "Refresh all Magit buffers of the current repository.
-Also run `auto-revert-buffers', which reverts file visiting buffers,
-provided one of the Auto-Revert modes is active.  Also see option
-`magit-turn-on-auto-revert-mode'."
+  "Refresh all buffers belonging to the current repository.
+Unlike `magit-refresh' (which see) this always refreshes
+all Magit buffers and file visiting buffers synchronously."
   (interactive)
   (magit-map-magit-buffers #'magit-mode-refresh-buffer default-directory)
-  (auto-revert-buffers))
+  (let (auto-revert-stop-on-user-input)
+    (auto-revert-buffers)))
 
 (defun magit-maybe-turn-on-auto-revert-mode ()
   "Turn on Auto-Revert mode if file is inside a Git repository.
