@@ -4861,7 +4861,7 @@ when asking for user input.
     (magit-git-insert-section (bisect-view "Bisect Rest:")
         (apply-partially 'magit-wash-log 'bisect-vis)
       "bisect" "visualize" "git" "log"
-      "--decorate=full" "--abbrev-commit"
+      "--decorate=full"
       (magit-diff-abbrev-arg)
       "--pretty=format:%h%d %s")))
 
@@ -6511,7 +6511,7 @@ Other key binding:
         (apply-partially 'magit-wash-log style 'color t)
       "log"
       (format "--max-count=%d" magit-log-cutoff-length)
-      "--decorate=full" "--abbrev-commit" "--color"
+      "--decorate=full" "--color"
       (magit-diff-abbrev-arg)
       (cl-case style
         (long    (if magit-log-show-gpg-status
