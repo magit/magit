@@ -3374,8 +3374,8 @@ repository are reverted using `auto-revert-buffers'."
     (magit-process-finish process)
     (when (eq process magit-this-process)
       (setq magit-this-process nil))
-    (magit-refresh (and (buffer-live-p (process-get process 'command-buf))
-                        (process-get process 'command-buf)))))
+    (magit-refresh nil (and (buffer-live-p (process-get process 'command-buf))
+                            (process-get process 'command-buf)))))
 
 (defun magit-process-filter (proc string)
   "Default filter used by `magit-start-process'."
@@ -3821,15 +3821,20 @@ before the last command."
 
 ;;;;; Refresh Machinery
 
-(defun magit-refresh (&optional buffer)
-  "Refresh the current and the status buffer of the current repository.
-Also run `auto-revert-buffers', which reverts file visiting buffers,
-provided one of the Auto-Revert modes is active.  Also see option
-`magit-turn-on-auto-revert-mode'.
+(defun magit-refresh (&optional synchronous buffer)
+  "Refresh some buffer belonging to the current repository.
 
-Non-interactively, if optional BUFFER is non-nil, that is refreshed
-instead of the current buffer."
-  (interactive (list (current-buffer)))
+Refresh the current buffer, the status buffer, and all file
+visiting buffers using `auto-revert-buffer' (which see).  When
+called interactively, or when `auto-revert-stop-on-user-input'
+is nil or optional SYNCHRONOUS is non-nil, then wait for this
+to complete.  Otherwise file visiting buffers are refreshed
+asynchronously.
+
+File visiting buffers are only refreshed if `auto-revert-mode'
+is active, which is usually the case.  For more information
+see option `magit-turn-on-auto-revert-mode'."
+  (interactive (list t (current-buffer)))
   (unless buffer
     (setq buffer (current-buffer)))
   (with-current-buffer buffer
@@ -3842,7 +3847,9 @@ instead of the current buffer."
                                'magit-status-mode)))
         (magit-mode-refresh-buffer status))))
   (when (or global-auto-revert-mode auto-revert-buffer-list)
-    (auto-revert-buffers)))
+    (let ((auto-revert-stop-on-user-input
+           (if synchronous nil auto-revert-stop-on-user-input)))
+      (auto-revert-buffers))))
 
 (defun magit-refresh-all ()
   "Refresh all buffers belonging to the current repository.
