@@ -3147,7 +3147,7 @@ using `auto-revert-buffers'.
 Process output goes into a new section in a buffer specified by
 variable `magit-process-buffer-name'."
   (apply #'magit-call-git (magit-process-quote-arguments args))
-  (magit-refresh))
+  (magit-refresh t))
 
 (defun magit-call-git (&rest args)
   "Call Git synchronously in a separate process.
@@ -3206,7 +3206,7 @@ This function actually starts a asynchronous process, but it then
 waits for that process to return."
   (apply #'magit-start-git input args)
   (magit-process-wait)
-  (magit-refresh))
+  (magit-refresh t))
 
 (defun magit-run-git-with-logfile (file &rest args)
   "Call Git in a separate process and log its output.
@@ -3216,7 +3216,7 @@ short halflive.  See `magit-run-git' for more information."
   (process-put magit-this-process 'logfile file)
   (set-process-filter magit-this-process 'magit-process-logfile-filter)
   (magit-process-wait)
-  (magit-refresh))
+  (magit-refresh t))
 
 ;;;;; Asynchronous Processes
 
@@ -3374,8 +3374,8 @@ repository are reverted using `auto-revert-buffers'."
     (magit-process-finish process)
     (when (eq process magit-this-process)
       (setq magit-this-process nil))
-    (magit-refresh nil (and (buffer-live-p (process-get process 'command-buf))
-                            (process-get process 'command-buf)))))
+    (magit-refresh t (and (buffer-live-p (process-get process 'command-buf))
+                          (process-get process 'command-buf)))))
 
 (defun magit-process-filter (proc string)
   "Default filter used by `magit-start-process'."
@@ -6403,7 +6403,7 @@ to test.  This command lets Git choose a different one."
     (ignore-errors (delete-file file))
     (magit-run-git-with-logfile file "bisect" subcommand args)
     (magit-process-wait)
-    (magit-refresh)))
+    (magit-refresh t)))
 
 ;;;;; Logging
 
