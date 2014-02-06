@@ -5869,7 +5869,7 @@ user because of prefix arguments are not saved with git config."
           (magit-set (format "%s" chosen-branch-merge-name)
                      "branch" branch "merge"))
         (magit-run-git-async
-         "pull" "-v" magit-custom-options
+         "pull" magit-custom-options
          (and choose-remote chosen-branch-remote)
          (and choose-branch
               (list (format "refs/heads/%s:refs/remotes/%s/%s"
