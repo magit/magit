@@ -3035,15 +3035,8 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
 (defun magit-git-command (args directory)
   "Execute a Git subcommand asynchronously, displaying the output.
 With a prefix argument run Git in the root of the current
-repository."
-  (interactive
-   (let ((dir (if current-prefix-arg
-                  (or (magit-get-top-dir)
-                      (user-error "Not inside a Git repository"))
-                default-directory)))
-     (list (read-string (format "Git subcommand (in %s): " dir)
-                        nil 'magit-git-command-history)
-           dir)))
+repository.  Non-interactively run Git in DIRECTORY with ARGS."
+  (interactive (magit-git-command-read-args))
   (require 'eshell)
   (magit-mode-display-buffer (magit-process-buffer nil t)
                              'magit-process-mode 'pop-to-buffer)
@@ -3055,11 +3048,22 @@ repository."
        (mapcar 'eval (eshell-parse-arguments (point-min)
                                              (point-max)))))))
 
-(defun magit-git-command-topdir (args)
+(defun magit-git-command-topdir (args directory)
   "Execute a Git subcommand asynchronously, displaying the output.
-Run Git in the root of the current repository."
-  (interactive)
-  (call-interactively #'magit-git-command nil (list 4)))
+Run Git in the root of the current repository.
+\n(fn)" ; arguments are for internal use
+  (interactive (magit-git-command-read-args t))
+  (magit-git-command args directory))
+
+(defun magit-git-command-read-args (&optional root)
+  (let ((dir (if (or root current-prefix-arg)
+                 (or (magit-get-top-dir)
+                     (user-error "Not inside a Git repository"))
+               default-directory)))
+    (list (read-string (format "Git subcommand (in %s): "
+                               (abbreviate-file-name dir))
+                       nil 'magit-git-command-history)
+          dir)))
 
 ;;;;; Process Mode
 
