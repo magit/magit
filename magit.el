@@ -5629,8 +5629,7 @@ Return nil if there is no rebase in progress."
   "Apply a series of patches from a mailbox."
   (interactive "fmbox or Maildir file or directory: ")
   (magit-with-emacsclient magit-server-window-for-rebase
-    (magit-run-git-async "am" file-or-dir))
-  (magit-refresh))
+    (magit-run-git-async "am" file-or-dir)))
 
 ;;;;; Reset
 
