@@ -3147,7 +3147,7 @@ using `auto-revert-buffers'.
 Process output goes into a new section in a buffer specified by
 variable `magit-process-buffer-name'."
   (apply #'magit-call-git (magit-process-quote-arguments args))
-  (magit-refresh))
+  (magit-refresh t))
 
 (defun magit-call-git (&rest args)
   "Call Git synchronously in a separate process.
@@ -3206,7 +3206,7 @@ This function actually starts a asynchronous process, but it then
 waits for that process to return."
   (apply #'magit-start-git input args)
   (magit-process-wait)
-  (magit-refresh))
+  (magit-refresh t))
 
 (defun magit-run-git-with-logfile (file &rest args)
   "Call Git in a separate process and log its output.
@@ -3216,7 +3216,7 @@ short halflive.  See `magit-run-git' for more information."
   (process-put magit-this-process 'logfile file)
   (set-process-filter magit-this-process 'magit-process-logfile-filter)
   (magit-process-wait)
-  (magit-refresh))
+  (magit-refresh t))
 
 ;;;;; Asynchronous Processes
 
@@ -3374,8 +3374,8 @@ repository are reverted using `auto-revert-buffers'."
     (magit-process-finish process)
     (when (eq process magit-this-process)
       (setq magit-this-process nil))
-    (magit-refresh (and (buffer-live-p (process-get process 'command-buf))
-                        (process-get process 'command-buf)))))
+    (magit-refresh t (and (buffer-live-p (process-get process 'command-buf))
+                          (process-get process 'command-buf)))))
 
 (defun magit-process-filter (proc string)
   "Default filter used by `magit-start-process'."
@@ -3821,15 +3821,20 @@ before the last command."
 
 ;;;;; Refresh Machinery
 
-(defun magit-refresh (&optional buffer)
-  "Refresh the current and the status buffer of the current repository.
-Also run `auto-revert-buffers', which reverts file visiting buffers,
-provided one of the Auto-Revert modes is active.  Also see option
-`magit-turn-on-auto-revert-mode'.
+(defun magit-refresh (&optional synchronous buffer)
+  "Refresh some buffer belonging to the current repository.
 
-Non-interactively, if optional BUFFER is non-nil, that is refreshed
-instead of the current buffer."
-  (interactive (list (current-buffer)))
+Refresh the current buffer, the status buffer, and all file
+visiting buffers using `auto-revert-buffer' (which see).  When
+called interactively, or when `auto-revert-stop-on-user-input'
+is nil or optional SYNCHRONOUS is non-nil, then wait for this
+to complete.  Otherwise file visiting buffers are refreshed
+asynchronously.
+
+File visiting buffers are only refreshed if `auto-revert-mode'
+is active, which is usually the case.  For more information
+see option `magit-turn-on-auto-revert-mode'."
+  (interactive (list t (current-buffer)))
   (unless buffer
     (setq buffer (current-buffer)))
   (with-current-buffer buffer
@@ -3842,16 +3847,18 @@ instead of the current buffer."
                                'magit-status-mode)))
         (magit-mode-refresh-buffer status))))
   (when (or global-auto-revert-mode auto-revert-buffer-list)
-    (auto-revert-buffers)))
+    (let ((auto-revert-stop-on-user-input
+           (if synchronous nil auto-revert-stop-on-user-input)))
+      (auto-revert-buffers))))
 
 (defun magit-refresh-all ()
-  "Refresh all Magit buffers of the current repository.
-Also run `auto-revert-buffers', which reverts file visiting buffers,
-provided one of the Auto-Revert modes is active.  Also see option
-`magit-turn-on-auto-revert-mode'."
+  "Refresh all buffers belonging to the current repository.
+Unlike `magit-refresh' (which see) this always refreshes
+all Magit buffers and file visiting buffers synchronously."
   (interactive)
   (magit-map-magit-buffers #'magit-mode-refresh-buffer default-directory)
-  (auto-revert-buffers))
+  (let (auto-revert-stop-on-user-input)
+    (auto-revert-buffers)))
 
 (defun magit-maybe-turn-on-auto-revert-mode ()
   "Turn on Auto-Revert mode if file is inside a Git repository.
@@ -5629,8 +5636,7 @@ Return nil if there is no rebase in progress."
   "Apply a series of patches from a mailbox."
   (interactive "fmbox or Maildir file or directory: ")
   (magit-with-emacsclient magit-server-window-for-rebase
-    (magit-run-git-async "am" file-or-dir))
-  (magit-refresh))
+    (magit-run-git-async "am" file-or-dir)))
 
 ;;;;; Reset
 
@@ -6397,7 +6403,7 @@ to test.  This command lets Git choose a different one."
     (ignore-errors (delete-file file))
     (magit-run-git-with-logfile file "bisect" subcommand args)
     (magit-process-wait)
-    (magit-refresh)))
+    (magit-refresh t)))
 
 ;;;;; Logging
 
