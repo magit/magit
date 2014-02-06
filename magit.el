@@ -4299,17 +4299,18 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
       (ansi-color-apply-on-region (point-min) (point-max))))
   (when (eq style 'cherry)
     (reverse-region (point-min) (point-max)))
-  (magit-wash-sequence
-   (apply-partially 'magit-wash-log-line style
-                    (string-to-number (or (magit-get "core.abbrev") "7"))))
-  (when (and longer
-             (= magit-log-count magit-log-cutoff-length))
-    (magit-with-section (section longer 'longer)
-      (insert-text-button "type \"e\" to show more history"
-                          'action (lambda (button)
-                                    (magit-log-show-more-entries))
-                          'follow-link t
-                          'mouse-face magit-item-highlight-face))))
+  (let ((magit-log-count 0))
+    (magit-wash-sequence
+     (apply-partially 'magit-wash-log-line style
+                      (string-to-number (or (magit-get "core.abbrev") "7"))))
+    (when (and longer
+               (= magit-log-count magit-log-cutoff-length))
+      (magit-with-section (section longer 'longer)
+        (insert-text-button "type \"e\" to show more history"
+                            'action (lambda (button)
+                                      (magit-log-show-more-entries))
+                            'follow-link t
+                            'mouse-face magit-item-highlight-face)))))
 
 (defun magit-wash-log-line (style abbrev)
   (looking-at (cl-ecase style
@@ -4360,8 +4361,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
     (magit-format-log-margin author date)
     (if hash
         (magit-with-section (section commit hash)
-          (when magit-log-count
-            (cl-incf magit-log-count))
+          (cl-incf magit-log-count)
           (forward-line)
           (when (eq style 'long)
             (magit-wash-sequence
@@ -6493,23 +6493,22 @@ Other key binding:
   (setq magit-file-log-file file)
   (when (consp range)
     (setq range (concat (car range) ".." (cdr range))))
-  (let ((magit-log-count 0))
-    (magit-git-insert-section
-        (logbuf (concat "Commits"
-                        (and file  (concat " for file " file))
-                        (and range (concat " in " range))))
-        (apply-partially 'magit-wash-log style 'color t)
-      "log"
-      (format "--max-count=%d" magit-log-cutoff-length)
-      "--decorate=full" "--color"
-      (cl-case style
-        (long    (if magit-log-show-gpg-status
-                     (list "--stat" "--show-signature")
-                   "--stat"))
-        (oneline (concat "--pretty=format:%h%d "
-                         (and magit-log-show-gpg-status "%G?")
-                         "[%an][%at]%s")))
-      args range "--" file))
+  (magit-git-insert-section
+      (logbuf (concat "Commits"
+                      (and file  (concat " for file " file))
+                      (and range (concat " in " range))))
+      (apply-partially 'magit-wash-log style 'color t)
+    "log"
+    (format "--max-count=%d" magit-log-cutoff-length)
+    "--decorate=full" "--color"
+    (cl-case style
+      (long    (if magit-log-show-gpg-status
+                   (list "--stat" "--show-signature")
+                 "--stat"))
+      (oneline (concat "--pretty=format:%h%d "
+                       (and magit-log-show-gpg-status "%G?")
+                       "[%an][%at]%s")))
+    args range "--" file)
   (save-excursion
     (goto-char (point-min))
     (magit-format-log-margin)))
@@ -6635,12 +6634,11 @@ Other key binding:
 
 (defun magit-refresh-reflog-buffer (ref)
   (magit-log-margin-set-timeunit-width)
-  (let ((magit-log-count 0))
-    (magit-git-insert-section
-        (reflogbuf (format "Local history of branch %s" ref))
-        (apply-partially 'magit-wash-log 'reflog t)
-      "reflog" "show" "--format=format:%h [%an] %ct %gd %gs"
-      (format "--max-count=%d" magit-log-cutoff-length) ref)))
+  (magit-git-insert-section
+      (reflogbuf (format "Local history of branch %s" ref))
+      (apply-partially 'magit-wash-log 'reflog t)
+    "reflog" "show" "--format=format:%h [%an] %ct %gd %gs"
+    (format "--max-count=%d" magit-log-cutoff-length) ref))
 
 (defvar magit-reflog-labels
   '(("commit"      . magit-log-reflog-label-commit)
