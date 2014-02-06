@@ -614,11 +614,6 @@ what you want."
   :group 'magit-modes
   :type 'boolean)
 
-(defcustom magit-sha1-abbrev-length 7
-  "The number of digits to show when a sha1 is displayed in abbreviated form."
-  :group 'magit-modes
-  :type 'integer)
-
 (defcustom magit-refs-namespaces
   '(("^\\(HEAD\\)$"              magit-log-head-label-head nil)
     ("^refs/tags/\\(.+\\)"       magit-log-head-label-tags nil)
@@ -2315,7 +2310,7 @@ involving HEAD."
                " ")))
 
 (defun magit-format-rev-summary (rev)
-  (let ((s (magit-git-string "log" "-1" (magit-diff-abbrev-arg)
+  (let ((s (magit-git-string "log" "-1"
                              (concat "--pretty=format:%h %s") rev)))
     (when s
       (string-match " " s)
@@ -3877,9 +3872,6 @@ and no variation of the Auto-Revert mode is already active."
 (defun magit-diff-U-arg ()
   (format "-U%d" magit-diff-context-lines))
 
-(defun magit-diff-abbrev-arg ()
-  (format "--abbrev=%d" magit-sha1-abbrev-length))
-
 (defun magit-diff-smaller-hunks (&optional count)
   "Decrease the context for diff hunks by COUNT."
   (interactive "p")
@@ -3920,7 +3912,7 @@ And refresh the current Magit buffer."
   (setq-local magit-diff-options (default-value 'magit-diff-options))
   (magit-refresh))
 
-(defun magit-toggle-diff-refine-hunk (&optional other)
+(defun magit-diff-toggle-refine-hunk (&optional other)
   "Turn diff-hunk refining on or off.
 
 If hunk refining is currently on, then hunk refining is turned off.
@@ -4307,7 +4299,9 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
       (ansi-color-apply-on-region (point-min) (point-max))))
   (when (eq style 'cherry)
     (reverse-region (point-min) (point-max)))
-  (magit-wash-sequence (apply-partially 'magit-wash-log-line style))
+  (magit-wash-sequence
+   (apply-partially 'magit-wash-log-line style
+                    (string-to-number (or (magit-get "core.abbrev") "7"))))
   (when (and longer
              (= magit-log-count magit-log-cutoff-length))
     (magit-with-section (section longer 'longer)
@@ -4317,7 +4311,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                           'follow-link t
                           'mouse-face magit-item-highlight-face))))
 
-(defun magit-wash-log-line (style)
+(defun magit-wash-log-line (style abbrev)
   (looking-at (cl-ecase style
                 (oneline magit-log-oneline-re)
                 (long    magit-log-long-re)
@@ -4333,13 +4327,13 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
       (insert (propertize cherry 'face
                           (if (string= cherry "+")
                               'magit-cherry-equivalent
-                            'magit-cherry-unmatched)) " "))
+                            'magit-cherry-unmatched))))
     (unless (eq style 'long)
       (when (eq style 'bisect-log)
 	(setq hash (magit-git-string "rev-parse" "--short" hash)))
       (if hash
           (insert (propertize hash 'face 'magit-log-sha1) " ")
-        (insert (make-string (1+ magit-sha1-abbrev-length) ? ))))
+        (insert (make-string (1+ abbrev) ? ))))
     (when graph
       (if magit-log-format-graph-function
           (insert (funcall magit-log-format-graph-function graph))
@@ -4374,7 +4368,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
              (lambda ()
                (looking-at magit-log-long-re)
                (when (match-string 2)
-                 (magit-wash-log-line 'long))))))
+                 (magit-wash-log-line 'long abbrev))))))
       (forward-line)))
   t)
 
@@ -4691,39 +4685,35 @@ when asking for user input.
         (magit-insert-unpulled-commits)
       (magit-git-insert-section (recent "Recent commits:")
           (apply-partially 'magit-wash-log 'unique)
-        "log" "--format=format:%h %s" (magit-diff-abbrev-arg)
-        "-n" "10"))))
+        "log" "--format=format:%h %s" "-n" "10"))))
 
 (defun magit-insert-unpulled-commits ()
   (let ((tracked (magit-get-tracked-branch nil t)))
     (when tracked
       (magit-git-insert-section (unpulled "Unpulled commits:")
           (apply-partially 'magit-wash-log 'unique)
-        "log" "--format=format:%h %s" (magit-diff-abbrev-arg)
-        (concat "HEAD.." tracked)))))
+        "log" "--format=format:%h %s" (concat "HEAD.." tracked)))))
 
 (defun magit-insert-unpushed-commits ()
   (let ((tracked (magit-get-tracked-branch nil t)))
     (when tracked
       (magit-git-insert-section (unpushed "Unpushed commits:")
           (apply-partially 'magit-wash-log 'unique)
-        "log" "--format=format:%h %s" (magit-diff-abbrev-arg)
-        (concat tracked "..HEAD")))))
+        "log" "--format=format:%h %s" (concat tracked "..HEAD")))))
 
 (defun magit-insert-unpulled-cherries ()
   (let ((tracked (magit-get-tracked-branch nil t)))
     (when tracked
       (magit-git-insert-section (unpulled "Unpulled commits:")
           (apply-partially 'magit-wash-log 'cherry)
-        "cherry" "-v" (magit-diff-abbrev-arg)
-        (magit-get-current-branch) tracked))))
+        "cherry" "-v" (magit-get-current-branch) tracked))))
 
 (defun magit-insert-unpushed-cherries ()
   (let ((tracked (magit-get-tracked-branch nil t)))
     (when tracked
       (magit-git-insert-section (unpushed "Unpushed commits:")
           (apply-partially 'magit-wash-log 'cherry)
-        "cherry" "-v" (magit-diff-abbrev-arg) tracked))))
+        "cherry" "-v" tracked))))
 
 ;;;; Line Sections
 
@@ -4861,9 +4851,7 @@ when asking for user input.
     (magit-git-insert-section (bisect-view "Bisect Rest:")
         (apply-partially 'magit-wash-log 'bisect-vis)
       "bisect" "visualize" "git" "log"
-      "--decorate=full"
-      (magit-diff-abbrev-arg)
-      "--pretty=format:%h%d %s")))
+      "--pretty=format:%h%d %s" "--decorate=full")))
 
 (defun magit-insert-bisect-log ()
   (when (magit-bisecting-p)
@@ -4882,7 +4870,9 @@ when asking for user input.
           (goto-char (point-min))
           (magit-with-section (section bisect-log 'bisect-log heading nil t)
             (magit-wash-sequence
-             (apply-partially 'magit-wash-log-line 'bisect-log))))))
+             (apply-partially 'magit-wash-log-line 'bisect-log
+                              (string-to-number
+                               (or (magit-get "core.abbrev") "7"))))))))
     (when (re-search-forward
            "# first bad commit: \\[\\([a-z0-9]\\{40\\}\\)\\] [^\n]+\n" nil t)
       (let ((hash (match-string-no-properties 1)))
@@ -6512,7 +6502,6 @@ Other key binding:
       "log"
       (format "--max-count=%d" magit-log-cutoff-length)
       "--decorate=full" "--color"
-      (magit-diff-abbrev-arg)
       (cl-case style
         (long    (if magit-log-show-gpg-status
                      (list "--stat" "--show-signature")
@@ -6619,7 +6608,7 @@ Other key binding:
 (defun magit-insert-cherry-commits ()
   (magit-git-insert-section (cherries "Cherry commits:")
       (apply-partially 'magit-wash-log 'cherry)
-    "cherry" "-v" (magit-diff-abbrev-arg) magit-refresh-args))
+    "cherry" "-v" magit-refresh-args))
 
 ;;;; Reflog Mode
 
@@ -6651,7 +6640,6 @@ Other key binding:
         (reflogbuf (format "Local history of branch %s" ref))
         (apply-partially 'magit-wash-log 'reflog t)
       "reflog" "show" "--format=format:%h [%an] %ct %gd %gs"
-      (magit-diff-abbrev-arg)
       (format "--max-count=%d" magit-log-cutoff-length) ref)))
 
 (defvar magit-reflog-labels
@@ -7013,9 +7001,7 @@ into the selected branch."
           (setf (magit-section-needs-refresh-on-show section) t))
          (t
           (let ((beg (point)))
-            (magit-git-insert "cherry" "-v"
-                              (magit-diff-abbrev-arg)
-                              head upstream)
+            (magit-git-insert "cherry" "-v" head upstream)
             (save-restriction
               (narrow-to-region beg (point))
               (goto-char (point-min))
@@ -7053,7 +7039,7 @@ from the parent keymap `magit-mode-map' are also available.")
 (defun magit-refresh-branch-manager ()
   (magit-git-insert-section (branchbuf nil)
       #'magit-wash-branches
-    "branch" "-vva" (magit-diff-abbrev-arg) magit-custom-options))
+    "branch" "-vva" magit-custom-options))
 
 ;;;;; Branch List Washing
 
@@ -7089,8 +7075,7 @@ from the parent keymap `magit-mode-map' are also available.")
          (branch-face (and (equal marker "* ") 'magit-branch)))
     (delete-region (point) (line-beginning-position 2))
     (magit-with-section (section branch branch)
-      (insert (propertize (or sha1
-                              (make-string magit-sha1-abbrev-length ? ))
+      (insert (propertize (or sha1 (make-string 7 ? ))
                           'face 'magit-log-sha1)
               " " marker
               (propertize (if (string-match-p "^remotes/" branch)

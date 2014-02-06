@@ -54,8 +54,7 @@
                   "--" filename))
 
 (defun magit-tests--head-hash ()
-  (magit-git-string
-   "rev-parse" (format "--short=%d" magit-sha1-abbrev-length) "HEAD"))
+  (magit-git-string "rev-parse" "--short" "HEAD"))
 
 (defun magit-tests--should-have-item-title (title section-path)
   (magit-status default-directory)
