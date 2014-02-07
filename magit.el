@@ -230,13 +230,18 @@ tramp to connect to servers with ancient Git versions."
     (shell-quote-argument
      (let ((version (format "%s.%s"
                             emacs-major-version
-                            emacs-minor-version)))
+                            emacs-minor-version))
+           (emacsclient-name (car (directory-files invocation-directory
+                                                   nil
+                                                   "emacsclient.*"))))
        (or (let ((exec-path (list (expand-file-name "bin" invocation-directory)
                                   invocation-directory)))
-             (or (executable-find (format "emacsclient-%s" version))
+             (or (executable-find emacsclient-name)
+                 (executable-find (format "emacsclient-%s" version))
                  (executable-find (format "emacsclient-%s.exe" version))
                  (executable-find "emacsclient")
                  (executable-find "emacsclient.exe")))
+           (executable-find emacsclient-name)
            (executable-find (format "emacsclient-%s" version))
            (executable-find (format "emacsclient-%s.exe" version))
            (executable-find "emacsclient")
