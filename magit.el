@@ -1283,12 +1283,26 @@ Many Magit faces inherit from this one by default."
   "Face for git-wip labels shown in log buffer."
   :group 'magit-faces)
 
-(defface magit-valid-signature
-  (if (require 'epa nil t)
-      '((t :inherit epa-validity-high))
-    '((t :weight bold :foreground "PaleTurquoise")))
-  "Face for valid gpg signatures."
+(defface magit-signature-good
+  '((t :foreground "green"))
+  "Face for good signatures."
   :group 'magit-faces)
+
+(defface magit-signature-bad
+  '((t :foreground "red"))
+  "Face for bad signatures."
+  :group 'magit-faces)
+
+(defface magit-signature-untrusted
+  '((t :foreground "cyan"))
+  "Face for good untrusted signatures."
+  :group 'magit-faces)
+
+(defface magit-signature-none
+  '((t :inherit magit-log-message))
+  "Face for unsigned commits."
+  :group 'magit-faces)
+
 
 (defface magit-log-reflog-label-commit
   '((((class color) (background light))
@@ -4359,15 +4373,13 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
       (insert (format "%-2s " refsel))
       (insert (magit-log-format-reflog refsub)))
     (when msg
-      (font-lock-append-text-property
-       0 (length msg)
-       'face (if gpg
-                 (if (string= gpg "B")
-                     'error
-                   'magit-valid-signature)
-               'magit-log-message)
-       msg)
-      (insert msg))
+      (insert (propertize msg 'face
+                          (cl-case (and gpg (aref gpg 0))
+                            (?G 'magit-signature-good)
+                            (?B 'magit-signature-bad)
+                            (?U 'magit-signature-untrusted)
+                            (?N 'magit-signature-none)
+                            (t  'magit-log-message)))))
     (goto-char (line-beginning-position))
     (magit-format-log-margin author date)
     (if hash
