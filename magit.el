@@ -4717,14 +4717,14 @@ when asking for user input.
     (when tracked
       (magit-git-insert-section (unpulled "Unpulled commits:")
           (apply-partially 'magit-wash-log 'cherry)
-        "cherry" "-v" (magit-get-current-branch) tracked))))
+        "cherry" "-v" "--abbrev" (magit-get-current-branch) tracked))))
 
 (defun magit-insert-unpushed-cherries ()
   (let ((tracked (magit-get-tracked-branch nil t)))
     (when tracked
       (magit-git-insert-section (unpushed "Unpushed commits:")
           (apply-partially 'magit-wash-log 'cherry)
-        "cherry" "-v" tracked))))
+        "cherry" "-v" "--abbrev" tracked))))
 
 ;;;; Line Sections
 
@@ -7009,7 +7009,7 @@ into the selected branch."
           (setf (magit-section-needs-refresh-on-show section) t))
          (t
           (let ((beg (point)))
-            (magit-git-insert "cherry" "-v" head upstream)
+            (magit-git-insert "cherry" "-v" "--abbrev" head upstream)
             (save-restriction
               (narrow-to-region beg (point))
               (goto-char (point-min))
