@@ -30,6 +30,10 @@
 
 (require 'magit)
 
+(defvar magit-annex-sync-content ()
+  "If not nil, magit-annex-sync will default to sync content too.
+If nil, it will only sync git data")
+
 (defun magit-annex-add ()
   "add to git annex."
   (interactive)
@@ -50,6 +54,15 @@
      (magit-run-git "annex" "add"))
     ([* staged]
      (user-error "Already staged"))))
+
+(defun magit-annex-sync (&optional content)
+  "run git annex sync.
+
+With prefix argument, use the --content option to also sync content
+
+When `magit-annex-sync-content' is non nil, it reverse the action of the prefix argument"
+  (interactive "P")
+  (magit-run-git-async "annex" "sync" (if (if magit-annex-sync-content (not content) content) "--content" ())))
 
 (defun magit-annex-get-auto ()
   "run git annex get --auto to get all needed files"
@@ -72,6 +85,7 @@
 
 (magit-key-mode-add-group 'git-annex)
 (magit-key-mode-insert-action 'git-annex "a" "Add" #'magit-annex-add)
+(magit-key-mode-insert-action 'git-annex "s" "Sync" #'magit-annex-sync)
 (magit-key-mode-insert-action 'git-annex "@" "Add" #'magit-annex-add)
 (magit-key-mode-insert-action 'git-annex "e" "edit" #'magit-annex-edit)
 (magit-key-mode-insert-action 'git-annex "g" "get" #'magit-annex-get)
