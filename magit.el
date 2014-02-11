@@ -3104,8 +3104,7 @@ Run Git in the root of the current repository.
           (set-marker-insertion-type (magit-section-content-beginning s) nil)
           (current-buffer)))))
 
-;;;;; Process Api
-;;;;;; Synchronous Processes
+;;;;; Synchronous Processes
 
 (defun magit-git-success (&rest args)
   "Execute Git with ARGS, returning t if its exit code is 0."
@@ -3232,7 +3231,7 @@ short halflive.  See `magit-run-git' for more information."
   (magit-process-wait)
   (magit-refresh t))
 
-;;;;;; Asynchronous Processes
+;;;;; Asynchronous Processes
 
 (defvar magit-this-process nil)
 
