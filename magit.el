@@ -2112,8 +2112,9 @@ Otherwise, return nil."
 
 (defun magit-ref-ambiguous-p (ref)
   "Return whether or not REF is ambiguous."
-  ;; If REF is ambiguous, rev-parse just prints errors,
-  ;; so magit-git-string returns nil.
+  ;; An ambiguous ref does not cause `git rev-parse --abbrev-ref'
+  ;; to exits with a non-zero status.  But there is nothing on
+  ;; stdout in that case.
   (not (magit-git-string "rev-parse" "--abbrev-ref" ref)))
 
 (defun magit-rev-diff-count (a b)
