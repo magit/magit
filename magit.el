@@ -3106,14 +3106,14 @@ Run Git in the root of the current repository.
 
 ;;;;; Synchronous Processes
 
-(defun magit-git-success (&rest args)
-  "Execute Git with ARGS, returning t if its exit code is 0."
-  (= (apply #'magit-git-exit-code args) 0))
-
 (defun magit-git-exit-code (&rest args)
   "Execute Git with ARGS, returning its exit code."
   (apply #'process-file magit-git-executable nil nil nil
          (append magit-git-standard-options args)))
+
+(defun magit-git-success (&rest args)
+  "Execute Git with ARGS, returning t if its exit code is 0."
+  (= (apply #'magit-git-exit-code args) 0))
 
 (defun magit-git-string (&rest args)
   "Execute Git with ARGS, returning the first line of its output.
