@@ -2156,10 +2156,10 @@ involving HEAD."
   (magit-git-success "diff" "--quiet" "--" file))
 
 (defun magit-anything-staged-p ()
-  (not (magit-git-success "diff-index" "--cached" "--quiet" "HEAD" "--")))
+  (magit-git-failure "diff-index" "--cached" "--quiet" "HEAD"))
 
 (defun magit-anything-unstaged-p ()
-  (not (magit-git-success "diff-files" "--quiet" "--")))
+  (magit-git-failure "diff-files" "--quiet"))
 
 (defun magit-everything-clean-p ()
   (and (not (magit-anything-staged-p))
@@ -3114,6 +3114,10 @@ Run Git in the root of the current repository.
 (defun magit-git-success (&rest args)
   "Execute Git with ARGS, returning t if its exit code is 0."
   (= (apply #'magit-git-exit-code args) 0))
+
+(defun magit-git-failure (&rest args)
+  "Execute Git with ARGS, returning t if its exit code is 1."
+  (= (apply #'magit-git-exit-code args) 1))
 
 (defun magit-git-string (&rest args)
   "Execute Git with ARGS, returning the first line of its output.
@@ -4444,7 +4448,7 @@ from the parent keymap `magit-mode-map' are also available."
   "Show information about COMMIT."
   (interactive (list (magit-read-rev-with-default
                       "Show commit (hash or ref)")))
-  (unless (magit-git-success "cat-file" "commit" commit)
+  (when (magit-git-failure "cat-file" "commit" commit)
     (user-error "%s is not a commit" commit))
   (magit-mode-setup magit-commit-buffer-name
                     (if noselect 'display-buffer 'pop-to-buffer)
