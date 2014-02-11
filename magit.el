@@ -3112,7 +3112,8 @@ Run Git in the root of the current repository.
 (defun magit-git-exit-code (&rest args)
   "Execute Git with ARGS, returning its exit code."
   (apply #'process-file magit-git-executable nil nil nil
-         (append magit-git-standard-options args)))
+         (append magit-git-standard-options
+                 (magit-flatten-onelevel args))))
 
 (defun magit-git-success (&rest args)
   "Execute Git with ARGS, returning t if its exit code is 0."
@@ -3128,7 +3129,8 @@ If there is no output return nil.  If the output begins with a
 newline return an empty string."
   (with-temp-buffer
     (apply #'process-file magit-git-executable nil (list t nil) nil
-           (append magit-git-standard-options args))
+           (append magit-git-standard-options
+                   (magit-flatten-onelevel args)))
     (unless (= (point-min) (point-max))
       (goto-char (point-min))
       (buffer-substring-no-properties
@@ -3138,14 +3140,16 @@ newline return an empty string."
 (defun magit-git-insert (&rest args)
   "Execute Git with ARGS, inserting its output at point."
   (apply #'process-file magit-git-executable nil (list t nil) nil
-         (append magit-git-standard-options args)))
+         (append magit-git-standard-options
+                 (magit-flatten-onelevel args))))
 
 (defun magit-git-lines (&rest args)
   "Execute Git with ARGS, returning its output as a list of lines.
 Empty lines anywhere in the output are omitted."
   (with-temp-buffer
     (apply #'process-file magit-git-executable nil (list t nil) nil
-           (append magit-git-standard-options args))
+           (append magit-git-standard-options
+                   (magit-flatten-onelevel args)))
     (split-string (buffer-string) "\n" 'omit-nulls)))
 
 (defun magit-run-git (&rest args)
