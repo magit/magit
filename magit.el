@@ -3105,7 +3105,7 @@ Run Git in the root of the current repository.
           (current-buffer)))))
 
 ;;;;; Process Api
-;;;;; Synchronous Processes
+;;;;;; Synchronous Processes
 
 (defun magit-git-success (&rest args)
   "Execute Git with ARGS, returning t if its exit code is 0."
@@ -3232,7 +3232,7 @@ short halflive.  See `magit-run-git' for more information."
   (magit-process-wait)
   (magit-refresh t))
 
-;;;;; Asynchronous Processes
+;;;;;; Asynchronous Processes
 
 (defvar magit-this-process nil)
 
@@ -4420,7 +4420,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 
 ;;; Modes (1)
 ;;;; Commit Mode
-;;;; Commit Core
+;;;;; Commit Core
 
 (define-derived-mode magit-commit-mode magit-mode "Magit"
   "Mode for looking at a git commit.
@@ -4507,7 +4507,7 @@ stash at point, then prompt for a commit."
     "--cc" "-p" (and magit-show-diffstat "--stat")
     magit-diff-options commit))
 
-;;;; Commit Washing
+;;;;; Commit Washing
 
 (defun magit-wash-commit ()
   (looking-at "^commit \\([a-z0-9]+\\)\\(?: \\(.+\\)\\)?$")
