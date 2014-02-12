@@ -5239,21 +5239,21 @@ member of ARGS, or to the working file otherwise."
 
 ;;;; Visit
 
-(defun magit-visit-item (&optional other-window)
+(defun magit-visit-item (&optional other-window revision)
   "Visit current item.
 With a prefix argument, visit in other window."
   (interactive "P")
   (magit-section-action visit (info parent-info)
     ((diff diffstat [file untracked])
-     (magit-visit-file-item info other-window))
+     (magit-visit-file-item info other-window nil nil revision))
     (hunk   (magit-visit-file-item parent-info other-window
                                    (magit-hunk-item-target-line it)
-                                   (current-column)))
+                                   (current-column) revision))
     (commit (magit-show-commit info))
     (stash  (magit-diff-stash info))
     (branch (magit-checkout info))))
 
-(defun magit-visit-file-item (file &optional other-window line column)
+(defun magit-visit-file-item (file &optional other-window line column revision)
   (unless file
     (user-error "Can't get pathname for this file"))
   (unless (file-exists-p file)
@@ -5263,14 +5263,24 @@ With a prefix argument, visit in other window."
                  (magit-get-top-dir))
           (magit-dired-jump other-window)
         (magit-status file (not other-window)))
-    (if other-window
-        (find-file-other-window file)
-      (find-file file))
+    (if revision
+        (let ((switch (if other-window 'switch-to-buffer-other-window 'switch-to-buffer)))
+          (funcall switch (magit-show revision file)))
+      (if other-window
+          (find-file-other-window file)
+        (find-file file)))
     (when line
       (goto-char (point-min))
       (forward-line (1- line))
       (when (> column 0)
         (move-to-column (1- column))))))
+
+(defun magit-visit-item-before-commit (&optional other-window)
+  "Visit current item of a commit at the revision just before this commit.
+With a prefix argument, visit in other window."
+  (interactive "P")
+  (magit-visit-item other-window
+                    (concat (buffer-substring-no-properties (point-min) (+ (point-min) magit-sha1-abbrev-length)) "^")))
 
 (defun magit-hunk-item-target-line (hunk)
   (save-excursion

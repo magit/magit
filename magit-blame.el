@@ -107,8 +107,10 @@
   "Display blame information inline."
   :keymap magit-blame-map
   :lighter " blame"
-  (unless (buffer-file-name)
-    (user-error "Current buffer has no associated file!"))
+  (unless (or (buffer-file-name) magit-file-name)
+    (progn
+      (setq magit-blame-mode nil)
+      (user-error "Current buffer has no associated file!")))
   (when (and (buffer-modified-p)
              (y-or-n-p (format "save %s first? " (buffer-file-name))))
     (save-buffer))
@@ -140,8 +142,10 @@
       (save-restriction
         (with-temp-buffer
           (apply 'magit-git-insert "blame" "--porcelain"
-                 `(,@(and magit-blame-ignore-whitespace (list "-w")) "--"
-                   ,(file-name-nondirectory (buffer-file-name buffer))))
+                 `(,@(and magit-blame-ignore-whitespace (list "-w"))
+                   ,@(and (eq '(nil) (buffer-local-value 'magit-show-current-version buffer)) nil) "--"
+                   ,(or (and (buffer-file-name buffer) (file-name-nondirectory (buffer-file-name buffer)))
+                        (buffer-local-value 'magit-file-name buffer))))
           (magit-blame-parse buffer (current-buffer)))))))
 
 ;;; Commands
