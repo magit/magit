@@ -4361,7 +4361,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
     (delete-region (point) (point-at-eol))
     (when cherry
       (insert (propertize cherry 'face
-                          (if (string= cherry "+")
+                          (if (string= cherry "-")
                               'magit-cherry-equivalent
                             'magit-cherry-unmatched))
               " "))
