@@ -3919,12 +3919,13 @@ This function is intended as a hook for `find-file-hook'. It
 turns on `auto-revert-mode' if `magit-turn-on-auto-revert-mode'
 is non-nil, the buffer is visiting a file in a Git repository,
 and no variation of the Auto-Revert mode is already active."
-  (when (and magit-turn-on-auto-revert-mode
-             (not auto-revert-mode)
-             (not auto-revert-tail-mode)
-             (not global-auto-revert-mode)
-             (not (magit-bare-repo-p))
-             (magit-get-top-dir))
+  (when (ignore-errors
+          (and magit-turn-on-auto-revert-mode
+               (not auto-revert-mode)
+               (not auto-revert-tail-mode)
+               (not global-auto-revert-mode)
+               (not (magit-bare-repo-p))
+               (magit-get-top-dir)))
     (auto-revert-mode 1)))
 
 (add-hook 'find-file-hook 'magit-maybe-turn-on-auto-revert-mode)
