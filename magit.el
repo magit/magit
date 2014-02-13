@@ -7250,23 +7250,30 @@ from the parent keymap `magit-mode-map' are also available.")
 ;;;; Miscellaneous Commands
 
 ;;;###autoload
-(defun magit-init (dir)
-  "Initialize git repository in the DIR directory."
-  (interactive (list (read-directory-name "Directory for Git repository: ")))
-  (let* ((dir (file-name-as-directory (expand-file-name dir)))
-         (topdir (magit-get-top-dir dir)))
-    (when (or (not topdir)
-              (yes-or-no-p
-               (format
-                (if (string-equal topdir dir)
-                    "There is already a Git repository in %s. Reinitialize? "
-                  "There is a Git repository in %s. Create another in %s? ")
-                topdir dir)))
-      (unless (file-directory-p dir)
-        (and (y-or-n-p (format "Directory %s does not exists.  Create it? " dir))
-             (make-directory dir)))
-      (let ((default-directory dir))
-        (magit-run-git "init")))))
+(defun magit-init (directory)
+  "Create or reinitialize a Git repository.
+Read directory name and initialize it as new Git repository.
+
+If the directory is below an existing repository, then the user
+has to confirm that a new one should be created inside; or when
+the directory is the root of the existing repository, whether
+it should be reinitialized.
+
+Non-interactively DIRECTORY is always (re-)initialized."
+  (interactive
+   (let* ((dir (file-name-as-directory
+                (expand-file-name
+                 (read-directory-name "Create repository in: "))))
+          (top (magit-get-top-dir dir)))
+     (if (and top
+              (not (yes-or-no-p
+                    (if (string-equal top dir)
+                        (format "Reinitialize existing repository %s? " dir)
+                      (format "%s is a repository.  Create another in %s? "
+                              top dir)))))
+         (user-error "Abort")
+       dir)))
+  (magit-run-git "init" directory))
 
 (defun magit-copy-item-as-kill ()
   "Copy sha1 of commit at point into kill ring."
