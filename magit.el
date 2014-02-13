@@ -1954,19 +1954,12 @@ GIT_DIR and its absolute path is returned"
       (when cdup
         (file-name-as-directory (expand-file-name cdup cwd))))))
 
-(defun magit-file-relative-name (filename)
-  "Return the path of FILENAME relative to its git repository.
-
-If FILENAME is absolute, return a path relative to the git
-repository containing it.  Otherwise, return a path relative to
-the current git repository."
-  (let ((topdir (expand-file-name
-                 (magit-get-top-dir (file-name-directory filename))))
-        (file (file-truename filename)))
-    (when (and (not (string= topdir ""))
-               ;; FILE must start with the git repository path
-               (zerop (string-match-p (concat "\\`" topdir) file)))
-      (substring file (length topdir)))))
+(defun magit-file-relative-name (file)
+  "Return the path of FILE relative to the repository root.
+If FILE isn't inside a Git repository then return nil."
+  (setq file (file-truename file))
+  (let ((topdir (magit-get-top-dir file)))
+    (and topdir (substring file (length topdir)))))
 
 (defun magit-bare-repo-p ()
   "Return t if the current repository is bare."
