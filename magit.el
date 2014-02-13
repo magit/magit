@@ -3628,7 +3628,7 @@ evaluated before switching to BUFFER."
         (init-args (cl-gensym "init-args"))
         (buf-symb  (cl-gensym "buf-symb")))
     `(let* ((,mode-symb ,mode)
-            (,init-args (list (magit-get-top-dir default-directory)
+            (,init-args (list (magit-get-top-dir)
                               ,mode-symb ,refresh-func ,@refresh-args))
             (,buf-symb  (magit-mode-display-buffer
                          ,buffer ,mode-symb ,switch-func)))
@@ -7482,7 +7482,7 @@ blame to center around the line point is on."
                        (ignore-errors
                          (magit-file-relative-name (buffer-file-name))))
                 (line-number-at-pos)))))
-  (let ((default-directory (magit-get-top-dir default-directory)))
+  (let ((default-directory (magit-get-top-dir)))
     (apply 'start-file-process "Git Gui Blame" nil
            magit-git-executable "gui" "blame"
            `(,@(and linenum (list (format "--line=%d" linenum)))
