@@ -2180,6 +2180,12 @@ involving HEAD."
       (string-as-multibyte (read path))
     path))
 
+(defun magit-abbrev-length ()
+  (string-to-number (or (magit-get "core.abbrev") "7")))
+
+(defun magit-abbrev-arg ()
+  (format "--abbrev=%d" (magit-abbrev-length)))
+
 ;;;; Git Revisions
 
 (defvar magit-uninteresting-refs
@@ -4335,9 +4341,8 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
   (when (eq style 'cherry)
     (reverse-region (point-min) (point-max)))
   (let ((magit-log-count 0))
-    (magit-wash-sequence
-     (apply-partially 'magit-wash-log-line style
-                      (string-to-number (or (magit-get "core.abbrev") "7"))))
+    (magit-wash-sequence (apply-partially 'magit-wash-log-line style
+                                          (magit-abbrev-length)))
     (when (and longer
                (= magit-log-count magit-log-cutoff-length))
       (magit-with-section (section longer 'longer)
@@ -4739,14 +4744,14 @@ when asking for user input.
     (when tracked
       (magit-git-insert-section (unpulled "Unpulled commits:")
           (apply-partially 'magit-wash-log 'cherry)
-        "cherry" "-v" "--abbrev" (magit-get-current-branch) tracked))))
+        "cherry" "-v" (magit-abbrev-arg) (magit-get-current-branch) tracked))))
 
 (defun magit-insert-unpushed-cherries ()
   (let ((tracked (magit-get-tracked-branch nil t)))
     (when tracked
       (magit-git-insert-section (unpushed "Unpushed commits:")
           (apply-partially 'magit-wash-log 'cherry)
-        "cherry" "-v" "--abbrev" tracked))))
+        "cherry" "-v" (magit-abbrev-arg) tracked))))
 
 ;;;; Line Sections
 
@@ -4904,8 +4909,7 @@ when asking for user input.
           (magit-with-section (section bisect-log 'bisect-log heading nil t)
             (magit-wash-sequence
              (apply-partially 'magit-wash-log-line 'bisect-log
-                              (string-to-number
-                               (or (magit-get "core.abbrev") "7"))))))))
+                              (magit-abbrev-length)))))))
     (when (re-search-forward
            "# first bad commit: \\[\\([a-z0-9]\\{40\\}\\)\\] [^\n]+\n" nil t)
       (let ((hash (match-string-no-properties 1)))
@@ -6639,7 +6643,7 @@ Other key binding:
 (defun magit-insert-cherry-commits ()
   (magit-git-insert-section (cherries "Cherry commits:")
       (apply-partially 'magit-wash-log 'cherry)
-    "cherry" "-v" magit-refresh-args))
+    "cherry" "-v" (magit-abbrev-arg) magit-refresh-args))
 
 ;;;; Reflog Mode
 
