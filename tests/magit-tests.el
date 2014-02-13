@@ -42,7 +42,7 @@
 
 (defun magit-tests--modify-file (filename)
   (with-temp-file (expand-file-name filename)
-    (insert (symbol-name (gensym "content")))))
+    (insert (make-temp-name "content"))))
 
 (defun magit-tests--modify-and-commit (filename)
   (magit-tests--modify-file filename)
