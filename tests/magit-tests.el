@@ -66,24 +66,6 @@
 
 ;;; Tests
 ;;;; magit.el
-;;;;; init
-
-(ert-deftest magit-init ()
-  (let* ((top-repo (file-name-as-directory (make-temp-file "top" t)))
-         (sub-repo (file-name-as-directory
-                    (expand-file-name (make-temp-name "sub") top-repo))))
-    (unwind-protect
-        (progn
-          (magit-init top-repo)
-          (should (magit-git-repo-p top-repo))
-          (make-directory sub-repo)
-          (let ((default-directory sub-repo))
-            (flet ((yes-or-no-p (create-sub-repo?) 'yes))
-              (magit-init sub-repo)))
-          (should (magit-git-repo-p sub-repo))
-          (should (magit-git-repo-p top-repo)))
-      (delete-directory top-repo t))))
-
 ;;;;; status
 
 (ert-deftest magit-status-untracked ()
