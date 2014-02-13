@@ -1954,19 +1954,20 @@ either its work tree or git control directory and return its top
 directory.  If there is no top directory, because the repository
 is bare, return the control directory instead.
 
-If optional FILE is non-nil then return the top directory of its
-repository instead.  FILE should be an existing regular file or
-directory."
+If optional FILE is non-nil then return the top directory of the
+repository that contains it.  FILE should be an existing regular
+file or directory; if it doesn't exist nil is returned."
   (let ((default-directory (or file default-directory)))
-    ;; ^ This works even if FILE isn't a directory.
-    (file-name-as-directory
-     (expand-file-name
-      (or (magit-git-string "rev-parse" "--show-toplevel")
-          (let ((gitdir (magit-git-dir)))
-            (when gitdir
-              (if (magit-git-true "rev-parse" "--is-bare-repository")
-                  gitdir
-                (file-name-directory (directory-file-name gitdir))))))))))
+    (when (file-exists-p default-directory)
+      ;; ^ This works even if FILE isn't a directory.
+      (file-name-as-directory
+       (expand-file-name
+        (or (magit-git-string "rev-parse" "--show-toplevel")
+            (let ((gitdir (magit-git-dir)))
+              (when gitdir
+                (if (magit-git-true "rev-parse" "--is-bare-repository")
+                    gitdir
+                  (file-name-directory (directory-file-name gitdir)))))))))))
 
 (defun magit-file-relative-name (file)
   "Return the path of FILE relative to the repository root.
