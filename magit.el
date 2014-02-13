@@ -4597,7 +4597,7 @@ Other key binding:
   "Name of buffer used to display a repository's status.")
 
 ;;;###autoload
-(defun magit-status (dir &optional same-window)
+(defun magit-status (dir &optional switch-function)
   "Open a Magit status buffer for the Git repository containing DIR.
 If DIR is not within a Git repository, offer to create a Git
 repository in DIR.
@@ -4607,7 +4607,10 @@ repository to use even if `default-directory' is under Git
 control.  Two prefix arguments means to ignore `magit-repo-dirs'
 when asking for user input.
 
-\(fn DIR)" ; don't confuse beginners with SAME-WINDOW
+Depending on option `magit-status-buffer-switch-function' the
+status buffer is shown in another window (the default) or the
+current window.  Non-interactively optional SWITCH-FUNCTION
+can be used to override this."
   (interactive (list (if current-prefix-arg
                          (magit-read-top-dir
                           (> (prefix-numeric-value current-prefix-arg)
@@ -4624,11 +4627,8 @@ when asking for user input.
                    (setq topdir (magit-get-top-dir dir))))
       (let ((default-directory topdir))
         (magit-mode-setup magit-status-buffer-name
-                          (if (called-interactively-p 'any)
-                              magit-status-buffer-switch-function
-                            (if same-window
-                                'switch-to-buffer
-                              'pop-to-buffer))
+                          (or switch-function
+                              magit-status-buffer-switch-function)
                           #'magit-status-mode
                           #'magit-refresh-status)))))
 
@@ -5267,7 +5267,7 @@ With a prefix argument, visit in other window."
       (if (equal (magit-get-top-dir file)
                  (magit-get-top-dir))
           (magit-dired-jump other-window)
-        (magit-status file (not other-window)))
+        (magit-status file (and other-window 'pop-to-buffer)))
     (if other-window
         (find-file-other-window file)
       (find-file file))
