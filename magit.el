@@ -1946,13 +1946,27 @@ GIT_DIR and its absolute path is returned"
   "Return non-nil if there is no commit in the current git repository."
   (not (magit-git-string "rev-list" "-1" "HEAD")))
 
-(defun magit-get-top-dir (&optional cwd)
-  (setq cwd (expand-file-name (file-truename (or cwd default-directory))))
-  (when (file-directory-p cwd)
-    (let* ((default-directory (file-name-as-directory cwd))
-           (cdup (magit-git-string "rev-parse" "--show-cdup")))
-      (when cdup
-        (file-name-as-directory (expand-file-name cdup cwd))))))
+(defun magit-get-top-dir (&optional file)
+  "Return the top directory for the current repository.
+
+Determine the repository which contains `default-directory' in
+either its work tree or git control directory and return its top
+directory.  If there is no top directory, because the repository
+is bare, return the control directory instead.
+
+If optional FILE is non-nil then return the top directory of its
+repository instead.  FILE should be an existing regular file or
+directory."
+  (let ((default-directory (or file default-directory)))
+    ;; ^ This works even if FILE isn't a directory.
+    (file-name-as-directory
+     (expand-file-name
+      (or (magit-git-string "rev-parse" "--show-toplevel")
+          (let ((gitdir (magit-git-dir)))
+            (when gitdir
+              (if (magit-git-true "rev-parse" "--is-bare-repository")
+                  gitdir
+                (file-name-directory (directory-file-name gitdir))))))))))
 
 (defun magit-file-relative-name (file)
   "Return the path of FILE relative to the repository root.
@@ -3908,6 +3922,7 @@ and no variation of the Auto-Revert mode is already active."
              (not auto-revert-mode)
              (not auto-revert-tail-mode)
              (not global-auto-revert-mode)
+             (not (magit-bare-repo-p))
              (magit-get-top-dir))
     (auto-revert-mode 1)))
 
