@@ -1935,12 +1935,12 @@ server if necessary."
   "Return absolute path to the GIT_DIR for the current repository.
 If optional PATH is non-nil it has to be a path relative to the
 GIT_DIR and its absolute path is returned"
-  (let ((gitdir (file-name-as-directory
-                 (expand-file-name
-                  (magit-git-string "rev-parse" "--git-dir")))))
-    (if path
-        (expand-file-name (convert-standard-filename path) gitdir)
-      gitdir)))
+  (let ((gitdir (magit-git-string "rev-parse" "--git-dir")))
+    (when gitdir
+      (setq gitdir (file-name-as-directory (expand-file-name gitdir)))
+      (if path
+          (expand-file-name (convert-standard-filename path) gitdir)
+        gitdir))))
 
 (defun magit-no-commit-p ()
   "Return non-nil if there is no commit in the current git repository."
@@ -1960,14 +1960,15 @@ file or directory; if it doesn't exist nil is returned."
   (let ((default-directory (or file default-directory)))
     (when (file-exists-p default-directory)
       ;; ^ This works even if FILE isn't a directory.
-      (file-name-as-directory
-       (expand-file-name
-        (or (magit-git-string "rev-parse" "--show-toplevel")
-            (let ((gitdir (magit-git-dir)))
-              (when gitdir
-                (if (magit-git-true "rev-parse" "--is-bare-repository")
-                    gitdir
-                  (file-name-directory (directory-file-name gitdir)))))))))))
+      (let ((top
+             (or (magit-git-string "rev-parse" "--show-toplevel")
+                 (let ((gitdir (magit-git-dir)))
+                   (when gitdir
+                     (if (magit-git-true "rev-parse" "--is-bare-repository")
+                         gitdir
+                       (file-name-directory (directory-file-name gitdir))))))))
+        (when top
+          (file-name-as-directory (expand-file-name top)))))))
 
 (defun magit-file-relative-name (file)
   "Return the path of FILE relative to the repository root.
