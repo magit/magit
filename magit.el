@@ -1918,8 +1918,7 @@ server if necessary."
 
 (defun magit-get-boolean (&rest keys)
   "Return the boolean value of Git config entry specified by KEYS."
-  (equal (magit-git-string "config" "--bool" (mapconcat 'identity keys "."))
-         "true"))
+  (magit-git-true "config" "--bool" (mapconcat 'identity keys ".")))
 
 (defun magit-set (val &rest keys)
   "Set Git config settings specified by KEYS to VAL."
@@ -3142,6 +3141,18 @@ newline return an empty string."
       (buffer-substring-no-properties
        (line-beginning-position)
        (line-end-position)))))
+
+(defun magit-git-true (&rest args)
+  "Execute Git with ARGS, returning t if it prints \"true\".
+Return t if the first (and usually only) output line is the
+string \"true\", otherwise return nil."
+  (equal (apply #'magit-git-string args) "true"))
+
+(defun magit-git-false (&rest args)
+  "Execute Git with ARGS, returning t if it prints \"false\".
+Return t if the first (and usually only) output line is the
+string \"false\", otherwise return nil."
+  (equal (apply #'magit-git-string args) "false"))
 
 (defun magit-git-insert (&rest args)
   "Execute Git with ARGS, inserting its output at point."
