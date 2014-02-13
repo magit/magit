@@ -1143,11 +1143,11 @@ Many Magit faces inherit from this one by default."
   :group 'magit-faces)
 
 (defface magit-cherry-unmatched
-  '((t :foreground "magenta"))
+  '((t :foreground "cyan"))
   "Face for unmatched cherry commits.")
 
 (defface magit-cherry-equivalent
-  '((t :foreground "cyan"))
+  '((t :foreground "magenta"))
   "Face for equivalent cherry commits.")
 
 (defface magit-item-highlight
