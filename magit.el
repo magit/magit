@@ -60,10 +60,10 @@ Use the function by the same name instead of this variable.")
 ;; The value is set at the end of this file, using the
 ;; function `magit-version' which is also defined there.
 
+;;;; Dependencies
+
 (when (version< emacs-version "23.2")
   (error "Magit requires at least GNU Emacs 23.2"))
-
-;;;; Dependencies
 
 ;; Users may choose to use `magit-log-edit' instead of the preferred
 ;; `git-commit-mode', by simply putting it on the `load-path'.  If
