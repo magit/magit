@@ -5287,10 +5287,11 @@ With a prefix argument, visit in other window."
   (unless (file-exists-p file)
     (user-error "Can't visit deleted file: %s" file))
   (if (file-directory-p file)
-      (if (equal (magit-get-top-dir file)
-                 (magit-get-top-dir))
-          (magit-dired-jump other-window)
-        (magit-status file (and other-window 'pop-to-buffer)))
+      (progn
+        (setq file (file-name-as-directory (expand-file-name file)))
+        (if (equal (magit-get-top-dir file) (magit-get-top-dir))
+            (magit-dired-jump other-window)
+          (magit-status file (and other-window 'pop-to-buffer))))
     (if other-window
         (find-file-other-window file)
       (find-file file))
