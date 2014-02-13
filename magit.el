@@ -5291,7 +5291,9 @@ With a prefix argument, visit in other window."
         (setq file (file-name-as-directory (expand-file-name file)))
         (if (equal (magit-get-top-dir file) (magit-get-top-dir))
             (magit-dired-jump other-window)
-          (magit-status file (and other-window 'pop-to-buffer))))
+          (magit-status file (if other-window
+                                 'pop-to-buffer
+                               'switch-to-buffer))))
     (if other-window
         (find-file-other-window file)
       (find-file file))
