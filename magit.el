@@ -6635,10 +6635,10 @@ Other key binding:
   (when (derived-mode-p 'magit-cherry-mode)
     (insert "\n")
     (magit-insert-line-section (line)
-      (concat (propertize "-" 'face 'magit-cherry-unmatched)
+      (concat (propertize "-" 'face 'magit-cherry-equivalent)
               " equivalent exists in both refs"))
     (magit-insert-line-section (line)
-      (concat (propertize "+" 'face 'magit-cherry-equivalent)
+      (concat (propertize "+" 'face 'magit-cherry-unmatched)
               " unmatched commit tree"))))
 
 (defun magit-insert-cherry-commits ()
