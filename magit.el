@@ -1968,6 +1968,10 @@ the current git repository."
                (zerop (string-match-p (concat "\\`" topdir) file)))
       (substring file (length topdir)))))
 
+(defun magit-bare-repo-p ()
+  "Return t if the current repository is bare."
+  (magit-git-true "rev-parse" "--is-bare-repository"))
+
 (defun magit-get-ref (ref)
   (magit-git-string "symbolic-ref" "-q" ref))
 
