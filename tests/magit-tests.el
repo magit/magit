@@ -65,8 +65,7 @@
                                                magit-root-section))))))
 
 ;;; Tests
-;;;; magit.el
-;;;;; status
+;;;; status
 
 (ert-deftest magit-status-untracked ()
   (magit-tests--with-temp-repo
@@ -94,7 +93,7 @@
       (magit-tests--should-have-item-title
        (magit-tests--head-hash) '(unpushed)))))
 
-;;;;; config
+;;;; config
 
 (ert-deftest magit-config-get-boolean ()
   (magit-tests--with-temp-repo
@@ -105,13 +104,5 @@
     (magit-call-git "config" "a.b" "false")
     (should-not (magit-get-boolean "a.b"))
     (should-not (magit-get-boolean "a" "b"))))
-
-;;;; magit-blame.el
-
-(ert-deftest magit-blame-mode ()
-  (magit-tests--with-temp-repo
-    (magit-tests--modify-and-commit "file")
-    (magit-tests--with-open-file "file"
-      (should (magit-blame-mode)))))
 
 ;;; magit-tests.el ends here
