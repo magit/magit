@@ -87,6 +87,7 @@ Contributors
 - Julien Danjou <julien@danjou.info>
 - Justin Caratzas <justin.caratzas@gmail.com>
 - Kimberly Wolk <kimwolk@hotmail.com>
+- Kyle Meyer <kyle@kyleam.com>
 - Laurent Laffont <laurent.laffont@gmail.com>
 - Lele Gaifax <lele@metapensiero.it>
 - Leo Liu <sdl.web@gmail.com>
@@ -161,4 +162,5 @@ Contributors
 - Timo Juhani Lindfors <timo.lindfors@iki.fi>
 - Ting-Yu Lin <aethanyc@gmail.com>
 - Tom Feist <shabble@metavore.org>
+- Wilfred Hughes <me@wilfred.me.uk>
 - Yann Hodique <yann.hodique@gmail.com>
