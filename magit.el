@@ -5447,9 +5447,10 @@ If REVISION is a remote branch, offer to create a local tracking branch.
                            (unless (string= current-branch default)
                              default)
                            current-branch))))
-  (unless (magit-maybe-create-local-tracking-branch revision)
-    (magit-save-some-buffers)
-    (magit-run-git "checkout" revision)))
+  (or (magit-maybe-create-local-tracking-branch revision)
+      (progn
+        (magit-save-some-buffers)
+        (magit-run-git "checkout" revision))))
 
 ;;;###autoload
 (defun magit-create-branch (branch parent)
