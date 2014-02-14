@@ -162,16 +162,9 @@
 (defun magit-topgit-wash-topics ()
   (magit-wash-sequence #'magit-topgit-wash-topic))
 
-(defun magit-topgit-section (section title washer &rest args)
-  (when (executable-find magit-topgit-executable)
-    (let ((magit-git-executable magit-topgit-executable)
-          (magit-git-standard-options nil))
-      (apply #'magit-git-section section title washer args))))
-
 (defun magit-insert-topgit-topics ()
-  (magit-topgit-section 'topgit-topics
-                        "Topics:" 'magit-topgit-wash-topics
-                        "summary"))
+  (magit-cmd-insert-section ('topgit-topics "Topics:")
+      'magit-topgit-wash-topics magit-topgit-executable "summary"))
 
 ;;;###autoload
 (define-minor-mode magit-topgit-mode "Topgit support for Magit"
