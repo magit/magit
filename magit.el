@@ -1936,7 +1936,7 @@ If optional PATH is non-nil it has to be a path relative to the
 GIT_DIR and its absolute path is returned"
   (let ((gitdir (magit-git-string "rev-parse" "--git-dir")))
     (when gitdir
-      (setq gitdir (file-name-as-directory (expand-file-name gitdir)))
+      (setq gitdir (file-name-as-directory gitdir))
       (if path
           (expand-file-name (convert-standard-filename path) gitdir)
         gitdir))))
@@ -1967,7 +1967,7 @@ file or directory; if it doesn't exist nil is returned."
                          gitdir
                        (file-name-directory (directory-file-name gitdir))))))))
         (when top
-          (file-name-as-directory (expand-file-name top)))))))
+          (file-name-as-directory top))))))
 
 (defun magit-file-relative-name (file)
   "Return the path of FILE relative to the repository root.
