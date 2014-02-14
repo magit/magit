@@ -1750,6 +1750,11 @@ Read `completing-read' documentation for the meaning of the argument."
                    varlist)
        ,@body)))
 
+(defun magit-file-name-tramp-remote (filename)
+  (when (tramp-tramp-file-p filename)
+    (with-parsed-tramp-file-name filename nil
+      (tramp-make-tramp-file-name method user host nil))))
+
 (defun magit-file-line (file)
   "Return the first line of FILE as a string."
   (when (file-regular-p file)
@@ -1936,7 +1941,8 @@ If optional PATH is non-nil it has to be a path relative to the
 GIT_DIR and its absolute path is returned"
   (let ((gitdir (magit-git-string "rev-parse" "--git-dir")))
     (when gitdir
-      (setq gitdir (file-name-as-directory gitdir))
+      (setq gitdir (concat (magit-file-name-tramp-remote default-directory)
+                           (file-name-as-directory gitdir)))
       (if path
           (expand-file-name (convert-standard-filename path) gitdir)
         gitdir))))
@@ -1967,7 +1973,8 @@ file or directory; if it doesn't exist nil is returned."
                          gitdir
                        (file-name-directory (directory-file-name gitdir))))))))
         (when top
-          (file-name-as-directory top))))))
+          (concat (magit-file-name-tramp-remote default-directory)
+                  (file-name-as-directory top)))))))
 
 (defun magit-file-relative-name (file)
   "Return the path of FILE relative to the repository root.
