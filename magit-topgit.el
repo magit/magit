@@ -181,7 +181,7 @@
     (add-hook 'magit-pull-hook    'magit-topgit-pull nil t)
     (add-hook 'magit-push-hook    'magit-topgit-push nil t)
     (add-hook 'magit-visit-hook   'magit-topgit-checkout nil t)
-    (add-hook 'magit-discard-hook 'magit-topgit-remove nil t))
+    (add-hook 'magit-discard-hook 'magit-topgit-discard nil t))
    (t
     (remove-hook 'magit-status-sections-hook 'magit-insert-topgit-topics t)
     (remove-hook 'magit-create-branch-hook   'magit-topgit-create-branch t)
@@ -189,12 +189,12 @@
     (remove-hook 'magit-pull-hook    'magit-topgit-pull t)
     (remove-hook 'magit-push-hook    'magit-topgit-push t)
     (remove-hook 'magit-visit-hook   'magit-topgit-checkout t)
-    (remove-hook 'magit-discard-hook 'magit-topgit-remove t)))
+    (remove-hook 'magit-discard-hook 'magit-topgit-discard t)))
   (when (called-interactively-p 'any)
     (magit-refresh)))
 
 (put 'magit-topgit-checkout 'magit-section-action-context 'topgit-topic)
-(put 'magit-topgit-remove   'magit-section-action-context 'topgit-topic)
+(put 'magit-topgit-discard   'magit-section-action-context 'topgit-topic)
 
 ;;;###autoload
 (defun turn-on-magit-topgit ()
