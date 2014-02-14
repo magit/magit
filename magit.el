@@ -84,6 +84,7 @@ Use the function by the same name instead of this variable.")
 (require 'help-mode)
 (require 'ring)
 (require 'server)
+(require 'tramp)
 (require 'view)
 
 (eval-when-compile
@@ -1896,14 +1897,12 @@ server if necessary."
 
 (defun magit-use-emacsclient-p ()
   (and magit-emacsclient-executable
-       (not (and (fboundp 'tramp-tramp-file-p)
-                 (tramp-tramp-file-p default-directory)))))
+       (not (tramp-tramp-file-p default-directory))))
 
 (defun magit-assert-emacsclient (action)
   (unless magit-emacsclient-executable
     (user-error "Cannot %s when `magit-emacsclient-executable' is nil" action))
-  (when (and (fboundp 'tramp-tramp-file-p)
-             (tramp-tramp-file-p default-directory))
+  (when (tramp-tramp-file-p default-directory)
     (user-error "Cannot %s when accessing repository using tramp" action)))
 
 ;;;; Git Config
