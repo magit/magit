@@ -5425,14 +5425,13 @@ tracking brach name suggesting a sensible default."
 (defun magit-maybe-create-local-tracking-branch (rev)
   "Depending on the users wishes, create a tracking branch for
 REV... maybe."
-  (if (string-match "^\\(?:refs/\\)?remotes/\\([^/]+\\)/\\(.+\\)" rev)
-      (let* ((remote (match-string 1 rev))
-             (branch (match-string 2 rev))
-             (tracker-name (magit-get-tracking-name remote branch)))
-        (when tracker-name
-          (magit-run-git "checkout" "-b" tracker-name rev)
-          t))
-    nil))
+  (when (string-match "^\\(?:refs/\\)?remotes/\\([^/]+\\)/\\(.+\\)" rev)
+    (let* ((remote (match-string 1 rev))
+           (branch (match-string 2 rev))
+           (tracker-name (magit-get-tracking-name remote branch)))
+      (when tracker-name
+        (magit-run-git "checkout" "-b" tracker-name rev)
+        t))))
 
 ;;;###autoload
 (defun magit-checkout (revision)
