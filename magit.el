@@ -5988,13 +5988,14 @@ Also see option `magit-set-upstream-on-push'."
 (defun magit-push-dwim (arg)
   "Push the current branch to a remote repository.
 
-With a single prefix argument ask the user what remote to push to.
-With two or more prefix arguments also ask the user the name of the
-remote branch to push to.  Otherwise use the remote and branch as
-configured using the Git variables `branch.<name>.remote' and
-`branch.<name>.merge'.  If the former is undefined ask the user.  If
-the latter is undefined push without specifing the remote branch
-explicitly.
+With a single prefix argument ask the user what remote to push
+to.  With two or more prefix arguments also ask the user the
+name of the remote branch to push to.
+
+Otherwise use the remote and branch as configured using the
+Git variables `branch.<name>.remote' and `branch.<name>.merge'.
+If the former is undefined ask the user.  If the latter is
+undefined push without specifing the remote branch explicitly.
 
 Also see option `magit-set-upstream-on-push'."
   (interactive "P")
