@@ -1951,7 +1951,7 @@ GIT_DIR and its absolute path is returned"
   "Return non-nil if there is no commit in the current git repository."
   (not (magit-git-string "rev-list" "-1" "HEAD")))
 
-(defun magit-get-top-dir (&optional file)
+(defun magit-get-top-dir (&optional directory)
   "Return the top directory for the current repository.
 
 Determine the repository which contains `default-directory' in
@@ -1959,28 +1959,37 @@ either its work tree or git control directory and return its top
 directory.  If there is no top directory, because the repository
 is bare, return the control directory instead.
 
-If optional FILE is non-nil then return the top directory of the
-repository that contains it.  FILE should be an existing regular
-file or directory; if it doesn't exist nil is returned."
-  (let ((default-directory (or file default-directory)))
-    (when (file-exists-p default-directory)
-      ;; ^ This works even if FILE isn't a directory.
-      (let ((top
-             (or (magit-git-string "rev-parse" "--show-toplevel")
-                 (let ((gitdir (magit-git-dir)))
-                   (when gitdir
-                     (if (magit-git-true "rev-parse" "--is-bare-repository")
-                         gitdir
-                       (file-name-directory (directory-file-name gitdir))))))))
-        (when top
-          (concat (magit-file-name-tramp-remote default-directory)
-                  (file-name-as-directory top)))))))
+If optional DIRECTORY is non-nil then return the top directory of
+the repository that contains that instead.  DIRECTORY has to be
+an existing directory."
+  (setq directory (if directory
+                      (file-name-as-directory
+                       (expand-file-name directory))
+                    default-directory))
+  (unless (file-directory-p directory)
+    (error "%s isn't an existing directory" directory))
+  (let* ((default-directory directory)
+         (top (or (magit-git-string "rev-parse" "--show-toplevel")
+                  (let ((gitdir (magit-git-dir)))
+                    (when gitdir
+                      (if (magit-bare-repo-p)
+                          (if (string-equal gitdir "./")
+                              directory
+                            (file-name-as-directory gitdir))
+                        (file-name-directory
+                         (directory-file-name
+                          (if (string-equal gitdir "./")
+                              directory
+                            gitdir)))))))))
+    (when top
+      (concat (magit-file-name-tramp-remote default-directory)
+              (file-name-as-directory top)))))
 
 (defun magit-file-relative-name (file)
   "Return the path of FILE relative to the repository root.
 If FILE isn't inside a Git repository then return nil."
   (setq file (file-truename file))
-  (let ((topdir (magit-get-top-dir file)))
+  (let ((topdir (magit-get-top-dir (file-name-directory file))))
     (and topdir (substring file (length topdir)))))
 
 (defun magit-bare-repo-p ()
@@ -5297,7 +5306,8 @@ With a prefix argument, visit in other window."
   (if (file-directory-p file)
       (progn
         (setq file (file-name-as-directory (expand-file-name file)))
-        (if (equal (magit-get-top-dir file) (magit-get-top-dir))
+        (if (equal (magit-get-top-dir (file-name-directory file))
+                   (magit-get-top-dir))
             (magit-dired-jump other-window)
           (magit-status file (if other-window
                                  'pop-to-buffer
@@ -7499,7 +7509,8 @@ blame to center around the line point is on."
      (list revision filename
            (and (equal filename
                        (ignore-errors
-                         (magit-file-relative-name (buffer-file-name))))
+                         (magit-file-relative-name
+                          (file-name-directory (buffer-file-name)))))
                 (line-number-at-pos)))))
   (let ((default-directory (magit-get-top-dir)))
     (apply 'start-file-process "Git Gui Blame" nil
