@@ -76,12 +76,22 @@ When `magit-annex-sync-content' is non nil, it reverse the action of the prefix 
   (let ((default-directory (file-name-directory file)))
     (magit-run-git "annex" "edit" (file-name-nondirectory file))))
 
+(defun magit-annex-edit-dired (file-list)
+  "unlock an annexed file in dired"
+  (interactive (list (dired-get-marked-files)))
+  (mapc #'magit-annex-edit file-list))
+
 (defun magit-annex-get (file)
   "get a file from where ever it is"
   (interactive "ffile to get: ")
   (setq file (expand-file-name file))
   (let ((default-directory (file-name-directory file)))
     (magit-run-git "annex" "get" (file-name-nondirectory file))))
+
+(defun magit-annex-get-dired (file-list)
+  "get a file from git annex in dired"
+  (interactive (list (dired-get-marked-files)))
+  (mapc #'magit-annex-get file-list))
 
 (magit-key-mode-add-group 'git-annex)
 (magit-key-mode-insert-action 'git-annex "a" "Add" #'magit-annex-add)
