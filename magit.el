@@ -1951,6 +1951,14 @@ GIT_DIR and its absolute path is returned"
   "Return non-nil if there is no commit in the current git repository."
   (not (magit-git-string "rev-list" "-1" "HEAD")))
 
+(defun magit-file-default-directory (path)
+  (unless (file-exists-p path)
+    (error "%s does not exist" path))
+  (setq path (expand-file-name path))
+  (if (file-directory-p path)
+      (file-name-as-directory path)
+      (file-name-directory path)))
+
 (defun magit-get-top-dir (&optional file)
   "Return the top directory for the current repository.
 
@@ -1962,7 +1970,9 @@ is bare, return the control directory instead.
 If optional FILE is non-nil then return the top directory of the
 repository that contains it.  FILE should be an existing regular
 file or directory; if it doesn't exist nil is returned."
-  (let ((default-directory (or file default-directory)))
+  (let ((default-directory (if file
+                               (magit-file-default-directory file)
+                               default-directory)))
     (when (file-exists-p default-directory)
       ;; ^ This works even if FILE isn't a directory.
       (let ((top
