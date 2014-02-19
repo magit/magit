@@ -1750,11 +1750,6 @@ Read `completing-read' documentation for the meaning of the argument."
                    varlist)
        ,@body)))
 
-(defun magit-file-name-tramp-remote (filename)
-  (when (tramp-tramp-file-p filename)
-    (with-parsed-tramp-file-name filename nil
-      (tramp-make-tramp-file-name method user host nil))))
-
 (defun magit-file-line (file)
   "Return the first line of FILE as a string."
   (when (file-regular-p file)
@@ -1941,8 +1936,8 @@ If optional PATH is non-nil it has to be a path relative to the
 GIT_DIR and its absolute path is returned"
   (let ((gitdir (magit-git-string "rev-parse" "--git-dir")))
     (when gitdir
-      (setq gitdir (concat (magit-file-name-tramp-remote default-directory)
-                           (file-name-as-directory gitdir)))
+      (setq gitdir (file-name-as-directory
+                    (magit-expand-git-file-name gitdir)))
       (if path
           (expand-file-name (convert-standard-filename path) gitdir)
         gitdir))))
@@ -1969,21 +1964,22 @@ an existing directory."
   (unless (file-directory-p directory)
     (error "%s isn't an existing directory" directory))
   (let* ((default-directory directory)
-         (top (or (magit-git-string "rev-parse" "--show-toplevel")
-                  (let ((gitdir (magit-git-dir)))
-                    (when gitdir
-                      (if (magit-bare-repo-p)
-                          (if (string-equal gitdir "./")
-                              directory
-                            (file-name-as-directory gitdir))
-                        (file-name-directory
-                         (directory-file-name
-                          (if (string-equal gitdir "./")
-                              directory
-                            gitdir)))))))))
-    (when top
-      (concat (magit-file-name-tramp-remote default-directory)
-              (file-name-as-directory top)))))
+         (top (magit-git-string "rev-parse" "--show-toplevel")))
+    (if top
+        (file-name-as-directory (magit-expand-git-file-name top))
+      (let ((gitdir (magit-git-dir)))
+        (when gitdir
+          (if (magit-bare-repo-p)
+              gitdir
+            (file-name-directory (directory-file-name gitdir))))))))
+
+(defun magit-expand-git-file-name (filename)
+  (when (tramp-tramp-file-p default-directory)
+    (setq filename (file-relative-name filename
+                                       (with-parsed-tramp-file-name
+                                           default-directory nil
+                                         localname))))
+  (expand-file-name filename))
 
 (defun magit-file-relative-name (file)
   "Return the path of FILE relative to the repository root.
