@@ -252,7 +252,7 @@ connection."
   (when (and (not (eq (char-after (point-at-bol)) ?#))
              (git-rebase-looking-at-action-or-exec))
     (beginning-of-line)
-    (let ((buffer-read-only nil))
+    (let ((inhibit-read-only t))
       (insert "#"))
     (forward-line)))
 
