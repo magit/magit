@@ -1963,19 +1963,6 @@ involving HEAD."
             (setq rev plain-name))))
       rev)))
 
-(defun magit-file-uptodate-p (file)
-  (magit-git-success "diff" "--quiet" "--" file))
-
-(defun magit-anything-staged-p ()
-  (magit-git-failure "diff-index" "--cached" "--quiet" "HEAD"))
-
-(defun magit-anything-unstaged-p ()
-  (magit-git-failure "diff-files" "--quiet"))
-
-(defun magit-everything-clean-p ()
-  (and (not (magit-anything-staged-p))
-       (magit-git-success "diff" "--quiet")))
-
 (defun magit-commit-parents (commit)
   (cdr (split-string (magit-git-string "rev-list" "-1" "--parents" commit))))
 
@@ -3752,6 +3739,20 @@ If FILE isn't inside a Git repository then return nil."
   (not (magit-git-string "rev-list" "-1" "HEAD")))
 
 ;;;; Diff Predicates
+
+(defun magit-anything-staged-p ()
+  (magit-git-failure "diff-index" "--cached" "--quiet" "HEAD"))
+
+(defun magit-anything-unstaged-p ()
+  (magit-git-failure "diff-files" "--quiet"))
+
+(defun magit-everything-clean-p ()
+  (and (not (magit-anything-staged-p))
+       (magit-git-success "diff" "--quiet")))
+
+(defun magit-file-uptodate-p (file)
+  (magit-git-success "diff" "--quiet" "--" file))
+
 ;;;; Revisions and References
 ;;;; Variables
 
