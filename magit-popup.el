@@ -52,6 +52,7 @@
 
 (require 'button)
 (require 'cl-lib)
+(require 'dash)
 (require 'format-spec)
 
 ;;;; Declarations
@@ -428,41 +429,39 @@ that without users being aware of it could lead to tears.
 
 (defun magit-invoke-popup-switch (event)
   (interactive (list last-command-event))
-  (let ((ev (magit-popup-lookup event :switches)))
-    (if  ev
-        (progn (setf (magit-popup-event-use ev)
-                     (not (magit-popup-event-use ev)))
-               (magit-refresh-popup-buffer))
-      (error "%c isn't bound to any switch" event))))
+  (--if-let (magit-popup-lookup event :switches)
+      (progn
+        (setf (magit-popup-event-use it)
+              (not (magit-popup-event-use it)))
+        (magit-refresh-popup-buffer))
+    (error "%c isn't bound to any switch" event)))
 
 (defun magit-invoke-popup-option (event)
   (interactive (list last-command-event))
-  (let ((ev (magit-popup-lookup event :options)))
-    (if  ev
-        (progn
-          (if (magit-popup-event-use ev)
-              (setf (magit-popup-event-use ev) nil)
-            (let* ((arg (magit-popup-event-arg ev))
-                   (val (funcall
-                         (magit-popup-event-fun ev)
-                         (concat arg (unless (string-match-p "=$" arg) ": "))
-                         (magit-popup-event-val ev))))
-              (setf (magit-popup-event-use ev) t)
-              (setf (magit-popup-event-val ev) val)))
-          (magit-refresh-popup-buffer))
-      (error "%c isn't bound to any option" event))))
+  (--if-let (magit-popup-lookup event :options)
+      (progn
+        (if (magit-popup-event-use it)
+            (setf (magit-popup-event-use it) nil)
+          (let* ((arg (magit-popup-event-arg it))
+                 (val (funcall
+                       (magit-popup-event-fun it)
+                       (concat arg (unless (string-match-p "=$" arg) ": "))
+                       (magit-popup-event-val it))))
+            (setf (magit-popup-event-use it) t)
+            (setf (magit-popup-event-val it) val)))
+        (magit-refresh-popup-buffer))
+    (error "%c isn't bound to any option" event)))
 
 (defun magit-invoke-popup-action (event)
   (interactive (list last-command-event))
-  (let ((ev (magit-popup-lookup event :actions)))
-    (if  ev
-        (let ((magit-current-popup magit-this-popup)
-              (magit-current-popup-args (magit-popup-get-args)))
-          (magit-popup-quit)
-          (call-interactively (magit-popup-event-fun ev)))
-      (if (eq event ?q)
-          (magit-popup-quit)
-        (error "%c isn't bound to any action" event)))))
+  (--if-let (magit-popup-lookup event :actions)
+      (let ((magit-current-popup magit-this-popup)
+            (magit-current-popup-args (magit-popup-get-args)))
+        (magit-popup-quit)
+        (call-interactively (magit-popup-event-fun it)))
+    (if (eq event ?q)
+        (magit-popup-quit)
+      (error "%c isn't bound to any action" event))))
 
 (defun magit-popup-quit ()
   (interactive)
