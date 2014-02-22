@@ -6374,7 +6374,9 @@ depending on the value of option `magit-commit-squash-confirm'.
   (cond
    ((or (magit-anything-staged-p)
         (member "--allow-empty" args)
-        (member "--all" args)
+        (and (magit-anything-unstaged-p)
+             ;; ^ Everything of nothing is still nothing.
+             (member "--all" args))
         (member "--amend" args))
     (or args (list "--")))
    ((and (magit-rebase-in-progress-p)
