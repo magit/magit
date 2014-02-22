@@ -201,7 +201,7 @@ Do not customize this (used in the `magit-key-mode' implementation).")
 (defvar magit-key-mode-buf-name "*magit-key: %s*"
   "Format string to create the name of the magit-key buffer.")
 
-(defvar magit-pre-key-mode-window-conf nil
+(defvar-local magit-pre-key-mode-window-conf nil
   "Will hold the pre-menu configuration of magit.")
 
 (defun magit-key-mode (for-group)
@@ -209,19 +209,16 @@ Do not customize this (used in the `magit-key-mode' implementation).")
 All commands, switches and options can be toggled/actioned with
 the key combination highlighted before the description."
   (interactive)
-  ;; save the window config to restore it as was (no need to make this
-  ;; buffer local)
-  (setq magit-pre-key-mode-window-conf
-        (current-window-configuration))
-  ;; setup the mode, draw the buffer
-  (let ((buf (get-buffer-create (format magit-key-mode-buf-name
+  (let ((winconf (current-window-configuration))
+        (buf (get-buffer-create (format magit-key-mode-buf-name
                                         (symbol-name for-group)))))
     (split-window-vertically)
     (other-window 1)
     (switch-to-buffer buf)
     (kill-all-local-variables)
     (set (make-local-variable 'scroll-margin) 0)
-    (setq magit-key-mode-current-args (make-hash-table)
+    (setq magit-pre-key-mode-window-conf winconf
+          magit-key-mode-current-args (make-hash-table)
           magit-key-mode-prefix current-prefix-arg)
     (magit-key-mode-redraw for-group))
   (when magit-key-mode-show-usage
