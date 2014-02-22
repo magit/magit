@@ -7070,109 +7070,8 @@ Other key binding:
 
 ;;;; Ediff Support
 
-(defvar magit-ediff-buffers nil
-  "List of buffers that may be killed by `magit-ediff-restore'.")
-
 (defvar magit-ediff-windows nil
   "The window configuration that will be restored when Ediff is finished.")
-
-(defun magit-ediff ()
-  "View the current DIFF section in ediff."
-  (interactive)
-  (let ((diff (magit-current-section)))
-    (when (eq (magit-section-type (magit-current-section)) 'diffstat)
-      (setq diff (magit-diff-section-for-diffstat diff)))
-    (when (magit-section-hidden diff)
-      ;; Range is not set until the first time the diff is visible.
-      ;; This somewhat hackish code makes sure it's been visible at
-      ;; least once.
-      (magit-toggle-section)
-      (magit-toggle-section)
-      (setq diff (magit-current-section)))
-    (when (eq 'hunk (magit-section-type diff))
-      (setq diff (magit-section-parent diff)))
-    (unless (eq 'diff (magit-section-type diff))
-      (user-error "No diff at this location"))
-    (let* ((status (magit-section-diff-status diff))
-           (file1  (magit-section-info diff))
-           (file2  (magit-section-diff-file2 diff))
-           (range  (magit-diff-range diff)))
-      (cond
-       ((memq status '(new deleted typechange))
-        (message "Why ediff a %s file?" status))
-       ((and (eq status 'unmerged)
-             (eq (cdr range) 'working))
-        (magit-interactive-resolve file1))
-       ((consp (car range))
-        (magit-ediff-buffers3 (magit-show (caar range) file2)
-                              (magit-show (cdar range) file2)
-                              (magit-show (cdr range) file1)))
-       (t
-        (magit-ediff-buffers  (magit-show (car range) file2)
-                              (magit-show (cdr range) file1)))))))
-
-(defun magit-ediff-buffers (a b)
-  (setq magit-ediff-buffers (list a b))
-  (setq magit-ediff-windows (current-window-configuration))
-  (ediff-buffers a b '(magit-ediff-add-cleanup)))
-
-(defun magit-ediff-buffers3 (a b c)
-  (setq magit-ediff-buffers (list a b c))
-  (setq magit-ediff-windows (current-window-configuration))
-  (ediff-buffers3 a b c '(magit-ediff-add-cleanup)))
-
-(defun magit-diff-range (diff)
-  (if (eq major-mode 'magit-commit-mode)
-      (let ((revs (split-string
-                   (magit-git-string "rev-list" "-1" "--parents"
-                                     (car (last magit-refresh-args))))))
-        (when (= (length revs) 2)
-          (cons (cadr revs) (car revs))))
-    (magit-section-diff-range diff)))
-
-(defun magit-ediff-add-cleanup ()
-  (make-local-variable 'magit-ediff-buffers)
-  (setq-default magit-ediff-buffers ())
-
-  (make-local-variable 'magit-ediff-windows)
-  (setq-default magit-ediff-windows ())
-
-  (add-hook 'ediff-cleanup-hook 'magit-ediff-restore 'append 'local))
-
-(defun magit-ediff-restore ()
-  "Kill any buffers in `magit-ediff-buffers' that are not visiting files and
-restore the window state that was saved before ediff was called."
-  (dolist (buffer magit-ediff-buffers)
-    (when (and (null (buffer-file-name buffer))
-               (buffer-live-p buffer))
-      (with-current-buffer buffer
-        (when (and (eq magit-show-current-version 'index)
-                   (buffer-modified-p))
-          (magit-save-index)))
-      (kill-buffer buffer)))
-  (let ((buf (current-buffer)))
-    (set-window-configuration magit-ediff-windows)
-    (set-buffer buf)))
-
-;;;###autoload
-(defun magit-save-index ()
-  "Add the content of current file as if it was the index."
-  (interactive)
-  (unless (eq magit-show-current-version 'index)
-    (user-error "Current buffer doesn't visit the index version of a file"))
-  (when (y-or-n-p (format "Stage current version of %s? " magit-file-name))
-    (let ((buf (current-buffer))
-          (name (magit-git-dir "magit-add-index")))
-      (with-temp-file name
-        (insert-buffer-substring buf))
-      (let ((hash (magit-git-string "hash-object" "-t" "blob" "-w"
-                                    (concat "--path=" magit-file-name)
-                                    "--" name))
-            (perm (substring (magit-git-string "ls-files" "-s"
-                                               magit-file-name)
-                             0 6)))
-        (magit-run-git "update-index" "--cacheinfo"
-                       perm hash magit-file-name)))))
 
 ;;;###autoload
 (defun magit-interactive-resolve (file)
@@ -7238,7 +7137,6 @@ restore the window state that was saved before ediff was called."
 the size of the hunks.
 Type `\\[magit-apply-item]` to apply a change to your worktree and \
 `\\[magit-revert-item]` to reverse it.
-You can also use `\\[magit-ediff]` to see the current change with ediff.
 
 More information can be found in Info node `(magit)Diffing'
 
