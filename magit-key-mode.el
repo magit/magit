@@ -122,16 +122,20 @@
   (magit-refresh-popup-buffer popup))
 
 (defun magit-invoke-popup-option (popup arg-name input-func)
-  (let ((input (funcall input-func (concat arg-name ": "))))
-    (puthash arg-name input magit-popup-current-options)
+  (let ((elt (assoc arg-name magit-popup-current-options))
+        (val (funcall input-func (concat arg-name ": "))))
+    (if elt
+        (setcdr elt val)
+      (push (cons arg-name val) magit-popup-current-options))
     (magit-refresh-popup-buffer popup)))
 
 (defun magit-invoke-popup-action (popup func)
   (let ((current-prefix-arg (or current-prefix-arg magit-popup-prefix-arg))
-        (magit-custom-options magit-popup-current-switches))
-    (maphash (lambda (k v)
-               (push (concat k v) magit-custom-options))
-             magit-popup-current-options)
+        (magit-custom-options
+         (nconc magit-popup-current-switches
+                (mapcar (lambda (elt)
+                          (concat (car elt) (cdr elt)))
+                        magit-popup-current-options))))
     (let ((buf (current-buffer)))
       (set-window-configuration magit-pre-key-mode-window-conf)
       (kill-buffer buf))
@@ -178,7 +182,6 @@
     (make-local-variable 'font-lock-defaults)
     (setq buffer-read-only t)
     (setq magit-pre-key-mode-window-conf winconf
-          magit-popup-current-options (make-hash-table)
           magit-popup-prefix-arg current-prefix-arg
           mode-name "magit-key-mode"
           major-mode 'magit-key-mode)
@@ -249,7 +252,7 @@
   (let* ((k (propertize (car arg) 'face 'magit-key-mode-button-face))
          (d (nth 1 arg))
          (a (unless (symbolp (nth 2 arg)) (nth 2 arg)))
-         (v (and a (gethash a magit-popup-current-options))))
+         (v (and a (cdr (assoc a magit-popup-current-options)))))
     (when (member a magit-popup-current-switches)
       (setq a (propertize a 'face 'magit-key-mode-switch-face)))
     (when v
