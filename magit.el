@@ -116,7 +116,7 @@ Use the function by the same name instead of this variable.")
 
 (defvar git-commit-previous-winconf)
 (defvar magit-commit-buffer-name)
-(defvar magit-custom-options)
+(defvar magit-current-popup-args)
 (defvar magit-log-buffer-name)
 (defvar magit-marked-commit)
 (defvar magit-process-buffer-name)
@@ -5386,10 +5386,10 @@ With a prefix argument, skip editing the log message and commit.
             (not magit-merge-warn-dirty-worktree)
             (yes-or-no-p
              "Running merge in a dirty worktree could cause data loss.  Continue?"))
-    (magit-run-git "merge" revision magit-custom-options
+    (magit-run-git "merge" revision magit-current-popup-args
                    (unless do-commit "--no-commit"))
     (when (file-exists-p ".git/MERGE_MSG")
-      (let ((magit-custom-options nil))
+      (let ((magit-current-popup-args nil))
         (magit-commit)))))
 
 ;;;###autoload
@@ -5472,7 +5472,7 @@ Fails if working tree or staging area contain uncommitted changes.
           'magit-create-branch-hook branch parent))
         ((and branch (not (string= branch "")))
          (magit-save-some-buffers)
-         (magit-run-git "checkout" magit-custom-options
+         (magit-run-git "checkout" magit-current-popup-args
                         "-b" branch parent))))
 
 ;;;###autoload
@@ -5829,7 +5829,7 @@ With two prefix args, remove ignored files as well."
 (defun magit-fetch (remote)
   "Fetch from REMOTE."
   (interactive (list (magit-read-remote "Fetch remote")))
-  (magit-run-git-async "fetch" remote magit-custom-options))
+  (magit-run-git-async "fetch" remote magit-current-popup-args))
 
 ;;;###autoload
 (defun magit-fetch-current ()
@@ -5845,7 +5845,7 @@ If there is no default remote, ask for one."
   "Update all remotes."
   (interactive)
   (or (run-hook-with-args-until-success 'magit-remote-update-hook)
-      (magit-run-git-async "remote" "update" magit-custom-options)))
+      (magit-run-git-async "remote" "update" magit-current-popup-args)))
 
 ;;;;; Pulling
 
@@ -5894,7 +5894,7 @@ user because of prefix arguments are not saved with git config."
           (magit-set (format "%s" chosen-branch-merge-name)
                      "branch" branch "merge"))
         (magit-run-git-async
-         "pull" magit-custom-options
+         "pull" magit-current-popup-args
          (and choose-remote chosen-branch-remote)
          (and choose-branch
               (list (format "refs/heads/%s:refs/remotes/%s/%s"
@@ -5975,24 +5975,24 @@ Also see option `magit-set-upstream-on-push'."
           ((and auto-branch
                 (equal auto-branch used-branch)
                 (equal auto-remote used-remote)))
-          ;; Setting upstream because of magit-custom-options.
-          ((member "-u" magit-custom-options))
+          ;; Setting upstream because of magit-current-popup-args.
+          ((member "-u" magit-current-popup-args))
           ;; Two prefix arguments; ignore magit-set-upstream-on-push.
           ((>= (prefix-numeric-value arg) 16)
            (and (yes-or-no-p "Set upstream while pushing? ")
-                (setq magit-custom-options
-                      (cons "-u" magit-custom-options))))
+                (setq magit-current-popup-args
+                      (cons "-u" magit-current-popup-args))))
           ;; Else honor magit-set-upstream-on-push.
           ((eq magit-set-upstream-on-push 'refuse)
            (user-error "Not pushing since no upstream has been set."))
           ((or (eq magit-set-upstream-on-push 'dontask)
                (and (eq magit-set-upstream-on-push t)
                     (yes-or-no-p "Set upstream while pushing? ")))
-           (setq magit-custom-options (cons "-u" magit-custom-options))))
+           (setq magit-current-popup-args (cons "-u" magit-current-popup-args))))
     (magit-run-git-async
      "push" "-v" used-remote
      (if used-branch (format "%s:%s" branch used-branch) branch)
-     magit-custom-options)))
+     magit-current-popup-args)))
 
 ;;;;; Committing
 
@@ -6002,7 +6002,7 @@ Also see option `magit-set-upstream-on-push'."
 With a prefix argument amend to the commit at HEAD instead.
 \('git commit [--amend]')."
   (interactive "P")
-  (let ((args magit-custom-options))
+  (let ((args magit-current-popup-args))
     (when amendp
       (setq args (cons "--amend" args)))
     (when (setq args (magit-commit-assert args))
@@ -6015,7 +6015,7 @@ With a prefix argument amend to the commit at HEAD instead.
 \('git commit --amend')."
   (interactive)
   (magit-commit-maybe-expand)
-  (magit-commit-internal "commit" (cons "--amend" magit-custom-options)))
+  (magit-commit-internal "commit" (cons "--amend" magit-current-popup-args)))
 
 ;;;###autoload
 (defun magit-commit-extend (&optional override-date)
@@ -6033,7 +6033,7 @@ used to inverse the meaning of the prefix argument.
       (setenv "GIT_COMMITTER_DATE"
               (magit-git-string "log" "-1" "--format:format=%cd")))
     (magit-commit-internal "commit" (nconc (list "--no-edit" "--amend")
-                                           magit-custom-options))))
+                                           magit-current-popup-args))))
 
 ;;;###autoload
 (defun magit-commit-reword (&optional override-date)
@@ -6055,7 +6055,7 @@ and ignore the option.
       (setenv "GIT_COMMITTER_DATE"
               (magit-git-string "log" "-1" "--format:format=%cd")))
     (magit-commit-internal "commit" (nconc (list "--only" "--amend")
-                                           magit-custom-options))))
+                                           magit-current-popup-args))))
 
 (defvar-local magit-commit-squash-args  nil)
 (defvar-local magit-commit-squash-fixup nil)
@@ -6080,7 +6080,7 @@ to be fixed.  Otherwise the current or marked commit may be used
 depending on the value of option `magit-commit-squash-commit'.
 \('git commit [--no-edit] --fixup=COMMIT')."
   (interactive (list (magit-commit-squash-commit)))
-  (let ((args magit-custom-options))
+  (let ((args magit-current-popup-args))
     (cond
      ((not commit)
       (magit-commit-assert args)
@@ -6258,7 +6258,7 @@ With a prefix argument annotate the tag.
                      (magit-read-rev "Place tag on"
                                      (or (magit-guess-branch) "HEAD"))
                      current-prefix-arg))
-  (let ((args (append magit-custom-options (list name rev))))
+  (let ((args (append magit-current-popup-args (list name rev))))
     (if (or (member "--sign" args)
             (member "--annotate" args)
             (and annotate (setq args (cons "--annotate" args))))
@@ -6270,7 +6270,7 @@ With a prefix argument annotate the tag.
   "Delete the tag with the given NAME.
 \('git tag -d NAME')."
   (interactive (list (magit-read-tag "Delete Tag" t)))
-  (magit-run-git "tag" "-d" magit-custom-options name))
+  (magit-run-git "tag" "-d" magit-current-popup-args name))
 
 ;;;;; Stashing
 
@@ -6285,14 +6285,14 @@ With prefix argument, changes in staging area are kept.
 \('git stash save [--keep-index] DESCRIPTION')"
   (interactive (list (read-string "Stash description: " nil
                                   'magit-read-stash-history)))
-  (magit-run-git "stash" "save" magit-custom-options "--" description))
+  (magit-run-git "stash" "save" magit-current-popup-args "--" description))
 
 ;;;###autoload
 (defun magit-stash-snapshot ()
   "Create new stash of working tree and staging area; keep changes in place.
 \('git stash save \"Snapshot...\"; git stash apply stash@{0}')"
   (interactive)
-  (magit-call-git "stash" "save" magit-custom-options
+  (magit-call-git "stash" "save" magit-current-popup-args
                   (format-time-string
                    "Snapshot taken at %Y-%m-%d %H:%M:%S"
                    (current-time)))
@@ -6434,7 +6434,7 @@ to test.  This command lets Git choose a different one."
   (magit-mode-setup magit-log-buffer-name nil
                     #'magit-log-mode
                     #'magit-refresh-log-buffer
-                    'oneline range magit-custom-options))
+                    'oneline range magit-current-popup-args))
 
 ;;;###autoload
 (defun magit-log-ranged (range)
@@ -6448,7 +6448,7 @@ to test.  This command lets Git choose a different one."
   (magit-mode-setup magit-log-buffer-name nil
                     #'magit-log-mode
                     #'magit-refresh-log-buffer
-                    'long range magit-custom-options))
+                    'long range magit-current-popup-args))
 
 ;;;###autoload
 (defun magit-log-long-ranged (range)
@@ -6468,7 +6468,7 @@ With a prefix argument show the log graph."
                     #'magit-refresh-log-buffer
                     'oneline "HEAD"
                     `(,@(and use-graph (list "--graph"))
-                      ,@magit-custom-options
+                      ,@magit-current-popup-args
                       "--follow")
                     file))
 
@@ -7075,7 +7075,7 @@ from the parent keymap `magit-mode-map' are also available.")
 (defun magit-refresh-branch-manager ()
   (magit-git-insert-section (branchbuf nil)
       #'magit-wash-branches
-    "branch" "-vva" magit-custom-options))
+    "branch" "-vva" magit-current-popup-args))
 
 ;;;;; Branch List Washing
 

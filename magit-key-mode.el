@@ -121,7 +121,7 @@
 (defvar-local magit-popup-current-options nil)
 (defvar-local magit-popup-current-switches nil)
 
-(defvar magit-custom-options nil)
+(defvar magit-current-popup-args nil)
 
 (defun magit-invoke-popup-switch (popup switch)
   (if (member switch magit-popup-current-switches)
@@ -142,7 +142,7 @@
 
 (defun magit-invoke-popup-action (popup func)
   (let ((current-prefix-arg (or current-prefix-arg magit-popup-prefix-arg))
-        (magit-custom-options
+        (magit-current-popup-args
          (nconc magit-popup-current-switches
                 (mapcar (lambda (elt)
                           (concat (car elt) (cdr elt)))
