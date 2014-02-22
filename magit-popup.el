@@ -58,17 +58,44 @@
 ;;; Options
 
 (defcustom magit-popup-show-help-echo t
-  ""
+  "Show usage information in the echo area."
   :group 'magit
   :type 'boolean)
 
 (defcustom magit-popup-show-help-section t
-  ""
+  "Initially show section with commands common to all popups.
+This section can also be toggled temporarily using \
+\\<magit-popup-mode-map>\\[magit-popup-toggle-show-popup-commands]."
   :group 'magit
   :type 'boolean)
 
 (defcustom magit-popup-use-prefix-argument 'disabled
-  ""
+  "Control how prefix arguments affect infix argument popups.
+
+This option controls the effect that the use of a prefix argument
+before entering a popup has.  The *intended* default is `default',
+but the *actual* default is `disabled'.  This is necessary because
+the old popup implementation did simply forward such a pre-popup
+prefix argument to the action invoked from the popup, and changing
+that without users being aware of it could lead to tears.
+
+`disabled' Bring up a Custom option buffer so that the user reads
+           the above and then makes an informed choice.
+
+`default'  With a prefix argument directly invoke the popup's
+           default action (an Emacs command), instead of bringing
+           up the popup.
+
+           When the default action is invoked like this, then the
+           prefix and infix arguments might be passed on verbatim
+           or modified.  How exactly this happens is still subject
+           to change.  If it seems to dangerous that the behavior
+           might change at any time, then use `nil' for now.
+
+`popup'    With a prefix argument bring up the popup, otherwise
+           directly invoke the popup's default action.
+
+`nil'      Ignore prefix arguments."
   :group 'magit
   :type '(choice
           (const :tag "Use default action, else show popup" default)
@@ -524,7 +551,11 @@
   (fit-window-to-buffer (next-window)))
 
 (define-minor-mode magit-popup-help-mode
-  ""
+  "Auxiliary minor mode used to restore previous window configuration.
+When some sort of help buffer is created from within a popup,
+then this minor mode is turned on in that buffer, so that when
+the user quits it, the previous window configuration is also
+restored."
   :keymap '(([remap Man-quit]    . magit-popup-quit)
             ([remap Info-exit]   . magit-popup-quit)
             ([remap quit-window] . magit-popup-quit)))
@@ -532,7 +563,7 @@
 ;;; Modes
 
 (define-derived-mode magit-popup-mode fundamental-mode "MagitPopup"
-  ""
+  "Major mode for infix argument popups."
   (setq buffer-read-only t)
   (set (make-local-variable 'scroll-margin) 0)
   (set (make-local-variable 'magit-popup-show-help-section)
@@ -552,7 +583,14 @@
                               val (plist-get def :actions))))
 
 (define-derived-mode magit-popup-sequence-mode magit-popup-mode "MagitPopup"
-  ""
+  "Major mode for infix argument popups, which are affected by state.
+Used for popups that display different actions depending on some
+external state.  Within Magit this is used for sequence commands
+such as rebase.  The function `:sequence-predicate', which takes
+no arguments, is used to determine whether to use the actions
+defined with regular `:actions' or those in `:sequence-actions'.
+When a sequence is in progress the arguments are not available
+in the popup."
   (remove-hook 'magit-popup-setup-hook 'magit-popup-default-setup t)
   (add-hook    'magit-popup-setup-hook
 	       (lambda (val def)
