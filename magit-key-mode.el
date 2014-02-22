@@ -181,7 +181,7 @@ Do not customize this (used in the `magit-key-mode' implementation).")
 (defun magit-key-mode-add-argument (for-group arg-name input-func)
   (let ((input (funcall input-func (concat arg-name ": "))))
     (puthash arg-name input magit-key-mode-current-args)
-    (magit-key-mode-redraw for-group)))
+    (magit-refresh-popup-buffer for-group)))
 
 (defun magit-key-mode-toggle-option (for-group option-name)
   "Toggles the appearance of OPTION-NAME in `magit-key-mode-current-options'."
@@ -189,7 +189,7 @@ Do not customize this (used in the `magit-key-mode' implementation).")
       (setq magit-key-mode-current-options
             (delete option-name magit-key-mode-current-options))
     (add-to-list 'magit-key-mode-current-options option-name))
-  (magit-key-mode-redraw for-group))
+  (magit-refresh-popup-buffer for-group))
 
 ;;; Mode
 
@@ -221,15 +221,14 @@ the key combination highlighted before the description."
           major-mode 'magit-key-mode)
     (use-local-map
      (symbol-value (intern (format "magit-popup-%s-map" for-group))))
-    (magit-key-mode-redraw for-group)
+    (magit-refresh-popup-buffer for-group)
     (fit-window-to-buffer))
   (when magit-key-mode-show-usage
     (message (concat "Type a prefix key to toggle it. "
                      "Run 'actions' with their prefixes. "
                      "'?' for more help."))))
 
-(defun magit-key-mode-redraw (for-group)
-  "(re)draw the magit key buffer."
+(defun magit-refresh-popup-buffer (for-group)
   (let ((buffer-read-only nil)
         (arg (get-text-property (point) 'key-group-executor))
         (pos (point))
