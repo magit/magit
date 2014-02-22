@@ -1745,6 +1745,25 @@ Read `completing-read' documentation for the meaning of the argument."
                    varlist)
        ,@body)))
 
+(defmacro magit-read-char-case (prompt abort &rest clauses)
+  (declare (indent 2))
+  (let ((ng (cl-gensym "ng-"))
+        (p0 (cl-gensym "p0-"))
+        (p1 (cl-gensym "p1-"))
+        (p2 (cl-gensym "p2-")))
+    `(let* ((,ng 0)
+            (,p0 ,prompt)
+            (,p1 (concat ,p0 (mapconcat 'cadr ',clauses ", ")))
+            (,p2 (concat (unless ,p0 "Choose one of ") ,p1
+                         (and ,abort ", or [C-g] to abort")))
+            (cursor-in-echo-area t))
+       (catch 'choice
+         (while (< ,ng 5) ; prevent user panic
+           (cl-case (read-event (concat (if (> ,ng 0) ,p2 ,p1) " "))
+             ,@(mapcar (lambda (c) `(,(car c) (throw 'choice (progn ,@(cddr c)))))
+                       clauses)
+             (t (ding) (cl-incf ,ng))))))))
+
 (defun magit-file-line (file)
   "Return the first line of FILE as a string."
   (when (file-regular-p file)
@@ -7292,15 +7311,12 @@ If there is no commit at point, then prompt for one."
       (and magit-show-diffstat "--patch-with-stat")
       range args magit-diff-options "--")))
 
-(defun magit-select-diff-algorithm (prompt &optional _ tryagain)
-  (cl-case (read-char-exclusive
-            (concat (if tryagain
-                        "Choose one of (C-g to abort):  "
-                      (concat prompt "  "))
-                    "[d]efault/myers  [m]inimal  [p]atience  [h]istogram"))
-    (?d "default") (?m "minimal") (?p "patience") (?h "histogram")
-    (?\C-g (error "Quit"))
-    (t (magit-select-diff-algorithm prompt nil t))))
+(defun magit-select-diff-algorithm (&optional noop1 noop2)
+  (magit-read-char-case nil t
+    (?d "[d]efault/myers" "default")
+    (?m "[m]inimal"       "minimal")
+    (?p "[p]atience"      "patience")
+    (?h "[h]istogram"     "histogram")))
 
 ;;;; Wazzup Mode
 
