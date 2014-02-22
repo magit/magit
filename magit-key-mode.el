@@ -91,23 +91,6 @@ The option may be a switch, argument or action."
     (setq magit-key-mode-keymaps nil)
     things))
 
-(defun magit-key-mode-insert-argument (for-group key desc arg read-func)
-  "Add a new binding KEY in FOR-GROUP which will use READ-FUNC
-to receive input to apply to argument ARG git is run.  DESC should
-be a brief description of the binding."
-  (magit-key-mode-update-group for-group 'arguments key desc arg read-func))
-
-(defun magit-key-mode-insert-switch (for-group key desc switch)
-  "Add a new binding KEY in FOR-GROUP which will add SWITCH to git's
-command line when it runs.  DESC should be a brief description of
-the binding."
-  (magit-key-mode-update-group for-group 'switches key desc switch))
-
-(defun magit-key-mode-insert-action (for-group key desc func)
-  "Add a new binding KEY in FOR-GROUP which will run command FUNC.
-DESC should be a brief description of the binding."
-  (magit-key-mode-update-group for-group 'actions key desc func))
-
 (defun magit-key-mode-options-for-group (for-group)
   "Retrieve the options for the group FOR-GROUP.
 This includes switches, commands and arguments."
