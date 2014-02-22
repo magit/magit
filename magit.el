@@ -813,7 +813,12 @@ when generating large diffs."
   :type 'boolean)
 
 (defcustom magit-commit-squash-confirm t
-  "Whether the commit targeted by squash and fixup has to be confirmed."
+  "Whether the commit targeted by squash and fixup has to be confirmed.
+When non-nil then the commit at point (if any) is used as default
+choice, otherwise it has to be confirmed.  This option only
+affects `magit-commit-squash' and `magit-commit-fixup'.  The
+\"instant\" variants always require confirmation because making
+an error while using those is harder to recover from."
   :package-version '(magit . "2.0.0")
   :group 'magit-commit
   :type 'boolean)
@@ -6234,12 +6239,15 @@ Also see option `magit-set-upstream-on-push'."
               (?n "Bypass git hooks"                       "--no-verify")
               (?s "Add Signed-off-by line"                 "--signoff"))
   :options  '((?S "Sign using gpg" "--gpg-sign=" magit-read-gpg-secret-key))
-  :actions  '((?c "Commit" magit-commit)
-              (?a "Amend"  magit-commit-amend)
-              (?e "Extend" magit-commit-extend)
-              (?r "Reword" magit-commit-reword)
-              (?f "Fixup"  magit-commit-fixup)
-              (?s "Squash" magit-commit-squash))
+  :actions  '((?c "Commit"         magit-commit)
+              (?e "Extend"         magit-commit-extend)
+              (?f "Fixup"          magit-commit-fixup)
+              (?F "Instant Fixup"  magit-commit-instant-fixup)
+              (?a "Amend"          magit-commit-amend)
+              (?r "Reword"         magit-commit-reword)
+              (?s "Squash"         magit-commit-squash)
+              (?S "Instant Squash" magit-commit-instant-squash))
+  :max-action-columns 4
   :default-action 'magit-commit)
 
 ;;;###autoload
@@ -6325,16 +6333,41 @@ depending on the value of option `magit-commit-squash-confirm'.
   (magit-commit-squash-internal 'magit-commit-squash "--squash"
                                 commit args confirm))
 
+;;;###autoload
+(defun magit-commit-instant-fixup (&optional commit args)
+  "Create a fixup commit and instantly rebase.
+\n(git commit --no-edit --fixup=COMMIT ARGS;
+ git rebase -i COMMIT^ --autosquash --autostash)"
+  (interactive (list (magit-current-commit) magit-current-popup-args))
+  (magit-commit-squash-internal
+   (lambda (c a)
+     (when (setq c (magit-commit-fixup c a))
+       (magit-rebase-autosquash (concat c "^"))))
+   "--fixup" commit args t))
+
+;;;###autoload
+(defun magit-commit-instant-squash (&optional commit args)
+  "Create a squash commit and instantly rebase.
+\n(git commit --no-edit --squash=COMMIT ARGS;
+ git rebase -i COMMIT^ --autosquash --autostash)"
+  (interactive (list (magit-current-commit) magit-current-popup-args))
+  (magit-commit-squash-internal
+   (lambda (c a)
+     (when (setq c (magit-commit-squash c a))
+       (magit-rebase-autosquash (concat c "^"))))
+   "--squash" commit args t))
+
 (defun magit-commit-squash-read-args ()
-  (list (magit-section-case (info) (commit info))
-        magit-current-popup-args
+  (list (magit-current-commit) magit-current-popup-args
         (or current-prefix-arg magit-commit-squash-confirm)))
 
 (defun magit-commit-squash-internal (fn option commit args confirm)
   (when (setq args (magit-commit-assert args))
     (if (and commit (not confirm))
-        (magit-commit-internal
-         "commit" (nconc (list "--no-edit" (concat option "=" commit)) args))
+        (progn
+          (magit-commit-internal
+           "commit" (nconc (list "--no-edit" (concat option "=" commit)) args))
+          commit)
       (magit-log-select
         `(lambda (commit) (,fn commit (list ,@args)))))))
 
