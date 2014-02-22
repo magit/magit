@@ -1539,7 +1539,7 @@ set before loading libary `magit'.")
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
     (define-key map (kbd "c") 'magit-branch-and-checkout)
-    (define-key map (kbd "a") 'magit-add-remote)
+    (define-key map (kbd "a") 'magit-remote-add)
     (define-key map (kbd "r") 'magit-rename-item)
     (define-key map (kbd "k") 'magit-discard-item)
     (define-key map (kbd "T") 'magit-change-what-branch-tracks)
@@ -5115,7 +5115,7 @@ Please unstage it first")))
                      (concat "Delete branch [" info "]? ")))
               (magit-branch-delete info current-prefix-arg)))
     (remote (when (yes-or-no-p "Remove remote? ")
-              (magit-remove-remote info)))))
+              (magit-remote-remove info)))))
 
 ;;;;;; Revert
 
@@ -5593,30 +5593,30 @@ If no branch is found near the cursor return nil."
   'magit-popups
   :man-page "git-remote"
   :actions  '((?v "Remote manager" magit-branch-manager)
-              (?a "Add"            magit-add-remote)
-              (?r "Rename"         magit-rename-remote)
-              (?k "Remove"         magit-remove-remote))
+              (?a "Add"            magit-remote-add)
+              (?r "Rename"         magit-remote-rename)
+              (?k "Remove"         magit-remote-remove))
   :default-action 'magit-branch-manager)
 
 ;;;###autoload
-(defun magit-add-remote (remote url)
+(defun magit-remote-add (remote url)
   "Add the REMOTE and fetch it.
-\('git remote add REMOTE URL')."
+\n(git remote add -f REMOTE URL)."
   (interactive (list (read-string "Remote name: ")
                      (read-string "Remote url: ")))
   (magit-run-git-async "remote" "add" "-f" remote url))
 
 ;;;###autoload
-(defun magit-remove-remote (remote)
+(defun magit-remote-remove (remote)
   "Delete the REMOTE.
-\('git remote rm REMOTE')."
+\n(git remote rm REMOTE)."
   (interactive (list (magit-read-remote "Delete remote")))
   (magit-run-git "remote" "rm" remote))
 
 ;;;###autoload
-(defun magit-rename-remote (old new)
+(defun magit-remote-rename (old new)
   "Rename remote OLD to NEW.
-\('git remote rename OLD NEW')."
+\n(git remote rename OLD NEW)."
   (interactive
    (let* ((old (magit-read-remote "Old name"))
           (new (read-string "New name: " old)))
@@ -7723,7 +7723,7 @@ from the parent keymap `magit-mode-map' are also available.")
   (interactive)
   (magit-section-action rename ()
     (branch (call-interactively 'magit-branch-rename))
-    (remote (call-interactively 'magit-rename-remote))))
+    (remote (call-interactively 'magit-remote-rename))))
 
 (defun magit-change-what-branch-tracks ()
   "Change which remote branch the current branch tracks."
