@@ -4461,7 +4461,8 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
     (magit-format-log-margin author date)
     (if hash
         (magit-with-section (section commit hash)
-          (cl-incf magit-log-count)
+          (when (derived-mode-p 'magit-log-mode)
+            (cl-incf magit-log-count))
           (forward-line)
           (when (eq style 'long)
             (magit-wash-sequence
