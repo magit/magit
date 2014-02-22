@@ -87,18 +87,28 @@ buffer-local wherever it is set."
   )
 
 ;;; Settings
+;;;; Custom Groups
+
+(defgroup magit-popup nil
+  "Infix arguments with a popup as feedback."
+  :group 'convenience)
+
+(defgroup magit-popup-faces nil
+  "Faces used by Magit-Popup."
+  :group 'magit-popup)
+
 ;;;; Custom Options
 
 (defcustom magit-popup-show-help-echo t
   "Show usage information in the echo area."
-  :group 'magit
+  :group 'magit-popup
   :type 'boolean)
 
 (defcustom magit-popup-show-help-section t
   "Initially show section with commands common to all popups.
 This section can also be toggled temporarily using \
 \\<magit-popup-mode-map>\\[magit-popup-toggle-show-popup-commands]."
-  :group 'magit
+  :group 'magit-popup
   :type 'boolean)
 
 (defcustom magit-popup-use-prefix-argument 'disabled
@@ -140,27 +150,27 @@ that without users being aware of it could lead to tears.
 (defface magit-popup-header
   '((t :inherit font-lock-keyword-face))
   "Face for key mode header lines."
-  :group 'magit-faces)
+  :group 'magit-popup-faces)
 
 (defface magit-popup-key
   '((t :inherit font-lock-builtin-face))
   "Face for key mode buttons."
-  :group 'magit-faces)
+  :group 'magit-popup-faces)
 
 (defface magit-popup-argument
   '((t :inherit font-lock-warning-face))
   "Face used to display enabled arguments in popups."
-  :group 'magit-faces)
+  :group 'magit-popup-faces)
 
 (defface magit-popup-disabled-argument
   '((t :inherit shadow))
   "Face used to display disabled arguments in popups."
-  :group 'magit-faces)
+  :group 'magit-popup-faces)
 
 (defface magit-popup-option-value
   '((t :inherit font-lock-string-face))
   "Face used to display option values in popups."
-  :group 'magit-faces)
+  :group 'magit-popup-faces)
 
 (define-obsolete-face-alias 'magit-key-mode-header-face 'magit-popup-header "2.0.0")
 (define-obsolete-face-alias 'magit-key-mode-button-face 'magit-popup-key "2.0.0")

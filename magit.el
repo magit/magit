@@ -173,7 +173,7 @@ aborts and returns that value."
   :group 'magit)
 
 (defgroup magit-modes nil
-  "Modes provided by Magit."
+  "Modes used or provided by Magit."
   :group 'magit)
 
 (defgroup magit-status nil
@@ -200,6 +200,11 @@ aborts and returns that value."
   "Faces used by Magit."
   :group 'magit
   :group 'faces)
+
+(custom-add-to-group 'magit-popup  'magit-popups      'custom-group)
+(custom-add-to-group 'magit-popups 'magit-popup       'custom-group)
+(custom-add-to-group 'magit-modes  'magit-popup       'custom-group)
+(custom-add-to-group 'magit-faces  'magit-popup-faces 'custom-group)
 
 (when (featurep 'gitattributes-mode)
   (custom-add-to-group 'magit-modes 'gitattributes-mode 'custom-group))
