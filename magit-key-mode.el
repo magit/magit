@@ -107,14 +107,7 @@
     (define-key map (kbd "?") `(lambda ()
                                  (interactive)
                                  (magit-key-mode-help ',for-group)))
-
     (let ((defkey (lambda (k action)
-                    (when (and (lookup-key map (car k))
-                               (not (numberp (lookup-key map (car k)))))
-                      (message "Warning: overriding binding for `%s' in %S"
-                               (car k) for-group)
-                      (ding)
-                      (sit-for 2))
                     (define-key map (car k)
                       `(lambda () (interactive) ,action)))))
       (dolist (k actions)
