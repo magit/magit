@@ -277,6 +277,15 @@ that without users being aware of it could lead to tears.
 (defvar magit-current-popup nil)
 (defvar magit-current-popup-args nil)
 
+(defun magit-current-popup-args (&rest filter)
+  (let ((-compare-fn (lambda (a b) (magit-popup-arg-match b a))))
+    (-filter (if (eq (car filter) :not)
+                 (lambda (arg) (not (-contains? (cdr filter) arg)))
+               (when (eq (car filter) :only)
+                 (pop filter))
+               (lambda (arg) (-contains? filter arg)))
+             magit-current-popup-args)))
+
 (defun magit-popup-arg-match (pattern string)
   (if (or (string-match-p "=$" pattern)
           (string-match-p "^-[A-Z]$" pattern))
