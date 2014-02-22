@@ -1446,7 +1446,13 @@ Many Magit faces inherit from this one by default."
     (define-key map "." 'magit-mark-item)
     (define-key map "=" 'magit-diff-with-mark)
     (define-key map "C" 'magit-commit-add-log)
-    (define-key map "j" 'magit-section-jump-map)
+    (define-key map "jz" 'magit-jump-to-stashes)
+    (define-key map "jn" 'magit-jump-to-untracked)
+    (define-key map "ju" 'magit-jump-to-unstaged)
+    (define-key map "js" 'magit-jump-to-staged)
+    (define-key map "jf" 'magit-jump-to-unpulled)
+    (define-key map "jp" 'magit-jump-to-unpushed)
+    (define-key map "jr" 'magit-jump-to-pending)
     map)
   "Keymap for `magit-status-mode'.")
 
@@ -1531,19 +1537,6 @@ Many Magit faces inherit from this one by default."
     (set-keymap-parent map magit-mode-map)
     map)
   "Keymap for `magit-process-mode'.")
-
-(defvar magit-section-jump-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "z") 'magit-jump-to-stashes)
-    (define-key map (kbd "n") 'magit-jump-to-untracked)
-    (define-key map (kbd "u") 'magit-jump-to-unstaged)
-    (define-key map (kbd "s") 'magit-jump-to-staged)
-    (define-key map (kbd "f") 'magit-jump-to-unpulled)
-    (define-key map (kbd "p") 'magit-jump-to-unpushed)
-    (define-key map (kbd "r") 'magit-jump-to-pending)
-    map)
-  "Submap for jumping to sections in `magit-status-mode'.")
-(fset 'magit-section-jump-map magit-section-jump-map)
 
 (easy-menu-define magit-mode-menu magit-mode-map
   "Magit menu"
