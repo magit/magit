@@ -389,7 +389,8 @@
     (save-excursion
       (magit-popup-insert-section 'magit-popup-switch-button)
       (magit-popup-insert-section 'magit-popup-option-button)
-      (magit-popup-insert-section 'magit-popup-action-button))
+      (magit-popup-insert-section 'magit-popup-action-button)
+      (run-hooks 'magit-refresh-popup-buffer-hook))
     (if event
         (while (and (forward-button 1)
                     (let ((b (button-at (point))))
