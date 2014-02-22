@@ -1360,13 +1360,6 @@ Many Magit faces inherit from this one by default."
 
 ;;;; Keymaps
 
-;; Not an option to avoid advertising it.
-(defvar magit-rigid-key-bindings nil
-  "Use rigid key bindings instead of thematic key popups.
-If you enable this a lot of functionality is lost.  You most
-likely don't want that.  This variable only has an effect if
-set before loading libary `magit'.")
-
 (when (boundp 'git-commit-mode-map)
   (define-key git-commit-mode-map
     (kbd "C-c C-d") 'magit-diff-while-committing))
@@ -1404,36 +1397,20 @@ set before loading libary `magit'.")
     (define-key map (kbd "SPC") 'magit-show-item-or-scroll-up)
     (define-key map (kbd "DEL") 'magit-show-item-or-scroll-down)
     (define-key map (kbd "C-w") 'magit-copy-item-as-kill)
-    (cond (magit-rigid-key-bindings
-           (define-key map (kbd "c") 'magit-commit)
-           (define-key map (kbd "m") 'magit-merge)
-           (define-key map (kbd "b") 'magit-checkout)
-           (define-key map (kbd "M") 'magit-branch-manager)
-           (define-key map (kbd "f") 'magit-fetch-current)
-           (define-key map (kbd "F") 'magit-pull)
-           (define-key map (kbd "J") 'magit-apply-mailbox)
-           (define-key map (kbd "!") 'magit-git-command-topdir)
-           (define-key map (kbd "P") 'magit-push)
-           (define-key map (kbd "t") 'magit-tag)
-           (define-key map (kbd "l") 'magit-log)
-           (define-key map (kbd "o") 'magit-submodule-update)
-           (define-key map (kbd "B") 'undefined)
-           (define-key map (kbd "z") 'magit-stash))
-          (t
-           (define-key map (kbd "c") 'magit-commit-popup)
-           (define-key map (kbd "m") 'magit-merge-popup)
-           (define-key map (kbd "b") 'magit-branch-popup)
-           (define-key map (kbd "M") 'magit-remote-popup)
-           (define-key map (kbd "f") 'magit-fetch-popup)
-           (define-key map (kbd "F") 'magit-pull-popup)
-           (define-key map (kbd "J") 'magit-am-popup)
-           (define-key map (kbd "!") 'magit-run-popup)
-           (define-key map (kbd "P") 'magit-push-popup)
-           (define-key map (kbd "t") 'magit-tag-popup)
-           (define-key map (kbd "l") 'magit-log-popup)
-           (define-key map (kbd "o") 'magit-submodule-popup)
-           (define-key map (kbd "B") 'magit-bisect-popup)
-           (define-key map (kbd "z") 'magit-stash-popup)))
+    (define-key map (kbd "c") 'magit-commit-popup)
+    (define-key map (kbd "m") 'magit-merge-popup)
+    (define-key map (kbd "b") 'magit-branch-popup)
+    (define-key map (kbd "M") 'magit-remote-popup)
+    (define-key map (kbd "f") 'magit-fetch-popup)
+    (define-key map (kbd "F") 'magit-pull-popup)
+    (define-key map (kbd "J") 'magit-am-popup)
+    (define-key map (kbd "!") 'magit-run-popup)
+    (define-key map (kbd "P") 'magit-push-popup)
+    (define-key map (kbd "t") 'magit-tag-popup)
+    (define-key map (kbd "l") 'magit-log-popup)
+    (define-key map (kbd "o") 'magit-submodule-popup)
+    (define-key map (kbd "B") 'magit-bisect-popup)
+    (define-key map (kbd "z") 'magit-stash-popup)
     (define-key map (kbd "$") 'magit-process)
     (define-key map (kbd "e") 'magit-rebase-popup)
     (define-key map (kbd "r") 'magit-rebase-popup)
