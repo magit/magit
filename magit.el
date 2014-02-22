@@ -741,6 +741,13 @@ they are not (due to semantic considerations)."
   :group 'magit-commit
   :type 'boolean)
 
+(defcustom magit-diff-options nil
+  ""
+  :group 'magit
+  :type 'sexp)
+
+(put 'magit-diff-options 'permanent-local t)
+
 (defcustom magit-diff-refine-hunk nil
   "Show fine (word-granularity) differences within diff hunks.
 
@@ -1448,12 +1455,10 @@ set before loading libary `magit'.")
     (define-key map (kbd "v") 'magit-revert-item)
     (define-key map (kbd "a") 'magit-apply-item)
     (define-key map (kbd "A") 'magit-cherry-pick-item)
-    (define-key map (kbd "d") 'magit-diff-working-tree)
-    (define-key map (kbd "D") 'magit-diff)
-    (define-key map (kbd "-") 'magit-diff-smaller-hunks)
-    (define-key map (kbd "+") 'magit-diff-larger-hunks)
-    (define-key map (kbd "0") 'magit-diff-default-hunks)
-    (define-key map (kbd "h") 'magit-diff-toggle-refine-hunk)
+    (define-key map (kbd "d") 'magit-diff-popup)
+    (define-key map (kbd "-") 'magit-diff-less-context)
+    (define-key map (kbd "+") 'magit-diff-more-context)
+    (define-key map (kbd "0") 'magit-diff-default-context)
     (define-key map (kbd "H") 'magit-diff-toggle-refine-hunk)
     (define-key map (kbd "M-g") 'magit-jump-to-diffstats)
     (define-key map (kbd "S") 'magit-stage-all)
@@ -1629,8 +1634,7 @@ set before loading libary `magit'.")
   :actions '((?b "Branching"       magit-branch-popup)
              (?B "Bisecting"       magit-bisect-popup)
              (?c "Committing"      magit-commit-popup)
-             (?d "Diff worktree"   magit-diff-working-tree)
-             (?D "Diff"            magit-diff)
+             (?d "Diffing"         magit-diff-popup)
              (?f "Fetching"        magit-fetch-popup)
              (?F "Pulling"         magit-pull-popup)
              (?g "Refresh Buffers" magit-refresh-all)
@@ -3940,29 +3944,6 @@ and no variation of the Auto-Revert mode is already active."
 ;;; (misplaced)
 ;;;; Hunk Refinement
 
-(defvar magit-diff-context-lines 3)
-
-(defun magit-diff-U-arg ()
-  (format "-U%d" magit-diff-context-lines))
-
-(defun magit-diff-smaller-hunks (&optional count)
-  "Decrease the context for diff hunks by COUNT."
-  (interactive "p")
-  (setq magit-diff-context-lines (max 0 (- magit-diff-context-lines count)))
-  (magit-refresh))
-
-(defun magit-diff-larger-hunks (&optional count)
-  "Increase the context for diff hunks by COUNT."
-  (interactive "p")
-  (setq magit-diff-context-lines (+ magit-diff-context-lines count))
-  (magit-refresh))
-
-(defun magit-diff-default-hunks ()
-  "Reset context for diff hunks to the default size."
-  (interactive)
-  (setq magit-diff-context-lines 3)
-  (magit-refresh))
-
 (defun magit-diff-toggle-refine-hunk (&optional other)
   "Turn diff-hunk refining on or off.
 
@@ -4226,12 +4207,11 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 
 ;;;;; Raw Diff Washing
 
-(defvar magit-diff-options nil)
-
-(defun magit-insert-diff (section file status)
+(defun magit-insert-diff (section file status &optional staged)
   (let ((beg (point)))
     (apply 'magit-git-insert "-c" "diff.submodule=short" "diff"
-           `(,(magit-diff-U-arg) ,@magit-diff-options "--" ,file))
+           `(,@(and staged (list "--cached"))
+             ,@magit-diff-options "--" ,file))
     (unless (eq (char-before) ?\n)
       (insert "\n"))
     (save-restriction
@@ -4272,7 +4252,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                                            'magit-diff-mode
                                            'magit-commit-mode)))
           (if (not (magit-section-hidden section))
-              (magit-insert-diff section file status)
+              (magit-insert-diff section file status staged)
             (setf (magit-section-diff-status section) status)
             (setf (magit-section-needs-refresh-on-show section) t)
             (magit-insert-diff-title status file nil))))
@@ -4456,7 +4436,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 
 \\<magit-commit-mode-map>Type `\\[magit-visit-item]` to visit the changed file, \
 `\\[magit-toggle-section]` to hide or show a hunk,
-`\\[magit-diff-larger-hunks]` and `\\[magit-diff-smaller-hunks]` to change the \
+`\\[magit-diff-more-context]` and `\\[magit-diff-less-context]` to change the \
 size of the hunks.
 Type `\\[magit-apply-item]` to apply a change to your worktree and \
 `\\[magit-revert-item]` to reverse it.
@@ -4531,10 +4511,10 @@ stash at point, then prompt for a commit."
 (defun magit-refresh-commit-buffer (commit)
   (magit-git-insert-section (commitbuf nil)
       #'magit-wash-commit
-    "log" "-1" "--decorate=full"
-    "--pretty=medium" (magit-diff-U-arg)
+    "log" "-1"
+    "--decorate=full" "--pretty=medium"
     "--cc" "-p" (and magit-show-diffstat "--stat")
-    commit))
+    magit-diff-options commit))
 
 ;;;;; Commit Washing
 
@@ -4707,7 +4687,7 @@ can be used to override this."
     (when orig
       (magit-git-insert-section (pending-changes "Pending changes:")
           #'magit-wash-diffs
-        "diff" (magit-diff-U-arg) "-R" orig))))
+        "diff" "-R" orig))))
 
 (defun magit-insert-unstaged-changes ()
   (let ((magit-current-diff-range (cons 'index 'working)))
@@ -4721,8 +4701,7 @@ can be used to override this."
       (let ((magit-current-diff-range (cons "HEAD" 'index))
             (base (if no-commit
                       (magit-git-string "mktree")
-                    "HEAD"))
-            (magit-diff-options (list "--cached")))
+                    "HEAD")))
         (magit-git-insert-section (staged "Staged changes:")
             (apply-partially #'magit-wash-raw-diffs t)
           "diff-index" "--cached" base)))))
@@ -5166,7 +5145,7 @@ working tree."
   (magit-run-git "cherry-pick" "--no-commit" commit))
 
 (defun magit-apply-diff-item (diff &rest args)
-  (when (zerop magit-diff-context-lines)
+  (when (member "-U0" magit-diff-options)
     (setq args (cons "--unidiff-zero" args)))
   (let ((buf (generate-new-buffer " *magit-input*")))
     (unwind-protect
@@ -5186,7 +5165,7 @@ member of ARGS, or to the working file otherwise."
     (user-error (concat "Cannot un-/stage individual resolution hunks.  "
                         "Please stage the whole file.")))
   (let ((use-region (use-region-p)))
-    (when (zerop magit-diff-context-lines)
+    (when (member "-U0" magit-diff-options)
       (setq args (cons "--unidiff-zero" args))
       (when use-region
         (user-error (concat "Not enough context to partially apply hunk.  "
@@ -5262,12 +5241,16 @@ With a prefix argument, visit in other window."
   (magit-section-action visit (info parent-info)
     ((diff diffstat [file untracked])
      (magit-visit-file-item info other-window))
-    (hunk   (magit-visit-file-item parent-info other-window
-                                   (magit-hunk-item-target-line it)
-                                   (current-column)))
-    (commit (magit-show-commit info))
-    (stash  (magit-diff-stash info))
-    (branch (magit-checkout info))))
+    (hunk     (magit-visit-file-item parent-info other-window
+                                     (magit-hunk-item-target-line it)
+                                     (current-column)))
+    (staged   (magit-diff-staged))
+    (unstaged (magit-diff-unstaged))
+    (unpushed (magit-diff-unpushed))
+    (unpulled (magit-diff-unpulled))
+    (stash    (magit-diff-stash info))
+    (commit   (magit-show-commit info))
+    (branch   (magit-checkout info))))
 
 (defun magit-visit-file-item (file &optional other-window line column)
   (unless file
@@ -7104,11 +7087,31 @@ More information can be found in Info node `(magit)Diffing'
 (defvar magit-stash-buffer-name "*magit-stash*"
   "Name of buffer used to display a stash.")
 
+(magit-define-popup magit-diff-popup
+  "Key menu for diffing."
+  'magit 'magit-popup-mode 'magit-diff-options
+  :man-page "git-diff"
+  :switches '((?W "Show surrounding functions"   "--function-context")
+              (?b "Ignore whitespace changes"    "--ignore-space-change")
+              (?w "Ignore all whitespace"        "--ignore-all-space"))
+  :options  '((?h "Context lines" "-U" read-from-minibuffer)
+              (?a "Diff algorithm"
+                  "--diff-algorithm=" magit-select-diff-algorithm))
+  :actions  '((?d "Diff unstaged"     magit-diff-unstaged)
+              (?c "Show commit"       magit-show-commit)
+              (?R "Refresh diff"      magit-popup-set-local-variable)
+              (?i "Diff staged"       magit-diff-staged)
+              (?r "Diff commits"      magit-diff)
+              (?S "Refresh and set"   magit-popup-set-variable)
+              (?w "Diff working tree" magit-diff-working-tree)
+              (?p "Diff paths"        magit-diff-paths)
+              (?W "Refresh and save"  magit-popup-save-variable))
+  :default-action 'magit-diff-working-tree
+  :max-action-columns 3)
+
 ;;;###autoload
 (defun magit-diff (range &optional working args)
-  "Show differences between in a range.
-You can also show the changes in a single commit by omitting the
-range end, but for that `magit-show-commit' is a better option."
+  "Show changes between two commits."
   (interactive (list (magit-read-rev-range "Diff")))
   (magit-mode-setup magit-diff-buffer-name
                     #'pop-to-buffer
@@ -7117,28 +7120,61 @@ range end, but for that `magit-show-commit' is a better option."
 
 ;;;###autoload
 (defun magit-diff-working-tree (rev)
-  "Show differences between a commit and the current working tree."
-  (interactive (list (magit-read-rev-with-default "Diff working tree with")))
+  "Show changes between the current working tree and the `HEAD' commit.
+With a prefix argument show changes between the working tree and
+a commit read from the minibuffer."
+  (interactive (and current-prefix-arg
+                    (list (magit-read-rev-with-default
+                           "Diff working tree and commit"))))
   (magit-diff (or rev "HEAD") t))
 
 ;;;###autoload
-(defun magit-diff-staged ()
-  "Show differences between the index and the HEAD commit."
-  (interactive)
-  (magit-diff nil nil (list "--cached")))
+(defun magit-diff-staged (&optional commit)
+  "Show changes between the index and the `HEAD' commit.
+With a prefix argument show changes between the index and
+a commit read from the minibuffer."
+  (interactive (and current-prefix-arg
+                    (list (magit-read-rev-with-default
+                           "Diff index and commit"))))
+  (magit-diff nil nil (cons "--cached" (and commit (list commit)))))
 
 ;;;###autoload
 (defun magit-diff-unstaged ()
-  "Show differences between the current working tree and index."
+  "Show changes between the working tree and the index."
   (interactive)
   (magit-diff nil))
 
 ;;;###autoload
+(defun magit-diff-unpushed ()
+  "Show unpushed changes."
+  (interactive)
+  (let ((tracked (magit-get-tracked-branch nil t)))
+    (if  tracked
+        (magit-diff (concat tracked "..."))
+      (error "Detached HEAD or upstream unset"))))
+
+;;;###autoload
+(defun magit-diff-unpulled ()
+  "Show unpulled changes."
+  (interactive)
+  (let ((tracked (magit-get-tracked-branch nil t)))
+    (if  tracked
+        (magit-diff (concat "..." tracked))
+      (error "Detached HEAD or upstream unset"))))
+
+;;;###autoload
+(defun magit-diff-paths (a b)
+  "Show changes between any two files on disk."
+  (interactive (list (read-file-name "First file: " nil nil t)
+                     (read-file-name "Second file: " nil nil t)))
+  (magit-diff nil nil (list "--no-index" "--" a b)))
+
+;;;###autoload
 (defun magit-diff-stash (stash &optional noselect)
   "Show changes in a stash.
-A Stash consist of more than just one commit.  This command uses
-a special diff range so that the stashed changes actually were a
-single commit."
+A stash consist of more than just one commit.  This command uses
+a special diff range so that the stashed changes appear as if the
+actually were a single commit."
   (interactive (list (magit-read-stash "Show stash (number): ")))
   (magit-mode-setup magit-commit-buffer-name
                     (if noselect 'display-buffer 'pop-to-buffer)
@@ -7147,7 +7183,7 @@ single commit."
                     (concat stash "^2^.." stash)))
 
 (defun magit-diff-with-mark (range)
-  "Show difference between the marked commit and the one at point.
+  "Show changes between the marked commit and the one at point.
 If there is no commit at point, then prompt for one."
   (interactive
    (let* ((marked (or magit-marked-commit (user-error "No commit marked")))
@@ -7160,6 +7196,37 @@ If there is no commit at point, then prompt for one."
                        current))))
      (list (concat marked ".." commit))))
   (magit-diff range))
+
+(defun magit-diff-less-context (&optional count)
+  "Decrease the context for diff hunks by COUNT."
+  (interactive "p")
+  (setq magit-diff-options
+        (cons (format "-U%i" (max 0 (- (magit-diff-previous-context-lines)
+                                       count)))
+              magit-diff-options))
+  (magit-refresh))
+
+(defun magit-diff-more-context (&optional count)
+  "Increase the context for diff hunks by COUNT."
+  (interactive "p")
+  (setq magit-diff-options
+        (cons (format "-U%i" (+ (magit-diff-previous-context-lines) count))
+              magit-diff-options))
+  (magit-refresh))
+
+(defun magit-diff-default-context ()
+  "Reset context for diff hunks to the default size."
+  (interactive)
+  (magit-diff-previous-context-lines)
+  (magit-refresh))
+
+(defun magit-diff-previous-context-lines ()
+  (let ((elt (cl-find "^-U\\([0-9]+\\)$" magit-diff-options
+                      :test 'string-match)))
+    (if elt
+        (progn (setq magit-diff-options (delete elt magit-diff-options))
+               (string-to-number (match-string 1 elt)))
+      3)))
 
 (defun magit-refresh-diff-buffer (range &optional working args)
   (let ((magit-current-diff-range
@@ -7181,9 +7248,19 @@ If there is no commit at point, then prompt for one."
                        (t
                         (format "Changes in %s" range))))
         #'magit-wash-diffs
-      "diff" (magit-diff-U-arg)
+      "diff"
       (and magit-show-diffstat "--patch-with-stat")
-      range args "--")))
+      range args magit-diff-options "--")))
+
+(defun magit-select-diff-algorithm (prompt &optional _ tryagain)
+  (cl-case (read-char-exclusive
+            (concat (if tryagain
+                        "Choose one of (C-g to abort):  "
+                      (concat prompt "  "))
+                    "[d]efault/myers  [m]inimal  [p]atience  [h]istogram"))
+    (?d "default") (?m "minimal") (?p "patience") (?h "histogram")
+    (?\C-g (error "Quit"))
+    (t (magit-select-diff-algorithm prompt nil t))))
 
 ;;;; Wazzup Mode
 
