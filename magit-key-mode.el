@@ -175,59 +175,84 @@
 (defvar-local magit-this-popup nil)
 (defvar-local magit-this-popup-events nil)
 
-(defun magit-popup-get (key)
-  (if (memq key '(:switches :options :actions))
-      (plist-get magit-this-popup-events key)
-    (plist-get (symbol-value magit-this-popup) key)))
+(defun magit-popup-get (prop)
+  (if (memq prop '(:switches :options :actions))
+      (plist-get magit-this-popup-events prop)
+    (plist-get (symbol-value magit-this-popup) prop)))
+
+(defun magit-popup-put (prop val)
+  (if (memq prop '(:switches :options :actions))
+      (setq magit-this-popup-events
+            (plist-put magit-this-popup-events prop val))
+    (error "Property %s isn't supported" prop)))
 
 (defvar magit-current-popup nil)
 (defvar magit-current-popup-args nil)
 
 (defvar-local magit-popup-variable-type 'cons)
 
+(cl-defstruct magit-popup-event key dsc arg fun use val)
+
+(defun magit-popup-event-keydsc (ev)
+  (let ((key (magit-popup-event-key ev)))
+    (key-description (if (vectorp key) key (vector key)))))
+
+(defun magit-popup-lookup (event type)
+  (cl-find event (magit-popup-get type) :key 'magit-popup-event-key))
+
 (defun magit-popup-get-args (&optional style)
   (cl-ecase (or style magit-popup-variable-type)
-    (cons (nconc (cl-mapcan (lambda (elt)
-                              (when (nth 4 elt)
-                                (list (cons (nth 2 elt) t))))
-                            (magit-popup-get :switches))
-                 (cl-mapcan (lambda (elt)
-                              (when (nth 4 elt)
-                                (list (cons (nth 2 elt) (nth 5 elt)))))
-                            (magit-popup-get :options))))
-    (flat (cl-mapcan (lambda (elt)
-                       (when (nth 4 elt)
-                         (list (concat (nth 2 elt) (nth 5 elt)))))
-                     (append (magit-popup-get :switches)
-                             (magit-popup-get :options))))))
+    (cons (nconc
+           (cl-mapcan (lambda (elt)
+                        (when (magit-popup-event-use elt)
+                          (list (cons (magit-popup-event-arg elt) t))))
+                      (magit-popup-get :switches))
+           (cl-mapcan (lambda (elt)
+                        (when (magit-popup-event-use elt)
+                          (list (cons (magit-popup-event-arg elt)
+                                      (magit-popup-event-val elt)))))
+                      (magit-popup-get :options))))
+    (flat  (cl-mapcan (lambda (elt)
+                        (when (magit-popup-event-use elt)
+                          (list (concat (magit-popup-event-arg elt)
+                                        (magit-popup-event-val elt)))))
+                      (append (magit-popup-get :switches)
+                              (magit-popup-get :options))))))
 
-(defun magit-popup-setup-events (val)
-  (let ((def (symbol-value magit-this-popup)))
-    (setq
-     magit-this-popup-events
-     (list
-      :switches
-      (mapcar
-       (cl-ecase magit-popup-variable-type
-         (cons (lambda (elt)
-                 (append elt (list nil (cdr (assoc (nth 2 elt) val))))))
-         (flat (lambda (elt)
-                 (append elt (list nil (and (member (nth 2 elt) val) t))))))
-       (plist-get def :switches))
-      :options
-      (mapcar
-       (cl-ecase magit-popup-variable-type
-         (cons (lambda (elt)
-                 (append elt (list (and (assoc (nth 2 elt) val) t)
-                                   (cdr (assoc (nth 2 elt) val))))))
-         (flat (lambda (elt)
-                 (let ((v (cl-find (format "^%s\\(.+\\)" (nth 2 elt)) val
-                                   :test 'string-match)))
-                   (append elt (if v
-                                   (list t (match-string 1 v))
-                                 (list nil nil)))))))
-       (plist-get def :options))
-      :actions (plist-get def :actions)))))
+(defun magit-popup-convert-switches (val def)
+  (mapcar (lambda (ev)
+            (let ((a (nth 2 ev)))
+              (make-magit-popup-event
+               :key (car ev) :dsc (cadr ev) :arg a
+               :use (if (eq magit-popup-variable-type 'flat)
+                        (and (member a val) t)
+                      (cdr (assoc a val))))))
+          def))
+
+(defun magit-popup-convert-options (val def)
+  (mapcar (cl-ecase magit-popup-variable-type
+            (cons (lambda (ev)
+                    (let* ((a (nth 2 ev))
+                           (v (cdr (assoc a val))))
+                      (make-magit-popup-event
+                       :key (car ev)  :dsc (cadr ev) :arg a
+                       :use (and v t) :val v
+                       :fun (nth 3 ev)))))
+            (flat (lambda (ev)
+                    (let* ((a (nth 2 ev))
+                           (v (cl-find (format "^%s\\(.+\\)" a)
+                                       val :test 'string-match)))
+                      (make-magit-popup-event
+                       :key (car ev)  :dsc (cadr ev) :arg a
+                       :use (and v t) :val (and v (match-string 1 v))
+                       :fun (nth 3 ev))))))
+          def))
+
+(defun magit-popup-convert-actions (val def)
+  (mapcar (lambda (ev)
+            (make-magit-popup-event
+             :key (car ev) :dsc (cadr ev) :fun (nth 2 ev)))
+          def))
 
 (defun magit-popup-custom-default (def)
   (nconc (mapcar (lambda (arg)
@@ -369,37 +394,38 @@
 
 (defun magit-invoke-popup-switch (event)
   (interactive (list last-command-event))
-  (let ((elt (assoc event (magit-popup-get :switches))))
-    (if  elt
-        (progn (setf (nth 4 elt) (not (nth 4 elt)))
+  (let ((ev (magit-popup-lookup event :switches)))
+    (if  ev
+        (progn (setf (magit-popup-event-use ev)
+                     (not (magit-popup-event-use ev)))
                (magit-refresh-popup-buffer))
       (error "%c isn't bound to any switch" event))))
 
 (defun magit-invoke-popup-option (event)
   (interactive (list last-command-event))
-  (let ((elt (assoc event (magit-popup-get :options))))
-    (if  elt
+  (let ((ev (magit-popup-lookup event :options)))
+    (if  ev
         (progn
-          (if (nth 4 elt)
-              (setf (nth 4 elt) nil)
-            (let* ((arg (nth 2 elt))
+          (if (magit-popup-event-use ev)
+              (setf (magit-popup-event-use ev) nil)
+            (let* ((arg (magit-popup-event-arg ev))
                    (val (funcall
-                         (nth 3 elt)
+                         (magit-popup-event-fun ev)
                          (concat arg (unless (string-match-p "=$" arg) ": "))
-                         (nth 5 elt))))
-              (setf (nth 4 elt) t)
-              (setf (nth 5 elt) val)))
+                         (magit-popup-event-val ev))))
+              (setf (magit-popup-event-use ev) t)
+              (setf (magit-popup-event-val ev) val)))
           (magit-refresh-popup-buffer))
       (error "%c isn't bound to any option" event))))
 
 (defun magit-invoke-popup-action (event)
   (interactive (list last-command-event))
-  (let ((def (nth 2 (assoc event (magit-popup-get :actions)))))
-    (if  def
+  (let ((ev (magit-popup-lookup event :actions)))
+    (if  ev
         (let ((magit-current-popup magit-this-popup)
               (magit-current-popup-args (magit-popup-get-args 'flat)))
           (magit-popup-quit)
-          (call-interactively def))
+          (call-interactively (magit-popup-event-fun ev)))
       (if (eq event ?q)
           (magit-popup-quit)
         (error "%c isn't bound to any action" event)))))
@@ -472,34 +498,34 @@
                   (lookup-key (current-global-map) key))))
     (cl-case def
       (magit-invoke-popup-switch
-       (magit-popup-woman
-        man (nth 2 (assoc int (magit-popup-get :switches)))))
+       (magit-popup-woman man (magit-popup-lookup int :switches)))
       (magit-invoke-popup-option
-       (magit-popup-woman
-        man (nth 2 (assoc int (magit-popup-get :options)))))
+       (magit-popup-woman man (magit-popup-lookup int :options)))
       (magit-popup-help
        (magit-popup-woman man nil))
       (self-insert-command
-       (setq def (nth 2 (assoc int (magit-popup-get :actions))))
+       (setq def (magit-popup-lookup int :actions))
        (if def
-           (magit-popup-describe-function def)
+           (magit-popup-describe-function (magit-popup-event-fun def))
          (ding)
          (message nil)))
       (nil (ding)
            (message nil))
       (t   (magit-popup-describe-function def)))))
 
-(defun magit-popup-woman (topic argument)
+(defun magit-popup-woman (topic arg)
   (unless topic
     (error "No man page associated with %s"
            (magit-popup-get :man-page)))
+  (when arg
+    (setq arg (magit-popup-event-arg arg)))
   (let ((winconf (current-window-configuration)))
     (delete-other-windows)
     (split-window-below)
     (woman topic)
-    (if (and argument
+    (if (and arg
              (Man-find-section "OPTIONS")
-             (re-search-forward (format "^\t\\(-., \\)?%s[[=\n]" argument)
+             (re-search-forward (format "^\t\\(-., \\)?%s[[=\n]" arg)
                                 (save-excursion
                                   (Man-next-section 1)
                                   (point))
@@ -554,12 +580,18 @@
   (setq magit-popup-variable-type 'flat))
 
 (defun magit-popup-mode-setup (popup mode)
-  (let ((value (symbol-value (plist-get (symbol-value popup) :variable))))
+  (let ((val (symbol-value (plist-get (symbol-value popup) :variable)))
+        (def (symbol-value popup)))
     (magit-popup-mode-display-buffer (get-buffer-create
                                       (format "*%s*" popup))
                                      (or mode 'magit-popup-mode))
     (setq magit-this-popup popup)
-    (magit-popup-setup-events value))
+    (magit-popup-put :switches (magit-popup-convert-switches
+                                val (plist-get def :switches)))
+    (magit-popup-put :options  (magit-popup-convert-options
+                                val (plist-get def :options)))
+    (magit-popup-put :actions  (magit-popup-convert-actions
+                                val (plist-get def :actions))))
   (magit-refresh-popup-buffer)
   (fit-window-to-buffer))
 
@@ -601,8 +633,8 @@
 (defun magit-popup-insert-section (type &optional spec)
   (let* ((heading   (button-type-get type 'heading))
          (formatter (button-type-get type 'formatter))
-         (buttons (mapcar (lambda (elt)
-                            (funcall formatter type elt))
+         (buttons (mapcar (lambda (ev)
+                            (funcall formatter type ev))
                           (or spec (magit-popup-get
                                     (button-type-get type 'property)))))
          (maxcols (button-type-get type 'maxcols)))
@@ -628,36 +660,32 @@
           (apply 'insert-button button)))
       (insert (if (= (char-before) ?\n) "\n" "\n\n")))))
 
-(defun magit-popup-format-argument-button (type item)
+(defun magit-popup-format-argument-button (type ev)
   (list (format-spec
          (button-type-get type 'format)
          `((?k . ,(propertize (concat (char-to-string
                                        (button-type-get type 'prefix))
-                                      (key-description
-                                       (if (vectorp (car item))
-                                           (car item)
-                                         (vector (car item)))))
+                                      (magit-popup-event-keydsc ev))
                               'face 'magit-popup-key))
-           (?d . ,(nth 1 item))
-           (?a . ,(propertize (nth 2 item)
-                              'face (if (nth 4 item)
+           (?d . ,(magit-popup-event-dsc ev))
+           (?a . ,(propertize (magit-popup-event-arg ev)
+                              'face (if (magit-popup-event-use ev)
                                         'magit-popup-argument
                                       'magit-popup-disabled-argument)))
-           (?v . ,(if (nth 4 item)
-                      (propertize (format "\"%s\"" (nth 5 item))
-                                  'face 'magit-popup-option-value)
+           (?v . ,(if (magit-popup-event-use ev)
+                      (propertize
+                       (format "\"%s\"" (magit-popup-event-val ev))
+                       'face 'magit-popup-option-value)
                     ""))))
-        'type type 'event (car item)))
+        'type type 'event (magit-popup-event-key ev)))
 
-(defun magit-popup-format-action-button (type item)
+(defun magit-popup-format-action-button (type ev)
   (list (format-spec
          (button-type-get type 'format)
-         `((?k . ,(propertize (key-description (if (vectorp (car item))
-                                                   (car item)
-                                                 (vector (car item))))
+         `((?k . ,(propertize (magit-popup-event-keydsc ev)
                               'face 'magit-popup-key))
-           (?d . ,(nth 1 item))))
-        'type type 'event (car item)))
+           (?d . ,(magit-popup-event-dsc ev))))
+        'type type 'event (magit-popup-event-key ev)))
 
 (defun magit-popup-insert-command-section (type spec)
   (magit-popup-insert-section
@@ -667,9 +695,11 @@
                         (car elt)))
                 spec)))
 
-(defun magit-popup-format-command-button (type item)
-  (nconc (magit-popup-format-action-button type item)
-         (list 'function (cadr item))))
+(defun magit-popup-format-command-button (type elt)
+  (nconc (magit-popup-format-action-button
+          type (make-magit-popup-event :key (car  elt)
+                                       :dsc (cadr elt)))
+         (list 'function (cadr elt))))
 
 (provide 'magit-key-mode)
 ;; Local Variables:
