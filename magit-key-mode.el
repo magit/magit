@@ -57,7 +57,12 @@
 
 (defface magit-popup-argument
   '((t :inherit font-lock-warning-face))
-  "Face used to display enabled switches in popups."
+  "Face used to display enabled arguments in popups."
+  :group 'magit-faces)
+
+(defface magit-popup-disabled-argument
+  '((t :inherit shadow))
+  "Face used to display disabled arguments in popups."
   :group 'magit-faces)
 
 (defface magit-popup-option-value
@@ -259,8 +264,12 @@
          (d (nth 1 arg))
          (a (unless (symbolp (nth 2 arg)) (nth 2 arg)))
          (v (and a (cdr (assoc a magit-popup-current-options)))))
-    (when (member a magit-popup-current-switches)
-      (setq a (propertize a 'face 'magit-popup-argument)))
+    (when a
+      (setq a (propertize
+               a 'face (if (or (member a magit-popup-current-switches)
+                               (assoc  a magit-popup-current-options))
+                           'magit-popup-argument
+                         'magit-popup-disabled-argument))))
     (when v
       (setq v (propertize v 'face 'magit-popup-option-value)))
     (format-spec format
