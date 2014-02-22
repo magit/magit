@@ -5265,12 +5265,16 @@ With a prefix argument, visit in other window."
   (magit-section-action visit (info parent-info)
     ((diff diffstat [file untracked])
      (magit-visit-file-item info other-window))
-    (hunk   (magit-visit-file-item parent-info other-window
-                                   (magit-hunk-item-target-line it)
-                                   (current-column)))
-    (commit (magit-show-commit info))
-    (stash  (magit-diff-stash info))
-    (branch (magit-checkout info))))
+    (hunk     (magit-visit-file-item parent-info other-window
+                                     (magit-hunk-item-target-line it)
+                                     (current-column)))
+    (staged   (magit-diff-staged))
+    (unstaged (magit-diff-unstaged))
+    (unpushed (magit-diff-unpushed))
+    (unpulled (magit-diff-unpulled))
+    (stash    (magit-diff-stash info))
+    (commit   (magit-show-commit info))
+    (branch   (magit-checkout info))))
 
 (defun magit-visit-file-item (file &optional other-window line column)
   (unless file
