@@ -35,7 +35,6 @@
 
 (eval-when-compile (require 'cl-lib))
 
-(defvar magit-key-mode-keymaps)
 (defvar magit-pre-key-mode-window-conf)
 
 ;;; Options
@@ -114,18 +113,12 @@ The user is prompted for the key."
     (goto-char p)
     (skip-chars-forward " ")))
 
-(defvar magit-key-mode-keymaps nil
-  "This will be filled lazily with proper keymaps.
-These keymaps are created using `define-key' as they're requested.")
-
-(defun magit-key-mode-build-keymap (for-group)
-  "Construct a normal looking keymap for the key mode to use.
-Put it in `magit-key-mode-keymaps' for fast lookup."
-  (let* ((options (magit-key-mode-options-for-group for-group))
-         (actions (cdr (assoc 'actions options)))
-         (switches (cdr (assoc 'switches options)))
-         (arguments (cdr (assoc 'arguments options)))
-         (map (make-sparse-keymap)))
+(defun magit-key-mode-build-keymap (for-group options)
+  "Construct a normal looking keymap for the key mode to use."
+  (let ((actions (cdr (assoc 'actions options)))
+        (switches (cdr (assoc 'switches options)))
+        (arguments (cdr (assoc 'arguments options)))
+        (map (make-sparse-keymap)))
     (suppress-keymap map 'nodigits)
     ;; ret dwim
     (define-key map (kbd "RET") 'magit-key-mode-exec-at-point)
@@ -160,8 +153,6 @@ Put it in `magit-key-mode-keymaps' for fast lookup."
       (dolist (k arguments)
         (funcall defkey k `(magit-key-mode-add-argument
                             ',for-group ,(nth 2 k) ',(nth 3 k)))))
-
-    (push (cons for-group map) magit-key-mode-keymaps)
     map))
 
 (defvar magit-key-mode-prefix nil
@@ -240,11 +231,6 @@ the key combination highlighted before the description."
                      "Run 'actions' with their prefixes. "
                      "'?' for more help."))))
 
-(defun magit-key-mode-get-key-map (for-group)
-  "Get or build the keymap for FOR-GROUP."
-  (or (cdr (assoc for-group magit-key-mode-keymaps))
-      (magit-key-mode-build-keymap for-group)))
-
 (defun magit-key-mode-redraw (for-group)
   "(re)draw the magit key buffer."
   (let ((buffer-read-only nil)
@@ -255,7 +241,8 @@ the key combination highlighted before the description."
         (actions-p nil))
     (erase-buffer)
     (make-local-variable 'font-lock-defaults)
-    (use-local-map (magit-key-mode-get-key-map for-group))
+    (use-local-map
+     (symbol-value (intern (format "magit-popup-%s-map" for-group))))
     (setq actions-p (magit-key-mode-draw for-group))
     (delete-trailing-whitespace)
     (setq mode-name "magit-key-mode" major-mode 'magit-key-mode)
@@ -403,6 +390,9 @@ Return the point before the actions part, if any, nil otherwise."
      ("!" "Running"         magit-key-mode-popup-running)
      ("$" "Show Process"    magit-display-process))))
 
+(defvar magit-popup-dispatch-map
+  (magit-key-mode-build-keymap 'dispatch magit-popup-dispatch))
+
 (defun magit-key-mode-popup-dispatch ()
   "Key menu for dispatch."
   (interactive)
@@ -442,6 +432,9 @@ Return the point before the actions part, if any, nil otherwise."
      ("=b" "Branches" "--branches=" read-from-minibuffer)
      ("=R" "Remotes" "--remotes=" read-from-minibuffer))))
 
+(defvar magit-popup-logging-map
+  (magit-key-mode-build-keymap 'logging magit-popup-logging))
+
 (defun magit-key-mode-popup-logging ()
   "Key menu for logging."
   (interactive)
@@ -453,6 +446,9 @@ Return the point before the actions part, if any, nil otherwise."
      (":" "Git Subcommand (from pwd)" magit-git-command)
      ("g" "Git Gui" magit-run-git-gui)
      ("k" "Gitk" magit-run-gitk))))
+
+(defvar magit-popup-running-map
+  (magit-key-mode-build-keymap 'running magit-popup-running))
 
 (defun magit-key-mode-popup-running ()
   "Key menu for running."
@@ -467,6 +463,9 @@ Return the point before the actions part, if any, nil otherwise."
      ("o" "Other" magit-fetch))
     (switches
      ("-p" "Prune" "--prune"))))
+
+(defvar magit-popup-fetching-map
+  (magit-key-mode-build-keymap 'fetching magit-popup-fetching))
 
 (defun magit-key-mode-popup-fetching ()
   "Key menu for fetching."
@@ -483,6 +482,9 @@ Return the point before the actions part, if any, nil otherwise."
      ("-d" "Dry run" "-n")
      ("-u" "Set upstream" "-u"))))
 
+(defvar magit-popup-pushing-map
+  (magit-key-mode-build-keymap 'pushing magit-popup-pushing))
+
 (defun magit-key-mode-popup-pushing ()
   "Key menu for pushing."
   (interactive)
@@ -495,6 +497,9 @@ Return the point before the actions part, if any, nil otherwise."
     (switches
      ("-f" "Force" "--force")
      ("-r" "Rebase" "--rebase"))))
+
+(defvar magit-popup-pulling-map
+  (magit-key-mode-build-keymap 'pulling magit-popup-pulling))
 
 (defun magit-key-mode-popup-pulling ()
   "Key menu for pulling."
@@ -520,6 +525,9 @@ Return the point before the actions part, if any, nil otherwise."
      ("=m" "Merged" "--merged=" magit-read-rev-with-default)
      ("=n" "Not merged" "--no-merged=" magit-read-rev-with-default))))
 
+(defvar magit-popup-branching-map
+  (magit-key-mode-build-keymap 'branching magit-popup-branching))
+
 (defun magit-key-mode-popup-branching ()
   "Key menu for branching."
   (interactive)
@@ -532,6 +540,9 @@ Return the point before the actions part, if any, nil otherwise."
      ("a" "Add" magit-add-remote)
      ("r" "Rename" magit-rename-remote)
      ("k" "Remove" magit-remove-remote))))
+
+(defvar magit-popup-remoting-map
+  (magit-key-mode-build-keymap 'remoting magit-popup-remoting))
 
 (defun magit-key-mode-popup-remoting ()
   "Key menu for remoting."
@@ -547,6 +558,9 @@ Return the point before the actions part, if any, nil otherwise."
      ("-a" "Annotate" "--annotate")
      ("-f" "Force" "--force")
      ("-s" "Sign" "--sign"))))
+
+(defvar magit-popup-tagging-map
+  (magit-key-mode-build-keymap 'tagging magit-popup-tagging))
 
 (defun magit-key-mode-popup-tagging ()
   "Key menu for tagging."
@@ -566,6 +580,9 @@ Return the point before the actions part, if any, nil otherwise."
      ("-k" "Keep index" "--keep-index")
      ("-u" "Include untracked files" "--include-untracked")
      ("-a" "Include all files" "--all"))))
+
+(defvar magit-popup-stashing-map
+  (magit-key-mode-build-keymap 'stashing magit-popup-stashing))
 
 (defun magit-key-mode-popup-stashing ()
   "Key menu for stashing."
@@ -592,6 +609,9 @@ Return the point before the actions part, if any, nil otherwise."
     (arguments
      ("=S" "Sign using gpg" "--gpg-sign=" magit-read-gpg-secret-key))))
 
+(defvar magit-popup-committing-map
+  (magit-key-mode-build-keymap 'committing magit-popup-committing))
+
 (defun magit-key-mode-popup-committing ()
   "Key menu for committing."
   (interactive)
@@ -609,6 +629,9 @@ Return the point before the actions part, if any, nil otherwise."
     (arguments
      ("-st" "Strategy" "--strategy=" read-from-minibuffer))))
 
+(defvar magit-popup-merging-map
+  (magit-key-mode-build-keymap 'merging magit-popup-merging))
+
 (defun magit-key-mode-popup-merging ()
   "Key menu for merging."
   (interactive)
@@ -622,6 +645,9 @@ Return the point before the actions part, if any, nil otherwise."
      ("f" "Finish" magit-rewrite-finish)
      ("*" "Set unused" magit-rewrite-set-unused)
      ("." "Set used" magit-rewrite-set-used))))
+
+(defvar magit-popup-rewriting-map
+  (magit-key-mode-build-keymap 'rewriting magit-popup-rewriting))
 
 (defun magit-key-mode-popup-rewriting ()
   "Key menu for rewriting."
@@ -645,6 +671,9 @@ Return the point before the actions part, if any, nil otherwise."
     (arguments
      ("=p" "format the patch(es) are in" "--patch-format"))))
 
+(defvar magit-popup-apply-mailbox-map
+  (magit-key-mode-build-keymap 'apply-mailbox magit-popup-apply-mailbox))
+
 (defun magit-key-mode-popup-apply-mailbox ()
   "Key menu for apply-mailbox."
   (interactive)
@@ -657,6 +686,9 @@ Return the point before the actions part, if any, nil otherwise."
      ("b" "Both update and init" magit-submodule-update-init)
      ("i" "Init" magit-submodule-init)
      ("s" "Sync" magit-submodule-sync))))
+
+(defvar magit-popup-submodule-map
+  (magit-key-mode-build-keymap 'submodule magit-popup-submodule))
 
 (defun magit-key-mode-popup-submodule ()
   "Key menu for submodule."
@@ -672,6 +704,9 @@ Return the point before the actions part, if any, nil otherwise."
      ("r" "Reset" magit-bisect-reset)
      ("s" "Start" magit-bisect-start)
      ("u" "Run" magit-bisect-run))))
+
+(defvar magit-popup-bisecting-map
+  (magit-key-mode-build-keymap 'bisecting magit-popup-bisecting))
 
 (defun magit-key-mode-popup-bisecting ()
   "Key menu for bisecting."
