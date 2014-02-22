@@ -3391,7 +3391,7 @@ and no variation of the Auto-Revert mode is already active."
   "Return absolute path to the GIT_DIR for the current repository.
 If optional PATH is non-nil it has to be a path relative to the
 GIT_DIR and its absolute path is returned"
-  (--when-let (magit-git-string "rev-parse" "--git-dir")
+  (--when-let (magit-rev-parse "--git-dir")
     (setq it (file-name-as-directory (magit-expand-git-file-name it)))
     (if path (expand-file-name (convert-standard-filename path) it) it)))
 
@@ -3413,7 +3413,7 @@ an existing directory."
   (unless (file-directory-p directory)
     (error "%s isn't an existing directory" directory))
   (let ((default-directory directory))
-    (--if-let (magit-git-string "rev-parse" "--show-toplevel")
+    (--if-let (magit-rev-parse "--show-toplevel")
         (file-name-as-directory (magit-expand-git-file-name it))
       (-when-let (gitdir (magit-git-dir))
         (if (magit-bare-repo-p)
@@ -3447,7 +3447,7 @@ If FILE isn't inside a Git repository then return nil."
 
 (defun magit-bare-repo-p ()
   "Return t if the current repository is bare."
-  (magit-git-true "rev-parse" "--is-bare-repository"))
+  (magit-rev-parse-p "--is-bare-repository"))
 
 (defun magit-no-commit-p ()
   "Return non-nil if there is no commit in the current git repository."
@@ -3470,51 +3470,43 @@ If FILE isn't inside a Git repository then return nil."
 
 ;;;; Revisions and References
 
-(defun magit-rev-parse (ref)
-  "Return the SHA hash for REF."
-  (magit-git-string "rev-parse" ref))
+(defun magit-rev-parse (&rest args)
+  "Execute `git rev-parse ARGS', returning first line of output.
+If there is no output return nil."
+  (apply #'magit-git-string "rev-parse" args))
 
-(defun magit-get-ref (ref)
-  (magit-git-string "symbolic-ref" "-q" ref))
+(defun magit-rev-parse-p (&rest args)
+  "Execute `git rev-parse ARGS', returning t if it prints \"true\".
+Return t if the first (and usually only) output line is the
+string \"true\", otherwise return nil."
+  (magit-git-true "rev-parse" args))
 
-(defun magit-name-rev (rev &optional no-trim)
-  "Return a human-readable name for REV.
-Unlike `git name-rev', this will remove \"tags/\" and \"remotes/\"
-prefixes if that can be done unambiguously (unless optional arg
-NO-TRIM is non-nil).  In addition, it will filter out revs
-involving HEAD."
-  (when rev
-    (let ((name (magit-git-string "name-rev" "--no-undefined" "--name-only" rev)))
-      ;; There doesn't seem to be a way of filtering HEAD out from name-rev,
-      ;; so we have to do it manually.
-      ;; HEAD-based names are too transient to allow.
-      (when (and (stringp name)
-                 (string-match "^\\(.*\\<HEAD\\)\\([~^].*\\|$\\)" name))
-        (let ((head-ref (match-string 1 name))
-              (modifier (match-string 2 name)))
-          ;; Sometimes when name-rev gives a HEAD-based name,
-          ;; rev-parse will give an actual branch or remote name.
-          (setq name (concat (magit-git-string "rev-parse" "--abbrev-ref" head-ref)
-                             modifier))
-          ;; If rev-parse doesn't give us what we want, just use the SHA.
-          (when (or (null name) (string-match-p "\\<HEAD\\>" name))
-            (setq name (magit-rev-parse rev)))))
-      (setq rev (or name rev))
-      (when (string-match "^\\(?:tags\\|remotes\\)/\\(.*\\)" rev)
-        (let ((plain-name (match-string 1 rev)))
-          (unless (or no-trim (magit-ref-ambiguous-p plain-name))
-            (setq rev plain-name))))
+(defun magit-get-ref (name)
+  (magit-git-string "symbolic-ref" "-q" name))
+
+(defun magit-get-refname (name)
+  (magit-git-string "symbolic-ref" "--short" "-q" name))
+
+(defun magit-get-shortname (rev)
+  (let ((fn (apply-partially 'magit-git-string "name-rev"
+                             "--name-only" "--no-undefined" rev)))
+    (setq rev (or (funcall fn "--refs=refs/tags/*")
+                  (funcall fn "--refs=refs/heads/*")
+                  (funcall fn "--refs=refs/remotes/*" "--always")))
+    (if (and (string-match "^\\(?:tags\\|remotes\\)/\\(.+\\)" rev)
+             (magit-unambiguous-refname-p (match-string 1 rev)))
+        (match-string 1 rev)
       rev)))
 
 (defun magit-ref-exists-p (ref)
   (magit-git-success "show-ref" "--verify" ref))
 
-(defun magit-ref-ambiguous-p (ref)
-  "Return whether or not REF is ambiguous."
+(defun magit-unambiguous-refname-p (name)
+  "Return t if REF is unambiguous, nil otherwise."
   ;; An ambiguous ref does not cause `git rev-parse --abbrev-ref'
   ;; to exits with a non-zero status.  But there is nothing on
   ;; stdout in that case.
-  (not (magit-git-string "rev-parse" "--abbrev-ref" ref)))
+  (not (magit-rev-parse "--abbrev-ref" name)))
 
 (defun magit-get-current-branch ()
   (--when-let (magit-get-ref "HEAD")
@@ -3524,7 +3516,7 @@ involving HEAD."
 (defun magit-get-previous-branch ()
   "Return the refname of the previously checked out branch.
 Return nil if the previously checked out branch no longer exists."
-  (magit-name-rev (magit-git-string "rev-parse" "--verify" "@{-1}")))
+  (magit-get-shortname (magit-rev-parse "--verify" "@{-1}")))
 
 (defun magit-get-tracked-branch (&optional branch qualified)
   "Return the name of the tracking branch the local branch name BRANCH.
@@ -3605,7 +3597,7 @@ the remote branch exists; else return nil."
            (setq remote/branch
                  (concat remote "/" (match-string 1 remote-branch)))
            (or (not verify)
-               (magit-git-success "rev-parse" "--verify" remote/branch))
+               (magit-rev-parse "--verify" remote/branch))
            remote/branch))))
 
 (defun magit-get-current-tag (&optional with-distance-p)
@@ -3642,33 +3634,39 @@ where COMMITS is the number of commits in TAG but not in \"HEAD\"."
               (list it (car (magit-rev-diff-count it "HEAD")))
             it))))))
 
-(defvar magit-uninteresting-refs
-  '("^refs/stash$"
-    "^refs/remotes/[^/]+/HEAD$"
-    "^refs/remotes/[^/]+/top-bases$"
-    "^refs/top-bases$"))
+(defun magit-list-refs (&rest args)
+  (magit-git-lines
+   "for-each-ref" "--format=%(refname)"
+   (or args (list "refs/heads" "refs/remotes" "refs/tags"))))
 
-(cl-defun magit-list-interesting-refs (&optional uninteresting
-                                                 (refs nil srefs))
-  (cl-loop for ref in (if srefs
-                          refs
-                        (mapcar (lambda (l)
-                                  (cadr (split-string l " ")))
-                                (magit-git-lines "show-ref")))
-           with label
-           unless (or (cl-loop for i in
-                               (cl-typecase uninteresting
-                                 (null magit-uninteresting-refs)
-                                 (list uninteresting)
-                                 (string (cons (format "^refs/heads/%s$"
-                                                       uninteresting)
-                                               magit-uninteresting-refs)))
-                               thereis (string-match i ref))
-                      (not (and (string-match
-                                 "^refs/\\(heads\\|remotes\\|tags\\)/\\(.+\\)"
-                                 ref)
-                                (setq label (match-string 2 ref)))))
-           collect (cons label ref)))
+(defun magit-list-branches ()
+  (magit-list-refs "refs/heads" "refs/remotes"))
+
+(defun magit-list-local-branches ()
+  (magit-list-refs "refs/heads"))
+
+(defun magit-list-remote-branches (&optional remote)
+  (magit-list-refs (concat "refs/remotes/" remote)))
+
+(defun magit-list-refnames (&rest args)
+  (magit-git-lines
+   "for-each-ref" "--format=%(refname:short)"
+   (or args (list "refs/heads" "refs/remotes" "refs/tags"))))
+
+(defun magit-list-branch-names ()
+  (magit-list-refnames "refs/heads" "refs/remotes"))
+
+(defun magit-list-local-branch-names ()
+  (magit-list-refnames "refs/heads"))
+
+(defun magit-list-remote-branch-names (&optional remote relative)
+  (if (and remote relative)
+      (let ((regexp (format "^refs/remotes/%s/\\(.+\\)" remote)))
+        (cl-mapcan (lambda (ref)
+                     (and (string-match regexp ref)
+                          (list (match-string t ref))))
+                   (magit-list-remote-branches remote)))
+    (magit-list-refnames (concat "refs/remotes/" remote))))
 
 (defun magit-rev-diff-count (a b)
   "Return the commits in A but not B and vice versa.
@@ -3709,10 +3707,7 @@ Return a list of two integers: (A>B B>A)."
 (defun magit-format-ref-labels (string)
   (save-match-data
     (mapconcat 'magit-format-ref-label
-               (mapcar 'cdr
-                       (magit-list-interesting-refs
-                        nil (split-string string "\\(tag: \\|[(), ]\\)" t)))
-               " ")))
+               (split-string string "\\(tag: \\|[(), ]\\)" t) " ")))
 
 ;;;; Variables
 
@@ -3814,19 +3809,14 @@ results in additional differences."
 
 ;;;;; Revision Completion
 
-(defvar magit-read-rev-history nil
-  "The history of inputs to `magit-read-rev' and `magit-read-tag'.")
+(defvar magit-read-rev-history nil)
 
-(defun magit-read-rev (prompt &optional default uninteresting noselection)
-  (let* ((interesting-refs
-          (mapcar (lambda (elt)
-                    (setcdr elt (replace-regexp-in-string
-                                 "^refs/heads/" "" (cdr elt)))
-                    elt)
-                  (magit-list-interesting-refs uninteresting)))
-         (reply (magit-completing-read prompt interesting-refs nil nil nil
-                                       'magit-read-rev-history default)))
-    (or (cdr (assoc reply interesting-refs)) reply)))
+(defun magit-read-rev (prompt &optional default exclude noselection)
+  (setq default (magit-git-string "rev-parse" "--symbolic" default)
+        exclude (magit-git-string "rev-parse" "--symbolic" exclude))
+  (magit-completing-read prompt (delete exclude (magit-list-refnames))
+                         nil (not noselection) nil
+                         'magit-read-rev-history default))
 
 (defun magit-read-rev-with-default (prompt)
   (magit-read-rev prompt (--when-let (or (magit-guess-branch) "HEAD")
@@ -3839,14 +3829,7 @@ results in additional differences."
                          'magit-read-rev-history))
 
 (defun magit-read-remote-branch (prompt remote &optional default)
-  (magit-completing-read prompt
-                         (cl-mapcan
-                          (lambda (b)
-                            (and (not (string-match " -> " b))
-                                 (string-match (format "^ *%s/\\(.*\\)$"
-                                                       (regexp-quote remote)) b)
-                                 (list (match-string 1 b))))
-                          (magit-git-lines "branch" "-r"))
+  (magit-completing-read prompt (magit-list-remote-branch-names remote t)
                          nil nil nil nil default))
 
 (defun magit-read-tag (prompt &optional require-match)
@@ -4325,7 +4308,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
               " "))
     (unless (eq style 'long)
       (when (eq style 'bisect-log)
-	(setq hash (magit-git-string "rev-parse" "--short" hash)))
+	(setq hash (magit-rev-parse "--short" hash)))
       (if hash
           (insert (propertize hash 'face 'magit-log-sha1) " ")
         (insert (make-string (1+ abbrev) ? ))))
@@ -4633,9 +4616,8 @@ can be used to override this."
 
 (defun magit-insert-unpulled-or-recent-commits ()
   (let ((tracked (magit-get-tracked-branch nil t)))
-    (if (and tracked
-             (not (equal (magit-git-string "rev-parse" "HEAD")
-                         (magit-git-string "rev-parse" tracked))))
+    (if (and tracked (not (equal (magit-rev-parse "HEAD")
+                                 (magit-rev-parse tracked))))
         (magit-insert-unpulled-commits)
       (magit-git-insert-section (recent "Recent commits:")
           (apply-partially 'magit-wash-log 'unique)
@@ -4698,7 +4680,7 @@ can be used to override this."
                         " (" (magit-get "remote" remote "url") ")"))))))
 
 (defun magit-insert-status-head-line ()
-  (-if-let (hash (magit-git-string "rev-parse" "--verify" "HEAD"))
+  (-if-let (hash (magit-rev-parse "--verify" "HEAD"))
       (magit-insert-line-section (commit hash)
         (concat "Head: " (magit-format-rev-summary "HEAD")))
     (magit-insert-line-section (no-commit)
@@ -4734,7 +4716,7 @@ can be used to override this."
   (-when-let (heads (magit-file-lines (magit-git-dir "MERGE_HEAD")))
     (magit-insert-line-section (line)
       (concat "Merging: "
-              (mapconcat 'identity (mapcar 'magit-name-rev heads) ", ")
+              (mapconcat 'identity (mapcar 'magit-get-shortname heads) ", ")
               (and magit-status-show-sequence-help
                    "; Resolve conflicts, or press \"m A\" to Abort")))))
 
@@ -4765,7 +4747,7 @@ can be used to override this."
               (magit-with-section (section commit hash)
                 (insert cmd " ")
                 (insert (propertize
-                         (magit-git-string "rev-parse" "--short" hash)
+                         (magit-rev-parse "--short" hash)
                          'face 'magit-log-sha1))
                 (insert " " msg "\n"))))
         (insert "\n")))))
@@ -5457,7 +5439,7 @@ If no branch is found near the cursor return nil."
   (magit-section-case (info parent-info)
     (branch          info)
     ([commit wazzup] parent-info)
-    ([commit       ] (magit-name-rev info))
+    ([commit       ] (magit-get-shortname info))
     ([       wazzup] info)))
 
 ;;;;; Remoting
@@ -5660,8 +5642,8 @@ Return nil if there is no rebase in progress."
     (cond
      ((file-directory-p m) ; interactive
       (list
-       (magit-name-rev (magit-file-line  (expand-file-name "onto" m)))
-       (length         (magit-file-lines (expand-file-name "done" m)))
+       (magit-get-shortname (magit-file-line  (expand-file-name "onto" m)))
+       (length              (magit-file-lines (expand-file-name "done" m)))
        (cl-loop for line in (magit-file-lines
                              (expand-file-name "git-rebase-todo.backup" m))
                 count (string-match "^[^#\n]" line))
@@ -5670,7 +5652,7 @@ Return nil if there is no rebase in progress."
 
      ((file-regular-p (expand-file-name "onto" a)) ; non-interactive
       (list
-       (magit-name-rev       (magit-file-line (expand-file-name "onto" a)))
+       (magit-get-shortname  (magit-file-line (expand-file-name "onto" a)))
        (1- (string-to-number (magit-file-line (expand-file-name "next" a))))
        (string-to-number     (magit-file-line (expand-file-name "last" a)))
        (let ((patch-header (magit-file-line
@@ -5681,7 +5663,7 @@ Return nil if there is no rebase in progress."
 
      ((file-regular-p (expand-file-name "applying" a)) ; am
       (list
-       (magit-name-rev       "HEAD")
+       (magit-get-shortname  "HEAD")
        (1- (string-to-number (magit-file-line (expand-file-name "next" a))))
        (string-to-number     (magit-file-line (expand-file-name "last" a)))
        (let ((patch-header (magit-file-line
