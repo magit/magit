@@ -6134,11 +6134,12 @@ user because of prefix arguments are not saved with git config."
   "Popup console for push commands."
   'magit-popups
   :man-page "git-push"
-  :switches '((?f "Force"        "--force")
-              (?d "Dry run"      "-n")
-              (?u "Set upstream" "-u"))
-  :actions  '((?P "Push"         magit-push)
-              (?t "Push tags"    magit-push-tags))
+  :switches '((?f "Force"         "--force")
+              (?h "Disable hooks" "--no-verify")
+              (?d "Dry run"       "-n")
+              (?u "Set upstream"  "-u"))
+  :actions  '((?P "Push"          magit-push)
+              (?t "Push tags"     magit-push-tags))
   :default-action 'magit-push)
 
 ;;;###autoload
