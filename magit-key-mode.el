@@ -55,12 +55,12 @@
 
 (defface magit-key-mode-switch-face
   '((t :inherit font-lock-warning-face))
-  "Face for key mode switches."
+  "Face used to display state of switches in popups."
   :group 'magit-faces)
 
-(defface magit-key-mode-args-face
+(defface magit-key-mode-option-face
   '((t :inherit widget-field))
-  "Face for key mode switch arguments."
+  "Face used to display option values in popups."
   :group 'magit-faces)
 
 ;;; (being refactored)
@@ -91,11 +91,8 @@
     (goto-char p)
     (skip-chars-forward " ")))
 
-(defun magit-key-mode-build-keymap (popup options)
-  (let ((actions (cdr (assoc 'actions options)))
-        (switches (cdr (assoc 'switches options)))
-        (arguments (cdr (assoc 'arguments options)))
-        (map (make-sparse-keymap)))
+(defun magit-key-mode-build-keymap (popup spec)
+  (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-key-mode-map)
     (define-key map (kbd "?") `(lambda ()
                                  (interactive)
@@ -103,55 +100,55 @@
     (let ((defkey (lambda (k action)
                     (define-key map (car k)
                       `(lambda () (interactive) ,action)))))
-      (dolist (k actions)
-        (funcall defkey k `(magit-key-mode-command ',(nth 2 k))))
-      (dolist (k switches)
-        (funcall defkey k `(magit-key-mode-toggle-option ',popup ,(nth 2 k))))
-      (dolist (k arguments)
-        (funcall defkey k `(magit-key-mode-add-argument
+      (dolist (k (cdr (assoc 'actions spec)))
+        (funcall defkey k `(magit-key-mode-perform-action ',(nth 2 k))))
+      (dolist (k (cdr (assoc 'switches spec)))
+        (funcall defkey k `(magit-key-mode-toggle-switch ',popup ,(nth 2 k))))
+      (dolist (k (cdr (assoc 'options spec)))
+        (funcall defkey k `(magit-key-mode-set-option
                             ',popup ,(nth 2 k) ',(nth 3 k)))))
     map))
 
-(defvar-local magit-key-mode-prefix nil)
+(defvar-local magit-popup-prefix-arg nil)
 
-(defvar-local magit-key-mode-current-args nil)
-(defvar-local magit-key-mode-current-options nil)
+(defvar-local magit-popup-current-options nil)
+(defvar-local magit-popup-current-switches nil)
 
 (defvar magit-custom-options nil)
 
-(defun magit-key-mode-command (func)
-  (let ((current-prefix-arg (or current-prefix-arg magit-key-mode-prefix))
-        (magit-custom-options magit-key-mode-current-options))
+(defun magit-key-mode-perform-action (func)
+  (let ((current-prefix-arg (or current-prefix-arg magit-popup-prefix-arg))
+        (magit-custom-options magit-popup-current-switches))
     (maphash (lambda (k v)
                (push (concat k v) magit-custom-options))
-             magit-key-mode-current-args)
+             magit-popup-current-options)
     (let ((buf (current-buffer)))
       (set-window-configuration magit-pre-key-mode-window-conf)
       (kill-buffer buf))
     (when func
       (call-interactively func))))
 
-(defun magit-key-mode-add-argument (popup arg-name input-func)
+(defun magit-key-mode-set-option (popup arg-name input-func)
   (let ((input (funcall input-func (concat arg-name ": "))))
-    (puthash arg-name input magit-key-mode-current-args)
+    (puthash arg-name input magit-popup-current-options)
     (magit-refresh-popup-buffer popup)))
 
-(defun magit-key-mode-toggle-option (popup option-name)
-  (if (member option-name magit-key-mode-current-options)
-      (setq magit-key-mode-current-options
-            (delete option-name magit-key-mode-current-options))
-    (add-to-list 'magit-key-mode-current-options option-name))
+(defun magit-key-mode-toggle-switch (popup switch)
+  (if (member switch magit-popup-current-switches)
+      (setq magit-popup-current-switches
+            (delete switch magit-popup-current-switches))
+    (add-to-list 'magit-popup-current-switches switch))
   (magit-refresh-popup-buffer popup))
 
 (defun magit-key-mode-help (popup)
-  (let* ((opts (symbol-value (intern (format "magit-popup-%s" popup))))
-         (man-page (cadr (assoc 'man-page opts)))
+  (let* ((spec (symbol-value (intern (format "magit-popup-%s" popup))))
+         (man-page (cadr (assoc 'man-page spec)))
          (seq (read-key-sequence
                (format "Enter command prefix%s: "
                        (if man-page
                            (format ", `?' for man `%s'" man-page)
                          ""))))
-         (actions (cdr (assoc 'actions opts))))
+         (actions (cdr (assoc 'actions spec))))
     (cond
       ((assoc seq actions) (describe-function (nth 2 (assoc seq actions))))
       ((equal seq "?")
@@ -162,7 +159,7 @@
 
 (defun magit-key-mode-abort ()
   (interactive)
-  (magit-key-mode-command nil))
+  (magit-key-mode-perform-action nil))
 
 ;;; Mode
 
@@ -183,8 +180,8 @@
     (make-local-variable 'font-lock-defaults)
     (setq buffer-read-only t)
     (setq magit-pre-key-mode-window-conf winconf
-          magit-key-mode-current-args (make-hash-table)
-          magit-key-mode-prefix current-prefix-arg
+          magit-popup-current-options (make-hash-table)
+          magit-popup-prefix-arg current-prefix-arg
           mode-name "magit-key-mode"
           major-mode 'magit-key-mode)
     (use-local-map
@@ -193,19 +190,19 @@
     (fit-window-to-buffer))
   (when magit-key-mode-show-usage
     (message (concat "Type a prefix key to toggle it. "
-                     "Run 'actions' with their prefixes. "
+                     "Run actions with their prefixes. "
                      "'?' for more help."))))
 
 (defun magit-refresh-popup-buffer (popup)
   (let ((buffer-read-only nil)
         (arg (get-text-property (point) 'key-group-executor))
         (pos (point))
-        (options (symbol-value (intern (format "magit-popup-%s" popup)))))
+        (spec (symbol-value (intern (format "magit-popup-%s" popup)))))
     (erase-buffer)
-    (magit-key-mode-draw-switches (cdr (assoc 'switches options)))
-    (magit-key-mode-draw-args (cdr (assoc 'arguments options)))
+    (magit-key-mode-draw-switches (cdr (assoc 'switches spec)))
+    (magit-key-mode-draw-options (cdr (assoc 'options spec)))
     (save-excursion
-      (magit-key-mode-draw-actions (cdr (assoc 'actions options))))
+      (magit-key-mode-draw-actions (cdr (assoc 'actions spec))))
     (delete-trailing-whitespace)
     (if (= pos 1)
         (magit-key-mode-jump-to-next-exec)
@@ -219,15 +216,15 @@
 
 (defvar magit-key-mode-args-in-cols nil)
 
-(defun magit-key-mode-draw-args (args)
+(defun magit-key-mode-draw-options (args)
   (magit-key-mode-draw-buttons
-   "Args"
+   "Options"
    args
    (lambda (x)
      (format "(%s) %s"
              (nth 2 x)
-             (propertize (gethash (nth 2 x) magit-key-mode-current-args "")
-                         'face 'magit-key-mode-args-face)))
+             (propertize (gethash (nth 2 x) magit-popup-current-options "")
+                         'face 'magit-key-mode-option-face)))
    (not magit-key-mode-args-in-cols)))
 
 (defun magit-key-mode-draw-switches (switches)
@@ -258,15 +255,15 @@
      one-col-each)))
 
 (defun magit-key-mode-draw-in-cols (strings one-col-each)
-  (let ((longest-act (apply 'max (mapcar 'length strings))))
+  (let ((maxlen (apply 'max (mapcar 'length strings))))
     (while strings
       (let ((str (car strings)))
-        (let ((padding (make-string (- (+ longest-act 3) (length str)) ? )))
+        (let ((padding (make-string (- (+ maxlen 3) (length str)) ? )))
           (insert str)
           (if (or one-col-each
                   (and (> (+ (length padding) ;
-                             (current-column)
-                             longest-act)
+			     (current-column)
+                             maxlen)
                           (window-width))
                        (cdr strings)))
               (insert "\n")
@@ -334,7 +331,7 @@
      ("-n" "Name only" "--name-only")
      ("-am" "All match" "--all-match")
      ("-al" "All" "--all"))
-    (arguments
+    (options
      ("=r" "Relative" "--relative=" read-directory-name)
      ("=c" "Committer" "--committer=" read-from-minibuffer)
      ("=>" "Since" "--since=" read-from-minibuffer)
@@ -436,7 +433,7 @@
      ("-M" "Merged to master" "--merged=master")
      ("-n" "Not merged to HEAD" "--no-merged")
      ("-N" "Not merged to master" "--no-merged=master"))
-    (arguments
+    (options
      ("=c" "Contains" "--contains=" magit-read-rev-with-default)
      ("=m" "Merged" "--merged=" magit-read-rev-with-default)
      ("=n" "Not merged" "--no-merged=" magit-read-rev-with-default))))
@@ -542,7 +539,7 @@
      ("-ff" "Fast-forward only" "--ff-only")
      ("-nf" "No fast-forward" "--no-ff")
      ("-sq" "Squash" "--squash"))
-    (arguments
+    (options
      ("-st" "Strategy" "--strategy=" read-from-minibuffer))))
 
 (defvar magit-popup-merging-map
