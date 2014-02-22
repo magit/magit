@@ -758,6 +758,27 @@ they are not (due to semantic considerations)."
 
 (put 'magit-diff-options 'permanent-local t)
 
+(defcustom magit-diff-auto-show
+  '(commit stage-all log-oneline log-select)
+  "Whether to automatically show relevant diff.
+
+When this option is non-nil certain operations cause the relevant
+changes to be displayed automatically.
+
+`commit'
+`stage-all'
+`log-oneline'
+`log-follow'
+`log-select'
+
+In the event that expanding very large patches takes a long time
+\\<global-map>\\[keyboard-quit] can be used to abort that step.
+This is especially useful when you would normally not look at the
+changes, e.g. because you are committing some binary files."
+  :package-version '(magit . "2.0.0")
+  :group 'magit-diff
+  :type 'sexp)
+
 (defcustom magit-diff-refine-hunk nil
   "Show fine (word-granularity) differences within diff hunks.
 
@@ -822,23 +843,6 @@ an error while using those is harder to recover from."
   :package-version '(magit . "2.0.0")
   :group 'magit-commit
   :type 'boolean)
-
-(defcustom magit-expand-staged-on-commit nil
-  "Whether to expand staged changes when creating a commit.
-When this is non-nil and the current buffer is the status buffer
-expand the section containing staged changes.  If this is `full'
-always expand all subsections; if it is t subsections that were
-previously hidden remain hidden.
-
-In the event that expanding very large patches takes a long time
-\\<global-map>\\[keyboard-quit] can be used to abort that step.
-This is especially useful when you would normally not look at the
-changes, e.g. because you are committing some binary files."
-  :package-version '(magit . "2.0.0")
-  :group 'magit-commit
-  :type '(choice (const :tag "Expand all subsections" full)
-                 (const :tag "Expand top section" t)
-                 (const :tag "Don't expand" nil)))
 
 ;;;;;; Log
 
@@ -2634,17 +2638,8 @@ never modify it.")
 
 (defun magit-goto-section (section)
   (goto-char (magit-section-beginning section))
-  (cond
-   ((and magit-log-auto-more
-         (eq (magit-section-type section) 'longer))
-    (magit-log-show-more-entries)
-    (forward-line -1)
-    (magit-goto-next-section))
-   ((and (eq (magit-section-type section) 'commit)
-         (derived-mode-p 'magit-log-mode)
-         (or (eq (car magit-refresh-args) 'oneline)
-             (get-buffer-window magit-commit-buffer-name)))
-    (magit-show-commit (magit-section-info section) t))))
+  (magit-log-maybe-show-commit section)
+  (magit-log-maybe-show-more-entries section))
 
 (defun magit-goto-section-at-path (path)
   "Go to the section described by PATH."
@@ -2664,10 +2659,7 @@ With a prefix argument also expand it." title)
          (interactive "P")
          (if (magit-goto-section-at-path '(,sym))
              (when expand
-               (with-local-quit
-                 (if (eq magit-expand-staged-on-commit 'full)
-                     (magit-show-level 4 nil)
-                   (magit-expand-section)))
+               (with-local-quit (magit-expand-section))
                (recenter 0))
            (message ,(format "Section '%s' wasn't found" title))))
        (put ',fun 'definition-name ',sym))))
@@ -3696,6 +3688,8 @@ Also see `magit-mode-setup', a more convenient variant."
   (funcall mode)
   (magit-mode-refresh-buffer))
 
+(defvar magit-inhibit-save-previous-winconf nil)
+
 (defvar-local magit-previous-window-configuration nil)
 (put 'magit-previous-window-configuration 'permanent-local t)
 
@@ -3724,7 +3718,8 @@ Magit mode."
   (let ((section (magit-current-section)))
     (with-current-buffer (get-buffer-create buffer)
       (setq magit-previous-section section)
-      (unless (get-buffer-window buffer (selected-frame))
+      (unless (or (get-buffer-window buffer (selected-frame))
+                  magit-inhibit-save-previous-winconf)
         (setq magit-previous-window-configuration
               (current-window-configuration)))))
   (funcall (or switch-function
@@ -6269,16 +6264,15 @@ With a prefix argument amend to the commit at HEAD instead.
                    (list (cons "--amend" magit-current-popup-args))
                  (list magit-current-popup-args)))
   (when (setq args (magit-commit-assert args))
-    (magit-commit-maybe-expand)
-    (magit-commit-internal "commit" args)))
+    (magit-commit-internal 'magit-diff-staged "commit" args)))
 
 ;;;###autoload
 (defun magit-commit-amend (&optional args)
   "Amend the last commit.
 \n(git commit --amend ARGS)"
   (interactive (list magit-current-popup-args))
-  (magit-commit-maybe-expand)
-  (magit-commit-internal "commit" (cons "--amend" args)))
+  (magit-commit-internal 'magit-diff-while-amending "commit"
+    (cons "--amend" args)))
 
 ;;;###autoload
 (defun magit-commit-extend (&optional args override-date)
@@ -6292,13 +6286,12 @@ used to inverse the meaning of the prefix argument.
                          (not magit-commit-reword-override-date)
                        magit-commit-reword-override-date)))
   (when (setq args (magit-commit-assert args (not override-date)))
-    (magit-commit-maybe-expand)
     (let ((process-environment process-environment))
       (unless override-date
         (setenv "GIT_COMMITTER_DATE"
                 (magit-git-string "log" "-1" "--format:format=%cd")))
-      (magit-commit-internal
-       "commit" (nconc (list "--amend" "--no-edit") args)))))
+      (magit-commit-internal 'magit-diff-while-amending "commit"
+        (nconc (list "--amend" "--no-edit") args)))))
 
 ;;;###autoload
 (defun magit-commit-reword (&optional args override-date)
@@ -6319,8 +6312,8 @@ and ignore the option.
     (unless override-date
       (setenv "GIT_COMMITTER_DATE"
               (magit-git-string "log" "-1" "--format:format=%cd")))
-    (magit-commit-internal
-     "commit" (nconc (list "--amend" "--only") args))))
+    (magit-commit-internal nil "commit"
+      (nconc (list "--amend" "--only") args))))
 
 ;;;###autoload
 (defun magit-commit-fixup (&optional commit args confirm)
@@ -6375,12 +6368,15 @@ depending on the value of option `magit-commit-squash-confirm'.
 (defun magit-commit-squash-internal (fn option commit args confirm)
   (when (setq args (magit-commit-assert args t))
     (if (and commit (not confirm))
-        (progn
-          (magit-commit-internal
-           "commit" (nconc (list "--no-edit" (concat option "=" commit)) args))
+        (let ((magit-diff-auto-show nil))
+          (magit-commit-internal 'magit-diff-staged "commit"
+            (nconc (list "--no-edit" (concat option "=" commit)) args))
           commit)
       (magit-log-select
-        `(lambda (commit) (,fn commit (list ,@args)))))))
+        `(lambda (commit) (,fn commit (list ,@args))))
+      (when (magit-diff-auto-show-p 'log-select)
+        (let ((magit-diff-switch-buffer-function 'display-buffer))
+          (magit-diff-staged))))))
 
 (defun magit-commit-assert (args &optional strict)
   (cond
@@ -6398,24 +6394,25 @@ depending on the value of option `magit-commit-squash-confirm'.
     (magit-run-git-async "rebase" "--continue")
     nil)
    (magit-commit-ask-to-stage
-    (magit-commit-maybe-expand t)
-    (when (y-or-n-p "Nothing staged.  Stage and commit everything? ")
-      (magit-run-git "add" "-u" ".")
-      (or args (list "--"))))
+    (when (magit-diff-auto-show-p 'stage-all)
+      (magit-diff-unstaged))
+    (prog1 (when (y-or-n-p "Nothing staged.  Stage and commit everything? ")
+             (magit-run-git "add" "-u" ".")
+             (or args (list "--")))
+      (when (and (magit-diff-auto-show-p 'stage-all)
+                 (derived-mode-p 'magit-diff-mode))
+        (magit-mode-quit-window))))
    (t
     (user-error "Nothing staged"))))
 
-(defun magit-commit-maybe-expand (&optional unstaged)
-  (when (and magit-expand-staged-on-commit
-             (derived-mode-p 'magit-status-mode))
-    (if unstaged
-        (magit-jump-to-unstaged t)
-      (magit-jump-to-staged t))))
-
 (defvar magit-commit-amending-alist nil)
 
-(defun magit-commit-internal (subcmd args)
+(defun magit-commit-internal (diff-fn subcmd args)
+  (declare (indent 2))
   (setq git-commit-previous-winconf (current-window-configuration))
+  (when (and diff-fn (magit-diff-auto-show-p 'commit))
+    (let ((magit-inhibit-save-previous-winconf t))
+      (funcall diff-fn)))
   (push (cons (magit-get-top-dir) (member "--amend" args))
         magit-commit-amending-alist)
   (if (magit-use-emacsclient-p)
@@ -6539,7 +6536,7 @@ With a prefix argument annotate the tag.
     (if (or (member "--sign" args)
             (member "--annotate" args)
             (and annotate (setq args (cons "--annotate" args))))
-        (magit-commit-internal "tag" args)
+        (magit-commit-internal nil "tag" args)
       (magit-run-git "tag" args))))
 
 ;;;###autoload
@@ -6931,6 +6928,22 @@ With a non numeric prefix ARG, show all entries"
     (magit-refresh)
     (goto-char old-point)))
 
+(defun magit-log-maybe-show-more-entries (section)
+  (when (and (eq (magit-section-type section) 'longer)
+             magit-log-auto-more)
+    (magit-log-show-more-entries)
+    (forward-line -1)
+    (magit-goto-next-section)))
+
+(defun magit-log-maybe-show-commit (section)
+  (when (and (eq (magit-section-type section) 'commit)
+             (or (and (magit-diff-auto-show-p 'log-follow)
+                      (get-buffer-window magit-commit-buffer-name))
+                 (and (magit-diff-auto-show-p 'log-oneline)
+                      (derived-mode-p 'magit-log-mode)
+                      (eq (car magit-refresh-args) 'oneline))))
+    (magit-show-commit (magit-section-info section) t)))
+
 (defun magit-log-goto-same-commit ()
   (when (and (derived-mode-p 'magit-log-mode) magit-previous-section)
     (let ((section (cl-find (magit-section-info magit-previous-section)
@@ -7308,12 +7321,14 @@ More information can be found in Info node `(magit)Diffing'
   :default-action 'magit-diff-working-tree
   :max-action-columns 3)
 
+(defvar magit-diff-switch-buffer-function 'pop-to-buffer)
+
 ;;;###autoload
 (defun magit-diff (range &optional working args)
   "Show changes between two commits."
   (interactive (list (magit-read-rev-range "Diff")))
   (magit-mode-setup magit-diff-buffer-name
-                    #'pop-to-buffer
+                    magit-diff-switch-buffer-function
                     #'magit-diff-mode
                     #'magit-refresh-diff-buffer range working args))
 
@@ -7473,6 +7488,11 @@ If there is no commit at point, then prompt for one."
       "diff"
       (and magit-show-diffstat "--patch-with-stat")
       range args magit-diff-options "--")))
+
+(defun magit-diff-auto-show-p (op)
+  (if (eq (car magit-diff-auto-show) 'not)
+      (not (memq op (cdr magit-diff-auto-show)))
+    (memq op magit-diff-auto-show)))
 
 (defun magit-select-diff-algorithm (&optional noop1 noop2)
   (magit-read-char-case nil t
