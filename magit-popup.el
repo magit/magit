@@ -14,6 +14,9 @@
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 ;; Package: magit-popup
 
+;; Contains code from GNU Emacs <https://www.gnu.org/software/emacs/>,
+;; released under the GNU General Public License version 3 or later.
+
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation; either version 3, or (at your option)
@@ -45,15 +48,43 @@
 ;; that popup, and so we use the term "infix" instead of "prefix".
 
 ;;; Code:
+;;;; Dependencies
 
 (require 'button)
 (require 'cl-lib)
 (require 'format-spec)
 
+;;;; Declarations
+
 (declare-function info 'info)
 (declare-function magit-refresh 'magit)
 (declare-function Man-find-section 'man)
 (declare-function Man-next-section 'man)
+
+;;;; Compatibility
+
+(eval-and-compile
+
+  ;; Added in Emacs 24.3
+  (unless (fboundp 'user-error)
+    (defalias 'user-error 'error))
+
+  ;; Added in Emacs 24.3 (mirrors/emacs@b335efc3).
+  (unless (fboundp 'setq-local)
+    (defmacro setq-local (var val)
+      "Set variable VAR to value VAL in current buffer."
+      (list 'set (list 'make-local-variable (list 'quote var)) val)))
+
+  ;; Added in Emacs 24.3 (mirrors/emacs@b335efc3).
+  (unless (fboundp 'defvar-local)
+    (defmacro defvar-local (var val &optional docstring)
+      "Define VAR as a buffer-local variable with default value VAL.
+Like `defvar' but additionally marks the variable as being automatically
+buffer-local wherever it is set."
+      (declare (debug defvar) (doc-string 3))
+      (list 'progn (list 'defvar var val docstring)
+            (list 'make-variable-buffer-local (list 'quote var)))))
+  )
 
 ;;; Options
 
@@ -565,9 +596,8 @@ restored."
 (define-derived-mode magit-popup-mode fundamental-mode "MagitPopup"
   "Major mode for infix argument popups."
   (setq buffer-read-only t)
-  (set (make-local-variable 'scroll-margin) 0)
-  (set (make-local-variable 'magit-popup-show-help-section)
-       magit-popup-show-help-section)
+  (setq-local scroll-margin 0)
+  (setq-local magit-popup-show-help-section magit-popup-show-help-section)
   (add-hook 'magit-popup-setup-hook 'magit-popup-default-setup nil t))
 
 (put 'magit-popup-mode 'mode-class 'special)

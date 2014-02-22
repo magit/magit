@@ -22,9 +22,6 @@
 ;; Magit requires at least GNU Emacs 23.2 and Git 1.7.2.5.
 ;; These are the versions shipped by Debian oldstable (6.0, Squeeze).
 
-;; Contains code from GNU Emacs <https://www.gnu.org/software/emacs/>,
-;; released under the GNU General Public License version 3 or later.
-
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation; either version 3, or (at your option)
@@ -131,27 +128,6 @@ Use the function by the same name instead of this variable.")
 ;;;; Compatibility
 
 (eval-and-compile
-
-  ;; Added in Emacs 24.3
-  (unless (fboundp 'user-error)
-    (defalias 'user-error 'error))
-
-  ;; Added in Emacs 24.3 (mirrors/emacs@b335efc3).
-  (unless (fboundp 'setq-local)
-    (defmacro setq-local (var val)
-      "Set variable VAR to value VAL in current buffer."
-      (list 'set (list 'make-local-variable (list 'quote var)) val)))
-
-  ;; Added in Emacs 24.3 (mirrors/emacs@b335efc3).
-  (unless (fboundp 'defvar-local)
-    (defmacro defvar-local (var val &optional docstring)
-      "Define VAR as a buffer-local variable with default value VAL.
-Like `defvar' but additionally marks the variable as being automatically
-buffer-local wherever it is set."
-      (declare (debug defvar) (doc-string 3))
-      (list 'progn (list 'defvar var val docstring)
-            (list 'make-variable-buffer-local (list 'quote var)))))
-
   ;; Added in Emacs 24.1
   (unless (fboundp 'run-hook-wrapped)
     (defun run-hook-wrapped-1 (hook fns wrap-function &rest args)
