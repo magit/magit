@@ -33,6 +33,7 @@
 (require 'format-spec)
 
 (declare-function info 'info)
+(declare-function magit-refresh 'magit)
 (declare-function Man-find-section 'man)
 (declare-function Man-next-section 'man)
 
@@ -182,8 +183,10 @@
 (defvar magit-current-popup nil)
 (defvar magit-current-popup-args nil)
 
+(defvar-local magit-popup-variable-type 'cons)
+
 (defun magit-popup-get-args (&optional style)
-  (cl-ecase (or style 'cons)
+  (cl-ecase (or style magit-popup-variable-type)
     (cons (nconc (cl-mapcan (lambda (elt)
                               (when (nth 4 elt)
                                 (list (cons (nth 2 elt) t))))
@@ -200,18 +203,31 @@
 
 (defun magit-popup-setup-events (val)
   (let ((def (symbol-value magit-this-popup)))
-    (setq magit-this-popup-events
-          (list :switches
-                (mapcar (lambda (elt)
-                          (append elt (list nil
-                                            (cdr (assoc (nth 2 elt) val)))))
-                        (plist-get def :switches))
-                :options
-                (mapcar (lambda (elt)
-                          (append elt (list (and (assoc (nth 2 elt) val) t)
-                                            (cdr (assoc (nth 2 elt) val)))))
-                        (plist-get def :options))
-                :actions (plist-get def :actions)))))
+    (setq
+     magit-this-popup-events
+     (list
+      :switches
+      (mapcar
+       (cl-ecase magit-popup-variable-type
+         (cons (lambda (elt)
+                 (append elt (list nil (cdr (assoc (nth 2 elt) val))))))
+         (flat (lambda (elt)
+                 (append elt (list nil (and (member (nth 2 elt) val) t))))))
+       (plist-get def :switches))
+      :options
+      (mapcar
+       (cl-ecase magit-popup-variable-type
+         (cons (lambda (elt)
+                 (append elt (list (and (assoc (nth 2 elt) val) t)
+                                   (cdr (assoc (nth 2 elt) val))))))
+         (flat (lambda (elt)
+                 (let ((v (cl-find (format "^%s\\(.+\\)" (nth 2 elt)) val
+                                   :test 'string-match)))
+                   (append elt (if v
+                                   (list t (match-string 1 v))
+                                 (list nil nil)))))))
+       (plist-get def :options))
+      :actions (plist-get def :actions)))))
 
 (defun magit-popup-custom-default (def)
   (nconc (mapcar (lambda (arg)
@@ -247,22 +263,23 @@
 ;;; Define
 
 (defmacro magit-define-popup (name doc &rest args)
-  "\n\n(fn NAME DOC [MODE] :KEYWORD VALUE...)"
+  "\n\n(fn NAME DOC [MODE [OPTION]] :KEYWORD VALUE...)"
   (declare (indent defun) (doc-string 2))
-  (let ((mode (unless (keywordp (car args))
-                (pop args)))
-        (opt (intern (format "%s-defaults" name))))
+  (let ((mode (unless (keywordp (car args)) (pop args)))
+        (var  (unless (keywordp (car args)) (pop args)))
+        (opt  (intern (format "%s-defaults" name))))
     `(progn
        (defun ,name (&optional arg) ,doc
          (interactive "P")
          (magit-invoke-popup ',name ,mode arg))
        (defvar ,name
-         (list :variable ',opt ,@args))
-       (defcustom ,opt
-         (magit-popup-custom-default (symbol-value ',name))
-         ""
-         :type (magit-popup-custom-type (symbol-value ',name)))
-       (put ',opt 'definition-name ',name))))
+         (list :variable ,(or var `',opt) ,@args))
+       ,@(unless var
+           `((defcustom ,opt
+               (magit-popup-custom-default (symbol-value ',name))
+               ""
+               :type (magit-popup-custom-type (symbol-value ',name)))
+             (put ',opt 'definition-name ',name))))))
 
 (defun magit-define-popup-switch (popup key desc switch
                                         &optional enable at prepend)
@@ -412,6 +429,30 @@
                            (magit-popup-get-args))
   (unless arg (magit-popup-quit)))
 
+(defun magit-popup-set-local-variable ()
+  (interactive)
+  (set (make-local-variable
+        (plist-get (symbol-value magit-current-popup) :variable))
+       magit-current-popup-args)
+  (when (derived-mode-p 'magit-mode)
+    (magit-refresh)))
+
+(defun magit-popup-set-variable ()
+  (interactive)
+  (let ((var (plist-get (symbol-value magit-current-popup) :variable)))
+    (kill-local-variable var)
+    (customize-set-variable var magit-current-popup-args))
+  (when (derived-mode-p 'magit-mode)
+    (magit-refresh)))
+
+(defun magit-popup-save-variable ()
+  (interactive)
+  (let ((var (plist-get (symbol-value magit-current-popup) :variable)))
+    (kill-local-variable var)
+    (customize-save-variable var magit-current-popup-args))
+  (when (derived-mode-p 'magit-mode)
+    (magit-refresh)))
+
 ;;; Help
 
 (defun magit-popup-toggle-show-popup-commands ()
@@ -497,7 +538,7 @@
             ([remap Info-exit]   . magit-popup-quit)
             ([remap quit-window] . magit-popup-quit)))
 
-;;; Mode
+;;; Modes
 
 (define-derived-mode magit-popup-mode fundamental-mode "MagitPopup"
   ""
@@ -507,6 +548,10 @@
        magit-popup-show-help-section))
 
 (put 'magit-popup-mode 'mode-class 'special)
+
+(define-derived-mode magit-popup-setvar-mode magit-popup-mode "MagitPopup"
+  ""
+  (setq magit-popup-variable-type 'flat))
 
 (defun magit-popup-mode-setup (popup mode)
   (let ((value (symbol-value (plist-get (symbol-value popup) :variable))))
