@@ -79,12 +79,12 @@
 (defvar magit-popup-mode-map
   (let ((map (make-sparse-keymap)))
     (suppress-keymap map 'nodigits)
+    (define-key map [?q]    'magit-popup-quit)
+    (define-key map [?\C-g] 'magit-popup-quit)
     (define-key map (kbd "C-p") 'backward-button)
     (define-key map (kbd "DEL") 'backward-button)
     (define-key map (kbd "C-n") 'forward-button)
     (define-key map (kbd "TAB") 'forward-button)
-    (define-key map (kbd "C-g") 'magit-popup-abort)
-    (define-key map (kbd "q")   'magit-popup-abort)
     map))
 
 (defun magit-define-popup-switch (popup map key switch)
@@ -144,11 +144,8 @@
                 (mapcar (lambda (elt)
                           (concat (car elt) (cdr elt)))
                         magit-popup-current-options))))
-    (let ((buf (current-buffer)))
-      (set-window-configuration magit-popup-previous-winconf)
-      (kill-buffer buf))
-    (when func
-      (call-interactively func))))
+    (magit-popup-quit)
+    (call-interactively func)))
 
 (defun magit-popup-help (popup)
   (let* ((spec (symbol-value (intern (format "magit-popup-%s" popup))))
@@ -167,9 +164,11 @@
          (error "No man page associated with `%s'" popup)))
       (t (error "No help associated with `%s'" seq)))))
 
-(defun magit-popup-abort ()
+(defun magit-popup-quit ()
   (interactive)
-  (magit-invoke-popup-action nil nil))
+  (let ((buf (current-buffer)))
+    (set-window-configuration magit-popup-previous-winconf)
+    (kill-buffer buf)))
 
 ;;; Mode
 
