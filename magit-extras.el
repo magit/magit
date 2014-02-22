@@ -29,6 +29,74 @@
 
 (require 'magit)
 
+(defgroup magit-extras nil
+  "Additional functionality for Magit."
+  :group 'magit-extensions)
+
+;;; Commit Mark
+
+;; Add this to your init.el file:
+;;   (define-key magit-mode-map "." 'magit-mark-item)
+;;   (define-key magit-mode-map "." 'magit-diff-with-mark)
+;;   (add-hook 'magit-mode-refresh-buffer-hook
+;;             'magit-refresh-marked-commits-in-buffer))
+
+(defface magit-item-mark '((t :inherit highlight))
+  "Face for highlighting marked item."
+  :group 'magit-extras)
+
+(defvar magit-marked-commit nil)
+
+(defvar-local magit-mark-overlay nil)
+(put 'magit-mark-overlay 'permanent-local t)
+
+(defun magit-mark-item (&optional unmark)
+  "Mark the commit at point.
+Some commands act on the marked commit by default or use it as
+default when prompting for a commit."
+  (interactive "P")
+  (if unmark
+      (setq magit-marked-commit nil)
+    (magit-section-action mark (info)
+      (commit (setq magit-marked-commit
+                    (if (equal magit-marked-commit info) nil info)))))
+  (magit-refresh-marked-commits)
+  (run-hooks 'magit-mark-commit-hook))
+
+(defun magit-refresh-marked-commits ()
+  (magit-map-magit-buffers #'magit-refresh-marked-commits-in-buffer))
+
+(defun magit-refresh-marked-commits-in-buffer ()
+  (unless magit-mark-overlay
+    (setq magit-mark-overlay (make-overlay 1 1))
+    (overlay-put magit-mark-overlay 'face 'magit-item-mark))
+  (delete-overlay magit-mark-overlay)
+  (magit-map-sections
+   (lambda (section)
+     (when (and (eq (magit-section-type section) 'commit)
+                (equal (magit-section-info section)
+                       magit-marked-commit))
+       (move-overlay magit-mark-overlay
+                     (magit-section-beginning section)
+                     (magit-section-end section)
+                     (current-buffer))))
+   magit-root-section))
+
+(defun magit-diff-with-mark (range)
+  "Show changes between the marked commit and the one at point.
+If there is no commit at point, then prompt for one."
+  (interactive
+   (let* ((marked (or magit-marked-commit (user-error "No commit marked")))
+          (current (magit-get-current-branch))
+          (is-current (string= (magit-name-rev marked) current))
+          (commit (or (magit-guess-branch)
+                      (magit-read-rev
+                       (format "Diff marked commit %s with" marked)
+                       (unless is-current current)
+                       current))))
+     (list (concat marked ".." commit))))
+  (magit-diff range))
+
 (provide 'magit-extras)
 ;; Local Variables:
 ;; indent-tabs-mode: nil

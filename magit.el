@@ -118,7 +118,6 @@ Use the function by the same name instead of this variable.")
 (defvar magit-log-buffer-name)
 (defvar magit-log-select-pick-function)
 (defvar magit-log-select-quit-function)
-(defvar magit-marked-commit)
 (defvar magit-process-buffer-name)
 (defvar magit-reflog-buffer-name)
 (defvar magit-refresh-args)
@@ -1091,11 +1090,6 @@ Many Magit faces inherit from this one by default."
   "Face for highlighting the current item."
   :group 'magit-faces)
 
-(defface magit-item-mark
-  '((t :inherit highlight))
-  "Face for highlighting marked item."
-  :group 'magit-faces)
-
 (defface magit-log-head-label-bisect-good
   '((((class color) (background light))
      :box t
@@ -1427,8 +1421,6 @@ Many Magit faces inherit from this one by default."
     (define-key map "k" 'magit-discard-item)
     (define-key map "s" 'magit-stage-item)
     (define-key map "u" 'magit-unstage-item)
-    (define-key map "." 'magit-mark-item)
-    (define-key map "=" 'magit-diff-with-mark)
     (define-key map "C" 'magit-commit-add-log)
     (define-key map "jz" 'magit-jump-to-stashes)
     (define-key map "jn" 'magit-jump-to-untracked)
@@ -1465,8 +1457,6 @@ Many Magit faces inherit from this one by default."
 (defvar magit-log-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
-    (define-key map "." 'magit-mark-item)
-    (define-key map "=" 'magit-diff-with-mark)
     (define-key map "+" 'magit-log-show-more-entries)
     (define-key map "h" 'magit-log-toggle-margin)
     map)
@@ -1499,8 +1489,6 @@ Many Magit faces inherit from this one by default."
 (defvar magit-wazzup-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
-    (define-key map "." 'magit-mark-item)
-    (define-key map "=" 'magit-diff-with-mark)
     (define-key map "i" 'magit-ignore-item)
     map)
   "Keymap for `magit-wazzup-mode'.")
@@ -2232,8 +2220,6 @@ involving HEAD."
          (reply (magit-completing-read prompt interesting-refs nil nil nil
                                        'magit-read-rev-history default))
          (rev (or (cdr (assoc reply interesting-refs)) reply)))
-    (when (equal rev ".")
-      (setq rev magit-marked-commit))
     (unless (or rev noselection)
       (user-error "No rev selected"))
     rev))
@@ -3706,7 +3692,7 @@ Magit mode."
           (set-window-point w (point))
           (set-window-start w old-window-start t))
         (magit-highlight-section)
-        (magit-refresh-marked-commits-in-buffer)))))
+        (run-hooks 'magit-mode-refresh-buffer-hook)))))
 
 (defun magit-mode-quit-window (&optional kill-buffer)
   "Bury the current buffer and delete its window.
@@ -7056,21 +7042,6 @@ actually were a single commit."
                     #'magit-refresh-diff-buffer
                     (concat stash "^2^.." stash)))
 
-(defun magit-diff-with-mark (range)
-  "Show changes between the marked commit and the one at point.
-If there is no commit at point, then prompt for one."
-  (interactive
-   (let* ((marked (or magit-marked-commit (user-error "No commit marked")))
-          (current (magit-get-current-branch))
-          (is-current (string= (magit-name-rev marked) current))
-          (commit (or (magit-guess-branch)
-                      (magit-read-rev
-                       (format "Diff marked commit %s with" marked)
-                       (unless is-current current)
-                       current))))
-     (list (concat marked ".." commit))))
-  (magit-diff range))
-
 (defun magit-diff-less-context (&optional count)
   "Decrease the context for diff hunks by COUNT."
   (interactive "p")
@@ -7447,45 +7418,6 @@ filename FILE."
          (completions (list extension extension-in-dir filename file)))
     (magit-completing-read "File/pattern to ignore"
                            completions nil nil nil nil file)))
-
-;;;; Commit Mark
-
-(defvar magit-marked-commit nil)
-
-(defvar-local magit-mark-overlay nil)
-(put 'magit-mark-overlay 'permanent-local t)
-
-(defun magit-mark-item (&optional unmark)
-  "Mark the commit at point.
-Some commands act on the marked commit by default or use it as
-default when prompting for a commit."
-  (interactive "P")
-  (if unmark
-      (setq magit-marked-commit nil)
-    (magit-section-action mark (info)
-      (commit (setq magit-marked-commit
-                    (if (equal magit-marked-commit info) nil info)))))
-  (magit-refresh-marked-commits)
-  (run-hooks 'magit-mark-commit-hook))
-
-(defun magit-refresh-marked-commits ()
-  (magit-map-magit-buffers #'magit-refresh-marked-commits-in-buffer))
-
-(defun magit-refresh-marked-commits-in-buffer ()
-  (unless magit-mark-overlay
-    (setq magit-mark-overlay (make-overlay 1 1))
-    (overlay-put magit-mark-overlay 'face 'magit-item-mark))
-  (delete-overlay magit-mark-overlay)
-  (magit-map-sections
-   (lambda (section)
-     (when (and (eq (magit-section-type section) 'commit)
-                (equal (magit-section-info section)
-                       magit-marked-commit))
-       (move-overlay magit-mark-overlay
-                     (magit-section-beginning section)
-                     (magit-section-end section)
-                     (current-buffer))))
-   magit-root-section))
 
 ;;;; ChangeLog
 
