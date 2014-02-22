@@ -4228,10 +4228,12 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 
 (defvar magit-diff-options nil)
 
-(defun magit-insert-diff (section file status)
+(defun magit-insert-diff (section file status &optional staged)
   (let ((beg (point)))
     (apply 'magit-git-insert "-c" "diff.submodule=short" "diff"
-           `(,(magit-diff-U-arg) ,@magit-diff-options "--" ,file))
+           `(,(magit-diff-U-arg)
+             ,@(and staged (list "--cached"))
+             ,@magit-diff-options "--" ,file))
     (unless (eq (char-before) ?\n)
       (insert "\n"))
     (save-restriction
@@ -4272,7 +4274,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                                            'magit-diff-mode
                                            'magit-commit-mode)))
           (if (not (magit-section-hidden section))
-              (magit-insert-diff section file status)
+              (magit-insert-diff section file status staged)
             (setf (magit-section-diff-status section) status)
             (setf (magit-section-needs-refresh-on-show section) t)
             (magit-insert-diff-title status file nil))))
@@ -4721,8 +4723,7 @@ can be used to override this."
       (let ((magit-current-diff-range (cons "HEAD" 'index))
             (base (if no-commit
                       (magit-git-string "mktree")
-                    "HEAD"))
-            (magit-diff-options (list "--cached")))
+                    "HEAD")))
         (magit-git-insert-section (staged "Staged changes:")
             (apply-partially #'magit-wash-raw-diffs t)
           "diff-index" "--cached" base)))))
