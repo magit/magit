@@ -5841,11 +5841,11 @@ Return nil if there is no rebase in progress."
 
 ;;;###autoload
 (defun magit-reset-head (revision &optional hard)
-  "Switch 'HEAD' to REVISION, keeping prior working tree and staging area.
+  "Switch `HEAD' to REVISION, keeping prior working tree and staging area.
 Any differences from REVISION become new changes to be committed.
 With prefix argument, all uncommitted changes in working tree
 and staging area are lost.
-\('git reset [--soft|--hard] REVISION')."
+\n(git reset --soft|--hard REVISION)"
   (interactive (list (magit-read-rev (format "%s head to"
                                              (if current-prefix-arg
                                                  "Hard reset"
@@ -5856,9 +5856,9 @@ and staging area are lost.
 
 ;;;###autoload
 (defun magit-reset-head-hard (revision)
-  "Switch 'HEAD' to REVISION, losing all changes.
+  "Switch `HEAD' to REVISION, losing all changes.
 Uncomitted changes in both working tree and staging area are lost.
-\('git reset --hard REVISION')."
+\n(git reset --hard REVISION)"
   (interactive (list (magit-read-rev (format "Hard reset head to")
                                      (or (magit-guess-branch) "HEAD"))))
   (magit-reset-head revision t))
@@ -5866,10 +5866,9 @@ Uncomitted changes in both working tree and staging area are lost.
 ;;;###autoload
 (defun magit-reset-working-tree (&optional arg)
   "Revert working tree and clear changes from staging area.
-\('git reset --hard HEAD').
-
 With a prefix arg, also remove untracked files.
-With two prefix args, remove ignored files as well."
+With two prefix args, remove ignored files as well.
+\n(git reset --hard HEAD; [git clean -f -d [-x]])"
   (interactive "p")
   (let ((include-untracked (>= arg 4))
         (include-ignored (>= arg 16)))
@@ -5882,7 +5881,7 @@ With two prefix args, remove ignored files as well."
                                  "")))
       (magit-reset-head-hard "HEAD")
       (when include-untracked
-        (magit-run-git "clean" "-fd" (if include-ignored "-x" ""))))))
+        (magit-run-git "clean" "-f" "-d" (and include-ignored "-x"))))))
 
 ;;;;; Rewriting
 
