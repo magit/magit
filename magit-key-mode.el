@@ -266,10 +266,6 @@ the key combination highlighted before the description."
 
 ;;; Draw Buffer
 
-(defun magit-key-mode-draw-header (header)
-  "Draw a header with the correct face."
-  (insert (propertize header 'face 'magit-key-mode-header-face) "\n"))
-
 (defvar magit-key-mode-args-in-cols nil
   "When true, draw arguments in columns as with switches and options.")
 
@@ -300,10 +296,9 @@ the key combination highlighted before the description."
   "Draw the actions part of the menu."
   (magit-key-mode-draw-buttons "Actions" actions nil))
 
-(defun magit-key-mode-draw-buttons (section xs maker
-                                    &optional one-col-each)
+(defun magit-key-mode-draw-buttons (heading xs maker &optional one-col-each)
   (when xs
-    (magit-key-mode-draw-header section)
+    (insert (propertize heading 'face 'magit-key-mode-header-face) "\n")
     (magit-key-mode-draw-in-cols
      (mapcar (lambda (x)
                (let* ((head (propertize (car x) 'face 'magit-key-mode-button-face))
