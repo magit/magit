@@ -571,9 +571,20 @@
   (setq buffer-read-only t)
   (set (make-local-variable 'scroll-margin) 0)
   (set (make-local-variable 'magit-popup-show-help-section)
-       magit-popup-show-help-section))
+       magit-popup-show-help-section)
+  (add-hook 'magit-popup-setup-hook 'magit-popup-default-setup nil t))
 
 (put 'magit-popup-mode 'mode-class 'special)
+
+(defvar magit-popup-setup-hook nil)
+
+(defun magit-popup-default-setup (val def)
+  (magit-popup-put :switches (magit-popup-convert-switches
+                              val (plist-get def :switches)))
+  (magit-popup-put :options  (magit-popup-convert-options
+                              val (plist-get def :options)))
+  (magit-popup-put :actions  (magit-popup-convert-actions
+                              val (plist-get def :actions))))
 
 (define-derived-mode magit-popup-setvar-mode magit-popup-mode "MagitPopup"
   ""
@@ -586,12 +597,7 @@
                                       (format "*%s*" popup))
                                      (or mode 'magit-popup-mode))
     (setq magit-this-popup popup)
-    (magit-popup-put :switches (magit-popup-convert-switches
-                                val (plist-get def :switches)))
-    (magit-popup-put :options  (magit-popup-convert-options
-                                val (plist-get def :options)))
-    (magit-popup-put :actions  (magit-popup-convert-actions
-                                val (plist-get def :actions))))
+    (run-hook-with-args 'magit-popup-setup-hook val def))
   (magit-refresh-popup-buffer)
   (fit-window-to-buffer))
 
