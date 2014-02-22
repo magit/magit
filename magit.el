@@ -812,26 +812,16 @@ when generating large diffs."
   :group 'magit-commit
   :type 'boolean)
 
-(defcustom magit-commit-squash-commit nil
-  "Whether to target the marked or current commit when squashing.
-
-When this is nil then the command `magit-commit-fixup' and
-`magit-commit-squash' always require that the user explicitly
-selects a commit.  This is also the case when these commands are
-used with a prefix argument, in which case this option is ignored.
-
-Otherwise this controls which commit to target, either the
-current or marked commit.  Or if both can be used, which should
-be preferred."
+(defcustom magit-commit-squash-confirm t
+  "Whether the commit targeted by squash and fixup has to be confirmed.
+When non-nil then the commit at point (if any) is used as default
+choice, otherwise it has to be confirmed.  This option only
+affects `magit-commit-squash' and `magit-commit-fixup'.  The
+\"instant\" variants always require confirmation because making
+an error while using those is harder to recover from."
   :package-version '(magit . "2.0.0")
   :group 'magit-commit
-  :type
-  '(choice
-    (const :tag "Always prompt" nil)
-    (const :tag "Prefer current commit, else use marked" current-or-marked)
-    (const :tag "Prefer marked commit, else use current" marked-or-current)
-    (const :tag "Use current commit, if any" current)
-    (const :tag "Use marked commit, if any" marked)))
+  :type 'boolean)
 
 (defcustom magit-expand-staged-on-commit nil
   "Whether to expand staged changes when creating a commit.
@@ -6241,63 +6231,66 @@ Also see option `magit-set-upstream-on-push'."
   "Popup console for commit commands."
   'magit-popups
   :man-page "git-commit"
-  :switches '((?r "Replace the tip of current branch"      "--amend")
-              (?R "Claim authorship and reset author date" "--reset-author")
+  :switches '((?R "Claim authorship and reset author date" "--reset-author")
               (?a "Stage all modified and deleted files"   "--all")
               (?e "Allow empty commit"                     "--allow-empty")
               (?v "Show diff of changes to be committed"   "--verbose")
               (?n "Bypass git hooks"                       "--no-verify")
               (?s "Add Signed-off-by line"                 "--signoff"))
   :options  '((?S "Sign using gpg" "--gpg-sign=" magit-read-gpg-secret-key))
-  :actions  '((?c "Commit" magit-commit)
-              (?a "Amend"  magit-commit-amend)
-              (?e "Extend" magit-commit-extend)
-              (?r "Reword" magit-commit-reword)
-              (?f "Fixup"  magit-commit-fixup)
-              (?s "Squash" magit-commit-squash))
+  :actions  '((?c "Commit"         magit-commit)
+              (?e "Extend"         magit-commit-extend)
+              (?f "Fixup"          magit-commit-fixup)
+              (?F "Instant Fixup"  magit-commit-instant-fixup)
+              (?a "Amend"          magit-commit-amend)
+              (?r "Reword"         magit-commit-reword)
+              (?s "Squash"         magit-commit-squash)
+              (?S "Instant Squash" magit-commit-instant-squash))
+  :max-action-columns 4
   :default-action 'magit-commit)
 
 ;;;###autoload
-(defun magit-commit (&optional amendp)
+(defun magit-commit (&optional args)
   "Create a new commit on HEAD.
 With a prefix argument amend to the commit at HEAD instead.
-\('git commit [--amend]')."
-  (interactive "P")
-  (let ((args magit-current-popup-args))
-    (when amendp
-      (setq args (cons "--amend" args)))
-    (when (setq args (magit-commit-assert args))
-      (magit-commit-maybe-expand)
-      (magit-commit-internal "commit" args))))
+\n(git commit [--amend] ARGS)"
+  (interactive (if current-prefix-arg
+                   (list (cons "--amend" magit-current-popup-args))
+                 (list magit-current-popup-args)))
+  (when (setq args (magit-commit-assert args))
+    (magit-commit-maybe-expand)
+    (magit-commit-internal "commit" args)))
 
 ;;;###autoload
-(defun magit-commit-amend ()
+(defun magit-commit-amend (&optional args)
   "Amend the last commit.
-\('git commit --amend')."
-  (interactive)
+\n(git commit --amend ARGS)"
+  (interactive (list magit-current-popup-args))
   (magit-commit-maybe-expand)
-  (magit-commit-internal "commit" (cons "--amend" magit-current-popup-args)))
+  (magit-commit-internal "commit" (cons "--amend" args)))
 
 ;;;###autoload
-(defun magit-commit-extend (&optional override-date)
+(defun magit-commit-extend (&optional args override-date)
   "Amend the last commit, without editing the message.
 With a prefix argument do change the committer date, otherwise
 don't.  The option `magit-commit-extend-override-date' can be
 used to inverse the meaning of the prefix argument.
-\('git commit --no-edit --amend [--keep-date]')."
-  (interactive (list (if current-prefix-arg
+\n(git commit --amend --no-edit)"
+  (interactive (list magit-current-popup-args
+                     (if current-prefix-arg
                          (not magit-commit-reword-override-date)
                        magit-commit-reword-override-date)))
-  (magit-commit-maybe-expand)
-  (let ((process-environment process-environment))
-    (unless override-date
-      (setenv "GIT_COMMITTER_DATE"
-              (magit-git-string "log" "-1" "--format:format=%cd")))
-    (magit-commit-internal "commit" (nconc (list "--no-edit" "--amend")
-                                           magit-current-popup-args))))
+  (when (setq args (magit-commit-assert args (not override-date)))
+    (magit-commit-maybe-expand)
+    (let ((process-environment process-environment))
+      (unless override-date
+        (setenv "GIT_COMMITTER_DATE"
+                (magit-git-string "log" "-1" "--format:format=%cd")))
+      (magit-commit-internal
+       "commit" (nconc (list "--amend" "--no-edit") args)))))
 
 ;;;###autoload
-(defun magit-commit-reword (&optional override-date)
+(defun magit-commit-reword (&optional args override-date)
   "Reword the last commit, ignoring staged changes.
 
 With a prefix argument do change the committer date, otherwise
@@ -6306,62 +6299,88 @@ used to inverse the meaning of the prefix argument.
 
 Non-interactively respect the optional OVERRIDE-DATE argument
 and ignore the option.
-
-\('git commit --only --amend')."
-  (interactive (list (if current-prefix-arg
+\n(git commit --amend --only)"
+  (interactive (list magit-current-popup-args
+                     (if current-prefix-arg
                          (not magit-commit-reword-override-date)
                        magit-commit-reword-override-date)))
   (let ((process-environment process-environment))
     (unless override-date
       (setenv "GIT_COMMITTER_DATE"
               (magit-git-string "log" "-1" "--format:format=%cd")))
-    (magit-commit-internal "commit" (nconc (list "--only" "--amend")
-                                           magit-current-popup-args))))
+    (magit-commit-internal
+     "commit" (nconc (list "--amend" "--only") args))))
 
 ;;;###autoload
-(defun magit-commit-fixup (&optional commit args)
+(defun magit-commit-fixup (&optional commit args confirm)
   "Create a fixup commit.
-With a prefix argument the user is always queried for the commit
-to be fixed.  Otherwise the current or marked commit may be used
-depending on the value of option `magit-commit-squash-commit'.
-\('git commit --no-edit --fixup=COMMIT ARGS')."
-  (interactive (list (magit-commit-squash-commit) magit-current-popup-args))
-  (magit-commit-squash-internal 'magit-commit-fixup "--fixup" commit args))
+With a prefix argument the target commit has to be confirmed.
+Otherwise the commit at point may be used without confirmation
+depending on the value of option `magit-commit-squash-confirm'.
+\n(git commit --no-edit --fixup=COMMIT [ARGS])"
+  (interactive (magit-commit-squash-read-args))
+  (magit-commit-squash-internal 'magit-commit-fixup "--fixup"
+                                commit args confirm))
 
 ;;;###autoload
-(defun magit-commit-squash (&optional commit args)
+(defun magit-commit-squash (&optional commit args confirm)
   "Create a squash commit.
-With a prefix argument the user is always queried for the commit
-to be fixed.  Otherwise the current or marked commit may be used
-depending on the value of option `magit-commit-squash-commit'.
-\('git commit --no-edit --squash=COMMIT ARGS')."
-  (interactive (list (magit-commit-squash-commit) magit-current-popup-args))
-  (magit-commit-squash-internal 'magit-commit-squash "--squash" commit args))
+With a prefix argument the target commit has to be confirmed.
+Otherwise the commit at point may be used without confirmation
+depending on the value of option `magit-commit-squash-confirm'.
+\n(git commit --no-edit --squash=COMMIT [ARGS])"
+  (interactive (magit-commit-squash-read-args))
+  (magit-commit-squash-internal 'magit-commit-squash "--squash"
+                                commit args confirm))
 
-(defun magit-commit-squash-internal (fn option commit args)
-  (when (setq args (magit-commit-assert args))
-    (if commit
-        (magit-commit-internal
-         "commit" (nconc (list "--no-edit" (concat option "=" commit)) args))
+;;;###autoload
+(defun magit-commit-instant-fixup (&optional commit args)
+  "Create a fixup commit and instantly rebase.
+\n(git commit --no-edit --fixup=COMMIT ARGS;
+ git rebase -i COMMIT^ --autosquash --autostash)"
+  (interactive (list (magit-current-commit) magit-current-popup-args))
+  (magit-commit-squash-internal
+   (lambda (c a)
+     (when (setq c (magit-commit-fixup c a))
+       (magit-rebase-autosquash (concat c "^"))))
+   "--fixup" commit args t))
+
+;;;###autoload
+(defun magit-commit-instant-squash (&optional commit args)
+  "Create a squash commit and instantly rebase.
+\n(git commit --no-edit --squash=COMMIT ARGS;
+ git rebase -i COMMIT^ --autosquash --autostash)"
+  (interactive (list (magit-current-commit) magit-current-popup-args))
+  (magit-commit-squash-internal
+   (lambda (c a)
+     (when (setq c (magit-commit-squash c a))
+       (magit-rebase-autosquash (concat c "^"))))
+   "--squash" commit args t))
+
+(defun magit-commit-squash-read-args ()
+  (list (magit-current-commit) magit-current-popup-args
+        (or current-prefix-arg magit-commit-squash-confirm)))
+
+(defun magit-commit-squash-internal (fn option commit args confirm)
+  (when (setq args (magit-commit-assert args t))
+    (if (and commit (not confirm))
+        (progn
+          (magit-commit-internal
+           "commit" (nconc (list "--no-edit" (concat option "=" commit)) args))
+          commit)
       (magit-log-select
         `(lambda (commit) (,fn commit (list ,@args)))))))
 
-(defun magit-commit-squash-commit ()
-  (unless (or current-prefix-arg
-              (eq magit-commit-squash-commit nil))
-    (let ((current (magit-section-case (info) (commit info))))
-      (cl-ecase magit-commit-squash-commit
-        (current-or-marked (or current magit-marked-commit))
-        (marked-or-current (or magit-marked-commit current))
-        (current current)
-        (marked magit-marked-commit)))))
-
-(defun magit-commit-assert (args)
+(defun magit-commit-assert (args &optional strict)
   (cond
    ((or (magit-anything-staged-p)
-        (member "--allow-empty" args)
-        (member "--all" args)
-        (member "--amend" args))
+        (and (magit-anything-unstaged-p)
+             ;; ^ Everything of nothing is still nothing.
+             (member "--all" args))
+        (and (not strict)
+             ;; ^ For amend variants that don't make sense otherwise.
+             (or (member "--amend" args)
+                 (member "--allow-empty" args))))
     (or args (list "--")))
    ((and (magit-rebase-in-progress-p)
          (y-or-n-p "Nothing staged.  Continue in-progress rebase? "))
@@ -6373,7 +6392,7 @@ depending on the value of option `magit-commit-squash-commit'.
       (magit-run-git "add" "-u" ".")
       (or args (list "--"))))
    (t
-    (user-error "Nothing staged.  Set --allow-empty, --all, or --amend in popup"))))
+    (user-error "Nothing staged"))))
 
 (defun magit-commit-maybe-expand (&optional unstaged)
   (when (and magit-expand-staged-on-commit
