@@ -6275,17 +6275,13 @@ With a prefix argument annotate the tag.
   :default-action 'magit-stash
   :max-action-columns 4)
 
-(defvar magit-read-stash-history nil
-  "The history of inputs to `magit-stash'.")
-
 ;;;###autoload
 (defun magit-stash (description &optional args)
   "Create new stash of working tree and staging area named DESCRIPTION.
 Working tree and staging area revert to the current `HEAD'.
 With prefix argument, changes in staging area are kept.
 \n(git stash save [ARGS] DESCRIPTION)"
-  (interactive (list (read-string "Stash description: " nil
-                                  'magit-read-stash-history)
+  (interactive (list (read-string "Stash description: ")
                      (magit-current-popup-args :not "--index")))
   (magit-run-git "stash" "save" args "--" description))
 
