@@ -5308,19 +5308,12 @@ buffer.  Then select the buffer using `pop-to-buffer' or with a
 prefix argument using `switch-to-buffer'.  Non-interactivity use
 SWITCH-FUNCTION to switch to the buffer, if that is nil simply
 return the buffer, without displaying it."
-  ;; REV may also be one of the symbols `index' or `working' but
-  ;; that is only intended for use by `magit-ediff'.
   (interactive
-   (let (rev file section)
+   (let ((rev (magit-get-current-branch)) file section)
      (magit-section-case (info parent)
        (commit (setq file magit-file-log-file rev info))
-       (hunk   (setq section parent))
-       (diff   (setq section it)))
-     (if section
-         (setq rev  (cadr (magit-diff-range section))
-               file (magit-section-info section))
-       (unless rev
-         (setq rev (magit-get-current-branch))))
+       (hunk   (setq file (magit-section-info parent)))
+       (diff   (setq file (magit-section-info it))))
      (setq rev  (magit-read-rev "Retrieve file from revision" rev)
            file (cl-case rev
                   (working (read-file-name "Find file: "))
