@@ -3477,6 +3477,9 @@ If FILE isn't inside a Git repository then return nil."
 (defun magit-get-ref (name)
   (magit-git-string "symbolic-ref" "-q" name))
 
+(defun magit-get-refname (name)
+  (magit-git-string "symbolic-ref" "--short" "-q" name))
+
 (defun magit-name-rev (rev &optional no-trim)
   "Return a human-readable name for REV.
 Unlike `git name-rev', this will remove \"tags/\" and \"remotes/\"
