@@ -50,6 +50,15 @@
   :group 'magit
   :type 'boolean)
 
+(defcustom magit-popup-use-prefix-argument 'disabled
+  ""
+  :group 'magit
+  :type '(choice
+          (const :tag "Use default action, else show popup" default)
+          (const :tag "Show popup, else use default action" popup)
+          (const :tag "Ignore prefix argument" nil)
+          (const :tag "Abort and show usage information" disabled)))
+
 ;;; Faces
 
 (defface magit-popup-header
@@ -198,8 +207,8 @@
   (let ((custom (intern (format "%s-defaults" name))))
     `(progn
        (defun ,name (&optional arg) ,doc
-         (interactive)
-         (magit-invoke-popup ',name))
+         (interactive "P")
+         (magit-invoke-popup ',name arg))
        (defvar ,name
          (list ,@plist)))))
 
@@ -257,8 +266,35 @@
 
 ;;; Invoke
 
-(defun magit-invoke-popup (popup)
-  (magit-popup-mode-setup popup))
+(defun magit-invoke-popup (popup arg)
+  (let* ((value   (symbol-value popup))
+         (default (plist-get value :default-action))
+         (local   (plist-get value :use-prefix))
+         (use-prefix (or local magit-popup-use-prefix-argument)))
+    (cond
+     ((and arg (eq magit-popup-use-prefix-argument 'disabled))
+      (customize-option-other-window 'magit-popup-use-prefix-argument)
+      (error (concat "The meaning of prefix arguments has changed.  "
+                     "Please explicitly enable their use again.")))
+     ((or (and (eq use-prefix 'default) arg)
+          (and (eq use-prefix 'popup) (not arg)))
+      (if default
+          (progn (when (and arg (listp arg))
+                   (setq current-prefix-arg (and (not (= (car arg) 4))
+                                                 (list (/ (car arg) 4)))))
+                 (call-interactively default))
+        (message "%s has no default action; showing popup instead." popup)
+        (magit-popup-mode-setup popup)))
+     ((memq use-prefix '(disabled default popup nil))
+      (magit-popup-mode-setup popup)
+      (when magit-popup-show-usage
+        (message (concat "Type C-h i to view popup manual, "
+                         "? to describe an argument or action."))))
+     (local
+      (error "Invalid :use-prefix popup property value: %s" use-prefix))
+     (t
+      (error "Invalid magit-popup-use-prefix-argument value: %s" use-prefix)
+      ))))
 
 (defun magit-invoke-popup-switch (event)
   (interactive (list last-command-event))

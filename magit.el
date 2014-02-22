@@ -3084,7 +3084,8 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
   :actions '((?! "Git Subcommand (from root)" magit-git-command-topdir)
              (?: "Git Subcommand (from pwd)" magit-git-command)
              (?g "Git Gui" magit-run-git-gui)
-             (?k "Gitk" magit-run-gitk)))
+             (?k "Gitk" magit-run-gitk))
+  :default-action 'magit-git-command)
 
 ;;;###autoload
 (defun magit-git-command (args directory)
@@ -5417,7 +5418,8 @@ return the buffer, without displaying it."
               (?s "Squash"            "--squash"))
   :options  '((?s "Strategy" "--strategy=" read-from-minibuffer))
   :actions  '((?m "Merge" magit-merge)
-              (?A "Abort" magit-merge-abort)))
+              (?A "Abort" magit-merge-abort))
+  :default-action 'magit-merge)
 
 ;;;###autoload
 (defun magit-merge (revision &optional do-commit)
@@ -5464,7 +5466,8 @@ With a prefix argument, skip editing the log message and commit.
               (?b "Checkout"       magit-checkout)
               (?c "Create"         magit-create-branch)
               (?r "Rename"         magit-rename-branch)
-              (?k "Delete"         magit-delete-branch)))
+              (?k "Delete"         magit-delete-branch))
+  :default-action 'magit-checkout)
 
 (defun magit-escape-branch-name (branch)
   "Escape branch name BRANCH to remove problematic characters."
@@ -5602,7 +5605,8 @@ If no branch is found near the cursor return nil."
   :actions  '((?v "Remote manager" magit-branch-manager)
               (?a "Add"            magit-add-remote)
               (?r "Rename"         magit-rename-remote)
-              (?k "Remove"         magit-remove-remote)))
+              (?k "Remove"         magit-remove-remote))
+  :default-action 'magit-branch-manager)
 
 ;;;###autoload
 (defun magit-add-remote (remote url)
@@ -5926,7 +5930,8 @@ With two prefix args, remove ignored files as well."
   :switches '((?p "Prune"   "--prune"))
   :actions  '((?f "Current" magit-fetch-current)
               (?a "All"     magit-remote-update)
-              (?o "Other"   magit-fetch)))
+              (?o "Other"   magit-fetch))
+  :default-action 'magit-fetch-current)
 
 ;;;###autoload
 (defun magit-fetch (remote)
@@ -5957,7 +5962,8 @@ If there is no default remote, ask for one."
   :man-page "git-pull"
   :switches '((?f "Force"  "--force")
               (?r "Rebase" "--rebase"))
-  :actions  '((?F "Pull"   magit-pull)))
+  :actions  '((?F "Pull"   magit-pull))
+  :default-action 'magit-pull)
 
 ;;;###autoload
 (defun magit-pull ()
@@ -6021,7 +6027,8 @@ user because of prefix arguments are not saved with git config."
               (?d "Dry run"      "-n")
               (?u "Set upstream" "-u"))
   :actions  '((?P "Push"         magit-push)
-              (?t "Push tags"    magit-push-tags)))
+              (?t "Push tags"    magit-push-tags))
+  :default-action 'magit-push)
 
 ;;;###autoload
 (defun magit-push-tags ()
@@ -6131,7 +6138,8 @@ Also see option `magit-set-upstream-on-push'."
               (?e "Extend" magit-commit-extend)
               (?r "Reword" magit-commit-reword)
               (?f "Fixup"  magit-commit-fixup)
-              (?s "Squash" magit-commit-squash)))
+              (?s "Squash" magit-commit-squash))
+  :default-action 'magit-commit)
 
 ;;;###autoload
 (defun magit-commit (&optional amendp)
@@ -6393,7 +6401,8 @@ depending on the value of option `magit-commit-squash-commit'.
               (?f "Force"    "--force")
               (?s "Sign"     "--sign"))
   :actions  '((?t "Create"   magit-tag)
-              (?k "Delete"   magit-delete-tag)))
+              (?k "Delete"   magit-delete-tag))
+  :default-action 'magit-tag)
 
 ;;;###autoload
 (defun magit-tag (name rev &optional annotate)
@@ -6431,7 +6440,8 @@ With a prefix argument annotate the tag.
               (?s "Snapshot" magit-stash-snapshot)
               (?a "Apply"    magit-stash-apply)
               (?p "Pop"      magit-stash-pop)
-              (?k "Drop"     magit-stash-drop)))
+              (?k "Drop"     magit-stash-drop))
+  :default-action 'magit-stash)
 
 (defvar magit-read-stash-history nil
   "The history of inputs to `magit-stash'.")
@@ -6634,7 +6644,8 @@ to test.  This command lets Git choose a different one."
               (?f "File log"     magit-file-log)
               (?b "Ranged short" magit-log-ranged)
               (?B "Ranged long"  magit-log-long-ranged)
-              (?R "Head reflog"  magit-reflog-head)))
+              (?R "Head reflog"  magit-reflog-head))
+  :default-action 'magit-log)
 
 ;;;###autoload
 (defun magit-log (&optional range)
