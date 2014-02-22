@@ -7133,6 +7133,24 @@ More information can be found in Info node `(magit)Diffing'
   (magit-diff nil))
 
 ;;;###autoload
+(defun magit-diff-unpushed ()
+  "Show unpushed changes."
+  (interactive)
+  (let ((tracked (magit-get-tracked-branch nil t)))
+    (if  tracked
+        (magit-diff (concat tracked "..."))
+      (error "Detached HEAD or upstream unset"))))
+
+;;;###autoload
+(defun magit-diff-unpulled ()
+  "Show unpulled changes."
+  (interactive)
+  (let ((tracked (magit-get-tracked-branch nil t)))
+    (if  tracked
+        (magit-diff (concat "..." tracked))
+      (error "Detached HEAD or upstream unset"))))
+
+;;;###autoload
 (defun magit-diff-stash (stash &optional noselect)
   "Show changes in a stash.
 A stash consist of more than just one commit.  This command uses
