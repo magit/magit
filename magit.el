@@ -116,6 +116,8 @@ Use the function by the same name instead of this variable.")
 (defvar magit-commit-buffer-name)
 (defvar magit-current-popup-args)
 (defvar magit-log-buffer-name)
+(defvar magit-log-select-pick-function)
+(defvar magit-log-select-quit-function)
 (defvar magit-marked-commit)
 (defvar magit-process-buffer-name)
 (defvar magit-reflog-buffer-name)
@@ -871,12 +873,6 @@ inserted as is."
   :type '(choice (const :tag "insert as is" nil)
                  function))
 
-(defcustom magit-log-show-gpg-status nil
-  "Display signature verification information as part of the log."
-  :package-version '(magit . "2.0.0")
-  :group 'magit-log
-  :type 'boolean)
-
 (defcustom magit-log-show-margin t
   "Whether to use a margin when showing `oneline' logs.
 When non-nil the author name and date are displayed in the margin
@@ -1507,6 +1503,18 @@ set before loading libary `magit'.")
     map)
   "Keymap for `magit-log-mode'.")
 
+(defvar magit-log-select-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map magit-log-mode-map)
+    (define-key map (kbd ".")       'magit-log-select-pick)
+    (define-key map (kbd "C-c C-c") 'magit-log-select-pick)
+    (define-key map (kbd "q")       'magit-log-select-quit)
+    (define-key map (kbd "C-c C-k") 'magit-log-select-quit)
+    map)
+  "Keymap for `magit-log-select-mode'.")
+(put 'magit-log-select-pick :advertised-binding [?\C-c ?\C-c])
+(put 'magit-log-select-quit :advertised-binding [?\C-c ?\C-k])
+
 (defvar magit-cherry-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
@@ -1585,8 +1593,8 @@ set before loading libary `magit'.")
     ["Diff working tree" magit-diff-working-tree t]
     ["Diff" magit-diff t]
     ("Log"
-     ["Short Log" magit-log t]
-     ["Long Log" magit-log-long t]
+     ["Oneline Log" magit-log t]
+     ["Verbose Log" magit-log-verbose t]
      ["Reflog" magit-reflog t]
      ["Extended..." magit-log-popup t])
     "---"
@@ -3671,6 +3679,9 @@ Also see `magit-mode-setup', a more convenient variant."
 (defvar-local magit-previous-window-configuration nil)
 (put 'magit-previous-window-configuration 'permanent-local t)
 
+(defvar-local magit-previous-section nil)
+(put 'magit-previous-section 'permanent-local t)
+
 (defun magit-mode-display-buffer (buffer mode &optional switch-function)
   "Display BUFFER in some window and select it.
 BUFFER may be a buffer or a string, the name of a buffer.  Return
@@ -3690,10 +3701,12 @@ Magit mode."
          (setq buffer (magit-mode-get-buffer-create buffer mode)))
         ((not (bufferp buffer))
          (signal 'wrong-type-argument (list 'bufferp nil))))
-  (unless (get-buffer-window buffer (selected-frame))
+  (let ((section (magit-current-section)))
     (with-current-buffer (get-buffer-create buffer)
-      (setq magit-previous-window-configuration
-            (current-window-configuration))))
+      (setq magit-previous-section section)
+      (unless (get-buffer-window buffer (selected-frame))
+        (setq magit-previous-window-configuration
+              (current-window-configuration)))))
   (funcall (or switch-function
                (if (derived-mode-p 'magit-mode)
                    'switch-to-buffer
@@ -6180,46 +6193,33 @@ and ignore the option.
     (magit-commit-internal "commit" (nconc (list "--only" "--amend")
                                            magit-current-popup-args))))
 
-(defvar-local magit-commit-squash-args  nil)
-(defvar-local magit-commit-squash-fixup nil)
-
-(defvar magit-commit-unmark-after-squash t)
-
 ;;;###autoload
-(defun magit-commit-fixup (&optional commit)
+(defun magit-commit-fixup (&optional commit args)
   "Create a fixup commit.
 With a prefix argument the user is always queried for the commit
 to be fixed.  Otherwise the current or marked commit may be used
 depending on the value of option `magit-commit-squash-commit'.
-\('git commit [--no-edit] --fixup=COMMIT')."
-  (interactive (list (magit-commit-squash-commit)))
-  (magit-commit-squash commit t))
+\('git commit --no-edit --fixup=COMMIT ARGS')."
+  (interactive (list (magit-commit-squash-commit) magit-current-popup-args))
+  (magit-commit-squash-internal 'magit-commit-fixup "--fixup" commit args))
 
 ;;;###autoload
-(defun magit-commit-squash (&optional commit fixup)
+(defun magit-commit-squash (&optional commit args)
   "Create a squash commit.
 With a prefix argument the user is always queried for the commit
 to be fixed.  Otherwise the current or marked commit may be used
 depending on the value of option `magit-commit-squash-commit'.
-\('git commit [--no-edit] --fixup=COMMIT')."
-  (interactive (list (magit-commit-squash-commit)))
-  (let ((args magit-current-popup-args))
-    (cond
-     ((not commit)
-      (magit-commit-assert args)
-      (magit-log)
-      (setq magit-commit-squash-args  args
-            magit-commit-squash-fixup fixup)
-      (add-hook 'magit-mark-commit-hook 'magit-commit-squash-marked t t)
-      (add-hook 'magit-mode-quit-window-hook 'magit-commit-squash-abort t t)
-      (message "Select commit using \".\", or abort using \"q\""))
-     ((setq args (magit-commit-assert args))
-      (when (eq args t) (setq args nil))
-      (magit-commit-internal
-       "commit"
-       (nconc (list "--no-edit"
-                    (concat (if fixup "--fixup=" "--squash=") commit))
-              args))))))
+\('git commit --no-edit --squash=COMMIT ARGS')."
+  (interactive (list (magit-commit-squash-commit) magit-current-popup-args))
+  (magit-commit-squash-internal 'magit-commit-squash "--squash" commit args))
+
+(defun magit-commit-squash-internal (fn option commit args)
+  (when (setq args (magit-commit-assert args))
+    (if commit
+        (magit-commit-internal
+         "commit" (nconc (list "--no-edit" (concat option "=" commit)) args))
+      (magit-log-select
+        `(lambda (commit) (,fn commit (list ,@args)))))))
 
 (defun magit-commit-squash-commit ()
   (unless (or current-prefix-arg
@@ -6230,22 +6230,6 @@ depending on the value of option `magit-commit-squash-commit'.
         (marked-or-current (or magit-marked-commit current))
         (current current)
         (marked magit-marked-commit)))))
-
-(defun magit-commit-squash-marked ()
-  (when magit-marked-commit
-    (magit-commit-squash magit-marked-commit magit-commit-squash-fixup))
-  (when magit-commit-unmark-after-squash
-    (setq magit-marked-commit nil))
-  (kill-local-variable 'magit-commit-squash-fixup)
-  (remove-hook 'magit-mark-commit-hook 'magit-commit-squash-marked t)
-  (remove-hook 'magit-mode-quit-window-hook 'magit-commit-squash-abort t)
-  (magit-mode-quit-window))
-
-(defun magit-commit-squash-abort (buffer)
-  (when (buffer-live-p buffer)
-    (with-current-buffer buffer
-      (remove-hook 'magit-mark-commit-hook 'magit-commit-squash-marked t)
-      (remove-hook 'magit-mode-quit-window-hook 'magit-commit-squash-abort t))))
 
 (defun magit-commit-assert (args)
   (cond
@@ -6606,6 +6590,7 @@ to test.  This command lets Git choose a different one."
               (?i "Case insensitive patterns" "-i")
               (?P "Pickaxe regex"             "--pickaxe-regex")
               (?g "Show Graph"                "--graph")
+              (?S "Show Signature"            "--show-signature")
               (?n "Name only"                 "--name-only")
               (?M "All match"                 "--all-match")
               (?A "All"                       "--all"))
@@ -6616,48 +6601,57 @@ to test.  This command lets Git choose a different one."
               (?a "Author"         "--author="    read-from-minibuffer)
               (?g "Grep messages"  "--grep="      read-from-minibuffer)
               (?G "Grep patches"   "-G"           read-from-minibuffer)
-              (?L "Trace evolution of line range [long log only]"
+              (?L "Trace evolution of line range"
                   "-L" magit-read-file-trace)
               (?s "Pickaxe search" "-S"           read-from-minibuffer)
               (?b "Branches"       "--branches="  read-from-minibuffer)
               (?R "Remotes"        "--remotes="   read-from-minibuffer))
-  :actions  '((?l "Short"        magit-log)
-              (?L "Long"         magit-log-long)
-              (?r "Reflog"       magit-reflog)
-              (?f "File log"     magit-file-log)
-              (?b "Ranged short" magit-log-ranged)
-              (?B "Ranged long"  magit-log-long-ranged)
-              (?R "Head reflog"  magit-reflog-head))
+  :actions  '((?l "Oneline"        magit-log-dwim)
+              (?L "Verbose"        magit-log-verbose-dwim)
+              (?r "Reflog"         magit-reflog)
+              (?f "File log"       magit-file-log)
+              (?b "Oneline branch" magit-log)
+              (?B "Verbose branch" magit-log-verbose)
+              (?R "Reflog HEAD"    magit-reflog-head))
   :default-arguments '("--graph")
-  :default-action 'magit-log)
+  :default-action 'magit-log
+  :max-action-columns 4)
 
 ;;;###autoload
-(defun magit-log (&optional range)
-  (interactive)
-  (unless range (setq range "HEAD"))
+(defun magit-log (range &optional args)
+  (interactive (magit-log-read-args nil nil))
   (magit-mode-setup magit-log-buffer-name nil
                     #'magit-log-mode
-                    #'magit-refresh-log-buffer
-                    'oneline range magit-current-popup-args))
+                    #'magit-refresh-log-buffer 'oneline range
+                    (cl-delete "^-L" args :test 'string-match-p))
+  (magit-log-goto-same-commit))
 
 ;;;###autoload
-(defun magit-log-ranged (range)
-  (interactive (list (magit-read-rev-range "Log" "HEAD")))
-  (magit-log range))
+(defun magit-log-dwim (range &optional args)
+  (interactive (magit-log-read-args t nil))
+  (magit-log range args))
 
 ;;;###autoload
-(defun magit-log-long (&optional range)
-  (interactive)
-  (unless range (setq range "HEAD"))
+(defun magit-log-verbose (range &optional args)
+  (interactive (magit-log-read-args nil t))
   (magit-mode-setup magit-log-buffer-name nil
                     #'magit-log-mode
-                    #'magit-refresh-log-buffer
-                    'long range magit-current-popup-args))
+                    #'magit-refresh-log-buffer 'long range args)
+  (magit-log-goto-same-commit))
 
 ;;;###autoload
-(defun magit-log-long-ranged (range)
-  (interactive (list (magit-read-rev-range "Long Log" "HEAD")))
-  (magit-log-long range))
+(defun magit-log-verbose-dwim (range &optional args)
+  (interactive (magit-log-read-args t t))
+  (magit-log-verbose range args))
+
+(defun magit-log-read-args (dwim patch)
+  (let ((default "HEAD"))
+    (list (if (if dwim (not current-prefix-arg) current-prefix-arg)
+              default
+            (magit-read-rev (format "Show %s log for ref/rev/range"
+                                    (if patch "verbose" "oneline"))
+                            default))
+          magit-current-popup-args)))
 
 ;;;###autoload
 (defun magit-file-log (file &optional use-graph)
@@ -6674,7 +6668,8 @@ With a prefix argument show the log graph."
                     `(,@(and use-graph (list "--graph"))
                       ,@magit-current-popup-args
                       "--follow")
-                    file))
+                    file)
+  (magit-log-goto-same-commit))
 
 ;;;###autoload
 (defun magit-reflog (ref)
@@ -6734,15 +6729,14 @@ Other key binding:
       (apply-partially 'magit-wash-log style 'color t)
     "log"
     (format "--max-count=%d" magit-log-cutoff-length)
-    "--decorate=full" "--color"
+    "--decorate=full" "--abbrev-commit" "--color"
     (cl-case style
-      (long    (if magit-log-show-gpg-status
-                   (list "--stat" "--show-signature")
-                 "--stat"))
-      (oneline (concat "--pretty=format:%h%d "
-                       (and magit-log-show-gpg-status "%G?")
-                       "[%an][%at]%s")))
-    args range "--" file)
+      (long    (cons "--stat" args))
+      (oneline (cons (concat "--pretty=format:%h%d "
+                             (and (member "--show-signature" args) "%G?")
+                             "[%an][%at]%s")
+                     (delete "--show-signature" args))))
+    range "--" file)
   (save-excursion
     (goto-char (point-min))
     (magit-format-log-margin)))
@@ -6777,6 +6771,52 @@ With a non numeric prefix ARG, show all entries"
   (let ((old-point (point)))
     (magit-refresh)
     (goto-char old-point)))
+
+(defun magit-log-goto-same-commit ()
+  (when (and (derived-mode-p 'magit-log-mode) magit-previous-section)
+    (let ((section (cl-find (magit-section-info magit-previous-section)
+                            (magit-section-children magit-root-section)
+                            :test 'equal :key 'magit-section-info)))
+      (when section
+        (goto-char (magit-section-beginning section))))))
+
+;;;; Log Select Mode
+
+(define-derived-mode magit-log-select-mode magit-log-mode "Magit Select"
+  "Mode for selecting a commit from history."
+  :group 'magit)
+
+(defvar-local magit-log-select-pick-function nil)
+(defvar-local magit-log-select-quit-function nil)
+
+(defun magit-log-select (pick &optional quit desc branch args)
+  (declare (indent defun))
+  (magit-mode-setup magit-log-buffer-name nil
+                    #'magit-log-select-mode
+                    #'magit-refresh-log-buffer 'oneline
+                    (or branch (magit-get-current-branch) "HEAD")
+                    args)
+  (magit-log-goto-same-commit)
+  (setq magit-log-select-pick-function pick)
+  (setq magit-log-select-quit-function quit)
+  (message
+   (substitute-command-keys
+    (format "Type \\[%s] to select commit at point%s, or \\[%s] to abort"
+            'magit-log-select-pick (if desc (concat " " desc) "")
+            'magit-log-select-quit))))
+
+(defun magit-log-select-pick ()
+  (interactive)
+  (let ((fun magit-log-select-pick-function)
+        (rev (magit-section-case (info) (commit info))))
+    (kill-buffer (current-buffer))
+    (funcall fun rev)))
+
+(defun magit-log-select-quit ()
+  (interactive)
+  (kill-buffer (current-buffer))
+  (when magit-log-select-quit-function
+    (funcall magit-log-select-quit-function)))
 
 ;;;; Cherry Mode
 
