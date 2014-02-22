@@ -6886,28 +6886,36 @@ restore the window state that was saved before ediff was called."
   (interactive (list (magit-section-case (info) (diff (cadr info)))))
   (require 'ediff)
   (let ((merge-status (magit-git-lines "ls-files" "-u" "--" file))
-        (base-buffer (generate-new-buffer (concat file ".base")))
+        (base-buffer)
         (our-buffer (generate-new-buffer (concat file ".current")))
         (their-buffer (generate-new-buffer (concat file ".merged")))
+        (merger-buffer)
         (windows (current-window-configuration)))
     (unless merge-status
       (user-error "Cannot resolve %s" file))
-    (with-current-buffer base-buffer
-      (when (string-match "^[0-9]+ [0-9a-f]+ 1" (nth 0 merge-status))
+    (when (string-match "^[0-9]+ [0-9a-f]+ 1" (car merge-status))
+      (pop merge-status)
+      (setq base-buffer (generate-new-buffer (concat file ".base")))
+      (with-current-buffer base-buffer
         (magit-git-insert "cat-file" "blob" (concat ":1:" file))))
+    ;; If the second or third version do not exit, we use an empty buffer for the deleted file
     (with-current-buffer our-buffer
-      (when (string-match "^[0-9]+ [0-9a-f]+ 2" (nth 1 merge-status))
+      (when (string-match "^[0-9]+ [0-9a-f]+ 2" (car merge-status))
+        (pop merge-status)
         (magit-git-insert "cat-file" "blob" (concat ":2:" file)))
       (let ((buffer-file-name file))
         (normal-mode t)))
     (with-current-buffer their-buffer
-      (when (string-match "^[0-9]+ [0-9a-f]+ 3" (nth 2 merge-status))
+      (when (string-match "^[0-9]+ [0-9a-f]+ 3" (car merge-status))
         (magit-git-insert "cat-file" "blob" (concat ":3:" file)))
       (let ((buffer-file-name file))
         (normal-mode t)))
     ;; We have now created the 3 buffer with ours, theirs and the ancestor files
-    (with-current-buffer (ediff-merge-buffers-with-ancestor
-                          our-buffer their-buffer base-buffer nil nil file)
+    (if base-buffer
+        (setq merger-buffer (ediff-merge-buffers-with-ancestor
+                             our-buffer their-buffer base-buffer nil nil file))
+      (setq merger-buffer (ediff-merge-buffers our-buffer their-buffer nil nil file)))
+    (with-current-buffer merger-buffer
       (setq ediff-show-clashes-only t)
       (setq-local magit-ediff-windows windows)
       (make-local-variable 'ediff-quit-hook)
