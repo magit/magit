@@ -3696,6 +3696,8 @@ Also see `magit-mode-setup', a more convenient variant."
   (funcall mode)
   (magit-mode-refresh-buffer))
 
+(defvar magit-inhibit-save-previous-winconf nil)
+
 (defvar-local magit-previous-window-configuration nil)
 (put 'magit-previous-window-configuration 'permanent-local t)
 
@@ -3724,7 +3726,8 @@ Magit mode."
   (let ((section (magit-current-section)))
     (with-current-buffer (get-buffer-create buffer)
       (setq magit-previous-section section)
-      (unless (get-buffer-window buffer (selected-frame))
+      (unless (or (get-buffer-window buffer (selected-frame))
+                  magit-inhibit-save-previous-winconf)
         (setq magit-previous-window-configuration
               (current-window-configuration)))))
   (funcall (or switch-function
