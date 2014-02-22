@@ -34,7 +34,7 @@
 
 (eval-when-compile (require 'cl-lib))
 
-(defvar magit-pre-key-mode-window-conf)
+(defvar magit-popup-previous-winconf)
 
 ;;; Options
 
@@ -148,7 +148,7 @@
                           (concat (car elt) (cdr elt)))
                         magit-popup-current-options))))
     (let ((buf (current-buffer)))
-      (set-window-configuration magit-pre-key-mode-window-conf)
+      (set-window-configuration magit-popup-previous-winconf)
       (kill-buffer buf))
     (when func
       (call-interactively func))))
@@ -178,7 +178,7 @@
 
 (defvar magit-key-mode-buf-name "*magit-key: %s*")
 
-(defvar-local magit-pre-key-mode-window-conf nil)
+(defvar-local magit-popup-previous-winconf nil)
 
 (defun magit-key-mode (popup)
   (interactive)
@@ -192,7 +192,7 @@
     (set (make-local-variable 'scroll-margin) 0)
     (make-local-variable 'font-lock-defaults)
     (setq buffer-read-only t)
-    (setq magit-pre-key-mode-window-conf winconf
+    (setq magit-popup-previous-winconf winconf
           magit-popup-prefix-arg current-prefix-arg
           mode-name "magit-key-mode"
           major-mode 'magit-key-mode)
