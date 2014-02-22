@@ -7547,7 +7547,8 @@ This can be added to `magit-mode-hook' for example"
   (eval-when-compile
     `((,(concat "(\\(" (regexp-opt
                         '("magit-define-level-shower"
-                          "magit-define-section-jumper"))
+                          "magit-define-section-jumper"
+                          "magit-define-popup"))
                 "\\)\\>[ \t'\(]*\\(\\sw+\\)?")
        (1 font-lock-keyword-face)
        (2 font-lock-function-name-face nil t))

@@ -252,23 +252,17 @@ If USE-CACHE is non nil, use the cached information."
                     '("Extensions")
                     magit-svn-extension-menu)
 
-(defvar magit-popup-svn
-  '((man-page "git-svn")
-    (actions
-     ("r" "Rebase" magit-svn-rebase)
-     ("c" "DCommit" magit-svn-dcommit)
-     ("f" "Fetch" magit-svn-remote-update)
-     ("s" "Find rev" magit-svn-find-rev)
-     ("B" "Create branch" magit-svn-create-branch)
-     ("T" "Create tag" magit-svn-create-tag)
-     ("x" "Fetch Externals" magit-svn-fetch-externals))
-    (switches
-     ("-n" "Dry run" "--dry-run"))))
-
-(defun magit-key-mode-popup-svn ()
+(magit-define-popup svn
   "Key menu for svn."
-  (interactive)
-  (magit-popup-mode-setup 'svn))
+  :man-page "git-svn"
+  :switches (("-n" "Dry run" "--dry-run"))
+  :actions  (("r" "Rebase" magit-svn-rebase)
+             ("c" "DCommit" magit-svn-dcommit)
+             ("f" "Fetch" magit-svn-remote-update)
+             ("s" "Find rev" magit-svn-find-rev)
+             ("B" "Create branch" magit-svn-create-branch)
+             ("T" "Create tag" magit-svn-create-tag)
+             ("x" "Fetch Externals" magit-svn-fetch-externals)))
 
 (defvar magit-svn-mode-map
   (let ((map (make-sparse-keymap)))
