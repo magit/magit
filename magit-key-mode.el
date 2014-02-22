@@ -69,6 +69,7 @@
 
 ;;; (being refactored)
 
+;;;###autoload
 (defvar magit-key-mode-groups
   '((dispatch
      (actions
@@ -650,22 +651,89 @@ Return the point before the actions part, if any, nil otherwise."
     (insert "\n")
     p))
 
-;;; Generate Groups
+;;; (being refactored)
 
-(defun magit-key-mode-generate (group)
-  "Generate the key-group menu for GROUP."
-  (let ((opts (magit-key-mode-options-for-group group)))
-    (eval
-     `(defun ,(intern (concat "magit-key-mode-popup-" (symbol-name group))) nil
-        ,(concat "Key menu for " (symbol-name group))
-        (interactive)
-        (magit-key-mode (quote ,group))))))
+(defun magit-key-mode-popup-dispatch ()
+  "Key menu for dispatch."
+  (interactive)
+  (magit-key-mode 'dispatch))
 
-;; create the interactive functions for the key mode popups (which are
-;; applied in the top-level key maps)
-(mapc (lambda (g)
-        (magit-key-mode-generate (car g)))
-      magit-key-mode-groups)
+(defun magit-key-mode-popup-logging ()
+  "Key menu for logging."
+  (interactive)
+  (magit-key-mode 'logging))
+
+(defun magit-key-mode-popup-running ()
+  "Key menu for running."
+  (interactive)
+  (magit-key-mode 'running))
+
+(defun magit-key-mode-popup-fetching ()
+  "Key menu for fetching."
+  (interactive)
+  (magit-key-mode 'fetching))
+
+(defun magit-key-mode-popup-pushing ()
+  "Key menu for pushing."
+  (interactive)
+  (magit-key-mode 'pushing))
+
+(defun magit-key-mode-popup-pulling ()
+  "Key menu for pulling."
+  (interactive)
+  (magit-key-mode 'pulling))
+
+(defun magit-key-mode-popup-branching ()
+  "Key menu for branching."
+  (interactive)
+  (magit-key-mode 'branching))
+
+(defun magit-key-mode-popup-remoting ()
+  "Key menu for remoting."
+  (interactive)
+  (magit-key-mode 'remoting))
+
+(defun magit-key-mode-popup-tagging ()
+  "Key menu for tagging."
+  (interactive)
+  (magit-key-mode 'tagging))
+
+(defun magit-key-mode-popup-stashing ()
+  "Key menu for stashing."
+  (interactive)
+  (magit-key-mode 'stashing))
+
+(defun magit-key-mode-popup-committing ()
+  "Key menu for committing."
+  (interactive)
+  (magit-key-mode 'committing))
+
+(defun magit-key-mode-popup-merging ()
+  "Key menu for merging."
+  (interactive)
+  (magit-key-mode 'merging))
+
+(defun magit-key-mode-popup-rewriting ()
+  "Key menu for rewriting."
+  (interactive)
+  (magit-key-mode 'rewriting))
+
+(defun magit-key-mode-popup-submodule ()
+  "Key menu for submodule."
+  (interactive)
+  (magit-key-mode 'submodule))
+
+(defun magit-key-mode-popup-bisecting ()
+  "Key menu for bisecting."
+  (interactive)
+  (magit-key-mode 'bisecting))
+
+(defun magit-key-mode-popup-diff-options ()
+  "Key menu for diff-options."
+  (interactive)
+  (magit-key-mode 'diff-options
+                  (when (local-variable-p 'magit-diff-options)
+                    magit-diff-options)))
 
 (provide 'magit-key-mode)
 ;; Local Variables:

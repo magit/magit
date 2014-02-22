@@ -252,11 +252,12 @@ If USE-CACHE is non nil, use the cached information."
                     '("Extensions")
                     magit-svn-extension-menu)
 
-;; add the group and its keys
-(progn
-  ;; (re-)create the group
-  (magit-key-mode-add-group 'svn)
+(defun magit-key-mode-popup-svn ()
+  "Key menu for svn."
+  (interactive)
+  (magit-key-mode 'svn))
 
+(progn
   (magit-key-mode-insert-action 'svn "r" "Rebase" 'magit-svn-rebase)
   (magit-key-mode-insert-action 'svn "c" "DCommit" 'magit-svn-dcommit)
   (magit-key-mode-insert-action 'svn "f" "Fetch" 'magit-svn-remote-update)
@@ -264,10 +265,7 @@ If USE-CACHE is non nil, use the cached information."
   (magit-key-mode-insert-action 'svn "B" "Create branch" 'magit-svn-create-branch)
   (magit-key-mode-insert-action 'svn "T" "Create tag" 'magit-svn-create-tag)
   (magit-key-mode-insert-action 'svn "x" "Fetch Externals" 'magit-svn-fetch-externals)
-  (magit-key-mode-insert-switch 'svn "-n" "Dry run" "--dry-run")
-
-  ;; generate and bind the menu popup function
-  (magit-key-mode-generate 'svn))
+  (magit-key-mode-insert-switch 'svn "-n" "Dry run" "--dry-run"))
 
 (defvar magit-svn-mode-map
   (let ((map (make-sparse-keymap)))
