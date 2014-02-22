@@ -2284,14 +2284,6 @@ involving HEAD."
   (magit-completing-read prompt nil nil nil initial-input
                          'magit-read-rev-history))
 
-(defun magit-read-rev-range (op &optional def-beg def-end)
-  (let ((beg (magit-read-rev (format "%s range or start" op) def-beg)))
-    (save-match-data
-      (if (string-match "^\\(.+\\)\\.\\.\\(.+\\)$" beg)
-          (cons (match-string 1 beg) (match-string 2 beg))
-        (let ((end (magit-read-rev (format "%s end" op) def-end nil t)))
-          (if end (cons beg end) beg))))))
-
 (defun magit-read-stash (prompt)
   (let ((n (read-number "Show stash: " 0))
         (l (1- (length (magit-git-lines "stash" "list")))))
@@ -7169,7 +7161,7 @@ More information can be found in Info node `(magit)Diffing'
 ;;;###autoload
 (defun magit-diff (range &optional working args)
   "Show changes between two commits."
-  (interactive (list (magit-read-rev-range "Diff")))
+  (interactive (list (magit-read-rev "Diff for ref/rev/range")))
   (magit-mode-setup magit-diff-buffer-name
                     magit-diff-switch-buffer-function
                     #'magit-diff-mode
