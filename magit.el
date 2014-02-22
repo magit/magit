@@ -3665,6 +3665,9 @@ Also see `magit-mode-setup', a more convenient variant."
 (defvar-local magit-previous-window-configuration nil)
 (put 'magit-previous-window-configuration 'permanent-local t)
 
+(defvar-local magit-previous-section nil)
+(put 'magit-previous-section 'permanent-local t)
+
 (defun magit-mode-display-buffer (buffer mode &optional switch-function)
   "Display BUFFER in some window and select it.
 BUFFER may be a buffer or a string, the name of a buffer.  Return
@@ -3684,10 +3687,12 @@ Magit mode."
          (setq buffer (magit-mode-get-buffer-create buffer mode)))
         ((not (bufferp buffer))
          (signal 'wrong-type-argument (list 'bufferp nil))))
-  (unless (get-buffer-window buffer (selected-frame))
+  (let ((section (magit-current-section)))
     (with-current-buffer (get-buffer-create buffer)
-      (setq magit-previous-window-configuration
-            (current-window-configuration))))
+      (setq magit-previous-section section)
+      (unless (get-buffer-window buffer (selected-frame))
+        (setq magit-previous-window-configuration
+              (current-window-configuration)))))
   (funcall (or switch-function
                (if (derived-mode-p 'magit-mode)
                    'switch-to-buffer
@@ -6633,7 +6638,8 @@ to test.  This command lets Git choose a different one."
   (magit-mode-setup magit-log-buffer-name nil
                     #'magit-log-mode
                     #'magit-refresh-log-buffer 'oneline range
-                    (cl-delete "^-L" args :test 'string-match-p)))
+                    (cl-delete "^-L" args :test 'string-match-p))
+  (magit-log-goto-same-commit))
 
 ;;;###autoload
 (defun magit-log-dwim (range &optional args)
@@ -6645,7 +6651,8 @@ to test.  This command lets Git choose a different one."
   (interactive (magit-log-read-args nil t))
   (magit-mode-setup magit-log-buffer-name nil
                     #'magit-log-mode
-                    #'magit-refresh-log-buffer 'long range args))
+                    #'magit-refresh-log-buffer 'long range args)
+  (magit-log-goto-same-commit))
 
 ;;;###autoload
 (defun magit-log-verbose-dwim (range &optional args)
@@ -6676,7 +6683,8 @@ With a prefix argument show the log graph."
                     `(,@(and use-graph (list "--graph"))
                       ,@magit-current-popup-args
                       "--follow")
-                    file))
+                    file)
+  (magit-log-goto-same-commit))
 
 ;;;###autoload
 (defun magit-reflog (ref)
@@ -6778,6 +6786,14 @@ With a non numeric prefix ARG, show all entries"
   (let ((old-point (point)))
     (magit-refresh)
     (goto-char old-point)))
+
+(defun magit-log-goto-same-commit ()
+  (when (and (derived-mode-p 'magit-log-mode) magit-previous-section)
+    (let ((section (cl-find (magit-section-info magit-previous-section)
+                            (magit-section-children magit-root-section)
+                            :test 'equal :key 'magit-section-info)))
+      (when section
+        (goto-char (magit-section-beginning section))))))
 
 ;;;; Cherry Mode
 
