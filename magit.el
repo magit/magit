@@ -3391,7 +3391,7 @@ and no variation of the Auto-Revert mode is already active."
   "Return absolute path to the GIT_DIR for the current repository.
 If optional PATH is non-nil it has to be a path relative to the
 GIT_DIR and its absolute path is returned"
-  (--when-let (magit-git-string "rev-parse" "--git-dir")
+  (--when-let (magit-rev-parse "--git-dir")
     (setq it (file-name-as-directory (magit-expand-git-file-name it)))
     (if path (expand-file-name (convert-standard-filename path) it) it)))
 
@@ -3413,7 +3413,7 @@ an existing directory."
   (unless (file-directory-p directory)
     (error "%s isn't an existing directory" directory))
   (let ((default-directory directory))
-    (--if-let (magit-git-string "rev-parse" "--show-toplevel")
+    (--if-let (magit-rev-parse "--show-toplevel")
         (file-name-as-directory (magit-expand-git-file-name it))
       (-when-let (gitdir (magit-git-dir))
         (if (magit-bare-repo-p)
@@ -3470,9 +3470,10 @@ If FILE isn't inside a Git repository then return nil."
 
 ;;;; Revisions and References
 
-(defun magit-rev-parse (ref)
-  "Return the SHA hash for REF."
-  (magit-git-string "rev-parse" ref))
+(defun magit-rev-parse (&rest args)
+  "Execute `git rev-parse ARGS', returning first line of output.
+If there is no output return nil."
+  (apply #'magit-git-string "rev-parse" args))
 
 (defun magit-get-ref (name)
   (magit-git-string "symbolic-ref" "-q" name))
@@ -3499,7 +3500,7 @@ If FILE isn't inside a Git repository then return nil."
   ;; An ambiguous ref does not cause `git rev-parse --abbrev-ref'
   ;; to exits with a non-zero status.  But there is nothing on
   ;; stdout in that case.
-  (not (magit-git-string "rev-parse" "--abbrev-ref" name)))
+  (not (magit-rev-parse "--abbrev-ref" name)))
 
 (defun magit-get-current-branch ()
   (--when-let (magit-get-ref "HEAD")
@@ -3509,7 +3510,7 @@ If FILE isn't inside a Git repository then return nil."
 (defun magit-get-previous-branch ()
   "Return the refname of the previously checked out branch.
 Return nil if the previously checked out branch no longer exists."
-  (magit-get-shortname (magit-git-string "rev-parse" "--verify" "@{-1}")))
+  (magit-get-shortname (magit-rev-parse "--verify" "@{-1}")))
 
 (defun magit-get-tracked-branch (&optional branch qualified)
   "Return the name of the tracking branch the local branch name BRANCH.
@@ -3590,7 +3591,7 @@ the remote branch exists; else return nil."
            (setq remote/branch
                  (concat remote "/" (match-string 1 remote-branch)))
            (or (not verify)
-               (magit-git-success "rev-parse" "--verify" remote/branch))
+               (magit-rev-parse "--verify" remote/branch))
            remote/branch))))
 
 (defun magit-get-current-tag (&optional with-distance-p)
@@ -4344,7 +4345,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
               " "))
     (unless (eq style 'long)
       (when (eq style 'bisect-log)
-	(setq hash (magit-git-string "rev-parse" "--short" hash)))
+	(setq hash (magit-rev-parse "--short" hash)))
       (if hash
           (insert (propertize hash 'face 'magit-log-sha1) " ")
         (insert (make-string (1+ abbrev) ? ))))
@@ -4652,9 +4653,8 @@ can be used to override this."
 
 (defun magit-insert-unpulled-or-recent-commits ()
   (let ((tracked (magit-get-tracked-branch nil t)))
-    (if (and tracked
-             (not (equal (magit-git-string "rev-parse" "HEAD")
-                         (magit-git-string "rev-parse" tracked))))
+    (if (and tracked (not (equal (magit-rev-parse "HEAD")
+                                 (magit-rev-parse tracked))))
         (magit-insert-unpulled-commits)
       (magit-git-insert-section (recent "Recent commits:")
           (apply-partially 'magit-wash-log 'unique)
@@ -4717,7 +4717,7 @@ can be used to override this."
                         " (" (magit-get "remote" remote "url") ")"))))))
 
 (defun magit-insert-status-head-line ()
-  (-if-let (hash (magit-git-string "rev-parse" "--verify" "HEAD"))
+  (-if-let (hash (magit-rev-parse "--verify" "HEAD"))
       (magit-insert-line-section (commit hash)
         (concat "Head: " (magit-format-rev-summary "HEAD")))
     (magit-insert-line-section (no-commit)
@@ -4784,7 +4784,7 @@ can be used to override this."
               (magit-with-section (section commit hash)
                 (insert cmd " ")
                 (insert (propertize
-                         (magit-git-string "rev-parse" "--short" hash)
+                         (magit-rev-parse "--short" hash)
                          'face 'magit-log-sha1))
                 (insert " " msg "\n"))))
         (insert "\n")))))
