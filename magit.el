@@ -758,6 +758,24 @@ they are not (due to semantic considerations)."
 
 (put 'magit-diff-options 'permanent-local t)
 
+(defcustom magit-diff-auto-show
+  '(commit stage-all)
+  "Whether to automatically show relevant diff.
+
+When this option is non-nil certain operations cause the relevant
+changes to be displayed automatically.
+
+`commit'
+`stage-all'
+
+In the event that expanding very large patches takes a long time
+\\<global-map>\\[keyboard-quit] can be used to abort that step.
+This is especially useful when you would normally not look at the
+changes, e.g. because you are committing some binary files."
+  :package-version '(magit . "2.0.0")
+  :group 'magit-diff
+  :type 'sexp)
+
 (defcustom magit-diff-refine-hunk nil
   "Show fine (word-granularity) differences within diff hunks.
 
@@ -822,23 +840,6 @@ an error while using those is harder to recover from."
   :package-version '(magit . "2.0.0")
   :group 'magit-commit
   :type 'boolean)
-
-(defcustom magit-expand-staged-on-commit nil
-  "Whether to expand staged changes when creating a commit.
-When this is non-nil and the current buffer is the status buffer
-expand the section containing staged changes.  If this is `full'
-always expand all subsections; if it is t subsections that were
-previously hidden remain hidden.
-
-In the event that expanding very large patches takes a long time
-\\<global-map>\\[keyboard-quit] can be used to abort that step.
-This is especially useful when you would normally not look at the
-changes, e.g. because you are committing some binary files."
-  :package-version '(magit . "2.0.0")
-  :group 'magit-commit
-  :type '(choice (const :tag "Expand all subsections" full)
-                 (const :tag "Expand top section" t)
-                 (const :tag "Don't expand" nil)))
 
 ;;;;;; Log
 
@@ -2664,10 +2665,7 @@ With a prefix argument also expand it." title)
          (interactive "P")
          (if (magit-goto-section-at-path '(,sym))
              (when expand
-               (with-local-quit
-                 (if (eq magit-expand-staged-on-commit 'full)
-                     (magit-show-level 4 nil)
-                   (magit-expand-section)))
+               (with-local-quit (magit-expand-section))
                (recenter 0))
            (message ,(format "Section '%s' wasn't found" title))))
        (put ',fun 'definition-name ',sym))))
@@ -6399,12 +6397,12 @@ depending on the value of option `magit-commit-squash-confirm'.
     (magit-run-git-async "rebase" "--continue")
     nil)
    (magit-commit-ask-to-stage
-    (when magit-expand-staged-on-commit
+    (when (magit-diff-auto-show-p 'stage-all)
       (magit-diff-unstaged))
     (prog1 (when (y-or-n-p "Nothing staged.  Stage and commit everything? ")
              (magit-run-git "add" "-u" ".")
              (or args (list "--")))
-      (when (and magit-expand-staged-on-commit
+      (when (and (magit-diff-auto-show-p 'stage-all)
                  (derived-mode-p 'magit-diff-mode))
         (magit-mode-quit-window))))
    (t
@@ -6415,7 +6413,7 @@ depending on the value of option `magit-commit-squash-confirm'.
 (defun magit-commit-internal (diff-fn subcmd args)
   (declare (indent 2))
   (setq git-commit-previous-winconf (current-window-configuration))
-  (when (and diff-fn magit-expand-staged-on-commit)
+  (when (and diff-fn (magit-diff-auto-show-p 'commit))
     (let ((magit-inhibit-save-previous-winconf t))
       (funcall diff-fn)))
   (push (cons (magit-get-top-dir) (member "--amend" args))
@@ -7477,6 +7475,11 @@ If there is no commit at point, then prompt for one."
       "diff"
       (and magit-show-diffstat "--patch-with-stat")
       range args magit-diff-options "--")))
+
+(defun magit-diff-auto-show-p (op)
+  (if (eq (car magit-diff-auto-show) 'not)
+      (not (memq op (cdr magit-diff-auto-show)))
+    (memq op magit-diff-auto-show)))
 
 (defun magit-select-diff-algorithm (&optional noop1 noop2)
   (magit-read-char-case nil t
