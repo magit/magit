@@ -28,6 +28,8 @@
 
 ;;; Code:
 
+(require 'button)
+(require 'format-spec)
 (require 'magit)
 
 (eval-when-compile (require 'cl-lib))
@@ -68,28 +70,13 @@
 (defvar magit-key-mode-map
   (let ((map (make-sparse-keymap)))
     (suppress-keymap map 'nodigits)
-    (define-key map (kbd "RET") 'magit-key-mode-exec-at-point)
-    (define-key map (kbd "TAB") 'magit-key-mode-jump-to-next-exec)
+    (define-key map (kbd "C-p") 'backward-button)
+    (define-key map (kbd "DEL") 'backward-button)
+    (define-key map (kbd "C-n") 'forward-button)
+    (define-key map (kbd "TAB") 'forward-button)
     (define-key map (kbd "C-g") 'magit-key-mode-abort)
     (define-key map (kbd "q")   'magit-key-mode-abort)
     map))
-
-(defun magit-key-mode-exec-at-point ()
-  (interactive)
-  (let ((key (or (get-text-property (point) 'key-group-executor)
-                 (error "Nothing at point to do."))))
-    (call-interactively (lookup-key (current-local-map) key))))
-
-(defun magit-key-mode-jump-to-next-exec ()
-  (interactive)
-  (let* ((oldp (point))
-         (old  (get-text-property oldp 'key-group-executor))
-         (p    (if (= oldp (point-max)) (point-min) (1+ oldp))))
-    (while (let ((new (get-text-property p 'key-group-executor)))
-             (and (not (= p oldp)) (or (not new) (eq new old))))
-      (setq p (if (= p (point-max)) (point-min) (1+ p))))
-    (goto-char p)
-    (skip-chars-forward " ")))
 
 (defun magit-define-popup-switch (popup map key switch)
   (define-key map key
@@ -205,72 +192,73 @@
                      "'?' for more help."))))
 
 (defun magit-refresh-popup-buffer (popup)
-  (let ((buffer-read-only nil)
-        (arg (get-text-property (point) 'key-group-executor))
-        (pos (point))
+  (let ((inhibit-read-only t)
+        (key (ignore-errors
+               (car (button-get (button-at (point)) 'args))))
         (spec (symbol-value (intern (format "magit-popup-%s" popup)))))
     (erase-buffer)
-    (magit-key-mode-draw-switches (cdr (assoc 'switches spec)))
-    (magit-key-mode-draw-options (cdr (assoc 'options spec)))
     (save-excursion
-      (magit-key-mode-draw-actions (cdr (assoc 'actions spec))))
-    (delete-trailing-whitespace)
-    (if (= pos 1)
-        (magit-key-mode-jump-to-next-exec)
-      (goto-char (setq pos (point-min)))
-      (while (and (not (eobp))
-                  (not (eq  (get-text-property pos 'key-group-executor) arg)))
-        (setq pos (next-single-property-change pos 'key-group-executor)))
-      (goto-char pos))))
+      (magit-popup-insert-buttons popup "Switches" " %k: %d %a"
+                                  'magit-invoke-popup-switch
+                                  (cdr (assoc 'switches spec)))
+      (magit-popup-insert-buttons popup "Options"  " %k: %d %a%v"
+                                  'magit-invoke-popup-option
+                                  (cdr (assoc 'options spec))
+                                  (not magit-key-mode-options-in-cols))
+      (magit-popup-insert-buttons popup "Actions"  " %k: %d"
+                                  'magit-invoke-popup-action
+                                  (cdr (assoc 'actions spec))))
+    (if key
+        (while (and (forward-button 1)
+                    (not (equal (car (button-get (button-at (point)) 'args))
+                                key))))
+      (re-search-forward "^Actions" nil t)
+      (forward-button 1))))
 
-;;; Draw Buffer
+;;; Draw
 
-(defvar magit-key-mode-options-in-cols nil)
-
-(defun magit-key-mode-draw-options (args)
-  (magit-key-mode-draw-buttons
-   "Options"
-   args
-   (lambda (x)
-     (format "(%s) %s"
-             (nth 2 x)
-             (propertize (gethash (nth 2 x) magit-popup-current-options "")
-                         'face 'magit-key-mode-option-face)))
-   (not magit-key-mode-options-in-cols)))
-
-(defun magit-key-mode-draw-actions (actions)
-  (magit-key-mode-draw-buttons "Actions" actions nil))
-
-(defun magit-key-mode-draw-buttons (heading xs maker &optional one-col-each)
-  (when xs
+(defun magit-popup-insert-buttons (popup heading format invoke items
+                                         &optional one-col-each)
+  (when items
     (insert (propertize heading 'face 'magit-key-mode-header-face) "\n")
-    (magit-key-mode-draw-in-cols
-     (mapcar (lambda (x)
-               (let* ((head (propertize (car x) 'face 'magit-key-mode-button-face))
-                      (desc (nth 1 x))
-                      (more (and maker (funcall maker x)))
-                      (text (format "%s: %s%s%s"
-                                    head desc (if more " " "") (or more ""))))
-                 (concat " " (propertize text 'key-group-executor (car x)))))
-             xs)
-     one-col-each)))
+    (setq items
+          (mapcar (lambda (item)
+                    (cons (magit-popup-format-button format item) item))
+                  items))
+    (let ((maxlen (apply 'max (mapcar (lambda (e) (length (car e))) items)))
+          item)
+      (while (setq item (pop items))
+        (let ((beg (point)))
+          (insert (car item))
+          (make-button beg (point) 'face nil
+                       'args (cons invoke (cons popup (cdr item)))
+                       'action
+                       (lambda (button)
+                         (let ((args (button-get button 'args)))
+                           (apply (car args) (cddr args)))))
+          (let ((padding (- (+ maxlen 3) (length (car item)))))
+            (if (or one-col-each
+                    (not items)
+                    (> (+ (current-column) padding maxlen)
+                       (window-width)))
+                (insert "\n")
+              (insert (make-string padding ?\s)))))))
+    (insert "\n")))
 
-(defun magit-key-mode-draw-in-cols (strings one-col-each)
-  (let ((maxlen (apply 'max (mapcar 'length strings))))
-    (while strings
-      (let ((str (car strings)))
-        (let ((padding (make-string (- (+ maxlen 3) (length str)) ? )))
-          (insert str)
-          (if (or one-col-each
-                  (and (> (+ (length padding) ;
-			     (current-column)
-                             maxlen)
-                          (window-width))
-                       (cdr strings)))
-              (insert "\n")
-            (insert padding))))
-      (setq strings (cdr strings))))
-  (insert "\n"))
+(defun magit-popup-format-button (format arg)
+  (let* ((k (propertize (car arg) 'face 'magit-key-mode-button-face))
+         (d (nth 1 arg))
+         (a (unless (symbolp (nth 2 arg)) (nth 2 arg)))
+         (v (and a (gethash a magit-popup-current-options))))
+    (when (member a magit-popup-current-switches)
+      (setq a (propertize a 'face 'magit-key-mode-switch-face)))
+    (when v
+      (setq v (propertize v 'face 'magit-key-mode-option-face)))
+    (format-spec format
+                 `((?k . ,k)
+                   (?d . ,d)
+                   (?a . ,(concat "(" a ")"))
+                   (?v . ,(if v (concat " " v) ""))))))
 
 ;;; (being refactored)
 
