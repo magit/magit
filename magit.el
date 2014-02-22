@@ -4819,7 +4819,7 @@ can be used to override this."
 ;;; Utilities (2)
 ;;;; Save Buffers
 
-(defvar magit-default-directory nil)
+(defvar magit-save-some-buffers-topdir nil)
 
 (defun magit-save-some-buffers (&optional msg pred topdir)
   "Save some buffers if variable `magit-save-some-buffers' is non-nil.
@@ -4837,7 +4837,7 @@ If PRED is a zero-argument function, it indicates for each buffer whether
 to consider it or not when called with that buffer current."
   (interactive)
   (let ((predicate-function (or pred magit-save-some-buffers-predicate))
-        (magit-default-directory (or topdir default-directory)))
+        (magit-save-some-buffers-topdir (or topdir default-directory)))
     (if magit-save-some-buffers
         (save-some-buffers
          (eq magit-save-some-buffers 'dontask)
@@ -4853,7 +4853,7 @@ to consider it or not when called with that buffer current."
   "Only prompt to save buffers which are within the current git project.
 As determined by the directory passed to `magit-status'."
   (and buffer-file-name
-       (string= (magit-get-top-dir magit-default-directory)
+       (string= (magit-get-top-dir magit-save-some-buffers-topdir)
                 (magit-get-top-dir (file-name-directory buffer-file-name)))))
 
 ;;; Porcelain
