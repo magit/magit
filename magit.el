@@ -6512,7 +6512,7 @@ depending on the value of option `magit-commit-squash-confirm'.
 (defun magit-tag (name rev &optional annotate)
   "Create a new tag with the given NAME at REV.
 With a prefix argument annotate the tag.
-\('git tag [--annotate] NAME REV')."
+\n(git tag [--annotate] NAME REV)"
   (interactive (list (magit-read-tag "Tag name")
                      (magit-read-rev "Place tag on"
                                      (or (magit-guess-branch) "HEAD"))
@@ -6527,7 +6527,7 @@ With a prefix argument annotate the tag.
 ;;;###autoload
 (defun magit-tag-delete (name)
   "Delete the tag with the given NAME.
-\('git tag -d NAME')."
+\n(git tag -d NAME)"
   (interactive (list (magit-read-tag "Delete Tag" t)))
   (magit-run-git "tag" "-d" name))
 
