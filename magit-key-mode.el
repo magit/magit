@@ -106,7 +106,7 @@
     `(lambda () (interactive)
        (magit-invoke-popup-action ',popup ',command))))
 
-(defun magit-key-mode-build-keymap (popup spec)
+(defun magit-define-popup-keymap (popup spec)
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-key-mode-map)
     (dolist (e (cdr (assoc 'switches spec)))
@@ -305,7 +305,7 @@
      ("$" "Show Process"    magit-display-process))))
 
 (defvar magit-popup-dispatch-map
-  (magit-key-mode-build-keymap 'dispatch magit-popup-dispatch))
+  (magit-define-popup-keymap 'dispatch magit-popup-dispatch))
 
 (defun magit-key-mode-popup-dispatch ()
   "Key menu for dispatch."
@@ -347,7 +347,7 @@
      ("rh" "Reflog" magit-reflog))))
 
 (defvar magit-popup-logging-map
-  (magit-key-mode-build-keymap 'logging magit-popup-logging))
+  (magit-define-popup-keymap 'logging magit-popup-logging))
 
 (defun magit-key-mode-popup-logging ()
   "Key menu for logging."
@@ -362,7 +362,7 @@
      ("k" "Gitk" magit-run-gitk))))
 
 (defvar magit-popup-running-map
-  (magit-key-mode-build-keymap 'running magit-popup-running))
+  (magit-define-popup-keymap 'running magit-popup-running))
 
 (defun magit-key-mode-popup-running ()
   "Key menu for running."
@@ -379,7 +379,7 @@
      ("-p" "Prune" "--prune"))))
 
 (defvar magit-popup-fetching-map
-  (magit-key-mode-build-keymap 'fetching magit-popup-fetching))
+  (magit-define-popup-keymap 'fetching magit-popup-fetching))
 
 (defun magit-key-mode-popup-fetching ()
   "Key menu for fetching."
@@ -397,7 +397,7 @@
      ("t" "Push tags" magit-push-tags))))
 
 (defvar magit-popup-pushing-map
-  (magit-key-mode-build-keymap 'pushing magit-popup-pushing))
+  (magit-define-popup-keymap 'pushing magit-popup-pushing))
 
 (defun magit-key-mode-popup-pushing ()
   "Key menu for pushing."
@@ -413,7 +413,7 @@
      ("F" "Pull" magit-pull))))
 
 (defvar magit-popup-pulling-map
-  (magit-key-mode-build-keymap 'pulling magit-popup-pulling))
+  (magit-define-popup-keymap 'pulling magit-popup-pulling))
 
 (defun magit-key-mode-popup-pulling ()
   "Key menu for pulling."
@@ -440,7 +440,7 @@
      ("k" "Delete" magit-delete-branch))))
 
 (defvar magit-popup-branching-map
-  (magit-key-mode-build-keymap 'branching magit-popup-branching))
+  (magit-define-popup-keymap 'branching magit-popup-branching))
 
 (defun magit-key-mode-popup-branching ()
   "Key menu for branching."
@@ -456,7 +456,7 @@
      ("k" "Remove" magit-remove-remote))))
 
 (defvar magit-popup-remoting-map
-  (magit-key-mode-build-keymap 'remoting magit-popup-remoting))
+  (magit-define-popup-keymap 'remoting magit-popup-remoting))
 
 (defun magit-key-mode-popup-remoting ()
   "Key menu for remoting."
@@ -474,7 +474,7 @@
      ("k" "Delete" magit-delete-tag))))
 
 (defvar magit-popup-tagging-map
-  (magit-key-mode-build-keymap 'tagging magit-popup-tagging))
+  (magit-define-popup-keymap 'tagging magit-popup-tagging))
 
 (defun magit-key-mode-popup-tagging ()
   "Key menu for tagging."
@@ -496,7 +496,7 @@
      ("k" "Drop" magit-stash-drop))))
 
 (defvar magit-popup-stashing-map
-  (magit-key-mode-build-keymap 'stashing magit-popup-stashing))
+  (magit-define-popup-keymap 'stashing magit-popup-stashing))
 
 (defun magit-key-mode-popup-stashing ()
   "Key menu for stashing."
@@ -524,7 +524,7 @@
      ("s" "Squash" magit-commit-squash))))
 
 (defvar magit-popup-committing-map
-  (magit-key-mode-build-keymap 'committing magit-popup-committing))
+  (magit-define-popup-keymap 'committing magit-popup-committing))
 
 (defun magit-key-mode-popup-committing ()
   "Key menu for committing."
@@ -544,7 +544,7 @@
      ("A" "Abort" magit-merge-abort))))
 
 (defvar magit-popup-merging-map
-  (magit-key-mode-build-keymap 'merging magit-popup-merging))
+  (magit-define-popup-keymap 'merging magit-popup-merging))
 
 (defun magit-key-mode-popup-merging ()
   "Key menu for merging."
@@ -561,7 +561,7 @@
      ("." "Set used" magit-rewrite-set-used))))
 
 (defvar magit-popup-rewriting-map
-  (magit-key-mode-build-keymap 'rewriting magit-popup-rewriting))
+  (magit-define-popup-keymap 'rewriting magit-popup-rewriting))
 
 (defun magit-key-mode-popup-rewriting ()
   "Key menu for rewriting."
@@ -586,7 +586,7 @@
      ("=p" "format the patch(es) are in" "--patch-format"))))
 
 (defvar magit-popup-apply-mailbox-map
-  (magit-key-mode-build-keymap 'apply-mailbox magit-popup-apply-mailbox))
+  (magit-define-popup-keymap 'apply-mailbox magit-popup-apply-mailbox))
 
 (defun magit-key-mode-popup-apply-mailbox ()
   "Key menu for apply-mailbox."
@@ -602,7 +602,7 @@
      ("s" "Sync" magit-submodule-sync))))
 
 (defvar magit-popup-submodule-map
-  (magit-key-mode-build-keymap 'submodule magit-popup-submodule))
+  (magit-define-popup-keymap 'submodule magit-popup-submodule))
 
 (defun magit-key-mode-popup-submodule ()
   "Key menu for submodule."
@@ -620,7 +620,7 @@
      ("u" "Run" magit-bisect-run))))
 
 (defvar magit-popup-bisecting-map
-  (magit-key-mode-build-keymap 'bisecting magit-popup-bisecting))
+  (magit-define-popup-keymap 'bisecting magit-popup-bisecting))
 
 (defun magit-key-mode-popup-bisecting ()
   "Key menu for bisecting."
