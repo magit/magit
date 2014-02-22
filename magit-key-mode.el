@@ -91,7 +91,7 @@
     (goto-char p)
     (skip-chars-forward " ")))
 
-(defun magit-key-mode-build-keymap (for-group options)
+(defun magit-key-mode-build-keymap (popup options)
   (let ((actions (cdr (assoc 'actions options)))
         (switches (cdr (assoc 'switches options)))
         (arguments (cdr (assoc 'arguments options)))
@@ -99,17 +99,17 @@
     (set-keymap-parent map magit-key-mode-map)
     (define-key map (kbd "?") `(lambda ()
                                  (interactive)
-                                 (magit-key-mode-help ',for-group)))
+                                 (magit-key-mode-help ',popup)))
     (let ((defkey (lambda (k action)
                     (define-key map (car k)
                       `(lambda () (interactive) ,action)))))
       (dolist (k actions)
         (funcall defkey k `(magit-key-mode-command ',(nth 2 k))))
       (dolist (k switches)
-        (funcall defkey k `(magit-key-mode-toggle-option ',for-group ,(nth 2 k))))
+        (funcall defkey k `(magit-key-mode-toggle-option ',popup ,(nth 2 k))))
       (dolist (k arguments)
         (funcall defkey k `(magit-key-mode-add-argument
-                            ',for-group ,(nth 2 k) ',(nth 3 k)))))
+                            ',popup ,(nth 2 k) ',(nth 3 k)))))
     map))
 
 (defvar-local magit-key-mode-prefix nil)
@@ -131,20 +131,20 @@
     (when func
       (call-interactively func))))
 
-(defun magit-key-mode-add-argument (for-group arg-name input-func)
+(defun magit-key-mode-add-argument (popup arg-name input-func)
   (let ((input (funcall input-func (concat arg-name ": "))))
     (puthash arg-name input magit-key-mode-current-args)
-    (magit-refresh-popup-buffer for-group)))
+    (magit-refresh-popup-buffer popup)))
 
-(defun magit-key-mode-toggle-option (for-group option-name)
+(defun magit-key-mode-toggle-option (popup option-name)
   (if (member option-name magit-key-mode-current-options)
       (setq magit-key-mode-current-options
             (delete option-name magit-key-mode-current-options))
     (add-to-list 'magit-key-mode-current-options option-name))
-  (magit-refresh-popup-buffer for-group))
+  (magit-refresh-popup-buffer popup))
 
-(defun magit-key-mode-help (for-group)
-  (let* ((opts (symbol-value (intern (format "magit-popup-%s" for-group))))
+(defun magit-key-mode-help (popup)
+  (let* ((opts (symbol-value (intern (format "magit-popup-%s" popup))))
          (man-page (cadr (assoc 'man-page opts)))
          (seq (read-key-sequence
                (format "Enter command prefix%s: "
@@ -157,7 +157,7 @@
       ((equal seq "?")
        (if man-page
            (man man-page)
-         (error "No man page associated with `%s'" for-group)))
+         (error "No man page associated with `%s'" popup)))
       (t (error "No help associated with `%s'" seq)))))
 
 (defun magit-key-mode-abort ()
@@ -170,11 +170,11 @@
 
 (defvar-local magit-pre-key-mode-window-conf nil)
 
-(defun magit-key-mode (for-group)
+(defun magit-key-mode (popup)
   (interactive)
   (let ((winconf (current-window-configuration))
         (buf (get-buffer-create (format magit-key-mode-buf-name
-                                        (symbol-name for-group)))))
+                                        (symbol-name popup)))))
     (split-window-vertically)
     (other-window 1)
     (switch-to-buffer buf)
@@ -188,19 +188,19 @@
           mode-name "magit-key-mode"
           major-mode 'magit-key-mode)
     (use-local-map
-     (symbol-value (intern (format "magit-popup-%s-map" for-group))))
-    (magit-refresh-popup-buffer for-group)
+     (symbol-value (intern (format "magit-popup-%s-map" popup))))
+    (magit-refresh-popup-buffer popup)
     (fit-window-to-buffer))
   (when magit-key-mode-show-usage
     (message (concat "Type a prefix key to toggle it. "
                      "Run 'actions' with their prefixes. "
                      "'?' for more help."))))
 
-(defun magit-refresh-popup-buffer (for-group)
+(defun magit-refresh-popup-buffer (popup)
   (let ((buffer-read-only nil)
         (arg (get-text-property (point) 'key-group-executor))
         (pos (point))
-        (options (symbol-value (intern (format "magit-popup-%s" for-group)))))
+        (options (symbol-value (intern (format "magit-popup-%s" popup)))))
     (erase-buffer)
     (magit-key-mode-draw-switches (cdr (assoc 'switches options)))
     (magit-key-mode-draw-args (cdr (assoc 'arguments options)))
