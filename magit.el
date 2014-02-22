@@ -1456,9 +1456,9 @@ set before loading libary `magit'.")
     (define-key map (kbd "a") 'magit-apply-item)
     (define-key map (kbd "A") 'magit-cherry-pick-item)
     (define-key map (kbd "d") 'magit-diff-popup)
-    (define-key map (kbd "-") 'magit-diff-smaller-hunks)
-    (define-key map (kbd "+") 'magit-diff-larger-hunks)
-    (define-key map (kbd "0") 'magit-diff-default-hunks)
+    (define-key map (kbd "-") 'magit-diff-less-context)
+    (define-key map (kbd "+") 'magit-diff-more-context)
+    (define-key map (kbd "0") 'magit-diff-default-context)
     (define-key map (kbd "H") 'magit-diff-toggle-refine-hunk)
     (define-key map (kbd "M-g") 'magit-jump-to-diffstats)
     (define-key map (kbd "S") 'magit-stage-all)
@@ -4442,7 +4442,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 
 \\<magit-commit-mode-map>Type `\\[magit-visit-item]` to visit the changed file, \
 `\\[magit-toggle-section]` to hide or show a hunk,
-`\\[magit-diff-larger-hunks]` and `\\[magit-diff-smaller-hunks]` to change the \
+`\\[magit-diff-more-context]` and `\\[magit-diff-less-context]` to change the \
 size of the hunks.
 Type `\\[magit-apply-item]` to apply a change to your worktree and \
 `\\[magit-revert-item]` to reverse it.
@@ -7202,19 +7202,19 @@ If there is no commit at point, then prompt for one."
      (list (concat marked ".." commit))))
   (magit-diff range))
 
-(defun magit-diff-smaller-hunks (&optional count)
+(defun magit-diff-less-context (&optional count)
   "Decrease the context for diff hunks by COUNT."
   (interactive "p")
   (setq magit-diff-context-lines (max 0 (- magit-diff-context-lines count)))
   (magit-refresh))
 
-(defun magit-diff-larger-hunks (&optional count)
+(defun magit-diff-more-context (&optional count)
   "Increase the context for diff hunks by COUNT."
   (interactive "p")
   (setq magit-diff-context-lines (+ magit-diff-context-lines count))
   (magit-refresh))
 
-(defun magit-diff-default-hunks ()
+(defun magit-diff-default-context ()
   "Reset context for diff hunks to the default size."
   (interactive)
   (setq magit-diff-context-lines 3)
