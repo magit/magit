@@ -6505,7 +6505,7 @@ depending on the value of option `magit-commit-squash-confirm'.
               (?f "Force"    "--force")
               (?s "Sign"     "--sign"))
   :actions  '((?t "Create"   magit-tag)
-              (?k "Delete"   magit-delete-tag))
+              (?k "Delete"   magit-tag-delete))
   :default-action 'magit-tag)
 
 ;;;###autoload
@@ -6525,7 +6525,7 @@ With a prefix argument annotate the tag.
       (magit-run-git "tag" args))))
 
 ;;;###autoload
-(defun magit-delete-tag (name)
+(defun magit-tag-delete (name)
   "Delete the tag with the given NAME.
 \('git tag -d NAME')."
   (interactive (list (magit-read-tag "Delete Tag" t)))
