@@ -246,15 +246,18 @@
 
 ;;; Define
 
-(defmacro magit-define-popup (name doc &rest plist)
+(defmacro magit-define-popup (name doc &rest args)
+  "\n\n(fn NAME DOC [MODE] :KEYWORD VALUE...)"
   (declare (indent defun) (doc-string 2))
-  (let ((opt (intern (format "%s-defaults" name))))
+  (let ((mode (unless (keywordp (car args))
+                (pop args)))
+        (opt (intern (format "%s-defaults" name))))
     `(progn
        (defun ,name (&optional arg) ,doc
          (interactive "P")
-         (magit-invoke-popup ',name arg))
+         (magit-invoke-popup ',name ,mode arg))
        (defvar ,name
-         (list :variable ',opt ,@plist))
+         (list :variable ',opt ,@args))
        (defcustom ,opt
          (magit-popup-custom-default (symbol-value ',name))
          ""
@@ -317,7 +320,7 @@
 
 (defvar-local magit-popup-previous-winconf nil)
 
-(defun magit-invoke-popup (popup arg)
+(defun magit-invoke-popup (popup mode arg)
   (let* ((value   (symbol-value popup))
          (default (plist-get value :default-action))
          (local   (plist-get value :use-prefix))
@@ -335,10 +338,10 @@
                                                  (list (/ (car arg) 4)))))
                  (call-interactively default))
         (message "%s has no default action; showing popup instead." popup)
-        (magit-popup-mode-setup popup)))
+        (magit-popup-mode-setup popup mode)))
      ((memq use-prefix '(disabled default popup nil))
-      (magit-popup-mode-setup popup)
-      (when magit-popup-show-usage
+      (magit-popup-mode-setup popup mode)
+      (when magit-popup-show-help-echo
         (message (concat "Type C-h i to view popup manual, "
                          "? to describe an argument or action."))))
      (local
@@ -505,21 +508,22 @@
 
 (put 'magit-popup-mode 'mode-class 'special)
 
-(defun magit-popup-mode-setup (popup)
+(defun magit-popup-mode-setup (popup mode)
   (let ((value (symbol-value (plist-get (symbol-value popup) :variable))))
     (magit-popup-mode-display-buffer (get-buffer-create
-                                      (format "*%s*" popup)))
+                                      (format "*%s*" popup))
+                                     (or mode 'magit-popup-mode))
     (setq magit-this-popup popup)
     (magit-popup-setup-events value))
   (magit-refresh-popup-buffer)
   (fit-window-to-buffer))
 
-(defun magit-popup-mode-display-buffer (buffer)
+(defun magit-popup-mode-display-buffer (buffer mode)
   (let ((winconf (current-window-configuration)))
     (split-window-vertically)
     (other-window 1)
     (switch-to-buffer buffer)
-    (magit-popup-mode)
+    (funcall mode)
     (setq magit-popup-previous-winconf winconf)))
 
 (defun magit-refresh-popup-buffer ()
