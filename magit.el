@@ -3740,23 +3740,22 @@ Return a list of two integers: (A>B B>A)."
 (defun magit-completing-read
   (prompt collection &optional predicate require-match initial-input hist def)
   "Call function in `magit-completing-read-function' to read user input.
-
 Read `completing-read' documentation for the meaning of the argument."
-  (funcall magit-completing-read-function
-           (concat prompt ": ") collection predicate
-           require-match initial-input hist def))
-
-(defun magit-builtin-completing-read
-  (prompt choices &optional predicate require-match initial-input hist def)
-  "Magit wrapper for standard `completing-read' function."
-  (let ((reply (completing-read (magit-prompt-with-default prompt def)
-                                choices predicate require-match
-                                initial-input hist def)))
+  (let ((reply (funcall magit-completing-read-function
+                        (concat prompt ": ") collection predicate
+                        require-match initial-input hist def)))
     (if (string= reply "")
         (if require-match
             (user-error "Nothing selected")
           nil)
       reply)))
+
+(defun magit-builtin-completing-read
+  (prompt choices &optional predicate require-match initial-input hist def)
+  "Magit wrapper for standard `completing-read' function."
+  (completing-read (magit-prompt-with-default prompt def)
+                   choices predicate require-match
+                   initial-input hist def))
 
 (defun magit-ido-completing-read
   (prompt choices &optional predicate require-match initial-input hist def)
@@ -3802,11 +3801,8 @@ Read `completing-read' documentation for the meaning of the argument."
                     elt)
                   (magit-list-interesting-refs uninteresting)))
          (reply (magit-completing-read prompt interesting-refs nil nil nil
-                                       'magit-read-rev-history default))
-         (rev (or (cdr (assoc reply interesting-refs)) reply)))
-    (unless (or rev noselection)
-      (user-error "No rev selected"))
-    rev))
+                                       'magit-read-rev-history default)))
+    (or (cdr (assoc reply interesting-refs)) reply)))
 
 (defun magit-read-rev-with-default (prompt)
   (magit-read-rev prompt (--when-let (or (magit-guess-branch) "HEAD")
@@ -3819,18 +3815,15 @@ Read `completing-read' documentation for the meaning of the argument."
                          'magit-read-rev-history))
 
 (defun magit-read-remote-branch (prompt remote &optional default)
-  (let ((branch (magit-completing-read
-                 prompt
-                 (cl-mapcan
-                  (lambda (b)
-                    (and (not (string-match " -> " b))
-                         (string-match (format "^ *%s/\\(.*\\)$"
-                                               (regexp-quote remote)) b)
-                         (list (match-string 1 b))))
-                  (magit-git-lines "branch" "-r"))
-                 nil nil nil nil default)))
-    (unless (string= branch "")
-      branch)))
+  (magit-completing-read prompt
+                         (cl-mapcan
+                          (lambda (b)
+                            (and (not (string-match " -> " b))
+                                 (string-match (format "^ *%s/\\(.*\\)$"
+                                                       (regexp-quote remote)) b)
+                                 (list (match-string 1 b))))
+                          (magit-git-lines "branch" "-r"))
+                         nil nil nil nil default))
 
 (defun magit-read-tag (prompt &optional require-match)
   (magit-completing-read prompt (magit-git-lines "tag") nil
