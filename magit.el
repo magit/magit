@@ -2129,64 +2129,10 @@ involving HEAD."
         (concat trace (or (match-string 2 trace) ":") file)
       (user-error "Trace is invalid, see man git-log"))))
 
-(defvar magit-read-rev-history nil
-  "The history of inputs to `magit-read-rev' and `magit-read-tag'.")
-
-(defun magit-read-tag (prompt &optional require-match)
-  (magit-completing-read prompt (magit-git-lines "tag") nil
-                         require-match nil 'magit-read-rev-history))
-
-(defun magit-read-rev (prompt &optional default uninteresting noselection)
-  (let* ((interesting-refs
-          (mapcar (lambda (elt)
-                    (setcdr elt (replace-regexp-in-string
-                                 "^refs/heads/" "" (cdr elt)))
-                    elt)
-                  (magit-list-interesting-refs uninteresting)))
-         (reply (magit-completing-read prompt interesting-refs nil nil nil
-                                       'magit-read-rev-history default))
-         (rev (or (cdr (assoc reply interesting-refs)) reply)))
-    (unless (or rev noselection)
-      (user-error "No rev selected"))
-    rev))
-
-(defun magit-read-rev-with-default (prompt)
-  (magit-read-rev prompt
-                  (let ((branch (or (magit-guess-branch) "HEAD")))
-                    (when branch
-                      (if (string-match "^refs/\\(.*\\)" branch)
-                          (match-string 1 branch)
-                        branch)))))
-
-(defun magit-popup-read-rev (prompt initial-input)
-  (magit-completing-read prompt nil nil nil initial-input
-                         'magit-read-rev-history))
-
-(defun magit-read-stash (prompt)
-  (let ((n (read-number "Show stash: " 0))
-        (l (1- (length (magit-git-lines "stash" "list")))))
-    (if (> n l)
-        (user-error "No stash older than stash@{%i}" l)
-      (format "stash@{%i}" n))))
-
 (defun magit-read-remote (prompt &optional default require-match)
   (magit-completing-read prompt (magit-git-lines "remote")
                          nil require-match nil nil
                          (or default (magit-guess-remote))))
-
-(defun magit-read-remote-branch (prompt remote &optional default)
-  (let ((branch (magit-completing-read
-                 prompt
-                 (cl-mapcan
-                  (lambda (b)
-                    (and (not (string-match " -> " b))
-                         (string-match (format "^ *%s/\\(.*\\)$"
-                                               (regexp-quote remote)) b)
-                         (list (match-string 1 b))))
-                  (magit-git-lines "branch" "-r"))
-                 nil nil nil nil default)))
-    (unless (string= branch "")
-      branch)))
 
 (defun magit-format-ref-label (ref)
   (cl-destructuring-bind (re face fn)
@@ -3923,6 +3869,61 @@ Read `completing-read' documentation for the meaning of the argument."
     (iswitchb-read-buffer prompt (or initial-input def) require-match)))
 
 ;;;;; Revision Completion
+
+(defvar magit-read-rev-history nil
+  "The history of inputs to `magit-read-rev' and `magit-read-tag'.")
+
+(defun magit-read-rev (prompt &optional default uninteresting noselection)
+  (let* ((interesting-refs
+          (mapcar (lambda (elt)
+                    (setcdr elt (replace-regexp-in-string
+                                 "^refs/heads/" "" (cdr elt)))
+                    elt)
+                  (magit-list-interesting-refs uninteresting)))
+         (reply (magit-completing-read prompt interesting-refs nil nil nil
+                                       'magit-read-rev-history default))
+         (rev (or (cdr (assoc reply interesting-refs)) reply)))
+    (unless (or rev noselection)
+      (user-error "No rev selected"))
+    rev))
+
+(defun magit-read-rev-with-default (prompt)
+  (magit-read-rev prompt
+                  (let ((branch (or (magit-guess-branch) "HEAD")))
+                    (when branch
+                      (if (string-match "^refs/\\(.*\\)" branch)
+                          (match-string 1 branch)
+                        branch)))))
+
+(defun magit-popup-read-rev (prompt initial-input)
+  (magit-completing-read prompt nil nil nil initial-input
+                         'magit-read-rev-history))
+
+(defun magit-read-remote-branch (prompt remote &optional default)
+  (let ((branch (magit-completing-read
+                 prompt
+                 (cl-mapcan
+                  (lambda (b)
+                    (and (not (string-match " -> " b))
+                         (string-match (format "^ *%s/\\(.*\\)$"
+                                               (regexp-quote remote)) b)
+                         (list (match-string 1 b))))
+                  (magit-git-lines "branch" "-r"))
+                 nil nil nil nil default)))
+    (unless (string= branch "")
+      branch)))
+
+(defun magit-read-tag (prompt &optional require-match)
+  (magit-completing-read prompt (magit-git-lines "tag") nil
+                         require-match nil 'magit-read-rev-history))
+
+(defun magit-read-stash (prompt)
+  (let ((n (read-number "Show stash: " 0))
+        (l (1- (length (magit-git-lines "stash" "list")))))
+    (if (> n l)
+        (user-error "No stash older than stash@{%i}" l)
+      (format "stash@{%i}" n))))
+
 ;;;;; Miscellaneous Completion
 ;;; (misplaced)
 ;;;; Hunk Refinement
