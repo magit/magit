@@ -236,33 +236,22 @@ the key combination highlighted before the description."
 (defun magit-key-mode-redraw (for-group)
   "(re)draw the magit key buffer."
   (let ((buffer-read-only nil)
-        (old-arg (get-text-property (point) 'key-group-executor))
-        (old-pos (point))
+        (arg (get-text-property (point) 'key-group-executor))
+        (pos (point))
         (options (magit-key-mode-options-for-group for-group)))
     (erase-buffer)
     (magit-key-mode-draw-switches (cdr (assoc 'switches options)))
     (magit-key-mode-draw-args (cdr (assoc 'arguments options)))
     (save-excursion
       (magit-key-mode-draw-actions (cdr (assoc 'actions options))))
-    (if (= old-pos 1)
+    (delete-trailing-whitespace)
+    (if (= pos 1)
         (magit-key-mode-jump-to-next-exec)
-      (goto-char (if old-arg
-                     (or (cdr (assoc old-arg
-                                     (magit-key-mode-build-exec-point-alist))))
-                   old-pos))
-      (skip-chars-forward " "))
-    (delete-trailing-whitespace)))
-
-(defun magit-key-mode-build-exec-point-alist ()
-  (save-excursion
-    (goto-char (point-min))
-    (let* ((exec (get-text-property (point) 'key-group-executor))
-           (exec-alist (and exec `((,exec . ,(point))))))
-      (cl-do nil ((eobp) (nreverse exec-alist))
-        (when (not (eq exec (get-text-property (point) 'key-group-executor)))
-          (setq exec (get-text-property (point) 'key-group-executor))
-          (when exec (push (cons exec (point)) exec-alist)))
-        (forward-char)))))
+      (goto-char (setq pos (point-min)))
+      (while (and (not (eobp))
+                  (not (eq  (get-text-property pos 'key-group-executor) arg)))
+        (setq pos (next-single-property-change pos 'key-group-executor)))
+      (goto-char pos))))
 
 ;;; Draw Buffer
 
