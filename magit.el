@@ -1424,7 +1424,7 @@ Many Magit faces inherit from this one by default."
     (define-key map "U" 'magit-unstage-all)
     (define-key map "v" 'magit-revert-item)
     (define-key map "x" 'magit-reset-head)
-    (define-key map "X" 'magit-reset-working-tree)
+    (define-key map "X" 'magit-clean)
     (define-key map "y" 'magit-cherry)
     (define-key map "z" 'magit-stash-popup)
     (define-key map ":" 'magit-git-command)
@@ -1568,7 +1568,7 @@ Many Magit faces inherit from this one by default."
     ["Ignore locally" magit-ignore-item-locally t]
     ["Discard" magit-discard-item t]
     ["Reset head" magit-reset-head t]
-    ["Reset working tree" magit-reset-working-tree t]
+    ["Clean working tree" magit-clean t]
     ["Stash" magit-stash t]
     ["Snapshot" magit-stash-snapshot t]
     "---"
@@ -1614,7 +1614,6 @@ Many Magit faces inherit from this one by default."
              (?v "Show Commit"     magit-show-commit)
              (?V "Show File"       magit-show)
              (?w "Wazzup"          magit-wazzup)
-             (?X "Reset worktree"  magit-reset-working-tree)
              (?y "Cherry"          magit-cherry)
              (?z "Stashing"        magit-stash-popup)
              (?! "Running"         magit-run-popup)
@@ -5836,25 +5835,21 @@ Uncomitted changes in both working tree and staging area are lost.
                                      (or (magit-guess-branch) "HEAD"))))
   (magit-reset-head revision t))
 
+;;;;; Clean
+
 ;;;###autoload
-(defun magit-reset-working-tree (&optional arg)
-  "Revert working tree and clear changes from staging area.
-With a prefix arg, also remove untracked files.
-With two prefix args, remove ignored files as well.
-\n(git reset --hard HEAD; [git clean -f -d [-x]])"
+(defun magit-clean (&optional arg)
+  "Remove untracked files from the working tree.
+With a prefix argument also remove ignored files,
+with two prefix arguments remove ignored files only.
+\n(git clean -f -d [-x|-X])"
   (interactive "p")
-  (let ((include-untracked (>= arg 4))
-        (include-ignored (>= arg 16)))
-    (when (yes-or-no-p (format "Discard all uncommitted changes%s%s? "
-                               (if include-untracked
-                                   ", untracked files"
-                                 "")
-                               (if include-ignored
-                                   ", ignored files"
-                                 "")))
-      (magit-reset-head-hard "HEAD")
-      (when include-untracked
-        (magit-run-git "clean" "-f" "-d" (and include-ignored "-x"))))))
+  (when (yes-or-no-p (format "Remove %s files? "
+                             (cl-case arg
+                               (1 "untracked")
+                               (4 "untracked and ignored")
+                               (t "ignored"))))
+    (magit-run-git "clean" "-f" "-d" (cl-case arg (4 "-x") (16 "-X")))))
 
 ;;;;; Rewriting
 
