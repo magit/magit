@@ -3079,6 +3079,9 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
        (unless (eq ,value magit-section-action-success)
          ,value))))
 
+(defun magit-current-commit ()
+  (magit-section-case (info) (commit info)))
+
 ;;;; Process Api
 ;;;;; Process Commands
 
