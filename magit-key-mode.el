@@ -68,15 +68,10 @@
 
 ;;; (being refactored)
 
-(defun magit-key-mode-options-for-group (for-group)
-  "Retrieve the options for the group FOR-GROUP.
-This includes switches, commands and arguments."
-  (symbol-value (intern (format "magit-popup-%s" for-group))))
-
 (defun magit-key-mode-help (for-group)
   "Provide help for a key within FOR-GROUP.
 The user is prompted for the key."
-  (let* ((opts (magit-key-mode-options-for-group for-group))
+  (let* ((opts (symbol-value (intern (format "magit-popup-%s" for-group))))
          (man-page (cadr (assoc 'man-page opts)))
          (seq (read-key-sequence
                (format "Enter command prefix%s: "
@@ -238,7 +233,7 @@ the key combination highlighted before the description."
   (let ((buffer-read-only nil)
         (arg (get-text-property (point) 'key-group-executor))
         (pos (point))
-        (options (magit-key-mode-options-for-group for-group)))
+        (options (symbol-value (intern (format "magit-popup-%s" for-group)))))
     (erase-buffer)
     (magit-key-mode-draw-switches (cdr (assoc 'switches options)))
     (magit-key-mode-draw-args (cdr (assoc 'arguments options)))
