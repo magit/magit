@@ -180,7 +180,7 @@
 
 (defvar-local magit-popup-previous-winconf nil)
 
-(defun magit-key-mode (popup)
+(defun magit-popup-mode (popup)
   (interactive)
   (let ((winconf (current-window-configuration))
         (buf (get-buffer-create (format magit-key-mode-buf-name
@@ -194,8 +194,8 @@
     (setq buffer-read-only t)
     (setq magit-popup-previous-winconf winconf
           magit-popup-prefix-arg current-prefix-arg
-          mode-name "magit-key-mode"
-          major-mode 'magit-key-mode)
+          mode-name "magit-popup-mode"
+          major-mode 'magit-popup-mode)
     (use-local-map
      (symbol-value (intern (format "magit-popup-%s-map" popup))))
     (magit-refresh-popup-buffer popup)
@@ -317,7 +317,7 @@
 (defun magit-key-mode-popup-dispatch ()
   "Key menu for dispatch."
   (interactive)
-  (magit-key-mode 'dispatch))
+  (magit-popup-mode 'dispatch))
 
 (defvar magit-popup-logging
   '((man-page "git-log")
@@ -359,7 +359,7 @@
 (defun magit-key-mode-popup-logging ()
   "Key menu for logging."
   (interactive)
-  (magit-key-mode 'logging))
+  (magit-popup-mode 'logging))
 
 (defvar magit-popup-running
   '((actions
@@ -374,7 +374,7 @@
 (defun magit-key-mode-popup-running ()
   "Key menu for running."
   (interactive)
-  (magit-key-mode 'running))
+  (magit-popup-mode 'running))
 
 (defvar magit-popup-fetching
   '((man-page "git-fetch")
@@ -391,7 +391,7 @@
 (defun magit-key-mode-popup-fetching ()
   "Key menu for fetching."
   (interactive)
-  (magit-key-mode 'fetching))
+  (magit-popup-mode 'fetching))
 
 (defvar magit-popup-pushing
   '((man-page "git-push")
@@ -409,7 +409,7 @@
 (defun magit-key-mode-popup-pushing ()
   "Key menu for pushing."
   (interactive)
-  (magit-key-mode 'pushing))
+  (magit-popup-mode 'pushing))
 
 (defvar magit-popup-pulling
   '((man-page "git-pull")
@@ -425,7 +425,7 @@
 (defun magit-key-mode-popup-pulling ()
   "Key menu for pulling."
   (interactive)
-  (magit-key-mode 'pulling))
+  (magit-popup-mode 'pulling))
 
 (defvar magit-popup-branching
   '((man-page "git-branch")
@@ -452,7 +452,7 @@
 (defun magit-key-mode-popup-branching ()
   "Key menu for branching."
   (interactive)
-  (magit-key-mode 'branching))
+  (magit-popup-mode 'branching))
 
 (defvar magit-popup-remoting
   '((man-page "git-remote")
@@ -468,7 +468,7 @@
 (defun magit-key-mode-popup-remoting ()
   "Key menu for remoting."
   (interactive)
-  (magit-key-mode 'remoting))
+  (magit-popup-mode 'remoting))
 
 (defvar magit-popup-tagging
   '((man-page "git-tag")
@@ -486,7 +486,7 @@
 (defun magit-key-mode-popup-tagging ()
   "Key menu for tagging."
   (interactive)
-  (magit-key-mode 'tagging))
+  (magit-popup-mode 'tagging))
 
 (defvar magit-popup-stashing
   '((man-page "git-stash")
@@ -508,7 +508,7 @@
 (defun magit-key-mode-popup-stashing ()
   "Key menu for stashing."
   (interactive)
-  (magit-key-mode 'stashing))
+  (magit-popup-mode 'stashing))
 
 (defvar magit-popup-committing
   '((man-page "git-commit")
@@ -536,7 +536,7 @@
 (defun magit-key-mode-popup-committing ()
   "Key menu for committing."
   (interactive)
-  (magit-key-mode 'committing))
+  (magit-popup-mode 'committing))
 
 (defvar magit-popup-merging
   '((man-page "git-merge")
@@ -556,7 +556,7 @@
 (defun magit-key-mode-popup-merging ()
   "Key menu for merging."
   (interactive)
-  (magit-key-mode 'merging))
+  (magit-popup-mode 'merging))
 
 (defvar magit-popup-rewriting
   '((actions
@@ -573,7 +573,7 @@
 (defun magit-key-mode-popup-rewriting ()
   "Key menu for rewriting."
   (interactive)
-  (magit-key-mode 'rewriting))
+  (magit-popup-mode 'rewriting))
 
 (defvar magit-popup-apply-mailbox
   '((man-page "git-am")
@@ -598,7 +598,7 @@
 (defun magit-key-mode-popup-apply-mailbox ()
   "Key menu for apply-mailbox."
   (interactive)
-  (magit-key-mode 'apply-mailbox))
+  (magit-popup-mode 'apply-mailbox))
 
 (defvar magit-popup-submodule
   '((man-page "git-submodule")
@@ -614,7 +614,7 @@
 (defun magit-key-mode-popup-submodule ()
   "Key menu for submodule."
   (interactive)
-  (magit-key-mode 'submodule))
+  (magit-popup-mode 'submodule))
 
 (defvar magit-popup-bisecting
   '((man-page "git-bisect")
@@ -632,7 +632,7 @@
 (defun magit-key-mode-popup-bisecting ()
   "Key menu for bisecting."
   (interactive)
-  (magit-key-mode 'bisecting))
+  (magit-popup-mode 'bisecting))
 
 (provide 'magit-key-mode)
 ;; Local Variables:
