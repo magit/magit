@@ -72,7 +72,7 @@
 (define-obsolete-face-alias 'magit-key-mode-button-face 'magit-popup-key "2.0.0")
 (define-obsolete-face-alias 'magit-key-mode-switch-face 'magit-popup-argument "2.0.0")
 
-;;; (being refactored)
+;;; Keymap
 
 (defvar magit-popup-mode-map
   (let ((map (make-sparse-keymap)))
@@ -86,6 +86,40 @@
     (define-key map [?\t]   'forward-button)
     (define-key map [?\C-n] 'forward-button)
     map))
+
+;;; Buttons
+
+(define-button-type 'magit-popup-button
+  'face nil
+  'action (lambda (button)
+            (funcall (button-get button 'function)
+                     (button-get button 'event))))
+
+(define-button-type 'magit-popup-switch-button
+  'supertype 'magit-popup-button
+  'function  'magit-invoke-popup-switch
+  'property  :switches
+  'heading   "Switches\n"
+  'format    " %k: %d %s"
+  'onecol    nil)
+
+(define-button-type 'magit-popup-option-button
+  'supertype 'magit-popup-button
+  'function  'magit-invoke-popup-option
+  'property  :options
+  'heading   "Options\n"
+  'format    " %k: %d %o"
+  'onecol    t)
+
+(define-button-type 'magit-popup-action-button
+  'supertype 'magit-popup-button
+  'function  'magit-invoke-popup-action
+  'property  :actions
+  'heading   "Actions\n"
+  'format    " %k: %d"
+  'onecol    nil)
+
+;;; (being refactored)
 
 (defvar-local magit-this-popup nil)
 
@@ -221,59 +255,46 @@
 (defun magit-refresh-popup-buffer ()
   (let ((inhibit-read-only t)
         (key (ignore-errors
-               (car (button-get (button-at (point)) 'args))))
-        (spec (symbol-value magit-this-popup)))
+               (button-get (button-at (point)) 'event))))
     (erase-buffer)
     (save-excursion
-      (magit-popup-insert-buttons "Switches" " %k: %d %s"
-                                  'magit-invoke-popup-switch
-                                  (plist-get spec :switches))
-      (magit-popup-insert-buttons "Options"  " %k: %d %o"
-                                  'magit-invoke-popup-option
-                                  (plist-get spec :options)
-                                  (not magit-popup-options-in-cols))
-      (magit-popup-insert-buttons "Actions"  " %k: %d"
-                                  'magit-invoke-popup-action
-                                  (plist-get spec :actions)))
+      (magit-popup-insert-buttons 'magit-popup-switch-button)
+      (magit-popup-insert-buttons 'magit-popup-option-button)
+      (magit-popup-insert-buttons 'magit-popup-action-button))
     (if key
         (while (and (forward-button 1)
-                    (not (equal (car (button-get (button-at (point)) 'args))
+                    (not (equal (button-get (button-at (point)) 'event)
                                 key))))
       (re-search-forward "^Actions" nil t)
       (forward-button 1))))
 
 ;;; Draw
 
-(defun magit-popup-insert-buttons (heading format invoke items
-                                           &optional one-col-each)
-  (when items
-    (insert (propertize heading 'face 'magit-popup-header) "\n")
-    (setq items
-          (mapcar (lambda (item)
-                    (cons (magit-popup-format-button format item) item))
-                  items))
-    (let ((maxlen (apply 'max (mapcar (lambda (e) (length (car e))) items)))
-          item)
-      (while (setq item (pop items))
-        (let ((beg (point)))
-          (insert (car item))
-          (make-button beg (point) 'face nil
-                       'args
-                       (cons invoke (cons magit-this-popup (cdr item)))
-                       'action
-                       (lambda (button)
-                         (let ((args (button-get button 'args)))
-                           (apply (car args) (cddr args)))))
-          (let ((padding (- (+ maxlen 3) (length (car item)))))
-            (if (or one-col-each
-                    (not items)
-                    (> (+ (current-column) padding maxlen)
-                       (window-width)))
-                (insert "\n")
-              (insert (make-string padding ?\s)))))))
-    (insert "\n")))
+(defun magit-popup-insert-buttons (type)
+  (let ((items (mapcar (lambda (item)
+                         (cons (magit-popup-format-button type item) item))
+                       (plist-get (symbol-value magit-this-popup)
+                                  (button-type-get type 'property)))))
+    (when items
+      (insert (propertize (button-type-get type 'heading)
+                          'face 'magit-popup-header))
+      (let ((maxlen (apply 'max (mapcar (lambda (e) (length (car e))) items)))
+            (onecol (button-type-get type 'onecol))
+            item)
+        (while (setq item (pop items))
+          (let ((beg (point)))
+            (insert (car item))
+            (make-button beg (point) 'type type 'event (cadr item))
+            (let ((padding (- (+ maxlen 3) (length (car item)))))
+              (if (or onecol
+                      (not items)
+                      (> (+ (current-column) padding maxlen)
+                         (window-width)))
+                  (insert "\n")
+                (insert (make-string padding ?\s)))))))
+      (insert "\n"))))
 
-(defun magit-popup-format-button (format arg)
+(defun magit-popup-format-button (type arg)
   (let* ((k (propertize (car arg) 'face 'magit-popup-key))
          (d (nth 1 arg))
          (a (unless (symbolp (nth 2 arg)) (nth 2 arg)))
@@ -288,7 +309,7 @@
                 nil
               (propertize (format "\"%s\"" v)
                           'face 'magit-popup-option-value)))
-    (format-spec format
+    (format-spec (button-type-get type 'format)
                  `((?k . ,k)
                    (?d . ,d)
                    (?s . ,(concat "(" a ")"))
