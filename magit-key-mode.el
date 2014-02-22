@@ -24,10 +24,7 @@
 
 ;;; Commentary:
 
-;; This library implements `magit-key-mode' which is used throughout
-;; Magit to let the user interactively select the command, switches
-;; and options to call Git with.  It can be though of as a way to
-;; provide "postfix" arguments.
+;; Interactively tune git invocation.
 
 ;;; Code:
 
@@ -75,18 +72,15 @@
     (define-key map (kbd "TAB") 'magit-key-mode-jump-to-next-exec)
     (define-key map (kbd "C-g") 'magit-key-mode-abort)
     (define-key map (kbd "q")   'magit-key-mode-abort)
-    map)
-  "The parent keymap of all key-mode popup keymaps.")
+    map))
 
 (defun magit-key-mode-exec-at-point ()
-  "Run action/args/option at point."
   (interactive)
   (let ((key (or (get-text-property (point) 'key-group-executor)
                  (error "Nothing at point to do."))))
     (call-interactively (lookup-key (current-local-map) key))))
 
 (defun magit-key-mode-jump-to-next-exec ()
-  "Jump to the next action/args/option point."
   (interactive)
   (let* ((oldp (point))
          (old  (get-text-property oldp 'key-group-executor))
@@ -98,7 +92,6 @@
     (skip-chars-forward " ")))
 
 (defun magit-key-mode-build-keymap (for-group options)
-  "Construct a normal looking keymap for the key mode to use."
   (let ((actions (cdr (assoc 'actions options)))
         (switches (cdr (assoc 'switches options)))
         (arguments (cdr (assoc 'arguments options)))
@@ -119,21 +112,12 @@
                             ',for-group ,(nth 2 k) ',(nth 3 k)))))
     map))
 
-(defvar-local magit-key-mode-prefix nil
-  "Prefix argument to the command that brought up the key-mode window.
-For internal use.  Used by the command that's eventually invoked.")
+(defvar-local magit-key-mode-prefix nil)
 
-(defvar-local magit-key-mode-current-args nil
-  "A hash-table of current argument set.
-These will eventually make it to the git command-line.")
+(defvar-local magit-key-mode-current-args nil)
+(defvar-local magit-key-mode-current-options nil)
 
-(defvar-local magit-key-mode-current-options nil
-  "Current option set.
-These will eventually make it to the git command-line.")
-
-(defvar magit-custom-options nil
-  "List of custom options to pass to Git.
-Do not customize this (used in the `magit-key-mode' implementation).")
+(defvar magit-custom-options nil)
 
 (defun magit-key-mode-command (func)
   (let ((current-prefix-arg (or current-prefix-arg magit-key-mode-prefix))
@@ -153,7 +137,6 @@ Do not customize this (used in the `magit-key-mode' implementation).")
     (magit-refresh-popup-buffer for-group)))
 
 (defun magit-key-mode-toggle-option (for-group option-name)
-  "Toggles the appearance of OPTION-NAME in `magit-key-mode-current-options'."
   (if (member option-name magit-key-mode-current-options)
       (setq magit-key-mode-current-options
             (delete option-name magit-key-mode-current-options))
@@ -161,8 +144,6 @@ Do not customize this (used in the `magit-key-mode' implementation).")
   (magit-refresh-popup-buffer for-group))
 
 (defun magit-key-mode-help (for-group)
-  "Provide help for a key within FOR-GROUP.
-The user is prompted for the key."
   (let* ((opts (symbol-value (intern (format "magit-popup-%s" for-group))))
          (man-page (cadr (assoc 'man-page opts)))
          (seq (read-key-sequence
@@ -172,9 +153,7 @@ The user is prompted for the key."
                          ""))))
          (actions (cdr (assoc 'actions opts))))
     (cond
-      ;; if it is an action popup the help for the to-be-run function
       ((assoc seq actions) (describe-function (nth 2 (assoc seq actions))))
-      ;; if there is "?" show a man page if there is one
       ((equal seq "?")
        (if man-page
            (man man-page)
@@ -182,22 +161,16 @@ The user is prompted for the key."
       (t (error "No help associated with `%s'" seq)))))
 
 (defun magit-key-mode-abort ()
-  "Abort the current key-mode popup."
   (interactive)
   (magit-key-mode-command nil))
 
 ;;; Mode
 
-(defvar magit-key-mode-buf-name "*magit-key: %s*"
-  "Format string to create the name of the magit-key buffer.")
+(defvar magit-key-mode-buf-name "*magit-key: %s*")
 
-(defvar-local magit-pre-key-mode-window-conf nil
-  "Will hold the pre-menu configuration of magit.")
+(defvar-local magit-pre-key-mode-window-conf nil)
 
 (defun magit-key-mode (for-group)
-  "Mode for magit key selection.
-All commands, switches and options can be toggled/actioned with
-the key combination highlighted before the description."
   (interactive)
   (let ((winconf (current-window-configuration))
         (buf (get-buffer-create (format magit-key-mode-buf-name
@@ -244,11 +217,9 @@ the key combination highlighted before the description."
 
 ;;; Draw Buffer
 
-(defvar magit-key-mode-args-in-cols nil
-  "When true, draw arguments in columns as with switches and options.")
+(defvar magit-key-mode-args-in-cols nil)
 
 (defun magit-key-mode-draw-args (args)
-  "Draw the args part of the menu."
   (magit-key-mode-draw-buttons
    "Args"
    args
@@ -260,7 +231,6 @@ the key combination highlighted before the description."
    (not magit-key-mode-args-in-cols)))
 
 (defun magit-key-mode-draw-switches (switches)
-  "Draw the switches part of the menu."
   (magit-key-mode-draw-buttons
    "Switches"
    switches
@@ -271,7 +241,6 @@ the key combination highlighted before the description."
                         s))))))
 
 (defun magit-key-mode-draw-actions (actions)
-  "Draw the actions part of the menu."
   (magit-key-mode-draw-buttons "Actions" actions nil))
 
 (defun magit-key-mode-draw-buttons (heading xs maker &optional one-col-each)
@@ -289,9 +258,6 @@ the key combination highlighted before the description."
      one-col-each)))
 
 (defun magit-key-mode-draw-in-cols (strings one-col-each)
-  "Given a list of strings, print in columns (using `insert').
-If ONE-COL-EACH is true then don't columify, but rather, draw
-each item on one line."
   (let ((longest-act (apply 'max (mapcar 'length strings))))
     (while strings
       (let ((str (car strings)))
