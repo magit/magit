@@ -128,7 +128,8 @@
 
 (defmacro magit-define-popup (name doc &rest plist)
   (declare (indent defun) (doc-string 2))
-  (let ((msym (intern (format "%s-map" name))))
+  (let ((msym (intern (format "%s-map" name)))
+        (custom (intern (format "%s-defaults" name))))
     `(progn
        (defun ,name () ,doc
          (interactive)
@@ -139,33 +140,79 @@
          (magit-define-popup-keymap ',name))
        (put ',msym 'definition-name ',name))))
 
-(defun magit-define-popup-switch (map key switch)
-  (define-key map
+(defun magit-define-popup-switch (popup key desc switch
+                                        &optional enable at prepend)
+  (declare (indent defun))
+  (magit-define-popup-key popup :switches key
+    (list desc switch enable) at prepend)
+  (define-key (symbol-value (intern (format "%s-map" popup)))
     (vector (button-type-get 'magit-popup-switch-button 'prefix) key)
     `(lambda () (interactive)
        (magit-invoke-popup-switch ,switch))))
 
-(defun magit-define-popup-option (map key option reader)
-  (define-key map
+(defun magit-define-popup-option (popup key desc option reader
+                                        &optional value at prepend)
+  (declare (indent defun))
+  (magit-define-popup-key popup :options key
+    (list desc option reader value) at prepend)
+  (define-key (symbol-value (intern (format "%s-map" popup)))
     (vector (button-type-get 'magit-popup-option-button 'prefix) key)
     `(lambda () (interactive)
        (magit-invoke-popup-option ,option ',reader))))
 
-(defun magit-define-popup-action (map key command)
-  (define-key map (vector key)
+(defun magit-define-popup-action (popup key desc command
+                                        &optional at prepend)
+  (declare (indent defun))
+  (magit-define-popup-key popup :actions key
+    (list desc command) at prepend)
+  (define-key (symbol-value (intern (format "%s-map" popup)))
+    (vector key)
     `(lambda () (interactive)
        (magit-invoke-popup-action ',command))))
+
+(defun magit-define-popup-key (popup type key def
+                                     &optional at prepend)
+  (declare (indent defun))
+  (if (memq type '(:switches :options :actions))
+      (let* ((plist (symbol-value popup))
+             (value (plist-get plist type))
+             (elt   (assoc key value)))
+        (if elt
+            (setcdr elt def)
+          (setq elt (cons key def)))
+        (if at
+            (when (setq at (cl-member at value :key 'car :test 'equal))
+              (setq value (cl-delete key value :key 'car :test 'equal))
+              (if prepend
+                  (progn (push (car at) (cdr at))
+                         (setcar at elt))
+                (push elt (cdr at))))
+          (setq value (cl-delete key value :key 'car :test 'equal)))
+        (unless (assoc key value)
+          (setq value (if prepend
+                          (cons elt value)
+                        (append value (list elt)))))
+        (set popup (plist-put plist type value)))
+    (error "Unknown popup event type: %s" type)))
 
 (defun magit-define-popup-keymap (popup)
   (let ((spec (symbol-value popup))
         (map (make-sparse-keymap)))
     (set-keymap-parent map magit-popup-mode-map)
     (dolist (e (plist-get spec :switches))
-      (magit-define-popup-switch map (car e) (nth 2 e)))
+      (define-key map
+        (vector (button-type-get 'magit-popup-switch-button 'prefix) (car e))
+        `(lambda () (interactive)
+           (magit-invoke-popup-switch ,(nth 2 e)))))
     (dolist (e (plist-get spec :options))
-      (magit-define-popup-option map (car e) (nth 2 e) (nth 3 e)))
+      (define-key map
+        (vector (button-type-get 'magit-popup-option-button 'prefix) (car e))
+        `(lambda () (interactive)
+           (magit-invoke-popup-option ,(nth 2 e) ',(nth 3 e)))))
     (dolist (e (plist-get spec :actions))
-      (magit-define-popup-action map (car e) (nth 2 e)))
+      (define-key map (vector (car e))
+        `(lambda () (interactive)
+           (magit-invoke-popup-action ',(nth 2 e)))))
     (define-key map "?" 'magit-popup-help)
     map))
 
