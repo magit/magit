@@ -1727,7 +1727,7 @@ Read `completing-read' documentation for the meaning of the argument."
 
 (defvar magit-gpg-secret-key-hist nil)
 
-(defun magit-read-gpg-secret-key (prompt)
+(defun magit-read-gpg-secret-key (prompt &optional initial-input)
   (let ((keys (mapcar
                (lambda (key)
                  (list (epg-sub-key-id (car (epg-key-sub-key-list key)))
@@ -1739,7 +1739,7 @@ Read `completing-read' documentation for the meaning of the argument."
                                id-str
                              (epg-decode-dn id-obj))))))
                (epg-list-keys (epg-make-context epa-protocol) nil t))))
-  (magit-completing-read prompt keys nil t nil nil
+  (magit-completing-read prompt keys nil nil initial-input nil
                          (or (car magit-gpg-secret-key-hist) (car keys)))))
 
 ;;;; Various Utilities
@@ -2305,6 +2305,10 @@ involving HEAD."
                       (if (string-match "^refs/\\(.*\\)" branch)
                           (match-string 1 branch)
                         branch)))))
+
+(defun magit-popup-read-rev (prompt initial-input)
+  (magit-completing-read prompt nil nil nil initial-input
+                         'magit-read-rev-history))
 
 (defun magit-read-rev-range (op &optional def-beg def-end)
   (let ((beg (magit-read-rev (format "%s range or start" op) def-beg)))
@@ -5459,9 +5463,9 @@ With a prefix argument, skip editing the log message and commit.
               (?M "Merged to master"           "--merged=master")
               (?n "Not merged to HEAD"         "--no-merged")
               (?N "Not merged to master"       "--no-merged=master"))
-  :options  '((?c "Contains"   "--contains="  magit-read-rev-with-default)
-              (?m "Merged"     "--merged="    magit-read-rev-with-default)
-              (?n "Not merged" "--no-merged=" magit-read-rev-with-default))
+  :options  '((?c "Contains"   "--contains="  magit-popup-read-rev)
+              (?m "Merged"     "--merged="    magit-popup-read-rev)
+              (?n "Not merged" "--no-merged=" magit-popup-read-rev))
   :actions  '((?v "Branch manager" magit-branch-manager)
               (?b "Checkout"       magit-checkout)
               (?c "Create"         magit-create-branch)

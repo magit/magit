@@ -359,11 +359,16 @@
   (interactive (list last-command-event))
   (let ((elt (assoc event (magit-popup-get :options))))
     (if  elt
-        (let ((val (funcall (nth 3 elt) (concat (nth 2 elt) ": "))))
-          (cond ((or (not val) (equal val "")) (setq val nil))
-                ((string-match-p "^\s+$" val)  (setq val "")))
-          (setf (nth 4 elt) (and val t))
-          (setf (nth 5 elt) val)
+        (progn
+          (if (nth 4 elt)
+              (setf (nth 4 elt) nil)
+            (let* ((arg (nth 2 elt))
+                   (val (funcall
+                         (nth 3 elt)
+                         (concat arg (unless (string-match-p "=$" arg) ": "))
+                         (nth 5 elt))))
+              (setf (nth 4 elt) t)
+              (setf (nth 5 elt) val)))
           (magit-refresh-popup-buffer))
       (error "%c isn't bound to any option" event))))
 
