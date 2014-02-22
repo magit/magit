@@ -40,8 +40,13 @@
 
 ;;; Options
 
-(defcustom magit-popup-show-usage t
-  "Whether to show usage information when entering a popup."
+(defcustom magit-popup-show-help-echo t
+  ""
+  :group 'magit
+  :type 'boolean)
+
+(defcustom magit-popup-show-help-section t
+  ""
   :group 'magit
   :type 'boolean)
 
@@ -86,11 +91,22 @@
     (define-key map [?\C-g] 'magit-popup-quit)
     (define-key map [??]    'magit-popup-help)
     (define-key map [?\C-h ?i] 'magit-popup-info)
+    (define-key map [?\C-t] 'magit-popup-toggle-show-popup-commands)
     (define-key map [?\d]   'backward-button)
     (define-key map [?\C-p] 'backward-button)
     (define-key map [?\t]   'forward-button)
     (define-key map [?\C-n] 'forward-button)
+    (define-key map [?\r]   'push-button)
     map))
+
+(defvar magit-popup-internal-commands
+  '(("Push current button"  push-button)
+    ("Goto previous button" backward-button)
+    ("Goto next button"     forward-button)
+    ("View popup manual"    magit-popup-info)
+    ("Popup help prefix"    magit-popup-help)
+    ("Toggle help section"  magit-popup-toggle-show-popup-commands)
+    ("Abort"                magit-popup-quit)))
 
 ;;; Buttons
 
@@ -136,6 +152,11 @@
   'action    (lambda (button)
                (call-interactively
                 (button-get button 'function))))
+
+(define-button-type 'magit-popup-internal-command-button
+  'supertype 'magit-popup-command-button
+  'heading   "Popup Commands\n"
+  'maxcols   3)
 
 ;;; Events
 
@@ -284,6 +305,13 @@
 
 ;;; Help
 
+(defun magit-popup-toggle-show-popup-commands ()
+  (interactive)
+  (setq magit-popup-show-help-section
+        (not magit-popup-show-help-section))
+  (magit-refresh-popup-buffer)
+  (fit-window-to-buffer))
+
 (defun magit-popup-help ()
   (interactive)
   (let* ((man (magit-popup-get :man-page))
@@ -367,7 +395,9 @@
 (define-derived-mode magit-popup-mode fundamental-mode "MagitPopup"
   ""
   (setq buffer-read-only t)
-  (set (make-local-variable 'scroll-margin) 0))
+  (set (make-local-variable 'scroll-margin) 0)
+  (set (make-local-variable 'magit-popup-show-help-section)
+       magit-popup-show-help-section))
 
 (put 'magit-popup-mode 'mode-class 'special)
 
@@ -397,7 +427,11 @@
       (magit-popup-insert-section 'magit-popup-switch-button)
       (magit-popup-insert-section 'magit-popup-option-button)
       (magit-popup-insert-section 'magit-popup-action-button)
-      (run-hooks 'magit-refresh-popup-buffer-hook))
+      (run-hooks 'magit-refresh-popup-buffer-hook)
+      (when magit-popup-show-help-section
+        (magit-popup-insert-command-section
+         'magit-popup-internal-command-button
+         magit-popup-internal-commands)))
     (if event
         (while (and (forward-button 1)
                     (let ((b (button-at (point))))
