@@ -52,6 +52,19 @@
 
 ;;; Commands
 
+(magit-define-popup magit-svn-popup
+  "Key menu for svn."
+  'magit
+  :man-page "git-svn"
+  :switches '((?n "Dry run"         "--dry-run"))
+  :actions  '((?r "Rebase"          magit-svn-rebase)
+              (?c "DCommit"         magit-svn-dcommit)
+              (?f "Fetch"           magit-svn-remote-update)
+              (?s "Find rev"        magit-svn-find-rev)
+              (?B "Create branch"   magit-svn-create-branch)
+              (?T "Create tag"      magit-svn-create-tag)
+              (?x "Fetch Externals" magit-svn-fetch-externals)))
+
 ;;;###autoload
 (defun magit-svn-find-rev (rev &optional branch)
   "Find commit for svn REVISION in BRANCH."
@@ -75,25 +88,25 @@
 (defun magit-svn-create-branch (name)
   "Create svn branch NAME."
   (interactive "sBranch name: ")
-  (magit-run-git "svn" "branch" magit-custom-options name))
+  (magit-run-git "svn" "branch" magit-current-popup-args name))
 
 ;;;###autoload
 (defun magit-svn-create-tag (name)
   "Create svn tag NAME."
   (interactive "sTag name: ")
-  (magit-run-git "svn" "tag" magit-custom-options name))
+  (magit-run-git "svn" "tag" magit-current-popup-args name))
 
 ;;;###autoload
 (defun magit-svn-rebase ()
   "Run git-svn rebase."
   (interactive)
-  (magit-run-git-async "svn" "rebase" magit-custom-options))
+  (magit-run-git-async "svn" "rebase" magit-current-popup-args))
 
 ;;;###autoload
 (defun magit-svn-dcommit ()
   "Run git-svn dcommit."
   (interactive)
-  (magit-run-git-async "svn" "dcommit" magit-custom-options))
+  (magit-run-git-async "svn" "dcommit" magit-current-popup-args))
 
 ;;;###autoload
 (defun magit-svn-remote-update ()
@@ -252,26 +265,9 @@ If USE-CACHE is non nil, use the cached information."
                     '("Extensions")
                     magit-svn-extension-menu)
 
-;; add the group and its keys
-(progn
-  ;; (re-)create the group
-  (magit-key-mode-add-group 'svn)
-
-  (magit-key-mode-insert-action 'svn "r" "Rebase" 'magit-svn-rebase)
-  (magit-key-mode-insert-action 'svn "c" "DCommit" 'magit-svn-dcommit)
-  (magit-key-mode-insert-action 'svn "f" "Fetch" 'magit-svn-remote-update)
-  (magit-key-mode-insert-action 'svn "s" "Find rev" 'magit-svn-find-rev)
-  (magit-key-mode-insert-action 'svn "B" "Create branch" 'magit-svn-create-branch)
-  (magit-key-mode-insert-action 'svn "T" "Create tag" 'magit-svn-create-tag)
-  (magit-key-mode-insert-action 'svn "x" "Fetch Externals" 'magit-svn-fetch-externals)
-  (magit-key-mode-insert-switch 'svn "-n" "Dry run" "--dry-run")
-
-  ;; generate and bind the menu popup function
-  (magit-key-mode-generate 'svn))
-
 (defvar magit-svn-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "N") 'magit-key-mode-popup-svn)
+    (define-key map (kbd "N") 'magit-svn-popup)
     map))
 
 ;;; Mode

@@ -22,9 +22,6 @@
 ;; Magit requires at least GNU Emacs 23.2 and Git 1.7.2.5.
 ;; These are the versions shipped by Debian oldstable (6.0, Squeeze).
 
-;; Contains code from GNU Emacs <https://www.gnu.org/software/emacs/>,
-;; released under the GNU General Public License version 3 or later.
-
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation; either version 3, or (at your option)
@@ -72,6 +69,7 @@ Use the function by the same name instead of this variable.")
   (require 'git-commit-mode))
 
 (require 'git-rebase-mode)
+(require 'magit-popup)
 
 (require 'ansi-color)
 (require 'autorevert)
@@ -116,7 +114,7 @@ Use the function by the same name instead of this variable.")
 
 (defvar git-commit-previous-winconf)
 (defvar magit-commit-buffer-name)
-(defvar magit-custom-options)
+(defvar magit-current-popup-args)
 (defvar magit-log-buffer-name)
 (defvar magit-marked-commit)
 (defvar magit-process-buffer-name)
@@ -130,27 +128,6 @@ Use the function by the same name instead of this variable.")
 ;;;; Compatibility
 
 (eval-and-compile
-
-  ;; Added in Emacs 24.3
-  (unless (fboundp 'user-error)
-    (defalias 'user-error 'error))
-
-  ;; Added in Emacs 24.3 (mirrors/emacs@b335efc3).
-  (unless (fboundp 'setq-local)
-    (defmacro setq-local (var val)
-      "Set variable VAR to value VAL in current buffer."
-      (list 'set (list 'make-local-variable (list 'quote var)) val)))
-
-  ;; Added in Emacs 24.3 (mirrors/emacs@b335efc3).
-  (unless (fboundp 'defvar-local)
-    (defmacro defvar-local (var val &optional docstring)
-      "Define VAR as a buffer-local variable with default value VAL.
-Like `defvar' but additionally marks the variable as being automatically
-buffer-local wherever it is set."
-      (declare (debug defvar) (doc-string 3))
-      (list 'progn (list 'defvar var val docstring)
-            (list 'make-variable-buffer-local (list 'quote var)))))
-
   ;; Added in Emacs 24.1
   (unless (fboundp 'run-hook-wrapped)
     (defun run-hook-wrapped-1 (hook fns wrap-function &rest args)
@@ -187,6 +164,10 @@ aborts and returns that value."
 
 (defgroup magit-process nil
   "Git and other external processes used by Magit."
+  :group 'magit)
+
+(defgroup magit-popups nil
+  "Command console popups provided by Magit."
   :group 'magit)
 
 (defgroup magit-modes nil
@@ -752,59 +733,6 @@ they are not (due to semantic considerations)."
                  (const :tag "head is the subject" head)))
 
 ;;;;;; Diff
-
-(defun magit-set-default-diff-options (symbol value)
-  "Set the default for `magit-diff-options' based on popup value.
-Also set the local value in all Magit buffers and refresh them.
-\n(fn)" ; The arguments are an internal implementation detail.
-  (interactive (list 'magit-diff-options magit-custom-options))
-  (set-default symbol value)
-  (when (and (featurep 'magit) (not buffer-file-name))
-    (dolist (buffer (buffer-list))
-      (when (derived-mode-p 'magit-mode)
-        (with-current-buffer buffer
-          (with-no-warnings
-            (setq-local magit-diff-options value))
-          (magit-mode-refresh-buffer))))))
-
-(defcustom magit-diff-options nil
-  "Git options used to display diffs.
-
-For more information about the options see man:git-diff.
-This variable can be conveniently set in Magit buffers
-using `magit-key-mode-popup-diff-options' (bound to \
-\\<magit-mode-map>\\[magit-key-mode-popup-diff-options]).
-
-Please note that not all of these options are supported by older
-versions of Git, which could become a problem if you use tramp to
-access repositories on a system with such a version.  If you see
-whitespace where you would have expected a diff, this likely is
-the cause, and the only (currently) workaround is to not make the
-problematic option a member of the default value."
-  :package-version '(magit . "2.0.0")
-  :group 'magit-diff
-  :set 'magit-set-default-diff-options
-  :type '(set :greedy t
-              (const :tag
-                     "--minimal              Show smallest possible diff"
-                     "--minimal")
-              (const :tag
-                     "--patience             Use patience diff algorithm"
-                     "--patience")
-              (const :tag
-                     "--histogram            Use histogram diff algorithm"
-                     "--histogram")
-              (const :tag
-                     "--ignore-space-change  Ignore whitespace changes"
-                     "--ignore-space-change")
-              (const :tag
-                     "--ignore-all-space     Ignore all whitespace"
-                     "--ignore-all-space")
-              (const :tag
-                     "--function-context     Show surrounding functions"
-                     "--function-context")))
-
-(put 'magit-diff-options 'permanent-local t)
 
 (defcustom magit-show-diffstat t
   "Whether to show diffstat in diff and commit buffers."
@@ -1468,7 +1396,7 @@ set before loading libary `magit'.")
     (define-key map (kbd "M-S") 'magit-show-level-4-all)
     (define-key map (kbd "g") 'magit-refresh)
     (define-key map (kbd "G") 'magit-refresh-all)
-    (define-key map (kbd "?") 'magit-key-mode-popup-dispatch)
+    (define-key map (kbd "?") 'magit-dispatch-popup)
     (define-key map (kbd ":") 'magit-git-command)
     (define-key map (kbd "C-x 4 a") 'magit-add-change-log-entry-other-window)
     (define-key map (kbd "L") 'magit-add-change-log-entry)
@@ -1494,21 +1422,21 @@ set before loading libary `magit'.")
            (define-key map (kbd "B") 'undefined)
            (define-key map (kbd "z") 'magit-stash))
           (t
-           (define-key map (kbd "c") 'magit-key-mode-popup-committing)
-           (define-key map (kbd "m") 'magit-key-mode-popup-merging)
-           (define-key map (kbd "b") 'magit-key-mode-popup-branching)
-           (define-key map (kbd "M") 'magit-key-mode-popup-remoting)
-           (define-key map (kbd "r") 'magit-key-mode-popup-rewriting)
-           (define-key map (kbd "f") 'magit-key-mode-popup-fetching)
-           (define-key map (kbd "F") 'magit-key-mode-popup-pulling)
-           (define-key map (kbd "J") 'magit-key-mode-popup-apply-mailbox)
-           (define-key map (kbd "!") 'magit-key-mode-popup-running)
-           (define-key map (kbd "P") 'magit-key-mode-popup-pushing)
-           (define-key map (kbd "t") 'magit-key-mode-popup-tagging)
-           (define-key map (kbd "l") 'magit-key-mode-popup-logging)
-           (define-key map (kbd "o") 'magit-key-mode-popup-submodule)
-           (define-key map (kbd "B") 'magit-key-mode-popup-bisecting)
-           (define-key map (kbd "z") 'magit-key-mode-popup-stashing)))
+           (define-key map (kbd "c") 'magit-commit-popup)
+           (define-key map (kbd "m") 'magit-merge-popup)
+           (define-key map (kbd "b") 'magit-branch-popup)
+           (define-key map (kbd "M") 'magit-remote-popup)
+           (define-key map (kbd "r") 'magit-rewrite-popup)
+           (define-key map (kbd "f") 'magit-fetch-popup)
+           (define-key map (kbd "F") 'magit-pull-popup)
+           (define-key map (kbd "J") 'magit-am-popup)
+           (define-key map (kbd "!") 'magit-run-popup)
+           (define-key map (kbd "P") 'magit-push-popup)
+           (define-key map (kbd "t") 'magit-tag-popup)
+           (define-key map (kbd "l") 'magit-log-popup)
+           (define-key map (kbd "o") 'magit-submodule-popup)
+           (define-key map (kbd "B") 'magit-bisect-popup)
+           (define-key map (kbd "z") 'magit-stash-popup)))
     (define-key map (kbd "$") 'magit-process)
     (define-key map (kbd "E") 'magit-interactive-rebase)
     (define-key map (kbd "R") 'magit-rebase-step)
@@ -1525,14 +1453,14 @@ set before loading libary `magit'.")
     (define-key map (kbd "-") 'magit-diff-smaller-hunks)
     (define-key map (kbd "+") 'magit-diff-larger-hunks)
     (define-key map (kbd "0") 'magit-diff-default-hunks)
-    (define-key map (kbd "h") 'magit-key-mode-popup-diff-options)
+    (define-key map (kbd "h") 'magit-diff-toggle-refine-hunk)
     (define-key map (kbd "H") 'magit-diff-toggle-refine-hunk)
     (define-key map (kbd "M-g") 'magit-jump-to-diffstats)
     (define-key map (kbd "S") 'magit-stage-all)
     (define-key map (kbd "U") 'magit-unstage-all)
     (define-key map (kbd "X") 'magit-reset-working-tree)
-    (define-key map (kbd "C-c C-c") 'magit-key-mode-popup-dispatch)
-    (define-key map (kbd "C-c C-e") 'magit-key-mode-popup-dispatch)
+    (define-key map (kbd "C-c C-c") 'magit-dispatch-popup)
+    (define-key map (kbd "C-c C-e") 'magit-dispatch-popup)
     map)
   "Parent keymap for all keymaps of modes derived from `magit-mode'.")
 
@@ -1645,7 +1573,7 @@ set before loading libary `magit'.")
     ["Stage all" magit-stage-all t]
     ["Unstage" magit-unstage-item t]
     ["Unstage all" magit-unstage-all t]
-    ["Commit" magit-key-mode-popup-committing t]
+    ["Commit" magit-commit-popup t]
     ["Add log entry" magit-commit-add-log t]
     ["Tag" magit-tag t]
     "---"
@@ -1655,7 +1583,7 @@ set before loading libary `magit'.")
      ["Short Log" magit-log t]
      ["Long Log" magit-log-long t]
      ["Reflog" magit-reflog t]
-     ["Extended..." magit-key-mode-popup-logging t])
+     ["Extended..." magit-log-popup t])
     "---"
     ["Cherry pick" magit-cherry-pick-item t]
     ["Apply" magit-apply-item t]
@@ -1695,7 +1623,37 @@ set before loading libary `magit'.")
     ["Display Git output" magit-process t]
     ["Quit Magit" magit-mode-quit-window t]))
 
-
+(magit-define-popup magit-dispatch-popup
+  "Popup console for dispatching other popups."
+  'magit-popups
+  :actions '((?b "Branching"       magit-branch-popup)
+             (?B "Bisecting"       magit-bisect-popup)
+             (?c "Committing"      magit-commit-popup)
+             (?d "Diff worktree"   magit-diff-working-tree)
+             (?D "Diff"            magit-diff)
+             (?f "Fetching"        magit-fetch-popup)
+             (?F "Pulling"         magit-pull-popup)
+             (?g "Refresh Buffers" magit-refresh-all)
+             (?l "Logging"         magit-log-popup)
+             (?m "Merging"         magit-merge-popup)
+             (?M "Remoting"        magit-remote-popup)
+             (?P "Pushing"         magit-push-popup)
+             (?o "Submoduling"     magit-submodule-popup)
+             (?r "Rewriting"       magit-rewrite-popup)
+             (?R "Rebasing"        magit-rebase-step)
+             (?s "Show Status"     magit-status)
+             (?S "Stage all"       magit-stage-all)
+             (?t "Tagging"         magit-tag-popup)
+             (?U "Unstage all"     magit-unstage-all)
+             (?v "Show Commit"     magit-show-commit)
+             (?V "Show File"       magit-show)
+             (?w "Wazzup"          magit-wazzup)
+             (?X "Reset worktree"  magit-reset-working-tree)
+             (?y "Cherry"          magit-cherry)
+             (?z "Stashing"        magit-stash-popup)
+             (?! "Running"         magit-run-popup)
+             (?$ "Show Process"    magit-display-process)))
+
 ;;; Utilities (1)
 ;;;; Minibuffer Input
 
@@ -1750,7 +1708,7 @@ Read `completing-read' documentation for the meaning of the argument."
 
 (defvar magit-gpg-secret-key-hist nil)
 
-(defun magit-read-gpg-secret-key (prompt)
+(defun magit-read-gpg-secret-key (prompt &optional initial-input)
   (let ((keys (mapcar
                (lambda (key)
                  (list (epg-sub-key-id (car (epg-key-sub-key-list key)))
@@ -1762,7 +1720,7 @@ Read `completing-read' documentation for the meaning of the argument."
                                id-str
                              (epg-decode-dn id-obj))))))
                (epg-list-keys (epg-make-context epa-protocol) nil t))))
-  (magit-completing-read prompt keys nil t nil nil
+  (magit-completing-read prompt keys nil nil initial-input nil
                          (or (car magit-gpg-secret-key-hist) (car keys)))))
 
 ;;;; Various Utilities
@@ -2328,6 +2286,10 @@ involving HEAD."
                       (if (string-match "^refs/\\(.*\\)" branch)
                           (match-string 1 branch)
                         branch)))))
+
+(defun magit-popup-read-rev (prompt initial-input)
+  (magit-completing-read prompt nil nil nil initial-input
+                         'magit-read-rev-history))
 
 (defun magit-read-rev-range (op &optional def-beg def-end)
   (let ((beg (magit-read-rev (format "%s range or start" op) def-beg)))
@@ -3101,6 +3063,15 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
       (user-error "Process buffer doesn't exist"))))
 
 (defvar magit-git-command-history nil)
+
+(magit-define-popup magit-run-popup
+  "Popup console for running raw Git commands."
+  'magit-popups
+  :actions '((?! "Git Subcommand (from root)" magit-git-command-topdir)
+             (?: "Git Subcommand (from pwd)" magit-git-command)
+             (?g "Git Gui" magit-run-git-gui)
+             (?k "Gitk" magit-run-gitk))
+  :default-action 'magit-git-command)
 
 ;;;###autoload
 (defun magit-git-command (args directory)
@@ -3967,7 +3938,7 @@ and no variation of the Auto-Revert mode is already active."
 (add-hook 'find-file-hook 'magit-maybe-turn-on-auto-revert-mode)
 
 ;;; (misplaced)
-;;;; Diff Options
+;;;; Hunk Refinement
 
 (defvar magit-diff-context-lines 3)
 
@@ -3990,28 +3961,6 @@ and no variation of the Auto-Revert mode is already active."
   "Reset context for diff hunks to the default size."
   (interactive)
   (setq magit-diff-context-lines 3)
-  (magit-refresh))
-
-(defun magit-set-diff-options ()
-  "Set local `magit-diff-options' based on popup state.
-And refresh the current Magit buffer."
-  (interactive)
-  (setq-local magit-diff-options magit-custom-options)
-  (magit-refresh))
-
-;; `magit-set-default-diff-options' is defined in "Options"/"Setters".
-
-(defun magit-save-default-diff-options ()
-  "Set and save the default for `magit-diff-options' based on popup value.
-Also set the local value in all Magit buffers and refresh them."
-  (interactive)
-  (customize-save-variable 'magit-diff-options magit-custom-options))
-
-(defun magit-reset-diff-options ()
-  "Reset local `magit-diff-options' to default value.
-And refresh the current Magit buffer."
-  (interactive)
-  (setq-local magit-diff-options (default-value 'magit-diff-options))
   (magit-refresh))
 
 (defun magit-diff-toggle-refine-hunk (&optional other)
@@ -4276,6 +4225,8 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                    'diff-mode 'fine))
 
 ;;;;; Raw Diff Washing
+
+(defvar magit-diff-options nil)
 
 (defun magit-insert-diff (section file status)
   (let ((beg (point)))
@@ -4583,7 +4534,7 @@ stash at point, then prompt for a commit."
     "log" "-1" "--decorate=full"
     "--pretty=medium" (magit-diff-U-arg)
     "--cc" "-p" (and magit-show-diffstat "--stat")
-    magit-diff-options commit))
+    commit))
 
 ;;;;; Commit Washing
 
@@ -4643,9 +4594,8 @@ stash at point, then prompt for a commit."
 
 \\<magit-status-mode-map>Type `\\[magit-stage-item]` to stage (add) an item, \
 `\\[magit-unstage-item]` to unstage it.
-Type `\\[magit-key-mode-popup-committing]` to have a popup to commit, type \
-`\\[magit-key-mode-popup-dispatch]` to see others
-available popup.
+Type `\\[magit-commit-popup]` to have a popup to commit, \
+type `\\[magit-dispatch-popup]` to see others available popup.
 Type `\\[magit-visit-item]` to visit something, and \
 `\\[magit-toggle-section]` to show or hide section.
 
@@ -4760,8 +4710,7 @@ can be used to override this."
         "diff" (magit-diff-U-arg) "-R" orig))))
 
 (defun magit-insert-unstaged-changes ()
-  (let ((magit-current-diff-range (cons 'index 'working))
-        (magit-diff-options (copy-sequence magit-diff-options)))
+  (let ((magit-current-diff-range (cons 'index 'working)))
     (magit-git-insert-section (unstaged "Unstaged changes:")
         #'magit-wash-raw-diffs
       "diff-files")))
@@ -4773,7 +4722,7 @@ can be used to override this."
             (base (if no-commit
                       (magit-git-string "mktree")
                     "HEAD"))
-            (magit-diff-options (append '("--cached") magit-diff-options)))
+            (magit-diff-options (list "--cached")))
         (magit-git-insert-section (staged "Staged changes:")
             (apply-partially #'magit-wash-raw-diffs t)
           "diff-index" "--cached" base)))))
@@ -5447,6 +5396,18 @@ return the buffer, without displaying it."
 ;;;; Act
 ;;;;; Merging
 
+(magit-define-popup magit-merge-popup
+  "Popup console for merge commands."
+  'magit-popups
+  :man-page "git-merge"
+  :switches '((?f "Fast-forward only" "--ff-only")
+              (?n "No fast-forward"   "--no-ff")
+              (?s "Squash"            "--squash"))
+  :options  '((?s "Strategy" "--strategy=" read-from-minibuffer))
+  :actions  '((?m "Merge" magit-merge)
+              (?A "Abort" magit-merge-abort))
+  :default-action 'magit-merge)
+
 ;;;###autoload
 (defun magit-merge (revision &optional do-commit)
   "Merge REVISION into the current 'HEAD', leaving changes uncommitted.
@@ -5460,10 +5421,10 @@ With a prefix argument, skip editing the log message and commit.
             (not magit-merge-warn-dirty-worktree)
             (yes-or-no-p
              "Running merge in a dirty worktree could cause data loss.  Continue?"))
-    (magit-run-git "merge" revision magit-custom-options
+    (magit-run-git "merge" revision magit-current-popup-args
                    (unless do-commit "--no-commit"))
     (when (file-exists-p ".git/MERGE_MSG")
-      (let ((magit-custom-options nil))
+      (let ((magit-current-popup-args nil))
         (magit-commit)))))
 
 ;;;###autoload
@@ -5476,6 +5437,25 @@ With a prefix argument, skip editing the log message and commit.
     (user-error "No merge in progress")))
 
 ;;;;; Branching
+
+(magit-define-popup magit-branch-popup
+  "Popup console for branch commands."
+  'magit-popups
+  :man-page "git-branch"
+  :switches '((?t "Set upstream configuration" "--track")
+              (?m "Merged to HEAD"             "--merged")
+              (?M "Merged to master"           "--merged=master")
+              (?n "Not merged to HEAD"         "--no-merged")
+              (?N "Not merged to master"       "--no-merged=master"))
+  :options  '((?c "Contains"   "--contains="  magit-popup-read-rev)
+              (?m "Merged"     "--merged="    magit-popup-read-rev)
+              (?n "Not merged" "--no-merged=" magit-popup-read-rev))
+  :actions  '((?v "Branch manager" magit-branch-manager)
+              (?b "Checkout"       magit-checkout)
+              (?c "Create"         magit-create-branch)
+              (?r "Rename"         magit-rename-branch)
+              (?k "Delete"         magit-delete-branch))
+  :default-action 'magit-checkout)
 
 (defun magit-escape-branch-name (branch)
   "Escape branch name BRANCH to remove problematic characters."
@@ -5546,7 +5526,7 @@ Fails if working tree or staging area contain uncommitted changes.
           'magit-create-branch-hook branch parent))
         ((and branch (not (string= branch "")))
          (magit-save-some-buffers)
-         (magit-run-git "checkout" magit-custom-options
+         (magit-run-git "checkout" magit-current-popup-args
                         "-b" branch parent))))
 
 ;;;###autoload
@@ -5606,6 +5586,16 @@ If no branch is found near the cursor return nil."
     ([       wazzup] info)))
 
 ;;;;; Remoting
+
+(magit-define-popup magit-remote-popup
+  "Popup console for remote commands."
+  'magit-popups
+  :man-page "git-remote"
+  :actions  '((?v "Remote manager" magit-branch-manager)
+              (?a "Add"            magit-add-remote)
+              (?r "Rename"         magit-rename-remote)
+              (?k "Remove"         magit-remove-remote))
+  :default-action 'magit-branch-manager)
 
 ;;;###autoload
 (defun magit-add-remote (remote url)
@@ -5725,6 +5715,22 @@ Return nil if there is no rebase in progress."
 
 ;;;;; AM
 
+(magit-define-popup magit-am-popup
+  "Popup console for mailbox commands."
+  'magit-popups
+  :man-page "git-am"
+  :switches '((?s "add a Signed-off-by line to the commit message" "--signoff")
+              (?3 "allow fall back on 3way merging if needed" "--3way")
+              (?k "pass -k flag to git-mailinfo" "--keep")
+              (?c "strip everything before a scissors line" "--scissors")
+              (?p "pass it through git-apply" "-p")
+              (?r "override error message when patch failure occurs" "--resolvemsg")
+              (?d "lie about committer date" "--committer-date-is-author-date")
+              (?D "use current timestamp for author date" "--ignore-date")
+              (?b "pass -b flag to git-mailinfo" "--keep-non-patch"))
+  :options  '((?p "format the patch(es) are in" "--patch-format"))
+  :actions  '((?J "Apply Mailbox" magit-apply-mailbox)))
+
 (defun magit-apply-mailbox (&optional file-or-dir)
   "Apply a series of patches from a mailbox."
   (interactive "fmbox or Maildir file or directory: ")
@@ -5779,6 +5785,16 @@ With two prefix args, remove ignored files as well."
         (magit-run-git "clean" "-fd" (if include-ignored "-x" ""))))))
 
 ;;;;; Rewriting
+
+(magit-define-popup magit-rewrite-popup
+  "Popup console for rewrite commands."
+  'magit-popups
+  :actions '((?b "Begin"      magit-rewrite-start)
+             (?s "Stop"       magit-rewrite-stop)
+             (?a "Abort"      magit-rewrite-abort)
+             (?f "Finish"     magit-rewrite-finish)
+             (?* "Set unused" magit-rewrite-set-unused)
+             (?. "Set used"   magit-rewrite-set-used)))
 
 (defun magit-read-rewrite-info ()
   (when (file-exists-p (magit-git-dir "magit-rewrite-info"))
@@ -5899,11 +5915,21 @@ With two prefix args, remove ignored files as well."
 
 ;;;;; Fetching
 
+(magit-define-popup magit-fetch-popup
+  "Popup console for fetch commands."
+  'magit-popups
+  :man-page "git-fetch"
+  :switches '((?p "Prune"   "--prune"))
+  :actions  '((?f "Current" magit-fetch-current)
+              (?a "All"     magit-remote-update)
+              (?o "Other"   magit-fetch))
+  :default-action 'magit-fetch-current)
+
 ;;;###autoload
 (defun magit-fetch (remote)
   "Fetch from REMOTE."
   (interactive (list (magit-read-remote "Fetch remote")))
-  (magit-run-git-async "fetch" remote magit-custom-options))
+  (magit-run-git-async "fetch" remote magit-current-popup-args))
 
 ;;;###autoload
 (defun magit-fetch-current ()
@@ -5919,9 +5945,18 @@ If there is no default remote, ask for one."
   "Update all remotes."
   (interactive)
   (or (run-hook-with-args-until-success 'magit-remote-update-hook)
-      (magit-run-git-async "remote" "update" magit-custom-options)))
+      (magit-run-git-async "remote" "update" magit-current-popup-args)))
 
 ;;;;; Pulling
+
+(magit-define-popup magit-pull-popup
+  "Popup console for pull commands."
+  'magit-popups
+  :man-page "git-pull"
+  :switches '((?f "Force"  "--force")
+              (?r "Rebase" "--rebase"))
+  :actions  '((?F "Pull"   magit-pull))
+  :default-action 'magit-pull)
 
 ;;;###autoload
 (defun magit-pull ()
@@ -5968,7 +6003,7 @@ user because of prefix arguments are not saved with git config."
           (magit-set (format "%s" chosen-branch-merge-name)
                      "branch" branch "merge"))
         (magit-run-git-async
-         "pull" magit-custom-options
+         "pull" magit-current-popup-args
          (and choose-remote chosen-branch-remote)
          (and choose-branch
               (list (format "refs/heads/%s:refs/remotes/%s/%s"
@@ -5977,6 +6012,17 @@ user because of prefix arguments are not saved with git config."
                             chosen-branch-merge-name)))))))
 
 ;;;;; Pushing
+
+(magit-define-popup magit-push-popup
+  "Popup console for push commands."
+  'magit-popups
+  :man-page "git-push"
+  :switches '((?f "Force"        "--force")
+              (?d "Dry run"      "-n")
+              (?u "Set upstream" "-u"))
+  :actions  '((?P "Push"         magit-push)
+              (?t "Push tags"    magit-push-tags))
+  :default-action 'magit-push)
 
 ;;;###autoload
 (defun magit-push-tags ()
@@ -6049,26 +6095,46 @@ Also see option `magit-set-upstream-on-push'."
           ((and auto-branch
                 (equal auto-branch used-branch)
                 (equal auto-remote used-remote)))
-          ;; Setting upstream because of magit-custom-options.
-          ((member "-u" magit-custom-options))
+          ;; Setting upstream because of magit-current-popup-args.
+          ((member "-u" magit-current-popup-args))
           ;; Two prefix arguments; ignore magit-set-upstream-on-push.
           ((>= (prefix-numeric-value arg) 16)
            (and (yes-or-no-p "Set upstream while pushing? ")
-                (setq magit-custom-options
-                      (cons "-u" magit-custom-options))))
+                (setq magit-current-popup-args
+                      (cons "-u" magit-current-popup-args))))
           ;; Else honor magit-set-upstream-on-push.
           ((eq magit-set-upstream-on-push 'refuse)
            (user-error "Not pushing since no upstream has been set."))
           ((or (eq magit-set-upstream-on-push 'dontask)
                (and (eq magit-set-upstream-on-push t)
                     (yes-or-no-p "Set upstream while pushing? ")))
-           (setq magit-custom-options (cons "-u" magit-custom-options))))
+           (setq magit-current-popup-args (cons "-u" magit-current-popup-args))))
     (magit-run-git-async
      "push" "-v" used-remote
      (if used-branch (format "%s:%s" branch used-branch) branch)
-     magit-custom-options)))
+     magit-current-popup-args)))
 
 ;;;;; Committing
+
+(magit-define-popup magit-commit-popup
+  "Popup console for commit commands."
+  'magit-popups
+  :man-page "git-commit"
+  :switches '((?r "Replace the tip of current branch"      "--amend")
+              (?R "Claim authorship and reset author date" "--reset-author")
+              (?a "Stage all modified and deleted files"   "--all")
+              (?e "Allow empty commit"                     "--allow-empty")
+              (?v "Show diff of changes to be committed"   "--verbose")
+              (?n "Bypass git hooks"                       "--no-verify")
+              (?s "Add Signed-off-by line"                 "--signoff"))
+  :options  '((?S "Sign using gpg" "--gpg-sign=" magit-read-gpg-secret-key))
+  :actions  '((?c "Commit" magit-commit)
+              (?a "Amend"  magit-commit-amend)
+              (?e "Extend" magit-commit-extend)
+              (?r "Reword" magit-commit-reword)
+              (?f "Fixup"  magit-commit-fixup)
+              (?s "Squash" magit-commit-squash))
+  :default-action 'magit-commit)
 
 ;;;###autoload
 (defun magit-commit (&optional amendp)
@@ -6076,7 +6142,7 @@ Also see option `magit-set-upstream-on-push'."
 With a prefix argument amend to the commit at HEAD instead.
 \('git commit [--amend]')."
   (interactive "P")
-  (let ((args magit-custom-options))
+  (let ((args magit-current-popup-args))
     (when amendp
       (setq args (cons "--amend" args)))
     (when (setq args (magit-commit-assert args))
@@ -6089,7 +6155,7 @@ With a prefix argument amend to the commit at HEAD instead.
 \('git commit --amend')."
   (interactive)
   (magit-commit-maybe-expand)
-  (magit-commit-internal "commit" (cons "--amend" magit-custom-options)))
+  (magit-commit-internal "commit" (cons "--amend" magit-current-popup-args)))
 
 ;;;###autoload
 (defun magit-commit-extend (&optional override-date)
@@ -6107,7 +6173,7 @@ used to inverse the meaning of the prefix argument.
       (setenv "GIT_COMMITTER_DATE"
               (magit-git-string "log" "-1" "--format:format=%cd")))
     (magit-commit-internal "commit" (nconc (list "--no-edit" "--amend")
-                                           magit-custom-options))))
+                                           magit-current-popup-args))))
 
 ;;;###autoload
 (defun magit-commit-reword (&optional override-date)
@@ -6129,7 +6195,7 @@ and ignore the option.
       (setenv "GIT_COMMITTER_DATE"
               (magit-git-string "log" "-1" "--format:format=%cd")))
     (magit-commit-internal "commit" (nconc (list "--only" "--amend")
-                                           magit-custom-options))))
+                                           magit-current-popup-args))))
 
 (defvar-local magit-commit-squash-args  nil)
 (defvar-local magit-commit-squash-fixup nil)
@@ -6154,7 +6220,7 @@ to be fixed.  Otherwise the current or marked commit may be used
 depending on the value of option `magit-commit-squash-commit'.
 \('git commit [--no-edit] --fixup=COMMIT')."
   (interactive (list (magit-commit-squash-commit)))
-  (let ((args magit-custom-options))
+  (let ((args magit-current-popup-args))
     (cond
      ((not commit)
       (magit-commit-assert args)
@@ -6323,6 +6389,17 @@ depending on the value of option `magit-commit-squash-commit'.
 
 ;;;;; Tagging
 
+(magit-define-popup magit-tag-popup
+  "Popup console for tag commands."
+  'magit-popups
+  :man-page "git-tag"
+  :switches '((?a "Annotate" "--annotate")
+              (?f "Force"    "--force")
+              (?s "Sign"     "--sign"))
+  :actions  '((?t "Create"   magit-tag)
+              (?k "Delete"   magit-delete-tag))
+  :default-action 'magit-tag)
+
 ;;;###autoload
 (defun magit-tag (name rev &optional annotate)
   "Create a new tag with the given NAME at REV.
@@ -6332,7 +6409,7 @@ With a prefix argument annotate the tag.
                      (magit-read-rev "Place tag on"
                                      (or (magit-guess-branch) "HEAD"))
                      current-prefix-arg))
-  (let ((args (append magit-custom-options (list name rev))))
+  (let ((args (append magit-current-popup-args (list name rev))))
     (if (or (member "--sign" args)
             (member "--annotate" args)
             (and annotate (setq args (cons "--annotate" args))))
@@ -6344,9 +6421,24 @@ With a prefix argument annotate the tag.
   "Delete the tag with the given NAME.
 \('git tag -d NAME')."
   (interactive (list (magit-read-tag "Delete Tag" t)))
-  (magit-run-git "tag" "-d" magit-custom-options name))
+  (magit-run-git "tag" "-d" magit-current-popup-args name))
 
 ;;;;; Stashing
+
+(magit-define-popup magit-stash-popup
+  "Popup console for stash commands."
+  'magit-popups
+  :man-page "git-stash"
+  :switches '((?k "Keep index"              "--keep-index")
+              (?u "Include untracked files" "--include-untracked")
+              (?a "Include all files"       "--all"))
+  :actions  '((?v "View"     magit-diff-stash)
+              (?z "Save"     magit-stash)
+              (?s "Snapshot" magit-stash-snapshot)
+              (?a "Apply"    magit-stash-apply)
+              (?p "Pop"      magit-stash-pop)
+              (?k "Drop"     magit-stash-drop))
+  :default-action 'magit-stash)
 
 (defvar magit-read-stash-history nil
   "The history of inputs to `magit-stash'.")
@@ -6359,14 +6451,14 @@ With prefix argument, changes in staging area are kept.
 \('git stash save [--keep-index] DESCRIPTION')"
   (interactive (list (read-string "Stash description: " nil
                                   'magit-read-stash-history)))
-  (magit-run-git "stash" "save" magit-custom-options "--" description))
+  (magit-run-git "stash" "save" magit-current-popup-args "--" description))
 
 ;;;###autoload
 (defun magit-stash-snapshot ()
   "Create new stash of working tree and staging area; keep changes in place.
 \('git stash save \"Snapshot...\"; git stash apply stash@{0}')"
   (interactive)
-  (magit-call-git "stash" "save" magit-custom-options
+  (magit-call-git "stash" "save" magit-current-popup-args
                   (format-time-string
                    "Snapshot taken at %Y-%m-%d %H:%M:%S"
                    (current-time)))
@@ -6405,6 +6497,15 @@ With prefix argument, changes in staging area are kept.
 
 ;;;;; Submoduling
 
+(magit-define-popup magit-submodule-popup
+  "Popup console for submodule commands."
+  'magit-popups
+  :man-page "git-submodule"
+  :actions  '((?u "Update" magit-submodule-update)
+              (?b "Both update and init" magit-submodule-update-init)
+              (?i "Init" magit-submodule-init)
+              (?s "Sync" magit-submodule-sync)))
+
 ;;;###autoload
 (defun magit-submodule-update (&optional init)
   "Update the submodule of the current git repository.
@@ -6435,6 +6536,17 @@ With a prefix arg, do a submodule update --init."
 
 ;;;;; Bisecting
 
+(magit-define-popup magit-bisect-popup
+  "Popup console for bisect commands."
+  'magit-popups
+  :man-page "git-bisect"
+  :actions  '((?b "Bad"   magit-bisect-bad)
+              (?g "Good"  magit-bisect-good)
+              (?k "Skip"  magit-bisect-skip)
+              (?r "Reset" magit-bisect-reset)
+              (?s "Start" magit-bisect-start)
+              (?u "Run"   magit-bisect-run)))
+
 ;;;###autoload
 (defun magit-bisect-start (bad good)
   "Start a bisect session.
@@ -6443,7 +6555,7 @@ Bisecting a bug means to find the commit that introduced it.
 This command starts such a bisect session by asking for a know
 good and a bad commit.  To move the session forward use the
 other actions from the bisect popup (\
-\\<magit-status-mode-map>\\[magit-key-mode-popup-bisecting])."
+\\<magit-status-mode-map>\\[magit-bisect-popup])."
   (interactive
    (if (magit-bisecting-p)
        (user-error "Already bisecting")
@@ -6501,6 +6613,41 @@ to test.  This command lets Git choose a different one."
 
 ;;;;; Logging
 
+(magit-define-popup magit-log-popup
+  "Popup console for log commands."
+  'magit-popups
+  :man-page "git-log"
+  :switches '((?m "Only merge commits"        "--merges")
+              (?d "Date Order"                "--date-order")
+              (?f "First parent"              "--first-parent")
+              (?i "Case insensitive patterns" "-i")
+              (?P "Pickaxe regex"             "--pickaxe-regex")
+              (?g "Show Graph"                "--graph")
+              (?n "Name only"                 "--name-only")
+              (?M "All match"                 "--all-match")
+              (?A "All"                       "--all"))
+  :options  '((?r "Relative"       "--relative="  read-directory-name)
+              (?c "Committer"      "--committer=" read-from-minibuffer)
+              (?> "Since"          "--since="     read-from-minibuffer)
+              (?< "Before"         "--before="    read-from-minibuffer)
+              (?a "Author"         "--author="    read-from-minibuffer)
+              (?g "Grep messages"  "--grep="      read-from-minibuffer)
+              (?G "Grep patches"   "-G"           read-from-minibuffer)
+              (?L "Trace evolution of line range [long log only]"
+                  "-L" magit-read-file-trace)
+              (?s "Pickaxe search" "-S"           read-from-minibuffer)
+              (?b "Branches"       "--branches="  read-from-minibuffer)
+              (?R "Remotes"        "--remotes="   read-from-minibuffer))
+  :actions  '((?l "Short"        magit-log)
+              (?L "Long"         magit-log-long)
+              (?r "Reflog"       magit-reflog)
+              (?f "File log"     magit-file-log)
+              (?b "Ranged short" magit-log-ranged)
+              (?B "Ranged long"  magit-log-long-ranged)
+              (?R "Head reflog"  magit-reflog-head))
+  :default-arguments '("--graph")
+  :default-action 'magit-log)
+
 ;;;###autoload
 (defun magit-log (&optional range)
   (interactive)
@@ -6508,7 +6655,7 @@ to test.  This command lets Git choose a different one."
   (magit-mode-setup magit-log-buffer-name nil
                     #'magit-log-mode
                     #'magit-refresh-log-buffer
-                    'oneline range magit-custom-options))
+                    'oneline range magit-current-popup-args))
 
 ;;;###autoload
 (defun magit-log-ranged (range)
@@ -6522,7 +6669,7 @@ to test.  This command lets Git choose a different one."
   (magit-mode-setup magit-log-buffer-name nil
                     #'magit-log-mode
                     #'magit-refresh-log-buffer
-                    'long range magit-custom-options))
+                    'long range magit-current-popup-args))
 
 ;;;###autoload
 (defun magit-log-long-ranged (range)
@@ -6542,7 +6689,7 @@ With a prefix argument show the log graph."
                     #'magit-refresh-log-buffer
                     'oneline "HEAD"
                     `(,@(and use-graph (list "--graph"))
-                      ,@magit-custom-options
+                      ,@magit-current-popup-args
                       "--follow")
                     file))
 
@@ -6661,8 +6808,7 @@ when `\\[magit-diff]` to display change
 between any two commit.
 Type `\\[magit-cherry-pick-item]` to cherry-pick a commit, and \
 `\\[magit-apply-item]` to apply its change to your
-working tree, without committing, and `\\[magit-key-mode-popup-merging]` to \
-merge.
+working tree, without committing, and `\\[magit-merge-popup]` to merge.
 `\\[magit-refresh]` will refresh current buffer.
 
 
@@ -7052,7 +7198,7 @@ and `\\[magit-diff]` to display change
 between any two commit.
 Type `\\[magit-cherry-pick-item]` to cherry-pick a commit, and \
 `\\[magit-apply-item]` to apply its change to your
-working tree, without committing, and `\\[magit-key-mode-popup-merging]` \
+working tree, without committing, and `\\[magit-merge-popup]` \
 to merge those change.
 Type `\\[magit-refresh]` to refresh current buffer.
 
@@ -7124,7 +7270,7 @@ into the selected branch."
   "Mode for looking at git branches.
 
 \\<magit-branch-manager-mode-map>Type `\\[magit-visit-item]` to checkout a branch, `\\[magit-reset-head]' to reset current branch,
-you can also merge the branch with `\\[magit-key-mode-popup-merging]`
+you can also merge the branch with `\\[magit-merge-popup]`
 
 Type `\\[magit-discard-item]' to delete a branch, or `\\[universal-argument] \\[magit-discard-item]' to force the deletion.
 Type `\\[magit-rename-item]' to Rename a branch.
@@ -7149,7 +7295,7 @@ from the parent keymap `magit-mode-map' are also available.")
 (defun magit-refresh-branch-manager ()
   (magit-git-insert-section (branchbuf nil)
       #'magit-wash-branches
-    "branch" "-vva" magit-custom-options))
+    "branch" "-vva" magit-current-popup-args))
 
 ;;;;; Branch List Washing
 
@@ -7621,7 +7767,8 @@ This can be added to `magit-mode-hook' for example"
   (eval-when-compile
     `((,(concat "(\\(" (regexp-opt
                         '("magit-define-level-shower"
-                          "magit-define-section-jumper"))
+                          "magit-define-section-jumper"
+                          "magit-define-popup"))
                 "\\)\\>[ \t'\(]*\\(\\sw+\\)?")
        (1 font-lock-keyword-face)
        (2 font-lock-function-name-face nil t))
@@ -7698,9 +7845,6 @@ init file:
   'magit-process-quote-curly-braces "2.0.0")
 
 (provide 'magit)
-
-;; rest of magit core
-(require 'magit-key-mode)
 
 ;; If `magit-log-edit' is available and `git-commit-mode' is not
 ;; loaded, then we have no choice but to assume the user actually
