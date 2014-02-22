@@ -38,7 +38,7 @@
 
 ;;; Options
 
-(defcustom magit-key-mode-show-usage t
+(defcustom magit-popup-show-usage t
   "Whether to show usage information when entering a popup."
   :group 'magit
   :type 'boolean)
@@ -195,7 +195,7 @@
   (setq magit-popup-prefix-arg current-prefix-arg)
   (magit-refresh-popup-buffer popup)
   (fit-window-to-buffer)
-  (when magit-key-mode-show-usage
+  (when magit-popup-show-usage
     (message (concat "Type a prefix key to toggle it. "
                      "Run actions with their prefixes. "
                      "'?' for more help."))))
