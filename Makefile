@@ -10,6 +10,7 @@ LOADDEFS_DIR  ?= $(lispdir)
 
 ELS  = magit.el
 ELS += magit-blame.el
+ELS += magit-extras.el
 ELS += magit-popup.el
 ELS += magit-stgit.el
 ELS += magit-svn.el

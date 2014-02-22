@@ -7765,6 +7765,8 @@ init file:
 
 (provide 'magit)
 
+(require 'magit-extras)
+
 ;; If `magit-log-edit' is available and `git-commit-mode' is not
 ;; loaded, then we have no choice but to assume the user actually
 ;; wants to use the former.
