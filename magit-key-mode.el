@@ -94,17 +94,17 @@
 (defun magit-define-popup-switch (popup map key switch)
   (define-key map key
     `(lambda () (interactive)
-       (magit-key-mode-toggle-switch ',popup ,switch))))
+       (magit-invoke-popup-switch ',popup ,switch))))
 
 (defun magit-define-popup-option (popup map key option reader)
   (define-key map key
     `(lambda () (interactive)
-       (magit-key-mode-set-option ',popup ,option ',reader))))
+       (magit-invoke-popup-option ',popup ,option ',reader))))
 
 (defun magit-define-popup-action (popup map key command)
   (define-key map key
     `(lambda () (interactive)
-       (magit-key-mode-perform-action ',popup ',command))))
+       (magit-invoke-popup-action ',popup ',command))))
 
 (defun magit-key-mode-build-keymap (popup spec)
   (let ((map (make-sparse-keymap)))
@@ -127,19 +127,19 @@
 
 (defvar magit-custom-options nil)
 
-(defun magit-key-mode-toggle-switch (popup switch)
+(defun magit-invoke-popup-switch (popup switch)
   (if (member switch magit-popup-current-switches)
       (setq magit-popup-current-switches
             (delete switch magit-popup-current-switches))
     (add-to-list 'magit-popup-current-switches switch))
   (magit-refresh-popup-buffer popup))
 
-(defun magit-key-mode-set-option (popup arg-name input-func)
+(defun magit-invoke-popup-option (popup arg-name input-func)
   (let ((input (funcall input-func (concat arg-name ": "))))
     (puthash arg-name input magit-popup-current-options)
     (magit-refresh-popup-buffer popup)))
 
-(defun magit-key-mode-perform-action (popup func)
+(defun magit-invoke-popup-action (popup func)
   (let ((current-prefix-arg (or current-prefix-arg magit-popup-prefix-arg))
         (magit-custom-options magit-popup-current-switches))
     (maphash (lambda (k v)
@@ -170,7 +170,7 @@
 
 (defun magit-key-mode-abort ()
   (interactive)
-  (magit-key-mode-perform-action nil nil))
+  (magit-invoke-popup-action nil nil))
 
 ;;; Mode
 
