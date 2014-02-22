@@ -7125,10 +7125,14 @@ a commit read from the minibuffer."
   (magit-diff (or rev "HEAD") t))
 
 ;;;###autoload
-(defun magit-diff-staged ()
-  "Show differences between the index and the HEAD commit."
-  (interactive)
-  (magit-diff nil nil (list "--cached")))
+(defun magit-diff-staged (&optional commit)
+  "Show changes between the index and the `HEAD' commit.
+With a prefix argument show changes between the index and
+a commit read from the minibuffer."
+  (interactive (and current-prefix-arg
+                    (list (magit-read-rev-with-default
+                           "Diff index and commit"))))
+  (magit-diff nil nil (cons "--cached" (and commit (list commit)))))
 
 ;;;###autoload
 (defun magit-diff-unstaged ()
