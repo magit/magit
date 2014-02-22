@@ -237,9 +237,13 @@ the key combination highlighted before the description."
   "(re)draw the magit key buffer."
   (let ((buffer-read-only nil)
         (old-arg (get-text-property (point) 'key-group-executor))
-        (old-pos (point)))
+        (old-pos (point))
+        (options (magit-key-mode-options-for-group for-group)))
     (erase-buffer)
-    (goto-char (magit-key-mode-draw for-group))
+    (magit-key-mode-draw-switches (cdr (assoc 'switches options)))
+    (magit-key-mode-draw-args (cdr (assoc 'arguments options)))
+    (save-excursion
+      (magit-key-mode-draw-actions (cdr (assoc 'actions options))))
     (if (= old-pos 1)
         (magit-key-mode-jump-to-next-exec)
       (goto-char (if old-arg
@@ -325,15 +329,6 @@ each item on one line."
             (insert padding))))
       (setq strings (cdr strings))))
   (insert "\n"))
-
-(defun magit-key-mode-draw (for-group)
-  "Draw actions, switches and parameters.
-Return the point before the actions part, if any, nil otherwise."
-  (let ((options (magit-key-mode-options-for-group for-group)))
-    (magit-key-mode-draw-switches (cdr (assoc 'switches options)))
-    (magit-key-mode-draw-args (cdr (assoc 'arguments options)))
-    (prog1 (point-marker)
-      (magit-key-mode-draw-actions (cdr (assoc 'actions options))))))
 
 ;;; (being refactored)
 
