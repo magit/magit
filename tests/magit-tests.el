@@ -53,9 +53,6 @@
                   "-m" (symbol-name (gensym "message"))
                   "--" filename))
 
-(defun magit-tests--head-hash ()
-  (magit-git-string "rev-parse" "--short" "HEAD"))
-
 (defun magit-tests--should-have-section (path info)
   (magit-status default-directory)
   (should (cl-find info
@@ -86,11 +83,11 @@
     (magit-tests--with-temp-clone default-directory
       (magit-tests--modify-and-commit "file")
       (magit-tests--should-have-section
-       'unpushed (magit-tests--head-hash))
+       'unpushed (magit-rev-parse "--short" "HEAD"))
 
       (magit-tests--modify-and-commit "file")
       (magit-tests--should-have-section
-       'unpushed (magit-tests--head-hash)))))
+       'unpushed (magit-rev-parse "--short" "HEAD")))))
 
 ;;;; config
 
