@@ -540,9 +540,9 @@ large diffs.  Also see option `magit-diff-use-overlays'."
 (defcustom magit-completing-read-function 'magit-builtin-completing-read
   "Function to be called when requesting input from the user."
   :group 'magit
-  :type '(radio (function-item magit-iswitchb-completing-read)
+  :type '(radio (function-item magit-builtin-completing-read)
                 (function-item magit-ido-completing-read)
-                (function-item magit-builtin-completing-read)
+                (function-item magit-iswitchb-completing-read)
                 (function :tag "Other")))
 
 (defcustom magit-repo-dirs nil
