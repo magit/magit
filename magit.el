@@ -6250,34 +6250,34 @@ Also see option `magit-set-upstream-on-push'."
   :default-action 'magit-commit)
 
 ;;;###autoload
-(defun magit-commit (&optional amendp)
+(defun magit-commit (&optional args)
   "Create a new commit on HEAD.
 With a prefix argument amend to the commit at HEAD instead.
-\('git commit [--amend]')."
-  (interactive "P")
-  (let ((args magit-current-popup-args))
-    (when amendp
-      (setq args (cons "--amend" args)))
-    (when (setq args (magit-commit-assert args))
-      (magit-commit-maybe-expand)
-      (magit-commit-internal "commit" args))))
+\n(git commit [--amend] ARGS)"
+  (interactive (if current-prefix-arg
+                   (list (cons "--amend" magit-current-popup-args))
+                 (list magit-current-popup-args)))
+  (when (setq args (magit-commit-assert args))
+    (magit-commit-maybe-expand)
+    (magit-commit-internal "commit" args)))
 
 ;;;###autoload
-(defun magit-commit-amend ()
+(defun magit-commit-amend (&optional args)
   "Amend the last commit.
-\('git commit --amend')."
-  (interactive)
+\n(git commit --amend ARGS)"
+  (interactive (list magit-current-popup-args))
   (magit-commit-maybe-expand)
-  (magit-commit-internal "commit" (cons "--amend" magit-current-popup-args)))
+  (magit-commit-internal "commit" (cons "--amend" args)))
 
 ;;;###autoload
-(defun magit-commit-extend (&optional override-date)
+(defun magit-commit-extend (&optional args override-date)
   "Amend the last commit, without editing the message.
 With a prefix argument do change the committer date, otherwise
 don't.  The option `magit-commit-extend-override-date' can be
 used to inverse the meaning of the prefix argument.
-\('git commit --no-edit --amend [--keep-date]')."
-  (interactive (list (if current-prefix-arg
+\n(git commit --amend --no-edit)"
+  (interactive (list magit-current-popup-args
+                     (if current-prefix-arg
                          (not magit-commit-reword-override-date)
                        magit-commit-reword-override-date)))
   (magit-commit-maybe-expand)
@@ -6285,11 +6285,11 @@ used to inverse the meaning of the prefix argument.
     (unless override-date
       (setenv "GIT_COMMITTER_DATE"
               (magit-git-string "log" "-1" "--format:format=%cd")))
-    (magit-commit-internal "commit" (nconc (list "--no-edit" "--amend")
-                                           magit-current-popup-args))))
+    (magit-commit-internal
+     "commit" (nconc (list "--amend" "--no-edit") args))))
 
 ;;;###autoload
-(defun magit-commit-reword (&optional override-date)
+(defun magit-commit-reword (&optional args override-date)
   "Reword the last commit, ignoring staged changes.
 
 With a prefix argument do change the committer date, otherwise
@@ -6298,17 +6298,17 @@ used to inverse the meaning of the prefix argument.
 
 Non-interactively respect the optional OVERRIDE-DATE argument
 and ignore the option.
-
-\('git commit --only --amend')."
-  (interactive (list (if current-prefix-arg
+\n(git commit --amend --only)"
+  (interactive (list magit-current-popup-args
+                     (if current-prefix-arg
                          (not magit-commit-reword-override-date)
                        magit-commit-reword-override-date)))
   (let ((process-environment process-environment))
     (unless override-date
       (setenv "GIT_COMMITTER_DATE"
               (magit-git-string "log" "-1" "--format:format=%cd")))
-    (magit-commit-internal "commit" (nconc (list "--only" "--amend")
-                                           magit-current-popup-args))))
+    (magit-commit-internal
+     "commit" (nconc (list "--amend" "--only") args))))
 
 ;;;###autoload
 (defun magit-commit-fixup (&optional commit args confirm)
