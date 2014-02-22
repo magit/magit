@@ -236,22 +236,19 @@ the key combination highlighted before the description."
   (let ((buffer-read-only nil)
         (current-exec (get-text-property (point) 'key-group-executor))
         (new-exec-pos)
-        (old-point (point))
-        (is-first (zerop (buffer-size)))
-        (actions-p nil))
+        (old-point (point)))
     (erase-buffer)
     (make-local-variable 'font-lock-defaults)
     (use-local-map
      (symbol-value (intern (format "magit-popup-%s-map" for-group))))
-    (setq actions-p (magit-key-mode-draw for-group))
+    (goto-char (magit-key-mode-draw for-group))
     (delete-trailing-whitespace)
     (setq mode-name "magit-key-mode" major-mode 'magit-key-mode)
     (when current-exec
       (setq new-exec-pos
             (cdr (assoc current-exec
                         (magit-key-mode-build-exec-point-alist)))))
-    (cond ((and is-first actions-p)
-           (goto-char actions-p)
+    (cond ((= old-point 1)
            (magit-key-mode-jump-to-next-exec))
           (new-exec-pos
            (goto-char new-exec-pos)
