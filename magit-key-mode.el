@@ -304,9 +304,9 @@ the key combination highlighted before the description."
                (let* ((head (propertize (car x) 'face 'magit-key-mode-button-face))
                       (desc (nth 1 x))
                       (more (and maker (funcall maker x)))
-                      (text (format " %s: %s%s%s"
+                      (text (format "%s: %s%s%s"
                                     head desc (if more " " "") (or more ""))))
-                 (propertize text 'key-group-executor (car x))))
+                 (concat " " (propertize text 'key-group-executor (car x)))))
              xs)
      one-col-each)))
 
