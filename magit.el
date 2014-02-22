@@ -1784,6 +1784,15 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
           (file-relative-name filename topdir)
         filename))))
 
+(defun magit-commit-log-buffer ()
+  (cl-find-if (lambda (buf)
+                (equal (magit-get-top-dir)
+                       (with-current-buffer buf
+                         (and (derived-mode-p 'git-commit-mode)
+                              (magit-get-top-dir)))))
+              (append (buffer-list (selected-frame))
+                      (buffer-list))))
+
 (defun magit-format-duration (duration spec width)
   (cl-destructuring-bind (char unit units weight)
       (car spec)
