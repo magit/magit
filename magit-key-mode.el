@@ -212,10 +212,10 @@
         (spec (symbol-value (intern (format "magit-popup-%s" popup)))))
     (erase-buffer)
     (save-excursion
-      (magit-popup-insert-buttons popup "Switches" " %-4k %d %a"
+      (magit-popup-insert-buttons popup "Switches" " %-4k %d %s"
                                   'magit-invoke-popup-switch
                                   (cdr (assoc 'switches spec)))
-      (magit-popup-insert-buttons popup "Options"  " %-4k %d %a%v"
+      (magit-popup-insert-buttons popup "Options"  " %-4k %d %o"
                                   'magit-invoke-popup-option
                                   (cdr (assoc 'options spec))
                                   (not magit-key-mode-options-in-cols))
@@ -271,12 +271,13 @@
                            'magit-popup-argument
                          'magit-popup-disabled-argument))))
     (when v
-      (setq v (propertize v 'face 'magit-popup-option-value)))
+      (setq v (propertize (format "\"%s\"" v)
+                          'face 'magit-popup-option-value)))
     (format-spec format
                  `((?k . ,(concat k ":"))
                    (?d . ,d)
-                   (?a . ,(concat "(" a ")"))
-                   (?v . ,(if v (concat " " v) ""))))))
+                   (?s . ,(concat "(" a ")"))
+                   (?o . ,(concat "(" a v ")"))))))
 
 ;;; (being refactored)
 
