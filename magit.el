@@ -1585,8 +1585,8 @@ set before loading libary `magit'.")
     ["Diff working tree" magit-diff-working-tree t]
     ["Diff" magit-diff t]
     ("Log"
-     ["Short Log" magit-log t]
-     ["Long Log" magit-log-long t]
+     ["Oneline Log" magit-log t]
+     ["Verbose Log" magit-log-verbose t]
      ["Reflog" magit-reflog t]
      ["Extended..." magit-log-popup t])
     "---"
@@ -6207,7 +6207,7 @@ depending on the value of option `magit-commit-squash-commit'.
     (cond
      ((not commit)
       (magit-commit-assert args)
-      (magit-log)
+      (magit-log "HEAD")
       (setq magit-commit-squash-args  args
             magit-commit-squash-fixup fixup)
       (add-hook 'magit-mark-commit-hook 'magit-commit-squash-marked t t)
@@ -6616,48 +6616,55 @@ to test.  This command lets Git choose a different one."
               (?a "Author"         "--author="    read-from-minibuffer)
               (?g "Grep messages"  "--grep="      read-from-minibuffer)
               (?G "Grep patches"   "-G"           read-from-minibuffer)
-              (?L "Trace evolution of line range [long log only]"
+              (?L "Trace evolution of line range"
                   "-L" magit-read-file-trace)
               (?s "Pickaxe search" "-S"           read-from-minibuffer)
               (?b "Branches"       "--branches="  read-from-minibuffer)
               (?R "Remotes"        "--remotes="   read-from-minibuffer))
-  :actions  '((?l "Short"        magit-log)
-              (?L "Long"         magit-log-long)
-              (?r "Reflog"       magit-reflog)
-              (?f "File log"     magit-file-log)
-              (?b "Ranged short" magit-log-ranged)
-              (?B "Ranged long"  magit-log-long-ranged)
-              (?R "Head reflog"  magit-reflog-head))
+  :actions  '((?l "Oneline"        magit-log-dwim)
+              (?L "Verbose"        magit-log-verbose-dwim)
+              (?r "Reflog"         magit-reflog)
+              (?f "File log"       magit-file-log)
+              (?b "Oneline branch" magit-log)
+              (?B "Verbose branch" magit-log-verbose)
+              (?R "Reflog HEAD"    magit-reflog-head))
   :default-arguments '("--graph")
-  :default-action 'magit-log)
+  :default-action 'magit-log
+  :max-action-columns 4)
 
 ;;;###autoload
-(defun magit-log (&optional range)
-  (interactive)
-  (unless range (setq range "HEAD"))
+(defun magit-log (range &optional args)
+  (interactive (magit-log-read-args nil nil))
   (magit-mode-setup magit-log-buffer-name nil
                     #'magit-log-mode
-                    #'magit-refresh-log-buffer
-                    'oneline range magit-current-popup-args))
+                    #'magit-refresh-log-buffer 'oneline range
+                    (cl-delete "^-L" args :test 'string-match-p)))
 
 ;;;###autoload
-(defun magit-log-ranged (range)
-  (interactive (list (magit-read-rev-range "Log" "HEAD")))
-  (magit-log range))
+(defun magit-log-dwim (range &optional args)
+  (interactive (magit-log-read-args t nil))
+  (magit-log range args))
 
 ;;;###autoload
-(defun magit-log-long (&optional range)
-  (interactive)
-  (unless range (setq range "HEAD"))
+(defun magit-log-verbose (range &optional args)
+  (interactive (magit-log-read-args nil t))
   (magit-mode-setup magit-log-buffer-name nil
                     #'magit-log-mode
-                    #'magit-refresh-log-buffer
-                    'long range magit-current-popup-args))
+                    #'magit-refresh-log-buffer 'long range args))
 
 ;;;###autoload
-(defun magit-log-long-ranged (range)
-  (interactive (list (magit-read-rev-range "Long Log" "HEAD")))
-  (magit-log-long range))
+(defun magit-log-verbose-dwim (range &optional args)
+  (interactive (magit-log-read-args t t))
+  (magit-log-verbose range args))
+
+(defun magit-log-read-args (dwim patch)
+  (let ((default "HEAD"))
+    (list (if (if dwim (not current-prefix-arg) current-prefix-arg)
+              default
+            (magit-read-rev (format "Show %s log for ref/rev/range"
+                                    (if patch "verbose" "oneline"))
+                            default))
+          magit-current-popup-args)))
 
 ;;;###autoload
 (defun magit-file-log (file &optional use-graph)
