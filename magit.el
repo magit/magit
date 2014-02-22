@@ -3668,34 +3668,6 @@ where COMMITS is the number of commits in TAG but not in \"HEAD\"."
                    (magit-list-remote-branches remote)))
     (magit-list-refnames (concat "refs/remotes/" remote))))
 
-(defvar magit-uninteresting-refs
-  '("^refs/stash$"
-    "^refs/remotes/[^/]+/HEAD$"
-    "^refs/remotes/[^/]+/top-bases$"
-    "^refs/top-bases$"))
-
-(cl-defun magit-list-interesting-refs (&optional uninteresting
-                                                 (refs nil srefs))
-  (cl-loop for ref in (if srefs
-                          refs
-                        (mapcar (lambda (l)
-                                  (cadr (split-string l " ")))
-                                (magit-git-lines "show-ref")))
-           with label
-           unless (or (cl-loop for i in
-                               (cl-typecase uninteresting
-                                 (null magit-uninteresting-refs)
-                                 (list uninteresting)
-                                 (string (cons (format "^refs/heads/%s$"
-                                                       uninteresting)
-                                               magit-uninteresting-refs)))
-                               thereis (string-match i ref))
-                      (not (and (string-match
-                                 "^refs/\\(heads\\|remotes\\|tags\\)/\\(.+\\)"
-                                 ref)
-                                (setq label (match-string 2 ref)))))
-           collect (cons label ref)))
-
 (defun magit-rev-diff-count (a b)
   "Return the commits in A but not B and vice versa.
 Return a list of two integers: (A>B B>A)."
@@ -3735,10 +3707,7 @@ Return a list of two integers: (A>B B>A)."
 (defun magit-format-ref-labels (string)
   (save-match-data
     (mapconcat 'magit-format-ref-label
-               (mapcar 'cdr
-                       (magit-list-interesting-refs
-                        nil (split-string string "\\(tag: \\|[(), ]\\)" t)))
-               " ")))
+               (split-string string "\\(tag: \\|[(), ]\\)" t) " ")))
 
 ;;;; Variables
 
@@ -3840,19 +3809,14 @@ results in additional differences."
 
 ;;;;; Revision Completion
 
-(defvar magit-read-rev-history nil
-  "The history of inputs to `magit-read-rev' and `magit-read-tag'.")
+(defvar magit-read-rev-history nil)
 
-(defun magit-read-rev (prompt &optional default uninteresting noselection)
-  (let* ((interesting-refs
-          (mapcar (lambda (elt)
-                    (setcdr elt (replace-regexp-in-string
-                                 "^refs/heads/" "" (cdr elt)))
-                    elt)
-                  (magit-list-interesting-refs uninteresting)))
-         (reply (magit-completing-read prompt interesting-refs nil nil nil
-                                       'magit-read-rev-history default)))
-    (or (cdr (assoc reply interesting-refs)) reply)))
+(defun magit-read-rev (prompt &optional default exclude noselection)
+  (setq default (magit-git-string "rev-parse" "--symbolic" default)
+        exclude (magit-git-string "rev-parse" "--symbolic" exclude))
+  (magit-completing-read prompt (delete exclude (magit-list-refnames))
+                         nil (not noselection) nil
+                         'magit-read-rev-history default))
 
 (defun magit-read-rev-with-default (prompt)
   (magit-read-rev prompt (--when-let (or (magit-guess-branch) "HEAD")
@@ -3865,14 +3829,7 @@ results in additional differences."
                          'magit-read-rev-history))
 
 (defun magit-read-remote-branch (prompt remote &optional default)
-  (magit-completing-read prompt
-                         (cl-mapcan
-                          (lambda (b)
-                            (and (not (string-match " -> " b))
-                                 (string-match (format "^ *%s/\\(.*\\)$"
-                                                       (regexp-quote remote)) b)
-                                 (list (match-string 1 b))))
-                          (magit-git-lines "branch" "-r"))
+  (magit-completing-read prompt (magit-list-remote-branch-names remote t)
                          nil nil nil nil default))
 
 (defun magit-read-tag (prompt &optional require-match)
