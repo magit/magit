@@ -3447,7 +3447,7 @@ If FILE isn't inside a Git repository then return nil."
 
 (defun magit-bare-repo-p ()
   "Return t if the current repository is bare."
-  (magit-git-true "rev-parse" "--is-bare-repository"))
+  (magit-rev-parse-p "--is-bare-repository"))
 
 (defun magit-no-commit-p ()
   "Return non-nil if there is no commit in the current git repository."
@@ -3474,6 +3474,12 @@ If FILE isn't inside a Git repository then return nil."
   "Execute `git rev-parse ARGS', returning first line of output.
 If there is no output return nil."
   (apply #'magit-git-string "rev-parse" args))
+
+(defun magit-rev-parse-p (&rest args)
+  "Execute `git rev-parse ARGS', returning t if it prints \"true\".
+Return t if the first (and usually only) output line is the
+string \"true\", otherwise return nil."
+  (magit-git-true "rev-parse" args))
 
 (defun magit-get-ref (name)
   (magit-git-string "symbolic-ref" "-q" name))
