@@ -69,28 +69,6 @@
 
 ;;; (being refactored)
 
-(defun magit-key-mode-key-defined-p (for-group key)
-  "Return t if KEY is defined as any option within FOR-GROUP.
-The option may be a switch, argument or action."
-  (catch 'result
-    (let ((options (magit-key-mode-options-for-group for-group)))
-      (dolist (type '(actions switches arguments))
-        (when (assoc key (assoc type options))
-          (throw 'result t))))))
-
-(defun magit-key-mode-update-group (for-group thing &rest args)
-  "Abstraction for setting values in `magit-key-mode-keymaps'."
-  (let* ((options (magit-key-mode-options-for-group for-group))
-         (things (assoc thing options))
-         (key (car args)))
-    (if (cdr things)
-        (if (magit-key-mode-key-defined-p for-group key)
-            (error "%s is already defined in the %s group." key for-group)
-          (setcdr (cdr things) (cons args (cddr things))))
-      (setcdr things (list args)))
-    (setq magit-key-mode-keymaps nil)
-    things))
-
 (defun magit-key-mode-options-for-group (for-group)
   "Retrieve the options for the group FOR-GROUP.
 This includes switches, commands and arguments."
