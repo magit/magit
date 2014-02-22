@@ -268,7 +268,7 @@ If USE-CACHE is non nil, use the cached information."
 (defun magit-key-mode-popup-svn ()
   "Key menu for svn."
   (interactive)
-  (magit-popup-mode 'svn))
+  (magit-popup-mode-setup 'svn))
 
 (defvar magit-svn-mode-map
   (let ((map (make-sparse-keymap)))
