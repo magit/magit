@@ -5507,7 +5507,7 @@ Fails if working tree or staging area contain uncommitted changes.
    (list (let ((current (magit-get-current-branch))
                (default (or (magit-guess-branch)
                             (magit-get-previous-branch))))
-           (magit-read-rev (format "Switch from '%s' to" current)
+           (magit-read-rev "Checkout"
                            (unless (equal default current) default)
                            current))))
   (magit-save-some-buffers)
