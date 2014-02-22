@@ -98,14 +98,9 @@
     (define-key map (kbd "RET") 'magit-key-mode-exec-at-point)
     ;; tab jumps to the next "button"
     (define-key map (kbd "TAB") 'magit-key-mode-jump-to-next-exec)
-
     ;; all maps should `quit' with `C-g' or `q'
-    (define-key map (kbd "C-g") `(lambda ()
-                                   (interactive)
-                                   (magit-key-mode-command nil)))
-    (define-key map (kbd "q")   `(lambda ()
-                                   (interactive)
-                                   (magit-key-mode-command nil)))
+    (define-key map (kbd "C-g") 'magit-key-mode-abort)
+    (define-key map (kbd "q")   'magit-key-mode-abort)
     ;; run help
     (define-key map (kbd "?") `(lambda ()
                                  (interactive)
@@ -190,6 +185,11 @@ The user is prompted for the key."
            (man man-page)
          (error "No man page associated with `%s'" for-group)))
       (t (error "No help associated with `%s'" seq)))))
+
+(defun magit-key-mode-abort ()
+  "Abort the current key-mode popup."
+  (interactive)
+  (magit-key-mode-command nil))
 
 ;;; Mode
 
