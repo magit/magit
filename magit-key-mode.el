@@ -288,9 +288,10 @@
 ;;; Define
 
 (defmacro magit-define-popup (name doc &rest args)
-  "\n\n(fn NAME DOC [MODE [OPTION]] :KEYWORD VALUE...)"
+  "\n\n(fn NAME DOC [GROUP [MODE [OPTION]]] :KEYWORD VALUE...)"
   (declare (indent defun) (doc-string 2))
-  (let ((mode (unless (keywordp (car args)) (pop args)))
+  (let ((grp  (unless (keywordp (car args)) (pop args)))
+        (mode (unless (keywordp (car args)) (pop args)))
         (var  (unless (keywordp (car args)) (pop args)))
         (opt  (intern (format "%s-defaults" name))))
     `(progn
@@ -303,6 +304,7 @@
            `((defcustom ,opt
                (magit-popup-custom-default (symbol-value ',name))
                ""
+               ,@(and grp (list :group grp))
                :type (magit-popup-custom-type (symbol-value ',name)))
              (put ',opt 'definition-name ',name))))))
 

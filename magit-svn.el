@@ -54,6 +54,7 @@
 
 (magit-define-popup magit-svn-popup
   "Key menu for svn."
+  'magit
   :man-page "git-svn"
   :switches '((?n "Dry run"         "--dry-run"))
   :actions  '((?r "Rebase"          magit-svn-rebase)

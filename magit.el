@@ -190,6 +190,10 @@ aborts and returns that value."
   "Git and other external processes used by Magit."
   :group 'magit)
 
+(defgroup magit-popups nil
+  "Command console popups provided by Magit."
+  :group 'magit)
+
 (defgroup magit-modes nil
   "Modes provided by Magit."
   :group 'magit)
@@ -1645,6 +1649,7 @@ set before loading libary `magit'.")
 
 (magit-define-popup magit-dispatch-popup
   "Popup console for dispatching other popups."
+  'magit-popups
   :actions '((?b "Branching"       magit-branch-popup)
              (?B "Bisecting"       magit-bisect-popup)
              (?c "Committing"      magit-commit-popup)
@@ -3085,6 +3090,7 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
 
 (magit-define-popup magit-run-popup
   "Popup console for running raw Git commands."
+  'magit-popups
   :actions '((?! "Git Subcommand (from root)" magit-git-command-topdir)
              (?: "Git Subcommand (from pwd)" magit-git-command)
              (?g "Git Gui" magit-run-git-gui)
@@ -5416,6 +5422,7 @@ return the buffer, without displaying it."
 
 (magit-define-popup magit-merge-popup
   "Popup console for merge commands."
+  'magit-popups
   :man-page "git-merge"
   :switches '((?f "Fast-forward only" "--ff-only")
               (?n "No fast-forward"   "--no-ff")
@@ -5457,6 +5464,7 @@ With a prefix argument, skip editing the log message and commit.
 
 (magit-define-popup magit-branch-popup
   "Popup console for branch commands."
+  'magit-popups
   :man-page "git-branch"
   :switches '((?t "Set upstream configuration" "--track")
               (?m "Merged to HEAD"             "--merged")
@@ -5605,6 +5613,7 @@ If no branch is found near the cursor return nil."
 
 (magit-define-popup magit-remote-popup
   "Popup console for remote commands."
+  'magit-popups
   :man-page "git-remote"
   :actions  '((?v "Remote manager" magit-branch-manager)
               (?a "Add"            magit-add-remote)
@@ -5732,6 +5741,7 @@ Return nil if there is no rebase in progress."
 
 (magit-define-popup magit-am-popup
   "Popup console for mailbox commands."
+  'magit-popups
   :man-page "git-am"
   :switches '((?s "add a Signed-off-by line to the commit message" "--signoff")
               (?3 "allow fall back on 3way merging if needed" "--3way")
@@ -5802,6 +5812,7 @@ With two prefix args, remove ignored files as well."
 
 (magit-define-popup magit-rewrite-popup
   "Popup console for rewrite commands."
+  'magit-popups
   :actions '((?b "Begin"      magit-rewrite-start)
              (?s "Stop"       magit-rewrite-stop)
              (?a "Abort"      magit-rewrite-abort)
@@ -5930,6 +5941,7 @@ With two prefix args, remove ignored files as well."
 
 (magit-define-popup magit-fetch-popup
   "Popup console for fetch commands."
+  'magit-popups
   :man-page "git-fetch"
   :switches '((?p "Prune"   "--prune"))
   :actions  '((?f "Current" magit-fetch-current)
@@ -5963,6 +5975,7 @@ If there is no default remote, ask for one."
 
 (magit-define-popup magit-pull-popup
   "Popup console for pull commands."
+  'magit-popups
   :man-page "git-pull"
   :switches '((?f "Force"  "--force")
               (?r "Rebase" "--rebase"))
@@ -6026,6 +6039,7 @@ user because of prefix arguments are not saved with git config."
 
 (magit-define-popup magit-push-popup
   "Popup console for push commands."
+  'magit-popups
   :man-page "git-push"
   :switches '((?f "Force"        "--force")
               (?d "Dry run"      "-n")
@@ -6128,6 +6142,7 @@ Also see option `magit-set-upstream-on-push'."
 
 (magit-define-popup magit-commit-popup
   "Popup console for commit commands."
+  'magit-popups
   :man-page "git-commit"
   :switches '((?r "Replace the tip of current branch"      "--amend")
               (?R "Claim authorship and reset author date" "--reset-author")
@@ -6400,6 +6415,7 @@ depending on the value of option `magit-commit-squash-commit'.
 
 (magit-define-popup magit-tag-popup
   "Popup console for tag commands."
+  'magit-popups
   :man-page "git-tag"
   :switches '((?a "Annotate" "--annotate")
               (?f "Force"    "--force")
@@ -6435,6 +6451,7 @@ With a prefix argument annotate the tag.
 
 (magit-define-popup magit-stash-popup
   "Popup console for stash commands."
+  'magit-popups
   :man-page "git-stash"
   :switches '((?k "Keep index"              "--keep-index")
               (?u "Include untracked files" "--include-untracked")
@@ -6506,6 +6523,7 @@ With prefix argument, changes in staging area are kept.
 
 (magit-define-popup magit-submodule-popup
   "Popup console for submodule commands."
+  'magit-popups
   :man-page "git-submodule"
   :actions  '((?u "Update" magit-submodule-update)
               (?b "Both update and init" magit-submodule-update-init)
@@ -6544,6 +6562,7 @@ With a prefix arg, do a submodule update --init."
 
 (magit-define-popup magit-bisect-popup
   "Popup console for bisect commands."
+  'magit-popups
   :man-page "git-bisect"
   :actions  '((?b "Bad"   magit-bisect-bad)
               (?g "Good"  magit-bisect-good)
@@ -6620,6 +6639,7 @@ to test.  This command lets Git choose a different one."
 
 (magit-define-popup magit-log-popup
   "Popup console for log commands."
+  'magit-popups
   :man-page "git-log"
   :switches '((?m "Only merge commits"        "--merges")
               (?d "Date Order"                "--date-order")
