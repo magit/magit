@@ -3949,24 +3949,6 @@ and no variation of the Auto-Revert mode is already active."
 (defun magit-diff-U-arg ()
   (format "-U%d" magit-diff-context-lines))
 
-(defun magit-diff-smaller-hunks (&optional count)
-  "Decrease the context for diff hunks by COUNT."
-  (interactive "p")
-  (setq magit-diff-context-lines (max 0 (- magit-diff-context-lines count)))
-  (magit-refresh))
-
-(defun magit-diff-larger-hunks (&optional count)
-  "Increase the context for diff hunks by COUNT."
-  (interactive "p")
-  (setq magit-diff-context-lines (+ magit-diff-context-lines count))
-  (magit-refresh))
-
-(defun magit-diff-default-hunks ()
-  "Reset context for diff hunks to the default size."
-  (interactive)
-  (setq magit-diff-context-lines 3)
-  (magit-refresh))
-
 (defun magit-diff-toggle-refine-hunk (&optional other)
   "Turn diff-hunk refining on or off.
 
@@ -7219,6 +7201,24 @@ If there is no commit at point, then prompt for one."
                        current))))
      (list (concat marked ".." commit))))
   (magit-diff range))
+
+(defun magit-diff-smaller-hunks (&optional count)
+  "Decrease the context for diff hunks by COUNT."
+  (interactive "p")
+  (setq magit-diff-context-lines (max 0 (- magit-diff-context-lines count)))
+  (magit-refresh))
+
+(defun magit-diff-larger-hunks (&optional count)
+  "Increase the context for diff hunks by COUNT."
+  (interactive "p")
+  (setq magit-diff-context-lines (+ magit-diff-context-lines count))
+  (magit-refresh))
+
+(defun magit-diff-default-hunks ()
+  "Reset context for diff hunks to the default size."
+  (interactive)
+  (setq magit-diff-context-lines 3)
+  (magit-refresh))
 
 (defun magit-refresh-diff-buffer (range &optional working args)
   (let ((magit-current-diff-range
