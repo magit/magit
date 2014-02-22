@@ -3474,8 +3474,8 @@ If FILE isn't inside a Git repository then return nil."
   "Return the SHA hash for REF."
   (magit-git-string "rev-parse" ref))
 
-(defun magit-get-ref (ref)
-  (magit-git-string "symbolic-ref" "-q" ref))
+(defun magit-get-ref (name)
+  (magit-git-string "symbolic-ref" "-q" name))
 
 (defun magit-name-rev (rev &optional no-trim)
   "Return a human-readable name for REV.
