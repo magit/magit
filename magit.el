@@ -753,59 +753,6 @@ they are not (due to semantic considerations)."
 
 ;;;;;; Diff
 
-(defun magit-set-default-diff-options (symbol value)
-  "Set the default for `magit-diff-options' based on popup value.
-Also set the local value in all Magit buffers and refresh them.
-\n(fn)" ; The arguments are an internal implementation detail.
-  (interactive (list 'magit-diff-options magit-custom-options))
-  (set-default symbol value)
-  (when (and (featurep 'magit) (not buffer-file-name))
-    (dolist (buffer (buffer-list))
-      (when (derived-mode-p 'magit-mode)
-        (with-current-buffer buffer
-          (with-no-warnings
-            (setq-local magit-diff-options value))
-          (magit-mode-refresh-buffer))))))
-
-(defcustom magit-diff-options nil
-  "Git options used to display diffs.
-
-For more information about the options see man:git-diff.
-This variable can be conveniently set in Magit buffers
-using `magit-key-mode-popup-diff-options' (bound to \
-\\<magit-mode-map>\\[magit-key-mode-popup-diff-options]).
-
-Please note that not all of these options are supported by older
-versions of Git, which could become a problem if you use tramp to
-access repositories on a system with such a version.  If you see
-whitespace where you would have expected a diff, this likely is
-the cause, and the only (currently) workaround is to not make the
-problematic option a member of the default value."
-  :package-version '(magit . "2.0.0")
-  :group 'magit-diff
-  :set 'magit-set-default-diff-options
-  :type '(set :greedy t
-              (const :tag
-                     "--minimal              Show smallest possible diff"
-                     "--minimal")
-              (const :tag
-                     "--patience             Use patience diff algorithm"
-                     "--patience")
-              (const :tag
-                     "--histogram            Use histogram diff algorithm"
-                     "--histogram")
-              (const :tag
-                     "--ignore-space-change  Ignore whitespace changes"
-                     "--ignore-space-change")
-              (const :tag
-                     "--ignore-all-space     Ignore all whitespace"
-                     "--ignore-all-space")
-              (const :tag
-                     "--function-context     Show surrounding functions"
-                     "--function-context")))
-
-(put 'magit-diff-options 'permanent-local t)
-
 (defcustom magit-show-diffstat t
   "Whether to show diffstat in diff and commit buffers."
   :package-version '(magit . "2.0.0")
@@ -1525,7 +1472,7 @@ set before loading libary `magit'.")
     (define-key map (kbd "-") 'magit-diff-smaller-hunks)
     (define-key map (kbd "+") 'magit-diff-larger-hunks)
     (define-key map (kbd "0") 'magit-diff-default-hunks)
-    (define-key map (kbd "h") 'magit-key-mode-popup-diff-options)
+    (define-key map (kbd "h") 'magit-diff-toggle-refine-hunk)
     (define-key map (kbd "H") 'magit-diff-toggle-refine-hunk)
     (define-key map (kbd "M-g") 'magit-jump-to-diffstats)
     (define-key map (kbd "S") 'magit-stage-all)
@@ -3967,7 +3914,7 @@ and no variation of the Auto-Revert mode is already active."
 (add-hook 'find-file-hook 'magit-maybe-turn-on-auto-revert-mode)
 
 ;;; (misplaced)
-;;;; Diff Options
+;;;; Hunk Refinement
 
 (defvar magit-diff-context-lines 3)
 
@@ -3990,28 +3937,6 @@ and no variation of the Auto-Revert mode is already active."
   "Reset context for diff hunks to the default size."
   (interactive)
   (setq magit-diff-context-lines 3)
-  (magit-refresh))
-
-(defun magit-set-diff-options ()
-  "Set local `magit-diff-options' based on popup state.
-And refresh the current Magit buffer."
-  (interactive)
-  (setq-local magit-diff-options magit-custom-options)
-  (magit-refresh))
-
-;; `magit-set-default-diff-options' is defined in "Options"/"Setters".
-
-(defun magit-save-default-diff-options ()
-  "Set and save the default for `magit-diff-options' based on popup value.
-Also set the local value in all Magit buffers and refresh them."
-  (interactive)
-  (customize-save-variable 'magit-diff-options magit-custom-options))
-
-(defun magit-reset-diff-options ()
-  "Reset local `magit-diff-options' to default value.
-And refresh the current Magit buffer."
-  (interactive)
-  (setq-local magit-diff-options (default-value 'magit-diff-options))
   (magit-refresh))
 
 (defun magit-diff-toggle-refine-hunk (&optional other)
@@ -4276,6 +4201,8 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                    'diff-mode 'fine))
 
 ;;;;; Raw Diff Washing
+
+(defvar magit-diff-options nil)
 
 (defun magit-insert-diff (section file status)
   (let ((beg (point)))
@@ -4583,7 +4510,7 @@ stash at point, then prompt for a commit."
     "log" "-1" "--decorate=full"
     "--pretty=medium" (magit-diff-U-arg)
     "--cc" "-p" (and magit-show-diffstat "--stat")
-    magit-diff-options commit))
+    commit))
 
 ;;;;; Commit Washing
 
@@ -4760,8 +4687,7 @@ can be used to override this."
         "diff" (magit-diff-U-arg) "-R" orig))))
 
 (defun magit-insert-unstaged-changes ()
-  (let ((magit-current-diff-range (cons 'index 'working))
-        (magit-diff-options (copy-sequence magit-diff-options)))
+  (let ((magit-current-diff-range (cons 'index 'working)))
     (magit-git-insert-section (unstaged "Unstaged changes:")
         #'magit-wash-raw-diffs
       "diff-files")))
@@ -4773,7 +4699,7 @@ can be used to override this."
             (base (if no-commit
                       (magit-git-string "mktree")
                     "HEAD"))
-            (magit-diff-options (append '("--cached") magit-diff-options)))
+            (magit-diff-options (list "--cached")))
         (magit-git-insert-section (staged "Staged changes:")
             (apply-partially #'magit-wash-raw-diffs t)
           "diff-index" "--cached" base)))))

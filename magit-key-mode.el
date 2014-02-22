@@ -294,22 +294,7 @@
       ("r" "Reset" magit-bisect-reset)
       ("s" "Start" magit-bisect-start)
       ("u" "Run" magit-bisect-run)))
-
-    (diff-options
-     (actions
-      ("s" "Set" magit-set-diff-options)
-      ("d" "Set default" magit-set-default-diff-options)
-      ("c" "Save default" magit-save-default-diff-options)
-      ("r" "Reset to default" magit-reset-diff-options)
-      ("h" "Toggle Hunk Refinement" magit-toggle-diff-refine-hunk))
-     (switches
-      ("-m" "Show smallest possible diff" "--minimal")
-      ("-p" "Use patience diff algorithm" "--patience")
-      ("-h" "Use histogram diff algorithm" "--histogram")
-      ("-b" "Ignore whitespace changes" "--ignore-space-change")
-      ("-w" "Ignore all whitespace" "--ignore-all-space")
-      ("-W" "Show surrounding functions" "--function-context"))
-     ))
+    )
   "Holds the key, help, function mapping for the log-mode.
 If you modify this make sure you reset `magit-key-mode-keymaps'
 to nil.")
@@ -679,10 +664,7 @@ Return the point before the actions part, if any, nil otherwise."
          ;; As a tempory kludge it is okay to do this here.
          ,(cl-case group
             (logging
-             '(list "--graph"))
-            (diff-options
-             '(when (local-variable-p 'magit-diff-options)
-                magit-diff-options))))))))
+             '(list "--graph"))))))))
 
 ;; create the interactive functions for the key mode popups (which are
 ;; applied in the top-level key maps)
