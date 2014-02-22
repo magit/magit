@@ -212,14 +212,14 @@
         (spec (symbol-value (intern (format "magit-popup-%s" popup)))))
     (erase-buffer)
     (save-excursion
-      (magit-popup-insert-buttons popup "Switches" " %k: %d %a"
+      (magit-popup-insert-buttons popup "Switches" " %-4k %d %a"
                                   'magit-invoke-popup-switch
                                   (cdr (assoc 'switches spec)))
-      (magit-popup-insert-buttons popup "Options"  " %k: %d %a%v"
+      (magit-popup-insert-buttons popup "Options"  " %-4k %d %a%v"
                                   'magit-invoke-popup-option
                                   (cdr (assoc 'options spec))
                                   (not magit-key-mode-options-in-cols))
-      (magit-popup-insert-buttons popup "Actions"  " %k: %d"
+      (magit-popup-insert-buttons popup "Actions"  " %-3k %d"
                                   'magit-invoke-popup-action
                                   (cdr (assoc 'actions spec))))
     (if key
@@ -273,7 +273,7 @@
     (when v
       (setq v (propertize v 'face 'magit-popup-option-value)))
     (format-spec format
-                 `((?k . ,k)
+                 `((?k . ,(concat k ":"))
                    (?d . ,d)
                    (?a . ,(concat "(" a ")"))
                    (?v . ,(if v (concat " " v) ""))))))
