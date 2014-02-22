@@ -5274,6 +5274,34 @@ return the buffer, without displaying it."
     buffer))
 
 ;;;; Act
+;;;;; Init
+
+;;;###autoload
+(defun magit-init (directory)
+  "Create or reinitialize a Git repository.
+Read directory name and initialize it as new Git repository.
+
+If the directory is below an existing repository, then the user
+has to confirm that a new one should be created inside; or when
+the directory is the root of the existing repository, whether
+it should be reinitialized.
+
+Non-interactively DIRECTORY is always (re-)initialized."
+  (interactive
+   (let* ((dir (file-name-as-directory
+                (expand-file-name
+                 (read-directory-name "Create repository in: "))))
+          (top (magit-get-top-dir dir)))
+     (if (and top
+              (not (yes-or-no-p
+                    (if (string-equal top dir)
+                        (format "Reinitialize existing repository %s? " dir)
+                      (format "%s is a repository.  Create another in %s? "
+                              top dir)))))
+         (user-error "Abort")
+       dir)))
+  (magit-run-git "init" directory))
+
 ;;;;; Merging
 
 (magit-define-popup magit-merge-popup
@@ -7336,32 +7364,6 @@ from the parent keymap `magit-mode-map' are also available.")
 
 ;;; Miscellaneous
 ;;;; Miscellaneous Commands
-
-;;;###autoload
-(defun magit-init (directory)
-  "Create or reinitialize a Git repository.
-Read directory name and initialize it as new Git repository.
-
-If the directory is below an existing repository, then the user
-has to confirm that a new one should be created inside; or when
-the directory is the root of the existing repository, whether
-it should be reinitialized.
-
-Non-interactively DIRECTORY is always (re-)initialized."
-  (interactive
-   (let* ((dir (file-name-as-directory
-                (expand-file-name
-                 (read-directory-name "Create repository in: "))))
-          (top (magit-get-top-dir dir)))
-     (if (and top
-              (not (yes-or-no-p
-                    (if (string-equal top dir)
-                        (format "Reinitialize existing repository %s? " dir)
-                      (format "%s is a repository.  Create another in %s? "
-                              top dir)))))
-         (user-error "Abort")
-       dir)))
-  (magit-run-git "init" directory))
 
 (defun magit-copy-item-as-kill ()
   "Copy sha1 of commit at point into kill ring."
