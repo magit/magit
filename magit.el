@@ -267,6 +267,14 @@ will stop working at all."
   :type '(choice (string :tag "Executable")
                  (const :tag "Don't use Emacsclient" nil)))
 
+(defcustom magit-success-executable "true"
+  "The executable which always succeeds.
+An executable or shell built-in which does nothing but
+return with a zero exit status.  The default is \"true\"."
+  :package-version '(magit . "2.0.0")
+  :group 'magit-process
+  :type 'string)
+
 (defcustom magit-process-connection-type (not (eq system-type 'cygwin))
   "Connection type used for the git process.
 
@@ -1413,7 +1421,6 @@ set before loading libary `magit'.")
            (define-key map (kbd "m") 'magit-merge)
            (define-key map (kbd "b") 'magit-checkout)
            (define-key map (kbd "M") 'magit-branch-manager)
-           (define-key map (kbd "r") 'undefined)
            (define-key map (kbd "f") 'magit-fetch-current)
            (define-key map (kbd "F") 'magit-pull)
            (define-key map (kbd "J") 'magit-apply-mailbox)
@@ -1429,7 +1436,6 @@ set before loading libary `magit'.")
            (define-key map (kbd "m") 'magit-merge-popup)
            (define-key map (kbd "b") 'magit-branch-popup)
            (define-key map (kbd "M") 'magit-remote-popup)
-           (define-key map (kbd "r") 'magit-rewrite-popup)
            (define-key map (kbd "f") 'magit-fetch-popup)
            (define-key map (kbd "F") 'magit-pull-popup)
            (define-key map (kbd "J") 'magit-am-popup)
@@ -1441,9 +1447,8 @@ set before loading libary `magit'.")
            (define-key map (kbd "B") 'magit-bisect-popup)
            (define-key map (kbd "z") 'magit-stash-popup)))
     (define-key map (kbd "$") 'magit-process)
-    (define-key map (kbd "E") 'magit-interactive-rebase)
-    (define-key map (kbd "R") 'magit-rebase-step)
-    (define-key map (kbd "e") 'magit-ediff)
+    (define-key map (kbd "e") 'magit-rebase-popup)
+    (define-key map (kbd "r") 'magit-rebase-popup)
     (define-key map (kbd "w") 'magit-wazzup)
     (define-key map (kbd "y") 'magit-cherry)
     (define-key map (kbd "q") 'magit-mode-quit-window)
@@ -1498,7 +1503,7 @@ set before loading libary `magit'.")
     (set-keymap-parent map magit-mode-map)
     (define-key map (kbd ".") 'magit-mark-item)
     (define-key map (kbd "=") 'magit-diff-with-mark)
-    (define-key map (kbd "e") 'magit-log-show-more-entries)
+    (define-key map (kbd "+") 'magit-log-show-more-entries)
     (define-key map (kbd "h") 'magit-log-toggle-margin)
     map)
   "Keymap for `magit-log-mode'.")
@@ -1613,14 +1618,7 @@ set before loading libary `magit'.")
     ["Branch..." magit-checkout t]
     ["Merge" magit-merge t]
     ["Interactive resolve" magit-interactive-resolve t]
-    ["Rebase" magit-rebase-step t]
-    ("Rewrite"
-     ["Start" magit-rewrite-start t]
-     ["Stop" magit-rewrite-stop t]
-     ["Finish" magit-rewrite-finish t]
-     ["Abort" magit-rewrite-abort t]
-     ["Set used" magit-rewrite-set-used t]
-     ["Set unused" magit-rewrite-set-unused t])
+    ["Rebase..." magit-rebase-popup t]
     "---"
     ["Push" magit-push t]
     ["Pull" magit-pull t]
@@ -1651,8 +1649,7 @@ set before loading libary `magit'.")
              (?M "Remoting"        magit-remote-popup)
              (?P "Pushing"         magit-push-popup)
              (?o "Submoduling"     magit-submodule-popup)
-             (?r "Rewriting"       magit-rewrite-popup)
-             (?R "Rebasing"        magit-rebase-step)
+             (?r "Rebasing"        magit-rebase-popup)
              (?s "Show Status"     magit-status)
              (?S "Stage all"       magit-stage-all)
              (?t "Tagging"         magit-tag-popup)
@@ -4370,7 +4367,10 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
     (when (and longer
                (= magit-log-count magit-log-cutoff-length))
       (magit-with-section (section longer 'longer)
-        (insert-text-button "type \"e\" to show more history"
+        (insert-text-button (substitute-command-keys
+                             (format "Type \\<%s>\\[%s] to show more history"
+                                     'magit-log-mode-map
+                                     'magit-log-show-more-entries))
                             'action (lambda (button)
                                       (magit-log-show-more-entries))
                             'follow-link t
@@ -5647,7 +5647,143 @@ If no branch is found near the cursor return nil."
     (branch parent-info)
     (t      (if (string= info ".") info (magit-get-current-remote)))))
 
-;;;;; Rebase
+;;;;; Rebasing
+
+(magit-define-popup magit-rebase-popup
+  "Key menu for rebasing."
+  'magit 'magit-popup-sequence-mode
+  :man-page "git-rebase"
+  :switches '((?k "Keep empty commits" "--keep-empty")
+              (?p "Preserve merges" "--preserve-merges")
+              (?c "Lie about author date" "--committer-date-is-author-date")
+              (?a "Autosquash" "--autosquash")
+              (?A "Autostash" "--autostash"))
+  :actions  '((?r "Rebase"      magit-rebase)
+              (?o "Rebase onto" magit-rebase-onto)
+              (?e "Interactive" magit-rebase-interactive)
+              (?f "Autosquash"  magit-rebase-autosquash))
+  :sequence-actions '((?r "Continue" magit-rebase-continue)
+                      (?s "Skip"     magit-rebase-skip)
+                      (?e "Edit"     magit-rebase-edit)
+                      (?a "Abort"    magit-rebase-abort))
+  :sequence-predicate 'magit-rebase-in-progress-p)
+
+;;;###autoload
+(defun magit-rebase (upstream &optional args)
+  "Start an non-interactive rebase operation.
+\n(git rebase UPSTREAM[^] [ARGS])"
+  (interactive
+   (if (magit-rebase-in-progress-p)
+       (list nil)
+     (let ((branch (magit-get-current-branch)))
+       (list (magit-read-rev
+              "Rebase to" (magit-get-tracked-branch branch) branch)
+             magit-current-popup-args))))
+  (if upstream
+      (progn (message "Rebasing...")
+             (magit-run-git "rebase" upstream)
+             (message "Rebasing...done"))
+    (magit-log-select
+      `(lambda (commit)
+         (magit-rebase (concat commit "^") (list ,@args))))))
+
+;;;###autoload
+(defun magit-rebase-onto (newbase upstream &optional args)
+  "Start an non-interactive rebase operation, using `--onto'.
+\n(git rebase --onto NEWBASE UPSTREAM[^] [ARGS])"
+  (interactive (list (magit-read-rev "Rebase onto") nil))
+  (if upstream
+      (progn (message "Rebasing...")
+             (magit-run-git "rebase" "--onto" newbase upstream args)
+             (message "Rebasing...done"))
+    (magit-log-select
+      `(lambda (commit)
+         (magit-rebase-onto ,newbase (concat commit "^") ,args)))))
+
+;;;###autoload
+(defun magit-rebase-interactive (commit &optional args)
+  "Start an interactive rebase operation.
+\n(git rebase -i COMMIT[^] [ARGS])"
+  (interactive (let ((commit (magit-section-case (info) (commit info))))
+                 (list (and commit (concat commit "^"))
+                       magit-current-popup-args)))
+  (cond
+   ((magit-rebase-in-progress-p)
+    (magit-rebase-popup))
+   ((setq commit (magit-rebase-interactive-assert commit))
+    (magit-assert-emacsclient "rebase interactively")
+    (magit-with-emacsclient magit-server-window-for-rebase
+      (apply 'magit-run-git-async "rebase" "-i" commit args)))
+   (t
+    (magit-log-select
+      `(lambda (commit)
+         (magit-rebase-interactive (concat commit "^") (list ,@args)))))))
+
+;;;###autoload
+(defun magit-rebase-autosquash (commit &optional args)
+  "Combine squash and fixup commits with their intended targets.
+\n(git rebase -i COMMIT[^] --autosquash --autostash [ARGS])"
+  (interactive (list (magit-get-tracked-branch) magit-current-popup-args))
+  (if (setq commit (magit-rebase-interactive-assert commit))
+      (magit-with-emacsclient magit-server-window-for-commit
+        (let ((process-environment process-environment))
+          (setenv "GIT_SEQUENCE_EDITOR" magit-success-executable)
+          (apply 'magit-run-git-async "rebase" "-i" commit
+                 "--autosquash" "--autostash" args)))
+    (magit-log-select
+      `(lambda (commit)
+         (magit-rebase-autosquash (concat commit "^") (list ,@args))))))
+
+;;;###autoload
+(defun magit-rebase-continue ()
+  "Restart the current rebasing operation."
+  (interactive)
+  (if (magit-rebase-in-progress-p)
+      (if (magit-anything-unstaged-p)
+          (error "Cannot continue rebase with unstaged changes")
+        (magit-with-emacsclient magit-server-window-for-commit
+          (magit-run-git-async "rebase" "--continue")))
+    (error "No rebase in progress")))
+
+;;;###autoload
+(defun magit-rebase-skip ()
+  "Skip the current commit and restart the current rebase operation."
+  (interactive)
+  (if (magit-rebase-in-progress-p)
+      (magit-with-emacsclient magit-server-window-for-rebase
+        (magit-run-git-async "rebase" "--skip"))
+    (error "No rebase in progress")))
+
+;;;###autoload
+(defun magit-rebase-edit ()
+  "Edit the todo list of the current rebase operation."
+  (interactive)
+  (if (magit-rebase-in-progress-p)
+      (magit-with-emacsclient magit-server-window-for-rebase
+        (magit-run-git-async "rebase" "--edit-todo"))
+    (error "No rebase in progress")))
+
+;;;###autoload
+(defun magit-rebase-abort ()
+  "Abort the current rebase operation, restoring the original branch."
+  (interactive)
+  (if (magit-rebase-in-progress-p)
+      (magit-run-git "rebase" "--abort")
+    (error "No rebase in progress")))
+
+(defun magit-rebase-interactive-assert (commit)
+  (when commit
+    (if (magit-git-lines "rev-list" "--merges" (concat commit "..HEAD"))
+        (magit-read-char-case "Proceed despite merge in rebase range?  " nil
+          (?c "[c]ontinue" commit)
+          (?p "[s]elect other" nil)
+          (?a "[a]bort" (user-error "Quit")))
+      commit)))
+
+(defun magit-rebase-in-progress-p ()
+  "Return t if a rebase is in progress."
+  (or (file-directory-p (magit-git-dir "rebase-merge"))
+      (file-directory-p (magit-git-dir "rebase-apply"))))
 
 (defun magit-rebase-info ()
   "Return a list indicating the state of an in-progress rebase.
@@ -5693,40 +5829,6 @@ Return nil if there is no rebase in progress."
          (when (string-match "^From \\([a-z0-9]\\{40\\}\\) " patch-header)
            (match-string 1 patch-header)))
        t)))))
-
-(defun magit-rebase-step ()
-  "Initiate or continue a rebase."
-  (interactive)
-  (let ((rebase (magit-rebase-info)))
-    (if rebase
-        (let ((cursor-in-echo-area t)
-              (message-log-max nil)
-              (am (nth 4 rebase)))
-          (message "%s in progress. [A]bort, [S]kip, or [C]ontinue? "
-                   (if am "Apply mailbox" "Rebase"))
-          (cl-case (read-event)
-            ((?A ?a) (magit-run-git-async (if am "am" "rebase") "--abort"))
-            ((?S ?s) (magit-run-git-async (if am "am" "rebase") "--skip"))
-            ((?C ?c) (magit-with-emacsclient magit-server-window-for-commit
-                       (magit-run-git-async (if am "am" "rebase") "--continue")))))
-      (let* ((branch (magit-get-current-branch))
-             (rev (magit-read-rev
-                   "Rebase to"
-                   (magit-get-tracked-branch branch)
-                   branch)))
-        (magit-run-git "rebase" rev)))))
-
-;;;###autoload
-(defun magit-interactive-rebase (commit)
-  "Start a git rebase -i session, old school-style."
-  (interactive (let ((commit (magit-section-case (info) (commit info))))
-                 (list (if commit
-                           (concat commit "^")
-                         (magit-read-rev "Interactively rebase to"
-                                         (magit-guess-branch))))))
-  (magit-assert-emacsclient "rebase interactively")
-  (magit-with-emacsclient magit-server-window-for-rebase
-    (magit-run-git-async "rebase" "-i" commit)))
 
 ;;;;; AM
 
@@ -6257,7 +6359,7 @@ depending on the value of option `magit-commit-squash-commit'.
         (member "--all" args)
         (member "--amend" args))
     (or args (list "--")))
-   ((and (magit-rebase-info)
+   ((and (magit-rebase-in-progress-p)
          (y-or-n-p "Nothing staged.  Continue in-progress rebase? "))
     (magit-run-git-async "rebase" "--continue")
     nil)
