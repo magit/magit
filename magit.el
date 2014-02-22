@@ -1781,17 +1781,6 @@ server if necessary."
 
 ;;;; Git Low-Level
 
-(defun magit-git-repo-p (dir)
-  (file-exists-p (expand-file-name ".git" dir)))
-
-(defun magit-no-commit-p ()
-  "Return non-nil if there is no commit in the current git repository."
-  (not (magit-git-string "rev-list" "-1" "HEAD")))
-
-(defun magit-bare-repo-p ()
-  "Return t if the current repository is bare."
-  (magit-git-true "rev-parse" "--is-bare-repository"))
-
 (defun magit-get-ref (ref)
   (magit-git-string "symbolic-ref" "-q" ref))
 
@@ -3750,6 +3739,18 @@ If FILE isn't inside a Git repository then return nil."
     path))
 
 ;;;; Repository Predicates
+
+(defun magit-git-repo-p (dir)
+  (file-exists-p (expand-file-name ".git" dir)))
+
+(defun magit-bare-repo-p ()
+  "Return t if the current repository is bare."
+  (magit-git-true "rev-parse" "--is-bare-repository"))
+
+(defun magit-no-commit-p ()
+  "Return non-nil if there is no commit in the current git repository."
+  (not (magit-git-string "rev-list" "-1" "HEAD")))
+
 ;;;; Diff Predicates
 ;;;; Revisions and References
 ;;;; Variables
