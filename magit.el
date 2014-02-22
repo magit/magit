@@ -5504,13 +5504,12 @@ inspect the merge and change the commit message.
 Fails if working tree or staging area contain uncommitted changes.
 \n(git checkout REVISION)."
   (interactive
-   (list (let ((current-branch (magit-get-current-branch))
+   (list (let ((current (magit-get-current-branch))
                (default (or (magit-guess-branch)
                             (magit-get-previous-branch))))
-           (magit-read-rev (format "Switch from '%s' to" current-branch)
-                           (unless (string= current-branch default)
-                             default)
-                           current-branch))))
+           (magit-read-rev (format "Switch from '%s' to" current)
+                           (unless (equal default current) default)
+                           current))))
   (magit-save-some-buffers)
   (magit-run-git "checkout" revision))
 
@@ -5548,9 +5547,7 @@ merged.  Works with local and remote branches.
     (let* ((current (magit-get-current-branch))
            (is-current (string= branch current))
            (is-master (string= branch "master"))
-           (args (list "branch"
-                       (if force "-D" "-d")
-                       branch)))
+           (args (list "branch" (if force "-D" "-d") branch)))
       (cond
        ((and is-current is-master)
         (message "Cannot delete master branch while it's checked out."))
