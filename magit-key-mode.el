@@ -346,15 +346,11 @@ each item on one line."
 (defun magit-key-mode-draw (for-group)
   "Draw actions, switches and parameters.
 Return the point before the actions part, if any, nil otherwise."
-  (let* ((options (magit-key-mode-options-for-group for-group))
-         (switches (cdr (assoc 'switches options)))
-         (arguments (cdr (assoc 'arguments options)))
-         (actions (cdr (assoc 'actions options))))
-    (magit-key-mode-draw-switches switches)
-    (magit-key-mode-draw-args arguments)
+  (let ((options (magit-key-mode-options-for-group for-group)))
+    (magit-key-mode-draw-switches (cdr (assoc 'switches options)))
+    (magit-key-mode-draw-args (cdr (assoc 'arguments options)))
     (prog1 (point-marker)
-      (magit-key-mode-draw-actions actions)
-      (insert "\n"))))
+      (magit-key-mode-draw-actions (cdr (assoc 'actions options))))))
 
 ;;; (being refactored)
 
