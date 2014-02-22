@@ -5412,12 +5412,12 @@ return the buffer, without displaying it."
 (magit-define-popup magit-merge-popup
   "Popup console for merge commands."
   :man-page "git-merge"
-  :switches '(("-ff" "Fast-forward only" "--ff-only")
-              ("-nf" "No fast-forward"   "--no-ff")
-              ("-sq" "Squash"            "--squash"))
-  :options  '(("-st" "Strategy" "--strategy=" read-from-minibuffer))
-  :actions  '(("m"   "Merge" magit-merge)
-              ("A"   "Abort" magit-merge-abort)))
+  :switches '(("-f" "Fast-forward only" "--ff-only")
+              ("-n" "No fast-forward"   "--no-ff")
+              ("-s" "Squash"            "--squash"))
+  :options  '(("=s" "Strategy" "--strategy=" read-from-minibuffer))
+  :actions  '(("m"  "Merge" magit-merge)
+              ("A"  "Abort" magit-merge-abort)))
 
 ;;;###autoload
 (defun magit-merge (revision &optional do-commit)
@@ -6608,14 +6608,14 @@ to test.  This command lets Git choose a different one."
   "Popup console for log commands."
   :man-page "git-log"
   :switches '(("-m"  "Only merge commits"        "--merges")
-              ("-do" "Date Order"                "--date-order")
+              ("-d"  "Date Order"                "--date-order")
               ("-f"  "First parent"              "--first-parent")
               ("-i"  "Case insensitive patterns" "-i")
-              ("-pr" "Pickaxe regex"             "--pickaxe-regex")
+              ("-P"  "Pickaxe regex"             "--pickaxe-regex")
               ("-g"  "Show Graph"                "--graph")
               ("-n"  "Name only"                 "--name-only")
-              ("-am" "All match"                 "--all-match")
-              ("-al" "All"                       "--all"))
+              ("-M"  "All match"                 "--all-match")
+              ("-A"  "All"                       "--all"))
   :options  '(("=r"  "Relative"       "--relative="  read-directory-name)
               ("=c"  "Committer"      "--committer=" read-from-minibuffer)
               ("=>"  "Since"          "--since="     read-from-minibuffer)
@@ -6630,11 +6630,11 @@ to test.  This command lets Git choose a different one."
               ("=R"  "Remotes"        "--remotes="   read-from-minibuffer))
   :actions  '(("l"   "Short"        magit-log)
               ("L"   "Long"         magit-log-long)
-              ("h"   "Head Reflog"  magit-reflog-head)
+              ("r"   "Reflog"       magit-reflog)
               ("f"   "File log"     magit-file-log)
-              ("rl"  "Ranged short" magit-log-ranged)
-              ("rL"  "Ranged long"  magit-log-long-ranged)
-              ("rh"  "Reflog"       magit-reflog)))
+              ("b"   "Ranged short" magit-log-ranged)
+              ("B"   "Ranged long"  magit-log-long-ranged)
+              ("R"   "Head reflog"  magit-reflog-head)))
 
 ;;;###autoload
 (defun magit-log (&optional range)

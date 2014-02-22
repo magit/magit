@@ -225,14 +225,14 @@
         (spec (symbol-value magit-this-popup)))
     (erase-buffer)
     (save-excursion
-      (magit-popup-insert-buttons "Switches" " %-4k %d %s"
+      (magit-popup-insert-buttons "Switches" " %k: %d %s"
                                   'magit-invoke-popup-switch
                                   (plist-get spec :switches))
-      (magit-popup-insert-buttons "Options"  " %-4k %d %o"
+      (magit-popup-insert-buttons "Options"  " %k: %d %o"
                                   'magit-invoke-popup-option
                                   (plist-get spec :options)
                                   (not magit-popup-options-in-cols))
-      (magit-popup-insert-buttons "Actions"  " %-3k %d"
+      (magit-popup-insert-buttons "Actions"  " %k: %d"
                                   'magit-invoke-popup-action
                                   (plist-get spec :actions)))
     (if key
@@ -289,7 +289,7 @@
               (propertize (format "\"%s\"" v)
                           'face 'magit-popup-option-value)))
     (format-spec format
-                 `((?k . ,(concat k ":"))
+                 `((?k . ,k)
                    (?d . ,d)
                    (?s . ,(concat "(" a ")"))
                    (?o . ,(concat "(" a v ")"))))))
