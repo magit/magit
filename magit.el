@@ -6037,24 +6037,25 @@ With two prefix args, remove ignored files as well."
   :man-page "git-fetch"
   :switches '((?p "Prune"   "--prune"))
   :actions  '((?f "Current" magit-fetch-current)
-              (?a "All"     magit-remote-update)
-              (?o "Other"   magit-fetch))
+              (?o "Other"   magit-fetch)
+              (?a "All"     magit-remote-update))
   :default-action 'magit-fetch-current)
 
 ;;;###autoload
-(defun magit-fetch (remote)
+(defun magit-fetch (remote &optional args)
   "Fetch from REMOTE."
-  (interactive (list (magit-read-remote "Fetch remote")))
-  (magit-run-git-async "fetch" remote magit-current-popup-args))
+  (interactive (list (magit-read-remote "Fetch remote")
+                     magit-current-popup-args))
+  (magit-run-git-async "fetch" remote args))
 
 ;;;###autoload
-(defun magit-fetch-current ()
-  "Run fetch for default remote.
-
+(defun magit-fetch-current (&optional args)
+  "Fetch for the default remote.
 If there is no default remote, ask for one."
-  (interactive)
+  (interactive (list magit-current-popup-args))
   (magit-fetch (or (magit-get-current-remote)
-                   (magit-read-remote "Fetch remote"))))
+                   (magit-read-remote "Fetch remote"))
+               args))
 
 ;;;###autoload
 (defun magit-remote-update ()
