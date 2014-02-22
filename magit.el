@@ -1588,55 +1588,6 @@ Many Magit faces inherit from this one by default."
 ;;; Utilities
 ;;;; Minibuffer Input
 
-(defun magit-iswitchb-completing-read
-  (prompt choices &optional predicate require-match initial-input hist def)
-  "iswitchb-based completing-read almost-replacement."
-  (require 'iswitchb)
-  (let ((iswitchb-make-buflist-hook
-         (lambda ()
-           (setq iswitchb-temp-buflist (if (consp (car choices))
-                                           (mapcar #'car choices)
-                                         choices)))))
-    (iswitchb-read-buffer prompt (or initial-input def) require-match)))
-
-(defun magit-ido-completing-read
-  (prompt choices &optional predicate require-match initial-input hist def)
-  "ido-based completing-read almost-replacement."
-  (require 'ido)
-  (let ((reply (ido-completing-read
-                prompt
-                (if (consp (car choices))
-                    (mapcar #'car choices)
-                  choices)
-                predicate require-match initial-input hist def)))
-    (or (and (consp (car choices))
-             (cdr (assoc reply choices)))
-        reply)))
-
-(defun magit-builtin-completing-read
-  (prompt choices &optional predicate require-match initial-input hist def)
-  "Magit wrapper for standard `completing-read' function."
-  (let ((reply (completing-read
-                (if (and def (> (length prompt) 2)
-                         (string-equal ": " (substring prompt -2)))
-                    (format "%s (default %s): " (substring prompt 0 -2) def)
-                  prompt)
-                choices predicate require-match initial-input hist def)))
-    (if (string= reply "")
-        (if require-match
-            (user-error "Nothing selected")
-          nil)
-      reply)))
-
-(defun magit-completing-read
-  (prompt collection &optional predicate require-match initial-input hist def)
-  "Call function in `magit-completing-read-function' to read user input.
-
-Read `completing-read' documentation for the meaning of the argument."
-  (funcall magit-completing-read-function
-           (concat prompt ": ") collection predicate
-           require-match initial-input hist def))
-
 (defvar magit-gpg-secret-key-hist nil)
 
 (defun magit-read-gpg-secret-key (prompt &optional initial-input)
@@ -3921,6 +3872,56 @@ and no variation of the Auto-Revert mode is already active."
 
 ;;;; Completion
 ;;;;; Completing Read
+
+(defun magit-completing-read
+  (prompt collection &optional predicate require-match initial-input hist def)
+  "Call function in `magit-completing-read-function' to read user input.
+
+Read `completing-read' documentation for the meaning of the argument."
+  (funcall magit-completing-read-function
+           (concat prompt ": ") collection predicate
+           require-match initial-input hist def))
+
+(defun magit-builtin-completing-read
+  (prompt choices &optional predicate require-match initial-input hist def)
+  "Magit wrapper for standard `completing-read' function."
+  (let ((reply (completing-read
+                (if (and def (> (length prompt) 2)
+                         (string-equal ": " (substring prompt -2)))
+                    (format "%s (default %s): " (substring prompt 0 -2) def)
+                  prompt)
+                choices predicate require-match initial-input hist def)))
+    (if (string= reply "")
+        (if require-match
+            (user-error "Nothing selected")
+          nil)
+      reply)))
+
+(defun magit-ido-completing-read
+  (prompt choices &optional predicate require-match initial-input hist def)
+  "ido-based completing-read almost-replacement."
+  (require 'ido)
+  (let ((reply (ido-completing-read
+                prompt
+                (if (consp (car choices))
+                    (mapcar #'car choices)
+                  choices)
+                predicate require-match initial-input hist def)))
+    (or (and (consp (car choices))
+             (cdr (assoc reply choices)))
+        reply)))
+
+(defun magit-iswitchb-completing-read
+  (prompt choices &optional predicate require-match initial-input hist def)
+  "iswitchb-based completing-read almost-replacement."
+  (require 'iswitchb)
+  (let ((iswitchb-make-buflist-hook
+         (lambda ()
+           (setq iswitchb-temp-buflist (if (consp (car choices))
+                                           (mapcar #'car choices)
+                                         choices)))))
+    (iswitchb-read-buffer prompt (or initial-input def) require-match)))
+
 ;;;;; Revision Completion
 ;;;;; Miscellaneous Completion
 ;;; (misplaced)
