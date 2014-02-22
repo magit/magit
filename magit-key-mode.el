@@ -100,13 +100,13 @@
     (let ((defkey (lambda (k action)
                     (define-key map (car k)
                       `(lambda () (interactive) ,action)))))
-      (dolist (k (cdr (assoc 'actions spec)))
-        (funcall defkey k `(magit-key-mode-perform-action ',(nth 2 k))))
       (dolist (k (cdr (assoc 'switches spec)))
         (funcall defkey k `(magit-key-mode-toggle-switch ',popup ,(nth 2 k))))
       (dolist (k (cdr (assoc 'options spec)))
         (funcall defkey k `(magit-key-mode-set-option
-                            ',popup ,(nth 2 k) ',(nth 3 k)))))
+                            ',popup ,(nth 2 k) ',(nth 3 k))))
+      (dolist (k (cdr (assoc 'actions spec)))
+        (funcall defkey k `(magit-key-mode-perform-action ',(nth 2 k)))))
     map))
 
 (defvar-local magit-popup-prefix-arg nil)
@@ -115,6 +115,18 @@
 (defvar-local magit-popup-current-switches nil)
 
 (defvar magit-custom-options nil)
+
+(defun magit-key-mode-toggle-switch (popup switch)
+  (if (member switch magit-popup-current-switches)
+      (setq magit-popup-current-switches
+            (delete switch magit-popup-current-switches))
+    (add-to-list 'magit-popup-current-switches switch))
+  (magit-refresh-popup-buffer popup))
+
+(defun magit-key-mode-set-option (popup arg-name input-func)
+  (let ((input (funcall input-func (concat arg-name ": "))))
+    (puthash arg-name input magit-popup-current-options)
+    (magit-refresh-popup-buffer popup)))
 
 (defun magit-key-mode-perform-action (func)
   (let ((current-prefix-arg (or current-prefix-arg magit-popup-prefix-arg))
@@ -127,18 +139,6 @@
       (kill-buffer buf))
     (when func
       (call-interactively func))))
-
-(defun magit-key-mode-set-option (popup arg-name input-func)
-  (let ((input (funcall input-func (concat arg-name ": "))))
-    (puthash arg-name input magit-popup-current-options)
-    (magit-refresh-popup-buffer popup)))
-
-(defun magit-key-mode-toggle-switch (popup switch)
-  (if (member switch magit-popup-current-switches)
-      (setq magit-popup-current-switches
-            (delete switch magit-popup-current-switches))
-    (add-to-list 'magit-popup-current-switches switch))
-  (magit-refresh-popup-buffer popup))
 
 (defun magit-key-mode-help (popup)
   (let* ((spec (symbol-value (intern (format "magit-popup-%s" popup))))
@@ -214,7 +214,7 @@
 
 ;;; Draw Buffer
 
-(defvar magit-key-mode-args-in-cols nil)
+(defvar magit-key-mode-options-in-cols nil)
 
 (defun magit-key-mode-draw-options (args)
   (magit-key-mode-draw-buttons
@@ -225,17 +225,7 @@
              (nth 2 x)
              (propertize (gethash (nth 2 x) magit-popup-current-options "")
                          'face 'magit-key-mode-option-face)))
-   (not magit-key-mode-args-in-cols)))
-
-(defun magit-key-mode-draw-switches (switches)
-  (magit-key-mode-draw-buttons
-   "Switches"
-   switches
-   (lambda (x)
-     (format "(%s)" (let ((s (nth 2 x)))
-                      (if (member s magit-key-mode-current-options)
-                          (propertize s 'face 'magit-key-mode-switch-face)
-                        s))))))
+   (not magit-key-mode-options-in-cols)))
 
 (defun magit-key-mode-draw-actions (actions)
   (magit-key-mode-draw-buttons "Actions" actions nil))
@@ -313,14 +303,6 @@
 
 (defvar magit-popup-logging
   '((man-page "git-log")
-    (actions
-     ("l" "Short" magit-log)
-     ("L" "Long" magit-log-long)
-     ("h" "Head Reflog" magit-reflog-head)
-     ("f" "File log" magit-file-log)
-     ("rl" "Ranged short" magit-log-ranged)
-     ("rL" "Ranged long" magit-log-long-ranged)
-     ("rh" "Reflog" magit-reflog))
     (switches
      ("-m" "Only merge commits" "--merges")
      ("-do" "Date Order" "--date-order")
@@ -343,7 +325,15 @@
       "-L" magit-read-file-trace)
      ("=s" "Pickaxe search" "-S" read-from-minibuffer)
      ("=b" "Branches" "--branches=" read-from-minibuffer)
-     ("=R" "Remotes" "--remotes=" read-from-minibuffer))))
+     ("=R" "Remotes" "--remotes=" read-from-minibuffer))
+    (actions
+     ("l" "Short" magit-log)
+     ("L" "Long" magit-log-long)
+     ("h" "Head Reflog" magit-reflog-head)
+     ("f" "File log" magit-file-log)
+     ("rl" "Ranged short" magit-log-ranged)
+     ("rL" "Ranged long" magit-log-long-ranged)
+     ("rh" "Reflog" magit-reflog))))
 
 (defvar magit-popup-logging-map
   (magit-key-mode-build-keymap 'logging magit-popup-logging))
@@ -387,13 +377,13 @@
 
 (defvar magit-popup-pushing
   '((man-page "git-push")
-    (actions
-     ("P" "Push" magit-push)
-     ("t" "Push tags" magit-push-tags))
     (switches
      ("-f" "Force" "--force")
      ("-d" "Dry run" "-n")
-     ("-u" "Set upstream" "-u"))))
+     ("-u" "Set upstream" "-u"))
+    (actions
+     ("P" "Push" magit-push)
+     ("t" "Push tags" magit-push-tags))))
 
 (defvar magit-popup-pushing-map
   (magit-key-mode-build-keymap 'pushing magit-popup-pushing))
@@ -405,11 +395,11 @@
 
 (defvar magit-popup-pulling
   '((man-page "git-pull")
-    (actions
-     ("F" "Pull" magit-pull))
     (switches
      ("-f" "Force" "--force")
-     ("-r" "Rebase" "--rebase"))))
+     ("-r" "Rebase" "--rebase"))
+    (actions
+     ("F" "Pull" magit-pull))))
 
 (defvar magit-popup-pulling-map
   (magit-key-mode-build-keymap 'pulling magit-popup-pulling))
@@ -421,12 +411,6 @@
 
 (defvar magit-popup-branching
   '((man-page "git-branch")
-    (actions
-     ("v" "Branch manager" magit-branch-manager)
-     ("b" "Checkout" magit-checkout)
-     ("c" "Create" magit-create-branch)
-     ("r" "Rename" magit-rename-branch)
-     ("k" "Delete" magit-delete-branch))
     (switches
      ("-t" "Set upstream configuration" "--track")
      ("-m" "Merged to HEAD" "--merged")
@@ -436,7 +420,13 @@
     (options
      ("=c" "Contains" "--contains=" magit-read-rev-with-default)
      ("=m" "Merged" "--merged=" magit-read-rev-with-default)
-     ("=n" "Not merged" "--no-merged=" magit-read-rev-with-default))))
+     ("=n" "Not merged" "--no-merged=" magit-read-rev-with-default))
+    (actions
+     ("v" "Branch manager" magit-branch-manager)
+     ("b" "Checkout" magit-checkout)
+     ("c" "Create" magit-create-branch)
+     ("r" "Rename" magit-rename-branch)
+     ("k" "Delete" magit-delete-branch))))
 
 (defvar magit-popup-branching-map
   (magit-key-mode-build-keymap 'branching magit-popup-branching))
@@ -464,13 +454,13 @@
 
 (defvar magit-popup-tagging
   '((man-page "git-tag")
-    (actions
-     ("t" "Create" magit-tag)
-     ("k" "Delete" magit-delete-tag))
     (switches
      ("-a" "Annotate" "--annotate")
      ("-f" "Force" "--force")
-     ("-s" "Sign" "--sign"))))
+     ("-s" "Sign" "--sign"))
+    (actions
+     ("t" "Create" magit-tag)
+     ("k" "Delete" magit-delete-tag))))
 
 (defvar magit-popup-tagging-map
   (magit-key-mode-build-keymap 'tagging magit-popup-tagging))
@@ -482,17 +472,17 @@
 
 (defvar magit-popup-stashing
   '((man-page "git-stash")
+    (switches
+     ("-k" "Keep index" "--keep-index")
+     ("-u" "Include untracked files" "--include-untracked")
+     ("-a" "Include all files" "--all"))
     (actions
      ("v" "View" magit-diff-stash)
      ("z" "Save" magit-stash)
      ("s" "Snapshot" magit-stash-snapshot)
      ("a" "Apply" magit-stash-apply)
      ("p" "Pop" magit-stash-pop)
-     ("k" "Drop" magit-stash-drop))
-    (switches
-     ("-k" "Keep index" "--keep-index")
-     ("-u" "Include untracked files" "--include-untracked")
-     ("-a" "Include all files" "--all"))))
+     ("k" "Drop" magit-stash-drop))))
 
 (defvar magit-popup-stashing-map
   (magit-key-mode-build-keymap 'stashing magit-popup-stashing))
@@ -504,13 +494,6 @@
 
 (defvar magit-popup-committing
   '((man-page "git-commit")
-    (actions
-     ("c" "Commit" magit-commit)
-     ("a" "Amend"  magit-commit-amend)
-     ("e" "Extend" magit-commit-extend)
-     ("r" "Reword" magit-commit-reword)
-     ("f" "Fixup"  magit-commit-fixup)
-     ("s" "Squash" magit-commit-squash))
     (switches
      ("-r" "Replace the tip of current branch" "--amend")
      ("-R" "Claim authorship and reset author date" "--reset-author")
@@ -520,7 +503,14 @@
      ("-n" "Bypass git hooks" "--no-verify")
      ("-s" "Add Signed-off-by line" "--signoff"))
     (arguments
-     ("=S" "Sign using gpg" "--gpg-sign=" magit-read-gpg-secret-key))))
+     ("=S" "Sign using gpg" "--gpg-sign=" magit-read-gpg-secret-key))
+    (actions
+     ("c" "Commit" magit-commit)
+     ("a" "Amend"  magit-commit-amend)
+     ("e" "Extend" magit-commit-extend)
+     ("r" "Reword" magit-commit-reword)
+     ("f" "Fixup"  magit-commit-fixup)
+     ("s" "Squash" magit-commit-squash))))
 
 (defvar magit-popup-committing-map
   (magit-key-mode-build-keymap 'committing magit-popup-committing))
@@ -532,15 +522,15 @@
 
 (defvar magit-popup-merging
   '((man-page "git-merge")
-    (actions
-     ("m" "Merge" magit-merge)
-     ("A" "Abort" magit-merge-abort))
     (switches
      ("-ff" "Fast-forward only" "--ff-only")
      ("-nf" "No fast-forward" "--no-ff")
      ("-sq" "Squash" "--squash"))
     (options
-     ("-st" "Strategy" "--strategy=" read-from-minibuffer))))
+     ("-st" "Strategy" "--strategy=" read-from-minibuffer))
+    (actions
+     ("m" "Merge" magit-merge)
+     ("A" "Abort" magit-merge-abort))))
 
 (defvar magit-popup-merging-map
   (magit-key-mode-build-keymap 'merging magit-popup-merging))
