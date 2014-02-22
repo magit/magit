@@ -6529,7 +6529,7 @@ With a prefix argument annotate the tag.
   "Delete the tag with the given NAME.
 \('git tag -d NAME')."
   (interactive (list (magit-read-tag "Delete Tag" t)))
-  (magit-run-git "tag" "-d" magit-current-popup-args name))
+  (magit-run-git "tag" "-d" name))
 
 ;;;;; Stashing
 
