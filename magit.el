@@ -1435,6 +1435,21 @@ Many Magit faces inherit from this one by default."
     map)
   "Parent keymap for all keymaps of modes derived from `magit-mode'.")
 
+(defvar magit-status-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map magit-mode-map)
+    (define-key map "i" 'magit-ignore-item)
+    (define-key map "I" 'magit-ignore-item-locally)
+    (define-key map "k" 'magit-discard-item)
+    (define-key map "s" 'magit-stage-item)
+    (define-key map "u" 'magit-unstage-item)
+    (define-key map "." 'magit-mark-item)
+    (define-key map "=" 'magit-diff-with-mark)
+    (define-key map "C" 'magit-commit-add-log)
+    (define-key map "j" 'magit-section-jump-map)
+    map)
+  "Keymap for `magit-status-mode'.")
+
 (defvar magit-diff-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
@@ -1453,21 +1468,6 @@ Many Magit faces inherit from this one by default."
     (set-keymap-parent map magit-diff-mode-map)
     map)
   "Keymap for `magit-commit-mode'.")
-
-(defvar magit-status-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-mode-map)
-    (define-key map (kbd "s") 'magit-stage-item)
-    (define-key map (kbd "u") 'magit-unstage-item)
-    (define-key map (kbd "i") 'magit-ignore-item)
-    (define-key map (kbd "I") 'magit-ignore-item-locally)
-    (define-key map (kbd "j") 'magit-section-jump-map)
-    (define-key map (kbd ".") 'magit-mark-item)
-    (define-key map (kbd "=") 'magit-diff-with-mark)
-    (define-key map (kbd "k") 'magit-discard-item)
-    (define-key map (kbd "C") 'magit-commit-add-log)
-    map)
-  "Keymap for `magit-status-mode'.")
 
 (eval-after-load 'dired-x
   '(define-key magit-status-mode-map [remap dired-jump] 'magit-dired-jump))
