@@ -124,6 +124,8 @@
 (defun magit-invoke-popup-option (popup arg-name input-func)
   (let ((elt (assoc arg-name magit-popup-current-options))
         (val (funcall input-func (concat arg-name ": "))))
+    (cond ((or (not val) (equal val "")) (setq val nil))
+          ((string-match-p "^\s+$" val)  (setq val "")))
     (if elt
         (setcdr elt val)
       (push (cons arg-name val) magit-popup-current-options))
