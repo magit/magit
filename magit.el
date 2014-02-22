@@ -1538,7 +1538,7 @@ set before loading libary `magit'.")
 (defvar magit-branch-manager-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
-    (define-key map (kbd "c") 'magit-create-branch)
+    (define-key map (kbd "c") 'magit-branch-and-checkout)
     (define-key map (kbd "a") 'magit-add-remote)
     (define-key map (kbd "r") 'magit-rename-item)
     (define-key map (kbd "k") 'magit-discard-item)
@@ -5113,7 +5113,7 @@ Please unstage it first")))
                    (if current-prefix-arg
                        (concat "Force delete branch [" info "]? ")
                      (concat "Delete branch [" info "]? ")))
-              (magit-delete-branch info current-prefix-arg)))
+              (magit-branch-delete info current-prefix-arg)))
     (remote (when (yes-or-no-p "Remove remote? ")
               (magit-remove-remote info)))))
 
@@ -5493,9 +5493,9 @@ inspect the merge and change the commit message.
               (?n "Not merged" "--no-merged=" magit-popup-read-rev))
   :actions  '((?v "Branch manager" magit-branch-manager)
               (?b "Checkout"       magit-checkout)
-              (?c "Create"         magit-create-branch)
-              (?r "Rename"         magit-rename-branch)
-              (?k "Delete"         magit-delete-branch))
+              (?c "Create"         magit-branch-and-checkout)
+              (?r "Rename"         magit-branch-rename)
+              (?k "Delete"         magit-branch-delete))
   :default-action 'magit-checkout)
 
 ;;;###autoload
@@ -5515,23 +5515,23 @@ Fails if working tree or staging area contain uncommitted changes.
   (magit-run-git "checkout" revision))
 
 ;;;###autoload
-(defun magit-create-branch (branch parent)
+(defun magit-branch-and-checkout (branch parent)
   "Switch 'HEAD' to new BRANCH at revision PARENT and update working tree.
 Fails if working tree or staging area contain uncommitted changes.
 \('git checkout -b BRANCH REVISION')."
   (interactive
-   (list (read-string "Create branch: ")
+   (list (read-string "Create and checkout branch: ")
          (magit-read-rev "Parent" (or (magit-guess-branch)
                                       (magit-get-current-branch)))))
   (cond ((run-hook-with-args-until-success
-          'magit-create-branch-hook branch parent))
+          'magit-branch-create-hook branch parent))
         ((and branch (not (string= branch "")))
          (magit-save-some-buffers)
          (magit-run-git "checkout" magit-current-popup-args
                         "-b" branch parent))))
 
 ;;;###autoload
-(defun magit-delete-branch (branch &optional force)
+(defun magit-branch-delete (branch &optional force)
   "Delete the BRANCH.
 If the branch is the current one, offers to switch to `master' first.
 With prefix, forces the removal even if it hasn't been merged.
@@ -5564,7 +5564,7 @@ Works with local or remote branches.
         (magit-run-git args))))))
 
 ;;;###autoload
-(defun magit-rename-branch (old new &optional force)
+(defun magit-branch-rename (old new &optional force)
   "Rename branch OLD to NEW.
 With prefix, forces the rename even if NEW already exists.
 \('git branch [-m|-M] OLD NEW')."
@@ -7722,7 +7722,7 @@ from the parent keymap `magit-mode-map' are also available.")
   "Rename the item at point."
   (interactive)
   (magit-section-action rename ()
-    (branch (call-interactively 'magit-rename-branch))
+    (branch (call-interactively 'magit-branch-rename))
     (remote (call-interactively 'magit-rename-remote))))
 
 (defun magit-change-what-branch-tracks ()
