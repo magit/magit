@@ -6669,7 +6669,7 @@ to test.  This command lets Git choose a different one."
               (?b "Ranged short" magit-log-ranged)
               (?B "Ranged long"  magit-log-long-ranged)
               (?R "Head reflog"  magit-reflog-head))
-  :default-switches '("--graph")
+  :default-arguments '("--graph")
   :default-action 'magit-log)
 
 ;;;###autoload

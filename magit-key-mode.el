@@ -189,8 +189,6 @@
 (defvar magit-current-popup nil)
 (defvar magit-current-popup-args nil)
 
-(defvar-local magit-popup-variable-type 'cons)
-
 (cl-defstruct magit-popup-event key dsc arg fun use val)
 
 (defun magit-popup-event-keydsc (ev)
@@ -200,52 +198,31 @@
 (defun magit-popup-lookup (event type)
   (cl-find event (magit-popup-get type) :key 'magit-popup-event-key))
 
-(defun magit-popup-get-args (&optional style)
-  (cl-ecase (or style magit-popup-variable-type)
-    (cons (nconc
-           (cl-mapcan (lambda (elt)
-                        (when (magit-popup-event-use elt)
-                          (list (cons (magit-popup-event-arg elt) t))))
-                      (magit-popup-get :switches))
-           (cl-mapcan (lambda (elt)
-                        (when (magit-popup-event-use elt)
-                          (list (cons (magit-popup-event-arg elt)
-                                      (magit-popup-event-val elt)))))
-                      (magit-popup-get :options))))
-    (flat  (cl-mapcan (lambda (elt)
-                        (when (magit-popup-event-use elt)
-                          (list (concat (magit-popup-event-arg elt)
-                                        (magit-popup-event-val elt)))))
-                      (append (magit-popup-get :switches)
-                              (magit-popup-get :options))))))
+(defun magit-popup-get-args ()
+  (cl-mapcan (lambda (elt)
+               (when (magit-popup-event-use elt)
+                 (list (concat (magit-popup-event-arg elt)
+                               (magit-popup-event-val elt)))))
+             (append (magit-popup-get :switches)
+                     (magit-popup-get :options))))
 
 (defun magit-popup-convert-switches (val def)
   (mapcar (lambda (ev)
             (let ((a (nth 2 ev)))
               (make-magit-popup-event
                :key (car ev) :dsc (cadr ev) :arg a
-               :use (if (eq magit-popup-variable-type 'flat)
-                        (and (member a val) t)
-                      (cdr (assoc a val))))))
+               :use (and (member a val) t))))
           def))
 
 (defun magit-popup-convert-options (val def)
-  (mapcar (cl-ecase magit-popup-variable-type
-            (cons (lambda (ev)
-                    (let* ((a (nth 2 ev))
-                           (v (cdr (assoc a val))))
-                      (make-magit-popup-event
-                       :key (car ev)  :dsc (cadr ev) :arg a
-                       :use (and v t) :val v
-                       :fun (nth 3 ev)))))
-            (flat (lambda (ev)
-                    (let* ((a (nth 2 ev))
-                           (v (cl-find (format "^%s\\(.+\\)" a)
-                                       val :test 'string-match)))
-                      (make-magit-popup-event
-                       :key (car ev)  :dsc (cadr ev) :arg a
-                       :use (and v t) :val (and v (match-string 1 v))
-                       :fun (nth 3 ev))))))
+  (mapcar (lambda (ev)
+            (let* ((a (nth 2 ev))
+                   (v (cl-find (format "^%s\\(.+\\)" a)
+                               val :test 'string-match)))
+              (make-magit-popup-event
+               :key (car ev)  :dsc (cadr ev) :arg a
+               :use (and v t) :val (and v (match-string 1 v))
+               :fun (nth 3 ev))))
           def))
 
 (defun magit-popup-convert-actions (val def)
@@ -253,37 +230,6 @@
             (make-magit-popup-event
              :key (car ev) :dsc (cadr ev) :fun (nth 2 ev)))
           def))
-
-(defun magit-popup-custom-default (def)
-  (nconc (mapcar (lambda (arg)
-                   (cons arg t))
-                 (plist-get def :default-switches))
-         (mapcar (lambda (arg)
-                   (if (string-match "=" arg)
-                       (cons (substring arg 0 (1+ (match-beginning 0)))
-                             (substring arg   (1+ (match-beginning 0))))
-                     (cons (substring arg 0 2)
-                           (substring arg   2))))
-                 (plist-get def :default-options))))
-
-(defun magit-popup-custom-type (def)
-  `(repeat (choice ,@(mapcar (lambda (arg)
-                               (setq arg (nth 2 arg))
-                               `(const :tag ,arg (,arg . t)))
-                             (plist-get def :switches))
-                   ,@(mapcar (lambda (arg)
-                               (setq arg (nth 2 arg))
-                               `(cons :format "%{%t%}%v" :tag ,arg
-                                      (const  :format "" ,arg)
-                                      (string :format "%v")))
-                             (plist-get def :options))
-                   (cons :format "%{%t%}: %v"
-                         :tag "Other Switch"
-                         (string :format "%v")
-                         (const  :tag "" t))
-                   (cons :tag "Other Option"
-                         (string :tag "Name")
-                         (string :tag "Value")))))
 
 ;;; Define
 
@@ -301,11 +247,10 @@
        (defvar ,name
          (list :variable ,(or var `',opt) ,@args))
        ,@(unless var
-           `((defcustom ,opt
-               (magit-popup-custom-default (symbol-value ',name))
+           `((defcustom ,opt (plist-get ,name :default-arguments)
                ""
                ,@(and grp (list :group grp))
-               :type (magit-popup-custom-type (symbol-value ',name)))
+               :type '(repeat (string :tag "Argument")))
              (put ',opt 'definition-name ',name))))))
 
 (defun magit-define-popup-switch (popup key desc switch
@@ -425,7 +370,7 @@
   (let ((ev (magit-popup-lookup event :actions)))
     (if  ev
         (let ((magit-current-popup magit-this-popup)
-              (magit-current-popup-args (magit-popup-get-args 'flat)))
+              (magit-current-popup-args (magit-popup-get-args)))
           (magit-popup-quit)
           (call-interactively (magit-popup-event-fun ev)))
       (if (eq event ?q)
@@ -590,7 +535,7 @@
 
 (define-derived-mode magit-popup-setvar-mode magit-popup-mode "MagitPopup"
   ""
-  (setq magit-popup-variable-type 'flat))
+  )
 
 (define-derived-mode magit-popup-sequence-mode magit-popup-mode "MagitPopup"
   ""
