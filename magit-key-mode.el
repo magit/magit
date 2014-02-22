@@ -215,7 +215,7 @@
       (magit-popup-insert-buttons popup "Options"  " %-4k %d %o"
                                   'magit-invoke-popup-option
                                   (cdr (assoc 'options spec))
-                                  (not magit-key-mode-options-in-cols))
+                                  (not magit-popup-options-in-cols))
       (magit-popup-insert-buttons popup "Actions"  " %-3k %d"
                                   'magit-invoke-popup-action
                                   (cdr (assoc 'actions spec))))
