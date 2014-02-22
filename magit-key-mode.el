@@ -79,7 +79,6 @@
     (define-key map [remap self-insert-command] 'magit-invoke-popup-action)
     (define-key map [?- t]  'magit-invoke-popup-switch)
     (define-key map [?= t]  'magit-invoke-popup-option)
-    (define-key map [?q]    'magit-popup-quit)
     (define-key map [?\C-g] 'magit-popup-quit)
     (define-key map [??]    'magit-popup-help)
     (define-key map [?\C-h] 'magit-popup-help)
@@ -254,7 +253,9 @@
               (magit-current-popup-args (magit-popup-get-args)))
           (magit-popup-quit)
           (call-interactively def))
-      (error "%c isn't bound to any action" event))))
+      (if (eq event ?q)
+          (magit-popup-quit)
+        (error "%c isn't bound to any action" event)))))
 
 (defun magit-popup-help ()
   (interactive)
