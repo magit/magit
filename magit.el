@@ -812,26 +812,11 @@ when generating large diffs."
   :group 'magit-commit
   :type 'boolean)
 
-(defcustom magit-commit-squash-commit nil
-  "Whether to target the marked or current commit when squashing.
-
-When this is nil then the command `magit-commit-fixup' and
-`magit-commit-squash' always require that the user explicitly
-selects a commit.  This is also the case when these commands are
-used with a prefix argument, in which case this option is ignored.
-
-Otherwise this controls which commit to target, either the
-current or marked commit.  Or if both can be used, which should
-be preferred."
+(defcustom magit-commit-squash-confirm t
+  "Whether the commit targeted by squash and fixup has to be confirmed."
   :package-version '(magit . "2.0.0")
   :group 'magit-commit
-  :type
-  '(choice
-    (const :tag "Always prompt" nil)
-    (const :tag "Prefer current commit, else use marked" current-or-marked)
-    (const :tag "Prefer marked commit, else use current" marked-or-current)
-    (const :tag "Use current commit, if any" current)
-    (const :tag "Use marked commit, if any" marked)))
+  :type 'boolean)
 
 (defcustom magit-expand-staged-on-commit nil
   "Whether to expand staged changes when creating a commit.
@@ -6319,42 +6304,39 @@ and ignore the option.
                                            magit-current-popup-args))))
 
 ;;;###autoload
-(defun magit-commit-fixup (&optional commit args)
+(defun magit-commit-fixup (&optional commit args confirm)
   "Create a fixup commit.
-With a prefix argument the user is always queried for the commit
-to be fixed.  Otherwise the current or marked commit may be used
-depending on the value of option `magit-commit-squash-commit'.
-\('git commit --no-edit --fixup=COMMIT ARGS')."
-  (interactive (list (magit-commit-squash-commit) magit-current-popup-args))
-  (magit-commit-squash-internal 'magit-commit-fixup "--fixup" commit args))
+With a prefix argument the target commit has to be confirmed.
+Otherwise the commit at point may be used without confirmation
+depending on the value of option `magit-commit-squash-confirm'.
+\n(git commit --no-edit --fixup=COMMIT [ARGS])"
+  (interactive (magit-commit-squash-read-args))
+  (magit-commit-squash-internal 'magit-commit-fixup "--fixup"
+                                commit args confirm))
 
 ;;;###autoload
-(defun magit-commit-squash (&optional commit args)
+(defun magit-commit-squash (&optional commit args confirm)
   "Create a squash commit.
-With a prefix argument the user is always queried for the commit
-to be fixed.  Otherwise the current or marked commit may be used
-depending on the value of option `magit-commit-squash-commit'.
-\('git commit --no-edit --squash=COMMIT ARGS')."
-  (interactive (list (magit-commit-squash-commit) magit-current-popup-args))
-  (magit-commit-squash-internal 'magit-commit-squash "--squash" commit args))
+With a prefix argument the target commit has to be confirmed.
+Otherwise the commit at point may be used without confirmation
+depending on the value of option `magit-commit-squash-confirm'.
+\n(git commit --no-edit --squash=COMMIT [ARGS])"
+  (interactive (magit-commit-squash-read-args))
+  (magit-commit-squash-internal 'magit-commit-squash "--squash"
+                                commit args confirm))
 
-(defun magit-commit-squash-internal (fn option commit args)
+(defun magit-commit-squash-read-args ()
+  (list (magit-section-case (info) (commit info))
+        magit-current-popup-args
+        (or current-prefix-arg magit-commit-squash-confirm)))
+
+(defun magit-commit-squash-internal (fn option commit args confirm)
   (when (setq args (magit-commit-assert args))
-    (if commit
+    (if (and commit (not confirm))
         (magit-commit-internal
          "commit" (nconc (list "--no-edit" (concat option "=" commit)) args))
       (magit-log-select
         `(lambda (commit) (,fn commit (list ,@args)))))))
-
-(defun magit-commit-squash-commit ()
-  (unless (or current-prefix-arg
-              (eq magit-commit-squash-commit nil))
-    (let ((current (magit-section-case (info) (commit info))))
-      (cl-ecase magit-commit-squash-commit
-        (current-or-marked (or current magit-marked-commit))
-        (marked-or-current (or magit-marked-commit current))
-        (current current)
-        (marked magit-marked-commit)))))
 
 (defun magit-commit-assert (args)
   (cond
