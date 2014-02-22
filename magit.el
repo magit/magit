@@ -116,6 +116,8 @@ Use the function by the same name instead of this variable.")
 (defvar magit-commit-buffer-name)
 (defvar magit-current-popup-args)
 (defvar magit-log-buffer-name)
+(defvar magit-log-select-pick-function)
+(defvar magit-log-select-quit-function)
 (defvar magit-marked-commit)
 (defvar magit-process-buffer-name)
 (defvar magit-reflog-buffer-name)
@@ -1500,6 +1502,18 @@ set before loading libary `magit'.")
     (define-key map (kbd "h") 'magit-log-toggle-margin)
     map)
   "Keymap for `magit-log-mode'.")
+
+(defvar magit-log-select-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map magit-log-mode-map)
+    (define-key map (kbd ".")       'magit-log-select-pick)
+    (define-key map (kbd "C-c C-c") 'magit-log-select-pick)
+    (define-key map (kbd "q")       'magit-log-select-quit)
+    (define-key map (kbd "C-c C-k") 'magit-log-select-quit)
+    map)
+  "Keymap for `magit-log-select-mode'.")
+(put 'magit-log-select-pick :advertised-binding [?\C-c ?\C-c])
+(put 'magit-log-select-quit :advertised-binding [?\C-c ?\C-k])
 
 (defvar magit-cherry-mode-map
   (let ((map (make-sparse-keymap)))
@@ -6179,46 +6193,33 @@ and ignore the option.
     (magit-commit-internal "commit" (nconc (list "--only" "--amend")
                                            magit-current-popup-args))))
 
-(defvar-local magit-commit-squash-args  nil)
-(defvar-local magit-commit-squash-fixup nil)
-
-(defvar magit-commit-unmark-after-squash t)
-
 ;;;###autoload
-(defun magit-commit-fixup (&optional commit)
+(defun magit-commit-fixup (&optional commit args)
   "Create a fixup commit.
 With a prefix argument the user is always queried for the commit
 to be fixed.  Otherwise the current or marked commit may be used
 depending on the value of option `magit-commit-squash-commit'.
-\('git commit [--no-edit] --fixup=COMMIT')."
-  (interactive (list (magit-commit-squash-commit)))
-  (magit-commit-squash commit t))
+\('git commit --no-edit --fixup=COMMIT ARGS')."
+  (interactive (list (magit-commit-squash-commit) magit-current-popup-args))
+  (magit-commit-squash-internal 'magit-commit-fixup "--fixup" commit args))
 
 ;;;###autoload
-(defun magit-commit-squash (&optional commit fixup)
+(defun magit-commit-squash (&optional commit args)
   "Create a squash commit.
 With a prefix argument the user is always queried for the commit
 to be fixed.  Otherwise the current or marked commit may be used
 depending on the value of option `magit-commit-squash-commit'.
-\('git commit [--no-edit] --fixup=COMMIT')."
-  (interactive (list (magit-commit-squash-commit)))
-  (let ((args magit-current-popup-args))
-    (cond
-     ((not commit)
-      (magit-commit-assert args)
-      (magit-log "HEAD")
-      (setq magit-commit-squash-args  args
-            magit-commit-squash-fixup fixup)
-      (add-hook 'magit-mark-commit-hook 'magit-commit-squash-marked t t)
-      (add-hook 'magit-mode-quit-window-hook 'magit-commit-squash-abort t t)
-      (message "Select commit using \".\", or abort using \"q\""))
-     ((setq args (magit-commit-assert args))
-      (when (eq args t) (setq args nil))
-      (magit-commit-internal
-       "commit"
-       (nconc (list "--no-edit"
-                    (concat (if fixup "--fixup=" "--squash=") commit))
-              args))))))
+\('git commit --no-edit --squash=COMMIT ARGS')."
+  (interactive (list (magit-commit-squash-commit) magit-current-popup-args))
+  (magit-commit-squash-internal 'magit-commit-squash "--squash" commit args))
+
+(defun magit-commit-squash-internal (fn option commit args)
+  (when (setq args (magit-commit-assert args))
+    (if commit
+        (magit-commit-internal
+         "commit" (nconc (list "--no-edit" (concat option "=" commit)) args))
+      (magit-log-select
+        `(lambda (commit) (,fn commit (list ,@args)))))))
 
 (defun magit-commit-squash-commit ()
   (unless (or current-prefix-arg
@@ -6229,22 +6230,6 @@ depending on the value of option `magit-commit-squash-commit'.
         (marked-or-current (or magit-marked-commit current))
         (current current)
         (marked magit-marked-commit)))))
-
-(defun magit-commit-squash-marked ()
-  (when magit-marked-commit
-    (magit-commit-squash magit-marked-commit magit-commit-squash-fixup))
-  (when magit-commit-unmark-after-squash
-    (setq magit-marked-commit nil))
-  (kill-local-variable 'magit-commit-squash-fixup)
-  (remove-hook 'magit-mark-commit-hook 'magit-commit-squash-marked t)
-  (remove-hook 'magit-mode-quit-window-hook 'magit-commit-squash-abort t)
-  (magit-mode-quit-window))
-
-(defun magit-commit-squash-abort (buffer)
-  (when (buffer-live-p buffer)
-    (with-current-buffer buffer
-      (remove-hook 'magit-mark-commit-hook 'magit-commit-squash-marked t)
-      (remove-hook 'magit-mode-quit-window-hook 'magit-commit-squash-abort t))))
 
 (defun magit-commit-assert (args)
   (cond
@@ -6794,6 +6779,44 @@ With a non numeric prefix ARG, show all entries"
                             :test 'equal :key 'magit-section-info)))
       (when section
         (goto-char (magit-section-beginning section))))))
+
+;;;; Log Select Mode
+
+(define-derived-mode magit-log-select-mode magit-log-mode "Magit Select"
+  "Mode for selecting a commit from history."
+  :group 'magit)
+
+(defvar-local magit-log-select-pick-function nil)
+(defvar-local magit-log-select-quit-function nil)
+
+(defun magit-log-select (pick &optional quit desc branch args)
+  (declare (indent defun))
+  (magit-mode-setup magit-log-buffer-name nil
+                    #'magit-log-select-mode
+                    #'magit-refresh-log-buffer 'oneline
+                    (or branch (magit-get-current-branch) "HEAD")
+                    args)
+  (magit-log-goto-same-commit)
+  (setq magit-log-select-pick-function pick)
+  (setq magit-log-select-quit-function quit)
+  (message
+   (substitute-command-keys
+    (format "Type \\[%s] to select commit at point%s, or \\[%s] to abort"
+            'magit-log-select-pick (if desc (concat " " desc) "")
+            'magit-log-select-quit))))
+
+(defun magit-log-select-pick ()
+  (interactive)
+  (let ((fun magit-log-select-pick-function)
+        (rev (magit-section-case (info) (commit info))))
+    (kill-buffer (current-buffer))
+    (funcall fun rev)))
+
+(defun magit-log-select-quit ()
+  (interactive)
+  (kill-buffer (current-buffer))
+  (when magit-log-select-quit-function
+    (funcall magit-log-select-quit-function)))
 
 ;;;; Cherry Mode
 
