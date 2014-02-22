@@ -101,27 +101,30 @@
   'function  'magit-invoke-popup-switch
   'property  :switches
   'heading   "Switches\n"
-  'format    " %k: %d %s"
+  'formatter 'magit-popup-format-argument-button
+  'format    " %k: %d (%a)"
   'prefix    ?-
-  'onecol    nil)
+  'maxcols   :max-switch-columns)
 
 (define-button-type 'magit-popup-option-button
   'supertype 'magit-popup-button
   'function  'magit-invoke-popup-option
   'property  :options
   'heading   "Options\n"
-  'format    " %k: %d %o"
+  'formatter 'magit-popup-format-argument-button
+  'format    " %k: %d (%a%v)"
   'prefix    ?=
-  'onecol    t)
+  'maxcols   1)
 
 (define-button-type 'magit-popup-action-button
   'supertype 'magit-popup-button
   'function  'magit-invoke-popup-action
   'property  :actions
   'heading   "Actions\n"
+  'formatter 'magit-popup-format-action-button
   'format    " %k: %d"
   'prefix    nil
-  'onecol    nil)
+  'maxcols   :max-action-columns)
 
 ;;; Events
 
@@ -316,9 +319,9 @@
          (event  (and button (button-get button 'event))))
     (erase-buffer)
     (save-excursion
-      (magit-popup-insert-buttons 'magit-popup-switch-button)
-      (magit-popup-insert-buttons 'magit-popup-option-button)
-      (magit-popup-insert-buttons 'magit-popup-action-button))
+      (magit-popup-insert-section 'magit-popup-switch-button)
+      (magit-popup-insert-section 'magit-popup-option-button)
+      (magit-popup-insert-section 'magit-popup-action-button))
     (if event
         (while (and (forward-button 1)
                     (let ((b (button-at (point))))
@@ -329,52 +332,68 @@
 
 ;;; Draw
 
-(defun magit-popup-insert-buttons (type)
-  (let ((items (mapcar (lambda (item)
-                         (cons (magit-popup-format-button type item) item))
-                       (magit-popup-get (button-type-get type 'property)))))
-    (when items
-      (insert (propertize (button-type-get type 'heading)
-                          'face 'magit-popup-header))
-      (let ((maxlen (apply 'max (mapcar (lambda (e) (length (car e))) items)))
-            (onecol (button-type-get type 'onecol))
-            item)
-        (while (setq item (pop items))
-          (let ((beg (point)))
-            (insert (car item))
-            (make-button beg (point) 'type type 'event (cadr item))
-            (let ((padding (- (+ maxlen 3) (length (car item)))))
-              (if (or onecol
-                      (not items)
-                      (> (+ (current-column) padding maxlen)
-                         (window-width)))
-                  (insert "\n")
-                (insert (make-string padding ?\s)))))))
-      (insert "\n"))))
+(defvar magit-popup-min-padding 3)
 
-(defun magit-popup-format-button (type arg)
-  (let* ((c (button-type-get type 'prefix))
-         (k (propertize (concat (and c (char-to-string c))
-                                (char-to-string (car arg)))
-                        'face 'magit-popup-key))
-         (d (nth 1 arg))
-         (a (unless (symbolp (nth 2 arg)) (nth 2 arg)))
-         (v (or (nth 5 arg) (nth 4 arg))))
-    (when a
-      (setq a (propertize
-               a 'face (if v
-                           'magit-popup-argument
-                         'magit-popup-disabled-argument))))
-    (setq v (if (or (booleanp v)
-                    (string-equal v ""))
-                nil
-              (propertize (format "\"%s\"" v)
-                          'face 'magit-popup-option-value)))
-    (format-spec (button-type-get type 'format)
-                 `((?k . ,k)
-                   (?d . ,d)
-                   (?s . ,(concat "(" a ")"))
-                   (?o . ,(concat "(" a v ")"))))))
+(defun magit-popup-insert-section (type)
+  (let* ((heading   (button-type-get type 'heading))
+         (formatter (button-type-get type 'formatter))
+         (buttons (mapcar (lambda (elt)
+                            (funcall formatter type elt))
+                          (magit-popup-get
+                           (button-type-get type 'property))))
+         (maxcols (button-type-get type 'maxcols)))
+    (cl-typecase maxcols
+      (keyword (setq maxcols (magit-popup-get maxcols)))
+      (symbol  (setq maxcols (symbol-value maxcols))))
+    (when buttons
+      (insert (propertize heading 'face 'magit-popup-header))
+      (unless (string-match "\n$" heading)
+        (insert "\n"))
+      (let ((colwidth
+             (+ (apply 'max (mapcar (lambda (e) (length (car e))) buttons))
+                magit-popup-min-padding)))
+        (dolist (button buttons)
+          (unless (bolp)
+            (let ((padding (- colwidth (% (current-column) colwidth))))
+              (if (and (< (+ (current-column) padding colwidth)
+                          (window-width))
+                       (< (ceiling (/ (current-column) (* colwidth 1.0)))
+                          (or maxcols 1000)))
+                  (insert (make-string padding ?\s))
+                (insert "\n"))))
+          (apply 'insert-button button)))
+      (insert (if (= (char-before) ?\n) "\n" "\n\n")))))
+
+(defun magit-popup-format-argument-button (type item)
+  (list (format-spec
+         (button-type-get type 'format)
+         `((?k . ,(propertize (concat (char-to-string
+                                       (button-type-get type 'prefix))
+                                      (key-description
+                                       (if (vectorp (car item))
+                                           (car item)
+                                         (vector (car item)))))
+                              'face 'magit-popup-key))
+           (?d . ,(nth 1 item))
+           (?a . ,(propertize (nth 2 item)
+                              'face (if (nth 4 item)
+                                        'magit-popup-argument
+                                      'magit-popup-disabled-argument)))
+           (?v . ,(if (nth 4 item)
+                      (propertize (format "\"%s\"" (nth 5 item))
+                                  'face 'magit-popup-option-value)
+                    ""))))
+        'type type 'event (car item)))
+
+(defun magit-popup-format-action-button (type item)
+  (list (format-spec
+         (button-type-get type 'format)
+         `((?k . ,(propertize (key-description (if (vectorp (car item))
+                                                   (car item)
+                                                 (vector (car item))))
+                              'face 'magit-popup-key))
+           (?d . ,(nth 1 item))))
+        'type type 'event (car item)))
 
 (provide 'magit-key-mode)
 ;; Local Variables:
