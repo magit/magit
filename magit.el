@@ -6272,16 +6272,15 @@ With a prefix argument amend to the commit at HEAD instead.
                    (list (cons "--amend" magit-current-popup-args))
                  (list magit-current-popup-args)))
   (when (setq args (magit-commit-assert args))
-    (magit-commit-maybe-expand)
-    (magit-commit-internal "commit" args)))
+    (magit-commit-internal 'magit-diff-staged "commit" args)))
 
 ;;;###autoload
 (defun magit-commit-amend (&optional args)
   "Amend the last commit.
 \n(git commit --amend ARGS)"
   (interactive (list magit-current-popup-args))
-  (magit-commit-maybe-expand)
-  (magit-commit-internal "commit" (cons "--amend" args)))
+  (magit-commit-internal 'magit-diff-while-amending "commit"
+    (cons "--amend" args)))
 
 ;;;###autoload
 (defun magit-commit-extend (&optional args override-date)
@@ -6295,13 +6294,12 @@ used to inverse the meaning of the prefix argument.
                          (not magit-commit-reword-override-date)
                        magit-commit-reword-override-date)))
   (when (setq args (magit-commit-assert args (not override-date)))
-    (magit-commit-maybe-expand)
     (let ((process-environment process-environment))
       (unless override-date
         (setenv "GIT_COMMITTER_DATE"
                 (magit-git-string "log" "-1" "--format:format=%cd")))
-      (magit-commit-internal
-       "commit" (nconc (list "--amend" "--no-edit") args)))))
+      (magit-commit-internal 'magit-diff-while-amending "commit"
+        (nconc (list "--amend" "--no-edit") args)))))
 
 ;;;###autoload
 (defun magit-commit-reword (&optional args override-date)
@@ -6322,8 +6320,8 @@ and ignore the option.
     (unless override-date
       (setenv "GIT_COMMITTER_DATE"
               (magit-git-string "log" "-1" "--format:format=%cd")))
-    (magit-commit-internal
-     "commit" (nconc (list "--amend" "--only") args))))
+    (magit-commit-internal nil "commit"
+      (nconc (list "--amend" "--only") args))))
 
 ;;;###autoload
 (defun magit-commit-fixup (&optional commit args confirm)
@@ -6379,8 +6377,8 @@ depending on the value of option `magit-commit-squash-confirm'.
   (when (setq args (magit-commit-assert args t))
     (if (and commit (not confirm))
         (progn
-          (magit-commit-internal
-           "commit" (nconc (list "--no-edit" (concat option "=" commit)) args))
+          (magit-commit-internal 'magit-diff-staged "commit"
+            (nconc (list "--no-edit" (concat option "=" commit)) args))
           commit)
       (magit-log-select
         `(lambda (commit) (,fn commit (list ,@args)))))))
@@ -6401,24 +6399,25 @@ depending on the value of option `magit-commit-squash-confirm'.
     (magit-run-git-async "rebase" "--continue")
     nil)
    (magit-commit-ask-to-stage
-    (magit-commit-maybe-expand t)
-    (when (y-or-n-p "Nothing staged.  Stage and commit everything? ")
-      (magit-run-git "add" "-u" ".")
-      (or args (list "--"))))
+    (when magit-expand-staged-on-commit
+      (magit-diff-unstaged))
+    (prog1 (when (y-or-n-p "Nothing staged.  Stage and commit everything? ")
+             (magit-run-git "add" "-u" ".")
+             (or args (list "--")))
+      (when (and magit-expand-staged-on-commit
+                 (derived-mode-p 'magit-diff-mode))
+        (magit-mode-quit-window))))
    (t
     (user-error "Nothing staged"))))
 
-(defun magit-commit-maybe-expand (&optional unstaged)
-  (when (and magit-expand-staged-on-commit
-             (derived-mode-p 'magit-status-mode))
-    (if unstaged
-        (magit-jump-to-unstaged t)
-      (magit-jump-to-staged t))))
-
 (defvar magit-commit-amending-alist nil)
 
-(defun magit-commit-internal (subcmd args)
+(defun magit-commit-internal (diff-fn subcmd args)
+  (declare (indent 2))
   (setq git-commit-previous-winconf (current-window-configuration))
+  (when (and diff-fn magit-expand-staged-on-commit)
+    (let ((magit-inhibit-save-previous-winconf t))
+      (funcall diff-fn)))
   (push (cons (magit-get-top-dir) (member "--amend" args))
         magit-commit-amending-alist)
   (if (magit-use-emacsclient-p)
@@ -6542,7 +6541,7 @@ With a prefix argument annotate the tag.
     (if (or (member "--sign" args)
             (member "--annotate" args)
             (and annotate (setq args (cons "--annotate" args))))
-        (magit-commit-internal "tag" args)
+        (magit-commit-internal nil "tag" args)
       (magit-run-git "tag" args))))
 
 ;;;###autoload
@@ -7311,12 +7310,14 @@ More information can be found in Info node `(magit)Diffing'
   :default-action 'magit-diff-working-tree
   :max-action-columns 3)
 
+(defvar magit-diff-switch-buffer-function 'pop-to-buffer)
+
 ;;;###autoload
 (defun magit-diff (range &optional working args)
   "Show changes between two commits."
   (interactive (list (magit-read-rev-range "Diff")))
   (magit-mode-setup magit-diff-buffer-name
-                    #'pop-to-buffer
+                    magit-diff-switch-buffer-function
                     #'magit-diff-mode
                     #'magit-refresh-diff-buffer range working args))
 
