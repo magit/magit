@@ -540,9 +540,9 @@ large diffs.  Also see option `magit-diff-use-overlays'."
 (defcustom magit-completing-read-function 'magit-builtin-completing-read
   "Function to be called when requesting input from the user."
   :group 'magit
-  :type '(radio (function-item magit-iswitchb-completing-read)
+  :type '(radio (function-item magit-builtin-completing-read)
                 (function-item magit-ido-completing-read)
-                (function-item magit-builtin-completing-read)
+                (function-item magit-iswitchb-completing-read)
                 (function :tag "Other")))
 
 (defcustom magit-repo-dirs nil
@@ -3739,31 +3739,51 @@ Return a list of two integers: (A>B B>A)."
 
 (defun magit-completing-read
   (prompt collection &optional predicate require-match initial-input hist def)
-  "Call function in `magit-completing-read-function' to read user input.
+  "Magit wrapper around `completing-read' or an alternative function.
 
-Read `completing-read' documentation for the meaning of the argument."
-  (funcall magit-completing-read-function
-           (concat prompt ": ") collection predicate
-           require-match initial-input hist def))
+Option `magit-completing-read-function' can be used to wrap
+around another `completing-read'-like function.  Unless it
+doesn't have the exact same signature, an additional wrapper is
+required.  Even if it has the same signature it might be a good
+idea to wrap it, so that `magit-prompt-with-default' can be used.
 
-(defun magit-builtin-completing-read
-  (prompt choices &optional predicate require-match initial-input hist def)
-  "Magit wrapper for standard `completing-read' function."
-  (let ((reply (completing-read
-                (if (and def (> (length prompt) 2)
-                         (string-equal ": " (substring prompt -2)))
-                    (format "%s (default %s): " (substring prompt 0 -2) def)
-                  prompt)
-                choices predicate require-match initial-input hist def)))
+See `completing-read' for the meanings of the arguments, but note
+that this wrapper makes the following changes:
+
+- If REQUIRE-MATCH is nil and the user exits without a choise,
+  then return nil instead of an empty string.
+
+- If REQUIRE-MATCH is non-nil and the users exits without a
+  choise, then raise a user-error.
+
+- For historic reasons \": \" is appended to PROMPT.  This will
+  likely be fixed.
+
+- If a `magit-completing-read-function' is used which in turn
+  uses `magit-prompt-with-completion' and DEF is non-nil, then
+  PROMPT is modified to end with \" (default DEF): \".
+
+The use of another completing function and/or wrapper obviously
+results in additional differences."
+  (let ((reply (funcall magit-completing-read-function
+                        (concat prompt ": ") collection predicate
+                        require-match initial-input hist def)))
     (if (string= reply "")
         (if require-match
             (user-error "Nothing selected")
           nil)
       reply)))
 
+(defun magit-builtin-completing-read
+  (prompt choices &optional predicate require-match initial-input hist def)
+  "Magit wrapper for standard `completing-read' function."
+  (completing-read (magit-prompt-with-default prompt def)
+                   choices predicate require-match
+                   initial-input hist def))
+
 (defun magit-ido-completing-read
   (prompt choices &optional predicate require-match initial-input hist def)
-  "ido-based completing-read almost-replacement."
+  "Ido-based completing-read almost-replacement."
   (require 'ido)
   (let ((reply (ido-completing-read
                 prompt
@@ -3777,7 +3797,7 @@ Read `completing-read' documentation for the meaning of the argument."
 
 (defun magit-iswitchb-completing-read
   (prompt choices &optional predicate require-match initial-input hist def)
-  "iswitchb-based completing-read almost-replacement."
+  "Iswitchb-based completing-read almost-replacement."
   (require 'iswitchb)
   (let ((iswitchb-make-buflist-hook
          (lambda ()
@@ -3785,6 +3805,12 @@ Read `completing-read' documentation for the meaning of the argument."
                                            (mapcar #'car choices)
                                          choices)))))
     (iswitchb-read-buffer prompt (or initial-input def) require-match)))
+
+(defun magit-prompt-with-default (prompt def)
+  (if (and def (> (length prompt) 2)
+           (string-equal ": " (substring prompt -2)))
+      (format "%s (default %s): " (substring prompt 0 -2) def)
+    prompt))
 
 ;;;;; Revision Completion
 
@@ -3799,11 +3825,8 @@ Read `completing-read' documentation for the meaning of the argument."
                     elt)
                   (magit-list-interesting-refs uninteresting)))
          (reply (magit-completing-read prompt interesting-refs nil nil nil
-                                       'magit-read-rev-history default))
-         (rev (or (cdr (assoc reply interesting-refs)) reply)))
-    (unless (or rev noselection)
-      (user-error "No rev selected"))
-    rev))
+                                       'magit-read-rev-history default)))
+    (or (cdr (assoc reply interesting-refs)) reply)))
 
 (defun magit-read-rev-with-default (prompt)
   (magit-read-rev prompt (--when-let (or (magit-guess-branch) "HEAD")
@@ -3816,18 +3839,15 @@ Read `completing-read' documentation for the meaning of the argument."
                          'magit-read-rev-history))
 
 (defun magit-read-remote-branch (prompt remote &optional default)
-  (let ((branch (magit-completing-read
-                 prompt
-                 (cl-mapcan
-                  (lambda (b)
-                    (and (not (string-match " -> " b))
-                         (string-match (format "^ *%s/\\(.*\\)$"
-                                               (regexp-quote remote)) b)
-                         (list (match-string 1 b))))
-                  (magit-git-lines "branch" "-r"))
-                 nil nil nil nil default)))
-    (unless (string= branch "")
-      branch)))
+  (magit-completing-read prompt
+                         (cl-mapcan
+                          (lambda (b)
+                            (and (not (string-match " -> " b))
+                                 (string-match (format "^ *%s/\\(.*\\)$"
+                                                       (regexp-quote remote)) b)
+                                 (list (match-string 1 b))))
+                          (magit-git-lines "branch" "-r"))
+                         nil nil nil nil default))
 
 (defun magit-read-tag (prompt &optional require-match)
   (magit-completing-read prompt (magit-git-lines "tag") nil
