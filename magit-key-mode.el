@@ -88,19 +88,15 @@
 
 (defmacro magit-define-popup (name doc &rest plist)
   (declare (indent defun) (doc-string 2))
-  (let ((fsym (intern (format "magit-key-mode-popup-%s" name)))
-        (vsym (intern (format "magit-popup-%s" name)))
-        (msym (intern (format "magit-popup-%s-map" name))))
+  (let ((msym (intern (format "%s-map" name))))
     `(progn
-       (defun ,fsym () ,doc
+       (defun ,name () ,doc
          (interactive)
          (magit-popup-mode-setup ',name))
-       (defvar ,vsym
+       (defvar ,name
          (list ,@plist))
        (defvar ,msym
-         (magit-define-popup-keymap ',name ,vsym))
-       (put ',fsym 'definition-name ',name)
-       (put ',vsym 'definition-name ',name)
+         (magit-define-popup-keymap ',name ,name))
        (put ',msym 'definition-name ',name))))
 
 (defun magit-define-popup-switch (popup map key switch)
@@ -164,7 +160,7 @@
     (call-interactively func)))
 
 (defun magit-popup-help (popup)
-  (let* ((spec (symbol-value (intern (format "magit-popup-%s" popup))))
+  (let* ((spec (symbol-value popup))
          (man-page (plist-get spec :man-page))
          (seq (read-key-sequence
                (format "Enter command prefix%s: "
@@ -201,7 +197,7 @@
   (magit-popup-mode-display-buffer
    (get-buffer-create (format "*%s*" popup)))
   (use-local-map
-   (symbol-value (intern (format "magit-popup-%s-map" popup))))
+   (symbol-value (intern (format "%s-map" popup))))
   (magit-refresh-popup-buffer popup)
   (fit-window-to-buffer)
   (when magit-popup-show-usage
@@ -221,7 +217,7 @@
   (let ((inhibit-read-only t)
         (key (ignore-errors
                (car (button-get (button-at (point)) 'args))))
-        (spec (symbol-value (intern (format "magit-popup-%s" popup)))))
+        (spec (symbol-value popup)))
     (erase-buffer)
     (save-excursion
       (magit-popup-insert-buttons popup "Switches" " %-4k %d %s"

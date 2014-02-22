@@ -52,7 +52,7 @@
 
 ;;; Commands
 
-(magit-define-popup svn
+(magit-define-popup magit-svn-popup
   "Key menu for svn."
   :man-page "git-svn"
   :switches '(("-n" "Dry run"         "--dry-run"))
@@ -266,7 +266,7 @@ If USE-CACHE is non nil, use the cached information."
 
 (defvar magit-svn-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "N") 'magit-key-mode-popup-svn)
+    (define-key map (kbd "N") 'magit-svn-popup)
     map))
 
 ;;; Mode

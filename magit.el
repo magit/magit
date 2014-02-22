@@ -1416,7 +1416,7 @@ set before loading libary `magit'.")
     (define-key map (kbd "M-S") 'magit-show-level-4-all)
     (define-key map (kbd "g") 'magit-refresh)
     (define-key map (kbd "G") 'magit-refresh-all)
-    (define-key map (kbd "?") 'magit-key-mode-popup-dispatch)
+    (define-key map (kbd "?") 'magit-dispatch-popup)
     (define-key map (kbd ":") 'magit-git-command)
     (define-key map (kbd "C-x 4 a") 'magit-add-change-log-entry-other-window)
     (define-key map (kbd "L") 'magit-add-change-log-entry)
@@ -1442,21 +1442,21 @@ set before loading libary `magit'.")
            (define-key map (kbd "B") 'undefined)
            (define-key map (kbd "z") 'magit-stash))
           (t
-           (define-key map (kbd "c") 'magit-key-mode-popup-committing)
-           (define-key map (kbd "m") 'magit-key-mode-popup-merging)
-           (define-key map (kbd "b") 'magit-key-mode-popup-branching)
-           (define-key map (kbd "M") 'magit-key-mode-popup-remoting)
-           (define-key map (kbd "r") 'magit-key-mode-popup-rewriting)
-           (define-key map (kbd "f") 'magit-key-mode-popup-fetching)
-           (define-key map (kbd "F") 'magit-key-mode-popup-pulling)
-           (define-key map (kbd "J") 'magit-key-mode-popup-apply-mailbox)
-           (define-key map (kbd "!") 'magit-key-mode-popup-running)
-           (define-key map (kbd "P") 'magit-key-mode-popup-pushing)
-           (define-key map (kbd "t") 'magit-key-mode-popup-tagging)
-           (define-key map (kbd "l") 'magit-key-mode-popup-logging)
-           (define-key map (kbd "o") 'magit-key-mode-popup-submodule)
-           (define-key map (kbd "B") 'magit-key-mode-popup-bisecting)
-           (define-key map (kbd "z") 'magit-key-mode-popup-stashing)))
+           (define-key map (kbd "c") 'magit-commit-popup)
+           (define-key map (kbd "m") 'magit-merge-popup)
+           (define-key map (kbd "b") 'magit-branch-popup)
+           (define-key map (kbd "M") 'magit-remote-popup)
+           (define-key map (kbd "r") 'magit-rewrite-popup)
+           (define-key map (kbd "f") 'magit-fetch-popup)
+           (define-key map (kbd "F") 'magit-pull-popup)
+           (define-key map (kbd "J") 'magit-am-popup)
+           (define-key map (kbd "!") 'magit-run-popup)
+           (define-key map (kbd "P") 'magit-push-popup)
+           (define-key map (kbd "t") 'magit-tag-popup)
+           (define-key map (kbd "l") 'magit-log-popup)
+           (define-key map (kbd "o") 'magit-submodule-popup)
+           (define-key map (kbd "B") 'magit-bisect-popup)
+           (define-key map (kbd "z") 'magit-stash-popup)))
     (define-key map (kbd "$") 'magit-process)
     (define-key map (kbd "E") 'magit-interactive-rebase)
     (define-key map (kbd "R") 'magit-rebase-step)
@@ -1479,8 +1479,8 @@ set before loading libary `magit'.")
     (define-key map (kbd "S") 'magit-stage-all)
     (define-key map (kbd "U") 'magit-unstage-all)
     (define-key map (kbd "X") 'magit-reset-working-tree)
-    (define-key map (kbd "C-c C-c") 'magit-key-mode-popup-dispatch)
-    (define-key map (kbd "C-c C-e") 'magit-key-mode-popup-dispatch)
+    (define-key map (kbd "C-c C-c") 'magit-dispatch-popup)
+    (define-key map (kbd "C-c C-e") 'magit-dispatch-popup)
     map)
   "Parent keymap for all keymaps of modes derived from `magit-mode'.")
 
@@ -1593,7 +1593,7 @@ set before loading libary `magit'.")
     ["Stage all" magit-stage-all t]
     ["Unstage" magit-unstage-item t]
     ["Unstage all" magit-unstage-all t]
-    ["Commit" magit-key-mode-popup-committing t]
+    ["Commit" magit-commit-popup t]
     ["Add log entry" magit-commit-add-log t]
     ["Tag" magit-tag t]
     "---"
@@ -1603,7 +1603,7 @@ set before loading libary `magit'.")
      ["Short Log" magit-log t]
      ["Long Log" magit-log-long t]
      ["Reflog" magit-reflog t]
-     ["Extended..." magit-key-mode-popup-logging t])
+     ["Extended..." magit-log-popup t])
     "---"
     ["Cherry pick" magit-cherry-pick-item t]
     ["Apply" magit-apply-item t]
@@ -1643,34 +1643,34 @@ set before loading libary `magit'.")
     ["Display Git output" magit-process t]
     ["Quit Magit" magit-mode-quit-window t]))
 
-(magit-define-popup dispatch
+(magit-define-popup magit-dispatch-popup
   "Popup console for dispatching other popups."
-  :actions '(("b" "Branching"       magit-key-mode-popup-branching)
-             ("B" "Bisecting"       magit-key-mode-popup-bisecting)
-             ("c" "Committing"      magit-key-mode-popup-committing)
+  :actions '(("b" "Branching"       magit-branch-popup)
+             ("B" "Bisecting"       magit-bisect-popup)
+             ("c" "Committing"      magit-commit-popup)
              ("d" "Diff worktree"   magit-diff-working-tree)
              ("D" "Diff"            magit-diff)
-             ("f" "Fetching"        magit-key-mode-popup-fetching)
-             ("F" "Pulling"         magit-key-mode-popup-pulling)
+             ("f" "Fetching"        magit-fetch-popup)
+             ("F" "Pulling"         magit-pull-popup)
              ("g" "Refresh Buffers" magit-refresh-all)
-             ("l" "Logging"         magit-key-mode-popup-logging)
-             ("m" "Merging"         magit-key-mode-popup-merging)
-             ("M" "Remoting"        magit-key-mode-popup-remoting)
-             ("P" "Pushing"         magit-key-mode-popup-pushing)
-             ("o" "Submoduling"     magit-key-mode-popup-submodule)
-             ("r" "Rewriting"       magit-key-mode-popup-rewriting)
+             ("l" "Logging"         magit-log-popup)
+             ("m" "Merging"         magit-merge-popup)
+             ("M" "Remoting"        magit-remote-popup)
+             ("P" "Pushing"         magit-push-popup)
+             ("o" "Submoduling"     magit-submodule-popup)
+             ("r" "Rewriting"       magit-rewrite-popup)
              ("R" "Rebasing"        magit-rebase-step)
              ("s" "Show Status"     magit-status)
              ("S" "Stage all"       magit-stage-all)
-             ("t" "Tagging"         magit-key-mode-popup-tagging)
+             ("t" "Tagging"         magit-tag-popup)
              ("U" "Unstage all"     magit-unstage-all)
              ("v" "Show Commit"     magit-show-commit)
              ("V" "Show File"       magit-show)
              ("w" "Wazzup"          magit-wazzup)
              ("X" "Reset worktree"  magit-reset-working-tree)
              ("y" "Cherry"          magit-cherry)
-             ("z" "Stashing"        magit-key-mode-popup-stashing)
-             ("!" "Running"         magit-key-mode-popup-running)
+             ("z" "Stashing"        magit-stash-popup)
+             ("!" "Running"         magit-run-popup)
              ("$" "Show Process"    magit-display-process)))
 
 ;;; Utilities (1)
@@ -3079,7 +3079,7 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
 
 (defvar magit-git-command-history nil)
 
-(magit-define-popup running
+(magit-define-popup magit-run-popup
   "Popup console for running raw Git commands."
   :actions '(("!" "Git Subcommand (from root)" magit-git-command-topdir)
              (":" "Git Subcommand (from pwd)" magit-git-command)
@@ -4607,9 +4607,8 @@ stash at point, then prompt for a commit."
 
 \\<magit-status-mode-map>Type `\\[magit-stage-item]` to stage (add) an item, \
 `\\[magit-unstage-item]` to unstage it.
-Type `\\[magit-key-mode-popup-committing]` to have a popup to commit, type \
-`\\[magit-key-mode-popup-dispatch]` to see others
-available popup.
+Type `\\[magit-commit-popup]` to have a popup to commit, \
+type `\\[magit-dispatch-popup]` to see others available popup.
 Type `\\[magit-visit-item]` to visit something, and \
 `\\[magit-toggle-section]` to show or hide section.
 
@@ -5410,7 +5409,7 @@ return the buffer, without displaying it."
 ;;;; Act
 ;;;;; Merging
 
-(magit-define-popup merging
+(magit-define-popup magit-merge-popup
   "Popup console for merge commands."
   :man-page "git-merge"
   :switches '(("-ff" "Fast-forward only" "--ff-only")
@@ -5450,7 +5449,7 @@ With a prefix argument, skip editing the log message and commit.
 
 ;;;;; Branching
 
-(magit-define-popup branching
+(magit-define-popup magit-branch-popup
   "Popup console for branch commands."
   :man-page "git-branch"
   :switches '(("-t" "Set upstream configuration" "--track")
@@ -5597,7 +5596,7 @@ If no branch is found near the cursor return nil."
 
 ;;;;; Remoting
 
-(magit-define-popup remoting
+(magit-define-popup magit-remote-popup
   "Popup console for remote commands."
   :man-page "git-remote"
   :actions  '(("v" "Remote manager" magit-branch-manager)
@@ -5723,7 +5722,7 @@ Return nil if there is no rebase in progress."
 
 ;;;;; AM
 
-(magit-define-popup apply-mailbox
+(magit-define-popup magit-am-popup
   "Popup console for mailbox commands."
   :man-page "git-am"
   :switches '(("-s" "add a Signed-off-by line to the commit message" "--signoff")
@@ -5793,7 +5792,7 @@ With two prefix args, remove ignored files as well."
 
 ;;;;; Rewriting
 
-(magit-define-popup rewriting
+(magit-define-popup magit-rewrite-popup
   "Popup console for rewrite commands."
   :actions '(("b" "Begin"      magit-rewrite-start)
              ("s" "Stop"       magit-rewrite-stop)
@@ -5921,7 +5920,7 @@ With two prefix args, remove ignored files as well."
 
 ;;;;; Fetching
 
-(magit-define-popup fetching
+(magit-define-popup magit-fetch-popup
   "Popup console for fetch commands."
   :man-page "git-fetch"
   :switches '(("-p" "Prune"   "--prune"))
@@ -5953,7 +5952,7 @@ If there is no default remote, ask for one."
 
 ;;;;; Pulling
 
-(magit-define-popup pulling
+(magit-define-popup magit-pull-popup
   "Popup console for pull commands."
   :man-page "git-pull"
   :switches '(("-f" "Force"  "--force")
@@ -6015,7 +6014,7 @@ user because of prefix arguments are not saved with git config."
 
 ;;;;; Pushing
 
-(magit-define-popup pushing
+(magit-define-popup magit-push-popup
   "Popup console for push commands."
   :man-page "git-push"
   :switches '(("-f" "Force"        "--force")
@@ -6116,7 +6115,7 @@ Also see option `magit-set-upstream-on-push'."
 
 ;;;;; Committing
 
-(magit-define-popup committing
+(magit-define-popup magit-commit-popup
   "Popup console for commit commands."
   :man-page "git-commit"
   :switches '(("-r" "Replace the tip of current branch"      "--amend")
@@ -6387,7 +6386,7 @@ depending on the value of option `magit-commit-squash-commit'.
 
 ;;;;; Tagging
 
-(magit-define-popup tagging
+(magit-define-popup magit-tag-popup
   "Popup console for tag commands."
   :man-page "git-tag"
   :switches '(("-a" "Annotate" "--annotate")
@@ -6421,7 +6420,7 @@ With a prefix argument annotate the tag.
 
 ;;;;; Stashing
 
-(magit-define-popup stashing
+(magit-define-popup magit-stash-popup
   "Popup console for stash commands."
   :man-page "git-stash"
   :switches '(("-k" "Keep index"              "--keep-index")
@@ -6491,7 +6490,7 @@ With prefix argument, changes in staging area are kept.
 
 ;;;;; Submoduling
 
-(magit-define-popup submodule
+(magit-define-popup magit-submodule-popup
   "Popup console for submodule commands."
   :man-page "git-submodule"
   :actions  '(("u" "Update" magit-submodule-update)
@@ -6529,7 +6528,7 @@ With a prefix arg, do a submodule update --init."
 
 ;;;;; Bisecting
 
-(magit-define-popup bisecting
+(magit-define-popup magit-bisect-popup
   "Popup console for bisect commands."
   :man-page "git-bisect"
   :actions  '(("b" "Bad"   magit-bisect-bad)
@@ -6605,7 +6604,7 @@ to test.  This command lets Git choose a different one."
 
 ;;;;; Logging
 
-(magit-define-popup logging
+(magit-define-popup magit-log-popup
   "Popup console for log commands."
   :man-page "git-log"
   :switches '(("-m"  "Only merge commits"        "--merges")
@@ -6797,8 +6796,7 @@ when `\\[magit-diff]` to display change
 between any two commit.
 Type `\\[magit-cherry-pick-item]` to cherry-pick a commit, and \
 `\\[magit-apply-item]` to apply its change to your
-working tree, without committing, and `\\[magit-key-mode-popup-merging]` to \
-merge.
+working tree, without committing, and `\\[magit-merge-popup]` to merge.
 `\\[magit-refresh]` will refresh current buffer.
 
 
@@ -7188,7 +7186,7 @@ and `\\[magit-diff]` to display change
 between any two commit.
 Type `\\[magit-cherry-pick-item]` to cherry-pick a commit, and \
 `\\[magit-apply-item]` to apply its change to your
-working tree, without committing, and `\\[magit-key-mode-popup-merging]` \
+working tree, without committing, and `\\[magit-merge-popup]` \
 to merge those change.
 Type `\\[magit-refresh]` to refresh current buffer.
 
@@ -7260,7 +7258,7 @@ into the selected branch."
   "Mode for looking at git branches.
 
 \\<magit-branch-manager-mode-map>Type `\\[magit-visit-item]` to checkout a branch, `\\[magit-reset-head]' to reset current branch,
-you can also merge the branch with `\\[magit-key-mode-popup-merging]`
+you can also merge the branch with `\\[magit-merge-popup]`
 
 Type `\\[magit-discard-item]' to delete a branch, or `\\[universal-argument] \\[magit-discard-item]' to force the deletion.
 Type `\\[magit-rename-item]' to Rename a branch.
