@@ -26,7 +26,7 @@ RMDIR ?= rm -rf
 MAKEINFO     ?= makeinfo
 INSTALL_INFO ?= install-info
 
-EFLAGS ?= -L ../git-modes -L ../cl-lib
+EFLAGS ?= -L ../git-modes -L ../cl-lib -L ../dash
 EMACS  ?= emacs
 BATCH   = $(EMACS) $(EFLAGS) -batch -Q -L .
 BATCHE  = $(BATCH) -eval
