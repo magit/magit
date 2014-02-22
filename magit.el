@@ -6555,7 +6555,7 @@ With a prefix argument annotate the tag.
   "Create new stash of working tree and staging area named DESCRIPTION.
 Working tree and staging area revert to the current 'HEAD'.
 With prefix argument, changes in staging area are kept.
-\('git stash save [--keep-index] DESCRIPTION')"
+\n(git stash save [--keep-index] DESCRIPTION)"
   (interactive (list (read-string "Stash description: " nil
                                   'magit-read-stash-history)))
   (magit-run-git "stash" "save" magit-current-popup-args "--" description))
@@ -6563,7 +6563,7 @@ With prefix argument, changes in staging area are kept.
 ;;;###autoload
 (defun magit-stash-snapshot ()
   "Create new stash of working tree and staging area; keep changes in place.
-\('git stash save \"Snapshot...\"; git stash apply stash@{0}')"
+\n(git stash save \"Snapshot...\"; git stash apply stash@{0})"
   (interactive)
   (magit-call-git "stash" "save" magit-current-popup-args
                   (format-time-string
@@ -6573,19 +6573,19 @@ With prefix argument, changes in staging area are kept.
 
 (defun magit-stash-apply (stash)
   "Apply a stash on top of the current working tree state.
-\('git stash apply stash@{N}')"
+\n(git stash apply stash@{N})"
   (interactive (list (magit-read-stash "Apply stash (number): ")))
   (magit-run-git "stash" "apply" stash))
 
 (defun magit-stash-pop (stash)
   "Apply a stash on top of working tree state and remove from stash list.
-\('git stash pop stash@{N}')"
+\n(git stash pop stash@{N})"
   (interactive (list (magit-read-stash "Pop stash (number): ")))
   (magit-run-git "stash" "pop" stash))
 
 (defun magit-stash-drop (stash)
   "Remove a stash from the stash list.
-\('git stash drop stash@{N}')"
+\n(git stash drop stash@{N})"
   (interactive (list (magit-read-stash "Drop stash (number): ")))
   (magit-run-git "stash" "drop" stash))
 
