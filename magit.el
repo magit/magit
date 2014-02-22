@@ -759,7 +759,7 @@ they are not (due to semantic considerations)."
 (put 'magit-diff-options 'permanent-local t)
 
 (defcustom magit-diff-auto-show
-  '(commit stage-all log-oneline)
+  '(commit stage-all log-oneline log-select)
   "Whether to automatically show relevant diff.
 
 When this option is non-nil certain operations cause the relevant
@@ -769,6 +769,7 @@ changes to be displayed automatically.
 `stage-all'
 `log-oneline'
 `log-follow'
+`log-select'
 
 In the event that expanding very large patches takes a long time
 \\<global-map>\\[keyboard-quit] can be used to abort that step.
@@ -6367,12 +6368,15 @@ depending on the value of option `magit-commit-squash-confirm'.
 (defun magit-commit-squash-internal (fn option commit args confirm)
   (when (setq args (magit-commit-assert args t))
     (if (and commit (not confirm))
-        (progn
+        (let ((magit-diff-auto-show nil))
           (magit-commit-internal 'magit-diff-staged "commit"
             (nconc (list "--no-edit" (concat option "=" commit)) args))
           commit)
       (magit-log-select
-        `(lambda (commit) (,fn commit (list ,@args)))))))
+        `(lambda (commit) (,fn commit (list ,@args))))
+      (when (magit-diff-auto-show-p 'log-select)
+        (let ((magit-diff-switch-buffer-function 'display-buffer))
+          (magit-diff-staged))))))
 
 (defun magit-commit-assert (args &optional strict)
   (cond
