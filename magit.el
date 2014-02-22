@@ -6306,27 +6306,30 @@ With prefix argument, changes in staging area are kept.
 \n(git stash apply [ARGS] stash@{N})"
   (interactive (list (magit-read-stash "Apply stash (number): ")
                      (magit-current-popup-args :only "--index")))
-  (magit-run-git "stash" "apply" args stash))
+  (magit-run-git "stash" "apply" args (magit-stash-as-refname stash)))
 
 (defun magit-stash-pop (stash &optional args)
   "Apply a stash on top of working tree state and remove from stash list.
 \n(git stash pop [ARGS] stash@{N})"
   (interactive (list (magit-read-stash "Pop stash (number): ")
                      (magit-current-popup-args :only "--index")))
-  (magit-run-git "stash" "pop" args stash))
+  (magit-run-git "stash" "pop" args (magit-stash-as-refname stash)))
 
 (defun magit-stash-drop (stash)
   "Remove a stash from the stash list.
 \n(git stash drop stash@{N})"
   (interactive (list (magit-read-stash "Drop stash (number): ")))
-  (magit-run-git "stash" "drop" stash))
+  (magit-run-git "stash" "drop" (magit-stash-as-refname stash)))
 
 (defun magit-stash-branch (stash branchname)
   "Create and checkout a branch from STASH.
 \n(git stash branch BRANCHNAME stash@{N})"
   (interactive (list (magit-read-stash "Branch stash (number): ")
                      (read-string      "Branch name: ")))
-  (magit-run-git "stash" "branch" branchname stash))
+  (magit-run-git "stash" "branch" branchname (magit-stash-as-refname stash)))
+
+(defun magit-stash-as-refname (arg)
+  (if (stringp arg) arg (format "stash@{%i}" arg)))
 
 ;;;;; Cherry-Pick
 
