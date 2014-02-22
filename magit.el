@@ -1586,25 +1586,6 @@ Many Magit faces inherit from this one by default."
              (?$ "Show Process"    magit-display-process)))
 
 ;;; Utilities
-;;;; Minibuffer Input
-
-(defvar magit-gpg-secret-key-hist nil)
-
-(defun magit-read-gpg-secret-key (prompt &optional initial-input)
-  (let ((keys (mapcar
-               (lambda (key)
-                 (list (epg-sub-key-id (car (epg-key-sub-key-list key)))
-                       (let ((id-obj (car (epg-key-user-id-list key)))
-                             (id-str nil))
-                         (when id-obj
-                           (setq id-str (epg-user-id-string id-obj))
-                           (if (stringp id-str)
-                               id-str
-                             (epg-decode-dn id-obj))))))
-               (epg-list-keys (epg-make-context epa-protocol) nil t))))
-  (magit-completing-read prompt keys nil nil initial-input nil
-                         (or (car magit-gpg-secret-key-hist) (car keys)))))
-
 ;;;; Various Utilities
 
 (defmacro magit-bind-match-strings (varlist &rest body)
@@ -2107,32 +2088,6 @@ involving HEAD."
                                  ref)
                                 (setq label (match-string 2 ref)))))
            collect (cons label ref)))
-
-(defvar magit-read-file-hist nil)
-
-(defun magit-read-file-from-rev (revision &optional default)
-  (unless revision
-    (setq revision "HEAD"))
-  (let ((default-directory (magit-get-top-dir)))
-    (magit-completing-read
-     (format "Retrieve file from %s" revision)
-     (magit-git-lines "ls-tree" "-r" "-t" "--name-only" revision)
-     nil 'require-match
-     nil 'magit-read-file-hist
-     (or default (magit-buffer-file-name t)))))
-
-(defun magit-read-file-trace (ignored)
-  (let ((file  (magit-read-file-from-rev "HEAD"))
-        (trace (read-string "Trace: ")))
-    (if (string-match
-         "^\\(/.+/\\|:[^:]+\\|[0-9]+,[-+]?[0-9]+\\)\\(:\\)?$" trace)
-        (concat trace (or (match-string 2 trace) ":") file)
-      (user-error "Trace is invalid, see man git-log"))))
-
-(defun magit-read-remote (prompt &optional default require-match)
-  (magit-completing-read prompt (magit-git-lines "remote")
-                         nil require-match nil nil
-                         (or default (magit-guess-remote))))
 
 (defun magit-format-ref-label (ref)
   (cl-destructuring-bind (re face fn)
@@ -3925,6 +3880,50 @@ Read `completing-read' documentation for the meaning of the argument."
       (format "stash@{%i}" n))))
 
 ;;;;; Miscellaneous Completion
+
+(defun magit-read-remote (prompt &optional default require-match)
+  (magit-completing-read prompt (magit-git-lines "remote")
+                         nil require-match nil nil
+                         (or default (magit-guess-remote))))
+
+(defvar magit-read-file-hist nil)
+
+(defun magit-read-file-from-rev (revision &optional default)
+  (unless revision
+    (setq revision "HEAD"))
+  (let ((default-directory (magit-get-top-dir)))
+    (magit-completing-read
+     (format "Retrieve file from %s" revision)
+     (magit-git-lines "ls-tree" "-r" "-t" "--name-only" revision)
+     nil 'require-match
+     nil 'magit-read-file-hist
+     (or default (magit-buffer-file-name t)))))
+
+(defun magit-read-file-trace (ignored)
+  (let ((file  (magit-read-file-from-rev "HEAD"))
+        (trace (read-string "Trace: ")))
+    (if (string-match
+         "^\\(/.+/\\|:[^:]+\\|[0-9]+,[-+]?[0-9]+\\)\\(:\\)?$" trace)
+        (concat trace (or (match-string 2 trace) ":") file)
+      (user-error "Trace is invalid, see man git-log"))))
+
+(defvar magit-gpg-secret-key-hist nil)
+
+(defun magit-read-gpg-secret-key (prompt &optional initial-input)
+  (let ((keys (mapcar
+               (lambda (key)
+                 (list (epg-sub-key-id (car (epg-key-sub-key-list key)))
+                       (let ((id-obj (car (epg-key-user-id-list key)))
+                             (id-str nil))
+                         (when id-obj
+                           (setq id-str (epg-user-id-string id-obj))
+                           (if (stringp id-str)
+                               id-str
+                             (epg-decode-dn id-obj))))))
+               (epg-list-keys (epg-make-context epa-protocol) nil t))))
+  (magit-completing-read prompt keys nil nil initial-input nil
+                         (or (car magit-gpg-secret-key-hist) (car keys)))))
+
 ;;; (misplaced)
 ;;;; Hunk Refinement
 
