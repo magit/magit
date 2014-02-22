@@ -3763,7 +3763,7 @@ Read `completing-read' documentation for the meaning of the argument."
 
 (defun magit-ido-completing-read
   (prompt choices &optional predicate require-match initial-input hist def)
-  "ido-based completing-read almost-replacement."
+  "Ido-based completing-read almost-replacement."
   (require 'ido)
   (let ((reply (ido-completing-read
                 prompt
@@ -3777,7 +3777,7 @@ Read `completing-read' documentation for the meaning of the argument."
 
 (defun magit-iswitchb-completing-read
   (prompt choices &optional predicate require-match initial-input hist def)
-  "iswitchb-based completing-read almost-replacement."
+  "Iswitchb-based completing-read almost-replacement."
   (require 'iswitchb)
   (let ((iswitchb-make-buflist-hook
          (lambda ()
