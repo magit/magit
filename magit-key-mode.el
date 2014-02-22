@@ -68,7 +68,7 @@
   "Face for key mode switch arguments."
   :group 'magit-faces)
 
-;;; Keygroups
+;;; (being refactored)
 
 (defvar magit-key-mode-groups
   '((dispatch
@@ -384,8 +384,6 @@ This includes switches, commands and arguments."
   (or (cdr (assoc for-group magit-key-mode-groups))
       (error "Unknown group '%s'" for-group)))
 
-;;; Commands
-
 (defun magit-key-mode-help (for-group)
   "Provide help for a key within FOR-GROUP.
 The user is prompted for the key."
@@ -425,8 +423,6 @@ The user is prompted for the key."
       (setq p (if (= p (point-max)) (point-min) (1+ p))))
     (goto-char p)
     (skip-chars-forward " ")))
-
-;;; Keymaps
 
 (defvar magit-key-mode-keymaps nil
   "This will be filled lazily with proper keymaps.
@@ -477,8 +473,6 @@ Put it in `magit-key-mode-keymaps' for fast lookup."
 
     (push (cons for-group map) magit-key-mode-keymaps)
     map))
-
-;;; Toggling and Running
 
 (defvar magit-key-mode-prefix nil
   "Prefix argument to the command that brought up the key-mode window.
