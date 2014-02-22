@@ -551,10 +551,6 @@
   (magit-popup-put :actions  (magit-popup-convert-actions
                               val (plist-get def :actions))))
 
-(define-derived-mode magit-popup-setvar-mode magit-popup-mode "MagitPopup"
-  ""
-  )
-
 (define-derived-mode magit-popup-sequence-mode magit-popup-mode "MagitPopup"
   ""
   (remove-hook 'magit-popup-setup-hook 'magit-popup-default-setup t)
