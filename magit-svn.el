@@ -52,6 +52,18 @@
 
 ;;; Commands
 
+(magit-define-popup svn
+  "Key menu for svn."
+  :man-page "git-svn"
+  :switches '(("-n" "Dry run"         "--dry-run"))
+  :actions  '(("r"  "Rebase"          magit-svn-rebase)
+              ("c"  "DCommit"         magit-svn-dcommit)
+              ("f"  "Fetch"           magit-svn-remote-update)
+              ("s"  "Find rev"        magit-svn-find-rev)
+              ("B"  "Create branch"   magit-svn-create-branch)
+              ("T"  "Create tag"      magit-svn-create-tag)
+              ("x"  "Fetch Externals" magit-svn-fetch-externals)))
+
 ;;;###autoload
 (defun magit-svn-find-rev (rev &optional branch)
   "Find commit for svn REVISION in BRANCH."
@@ -251,18 +263,6 @@ If USE-CACHE is non nil, use the cached information."
 (easy-menu-add-item 'magit-mode-menu
                     '("Extensions")
                     magit-svn-extension-menu)
-
-(magit-define-popup svn
-  "Key menu for svn."
-  :man-page "git-svn"
-  :switches (("-n" "Dry run" "--dry-run"))
-  :actions  (("r" "Rebase" magit-svn-rebase)
-             ("c" "DCommit" magit-svn-dcommit)
-             ("f" "Fetch" magit-svn-remote-update)
-             ("s" "Find rev" magit-svn-find-rev)
-             ("B" "Create branch" magit-svn-create-branch)
-             ("T" "Create tag" magit-svn-create-tag)
-             ("x" "Fetch Externals" magit-svn-fetch-externals)))
 
 (defvar magit-svn-mode-map
   (let ((map (make-sparse-keymap)))
