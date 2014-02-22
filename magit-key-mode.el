@@ -187,30 +187,68 @@
              (append (magit-popup-get :switches)
                      (magit-popup-get :options))))
 
-(defun magit-popup-setup-events ()
+(defun magit-popup-setup-events (val)
   (let ((def (symbol-value magit-this-popup)))
     (setq magit-this-popup-events
           (list :switches
                 (mapcar (lambda (elt)
-                          (append elt (list nil nil)))
+                          (append elt (list nil
+                                            (cdr (assoc (nth 2 elt) val)))))
                         (plist-get def :switches))
                 :options
                 (mapcar (lambda (elt)
-                          (append elt (list nil nil)))
+                          (append elt (list (and (assoc (nth 2 elt) val) t)
+                                            (cdr (assoc (nth 2 elt) val)))))
                         (plist-get def :options))
                 :actions (plist-get def :actions)))))
+
+(defun magit-popup-custom-default (def)
+  (nconc (mapcar (lambda (arg)
+                   (cons arg t))
+                 (plist-get def :default-switches))
+         (mapcar (lambda (arg)
+                   (if (string-match "=" arg)
+                       (cons (substring arg 0 (1+ (match-beginning 0)))
+                             (substring arg   (1+ (match-beginning 0))))
+                     (cons (substring arg 0 2)
+                           (substring arg   2))))
+                 (plist-get def :default-options))))
+
+(defun magit-popup-custom-type (def)
+  `(repeat (choice ,@(mapcar (lambda (arg)
+                               (setq arg (nth 2 arg))
+                               `(const :tag ,arg (,arg . t)))
+                             (plist-get def :switches))
+                   ,@(mapcar (lambda (arg)
+                               (setq arg (nth 2 arg))
+                               `(cons :format "%{%t%}%v" :tag ,arg
+                                      (const  :format "" ,arg)
+                                      (string :format "%v")))
+                             (plist-get def :options))
+                   (cons :format "%{%t%}: %v"
+                         :tag "Other Switch"
+                         (string :format "%v")
+                         (const  :tag "" t))
+                   (cons :tag "Other Option"
+                         (string :tag "Name")
+                         (string :tag "Value")))))
 
 ;;; Define
 
 (defmacro magit-define-popup (name doc &rest plist)
   (declare (indent defun) (doc-string 2))
-  (let ((custom (intern (format "%s-defaults" name))))
+  (let ((opt (intern (format "%s-defaults" name))))
     `(progn
        (defun ,name (&optional arg) ,doc
          (interactive "P")
          (magit-invoke-popup ',name arg))
        (defvar ,name
-         (list ,@plist)))))
+         (list ,@plist))
+       (defcustom ,opt
+         (magit-popup-custom-default (symbol-value ',name))
+         ""
+         :type (magit-popup-custom-type (symbol-value ',name)))
+       (put ',opt 'definition-name ',name))))
 
 (defun magit-define-popup-switch (popup key desc switch
                                         &optional enable at prepend)
@@ -438,10 +476,11 @@
 (put 'magit-popup-mode 'mode-class 'special)
 
 (defun magit-popup-mode-setup (popup)
-  (magit-popup-mode-display-buffer (get-buffer-create
-                                    (format "*%s*" popup)))
-  (setq magit-this-popup popup)
-  (magit-popup-setup-events)
+  (let ((value (symbol-value (plist-get (symbol-value popup) :variable))))
+    (magit-popup-mode-display-buffer (get-buffer-create
+                                      (format "*%s*" popup)))
+    (setq magit-this-popup popup)
+    (magit-popup-setup-events value))
   (magit-refresh-popup-buffer)
   (fit-window-to-buffer))
 
