@@ -76,7 +76,9 @@
 
 (defvar magit-popup-mode-map
   (let ((map (make-sparse-keymap)))
-    (suppress-keymap map 'nodigits)
+    (define-key map [remap self-insert-command] 'magit-invoke-popup-action)
+    (define-key map [?- t]  'magit-invoke-popup-switch)
+    (define-key map [?= t]  'magit-invoke-popup-option)
     (define-key map [?q]    'magit-popup-quit)
     (define-key map [?\C-g] 'magit-popup-quit)
     (define-key map [??]    'magit-popup-help)
@@ -122,53 +124,68 @@
   'prefix    nil
   'onecol    nil)
 
-;;; (being refactored)
+;;; Events
 
 (defvar-local magit-this-popup nil)
+(defvar-local magit-this-popup-events nil)
+
+(defun magit-popup-get (key)
+  (if (memq key '(:switches :options :actions))
+      (plist-get magit-this-popup-events key)
+    (plist-get (symbol-value magit-this-popup) key)))
+
+(defvar magit-current-popup nil)
+(defvar magit-current-popup-args nil)
+
+(defun magit-popup-get-args ()
+  (cl-mapcan (lambda (elt)
+               (when (nth 4 elt)
+                 (list (concat (nth 2 elt) (nth 5 elt)))))
+             (append (magit-popup-get :switches)
+                     (magit-popup-get :options))))
+
+(defun magit-popup-setup-events ()
+  (let ((def (symbol-value magit-this-popup)))
+    (setq magit-this-popup-events
+          (list :switches
+                (mapcar (lambda (elt)
+                          (append elt (list nil nil)))
+                        (plist-get def :switches))
+                :options
+                (mapcar (lambda (elt)
+                          (append elt (list nil nil)))
+                        (plist-get def :options))
+                :actions (plist-get def :actions)))))
+
+;;; Define
 
 (defmacro magit-define-popup (name doc &rest plist)
   (declare (indent defun) (doc-string 2))
-  (let ((msym (intern (format "%s-map" name)))
-        (custom (intern (format "%s-defaults" name))))
+  (let ((custom (intern (format "%s-defaults" name))))
     `(progn
-       (defun ,name () ,doc
+       (defun ,name (&optional arg) ,doc
          (interactive)
-         (magit-popup-mode-setup ',name))
+         (magit-invoke-popup ',name))
        (defvar ,name
-         (list ,@plist))
-       (defvar ,msym
-         (magit-define-popup-keymap ',name))
-       (put ',msym 'definition-name ',name))))
+         (list ,@plist)))))
 
 (defun magit-define-popup-switch (popup key desc switch
                                         &optional enable at prepend)
   (declare (indent defun))
   (magit-define-popup-key popup :switches key
-    (list desc switch enable) at prepend)
-  (define-key (symbol-value (intern (format "%s-map" popup)))
-    (vector (button-type-get 'magit-popup-switch-button 'prefix) key)
-    `(lambda () (interactive)
-       (magit-invoke-popup-switch ,switch))))
+    (list desc switch enable) at prepend))
 
 (defun magit-define-popup-option (popup key desc option reader
                                         &optional value at prepend)
   (declare (indent defun))
   (magit-define-popup-key popup :options key
-    (list desc option reader value) at prepend)
-  (define-key (symbol-value (intern (format "%s-map" popup)))
-    (vector (button-type-get 'magit-popup-option-button 'prefix) key)
-    `(lambda () (interactive)
-       (magit-invoke-popup-option ,option ',reader))))
+    (list desc option reader value) at prepend))
 
 (defun magit-define-popup-action (popup key desc command
                                         &optional at prepend)
   (declare (indent defun))
   (magit-define-popup-key popup :actions key
-    (list desc command) at prepend)
-  (define-key (symbol-value (intern (format "%s-map" popup)))
-    (vector key)
-    `(lambda () (interactive)
-       (magit-invoke-popup-action ',command))))
+    (list desc command) at prepend))
 
 (defun magit-define-popup-key (popup type key def
                                      &optional at prepend)
@@ -195,27 +212,6 @@
         (set popup (plist-put plist type value)))
     (error "Unknown popup event type: %s" type)))
 
-(defun magit-define-popup-keymap (popup)
-  (let ((spec (symbol-value popup))
-        (map (make-sparse-keymap)))
-    (set-keymap-parent map magit-popup-mode-map)
-    (dolist (e (plist-get spec :switches))
-      (define-key map
-        (vector (button-type-get 'magit-popup-switch-button 'prefix) (car e))
-        `(lambda () (interactive)
-           (magit-invoke-popup-switch ,(nth 2 e)))))
-    (dolist (e (plist-get spec :options))
-      (define-key map
-        (vector (button-type-get 'magit-popup-option-button 'prefix) (car e))
-        `(lambda () (interactive)
-           (magit-invoke-popup-option ,(nth 2 e) ',(nth 3 e)))))
-    (dolist (e (plist-get spec :actions))
-      (define-key map (vector (car e))
-        `(lambda () (interactive)
-           (magit-invoke-popup-action ',(nth 2 e)))))
-    (define-key map "?" 'magit-popup-help)
-    map))
-
 (defun magit-change-popup-key (popup type from to)
   (setcar (assoc from (plist-get (symbol-value popup) type)) to))
 
@@ -225,49 +221,51 @@
          (value (assoc key alist)))
     (set popup (plist-put plist type (delete value alist)))))
 
-(defvar-local magit-popup-args nil)
+;;; Invoke
 
-(defvar magit-current-popup-args nil)
+(defun magit-invoke-popup (popup)
+  (magit-popup-mode-setup popup))
 
-(defun magit-invoke-popup-switch (arg-name)
-  (let* ((elt (assoc arg-name magit-popup-args))
-         (val (not (cdr elt))))
-    (if elt
-        (setcdr elt val)
-      (push (cons arg-name val) magit-popup-args)))
-  (magit-refresh-popup-buffer))
+(defun magit-invoke-popup-switch (event)
+  (interactive (list last-command-event))
+  (let ((elt (assoc event (magit-popup-get :switches))))
+    (if  elt
+        (progn (setf (nth 4 elt) (not (nth 4 elt)))
+               (magit-refresh-popup-buffer))
+      (error "%c isn't bound to any switch" event))))
 
-(defun magit-invoke-popup-option (arg-name input-func)
-  (let ((elt (assoc arg-name magit-popup-args))
-        (val (funcall input-func (concat arg-name ": "))))
-    (cond ((or (not val) (equal val "")) (setq val nil))
-          ((string-match-p "^\s+$" val)  (setq val "")))
-    (if elt
-        (setcdr elt val)
-      (push (cons arg-name val) magit-popup-args))
-    (magit-refresh-popup-buffer)))
+(defun magit-invoke-popup-option (event)
+  (interactive (list last-command-event))
+  (let ((elt (assoc event (magit-popup-get :options))))
+    (if  elt
+        (let ((val (funcall (nth 3 elt) (concat (nth 2 elt) ": "))))
+          (cond ((or (not val) (equal val "")) (setq val nil))
+                ((string-match-p "^\s+$" val)  (setq val "")))
+          (setf (nth 4 elt) (and val t))
+          (setf (nth 5 elt) val)
+          (magit-refresh-popup-buffer))
+      (error "%c isn't bound to any option" event))))
 
-(defun magit-invoke-popup-action (func)
-  (let ((magit-current-popup-args
-         (cl-mapcan (lambda (elt)
-                      (cl-destructuring-bind (arg . val) elt
-                        (cond ((stringp val) (list (concat arg val)))
-                              ((equal val t) (list arg)))))
-                    magit-popup-args)))
-    (magit-popup-quit)
-    (call-interactively func)))
+(defun magit-invoke-popup-action (event)
+  (interactive (list last-command-event))
+  (let ((def (nth 2 (assoc event (magit-popup-get :actions)))))
+    (if  def
+        (let ((magit-current-popup magit-this-popup)
+              (magit-current-popup-args (magit-popup-get-args)))
+          (magit-popup-quit)
+          (call-interactively def))
+      (error "%c isn't bound to any action" event))))
 
 (defun magit-popup-help ()
   (interactive)
-  (let* ((spec (symbol-value magit-this-popup))
-         (man-page (plist-get spec :man-page))
+  (let* ((man-page (magit-popup-get :man-page))
          (char (aref (read-key-sequence
                       (format "Enter command prefix%s: "
                               (if man-page
                                   (format ", `?' for man `%s'" man-page)
                                 "")))
                      0))
-         (actions (plist-get spec :actions)))
+         (actions (magit-popup-get :actions)))
     (cond
       ((assoc char actions)
        (describe-function (nth 2 (assoc char actions))))
@@ -295,17 +293,12 @@
 (put 'magit-popup-mode 'mode-class 'special)
 
 (defun magit-popup-mode-setup (popup)
-  (magit-popup-mode-display-buffer
-   (get-buffer-create (format "*%s*" popup)))
-  (use-local-map
-   (symbol-value (intern (format "%s-map" popup))))
+  (magit-popup-mode-display-buffer (get-buffer-create
+                                    (format "*%s*" popup)))
   (setq magit-this-popup popup)
+  (magit-popup-setup-events)
   (magit-refresh-popup-buffer)
-  (fit-window-to-buffer)
-  (when magit-popup-show-usage
-    (message (concat "Type a prefix key to toggle it. "
-                     "Run actions with their prefixes. "
-                     "'?' for more help."))))
+  (fit-window-to-buffer))
 
 (defun magit-popup-mode-display-buffer (buffer)
   (let ((winconf (current-window-configuration)))
@@ -338,8 +331,7 @@
 (defun magit-popup-insert-buttons (type)
   (let ((items (mapcar (lambda (item)
                          (cons (magit-popup-format-button type item) item))
-                       (plist-get (symbol-value magit-this-popup)
-                                  (button-type-get type 'property)))))
+                       (magit-popup-get (button-type-get type 'property)))))
     (when items
       (insert (propertize (button-type-get type 'heading)
                           'face 'magit-popup-header))
@@ -366,7 +358,7 @@
                         'face 'magit-popup-key))
          (d (nth 1 arg))
          (a (unless (symbolp (nth 2 arg)) (nth 2 arg)))
-         (v (and a (cdr (assoc a magit-popup-args)))))
+         (v (or (nth 5 arg) (nth 4 arg))))
     (when a
       (setq a (propertize
                a 'face (if v
