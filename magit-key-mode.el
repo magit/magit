@@ -315,26 +315,8 @@
 If you modify this make sure you reset `magit-key-mode-keymaps'
 to nil.")
 
-(defun magit-key-mode-delete-group (group)
-  "Delete a group from `magit-key-mode-keymaps'."
-  (let ((items (assoc group magit-key-mode-groups)))
-    (when items
-      ;; reset the cache
-      (setq magit-key-mode-keymaps nil)
-      ;; delete the whole group
-      (setq magit-key-mode-groups
-            (delq items magit-key-mode-groups))
-      ;; unbind the defun
-      (magit-key-mode-de-generate group))
-    magit-key-mode-groups))
-
 (defun magit-key-mode-add-group (group)
-  "Add a new group to `magit-key-mode-keymaps'.
-If there already is a group of that name then this will
-completely remove it and put in its place an empty one of the
-same name."
-  (when (assoc group magit-key-mode-groups)
-    (magit-key-mode-delete-group group))
+  "Add a new group to `magit-key-mode-keymaps'."
   (setq magit-key-mode-groups
         (cons (list group (list 'actions) (list 'switches))
               magit-key-mode-groups)))
@@ -688,11 +670,6 @@ Return the point before the actions part, if any, nil otherwise."
     p))
 
 ;;; Generate Groups
-
-(defun magit-key-mode-de-generate (group)
-  "Unbind the function for GROUP."
-  (fmakunbound
-   (intern (concat "magit-key-mode-popup-" (symbol-name group)))))
 
 (defun magit-key-mode-generate (group)
   "Generate the key-group menu for GROUP."
