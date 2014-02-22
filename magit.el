@@ -3642,6 +3642,40 @@ where COMMITS is the number of commits in TAG but not in \"HEAD\"."
               (list it (car (magit-rev-diff-count it "HEAD")))
             it))))))
 
+(defun magit-list-refs (&rest args)
+  (magit-git-lines
+   "for-each-ref" "--format=%(refname)"
+   (or args (list "refs/heads" "refs/remotes" "refs/tags"))))
+
+(defun magit-list-branches ()
+  (magit-list-refs "refs/heads" "refs/remotes"))
+
+(defun magit-list-local-branches ()
+  (magit-list-refs "refs/heads"))
+
+(defun magit-list-remote-branches (&optional remote)
+  (magit-list-refs (concat "refs/remotes/" remote)))
+
+(defun magit-list-refnames (&rest args)
+  (magit-git-lines
+   "for-each-ref" "--format=%(refname:short)"
+   (or args (list "refs/heads" "refs/remotes" "refs/tags"))))
+
+(defun magit-list-branch-names ()
+  (magit-list-refnames "refs/heads" "refs/remotes"))
+
+(defun magit-list-local-branch-names ()
+  (magit-list-refnames "refs/heads"))
+
+(defun magit-list-remote-branch-names (&optional remote relative)
+  (if (and remote relative)
+      (let ((regexp (format "^refs/remotes/%s/\\(.+\\)" remote)))
+        (cl-mapcan (lambda (ref)
+                     (and (string-match regexp ref)
+                          (list (match-string t ref))))
+                   (magit-list-remote-branches remote)))
+    (magit-list-refnames (concat "refs/remotes/" remote))))
+
 (defvar magit-uninteresting-refs
   '("^refs/stash$"
     "^refs/remotes/[^/]+/HEAD$"
