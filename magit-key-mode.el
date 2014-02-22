@@ -36,8 +36,6 @@
 (declare-function Man-find-section 'man)
 (declare-function Man-next-section 'man)
 
-(defvar magit-popup-previous-winconf)
-
 ;;; Options
 
 (defcustom magit-popup-show-help-echo t
@@ -317,6 +315,8 @@
 
 ;;; Invoke
 
+(defvar-local magit-popup-previous-winconf nil)
+
 (defun magit-invoke-popup (popup arg)
   (let* ((value   (symbol-value popup))
          (default (plist-get value :default-action))
@@ -495,8 +495,6 @@
             ([remap quit-window] . magit-popup-quit)))
 
 ;;; Mode
-
-(defvar-local magit-popup-previous-winconf nil)
 
 (define-derived-mode magit-popup-mode fundamental-mode "MagitPopup"
   ""
