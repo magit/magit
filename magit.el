@@ -5601,7 +5601,7 @@ If no branch is found near the cursor return nil."
 ;;;###autoload
 (defun magit-remote-add (remote url)
   "Add the REMOTE and fetch it.
-\('git remote add REMOTE URL')."
+\n(git remote add -f REMOTE URL)."
   (interactive (list (read-string "Remote name: ")
                      (read-string "Remote url: ")))
   (magit-run-git-async "remote" "add" "-f" remote url))
@@ -5609,14 +5609,14 @@ If no branch is found near the cursor return nil."
 ;;;###autoload
 (defun magit-remote-remove (remote)
   "Delete the REMOTE.
-\('git remote rm REMOTE')."
+\n(git remote rm REMOTE)."
   (interactive (list (magit-read-remote "Delete remote")))
   (magit-run-git "remote" "rm" remote))
 
 ;;;###autoload
 (defun magit-remote-rename (old new)
   "Rename remote OLD to NEW.
-\('git remote rename OLD NEW')."
+\n(git remote rename OLD NEW)."
   (interactive
    (let* ((old (magit-read-remote "Old name"))
           (new (read-string "New name: " old)))
