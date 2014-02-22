@@ -4860,17 +4860,15 @@ With a prefix argument, prompt for a file to be staged instead."
       (diff (user-error "Can't stage this diff")))))
 
 ;;;###autoload
-(defun magit-stage-all (&optional including-untracked)
+(defun magit-stage-all (&optional include-untracked)
   "Add all remaining changes in tracked files to staging area.
 With a prefix argument, add remaining untracked files as well.
-\('git add [-u] .')."
+\('git add [--update] .')."
   (interactive "P")
   (when (or (not magit-stage-all-confirm)
             (not (magit-anything-staged-p))
             (yes-or-no-p "Stage all changes? "))
-    (if including-untracked
-        (magit-run-git "add" ".")
-      (magit-run-git "add" "-u" "."))))
+    (magit-run-git "add" (unless include-untracked "--update") ".")))
 
 ;;;;;; Unstage
 
