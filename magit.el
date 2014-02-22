@@ -1779,258 +1779,6 @@ server if necessary."
   (when (tramp-tramp-file-p default-directory)
     (user-error "Cannot %s when accessing repository using tramp" action)))
 
-;;;; Git Low-Level
-
-(defun magit-get-ref (ref)
-  (magit-git-string "symbolic-ref" "-q" ref))
-
-(defun magit-get-current-branch ()
-  (let ((head (magit-get-ref "HEAD")))
-    (when (and head (string-match "^refs/heads/" head))
-      (substring head 11))))
-
-(defun magit-get-remote/branch (&optional branch verify)
-  "Return the remote-tracking branch of BRANCH used for pulling.
-Return a string of the form \"REMOTE/BRANCH\".
-
-If optional BRANCH is nil return the remote-tracking branch of
-the current branch.  If optional VERIFY is non-nil verify that
-the remote branch exists; else return nil."
-  (save-match-data
-    (let (remote remote-branch remote/branch)
-      (and (or branch (setq branch (magit-get-current-branch)))
-           (setq remote (magit-get "branch" branch "remote"))
-           (setq remote-branch (magit-get "branch" branch "merge"))
-           (string-match "^refs/heads/\\(.+\\)" remote-branch)
-           (setq remote/branch
-                 (concat remote "/" (match-string 1 remote-branch)))
-           (or (not verify)
-               (magit-git-success "rev-parse" "--verify" remote/branch))
-           remote/branch))))
-
-(defun magit-get-tracked-branch (&optional branch qualified)
-  "Return the name of the tracking branch the local branch name BRANCH.
-
-If optional QUALIFIED is non-nil return the full branch path,
-otherwise try to shorten it to a name (which may fail)."
-  (unless branch
-    (setq branch (magit-get-current-branch)))
-  (when branch
-    (let ((remote (magit-get "branch" branch "remote"))
-          (merge  (magit-get "branch" branch "merge")))
-      (when (and (not merge)
-                 (not (equal remote ".")))
-        (setq merge branch))
-      (when (and remote merge)
-        (if (string= remote ".")
-            (cond (qualified merge)
-                  ((string-match "^refs/heads/" merge)
-                   (substring merge 11))
-                  ((string-match "^refs/" merge)
-                   merge))
-          (let* ((fetch (mapcar (lambda (f) (split-string f "[+:]" t))
-                                (magit-get-all "remote" remote "fetch")))
-                 (match (cadr (assoc merge fetch))))
-            (unless match
-              (let* ((prefix (nreverse (split-string merge "/")))
-                     (unique (list (car prefix))))
-                (setq prefix (cdr prefix))
-                (setq fetch
-                      (cl-mapcan
-                       (lambda (f)
-                         (cl-destructuring-bind (from to) f
-                           (setq from (nreverse (split-string from "/")))
-                           (when (equal (car from) "*")
-                             (list (list (cdr from) to)))))
-                       fetch))
-                (while (and prefix (not match))
-                  (if (setq match (cadr (assoc prefix fetch)))
-                      (setq match (concat (substring match 0 -1)
-                                          (mapconcat 'identity unique "/")))
-                    (push (car prefix) unique)
-                    (setq prefix (cdr prefix))))))
-            (cond ((not match) nil)
-                  (qualified match)
-                  ((string-match "^refs/remotes/" match)
-                   (substring match 13))
-                  (t match))))))))
-
-(defun magit-get-previous-branch ()
-  "Return the refname of the previously checked out branch.
-Return nil if the previously checked out branch no longer exists."
-  (magit-name-rev (magit-git-string "rev-parse" "--verify" "@{-1}")))
-
-(defun magit-get-current-tag (&optional with-distance-p)
-  "Return the closest tag reachable from \"HEAD\".
-
-If optional WITH-DISTANCE-P is non-nil then return (TAG COMMITS
-DIRTY) where COMMITS is the number of commits in \"HEAD\" but not
-in TAG and DIRTY is t if there are uncommitted changes, nil
-otherwise."
-  (let ((tag (magit-git-string "describe" "--long" "--tags" "--dirty")))
-    (save-match-data
-      (when tag
-        (string-match
-         "\\(.+\\)-\\(?:0[0-9]*\\|\\([0-9]+\\)\\)-g[0-9a-z]+\\(-dirty\\)?$" tag)
-        (if with-distance-p
-            (list (match-string 1 tag)
-                  (string-to-number (or (match-string 2 tag) "0"))
-                  (and (match-string 3 tag) t))
-          (match-string 1 tag))))))
-
-(defun magit-get-next-tag (&optional with-distance-p)
-  "Return the closest tag from which \"HEAD\" is reachable.
-
-If no such tag can be found or if the distance is 0 (in which
-case it is the current tag, not the next) return nil instead.
-
-If optional WITH-DISTANCE-P is non-nil then return (TAG COMMITS)
-where COMMITS is the number of commits in TAG but not in \"HEAD\"."
-  (let ((rev (magit-git-string "describe" "--contains" "HEAD")))
-    (save-match-data
-      (when (and rev (string-match "^[^^~]+" rev))
-        (let ((tag (match-string 0 rev)))
-          (unless (equal tag (magit-get-current-tag))
-            (if with-distance-p
-                (list tag (car (magit-rev-diff-count tag "HEAD")))
-              tag)))))))
-
-(defun magit-get-remote (branch)
-  "Return the name of the remote for BRANCH.
-If branch is nil or it has no remote, but a remote named
-\"origin\" exists, return that.  Otherwise, return nil."
-  (let ((remote (or (and branch (magit-get "branch" branch "remote"))
-                    (and (magit-get "remote" "origin" "url") "origin"))))
-    (unless (string= remote "")
-      remote)))
-
-(defun magit-get-current-remote ()
-  "Return the name of the remote for the current branch.
-If there is no current branch, or no remote for that branch,
-but a remote named \"origin\" is configured, return that.
-Otherwise, return nil."
-  (magit-get-remote (magit-get-current-branch)))
-
-(defun magit-ref-exists-p (ref)
-  (magit-git-success "show-ref" "--verify" ref))
-
-(defun magit-rev-parse (ref)
-  "Return the SHA hash for REF."
-  (magit-git-string "rev-parse" ref))
-
-(defun magit-ref-ambiguous-p (ref)
-  "Return whether or not REF is ambiguous."
-  ;; An ambiguous ref does not cause `git rev-parse --abbrev-ref'
-  ;; to exits with a non-zero status.  But there is nothing on
-  ;; stdout in that case.
-  (not (magit-git-string "rev-parse" "--abbrev-ref" ref)))
-
-(defun magit-rev-diff-count (a b)
-  "Return the commits in A but not B and vice versa.
-Return a list of two integers: (A>B B>A)."
-  (mapcar 'string-to-number
-          (split-string (magit-git-string "rev-list"
-                                          "--count" "--left-right"
-                                          (concat a "..." b))
-                        "\t")))
-
-(defun magit-name-rev (rev &optional no-trim)
-  "Return a human-readable name for REV.
-Unlike `git name-rev', this will remove \"tags/\" and \"remotes/\"
-prefixes if that can be done unambiguously (unless optional arg
-NO-TRIM is non-nil).  In addition, it will filter out revs
-involving HEAD."
-  (when rev
-    (let ((name (magit-git-string "name-rev" "--no-undefined" "--name-only" rev)))
-      ;; There doesn't seem to be a way of filtering HEAD out from name-rev,
-      ;; so we have to do it manually.
-      ;; HEAD-based names are too transient to allow.
-      (when (and (stringp name)
-                 (string-match "^\\(.*\\<HEAD\\)\\([~^].*\\|$\\)" name))
-        (let ((head-ref (match-string 1 name))
-              (modifier (match-string 2 name)))
-          ;; Sometimes when name-rev gives a HEAD-based name,
-          ;; rev-parse will give an actual branch or remote name.
-          (setq name (concat (magit-git-string "rev-parse" "--abbrev-ref" head-ref)
-                             modifier))
-          ;; If rev-parse doesn't give us what we want, just use the SHA.
-          (when (or (null name) (string-match-p "\\<HEAD\\>" name))
-            (setq name (magit-rev-parse rev)))))
-      (setq rev (or name rev))
-      (when (string-match "^\\(?:tags\\|remotes\\)/\\(.*\\)" rev)
-        (let ((plain-name (match-string 1 rev)))
-          (unless (or no-trim (magit-ref-ambiguous-p plain-name))
-            (setq rev plain-name))))
-      rev)))
-
-(defun magit-commit-parents (commit)
-  (cdr (split-string (magit-git-string "rev-list" "-1" "--parents" commit))))
-
-(defun magit-assert-one-parent (commit command)
-  (when (> (length (magit-commit-parents commit)) 1)
-    (user-error "Cannot %s a merge commit" command)))
-
-(defun magit-abbrev-length ()
-  (string-to-number (or (magit-get "core.abbrev") "7")))
-
-(defun magit-abbrev-arg ()
-  (format "--abbrev=%d" (magit-abbrev-length)))
-
-;;;; Git Revisions
-
-(defvar magit-uninteresting-refs
-  '("^refs/stash$"
-    "^refs/remotes/[^/]+/HEAD$"
-    "^refs/remotes/[^/]+/top-bases$"
-    "^refs/top-bases$"))
-
-(cl-defun magit-list-interesting-refs (&optional uninteresting
-                                                 (refs nil srefs))
-  (cl-loop for ref in (if srefs
-                          refs
-                        (mapcar (lambda (l)
-                                  (cadr (split-string l " ")))
-                                (magit-git-lines "show-ref")))
-           with label
-           unless (or (cl-loop for i in
-                               (cl-typecase uninteresting
-                                 (null magit-uninteresting-refs)
-                                 (list uninteresting)
-                                 (string (cons (format "^refs/heads/%s$"
-                                                       uninteresting)
-                                               magit-uninteresting-refs)))
-                               thereis (string-match i ref))
-                      (not (and (string-match
-                                 "^refs/\\(heads\\|remotes\\|tags\\)/\\(.+\\)"
-                                 ref)
-                                (setq label (match-string 2 ref)))))
-           collect (cons label ref)))
-
-(defun magit-format-ref-label (ref)
-  (cl-destructuring-bind (re face fn)
-      (cl-find-if (lambda (ns)
-                    (string-match (car ns) ref))
-                  magit-refs-namespaces)
-    (if fn
-        (funcall fn ref face)
-      (propertize (or (match-string 1 ref) ref) 'face face))))
-
-(defun magit-format-ref-labels (string)
-  (save-match-data
-    (mapconcat 'magit-format-ref-label
-               (mapcar 'cdr
-                       (magit-list-interesting-refs
-                        nil (split-string string "\\(tag: \\|[(), ]\\)" t)))
-               " ")))
-
-(defun magit-format-rev-summary (rev)
-  (let ((s (magit-git-string "log" "-1"
-                             (concat "--pretty=format:%h %s") rev)))
-    (when s
-      (string-match " " s)
-      (put-text-property 0 (match-beginning 0) 'face 'magit-log-sha1 s)
-      s)))
-
 ;;; Magit Api
 ;;;; Section Api
 ;;;;; Section Core
@@ -3754,6 +3502,255 @@ If FILE isn't inside a Git repository then return nil."
   (magit-git-success "diff" "--quiet" "--" file))
 
 ;;;; Revisions and References
+
+(defun magit-rev-parse (ref)
+  "Return the SHA hash for REF."
+  (magit-git-string "rev-parse" ref))
+
+(defun magit-get-ref (ref)
+  (magit-git-string "symbolic-ref" "-q" ref))
+
+(defun magit-name-rev (rev &optional no-trim)
+  "Return a human-readable name for REV.
+Unlike `git name-rev', this will remove \"tags/\" and \"remotes/\"
+prefixes if that can be done unambiguously (unless optional arg
+NO-TRIM is non-nil).  In addition, it will filter out revs
+involving HEAD."
+  (when rev
+    (let ((name (magit-git-string "name-rev" "--no-undefined" "--name-only" rev)))
+      ;; There doesn't seem to be a way of filtering HEAD out from name-rev,
+      ;; so we have to do it manually.
+      ;; HEAD-based names are too transient to allow.
+      (when (and (stringp name)
+                 (string-match "^\\(.*\\<HEAD\\)\\([~^].*\\|$\\)" name))
+        (let ((head-ref (match-string 1 name))
+              (modifier (match-string 2 name)))
+          ;; Sometimes when name-rev gives a HEAD-based name,
+          ;; rev-parse will give an actual branch or remote name.
+          (setq name (concat (magit-git-string "rev-parse" "--abbrev-ref" head-ref)
+                             modifier))
+          ;; If rev-parse doesn't give us what we want, just use the SHA.
+          (when (or (null name) (string-match-p "\\<HEAD\\>" name))
+            (setq name (magit-rev-parse rev)))))
+      (setq rev (or name rev))
+      (when (string-match "^\\(?:tags\\|remotes\\)/\\(.*\\)" rev)
+        (let ((plain-name (match-string 1 rev)))
+          (unless (or no-trim (magit-ref-ambiguous-p plain-name))
+            (setq rev plain-name))))
+      rev)))
+
+(defun magit-ref-exists-p (ref)
+  (magit-git-success "show-ref" "--verify" ref))
+
+(defun magit-ref-ambiguous-p (ref)
+  "Return whether or not REF is ambiguous."
+  ;; An ambiguous ref does not cause `git rev-parse --abbrev-ref'
+  ;; to exits with a non-zero status.  But there is nothing on
+  ;; stdout in that case.
+  (not (magit-git-string "rev-parse" "--abbrev-ref" ref)))
+
+(defun magit-get-current-branch ()
+  (let ((head (magit-get-ref "HEAD")))
+    (when (and head (string-match "^refs/heads/" head))
+      (substring head 11))))
+
+(defun magit-get-previous-branch ()
+  "Return the refname of the previously checked out branch.
+Return nil if the previously checked out branch no longer exists."
+  (magit-name-rev (magit-git-string "rev-parse" "--verify" "@{-1}")))
+
+(defun magit-get-tracked-branch (&optional branch qualified)
+  "Return the name of the tracking branch the local branch name BRANCH.
+
+If optional QUALIFIED is non-nil return the full branch path,
+otherwise try to shorten it to a name (which may fail)."
+  (unless branch
+    (setq branch (magit-get-current-branch)))
+  (when branch
+    (let ((remote (magit-get "branch" branch "remote"))
+          (merge  (magit-get "branch" branch "merge")))
+      (when (and (not merge)
+                 (not (equal remote ".")))
+        (setq merge branch))
+      (when (and remote merge)
+        (if (string= remote ".")
+            (cond (qualified merge)
+                  ((string-match "^refs/heads/" merge)
+                   (substring merge 11))
+                  ((string-match "^refs/" merge)
+                   merge))
+          (let* ((fetch (mapcar (lambda (f) (split-string f "[+:]" t))
+                                (magit-get-all "remote" remote "fetch")))
+                 (match (cadr (assoc merge fetch))))
+            (unless match
+              (let* ((prefix (nreverse (split-string merge "/")))
+                     (unique (list (car prefix))))
+                (setq prefix (cdr prefix))
+                (setq fetch
+                      (cl-mapcan
+                       (lambda (f)
+                         (cl-destructuring-bind (from to) f
+                           (setq from (nreverse (split-string from "/")))
+                           (when (equal (car from) "*")
+                             (list (list (cdr from) to)))))
+                       fetch))
+                (while (and prefix (not match))
+                  (if (setq match (cadr (assoc prefix fetch)))
+                      (setq match (concat (substring match 0 -1)
+                                          (mapconcat 'identity unique "/")))
+                    (push (car prefix) unique)
+                    (setq prefix (cdr prefix))))))
+            (cond ((not match) nil)
+                  (qualified match)
+                  ((string-match "^refs/remotes/" match)
+                   (substring match 13))
+                  (t match))))))))
+
+(defun magit-get-remote (branch)
+  "Return the name of the remote for BRANCH.
+If branch is nil or it has no remote, but a remote named
+\"origin\" exists, return that.  Otherwise, return nil."
+  (let ((remote (or (and branch (magit-get "branch" branch "remote"))
+                    (and (magit-get "remote" "origin" "url") "origin"))))
+    (unless (string= remote "")
+      remote)))
+
+(defun magit-get-current-remote ()
+  "Return the name of the remote for the current branch.
+If there is no current branch, or no remote for that branch,
+but a remote named \"origin\" is configured, return that.
+Otherwise, return nil."
+  (magit-get-remote (magit-get-current-branch)))
+
+(defun magit-get-remote/branch (&optional branch verify)
+  "Return the remote-tracking branch of BRANCH used for pulling.
+Return a string of the form \"REMOTE/BRANCH\".
+
+If optional BRANCH is nil return the remote-tracking branch of
+the current branch.  If optional VERIFY is non-nil verify that
+the remote branch exists; else return nil."
+  (save-match-data
+    (let (remote remote-branch remote/branch)
+      (and (or branch (setq branch (magit-get-current-branch)))
+           (setq remote (magit-get "branch" branch "remote"))
+           (setq remote-branch (magit-get "branch" branch "merge"))
+           (string-match "^refs/heads/\\(.+\\)" remote-branch)
+           (setq remote/branch
+                 (concat remote "/" (match-string 1 remote-branch)))
+           (or (not verify)
+               (magit-git-success "rev-parse" "--verify" remote/branch))
+           remote/branch))))
+
+(defun magit-get-current-tag (&optional with-distance-p)
+  "Return the closest tag reachable from \"HEAD\".
+
+If optional WITH-DISTANCE-P is non-nil then return (TAG COMMITS
+DIRTY) where COMMITS is the number of commits in \"HEAD\" but not
+in TAG and DIRTY is t if there are uncommitted changes, nil
+otherwise."
+  (let ((tag (magit-git-string "describe" "--long" "--tags" "--dirty")))
+    (save-match-data
+      (when tag
+        (string-match
+         "\\(.+\\)-\\(?:0[0-9]*\\|\\([0-9]+\\)\\)-g[0-9a-z]+\\(-dirty\\)?$" tag)
+        (if with-distance-p
+            (list (match-string 1 tag)
+                  (string-to-number (or (match-string 2 tag) "0"))
+                  (and (match-string 3 tag) t))
+          (match-string 1 tag))))))
+
+(defun magit-get-next-tag (&optional with-distance-p)
+  "Return the closest tag from which \"HEAD\" is reachable.
+
+If no such tag can be found or if the distance is 0 (in which
+case it is the current tag, not the next) return nil instead.
+
+If optional WITH-DISTANCE-P is non-nil then return (TAG COMMITS)
+where COMMITS is the number of commits in TAG but not in \"HEAD\"."
+  (let ((rev (magit-git-string "describe" "--contains" "HEAD")))
+    (save-match-data
+      (when (and rev (string-match "^[^^~]+" rev))
+        (let ((tag (match-string 0 rev)))
+          (unless (equal tag (magit-get-current-tag))
+            (if with-distance-p
+                (list tag (car (magit-rev-diff-count tag "HEAD")))
+              tag)))))))
+
+(defvar magit-uninteresting-refs
+  '("^refs/stash$"
+    "^refs/remotes/[^/]+/HEAD$"
+    "^refs/remotes/[^/]+/top-bases$"
+    "^refs/top-bases$"))
+
+(cl-defun magit-list-interesting-refs (&optional uninteresting
+                                                 (refs nil srefs))
+  (cl-loop for ref in (if srefs
+                          refs
+                        (mapcar (lambda (l)
+                                  (cadr (split-string l " ")))
+                                (magit-git-lines "show-ref")))
+           with label
+           unless (or (cl-loop for i in
+                               (cl-typecase uninteresting
+                                 (null magit-uninteresting-refs)
+                                 (list uninteresting)
+                                 (string (cons (format "^refs/heads/%s$"
+                                                       uninteresting)
+                                               magit-uninteresting-refs)))
+                               thereis (string-match i ref))
+                      (not (and (string-match
+                                 "^refs/\\(heads\\|remotes\\|tags\\)/\\(.+\\)"
+                                 ref)
+                                (setq label (match-string 2 ref)))))
+           collect (cons label ref)))
+
+(defun magit-rev-diff-count (a b)
+  "Return the commits in A but not B and vice versa.
+Return a list of two integers: (A>B B>A)."
+  (mapcar 'string-to-number
+          (split-string (magit-git-string "rev-list"
+                                          "--count" "--left-right"
+                                          (concat a "..." b))
+                        "\t")))
+
+(defun magit-abbrev-length ()
+  (string-to-number (or (magit-get "core.abbrev") "7")))
+
+(defun magit-abbrev-arg ()
+  (format "--abbrev=%d" (magit-abbrev-length)))
+
+(defun magit-commit-parents (commit)
+  (cdr (split-string (magit-git-string "rev-list" "-1" "--parents" commit))))
+
+(defun magit-assert-one-parent (commit command)
+  (when (> (length (magit-commit-parents commit)) 1)
+    (user-error "Cannot %s a merge commit" command)))
+
+(defun magit-format-rev-summary (rev)
+  (let ((s (magit-git-string "log" "-1"
+                             (concat "--pretty=format:%h %s") rev)))
+    (when s
+      (string-match " " s)
+      (put-text-property 0 (match-beginning 0) 'face 'magit-log-sha1 s)
+      s)))
+
+(defun magit-format-ref-label (ref)
+  (cl-destructuring-bind (re face fn)
+      (cl-find-if (lambda (ns)
+                    (string-match (car ns) ref))
+                  magit-refs-namespaces)
+    (if fn
+        (funcall fn ref face)
+      (propertize (or (match-string 1 ref) ref) 'face face))))
+
+(defun magit-format-ref-labels (string)
+  (save-match-data
+    (mapconcat 'magit-format-ref-label
+               (mapcar 'cdr
+                       (magit-list-interesting-refs
+                        nil (split-string string "\\(tag: \\|[(), ]\\)" t)))
+               " ")))
+
 ;;;; Variables
 
 (defun magit-get (&rest keys)
