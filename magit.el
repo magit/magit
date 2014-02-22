@@ -4534,7 +4534,7 @@ stash at point, then prompt for a commit."
     "log" "-1" "--decorate=full"
     "--pretty=medium" (magit-diff-U-arg)
     "--cc" "-p" (and magit-show-diffstat "--stat")
-    commit))
+    magit-diff-options commit))
 
 ;;;;; Commit Washing
 
