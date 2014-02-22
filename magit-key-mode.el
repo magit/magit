@@ -101,6 +101,7 @@
   'property  :switches
   'heading   "Switches\n"
   'format    " %k: %d %s"
+  'prefix    ?-
   'onecol    nil)
 
 (define-button-type 'magit-popup-option-button
@@ -109,6 +110,7 @@
   'property  :options
   'heading   "Options\n"
   'format    " %k: %d %o"
+  'prefix    ?=
   'onecol    t)
 
 (define-button-type 'magit-popup-action-button
@@ -117,6 +119,7 @@
   'property  :actions
   'heading   "Actions\n"
   'format    " %k: %d"
+  'prefix    nil
   'onecol    nil)
 
 ;;; (being refactored)
@@ -137,17 +140,19 @@
        (put ',msym 'definition-name ',name))))
 
 (defun magit-define-popup-switch (map key switch)
-  (define-key map key
+  (define-key map
+    (vector (button-type-get 'magit-popup-switch-button 'prefix) key)
     `(lambda () (interactive)
        (magit-invoke-popup-switch ,switch))))
 
 (defun magit-define-popup-option (map key option reader)
-  (define-key map key
+  (define-key map
+    (vector (button-type-get 'magit-popup-option-button 'prefix) key)
     `(lambda () (interactive)
        (magit-invoke-popup-option ,option ',reader))))
 
 (defun magit-define-popup-action (map key command)
-  (define-key map key
+  (define-key map (vector key)
     `(lambda () (interactive)
        (magit-invoke-popup-action ',command))))
 
@@ -200,19 +205,21 @@
   (interactive)
   (let* ((spec (symbol-value magit-this-popup))
          (man-page (plist-get spec :man-page))
-         (seq (read-key-sequence
-               (format "Enter command prefix%s: "
-                       (if man-page
-                           (format ", `?' for man `%s'" man-page)
-                         ""))))
+         (char (aref (read-key-sequence
+                      (format "Enter command prefix%s: "
+                              (if man-page
+                                  (format ", `?' for man `%s'" man-page)
+                                "")))
+                     0))
          (actions (plist-get spec :actions)))
     (cond
-      ((assoc seq actions) (describe-function (nth 2 (assoc seq actions))))
-      ((equal seq "?")
+      ((assoc char actions)
+       (describe-function (nth 2 (assoc char actions))))
+      ((equal char ??)
        (if man-page
            (man man-page)
          (error "No man page associated with `%s'" magit-this-popup)))
-      (t (error "No help associated with `%s'" seq)))))
+      (t (error "No help associated with `%c'" char)))))
 
 (defun magit-popup-quit ()
   (interactive)
@@ -253,18 +260,20 @@
     (setq magit-popup-previous-winconf winconf)))
 
 (defun magit-refresh-popup-buffer ()
-  (let ((inhibit-read-only t)
-        (key (ignore-errors
-               (button-get (button-at (point)) 'event))))
+  (let* ((inhibit-read-only t)
+         (button (button-at (point)))
+         (prefix (and button (button-get button 'prefix)))
+         (event  (and button (button-get button 'event))))
     (erase-buffer)
     (save-excursion
       (magit-popup-insert-buttons 'magit-popup-switch-button)
       (magit-popup-insert-buttons 'magit-popup-option-button)
       (magit-popup-insert-buttons 'magit-popup-action-button))
-    (if key
+    (if event
         (while (and (forward-button 1)
-                    (not (equal (button-get (button-at (point)) 'event)
-                                key))))
+                    (let ((b (button-at (point))))
+                      (or (not (equal (button-get b 'prefix) prefix))
+                          (not (equal (button-get b 'event)  event))))))
       (re-search-forward "^Actions" nil t)
       (forward-button 1))))
 
@@ -295,7 +304,10 @@
       (insert "\n"))))
 
 (defun magit-popup-format-button (type arg)
-  (let* ((k (propertize (car arg) 'face 'magit-popup-key))
+  (let* ((c (button-type-get type 'prefix))
+         (k (propertize (concat (and c (char-to-string c))
+                                (char-to-string (car arg)))
+                        'face 'magit-popup-key))
          (d (nth 1 arg))
          (a (unless (symbolp (nth 2 arg)) (nth 2 arg)))
          (v (and a (cdr (assoc a magit-popup-args)))))

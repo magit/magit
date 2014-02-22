@@ -55,14 +55,14 @@
 (magit-define-popup magit-svn-popup
   "Key menu for svn."
   :man-page "git-svn"
-  :switches '(("-n" "Dry run"         "--dry-run"))
-  :actions  '(("r"  "Rebase"          magit-svn-rebase)
-              ("c"  "DCommit"         magit-svn-dcommit)
-              ("f"  "Fetch"           magit-svn-remote-update)
-              ("s"  "Find rev"        magit-svn-find-rev)
-              ("B"  "Create branch"   magit-svn-create-branch)
-              ("T"  "Create tag"      magit-svn-create-tag)
-              ("x"  "Fetch Externals" magit-svn-fetch-externals)))
+  :switches '((?n "Dry run"         "--dry-run"))
+  :actions  '((?r "Rebase"          magit-svn-rebase)
+              (?c "DCommit"         magit-svn-dcommit)
+              (?f "Fetch"           magit-svn-remote-update)
+              (?s "Find rev"        magit-svn-find-rev)
+              (?B "Create branch"   magit-svn-create-branch)
+              (?T "Create tag"      magit-svn-create-tag)
+              (?x "Fetch Externals" magit-svn-fetch-externals)))
 
 ;;;###autoload
 (defun magit-svn-find-rev (rev &optional branch)

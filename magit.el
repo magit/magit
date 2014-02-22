@@ -1645,33 +1645,33 @@ set before loading libary `magit'.")
 
 (magit-define-popup magit-dispatch-popup
   "Popup console for dispatching other popups."
-  :actions '(("b" "Branching"       magit-branch-popup)
-             ("B" "Bisecting"       magit-bisect-popup)
-             ("c" "Committing"      magit-commit-popup)
-             ("d" "Diff worktree"   magit-diff-working-tree)
-             ("D" "Diff"            magit-diff)
-             ("f" "Fetching"        magit-fetch-popup)
-             ("F" "Pulling"         magit-pull-popup)
-             ("g" "Refresh Buffers" magit-refresh-all)
-             ("l" "Logging"         magit-log-popup)
-             ("m" "Merging"         magit-merge-popup)
-             ("M" "Remoting"        magit-remote-popup)
-             ("P" "Pushing"         magit-push-popup)
-             ("o" "Submoduling"     magit-submodule-popup)
-             ("r" "Rewriting"       magit-rewrite-popup)
-             ("R" "Rebasing"        magit-rebase-step)
-             ("s" "Show Status"     magit-status)
-             ("S" "Stage all"       magit-stage-all)
-             ("t" "Tagging"         magit-tag-popup)
-             ("U" "Unstage all"     magit-unstage-all)
-             ("v" "Show Commit"     magit-show-commit)
-             ("V" "Show File"       magit-show)
-             ("w" "Wazzup"          magit-wazzup)
-             ("X" "Reset worktree"  magit-reset-working-tree)
-             ("y" "Cherry"          magit-cherry)
-             ("z" "Stashing"        magit-stash-popup)
-             ("!" "Running"         magit-run-popup)
-             ("$" "Show Process"    magit-display-process)))
+  :actions '((?b "Branching"       magit-branch-popup)
+             (?B "Bisecting"       magit-bisect-popup)
+             (?c "Committing"      magit-commit-popup)
+             (?d "Diff worktree"   magit-diff-working-tree)
+             (?D "Diff"            magit-diff)
+             (?f "Fetching"        magit-fetch-popup)
+             (?F "Pulling"         magit-pull-popup)
+             (?g "Refresh Buffers" magit-refresh-all)
+             (?l "Logging"         magit-log-popup)
+             (?m "Merging"         magit-merge-popup)
+             (?M "Remoting"        magit-remote-popup)
+             (?P "Pushing"         magit-push-popup)
+             (?o "Submoduling"     magit-submodule-popup)
+             (?r "Rewriting"       magit-rewrite-popup)
+             (?R "Rebasing"        magit-rebase-step)
+             (?s "Show Status"     magit-status)
+             (?S "Stage all"       magit-stage-all)
+             (?t "Tagging"         magit-tag-popup)
+             (?U "Unstage all"     magit-unstage-all)
+             (?v "Show Commit"     magit-show-commit)
+             (?V "Show File"       magit-show)
+             (?w "Wazzup"          magit-wazzup)
+             (?X "Reset worktree"  magit-reset-working-tree)
+             (?y "Cherry"          magit-cherry)
+             (?z "Stashing"        magit-stash-popup)
+             (?! "Running"         magit-run-popup)
+             (?$ "Show Process"    magit-display-process)))
 
 ;;; Utilities (1)
 ;;;; Minibuffer Input
@@ -3081,10 +3081,10 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
 
 (magit-define-popup magit-run-popup
   "Popup console for running raw Git commands."
-  :actions '(("!" "Git Subcommand (from root)" magit-git-command-topdir)
-             (":" "Git Subcommand (from pwd)" magit-git-command)
-             ("g" "Git Gui" magit-run-git-gui)
-             ("k" "Gitk" magit-run-gitk)))
+  :actions '((?! "Git Subcommand (from root)" magit-git-command-topdir)
+             (?: "Git Subcommand (from pwd)" magit-git-command)
+             (?g "Git Gui" magit-run-git-gui)
+             (?k "Gitk" magit-run-gitk)))
 
 ;;;###autoload
 (defun magit-git-command (args directory)
@@ -5412,12 +5412,12 @@ return the buffer, without displaying it."
 (magit-define-popup magit-merge-popup
   "Popup console for merge commands."
   :man-page "git-merge"
-  :switches '(("-f" "Fast-forward only" "--ff-only")
-              ("-n" "No fast-forward"   "--no-ff")
-              ("-s" "Squash"            "--squash"))
-  :options  '(("=s" "Strategy" "--strategy=" read-from-minibuffer))
-  :actions  '(("m"  "Merge" magit-merge)
-              ("A"  "Abort" magit-merge-abort)))
+  :switches '((?f "Fast-forward only" "--ff-only")
+              (?n "No fast-forward"   "--no-ff")
+              (?s "Squash"            "--squash"))
+  :options  '((?s "Strategy" "--strategy=" read-from-minibuffer))
+  :actions  '((?m "Merge" magit-merge)
+              (?A "Abort" magit-merge-abort)))
 
 ;;;###autoload
 (defun magit-merge (revision &optional do-commit)
@@ -5452,19 +5452,19 @@ With a prefix argument, skip editing the log message and commit.
 (magit-define-popup magit-branch-popup
   "Popup console for branch commands."
   :man-page "git-branch"
-  :switches '(("-t" "Set upstream configuration" "--track")
-              ("-m" "Merged to HEAD"             "--merged")
-              ("-M" "Merged to master"           "--merged=master")
-              ("-n" "Not merged to HEAD"         "--no-merged")
-              ("-N" "Not merged to master"       "--no-merged=master"))
-  :options  '(("=c" "Contains"   "--contains="  magit-read-rev-with-default)
-              ("=m" "Merged"     "--merged="    magit-read-rev-with-default)
-              ("=n" "Not merged" "--no-merged=" magit-read-rev-with-default))
-  :actions  '(("v"  "Branch manager" magit-branch-manager)
-              ("b"  "Checkout"       magit-checkout)
-              ("c"  "Create"         magit-create-branch)
-              ("r"  "Rename"         magit-rename-branch)
-              ("k"  "Delete"         magit-delete-branch)))
+  :switches '((?t "Set upstream configuration" "--track")
+              (?m "Merged to HEAD"             "--merged")
+              (?M "Merged to master"           "--merged=master")
+              (?n "Not merged to HEAD"         "--no-merged")
+              (?N "Not merged to master"       "--no-merged=master"))
+  :options  '((?c "Contains"   "--contains="  magit-read-rev-with-default)
+              (?m "Merged"     "--merged="    magit-read-rev-with-default)
+              (?n "Not merged" "--no-merged=" magit-read-rev-with-default))
+  :actions  '((?v "Branch manager" magit-branch-manager)
+              (?b "Checkout"       magit-checkout)
+              (?c "Create"         magit-create-branch)
+              (?r "Rename"         magit-rename-branch)
+              (?k "Delete"         magit-delete-branch)))
 
 (defun magit-escape-branch-name (branch)
   "Escape branch name BRANCH to remove problematic characters."
@@ -5599,10 +5599,10 @@ If no branch is found near the cursor return nil."
 (magit-define-popup magit-remote-popup
   "Popup console for remote commands."
   :man-page "git-remote"
-  :actions  '(("v" "Remote manager" magit-branch-manager)
-              ("a" "Add"            magit-add-remote)
-              ("r" "Rename"         magit-rename-remote)
-              ("k" "Remove"         magit-remove-remote)))
+  :actions  '((?v "Remote manager" magit-branch-manager)
+              (?a "Add"            magit-add-remote)
+              (?r "Rename"         magit-rename-remote)
+              (?k "Remove"         magit-remove-remote)))
 
 ;;;###autoload
 (defun magit-add-remote (remote url)
@@ -5725,17 +5725,17 @@ Return nil if there is no rebase in progress."
 (magit-define-popup magit-am-popup
   "Popup console for mailbox commands."
   :man-page "git-am"
-  :switches '(("-s" "add a Signed-off-by line to the commit message" "--signoff")
-              ("-3" "allow fall back on 3way merging if needed" "--3way")
-              ("-k" "pass -k flag to git-mailinfo" "--keep")
-              ("-c" "strip everything before a scissors line" "--scissors")
-              ("-p" "pass it through git-apply" "-p")
-              ("-r" "override error message when patch failure occurs" "--resolvemsg")
-              ("-d" "lie about committer date" "--committer-date-is-author-date")
-              ("-D" "use current timestamp for author date" "--ignore-date")
-              ("-b" "pass -b flag to git-mailinfo" "--keep-non-patch"))
-  :options  '(("=p" "format the patch(es) are in" "--patch-format"))
-  :actions  '(("J" "Apply Mailbox" magit-apply-mailbox)))
+  :switches '((?s "add a Signed-off-by line to the commit message" "--signoff")
+              (?3 "allow fall back on 3way merging if needed" "--3way")
+              (?k "pass -k flag to git-mailinfo" "--keep")
+              (?c "strip everything before a scissors line" "--scissors")
+              (?p "pass it through git-apply" "-p")
+              (?r "override error message when patch failure occurs" "--resolvemsg")
+              (?d "lie about committer date" "--committer-date-is-author-date")
+              (?D "use current timestamp for author date" "--ignore-date")
+              (?b "pass -b flag to git-mailinfo" "--keep-non-patch"))
+  :options  '((?p "format the patch(es) are in" "--patch-format"))
+  :actions  '((?J "Apply Mailbox" magit-apply-mailbox)))
 
 (defun magit-apply-mailbox (&optional file-or-dir)
   "Apply a series of patches from a mailbox."
@@ -5794,12 +5794,12 @@ With two prefix args, remove ignored files as well."
 
 (magit-define-popup magit-rewrite-popup
   "Popup console for rewrite commands."
-  :actions '(("b" "Begin"      magit-rewrite-start)
-             ("s" "Stop"       magit-rewrite-stop)
-             ("a" "Abort"      magit-rewrite-abort)
-             ("f" "Finish"     magit-rewrite-finish)
-             ("*" "Set unused" magit-rewrite-set-unused)
-             ("." "Set used"   magit-rewrite-set-used)))
+  :actions '((?b "Begin"      magit-rewrite-start)
+             (?s "Stop"       magit-rewrite-stop)
+             (?a "Abort"      magit-rewrite-abort)
+             (?f "Finish"     magit-rewrite-finish)
+             (?* "Set unused" magit-rewrite-set-unused)
+             (?. "Set used"   magit-rewrite-set-used)))
 
 (defun magit-read-rewrite-info ()
   (when (file-exists-p (magit-git-dir "magit-rewrite-info"))
@@ -5923,10 +5923,10 @@ With two prefix args, remove ignored files as well."
 (magit-define-popup magit-fetch-popup
   "Popup console for fetch commands."
   :man-page "git-fetch"
-  :switches '(("-p" "Prune"   "--prune"))
-  :actions  '(("f"  "Current" magit-fetch-current)
-              ("a"  "All"     magit-remote-update)
-              ("o"  "Other"   magit-fetch)))
+  :switches '((?p "Prune"   "--prune"))
+  :actions  '((?f "Current" magit-fetch-current)
+              (?a "All"     magit-remote-update)
+              (?o "Other"   magit-fetch)))
 
 ;;;###autoload
 (defun magit-fetch (remote)
@@ -5955,9 +5955,9 @@ If there is no default remote, ask for one."
 (magit-define-popup magit-pull-popup
   "Popup console for pull commands."
   :man-page "git-pull"
-  :switches '(("-f" "Force"  "--force")
-              ("-r" "Rebase" "--rebase"))
-  :actions  '(("F"  "Pull"   magit-pull)))
+  :switches '((?f "Force"  "--force")
+              (?r "Rebase" "--rebase"))
+  :actions  '((?F "Pull"   magit-pull)))
 
 ;;;###autoload
 (defun magit-pull ()
@@ -6017,11 +6017,11 @@ user because of prefix arguments are not saved with git config."
 (magit-define-popup magit-push-popup
   "Popup console for push commands."
   :man-page "git-push"
-  :switches '(("-f" "Force"        "--force")
-              ("-d" "Dry run"      "-n")
-              ("-u" "Set upstream" "-u"))
-  :actions  '(("P"  "Push"         magit-push)
-              ("t"  "Push tags"    magit-push-tags)))
+  :switches '((?f "Force"        "--force")
+              (?d "Dry run"      "-n")
+              (?u "Set upstream" "-u"))
+  :actions  '((?P "Push"         magit-push)
+              (?t "Push tags"    magit-push-tags)))
 
 ;;;###autoload
 (defun magit-push-tags ()
@@ -6118,20 +6118,20 @@ Also see option `magit-set-upstream-on-push'."
 (magit-define-popup magit-commit-popup
   "Popup console for commit commands."
   :man-page "git-commit"
-  :switches '(("-r" "Replace the tip of current branch"      "--amend")
-              ("-R" "Claim authorship and reset author date" "--reset-author")
-              ("-a" "Stage all modified and deleted files"   "--all")
-              ("-e" "Allow empty commit"                     "--allow-empty")
-              ("-v" "Show diff of changes to be committed"   "--verbose")
-              ("-n" "Bypass git hooks"                       "--no-verify")
-              ("-s" "Add Signed-off-by line"                 "--signoff"))
-  :options  '(("=S" "Sign using gpg" "--gpg-sign=" magit-read-gpg-secret-key))
-  :actions  '(("c"  "Commit" magit-commit)
-              ("a"  "Amend"  magit-commit-amend)
-              ("e"  "Extend" magit-commit-extend)
-              ("r"  "Reword" magit-commit-reword)
-              ("f"  "Fixup"  magit-commit-fixup)
-              ("s"  "Squash" magit-commit-squash)))
+  :switches '((?r "Replace the tip of current branch"      "--amend")
+              (?R "Claim authorship and reset author date" "--reset-author")
+              (?a "Stage all modified and deleted files"   "--all")
+              (?e "Allow empty commit"                     "--allow-empty")
+              (?v "Show diff of changes to be committed"   "--verbose")
+              (?n "Bypass git hooks"                       "--no-verify")
+              (?s "Add Signed-off-by line"                 "--signoff"))
+  :options  '((?S "Sign using gpg" "--gpg-sign=" magit-read-gpg-secret-key))
+  :actions  '((?c "Commit" magit-commit)
+              (?a "Amend"  magit-commit-amend)
+              (?e "Extend" magit-commit-extend)
+              (?r "Reword" magit-commit-reword)
+              (?f "Fixup"  magit-commit-fixup)
+              (?s "Squash" magit-commit-squash)))
 
 ;;;###autoload
 (defun magit-commit (&optional amendp)
@@ -6389,11 +6389,11 @@ depending on the value of option `magit-commit-squash-commit'.
 (magit-define-popup magit-tag-popup
   "Popup console for tag commands."
   :man-page "git-tag"
-  :switches '(("-a" "Annotate" "--annotate")
-              ("-f" "Force"    "--force")
-              ("-s" "Sign"     "--sign"))
-  :actions  '(("t"  "Create"   magit-tag)
-              ("k"  "Delete"   magit-delete-tag)))
+  :switches '((?a "Annotate" "--annotate")
+              (?f "Force"    "--force")
+              (?s "Sign"     "--sign"))
+  :actions  '((?t "Create"   magit-tag)
+              (?k "Delete"   magit-delete-tag)))
 
 ;;;###autoload
 (defun magit-tag (name rev &optional annotate)
@@ -6423,15 +6423,15 @@ With a prefix argument annotate the tag.
 (magit-define-popup magit-stash-popup
   "Popup console for stash commands."
   :man-page "git-stash"
-  :switches '(("-k" "Keep index"              "--keep-index")
-              ("-u" "Include untracked files" "--include-untracked")
-              ("-a" "Include all files"       "--all"))
-  :actions  '(("v" "View"     magit-diff-stash)
-              ("z" "Save"     magit-stash)
-              ("s" "Snapshot" magit-stash-snapshot)
-              ("a" "Apply"    magit-stash-apply)
-              ("p" "Pop"      magit-stash-pop)
-              ("k" "Drop"     magit-stash-drop)))
+  :switches '((?k "Keep index"              "--keep-index")
+              (?u "Include untracked files" "--include-untracked")
+              (?a "Include all files"       "--all"))
+  :actions  '((?v "View"     magit-diff-stash)
+              (?z "Save"     magit-stash)
+              (?s "Snapshot" magit-stash-snapshot)
+              (?a "Apply"    magit-stash-apply)
+              (?p "Pop"      magit-stash-pop)
+              (?k "Drop"     magit-stash-drop)))
 
 (defvar magit-read-stash-history nil
   "The history of inputs to `magit-stash'.")
@@ -6493,10 +6493,10 @@ With prefix argument, changes in staging area are kept.
 (magit-define-popup magit-submodule-popup
   "Popup console for submodule commands."
   :man-page "git-submodule"
-  :actions  '(("u" "Update" magit-submodule-update)
-              ("b" "Both update and init" magit-submodule-update-init)
-              ("i" "Init" magit-submodule-init)
-              ("s" "Sync" magit-submodule-sync)))
+  :actions  '((?u "Update" magit-submodule-update)
+              (?b "Both update and init" magit-submodule-update-init)
+              (?i "Init" magit-submodule-init)
+              (?s "Sync" magit-submodule-sync)))
 
 ;;;###autoload
 (defun magit-submodule-update (&optional init)
@@ -6531,12 +6531,12 @@ With a prefix arg, do a submodule update --init."
 (magit-define-popup magit-bisect-popup
   "Popup console for bisect commands."
   :man-page "git-bisect"
-  :actions  '(("b" "Bad"   magit-bisect-bad)
-              ("g" "Good"  magit-bisect-good)
-              ("k" "Skip"  magit-bisect-skip)
-              ("r" "Reset" magit-bisect-reset)
-              ("s" "Start" magit-bisect-start)
-              ("u" "Run"   magit-bisect-run)))
+  :actions  '((?b "Bad"   magit-bisect-bad)
+              (?g "Good"  magit-bisect-good)
+              (?k "Skip"  magit-bisect-skip)
+              (?r "Reset" magit-bisect-reset)
+              (?s "Start" magit-bisect-start)
+              (?u "Run"   magit-bisect-run)))
 
 ;;;###autoload
 (defun magit-bisect-start (bad good)
@@ -6607,34 +6607,34 @@ to test.  This command lets Git choose a different one."
 (magit-define-popup magit-log-popup
   "Popup console for log commands."
   :man-page "git-log"
-  :switches '(("-m"  "Only merge commits"        "--merges")
-              ("-d"  "Date Order"                "--date-order")
-              ("-f"  "First parent"              "--first-parent")
-              ("-i"  "Case insensitive patterns" "-i")
-              ("-P"  "Pickaxe regex"             "--pickaxe-regex")
-              ("-g"  "Show Graph"                "--graph")
-              ("-n"  "Name only"                 "--name-only")
-              ("-M"  "All match"                 "--all-match")
-              ("-A"  "All"                       "--all"))
-  :options  '(("=r"  "Relative"       "--relative="  read-directory-name)
-              ("=c"  "Committer"      "--committer=" read-from-minibuffer)
-              ("=>"  "Since"          "--since="     read-from-minibuffer)
-              ("=<"  "Before"         "--before="    read-from-minibuffer)
-              ("=a"  "Author"         "--author="    read-from-minibuffer)
-              ("=g"  "Grep messages"  "--grep="      read-from-minibuffer)
-              ("=G"  "Grep patches"   "-G"           read-from-minibuffer)
-              ("=L" "Trace evolution of line range [long log only]"
-               "-L" magit-read-file-trace)
-              ("=s"  "Pickaxe search" "-S"           read-from-minibuffer)
-              ("=b"  "Branches"       "--branches="  read-from-minibuffer)
-              ("=R"  "Remotes"        "--remotes="   read-from-minibuffer))
-  :actions  '(("l"   "Short"        magit-log)
-              ("L"   "Long"         magit-log-long)
-              ("r"   "Reflog"       magit-reflog)
-              ("f"   "File log"     magit-file-log)
-              ("b"   "Ranged short" magit-log-ranged)
-              ("B"   "Ranged long"  magit-log-long-ranged)
-              ("R"   "Head reflog"  magit-reflog-head)))
+  :switches '((?m "Only merge commits"        "--merges")
+              (?d "Date Order"                "--date-order")
+              (?f "First parent"              "--first-parent")
+              (?i "Case insensitive patterns" "-i")
+              (?P "Pickaxe regex"             "--pickaxe-regex")
+              (?g "Show Graph"                "--graph")
+              (?n "Name only"                 "--name-only")
+              (?M "All match"                 "--all-match")
+              (?A "All"                       "--all"))
+  :options  '((?r "Relative"       "--relative="  read-directory-name)
+              (?c "Committer"      "--committer=" read-from-minibuffer)
+              (?> "Since"          "--since="     read-from-minibuffer)
+              (?< "Before"         "--before="    read-from-minibuffer)
+              (?a "Author"         "--author="    read-from-minibuffer)
+              (?g "Grep messages"  "--grep="      read-from-minibuffer)
+              (?G "Grep patches"   "-G"           read-from-minibuffer)
+              (?L "Trace evolution of line range [long log only]"
+                  "-L" magit-read-file-trace)
+              (?s "Pickaxe search" "-S"           read-from-minibuffer)
+              (?b "Branches"       "--branches="  read-from-minibuffer)
+              (?R "Remotes"        "--remotes="   read-from-minibuffer))
+  :actions  '((?l "Short"        magit-log)
+              (?L "Long"         magit-log-long)
+              (?r "Reflog"       magit-reflog)
+              (?f "File log"     magit-file-log)
+              (?b "Ranged short" magit-log-ranged)
+              (?B "Ranged long"  magit-log-long-ranged)
+              (?R "Head reflog"  magit-reflog-head)))
 
 ;;;###autoload
 (defun magit-log (&optional range)
