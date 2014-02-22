@@ -83,8 +83,8 @@
     (define-key map (kbd "DEL") 'backward-button)
     (define-key map (kbd "C-n") 'forward-button)
     (define-key map (kbd "TAB") 'forward-button)
-    (define-key map (kbd "C-g") 'magit-key-mode-abort)
-    (define-key map (kbd "q")   'magit-key-mode-abort)
+    (define-key map (kbd "C-g") 'magit-popup-abort)
+    (define-key map (kbd "q")   'magit-popup-abort)
     map))
 
 (defun magit-define-popup-switch (popup map key switch)
@@ -170,7 +170,7 @@
          (error "No man page associated with `%s'" popup)))
       (t (error "No help associated with `%s'" seq)))))
 
-(defun magit-key-mode-abort ()
+(defun magit-popup-abort ()
   (interactive)
   (magit-invoke-popup-action nil nil))
 
