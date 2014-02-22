@@ -86,7 +86,8 @@ buffer-local wherever it is set."
             (list 'make-variable-buffer-local (list 'quote var)))))
   )
 
-;;; Options
+;;; Settings
+;;;; Custom Options
 
 (defcustom magit-popup-show-help-echo t
   "Show usage information in the echo area."
@@ -134,7 +135,7 @@ that without users being aware of it could lead to tears.
           (const :tag "Ignore prefix argument" nil)
           (const :tag "Abort and show usage information" disabled)))
 
-;;; Faces
+;;;; Custom Faces
 
 (defface magit-popup-header
   '((t :inherit font-lock-keyword-face))
@@ -165,7 +166,7 @@ that without users being aware of it could lead to tears.
 (define-obsolete-face-alias 'magit-key-mode-button-face 'magit-popup-key "2.0.0")
 (define-obsolete-face-alias 'magit-key-mode-switch-face 'magit-popup-argument "2.0.0")
 
-;;; Keymap
+;;;; Keymap
 
 (defvar magit-popup-mode-map
   (let ((map (make-sparse-keymap)))
@@ -196,7 +197,7 @@ that without users being aware of it could lead to tears.
     ("Push button"           push-button)
     ("    Popup help prefix" magit-popup-help)))
 
-;;; Buttons
+;;;; Buttons
 
 (define-button-type 'magit-popup-button
   'face nil
