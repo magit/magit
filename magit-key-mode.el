@@ -76,7 +76,7 @@
 
 ;;; (being refactored)
 
-(defvar magit-key-mode-map
+(defvar magit-popup-mode-map
   (let ((map (make-sparse-keymap)))
     (suppress-keymap map 'nodigits)
     (define-key map (kbd "C-p") 'backward-button)
@@ -104,7 +104,7 @@
 
 (defun magit-define-popup-keymap (popup spec)
   (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-key-mode-map)
+    (set-keymap-parent map magit-popup-mode-map)
     (dolist (e (cdr (assoc 'switches spec)))
       (magit-define-popup-switch popup map (car e) (nth 2 e)))
     (dolist (e (cdr (assoc 'options spec)))
