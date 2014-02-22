@@ -71,7 +71,6 @@ mailing list}.
 * Merging::
 * Rebasing::
 * Interactive Rebasing::
-* Rewriting::
 * Pushing and Pulling::
 * Submodules::
 * Bisecting::
@@ -247,10 +246,6 @@ fully in the next chapter, @ref{Staging and Committing}.
 If the current branch is associated with a remote tracking branch, the
 status buffer shows the differences between the current branch and the
 tracking branch.  See @ref{Pushing and Pulling} for more information.
-
-During a history rewriting session, the status buffer shows the
-@emph{Pending changes} and @emph{Pending commits} sections.  See
-@ref{Rewriting} for more details.
 
 @node Untracked files
 @chapter Untracked files
@@ -742,79 +737,6 @@ commits.  You can finish editing the buffer and proceed with the rebase
 by pressing @kbd{C-c C-c}, which is bound to @code{server-edit} in
 this mode, and you can abort the rebase with @kbd{C-c C-k}, just like
 when editing a commit message in Magit.
-
-@node Rewriting
-@chapter Rewriting
-
-As hinted at earlier, you can rewrite your commit history.  For
-example, you can reset the current head to an earlier commit with
-@kbd{x}.  This leaves the working tree unchanged, and the status
-buffer will show all the changes that have been made since that new
-value of the current head.  You can commit these changes again,
-possibly splitting them into multiple commits as you go along.
-
-Amending your last commit is a common special case of rewriting
-history like this.
-
-Another common way to rewrite history is to reset the head to an
-earlier commit, and then to cherry pick the previous commits in a
-different order.  You could pick them from the reflog, for example.
-
-Magit has several commands that can simplify the book keeping
-associated with rewriting.  These commands all start with the @kbd{r}
-prefix key.
-
-(Unless you already do so, we recommend that you don't use the
-functionality described here.  It is semi-deprecated and will be
-removed once its unique features have been ported to the @code{git
-rebase --interactive} workflow.  Even now the latter is almost always
-the better option.)
-
-Typing @kbd{r b} will start a rewrite operation.  You will be prompted
-for a @emph{base} commit.  This commit and all subsequent commits up
-until the current head are then put in a list of @emph{Pending
-commits}, after which the current head will be reset to the
-@emph{parent} of the base commit.  This can be configured to behave
-like @code{git rebase}, i.e. exclude the selected base commit from the
-rewrite operation, with the @code{magit-rewrite-inclusive} variable.
-
-You would then typically use @kbd{a} and @kbd{A} to cherry pick
-commits from the list of pending commits in the desired order, until
-all have been applied.  Magit shows which commits have been applied by
-changing their marker from @code{*} to @code{.}.
-
-Using @kbd{A} will immediately commit the commit (as usual).  If you
-want to combine multiple previous commits into a single new one, use
-@kbd{a} to apply them all to your working tree, and then commit them
-together.
-
-Magit has no explicit support for rewriting merge commits.  It will
-happily include merge commits in the list of pending commits, but
-there is no way of replaying them automatically.  You have to redo the
-merge explicitly.
-
-You can also use @kbd{v} to revert a commit when you have changed your
-mind.  This will change the @code{.} mark back to @code{*}.
-
-Once you are done with the rewrite, type @kbd{r s} to remove the book
-keeping information from the status buffer.
-
-If you rather wish to start over, type @kbd{r a}.  This will abort the
-rewriting, resetting the current head back to the value it had before
-the rewrite was started with @kbd{r b}.
-
-Typing @kbd{r f} will @emph{finish} the rewrite: it will apply all
-unused commits one after the other, as if you would us @kbd{A} with
-all of them.
-
-You can change the @kbd{*} and @kbd{.} marks of a pending commit
-explicitly with @kbd{r *} and @kbd{r .}.
-
-In addition to a list of pending commits, the status buffer will show
-the @emph{Pending changes}.  This section shows the diff between the
-original head and the current head.  You can use it to review the
-changes that you still need to rewrite, and you can apply hunks from
-it, like from any other diff.
 
 @node Pushing and Pulling
 @chapter Pushing and Pulling
