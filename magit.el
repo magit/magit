@@ -7151,6 +7151,13 @@ More information can be found in Info node `(magit)Diffing'
       (error "Detached HEAD or upstream unset"))))
 
 ;;;###autoload
+(defun magit-diff-paths (a b)
+  "Show changes between any two files on disk."
+  (interactive (list (read-file-name "First file: " nil nil t)
+                     (read-file-name "Second file: " nil nil t)))
+  (magit-diff nil nil (list "--no-index" "--" a b)))
+
+;;;###autoload
 (defun magit-diff-stash (stash &optional noselect)
   "Show changes in a stash.
 A stash consist of more than just one commit.  This command uses
