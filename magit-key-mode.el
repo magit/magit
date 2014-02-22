@@ -68,27 +68,6 @@
 
 ;;; (being refactored)
 
-(defun magit-key-mode-help (for-group)
-  "Provide help for a key within FOR-GROUP.
-The user is prompted for the key."
-  (let* ((opts (symbol-value (intern (format "magit-popup-%s" for-group))))
-         (man-page (cadr (assoc 'man-page opts)))
-         (seq (read-key-sequence
-               (format "Enter command prefix%s: "
-                       (if man-page
-                           (format ", `?' for man `%s'" man-page)
-                         ""))))
-         (actions (cdr (assoc 'actions opts))))
-    (cond
-      ;; if it is an action popup the help for the to-be-run function
-      ((assoc seq actions) (describe-function (nth 2 (assoc seq actions))))
-      ;; if there is "?" show a man page if there is one
-      ((equal seq "?")
-       (if man-page
-           (man man-page)
-         (error "No man page associated with `%s'" for-group)))
-      (t (error "No help associated with `%s'" seq)))))
-
 (defun magit-key-mode-exec-at-point ()
   "Run action/args/option at point."
   (interactive)
@@ -190,6 +169,27 @@ Do not customize this (used in the `magit-key-mode' implementation).")
             (delete option-name magit-key-mode-current-options))
     (add-to-list 'magit-key-mode-current-options option-name))
   (magit-refresh-popup-buffer for-group))
+
+(defun magit-key-mode-help (for-group)
+  "Provide help for a key within FOR-GROUP.
+The user is prompted for the key."
+  (let* ((opts (symbol-value (intern (format "magit-popup-%s" for-group))))
+         (man-page (cadr (assoc 'man-page opts)))
+         (seq (read-key-sequence
+               (format "Enter command prefix%s: "
+                       (if man-page
+                           (format ", `?' for man `%s'" man-page)
+                         ""))))
+         (actions (cdr (assoc 'actions opts))))
+    (cond
+      ;; if it is an action popup the help for the to-be-run function
+      ((assoc seq actions) (describe-function (nth 2 (assoc seq actions))))
+      ;; if there is "?" show a man page if there is one
+      ((equal seq "?")
+       (if man-page
+           (man man-page)
+         (error "No man page associated with `%s'" for-group)))
+      (t (error "No help associated with `%s'" seq)))))
 
 ;;; Mode
 
