@@ -234,27 +234,22 @@ the key combination highlighted before the description."
 (defun magit-key-mode-redraw (for-group)
   "(re)draw the magit key buffer."
   (let ((buffer-read-only nil)
-        (current-exec (get-text-property (point) 'key-group-executor))
-        (new-exec-pos)
-        (old-point (point)))
+        (old-arg (get-text-property (point) 'key-group-executor))
+        (old-pos (point)))
     (erase-buffer)
     (make-local-variable 'font-lock-defaults)
     (use-local-map
      (symbol-value (intern (format "magit-popup-%s-map" for-group))))
     (goto-char (magit-key-mode-draw for-group))
-    (delete-trailing-whitespace)
     (setq mode-name "magit-key-mode" major-mode 'magit-key-mode)
-    (when current-exec
-      (setq new-exec-pos
-            (cdr (assoc current-exec
-                        (magit-key-mode-build-exec-point-alist)))))
-    (cond ((= old-point 1)
-           (magit-key-mode-jump-to-next-exec))
-          (new-exec-pos
-           (goto-char new-exec-pos)
-           (skip-chars-forward " "))
-          (t
-           (goto-char old-point))))
+    (if (= old-pos 1)
+        (magit-key-mode-jump-to-next-exec)
+      (goto-char (if old-arg
+                     (or (cdr (assoc old-arg
+                                     (magit-key-mode-build-exec-point-alist))))
+                   old-pos))
+      (skip-chars-forward " ")))
+  (delete-trailing-whitespace)
   (setq buffer-read-only t)
   (fit-window-to-buffer))
 
