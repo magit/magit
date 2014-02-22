@@ -871,12 +871,6 @@ inserted as is."
   :type '(choice (const :tag "insert as is" nil)
                  function))
 
-(defcustom magit-log-show-gpg-status nil
-  "Display signature verification information as part of the log."
-  :package-version '(magit . "2.0.0")
-  :group 'magit-log
-  :type 'boolean)
-
 (defcustom magit-log-show-margin t
   "Whether to use a margin when showing `oneline' logs.
 When non-nil the author name and date are displayed in the margin
@@ -6606,6 +6600,7 @@ to test.  This command lets Git choose a different one."
               (?i "Case insensitive patterns" "-i")
               (?P "Pickaxe regex"             "--pickaxe-regex")
               (?g "Show Graph"                "--graph")
+              (?S "Show Signature"            "--show-signature")
               (?n "Name only"                 "--name-only")
               (?M "All match"                 "--all-match")
               (?A "All"                       "--all"))
@@ -6741,15 +6736,14 @@ Other key binding:
       (apply-partially 'magit-wash-log style 'color t)
     "log"
     (format "--max-count=%d" magit-log-cutoff-length)
-    "--decorate=full" "--color"
+    "--decorate=full" "--abbrev-commit" "--color"
     (cl-case style
-      (long    (if magit-log-show-gpg-status
-                   (list "--stat" "--show-signature")
-                 "--stat"))
-      (oneline (concat "--pretty=format:%h%d "
-                       (and magit-log-show-gpg-status "%G?")
-                       "[%an][%at]%s")))
-    args range "--" file)
+      (long    (cons "--stat" args))
+      (oneline (cons (concat "--pretty=format:%h%d "
+                             (and (member "--show-signature" args) "%G?")
+                             "[%an][%at]%s")
+                     (delete "--show-signature" args))))
+    range "--" file)
   (save-excursion
     (goto-char (point-min))
     (magit-format-log-margin)))
