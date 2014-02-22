@@ -155,15 +155,15 @@ The user is prompted for the key."
                             ',for-group ,(nth 2 k) ',(nth 3 k)))))
     map))
 
-(defvar magit-key-mode-prefix nil
+(defvar-local magit-key-mode-prefix nil
   "Prefix argument to the command that brought up the key-mode window.
 For internal use.  Used by the command that's eventually invoked.")
 
-(defvar magit-key-mode-current-args nil
+(defvar-local magit-key-mode-current-args nil
   "A hash-table of current argument set.
 These will eventually make it to the git command-line.")
 
-(defvar magit-key-mode-current-options nil
+(defvar-local magit-key-mode-current-options nil
   "Current option set.
 These will eventually make it to the git command-line.")
 
@@ -221,10 +221,8 @@ the key combination highlighted before the description."
     (switch-to-buffer buf)
     (kill-all-local-variables)
     (set (make-local-variable 'scroll-margin) 0)
-    (set (make-local-variable
-          'magit-key-mode-current-args)
-         (make-hash-table))
-    (set (make-local-variable 'magit-key-mode-prefix) current-prefix-arg)
+    (setq magit-key-mode-current-args (make-hash-table)
+          magit-key-mode-prefix current-prefix-arg)
     (magit-key-mode-redraw for-group))
   (when magit-key-mode-show-usage
     (message (concat "Type a prefix key to toggle it. "
