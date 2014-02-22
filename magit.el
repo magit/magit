@@ -6231,8 +6231,7 @@ Also see option `magit-set-upstream-on-push'."
   "Popup console for commit commands."
   'magit-popups
   :man-page "git-commit"
-  :switches '((?r "Replace the tip of current branch"      "--amend")
-              (?R "Claim authorship and reset author date" "--reset-author")
+  :switches '((?R "Claim authorship and reset author date" "--reset-author")
               (?a "Stage all modified and deleted files"   "--all")
               (?e "Allow empty commit"                     "--allow-empty")
               (?v "Show diff of changes to be committed"   "--verbose")
@@ -6388,7 +6387,7 @@ depending on the value of option `magit-commit-squash-confirm'.
       (magit-run-git "add" "-u" ".")
       (or args (list "--"))))
    (t
-    (user-error "Nothing staged.  Set --allow-empty, --all, or --amend in popup"))))
+    (user-error "Nothing staged.  Set --allow-empty or --all in popup"))))
 
 (defun magit-commit-maybe-expand (&optional unstaged)
   (when (and magit-expand-staged-on-commit
