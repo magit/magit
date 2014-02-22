@@ -130,6 +130,13 @@
   'prefix    nil
   'maxcols   :max-action-columns)
 
+(define-button-type 'magit-popup-command-button
+  'supertype 'magit-popup-action-button
+  'formatter 'magit-popup-format-command-button
+  'action    (lambda (button)
+               (call-interactively
+                (button-get button 'function))))
+
 ;;; Events
 
 (defvar-local magit-this-popup nil)
@@ -403,13 +410,13 @@
 
 (defvar magit-popup-min-padding 3)
 
-(defun magit-popup-insert-section (type)
+(defun magit-popup-insert-section (type &optional spec)
   (let* ((heading   (button-type-get type 'heading))
          (formatter (button-type-get type 'formatter))
          (buttons (mapcar (lambda (elt)
                             (funcall formatter type elt))
-                          (magit-popup-get
-                           (button-type-get type 'property))))
+                          (or spec (magit-popup-get
+                                    (button-type-get type 'property)))))
          (maxcols (button-type-get type 'maxcols)))
     (cl-typecase maxcols
       (keyword (setq maxcols (magit-popup-get maxcols)))
@@ -463,6 +470,18 @@
                               'face 'magit-popup-key))
            (?d . ,(nth 1 item))))
         'type type 'event (car item)))
+
+(defun magit-popup-insert-command-section (type spec)
+  (magit-popup-insert-section
+   type (mapcar (lambda (elt)
+                  (list (car (where-is-internal (cadr elt)
+                                                (current-local-map)))
+                        (car elt)))
+                spec)))
+
+(defun magit-popup-format-command-button (type item)
+  (nconc (magit-popup-format-action-button type item)
+         (list 'function (cadr item))))
 
 (provide 'magit-key-mode)
 ;; Local Variables:
