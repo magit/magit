@@ -6264,15 +6264,16 @@ With a prefix argument annotate the tag.
               (?i "Reinstate stashed index" "--index")
               (?u "Include untracked files" "--include-untracked")
               (?a "Include all files"       "--all"))
-  :actions  '((?v "View"     magit-diff-stash)
-              (?z "Save"     magit-stash)
-              (?s "Snapshot" magit-stash-snapshot)
-              (?a "Apply"    magit-stash-apply)
+  :actions  '((?z "Save"     magit-stash)
               (?p "Pop"      magit-stash-pop)
               (?k "Drop"     magit-stash-drop)
+              (?v "View"     magit-diff-stash)
+              (?s "Snapshot" magit-stash-snapshot)
+              (?a "Apply"    magit-stash-apply)
               (?b "Branch"   magit-stash-branch))
   :default-arguments '("--index")
-  :default-action 'magit-stash)
+  :default-action 'magit-stash
+  :max-action-columns 4)
 
 (defvar magit-read-stash-history nil
   "The history of inputs to `magit-stash'.")
