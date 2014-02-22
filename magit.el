@@ -5502,15 +5502,14 @@ inspect the merge and change the commit message.
 (defun magit-checkout (revision)
   "Switch 'HEAD' to REVISION and update working tree.
 Fails if working tree or staging area contain uncommitted changes.
-\('git checkout REVISION')."
+\n(git checkout REVISION)."
   (interactive
-   (list (let ((current-branch (magit-get-current-branch))
+   (list (let ((current (magit-get-current-branch))
                (default (or (magit-guess-branch)
                             (magit-get-previous-branch))))
-           (magit-read-rev (format "Switch from '%s' to" current-branch)
-                           (unless (string= current-branch default)
-                             default)
-                           current-branch))))
+           (magit-read-rev "Checkout"
+                           (unless (equal default current) default)
+                           current))))
   (magit-save-some-buffers)
   (magit-run-git "checkout" revision))
 
@@ -5518,7 +5517,7 @@ Fails if working tree or staging area contain uncommitted changes.
 (defun magit-branch-and-checkout (branch parent)
   "Switch 'HEAD' to new BRANCH at revision PARENT and update working tree.
 Fails if working tree or staging area contain uncommitted changes.
-\('git checkout -b BRANCH REVISION')."
+\n(git checkout ARGS -b BRANCH PARENT)."
   (interactive
    (list (read-string "Create and checkout branch: ")
          (magit-read-rev "Parent" (or (magit-guess-branch)
@@ -5533,10 +5532,10 @@ Fails if working tree or staging area contain uncommitted changes.
 ;;;###autoload
 (defun magit-branch-delete (branch &optional force)
   "Delete the BRANCH.
-If the branch is the current one, offers to switch to `master' first.
-With prefix, forces the removal even if it hasn't been merged.
-Works with local or remote branches.
-\('git branch [-d|-D] BRANCH' or 'git push <remote-part-of-BRANCH> :refs/heads/BRANCH')."
+If the branch is the current one, offers to switch to `master'
+first.  With prefix, forces the removal even if it hasn't been
+merged.  Works with local and remote branches.
+\n(git branch -d|-D BRANCH || git push REMOTE :refs/heads/BRANCH)."
   (interactive (list (magit-read-rev "Branch to delete"
                                      (or (magit-guess-branch)
                                          (magit-get-previous-branch)))
@@ -5548,9 +5547,7 @@ Works with local or remote branches.
     (let* ((current (magit-get-current-branch))
            (is-current (string= branch current))
            (is-master (string= branch "master"))
-           (args (list "branch"
-                       (if force "-D" "-d")
-                       branch)))
+           (args (list "branch" (if force "-D" "-d") branch)))
       (cond
        ((and is-current is-master)
         (message "Cannot delete master branch while it's checked out."))
@@ -5567,7 +5564,7 @@ Works with local or remote branches.
 (defun magit-branch-rename (old new &optional force)
   "Rename branch OLD to NEW.
 With prefix, forces the rename even if NEW already exists.
-\('git branch [-m|-M] OLD NEW')."
+\n(git branch -m|-M OLD NEW)."
   (interactive
    (let* ((old (magit-read-rev-with-default "Old name"))
           (new (read-string "New name: " old)))
