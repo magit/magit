@@ -550,20 +550,6 @@ large diffs.  Also see option `magit-diff-use-overlays'."
                 (function-item magit-builtin-completing-read)
                 (function :tag "Other")))
 
-(defcustom magit-remote-ref-format 'remote-slash-branch
-  "How to format refs when autocompleting, in particular for remotes.
-
-Autocompletion is used by functions like `magit-checkout',
-`magit-interactive-rebase' and others which offer branch name
-completion.
-
-`remote-slash-branch'  Format refs as \"remote/branch\".
-`branch-then-remote'   Format refs as \"branch (remote)\"."
-  :package-version '(magit . "2.0.0")
-  :group 'magit
-  :type '(choice (const :tag "branch (remote)" branch-then-remote)
-                 (const :tag "remote/branch" remote-slash-branch)))
-
 (defcustom magit-repo-dirs nil
   "Directories containing Git repositories.
 Magit will look into these directories for Git repositories and
@@ -1992,13 +1978,11 @@ the remote branch exists; else return nil."
                (magit-git-success "rev-parse" "--verify" remote/branch))
            remote/branch))))
 
-(defun magit-get-tracked-branch (&optional branch qualified pretty)
+(defun magit-get-tracked-branch (&optional branch qualified)
   "Return the name of the tracking branch the local branch name BRANCH.
 
 If optional QUALIFIED is non-nil return the full branch path,
-otherwise try to shorten it to a name (which may fail).  If
-optional PRETTY is non-nil additionally format the branch name
-according to option `magit-remote-ref-format'."
+otherwise try to shorten it to a name (which may fail)."
   (unless branch
     (setq branch (magit-get-current-branch)))
   (when branch
@@ -2038,9 +2022,7 @@ according to option `magit-remote-ref-format'."
             (cond ((not match) nil)
                   (qualified match)
                   ((string-match "^refs/remotes/" match)
-                   (if pretty
-                       (magit-format-ref match)
-                     (substring match 13)))
+                   (substring match 13))
                   (t match))))))))
 
 (defun magit-get-previous-branch ()
@@ -2206,24 +2188,11 @@ involving HEAD."
                                                        uninteresting)
                                                magit-uninteresting-refs)))
                                thereis (string-match i ref))
-                      (not (setq label (magit-format-ref ref))))
+                      (not (and (string-match
+                                 "^refs/\\(heads\\|remotes\\|tags\\)/\\(.+\\)"
+                                 ref)
+                                (setq label (match-string 2 ref)))))
            collect (cons label ref)))
-
-(defun magit-format-ref (ref)
-  (cond ((string-match "refs/heads/\\(.*\\)" ref)
-         (match-string 1 ref))
-        ((string-match "refs/tags/\\(.*\\)" ref)
-         (format (if (eq magit-remote-ref-format 'branch-then-remote)
-                     "%s (tag)"
-                   "%s")
-                 (match-string 1 ref)))
-        ((string-match "refs/remotes/\\([^/]+\\)/\\(.+\\)" ref)
-         (if (eq magit-remote-ref-format 'branch-then-remote)
-             (format "%s (%s)"
-                     (match-string 2 ref)
-                     (match-string 1 ref))
-           (substring ref 13)))
-        (t ref)))
 
 (defvar magit-read-file-hist nil)
 
@@ -6789,7 +6758,7 @@ Other key binding:
   (interactive
    (let  ((head (magit-read-rev "Cherry head" (magit-get-current-branch))))
      (list head (magit-read-rev "Cherry upstream"
-                                (magit-get-tracked-branch head nil t)))))
+                                (magit-get-tracked-branch head)))))
   (magit-mode-setup magit-cherry-buffer-name nil
                     #'magit-cherry-mode
                     #'magit-refresh-cherry-buffer upstream head))
