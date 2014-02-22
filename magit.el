@@ -118,7 +118,6 @@ Use the function by the same name instead of this variable.")
 (defvar magit-log-buffer-name)
 (defvar magit-log-select-pick-function)
 (defvar magit-log-select-quit-function)
-(defvar magit-marked-commit)
 (defvar magit-process-buffer-name)
 (defvar magit-reflog-buffer-name)
 (defvar magit-refresh-args)
@@ -233,11 +232,6 @@ Be careful what you add here, especially if you are using
 tramp to connect to servers with ancient Git versions."
   :group 'magit-process
   :type '(repeat string))
-
-(defcustom magit-gitk-executable (executable-find "gitk")
-  "The Gitk executable."
-  :group 'magit-process
-  :type 'string)
 
 (defcustom magit-emacsclient-executable
   (ignore-errors
@@ -1091,11 +1085,6 @@ Many Magit faces inherit from this one by default."
   "Face for highlighting the current item."
   :group 'magit-faces)
 
-(defface magit-item-mark
-  '((t :inherit highlight))
-  "Face for highlighting marked item."
-  :group 'magit-faces)
-
 (defface magit-log-head-label-bisect-good
   '((((class color) (background light))
      :box t
@@ -1427,8 +1416,6 @@ Many Magit faces inherit from this one by default."
     (define-key map "k" 'magit-discard-item)
     (define-key map "s" 'magit-stage-item)
     (define-key map "u" 'magit-unstage-item)
-    (define-key map "." 'magit-mark-item)
-    (define-key map "=" 'magit-diff-with-mark)
     (define-key map "C" 'magit-commit-add-log)
     (define-key map "jz" 'magit-jump-to-stashes)
     (define-key map "jn" 'magit-jump-to-untracked)
@@ -1465,8 +1452,6 @@ Many Magit faces inherit from this one by default."
 (defvar magit-log-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
-    (define-key map "." 'magit-mark-item)
-    (define-key map "=" 'magit-diff-with-mark)
     (define-key map "+" 'magit-log-show-more-entries)
     (define-key map "h" 'magit-log-toggle-margin)
     map)
@@ -1499,8 +1484,6 @@ Many Magit faces inherit from this one by default."
 (defvar magit-wazzup-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
-    (define-key map "." 'magit-mark-item)
-    (define-key map "=" 'magit-diff-with-mark)
     (define-key map "i" 'magit-ignore-item)
     map)
   "Keymap for `magit-wazzup-mode'.")
@@ -2232,8 +2215,6 @@ involving HEAD."
          (reply (magit-completing-read prompt interesting-refs nil nil nil
                                        'magit-read-rev-history default))
          (rev (or (cdr (assoc reply interesting-refs)) reply)))
-    (when (equal rev ".")
-      (setq rev magit-marked-commit))
     (unless (or rev noselection)
       (user-error "No rev selected"))
     rev))
@@ -3706,7 +3687,7 @@ Magit mode."
           (set-window-point w (point))
           (set-window-start w old-window-start t))
         (magit-highlight-section)
-        (magit-refresh-marked-commits-in-buffer)))))
+        (run-hooks 'magit-mode-refresh-buffer-hook)))))
 
 (defun magit-mode-quit-window (&optional kill-buffer)
   "Bury the current buffer and delete its window.
@@ -7056,21 +7037,6 @@ actually were a single commit."
                     #'magit-refresh-diff-buffer
                     (concat stash "^2^.." stash)))
 
-(defun magit-diff-with-mark (range)
-  "Show changes between the marked commit and the one at point.
-If there is no commit at point, then prompt for one."
-  (interactive
-   (let* ((marked (or magit-marked-commit (user-error "No commit marked")))
-          (current (magit-get-current-branch))
-          (is-current (string= (magit-name-rev marked) current))
-          (commit (or (magit-guess-branch)
-                      (magit-read-rev
-                       (format "Diff marked commit %s with" marked)
-                       (unless is-current current)
-                       current))))
-     (list (concat marked ".." commit))))
-  (magit-diff range))
-
 (defun magit-diff-less-context (&optional count)
   "Decrease the context for diff hunks by COUNT."
   (interactive "p")
@@ -7448,45 +7414,6 @@ filename FILE."
     (magit-completing-read "File/pattern to ignore"
                            completions nil nil nil nil file)))
 
-;;;; Commit Mark
-
-(defvar magit-marked-commit nil)
-
-(defvar-local magit-mark-overlay nil)
-(put 'magit-mark-overlay 'permanent-local t)
-
-(defun magit-mark-item (&optional unmark)
-  "Mark the commit at point.
-Some commands act on the marked commit by default or use it as
-default when prompting for a commit."
-  (interactive "P")
-  (if unmark
-      (setq magit-marked-commit nil)
-    (magit-section-action mark (info)
-      (commit (setq magit-marked-commit
-                    (if (equal magit-marked-commit info) nil info)))))
-  (magit-refresh-marked-commits)
-  (run-hooks 'magit-mark-commit-hook))
-
-(defun magit-refresh-marked-commits ()
-  (magit-map-magit-buffers #'magit-refresh-marked-commits-in-buffer))
-
-(defun magit-refresh-marked-commits-in-buffer ()
-  (unless magit-mark-overlay
-    (setq magit-mark-overlay (make-overlay 1 1))
-    (overlay-put magit-mark-overlay 'face 'magit-item-mark))
-  (delete-overlay magit-mark-overlay)
-  (magit-map-sections
-   (lambda (section)
-     (when (and (eq (magit-section-type section) 'commit)
-                (equal (magit-section-info section)
-                       magit-marked-commit))
-       (move-overlay magit-mark-overlay
-                     (magit-section-beginning section)
-                     (magit-section-end section)
-                     (current-buffer))))
-   magit-root-section))
-
 ;;;; ChangeLog
 
 ;;;###autoload
@@ -7577,77 +7504,6 @@ non-nil, then autocompletion will offer directory names."
            (setq result (append result sub)))))
      dict)
     result))
-
-;;;; External Tools
-
-;;;###autoload
-(defun magit-run-git-gui ()
-  "Run `git gui' for the current git repository."
-  (interactive)
-  (let* ((default-directory (magit-get-top-dir)))
-    (start-file-process "Git Gui" nil magit-git-executable "gui")))
-
-;;;###autoload
-(defun magit-run-git-gui-blame (commit filename &optional linenum)
-  "Run `git gui blame' on the given FILENAME and COMMIT.
-Interactively run it for the current file and the HEAD, with a
-prefix or when the current file cannot be determined let the user
-choose.  When the current buffer is visiting FILENAME instruct
-blame to center around the line point is on."
-  (interactive
-   (let (revision filename)
-     (when (or current-prefix-arg
-               (not (setq revision "HEAD"
-                          filename (magit-buffer-file-name t))))
-       (setq revision (magit-read-rev "Retrieve from revision" "HEAD")
-             filename (magit-read-file-from-rev revision)))
-     (list revision filename
-           (and (equal filename
-                       (ignore-errors
-                         (magit-file-relative-name
-                          (file-name-directory (buffer-file-name)))))
-                (line-number-at-pos)))))
-  (let ((default-directory (magit-get-top-dir)))
-    (apply 'start-file-process "Git Gui Blame" nil
-           magit-git-executable "gui" "blame"
-           `(,@(and linenum (list (format "--line=%d" linenum)))
-             ,commit
-             ,filename))))
-
-;;;###autoload
-(defun magit-run-gitk ()
-  "Run `gitk --all' for the current git repository."
-  (interactive)
-  (let ((default-directory (magit-get-top-dir)))
-    (cond
-     ((eq system-type 'windows-nt)
-      ;; Gitk is a shell script, and Windows doesn't know how to
-      ;; "execute" it.  The Windows version of Git comes with an
-      ;; implementation of "sh" and everything else it needs, but
-      ;; Windows users might not have added the directory where it's
-      ;; installed to their path
-      (let* ((git-bin-dir
-             ;; According to #824, when using stand-alone installation
-             ;; Gitk maybe installed in ...cmd or ...bin; while Sh
-             ;; is installed in ...bin.
-             (expand-file-name "bin"
-                               (file-name-directory
-                                (directory-file-name
-                                 (file-name-directory
-                                  magit-gitk-executable)))))
-            ;; Adding it onto the end so that anything the user
-            ;; specified will get tried first.  Emacs looks in
-            ;; exec-path; PATH is the environment variable inherited by
-            ;; the process.  I need to change both.
-            (exec-path (append exec-path (list git-bin-dir)))
-            (process-environment process-environment))
-        (setenv "PATH"
-                (format "%s;%s"
-                        (getenv "PATH")
-                        (replace-regexp-in-string "/" "\\\\" git-bin-dir)))
-        (start-file-process "Gitk" nil "sh" magit-gitk-executable "--all")))
-     (t
-      (start-file-process "Gitk" nil magit-gitk-executable "--all")))))
 
 ;;;; Maintenance Tools
 
@@ -7764,6 +7620,8 @@ init file:
   'magit-process-quote-curly-braces "2.0.0")
 
 (provide 'magit)
+
+(require 'magit-extras)
 
 ;; If `magit-log-edit' is available and `git-commit-mode' is not
 ;; loaded, then we have no choice but to assume the user actually
