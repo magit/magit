@@ -5412,43 +5412,82 @@ return the buffer, without displaying it."
 
 (magit-define-popup magit-merge-popup
   "Popup console for merge commands."
-  'magit-popups
+  'magit-popups 'magit-popup-sequence-mode
   :man-page "git-merge"
   :switches '((?f "Fast-forward only" "--ff-only")
               (?n "No fast-forward"   "--no-ff")
               (?s "Squash"            "--squash"))
   :options  '((?s "Strategy" "--strategy=" read-from-minibuffer))
-  :actions  '((?m "Merge" magit-merge)
-              (?A "Abort" magit-merge-abort))
+  :actions  '((?m "Merge"                  magit-merge)
+              (?e "Merge and edit message" magit-merge-editmsg)
+              (?n "Merge but don't commit" magit-merge-nocommit))
+  :sequence-actions   '((?a "Abort merge"  magit-merge-abort)
+                        (?c "Commit merge" magit-commit))
+  :sequence-predicate 'magit-merge-state
   :default-action 'magit-merge)
 
 ;;;###autoload
-(defun magit-merge (revision &optional do-commit)
-  "Merge REVISION into the current 'HEAD', leaving changes uncommitted.
-With a prefix argument, skip editing the log message and commit.
-\('git merge [--no-commit] REVISION')."
-  (interactive (list (magit-read-rev "Merge"
-                                     (or (magit-guess-branch)
-                                         (magit-get-previous-branch)))
+(defun magit-merge (rev &optional args nocommit)
+  "Merge commit REV into the current branch; using default message.
+
+Unless there are conflicts or a prefix argument is used create a
+merge commit using a generic commit message and without letting
+the user inspect the result.  With a prefix argument pretend the
+merge failed to give the user the opportunity to inspect the
+merge.
+
+\(git merge --no-edit|--no-commit [ARGS] REV)"
+  (interactive (list (magit-merge-read-rev)
+                     magit-current-popup-args
                      current-prefix-arg))
-  (when (or (magit-everything-clean-p)
-            (not magit-merge-warn-dirty-worktree)
-            (yes-or-no-p
-             "Running merge in a dirty worktree could cause data loss.  Continue?"))
-    (magit-run-git "merge" revision magit-current-popup-args
-                   (unless do-commit "--no-commit"))
-    (when (file-exists-p ".git/MERGE_MSG")
-      (let ((magit-current-popup-args nil))
-        (magit-commit)))))
+  (magit-merge-assert)
+  (magit-run-git "merge" (if nocommit "--no-commit" "--no-edit") args rev))
+
+;;;###autoload
+(defun magit-merge-editmsg (rev &optional args)
+  "Merge commit REV into the current branch; and edit message.
+Perform the merge and prepare a commit message but let the user
+edit it.
+\n(git merge --edit [ARGS] rev)"
+  (interactive (list (magit-merge-read-rev) magit-current-popup-args))
+  (magit-merge-assert)
+  (magit-with-emacsclient magit-server-window-for-commit
+    (magit-run-git "merge" "--edit" args rev)) )
+
+;;;###autoload
+(defun magit-merge-nocommit (rev &optional args)
+  "Merge commit REV into the current branch; pretending it failed.
+Pretend the merge failed to give the user the opportunity to
+inspect the merge and change the commit message.
+\n(git merge --no-commit [ARGS] rev)"
+  (interactive (list (magit-merge-read-rev) magit-current-popup-args))
+  (magit-merge-assert)
+  (magit-run-git "merge" "--no-commit" args rev))
 
 ;;;###autoload
 (defun magit-merge-abort ()
-  "Abort the current merge operation."
+  "Abort the current merge operation.
+\n(git merge --abort)"
   (interactive)
   (if (file-exists-p (magit-git-dir "MERGE_HEAD"))
       (when (yes-or-no-p "Abort merge? ")
         (magit-run-git-async "merge" "--abort"))
     (user-error "No merge in progress")))
+
+(defun magit-merge-state ()
+  (file-exists-p (magit-git-dir "MERGE_HEAD")))
+
+(defun magit-merge-assert ()
+  (or (magit-everything-clean-p)
+      (not magit-merge-warn-dirty-worktree)
+      (yes-or-no-p (concat "Running merge in a dirty worktree "
+                           "could cause data loss.  Continue?"))
+      (error "Abort")))
+
+(defun magit-merge-read-rev ()
+  (magit-read-rev "Merge"
+                  (or (magit-guess-branch)
+                      (magit-get-previous-branch))))
 
 ;;;;; Branching
 
