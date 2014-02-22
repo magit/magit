@@ -216,6 +216,15 @@
     (define-key map "?" 'magit-popup-help)
     map))
 
+(defun magit-change-popup-key (popup type from to)
+  (setcar (assoc from (plist-get (symbol-value popup) type)) to))
+
+(defun magit-remove-popup-key (popup type key)
+  (let* ((plist (symbol-value popup))
+         (alist (plist-get plist type))
+         (value (assoc key alist)))
+    (set popup (plist-put plist type (delete value alist)))))
+
 (defvar-local magit-popup-args nil)
 
 (defvar magit-current-popup-args nil)
