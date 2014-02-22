@@ -217,10 +217,17 @@ the key combination highlighted before the description."
     (switch-to-buffer buf)
     (kill-all-local-variables)
     (set (make-local-variable 'scroll-margin) 0)
+    (make-local-variable 'font-lock-defaults)
+    (setq buffer-read-only t)
     (setq magit-pre-key-mode-window-conf winconf
           magit-key-mode-current-args (make-hash-table)
-          magit-key-mode-prefix current-prefix-arg)
-    (magit-key-mode-redraw for-group))
+          magit-key-mode-prefix current-prefix-arg
+          mode-name "magit-key-mode"
+          major-mode 'magit-key-mode)
+    (use-local-map
+     (symbol-value (intern (format "magit-popup-%s-map" for-group))))
+    (magit-key-mode-redraw for-group)
+    (fit-window-to-buffer))
   (when magit-key-mode-show-usage
     (message (concat "Type a prefix key to toggle it. "
                      "Run 'actions' with their prefixes. "
@@ -232,21 +239,15 @@ the key combination highlighted before the description."
         (old-arg (get-text-property (point) 'key-group-executor))
         (old-pos (point)))
     (erase-buffer)
-    (make-local-variable 'font-lock-defaults)
-    (use-local-map
-     (symbol-value (intern (format "magit-popup-%s-map" for-group))))
     (goto-char (magit-key-mode-draw for-group))
-    (setq mode-name "magit-key-mode" major-mode 'magit-key-mode)
     (if (= old-pos 1)
         (magit-key-mode-jump-to-next-exec)
       (goto-char (if old-arg
                      (or (cdr (assoc old-arg
                                      (magit-key-mode-build-exec-point-alist))))
                    old-pos))
-      (skip-chars-forward " ")))
-  (delete-trailing-whitespace)
-  (setq buffer-read-only t)
-  (fit-window-to-buffer))
+      (skip-chars-forward " "))
+    (delete-trailing-whitespace)))
 
 (defun magit-key-mode-build-exec-point-alist ()
   (save-excursion
