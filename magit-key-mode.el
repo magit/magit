@@ -32,6 +32,10 @@
 (require 'cl-lib)
 (require 'format-spec)
 
+(declare-function info 'info)
+(declare-function Man-find-section 'man)
+(declare-function Man-next-section 'man)
+
 (defvar magit-popup-previous-winconf)
 
 ;;; Options
@@ -81,7 +85,7 @@
     (define-key map [?= t]  'magit-invoke-popup-option)
     (define-key map [?\C-g] 'magit-popup-quit)
     (define-key map [??]    'magit-popup-help)
-    (define-key map [?\C-h] 'magit-popup-help)
+    (define-key map [?\C-h ?i] 'magit-popup-info)
     (define-key map [?\d]   'backward-button)
     (define-key map [?\C-p] 'backward-button)
     (define-key map [?\t]   'forward-button)
@@ -260,30 +264,94 @@
           (magit-popup-quit)
         (error "%c isn't bound to any action" event)))))
 
-(defun magit-popup-help ()
-  (interactive)
-  (let* ((man-page (magit-popup-get :man-page))
-         (char (aref (read-key-sequence
-                      (format "Enter command prefix%s: "
-                              (if man-page
-                                  (format ", `?' for man `%s'" man-page)
-                                "")))
-                     0))
-         (actions (magit-popup-get :actions)))
-    (cond
-      ((assoc char actions)
-       (describe-function (nth 2 (assoc char actions))))
-      ((equal char ??)
-       (if man-page
-           (man man-page)
-         (error "No man page associated with `%s'" magit-this-popup)))
-      (t (error "No help associated with `%c'" char)))))
-
 (defun magit-popup-quit ()
   (interactive)
-  (let ((buf (current-buffer)))
-    (set-window-configuration magit-popup-previous-winconf)
-    (kill-buffer buf)))
+  (let ((buf (current-buffer))
+        (winconf magit-popup-previous-winconf))
+    (if (derived-mode-p 'magit-popup-mode)
+        (kill-buffer)
+      (magit-popup-help-mode -1)
+      (kill-local-variable 'magit-popup-previous-winconf))
+    (when winconf
+      (set-window-configuration winconf))))
+
+;;; Help
+
+(defun magit-popup-help ()
+  (interactive)
+  (let* ((man (magit-popup-get :man-page))
+         (key (read-key-sequence
+               (concat "Describe key" (and man " (? for manpage)") ": ")))
+         (int (aref key (1- (length key))))
+         (def (or (lookup-key (current-local-map)  key t)
+                  (lookup-key (current-global-map) key))))
+    (cl-case def
+      (magit-invoke-popup-switch
+       (magit-popup-woman
+        man (nth 2 (assoc int (magit-popup-get :switches)))))
+      (magit-invoke-popup-option
+       (magit-popup-woman
+        man (nth 2 (assoc int (magit-popup-get :options)))))
+      (magit-popup-help
+       (magit-popup-woman man nil))
+      (self-insert-command
+       (setq def (nth 2 (assoc int (magit-popup-get :actions))))
+       (if def
+           (magit-popup-describe-function def)
+         (ding)
+         (message nil)))
+      (nil (ding)
+           (message nil))
+      (t   (magit-popup-describe-function def)))))
+
+(defun magit-popup-woman (topic argument)
+  (unless topic
+    (error "No man page associated with %s"
+           (magit-popup-get :man-page)))
+  (let ((winconf (current-window-configuration)))
+    (delete-other-windows)
+    (split-window-below)
+    (woman topic)
+    (if (and argument
+             (Man-find-section "OPTIONS")
+             (re-search-forward (format "^\t\\(-., \\)?%s[[=\n]" argument)
+                                (save-excursion
+                                  (Man-next-section 1)
+                                  (point))
+                                t))
+        (goto-char (1+ (match-beginning 0)))
+      (goto-char (point-min)))
+    (setq magit-popup-previous-winconf winconf))
+  (magit-popup-help-mode)
+  (fit-window-to-buffer (next-window)))
+
+(defun magit-popup-describe-function (function)
+  (let ((winconf (current-window-configuration)))
+    (delete-other-windows)
+    (split-window-below)
+    (other-window 1)
+    (describe-function function)
+    (fit-window-to-buffer)
+    (other-window 1)
+    (setq magit-popup-previous-winconf winconf)
+    (magit-popup-help-mode)))
+
+(defun magit-popup-info ()
+  (interactive)
+  (let ((winconf (current-window-configuration)))
+    (delete-other-windows)
+    (split-window-below)
+    (info "(magit.info)Popups")
+    (magit-popup-help-mode)
+    (setq magit-popup-previous-winconf winconf))
+  (magit-popup-help-mode)
+  (fit-window-to-buffer (next-window)))
+
+(define-minor-mode magit-popup-help-mode
+  ""
+  :keymap '(([remap Man-quit]    . magit-popup-quit)
+            ([remap Info-exit]   . magit-popup-quit)
+            ([remap quit-window] . magit-popup-quit)))
 
 ;;; Mode
 
