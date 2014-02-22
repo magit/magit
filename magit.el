@@ -7116,8 +7116,12 @@ More information can be found in Info node `(magit)Diffing'
 
 ;;;###autoload
 (defun magit-diff-working-tree (rev)
-  "Show differences between a commit and the current working tree."
-  (interactive (list (magit-read-rev-with-default "Diff working tree with")))
+  "Show changes between the current working tree and the `HEAD' commit.
+With a prefix argument show changes between the working tree and
+a commit read from the minibuffer."
+  (interactive (and current-prefix-arg
+                    (list (magit-read-rev-with-default
+                           "Diff working tree and commit"))))
   (magit-diff (or rev "HEAD") t))
 
 ;;;###autoload
