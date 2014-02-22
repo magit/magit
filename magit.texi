@@ -55,7 +55,7 @@ mailing list}.
 @menu
 * Introduction::
 * Acknowledgments::
-* Sections::
+* Interface Concepts::
 * Status::
 * Untracked files::
 * Staging and Committing::
@@ -125,8 +125,19 @@ For a full list of contributors, see the AUTHORS.md file at the
 top-level directory of this distribution or at
 @magit{tree/master/AUTHORS.md}.
 
+@node Interface Concepts
+@chapter Interface Concepts
+
+@menu
+* Popups::
+* Sections::
+@end menu
+
+@node Popups
+@section Popups
+
 @node Sections
-@chapter Sections
+@section Sections
 
 All Magit buffers are structured into nested 'sections'.  These
 sections can be hidden and shown individually.  When a section is
