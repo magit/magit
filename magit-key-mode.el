@@ -176,7 +176,7 @@
 
 ;;; Mode
 
-(defvar magit-key-mode-buf-name "*magit-key: %s*")
+(defvar magit-popup-buffer-name "*magit-key: %s*")
 
 (defvar-local magit-popup-previous-winconf nil)
 
@@ -189,7 +189,7 @@
 
 (defun magit-popup-mode-setup (popup)
   (magit-popup-mode-display-buffer
-   (get-buffer-create (format magit-key-mode-buf-name (symbol-name popup))))
+   (get-buffer-create (format magit-popup-buffer-name (symbol-name popup))))
   (use-local-map
    (symbol-value (intern (format "magit-popup-%s-map" popup))))
   (setq magit-popup-prefix-arg current-prefix-arg)
