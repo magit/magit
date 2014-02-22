@@ -1847,26 +1847,6 @@ server if necessary."
   (when (tramp-tramp-file-p default-directory)
     (user-error "Cannot %s when accessing repository using tramp" action)))
 
-;;;; Git Config
-
-(defun magit-get (&rest keys)
-  "Return the value of Git config entry specified by KEYS."
-  (magit-git-string "config" (mapconcat 'identity keys ".")))
-
-(defun magit-get-all (&rest keys)
-  "Return all values of the Git config entry specified by KEYS."
-  (magit-git-lines "config" "--get-all" (mapconcat 'identity keys ".")))
-
-(defun magit-get-boolean (&rest keys)
-  "Return the boolean value of Git config entry specified by KEYS."
-  (magit-git-true "config" "--bool" (mapconcat 'identity keys ".")))
-
-(defun magit-set (val &rest keys)
-  "Set Git config settings specified by KEYS to VAL."
-  (if val
-      (magit-git-string "config" (mapconcat 'identity keys ".") val)
-    (magit-git-string "config" "--unset" (mapconcat 'identity keys "."))))
-
 ;;;; Git Low-Level
 
 (defun magit-git-repo-p (dir)
@@ -3920,6 +3900,25 @@ and no variation of the Auto-Revert mode is already active."
 ;;;; Diff Predicates
 ;;;; Revisions and References
 ;;;; Variables
+
+(defun magit-get (&rest keys)
+  "Return the value of Git config entry specified by KEYS."
+  (magit-git-string "config" (mapconcat 'identity keys ".")))
+
+(defun magit-get-all (&rest keys)
+  "Return all values of the Git config entry specified by KEYS."
+  (magit-git-lines "config" "--get-all" (mapconcat 'identity keys ".")))
+
+(defun magit-get-boolean (&rest keys)
+  "Return the boolean value of Git config entry specified by KEYS."
+  (magit-git-true "config" "--bool" (mapconcat 'identity keys ".")))
+
+(defun magit-set (val &rest keys)
+  "Set Git config settings specified by KEYS to VAL."
+  (if val
+      (magit-git-string "config" (mapconcat 'identity keys ".") val)
+    (magit-git-string "config" "--unset" (mapconcat 'identity keys "."))))
+
 ;;;; Completion
 ;;;;; Completing Read
 ;;;;; Revision Completion
