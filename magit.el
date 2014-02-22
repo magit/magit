@@ -2343,7 +2343,7 @@ involving HEAD."
   type info
   beginning content-beginning end
   hidden needs-refresh-on-show highlight
-  diff-status diff-file2 diff-range
+  diff-status diff-file2
   process
   parent children)
 
@@ -4010,9 +4010,6 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
           (if (eq status 'renamed) (format "   (from %s)" file2) "")
           "\n"))
 
-(defvar magit-current-diff-range nil
-  "Used internally when setting up magit diff sections.")
-
 (defun magit-wash-typechange-section (section file)
   (setf (magit-section-info section) (list 'typechange file))
   (let ((first-start (point-marker))
@@ -4074,7 +4071,6 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
              (setf (magit-section-diff-status section) status)
              (setf (magit-section-info        section) file)
              (setf (magit-section-diff-file2  section) (or file2 file))
-             (setf (magit-section-diff-range  section) magit-current-diff-range)
              (magit-insert-diff-title status file file2)
              (when (re-search-forward
                     "\\(--- \\(.*\\)\n\\+\\+\\+ \\(.*\\)\n\\)" nil t)
@@ -4673,18 +4669,14 @@ can be used to override this."
         "diff" "-R" orig))))
 
 (defun magit-insert-unstaged-changes ()
-  (let ((magit-current-diff-range (cons 'index 'working)))
-    (magit-git-insert-section (unstaged "Unstaged changes:")
-        #'magit-wash-raw-diffs
-      "diff-files")))
+  (magit-git-insert-section (unstaged "Unstaged changes:")
+      #'magit-wash-raw-diffs
+    "diff-files"))
 
 (defun magit-insert-staged-changes ()
   (let ((no-commit (not (magit-git-success "log" "-1" "HEAD"))))
     (when (or no-commit (magit-anything-staged-p))
-      (let ((magit-current-diff-range (cons "HEAD" 'index))
-            (base (if no-commit
-                      (magit-git-string "mktree")
-                    "HEAD")))
+      (let ((base (if no-commit (magit-git-string "mktree") "HEAD")))
         (magit-git-insert-section (staged "Staged changes:")
             (apply-partially #'magit-wash-raw-diffs t)
           "diff-index" "--cached" base)))))
@@ -7301,28 +7293,18 @@ If there is no commit at point, then prompt for one."
       3)))
 
 (defun magit-refresh-diff-buffer (range &optional working args)
-  (let ((magit-current-diff-range
-         (cond (working (cons range 'working))
-               ((null range) nil)
-               ((consp range)
-                (prog1 range
-                  (setq range (concat (car range) ".." (cdr range)))))
-               ((string-match "^\\([^.]+\\)\\.\\.\\([^.]\\)$" range)
-                (cons (match-string 1 range)
-                      (match-string 2 range))))))
-    (magit-git-insert-section
-        (diffbuf (cond (working
-                        (format "Changes from %s to working tree" range))
-                       ((not range)
-                        (if (member "--cached" args)
-                            "Staged changes"
-                          "Unstaged changes"))
-                       (t
-                        (format "Changes in %s" range))))
-        #'magit-wash-diffs
-      "diff"
-      (and magit-show-diffstat "--patch-with-stat")
-      range args magit-diff-options "--")))
+  (magit-git-insert-section
+      (diffbuf (cond (working
+                      (format "Changes from %s to working tree" range))
+                     ((not range)
+                      (if (member "--cached" args)
+                          "Staged changes"
+                        "Unstaged changes"))
+                     (t
+                      (format "Changes in %s" range))))
+      #'magit-wash-diffs
+    "diff" (and magit-show-diffstat "--patch-with-stat")
+    range args magit-diff-options "--"))
 
 (defun magit-diff-auto-show-p (op)
   (if (eq (car magit-diff-auto-show) 'not)
