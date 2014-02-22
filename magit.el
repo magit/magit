@@ -233,11 +233,6 @@ tramp to connect to servers with ancient Git versions."
   :group 'magit-process
   :type '(repeat string))
 
-(defcustom magit-gitk-executable (executable-find "gitk")
-  "The Gitk executable."
-  :group 'magit-process
-  :type 'string)
-
 (defcustom magit-emacsclient-executable
   (ignore-errors
     (shell-quote-argument
@@ -7509,77 +7504,6 @@ non-nil, then autocompletion will offer directory names."
            (setq result (append result sub)))))
      dict)
     result))
-
-;;;; External Tools
-
-;;;###autoload
-(defun magit-run-git-gui ()
-  "Run `git gui' for the current git repository."
-  (interactive)
-  (let* ((default-directory (magit-get-top-dir)))
-    (start-file-process "Git Gui" nil magit-git-executable "gui")))
-
-;;;###autoload
-(defun magit-run-git-gui-blame (commit filename &optional linenum)
-  "Run `git gui blame' on the given FILENAME and COMMIT.
-Interactively run it for the current file and the HEAD, with a
-prefix or when the current file cannot be determined let the user
-choose.  When the current buffer is visiting FILENAME instruct
-blame to center around the line point is on."
-  (interactive
-   (let (revision filename)
-     (when (or current-prefix-arg
-               (not (setq revision "HEAD"
-                          filename (magit-buffer-file-name t))))
-       (setq revision (magit-read-rev "Retrieve from revision" "HEAD")
-             filename (magit-read-file-from-rev revision)))
-     (list revision filename
-           (and (equal filename
-                       (ignore-errors
-                         (magit-file-relative-name
-                          (file-name-directory (buffer-file-name)))))
-                (line-number-at-pos)))))
-  (let ((default-directory (magit-get-top-dir)))
-    (apply 'start-file-process "Git Gui Blame" nil
-           magit-git-executable "gui" "blame"
-           `(,@(and linenum (list (format "--line=%d" linenum)))
-             ,commit
-             ,filename))))
-
-;;;###autoload
-(defun magit-run-gitk ()
-  "Run `gitk --all' for the current git repository."
-  (interactive)
-  (let ((default-directory (magit-get-top-dir)))
-    (cond
-     ((eq system-type 'windows-nt)
-      ;; Gitk is a shell script, and Windows doesn't know how to
-      ;; "execute" it.  The Windows version of Git comes with an
-      ;; implementation of "sh" and everything else it needs, but
-      ;; Windows users might not have added the directory where it's
-      ;; installed to their path
-      (let* ((git-bin-dir
-             ;; According to #824, when using stand-alone installation
-             ;; Gitk maybe installed in ...cmd or ...bin; while Sh
-             ;; is installed in ...bin.
-             (expand-file-name "bin"
-                               (file-name-directory
-                                (directory-file-name
-                                 (file-name-directory
-                                  magit-gitk-executable)))))
-            ;; Adding it onto the end so that anything the user
-            ;; specified will get tried first.  Emacs looks in
-            ;; exec-path; PATH is the environment variable inherited by
-            ;; the process.  I need to change both.
-            (exec-path (append exec-path (list git-bin-dir)))
-            (process-environment process-environment))
-        (setenv "PATH"
-                (format "%s;%s"
-                        (getenv "PATH")
-                        (replace-regexp-in-string "/" "\\\\" git-bin-dir)))
-        (start-file-process "Gitk" nil "sh" magit-gitk-executable "--all")))
-     (t
-      (start-file-process "Gitk" nil magit-gitk-executable "--all")))))
 
 ;;;; Maintenance Tools
 
