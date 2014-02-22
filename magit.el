@@ -6269,7 +6269,8 @@ With a prefix argument annotate the tag.
               (?s "Snapshot" magit-stash-snapshot)
               (?a "Apply"    magit-stash-apply)
               (?p "Pop"      magit-stash-pop)
-              (?k "Drop"     magit-stash-drop))
+              (?k "Drop"     magit-stash-drop)
+              (?b "Branch"   magit-stash-branch))
   :default-arguments '("--index")
   :default-action 'magit-stash)
 
@@ -6318,6 +6319,13 @@ With prefix argument, changes in staging area are kept.
 \n(git stash drop stash@{N})"
   (interactive (list (magit-read-stash "Drop stash (number): ")))
   (magit-run-git "stash" "drop" stash))
+
+(defun magit-stash-branch (stash branchname)
+  "Create and checkout a branch from STASH.
+\n(git stash branch BRANCHNAME stash@{N})"
+  (interactive (list (magit-read-stash "Branch stash (number): ")
+                     (read-string      "Branch name: ")))
+  (magit-run-git "stash" "branch" branchname stash))
 
 ;;;;; Cherry-Pick
 
