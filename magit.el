@@ -1436,13 +1436,20 @@ Many Magit faces inherit from this one by default."
     map)
   "Parent keymap for all keymaps of modes derived from `magit-mode'.")
 
-(defvar magit-commit-mode-map
+(defvar magit-diff-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
+    (define-key map (kbd "C-c C-d") 'magit-diff-while-committing)
     (define-key map (kbd "C-c C-b") 'magit-go-backward)
     (define-key map (kbd "C-c C-f") 'magit-go-forward)
     (define-key map (kbd "SPC") 'scroll-up)
     (define-key map (kbd "DEL") 'scroll-down)
+    map)
+  "Keymap for `magit-diff-mode'.")
+
+(defvar magit-commit-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map magit-diff-mode-map)
     map)
   "Keymap for `magit-commit-mode'.")
 
@@ -1497,17 +1504,6 @@ Many Magit faces inherit from this one by default."
     (set-keymap-parent map magit-log-mode-map)
     map)
   "Keymap for `magit-reflog-mode'.")
-
-(defvar magit-diff-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-mode-map)
-    (define-key map (kbd "C-c C-d") 'magit-diff-while-committing)
-    (define-key map (kbd "C-c C-b") 'magit-go-backward)
-    (define-key map (kbd "C-c C-f") 'magit-go-forward)
-    (define-key map (kbd "SPC") 'scroll-up)
-    (define-key map (kbd "DEL") 'scroll-down)
-    map)
-  "Keymap for `magit-diff-mode'.")
 
 (defvar magit-wazzup-mode-map
   (let ((map (make-sparse-keymap)))
