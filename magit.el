@@ -3944,11 +3944,6 @@ and no variation of the Auto-Revert mode is already active."
 ;;; (misplaced)
 ;;;; Hunk Refinement
 
-(defvar magit-diff-context-lines 3)
-
-(defun magit-diff-U-arg ()
-  (format "-U%d" magit-diff-context-lines))
-
 (defun magit-diff-toggle-refine-hunk (&optional other)
   "Turn diff-hunk refining on or off.
 
@@ -4215,8 +4210,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 (defun magit-insert-diff (section file status &optional staged)
   (let ((beg (point)))
     (apply 'magit-git-insert "-c" "diff.submodule=short" "diff"
-           `(,(magit-diff-U-arg)
-             ,@(and staged (list "--cached"))
+           `(,@(and staged (list "--cached"))
              ,@magit-diff-options "--" ,file))
     (unless (eq (char-before) ?\n)
       (insert "\n"))
@@ -4517,8 +4511,8 @@ stash at point, then prompt for a commit."
 (defun magit-refresh-commit-buffer (commit)
   (magit-git-insert-section (commitbuf nil)
       #'magit-wash-commit
-    "log" "-1" "--decorate=full"
-    "--pretty=medium" (magit-diff-U-arg)
+    "log" "-1"
+    "--decorate=full" "--pretty=medium"
     "--cc" "-p" (and magit-show-diffstat "--stat")
     magit-diff-options commit))
 
@@ -4693,7 +4687,7 @@ can be used to override this."
     (when orig
       (magit-git-insert-section (pending-changes "Pending changes:")
           #'magit-wash-diffs
-        "diff" (magit-diff-U-arg) "-R" orig))))
+        "diff" "-R" orig))))
 
 (defun magit-insert-unstaged-changes ()
   (let ((magit-current-diff-range (cons 'index 'working)))
@@ -5151,7 +5145,7 @@ working tree."
   (magit-run-git "cherry-pick" "--no-commit" commit))
 
 (defun magit-apply-diff-item (diff &rest args)
-  (when (zerop magit-diff-context-lines)
+  (when (member "-U0" magit-diff-options)
     (setq args (cons "--unidiff-zero" args)))
   (let ((buf (generate-new-buffer " *magit-input*")))
     (unwind-protect
@@ -5171,7 +5165,7 @@ member of ARGS, or to the working file otherwise."
     (user-error (concat "Cannot un-/stage individual resolution hunks.  "
                         "Please stage the whole file.")))
   (let ((use-region (use-region-p)))
-    (when (zerop magit-diff-context-lines)
+    (when (member "-U0" magit-diff-options)
       (setq args (cons "--unidiff-zero" args))
       (when use-region
         (user-error (concat "Not enough context to partially apply hunk.  "
@@ -7100,7 +7094,8 @@ More information can be found in Info node `(magit)Diffing'
   :switches '((?W "Show surrounding functions"   "--function-context")
               (?b "Ignore whitespace changes"    "--ignore-space-change")
               (?w "Ignore all whitespace"        "--ignore-all-space"))
-  :options  '((?a "Diff algorithm"
+  :options  '((?h "Context lines" "-U" read-from-minibuffer)
+              (?a "Diff algorithm"
                   "--diff-algorithm=" magit-select-diff-algorithm))
   :actions  '((?d "Diff unstaged"     magit-diff-unstaged)
               (?c "Show commit"       magit-show-commit)
@@ -7205,20 +7200,33 @@ If there is no commit at point, then prompt for one."
 (defun magit-diff-less-context (&optional count)
   "Decrease the context for diff hunks by COUNT."
   (interactive "p")
-  (setq magit-diff-context-lines (max 0 (- magit-diff-context-lines count)))
+  (setq magit-diff-options
+        (cons (format "-U%i" (max 0 (- (magit-diff-previous-context-lines)
+                                       count)))
+              magit-diff-options))
   (magit-refresh))
 
 (defun magit-diff-more-context (&optional count)
   "Increase the context for diff hunks by COUNT."
   (interactive "p")
-  (setq magit-diff-context-lines (+ magit-diff-context-lines count))
+  (setq magit-diff-options
+        (cons (format "-U%i" (+ (magit-diff-previous-context-lines) count))
+              magit-diff-options))
   (magit-refresh))
 
 (defun magit-diff-default-context ()
   "Reset context for diff hunks to the default size."
   (interactive)
-  (setq magit-diff-context-lines 3)
+  (magit-diff-previous-context-lines)
   (magit-refresh))
+
+(defun magit-diff-previous-context-lines ()
+  (let ((elt (cl-find "^-U\\([0-9]+\\)$" magit-diff-options
+                      :test 'string-match)))
+    (if elt
+        (progn (setq magit-diff-options (delete elt magit-diff-options))
+               (string-to-number (match-string 1 elt)))
+      3)))
 
 (defun magit-refresh-diff-buffer (range &optional working args)
   (let ((magit-current-diff-range
@@ -7240,7 +7248,7 @@ If there is no commit at point, then prompt for one."
                        (t
                         (format "Changes in %s" range))))
         #'magit-wash-diffs
-      "diff" (magit-diff-U-arg)
+      "diff"
       (and magit-show-diffstat "--patch-with-stat")
       range args magit-diff-options "--")))
 
