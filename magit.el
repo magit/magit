@@ -1585,7 +1585,7 @@ Many Magit faces inherit from this one by default."
              (?! "Running"         magit-run-popup)
              (?$ "Show Process"    magit-display-process)))
 
-;;; Utilities (1)
+;;; Utilities
 ;;;; Minibuffer Input
 
 (defun magit-iswitchb-completing-read
@@ -3861,6 +3861,43 @@ all Magit buffers and file visiting buffers synchronously."
   (let (auto-revert-stop-on-user-input)
     (auto-revert-buffers)))
 
+(defvar magit-save-some-buffers-topdir nil)
+
+(defun magit-save-some-buffers (&optional msg pred topdir)
+  "Save some buffers if variable `magit-save-some-buffers' is non-nil.
+If variable `magit-save-some-buffers' is set to `dontask' then
+don't ask the user before saving the buffers, just go ahead and
+do it.
+
+Optional argument MSG is displayed in the minibuffer if variable
+`magit-save-some-buffers' is nil.
+
+Optional second argument PRED determines which buffers are considered:
+If PRED is nil, all the file-visiting buffers are considered.
+If PRED is t, then certain non-file buffers will also be considered.
+If PRED is a zero-argument function, it indicates for each buffer whether
+to consider it or not when called with that buffer current."
+  (interactive)
+  (let ((predicate-function (or pred magit-save-some-buffers-predicate))
+        (magit-save-some-buffers-topdir (or topdir default-directory)))
+    (if magit-save-some-buffers
+        (save-some-buffers
+         (eq magit-save-some-buffers 'dontask)
+         predicate-function)
+      (when msg
+        (message msg)))))
+
+(defun magit-save-buffers-predicate-all ()
+  "Prompt to save all buffers with unsaved changes."
+  t)
+
+(defun magit-save-buffers-predicate-tree-only ()
+  "Only prompt to save buffers which are within the current git project.
+As determined by the directory passed to `magit-status'."
+  (and buffer-file-name
+       (string= (magit-get-top-dir magit-save-some-buffers-topdir)
+                (magit-get-top-dir (file-name-directory buffer-file-name)))))
+
 (defun magit-maybe-turn-on-auto-revert-mode ()
   "Turn on Auto-Revert mode if file is inside a Git repository.
 This function is intended as a hook for `find-file-hook'. It
@@ -4815,46 +4852,6 @@ can be used to override this."
 
 (defun magit-bisecting-p ()
   (file-exists-p (magit-git-dir "BISECT_LOG")))
-
-;;; Utilities (2)
-;;;; Save Buffers
-
-(defvar magit-save-some-buffers-topdir nil)
-
-(defun magit-save-some-buffers (&optional msg pred topdir)
-  "Save some buffers if variable `magit-save-some-buffers' is non-nil.
-If variable `magit-save-some-buffers' is set to `dontask' then
-don't ask the user before saving the buffers, just go ahead and
-do it.
-
-Optional argument MSG is displayed in the minibuffer if variable
-`magit-save-some-buffers' is nil.
-
-Optional second argument PRED determines which buffers are considered:
-If PRED is nil, all the file-visiting buffers are considered.
-If PRED is t, then certain non-file buffers will also be considered.
-If PRED is a zero-argument function, it indicates for each buffer whether
-to consider it or not when called with that buffer current."
-  (interactive)
-  (let ((predicate-function (or pred magit-save-some-buffers-predicate))
-        (magit-save-some-buffers-topdir (or topdir default-directory)))
-    (if magit-save-some-buffers
-        (save-some-buffers
-         (eq magit-save-some-buffers 'dontask)
-         predicate-function)
-      (when msg
-        (message msg)))))
-
-(defun magit-save-buffers-predicate-all ()
-  "Prompt to save all buffers with unsaved changes."
-  t)
-
-(defun magit-save-buffers-predicate-tree-only ()
-  "Only prompt to save buffers which are within the current git project.
-As determined by the directory passed to `magit-status'."
-  (and buffer-file-name
-       (string= (magit-get-top-dir magit-save-some-buffers-topdir)
-                (magit-get-top-dir (file-name-directory buffer-file-name)))))
 
 ;;; Porcelain
 ;;;; Apply
