@@ -2635,17 +2635,8 @@ never modify it.")
 
 (defun magit-goto-section (section)
   (goto-char (magit-section-beginning section))
-  (cond
-   ((and magit-log-auto-more
-         (eq (magit-section-type section) 'longer))
-    (magit-log-show-more-entries)
-    (forward-line -1)
-    (magit-goto-next-section))
-   ((and (eq (magit-section-type section) 'commit)
-         (derived-mode-p 'magit-log-mode)
-         (or (eq (car magit-refresh-args) 'oneline)
-             (get-buffer-window magit-commit-buffer-name)))
-    (magit-show-commit (magit-section-info section) t))))
+  (magit-log-maybe-show-commit section)
+  (magit-log-maybe-show-more-entries section))
 
 (defun magit-goto-section-at-path (path)
   "Go to the section described by PATH."
@@ -6930,6 +6921,20 @@ With a non numeric prefix ARG, show all entries"
   (let ((old-point (point)))
     (magit-refresh)
     (goto-char old-point)))
+
+(defun magit-log-maybe-show-more-entries (section)
+  (when (and (eq (magit-section-type section) 'longer)
+             magit-log-auto-more)
+    (magit-log-show-more-entries)
+    (forward-line -1)
+    (magit-goto-next-section)))
+
+(defun magit-log-maybe-show-commit (section)
+  (when (and (eq (magit-section-type section) 'commit)
+             (derived-mode-p 'magit-log-mode)
+             (or (eq (car magit-refresh-args) 'oneline)
+                 (get-buffer-window magit-commit-buffer-name)))
+    (magit-show-commit (magit-section-info section) t)))
 
 (defun magit-log-goto-same-commit ()
   (when (and (derived-mode-p 'magit-log-mode) magit-previous-section)
