@@ -1526,7 +1526,6 @@ Many Magit faces inherit from this one by default."
     (define-key map "a" 'magit-remote-add)
     (define-key map "r" 'magit-rename-item)
     (define-key map "k" 'magit-discard-item)
-    (define-key map "T" 'magit-change-what-branch-tracks)
     map)
   "Keymap for `magit-branch-manager-mode'.")
 
@@ -7239,7 +7238,6 @@ into the selected branch."
               (magit-wash-log 'cherry)))))))))
 
 ;;;; Branch Manager Mode
-;;;;; (core)
 
 (define-derived-mode magit-branch-manager-mode magit-mode "Magit Branch"
   "Mode for looking at git branches.
@@ -7272,7 +7270,12 @@ from the parent keymap `magit-mode-map' are also available.")
       #'magit-wash-branches
     "branch" "-vva" magit-current-popup-args))
 
-;;;;; Branch List Washing
+(defun magit-rename-item ()
+  "Rename the item at point."
+  (interactive)
+  (magit-section-action rename ()
+    (branch (call-interactively 'magit-branch-rename))
+    (remote (call-interactively 'magit-remote-rename))))
 
 (defconst magit-wash-branch-line-re
   (concat "^\\([ *] \\)"                 ; 1: current branch marker
@@ -7386,34 +7389,6 @@ from the parent keymap `magit-mode-map' are also available.")
             (when marker
              (set-marker marker nil)))
           markers)))
-
-;;;;; (commands)
-
-(defun magit-rename-item ()
-  "Rename the item at point."
-  (interactive)
-  (magit-section-action rename ()
-    (branch (call-interactively 'magit-branch-rename))
-    (remote (call-interactively 'magit-remote-rename))))
-
-(defun magit-change-what-branch-tracks ()
-  "Change which remote branch the current branch tracks."
-  (interactive)
-  (let* ((branch (magit-guess-branch))
-         (track (magit-read-rev "Track branch"))
-         (track-
-          (cond ((string-match "^\\([^ ]+\\) +(\\(.+\\))$" track)
-                 (cons (match-string 2 track)
-                       (concat "refs/heads/" (match-string 1 track))))
-                ((string-match "^\\(?:refs/remotes/\\)?\\([^/]+\\)/\\(.+\\)"
-                               track)
-                 (cons (match-string 1 track)
-                       (concat "refs/heads/" (match-string 2 track))))
-                (t
-                 (user-error "Cannot parse the remote and branch name")))))
-    (magit-set (car track-) "branch" branch "remote")
-    (magit-set (cdr track-) "branch" branch "merge")
-    (magit-refresh)))
 
 ;;; Miscellaneous
 ;;;; Miscellaneous Commands
