@@ -574,18 +574,6 @@ deep."
   :group 'magit
   :type 'integer)
 
-(defcustom magit-default-tracking-name-function
-  'magit-default-tracking-name-remote-plus-branch
-  "Function used to generate default tracking branch names
-when doing a \\[magit-checkout].
-
-The default is `magit-default-tracking-name-remote-plus-branch',
-which generates a tracking name of the form \"REMOTE-BRANCHNAME\"."
-  :group 'magit
-  :type '(radio (function-item magit-default-tracking-name-remote-plus-branch)
-                (function-item magit-default-tracking-name-branch-only)
-                (function :tag "Other")))
-
 ;;;;; Modes
 ;;;;;; Common
 
@@ -5510,49 +5498,11 @@ inspect the merge and change the commit message.
               (?k "Delete"         magit-delete-branch))
   :default-action 'magit-checkout)
 
-(defun magit-escape-branch-name (branch)
-  "Escape branch name BRANCH to remove problematic characters."
-  (replace-regexp-in-string "[/]" "-" branch))
-
-(defun magit-default-tracking-name-remote-plus-branch (remote branch)
-  "Use the remote name plus a hyphen plus the escaped branch name for tracking branches."
-  (concat remote "-" (magit-escape-branch-name branch)))
-
-(defun magit-default-tracking-name-branch-only (remote branch)
-  "Use just the escaped branch name for tracking branches."
-  (magit-escape-branch-name branch))
-
-(defun magit-get-tracking-name (remote branch)
-  "Given a REMOTE and a BRANCH name, ask the user for a local
-tracking brach name suggesting a sensible default."
-  (when (yes-or-no-p
-         (format "Create local tracking branch for %s? " branch))
-    (let* ((default-name
-            (funcall magit-default-tracking-name-function remote branch))
-           (chosen-name
-            (read-string (format "Call local branch (%s): " default-name)
-                         nil nil default-name)))
-      (when (magit-ref-exists-p (concat "refs/heads/" chosen-name))
-        (user-error "'%s' already exists" chosen-name))
-      chosen-name)))
-
-(defun magit-maybe-create-local-tracking-branch (rev)
-  "Depending on the users wishes, create a tracking branch for
-REV... maybe."
-  (when (string-match "^\\(?:refs/\\)?remotes/\\([^/]+\\)/\\(.+\\)" rev)
-    (let* ((remote (match-string 1 rev))
-           (branch (match-string 2 rev))
-           (tracker-name (magit-get-tracking-name remote branch)))
-      (when tracker-name
-        (magit-run-git "checkout" "-b" tracker-name rev)
-        t))))
-
 ;;;###autoload
 (defun magit-checkout (revision)
   "Switch 'HEAD' to REVISION and update working tree.
 Fails if working tree or staging area contain uncommitted changes.
-If REVISION is a remote branch, offer to create a local tracking branch.
-\('git checkout [-b] REVISION')."
+\('git checkout REVISION')."
   (interactive
    (list (let ((current-branch (magit-get-current-branch))
                (default (or (magit-guess-branch)
@@ -5561,10 +5511,8 @@ If REVISION is a remote branch, offer to create a local tracking branch.
                            (unless (string= current-branch default)
                              default)
                            current-branch))))
-  (or (magit-maybe-create-local-tracking-branch revision)
-      (progn
-        (magit-save-some-buffers)
-        (magit-run-git "checkout" revision))))
+  (magit-save-some-buffers)
+  (magit-run-git "checkout" revision))
 
 ;;;###autoload
 (defun magit-create-branch (branch parent)
