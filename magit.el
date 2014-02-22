@@ -3914,6 +3914,16 @@ and no variation of the Auto-Revert mode is already active."
 
 (add-hook 'find-file-hook 'magit-maybe-turn-on-auto-revert-mode)
 
+;;; Plumbing
+;;;; Repository Paths
+;;;; Repository Predicates
+;;;; Diff Predicates
+;;;; Revisions and References
+;;;; Variables
+;;;; Completion
+;;;;; Completing Read
+;;;;; Revision Completion
+;;;;; Miscellaneous Completion
 ;;; (misplaced)
 ;;;; Hunk Refinement
 
