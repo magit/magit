@@ -349,14 +349,12 @@ Return the point before the actions part, if any, nil otherwise."
   (let* ((options (magit-key-mode-options-for-group for-group))
          (switches (cdr (assoc 'switches options)))
          (arguments (cdr (assoc 'arguments options)))
-         (actions (cdr (assoc 'actions options)))
-         (p nil))
+         (actions (cdr (assoc 'actions options))))
     (magit-key-mode-draw-switches switches)
     (magit-key-mode-draw-args arguments)
-    (when actions (setq p (point-marker)))
-    (magit-key-mode-draw-actions actions)
-    (insert "\n")
-    p))
+    (prog1 (point-marker)
+      (magit-key-mode-draw-actions actions)
+      (insert "\n"))))
 
 ;;; (being refactored)
 
