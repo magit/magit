@@ -759,7 +759,7 @@ they are not (due to semantic considerations)."
 (put 'magit-diff-options 'permanent-local t)
 
 (defcustom magit-diff-auto-show
-  '(commit stage-all)
+  '(commit stage-all log-oneline)
   "Whether to automatically show relevant diff.
 
 When this option is non-nil certain operations cause the relevant
@@ -767,6 +767,7 @@ changes to be displayed automatically.
 
 `commit'
 `stage-all'
+`log-oneline'
 
 In the event that expanding very large patches takes a long time
 \\<global-map>\\[keyboard-quit] can be used to abort that step.
@@ -6931,9 +6932,9 @@ With a non numeric prefix ARG, show all entries"
 
 (defun magit-log-maybe-show-commit (section)
   (when (and (eq (magit-section-type section) 'commit)
-             (derived-mode-p 'magit-log-mode)
-             (or (eq (car magit-refresh-args) 'oneline)
-                 (get-buffer-window magit-commit-buffer-name)))
+             (and (magit-diff-auto-show-p 'log-oneline)
+                  (derived-mode-p 'magit-log-mode)
+                  (eq (car magit-refresh-args) 'oneline)))
     (magit-show-commit (magit-section-info section) t)))
 
 (defun magit-log-goto-same-commit ()
