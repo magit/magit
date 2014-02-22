@@ -79,11 +79,15 @@
     (suppress-keymap map 'nodigits)
     (define-key map [?q]    'magit-popup-quit)
     (define-key map [?\C-g] 'magit-popup-quit)
+    (define-key map [??]    'magit-popup-help)
+    (define-key map [?\C-h] 'magit-popup-help)
     (define-key map (kbd "C-p") 'backward-button)
     (define-key map (kbd "DEL") 'backward-button)
     (define-key map (kbd "C-n") 'forward-button)
     (define-key map (kbd "TAB") 'forward-button)
     map))
+
+(defvar-local magit-this-popup nil)
 
 (defmacro magit-define-popup (name doc &rest plist)
   (declare (indent defun) (doc-string 2))
@@ -95,51 +99,50 @@
        (defvar ,name
          (list ,@plist))
        (defvar ,msym
-         (magit-define-popup-keymap ',name ,name))
+         (magit-define-popup-keymap ',name))
        (put ',msym 'definition-name ',name))))
 
-(defun magit-define-popup-switch (popup map key switch)
+(defun magit-define-popup-switch (map key switch)
   (define-key map key
     `(lambda () (interactive)
-       (magit-invoke-popup-switch ',popup ,switch))))
+       (magit-invoke-popup-switch ,switch))))
 
-(defun magit-define-popup-option (popup map key option reader)
+(defun magit-define-popup-option (map key option reader)
   (define-key map key
     `(lambda () (interactive)
-       (magit-invoke-popup-option ',popup ,option ',reader))))
+       (magit-invoke-popup-option ,option ',reader))))
 
-(defun magit-define-popup-action (popup map key command)
+(defun magit-define-popup-action (map key command)
   (define-key map key
     `(lambda () (interactive)
-       (magit-invoke-popup-action ',popup ',command))))
+       (magit-invoke-popup-action ',command))))
 
-(defun magit-define-popup-keymap (popup spec)
-  (let ((map (make-sparse-keymap)))
+(defun magit-define-popup-keymap (popup)
+  (let ((spec (symbol-value popup))
+        (map (make-sparse-keymap)))
     (set-keymap-parent map magit-popup-mode-map)
     (dolist (e (plist-get spec :switches))
-      (magit-define-popup-switch popup map (car e) (nth 2 e)))
+      (magit-define-popup-switch map (car e) (nth 2 e)))
     (dolist (e (plist-get spec :options))
-      (magit-define-popup-option popup map (car e) (nth 2 e) (nth 3 e)))
+      (magit-define-popup-option map (car e) (nth 2 e) (nth 3 e)))
     (dolist (e (plist-get spec :actions))
-      (magit-define-popup-action popup map (car e) (nth 2 e)))
-    (define-key map "?" `(lambda ()
-                           (interactive)
-                           (magit-popup-help ',popup)))
+      (magit-define-popup-action map (car e) (nth 2 e)))
+    (define-key map "?" 'magit-popup-help)
     map))
 
 (defvar-local magit-popup-args nil)
 
 (defvar magit-current-popup-args nil)
 
-(defun magit-invoke-popup-switch (popup arg-name)
+(defun magit-invoke-popup-switch (arg-name)
   (let* ((elt (assoc arg-name magit-popup-args))
          (val (not (cdr elt))))
     (if elt
         (setcdr elt val)
       (push (cons arg-name val) magit-popup-args)))
-  (magit-refresh-popup-buffer popup))
+  (magit-refresh-popup-buffer))
 
-(defun magit-invoke-popup-option (popup arg-name input-func)
+(defun magit-invoke-popup-option (arg-name input-func)
   (let ((elt (assoc arg-name magit-popup-args))
         (val (funcall input-func (concat arg-name ": "))))
     (cond ((or (not val) (equal val "")) (setq val nil))
@@ -147,9 +150,9 @@
     (if elt
         (setcdr elt val)
       (push (cons arg-name val) magit-popup-args))
-    (magit-refresh-popup-buffer popup)))
+    (magit-refresh-popup-buffer)))
 
-(defun magit-invoke-popup-action (popup func)
+(defun magit-invoke-popup-action (func)
   (let ((magit-current-popup-args
          (cl-mapcan (lambda (elt)
                       (cl-destructuring-bind (arg . val) elt
@@ -159,8 +162,9 @@
     (magit-popup-quit)
     (call-interactively func)))
 
-(defun magit-popup-help (popup)
-  (let* ((spec (symbol-value popup))
+(defun magit-popup-help ()
+  (interactive)
+  (let* ((spec (symbol-value magit-this-popup))
          (man-page (plist-get spec :man-page))
          (seq (read-key-sequence
                (format "Enter command prefix%s: "
@@ -173,7 +177,7 @@
       ((equal seq "?")
        (if man-page
            (man man-page)
-         (error "No man page associated with `%s'" popup)))
+         (error "No man page associated with `%s'" magit-this-popup)))
       (t (error "No help associated with `%s'" seq)))))
 
 (defun magit-popup-quit ()
@@ -198,7 +202,8 @@
    (get-buffer-create (format "*%s*" popup)))
   (use-local-map
    (symbol-value (intern (format "%s-map" popup))))
-  (magit-refresh-popup-buffer popup)
+  (setq magit-this-popup popup)
+  (magit-refresh-popup-buffer)
   (fit-window-to-buffer)
   (when magit-popup-show-usage
     (message (concat "Type a prefix key to toggle it. "
@@ -213,21 +218,21 @@
     (magit-popup-mode)
     (setq magit-popup-previous-winconf winconf)))
 
-(defun magit-refresh-popup-buffer (popup)
+(defun magit-refresh-popup-buffer ()
   (let ((inhibit-read-only t)
         (key (ignore-errors
                (car (button-get (button-at (point)) 'args))))
-        (spec (symbol-value popup)))
+        (spec (symbol-value magit-this-popup)))
     (erase-buffer)
     (save-excursion
-      (magit-popup-insert-buttons popup "Switches" " %-4k %d %s"
+      (magit-popup-insert-buttons "Switches" " %-4k %d %s"
                                   'magit-invoke-popup-switch
                                   (plist-get spec :switches))
-      (magit-popup-insert-buttons popup "Options"  " %-4k %d %o"
+      (magit-popup-insert-buttons "Options"  " %-4k %d %o"
                                   'magit-invoke-popup-option
                                   (plist-get spec :options)
                                   (not magit-popup-options-in-cols))
-      (magit-popup-insert-buttons popup "Actions"  " %-3k %d"
+      (magit-popup-insert-buttons "Actions"  " %-3k %d"
                                   'magit-invoke-popup-action
                                   (plist-get spec :actions)))
     (if key
@@ -239,8 +244,8 @@
 
 ;;; Draw
 
-(defun magit-popup-insert-buttons (popup heading format invoke items
-                                         &optional one-col-each)
+(defun magit-popup-insert-buttons (heading format invoke items
+                                           &optional one-col-each)
   (when items
     (insert (propertize heading 'face 'magit-popup-header) "\n")
     (setq items
@@ -253,7 +258,8 @@
         (let ((beg (point)))
           (insert (car item))
           (make-button beg (point) 'face nil
-                       'args (cons invoke (cons popup (cdr item)))
+                       'args
+                       (cons invoke (cons magit-this-popup (cdr item)))
                        'action
                        (lambda (button)
                          (let ((args (button-get button 'args)))
