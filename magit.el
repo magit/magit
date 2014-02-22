@@ -2365,7 +2365,7 @@ involving HEAD."
           (if end (cons beg end) beg))))))
 
 (defun magit-read-stash (prompt)
-  (let ((n (read-number "Show stash: " 0))
+  (let ((n (read-number prompt 0))
         (l (1- (length (magit-git-lines "stash" "list")))))
     (if (> n l)
         (user-error "No stash older than stash@{%i}" l)
