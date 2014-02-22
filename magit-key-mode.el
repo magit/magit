@@ -68,6 +68,16 @@
 
 ;;; (being refactored)
 
+(defvar magit-key-mode-map
+  (let ((map (make-sparse-keymap)))
+    (suppress-keymap map 'nodigits)
+    (define-key map (kbd "RET") 'magit-key-mode-exec-at-point)
+    (define-key map (kbd "TAB") 'magit-key-mode-jump-to-next-exec)
+    (define-key map (kbd "C-g") 'magit-key-mode-abort)
+    (define-key map (kbd "q")   'magit-key-mode-abort)
+    map)
+  "The parent keymap of all key-mode popup keymaps.")
+
 (defun magit-key-mode-exec-at-point ()
   "Run action/args/option at point."
   (interactive)
@@ -93,15 +103,7 @@
         (switches (cdr (assoc 'switches options)))
         (arguments (cdr (assoc 'arguments options)))
         (map (make-sparse-keymap)))
-    (suppress-keymap map 'nodigits)
-    ;; ret dwim
-    (define-key map (kbd "RET") 'magit-key-mode-exec-at-point)
-    ;; tab jumps to the next "button"
-    (define-key map (kbd "TAB") 'magit-key-mode-jump-to-next-exec)
-    ;; all maps should `quit' with `C-g' or `q'
-    (define-key map (kbd "C-g") 'magit-key-mode-abort)
-    (define-key map (kbd "q")   'magit-key-mode-abort)
-    ;; run help
+    (set-keymap-parent map magit-key-mode-map)
     (define-key map (kbd "?") `(lambda ()
                                  (interactive)
                                  (magit-key-mode-help ',for-group)))
