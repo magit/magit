@@ -5841,11 +5841,11 @@ Return nil if there is no rebase in progress."
 
 ;;;###autoload
 (defun magit-reset-head (revision &optional hard)
-  "Switch 'HEAD' to REVISION, keeping prior working tree and staging area.
+  "Switch `HEAD' to REVISION, keeping prior working tree and staging area.
 Any differences from REVISION become new changes to be committed.
 With prefix argument, all uncommitted changes in working tree
 and staging area are lost.
-\('git reset [--soft|--hard] REVISION')."
+\n(git reset --soft|--hard REVISION)"
   (interactive (list (magit-read-rev (format "%s head to"
                                              (if current-prefix-arg
                                                  "Hard reset"
@@ -5856,9 +5856,9 @@ and staging area are lost.
 
 ;;;###autoload
 (defun magit-reset-head-hard (revision)
-  "Switch 'HEAD' to REVISION, losing all changes.
+  "Switch `HEAD' to REVISION, losing all changes.
 Uncomitted changes in both working tree and staging area are lost.
-\('git reset --hard REVISION')."
+\n(git reset --hard REVISION)"
   (interactive (list (magit-read-rev (format "Hard reset head to")
                                      (or (magit-guess-branch) "HEAD"))))
   (magit-reset-head revision t))
@@ -5866,10 +5866,9 @@ Uncomitted changes in both working tree and staging area are lost.
 ;;;###autoload
 (defun magit-reset-working-tree (&optional arg)
   "Revert working tree and clear changes from staging area.
-\('git reset --hard HEAD').
-
 With a prefix arg, also remove untracked files.
-With two prefix args, remove ignored files as well."
+With two prefix args, remove ignored files as well.
+\n(git reset --hard HEAD; [git clean -f -d [-x]])"
   (interactive "p")
   (let ((include-untracked (>= arg 4))
         (include-ignored (>= arg 16)))
@@ -5882,7 +5881,7 @@ With two prefix args, remove ignored files as well."
                                  "")))
       (magit-reset-head-hard "HEAD")
       (when include-untracked
-        (magit-run-git "clean" "-fd" (if include-ignored "-x" ""))))))
+        (magit-run-git "clean" "-f" "-d" (and include-ignored "-x"))))))
 
 ;;;;; Rewriting
 
@@ -6512,7 +6511,7 @@ depending on the value of option `magit-commit-squash-confirm'.
 (defun magit-tag (name rev &optional annotate)
   "Create a new tag with the given NAME at REV.
 With a prefix argument annotate the tag.
-\('git tag [--annotate] NAME REV')."
+\n(git tag [--annotate] NAME REV)"
   (interactive (list (magit-read-tag "Tag name")
                      (magit-read-rev "Place tag on"
                                      (or (magit-guess-branch) "HEAD"))
@@ -6527,7 +6526,7 @@ With a prefix argument annotate the tag.
 ;;;###autoload
 (defun magit-tag-delete (name)
   "Delete the tag with the given NAME.
-\('git tag -d NAME')."
+\n(git tag -d NAME)"
   (interactive (list (magit-read-tag "Delete Tag" t)))
   (magit-run-git "tag" "-d" name))
 
@@ -6556,7 +6555,7 @@ With a prefix argument annotate the tag.
   "Create new stash of working tree and staging area named DESCRIPTION.
 Working tree and staging area revert to the current 'HEAD'.
 With prefix argument, changes in staging area are kept.
-\('git stash save [--keep-index] DESCRIPTION')"
+\n(git stash save [--keep-index] DESCRIPTION)"
   (interactive (list (read-string "Stash description: " nil
                                   'magit-read-stash-history)))
   (magit-run-git "stash" "save" magit-current-popup-args "--" description))
@@ -6564,7 +6563,7 @@ With prefix argument, changes in staging area are kept.
 ;;;###autoload
 (defun magit-stash-snapshot ()
   "Create new stash of working tree and staging area; keep changes in place.
-\('git stash save \"Snapshot...\"; git stash apply stash@{0}')"
+\n(git stash save \"Snapshot...\"; git stash apply stash@{0})"
   (interactive)
   (magit-call-git "stash" "save" magit-current-popup-args
                   (format-time-string
@@ -6574,19 +6573,19 @@ With prefix argument, changes in staging area are kept.
 
 (defun magit-stash-apply (stash)
   "Apply a stash on top of the current working tree state.
-\('git stash apply stash@{N}')"
+\n(git stash apply stash@{N})"
   (interactive (list (magit-read-stash "Apply stash (number): ")))
   (magit-run-git "stash" "apply" stash))
 
 (defun magit-stash-pop (stash)
   "Apply a stash on top of working tree state and remove from stash list.
-\('git stash pop stash@{N}')"
+\n(git stash pop stash@{N})"
   (interactive (list (magit-read-stash "Pop stash (number): ")))
   (magit-run-git "stash" "pop" stash))
 
 (defun magit-stash-drop (stash)
   "Remove a stash from the stash list.
-\('git stash drop stash@{N}')"
+\n(git stash drop stash@{N})"
   (interactive (list (magit-read-stash "Drop stash (number): ")))
   (magit-run-git "stash" "drop" stash))
 
