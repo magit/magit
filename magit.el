@@ -6297,7 +6297,7 @@ With prefix argument, changes in staging area are kept.
                   (format-time-string
                    "Snapshot taken at %Y-%m-%d %H:%M:%S"
                    (current-time)))
-  (magit-run-git "stash" "apply" "stash@{0}"))
+  (magit-stash-apply 0 "--index"))
 
 (defun magit-stash-apply (stash &optional args)
   "Apply a stash on top of the current working tree state.
