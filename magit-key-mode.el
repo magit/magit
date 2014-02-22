@@ -659,12 +659,7 @@ Return the point before the actions part, if any, nil otherwise."
      `(defun ,(intern (concat "magit-key-mode-popup-" (symbol-name group))) nil
         ,(concat "Key menu for " (symbol-name group))
         (interactive)
-        (magit-key-mode
-         (quote ,group)
-         ;; As a tempory kludge it is okay to do this here.
-         ,(cl-case group
-            (logging
-             '(list "--graph"))))))))
+        (magit-key-mode (quote ,group))))))
 
 ;; create the interactive functions for the key mode popups (which are
 ;; applied in the top-level key maps)
