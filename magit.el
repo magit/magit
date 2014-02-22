@@ -2624,6 +2624,15 @@ again use `remove-hook'."
 
 ;;;;; Section Utilities
 
+(defun magit-load-config-extensions ()
+  "Try to load magit extensions that are defined at git config layer.
+This can be added to `magit-mode-hook' for example"
+  (dolist (ext (magit-get-all "magit.extension"))
+    (let ((sym (intern (format "magit-%s-mode" ext))))
+      (when (and (fboundp sym)
+                 (not (eq sym 'magit-wip-save-mode)))
+        (funcall sym 1)))))
+
 (defun magit-map-sections (function section)
   "Apply FUNCTION to SECTION and recursively its subsections."
   (funcall function section)
@@ -7524,17 +7533,6 @@ This command is intended for debugging purposes."
              (marker-position (magit-section-end section))
              (magit-section-info section)
              (magit-section-context-type section))))
-
-;;;; Magit Extensions
-
-(defun magit-load-config-extensions ()
-  "Try to load magit extensions that are defined at git config layer.
-This can be added to `magit-mode-hook' for example"
-  (dolist (ext (magit-get-all "magit.extension"))
-    (let ((sym (intern (format "magit-%s-mode" ext))))
-      (when (and (fboundp sym)
-                 (not (eq sym 'magit-wip-save-mode)))
-        (funcall sym 1)))))
 
 ;;; magit.el ends soon
 
