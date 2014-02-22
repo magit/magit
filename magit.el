@@ -3480,33 +3480,15 @@ If FILE isn't inside a Git repository then return nil."
 (defun magit-get-refname (name)
   (magit-git-string "symbolic-ref" "--short" "-q" name))
 
-(defun magit-name-rev (rev &optional no-trim)
-  "Return a human-readable name for REV.
-Unlike `git name-rev', this will remove \"tags/\" and \"remotes/\"
-prefixes if that can be done unambiguously (unless optional arg
-NO-TRIM is non-nil).  In addition, it will filter out revs
-involving HEAD."
-  (when rev
-    (let ((name (magit-git-string "name-rev" "--no-undefined" "--name-only" rev)))
-      ;; There doesn't seem to be a way of filtering HEAD out from name-rev,
-      ;; so we have to do it manually.
-      ;; HEAD-based names are too transient to allow.
-      (when (and (stringp name)
-                 (string-match "^\\(.*\\<HEAD\\)\\([~^].*\\|$\\)" name))
-        (let ((head-ref (match-string 1 name))
-              (modifier (match-string 2 name)))
-          ;; Sometimes when name-rev gives a HEAD-based name,
-          ;; rev-parse will give an actual branch or remote name.
-          (setq name (concat (magit-git-string "rev-parse" "--abbrev-ref" head-ref)
-                             modifier))
-          ;; If rev-parse doesn't give us what we want, just use the SHA.
-          (when (or (null name) (string-match-p "\\<HEAD\\>" name))
-            (setq name (magit-rev-parse rev)))))
-      (setq rev (or name rev))
-      (when (string-match "^\\(?:tags\\|remotes\\)/\\(.*\\)" rev)
-        (let ((plain-name (match-string 1 rev)))
-          (unless (or no-trim (magit-ref-ambiguous-p plain-name))
-            (setq rev plain-name))))
+(defun magit-get-shortname (rev)
+  (let ((fn (apply-partially 'magit-git-string "name-rev"
+                             "--name-only" "--no-undefined" rev)))
+    (setq rev (or (funcall fn "--refs=refs/tags/*")
+                  (funcall fn "--refs=refs/heads/*")
+                  (funcall fn "--refs=refs/remotes/*" "--always")))
+    (if (and (string-match "^\\(?:tags\\|remotes\\)/\\(.+\\)" rev)
+             (not (magit-ref-ambiguous-p (match-string 1 rev))))
+        (match-string 1 rev)
       rev)))
 
 (defun magit-ref-exists-p (ref)
@@ -3527,7 +3509,7 @@ involving HEAD."
 (defun magit-get-previous-branch ()
   "Return the refname of the previously checked out branch.
 Return nil if the previously checked out branch no longer exists."
-  (magit-name-rev (magit-git-string "rev-parse" "--verify" "@{-1}")))
+  (magit-get-shortname (magit-git-string "rev-parse" "--verify" "@{-1}")))
 
 (defun magit-get-tracked-branch (&optional branch qualified)
   "Return the name of the tracking branch the local branch name BRANCH.
@@ -4771,7 +4753,7 @@ can be used to override this."
   (-when-let (heads (magit-file-lines (magit-git-dir "MERGE_HEAD")))
     (magit-insert-line-section (line)
       (concat "Merging: "
-              (mapconcat 'identity (mapcar 'magit-name-rev heads) ", ")
+              (mapconcat 'identity (mapcar 'magit-get-shortname heads) ", ")
               (and magit-status-show-sequence-help
                    "; Resolve conflicts, or press \"m A\" to Abort")))))
 
@@ -5494,7 +5476,7 @@ If no branch is found near the cursor return nil."
   (magit-section-case (info parent-info)
     (branch          info)
     ([commit wazzup] parent-info)
-    ([commit       ] (magit-name-rev info))
+    ([commit       ] (magit-get-shortname info))
     ([       wazzup] info)))
 
 ;;;;; Remoting
@@ -5697,8 +5679,8 @@ Return nil if there is no rebase in progress."
     (cond
      ((file-directory-p m) ; interactive
       (list
-       (magit-name-rev (magit-file-line  (expand-file-name "onto" m)))
-       (length         (magit-file-lines (expand-file-name "done" m)))
+       (magit-get-shortname (magit-file-line  (expand-file-name "onto" m)))
+       (length              (magit-file-lines (expand-file-name "done" m)))
        (cl-loop for line in (magit-file-lines
                              (expand-file-name "git-rebase-todo.backup" m))
                 count (string-match "^[^#\n]" line))
@@ -5707,7 +5689,7 @@ Return nil if there is no rebase in progress."
 
      ((file-regular-p (expand-file-name "onto" a)) ; non-interactive
       (list
-       (magit-name-rev       (magit-file-line (expand-file-name "onto" a)))
+       (magit-get-shortname  (magit-file-line (expand-file-name "onto" a)))
        (1- (string-to-number (magit-file-line (expand-file-name "next" a))))
        (string-to-number     (magit-file-line (expand-file-name "last" a)))
        (let ((patch-header (magit-file-line
@@ -5718,7 +5700,7 @@ Return nil if there is no rebase in progress."
 
      ((file-regular-p (expand-file-name "applying" a)) ; am
       (list
-       (magit-name-rev       "HEAD")
+       (magit-get-shortname  "HEAD")
        (1- (string-to-number (magit-file-line (expand-file-name "next" a))))
        (string-to-number     (magit-file-line (expand-file-name "last" a)))
        (let ((patch-header (magit-file-line
