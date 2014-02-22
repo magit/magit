@@ -1,4 +1,4 @@
-;;; magit-key-mode.el --- interactively tune git invocation
+;;; magit-popup.el --- infix arguments with feedback
 
 ;; Copyright (C) 2010-2014  The Magit Project Developers
 ;;
@@ -6,8 +6,13 @@
 ;; at the top-level directory of this distribution and at
 ;; https://raw.github.com/magit/magit/master/AUTHORS.md
 
-;; Author: Phil Jackson <phil@shellarchive.co.uk>
-;; Package: magit
+;; This library was inspired by and replaces library `magit-key-mode',
+;; which was written by Phil Jackson <phil@shellarchive.co.uk> and is
+;; distributed under the GNU General Public License version 3 or later.
+
+;; Author: Jonas Bernoulli <jonas@bernoul.li>
+;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
+;; Package: magit-popup
 
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
@@ -24,7 +29,20 @@
 
 ;;; Commentary:
 
-;; Interactively tune git invocation.
+;; This library implements a generic interface for toggling switches
+;; and setting options and then invoking an Emacs command which does
+;; something with these arguments.  The prototypical use is for the
+;; command to call an external process, passing on the arguments as
+;; command line arguments.  But this is only one of many possible
+;; uses (though the one this library is optimized for).
+
+;; With the Emacs concept of "prefix arguments" in mind this could be
+;; described as "infix arguments with feedback in a buffer".
+
+;; Commands that set the prefix argument for the subsequent command do
+;; not limit what that next command could be.  But entering a command
+;; console popup does limit the selection to the commands defined for
+;; that popup, and so we use the term "infix" instead of "prefix".
 
 ;;; Code:
 
@@ -666,8 +684,8 @@
                                        :dsc (cadr elt)))
          (list 'function (cadr elt))))
 
-(provide 'magit-key-mode)
+(provide 'magit-popup)
 ;; Local Variables:
 ;; indent-tabs-mode: nil
 ;; End:
-;;; magit-key-mode.el ends here
+;;; magit-popup.el ends here

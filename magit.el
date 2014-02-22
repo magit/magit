@@ -72,7 +72,7 @@ Use the function by the same name instead of this variable.")
   (require 'git-commit-mode))
 
 (require 'git-rebase-mode)
-(require 'magit-key-mode)
+(require 'magit-popup)
 
 (require 'ansi-color)
 (require 'autorevert)
@@ -6579,7 +6579,7 @@ Bisecting a bug means to find the commit that introduced it.
 This command starts such a bisect session by asking for a know
 good and a bad commit.  To move the session forward use the
 other actions from the bisect popup (\
-\\<magit-status-mode-map>\\[magit-key-mode-popup-bisecting])."
+\\<magit-status-mode-map>\\[magit-bisect-popup])."
   (interactive
    (if (magit-bisecting-p)
        (user-error "Already bisecting")
