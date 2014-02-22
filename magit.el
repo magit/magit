@@ -3487,19 +3487,19 @@ If FILE isn't inside a Git repository then return nil."
                   (funcall fn "--refs=refs/heads/*")
                   (funcall fn "--refs=refs/remotes/*" "--always")))
     (if (and (string-match "^\\(?:tags\\|remotes\\)/\\(.+\\)" rev)
-             (not (magit-ref-ambiguous-p (match-string 1 rev))))
+             (magit-unambiguous-refname-p (match-string 1 rev)))
         (match-string 1 rev)
       rev)))
 
 (defun magit-ref-exists-p (ref)
   (magit-git-success "show-ref" "--verify" ref))
 
-(defun magit-ref-ambiguous-p (ref)
-  "Return whether or not REF is ambiguous."
+(defun magit-unambiguous-refname-p (name)
+  "Return t if REF is unambiguous, nil otherwise."
   ;; An ambiguous ref does not cause `git rev-parse --abbrev-ref'
   ;; to exits with a non-zero status.  But there is nothing on
   ;; stdout in that case.
-  (not (magit-git-string "rev-parse" "--abbrev-ref" ref)))
+  (not (magit-git-string "rev-parse" "--abbrev-ref" name)))
 
 (defun magit-get-current-branch ()
   (--when-let (magit-get-ref "HEAD")
