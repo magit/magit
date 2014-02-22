@@ -97,6 +97,8 @@
     (define-key map [remap self-insert-command] 'magit-invoke-popup-action)
     (define-key map [?- t]  'magit-invoke-popup-switch)
     (define-key map [?= t]  'magit-invoke-popup-option)
+    (define-key map [?\C-c ?\C-c] 'magit-popup-set-defaults)
+    (define-key map [?\C-x ?\C-s] 'magit-popup-save-defaults)
     (define-key map [?\C-g] 'magit-popup-quit)
     (define-key map [??]    'magit-popup-help)
     (define-key map [?\C-h ?i] 'magit-popup-info)
@@ -109,13 +111,15 @@
     map))
 
 (defvar magit-popup-internal-commands
-  '(("Push current button"  push-button)
-    ("Goto previous button" backward-button)
-    ("Goto next button"     forward-button)
-    ("View popup manual"    magit-popup-info)
-    ("Popup help prefix"    magit-popup-help)
-    ("Toggle help section"  magit-popup-toggle-show-popup-commands)
-    ("Abort"                magit-popup-quit)))
+  '(("Set defaults"          magit-popup-set-defaults)
+    ("Goto previous button"  backward-button)
+    ("View popup manual"     magit-popup-info)
+    ("Save defaults"         magit-popup-save-defaults)
+    ("Goto next button"      forward-button)
+    ("  Toggle help section" magit-popup-toggle-show-popup-commands)
+    ("    Abort"             magit-popup-quit)
+    ("Push button"           push-button)
+    ("    Popup help prefix" magit-popup-help)))
 
 ;;; Buttons
 
@@ -180,12 +184,21 @@
 (defvar magit-current-popup nil)
 (defvar magit-current-popup-args nil)
 
-(defun magit-popup-get-args ()
-  (cl-mapcan (lambda (elt)
-               (when (nth 4 elt)
-                 (list (concat (nth 2 elt) (nth 5 elt)))))
-             (append (magit-popup-get :switches)
-                     (magit-popup-get :options))))
+(defun magit-popup-get-args (&optional style)
+  (cl-ecase (or style 'cons)
+    (cons (nconc (cl-mapcan (lambda (elt)
+                              (when (nth 4 elt)
+                                (list (cons (nth 2 elt) t))))
+                            (magit-popup-get :switches))
+                 (cl-mapcan (lambda (elt)
+                              (when (nth 4 elt)
+                                (list (cons (nth 2 elt) (nth 5 elt)))))
+                            (magit-popup-get :options))))
+    (flat (cl-mapcan (lambda (elt)
+                       (when (nth 4 elt)
+                         (list (concat (nth 2 elt) (nth 5 elt)))))
+                     (append (magit-popup-get :switches)
+                             (magit-popup-get :options))))))
 
 (defun magit-popup-setup-events (val)
   (let ((def (symbol-value magit-this-popup)))
@@ -243,7 +256,7 @@
          (interactive "P")
          (magit-invoke-popup ',name arg))
        (defvar ,name
-         (list ,@plist))
+         (list :variable ',opt ,@plist))
        (defcustom ,opt
          (magit-popup-custom-default (symbol-value ',name))
          ""
@@ -359,7 +372,7 @@
   (let ((def (nth 2 (assoc event (magit-popup-get :actions)))))
     (if  def
         (let ((magit-current-popup magit-this-popup)
-              (magit-current-popup-args (magit-popup-get-args)))
+              (magit-current-popup-args (magit-popup-get-args 'flat)))
           (magit-popup-quit)
           (call-interactively def))
       (if (eq event ?q)
@@ -376,6 +389,20 @@
       (kill-local-variable 'magit-popup-previous-winconf))
     (when winconf
       (set-window-configuration winconf))))
+
+;;; Save
+
+(defun magit-popup-set-defaults (arg)
+  (interactive "P")
+  (customize-set-variable (magit-popup-get :variable)
+                          (magit-popup-get-args))
+  (unless arg (magit-popup-quit)))
+
+(defun magit-popup-save-defaults (arg)
+  (interactive "P")
+  (customize-save-variable (magit-popup-get :variable)
+                           (magit-popup-get-args))
+  (unless arg (magit-popup-quit)))
 
 ;;; Help
 
