@@ -29,9 +29,8 @@
 ;;; Code:
 
 (require 'button)
+(require 'cl-lib)
 (require 'format-spec)
-
-(eval-when-compile (require 'cl-lib))
 
 (defvar magit-popup-previous-winconf)
 
@@ -128,34 +127,35 @@
                            (magit-popup-help ',popup)))
     map))
 
-(defvar-local magit-popup-current-options nil)
-(defvar-local magit-popup-current-switches nil)
+(defvar-local magit-popup-args nil)
 
 (defvar magit-current-popup-args nil)
 
-(defun magit-invoke-popup-switch (popup switch)
-  (if (member switch magit-popup-current-switches)
-      (setq magit-popup-current-switches
-            (delete switch magit-popup-current-switches))
-    (add-to-list 'magit-popup-current-switches switch))
+(defun magit-invoke-popup-switch (popup arg-name)
+  (let* ((elt (assoc arg-name magit-popup-args))
+         (val (not (cdr elt))))
+    (if elt
+        (setcdr elt val)
+      (push (cons arg-name val) magit-popup-args)))
   (magit-refresh-popup-buffer popup))
 
 (defun magit-invoke-popup-option (popup arg-name input-func)
-  (let ((elt (assoc arg-name magit-popup-current-options))
+  (let ((elt (assoc arg-name magit-popup-args))
         (val (funcall input-func (concat arg-name ": "))))
     (cond ((or (not val) (equal val "")) (setq val nil))
           ((string-match-p "^\s+$" val)  (setq val "")))
     (if elt
         (setcdr elt val)
-      (push (cons arg-name val) magit-popup-current-options))
+      (push (cons arg-name val) magit-popup-args))
     (magit-refresh-popup-buffer popup)))
 
 (defun magit-invoke-popup-action (popup func)
   (let ((magit-current-popup-args
-         (nconc magit-popup-current-switches
-                (mapcar (lambda (elt)
-                          (concat (car elt) (cdr elt)))
-                        magit-popup-current-options))))
+         (cl-mapcan (lambda (elt)
+                      (cl-destructuring-bind (arg . val) elt
+                        (cond ((stringp val) (list (concat arg val)))
+                              ((equal val t) (list arg)))))
+                    magit-popup-args)))
     (magit-popup-quit)
     (call-interactively func)))
 
@@ -271,15 +271,16 @@
   (let* ((k (propertize (car arg) 'face 'magit-popup-key))
          (d (nth 1 arg))
          (a (unless (symbolp (nth 2 arg)) (nth 2 arg)))
-         (v (and a (cdr (assoc a magit-popup-current-options)))))
+         (v (and a (cdr (assoc a magit-popup-args)))))
     (when a
       (setq a (propertize
-               a 'face (if (or (member a magit-popup-current-switches)
-                               (assoc  a magit-popup-current-options))
+               a 'face (if v
                            'magit-popup-argument
                          'magit-popup-disabled-argument))))
-    (when v
-      (setq v (propertize (format "\"%s\"" v)
+    (setq v (if (or (booleanp v)
+                    (string-equal v ""))
+                nil
+              (propertize (format "\"%s\"" v)
                           'face 'magit-popup-option-value)))
     (format-spec format
                  `((?k . ,(concat k ":"))
