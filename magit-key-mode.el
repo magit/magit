@@ -36,7 +36,6 @@
 (eval-when-compile (require 'cl-lib))
 
 (defvar magit-key-mode-keymaps)
-(defvar magit-key-mode-last-buffer)
 (defvar magit-pre-key-mode-window-conf)
 
 ;;; Options
@@ -478,8 +477,9 @@ Do not customize this (used in the `magit-key-mode' implementation).")
     (maphash (lambda (k v)
                (push (concat k v) magit-custom-options))
              magit-key-mode-current-args)
-    (set-window-configuration magit-pre-key-mode-window-conf)
-    (kill-buffer magit-key-mode-last-buffer)
+    (let ((buf (current-buffer)))
+      (set-window-configuration magit-pre-key-mode-window-conf)
+      (kill-buffer buf))
     (when func
       (call-interactively func))))
 
@@ -501,9 +501,6 @@ Do not customize this (used in the `magit-key-mode' implementation).")
 (defvar magit-key-mode-buf-name "*magit-key: %s*"
   "Format string to create the name of the magit-key buffer.")
 
-(defvar magit-key-mode-last-buffer nil
-  "Store the last magit-key buffer used.")
-
 (defvar magit-pre-key-mode-window-conf nil
   "Will hold the pre-menu configuration of magit.")
 
@@ -519,7 +516,6 @@ the key combination highlighted before the description."
   ;; setup the mode, draw the buffer
   (let ((buf (get-buffer-create (format magit-key-mode-buf-name
                                         (symbol-name for-group)))))
-    (setq magit-key-mode-last-buffer buf)
     (split-window-vertically)
     (other-window 1)
     (switch-to-buffer buf)
