@@ -252,20 +252,23 @@ If USE-CACHE is non nil, use the cached information."
                     '("Extensions")
                     magit-svn-extension-menu)
 
+(defvar magit-popup-svn
+  '((man-page "git-svn")
+    (actions
+     ("r" "Rebase" magit-svn-rebase)
+     ("c" "DCommit" magit-svn-dcommit)
+     ("f" "Fetch" magit-svn-remote-update)
+     ("s" "Find rev" magit-svn-find-rev)
+     ("B" "Create branch" magit-svn-create-branch)
+     ("T" "Create tag" magit-svn-create-tag)
+     ("x" "Fetch Externals" magit-svn-fetch-externals))
+    (switches
+     ("-n" "Dry run" "--dry-run"))))
+
 (defun magit-key-mode-popup-svn ()
   "Key menu for svn."
   (interactive)
   (magit-key-mode 'svn))
-
-(progn
-  (magit-key-mode-insert-action 'svn "r" "Rebase" 'magit-svn-rebase)
-  (magit-key-mode-insert-action 'svn "c" "DCommit" 'magit-svn-dcommit)
-  (magit-key-mode-insert-action 'svn "f" "Fetch" 'magit-svn-remote-update)
-  (magit-key-mode-insert-action 'svn "s" "Find rev" 'magit-svn-find-rev)
-  (magit-key-mode-insert-action 'svn "B" "Create branch" 'magit-svn-create-branch)
-  (magit-key-mode-insert-action 'svn "T" "Create tag" 'magit-svn-create-tag)
-  (magit-key-mode-insert-action 'svn "x" "Fetch Externals" 'magit-svn-fetch-externals)
-  (magit-key-mode-insert-switch 'svn "-n" "Dry run" "--dry-run"))
 
 (defvar magit-svn-mode-map
   (let ((map (make-sparse-keymap)))
