@@ -1371,7 +1371,8 @@ likely don't want that.  This variable only has an effect if
 set before loading libary `magit'.")
 
 (when (boundp 'git-commit-mode-map)
-  (define-key git-commit-mode-map (kbd "C-c C-d") 'magit-diff-staged))
+  (define-key git-commit-mode-map
+    (kbd "C-c C-d") 'magit-diff-while-committing))
 
 (defvar magit-mode-map
   (let ((map (make-keymap)))
@@ -1525,6 +1526,7 @@ set before loading libary `magit'.")
 (defvar magit-diff-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
+    (define-key map (kbd "C-c C-d") 'magit-diff-while-committing)
     (define-key map (kbd "C-c C-b") 'magit-go-backward)
     (define-key map (kbd "C-c C-f") 'magit-go-forward)
     (define-key map (kbd "SPC") 'scroll-up)
@@ -1783,6 +1785,15 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
       (if relative
           (file-relative-name filename topdir)
         filename))))
+
+(defun magit-commit-log-buffer ()
+  (cl-find-if (lambda (buf)
+                (equal (magit-get-top-dir)
+                       (with-current-buffer buf
+                         (and (derived-mode-p 'git-commit-mode)
+                              (magit-get-top-dir)))))
+              (append (buffer-list (selected-frame))
+                      (buffer-list))))
 
 (defun magit-format-duration (duration spec width)
   (cl-destructuring-bind (char unit units weight)
@@ -6401,8 +6412,12 @@ depending on the value of option `magit-commit-squash-confirm'.
         (magit-jump-to-unstaged t)
       (magit-jump-to-staged t))))
 
+(defvar magit-commit-amending-alist nil)
+
 (defun magit-commit-internal (subcmd args)
   (setq git-commit-previous-winconf (current-window-configuration))
+  (push (cons (magit-get-top-dir) (member "--amend" args))
+        magit-commit-amending-alist)
   (if (magit-use-emacsclient-p)
       (magit-with-emacsclient magit-server-window-for-commit
         (magit-run-git-async subcmd args))
@@ -7345,6 +7360,29 @@ a commit read from the minibuffer."
     (if  tracked
         (magit-diff (concat "..." tracked))
       (error "Detached HEAD or upstream unset"))))
+
+;;;###autoload
+(defun magit-diff-while-committing ()
+  (interactive)
+  (let ((top (magit-get-top-dir))
+        (buf (magit-mode-get-buffer magit-diff-buffer-name
+                                    'magit-diff-mode)))
+    (if (magit-commit-log-buffer)
+        ;; ^ we are actually committing
+        (if (and (cdr (assoc top magit-commit-amending-alist))
+                 ;; ^ we are actually amending
+                 ;; so default to include HEAD
+                 (or (not buf)
+                     (with-current-buffer buf
+                       (or (not (equal (magit-get-top-dir) top))
+                           ;; or toggle
+                           (not (car magit-refresh-args))))))
+            (magit-diff-while-amending)
+          (magit-diff-staged))
+      (user-error "No commit in progress"))))
+
+(defun magit-diff-while-amending ()
+  (magit-diff "HEAD^" nil (list "--cached")))
 
 ;;;###autoload
 (defun magit-diff-paths (a b)
