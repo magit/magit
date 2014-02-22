@@ -3739,8 +3739,32 @@ Return a list of two integers: (A>B B>A)."
 
 (defun magit-completing-read
   (prompt collection &optional predicate require-match initial-input hist def)
-  "Call function in `magit-completing-read-function' to read user input.
-Read `completing-read' documentation for the meaning of the argument."
+  "Magit wrapper around `completing-read' or an alternative function.
+
+Option `magit-completing-read-function' can be used to wrap
+around another `completing-read'-like function.  Unless it
+doesn't have the exact same signature, an additional wrapper is
+required.  Even if it has the same signature it might be a good
+idea to wrap it, so that `magit-prompt-with-default' can be used.
+
+See `completing-read' for the meanings of the arguments, but note
+that this wrapper makes the following changes:
+
+- If REQUIRE-MATCH is nil and the user exits without a choise,
+  then return nil instead of an empty string.
+
+- If REQUIRE-MATCH is non-nil and the users exits without a
+  choise, then raise a user-error.
+
+- For historic reasons \": \" is appended to PROMPT.  This will
+  likely be fixed.
+
+- If a `magit-completing-read-function' is used which in turn
+  uses `magit-prompt-with-completion' and DEF is non-nil, then
+  PROMPT is modified to end with \" (default DEF): \".
+
+The use of another completing function and/or wrapper obviously
+results in additional differences."
   (let ((reply (funcall magit-completing-read-function
                         (concat prompt ": ") collection predicate
                         require-match initial-input hist def)))
