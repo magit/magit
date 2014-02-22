@@ -116,8 +116,6 @@
                            (magit-popup-help ',popup)))
     map))
 
-(defvar-local magit-popup-prefix-arg nil)
-
 (defvar-local magit-popup-current-options nil)
 (defvar-local magit-popup-current-switches nil)
 
@@ -141,8 +139,7 @@
     (magit-refresh-popup-buffer popup)))
 
 (defun magit-invoke-popup-action (popup func)
-  (let ((current-prefix-arg (or current-prefix-arg magit-popup-prefix-arg))
-        (magit-current-popup-args
+  (let ((magit-current-popup-args
          (nconc magit-popup-current-switches
                 (mapcar (lambda (elt)
                           (concat (car elt) (cdr elt)))
@@ -190,7 +187,6 @@
    (get-buffer-create (format "*%s*" popup)))
   (use-local-map
    (symbol-value (intern (format "magit-popup-%s-map" popup))))
-  (setq magit-popup-prefix-arg current-prefix-arg)
   (magit-refresh-popup-buffer popup)
   (fit-window-to-buffer)
   (when magit-popup-show-usage
