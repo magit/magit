@@ -108,7 +108,7 @@ If there is no commit at point, then prompt for one."
 (defun magit-run-git-gui ()
   "Run `git gui' for the current git repository."
   (interactive)
-  (let* ((default-directory (magit-get-top-dir)))
+  (let ((default-directory (magit-get-top-dir)))
     (start-file-process "Git Gui" nil magit-git-executable "gui")))
 
 ;;;###autoload
