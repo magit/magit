@@ -4858,15 +4858,15 @@ can be used to override this."
 (defun magit-insert-status-rebase-lines ()
   (let ((rebase (magit-rebase-info)))
     (when rebase
-      (magit-insert-line-section (line)
-        (concat (if (nth 4 rebase) "Applying" "Rebasing")
-               (apply 'format ": onto %s (%s of %s)" rebase)
-               (and magit-status-show-sequence-help
-                    "; Press \"R\" to Abort, Skip, or Continue")))
-      (when (and (null (nth 4 rebase)) (nth 3 rebase))
+      (cl-destructuring-bind (onto done total hash am) rebase
         (magit-insert-line-section (line)
-          (concat "Stopped: "
-                  (magit-format-rev-summary (nth 3 rebase))))))))
+          (concat (if am "Applying" "Rebasing")
+                  (format ": onto %s (%s of %s)" onto done total)
+                  (and magit-status-show-sequence-help
+                       "; Press \"R\" to Abort, Skip, or Continue")))
+        (when (and (not am) hash)
+          (magit-insert-line-section (commit hash)
+            (concat "Stopped: " (magit-format-rev-summary hash))))))))
 
 (defun magit-insert-rebase-sequence ()
   (let ((f (magit-git-dir "rebase-merge/git-rebase-todo")))
