@@ -113,7 +113,7 @@
       (magit-define-popup-action popup map (car e) (nth 2 e)))
     (define-key map "?" `(lambda ()
                            (interactive)
-                           (magit-key-mode-help ',popup)))
+                           (magit-popup-help ',popup)))
     map))
 
 (defvar-local magit-popup-prefix-arg nil)
@@ -153,7 +153,7 @@
     (when func
       (call-interactively func))))
 
-(defun magit-key-mode-help (popup)
+(defun magit-popup-help (popup)
   (let* ((spec (symbol-value (intern (format "magit-popup-%s" popup))))
          (man-page (cadr (assoc 'man-page spec)))
          (seq (read-key-sequence
