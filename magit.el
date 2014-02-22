@@ -675,8 +675,6 @@ manager but it will be used in more places in the future."
     magit-insert-bisect-log
     magit-insert-stashes
     magit-insert-untracked-files
-    magit-insert-pending-changes
-    magit-insert-pending-commits
     magit-insert-unstaged-changes
     magit-insert-staged-changes
     magit-insert-unpulled-commits
@@ -4641,33 +4639,6 @@ can be used to override this."
             (insert "\t" file "\n")))
         (insert "\n")))))
 
-(defun magit-insert-pending-commits ()
-  (let* ((info (magit-read-rewrite-info))
-         (pending (cdr (assq 'pending info))))
-    (when pending
-      (magit-with-section (section pending 'pending "Pending commits:" t)
-        (dolist (p pending)
-          (let* ((commit (car p))
-                 (properties (cdr p))
-                 (used (plist-get properties 'used)))
-            (magit-with-section (section commit commit)
-              (insert (magit-git-string
-                       "log" "-1"
-                       (if used
-                           "--pretty=format:. %s"
-                         "--pretty=format:* %s")
-                       commit "--")
-                      "\n")))))
-      (insert "\n"))))
-
-(defun magit-insert-pending-changes ()
-  (let* ((info (magit-read-rewrite-info))
-         (orig (cadr (assq 'orig info))))
-    (when orig
-      (magit-git-insert-section (pending-changes "Pending changes:")
-          #'magit-wash-diffs
-        "diff" "-R" orig))))
-
 (defun magit-insert-unstaged-changes ()
   (magit-git-insert-section (unstaged "Unstaged changes:")
       #'magit-wash-raw-diffs
@@ -5827,135 +5798,6 @@ with two prefix arguments remove ignored files only.
                                (4 "untracked and ignored")
                                (t "ignored"))))
     (magit-run-git "clean" "-f" "-d" (cl-case arg (4 "-x") (16 "-X")))))
-
-;;;;; Rewriting
-
-(magit-define-popup magit-rewrite-popup
-  "Popup console for rewrite commands."
-  'magit-popups
-  :actions '((?b "Begin"      magit-rewrite-start)
-             (?s "Stop"       magit-rewrite-stop)
-             (?a "Abort"      magit-rewrite-abort)
-             (?f "Finish"     magit-rewrite-finish)
-             (?* "Set unused" magit-rewrite-set-unused)
-             (?. "Set used"   magit-rewrite-set-used)))
-
-(defun magit-read-rewrite-info ()
-  (when (file-exists-p (magit-git-dir "magit-rewrite-info"))
-    (with-temp-buffer
-      (insert-file-contents (magit-git-dir "magit-rewrite-info"))
-      (goto-char (point-min))
-      (read (current-buffer)))))
-
-(defun magit-write-rewrite-info (info)
-  (with-temp-file (magit-git-dir "magit-rewrite-info")
-    (prin1 info (current-buffer))
-    (princ "\n" (current-buffer))))
-
-(defun magit-rewrite-set-commit-property (commit prop value)
-  (let* ((info (magit-read-rewrite-info))
-         (pending (cdr (assq 'pending info)))
-         (p (assoc commit pending)))
-    (when p
-      (setf (cdr p) (plist-put (cdr p) prop value))
-      (magit-write-rewrite-info info)
-      (magit-refresh))))
-
-(add-hook 'magit-apply-hook 'magit-rewrite-apply)
-(put  'magit-rewrite-apply 'magit-section-action-context [commit pending])
-(defun magit-rewrite-apply (commit)
-  (magit-apply-commit commit)
-  (magit-rewrite-set-commit-property commit 'used t))
-
-(add-hook 'magit-cherry-pick-hook 'magit-rewrite-pick)
-(put  'magit-rewrite-pick 'magit-section-action-context [commit pending])
-(defun magit-rewrite-pick (commit)
-  (magit-cherry-pick-commit commit)
-  (magit-rewrite-set-commit-property commit 'used t))
-
-(add-hook 'magit-revert-hook 'magit-rewrite-revert)
-(put  'magit-rewrite-revert 'magit-section-action-context [commit pending])
-(defun magit-rewrite-revert (commit)
-  (when (or (not magit-revert-item-confirm)
-            (yes-or-no-p "Revert this commit? "))
-    (magit-revert-commit commit)
-    (magit-rewrite-set-commit-property commit 'used nil)))
-
-(defun magit-rewrite-set-used ()
-  (interactive)
-  (magit-section-case (info)
-    ([commit pending]
-     (magit-rewrite-set-commit-property info 'used t)
-     (magit-refresh))))
-
-(defun magit-rewrite-set-unused ()
-  (interactive)
-  (magit-section-case (info)
-    ([commit pending]
-     (magit-rewrite-set-commit-property info 'used nil)
-     (magit-refresh))))
-
-(defun magit-rewrite-start (from &optional onto)
-  (interactive (list (magit-read-rev-with-default "Rewrite from")))
-  (or (magit-everything-clean-p)
-      (user-error "You have uncommitted changes"))
-  (or (not (magit-read-rewrite-info))
-      (user-error "Rewrite in progress"))
-  (let* ((orig (magit-rev-parse "HEAD"))
-         (base (if (or (eq magit-rewrite-inclusive t)
-                       (and (eq magit-rewrite-inclusive 'ask)
-                            (y-or-n-p "Include selected revision in rewrite? ")))
-                   (or (car (magit-commit-parents from))
-                       (user-error "Can't rewrite a parentless commit"))
-                 from))
-         (pending (magit-git-lines "rev-list" (concat base ".."))))
-    (magit-write-rewrite-info `((orig ,orig)
-                                (pending ,@(mapcar #'list pending))))
-    (magit-run-git "reset" "--hard" base "--")))
-
-(defun magit-rewrite-stop (&optional noconfirm)
-  (interactive)
-  (let* ((info (magit-read-rewrite-info)))
-    (or info
-        (user-error "No rewrite in progress"))
-    (when (or noconfirm
-              (yes-or-no-p "Stop rewrite? "))
-      (magit-write-rewrite-info nil)
-      (magit-refresh))))
-
-(defun magit-rewrite-abort ()
-  (interactive)
-  (let* ((info (magit-read-rewrite-info))
-         (orig (cadr (assq 'orig info))))
-    (or info
-        (user-error "No rewrite in progress"))
-    (or (magit-everything-clean-p)
-        (user-error "You have uncommitted changes"))
-    (when (yes-or-no-p "Abort rewrite? ")
-      (magit-write-rewrite-info nil)
-      (magit-run-git "reset" "--hard" orig "--"))))
-
-(defun magit-rewrite-finish ()
-  (interactive)
-  (magit-rewrite-finish-step)
-  (magit-refresh))
-
-(defun magit-rewrite-finish-step ()
-  (let ((info (magit-read-rewrite-info)))
-    (or info
-        (user-error "No rewrite in progress"))
-    (let* ((pending (cdr (assq 'pending info)))
-           (first-unused
-            (let ((rpend (reverse pending)))
-              (while (and rpend (plist-get (cdr (car rpend)) 'used))
-                (setq rpend (cdr rpend)))
-              (car rpend)))
-           (commit (car first-unused)))
-      (cond ((not first-unused)
-             (magit-rewrite-stop t))
-            ((magit-cherry-pick-commit commit)
-             (magit-rewrite-set-commit-property commit 'used t)
-             (magit-rewrite-finish-step))))))
 
 ;;;;; Fetching
 
