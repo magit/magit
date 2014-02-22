@@ -6280,13 +6280,14 @@ used to inverse the meaning of the prefix argument.
                      (if current-prefix-arg
                          (not magit-commit-reword-override-date)
                        magit-commit-reword-override-date)))
-  (magit-commit-maybe-expand)
-  (let ((process-environment process-environment))
-    (unless override-date
-      (setenv "GIT_COMMITTER_DATE"
-              (magit-git-string "log" "-1" "--format:format=%cd")))
-    (magit-commit-internal
-     "commit" (nconc (list "--amend" "--no-edit") args))))
+  (when (setq args (magit-commit-assert args (not override-date)))
+    (magit-commit-maybe-expand)
+    (let ((process-environment process-environment))
+      (unless override-date
+        (setenv "GIT_COMMITTER_DATE"
+                (magit-git-string "log" "-1" "--format:format=%cd")))
+      (magit-commit-internal
+       "commit" (nconc (list "--amend" "--no-edit") args)))))
 
 ;;;###autoload
 (defun magit-commit-reword (&optional args override-date)
@@ -6361,7 +6362,7 @@ depending on the value of option `magit-commit-squash-confirm'.
         (or current-prefix-arg magit-commit-squash-confirm)))
 
 (defun magit-commit-squash-internal (fn option commit args confirm)
-  (when (setq args (magit-commit-assert args))
+  (when (setq args (magit-commit-assert args t))
     (if (and commit (not confirm))
         (progn
           (magit-commit-internal
@@ -6370,14 +6371,16 @@ depending on the value of option `magit-commit-squash-confirm'.
       (magit-log-select
         `(lambda (commit) (,fn commit (list ,@args)))))))
 
-(defun magit-commit-assert (args)
+(defun magit-commit-assert (args &optional strict)
   (cond
    ((or (magit-anything-staged-p)
-        (member "--allow-empty" args)
         (and (magit-anything-unstaged-p)
              ;; ^ Everything of nothing is still nothing.
              (member "--all" args))
-        (member "--amend" args))
+        (and (not strict)
+             ;; ^ For amend variants that don't make sense otherwise.
+             (or (member "--amend" args)
+                 (member "--allow-empty" args))))
     (or args (list "--")))
    ((and (magit-rebase-in-progress-p)
          (y-or-n-p "Nothing staged.  Continue in-progress rebase? "))
@@ -6389,7 +6392,7 @@ depending on the value of option `magit-commit-squash-confirm'.
       (magit-run-git "add" "-u" ".")
       (or args (list "--"))))
    (t
-    (user-error "Nothing staged.  Set --allow-empty or --all in popup"))))
+    (user-error "Nothing staged"))))
 
 (defun magit-commit-maybe-expand (&optional unstaged)
   (when (and magit-expand-staged-on-commit
