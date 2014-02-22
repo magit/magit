@@ -7128,16 +7128,16 @@ More information can be found in Info node `(magit)Diffing'
 
 ;;;###autoload
 (defun magit-diff-unstaged ()
-  "Show differences between the current working tree and index."
+  "Show changes between the working tree and the index."
   (interactive)
   (magit-diff nil))
 
 ;;;###autoload
 (defun magit-diff-stash (stash &optional noselect)
   "Show changes in a stash.
-A Stash consist of more than just one commit.  This command uses
-a special diff range so that the stashed changes actually were a
-single commit."
+A stash consist of more than just one commit.  This command uses
+a special diff range so that the stashed changes appear as if the
+actually were a single commit."
   (interactive (list (magit-read-stash "Show stash (number): ")))
   (magit-mode-setup magit-commit-buffer-name
                     (if noselect 'display-buffer 'pop-to-buffer)
@@ -7146,7 +7146,7 @@ single commit."
                     (concat stash "^2^.." stash)))
 
 (defun magit-diff-with-mark (range)
-  "Show difference between the marked commit and the one at point.
+  "Show changes between the marked commit and the one at point.
 If there is no commit at point, then prompt for one."
   (interactive
    (let* ((marked (or magit-marked-commit (user-error "No commit marked")))
