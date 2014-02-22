@@ -61,7 +61,7 @@
   :group 'magit-faces)
 
 (defface magit-popup-option-value
-  '((t :inherit widget-field))
+  '((t :inherit font-lock-string-face))
   "Face used to display option values in popups."
   :group 'magit-faces)
 
