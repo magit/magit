@@ -45,25 +45,29 @@
 
 ;;; Faces
 
-(defface magit-key-mode-header-face
+(defface magit-popup-header
   '((t :inherit font-lock-keyword-face))
   "Face for key mode header lines."
   :group 'magit-faces)
 
-(defface magit-key-mode-button-face
+(defface magit-popup-key
   '((t :inherit font-lock-builtin-face))
   "Face for key mode buttons."
   :group 'magit-faces)
 
-(defface magit-key-mode-switch-face
+(defface magit-popup-argument
   '((t :inherit font-lock-warning-face))
-  "Face used to display state of switches in popups."
+  "Face used to display enabled switches in popups."
   :group 'magit-faces)
 
-(defface magit-key-mode-option-face
+(defface magit-popup-option-value
   '((t :inherit widget-field))
   "Face used to display option values in popups."
   :group 'magit-faces)
+
+(define-obsolete-face-alias 'magit-key-mode-header-face 'magit-popup-header "2.0.0")
+(define-obsolete-face-alias 'magit-key-mode-button-face 'magit-popup-key "2.0.0")
+(define-obsolete-face-alias 'magit-key-mode-switch-face 'magit-popup-argument "2.0.0")
 
 ;;; (being refactored)
 
@@ -225,7 +229,7 @@
 (defun magit-popup-insert-buttons (popup heading format invoke items
                                          &optional one-col-each)
   (when items
-    (insert (propertize heading 'face 'magit-key-mode-header-face) "\n")
+    (insert (propertize heading 'face 'magit-popup-header) "\n")
     (setq items
           (mapcar (lambda (item)
                     (cons (magit-popup-format-button format item) item))
@@ -251,14 +255,14 @@
     (insert "\n")))
 
 (defun magit-popup-format-button (format arg)
-  (let* ((k (propertize (car arg) 'face 'magit-key-mode-button-face))
+  (let* ((k (propertize (car arg) 'face 'magit-popup-key))
          (d (nth 1 arg))
          (a (unless (symbolp (nth 2 arg)) (nth 2 arg)))
          (v (and a (cdr (assoc a magit-popup-current-options)))))
     (when (member a magit-popup-current-switches)
-      (setq a (propertize a 'face 'magit-key-mode-switch-face)))
+      (setq a (propertize a 'face 'magit-popup-argument)))
     (when v
-      (setq v (propertize v 'face 'magit-key-mode-option-face)))
+      (setq v (propertize v 'face 'magit-popup-option-value)))
     (format-spec format
                  `((?k . ,k)
                    (?d . ,d)
