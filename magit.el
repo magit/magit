@@ -6494,7 +6494,7 @@ to test.  This command lets Git choose a different one."
               (?B "Verbose branch" magit-log-verbose)
               (?R "Reflog HEAD"    magit-reflog-head))
   :default-arguments '("--graph")
-  :default-action 'magit-log
+  :default-action 'magit-log-dwim
   :max-action-columns 4)
 
 ;;;###autoload
