@@ -735,9 +735,10 @@ in the popup."
 (defun magit-popup-format-argument-button (type ev)
   (list (format-spec
          (button-type-get type 'format)
-         `((?k . ,(propertize (concat (char-to-string
-                                       (button-type-get type 'prefix))
-                                      (magit-popup-event-keydsc ev))
+         `((?k . ,(propertize (concat
+                               (--when-let (button-type-get type 'prefix)
+                                 (char-to-string it))
+                               (magit-popup-event-keydsc ev))
                               'face 'magit-popup-key))
            (?d . ,(magit-popup-event-dsc ev))
            (?a . ,(propertize (magit-popup-event-arg ev)
