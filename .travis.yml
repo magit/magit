@@ -15,6 +15,7 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq $EMACS
 install:
+  - $CURL https://raw.github.com/magnars/dash.el/master/dash.el -o dash.el
   - $CURL https://raw.github.com/magit/git-modes/master/git-commit-mode.el -o git-commit-mode.el
   - $CURL https://raw.github.com/magit/git-modes/master/git-rebase-mode.el -o git-rebase-mode.el
   - if test $EMACS = emacs; then
