@@ -5965,6 +5965,9 @@ Also see option `magit-set-upstream-on-push'."
   :max-action-columns 4
   :default-action 'magit-commit)
 
+(defadvice magit-commit-popup (around pop-to-ongoing activate)
+  (--if-let (magit-commit-log-buffer) (switch-to-buffer it) ad-do-it))
+
 ;;;###autoload
 (defun magit-commit (&optional args)
   "Create a new commit on HEAD.
