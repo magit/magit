@@ -6170,17 +6170,10 @@ depending on the value of option `magit-commit-squash-confirm'.
                   (hunk (magit-section-parent section))
                   (diff section)
                   (t    (user-error "No change at point")))))
-         (locate-buffer (lambda ()
-                          (cl-find-if
-                           (lambda (buf)
-                             (with-current-buffer buf
-                               (derived-mode-p 'git-commit-mode)))
-                           (append (buffer-list (selected-frame))
-                                   (buffer-list)))))
-         (buffer (funcall locate-buffer)))
+         (buffer (magit-commit-log-buffer)))
     (unless buffer
       (magit-commit)
-      (while (not (setq buffer (funcall locate-buffer)))
+      (while (not (setq buffer (magit-commit-log-buffer)))
         (sit-for 0.01)))
     (pop-to-buffer buffer)
     (goto-char (point-min))
