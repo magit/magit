@@ -5318,7 +5318,17 @@ With a prefix argument, visit in other window."
                                    (current-column)))
     (commit (magit-show-commit info))
     (stash  (magit-diff-stash info))
-    (branch (magit-checkout info))))
+    (branch (magit-checkout info)))
+  (magit--ensure-visible))
+
+(defun magit--ensure-visible ()
+  "Remove overlays hiding point."
+  (let ((overlays (overlays-at (point)))
+        ov invis-prop expose)
+    (while (setq ov (pop overlays))
+      (if (and (invisible-p (overlay-get ov 'invisible))
+               (setq expose (overlay-get ov 'isearch-open-invisible)))
+          (funcall expose ov)))))
 
 (defun magit-visit-file-item (file &optional other-window line column)
   (unless file
