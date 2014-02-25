@@ -3886,6 +3886,9 @@ results in additional differences."
   (magit-completing-read prompt keys nil nil initial-input nil
                          (or (car magit-gpg-secret-key-hist) (car keys)))))
 
+(defun magit-popup-read-file-name (prompt initial-input)
+  (read-file-name prompt nil nil t initial-input))
+
 ;;; (misplaced)
 ;;;; Hunk Refinement
 
@@ -5687,7 +5690,8 @@ Return nil if there is no rebase in progress."
               (?d "lie about committer date" "--committer-date-is-author-date")
               (?D "use current timestamp for author date" "--ignore-date")
               (?b "pass -b flag to git-mailinfo" "--keep-non-patch"))
-  :options  '((?p "format the patch(es) are in" "--patch-format"))
+  :options  '((?p "format the patch(es) are in" "--patch-format"
+                  magit-popup-read-file-name))
   :actions  '((?J "Apply Mailbox" magit-apply-mailbox)))
 
 (defun magit-apply-mailbox (&optional file-or-dir)
