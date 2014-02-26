@@ -4083,7 +4083,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
          (concat
           "^ ?\\(.*\\)"  ; file
           "\\( +| +\\)"  ; separator
-          "\\([0-9]+\\)" ; cnt
+          "\\([0-9]+\\|Bin\\(?: +[0-9]+ -> [0-9]+ bytes\\)?$\\)" ; cnt
           " ?"
           "\\(\\+*\\)"   ; add
           "\\(-*\\)"     ; del
