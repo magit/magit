@@ -950,6 +950,14 @@ t          ask if --set-upstream should be used.
                  (const :tag "Refuse" refuse)
                  (const :tag "Always" dontask)))
 
+(defcustom magit-stash-snapshot-message-format
+  "Snapshot taken at %Y-%m-%d %H:%M:%S"
+  "Format for messages of snapshot stashes.
+`format-time-string' to create the message from this format."
+  :package-version '(magit . "2.0.0")
+  :group 'magit-modes
+  :type 'string)
+
 (defcustom magit-wazzup-sections-hook
   '(magit-insert-wazzup-head-line
     magit-insert-empty-line
@@ -6337,10 +6345,7 @@ With prefix argument, changes in staging area are kept.
 \n(git stash save [ARGS] \"Snapshot...\";
  git stash apply stash@{0})"
   (interactive (list (magit-current-popup-args :not "--index")))
-  (magit-call-git "stash" "save" args
-                  (format-time-string
-                   "Snapshot taken at %Y-%m-%d %H:%M:%S"
-                   (current-time)))
+  (magit-call-git "stash" "save" args (magit-stash-format-snapshot-message))
   (magit-stash-apply 0 "--index"))
 
 (defun magit-stash-apply (stash &optional args)
@@ -6372,6 +6377,9 @@ With prefix argument, changes in staging area are kept.
 
 (defun magit-stash-as-refname (arg)
   (if (stringp arg) arg (format "stash@{%i}" arg)))
+
+(defun magit-stash-format-snapshot-message ()
+  (format-time-string magit-stash-snapshot-message-format (current-time)))
 
 ;;;;; Cherry-Pick
 
