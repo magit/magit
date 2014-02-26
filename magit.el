@@ -5330,23 +5330,23 @@ inspect the merge and change the commit message.
    (let ((default-directory (magit-get-top-dir)))
      (if (file-exists-p (magit-git-dir "MERGE_HEAD"))
          (let ((file (magit-completing-read
-		      "Checkout file"
-		      (magit-git-lines "ls-files")
-		      nil nil nil 'magit-read-file-hist
-		      (magit-section-case (info)
-			((diff diffstat [file untracked]) info)))))
+                      "Checkout file"
+                      (magit-git-lines "ls-files")
+                      nil nil nil 'magit-read-file-hist
+                      (magit-section-case (info)
+                        ((diff diffstat [file untracked]) info)))))
            (cond
-	    ((member file (magit-git-lines "diff" "--name-only"
-					   "--diff-filter=U"))
-	     (list file
-		   (magit-read-char-case (format "For %s checkout: " file) t
-		     (?o "[o]ur stage"   "--ours")
-		     (?t "[t]heir stage" "--theirs")
-		     (?c "[c]onflict"    "--merge"))))
-	    ((yes-or-no-p (format "Restore conflicts in %s? " file))
-	     (list file "--merge" t))
-	    (t
-	     (user-error "Quit"))))
+            ((member file (magit-git-lines "diff" "--name-only"
+                                           "--diff-filter=U"))
+             (list file
+                   (magit-read-char-case (format "For %s checkout: " file) t
+                     (?o "[o]ur stage"   "--ours")
+                     (?t "[t]heir stage" "--theirs")
+                     (?c "[c]onflict"    "--merge"))))
+            ((yes-or-no-p (format "Restore conflicts in %s? " file))
+             (list file "--merge" t))
+            (t
+             (user-error "Quit"))))
        (user-error "No merge in progress"))))
   (if restore-conflict
       (with-temp-buffer
@@ -5355,17 +5355,17 @@ inspect the merge and change the commit message.
                                           "merge-base" "MERGE_HEAD" "HEAD")
                                file)
           (replace-regexp-in-string "\t" " 1\t" it)
-	  (insert it "\n"))
+          (insert it "\n"))
         (--> (magit-git-string "ls-tree" "HEAD" file)
           (replace-regexp-in-string "\t" " 2\t" it)
-	  (insert it "\n"))
+          (insert it "\n"))
         (--> (magit-git-string "ls-tree" "MERGE_HEAD" file)
           (replace-regexp-in-string "\t" " 3\t" it)
-	  (insert it "\n"))
+          (insert it "\n"))
         (magit-run-git-with-input (current-buffer) "checkout" arg file))
     (magit-call-git "checkout" arg file)
     (if (string= arg "--merge")
-	(magit-refresh)
+        (magit-refresh)
       (magit-run-git "add" file))))
 
 (defun magit-merge-state ()
