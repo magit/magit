@@ -1006,7 +1006,7 @@ UNIT.  Also see option `magit-log-margin-spec'."
                        (string    :tag "Unit plural string")
                        (integer   :tag "Seconds in unit"))))
 
-(defcustom magit-ellipsis ?…
+(defcustom magit-ellipsis #x2026 ; "horizontal ellipsis"
   "Character appended to abreviated text.
 Currently this is used only in the log margin, but might later
 be used elsewhere too.  Filenames that were abbreviated by Git
