@@ -4080,7 +4080,14 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 
 (defun magit-wash-diffstat ()
   (when (looking-at
-         "^ ?\\(.*\\)\\( +| +\\)\\([0-9]+\\) ?\\(\\+*\\)\\(-*\\)$")
+         (concat
+          "^ ?\\(.*\\)"  ; file
+          "\\( +| +\\)"  ; separator
+          "\\([0-9]+\\|Bin\\(?: +[0-9]+ -> [0-9]+ bytes\\)?$\\)" ; cnt
+          " ?"
+          "\\(\\+*\\)"   ; add
+          "\\(-*\\)"     ; del
+          "$"))
     (magit-bind-match-strings (file sep cnt add del)
       (delete-region (point) (1+ (line-end-position)))
       (magit-with-section (section diffstat 'diffstat)
