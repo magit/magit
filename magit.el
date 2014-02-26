@@ -950,6 +950,14 @@ t          ask if --set-upstream should be used.
                  (const :tag "Refuse" refuse)
                  (const :tag "Always" dontask)))
 
+(defcustom magit-stash-snapshot-message-format
+  "Snapshot taken at %Y-%m-%d %H:%M:%S"
+  "Format for messages of snapshot stashes.
+`format-time-string' to create the message from this format."
+  :package-version '(magit . "2.0.0")
+  :group 'magit-modes
+  :type 'string)
+
 (defcustom magit-wazzup-sections-hook
   '(magit-insert-wazzup-head-line
     magit-insert-empty-line
@@ -6310,13 +6318,15 @@ With a prefix argument annotate the tag.
               (?i "Reinstate stashed index" "--index")
               (?u "Include untracked files" "--include-untracked")
               (?a "Include all files"       "--all"))
-  :actions  '((?z "Save"     magit-stash)
-              (?p "Pop"      magit-stash-pop)
-              (?k "Drop"     magit-stash-drop)
-              (?v "View"     magit-diff-stash)
-              (?s "Snapshot" magit-stash-snapshot)
-              (?a "Apply"    magit-stash-apply)
-              (?b "Branch"   magit-stash-branch))
+  :actions  '((?z "Save"           magit-stash)
+              (?s "Snapshot"       magit-stash-snapshot)
+              (?p "Pop"            magit-stash-pop)
+              (?k "Drop"           magit-stash-drop)
+              (?Z "Save index"     magit-stash-index)
+              (?S "Snapshot index" magit-stash-snapshot)
+              (?a "Apply"          magit-stash-apply)
+              (?b "Branch"         magit-stash-branch)
+              (?v "View"           magit-diff-stash))
   :default-arguments '("--index")
   :default-action 'magit-stash
   :max-action-columns 4)
@@ -6337,11 +6347,27 @@ With prefix argument, changes in staging area are kept.
 \n(git stash save [ARGS] \"Snapshot...\";
  git stash apply stash@{0})"
   (interactive (list (magit-current-popup-args :not "--index")))
-  (magit-call-git "stash" "save" args
-                  (format-time-string
-                   "Snapshot taken at %Y-%m-%d %H:%M:%S"
-                   (current-time)))
+  (magit-call-git "stash" "save" args (magit-stash-format-snapshot-message))
   (magit-stash-apply 0 "--index"))
+
+(defun magit-stash-index (message &optional snapshot)
+  "Create a new stash of the index only."
+  (interactive (list (read-string "Stash message: ")))
+  (magit-git-string "stash" "save" "--keep-index" (concat "(" message ")"))
+  (let ((both (magit-rev-parse "refs/stash")))
+    (message "Saved working directory and index state in %s" both)
+    (magit-call-git "stash" "drop")
+    (magit-call-git "stash" "save" message)
+    (if snapshot
+        (magit-run-git "stash" "pop" "--index" both)
+      (with-temp-buffer
+        (magit-git-insert "diff" (concat "stash@{0}.." both))
+        (magit-run-git-with-input (current-buffer) "apply")))))
+
+(defun magit-stash-index-snapshot ()
+  "Create a new stash of the index only; keep changes in place."
+  (interactive)
+  (magit-stash-index (magit-stash-format-snapshot-message) t))
 
 (defun magit-stash-apply (stash &optional args)
   "Apply a stash on top of the current working tree state.
@@ -6372,6 +6398,9 @@ With prefix argument, changes in staging area are kept.
 
 (defun magit-stash-as-refname (arg)
   (if (stringp arg) arg (format "stash@{%i}" arg)))
+
+(defun magit-stash-format-snapshot-message ()
+  (format-time-string magit-stash-snapshot-message-format (current-time)))
 
 ;;;;; Cherry-Pick
 
