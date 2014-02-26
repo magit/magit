@@ -6003,13 +6003,14 @@ Also see option `magit-set-upstream-on-push'."
   "Popup console for commit commands."
   'magit-popups
   :man-page "git-commit"
-  :switches '((?R "Claim authorship and reset author date" "--reset-author")
-              (?a "Stage all modified and deleted files"   "--all")
+  :switches '((?a "Stage all modified and deleted files"   "--all")
               (?e "Allow empty commit"                     "--allow-empty")
               (?v "Show diff of changes to be committed"   "--verbose")
               (?n "Bypass git hooks"                       "--no-verify")
-              (?s "Add Signed-off-by line"                 "--signoff"))
-  :options  '((?S "Sign using gpg" "--gpg-sign=" magit-read-gpg-secret-key))
+              (?s "Add Signed-off-by line"                 "--signoff")
+              (?R "Claim authorship and reset author date" "--reset-author"))
+  :options  '((?A "Override the author" "--author="   read-from-minibuffer)
+              (?S "Sign using gpg"      "--gpg-sign=" magit-read-gpg-secret-key))
   :actions  '((?c "Commit"         magit-commit)
               (?e "Extend"         magit-commit-extend)
               (?f "Fixup"          magit-commit-fixup)
