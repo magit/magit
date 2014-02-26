@@ -911,7 +911,7 @@ UNIT.  Also see option `magit-log-margin-spec'."
                        (string    :tag "Unit plural string")
                        (integer   :tag "Seconds in unit"))))
 
-(defcustom magit-ellipsis ?…
+(defcustom magit-ellipsis #x2026 ; "horizontal ellipsis"
   "Character appended to abreviated text.
 Currently this is used only in the log margin, but might later
 be used elsewhere too.  Filenames that were abbreviated by Git
@@ -3966,7 +3966,14 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 
 (defun magit-wash-diffstat ()
   (when (looking-at
-         "^ ?\\(.*\\)\\( +| +\\)\\([0-9]+\\) ?\\(\\+*\\)\\(-*\\)$")
+         (concat
+          "^ ?\\(.*\\)"  ; file
+          "\\( +| +\\)"  ; separator
+          "\\([0-9]+\\|Bin\\(?: +[0-9]+ -> [0-9]+ bytes\\)?$\\)" ; cnt
+          " ?"
+          "\\(\\+*\\)"   ; add
+          "\\(-*\\)"     ; del
+          "$"))
     (magit-bind-match-strings (file sep cnt add del)
       (delete-region (point) (1+ (line-end-position)))
       (magit-with-section (section diffstat 'diffstat)
