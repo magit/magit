@@ -4728,8 +4728,7 @@ can be used to override this."
                   (lambda (f)
                     (when (eq (aref f 0) ??) (list f)))
                   (magit-git-lines
-                   "status" "--porcelain"
-                   (concat "-u" (magit-get "status.showUntrackedFiles"))))))
+                   "status" "--porcelain"))))
       (if (not files)
           (setq section nil)
         (dolist (file files)
