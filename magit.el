@@ -2206,10 +2206,10 @@ involving HEAD."
   (magit-git-success "diff" "--quiet" "--" file))
 
 (defun magit-anything-staged-p ()
-  (magit-git-failure "diff-index" "--cached" "--quiet" "HEAD"))
+  (magit-git-failure "diff" "--quiet" "--cached"))
 
 (defun magit-anything-unstaged-p ()
-  (magit-git-failure "diff-files" "--quiet"))
+  (magit-git-failure "diff" "--quiet"))
 
 (defun magit-everything-clean-p ()
   (and (not (magit-anything-staged-p))
