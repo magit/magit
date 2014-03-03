@@ -238,7 +238,7 @@
       ("-s" "Add Signed-off-by line" "--signoff")
       ("-R" "Claim authorship and reset author date" "--reset-author"))
      (arguments
-      ("-A" "Override the author" "--author")
+      ("=A" "Override the author" "--author=" read-from-minibuffer)
       ("=S" "Sign using gpg" "--gpg-sign=" magit-read-gpg-secret-key)))
 
     (merging
@@ -277,7 +277,7 @@
       ("-D" "use current timestamp for author date" "--ignore-date")
       ("-b" "pass -b flag to git-mailinfo" "--keep-non-patch"))
      (arguments
-      ("=p" "format the patch(es) are in" "--patch-format")))
+      ("=p" "format the patch(es) are in" "--patch-format=" read-from-minibuffer)))
 
     (submodule
      (man-page "git-submodule")
