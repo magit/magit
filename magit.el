@@ -2528,10 +2528,7 @@ Run Git in the root of the current repository.
 ;;;;; Process Mode
 
 (define-derived-mode magit-process-mode magit-mode "Magit Process"
-  "Mode for looking at git process output."
-  (view-mode 1)
-  (setq-local view-no-disable-on-exit t)
-  (setq view-exit-action #'bury-buffer))
+  "Mode for looking at git process output.")
 
 (defvar magit-process-buffer-name "*magit-process*"
   "Name of buffer where output of processes is put.")
@@ -3463,14 +3460,14 @@ If FILE isn't inside a Git repository then return nil."
 ;;;; Diff Predicates
 
 (defun magit-anything-staged-p ()
-  (magit-git-failure "diff-index" "--cached" "--quiet" "HEAD"))
+  (magit-git-failure "diff" "--quiet" "--cached"))
 
 (defun magit-anything-unstaged-p ()
-  (magit-git-failure "diff-files" "--quiet"))
+  (magit-git-failure "diff" "--quiet"))
 
-(defun magit-everything-clean-p ()
-  (and (not (magit-anything-staged-p))
-       (magit-git-success "diff" "--quiet")))
+(defun magit-anything-modified-p ()
+  (or (magit-anything-staged-p)
+      (magit-anything-unstaged-p)))
 
 (defun magit-file-uptodate-p (file)
   (magit-git-success "diff" "--quiet" "--" file))
@@ -4608,9 +4605,7 @@ can be used to override this."
   (magit-with-section (section untracked 'untracked "Untracked files:" t)
     (--if-let (cl-mapcan (lambda (f)
                            (and (eq (aref f 0) ??) (list f)))
-                         (magit-git-lines
-                          "status" "--porcelain"
-                          (concat "-u" (magit-get "status.showUntrackedFiles"))))
+                         (magit-git-lines "status" "--porcelain"))
         (progn (dolist (file it)
                  (setq file (magit-decode-git-path (substring file 3)))
                  (magit-with-section (section file file)
@@ -5386,7 +5381,7 @@ inspect the merge and change the commit message.
   (file-exists-p (magit-git-dir "MERGE_HEAD")))
 
 (defun magit-merge-assert ()
-  (or (magit-everything-clean-p)
+  (or (not (magit-anything-modified-p))
       (not magit-merge-warn-dirty-worktree)
       (yes-or-no-p (concat "Running merge in a dirty worktree "
                            "could cause data loss.  Continue?"))
