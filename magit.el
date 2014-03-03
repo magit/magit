@@ -2211,9 +2211,9 @@ involving HEAD."
 (defun magit-anything-unstaged-p ()
   (magit-git-failure "diff" "--quiet"))
 
-(defun magit-everything-clean-p ()
-  (and (not (magit-anything-staged-p))
-       (magit-git-success "diff" "--quiet")))
+(defun magit-anything-modified-p ()
+  (or (magit-anything-staged-p)
+      (magit-anything-unstaged-p)))
 
 (defun magit-commit-parents (commit)
   (cdr (split-string (magit-git-string "rev-list" "-1" "--parents" commit))))
@@ -5458,7 +5458,7 @@ With a prefix argument, skip editing the log message and commit.
                                      (or (magit-guess-branch)
                                          (magit-get-previous-branch)))
                      current-prefix-arg))
-  (when (or (magit-everything-clean-p)
+  (when (or (not (magit-anything-modified-p))
             (not magit-merge-warn-dirty-worktree)
             (yes-or-no-p
              "Running merge in a dirty worktree could cause data loss.  Continue?"))
@@ -5839,8 +5839,8 @@ With two prefix args, remove ignored files as well."
 
 (defun magit-rewrite-start (from &optional onto)
   (interactive (list (magit-read-rev-with-default "Rewrite from")))
-  (or (magit-everything-clean-p)
-      (user-error "You have uncommitted changes"))
+  (when (magit-anything-modified-p)
+    (user-error "You have uncommitted changes"))
   (or (not (magit-read-rewrite-info))
       (user-error "Rewrite in progress"))
   (let* ((orig (magit-rev-parse "HEAD"))
@@ -5871,8 +5871,8 @@ With two prefix args, remove ignored files as well."
          (orig (cadr (assq 'orig info))))
     (or info
         (user-error "No rewrite in progress"))
-    (or (magit-everything-clean-p)
-        (user-error "You have uncommitted changes"))
+    (when (magit-anything-modified-p)
+      (user-error "You have uncommitted changes"))
     (when (yes-or-no-p "Abort rewrite? ")
       (magit-write-rewrite-info nil)
       (magit-run-git "reset" "--hard" orig "--"))))
