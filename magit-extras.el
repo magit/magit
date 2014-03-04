@@ -87,13 +87,9 @@ default when prompting for a commit."
 If there is no commit at point, then prompt for one."
   (interactive
    (let* ((marked (or magit-marked-commit (user-error "No commit marked")))
-          (current (magit-get-current-branch))
-          (is-current (string= (magit-get-refname marked) current))
-          (commit (or (magit-guess-branch)
-                      (magit-read-rev
-                       (format "Diff marked commit %s with" marked)
-                       (unless is-current current)
-                       current))))
+          (commit (magit-read-rev (format "Diff marked commit %s with" marked)
+                                  (or (magit-guess-branch)
+                                      (magit-get-current-branch)))))
      (list (concat marked ".." commit))))
   (magit-diff range))
 
