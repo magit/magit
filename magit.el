@@ -3099,6 +3099,15 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
         (pop-to-buffer buf)
       (user-error "Process buffer doesn't exist"))))
 
+(defun magit-process-kill ()
+  "Kill the process at point."
+  (interactive)
+  (magit-section-case (info)
+    (process (if (eq (process-status info) 'run)
+                 (when (yes-or-no-p "Kill this process? ")
+                   (kill-process info))
+               (user-error "Process isn't running")))))
+
 (defvar magit-git-command-history nil)
 
 ;;;###autoload
@@ -3401,6 +3410,7 @@ repository are reverted using `auto-revert-buffers'."
           (process-send-region process (point-min) (point-max))
           (process-send-eof    process)))
       (setq magit-this-process process)
+      (setf (magit-section-info section) process)
       (magit-process-display-buffer process)
       process)))
 
