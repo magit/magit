@@ -5405,10 +5405,11 @@ inspect the merge and change the commit message.
     (user-error "No merge in progress")))
 
 (defun magit-checkout-stage (file arg &optional restore-conflict)
-  "During a merge, checkout and stage side, or restore conflict."
+  "During a conflict checkout and stage side, or restore conflict."
   (interactive
    (let ((default-directory (magit-get-top-dir)))
-     (if (file-exists-p (magit-git-dir "MERGE_HEAD"))
+     (if t ; FIXME conflicts occur in other situations too
+         ;; (file-exists-p (magit-git-dir "MERGE_HEAD"))
          (let ((file (magit-completing-read
                       "Checkout file"
                       (magit-git-lines "ls-files")
