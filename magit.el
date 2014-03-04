@@ -3433,6 +3433,10 @@ be an existing directory."
               gitdir
             (file-name-directory (directory-file-name gitdir)))))))
 
+(defun magit-bare-repo-p ()
+  "Return t if the current repository is bare."
+  (magit-rev-parse-p "--is-bare-repository"))
+
 (defun magit-file-relative-name (file)
   "Return the path of FILE relative to the repository root.
 If FILE isn't inside a Git repository then return nil."
@@ -3454,10 +3458,6 @@ If FILE isn't inside a Git repository then return nil."
     path))
 
 ;;;; Predicates
-
-(defun magit-bare-repo-p ()
-  "Return t if the current repository is bare."
-  (magit-rev-parse-p "--is-bare-repository"))
 
 (defun magit-no-commit-p ()
   "Return t if there is no commit in the current git repository."
