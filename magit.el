@@ -2306,23 +2306,20 @@ Expanded: everything is shown."
            (t
             (magit-section-expand s))))))
 
-(defun magit-section-show-level (section level threshold path)
+(defun magit-show-level (level all)
+  (if all
+      (magit-show-level* magit-root-section 0 level nil)
+    (let ((path (reverse (magit-section-lineage (magit-current-section)))))
+      (magit-show-level* (car path) 0 level (cdr path)))))
+
+(defun magit-show-level* (section level threshold path)
   (magit-section-set-hidden section (>= level threshold))
   (when (and (< level threshold)
              (not (magit-no-commit-p)))
     (if path
-        (magit-section-show-level (car path) (1+ level) threshold (cdr path))
+        (magit-show-level* (car path) (1+ level) threshold (cdr path))
       (dolist (c (magit-section-children section))
-        (magit-section-show-level c (1+ level) threshold nil)))))
-
-(defun magit-show-level (level all)
-  "Show section whose level is less than LEVEL, hide the others.
-If ALL is non nil, do this in all sections, otherwise do it only
-on ancestors and descendants of current section."
-  (if all
-      (magit-section-show-level magit-root-section 0 level nil)
-    (let ((path (reverse (magit-section-lineage (magit-current-section)))))
-      (magit-section-show-level (car path) 0 level (cdr path)))))
+        (magit-show-level* c (1+ level) threshold nil)))))
 
 (defmacro magit-define-level-shower-1 (level all)
   "Define an interactive function to show function of level LEVEL.
