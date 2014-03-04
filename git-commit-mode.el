@@ -299,11 +299,16 @@ The commit message is saved to the kill ring."
   (remove-hook 'kill-buffer-hook 'server-kill-buffer t)
   (remove-hook 'kill-buffer-query-functions 'git-commit-kill-buffer-noop t)
   (git-commit-restore-previous-winconf
-    (let ((clients (git-commit-buffer-clients)))
+    (let ((buffer  (current-buffer))
+          (clients (git-commit-buffer-clients)))
       (if clients
-          (dolist (client clients)
-            (server-send-string client "-error Commit aborted by user")
-            (delete-process client))
+          (progn
+            (dolist (client clients)
+              (ignore-errors
+                (server-send-string client "-error Commit aborted by user"))
+              (delete-process client))
+            (when (buffer-live-p buffer)
+              (kill-buffer buffer)))
         (kill-buffer))))
   (message (concat "Commit aborted."
                    (when (memq 'git-commit-save-message
