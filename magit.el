@@ -3482,9 +3482,6 @@ are considered."
   (or (apply 'magit-anything-staged-p files)
       (apply 'magit-anything-unstaged-p files)))
 
-(defun magit-file-uptodate-p (file)
-  (magit-git-success "diff" "--quiet" "--" file))
-
 ;;;; Revisions and References
 
 (defun magit-rev-parse (&rest args)
@@ -4955,19 +4952,18 @@ With a prefix argument, add remaining untracked files as well.
                           "Discard hunk? "))
        (magit-apply-hunk-item it "--reverse")))
     ([hunk diff staged]
-     (if (magit-file-uptodate-p parent-info)
-         (when (yes-or-no-p (if (use-region-p)
-                                "Discard changes in region? "
-                              "Discard hunk? "))
-           (magit-apply-hunk-item it "--reverse" "--index"))
-       (user-error "Can't discard this hunk.  Please unstage it first")))
+     (cond ((magit-anything-unstaged-p parent-info)
+            (user-error "Cannot discard this hunk, file has unstaged changes"))
+           ((yes-or-no-p (if (use-region-p)
+                             "Discard changes in region? "
+                           "Discard hunk? "))
+            (magit-apply-hunk-item it "--reverse" "--index"))))
     ([diff unstaged]
      (magit-discard-diff it nil))
     ([diff staged]
-     (if (magit-file-uptodate-p (magit-section-info it))
-         (magit-discard-diff it t)
-       (user-error "Can't discard staged changes to this file.  \
-Please unstage it first")))
+     (if (magit-anything-unstaged-p (magit-section-info it))
+         (user-error "Cannot discard this hunk, file has unstaged changes")
+       (magit-discard-diff it t)))
     (hunk   (user-error "Can't discard this hunk"))
     (diff   (user-error "Can't discard this diff"))
     (stash  (when (yes-or-no-p "Discard stash? ")
