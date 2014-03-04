@@ -994,15 +994,15 @@ The following `format'-like specs are supported:
   :type 'string)
 
 (defcustom magit-wip-save-message "Wrote %f (wip)"
-  "Message shown in the echo area after creating a git-wip commit.
+  "Message shown after updating a work-in-progress ref.
 
 The following `format'-like specs are supported:
-%f the full name of the file being saved
-%g the root of the git repository
-%r the name of the file being saved,
-   relative to the repository root."
+%r the relative filename of the file being saved, and
+%f the absolute filename of the file being saved,
+%g the absolute filename of the repository toplevel."
   :group 'magit-wip
-  :type '(choice (const :tag "No message" nil) string))
+  :type '(choice (const :tag "No message" nil)
+                 (string :tag "Format")))
 
 ;;;; Custom Faces
 
