@@ -3532,7 +3532,13 @@ Return nil if no branch is currently checked out."
 (defun magit-get-previous-branch ()
   "Return the refname of the previously checked out branch.
 Return nil if the previously checked out branch no longer exists."
-  (magit-get-shortname (magit-rev-parse "--verify" "@{-1}")))
+  (let ((current (magit-get-current-branch))
+        (i 1) prev)
+    (while (and (setq prev (magit-rev-parse "--verify" (format "@{-%i}" i)))
+                (setq prev (magit-get-shortname prev))
+                (equal prev current))
+      (cl-incf i))
+    prev))
 
 (defun magit-get-tracked-branch (&optional branch qualified)
   "Return the name of the tracking branch the local branch name BRANCH.
