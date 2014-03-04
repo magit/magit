@@ -2474,6 +2474,15 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
         (pop-to-buffer buf)
       (user-error "Process buffer doesn't exist"))))
 
+(defun magit-process-kill ()
+  "Kill the process at point."
+  (interactive)
+  (magit-section-case (info)
+    (process (if (eq (process-status info) 'run)
+                 (when (yes-or-no-p "Kill this process? ")
+                   (kill-process info))
+               (user-error "Process isn't running")))))
+
 (defvar magit-git-command-history nil)
 
 (magit-define-popup magit-run-popup
@@ -2785,6 +2794,7 @@ repository are reverted using `auto-revert-buffers'."
           (process-send-region process (point-min) (point-max))
           (process-send-eof    process)))
       (setq magit-this-process process)
+      (setf (magit-section-info section) process)
       (magit-process-display-buffer process)
       process)))
 
@@ -5276,7 +5286,7 @@ Non-interactively DIRECTORY is always (re-)initialized."
                               top dir)))))
          (user-error "Abort")
        dir)))
-  (magit-run-git "init" directory))
+  (magit-run-git "init" (expand-file-name directory)))
 
 ;;;;; Merging
 
