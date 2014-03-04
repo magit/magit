@@ -4997,7 +4997,7 @@ With a prefix argument, add remaining untracked files as well.
 (defun magit-discard-item ()
   "Remove the change introduced by the item at point."
   (interactive)
-  (magit-section-action discard (info parent-info)
+  (magit-section-action discard (info parent-info diff-status)
     ([file untracked]
      (when (yes-or-no-p (format "Delete %s? " info))
        (if (and (file-directory-p info)
@@ -5021,7 +5021,9 @@ With a prefix argument, add remaining untracked files as well.
                            "Discard hunk? "))
             (magit-apply-hunk-item it "--reverse" "--index"))))
     ([diff unstaged]
-     (magit-discard-diff it nil))
+     (if (eq diff-status 'unmerged)
+         (magit-checkout-stage info (magit-checkout-read-stage info))
+       (magit-discard-diff it nil)))
     ([diff staged]
      (if (magit-anything-unstaged-p (magit-section-info it))
          (user-error "Cannot discard this hunk, file has unstaged changes")
