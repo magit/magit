@@ -3453,10 +3453,7 @@ If FILE isn't inside a Git repository then return nil."
       (string-as-multibyte (read path))
     path))
 
-;;;; Repository Predicates
-
-(defun magit-git-repo-p (dir)
-  (file-exists-p (expand-file-name ".git" dir)))
+;;;; Predicates
 
 (defun magit-bare-repo-p ()
   "Return t if the current repository is bare."
@@ -3465,8 +3462,6 @@ If FILE isn't inside a Git repository then return nil."
 (defun magit-no-commit-p ()
   "Return t if there is no commit in the current git repository."
   (not (magit-git-string "rev-list" "-1" "HEAD")))
-
-;;;; Diff Predicates
 
 (defun magit-anything-staged-p ()
   (magit-git-failure "diff" "--quiet" "--cached"))
@@ -7534,7 +7529,8 @@ non-nil, then autocompletion will offer directory names."
 
 (defun magit-list-repos* (dir depth)
   "Return a list of repos found in DIR, recursing up to DEPTH levels deep."
-  (if (magit-git-repo-p dir)
+  (if (magit-git-success "rev-parse" "--resolve-git-dir"
+                         (expand-file-name ".git" dir))
       (list (expand-file-name dir))
     (and (> depth 0)
          (file-directory-p dir)
