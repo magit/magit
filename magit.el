@@ -1364,8 +1364,8 @@ Many Magit faces inherit from this one by default."
     (define-key map "\M-2" 'magit-show-level-2-all)
     (define-key map "\M-3" 'magit-show-level-3-all)
     (define-key map "\M-4" 'magit-show-level-4-all)
-    (define-key map "\M-h" 'magit-show-only-files)
-    (define-key map "\M-H" 'magit-show-only-files-all)
+    (define-key map "\M-h" 'magit-show-level-1)
+    (define-key map "\M-H" 'magit-show-level-1-all)
     (define-key map "\M-s" 'magit-show-level-4)
     (define-key map "\M-S" 'magit-show-level-4-all)
     (define-key map "g" 'magit-refresh)
@@ -1433,6 +1433,8 @@ Many Magit faces inherit from this one by default."
     (define-key map "jf" 'magit-jump-to-unpulled)
     (define-key map "jp" 'magit-jump-to-unpushed)
     (define-key map "jr" 'magit-jump-to-pending)
+    (define-key map "\M-h" 'magit-show-level-2)
+    (define-key map "\M-H" 'magit-show-level-2-all)
     map)
   "Keymap for `magit-status-mode'.")
 
@@ -2321,23 +2323,6 @@ on ancestors and descendants of current section."
       (magit-section-show-level magit-root-section 0 level nil)
     (let ((path (reverse (magit-section-lineage (magit-current-section)))))
       (magit-section-show-level (car path) 0 level (cdr path)))))
-
-(defun magit-show-only-files ()
-  "Show section that are files, but not their subsection.
-
-Do this in on ancestors and descendants of current section."
-  (interactive)
-  (if (derived-mode-p 'magit-status-mode)
-      (call-interactively 'magit-show-level-2)
-    (call-interactively 'magit-show-level-1)))
-
-(defun magit-show-only-files-all ()
-  "Show section that are files, but not their subsection.
-Do this for all sections"
-  (interactive)
-  (if (derived-mode-p 'magit-status-mode)
-      (call-interactively 'magit-show-level-2-all)
-    (call-interactively 'magit-show-level-1-all)))
 
 (defmacro magit-define-level-shower-1 (level all)
   "Define an interactive function to show function of level LEVEL.
