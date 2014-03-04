@@ -3891,7 +3891,7 @@ results in additional differences."
   (setq default (magit-git-string "rev-parse" "--symbolic" default)
         exclude (magit-git-string "rev-parse" "--symbolic" exclude))
   (magit-completing-read prompt (delete exclude (magit-list-refnames))
-                         nil (not noselection) nil
+                         nil nil nil
                          'magit-read-rev-history default))
 
 (defun magit-read-rev-with-default (prompt)
