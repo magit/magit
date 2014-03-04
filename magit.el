@@ -2140,6 +2140,10 @@ FUNCTION has to move point forward or return nil."
   (setq section (magit-section-parent section))
   (when section (magit-section-info   section)))
 
+(defun magit-section-lineage (section)
+  (when section
+    (cons section (magit-section-lineage (magit-section-parent section)))))
+
 (defun magit-section-siblings (section &optional direction)
   (-when-let (parent (magit-section-parent section))
     (let ((siblings  (magit-section-children parent)))
@@ -2299,11 +2303,6 @@ Expanded: everything is shown."
             (magit-section-set-hidden s t))
            (t
             (magit-section-expand s))))))
-
-(defun magit-section-lineage (section)
-  "Return list of parent, grand-parents... for SECTION."
-  (when section
-    (cons section (magit-section-lineage (magit-section-parent section)))))
 
 (defun magit-section-show-level (section level threshold path)
   (magit-section-set-hidden section (>= level threshold))
