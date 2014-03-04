@@ -4997,7 +4997,7 @@ With a prefix argument, add remaining untracked files as well.
 (defun magit-discard-item ()
   "Remove the change introduced by the item at point."
   (interactive)
-  (magit-section-action discard (info parent-info)
+  (magit-section-action discard (info parent-info diff-status)
     ([file untracked]
      (when (yes-or-no-p (format "Delete %s? " info))
        (if (and (file-directory-p info)
@@ -5021,7 +5021,9 @@ With a prefix argument, add remaining untracked files as well.
                            "Discard hunk? "))
             (magit-apply-hunk-item it "--reverse" "--index"))))
     ([diff unstaged]
-     (magit-discard-diff it nil))
+     (if (eq diff-status 'unmerged)
+         (magit-checkout-stage info (magit-checkout-read-stage info))
+       (magit-discard-diff it nil)))
     ([diff staged]
      (if (magit-anything-unstaged-p (magit-section-info it))
          (user-error "Cannot discard this hunk, file has unstaged changes")
@@ -5405,10 +5407,11 @@ inspect the merge and change the commit message.
     (user-error "No merge in progress")))
 
 (defun magit-checkout-stage (file arg &optional restore-conflict)
-  "During a merge, checkout and stage side, or restore conflict."
+  "During a conflict checkout and stage side, or restore conflict."
   (interactive
    (let ((default-directory (magit-get-top-dir)))
-     (if (file-exists-p (magit-git-dir "MERGE_HEAD"))
+     (if t ; FIXME conflicts occur in other situations too
+         ;; (file-exists-p (magit-git-dir "MERGE_HEAD"))
          (let ((file (magit-completing-read
                       "Checkout file"
                       (magit-git-lines "ls-files")
@@ -5418,11 +5421,7 @@ inspect the merge and change the commit message.
            (cond
             ((member file (magit-git-lines "diff" "--name-only"
                                            "--diff-filter=U"))
-             (list file
-                   (magit-read-char-case (format "For %s checkout: " file) t
-                     (?o "[o]ur stage"   "--ours")
-                     (?t "[t]heir stage" "--theirs")
-                     (?c "[c]onflict"    "--merge"))))
+             (list file (magit-checkout-read-stage file)))
             ((yes-or-no-p (format "Restore conflicts in %s? " file))
              (list file "--merge" t))
             (t
@@ -5462,6 +5461,12 @@ inspect the merge and change the commit message.
   (magit-read-rev "Merge"
                   (or (magit-guess-branch)
                       (magit-get-previous-branch))))
+
+(defun magit-checkout-read-stage (file)
+  (magit-read-char-case (format "For %s checkout: " file) t
+    (?o "[o]ur stage"   "--ours")
+    (?t "[t]heir stage" "--theirs")
+    (?c "[c]onflict"    "--merge")))
 
 ;;;;; Branching
 
