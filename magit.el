@@ -3463,7 +3463,7 @@ If FILE isn't inside a Git repository then return nil."
   (magit-rev-parse-p "--is-bare-repository"))
 
 (defun magit-no-commit-p ()
-  "Return non-nil if there is no commit in the current git repository."
+  "Return t if there is no commit in the current git repository."
   (not (magit-git-string "rev-list" "-1" "HEAD")))
 
 ;;;; Diff Predicates
