@@ -3463,15 +3463,24 @@ If FILE isn't inside a Git repository then return nil."
   "Return t if there is no commit in the current git repository."
   (not (magit-git-string "rev-list" "-1" "HEAD")))
 
-(defun magit-anything-staged-p ()
-  (magit-git-failure "diff" "--quiet" "--cached"))
+(defun magit-anything-staged-p (&rest files)
+  "Return t if there are any staged changes.
+If optional FILES is non-nil, then only changes to those files
+are considered."
+  (magit-git-failure "diff" "--quiet" "--cached" "--" files))
 
-(defun magit-anything-unstaged-p ()
-  (magit-git-failure "diff" "--quiet"))
+(defun magit-anything-unstaged-p (&rest files)
+  "Return t if there are any unstaged changes.
+If optional FILES is non-nil, then only changes to those files
+are considered."
+  (magit-git-failure "diff" "--quiet" "--" files))
 
-(defun magit-anything-modified-p ()
-  (or (magit-anything-staged-p)
-      (magit-anything-unstaged-p)))
+(defun magit-anything-modified-p (&rest files)
+  "Return t if there are any staged or unstaged changes.
+If optional FILES is non-nil, then only changes to those files
+are considered."
+  (or (apply 'magit-anything-staged-p files)
+      (apply 'magit-anything-unstaged-p files)))
 
 (defun magit-file-uptodate-p (file)
   (magit-git-success "diff" "--quiet" "--" file))
