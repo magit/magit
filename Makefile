@@ -15,7 +15,6 @@ ELS += magit-popup.el
 ELS += magit-stgit.el
 ELS += magit-svn.el
 ELS += magit-topgit.el
-ELS += magit-wip.el
 ELCS = $(ELS:.el=.elc)
 
 CP    ?= install -p -m 644
