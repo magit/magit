@@ -7635,12 +7635,11 @@ work-in-progress ref."
   :group 'magit-wip)
 
 (defun turn-on-magit-wip-save ()
-  "Conditionally turn on magit-wip-save-mode.
+  "Conditionally turn on Magit-Wip-Save mode.
 
-Turn on magit-wip-save-mode if the buffer is a file in a git
-repository where wip-save is enabled in git config.
-
-You can activate it with git config magit.extension wip-save."
+If the current buffer visits a file tracked in a Git repository,
+then turn on `magit-wip-save-mode' provided the `wip-save' Magit
+extension has been enabled in that repository."
   (when (and (buffer-file-name)
              (magit-get-top-dir)
              (member "wip-save" (magit-get-all "magit.extension")))
