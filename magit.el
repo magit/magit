@@ -7325,7 +7325,7 @@ Non-interactively DIRECTORY is always (re-)initialized."
                               top dir)))))
          (user-error "Abort")
        dir)))
-  (magit-run-git "init" directory))
+  (magit-run-git "init" (expand-file-name directory)))
 
 (defun magit-copy-item-as-kill ()
   "Copy sha1 of commit at point into kill ring."
