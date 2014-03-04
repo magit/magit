@@ -986,20 +986,19 @@ t          ask if --set-upstream should be used.
   "Commit message for git-wip commits.
 
 The following `format'-like specs are supported:
-%f the full name of the file being saved
-%g the root of the git repository
-%r the name of the file being saved,
-   relative to the repository root."
+%r the relative filename of the file being saved, and
+%a the absolute filename of the file being saved,
+%t the absolute filename of the repository toplevel."
   :group 'magit-wip
   :type 'string)
 
-(defcustom magit-wip-save-message "Wrote %f (wip)"
+(defcustom magit-wip-save-message "Wrote %a (wip)"
   "Message shown after updating a work-in-progress ref.
 
 The following `format'-like specs are supported:
 %r the relative filename of the file being saved, and
-%f the absolute filename of the file being saved,
-%g the absolute filename of the repository toplevel."
+%a the absolute filename of the file being saved,
+%t the absolute filename of the repository toplevel."
   :group 'magit-wip
   :type '(choice (const :tag "No message" nil)
                  (string :tag "Format")))
@@ -7651,9 +7650,9 @@ You can activate it with git config magit.extension wip-save."
          (filedir  (file-name-directory filename))
          (toplevel (magit-get-top-dir filedir))
          (blobname (file-relative-name filename toplevel))
-         (spec `((?f . ,filename)
-                 (?r . ,blobname)
-                 (?g . ,toplevel))))
+         (spec `((?r . ,blobname)
+                 (?a . ,filename)
+                 (?t . ,toplevel))))
     (when (and toplevel (file-writable-p toplevel)
                (not (member blobname
                             (let ((default-directory filedir))
