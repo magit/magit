@@ -2314,8 +2314,7 @@ Expanded: everything is shown."
 
 (defun magit-show-level* (section level threshold path)
   (magit-section-set-hidden section (>= level threshold))
-  (when (and (< level threshold)
-             (not (magit-no-commit-p)))
+  (when (< level threshold)
     (if path
         (magit-show-level* (car path) (1+ level) threshold (cdr path))
       (dolist (c (magit-section-children section))
