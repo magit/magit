@@ -993,7 +993,7 @@ The following `format'-like specs are supported:
   :group 'magit-wip
   :type 'string)
 
-(defcustom magit-wip-echo-area-message "Wrote %f (wip)"
+(defcustom magit-wip-save-message "Wrote %f (wip)"
   "Message shown in the echo area after creating a git-wip commit.
 
 The following `format'-like specs are supported:
@@ -7663,8 +7663,8 @@ You can activate it with git config magit.extension wip-save."
       (magit-run-git "wip" "save"
                      (format-spec magit-wip-commit-message spec)
                      "--editor" "--" filename)
-      (when magit-wip-echo-area-message
-        (message (format-spec magit-wip-echo-area-message spec))))))
+      (when magit-wip-save-message
+        (message (format-spec magit-wip-save-message spec))))))
 
 (defun magit-wip-mode (&rest ignore)
   (message "magit-wip-mode is obsolete and doesn't do anything"))
