@@ -3399,17 +3399,27 @@ GIT_DIR and its absolute path is returned"
     (setq it (file-name-as-directory (magit-expand-git-file-name it)))
     (if path (expand-file-name (convert-standard-filename path) it) it)))
 
-(defun magit-get-top-dir (&optional directory)
-  "Return the top directory for the current repository.
+(defun magit-toplevel ()
+  "Return the top-level directory for the current repository.
 
 Determine the repository which contains `default-directory' in
-either its work tree or git control directory and return its top
-directory.  If there is no top directory, because the repository
-is bare, return the control directory instead.
+its work tree and return the absolute path to its top-level
+directory.  Otherwise return nil."
+  (--when-let (magit-rev-parse "--show-toplevel")
+    (file-name-as-directory (magit-expand-git-file-name it))))
 
-If optional DIRECTORY is non-nil then return the top directory of
-the repository that contains that instead.  DIRECTORY has to be
-an existing directory."
+(defun magit-get-top-dir (&optional directory)
+  "Return the top-level directory for the current repository.
+
+Determine the repository which contains `default-directory' in
+either its work tree or git control directory and return the
+absolute path to its top-level directory.  If there is no top
+directory, because the repository is bare, return the control
+directory instead.
+
+If optional DIRECTORY is non-nil then return the top directory
+of the repository that contains that instead.  DIRECTORY has to
+be an existing directory."
   (setq directory (if directory
                       (file-name-as-directory
                        (expand-file-name directory))
@@ -3417,12 +3427,11 @@ an existing directory."
   (unless (file-directory-p directory)
     (error "%s isn't an existing directory" directory))
   (let ((default-directory directory))
-    (--if-let (magit-rev-parse "--show-toplevel")
-        (file-name-as-directory (magit-expand-git-file-name it))
-      (-when-let (gitdir (magit-git-dir))
-        (if (magit-bare-repo-p)
-            gitdir
-          (file-name-directory (directory-file-name gitdir)))))))
+    (or (magit-toplevel)
+        (-when-let (gitdir (magit-git-dir))
+          (if (magit-bare-repo-p)
+              gitdir
+            (file-name-directory (directory-file-name gitdir)))))))
 
 (defun magit-file-relative-name (file)
   "Return the path of FILE relative to the repository root.
