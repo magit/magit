@@ -3716,6 +3716,12 @@ Return a list of two integers: (A>B B>A)."
   (when (> (length (magit-commit-parents commit)) 1)
     (user-error "Cannot %s a merge commit" command)))
 
+(defun magit-reflog-enable (ref)
+  (let ((logfile (magit-git-dir (concat "logs/" ref))))
+    (unless (file-exists-p logfile)
+      (make-directory (file-name-directory logfile) t)
+      (with-temp-file logfile))))
+
 (defun magit-format-rev-summary (rev)
   (--when-let (magit-git-string "log" "-1"
                                 (concat "--pretty=format:%h %s") rev)
