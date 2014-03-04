@@ -2306,7 +2306,47 @@ Expanded: everything is shown."
            (t
             (magit-section-expand s))))))
 
-(defun magit-show-level (level all)
+(defun magit-show-level-1 ()
+  "Show surrounding sections on first level."
+  (interactive)
+  (magit-show-level 1))
+
+(defun magit-show-level-1-all ()
+  "Show all sections on first level."
+  (interactive)
+  (magit-show-level 1 t))
+
+(defun magit-show-level-2 ()
+  "Show surrounding sections up to second level."
+  (interactive)
+  (magit-show-level 2))
+
+(defun magit-show-level-2-all ()
+  "Show all sections up to second level."
+  (interactive)
+  (magit-show-level 2 t))
+
+(defun magit-show-level-3 ()
+  "Show surrounding sections up to third level."
+  (interactive)
+  (magit-show-level 3))
+
+(defun magit-show-level-3-all ()
+  "Show all sections up to third level."
+  (interactive)
+  (magit-show-level 3 t))
+
+(defun magit-show-level-4 ()
+  "Show surrounding sections up to fourth level."
+  (interactive)
+  (magit-show-level 4))
+
+(defun magit-show-level-4-all ()
+  "Show all sections up to fourth level."
+  (interactive)
+  (magit-show-level 4 t))
+
+(defun magit-show-level (level &optional all)
   (if all
       (magit-show-level* magit-root-section 0 level nil)
     (let ((path (reverse (magit-section-lineage (magit-current-section)))))
@@ -2319,32 +2359,6 @@ Expanded: everything is shown."
         (magit-show-level* (car path) (1+ level) threshold (cdr path))
       (dolist (c (magit-section-children section))
         (magit-show-level* c (1+ level) threshold nil)))))
-
-(defmacro magit-define-level-shower-1 (level all)
-  "Define an interactive function to show function of level LEVEL.
-
-If ALL is non nil, this function will affect all section,
-otherwise it will affect only ancestors and descendants of
-current section."
-  (let ((fun (intern (format "magit-show-level-%s%s"
-                             level (if all "-all" ""))))
-        (doc (format "Show sections on level %s." level)))
-    `(defun ,fun ()
-       ,doc
-       (interactive)
-       (magit-show-level ,level ,all))))
-
-(defmacro magit-define-level-shower (level)
-  "Define two interactive function to show function of level LEVEL.
-One for all, one for current lineage."
-  `(progn
-     (magit-define-level-shower-1 ,level nil)
-     (magit-define-level-shower-1 ,level t)))
-
-(magit-define-level-shower 1)
-(magit-define-level-shower 2)
-(magit-define-level-shower 3)
-(magit-define-level-shower 4)
 
 ;;;;; Section Highlighting
 
