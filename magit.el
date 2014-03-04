@@ -982,7 +982,7 @@ t          ask if --set-upstream should be used.
   :group 'magit-modes
   :type 'hook)
 
-(defcustom magit-wip-commit-message "WIP %r"
+(defcustom magit-wip-commit-message "autosave %r"
   "Commit message for git-wip commits.
 
 The following `format'-like specs are supported:
