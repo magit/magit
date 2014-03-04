@@ -3433,6 +3433,14 @@ be an existing directory."
               gitdir
             (file-name-directory (directory-file-name gitdir)))))))
 
+(defun magit-inside-gitdir-p ()
+  "Return t if `default-directory' is below a repository directory."
+  (magit-rev-parse-p "--is-inside-git-dir"))
+
+(defun magit-inside-worktree-p ()
+  "Return t if `default-directory' is below the work tree of a repository."
+  (magit-rev-parse-p "--is-inside-work-tree"))
+
 (defun magit-bare-repo-p ()
   "Return t if the current repository is bare."
   (magit-rev-parse-p "--is-bare-repository"))
