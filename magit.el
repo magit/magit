@@ -3503,12 +3503,6 @@ Return t if the first (and usually only) output line is the
 string \"true\", otherwise return nil."
   (magit-git-true "rev-parse" args))
 
-(defun magit-get-ref (name)
-  (magit-git-string "symbolic-ref" "-q" name))
-
-(defun magit-get-refname (name)
-  (magit-git-string "symbolic-ref" "--short" "-q" name))
-
 (defun magit-get-shortname (rev)
   (let ((fn (apply-partially 'magit-git-string "name-rev"
                              "--name-only" "--no-undefined" rev)))
@@ -3531,9 +3525,9 @@ string \"true\", otherwise return nil."
   (not (magit-rev-parse "--abbrev-ref" name)))
 
 (defun magit-get-current-branch ()
-  (--when-let (magit-get-ref "HEAD")
-    (when (string-match "^refs/heads/" it)
-      (substring it 11))))
+  "Return the refname of the currently checked out branch.
+Return nil if no branch is currently checked out."
+  (magit-git-string "symbolic-ref" "--short" "HEAD"))
 
 (defun magit-get-previous-branch ()
   "Return the refname of the previously checked out branch.
