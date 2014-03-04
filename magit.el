@@ -1003,6 +1003,11 @@ The following `format'-like specs are supported:
   :type '(choice (const :tag "No message" nil)
                  (string :tag "Format")))
 
+(defcustom magit-wip-save-mode-lighter " MWip"
+  "Lighter for Magit-Wip-Save mode."
+  :group 'magit-wip
+  :type 'string)
+
 ;;;; Custom Faces
 
 (defface magit-header
@@ -7611,8 +7616,6 @@ non-nil, then autocompletion will offer directory names."
     result))
 
 ;;;; Wip Minor Mode
-
-(defvar magit-wip-save-mode-lighter " Wip")
 
 ;;;###autoload
 (define-minor-mode magit-wip-save-mode
