@@ -230,7 +230,6 @@
       ("f" "Fixup"  magit-commit-fixup)
       ("s" "Squash" magit-commit-squash))
      (switches
-      ("-r" "Replace the tip of current branch" "--amend")
       ("-a" "Stage all modified and deleted files" "--all")
       ("-e" "Allow empty commit" "--allow-empty")
       ("-v" "Show diff of changes to be committed" "--verbose")
