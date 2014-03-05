@@ -430,15 +430,14 @@ the same name is non-nil."
                 (function-item magit-save-buffers-predicate-all)
                 (function :tag "Other")))
 
-(defcustom magit-turn-on-auto-revert-mode t
+(defcustom magit-turn-on-auto-revert-mode nil
   "Whether to automatically turn on Auto-Revert mode.
 When this option is non-nil `auto-revert-mode' is automatically
 turned on in buffers that visit a file in a Git repository.
 
-Alternatively you might want to set this to nil and instead
-enable `global-auto-revert-mode'.  Also consider additionally
-setting option `auto-revert-check-vc-info' to t.  Also see
-function `magit-maybe-turn-on-auto-revert-mode'."
+Alternatively you might want to enable `global-auto-revert-mode'.
+Also consider additionally setting `auto-revert-check-vc-info'
+to t.  Also see function `magit-maybe-turn-on-auto-revert-mode'."
   :package-version '(magit . "2.0.0")
   :group 'magit
   :type 'boolean)
