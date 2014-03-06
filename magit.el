@@ -1258,7 +1258,6 @@ Many Magit faces inherit from this one by default."
   "Face for unsigned commits."
   :group 'magit-faces)
 
-
 (defface magit-log-reflog-label-commit
   '((((class color) (background light))
      :box t
