@@ -62,12 +62,7 @@ Use the function by the same name instead of this variable.")
 (when (version< emacs-version "23.2")
   (error "Magit requires at least GNU Emacs 23.2"))
 
-;; Users may choose to use `magit-log-edit' instead of the preferred
-;; `git-commit-mode', by simply putting it on the `load-path'.  If
-;; it can be found there then it is loaded at the end of this file.
-(unless (locate-library "magit-log-edit")
-  (require 'git-commit-mode))
-
+(require 'git-commit-mode)
 (require 'git-rebase-mode)
 (require 'magit-popup)
 
@@ -7828,12 +7823,6 @@ init file:
 (provide 'magit)
 
 (require 'magit-extras)
-
-;; If `magit-log-edit' is available and `git-commit-mode' is not
-;; loaded, then we have no choice but to assume the user actually
-;; wants to use the former.
-(unless (featurep 'git-commit-mode)
-  (require 'magit-log-edit nil t))
 
 ;; Local Variables:
 ;; indent-tabs-mode: nil
