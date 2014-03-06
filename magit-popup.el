@@ -173,9 +173,9 @@ that without users being aware of it could lead to tears.
   "Face used to display option values in popups."
   :group 'magit-popup-faces)
 
-(define-obsolete-face-alias 'magit-key-mode-header-face 'magit-popup-header "2.0.0")
-(define-obsolete-face-alias 'magit-key-mode-button-face 'magit-popup-key "2.0.0")
-(define-obsolete-face-alias 'magit-key-mode-switch-face 'magit-popup-argument "2.0.0")
+(define-obsolete-face-alias 'magit-key-mode-header-face 'magit-popup-header "2.1.0")
+(define-obsolete-face-alias 'magit-key-mode-button-face 'magit-popup-key "2.1.0")
+(define-obsolete-face-alias 'magit-key-mode-switch-face 'magit-popup-argument "2.1.0")
 
 ;;;; Keymap
 
