@@ -7731,8 +7731,7 @@ This command is intended for debugging purposes."
 (defconst magit-font-lock-keywords
   (eval-when-compile
     `((,(concat "(\\(" (regexp-opt
-                        '("magit-define-level-shower"
-                          "magit-define-section-jumper"
+                        '("magit-define-section-jumper"
                           "magit-define-popup"))
                 "\\)\\>[ \t'\(]*\\(\\sw+\\)?")
        (1 font-lock-keyword-face)
