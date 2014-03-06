@@ -156,6 +156,7 @@ Noam Postavsky <npostavs@users.sourceforge.net>
 Peter J. Weisberg <pj@irregularexpressions.net>
 Rémi Vanicat <vanicat@debian.org> <github.20.vanicat@mamber.net>
 Sébastien Gross <seb@chezwam.org> <seb•ɑƬ•chezwam•ɖɵʈ•org>
+Yann Hodique <yann.hodique@gmail.com> <hodiquey@vmware.com>
 Yann Hodique <yann.hodique@gmail.com> <yann.hodique@bromium.com>
 Yann Hodique <yann.hodique@gmail.com> <yhodique@vmware.com>
 endef

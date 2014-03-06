@@ -95,6 +95,7 @@ Contributors
 - Lluís Vilanova <vilanova@ac.upc.edu>
 - Luís Borges de Oliveira <lbo@siscog.pt>
 - Luke Amdor <luke.amdor@gmail.com>
+- Manuel Vázquez Acosta <mva.led@gmail.com>
 - Marcel Wolf <mwolf@ml1.net>
 - Marc Herbert <marc.herbert@gmail.com>
 - Marcin Bachry <hegel666@gmail.com>
@@ -158,6 +159,7 @@ Contributors
 - Teruki Shigitani <teruki.shigitani@gmail.com>
 - Thierry Volpiatto <thierry.volpiatto@gmail.com>
 - Thomas Jost <thomas.jost@gmail.com>
+- Thomas Riccardi <riccardi.thomas@gmail.com>
 - Tibor Simko <tibor.simko@cern.ch>
 - Timo Juhani Lindfors <timo.lindfors@iki.fi>
 - Ting-Yu Lin <aethanyc@gmail.com>
