@@ -655,13 +655,13 @@ When a sequence is in progress the arguments are not available
 in the popup."
   (remove-hook 'magit-popup-setup-hook 'magit-popup-default-setup t)
   (add-hook    'magit-popup-setup-hook
-	       (lambda (val def)
-		 (if (funcall (magit-popup-get :sequence-predicate))
-		     (magit-popup-put
-		      :actions (magit-popup-convert-actions
-				val (magit-popup-get :sequence-actions)))
-		   (magit-popup-default-setup val def)))
-	       t t))
+               (lambda (val def)
+                 (if (funcall (magit-popup-get :sequence-predicate))
+                     (magit-popup-put
+                      :actions (magit-popup-convert-actions
+                                val (magit-popup-get :sequence-actions)))
+                   (magit-popup-default-setup val def)))
+               t t))
 
 (defun magit-popup-mode-setup (popup mode)
   (let ((val (symbol-value (plist-get (symbol-value popup) :variable)))

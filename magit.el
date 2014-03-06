@@ -301,7 +301,7 @@ also comment on issue #816."
   :type 'boolean)
 
 (defcustom magit-process-yes-or-no-prompt-regexp
-   " [\[(]\\([Yy]\\(?:es\\)?\\)[/|]\\([Nn]o?\\)[\])] ?[?:] ?$"
+  " [\[(]\\([Yy]\\(?:es\\)?\\)[/|]\\([Nn]o?\\)[\])] ?[?:] ?$"
   "Regexp matching Yes-or-No prompts of git and its subprocesses."
   :package-version '(magit . "2.1.0")
   :group 'magit-process
@@ -3283,14 +3283,14 @@ before the last command."
 (defun magit-xref-insert-buttons ()
   (when (and (or (eq magit-show-xref-buttons t)
                  (apply 'derived-mode-p magit-show-xref-buttons))
-	     (or help-xref-stack help-xref-forward-stack))
+             (or help-xref-stack help-xref-forward-stack))
     (insert "\n")
     (when help-xref-stack
       (magit-xref-insert-button help-back-label
                                 'magit-xref-backward))
     (when help-xref-forward-stack
       (when help-xref-stack
-	(insert " "))
+        (insert " "))
       (magit-xref-insert-button help-forward-label
                                 'magit-xref-forward))))
 
@@ -4304,9 +4304,9 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 
 (defconst magit-log-bisect-log-re
   (concat "^# "
-	  "\\(?3:bad:\\|skip:\\|good:\\) "         ; "refs"
-	  "\\[\\(?1:[^]]+\\)\\] "                  ; sha1
-	  "\\(?2:.+\\)$"))                         ; msg
+          "\\(?3:bad:\\|skip:\\|good:\\) "         ; "refs"
+          "\\[\\(?1:[^]]+\\)\\] "                  ; sha1
+          "\\(?2:.+\\)$"))                         ; msg
 
 (defconst magit-log-reflog-re
   (concat "^"
@@ -4370,7 +4370,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
               " "))
     (unless (eq style 'long)
       (when (eq style 'bisect-log)
-	(setq hash (magit-rev-parse "--short" hash)))
+        (setq hash (magit-rev-parse "--short" hash)))
       (if hash
           (insert (propertize hash 'face 'magit-log-sha1) " ")
         (insert (make-string (1+ abbrev) ? ))))
@@ -7527,7 +7527,7 @@ This differs from `add-change-log-entry' (which see) in that
 it acts on the current hunk in a Magit buffer instead of on
 a position in a file-visiting buffer."
   (interactive (list current-prefix-arg
-		     (prompt-for-change-log-name)))
+                     (prompt-for-change-log-name)))
   (let (buf pos)
     (save-window-excursion
       (magit-visit-item)

@@ -197,8 +197,8 @@ into the series."
   (cond
    (magit-stgit-mode
     (magit-add-section-hook 'magit-status-sections-hook
-			    'magit-insert-stgit-series
-			    'magit-insert-stashes t t)
+                            'magit-insert-stgit-series
+                            'magit-insert-stashes t t)
     (add-hook 'magit-visit-hook   'magit-stgit-show nil t)
     (add-hook 'magit-apply-hook   'magit-stgit-goto nil t)
     (add-hook 'magit-discard-hook 'magit-stgit-discard nil t))
