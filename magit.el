@@ -1318,7 +1318,7 @@ Many Magit faces inherit from this one by default."
   :group 'magit-faces)
 
 (defface magit-log-reflog-label-cherry-pick
-'((((class color) (background light))
+  '((((class color) (background light))
      :box t
      :background "light green"
      :foreground "dark olive green")
