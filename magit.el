@@ -50,13 +50,6 @@
 ;; See the Magit User Manual for more information.
 
 ;;; Code:
-
-(defvar magit-version 'undefined
-  "The version of Magit that you're using.
-Use the function by the same name instead of this variable.")
-;; The value is set at the end of this file, using the
-;; function `magit-version' which is also defined there.
-
 ;;;; Dependencies
 
 (when (version< emacs-version "23.2")
@@ -7766,6 +7759,10 @@ init file:
   (require 'magit)
   (font-lock-add-keywords 'emacs-lisp-mode
                           magit-font-lock-keywords)")
+
+(defvar magit-version 'undefined
+  "The version of Magit that you're using.
+Use the function by the same name instead of this variable.")
 
 (defun magit-version (&optional noerror)
   "The version of Magit that you're using.\n\n\(fn)"
