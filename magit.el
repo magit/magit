@@ -430,18 +430,6 @@ the same name is non-nil."
                 (function-item magit-save-buffers-predicate-all)
                 (function :tag "Other")))
 
-(defcustom magit-turn-on-auto-revert-mode nil
-  "Whether to automatically turn on Auto-Revert mode.
-When this option is non-nil `auto-revert-mode' is automatically
-turned on in buffers that visit a file in a Git repository.
-
-Alternatively you might want to enable `global-auto-revert-mode'.
-Also consider additionally setting `auto-revert-check-vc-info'
-to t.  Also see function `magit-maybe-turn-on-auto-revert-mode'."
-  :package-version '(magit . "2.0.0")
-  :group 'magit
-  :type 'boolean)
-
 (defcustom magit-rewrite-inclusive t
   "Whether magit includes the selected base commit in a rewrite operation.
 
@@ -1015,6 +1003,24 @@ are left as-is."
   :type 'character)
 
 ;;;;;; Others
+
+(defcustom magit-auto-revert-mode-lighter " MRev"
+  "String to display when Magit-Auto-Revert mode is active."
+  :group 'magit-modes)
+
+(define-minor-mode magit-auto-revert-mode
+  "Toggle global Magit-Auto-Revert mode.
+With prefix ARG, enable Magit-Auto-Revert mode if ARG is positive;
+otherwise, disable it.  If called from Lisp, enable the mode if
+ARG is omitted or nil.
+
+Magit-Auto-Revert mode is a global minor mode that, after Magit
+has run a Git command, reverts buffers associated with files that
+have changed on disk and are tracked in the current Git repository."
+  :group 'magit-modes
+  :lighter magit-auto-revert-mode-lighter
+  :global t
+  :init-value t)
 
 (defcustom magit-merge-warn-dirty-worktree t
   "Whether to issue a warning when attempting to start a merge in a dirty worktree."
@@ -3235,13 +3241,13 @@ prepended to ARGS.
 
 After Git returns, the current buffer (if it is a Magit buffer)
 as well as the current repository's status buffer are refreshed.
-Unmodified buffers visiting files in the repository are reverted
-using `auto-revert-buffers'.
+Unmodified buffers visiting files that are tracked in the current
+repository are reverted if `magit-auto-revert-mode' is active.
 
 Process output goes into a new section in a buffer specified by
 variable `magit-process-buffer-name'."
   (apply #'magit-call-git (magit-process-quote-arguments args))
-  (magit-refresh t))
+  (magit-refresh))
 
 (defun magit-call-git (&rest args)
   "Call Git synchronously in a separate process.
@@ -3293,14 +3299,14 @@ prepended to ARGS.
 
 After Git returns, the current buffer (if it is a Magit buffer)
 as well as the current repository's status buffer are refreshed.
-Unmodified buffers visiting files in the repository are reverted
-using `auto-revert-buffers'.
+Unmodified buffers visiting files that are tracked in the current
+repository are reverted if `magit-auto-revert-mode' is active.
 
 This function actually starts a asynchronous process, but it then
 waits for that process to return."
   (apply #'magit-start-git input args)
   (magit-process-wait)
-  (magit-refresh t))
+  (magit-refresh))
 
 (defun magit-run-git-with-logfile (file &rest args)
   "Call Git in a separate process and log its output.
@@ -3310,7 +3316,7 @@ short halflive.  See `magit-run-git' for more information."
   (process-put magit-this-process 'logfile file)
   (set-process-filter magit-this-process 'magit-process-logfile-filter)
   (magit-process-wait)
-  (magit-refresh t))
+  (magit-refresh))
 
 ;;;;; Asynchronous Processes
 
@@ -3332,8 +3338,9 @@ Display the command line arguments in the echo area.
 After Git returns some buffers are refreshed: the buffer that was
 current when `magit-start-process' was called (if it is a Magit
 buffer and still alive), as well as the respective Magit status
-buffer.  Unmodified buffers visiting files in the repository are
-reverted using `auto-revert-buffers'.
+buffer.  Unmodified buffers visiting files that are tracked in
+the current repository are reverted if `magit-auto-revert-mode'
+is active.
 
 See `magit-start-process' for more information."
   (message "Running %s %s" magit-git-executable
@@ -3354,8 +3361,9 @@ to be a string or a list of strings.
 After Git returns some buffers are refreshed: the buffer that was
 current when `magit-start-process' was called (if it is a Magit
 buffer and still alive), as well as the respective Magit status
-buffer.  Unmodified buffers visiting files in the repository are
-reverted using `auto-revert-buffers'.
+buffer.  Unmodified buffers visiting files that are tracked in
+the current repository are reverted if `magit-auto-revert-mode'
+is active.
 
 See `magit-start-process' for more information."
   (apply #'magit-start-process magit-git-executable input
@@ -3383,8 +3391,9 @@ the sentinel and filter.
 After the process returns, `magit-process-sentinel' refreshes the
 buffer that was current when `magit-start-process' was called (if
 it is a Magit buffer and still alive), as well as the respective
-Magit status buffer.  Unmodified buffers visiting files in the
-repository are reverted using `auto-revert-buffers'."
+Magit status buffer.  Unmodified buffers visiting files that are
+tracked in the current repository are reverted if
+`magit-auto-revert-mode' is active."
   (setq args (magit-flatten-onelevel args))
   (cl-destructuring-bind (process-buf . section)
       (magit-process-setup program args)
@@ -3469,8 +3478,8 @@ repository are reverted using `auto-revert-buffers'."
     (magit-process-finish process)
     (when (eq process magit-this-process)
       (setq magit-this-process nil))
-    (magit-refresh t (and (buffer-live-p (process-get process 'command-buf))
-                          (process-get process 'command-buf)))))
+    (magit-refresh (and (buffer-live-p (process-get process 'command-buf))
+                        (process-get process 'command-buf)))))
 
 (defun magit-process-filter (proc string)
   "Default filter used by `magit-start-process'."
@@ -3916,20 +3925,15 @@ before the last command."
 
 ;;;;; Refresh Machinery
 
-(defun magit-refresh (&optional synchronous buffer)
-  "Refresh some buffer belonging to the current repository.
+(defun magit-refresh (&optional buffer)
+  "Refresh some buffers belonging to the current repository.
 
-Refresh the current buffer, the status buffer, and all file
-visiting buffers using `auto-revert-buffer' (which see).  When
-called interactively, or when `auto-revert-stop-on-user-input'
-is nil or optional SYNCHRONOUS is non-nil, then wait for this
-to complete.  Otherwise file visiting buffers are refreshed
-asynchronously.
-
-File visiting buffers are only refreshed if `auto-revert-mode'
-is active, which is usually the case.  For more information
-see option `magit-turn-on-auto-revert-mode'."
-  (interactive (list t (current-buffer)))
+Refresh the current buffer if its major mode derives from
+`magit-mode', and refresh the corresponding status buffer.
+If the global `magit-auto-revert-mode' is turned on, then
+also revert all unmodified buffers that visit files being
+tracked in the current repository."
+  (interactive (list (current-buffer)))
   (unless buffer
     (setq buffer (current-buffer)))
   (with-current-buffer buffer
@@ -3941,35 +3945,32 @@ see option `magit-turn-on-auto-revert-mode'."
                                magit-status-buffer-name
                                'magit-status-mode)))
         (magit-mode-refresh-buffer status))))
-  (when (or global-auto-revert-mode auto-revert-buffer-list)
-    (let ((auto-revert-stop-on-user-input
-           (if synchronous nil auto-revert-stop-on-user-input)))
-      (auto-revert-buffers))))
+  (when magit-auto-revert-mode
+    (magit-revert-buffers)))
 
 (defun magit-refresh-all ()
   "Refresh all buffers belonging to the current repository.
-Unlike `magit-refresh' (which see) this always refreshes
-all Magit buffers and file visiting buffers synchronously."
+
+Refresh all Magit buffers belonging to the current repository.
+If the global `magit-auto-revert-mode' is turned on, then also
+revert all unmodified buffers that visit files being tracked in
+the current repository."
   (interactive)
   (magit-map-magit-buffers #'magit-mode-refresh-buffer default-directory)
-  (let (auto-revert-stop-on-user-input)
-    (auto-revert-buffers)))
+  (magit-revert-buffers))
 
-(defun magit-maybe-turn-on-auto-revert-mode ()
-  "Turn on Auto-Revert mode if file is inside a Git repository.
-This function is intended as a hook for `find-file-hook'. It
-turns on `auto-revert-mode' if `magit-turn-on-auto-revert-mode'
-is non-nil, the buffer is visiting a file in a Git repository,
-and no variation of the Auto-Revert mode is already active."
-  (when (and magit-turn-on-auto-revert-mode
-             (not auto-revert-mode)
-             (not auto-revert-tail-mode)
-             (not global-auto-revert-mode)
-             (not (magit-bare-repo-p))
-             (magit-get-top-dir))
-    (auto-revert-mode 1)))
-
-(add-hook 'find-file-hook 'magit-maybe-turn-on-auto-revert-mode)
+(defun magit-revert-buffers ()
+  (let ((topdir (magit-get-top-dir)))
+    (when topdir
+      (let ((gitdir  (magit-git-dir))
+            (tracked (magit-git-lines "ls-tree" "-r" "--name-only" "HEAD")))
+        (dolist (buf (buffer-list))
+          (with-current-buffer buf
+            (let ((file (buffer-file-name)))
+              (and file (string-prefix-p topdir file)
+                   (not (string-prefix-p gitdir file))
+                   (member (file-relative-name file topdir) tracked)
+                   (auto-revert-handler)))))))))
 
 ;;; (misplaced)
 ;;;; Diff Options
@@ -6508,7 +6509,7 @@ to test.  This command lets Git choose a different one."
     (ignore-errors (delete-file file))
     (magit-run-git-with-logfile file "bisect" subcommand args)
     (magit-process-wait)
-    (magit-refresh t)))
+    (magit-refresh)))
 
 ;;;;; Logging
 
