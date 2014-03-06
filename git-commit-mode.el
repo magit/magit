@@ -310,6 +310,7 @@ The commit message is saved to the kill ring."
             (when (buffer-live-p buffer)
               (kill-buffer buffer)))
         (kill-buffer))))
+  (accept-process-output nil 0.1)
   (message (concat "Commit aborted."
                    (when (memq 'git-commit-save-message
                                git-commit-kill-buffer-hook)
