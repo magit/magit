@@ -7798,7 +7798,7 @@ Use the function by the same name instead of this variable.")
       (if noerror
           (progn (setq magit-version 'error)
                  (message "Cannot determine Magit's version"))
-        (user-error "Cannot determine Magit's version")))
+        (error "Cannot determine Magit's version")))
     magit-version))
 
 (cl-eval-when (load eval) (magit-version t))
