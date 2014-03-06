@@ -93,10 +93,6 @@ Use the function by the same name instead of this variable.")
 
 ;;;; Declarations
 
-(if (featurep 'vc-git)
-    (defalias 'magit-grep 'vc-git-grep)
-  (defalias 'magit-grep 'lgrep))
-
 (declare-function dired-jump 'dired-x)
 (declare-function dired-uncache 'dired)
 (declare-function ediff-cleanup-mess 'ediff)
