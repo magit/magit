@@ -32,8 +32,7 @@
 
 ;; To enable `magit-wip-save-mode' enable `global-magit-wip-save-mode'
 ;; and use the Magit extension mechanism to select the repositories in
-;; which you want to use a work-in-progress ref.  Usually you also want
-;; to enable `magit-wip-mode'.
+;; which you want to use a work-in-progress ref.
 ;;
 ;;   (global-magit-wip-save-mode 1)
 ;;
