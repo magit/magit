@@ -3761,6 +3761,17 @@ Return a list of two integers: (A>B B>A)."
     (mapconcat 'magit-format-ref-label
                (split-string string "\\(tag: \\|[(), ]\\)" t) " ")))
 
+(defmacro magit-with-blob (commit file &rest body)
+  (declare (indent 2))
+  `(with-temp-buffer
+     (let ((buffer-file-name ,file))
+       (save-excursion
+         (magit-git-insert "cat-file" "-p"
+                           (concat ,commit ":" buffer-file-name)))
+       (decode-coding-inserted-region
+        (point-min) (point-max) buffer-file-name t nil nil t)
+       ,@body)))
+
 ;;;; Variables
 
 (defun magit-get (&rest keys)
@@ -7734,6 +7745,7 @@ This command is intended for debugging purposes."
                        "magit-add-action-clauses"
                        "magit-bind-match-strings"
                        "magit-visiting-file-item"
+                       "magit-with-blob"
                        "magit-tests--with-temp-dir"
                        "magit-tests--with-temp-repo"
                        "magit-tests--with-temp-clone") t)
