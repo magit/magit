@@ -1742,45 +1742,35 @@ Emacsclient as \"the editor\" by setting the environment variable
 $GIT_EDITOR accordingly around calls to Git and starting the
 server if necessary."
   (declare (indent 0))
-  `(let* ((process-environment process-environment)
-          (magit-process-popup-time -1))
-     ;; Make sure the client is usable.
-     (magit-assert-emacsclient "use `magit-with-emacsclient'")
-     ;; Make sure server-use-tcp's value is valid.
-     (unless (featurep 'make-network-process '(:family local))
-       (setq server-use-tcp t))
-     ;; Make sure the server is running.
-     (unless server-process
-       (when (server-running-p server-name)
-         (setq server-name (format "server%s" (emacs-pid)))
+  `(if (tramp-tramp-file-p default-directory)
+       (error "Implementation does not handle Tramp yet")
+     (let* ((process-environment process-environment)
+            (magit-process-popup-time -1))
+       ;; Make sure server-use-tcp's value is valid.
+       (unless (featurep 'make-network-process '(:family local))
+         (setq server-use-tcp t))
+       ;; Make sure the server is running.
+       (unless server-process
          (when (server-running-p server-name)
-           (server-force-delete server-name)))
-       (server-start))
-     ;; Tell Git to use the client.
-     (setenv "GIT_EDITOR"
-             (concat magit-emacsclient-executable
-     ;; Tell the client where the server file is.
-                     (and (not server-use-tcp)
-                          (concat " --socket-name="
-                                  (expand-file-name server-name
-                                                    server-socket-dir)))))
-     (when server-use-tcp
-       (setenv "EMACS_SERVER_FILE"
-               (expand-file-name server-name server-auth-dir)))
-     ;; As last resort fallback to a new Emacs instance.
-     (setenv "ALTERNATE_EDITOR"
-             (expand-file-name invocation-name invocation-directory))
-     ,@body))
-
-(defun magit-use-emacsclient-p ()
-  (and magit-emacsclient-executable
-       (not (tramp-tramp-file-p default-directory))))
-
-(defun magit-assert-emacsclient (action)
-  (unless magit-emacsclient-executable
-    (user-error "Cannot %s when `magit-emacsclient-executable' is nil" action))
-  (when (tramp-tramp-file-p default-directory)
-    (user-error "Cannot %s when accessing repository using tramp" action)))
+           (setq server-name (format "server%s" (emacs-pid)))
+           (when (server-running-p server-name)
+             (server-force-delete server-name)))
+         (server-start))
+       ;; Tell Git to use the client.
+       (setenv "GIT_EDITOR"
+               (concat magit-emacsclient-executable
+       ;; Tell the client where the server file is.
+                       (and (not server-use-tcp)
+                            (concat " --socket-name="
+                                    (expand-file-name server-name
+                                                      server-socket-dir)))))
+       (when server-use-tcp
+         (setenv "EMACS_SERVER_FILE"
+                 (expand-file-name server-name server-auth-dir)))
+       ;; As last resort fallback to a new Emacs instance.
+       (setenv "ALTERNATE_EDITOR"
+               (expand-file-name invocation-name invocation-directory))
+       ,@body)))
 
 ;;; Magit Api
 ;;;; Section Api
@@ -5664,10 +5654,12 @@ If no branch is found near the cursor return nil."
                  (list (and commit (concat commit "^"))
                        magit-current-popup-args)))
   (cond
+   ((or (not magit-emacsclient-executable)
+        (tramp-tramp-file-p default-directory))
+    (error "Implementation does not handle remote (tramp) repositories"))
    ((magit-rebase-in-progress-p)
     (magit-rebase-popup))
    ((setq commit (magit-rebase-interactive-assert commit))
-    (magit-assert-emacsclient "rebase interactively")
     (magit-with-emacsclient
       (apply 'magit-run-git-async "rebase" "-i" commit args)))
    (t
@@ -6242,7 +6234,8 @@ depending on the value of option `magit-commit-squash-confirm'.
       (funcall diff-fn)))
   (push (cons (magit-get-top-dir) (member "--amend" args))
         magit-commit-amending-alist)
-  (if (magit-use-emacsclient-p)
+  (if (and magit-emacsclient-executable
+           (not (tramp-tramp-file-p default-directory)))
       (magit-with-emacsclient
         (magit-run-git-async subcmd args))
     (let ((topdir (magit-get-top-dir))
