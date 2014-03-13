@@ -7599,9 +7599,7 @@ non-nil, then autocompletion will offer directory names."
       (list (expand-file-name dir))
     (and (> depth 0)
          (file-directory-p dir)
-         (not (member (file-name-nondirectory dir)
-                      '(".." ".")))
-         (cl-loop for entry in (directory-files dir t nil t)
+         (cl-loop for entry in (directory-files dir t "^[^.]" t)
                   append (magit-list-repos* entry (1- depth))))))
 
 (defun magit-list-repos-remove-conflicts (alist)
