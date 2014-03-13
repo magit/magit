@@ -1740,37 +1740,40 @@ Git processes that use \"the editor\" have to be asynchronous.
 The use of this macro ensures that such processes inside BODY use
 Emacsclient as \"the editor\" by setting the environment variable
 $GIT_EDITOR accordingly around calls to Git and starting the
-server if necessary."
-  (declare (indent 0))
-  `(if (tramp-tramp-file-p default-directory)
-       (error "Implementation does not handle Tramp yet")
-     (let* ((process-environment process-environment)
-            (magit-process-popup-time -1))
-       ;; Make sure server-use-tcp's value is valid.
-       (unless (featurep 'make-network-process '(:family local))
-         (setq server-use-tcp t))
-       ;; Make sure the server is running.
-       (unless server-process
-         (when (server-running-p server-name)
-           (setq server-name (format "server%s" (emacs-pid)))
+server if necessary.
+
+\(fn [ENVVAR] &rest BODY)"
+  (declare (indent defun))
+  (let ((envvar (if (stringp (car body)) (pop body) "GIT_EDITOR")))
+    `(if (tramp-tramp-file-p default-directory)
+         (error "Implementation does not handle Tramp yet")
+       (let* ((process-environment process-environment)
+              (magit-process-popup-time -1))
+         ;; Make sure server-use-tcp's value is valid.
+         (unless (featurep 'make-network-process '(:family local))
+           (setq server-use-tcp t))
+         ;; Make sure the server is running.
+         (unless server-process
            (when (server-running-p server-name)
-             (server-force-delete server-name)))
-         (server-start))
-       ;; Tell Git to use the client.
-       (setenv "GIT_EDITOR"
-               (concat magit-emacsclient-executable
-       ;; Tell the client where the server file is.
-                       (and (not server-use-tcp)
-                            (concat " --socket-name="
-                                    (expand-file-name server-name
-                                                      server-socket-dir)))))
-       (when server-use-tcp
-         (setenv "EMACS_SERVER_FILE"
-                 (expand-file-name server-name server-auth-dir)))
-       ;; As last resort fallback to a new Emacs instance.
-       (setenv "ALTERNATE_EDITOR"
-               (expand-file-name invocation-name invocation-directory))
-       ,@body)))
+             (setq server-name (format "server%s" (emacs-pid)))
+             (when (server-running-p server-name)
+               (server-force-delete server-name)))
+           (server-start))
+         ;; Tell Git to use the client.
+         (setenv ,envvar
+                 (concat magit-emacsclient-executable
+                         ;; Tell the client where the server file is.
+                         (and (not server-use-tcp)
+                              (concat " --socket-name="
+                                      (expand-file-name server-name
+                                                        server-socket-dir)))))
+         (when server-use-tcp
+           (setenv "EMACS_SERVER_FILE"
+                   (expand-file-name server-name server-auth-dir)))
+         ;; As last resort fallback to a new Emacs instance.
+         (setenv "ALTERNATE_EDITOR"
+                 (expand-file-name invocation-name invocation-directory))
+         ,@body))))
 
 ;;; Magit Api
 ;;;; Section Api
