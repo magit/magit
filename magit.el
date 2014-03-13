@@ -7575,7 +7575,9 @@ The choices offered by auto-completion will be the repositories
 under `magit-repo-dirs'.  If `magit-repo-dirs' is nil or DIR is
 non-nil, then autocompletion will offer directory names."
   (if (and (not dir) magit-repo-dirs)
-      (let* ((repos (magit-list-repos magit-repo-dirs))
+      (let* ((repos (magit-list-repos-uniquify
+                     (--map (cons (file-name-nondirectory it) it)
+                            (magit-list-repos))))
              (reply (magit-completing-read "Git repository" repos)))
         (file-name-as-directory
          (or (cdr (assoc reply repos))
@@ -7586,42 +7588,36 @@ non-nil, then autocompletion will offer directory names."
      (read-directory-name "Git repository: "
                           (or (magit-get-top-dir) default-directory)))))
 
-(defun magit-list-repos (dirs)
-  (magit-list-repos-remove-conflicts
-   (cl-loop for dir in dirs
-            append (cl-loop for repo in
-                            (magit-list-repos* dir magit-repo-dirs-depth)
-                    collect (cons (file-name-nondirectory repo) repo)))))
+(defun magit-list-repos ()
+  (--mapcat (magit-list-repos* it magit-repo-dirs-depth) magit-repo-dirs))
 
-(defun magit-list-repos* (dir depth)
-  "Return a list of repos found in DIR, recursing up to DEPTH levels deep."
-  (if (file-exists-p (expand-file-name ".git" dir))
-      (list (expand-file-name dir))
-    (and (> depth 0)
-         (file-directory-p dir)
-         (cl-loop for entry in (directory-files dir t "^[^.]" t)
-                  append (magit-list-repos* entry (1- depth))))))
+(defun magit-list-repos* (directory depth)
+  (cond ((file-exists-p (expand-file-name ".git" directory))
+         (list directory))
+        ((> depth 0)
+         (cl-loop for file in (directory-files directory t "^[^.]" t)
+                  when (file-directory-p file)
+                  append (magit-list-repos* file (1- depth))))))
 
-(defun magit-list-repos-remove-conflicts (alist)
-  (let ((dict (make-hash-table :test 'equal))
-        (alist (delete-dups alist))
-        (result nil))
-    (dolist (a alist)
-      (puthash (car a) (cons (cdr a) (gethash (car a) dict))
-               dict))
+(defun magit-list-repos-uniquify (alist)
+  (let (result (dict (make-hash-table :test 'equal)))
+    (dolist (a (delete-dups alist))
+      (puthash (car a) (cons (cdr a) (gethash (car a) dict)) dict))
     (maphash
      (lambda (key value)
        (if (= (length value) 1)
            (push (cons key (car value)) result)
-         (let ((sub (magit-list-repos-remove-conflicts
-                     (mapcar
-                      (lambda (entry)
-                        (let ((dir (directory-file-name
-                                    (substring entry 0 (- (length key))))))
-                          (cons (concat (file-name-nondirectory dir) "/" key)
-                                entry)))
-                      value))))
-           (setq result (append result sub)))))
+         (setq result
+               (append result
+                       (magit-list-repos-uniquify
+                        (mapcar
+                         (lambda (elt)
+                           (cons (concat key "\\"
+                                         (file-name-nondirectory
+                                          (directory-file-name
+                                           (substring elt 0 (- (length key))))))
+                                 elt))
+                         value))))))
      dict)
     result))
 
