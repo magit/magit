@@ -3742,9 +3742,14 @@ Return a list of two integers: (A>B B>A)."
       (make-directory (file-name-directory logfile) t)
       (with-temp-file logfile))))
 
+(defun magit-rev-format (format &optional rev)
+  "Return first line of `git log -1 --format=format:FORMAT [REV]'.
+Execute Git, returning the first line of its output.  If there is
+no output return nil."
+  (magit-git-string "log" "-1" (concat "--format=format:" format) rev))
+
 (defun magit-format-rev-summary (rev)
-  (--when-let (magit-git-string "log" "-1"
-                                (concat "--pretty=format:%h %s") rev)
+  (--when-let (magit-rev-format "%h %s" rev)
     (string-match " " it)
     (put-text-property 0 (match-beginning 0) 'face 'magit-log-sha1 it)
     it))
@@ -6122,8 +6127,7 @@ used to inverse the meaning of the prefix argument.
   (when (setq args (magit-commit-assert args (not override-date)))
     (let ((process-environment process-environment))
       (unless override-date
-        (setenv "GIT_COMMITTER_DATE"
-                (magit-git-string "log" "-1" "--format:format=%cd")))
+        (setenv "GIT_COMMITTER_DATE" (magit-rev-format "%cd")))
       (magit-commit-internal 'magit-diff-while-amending "commit"
         (nconc (list "--amend" "--no-edit") args)))))
 
@@ -6144,8 +6148,7 @@ and ignore the option.
                        magit-commit-reword-override-date)))
   (let ((process-environment process-environment))
     (unless override-date
-      (setenv "GIT_COMMITTER_DATE"
-              (magit-git-string "log" "-1" "--format:format=%cd")))
+      (setenv "GIT_COMMITTER_DATE" (magit-rev-format "%cd")))
     (magit-commit-internal nil "commit"
       (nconc (list "--amend" "--only") args))))
 
@@ -6259,7 +6262,7 @@ depending on the value of option `magit-commit-squash-confirm'.
       (when (and (member "--amend" args)
                  (not (file-exists-p editmsg)))
         (with-temp-file editmsg
-          (magit-git-insert "log" "-1" "--format=format:%B" "HEAD")))
+          (magit-rev-format "%B")))
       (with-current-buffer (find-file-noselect editmsg)
         (funcall (if (functionp magit-server-window-for-commit)
                      magit-server-window-for-commit
