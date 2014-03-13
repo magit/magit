@@ -59,9 +59,9 @@
 (defun magit-tests--should-have-section (path info)
   (magit-status default-directory)
   (should (cl-find info
-		   (magit-section-children
-		    (magit-find-section (list path) magit-root-section))
-		   :key 'magit-section-info :test 'equal)))
+                   (magit-section-children
+                    (magit-find-section (list path) magit-root-section))
+                   :key 'magit-section-info :test 'equal)))
 
 ;;; Tests
 ;;;; status
@@ -105,4 +105,7 @@
     (should-not (magit-get-boolean "a" "b"))))
 
 (provide 'magit-tests)
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
 ;;; magit-tests.el ends here
