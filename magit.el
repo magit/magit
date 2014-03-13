@@ -64,7 +64,6 @@
 (require 'cl-lib)
 (require 'dash)
 (require 'diff-mode)
-(require 'easymenu)
 (require 'epa)
 (require 'format-spec)
 (require 'grep)

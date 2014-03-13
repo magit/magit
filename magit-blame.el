@@ -34,7 +34,6 @@
 
 (eval-when-compile (require 'cl-lib))
 (require 'magit)
-(require 'easymenu)
 
 ;;; Options
 
