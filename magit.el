@@ -328,35 +328,6 @@ also comment on issue #816."
   :group 'magit-process
   :type '(repeat (regexp)))
 
-(defconst magit-server-window-type
-  '(choice
-    (const :tag "Use selected window"
-           :match (lambda (widget value)
-                    (not (functionp value)))
-           nil)
-    (function-item :tag "Display in new frame" switch-to-buffer-other-frame)
-    (function-item :tag "Use pop-to-buffer" pop-to-buffer)
-    (function :tag "Other function")))
-
-(defcustom magit-server-window-for-commit 'pop-to-buffer
-  "Function used to select a window for displaying commit message buffers.
-It should take one argument (a buffer) and display and select it.
-A common value is `pop-to-buffer'.  It can also be nil in which
-case the selected window is used."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-process
-  :type magit-server-window-type)
-
-(defcustom magit-server-window-for-rebase server-window
-  "Function used to select a window for displaying interactive rebase buffers.
-It should take one argument (a buffer) and display and select it.
-A common value is `pop-to-buffer'.  It can also be nil in which
-case the selected window is used."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-process
-  :set-after '(server-window)
-  :type magit-server-window-type)
-
 ;;;;; Staging
 
 (defcustom magit-stage-all-confirm t
@@ -1762,66 +1733,45 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
 
 ;;;; Emacsclient Support
 
-(defmacro magit-with-emacsclient (server-window &rest body)
-  "Arrange for Git to use Emacsclient as \"the git editor\".
+(defmacro magit-with-editor (&rest body)
+  "\n(fn [ENVVAR] &rest BODY)"
+  (declare (indent defun))
+  (let ((envvar (if (stringp (car body)) (pop body) "EDITOR")))
+    `(if (tramp-tramp-file-p default-directory)
+         (error "Implementation does not handle Tramp yet")
+       (let ((process-environment process-environment))
+         ;; Make sure server-use-tcp's value is valid.
+         (unless (featurep 'make-network-process '(:family local))
+           (setq server-use-tcp t))
+         ;; Make sure the server is running.
+         (unless server-process
+           (when (server-running-p server-name)
+             (setq server-name (format "server%s" (emacs-pid)))
+             (when (server-running-p server-name)
+               (server-force-delete server-name)))
+           (server-start))
+         ;; Tell Git to use the client.
+         (setenv ,envvar
+                 (concat magit-emacsclient-executable
+                         ;; Tell the client where the server file is.
+                         (and (not server-use-tcp)
+                              (concat " --socket-name="
+                                      (expand-file-name server-name
+                                                        server-socket-dir)))))
+         (when server-use-tcp
+           (setenv "EMACS_SERVER_FILE"
+                   (expand-file-name server-name server-auth-dir)))
+         ;; As last resort fallback to a new Emacs instance.
+         (setenv "ALTERNATE_EDITOR"
+                 (expand-file-name invocation-name invocation-directory))
+         ,@body))))
 
-Git processes that use \"the editor\" have to be asynchronous.
-The use of this macro ensures that such processes inside BODY use
-Emacsclient as \"the editor\" by setting the environment variable
-$GIT_EDITOR accordingly around calls to Git and starting the
-server if necessary."
-  (declare (indent 1))
-  `(let* ((process-environment process-environment)
-          (magit-process-popup-time -1))
-     ;; Make sure the client is usable.
-     (magit-assert-emacsclient "use `magit-with-emacsclient'")
-     ;; Make sure server-use-tcp's value is valid.
-     (unless (featurep 'make-network-process '(:family local))
-       (setq server-use-tcp t))
-     ;; Make sure the server is running.
-     (unless server-process
-       (when (server-running-p server-name)
-         (setq server-name (format "server%s" (emacs-pid)))
-         (when (server-running-p server-name)
-           (server-force-delete server-name)))
-       (server-start))
-     ;; Tell Git to use the client.
-     (setenv "GIT_EDITOR"
-             (concat magit-emacsclient-executable
-     ;; Tell the client where the server file is.
-                     (and (not server-use-tcp)
-                          (concat " --socket-name="
-                                  (expand-file-name server-name
-                                                    server-socket-dir)))))
-     (when server-use-tcp
-       (setenv "EMACS_SERVER_FILE"
-               (expand-file-name server-name server-auth-dir)))
-     ;; As last resort fallback to a new Emacs instance.
-     (setenv "ALTERNATE_EDITOR"
-             (expand-file-name invocation-name invocation-directory))
-     ;; Git has to be called asynchronously in BODY or we create a
-     ;; dead lock.  By the time Emacsclient is called the dynamic
-     ;; binding is no longer in effect and our primitives don't
-     ;; support callbacks.  Temporarily set the default value and
-     ;; restore the old value using a timer.
-     (let ((window ,server-window))
-       (unless (equal window server-window)
-         (run-at-time "1 sec" nil
-                      (apply-partially (lambda (value)
-                                         (setq server-window value))
-                                       server-window))
-         (setq-default server-window window)))
-     ,@body))
-
-(defun magit-use-emacsclient-p ()
-  (and magit-emacsclient-executable
-       (not (tramp-tramp-file-p default-directory))))
-
-(defun magit-assert-emacsclient (action)
-  (unless magit-emacsclient-executable
-    (user-error "Cannot %s when `magit-emacsclient-executable' is nil" action))
-  (when (tramp-tramp-file-p default-directory)
-    (user-error "Cannot %s when accessing repository using tramp" action)))
+(defmacro magit-with-git-editor (&rest body)
+  "\n(fn [ENVVAR] &rest BODY)"
+  (declare (indent defun))
+  `(magit-with-editor ,(if (stringp (car body)) (pop body) "GIT_EDITOR")
+     (let ((magit-process-popup-time -1))
+       ,@body)))
 
 ;;; Magit Api
 ;;;; Section Api
@@ -3042,6 +2992,33 @@ of the Windows \"Powershell\"."
                                "{\\([0-9]+\\)}" "\\\\{\\1\\\\}")
               args)
     args))
+
+(defconst magit-server-window 'pop-to-buffer)
+(defconst magit-server-window-filename-regexp "/\\(\\(\\(\
+COMMIT\\|NOTES\\|PULLREQ\\|TAG\\)_EDIT\\|MERGE_\\|\\)MSG\\|\
+git-rebase-todo\\)\\'")
+
+(defun magit-server-visit ()
+  (when (string-match-p magit-server-window-filename-regexp
+                        buffer-file-name)
+    (setq-local server-window magit-server-window)))
+
+(add-hook 'server-visit-hook 'magit-server-visit t)
+
+(defadvice server-switch-buffer (around with-editor activate)
+  "If the buffer being switched to has a buffer-local value for
+`server-window' then use that instead of the default value, and
+finally delete the local binding.  To use this, add a function to
+`server-visit-hook' which does, or does not, set the local value
+in the current buffer (which is the one requested by the client)
+based on some criterion."
+  (let ((server-window (with-current-buffer
+                           (or next-buffer (current-buffer))
+                         server-window)))
+    ad-do-it
+    (when next-buffer
+      (with-current-buffer next-buffer
+        (kill-local-variable 'server-window)))))
 
 ;;;; Mode Api
 ;;;;; Mode Foundation
@@ -5379,7 +5356,7 @@ edit it.
 \n(git merge --edit [ARGS] rev)"
   (interactive (list (magit-merge-read-rev) magit-current-popup-args))
   (magit-merge-assert)
-  (magit-with-emacsclient magit-server-window-for-commit
+  (magit-with-git-editor
     (magit-run-git "merge" "--edit" args rev)) )
 
 ;;;###autoload
@@ -5678,11 +5655,13 @@ If no branch is found near the cursor return nil."
                  (list (and commit (concat commit "^"))
                        magit-current-popup-args)))
   (cond
+   ((or (not magit-emacsclient-executable)
+        (tramp-tramp-file-p default-directory))
+    (error "Implementation does not handle remote (tramp) repositories"))
    ((magit-rebase-in-progress-p)
     (magit-rebase-popup))
    ((setq commit (magit-rebase-interactive-assert commit))
-    (magit-assert-emacsclient "rebase interactively")
-    (magit-with-emacsclient magit-server-window-for-rebase
+    (magit-with-git-editor
       (apply 'magit-run-git-async "rebase" "-i" commit args)))
    (t
     (magit-log-select
@@ -5695,7 +5674,7 @@ If no branch is found near the cursor return nil."
 \n(git rebase -i COMMIT[^] --autosquash --autostash [ARGS])"
   (interactive (list (magit-get-tracked-branch) magit-current-popup-args))
   (if (setq commit (magit-rebase-interactive-assert commit))
-      (magit-with-emacsclient magit-server-window-for-commit
+      (magit-with-git-editor
         (let ((process-environment process-environment))
           (setenv "GIT_SEQUENCE_EDITOR" magit-success-executable)
           (apply 'magit-run-git-async "rebase" "-i" commit
@@ -5711,7 +5690,7 @@ If no branch is found near the cursor return nil."
   (if (magit-rebase-in-progress-p)
       (if (magit-anything-unstaged-p)
           (error "Cannot continue rebase with unstaged changes")
-        (magit-with-emacsclient magit-server-window-for-commit
+        (magit-with-git-editor
           (magit-run-git-async "rebase" "--continue")))
     (error "No rebase in progress")))
 
@@ -5720,7 +5699,7 @@ If no branch is found near the cursor return nil."
   "Skip the current commit and restart the current rebase operation."
   (interactive)
   (if (magit-rebase-in-progress-p)
-      (magit-with-emacsclient magit-server-window-for-rebase
+      (magit-with-git-editor
         (magit-run-git-async "rebase" "--skip"))
     (error "No rebase in progress")))
 
@@ -5729,7 +5708,7 @@ If no branch is found near the cursor return nil."
   "Edit the todo list of the current rebase operation."
   (interactive)
   (if (magit-rebase-in-progress-p)
-      (magit-with-emacsclient magit-server-window-for-rebase
+      (magit-with-git-editor
         (magit-run-git-async "rebase" "--edit-todo"))
     (error "No rebase in progress")))
 
@@ -5822,7 +5801,7 @@ Return nil if there is no rebase in progress."
 (defun magit-apply-mailbox (&optional file-or-dir)
   "Apply a series of patches from a mailbox."
   (interactive "fmbox or Maildir file or directory: ")
-  (magit-with-emacsclient magit-server-window-for-rebase
+  (magit-with-git-editor
     (magit-run-git-async "am" file-or-dir)))
 
 ;;;;; Reset
@@ -6107,15 +6086,14 @@ With a prefix argument amend to the commit at HEAD instead.
                    (list (cons "--amend" magit-current-popup-args))
                  (list magit-current-popup-args)))
   (when (setq args (magit-commit-assert args))
-    (magit-commit-internal 'magit-diff-staged "commit" args)))
+    (magit-commit-internal 'magit-diff-staged args)))
 
 ;;;###autoload
 (defun magit-commit-amend (&optional args)
   "Amend the last commit.
 \n(git commit --amend ARGS)"
   (interactive (list magit-current-popup-args))
-  (magit-commit-internal 'magit-diff-while-amending "commit"
-    (cons "--amend" args)))
+  (magit-commit-internal 'magit-diff-while-amending "--amend" args))
 
 ;;;###autoload
 (defun magit-commit-extend (&optional args override-date)
@@ -6132,8 +6110,8 @@ used to inverse the meaning of the prefix argument.
     (let ((process-environment process-environment))
       (unless override-date
         (setenv "GIT_COMMITTER_DATE" (magit-rev-format "%cd")))
-      (magit-commit-internal 'magit-diff-while-amending "commit"
-        (nconc (list "--amend" "--no-edit") args)))))
+      (magit-commit-internal 'magit-diff-while-amending
+                             "--amend" "--no-edit" args))))
 
 ;;;###autoload
 (defun magit-commit-reword (&optional args override-date)
@@ -6153,8 +6131,8 @@ and ignore the option.
   (let ((process-environment process-environment))
     (unless override-date
       (setenv "GIT_COMMITTER_DATE" (magit-rev-format "%cd")))
-    (magit-commit-internal 'magit-diff-while-amending "commit"
-      (nconc (list "--amend" "--only") args))))
+    (magit-commit-internal 'magit-diff-while-amending
+                           "--amend" "--only" args)))
 
 ;;;###autoload
 (defun magit-commit-fixup (&optional commit args confirm)
@@ -6210,8 +6188,8 @@ depending on the value of option `magit-commit-squash-confirm'.
   (when (setq args (magit-commit-assert args t))
     (if (and commit (not confirm))
         (let ((magit-diff-auto-show nil))
-          (magit-commit-internal 'magit-diff-staged "commit"
-            (nconc (list "--no-edit" (concat option "=" commit)) args))
+          (magit-commit-internal 'magit-diff-staged "--no-edit"
+                                 (concat option "=" commit) args)
           commit)
       (magit-log-select
         `(lambda (commit) (,fn commit (list ,@args))))
@@ -6248,16 +6226,19 @@ depending on the value of option `magit-commit-squash-confirm'.
 
 (defvar magit-commit-amending-alist nil)
 
-(defun magit-commit-internal (diff-fn subcmd args)
-  (declare (indent 2))
+(defun magit-commit-internal (diff-fn &rest args)
   (setq git-commit-previous-winconf (current-window-configuration))
   (when (and diff-fn (magit-diff-auto-show-p 'commit))
     (let ((magit-inhibit-save-previous-winconf t))
       (funcall diff-fn)))
   (push (cons (magit-get-top-dir) (member "--amend" args))
         magit-commit-amending-alist)
-  (if (magit-use-emacsclient-p)
-      (magit-with-emacsclient magit-server-window-for-commit
+  (magit-commit-fallback "commit" (magit-flatten-onelevel args)))
+
+(defun magit-commit-fallback (subcmd args)
+  (if (and magit-emacsclient-executable
+           (not (tramp-tramp-file-p default-directory)))
+      (magit-with-git-editor
         (magit-run-git-async subcmd args))
     (let ((topdir (magit-get-top-dir))
           (editmsg (magit-git-dir (if (equal subcmd "tag")
@@ -6268,10 +6249,7 @@ depending on the value of option `magit-commit-squash-confirm'.
         (with-temp-file editmsg
           (magit-rev-format "%B")))
       (with-current-buffer (find-file-noselect editmsg)
-        (funcall (if (functionp magit-server-window-for-commit)
-                     magit-server-window-for-commit
-                   'switch-to-buffer)
-                 (current-buffer))
+        (funcall magit-server-window (current-buffer))
         (add-hook 'git-commit-commit-hook
                   (apply-partially
                    (lambda (default-directory editmsg args)
@@ -6370,7 +6348,7 @@ With a prefix argument annotate the tag.
     (if (or (member "--sign" args)
             (member "--annotate" args)
             (and annotate (setq args (cons "--annotate" args))))
-        (magit-commit-internal nil "tag" args)
+        (magit-commit-fallback "tag" args)
       (magit-run-git "tag" args))))
 
 ;;;###autoload
