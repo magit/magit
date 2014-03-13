@@ -7703,19 +7703,16 @@ to the current branch and `magit-wip-ref-format'."
   "Show information about the section at point.
 This command is intended for debugging purposes."
   (interactive)
-  (let* ((section (magit-current-section))
-         (head-beg (magit-section-beginning section))
-         (body-beg (magit-section-content-beginning section)))
-    (message "Section: %s %s%s-%s %S %S"
-             (magit-section-type section)
-             (marker-position (magit-section-beginning section))
-             (if (and body-beg (not (= body-beg head-beg))
-                      (< body-beg (magit-section-end section)))
-                 (format "-%s" (marker-position body-beg))
-               "")
-             (marker-position (magit-section-end section))
-             (magit-section-info section)
-             (magit-section-context-type section))))
+  (let* ((s (magit-current-section))
+         (b (magit-section-beginning s))
+         (c (magit-section-content-beginning s))
+         (e (magit-section-end s)))
+    (message "Section: %S %S [%s (%s) - %s (%s) - %s (%s)]"
+             (magit-section-context-type s)
+             (magit-section-info s)
+             (marker-position b) (marker-insertion-type b)
+             (marker-position c) (marker-insertion-type c)
+             (marker-position e) (marker-insertion-type e))))
 
 ;;; magit.el ends soon
 
