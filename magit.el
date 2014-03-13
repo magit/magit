@@ -254,8 +254,8 @@ will stop working at all."
 
 (defcustom magit-success-executable "true"
   "The executable which always succeeds.
-An executable or shell built-in which does nothing but
-return with a zero exit status.  The default is \"true\"."
+An executable, such as \"true\", which does
+nothing but return with a zero exit status."
   :package-version '(magit . "2.1.0")
   :group 'magit-process
   :type 'string)
