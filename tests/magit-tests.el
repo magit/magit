@@ -99,4 +99,5 @@
     (should-not (magit-get-boolean "a.b"))
     (should-not (magit-get-boolean "a" "b"))))
 
+(provide 'magit-tests)
 ;;; magit-tests.el ends here
