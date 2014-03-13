@@ -1,6 +1,5 @@
 ;;; magit-tests.el --- tests for Magit
 
-(require 'cl)
 (require 'ert)
 
 (require 'magit)
