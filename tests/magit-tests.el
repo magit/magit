@@ -4,7 +4,6 @@
 (require 'ert)
 
 (require 'magit)
-(require 'magit-blame)
 
 ;;; Utilities
 
