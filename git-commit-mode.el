@@ -2,8 +2,10 @@
 
 ;; Copyright (c) 2010-2012  Florian Ragwitz
 ;; Copyright (c) 2012-2013  Sebastian Wiesner
+;; Copyright (C) 2010-2014  The Magit Project Developers
 
-;; Authors: Sebastian Wiesner <lunaryorn@gmail.com>
+;; Authors: Jonas Bernoulli <jonas@bernoul.li>
+;;	Sebastian Wiesner <lunaryorn@gmail.com>
 ;;	Florian Ragwitz <rafl@debian.org>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 ;; Version: 0.14.0
