@@ -1,7 +1,12 @@
 ;;; magit-tests.el --- tests for Magit
 
-(require 'ert)
+;; Copyright (C) 2011-2014  The Magit Project Developers
+;;
+;; License: GPLv3
 
+;;; Code:
+
+(require 'ert)
 (require 'magit)
 
 ;;; Utilities
