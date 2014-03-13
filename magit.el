@@ -80,7 +80,6 @@
   (require 'ediff)
   (require 'eshell)
   (require 'ido)
-  (require 'iswitchb)
   (require 'package nil t)
   (require 'view))
 
@@ -96,12 +95,14 @@
 (declare-function package-desc-version 'package)
 (declare-function package-version-join 'package)
 
+(defvar iswitchb-temp-buflist)
+(defvar package-alist)
+
 (defvar magit-log-buffer-name)
 (defvar magit-reflog-buffer-name)
 (defvar magit-stash-buffer-name)
 (defvar magit-status-buffer-name)
 (defvar magit-this-process)
-(defvar package-alist)
 
 ;;;; Compatibility
 
