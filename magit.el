@@ -6153,7 +6153,7 @@ and ignore the option.
   (let ((process-environment process-environment))
     (unless override-date
       (setenv "GIT_COMMITTER_DATE" (magit-rev-format "%cd")))
-    (magit-commit-internal nil "commit"
+    (magit-commit-internal 'magit-diff-while-amending "commit"
       (nconc (list "--amend" "--only") args))))
 
 ;;;###autoload
