@@ -1710,6 +1710,14 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
                      (elt (list elt))))
              list))
 
+(defun magit-load-config-extensions ()
+  "Load Magit extensions that are defined at the Git config layer."
+  (dolist (ext (magit-get-all "magit.extension"))
+    (let ((sym (intern (format "magit-%s-mode" ext))))
+      (when (and (fboundp sym)
+                 (not (eq sym 'magit-wip-save-mode)))
+        (funcall sym 1)))))
+
 ;;;; Buffer Margins
 
 (defun magit-set-buffer-margin (width enable)
@@ -2143,14 +2151,6 @@ again use `remove-hook'."
       (set-default hook value))))
 
 ;;;;; Section Utilities
-
-(defun magit-load-config-extensions ()
-  "Load Magit extensions that are defined at the Git config layer."
-  (dolist (ext (magit-get-all "magit.extension"))
-    (let ((sym (intern (format "magit-%s-mode" ext))))
-      (when (and (fboundp sym)
-                 (not (eq sym 'magit-wip-save-mode)))
-        (funcall sym 1)))))
 
 (defun magit-map-sections (function section)
   "Apply FUNCTION to SECTION and recursively its subsections."
