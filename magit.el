@@ -1733,22 +1733,13 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
 
 ;;;; Emacsclient Support
 
-(defmacro magit-with-emacsclient (&rest body)
-  "Arrange for Git to use Emacsclient as \"the git editor\".
-
-Git processes that use \"the editor\" have to be asynchronous.
-The use of this macro ensures that such processes inside BODY use
-Emacsclient as \"the editor\" by setting the environment variable
-$GIT_EDITOR accordingly around calls to Git and starting the
-server if necessary.
-
-\(fn [ENVVAR] &rest BODY)"
+(defmacro magit-with-editor (&rest body)
+  "\n(fn [ENVVAR] &rest BODY)"
   (declare (indent defun))
-  (let ((envvar (if (stringp (car body)) (pop body) "GIT_EDITOR")))
+  (let ((envvar (if (stringp (car body)) (pop body) "EDITOR")))
     `(if (tramp-tramp-file-p default-directory)
          (error "Implementation does not handle Tramp yet")
-       (let* ((process-environment process-environment)
-              (magit-process-popup-time -1))
+       (let ((process-environment process-environment))
          ;; Make sure server-use-tcp's value is valid.
          (unless (featurep 'make-network-process '(:family local))
            (setq server-use-tcp t))
@@ -1774,6 +1765,13 @@ server if necessary.
          (setenv "ALTERNATE_EDITOR"
                  (expand-file-name invocation-name invocation-directory))
          ,@body))))
+
+(defmacro magit-with-git-editor (&rest body)
+  "\n(fn [ENVVAR] &rest BODY)"
+  (declare (indent defun))
+  `(magit-with-editor ,(if (stringp (car body)) (pop body) "GIT_EDITOR")
+     (let ((magit-process-popup-time -1))
+       ,@body)))
 
 ;;; Magit Api
 ;;;; Section Api
@@ -5358,7 +5356,7 @@ edit it.
 \n(git merge --edit [ARGS] rev)"
   (interactive (list (magit-merge-read-rev) magit-current-popup-args))
   (magit-merge-assert)
-  (magit-with-emacsclient
+  (magit-with-git-editor
     (magit-run-git "merge" "--edit" args rev)) )
 
 ;;;###autoload
@@ -5663,7 +5661,7 @@ If no branch is found near the cursor return nil."
    ((magit-rebase-in-progress-p)
     (magit-rebase-popup))
    ((setq commit (magit-rebase-interactive-assert commit))
-    (magit-with-emacsclient
+    (magit-with-git-editor
       (apply 'magit-run-git-async "rebase" "-i" commit args)))
    (t
     (magit-log-select
@@ -5676,7 +5674,7 @@ If no branch is found near the cursor return nil."
 \n(git rebase -i COMMIT[^] --autosquash --autostash [ARGS])"
   (interactive (list (magit-get-tracked-branch) magit-current-popup-args))
   (if (setq commit (magit-rebase-interactive-assert commit))
-      (magit-with-emacsclient
+      (magit-with-git-editor
         (let ((process-environment process-environment))
           (setenv "GIT_SEQUENCE_EDITOR" magit-success-executable)
           (apply 'magit-run-git-async "rebase" "-i" commit
@@ -5692,7 +5690,7 @@ If no branch is found near the cursor return nil."
   (if (magit-rebase-in-progress-p)
       (if (magit-anything-unstaged-p)
           (error "Cannot continue rebase with unstaged changes")
-        (magit-with-emacsclient
+        (magit-with-git-editor
           (magit-run-git-async "rebase" "--continue")))
     (error "No rebase in progress")))
 
@@ -5701,7 +5699,7 @@ If no branch is found near the cursor return nil."
   "Skip the current commit and restart the current rebase operation."
   (interactive)
   (if (magit-rebase-in-progress-p)
-      (magit-with-emacsclient
+      (magit-with-git-editor
         (magit-run-git-async "rebase" "--skip"))
     (error "No rebase in progress")))
 
@@ -5710,7 +5708,7 @@ If no branch is found near the cursor return nil."
   "Edit the todo list of the current rebase operation."
   (interactive)
   (if (magit-rebase-in-progress-p)
-      (magit-with-emacsclient
+      (magit-with-git-editor
         (magit-run-git-async "rebase" "--edit-todo"))
     (error "No rebase in progress")))
 
@@ -5803,7 +5801,7 @@ Return nil if there is no rebase in progress."
 (defun magit-apply-mailbox (&optional file-or-dir)
   "Apply a series of patches from a mailbox."
   (interactive "fmbox or Maildir file or directory: ")
-  (magit-with-emacsclient
+  (magit-with-git-editor
     (magit-run-git-async "am" file-or-dir)))
 
 ;;;;; Reset
@@ -6239,7 +6237,7 @@ depending on the value of option `magit-commit-squash-confirm'.
         magit-commit-amending-alist)
   (if (and magit-emacsclient-executable
            (not (tramp-tramp-file-p default-directory)))
-      (magit-with-emacsclient
+      (magit-with-git-editor
         (magit-run-git-async subcmd args))
     (let ((topdir (magit-get-top-dir))
           (editmsg (magit-git-dir (if (equal subcmd "tag")
