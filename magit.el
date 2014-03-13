@@ -17,7 +17,7 @@
 
 ;; Keywords: vc tools
 ;; Package: magit
-;; Package-Requires: ((cl-lib "0.3") (dash "2.6.0") (git-commit-mode "0.14.0") (git-rebase-mode "0.14.0"))
+;; Package-Requires: ((cl-lib "0.3") (dash "2.6.0") (git-commit-mode "0.14.0") (git-rebase-mode "0.14.0") (with-editor "0"))
 
 ;; Magit requires at least GNU Emacs 23.2 and Git 1.7.2.5.
 ;; These are the versions shipped by Debian oldstable (6.0, Squeeze).
@@ -57,6 +57,8 @@
 
 (require 'git-commit-mode)
 (require 'git-rebase-mode)
+(require 'with-editor)
+
 (require 'magit-popup)
 
 (require 'ansi-color)
@@ -197,6 +199,7 @@ aborts and returns that value."
 (custom-add-to-group 'magit-faces   'git-commit-faces 'custom-group)
 (custom-add-to-group 'magit-modes   'git-rebase       'custom-group)
 (custom-add-to-group 'magit-faces   'git-rebase-faces 'custom-group)
+(custom-add-to-group 'magit-process 'with-editor      'custom-group)
 
 (custom-add-to-group 'magit 'vc-follow-symlinks 'custom-variable)
 
@@ -214,43 +217,6 @@ Be careful what you add here, especially if you are using
 tramp to connect to servers with ancient Git versions."
   :group 'magit-process
   :type '(repeat string))
-
-(defcustom magit-emacsclient-executable
-  (ignore-errors
-    (shell-quote-argument
-     (let ((version (format "%s.%s"
-                            emacs-major-version
-                            emacs-minor-version)))
-       (or (let ((exec-path (list (expand-file-name "bin" invocation-directory)
-                                  invocation-directory)))
-             (or (executable-find (format "emacsclient%s"   version))
-                 (executable-find (format "emacsclient-%s"   version))
-                 (executable-find (format "emacsclient%s.exe" version))
-                 (executable-find (format "emacsclient-%s.exe" version))
-                 (executable-find "emacsclient")
-                 (executable-find "emacsclient.exe")))
-           (executable-find (format "emacsclient%s"   version))
-           (executable-find (format "emacsclient-%s"   version))
-           (executable-find (format "emacsclient%s.exe" version))
-           (executable-find (format "emacsclient-%s.exe" version))
-           (executable-find "emacsclient")
-           (executable-find "emacsclient.exe")))))
-  "The Emacsclient executable.
-
-The default value is the full path to the emacsclient executable
-located in the same directory as the executable of the current
-Emacs instance.  If the emacsclient cannot be located in that
-directory then the first executable found anywhere on the
-`exec-path' is used instead.
-
-If no executable can be located then nil becomes the default
-value, and some important Magit commands will fallback to an
-alternative code path.  However `magit-interactive-rebase'
-will stop working at all."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-process
-  :type '(choice (string :tag "Executable")
-                 (const :tag "Don't use Emacsclient" nil)))
 
 (defcustom magit-success-executable "true"
   "The executable which always succeeds.
@@ -1731,48 +1697,6 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
                                        (length (nth 2 e))))
                                 (symbol-value duration-spec)))))))
 
-;;;; Emacsclient Support
-
-(defmacro magit-with-editor (&rest body)
-  "\n(fn [ENVVAR] &rest BODY)"
-  (declare (indent defun))
-  (let ((envvar (if (stringp (car body)) (pop body) "EDITOR")))
-    `(if (tramp-tramp-file-p default-directory)
-         (error "Implementation does not handle Tramp yet")
-       (let ((process-environment process-environment))
-         ;; Make sure server-use-tcp's value is valid.
-         (unless (featurep 'make-network-process '(:family local))
-           (setq server-use-tcp t))
-         ;; Make sure the server is running.
-         (unless server-process
-           (when (server-running-p server-name)
-             (setq server-name (format "server%s" (emacs-pid)))
-             (when (server-running-p server-name)
-               (server-force-delete server-name)))
-           (server-start))
-         ;; Tell Git to use the client.
-         (setenv ,envvar
-                 (concat magit-emacsclient-executable
-                         ;; Tell the client where the server file is.
-                         (and (not server-use-tcp)
-                              (concat " --socket-name="
-                                      (expand-file-name server-name
-                                                        server-socket-dir)))))
-         (when server-use-tcp
-           (setenv "EMACS_SERVER_FILE"
-                   (expand-file-name server-name server-auth-dir)))
-         ;; As last resort fallback to a new Emacs instance.
-         (setenv "ALTERNATE_EDITOR"
-                 (expand-file-name invocation-name invocation-directory))
-         ,@body))))
-
-(defmacro magit-with-git-editor (&rest body)
-  "\n(fn [ENVVAR] &rest BODY)"
-  (declare (indent defun))
-  `(magit-with-editor ,(if (stringp (car body)) (pop body) "GIT_EDITOR")
-     (let ((magit-process-popup-time -1))
-       ,@body)))
-
 ;;; Magit Api
 ;;;; Section Api
 ;;;;; Section Core
@@ -3004,21 +2928,6 @@ git-rebase-todo\\)\\'")
     (setq-local server-window magit-server-window)))
 
 (add-hook 'server-visit-hook 'magit-server-visit t)
-
-(defadvice server-switch-buffer (around with-editor activate)
-  "If the buffer being switched to has a buffer-local value for
-`server-window' then use that instead of the default value, and
-finally delete the local binding.  To use this, add a function to
-`server-visit-hook' which does, or does not, set the local value
-in the current buffer (which is the one requested by the client)
-based on some criterion."
-  (let ((server-window (with-current-buffer
-                           (or next-buffer (current-buffer))
-                         server-window)))
-    ad-do-it
-    (when next-buffer
-      (with-current-buffer next-buffer
-        (kill-local-variable 'server-window)))))
 
 ;;;; Mode Api
 ;;;;; Mode Foundation
@@ -5356,7 +5265,7 @@ edit it.
 \n(git merge --edit [ARGS] rev)"
   (interactive (list (magit-merge-read-rev) magit-current-popup-args))
   (magit-merge-assert)
-  (magit-with-git-editor
+  (with-git-editor
     (magit-run-git "merge" "--edit" args rev)) )
 
 ;;;###autoload
@@ -5655,13 +5564,13 @@ If no branch is found near the cursor return nil."
                  (list (and commit (concat commit "^"))
                        magit-current-popup-args)))
   (cond
-   ((or (not magit-emacsclient-executable)
+   ((or (not with-editor-emacsclient-executable)
         (tramp-tramp-file-p default-directory))
     (error "Implementation does not handle remote (tramp) repositories"))
    ((magit-rebase-in-progress-p)
     (magit-rebase-popup))
    ((setq commit (magit-rebase-interactive-assert commit))
-    (magit-with-git-editor
+    (with-git-editor
       (apply 'magit-run-git-async "rebase" "-i" commit args)))
    (t
     (magit-log-select
@@ -5674,7 +5583,7 @@ If no branch is found near the cursor return nil."
 \n(git rebase -i COMMIT[^] --autosquash --autostash [ARGS])"
   (interactive (list (magit-get-tracked-branch) magit-current-popup-args))
   (if (setq commit (magit-rebase-interactive-assert commit))
-      (magit-with-git-editor
+      (with-git-editor
         (let ((process-environment process-environment))
           (setenv "GIT_SEQUENCE_EDITOR" magit-success-executable)
           (apply 'magit-run-git-async "rebase" "-i" commit
@@ -5690,7 +5599,7 @@ If no branch is found near the cursor return nil."
   (if (magit-rebase-in-progress-p)
       (if (magit-anything-unstaged-p)
           (error "Cannot continue rebase with unstaged changes")
-        (magit-with-git-editor
+        (with-git-editor
           (magit-run-git-async "rebase" "--continue")))
     (error "No rebase in progress")))
 
@@ -5699,7 +5608,7 @@ If no branch is found near the cursor return nil."
   "Skip the current commit and restart the current rebase operation."
   (interactive)
   (if (magit-rebase-in-progress-p)
-      (magit-with-git-editor
+      (with-git-editor
         (magit-run-git-async "rebase" "--skip"))
     (error "No rebase in progress")))
 
@@ -5708,7 +5617,7 @@ If no branch is found near the cursor return nil."
   "Edit the todo list of the current rebase operation."
   (interactive)
   (if (magit-rebase-in-progress-p)
-      (magit-with-git-editor
+      (with-git-editor
         (magit-run-git-async "rebase" "--edit-todo"))
     (error "No rebase in progress")))
 
@@ -5801,7 +5710,7 @@ Return nil if there is no rebase in progress."
 (defun magit-apply-mailbox (&optional file-or-dir)
   "Apply a series of patches from a mailbox."
   (interactive "fmbox or Maildir file or directory: ")
-  (magit-with-git-editor
+  (with-git-editor
     (magit-run-git-async "am" file-or-dir)))
 
 ;;;;; Reset
@@ -6236,9 +6145,9 @@ depending on the value of option `magit-commit-squash-confirm'.
   (magit-commit-fallback "commit" (magit-flatten-onelevel args)))
 
 (defun magit-commit-fallback (subcmd args)
-  (if (and magit-emacsclient-executable
+  (if (and with-editor-emacsclient-executable
            (not (tramp-tramp-file-p default-directory)))
-      (magit-with-git-editor
+      (with-git-editor
         (magit-run-git-async subcmd args))
     (let ((topdir (magit-get-top-dir))
           (editmsg (magit-git-dir (if (equal subcmd "tag")
