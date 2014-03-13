@@ -531,10 +531,11 @@ deep."
 ;;;;; Modes
 ;;;;;; Common
 
-(defcustom magit-mode-hook nil
+(defcustom magit-mode-hook '(magit-load-config-extensions)
   "Hook run when entering a Magit mode derived mode."
   :group 'magit-modes
-  :type 'hook)
+  :type 'hook
+  :options '(magit-load-config-extensions))
 
 (defcustom magit-show-xref-buttons '(magit-diff-mode magit-commit-mode)
   "List of modes whose buffers should contain history buttons.
@@ -2144,8 +2145,7 @@ again use `remove-hook'."
 ;;;;; Section Utilities
 
 (defun magit-load-config-extensions ()
-  "Try to load magit extensions that are defined at git config layer.
-This can be added to `magit-mode-hook' for example"
+  "Load Magit extensions that are defined at the Git config layer."
   (dolist (ext (magit-get-all "magit.extension"))
     (let ((sym (intern (format "magit-%s-mode" ext))))
       (when (and (fboundp sym)
