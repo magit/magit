@@ -552,8 +552,7 @@ Known comment headings are provided by `git-commit-comment-headings'."
      (eval . (git-commit-mode-summary-font-lock-keywords t)))
    (git-commit-mode-heading-keywords)))
 
-(defun git-commit-font-lock-diff ()
-  "Add font lock on diff."
+(defun git-commit-propertize-diff ()
   (save-excursion
     (goto-char (point-min))
     (when (re-search-forward "^diff --git" nil t)
@@ -597,7 +596,7 @@ basic structure of and errors in git commit messages."
   ;; Font locking
   (setq font-lock-defaults (list (git-commit-mode-font-lock-keywords) t))
   (set (make-local-variable 'font-lock-multiline) t)
-  (git-commit-font-lock-diff)
+  (git-commit-propertize-diff)
   ;; Filling according to the guidelines
   (setq fill-column git-commit-fill-column)
   ;; Recognize changelog-style paragraphs
