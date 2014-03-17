@@ -123,6 +123,12 @@ in the current buffer (which is the one requested by the client)."
       (with-current-buffer next-buffer
         (kill-local-variable 'server-window)))))
 
+;;; with-editor.el ends soon
+
+(defconst with-editor-font-lock-keywords
+  '(("(\\(with-\\(?:git-\\)?editor\\)\\>" . 1)))
+(font-lock-add-keywords 'emacs-lisp-mode with-editor-font-lock-keywords)
+
 (provide 'with-editor)
 ;; Local Variables:
 ;; indent-tabs-mode: nil
