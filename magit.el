@@ -7619,7 +7619,7 @@ This command is intended for debugging purposes."
     `((,(concat "(\\(" (regexp-opt
                         '("magit-define-section-jumper"
                           "magit-define-popup"))
-                "\\)\\>[ \t'\(]*\\(\\sw+\\)?")
+                "\\)\\>[ \t'\(]*\\(\\sw+\\|\\s_\\)?")
        (1 font-lock-keyword-face)
        (2 font-lock-function-name-face nil t))
       (,(concat "(" (regexp-opt
