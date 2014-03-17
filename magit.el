@@ -5996,14 +5996,14 @@ With a prefix argument amend to the commit at HEAD instead.
                    (list (cons "--amend" magit-current-popup-args))
                  (list magit-current-popup-args)))
   (when (setq args (magit-commit-assert args))
-    (magit-commit-internal 'magit-diff-staged args)))
+    (magit-commit-async 'magit-diff-staged args)))
 
 ;;;###autoload
 (defun magit-commit-amend (&optional args)
   "Amend the last commit.
 \n(git commit --amend ARGS)"
   (interactive (list magit-current-popup-args))
-  (magit-commit-internal 'magit-diff-while-amending "--amend" args))
+  (magit-commit-async 'magit-diff-while-amending "--amend" args))
 
 ;;;###autoload
 (defun magit-commit-extend (&optional args override-date)
@@ -6020,8 +6020,8 @@ used to inverse the meaning of the prefix argument.
     (let ((process-environment process-environment))
       (unless override-date
         (setenv "GIT_COMMITTER_DATE" (magit-rev-format "%cd")))
-      (magit-commit-internal 'magit-diff-while-amending
-                             "--amend" "--no-edit" args))))
+      (magit-commit-async 'magit-diff-while-amending
+                          "--amend" "--no-edit" args))))
 
 ;;;###autoload
 (defun magit-commit-reword (&optional args override-date)
@@ -6041,8 +6041,8 @@ and ignore the option.
   (let ((process-environment process-environment))
     (unless override-date
       (setenv "GIT_COMMITTER_DATE" (magit-rev-format "%cd")))
-    (magit-commit-internal 'magit-diff-while-amending
-                           "--amend" "--only" args)))
+    (magit-commit-async 'magit-diff-while-amending
+                        "--amend" "--only" args)))
 
 ;;;###autoload
 (defun magit-commit-fixup (&optional commit args confirm)
@@ -6098,8 +6098,8 @@ depending on the value of option `magit-commit-squash-confirm'.
   (when (setq args (magit-commit-assert args t))
     (if (and commit (not confirm))
         (let ((magit-diff-auto-show nil))
-          (magit-commit-internal 'magit-diff-staged "--no-edit"
-                                 (concat option "=" commit) args)
+          (magit-commit-async 'magit-diff-staged "--no-edit"
+                              (concat option "=" commit) args)
           commit)
       (magit-log-select
         `(lambda (commit) (,fn commit (list ,@args))))
@@ -6120,7 +6120,7 @@ depending on the value of option `magit-commit-squash-confirm'.
     (or args (list "--")))
    ((and (magit-rebase-in-progress-p)
          (y-or-n-p "Nothing staged.  Continue in-progress rebase? "))
-    (magit-run-git-async "rebase" "--continue")
+    (magit-commit-async "--continue")
     nil)
    (magit-commit-ask-to-stage
     (when (magit-diff-auto-show-p 'stage-all)
@@ -6136,7 +6136,7 @@ depending on the value of option `magit-commit-squash-confirm'.
 
 (defvar magit-commit-amending-alist nil)
 
-(defun magit-commit-internal (diff-fn &rest args)
+(defun magit-commit-async (diff-fn &rest args)
   (setq git-commit-previous-winconf (current-window-configuration))
   (when (and diff-fn (magit-diff-auto-show-p 'commit))
     (let ((magit-inhibit-save-previous-winconf t))
