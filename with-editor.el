@@ -62,10 +62,10 @@
 ;;; Wrappers
 
 (defmacro with-editor (&rest body)
-  "Use the Emacsclient as $EDITOR in BODY.
+  "Use the Emacsclient as $EDITOR while evaluating BODY.
 Modify the `process-environment' for processes started in BODY,
 instructing them to use the Emacsclient as $EDITOR.  If optional
-ENVVAR is provided then bind that environment instead.
+ENVVAR is provided then bind that environment variable instead.
 \n(fn [ENVVAR] &rest BODY)"
   (declare (indent defun))
   (let ((envvar (if (stringp (car body)) (pop body) "EDITOR")))
@@ -82,10 +82,10 @@ ENVVAR is provided then bind that environment instead.
              (when (server-running-p server-name)
                (server-force-delete server-name)))
            (server-start))
-         ;; Tell Git to use the client.
+         ;; Tell Git to use the Emacsclient.
          (setenv ,envvar
                  (concat with-editor-emacsclient-executable
-         ;; Tell the client where the server file is.
+         ;; Tell the process where the server file is.
                          (and (not server-use-tcp)
                               (concat " --socket-name="
                                       (expand-file-name server-name
@@ -99,10 +99,11 @@ ENVVAR is provided then bind that environment instead.
          ,@body))))
 
 (defmacro with-git-editor (&rest body)
-  "Use the Emacsclient as $GIT_EDITOR in BODY.
+  "Use the Emacsclient as $GIT_EDITOR while evaluating BODY.
 Modify the `process-environment' for processes started in BODY,
 instructing them to use the Emacsclient as $GIT_EDITOR.  If
-optional ENVVAR is provided then bind that environment instead.
+optional ENVVAR is provided then bind that environment variable
+instead.
 \n(fn [ENVVAR] &rest BODY)"
   (declare (indent defun))
   `(with-editor ,(if (stringp (car body)) (pop body) "GIT_EDITOR")
@@ -113,8 +114,8 @@ optional ENVVAR is provided then bind that environment instead.
   "If the buffer being switched to has a buffer-local value for
 `server-window' then use that instead of the default value, and
 finally delete the local value.  To use this, add a function to
-`server-visit-hook' which does, or does not, set the local value
-in the current buffer (which is the one requested by the client)."
+`server-visit-hook' which possibly sets the local value in the
+current buffer (which is the one requested by the client)."
   (let ((server-window (with-current-buffer
                            (or next-buffer (current-buffer))
                          server-window)))
