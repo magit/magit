@@ -5570,8 +5570,7 @@ If no branch is found near the cursor return nil."
    ((magit-rebase-in-progress-p)
     (magit-rebase-popup))
    ((setq commit (magit-rebase-interactive-assert commit))
-    (with-git-editor
-      (apply 'magit-run-git-async "rebase" "-i" commit args)))
+    (magit-rebase-async "-i" commit args))
    (t
     (magit-log-select
       `(lambda (commit)
@@ -5583,11 +5582,9 @@ If no branch is found near the cursor return nil."
 \n(git rebase -i COMMIT[^] --autosquash --autostash [ARGS])"
   (interactive (list (magit-get-tracked-branch) magit-current-popup-args))
   (if (setq commit (magit-rebase-interactive-assert commit))
-      (with-git-editor
-        (let ((process-environment process-environment))
-          (setenv "GIT_SEQUENCE_EDITOR" magit-success-executable)
-          (apply 'magit-run-git-async "rebase" "-i" commit
-                 "--autosquash" "--autostash" args)))
+      (let ((process-environment process-environment))
+        (setenv "GIT_SEQUENCE_EDITOR" magit-success-executable)
+        (magit-rebase-async "-i" commit "--autosquash" "--autostash" args))
     (magit-log-select
       `(lambda (commit)
          (magit-rebase-autosquash (concat commit "^") (list ,@args))))))
@@ -5599,8 +5596,7 @@ If no branch is found near the cursor return nil."
   (if (magit-rebase-in-progress-p)
       (if (magit-anything-unstaged-p)
           (error "Cannot continue rebase with unstaged changes")
-        (with-git-editor
-          (magit-run-git-async "rebase" "--continue")))
+        (magit-rebase-async "--continue"))
     (error "No rebase in progress")))
 
 ;;;###autoload
@@ -5608,8 +5604,7 @@ If no branch is found near the cursor return nil."
   "Skip the current commit and restart the current rebase operation."
   (interactive)
   (if (magit-rebase-in-progress-p)
-      (with-git-editor
-        (magit-run-git-async "rebase" "--skip"))
+      (magit-rebase-async "--skip")
     (error "No rebase in progress")))
 
 ;;;###autoload
@@ -5617,8 +5612,7 @@ If no branch is found near the cursor return nil."
   "Edit the todo list of the current rebase operation."
   (interactive)
   (if (magit-rebase-in-progress-p)
-      (with-git-editor
-        (magit-run-git-async "rebase" "--edit-todo"))
+      (magit-rebase-async "--edit-todo")
     (error "No rebase in progress")))
 
 ;;;###autoload
@@ -5628,6 +5622,10 @@ If no branch is found near the cursor return nil."
   (if (magit-rebase-in-progress-p)
       (magit-run-git "rebase" "--abort")
     (error "No rebase in progress")))
+
+(defun magit-rebase-async (&rest args)
+  (with-git-editor
+    (apply 'magit-run-git-async "rebase" args)))
 
 (defun magit-rebase-interactive-assert (commit)
   (when commit
