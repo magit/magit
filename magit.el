@@ -6018,8 +6018,7 @@ used to inverse the meaning of the prefix argument.
     (let ((process-environment process-environment))
       (unless override-date
         (setenv "GIT_COMMITTER_DATE" (magit-rev-format "%cd")))
-      (magit-commit-async 'magit-diff-while-amending
-                          "--amend" "--no-edit" args))))
+      (magit-commit-async nil "--amend" "--no-edit" args))))
 
 ;;;###autoload
 (defun magit-commit-reword (&optional args override-date)
