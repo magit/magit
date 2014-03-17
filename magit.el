@@ -101,6 +101,7 @@
 
 (defvar magit-log-buffer-name)
 (defvar magit-reflog-buffer-name)
+(defvar magit-refresh-args)
 (defvar magit-stash-buffer-name)
 (defvar magit-status-buffer-name)
 (defvar magit-this-process)
@@ -2919,15 +2920,24 @@ of the Windows \"Powershell\"."
               args)
     args))
 
-(defconst magit-server-window 'pop-to-buffer)
-(defconst magit-server-window-filename-regexp "/\\(\\(\\(\
-COMMIT\\|NOTES\\|PULLREQ\\|TAG\\)_EDIT\\|MERGE_\\|\\)MSG\\|\
-git-rebase-todo\\)\\'")
+(defvar magit-server-visit-args nil)
+(defun  magit-server-visit-args (action &optional other-window args)
+  (setq magit-server-visit-args
+        (list action other-window (magit-get-top-dir)
+              (current-window-configuration) args)))
 
 (defun magit-server-visit ()
-  (when (string-match-p magit-server-window-filename-regexp
-                        buffer-file-name)
-    (setq-local server-window magit-server-window)))
+  (when (or (string-match-p git-commit-filename-regexp buffer-file-name)
+            (string-match-p git-rebase-filename-regexp buffer-file-name))
+    (let ((type     (nth 0 magit-server-visit-args))
+          (otherwin (nth 1 magit-server-visit-args))
+          (topdir   (nth 2 magit-server-visit-args))
+          (winconf  (nth 3 magit-server-visit-args))
+          (args     (nth 4 magit-server-visit-args)))
+      (setq-local server-window (if otherwin 'pop-to-buffer 'switch-to-buffer))
+      (when (equal (magit-get-top-dir) topdir)
+        (setq with-editor-previous-winconf winconf)
+        (setq magit-refresh-args args)))))
 
 (add-hook 'server-visit-hook 'magit-server-visit t)
 
@@ -5625,6 +5635,7 @@ If no branch is found near the cursor return nil."
     (error "No rebase in progress")))
 
 (defun magit-rebase-async (&rest args)
+  (magit-server-visit-args 'rebase)
   (apply #'magit-run-git-with-editor "rebase" args))
 
 (defun magit-rebase-interactive-assert (commit)
@@ -6130,15 +6141,11 @@ depending on the value of option `magit-commit-squash-confirm'.
    (t
     (user-error "Nothing staged"))))
 
-(defvar magit-commit-amending-alist nil)
-
 (defun magit-commit-async (diff-fn &rest args)
-  (setq git-commit-previous-winconf (current-window-configuration))
+  (magit-server-visit-args 'commit t args)
   (when (and diff-fn (magit-diff-auto-show-p 'commit))
     (let ((magit-inhibit-save-previous-winconf t))
       (funcall diff-fn)))
-  (push (cons (magit-get-top-dir) (member "--amend" args))
-        magit-commit-amending-alist)
   (if (and with-editor-emacsclient-executable
            (not (tramp-tramp-file-p default-directory)))
       (apply #'magit-run-git-with-editor "commit" args)
@@ -6154,7 +6161,7 @@ depending on the value of option `magit-commit-squash-confirm'.
       (with-temp-file editmsg
         (magit-rev-format "%B")))
     (with-current-buffer (find-file-noselect editmsg)
-      (funcall magit-server-window (current-buffer))
+      (pop-to-buffer (current-buffer))
       (add-hook 'with-editor-finish-noclient-hook
                 (apply-partially
                  (lambda (default-directory editmsg args)
@@ -7029,9 +7036,11 @@ a commit read from the minibuffer."
   (interactive)
   (let* ((toplevel (magit-get-top-dir))
          (diff-buf (magit-mode-get-buffer magit-diff-buffer-name
-                                          'magit-diff-mode toplevel)))
-    (if (magit-commit-log-buffer)
-        (if (and (cdr (assoc toplevel magit-commit-amending-alist))
+                                          'magit-diff-mode toplevel))
+         (commit-buf (magit-commit-log-buffer)))
+    (if commit-buf
+        (if (and (with-current-buffer commit-buf
+                   (member "--amend" magit-refresh-args))
                  (or (not diff-buf)
                      (with-current-buffer diff-buf
                        (or (not (equal (magit-get-top-dir) toplevel))
