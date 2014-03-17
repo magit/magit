@@ -2604,6 +2604,9 @@ short halflive.  See `magit-run-git' for more information."
 
 (defvar magit-this-process nil)
 
+(defun magit-run-git-with-editor (&rest args)
+  (with-git-editor (apply #'magit-run-git-async args)))
+
 (defun magit-run-git-async (&rest args)
   "Start Git, prepare for refresh, and return the process object.
 
@@ -5265,8 +5268,7 @@ edit it.
 \n(git merge --edit [ARGS] rev)"
   (interactive (list (magit-merge-read-rev) magit-current-popup-args))
   (magit-merge-assert)
-  (with-git-editor
-    (magit-run-git "merge" "--edit" args rev)) )
+  (magit-run-git-with-editor "merge" "--edit" args rev))
 
 ;;;###autoload
 (defun magit-merge-nocommit (rev &optional args)
@@ -5624,8 +5626,7 @@ If no branch is found near the cursor return nil."
     (error "No rebase in progress")))
 
 (defun magit-rebase-async (&rest args)
-  (with-git-editor
-    (apply 'magit-run-git-async "rebase" args)))
+  (apply #'magit-run-git-with-editor "rebase" args))
 
 (defun magit-rebase-interactive-assert (commit)
   (when commit
@@ -5708,8 +5709,7 @@ Return nil if there is no rebase in progress."
 (defun magit-apply-mailbox (&optional file-or-dir)
   "Apply a series of patches from a mailbox."
   (interactive "fmbox or Maildir file or directory: ")
-  (with-git-editor
-    (magit-run-git-async "am" file-or-dir)))
+  (magit-run-git-with-editor "am" file-or-dir))
 
 ;;;;; Reset
 
@@ -6143,8 +6143,7 @@ depending on the value of option `magit-commit-squash-confirm'.
         magit-commit-amending-alist)
   (if (and with-editor-emacsclient-executable
            (not (tramp-tramp-file-p default-directory)))
-      (with-git-editor
-        (magit-run-git-async "commit" args))
+      (apply #'magit-run-git-with-editor "commit" args)
     (magit-commit-fallback "commit" (magit-flatten-onelevel args))))
 
 (defun magit-commit-fallback (subcmd args)
