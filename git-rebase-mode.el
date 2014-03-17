@@ -1,7 +1,6 @@
 ;;; git-rebase-mode.el --- Major mode for editing git rebase files
 
-;; Copyright (C) 2010  Phil Jackson
-;; Copyright (C) 2011  Peter J Weisberg
+;; Copyright (C) 2010-2014  The Magit Project Developers
 
 ;; Author: Phil Jackson <phil@shellarchive.co.uk>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
