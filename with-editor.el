@@ -37,9 +37,8 @@
 (defcustom with-editor-emacsclient-executable
   (ignore-errors
     (shell-quote-argument
-     (let ((version (format "%s.%s"
-                            emacs-major-version
-                            emacs-minor-version)))
+     (let ((version
+            (format "%s.%s" emacs-major-version emacs-minor-version)))
        (or (and (eq system-type 'darwin)
                 (let ((exec-path
                        (list (expand-file-name "bin" invocation-directory))))
@@ -50,10 +49,10 @@
            (executable-find (format "emacsclient-%s.exe" version))
            (executable-find "emacsclient")
            (executable-find "emacsclient.exe")))))
-  "The Emacsclient executable."
+  "The Emacsclient executable used by the `with-editor' macro."
   :group 'with-process
   :type '(choice (string :tag "Executable")
-                 (const :tag "Don't use Emacsclient" nil)))
+                 (const  :tag "Don't use Emacsclient" nil)))
 
 ;;; Wrappers
 
