@@ -6441,7 +6441,7 @@ other actions from the bisect popup (\
        (user-error "Already bisecting")
      (list (magit-read-rev "Start bisect with known bad revision" "HEAD")
            (magit-read-rev "Good revision" (magit-guess-branch)))))
-  (magit-run-git-bisect "start" (list bad good) t))
+  (magit-bisect-async "start" (list bad good) t))
 
 ;;;###autoload
 (defun magit-bisect-reset ()
@@ -6457,7 +6457,7 @@ other actions from the bisect popup (\
 Use this after you have asserted that the commit does not contain
 the bug in question."
   (interactive)
-  (magit-run-git-bisect "good"))
+  (magit-bisect-async "good"))
 
 ;;;###autoload
 (defun magit-bisect-bad ()
@@ -6465,7 +6465,7 @@ the bug in question."
 Use this after you have asserted that the commit does contain the
 bug in question."
   (interactive)
-  (magit-run-git-bisect "bad"))
+  (magit-bisect-async "bad"))
 
 ;;;###autoload
 (defun magit-bisect-skip ()
@@ -6473,15 +6473,15 @@ bug in question."
 Use this if for some reason the current commit is not a good one
 to test.  This command lets Git choose a different one."
   (interactive)
-  (magit-run-git-bisect "skip"))
+  (magit-bisect-async "skip"))
 
 ;;;###autoload
 (defun magit-bisect-run (cmdline)
   "Bisect automatically by running commands after each step."
   (interactive (list (read-shell-command "Bisect shell command: ")))
-  (magit-run-git-bisect "run" (list cmdline)))
+  (magit-bisect-async "run" (list cmdline)))
 
-(defun magit-run-git-bisect (subcommand &optional args no-assert)
+(defun magit-bisect-async (subcommand &optional args no-assert)
   (unless (or no-assert (magit-bisecting-p))
     (user-error "Not bisecting"))
   (let ((file (magit-git-dir "BISECT_CMD_OUTPUT"))
