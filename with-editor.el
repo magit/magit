@@ -40,14 +40,10 @@
      (let ((version (format "%s.%s"
                             emacs-major-version
                             emacs-minor-version)))
-       (or (let ((exec-path (list (expand-file-name "bin" invocation-directory)
-                                  invocation-directory)))
-             (or (executable-find (format "emacsclient%s"   version))
-                 (executable-find (format "emacsclient-%s"   version))
-                 (executable-find (format "emacsclient%s.exe" version))
-                 (executable-find (format "emacsclient-%s.exe" version))
-                 (executable-find "emacsclient")
-                 (executable-find "emacsclient.exe")))
+       (or (and (eq system-type 'darwin)
+                (let ((exec-path
+                       (list (expand-file-name "bin" invocation-directory))))
+                  (executable-find "emacsclient")))
            (executable-find (format "emacsclient%s"   version))
            (executable-find (format "emacsclient-%s"   version))
            (executable-find (format "emacsclient%s.exe" version))
