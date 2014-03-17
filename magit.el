@@ -7029,9 +7029,9 @@ a commit read from the minibuffer."
 ;;;###autoload
 (defun magit-diff-while-committing ()
   (interactive)
-  (let ((top (magit-get-top-dir))
-        (buf (magit-mode-get-buffer magit-diff-buffer-name
-                                    'magit-diff-mode)))
+  (let* ((top (magit-get-top-dir))
+         (buf (magit-mode-get-buffer magit-diff-buffer-name
+                                     'magit-diff-mode top)))
     (if (magit-commit-log-buffer)
         ;; ^ we are actually committing
         (if (and (cdr (assoc top magit-commit-amending-alist))
