@@ -7029,18 +7029,15 @@ a commit read from the minibuffer."
 ;;;###autoload
 (defun magit-diff-while-committing ()
   (interactive)
-  (let* ((top (magit-get-top-dir))
-         (buf (magit-mode-get-buffer magit-diff-buffer-name
-                                     'magit-diff-mode top)))
+  (let* ((toplevel (magit-get-top-dir))
+         (diff-buf (magit-mode-get-buffer magit-diff-buffer-name
+                                          'magit-diff-mode toplevel)))
     (if (magit-commit-log-buffer)
-        ;; ^ we are actually committing
-        (if (and (cdr (assoc top magit-commit-amending-alist))
-                 ;; ^ we are actually amending
-                 ;; so default to include HEAD
-                 (or (not buf)
-                     (with-current-buffer buf
-                       (or (not (equal (magit-get-top-dir) top))
-                           ;; or toggle
+        (if (and (cdr (assoc toplevel magit-commit-amending-alist))
+                 (or (not diff-buf)
+                     (with-current-buffer diff-buf
+                       (or (not (equal (magit-get-top-dir) toplevel))
+                           ;; ^ default or toggle v
                            (not (car magit-refresh-args))))))
             (magit-diff-while-amending)
           (magit-diff-staged))
