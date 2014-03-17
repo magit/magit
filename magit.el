@@ -7630,14 +7630,9 @@ This command is intended for debugging purposes."
                        "magit-tests--with-temp-repo"
                        "magit-tests--with-temp-clone") t)
                 "\\>")
-       . 1)))
-  "Magit expressions to highlight in Emacs-Lisp mode.
-To highlight Magit expressions add something like this to your
-init file:
+       . 1))))
 
-  (require 'magit)
-  (font-lock-add-keywords 'emacs-lisp-mode
-                          magit-font-lock-keywords)")
+(font-lock-add-keywords 'emacs-lisp-mode magit-font-lock-keywords)
 
 (defvar magit-version 'undefined
   "The version of Magit that you're using.
