@@ -6143,36 +6143,36 @@ depending on the value of option `magit-commit-squash-confirm'.
       (funcall diff-fn)))
   (push (cons (magit-get-top-dir) (member "--amend" args))
         magit-commit-amending-alist)
-  (magit-commit-fallback "commit" (magit-flatten-onelevel args)))
-
-(defun magit-commit-fallback (subcmd args)
   (if (and with-editor-emacsclient-executable
            (not (tramp-tramp-file-p default-directory)))
       (with-git-editor
-        (magit-run-git-async subcmd args))
-    (let ((topdir (magit-get-top-dir))
-          (editmsg (magit-git-dir (if (equal subcmd "tag")
-                                      "TAG_EDITMSG"
-                                    "COMMIT_EDITMSG"))))
-      (when (and (member "--amend" args)
-                 (not (file-exists-p editmsg)))
-        (with-temp-file editmsg
-          (magit-rev-format "%B")))
-      (with-current-buffer (find-file-noselect editmsg)
-        (funcall magit-server-window (current-buffer))
-        (add-hook 'git-commit-commit-hook
-                  (apply-partially
-                   (lambda (default-directory editmsg args)
-                     (magit-run-git args)
-                     (ignore-errors (delete-file editmsg)))
-                   topdir editmsg
-                   `(,subcmd
-                     ,"--cleanup=strip"
-                     ,(concat "--file=" (file-relative-name
-                                         (buffer-file-name)
-                                         topdir))
-                     ,@args))
-                  nil t)))))
+        (magit-run-git-async "commit" args))
+    (magit-commit-fallback "commit" (magit-flatten-onelevel args))))
+
+(defun magit-commit-fallback (subcmd args)
+  (let ((topdir (magit-get-top-dir))
+        (editmsg (magit-git-dir (if (equal subcmd "tag")
+                                    "TAG_EDITMSG"
+                                  "COMMIT_EDITMSG"))))
+    (when (and (member "--amend" args)
+               (not (file-exists-p editmsg)))
+      (with-temp-file editmsg
+        (magit-rev-format "%B")))
+    (with-current-buffer (find-file-noselect editmsg)
+      (funcall magit-server-window (current-buffer))
+      (add-hook 'git-commit-commit-hook
+                (apply-partially
+                 (lambda (default-directory editmsg args)
+                   (magit-run-git args)
+                   (ignore-errors (delete-file editmsg)))
+                 topdir editmsg
+                 `(,subcmd
+                   ,"--cleanup=strip"
+                   ,(concat "--file=" (file-relative-name
+                                       (buffer-file-name)
+                                       topdir))
+                   ,@args))
+                nil t))))
 
 (defun magit-commit-add-log ()
   "Add a template for the current hunk to the commit message buffer."
