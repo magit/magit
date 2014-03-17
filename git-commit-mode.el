@@ -556,25 +556,22 @@ Known comment headings are provided by `git-commit-comment-headings'."
   (save-excursion
     (goto-char (point-min))
     (when (re-search-forward "^diff --git" nil t)
-      (let ((beg (match-beginning 0)))
-        (let* ((buffer (current-buffer))
-               (font-lock-verbose nil)
-               (font-lock-support-mode nil)
-               (text (with-temp-buffer
-                       (insert
-                        (with-current-buffer buffer
-                          (buffer-substring-no-properties beg (point-max))))
-                       (diff-mode)
-                       (font-lock-fontify-buffer)
-                       (let ((pos (point-min))
-                             next)
-                         (while (setq next (next-single-property-change pos 'face))
-                           (put-text-property pos next 'font-lock-face
-                                              (get-text-property pos 'face))
-                           (setq pos next)))
-                       (buffer-string))))
-          (delete-region beg (point-max))
-          (insert text))))))
+      (let ((buffer (current-buffer)))
+        (insert
+         (with-temp-buffer
+           (insert
+            (with-current-buffer buffer
+              (prog1 (buffer-substring-no-properties (point) (point-max))
+                (delete-region (point) (point-max)))))
+           (diff-mode)
+           (let (font-lock-verbose font-lock-support-mode)
+             (font-lock-fontify-buffer))
+           (let (next (pos (point-min)))
+             (while (setq next (next-single-property-change pos 'face))
+               (put-text-property pos next 'font-lock-face
+                                  (get-text-property pos 'face))
+               (setq pos next)))
+           (buffer-string)))))))
 
 ;;; Mode
 
