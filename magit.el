@@ -5960,6 +5960,7 @@ Also see option `magit-set-upstream-on-push'."
 
 ;;;;; Committing
 
+(with-no-warnings ; quiet 24.3.50 byte-compiler
 (magit-define-popup magit-commit-popup
   "Popup console for commit commands."
   'magit-popups
@@ -5981,7 +5982,7 @@ Also see option `magit-set-upstream-on-push'."
               (?s "Squash"         magit-commit-squash)
               (?S "Instant Squash" magit-commit-instant-squash))
   :max-action-columns 4
-  :default-action 'magit-commit)
+  :default-action 'magit-commit))
 
 (defadvice magit-commit-popup (around pop-to-ongoing activate)
   (--if-let (magit-commit-log-buffer) (switch-to-buffer it) ad-do-it))
