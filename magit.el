@@ -6156,7 +6156,7 @@ depending on the value of option `magit-commit-squash-confirm'.
         (magit-rev-format "%B")))
     (with-current-buffer (find-file-noselect editmsg)
       (funcall magit-server-window (current-buffer))
-      (add-hook 'git-commit-commit-hook
+      (add-hook 'with-editor-finish-noclient-hook
                 (apply-partially
                  (lambda (default-directory editmsg args)
                    (magit-run-git args)
