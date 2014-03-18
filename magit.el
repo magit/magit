@@ -7039,12 +7039,18 @@ a commit read from the minibuffer."
                                           'magit-diff-mode toplevel))
          (commit-buf (magit-commit-log-buffer)))
     (if commit-buf
-        (if (and (with-current-buffer commit-buf
-                   (member "--amend" magit-refresh-args))
+        (if (and (or ;; certainly an explicit amend
+                     (with-current-buffer commit-buf
+                       (member "--amend" magit-refresh-args))
+                     ;; most likely an explicit amend
+                     (not (magit-anything-staged-p))
+                     ;; explicitly toggled from within diff
+                     (and (eq (current-buffer) diff-buf)))
                  (or (not diff-buf)
                      (with-current-buffer diff-buf
-                       (or (not (equal (magit-get-top-dir) toplevel))
-                           ;; ^ default or toggle v
+                       (or ;; default to include last commit
+                           (not (equal (magit-get-top-dir) toplevel))
+                           ;; toggle to include last commit
                            (not (car magit-refresh-args))))))
             (magit-diff-while-amending)
           (magit-diff-staged))
