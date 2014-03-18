@@ -642,10 +642,11 @@ basic structure of and errors in git commit messages."
         'git-commit-mode-flyspell-verify))
 
 ;;;###autoload
-(dolist (pattern '("/COMMIT_EDITMSG\\'" "/NOTES_EDITMSG\\'"
-                   "/MERGE_MSG\\'" "/TAG_EDITMSG\\'"
-                   "/PULLREQ_EDITMSG\\'"))
-  (add-to-list 'auto-mode-alist (cons pattern 'git-commit-mode)))
+(defconst git-commit-filename-regexp
+  "/\\(\\(COMMIT\\|NOTES\\|PULLREQ\\|TAG\\)_EDIT\\|MERGE_\\|\\)MSG\\'")
+;;;###autoload
+(add-to-list 'auto-mode-alist
+             (cons git-commit-filename-regexp 'git-commit-mode))
 
 (defun git-commit-auto-mode-enable ()
   (message "git-commit-auto-mode-enable is obsolete and doesn't do anything"))
