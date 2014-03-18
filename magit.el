@@ -520,9 +520,9 @@ has to explicitly use the `default' background color, to make it
 appear *as if* the background wasn't used.
 
 One reason you might want to *not* use the background, is that
-doing so forces the use of overlays for some components of diffs.
-Using overlays potentially degrades performance when generating
-large diffs.  Also see option `magit-diff-use-overlays'."
+doing so forces the use of overlays for parts of diffs and for
+refnames.  Using overlays potentially degrades performance when
+generating large diffs.  Also see option `magit-use-overlays'."
   :package-version '(magit . "2.0.0")
   :group 'magit
   :group 'magit-faces
@@ -530,6 +530,30 @@ large diffs.  Also see option `magit-diff-use-overlays'."
                  (const bold)
                  (face  :tag "Other face")
                  (const :tag "Don't highlight" nil)))
+
+(defcustom magit-use-overlays
+  (not (eq magit-item-highlight-face 'bold))
+  "Whether to use overlays to highlight various diff components.
+
+This has to be non-nil if the current section is highlighted by
+changing the background color.  Otherwise background colors that
+hold semantic meaning, like that of the added and removed lines
+in diffs, as well as section headings, would be shadowed by the
+highlighting.
+
+To select the face used for highlighting customize the option
+`magit-item-highlight-face'.  If you set that to `bold' or some
+other face that does not use the background then you can set this
+option to nil.  Doing so could potentially improve performance
+when generating large diffs."
+  :package-version '(magit . "2.1.0")
+  :group 'magit
+  :group 'magit-faces
+  :set-after '(magit-item-highlight-face)
+  :type 'boolean)
+
+(define-obsolete-variable-alias 'magit-diff-use-overlays
+  'magit-use-overlays "2.1.0")
 
 ;;;;; Completion
 
@@ -813,26 +837,6 @@ t      show fine differences for the selected diff hunk only
                  (const :tag "Selected only" t)
                  (const :tag "All" all))
   :set 'magit-set-variable-and-refresh)
-
-(defcustom magit-diff-use-overlays
-  (not (eq magit-item-highlight-face 'bold))
-  "Whether to use overlays to highlight various diff components.
-
-This has to be non-nil if the current section is highlighted by
-changing the background color.  Otherwise background colors that
-hold semantic meaning, like that of the added and removed lines
-in diffs, as well as section headings, would be shadowed by the
-highlighting.
-
-To select the face used for highlighting customize the option
-`magit-item-highlight-face'.  If you set that to `bold' or some
-other face that does not use the background then you can set this
-option to nil.  Doing so could potentially improve performance
-when generating large diffs."
-  :package-version '(magit . "2.0.0")
-  :group 'magit-diff
-  :set-after '(magit-item-highlight-face)
-  :type 'boolean)
 
 ;;;;;; Commit
 
@@ -1831,8 +1835,19 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
                      (elt (list elt))))
              list))
 
+(defun magit-insert (string face &rest args)
+  (if magit-use-overlays
+      (let ((start (point)))
+        (insert string)
+        (let ((ov (make-overlay start (point) nil t)))
+          (overlay-put ov 'face face)
+          (overlay-put ov 'priority 10)
+          (overlay-put ov 'evaporate t)))
+    (insert (propertize string 'face face)))
+  (apply #'insert args))
+
 (defun magit-put-face-property (start end face)
-  (if magit-diff-use-overlays
+  (if magit-use-overlays
       (let ((ov (make-overlay start end nil t)))
         (overlay-put ov 'face face)
         (overlay-put ov 'priority 10)
@@ -2391,6 +2406,17 @@ involving HEAD."
                        (magit-list-interesting-refs
                         nil (split-string string "\\(tag: \\|[(), ]\\)" t)))
                " ")))
+
+(defun magit-insert-ref-labels (string)
+  (save-match-data
+    (dolist (ref (split-string string "\\(tag: \\|[(), ]\\)" t) " ")
+      (cl-destructuring-bind (re face fn)
+          (cl-find-if (lambda (elt) (string-match (car elt) ref))
+                      magit-refs-namespaces)
+        (if fn
+            (let ((text (funcall fn ref face)))
+              (magit-insert text (get-text-property 1 'face text) ?\s))
+        (magit-insert (or (match-string 1 ref) ref) face ?\s))))))
 
 (defun magit-format-rev-summary (rev)
   (let ((s (magit-git-string "log" "-1"
@@ -4428,37 +4454,33 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
       (hash msg refs graph author date gpg cherry refsel refsub)
     (delete-region (point) (point-at-eol))
     (when cherry
-      (insert (propertize cherry 'face
-                          (if (string= cherry "-")
-                              'magit-cherry-equivalent
-                            'magit-cherry-unmatched))
-              " "))
+      (magit-insert cherry (if (string= cherry "-")
+                               'magit-cherry-equivalent
+                             'magit-cherry-unmatched) ?\s))
     (unless (eq style 'long)
       (when (eq style 'bisect-log)
 	(setq hash (magit-git-string "rev-parse" "--short" hash)))
       (if hash
-          (insert (propertize hash 'face 'magit-log-sha1) " ")
+          (magit-insert hash 'magit-log-sha1 ?\s)
         (insert (make-string (1+ abbrev) ? ))))
     (when graph
       (if magit-log-format-graph-function
           (insert (funcall magit-log-format-graph-function graph))
         (insert graph)))
     (when (and hash (eq style 'long))
-      (insert (propertize (if refs hash (magit-rev-parse hash))
-                          'face 'magit-log-sha1) " "))
+      (magit-insert (if refs hash (magit-rev-parse hash)) 'magit-log-sha1 ?\s))
     (when refs
-      (insert (magit-format-ref-labels refs) " "))
+      (magit-insert-ref-labels refs))
     (when refsub
       (insert (format "%-2s " refsel))
       (insert (magit-log-format-reflog refsub)))
     (when msg
-      (insert (propertize msg 'face
-                          (cl-case (and gpg (aref gpg 0))
-                            (?G 'magit-signature-good)
-                            (?B 'magit-signature-bad)
-                            (?U 'magit-signature-untrusted)
-                            (?N 'magit-signature-none)
-                            (t  'magit-log-message)))))
+      (magit-insert msg (cl-case (and gpg (aref gpg 0))
+                          (?G 'magit-signature-good)
+                          (?B 'magit-signature-bad)
+                          (?U 'magit-signature-untrusted)
+                          (?N 'magit-signature-none)
+                          (t  'magit-log-message))))
     (goto-char (line-beginning-position))
     (magit-format-log-margin author date)
     (if hash
