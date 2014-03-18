@@ -4227,10 +4227,10 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
             ((looking-at "^\\+\\+|||||||") 'magit-diff-merge-diff3-separator)
             ((looking-at "^\\+\\+>>>>>>>") 'magit-diff-merge-proposed)
             ((looking-at (if merging  "^\\(\\+\\| \\+\\)" "^\\+"))
-             (magit-highlight-line-whitespace)
+             (magit-highlight-line-whitespace merging)
              'magit-diff-add)
             ((looking-at (if merging  "^\\(-\\| \\-\\)" "^-"))
-             (magit-highlight-line-whitespace)
+             (magit-highlight-line-whitespace merging)
              'magit-diff-del)
             (t
              'magit-diff-none)))
@@ -4239,11 +4239,12 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
           (magit-diff-refine-hunk section))))
     t))
 
-(defun magit-highlight-line-whitespace ()
+(defun magit-highlight-line-whitespace (merging)
   (when (and magit-highlight-whitespace
              (or (derived-mode-p 'magit-status-mode)
                  (not (eq magit-highlight-whitespace 'status))))
-    (let ((indent
+    (let ((prefix (if merging "^[-\\+\s]\\{2\\}" "^[-\\+]"))
+          (indent
            (if (local-variable-p 'magit-highlight-indentation)
                magit-highlight-indentation
              (setq-local
@@ -4253,14 +4254,14 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                                (default-value magit-highlight-indentation)
                                :from-end t))))))
       (when (and magit-highlight-trailing-whitespace
-                 (looking-at "^[-+].*?\\([ \t]+\\)$"))
+                 (looking-at (concat prefix ".*\\([ \t]+\\)$")))
         (magit-put-face-property (match-beginning 1) (match-end 1)
                                  'magit-whitespace-warning-face))
       (when (or (and (eq indent 'tabs)
-                     (looking-at "^[-+]\\( *\t[ \t]*\\)"))
+                     (looking-at (concat prefix "\\( *\t[ \t]*\\)")))
                 (and (integerp indent)
-                     (looking-at (format "^[-+]\\([ \t]* \\{%s,\\}[ \t]*\\)"
-                                         indent))))
+                     (looking-at (format "%s\\([ \t]* \\{%s,\\}[ \t]*\\)"
+                                         prefix indent))))
         (magit-put-face-property (match-beginning 1) (match-end 1)
                                  'magit-whitespace-warning-face)))))
 
