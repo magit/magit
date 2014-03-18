@@ -26,6 +26,16 @@
 ;; This library implements an interface to git annex
 ;; (http://git-annex.branchable.com/).
 
+;; The function magit-annex-edit-dired and magit-annex-get-dired should be
+;; bin in dired-mode.
+;;
+;; You could for example add to your .emacs:
+
+;; (eval-after-load 'dired
+;;   '(progn
+;;     (define-key dired-mode-map [@ e] 'magit-annex-edit-dired)
+;;     (define-key dired-mode-map [@ g] 'magit-annex-get-dired)))
+
 ;;; Code:
 
 (require 'magit)
