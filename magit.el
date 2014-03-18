@@ -7613,7 +7613,7 @@ This command is intended for debugging purposes."
     `((,(concat "(\\(" (regexp-opt
                         '("magit-define-section-jumper"
                           "magit-define-popup"))
-                "\\)\\>[ \t'\(]*\\(\\sw+\\|\\s_\\)?")
+                "\\)\\_>[ \t'\(]*\\(\\sw+\\|\\s_\\)?")
        (1 font-lock-keyword-face)
        (2 font-lock-function-name-face nil t))
       (,(concat "(" (regexp-opt
@@ -7628,7 +7628,7 @@ This command is intended for debugging purposes."
                        "magit-tests--with-temp-dir"
                        "magit-tests--with-temp-repo"
                        "magit-tests--with-temp-clone") t)
-                "\\>")
+                "\\_>")
        . 1))))
 
 (font-lock-add-keywords 'emacs-lisp-mode magit-font-lock-keywords)
