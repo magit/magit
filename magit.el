@@ -1831,6 +1831,14 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
                      (elt (list elt))))
              list))
 
+(defun magit-put-face-property (start end face)
+  (if magit-diff-use-overlays
+      (let ((ov (make-overlay start end nil t)))
+        (overlay-put ov 'face face)
+        (overlay-put ov 'priority 10)
+        (overlay-put ov 'evaporate t))
+    (put-text-property start end 'face face)))
+
 ;;;; Buffer Margins
 
 (defun magit-set-buffer-margin (width enable)
@@ -4181,18 +4189,12 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
              (magit-insert-diff-title status file file2)
              (when (re-search-forward
                     "\\(--- \\(.*\\)\n\\+\\+\\+ \\(.*\\)\n\\)" nil t)
-               (let ((set-face
-                      (lambda (subexp face)
-                        (if magit-diff-use-overlays
-                            (overlay-put (make-overlay (match-beginning subexp)
-                                                       (match-end subexp))
-                                         'face face)
-                          (put-text-property (match-beginning subexp)
-                                             (match-end subexp)
-                                             'face face)))))
-                 (funcall set-face 1 'magit-diff-hunk-header)
-                 (funcall set-face 2 'magit-diff-file-header)
-                 (funcall set-face 3 'magit-diff-file-header)))
+               (magit-put-face-property (match-beginning 1) (match-end 1)
+                                        'magit-diff-hunk-header)
+               (magit-put-face-property (match-beginning 2) (match-end 2)
+                                        'magit-diff-hunk-header)
+               (magit-put-face-property (match-beginning 3) (match-end 3)
+                                        'magit-diff-hunk-header))
              (goto-char end)
              (magit-wash-sequence #'magit-wash-hunk)))
          section)))
@@ -4211,39 +4213,28 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 
 (defun magit-wash-hunk ()
   (when (looking-at "^@@\\(@\\)?.+")
-    (let ((merging (match-beginning 1))
-          (set-line-face
-           (lambda (face)
-             (if magit-diff-use-overlays
-                 (overlay-put (make-overlay (line-beginning-position)
-                                            (line-beginning-position 2))
-                              'face face)
-               (put-text-property (line-beginning-position)
-                                  (line-beginning-position 2)
-                                  'face face)))))
+    (let ((merging (match-beginning 1)))
       (magit-with-section (section hunk (match-string 0))
-        (funcall set-line-face 'magit-diff-hunk-header)
+        (magit-put-face-property (point) (line-end-position)
+                                 'magit-diff-hunk-header)
         (forward-line)
         (while (not (or (eobp) (looking-at "^diff\\|^@@")))
-          (let* ((line (buffer-substring (point) (line-end-position)))
-                 (prefix (substring line 0 (if merging 2 1))))
-            (cond ((string-match "^[\\+]+<<<<<<< " line)
-                   (funcall set-line-face 'magit-diff-merge-current))
-                  ((string-match "^[\\+]+=======" line)
-                   (funcall set-line-face 'magit-diff-merge-separator))
-                  ((string-match "^[\\+]+|||||||" line)
-                   (funcall set-line-face 'magit-diff-merge-diff3-separator))
-                  ((string-match "^[\\+]+>>>>>>> " line)
-                   (funcall set-line-face 'magit-diff-merge-proposed))
-                  ((string-match "\\+" prefix)
-                   (magit-highlight-line-whitespace)
-                   (funcall set-line-face 'magit-diff-add))
-                  ((string-match "-" prefix)
-                   (magit-highlight-line-whitespace)
-                   (funcall set-line-face 'magit-diff-del))
-                  (t
-                   (funcall set-line-face 'magit-diff-none))))
-          (forward-line))
+          (magit-put-face-property
+           (point) (line-end-position)
+           (cond
+            ((looking-at "^\\+\\+<<<<<<<") 'magit-diff-merge-current)
+            ((looking-at "^\\+\\+=======") 'magit-diff-merge-separator)
+            ((looking-at "^\\+\\+|||||||") 'magit-diff-merge-diff3-separator)
+            ((looking-at "^\\+\\+>>>>>>>") 'magit-diff-merge-proposed)
+            ((looking-at (if merging  "^\\(\\+\\| \\+\\)" "^\\+"))
+             (magit-highlight-line-whitespace)
+             'magit-diff-add)
+            ((looking-at (if merging  "^\\(-\\| \\-\\)" "^-"))
+             (magit-highlight-line-whitespace)
+             'magit-diff-del)
+            (t
+             'magit-diff-none)))
+            (forward-line))
         (when (eq magit-diff-refine-hunk 'all)
           (magit-diff-refine-hunk section))))
     t))
@@ -4263,15 +4254,15 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                                :from-end t))))))
       (when (and magit-highlight-trailing-whitespace
                  (looking-at "^[-+].*?\\([ \t]+\\)$"))
-        (overlay-put (make-overlay (match-beginning 1) (match-end 1))
-                     'face 'magit-whitespace-warning-face))
+        (magit-put-face-property (match-beginning 1) (match-end 1)
+                                 'magit-whitespace-warning-face))
       (when (or (and (eq indent 'tabs)
                      (looking-at "^[-+]\\( *\t[ \t]*\\)"))
                 (and (integerp indent)
                      (looking-at (format "^[-+]\\([ \t]* \\{%s,\\}[ \t]*\\)"
                                          indent))))
-        (overlay-put (make-overlay (match-beginning 1) (match-end 1))
-                     'face 'magit-whitespace-warning-face)))))
+        (magit-put-face-property (match-beginning 1) (match-end 1)
+                                 'magit-whitespace-warning-face)))))
 
 (defun magit-diff-refine-hunk (hunk)
   (save-excursion
