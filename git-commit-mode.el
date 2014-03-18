@@ -1,4 +1,4 @@
-;;; git-commit-mode.el --- Major mode for editing git commit messages -*- lexical-binding: t; -*-
+;;; git-commit-mode.el --- edit Git commit messages  -*- lexical-binding: t; -*-
 
 ;; Copyright (c) 2010-2012  Florian Ragwitz
 ;; Copyright (c) 2012-2013  Sebastian Wiesner
@@ -29,7 +29,7 @@
 
 ;;; Commentary:
 
-;; A major mode for editing Git commit messages.
+;; Support for editing Git commit messages.
 
 ;;;; Formatting
 
@@ -62,11 +62,16 @@
 ;; confirmation before committing with style errors.
 
 ;;; Code:
+;;;; Dependencies
 
 (require 'log-edit)
 (require 'ring)
 (require 'server)
 (require 'with-editor)
+
+;;;; Declarations
+
+(defvar flyspell-generic-check-word-predicate)
 
 ;;; Options
 ;;;; Variables
@@ -76,11 +81,45 @@
   :prefix "git-commit-"
   :group 'tools)
 
-(defcustom git-commit-mode-hook '(turn-on-auto-fill flyspell-mode)
-  "Hook run when entering Git Commit mode."
-  :options '(turn-on-auto-fill flyspell-mode git-commit-save-message)
+(define-minor-mode global-git-commit-mode
+  "Edit Git commit messages.
+This global mode arranges for `git-commit-setup' to be called
+when a Git commit message file is opened.  That usually happens
+when Git uses the Emacsclient as $EDITOR to have the user provide
+such a commit message."
+  :group 'git-commit
+  :type 'boolean
+  :global t
+  :init-value t
+  :initialize (lambda (symbol exp)
+                (custom-initialize-default symbol exp)
+                (when global-git-commit-mode
+                  (add-hook 'find-file-hook 'git-commit-setup-check-buffer)))
+  (if global-git-commit-mode
+      (add-hook  'find-file-hook 'git-commit-setup-check-buffer)
+    (remove-hook 'find-file-hook 'git-commit-setup-check-buffer)))
+
+(defcustom git-commit-major-mode 'text-mode
+  "Major mode used to edit Git commit messages.
+The major mode configured here is turned on by the minor mode
+`git-commit-mode'."
+  :group 'git-commit
+  :type '(choice (function-item text-mode)
+                 (const :tag "No major mode")))
+
+(defconst git-commit-setup-hook-options
+  '(git-commit-save-message
+    git-commit-setup-changelog-support
+    git-commit-turn-on-auto-fill
+    git-commit-turn-on-flyspell
+    git-commit-propertize-diff
+    with-editor-usage-message))
+
+(defcustom git-commit-setup-hook git-commit-setup-hook-options
+  "Hook run at the end of `git-commit-setup'."
+  :group 'git-commit
   :type 'hook
-  :group 'git-commit)
+  :options git-commit-setup-hook-options)
 
 (defcustom git-commit-finish-query-functions
   '(git-commit-check-style-conventions)
@@ -235,6 +274,86 @@ default comments in git commit messages"
     ["Commit" with-editor-finish t]))
 
 ;;; Hooks
+
+(defconst git-commit-filename-regexp
+  "/\\(\\(COMMIT\\|NOTES\\|PULLREQ\\|TAG\\)_EDIT\\|MERGE_\\|\\)MSG\\'")
+
+(defun git-commit-setup-font-lock-in-buffer ()
+  (and buffer-file-name
+       (string-match-p git-commit-filename-regexp buffer-file-name)
+       (git-commit-setup-font-lock)))
+
+(add-hook 'after-change-major-mode-hook 'git-commit-setup-font-lock-in-buffer)
+
+(defun git-commit-setup-check-buffer ()
+  (and buffer-file-name
+       (string-match-p git-commit-filename-regexp buffer-file-name)
+       (git-commit-setup)))
+
+(defun git-commit-setup ()
+  (when git-commit-major-mode
+    (funcall git-commit-major-mode))
+  (setq with-editor-show-usage nil)
+  (with-editor-mode 1)
+  (add-hook 'with-editor-finish-query-functions
+            'git-commit-finish-query-functions nil t)
+  (add-hook 'with-editor-pre-cancel-hook
+            'git-commit-save-message nil t)
+  (setq with-editor-cancel-message
+        'git-commit-cancel-message)
+  (git-commit-mode 1)
+  (git-commit-setup-font-lock)
+  (when (boundp 'save-place)
+    (setq save-place nil))
+  (save-excursion
+    (goto-char (point-min))
+    (when (= (line-beginning-position)
+             (line-end-position))
+      (open-line 1)))
+  (run-hooks 'git-commit-setup-hook))
+
+(defun git-commit-setup-font-lock ()
+  (set-syntax-table (let ((table (make-syntax-table (syntax-table))))
+                      (modify-syntax-entry ?#  "<" table)
+                      (modify-syntax-entry ?\n ">" table)
+                      (modify-syntax-entry ?\r ">" table)
+                      table))
+  (setq-local comment-start "#")
+  (setq-local comment-start-skip "^#+\\s-*")
+  (setq-local comment-use-syntax nil)
+  (setq-local font-lock-multiline t)
+  (font-lock-add-keywords nil (git-commit-mode-font-lock-keywords) t))
+
+(define-minor-mode git-commit-mode
+  "Auxiliary minor mode used when editing Git commit messages.
+This mode is only responsible for setting up some key bindings.
+Don't use it directly, instead enable `global-git-commit-mode'."
+  :lighter "")
+
+(put 'git-commit-mode 'permanent-local t)
+
+(defun git-commit-setup-changelog-support ()
+  "Treat ChangeLog entries as paragraphs."
+  (setq-local paragraph-start (concat paragraph-start "\\|*\\|(")))
+
+(defun git-commit-turn-on-auto-fill ()
+  "Unconditionally turn on Auto Fill mode.
+And set `fill-column' to `git-commit-fill-column'."
+  (setq fill-column git-commit-fill-column)
+  (turn-on-auto-fill))
+
+(defun git-commit-turn-on-flyspell ()
+  "Unconditionally turn on Auto Fill mode.
+Also prevent comments from being checked and
+finally check current non-comment text."
+  (require 'flyspell)
+  (turn-on-flyspell)
+  (setq flyspell-generic-check-word-predicate
+        'git-commit-mode-flyspell-verify)
+  (flyspell-buffer))
+
+(defun git-commit-mode-flyspell-verify ()
+  (not (nth 4 (syntax-ppss)))) ; not inside a comment
 
 (defun git-commit-finish-query-functions (force)
   (run-hook-with-args-until-failure
@@ -500,68 +619,6 @@ Known comment headings are provided by `git-commit-comment-headings'."
                                   (get-text-property pos 'face))
                (setq pos next)))
            (buffer-string)))))))
-
-;;; Mode
-
-(defvar git-commit-mode-syntax-table
-  (let ((table (make-syntax-table text-mode-syntax-table)))
-    (modify-syntax-entry ?#  "<" table)
-    (modify-syntax-entry ?\n ">" table)
-    (modify-syntax-entry ?\r ">" table)
-    table)
-  "Syntax table used by `git-commit-mode'.")
-
-;;;###autoload
-(define-derived-mode git-commit-mode text-mode "Git Commit"
-  "Major mode for editing git commit messages.
-
-This mode helps with editing git commit messages both by
-providing commands to do common tasks, and by highlighting the
-basic structure of and errors in git commit messages."
-  ;; Font locking
-  (setq font-lock-defaults (list (git-commit-mode-font-lock-keywords) t))
-  (set (make-local-variable 'font-lock-multiline) t)
-  (git-commit-propertize-diff)
-  ;; Filling according to the guidelines
-  (setq fill-column git-commit-fill-column)
-  ;; Recognize changelog-style paragraphs
-  (set (make-local-variable 'paragraph-start)
-       (concat paragraph-start "\\|*\\|("))
-  ;; Treat lines starting with a hash/pound as comments
-  (set (make-local-variable 'comment-start) "#")
-  (set (make-local-variable 'comment-start-skip)
-       (concat "^" (regexp-quote comment-start) "+"
-               "\\s-*"))
-  (set (make-local-variable 'comment-use-syntax) nil)
-  ;; Do not remember point location in commit messages
-  (when (boundp 'save-place)
-    (setq save-place nil))
-  ;; If the commit summary is empty, insert a newline after point
-  (when (string= "" (buffer-substring-no-properties
-                     (line-beginning-position)
-                     (line-end-position)))
-    (open-line 1))
-  ;; Turn on and setup `with-editor-mode'
-  (with-editor-mode 1)
-  (add-hook 'with-editor-finish-query-functions
-            'git-commit-finish-query-functions nil t)
-  (add-hook 'with-editor-pre-cancel-hook
-            'git-commit-save-message nil t)
-  (setq with-editor-cancel-message 'git-commit-cancel-message))
-
-(defun git-commit-mode-flyspell-verify ()
-  (not (nth 4 (syntax-ppss)))) ; not inside a comment
-
-(eval-after-load 'flyspell
-  '(put 'git-commit-mode 'flyspell-mode-predicate
-        'git-commit-mode-flyspell-verify))
-
-;;;###autoload
-(defconst git-commit-filename-regexp
-  "/\\(\\(COMMIT\\|NOTES\\|PULLREQ\\|TAG\\)_EDIT\\|MERGE_\\|\\)MSG\\'")
-;;;###autoload
-(add-to-list 'auto-mode-alist
-             (cons git-commit-filename-regexp 'git-commit-mode))
 
 (provide 'git-commit-mode)
 ;; Local Variables:
