@@ -334,7 +334,7 @@ Don't use it directly, instead enable `global-git-commit-mode'."
 
 (defun git-commit-setup-changelog-support ()
   "Treat ChangeLog entries as paragraphs."
-  (setq-local paragraph-start (concat paragraph-start "\\|*\\|(")))
+  (setq-local paragraph-start (concat paragraph-start "\\|\\*\\|(")))
 
 (defun git-commit-turn-on-auto-fill ()
   "Unconditionally turn on Auto Fill mode.
