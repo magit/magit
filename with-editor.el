@@ -27,6 +27,9 @@
 
 ;;; Code:
 
+(require 'cl-lib)
+(require 'server)
+
 ;;; Options
 
 (defgroup with-editor nil
@@ -53,6 +56,146 @@
   :group 'with-process
   :type '(choice (string :tag "Executable")
                  (const  :tag "Don't use Emacsclient" nil)))
+
+(defcustom with-editor-finish-query-functions nil
+  "List of functions called to query before finishing session.
+
+The buffer in question is current while the functions are called.
+If any of them returns nil, then the session is not finished and
+the buffer is not killed.  The user should then fix the issue and
+try again.  The functions are called with one argument.  If it is
+non-nil then that indicates that the user used a prefix argument
+to force finishing the session despite issues.  Functions should
+usually honor that and return non-nil."
+  :group 'with-editor
+  :type 'hook)
+(put 'with-editor-finish-query-functions 'permanent-local t)
+
+(defcustom with-editor-cancel-query-functions nil
+  "List of functions called to query before canceling session.
+
+The buffer in question is current while the functions are called.
+If any of them returns nil, then the session is not canceled and
+the buffer is not killed.  The user should then fix the issue and
+try again.  The functions are called with one argument.  If it is
+non-nil then that indicates that the user used a prefix argument
+to force canceling the session despite issues.  Functions should
+usually honor that and return non-nil."
+  :group 'with-editor
+  :type 'hook)
+(put 'with-editor-cancel-query-functions 'permanent-local t)
+
+(defcustom with-editor-mode-lighter " WE"
+  "The mode-line lighter of the With-Editor mode."
+  :group 'with-editor
+  :type '(choice (const :tag "No lighter" "") string))
+
+;;; Commands
+
+(defvar with-editor-finish-noclient-hook nil)
+(defvar with-editor-pre-finish-hook nil)
+(defvar with-editor-pre-cancel-hook nil)
+(put 'with-editor-finish-noclient-hook 'permanent-local t)
+(put 'with-editor-pre-finish-hook 'permanent-local t)
+(put 'with-editor-pre-cancel-hook 'permanent-local t)
+
+(defvar with-editor-show-usage t)
+(defvar with-editor-cancel-message nil)
+(defvar with-editor-previous-winconf nil)
+(make-variable-buffer-local 'with-editor-show-usage)
+(make-variable-buffer-local 'with-editor-cancel-message)
+(make-variable-buffer-local 'with-editor-previous-winconf)
+(put 'with-editor-cancel-message 'permanent-local t)
+(put 'with-editor-previous-winconf 'permanent-local t)
+
+(defun with-editor-finish (force)
+  "Finish the current edit session."
+  (interactive "P")
+  (when (run-hook-with-args-until-failure
+         'with-editor-finish-query-functions force)
+    (run-hooks 'with-editor-pre-finish-hook)
+    (with-editor-return nil)))
+
+(defun with-editor-cancel (force)
+  "Cancel the current edit session."
+  (interactive "P")
+  (when (run-hook-with-args-until-failure
+         'with-editor-cancel-query-functions force)
+    (let ((message with-editor-cancel-message))
+      (when (functionp message)
+        (setq message (funcall message)))
+      (run-hooks 'with-editor-pre-cancel-hook)
+      (with-editor-return t)
+      (accept-process-output nil 0.1)
+      (message (or message "Canceled by user")))))
+
+(defun with-editor-return (cancel)
+  (let ((winconf with-editor-previous-winconf)
+        (clients server-buffer-clients))
+    (remove-hook 'kill-buffer-query-functions
+                 'with-editor-kill-buffer-noop t)
+    (cond (cancel
+           (when (< emacs-major-version 24)
+             (erase-buffer))
+           (save-buffer)
+           (if clients
+               (dolist (client clients)
+                 (ignore-errors
+                   (server-send-string client "-error Canceled by user"))
+                 (delete-process client))
+             (kill-buffer)))
+          (t
+           (save-buffer)
+           (if clients
+               (server-edit)
+             (run-hooks 'with-editor-finish-noclient-hook)
+             (kill-buffer))))
+    (when (and winconf (eq (window-configuration-frame winconf)
+                           (selected-frame)))
+      (set-window-configuration winconf))))
+
+;;; Mode
+
+(defvar with-editor-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\C-c\C-c"                   'with-editor-finish)
+    (define-key map [remap server-edit]          'with-editor-finish)
+    (define-key map "\C-c\C-k"                   'with-editor-cancel)
+    (define-key map [remap kill-buffer]          'with-editor-cancel)
+    (define-key map [remap ido-kill-buffer]      'with-editor-cancel)
+    (define-key map [remap iswitchb-kill-buffer] 'with-editor-cancel)
+    map))
+
+(define-minor-mode with-editor-mode
+  "Edit a file as the $EDITOR of an external process."
+  :lighter with-editor-mode-lighter
+  ;; Protect the user from killing the buffer without using
+  ;; either `with-editor-finish' or `with-editor-cancel',
+  ;; and from removing the key bindings for these commands.
+  (unless with-editor-mode
+    (error "With-Editor mode cannot be turned off"))
+  (add-hook 'kill-buffer-query-functions
+            'with-editor-kill-buffer-noop nil t)
+  ;; `server-excecute' displays a message which is not
+  ;; correct when using this mode.
+  (when with-editor-show-usage
+    (with-editor-usage-message)))
+
+(put 'with-editor-mode 'permanent-local t)
+
+(defun with-editor-kill-buffer-noop ()
+  (message (substitute-command-keys "\
+Don't kill this buffer.  Instead cancel using \\[with-editor-cancel]")))
+
+(defun with-editor-usage-message ()
+  ;; Run after `server-execute', which is run using
+  ;; a timer which starts immediately.
+  (run-with-timer
+   0.01 nil `(lambda ()
+               (with-current-buffer ,(current-buffer)
+                 (message (substitute-command-keys "\
+Type \\[with-editor-finish] to finish, \
+or \\[with-editor-cancel] to cancel"))))))
 
 ;;; Wrappers
 

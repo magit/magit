@@ -34,6 +34,7 @@
 (require 'easymenu)
 (require 'server)
 (require 'thingatpt)
+(require 'with-editor)
 
 ;;; Options
 ;;;; Variables
@@ -50,6 +51,11 @@
 (defcustom git-rebase-remove-instructions nil
   "Whether to remove the instructions from the rebase buffer.
 Because you have seen them before and can still remember."
+  :group 'git-rebase
+  :type 'boolean)
+
+(defcustom git-rebase-confirm-cancel t
+  "Whether confirmation is required to cancel."
   :group 'git-rebase
   :type 'boolean)
 
@@ -108,11 +114,7 @@ Because you have seen them before and can still remember."
 (defvar git-rebase-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map special-mode-map)
-    (define-key map (kbd "q")       'git-rebase-server-edit)
-    (define-key map (kbd "C-c C-c") 'git-rebase-server-edit)
-    (define-key map (kbd "a")       'git-rebase-abort)
-    (define-key map (kbd "C-c C-k") 'git-rebase-abort)
-    (define-key map [remap undo]    'git-rebase-undo)
+    (define-key map [remap undo] 'git-rebase-undo)
     (define-key map (kbd "RET") 'git-rebase-show-commit)
     (define-key map (kbd "x")   'git-rebase-exec)
     (define-key map (kbd "c")   'git-rebase-pick)
@@ -144,8 +146,8 @@ Because you have seen them before and can still remember."
     ["Move Up" git-rebase-move-line-up t]
     ["Execute" git-rebase-exec t]
     "---"
-    ["Abort" git-rebase-abort t]
-    ["Done" git-rebase-server-edit t]))
+    ["Cancel" with-editor-cancel t]
+    ["Finish" with-editor-finish t]))
 
 ;;; Utilities
 
@@ -226,24 +228,6 @@ Because you have seen them before and can still remember."
       (transpose-lines 1)
       (forward-line -1)
       (move-to-column col))))
-
-(defun git-rebase-server-edit ()
-  "Save the action buffer and end the session."
-  (interactive)
-  (save-buffer)
-  (server-edit))
-
-(defun git-rebase-abort ()
-  "Abort this rebase.
-This is dune by emptying the buffer, saving and closing server
-connection."
-  (interactive)
-  (when (or (not (buffer-modified-p))
-            (y-or-n-p "Abort this rebase? "))
-    (let ((buffer-read-only nil))
-      (erase-buffer)
-      (save-buffer)
-      (server-edit))))
 
 (defun git-rebase-kill-line ()
   "Kill the current action line."
@@ -331,7 +315,14 @@ running 'man git-rebase' at the command line) for details."
   (setq font-lock-defaults '(git-rebase-mode-font-lock-keywords t t))
   (when git-rebase-remove-instructions
     (let ((inhibit-read-only t))
-      (flush-lines "^\\($\\|#\\)"))))
+      (flush-lines "^\\($\\|#\\)")))
+  (with-editor-mode 1)
+  (when git-rebase-confirm-cancel
+    (add-hook 'with-editor-cancel-query-functions
+              'git-rebase-cancel-confirm nil t)))
+
+(defun git-rebase-cancel-confirm (force)
+  (or (not (buffer-modified-p)) force (y-or-n-p "Abort this rebase? ")))
 
 (defvar git-rebase-mode-font-lock-keywords
   `((,git-rebase-action-line-re

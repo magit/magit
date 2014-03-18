@@ -66,6 +66,7 @@
 (require 'log-edit)
 (require 'ring)
 (require 'server)
+(require 'with-editor)
 
 ;;; Options
 ;;;; Variables
@@ -75,27 +76,26 @@
   :prefix "git-commit-"
   :group 'tools)
 
-(defcustom git-commit-confirm-commit nil
-  "Whether to ask for confirmation before committing.
-
-If t, ask for confirmation before creating a commit with style
-errors, unless the commit is forced.  If nil, never ask for
-confirmation before committing."
-  :group 'git-commit
-  :type '(choice (const :tag "On style errors" t)
-                 (const :tag "Never" nil)))
-
 (defcustom git-commit-mode-hook '(turn-on-auto-fill flyspell-mode)
   "Hook run when entering Git Commit mode."
   :options '(turn-on-auto-fill flyspell-mode git-commit-save-message)
   :type 'hook
   :group 'git-commit)
 
-(defcustom git-commit-kill-buffer-hook '(git-commit-save-message)
-  "Hook run when killing a Git Commit mode buffer.
-This hook is run by both `git-commit-commit'
-and `git-commit-abort'."
-  :options '(git-commit-save-message)
+(defcustom git-commit-finish-query-functions
+  '(git-commit-check-style-conventions)
+  "List of functions called to query before performing commit.
+
+The commit message buffer is current while the functions are
+called.  If any of them returns nil, then the commit is not
+performed and the buffer is not killed.  The user should then
+fix the issue and try again.
+
+The functions are called with one argument.  If it is non-nil
+then that indicates that the user used a prefix argument to
+force finishing the session despite issues.  Functions should
+usually honor this wish and return non-nil."
+  :options '(git-commit-check-style-conventions)
   :type 'hook
   :group 'git-commit)
 
@@ -186,8 +186,6 @@ default comments in git commit messages"
 
 (defvar git-commit-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-c") 'git-commit-commit)
-    (define-key map (kbd "C-c C-k") 'git-commit-abort)
     (define-key map (kbd "C-c C-s") 'git-commit-signoff)
     (define-key map (kbd "C-c C-a") 'git-commit-ack)
     (define-key map (kbd "C-c C-t") 'git-commit-test)
@@ -198,10 +196,6 @@ default comments in git commit messages"
     (define-key map (kbd "C-c M-s") 'git-commit-save-message)
     (define-key map (kbd "M-p")     'git-commit-prev-message)
     (define-key map (kbd "M-n")     'git-commit-next-message)
-    (define-key map [remap server-edit]          'git-commit-commit)
-    (define-key map [remap kill-buffer]          'git-commit-abort)
-    (define-key map [remap ido-kill-buffer]      'git-commit-abort)
-    (define-key map [remap iswitchb-kill-buffer] 'git-commit-abort)
     ;; Old bindings to avoid confusion
     (define-key map (kbd "C-c C-x s") 'git-commit-signoff)
     (define-key map (kbd "C-c C-x a") 'git-commit-ack)
@@ -237,91 +231,25 @@ default comments in git commit messages"
      :help "Insert a 'Suggested-by' header"]
     "-"
     ["Save" git-commit-save-message t]
-    ["Cancel" git-commit-abort t]
-    ["Commit" git-commit-commit t]))
+    ["Cancel" with-editor-cancel t]
+    ["Commit" with-editor-finish t]))
 
-;;; Committing
+;;; Hooks
 
-(defvar git-commit-commit-hook nil
-  "Hook run by `git-commit-commit' unless clients exist.
-Only use this if you know what you are doing.")
+(defun git-commit-finish-query-functions (force)
+  (run-hook-with-args-until-failure
+   'git-commit-finish-query-functions force))
 
-(defvar git-commit-previous-winconf nil)
+(defun git-commit-check-style-conventions (force)
+  (or (not (git-commit-has-style-errors-p)) force
+      (or (y-or-n-p "Commit despite stylistic errors? ")
+          (progn nil (message "Commit canceled due to stylistic errors")))))
 
-(defmacro git-commit-restore-previous-winconf (&rest body)
-  "Run BODY and then restore `git-commit-previous-winconf'.
-When `git-commit-previous-winconf' is nil or was created from
-another frame do nothing."
-  (declare (indent 0))
-  (let ((winconf (make-symbol "winconf"))
-        (frame   (make-symbol "frame")))
-    `(let ((,winconf git-commit-previous-winconf)
-           (,frame (selected-frame)))
-       ,@body
-       (when (and ,winconf
-                  (equal ,frame (window-configuration-frame ,winconf)))
-         (set-window-configuration ,winconf)
-         (setq git-commit-previous-winconf nil)))))
-
-(defun git-commit-commit (&optional force)
-  "Finish editing the commit message and commit.
-
-Check for stylistic errors in the current commit, and ask the
-user for confirmation depending on `git-commit-confirm-commit'.
-If FORCE is non-nil or if a raw prefix arg is given, commit
-immediately without asking.
-
-Return t, if the commit was successful, or nil otherwise."
-  (interactive "P")
-  (if (and git-commit-confirm-commit
-           (git-commit-has-style-errors-p)
-           (not force)
-           (not (y-or-n-p "Commit despite stylistic errors?")))
-      (message "Commit canceled due to stylistic errors.")
-    (save-buffer)
-    (run-hooks 'git-commit-kill-buffer-hook)
-    (remove-hook 'kill-buffer-query-functions
-                 'git-commit-kill-buffer-noop t)
-    (git-commit-restore-previous-winconf
-      (if (git-commit-buffer-clients)
-          (server-edit)
-        (run-hook-with-args 'git-commit-commit-hook)
-        (kill-buffer)))))
-
-(defun git-commit-abort ()
-  "Abort the commit.
-The commit message is saved to the kill ring."
-  (interactive)
-  (when (< emacs-major-version 24)
-    ;; Emacsclient doesn't exit with non-zero when -error is used.
-    ;; Instead cause Git to error out by feeding it an empty file.
-    (erase-buffer))
-  (save-buffer)
-  (run-hooks 'git-commit-kill-buffer-hook)
-  (remove-hook 'kill-buffer-hook 'server-kill-buffer t)
-  (remove-hook 'kill-buffer-query-functions 'git-commit-kill-buffer-noop t)
-  (git-commit-restore-previous-winconf
-    (let ((buffer  (current-buffer))
-          (clients (git-commit-buffer-clients)))
-      (if clients
-          (progn
-            (dolist (client clients)
-              (ignore-errors
-                (server-send-string client "-error Commit aborted by user"))
-              (delete-process client))
-            (when (buffer-live-p buffer)
-              (kill-buffer buffer)))
-        (kill-buffer))))
-  (accept-process-output nil 0.1)
-  (message (concat "Commit aborted."
-                   (when (memq 'git-commit-save-message
-                               git-commit-kill-buffer-hook)
-                     "  Message saved to `log-edit-comment-ring'."))))
-
-(defun git-commit-buffer-clients ()
-  (and (fboundp 'server-edit)
-       (boundp 'server-buffer-clients)
-       server-buffer-clients))
+(defun git-commit-cancel-message ()
+  (message
+   (concat "Commit canceled"
+           (and (memq 'git-commit-save-message with-editor-pre-cancel-hook)
+                ".  Message saved to `log-edit-comment-ring'"))))
 
 ;;; History
 
@@ -613,26 +541,13 @@ basic structure of and errors in git commit messages."
                      (line-beginning-position)
                      (line-end-position)))
     (open-line 1))
-  ;; Make sure `git-commit-abort' cannot be by-passed
-  (add-hook 'kill-buffer-query-functions
-            'git-commit-kill-buffer-noop nil t)
-  ;; Make the wrong usage info from `server-execute' go way
-  (run-with-timer 0.01 nil (lambda (m) (message "%s" m))
-                  (substitute-command-keys
-                   (concat "Type \\[git-commit-commit] "
-                           (let ((n (buffer-file-name)))
-                             (cond ((equal n "TAG_EDITMSG") "to tag")
-                                   ((or (equal n "NOTES_EDITMSG")
-                                        (equal n "PULLREQ_EDITMSG"))
-                                    "when done")
-                                   (t "to commit")))
-                           " (\\[git-commit-abort] to abort)."))))
-
-(defun git-commit-kill-buffer-noop ()
-  (message
-   (substitute-command-keys
-    "Don't kill this buffer.  Instead abort using \\[git-commit-abort]."))
-  nil)
+  ;; Turn on and setup `with-editor-mode'
+  (with-editor-mode 1)
+  (add-hook 'with-editor-finish-query-functions
+            'git-commit-finish-query-functions nil t)
+  (add-hook 'with-editor-pre-cancel-hook
+            'git-commit-save-message nil t)
+  (setq with-editor-cancel-message 'git-commit-cancel-message))
 
 (defun git-commit-mode-flyspell-verify ()
   (not (nth 4 (syntax-ppss)))) ; not inside a comment
