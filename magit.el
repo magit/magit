@@ -1628,8 +1628,7 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
   (cl-find-if (lambda (buf)
                 (equal (magit-get-top-dir)
                        (with-current-buffer buf
-                         (and (derived-mode-p 'git-commit-mode)
-                              (magit-get-top-dir)))))
+                         (and git-commit-mode (magit-get-top-dir)))))
               (append (buffer-list (selected-frame))
                       (buffer-list))))
 
