@@ -4225,7 +4225,6 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
         (funcall set-line-face 'magit-diff-hunk-header)
         (forward-line)
         (while (not (or (eobp) (looking-at "^diff\\|^@@")))
-          (magit-highlight-line-whitespace)
           (let* ((line (buffer-substring (point) (line-end-position)))
                  (prefix (substring line 0 (if merging 2 1))))
             (cond ((string-match "^[\\+]+<<<<<<< " line)
@@ -4237,8 +4236,10 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                   ((string-match "^[\\+]+>>>>>>> " line)
                    (funcall set-line-face 'magit-diff-merge-proposed))
                   ((string-match "\\+" prefix)
+                   (magit-highlight-line-whitespace)
                    (funcall set-line-face 'magit-diff-add))
                   ((string-match "-" prefix)
+                   (magit-highlight-line-whitespace)
                    (funcall set-line-face 'magit-diff-del))
                   (t
                    (funcall set-line-face 'magit-diff-none))))
