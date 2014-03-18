@@ -368,8 +368,10 @@ By default, this is the same except for the \"pick\" command."
 (add-hook 'git-rebase-mode-hook 'git-rebase-mode-disable-before-save-hook)
 
 ;;;###autoload
+(defconst git-rebase-filename-regexp "/git-rebase-todo\\'")
+;;;###autoload
 (add-to-list 'auto-mode-alist
-             '("/git-rebase-todo\\'" . git-rebase-mode))
+             (cons git-rebase-filename-regexp 'git-rebase-mode))
 
 (provide 'git-rebase-mode)
 ;; Local Variables:
