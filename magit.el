@@ -434,9 +434,9 @@ has to explicitly use the `default' background color, to make it
 appear *as if* the background wasn't used.
 
 One reason you might want to *not* use the background, is that
-doing so forces the use of overlays for some components of diffs.
-Using overlays potentially degrades performance when generating
-large diffs.  Also see option `magit-diff-use-overlays'."
+doing so forces the use of overlays for parts of diffs and for
+refnames.  Using overlays potentially degrades performance when
+generating large diffs.  Also see option `magit-use-overlays'."
   :package-version '(magit . "2.1.0")
   :group 'magit
   :group 'magit-faces
@@ -444,6 +444,30 @@ large diffs.  Also see option `magit-diff-use-overlays'."
                  (const bold)
                  (face  :tag "Other face")
                  (const :tag "Don't highlight" nil)))
+
+(defcustom magit-use-overlays
+  (not (eq magit-item-highlight-face 'bold))
+  "Whether to use overlays to highlight various diff components.
+
+This has to be non-nil if the current section is highlighted by
+changing the background color.  Otherwise background colors that
+hold semantic meaning, like that of the added and removed lines
+in diffs, as well as section headings, would be shadowed by the
+highlighting.
+
+To select the face used for highlighting customize the option
+`magit-item-highlight-face'.  If you set that to `bold' or some
+other face that does not use the background then you can set this
+option to nil.  Doing so could potentially improve performance
+when generating large diffs."
+  :package-version '(magit . "2.1.0")
+  :group 'magit
+  :group 'magit-faces
+  :set-after '(magit-item-highlight-face)
+  :type 'boolean)
+
+(define-obsolete-variable-alias 'magit-diff-use-overlays
+  'magit-use-overlays "2.1.0")
 
 ;;;;; Completion
 
@@ -675,26 +699,6 @@ t      show fine differences for the selected diff hunk only
                  (const :tag "Selected only" t)
                  (const :tag "All" all))
   :set 'magit-set-variable-and-refresh)
-
-(defcustom magit-diff-use-overlays
-  (not (eq magit-item-highlight-face 'bold))
-  "Whether to use overlays to highlight various diff components.
-
-This has to be non-nil if the current section is highlighted by
-changing the background color.  Otherwise background colors that
-hold semantic meaning, like that of the added and removed lines
-in diffs, as well as section headings, would be shadowed by the
-highlighting.
-
-To select the face used for highlighting customize the option
-`magit-item-highlight-face'.  If you set that to `bold' or some
-other face that does not use the background then you can set this
-option to nil.  Doing so could potentially improve performance
-when generating large diffs."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-diff
-  :set-after '(magit-item-highlight-face)
-  :type 'boolean)
 
 ;;;;;; Commit
 
@@ -1650,6 +1654,25 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
                (cond ((consp elt) (copy-sequence elt))
                      (elt (list elt))))
              list))
+
+(defun magit-insert (string face &rest args)
+  (if magit-use-overlays
+      (let ((start (point)))
+        (insert string)
+        (let ((ov (make-overlay start (point) nil t)))
+          (overlay-put ov 'face face)
+          (overlay-put ov 'priority 10)
+          (overlay-put ov 'evaporate t)))
+    (insert (propertize string 'face face)))
+  (apply #'insert args))
+
+(defun magit-put-face-property (start end face)
+  (if magit-use-overlays
+      (let ((ov (make-overlay start end nil t)))
+        (overlay-put ov 'face face)
+        (overlay-put ov 'priority 10)
+        (overlay-put ov 'evaporate t))
+    (put-text-property start end 'face face)))
 
 (defun magit-load-config-extensions ()
   "Load Magit extensions that are defined at the Git config layer."
@@ -3668,6 +3691,17 @@ no output return nil."
     (mapconcat 'magit-format-ref-label
                (split-string string "\\(tag: \\|[(), ]\\)" t) " ")))
 
+(defun magit-insert-ref-labels (string)
+  (save-match-data
+    (dolist (ref (split-string string "\\(tag: \\|[(), ]\\)" t) " ")
+      (cl-destructuring-bind (re face fn)
+          (cl-find-if (lambda (elt) (string-match (car elt) ref))
+                      magit-refs-namespaces)
+        (if fn
+            (let ((text (funcall fn ref face)))
+              (magit-insert text (get-text-property 1 'face text) ?\s))
+        (magit-insert (or (match-string 1 ref) ref) face ?\s))))))
+
 (defmacro magit-with-blob (commit file &rest body)
   (declare (indent 2))
   `(with-temp-buffer
@@ -4019,18 +4053,12 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
              (magit-insert-diff-title status file file2)
              (when (re-search-forward
                     "\\(--- \\(.*\\)\n\\+\\+\\+ \\(.*\\)\n\\)" nil t)
-               (let ((set-face
-                      (lambda (subexp face)
-                        (if magit-diff-use-overlays
-                            (overlay-put (make-overlay (match-beginning subexp)
-                                                       (match-end subexp))
-                                         'face face)
-                          (put-text-property (match-beginning subexp)
-                                             (match-end subexp)
-                                             'face face)))))
-                 (funcall set-face 1 'magit-diff-hunk-header)
-                 (funcall set-face 2 'magit-diff-file-header)
-                 (funcall set-face 3 'magit-diff-file-header)))
+               (magit-put-face-property (match-beginning 1) (match-end 1)
+                                        'magit-diff-hunk-header)
+               (magit-put-face-property (match-beginning 2) (match-end 2)
+                                        'magit-diff-hunk-header)
+               (magit-put-face-property (match-beginning 3) (match-end 3)
+                                        'magit-diff-hunk-header))
              (goto-char end)
              (magit-wash-sequence #'magit-wash-hunk)))
          section)))
@@ -4048,52 +4076,39 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 ;;;;; Hunk Washing
 
 (defun magit-wash-hunk ()
-  (when (looking-at "\\(^@+\\)[^@]*@+.*")
-    (let ((n-columns (1- (length (match-string 1))))
-          (head (match-string 0))
-          (hunk-start-pos (point))
-          (set-line-face
-           (lambda (face)
-             (if magit-diff-use-overlays
-                 (overlay-put (make-overlay (line-beginning-position)
-                                            (line-beginning-position 2))
-                              'face face)
-               (put-text-property (line-beginning-position)
-                                  (line-beginning-position 2)
-                                  'face face)))))
-      (magit-with-section (section hunk head)
-        (funcall set-line-face 'magit-diff-hunk-header)
+  (when (looking-at "^@@\\(@\\)?.+")
+    (let ((merging (match-beginning 1)))
+      (magit-with-section (section hunk (match-string 0))
+        (magit-put-face-property (point) (line-end-position)
+                                 'magit-diff-hunk-header)
         (forward-line)
-        (while (not (or (eobp)
-                        (looking-at "^diff\\|^@@")))
-          (magit-highlight-line-whitespace)
-          (let ((prefix (buffer-substring-no-properties
-                         (point) (min (+ (point) n-columns) (point-max))))
-                (line (buffer-substring-no-properties (point) (line-end-position))))
-            (cond ((string-match "^[\\+]+<<<<<<< " line)
-                   (funcall set-line-face 'magit-diff-merge-current))
-                  ((string-match "^[\\+]+=======" line)
-                   (funcall set-line-face 'magit-diff-merge-separator))
-                  ((string-match "^[\\+]+|||||||" line)
-                   (funcall set-line-face 'magit-diff-merge-diff3-separator))
-                  ((string-match "^[\\+]+>>>>>>> " line)
-                   (funcall set-line-face 'magit-diff-merge-proposed))
-                  ((string-match "\\+" prefix)
-                   (funcall set-line-face 'magit-diff-add))
-                  ((string-match "-" prefix)
-                   (funcall set-line-face 'magit-diff-del))
-                  (t
-                   (funcall set-line-face 'magit-diff-none))))
-          (forward-line))
+        (while (not (or (eobp) (looking-at "^diff\\|^@@")))
+          (magit-put-face-property
+           (point) (line-end-position)
+           (cond
+            ((looking-at "^\\+\\+<<<<<<<") 'magit-diff-merge-current)
+            ((looking-at "^\\+\\+=======") 'magit-diff-merge-separator)
+            ((looking-at "^\\+\\+|||||||") 'magit-diff-merge-diff3-separator)
+            ((looking-at "^\\+\\+>>>>>>>") 'magit-diff-merge-proposed)
+            ((looking-at (if merging  "^\\(\\+\\| \\+\\)" "^\\+"))
+             (magit-highlight-line-whitespace merging)
+             'magit-diff-add)
+            ((looking-at (if merging  "^\\(-\\| \\-\\)" "^-"))
+             (magit-highlight-line-whitespace merging)
+             'magit-diff-del)
+            (t
+             'magit-diff-none)))
+            (forward-line))
         (when (eq magit-diff-refine-hunk 'all)
           (magit-diff-refine-hunk section))))
     t))
 
-(defun magit-highlight-line-whitespace ()
+(defun magit-highlight-line-whitespace (merging)
   (when (and magit-highlight-whitespace
              (or (derived-mode-p 'magit-status-mode)
                  (not (eq magit-highlight-whitespace 'status))))
-    (let ((indent
+    (let ((prefix (if merging "^[-\\+\s]\\{2\\}" "^[-\\+]"))
+          (indent
            (if (local-variable-p 'magit-highlight-indentation)
                magit-highlight-indentation
              (setq-local
@@ -4103,16 +4118,16 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                                (default-value magit-highlight-indentation)
                                :from-end t))))))
       (when (and magit-highlight-trailing-whitespace
-                 (looking-at "^[-+].*?\\([ \t]+\\)$"))
-        (overlay-put (make-overlay (match-beginning 1) (match-end 1))
-                     'face 'magit-whitespace-warning-face))
+                 (looking-at (concat prefix ".*\\([ \t]+\\)$")))
+        (magit-put-face-property (match-beginning 1) (match-end 1)
+                                 'magit-whitespace-warning-face))
       (when (or (and (eq indent 'tabs)
-                     (looking-at "^[-+]\\( *\t[ \t]*\\)"))
+                     (looking-at (concat prefix "\\( *\t[ \t]*\\)")))
                 (and (integerp indent)
-                     (looking-at (format "^[-+]\\([ \t]* \\{%s,\\}[ \t]*\\)"
-                                         indent))))
-        (overlay-put (make-overlay (match-beginning 1) (match-end 1))
-                     'face 'magit-whitespace-warning-face)))))
+                     (looking-at (format "%s\\([ \t]* \\{%s,\\}[ \t]*\\)"
+                                         prefix indent))))
+        (magit-put-face-property (match-beginning 1) (match-end 1)
+                                 'magit-whitespace-warning-face)))))
 
 (defun magit-diff-refine-hunk (hunk)
   (save-excursion
@@ -4281,37 +4296,33 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
       (hash msg refs graph author date gpg cherry refsel refsub)
     (delete-region (point) (point-at-eol))
     (when cherry
-      (insert (propertize cherry 'face
-                          (if (string= cherry "-")
-                              'magit-cherry-equivalent
-                            'magit-cherry-unmatched))
-              " "))
+      (magit-insert cherry (if (string= cherry "-")
+                               'magit-cherry-equivalent
+                             'magit-cherry-unmatched) ?\s))
     (unless (eq style 'long)
       (when (eq style 'bisect-log)
         (setq hash (magit-rev-parse "--short" hash)))
       (if hash
-          (insert (propertize hash 'face 'magit-log-sha1) " ")
+          (magit-insert hash 'magit-log-sha1 ?\s)
         (insert (make-string (1+ abbrev) ? ))))
     (when graph
       (if magit-log-format-graph-function
           (insert (funcall magit-log-format-graph-function graph))
         (insert graph)))
     (when (and hash (eq style 'long))
-      (insert (propertize (if refs hash (magit-rev-parse hash))
-                          'face 'magit-log-sha1) " "))
+      (magit-insert (if refs hash (magit-rev-parse hash)) 'magit-log-sha1 ?\s))
     (when refs
-      (insert (magit-format-ref-labels refs) " "))
+      (magit-insert-ref-labels refs))
     (when refsub
       (insert (format "%-2s " refsel))
       (insert (magit-log-format-reflog refsub)))
     (when msg
-      (insert (propertize msg 'face
-                          (cl-case (and gpg (aref gpg 0))
-                            (?G 'magit-signature-good)
-                            (?B 'magit-signature-bad)
-                            (?U 'magit-signature-untrusted)
-                            (?N 'magit-signature-none)
-                            (t  'magit-log-message)))))
+      (magit-insert msg (cl-case (and gpg (aref gpg 0))
+                          (?G 'magit-signature-good)
+                          (?B 'magit-signature-bad)
+                          (?U 'magit-signature-untrusted)
+                          (?N 'magit-signature-none)
+                          (t  'magit-log-message))))
     (goto-char (line-beginning-position))
     (magit-format-log-margin author date)
     (if hash
