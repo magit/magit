@@ -4210,10 +4210,8 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 ;;;;; Hunk Washing
 
 (defun magit-wash-hunk ()
-  (when (looking-at "\\(^@+\\)[^@]*@+.*")
-    (let ((n-columns (1- (length (match-string 1))))
-          (head (match-string 0))
-          (hunk-start-pos (point))
+  (when (looking-at "^@@\\(@\\)?.+")
+    (let ((merging (match-beginning 1))
           (set-line-face
            (lambda (face)
              (if magit-diff-use-overlays
@@ -4223,15 +4221,13 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                (put-text-property (line-beginning-position)
                                   (line-beginning-position 2)
                                   'face face)))))
-      (magit-with-section (section hunk head)
+      (magit-with-section (section hunk (match-string 0))
         (funcall set-line-face 'magit-diff-hunk-header)
         (forward-line)
-        (while (not (or (eobp)
-                        (looking-at "^diff\\|^@@")))
+        (while (not (or (eobp) (looking-at "^diff\\|^@@")))
           (magit-highlight-line-whitespace)
-          (let ((prefix (buffer-substring-no-properties
-                         (point) (min (+ (point) n-columns) (point-max))))
-                (line (buffer-substring-no-properties (point) (line-end-position))))
+          (let* ((line (buffer-substring (point) (line-end-position)))
+                 (prefix (substring line 0 (if merging 2 1))))
             (cond ((string-match "^[\\+]+<<<<<<< " line)
                    (funcall set-line-face 'magit-diff-merge-current))
                   ((string-match "^[\\+]+=======" line)
