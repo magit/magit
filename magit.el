@@ -4716,7 +4716,7 @@ can be used to override this."
         (concat (if am "Applying" "Rebasing")
                 (format ": onto %s (%s of %s)" onto done total)
                 (and magit-status-show-sequence-help
-                     "; Press \"R\" to Abort, Skip, or Continue")))
+                     "; Press \"r\" to Abort, Skip, or Continue")))
       (when (and (not am) hash)
         (magit-insert-line-section (commit hash)
           (concat "Stopped: " (magit-format-rev-summary hash)))))))
