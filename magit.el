@@ -3896,39 +3896,6 @@ results in additional differences."
 ;;; (misplaced)
 ;;;; Hunk Refinement
 
-(defun magit-diff-toggle-refine-hunk (&optional other)
-  "Turn diff-hunk refining on or off.
-
-If hunk refining is currently on, then hunk refining is turned off.
-If hunk refining is off, then hunk refining is turned on, in
-`selected' mode (only the currently selected hunk is refined).
-
-With a prefix argument, the \"third choice\" is used instead:
-If hunk refining is currently on, then refining is kept on, but
-the refining mode (`selected' or `all') is switched.
-If hunk refining is off, then hunk refining is turned on, in
-`all' mode (all hunks refined).
-
-Customize variable `magit-diff-refine-hunk' to change the default mode."
-  (interactive "P")
-  (let ((hunk (and magit-highlighted-section
-                   (eq (magit-section-type magit-highlighted-section) 'hunk)
-                   magit-highlighted-section))
-        (old magit-diff-refine-hunk))
-    (setq-local magit-diff-refine-hunk
-                (if other
-                    (if (eq old 'all) t 'all)
-                  (not old)))
-    (cond ((or (eq old 'all)
-               (eq magit-diff-refine-hunk 'all))
-           (magit-refresh))
-          ((not hunk))
-          (magit-diff-refine-hunk
-           (magit-diff-refine-hunk hunk))
-          (t
-           (magit-diff-unrefine-hunk hunk)))
-    (message "magit-diff-refine-hunk: %s" magit-diff-refine-hunk)))
-
 ;;;; Diff Washing
 ;;;;; Diff Washing
 
@@ -4128,18 +4095,6 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                                          prefix indent))))
         (magit-put-face-property (match-beginning 1) (match-end 1)
                                  'magit-whitespace-warning-face)))))
-
-(defun magit-diff-refine-hunk (hunk)
-  (save-excursion
-    (goto-char (magit-section-beginning hunk))
-    ;; `diff-refine-hunk' does not handle combined diffs.
-    (unless (looking-at "@@@")
-      (diff-refine-hunk))))
-
-(defun magit-diff-unrefine-hunk (hunk)
-  (remove-overlays (magit-section-beginning hunk)
-                   (magit-section-end hunk)
-                   'diff-mode 'fine))
 
 ;;;;; Raw Diff Washing
 
@@ -7146,6 +7101,51 @@ actually were a single commit."
     (?m "[m]inimal"       "minimal")
     (?p "[p]atience"      "patience")
     (?h "[h]istogram"     "histogram")))
+
+(defun magit-diff-toggle-refine-hunk (&optional other)
+  "Turn diff-hunk refining on or off.
+
+If hunk refining is currently on, then hunk refining is turned off.
+If hunk refining is off, then hunk refining is turned on, in
+`selected' mode (only the currently selected hunk is refined).
+
+With a prefix argument, the \"third choice\" is used instead:
+If hunk refining is currently on, then refining is kept on, but
+the refining mode (`selected' or `all') is switched.
+If hunk refining is off, then hunk refining is turned on, in
+`all' mode (all hunks refined).
+
+Customize variable `magit-diff-refine-hunk' to change the default mode."
+  (interactive "P")
+  (let ((hunk (and magit-highlighted-section
+                   (eq (magit-section-type magit-highlighted-section) 'hunk)
+                   magit-highlighted-section))
+        (old magit-diff-refine-hunk))
+    (setq-local magit-diff-refine-hunk
+                (if other
+                    (if (eq old 'all) t 'all)
+                  (not old)))
+    (cond ((or (eq old 'all)
+               (eq magit-diff-refine-hunk 'all))
+           (magit-refresh))
+          ((not hunk))
+          (magit-diff-refine-hunk
+           (magit-diff-refine-hunk hunk))
+          (t
+           (magit-diff-unrefine-hunk hunk)))
+    (message "magit-diff-refine-hunk: %s" magit-diff-refine-hunk)))
+
+(defun magit-diff-refine-hunk (hunk)
+  (save-excursion
+    (goto-char (magit-section-beginning hunk))
+    ;; `diff-refine-hunk' does not handle combined diffs.
+    (unless (looking-at "@@@")
+      (diff-refine-hunk))))
+
+(defun magit-diff-unrefine-hunk (hunk)
+  (remove-overlays (magit-section-beginning hunk)
+                   (magit-section-end hunk)
+                   'diff-mode 'fine))
 
 ;;;; Wazzup Mode
 
