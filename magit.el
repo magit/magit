@@ -4461,7 +4461,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
       (when (eq style 'bisect-log)
 	(setq hash (magit-git-string "rev-parse" "--short" hash)))
       (if hash
-          (magit-insert hash 'magit-log-sha1 ?\s)
+          (insert (propertize hash 'face 'magit-log-sha1) ?\s)
         (insert (make-string (1+ abbrev) ? ))))
     (when graph
       (if magit-log-format-graph-function
