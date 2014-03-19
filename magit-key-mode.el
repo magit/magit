@@ -505,7 +505,8 @@ Do not customize this (used in the `magit-key-mode' implementation).")
     (set-window-configuration magit-pre-key-mode-window-conf)
     (kill-buffer magit-key-mode-last-buffer)
     (when func
-      (call-interactively func))))
+      (setq this-command func)
+      (call-interactively this-command))))
 
 (defun magit-key-mode-add-argument (for-group arg-name input-func)
   (let ((input (funcall input-func (concat arg-name ": "))))
