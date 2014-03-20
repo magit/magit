@@ -6951,10 +6951,10 @@ If there is no commit at point, then prompt for one."
             ((looking-at "^\\+\\+|||||||") 'magit-diff-merge-diff3-separator)
             ((looking-at "^\\+\\+>>>>>>>") 'magit-diff-merge-proposed)
             ((looking-at (if merging  "^\\(\\+\\| \\+\\)" "^\\+"))
-             (magit-highlight-line-whitespace merging)
+             (magit-diff-highlight-whitespace merging)
              'magit-diff-add)
             ((looking-at (if merging  "^\\(-\\| \\-\\)" "^-"))
-             (magit-highlight-line-whitespace merging)
+             (magit-diff-highlight-whitespace merging)
              'magit-diff-del)
             (t
              'magit-diff-none)))
@@ -6963,7 +6963,7 @@ If there is no commit at point, then prompt for one."
           (magit-diff-refine-hunk section))))
     t))
 
-(defun magit-highlight-line-whitespace (merging)
+(defun magit-diff-highlight-whitespace (merging)
   (when (and magit-highlight-whitespace
              (or (derived-mode-p 'magit-status-mode)
                  (not (eq magit-highlight-whitespace 'status))))
