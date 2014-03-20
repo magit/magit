@@ -6757,7 +6757,7 @@ More information can be found in Info node `(magit)Diffing'
                     #'magit-refresh-diff-buffer range working args))
 
 ;;;###autoload
-(defun magit-diff-working-tree (rev)
+(defun magit-diff-working-tree (&optional rev)
   "Show changes between the current working tree and the `HEAD' commit.
 With a prefix argument show changes between the working tree and
 a commit read from the minibuffer."
