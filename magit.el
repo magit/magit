@@ -3711,15 +3711,17 @@ to REFRESH-FUNC and that of `magit-refresh-args' to REFRESH-ARGS
 and finally \"refresh\" a first time.  All arguments are
 evaluated before switching to BUFFER."
   (let ((mode-symb (cl-gensym "mode-symb"))
-        (init-args (cl-gensym "init-args"))
-        (buf-symb  (cl-gensym "buf-symb")))
+        (toplevel  (cl-gensym "toplevel"))
+        (init-args (cl-gensym "init-args")))
     `(let* ((,mode-symb ,mode)
-            (,init-args (list (magit-get-top-dir)
-                              ,mode-symb ,refresh-func ,@refresh-args))
-            (,buf-symb  (magit-mode-display-buffer
-                         ,buffer ,mode-symb ,switch-func)))
-       (with-current-buffer ,buf-symb
-         (apply #'magit-mode-init ,init-args)))))
+            (,toplevel  (magit-get-top-dir))
+            (,init-args (list ,mode-symb ,refresh-func ,@refresh-args)))
+       (if ,toplevel
+           (with-current-buffer
+               (magit-mode-display-buffer
+                ,buffer ,mode-symb ,switch-func)
+             (apply #'magit-mode-init ,toplevel ,init-args))
+         (user-error "Not inside a Git repository")))))
 
 (defun magit-mode-init (dir mode refresh-func &rest refresh-args)
   "Turn on MODE and refresh in the current buffer.
