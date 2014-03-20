@@ -4054,193 +4054,7 @@ And refresh the current Magit buffer."
   (setq-local magit-diff-options (default-value 'magit-diff-options))
   (magit-refresh))
 
-;;;; Diff Washing
-;;;;; Diff Washing
-
-(defun magit-wash-diffs ()
-  (magit-wash-diffstats)
-  (and (re-search-forward "^diff" nil t)
-       (goto-char (line-beginning-position)))
-  (magit-wash-sequence #'magit-wash-diff)
-  (goto-char (point-max))
-  (magit-xref-insert-buttons))
-
-(defun magit-wash-diff ()
-  (magit-with-section (section diff (buffer-substring-no-properties
-                                     (line-beginning-position)
-                                     (line-end-position)))
-    (setq section (magit-wash-diff-section section))))
-
-(defvar-local magit-diffstat-cached-sections nil)
-(put 'magit-diffstat-cached-sections 'permanent-local t)
-
-(defun magit-wash-diffstats ()
-  (let ((beg (point)))
-    (when (re-search-forward "^ ?\\([0-9]+ +files? change[^\n]*\n\\)" nil t)
-      (let ((heading (match-string-no-properties 1)))
-        (delete-region (match-beginning 0) (match-end 0))
-        (goto-char beg)
-        (magit-with-section (section diffstats 'diffstats heading)
-          (magit-wash-sequence #'magit-wash-diffstat)))
-      (setq magit-diffstat-cached-sections
-            (nreverse magit-diffstat-cached-sections)))))
-
-(defun magit-wash-diffstat ()
-  (when (looking-at
-         (concat
-          "^ ?\\(.*\\)"  ; file
-          "\\( +| +\\)"  ; separator
-          "\\([0-9]+\\|Bin\\(?: +[0-9]+ -> [0-9]+ bytes\\)?$\\)" ; cnt
-          " ?"
-          "\\(\\+*\\)"   ; add
-          "\\(-*\\)"     ; del
-          "$"))
-    (magit-bind-match-strings (file sep cnt add del)
-      (delete-region (point) (1+ (line-end-position)))
-      (magit-with-section (section diffstat 'diffstat)
-        (insert " " file sep cnt " ")
-        (when add (insert (propertize add 'face 'magit-diff-add)))
-        (when del (insert (propertize del 'face 'magit-diff-del)))
-        (insert "\n")
-        (push section magit-diffstat-cached-sections)))))
-
-(defun magit-wash-diffstats-postwork (file)
-  (when magit-diffstat-cached-sections
-    (setf (magit-section-info (pop magit-diffstat-cached-sections)) file)))
-
-(defun magit-insert-diff-title (status file file2)
-  (insert (format "\t%-10s " (capitalize (symbol-name status)))
-          file
-          (if (eq status 'renamed) (format "   (from %s)" file2) "")
-          "\n"))
-
-(defvar magit-current-diff-range nil
-  "Used internally when setting up magit diff sections.")
-
-(defun magit-wash-diff-section (section)
-  (cond ((re-search-forward "^\\* Unmerged path \\(.*\\)" nil t)
-         (forward-line 0)
-         (let ((file (magit-decode-git-path (match-string-no-properties 1))))
-           (delete-region (point) (line-end-position))
-           (insert "\tUnmerged " file "\n")
-           (setf (magit-section-diff-status section) 'unmerged)
-           (setf (magit-section-info section) file)
-           section))
-        ((re-search-forward "^diff" nil t)
-         (forward-line 0)
-         (let ((file (magit-diff-line-file))
-               (end (save-excursion
-                      (forward-line) ;; skip over "diff" line
-                      (if (re-search-forward "^diff\\|^@@" nil t)
-                          (goto-char (match-beginning 0))
-                        (goto-char (point-max)))
-                      (point-marker))))
-           (magit-wash-diffstats-postwork file)
-
-           (let  ((status (cond
-                           ((looking-at "^diff --cc")
-                            'unmerged)
-                           ((save-excursion
-                              (re-search-forward "^new file" end t))
-                            'new)
-                           ((save-excursion
-                              (re-search-forward "^deleted" end t))
-                            (setf (magit-section-hidden section) t)
-                            'deleted)
-                           ((save-excursion
-                              (re-search-forward "^rename" end t))
-                            'renamed)
-                           (t
-                            'modified)))
-                  (file2 (cond
-                          ((save-excursion
-                             (re-search-forward "^rename from \\(.*\\)"
-                                                    end t))
-                           (match-string-no-properties 1)))))
-             (setf (magit-section-diff-status section) status)
-             (setf (magit-section-info        section) file)
-             (setf (magit-section-diff-file2  section) (or file2 file))
-             (setf (magit-section-diff-range  section) magit-current-diff-range)
-             (magit-insert-diff-title status file file2)
-             (when (re-search-forward
-                    "\\(--- \\(.*\\)\n\\+\\+\\+ \\(.*\\)\n\\)" nil t)
-               (magit-put-face-property (match-beginning 1) (match-end 1)
-                                        'magit-diff-hunk-header)
-               (magit-put-face-property (match-beginning 2) (match-end 2)
-                                        'magit-diff-hunk-header)
-               (magit-put-face-property (match-beginning 3) (match-end 3)
-                                        'magit-diff-hunk-header))
-             (goto-char end)
-             (magit-wash-sequence #'magit-wash-hunk)))
-         section)))
-
-(defun magit-diff-line-file ()
-  (cond ((looking-at "^diff --git \\(\".*\"\\) \\(\".*\"\\)$")
-         (substring (magit-decode-git-path (match-string-no-properties 2)) 2))
-        ((looking-at "^diff --git ./\\(.*\\) ./\\(.*\\)$")
-         (match-string-no-properties 2))
-        ((looking-at "^diff --cc +\\(.*\\)$")
-         (match-string-no-properties 1))
-        (t
-         nil)))
-
-;;;;; Hunk Washing
-
-(defun magit-wash-hunk ()
-  (when (looking-at "^@@\\(@\\)?.+")
-    (let ((merging (match-beginning 1)))
-      (magit-with-section (section hunk (match-string 0))
-        (magit-put-face-property (point) (line-end-position)
-                                 'magit-diff-hunk-header)
-        (forward-line)
-        (while (not (or (eobp) (looking-at "^diff\\|^@@")))
-          (magit-put-face-property
-           (point) (line-end-position)
-           (cond
-            ((looking-at "^\\+\\+<<<<<<<") 'magit-diff-merge-current)
-            ((looking-at "^\\+\\+=======") 'magit-diff-merge-separator)
-            ((looking-at "^\\+\\+|||||||") 'magit-diff-merge-diff3-separator)
-            ((looking-at "^\\+\\+>>>>>>>") 'magit-diff-merge-proposed)
-            ((looking-at (if merging  "^\\(\\+\\| \\+\\)" "^\\+"))
-             (magit-highlight-line-whitespace merging)
-             'magit-diff-add)
-            ((looking-at (if merging  "^\\(-\\| \\-\\)" "^-"))
-             (magit-highlight-line-whitespace merging)
-             'magit-diff-del)
-            (t
-             'magit-diff-none)))
-            (forward-line))
-        (when (eq magit-diff-refine-hunk 'all)
-          (magit-diff-refine-hunk section))))
-    t))
-
-(defun magit-highlight-line-whitespace (merging)
-  (when (and magit-highlight-whitespace
-             (or (derived-mode-p 'magit-status-mode)
-                 (not (eq magit-highlight-whitespace 'status))))
-    (let ((prefix (if merging "^[-\\+\s]\\{2\\}" "^[-\\+]"))
-          (indent
-           (if (local-variable-p 'magit-highlight-indentation)
-               magit-highlight-indentation
-             (setq-local
-              magit-highlight-indentation
-              (cdr (cl-find-if (lambda (pair)
-                                 (string-match-p (car pair) default-directory))
-                               (default-value magit-highlight-indentation)
-                               :from-end t))))))
-      (when (and magit-highlight-trailing-whitespace
-                 (looking-at (concat prefix ".*\\([ \t]+\\)$")))
-        (magit-put-face-property (match-beginning 1) (match-end 1)
-                                 'magit-whitespace-warning-face))
-      (when (or (and (eq indent 'tabs)
-                     (looking-at (concat prefix "\\( *\t[ \t]*\\)")))
-                (and (integerp indent)
-                     (looking-at (format "%s\\([ \t]* \\{%s,\\}[ \t]*\\)"
-                                         prefix indent))))
-        (magit-put-face-property (match-beginning 1) (match-end 1)
-                                 'magit-whitespace-warning-face)))))
-
-;;;;; Raw Diff Washing
+;;;; Raw Diff Washing
 
 (defun magit-insert-diff (section file status)
   (let ((beg (point)))
@@ -6891,6 +6705,7 @@ restore the window state that was saved before ediff was called."
                     (set-window-configuration windows)))))))
 
 ;;;; Diff Mode
+;;;;; Diff Core
 
 (define-derived-mode magit-diff-mode magit-mode "Magit Diff"
   "Mode for looking at a git diff.
@@ -6913,6 +6728,8 @@ More information can be found in Info node `(magit)Diffing'
 
 (defvar magit-stash-buffer-name "*magit-stash*"
   "Name of buffer used to display a stash.")
+
+;;;;; Diff Entry Commands
 
 ;;;###autoload
 (defun magit-diff (range &optional working args)
@@ -6994,6 +6811,191 @@ If there is no commit at point, then prompt for one."
       "diff" (magit-diff-U-arg)
       (and magit-show-diffstat "--patch-with-stat")
       range args "--")))
+
+;;;;; Diff Washing
+
+(defvar magit-current-diff-range nil
+  "Used internally when setting up magit diff sections.")
+
+(defvar-local magit-diffstat-cached-sections nil)
+(put 'magit-diffstat-cached-sections 'permanent-local t)
+
+(defun magit-wash-diffs ()
+  (magit-wash-diffstats)
+  (and (re-search-forward "^diff" nil t)
+       (goto-char (line-beginning-position)))
+  (magit-wash-sequence #'magit-wash-diff)
+  (goto-char (point-max))
+  (magit-xref-insert-buttons))
+
+(defun magit-wash-diffstats ()
+  (let ((beg (point)))
+    (when (re-search-forward "^ ?\\([0-9]+ +files? change[^\n]*\n\\)" nil t)
+      (let ((heading (match-string-no-properties 1)))
+        (delete-region (match-beginning 0) (match-end 0))
+        (goto-char beg)
+        (magit-with-section (section diffstats 'diffstats heading)
+          (magit-wash-sequence #'magit-wash-diffstat)))
+      (setq magit-diffstat-cached-sections
+            (nreverse magit-diffstat-cached-sections)))))
+
+(defun magit-wash-diffstat ()
+  (when (looking-at
+         (concat
+          "^ ?\\(.*\\)"  ; file
+          "\\( +| +\\)"  ; separator
+          "\\([0-9]+\\|Bin\\(?: +[0-9]+ -> [0-9]+ bytes\\)?$\\)" ; cnt
+          " ?"
+          "\\(\\+*\\)"   ; add
+          "\\(-*\\)"     ; del
+          "$"))
+    (magit-bind-match-strings (file sep cnt add del)
+      (delete-region (point) (1+ (line-end-position)))
+      (magit-with-section (section diffstat 'diffstat)
+        (insert " " file sep cnt " ")
+        (when add (insert (propertize add 'face 'magit-diff-add)))
+        (when del (insert (propertize del 'face 'magit-diff-del)))
+        (insert "\n")
+        (push section magit-diffstat-cached-sections)))))
+
+(defun magit-wash-diff ()
+  (magit-with-section (section diff (buffer-substring-no-properties
+                                     (line-beginning-position)
+                                     (line-end-position)))
+    (setq section (magit-wash-diff-section section))))
+
+(defun magit-wash-diff-section (section)
+  (cond ((re-search-forward "^\\* Unmerged path \\(.*\\)" nil t)
+         (forward-line 0)
+         (let ((file (magit-decode-git-path (match-string-no-properties 1))))
+           (delete-region (point) (line-end-position))
+           (insert "\tUnmerged " file "\n")
+           (setf (magit-section-diff-status section) 'unmerged)
+           (setf (magit-section-info section) file)
+           section))
+        ((re-search-forward "^diff" nil t)
+         (forward-line 0)
+         (let ((file (magit-diff-line-file))
+               (end (save-excursion
+                      (forward-line) ;; skip over "diff" line
+                      (if (re-search-forward "^diff\\|^@@" nil t)
+                          (goto-char (match-beginning 0))
+                        (goto-char (point-max)))
+                      (point-marker))))
+           (magit-wash-diffstats-postwork file)
+
+           (let  ((status (cond
+                           ((looking-at "^diff --cc")
+                            'unmerged)
+                           ((save-excursion
+                              (re-search-forward "^new file" end t))
+                            'new)
+                           ((save-excursion
+                              (re-search-forward "^deleted" end t))
+                            (setf (magit-section-hidden section) t)
+                            'deleted)
+                           ((save-excursion
+                              (re-search-forward "^rename" end t))
+                            'renamed)
+                           (t
+                            'modified)))
+                  (file2 (cond
+                          ((save-excursion
+                             (re-search-forward "^rename from \\(.*\\)"
+                                                    end t))
+                           (match-string-no-properties 1)))))
+             (setf (magit-section-diff-status section) status)
+             (setf (magit-section-info        section) file)
+             (setf (magit-section-diff-file2  section) (or file2 file))
+             (setf (magit-section-diff-range  section) magit-current-diff-range)
+             (magit-insert-diff-title status file file2)
+             (when (re-search-forward
+                    "\\(--- \\(.*\\)\n\\+\\+\\+ \\(.*\\)\n\\)" nil t)
+               (magit-put-face-property (match-beginning 1) (match-end 1)
+                                        'magit-diff-hunk-header)
+               (magit-put-face-property (match-beginning 2) (match-end 2)
+                                        'magit-diff-hunk-header)
+               (magit-put-face-property (match-beginning 3) (match-end 3)
+                                        'magit-diff-hunk-header))
+             (goto-char end)
+             (magit-wash-sequence #'magit-wash-hunk)))
+         section)))
+
+(defun magit-diff-line-file ()
+  (cond ((looking-at "^diff --git \\(\".*\"\\) \\(\".*\"\\)$")
+         (substring (magit-decode-git-path (match-string-no-properties 2)) 2))
+        ((looking-at "^diff --git ./\\(.*\\) ./\\(.*\\)$")
+         (match-string-no-properties 2))
+        ((looking-at "^diff --cc +\\(.*\\)$")
+         (match-string-no-properties 1))
+        (t
+         nil)))
+
+(defun magit-wash-diffstats-postwork (file)
+  (when magit-diffstat-cached-sections
+    (setf (magit-section-info (pop magit-diffstat-cached-sections)) file)))
+
+(defun magit-insert-diff-title (status file file2)
+  (insert (format "\t%-10s " (capitalize (symbol-name status)))
+          file
+          (if (eq status 'renamed) (format "   (from %s)" file2) "")
+          "\n"))
+
+(defun magit-wash-hunk ()
+  (when (looking-at "^@@\\(@\\)?.+")
+    (let ((merging (match-beginning 1)))
+      (magit-with-section (section hunk (match-string 0))
+        (magit-put-face-property (point) (line-end-position)
+                                 'magit-diff-hunk-header)
+        (forward-line)
+        (while (not (or (eobp) (looking-at "^diff\\|^@@")))
+          (magit-put-face-property
+           (point) (line-end-position)
+           (cond
+            ((looking-at "^\\+\\+<<<<<<<") 'magit-diff-merge-current)
+            ((looking-at "^\\+\\+=======") 'magit-diff-merge-separator)
+            ((looking-at "^\\+\\+|||||||") 'magit-diff-merge-diff3-separator)
+            ((looking-at "^\\+\\+>>>>>>>") 'magit-diff-merge-proposed)
+            ((looking-at (if merging  "^\\(\\+\\| \\+\\)" "^\\+"))
+             (magit-highlight-line-whitespace merging)
+             'magit-diff-add)
+            ((looking-at (if merging  "^\\(-\\| \\-\\)" "^-"))
+             (magit-highlight-line-whitespace merging)
+             'magit-diff-del)
+            (t
+             'magit-diff-none)))
+            (forward-line))
+        (when (eq magit-diff-refine-hunk 'all)
+          (magit-diff-refine-hunk section))))
+    t))
+
+(defun magit-highlight-line-whitespace (merging)
+  (when (and magit-highlight-whitespace
+             (or (derived-mode-p 'magit-status-mode)
+                 (not (eq magit-highlight-whitespace 'status))))
+    (let ((prefix (if merging "^[-\\+\s]\\{2\\}" "^[-\\+]"))
+          (indent
+           (if (local-variable-p 'magit-highlight-indentation)
+               magit-highlight-indentation
+             (setq-local
+              magit-highlight-indentation
+              (cdr (cl-find-if (lambda (pair)
+                                 (string-match-p (car pair) default-directory))
+                               (default-value magit-highlight-indentation)
+                               :from-end t))))))
+      (when (and magit-highlight-trailing-whitespace
+                 (looking-at (concat prefix ".*\\([ \t]+\\)$")))
+        (magit-put-face-property (match-beginning 1) (match-end 1)
+                                 'magit-whitespace-warning-face))
+      (when (or (and (eq indent 'tabs)
+                     (looking-at (concat prefix "\\( *\t[ \t]*\\)")))
+                (and (integerp indent)
+                     (looking-at (format "%s\\([ \t]* \\{%s,\\}[ \t]*\\)"
+                                         prefix indent))))
+        (magit-put-face-property (match-beginning 1) (match-end 1)
+                                 'magit-whitespace-warning-face)))))
+
+;;;;; Diff Mode Commands
 
 (defun magit-diff-toggle-refine-hunk (&optional other)
   "Turn diff-hunk refining on or off.
