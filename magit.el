@@ -6830,9 +6830,9 @@ If there is no commit at point, then prompt for one."
 
 (defun magit-wash-diffs ()
   (magit-wash-diffstats)
-  (and (re-search-forward "^diff" nil t)
-       (goto-char (line-beginning-position)))
-  (magit-wash-sequence #'magit-wash-diff)
+  (when (re-search-forward "^diff" nil t)
+    (goto-char (line-beginning-position))
+    (magit-wash-sequence #'magit-wash-diff))
   (goto-char (point-max))
   (magit-xref-insert-buttons))
 
