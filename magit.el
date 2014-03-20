@@ -6814,6 +6814,14 @@ If there is no commit at point, then prompt for one."
 
 ;;;;; Diff Washing
 
+(defconst magit-diff-statline-re
+  (concat "^ ?"
+          "\\(.*\\)"     ; file
+          "\\( +| +\\)"  ; separator
+          "\\([0-9]+\\|Bin\\(?: +[0-9]+ -> [0-9]+ bytes\\)?$\\) ?"
+          "\\(\\+*\\)"   ; add
+          "\\(-*\\)$"))  ; del
+
 (defvar magit-current-diff-range nil
   "Used internally when setting up magit diff sections.")
 
@@ -6840,15 +6848,7 @@ If there is no commit at point, then prompt for one."
             (nreverse magit-diffstat-cached-sections)))))
 
 (defun magit-wash-diffstat ()
-  (when (looking-at
-         (concat
-          "^ ?\\(.*\\)"  ; file
-          "\\( +| +\\)"  ; separator
-          "\\([0-9]+\\|Bin\\(?: +[0-9]+ -> [0-9]+ bytes\\)?$\\)" ; cnt
-          " ?"
-          "\\(\\+*\\)"   ; add
-          "\\(-*\\)"     ; del
-          "$"))
+  (when (looking-at magit-diff-statline-re)
     (magit-bind-match-strings (file sep cnt add del)
       (delete-region (point) (1+ (line-end-position)))
       (magit-with-section (section diffstat 'diffstat)
