@@ -3001,14 +3001,15 @@ and finally \"refresh\" a first time.  All arguments are
 evaluated before switching to BUFFER."
   (let ((mode-symb (cl-gensym "mode-symb"))
         (toplevel  (cl-gensym "toplevel"))
-        (init-args (cl-gensym "init-args")))
+        (init-args (cl-gensym "init-args"))
+        (buf-symb  (cl-gensym "buf-symb")))
     `(let* ((,mode-symb ,mode)
             (,toplevel  (magit-get-top-dir))
-            (,init-args (list ,mode-symb ,refresh-func ,@refresh-args)))
+            (,init-args (list ,mode-symb ,refresh-func ,@refresh-args))
+            (,buf-symb  (magit-mode-display-buffer
+                         ,buffer ,mode-symb ,switch-func)))
        (if ,toplevel
-           (with-current-buffer
-               (magit-mode-display-buffer
-                ,buffer ,mode-symb ,switch-func)
+           (with-current-buffer ,buf-symb
              (apply #'magit-mode-init ,toplevel ,init-args))
          (user-error "Not inside a Git repository")))))
 
