@@ -4149,174 +4149,6 @@ results in additional differences."
             (magit-insert-diff-title status file nil))))
       file)))
 
-;;;; Log Washing
-;;;;; Log Washing Variables
-
-(defconst magit-log-oneline-re
-  (concat "^"
-          "\\(?4:\\(?:[-_/|\\*o.] *\\)+ *\\)?"     ; graph
-          "\\(?:"
-          "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
-          "\\(?:\\(?3:([^()]+)\\) \\)?"            ; refs
-          "\\(?7:[BGUN]\\)?"                       ; gpg
-          "\\[\\(?5:[^]]*\\)\\]"                   ; author
-          "\\[\\(?6:[^]]*\\)\\]"                   ; date
-          "\\(?2:.*\\)"                            ; msg
-          "\\)?$"))
-
-(defconst magit-log-long-re
-  (concat "^"
-          "\\(?4:\\(?:[-_/|\\*o.] *\\)+ *\\)?"     ; graph
-          "\\(?:"
-          "\\(?:commit \\(?1:[0-9a-fA-F]+\\)"      ; sha1
-          "\\(?: \\(?3:([^()]+)\\)\\)?\\)"         ; refs
-          "\\|"
-          "\\(?2:.+\\)\\)$"))                      ; "msg"
-
-(defconst magit-log-unique-re
-  (concat "^"
-          "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
-          "\\(?2:.*\\)$"))                         ; msg
-
-(defconst magit-log-cherry-re
-  (concat "^"
-          "\\(?8:[-+]\\) "                         ; cherry
-          "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
-          "\\(?2:.*\\)$"))                         ; msg
-
-(defconst magit-log-bisect-vis-re
-  (concat "^"
-          "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
-          "\\(?:\\(?3:([^()]+)\\) \\)?"            ; refs
-          "\\(?2:.+\\)$"))                         ; msg
-
-(defconst magit-log-bisect-log-re
-  (concat "^# "
-          "\\(?3:bad:\\|skip:\\|good:\\) "         ; "refs"
-          "\\[\\(?1:[^]]+\\)\\] "                  ; sha1
-          "\\(?2:.+\\)$"))                         ; msg
-
-(defconst magit-log-reflog-re
-  (concat "^"
-          "\\(?1:[^ ]+\\) "                        ; sha1
-          "\\[\\(?5:[^]]*\\)\\] "                  ; author
-          "\\(?6:[^ ]*\\) "                        ; date
-          "[^@]+@{\\(?9:[^}]+\\)} "                ; refsel
-          "\\(?10:merge\\|[^:]+\\)?:? ?"           ; refsub
-          "\\(?2:.+\\)?$"))                        ; msg
-
-(defconst magit-reflog-subject-re
-  (concat "\\([^ ]+\\) ?"                          ; command (1)
-          "\\(\\(?: ?-[^ ]+\\)+\\)?"               ; option  (2)
-          "\\(?: ?(\\([^)]+\\))\\)?"))             ; type    (3)
-
-(defvar magit-log-count nil)
-
-;;;;; Log Washing Functions
-
-(defun magit-wash-log (style &optional color longer)
-  (when color
-    (let ((ansi-color-apply-face-function
-           (lambda (beg end face)
-             (when face
-               (put-text-property beg end 'font-lock-face face)))))
-      (ansi-color-apply-on-region (point-min) (point-max))))
-  (when (eq style 'cherry)
-    (reverse-region (point-min) (point-max)))
-  (let ((magit-log-count 0))
-    (magit-wash-sequence (apply-partially 'magit-wash-log-line style
-                                          (magit-abbrev-length)))
-    (when (and longer
-               (= magit-log-count magit-log-cutoff-length))
-      (magit-with-section (section longer 'longer)
-        (insert-text-button (substitute-command-keys
-                             (format "Type \\<%s>\\[%s] to show more history"
-                                     'magit-log-mode-map
-                                     'magit-log-show-more-entries))
-                            'action (lambda (button)
-                                      (magit-log-show-more-entries))
-                            'follow-link t
-                            'mouse-face magit-item-highlight-face)))))
-
-(defun magit-wash-log-line (style abbrev)
-  (looking-at (cl-ecase style
-                (oneline magit-log-oneline-re)
-                (long    magit-log-long-re)
-                (unique  magit-log-unique-re)
-                (cherry  magit-log-cherry-re)
-                (reflog  magit-log-reflog-re)
-                (bisect-vis magit-log-bisect-vis-re)
-                (bisect-log magit-log-bisect-log-re)))
-  (magit-bind-match-strings
-      (hash msg refs graph author date gpg cherry refsel refsub)
-    (delete-region (point) (point-at-eol))
-    (when cherry
-      (magit-insert cherry (if (string= cherry "-")
-                               'magit-cherry-equivalent
-                             'magit-cherry-unmatched) ?\s))
-    (unless (eq style 'long)
-      (when (eq style 'bisect-log)
-        (setq hash (magit-rev-parse "--short" hash)))
-      (if hash
-          (insert (propertize hash 'face 'magit-log-sha1) ?\s)
-        (insert (make-string (1+ abbrev) ? ))))
-    (when graph
-      (if magit-log-format-graph-function
-          (insert (funcall magit-log-format-graph-function graph))
-        (insert graph)))
-    (when (and hash (eq style 'long))
-      (magit-insert (if refs hash (magit-rev-parse hash)) 'magit-log-sha1 ?\s))
-    (when refs
-      (magit-insert-ref-labels refs))
-    (when refsub
-      (insert (format "%-2s " refsel))
-      (insert (magit-log-format-reflog refsub)))
-    (when msg
-      (magit-insert msg (cl-case (and gpg (aref gpg 0))
-                          (?G 'magit-signature-good)
-                          (?B 'magit-signature-bad)
-                          (?U 'magit-signature-untrusted)
-                          (?N 'magit-signature-none)
-                          (t  'magit-log-message))))
-    (goto-char (line-beginning-position))
-    (magit-format-log-margin author date)
-    (if hash
-        (magit-with-section (section commit hash)
-          (when (derived-mode-p 'magit-log-mode)
-            (cl-incf magit-log-count))
-          (forward-line)
-          (when (eq style 'long)
-            (magit-wash-sequence
-             (lambda ()
-               (looking-at magit-log-long-re)
-               (when (match-string 2)
-                 (magit-wash-log-line 'long abbrev))))))
-      (forward-line)))
-  t)
-
-(defun magit-format-log-margin (&optional author date)
-  (when magit-log-show-margin
-    (cl-destructuring-bind (width characterp duration-spec)
-        magit-log-margin-spec
-      (if author
-          (magit-make-margin-overlay
-           (propertize (truncate-string-to-width
-                        author (- width 1 3 (if characterp 0 1)
-                                  magit-log-margin-timeunit-width 1)
-                        nil ?\s (make-string 1 magit-ellipsis))
-                       'face 'magit-log-author)
-           " "
-           (propertize (magit-format-duration
-                        (abs (truncate (- (float-time)
-                                          (string-to-number date))))
-                        (symbol-value duration-spec)
-                        magit-log-margin-timeunit-width)
-                       'face 'magit-log-date)
-           (propertize " " 'face 'fringe))
-        (magit-make-margin-overlay
-         (propertize (make-string (1- width) ?\s) 'face 'default)
-         (propertize " " 'face 'fringe))))))
-
 ;;; Modes (1)
 ;;;; Commit Mode
 ;;;;; Commit Core
@@ -6573,6 +6405,7 @@ With a prefix argument another branch can be chosen."
 
 ;;; Modes (2)
 ;;;; Log Mode
+;;;;; Log Core
 
 (define-derived-mode magit-log-mode magit-mode "Magit Log"
   "Mode for looking at git log.
@@ -6622,6 +6455,173 @@ Other key binding:
   (save-excursion
     (goto-char (point-min))
     (magit-format-log-margin)))
+
+;;;;; Log Washing
+
+(defconst magit-log-oneline-re
+  (concat "^"
+          "\\(?4:\\(?:[-_/|\\*o.] *\\)+ *\\)?"     ; graph
+          "\\(?:"
+          "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
+          "\\(?:\\(?3:([^()]+)\\) \\)?"            ; refs
+          "\\(?7:[BGUN]\\)?"                       ; gpg
+          "\\[\\(?5:[^]]*\\)\\]"                   ; author
+          "\\[\\(?6:[^]]*\\)\\]"                   ; date
+          "\\(?2:.*\\)"                            ; msg
+          "\\)?$"))
+
+(defconst magit-log-long-re
+  (concat "^"
+          "\\(?4:\\(?:[-_/|\\*o.] *\\)+ *\\)?"     ; graph
+          "\\(?:"
+          "\\(?:commit \\(?1:[0-9a-fA-F]+\\)"      ; sha1
+          "\\(?: \\(?3:([^()]+)\\)\\)?\\)"         ; refs
+          "\\|"
+          "\\(?2:.+\\)\\)$"))                      ; "msg"
+
+(defconst magit-log-unique-re
+  (concat "^"
+          "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
+          "\\(?2:.*\\)$"))                         ; msg
+
+(defconst magit-log-cherry-re
+  (concat "^"
+          "\\(?8:[-+]\\) "                         ; cherry
+          "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
+          "\\(?2:.*\\)$"))                         ; msg
+
+(defconst magit-log-bisect-vis-re
+  (concat "^"
+          "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
+          "\\(?:\\(?3:([^()]+)\\) \\)?"            ; refs
+          "\\(?2:.+\\)$"))                         ; msg
+
+(defconst magit-log-bisect-log-re
+  (concat "^# "
+	  "\\(?3:bad:\\|skip:\\|good:\\) "         ; "refs"
+	  "\\[\\(?1:[^]]+\\)\\] "                  ; sha1
+	  "\\(?2:.+\\)$"))                         ; msg
+
+(defconst magit-log-reflog-re
+  (concat "^"
+          "\\(?1:[^ ]+\\) "                        ; sha1
+          "\\[\\(?5:[^]]*\\)\\] "                  ; author
+          "\\(?6:[^ ]*\\) "                        ; date
+          "[^@]+@{\\(?9:[^}]+\\)} "                ; refsel
+          "\\(?10:merge\\|[^:]+\\)?:? ?"           ; refsub
+          "\\(?2:.+\\)?$"))                        ; msg
+
+(defconst magit-reflog-subject-re
+  (concat "\\([^ ]+\\) ?"                          ; command (1)
+          "\\(\\(?: ?-[^ ]+\\)+\\)?"               ; option  (2)
+          "\\(?: ?(\\([^)]+\\))\\)?"))             ; type    (3)
+
+(defvar magit-log-count nil)
+
+(defun magit-wash-log (style &optional color longer)
+  (when color
+    (let ((ansi-color-apply-face-function
+           (lambda (beg end face)
+             (when face
+               (put-text-property beg end 'font-lock-face face)))))
+      (ansi-color-apply-on-region (point-min) (point-max))))
+  (when (eq style 'cherry)
+    (reverse-region (point-min) (point-max)))
+  (let ((magit-log-count 0))
+    (magit-wash-sequence (apply-partially 'magit-wash-log-line style
+                                          (magit-abbrev-length)))
+    (when (and longer
+               (= magit-log-count magit-log-cutoff-length))
+      (magit-with-section (section longer 'longer)
+        (insert-text-button (substitute-command-keys
+                             (format "Type \\<%s>\\[%s] to show more history"
+                                     'magit-log-mode-map
+                                     'magit-log-show-more-entries))
+                            'action (lambda (button)
+                                      (magit-log-show-more-entries))
+                            'follow-link t
+                            'mouse-face magit-item-highlight-face)))))
+
+(defun magit-wash-log-line (style abbrev)
+  (looking-at (cl-ecase style
+                (oneline magit-log-oneline-re)
+                (long    magit-log-long-re)
+                (unique  magit-log-unique-re)
+                (cherry  magit-log-cherry-re)
+                (reflog  magit-log-reflog-re)
+                (bisect-vis magit-log-bisect-vis-re)
+                (bisect-log magit-log-bisect-log-re)))
+  (magit-bind-match-strings
+      (hash msg refs graph author date gpg cherry refsel refsub)
+    (delete-region (point) (point-at-eol))
+    (when cherry
+      (magit-insert cherry (if (string= cherry "-")
+                               'magit-cherry-equivalent
+                             'magit-cherry-unmatched) ?\s))
+    (unless (eq style 'long)
+      (when (eq style 'bisect-log)
+	(setq hash (magit-git-string "rev-parse" "--short" hash)))
+      (if hash
+          (insert (propertize hash 'face 'magit-log-sha1) ?\s)
+        (insert (make-string (1+ abbrev) ? ))))
+    (when graph
+      (if magit-log-format-graph-function
+          (insert (funcall magit-log-format-graph-function graph))
+        (insert graph)))
+    (when (and hash (eq style 'long))
+      (magit-insert (if refs hash (magit-rev-parse hash)) 'magit-log-sha1 ?\s))
+    (when refs
+      (magit-insert-ref-labels refs))
+    (when refsub
+      (insert (format "%-2s " refsel))
+      (insert (magit-log-format-reflog refsub)))
+    (when msg
+      (magit-insert msg (cl-case (and gpg (aref gpg 0))
+                          (?G 'magit-signature-good)
+                          (?B 'magit-signature-bad)
+                          (?U 'magit-signature-untrusted)
+                          (?N 'magit-signature-none)
+                          (t  'magit-log-message))))
+    (goto-char (line-beginning-position))
+    (magit-format-log-margin author date)
+    (if hash
+        (magit-with-section (section commit hash)
+          (when (derived-mode-p 'magit-log-mode)
+            (cl-incf magit-log-count))
+          (forward-line)
+          (when (eq style 'long)
+            (magit-wash-sequence
+             (lambda ()
+               (looking-at magit-log-long-re)
+               (when (match-string 2)
+                 (magit-wash-log-line 'long abbrev))))))
+      (forward-line)))
+  t)
+
+(defun magit-format-log-margin (&optional author date)
+  (when magit-log-show-margin
+    (cl-destructuring-bind (width characterp duration-spec)
+        magit-log-margin-spec
+      (if author
+          (magit-make-margin-overlay
+           (propertize (truncate-string-to-width
+                        author (- width 1 3 (if characterp 0 1)
+                                  magit-log-margin-timeunit-width 1)
+                        nil ?\s (make-string 1 magit-ellipsis))
+                       'face 'magit-log-author)
+           " "
+           (propertize (magit-format-duration
+                        (abs (truncate (- (float-time)
+                                          (string-to-number date))))
+                        (symbol-value duration-spec)
+                        magit-log-margin-timeunit-width)
+                       'face 'magit-log-date)
+           (propertize " " 'face 'fringe))
+        (magit-make-margin-overlay
+         (propertize (make-string (1- width) ?\s) 'face 'default)
+         (propertize " " 'face 'fringe))))))
+
+;;;;; Log Commands
 
 (defun magit-log-toggle-margin ()
   "Show or hide the log margin.
