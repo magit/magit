@@ -4117,24 +4117,6 @@ And refresh the current Magit buffer."
 (defvar magit-current-diff-range nil
   "Used internally when setting up magit diff sections.")
 
-(defun magit-wash-typechange-section (section file)
-  (setf (magit-section-info section) (list 'typechange file))
-  (let ((first-start (point-marker))
-        (second-start (progn (forward-line 1)
-                             (re-search-forward "^diff")
-                             (beginning-of-line)
-                             (point-marker))))
-    (save-restriction
-      (narrow-to-region first-start second-start)
-      (goto-char (point-min))
-      (magit-with-section (section diff file)
-        (magit-wash-diff-section section)))
-    (save-restriction
-      (narrow-to-region second-start (point-max))
-      (goto-char (point-min))
-      (magit-with-section (section diff file)
-        (magit-wash-diff-section section)))))
-
 (defun magit-wash-diff-section (section)
   (cond ((re-search-forward "^\\* Unmerged path \\(.*\\)" nil t)
          (forward-line 0)
@@ -4269,11 +4251,7 @@ And refresh the current Magit buffer."
     (save-restriction
       (narrow-to-region beg (point))
       (goto-char beg)
-      (cond ((eq status 'typechange)
-             (magit-insert-diff-title status file file)
-             (magit-wash-typechange-section section file))
-            (t
-             (magit-wash-diff-section section)))
+      (magit-wash-diff-section section)
       (goto-char (point-max)))))
 
 (defun magit-wash-raw-diffs (&optional staged)
