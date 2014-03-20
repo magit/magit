@@ -6875,15 +6875,23 @@ If there is no commit at point, then prompt for one."
            section))
         ((re-search-forward "^diff" nil t)
          (forward-line 0)
-         (let ((file (magit-diff-line-file))
+         (let ((file (cond
+                      ((looking-at "^diff --git \\(\".*\"\\) \\(\".*\"\\)$")
+                       (substring (magit-decode-git-path
+                                   (match-string-no-properties 2)) 2))
+                      ((looking-at "^diff --git ./\\(.*\\) ./\\(.*\\)$")
+                       (match-string-no-properties 2))
+                      ((looking-at "^diff --cc +\\(.*\\)$")
+                       (match-string-no-properties 1))))
                (end (save-excursion
                       (forward-line) ;; skip over "diff" line
                       (if (re-search-forward "^diff\\|^@@" nil t)
                           (goto-char (match-beginning 0))
                         (goto-char (point-max)))
                       (point-marker))))
-           (magit-wash-diffstats-postwork file)
-
+           (when magit-diffstat-cached-sections
+             (setf (magit-section-info (pop magit-diffstat-cached-sections))
+                   file))
            (let  ((status (cond
                            ((looking-at "^diff --cc")
                             'unmerged)
@@ -6920,20 +6928,6 @@ If there is no commit at point, then prompt for one."
              (goto-char end)
              (magit-wash-sequence #'magit-wash-hunk)))
          section)))
-
-(defun magit-diff-line-file ()
-  (cond ((looking-at "^diff --git \\(\".*\"\\) \\(\".*\"\\)$")
-         (substring (magit-decode-git-path (match-string-no-properties 2)) 2))
-        ((looking-at "^diff --git ./\\(.*\\) ./\\(.*\\)$")
-         (match-string-no-properties 2))
-        ((looking-at "^diff --cc +\\(.*\\)$")
-         (match-string-no-properties 1))
-        (t
-         nil)))
-
-(defun magit-wash-diffstats-postwork (file)
-  (when magit-diffstat-cached-sections
-    (setf (magit-section-info (pop magit-diffstat-cached-sections)) file)))
 
 (defun magit-insert-diff-title (status file file2)
   (insert (format "\t%-10s " (capitalize (symbol-name status)))
