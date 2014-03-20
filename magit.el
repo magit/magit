@@ -2365,7 +2365,7 @@ involving HEAD."
           (if end (cons beg end) beg))))))
 
 (defun magit-read-stash (prompt)
-  (let ((n (read-number "Show stash: " 0))
+  (let ((n (read-number prompt 0))
         (l (1- (length (magit-git-lines "stash" "list")))))
     (if (> n l)
         (user-error "No stash older than stash@{%i}" l)
@@ -6353,19 +6353,19 @@ With prefix argument, changes in staging area are kept.
 (defun magit-stash-apply (stash)
   "Apply a stash on top of the current working tree state.
 \('git stash apply stash@{N}')"
-  (interactive (list (magit-read-stash "Apply stash (number): ")))
+  (interactive (list (magit-read-stash "Apply stash: ")))
   (magit-run-git "stash" "apply" stash))
 
 (defun magit-stash-pop (stash)
   "Apply a stash on top of working tree state and remove from stash list.
 \('git stash pop stash@{N}')"
-  (interactive (list (magit-read-stash "Pop stash (number): ")))
+  (interactive (list (magit-read-stash "Pop stash: ")))
   (magit-run-git "stash" "pop" stash))
 
 (defun magit-stash-drop (stash)
   "Remove a stash from the stash list.
 \('git stash drop stash@{N}')"
-  (interactive (list (magit-read-stash "Drop stash (number): ")))
+  (interactive (list (magit-read-stash "Drop stash: ")))
   (magit-run-git "stash" "drop" stash))
 
 ;;;;; Cherry-Pick
@@ -6971,7 +6971,7 @@ range end, but for that `magit-show-commit' is a better option."
 A Stash consist of more than just one commit.  This command uses
 a special diff range so that the stashed changes actually were a
 single commit."
-  (interactive (list (magit-read-stash "Show stash (number): ")))
+  (interactive (list (magit-read-stash "Show stash: ")))
   (magit-mode-setup magit-commit-buffer-name
                     (if noselect 'display-buffer 'pop-to-buffer)
                     #'magit-diff-mode
