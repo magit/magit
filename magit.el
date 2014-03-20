@@ -6353,19 +6353,19 @@ With prefix argument, changes in staging area are kept.
 (defun magit-stash-apply (stash)
   "Apply a stash on top of the current working tree state.
 \('git stash apply stash@{N}')"
-  (interactive (list (magit-read-stash "Apply stash: ")))
+  (interactive (list (magit-read-stash "Apply stash (number): ")))
   (magit-run-git "stash" "apply" stash))
 
 (defun magit-stash-pop (stash)
   "Apply a stash on top of working tree state and remove from stash list.
 \('git stash pop stash@{N}')"
-  (interactive (list (magit-read-stash "Pop stash: ")))
+  (interactive (list (magit-read-stash "Pop stash (number): ")))
   (magit-run-git "stash" "pop" stash))
 
 (defun magit-stash-drop (stash)
   "Remove a stash from the stash list.
 \('git stash drop stash@{N}')"
-  (interactive (list (magit-read-stash "Drop stash: ")))
+  (interactive (list (magit-read-stash "Drop stash (number): ")))
   (magit-run-git "stash" "drop" stash))
 
 ;;;;; Cherry-Pick
@@ -6971,7 +6971,7 @@ range end, but for that `magit-show-commit' is a better option."
 A Stash consist of more than just one commit.  This command uses
 a special diff range so that the stashed changes actually were a
 single commit."
-  (interactive (list (magit-read-stash "Show stash: ")))
+  (interactive (list (magit-read-stash "Show stash (number): ")))
   (magit-mode-setup magit-commit-buffer-name
                     (if noselect 'display-buffer 'pop-to-buffer)
                     #'magit-diff-mode
