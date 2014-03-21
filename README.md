@@ -1,4 +1,4 @@
-[![Build Status](http://img.shields.io/travis-ci/magit/magit.png)](https://travis-ci.org/magit/magit)
+[![Build Status](https://travis-ci.org/magit/magit.svg?branch=master)](https://travis-ci.org/magit/magit)
 [![Gittip](http://img.shields.io/gittip/magit.png)](https://www.gittip.com/magit)
 
 It's Magit!  An Emacs mode for Git
