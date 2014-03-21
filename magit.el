@@ -235,7 +235,10 @@ aborts and returns that value."
 ;;;;; Processes
 
 (defcustom magit-git-executable
-  (or (executable-find "git") "git")
+  (or (and (eq system-type 'windows-nt)
+           (executable-find "git.exe"))
+      (executable-find "git")
+      "git")
   "The name of the Git executable."
   :group 'magit-process
   :type 'string)
