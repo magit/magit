@@ -7570,9 +7570,11 @@ blame to center around the line point is on."
              ,filename))))
 
 ;;;###autoload
-(defun magit-run-gitk ()
-  "Run `gitk --all' for the current git repository."
-  (interactive)
+(defun magit-run-gitk (arg)
+  "Run Gitk for the current git repository.
+Without a prefix argument run `gitk --all', with
+a prefix argument run gitk without any arguments."
+  (interactive "P")
   (let ((default-directory (magit-get-top-dir)))
     (cond
      ((eq system-type 'windows-nt)
@@ -7600,9 +7602,11 @@ blame to center around the line point is on."
                 (format "%s;%s"
                         (getenv "PATH")
                         (replace-regexp-in-string "/" "\\\\" git-bin-dir)))
-        (start-file-process "Gitk" nil "sh" magit-gitk-executable "--all")))
+        (apply #'start-file-process "Gitk" nil "sh" magit-gitk-executable
+               (if arg nil (list "--all")))))
      (t
-      (start-file-process "Gitk" nil magit-gitk-executable "--all")))))
+      (apply #'start-file-process "Gitk" nil "sh" magit-gitk-executable
+             (if arg nil (list "--all")))))))
 
 ;;;; Maintenance Tools
 
