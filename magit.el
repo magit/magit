@@ -4666,10 +4666,23 @@ With a prefix argument, prompt for a file to be staged instead."
       (magit-run-git "add" file)
     (magit-section-action stage (info)
       ([file untracked]
-       (magit-run-git "add"
-                      (if (use-region-p)
-                          (magit-section-region-siblings #'magit-section-info)
-                        info)))
+       (magit-run-git
+        (cond
+         ((use-region-p)
+          (cons "add" (magit-section-region-siblings #'magit-section-info)))
+         ((and (string-match-p "/$" info)
+               (file-exists-p (expand-file-name ".git" info)))
+          (let ((repo (read-string
+                       "Add submodule tracking remote repo (empty to abort): "
+                       (let ((default-directory
+                               (file-name-as-directory
+                                (expand-file-name info default-directory))))
+                         (magit-get "remote.origin.url")))))
+            (if (equal repo "")
+                (user-error "Abort")
+              (list "submodule" "add" repo (substring info 0 -1)))))
+         (t
+          (list "add" info)))))
       (untracked
        (magit-run-git "add" "--" (magit-git-lines "ls-files" "--other"
                                                   "--exclude-standard")))
