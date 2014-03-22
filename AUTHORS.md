@@ -37,6 +37,7 @@ Contributors
 - Andreas Fuchs <asf@boinkor.net>
 - Andreas Liljeqvist <andreas.liljeqvist@robacks.se>
 - Andreas Rottmann <a.rottmann@gmx.at>
+- Andrei Chițu <andrei.chitu1@gmail.com>
 - Andrew Kirkpatrick <andrew.kirkpatrick@adelaide.edu.au>
 - Andrey Smirnov <andrew.smirnov@gmail.com>
 - Bastian Beischer <beischer@physik.rwth-aachen.de>
@@ -158,6 +159,7 @@ Contributors
 - Takafumi Arakaki <aka.tkf@gmail.com>
 - Teruki Shigitani <teruki.shigitani@gmail.com>
 - Thierry Volpiatto <thierry.volpiatto@gmail.com>
+- Thomas Frössman <thomasf@jossystem.se>
 - Thomas Jost <thomas.jost@gmail.com>
 - Thomas Riccardi <riccardi.thomas@gmail.com>
 - Tibor Simko <tibor.simko@cern.ch>
