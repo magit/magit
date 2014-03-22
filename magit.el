@@ -4011,7 +4011,8 @@ the current repository."
               (and file (string-prefix-p topdir file)
                    (not (string-prefix-p gitdir file))
                    (member (file-relative-name file topdir) tracked)
-                   (auto-revert-handler)))))))))
+                   (let ((auto-revert-mode t))
+                     (auto-revert-handler))))))))))
 
 ;;; (misplaced)
 ;;;; Diff Options
