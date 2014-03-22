@@ -5916,6 +5916,8 @@ depending on the value of option `magit-commit-squash-commit'.
            ;; No entry for file, create it.
            (goto-char (point-max))
            (forward-comment -1000)
+           (unless (or (bobp) (looking-back "\\(\\*[^\n]+\\|\n\\)"))
+             (insert "\n"))
            (insert (format "\n* %s" file))
            (when fun
              (insert (format " (%s)" fun)))
