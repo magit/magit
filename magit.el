@@ -5922,22 +5922,21 @@ depending on the value of option `magit-commit-squash-commit'.
            (insert ": "))
           (fun
            ;; found entry for file, look for fun
-           (let ((limit (or (save-excursion
-                              (and (re-search-forward "^\\* " nil t)
-                                   (match-beginning 0)))
-                            (point-max))))
+           (let ((limit (save-excursion
+                          (or (and (re-search-forward "^\\* " nil t)
+                                   (match-beginning 0))
+                              (progn (point-max)
+                                     (forward-comment -1000))))))
              (cond ((re-search-forward
                      (format "(.*\\<%s\\>.*):" (regexp-quote fun))
                      limit t)
                     ;; found it, goto end of current entry
                     (if (re-search-forward "^(" limit t)
                         (backward-char 2)
-                      (goto-char limit))
-                    (forward-comment -1000))
+                      (goto-char limit)))
                    (t
                     ;; not found, insert new entry
                     (goto-char limit)
-                    (forward-comment -1000)
                     (if (bolp)
                         (open-line 1)
                       (newline))
