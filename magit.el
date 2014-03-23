@@ -1123,7 +1123,7 @@ Many Magit faces inherit from this one by default."
   :group 'magit-faces)
 
 (defface magit-diff-file-header
-  '((t :inherit diff-file-header))
+  '((t :bold t))
   "Face for diff file header lines."
   :group 'magit-faces)
 
@@ -6851,7 +6851,8 @@ If there is no commit at point, then prompt for one."
       (delete-region (point) (1+ (line-end-position)))
       (unless (derived-mode-p 'magit-status-mode)
         (magit-with-section
-            (section diff dst (format "\tUnmerged   %s\n" dst))))))
+            (section diff dst (propertize (format "unmerged   %s\n" dst)
+                                          'face 'magit-diff-file-header))))))
    ((looking-at "^diff \\(?:--git \\(.*\\) \\(.*\\)\\|--cc \\(.*\\)\\)$")
     (let (src dst status)
       (if (match-end 1)
@@ -6866,13 +6867,15 @@ If there is no commit at point, then prompt for one."
       (while (not (or (eobp) (looking-at magit-diff-headline-re)))
         (if (looking-at "^new mode")
             (delete-region (point) (1+ (line-end-position)))
-          (when (looking-at "^\\(new\\|rename\\|deleted\\)")
+          (when (looking-at "^\\(new file\\|rename\\|deleted\\)")
             (setq status (match-string 1)))
           (delete-region (point) (1+ (line-end-position)))))
       (magit-with-section
-          (section diff dst (if (equal status "rename")
-                                (format "\tRenamed    %s   (from %s)" dst src)
-                              (format "\t%-10s %s\n" (capitalize status) dst))
+          (section diff dst
+                   (propertize (if (equal status "rename")
+                                   (format "renamed    %s => %s\n" src dst)
+                                 (format "%-10s %s\n" status dst))
+                               'face 'magit-diff-file-header)
                    nil (or (equal status "deleted")
                            (derived-mode-p 'magit-status-mode)))
         (setf (magit-section-diff-status section) status)
