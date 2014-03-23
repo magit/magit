@@ -7561,7 +7561,7 @@ non-nil, then autocompletion will offer directory names."
   "Run `git gui' for the current git repository."
   (interactive)
   (let* ((default-directory (magit-get-top-dir)))
-    (start-file-process "Git Gui" nil magit-git-executable "gui")))
+    (call-process magit-git-executable nil 0 nil "gui")))
 
 ;;;###autoload
 (defun magit-run-git-gui-blame (commit filename &optional linenum)
@@ -7584,8 +7584,7 @@ blame to center around the line point is on."
                           (file-name-directory (buffer-file-name)))))
                 (line-number-at-pos)))))
   (let ((default-directory (magit-get-top-dir)))
-    (apply 'start-file-process "Git Gui Blame" nil
-           magit-git-executable "gui" "blame"
+    (apply #'call-process magit-git-executable nil 0 nil "gui" "blame"
            `(,@(and linenum (list (format "--line=%d" linenum)))
              ,commit
              ,filename))))
@@ -7596,7 +7595,7 @@ blame to center around the line point is on."
 Without a prefix argument run `gitk --all', with
 a prefix argument run gitk without any arguments."
   (interactive "P")
-  (apply #'start-file-process "Gitk" nil "sh" magit-gitk-executable
+  (apply #'call-process magit-gitk-executable nil 0 nil
          (if arg nil (list "--all"))))
 
 ;;;; Maintenance Tools
