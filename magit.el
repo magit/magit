@@ -6795,8 +6795,8 @@ If there is no commit at point, then prompt for one."
                        (t
                         (format "Changes in %s" range))))
         #'magit-wash-diffs
-      "diff" (magit-diff-U-arg)
-      (and magit-show-diffstat "--patch-with-stat")
+      "diff" "-p" (magit-diff-U-arg)
+      (and magit-show-diffstat "--stat")
       range args "--")))
 
 ;;;;; Diff Washing
