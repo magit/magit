@@ -4932,12 +4932,11 @@ member of ARGS, or to the working file otherwise."
     (diff-fixup-modifs (point-min) (point-max))))
 
 (defun magit-diff-item-insert-header (diff buf)
-  (magit-insert-region (magit-section-content-beginning diff)
-                       (if (magit-section-children diff)
-                           (magit-section-beginning
-                            (car (magit-section-children diff)))
-                         (magit-section-end diff))
-                       buf))
+  (let ((src (magit-section-diff-file2 diff))
+        (dst (magit-section-info diff)))
+    (with-current-buffer buf
+      (insert (format "diff --git a/%s b/%s\n--- a/%s\n+++ b/%s\n"
+                      src dst src dst)))))
 
 (defun magit-insert-region (beg end buf)
   (let ((text (buffer-substring-no-properties beg end)))
