@@ -236,10 +236,24 @@ aborts and returns that value."
 
 (defcustom magit-git-executable
   (or (and (eq system-type 'windows-nt)
-           (executable-find "git.exe"))
-      (executable-find "git")
-      "git")
-  "The name of the Git executable."
+           ;; On Windows asking for "git" from $PATH might also return
+           ;; a "git.exe" or "git.cmd".  Using "bin/git.exe" directly
+           ;; is faster than using one of the wrappers "cmd/git.exe"
+           ;; or "cmd/git.cmd".  The wrappers are likely to come
+           ;; earlier on $PATH, and so we have to exlicitly use
+           ;; the former.
+           (let ((exe (executable-find "git.exe")))
+             (when exe
+               (let ((alt (directory-file-name (file-name-directory exe))))
+                 (if (and (equal (file-name-nondirectory alt) "cmd")
+                          (setq alt (expand-file-name
+                                     (convert-standard-filename "bin/git.exe")
+                                     (file-name-directory alt)))
+                          (file-executable-p alt))
+                     alt
+                   exe)))))
+      (executable-find "git") "git")
+  "The Git executable used by Magit."
   :group 'magit-process
   :type 'string)
 
