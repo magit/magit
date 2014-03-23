@@ -6845,75 +6845,50 @@ If there is no commit at point, then prompt for one."
     diffstats))
 
 (defun magit-wash-diff (diffstat)
-  (magit-with-section (section diff (buffer-substring-no-properties
-                                     (line-beginning-position)
-                                     (line-end-position)))
-    (cond
-        ((looking-at "^\\* Unmerged path \\(.*\\)")
-         (let ((file (magit-decode-git-path (match-string 1))))
-           (delete-region (point) (1+ (line-end-position)))
-           (if (derived-mode-p 'magit-status-mode)
-               (setq section nil)
-             (insert "\tUnmerged " file "\n")
-             (setf (magit-section-diff-status section) 'unmerged)
-             (setf (magit-section-info section) file))))
-        ((looking-at "^diff")
-         (let ((file (cond
-                      ((looking-at "^diff --git \\(\".*\"\\) \\(\".*\"\\)$")
-                       (substring (magit-decode-git-path
-                                   (match-string-no-properties 2)) 2))
-                      ((looking-at "^diff --git ./\\(.*\\) ./\\(.*\\)$")
-                       (match-string-no-properties 2))
-                      ((looking-at "^diff --cc +\\(.*\\)$")
-                       (match-string-no-properties 1))))
-               (end (save-excursion
-                      (forward-line) ;; skip over "diff" line
-                      (if (re-search-forward magit-diff-headline-re nil t)
-                          (goto-char (match-beginning 0))
-                        (goto-char (point-max)))
-                      (point-marker))))
-           (let  ((status (cond
-                           ((looking-at "^diff --cc")
-                            'unmerged)
-                           ((save-excursion
-                              (re-search-forward "^new file" end t))
-                            'new)
-                           ((save-excursion
-                              (re-search-forward "^deleted" end t))
-                            (setf (magit-section-hidden section) t)
-                            'deleted)
-                           ((save-excursion
-                              (re-search-forward "^rename" end t))
-                            'renamed)
-                           (t
-                            'modified)))
-                  (file2 (cond
-                          ((save-excursion
-                             (re-search-forward "^rename from \\(.*\\)"
-                                                    end t))
-                           (match-string-no-properties 1)))))
-             (when diffstat
-               (setf (magit-section-info diffstat) file))
-             (setf (magit-section-diff-status section) status)
-             (setf (magit-section-info        section) file)
-             (setf (magit-section-diff-file2  section) (or file2 file))
-             (setf (magit-section-diff-range  section) magit-current-diff-range)
-             (insert (format "\t%-10s " (capitalize (symbol-name status)))
-                     file
-                     (if (eq status 'renamed) (format "   (from %s)" file2) "")
-                     "\n")
-             (when (re-search-forward
-                    "\\(--- \\(.*\\)\n\\+\\+\\+ \\(.*\\)\n\\)" nil t)
-               (magit-put-face-property (match-beginning 1) (match-end 1)
-                                        'magit-diff-hunk-header)
-               (magit-put-face-property (match-beginning 2) (match-end 2)
-                                        'magit-diff-file-header)
-               (magit-put-face-property (match-beginning 3) (match-end 3)
-                                        'magit-diff-file-header))
-             (goto-char end)
-             (magit-wash-sequence #'magit-wash-hunk))))
-        (t
-         (setq section nil)))))
+  (cond
+   ((looking-at "^\\* Unmerged path \\(.*\\)")
+    (let ((dst (magit-decode-git-path (match-string 1))))
+      (delete-region (point) (1+ (line-end-position)))
+      (unless (derived-mode-p 'magit-status-mode)
+        (magit-with-section
+            (section diff dst (format "\tUnmerged   %s\n" dst))))))
+   ((looking-at "^diff \\(?:--git \\(.*\\) \\(.*\\)\\|--cc \\(.*\\)\\)$")
+    (let (src dst beg status)
+      (if (match-end 1)
+          (setq dst (substring (magit-decode-git-path (match-string 2)) 2)
+                src (substring (magit-decode-git-path (match-string 1)) 2)
+                status "modified")
+        (setq dst (magit-decode-git-path (match-string 3))
+              src dst status "unmerged"))
+      (when diffstat
+        (setf (magit-section-info diffstat) dst))
+      (save-excursion
+        (forward-line)
+        (while (not (or (eobp) (looking-at magit-diff-headline-re)))
+          (if (looking-at "\\(--- \\(.*\\)\n\\+\\+\\+ \\(.*\\)\n\\)")
+              (progn
+                (magit-put-face-property (match-beginning 1) (match-end 1)
+                                         'magit-diff-hunk-header)
+                (magit-put-face-property (match-beginning 2) (match-end 2)
+                                         'magit-diff-file-header)
+                (magit-put-face-property (match-beginning 3) (match-end 3)
+                                         'magit-diff-file-header)
+                (forward-line 2))
+            (when (looking-at "^\\(new\\|rename\\|deleted\\)")
+              (setq status (match-string 1)))
+            (forward-line)))
+        (setq beg (point-marker)))
+      (magit-with-section
+          (section diff dst (if (equal status "rename")
+                                (format "\tRenamed    %s   (from %s)" dst src)
+                              (format "\t%-10s %s\n" (capitalize status) dst))
+                   nil (or (equal status "deleted")
+                           (derived-mode-p 'magit-status-mode)))
+        (setf (magit-section-diff-status section) status)
+        (setf (magit-section-diff-file2  section) src)
+        (goto-char beg)
+        (move-marker beg nil)
+        (magit-wash-sequence #'magit-wash-hunk))))))
 
 (defun magit-wash-hunk ()
   (when (looking-at "^@@\\(@\\)?.+")
