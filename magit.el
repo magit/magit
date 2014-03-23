@@ -6853,7 +6853,7 @@ If there is no commit at point, then prompt for one."
         (magit-with-section
             (section diff dst (format "\tUnmerged   %s\n" dst))))))
    ((looking-at "^diff \\(?:--git \\(.*\\) \\(.*\\)\\|--cc \\(.*\\)\\)$")
-    (let (src dst beg status)
+    (let (src dst status)
       (if (match-end 1)
           (setq dst (substring (magit-decode-git-path (match-string 2)) 2)
                 src (substring (magit-decode-git-path (match-string 1)) 2)
@@ -6862,22 +6862,13 @@ If there is no commit at point, then prompt for one."
               src dst status "unmerged"))
       (when diffstat
         (setf (magit-section-info diffstat) dst))
-      (save-excursion
-        (forward-line)
-        (while (not (or (eobp) (looking-at magit-diff-headline-re)))
-          (if (looking-at "\\(--- \\(.*\\)\n\\+\\+\\+ \\(.*\\)\n\\)")
-              (progn
-                (magit-put-face-property (match-beginning 1) (match-end 1)
-                                         'magit-diff-hunk-header)
-                (magit-put-face-property (match-beginning 2) (match-end 2)
-                                         'magit-diff-file-header)
-                (magit-put-face-property (match-beginning 3) (match-end 3)
-                                         'magit-diff-file-header)
-                (forward-line 2))
-            (when (looking-at "^\\(new\\|rename\\|deleted\\)")
-              (setq status (match-string 1)))
-            (forward-line)))
-        (setq beg (point-marker)))
+      (delete-region (point) (1+ (line-end-position)))
+      (while (not (or (eobp) (looking-at magit-diff-headline-re)))
+        (if (looking-at "^new mode")
+            (delete-region (point) (1+ (line-end-position)))
+          (when (looking-at "^\\(new\\|rename\\|deleted\\)")
+            (setq status (match-string 1)))
+          (delete-region (point) (1+ (line-end-position)))))
       (magit-with-section
           (section diff dst (if (equal status "rename")
                                 (format "\tRenamed    %s   (from %s)" dst src)
@@ -6886,8 +6877,6 @@ If there is no commit at point, then prompt for one."
                            (derived-mode-p 'magit-status-mode)))
         (setf (magit-section-diff-status section) status)
         (setf (magit-section-diff-file2  section) src)
-        (goto-char beg)
-        (move-marker beg nil)
         (magit-wash-sequence #'magit-wash-hunk))))))
 
 (defun magit-wash-hunk ()
