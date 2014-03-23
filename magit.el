@@ -843,7 +843,7 @@ problematic option a member of the default value."
 
 ;; This variable is only a temporary hack.  Eventually it
 ;; will be possible to set these arguments in the diff popup.
-(defvar magit-diff-extra-options nil)
+(defvar magit-diff-extra-options '("-M" "-C"))
 
 (defcustom magit-show-diffstat t
   "Whether to show diffstat in diff and commit buffers."
