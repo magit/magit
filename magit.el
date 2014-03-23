@@ -6991,7 +6991,7 @@ If there is no commit at point, then prompt for one."
             ((looking-at (if merging  "^\\(\\+\\| \\+\\)" "^\\+"))
              (magit-diff-highlight-whitespace merging)
              'magit-diff-add)
-            ((looking-at (if merging  "^\\(-\\| \\-\\)" "^-"))
+            ((looking-at (if merging  "^\\(-\\| -\\)" "^-"))
              (magit-diff-highlight-whitespace merging)
              'magit-diff-del)
             (t
