@@ -236,10 +236,24 @@ aborts and returns that value."
 
 (defcustom magit-git-executable
   (or (and (eq system-type 'windows-nt)
-           (executable-find "git.exe"))
-      (executable-find "git")
-      "git")
-  "The name of the Git executable."
+           ;; On Windows asking for "git" from $PATH might also return
+           ;; a "git.exe" or "git.cmd".  Using "bin/git.exe" directly
+           ;; is faster than using one of the wrappers "cmd/git.exe"
+           ;; or "cmd/git.cmd".  The wrappers are likely to come
+           ;; earlier on $PATH, and so we have to exlicitly use
+           ;; the former.
+           (let ((exe (executable-find "git.exe")))
+             (when exe
+               (let ((alt (directory-file-name (file-name-directory exe))))
+                 (if (and (equal (file-name-nondirectory alt) "cmd")
+                          (setq alt (expand-file-name
+                                     (convert-standard-filename "bin/git.exe")
+                                     (file-name-directory alt)))
+                          (file-executable-p alt))
+                     alt
+                   exe)))))
+      (executable-find "git") "git")
+  "The Git executable used by Magit."
   :group 'magit-process
   :type 'string)
 
@@ -250,9 +264,15 @@ tramp to connect to servers with ancient Git versions."
   :group 'magit-process
   :type '(repeat string))
 
-(defcustom magit-gitk-executable (executable-find "gitk")
+(defcustom magit-gitk-executable
+  (or (eq system-type 'windows-nt)
+      (let ((exe (expand-file-name
+                  "gitk" (file-name-nondirectory magit-git-executable))))
+        (and (file-executable-p exe) exe))
+      (executable-find "gitk") "gitk")
   "The Gitk executable."
   :group 'magit-process
+  :set-after '(magit-git-executable)
   :type 'string)
 
 (defcustom magit-emacsclient-executable
@@ -7541,7 +7561,7 @@ non-nil, then autocompletion will offer directory names."
   "Run `git gui' for the current git repository."
   (interactive)
   (let* ((default-directory (magit-get-top-dir)))
-    (start-file-process "Git Gui" nil magit-git-executable "gui")))
+    (call-process magit-git-executable nil 0 nil "gui")))
 
 ;;;###autoload
 (defun magit-run-git-gui-blame (commit filename &optional linenum)
@@ -7564,8 +7584,7 @@ blame to center around the line point is on."
                           (file-name-directory (buffer-file-name)))))
                 (line-number-at-pos)))))
   (let ((default-directory (magit-get-top-dir)))
-    (apply 'start-file-process "Git Gui Blame" nil
-           magit-git-executable "gui" "blame"
+    (apply #'call-process magit-git-executable nil 0 nil "gui" "blame"
            `(,@(and linenum (list (format "--line=%d" linenum)))
              ,commit
              ,filename))))
@@ -7576,38 +7595,8 @@ blame to center around the line point is on."
 Without a prefix argument run `gitk --all', with
 a prefix argument run gitk without any arguments."
   (interactive "P")
-  (let ((default-directory (magit-get-top-dir)))
-    (cond
-     ((eq system-type 'windows-nt)
-      ;; Gitk is a shell script, and Windows doesn't know how to
-      ;; "execute" it.  The Windows version of Git comes with an
-      ;; implementation of "sh" and everything else it needs, but
-      ;; Windows users might not have added the directory where it's
-      ;; installed to their path
-      (let* ((git-bin-dir
-             ;; According to #824, when using stand-alone installation
-             ;; Gitk maybe installed in ...cmd or ...bin; while Sh
-             ;; is installed in ...bin.
-             (expand-file-name "bin"
-                               (file-name-directory
-                                (directory-file-name
-                                 (file-name-directory
-                                  magit-gitk-executable)))))
-            ;; Adding it onto the end so that anything the user
-            ;; specified will get tried first.  Emacs looks in
-            ;; exec-path; PATH is the environment variable inherited by
-            ;; the process.  I need to change both.
-            (exec-path (append exec-path (list git-bin-dir)))
-            (process-environment process-environment))
-        (setenv "PATH"
-                (format "%s;%s"
-                        (getenv "PATH")
-                        (replace-regexp-in-string "/" "\\\\" git-bin-dir)))
-        (apply #'start-file-process "Gitk" nil "sh" magit-gitk-executable
-               (if arg nil (list "--all")))))
-     (t
-      (apply #'start-file-process "Gitk" nil "sh" magit-gitk-executable
-             (if arg nil (list "--all")))))))
+  (apply #'call-process magit-gitk-executable nil 0 nil
+         (if arg nil (list "--all"))))
 
 ;;;; Maintenance Tools
 
