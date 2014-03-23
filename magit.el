@@ -841,6 +841,10 @@ problematic option a member of the default value."
 
 (put 'magit-diff-options 'permanent-local t)
 
+;; This variable is only a temporary hack.  Eventually it
+;; will be possible to set these arguments in the diff popup.
+(defvar magit-diff-extra-options nil)
+
 (defcustom magit-show-diffstat t
   "Whether to show diffstat in diff and commit buffers."
   :package-version '(magit . "2.0.0")
@@ -4349,13 +4353,13 @@ can be used to override this."
         (magit-diff-options (copy-sequence magit-diff-options)))
     (magit-git-insert-section (unstaged "Unstaged changes:")
         #'magit-wash-diffs
-      "-c" "diff.submodule=short" "diff")))
+      "-c" "diff.submodule=short" "diff" magit-diff-extra-options)))
 
 (defun magit-insert-staged-changes ()
   (let ((magit-current-diff-range (cons "HEAD" 'index)))
     (magit-git-insert-section (staged "Staged changes:")
         #'magit-wash-diffs
-      "-c" "diff.submodule=short" "diff" "--cached")))
+      "-c" "diff.submodule=short" "diff" "--cached" magit-diff-extra-options)))
 
 (defun magit-insert-unpulled-or-recent-commits ()
   (let ((tracked (magit-get-tracked-branch nil t)))
@@ -6797,6 +6801,7 @@ If there is no commit at point, then prompt for one."
         #'magit-wash-diffs
       "diff" "-p" (magit-diff-U-arg)
       (and magit-show-diffstat "--stat")
+      magit-diff-extra-options
       range args "--")))
 
 ;;;;; Diff Washing
