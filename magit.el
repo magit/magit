@@ -6867,46 +6867,43 @@ If there is no commit at point, then prompt for one."
 (defvar magit-current-diff-range nil
   "Used internally when setting up magit diff sections.")
 
-(defvar-local magit-diffstat-cached-sections nil)
-(put 'magit-diffstat-cached-sections 'permanent-local t)
-
 (defun magit-wash-diffs ()
-  (magit-wash-diffstats)
-  (when (re-search-forward "^diff" nil t)
-    (goto-char (line-beginning-position))
-    (magit-wash-sequence #'magit-wash-diff))
+  (let ((diffstats (magit-wash-diffstats)))
+    (when (re-search-forward "^diff" nil t)
+      (goto-char (line-beginning-position))
+      (magit-wash-sequence
+       (lambda ()
+         (magit-wash-diff (pop diffstats))))))
   (goto-char (point-max))
   (magit-xref-insert-buttons))
 
 (defun magit-wash-diffstats ()
-  (let ((beg (point)))
+  (let (heading diffstats (beg (point)))
     (when (re-search-forward "^ ?\\([0-9]+ +files? change[^\n]*\n\\)" nil t)
-      (let ((heading (match-string-no-properties 1)))
-        (delete-region (match-beginning 0) (match-end 0))
-        (goto-char beg)
-        (magit-with-section (section diffstats 'diffstats heading)
-          (magit-wash-sequence #'magit-wash-diffstat)))
-      (setq magit-diffstat-cached-sections
-            (nreverse magit-diffstat-cached-sections)))))
+      (setq heading (match-string-no-properties 1))
+      (delete-region (match-beginning 0) (match-end 0))
+      (goto-char beg)
+      (magit-with-section (section diffstats 'diffstats heading)
+        (magit-wash-sequence
+         (lambda ()
+           (when (looking-at magit-diff-statline-re)
+             (magit-bind-match-strings (file sep cnt add del)
+               (delete-region (point) (1+ (line-end-position)))
+               (magit-with-section (s diffstat 'diffstat)
+                 (insert " " file sep cnt " ")
+                 (when add (insert (propertize add 'face 'magit-diff-add)))
+                 (when del (insert (propertize del 'face 'magit-diff-del)))
+                 (insert "\n"))))))
+        (setq diffstats (magit-section-children section))))
+    diffstats))
 
-(defun magit-wash-diffstat ()
-  (when (looking-at magit-diff-statline-re)
-    (magit-bind-match-strings (file sep cnt add del)
-      (delete-region (point) (1+ (line-end-position)))
-      (magit-with-section (section diffstat 'diffstat)
-        (insert " " file sep cnt " ")
-        (when add (insert (propertize add 'face 'magit-diff-add)))
-        (when del (insert (propertize del 'face 'magit-diff-del)))
-        (insert "\n")
-        (push section magit-diffstat-cached-sections)))))
-
-(defun magit-wash-diff ()
+(defun magit-wash-diff (diffstat)
   (magit-with-section (section diff (buffer-substring-no-properties
                                      (line-beginning-position)
                                      (line-end-position)))
-    (setq section (magit-wash-diff-section section))))
+    (setq section (magit-wash-diff-section section diffstat))))
 
-(defun magit-wash-diff-section (section)
+(defun magit-wash-diff-section (section &optional diffstat)
   (cond ((re-search-forward "^\\* Unmerged path \\(.*\\)" nil t)
          (forward-line 0)
          (let ((file (magit-decode-git-path (match-string-no-properties 1))))
@@ -6931,9 +6928,6 @@ If there is no commit at point, then prompt for one."
                           (goto-char (match-beginning 0))
                         (goto-char (point-max)))
                       (point-marker))))
-           (when magit-diffstat-cached-sections
-             (setf (magit-section-info (pop magit-diffstat-cached-sections))
-                   file))
            (let  ((status (cond
                            ((looking-at "^diff --cc")
                             'unmerged)
@@ -6954,6 +6948,8 @@ If there is no commit at point, then prompt for one."
                              (re-search-forward "^rename from \\(.*\\)"
                                                     end t))
                            (match-string-no-properties 1)))))
+             (when diffstat
+               (setf (magit-section-info diffstat) file))
              (setf (magit-section-diff-status section) status)
              (setf (magit-section-info        section) file)
              (setf (magit-section-diff-file2  section) (or file2 file))
