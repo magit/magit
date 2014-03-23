@@ -4082,54 +4082,6 @@ And refresh the current Magit buffer."
   (setq-local magit-diff-options (default-value 'magit-diff-options))
   (magit-refresh))
 
-;;;; Raw Diff Washing
-
-(defun magit-insert-diff (section file status)
-  (let ((beg (point)))
-    (apply 'magit-git-insert "-c" "diff.submodule=short" "diff"
-           `(,(magit-diff-U-arg) ,@magit-diff-options "--" ,file))
-    (unless (eq (char-before) ?\n)
-      (insert "\n"))
-    (save-restriction
-      (narrow-to-region beg (point))
-      (goto-char beg)
-      (magit-wash-diff-section section)
-      (goto-char (point-max)))))
-
-(defun magit-wash-raw-diffs (&optional staged)
-  (let (previous)
-    (magit-wash-sequence
-     (lambda ()
-       (setq previous (magit-wash-raw-diff previous staged))))))
-
-(defun magit-wash-raw-diff (previous staged)
-  (when (looking-at
-         ":\\([0-7]+\\) \\([0-7]+\\) [0-9a-f]+ [0-9a-f]+ \\(.\\)[0-9]*\t\\([^\t\n]+\\)$")
-    (let ((file (magit-decode-git-path (match-string-no-properties 4)))
-          (status (cl-ecase (string-to-char (match-string-no-properties 3))
-                    (?A 'new)
-                    (?C 'copy)
-                    (?D 'deleted)
-                    (?M 'modified)
-                    (?T 'typechange)
-                    (?U 'unmerged)
-                    (?X 'unknown))))
-      (delete-region (point) (1+ (line-end-position)))
-      (unless (or ;; Unmerged files get two entries; we ignore the second.
-                  (equal file previous)
-                  ;; Ignore staged, unmerged files.
-                  (and staged (eq status 'unmerged)))
-        (magit-with-section (section diff file nil nil
-                                     (not (derived-mode-p
-                                           'magit-diff-mode
-                                           'magit-commit-mode)))
-          (if (not (magit-section-hidden section))
-              (magit-insert-diff section file status)
-            (setf (magit-section-diff-status section) status)
-            (setf (magit-section-needs-refresh-on-show section) t)
-            (magit-insert-diff-title status file nil))))
-      file)))
-
 ;;; Modes (1)
 ;;;; Commit Mode
 ;;;;; Commit Core
@@ -4396,20 +4348,14 @@ can be used to override this."
   (let ((magit-current-diff-range (cons 'index 'working))
         (magit-diff-options (copy-sequence magit-diff-options)))
     (magit-git-insert-section (unstaged "Unstaged changes:")
-        #'magit-wash-raw-diffs
-      "diff-files")))
+        #'magit-wash-diffs
+      "-c" "diff.submodule=short" "diff")))
 
 (defun magit-insert-staged-changes ()
-  (let ((no-commit (not (magit-git-success "log" "-1" "HEAD"))))
-    (when (or no-commit (magit-anything-staged-p))
-      (let ((magit-current-diff-range (cons "HEAD" 'index))
-            (base (if no-commit
-                      (magit-git-string "mktree")
-                    "HEAD"))
-            (magit-diff-options (append '("--cached") magit-diff-options)))
-        (magit-git-insert-section (staged "Staged changes:")
-            (apply-partially #'magit-wash-raw-diffs t)
-          "diff-index" "--cached" base)))))
+  (let ((magit-current-diff-range (cons "HEAD" 'index)))
+    (magit-git-insert-section (staged "Staged changes:")
+        #'magit-wash-diffs
+      "-c" "diff.submodule=short" "diff" "--cached")))
 
 (defun magit-insert-unpulled-or-recent-commits ()
   (let ((tracked (magit-get-tracked-branch nil t)))
@@ -6855,6 +6801,8 @@ If there is no commit at point, then prompt for one."
 
 ;;;;; Diff Washing
 
+(defconst magit-diff-headline-re "^\\(@@@?\\|diff\\|\\* Unmerged path\\)")
+
 (defconst magit-diff-statline-re
   (concat "^ ?"
           "\\(.*\\)"     ; file
@@ -6868,7 +6816,7 @@ If there is no commit at point, then prompt for one."
 
 (defun magit-wash-diffs ()
   (let ((diffstats (magit-wash-diffstats)))
-    (when (re-search-forward "^diff" nil t)
+    (when (re-search-forward "^\\(diff\\|\\* Unmerged path\\)" nil t)
       (goto-char (line-beginning-position))
       (magit-wash-sequence
        (lambda ()
@@ -6900,19 +6848,16 @@ If there is no commit at point, then prompt for one."
   (magit-with-section (section diff (buffer-substring-no-properties
                                      (line-beginning-position)
                                      (line-end-position)))
-    (setq section (magit-wash-diff-section section diffstat))))
-
-(defun magit-wash-diff-section (section &optional diffstat)
-  (cond ((re-search-forward "^\\* Unmerged path \\(.*\\)" nil t)
-         (forward-line 0)
-         (let ((file (magit-decode-git-path (match-string-no-properties 1))))
-           (delete-region (point) (line-end-position))
-           (insert "\tUnmerged " file "\n")
-           (setf (magit-section-diff-status section) 'unmerged)
-           (setf (magit-section-info section) file)
-           section))
-        ((re-search-forward "^diff" nil t)
-         (forward-line 0)
+    (cond
+        ((looking-at "^\\* Unmerged path \\(.*\\)")
+         (let ((file (magit-decode-git-path (match-string 1))))
+           (delete-region (point) (1+ (line-end-position)))
+           (if (derived-mode-p 'magit-status-mode)
+               (setq section nil)
+             (insert "\tUnmerged " file "\n")
+             (setf (magit-section-diff-status section) 'unmerged)
+             (setf (magit-section-info section) file))))
+        ((looking-at "^diff")
          (let ((file (cond
                       ((looking-at "^diff --git \\(\".*\"\\) \\(\".*\"\\)$")
                        (substring (magit-decode-git-path
@@ -6923,7 +6868,7 @@ If there is no commit at point, then prompt for one."
                        (match-string-no-properties 1))))
                (end (save-excursion
                       (forward-line) ;; skip over "diff" line
-                      (if (re-search-forward "^diff\\|^@@" nil t)
+                      (if (re-search-forward magit-diff-headline-re nil t)
                           (goto-char (match-beginning 0))
                         (goto-char (point-max)))
                       (point-marker))))
@@ -6953,7 +6898,10 @@ If there is no commit at point, then prompt for one."
              (setf (magit-section-info        section) file)
              (setf (magit-section-diff-file2  section) (or file2 file))
              (setf (magit-section-diff-range  section) magit-current-diff-range)
-             (magit-insert-diff-title status file file2)
+             (insert (format "\t%-10s " (capitalize (symbol-name status)))
+                     file
+                     (if (eq status 'renamed) (format "   (from %s)" file2) "")
+                     "\n")
              (when (re-search-forward
                     "\\(--- \\(.*\\)\n\\+\\+\\+ \\(.*\\)\n\\)" nil t)
                (magit-put-face-property (match-beginning 1) (match-end 1)
@@ -6963,14 +6911,9 @@ If there is no commit at point, then prompt for one."
                (magit-put-face-property (match-beginning 3) (match-end 3)
                                         'magit-diff-file-header))
              (goto-char end)
-             (magit-wash-sequence #'magit-wash-hunk)))
-         section)))
-
-(defun magit-insert-diff-title (status file file2)
-  (insert (format "\t%-10s " (capitalize (symbol-name status)))
-          file
-          (if (eq status 'renamed) (format "   (from %s)" file2) "")
-          "\n"))
+             (magit-wash-sequence #'magit-wash-hunk))))
+        (t
+         (setq section nil)))))
 
 (defun magit-wash-hunk ()
   (when (looking-at "^@@\\(@\\)?.+")
@@ -6979,7 +6922,7 @@ If there is no commit at point, then prompt for one."
           (heading (match-string 0)))
       (delete-region (point) (1+ (line-end-position)))
       (magit-with-section (s hunk heading (concat heading "\n"))
-        (while (not (or (eobp) (looking-at "^diff\\|^@@")))
+        (while (not (or (eobp) (looking-at magit-diff-headline-re)))
           (magit-put-face-property
            (point) (line-end-position)
            (cond
