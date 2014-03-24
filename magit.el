@@ -5620,7 +5620,7 @@ user because of prefix arguments are not saved with git config."
         (magit-run-git-async
          "pull" magit-custom-options
          (and choose-remote chosen-branch-remote)
-         (and choose-branch
+         (and (or choose-remote choose-branch)
               (list (format "refs/heads/%s:refs/remotes/%s/%s"
                             chosen-branch-merge-name
                             chosen-branch-remote
