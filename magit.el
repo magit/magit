@@ -428,7 +428,21 @@ a carefully crafted index."
   :type 'boolean)
 
 (defcustom magit-revert-item-confirm t
-  "Require acknowledgment before reverting an item."
+  "Whether to require confirmation before reverting hunks.
+If you disable this, consider enabling `magit-revert-backup'
+instead."
+  :group 'magit
+  :type 'boolean)
+
+(defcustom magit-revert-backup nil
+  "Whether to backup a hunk before reverting it.
+The hunk is stored in \".git/magit/reverted.diff\" and can be
+applied using `magit-revert-undo'.  Older hunks are available
+in the same directory as numbered backup files and have to be
+applied manually.  Only individual hunks are backed up; when
+a complete file is reverted (which requires confirmation) no
+backup is created."
+  :package-version '(magit . "2.1.0")
   :group 'magit
   :type 'boolean)
 
@@ -4839,6 +4853,18 @@ working tree."
   (magit-assert-one-parent commit "revert")
   (magit-run-git "revert" "--no-commit" commit))
 
+(defconst magit-revert-backup-file "magit/reverted.diff")
+
+(defun magit-revert-undo ()
+  "Re-apply the previously reverted hunk.
+Also see option `magit-revert-backup'."
+  (interactive)
+  (let ((file (magit-git-dir magit-revert-backup-file)))
+    (if (file-readable-p file)
+        (magit-run-git "apply" file)
+      (user-error "No backups exist"))
+    (magit-refresh)))
+
 ;;;;; Apply Core
 
 (defun magit-discard-diff (diff stagedp)
@@ -4895,6 +4921,7 @@ member of ARGS, or to the working file otherwise."
                       hunk (member "--reverse" args)
                       (region-beginning) (region-end) buf)
                    (magit-insert-hunk-item-patch hunk buf))
+                 (magit-revert-backup buf args)
                  (magit-run-git-with-input
                   buf "apply" args "--ignore-space-change" "-"))
         (kill-buffer buf)))))
@@ -4949,6 +4976,18 @@ member of ARGS, or to the working file otherwise."
                (line-beginning-position) (line-beginning-position 2))))
     (with-current-buffer buf
       (insert text))))
+
+(defun magit-revert-backup (buffer args)
+  (when (and magit-revert-backup (member "--reverse" args))
+    (with-current-buffer buffer
+      (let ((buffer-file-name (magit-git-dir magit-revert-backup-file))
+            (make-backup-files t)
+            (backup-directory-alist nil)
+            (version-control t)
+            (kept-old-versions 0)
+            (kept-new-versions 10))
+        (make-directory (file-name-directory buffer-file-name) t)
+        (save-buffer 16)))))
 
 ;;;; Visit
 
