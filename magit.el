@@ -5445,7 +5445,8 @@ With two prefix args, remove ignored files as well."
     (when p
       (setf (cdr p) (plist-put (cdr p) prop value))
       (magit-write-rewrite-info info)
-      (magit-refresh))))
+      (magit-refresh))
+    t))
 
 (add-hook 'magit-apply-hook 'magit-rewrite-apply)
 (put  'magit-rewrite-apply 'magit-section-action-context [commit pending])
@@ -5539,9 +5540,12 @@ With two prefix args, remove ignored files as well."
            (commit (car first-unused)))
       (cond ((not first-unused)
              (magit-rewrite-stop t))
-            ((magit-cherry-pick-commit commit)
+            ((magit-git-success "cherry-pick" commit)
              (magit-rewrite-set-commit-property commit 'used t)
-             (magit-rewrite-finish-step))))))
+             (magit-rewrite-finish-step))
+            (t
+             (magit-refresh)
+             (error "Could not apply %s" commit))))))
 
 ;;;;; Fetching
 
