@@ -3259,19 +3259,28 @@ Run Git in the root of the current repository.
   "Execute Git with ARGS, returning t if its exit code is 1."
   (= (apply #'magit-git-exit-code args) 1))
 
+(defvar magit-time-git-commands nil
+  "Display git commands and how long they take to run, for profiling.")
+
 (defun magit-git-string (&rest args)
   "Execute Git with ARGS, returning the first line of its output.
 If there is no output return nil.  If the output begins with a
 newline return an empty string."
   (with-temp-buffer
-    (apply #'process-file magit-git-executable nil (list t nil) nil
-           (append magit-git-standard-options
-                   (magit-flatten-onelevel args)))
-    (unless (= (point-min) (point-max))
-      (goto-char (point-min))
-      (buffer-substring-no-properties
-       (line-beginning-position)
-       (line-end-position)))))
+     (let ((start-time (float-time))
+           (msg (format "magit: running git (%s): %s" (format-time-string "%H:%M:%S") args)))
+       (apply #'process-file magit-git-executable nil (list t nil) nil
+              (append magit-git-standard-options
+                      (magit-flatten-onelevel args)))
+       (if magit-time-git-commands
+           (message "%s: %.3f sec" msg (- (float-time) start-time)))
+       (unless (= (point-min) (point-max))
+         (goto-char (point-min))
+         (buffer-substring-no-properties
+          (line-beginning-position)
+          (line-end-position)))
+       )
+     ))
 
 (defun magit-git-true (&rest args)
   "Execute Git with ARGS, returning t if it prints \"true\".
