@@ -3612,38 +3612,38 @@ the remote branch exists; else return nil."
                (magit-rev-parse "--verify" remote/branch))
            remote/branch))))
 
-(defun magit-get-current-tag (&optional with-distance-p)
+(defun magit-get-current-tag (&optional with-distance)
   "Return the closest tag reachable from \"HEAD\".
 
-If optional WITH-DISTANCE-P is non-nil then return (TAG COMMITS),
+If optional WITH-DISTANCE is non-nil then return (TAG COMMITS),
 if it is `dirty' return (TAG COMMIT DIRTY). COMMITS is the number
 of commits in \"HEAD\" but not in TAG and DIRTY is t if there are
 uncommitted changes, nil otherwise."
   (--when-let (magit-git-string "describe" "--long" "--tags"
-                                (and (eq with-distance-p 'dirty) "--dirty"))
+                                (and (eq with-distance 'dirty) "--dirty"))
     (save-match-data
       (string-match
        "\\(.+\\)-\\(?:0[0-9]*\\|\\([0-9]+\\)\\)-g[0-9a-z]+\\(-dirty\\)?$" it)
-      (if with-distance-p
+      (if with-distance
           (list (match-string 1 it)
                 (string-to-number (or (match-string 2 it) "0"))
                 (and (match-string 3 it) t))
         (match-string 1 it)))))
 
-(defun magit-get-next-tag (&optional with-distance-p)
+(defun magit-get-next-tag (&optional with-distance)
   "Return the closest tag from which \"HEAD\" is reachable.
 
 If no such tag can be found or if the distance is 0 (in which
 case it is the current tag, not the next) return nil instead.
 
-If optional WITH-DISTANCE-P is non-nil then return (TAG COMMITS)
+If optional WITH-DISTANCE is non-nil then return (TAG COMMITS)
 where COMMITS is the number of commits in TAG but not in \"HEAD\"."
   (--when-let (magit-git-string "describe" "--contains" "HEAD")
     (save-match-data
       (when (string-match "^[^^~]+" it)
         (setq it (match-string 0 it))
         (unless (equal it (magit-get-current-tag))
-          (if with-distance-p
+          (if with-distance
               (list it (car (magit-rev-diff-count it "HEAD")))
             it))))))
 
