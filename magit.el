@@ -2169,11 +2169,12 @@ Return nil if the previously checked out branch no longer exists."
 (defun magit-get-current-tag (&optional with-distance-p)
   "Return the closest tag reachable from \"HEAD\".
 
-If optional WITH-DISTANCE-P is non-nil then return (TAG COMMITS
-DIRTY) where COMMITS is the number of commits in \"HEAD\" but not
-in TAG and DIRTY is t if there are uncommitted changes, nil
-otherwise."
-  (let ((tag (magit-git-string "describe" "--long" "--tags" "--dirty")))
+If optional WITH-DISTANCE-P is non-nil then return (TAG COMMITS),
+if it is `dirty' return (TAG COMMIT DIRTY). COMMITS is the number
+of commits in \"HEAD\" but not in TAG and DIRTY is t if there are
+uncommitted changes, nil otherwise."
+  (let ((tag (magit-git-string "describe" "--long" "--tags"
+                               (and (eq with-distance-p 'dirty) "--dirty"))))
     (save-match-data
       (when tag
         (string-match
