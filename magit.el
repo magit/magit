@@ -230,7 +230,8 @@ aborts and returns that value."
   :group 'magit-process
   :type 'string)
 
-(defcustom magit-git-standard-options '("--no-pager")
+(defcustom magit-git-standard-options
+  '("--no-pager" "-c" "core.preloadindex=true")
   "Standard options when running Git.
 Be careful what you add here, especially if you are using
 tramp to connect to servers with ancient Git versions."
@@ -3614,11 +3615,12 @@ the remote branch exists; else return nil."
 (defun magit-get-current-tag (&optional with-distance-p)
   "Return the closest tag reachable from \"HEAD\".
 
-If optional WITH-DISTANCE-P is non-nil then return (TAG COMMITS
-DIRTY) where COMMITS is the number of commits in \"HEAD\" but not
-in TAG and DIRTY is t if there are uncommitted changes, nil
-otherwise."
-  (--when-let (magit-git-string "describe" "--long" "--tags" "--dirty")
+If optional WITH-DISTANCE-P is non-nil then return (TAG COMMITS),
+if it is `dirty' return (TAG COMMIT DIRTY). COMMITS is the number
+of commits in \"HEAD\" but not in TAG and DIRTY is t if there are
+uncommitted changes, nil otherwise."
+  (--when-let (magit-git-string "describe" "--long" "--tags"
+                                (and (eq with-distance-p 'dirty) "--dirty"))
     (save-match-data
       (string-match
        "\\(.+\\)-\\(?:0[0-9]*\\|\\([0-9]+\\)\\)-g[0-9a-z]+\\(-dirty\\)?$" it)
