@@ -929,9 +929,7 @@ t          ask if --set-upstream should be used.
   :type 'string)
 
 (defcustom magit-wazzup-sections-hook
-  '(magit-insert-wazzup-head-line
-    magit-insert-empty-line
-    magit-insert-wazzup-branches)
+  '(magit-insert-wazzup-branches)
   "Hook run to insert sections into the wazzup buffer."
   :package-version '(magit . "2.1.0")
   :group 'magit-modes
@@ -7157,18 +7155,9 @@ into the selected branch."
   (magit-with-section (section wazzupbuf 'wazzupbuf)
     (run-hooks 'magit-wazzup-sections-hook)))
 
-(defun magit-insert-wazzup-head-line ()
-  (magit-insert-line-section (line)
-    (concat "Head: "
-            (propertize (car magit-refresh-args) 'face 'magit-branch) " "
-            (abbreviate-file-name default-directory))))
-
 (defun magit-insert-wazzup-branches ()
-  (dolist (upstream (magit-git-lines "show-ref"))
-    (setq  upstream (cadr (split-string upstream " ")))
-    (when (and (not (string-match-p "HEAD$" upstream))
-               (string-match-p "^refs/\\(heads\\|remotes\\)/" upstream))
-      (magit-insert-wazzup-commits upstream (car magit-refresh-args)))))
+  (dolist (upstream (magit-list-branches))
+    (magit-insert-wazzup-commits upstream (car magit-refresh-args))))
 
 (defun magit-insert-wazzup-commits (upstream head)
   (let ((count (string-to-number
