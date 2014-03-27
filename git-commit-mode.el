@@ -275,8 +275,9 @@ default comments in git commit messages"
 
 ;;; Hooks
 
-(defconst git-commit-filename-regexp
-  "/\\(\\(COMMIT\\|NOTES\\|PULLREQ\\|TAG\\)_EDIT\\|MERGE_\\|\\)MSG\\'")
+(defconst git-commit-filename-regexp "/\\(\
+\\(\\(COMMIT\\|NOTES\\|PULLREQ\\|TAG\\)_EDIT\\|MERGE_\\|\\)MSG\
+\\|BRANCH_DESCRIPTION\\)\\'")
 
 (defun git-commit-setup-font-lock-in-buffer ()
   (and buffer-file-name
