@@ -5090,6 +5090,14 @@ merged.  Works with local and remote branches.
         (magit-run-git args))))))
 
 ;;;###autoload
+(defun magit-branch-edit-description (branch)
+  "Edit the description of BRANCH."
+  (interactive (list (magit-read-rev "Edit branch description"
+                                     (or (magit-guess-branch)
+                                         (magit-get-current-branch)))))
+  (magit-run-git-with-editor "branch" "--edit-description"))
+
+;;;###autoload
 (defun magit-branch-rename (old new &optional force)
   "Rename branch OLD to NEW.
 With prefix, forces the rename even if NEW already exists.
