@@ -928,6 +928,14 @@ t          ask if --set-upstream should be used.
   :group 'magit-modes
   :type 'string)
 
+(defcustom magit-branch-manager-sections-hook
+  '(magit-insert-local-branches
+    magit-insert-remote-branches)
+  "Hook run to insert sections into the branch manager buffer."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-modes
+  :type 'hook)
+
 (defcustom magit-wazzup-sections-hook
   '(magit-insert-wazzup-branches)
   "Hook run to insert sections into the wazzup buffer."
@@ -7241,9 +7249,8 @@ from the parent keymap `magit-mode-map' are also available.")
                     #'magit-refresh-branch-manager))
 
 (defun magit-refresh-branch-manager ()
-  (magit-git-insert-section (branchbuf nil)
-      #'magit-wash-branches
-    "branch" "-vva" magit-current-popup-args))
+  (magit-with-section (section branchbuf 'branchbuf nil t)
+    (run-hooks 'magit-branch-manager-sections-hook)))
 
 (defun magit-rename-item ()
   "Rename the item at point."
@@ -7253,111 +7260,70 @@ from the parent keymap `magit-mode-map' are also available.")
     (remote (call-interactively 'magit-remote-rename))))
 
 (defconst magit-wash-branch-line-re
-  (concat "^\\([ *] \\)"                 ; 1: current branch marker
-          "\\(.+?\\) +"                  ; 2: branch name
-          "\\(?:"
-          "\\([0-9a-fA-F]+\\)"           ; 3: sha1
-          " "
+  (concat "^"
+          "\\(?1:[ \\*]\\) "                ; marker
+          "\\(?2:[^ ]+?\\)"                 ; branch
+          "\\(?3: +\\)"                     ; fill
+          "\\(?4:[0-9a-fA-F]+\\) "          ; sha1
           "\\(?:\\["
-          "\\([^:\n]+?\\)"               ; 4: tracking
-          "\\(?:: \\)?"
-          "\\(?:ahead \\([0-9]+\\)\\)?"  ; 5: ahead
+          "\\(?5:[^:\n]+?\\)\\(?:: \\)?"    ; tracked
+          "\\(?:ahead \\(?6:[0-9]+\\)\\)?"  ; ahead
           "\\(?:, \\)?"
-          "\\(?:behind \\([0-9]+\\)\\)?" ; 6: behind
+          "\\(?:behind \\(?7:[0-9]+\\)\\)?" ; behind
           "\\] \\)?"
-          "\\(?:.*\\)"                   ; message
-          "\\|"                          ; or
-          "-> "                          ; the pointer to
-          "\\(.+\\)"                     ; 7: a ref
-          "\\)\n"))
+          "\\(?8:.*\\)"))                   ; message
 
-(defun magit-wash-branch-line (&optional remote-name)
-  (when (looking-at magit-wash-branch-line-re)
-    (magit-bind-match-strings
-        (marker branch sha1 tracking ahead behind other-ref) nil
-      (let ((branch-face (and (equal marker "* ") 'magit-branch)))
-        (delete-region (point) (line-beginning-position 2))
-        (magit-with-section (section branch branch)
-          (insert (propertize (or sha1 (make-string 7 ? ))
-                              'face 'magit-log-sha1)
-                  " " marker
-                  (propertize (if (string-match-p "^remotes/" branch)
-                                  (substring branch 8)
-                                branch)
-                              'face branch-face))
-          (when other-ref
-            (insert " -> " (substring other-ref (+ 1 (length remote-name)))))
-          (when (and tracking
-                     (equal (magit-get-tracked-branch branch t)
-                            (concat "refs/remotes/" tracking)))
-            (insert " [")
-            ;; getting rid of the tracking branch name if it is
-            ;; the same as the branch name
-            (let* ((remote (magit-get "branch" branch "remote"))
-                   (merge  (substring tracking (+ 1 (length remote)))))
-              (insert (propertize (if (string= branch merge)
-                                      (concat "@ " remote)
-                                    (concat merge " @ " remote))
-                                  'face 'magit-log-head-label-remote)))
-            (when (or ahead behind)
-              (insert ":")
-              (and ahead (insert "ahead " (propertize ahead 'face branch-face)))
-              (and ahead behind (insert ", "))
-              (and behind (insert "behind "
-                                  (propertize behind 'face
-                                              'magit-log-head-label-remote))))
-            (insert "]"))
-          (insert "\n"))))))
+(defvar magit-local-branch-format "%c %n%f %3a %3b %t\n")
+(defvar magit-remote-branch-format "  %n\n")
 
-(defun magit-wash-remote-branches-group (group)
-  (let* ((remote (car group))
-         (url (magit-get "remote" remote "url"))
-         (push-url (magit-get "remote" remote "pushurl"))
-         (urls (concat url (and push-url (concat ", " push-url))))
-         (marker (cadr group)))
-    (magit-with-section
-        (section remote remote (format "%s (%s):" remote urls))
-      (magit-wash-branches-between-point-and-marker marker remote)
-      (insert "\n"))))
+(defun magit-insert-local-branches ()
+  (let ((hash-length (magit-abbrev-length))
+        (branches (magit-list-local-branch-names)))
+    (magit-with-section (section local "." "Branches:")
+      (dolist (line (magit-git-lines "branch" "-vv"))
+        (string-match magit-wash-branch-line-re line)
+        (magit-bind-match-strings
+            (marker branch fill hash tracked ahead behind message) line
+          (magit-with-section (section branch branch)
+            (magit-insert
+             (format-spec
+              magit-local-branch-format
+              `((?a . ,(or ahead ""))
+                (?b . ,(or behind ""))
+                (?c . ,(propertize marker 'face 'magit-branch))
+                (?f . ,fill)
+                (?m . ,message)
+                (?n . ,(propertize branch 'face 'magit-log-head-label-local))
+                (?s . ,(if hash
+                           (propertize hash 'face 'magit-log-sha1)
+                         (make-string hash-length ?\s)))
+                (?t . ,(if tracked
+                           (propertize tracked 'face
+                                       (if (member tracked branches)
+                                           'magit-log-head-label-local
+                                         'magit-log-head-label-remote))
+                         ""))))))))
+      (insert ?\n))))
 
-(defun magit-wash-branches-between-point-and-marker (marker &optional remote-name)
-  (save-restriction
-    (narrow-to-region (point) marker)
-    (magit-wash-sequence
-     (apply-partially 'magit-wash-branch-line remote-name))))
-
-(defun magit-wash-branches ()
-  ;; get the names of the remotes
-  (let* ((remotes (magit-git-lines "remote"))
-         ;; get the location of remotes in the buffer
-         (markers
-          (append (mapcar (lambda (remote)
-                            (save-excursion
-                              (when (re-search-forward
-                                     (concat "^  remotes/" remote) nil t)
-                                (beginning-of-line)
-                                (point-marker))))
-                          remotes)
-                  (list (save-excursion
-                          (goto-char (point-max))
-                          (point-marker)))))
-         ;; list of remote elements to display in the buffer
-         (remote-groups
-          (cl-loop for remote in remotes
-                   for end-markers on (cdr markers)
-                   for marker = (cl-loop for x in end-markers thereis x)
-                   collect (list remote marker))))
-    ;; actual displaying of information
-    (magit-with-section (section local "." "Local:")
-      (magit-wash-branches-between-point-and-marker
-       (cl-loop for x in markers thereis x))
-      (insert "\n"))
-    (mapc 'magit-wash-remote-branches-group remote-groups)
-    ;; make sure markers point to nil so that they can be garbage collected
-    (mapc (lambda (marker)
-            (when marker
-             (set-marker marker nil)))
-          markers)))
+(defun magit-insert-remote-branches ()
+  (dolist (remote (magit-git-lines "remote"))
+    (let ((url     (magit-get "remote" remote "url"))
+          (pushurl (magit-get "remote" remote "pushurl")))
+      (magit-with-section
+          (section remote remote
+                   (format "%s (%s):" (capitalize remote)
+                           (concat url (and url pushurl ", ") pushurl)))
+        (dolist (branch (magit-list-remote-branch-names remote))
+          (magit-with-section (s branch branch)
+            (magit-insert
+             (format-spec
+              magit-remote-branch-format
+              `((?n . ,(propertize
+                        (if (string-match (format "^%s/\\(.+\\)" remote) branch)
+                            (match-string 1 branch)
+                          branch)
+                        'face 'magit-log-head-label-remote)))))))
+        (insert ?\n)))))
 
 ;;; Miscellaneous
 ;;;; Miscellaneous Commands
