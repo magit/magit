@@ -7173,12 +7173,17 @@ into the selected branch."
 (defun magit-insert-wazzup-commits (upstream head)
   (let ((count (string-to-number
                 (magit-git-string "rev-list" "--count" "--right-only"
-                                  (concat head "..." upstream)))))
-    (when (> count 0)
+                                  (concat head "..." upstream))))
+        (focus (string-match-p (format "^refs/heads/%s$" head) upstream)))
+    (when (or (> count 0) focus)
       (magit-with-section
           (section wazzup upstream
-                   (format "%3s %s\n" count (magit-format-ref-label upstream))
-                   t)
+                   (format "%3s %s\n"
+                           (if focus
+                               (propertize " * " 'face 'magit-branch)
+                             count)
+                           (magit-format-ref-label upstream))
+		   t)
         (if (magit-section-hidden section)
             (setf (magit-section-needs-refresh-on-show section) t)
           (let ((beg (point)))
