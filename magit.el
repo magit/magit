@@ -7212,11 +7212,9 @@ from the parent keymap `magit-mode-map' are also available.")
 (defun magit-branch-manager ()
   "Show a list of branches in a dedicated buffer."
   (interactive)
-  (if (magit-get-top-dir) ; Kludge for #1215
-      (magit-mode-setup magit-branches-buffer-name nil
-                        #'magit-branch-manager-mode
-                        #'magit-refresh-branch-manager)
-    (user-error "There is no Git repository here")))
+  (magit-mode-setup magit-branches-buffer-name nil
+                    #'magit-branch-manager-mode
+                    #'magit-refresh-branch-manager))
 
 (defun magit-refresh-branch-manager ()
   (magit-git-insert-section (branchbuf nil)
