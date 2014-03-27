@@ -7174,7 +7174,9 @@ into the selected branch."
   (let ((count (string-to-number
                 (magit-git-string "rev-list" "--count" "--right-only"
                                   (concat head "..." upstream))))
-        (focus (string-match-p (format "^refs/heads/%s$" head) upstream)))
+        (label (magit-format-ref-label upstream))
+        (focus (string-match-p (format "^refs/heads/%s$" head) upstream))
+        s)
     (when (or (> count 0) focus)
       (magit-with-section
           (section wazzup upstream
@@ -7191,7 +7193,11 @@ into the selected branch."
             (save-restriction
               (narrow-to-region beg (point))
               (goto-char (point-min))
-              (magit-wash-log 'cherry))))))))
+              (magit-wash-log 'cherry))))
+        (setq s section))
+      (magit-put-face-property (+ (magit-section-beginning s) 4)
+                               (- (magit-section-content-beginning s) 1)
+                               (get-text-property 0 'face label)))))
 
 ;;;; Branch Manager Mode
 
