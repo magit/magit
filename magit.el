@@ -7033,9 +7033,9 @@ actually were a single commit."
             (t
              'magit-diff-none)))
             (forward-line))
-        (when (eq magit-diff-refine-hunk 'all)
-          (magit-diff-refine-hunk s))
         (setq section s))
+      (when (eq magit-diff-refine-hunk 'all)
+        (magit-diff-refine-hunk section))
       (magit-put-face-property (magit-section-beginning section)
                                (magit-section-content-beginning section)
                                'magit-diff-hunk-header))
