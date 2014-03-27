@@ -929,7 +929,8 @@ t          ask if --set-upstream should be used.
   :type 'string)
 
 (defcustom magit-branch-manager-sections-hook
-  '(magit-insert-local-branches
+  '(magit-insert-branch-description
+    magit-insert-local-branches
     magit-insert-remote-branches
     magit-insert-tags)
   "Hook run to insert sections into the branch manager buffer."
@@ -4317,6 +4318,15 @@ can be used to override this."
       (when (and (not am) hash)
         (magit-insert-line-section (commit hash)
           (concat "Stopped: " (magit-format-rev-summary hash)))))))
+
+(defun magit-insert-branch-description ()
+  (let ((branch (magit-get-current-branch)))
+    (--when-let (magit-git-lines
+                 "config" (format "branch.%s.description" branch))
+      (magit-with-section
+          (section branchdesc branch (concat branch ": " (car it)) t)
+        (insert (mapconcat 'identity (cdr it) "\n"))
+        (insert "\n\n")))))
 
 (defun magit-insert-rebase-sequence ()
   (let ((f (magit-git-dir "rebase-merge/git-rebase-todo")))
