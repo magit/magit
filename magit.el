@@ -1606,13 +1606,16 @@ Many Magit faces inherit from this one by default."
 ;;; Utilities
 ;;;; Various Utilities
 
-(defmacro magit-bind-match-strings (varlist &rest body)
-  (declare (indent 1))
-  (let ((i 0))
-    `(let ,(mapcar (lambda (var)
-                     (list var (list 'match-string (cl-incf i))))
-                   varlist)
-       ,@body)))
+(defmacro magit-bind-match-strings (varlist string &rest body)
+  (declare (indent 2))
+  (let ((s (cl-gensym "string"))
+        (i 0))
+    `(let ((,s ,string))
+       (let ,(save-match-data
+               (mapcar (lambda (var)
+                         (list var (list 'match-string (cl-incf i) s)))
+                       varlist))
+         ,@body))))
 
 (defmacro magit-read-char-case (prompt abort &rest clauses)
   (declare (indent 2))
@@ -6370,7 +6373,7 @@ Other key binding:
                 (bisect-vis magit-log-bisect-vis-re)
                 (bisect-log magit-log-bisect-log-re)))
   (magit-bind-match-strings
-      (hash msg refs graph author date gpg cherry refsel refsub)
+      (hash msg refs graph author date gpg cherry refsel refsub) nil
     (delete-region (point) (point-at-eol))
     (when cherry
       (magit-insert cherry (if (string= cherry "-")
@@ -6956,7 +6959,7 @@ actually were a single commit."
         (magit-wash-sequence
          (lambda ()
            (when (looking-at magit-diff-statline-re)
-             (magit-bind-match-strings (file sep cnt add del)
+             (magit-bind-match-strings (file sep cnt add del) nil
                (delete-region (point) (1+ (line-end-position)))
                (magit-with-section (s diffstat 'diffstat)
                  (insert " " file sep cnt " ")
@@ -7253,7 +7256,7 @@ from the parent keymap `magit-mode-map' are also available.")
 (defun magit-wash-branch-line (&optional remote-name)
   (when (looking-at magit-wash-branch-line-re)
     (magit-bind-match-strings
-        (marker branch sha1 tracking ahead behind other-ref)
+        (marker branch sha1 tracking ahead behind other-ref) nil
       (let ((branch-face (and (equal marker "* ") 'magit-branch)))
         (delete-region (point) (line-beginning-position 2))
         (magit-with-section (section branch branch)
