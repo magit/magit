@@ -929,9 +929,7 @@ t          ask if --set-upstream should be used.
   :type 'string)
 
 (defcustom magit-wazzup-sections-hook
-  '(magit-insert-wazzup-head-line
-    magit-insert-empty-line
-    magit-insert-wazzup-branches)
+  '(magit-insert-wazzup-branches)
   "Hook run to insert sections into the wazzup buffer."
   :package-version '(magit . "2.1.0")
   :group 'magit-modes
@@ -7157,39 +7155,38 @@ into the selected branch."
   (magit-with-section (section wazzupbuf 'wazzupbuf)
     (run-hooks 'magit-wazzup-sections-hook)))
 
-(defun magit-insert-wazzup-head-line ()
-  (magit-insert-line-section (line)
-    (concat "Head: "
-            (propertize (car magit-refresh-args) 'face 'magit-branch) " "
-            (abbreviate-file-name default-directory))))
-
 (defun magit-insert-wazzup-branches ()
-  (dolist (upstream (magit-git-lines "show-ref"))
-    (setq  upstream (cadr (split-string upstream " ")))
-    (when (and (not (string-match-p "HEAD$" upstream))
-               (string-match-p "^refs/\\(heads\\|remotes\\)/" upstream))
-      (magit-insert-wazzup-commits upstream (car magit-refresh-args)))))
+  (dolist (upstream (magit-list-branches))
+    (magit-insert-wazzup-commits upstream (car magit-refresh-args))))
 
 (defun magit-insert-wazzup-commits (upstream head)
   (let ((count (string-to-number
                 (magit-git-string "rev-list" "--count" "--right-only"
-                                  (concat head "..." upstream)))))
-    (when (> count 0)
+                                  (concat head "..." upstream))))
+        (label (magit-format-ref-label upstream))
+        (focus (string-match-p (format "^refs/heads/%s$" head) upstream))
+        s)
+    (when (or (> count 0) focus)
       (magit-with-section
           (section wazzup upstream
-                   (format "%3s %s\n" count (magit-format-ref-label upstream))
-                   t)
-        (cond
-         ((magit-section-hidden section)
-          (setf (magit-section-hidden section) t)
-          (setf (magit-section-needs-refresh-on-show section) t))
-         (t
+                   (format "%3s %s\n"
+                           (if focus
+                               (propertize " * " 'face 'magit-branch)
+                             count)
+                           (magit-format-ref-label upstream))
+		   t)
+        (if (magit-section-hidden section)
+            (setf (magit-section-needs-refresh-on-show section) t)
           (let ((beg (point)))
             (magit-git-insert "cherry" "-v" "--abbrev" head upstream)
             (save-restriction
               (narrow-to-region beg (point))
               (goto-char (point-min))
-              (magit-wash-log 'cherry)))))))))
+              (magit-wash-log 'cherry))))
+        (setq s section))
+      (magit-put-face-property (+ (magit-section-beginning s) 4)
+                               (- (magit-section-content-beginning s) 1)
+                               (get-text-property 0 'face label)))))
 
 ;;;; Branch Manager Mode
 
