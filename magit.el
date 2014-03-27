@@ -930,7 +930,8 @@ t          ask if --set-upstream should be used.
 
 (defcustom magit-branch-manager-sections-hook
   '(magit-insert-local-branches
-    magit-insert-remote-branches)
+    magit-insert-remote-branches
+    magit-insert-tags)
   "Hook run to insert sections into the branch manager buffer."
   :package-version '(magit . "2.1.0")
   :group 'magit-modes
@@ -7275,6 +7276,7 @@ from the parent keymap `magit-mode-map' are also available.")
 
 (defvar magit-local-branch-format "%c %n%f %3a %3b %t\n")
 (defvar magit-remote-branch-format "  %n\n")
+(defvar magit-tags-format "  %n\n")
 
 (defun magit-insert-local-branches ()
   (let ((hash-length (magit-abbrev-length))
@@ -7324,6 +7326,15 @@ from the parent keymap `magit-mode-map' are also available.")
                           branch)
                         'face 'magit-log-head-label-remote)))))))
         (insert ?\n)))))
+
+(defun magit-insert-tags ()
+  (magit-with-section (section tags 'tags "Tags:")
+    (dolist (tag (magit-git-lines "tag"))
+      (magit-with-section (section tag 'tag)
+        (magit-insert
+         (format-spec magit-tags-format
+                      `((?n . ,(propertize tag 'face 'magit-tag)))))))
+    (insert ?\n)))
 
 ;;; Miscellaneous
 ;;;; Miscellaneous Commands
