@@ -1764,7 +1764,7 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
 (cl-defstruct magit-section
   type info
   beginning content-beginning end
-  hidden needs-refresh-on-show highlight
+  hidden needs-refresh-on-show
   diff-status diff-file2
   process
   parent children)
@@ -1785,13 +1785,12 @@ never modify it.")
   "For use by `magit-with-section' only.")
 
 (defmacro magit-with-section (arglist &rest body)
-  "\n\n(fn (NAME TYPE &optional INFO HEADING NOHIGHLIGHT COLLAPSE) &rest ARGS)"
+  "\n\n(fn (NAME TYPE &optional INFO HEADING COLLAPSE) &rest ARGS)"
   (declare (indent 1) (debug ((form form &optional form form form) body)))
   (let ((s (car arglist)))
     `(let ((,s (make-magit-section
                 :type ',(nth 1 arglist)
                 :info  ,(nth 2 arglist)
-                :highlight (not ,(nth 4 arglist))
                 :beginning (point-marker)
                 :content-beginning (point-marker)
                 :parent magit-with-section--parent)))
@@ -1801,7 +1800,7 @@ never modify it.")
                                  (magit-section-path ,s)
                                  magit-with-section--oldroot)))
                  (magit-section-hidden old)
-               ,(nth 5 arglist)))
+               ,(nth 4 arglist)))
        (let ((magit-with-section--parent ,s)
              (magit-with-section--oldroot
               (or magit-with-section--oldroot
@@ -1852,7 +1851,7 @@ never modify it.")
   (declare (indent 2))
   `(magit-with-section (section ,(car arglist)
                                 ',(car arglist)
-                                ,(cadr arglist) t)
+                                ,(cadr arglist))
      (apply #'process-file ,program nil (list t nil) nil
             (magit-flatten-onelevel (list ,@args)))
      (unless (eq (char-before) ?\n)
@@ -1891,7 +1890,7 @@ never modify it.")
                                           (length (match-string 1 ,l))))
                                 ?\s)
                    t t ,l 2)))
-       (magit-with-section (section ,(car arglist) ',(car arglist) ,l t)
+       (magit-with-section (section ,(car arglist) ',(car arglist) ,l)
          (setf (magit-section-info section) ,(cadr arglist))))))
 
 ;;;;; Section Searching
@@ -2344,7 +2343,7 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
       (unless magit-highlight-overlay
         (overlay-put (setq magit-highlight-overlay (make-overlay 1 1))
                      'face magit-item-highlight-face))
-      (cond ((and section (magit-section-highlight section))
+      (cond ((and section (magit-section-parent section))
              (when (funcall refinep)
                (magit-diff-refine-hunk section))
              (move-overlay magit-highlight-overlay
@@ -2507,7 +2506,7 @@ Run Git in the root of the current repository.
                             'magit-process-mode topdir)
         (magit-process-mode)
         (let* ((inhibit-read-only t)
-               (s (magit-with-section (section processbuf nil nil t)
+               (s (magit-with-section (section processbuf)
                     (insert "\n"))))
           (set-marker-insertion-type (magit-section-beginning s) nil)
           (set-marker-insertion-type (magit-section-content-beginning s) nil)
@@ -4132,7 +4131,7 @@ can be used to override this."
 
 (defun magit-refresh-status ()
   (magit-git-exit-code "update-index" "--refresh")
-  (magit-with-section (section status 'status nil t)
+  (magit-with-section (section status 'status)
     (run-hooks 'magit-status-sections-hook))
   (run-hooks 'magit-refresh-status-hook))
 
@@ -4141,7 +4140,7 @@ can be used to override this."
 
 (defun magit-insert-stashes ()
   (--when-let (magit-git-lines "stash" "list")
-    (magit-with-section (section stashes 'stashes "Stashes:" t)
+    (magit-with-section (section stashes 'stashes "Stashes:")
       (dolist (stash it)
         (string-match "^\\(stash@{\\([0-9]+\\)}\\): \\(.+\\)$" stash)
         (let ((stash (match-string 1 stash))
@@ -4152,7 +4151,7 @@ can be used to override this."
       (insert "\n"))))
 
 (defun magit-insert-untracked-files ()
-  (magit-with-section (section untracked 'untracked "Untracked files:" t)
+  (magit-with-section (section untracked 'untracked "Untracked files:")
     (--if-let (cl-mapcan (lambda (f)
                            (and (eq (aref f 0) ??) (list f)))
                          (magit-git-lines "status" "--porcelain"))
@@ -4294,7 +4293,7 @@ can be used to override this."
 (defun magit-insert-rebase-sequence ()
   (let ((f (magit-git-dir "rebase-merge/git-rebase-todo")))
     (when (file-exists-p f)
-      (magit-with-section (section rebase-todo 'rebase-todo "Rebasing:" t)
+      (magit-with-section (section rebase-todo 'rebase-todo "Rebasing:")
         (cl-loop
          for line in (magit-file-lines f)
          when (string-match
@@ -4328,7 +4327,7 @@ can be used to override this."
                                     lines)
                         (pop lines))
                     'face 'magit-section-title)
-                   t t)
+                   t)
         (dolist (line lines)
           (insert line "\n"))))
     (insert "\n")))
@@ -4355,7 +4354,7 @@ can be used to override this."
         (save-restriction
           (narrow-to-region beg (point))
           (goto-char (point-min))
-          (magit-with-section (section bisect-log 'bisect-log heading nil t)
+          (magit-with-section (section bisect-log 'bisect-log heading t)
             (magit-wash-sequence
              (apply-partially 'magit-wash-log-line 'bisect-log
                               (magit-abbrev-length)))))))
@@ -6572,7 +6571,7 @@ Other key binding:
                     #'magit-refresh-cherry-buffer upstream head))
 
 (defun magit-refresh-cherry-buffer (upstream head)
-  (magit-with-section (section cherry 'cherry nil t)
+  (magit-with-section (section cherry 'cherry)
     (run-hooks 'magit-cherry-sections-hook)))
 
 (defun magit-insert-cherry-head-line ()
@@ -7002,8 +7001,8 @@ actually were a single commit."
                                    (format "renamed    %s => %s\n" src dst)
                                  (format "%-10s %s\n" status dst))
                                'face 'magit-diff-file-header)
-                   nil (or (equal status "deleted")
-                           (derived-mode-p 'magit-status-mode)))
+                   (or (equal status "deleted")
+                       (derived-mode-p 'magit-status-mode)))
         (setf (magit-section-diff-status section) status)
         (setf (magit-section-diff-file2  section) src)
         (when modes
@@ -7155,7 +7154,7 @@ into the selected branch."
                     #'magit-refresh-wazzup-buffer branch))
 
 (defun magit-refresh-wazzup-buffer (head)
-  (magit-with-section (section wazzupbuf 'wazzupbuf nil t)
+  (magit-with-section (section wazzupbuf 'wazzupbuf)
     (run-hooks 'magit-wazzup-sections-hook)))
 
 (defun magit-insert-wazzup-head-line ()
@@ -7179,7 +7178,7 @@ into the selected branch."
       (magit-with-section
           (section wazzup upstream
                    (format "%3s %s\n" count (magit-format-ref-label upstream))
-                   nil t)
+                   t)
         (cond
          ((magit-section-hidden section)
           (setf (magit-section-hidden section) t)
@@ -7304,7 +7303,7 @@ from the parent keymap `magit-mode-map' are also available.")
          (urls (concat url (and push-url (concat ", " push-url))))
          (marker (cadr group)))
     (magit-with-section
-        (section remote remote (format "%s (%s):" remote urls) t)
+        (section remote remote (format "%s (%s):" remote urls))
       (magit-wash-branches-between-point-and-marker marker remote)
       (insert "\n"))))
 
@@ -7336,7 +7335,7 @@ from the parent keymap `magit-mode-map' are also available.")
                    for marker = (cl-loop for x in end-markers thereis x)
                    collect (list remote marker))))
     ;; actual displaying of information
-    (magit-with-section (section local "." "Local:" t)
+    (magit-with-section (section local "." "Local:")
       (magit-wash-branches-between-point-and-marker
        (cl-loop for x in markers thereis x))
       (insert "\n"))
