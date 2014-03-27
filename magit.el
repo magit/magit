@@ -1693,14 +1693,32 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
                      (elt (list elt))))
              list))
 
-(defun magit-insert (string face &rest args)
+(defun magit-insert (string &optional face &rest args)
   (if magit-use-overlays
-      (let ((start (point)))
-        (insert string)
-        (let ((ov (make-overlay start (point) nil t)))
-          (overlay-put ov 'face face)
-          ;; (overlay-put ov 'priority 10)
-          (overlay-put ov 'evaporate t)))
+      (if face
+          (let ((start (point)))
+            (insert string)
+            (let ((ov (make-overlay start (point) nil t)))
+              (overlay-put ov 'face face)
+              (overlay-put ov 'evaporate t)))
+        (let ((buf (current-buffer))
+              (offset (1- (point))))
+          (with-temp-buffer
+            (save-excursion (insert string))
+            (while (not (eobp))
+              (let* ((beg (point))
+                     (end (or (next-single-property-change beg 'face)
+                              (point-max)))
+                     (face (get-text-property beg 'face))
+                     (text (buffer-substring-no-properties beg end)))
+                (with-current-buffer buf
+                  (insert text)
+                  (when face
+                    (let ((ov (make-overlay (+ beg offset)
+                                            (+ end offset) nil t)))
+                      (overlay-put ov 'face face)
+                      (overlay-put ov 'evaporate t))))
+                (goto-char end))))))
     (insert (propertize string 'face face)))
   (apply #'insert args))
 
