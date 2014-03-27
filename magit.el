@@ -7179,17 +7179,14 @@ into the selected branch."
           (section wazzup upstream
                    (format "%3s %s\n" count (magit-format-ref-label upstream))
                    t)
-        (cond
-         ((magit-section-hidden section)
-          (setf (magit-section-hidden section) t)
-          (setf (magit-section-needs-refresh-on-show section) t))
-         (t
+        (if (magit-section-hidden section)
+            (setf (magit-section-needs-refresh-on-show section) t)
           (let ((beg (point)))
             (magit-git-insert "cherry" "-v" "--abbrev" head upstream)
             (save-restriction
               (narrow-to-region beg (point))
               (goto-char (point-min))
-              (magit-wash-log 'cherry)))))))))
+              (magit-wash-log 'cherry))))))))
 
 ;;;; Branch Manager Mode
 
