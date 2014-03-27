@@ -7193,10 +7193,13 @@ into the selected branch."
 (define-derived-mode magit-branch-manager-mode magit-mode "Magit Branch"
   "Mode for looking at git branches.
 
-\\<magit-branch-manager-mode-map>Type `\\[magit-visit-item]` to checkout a branch, `\\[magit-reset-head]' to reset current branch,
+\\<magit-branch-manager-mode-map>\
+Type `\\[magit-visit-item]` to checkout a branch, \
+`\\[magit-reset-head]' to reset current branch,
 you can also merge the branch with `\\[magit-merge-popup]`
 
-Type `\\[magit-discard-item]' to delete a branch, or `\\[universal-argument] \\[magit-discard-item]' to force the deletion.
+Type `\\[magit-discard-item]' to delete a branch, \
+or `\\[universal-argument] \\[magit-discard-item]' to force the deletion.
 Type `\\[magit-rename-item]' to Rename a branch.
 
 More information can be found in Info node `(magit)The branch list'
