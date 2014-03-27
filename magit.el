@@ -7252,47 +7252,41 @@ from the parent keymap `magit-mode-map' are also available.")
 
 (defun magit-wash-branch-line (&optional remote-name)
   (when (looking-at magit-wash-branch-line-re)
-  ;; ^ Kludge for #1162.  v Don't reindent for now.
-  (let* ((marker      (match-string 1))
-         (branch      (match-string 2))
-         (sha1        (match-string 3))
-         (tracking    (match-string 4))
-         (ahead       (match-string 5))
-         (behind      (match-string 6))
-         (other-ref   (match-string 7))
-         (branch-face (and (equal marker "* ") 'magit-branch)))
-    (delete-region (point) (line-beginning-position 2))
-    (magit-with-section (section branch branch)
-      (insert (propertize (or sha1 (make-string 7 ? ))
-                          'face 'magit-log-sha1)
-              " " marker
-              (propertize (if (string-match-p "^remotes/" branch)
-                              (substring branch 8)
-                            branch)
-                          'face branch-face))
-       (when other-ref
-         (insert " -> " (substring other-ref (+ 1 (length remote-name)))))
-       (when (and tracking
-                  (equal (magit-get-tracked-branch branch t)
-                         (concat "refs/remotes/" tracking)))
-         (insert " [")
-         ;; getting rid of the tracking branch name if it is
-         ;; the same as the branch name
-         (let* ((remote (magit-get "branch" branch "remote"))
-                (merge  (substring tracking (+ 1 (length remote)))))
-           (insert (propertize (if (string= branch merge)
-                                   (concat "@ " remote)
-                                 (concat merge " @ " remote))
-                               'face 'magit-log-head-label-remote)))
-         (when (or ahead behind)
-           (insert ":")
-           (and ahead (insert "ahead " (propertize ahead 'face branch-face)))
-           (and ahead behind (insert ", "))
-           (and behind (insert "behind "
-                               (propertize behind 'face
-                                           'magit-log-head-label-remote))))
-         (insert "]"))
-       (insert "\n")))))
+    (magit-bind-match-strings
+        (marker branch sha1 tracking ahead behind other-ref)
+      (let ((branch-face (and (equal marker "* ") 'magit-branch)))
+        (delete-region (point) (line-beginning-position 2))
+        (magit-with-section (section branch branch)
+          (insert (propertize (or sha1 (make-string 7 ? ))
+                              'face 'magit-log-sha1)
+                  " " marker
+                  (propertize (if (string-match-p "^remotes/" branch)
+                                  (substring branch 8)
+                                branch)
+                              'face branch-face))
+          (when other-ref
+            (insert " -> " (substring other-ref (+ 1 (length remote-name)))))
+          (when (and tracking
+                     (equal (magit-get-tracked-branch branch t)
+                            (concat "refs/remotes/" tracking)))
+            (insert " [")
+            ;; getting rid of the tracking branch name if it is
+            ;; the same as the branch name
+            (let* ((remote (magit-get "branch" branch "remote"))
+                   (merge  (substring tracking (+ 1 (length remote)))))
+              (insert (propertize (if (string= branch merge)
+                                      (concat "@ " remote)
+                                    (concat merge " @ " remote))
+                                  'face 'magit-log-head-label-remote)))
+            (when (or ahead behind)
+              (insert ":")
+              (and ahead (insert "ahead " (propertize ahead 'face branch-face)))
+              (and ahead behind (insert ", "))
+              (and behind (insert "behind "
+                                  (propertize behind 'face
+                                              'magit-log-head-label-remote))))
+            (insert "]"))
+          (insert "\n"))))))
 
 (defun magit-wash-remote-branches-group (group)
   (let* ((remote (car group))
