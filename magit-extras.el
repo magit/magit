@@ -96,10 +96,10 @@ If there is no commit at point, then prompt for one."
 ;;; External Tools
 
 (defcustom magit-gitk-executable
-  (or (eq system-type 'windows-nt)
-      (let ((exe (expand-file-name
-                  "gitk" (file-name-nondirectory magit-git-executable))))
-        (and (file-executable-p exe) exe))
+  (or (and (eq system-type 'windows-nt)
+           (let ((exe (expand-file-name
+                       "gitk" (file-name-nondirectory magit-git-executable))))
+             (and (file-executable-p exe) exe)))
       (executable-find "gitk") "gitk")
   "The Gitk executable."
   :group 'magit-extras
