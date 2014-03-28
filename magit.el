@@ -4472,7 +4472,7 @@ can be used to override this."
 
 (defun magit-insert-status-local-line ()
   (let ((branch (or (magit-get-current-branch) "(detached)")))
-    (magit-insert-line-section (line branch)
+    (magit-insert-line-section (branch branch)
       (concat "Local: "
               (propertize branch 'face 'magit-branch)
               " " (abbreviate-file-name default-directory)))))
@@ -4481,7 +4481,7 @@ can be used to override this."
   (let* ((branch  (magit-get-current-branch))
          (tracked (magit-get-tracked-branch branch)))
     (when tracked
-      (magit-insert-line-section (line tracked)
+      (magit-insert-line-section (branch tracked)
         (concat "Remote: "
                 (and (magit-get-boolean "branch" branch "rebase") "onto ")
                 (magit-format-tracked-line tracked branch))))))
@@ -7413,9 +7413,8 @@ Non-interactively DIRECTORY is always (re-)initialized."
   "Copy sha1 of commit at point into kill ring."
   (interactive)
   (magit-section-action copy (info)
-    (line (when info
-            (kill-new info)
-            (message "%s" info)))
+    (branch (kill-new info)
+            (message "%s" info))
     (diff (kill-new info)
           (message "%s" info))
     (file (kill-new info)
