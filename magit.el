@@ -1793,7 +1793,7 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
 (cl-defstruct magit-section
   type info
   beginning content-beginning end
-  hidden needs-refresh-on-show
+  hidden washer
   diff-status diff-file2
   process
   parent children)
@@ -2179,20 +2179,27 @@ FUNCTION has to move point forward or return nil."
 (defun magit-section-set-hidden (section hidden)
   "Hide SECTION if HIDDEN is not nil, show it otherwise."
   (setf (magit-section-hidden section) hidden)
-  (if (and (not hidden)
-           (magit-section-needs-refresh-on-show section))
-      (magit-refresh)
-    (let ((inhibit-read-only t)
-          (beg (save-excursion
-                 (goto-char (magit-section-beginning section))
-                 (forward-line)
-                 (point)))
-          (end (magit-section-end section)))
-      (when (< beg end)
-        (put-text-property beg end 'invisible hidden)))
-    (unless hidden
-      (dolist (c (magit-section-children section))
-        (magit-section-set-hidden c (magit-section-hidden c))))))
+  (let ((washer (magit-section-washer section)))
+    (when (and washer (not hidden))
+      (let ((magit-with-section--parent section)
+            (inhibit-read-only t))
+        (save-excursion
+          (goto-char (magit-section-end section))
+          (setf (magit-section-content-beginning section) (point-marker))
+          (funcall washer)
+          (setf (magit-section-end section) (point-marker))))
+      (setf (magit-section-washer section) nil)))
+  (let ((inhibit-read-only t)
+        (beg (save-excursion
+               (goto-char (magit-section-beginning section))
+               (forward-line)
+               (point)))
+        (end (magit-section-end section)))
+    (when (< beg end)
+      (put-text-property beg end 'invisible hidden)))
+  (unless hidden
+    (dolist (c (magit-section-children section))
+      (magit-section-set-hidden c (magit-section-hidden c)))))
 
 (defun magit-section-any-hidden (section)
   "Return true if SECTION or any of its children is hidden."
@@ -7223,17 +7230,22 @@ into the selected branch."
                            (magit-format-ref-label upstream))
 		   t)
         (if (magit-section-hidden section)
-            (setf (magit-section-needs-refresh-on-show section) t)
-          (let ((beg (point)))
-            (magit-git-insert "cherry" "-v" "--abbrev" head upstream)
-            (save-restriction
-              (narrow-to-region beg (point))
-              (goto-char (point-min))
-              (magit-wash-log 'cherry))))
+            (setf (magit-section-washer section)
+                  (apply-partially #'magit-insert-wazzup-cherries
+                                   head upstream))
+          (magit-insert-wazzup-cherries head upstream))
         (setq s section))
       (magit-put-face-property (+ (magit-section-beginning s) 4)
                                (- (magit-section-content-beginning s) 1)
                                (get-text-property 0 'face label)))))
+
+(defun magit-insert-wazzup-cherries (head upstream)
+  (let ((beg (point)))
+    (magit-git-insert "cherry" "-v" "--abbrev" head upstream)
+    (save-restriction
+      (narrow-to-region beg (point))
+      (goto-char (point-min))
+      (magit-wash-log 'cherry))))
 
 ;;;; Branch Manager Mode
 
