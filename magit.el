@@ -3993,17 +3993,21 @@ from the parent keymap `magit-mode-map' are also available."
   "Name of buffer used to display a commit.")
 
 ;;;###autoload
-(defun magit-show-commit (commit &optional noselect)
+(defun magit-show-commit (commit &optional noselect module)
   "Show information about COMMIT."
   (interactive (list (magit-read-rev-with-default
                       "Show commit (hash or ref)")))
-  (when (magit-git-failure "cat-file" "commit" commit)
-    (user-error "%s is not a commit" commit))
-  (magit-mode-setup magit-commit-buffer-name
-                    (if noselect 'display-buffer 'pop-to-buffer)
-                    #'magit-commit-mode
-                    #'magit-refresh-commit-buffer
-                    commit))
+  (let ((default-directory (if module
+                               (file-name-as-directory
+                                (expand-file-name module (magit-get-top-dir)))
+                             default-directory)))
+    (when (magit-git-failure "cat-file" "commit" commit)
+      (user-error "%s is not a commit" commit))
+    (magit-mode-setup magit-commit-buffer-name
+                      (if noselect 'display-buffer 'pop-to-buffer)
+                      #'magit-commit-mode
+                      #'magit-refresh-commit-buffer
+                      commit)))
 
 (defun magit-show-item-or-scroll-up ()
   "Update commit or status buffer for item at point.
@@ -4200,12 +4204,12 @@ can be used to override this."
 (defun magit-insert-unstaged-changes ()
   (magit-git-insert-section (unstaged "Unstaged changes:")
       #'magit-wash-diffs
-    "-c" "diff.submodule=short" "diff" magit-diff-extra-options))
+    "diff" magit-diff-extra-options))
 
 (defun magit-insert-staged-changes ()
   (magit-git-insert-section (staged "Staged changes:")
       #'magit-wash-diffs
-    "-c" "diff.submodule=short" "diff" "--cached" magit-diff-extra-options))
+    "diff" "--cached" magit-diff-extra-options))
 
 (defun magit-insert-unpulled-or-recent-commits ()
   (let ((tracked (magit-get-tracked-branch nil t)))
@@ -4747,6 +4751,7 @@ With a prefix argument, visit in other window."
     (unpulled (magit-diff-unpulled))
     (stash    (magit-diff-stash info))
     (commit   (magit-show-commit info))
+    (mcommit  (magit-show-commit info nil parent-info))
     (branch   (magit-checkout info))))
 
 (defun magit-visit-file-item (file &optional other-window line column)
@@ -6362,6 +6367,12 @@ Other key binding:
           "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
           "\\(?2:.*\\)$"))                         ; msg
 
+(defconst magit-log-module-re
+  (concat "^"
+          "\\(?:\\(?11:[<>]\\) \\)?"               ; side
+          "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
+          "\\(?2:.*\\)$"))                         ; msg
+
 (defconst magit-log-bisect-vis-re
   (concat "^"
           "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
@@ -6420,16 +6431,21 @@ Other key binding:
                 (long    magit-log-long-re)
                 (unique  magit-log-unique-re)
                 (cherry  magit-log-cherry-re)
+                (module  magit-log-module-re)
                 (reflog  magit-log-reflog-re)
                 (bisect-vis magit-log-bisect-vis-re)
                 (bisect-log magit-log-bisect-log-re)))
   (magit-bind-match-strings
-      (hash msg refs graph author date gpg cherry refsel refsub) nil
+      (hash msg refs graph author date gpg cherry refsel refsub side) nil
     (delete-region (point) (point-at-eol))
     (when cherry
       (magit-insert cherry (if (string= cherry "-")
                                'magit-cherry-equivalent
                              'magit-cherry-unmatched) ?\s))
+    (when side
+      (magit-insert side (if (string= side "<")
+                             'magit-diff-del
+                           'magit-diff-add) ?\s))
     (unless (eq style 'long)
       (when (eq style 'bisect-log)
 	(setq hash (magit-git-string "rev-parse" "--short" hash)))
@@ -6458,6 +6474,8 @@ Other key binding:
     (magit-format-log-margin author date)
     (if hash
         (magit-with-section (section commit hash)
+          (when (eq style 'module)
+            (setf (magit-section-type section) 'mcommit))
           (when (derived-mode-p 'magit-log-mode)
             (cl-incf magit-log-count))
           (forward-line)
@@ -6980,7 +6998,8 @@ actually were a single commit."
 
 ;;;;; Diff Washing
 
-(defconst magit-diff-headline-re "^\\(@@@?\\|diff\\|\\* Unmerged path\\)")
+(defconst magit-diff-headline-re
+  "^\\(@@@?\\|diff\\|\\* Unmerged path\\|Submodule\\)")
 
 (defconst magit-diff-statline-re
   (concat "^ ?"
@@ -6990,9 +7009,12 @@ actually were a single commit."
           "\\(\\+*\\)"   ; add
           "\\(-*\\)$"))  ; del
 
+(defconst magit-diff-submodule-re "^Submodule \
+\\([^\s\n]+\\) \\(?:\\([^:\n]+\\):\\|contains modified content\\)$")
+
 (defun magit-wash-diffs ()
   (let ((diffstats (magit-wash-diffstats)))
-    (when (re-search-forward "^\\(diff\\|\\* Unmerged path\\)" nil t)
+    (when (re-search-forward magit-diff-headline-re nil t)
       (goto-char (line-beginning-position))
       (magit-wash-sequence
        (lambda ()
@@ -7022,6 +7044,34 @@ actually were a single commit."
 
 (defun magit-wash-diff (diffstat)
   (cond
+   ((looking-at magit-diff-submodule-re)
+    (let* ((module (match-string 1))
+           (range  (match-string 2))
+           (dirty  (not range)))
+      (delete-region (point) (1+ (line-end-position)))
+      (when (and dirty
+                 (looking-at magit-diff-submodule-re)
+                 (string= (match-string 1) module))
+        (setq range (match-string 2))
+        (delete-region (point) (1+ (line-end-position))))
+      (while (looking-at "^  \\([<>]\\) \\(.+\\)$")
+        (delete-region (point) (1+ (line-end-position))))
+      (if range
+          (let ((default-directory
+                  (file-name-as-directory
+                   (expand-file-name module (magit-get-top-dir)))))
+            (setf (magit-section-info
+                   (magit-git-insert-section
+                       (diff (propertize (format "modified%s  %s\n"
+                                                 (if dirty "%" "/") module)
+                                         'face 'magit-diff-file-header))
+                       (apply-partially 'magit-wash-log 'module)
+                     "log" "--oneline" "--left-right" range))
+                  module))
+        (magit-with-section
+            (section dirty module
+                     (propertize (format "dirty      %s\n" module)
+                                 'face 'magit-diff-file-header))))))
    ((looking-at "^\\* Unmerged path \\(.*\\)")
     (let ((dst (magit-decode-git-path (match-string 1))))
       (delete-region (point) (1+ (line-end-position)))
@@ -7372,7 +7422,7 @@ from the parent keymap `magit-mode-map' are also available.")
   "Copy sha1 of commit at point into kill ring."
   (interactive)
   (magit-section-action copy (info)
-    ((branch commit file diff)
+    ((branch commit mcommit file diff)
      (kill-new info)
      (message "%s" info))))
 
