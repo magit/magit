@@ -7413,14 +7413,9 @@ Non-interactively DIRECTORY is always (re-)initialized."
   "Copy sha1 of commit at point into kill ring."
   (interactive)
   (magit-section-action copy (info)
-    (branch (kill-new info)
-            (message "%s" info))
-    (diff (kill-new info)
-          (message "%s" info))
-    (file (kill-new info)
-          (message "%s" info))
-    (commit (kill-new info)
-            (message "%s" info))))
+    ((branch commit file diff)
+     (kill-new info)
+     (message "%s" info))))
 
 (defun magit-ignore-item (edit &optional local)
   "Ignore the item at point.
