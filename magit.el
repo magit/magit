@@ -4471,17 +4471,17 @@ can be used to override this."
   (insert "\n"))
 
 (defun magit-insert-status-local-line ()
-  (magit-insert-line-section (line)
-    (concat "Local: "
-            (propertize (or (magit-get-current-branch) "(detached)")
-                        'face 'magit-branch)
-            " " (abbreviate-file-name default-directory))))
+  (let ((branch (or (magit-get-current-branch) "(detached)")))
+    (magit-insert-line-section (line branch)
+      (concat "Local: "
+              (propertize branch 'face 'magit-branch)
+              " " (abbreviate-file-name default-directory)))))
 
 (defun magit-insert-status-remote-line ()
   (let* ((branch  (magit-get-current-branch))
          (tracked (magit-get-tracked-branch branch)))
     (when tracked
-      (magit-insert-line-section (line)
+      (magit-insert-line-section (line tracked)
         (concat "Remote: "
                 (and (magit-get-boolean "branch" branch "rebase") "onto ")
                 (magit-format-tracked-line tracked branch))))))
@@ -7413,6 +7413,13 @@ Non-interactively DIRECTORY is always (re-)initialized."
   "Copy sha1 of commit at point into kill ring."
   (interactive)
   (magit-section-action copy (info)
+    (line (when info
+            (kill-new info)
+            (message "%s" info)))
+    (diff (kill-new info)
+          (message "%s" info))
+    (file (kill-new info)
+          (message "%s" info))
     (commit (kill-new info)
             (message "%s" info))))
 
