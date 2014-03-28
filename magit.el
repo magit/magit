@@ -4240,17 +4240,17 @@ can be used to override this."
   (insert "\n"))
 
 (defun magit-insert-status-local-line ()
-  (magit-insert-line-section (line)
-    (concat "Local: "
-            (propertize (or (magit-get-current-branch) "(detached)")
-                        'face 'magit-branch)
-            " " (abbreviate-file-name default-directory))))
+  (let ((branch (or (magit-get-current-branch) "(detached)")))
+    (magit-insert-line-section (branch branch)
+      (concat "Local: "
+              (propertize branch 'face 'magit-branch)
+              " " (abbreviate-file-name default-directory)))))
 
 (defun magit-insert-status-remote-line ()
   (let* ((branch  (magit-get-current-branch))
          (tracked (magit-get-tracked-branch branch)))
     (when tracked
-      (magit-insert-line-section (line)
+      (magit-insert-line-section (branch tracked)
         (concat "Remote: "
                 (and (magit-get-boolean "branch" branch "rebase") "onto ")
                 (magit-format-tracked-line tracked branch))))))
@@ -7361,8 +7361,9 @@ from the parent keymap `magit-mode-map' are also available.")
   "Copy sha1 of commit at point into kill ring."
   (interactive)
   (magit-section-action copy (info)
-    (commit (kill-new info)
-            (message "%s" info))))
+    ((branch commit file diff)
+     (kill-new info)
+     (message "%s" info))))
 
 (defun magit-ignore-item (edit &optional local)
   "Ignore the item at point.
