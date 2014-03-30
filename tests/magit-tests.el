@@ -6,6 +6,7 @@
 
 ;;; Code:
 
+(require 'cl-lib)
 (require 'ert)
 (require 'magit)
 
@@ -13,7 +14,7 @@
 
 (defmacro magit-tests--with-temp-dir (&rest body)
   (declare (indent 0) (debug t))
-  (let ((dir (gensym)))
+  (let ((dir (cl-gensym)))
     `(let ((,dir (file-name-as-directory (make-temp-file "dir" t))))
        (unwind-protect
            (let ((default-directory ,dir)) ,@body)
@@ -27,7 +28,7 @@
 
 (defmacro magit-tests--with-temp-clone (url &rest body)
   (declare (indent 1) (debug t))
-  (let ((repo (gensym)))
+  (let ((repo (cl-gensym)))
     `(let ((,repo ,(or url 'default-directory)))
        (magit-tests--with-temp-dir
          (magit-call-git "clone" ,repo ".")
@@ -53,7 +54,7 @@
   (magit-call-git "-c" "user.name=foo bar"
                   "-c" "user.email=foo@bar.baz"
                   "commit"
-                  "-m" (symbol-name (gensym "message"))
+                  "-m" (symbol-name (cl-gensym "message"))
                   "--" filename))
 
 (defun magit-tests--should-have-section (path info)
