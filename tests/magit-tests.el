@@ -12,6 +12,15 @@
 
 ;;; Utilities
 
+(defmacro magit-tests--silentio (&rest body)
+  ;; Once upon a time there was a dynamic `flet'...
+  (declare (indent defun))
+  (let ((orig (cl-gensym)))
+    `(let ((,orig (symbol-function 'message)))
+       (fset 'message (lambda (&rest silentio)))
+       (prog1 (progn ,@body)
+	 (fset 'message ,orig)))))
+
 (defmacro magit-tests--with-temp-dir (&rest body)
   (declare (indent 0) (debug t))
   (let ((dir (cl-gensym)))
@@ -24,7 +33,7 @@
   (declare (indent 0) (debug t))
   `(magit-tests--with-temp-dir
      (magit-call-git "init" ".")
-     ,@body))
+     (magit-tests--silentio ,@body)))
 
 (defmacro magit-tests--with-temp-clone (url &rest body)
   (declare (indent 1) (debug t))
