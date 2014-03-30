@@ -23,7 +23,10 @@ MKDIR ?= install -p -m 755 -d
 RMDIR ?= rm -rf
 
 MAKEINFO     ?= makeinfo
-INSTALL_INFO ?= install-info
+INSTALL_INFO ?= $(shell \
+  hash ginstall-info 2> /dev/null\
+  && echo ginstall-info\
+  || echo install-info)
 
 EFLAGS ?= -L ../git-modes -L ../cl-lib -L ../dash
 EMACS  ?= emacs
@@ -32,11 +35,11 @@ BATCHE  = $(BATCH) -eval
 BATCHC  = $(BATCH) -f batch-byte-compile
 
 VERSION=$(shell \
-  test -e .git && git describe --tags --dirty 2> /dev/null || \
-  $(BATCHE) "(progn\
-  (require 'cl)\
-  (flet ((message (&rest _) _))\
-    (load-file \"magit-version.el\"))\
+  test -e .git\
+  && git describe --tags --dirty 2> /dev/null\
+  || $(BATCHE) "(progn\
+  (fset 'message (lambda (&rest _)))\
+  (load-file \"magit-version.el\")\
   (princ magit-version))")
 
 .PHONY: lisp
@@ -115,7 +118,9 @@ magit-pkg.el:
 loaddefs: $(LOADDEFS_FILE)
 
 $(LOADDEFS_FILE): $(ELS)
+	@printf "Generating magit-autoloads.el\n"
 	@$(BATCHE) "(progn\
+	(fset 'message (lambda (&rest _)))\
 	(setq vc-handled-backends nil)\
 	(defvar generated-autoload-file nil)\
 	(let ((generated-autoload-file \"$(CURDIR)/$(LOADDEFS_FILE)\")\
@@ -126,10 +131,10 @@ $(LOADDEFS_FILE): $(ELS)
 docs: magit.info dir
 
 %.info: %.texi
-	$(MAKEINFO) $< -o $@
+	@$(MAKEINFO) $< -o $@
 
 dir: magit.info
-	$(INSTALL_INFO) --dir=$@ $<
+	@$(INSTALL_INFO) --dir=$@ $<
 
 define MAILMAP
 Alex Ott <alexott@gmail.com> <ott@flash.lan>
@@ -258,7 +263,7 @@ test-interactive: $(ELCS)
 
 .PHONY: clean
 clean:
-	@echo "Cleaning..."
+	@echo "Cleaning"
 	@$(RM) $(ELCS) $(LOADDEFS_FILE) magit-version.el *.tar.gz *.tar .mailmap
 	@$(RMDIR) magit-$(VERSION)
 	@test ! -e .git || $(RM) magit.info
