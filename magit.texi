@@ -846,13 +846,13 @@ Magit shows them in a section called @emph{Unpulled changes}.  Typing
 
 @table @kbd
 @item o u
-Update the submodules, with a prefix argument it will initializing.
+Update the submodules, with a prefix argument it will also initialize them.
 
 @item o i
 Initialize the submodules.
 
 @item o b
-Update and initialize the submodules in one go.
+Update and initialize the submodules in one go (same as C-u o u).
 
 @item o s
 Synchronizes submodules' remote URL configuration setting to the value
