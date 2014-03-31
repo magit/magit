@@ -335,10 +335,6 @@ configure Magit to do something more useful by customizing the
 to instruct the subsequent @kbd{C-c C-c} to commit all changes.
 Another choice is stage everything at the time of hitting @kbd{c c}.
 
-You can type @kbd{C-c C-a} in the buffer with the change description
-to toggle a flag that determines whether the next commit will
-@emph{amend} the current commit in HEAD.
-
 Typing @kbd{M-n} or @kbd{M-p} will cycle through the
 @code{log-edit-comment-ring}, which will have your previous log
 messages. This is particularly useful if you have a hook that
