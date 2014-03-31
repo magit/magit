@@ -5993,7 +5993,8 @@ depending on the value of option `magit-commit-squash-commit'.
                           (or (and (re-search-forward "^\\* " nil t)
                                    (match-beginning 0))
                               (progn (point-max)
-                                     (forward-comment -1000))))))
+                                     (forward-comment -1000)
+                                     (point))))))
              (cond ((re-search-forward
                      (format "(.*\\<%s\\>.*):" (regexp-quote fun))
                      limit t)
