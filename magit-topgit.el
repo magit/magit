@@ -170,8 +170,9 @@
 ;;; Topics Section
 
 (defun magit-insert-topgit-topics ()
-  (magit-cmd-insert-section (topgit-topics "Topics:")
-    'magit-topgit-wash-topics magit-topgit-executable "summary"))
+  (when magit-topgit-mode
+    (magit-cmd-insert-section (topgit-topics "Topics:")
+      'magit-topgit-wash-topics magit-topgit-executable "summary")))
 
 (defun magit-topgit-wash-topics ()
   (magit-wash-sequence #'magit-topgit-wash-topic))
