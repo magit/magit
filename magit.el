@@ -1794,11 +1794,11 @@ never modify it.")
                 :content-beginning (point-marker)
                 :parent magit-with-section--parent)))
        (setf (magit-section-hidden ,s)
-             (-if-let (old (and magit-with-section--oldroot
-                                (magit-find-section
-                                 (magit-section-path ,s)
-                                 magit-with-section--oldroot)))
-                 (magit-section-hidden old)
+             (--if-let (and magit-with-section--oldroot
+                            (magit-find-section
+                             (magit-section-path ,s)
+                             magit-with-section--oldroot))
+                 (magit-section-hidden it)
                ,(nth 4 arglist)))
        (let ((magit-with-section--parent ,s)
              (magit-with-section--oldroot
@@ -1839,7 +1839,7 @@ never modify it.")
                    (put-text-property (point) next 'magit-section ,s))
                  (goto-char next)))))
          (if (eq ,s magit-root-section)
-             (magit-section-set-hidden magit-root-section nil)
+             (magit-section-set-hidden ,s nil)
            (setf (magit-section-children (magit-section-parent ,s))
                  (nconc (magit-section-children (magit-section-parent ,s))
                         (list ,s)))))
