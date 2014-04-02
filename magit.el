@@ -652,28 +652,6 @@ The function is given one argument, the status buffer."
                 (function-item pop-to-buffer)
                 (function :tag "Other")))
 
-(defcustom magit-status-tags-line-subject 'head
-  "Whether tag or head is the subject on tags line in status buffer.
-
-This controls how the words \"ahead\" and \"behind\" are used on
-the tags line in the status buffer.  The tags line does not
-actually display complete sentences, but when thinking about when
-to use which term, it helps imagining it did.  This option
-controls whether the tag names should be considered the subjects
-or objects in these sentences.
-
-`tag'   The previous tag is *behind* HEAD by N commits.
-        The next tag is *ahead* of HEAD by N commits.
-`head'  HEAD is *ahead* of the previous tag by N commits.
-        HEAD is *behind* the next tag by N commits.
-
-If the value is `tag' the commit counts are fontified; otherwise
-they are not (due to semantic considerations)."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-status
-  :type '(choice (const :tag "tags are the subjects" tag)
-                 (const :tag "head is the subject" head)))
-
 ;;;;;; Diff
 
 (defcustom magit-show-diffstat t
@@ -4272,26 +4250,23 @@ can be used to override this."
 (defun magit-insert-status-tags-line ()
   (let* ((current-tag (magit-get-current-tag t))
          (next-tag (magit-get-next-tag t))
-         (both-tags (and current-tag next-tag t))
-         (tag-subject (eq magit-status-tags-line-subject 'tag)))
+         (both-tags (and current-tag next-tag t)))
     (when (or current-tag next-tag)
       (magit-insert-line-section (line)
         (concat
          (if both-tags "Tags: " "Tag: ")
-         (and current-tag (apply 'magit-format-status-tag-sentence
-                                 tag-subject current-tag))
+         (and current-tag (magit-format-status-tag-sentence
+                           (car current-tag) (cadr current-tag) nil))
          (and both-tags ", ")
-         (and next-tag (apply 'magit-format-status-tag-sentence
-                              (not tag-subject) next-tag)))))))
+         (and next-tag (magit-format-status-tag-sentence
+                        (car next-tag) (cadr next-tag) t)))))))
 
-(defun magit-format-status-tag-sentence (behindp tag cnt &rest ignored)
+(defun magit-format-status-tag-sentence (tag count next)
   (concat (propertize tag 'face 'magit-tag)
-          (and (> cnt 0)
-               (concat (if (eq magit-status-tags-line-subject 'tag)
-                           (concat " (" (propertize (format "%s" cnt)
-                                                    'face 'magit-branch))
-                         (format " (%i" cnt))
-                       " " (if behindp "behind" "ahead") ")"))))
+          (and (> count 0)
+               (format " (%s)"
+                       (propertize (format "%s" count) 'face
+                                   (if next 'magit-tag 'magit-branch))))))
 
 ;;;; Progress Sections
 
