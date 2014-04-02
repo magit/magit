@@ -169,19 +169,7 @@ into the series."
 (defun magit-stgit-show (patch)
   "Show diff of a StGit patch."
   (interactive (list (magit-stgit-read-patch "Show patch" t)))
-  (magit-mode-setup magit-stgit-patch-buffer-name
-                    #'pop-to-buffer
-                    #'magit-commit-mode
-                    #'magit-stgit-refresh-patch-buffer
-                    patch))
-
-(defun magit-stgit-refresh-patch-buffer (patch)
-  (magit-cmd-insert-section (stgit-patch)
-      #'magit-wash-commit
-    magit-stgit-executable "show"
-    "--diff-opts=--decorate=full"
-    (and magit-show-diffstat "--diff-opts=--patch-with-stat")
-    patch))
+  (magit-show-commit patch))
 
 ;;; Mode
 
