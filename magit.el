@@ -6640,13 +6640,11 @@ Other key binding:
 
 (defun magit-insert-cherry-help-lines ()
   (when (derived-mode-p 'magit-cherry-mode)
-    (insert "\n")
-    (magit-insert-line-section (line)
-      (concat (propertize "-" 'face 'magit-cherry-equivalent)
-              " equivalent exists in both refs"))
-    (magit-insert-line-section (line)
-      (concat (propertize "+" 'face 'magit-cherry-unmatched)
-              " unmatched commit tree"))))
+    (magit-with-section (section help 'help)
+      (magit-insert "-" 'magit-cherry-equivalent
+                    " equivalent exists in both refs\n")
+      (magit-insert "+" 'magit-cherry-unmatched
+                    " unmatched commit tree\n"))))
 
 (defun magit-insert-cherry-commits ()
   (magit-git-insert-section (cherries "Cherry commits:")
