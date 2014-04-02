@@ -31,6 +31,7 @@
 
 ;;; Code:
 
+(require 'dash)
 (require 'magit)
 
 (eval-when-compile
@@ -68,21 +69,12 @@
 ;;;###autoload
 (defun magit-svn-find-rev (rev &optional branch)
   "Find commit for svn REVISION in BRANCH."
-  (interactive
-   (list (read-string "SVN revision: ")
-         (and current-prefix-arg
-              (read-string "In branch: "))))
-  (let* ((sha (apply 'magit-git-string
-                     `("svn"
-                       "find-rev"
-                       ,(concat "r" rev)
-                       ,@(when branch (list branch))))))
-    (if sha
-        (magit-show-commit
-         (magit-with-section (section commit sha)
-           (setf (magit-section-info section) sha)
-           sha))
-      (user-error "Revision %s could not be mapped to a commit" rev))))
+  (interactive (list (read-string "SVN revision: ")
+                     (and current-prefix-arg
+                          (read-string "In branch: "))))
+  (--if-let (magit-git-string "svn" "find-rev" (concat "r" rev) branch)
+      (magit-show-commit it)
+    (user-error "Revision %s could not be mapped to a commit" rev)))
 
 ;;;###autoload
 (defun magit-svn-create-branch (name)
