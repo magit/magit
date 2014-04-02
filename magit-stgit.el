@@ -233,7 +233,7 @@ into the series."
 
 (defun magit-stgit-wash-patch ()
   (looking-at magit-stgit-patch-re)
-  (magit-bind-match-strings (empty state patch msg)
+  (magit-bind-match-strings (empty state patch msg) nil
     (delete-region (point) (point-at-eol))
     (magit-with-section (section stgit-patch patch)
       (setf (magit-section-info section) patch)
