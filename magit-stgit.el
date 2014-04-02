@@ -237,16 +237,15 @@ into the series."
     (delete-region (point) (point-at-eol))
     (magit-with-section (section stgit-patch patch)
       (setf (magit-section-info section) patch)
-      (insert (propertize state 'face
-                          (cond ((equal state ">") 'magit-stgit-current)
+      (magit-insert state (cond ((equal state ">") 'magit-stgit-current)
                                 ((equal state "+") 'magit-stgit-applied)
                                 ((equal state "-") 'magit-stgit-unapplied)
                                 ((equal state "!") 'magit-stgit-hidden)
                                 (t (user-error "Unknown stgit patch state: %s"
                                                state))))
-              (propertize empty 'face 'magit-stgit-empty) " ")
+      (magit-insert empty 'magit-stgit-empty ?\s)
       (when magit-stgit-show-patch-name
-        (insert (propertize patch 'face 'magit-stgit-patch) " "))
+        (magit-insert patch 'magit-stgit-patch ?\s))
       (insert msg)
       (forward-line))))
 
