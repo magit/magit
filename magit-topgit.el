@@ -63,7 +63,7 @@
   "Face for section titles."
   :group 'magit-topgit-faces)
 
-;;; Processes
+;;; Utilities
 
 (defun magit-run-topgit (&rest args)
   (apply #'magit-call-topgit args)
@@ -80,11 +80,11 @@
 (defun magit-start-topgit (&optional input &rest args)
   (apply #'magit-start-process magit-topgit-executable input args))
 
-;;; (rest)
-
 (defun magit-topgit-in-topic-p ()
   (and (file-exists-p ".topdeps")
        (executable-find magit-topgit-executable)))
+
+;;; Commands
 
 (defun magit-topgit-create-branch (branch parent)
   (when (zerop (or (string-match magit-topgit-branch-prefix branch) -1))
@@ -130,41 +130,7 @@
   ;; regular "git remote update" to happen.
   nil)
 
-(defun magit-topgit-parse-flags (flags-string)
-  (let ((flags (string-to-list flags-string))
-        (void-flag ?\ ))
-    (list :current (not (eq (nth 0 flags) void-flag))
-          :empty (not (eq (nth 1 flags) void-flag)))))
-
-(defun magit-topgit-wash-topic ()
-  (let ((fmt "^\\(.\\{7\\}\\)\\s-\\(\\S-+\\)\\s-+\\(.*\\)"))
-    (if (re-search-forward fmt (line-end-position) t)
-        (let ((flags (magit-topgit-parse-flags (match-string 1)))
-              (topic (match-string 2)))
-          (goto-char (line-beginning-position))
-          (delete-char 8)
-          (insert "\t")
-          (goto-char (line-beginning-position))
-          (magit-with-section (section topgit-topic topic)
-            (setf (magit-section-info section) topic)
-            (let ((beg (1+ (line-beginning-position)))
-                  (end (line-end-position)))
-              (when (plist-get flags :current)
-                (put-text-property beg end 'face 'magit-topgit-current))
-              (when (plist-get flags :empty)
-                (put-text-property
-                 beg end 'face
-                 `(:strike-through t :inherit ,(get-text-property beg 'face)))))
-            (forward-line)))
-      (delete-region (line-beginning-position) (1+ (line-end-position))))
-    t))
-
-(defun magit-topgit-wash-topics ()
-  (magit-wash-sequence #'magit-topgit-wash-topic))
-
-(defun magit-insert-topgit-topics ()
-  (magit-cmd-insert-section (topgit-topics "Topics:")
-      'magit-topgit-wash-topics magit-topgit-executable "summary"))
+;;; Mode
 
 ;;;###autoload
 (define-minor-mode magit-topgit-mode "Topgit support for Magit"
@@ -194,12 +160,50 @@
     (magit-refresh)))
 
 (put 'magit-topgit-checkout 'magit-section-action-context 'topgit-topic)
-(put 'magit-topgit-discard   'magit-section-action-context 'topgit-topic)
+(put 'magit-topgit-discard  'magit-section-action-context 'topgit-topic)
 
 ;;;###autoload
 (defun turn-on-magit-topgit ()
   "Unconditionally turn on `magit-topgit-mode'."
   (magit-topgit-mode 1))
+
+;;; Topics Section
+
+(defun magit-insert-topgit-topics ()
+  (magit-cmd-insert-section (topgit-topics "Topics:")
+    'magit-topgit-wash-topics magit-topgit-executable "summary"))
+
+(defun magit-topgit-wash-topics ()
+  (magit-wash-sequence #'magit-topgit-wash-topic))
+
+(defun magit-topgit-wash-topic ()
+  (let ((fmt "^\\(.\\{7\\}\\)\\s-\\(\\S-+\\)\\s-+\\(.*\\)"))
+    (if (re-search-forward fmt (line-end-position) t)
+        (let ((flags (magit-topgit-parse-flags (match-string 1)))
+              (topic (match-string 2)))
+          (goto-char (line-beginning-position))
+          (delete-char 8)
+          (insert "\t")
+          (goto-char (line-beginning-position))
+          (magit-with-section (section topgit-topic topic)
+            (setf (magit-section-info section) topic)
+            (let ((beg (1+ (line-beginning-position)))
+                  (end (line-end-position)))
+              (when (plist-get flags :current)
+                (put-text-property beg end 'face 'magit-topgit-current))
+              (when (plist-get flags :empty)
+                (put-text-property
+                 beg end 'face
+                 `(:strike-through t :inherit ,(get-text-property beg 'face)))))
+            (forward-line)))
+      (delete-region (line-beginning-position) (1+ (line-end-position))))
+    t))
+
+(defun magit-topgit-parse-flags (flags-string)
+  (let ((flags (string-to-list flags-string))
+        (void-flag ?\ ))
+    (list :current (not (eq (nth 0 flags) void-flag))
+          :empty (not (eq (nth 1 flags) void-flag)))))
 
 (provide 'magit-topgit)
 ;; Local Variables:
