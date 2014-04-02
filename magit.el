@@ -2035,12 +2035,6 @@ never modify it.")
   (magit-log-maybe-show-commit section)
   (magit-log-maybe-show-more-entries section))
 
-(defun magit-goto-section-at-path (path)
-  "Go to the section described by PATH."
-  (--if-let (magit-find-section path magit-root-section)
-      (goto-char (magit-section-beginning it))
-    (message "No such section")))
-
 (defmacro magit-define-section-jumper (sym title)
   "Define an interactive function to go to section SYM.
 TITLE is the displayed title of the section."
@@ -2050,10 +2044,11 @@ TITLE is the displayed title of the section."
 Jump to section '%s'.
 With a prefix argument also expand it." title)
          (interactive "P")
-         (if (magit-goto-section-at-path '(,sym))
-             (when expand
-               (with-local-quit (magit-expand-section))
-               (recenter 0))
+         (--if-let (magit-find-section '(,sym) magit-root-section)
+             (progn (goto-char (magit-section-beginning it))
+                    (when expand
+                      (with-local-quit (magit-expand-section))
+                      (recenter 0)))
            (message ,(format "Section '%s' wasn't found" title))))
        (put ',fun 'definition-name ',sym))))
 
