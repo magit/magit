@@ -7405,7 +7405,7 @@ Non-interactively DIRECTORY is always (re-)initialized."
                       (format "%s is a repository.  Create another in %s? "
                               top dir)))))
          (user-error "Abort")
-       dir)))
+       (list dir))))
   (magit-run-git "init" (expand-file-name directory)))
 
 (defun magit-copy-item-as-kill ()
