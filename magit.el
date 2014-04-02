@@ -7061,7 +7061,7 @@ If there is no commit at point, then prompt for one."
               magit-highlight-indentation
               (cdr (cl-find-if (lambda (pair)
                                  (string-match-p (car pair) default-directory))
-                               (default-value magit-highlight-indentation)
+                               (default-value 'magit-highlight-indentation)
                                :from-end t))))))
       (when (and magit-highlight-trailing-whitespace
                  (looking-at (concat prefix ".*\\([ \t]+\\)$")))
