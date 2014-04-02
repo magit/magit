@@ -9,7 +9,7 @@
 ;; Author: Yann Hodique <yann.hodique@gmail.com>
 ;; Keywords: vc tools
 ;; Package: magit-topgit
-;; Package-Requires: ((cl-lib "0.3") (magit "1.3.0"))
+;; Package-Requires: ((cl-lib "0.3") (magit "2.0.50"))
 
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
