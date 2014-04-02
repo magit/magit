@@ -780,7 +780,7 @@ toggled temporarily using the command `magit-log-toggle-margin'."
 
 (put 'magit-log-show-margin 'permanent-local t)
 
-(defcustom magit-log-margin-spec '(25 nil magit-duration-spec)
+(defcustom magit-log-margin-spec '(28 nil magit-duration-spec)
   "How to format the margin for `oneline' logs.
 
 When the log buffer contains a `oneline' log, then it optionally
