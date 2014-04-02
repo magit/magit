@@ -1706,7 +1706,6 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
   (if magit-use-overlays
       (let ((ov (make-overlay start end nil t)))
         (overlay-put ov 'face face)
-        ;; (overlay-put ov 'priority 10)
         (overlay-put ov 'evaporate t))
     (put-text-property start end 'face face)))
 
