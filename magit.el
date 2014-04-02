@@ -652,14 +652,6 @@ The function is given one argument, the status buffer."
                 (function-item pop-to-buffer)
                 (function :tag "Other")))
 
-(defcustom magit-status-show-sequence-help t
-  "Whether to show instructions on how to proceed a stopped action.
-When this is non-nil and a commit failed to apply during a merge
-or rebase, then show instructions on how to continue."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-status
-  :type 'boolean)
-
 (defcustom magit-status-tags-line-subject 'head
   "Whether tag or head is the subject on tags line in status buffer.
 
@@ -4307,18 +4299,14 @@ can be used to override this."
   (-when-let (heads (magit-file-lines (magit-git-dir "MERGE_HEAD")))
     (magit-insert-line-section (line)
       (concat "Merging: "
-              (mapconcat 'identity (mapcar 'magit-get-shortname heads) ", ")
-              (and magit-status-show-sequence-help
-                   "; Resolve conflicts, or press \"m A\" to Abort")))))
+              (mapconcat 'identity (mapcar 'magit-get-shortname heads) ", ")))))
 
 (defun magit-insert-status-rebase-lines ()
   (-when-let (rebase (magit-rebase-info))
     (cl-destructuring-bind (onto done total hash am) rebase
       (magit-insert-line-section (line)
         (concat (if am "Applying" "Rebasing")
-                (format ": onto %s (%s of %s)" onto done total)
-                (and magit-status-show-sequence-help
-                     "; Press \"r\" to Abort, Skip, or Continue")))
+                (format ": onto %s (%s of %s)" onto done total)))
       (when (and (not am) hash)
         (magit-insert-line-section (commit hash)
           (concat "Stopped: " (magit-format-rev-summary hash)))))))
