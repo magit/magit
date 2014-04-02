@@ -163,7 +163,7 @@
   (magit-wash-sequence #'magit-topgit-wash-topic))
 
 (defun magit-insert-topgit-topics ()
-  (magit-cmd-insert-section ('topgit-topics "Topics:")
+  (magit-cmd-insert-section (topgit-topics "Topics:")
       'magit-topgit-wash-topics magit-topgit-executable "summary"))
 
 ;;;###autoload
