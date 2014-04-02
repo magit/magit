@@ -258,6 +258,7 @@
       ("s" "Stop" magit-rewrite-stop)
       ("a" "Abort" magit-rewrite-abort)
       ("f" "Finish" magit-rewrite-finish)
+      ("d" "Diff pending" magit-rewrite-diff-pending)
       ("*" "Set unused" magit-rewrite-set-unused)
       ("." "Set used" magit-rewrite-set-used)))
 

@@ -741,7 +741,6 @@ manager but it will be used in more places in the future."
     magit-insert-bisect-log
     magit-insert-stashes
     magit-insert-untracked-files
-    magit-insert-pending-changes
     magit-insert-pending-commits
     magit-insert-unstaged-changes
     magit-insert-staged-changes
@@ -2765,7 +2764,6 @@ With a prefix argument also expand it." title)
 (magit-define-section-jumper staged    "Staged changes")
 (magit-define-section-jumper unpulled  "Unpulled commits")
 (magit-define-section-jumper unpushed  "Unpushed commits")
-(magit-define-section-jumper pending   "Pending commits")
 (magit-define-section-jumper diffstats "Diffstats")
 
 ;;;;; Section Hooks
@@ -4400,14 +4398,6 @@ can be used to override this."
                       "\n")))))
       (insert "\n"))))
 
-(defun magit-insert-pending-changes ()
-  (let* ((info (magit-read-rewrite-info))
-         (orig (cadr (assq 'orig info))))
-    (when orig
-      (magit-git-insert-section (pending-changes "Pending changes:")
-          #'magit-wash-diffs
-        "diff" (magit-diff-U-arg) "-R" orig))))
-
 (defun magit-insert-unstaged-changes ()
   (let ((magit-current-diff-range (cons 'index 'working))
         (magit-diff-options (copy-sequence magit-diff-options)))
@@ -5587,6 +5577,14 @@ With two prefix args, remove ignored files as well."
             (t
              (magit-refresh)
              (error "Could not apply %s" commit))))))
+
+(defun magit-rewrite-diff-pending ()
+  (interactive)
+  (let* ((info (magit-read-rewrite-info))
+         (orig (cadr (assq 'orig info))))
+    (if orig
+        (magit-diff orig nil "-R")
+      (user-error "No rewrite in progress"))))
 
 ;;;;; Fetching
 
