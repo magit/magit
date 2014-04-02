@@ -2841,12 +2841,10 @@ tracked in the current repository are reverted if
       (let ((ret-pos (length string)))
         (while (and (>= (setq ret-pos (1- ret-pos)) 0)
                     (/= ?\r (aref string ret-pos))))
-        (cond ((>= ret-pos 0)
-               (goto-char (line-beginning-position))
-               (delete-region (point) (line-end-position))
-               (insert-and-inherit (substring string (+ ret-pos 1))))
-              (t
-               (insert-and-inherit string))))
+        (if (< ret-pos 0)
+            (insert-and-inherit string)
+          (delete-region (line-beginning-position) (point))
+          (insert-and-inherit (substring string (1+ ret-pos)))))
       (set-marker (process-mark proc) (point)))))
 
 (defun magit-process-logfile-filter (process string)
