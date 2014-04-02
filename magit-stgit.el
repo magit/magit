@@ -232,22 +232,22 @@ into the series."
       magit-stgit-executable "series" "--all" "--empty" "--description")))
 
 (defun magit-stgit-wash-patch ()
-  (looking-at magit-stgit-patch-re)
-  (magit-bind-match-strings (empty state patch msg) nil
-    (delete-region (point) (point-at-eol))
-    (magit-with-section (section stgit-patch patch)
-      (setf (magit-section-info section) patch)
-      (magit-insert state (cond ((equal state ">") 'magit-stgit-current)
-                                ((equal state "+") 'magit-stgit-applied)
-                                ((equal state "-") 'magit-stgit-unapplied)
-                                ((equal state "!") 'magit-stgit-hidden)
-                                (t (user-error "Unknown stgit patch state: %s"
-                                               state))))
-      (magit-insert empty 'magit-stgit-empty ?\s)
-      (when magit-stgit-show-patch-name
-        (magit-insert patch 'magit-stgit-patch ?\s))
-      (insert msg)
-      (forward-line))))
+  (when (looking-at magit-stgit-patch-re)
+    (magit-bind-match-strings (empty state patch msg) nil
+      (delete-region (point) (point-at-eol))
+      (magit-with-section (section stgit-patch patch)
+        (setf (magit-section-info section) patch)
+        (magit-insert state (cond ((equal state ">") 'magit-stgit-current)
+                                  ((equal state "+") 'magit-stgit-applied)
+                                  ((equal state "-") 'magit-stgit-unapplied)
+                                  ((equal state "!") 'magit-stgit-hidden)
+                                  (t (user-error "Unknown stgit patch state: %s"
+                                                 state))))
+        (magit-insert empty 'magit-stgit-empty ?\s)
+        (when magit-stgit-show-patch-name
+          (magit-insert patch 'magit-stgit-patch ?\s))
+        (insert msg)
+        (forward-line)))))
 
 (provide 'magit-stgit)
 ;; Local Variables:
