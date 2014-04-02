@@ -2063,7 +2063,6 @@ With a prefix argument also expand it." title)
 (magit-define-section-jumper staged    "Staged changes")
 (magit-define-section-jumper unpulled  "Unpulled commits")
 (magit-define-section-jumper unpushed  "Unpushed commits")
-(magit-define-section-jumper pending   "Pending commits")
 (magit-define-section-jumper diffstats "Diffstats")
 
 ;;;;; Section Hooks
@@ -4897,7 +4896,7 @@ Non-interactively DIRECTORY is always (re-)initialized."
                       (format "%s is a repository.  Create another in %s? "
                               top dir)))))
          (user-error "Abort")
-       dir)))
+       (list dir))))
   (magit-run-git "init" (expand-file-name directory)))
 
 ;;;;; Merging
@@ -7155,7 +7154,7 @@ actually were a single commit."
               magit-highlight-indentation
               (cdr (cl-find-if (lambda (pair)
                                  (string-match-p (car pair) default-directory))
-                               (default-value magit-highlight-indentation)
+                               (default-value 'magit-highlight-indentation)
                                :from-end t))))))
       (when (and magit-highlight-trailing-whitespace
                  (looking-at (concat prefix ".*?\\([ \t]+\\)$")))
