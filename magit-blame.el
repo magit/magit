@@ -53,7 +53,7 @@
   :type 'string)
 
 (defface magit-blame-header
-  '((t :inherit magit-header))
+  '((t :inherit magit-section-title))
   "Face for blame header."
   :group 'magit-faces)
 

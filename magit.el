@@ -1114,25 +1114,28 @@ t          ask if --set-upstream should be used.
 
 ;;;; Custom Faces
 
-(defface magit-header
-  '((t :inherit header-line))
-  "Face for generic header lines.
-
-Many Magit faces inherit from this one by default."
-  :group 'magit-faces)
-
 (defface magit-section-title
-  '((t :inherit magit-header))
+  '((t :inherit header-line))
   "Face for section titles."
   :group 'magit-faces)
 
 (defface magit-branch
-  '((t :inherit magit-header))
+  '((((class color) (background light))
+     :background "Grey85"
+     :foreground "LightSkyBlue4")
+    (((class color) (background dark))
+     :background "Grey13"
+     :foreground "LightSkyBlue1"))
   "Face for branches."
   :group 'magit-faces)
 
 (defface magit-tag
-  '((t :inherit magit-header))
+  '((((class color) (background light))
+     :background "LemonChiffon1"
+     :foreground "goldenrod4")
+    (((class color) (background dark))
+     :background "LemonChiffon1"
+     :foreground "goldenrod4"))
   "Face for tags."
   :group 'magit-faces)
 
@@ -1468,13 +1471,13 @@ Many Magit faces inherit from this one by default."
   :group 'magit-faces)
 
 (defface magit-process-ok
-  '((t :inherit magit-header
+  '((t :inherit magit-section-title
        :foreground "green"))
   "Face for zero exit-status."
   :group 'magit-faces)
 
 (defface magit-process-ng
-  '((t :inherit magit-header
+  '((t :inherit magit-section-title
        :foreground "red"))
   "Face for non-zero exit-status."
   :group 'magit-faces)
