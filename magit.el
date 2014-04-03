@@ -7326,7 +7326,7 @@ from the parent keymap `magit-mode-map' are also available.")
           (append (mapcar (lambda (remote)
                             (save-excursion
                               (when (re-search-forward
-                                     (concat "^  remotes/" remote) nil t)
+                                     (format "^  remotes/%s/" remote) nil t)
                                 (beginning-of-line)
                                 (point-marker))))
                           remotes)
