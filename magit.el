@@ -7075,7 +7075,7 @@ actually were a single commit."
       (magit-with-section (s hunk heading (concat heading "\n"))
         (while (not (or (eobp) (looking-at magit-diff-headline-re)))
           (magit-put-face-property
-           (point) (line-end-position)
+           (point) (1+ (line-end-position))
            (cond
             ((looking-at "^\\+\\+<<<<<<<") 'magit-diff-merge-current)
             ((looking-at "^\\+\\+=======") 'magit-diff-merge-separator)
