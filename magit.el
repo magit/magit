@@ -6419,7 +6419,7 @@ Other key binding:
       (magit-insert-ref-labels refs))
     (when refsub
       (insert (format "%-2s " refsel))
-      (insert (magit-log-format-reflog refsub)))
+      (magit-insert (magit-log-format-reflog refsub)))
     (when msg
       (magit-insert msg (cl-case (and gpg (aref gpg 0))
                           (?G 'magit-signature-good)
