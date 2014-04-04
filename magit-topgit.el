@@ -186,7 +186,7 @@
           (delete-char 8)
           (insert "\t")
           (goto-char (line-beginning-position))
-          (magit-with-section (section topgit-topic topic)
+          (magit-with-section (topgit-topic topic)
             (let ((beg (1+ (line-beginning-position)))
                   (end (line-end-position)))
               (when (plist-get flags :current)

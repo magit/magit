@@ -235,7 +235,7 @@ into the series."
   (when (looking-at magit-stgit-patch-re)
     (magit-bind-match-strings (empty state patch msg) nil
       (delete-region (point) (point-at-eol))
-      (magit-with-section (section stgit-patch patch)
+      (magit-with-section (stgit-patch patch)
         (magit-insert state (cond ((equal state ">") 'magit-stgit-current)
                                   ((equal state "+") 'magit-stgit-applied)
                                   ((equal state "-") 'magit-stgit-unapplied)
