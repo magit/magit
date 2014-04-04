@@ -227,9 +227,18 @@ into the series."
 
 (defun magit-insert-stgit-series ()
   (when magit-stgit-mode
-    (magit-cmd-insert-section (series "Patch series:")
-        (apply-partially 'magit-wash-sequence 'magit-stgit-wash-patch)
-      magit-stgit-executable "series" "--all" "--empty" "--description")))
+    (magit-insert-section (series)
+      (magit-insert-heading "Patch series:")
+      (let ((beg (point)))
+        (process-file magit-stgit-executable nil (list t nil) nil
+                      "series" "--all" "--empty" "--description")
+        (if (= (point) beg)
+            (magit-cancel-section)
+          (save-restriction
+            (narrow-to-region beg (point))
+            (goto-char beg)
+            (magit-wash-sequence #'magit-stgit-wash-patch)))
+        (insert ?\n)))))
 
 (defun magit-stgit-wash-patch ()
   (when (looking-at magit-stgit-patch-re)
