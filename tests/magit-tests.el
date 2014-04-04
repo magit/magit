@@ -66,11 +66,11 @@
                   "-m" (symbol-name (cl-gensym "message"))
                   "--" filename))
 
-(defun magit-tests--should-have-section (path info)
+(defun magit-tests--should-have-section (type info)
   (magit-status default-directory)
   (should (cl-find info
                    (magit-section-children
-                    (magit-find-section (list path) magit-root-section))
+                    (magit-find-section `((,type) (status))))
                    :key 'magit-section-value :test 'equal)))
 
 ;;; Tests
