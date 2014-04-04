@@ -4231,7 +4231,7 @@ can be used to override this."
                       (setq tracked (substring tracked (1+ (length remote)))))
                     (concat (propertize tracked 'face 'magit-branch)
                             " @ " remote
-                            " (" (magit-get "remote" remote "url") ")"))))))))
+                            (magit-get "remote" remote "url")))))))))
 
 (defun magit-insert-status-head-line ()
   (-if-let (hash (magit-rev-parse "--verify" "HEAD"))
