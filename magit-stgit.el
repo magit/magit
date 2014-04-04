@@ -65,12 +65,15 @@
   :group 'magit-faces)
 
 (defface magit-stgit-patch
-  '((t :inherit magit-log-sha1))
+  '((t :inherit magit-hash))
   "Face for name of a stgit patch."
   :group 'magit-stgit-faces)
 
+(add-to-list 'magit-ref-namespaces
+             '("^refs/patches/\\(.+\\)" magit-stgit-patch nil))
+
 (defface magit-stgit-current
-  '((t :inherit magit-log-sha1))
+  '((t :inherit magit-hash))
   "Face for the current stgit patch."
   :group 'magit-stgit-faces)
 
@@ -85,12 +88,12 @@
   :group 'magit-stgit-faces)
 
 (defface magit-stgit-empty
-  '((t :inherit magit-diff-del))
+  '((t :inherit magit-diff-removed))
   "Face for an empty stgit patch."
   :group 'magit-stgit-faces)
 
 (defface magit-stgit-hidden
-  '((t :inherit magit-diff-empty))
+  '((t :inherit magit-diff-context))
   "Face for an hidden stgit patch."
   :group 'magit-stgit-faces)
 
