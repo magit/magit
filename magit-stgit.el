@@ -88,12 +88,12 @@
   :group 'magit-stgit-faces)
 
 (defface magit-stgit-empty
-  '((t :inherit magit-diff-del))
+  '((t :inherit magit-diff-removed))
   "Face for an empty stgit patch."
   :group 'magit-stgit-faces)
 
 (defface magit-stgit-hidden
-  '((t :inherit magit-diff-empty))
+  '((t :inherit magit-diff-context))
   "Face for an hidden stgit patch."
   :group 'magit-stgit-faces)
 

@@ -982,17 +982,17 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   "Face for diff hunk header lines."
   :group 'magit-faces)
 
-(defface magit-diff-add
+(defface magit-diff-added
   '((t :inherit diff-added))
   "Face for lines in a diff that have been added."
   :group 'magit-faces)
 
-(defface magit-diff-del
+(defface magit-diff-removed
   '((t :inherit diff-removed))
-  "Face for lines in a diff that have been deleted."
+  "Face for lines in a diff that have been removed."
   :group 'magit-faces)
 
-(defface magit-diff-none
+(defface magit-diff-context
   '((t :inherit diff-context))
   "Face for lines in a diff that are unchanged."
   :group 'magit-faces)
@@ -6332,8 +6332,8 @@ Other key binding:
                              'magit-cherry-unmatched) ?\s))
     (when side
       (magit-insert side (if (string= side "<")
-                             'magit-diff-del
-                           'magit-diff-add) ?\s))
+                             'magit-diff-removed
+                           'magit-diff-added) ?\s))
     (unless (eq style 'long)
       (when (eq style 'bisect-log)
 	(setq hash (magit-git-string "rev-parse" "--short" hash)))
@@ -6927,8 +6927,8 @@ actually were a single commit."
                (delete-region (point) (1+ (line-end-position)))
                (magit-insert-section (diffstat)
                  (insert " " file sep cnt " ")
-                 (when add (insert (propertize add 'face 'magit-diff-add)))
-                 (when del (insert (propertize del 'face 'magit-diff-del)))
+                 (when add (insert (propertize add 'face 'magit-diff-added)))
+                 (when del (insert (propertize del 'face 'magit-diff-removed)))
                  (insert "\n"))))))
         (setq diffstats (magit-section-children it))))
     diffstats))
@@ -7021,11 +7021,11 @@ actually were a single commit."
             ((looking-at "^\\+\\+>>>>>>>") 'magit-diff-merge-proposed)
             ((looking-at (if merging  "^\\(\\+\\| \\+\\)" "^\\+"))
              (magit-diff-highlight-whitespace merging)
-             'magit-diff-add)
+             'magit-diff-added)
             ((looking-at (if merging  "^\\(-\\| -\\)" "^-"))
-             'magit-diff-del)
+             'magit-diff-removed)
             (t
-             'magit-diff-none)))
+             'magit-diff-context)))
             (forward-line))
         (when (eq magit-diff-refine-hunk 'all)
           (magit-diff-refine-hunk it))))
