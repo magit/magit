@@ -69,6 +69,9 @@
   "Face for name of a stgit patch."
   :group 'magit-stgit-faces)
 
+(add-to-list 'magit-ref-namespaces
+             '("^refs/patches/\\(.+\\)" magit-log-head-label-patches nil))
+
 (defface magit-stgit-current
   '((t :inherit magit-log-sha1))
   "Face for the current stgit patch."

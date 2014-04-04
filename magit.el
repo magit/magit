@@ -582,7 +582,6 @@ what you want."
     ("^refs/bisect/\\(skip.*\\)" magit-log-head-label-bisect-skip nil)
     ("^refs/bisect/\\(good.*\\)" magit-log-head-label-bisect-good nil)
     ("^refs/wip/\\(.+\\)"        magit-log-head-label-wip nil)
-    ("^refs/patches/\\(.+\\)"    magit-log-head-label-patches nil)
     ("^\\(bad\\):"               magit-log-head-label-bisect-bad nil)
     ("^\\(skip\\):"              magit-log-head-label-bisect-skip nil)
     ("^\\(good\\):"              magit-log-head-label-bisect-good nil)
