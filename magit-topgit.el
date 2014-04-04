@@ -59,7 +59,7 @@
   :group 'magit-faces)
 
 (defface magit-topgit-current
-  '((t :weight bold :inherit magit-branch))
+  '((t :weight bold :inherit magit-log-head-label-local))
   "Face for section titles."
   :group 'magit-topgit-faces)
 

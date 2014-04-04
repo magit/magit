@@ -973,26 +973,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   "Face for section titles."
   :group 'magit-faces)
 
-(defface magit-branch
-  '((((class color) (background light))
-     :background "Grey85"
-     :foreground "LightSkyBlue4")
-    (((class color) (background dark))
-     :background "Grey13"
-     :foreground "LightSkyBlue1"))
-  "Face for branches."
-  :group 'magit-faces)
-
-(defface magit-tag
-  '((((class color) (background light))
-     :background "LemonChiffon1"
-     :foreground "goldenrod4")
-    (((class color) (background dark))
-     :background "LemonChiffon1"
-     :foreground "goldenrod4"))
-  "Face for tags."
-  :group 'magit-faces)
-
 (defface magit-diff-file-header
   '((t :bold t))
   "Face for diff file header lines."
@@ -4197,14 +4177,12 @@ can be used to override this."
       (magit-insert-header "Remote" (branch tracked)
         (let ((remote (magit-get "branch" branch "remote"))
               (rebase (magit-get-boolean "branch" branch "rebase")))
-          (concat (and rebase "onto ")
-                  (if (string= "." remote)
-                      (propertize tracked 'face 'magit-branch)
-                    (when (string-match (concat "^" remote) tracked)
-                      (setq tracked (substring tracked (1+ (length remote)))))
-                    (concat (propertize tracked 'face 'magit-branch)
-                            " @ " remote
-                            (magit-get "remote" remote "url")))))))))
+          (concat
+           (and rebase "onto ")
+           (if (string= "." remote)
+               (propertize tracked 'face 'magit-log-head-label-local)
+             (concat (propertize tracked 'face 'magit-log-head-label-remote) " "
+                     (magit-get "remote" remote "url")))))))))
 
 (defun magit-insert-status-head-line ()
   (-if-let (hash (magit-rev-parse "--verify" "HEAD"))
@@ -4227,11 +4205,13 @@ can be used to override this."
                        (car next-tag) (cadr next-tag) t))))))
 
 (defun magit-format-status-tag-sentence (tag count next)
-  (concat (propertize tag 'face 'magit-tag)
+  (concat (propertize tag 'face 'magit-log-head-label-tags)
           (and (> count 0)
                (format " (%s)"
                        (propertize (format "%s" count) 'face
-                                   (if next 'magit-tag 'magit-branch))))))
+                                   (if next
+                                       'magit-log-head-label-tags
+                                     'magit-log-head-label-local))))))
 
 ;;;; Progress Sections
 
@@ -6571,13 +6551,13 @@ Other key binding:
 (defun magit-insert-cherry-head-line ()
   (let ((branch (cadr magit-refresh-args)))
     (magit-insert-header "Head" (branch branch)
-      (propertize branch 'face 'magit-branch) " "
+      (propertize branch 'face 'magit-log-head-label-local) " "
       (abbreviate-file-name default-directory))))
 
 (defun magit-insert-cherry-upstream-line ()
   (let ((branch (car magit-refresh-args)))
     (magit-insert-header "Upstream" (branch branch)
-      (propertize branch 'face 'magit-branch))))
+      (propertize branch 'face 'magit-log-head-label-local))))
 
 (defun magit-insert-cherry-help-lines ()
   (when (derived-mode-p 'magit-cherry-mode)
@@ -7199,7 +7179,7 @@ into the selected branch."
         (magit-insert-heading
           (format "%3s %s\n"
                   (if focus
-                      (propertize " * " 'face 'magit-branch)
+                      (propertize " * " 'face 'magit-log-head-label-local)
                     count)
                   (magit-format-ref-label upstream)))
         (if (magit-section-hidden it)
@@ -7291,7 +7271,7 @@ from the parent keymap `magit-mode-map' are also available.")
               magit-local-branch-format
               `((?a . ,(or ahead ""))
                 (?b . ,(or behind ""))
-                (?c . ,(propertize marker 'face 'magit-branch))
+                (?c . ,marker)
                 (?f . ,fill)
                 (?m . ,message)
                 (?n . ,(propertize branch 'face 'magit-log-head-label-local))
@@ -7333,7 +7313,7 @@ from the parent keymap `magit-mode-map' are also available.")
       (magit-insert-section (tag)
         (magit-insert
          (format-spec magit-tags-format
-                      `((?n . ,(propertize tag 'face 'magit-tag)))))))
+                      `((?n . ,(propertize tag 'face 'magit-log-head-label-tags)))))))
     (insert ?\n)))
 
 ;;; Miscellaneous
