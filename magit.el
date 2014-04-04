@@ -3304,6 +3304,8 @@ tracked in the current repository."
     (setq buffer (current-buffer)))
   (with-current-buffer buffer
     (when (derived-mode-p 'magit-mode)
+      (when (derived-mode-p 'magit-status-mode)
+        (magit-save-some-buffers))
       (magit-mode-refresh-buffer buffer))
     (let (status)
       (when (and (not (eq major-mode 'magit-status-mode))
