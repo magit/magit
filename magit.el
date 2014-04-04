@@ -1859,16 +1859,14 @@ never modify it.")
         (overlay-put ov 'evaporate t))
     (put-text-property start end 'face face)))
 
-(defmacro magit-insert-header (arglist &rest args)
-  "\n\n(fn (TYPE VALUE KEYWORD) &rest args)"
-  (declare (indent 1))
-  (let ((keyword (cl-gensym "keyword")))
-    `(let ((,keyword ,(nth 2 arglist)))
-       (magit-insert-section (,(car arglist) ,(cadr arglist))
-         (insert ,keyword ":"
-                 (make-string (max 1 (- magit-status-line-align-to
-                                        (length ,keyword))) ?\s))
-         (magit-insert (concat ,@args) nil ?\n)))))
+(defmacro magit-insert-header (keyword arglist &rest body)
+  "\n\n(fn KEYWORD (TYPE &optional VALUE) &rest body)"
+  (declare (indent 2))
+  `(magit-insert-section ,arglist
+     (insert ,keyword ":"
+             (make-string (max 1 (- magit-status-line-align-to
+                                    (length ,keyword))) ?\s))
+     (magit-insert (concat ,@body) nil ?\n)))
 
 ;;;;; Section Searching
 
@@ -4220,7 +4218,7 @@ can be used to override this."
 
 (defun magit-insert-status-local-line ()
   (let ((branch (or (magit-get-current-branch) "(detached)")))
-    (magit-insert-header (branch branch "Local")
+    (magit-insert-header "Local" (branch branch)
       (propertize branch 'face 'magit-branch) " "
       (abbreviate-file-name default-directory))))
 
@@ -4228,7 +4226,7 @@ can be used to override this."
   (let* ((branch  (magit-get-current-branch))
          (tracked (magit-get-tracked-branch branch)))
     (when tracked
-      (magit-insert-header (branch tracked "Remote")
+      (magit-insert-header "Remote" (branch tracked)
         (let ((remote (magit-get "branch" branch "remote"))
               (rebase (magit-get-boolean "branch" branch "rebase")))
           (concat (and rebase "onto ")
@@ -4242,9 +4240,9 @@ can be used to override this."
 
 (defun magit-insert-status-head-line ()
   (-if-let (hash (magit-rev-parse "--verify" "HEAD"))
-      (magit-insert-header (commit hash "Head")
+      (magit-insert-header "Head" (commit hash)
         (magit-format-rev-summary "HEAD"))
-    (magit-insert-header (no-commit nil "Head")
+    (magit-insert-header "Head" (no-commit)
       "nothing committed yet")))
 
 (defun magit-insert-status-tags-line ()
@@ -4252,8 +4250,8 @@ can be used to override this."
          (next-tag (magit-get-next-tag t))
          (both-tags (and current-tag next-tag t)))
     (when (or current-tag next-tag)
-      (magit-insert-header (tag (or current-tag next-tag)
-                                (if both-tags "Tags" "Tag"))
+      (magit-insert-header (if both-tags "Tags" "Tag")
+          (tag (or current-tag next-tag))
         (and current-tag (magit-format-status-tag-sentence
                           (car current-tag) (cadr current-tag) nil))
         (and both-tags ", ")
@@ -4272,16 +4270,16 @@ can be used to override this."
 (defun magit-insert-status-merge-line ()
   (-when-let (heads (mapcar 'magit-get-shortname
                             (magit-file-lines (magit-git-dir "MERGE_HEAD"))))
-    (magit-insert-header (commit (car heads) "Merging")
+    (magit-insert-header "Merging" (commit (car heads))
       (mapconcat 'identity heads ", "))))
 
 (defun magit-insert-status-rebase-lines ()
   (-when-let (rebase (magit-rebase-info))
     (cl-destructuring-bind (onto done total hash am) rebase
-      (magit-insert-header (header nil (if am "Applying" "Rebasing"))
+      (magit-insert-header (if am "Applying" "Rebasing") (header)
         (format "onto %s (%s of %s)" onto done total))
       (when (and (not am) hash)
-        (magit-insert-header (commit hash "Stopped")
+        (magit-insert-header "Stopped" (commit hash)
           (magit-format-rev-summary hash))))))
 
 (defun magit-insert-branch-description ()
@@ -6604,13 +6602,13 @@ Other key binding:
 
 (defun magit-insert-cherry-head-line ()
   (let ((branch (cadr magit-refresh-args)))
-    (magit-insert-header (branch branch "Head")
+    (magit-insert-header "Head" (branch branch)
       (propertize branch 'face 'magit-branch) " "
       (abbreviate-file-name default-directory))))
 
 (defun magit-insert-cherry-upstream-line ()
   (let ((branch (car magit-refresh-args)))
-    (magit-insert-header (branch branch "Upstream")
+    (magit-insert-header "Upstream" (branch branch)
       (propertize branch 'face 'magit-branch))))
 
 (defun magit-insert-cherry-help-lines ()
