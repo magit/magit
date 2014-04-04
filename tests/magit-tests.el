@@ -71,7 +71,7 @@
   (should (cl-find info
                    (magit-section-children
                     (magit-find-section (list path) magit-root-section))
-                   :key 'magit-section-info :test 'equal)))
+                   :key 'magit-section-value :test 'equal)))
 
 ;;; Tests
 ;;;; status

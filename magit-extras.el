@@ -57,9 +57,9 @@ default when prompting for a commit."
   (interactive "P")
   (if unmark
       (setq magit-marked-commit nil)
-    (magit-section-action mark (info)
+    (magit-section-action mark (value)
       (commit (setq magit-marked-commit
-                    (if (equal magit-marked-commit info) nil info)))))
+                    (if (equal magit-marked-commit value) nil value)))))
   (magit-refresh-marked-commits)
   (run-hooks 'magit-mark-commit-hook))
 
@@ -74,7 +74,7 @@ default when prompting for a commit."
   (magit-map-sections
    (lambda (section)
      (when (and (eq (magit-section-type section) 'commit)
-                (equal (magit-section-info section)
+                (equal (magit-section-value section)
                        magit-marked-commit))
        (move-overlay magit-mark-overlay
                      (magit-section-beginning section)
