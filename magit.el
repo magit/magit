@@ -2481,12 +2481,11 @@ Run Git in the root of the current repository.
                             magit-process-buffer-name
                             'magit-process-mode topdir)
         (magit-process-mode)
-        (let* ((inhibit-read-only t)
-               (s (magit-insert-section (processbuf)
-                    (insert "\n"))))
-          (set-marker-insertion-type (magit-section-start s) nil)
-          (set-marker-insertion-type (magit-section-content s) nil)
-          (current-buffer)))))
+        (let ((inhibit-read-only t))
+          (make-local-variable 'text-property-default-nonsticky)
+          (magit-insert-section (processbuf)
+            (insert "\n")))
+        (current-buffer))))
 
 ;;;;; Synchronous Processes
 
@@ -2775,14 +2774,10 @@ tracked in the current repository are reverted if
       (let* ((inhibit-read-only t)
              (magit-insert-section--parent magit-root-section)
              (section (magit-insert-section (process)
-                        (magit-insert-heading
+                        (magit-insert-heading "run "
                           (mapconcat 'identity (cons program args) " "))
                         (insert "\n"))))
-        (set-marker-insertion-type (magit-section-content section) nil)
-        (unless (get-buffer-window (current-buffer) t)
-          (magit-section-set-hidden section t))
-        (insert "\n")
-        (backward-char 2)
+        (backward-char 1)
         (cons (current-buffer) section)))))
 
 (defun magit-process-truncate-log (buffer)
@@ -2828,18 +2823,17 @@ tracked in the current repository are reverted if
       (magit-process-username-prompt  proc string)
       (magit-process-password-prompt  proc string)
       (goto-char (process-mark proc))
-      (setq string (propertize string 'invisible
-                               (magit-section-hidden
-                                (process-get proc 'section))))
+      (setq string (propertize string 'magit-section
+                               (process-get proc 'section)))
       ;; Find last ^M in string.  If one was found, ignore everything
       ;; before it and delete the current line.
       (let ((ret-pos (length string)))
         (while (and (>= (setq ret-pos (1- ret-pos)) 0)
                     (/= ?\r (aref string ret-pos))))
         (if (< ret-pos 0)
-            (insert-and-inherit string)
+            (insert string)
           (delete-region (line-beginning-position) (point))
-          (insert-and-inherit (substring string (1+ ret-pos)))))
+          (insert (substring string (1+ ret-pos)))))
       (set-marker (process-mark proc) (point)))))
 
 (defun magit-process-logfile-filter (process string)
@@ -2916,15 +2910,23 @@ tracked in the current repository are reverted if
     (dired-uncache default-dir))
   (when (buffer-live-p process-buf)
     (with-current-buffer process-buf
-      (let ((inhibit-read-only t)
-            (mark (magit-section-start section)))
-        (set-marker-insertion-type mark nil)
-        (goto-char mark)
-        (insert (propertize (format "%3s " arg)
-                            'magit-section section
-                            'face (if (= arg 0)
-                                      'magit-process-ok
-                                    'magit-process-ng))))))
+      (let ((inhibit-read-only t))
+        (goto-char (magit-section-start section))
+        (save-excursion
+          (delete-char 3)
+          (insert (propertize (format "%3s" arg) 'magit-section section))
+          (magit-put-face-property (- (point) 3) (point)
+                                   (if (= arg 0)
+                                       'magit-process-ok
+                                     'magit-process-ng)))
+        (if (= (magit-section-end section)
+               (+ (line-end-position) 2))
+            (save-excursion
+              (goto-char (1+ (line-end-position)))
+              (delete-char -1)
+              (setf (magit-section-content section) nil))
+          (when (= arg 0)
+            (magit-hide-section))))))
   (unless (= arg 0)
     (message ; `error' would prevent refresh
      "%s ... [%s buffer %s for details]"
