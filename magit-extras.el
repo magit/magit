@@ -77,7 +77,7 @@ default when prompting for a commit."
                 (equal (magit-section-value section)
                        magit-marked-commit))
        (move-overlay magit-mark-overlay
-                     (magit-section-beginning section)
+                     (magit-section-start section)
                      (magit-section-end section)
                      (current-buffer))))
    magit-root-section))

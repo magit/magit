@@ -1764,7 +1764,7 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
 
 (cl-defstruct magit-section
   type value
-  beginning content-beginning end
+  start content-beginning end
   hidden washer
   diff-status diff-file2
   process
@@ -1792,7 +1792,7 @@ never modify it.")
     `(let ((,s (make-magit-section
                 :type ',(nth 1 arglist)
                 :value ,(nth 2 arglist)
-                :beginning (point-marker)
+                :start (point-marker)
                 :content-beginning (point-marker)
                 :parent magit-with-section--parent)))
        (setf (magit-section-hidden ,s)
@@ -1813,7 +1813,7 @@ never modify it.")
          (set-marker-insertion-type (magit-section-content-beginning ,s) t)
          (-when-let (heading ,(nth 3 arglist))
            (save-excursion
-             (goto-char (magit-section-beginning ,s))
+             (goto-char (magit-section-start ,s))
              (insert
               (if (string-match-p "\n$" heading)
                   (substring heading 0 -1)
@@ -1826,12 +1826,12 @@ never modify it.")
                      heading))
                  'face 'magit-section-title)))
              (insert "\n")))
-         (set-marker-insertion-type (magit-section-beginning ,s) t)
+         (set-marker-insertion-type (magit-section-start ,s) t)
          (goto-char (max (point) ; smaller if there is no content
                          (magit-section-content-beginning ,s)))
          (setf (magit-section-end ,s) (point-marker))
          (save-excursion
-           (goto-char (magit-section-beginning ,s))
+           (goto-char (magit-section-start ,s))
            (let ((end (magit-section-end ,s)))
              (while (< (point) end)
                (let ((next (or (next-single-property-change
@@ -1861,7 +1861,7 @@ never modify it.")
        (funcall ,washer)
        (goto-char (point-max)))
      (let ((parent   (magit-section-parent section))
-           (head-beg (magit-section-beginning section))
+           (head-beg (magit-section-start section))
            (body-beg (magit-section-content-beginning section)))
        (if (= (point) body-beg)
            (if (not parent)
@@ -1922,7 +1922,7 @@ IDENT has to be a list as returned by `magit-section-ident'."
   "Find the first section that begins after POS in the list SECS
 \(including children of sections in SECS)."
   (while (and secs
-              (<= (magit-section-beginning (car secs)) pos))
+              (<= (magit-section-start (car secs)) pos))
     (setq secs (if (magit-section-hidden (car secs))
                    (cdr secs)
                  (append (magit-section-children (car secs))
@@ -1947,7 +1947,7 @@ IDENT has to be a list as returned by `magit-section-ident'."
   "Find the last section that begins before POS in the list SECS."
   (let ((prev nil))
     (while (and secs
-                (< (magit-section-beginning (car secs)) pos))
+                (< (magit-section-start (car secs)) pos))
       (setq prev (car secs))
       (setq secs (cdr secs)))
     prev))
@@ -1981,7 +1981,7 @@ IDENT has to be a list as returned by `magit-section-ident'."
   "Go to the parent section."
   (interactive)
   (--when-let (magit-section-parent (magit-current-section))
-    (goto-char (magit-section-beginning it))))
+    (goto-char (magit-section-start it))))
 
 (defun magit-goto-next-sibling-section ()
   "Go to the next sibling section."
@@ -2000,13 +2000,13 @@ IDENT has to be a list as returned by `magit-section-ident'."
   (let* ((section (magit-current-section))
          (parent  (magit-section-parent section)))
     (--if-let (and parent (magit-find-section-before*
-                           (magit-section-beginning section)
+                           (magit-section-start section)
                            (magit-section-children parent)))
         (magit-goto-section it)
       (magit-goto-previous-section))))
 
 (defun magit-goto-section (section)
-  (goto-char (magit-section-beginning section))
+  (goto-char (magit-section-start section))
   (magit-log-maybe-show-commit section)
   (magit-log-maybe-show-more-entries section))
 
@@ -2022,7 +2022,7 @@ With a prefix argument also expand it." title)
          (--if-let (magit-find-section
                     (cons '(,sym . nil)
                           (magit-section-ident magit-root-section)))
-             (progn (goto-char (magit-section-beginning it))
+             (progn (goto-char (magit-section-start it))
                     (when expand
                       (with-local-quit (magit-expand-section))
                       (recenter 0)))
@@ -2161,7 +2161,7 @@ FUNCTION has to move point forward or return nil."
           (setf (magit-section-end section) (point-marker))))
       (setf (magit-section-washer section) nil))
     (let ((beg (save-excursion
-                 (goto-char (magit-section-beginning section))
+                 (goto-char (magit-section-start section))
                  (forward-line)
                  (point)))
           (end (magit-section-end section)))
@@ -2208,7 +2208,7 @@ IF FLAG-OR-FUNC is a boolean, the section will be hidden if it is
 true, shown otherwise."
   (let ((section (magit-current-section)))
     (when (magit-section-parent section)
-      (goto-char (magit-section-beginning section))
+      (goto-char (magit-section-start section))
       (if (functionp flag-or-func)
           (funcall flag-or-func section)
         (magit-section-set-hidden section flag-or-func)))))
@@ -2353,7 +2353,7 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
              (when (funcall refinep)
                (magit-diff-refine-hunk section))
              (move-overlay magit-highlight-overlay
-                           (magit-section-beginning section)
+                           (magit-section-start section)
                            (magit-section-end section)
                            (current-buffer)))
             (t
@@ -2509,7 +2509,7 @@ Run Git in the root of the current repository.
         (let* ((inhibit-read-only t)
                (s (magit-with-section (section processbuf)
                     (insert "\n"))))
-          (set-marker-insertion-type (magit-section-beginning s) nil)
+          (set-marker-insertion-type (magit-section-start s) nil)
           (set-marker-insertion-type (magit-section-content-beginning s) nil)
           (current-buffer)))))
 
@@ -2804,7 +2804,7 @@ tracked in the current repository are reverted if
                  (process (magit-section-process section)))
             (cond ((not process))
                   ((memq (process-status process) '(exit signal))
-                   (delete-region (magit-section-beginning section)
+                   (delete-region (magit-section-start section)
                                   (1+ (magit-section-end section)))
                    (cl-decf count))
                   (t
@@ -2923,7 +2923,7 @@ tracked in the current repository are reverted if
   (when (buffer-live-p process-buf)
     (with-current-buffer process-buf
       (let ((inhibit-read-only t)
-            (mark (magit-section-beginning section)))
+            (mark (magit-section-start section)))
         (set-marker-insertion-type mark nil)
         (goto-char mark)
         (insert (propertize (format "%3s " arg)
@@ -3144,14 +3144,14 @@ Magit mode."
         (let ((inhibit-read-only t)
               (section-line (and old-section
                                  (count-lines
-                                  (magit-section-beginning old-section)
+                                  (magit-section-start old-section)
                                   (point))))
               (line-char (- old-point (point))))
           (erase-buffer)
           (apply magit-refresh-function
                  magit-refresh-args)
           (--if-let (and ident (magit-find-section ident))
-              (progn (goto-char (magit-section-beginning it))
+              (progn (goto-char (magit-section-start it))
                      (forward-line section-line)
                      (forward-char line-char))
             (save-restriction
@@ -4622,20 +4622,20 @@ member of ARGS, or to the working file otherwise."
         (kill-buffer buf)))))
 
 (defun magit-insert-diff-item-patch (diff buf)
-  (magit-insert-region (magit-section-content-beginning diff)
+  (magit-insert-region (magit-section-content diff)
                        (magit-section-end diff)
                        buf))
 
 (defun magit-insert-hunk-item-patch (hunk buf)
   (magit-diff-item-insert-header (magit-section-parent hunk) buf)
-  (magit-insert-region (magit-section-beginning hunk)
+  (magit-insert-region (magit-section-start hunk)
                        (magit-section-end hunk)
                        buf))
 
 (defun magit-insert-hunk-item-region-patch (hunk reverse beg end buf)
   (magit-diff-item-insert-header (magit-section-parent hunk) buf)
   (save-excursion
-    (goto-char (magit-section-beginning hunk))
+    (goto-char (magit-section-start hunk))
     (magit-insert-current-line buf)
     (forward-line)
     (let ((copy-op (if reverse "+" "-")))
@@ -4731,7 +4731,7 @@ With a prefix argument, visit in other window."
   (save-excursion
     (beginning-of-line)
     (let ((line (line-number-at-pos)))
-      (goto-char (magit-section-beginning hunk))
+      (goto-char (magit-section-start hunk))
       (unless (looking-at "@@+ .* \\+\\([0-9]+\\)\\(,[0-9]+\\)? @@+")
         (user-error "Hunk header not found"))
       (let ((target (string-to-number (match-string 1))))
@@ -6517,7 +6517,7 @@ With a non numeric prefix ARG, show all entries"
                    (cl-find (magit-section-value magit-previous-section)
                             (magit-section-children magit-root-section)
                             :test 'equal :key 'magit-section-value))
-    (goto-char (magit-section-beginning it))))
+    (goto-char (magit-section-start it))))
 
 ;;;; Log Select Mode
 
@@ -7086,7 +7086,7 @@ actually were a single commit."
         (setq section s))
       (when (eq magit-diff-refine-hunk 'all)
         (magit-diff-refine-hunk section))
-      (magit-put-face-property (magit-section-beginning section)
+      (magit-put-face-property (magit-section-start section)
                                (magit-section-content-beginning section)
                                'magit-diff-hunk-header))
     t))
@@ -7154,13 +7154,13 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 
 (defun magit-diff-refine-hunk (hunk)
   (save-excursion
-    (goto-char (magit-section-beginning hunk))
+    (goto-char (magit-section-start hunk))
     ;; `diff-refine-hunk' does not handle combined diffs.
     (unless (looking-at "@@@")
       (diff-refine-hunk))))
 
 (defun magit-diff-unrefine-hunk (hunk)
-  (remove-overlays (magit-section-beginning hunk)
+  (remove-overlays (magit-section-start hunk)
                    (magit-section-end hunk)
                    'diff-mode 'fine))
 
@@ -7234,7 +7234,7 @@ into the selected branch."
                                    head upstream))
           (magit-insert-wazzup-cherries head upstream))
         (setq s section))
-      (magit-put-face-property (+ (magit-section-beginning s) 4)
+      (magit-put-face-property (+ (magit-section-start s) 4)
                                (- (magit-section-content-beginning s) 1)
                                (get-text-property 0 'face label)))))
 
@@ -7607,7 +7607,7 @@ to the current branch and `magit-wip-ref-format'."
 This command is intended for debugging purposes."
   (interactive)
   (let* ((s (magit-current-section))
-         (b (magit-section-beginning s))
+         (b (magit-section-start s))
          (c (magit-section-content-beginning s))
          (e (magit-section-end s)))
     (message "Section: %S [%s (%s) - %s (%s) - %s (%s)]"
