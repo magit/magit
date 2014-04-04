@@ -2941,15 +2941,10 @@ Please see the manual for a complete description of Magit.
 \\{magit-mode-map}"
   (buffer-disable-undo)
   (setq truncate-lines t)
+  (setq show-trailing-whitespace nil)
   (add-hook 'pre-command-hook  #'magit-remember-point nil t)
   (add-hook 'post-command-hook #'magit-correct-point-after-command t t)
-  (add-hook 'post-command-hook #'magit-highlight-section t t)
-  ;; Emacs' normal method of showing trailing whitespace gives weird
-  ;; results when `magit-whitespace-warning-face' is different from
-  ;; `trailing-whitespace'.
-  (when (and magit-highlight-whitespace
-             magit-highlight-trailing-whitespace)
-    (setq show-trailing-whitespace nil)))
+  (add-hook 'post-command-hook #'magit-highlight-section t t))
 
 (defvar-local magit-refresh-function nil)
 (put 'magit-refresh-function 'permanent-local t)
