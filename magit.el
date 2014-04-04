@@ -574,18 +574,18 @@ what you want."
   :type 'boolean)
 
 (defcustom magit-ref-namespaces
-  '(("^\\(HEAD\\)$"              magit-log-head-label-head nil)
-    ("^refs/tags/\\(.+\\)"       magit-log-head-label-tags nil)
-    ("^refs/heads/\\(.+\\)"      magit-log-head-label-local nil)
-    ("^refs/remotes/\\(.+\\)"    magit-log-head-label-remote nil)
-    ("^refs/bisect/\\(bad\\)"    magit-log-head-label-bisect-bad nil)
-    ("^refs/bisect/\\(skip.*\\)" magit-log-head-label-bisect-skip nil)
-    ("^refs/bisect/\\(good.*\\)" magit-log-head-label-bisect-good nil)
-    ("^refs/wip/\\(.+\\)"        magit-log-head-label-wip nil)
-    ("^\\(bad\\):"               magit-log-head-label-bisect-bad nil)
-    ("^\\(skip\\):"              magit-log-head-label-bisect-skip nil)
-    ("^\\(good\\):"              magit-log-head-label-bisect-good nil)
-    ("\\(.+\\)"                  magit-log-head-label-default nil))
+  '(("^\\(HEAD\\)$"              magit-head nil)
+    ("^refs/tags/\\(.+\\)"       magit-tag nil)
+    ("^refs/heads/\\(.+\\)"      magit-branch-local nil)
+    ("^refs/remotes/\\(.+\\)"    magit-branch-remote nil)
+    ("^refs/bisect/\\(bad\\)"    magit-bisect-bad nil)
+    ("^refs/bisect/\\(skip.*\\)" magit-bisect-skip nil)
+    ("^refs/bisect/\\(good.*\\)" magit-bisect-good nil)
+    ("^refs/wip/\\(.+\\)"        magit-refname-wip nil)
+    ("^\\(bad\\):"               magit-bisect-bad nil)
+    ("^\\(skip\\):"              magit-bisect-skip nil)
+    ("^\\(good\\):"              magit-bisect-good nil)
+    ("\\(.+\\)"                  magit-refname nil))
   "How different refs should be formatted for display.
 
 Each entry controls how a certain type of ref is displayed, and
@@ -1022,15 +1022,15 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
      :foreground "grey11")
     (((class color) (background dark))
      :foreground "grey80"))
-  "Face for the graph element of the log output."
+  "Face for the graph part of the log output."
   :group 'magit-faces)
 
-(defface magit-log-sha1
+(defface magit-hash
   '((((class color) (background light))
      :foreground "firebrick")
     (((class color) (background dark))
      :foreground "tomato"))
-  "Face for the sha1 element of the log output."
+  "Face for the sha1 part of the log output."
   :group 'magit-faces)
 
 (defface magit-log-author
@@ -1038,17 +1038,17 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
      :foreground "firebrick")
     (((class color) (background dark))
      :foreground "tomato"))
-  "Face for the author element of the log output."
+  "Face for the author part of the log output."
   :group 'magit-faces)
 
 (defface magit-log-date
   '((t))
-  "Face for the date element of the log output."
+  "Face for the date part of the log output."
   :group 'magit-faces)
 
 (defface magit-log-message
   '((t))
-  "Face for the message element of the log output."
+  "Face for the message part of the log output."
   :group 'magit-faces)
 
 (defface magit-cherry-unmatched
@@ -1064,37 +1064,37 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   "Face for highlighting the current item."
   :group 'magit-faces)
 
-(defface magit-log-head-label-bisect-good
+(defface magit-bisect-good
   '((((class color) (background light))
      :background "light green"
      :foreground "dark olive green")
     (((class color) (background dark))
      :background "light green"
      :foreground "dark olive green"))
-  "Face for good bisect refs."
+  "Face for good bisect revisions."
   :group 'magit-faces)
 
-(defface magit-log-head-label-bisect-skip
+(defface magit-bisect-skip
   '((((class color) (background light))
      :background "light goldenrod"
      :foreground "dark goldenrod")
     (((class color) (background dark))
      :background "light goldenrod"
      :foreground "dark goldenrod"))
-  "Face for skipped bisect refs."
+  "Face for skipped bisect revisions."
   :group 'magit-faces)
 
-(defface magit-log-head-label-bisect-bad
+(defface magit-bisect-bad
   '((((class color) (background light))
      :background "IndianRed1"
      :foreground "IndianRed4")
     (((class color) (background dark))
      :background "IndianRed1"
      :foreground "IndianRed4"))
-  "Face for bad bisect refs."
+  "Face for bad bisect revisions."
   :group 'magit-faces)
 
-(defface magit-log-head-label-remote
+(defface magit-branch-remote
   '((((class color) (background light))
      :background "Grey85"
      :foreground "OliveDrab4")
@@ -1104,7 +1104,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   "Face for remote branch head labels shown in log buffer."
   :group 'magit-faces)
 
-(defface magit-log-head-label-tags
+(defface magit-tag
   '((((class color) (background light))
      :background "LemonChiffon1"
      :foreground "goldenrod4")
@@ -1114,42 +1114,42 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   "Face for tag labels shown in log buffer."
   :group 'magit-faces)
 
-(defface magit-log-head-label-local
+(defface magit-branch-local
   '((((class color) (background light))
      :background "Grey85"
      :foreground "LightSkyBlue4")
     (((class color) (background dark))
      :background "Grey13"
      :foreground "LightSkyBlue1"))
-  "Face for local branch head labels shown in log buffer."
+  "Face for local branches."
   :group 'magit-faces)
 
-(defface magit-log-head-label-head
+(defface magit-head
   '((((class color) (background light))
      :background "Grey70"
      :foreground "Black")
     (((class color) (background dark))
      :background "Grey20"
      :foreground "White"))
-  "Face for working branch head labels shown in log buffer."
+  "Face for the HEAD symbolic re."
   :group 'magit-faces)
 
-(defface magit-log-head-label-default
+(defface magit-refname
   '((((class color) (background light))
      :background "Grey50")
     (((class color) (background dark))
      :background "Grey50"))
-  "Face for unknown ref labels shown in log buffer."
+  "Face for refnames without a dedicated face."
   :group 'magit-faces)
 
-(defface magit-log-head-label-wip
+(defface magit-refname-wip
   '((((class color) (background light))
      :background "Grey95"
      :foreground "LightSkyBlue3")
     (((class color) (background dark))
      :background "Grey07"
      :foreground "LightSkyBlue4"))
-  "Face for git-wip labels shown in log buffer."
+  "Face for wip refnames."
   :group 'magit-faces)
 
 (defface magit-signature-good
@@ -1172,80 +1172,80 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   "Face for unsigned commits."
   :group 'magit-faces)
 
-(defface magit-log-reflog-label-commit
+(defface magit-reflog-commit
   '((((class color) (background light))
      :background "LemonChiffon1"
      :foreground "goldenrod4")
     (((class color) (background dark))
      :background "LemonChiffon1"
      :foreground "goldenrod4"))
-  "Face for reflog subject labels shown in reflog buffer."
+  "Face for commit commands in reflogs."
   :group 'magit-faces)
 
-(defface magit-log-reflog-label-amend
-  '((t :inherit magit-log-reflog-label-commit))
-  "Face for reflog subject labels shown in reflog buffer."
+(defface magit-reflog-amend
+  '((t :inherit magit-reflog-commit))
+  "Face for amend commands in reflogs."
   :group 'magit-faces)
 
-(defface magit-log-reflog-label-merge
-  '((t :inherit magit-log-reflog-label-commit))
-  "Face for reflog subject labels shown in reflog buffer."
+(defface magit-reflog-merge
+  '((t :inherit magit-reflog-commit))
+  "Face for merge, checkout and branch commands in reflogs."
   :group 'magit-faces)
 
-(defface magit-log-reflog-label-checkout
+(defface magit-reflog-checkout
   '((((class color) (background light))
      :background "Grey85"
      :foreground "LightSkyBlue4")
     (((class color) (background dark))
      :background "Grey13"
      :foreground "LightSkyBlue1"))
-  "Face for reflog subject labels shown in reflog buffer."
+  "Face for checkout commands in reflogs."
   :group 'magit-faces)
 
-(defface magit-log-reflog-label-reset
+(defface magit-reflog-reset
   '((((class color) (background light))
      :background "IndianRed1"
      :foreground "IndianRed4")
     (((class color) (background dark))
      :background "IndianRed1"
      :foreground "IndianRed4"))
-  "Face for reflog subject labels shown in reflog buffer."
+  "Face for reset commands in reflogs."
   :group 'magit-faces)
 
-(defface magit-log-reflog-label-rebase
+(defface magit-reflog-rebase
   '((((class color) (background light))
      :background "Grey85"
      :foreground "OliveDrab4")
     (((class color) (background dark))
      :background "Grey11"
      :foreground "DarkSeaGreen2"))
-  "Face for reflog subject labels shown in reflog buffer."
+  "Face for rebase commands in reflogs."
   :group 'magit-faces)
 
-(defface magit-log-reflog-label-cherry-pick
+(defface magit-reflog-cherry-pick
   '((((class color) (background light))
      :background "light green"
      :foreground "dark olive green")
     (((class color) (background dark))
      :background "light green"
      :foreground "dark olive green"))
-  "Face for reflog subject labels shown in reflog buffer."
+  "Face for cherry-pick commands in reflogs."
   :group 'magit-faces)
 
-(defface magit-log-reflog-label-remote
+(defface magit-reflog-remote
   '((((class color) (background light))
      :background "Grey50")
     (((class color) (background dark))
      :background "Grey50"))
-  "Face for reflog subject labels shown in reflog buffer."
+  "Face for pull and clone commands in reflogs."
   :group 'magit-faces)
 
-(defface magit-log-reflog-label-other
+(defface magit-reflog-other
   '((((class color) (background light))
      :background "Grey50")
     (((class color) (background dark))
      :background "Grey50"))
-  "Face for reflog subject labels shown in reflog buffer."
+  "Face for other commands in reflogs."
   :group 'magit-faces)
 
 (defface magit-process-ok
@@ -3643,7 +3643,7 @@ no output return nil."
 (defun magit-format-rev-summary (rev)
   (--when-let (magit-rev-format "%h %s" rev)
     (string-match " " it)
-    (put-text-property 0 (match-beginning 0) 'face 'magit-log-sha1 it)
+    (put-text-property 0 (match-beginning 0) 'face 'magit-hash it)
     it))
 
 (defun magit-format-ref-label (ref)
@@ -3961,7 +3961,7 @@ stash at point, then prompt for a commit."
     (delete-region (point) (1+ (line-end-position)))
     (magit-insert-section (headers)
       (magit-insert-heading
-        (propertize rev 'face 'magit-log-sha1)
+        (propertize rev 'face 'magit-hash)
         (and refs (concat " "(magit-format-ref-labels refs))))
       (while (re-search-forward "^\\([a-z]+\\): +\\(.+\\)$" nil t)
         (when (string-match-p (match-string 1) "Merge")
@@ -4002,7 +4002,7 @@ stash at point, then prompt for a commit."
                                     (magit-visit-item)))
                         'follow-link t
                         'mouse-face magit-item-highlight-face
-                        'face 'magit-log-sha1)))
+                        'face 'magit-hash)))
 
 ;;;; Status Mode
 
@@ -4151,7 +4151,7 @@ can be used to override this."
 (defun magit-insert-status-local-line ()
   (let ((branch (or (magit-get-current-branch) "(detached)")))
     (magit-insert-header "Local" (branch branch)
-      (propertize branch 'face 'magit-branch) " "
+      (propertize branch 'face 'magit-branch-local) " "
       (abbreviate-file-name default-directory))))
 
 (defun magit-insert-status-remote-line ()
@@ -4164,8 +4164,8 @@ can be used to override this."
           (concat
            (and rebase "onto ")
            (if (string= "." remote)
-               (propertize tracked 'face 'magit-log-head-label-local)
-             (concat (propertize tracked 'face 'magit-log-head-label-remote) " "
+               (propertize tracked 'face 'magit-branch-local)
+             (concat (propertize tracked 'face 'magit-branch-remote) " "
                      (magit-get "remote" remote "url")))))))))
 
 (defun magit-insert-status-head-line ()
@@ -4189,13 +4189,11 @@ can be used to override this."
                        (car next-tag) (cadr next-tag) t))))))
 
 (defun magit-format-status-tag-sentence (tag count next)
-  (concat (propertize tag 'face 'magit-log-head-label-tags)
+  (concat (propertize tag 'face 'magit-tag)
           (and (> count 0)
                (format " (%s)"
                        (propertize (format "%s" count) 'face
-                                   (if next
-                                       'magit-log-head-label-tags
-                                     'magit-log-head-label-local))))))
+                                   (if next 'magit-tag 'magit-branch-local))))))
 
 ;;;; Progress Sections
 
@@ -4240,7 +4238,7 @@ can be used to override this."
                 (insert cmd " ")
                 (insert (propertize
                          (magit-rev-parse "--short" hash)
-                         'face 'magit-log-sha1))
+                         'face 'magit-hash))
                 (insert " " msg "\n"))))
         (insert "\n")))))
 
@@ -6338,14 +6336,14 @@ Other key binding:
       (when (eq style 'bisect-log)
 	(setq hash (magit-git-string "rev-parse" "--short" hash)))
       (if hash
-          (insert (propertize hash 'face 'magit-log-sha1) ?\s)
+          (insert (propertize hash 'face 'magit-hash) ?\s)
         (insert (make-string (1+ abbrev) ? ))))
     (when graph
       (if magit-log-format-graph-function
           (insert (funcall magit-log-format-graph-function graph))
         (insert graph)))
     (when (and hash (eq style 'long))
-      (magit-insert (if refs hash (magit-rev-parse hash)) 'magit-log-sha1 ?\s))
+      (magit-insert (if refs hash (magit-rev-parse hash)) 'magit-hash ?\s))
     (when refs
       (magit-insert-ref-labels refs))
     (when refsub
@@ -6535,13 +6533,13 @@ Other key binding:
 (defun magit-insert-cherry-head-line ()
   (let ((branch (cadr magit-refresh-args)))
     (magit-insert-header "Head" (branch branch)
-      (propertize branch 'face 'magit-log-head-label-local) " "
+      (propertize branch 'face 'magit-branch-local) " "
       (abbreviate-file-name default-directory))))
 
 (defun magit-insert-cherry-upstream-line ()
   (let ((branch (car magit-refresh-args)))
     (magit-insert-header "Upstream" (branch branch)
-      (propertize branch 'face 'magit-log-head-label-local))))
+      (propertize branch 'face 'magit-branch-local))))
 
 (defun magit-insert-cherry-help-lines ()
   (when (derived-mode-p 'magit-cherry-mode)
@@ -6589,17 +6587,17 @@ Other key binding:
       (format "--max-count=%d" magit-log-cutoff-length) ref)))
 
 (defvar magit-reflog-labels
-  '(("commit"      . magit-log-reflog-label-commit)
-    ("amend"       . magit-log-reflog-label-amend)
-    ("merge"       . magit-log-reflog-label-merge)
-    ("checkout"    . magit-log-reflog-label-checkout)
-    ("branch"      . magit-log-reflog-label-checkout)
-    ("reset"       . magit-log-reflog-label-reset)
-    ("rebase"      . magit-log-reflog-label-rebase)
-    ("cherry-pick" . magit-log-reflog-label-cherry-pick)
-    ("initial"     . magit-log-reflog-label-commit)
-    ("pull"        . magit-log-reflog-label-remote)
-    ("clone"       . magit-log-reflog-label-remote)))
+  '(("commit"      . magit-reflog-commit)
+    ("amend"       . magit-reflog-amend)
+    ("merge"       . magit-reflog-merge)
+    ("checkout"    . magit-reflog-checkout)
+    ("branch"      . magit-reflog-checkout)
+    ("reset"       . magit-reflog-reset)
+    ("rebase"      . magit-reflog-rebase)
+    ("cherry-pick" . magit-reflog-cherry-pick)
+    ("initial"     . magit-reflog-commit)
+    ("pull"        . magit-reflog-remote)
+    ("clone"       . magit-reflog-remote)))
 
 (defun magit-log-format-reflog (subject)
   (let* ((match (string-match magit-reflog-subject-re subject))
@@ -6617,7 +6615,7 @@ Other key binding:
     (format "%-16s "
             (propertize text 'face
                         (or (cdr (assoc label magit-reflog-labels))
-                            'magit-log-reflog-label-other)))))
+                            'magit-reflog-other)))))
 
 ;;;; Ediff Support
 
@@ -7163,7 +7161,7 @@ into the selected branch."
         (magit-insert-heading
           (format "%3s %s\n"
                   (if focus
-                      (propertize " * " 'face 'magit-log-head-label-local)
+                      (propertize " * " 'face 'magit-branch-local)
                     count)
                   (magit-format-ref-label upstream)))
         (if (magit-section-hidden it)
@@ -7258,15 +7256,15 @@ from the parent keymap `magit-mode-map' are also available.")
                 (?c . ,marker)
                 (?f . ,fill)
                 (?m . ,message)
-                (?n . ,(propertize branch 'face 'magit-log-head-label-local))
+                (?n . ,(propertize branch 'face 'magit-branch-local))
                 (?s . ,(if hash
-                           (propertize hash 'face 'magit-log-sha1)
+                           (propertize hash 'face 'magit-hash)
                          (make-string hash-length ?\s)))
                 (?t . ,(if tracked
                            (propertize tracked 'face
                                        (if (member tracked branches)
-                                           'magit-log-head-label-local
-                                         'magit-log-head-label-remote))
+                                           'magit-branch-local
+                                         'magit-branch-remote))
                          ""))))))))
       (insert ?\n))))
 
@@ -7287,7 +7285,7 @@ from the parent keymap `magit-mode-map' are also available.")
                         (if (string-match (format "^%s/\\(.+\\)" remote) branch)
                             (match-string 1 branch)
                           branch)
-                        'face 'magit-log-head-label-remote)))))))
+                        'face 'magit-branch-remote)))))))
         (insert ?\n)))))
 
 (defun magit-insert-tags ()
@@ -7297,7 +7295,7 @@ from the parent keymap `magit-mode-map' are also available.")
       (magit-insert-section (tag)
         (magit-insert
          (format-spec magit-tags-format
-                      `((?n . ,(propertize tag 'face 'magit-log-head-label-tags)))))))
+                      `((?n . ,(propertize tag 'face 'magit-tag)))))))
     (insert ?\n)))
 
 ;;; Miscellaneous

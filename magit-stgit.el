@@ -65,7 +65,7 @@
   :group 'magit-faces)
 
 (defface magit-stgit-patch
-  '((t :inherit magit-log-sha1))
+  '((t :inherit magit-hash))
   "Face for name of a stgit patch."
   :group 'magit-stgit-faces)
 
@@ -73,7 +73,7 @@
              '("^refs/patches/\\(.+\\)" magit-stgit-patch nil))
 
 (defface magit-stgit-current
-  '((t :inherit magit-log-sha1))
+  '((t :inherit magit-hash))
   "Face for the current stgit patch."
   :group 'magit-stgit-faces)
 
