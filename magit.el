@@ -4222,19 +4222,16 @@ can be used to override this."
          (tracked (magit-get-tracked-branch branch)))
     (when tracked
       (magit-insert-header (branch tracked "Remote")
-        (and (magit-get-boolean "branch" branch "rebase") "onto ")
-        (magit-format-tracked-line tracked branch)))))
-
-(defun magit-format-tracked-line (tracked branch)
-  (when tracked
-    (setq tracked (propertize tracked 'face 'magit-branch))
-    (let ((remote (magit-get "branch" branch "remote")))
-      (concat (if (string= "." remote)
-                  (concat "branch " tracked)
-                (when (string-match (concat "^" remote) tracked)
-                  (setq tracked (substring tracked (1+ (length remote)))))
-                (concat tracked " @ " remote
-                        " (" (magit-get "remote" remote "url") ")"))))))
+        (let ((remote (magit-get "branch" branch "remote"))
+              (rebase (magit-get-boolean "branch" branch "rebase")))
+          (concat (and rebase "onto ")
+                  (if (string= "." remote)
+                      (propertize tracked 'face 'magit-branch)
+                    (when (string-match (concat "^" remote) tracked)
+                      (setq tracked (substring tracked (1+ (length remote)))))
+                    (concat (propertize tracked 'face 'magit-branch)
+                            " @ " remote
+                            " (" (magit-get "remote" remote "url") ")"))))))))
 
 (defun magit-insert-status-head-line ()
   (-if-let (hash (magit-rev-parse "--verify" "HEAD"))
