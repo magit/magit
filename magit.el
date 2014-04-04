@@ -1880,19 +1880,16 @@ never modify it.")
      magit-git-executable
      magit-git-standard-options ,@args))
 
-(defmacro magit-insert-line-section (arglist line)
-  "\n\n(fn (TYPE &optional INFO) line)"
+(defmacro magit-insert-header (arglist &rest args)
+  "\n\n(fn (TYPE INFO KEYWORD) &rest args)"
   (declare (indent 1))
-  (let ((l (cl-gensym "line")))
-    `(let ((,l (concat ,line "\n")))
-       (when (string-match "^\\([^:]+\\):\\( \\)" ,l)
-         (setq ,l (replace-match
-                   (make-string (max 1 (- magit-status-line-align-to
-                                          (length (match-string 1 ,l))))
-                                ?\s)
-                   t t ,l 2)))
-       (magit-with-section (section ,(car arglist) ',(car arglist) ,l)
-         (setf (magit-section-info section) ,(cadr arglist))))))
+  (let ((keyword (cl-gensym "keyword")))
+    `(let ((,keyword ,(nth 2 arglist)))
+       (magit-with-section (section ,(car arglist) ,(cadr arglist))
+         (insert ,keyword ":"
+                 (make-string (max 1 (- magit-status-line-align-to
+                                        (length ,keyword))) ?\s))
+         (magit-insert (concat ,@args) nil ?\n)))))
 
 ;;;;; Section Searching
 
@@ -4216,19 +4213,17 @@ can be used to override this."
 
 (defun magit-insert-status-local-line ()
   (let ((branch (or (magit-get-current-branch) "(detached)")))
-    (magit-insert-line-section (branch branch)
-      (concat "Local: "
-              (propertize branch 'face 'magit-branch)
-              " " (abbreviate-file-name default-directory)))))
+    (magit-insert-header (branch branch "Local")
+      (propertize branch 'face 'magit-branch) " "
+      (abbreviate-file-name default-directory))))
 
 (defun magit-insert-status-remote-line ()
   (let* ((branch  (magit-get-current-branch))
          (tracked (magit-get-tracked-branch branch)))
     (when tracked
-      (magit-insert-line-section (branch tracked)
-        (concat "Remote: "
-                (and (magit-get-boolean "branch" branch "rebase") "onto ")
-                (magit-format-tracked-line tracked branch))))))
+      (magit-insert-header (branch tracked "Remote")
+        (and (magit-get-boolean "branch" branch "rebase") "onto ")
+        (magit-format-tracked-line tracked branch)))))
 
 (defun magit-format-tracked-line (tracked branch)
   (when tracked
@@ -4243,24 +4238,22 @@ can be used to override this."
 
 (defun magit-insert-status-head-line ()
   (-if-let (hash (magit-rev-parse "--verify" "HEAD"))
-      (magit-insert-line-section (commit hash)
-        (concat "Head: " (magit-format-rev-summary "HEAD")))
-    (magit-insert-line-section (no-commit)
-      "Head: nothing committed yet")))
+      (magit-insert-header (commit hash "Head")
+        (magit-format-rev-summary "HEAD"))
+    (magit-insert-header (no-commit nil "Head")
+      "nothing committed yet")))
 
 (defun magit-insert-status-tags-line ()
   (let* ((current-tag (magit-get-current-tag t))
          (next-tag (magit-get-next-tag t))
          (both-tags (and current-tag next-tag t)))
     (when (or current-tag next-tag)
-      (magit-insert-line-section (line)
-        (concat
-         (if both-tags "Tags: " "Tag: ")
-         (and current-tag (magit-format-status-tag-sentence
-                           (car current-tag) (cadr current-tag) nil))
-         (and both-tags ", ")
-         (and next-tag (magit-format-status-tag-sentence
-                        (car next-tag) (cadr next-tag) t)))))))
+      (magit-insert-header (line nil (if both-tags "Tags" "Tag"))
+        (and current-tag (magit-format-status-tag-sentence
+                          (car current-tag) (cadr current-tag) nil))
+        (and both-tags ", ")
+        (and next-tag (magit-format-status-tag-sentence
+                       (car next-tag) (cadr next-tag) t))))))
 
 (defun magit-format-status-tag-sentence (tag count next)
   (concat (propertize tag 'face 'magit-tag)
@@ -4273,19 +4266,17 @@ can be used to override this."
 
 (defun magit-insert-status-merge-line ()
   (-when-let (heads (magit-file-lines (magit-git-dir "MERGE_HEAD")))
-    (magit-insert-line-section (line)
-      (concat "Merging: "
-              (mapconcat 'identity (mapcar 'magit-get-shortname heads) ", ")))))
+    (magit-insert-header (line nil "Merging")
+      (mapconcat 'identity (mapcar 'magit-get-shortname heads) ", "))))
 
 (defun magit-insert-status-rebase-lines ()
   (-when-let (rebase (magit-rebase-info))
     (cl-destructuring-bind (onto done total hash am) rebase
-      (magit-insert-line-section (line)
-        (concat (if am "Applying" "Rebasing")
-                (format ": onto %s (%s of %s)" onto done total)))
+      (magit-insert-header (line nil (if am "Applying" "Rebasing"))
+        (format "onto %s (%s of %s)" onto done total))
       (when (and (not am) hash)
-        (magit-insert-line-section (commit hash)
-          (concat "Stopped: " (magit-format-rev-summary hash)))))))
+        (magit-insert-header (commit hash "Stopped")
+          (magit-format-rev-summary hash))))))
 
 (defun magit-insert-branch-description ()
   (let ((branch (magit-get-current-branch)))
@@ -6604,15 +6595,13 @@ Other key binding:
     (run-hooks 'magit-cherry-sections-hook)))
 
 (defun magit-insert-cherry-head-line ()
-  (magit-insert-line-section (line)
-    (concat "Head: "
-            (propertize (cadr magit-refresh-args) 'face 'magit-branch) " "
-            (abbreviate-file-name default-directory))))
+  (magit-insert-header (line nil "Head")
+    (propertize (cadr magit-refresh-args) 'face 'magit-branch) " "
+    (abbreviate-file-name default-directory)))
 
 (defun magit-insert-cherry-upstream-line ()
-  (magit-insert-line-section (line)
-    (concat "Upstream: "
-            (propertize (car magit-refresh-args) 'face 'magit-branch))))
+  (magit-insert-header (line nil "Upstream")
+    (propertize (car magit-refresh-args) 'face 'magit-branch)))
 
 (defun magit-insert-cherry-help-lines ()
   (when (derived-mode-p 'magit-cherry-mode)
@@ -7639,7 +7628,7 @@ This command is intended for debugging purposes."
                      '("magit-with-section"
                        "magit-cmd-insert-section"
                        "magit-git-insert-section"
-                       "magit-insert-line-section"
+                       "magit-insert-header"
                        "magit-section-action"
                        "magit-section-case"
                        "magit-bind-match-strings"
