@@ -1764,7 +1764,7 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
 
 (cl-defstruct magit-section
   type value
-  start content-beginning end
+  start content end
   hidden washer
   diff-status diff-file2
   process
@@ -1793,7 +1793,7 @@ never modify it.")
                 :type ',(nth 1 arglist)
                 :value ,(nth 2 arglist)
                 :start (point-marker)
-                :content-beginning (point-marker)
+                :content (point-marker)
                 :parent magit-with-section--parent)))
        (setf (magit-section-hidden ,s)
              (--if-let (and magit-with-section--oldroot
@@ -1810,7 +1810,7 @@ never modify it.")
                       (setq magit-root-section ,s))))))
          ,@body)
        (when ,s
-         (set-marker-insertion-type (magit-section-content-beginning ,s) t)
+         (set-marker-insertion-type (magit-section-content ,s) t)
          (-when-let (heading ,(nth 3 arglist))
            (save-excursion
              (goto-char (magit-section-start ,s))
@@ -1828,7 +1828,7 @@ never modify it.")
              (insert "\n")))
          (set-marker-insertion-type (magit-section-start ,s) t)
          (goto-char (max (point) ; smaller if there is no content
-                         (magit-section-content-beginning ,s)))
+                         (magit-section-content ,s)))
          (setf (magit-section-end ,s) (point-marker))
          (save-excursion
            (goto-char (magit-section-start ,s))
@@ -1856,13 +1856,13 @@ never modify it.")
      (unless (eq (char-before) ?\n)
        (insert "\n"))
      (save-restriction
-       (narrow-to-region (magit-section-content-beginning section) (point))
+       (narrow-to-region (magit-section-content section) (point))
        (goto-char (point-min))
        (funcall ,washer)
        (goto-char (point-max)))
      (let ((parent   (magit-section-parent section))
            (head-beg (magit-section-start section))
-           (body-beg (magit-section-content-beginning section)))
+           (body-beg (magit-section-content section)))
        (if (= (point) body-beg)
            (if (not parent)
                (insert "(empty)\n")
@@ -2156,7 +2156,7 @@ FUNCTION has to move point forward or return nil."
       (let ((magit-with-section--parent section))
         (save-excursion
           (goto-char (magit-section-end section))
-          (setf (magit-section-content-beginning section) (point-marker))
+          (setf (magit-section-content section) (point-marker))
           (funcall washer)
           (setf (magit-section-end section) (point-marker))))
       (setf (magit-section-washer section) nil))
@@ -2510,7 +2510,7 @@ Run Git in the root of the current repository.
                (s (magit-with-section (section processbuf)
                     (insert "\n"))))
           (set-marker-insertion-type (magit-section-start s) nil)
-          (set-marker-insertion-type (magit-section-content-beginning s) nil)
+          (set-marker-insertion-type (magit-section-content s) nil)
           (current-buffer)))))
 
 ;;;;; Synchronous Processes
@@ -2784,7 +2784,7 @@ tracked in the current repository are reverted if
                     (section process nil
                              (mapconcat 'identity (cons program args) " "))
                   (insert "\n"))))
-        (set-marker-insertion-type (magit-section-content-beginning s) nil)
+        (set-marker-insertion-type (magit-section-content s) nil)
         (unless (get-buffer-window (current-buffer) t)
           (magit-section-set-hidden s t))
         (insert "\n")
@@ -2940,7 +2940,7 @@ tracked in the current repository are reverted if
                   (goto-char (magit-section-end section))
                   (when (re-search-backward
                          magit-process-error-message-re nil
-                         (magit-section-content-beginning section))
+                         (magit-section-content section))
                     (match-string 1)))))
          "Git failed")
      (-if-let (key (and (buffer-live-p command-buf)
@@ -7087,7 +7087,7 @@ actually were a single commit."
       (when (eq magit-diff-refine-hunk 'all)
         (magit-diff-refine-hunk section))
       (magit-put-face-property (magit-section-start section)
-                               (magit-section-content-beginning section)
+                               (magit-section-content section)
                                'magit-diff-hunk-header))
     t))
 
@@ -7235,7 +7235,7 @@ into the selected branch."
           (magit-insert-wazzup-cherries head upstream))
         (setq s section))
       (magit-put-face-property (+ (magit-section-start s) 4)
-                               (- (magit-section-content-beginning s) 1)
+                               (- (magit-section-content s) 1)
                                (get-text-property 0 'face label)))))
 
 (defun magit-insert-wazzup-cherries (head upstream)
@@ -7608,7 +7608,7 @@ This command is intended for debugging purposes."
   (interactive)
   (let* ((s (magit-current-section))
          (b (magit-section-start s))
-         (c (magit-section-content-beginning s))
+         (c (magit-section-content s))
          (e (magit-section-end s)))
     (message "Section: %S [%s (%s) - %s (%s) - %s (%s)]"
              (magit-section-ident s)
