@@ -573,7 +573,7 @@ what you want."
   :group 'magit-modes
   :type 'boolean)
 
-(defcustom magit-refs-namespaces
+(defcustom magit-ref-namespaces
   '(("^\\(HEAD\\)$"              magit-log-head-label-head nil)
     ("^refs/tags/\\(.+\\)"       magit-log-head-label-tags nil)
     ("^refs/heads/\\(.+\\)"      magit-log-head-label-local nil)
@@ -3664,7 +3664,7 @@ no output return nil."
 
 (defun magit-format-ref-label (ref)
   (cl-destructuring-bind (re face fn)
-      (--first (string-match (car it) ref) magit-refs-namespaces)
+      (--first (string-match (car it) ref) magit-ref-namespaces)
     (if fn
         (funcall fn ref face)
       (propertize (or (match-string 1 ref) ref) 'face face))))
@@ -3679,7 +3679,7 @@ no output return nil."
     (dolist (ref (split-string string "\\(tag: \\|[(), ]\\)" t) " ")
       (cl-destructuring-bind (re face fn)
           (cl-find-if (lambda (elt) (string-match (car elt) ref))
-                      magit-refs-namespaces)
+                      magit-ref-namespaces)
         (if fn
             (let ((text (funcall fn ref face)))
               (magit-insert text (get-text-property 1 'face text) ?\s))
