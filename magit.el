@@ -1087,11 +1087,9 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defface magit-log-head-label-bisect-good
   '((((class color) (background light))
-     :box t
      :background "light green"
      :foreground "dark olive green")
     (((class color) (background dark))
-     :box t
      :background "light green"
      :foreground "dark olive green"))
   "Face for good bisect refs."
@@ -1099,11 +1097,9 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defface magit-log-head-label-bisect-skip
   '((((class color) (background light))
-     :box t
      :background "light goldenrod"
      :foreground "dark goldenrod")
     (((class color) (background dark))
-     :box t
      :background "light goldenrod"
      :foreground "dark goldenrod"))
   "Face for skipped bisect refs."
@@ -1111,11 +1107,9 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defface magit-log-head-label-bisect-bad
   '((((class color) (background light))
-     :box t
      :background "IndianRed1"
      :foreground "IndianRed4")
     (((class color) (background dark))
-     :box t
      :background "IndianRed1"
      :foreground "IndianRed4"))
   "Face for bad bisect refs."
@@ -1123,11 +1117,9 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defface magit-log-head-label-remote
   '((((class color) (background light))
-     :box t
      :background "Grey85"
      :foreground "OliveDrab4")
     (((class color) (background dark))
-     :box t
      :background "Grey11"
      :foreground "DarkSeaGreen2"))
   "Face for remote branch head labels shown in log buffer."
@@ -1135,11 +1127,9 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defface magit-log-head-label-tags
   '((((class color) (background light))
-     :box t
      :background "LemonChiffon1"
      :foreground "goldenrod4")
     (((class color) (background dark))
-     :box t
      :background "LemonChiffon1"
      :foreground "goldenrod4"))
   "Face for tag labels shown in log buffer."
@@ -1147,11 +1137,9 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defface magit-log-head-label-patches
   '((((class color) (background light))
-     :box t
      :background "IndianRed1"
      :foreground "IndianRed4")
     (((class color) (background dark))
-     :box t
      :background "IndianRed1"
      :foreground "IndianRed4"))
   "Face for Stacked Git patches."
@@ -1164,11 +1152,9 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defface magit-log-head-label-local
   '((((class color) (background light))
-     :box t
      :background "Grey85"
      :foreground "LightSkyBlue4")
     (((class color) (background dark))
-     :box t
      :background "Grey13"
      :foreground "LightSkyBlue1"))
   "Face for local branch head labels shown in log buffer."
@@ -1176,11 +1162,9 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defface magit-log-head-label-head
   '((((class color) (background light))
-     :box t
      :background "Grey70"
      :foreground "Black")
     (((class color) (background dark))
-     :box t
      :background "Grey20"
      :foreground "White"))
   "Face for working branch head labels shown in log buffer."
@@ -1188,21 +1172,17 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defface magit-log-head-label-default
   '((((class color) (background light))
-     :box t
      :background "Grey50")
     (((class color) (background dark))
-     :box t
      :background "Grey50"))
   "Face for unknown ref labels shown in log buffer."
   :group 'magit-faces)
 
 (defface magit-log-head-label-wip
   '((((class color) (background light))
-     :box t
      :background "Grey95"
      :foreground "LightSkyBlue3")
     (((class color) (background dark))
-     :box t
      :background "Grey07"
      :foreground "LightSkyBlue4"))
   "Face for git-wip labels shown in log buffer."
@@ -1230,11 +1210,9 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defface magit-log-reflog-label-commit
   '((((class color) (background light))
-     :box t
      :background "LemonChiffon1"
      :foreground "goldenrod4")
     (((class color) (background dark))
-     :box t
      :background "LemonChiffon1"
      :foreground "goldenrod4"))
   "Face for reflog subject labels shown in reflog buffer."
@@ -1252,11 +1230,9 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defface magit-log-reflog-label-checkout
   '((((class color) (background light))
-     :box t
      :background "Grey85"
      :foreground "LightSkyBlue4")
     (((class color) (background dark))
-     :box t
      :background "Grey13"
      :foreground "LightSkyBlue1"))
   "Face for reflog subject labels shown in reflog buffer."
@@ -1264,11 +1240,9 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defface magit-log-reflog-label-reset
   '((((class color) (background light))
-     :box t
      :background "IndianRed1"
      :foreground "IndianRed4")
     (((class color) (background dark))
-     :box t
      :background "IndianRed1"
      :foreground "IndianRed4"))
   "Face for reflog subject labels shown in reflog buffer."
@@ -1276,11 +1250,9 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defface magit-log-reflog-label-rebase
   '((((class color) (background light))
-     :box t
      :background "Grey85"
      :foreground "OliveDrab4")
     (((class color) (background dark))
-     :box t
      :background "Grey11"
      :foreground "DarkSeaGreen2"))
   "Face for reflog subject labels shown in reflog buffer."
@@ -1288,11 +1260,9 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defface magit-log-reflog-label-cherry-pick
   '((((class color) (background light))
-     :box t
      :background "light green"
      :foreground "dark olive green")
     (((class color) (background dark))
-     :box t
      :background "light green"
      :foreground "dark olive green"))
   "Face for reflog subject labels shown in reflog buffer."
@@ -1300,20 +1270,16 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defface magit-log-reflog-label-remote
   '((((class color) (background light))
-     :box t
      :background "Grey50")
     (((class color) (background dark))
-     :box t
      :background "Grey50"))
   "Face for reflog subject labels shown in reflog buffer."
   :group 'magit-faces)
 
 (defface magit-log-reflog-label-other
   '((((class color) (background light))
-     :box t
      :background "Grey50")
     (((class color) (background dark))
-     :box t
      :background "Grey50"))
   "Face for reflog subject labels shown in reflog buffer."
   :group 'magit-faces)
