@@ -967,7 +967,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 ;;;; Custom Faces
 
-(defface magit-section-title
+(defface magit-section-heading
   '((t :inherit header-line))
   "Face for section titles."
   :group 'magit-faces)
@@ -1249,13 +1249,13 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   :group 'magit-faces)
 
 (defface magit-process-ok
-  '((t :inherit magit-section-title
+  '((t :inherit magit-section-heading
        :foreground "green"))
   "Face for zero exit-status."
   :group 'magit-faces)
 
 (defface magit-process-ng
-  '((t :inherit magit-section-title
+  '((t :inherit magit-section-heading
        :foreground "red"))
   "Face for non-zero exit-status."
   :group 'magit-faces)
@@ -1743,7 +1743,7 @@ never modify it.")
       (magit-insert
        (if (next-single-property-change 0 'face (concat "0" heading))
            heading
-         (concat (propertize heading 'face 'magit-section-title))))
+         (concat (propertize heading 'face 'magit-section-heading))))
       (unless (bolp)
         (insert ?\n))))
   (setf (magit-section-content magit-insert-section--current) (point-marker)))
@@ -4259,7 +4259,7 @@ can be used to override this."
                           (cl-find-if (apply-partially 'string-match done-re)
                                       lines)
                           (pop lines))
-                      'face 'magit-section-title))
+                      'face 'magit-section-heading))
         (dolist (line lines)
           (insert line "\n"))))
     (insert "\n")))
