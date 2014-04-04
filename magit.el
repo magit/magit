@@ -1114,11 +1114,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   "Face for tag labels shown in log buffer."
   :group 'magit-faces)
 
-(defface magit-whitespace-warning-face
-  '((t :inherit trailing-whitespace))
-  "Face for highlighting whitespace errors in Magit diffs."
-  :group 'magit-faces)
-
 (defface magit-log-head-label-local
   '((((class color) (background light))
      :background "Grey85"
@@ -1263,6 +1258,11 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   '((t :inherit magit-section-title
        :foreground "red"))
   "Face for non-zero exit-status."
+  :group 'magit-faces)
+
+(defface magit-whitespace-warning
+  '((t :inherit trailing-whitespace))
+  "Face for highlighting whitespace errors in Magit diffs."
   :group 'magit-faces)
 
 ;;;; Keymaps
@@ -7048,14 +7048,14 @@ actually were a single commit."
       (when (and magit-highlight-trailing-whitespace
                  (looking-at (concat prefix ".*?\\([ \t]+\\)$")))
         (magit-put-face-property (match-beginning 1) (match-end 1)
-                                 'magit-whitespace-warning-face))
+                                 'magit-whitespace-warning))
       (when (or (and (eq indent 'tabs)
                      (looking-at (concat prefix "\\( *\t[ \t]*\\)")))
                 (and (integerp indent)
                      (looking-at (format "%s\\([ \t]* \\{%s,\\}[ \t]*\\)"
                                          prefix indent))))
         (magit-put-face-property (match-beginning 1) (match-end 1)
-                                 'magit-whitespace-warning-face)))))
+                                 'magit-whitespace-warning)))))
 
 ;;;;; Diff Mode Commands
 
