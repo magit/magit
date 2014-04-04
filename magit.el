@@ -1044,6 +1044,11 @@ are left as-is."
   :group 'magit-log
   :type 'character)
 
+(defcustom magit-log-tree-color t
+  "Toggle colored drawing of branches in log view."
+  :type 'boolean
+  :group 'magit-log)
+
 ;;;;;; Others
 
 (defcustom magit-auto-revert-mode-lighter " MRev"
@@ -6299,7 +6304,8 @@ Other key binding:
       (apply-partially 'magit-wash-log style 'color t)
     "log"
     (format "--max-count=%d" magit-log-cutoff-length)
-    "--decorate=full" "--color"
+    "--decorate=full"
+    (if magit-log-tree-color "--color")
     (cl-case style
       (long    (if magit-log-show-gpg-status
                    (list "--stat" "--show-signature")
