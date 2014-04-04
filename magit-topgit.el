@@ -171,11 +171,16 @@
 
 (defun magit-insert-topgit-topics ()
   (when magit-topgit-mode
-    (magit-cmd-insert-section (topgit-topics "Topics:")
-      'magit-topgit-wash-topics magit-topgit-executable "summary")))
-
-(defun magit-topgit-wash-topics ()
-  (magit-wash-sequence #'magit-topgit-wash-topic))
+    (magit-insert-section (topgit-topics)
+      (magit-insert-heading "Topics:")
+      (let ((beg (point)))
+        (process-file magit-topgit-executable nil (list t nil) nil "summary")
+        (if (= (point) beg)
+            (magit-cancel-section)
+          (save-restriction
+            (narrow-to-region beg (point))
+            (goto-char beg)
+            (magit-wash-sequence #'magit-topgit-wash-topic)))))))
 
 (defun magit-topgit-wash-topic ()
   (let ((fmt "^\\(.\\{7\\}\\)\\s-\\(\\S-+\\)\\s-+\\(.*\\)"))
@@ -186,8 +191,7 @@
           (delete-char 8)
           (insert "\t")
           (goto-char (line-beginning-position))
-          (magit-with-section (section topgit-topic topic)
-            (setf (magit-section-info section) topic)
+          (magit-insert-section (topgit-topic topic)
             (let ((beg (1+ (line-beginning-position)))
                   (end (line-end-position)))
               (when (plist-get flags :current)

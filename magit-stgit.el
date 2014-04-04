@@ -227,16 +227,24 @@ into the series."
 
 (defun magit-insert-stgit-series ()
   (when magit-stgit-mode
-    (magit-cmd-insert-section (series "Patch series:")
-        (apply-partially 'magit-wash-sequence 'magit-stgit-wash-patch)
-      magit-stgit-executable "series" "--all" "--empty" "--description")))
+    (magit-insert-section (series)
+      (magit-insert-heading "Patch series:")
+      (let ((beg (point)))
+        (process-file magit-stgit-executable nil (list t nil) nil
+                      "series" "--all" "--empty" "--description")
+        (if (= (point) beg)
+            (magit-cancel-section)
+          (save-restriction
+            (narrow-to-region beg (point))
+            (goto-char beg)
+            (magit-wash-sequence #'magit-stgit-wash-patch)))
+        (insert ?\n)))))
 
 (defun magit-stgit-wash-patch ()
   (when (looking-at magit-stgit-patch-re)
     (magit-bind-match-strings (empty state patch msg) nil
       (delete-region (point) (point-at-eol))
-      (magit-with-section (section stgit-patch patch)
-        (setf (magit-section-info section) patch)
+      (magit-insert-section (stgit-patch patch)
         (magit-insert state (cond ((equal state ">") 'magit-stgit-current)
                                   ((equal state "+") 'magit-stgit-applied)
                                   ((equal state "-") 'magit-stgit-unapplied)
