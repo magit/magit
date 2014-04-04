@@ -1114,16 +1114,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   "Face for tag labels shown in log buffer."
   :group 'magit-faces)
 
-(defface magit-log-head-label-patches
-  '((((class color) (background light))
-     :background "IndianRed1"
-     :foreground "IndianRed4")
-    (((class color) (background dark))
-     :background "IndianRed1"
-     :foreground "IndianRed4"))
-  "Face for Stacked Git patches."
-  :group 'magit-faces)
-
 (defface magit-whitespace-warning-face
   '((t :inherit trailing-whitespace))
   "Face for highlighting whitespace errors in Magit diffs."

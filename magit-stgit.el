@@ -70,7 +70,7 @@
   :group 'magit-stgit-faces)
 
 (add-to-list 'magit-ref-namespaces
-             '("^refs/patches/\\(.+\\)" magit-log-head-label-patches nil))
+             '("^refs/patches/\\(.+\\)" magit-stgit-patch nil))
 
 (defface magit-stgit-current
   '((t :inherit magit-log-sha1))
