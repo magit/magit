@@ -2395,7 +2395,7 @@ Run Git in the root of the current repository.
 ;;;;; Process Mode
 
 (define-derived-mode magit-process-mode magit-mode "Magit Process"
-  "Mode for looking at git process output.")
+  "Mode for looking at Git process output.")
 
 (defvar magit-process-buffer-name "*magit-process*"
   "Name of buffer where output of processes is put.")
@@ -2927,10 +2927,7 @@ of the Windows \"Powershell\"."
 
 (define-derived-mode magit-mode special-mode "Magit"
   "Parent major mode from which Magit major modes inherit.
-
-Please see the manual for a complete description of Magit.
-
-\\{magit-mode-map}"
+Magit is documented in info node `(magit)'."
   (buffer-disable-undo)
   (setq truncate-lines t)
   (setq show-trailing-whitespace nil)
@@ -3838,18 +3835,15 @@ results in additional differences."
 ;;;;; Commit Core
 
 (define-derived-mode magit-commit-mode magit-mode "Magit"
-  "Mode for looking at a git commit.
+  "Mode for looking at a Git commit.
+This mode is documented in info node `(magit)Commit Buffer'.
 
-\\<magit-commit-mode-map>Type `\\[magit-visit]` to visit the changed file, \
-`\\[magit-toggle-section]` to hide or show a hunk,
-`\\[magit-diff-more-context]` and `\\[magit-diff-less-context]` to change the \
-size of the hunks.
-Type `\\[magit-apply]` to apply a change to your worktree and \
-`\\[magit-revert]` to reverse it.
-
-\\{magit-commit-mode-map}
-Unless shadowed by the mode specific bindings above, bindings
-from the parent keymap `magit-mode-map' are also available."
+\\<magit-commit-mode-map>\
+Type \\[magit-toggle-section] to expand or hide the section at point.
+Type \\[magit-visit] to visit the hunk or file at point.
+Type \\[magit-apply] to apply the change at point to the worktree.
+Type \\[magit-revert] to revert the change at point in the worktree.
+\n\\{magit-commit-mode-map}"
   :group 'magit)
 
 (defvar magit-commit-buffer-name "*magit-commit*"
@@ -3980,20 +3974,17 @@ stash at point, then prompt for a commit."
 ;;;; Status Mode
 
 (define-derived-mode magit-status-mode magit-mode "Magit"
-  "Mode for looking at git status.
+  "Mode for looking at Git status.
+This mode is documented in info node `(magit)Status'.
 
 \\<magit-status-mode-map>\
-Type `\\[magit-stage]` to stage the thing at point, \
-type `\\[magit-unstage]` to unstage it.
-Type `\\[magit-commit-popup]` to have a popup to commit, \
-type `\\[magit-dispatch-popup]` to see others available popup.
-Type `\\[magit-visit]` to visit something, and \
-`\\[magit-toggle-section]` to show or hide section.
-
-More information can be found in Info node `(magit)Status'
-
-Other key binding:
-\\{magit-status-mode-map}"
+Type \\[magit-refresh] to refresh the current buffer.
+Type \\[magit-dispatch-popup] to see available action popups.
+Type \\[magit-toggle-section] to expand or hide the section at point.
+Type \\[magit-visit] to visit the thing at point.
+Type \\[magit-stage] to stage the change at point; \\[magit-unstage] to unstage.
+Type \\[magit-commit-popup] to create a commit.
+\n\\{magit-status-mode-map}"
   :group 'magit)
 
 (defvar magit-status-buffer-name "*magit: %t*"
@@ -6144,21 +6135,15 @@ With a prefix argument another branch can be chosen."
 
 (define-derived-mode magit-log-mode magit-mode "Magit Log"
   "Mode for looking at git log.
+This mode is documented in info node `(magit)History'.
 
-\\<magit-log-mode-map>Type `\\[magit-visit]` to visit a commit, and \
-`\\[magit-show-or-scroll-up]` to just show it.
-Type `\\[magit-log-show-more-entries]` to show more commits, \
-and `\\[magit-refresh]` to refresh the log.
-Type `\\[magit-diff-working-tree]` to see the diff between current commit and your working tree,
-Type `\\[magit-diff]` to see diff between any two version
-Type `\\[magit-apply]` to apply the change of the current commit to your wortree,
-and `\\[magit-cherry-pick]` to apply and commit the result.
-Type `\\[magit-revert]` to revert a commit, and `\\[magit-reset-head]` reset your current head to a commit,
-
-More information can be found in Info node `(magit)History'
-
-Other key binding:
-\\{magit-log-mode-map}"
+\\<magit-log-mode-map>\
+Type \\[magit-refresh] to refresh the current buffer.
+Type \\[magit-visit] or \\[magit-show-or-scroll-up] to visit the commit at point.
+Type \\[magit-merge-popup] to merge the commit at point.
+Type \\[magit-cherry-pick] to cherry-pick the commit at point.
+Type \\[magit-reset-head] to reset HEAD to the commit at point.
+\n\\{magit-log-mode-map}"
   :group 'magit)
 
 (defvar magit-log-buffer-name "*magit-log*"
@@ -6469,22 +6454,13 @@ With a non numeric prefix ARG, show all entries"
 
 (define-derived-mode magit-cherry-mode magit-mode "Magit Cherry"
   "Mode for looking at commits not merged upstream.
+This mode is documented in info node `(magit)Wazzup'.
 
 \\<magit-cherry-mode-map>\
-Type `\\[magit-toggle-section]` to show or hide section.
-Type `\\[magit-visit]` to visit the thing at point and \
-type `\\[magit-show-or-scroll-up]` to show it.
-Type `\\[magit-diff-working-tree]` to display change with your working tree, \
-when `\\[magit-diff]` to display change
-between any two commit.
-Type `\\[magit-cherry-pick]` to cherry-pick a commit, and \
-`\\[magit-apply]` to apply its change to your
-working tree, without committing, and `\\[magit-merge-popup]` to merge.
-`\\[magit-refresh]` will refresh current buffer.
-
-
-Other key binding:
-\\{magit-cherry-mode-map}")
+Type \\[magit-toggle-section] to expand or hide the section at point.
+Type \\[magit-visit] or \\[magit-show-or-scroll-up] to visit the commit at point.
+Type \\[magit-cherry-pick] to cherry-pick the commit at point.
+\n\\{magit-cherry-mode-map}")
 
 (defvar magit-cherry-buffer-name "*magit-cherry*"
   "Name of buffer used to display commits not merged upstream.")
@@ -6536,20 +6512,14 @@ Other key binding:
 
 (define-derived-mode magit-reflog-mode magit-log-mode "Magit Reflog"
   "Mode for looking at git reflog.
+This mode is documented in info node `(magit)Reflogs'.
 
-\\<magit-reflog-mode-map>Type `\\[magit-visit]` to visit a commit, and \
-`\\[magit-show-or-scroll-up]` to just show it.
-Type `\\[magit-diff-working-tree]` to see the diff between current commit and \
-your working tree,
-Type `\\[magit-diff]` to see the between any two version.
-Type `\\[magit-reset-head]` to reset your head to the current commit, and \
-`\\[magit-apply]` to apply its change
-to your working tree and `\\[magit-cherry-pick]` to cherry pick it.
-
-More information can be found in Info node `(magit)Reflogs'
-
-Other key binding:
-\\{magit-reflog-mode-map}"
+\\<magit-reflog-mode-map>\
+Type \\[magit-refresh] to refresh the current buffer.
+Type \\[magit-visit] or \\[magit-show-or-scroll-up] to visit the commit at point.
+Type \\[magit-cherry-pick] to cherry-pick the commit at point.
+Type \\[magit-reset-head] to reset HEAD to the commit at point.
+\n\\{magit-reflog-mode-map}"
   :group 'magit)
 
 (defun magit-refresh-reflog-buffer (ref)
@@ -6654,17 +6624,15 @@ Other key binding:
 
 (define-derived-mode magit-diff-mode magit-mode "Magit Diff"
   "Mode for looking at a git diff.
+This mode is documented in info node `(magit)Diffing'.
 
-\\<magit-diff-mode-map>Type `\\[magit-visit]` to visit the changed file, \
-`\\[magit-toggle-section]` to hide or show a hunk,
-`\\[magit-diff-larger-hunks]` and `\\[magit-diff-smaller-hunks]` to change \
-the size of the hunks.
-Type `\\[magit-apply]` to apply a change to your worktree and \
-`\\[magit-revert]` to reverse it.
-
-More information can be found in Info node `(magit)Diffing'
-
-\\{magit-diff-mode-map}"
+\\<magit-diff-mode-map>\
+Type \\[magit-refresh] to refresh the current buffer.
+Type \\[magit-toggle-section] to expand or hide the section at point.
+Type \\[magit-visit] to visit the file at point.
+Type \\[magit-apply] to apply the change at point to the worktree.
+Type \\[magit-revert] to revert the change at point in the worktree.
+\n\\{magit-diff-mode-map}"
   :group 'magit)
 
 (defvar magit-diff-buffer-name "*magit-diff*"
@@ -7080,23 +7048,16 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 
 (define-derived-mode magit-wazzup-mode magit-mode "Magit Wazzup"
   "Mode for looking at git commits not merged into current HEAD.
+This mode is documented in info node `(magit)Wazzup'.
 
 \\<magit-wazzup-mode-map>\
-Type `\\[magit-toggle-section]` to show or hide section.
-Type `\\[magit-visit]` to visit the thing at point, \
-type `\\[magit-show-or-scroll-up]` to show it.
-Type `\\[magit-diff-working-tree]` to display change with your working tree, \
-and `\\[magit-diff]` to display change
-between any two commit.
-Type `\\[magit-cherry-pick]` to cherry-pick a commit, and \
-`\\[magit-apply]` to apply its change to your
-working tree, without committing, and `\\[magit-merge-popup]` \
-to merge those change.
-Type `\\[magit-refresh]` to refresh current buffer.
-
-More information can be found in Info node `(magit)Wazzup'
-
-\\{magit-wazzup-mode-map}"
+Type \\[magit-refresh] to refresh the current buffer.
+Type \\[magit-toggle-section] to expand or hide the section at point.
+Type \\[magit-visit] or \\[magit-show-or-scroll-up] to visit the commit at point.
+Type \\[magit-merge-popup] to merge the branch or commit at point.
+Type \\[magit-cherry-pick] to cherry-pick the commit at point.
+Type \\[magit-reset-head] to reset HEAD to the commit at point.
+\n\\{magit-wazzup-mode-map}"
   :group 'magit)
 
 (defvar magit-wazzup-buffer-name "*magit-wazzup*"
@@ -7157,21 +7118,17 @@ into the selected branch."
 
 (define-derived-mode magit-branch-manager-mode magit-mode "Magit Branch"
   "Mode for looking at git branches.
+This mode is documented in info node `(magit)Branches and Remotes'.
 
 \\<magit-branch-manager-mode-map>\
-Type `\\[magit-visit]` to checkout a branch, \
-`\\[magit-reset-head]' to reset current branch,
-you can also merge the branch with `\\[magit-merge-popup]`
-
-Type `\\[magit-discard]' to delete a branch, \
-or `\\[universal-argument] \\[magit-discard]' to force the deletion.
-Type `\\[magit-rename]' to Rename a branch.
-
-More information can be found in Info node `(magit)The branch list'
-
-\\{magit-branch-manager-mode-map}
-Unless shadowed by the mode specific bindings above, bindings
-from the parent keymap `magit-mode-map' are also available.")
+Type \\[magit-refresh] to refresh the current buffer.
+Type \\[magit-branch-popup] to see available branch commands.
+Type \\[magit-visit] or \\[magit-show-or-scroll-up] to visit the commit at point.
+Type \\[magit-merge-popup] to merge the branch or commit at point.
+Type \\[magit-cherry-pick] to cherry-pick the commit at point.
+Type \\[magit-reset-head] to reset HEAD to the commit at point.
+\n\\{magit-branch-manager-mode-map}"
+  :group 'magit)
 
 (defvar magit-branches-buffer-name "*magit-branches*"
   "Name of buffer used to display and manage branches.")
