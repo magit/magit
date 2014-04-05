@@ -3220,16 +3220,14 @@ tracked in the current repository."
   (unless buffer
     (setq buffer (current-buffer)))
   (with-current-buffer buffer
-    (when (derived-mode-p 'magit-mode)
-      (when (derived-mode-p 'magit-status-mode)
-        (magit-maybe-save-repository-buffers))
-      (magit-mode-refresh-buffer buffer))
-    (let (status)
-      (when (and (not (eq major-mode 'magit-status-mode))
-                 (setq status (magit-mode-get-buffer
-                               magit-status-buffer-name
-                               'magit-status-mode)))
-        (magit-mode-refresh-buffer status))))
+    (cond ((derived-mode-p 'magit-status-mode)
+           (magit-maybe-save-repository-buffers)
+           (magit-mode-refresh-buffer buffer))
+          ((derived-mode-p 'magit-mode)
+           (magit-mode-refresh-buffer buffer)
+           (--when-let (magit-mode-get-buffer magit-status-buffer-name
+                                              'magit-status-mode)
+             (magit-mode-refresh-buffer it)))))
   (when magit-auto-revert-mode
     (magit-revert-buffers)))
 
