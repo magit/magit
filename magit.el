@@ -2395,7 +2395,8 @@ Run Git in the root of the current repository.
 ;;;;; Process Mode
 
 (define-derived-mode magit-process-mode magit-mode "Magit Process"
-  "Mode for looking at Git process output.")
+  "Mode for looking at Git process output."
+  :group 'magit-process)
 
 (defvar magit-process-buffer-name "*magit-process*"
   "Name of buffer where output of processes is put.")
@@ -2928,6 +2929,7 @@ of the Windows \"Powershell\"."
 (define-derived-mode magit-mode special-mode "Magit"
   "Parent major mode from which Magit major modes inherit.
 Magit is documented in info node `(magit)'."
+  :group 'magit-modes
   (buffer-disable-undo)
   (setq truncate-lines t)
   (setq show-trailing-whitespace nil)
@@ -3844,7 +3846,7 @@ Type \\[magit-visit] to visit the hunk or file at point.
 Type \\[magit-apply] to apply the change at point to the worktree.
 Type \\[magit-revert] to revert the change at point in the worktree.
 \n\\{magit-commit-mode-map}"
-  :group 'magit)
+  :group 'magit-commit)
 
 (defvar magit-commit-buffer-name "*magit-commit*"
   "Name of buffer used to display a commit.")
@@ -3985,7 +3987,7 @@ Type \\[magit-visit] to visit the thing at point.
 Type \\[magit-stage] to stage the change at point; \\[magit-unstage] to unstage.
 Type \\[magit-commit-popup] to create a commit.
 \n\\{magit-status-mode-map}"
-  :group 'magit)
+  :group 'magit-status)
 
 (defvar magit-status-buffer-name "*magit: %t*"
   "Name of buffer used to display a repository's status.")
@@ -6144,7 +6146,7 @@ Type \\[magit-merge-popup] to merge the commit at point.
 Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 Type \\[magit-reset-head] to reset HEAD to the commit at point.
 \n\\{magit-log-mode-map}"
-  :group 'magit)
+  :group 'magit-log)
 
 (defvar magit-log-buffer-name "*magit-log*"
   "Name of buffer used to display log entries.")
@@ -6416,7 +6418,7 @@ With a non numeric prefix ARG, show all entries"
 
 (define-derived-mode magit-log-select-mode magit-log-mode "Magit Select"
   "Mode for selecting a commit from history."
-  :group 'magit)
+  :group 'magit-log)
 
 (defvar-local magit-log-select-pick-function nil)
 (defvar-local magit-log-select-quit-function nil)
@@ -6460,7 +6462,8 @@ This mode is documented in info node `(magit)Wazzup'.
 Type \\[magit-toggle-section] to expand or hide the section at point.
 Type \\[magit-visit] or \\[magit-show-or-scroll-up] to visit the commit at point.
 Type \\[magit-cherry-pick] to cherry-pick the commit at point.
-\n\\{magit-cherry-mode-map}")
+\n\\{magit-cherry-mode-map}"
+  :group 'magit-modes)
 
 (defvar magit-cherry-buffer-name "*magit-cherry*"
   "Name of buffer used to display commits not merged upstream.")
@@ -6520,7 +6523,7 @@ Type \\[magit-visit] or \\[magit-show-or-scroll-up] to visit the commit at point
 Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 Type \\[magit-reset-head] to reset HEAD to the commit at point.
 \n\\{magit-reflog-mode-map}"
-  :group 'magit)
+  :group 'magit-log)
 
 (defun magit-refresh-reflog-buffer (ref)
   (magit-log-margin-set-timeunit-width)
@@ -6633,7 +6636,7 @@ Type \\[magit-visit] to visit the file at point.
 Type \\[magit-apply] to apply the change at point to the worktree.
 Type \\[magit-revert] to revert the change at point in the worktree.
 \n\\{magit-diff-mode-map}"
-  :group 'magit)
+  :group 'magit-diff)
 
 (defvar magit-diff-buffer-name "*magit-diff*"
   "Name of buffer used to display a diff.")
@@ -7058,7 +7061,7 @@ Type \\[magit-merge-popup] to merge the branch or commit at point.
 Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 Type \\[magit-reset-head] to reset HEAD to the commit at point.
 \n\\{magit-wazzup-mode-map}"
-  :group 'magit)
+  :group 'magit-modes)
 
 (defvar magit-wazzup-buffer-name "*magit-wazzup*"
   "Name of buffer used to display commits not merged into current HEAD.")
@@ -7128,7 +7131,7 @@ Type \\[magit-merge-popup] to merge the branch or commit at point.
 Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 Type \\[magit-reset-head] to reset HEAD to the commit at point.
 \n\\{magit-branch-manager-mode-map}"
-  :group 'magit)
+  :group 'magit-modes)
 
 (defvar magit-branches-buffer-name "*magit-branches*"
   "Name of buffer used to display and manage branches.")
