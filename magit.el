@@ -355,27 +355,18 @@ backup is created."
   :group 'magit
   :type 'boolean)
 
-(defcustom magit-save-some-buffers t
-  "Whether certain commands save modified buffers before running.
+(defcustom magit-save-repository-buffers t
+  "Whether to save modified buffers before running when approriate.
 
-nil        don't save buffers.
-t          ask which buffers to save.
-`dontask'  save all buffers without asking."
+If this is non-nil then modified buffers belonging to the current
+repository may be saved when the status buffer is being refreshed
+and before a checkout is performed.  When the value is `dontask'
+then this is done without user intervention, when it is t then
+the user has to confirm each save."
   :group 'magit
   :type '(choice (const :tag "Never" nil)
                  (const :tag "Ask" t)
                  (const :tag "Save without asking" dontask)))
-
-(defcustom magit-save-some-buffers-predicate
-  'magit-save-buffers-predicate-tree-only
-  "A predicate function to decide whether to save a buffer.
-
-Used by function `magit-save-some-buffers' when the variable of
-the same name is non-nil."
-  :group 'magit
-  :type '(radio (function-item magit-save-buffers-predicate-tree-only)
-                (function-item magit-save-buffers-predicate-all)
-                (function :tag "Other")))
 
 (defcustom magit-rewrite-inclusive t
   "Whether magit includes the selected base commit in a rewrite operation.
@@ -3231,7 +3222,7 @@ tracked in the current repository."
   (with-current-buffer buffer
     (when (derived-mode-p 'magit-mode)
       (when (derived-mode-p 'magit-status-mode)
-        (magit-save-some-buffers))
+        (magit-maybe-save-repository-buffers))
       (magit-mode-refresh-buffer buffer))
     (let (status)
       (when (and (not (eq major-mode 'magit-status-mode))
@@ -3267,42 +3258,25 @@ the current repository."
                    (let ((auto-revert-mode t))
                      (auto-revert-handler))))))))))
 
-(defvar magit-save-some-buffers-topdir nil)
+(defun magit-maybe-save-repository-buffers ()
+  (when magit-save-repository-buffers
+    (let ((msg (current-message)))
+      (magit-save-repository-buffers
+       (eq magit-save-repository-buffers 'dontask))
+      (when msg (message msg)))))
 
-(defun magit-save-some-buffers (&optional msg pred topdir)
-  "Save some buffers if variable `magit-save-some-buffers' is non-nil.
-If variable `magit-save-some-buffers' is set to `dontask' then
-don't ask the user before saving the buffers, just go ahead and
-do it.
-
-Optional argument MSG is displayed in the minibuffer if variable
-`magit-save-some-buffers' is nil.
-
-Optional second argument PRED determines which buffers are considered:
-If PRED is nil, all the file-visiting buffers are considered.
-If PRED is t, then certain non-file buffers will also be considered.
-If PRED is a zero-argument function, it indicates for each buffer whether
-to consider it or not when called with that buffer current."
-  (interactive)
-  (let ((predicate-function (or pred magit-save-some-buffers-predicate))
-        (magit-save-some-buffers-topdir (or topdir default-directory)))
-    (if magit-save-some-buffers
-        (save-some-buffers
-         (eq magit-save-some-buffers 'dontask)
-         predicate-function)
-      (when msg
-        (message msg)))))
-
-(defun magit-save-buffers-predicate-all ()
-  "Prompt to save all buffers with unsaved changes."
-  t)
-
-(defun magit-save-buffers-predicate-tree-only ()
-  "Only prompt to save buffers which are within the current git project.
-As determined by the directory passed to `magit-status'."
-  (and buffer-file-name
-       (string= (magit-get-top-dir magit-save-some-buffers-topdir)
-                (magit-get-top-dir (file-name-directory buffer-file-name)))))
+(defun magit-save-repository-buffers (&optional arg)
+  "Save file-visiting buffers belonging to the current repository.
+After any buffer where `buffer-save-without-query' is non-nil
+is saved without asking, the user is asked about each modified
+buffer which visits a file in the current repository.  Optional
+argument (the prefix) non-nil means save all with no questions."
+  (interactive "P")
+  (save-some-buffers
+   arg `(lambda ()
+          (and buffer-file-name
+               (equal (magit-get-top-dir default-directory)
+                     ,(magit-get-top-dir default-directory))))))
 
 ;;; Plumbing
 ;;;; Repository Paths
@@ -4048,7 +4022,7 @@ can be used to override this."
                              4))
                        (or (magit-get-top-dir)
                            (magit-read-top-dir nil)))))
-  (magit-save-some-buffers)
+  (magit-maybe-save-repository-buffers)
   (-when-let (default-directory
               (or (magit-get-top-dir dir)
                   (and (yes-or-no-p
@@ -4945,7 +4919,7 @@ Fails if working tree or staging area contain uncommitted changes.
            (magit-read-rev "Checkout"
                            (unless (equal default current) default)
                            current))))
-  (magit-save-some-buffers)
+  (magit-maybe-save-repository-buffers)
   (magit-run-git "checkout" revision))
 
 ;;;###autoload
@@ -4960,7 +4934,7 @@ Fails if working tree or staging area contain uncommitted changes.
   (cond ((run-hook-with-args-until-success
           'magit-branch-create-hook branch parent))
         ((and branch (not (string= branch "")))
-         (magit-save-some-buffers)
+         (magit-maybe-save-repository-buffers)
          (magit-run-git "checkout" magit-current-popup-args
                         "-b" branch parent))))
 
