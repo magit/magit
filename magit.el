@@ -4900,8 +4900,10 @@ inspect the merge and change the commit message.
 
 ;;;###autoload
 (defun magit-checkout (revision)
-  "Switch 'HEAD' to REVISION and update working tree.
-Fails if working tree or staging area contain uncommitted changes.
+  "Checkout COMMIT, updating the index and the working tree.
+If COMMIT is a local branch then that becomes the current branch.
+If it is something else then `HEAD' becomes detached.  Checkout
+fails if the working tree or the staging area contain changes.
 \n(git checkout REVISION)."
   (interactive
    (list (let ((current (magit-get-current-branch))
@@ -4915,9 +4917,8 @@ Fails if working tree or staging area contain uncommitted changes.
 
 ;;;###autoload
 (defun magit-branch-and-checkout (branch parent)
-  "Switch 'HEAD' to new BRANCH at revision PARENT and update working tree.
-Fails if working tree or staging area contain uncommitted changes.
-\n(git checkout ARGS -b BRANCH PARENT)."
+  "Create and checkout BRANCH at revision PARENT.
+\n(git checkout [ARGS] -b BRANCH PARENT)."
   (interactive
    (list (read-string "Create and checkout branch: ")
          (magit-read-rev "Parent" (or (magit-guess-branch)
