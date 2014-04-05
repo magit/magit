@@ -2496,7 +2496,8 @@ call function WASHER with no argument."
         (narrow-to-region beg (point))
         (goto-char beg)
         (funcall washer))
-      (when (= (point) beg)
+      (when (or (= (point) beg)
+                (= (point) (1+ beg)))
         (magit-cancel-section)))))
 
 (defun magit-run-git (&rest args)
