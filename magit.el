@@ -279,17 +279,20 @@ tramp to connect to servers with ancient Git versions."
 (defcustom magit-emacsclient-executable
   (ignore-errors
     (shell-quote-argument
-     (let ((version (format "%s.%s"
-                            emacs-major-version
-                            emacs-minor-version)))
-       (or (let ((exec-path (list (expand-file-name "bin" invocation-directory)
-                                  invocation-directory)))
-             (or (executable-find (format "emacsclient-%s" version))
-                 (executable-find (format "emacsclient-%s.exe" version))
-                 (executable-find "emacsclient")
-                 (executable-find "emacsclient.exe")))
-           (executable-find (format "emacsclient-%s" version))
+     (let ((version
+            (format "%s.%s" emacs-major-version emacs-minor-version)))
+       (or (and (eq system-type 'darwin)
+                (let ((exec-path
+                       (list (expand-file-name "bin" invocation-directory))))
+                  (executable-find "emacsclient")))
+           (executable-find (format "emacsclient%s"   version))
+           (executable-find (format "emacsclient-%s"   version))
+           (executable-find (format "emacsclient%s.exe" version))
            (executable-find (format "emacsclient-%s.exe" version))
+           (executable-find (format "emacsclient%s"   emacs-major-version))
+           (executable-find (format "emacsclient-%s"   emacs-major-version))
+           (executable-find (format "emacsclient%s.exe" emacs-major-version))
+           (executable-find (format "emacsclient-%s.exe" emacs-major-version))
            (executable-find "emacsclient")
            (executable-find "emacsclient.exe")))))
   "The Emacsclient executable.
