@@ -50,6 +50,10 @@
            (executable-find (format "emacsclient-%s"   version))
            (executable-find (format "emacsclient%s.exe" version))
            (executable-find (format "emacsclient-%s.exe" version))
+           (executable-find (format "emacsclient%s"   emacs-major-version))
+           (executable-find (format "emacsclient-%s"   emacs-major-version))
+           (executable-find (format "emacsclient%s.exe" emacs-major-version))
+           (executable-find (format "emacsclient-%s.exe" emacs-major-version))
            (executable-find "emacsclient")
            (executable-find "emacsclient.exe")))))
   "The Emacsclient executable used by the `with-editor' macro."
