@@ -303,7 +303,7 @@
       ("d" "Set default" magit-set-default-diff-options)
       ("c" "Save default" magit-save-default-diff-options)
       ("r" "Reset to default" magit-reset-diff-options)
-      ("h" "Toggle Hunk Refinement" magit-toggle-diff-refine-hunk))
+      ("h" "Toggle Hunk Refinement" magit-diff-toggle-refine-hunk))
      (switches
       ("-m" "Show smallest possible diff" "--minimal")
       ("-p" "Use patience diff algorithm" "--patience")
