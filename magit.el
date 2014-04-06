@@ -963,10 +963,20 @@ The function is called with one argument, the propertized graph
 of a single line in as a string.  It has to return the formatted
 string.  This option can also be nil, in which case the graph is
 inserted as is."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "2.1.0")
   :group 'magit-log
   :type '(choice (const :tag "insert as is" nil)
+                 (function-item magit-log-format-unicode-graph)
                  function))
+
+(defcustom magit-log-format-unicode-graph-alist
+  '((?/ . ?╱) (?| . ?│) (?\\ . ?╲) (?* . ?◆) (?o . ?◇))
+  "Alist used by `magit-log-format-unicode-graph' to translate chars."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-log
+  :type '(repeat (cons :format "%v\n"
+                       (character :format "replace %v ")
+                       (character :format "with %v"))))
 
 (defcustom magit-log-show-gpg-status nil
   "Display signature verification information as part of the log."
@@ -6453,6 +6463,21 @@ Other key binding:
                  (magit-wash-log-line 'long abbrev))))))
       (forward-line)))
   t)
+
+(defun magit-log-format-unicode-graph (string)
+  "Translate ascii characters to unicode characters.
+Whether that actually is an improvment depends on the unicode
+support of the font in use.  The translation is done using the
+alist in `magit-log-format-unicode-graph-alist'."
+  (replace-regexp-in-string
+   "[/|\\*o ]"
+   (lambda (str)
+     (propertize
+      (string (or (cdr (assq (aref str 0)
+                             magit-log-format-unicode-graph-alist))
+                  (aref str 0)))
+      'face (get-text-property 0 'face str)))
+   string))
 
 (defun magit-format-log-margin (&optional author date)
   (when magit-log-show-margin
