@@ -5703,27 +5703,32 @@ depending on the value of option `magit-commit-squash-confirm'.
                    ,@args))
                 nil t))))
 
+(defvar magit-commit-add-log-insert-function 'magit-commit-add-log-insert)
+
 (defun magit-commit-add-log ()
-  "Add a template for the current hunk to the commit message buffer."
+  "Add a stub for the current hunk into the commit message buffer.
+If no commit is in progress, then initiate it.  Use the function
+specified by variable `magit-commit-add-log-insert-function' to
+actually insert the entry."
   (interactive)
-  (let* ((section (magit-current-section))
-         (fun (if (eq (magit-section-type section) 'hunk)
-                  (save-window-excursion
-                    (save-excursion
-                      (magit-visit)
-                      (add-log-current-defun)))
-                nil))
-         (file (magit-section-value
-                (cl-case (magit-section-type section)
-                  (hunk (magit-section-parent section))
-                  (diff section)
-                  (t    (user-error "No change at point")))))
-         (buffer (magit-commit-log-buffer)))
-    (unless buffer
+  (let ((log (magit-commit-log-buffer)) buf pos)
+    (save-window-excursion
+      (magit-visit)
+      (setq buf (current-buffer)
+            pos (point)))
+    (unless log
       (magit-commit)
-      (while (not (setq buffer (magit-commit-log-buffer)))
+      (while (not (setq log (magit-commit-log-buffer)))
         (sit-for 0.01)))
-    (pop-to-buffer buffer)
+    (save-excursion
+      (with-current-buffer buf
+        (goto-char pos)
+        (funcall magit-commit-add-log-insert-function log
+                 (file-relative-name buffer-file-name (magit-get-top-dir))
+                 (add-log-current-defun))))))
+
+(defun magit-commit-add-log-insert (buffer file defun)
+  (with-current-buffer buffer
     (goto-char (point-min))
     (cond ((not (re-search-forward (format "^\\* %s" (regexp-quote file))
                                    nil t))
@@ -5733,11 +5738,11 @@ depending on the value of option `magit-commit-squash-confirm'.
            (unless (or (bobp) (looking-back "\\(\\*[^\n]+\\|\n\\)"))
              (insert "\n"))
            (insert (format "\n* %s" file))
-           (when fun
-             (insert (format " (%s)" fun)))
+           (when defun
+             (insert (format " (%s)" defun)))
            (insert ": "))
-          (fun
-           ;; found entry for file, look for fun
+          (defun
+           ;; found entry for file, look for defun
            (let ((limit (save-excursion
                           (or (and (re-search-forward "^\\* " nil t)
                                    (match-beginning 0))
@@ -5745,7 +5750,7 @@ depending on the value of option `magit-commit-squash-confirm'.
                                      (forward-comment -1000)
                                      (point))))))
              (cond ((re-search-forward
-                     (format "(.*\\<%s\\>.*):" (regexp-quote fun))
+                     (format "(.*\\<%s\\>.*):" (regexp-quote defun))
                      limit t)
                     ;; found it, goto end of current entry
                     (if (re-search-forward "^(" limit t)
@@ -5757,9 +5762,9 @@ depending on the value of option `magit-commit-squash-confirm'.
                     (if (bolp)
                         (open-line 1)
                       (newline))
-                    (insert (format "(%s): " fun))))))
+                    (insert (format "(%s): " defun))))))
           (t
-           ;; found entry for file, look for beginning  it
+           ;; found entry for file, look for its beginning
            (when (looking-at ":")
              (forward-char 2))))))
 
