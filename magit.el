@@ -6955,7 +6955,7 @@ actually were a single commit."
                        "log" "--oneline" "--left-right" range)
                      (delete-char -1)))
                   module))
-        (magit-insert-section (dirty module)
+        (magit-insert-section (diff module)
           (magit-insert (propertize (format "dirty      %s\n" module)
                                     'face 'magit-diff-file-header))))))
    ((looking-at "^\\* Unmerged path \\(.*\\)")
