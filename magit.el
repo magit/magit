@@ -5602,6 +5602,16 @@ With two prefix args, remove ignored files as well."
         (magit-diff orig nil "-R")
       (user-error "No rewrite in progress"))))
 
+(defun magit-rewrite-diff-pending-transition ()
+  (interactive)
+  (catch t (magit-rewrite-diff-pending))
+  (message "Please remove magit-insert-pending-changes from your magit-status-sections-hook, or move to magit-rewrite-diff-pending"))
+
+(define-obsolete-function-alias
+  'magit-insert-pending-changes 'magit-rewrite-diff-pending-transition
+  "382351845e"
+  "https://github.com/magit/magit/commit/382351845eca2425713f640f9bb55756c9ddf723")
+
 ;;;;; Fetching
 
 ;;;###autoload
