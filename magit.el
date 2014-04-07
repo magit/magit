@@ -3972,9 +3972,6 @@ stash at point, then prompt for a commit."
             ((re-search-forward "^.[^ ]" bound t)
              (goto-char (1- (match-beginning 0)))))))
   (forward-line)
-  (when magit-show-diffstat
-    (magit-wash-diffstats))
-  (forward-line)
   (magit-wash-diffs))
 
 (defun magit-insert-commit-button (hash)
