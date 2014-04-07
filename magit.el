@@ -7526,7 +7526,9 @@ to the current branch and `magit-wip-ref-format'."
 This command is intended for debugging purposes."
   (interactive)
   (let ((section (magit-current-section)))
-    (message "%S %s-%s" (magit-section-ident section)
+    (message "%S %S %s-%s"
+             (magit-section-ident section)
+             (magit-section-value section)
              (marker-position (magit-section-start section))
              (marker-position (magit-section-end section)))))
 
