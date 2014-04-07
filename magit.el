@@ -4907,12 +4907,12 @@ inspect the merge and change the commit message.
   :options  '((?c "Contains"   "--contains="  magit-popup-read-rev)
               (?m "Merged"     "--merged="    magit-popup-read-rev)
               (?n "Not merged" "--no-merged=" magit-popup-read-rev))
-  :actions  '((?v "Branch manager"    magit-branch-manager)
-              (?b "Checkout"          magit-checkout)
-              (?b "Create & Checkout" magit-branch-and-checkout)
+  :actions  '((?b "Checkout"          magit-checkout)
               (?c "Create"            magit-branch)
+              (?B "Create & Checkout" magit-branch-and-checkout)
               (?r "Rename"            magit-branch-rename)
-              (?k "Delete"            magit-branch-delete))
+              (?k "Delete"            magit-branch-delete)
+              (?v "Branch manager"    magit-branch-manager))
   :default-action 'magit-checkout)
 
 ;;;###autoload
@@ -4931,6 +4931,19 @@ fails if the working tree or the staging area contain changes.
                            current))))
   (magit-maybe-save-repository-buffers)
   (magit-run-git "checkout" revision))
+
+(defun magit-branch (branch parent)
+  "Create BRANCH at revision PARENT.
+\n(git branch [ARGS] BRANCH PARENT)."
+  (interactive
+   (list (read-string "Create branch: ")
+         (magit-read-rev "Parent" (or (magit-guess-branch)
+                                      (magit-get-current-branch)))))
+  (cond ((run-hook-with-args-until-success
+          'magit-branch-create-hook branch parent))
+        ((and branch (not (string= branch "")))
+         (magit-maybe-save-repository-buffers)
+         (magit-run-git "branch" magit-current-popup-args branch parent))))
 
 ;;;###autoload
 (defun magit-branch-and-checkout (branch parent)
