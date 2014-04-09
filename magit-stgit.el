@@ -76,6 +76,11 @@
   :group 'magit-stgit
   :type 'boolean)
 
+(defcustom magit-stgit-mode-lighter " Stg"
+  "Mode-line lighter for Magit-Stgit mode."
+  :group 'magit-stgit
+  :type 'string)
+
 ;;;; Faces
 
 (defgroup magit-stgit-faces nil
@@ -215,16 +220,13 @@ into the series."
     (define-key map "Y" 'magit-stgit-popup)
     map))
 
-(defvar magit-stgit-mode-lighter " Stg")
-
 ;;;###autoload
 (define-minor-mode magit-stgit-mode
-  "StGit support for Magit"
+  "StGit support for Magit."
   :lighter magit-stgit-mode-lighter
-  :require 'magit-stgit
-  :keymap magit-stgit-mode-map
+  :keymap  magit-stgit-mode-map
   (or (derived-mode-p 'magit-mode)
-      (user-error "This mode only makes sense with magit"))
+      (user-error "This mode only makes sense with Magit"))
   (if magit-stgit-mode
       (magit-add-section-hook 'magit-status-sections-hook
                               'magit-insert-stgit-series

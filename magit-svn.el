@@ -82,6 +82,11 @@
   :group 'magit-svn
   :type 'string)
 
+(defcustom magit-svn-mode-lighter " Svn"
+  "Mode-line lighter for Magit-Svn mode."
+  :group 'magit-svn
+  :type 'string)
+
 ;;; Commands
 
 (magit-define-popup magit-svn-popup
@@ -292,10 +297,12 @@ and `git svn rebase' on each of them."
     map))
 
 ;;;###autoload
-(define-minor-mode magit-svn-mode "SVN support for Magit"
-  :lighter " SVN" :require 'magit-svn :keymap 'magit-svn-mode-map
+(define-minor-mode magit-svn-mode
+  "Git-Svn support for Magit."
+  :lighter magit-svn-mode-lighter
+  :keymap  magit-svn-mode-map
   (or (derived-mode-p 'magit-mode)
-      (user-error "This mode only makes sense with magit"))
+      (user-error "This mode only makes sense with Magit"))
   (cond
    (magit-svn-mode
     (magit-add-section-hook 'magit-status-sections-hook

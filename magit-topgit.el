@@ -73,6 +73,11 @@
   :group 'magit-topgit
   :type 'string)
 
+(defcustom magit-topgit-mode-lighter " TopGit"
+  "Mode-line lighter for Magit-Topgit mode."
+  :group 'magit-topgit
+  :type 'string)
+
 ;;;; Faces
 
 (defgroup magit-topgit-faces nil
@@ -191,10 +196,12 @@
     map))
 
 ;;;###autoload
-(define-minor-mode magit-topgit-mode "TopGit support for Magit"
-  :lighter " TopGit" :require 'magit-topgit :keymap magit-topgit-mode-map
+(define-minor-mode magit-topgit-mode
+  "TopGit support for Magit."
+  :lighter magit-topgit-mode-lighter
+  :keymap  magit-topgit-mode-map
   (or (derived-mode-p 'magit-mode)
-      (user-error "This mode only makes sense with magit"))
+      (user-error "This mode only makes sense with Magit"))
   (if magit-topgit-mode
       (magit-add-section-hook 'magit-status-sections-hook
                               'magit-insert-topgit-topics
