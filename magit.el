@@ -7533,22 +7533,17 @@ This command is intended for debugging purposes."
 
 (defconst magit-font-lock-keywords
   (eval-when-compile
-    `((,(concat "(\\(" (regexp-opt
-                        '("magit-define-section-jumper"
-                          "magit-define-popup"))
-                "\\)\\_>[ \t'\(]*\\(\\(?:\\sw\\|\\s_\\)+\\)?")
+    `((,(concat "(\\(magit-define-section-jumper\\)\\_>"
+                "[ \t'\(]*"
+                "\\(\\(?:\\sw\\|\\s_\\)+\\)?")
        (1 font-lock-keyword-face)
        (2 font-lock-function-name-face nil t))
-      (,(concat "(" (regexp-opt
-                     '("magit-insert-section"
-                       "magit-insert-header"
-                       "magit-section-action"
-                       "magit-section-case"
-                       "magit-bind-match-strings"
-                       "magit-with-blob"
-                       "magit-tests--with-temp-dir"
-                       "magit-tests--with-temp-repo"
-                       "magit-tests--with-temp-clone") t)
+      (,(concat "(" (regexp-opt '("magit-insert-section"
+                                  "magit-insert-header"
+                                  "magit-section-action"
+                                  "magit-section-case"
+                                  "magit-bind-match-strings"
+                                  "magit-with-blob") t)
                 "\\_>")
        . 1))))
 

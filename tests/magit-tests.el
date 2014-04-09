@@ -114,6 +114,13 @@
     (should-not (magit-get-boolean "a.b"))
     (should-not (magit-get-boolean "a" "b"))))
 
+;;; magit-tests.el ends soon
+
+(defconst magit-tests-font-lock-keywords
+  '(("(magit-tests--with-temp-\\(?:clone\\|dir\\|repo\\)\\_>" . 1)))
+
+(font-lock-add-keywords 'emacs-lisp-mode magit-tests-font-lock-keywords)
+
 (provide 'magit-tests)
 ;; Local Variables:
 ;; indent-tabs-mode: nil
