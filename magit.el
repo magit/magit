@@ -5445,26 +5445,7 @@ ask the user what remote to use."
     (magit-run-git-async "push" remote "--tags")))
 
 ;;;###autoload
-(defun magit-push ()
-  "Push the current branch to a remote repository.
-
-This command runs the `magit-push-remote' hook.  By default that
-means running `magit-push-dwim'.  So unless you have customized
-the hook this command behaves like this:
-
-With a single prefix argument ask the user what branch to push
-to.  With two or more prefix arguments also ask the user what
-remote to push to.  Otherwise use the remote and branch as
-configured using the Git variables `branch.<name>.remote' and
-`branch.<name>.merge'.  If the former is undefined ask the user.
-If the latter is undefined push without specifing the remote
-branch explicitly.
-
-Also see option `magit-set-upstream-on-push'."
-  (interactive)
-  (run-hook-with-args-until-success 'magit-push-hook current-prefix-arg))
-
-(defun magit-push-dwim (arg)
+(defun magit-push (arg)
   "Push the current branch to a remote repository.
 
 With a single prefix argument ask the user what remote to push
