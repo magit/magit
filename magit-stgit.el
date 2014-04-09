@@ -1,4 +1,4 @@
-;;; magit-stgit.el --- StGit plug-in for Magit
+;;; magit-stgit.el --- StGit extension for Magit
 
 ;; Copyright (C) 2011-2014  The Magit Project Developers
 ;;
@@ -27,14 +27,33 @@
 ;;; Commentary:
 
 ;; This package provides very basic support for StGit.
-
-;; When `magit-stgit-mode' is turned on the current patch series is
-;; displayed in the status buffer.  Additionally a few Emacs commands
-;; are defined that wrap around StGit commands.  These commands are
-;; also available as "section actions".
-
+;;
+;;   StGit (Stacked Git) is an application that aims to provide a
+;;   convenient way to maintain a patch stack on top of a Git branch.
+;;
+;; For information about StGit see http://www.procode.org/stgit.
+;;
 ;; If you are looking for full fledged StGit support in Emacs, then
 ;; have a look at `stgit.el' which is distributed with StGit.
+
+;; When `magit-stgit-mode' is turned on then the current patch series
+;; is displayed in the status buffer.  While point is on a patch the
+;; changes it introduces can be shown using `RET', it can be selected
+;; as the current patch using `a', and it can be discarded using `k'.
+;; Other StGit commands are available from the StGit popup on `Y'.
+
+;; To enable the mode in a particular repository use:
+;;
+;;   cd /path/to/repository
+;;   git config --add magit.extension stgit
+;;
+;; To enable the mode for repositories use:
+;;
+;;   git config --global --add magit.extension stgit
+;;
+;; To enable the mode globally without dropping to a shell:
+;;
+;;   (add-hook 'magit-mode-hook 'turn-on-magit-stgit)
 
 ;;; Code:
 
@@ -56,6 +75,11 @@
   "Whether to prefix patch messages with the patch name, in patch series."
   :group 'magit-stgit
   :type 'boolean)
+
+(defcustom magit-stgit-mode-lighter " Stg"
+  "Mode-line lighter for Magit-Stgit mode."
+  :group 'magit-stgit
+  :type 'string)
 
 ;;;; Faces
 
@@ -121,7 +145,21 @@
                          nil require-match
                          nil 'magit-read-rev-history))
 
+(defun magit-stgit-read-args (prompt)
+  (list (or (magit-section-case (value) (stgit-patch value))
+            (magit-stgit-read-patch prompt t))))
+
 ;;; Commands
+
+(magit-define-popup magit-stgit-popup
+  "Popup console for StGit commands."
+  'magit-popups
+  :actions '((?\r "Show"    magit-stgit-show)
+             (?a  "Goto"    magit-stgit-goto)
+             (?k  "Discard" magit-stgit-discard)
+             (?r  "Rebase"  magit-stgit-rebase)
+             (?g  "Refresh" magit-stgit-refresh)
+             (?R  "Repair"  magit-stgit-repair)))
 
 ;;;###autoload
 (defun magit-stgit-refresh (&optional patch)
@@ -159,51 +197,44 @@ into the series."
 ;;;###autoload
 (defun magit-stgit-discard (patch)
   "Discard a StGit patch."
-  (interactive (list (magit-stgit-read-patch "Discard patch" t)))
+  (interactive (magit-stgit-read-args "Discard patch"))
   (when (yes-or-no-p (format "Discard patch `%s'? " patch))
     (magit-run-stgit "delete" patch)))
 
 ;;;###autoload
 (defun magit-stgit-goto (patch)
   "Set PATCH as target of StGit push and pop operations."
+  (interactive (magit-stgit-read-args "Goto patch"))
   (magit-run-stgit "goto" patch))
 
 ;;;###autoload
 (defun magit-stgit-show (patch)
   "Show diff of a StGit patch."
-  (interactive (list (magit-stgit-read-patch "Show patch" t)))
+  (interactive (magit-stgit-read-args "Show patch"))
   (magit-show-commit patch))
 
 ;;; Mode
 
-(defvar magit-stgit-mode-lighter " Stg")
+(defvar magit-stgit-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "Y" 'magit-stgit-popup)
+    map))
 
 ;;;###autoload
 (define-minor-mode magit-stgit-mode
-  "StGit support for Magit"
+  "StGit support for Magit."
   :lighter magit-stgit-mode-lighter
-  :require 'magit-stgit
+  :keymap  magit-stgit-mode-map
   (or (derived-mode-p 'magit-mode)
-      (user-error "This mode only makes sense with magit"))
-  (cond
-   (magit-stgit-mode
-    (magit-add-section-hook 'magit-status-sections-hook
-                            'magit-insert-stgit-series
-                            'magit-insert-stashes t t)
-    (add-hook 'magit-visit-hook   'magit-stgit-show nil t)
-    (add-hook 'magit-apply-hook   'magit-stgit-goto nil t)
-    (add-hook 'magit-discard-hook 'magit-stgit-discard nil t))
-   (t
-    (remove-hook 'magit-visit-hook   'magit-stgit-show t)
-    (remove-hook 'magit-apply-hook   'magit-stgit-goto t)
-    (remove-hook 'magit-discard-hook 'magit-stgit-discard t))
-    (remove-hook 'magit-status-sections-hook 'magit-insert-stgit-series t))
+      (user-error "This mode only makes sense with Magit"))
+  (if magit-stgit-mode
+      (magit-add-section-hook 'magit-status-sections-hook
+                              'magit-insert-stgit-series
+                              'magit-insert-stashes t t)
+    (remove-hook 'magit-status-sections-hook
+                 'magit-insert-stgit-series t))
   (when (called-interactively-p 'any)
     (magit-refresh)))
-
-(put 'magit-stgit-show    'magit-section-action-context 'stgit-patch)
-(put 'magit-stgit-goto    'magit-section-action-context 'stgit-patch)
-(put 'magit-stgit-discard 'magit-section-action-context 'stgit-patch)
 
 ;;;###autoload
 (defun turn-on-magit-stgit ()
@@ -227,6 +258,13 @@ into the series."
 
 (defconst magit-stgit-patch-re
   "^\\(.\\)\\([-+>!]\\) \\([^ ]+\\) +# \\(.*\\)$")
+
+(defvar magit-stgit-patch-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "k"  'magit-stgit-discard)
+    (define-key map "a"  'magit-stgit-goto)
+    (define-key map "\r" 'magit-stgit-show)
+    map))
 
 (defun magit-insert-stgit-series ()
   (when magit-stgit-mode
@@ -258,6 +296,8 @@ into the series."
         (when magit-stgit-show-patch-name
           (magit-insert patch 'magit-stgit-patch ?\s))
         (insert msg)
+        (put-text-property (line-beginning-position) (1+ (line-end-position))
+                           'keymap 'magit-stgit-patch-map)
         (forward-line)))))
 
 (provide 'magit-stgit)

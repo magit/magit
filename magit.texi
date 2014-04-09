@@ -75,7 +75,6 @@ mailing list}.
 * Submodules::
 * Bisecting::
 * Finding commits not merged upstream::
-* Using Magit Extensions::
 * Using Git Directly::
 * GNU Free Documentation License::
 @end menu
@@ -842,112 +841,6 @@ individual commits (@kbd{a} for cherry-picking without committing and
 refreshed automatically after each cherry-pick.
 
 
-@node Using Magit Extensions
-@chapter Magit Extensions
-
-@menu
-* Activating extensions::
-* Interfacing with Subversion::
-* Interfacing with Topgit::
-* Interfacing with StGit::
-@end menu
-
-@node Activating extensions
-@section Activating extensions
-
-Magit comes with a couple of shipped extensions that allow interaction
-with @code{git-svn}, @code{topgit} and @code{stgit}.  See following
-sections for specific details on how to use them.
-
-Extensions can be activated globally or on a per-repository basis.  Since
-those extensions are implemented as minor modes, one can use for example
-@kbd{M-x magit-topgit-mode} to toggle the @code{topgit} extension,
-making the corresponding section and commands (un)available.
-
-In order to do that automatically (and for every repository), one can
-use for example:
-
-@example
-(add-hook 'magit-mode-hook 'turn-on-magit-topgit)
-@end example
-
-Magit also allows configuring different extensions, based on the git
-repository configuration.
-
-@example
-(add-hook 'magit-mode-hook 'magit-load-config-extensions)
-@end example
-
-This will read git configuration variables and activate the
-relevant extensions.
-
-For example, after running the following commands, the @code{topgit}
-extension will be loaded for every repository, while the @code{svn} one
-will be loaded only for the current one.
-
-@example
-$ git config --global --add magit.extension topgit
-$ git config --add magit.extension svn
-@end example
-
-Note the @code{--add} flag, which means that each extension gets its own
-line in the @code{config} file.
-
-@node Interfacing with Subversion
-@section Interfacing with Subversion
-
-Typing @kbd{N r} runs @code{git svn rebase}, typing @kbd{N c} runs
-@code{git svn dcommit} and typing @kbd{N f} runs @code{git svn fetch}.
-
-@kbd{N s} will prompt you for a (numeric, Subversion) revision and
-then search for a corresponding Git sha1 for the commit.  This is
-limited to the path of the remote Subversion repository.  With a prefix
-(@kbd{C-u N s} the user will also be prompted for a branch to search
-in.
-
-@node Interfacing with Topgit
-@section Interfacing with Topgit
-
-@uref{http://repo.or.cz/r/topgit.git, Topgit} is a patch queue manager
-that aims at being close as possible to raw Git, which makes it easy
-to use with Magit.  In particular, it does not require to use a
-different set of commands for ``commit'', ``update'', and other
-operations.
-
-@file{magit-topgit.el} provides basic integration with Magit, mostly by
-providing a ``Topics'' section.
-
-Topgit branches can be created the regular way, by using a ``t/'' prefix
-by convention.  So, creating a ``t/foo'' branch will actually populate
-the ``Topics'' section with one more branch after committing
-@file{.topdeps} and @file{.topmsg}.
-
-Also, the way we pull (see @ref{Pushing and Pulling}) such a branch is
-slightly different, since it requires updating the various dependencies
-of that branch.  This should be mostly transparent, except in case
-of conflicts.
-
-@node Interfacing with StGit
-@section Interfacing with StGit
-
-@uref{http://www.procode.org/stgit, StGit} is a Python application
-providing similar functionality to Quilt (i.e. pushing/popping patches
-to/from a stack) on top of Git.  These operations are performed using
-Git commands and the patches are stored as Git commit objects,
-allowing easy merging of the StGit patches into other repositories
-using standard Git functionality.
-
-@file{magit-stgit.el} provides basic integration with Magit, mostly by
-providing a ``Series'' section, whose patches can be seen as regular
-commits through the ``visit'' action.
-
-You can change the current patch in a series with the ``apply'' action,
-as well as you can delete them using the ``discard'' action.
-
-Additionally, the @code{magit-stgit-refresh} and
-@code{magit-stgit-rebase} commands let you perform the respective StGit
-operations.
-
 @node Using Git Directly
 @chapter Using Git Directly
 
@@ -955,6 +848,7 @@ For situations when Magit doesn't do everything you need, you can run
 raw Git commands using @kbd{:}.  This will prompt for a Git command, run
 it, and refresh the status buffer.  The output can be viewed by typing
 @kbd{$}.
+
 
 @node GNU Free Documentation License
 @appendix GNU Free Documentation License
