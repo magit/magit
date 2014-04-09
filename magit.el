@@ -4979,7 +4979,7 @@ first.  With prefix, forces the removal even if it hasn't been
 merged.  Works with local and remote branches.
 \n(git branch -d|-D BRANCH || git push REMOTE :refs/heads/BRANCH)."
   (interactive (list (magit-read-rev "Branch to delete"
-                                     (or (magit-branch-or-commit-at-point)
+                                     (or (magit-branch-at-point)
                                          (magit-get-previous-branch)))
                      current-prefix-arg))
   (if (string-match "^\\(?:refs/\\)?remotes/\\([^/]+\\)/\\(.+\\)" branch)
