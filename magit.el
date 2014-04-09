@@ -99,10 +99,10 @@
 (defvar iswitchb-temp-buflist)
 (defvar package-alist)
 
+(defvar magit-diff-buffer-name)
 (defvar magit-log-buffer-name)
 (defvar magit-reflog-buffer-name)
 (defvar magit-refresh-args)
-(defvar magit-stash-buffer-name)
 (defvar magit-status-buffer-name)
 (defvar magit-this-process)
 
@@ -3914,7 +3914,7 @@ stash at point, then prompt for a commit."
                     buf magit-commit-buffer-name))
       (stash  (setq rev value
                     cmd 'magit-diff-stash
-                    buf magit-stash-buffer-name)))
+                    buf magit-diff-buffer-name)))
     (if rev
         (if (and (setq buf (get-buffer buf))
                  (setq win (get-buffer-window buf))
@@ -6689,9 +6689,6 @@ Type \\[magit-revert] to revert the change at point in the worktree.
 (defvar magit-diff-buffer-name "*magit-diff*"
   "Name of buffer used to display a diff.")
 
-(defvar magit-stash-buffer-name "*magit-stash*"
-  "Name of buffer used to display a stash.")
-
 ;;;;; Diff Entry Commands
 
 (magit-define-popup magit-diff-popup
@@ -6811,7 +6808,7 @@ A stash consist of more than just one commit.  This command uses
 a special diff range so that the stashed changes appear as if the
 actually were a single commit."
   (interactive (list (magit-read-stash "Show stash (number): ")))
-  (magit-mode-setup magit-commit-buffer-name
+  (magit-mode-setup magit-diff-buffer-name
                     (if noselect 'display-buffer 'pop-to-buffer)
                     #'magit-diff-mode
                     #'magit-refresh-diff-buffer
