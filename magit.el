@@ -4939,11 +4939,9 @@ fails if the working tree or the staging area contain changes.
    (list (read-string "Create branch: ")
          (magit-read-rev "Parent" (or (magit-guess-branch)
                                       (magit-get-current-branch)))))
-  (cond ((run-hook-with-args-until-success
-          'magit-branch-create-hook branch parent))
-        ((and branch (not (string= branch "")))
-         (magit-maybe-save-repository-buffers)
-         (magit-run-git "branch" magit-current-popup-args branch parent))))
+  (when (and branch (not (string= branch "")))
+    (magit-maybe-save-repository-buffers)
+    (magit-run-git "branch" magit-current-popup-args branch parent)))
 
 ;;;###autoload
 (defun magit-branch-and-checkout (branch parent)
@@ -4953,12 +4951,9 @@ fails if the working tree or the staging area contain changes.
    (list (read-string "Create and checkout branch: ")
          (magit-read-rev "Parent" (or (magit-guess-branch)
                                       (magit-get-current-branch)))))
-  (cond ((run-hook-with-args-until-success
-          'magit-branch-create-hook branch parent))
-        ((and branch (not (string= branch "")))
-         (magit-maybe-save-repository-buffers)
-         (magit-run-git "checkout" magit-current-popup-args
-                        "-b" branch parent))))
+  (when (and branch (not (string= branch "")))
+    (magit-maybe-save-repository-buffers)
+    (magit-run-git "checkout" magit-current-popup-args "-b" branch parent)))
 
 ;;;###autoload
 (defun magit-branch-delete (branch &optional force)
@@ -5350,8 +5345,7 @@ If there is no default remote, ask for one."
 (defun magit-remote-update ()
   "Update all remotes."
   (interactive)
-  (or (run-hook-with-args-until-success 'magit-remote-update-hook)
-      (magit-run-git-async "remote" "update" magit-current-popup-args)))
+  (magit-run-git-async "remote" "update" magit-current-popup-args))
 
 ;;;;; Pulling
 
@@ -5377,45 +5371,45 @@ two prefix arguments, the default merge branch is not used and
 the user is prompted for a merge branch.  Values entered by the
 user because of prefix arguments are not saved with git config."
   (interactive)
-  (or (run-hook-with-args-until-success 'magit-pull-hook)
-      (let* ((branch (magit-get-current-branch))
-             (branch-remote (magit-get-remote branch))
-             (branch-merge (magit-get "branch" branch "merge"))
-             (branch-merge-name (and branch-merge
-                                     (save-match-data
-                                       (string-match "^refs/heads/\\(.+\\)" branch-merge)
-                                       (match-string 1 branch-merge))))
-             (choose-remote (>= (prefix-numeric-value current-prefix-arg) 4))
-             (choose-branch (>= (prefix-numeric-value current-prefix-arg) 16))
-             (remote-needed (or choose-remote
-                                (not branch-remote)))
-             (branch-needed (or choose-branch
-                                (not branch-merge-name)))
-             (chosen-branch-remote
-              (if remote-needed
-                  (magit-read-remote "Pull from remote" branch-remote)
-                branch-remote))
-             (chosen-branch-merge-name
-              (if branch-needed
-                  (magit-read-remote-branch (format "Pull branch from remote %s"
-                                                    chosen-branch-remote)
-                                            chosen-branch-remote)
-                branch-merge-name)))
-        (when (and (not branch-remote)
-                   (not choose-remote))
-          (magit-set chosen-branch-remote "branch" branch "remote"))
-        (when (and (not branch-merge-name)
-                   (not choose-branch))
-          (magit-set (format "%s" chosen-branch-merge-name)
-                     "branch" branch "merge"))
-        (magit-run-git-async
-         "pull" magit-current-popup-args
-         (and choose-remote chosen-branch-remote)
-         (and (or choose-remote choose-branch)
-              (list (format "refs/heads/%s:refs/remotes/%s/%s"
-                            chosen-branch-merge-name
-                            chosen-branch-remote
-                            chosen-branch-merge-name)))))))
+  (let* ((branch (magit-get-current-branch))
+         (branch-remote (magit-get-remote branch))
+         (branch-merge (magit-get "branch" branch "merge"))
+         (branch-merge-name (and branch-merge
+                                 (save-match-data
+                                   (string-match "^refs/heads/\\(.+\\)"
+                                                 branch-merge)
+                                   (match-string 1 branch-merge))))
+         (choose-remote (>= (prefix-numeric-value current-prefix-arg) 4))
+         (choose-branch (>= (prefix-numeric-value current-prefix-arg) 16))
+         (remote-needed (or choose-remote
+                            (not branch-remote)))
+         (branch-needed (or choose-branch
+                            (not branch-merge-name)))
+         (chosen-branch-remote
+          (if remote-needed
+              (magit-read-remote "Pull from remote" branch-remote)
+            branch-remote))
+         (chosen-branch-merge-name
+          (if branch-needed
+              (magit-read-remote-branch (format "Pull branch from remote %s"
+                                                chosen-branch-remote)
+                                        chosen-branch-remote)
+            branch-merge-name)))
+    (when (and (not branch-remote)
+               (not choose-remote))
+      (magit-set chosen-branch-remote "branch" branch "remote"))
+    (when (and (not branch-merge-name)
+               (not choose-branch))
+      (magit-set (format "%s" chosen-branch-merge-name)
+                 "branch" branch "merge"))
+    (magit-run-git-async
+     "pull" magit-current-popup-args
+     (and choose-remote chosen-branch-remote)
+     (and (or choose-remote choose-branch)
+          (list (format "refs/heads/%s:refs/remotes/%s/%s"
+                        chosen-branch-merge-name
+                        chosen-branch-remote
+                        chosen-branch-merge-name))))))
 
 ;;;;; Pushing
 
