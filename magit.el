@@ -3425,7 +3425,7 @@ string \"true\", otherwise return nil."
   ;; An ambiguous ref does not cause `git rev-parse --abbrev-ref'
   ;; to exits with a non-zero status.  But there is nothing on
   ;; stdout in that case.
-  (not (magit-rev-parse "--abbrev-ref" name)))
+  (and (magit-rev-parse "--abbrev-ref" name) t))
 
 (defun magit-get-current-branch ()
   "Return the refname of the currently checked out branch.
