@@ -3885,7 +3885,7 @@ Type \\[magit-revert] to revert the change at point in the worktree.
                       commit)))
 
 (defun magit-show-or-scroll-up ()
-  "Update commit or status buffer for the thing at point.
+  "Update the commit or diff buffer for the thing at point.
 
 Either show the commit or stash at point in another buffer,
 or if that buffer is already displayed in the current frame
@@ -3896,7 +3896,7 @@ stash at point, then prompt for a commit."
   (magit-show-or-scroll 'scroll-up))
 
 (defun magit-show-or-scroll-down ()
-  "Update commit or status buffer for the thing at point.
+  "Update the commit or diff buffer for the thing at point.
 
 Either show the commit or stash at point in another buffer,
 or if that buffer is already displayed in the current frame
