@@ -3805,6 +3805,10 @@ results in additional differences."
   (magit-completing-read prompt nil nil nil initial-input
                          'magit-read-rev-history))
 
+(defun magit-read-local-branch (prompt)
+  (magit-completing-read prompt (magit-list-local-branch-names)
+                         nil t nil nil (magit-branch-at-point)))
+
 (defun magit-read-remote-branch (prompt remote &optional default)
   (magit-completing-read prompt (magit-list-remote-branch-names remote t)
                          nil nil nil nil default))
@@ -5017,7 +5021,7 @@ merged.  Works with local and remote branches.
 With prefix, forces the rename even if NEW already exists.
 \n(git branch -m|-M OLD NEW)."
   (interactive
-   (let* ((old (magit-read-rev-with-default "Old name"))
+   (let* ((old (magit-read-local-branch "Old name"))
           (new (read-string "New name: " old)))
      (list old new current-prefix-arg)))
   (if (or (null new) (string= new "")
