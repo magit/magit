@@ -31,12 +31,9 @@
 
 ;;; Code:
 
+(require 'cl-lib)
 (require 'dash)
 (require 'magit)
-
-(eval-when-compile
-  (require 'cl-lib)
-  (require 'find-lisp))
 
 (declare-function find-lisp-find-files-internal 'find-lisp)
 
@@ -191,14 +188,13 @@ If USE-CACHE is non-nil then return the value of
 
 (defun magit-svn-get-ref (&optional use-cache)
   "Get the best guess remote ref for the current git-svn based branch.
-If USE-CACHE is non nil, use the cached information."
-  (let ((info (magit-svn-get-ref-info use-cache)))
-    (cdr (assoc 'local-ref info))))
+If USE-CACHE is non-nil, use the cached information."
+  (cdr (assoc 'local-ref (magit-svn-get-ref-info use-cache))))
 
 (defun magit-insert-svn-unpulled ()
   (when (magit-svn-enabled)
     (magit-insert-section (svn-unpulled)
-      (magit-insert-heading "Unpulled commits (SVN):")
+      (magit-insert-heading "Unpulled commits (svn):")
       (magit-git-wash (apply-partially 'magit-wash-log 'unique)
         "log" "--format=format:%h %s"
         (format "HEAD..%s" (magit-svn-get-ref t))))))
@@ -206,33 +202,34 @@ If USE-CACHE is non nil, use the cached information."
 (defun magit-insert-svn-unpushed ()
   (when (magit-svn-enabled)
     (magit-insert-section (svn-unpushed)
-      (magit-insert-heading "Unpushed commits (SVN):")
+      (magit-insert-heading "Unpushed commits (svn):")
       (magit-git-wash (apply-partially 'magit-wash-log 'unique)
         "log" "--format=format:%h %s"
         (format "%s..HEAD" (magit-svn-get-ref t))))))
 
-(magit-define-section-jumper svn-unpushed  "Unpushed commits (SVN)")
+(magit-define-section-jumper svn-unpushed "Unpushed commits (svn)")
+(magit-define-section-jumper svn-unpulled "Unpulled commits (svn)")
 
 (defun magit-insert-svn-remote-line ()
-  (let ((svn-info (magit-svn-get-ref-info)))
-    (when svn-info
-      (magit-insert-header "Remote" (line)
-        (cdr (assoc 'url svn-info)) " @ "
-        (cdr (assoc 'revision svn-info))))))
+  (--when-let (magit-svn-get-ref-info)
+    (magit-insert-header "Remote" (line)
+      (cdr (assoc 'url it)) " @ "
+      (cdr (assoc 'revision it)))))
 
 ;;;###autoload
 (defun magit-svn-fetch-externals()
-  "Loops through all external repos found by `magit-svn-external-directories'
-   and runs git svn fetch, and git svn rebase on each of them."
+  "Fetch and rebase all external repositories.
+Loops through all external repositories found in
+`magit-svn-external-directories' and runs `git svn fetch',
+and `git svn rebase' on each of them."
   (interactive)
-  (let ((externals (magit-svn-external-directories)))
-    (if (not externals)
-        (message "No SVN Externals found. Check magit-svn-externals-dir.")
-      (dolist (external externals)
+  (--if-let (magit-svn-external-directories)
+      (dolist (external it)
         (let ((default-directory (file-name-directory external)))
           (magit-run-git "svn" "fetch")
           (magit-run-git "svn" "rebase")))
-      (magit-refresh))))
+    (user-error "No SVN Externals found. Check magit-svn-externals-dir"))
+  (magit-refresh))
 
 (defun magit-svn-external-directories()
   "Returns all .git directories within `magit-svn-externals-dir'."
@@ -242,28 +239,23 @@ If USE-CACHE is non nil, use the cached information."
                                     (string-equal file ".git"))
                                  'find-lisp-default-directory-predicate))
 
-;;; Keymaps
+;;; Mode
 
 (easy-menu-define magit-svn-extension-menu
   nil
-  "Git SVN extension menu"
-  '("Git SVN"
-    :visible magit-svn-mode
+  "Git-Svn extension menu"
+  '("Git-Svn" :visible magit-svn-mode
     ["Create branch" magit-svn-create-branch (magit-svn-enabled)]
     ["Rebase" magit-svn-rebase (magit-svn-enabled)]
     ["Fetch" magit-svn-remote-update (magit-svn-enabled)]
     ["Commit" magit-svn-dcommit (magit-svn-enabled)]))
 
-(easy-menu-add-item 'magit-mode-menu
-                    '("Extensions")
-                    magit-svn-extension-menu)
+(easy-menu-add-item 'magit-mode-menu '("Extensions") magit-svn-extension-menu)
 
 (defvar magit-svn-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "N") 'magit-svn-popup)
     map))
-
-;;; Mode
 
 ;;;###autoload
 (define-minor-mode magit-svn-mode "SVN support for Magit"
