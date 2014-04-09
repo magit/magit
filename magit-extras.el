@@ -88,7 +88,7 @@ If there is no commit at point, then prompt for one."
   (interactive
    (let* ((marked (or magit-marked-commit (user-error "No commit marked")))
           (commit (magit-read-rev (format "Diff marked commit %s with" marked)
-                                  (or (magit-guess-branch)
+                                  (or (magit-branch-at-point)
                                       (magit-get-current-branch)))))
      (list (concat marked ".." commit))))
   (magit-diff range))
