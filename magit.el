@@ -7207,28 +7207,28 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
     (magit-insert-section (local ".")
       (magit-insert-heading "Branches:")
       (dolist (line (magit-git-lines "branch" "-vv"))
-        (string-match magit-wash-branch-line-re line)
-        (magit-bind-match-strings
-            (marker branch fill hash tracked ahead behind message) line
-          (magit-insert-section (branch branch)
-            (magit-insert
-             (format-spec
-              magit-local-branch-format
-              `((?a . ,(or ahead ""))
-                (?b . ,(or behind ""))
-                (?c . ,marker)
-                (?f . ,fill)
-                (?m . ,message)
-                (?n . ,(propertize branch 'face 'magit-branch-local))
-                (?s . ,(if hash
-                           (propertize hash 'face 'magit-hash)
-                         (make-string hash-length ?\s)))
-                (?t . ,(if tracked
-                           (propertize tracked 'face
-                                       (if (member tracked branches)
-                                           'magit-branch-local
-                                         'magit-branch-remote))
-                         ""))))))))
+        (when (string-match magit-wash-branch-line-re line)
+          (magit-bind-match-strings
+              (marker branch fill hash tracked ahead behind message) line
+            (magit-insert-section (branch branch)
+              (magit-insert
+               (format-spec
+                magit-local-branch-format
+                `((?a . ,(or ahead ""))
+                  (?b . ,(or behind ""))
+                  (?c . ,marker)
+                  (?f . ,fill)
+                  (?m . ,message)
+                  (?n . ,(propertize (or branch "X") 'face 'magit-branch-local))
+                  (?s . ,(if hash
+                             (propertize hash 'face 'magit-hash)
+                           (make-string hash-length ?\s)))
+                  (?t . ,(if tracked
+                             (propertize tracked 'face
+                                         (if (member tracked branches)
+                                             'magit-branch-local
+                                           'magit-branch-remote))
+                           "")))))))))
       (insert ?\n))))
 
 (defun magit-insert-remote-branches ()
