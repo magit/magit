@@ -127,6 +127,16 @@
 
 ;;; Commands
 
+(magit-define-popup magit-stgit-popup
+  "Popup console for StGit commands."
+  'magit-popups
+  :actions '((?\r "Show"    magit-stgit-show)
+             (?a  "Goto"    magit-stgit-goto)
+             (?k  "Discard" magit-stgit-discard)
+             (?r  "Rebase"  magit-stgit-rebase)
+             (?g  "Refresh" magit-stgit-refresh)
+             (?R  "Repair"  magit-stgit-repair)))
+
 ;;;###autoload
 (defun magit-stgit-refresh (&optional patch)
   "Refresh a StGit patch."
@@ -181,6 +191,11 @@ into the series."
 
 ;;; Mode
 
+(defvar magit-stgit-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "Y" 'magit-stgit-popup)
+    map))
+
 (defvar magit-stgit-mode-lighter " Stg")
 
 ;;;###autoload
@@ -188,6 +203,7 @@ into the series."
   "StGit support for Magit"
   :lighter magit-stgit-mode-lighter
   :require 'magit-stgit
+  :keymap magit-stgit-mode-map
   (or (derived-mode-p 'magit-mode)
       (user-error "This mode only makes sense with magit"))
   (if magit-stgit-mode
