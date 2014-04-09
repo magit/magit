@@ -3435,6 +3435,10 @@ string \"true\", otherwise return nil."
         (match-string 1 rev)
       rev)))
 
+(defun magit-ref-fullname (name)
+  (--when-let (magit-git-string "show-ref" name)
+    (cadr (split-string it))))
+
 (defun magit-ref-exists-p (ref)
   (magit-git-success "show-ref" "--verify" ref))
 
