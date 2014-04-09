@@ -80,6 +80,20 @@
 (defun magit-start-topgit (&optional input &rest args)
   (apply #'magit-start-process magit-topgit-executable input args))
 
+(defconst magit-topgit-topic-re "^\\(.\\{7\\}\\)\t\\([^ ]+\\) +\\(.*\\)")
+
+(defun magit-topgit-read-topic (prompt)
+  (magit-completing-read
+   prompt (mapcar (lambda (line)
+                    (string-match magit-topgit-topic-re line)
+                    (match-string 2 line))
+                  (process-lines magit-topgit-executable "summary"))
+   nil t))
+
+(defun magit-topgit-topic-args (prompt)
+  (list (or (magit-section-case (value) (topgit-topic value))
+            (magit-topgit-read-topic prompt))))
+
 (defun magit-topgit-in-topic-p ()
   (and (file-exists-p ".topdeps")
        (executable-find magit-topgit-executable)))
@@ -91,10 +105,12 @@
     (magit-run-topgit-async "create" branch parent)))
 
 (defun magit-topgit-checkout (topic)
+  (interactive (magit-topgit-topic-args "Checkout"))
   (magit-checkout topic))
 
 (defun magit-topgit-discard (topic)
-  (when (yes-or-no-p "Discard topic? ")
+  (interactive (magit-topgit-topic-args "Discard"))
+  (when (yes-or-no-p (format "Discard topic `%s'? " topic))
     (magit-run-topgit-async "delete" "-f" topic)))
 
 (defun magit-topgit-pull ()
@@ -145,22 +161,15 @@
     (add-hook 'magit-branch-create-hook 'magit-topgit-create-branch nil t)
     (add-hook 'magit-remote-update-hook 'magit-topgit-remote-update nil t)
     (add-hook 'magit-pull-hook    'magit-topgit-pull nil t)
-    (add-hook 'magit-push-hook    'magit-topgit-push nil t)
-    (add-hook 'magit-visit-hook   'magit-topgit-checkout nil t)
-    (add-hook 'magit-discard-hook 'magit-topgit-discard nil t))
+    (add-hook 'magit-push-hook    'magit-topgit-push nil t))
    (t
     (remove-hook 'magit-status-sections-hook 'magit-insert-topgit-topics t)
     (remove-hook 'magit-branch-create-hook   'magit-topgit-create-branch t)
     (remove-hook 'magit-remote-update-hook   'magit-topgit-remote-update t)
     (remove-hook 'magit-pull-hook    'magit-topgit-pull t)
-    (remove-hook 'magit-push-hook    'magit-topgit-push t)
-    (remove-hook 'magit-visit-hook   'magit-topgit-checkout t)
-    (remove-hook 'magit-discard-hook 'magit-topgit-discard t)))
+    (remove-hook 'magit-push-hook    'magit-topgit-push t)))
   (when (called-interactively-p 'any)
     (magit-refresh)))
-
-(put 'magit-topgit-checkout 'magit-section-action-context 'topgit-topic)
-(put 'magit-topgit-discard  'magit-section-action-context 'topgit-topic)
 
 ;;;###autoload
 (defun turn-on-magit-topgit ()
@@ -168,6 +177,12 @@
   (magit-topgit-mode 1))
 
 ;;; Topics Section
+
+(defvar magit-topgit-topic-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\r" 'magit-topgit-checkout)
+    (define-key map "k"  'magit-topgit-discard)
+    map))
 
 (defun magit-insert-topgit-topics ()
   (when magit-topgit-mode
@@ -183,26 +198,26 @@
             (magit-wash-sequence #'magit-topgit-wash-topic)))))))
 
 (defun magit-topgit-wash-topic ()
-  (let ((fmt "^\\(.\\{7\\}\\)\\s-\\(\\S-+\\)\\s-+\\(.*\\)"))
-    (if (re-search-forward fmt (line-end-position) t)
-        (let ((flags (magit-topgit-parse-flags (match-string 1)))
-              (topic (match-string 2)))
-          (goto-char (line-beginning-position))
-          (delete-char 8)
-          (insert "\t")
-          (goto-char (line-beginning-position))
-          (magit-insert-section (topgit-topic topic)
-            (let ((beg (1+ (line-beginning-position)))
-                  (end (line-end-position)))
-              (when (plist-get flags :current)
-                (put-text-property beg end 'face 'magit-topgit-current))
-              (when (plist-get flags :empty)
-                (put-text-property
-                 beg end 'face
-                 `(:strike-through t :inherit ,(get-text-property beg 'face)))))
-            (forward-line)))
-      (delete-region (line-beginning-position) (1+ (line-end-position))))
-    t))
+  (if (re-search-forward magit-topgit-topic-re (line-end-position) t)
+      (let ((flags (magit-topgit-parse-flags (match-string 1)))
+            (topic (match-string 2)))
+        (goto-char (line-beginning-position))
+        (delete-char 8)
+        (insert "\t")
+        (goto-char (line-beginning-position))
+        (magit-insert-section (topgit-topic topic)
+          (let ((beg (1+ (line-beginning-position)))
+                (end (line-end-position)))
+            (when (plist-get flags :current)
+              (put-text-property beg end 'face 'magit-topgit-current))
+            (when (plist-get flags :empty)
+              (put-text-property
+               beg end 'face
+               `(:strike-through t :inherit ,(get-text-property beg 'face))))
+            (put-text-property beg end 'keymap 'magit-topgit-topic-map))
+          (forward-line)))
+    (delete-region (line-beginning-position) (1+ (line-end-position))))
+  t)
 
 (defun magit-topgit-parse-flags (flags-string)
   (let ((flags (string-to-list flags-string))

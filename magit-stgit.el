@@ -121,6 +121,10 @@
                          nil require-match
                          nil 'magit-read-rev-history))
 
+(defun magit-stgit-read-args (prompt)
+  (list (or (magit-section-case (value) (stgit-patch value))
+            (magit-stgit-read-patch prompt t))))
+
 ;;; Commands
 
 ;;;###autoload
@@ -159,19 +163,20 @@ into the series."
 ;;;###autoload
 (defun magit-stgit-discard (patch)
   "Discard a StGit patch."
-  (interactive (list (magit-stgit-read-patch "Discard patch" t)))
+  (interactive (magit-stgit-read-args "Discard patch"))
   (when (yes-or-no-p (format "Discard patch `%s'? " patch))
     (magit-run-stgit "delete" patch)))
 
 ;;;###autoload
 (defun magit-stgit-goto (patch)
   "Set PATCH as target of StGit push and pop operations."
+  (interactive (magit-stgit-read-args "Goto patch"))
   (magit-run-stgit "goto" patch))
 
 ;;;###autoload
 (defun magit-stgit-show (patch)
   "Show diff of a StGit patch."
-  (interactive (list (magit-stgit-read-patch "Show patch" t)))
+  (interactive (magit-stgit-read-args "Show patch"))
   (magit-show-commit patch))
 
 ;;; Mode
@@ -185,25 +190,14 @@ into the series."
   :require 'magit-stgit
   (or (derived-mode-p 'magit-mode)
       (user-error "This mode only makes sense with magit"))
-  (cond
-   (magit-stgit-mode
-    (magit-add-section-hook 'magit-status-sections-hook
-                            'magit-insert-stgit-series
-                            'magit-insert-stashes t t)
-    (add-hook 'magit-visit-hook   'magit-stgit-show nil t)
-    (add-hook 'magit-apply-hook   'magit-stgit-goto nil t)
-    (add-hook 'magit-discard-hook 'magit-stgit-discard nil t))
-   (t
-    (remove-hook 'magit-visit-hook   'magit-stgit-show t)
-    (remove-hook 'magit-apply-hook   'magit-stgit-goto t)
-    (remove-hook 'magit-discard-hook 'magit-stgit-discard t))
-    (remove-hook 'magit-status-sections-hook 'magit-insert-stgit-series t))
+  (if magit-stgit-mode
+      (magit-add-section-hook 'magit-status-sections-hook
+                              'magit-insert-stgit-series
+                              'magit-insert-stashes t t)
+    (remove-hook 'magit-status-sections-hook
+                 'magit-insert-stgit-series t))
   (when (called-interactively-p 'any)
     (magit-refresh)))
-
-(put 'magit-stgit-show    'magit-section-action-context 'stgit-patch)
-(put 'magit-stgit-goto    'magit-section-action-context 'stgit-patch)
-(put 'magit-stgit-discard 'magit-section-action-context 'stgit-patch)
 
 ;;;###autoload
 (defun turn-on-magit-stgit ()
@@ -227,6 +221,13 @@ into the series."
 
 (defconst magit-stgit-patch-re
   "^\\(.\\)\\([-+>!]\\) \\([^ ]+\\) +# \\(.*\\)$")
+
+(defvar magit-stgit-patch-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "k"  'magit-stgit-discard)
+    (define-key map "a"  'magit-stgit-goto)
+    (define-key map "\r" 'magit-stgit-show)
+    map))
 
 (defun magit-insert-stgit-series ()
   (when magit-stgit-mode
@@ -258,6 +259,8 @@ into the series."
         (when magit-stgit-show-patch-name
           (magit-insert patch 'magit-stgit-patch ?\s))
         (insert msg)
+        (put-text-property (line-beginning-position) (1+ (line-end-position))
+                           'keymap 'magit-stgit-patch-map)
         (forward-line)))))
 
 (provide 'magit-stgit)
