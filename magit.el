@@ -4981,30 +4981,32 @@ fails if the working tree or the staging area contain changes.
 If the branch is the current one, offers to switch to `master'
 first.  With prefix, forces the removal even if it hasn't been
 merged.  Works with local and remote branches.
-\n(git branch -d|-D BRANCH || git push REMOTE :refs/heads/BRANCH)."
+\n(git branch -d|-D BRANCH || git push REMOTE :BRANCH)."
   (interactive (list (magit-read-rev "Branch to delete"
                                      (or (magit-branch-at-point)
                                          (magit-get-previous-branch)))
                      current-prefix-arg))
-  (if (string-match "^\\(?:refs/\\)?remotes/\\([^/]+\\)/\\(.+\\)" branch)
-      (magit-run-git-async "push"
-                           (match-string 1 branch)
-                           (concat ":" (match-string 2 branch)))
-    (let* ((current (magit-get-current-branch))
-           (is-current (string= branch current))
-           (is-master (string= branch "master"))
-           (args (list "branch" (if force "-D" "-d") branch)))
-      (cond
-       ((and is-current is-master)
-        (message "Cannot delete master branch while it's checked out."))
-       (is-current
-        (if (y-or-n-p "Cannot delete current branch.  Switch to master first? ")
-            (progn
-              (magit-checkout "master")
-              (magit-run-git args))
-          (message "The current branch was not deleted.")))
-       (t
-        (magit-run-git args))))))
+  (let ((ref (magit-ref-fullname branch)))
+    (unless ref
+      (error "%s cannot be resolved" branch))
+    (if (string-match "^refs/remotes/\\([^/]+\\)/\\(.+\\)" ref)
+        (magit-run-git-async "push"      (match-string 1 ref)
+                             (concat ":" (match-string 2 ref)))
+      (let* ((current (magit-get-current-branch))
+             (is-current (string= branch current))
+             (is-master (string= branch "master"))
+             (args (list "branch" (if force "-D" "-d") branch)))
+        (cond
+         ((and is-current is-master)
+          (message "Cannot delete master branch while it's checked out."))
+         (is-current
+          (if (y-or-n-p "Cannot delete current branch.  Switch to master first? ")
+              (progn
+                (magit-checkout "master")
+                (magit-run-git args))
+            (message "The current branch was not deleted.")))
+         (t
+          (magit-run-git args)))))))
 
 ;;;###autoload
 (defun magit-branch-edit-description (branch)
