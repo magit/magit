@@ -58,9 +58,12 @@
   :group 'magit-topgit
   :group 'magit-faces)
 
-(defface magit-topgit-current
-  '((t :weight bold :inherit magit-branch))
-  "Face for section titles."
+(defface magit-topgit-current '((t :weight bold))
+  "Face for the current topgit topic."
+  :group 'magit-topgit-faces)
+
+(defface magit-topgit-empty '((t :strike-through t))
+  "Face for empty topgit topics."
   :group 'magit-topgit-faces)
 
 ;;; Utilities
@@ -203,35 +206,19 @@
           (save-restriction
             (narrow-to-region beg (point))
             (goto-char beg)
-            (magit-wash-sequence #'magit-topgit-wash-topic)))))))
+            (magit-wash-sequence #'magit-topgit-wash-topic))))
+      (insert "\n"))))
 
 (defun magit-topgit-wash-topic ()
-  (if (re-search-forward magit-topgit-topic-re (line-end-position) t)
-      (let ((flags (magit-topgit-parse-flags (match-string 1)))
-            (topic (match-string 2)))
-        (goto-char (line-beginning-position))
-        (delete-char 8)
-        (insert "\t")
-        (goto-char (line-beginning-position))
-        (magit-insert-section (topgit-topic topic)
-          (let ((beg (1+ (line-beginning-position)))
-                (end (line-end-position)))
-            (when (plist-get flags :current)
-              (put-text-property beg end 'face 'magit-topgit-current))
-            (when (plist-get flags :empty)
-              (put-text-property
-               beg end 'face
-               `(:strike-through t :inherit ,(get-text-property beg 'face))))
-            (put-text-property beg end 'keymap 'magit-topgit-topic-map))
-          (forward-line)))
-    (delete-region (line-beginning-position) (1+ (line-end-position))))
-  t)
-
-(defun magit-topgit-parse-flags (flags-string)
-  (let ((flags (string-to-list flags-string))
-        (void-flag ?\ ))
-    (list :current (not (eq (nth 0 flags) void-flag))
-          :empty (not (eq (nth 1 flags) void-flag)))))
+  (when (looking-at magit-topgit-topic-re)
+    (magit-bind-match-strings (flags topic) nil
+      (magit-insert-section (topgit-topic topic)
+        (set-text-properties
+         (point) (1+ (line-end-position))
+         `(keymap ,magit-topgit-topic-map
+           face (,@(and (equal (aref flags 0) ?>) (list 'magit-topgit-current))
+                 ,@(and (equal (aref flags 1) ?0) (list 'magit-topgit-empty)))))
+        (forward-line)))))
 
 (provide 'magit-topgit)
 ;; Local Variables:
