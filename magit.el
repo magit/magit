@@ -3919,7 +3919,10 @@ stash at point, then prompt for a commit."
         (if (and (setq buf (get-buffer buf))
                  (setq win (get-buffer-window buf))
                  (with-current-buffer buf
-                   (equal rev (car magit-refresh-args))))
+                   (equal (if (eq cmd 'magit-diff-stash)
+                              (concat rev "^2^.." rev)
+                            rev)
+                          (car magit-refresh-args))))
             (with-selected-window win
               (condition-case err
                   (funcall fn)
