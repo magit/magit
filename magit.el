@@ -3795,12 +3795,6 @@ results in additional differences."
                          nil nil nil
                          'magit-read-rev-history default))
 
-(defun magit-read-rev-with-default (prompt)
-  (magit-read-rev prompt (--when-let (or (magit-branch-or-commit-at-point) "HEAD")
-                           (if (string-match "^refs/\\(.*\\)" it)
-                               (match-string 1 it)
-                             it))))
-
 (defun magit-popup-read-rev (prompt initial-input)
   (magit-completing-read prompt nil nil nil initial-input
                          'magit-read-rev-history))
@@ -3894,8 +3888,9 @@ Type \\[magit-revert] to revert the change at point in the worktree.
 ;;;###autoload
 (defun magit-show-commit (commit &optional noselect module)
   "Show information about COMMIT."
-  (interactive (list (magit-read-rev-with-default
-                      "Show commit (hash or ref)")))
+  (interactive (list (magit-read-rev "Show commit"
+                                     (or (magit-branch-or-commit-at-point)
+                                         (magit-get-current-branch) "HEAD"))))
   (let ((default-directory (if module
                                (file-name-as-directory
                                 (expand-file-name module (magit-get-top-dir)))
@@ -6713,9 +6708,11 @@ Type \\[magit-revert] to revert the change at point in the worktree.
   "Show changes between the current working tree and the `HEAD' commit.
 With a prefix argument show changes between the working tree and
 a commit read from the minibuffer."
-  (interactive (and current-prefix-arg
-                    (list (magit-read-rev-with-default
-                           "Diff working tree and commit"))))
+  (interactive
+   (and current-prefix-arg
+        (list (magit-read-rev "Diff working tree and commit"
+                              (or (magit-branch-or-commit-at-point)
+                                  (magit-get-current-branch) "HEAD")))))
   (magit-diff (or rev "HEAD") t))
 
 ;;;###autoload
@@ -6723,9 +6720,11 @@ a commit read from the minibuffer."
   "Show changes between the index and the `HEAD' commit.
 With a prefix argument show changes between the index and
 a commit read from the minibuffer."
-  (interactive (and current-prefix-arg
-                    (list (magit-read-rev-with-default
-                           "Diff index and commit"))))
+  (interactive
+   (and current-prefix-arg
+        (list (magit-read-rev "Diff index and commit"
+                              (or (magit-branch-or-commit-at-point)
+                                  (magit-get-current-branch) "HEAD")))))
   (magit-diff nil nil (cons "--cached" (and commit (list commit)))))
 
 ;;;###autoload
