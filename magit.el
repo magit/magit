@@ -5604,7 +5604,6 @@ With two prefix args, remove ignored files as well."
 
 (defun magit-rewrite-diff-pending-transition ()
   (interactive)
-  (catch t (magit-rewrite-diff-pending))
   (message "Please remove magit-insert-pending-changes from your magit-status-sections-hook, or move to magit-rewrite-diff-pending"))
 
 (define-obsolete-function-alias
