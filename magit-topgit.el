@@ -1,4 +1,4 @@
-;;; magit-topgit.el --- topgit plug-in for Magit
+;;; magit-topgit.el --- TopGit extension for Magit
 
 ;; Copyright (C) 2010-2014  The Magit Project Developers
 ;;
@@ -26,8 +26,30 @@
 
 ;;; Commentary:
 
-;; This plug-in provides topgit functionality as a separate component
-;; of Magit.
+;; This package provides very basic support for TopGit.
+;;
+;;   TopGit is a patch queue manager that aims to make handling
+;;   of large amounts of interdependent topic branches easier.
+;;
+;; For information about TopGit see https://github.com/greenrd/topgit.
+
+;; When `magit-topgit-mode' is turned on then the list of TopGit
+;; topics is displayed in the status buffer.  While point is on such
+;; a topic it can checked out using `RET' and discarded using `k'.
+;; Other TopGit commands are available from the TopGit popup on `T'.
+
+;; To enable the mode in a particular repository use:
+;;
+;;   cd /path/to/repository
+;;   git config --add magit.extension topgit
+;;
+;; To enable the mode for repositories use:
+;;
+;;   git config --global --add magit.extension topgit
+;;
+;; To enable the mode globally without dropping to a shell:
+;;
+;;   (add-hook 'magit-mode-hook 'turn-on-magit-topgit)
 
 ;;; Code:
 
@@ -38,7 +60,7 @@
 ;;;; Variables
 
 (defgroup magit-topgit nil
-  "Topgit support for Magit."
+  "TopGit support for Magit."
   :group 'magit-extensions)
 
 (defcustom magit-topgit-executable "tg"
@@ -54,7 +76,7 @@
 ;;;; Faces
 
 (defgroup magit-topgit-faces nil
-  "Faces used by Magit-Topgit."
+  "Faces used by Magit-TopGit."
   :group 'magit-topgit
   :group 'magit-faces)
 
@@ -104,7 +126,7 @@
 ;;; Commands
 
 (magit-define-popup magit-topgit-popup
-  "Popup console for Topgit commands."
+  "Popup console for TopGit commands."
   'magit-popups
   :actions '((?c "Create topic"  magit-topgit-create-branch)
              (?a "Update remote" magit-topgit-remote-update)
@@ -169,8 +191,8 @@
     map))
 
 ;;;###autoload
-(define-minor-mode magit-topgit-mode "Topgit support for Magit"
-  :lighter " Topgit" :require 'magit-topgit :keymap magit-topgit-mode-map
+(define-minor-mode magit-topgit-mode "TopGit support for Magit"
+  :lighter " TopGit" :require 'magit-topgit :keymap magit-topgit-mode-map
   (or (derived-mode-p 'magit-mode)
       (user-error "This mode only makes sense with magit"))
   (if magit-topgit-mode

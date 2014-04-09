@@ -1,4 +1,4 @@
-;;; magit-svn.el --- git-svn plug-in for Magit
+;;; magit-svn.el --- Git-Svn extension for Magit
 
 ;; Copyright (C) 2010-2014  The Magit Project Developers
 ;;
@@ -26,8 +26,42 @@
 
 ;;; Commentary:
 
-;; This plug-in provides git-svn functionality as a separate component
-;; of Magit.
+;; This package provides basic support for Git-Svn.
+;;
+;;   Git-Svn is a Git command that aims to provide bidirectional
+;;   operation between a Subversion repository and Git.
+;;
+;; For information about Git-Svn see its manual page `git-svn(1)'.
+;;
+;; If you are looking for native SVN support in Emacs, then have a
+;; look at `psvn.el' and info node `(emacs)Version Control'.
+
+;; When `magit-svn-mode' is turned on then the unpushed and unpulled
+;; commit relative to the Subversion repository are displayed in the
+;; status buffer.  Git-Svn commands are available from the the Git-Svn
+;; popup on `N'.
+
+;; Typing @kbd{N r} runs @code{git svn rebase}, typing @kbd{N c} runs
+;; @code{git svn dcommit} and typing @kbd{N f} runs @code{git svn fetch}.
+
+;; @kbd{N s} will prompt you for a (numeric, Subversion) revision and
+;; then search for a corresponding Git sha1 for the commit.  This is
+;; limited to the path of the remote Subversion repository.  With a prefix
+;; (@kbd{C-u N s} the user will also be prompted for a branch to search
+;; in.
+
+;; To enable the mode in a particular repository use:
+;;
+;;   cd /path/to/repository
+;;   git config --add magit.extension svn
+;;
+;; To enable the mode for repositories use:
+;;
+;;   git config --global --add magit.extension svn
+;;
+;; To enable the mode globally without dropping to a shell:
+;;
+;;   (add-hook 'magit-mode-hook 'turn-on-magit-svn)
 
 ;;; Code:
 

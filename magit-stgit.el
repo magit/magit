@@ -1,4 +1,4 @@
-;;; magit-stgit.el --- StGit plug-in for Magit
+;;; magit-stgit.el --- StGit extension for Magit
 
 ;; Copyright (C) 2011-2014  The Magit Project Developers
 ;;
@@ -27,14 +27,33 @@
 ;;; Commentary:
 
 ;; This package provides very basic support for StGit.
-
-;; When `magit-stgit-mode' is turned on the current patch series is
-;; displayed in the status buffer.  Additionally a few Emacs commands
-;; are defined that wrap around StGit commands.  These commands are
-;; also available as "section actions".
-
+;;
+;;   StGit (Stacked Git) is an application that aims to provide a
+;;   convenient way to maintain a patch stack on top of a Git branch.
+;;
+;; For information about StGit see http://www.procode.org/stgit.
+;;
 ;; If you are looking for full fledged StGit support in Emacs, then
 ;; have a look at `stgit.el' which is distributed with StGit.
+
+;; When `magit-stgit-mode' is turned on then the current patch series
+;; is displayed in the status buffer.  While point is on a patch the
+;; changes it introduces can be shown using `RET', it can be selected
+;; as the current patch using `a', and it can be discarded using `k'.
+;; Other StGit commands are available from the StGit popup on `Y'.
+
+;; To enable the mode in a particular repository use:
+;;
+;;   cd /path/to/repository
+;;   git config --add magit.extension stgit
+;;
+;; To enable the mode for repositories use:
+;;
+;;   git config --global --add magit.extension stgit
+;;
+;; To enable the mode globally without dropping to a shell:
+;;
+;;   (add-hook 'magit-mode-hook 'turn-on-magit-stgit)
 
 ;;; Code:
 
