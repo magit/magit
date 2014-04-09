@@ -2340,8 +2340,26 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
        (unless (eq ,value magit-section-action-success)
          ,value))))
 
-(defun magit-current-commit ()
+(defun magit-branch-at-point ()
+  (magit-section-case (value) (branch value)))
+
+(defun magit-commit-at-point ()
   (magit-section-case (value) (commit value)))
+
+(defun magit-branch-or-commit-at-point ()
+  (magit-section-case (value)
+    (branch value)
+    (commit (magit-get-shortname value))))
+
+(defun magit-remote-at-point ()
+  (magit-section-case (value parent-value)
+    (remote value)
+    (branch parent-value)))
+
+(defun magit-file-at-point ()
+  (magit-section-case (value parent-value)
+    ((diff diffstat [file untracked]) value)
+    (hunk parent-value)))
 
 ;;;; Process Api
 ;;;;; Process Commands
@@ -3778,7 +3796,7 @@ results in additional differences."
                          'magit-read-rev-history default))
 
 (defun magit-read-rev-with-default (prompt)
-  (magit-read-rev prompt (--when-let (or (magit-guess-branch) "HEAD")
+  (magit-read-rev prompt (--when-let (or (magit-branch-or-commit-at-point) "HEAD")
                            (if (string-match "^refs/\\(.*\\)" it)
                                (match-string 1 it)
                              it))))
@@ -3807,7 +3825,9 @@ results in additional differences."
 (defun magit-read-remote (prompt &optional default require-match)
   (magit-completing-read prompt (magit-git-lines "remote")
                          nil require-match nil nil
-                         (or default (magit-guess-remote))))
+                         (or default
+                             (magit-remote-at-point)
+                             (magit-get-current-remote))))
 
 (defvar magit-read-file-hist nil)
 
@@ -4686,16 +4706,14 @@ prefix argument using `switch-to-buffer'.  Non-interactivity use
 SWITCH-FUNCTION to switch to the buffer, if that is nil simply
 return the buffer, without displaying it."
   (interactive
-   (let ((rev (magit-get-current-branch)) file section)
-     (magit-section-case (value parent)
-       (commit (setq file magit-file-log-file rev value))
-       (hunk   (setq file (magit-section-value parent)))
-       (diff   (setq file (magit-section-value it))))
-     (setq rev  (magit-read-rev "Retrieve file from revision" rev)
-           file (cl-case rev
+   (let* ((rev (or (magit-branch-or-commit-at-point)
+                   (magit-get-current-branch)))
+          (rev (magit-read-rev "Retrieve file from revision" rev))
+          (file (or (magit-file-at-point) magit-file-log-file))
+          (file (cl-case rev
                   (working (read-file-name "Find file: "))
                   (index   (magit-read-file-from-rev "HEAD" file))
-                  (t       (magit-read-file-from-rev rev file))))
+                  (t       (magit-read-file-from-rev rev file)))))
      (list rev file (if current-prefix-arg
                         'switch-to-buffer
                       'pop-to-buffer))))
@@ -4841,8 +4859,7 @@ inspect the merge and change the commit message.
                       "Checkout file"
                       (magit-git-lines "ls-files")
                       nil nil nil 'magit-read-file-hist
-                      (magit-section-case (value)
-                        ((diff diffstat [file untracked]) value)))))
+                      (magit-file-at-point))))
            (cond
             ((member file (magit-git-lines "diff" "--name-only"
                                            "--diff-filter=U"))
@@ -4884,7 +4901,7 @@ inspect the merge and change the commit message.
 
 (defun magit-merge-read-rev ()
   (magit-read-rev "Merge"
-                  (or (magit-guess-branch)
+                  (or (magit-branch-or-commit-at-point)
                       (magit-get-previous-branch))))
 
 (defun magit-checkout-read-stage (file)
@@ -4924,7 +4941,7 @@ fails if the working tree or the staging area contain changes.
 \n(git checkout REVISION)."
   (interactive
    (list (let ((current (magit-get-current-branch))
-               (default (or (magit-guess-branch)
+               (default (or (magit-branch-or-commit-at-point)
                             (magit-get-previous-branch))))
            (magit-read-rev "Checkout"
                            (unless (equal default current) default)
@@ -4937,7 +4954,7 @@ fails if the working tree or the staging area contain changes.
 \n(git branch [ARGS] BRANCH PARENT)."
   (interactive
    (list (read-string "Create branch: ")
-         (magit-read-rev "Parent" (or (magit-guess-branch)
+         (magit-read-rev "Parent" (or (magit-branch-or-commit-at-point)
                                       (magit-get-current-branch)))))
   (when (and branch (not (string= branch "")))
     (magit-maybe-save-repository-buffers)
@@ -4949,7 +4966,7 @@ fails if the working tree or the staging area contain changes.
 \n(git checkout [ARGS] -b BRANCH PARENT)."
   (interactive
    (list (read-string "Create and checkout branch: ")
-         (magit-read-rev "Parent" (or (magit-guess-branch)
+         (magit-read-rev "Parent" (or (magit-branch-or-commit-at-point)
                                       (magit-get-current-branch)))))
   (when (and branch (not (string= branch "")))
     (magit-maybe-save-repository-buffers)
@@ -4963,7 +4980,7 @@ first.  With prefix, forces the removal even if it hasn't been
 merged.  Works with local and remote branches.
 \n(git branch -d|-D BRANCH || git push REMOTE :refs/heads/BRANCH)."
   (interactive (list (magit-read-rev "Branch to delete"
-                                     (or (magit-guess-branch)
+                                     (or (magit-branch-or-commit-at-point)
                                          (magit-get-previous-branch)))
                      current-prefix-arg))
   (if (string-match "^\\(?:refs/\\)?remotes/\\([^/]+\\)/\\(.+\\)" branch)
@@ -4990,7 +5007,7 @@ merged.  Works with local and remote branches.
 (defun magit-branch-edit-description (branch)
   "Edit the description of BRANCH."
   (interactive (list (magit-read-rev "Edit branch description"
-                                     (or (magit-guess-branch)
+                                     (or (magit-branch-or-commit-at-point)
                                          (magit-get-current-branch)))))
   (magit-run-git-with-editor "branch" "--edit-description"))
 
@@ -5007,15 +5024,6 @@ With prefix, forces the rename even if NEW already exists.
           (string= old new))
       (message "Cannot rename branch \"%s\" to \"%s\"." old new)
     (magit-run-git "branch" (if force "-M" "-m") old new)))
-
-(defun magit-guess-branch ()
-  "Return a branch name depending on the context of cursor.
-If no branch is found near the cursor return nil."
-  (magit-section-case (value parent-value)
-    (branch          value)
-    ([commit wazzup] parent-value)
-    ([commit       ] (magit-get-shortname value))
-    ([       wazzup] value)))
 
 ;;;;; Remoting
 
@@ -5057,12 +5065,6 @@ If no branch is found near the cursor return nil."
           (string= old new))
       (message "Cannot rename remote \"%s\" to \"%s\"." old new)
     (magit-run-git "remote" "rename" old new)))
-
-(defun magit-guess-remote ()
-  (magit-section-case (value parent-value)
-    (remote value)
-    (branch parent-value)
-    (t      (if (string= value ".") value (magit-get-current-remote)))))
 
 ;;;;; Rebasing
 
@@ -5121,7 +5123,7 @@ If no branch is found near the cursor return nil."
 (defun magit-rebase-interactive (commit &optional args)
   "Start an interactive rebase operation.
 \n(git rebase -i COMMIT[^] [ARGS])"
-  (interactive (let ((commit (magit-section-case (value) (commit value))))
+  (interactive (let ((commit (magit-commit-at-point)))
                  (list (and commit (concat commit "^"))
                        magit-current-popup-args)))
   (cond
@@ -5284,7 +5286,7 @@ and staging area are lost.
                                              (if current-prefix-arg
                                                  "Hard reset"
                                                "Reset"))
-                                     (or (magit-guess-branch) "HEAD"))
+                                     (or (magit-branch-or-commit-at-point) "HEAD"))
                      current-prefix-arg))
   (magit-run-git "reset" (if hard "--hard" "--soft") revision "--"))
 
@@ -5294,7 +5296,7 @@ and staging area are lost.
 Uncomitted changes in both working tree and staging area are lost.
 \n(git reset --hard REVISION)"
   (interactive (list (magit-read-rev (format "Hard reset head to")
-                                     (or (magit-guess-branch) "HEAD"))))
+                                     (or (magit-branch-or-commit-at-point) "HEAD"))))
   (magit-reset-head revision t))
 
 ;;;;; Clean
@@ -5609,7 +5611,7 @@ depending on the value of option `magit-commit-squash-confirm'.
   "Create a fixup commit and instantly rebase.
 \n(git commit --no-edit --fixup=COMMIT ARGS;
  git rebase -i COMMIT^ --autosquash --autostash)"
-  (interactive (list (magit-current-commit) magit-current-popup-args))
+  (interactive (list (magit-commit-at-point) magit-current-popup-args))
   (magit-commit-squash-internal
    (lambda (c a)
      (when (setq c (magit-commit-fixup c a))
@@ -5621,7 +5623,7 @@ depending on the value of option `magit-commit-squash-confirm'.
   "Create a squash commit and instantly rebase.
 \n(git commit --no-edit --squash=COMMIT ARGS;
  git rebase -i COMMIT^ --autosquash --autostash)"
-  (interactive (list (magit-current-commit) magit-current-popup-args))
+  (interactive (list (magit-commit-at-point) magit-current-popup-args))
   (magit-commit-squash-internal
    (lambda (c a)
      (when (setq c (magit-commit-squash c a))
@@ -5629,7 +5631,7 @@ depending on the value of option `magit-commit-squash-confirm'.
    "--squash" commit args t))
 
 (defun magit-commit-squash-read-args ()
-  (list (magit-current-commit) magit-current-popup-args
+  (list (magit-commit-at-point) magit-current-popup-args
         (or current-prefix-arg magit-commit-squash-confirm)))
 
 (defun magit-commit-squash-internal (fn option commit args confirm)
@@ -5792,7 +5794,7 @@ With a prefix argument annotate the tag.
 \n(git tag [--annotate] NAME REV)"
   (interactive (list (magit-read-tag "Tag name")
                      (magit-read-rev "Place tag on"
-                                     (or (magit-guess-branch) "HEAD"))
+                                     (or (magit-branch-or-commit-at-point) "HEAD"))
                      current-prefix-arg))
   (let ((args (append magit-current-popup-args (list name rev))))
     (if (or (member "--sign" args)
@@ -5980,7 +5982,7 @@ other actions from the bisect popup (\
    (if (magit-bisecting-p)
        (user-error "Already bisecting")
      (list (magit-read-rev "Start bisect with known bad revision" "HEAD")
-           (magit-read-rev "Good revision" (magit-guess-branch)))))
+           (magit-read-rev "Good revision" (magit-branch-or-commit-at-point)))))
   (magit-bisect-async "start" (list bad good) t))
 
 ;;;###autoload
@@ -6468,7 +6470,7 @@ With a non numeric prefix ARG, show all entries"
 (defun magit-log-select-pick ()
   (interactive)
   (let ((fun magit-log-select-pick-function)
-        (rev (magit-section-case (value) (commit value))))
+        (rev (magit-commit-at-point)))
     (kill-buffer (current-buffer))
     (funcall fun rev)))
 
@@ -6598,7 +6600,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 ;;;###autoload
 (defun magit-interactive-resolve (file)
   "Resolve a merge conflict using Ediff."
-  (interactive (list (magit-section-case (value) (diff (cadr value)))))
+  (interactive (list (magit-file-at-point)))
   (require 'ediff)
   (let ((merge-status (magit-git-lines "ls-files" "-u" "--" file))
         (base-buffer)
