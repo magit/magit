@@ -4930,6 +4930,7 @@ inspect the merge and change the commit message.
   :actions  '((?b "Checkout"          magit-checkout)
               (?c "Create"            magit-branch)
               (?B "Create & Checkout" magit-branch-and-checkout)
+              (?u "Set upstream"      magit-branch-set-upstream)
               (?r "Rename"            magit-branch-rename)
               (?k "Delete"            magit-branch-delete)
               (?v "Branch manager"    magit-branch-manager))
@@ -5007,6 +5008,18 @@ checkout the \"master\" branch.
         (master (setq force t) (magit-call-git "checkout" "master"))
         (abort  (user-error "Branch %s not deleted" branch)))
       (magit-run-git "branch" (if force "-D" "-d") branch))))
+
+;;;###autoload
+(defun magit-branch-set-upstream (branch upstream)
+  "Change the UPSTREAM branch of BRANCH."
+  (interactive
+   (let* ((atpoint (magit-branch-at-point))
+          (current (magit-get-current-branch))
+          (b (magit-read-rev "Change upstream of branch" (or atpoint current))))
+     (list b (magit-read-rev "Change upstream to branch"
+                             (or (unless (equal atpoint b) atpoint)
+                                 (unless (equal current b) current))))))
+  (magit-run-git "branch" (concat "--set-upstream-to=" upstream) branch))
 
 ;;;###autoload
 (defun magit-branch-edit-description (branch)
