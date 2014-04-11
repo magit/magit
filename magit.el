@@ -6453,12 +6453,15 @@ With a non numeric prefix ARG, show all entries"
     (magit-show-commit (magit-section-value section) t)))
 
 (defun magit-log-goto-same-commit ()
-  (--when-let (and magit-previous-section
-                   (derived-mode-p 'magit-log-mode)
-                   (cl-find (magit-section-value magit-previous-section)
-                            (magit-section-children magit-root-section)
-                            :test 'equal :key 'magit-section-value))
-    (goto-char (magit-section-start it))))
+  (when magit-previous-section
+    (let ((value (magit-section-value magit-previous-section)))
+      (--when-let
+          (and value
+               (derived-mode-p 'magit-log-mode)
+               (magit-section-diff-file2
+                (cl-find value (magit-section-children magit-root-section)
+                         :test 'equal :key 'magit-section-value)))
+        (goto-char (magit-section-start it))))))
 
 ;;;; Log Select Mode
 
