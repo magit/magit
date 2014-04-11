@@ -4232,24 +4232,20 @@ can be used to override this."
         (insert "\n\n")))))
 
 (defun magit-insert-rebase-sequence ()
-  (let ((f (magit-git-dir "rebase-merge/git-rebase-todo")))
+  (let ((f (magit-git-dir "rebase-merge/git-rebase-todo"))
+        (r "^\\(pick\\|reword\\|edit\\|squash\\|fixup\\) \\([^ ]+\\) \\(.*\\)$"))
     (when (file-exists-p f)
       (magit-insert-section (rebase-todo)
         (magit-insert-heading "Rebasing:")
-        (cl-loop
-         for line in (magit-file-lines f)
-         when (string-match
-               "^\\(pick\\|reword\\|edit\\|squash\\|fixup\\) \\([^ ]+\\) \\(.*\\)$"
-               line)
-         do (let ((cmd  (match-string 1 line))
-                  (hash (match-string 2 line))
-                  (msg  (match-string 3 line)))
+        (dolist (line (magit-file-lines f))
+          (when (string-match r line)
+            (magit-bind-match-strings (cmd hash msg) line
               (magit-insert-section (commit hash)
                 (insert cmd " ")
                 (insert (propertize
                          (magit-rev-parse "--short" hash)
                          'face 'magit-hash))
-                (insert " " msg "\n"))))
+                (insert " " msg "\n")))))
         (insert "\n")))))
 
 (defun magit-insert-bisect-output ()
