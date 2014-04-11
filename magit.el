@@ -2522,7 +2522,7 @@ call function WASHER with no argument."
       (save-restriction
         (narrow-to-region beg (point))
         (goto-char beg)
-        (funcall washer))
+        (funcall washer args))
       (when (or (= (point) beg)
                 (= (point) (1+ beg)))
         (magit-cancel-section)))))
@@ -3969,7 +3969,7 @@ stash at point, then prompt for a commit."
 
 ;;;;; Commit Washing
 
-(defun magit-wash-commit ()
+(defun magit-wash-commit (args)
   (looking-at "^commit \\([a-z0-9]+\\)\\(?: \\(.+\\)\\)?$")
   (let ((rev  (match-string 1))
         (refs (match-string 2)))
@@ -4002,7 +4002,7 @@ stash at point, then prompt for a commit."
             ((re-search-forward "^.[^ ]" bound t)
              (goto-char (1- (match-beginning 0)))))))
   (forward-line)
-  (magit-wash-diffs))
+  (magit-wash-diffs args))
 
 (defun magit-insert-commit-button (hash)
   (magit-insert-section (commit hash)
@@ -4286,7 +4286,7 @@ can be used to override this."
       (magit-insert-heading "Bisect Log:")
       (magit-git-wash #'magit-wash-bisect-log "bisect" "log"))))
 
-(defun magit-wash-bisect-log ()
+(defun magit-wash-bisect-log (args)
   (let (beg)
     (while (progn (setq beg (point-marker))
                   (re-search-forward "^\\(git bisect [^\n]+\n\\)" nil t))
@@ -6198,7 +6198,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
     (magit-insert-heading "Commits"
       (and file  (concat " for file " file))
       (and range (concat " in " range)))
-    (magit-git-wash (apply-partially 'magit-wash-log style 'color t)
+    (magit-git-wash (apply-partially 'magit-wash-log style)
       "log" (format "--max-count=%d" magit-log-cutoff-length)
       "--decorate=full" "--abbrev-commit" "--color"
       (cl-case style
@@ -6280,8 +6280,8 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 
 (defvar magit-log-count nil)
 
-(defun magit-wash-log (style &optional color longer)
-  (when color
+(defun magit-wash-log (style args)
+  (when (member "--color" args)
     (let ((ansi-color-apply-face-function
            (lambda (beg end face)
              (when face
@@ -6292,7 +6292,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   (let ((magit-log-count 0))
     (magit-wash-sequence (apply-partially 'magit-wash-log-line style
                                           (magit-abbrev-length)))
-    (if longer
+    (if (derived-mode-p 'magit-log-mode)
         (when (= magit-log-count magit-log-cutoff-length)
           (magit-insert-section (longer)
             (insert-text-button
@@ -6304,7 +6304,8 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
                        (magit-log-show-more-entries))
              'follow-link t
              'mouse-face magit-section-highlight-face)))
-      (insert ?\n))))
+      (unless (equal (car args) "cherry")
+        (insert ?\n)))))
 
 (defun magit-wash-log-line (style abbrev)
   (looking-at (cl-ecase style
@@ -6895,13 +6896,13 @@ actually were a single commit."
 (defconst magit-diff-submodule-re "^Submodule \
 \\([^\s\n]+\\) \\(?:\\([^:\n]+\\):\\|contains modified content\\)$")
 
-(defun magit-wash-diffs ()
+(defun magit-wash-diffs (args)
   (let ((diffstats (magit-wash-diffstats)))
     (when (re-search-forward magit-diff-headline-re nil t)
       (goto-char (line-beginning-position))
       (magit-wash-sequence
        (lambda ()
-         (magit-wash-diff (pop diffstats))))
+         (magit-wash-diff args (pop diffstats))))
       (insert ?\n)))
   (goto-char (point-max))
   (magit-xref-insert-buttons))
@@ -6928,7 +6929,7 @@ actually were a single commit."
         (setq diffstats (magit-section-children it))))
     diffstats))
 
-(defun magit-wash-diff (diffstat)
+(defun magit-wash-diff (args diffstat)
   (cond
    ((looking-at magit-diff-submodule-re)
     (let* ((module (match-string 1))
