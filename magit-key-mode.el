@@ -250,7 +250,8 @@
       ("-nf" "No fast-forward" "--no-ff")
       ("-sq" "Squash" "--squash"))
      (arguments
-      ("-st" "Strategy" "--strategy=" read-from-minibuffer)))
+      ("-st" "Strategy" "--strategy=" read-from-minibuffer)
+      ("-X" "Strategy argument" "--strategy-option=" read-from-minibuffer)))
 
     (rewriting
      (actions
