@@ -612,10 +612,10 @@ manager but it will be used in more places in the future."
     magit-insert-bisect-output
     magit-insert-bisect-rest
     magit-insert-bisect-log
-    magit-insert-stashes
     magit-insert-untracked-files
     magit-insert-unstaged-changes
     magit-insert-staged-changes
+    magit-insert-stashes
     magit-insert-unpulled-commits
     magit-insert-unpushed-commits)
   "Hook run to insert sections into the status buffer.
