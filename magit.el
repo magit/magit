@@ -6599,10 +6599,10 @@ Other key binding:
     (insert "\n")
     (magit-insert-line-section (line)
       (concat (propertize "-" 'face 'magit-cherry-equivalent)
-              " equivalent exists in both refs"))
+              " equivalent exists in both Head and Upstream"))
     (magit-insert-line-section (line)
       (concat (propertize "+" 'face 'magit-cherry-unmatched)
-              " unmatched commit tree"))))
+              " commit found in Head only, i.e. unmatched with any commit in Upstream"))))
 
 (defun magit-insert-cherry-commits ()
   (magit-git-insert-section (cherries "Cherry commits:")
