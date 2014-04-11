@@ -1717,6 +1717,7 @@ never modify it.")
          (catch 'cancel-section
            ,@(cdr args)
            (magit-insert-child-count ,s)
+           (set-marker-insertion-type (magit-section-start ,s) t)
            (let ((end (setf (magit-section-end ,s) (point-marker))))
              (save-excursion
                (goto-char (magit-section-start ,s))
@@ -2872,11 +2873,14 @@ tracked in the current repository are reverted if
     (dired-uncache default-dir))
   (when (buffer-live-p process-buf)
     (with-current-buffer process-buf
-      (let ((inhibit-read-only t))
-        (goto-char (magit-section-start section))
+      (let ((inhibit-read-only t)
+            (marker (magit-section-start section)))
+        (goto-char marker)
         (save-excursion
           (delete-char 3)
+          (set-marker-insertion-type marker nil)
           (insert (propertize (format "%3s" arg) 'magit-section section))
+          (set-marker-insertion-type marker t)
           (magit-put-face-property (- (point) 3) (point)
                                    (if (= arg 0)
                                        'magit-process-ok
