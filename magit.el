@@ -7152,18 +7152,16 @@ into the selected branch."
                     count)
                   (magit-format-ref-label upstream)))
         (if (magit-section-hidden it)
-            (setf (magit-section-washer it)
-                  (apply-partially #'magit-insert-wazzup-cherries
-                                   head upstream))
-          (magit-insert-wazzup-cherries head upstream))))))
+            (progn (setf (magit-section-washer it)
+                         (apply-partially #'magit-insert-wazzup-cherries
+                                          it head upstream))
+                   (insert ?\s))
+          (magit-insert-wazzup-cherries it head upstream))))))
 
-(defun magit-insert-wazzup-cherries (head upstream)
-  (let ((beg (point)))
-    (magit-git-insert "cherry" "-v" "--abbrev" head upstream)
-    (save-restriction
-      (narrow-to-region beg (point))
-      (goto-char (point-min))
-      (magit-wash-log 'cherry))))
+(defun magit-insert-wazzup-cherries (parent head upstream)
+  (let ((magit-insert-section--parent parent))
+    (magit-git-wash (apply-partially 'magit-wash-log 'cherry)
+      "cherry" "-v" "--abbrev" head upstream)))
 
 ;;;; Branch Manager Mode
 
