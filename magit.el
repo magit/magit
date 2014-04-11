@@ -6458,9 +6458,8 @@ With a non numeric prefix ARG, show all entries"
       (--when-let
           (and value
                (derived-mode-p 'magit-log-mode)
-               (magit-section-diff-file2
-                (cl-find value (magit-section-children magit-root-section)
-                         :test 'equal :key 'magit-section-value)))
+               (cl-find value (magit-section-children magit-root-section)
+                        :test 'equal :key 'magit-section-value))
         (goto-char (magit-section-start it))))))
 
 ;;;; Log Select Mode
