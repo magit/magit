@@ -5333,6 +5333,15 @@ with two prefix arguments remove ignored files only.
                                (t "ignored"))))
     (magit-run-git "clean" "-f" "-d" (cl-case arg (4 "-x") (16 "-X")))))
 
+(defun magit-rewrite-diff-pending-transition ()
+  (interactive)
+  (message "Please remove magit-insert-pending-changes from your magit-status-sections-hook, or move to magit-rewrite-diff-pending"))
+
+(define-obsolete-function-alias
+  'magit-insert-pending-changes 'magit-rewrite-diff-pending-transition
+  "382351845e"
+  "https://github.com/magit/magit/commit/382351845eca2425713f640f9bb55756c9ddf723")
+
 ;;;;; Fetching
 
 (magit-define-popup magit-fetch-popup
