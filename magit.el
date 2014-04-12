@@ -601,9 +601,7 @@ manager but it will be used in more places in the future."
 ;;;;;; Status
 
 (defcustom magit-status-sections-hook
-  '(magit-insert-status-local-line
-    magit-insert-status-remote-line
-    magit-insert-status-head-line
+  '(magit-insert-status-headers
     magit-insert-status-tags-line
     magit-insert-status-merge-line
     magit-insert-status-rebase-lines
@@ -4158,32 +4156,33 @@ can be used to override this."
 (defun magit-insert-empty-line ()
   (insert "\n"))
 
-(defun magit-insert-status-local-line ()
-  (let ((branch (or (magit-get-current-branch) "(detached)")))
-    (magit-insert-header "Local" (branch branch)
-      (propertize branch 'face 'magit-branch-local) " "
-      (abbreviate-file-name default-directory))))
-
-(defun magit-insert-status-remote-line ()
-  (let* ((branch  (magit-get-current-branch))
-         (tracked (magit-get-tracked-branch branch)))
-    (when tracked
-      (magit-insert-header "Remote" (branch tracked)
-        (let ((remote (magit-get "branch" branch "remote"))
-              (rebase (magit-get-boolean "branch" branch "rebase")))
-          (concat
-           (and rebase "onto ")
-           (if (string= "." remote)
-               (propertize tracked 'face 'magit-branch-local)
-             (concat (propertize tracked 'face 'magit-branch-remote) " "
-                     (magit-get "remote" remote "url")))))))))
-
-(defun magit-insert-status-head-line ()
-  (-if-let (hash (magit-rev-parse "--verify" "HEAD"))
-      (magit-insert-header "Head" (commit hash)
-        (magit-format-rev-summary "HEAD"))
-    (magit-insert-header "Head" (no-commit)
-      "nothing committed yet")))
+(defun magit-insert-status-headers (&optional branch upstream)
+  (-when-let (hash (magit-rev-parse "--verify" "HEAD"))
+    (unless branch
+      (setq branch (magit-get-current-branch)))
+    (let ((line (magit-rev-format "%h %s" "HEAD")) hash msg)
+      (string-match "^\\([^ ]+\\) \\(.+\\)" line)
+      (setq hash (match-string 1 line)
+            msg  (match-string 2 line))
+      (magit-insert-header "Head" (branch (or branch hash))
+        (propertize hash 'face 'magit-hash) " "
+        (if branch
+            (propertize branch 'face 'magit-branch-local)
+          (propertize "HEAD" 'face 'magit-head))
+        " " msg)
+      (when (or upstream (setq upstream (magit-get-tracked-branch branch)))
+        (setq line (magit-rev-format "%h %s" "HEAD"))
+        (string-match "^\\([^ ]+\\) \\(.+\\)" line)
+        (setq hash (match-string 1 line)
+              msg  (match-string 2 line))
+        (magit-insert-header "Upstream" (branch upstream)
+          (propertize hash 'face 'magit-hash) " "
+          (and (magit-get-boolean "branch" branch "rebase") "onto ")
+          (propertize upstream 'face
+                      (if (string= (magit-get "branch" branch "remote") ".")
+                          'magit-branch-local
+                        'magit-branch-remote))
+          " " msg)))))
 
 (defun magit-insert-status-tags-line ()
   (let* ((current-tag (magit-get-current-tag t))
