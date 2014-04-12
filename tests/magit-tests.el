@@ -92,6 +92,20 @@
       (magit-tests--should-have-section
        'unpushed (magit-tests--head-hash)))))
 
+(ert-deftest magit-get-next-tag ()
+  (magit-tests--with-temp-repo
+    (magit-tests--modify-and-commit "file")
+
+    (magit-tests--with-temp-clone default-directory
+     ;; no tag, return nil
+     (should (equal nil (magit-get-next-tag)))
+     ;; tag is not annotated, return nil
+     (magit-call-git "tag" "FIRST")
+     (should (equal "FIRST" (magit-git-string "describe" "--contains" "FIRST")))
+     (should (equal nil (magit-get-next-tag)))
+     (magit-call-git "tag" "-d" "FIRST")
+     )))
+
 ;;;; config
 
 (ert-deftest magit-config-get-boolean ()
