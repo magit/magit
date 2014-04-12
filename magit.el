@@ -5087,7 +5087,7 @@ return the buffer, without displaying it."
        (hunk   (setq section parent))
        (diff   (setq section it)))
      (if section
-         (setq rev  (cadr (magit-diff-range section))
+         (setq rev  (car (magit-diff-range section))
                file (magit-section-info section))
        (unless rev
          (setq rev (magit-get-current-branch))))
