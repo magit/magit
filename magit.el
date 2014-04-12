@@ -6544,6 +6544,7 @@ Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 
 (defun magit-insert-cherry-help-lines ()
   (when (derived-mode-p 'magit-cherry-mode)
+    (insert "\n")
     (magit-insert-section (help)
       (magit-insert "-" 'magit-cherry-equivalent
                     " equivalent exists in both refs\n")
