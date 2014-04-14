@@ -1125,6 +1125,10 @@ t          ask if --set-upstream should be used.
   :group 'magit-modes
   :type 'hook)
 
+(defcustom magit-offer-to-create-tracking-branches t
+  "Whether to prompt the user to create a local tracking branch
+when an untracked remote branch is checked out")
+
 ;;;; Custom Faces
 
 (defface magit-section-title
@@ -5199,7 +5203,8 @@ tracking brach name suggesting a sensible default."
 (defun magit-maybe-create-local-tracking-branch (rev)
   "Depending on the users wishes, create a tracking branch for
 REV... maybe."
-  (when (string-match "^\\(?:refs/\\)?remotes/\\([^/]+\\)/\\(.+\\)" rev)
+  (when (and magit-offer-to-create-tracking-branches
+             (string-match "^\\(?:refs/\\)?remotes/\\([^/]+\\)/\\(.+\\)" rev))
     (let* ((remote (match-string 1 rev))
            (branch (match-string 2 rev))
            (tracker-name (magit-get-tracking-name remote branch)))
