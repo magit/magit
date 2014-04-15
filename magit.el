@@ -3277,18 +3277,17 @@ the current repository."
   (magit-revert-buffers))
 
 (defun magit-revert-buffers ()
-  (let ((topdir (magit-get-top-dir)))
-    (when topdir
-      (let ((gitdir  (magit-git-dir))
-            (tracked (magit-git-lines "ls-tree" "-r" "--name-only" "HEAD")))
-        (dolist (buf (buffer-list))
-          (with-current-buffer buf
-            (let ((file (buffer-file-name)))
-              (and file (string-prefix-p topdir file)
-                   (not (string-prefix-p gitdir file))
-                   (member (file-relative-name file topdir) tracked)
-                   (let ((auto-revert-mode t))
-                     (auto-revert-handler))))))))))
+  (-when-let (topdir (magit-get-top-dir))
+    (let ((gitdir  (magit-git-dir))
+          (tracked (magit-git-lines "ls-tree" "-r" "--name-only" "HEAD")))
+      (dolist (buf (buffer-list))
+        (with-current-buffer buf
+          (let ((file (buffer-file-name)))
+            (and file (string-prefix-p topdir file)
+                 (not (string-prefix-p gitdir file))
+                 (member (file-relative-name file topdir) tracked)
+                 (let ((auto-revert-mode t))
+                   (auto-revert-handler)))))))))
 
 (defun magit-maybe-save-repository-buffers ()
   (when magit-save-repository-buffers
