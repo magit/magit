@@ -37,7 +37,7 @@
 
 ;; Add this to your init.el file:
 ;;   (define-key magit-mode-map "." 'magit-mark-item)
-;;   (define-key magit-mode-map "." 'magit-diff-with-mark)
+;;   (define-key magit-mode-map "=" 'magit-diff-with-mark)
 ;;   (add-hook 'magit-mode-refresh-buffer-hook
 ;;             'magit-refresh-marked-commits-in-buffer))
 
