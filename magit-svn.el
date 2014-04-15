@@ -105,9 +105,9 @@
 ;;;###autoload
 (defun magit-svn-find-rev (rev &optional branch)
   "Find commit for svn REVISION in BRANCH."
-  (interactive (list (read-string "SVN revision: ")
+  (interactive (list (magit-read-string "SVN revision")
                      (and current-prefix-arg
-                          (read-string "In branch: "))))
+                          (magit-read-string "In branch"))))
   (--if-let (magit-git-string "svn" "find-rev" (concat "r" rev) branch)
       (magit-show-commit it)
     (user-error "Revision %s could not be mapped to a commit" rev)))

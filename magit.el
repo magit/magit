@@ -2419,9 +2419,9 @@ Run Git in the root of the current repository.
                  (or (magit-get-top-dir)
                      (user-error "Not inside a Git repository"))
                default-directory)))
-    (list (read-string (format "Git subcommand (in %s): "
-                               (abbreviate-file-name dir))
-                       nil 'magit-git-command-history)
+    (list (magit-read-string (format "Git subcommand (in %s)"
+                                     (abbreviate-file-name dir))
+                             nil 'magit-git-command-history)
           dir)))
 
 ;;;;; Process Mode
@@ -3825,6 +3825,15 @@ results in additional differences."
 
 ;;;;; Miscellaneous Completion
 
+(defun magit-read-string
+    (prompt &optional initial-input history default-value)
+  (let ((reply (read-string (magit-prompt-with-default
+                             (concat prompt ": ") default-value)
+                            initial-input history default-value)))
+    (if (string= reply "")
+        (user-error "Need non-empty input")
+      reply)))
+
 (defun magit-read-remote (prompt &optional default require-match)
   (magit-completing-read prompt (magit-git-lines "remote")
                          nil require-match nil nil
@@ -3847,7 +3856,7 @@ results in additional differences."
 
 (defun magit-read-file-trace (ignored)
   (let ((file  (magit-read-file-from-rev "HEAD"))
-        (trace (read-string "Trace: ")))
+        (trace (magit-read-string "Trace")))
     (if (string-match
          "^\\(/.+/\\|:[^:]+\\|[0-9]+,[-+]?[0-9]+\\)\\(:\\)?$" trace)
         (concat trace (or (match-string 2 trace) ":") file)
@@ -4955,24 +4964,22 @@ fails if the working tree or the staging area contain changes.
   "Create BRANCH at revision PARENT.
 \n(git branch [ARGS] BRANCH PARENT)."
   (interactive
-   (list (read-string "Create branch: ")
+   (list (magit-read-string "Create branch")
          (magit-read-rev "Parent" (or (magit-branch-or-commit-at-point)
                                       (magit-get-current-branch)))))
-  (when (and branch (not (string= branch "")))
-    (magit-maybe-save-repository-buffers)
-    (magit-run-git "branch" magit-current-popup-args branch parent)))
+  (magit-maybe-save-repository-buffers)
+  (magit-run-git "branch" magit-current-popup-args branch parent))
 
 ;;;###autoload
 (defun magit-branch-and-checkout (branch parent)
   "Create and checkout BRANCH at revision PARENT.
 \n(git checkout [ARGS] -b BRANCH PARENT)."
   (interactive
-   (list (read-string "Create and checkout branch: ")
+   (list (magit-read-string "Create and checkout branch")
          (magit-read-rev "Parent" (or (magit-branch-or-commit-at-point)
                                       (magit-get-current-branch)))))
-  (when (and branch (not (string= branch "")))
-    (magit-maybe-save-repository-buffers)
-    (magit-run-git "checkout" magit-current-popup-args "-b" branch parent)))
+  (magit-maybe-save-repository-buffers)
+  (magit-run-git "checkout" magit-current-popup-args "-b" branch parent))
 
 ;;;###autoload
 (defun magit-branch-delete (branch &optional force)
@@ -5034,11 +5041,9 @@ With prefix, forces the rename even if NEW already exists.
 \n(git branch -m|-M OLD NEW)."
   (interactive
    (let* ((old (magit-read-local-branch "Old name"))
-          (new (read-string "New name: " old)))
+          (new (magit-read-string "New name" old)))
      (list old new current-prefix-arg)))
-  (if (or (null new) (string= new "")
-          (string= old new))
-      (message "Cannot rename branch \"%s\" to \"%s\"." old new)
+  (unless (string= old new)
     (magit-run-git "branch" (if force "-M" "-m") old new)))
 
 ;;;;; Remoting
@@ -5057,8 +5062,8 @@ With prefix, forces the rename even if NEW already exists.
 (defun magit-remote-add (remote url)
   "Add the REMOTE and fetch it.
 \n(git remote add -f REMOTE URL)."
-  (interactive (list (read-string "Remote name: ")
-                     (read-string "Remote url: ")))
+  (interactive (list (magit-read-string "Remote name")
+                     (magit-read-string "Remote url")))
   (magit-run-git-async "remote" "add" "-f" remote url))
 
 ;;;###autoload
@@ -5074,12 +5079,9 @@ With prefix, forces the rename even if NEW already exists.
 \n(git remote rename OLD NEW)."
   (interactive
    (let* ((old (magit-read-remote "Old name"))
-          (new (read-string "New name: " old)))
+          (new (magit-read-string "New name" old)))
      (list old new)))
-  (if (or (null old) (string= old "")
-          (null new) (string= new "")
-          (string= old new))
-      (message "Cannot rename remote \"%s\" to \"%s\"." old new)
+  (unless (string= old new)
     (magit-run-git "remote" "rename" old new)))
 
 ;;;;; Rebasing
@@ -5919,8 +5921,8 @@ With prefix argument, changes in staging area are kept.
 (defun magit-stash-branch (stash branchname)
   "Create and checkout a branch from STASH.
 \n(git stash branch BRANCHNAME stash@{N})"
-  (interactive (list (magit-read-stash "Branch stash (number): ")
-                     (read-string      "Branch name: ")))
+  (interactive (list (magit-read-stash  "Branch stash (number): ")
+                     (magit-read-string "Branch name")))
   (magit-run-git "stash" "branch" branchname (magit-stash-as-refname stash)))
 
 (defun magit-stash-as-refname (arg)

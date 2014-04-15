@@ -140,7 +140,7 @@
 
 (defun magit-topgit-create-branch (branch parent)
   (interactive
-   (list (read-string "Create topgit branch: " magit-topgit-branch-prefix)
+   (list (magit-read-string "Create topgit branch" magit-topgit-branch-prefix)
          (magit-read-rev "Parent" (magit-get-current-branch))))
   (when (string-match-p magit-topgit-branch-prefix branch)
     (magit-run-topgit-async "create" branch parent)))
