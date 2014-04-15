@@ -7297,58 +7297,6 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
      (kill-new value)
      (message "%s" value))))
 
-(defun magit-gitignore (edit &optional local)
-  "Instruct Git to ignore the file at point.
-With a prefix argument edit the ignore string."
-  (interactive "P")
-  (magit-section-action ignore (value)
-    ([file untracked]
-     (magit-gitignore-file (concat "/" value) edit local)
-     (magit-refresh))
-    (diff
-     (when (yes-or-no-p (format "%s is tracked.  Untrack and ignore? " value))
-       (magit-gitignore-file (concat "/" value) edit local)
-       (magit-run-git "rm" "--cached" value)))))
-
-(defun magit-gitignore-locally (edit)
-  "Instruct Git to ignore the file at point, locally only.
-With a prefix argument edit the ignore string."
-  (interactive)
-  (magit-gitignore edit t))
-
-(defun magit-gitignore-file (file &optional edit local)
-  "Add FILE to the list of files to ignore.
-If EDIT is non-nil, prompt the user for the string to be ignored
-instead of using FILE.  The changes are written to \".gitignore\"
-or if LOCAL is non-nil to \".git/info/exclude\"."
-  (let* ((local-ignore-dir (magit-git-dir "info/"))
-         (ignore-file (if local
-                          (concat local-ignore-dir "exclude")
-                        ".gitignore")))
-    (when edit
-      (setq file (magit-ignore-edit-string file)))
-    (when (and local (not (file-exists-p local-ignore-dir)))
-      (make-directory local-ignore-dir t))
-    (with-temp-buffer
-      (when (file-exists-p ignore-file)
-        (insert-file-contents ignore-file))
-      (goto-char (point-max))
-      (unless (bolp)
-        (insert "\n"))
-      (insert file "\n")
-      (write-region nil nil ignore-file))))
-
-(defun magit-ignore-edit-string (file)
-  "Prompt the user for the string to be ignored.
-A list of predefined values with wildcards is derived from the
-filename FILE."
-  (let* ((extension (concat "*." (file-name-extension file)))
-         (extension-in-dir (concat (file-name-directory file) extension))
-         (filename (file-name-nondirectory file))
-         (completions (list extension extension-in-dir filename file)))
-    (magit-completing-read "File/pattern to ignore"
-                           completions nil nil nil nil file)))
-
 ;;;; Read Repository
 
 (defun magit-read-top-dir (dir)

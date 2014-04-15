@@ -148,6 +148,56 @@ a prefix argument run gitk without any arguments."
   (apply #'call-process magit-gitk-executable nil 0 nil
          (if arg nil (list "--all"))))
 
+;;; Gitignore
+
+(defun magit-gitignore (file-or-pattern &optional local)
+  "Instruct Git to ignore FILE-OR-PATTERN.
+With a prefix argument only ignore locally."
+  (interactive (magit-gitignore-read-args current-prefix-arg))
+  (let ((gitignore
+         (if local
+             (magit-git-dir (convert-standard-filename "info/exclude"))
+           (expand-file-name ".gitignore" (magit-get-top-dir)))))
+    (make-directory (file-name-directory gitignore) t)
+    (with-temp-buffer
+      (when (file-exists-p gitignore)
+        (insert-file-contents gitignore))
+      (goto-char (point-max))
+      (unless (bolp)
+        (insert "\n"))
+      (insert file-or-pattern "\n")
+      (write-region nil nil gitignore))
+    (if local
+        (magit-refresh)
+      (magit-run-git "add" ".gitignore"))))
+
+(defun magit-gitignore-locally (file-or-pattern &optional local)
+  "Instruct Git to locally ignore FILE-OR-PATTERN.
+\n(fn FILE-OR-PATTERN)"
+  (interactive (magit-gitignore-read-args t))
+  (magit-gitignore file-or-pattern t))
+
+(defun magit-gitignore-read-args (local)
+  (let* ((default (magit-file-at-point))
+         (choices
+          (delete-dups
+           (--mapcat
+            (cons (concat "/" it)
+                  (-when-let (ext (file-name-extension it))
+                    (list (concat "/" (file-name-directory "foo") "*." ext)
+                          (concat "*." ext))))
+            (magit-git-lines "ls-files" "--exclude-standard" "--other")))))
+    (when default
+      (setq default (concat "/" default))
+      (unless (member default choices)
+        (setq default (concat "*." (file-name-extension default)))
+        (unless (member default choices)
+          (setq default nil))))
+    (list (magit-completing-read
+           (concat "File or pattern to ignore" (and local " locally"))
+           choices nil nil nil nil default)
+          local)))
+
 ;;; ChangeLog
 
 ;;;###autoload
