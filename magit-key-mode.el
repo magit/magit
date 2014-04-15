@@ -113,6 +113,7 @@
       ("rh" "Reflog" magit-reflog))
      (switches
       ("-m" "Only merge commits" "--merges")
+      ("-s" "No merge commits" "--no-merges")
       ("-do" "Date Order" "--date-order")
       ("-f" "First parent" "--first-parent")
       ("-i" "Case insensitive patterns" "-i")
