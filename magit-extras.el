@@ -148,6 +148,7 @@ a prefix argument run gitk without any arguments."
   (apply #'call-process magit-gitk-executable nil 0 nil
          (if arg nil (list "--all"))))
 
+;;; magit-extras.el ends soon
 (provide 'magit-extras)
 ;; Local Variables:
 ;; indent-tabs-mode: nil

@@ -326,6 +326,7 @@ and `git svn rebase' on each of them."
   "Unconditionally turn on `magit-svn-mode'."
   (magit-svn-mode 1))
 
+;;; magit-svn.el ends soon
 (provide 'magit-svn)
 ;; Local Variables:
 ;; indent-tabs-mode: nil

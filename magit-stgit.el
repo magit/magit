@@ -300,6 +300,7 @@ into the series."
                            'keymap 'magit-stgit-patch-map)
         (forward-line)))))
 
+;;; magit-stgit.el ends soon
 (provide 'magit-stgit)
 ;; Local Variables:
 ;; indent-tabs-mode: nil

@@ -249,6 +249,7 @@
                  ,@(and (equal (aref flags 1) ?0) (list 'magit-topgit-empty)))))
         (forward-line)))))
 
+;;; magit-topgit.el ends soon
 (provide 'magit-topgit)
 ;; Local Variables:
 ;; indent-tabs-mode: nil

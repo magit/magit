@@ -299,6 +299,7 @@ officially supported at the moment."
                        blank nl))
           (overlay-put ov 'before-string blame))))))
 
+;;; magit-blame.el ends soon
 (provide 'magit-blame)
 ;; Local Variables:
 ;; indent-tabs-mode: nil
