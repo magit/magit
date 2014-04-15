@@ -7297,6 +7297,17 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
      (kill-new value)
      (message "%s" value))))
 
+(defun magit-describe-section ()
+  "Show information about the section at point.
+This command is intended for debugging purposes."
+  (interactive)
+  (let ((section (magit-current-section)))
+    (message "%S %S %s-%s"
+             (magit-section-ident section)
+             (magit-section-value section)
+             (marker-position (magit-section-start section))
+             (marker-position (magit-section-end section)))))
+
 ;;;; Read Repository
 
 (defun magit-read-top-dir (dir)
@@ -7437,19 +7448,6 @@ to the current branch and `magit-wip-ref-format'."
                       "-m" (format-spec magit-wip-commit-message spec)))
       (when magit-wip-save-message
         (message (format-spec magit-wip-save-message spec))))))
-
-;;;; Maintenance Tools
-
-(defun magit-describe-section ()
-  "Show information about the section at point.
-This command is intended for debugging purposes."
-  (interactive)
-  (let ((section (magit-current-section)))
-    (message "%S %S %s-%s"
-             (magit-section-ident section)
-             (magit-section-value section)
-             (marker-position (magit-section-start section))
-             (marker-position (magit-section-end section)))))
 
 ;;; magit.el ends soon
 
