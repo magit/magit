@@ -148,6 +148,37 @@ a prefix argument run gitk without any arguments."
   (apply #'call-process magit-gitk-executable nil 0 nil
          (if arg nil (list "--all"))))
 
+;;; ChangeLog
+
+;;;###autoload
+(defun magit-add-change-log-entry (&optional whoami file-name other-window)
+  "Find change log file and add date entry and item for current change.
+This differs from `add-change-log-entry' (which see) in that
+it acts on the current hunk in a Magit buffer instead of on
+a position in a file-visiting buffer."
+  (interactive (list current-prefix-arg
+                     (prompt-for-change-log-name)))
+  (let (buf pos)
+    (save-window-excursion
+      (magit-visit)
+      (setq buf (current-buffer)
+            pos (point)))
+    (save-excursion
+      (with-current-buffer buf
+        (goto-char pos)
+        (add-change-log-entry whoami file-name other-window)))))
+
+;;;###autoload
+(defun magit-add-change-log-entry-other-window (&optional whoami file-name)
+  "Find change log file in other window and add entry and item.
+This differs from `add-change-log-entry-other-window' (which see)
+in that it acts on the current hunk in a Magit buffer instead of
+on a position in a file-visiting buffer."
+  (interactive (and current-prefix-arg
+                    (list current-prefix-arg
+                          (prompt-for-change-log-name))))
+  (magit-add-change-log-entry whoami file-name t))
+
 ;;; magit-extras.el ends soon
 (provide 'magit-extras)
 ;; Local Variables:
