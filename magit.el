@@ -6584,7 +6584,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   (magit-log-margin-set-timeunit-width)
   (magit-insert-section (reflogbuf)
     (magit-insert-heading "Local history of branch " ref)
-    (magit-git-wash (apply-partially 'magit-wash-log 'reflog t)
+    (magit-git-wash (apply-partially 'magit-wash-log 'reflog)
       "reflog" "show" "--format=format:%h [%an] %ct %gd %gs"
       (format "--max-count=%d" magit-log-cutoff-length) ref)))
 
