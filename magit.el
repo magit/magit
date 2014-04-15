@@ -3835,9 +3835,9 @@ results in additional differences."
         (user-error "Need non-empty input")
       reply)))
 
-(defun magit-read-remote (prompt &optional default require-match)
+(defun magit-read-remote (prompt &optional default)
   (magit-completing-read prompt (magit-git-lines "remote")
-                         nil require-match nil nil
+                         nil t nil nil
                          (or default
                              (magit-remote-at-point)
                              (magit-get-current-remote))))
