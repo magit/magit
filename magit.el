@@ -6131,7 +6131,10 @@ to test.  This command lets Git choose a different one."
             (magit-read-rev (format "Show %s log for ref/rev/range"
                                     (if patch "verbose" "oneline"))
                             default))
-          magit-current-popup-args)))
+          (if (--any? (string-match-p "^\\(-G\\|--grep=\\)" it)
+                      magit-current-popup-args)
+              (delete "--graph" magit-current-popup-args)
+            magit-current-popup-args))))
 
 ;;;###autoload
 (defun magit-file-log (file &optional use-graph)
