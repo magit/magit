@@ -3269,9 +3269,8 @@ tracked in the current repository."
   "Refresh all buffers belonging to the current repository.
 
 Refresh all Magit buffers belonging to the current repository.
-If the global `magit-auto-revert-mode' is turned on, then also
-revert all unmodified buffers that visit files being tracked in
-the current repository."
+Also always revert all unmodified buffers that visit files being
+tracked in the current repository."
   (interactive)
   (magit-map-magit-buffers #'magit-mode-refresh-buffer default-directory)
   (magit-revert-buffers))
