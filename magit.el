@@ -7296,7 +7296,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   "Copy the thing at point into the kill ring."
   (interactive)
   (magit-section-action copy (value)
-    ((branch commit mcommit file diff)
+    ((branch commit mcommit file diff diffstat)
      (kill-new value)
      (message "%s" value))))
 
