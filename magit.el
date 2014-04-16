@@ -2934,7 +2934,7 @@ of the Windows \"Powershell\"."
   (if magit-process-quote-curly-braces
       (mapcar (apply-partially 'replace-regexp-in-string
                                "{\\([0-9]+\\)}" "\\\\{\\1\\\\}")
-              args)
+              (magit-flatten-onelevel args))
     args))
 
 (defvar magit-server-visit-args nil)
