@@ -3286,7 +3286,8 @@ tracked in the current repository."
                  (not (string-prefix-p gitdir file))
                  (member (file-relative-name file topdir) tracked)
                  (let ((auto-revert-mode t))
-                   (auto-revert-handler)))))))))
+                   (auto-revert-handler)
+                   (run-hooks 'magit-revert-buffer-hook)))))))))
 
 (defun magit-maybe-save-repository-buffers ()
   (when magit-save-repository-buffers
