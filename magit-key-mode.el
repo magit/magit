@@ -338,7 +338,7 @@ same name."
   (when (assoc group magit-key-mode-groups)
     (magit-key-mode-delete-group group))
   (setq magit-key-mode-groups
-        (cons (list group (list 'actions) (list 'switches))
+        (cons (list group (list 'actions) (list 'switches) (list 'arguments))
               magit-key-mode-groups)))
 
 (defun magit-key-mode-key-defined-p (for-group key)
