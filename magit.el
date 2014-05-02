@@ -4319,48 +4319,58 @@ can be used to override this."
 
 ;;;;;; Stage
 
-(defun magit-stage (&optional file)
-  "Add the thing at point to the staging area.
-With a prefix argument, prompt for a file to be staged instead."
+(defun magit-stage ()
+  "Add the change at point to the staging area."
+  (interactive)
+  (magit-section-action stage (value)
+    ([file untracked]
+     (magit-run-git
+      (cond
+       ((use-region-p)
+        (cons "add" (magit-section-region-siblings #'magit-section-value)))
+       ((magit-git-repo-p value t)
+        (let ((repo (read-string
+                     "Add submodule tracking remote repo (empty to abort): "
+                     (let ((default-directory
+                             (file-name-as-directory
+                              (expand-file-name value default-directory))))
+                       (magit-get "remote.origin.url")))))
+          (if (equal repo "")
+              (user-error "Abort")
+            (list "submodule" "add" repo (substring value 0 -1)))))
+       (t
+        (list "add" value)))))
+    (untracked
+     (magit-run-git "add" "--" (magit-untracked-files)))
+    ([hunk diff unstaged]
+     (magit-apply-hunk it "--cached"))
+    ([diff unstaged]
+     (magit-run-git "add" "-u"
+                    (if (use-region-p)
+                        (magit-section-region-siblings #'magit-section-value)
+                      value)))
+    (unstaged   (magit-stage-all))
+    ([* staged] (user-error "Already staged"))
+    (hunk       (user-error "Cannot stage this hunk"))
+    (diff       (user-error "Cannot stage this diff"))))
+
+;;;###autoload
+(defun magit-stage-file (file)
+  "Stage all changes to FILE.
+With a prefix argument or when there is no file at point ask for
+the file to be staged.  Otherwise stage the file at point without
+requiring confirmation."
   (interactive
-   (when current-prefix-arg
-     (list (file-relative-name (read-file-name "File to stage: " nil nil t)
-                               (magit-get-top-dir)))))
-  (if file
-      (magit-run-git "add" file)
-    (magit-section-action stage (value)
-      ([file untracked]
-       (magit-run-git
-        (cond
-         ((use-region-p)
-          (cons "add" (magit-section-region-siblings #'magit-section-value)))
-         ((magit-git-repo-p value t)
-          (let ((repo (read-string
-                       "Add submodule tracking remote repo (empty to abort): "
-                       (let ((default-directory
-                               (file-name-as-directory
-                                (expand-file-name value default-directory))))
-                         (magit-get "remote.origin.url")))))
-            (if (equal repo "")
-                (user-error "Abort")
-              (list "submodule" "add" repo (substring value 0 -1)))))
-         (t
-          (list "add" value)))))
-      (untracked
-       (magit-run-git "add" "--" (magit-untracked-files)))
-      ([hunk diff unstaged]
-       (magit-apply-hunk it "--cached"))
-      ([diff unstaged]
-       (magit-run-git "add" "-u"
-                      (if (use-region-p)
-                          (magit-section-region-siblings #'magit-section-value)
-                        value)))
-      (unstaged
-       (magit-stage-all))
-      ([* staged]
-       (user-error "Already staged"))
-      (hunk (user-error "Can't stage this hunk"))
-      (diff (user-error "Can't stage this diff")))))
+   (let* ((atpoint (magit-section-when (file diff)))
+          (current (magit-buffer-file-name t))
+          (choices (nconc (magit-modified-files)
+                          (magit-untracked-files)))
+          (default (car (member (or atpoint current) choices))))
+     (list (if (or current-prefix-arg (not default))
+               (magit-completing-read "Stage file" choices
+                                      nil t nil nil default)
+             default))))
+  (magit-run-git "add" file))
 
 ;;;###autoload
 (defun magit-stage-all (&optional include-untracked)
@@ -4376,7 +4386,7 @@ With a prefix argument, add remaining untracked files as well.
 ;;;;;; Unstage
 
 (defun magit-unstage ()
-  "Remove the thing at point from the staging area."
+  "Remove the change at point from the staging area."
   (interactive)
   (magit-section-action unstage (value)
     ([hunk diff staged]
@@ -4393,6 +4403,23 @@ With a prefix argument, add remaining untracked files as well.
      (user-error "Already unstaged"))
     (hunk (user-error "Can't unstage this hunk"))
     (diff (user-error "Can't unstage this diff"))))
+
+;;;###autoload
+(defun magit-unstage-file (file)
+  "Unstage all changes to FILE.
+With a prefix argument or when there is no file at point ask for
+the file to be unstaged.  Otherwise unstage the file at point
+without requiring confirmation."
+  (interactive
+   (let* ((atpoint (magit-section-when (file diff)))
+          (current (magit-buffer-file-name t))
+          (choices (magit-staged-files))
+          (default (car (member (or atpoint current) choices))))
+     (list (if (or current-prefix-arg (not default))
+               (magit-completing-read "Unstage file" choices
+                                      nil t nil nil default)
+             default))))
+  (magit-unstage-1 file))
 
 (defun magit-unstage-1 (args)
   (if (magit-no-commit-p)
