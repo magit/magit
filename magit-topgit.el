@@ -121,7 +121,7 @@
    nil t))
 
 (defun magit-topgit-topic-args (prompt)
-  (list (or (magit-section-case (value) (topgit-topic value))
+  (list (or (magit-section-when topgit-topic)
             (magit-topgit-read-topic prompt))))
 
 (defun magit-topgit-in-topic-p ()

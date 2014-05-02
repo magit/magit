@@ -146,7 +146,7 @@
                          nil 'magit-read-rev-history))
 
 (defun magit-stgit-read-args (prompt)
-  (list (or (magit-section-case (value) (stgit-patch value))
+  (list (or (magit-section-when stgit-patch)
             (magit-stgit-read-patch prompt t))))
 
 ;;; Commands

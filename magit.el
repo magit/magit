@@ -2275,6 +2275,17 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
                                   (append condition nil))
                                 (mapcar 'car (magit-section-ident section))))))
 
+(defmacro magit-section-when (condition &rest body)
+  "If the section at point matches CONDITION evaluate BODY.
+If the section matches evaluate BODY forms sequentially and
+return the value of last one, or if there are no BODY forms
+return the value of the section.  If the section does not
+match return nil."
+  (declare (indent 1))
+  `(let ((it (magit-current-section)))
+     (when (and it (magit-section-match ',condition it))
+       ,@(or body '((magit-section-value it))))))
+
 (defmacro magit-section-case (slots &rest clauses)
   (declare (indent 1))
   `(let* ((it (magit-current-section))
@@ -2315,10 +2326,10 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
          ,value))))
 
 (defun magit-branch-at-point ()
-  (magit-section-case (value) (branch value)))
+  (magit-section-when branch))
 
 (defun magit-commit-at-point ()
-  (magit-section-case (value) (commit value)))
+  (magit-section-when commit))
 
 (defun magit-branch-or-commit-at-point ()
   (magit-section-case (value)
@@ -2349,11 +2360,12 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
 (defun magit-process-kill ()
   "Kill the process at point."
   (interactive)
-  (magit-section-case (value)
-    (process (if (eq (process-status value) 'run)
-                 (when (yes-or-no-p "Kill this process? ")
-                   (kill-process value))
-               (user-error "Process isn't running")))))
+  (magit-section-when process
+    (let ((process (magit-section-value it)))
+      (if (eq (process-status process) 'run)
+	  (when (yes-or-no-p "Kill this process? ")
+	    (kill-process process))
+	(user-error "Process isn't running")))))
 
 (defvar magit-git-command-history nil)
 
@@ -7380,6 +7392,7 @@ to the current branch and `magit-wip-ref-format'."
                                   "magit-insert-header"
                                   "magit-section-action"
                                   "magit-section-case"
+                                  "magit-section-when"
                                   "magit-bind-match-strings"
                                   "magit-with-blob") t)
                 "\\_>")
