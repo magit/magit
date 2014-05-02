@@ -1318,7 +1318,9 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "\d"       'magit-show-or-scroll-down)
     (define-key map "a" 'magit-apply)
     (define-key map "A" 'magit-cherry-pick)
+    (define-key map "s" 'magit-stage-file)
     (define-key map "S" 'magit-stage-all)
+    (define-key map "u" 'magit-unstage-file)
     (define-key map "U" 'magit-unstage-all)
     (define-key map "v" 'magit-revert)
     (define-key map "x" 'magit-reset-head)
@@ -1337,8 +1339,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
     (define-key map "k" 'magit-discard)
-    (define-key map "s" 'magit-stage)
-    (define-key map "u" 'magit-unstage)
     (define-key map "jz" 'magit-jump-to-stashes)
     (define-key map "jn" 'magit-jump-to-untracked)
     (define-key map "ju" 'magit-jump-to-unstaged)
@@ -1426,11 +1426,15 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 (defvar magit-hunk-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map "C"  'magit-commit-add-log)
+    (define-key map "s"  'magit-stage)
+    (define-key map "u"  'magit-unstage)
     map)
   "Keymap for `hunk' sections.")
 
 (defvar magit-file-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map "s"  'magit-stage)
+    (define-key map "u"  'magit-unstage)
     map)
   "Keymap for `file' sections.")
 
@@ -1461,16 +1465,22 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defvar magit-staged-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map "s"  'magit-stage)
+    (define-key map "u"  'magit-unstage)
     map)
   "Keymap for the `staged' section.")
 
 (defvar magit-unstaged-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map "s"  'magit-stage)
+    (define-key map "u"  'magit-unstage)
     map)
   "Keymap for the `unstaged' section.")
 
 (defvar magit-untracked-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map "s"  'magit-stage)
+    (define-key map "u"  'magit-unstage)
     map)
   "Keymap for the `untracked' section.")
 
@@ -4450,10 +4460,10 @@ With a prefix argument, add remaining untracked files as well.
                         value)))
     (staged
      (magit-unstage-all))
-    ([* unstaged]
-     (user-error "Already unstaged"))
-    (hunk (user-error "Can't unstage this hunk"))
-    (file (user-error "Can't unstage this file"))))
+    ([* untracked] (user-error "Not tracked"))
+    ([* unstaged]  (user-error "Already unstaged"))
+    (hunk          (user-error "Cannot unstage this hunk"))
+    (file          (user-error "Cannot unstage this file"))))
 
 ;;;###autoload
 (defun magit-unstage-file (file)
