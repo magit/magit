@@ -3847,10 +3847,16 @@ Type \\[magit-revert] to revert the change at point in the worktree.
 
 ;;;###autoload
 (defun magit-show-commit (commit &optional noselect module)
-  "Show information about COMMIT."
-  (interactive (list (magit-read-rev "Show commit"
-                                     (or (magit-branch-or-commit-at-point)
-                                         (magit-get-current-branch) "HEAD"))))
+  "Show the commit at point.
+If there is no commit at point or with a prefix argument prompt
+for a commit."
+  (interactive
+   (let* ((mcommit (magit-section-when mcommit))
+          (atpoint (or mcommit (magit-branch-or-commit-at-point))))
+     (list (or (and (not current-prefix-arg) atpoint)
+               (magit-read-rev "Show commit" atpoint))
+           nil (and mcommit (magit-section-parent-value
+			     (magit-current-section))))))
   (let ((default-directory (if module
                                (file-name-as-directory
                                 (expand-file-name module (magit-get-top-dir)))
