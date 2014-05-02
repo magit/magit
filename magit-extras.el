@@ -36,47 +36,42 @@
 ;;; Commit Mark
 
 ;; Add this to your init.el file:
-;;   (define-key magit-mode-map "." 'magit-mark-item)
+;;   (define-key magit-mode-map "." 'magit-mark-commit)
 ;;   (define-key magit-mode-map "=" 'magit-diff-with-mark)
 ;;   (add-hook 'magit-mode-refresh-buffer-hook
-;;             'magit-refresh-marked-commits-in-buffer))
+;;             'magit-refresh-marked-commit)
 
-(defface magit-item-mark '((t :inherit highlight))
-  "Face for highlighting marked item."
+(defface magit-marked-commit '((t :inherit highlight))
+  "Face for marked commit."
   :group 'magit-extras)
 
 (defvar magit-marked-commit nil)
 
-(defvar-local magit-mark-overlay nil)
-(put 'magit-mark-overlay 'permanent-local t)
+(defvar-local magit-marked-commit-overlay nil)
+(put 'magit-marked-commit-overlay 'permanent-local t)
 
-(defun magit-mark-item (&optional unmark)
-  "Mark the commit at point.
-Some commands act on the marked commit by default or use it as
-default when prompting for a commit."
+(defun magit-mark-commit (&optional unmark)
+  "Mark the commit at point."
   (interactive "P")
   (if unmark
       (setq magit-marked-commit nil)
-    (magit-section-action mark (value)
+    (magit-section-case (value)
       (commit (setq magit-marked-commit
                     (if (equal magit-marked-commit value) nil value)))))
-  (magit-refresh-marked-commits)
+  (magit-map-magit-buffers #'magit-refresh-marked-commit)
   (run-hooks 'magit-mark-commit-hook))
 
-(defun magit-refresh-marked-commits ()
-  (magit-map-magit-buffers #'magit-refresh-marked-commits-in-buffer))
-
-(defun magit-refresh-marked-commits-in-buffer ()
-  (unless magit-mark-overlay
-    (setq magit-mark-overlay (make-overlay 1 1))
-    (overlay-put magit-mark-overlay 'face 'magit-item-mark))
-  (delete-overlay magit-mark-overlay)
+(defun magit-refresh-marked-commit ()
+  (unless magit-marked-commit-overlay
+    (setq magit-marked-commit-overlay (make-overlay 1 1))
+    (overlay-put magit-marked-commit-overlay 'face 'magit-marked-commit))
+  (delete-overlay magit-marked-commit-overlay)
   (magit-map-sections
    (lambda (section)
      (when (and (eq (magit-section-type section) 'commit)
                 (equal (magit-section-value section)
                        magit-marked-commit))
-       (move-overlay magit-mark-overlay
+       (move-overlay magit-marked-commit-overlay
                      (magit-section-start section)
                      (magit-section-end section)
                      (current-buffer))))
