@@ -2393,32 +2393,6 @@ match return nil."
                          ,@(cdr clause)))
                      clauses))))
 
-(defconst magit-section-action-success
-  (make-symbol "magit-section-action-success"))
-
-(defmacro magit-section-action (opname slots &rest clauses)
-  (declare (indent 2) (debug (sexp &rest (sexp body))))
-  (let ((value (cl-gensym "value")))
-    `(let ((,value
-            (or (run-hook-wrapped
-                 ',(intern (format "magit-%s-hook" opname))
-                 (lambda (fn section)
-                   (when (magit-section-match
-                          (or (get fn 'magit-section-action-context)
-                              (error "%s undefined for %s"
-                                     'magit-section-action-context fn))
-                          section)
-                     (funcall fn (magit-section-value section))))
-                 (magit-current-section))
-                (magit-section-case ,slots
-                  ,@clauses
-                  (t (user-error
-                      (if (magit-current-section)
-                          ,(format "Cannot %s this section" opname)
-                        ,(format "Nothing to %s here" opname))))))))
-       (unless (eq ,value magit-section-action-success)
-         ,value))))
-
 (defun magit-branch-at-point ()
   (magit-section-when branch))
 
@@ -7579,7 +7553,6 @@ to the current branch and `magit-wip-ref-format'."
        (2 font-lock-function-name-face nil t))
       (,(concat "(" (regexp-opt '("magit-insert-section"
                                   "magit-insert-header"
-                                  "magit-section-action"
                                   "magit-section-case"
                                   "magit-section-when"
                                   "magit-bind-match-strings"
