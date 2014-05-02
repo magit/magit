@@ -4501,6 +4501,7 @@ member of ARGS, or to the working file otherwise."
         (kill-buffer buf)))))
 
 (defun magit-insert-diff-patch (diff buf)
+  (magit-insert-diff-header diff buf)
   (magit-insert-region (magit-section-content diff)
                        (magit-section-end diff)
                        buf))
