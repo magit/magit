@@ -1414,9 +1414,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 (defvar magit-branch-manager-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
-    (define-key map "c" 'magit-branch-and-checkout)
-    (define-key map "a" 'magit-remote-add)
-    (define-key map "r" 'magit-rename)
     (define-key map "k" 'magit-discard)
     map)
   "Keymap for `magit-branch-manager-mode'.")
