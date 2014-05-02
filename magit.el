@@ -4404,22 +4404,19 @@ can be used to override this."
   (interactive)
   (magit-section-action stage (value)
     ([file untracked]
-     (magit-run-git
-      (cond
-       ((use-region-p)
-        (cons "add" (magit-section-region-siblings #'magit-section-value)))
-       ((magit-git-repo-p value t)
-        (let ((repo (read-string
-                     "Add submodule tracking remote repo (empty to abort): "
-                     (let ((default-directory
-                             (file-name-as-directory
-                              (expand-file-name value default-directory))))
-                       (magit-get "remote.origin.url")))))
-          (if (equal repo "")
-              (user-error "Abort")
-            (list "submodule" "add" repo (substring value 0 -1)))))
-       (t
-        (list "add" value)))))
+     (let (files repos)
+       (dolist (elt (if (use-region-p)
+                        (magit-section-region-siblings)
+                      (list it)))
+         (if (magit-git-repo-p value t)
+             (push elt repos)
+           (push (magit-section-value elt) files)))
+       (when files
+         (magit-run-git "add" "--" files))
+       (dolist (repo repos)
+         (save-excursion
+           (goto-char (magit-section-start repo))
+           (call-interactively 'magit-submodule-add)))))
     (untracked
      (magit-run-git "add" "--" (magit-untracked-files)))
     ([hunk file unstaged]
