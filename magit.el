@@ -3360,6 +3360,17 @@ be an existing directory."
   "Return t if the current repository is bare."
   (magit-rev-parse-p "--is-bare-repository"))
 
+(defun magit-git-repo-p (directory &optional non-bare)
+  "Return t if DIRECTORY is a Git repository.
+When optional NON-BARE is non-nil also return nil if DIRECTORY is
+a bare repositories."
+  (or (file-regular-p (expand-file-name ".git" directory))
+      (file-directory-p (expand-file-name ".git" directory))
+      (and (not non-bare)
+           (file-regular-p (expand-file-name "HEAD" directory))
+           (file-directory-p (expand-file-name "refs" directory))
+           (file-directory-p (expand-file-name "objects" directory)))))
+
 (defun magit-file-relative-name (file)
   "Return the path of FILE relative to the repository root.
 If FILE isn't inside a Git repository then return nil."
@@ -4323,8 +4334,7 @@ With a prefix argument, prompt for a file to be staged instead."
         (cond
          ((use-region-p)
           (cons "add" (magit-section-region-siblings #'magit-section-value)))
-         ((and (string-match-p "/$" value)
-               (file-exists-p (expand-file-name ".git" value)))
+         ((magit-git-repo-p value t)
           (let ((repo (read-string
                        "Add submodule tracking remote repo (empty to abort): "
                        (let ((default-directory
