@@ -290,6 +290,10 @@ it and type @kbd{u}.  If point is in a diff header when you type
 @kbd{s} or @kbd{u}, all hunks belonging to that diff are moved at the
 same time.
 
+Currently it is only possible to stage from the status buffer.
+Staging and unstaging from diff buffers that show unstaged and staged
+changes is not possible yet.
+
 If the region is active when you type @kbd{s} or @kbd{u}, only the
 changes in the region are staged or unstaged.  (This works line by
 line: if the beginning of a line is in the region it is included in
