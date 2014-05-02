@@ -3491,15 +3491,6 @@ otherwise try to shorten it to a name (which may fail)."
                    (substring match 13))
                   (t match))))))))
 
-(defun magit-get-remote (branch)
-  "Return the name of the remote for BRANCH.
-If branch is nil or it has no remote, but a remote named
-\"origin\" exists, return that.  Otherwise, return nil."
-  (let ((remote (or (and branch (magit-get "branch" branch "remote"))
-                    (and (magit-get "remote" "origin" "url") "origin"))))
-    (unless (string= remote "")
-      remote)))
-
 (defun magit-get-current-remote ()
   "Return the name of the remote for the current branch.
 If there is no current branch, or no remote for that branch,
@@ -5364,7 +5355,7 @@ a merge branch.  Values entered by the user because of prefix
 arguments are not saved."
   (interactive)
   (let* ((branch (magit-get-current-branch))
-         (branch-remote (magit-get-remote branch))
+         (branch-remote (magit-get-current-remote))
          (branch-merge (magit-get "branch" branch "merge"))
          (branch-merge-name (and branch-merge
                                  (save-match-data
@@ -5453,7 +5444,7 @@ Also see option `magit-set-upstream-on-push'."
   (interactive "P")
   (let* ((branch (or (magit-get-current-branch)
                      (user-error "Don't push a detached head.  That's gross")))
-         (auto-remote (magit-get-remote branch))
+         (auto-remote (magit-get-current-remote))
          (used-remote (if (or arg (not auto-remote))
                           (magit-read-remote
                            (format "Push %s to remote" branch) auto-remote)
