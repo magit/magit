@@ -3373,6 +3373,12 @@ If FILE isn't inside a Git repository then return nil."
 (defun magit-untracked-files ()
   (magit-git-lines "ls-files" "--full-name" "--other" "--exclude-standard"))
 
+(defun magit-modified-files ()
+  (magit-git-lines "diff-files" "--name-only"))
+
+(defun magit-staged-files ()
+  (magit-git-lines "diff-index" "--name-only" (magit-headish)))
+
 (defun magit-expand-git-file-name (filename)
   (when (tramp-tramp-file-p default-directory)
     (setq filename (file-relative-name filename
@@ -3448,6 +3454,12 @@ string \"true\", otherwise return nil."
   ;; to exits with a non-zero status.  But there is nothing on
   ;; stdout in that case.
   (and (magit-rev-parse "--abbrev-ref" name) t))
+
+(defun magit-headish ()
+  "Return \"HEAD\" or if that doesn't exist the hash of the empty tree."
+  (if (magit-no-commit-p)
+      (magit-git-string "mktree")
+    "HEAD"))
 
 (defun magit-get-current-branch ()
   "Return the refname of the currently checked out branch.
