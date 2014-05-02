@@ -7017,7 +7017,7 @@ actually were a single commit."
            (when (looking-at magit-diff-statline-re)
              (magit-bind-match-strings (file sep cnt add del) nil
                (delete-region (point) (1+ (line-end-position)))
-               (magit-insert-section (file)
+               (magit-insert-section (file file)
                  (insert " " file sep cnt " ")
                  (when add (insert (propertize add 'face 'magit-diff-added)))
                  (when del (insert (propertize del 'face 'magit-diff-removed)))
