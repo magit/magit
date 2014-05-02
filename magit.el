@@ -490,9 +490,6 @@ when generating large diffs."
   :set-after '(magit-section-highlight-face)
   :type 'boolean)
 
-(define-obsolete-variable-alias 'magit-diff-use-overlays
-  'magit-use-overlays "2.1.0")
-
 ;;;;; Completion
 
 (defcustom magit-completing-read-function 'magit-builtin-completing-read
@@ -7512,6 +7509,9 @@ Use the function by the same name instead of this variable.")
     magit-version))
 
 (cl-eval-when (load eval) (magit-version t))
+
+(define-obsolete-variable-alias 'magit-diff-use-overlays
+  'magit-use-overlays "2.1.0")
 
 (provide 'magit)
 
