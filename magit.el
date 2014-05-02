@@ -1424,6 +1424,66 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     map)
   "Keymap for `magit-process-mode'.")
 
+(defvar magit-hunk-section-map
+  (let ((map (make-sparse-keymap)))
+    map)
+  "Keymap for `hunk' sections.")
+
+(defvar magit-file-section-map
+  (let ((map (make-sparse-keymap)))
+    map)
+  "Keymap for `file' sections.")
+
+(defvar magit-commit-section-map
+  (let ((map (make-sparse-keymap)))
+    map)
+  "Keymap for `commit' sections.")
+
+(defvar magit-mcommit-section-map
+  (let ((map (make-sparse-keymap)))
+    map)
+  "Keymap for `mcommit' (module commit) sections.")
+
+(defvar magit-stash-section-map
+  (let ((map (make-sparse-keymap)))
+    map)
+  "Keymap for `stash' sections.")
+
+(defvar magit-branch-section-map
+  (let ((map (make-sparse-keymap)))
+    map)
+  "Keymap for `branch' sections.")
+
+(defvar magit-remote-section-map
+  (let ((map (make-sparse-keymap)))
+    map)
+  "Keymap for `remote' sections.")
+
+(defvar magit-staged-section-map
+  (let ((map (make-sparse-keymap)))
+    map)
+  "Keymap for the `staged' section.")
+
+(defvar magit-unstaged-section-map
+  (let ((map (make-sparse-keymap)))
+    map)
+  "Keymap for the `unstaged' section.")
+
+(defvar magit-untracked-section-map
+  (let ((map (make-sparse-keymap)))
+    map)
+  "Keymap for the `untracked' section.")
+
+(defvar magit-unpushed-section-map
+  (let ((map (make-sparse-keymap)))
+    map)
+  "Keymap for the `unpushed' section.")
+
+(defvar magit-unpulled-section-map
+  (let ((map (make-sparse-keymap)))
+    map)
+  "Keymap for the `unpulled' section.")
+
 (easy-menu-define magit-mode-menu magit-mode-map
   "Magit menu"
   '("Magit"
@@ -1691,7 +1751,10 @@ never modify it.")
            ,@(cdr args)
            (magit-insert-child-count ,s)
            (set-marker-insertion-type (magit-section-start ,s) t)
-           (let ((end (setf (magit-section-end ,s) (point-marker))))
+           (let* ((end (setf (magit-section-end ,s) (point-marker)))
+                  (map (intern (format "magit-%s-section-map"
+                                       (magit-section-type ,s))))
+                  (map (and (boundp map) (symbol-value map))))
              (save-excursion
                (goto-char (magit-section-start ,s))
                (while (< (point) end)
@@ -1699,7 +1762,9 @@ never modify it.")
                                   (point) 'magit-section)
                                  end)))
                    (unless (get-text-property (point) 'magit-section)
-                     (put-text-property (point) next 'magit-section ,s))
+                     (put-text-property (point) next 'magit-section ,s)
+                     (when map
+                       (put-text-property (point) next 'keymap map)))
                    (goto-char next)))))
            (if (eq ,s magit-root-section)
                (magit-section-set-hidden ,s nil)
