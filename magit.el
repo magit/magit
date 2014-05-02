@@ -1319,7 +1319,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "S" 'magit-stage-all)
     (define-key map "u" 'magit-unstage-file)
     (define-key map "U" 'magit-unstage-all)
-    (define-key map "v" 'magit-revert)
     (define-key map "x" 'magit-reset-head)
     (define-key map "X" 'magit-clean)
     (define-key map "y" 'magit-cherry)
@@ -1427,6 +1426,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "C"  'magit-commit-add-log)
     (define-key map "s"  'magit-stage)
     (define-key map "u"  'magit-unstage)
+    (define-key map "v"  'magit-revert)
     map)
   "Keymap for `hunk' sections.")
 
@@ -1436,6 +1436,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "a"  'magit-apply-diff)
     (define-key map "s"  'magit-stage)
     (define-key map "u"  'magit-unstage)
+    (define-key map "v"  'magit-revert)
     map)
   "Keymap for `file' sections.")
 
@@ -1444,6 +1445,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "\r" 'magit-show-commit)
     (define-key map "a"  'magit-cherry-apply)
     (define-key map "A"  'magit-cherry-pick)
+    (define-key map "v"  'magit-revert-commit)
     map)
   "Keymap for `commit' sections.")
 
@@ -1531,7 +1533,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
      ["Extended..." magit-log-popup t])
     "---"
     ["Cherry pick" magit-cherry-pick t]
-    ["Revert" magit-revert t]
+    ["Revert commit" magit-revert-commit t]
     "---"
     ["Ignore" magit-gitignore t]
     ["Ignore locally" magit-gitignore-locally t]
@@ -4577,21 +4579,22 @@ without requiring confirmation."
 ;;;;; Revert
 
 (defun magit-revert ()
-  "Revert the thing at point.
-The change is reversed in the working tree."
+  "Revert the change at point in the working tree."
   (interactive)
   (magit-section-action revert (value)
-    (commit (when (or (not magit-revert-confirm)
-                      (yes-or-no-p "Revert this commit? "))
-              (magit-revert-commit value)))
-    (file   (when (or (not magit-revert-confirm)
-                      (yes-or-no-p "Revert this file? "))
-              (magit-apply-diff it "--reverse")))
-    (hunk   (when (or (not magit-revert-confirm)
-                      (yes-or-no-p "Revert this hunk? "))
-              (magit-apply-hunk it "--reverse")))))
+    (file (when (or (not magit-revert-confirm)
+                    (yes-or-no-p (format "Revert %s? " value)))
+            (magit-apply-diff it "--reverse")))
+    (hunk (when (or (not magit-revert-confirm)
+                    (yes-or-no-p "Revert this hunk? "))
+            (magit-apply-hunk it "--reverse")))
+    (t    (user-error "No diff at point"))))
 
 (defun magit-revert-commit (commit)
+  (interactive
+   (let ((atpoint (magit-commit-at-point)))
+     (list (or (and current-prefix-arg atpoint)
+               (magit-read-rev "Revert commit" atpoint)))))
   (magit-assert-one-parent commit "revert")
   (magit-run-git "revert" "--no-commit" commit))
 
