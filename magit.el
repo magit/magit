@@ -37,8 +37,8 @@
 
 ;;; Commentary:
 
-;; Invoking the magit-status function will show a buffer with the
-;; status of the current git repository and its working tree.  That
+;; Invoking the `magit-status' command will show a buffer with the
+;; status of the current Git repository and its working tree.  That
 ;; buffer offers key bindings for manipulating the status in simple
 ;; ways.
 ;;
@@ -247,10 +247,10 @@ nothing but return with a zero exit status."
   :type 'string)
 
 (defcustom magit-process-connection-type (not (eq system-type 'cygwin))
-  "Connection type used for the git process.
+  "Connection type used for the Git process.
 
 If nil, use pipes: this is usually more efficient, and works on Cygwin.
-If t, use ptys: this enables magit to prompt for passphrases when needed."
+If t, use ptys: this enables Magit to prompt for passphrases when needed."
   :group 'magit-process
   :type '(choice (const :tag "pipe" nil)
                  (const :tag "pty" t)))
@@ -292,7 +292,7 @@ also comment on issue #816."
 
 (defcustom magit-process-yes-or-no-prompt-regexp
   " [\[(]\\([Yy]\\(?:es\\)?\\)[/|]\\([Nn]o?\\)[\])] ?[?:] ?$"
-  "Regexp matching Yes-or-No prompts of git and its subprocesses."
+  "Regexp matching Yes-or-No prompts of Git and its subprocesses."
   :package-version '(magit . "2.1.0")
   :group 'magit-process
   :type 'regexp)
@@ -302,14 +302,14 @@ also comment on issue #816."
     "^\\(Enter \\)?[Pp]assword\\( for '.*'\\)?: ?$"
     "^.*'s password: ?$"
     "^Yubikey for .*: ?$")
-  "List of regexps matching password prompts of git and its subprocesses."
+  "List of regexps matching password prompts of Git and its subprocesses."
   :package-version '(magit . "2.1.0")
   :group 'magit-process
   :type '(repeat (regexp)))
 
 (defcustom magit-process-username-prompt-regexps
   '("^Username for '.*': ?$")
-  "List of regexps matching username prompts of git and its subprocesses."
+  "List of regexps matching username prompts of Git and its subprocesses."
   :package-version '(magit . "2.1.0")
   :group 'magit-process
   :type '(repeat (regexp)))
@@ -369,7 +369,7 @@ the user has to confirm each save."
                  (const :tag "Save without asking" dontask)))
 
 (defcustom magit-rewrite-inclusive t
-  "Whether magit includes the selected base commit in a rewrite operation.
+  "Whether to include the selected commit in a rewrite operation.
 
 t means both the selected commit as well as any subsequent
 commits will be rewritten.  This is magit's default behaviour,
@@ -395,7 +395,7 @@ cumbersome to use from the status buffer.
 (defun magit-set-variable-and-refresh (symbol value)
   "Set SYMBOL to VALUE and call `magit-refresh-all'."
   (set-default symbol value)
-  ;; If magit isn't fully loaded yet no buffer that might
+  ;; If Magit isn't fully loaded yet no buffer that might
   ;; need refreshing can exist and we can take a shortcut.
   ;; We also don't want everything to repeatedly refresh
   ;; when evaluating this file.
@@ -2805,7 +2805,7 @@ tracked in the current repository are reverted if
       (write-region (point-min) (point-max) file))))
 
 (defun magit-process-yes-or-no-prompt (proc string)
-  "Forward yes-or-no prompts to the user."
+  "Forward Yes-or-No prompts to the user."
   (-when-let (beg (string-match magit-process-yes-or-no-prompt-regexp string))
     (let ((max-mini-window-height 30))
       (process-send-string
@@ -3330,7 +3330,7 @@ directory.  Otherwise return nil."
   "Return the top-level directory for the current repository.
 
 Determine the repository which contains `default-directory' in
-either its work tree or git control directory and return the
+either its work tree or Git control directory and return the
 absolute path to its top-level directory.  If there is no top
 directory, because the repository is bare, return the control
 directory instead.
@@ -3386,7 +3386,7 @@ If FILE isn't inside a Git repository then return nil."
 ;;;; Predicates
 
 (defun magit-no-commit-p ()
-  "Return t if there is no commit in the current git repository."
+  "Return t if there is no commit in the current Git repository."
   (not (magit-git-string "rev-list" "-1" "HEAD")))
 
 (defun magit-anything-staged-p (&rest files)
@@ -5386,16 +5386,18 @@ If there is no default remote, ask for one."
 
 ;;;###autoload
 (defun magit-pull ()
-  "Run git pull.
+  "Pull changes from a remote repository.
 
 If there is no default remote, the user is prompted for one and
-its values is saved with git config.  If there is no default
-merge branch, the user is prompted for one and its values is
-saved with git config.  With a prefix argument, the default
-remote is not used and the user is prompted for a remote.  With
-two prefix arguments, the default merge branch is not used and
-the user is prompted for a merge branch.  Values entered by the
-user because of prefix arguments are not saved with git config."
+the choosen values is saved.  If there is no default merge
+branch, the user is prompted for one and the choosen values is
+saved.
+
+With a prefix argument, the default remote is not used and the
+user is prompted for a remote.  With two prefix arguments, the
+default merge branch is not used and the user is prompted for
+a merge branch.  Values entered by the user because of prefix
+arguments are not saved."
   (interactive)
   (let* ((branch (magit-get-current-branch))
          (branch-remote (magit-get-remote branch))
@@ -5954,7 +5956,7 @@ With prefix argument, changes in staging area are kept.
 
 ;;;###autoload
 (defun magit-submodule-update (&optional init)
-  "Update the submodule of the current git repository.
+  "Update the submodule of the current Git repository.
 With a prefix arg, do a submodule update --init."
   (interactive "P")
   (let ((default-directory (magit-get-top-dir)))
@@ -5962,7 +5964,7 @@ With a prefix arg, do a submodule update --init."
 
 ;;;###autoload
 (defun magit-submodule-update-init ()
-  "Update and init the submodule of the current git repository."
+  "Update and init the submodule of the current Git repository."
   (interactive)
   (magit-submodule-update t))
 
@@ -6176,7 +6178,7 @@ With a prefix argument another branch can be chosen."
 ;;;;; Log Core
 
 (define-derived-mode magit-log-mode magit-mode "Magit Log"
-  "Mode for looking at git log.
+  "Mode for looking at Git log.
 This mode is documented in info node `(magit)History'.
 
 \\<magit-log-mode-map>\
@@ -6564,7 +6566,7 @@ Type \\[magit-cherry-pick] to cherry-pick the commit at point.
   "Name of buffer used to display reflog entries.")
 
 (define-derived-mode magit-reflog-mode magit-log-mode "Magit Reflog"
-  "Mode for looking at git reflog.
+  "Mode for looking at Git reflog.
 This mode is documented in info node `(magit)Reflogs'.
 
 \\<magit-reflog-mode-map>\
@@ -6676,7 +6678,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 ;;;;; Diff Core
 
 (define-derived-mode magit-diff-mode magit-mode "Magit Diff"
-  "Mode for looking at a git diff.
+  "Mode for looking at a Git diff.
 This mode is documented in info node `(magit)Diffing'.
 
 \\<magit-diff-mode-map>\
@@ -7103,7 +7105,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 ;;;; Wazzup Mode
 
 (define-derived-mode magit-wazzup-mode magit-mode "Magit Wazzup"
-  "Mode for looking at git commits not merged into current HEAD.
+  "Mode for looking at Git commits not merged into current HEAD.
 This mode is documented in info node `(magit)Wazzup'.
 
 \\<magit-wazzup-mode-map>\
@@ -7171,7 +7173,7 @@ into the selected branch."
 ;;;; Branch Manager Mode
 
 (define-derived-mode magit-branch-manager-mode magit-mode "Magit Branch"
-  "Mode for looking at git branches.
+  "Mode for looking at Git branches.
 This mode is documented in info node `(magit)Branches and Remotes'.
 
 \\<magit-branch-manager-mode-map>\
