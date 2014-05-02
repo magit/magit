@@ -5382,23 +5382,16 @@ arguments are not saved."
   :default-action 'magit-push)
 
 ;;;###autoload
-(defun magit-push-tags ()
-  "Push tags to a remote repository.
-
-Push tags to the current branch's remote.  If that isn't set push
-to \"origin\" or if that remote doesn't exit but only a single
-remote is defined use that.  Otherwise or with a prefix argument
-ask the user what remote to use."
-  (interactive)
-  (let* ((branch  (magit-get-current-branch))
-         (remotes (magit-git-lines "remote"))
-         (remote  (or (and branch (magit-get-remote branch))
-                      (car (member  "origin" remotes))
-                      (and (= (length remotes) 1)
-                           (car remotes)))))
-    (when (or current-prefix-arg (not remote))
-      (setq remote (magit-read-remote "Push to remote")))
-    (magit-run-git-async "push" remote "--tags")))
+(defun magit-push-tags (remote)
+  "Push all tags to a remote repository.
+If only one remote exists, push to that.  Otherwise prompt for a
+remote, offering the remote configured for the current branch as
+default."
+  (interactive (let ((remotes (magit-git-lines "remote")))
+                 (if (= (length remotes) 1)
+                     (car remotes)
+                   (magit-read-remote "Push tags to remote"))))
+  (magit-run-git-async "push" remote "--tags"))
 
 ;;;###autoload
 (defun magit-push (arg)
