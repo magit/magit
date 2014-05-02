@@ -1339,7 +1339,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "k" 'magit-discard)
     (define-key map "s" 'magit-stage)
     (define-key map "u" 'magit-unstage)
-    (define-key map "C" 'magit-commit-add-log)
     (define-key map "jz" 'magit-jump-to-stashes)
     (define-key map "jn" 'magit-jump-to-untracked)
     (define-key map "ju" 'magit-jump-to-unstaged)
@@ -1426,6 +1425,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defvar magit-hunk-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map "C"  'magit-commit-add-log)
     map)
   "Keymap for `hunk' sections.")
 
