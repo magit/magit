@@ -4537,24 +4537,24 @@ Also see option `magit-revert-backup'."
   (magit-assert-one-parent commit "cherry-pick")
   (magit-run-git "cherry-pick" "--no-commit" commit))
 
-(defun magit-apply-diff (diff &rest args)
+(defun magit-apply-diff (section &rest args)
   (when (member "-U0" magit-diff-options)
     (setq args (cons "--unidiff-zero" args)))
   (let ((buf (generate-new-buffer " *magit-input*")))
     (unwind-protect
-        (progn (magit-insert-diff-patch diff buf)
+        (progn (magit-insert-diff-patch section buf)
                (magit-run-git-with-input
                 buf "apply" args "--ignore-space-change" "-"))
       (kill-buffer buf))))
 
-(defun magit-apply-hunk (hunk &rest args)
+(defun magit-apply-hunk (section &rest args)
   "Apply single hunk or part of a hunk to the index or working file.
 
 This function is the core of magit's stage, unstage, apply, and
 revert operations.  HUNK (or the portion of it selected by the
 region) will be applied to either the index, if \"--cached\" is a
 member of ARGS, or to the working file otherwise."
-  (when (string-match "^diff --cc" (magit-section-parent-value hunk))
+  (when (string-match "^diff --cc" (magit-section-parent-value section))
     (user-error (concat "Cannot un-/stage individual resolution hunks.  "
                         "Please stage the whole file.")))
   (let ((use-region (use-region-p)))
@@ -4567,34 +4567,34 @@ member of ARGS, or to the working file otherwise."
       (unwind-protect
           (progn (if use-region
                      (magit-insert-region-patch
-                      hunk (member "--reverse" args)
+                      section (member "--reverse" args)
                       (region-beginning) (region-end) buf)
-                   (magit-insert-hunk-patch hunk buf))
+                   (magit-insert-hunk-patch section buf))
                  (magit-revert-backup buf args)
                  (magit-run-git-with-input
                   buf "apply" args "--ignore-space-change" "-"))
         (kill-buffer buf)))))
 
-(defun magit-insert-diff-patch (diff buf)
-  (magit-insert-diff-header diff buf)
-  (magit-insert-region (magit-section-content diff)
-                       (magit-section-end diff)
+(defun magit-insert-diff-patch (section buf)
+  (magit-insert-diff-header section buf)
+  (magit-insert-region (magit-section-content section)
+                       (magit-section-end section)
                        buf))
 
-(defun magit-insert-hunk-patch (hunk buf)
-  (magit-insert-diff-header (magit-section-parent hunk) buf)
-  (magit-insert-region (magit-section-start hunk)
-                       (magit-section-end hunk)
+(defun magit-insert-hunk-patch (section buf)
+  (magit-insert-diff-header (magit-section-parent section) buf)
+  (magit-insert-region (magit-section-start section)
+                       (magit-section-end section)
                        buf))
 
-(defun magit-insert-region-patch (hunk reverse beg end buf)
-  (magit-insert-diff-header (magit-section-parent hunk) buf)
+(defun magit-insert-region-patch (section reverse beg end buf)
+  (magit-insert-diff-header (magit-section-parent section) buf)
   (save-excursion
-    (goto-char (magit-section-start hunk))
+    (goto-char (magit-section-start section))
     (magit-insert-current-line buf)
     (forward-line)
     (let ((copy-op (if reverse "+" "-")))
-      (while (< (point) (magit-section-end hunk))
+      (while (< (point) (magit-section-end section))
         (cond ((and (<= beg (point)) (< (point) end))
                (magit-insert-current-line buf))
               ((looking-at " ")
@@ -4608,9 +4608,9 @@ member of ARGS, or to the working file otherwise."
   (with-current-buffer buf
     (diff-fixup-modifs (point-min) (point-max))))
 
-(defun magit-insert-diff-header (diff buf)
-  (let ((src (magit-section-diff-file2 diff))
-        (dst (magit-section-value diff)))
+(defun magit-insert-diff-header (section buf)
+  (let ((src (magit-section-diff-file2 section))
+        (dst (magit-section-value section)))
     (with-current-buffer buf
       (insert (format "diff --git a/%s b/%s\n--- a/%s\n+++ b/%s\n"
                       src dst src dst)))))
