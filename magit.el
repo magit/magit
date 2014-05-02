@@ -4840,7 +4840,7 @@ inspect the merge and change the commit message.
       (not magit-merge-warn-dirty-worktree)
       (yes-or-no-p (concat "Running merge in a dirty worktree "
                            "could cause data loss.  Continue?"))
-      (error "Abort")))
+      (user-error "Abort")))
 
 (defun magit-merge-read-rev ()
   (magit-read-rev "Merge"
