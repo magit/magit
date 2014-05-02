@@ -3995,8 +3995,7 @@ current window.  Non-interactively optional SWITCH-FUNCTION
 can be used to override this."
   (interactive (list (if current-prefix-arg
                          (magit-read-top-dir
-                          (> (prefix-numeric-value current-prefix-arg)
-                             4))
+                          (> (prefix-numeric-value current-prefix-arg) 4))
                        (or (magit-get-top-dir)
                            (magit-read-top-dir nil)))))
   (magit-maybe-save-repository-buffers)
