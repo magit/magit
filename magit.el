@@ -3301,7 +3301,7 @@ argument (the prefix) non-nil means save all with no questions."
                      ,(magit-get-top-dir default-directory))))))
 
 ;;; Plumbing
-;;;; Repository Paths
+;;;; Files
 
 (defun magit-git-dir (&optional path)
   "Return absolute path to the GIT_DIR for the current repository.
@@ -3363,6 +3363,15 @@ If FILE isn't inside a Git repository then return nil."
   (setq file (file-truename file))
   (--when-let (magit-get-top-dir (file-name-directory file))
     (substring file (length it))))
+
+(defun magit-file-tracked-p (file)
+  (magit-git-success "ls-files" "--error-unmatch" file))
+
+(defun magit-tracked-files ()
+  (magit-git-lines "ls-files" "--full-name"))
+
+(defun magit-untracked-files ()
+  (magit-git-lines "ls-files" "--full-name" "--other" "--exclude-standard"))
 
 (defun magit-expand-git-file-name (filename)
   (when (tramp-tramp-file-p default-directory)
@@ -4313,8 +4322,7 @@ With a prefix argument, prompt for a file to be staged instead."
          (t
           (list "add" value)))))
       (untracked
-       (magit-run-git "add" "--" (magit-git-lines "ls-files" "--other"
-                                                  "--exclude-standard")))
+       (magit-run-git "add" "--" (magit-untracked-files)))
       ([hunk diff unstaged]
        (magit-apply-hunk it "--cached"))
       ([diff unstaged]
@@ -4371,8 +4379,7 @@ With a prefix argument, add remaining untracked files as well.
   (interactive)
   (when (or (not magit-unstage-all-confirm)
             (and (not (magit-anything-unstaged-p))
-                 (not (magit-git-lines "ls-files" "--others" "-t"
-                                       "--exclude-standard")))
+                 (not (magit-untracked-files)))
             (yes-or-no-p "Unstage all changes? "))
     (magit-run-git "reset" "HEAD" "--")))
 
@@ -4816,11 +4823,10 @@ inspect the merge and change the commit message.
    (let ((default-directory (magit-get-top-dir)))
      (if t ; FIXME conflicts occur in other situations too
          ;; (file-exists-p (magit-git-dir "MERGE_HEAD"))
-         (let ((file (magit-completing-read
-                      "Checkout file"
-                      (magit-git-lines "ls-files")
-                      nil nil nil 'magit-read-file-hist
-                      (magit-file-at-point))))
+         (let ((file (magit-completing-read "Checkout file"
+                                            (magit-tracked-files) nil nil nil
+                                            'magit-read-file-hist
+                                            (magit-file-at-point))))
            (cond
             ((member file (magit-git-lines "diff" "--name-only"
                                            "--diff-filter=U"))
@@ -7349,8 +7355,7 @@ then turn on `magit-wip-save-mode' provided the `wip-save' Magit
 extension has been enabled in that repository."
   (when (and (buffer-file-name)
              (magit-inside-worktree-p)
-             (magit-git-success "ls-files" "--error-unmatch"
-                                (buffer-file-name))
+             (magit-file-tracked-p (buffer-file-name))
              (member "wip-save" (magit-get-all "magit.extension")))
     (magit-wip-save-mode 1)))
 
