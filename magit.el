@@ -4402,7 +4402,7 @@ can be used to override this."
 (defun magit-stage ()
   "Add the change at point to the staging area."
   (interactive)
-  (magit-section-action stage (value)
+  (magit-section-case (value)
     ([file untracked]
      (let (files repos)
        (dolist (elt (if (use-region-p)
@@ -4469,7 +4469,7 @@ ignored) files.
 (defun magit-unstage ()
   "Remove the change at point from the staging area."
   (interactive)
-  (magit-section-action unstage (value)
+  (magit-section-case (value)
     ([hunk file staged]
      (magit-apply-hunk it "--reverse" "--cached"))
     ([file staged]
