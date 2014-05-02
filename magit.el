@@ -1457,11 +1457,13 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defvar magit-branch-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map "R"  'magit-branch-rename)
     map)
   "Keymap for `branch' sections.")
 
 (defvar magit-remote-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map "R"  'magit-remote-rename)
     map)
   "Keymap for `remote' sections.")
 
@@ -7307,13 +7309,6 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 (defun magit-refresh-branch-manager ()
   (magit-insert-section (branchbuf)
     (run-hooks 'magit-branch-manager-sections-hook)))
-
-(defun magit-rename ()
-  "Rename the thing at point."
-  (interactive)
-  (magit-section-action rename ()
-    (branch (call-interactively 'magit-branch-rename))
-    (remote (call-interactively 'magit-remote-rename))))
 
 (defconst magit-wash-branch-line-re
   (concat "^"
