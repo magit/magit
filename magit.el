@@ -4398,12 +4398,16 @@ With a prefix argument, add remaining untracked files as well.
                           "Discard hunk? "))
        (magit-apply-hunk it "--reverse")))
     ([hunk diff staged]
-     (cond ((magit-anything-unstaged-p parent-value)
-            (user-error "Cannot discard this hunk, file has unstaged changes"))
-           ((yes-or-no-p (if (use-region-p)
-                             "Discard changes in region? "
-                           "Discard hunk? "))
-            (magit-apply-hunk it "--reverse" "--index"))))
+     (when (yes-or-no-p (if (use-region-p)
+                            "Discard changes in region? "
+                          "Discard hunk? "))
+       (if (magit-anything-unstaged-p parent-value)
+           (progn
+             (let ((inhibit-magit-refresh t))
+               (magit-apply-hunk it "--reverse" "--cached")
+               (magit-apply-hunk it "--reverse"))
+             (magit-refresh))
+         (magit-apply-hunk it "--reverse" "--index"))))
     ([diff unstaged]
      (if (eq diff-status 'unmerged)
          (magit-checkout-stage value (magit-checkout-read-stage value))
