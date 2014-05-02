@@ -1334,7 +1334,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 (defvar magit-status-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
-    (define-key map "k" 'magit-discard)
     (define-key map "jz" 'magit-jump-to-stashes)
     (define-key map "jn" 'magit-jump-to-untracked)
     (define-key map "ju" 'magit-jump-to-unstaged)
@@ -1409,7 +1408,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 (defvar magit-branch-manager-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
-    (define-key map "k" 'magit-discard)
     map)
   "Keymap for `magit-branch-manager-mode'.")
 
@@ -1424,6 +1422,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "\r" 'magit-visit-file)
     (define-key map "a"  'magit-apply-hunk)
     (define-key map "C"  'magit-commit-add-log)
+    (define-key map "k"  'magit-discard)
     (define-key map "s"  'magit-stage)
     (define-key map "u"  'magit-unstage)
     (define-key map "v"  'magit-revert)
@@ -1434,6 +1433,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   (let ((map (make-sparse-keymap)))
     (define-key map "\r" 'magit-visit-file)
     (define-key map "a"  'magit-apply-diff)
+    (define-key map "k"  'magit-discard)
     (define-key map "s"  'magit-stage)
     (define-key map "u"  'magit-unstage)
     (define-key map "v"  'magit-revert)
@@ -1460,17 +1460,20 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "\r" 'magit-diff-stash)
     (define-key map "a"  'magit-stash-apply)
     (define-key map "A"  'magit-stash-pop)
+    (define-key map "k"  'magit-stash-drop)
     map)
   "Keymap for `stash' sections.")
 
 (defvar magit-branch-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map "k"  'magit-branch-delete)
     (define-key map "R"  'magit-branch-rename)
     map)
   "Keymap for `branch' sections.")
 
 (defvar magit-remote-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map "k"  'magit-remote-remove)
     (define-key map "R"  'magit-remote-rename)
     map)
   "Keymap for `remote' sections.")
@@ -1493,6 +1496,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defvar magit-untracked-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map "k"  'magit-discard)
     (define-key map "s"  'magit-stage)
     (define-key map "u"  'magit-unstage)
     map)
@@ -4518,7 +4522,7 @@ without requiring confirmation."
 (defun magit-discard ()
   "Remove the change introduced by the thing at point."
   (interactive)
-  (magit-section-action discard (value parent-value diff-status)
+  (magit-section-case (value parent-value diff-status)
     ([file untracked]
      (when (yes-or-no-p (format "Delete %s? " value))
        (if (and (file-directory-p value)
@@ -4553,11 +4557,8 @@ without requiring confirmation."
      (if (magit-anything-unstaged-p (magit-section-value it))
          (user-error "Cannot discard this hunk, file has unstaged changes")
        (magit-discard-diff it t)))
-    (hunk   (user-error "Can't discard this hunk"))
-    (file   (user-error "Can't discard this file"))
-    (stash  (call-interactively 'magit-stash-drop))
-    (branch (call-interactively 'magit-branch-delete))
-    (remote (call-interactively 'magit-remote-remove))))
+    (hunk (user-error "Cannot discard this hunk"))
+    (file (user-error "Cannot discard this file"))))
 
 (defun magit-discard-diff (diff stagedp)
   (let ((file (magit-section-value diff)))
@@ -4581,7 +4582,7 @@ without requiring confirmation."
 (defun magit-revert ()
   "Revert the change at point in the working tree."
   (interactive)
-  (magit-section-action revert (value)
+  (magit-section-case (value)
     (file (when (or (not magit-revert-confirm)
                     (yes-or-no-p (format "Revert %s? " value)))
             (magit-apply-diff it "--reverse")))
