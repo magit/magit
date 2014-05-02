@@ -4581,7 +4581,6 @@ without requiring confirmation."
 The change is reversed in the working tree."
   (interactive)
   (magit-section-action revert (value)
-    ([* unstaged] (magit-discard))
     (commit (when (or (not magit-revert-confirm)
                       (yes-or-no-p "Revert this commit? "))
               (magit-revert-commit value)))
