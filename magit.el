@@ -4416,8 +4416,7 @@ With a prefix argument, add remaining untracked files as well.
     (diff   (user-error "Can't discard this diff"))
     (stash  (call-interactively 'magit-stash-drop))
     (branch (call-interactively 'magit-branch-delete))
-    (remote (when (yes-or-no-p "Remove remote? ")
-              (magit-remote-remove value)))))
+    (remote (call-interactively 'magit-remote-remove))))
 
 ;;;;;; Revert
 
