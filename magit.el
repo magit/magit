@@ -7148,7 +7148,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 (defun magit-insert-local-branches ()
   (let ((hash-length (magit-abbrev-length))
         (branches (magit-list-local-branch-names)))
-    (magit-insert-section (local ".")
+    (magit-insert-section (local nil)
       (magit-insert-heading "Branches:")
       (dolist (line (magit-git-lines "branch" "-vv"))
         (when (string-match magit-wash-branch-line-re line)
