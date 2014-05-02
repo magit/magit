@@ -5028,9 +5028,8 @@ With prefix, forces the rename even if NEW already exists.
   "Rename remote OLD to NEW.
 \n(git remote rename OLD NEW)."
   (interactive
-   (let* ((old (magit-read-remote "Old name"))
-          (new (magit-read-string "New name" old)))
-     (list old new)))
+   (let  ((remote (magit-read-remote "Rename remote")))
+     (list remote (magit-read-string (format "Rename remote '%s' to" remote)))))
   (unless (string= old new)
     (magit-run-git "remote" "rename" old new)))
 
