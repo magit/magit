@@ -1346,7 +1346,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "js" 'magit-jump-to-staged)
     (define-key map "jf" 'magit-jump-to-unpulled)
     (define-key map "jp" 'magit-jump-to-unpushed)
-    (define-key map "jr" 'magit-jump-to-pending)
     (define-key map "\M-h" 'magit-show-level-2)
     (define-key map "\M-H" 'magit-show-level-2-all)
     map)
@@ -5265,15 +5264,6 @@ with two prefix arguments remove ignored files only.
                                (4 "untracked and ignored")
                                (t "ignored"))))
     (magit-run-git "clean" "-f" "-d" (cl-case arg (4 "-x") (16 "-X")))))
-
-(defun magit-rewrite-diff-pending-transition ()
-  (interactive)
-  (message "Please remove magit-insert-pending-changes from your magit-status-sections-hook, or move to magit-rewrite-diff-pending"))
-
-(define-obsolete-function-alias
-  'magit-insert-pending-changes 'magit-rewrite-diff-pending-transition
-  "382351845e"
-  "https://github.com/magit/magit/commit/382351845eca2425713f640f9bb55756c9ddf723")
 
 ;;;;; Fetching
 
