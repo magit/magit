@@ -3960,16 +3960,15 @@ stash at point, then prompt for a commit."
 
 (defun magit-wash-commit (args)
   (looking-at "^commit \\([a-z0-9]+\\)\\(?: \\(.+\\)\\)?$")
-  (let ((rev  (match-string 1))
-        (refs (match-string 2)))
+  (magit-bind-match-strings (rev refs) nil
     (delete-region (point) (1+ (line-end-position)))
     (magit-insert-section (headers)
       (magit-insert-heading
         (propertize rev 'face 'magit-hash)
         (and refs (concat " "(magit-format-ref-labels refs))))
       (while (re-search-forward "^\\([a-z]+\\): +\\(.+\\)$" nil t)
-        (when (string-match-p (match-string 1) "Merge")
-          (let ((revs (match-string 2)))
+        (magit-bind-match-strings (keyword revs) nil
+          (when (string-match-p keyword "Merge")
             (delete-region (match-beginning 2) (match-end 2))
             (dolist (rev (split-string revs))
               (magit-insert-commit-button rev)
@@ -4073,9 +4072,7 @@ can be used to override this."
       (magit-insert-heading "Stashes:")
       (dolist (stash it)
         (string-match "^\\(stash@{\\([0-9]+\\)}\\): \\(.+\\)$" stash)
-        (let ((stash (match-string 1 stash))
-              (number (match-string 2 stash))
-              (message (match-string 3 stash)))
+        (magit-bind-match-strings (stash number message) stash
           (magit-insert-section (stash stash)
             (insert number ": " message "\n"))))
       (insert "\n"))))
@@ -4275,7 +4272,7 @@ can be used to override this."
   (let (beg)
     (while (progn (setq beg (point-marker))
                   (re-search-forward "^\\(git bisect [^\n]+\n\\)" nil t))
-      (let ((heading (match-string-no-properties 1)))
+      (magit-bind-match-strings (heading) nil
         (delete-region (match-beginning 0) (match-end 0))
         (save-restriction
           (narrow-to-region beg (point))
@@ -4288,7 +4285,7 @@ can be used to override this."
             (insert ?\n)))))
     (when (re-search-forward
            "# first bad commit: \\[\\([a-z0-9]\\{40\\}\\)\\] [^\n]+\n" nil t)
-      (let ((hash (match-string-no-properties 1)))
+      (magit-bind-match-strings (hash) nil
         (delete-region (match-beginning 0) (match-end 0))
         (magit-insert-section (bisect-log)
           (magit-insert (concat hash " is the first bad commit\n")))))))
@@ -6895,7 +6892,7 @@ actually were a single commit."
 (defun magit-wash-diffstats ()
   (let (heading diffstats (beg (point)))
     (when (re-search-forward "^ ?\\([0-9]+ +files? change[^\n]*\n\\)" nil t)
-      (setq heading (match-string-no-properties 1))
+      (setq heading (match-string 1))
       (delete-region (match-beginning 0) (match-end 0))
       (goto-char beg)
       (magit-insert-section it (diffstats)
@@ -6967,7 +6964,7 @@ actually were a single commit."
       (delete-region (point) (1+ (line-end-position)))
       (while (not (or (eobp) (looking-at magit-diff-headline-re)))
         (if (looking-at "^old mode \\([^\n]+\\)\nnew mode \\([^\n]+\\)\n")
-            (progn (setq modes (match-string-no-properties 0))
+            (progn (setq modes (match-string 0))
                    (delete-region (point) (match-end 0)))
           (when (looking-at "^\\(new file\\|rename\\|deleted\\)")
             (setq status (match-string 1)))
