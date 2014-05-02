@@ -866,13 +866,6 @@ have changed on disk and are tracked in the current Git repository."
   :group 'magit-modes
   :type 'boolean)
 
-(defcustom magit-push-hook '(magit-push-dwim)
-  "Hook run by `magit-push' to actually do the work.
-See `magit-push' and `magit-push-dwim' for more information."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-modes
-  :type 'hook)
-
 (defcustom magit-set-upstream-on-push nil
   "Whether `magit-push' may set upstream when pushing a branch.
 This only applies if the branch does not have an upstream set yet.
