@@ -4303,21 +4303,7 @@ can be used to override this."
 
 ;;; Porcelain
 ;;;; Apply
-;;;;; Apply Commands
-;;;;;; Apply
-
-(defun magit-apply ()
-  "Apply the thing at point to the current working tree."
-  (interactive)
-  (magit-section-action apply (value)
-    (([* unstaged] [* staged])
-     (user-error "Change is already in your working tree"))
-    (hunk   (magit-apply-hunk it))
-    (diff   (magit-apply-diff it))
-    (stash  (magit-stash-apply value))
-    (commit (magit-apply-commit value))))
-
-;;;;;; Stage
+;;;;; Stage
 
 (defun magit-stage ()
   "Add the change at point to the staging area."
@@ -4383,7 +4369,7 @@ With a prefix argument, add remaining untracked files as well.
             (yes-or-no-p "Stage all changes? "))
     (magit-run-git "add" (unless include-untracked "--update") ".")))
 
-;;;;;; Unstage
+;;;;; Unstage
 
 (defun magit-unstage ()
   "Remove the change at point from the staging area."
@@ -4437,7 +4423,7 @@ without requiring confirmation."
             (yes-or-no-p "Unstage all changes? "))
     (magit-run-git "reset" "HEAD" "--")))
 
-;;;;;; Discard
+;;;;; Discard
 
 (defun magit-discard ()
   "Remove the change introduced by the thing at point."
@@ -4483,7 +4469,24 @@ without requiring confirmation."
     (branch (call-interactively 'magit-branch-delete))
     (remote (call-interactively 'magit-remote-remove))))
 
-;;;;;; Revert
+(defun magit-discard-diff (diff stagedp)
+  (let ((file (magit-section-value diff)))
+    (cl-case (magit-section-diff-status diff)
+      (deleted
+       (when (yes-or-no-p (format "Resurrect %s? " file))
+         (when stagedp
+           (magit-run-git "reset" "-q" "--" file))
+         (magit-run-git "checkout" "--" file)))
+      (new
+       (when (yes-or-no-p (format "Delete %s? " file))
+         (magit-run-git "rm" "-f" "--" file)))
+      (t
+       (when (yes-or-no-p (format "Discard changes to %s? " file))
+         (if stagedp
+             (magit-run-git "checkout" "HEAD" "--" file)
+           (magit-run-git "checkout" "--" file)))))))
+
+;;;;; Revert
 
 (defun magit-revert ()
   "Revert the thing at point.
@@ -4517,24 +4520,18 @@ Also see option `magit-revert-backup'."
       (user-error "No backups exist"))
     (magit-refresh)))
 
-;;;;; Apply Core
+;;;;; Apply
 
-(defun magit-discard-diff (diff stagedp)
-  (let ((file (magit-section-value diff)))
-    (cl-case (magit-section-diff-status diff)
-      (deleted
-       (when (yes-or-no-p (format "Resurrect %s? " file))
-         (when stagedp
-           (magit-run-git "reset" "-q" "--" file))
-         (magit-run-git "checkout" "--" file)))
-      (new
-       (when (yes-or-no-p (format "Delete %s? " file))
-         (magit-run-git "rm" "-f" "--" file)))
-      (t
-       (when (yes-or-no-p (format "Discard changes to %s? " file))
-         (if stagedp
-             (magit-run-git "checkout" "HEAD" "--" file)
-           (magit-run-git "checkout" "--" file)))))))
+(defun magit-apply ()
+  "Apply the thing at point to the current working tree."
+  (interactive)
+  (magit-section-action apply (value)
+    (([* unstaged] [* staged])
+     (user-error "Change is already in your working tree"))
+    (hunk   (magit-apply-hunk it))
+    (diff   (magit-apply-diff it))
+    (stash  (magit-stash-apply value))
+    (commit (magit-apply-commit value))))
 
 (defun magit-apply-commit (commit)
   (magit-assert-one-parent commit "cherry-pick")
