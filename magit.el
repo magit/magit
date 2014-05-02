@@ -5732,7 +5732,7 @@ depending on the value of option `magit-commit-squash-confirm'.
     (or args (list "--")))
    ((and (magit-rebase-in-progress-p)
          (y-or-n-p "Nothing staged.  Continue in-progress rebase? "))
-    (magit-commit-async "--continue")
+    (magit-commit-async nil "--continue")
     nil)
    (magit-commit-ask-to-stage
     (when (magit-diff-auto-show-p 'stage-all)
