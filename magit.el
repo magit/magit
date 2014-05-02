@@ -1300,6 +1300,8 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "e" 'magit-rebase-popup)
     (define-key map "f" 'magit-fetch-popup)
     (define-key map "F" 'magit-pull-popup)
+    (define-key map "i" 'magit-gitignore)
+    (define-key map "i" 'magit-gitignore-locally)
     (define-key map "J" 'magit-am-popup)
     (define-key map "l" 'magit-log-popup)
     (define-key map "m" 'magit-merge-popup)
@@ -1334,8 +1336,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 (defvar magit-status-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
-    (define-key map "i" 'magit-gitignore)
-    (define-key map "I" 'magit-gitignore-locally)
     (define-key map "k" 'magit-discard)
     (define-key map "s" 'magit-stage)
     (define-key map "u" 'magit-unstage)
@@ -1408,7 +1408,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 (defvar magit-wazzup-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
-    (define-key map "i" 'magit-gitignore)
     map)
   "Keymap for `magit-wazzup-mode'.")
 
