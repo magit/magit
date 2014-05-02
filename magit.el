@@ -1314,7 +1314,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map [C-return] 'magit-dired-jump)
     (define-key map "\s"       'magit-show-or-scroll-up)
     (define-key map "\d"       'magit-show-or-scroll-down)
-    (define-key map "a" 'magit-apply)
     (define-key map "A" 'magit-cherry-pick)
     (define-key map "s" 'magit-stage-file)
     (define-key map "S" 'magit-stage-all)
@@ -1424,6 +1423,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 (defvar magit-hunk-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map "\r" 'magit-visit-file)
+    (define-key map "a"  'magit-apply-hunk)
     (define-key map "C"  'magit-commit-add-log)
     (define-key map "s"  'magit-stage)
     (define-key map "u"  'magit-unstage)
@@ -1433,6 +1433,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 (defvar magit-file-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map "\r" 'magit-visit-file)
+    (define-key map "a"  'magit-apply-diff)
     (define-key map "s"  'magit-stage)
     (define-key map "u"  'magit-unstage)
     map)
@@ -1441,6 +1442,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 (defvar magit-commit-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map "\r" 'magit-show-commit)
+    (define-key map "a"  'magit-cherry-apply)
     (define-key map "A"  'magit-cherry-pick)
     map)
   "Keymap for `commit' sections.")
@@ -1454,6 +1456,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 (defvar magit-stash-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map "\r" 'magit-diff-stash)
+    (define-key map "a"  'magit-stash-apply)
     (define-key map "A"  'magit-stash-pop)
     map)
   "Keymap for `stash' sections.")
@@ -1528,7 +1531,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
      ["Extended..." magit-log-popup t])
     "---"
     ["Cherry pick" magit-cherry-pick t]
-    ["Apply" magit-apply t]
     ["Revert" magit-revert t]
     "---"
     ["Ignore" magit-gitignore t]
@@ -4608,22 +4610,16 @@ Also see option `magit-revert-backup'."
 
 ;;;;; Apply
 
-(defun magit-apply ()
-  "Apply the thing at point to the current working tree."
-  (interactive)
-  (magit-section-action apply (value)
-    (([* unstaged] [* staged])
-     (user-error "Change is already in your working tree"))
-    (hunk   (magit-apply-hunk it))
-    (file   (magit-apply-diff it))
-    (stash  (magit-stash-apply value))
-    (commit (magit-apply-commit value))))
-
-(defun magit-apply-commit (commit)
-  (magit-assert-one-parent commit "cherry-pick")
-  (magit-run-git "cherry-pick" "--no-commit" commit))
-
 (defun magit-apply-diff (section &rest args)
+  (interactive
+   (or (magit-section-when file
+         (if (memq (--> it
+                     magit-section-parent
+                     magit-section-type)
+                   '(staged unstaged))
+             (user-error "Change is already in the working tree")
+           (list it)))
+       (user-error "Not a file")))
   (when (member "-U0" magit-diff-options)
     (setq args (cons "--unidiff-zero" args)))
   (let ((buf (generate-new-buffer " *magit-input*")))
@@ -4634,12 +4630,16 @@ Also see option `magit-revert-backup'."
       (kill-buffer buf))))
 
 (defun magit-apply-hunk (section &rest args)
-  "Apply single hunk or part of a hunk to the index or working file.
-
-This function is the core of magit's stage, unstage, apply, and
-revert operations.  HUNK (or the portion of it selected by the
-region) will be applied to either the index, if \"--cached\" is a
-member of ARGS, or to the working file otherwise."
+  (interactive
+   (or (magit-section-when hunk
+         (if (memq (--> it
+                     magit-section-parent
+                     magit-section-parent
+                     magit-section-type)
+                   '(staged unstaged))
+             (user-error "Change is already in the working tree")
+           (list it)))
+       (user-error "Not a diff")))
   (when (string-match "^diff --cc" (magit-section-parent-value section))
     (user-error (concat "Cannot un-/stage individual resolution hunks.  "
                         "Please stage the whole file.")))
@@ -6010,6 +6010,20 @@ for a commit."
                (magit-read-rev "Cherry-pick" atpoint current)))))
   (magit-assert-one-parent commit "cherry-pick")
   (magit-run-git "cherry-pick" commit))
+
+(defun magit-cherry-apply (commit)
+  "Cherry-pick the commit at point, leaving changes uncommitted.
+If there is no commit at point or with a prefix argument prompt
+for a commit."
+  (interactive
+   (let ((atpoint (magit-branch-or-commit-at-point))
+         (current (magit-get-current-branch)))
+     (when (equal atpoint current)
+       (setq atpoint nil))
+     (list (or (and (not current-prefix-arg) atpoint)
+               (magit-read-rev "Apply commit" atpoint current)))))
+  (magit-assert-one-parent commit "cherry-pick")
+  (magit-run-git "cherry-pick" "--no-commit" commit))
 
 ;;;;; Submoduling
 
