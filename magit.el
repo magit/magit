@@ -6748,11 +6748,16 @@ a commit read from the minibuffer."
 
 ;;;###autoload
 (defun magit-diff-stash (stash &optional noselect)
-  "Show changes in a stash.
+  "Show changes in the stash at point.
+If there is no stash at point or with a prefix argument prompt
+for a stash.
+
 A stash consist of more than just one commit.  This command uses
-a special diff range so that the stashed changes appear as if the
+a special diff range so that the stashed changes appear as if it
 actually were a single commit."
-  (interactive (list (magit-read-stash "Show stash")))
+  (interactive (list (or (and (not current-prefix-arg)
+			      (magit-stash-at-point t))
+			 (magit-read-stash "Show stash"))))
   (magit-mode-setup magit-diff-buffer-name
                     (if noselect 'display-buffer 'pop-to-buffer)
                     #'magit-diff-mode
