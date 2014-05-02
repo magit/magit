@@ -4098,32 +4098,33 @@ can be used to override this."
   (insert "\n"))
 
 (defun magit-insert-status-headers (&optional branch upstream)
-  (-when-let (hash (magit-rev-parse "--verify" "HEAD"))
-    (unless branch
-      (setq branch (magit-get-current-branch)))
-    (let ((line (magit-rev-format "%h %s" "HEAD")) hash msg)
-      (string-match "^\\([^ ]+\\) \\(.+\\)" line)
-      (setq hash (match-string 1 line)
-            msg  (match-string 2 line))
-      (magit-insert-header "Head" (branch (or branch hash))
-        (propertize hash 'face 'magit-hash) " "
-        (if branch
-            (propertize branch 'face 'magit-branch-local)
-          (propertize "HEAD" 'face 'magit-head))
-        " " msg)
-      (when (or upstream (setq upstream (magit-get-tracked-branch branch)))
-        (setq line (magit-rev-format "%h %s" upstream))
+  (unless branch
+    (setq branch (magit-get-current-branch)))
+  (-if-let  (hash (magit-rev-parse "--verify" "HEAD"))
+      (let ((line (magit-rev-format "%h %s" "HEAD")) hash msg)
         (string-match "^\\([^ ]+\\) \\(.+\\)" line)
         (setq hash (match-string 1 line)
               msg  (match-string 2 line))
-        (magit-insert-header "Upstream" (branch upstream)
+        (magit-insert-header "Head" (branch (or branch hash))
           (propertize hash 'face 'magit-hash) " "
-          (and (magit-get-boolean "branch" branch "rebase") "onto ")
-          (propertize upstream 'face
-                      (if (string= (magit-get "branch" branch "remote") ".")
-                          'magit-branch-local
-                        'magit-branch-remote))
-          " " msg)))))
+          (if branch
+              (propertize branch 'face 'magit-branch-local)
+            (propertize "HEAD" 'face 'magit-head))
+          " " msg)
+        (when (or upstream (setq upstream (magit-get-tracked-branch branch)))
+          (setq line (magit-rev-format "%h %s" upstream))
+          (string-match "^\\([^ ]+\\) \\(.+\\)" line)
+          (setq hash (match-string 1 line)
+                msg  (match-string 2 line))
+          (magit-insert-header "Upstream" (branch upstream)
+            (propertize hash 'face 'magit-hash) " "
+            (and (magit-get-boolean "branch" branch "rebase") "onto ")
+            (propertize upstream 'face
+                        (if (string= (magit-get "branch" branch "remote") ".")
+                            'magit-branch-local
+                          'magit-branch-remote))
+            " " msg)))
+    (insert "In the beginning there was darkness\n")))
 
 (defun magit-insert-status-tags-line ()
   (let* ((current-tag (magit-get-current-tag t))
