@@ -4987,9 +4987,12 @@ checkout the \"master\" branch.
 With prefix, forces the rename even if NEW already exists.
 \n(git branch -m|-M OLD NEW)."
   (interactive
-   (let* ((old (magit-read-local-branch "Old name" (magit-branch-at-point)))
-          (new (magit-read-string "New name" old)))
-     (list old new current-prefix-arg)))
+   (let ((branch (magit-read-local-branch
+                  "Rename branch" (or (magit-branch-at-point)
+                                      (magit-get-current-branch)))))
+     (list branch
+           (magit-read-string (format "Rename branch '%s' to" branch))
+           current-prefix-arg)))
   (unless (string= old new)
     (magit-run-git "branch" (if force "-M" "-m") old new)))
 
