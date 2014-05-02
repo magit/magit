@@ -4780,7 +4780,7 @@ With a prefix argument, visit in other window."
   (require 'dired-x)
   (dired-jump other-window
               (file-truename
-               (magit-section-action dired-jump (value parent-value)
+               (magit-section-case (value parent-value)
                  (file value)
                  (hunk parent-value)
                  (t    default-directory)))))
