@@ -3646,17 +3646,6 @@ no output return nil."
     (mapconcat 'magit-format-ref-label
                (split-string string "\\(tag: \\|[(), ]\\)" t) " ")))
 
-(defun magit-insert-ref-labels (string)
-  (save-match-data
-    (dolist (ref (split-string string "\\(tag: \\|[(), ]\\)" t) " ")
-      (cl-destructuring-bind (re face fn)
-          (cl-find-if (lambda (elt) (string-match (car elt) ref))
-                      magit-ref-namespaces)
-        (if fn
-            (let ((text (funcall fn ref face)))
-              (magit-insert text (get-text-property 1 'face text) ?\s))
-        (magit-insert (or (match-string 1 ref) ref) face ?\s))))))
-
 (defmacro magit-with-blob (commit file &rest body)
   (declare (indent 2))
   `(with-temp-buffer
@@ -6323,7 +6312,8 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
     (when (and hash (eq style 'long))
       (magit-insert (if refs hash (magit-rev-parse hash)) 'magit-hash ?\s))
     (when refs
-      (magit-insert-ref-labels refs))
+      (magit-insert (magit-format-ref-labels refs))
+      (insert ?\s))
     (when refsub
       (insert (format "%-2s " refsel))
       (magit-insert (magit-log-format-reflog refsub)))
