@@ -1440,6 +1440,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defvar magit-commit-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map "A"  'magit-cherry-pick)
     map)
   "Keymap for `commit' sections.")
 
@@ -1450,6 +1451,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defvar magit-stash-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map "A"  'magit-stash-pop)
     map)
   "Keymap for `stash' sections.")
 
@@ -6001,14 +6003,17 @@ With prefix argument, changes in staging area are kept.
 
 ;;;;; Cherry-Pick
 
-(defun magit-cherry-pick ()
-  "Cherry-pick the commit at point."
-  (interactive)
-  (magit-section-action cherry-pick (value)
-    (commit (magit-cherry-pick-commit value))
-    (stash  (magit-stash-pop value))))
-
-(defun magit-cherry-pick-commit (commit)
+(defun magit-cherry-pick (commit)
+  "Cherry-pick the commit at point.
+If there is no commit at point or with a prefix argument prompt
+for a commit."
+  (interactive
+   (let ((atpoint (magit-branch-or-commit-at-point))
+         (current (magit-get-current-branch)))
+     (when (equal atpoint current)
+       (setq atpoint nil))
+     (list (or (and (not current-prefix-arg) atpoint)
+               (magit-read-rev "Cherry-pick" atpoint current)))))
   (magit-assert-one-parent commit "cherry-pick")
   (magit-run-git "cherry-pick" commit))
 
