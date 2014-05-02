@@ -1,7 +1,6 @@
 *.elc
 *~
 /.dir-locals.el
-/.mailmap
 /dir
 /magit-*.tar
 /magit-*.tar.gz
