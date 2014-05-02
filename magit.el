@@ -1526,9 +1526,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
         (i 0))
     `(let ((,s ,string))
        (let ,(save-match-data
-               (mapcar (lambda (var)
-                         (list var (list 'match-string (cl-incf i) s)))
-                       varlist))
+               (--map (list it (list 'match-string (cl-incf i) s)) varlist))
          ,@body))))
 
 (defmacro magit-read-char-case (prompt abort &rest clauses)
@@ -1602,9 +1600,8 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
         (magit-format-duration duration (cdr spec) width)))))
 
 (defun magit-flatten-onelevel (list)
-  (cl-mapcan (lambda (elt)
-               (cond ((consp elt) (copy-sequence elt))
-                     (elt (list elt))))
+  (--mapcat (cond ((consp it) (copy-sequence it))
+                  (it (list it)))
              list))
 
 (defun magit-load-config-extensions ()
@@ -1648,10 +1645,9 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
     (setq magit-log-margin-timeunit-width
           (if characterp
               1
-            (apply 'max (mapcar (lambda (e)
-                                  (max (length (nth 1 e))
-                                       (length (nth 2 e))))
-                                (symbol-value duration-spec)))))))
+            (apply 'max (--map (max (length (nth 1 it))
+                                    (length (nth 2 it)))
+                               (symbol-value duration-spec)))))))
 
 ;;; Magit Api
 ;;;; Section Api
@@ -3477,21 +3473,19 @@ otherwise try to shorten it to a name (which may fail)."
                    (substring merge 11))
                   ((string-match "^refs/" merge)
                    merge))
-          (let* ((fetch (mapcar (lambda (f) (split-string f "[+:]" t))
-                                (magit-get-all "remote" remote "fetch")))
+          (let* ((fetch (--map (split-string it "[+:]" t)
+                               (magit-get-all "remote" remote "fetch")))
                  (match (cadr (assoc merge fetch))))
             (unless match
               (let* ((prefix (nreverse (split-string merge "/")))
                      (unique (list (car prefix))))
                 (setq prefix (cdr prefix))
                 (setq fetch
-                      (cl-mapcan
-                       (lambda (f)
-                         (cl-destructuring-bind (from to) f
-                           (setq from (nreverse (split-string from "/")))
-                           (when (equal (car from) "*")
-                             (list (list (cdr from) to)))))
-                       fetch))
+                      (--mapcat (cl-destructuring-bind (from to) it
+                                  (setq from (nreverse (split-string from "/")))
+                                  (when (equal (car from) "*")
+                                    (list (list (cdr from) to))))
+                                fetch))
                 (while (and prefix (not match))
                   (if (setq match (cadr (assoc prefix fetch)))
                       (setq match (concat (substring match 0 -1)
@@ -3602,10 +3596,9 @@ where COMMITS is the number of commits in TAG but not in \"HEAD\"."
 (defun magit-list-remote-branch-names (&optional remote relative)
   (if (and remote relative)
       (let ((regexp (format "^refs/remotes/%s/\\(.+\\)" remote)))
-        (cl-mapcan (lambda (ref)
-                     (and (string-match regexp ref)
-                          (list (match-string t ref))))
-                   (magit-list-remote-branches remote)))
+        (--mapcat (and (string-match regexp it)
+                       (list (match-string t it)))
+                  (magit-list-remote-branches remote)))
     (magit-list-refnames (concat "refs/remotes/" remote))))
 
 (defun magit-rev-diff-count (a b)
@@ -3857,15 +3850,13 @@ results in additional differences."
 (defvar magit-gpg-secret-key-hist nil)
 
 (defun magit-read-gpg-secret-key (prompt &optional initial-input)
-  (let ((keys (mapcar
-               (lambda (key)
-                 (list (epg-sub-key-id (car (epg-key-sub-key-list key)))
-                       (-when-let (id-obj (car (epg-key-user-id-list key)))
-                         (let    ((id-str (epg-user-id-string id-obj)))
-                           (if (stringp id-str)
-                               id-str
-                             (epg-decode-dn id-obj))))))
-               (epg-list-keys (epg-make-context epa-protocol) nil t))))
+  (let ((keys (--map (list (epg-sub-key-id (car (epg-key-sub-key-list it)))
+                           (-when-let (id-obj (car (epg-key-user-id-list it)))
+                             (let    ((id-str (epg-user-id-string id-obj)))
+                               (if (stringp id-str)
+                                   id-str
+                                 (epg-decode-dn id-obj)))))
+                     (epg-list-keys (epg-make-context epa-protocol) nil t))))
   (magit-completing-read prompt keys nil nil initial-input nil
                          (or (car magit-gpg-secret-key-hist) (car keys)))))
 
@@ -4090,9 +4081,8 @@ can be used to override this."
       (insert "\n"))))
 
 (defun magit-insert-untracked-files ()
-  (--when-let (cl-mapcan (lambda (f)
-                           (and (eq (aref f 0) ??) (list f)))
-                         (magit-git-lines "status" "--porcelain"))
+  (--when-let (--mapcat (and (eq (aref it 0) ??) (list it))
+                        (magit-git-lines "status" "--porcelain"))
     (magit-insert-section (untracked)
       (magit-insert-heading "Untracked files:")
       (dolist (file it)
@@ -7346,14 +7336,13 @@ non-nil, then autocompletion will offer directory names."
          (setq result
                (append result
                        (magit-list-repos-uniquify
-                        (mapcar
-                         (lambda (elt)
-                           (cons (concat key "\\"
-                                         (file-name-nondirectory
-                                          (directory-file-name
-                                           (substring elt 0 (- (length key))))))
-                                 elt))
-                         value))))))
+                        (--map (cons (concat
+                                      key "\\"
+                                      (file-name-nondirectory
+                                       (directory-file-name
+                                        (substring it 0 (- (length key))))))
+                                     it)
+                               value))))))
      dict)
     result))
 
