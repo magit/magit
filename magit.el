@@ -1311,8 +1311,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "r" 'magit-rebase-popup)
     (define-key map "t" 'magit-tag-popup)
     (define-key map "w" 'magit-wazzup)
-    (define-key map "\r"       'magit-visit)
-    (define-key map [  return] 'magit-visit)
     (define-key map [C-return] 'magit-dired-jump)
     (define-key map "\s"       'magit-show-or-scroll-up)
     (define-key map "\d"       'magit-show-or-scroll-down)
@@ -1425,6 +1423,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defvar magit-hunk-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map "\r" 'magit-visit-file)
     (define-key map "C"  'magit-commit-add-log)
     (define-key map "s"  'magit-stage)
     (define-key map "u"  'magit-unstage)
@@ -1433,6 +1432,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defvar magit-file-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map "\r" 'magit-visit-file)
     (define-key map "s"  'magit-stage)
     (define-key map "u"  'magit-unstage)
     map)
@@ -1440,17 +1440,20 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defvar magit-commit-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map "\r" 'magit-show-commit)
     (define-key map "A"  'magit-cherry-pick)
     map)
   "Keymap for `commit' sections.")
 
 (defvar magit-mcommit-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map "\r" 'magit-show-commit)
     map)
   "Keymap for `mcommit' (module commit) sections.")
 
 (defvar magit-stash-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map "\r" 'magit-diff-stash)
     (define-key map "A"  'magit-stash-pop)
     map)
   "Keymap for `stash' sections.")
@@ -1469,6 +1472,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defvar magit-staged-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map "\r" 'magit-diff-staged)
     (define-key map "s"  'magit-stage)
     (define-key map "u"  'magit-unstage)
     map)
@@ -1476,6 +1480,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defvar magit-unstaged-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map "\r" 'magit-diff-unstaged)
     (define-key map "s"  'magit-stage)
     (define-key map "u"  'magit-unstage)
     map)
@@ -1490,11 +1495,13 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defvar magit-unpushed-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map "\r" 'magit-diff-unpushed)
     map)
   "Keymap for the `unpushed' section.")
 
 (defvar magit-unpulled-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map "\r" 'magit-diff-unpulled)
     map)
   "Keymap for the `unpulled' section.")
 
@@ -3954,7 +3961,7 @@ This mode is documented in info node `(magit)Commit Buffer'.
 
 \\<magit-commit-mode-map>\
 Type \\[magit-toggle-section] to expand or hide the section at point.
-Type \\[magit-visit] to visit the hunk or file at point.
+Type \\[magit-visit-file] to visit the hunk or file at point.
 Type \\[magit-apply] to apply the change at point to the worktree.
 Type \\[magit-revert] to revert the change at point in the worktree.
 \n\\{magit-commit-mode-map}"
@@ -4086,7 +4093,7 @@ stash at point, then prompt for a commit."
                         'action (lambda (button)
                                   (save-excursion
                                     (goto-char button)
-                                    (magit-visit)))
+                                    (call-interactively #'magit-show-commit)))
                         'follow-link t
                         'mouse-face magit-section-highlight-face
                         'face 'magit-hash)))
@@ -4101,7 +4108,7 @@ This mode is documented in info node `(magit)Status'.
 Type \\[magit-refresh] to refresh the current buffer.
 Type \\[magit-dispatch-popup] to see available action popups.
 Type \\[magit-toggle-section] to expand or hide the section at point.
-Type \\[magit-visit] to visit the thing at point.
+Type \\[magit-visit-file] to visit the thing at point.
 Type \\[magit-stage] to stage the change at point; \\[magit-unstage] to unstage.
 Type \\[magit-commit-popup] to create a commit.
 \n\\{magit-status-mode-map}"
@@ -4719,27 +4726,12 @@ member of ARGS, or to the working file otherwise."
 
 ;;;; Visit
 
-(defun magit-visit (&optional other-window)
-  "Visit the thing at point.
-With a prefix argument, visit in other window."
-  (interactive "P")
-  (magit-section-action visit (value parent-value)
-    (file     (magit-visit-file value other-window))
-    (hunk     (magit-visit-file parent-value other-window
-                                     (magit-hunk-target-line it)
-                                     (current-column)))
-    (staged   (magit-diff-staged))
-    (unstaged (magit-diff-unstaged))
-    (unpushed (magit-diff-unpushed))
-    (unpulled (magit-diff-unpulled))
-    (stash    (magit-diff-stash value))
-    (commit   (magit-show-commit value))
-    (mcommit  (magit-show-commit value nil parent-value))
-    (branch   (magit-checkout value))))
-
 (defun magit-visit-file (file &optional other-window line column)
-  (unless file
-    (user-error "Can't get pathname for this file"))
+  (interactive (magit-section-case (value parent-value)
+                 (file (list value        current-prefix-arg))
+                 (hunk (list parent-value current-prefix-arg
+                             (magit-hunk-target-line it)
+                             (current-column)))))
   (unless (file-exists-p file)
     (user-error "Can't visit deleted file: %s" file))
   (if (file-directory-p file)
@@ -5821,7 +5813,7 @@ actually insert the entry."
   (interactive)
   (let ((log (magit-commit-log-buffer)) buf pos)
     (save-window-excursion
-      (magit-visit)
+      (call-interactively #'magit-visit-file)
       (setq buf (current-buffer)
             pos (point)))
     (unless log
@@ -6286,7 +6278,8 @@ This mode is documented in info node `(magit)History'.
 
 \\<magit-log-mode-map>\
 Type \\[magit-refresh] to refresh the current buffer.
-Type \\[magit-visit] or \\[magit-show-or-scroll-up] to visit the commit at point.
+Type \\[magit-show-commit] or \\[magit-show-or-scroll-up]\
+ to visit the commit at point.
 Type \\[magit-merge-popup] to merge the commit at point.
 Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 Type \\[magit-reset-head] to reset HEAD to the commit at point.
@@ -6622,7 +6615,8 @@ This mode is documented in info node `(magit)Wazzup'.
 
 \\<magit-cherry-mode-map>\
 Type \\[magit-toggle-section] to expand or hide the section at point.
-Type \\[magit-visit] or \\[magit-show-or-scroll-up] to visit the commit at point.
+Type \\[magit-show-commit] or \\[magit-show-or-scroll-up]\
+ to visit the commit at point.
 Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 \n\\{magit-cherry-mode-map}"
   :group 'magit-modes)
@@ -6675,7 +6669,8 @@ This mode is documented in info node `(magit)Reflogs'.
 
 \\<magit-reflog-mode-map>\
 Type \\[magit-refresh] to refresh the current buffer.
-Type \\[magit-visit] or \\[magit-show-or-scroll-up] to visit the commit at point.
+Type \\[magit-show-commit] or \\[magit-show-or-scroll-up]\
+ to visit the commit at point.
 Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 Type \\[magit-reset-head] to reset HEAD to the commit at point.
 \n\\{magit-reflog-mode-map}"
@@ -6788,7 +6783,7 @@ This mode is documented in info node `(magit)Diffing'.
 \\<magit-diff-mode-map>\
 Type \\[magit-refresh] to refresh the current buffer.
 Type \\[magit-toggle-section] to expand or hide the section at point.
-Type \\[magit-visit] to visit the file at point.
+Type \\[magit-visit-file] to visit the file at point.
 Type \\[magit-apply] to apply the change at point to the worktree.
 Type \\[magit-revert] to revert the change at point in the worktree.
 \n\\{magit-diff-mode-map}"
@@ -7220,7 +7215,8 @@ This mode is documented in info node `(magit)Wazzup'.
 \\<magit-wazzup-mode-map>\
 Type \\[magit-refresh] to refresh the current buffer.
 Type \\[magit-toggle-section] to expand or hide the section at point.
-Type \\[magit-visit] or \\[magit-show-or-scroll-up] to visit the commit at point.
+Type \\[magit-show-commit] or \\[magit-show-or-scroll-up]\
+ to visit the commit at point.
 Type \\[magit-merge-popup] to merge the branch or commit at point.
 Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 Type \\[magit-reset-head] to reset HEAD to the commit at point.
@@ -7288,7 +7284,8 @@ This mode is documented in info node `(magit)Branches and Remotes'.
 \\<magit-branch-manager-mode-map>\
 Type \\[magit-refresh] to refresh the current buffer.
 Type \\[magit-branch-popup] to see available branch commands.
-Type \\[magit-visit] or \\[magit-show-or-scroll-up] to visit the commit at point.
+Type \\[magit-show-commit] or \\[magit-show-or-scroll-up]\
+ to visit the commit at point.
 Type \\[magit-merge-popup] to merge the branch or commit at point.
 Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 Type \\[magit-reset-head] to reset HEAD to the commit at point.
