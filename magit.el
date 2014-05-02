@@ -1316,7 +1316,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "\d"       'magit-show-or-scroll-down)
     (define-key map "A" 'magit-cherry-pick)
     (define-key map "s" 'magit-stage-file)
-    (define-key map "S" 'magit-stage-all)
+    (define-key map "S" 'magit-stage-modified)
     (define-key map "u" 'magit-unstage-file)
     (define-key map "U" 'magit-reset-index)
     (define-key map "x" 'magit-reset-hard)
@@ -1521,7 +1521,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     ["Refresh all" magit-refresh-all t]
     "---"
     ["Stage" magit-stage t]
-    ["Stage all" magit-stage-all t]
+    ["Stage modified" magit-stage-modified t]
     ["Unstage" magit-unstage t]
     ["Reset index" magit-reset-index t]
     ["Commit" magit-commit-popup t]
@@ -1583,7 +1583,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
              (?o "Submoduling"     magit-submodule-popup)
              (?r "Rebasing"        magit-rebase-popup)
              (?s "Show Status"     magit-status)
-             (?S "Stage all"       magit-stage-all)
+             (?S "Stage all"       magit-stage-modified)
              (?t "Tagging"         magit-tag-popup)
              (?U "Unstage all"     magit-unstage-all)
              (?v "Show Commit"     magit-show-commit)
@@ -4429,7 +4429,7 @@ can be used to override this."
                     (if (use-region-p)
                         (magit-section-region-siblings #'magit-section-value)
                       value)))
-    (unstaged   (magit-stage-all))
+    (unstaged   (magit-stage-modified))
     ([* staged] (user-error "Already staged"))
     (hunk       (user-error "Cannot stage this hunk"))
     (file       (user-error "Cannot stage this file"))))
@@ -4453,15 +4453,19 @@ requiring confirmation."
   (magit-run-git "add" file))
 
 ;;;###autoload
-(defun magit-stage-all (&optional include-untracked)
-  "Add all remaining changes in tracked files to staging area.
-With a prefix argument, add remaining untracked files as well.
+(defun magit-stage-modified (&optional all)
+  "Stage all changes to files modified in the worktree.
+Stage all new content of tracked files and remove tracked files
+that no longer exist in the working tree from the index also.
+With a prefix argument also stage previously untracked (but not
+ignored) files.
 \('git add [--update] .')."
-  (interactive "P")
-  (when (or (not magit-stage-all-confirm)
-            (not (magit-anything-staged-p))
-            (yes-or-no-p "Stage all changes? "))
-    (magit-run-git "add" (unless include-untracked "--update") ".")))
+  (interactive
+   (unless (or (not magit-stage-all-confirm)
+               (not (magit-anything-staged-p))
+               (yes-or-no-p "Stage all changes? "))
+     (user-error "Abort")))
+  (magit-run-git "add" (if all "--all" "--update") "."))
 
 ;;;;; Unstage
 
