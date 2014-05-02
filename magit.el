@@ -1311,17 +1311,15 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "r" 'magit-rebase-popup)
     (define-key map "t" 'magit-tag-popup)
     (define-key map "w" 'magit-wazzup)
-    (define-key map "\r"       'magit-visit)
-    (define-key map [  return] 'magit-visit)
     (define-key map [C-return] 'magit-dired-jump)
     (define-key map "\s"       'magit-show-or-scroll-up)
     (define-key map "\d"       'magit-show-or-scroll-down)
-    (define-key map "a" 'magit-apply)
     (define-key map "A" 'magit-cherry-pick)
-    (define-key map "S" 'magit-stage-all)
-    (define-key map "U" 'magit-unstage-all)
-    (define-key map "v" 'magit-revert)
-    (define-key map "x" 'magit-reset-head)
+    (define-key map "s" 'magit-stage-file)
+    (define-key map "S" 'magit-stage-modified)
+    (define-key map "u" 'magit-unstage-file)
+    (define-key map "U" 'magit-reset-index)
+    (define-key map "x" 'magit-reset-hard)
     (define-key map "X" 'magit-clean)
     (define-key map "y" 'magit-cherry)
     (define-key map "z" 'magit-stash-popup)
@@ -1336,10 +1334,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 (defvar magit-status-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
-    (define-key map "k" 'magit-discard)
-    (define-key map "s" 'magit-stage)
-    (define-key map "u" 'magit-unstage)
-    (define-key map "C" 'magit-commit-add-log)
     (define-key map "jz" 'magit-jump-to-stashes)
     (define-key map "jn" 'magit-jump-to-untracked)
     (define-key map "ju" 'magit-jump-to-unstaged)
@@ -1414,7 +1408,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 (defvar magit-branch-manager-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
-    (define-key map "k" 'magit-discard)
     map)
   "Keymap for `magit-branch-manager-mode'.")
 
@@ -1424,6 +1417,103 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     map)
   "Keymap for `magit-process-mode'.")
 
+(defvar magit-hunk-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\r" 'magit-visit-file)
+    (define-key map "a"  'magit-apply-hunk)
+    (define-key map "C"  'magit-commit-add-log)
+    (define-key map "k"  'magit-discard)
+    (define-key map "s"  'magit-stage)
+    (define-key map "u"  'magit-unstage)
+    (define-key map "v"  'magit-revert)
+    map)
+  "Keymap for `hunk' sections.")
+
+(defvar magit-file-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\r" 'magit-visit-file)
+    (define-key map "a"  'magit-apply-diff)
+    (define-key map "k"  'magit-discard)
+    (define-key map "s"  'magit-stage)
+    (define-key map "u"  'magit-unstage)
+    (define-key map "v"  'magit-revert)
+    map)
+  "Keymap for `file' sections.")
+
+(defvar magit-commit-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\r" 'magit-show-commit)
+    (define-key map "a"  'magit-cherry-apply)
+    (define-key map "A"  'magit-cherry-pick)
+    (define-key map "v"  'magit-revert-commit)
+    map)
+  "Keymap for `commit' sections.")
+
+(defvar magit-mcommit-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\r" 'magit-show-commit)
+    map)
+  "Keymap for `mcommit' (module commit) sections.")
+
+(defvar magit-stash-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\r" 'magit-diff-stash)
+    (define-key map "a"  'magit-stash-apply)
+    (define-key map "A"  'magit-stash-pop)
+    (define-key map "k"  'magit-stash-drop)
+    map)
+  "Keymap for `stash' sections.")
+
+(defvar magit-branch-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "k"  'magit-branch-delete)
+    (define-key map "R"  'magit-branch-rename)
+    map)
+  "Keymap for `branch' sections.")
+
+(defvar magit-remote-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "k"  'magit-remote-remove)
+    (define-key map "R"  'magit-remote-rename)
+    map)
+  "Keymap for `remote' sections.")
+
+(defvar magit-staged-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\r" 'magit-diff-staged)
+    (define-key map "s"  'magit-stage)
+    (define-key map "u"  'magit-unstage)
+    map)
+  "Keymap for the `staged' section.")
+
+(defvar magit-unstaged-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\r" 'magit-diff-unstaged)
+    (define-key map "s"  'magit-stage)
+    (define-key map "u"  'magit-unstage)
+    map)
+  "Keymap for the `unstaged' section.")
+
+(defvar magit-untracked-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "k"  'magit-discard)
+    (define-key map "s"  'magit-stage)
+    (define-key map "u"  'magit-unstage)
+    map)
+  "Keymap for the `untracked' section.")
+
+(defvar magit-unpushed-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\r" 'magit-diff-unpushed)
+    map)
+  "Keymap for the `unpushed' section.")
+
+(defvar magit-unpulled-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\r" 'magit-diff-unpulled)
+    map)
+  "Keymap for the `unpulled' section.")
+
 (easy-menu-define magit-mode-menu magit-mode-map
   "Magit menu"
   '("Magit"
@@ -1431,9 +1521,9 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     ["Refresh all" magit-refresh-all t]
     "---"
     ["Stage" magit-stage t]
-    ["Stage all" magit-stage-all t]
+    ["Stage modified" magit-stage-modified t]
     ["Unstage" magit-unstage t]
-    ["Unstage all" magit-unstage-all t]
+    ["Reset index" magit-reset-index t]
     ["Commit" magit-commit-popup t]
     ["Add log entry" magit-commit-add-log t]
     ["Tag" magit-tag t]
@@ -1447,8 +1537,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
      ["Extended..." magit-log-popup t])
     "---"
     ["Cherry pick" magit-cherry-pick t]
-    ["Apply" magit-apply t]
-    ["Revert" magit-revert t]
+    ["Revert commit" magit-revert-commit t]
     "---"
     ["Ignore" magit-gitignore t]
     ["Ignore locally" magit-gitignore-locally t]
@@ -1494,7 +1583,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
              (?o "Submoduling"     magit-submodule-popup)
              (?r "Rebasing"        magit-rebase-popup)
              (?s "Show Status"     magit-status)
-             (?S "Stage all"       magit-stage-all)
+             (?S "Stage all"       magit-stage-modified)
              (?t "Tagging"         magit-tag-popup)
              (?U "Unstage all"     magit-unstage-all)
              (?v "Show Commit"     magit-show-commit)
@@ -1691,7 +1780,10 @@ never modify it.")
            ,@(cdr args)
            (magit-insert-child-count ,s)
            (set-marker-insertion-type (magit-section-start ,s) t)
-           (let ((end (setf (magit-section-end ,s) (point-marker))))
+           (let* ((end (setf (magit-section-end ,s) (point-marker)))
+                  (map (intern (format "magit-%s-section-map"
+                                       (magit-section-type ,s))))
+                  (map (and (boundp map) (symbol-value map))))
              (save-excursion
                (goto-char (magit-section-start ,s))
                (while (< (point) end)
@@ -1699,7 +1791,9 @@ never modify it.")
                                   (point) 'magit-section)
                                  end)))
                    (unless (get-text-property (point) 'magit-section)
-                     (put-text-property (point) next 'magit-section ,s))
+                     (put-text-property (point) next 'magit-section ,s)
+                     (when map
+                       (put-text-property (point) next 'keymap map)))
                    (goto-char next)))))
            (if (eq ,s magit-root-section)
                (magit-section-set-hidden ,s nil)
@@ -2036,7 +2130,7 @@ FUNCTION has to move point forward or return nil."
 (defun magit-diff-section-for-diffstat (section)
   (let ((file (magit-section-value section)))
     (cl-find-if (lambda (s)
-                  (and (eq (magit-section-type s) 'diff)
+                  (and (eq (magit-section-type s) 'file)
                        (string-equal (magit-section-value s) file)))
                 (magit-section-children magit-root-section))))
 
@@ -2299,32 +2393,6 @@ match return nil."
                          ,@(cdr clause)))
                      clauses))))
 
-(defconst magit-section-action-success
-  (make-symbol "magit-section-action-success"))
-
-(defmacro magit-section-action (opname slots &rest clauses)
-  (declare (indent 2) (debug (sexp &rest (sexp body))))
-  (let ((value (cl-gensym "value")))
-    `(let ((,value
-            (or (run-hook-wrapped
-                 ',(intern (format "magit-%s-hook" opname))
-                 (lambda (fn section)
-                   (when (magit-section-match
-                          (or (get fn 'magit-section-action-context)
-                              (error "%s undefined for %s"
-                                     'magit-section-action-context fn))
-                          section)
-                     (funcall fn (magit-section-value section))))
-                 (magit-current-section))
-                (magit-section-case ,slots
-                  ,@clauses
-                  (t (user-error
-                      (if (magit-current-section)
-                          ,(format "Cannot %s this section" opname)
-                        ,(format "Nothing to %s here" opname))))))))
-       (unless (eq ,value magit-section-action-success)
-         ,value))))
-
 (defun magit-branch-at-point ()
   (magit-section-when branch))
 
@@ -2346,7 +2414,7 @@ match return nil."
 
 (defun magit-file-at-point ()
   (magit-section-case (value parent-value)
-    ((diff diffstat [file untracked]) value)
+    (file value)
     (hunk parent-value)))
 
 ;;;; Process Api
@@ -3233,6 +3301,8 @@ before the last command."
 
 ;;;;; Refresh Machinery
 
+(defvar inhibit-magit-refresh nil)
+
 (defun magit-refresh (&optional buffer)
   "Refresh some buffers belonging to the current repository.
 
@@ -3242,19 +3312,20 @@ If the global `magit-auto-revert-mode' is turned on, then
 also revert all unmodified buffers that visit files being
 tracked in the current repository."
   (interactive (list (current-buffer)))
-  (unless buffer
-    (setq buffer (current-buffer)))
-  (with-current-buffer buffer
-    (cond ((derived-mode-p 'magit-status-mode)
-           (magit-maybe-save-repository-buffers)
-           (magit-mode-refresh-buffer buffer))
-          ((derived-mode-p 'magit-mode)
-           (magit-mode-refresh-buffer buffer)
-           (--when-let (magit-mode-get-buffer magit-status-buffer-name
-                                              'magit-status-mode)
-             (magit-mode-refresh-buffer it)))))
-  (when magit-auto-revert-mode
-    (magit-revert-buffers)))
+  (unless inhibit-magit-refresh
+    (unless buffer
+      (setq buffer (current-buffer)))
+    (with-current-buffer buffer
+      (cond ((derived-mode-p 'magit-status-mode)
+             (magit-maybe-save-repository-buffers)
+             (magit-mode-refresh-buffer buffer))
+            ((derived-mode-p 'magit-mode)
+             (magit-mode-refresh-buffer buffer)
+             (--when-let (magit-mode-get-buffer magit-status-buffer-name
+                                                'magit-status-mode)
+               (magit-mode-refresh-buffer it)))))
+    (when magit-auto-revert-mode
+      (magit-revert-buffers))))
 
 (defun magit-refresh-all ()
   "Refresh all buffers belonging to the current repository.
@@ -3301,7 +3372,7 @@ argument (the prefix) non-nil means save all with no questions."
                      ,(magit-get-top-dir default-directory))))))
 
 ;;; Plumbing
-;;;; Repository Paths
+;;;; Files
 
 (defun magit-git-dir (&optional path)
   "Return absolute path to the GIT_DIR for the current repository.
@@ -3357,12 +3428,38 @@ be an existing directory."
   "Return t if the current repository is bare."
   (magit-rev-parse-p "--is-bare-repository"))
 
+(defun magit-git-repo-p (directory &optional non-bare)
+  "Return t if DIRECTORY is a Git repository.
+When optional NON-BARE is non-nil also return nil if DIRECTORY is
+a bare repositories."
+  (or (file-regular-p (expand-file-name ".git" directory))
+      (file-directory-p (expand-file-name ".git" directory))
+      (and (not non-bare)
+           (file-regular-p (expand-file-name "HEAD" directory))
+           (file-directory-p (expand-file-name "refs" directory))
+           (file-directory-p (expand-file-name "objects" directory)))))
+
 (defun magit-file-relative-name (file)
   "Return the path of FILE relative to the repository root.
 If FILE isn't inside a Git repository then return nil."
   (setq file (file-truename file))
   (--when-let (magit-get-top-dir (file-name-directory file))
     (substring file (length it))))
+
+(defun magit-file-tracked-p (file)
+  (magit-git-success "ls-files" "--error-unmatch" file))
+
+(defun magit-tracked-files ()
+  (magit-git-lines "ls-files" "--full-name"))
+
+(defun magit-untracked-files ()
+  (magit-git-lines "ls-files" "--full-name" "--other" "--exclude-standard"))
+
+(defun magit-modified-files ()
+  (magit-git-lines "diff-files" "--name-only"))
+
+(defun magit-staged-files ()
+  (magit-git-lines "diff-index" "--name-only" (magit-headish)))
 
 (defun magit-expand-git-file-name (filename)
   (when (tramp-tramp-file-p default-directory)
@@ -3439,6 +3536,12 @@ string \"true\", otherwise return nil."
   ;; to exits with a non-zero status.  But there is nothing on
   ;; stdout in that case.
   (and (magit-rev-parse "--abbrev-ref" name) t))
+
+(defun magit-headish ()
+  "Return \"HEAD\" or if that doesn't exist the hash of the empty tree."
+  (if (magit-no-commit-p)
+      (magit-git-string "mktree")
+    "HEAD"))
 
 (defun magit-get-current-branch ()
   "Return the refname of the currently checked out branch.
@@ -3840,7 +3943,7 @@ This mode is documented in info node `(magit)Commit Buffer'.
 
 \\<magit-commit-mode-map>\
 Type \\[magit-toggle-section] to expand or hide the section at point.
-Type \\[magit-visit] to visit the hunk or file at point.
+Type \\[magit-visit-file] to visit the hunk or file at point.
 Type \\[magit-apply] to apply the change at point to the worktree.
 Type \\[magit-revert] to revert the change at point in the worktree.
 \n\\{magit-commit-mode-map}"
@@ -3972,7 +4075,7 @@ stash at point, then prompt for a commit."
                         'action (lambda (button)
                                   (save-excursion
                                     (goto-char button)
-                                    (magit-visit)))
+                                    (call-interactively #'magit-show-commit)))
                         'follow-link t
                         'mouse-face magit-section-highlight-face
                         'face 'magit-hash)))
@@ -3987,7 +4090,7 @@ This mode is documented in info node `(magit)Status'.
 Type \\[magit-refresh] to refresh the current buffer.
 Type \\[magit-dispatch-popup] to see available action popups.
 Type \\[magit-toggle-section] to expand or hide the section at point.
-Type \\[magit-visit] to visit the thing at point.
+Type \\[magit-visit-file] to visit the thing at point.
 Type \\[magit-stage] to stage the change at point; \\[magit-unstage] to unstage.
 Type \\[magit-commit-popup] to create a commit.
 \n\\{magit-status-mode-map}"
@@ -4268,120 +4371,126 @@ can be used to override this."
 
 ;;; Porcelain
 ;;;; Apply
-;;;;; Apply Commands
-;;;;;; Apply
+;;;;; Stage
 
-(defun magit-apply ()
-  "Apply the thing at point to the current working tree."
+(defun magit-stage ()
+  "Add the change at point to the staging area."
   (interactive)
-  (magit-section-action apply (value)
-    (([* unstaged] [* staged])
-     (user-error "Change is already in your working tree"))
-    (hunk   (magit-apply-hunk it))
-    (diff   (magit-apply-diff it))
-    (stash  (magit-stash-apply value))
-    (commit (magit-apply-commit value))))
-
-;;;;;; Stage
-
-(defun magit-stage (&optional file)
-  "Add the thing at point to the staging area.
-With a prefix argument, prompt for a file to be staged instead."
-  (interactive
-   (when current-prefix-arg
-     (list (file-relative-name (read-file-name "File to stage: " nil nil t)
-                               (magit-get-top-dir)))))
-  (if file
-      (magit-run-git "add" file)
-    (magit-section-action stage (value)
-      ([file untracked]
-       (magit-run-git
-        (cond
-         ((use-region-p)
-          (cons "add" (magit-section-region-siblings #'magit-section-value)))
-         ((and (string-match-p "/$" value)
-               (file-exists-p (expand-file-name ".git" value)))
-          (let ((repo (read-string
-                       "Add submodule tracking remote repo (empty to abort): "
-                       (let ((default-directory
-                               (file-name-as-directory
-                                (expand-file-name value default-directory))))
-                         (magit-get "remote.origin.url")))))
-            (if (equal repo "")
-                (user-error "Abort")
-              (list "submodule" "add" repo (substring value 0 -1)))))
-         (t
-          (list "add" value)))))
-      (untracked
-       (magit-run-git "add" "--" (magit-git-lines "ls-files" "--other"
-                                                  "--exclude-standard")))
-      ([hunk diff unstaged]
-       (magit-apply-hunk it "--cached"))
-      ([diff unstaged]
-       (magit-run-git "add" "-u"
-                      (if (use-region-p)
-                          (magit-section-region-siblings #'magit-section-value)
-                        value)))
-      (unstaged
-       (magit-stage-all))
-      ([* staged]
-       (user-error "Already staged"))
-      (hunk (user-error "Can't stage this hunk"))
-      (diff (user-error "Can't stage this diff")))))
+  (magit-section-case (value)
+    ([file untracked]
+     (let (files repos)
+       (dolist (elt (if (use-region-p)
+                        (magit-section-region-siblings)
+                      (list it)))
+         (if (magit-git-repo-p value t)
+             (push elt repos)
+           (push (magit-section-value elt) files)))
+       (when files
+         (magit-run-git "add" "--" files))
+       (dolist (repo repos)
+         (save-excursion
+           (goto-char (magit-section-start repo))
+           (call-interactively 'magit-submodule-add)))))
+    (untracked
+     (magit-run-git "add" "--" (magit-untracked-files)))
+    ([hunk file unstaged]
+     (magit-apply-hunk it "--cached"))
+    ([file unstaged]
+     (magit-run-git "add" "--"
+                    (if (use-region-p)
+                        (magit-section-region-siblings #'magit-section-value)
+                      value)))
+    (unstaged   (magit-stage-modified))
+    ([* staged] (user-error "Already staged"))
+    (hunk       (user-error "Cannot stage this hunk"))
+    (file       (user-error "Cannot stage this file"))))
 
 ;;;###autoload
-(defun magit-stage-all (&optional include-untracked)
-  "Add all remaining changes in tracked files to staging area.
-With a prefix argument, add remaining untracked files as well.
-\('git add [--update] .')."
-  (interactive "P")
-  (when (or (not magit-stage-all-confirm)
-            (not (magit-anything-staged-p))
-            (yes-or-no-p "Stage all changes? "))
-    (magit-run-git "add" (unless include-untracked "--update") ".")))
+(defun magit-stage-file (file)
+  "Stage all changes to FILE.
+With a prefix argument or when there is no file at point ask for
+the file to be staged.  Otherwise stage the file at point without
+requiring confirmation."
+  (interactive
+   (let* ((atpoint (magit-section-when (file)))
+          (current (magit-buffer-file-name t))
+          (choices (nconc (magit-modified-files)
+                          (magit-untracked-files)))
+          (default (car (member (or atpoint current) choices))))
+     (list (if (or current-prefix-arg (not default))
+               (magit-completing-read "Stage file" choices
+                                      nil t nil nil default)
+             default))))
+  (magit-run-git "add" file))
 
-;;;;;; Unstage
+;;;###autoload
+(defun magit-stage-modified (&optional all)
+  "Stage all changes to files modified in the worktree.
+Stage all new content of tracked files and remove tracked files
+that no longer exist in the working tree from the index also.
+With a prefix argument also stage previously untracked (but not
+ignored) files.
+\('git add [--update] .')."
+  (interactive
+   (unless (or (not magit-stage-all-confirm)
+               (not (magit-anything-staged-p))
+               (yes-or-no-p "Stage all changes? "))
+     (user-error "Abort")))
+  (magit-run-git "add" (if all "--all" "--update") "."))
+
+;;;;; Unstage
 
 (defun magit-unstage ()
-  "Remove the thing at point from the staging area."
+  "Remove the change at point from the staging area."
   (interactive)
-  (magit-section-action unstage (value)
-    ([hunk diff staged]
+  (magit-section-case (value)
+    ([hunk file staged]
      (magit-apply-hunk it "--reverse" "--cached"))
-    ([diff staged]
+    ([file staged]
      (when (eq value 'unmerged)
        (user-error "Can't unstage an unmerged file.  Resolve it first"))
-     (let ((files (if (use-region-p)
-                      (magit-section-region-siblings #'magit-section-value)
-                    (list value))))
-       (if (magit-no-commit-p)
-           (magit-run-git "rm" "--cached" "--" files)
-         (magit-run-git "reset" "-q" "HEAD" "--" files))))
+     (magit-unstage-1 (if (use-region-p)
+                          (magit-section-region-siblings #'magit-section-value)
+                        value)))
     (staged
-     (magit-unstage-all))
-    ([* unstaged]
-     (user-error "Already unstaged"))
-    (hunk (user-error "Can't unstage this hunk"))
-    (diff (user-error "Can't unstage this diff"))))
+     (when (or (not magit-unstage-all-confirm)
+               (and (not (magit-anything-unstaged-p))
+                    (not (magit-untracked-files)))
+               (yes-or-no-p "Unstage all changes? "))
+       (magit-run-git "reset" "HEAD" "--")))
+    ([* untracked] (user-error "Not tracked"))
+    ([* unstaged]  (user-error "Already unstaged"))
+    (hunk          (user-error "Cannot unstage this hunk"))
+    (file          (user-error "Cannot unstage this file"))))
 
 ;;;###autoload
-(defun magit-unstage-all ()
-  "Remove all changes from staging area.
-\('git reset --mixed HEAD')."
-  (interactive)
-  (when (or (not magit-unstage-all-confirm)
-            (and (not (magit-anything-unstaged-p))
-                 (not (magit-git-lines "ls-files" "--others" "-t"
-                                       "--exclude-standard")))
-            (yes-or-no-p "Unstage all changes? "))
-    (magit-run-git "reset" "HEAD" "--")))
+(defun magit-unstage-file (file)
+  "Unstage all changes to FILE.
+With a prefix argument or when there is no file at point ask for
+the file to be unstaged.  Otherwise unstage the file at point
+without requiring confirmation."
+  (interactive
+   (let* ((atpoint (magit-section-when (file)))
+          (current (magit-buffer-file-name t))
+          (choices (magit-staged-files))
+          (default (car (member (or atpoint current) choices))))
+     (list (if (or current-prefix-arg (not default))
+               (magit-completing-read "Unstage file" choices
+                                      nil t nil nil default)
+             default))))
+  (magit-unstage-1 file))
 
-;;;;;; Discard
+(defun magit-unstage-1 (args)
+  (if (magit-no-commit-p)
+      (magit-run-git "rm" "--cached" "--" args)
+    (magit-run-git "reset" "HEAD" "--" args)))
+
+;;;;; Discard
 
 (defun magit-discard ()
   "Remove the change introduced by the thing at point."
   (interactive)
-  (magit-section-action discard (value parent-value diff-status)
+  (magit-section-case (value parent-value diff-status)
     ([file untracked]
      (when (yes-or-no-p (format "Delete %s? " value))
        (if (and (file-directory-p value)
@@ -4392,51 +4501,68 @@ With a prefix argument, add remaining untracked files as well.
     (untracked
      (when (yes-or-no-p "Delete all untracked files and directories? ")
        (magit-run-git "clean" "-df")))
-    ([hunk diff unstaged]
+    ([hunk file unstaged]
      (when (yes-or-no-p (if (use-region-p)
                             "Discard changes in region? "
                           "Discard hunk? "))
        (magit-apply-hunk it "--reverse")))
-    ([hunk diff staged]
-     (cond ((magit-anything-unstaged-p parent-value)
-            (user-error "Cannot discard this hunk, file has unstaged changes"))
-           ((yes-or-no-p (if (use-region-p)
-                             "Discard changes in region? "
-                           "Discard hunk? "))
-            (magit-apply-hunk it "--reverse" "--index"))))
-    ([diff unstaged]
+    ([hunk file staged]
+     (when (yes-or-no-p (if (use-region-p)
+                            "Discard changes in region? "
+                          "Discard hunk? "))
+       (if (magit-anything-unstaged-p parent-value)
+           (progn
+             (let ((inhibit-magit-refresh t))
+               (magit-apply-hunk it "--reverse" "--cached")
+               (magit-apply-hunk it "--reverse"))
+             (magit-refresh))
+         (magit-apply-hunk it "--reverse" "--index"))))
+    ([file unstaged]
      (if (eq diff-status 'unmerged)
          (magit-checkout-stage value (magit-checkout-read-stage value))
-       (magit-discard-diff it nil)))
-    ([diff staged]
+       (magit-discard-file value diff-status nil)))
+    ([file staged]
      (if (magit-anything-unstaged-p (magit-section-value it))
          (user-error "Cannot discard this hunk, file has unstaged changes")
-       (magit-discard-diff it t)))
-    (hunk   (user-error "Can't discard this hunk"))
-    (diff   (user-error "Can't discard this diff"))
-    (stash  (call-interactively 'magit-stash-drop))
-    (branch (call-interactively 'magit-branch-delete))
-    (remote (call-interactively 'magit-remote-remove))))
+       (magit-discard-file value diff-status t)))
+    (hunk (user-error "Cannot discard this hunk"))
+    (file (user-error "Cannot discard this file"))))
 
-;;;;;; Revert
+(defun magit-discard-file (file status stagedp)
+  (cl-case status
+    (deleted
+     (when (yes-or-no-p (format "Resurrect %s? " file))
+       (when stagedp
+         (magit-run-git "reset" "-q" "--" file))
+       (magit-run-git "checkout" "--" file)))
+    (new
+     (when (yes-or-no-p (format "Delete %s? " file))
+       (magit-run-git "rm" "-f" "--" file)))
+    (t
+     (when (yes-or-no-p (format "Discard changes to %s? " file))
+       (if stagedp
+           (magit-run-git "checkout" "HEAD" "--" file)
+         (magit-run-git "checkout" "--" file))))))
+
+;;;;; Revert
 
 (defun magit-revert ()
-  "Revert the thing at point.
-The change is reversed in the working tree."
+  "Revert the change at point in the working tree."
   (interactive)
-  (magit-section-action revert (value)
-    ([* unstaged] (magit-discard))
-    (commit (when (or (not magit-revert-confirm)
-                      (yes-or-no-p "Revert this commit? "))
-              (magit-revert-commit value)))
-    (diff   (when (or (not magit-revert-confirm)
-                      (yes-or-no-p "Revert this diff? "))
-              (magit-apply-diff it "--reverse")))
-    (hunk   (when (or (not magit-revert-confirm)
-                      (yes-or-no-p "Revert this hunk? "))
-              (magit-apply-hunk it "--reverse")))))
+  (magit-section-case (value)
+    (file (when (or (not magit-revert-confirm)
+                    (yes-or-no-p (format "Revert %s? " value)))
+            (magit-apply-diff it "--reverse")))
+    (hunk (when (or (not magit-revert-confirm)
+                    (yes-or-no-p "Revert this hunk? "))
+            (magit-apply-hunk it "--reverse")))
+    (t    (user-error "No diff at point"))))
 
 (defun magit-revert-commit (commit)
+  (interactive
+   (let ((atpoint (magit-commit-at-point)))
+     (list (or (and current-prefix-arg atpoint)
+               (magit-read-rev "Revert commit" atpoint)))))
   (magit-assert-one-parent commit "revert")
   (magit-run-git "revert" "--no-commit" commit))
 
@@ -4452,47 +4578,39 @@ Also see option `magit-revert-backup'."
       (user-error "No backups exist"))
     (magit-refresh)))
 
-;;;;; Apply Core
+;;;;; Apply
 
-(defun magit-discard-diff (diff stagedp)
-  (let ((file (magit-section-value diff)))
-    (cl-case (magit-section-diff-status diff)
-      (deleted
-       (when (yes-or-no-p (format "Resurrect %s? " file))
-         (when stagedp
-           (magit-run-git "reset" "-q" "--" file))
-         (magit-run-git "checkout" "--" file)))
-      (new
-       (when (yes-or-no-p (format "Delete %s? " file))
-         (magit-run-git "rm" "-f" "--" file)))
-      (t
-       (when (yes-or-no-p (format "Discard changes to %s? " file))
-         (if stagedp
-             (magit-run-git "checkout" "HEAD" "--" file)
-           (magit-run-git "checkout" "--" file)))))))
-
-(defun magit-apply-commit (commit)
-  (magit-assert-one-parent commit "cherry-pick")
-  (magit-run-git "cherry-pick" "--no-commit" commit))
-
-(defun magit-apply-diff (diff &rest args)
+(defun magit-apply-diff (section &rest args)
+  (interactive
+   (or (magit-section-when file
+         (if (memq (--> it
+                     magit-section-parent
+                     magit-section-type)
+                   '(staged unstaged))
+             (user-error "Change is already in the working tree")
+           (list it)))
+       (user-error "Not a file")))
   (when (member "-U0" magit-diff-options)
     (setq args (cons "--unidiff-zero" args)))
   (let ((buf (generate-new-buffer " *magit-input*")))
     (unwind-protect
-        (progn (magit-insert-diff-patch diff buf)
+        (progn (magit-insert-diff-patch section buf)
                (magit-run-git-with-input
                 buf "apply" args "--ignore-space-change" "-"))
       (kill-buffer buf))))
 
-(defun magit-apply-hunk (hunk &rest args)
-  "Apply single hunk or part of a hunk to the index or working file.
-
-This function is the core of magit's stage, unstage, apply, and
-revert operations.  HUNK (or the portion of it selected by the
-region) will be applied to either the index, if \"--cached\" is a
-member of ARGS, or to the working file otherwise."
-  (when (string-match "^diff --cc" (magit-section-parent-value hunk))
+(defun magit-apply-hunk (section &rest args)
+  (interactive
+   (or (magit-section-when hunk
+         (if (memq (--> it
+                     magit-section-parent
+                     magit-section-parent
+                     magit-section-type)
+                   '(staged unstaged))
+             (user-error "Change is already in the working tree")
+           (list it)))
+       (user-error "Not a diff")))
+  (when (string-match "^diff --cc" (magit-section-parent-value section))
     (user-error (concat "Cannot un-/stage individual resolution hunks.  "
                         "Please stage the whole file.")))
   (let ((use-region (use-region-p)))
@@ -4505,34 +4623,34 @@ member of ARGS, or to the working file otherwise."
       (unwind-protect
           (progn (if use-region
                      (magit-insert-region-patch
-                      hunk (member "--reverse" args)
+                      section (member "--reverse" args)
                       (region-beginning) (region-end) buf)
-                   (magit-insert-hunk-patch hunk buf))
+                   (magit-insert-hunk-patch section buf))
                  (magit-revert-backup buf args)
                  (magit-run-git-with-input
                   buf "apply" args "--ignore-space-change" "-"))
         (kill-buffer buf)))))
 
-(defun magit-insert-diff-patch (diff buf)
-  (magit-insert-diff-header diff buf)
-  (magit-insert-region (magit-section-content diff)
-                       (magit-section-end diff)
+(defun magit-insert-diff-patch (section buf)
+  (magit-insert-diff-header section buf)
+  (magit-insert-region (magit-section-content section)
+                       (magit-section-end section)
                        buf))
 
-(defun magit-insert-hunk-patch (hunk buf)
-  (magit-insert-diff-header (magit-section-parent hunk) buf)
-  (magit-insert-region (magit-section-start hunk)
-                       (magit-section-end hunk)
+(defun magit-insert-hunk-patch (section buf)
+  (magit-insert-diff-header (magit-section-parent section) buf)
+  (magit-insert-region (magit-section-start section)
+                       (magit-section-end section)
                        buf))
 
-(defun magit-insert-region-patch (hunk reverse beg end buf)
-  (magit-insert-diff-header (magit-section-parent hunk) buf)
+(defun magit-insert-region-patch (section reverse beg end buf)
+  (magit-insert-diff-header (magit-section-parent section) buf)
   (save-excursion
-    (goto-char (magit-section-start hunk))
+    (goto-char (magit-section-start section))
     (magit-insert-current-line buf)
     (forward-line)
     (let ((copy-op (if reverse "+" "-")))
-      (while (< (point) (magit-section-end hunk))
+      (while (< (point) (magit-section-end section))
         (cond ((and (<= beg (point)) (< (point) end))
                (magit-insert-current-line buf))
               ((looking-at " ")
@@ -4546,9 +4664,9 @@ member of ARGS, or to the working file otherwise."
   (with-current-buffer buf
     (diff-fixup-modifs (point-min) (point-max))))
 
-(defun magit-insert-diff-header (diff buf)
-  (let ((src (magit-section-diff-file2 diff))
-        (dst (magit-section-value diff)))
+(defun magit-insert-diff-header (section buf)
+  (let ((src (magit-section-diff-file2 section))
+        (dst (magit-section-value section)))
     (with-current-buffer buf
       (insert (format "diff --git a/%s b/%s\n--- a/%s\n+++ b/%s\n"
                       src dst src dst)))))
@@ -4578,28 +4696,12 @@ member of ARGS, or to the working file otherwise."
 
 ;;;; Visit
 
-(defun magit-visit (&optional other-window)
-  "Visit the thing at point.
-With a prefix argument, visit in other window."
-  (interactive "P")
-  (magit-section-action visit (value parent-value)
-    ((diff diffstat [file untracked])
-     (magit-visit-file value other-window))
-    (hunk     (magit-visit-file parent-value other-window
-                                     (magit-hunk-target-line it)
-                                     (current-column)))
-    (staged   (magit-diff-staged))
-    (unstaged (magit-diff-unstaged))
-    (unpushed (magit-diff-unpushed))
-    (unpulled (magit-diff-unpulled))
-    (stash    (magit-diff-stash value))
-    (commit   (magit-show-commit value))
-    (mcommit  (magit-show-commit value nil parent-value))
-    (branch   (magit-checkout value))))
-
 (defun magit-visit-file (file &optional other-window line column)
-  (unless file
-    (user-error "Can't get pathname for this file"))
+  (interactive (magit-section-case (value parent-value)
+                 (file (list value        current-prefix-arg))
+                 (hunk (list parent-value current-prefix-arg
+                             (magit-hunk-target-line it)
+                             (current-column)))))
   (unless (file-exists-p file)
     (user-error "Can't visit deleted file: %s" file))
   (if (file-directory-p file)
@@ -4644,11 +4746,10 @@ With a prefix argument, visit in other window."
   (require 'dired-x)
   (dired-jump other-window
               (file-truename
-               (magit-section-action dired-jump (value parent-value)
-                 ([file untracked] value)
-                 ((diff diffstat) value)
+               (magit-section-case (value parent-value)
+                 (file value)
                  (hunk parent-value)
-                 (t default-directory)))))
+                 (t    default-directory)))))
 
 (defvar-local magit-file-log-file nil)
 (defvar-local magit-show-current-version nil)
@@ -4812,11 +4913,10 @@ inspect the merge and change the commit message.
    (let ((default-directory (magit-get-top-dir)))
      (if t ; FIXME conflicts occur in other situations too
          ;; (file-exists-p (magit-git-dir "MERGE_HEAD"))
-         (let ((file (magit-completing-read
-                      "Checkout file"
-                      (magit-git-lines "ls-files")
-                      nil nil nil 'magit-read-file-hist
-                      (magit-file-at-point))))
+         (let ((file (magit-completing-read "Checkout file"
+                                            (magit-tracked-files) nil nil nil
+                                            'magit-read-file-hist
+                                            (magit-file-at-point))))
            (cond
             ((member file (magit-git-lines "diff" "--name-only"
                                            "--diff-filter=U"))
@@ -5245,28 +5345,42 @@ Return nil if there is no rebase in progress."
 ;;;;; Reset
 
 ;;;###autoload
-(defun magit-reset-head (revision &optional hard)
-  "Switch `HEAD' to REVISION, keeping prior working tree and staging area.
-Any differences from REVISION become new changes to be committed.
-With prefix argument, all uncommitted changes in working tree
-and staging area are lost.
-\n(git reset --soft|--hard REVISION)"
-  (interactive (list (magit-read-rev (format "%s head to"
-                                             (if current-prefix-arg
-                                                 "Hard reset"
-                                               "Reset"))
-                                     (or (magit-branch-or-commit-at-point) "HEAD"))
-                     current-prefix-arg))
-  (magit-run-git "reset" (if hard "--hard" "--soft") revision "--"))
+(defun magit-reset-index (commit)
+  "Reset the index to COMMIT.
+Keep the head and working tree as-is, so if COMMIT revers to the
+head this effectivley unstages all changes.
+\n(git reset --mixed COMMIT)"
+  (interactive
+   (list (magit-read-rev "Reset index to"
+                         (or (magit-branch-or-commit-at-point) "HEAD"))))
+  (magit-run-git "reset" commit "--"))
 
 ;;;###autoload
-(defun magit-reset-head-hard (revision)
-  "Switch `HEAD' to REVISION, losing all changes.
-Uncomitted changes in both working tree and staging area are lost.
+(defun magit-reset-head (commit)
+  "Reset the head and index to COMMIT, but not the working tree.
+\n(git reset --mixed COMMIT)"
+  (interactive
+   (list (magit-read-rev "Reset head to"
+                         (or (magit-branch-or-commit-at-point) "HEAD"))))
+  (magit-run-git "reset" "--mixed" commit))
+
+;;;###autoload
+(defun magit-reset-soft (commit)
+  "Reset the head to COMMIT, but not the index and working tree.
+\n(git reset --soft REVISION)"
+  (interactive
+   (list (magit-read-rev "Soft reset to"
+                         (or (magit-branch-or-commit-at-point) "HEAD"))))
+  (magit-run-git "reset" "--hard" commit))
+
+;;;###autoload
+(defun magit-reset-hard (commit)
+  "Reset the head, index, and working tree to COMMIT.
 \n(git reset --hard REVISION)"
-  (interactive (list (magit-read-rev (format "Hard reset head to")
-                                     (or (magit-branch-or-commit-at-point) "HEAD"))))
-  (magit-reset-head revision t))
+  (interactive
+   (list (magit-read-rev "Hard reset to"
+                         (or (magit-branch-or-commit-at-point) "HEAD"))))
+  (magit-run-git "reset" "--hard" commit))
 
 ;;;;; Clean
 
@@ -5683,7 +5797,7 @@ actually insert the entry."
   (interactive)
   (let ((log (magit-commit-log-buffer)) buf pos)
     (save-window-excursion
-      (magit-visit)
+      (call-interactively #'magit-visit-file)
       (setq buf (current-buffer)
             pos (point)))
     (unless log
@@ -5867,16 +5981,33 @@ With prefix argument, changes in staging area are kept.
 
 ;;;;; Cherry-Pick
 
-(defun magit-cherry-pick ()
-  "Cherry-pick the commit at point."
-  (interactive)
-  (magit-section-action cherry-pick (value)
-    (commit (magit-cherry-pick-commit value))
-    (stash  (magit-stash-pop value))))
-
-(defun magit-cherry-pick-commit (commit)
+(defun magit-cherry-pick (commit)
+  "Cherry-pick the commit at point.
+If there is no commit at point or with a prefix argument prompt
+for a commit."
+  (interactive
+   (let ((atpoint (magit-branch-or-commit-at-point))
+         (current (magit-get-current-branch)))
+     (when (equal atpoint current)
+       (setq atpoint nil))
+     (list (or (and (not current-prefix-arg) atpoint)
+               (magit-read-rev "Cherry-pick" atpoint current)))))
   (magit-assert-one-parent commit "cherry-pick")
   (magit-run-git "cherry-pick" commit))
+
+(defun magit-cherry-apply (commit)
+  "Cherry-pick the commit at point, leaving changes uncommitted.
+If there is no commit at point or with a prefix argument prompt
+for a commit."
+  (interactive
+   (let ((atpoint (magit-branch-or-commit-at-point))
+         (current (magit-get-current-branch)))
+     (when (equal atpoint current)
+       (setq atpoint nil))
+     (list (or (and (not current-prefix-arg) atpoint)
+               (magit-read-rev "Apply commit" atpoint current)))))
+  (magit-assert-one-parent commit "cherry-pick")
+  (magit-run-git "cherry-pick" "--no-commit" commit))
 
 ;;;;; Submoduling
 
@@ -5884,35 +6015,62 @@ With prefix argument, changes in staging area are kept.
   "Popup console for submodule commands."
   'magit-popups
   :man-page "git-submodule"
-  :actions  '((?u "Update" magit-submodule-update)
-              (?b "Both update and init" magit-submodule-update-init)
-              (?i "Init" magit-submodule-init)
-              (?s "Sync" magit-submodule-sync)))
+  :actions  '((?a "Add"    magit-submodule-add)
+              (?b "Setup"  magit-submodule-setup)
+              (?i "Init"   magit-submodule-init)
+              (?u "Update" magit-submodule-update)
+              (?s "Sync"   magit-submodule-sync)))
 
 ;;;###autoload
-(defun magit-submodule-update (&optional init)
-  "Update the submodule of the current Git repository.
-With a prefix arg, do a submodule update --init."
-  (interactive "P")
-  (let ((default-directory (magit-get-top-dir)))
-    (magit-run-git-async "submodule" "update" (and init "--init"))))
+(defun magit-submodule-add (url &optional path)
+  "Add the repository at URL as a submodule.
+Optional PATH is the path to the submodule relative to the root
+of the superproject. If it is nil then the path is determined
+based on URL."
+  (interactive
+   (let* ((default-directory (magit-toplevel))
+          (path (read-file-name
+                 "Add submodule: " nil nil nil
+                 (magit-section-when [file untracked]
+                   (directory-file-name (magit-section-value it))))))
+     (when path
+       (setq path (file-name-as-directory (expand-file-name path)))
+       (when (member path (list "" default-directory))
+         (setq path nil)))
+     (list (magit-read-string
+            "Remote url"
+            (and path (magit-git-repo-p path t)
+                 (let ((default-directory path))
+                   (magit-get "remote"
+                              (or (magit-get-current-remote) "origin")
+                              "url"))))
+           (and path (directory-file-name (file-relative-name path))))))
+  (magit-run-git "submodule" "add" url path))
 
 ;;;###autoload
-(defun magit-submodule-update-init ()
-  "Update and init the submodule of the current Git repository."
+(defun magit-submodule-setup ()
+  "Clone and register missing submodules and checkout appropriate commits."
   (interactive)
   (magit-submodule-update t))
 
 ;;;###autoload
 (defun magit-submodule-init ()
-  "Initialize the submodules."
+  "Register submodules listed in .gitmodules into .git/config."
   (interactive)
   (let ((default-directory (magit-get-top-dir)))
     (magit-run-git-async "submodule" "init")))
 
 ;;;###autoload
+(defun magit-submodule-update (&optional init)
+  "Clone missing submodules and checkout appropriate commits.
+With a prefix argument also register submodules in .git/config."
+  (interactive "P")
+  (let ((default-directory (magit-get-top-dir)))
+    (magit-run-git-async "submodule" "update" (and init "--init"))))
+
+;;;###autoload
 (defun magit-submodule-sync ()
-  "Synchronizes submodule's remote URL configuration."
+  "Update each submodule's remote URL according to .gitmodules."
   (interactive)
   (let ((default-directory (magit-get-top-dir)))
     (magit-run-git-async "submodule" "sync")))
@@ -6118,7 +6276,8 @@ This mode is documented in info node `(magit)History'.
 
 \\<magit-log-mode-map>\
 Type \\[magit-refresh] to refresh the current buffer.
-Type \\[magit-visit] or \\[magit-show-or-scroll-up] to visit the commit at point.
+Type \\[magit-show-commit] or \\[magit-show-or-scroll-up]\
+ to visit the commit at point.
 Type \\[magit-merge-popup] to merge the commit at point.
 Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 Type \\[magit-reset-head] to reset HEAD to the commit at point.
@@ -6454,7 +6613,8 @@ This mode is documented in info node `(magit)Wazzup'.
 
 \\<magit-cherry-mode-map>\
 Type \\[magit-toggle-section] to expand or hide the section at point.
-Type \\[magit-visit] or \\[magit-show-or-scroll-up] to visit the commit at point.
+Type \\[magit-show-commit] or \\[magit-show-or-scroll-up]\
+ to visit the commit at point.
 Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 \n\\{magit-cherry-mode-map}"
   :group 'magit-modes)
@@ -6507,7 +6667,8 @@ This mode is documented in info node `(magit)Reflogs'.
 
 \\<magit-reflog-mode-map>\
 Type \\[magit-refresh] to refresh the current buffer.
-Type \\[magit-visit] or \\[magit-show-or-scroll-up] to visit the commit at point.
+Type \\[magit-show-commit] or \\[magit-show-or-scroll-up]\
+ to visit the commit at point.
 Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 Type \\[magit-reset-head] to reset HEAD to the commit at point.
 \n\\{magit-reflog-mode-map}"
@@ -6620,7 +6781,7 @@ This mode is documented in info node `(magit)Diffing'.
 \\<magit-diff-mode-map>\
 Type \\[magit-refresh] to refresh the current buffer.
 Type \\[magit-toggle-section] to expand or hide the section at point.
-Type \\[magit-visit] to visit the file at point.
+Type \\[magit-visit-file] to visit the file at point.
 Type \\[magit-apply] to apply the change at point to the worktree.
 Type \\[magit-revert] to revert the change at point in the worktree.
 \n\\{magit-diff-mode-map}"
@@ -6862,7 +7023,7 @@ actually were a single commit."
            (when (looking-at magit-diff-statline-re)
              (magit-bind-match-strings (file sep cnt add del) nil
                (delete-region (point) (1+ (line-end-position)))
-               (magit-insert-section (diffstat)
+               (magit-insert-section (file)
                  (insert " " file sep cnt " ")
                  (when add (insert (propertize add 'face 'magit-diff-added)))
                  (when del (insert (propertize del 'face 'magit-diff-removed)))
@@ -6889,7 +7050,7 @@ actually were a single commit."
                   (file-name-as-directory
                    (expand-file-name module (magit-get-top-dir)))))
             (setf (magit-section-value
-                   (magit-insert-section (diff module t)
+                   (magit-insert-section (file module t)
                      (magit-insert-heading
                        (propertize (format "modified%s  %s\n"
                                            (if dirty "%" "/") module)
@@ -6898,7 +7059,7 @@ actually were a single commit."
                        "log" "--oneline" "--left-right" range)
                      (delete-char -1)))
                   module))
-        (magit-insert-section (diff module)
+        (magit-insert-section (file module)
           (magit-insert (propertize (format "dirty      %s\n" module)
                                     'face 'magit-diff-file-header))))))
    ((looking-at "^\\* Unmerged path \\(.*\\)")
@@ -6906,7 +7067,7 @@ actually were a single commit."
       (delete-region (point) (1+ (line-end-position)))
       (unless (and (derived-mode-p 'magit-status-mode)
                    (not (member "--cached" args)))
-        (magit-insert-section (diff dst)
+        (magit-insert-section (file dst)
           (magit-insert (propertize (format "unmerged   %s\n" dst)
                                     'face 'magit-diff-file-header)))))
     t)
@@ -6928,8 +7089,8 @@ actually were a single commit."
           (when (looking-at "^\\(new file\\|rename\\|deleted\\)")
             (setq status (match-string 1)))
           (delete-region (point) (1+ (line-end-position)))))
-      (magit-insert-section it (diff dst (or (equal status "deleted")
-                                           (derived-mode-p 'magit-status-mode)))
+      (magit-insert-section it (file dst (or (equal status "deleted")
+                                             (derived-mode-p 'magit-status-mode)))
         (magit-insert-heading
           (propertize (if (equal status "rename")
                           (format "renamed    %s => %s\n" src dst)
@@ -7052,7 +7213,8 @@ This mode is documented in info node `(magit)Wazzup'.
 \\<magit-wazzup-mode-map>\
 Type \\[magit-refresh] to refresh the current buffer.
 Type \\[magit-toggle-section] to expand or hide the section at point.
-Type \\[magit-visit] or \\[magit-show-or-scroll-up] to visit the commit at point.
+Type \\[magit-show-commit] or \\[magit-show-or-scroll-up]\
+ to visit the commit at point.
 Type \\[magit-merge-popup] to merge the branch or commit at point.
 Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 Type \\[magit-reset-head] to reset HEAD to the commit at point.
@@ -7120,7 +7282,8 @@ This mode is documented in info node `(magit)Branches and Remotes'.
 \\<magit-branch-manager-mode-map>\
 Type \\[magit-refresh] to refresh the current buffer.
 Type \\[magit-branch-popup] to see available branch commands.
-Type \\[magit-visit] or \\[magit-show-or-scroll-up] to visit the commit at point.
+Type \\[magit-show-commit] or \\[magit-show-or-scroll-up]\
+ to visit the commit at point.
 Type \\[magit-merge-popup] to merge the branch or commit at point.
 Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 Type \\[magit-reset-head] to reset HEAD to the commit at point.
@@ -7141,13 +7304,6 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 (defun magit-refresh-branch-manager ()
   (magit-insert-section (branchbuf)
     (run-hooks 'magit-branch-manager-sections-hook)))
-
-(defun magit-rename ()
-  "Rename the thing at point."
-  (interactive)
-  (magit-section-action rename ()
-    (branch (call-interactively 'magit-branch-rename))
-    (remote (call-interactively 'magit-remote-rename))))
 
 (defconst magit-wash-branch-line-re
   (concat "^"
@@ -7233,10 +7389,8 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 (defun magit-copy-as-kill ()
   "Copy the thing at point into the kill ring."
   (interactive)
-  (magit-section-action copy (value)
-    ((branch commit mcommit file diff diffstat)
-     (kill-new value)
-     (message "%s" value))))
+  (magit-section-when (branch commit mcommit file)
+    (kill-new (message "%s" (magit-section-value it)))))
 
 (defun magit-describe-section ()
   "Show information about the section at point.
@@ -7345,8 +7499,7 @@ then turn on `magit-wip-save-mode' provided the `wip-save' Magit
 extension has been enabled in that repository."
   (when (and (buffer-file-name)
              (magit-inside-worktree-p)
-             (magit-git-success "ls-files" "--error-unmatch"
-                                (buffer-file-name))
+             (magit-file-tracked-p (buffer-file-name))
              (member "wip-save" (magit-get-all "magit.extension")))
     (magit-wip-save-mode 1)))
 
@@ -7400,7 +7553,6 @@ to the current branch and `magit-wip-ref-format'."
        (2 font-lock-function-name-face nil t))
       (,(concat "(" (regexp-opt '("magit-insert-section"
                                   "magit-insert-header"
-                                  "magit-section-action"
                                   "magit-section-case"
                                   "magit-section-when"
                                   "magit-bind-match-strings"

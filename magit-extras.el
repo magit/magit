@@ -205,7 +205,7 @@ a position in a file-visiting buffer."
                      (prompt-for-change-log-name)))
   (let (buf pos)
     (save-window-excursion
-      (magit-visit)
+      (call-interactively #'magit-visit-file)
       (setq buf (current-buffer)
             pos (point)))
     (save-excursion
