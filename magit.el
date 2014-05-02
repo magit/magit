@@ -4412,11 +4412,7 @@ With a prefix argument, add remaining untracked files as well.
     (diff   (user-error "Can't discard this diff"))
     (stash  (when (yes-or-no-p "Discard stash? ")
               (magit-stash-drop value)))
-    (branch (when (yes-or-no-p
-                   (if current-prefix-arg
-                       (concat "Force delete branch [" value "]? ")
-                     (concat "Delete branch [" value "]? ")))
-              (magit-branch-delete value current-prefix-arg)))
+    (branch (call-interactively 'magit-branch-delete))
     (remote (when (yes-or-no-p "Remove remote? ")
               (magit-remote-remove value)))))
 
@@ -4938,7 +4934,9 @@ merged will fail.  With a prefix argument the deletion is forced.
 When BRANCH is the current branch offer to first detach HEAD or
 checkout the \"master\" branch.
 \n(git branch -d|-D BRANCH || git push REMOTE :BRANCH)."
-  (interactive (list (magit-read-rev "Branch to delete"
+  (interactive (list (magit-read-rev (if current-prefix-arg
+                                         "Force delete branch"
+                                       "Delete branch")
                                      (or (magit-branch-at-point)
                                          (magit-get-previous-branch)))
                      current-prefix-arg))
