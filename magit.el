@@ -2036,7 +2036,7 @@ FUNCTION has to move point forward or return nil."
 (defun magit-diff-section-for-diffstat (section)
   (let ((file (magit-section-value section)))
     (cl-find-if (lambda (s)
-                  (and (eq (magit-section-type s) 'diff)
+                  (and (eq (magit-section-type s) 'file)
                        (string-equal (magit-section-value s) file)))
                 (magit-section-children magit-root-section))))
 
@@ -2346,7 +2346,7 @@ match return nil."
 
 (defun magit-file-at-point ()
   (magit-section-case (value parent-value)
-    ((diff diffstat [file untracked]) value)
+    (file value)
     (hunk parent-value)))
 
 ;;;; Process Api
@@ -4328,9 +4328,9 @@ can be used to override this."
         (list "add" value)))))
     (untracked
      (magit-run-git "add" "--" (magit-untracked-files)))
-    ([hunk diff unstaged]
+    ([hunk file unstaged]
      (magit-apply-hunk it "--cached"))
-    ([diff unstaged]
+    ([file unstaged]
      (magit-run-git "add" "-u"
                     (if (use-region-p)
                         (magit-section-region-siblings #'magit-section-value)
@@ -4338,7 +4338,7 @@ can be used to override this."
     (unstaged   (magit-stage-all))
     ([* staged] (user-error "Already staged"))
     (hunk       (user-error "Cannot stage this hunk"))
-    (diff       (user-error "Cannot stage this diff"))))
+    (file       (user-error "Cannot stage this file"))))
 
 ;;;###autoload
 (defun magit-stage-file (file)
@@ -4347,7 +4347,7 @@ With a prefix argument or when there is no file at point ask for
 the file to be staged.  Otherwise stage the file at point without
 requiring confirmation."
   (interactive
-   (let* ((atpoint (magit-section-when (file diff)))
+   (let* ((atpoint (magit-section-when (file)))
           (current (magit-buffer-file-name t))
           (choices (nconc (magit-modified-files)
                           (magit-untracked-files)))
@@ -4375,9 +4375,9 @@ With a prefix argument, add remaining untracked files as well.
   "Remove the change at point from the staging area."
   (interactive)
   (magit-section-action unstage (value)
-    ([hunk diff staged]
+    ([hunk file staged]
      (magit-apply-hunk it "--reverse" "--cached"))
-    ([diff staged]
+    ([file staged]
      (when (eq value 'unmerged)
        (user-error "Can't unstage an unmerged file.  Resolve it first"))
      (magit-unstage-1 (if (use-region-p)
@@ -4388,7 +4388,7 @@ With a prefix argument, add remaining untracked files as well.
     ([* unstaged]
      (user-error "Already unstaged"))
     (hunk (user-error "Can't unstage this hunk"))
-    (diff (user-error "Can't unstage this diff"))))
+    (file (user-error "Can't unstage this file"))))
 
 ;;;###autoload
 (defun magit-unstage-file (file)
@@ -4397,7 +4397,7 @@ With a prefix argument or when there is no file at point ask for
 the file to be unstaged.  Otherwise unstage the file at point
 without requiring confirmation."
   (interactive
-   (let* ((atpoint (magit-section-when (file diff)))
+   (let* ((atpoint (magit-section-when (file)))
           (current (magit-buffer-file-name t))
           (choices (magit-staged-files))
           (default (car (member (or atpoint current) choices))))
@@ -4439,12 +4439,12 @@ without requiring confirmation."
     (untracked
      (when (yes-or-no-p "Delete all untracked files and directories? ")
        (magit-run-git "clean" "-df")))
-    ([hunk diff unstaged]
+    ([hunk file unstaged]
      (when (yes-or-no-p (if (use-region-p)
                             "Discard changes in region? "
                           "Discard hunk? "))
        (magit-apply-hunk it "--reverse")))
-    ([hunk diff staged]
+    ([hunk file staged]
      (when (yes-or-no-p (if (use-region-p)
                             "Discard changes in region? "
                           "Discard hunk? "))
@@ -4455,16 +4455,16 @@ without requiring confirmation."
                (magit-apply-hunk it "--reverse"))
              (magit-refresh))
          (magit-apply-hunk it "--reverse" "--index"))))
-    ([diff unstaged]
+    ([file unstaged]
      (if (eq diff-status 'unmerged)
          (magit-checkout-stage value (magit-checkout-read-stage value))
        (magit-discard-diff it nil)))
-    ([diff staged]
+    ([file staged]
      (if (magit-anything-unstaged-p (magit-section-value it))
          (user-error "Cannot discard this hunk, file has unstaged changes")
        (magit-discard-diff it t)))
     (hunk   (user-error "Can't discard this hunk"))
-    (diff   (user-error "Can't discard this diff"))
+    (file   (user-error "Can't discard this file"))
     (stash  (call-interactively 'magit-stash-drop))
     (branch (call-interactively 'magit-branch-delete))
     (remote (call-interactively 'magit-remote-remove))))
@@ -4497,8 +4497,8 @@ The change is reversed in the working tree."
     (commit (when (or (not magit-revert-confirm)
                       (yes-or-no-p "Revert this commit? "))
               (magit-revert-commit value)))
-    (diff   (when (or (not magit-revert-confirm)
-                      (yes-or-no-p "Revert this diff? "))
+    (file   (when (or (not magit-revert-confirm)
+                      (yes-or-no-p "Revert this file? "))
               (magit-apply-diff it "--reverse")))
     (hunk   (when (or (not magit-revert-confirm)
                       (yes-or-no-p "Revert this hunk? "))
@@ -4529,7 +4529,7 @@ Also see option `magit-revert-backup'."
     (([* unstaged] [* staged])
      (user-error "Change is already in your working tree"))
     (hunk   (magit-apply-hunk it))
-    (diff   (magit-apply-diff it))
+    (file   (magit-apply-diff it))
     (stash  (magit-stash-apply value))
     (commit (magit-apply-commit value))))
 
@@ -4645,8 +4645,7 @@ member of ARGS, or to the working file otherwise."
 With a prefix argument, visit in other window."
   (interactive "P")
   (magit-section-action visit (value parent-value)
-    ((diff diffstat [file untracked])
-     (magit-visit-file value other-window))
+    (file     (magit-visit-file value other-window))
     (hunk     (magit-visit-file parent-value other-window
                                      (magit-hunk-target-line it)
                                      (current-column)))
@@ -4707,10 +4706,9 @@ With a prefix argument, visit in other window."
   (dired-jump other-window
               (file-truename
                (magit-section-action dired-jump (value parent-value)
-                 ([file untracked] value)
-                 ((diff diffstat) value)
+                 (file value)
                  (hunk parent-value)
-                 (t default-directory)))))
+                 (t    default-directory)))))
 
 (defvar-local magit-file-log-file nil)
 (defvar-local magit-show-current-version nil)
@@ -6950,7 +6948,7 @@ actually were a single commit."
            (when (looking-at magit-diff-statline-re)
              (magit-bind-match-strings (file sep cnt add del) nil
                (delete-region (point) (1+ (line-end-position)))
-               (magit-insert-section (diffstat)
+               (magit-insert-section (file)
                  (insert " " file sep cnt " ")
                  (when add (insert (propertize add 'face 'magit-diff-added)))
                  (when del (insert (propertize del 'face 'magit-diff-removed)))
@@ -6977,7 +6975,7 @@ actually were a single commit."
                   (file-name-as-directory
                    (expand-file-name module (magit-get-top-dir)))))
             (setf (magit-section-value
-                   (magit-insert-section (diff module t)
+                   (magit-insert-section (file module t)
                      (magit-insert-heading
                        (propertize (format "modified%s  %s\n"
                                            (if dirty "%" "/") module)
@@ -6986,7 +6984,7 @@ actually were a single commit."
                        "log" "--oneline" "--left-right" range)
                      (delete-char -1)))
                   module))
-        (magit-insert-section (diff module)
+        (magit-insert-section (file module)
           (magit-insert (propertize (format "dirty      %s\n" module)
                                     'face 'magit-diff-file-header))))))
    ((looking-at "^\\* Unmerged path \\(.*\\)")
@@ -6994,7 +6992,7 @@ actually were a single commit."
       (delete-region (point) (1+ (line-end-position)))
       (unless (and (derived-mode-p 'magit-status-mode)
                    (not (member "--cached" args)))
-        (magit-insert-section (diff dst)
+        (magit-insert-section (file dst)
           (magit-insert (propertize (format "unmerged   %s\n" dst)
                                     'face 'magit-diff-file-header)))))
     t)
@@ -7016,8 +7014,8 @@ actually were a single commit."
           (when (looking-at "^\\(new file\\|rename\\|deleted\\)")
             (setq status (match-string 1)))
           (delete-region (point) (1+ (line-end-position)))))
-      (magit-insert-section it (diff dst (or (equal status "deleted")
-                                           (derived-mode-p 'magit-status-mode)))
+      (magit-insert-section it (file dst (or (equal status "deleted")
+                                             (derived-mode-p 'magit-status-mode)))
         (magit-insert-heading
           (propertize (if (equal status "rename")
                           (format "renamed    %s => %s\n" src dst)
@@ -7322,7 +7320,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   "Copy the thing at point into the kill ring."
   (interactive)
   (magit-section-action copy (value)
-    ((branch commit mcommit file diff diffstat)
+    ((branch commit mcommit file)
      (kill-new value)
      (message "%s" value))))
 
