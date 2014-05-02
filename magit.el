@@ -508,7 +508,7 @@ offer them as choices for `magit-status'."
   :type '(repeat string))
 
 (defcustom magit-repo-dirs-depth 3
-  "The maximum depth to look for Git repos.
+  "The maximum depth to look for Git repositories.
 When looking for a Git repository below the directories in
 `magit-repo-dirs', Magit will only descend this many levels
 deep."
@@ -519,7 +519,7 @@ deep."
 ;;;;;; Common
 
 (defcustom magit-mode-hook '(magit-load-config-extensions)
-  "Hook run when entering a Magit mode derived mode."
+  "Hook run when entering a mode derived from Magit mode."
   :group 'magit-modes
   :type 'hook
   :options '(magit-load-config-extensions))
@@ -629,7 +629,7 @@ similar hooks for other Magit modes."
   :type 'hook)
 
 (defcustom magit-status-buffer-switch-function 'pop-to-buffer
-  "Function for `magit-status' to use for switching to the status buffer.
+  "Function used by `magit-status' to switch to the status buffer.
 
 The function is given one argument, the status buffer."
   :group 'magit-status
@@ -679,13 +679,11 @@ changes, e.g. because you are committing some binary files."
   :type 'sexp)
 
 (defcustom magit-diff-refine-hunk nil
-  "Show fine (word-granularity) differences within diff hunks.
+  "Whether to show word-granularity differences within diff hunks.
 
-There are three possible settings:
-
-nil    never show fine differences
-t      show fine differences for the selected diff hunk only
-`all'  show fine differences for all displayed diff hunks"
+nil    never show fine differences.
+t      show fine differences for the selected diff hunk only.
+`all'  show fine differences for all displayed diff hunks."
   :group 'magit-diff
   :type '(choice (const :tag "Never" nil)
                  (const :tag "Selected only" t)
@@ -727,7 +725,6 @@ an error while using those is harder to recover from."
 
 (defcustom magit-log-auto-more nil
   "Insert more log entries automatically when moving past the last entry.
-
 Only considered when moving past the last entry with
 `magit-goto-*-section' commands."
   :group 'magit-log
@@ -893,8 +890,7 @@ t          ask if --set-upstream should be used.
 
 (defcustom magit-stash-snapshot-message-format
   "Snapshot taken at %Y-%m-%d %H:%M:%S"
-  "Format for messages of snapshot stashes.
-`format-time-string' to create the message from this format."
+  "Format for messages of snapshot stashes."
   :package-version '(magit . "2.1.0")
   :group 'magit-modes
   :type 'string)
@@ -927,7 +923,7 @@ t          ask if --set-upstream should be used.
   :type 'hook)
 
 (defcustom magit-wip-commit-message "autosave %r"
-  "Commit message for git-wip commits.
+  "Commit message for automatic work-in-progress commits.
 
 The following `format'-like specs are supported:
 %r the relative filename of the file being saved, and
@@ -1132,7 +1128,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (((class color) (background dark))
      :background "Grey20"
      :foreground "White"))
-  "Face for the HEAD symbolic re."
+  "Face for the symbolic ref \"HEAD\"."
   :group 'magit-faces)
 
 (defface magit-refname
@@ -2602,9 +2598,9 @@ waits for that process to return."
   (magit-refresh))
 
 (defun magit-run-git-with-logfile (file &rest args)
-  "Call Git in a separate process and log its output.
-And log the output to FILE.  This function might have a
-short halflive.  See `magit-run-git' for more information."
+  "Call Git in a separate process and log its output to FILE.
+See `magit-run-git' for more information.
+This function might have a short halflive."
   (apply #'magit-start-git nil args)
   (process-put magit-this-process 'logfile file)
   (set-process-filter magit-this-process 'magit-process-logfile-filter)
