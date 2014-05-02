@@ -5919,35 +5919,35 @@ With prefix argument, changes in staging area are kept.
   "Popup console for submodule commands."
   'magit-popups
   :man-page "git-submodule"
-  :actions  '((?u "Update" magit-submodule-update)
-              (?b "Both update and init" magit-submodule-update-init)
-              (?i "Init" magit-submodule-init)
-              (?s "Sync" magit-submodule-sync)))
+  :actions  '((?b "Setup"  magit-submodule-setup)
+              (?i "Init"   magit-submodule-init)
+              (?u "Update" magit-submodule-update)
+              (?s "Sync"   magit-submodule-sync)))
 
 ;;;###autoload
-(defun magit-submodule-update (&optional init)
-  "Update the submodule of the current Git repository.
-With a prefix arg, do a submodule update --init."
-  (interactive "P")
-  (let ((default-directory (magit-get-top-dir)))
-    (magit-run-git-async "submodule" "update" (and init "--init"))))
-
-;;;###autoload
-(defun magit-submodule-update-init ()
-  "Update and init the submodule of the current Git repository."
+(defun magit-submodule-setup ()
+  "Clone and register missing submodules and checkout appropriate commits."
   (interactive)
   (magit-submodule-update t))
 
 ;;;###autoload
 (defun magit-submodule-init ()
-  "Initialize the submodules."
+  "Register submodules listed in .gitmodules into .git/config."
   (interactive)
   (let ((default-directory (magit-get-top-dir)))
     (magit-run-git-async "submodule" "init")))
 
 ;;;###autoload
+(defun magit-submodule-update (&optional init)
+  "Clone missing submodules and checkout appropriate commits.
+With a prefix argument also register submodules in .git/config."
+  (interactive "P")
+  (let ((default-directory (magit-get-top-dir)))
+    (magit-run-git-async "submodule" "update" (and init "--init"))))
+
+;;;###autoload
 (defun magit-submodule-sync ()
-  "Synchronizes submodule's remote URL configuration."
+  "Update each submodule's remote URL according to .gitmodules."
   (interactive)
   (let ((default-directory (magit-get-top-dir)))
     (magit-run-git-async "submodule" "sync")))
