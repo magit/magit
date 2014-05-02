@@ -5919,10 +5919,37 @@ With prefix argument, changes in staging area are kept.
   "Popup console for submodule commands."
   'magit-popups
   :man-page "git-submodule"
-  :actions  '((?b "Setup"  magit-submodule-setup)
+  :actions  '((?a "Add"    magit-submodule-add)
+              (?b "Setup"  magit-submodule-setup)
               (?i "Init"   magit-submodule-init)
               (?u "Update" magit-submodule-update)
               (?s "Sync"   magit-submodule-sync)))
+
+;;;###autoload
+(defun magit-submodule-add (url &optional path)
+  "Add the repository at URL as a submodule.
+Optional PATH is the path to the submodule relative to the root
+of the superproject. If it is nil then the path is determined
+based on URL."
+  (interactive
+   (let* ((default-directory (magit-toplevel))
+          (path (read-file-name
+                 "Add submodule: " nil nil nil
+                 (magit-section-when [file untracked]
+                   (directory-file-name (magit-section-value it))))))
+     (when path
+       (setq path (file-name-as-directory (expand-file-name path)))
+       (when (member path (list "" default-directory))
+         (setq path nil)))
+     (list (magit-read-string
+            "Remote url"
+            (and path (magit-git-repo-p path t)
+                 (let ((default-directory path))
+                   (magit-get "remote"
+                              (or (magit-get-current-remote) "origin")
+                              "url"))))
+           (and path (directory-file-name (file-relative-name path))))))
+  (magit-run-git "submodule" "add" url path))
 
 ;;;###autoload
 (defun magit-submodule-setup ()
