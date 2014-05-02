@@ -2336,6 +2336,9 @@ match return nil."
     (branch value)
     (commit (magit-get-shortname value))))
 
+(defun magit-stash-at-point (&optional get-number)
+  (magit-section-when stash))
+
 (defun magit-remote-at-point ()
   (magit-section-case (value parent-value)
     (remote value)
@@ -3764,12 +3767,13 @@ results in additional differences."
   (magit-completing-read prompt (magit-git-lines "tag") nil
                          require-match nil 'magit-read-rev-history))
 
-(defun magit-read-stash (prompt)
-  (let ((n (read-number  prompt 0))
-        (l (1- (length (magit-git-lines "stash" "list")))))
-    (if (> n l)
-        (user-error "No stash older than stash@{%i}" l)
-      (format "stash@{%i}" n))))
+(defun magit-read-stash (prompt &optional use-at-point)
+  (let ((atpoint (magit-stash-at-point)))
+    (or (and use-at-point atpoint)
+        (magit-completing-read prompt
+                               (--map (car (split-string it ":"))
+                                      (magit-git-lines "stash" "list"))
+                               nil t nil nil atpoint))))
 
 ;;;;; Miscellaneous Completion
 
@@ -4410,8 +4414,7 @@ With a prefix argument, add remaining untracked files as well.
        (magit-discard-diff it t)))
     (hunk   (user-error "Can't discard this hunk"))
     (diff   (user-error "Can't discard this diff"))
-    (stash  (when (yes-or-no-p "Discard stash? ")
-              (magit-stash-drop value)))
+    (stash  (call-interactively 'magit-stash-drop))
     (branch (call-interactively 'magit-branch-delete))
     (remote (when (yes-or-no-p "Remove remote? ")
               (magit-remote-remove value)))))
@@ -5801,7 +5804,7 @@ With a prefix argument annotate the tag.
 Working tree and staging area revert to the current `HEAD'.
 With prefix argument, changes in staging area are kept.
 \n(git stash save [ARGS] DESCRIPTION)"
-  (interactive (list (read-string "Stash description: ")
+  (interactive (list (read-string "Stash message: ")
                      (magit-current-popup-args :not "--index")))
   (magit-run-git "stash" "save" args "--" description))
 
@@ -5812,7 +5815,7 @@ With prefix argument, changes in staging area are kept.
  git stash apply stash@{0})"
   (interactive (list (magit-current-popup-args :not "--index")))
   (magit-call-git "stash" "save" args (magit-stash-format-snapshot-message))
-  (magit-stash-apply 0 "--index"))
+  (magit-stash-apply "stash@{0}" "--index"))
 
 (defun magit-stash-index (message &optional snapshot)
   "Create a new stash of the index only."
@@ -5836,32 +5839,29 @@ With prefix argument, changes in staging area are kept.
 (defun magit-stash-apply (stash &optional args)
   "Apply a stash on top of the current working tree state.
 \n(git stash apply [ARGS] stash@{N})"
-  (interactive (list (magit-read-stash "Apply stash (number): ")
+  (interactive (list (magit-read-stash "Apply stash" t)
                      (magit-current-popup-args :only "--index")))
-  (magit-run-git "stash" "apply" args (magit-stash-as-refname stash)))
+  (magit-run-git "stash" "apply" args stash))
 
 (defun magit-stash-pop (stash &optional args)
   "Apply a stash on top of working tree state and remove from stash list.
 \n(git stash pop [ARGS] stash@{N})"
-  (interactive (list (magit-read-stash "Pop stash (number): ")
+  (interactive (list (magit-read-stash "Pop stash" t)
                      (magit-current-popup-args :only "--index")))
-  (magit-run-git "stash" "pop" args (magit-stash-as-refname stash)))
+  (magit-run-git "stash" "pop" args stash))
 
 (defun magit-stash-drop (stash)
   "Remove a stash from the stash list.
 \n(git stash drop stash@{N})"
-  (interactive (list (magit-read-stash "Drop stash (number): ")))
-  (magit-run-git "stash" "drop" (magit-stash-as-refname stash)))
+  (interactive (list (magit-read-stash "Drop stash")))
+  (magit-run-git "stash" "drop" stash))
 
 (defun magit-stash-branch (stash branchname)
   "Create and checkout a branch from STASH.
 \n(git stash branch BRANCHNAME stash@{N})"
-  (interactive (list (magit-read-stash  "Branch stash (number): ")
+  (interactive (list (magit-read-stash  "Branch stash" t)
                      (magit-read-string "Branch name")))
-  (magit-run-git "stash" "branch" branchname (magit-stash-as-refname stash)))
-
-(defun magit-stash-as-refname (arg)
-  (if (stringp arg) arg (format "stash@{%i}" arg)))
+  (magit-run-git "stash" "branch" branchname stash))
 
 (defun magit-stash-format-snapshot-message ()
   (format-time-string magit-stash-snapshot-message-format (current-time)))
@@ -6752,7 +6752,7 @@ a commit read from the minibuffer."
 A stash consist of more than just one commit.  This command uses
 a special diff range so that the stashed changes appear as if the
 actually were a single commit."
-  (interactive (list (magit-read-stash "Show stash (number): ")))
+  (interactive (list (magit-read-stash "Show stash")))
   (magit-mode-setup magit-diff-buffer-name
                     (if noselect 'display-buffer 'pop-to-buffer)
                     #'magit-diff-mode
