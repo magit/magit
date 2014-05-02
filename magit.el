@@ -1264,9 +1264,8 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 ;;;; Keymaps
 
-(when (boundp 'git-commit-mode-map)
-  (define-key git-commit-mode-map
-    (kbd "C-c C-d") 'magit-diff-while-committing))
+(define-key git-commit-mode-map
+  (kbd "C-c C-d") 'magit-diff-while-committing)
 
 (defvar magit-mode-map
   (let ((map (make-keymap)))
