@@ -7394,10 +7394,8 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 (defun magit-copy-as-kill ()
   "Copy the thing at point into the kill ring."
   (interactive)
-  (magit-section-action copy (value)
-    ((branch commit mcommit file)
-     (kill-new value)
-     (message "%s" value))))
+  (magit-section-when (branch commit mcommit file)
+    (kill-new (message "%s" (magit-section-value it)))))
 
 (defun magit-describe-section ()
   "Show information about the section at point.
