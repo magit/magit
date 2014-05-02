@@ -4179,7 +4179,7 @@ can be used to override this."
           (propertize "HEAD" 'face 'magit-head))
         " " msg)
       (when (or upstream (setq upstream (magit-get-tracked-branch branch)))
-        (setq line (magit-rev-format "%h %s" "HEAD"))
+        (setq line (magit-rev-format "%h %s" upstream))
         (string-match "^\\([^ ]+\\) \\(.+\\)" line)
         (setq hash (match-string 1 line)
               msg  (match-string 2 line))
