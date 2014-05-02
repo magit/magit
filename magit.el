@@ -3233,6 +3233,8 @@ before the last command."
 
 ;;;;; Refresh Machinery
 
+(defvar inhibit-magit-refresh nil)
+
 (defun magit-refresh (&optional buffer)
   "Refresh some buffers belonging to the current repository.
 
@@ -3242,19 +3244,20 @@ If the global `magit-auto-revert-mode' is turned on, then
 also revert all unmodified buffers that visit files being
 tracked in the current repository."
   (interactive (list (current-buffer)))
-  (unless buffer
-    (setq buffer (current-buffer)))
-  (with-current-buffer buffer
-    (cond ((derived-mode-p 'magit-status-mode)
-           (magit-maybe-save-repository-buffers)
-           (magit-mode-refresh-buffer buffer))
-          ((derived-mode-p 'magit-mode)
-           (magit-mode-refresh-buffer buffer)
-           (--when-let (magit-mode-get-buffer magit-status-buffer-name
-                                              'magit-status-mode)
-             (magit-mode-refresh-buffer it)))))
-  (when magit-auto-revert-mode
-    (magit-revert-buffers)))
+  (unless inhibit-magit-refresh
+    (unless buffer
+      (setq buffer (current-buffer)))
+    (with-current-buffer buffer
+      (cond ((derived-mode-p 'magit-status-mode)
+             (magit-maybe-save-repository-buffers)
+             (magit-mode-refresh-buffer buffer))
+            ((derived-mode-p 'magit-mode)
+             (magit-mode-refresh-buffer buffer)
+             (--when-let (magit-mode-get-buffer magit-status-buffer-name
+                                                'magit-status-mode)
+               (magit-mode-refresh-buffer it)))))
+    (when magit-auto-revert-mode
+      (magit-revert-buffers))))
 
 (defun magit-refresh-all ()
   "Refresh all buffers belonging to the current repository.
