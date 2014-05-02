@@ -1318,8 +1318,8 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "s" 'magit-stage-file)
     (define-key map "S" 'magit-stage-all)
     (define-key map "u" 'magit-unstage-file)
-    (define-key map "U" 'magit-unstage-all)
-    (define-key map "x" 'magit-reset-head)
+    (define-key map "U" 'magit-reset-index)
+    (define-key map "x" 'magit-reset-hard)
     (define-key map "X" 'magit-clean)
     (define-key map "y" 'magit-cherry)
     (define-key map "z" 'magit-stash-popup)
@@ -1523,7 +1523,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     ["Stage" magit-stage t]
     ["Stage all" magit-stage-all t]
     ["Unstage" magit-unstage t]
-    ["Unstage all" magit-unstage-all t]
+    ["Reset index" magit-reset-index t]
     ["Commit" magit-commit-popup t]
     ["Add log entry" magit-commit-add-log t]
     ["Tag" magit-tag t]
@@ -4478,7 +4478,11 @@ With a prefix argument, add remaining untracked files as well.
                           (magit-section-region-siblings #'magit-section-value)
                         value)))
     (staged
-     (magit-unstage-all))
+     (when (or (not magit-unstage-all-confirm)
+               (and (not (magit-anything-unstaged-p))
+                    (not (magit-untracked-files)))
+               (yes-or-no-p "Unstage all changes? "))
+       (magit-run-git "reset" "HEAD" "--")))
     ([* untracked] (user-error "Not tracked"))
     ([* unstaged]  (user-error "Already unstaged"))
     (hunk          (user-error "Cannot unstage this hunk"))
@@ -4505,17 +4509,6 @@ without requiring confirmation."
   (if (magit-no-commit-p)
       (magit-run-git "rm" "--cached" "--" args)
     (magit-run-git "reset" "HEAD" "--" args)))
-
-;;;###autoload
-(defun magit-unstage-all ()
-  "Remove all changes from staging area.
-\('git reset --mixed HEAD')."
-  (interactive)
-  (when (or (not magit-unstage-all-confirm)
-            (and (not (magit-anything-unstaged-p))
-                 (not (magit-untracked-files)))
-            (yes-or-no-p "Unstage all changes? "))
-    (magit-run-git "reset" "HEAD" "--")))
 
 ;;;;; Discard
 
@@ -5377,28 +5370,42 @@ Return nil if there is no rebase in progress."
 ;;;;; Reset
 
 ;;;###autoload
-(defun magit-reset-head (revision &optional hard)
-  "Switch `HEAD' to REVISION, keeping prior working tree and staging area.
-Any differences from REVISION become new changes to be committed.
-With prefix argument, all uncommitted changes in working tree
-and staging area are lost.
-\n(git reset --soft|--hard REVISION)"
-  (interactive (list (magit-read-rev (format "%s head to"
-                                             (if current-prefix-arg
-                                                 "Hard reset"
-                                               "Reset"))
-                                     (or (magit-branch-or-commit-at-point) "HEAD"))
-                     current-prefix-arg))
-  (magit-run-git "reset" (if hard "--hard" "--soft") revision "--"))
+(defun magit-reset-index (commit)
+  "Reset the index to COMMIT.
+Keep the head and working tree as-is, so if COMMIT revers to the
+head this effectivley unstages all changes.
+\n(git reset --mixed COMMIT)"
+  (interactive
+   (list (magit-read-rev "Reset index to"
+                         (or (magit-branch-or-commit-at-point) "HEAD"))))
+  (magit-run-git "reset" commit "--"))
 
 ;;;###autoload
-(defun magit-reset-head-hard (revision)
-  "Switch `HEAD' to REVISION, losing all changes.
-Uncomitted changes in both working tree and staging area are lost.
+(defun magit-reset-head (commit)
+  "Reset the head and index to COMMIT, but not the working tree.
+\n(git reset --mixed COMMIT)"
+  (interactive
+   (list (magit-read-rev "Reset head to"
+                         (or (magit-branch-or-commit-at-point) "HEAD"))))
+  (magit-run-git "reset" "--mixed" commit))
+
+;;;###autoload
+(defun magit-reset-soft (commit)
+  "Reset the head to COMMIT, but not the index and working tree.
+\n(git reset --soft REVISION)"
+  (interactive
+   (list (magit-read-rev "Soft reset to"
+                         (or (magit-branch-or-commit-at-point) "HEAD"))))
+  (magit-run-git "reset" "--hard" commit))
+
+;;;###autoload
+(defun magit-reset-hard (commit)
+  "Reset the head, index, and working tree to COMMIT.
 \n(git reset --hard REVISION)"
-  (interactive (list (magit-read-rev (format "Hard reset head to")
-                                     (or (magit-branch-or-commit-at-point) "HEAD"))))
-  (magit-reset-head revision t))
+  (interactive
+   (list (magit-read-rev "Hard reset to"
+                         (or (magit-branch-or-commit-at-point) "HEAD"))))
+  (magit-run-git "reset" "--hard" commit))
 
 ;;;;; Clean
 
