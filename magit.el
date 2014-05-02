@@ -3491,11 +3491,13 @@ otherwise try to shorten it to a name (which may fail)."
                   (t match))))))))
 
 (defun magit-get-current-remote ()
-  "Return the name of the remote for the current branch.
-If there is no current branch, or no remote for that branch,
-but a remote named \"origin\" is configured, return that.
-Otherwise, return nil."
-  (magit-get-remote (magit-get-current-branch)))
+  "Return the remote configured for the current branch.
+If HEAD is detached, or the current branch doesn't track
+any branch or tracks another local branch, return nil."
+  (-when-let (branch (magit-get-current-branch))
+    (let ((remote (magit-get "branch" branch "remote")))
+      (unless (equal remote ".")
+        remote))))
 
 (defun magit-get-current-tag (&optional with-distance)
   "Return the closest tag reachable from \"HEAD\".
