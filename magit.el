@@ -4384,18 +4384,20 @@ With a prefix argument, add remaining untracked files as well.
     ([diff staged]
      (when (eq value 'unmerged)
        (user-error "Can't unstage an unmerged file.  Resolve it first"))
-     (let ((files (if (use-region-p)
-                      (magit-section-region-siblings #'magit-section-value)
-                    (list value))))
-       (if (magit-no-commit-p)
-           (magit-run-git "rm" "--cached" "--" files)
-         (magit-run-git "reset" "-q" "HEAD" "--" files))))
+     (magit-unstage-1 (if (use-region-p)
+                          (magit-section-region-siblings #'magit-section-value)
+                        value)))
     (staged
      (magit-unstage-all))
     ([* unstaged]
      (user-error "Already unstaged"))
     (hunk (user-error "Can't unstage this hunk"))
     (diff (user-error "Can't unstage this diff"))))
+
+(defun magit-unstage-1 (args)
+  (if (magit-no-commit-p)
+      (magit-run-git "rm" "--cached" "--" args)
+    (magit-run-git "reset" "HEAD" "--" args)))
 
 ;;;###autoload
 (defun magit-unstage-all ()
