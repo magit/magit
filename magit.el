@@ -7520,7 +7520,7 @@ to the current branch and `magit-wip-ref-format'."
                      wipref
                    (or ref "HEAD")))
          (tree   (let ((process-environment process-environment)
-                       (index-file (make-temp-name "index")))
+                       (index-file (make-temp-name (expand-file-name "index" toplevel))))
                    (setenv "GIT_INDEX_FILE" index-file)
                    (magit-call-git "read-tree" parent)
                    (magit-call-git "add" filename)
