@@ -4210,6 +4210,15 @@ can be used to override this."
       (magit-git-wash (apply-partially 'magit-wash-log 'cherry)
         "cherry" "-v" (magit-abbrev-arg) tracked))))
 
+(defun magit-insert-branch-description ()
+  (let ((branch (magit-get-current-branch)))
+    (--when-let (magit-git-lines
+                 "config" (format "branch.%s.description" branch))
+      (magit-insert-section (branchdesc branch t)
+        (magit-insert-heading branch ": " (car it))
+        (insert (mapconcat 'identity (cdr it) "\n"))
+        (insert "\n\n")))))
+
 ;;;; Line Sections
 
 (defun magit-insert-empty-line ()
@@ -4278,15 +4287,6 @@ can be used to override this."
       (when (and (not am) hash)
         (magit-insert-header "Stopped" (commit hash)
           (magit-format-rev-summary hash))))))
-
-(defun magit-insert-branch-description ()
-  (let ((branch (magit-get-current-branch)))
-    (--when-let (magit-git-lines
-                 "config" (format "branch.%s.description" branch))
-      (magit-insert-section (branchdesc branch t)
-        (magit-insert-heading branch ": " (car it))
-        (insert (mapconcat 'identity (cdr it) "\n"))
-        (insert "\n\n")))))
 
 (defun magit-insert-rebase-sequence ()
   (let ((f (magit-git-dir "rebase-merge/git-rebase-todo"))
