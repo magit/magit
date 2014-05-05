@@ -3528,8 +3528,6 @@ tracked in the current repository are reverted if
                              (mapconcat 'identity (cons program args) " "))
                   (insert "\n"))))
         (set-marker-insertion-type (magit-section-content-beginning s) nil)
-        (unless (get-buffer-window (current-buffer) t)
-          (magit-section-set-hidden s t))
         (insert "\n")
         (backward-char 2)
         (cons (current-buffer) s)))))
