@@ -2432,9 +2432,9 @@ match return nil."
   (magit-section-when process
     (let ((process (magit-section-value it)))
       (if (eq (process-status process) 'run)
-	  (when (yes-or-no-p "Kill this process? ")
-	    (kill-process process))
-	(user-error "Process isn't running")))))
+          (when (yes-or-no-p "Kill this process? ")
+            (kill-process process))
+        (user-error "Process isn't running")))))
 
 (defvar magit-git-command-history nil)
 
@@ -3961,7 +3961,7 @@ for a commit."
      (list (or (and (not current-prefix-arg) atpoint)
                (magit-read-rev "Show commit" atpoint))
            nil (and mcommit (magit-section-parent-value
-			     (magit-current-section))))))
+                             (magit-current-section))))))
   (let ((default-directory (if module
                                (file-name-as-directory
                                 (expand-file-name module (magit-get-top-dir)))
@@ -6356,9 +6356,9 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 
 (defconst magit-log-bisect-log-re
   (concat "^# "
-	  "\\(?3:bad:\\|skip:\\|good:\\) "         ; "refs"
-	  "\\[\\(?1:[^]]+\\)\\] "                  ; sha1
-	  "\\(?2:.+\\)$"))                         ; msg
+          "\\(?3:bad:\\|skip:\\|good:\\) "         ; "refs"
+          "\\[\\(?1:[^]]+\\)\\] "                  ; sha1
+          "\\(?2:.+\\)$"))                         ; msg
 
 (defconst magit-log-reflog-re
   (concat "^"
@@ -6426,7 +6426,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
                            'magit-diff-added) ?\s))
     (unless (eq style 'long)
       (when (eq style 'bisect-log)
-	(setq hash (magit-git-string "rev-parse" "--short" hash)))
+        (setq hash (magit-git-string "rev-parse" "--short" hash)))
       (if hash
           (insert (propertize hash 'face 'magit-hash) ?\s)
         (insert (make-string (1+ abbrev) ? ))))
@@ -6911,8 +6911,8 @@ A stash consist of more than just one commit.  This command uses
 a special diff range so that the stashed changes appear as if it
 actually were a single commit."
   (interactive (list (or (and (not current-prefix-arg)
-			      (magit-stash-at-point t))
-			 (magit-read-stash "Show stash"))))
+                              (magit-stash-at-point t))
+                         (magit-read-stash "Show stash"))))
   (magit-mode-setup magit-diff-buffer-name
                     (if noselect 'display-buffer 'pop-to-buffer)
                     #'magit-diff-mode
