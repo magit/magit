@@ -222,7 +222,7 @@ that without users being aware of it could lead to tears.
   'property  :switches
   'heading   "Switches\n"
   'formatter 'magit-popup-format-argument-button
-  'format    " %k: %d (%a)"
+  'format    " %k %d (%a)"
   'prefix    ?-
   'maxcols   :max-switch-columns)
 
@@ -232,7 +232,7 @@ that without users being aware of it could lead to tears.
   'property  :options
   'heading   "Options\n"
   'formatter 'magit-popup-format-argument-button
-  'format    " %k: %d (%a%v)"
+  'format    " %k %d (%a%v)"
   'prefix    ?=
   'maxcols   1)
 
@@ -242,7 +242,7 @@ that without users being aware of it could lead to tears.
   'property  :actions
   'heading   "Actions\n"
   'formatter 'magit-popup-format-action-button
-  'format    " %k: %d"
+  'format    " %k %d"
   'prefix    nil
   'maxcols   :max-action-columns)
 
