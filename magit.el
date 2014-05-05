@@ -1309,7 +1309,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "S" 'magit-stage-modified)
     (define-key map "u" 'magit-unstage-file)
     (define-key map "U" 'magit-reset-index)
-    (define-key map "x" 'magit-reset-hard)
+    (define-key map "x" 'magit-reset)
     (define-key map "X" 'magit-clean)
     (define-key map "y" 'magit-cherry)
     (define-key map "z" 'magit-stash-popup)
@@ -5349,6 +5349,18 @@ head this effectivley unstages all changes.
    (list (magit-read-rev "Reset index to"
                          (or (magit-branch-or-commit-at-point) "HEAD"))))
   (magit-run-git "reset" commit "--"))
+
+;;;###autoload
+(defun magit-reset (commit)
+  "Reset the head and index to COMMIT, but not the working tree.
+With a prefix argument also reset the working tree.
+\n(git reset --mixed|--hard COMMIT)"
+  (interactive
+   (list (magit-read-rev (if current-prefix-arg
+                             "Hard reset to"
+                           "Reset head to")
+                         (or (magit-branch-or-commit-at-point) "HEAD"))))
+  (magit-run-git "reset" (if current-prefix-arg "--hard" "--mixed") commit))
 
 ;;;###autoload
 (defun magit-reset-head (commit)
