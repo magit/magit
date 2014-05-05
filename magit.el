@@ -1829,7 +1829,7 @@ never modify it.")
       (-when-let (count (and (looking-back "\\(:\\)\n")
                              (length (magit-section-children section))))
         (when (> count 0)
-          (replace-match (format " (%s):" count) nil nil nil 1))))))
+          (replace-match (format " (%s)" count) nil nil nil 1))))))
 
 (defun magit-insert (string &optional face &rest args)
   (if magit-use-overlays
