@@ -913,8 +913,8 @@ t          ask if --set-upstream should be used.
   "Commit message for automatic work-in-progress commits.
 
 The following `format'-like specs are supported:
-%r the relative filename of the file being saved, and
-%a the absolute filename of the file being saved,
+%r the relative filename of the file being saved,
+%a the absolute filename of the file being saved, and
 %t the absolute filename of the repository toplevel."
   :group 'magit-wip
   :type 'string)
@@ -923,8 +923,8 @@ The following `format'-like specs are supported:
   "Message shown after updating a work-in-progress ref.
 
 The following `format'-like specs are supported:
-%r the relative filename of the file being saved, and
-%a the absolute filename of the file being saved,
+%r the relative filename of the file being saved,
+%a the absolute filename of the file being saved, and
 %t the absolute filename of the repository toplevel."
   :group 'magit-wip
   :type '(choice (const :tag "No message" nil)
