@@ -99,11 +99,7 @@
 (defvar iswitchb-temp-buflist)
 (defvar package-alist)
 
-(defvar magit-diff-buffer-name)
-(defvar magit-log-buffer-name)
-(defvar magit-reflog-buffer-name)
 (defvar magit-refresh-args)
-(defvar magit-status-buffer-name)
 (defvar magit-this-process)
 
 ;;;; Compatibility
@@ -254,6 +250,16 @@ If t, use ptys: this enables Magit to prompt for passphrases when needed."
   :group 'magit-process
   :type '(choice (const :tag "pipe" nil)
                  (const :tag "pty" t)))
+
+(defcustom magit-process-buffer-name-format "*magit-process: %a*"
+  "Name format for buffers where output of processes is put.
+
+The following `format'-like specs are supported:
+%a the absolute filename of the repository toplevel.
+%b the basename of the repository toplevel."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-modes
+  :type 'string)
 
 (defcustom magit-process-popup-time -1
   "Popup the process buffer if a command takes longer than this many seconds."
@@ -637,7 +643,26 @@ The function is given one argument, the status buffer."
                 (function-item pop-to-buffer)
                 (function :tag "Other")))
 
+(defcustom magit-status-buffer-name-format "*magit: %a*"
+  "Name format for buffers used to display a repository's status.
+The following `format'-like specs are supported:
+%a the absolute filename of the repository toplevel.
+%b the basename of the repository toplevel."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-status
+  :type 'string)
+
 ;;;;;; Diff
+
+(defcustom magit-diff-buffer-name-format "*magit-diff: %a*"
+  "Name format for buffers used to display a diff.
+
+The following `format'-like specs are supported:
+%a the absolute filename of the repository toplevel.
+%b the basename of the repository toplevel."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-diff
+  :type 'string)
 
 (defcustom magit-show-diffstat t
   "Whether to show diffstat in diff and commit buffers."
@@ -692,6 +717,16 @@ t      show fine differences for the selected diff hunk only.
 
 ;;;;;; Commit
 
+(defcustom magit-commit-buffer-name-format "*magit-commit: %a*"
+  "Name format for buffers used to display a commit.
+
+The following `format'-like specs are supported:
+%a the absolute filename of the repository toplevel.
+%b the basename of the repository toplevel."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-commit
+  :type 'string)
+
 (defcustom magit-commit-ask-to-stage t
   "Whether to ask to stage everything when committing and nothing is staged."
   :package-version '(magit . "2.1.0")
@@ -722,6 +757,16 @@ an error while using those is harder to recover from."
   :type 'boolean)
 
 ;;;;;; Log
+
+(defcustom magit-log-buffer-name-format "*magit-log: %a*"
+  "Name format for buffers used to display log entries.
+
+The following `format'-like specs are supported:
+%a the absolute filename of the repository toplevel.
+%b the basename of the repository toplevel."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-log
+  :type 'string)
 
 (defcustom magit-log-auto-more nil
   "Insert more log entries automatically when moving past the last entry.
@@ -908,6 +953,45 @@ t          ask if --set-upstream should be used.
   :package-version '(magit . "2.1.0")
   :group 'magit-modes
   :type 'hook)
+
+(defcustom magit-reflog-buffer-name-format "*magit-reflog: %a*"
+  "Name format for buffers used to display reflog entries.
+
+The following `format'-like specs are supported:
+%a the absolute filename of the repository toplevel.
+%b the basename of the repository toplevel."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-modes
+  :type 'string)
+
+(defcustom magit-branches-buffer-name-format "*magit-branches: %a*"
+  "Name format for buffers used to display and manage branches.
+
+The following `format'-like specs are supported:
+%a the absolute filename of the repository toplevel.
+%b the basename of the repository toplevel."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-modes
+  :type 'string)
+
+(defcustom magit-wazzup-buffer-name-format "*magit-wazzup: %a*"
+  "Name format for buffers used to display commits not merged into current HEAD.
+
+The following `format'-like specs are supported:
+%a the absolute filename of the repository toplevel.
+%b the basename of the repository toplevel."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-modes
+  :type 'string)
+
+(defcustom magit-cherry-buffer-name-format "*magit-cherry: %a*"
+  "Name format for buffers used to display commits not merged upstream.
+
+The following `format'-like specs are supported:
+%a the absolute filename of the repository toplevel.
+%b the basename of the repository toplevel."
+  :group 'magit-modes
+  :type 'string)
 
 (defcustom magit-wip-commit-message "autosave %r"
   "Commit message for automatic work-in-progress commits.
@@ -2487,14 +2571,11 @@ Run Git in the root of the current repository.
   "Mode for looking at Git process output."
   :group 'magit-process)
 
-(defvar magit-process-buffer-name "*magit-process*"
-  "Name of buffer where output of processes is put.")
-
 (defun magit-process-buffer (&optional topdir create)
-  (or (magit-mode-get-buffer magit-process-buffer-name
+  (or (magit-mode-get-buffer magit-process-buffer-name-format
                              'magit-process-mode topdir)
       (with-current-buffer (magit-mode-get-buffer-create
-                            magit-process-buffer-name
+                            magit-process-buffer-name-format
                             'magit-process-mode topdir)
         (magit-process-mode)
         (let ((inhibit-read-only t))
@@ -2598,7 +2679,7 @@ Unmodified buffers visiting files that are tracked in the current
 repository are reverted if `magit-auto-revert-mode' is active.
 
 Process output goes into a new section in a buffer specified by
-variable `magit-process-buffer-name'."
+variable `magit-process-buffer-name-format'."
   (apply #'magit-call-git (magit-process-quote-arguments args))
   (magit-refresh))
 
@@ -2614,7 +2695,7 @@ used.  The arguments in option `magit-git-standard-options' are
 prepended to ARGS.
 
 Process output goes into a new section in a buffer specified by
-variable `magit-process-buffer-name'."
+variable `magit-process-buffer-name-format'."
   (apply #'magit-call-process magit-git-executable
          (append magit-git-standard-options args)))
 
@@ -2626,7 +2707,7 @@ level of ARGS is flattened, so each member of ARGS has to be a
 string or a list of strings.
 
 Process output goes into a new section in a buffer specified by
-variable `magit-process-buffer-name'."
+variable `magit-process-buffer-name-format'."
   (setq args (magit-flatten-onelevel args))
   (cl-destructuring-bind (process-buf . section)
       (magit-process-setup program args)
@@ -3119,17 +3200,20 @@ Magit mode."
   buffer)
 
 (defun magit-mode-get-buffer (format mode &optional topdir create)
-  (if (not (string-match-p "%[Tt]" format))
+  (if (not (string-match-p "%[ab]" format))
       (funcall (if create #'get-buffer-create #'get-buffer) format)
     (unless topdir
       (setq topdir (magit-get-top-dir)))
-    (let ((name (format-spec
-                 format `((?T . ,topdir)
-                          (?t . ,(file-name-nondirectory
-                                  (directory-file-name topdir)))))))
+    (let ((name (format-spec format
+                             `((?a . ,(or topdir "-"))
+                               (?b . ,(if topdir
+                                          (file-name-nondirectory
+                                           (directory-file-name topdir))
+                                        "-"))))))
       (or (--first (with-current-buffer it
-                     (and (or (not mode) (eq major-mode mode))
-                          (equal (expand-file-name default-directory) topdir)
+                     (and (or (not topdir)
+                              (equal (expand-file-name default-directory)
+                                     topdir))
                           (string-match-p (format "^%s\\(?:<[0-9]+>\\)?$"
                                                   (regexp-quote name))
                                           (buffer-name))))
@@ -3319,7 +3403,7 @@ tracked in the current repository."
              (magit-mode-refresh-buffer buffer))
             ((derived-mode-p 'magit-mode)
              (magit-mode-refresh-buffer buffer)
-             (--when-let (magit-mode-get-buffer magit-status-buffer-name
+             (--when-let (magit-mode-get-buffer magit-status-buffer-name-format
                                                 'magit-status-mode)
                (magit-mode-refresh-buffer it)))))
     (when magit-auto-revert-mode
@@ -3947,9 +4031,6 @@ Type \\[magit-revert] to revert the change at point in the worktree.
 \n\\{magit-commit-mode-map}"
   :group 'magit-commit)
 
-(defvar magit-commit-buffer-name "*magit-commit*"
-  "Name of buffer used to display a commit.")
-
 ;;;###autoload
 (defun magit-show-commit (commit &optional noselect module)
   "Show the commit at point.
@@ -3968,7 +4049,7 @@ for a commit."
                              default-directory)))
     (when (magit-git-failure "cat-file" "commit" commit)
       (user-error "%s is not a commit" commit))
-    (magit-mode-setup magit-commit-buffer-name
+    (magit-mode-setup magit-commit-buffer-name-format
                       (if noselect 'display-buffer 'pop-to-buffer)
                       #'magit-commit-mode
                       #'magit-refresh-commit-buffer
@@ -4001,10 +4082,10 @@ commit or stash at point, then prompt for a commit."
     (magit-section-case (value)
       (commit (setq rev value
                     cmd 'magit-show-commit
-                    buf magit-commit-buffer-name))
+                    buf magit-commit-buffer-name-format))
       (stash  (setq rev value
                     cmd 'magit-diff-stash
-                    buf magit-diff-buffer-name)))
+                    buf magit-diff-buffer-name-format)))
     (if rev
         (if (and (setq buf (get-buffer buf))
                  (setq win (get-buffer-window buf))
@@ -4093,9 +4174,6 @@ Type \\[magit-commit-popup] to create a commit.
 \n\\{magit-status-mode-map}"
   :group 'magit-status)
 
-(defvar magit-status-buffer-name "*magit: %t*"
-  "Name of buffer used to display a repository's status.")
-
 ;;;###autoload
 (defun magit-status (dir &optional switch-function)
   "Open a Magit status buffer for the Git repository containing DIR.
@@ -4123,7 +4201,7 @@ can be used to override this."
                         (format "No repository in %s.  Create one? " dir))
                        (progn (magit-init dir)
                               (magit-get-top-dir dir)))))
-    (magit-mode-setup magit-status-buffer-name
+    (magit-mode-setup magit-status-buffer-name-format
                       (or switch-function
                           magit-status-buffer-switch-function)
                       #'magit-status-mode
@@ -6207,7 +6285,7 @@ to test.  This command lets Git choose a different one."
 ;;;###autoload
 (defun magit-log (range &optional args)
   (interactive (magit-log-read-args nil nil))
-  (magit-mode-setup magit-log-buffer-name nil
+  (magit-mode-setup magit-log-buffer-name-format nil
                     #'magit-log-mode
                     #'magit-refresh-log-buffer 'oneline range
                     (cl-delete "^-L" args :test 'string-match-p))
@@ -6221,7 +6299,7 @@ to test.  This command lets Git choose a different one."
 ;;;###autoload
 (defun magit-log-verbose (range &optional args)
   (interactive (magit-log-read-args nil t))
-  (magit-mode-setup magit-log-buffer-name nil
+  (magit-mode-setup magit-log-buffer-name-format nil
                     #'magit-log-mode
                     #'magit-refresh-log-buffer 'long range args)
   (magit-log-goto-same-commit))
@@ -6251,7 +6329,7 @@ With a prefix argument show the log graph."
    (list (magit-read-file-from-rev (magit-get-current-branch)
                                    (magit-buffer-file-name t))
          current-prefix-arg))
-  (magit-mode-setup magit-log-buffer-name nil
+  (magit-mode-setup magit-log-buffer-name-format nil
                     #'magit-log-mode
                     #'magit-refresh-log-buffer
                     'oneline "HEAD"
@@ -6269,7 +6347,7 @@ With a prefix argument another branch can be chosen."
                  (if (and branch (not current-prefix-arg))
                      (list branch)
                    (list (magit-read-rev "Reflog of" branch)))))
-  (magit-mode-setup magit-reflog-buffer-name nil
+  (magit-mode-setup magit-reflog-buffer-name-format nil
                     #'magit-reflog-mode
                     #'magit-refresh-reflog-buffer ref))
 
@@ -6296,9 +6374,6 @@ Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 Type \\[magit-reset-head] to reset HEAD to the commit at point.
 \n\\{magit-log-mode-map}"
   :group 'magit-log)
-
-(defvar magit-log-buffer-name "*magit-log*"
-  "Name of buffer used to display log entries.")
 
 (defun magit-refresh-log-buffer (style range args &optional file)
   (magit-set-buffer-margin (car magit-log-margin-spec)
@@ -6565,7 +6640,7 @@ With a non numeric prefix ARG, show all entries"
 (defun magit-log-maybe-show-commit (section)
   (when (and (eq (magit-section-type section) 'commit)
              (or (and (magit-diff-auto-show-p 'log-follow)
-                      (get-buffer-window magit-commit-buffer-name))
+                      (get-buffer-window magit-commit-buffer-name-format))
                  (and (magit-diff-auto-show-p 'log-oneline)
                       (derived-mode-p 'magit-log-mode)
                       (eq (car magit-refresh-args) 'oneline))))
@@ -6591,7 +6666,7 @@ With a non numeric prefix ARG, show all entries"
 
 (defun magit-log-select (pick &optional quit desc branch args)
   (declare (indent defun))
-  (magit-mode-setup magit-log-buffer-name nil
+  (magit-mode-setup magit-log-buffer-name-format nil
                     #'magit-log-select-mode
                     #'magit-refresh-log-buffer 'oneline
                     (or branch (magit-get-current-branch) "HEAD")
@@ -6632,9 +6707,6 @@ Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 \n\\{magit-cherry-mode-map}"
   :group 'magit-modes)
 
-(defvar magit-cherry-buffer-name "*magit-cherry*"
-  "Name of buffer used to display commits not merged upstream.")
-
 ;;;###autoload
 (defun magit-cherry (head upstream)
   "Show commits in a branch that are not merged in the upstream branch."
@@ -6642,7 +6714,7 @@ Type \\[magit-cherry-pick] to cherry-pick the commit at point.
    (let  ((head (magit-read-rev "Cherry head" (magit-get-current-branch))))
      (list head (magit-read-rev "Cherry upstream"
                                 (magit-get-tracked-branch head)))))
-  (magit-mode-setup magit-cherry-buffer-name nil
+  (magit-mode-setup magit-cherry-buffer-name-format nil
                     #'magit-cherry-mode
                     #'magit-refresh-cherry-buffer upstream head))
 
@@ -6670,9 +6742,6 @@ Type \\[magit-cherry-pick] to cherry-pick the commit at point.
       "cherry" "-v" (magit-abbrev-arg) magit-refresh-args)))
 
 ;;;; Reflog Mode
-
-(defvar magit-reflog-buffer-name "*magit-reflog*"
-  "Name of buffer used to display reflog entries.")
 
 (define-derived-mode magit-reflog-mode magit-log-mode "Magit Reflog"
   "Mode for looking at Git reflog.
@@ -6800,9 +6869,6 @@ Type \\[magit-revert] to revert the change at point in the worktree.
 \n\\{magit-diff-mode-map}"
   :group 'magit-diff)
 
-(defvar magit-diff-buffer-name "*magit-diff*"
-  "Name of buffer used to display a diff.")
-
 ;;;;; Diff Entry Commands
 
 (magit-define-popup magit-diff-popup
@@ -6833,7 +6899,7 @@ Type \\[magit-revert] to revert the change at point in the worktree.
 (defun magit-diff (range &optional working args)
   "Show changes between two commits."
   (interactive (list (magit-read-rev "Diff for ref/rev/range")))
-  (magit-mode-setup magit-diff-buffer-name
+  (magit-mode-setup magit-diff-buffer-name-format
                     magit-diff-switch-buffer-function
                     #'magit-diff-mode
                     #'magit-refresh-diff-buffer range working args))
@@ -6888,7 +6954,7 @@ a commit read from the minibuffer."
 (defun magit-diff-while-committing ()
   (interactive)
   (let* ((toplevel (magit-get-top-dir))
-         (diff-buf (magit-mode-get-buffer magit-diff-buffer-name
+         (diff-buf (magit-mode-get-buffer magit-diff-buffer-name-format
                                           'magit-diff-mode toplevel))
          (commit-buf (magit-commit-log-buffer)))
     (if commit-buf
@@ -6931,7 +6997,7 @@ actually were a single commit."
   (interactive (list (or (and (not current-prefix-arg)
                               (magit-stash-at-point t))
                          (magit-read-stash "Show stash"))))
-  (magit-mode-setup magit-diff-buffer-name
+  (magit-mode-setup magit-diff-buffer-name-format
                     (if noselect 'display-buffer 'pop-to-buffer)
                     #'magit-diff-mode
                     #'magit-refresh-diff-buffer
@@ -7234,9 +7300,6 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 \n\\{magit-wazzup-mode-map}"
   :group 'magit-modes)
 
-(defvar magit-wazzup-buffer-name "*magit-wazzup*"
-  "Name of buffer used to display commits not merged into current HEAD.")
-
 ;;;###autoload
 (defun magit-wazzup (branch)
   "Show a list of branches in a dedicated buffer.
@@ -7248,7 +7311,7 @@ into the selected branch."
      (list (if current-prefix-arg
                (magit-read-rev "Wazzup branch" branch)
              branch))))
-  (magit-mode-setup magit-wazzup-buffer-name nil
+  (magit-mode-setup magit-wazzup-buffer-name-format nil
                     #'magit-wazzup-mode
                     #'magit-refresh-wazzup-buffer branch))
 
@@ -7303,14 +7366,11 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 \n\\{magit-branch-manager-mode-map}"
   :group 'magit-modes)
 
-(defvar magit-branches-buffer-name "*magit-branches*"
-  "Name of buffer used to display and manage branches.")
-
 ;;;###autoload
 (defun magit-branch-manager ()
   "Show a list of branches in a dedicated buffer."
   (interactive)
-  (magit-mode-setup magit-branches-buffer-name nil
+  (magit-mode-setup magit-branches-buffer-name-format nil
                     #'magit-branch-manager-mode
                     #'magit-refresh-branch-manager))
 
