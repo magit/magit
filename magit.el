@@ -1667,7 +1667,17 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
 (defun magit-flatten-onelevel (list)
   (--mapcat (cond ((consp it) (copy-sequence it))
                   (it (list it)))
-             list))
+            list))
+
+(defun magit-delete-line ()
+  "Delete the rest of the current line."
+  (delete-region (point) (1+ (line-end-position))))
+
+(defun magit-delete-match (&optional num)
+  "Delete text matched by last search.
+If optional NUM is specified only delete that subexpression."
+  (delete-region (match-beginning (or num 0))
+                 (match-end (or num 0))))
 
 (defun magit-load-config-extensions ()
   "Load Magit extensions that are defined at the Git config layer."
@@ -4025,7 +4035,7 @@ stash at point, then prompt for a commit."
 (defun magit-wash-commit (args)
   (looking-at "^commit \\([a-z0-9]+\\)\\(?: \\(.+\\)\\)?$")
   (magit-bind-match-strings (rev refs) nil
-    (delete-region (point) (1+ (line-end-position)))
+    (magit-delete-line)
     (magit-insert-section (headers)
       (magit-insert-heading
         (propertize rev 'face 'magit-hash)
@@ -4033,7 +4043,7 @@ stash at point, then prompt for a commit."
       (while (re-search-forward "^\\([a-z]+\\): +\\(.+\\)$" nil t)
         (magit-bind-match-strings (keyword revs) nil
           (when (string-match-p keyword "Merge")
-            (delete-region (match-beginning 2) (match-end 2))
+            (magit-delete-match 2)
             (dolist (rev (split-string revs))
               (magit-insert-commit-button rev)
               (insert ?\s)))))
@@ -4044,13 +4054,12 @@ stash at point, then prompt for a commit."
                    (copy-marker (match-beginning 0)))))
         (summary (buffer-substring-no-properties
                   (point) (line-end-position))))
-    (delete-region (point) (1+ (line-end-position)))
+    (magit-delete-line)
     (magit-insert-section (message)
       (insert summary ?\n)
       (magit-insert-heading)
       (cond ((re-search-forward "^---" bound t)
-             (goto-char (match-beginning 0))
-             (delete-region (match-beginning 0) (match-end 0)))
+             (magit-delete-match))
             ((re-search-forward "^.[^ ]" bound t)
              (goto-char (1- (match-beginning 0)))))))
   (forward-line)
@@ -4335,7 +4344,7 @@ can be used to override this."
     (while (progn (setq beg (point-marker))
                   (re-search-forward "^\\(git bisect [^\n]+\n\\)" nil t))
       (magit-bind-match-strings (heading) nil
-        (delete-region (match-beginning 0) (match-end 0))
+        (magit-delete-match)
         (save-restriction
           (narrow-to-region beg (point))
           (goto-char (point-min))
@@ -4348,7 +4357,7 @@ can be used to override this."
     (when (re-search-forward
            "# first bad commit: \\[\\([a-z0-9]\\{40\\}\\)\\] [^\n]+\n" nil t)
       (magit-bind-match-strings (hash) nil
-        (delete-region (match-beginning 0) (match-end 0))
+        (magit-delete-match)
         (magit-insert-section (bisect-log)
           (magit-insert (concat hash " is the first bad commit\n")))))))
 
@@ -6406,7 +6415,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
                 (bisect-log magit-log-bisect-log-re)))
   (magit-bind-match-strings
       (hash msg refs graph author date gpg cherry refsel refsub side) nil
-    (delete-region (point) (point-at-eol))
+    (magit-delete-match)
     (when cherry
       (magit-insert cherry (if (string= cherry "-")
                                'magit-cherry-equivalent
@@ -6999,7 +7008,7 @@ actually were a single commit."
   (let (heading diffstats (beg (point)))
     (when (re-search-forward "^ ?\\([0-9]+ +files? change[^\n]*\n\\)" nil t)
       (setq heading (match-string 1))
-      (delete-region (match-beginning 0) (match-end 0))
+      (magit-delete-match)
       (goto-char beg)
       (magit-insert-section it (diffstats)
         (insert heading)
@@ -7008,7 +7017,7 @@ actually were a single commit."
          (lambda ()
            (when (looking-at magit-diff-statline-re)
              (magit-bind-match-strings (file sep cnt add del) nil
-               (delete-region (point) (1+ (line-end-position)))
+               (magit-delete-line)
                (magit-insert-section (file file)
                  (insert " " file sep cnt " ")
                  (when add (insert (propertize add 'face 'magit-diff-added)))
@@ -7023,14 +7032,14 @@ actually were a single commit."
     (let* ((module (match-string 1))
            (range  (match-string 2))
            (dirty  (not range)))
-      (delete-region (point) (1+ (line-end-position)))
+      (magit-delete-line)
       (when (and dirty
                  (looking-at magit-diff-submodule-re)
                  (string= (match-string 1) module))
         (setq range (match-string 2))
-        (delete-region (point) (1+ (line-end-position))))
+        (magit-delete-line))
       (while (looking-at "^  \\([<>]\\) \\(.+\\)$")
-        (delete-region (point) (1+ (line-end-position))))
+        (magit-delete-line))
       (if range
           (let ((default-directory
                   (file-name-as-directory
@@ -7050,7 +7059,7 @@ actually were a single commit."
                                     'face 'magit-diff-file-header))))))
    ((looking-at "^\\* Unmerged path \\(.*\\)")
     (let ((dst (magit-decode-git-path (match-string 1))))
-      (delete-region (point) (1+ (line-end-position)))
+      (magit-delete-line)
       (unless (and (derived-mode-p 'magit-status-mode)
                    (not (member "--cached" args)))
         (magit-insert-section (file dst)
@@ -7067,14 +7076,14 @@ actually were a single commit."
               src dst status "unmerged"))
       (when diffstat
         (setf (magit-section-value diffstat) dst))
-      (delete-region (point) (1+ (line-end-position)))
+      (magit-delete-line)
       (while (not (or (eobp) (looking-at magit-diff-headline-re)))
         (if (looking-at "^old mode \\([^\n]+\\)\nnew mode \\([^\n]+\\)\n")
             (progn (setq modes (match-string 0))
-                   (delete-region (point) (match-end 0)))
+                   (magit-delete-match))
           (when (looking-at "^\\(new file\\|rename\\|deleted\\)")
             (setq status (match-string 1)))
-          (delete-region (point) (1+ (line-end-position)))))
+          (magit-delete-line)))
       (magit-insert-section it (file dst (or (equal status "deleted")
                                              (derived-mode-p 'magit-status-mode)))
         (magit-insert-heading
@@ -7093,7 +7102,7 @@ actually were a single commit."
   (when (looking-at "^@@\\(@\\)?.+")
     (let ((merging (match-end 1))
           (heading (match-string 0)))
-      (delete-region (point) (1+ (line-end-position)))
+      (magit-delete-line)
       (magit-insert-section it (hunk heading)
         (magit-insert-heading
           (propertize (concat heading "\n") 'face 'magit-diff-hunk-header))
