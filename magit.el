@@ -761,12 +761,6 @@ inserted as is."
                        (character :format "replace %v ")
                        (character :format "with %v"))))
 
-(defcustom magit-log-show-gpg-status nil
-  "Display signature verification information as part of the log."
-  :package-version '(magit . "2.0.0")
-  :group 'magit-log
-  :type 'boolean)
-
 (defcustom magit-log-show-margin t
   "Whether to use a margin when showing `oneline' logs.
 When non-nil the author name and date are displayed in the margin
