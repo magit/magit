@@ -3977,22 +3977,22 @@ for a commit."
 (defun magit-show-or-scroll-up ()
   "Update the commit or diff buffer for the thing at point.
 
-Either show the commit or stash at point in another buffer,
-or if that buffer is already displayed in the current frame
-and contains information about that commit or stash, then
-instead scroll the buffer up.  If there is no commit or
-stash at point, then prompt for a commit."
+Either show the commit or stash at point in the appropriate
+buffer, or if that buffer is already being displayed in the
+current frame and contains information about that commit or
+stash, then instead scroll the buffer up.  If there is no
+commit or stash at point, then prompt for a commit."
   (interactive)
   (magit-show-or-scroll 'scroll-up))
 
 (defun magit-show-or-scroll-down ()
   "Update the commit or diff buffer for the thing at point.
 
-Either show the commit or stash at point in another buffer,
-or if that buffer is already displayed in the current frame
-and contains information about that commit or stash, then
-instead scroll the buffer down.  If there is no commit or
-stash at point, then prompt for a commit."
+Either show the commit or stash at point in the appropriate
+buffer, or if that buffer is already being displayed in the
+current frame and contains information about that commit or
+stash, then instead scroll the buffer down.  If there is no
+commit or stash at point, then prompt for a commit."
   (interactive)
   (magit-show-or-scroll 'scroll-down))
 
