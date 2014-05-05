@@ -4271,7 +4271,7 @@ can be used to override this."
                        (propertize (format "%s" count) 'face
                                    (if next 'magit-tag 'magit-branch-local))))))
 
-;;;; Progress Sections
+;;;; Sequencer Sections
 
 (defun magit-insert-status-merge-line ()
   (-when-let (heads (mapcar 'magit-get-shortname
