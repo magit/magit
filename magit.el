@@ -5960,14 +5960,20 @@ With prefix argument, changes in staging area are kept.
   "Apply a stash on top of the current working tree state.
 \n(git stash apply [ARGS] stash@{N})"
   (interactive (list (magit-read-stash "Apply stash" t)
-                     (magit-current-popup-args :only "--index")))
+                     (if magit-current-popup
+                         (magit-current-popup-args :only "--index")
+                       (--first (equal it "--index")
+                                magit-stash-popup-defaults))))
   (magit-run-git "stash" "apply" args stash))
 
 (defun magit-stash-pop (stash &optional args)
   "Apply a stash on top of working tree state and remove from stash list.
 \n(git stash pop [ARGS] stash@{N})"
   (interactive (list (magit-read-stash "Pop stash" t)
-                     (magit-current-popup-args :only "--index")))
+                     (if magit-current-popup
+                         (magit-current-popup-args :only "--index")
+                       (--first (equal it "--index")
+                                magit-stash-popup-defaults))))
   (magit-run-git "stash" "pop" args stash))
 
 (defun magit-stash-drop (stash)
