@@ -102,35 +102,6 @@
 (defvar magit-refresh-args)
 (defvar magit-this-process)
 
-;;;; Compatibility
-
-(eval-and-compile
-  ;; Added in Emacs 24.1
-  (unless (fboundp 'run-hook-wrapped)
-    (defun run-hook-wrapped  (hook wrap-function &rest args)
-      "Run HOOK, passing each function through WRAP-FUNCTION.
-I.e. instead of calling each function FUN directly with arguments ARGS,
-it calls WRAP-FUNCTION with arguments FUN and ARGS.
-As soon as a call to WRAP-FUNCTION returns non-nil, `run-hook-wrapped'
-aborts and returns that value."
-      (when (boundp hook)
-        (let ((fns (symbol-value hook)))
-          (apply 'run-hook-wrapped-1 hook
-                 (if (functionp fns) (list fns) fns)
-                 wrap-function args)))))
-
-    (defun run-hook-wrapped-1 (hook fns wrap-function &rest args)
-      (cl-loop for fn in fns
-               if (and (eq fn t)
-                       (local-variable-p hook)
-                       (default-boundp hook)
-                       (apply 'run-hook-wrapped-1 nil
-                              (default-value hook) wrap-function args))
-               return it
-               else if (and (functionp fn) (apply wrap-function fn args))
-               return it))
-  )
-
 
 ;;; Settings
 ;;;; Custom Groups
