@@ -70,6 +70,7 @@
 (require 'format-spec)
 (require 'grep)
 (require 'help-mode)
+(require 'package nil t)
 (require 'ring)
 (require 'server)
 (require 'tramp)
@@ -81,7 +82,6 @@
   (require 'ediff)
   (require 'eshell)
   (require 'ido)
-  (require 'package nil t)
   (require 'view))
 
 ;;;; Declarations
@@ -92,13 +92,8 @@
 (declare-function eshell-parse-arguments 'eshell)
 (declare-function ido-completing-read 'ido)
 (declare-function iswitchb-read-buffer 'iswitchb)
-(declare-function package-desc-vers 'package)
-(declare-function package-desc-version 'package)
-(declare-function package-version-join 'package)
 
 (defvar iswitchb-temp-buflist)
-(defvar package-alist)
-
 (defvar magit-refresh-args)
 (defvar magit-this-process)
 
@@ -7631,14 +7626,14 @@ Use the function by the same name instead of this variable.")
                (load-file static))
               ((featurep 'package)
                (setq magit-version
-                     (or (ignore-errors ; < 24.3.50
-                           (package-version-join
-                            (package-desc-vers
-                             (cdr (assq 'magit package-alist)))))
-                         (ignore-errors ; >= 24.3.50
-                           (package-version-join
-                            (package-desc-version
-                             (cadr (assq 'magit package-alist)))))))))))
+                     (or (and (fboundp 'package-desc-vers) ; < 24.3.50
+                              (package-version-join
+                               (package-desc-vers
+                                (cdr (assq 'magit package-alist)))))
+                         (and (fboundp 'package-desc-version) ; >= 24.3.50
+                              (package-version-join
+                               (package-desc-version
+                                (cadr (assq 'magit package-alist)))))))))))
     (if (stringp magit-version)
         (when (called-interactively-p 'any)
           (message "magit-%s" magit-version))
