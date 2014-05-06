@@ -15,11 +15,11 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq $EMACS
 install:
-  - $CURL https://raw.github.com/magit/git-modes/master/git-commit-mode.el -o git-commit-mode.el
-  - $CURL https://raw.github.com/magit/git-modes/master/git-rebase-mode.el -o git-rebase-mode.el
+  - $CURL https://raw.githubusercontent.com/magit/git-modes/master/git-commit-mode.el -o git-commit-mode.el
+  - $CURL https://raw.githubusercontent.com/magit/git-modes/master/git-rebase-mode.el -o git-rebase-mode.el
   - if test $EMACS = emacs; then
-      $CURL https://raw.github.com/ohler/ert/fb3c278d/lisp/emacs-lisp/ert.el -o ert.el;
-      $CURL https://raw.github.com/emacsmirror/cl-lib/master/cl-lib.el -o cl-lib.el;
+      $CURL https://raw.githubusercontent.com/ohler/ert/fb3c278d/lisp/emacs-lisp/ert.el -o ert.el;
+      $CURL https://raw.githubusercontent.com/emacsmirror/cl-lib/master/cl-lib.el -o cl-lib.el;
     fi
   - git tag 0
 script:
