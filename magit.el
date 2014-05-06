@@ -1779,12 +1779,8 @@ If optional NUM is specified only delete that subexpression."
 ;;;;; Section Core
 
 (cl-defstruct magit-section
-  type value
-  start content end
-  hidden washer
-  diff-status diff-file2
-  process
-  parent children)
+  type value start content end hidden washer
+  diff-status diff-source process parent children)
 
 (defvar-local magit-root-section nil
   "The root section in the current buffer.
@@ -4704,7 +4700,7 @@ Also see option `magit-revert-backup'."
     (diff-fixup-modifs (point-min) (point-max))))
 
 (defun magit-insert-diff-header (section buf)
-  (let ((src (magit-section-diff-file2 section))
+  (let ((src (magit-section-diff-source section))
         (dst (magit-section-value section)))
     (with-current-buffer buf
       (insert (format "diff --git a/%s b/%s\n--- a/%s\n+++ b/%s\n"
@@ -7143,7 +7139,7 @@ actually were a single commit."
                         (format "%-10s %s\n" status dst))
                       'face 'magit-diff-file-header))
         (setf (magit-section-diff-status it) status)
-        (setf (magit-section-diff-file2  it) src)
+        (setf (magit-section-diff-source it) src)
         (when modes
           (magit-insert-section (hunk)
             (insert modes)))
