@@ -1623,7 +1623,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
              (?s "Show Status"     magit-status)
              (?S "Stage all"       magit-stage-modified)
              (?t "Tagging"         magit-tag-popup)
-             (?U "Unstage all"     magit-unstage-all)
+             (?U "Reset Index"     magit-reset-index)
              (?v "Show Commit"     magit-show-commit)
              (?V "Show File"       magit-show)
              (?w "Wazzup"          magit-wazzup)
