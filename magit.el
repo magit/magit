@@ -1085,7 +1085,8 @@ have changed on disk and are tracked in the current Git repository."
 
 (defcustom magit-push-hook '(magit-push-dwim)
   "Hook run by `magit-push' to actually do the work.
-See `magit-push' and `magit-push-dwim' for more information."
+See `magit-push', `magit-push-dwim', and `magit-push-dwis' for
+more information."
   :package-version '(magit . "2.0.0")
   :group 'magit-modes
   :type 'hook)
@@ -5776,6 +5777,30 @@ Also see option `magit-set-upstream-on-push'."
                (and (eq magit-set-upstream-on-push t)
                     (yes-or-no-p "Set upstream while pushing? ")))
            (setq magit-custom-options (cons "-u" magit-custom-options))))
+    (magit-run-git-async
+     "push" "-v" used-remote
+     (if used-branch (format "%s:%s" branch used-branch) branch)
+     magit-custom-options)))
+
+(defun magit-push-dwis (arg)
+  "Like `magit-push-dwim' but doesn't mess with setting upstream
+branches or push to branch.<name>.merge by default. The goal here
+is to respect the config push.default. If push.default=current
+you really want to push to the remote branch of the same name as
+the local branch, even if your
+upstream (i.e. branch.<name>.merge) is set to something else."
+  (interactive "P")
+  (let* ((branch (or (magit-get-current-branch)
+                     (user-error "Don't push a detached head.  That's gross")))
+         (auto-remote (magit-get-remote branch))
+         (used-remote (if (or arg (not auto-remote))
+                          (magit-read-remote
+                           (format "Push %s to remote" branch) auto-remote)
+                        auto-remote))
+         (used-branch (when (>= (prefix-numeric-value arg) 16)
+                        (magit-read-remote-branch
+                         (format "Push %s as branch" branch)
+                         used-remote))))
     (magit-run-git-async
      "push" "-v" used-remote
      (if used-branch (format "%s:%s" branch used-branch) branch)
