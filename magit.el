@@ -4469,7 +4469,7 @@ Stage all new content of tracked files and remove tracked files
 that no longer exist in the working tree from the index also.
 With a prefix argument also stage previously untracked (but not
 ignored) files.
-\('git add [--update] .')."
+\('git add --update|--all .')."
   (interactive
    (unless (or (not magit-stage-all-confirm)
                (not (magit-anything-staged-p))
