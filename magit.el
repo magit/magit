@@ -3975,8 +3975,8 @@ results in additional differences."
                                    id-str
                                  (epg-decode-dn id-obj)))))
                      (epg-list-keys (epg-make-context epa-protocol) nil t))))
-  (magit-completing-read prompt keys nil nil initial-input nil
-                         (or (car magit-gpg-secret-key-hist) (car keys)))))
+    (magit-completing-read prompt keys nil t nil 'magit-gpg-secret-key-hist
+                           (car (or magit-gpg-secret-key-hist keys)))))
 
 (defun magit-popup-read-file-name (prompt initial-input)
   (read-file-name prompt nil nil t initial-input))
