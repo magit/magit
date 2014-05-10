@@ -3167,7 +3167,7 @@ Magit mode."
     (unless topdir
       (setq topdir (magit-get-top-dir)))
     (let ((name (format-spec format
-                             `((?a . ,(or topdir "-"))
+                             `((?a . ,(abbreviate-file-name (or topdir "-")))
                                (?b . ,(if topdir
                                           (file-name-nondirectory
                                            (directory-file-name topdir))
