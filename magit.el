@@ -2175,6 +2175,14 @@ FUNCTION has to move point forward or return nil."
                        (string-equal (magit-section-value s) file)))
                 (magit-section-children magit-root-section))))
 
+(defun magit-section-diff-header (section)
+  (when (eq (magit-section-type section) 'hunk)
+    (setq section (magit-section-parent section)))
+  (when (eq (magit-section-type section) 'file)
+    (let ((src (magit-section-diff-source section))
+          (dst (magit-section-value section)))
+      (format "diff --git a/%s b/%s\n--- a/%s\n+++ b/%s\n" src dst src dst))))
+
 ;;;;; Section Visibility
 
 (defun magit-section-set-hidden (section hidden)
@@ -4573,12 +4581,13 @@ Also see option `magit-revert-backup'."
        (user-error "Not a file")))
   (when (member "-U0" magit-diff-options)
     (setq args (cons "--unidiff-zero" args)))
-  (let ((buf (generate-new-buffer " *magit-input*")))
-    (unwind-protect
-        (progn (magit-insert-diff-patch section buf)
-               (magit-run-git-with-input
-                buf "apply" args "--ignore-space-change" "-"))
-      (kill-buffer buf))))
+  (let ((patch (buffer-substring (magit-section-content section)
+                                 (magit-section-end section))))
+    (with-temp-buffer
+      (insert (magit-section-diff-header section) patch)
+      (magit-run-git-with-input (current-buffer) "apply" args
+                                "--ignore-space-change" "-")))
+  (magit-refresh))
 
 (defun magit-apply-hunk (section &rest args)
   (interactive
@@ -4600,68 +4609,35 @@ Also see option `magit-revert-backup'."
       (when use-region
         (user-error (concat "Not enough context to partially apply hunk.  "
                             "Use `+' to increase context."))))
-    (let ((buf (generate-new-buffer " *magit-input*")))
-      (unwind-protect
-          (progn (if use-region
-                     (magit-insert-region-patch
-                      section (member "--reverse" args)
-                      (region-beginning) (region-end) buf)
-                   (magit-insert-hunk-patch section buf))
-                 (magit-revert-backup buf args)
-                 (magit-run-git-with-input
-                  buf "apply" args "--ignore-space-change" "-"))
-        (kill-buffer buf)))))
+    (let ((patch (if use-region
+                     (magit-region-patch section (member "--reverse" args)
+                                         (region-beginning) (region-end))
+                   (buffer-substring (magit-section-start section)
+                                     (magit-section-end section)))))
+      (with-temp-buffer
+        (insert (magit-section-diff-header section) patch)
+        (when use-region
+          (diff-fixup-modifs (point-min) (point-max)))
+        (magit-revert-backup (current-buffer) args)
+        (magit-run-git-with-input (current-buffer) "apply" args
+                                  "--ignore-space-change" "-")))
+    (magit-refresh)))
 
-(defun magit-insert-diff-patch (section buf)
-  (magit-insert-diff-header section buf)
-  (magit-insert-region (magit-section-content section)
-                       (magit-section-end section)
-                       buf))
-
-(defun magit-insert-hunk-patch (section buf)
-  (magit-insert-diff-header (magit-section-parent section) buf)
-  (magit-insert-region (magit-section-start section)
-                       (magit-section-end section)
-                       buf))
-
-(defun magit-insert-region-patch (section reverse beg end buf)
-  (magit-insert-diff-header (magit-section-parent section) buf)
-  (save-excursion
-    (goto-char (magit-section-start section))
-    (magit-insert-current-line buf)
-    (forward-line)
-    (let ((copy-op (if reverse "+" "-")))
-      (while (< (point) (magit-section-end section))
-        (cond ((and (<= beg (point)) (< (point) end))
-               (magit-insert-current-line buf))
-              ((looking-at " ")
-               (magit-insert-current-line buf))
-              ((looking-at copy-op)
-               (let ((text (buffer-substring-no-properties
-                            (+ (point) 1) (line-beginning-position 2))))
-                 (with-current-buffer buf
-                   (insert " " text)))))
-        (forward-line))))
-  (with-current-buffer buf
-    (diff-fixup-modifs (point-min) (point-max))))
-
-(defun magit-insert-diff-header (section buf)
-  (let ((src (magit-section-diff-source section))
-        (dst (magit-section-value section)))
-    (with-current-buffer buf
-      (insert (format "diff --git a/%s b/%s\n--- a/%s\n+++ b/%s\n"
-                      src dst src dst)))))
-
-(defun magit-insert-region (beg end buf)
-  (let ((text (buffer-substring-no-properties beg end)))
-    (with-current-buffer buf
-      (insert text))))
-
-(defun magit-insert-current-line (buf)
-  (let ((text (buffer-substring-no-properties
-               (line-beginning-position) (line-beginning-position 2))))
-    (with-current-buffer buf
-      (insert text))))
+(defun magit-region-patch (section reverse beg end)
+  (let ((section-end (magit-section-end section))
+        (op (if reverse "+" "-"))
+        (patch nil))
+    (save-excursion
+      (goto-char (magit-section-start section))
+      (while (< (point) section-end)
+        (looking-at "\\(.\\)\\([^\n]*\n\\)")
+        (cond ((or (string-match-p "[@ ]" (match-string 1))
+                   (and (>= (point) beg) (< (point) end)))
+               (push (match-string 0) patch))
+              ((equal op (match-string 1))
+               (push (concat " " (match-string 2)) patch)))
+        (forward-line)))
+    (mapconcat 'identity (reverse patch) "")))
 
 (defun magit-revert-backup (buffer args)
   (when (and magit-revert-backup (member "--reverse" args))
@@ -6804,13 +6780,13 @@ Type \\[magit-revert] to revert the change at point in the worktree.
 (defvar magit-diff-switch-buffer-function 'pop-to-buffer)
 
 ;;;###autoload
-(defun magit-diff (range &optional working args)
+(defun magit-diff (range &optional args)
   "Show changes between two commits."
   (interactive (list (magit-read-rev "Diff for ref/rev/range")))
   (magit-mode-setup magit-diff-buffer-name-format
                     magit-diff-switch-buffer-function
                     #'magit-diff-mode
-                    #'magit-refresh-diff-buffer range working args))
+                    #'magit-refresh-diff-buffer range args))
 
 ;;;###autoload
 (defun magit-diff-working-tree (&optional rev)
@@ -6822,7 +6798,7 @@ a commit read from the minibuffer."
         (list (magit-read-rev "Diff working tree and commit"
                               (or (magit-branch-or-commit-at-point)
                                   (magit-get-current-branch) "HEAD")))))
-  (magit-diff (or rev "HEAD") t))
+  (magit-diff (or rev "HEAD")))
 
 ;;;###autoload
 (defun magit-diff-staged (&optional commit)
@@ -6834,7 +6810,7 @@ a commit read from the minibuffer."
         (list (magit-read-rev "Diff index and commit"
                               (or (magit-branch-or-commit-at-point)
                                   (magit-get-current-branch) "HEAD")))))
-  (magit-diff nil nil (cons "--cached" (and commit (list commit)))))
+  (magit-diff nil (cons "--cached" (and commit (list commit)))))
 
 ;;;###autoload
 (defun magit-diff-unstaged ()
@@ -6884,14 +6860,14 @@ a commit read from the minibuffer."
       (user-error "No commit in progress"))))
 
 (defun magit-diff-while-amending ()
-  (magit-diff "HEAD^" nil (list "--cached")))
+  (magit-diff "HEAD^" (list "--cached")))
 
 ;;;###autoload
 (defun magit-diff-paths (a b)
   "Show changes between any two files on disk."
   (interactive (list (read-file-name "First file: " nil nil t)
                      (read-file-name "Second file: " nil nil t)))
-  (magit-diff nil nil (list "--no-index" "--" a b)))
+  (magit-diff nil (list "--no-index" "--" a b)))
 
 ;;;###autoload
 (defun magit-diff-stash (stash &optional noselect)
@@ -6941,17 +6917,16 @@ actually were a single commit."
              (string-to-number (match-string 1 it)))
     3))
 
-(defun magit-refresh-diff-buffer (range &optional working args)
+(defun magit-refresh-diff-buffer (range &optional args)
   (magit-insert-section (diffbuf)
     (magit-insert-heading
-      (cond (working
-             (format "Changes from %s to working tree" range))
-            ((not range)
-             (if (member "--cached" args)
-                 "Staged changes"
-               "Unstaged changes"))
-            (t
-             (format "Changes in %s" range))))
+      (if range
+          (if (string-match-p "\\.\\." range)
+              (format "Changes in %s" range)
+            (format "Changes from %s to working tree" range))
+        (if (member "--cached" args)
+            "Staged changes"
+          "Unstaged changes")))
     (magit-git-wash #'magit-wash-diffs
       "diff" "-p" (and magit-show-diffstat "--stat")
       magit-diff-extra-options
