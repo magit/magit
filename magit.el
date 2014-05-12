@@ -2119,6 +2119,17 @@ again use `remove-hook'."
 
 ;;;;; Section Utilities
 
+(defun magit-describe-section ()
+  "Show information about the section at point.
+This command is intended for debugging purposes."
+  (interactive)
+  (let ((section (magit-current-section)))
+    (message "%S %S %s-%s"
+             (magit-section-value section)
+             (apply 'vector (mapcar 'car (magit-section-ident section)))
+             (marker-position (magit-section-start section))
+             (marker-position (magit-section-end section)))))
+
 (defun magit-map-sections (function section)
   "Apply FUNCTION to SECTION and recursively its subsections."
   (funcall function section)
@@ -7390,17 +7401,6 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   (interactive)
   (magit-section-when (branch commit mcommit file)
     (kill-new (message "%s" (magit-section-value it)))))
-
-(defun magit-describe-section ()
-  "Show information about the section at point.
-This command is intended for debugging purposes."
-  (interactive)
-  (let ((section (magit-current-section)))
-    (message "%S %S %s-%s"
-             (magit-section-value section)
-             (apply 'vector (mapcar 'car (magit-section-ident section)))
-             (marker-position (magit-section-start section))
-             (marker-position (magit-section-end section)))))
 
 ;;;; Read Repository
 
