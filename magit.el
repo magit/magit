@@ -4047,12 +4047,14 @@ commit or stash at point, then prompt for a commit."
     (magit-section-case
       (commit (setq rev (magit-section-value it)
                     cmd 'magit-show-commit
-                    buf magit-commit-buffer-name-format))
+                    buf (magit-mode-get-buffer
+                         magit-commit-buffer-name-format 'magit-commit-mode)))
       (stash  (setq rev (magit-section-value it)
                     cmd 'magit-diff-stash
-                    buf magit-diff-buffer-name-format)))
+                    buf (magit-mode-get-buffer
+                         magit-diff-buffer-name-format 'magit-diff-mode))))
     (if rev
-        (if (and (setq buf (get-buffer buf))
+        (if (and buf
                  (setq win (get-buffer-window buf))
                  (with-current-buffer buf
                    (equal (if (eq cmd 'magit-diff-stash)
