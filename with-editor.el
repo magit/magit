@@ -240,18 +240,6 @@ ENVVAR is provided then bind that environment variable instead.
                  (expand-file-name invocation-name invocation-directory))
          ,@body))))
 
-(defmacro with-git-editor (&rest body)
-  "Use the Emacsclient as $GIT_EDITOR while evaluating BODY.
-Modify the `process-environment' for processes started in BODY,
-instructing them to use the Emacsclient as $GIT_EDITOR.  If
-optional ENVVAR is provided then bind that environment variable
-instead.
-\n(fn [ENVVAR] &rest BODY)"
-  (declare (indent defun))
-  `(with-editor ,(if (stringp (car body)) (pop body) "GIT_EDITOR")
-     (let ((magit-process-popup-time -1))
-       ,@body)))
-
 (defadvice server-switch-buffer (around with-editor activate)
   "If the buffer being switched to has a buffer-local value for
 `server-window' then use that instead of the default value, and
