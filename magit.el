@@ -252,7 +252,11 @@ aborts and returns that value."
                           (file-executable-p alt))
                      alt
                    exe)))))
-      (executable-find "git") "git")
+      ;; When the only cost is finding the executable, then it it
+      ;; better not to cache the full path.  It might not be installed
+      ;; in the same location on machines whose repositories are
+      ;; accessed using Tramp.
+      "git")
   "The Git executable used by Magit."
   :group 'magit-process
   :type 'string)
