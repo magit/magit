@@ -2429,14 +2429,9 @@ match return nil."
      (when (and it (magit-section-match ',condition it))
        ,@(or body '((magit-section-value it))))))
 
-(defmacro magit-section-case (slots &rest clauses)
-  (declare (indent 1))
-  `(let* ((it (magit-current-section))
-          ,@(mapcar
-             (lambda (slot)
-               `(,slot
-                 (and it (,(intern (format "magit-section-%s" slot)) it))))
-             slots))
+(defmacro magit-section-case (&rest clauses)
+  (declare (indent 0))
+  `(let ((it (magit-current-section)))
      (cond ,@(mapcar (lambda (clause)
                        `((magit-section-match ',(car clause) it)
                          ,@(cdr clause)))
@@ -2449,22 +2444,22 @@ match return nil."
   (magit-section-when commit))
 
 (defun magit-branch-or-commit-at-point ()
-  (magit-section-case (value)
-    (branch value)
-    (commit (magit-get-shortname value))))
+  (magit-section-case
+    (branch (magit-section-value it))
+    (commit (magit-get-shortname (magit-section-value it)))))
 
 (defun magit-stash-at-point (&optional get-number)
   (magit-section-when stash))
 
 (defun magit-remote-at-point ()
-  (magit-section-case (value parent-value)
-    (remote value)
-    (branch parent-value)))
+  (magit-section-case
+    (remote (magit-section-value it))
+    (branch (magit-section-parent-value it))))
 
 (defun magit-file-at-point ()
-  (magit-section-case (value parent-value)
-    (file value)
-    (hunk parent-value)))
+  (magit-section-case
+    (file (magit-section-value it))
+    (hunk (magit-section-parent-value it))))
 
 ;;;; Process Api
 ;;;;; Process Commands
@@ -3998,11 +3993,11 @@ commit or stash at point, then prompt for a commit."
 
 (defun magit-show-or-scroll (fn)
   (let (rev cmd buf win)
-    (magit-section-case (value)
-      (commit (setq rev value
+    (magit-section-case
+      (commit (setq rev (magit-section-value it)
                     cmd 'magit-show-commit
                     buf magit-commit-buffer-name-format))
-      (stash  (setq rev value
+      (stash  (setq rev (magit-section-value it)
                     cmd 'magit-diff-stash
                     buf magit-diff-buffer-name-format)))
     (if rev
@@ -4368,13 +4363,13 @@ can be used to override this."
 (defun magit-stage ()
   "Add the change at point to the staging area."
   (interactive)
-  (magit-section-case (value)
+  (magit-section-case
     ([file untracked]
      (let (files repos)
        (dolist (elt (if (use-region-p)
                         (magit-section-region-siblings)
                       (list it)))
-         (if (magit-git-repo-p value t)
+         (if (magit-git-repo-p (magit-section-value it) t)
              (push elt repos)
            (push (magit-section-value elt) files)))
        (when files
@@ -4391,7 +4386,7 @@ can be used to override this."
      (magit-run-git "add" "--"
                     (if (use-region-p)
                         (magit-section-region-siblings #'magit-section-value)
-                      value)))
+                      (magit-section-value it))))
     (unstaged   (magit-stage-modified))
     ([* staged] (user-error "Already staged"))
     (hunk       (user-error "Cannot stage this hunk"))
@@ -4435,15 +4430,15 @@ ignored) files.
 (defun magit-unstage ()
   "Remove the change at point from the staging area."
   (interactive)
-  (magit-section-case (value)
+  (magit-section-case
     ([hunk file staged]
      (magit-apply-hunk it "--reverse" "--cached"))
     ([file staged]
-     (when (eq value 'unmerged)
+     (when (eq (magit-section-value it) 'unmerged)
        (user-error "Can't unstage an unmerged file.  Resolve it first"))
      (magit-unstage-1 (if (use-region-p)
                           (magit-section-region-siblings #'magit-section-value)
-                        value)))
+                        (magit-section-value it))))
     (staged
      (when (or (not magit-unstage-all-confirm)
                (and (not (magit-anything-unstaged-p))
@@ -4482,14 +4477,15 @@ without requiring confirmation."
 (defun magit-discard ()
   "Remove the change introduced by the thing at point."
   (interactive)
-  (magit-section-case (value parent-value diff-status)
+  (magit-section-case
     ([file untracked]
-     (when (yes-or-no-p (format "Delete %s? " value))
-       (if (and (file-directory-p value)
-                (not (file-symlink-p value)))
-           (delete-directory value 'recursive)
-         (delete-file value))
-       (magit-refresh)))
+     (let ((value (magit-section-value it)))
+       (when (yes-or-no-p (format "Delete %s? " value))
+         (if (and (file-directory-p value)
+                  (not (file-symlink-p value)))
+             (delete-directory value 'recursive)
+           (delete-file value))
+         (magit-refresh))))
     (untracked
      (when (yes-or-no-p "Delete all untracked files and directories? ")
        (magit-run-git "clean" "-df")))
@@ -4502,7 +4498,7 @@ without requiring confirmation."
      (when (yes-or-no-p (if (use-region-p)
                             "Discard changes in region? "
                           "Discard hunk? "))
-       (if (magit-anything-unstaged-p parent-value)
+       (if (magit-anything-unstaged-p (magit-section-parent-value it))
            (progn
              (let ((inhibit-magit-refresh t))
                (magit-apply-hunk it "--reverse" "--cached")
@@ -4510,13 +4506,16 @@ without requiring confirmation."
              (magit-refresh))
          (magit-apply-hunk it "--reverse" "--index"))))
     ([file unstaged]
-     (if (eq diff-status 'unmerged)
-         (magit-checkout-stage value (magit-checkout-read-stage value))
-       (magit-discard-file value diff-status nil)))
+     (let ((value (magit-section-value it))
+           (status (magit-section-diff-status it)))
+       (if (eq status 'unmerged)
+           (magit-checkout-stage value (magit-checkout-read-stage value))
+         (magit-discard-file value status nil))))
     ([file staged]
-     (if (magit-anything-unstaged-p value)
-         (user-error "Cannot discard this hunk, file has unstaged changes")
-       (magit-discard-file value diff-status t)))
+     (let ((value (magit-section-value it)))
+       (if (magit-anything-unstaged-p value)
+           (user-error "Cannot discard this hunk, file has unstaged changes")
+         (magit-discard-file value (magit-section-diff-status it) t))))
     (hunk (user-error "Cannot discard this hunk"))
     (file (user-error "Cannot discard this file"))))
 
@@ -4541,9 +4540,10 @@ without requiring confirmation."
 (defun magit-revert ()
   "Revert the change at point in the working tree."
   (interactive)
-  (magit-section-case (value)
+  (magit-section-case
     (file (when (or (not magit-revert-confirm)
-                    (yes-or-no-p (format "Revert %s? " value)))
+                    (yes-or-no-p (format "Revert %s? "
+                                         (magit-section-value it))))
             (magit-apply-diff it "--reverse")))
     (hunk (when (or (not magit-revert-confirm)
                     (yes-or-no-p "Revert this hunk? "))
@@ -4657,9 +4657,10 @@ Also see option `magit-revert-backup'."
 ;;;; Visit
 
 (defun magit-visit-file (file &optional other-window line column)
-  (interactive (magit-section-case (value parent-value)
-                 (file (list value        current-prefix-arg))
-                 (hunk (list parent-value current-prefix-arg
+  (interactive (magit-section-case
+                 (file (list (magit-section-value it) current-prefix-arg))
+                 (hunk (list (magit-section-parent-value it)
+                             current-prefix-arg
                              (magit-hunk-target-line it)
                              (current-column)))))
   (unless (file-exists-p file)
@@ -4706,9 +4707,9 @@ With a prefix argument, visit in other window."
   (require 'dired-x)
   (dired-jump other-window
               (file-truename
-               (magit-section-case (value parent-value)
-                 (file value)
-                 (hunk parent-value)
+               (magit-section-case
+                 (file (magit-section-value it))
+                 (hunk (magit-section-parent-value it))
                  (t    default-directory)))))
 
 (defvar-local magit-log-file nil)
