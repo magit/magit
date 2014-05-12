@@ -6223,9 +6223,11 @@ With a prefix argument show the log graph."
                     #'magit-log-mode
                     #'magit-refresh-log-buffer
                     'oneline "HEAD"
-                    `(,@(and use-graph (list "--graph"))
-                      ,@magit-current-popup-args
-                      "--follow")
+                    (cons "--follow"
+                          (if use-graph
+                              `(,@(and use-graph (list "--graph"))
+                                ,@magit-current-popup-args)
+                            (delete "--graph" magit-current-popup-args)))
                     file)
   (magit-log-goto-same-commit))
 
