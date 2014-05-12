@@ -91,9 +91,7 @@
 (declare-function ediff-cleanup-mess 'ediff)
 (declare-function eshell-parse-arguments 'eshell)
 (declare-function ido-completing-read 'ido)
-(declare-function iswitchb-read-buffer 'iswitchb)
 
-(defvar iswitchb-temp-buflist)
 (defvar magit-refresh-args)
 (defvar magit-this-process)
 
@@ -469,7 +467,6 @@ when generating large diffs."
   :group 'magit
   :type '(radio (function-item magit-builtin-completing-read)
                 (function-item magit-ido-completing-read)
-                (function-item magit-iswitchb-completing-read)
                 (function :tag "Other")))
 
 (defcustom magit-repo-dirs nil
@@ -3828,17 +3825,6 @@ results in additional differences."
     (or (and (consp (car choices))
              (cdr (assoc reply choices)))
         reply)))
-
-(defun magit-iswitchb-completing-read
-  (prompt choices &optional predicate require-match initial-input hist def)
-  "Iswitchb-based completing-read almost-replacement."
-  (require 'iswitchb)
-  (let ((iswitchb-make-buflist-hook
-         (lambda ()
-           (setq iswitchb-temp-buflist (if (consp (car choices))
-                                           (mapcar #'car choices)
-                                         choices)))))
-    (iswitchb-read-buffer prompt (or initial-input def) require-match)))
 
 (defun magit-prompt-with-default (prompt def)
   (if (and def (> (length prompt) 2)
