@@ -57,7 +57,7 @@
            (executable-find "emacsclient")
            (executable-find "emacsclient.exe")))))
   "The Emacsclient executable used by the `with-editor' macro."
-  :group 'with-process
+  :group 'with-editor
   :type '(choice (string :tag "Executable")
                  (const  :tag "Don't use Emacsclient" nil)))
 
