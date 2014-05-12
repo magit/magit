@@ -6804,13 +6804,13 @@ Type \\[magit-revert] to revert the change at point in the worktree.
 (defvar magit-diff-switch-buffer-function 'pop-to-buffer)
 
 ;;;###autoload
-(defun magit-diff (range &optional working args)
+(defun magit-diff (range &optional args)
   "Show changes between two commits."
   (interactive (list (magit-read-rev "Diff for ref/rev/range")))
   (magit-mode-setup magit-diff-buffer-name-format
                     magit-diff-switch-buffer-function
                     #'magit-diff-mode
-                    #'magit-refresh-diff-buffer range working args))
+                    #'magit-refresh-diff-buffer range args))
 
 ;;;###autoload
 (defun magit-diff-working-tree (&optional rev)
@@ -6822,7 +6822,7 @@ a commit read from the minibuffer."
         (list (magit-read-rev "Diff working tree and commit"
                               (or (magit-branch-or-commit-at-point)
                                   (magit-get-current-branch) "HEAD")))))
-  (magit-diff (or rev "HEAD") t))
+  (magit-diff (or rev "HEAD")))
 
 ;;;###autoload
 (defun magit-diff-staged (&optional commit)
@@ -6834,7 +6834,7 @@ a commit read from the minibuffer."
         (list (magit-read-rev "Diff index and commit"
                               (or (magit-branch-or-commit-at-point)
                                   (magit-get-current-branch) "HEAD")))))
-  (magit-diff nil nil (cons "--cached" (and commit (list commit)))))
+  (magit-diff nil (cons "--cached" (and commit (list commit)))))
 
 ;;;###autoload
 (defun magit-diff-unstaged ()
@@ -6884,14 +6884,14 @@ a commit read from the minibuffer."
       (user-error "No commit in progress"))))
 
 (defun magit-diff-while-amending ()
-  (magit-diff "HEAD^" nil (list "--cached")))
+  (magit-diff "HEAD^" (list "--cached")))
 
 ;;;###autoload
 (defun magit-diff-paths (a b)
   "Show changes between any two files on disk."
   (interactive (list (read-file-name "First file: " nil nil t)
                      (read-file-name "Second file: " nil nil t)))
-  (magit-diff nil nil (list "--no-index" "--" a b)))
+  (magit-diff nil (list "--no-index" "--" a b)))
 
 ;;;###autoload
 (defun magit-diff-stash (stash &optional noselect)
@@ -6941,17 +6941,16 @@ actually were a single commit."
              (string-to-number (match-string 1 it)))
     3))
 
-(defun magit-refresh-diff-buffer (range &optional working args)
+(defun magit-refresh-diff-buffer (range &optional args)
   (magit-insert-section (diffbuf)
     (magit-insert-heading
-      (cond (working
-             (format "Changes from %s to working tree" range))
-            ((not range)
-             (if (member "--cached" args)
-                 "Staged changes"
-               "Unstaged changes"))
-            (t
-             (format "Changes in %s" range))))
+      (if range
+          (if (string-match-p "\\.\\." range)
+              (format "Changes in %s" range)
+            (format "Changes from %s to working tree" range))
+        (if (member "--cached" args)
+            "Staged changes"
+          "Unstaged changes")))
     (magit-git-wash #'magit-wash-diffs
       "diff" "-p" (and magit-show-diffstat "--stat")
       magit-diff-extra-options
