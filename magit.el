@@ -4627,32 +4627,22 @@ Also see option `magit-revert-backup'."
         (kill-buffer buf)))))
 
 (defun magit-insert-region-patch (section reverse beg end buf)
-  (with-current-buffer buf
-    (insert (magit-section-diff-header section)))
-  (save-excursion
-    (goto-char (magit-section-start section))
-    (magit-insert-current-line buf)
-    (forward-line)
-    (let ((copy-op (if reverse "+" "-")))
-      (while (< (point) (magit-section-end section))
-        (cond ((and (<= beg (point)) (< (point) end))
-               (magit-insert-current-line buf))
-              ((looking-at " ")
-               (magit-insert-current-line buf))
-              ((looking-at copy-op)
-               (let ((text (buffer-substring-no-properties
-                            (+ (point) 1) (line-beginning-position 2))))
-                 (with-current-buffer buf
-                   (insert " " text)))))
-        (forward-line))))
-  (with-current-buffer buf
-    (diff-fixup-modifs (point-min) (point-max))))
-
-(defun magit-insert-current-line (buf)
-  (let ((text (buffer-substring-no-properties
-               (line-beginning-position) (line-beginning-position 2))))
+  (let ((patch (list (magit-section-diff-header section)))
+        (section-end (magit-section-end section))
+        (op (if reverse "+" "-")))
+    (save-excursion
+      (goto-char (magit-section-start section))
+      (while (< (point) section-end)
+        (looking-at "\\(.\\)\\([^\n]*\n\\)")
+        (cond ((or (string-match-p "[@ ]" (match-string 1))
+                   (and (>= (point) beg) (< (point) end)))
+               (push (match-string 0) patch))
+              ((equal op (match-string 1))
+               (push (concat " " (match-string 2)) patch)))
+        (forward-line)))
     (with-current-buffer buf
-      (insert text))))
+      (apply 'insert (reverse patch))
+      (diff-fixup-modifs (point-min) (point-max)))))
 
 (defun magit-revert-backup (buffer args)
   (when (and magit-revert-backup (member "--reverse" args))
