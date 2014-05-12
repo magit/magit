@@ -4581,15 +4581,13 @@ Also see option `magit-revert-backup'."
        (user-error "Not a file")))
   (when (member "-U0" magit-diff-options)
     (setq args (cons "--unidiff-zero" args)))
-  (let ((buf (generate-new-buffer " *magit-input*")))
-    (unwind-protect
-        (let ((patch (buffer-substring (magit-section-content section)
-                                       (magit-section-end section))))
-          (with-current-buffer buf
-            (insert (magit-section-diff-header section) patch))
-          (magit-run-git-with-input
-           buf "apply" args "--ignore-space-change" "-"))
-      (kill-buffer buf))))
+  (let ((patch (buffer-substring (magit-section-content section)
+                                 (magit-section-end section))))
+    (with-temp-buffer
+      (insert (magit-section-diff-header section) patch)
+      (magit-run-git-with-input (current-buffer) "apply" args
+                                "--ignore-space-change" "-")))
+  (magit-refresh))
 
 (defun magit-apply-hunk (section &rest args)
   (interactive
@@ -4611,19 +4609,19 @@ Also see option `magit-revert-backup'."
       (when use-region
         (user-error (concat "Not enough context to partially apply hunk.  "
                             "Use `+' to increase context."))))
-    (let ((buf (generate-new-buffer " *magit-input*")))
-      (unwind-protect
-          (let ((patch (if use-region
-                           (magit-region-patch section (member "--reverse" args)
-                                               (region-beginning) (region-end))
-                         (buffer-substring (magit-section-start section)
-                                           (magit-section-end section)))))
-            (with-current-buffer buf
-              (insert (magit-section-diff-header section) patch))
-            (magit-revert-backup buf args)
-            (magit-run-git-with-input
-             buf "apply" args "--ignore-space-change" "-"))
-        (kill-buffer buf)))))
+    (let ((patch (if use-region
+                     (magit-region-patch section (member "--reverse" args)
+                                         (region-beginning) (region-end))
+                   (buffer-substring (magit-section-start section)
+                                     (magit-section-end section)))))
+      (with-temp-buffer
+        (insert (magit-section-diff-header section) patch)
+        (when use-region
+          (diff-fixup-modifs (point-min) (point-max)))
+        (magit-revert-backup (current-buffer) args)
+        (magit-run-git-with-input (current-buffer) "apply" args
+                                  "--ignore-space-change" "-")))
+    (magit-refresh)))
 
 (defun magit-region-patch (section reverse beg end)
   (let ((section-end (magit-section-end section))
