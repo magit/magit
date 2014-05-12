@@ -2770,7 +2770,9 @@ This function might have a short halflive."
 (defvar magit-this-process nil)
 
 (defun magit-run-git-with-editor (&rest args)
-  (with-git-editor (apply #'magit-run-git-async args)))
+  (with-editor "GIT_EDITOR"
+    (let ((magit-process-popup-time -1))
+      (apply #'magit-run-git-async args))))
 
 (defun magit-run-git-async (&rest args)
   "Start Git, prepare for refresh, and return the process object.
@@ -2854,8 +2856,8 @@ tracked in the current repository are reverted if
            (process (apply 'start-file-process
                            (file-name-nondirectory program)
                            process-buf program args)))
+      (with-editor-set-process-filter process #'magit-process-filter)
       (set-process-sentinel process #'magit-process-sentinel)
-      (set-process-filter   process #'magit-process-filter)
       (set-process-buffer   process process-buf)
       (process-put process 'section section)
       (process-put process 'command-buf (current-buffer))
@@ -3108,6 +3110,7 @@ of the Windows \"Powershell\"."
         (setq magit-refresh-args args)))))
 
 (add-hook 'server-visit-hook 'magit-server-visit t)
+(add-hook 'with-editor-filter-visit-hook 'magit-server-visit t)
 
 ;;;; Mode Api
 ;;;;; Mode Foundation
@@ -5207,9 +5210,6 @@ With prefix, forces the rename even if NEW already exists.
                  (list (and commit (concat commit "^"))
                        magit-current-popup-args)))
   (cond
-   ((or (not with-editor-emacsclient-executable)
-        (tramp-tramp-file-p default-directory))
-    (error "Implementation does not handle remote (tramp) repositories"))
    ((magit-rebase-in-progress-p)
     (magit-rebase-popup))
    ((setq commit (magit-rebase-interactive-assert commit))
@@ -5780,35 +5780,7 @@ depending on the value of option `magit-commit-squash-confirm'.
   (when (and diff-fn (magit-diff-auto-show-p 'commit))
     (let ((magit-inhibit-save-previous-winconf t))
       (funcall diff-fn)))
-  (if (and with-editor-emacsclient-executable
-           (not (tramp-tramp-file-p default-directory)))
-      (apply #'magit-run-git-with-editor "commit" args)
-    (magit-commit-fallback "commit" (magit-flatten-onelevel args))))
-
-(defun magit-commit-fallback (subcmd args)
-  (let ((topdir (magit-get-top-dir))
-        (editmsg (magit-git-dir (if (equal subcmd "tag")
-                                    "TAG_EDITMSG"
-                                  "COMMIT_EDITMSG"))))
-    (when (and (member "--amend" args)
-               (not (file-exists-p editmsg)))
-      (with-temp-file editmsg
-        (magit-rev-format "%B")))
-    (with-current-buffer (find-file-noselect editmsg)
-      (pop-to-buffer (current-buffer))
-      (add-hook 'with-editor-finish-noclient-hook
-                (apply-partially
-                 (lambda (default-directory editmsg args)
-                   (magit-run-git args)
-                   (ignore-errors (delete-file editmsg)))
-                 topdir editmsg
-                 `(,subcmd
-                   ,"--cleanup=strip"
-                   ,(concat "--file=" (file-relative-name
-                                       (buffer-file-name)
-                                       topdir))
-                   ,@args))
-                nil t))))
+  (apply #'magit-run-git-with-editor "commit" args))
 
 (defvar magit-commit-add-log-insert-function 'magit-commit-add-log-insert)
 
@@ -5897,12 +5869,10 @@ With a prefix argument annotate the tag.
                      (magit-read-rev "Place tag on"
                                      (or (magit-branch-or-commit-at-point) "HEAD"))
                      current-prefix-arg))
-  (let ((args (append magit-current-popup-args (list name rev))))
-    (if (or (member "--sign" args)
-            (member "--annotate" args)
-            (and annotate (setq args (cons "--annotate" args))))
-        (magit-commit-fallback "tag" args)
-      (magit-run-git "tag" args))))
+  (let ((args magit-current-popup-args))
+    (when annotate
+      (add-to-list 'args "--annotate"))
+    (magit-run-git-with-editor "tag" args name rev)))
 
 ;;;###autoload
 (defun magit-tag-delete (name)
