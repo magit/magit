@@ -4614,15 +4614,17 @@ Also see option `magit-revert-backup'."
 
 (defun magit-insert-diff-patch (section buf)
   (magit-insert-diff-header section buf)
-  (magit-insert-region (magit-section-content section)
-                       (magit-section-end section)
-                       buf))
+  (let ((patch (buffer-substring (magit-section-content section)
+                                 (magit-section-end section))))
+    (with-current-buffer buf
+      (insert patch))))
 
 (defun magit-insert-hunk-patch (section buf)
   (magit-insert-diff-header (magit-section-parent section) buf)
-  (magit-insert-region (magit-section-start section)
-                       (magit-section-end section)
-                       buf))
+  (let ((patch (buffer-substring (magit-section-start section)
+                                 (magit-section-end section))))
+    (with-current-buffer buf
+      (insert patch))))
 
 (defun magit-insert-region-patch (section reverse beg end buf)
   (magit-insert-diff-header (magit-section-parent section) buf)
@@ -4651,11 +4653,6 @@ Also see option `magit-revert-backup'."
     (with-current-buffer buf
       (insert (format "diff --git a/%s b/%s\n--- a/%s\n+++ b/%s\n"
                       src dst src dst)))))
-
-(defun magit-insert-region (beg end buf)
-  (let ((text (buffer-substring-no-properties beg end)))
-    (with-current-buffer buf
-      (insert text))))
 
 (defun magit-insert-current-line (buf)
   (let ((text (buffer-substring-no-properties
