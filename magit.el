@@ -4613,23 +4613,22 @@ Also see option `magit-revert-backup'."
                             "Use `+' to increase context."))))
     (let ((buf (generate-new-buffer " *magit-input*")))
       (unwind-protect
-          (progn (if use-region
-                     (magit-insert-region-patch
-                      section (member "--reverse" args)
-                      (region-beginning) (region-end) buf)
-                   (let ((patch (buffer-substring (magit-section-start section)
-                                                  (magit-section-end section))))
-                     (with-current-buffer buf
-                       (insert (magit-section-diff-header section) patch))))
-                 (magit-revert-backup buf args)
-                 (magit-run-git-with-input
-                  buf "apply" args "--ignore-space-change" "-"))
+          (let ((patch (if use-region
+                           (magit-region-patch section (member "--reverse" args)
+                                               (region-beginning) (region-end))
+                         (buffer-substring (magit-section-start section)
+                                           (magit-section-end section)))))
+            (with-current-buffer buf
+              (insert (magit-section-diff-header section) patch))
+            (magit-revert-backup buf args)
+            (magit-run-git-with-input
+             buf "apply" args "--ignore-space-change" "-"))
         (kill-buffer buf)))))
 
-(defun magit-insert-region-patch (section reverse beg end buf)
-  (let ((patch (list (magit-section-diff-header section)))
-        (section-end (magit-section-end section))
-        (op (if reverse "+" "-")))
+(defun magit-region-patch (section reverse beg end)
+  (let ((section-end (magit-section-end section))
+        (op (if reverse "+" "-"))
+        (patch nil))
     (save-excursion
       (goto-char (magit-section-start section))
       (while (< (point) section-end)
@@ -4640,9 +4639,7 @@ Also see option `magit-revert-backup'."
               ((equal op (match-string 1))
                (push (concat " " (match-string 2)) patch)))
         (forward-line)))
-    (with-current-buffer buf
-      (apply 'insert (reverse patch))
-      (diff-fixup-modifs (point-min) (point-max)))))
+    (mapconcat 'identity (reverse patch) "")))
 
 (defun magit-revert-backup (buffer args)
   (when (and magit-revert-backup (member "--reverse" args))
