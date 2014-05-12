@@ -479,7 +479,7 @@ Also see `git-commit-insert-header'."
        (ignore-errors (car (process-lines "git" "config" "user.email")))
        user-mail-address)))
 
-(defmacro git-define-git-commit-self (action header)
+(defmacro git-commit-define-self-header-inserter (action header)
   "Create function git-commit-ACTION.
 ACTION will be part of the function name.
 HEADER is the actual header to be inserted into the comment."
@@ -493,12 +493,12 @@ retrieved automatically with the same mechanism git uses."
        (interactive)
        (git-commit-insert-header-as-self ,header))))
 
-(git-define-git-commit-self "ack"     "Acked-by")
-(git-define-git-commit-self "review"  "Reviewed-by")
-(git-define-git-commit-self "signoff" "Signed-off-by")
-(git-define-git-commit-self "test"    "Tested-by")
+(git-commit-define-self-header-inserter "ack"     "Acked-by")
+(git-commit-define-self-header-inserter "review"  "Reviewed-by")
+(git-commit-define-self-header-inserter "signoff" "Signed-off-by")
+(git-commit-define-self-header-inserter "test"    "Tested-by")
 
-(defmacro git-define-git-commit (action header)
+(defmacro git-commit-define-header-inserter (action header)
   "Create interactive function git-commit-ACTION.
 ACTION will be part of the function name.
 HEADER is the actual header to be inserted into the comment."
@@ -515,9 +515,9 @@ minibuffer."
               (read-string "Email: ")))
        (git-commit-insert-header ,header name email))))
 
-(git-define-git-commit "cc"        "Cc")
-(git-define-git-commit "reported"  "Reported-by")
-(git-define-git-commit "suggested" "Suggested-by")
+(git-commit-define-header-inserter "cc"        "Cc")
+(git-commit-define-header-inserter "reported"  "Reported-by")
+(git-commit-define-header-inserter "suggested" "Suggested-by")
 
 (defconst git-commit-comment-headings-alist
   '(("Not currently on any branch."   . git-commit-no-branch-face)
