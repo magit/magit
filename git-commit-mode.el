@@ -483,41 +483,42 @@ Also see `git-commit-insert-header'."
   "Create function git-commit-ACTION.
 ACTION will be part of the function name.
 HEADER is the actual header to be inserted into the comment."
-  (let ((func-name (intern (concat "git-commit-" action))))
-    `(defun ,func-name ()
-       ,(format "Insert a '%s' header at the end of the commit message.
+  (let ((fn (intern (format "git-commit-%s" action))))
+    `(progn
+       (defun ,fn ()
+         ,(format "Insert a '%s' header at the end of the commit message.
 
 The author name and email address used for the header are
-retrieved automatically with the same mechanism git uses."
-                header)
-       (interactive)
-       (git-commit-insert-header-as-self ,header))))
+retrieved automatically with the same mechanism git uses." header)
+         (interactive)
+         (git-commit-insert-header-as-self ,header))
+       (put ',fn 'definition-name ',action))))
 
-(git-commit-define-self-header-inserter "ack"     "Acked-by")
-(git-commit-define-self-header-inserter "review"  "Reviewed-by")
-(git-commit-define-self-header-inserter "signoff" "Signed-off-by")
-(git-commit-define-self-header-inserter "test"    "Tested-by")
+(git-commit-define-self-header-inserter ack     "Acked-by")
+(git-commit-define-self-header-inserter review  "Reviewed-by")
+(git-commit-define-self-header-inserter signoff "Signed-off-by")
+(git-commit-define-self-header-inserter test    "Tested-by")
 
 (defmacro git-commit-define-header-inserter (action header)
   "Create interactive function git-commit-ACTION.
 ACTION will be part of the function name.
 HEADER is the actual header to be inserted into the comment."
-  (let ((func-name (intern (concat "git-commit-" action))))
-    `(defun ,func-name (name email)
-       ,(format "Insert a '%s' header at the end of the commit message.
+  (let ((fn (intern (format "git-commit-%s" action))))
+    `(progn
+       (defun ,fn (name email)
+         ,(format "Insert a '%s' header at the end of the commit message.
 The value of the header is determined by NAME and EMAIL.
 
 When called interactively, both NAME and EMAIL are read from the
-minibuffer."
-                header)
-       (interactive
-        (list (read-string "Name: ")
-              (read-string "Email: ")))
-       (git-commit-insert-header ,header name email))))
+minibuffer." header)
+         (interactive (list (read-string "Name: ")
+                            (read-string "Email: ")))
+         (git-commit-insert-header ,header name email))
+       (put ',fn 'definition-name ',action))))
 
-(git-commit-define-header-inserter "cc"        "Cc")
-(git-commit-define-header-inserter "reported"  "Reported-by")
-(git-commit-define-header-inserter "suggested" "Suggested-by")
+(git-commit-define-header-inserter cc        "Cc")
+(git-commit-define-header-inserter reported  "Reported-by")
+(git-commit-define-header-inserter suggested "Suggested-by")
 
 (defconst git-commit-comment-headings-alist
   '(("Not currently on any branch."   . git-commit-no-branch-face)
