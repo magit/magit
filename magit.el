@@ -2686,9 +2686,10 @@ variable `magit-process-buffer-name-format'."
 (defun magit-run-git-with-input (input &rest args)
   "Call Git in a separate process.
 
-The first argument, INPUT, has to be a buffer or the name of an
-existing buffer.  The content of that buffer is used as the
-process' standard input.
+The first argument, INPUT, should be a buffer or the name of
+an existing buffer.  The content of that buffer is used as the
+process' standard input.  It may also be nil in which case the
+current buffer is used.
 
 The remaining arguments, ARGS, specify command line arguments.
 The first level of ARGS is flattened, so each member of ARGS has
@@ -2702,12 +2703,14 @@ After Git returns, the current buffer (if it is a Magit buffer)
 as well as the current repository's status buffer are refreshed.
 Unmodified buffers visiting files that are tracked in the current
 repository are reverted if `magit-auto-revert-mode' is active.
+When INPUT is nil then do not refresh any buffers.
 
 This function actually starts a asynchronous process, but it then
 waits for that process to return."
-  (apply #'magit-start-git input args)
+  (declare (indent 1))
+  (apply #'magit-start-git (or input (current-buffer)) args)
   (magit-process-wait)
-  (magit-refresh))
+  (when input (magit-refresh)))
 
 (defun magit-run-git-with-logfile (file &rest args)
   "Call Git in a separate process and log its output to FILE.
@@ -4585,8 +4588,8 @@ Also see option `magit-revert-backup'."
                                  (magit-section-end section))))
     (with-temp-buffer
       (insert (magit-section-diff-header section) patch)
-      (magit-run-git-with-input (current-buffer) "apply" args
-                                "--ignore-space-change" "-")))
+      (magit-run-git-with-input nil
+        "apply" args "--ignore-space-change" "-")))
   (magit-refresh))
 
 (defun magit-apply-hunk (section &rest args)
@@ -4619,8 +4622,8 @@ Also see option `magit-revert-backup'."
         (when use-region
           (diff-fixup-modifs (point-min) (point-max)))
         (magit-revert-backup (current-buffer) args)
-        (magit-run-git-with-input (current-buffer) "apply" args
-                                  "--ignore-space-change" "-")))
+        (magit-run-git-with-input nil
+          "apply" args "--ignore-space-change" "-")))
     (magit-refresh)))
 
 (defun magit-region-patch (section reverse beg end)
@@ -4884,20 +4887,22 @@ inspect the merge and change the commit message.
              (user-error "Quit"))))
        (user-error "No merge in progress"))))
   (if restore-conflict
-      (with-temp-buffer
-        (insert "0 0000000000000000000000000000000000000000\t" file "\n")
-        (--> (magit-git-string "ls-tree" (magit-git-string
-                                          "merge-base" "MERGE_HEAD" "HEAD")
-                               file)
-          (replace-regexp-in-string "\t" " 1\t" it)
-          (insert it "\n"))
-        (--> (magit-git-string "ls-tree" "HEAD" file)
-          (replace-regexp-in-string "\t" " 2\t" it)
-          (insert it "\n"))
-        (--> (magit-git-string "ls-tree" "MERGE_HEAD" file)
-          (replace-regexp-in-string "\t" " 3\t" it)
-          (insert it "\n"))
-        (magit-run-git-with-input (current-buffer) "checkout" arg file))
+      (progn
+        (with-temp-buffer
+          (insert "0 0000000000000000000000000000000000000000\t" file "\n")
+          (--> (magit-git-string "ls-tree" (magit-git-string
+                                            "merge-base" "MERGE_HEAD" "HEAD")
+                                 file)
+            (replace-regexp-in-string "\t" " 1\t" it)
+            (insert it "\n"))
+          (--> (magit-git-string "ls-tree" "HEAD" file)
+            (replace-regexp-in-string "\t" " 2\t" it)
+            (insert it "\n"))
+          (--> (magit-git-string "ls-tree" "MERGE_HEAD" file)
+            (replace-regexp-in-string "\t" " 3\t" it)
+            (insert it "\n"))
+          (magit-run-git-with-input nil "checkout" arg file))
+        (magit-refresh))
     (magit-call-git "checkout" arg file)
     (if (string= arg "--merge")
         (magit-refresh)
@@ -5911,7 +5916,8 @@ With prefix argument, changes in staging area are kept.
         (magit-run-git "stash" "pop" "--index" both)
       (with-temp-buffer
         (magit-git-insert "diff" (concat "stash@{0}.." both))
-        (magit-run-git-with-input (current-buffer) "apply")))))
+        (magit-run-git-with-input nil "apply"))
+      (magit-refresh))))
 
 (defun magit-stash-index-snapshot ()
   "Create a new stash of the index only; keep changes in place."
