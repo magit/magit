@@ -3068,21 +3068,7 @@ Magit is documented in info node `(magit)'."
   (buffer-disable-undo)
   (setq truncate-lines t)
   (setq show-trailing-whitespace nil)
-  (add-hook 'pre-command-hook #'magit-pre-command-hook nil t)
-  (add-hook 'post-command-hook #'magit-post-command-hook t t)
   (add-hook 'post-command-hook #'magit-highlight-section t t))
-
-(defvar-local magit-pre-command-pos nil)
-
-(defun magit-pre-command-hook ()
-  (setq magit-pre-command-pos (point)))
-
-(defun magit-post-command-hook ()
-  (when (invisible-p (point))
-    (let ((pos (previous-single-property-change (point) 'invisible)))
-      (goto-char (if (= pos magit-pre-command-pos)
-                     (next-single-property-change (point) 'invisible)
-                   pos)))))
 
 (defvar-local magit-refresh-function nil)
 (put 'magit-refresh-function 'permanent-local t)
