@@ -85,8 +85,8 @@
   "Edit Git commit messages.
 This global mode arranges for `git-commit-setup' to be called
 when a Git commit message file is opened.  That usually happens
-when Git uses the Emacsclient as $EDITOR to have the user provide
-such a commit message."
+when Git uses the Emacsclient as $GIT_EDITOR to have the user
+provide such a commit message."
   :group 'git-commit
   :type 'boolean
   :global t
