@@ -6294,6 +6294,14 @@ With a prefix argument another branch can be chosen."
   (interactive)
   (magit-reflog "HEAD"))
 
+;;;;; Miscellaneous
+
+(defun magit-copy-as-kill ()
+  "Copy the thing at point into the kill ring."
+  (interactive)
+  (magit-section-when (branch commit mcommit file)
+    (kill-new (message "%s" (magit-section-value it)))))
+
 ;;; Modes (2)
 ;;;; Log Mode
 ;;;;; Log Core
@@ -7394,14 +7402,6 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
     (insert ?\n)))
 
 ;;; Miscellaneous
-;;;; Miscellaneous Commands
-
-(defun magit-copy-as-kill ()
-  "Copy the thing at point into the kill ring."
-  (interactive)
-  (magit-section-when (branch commit mcommit file)
-    (kill-new (message "%s" (magit-section-value it)))))
-
 ;;;; Read Repository
 
 (defun magit-read-top-dir (dir)
