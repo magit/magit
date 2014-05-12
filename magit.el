@@ -2175,6 +2175,14 @@ FUNCTION has to move point forward or return nil."
                        (string-equal (magit-section-value s) file)))
                 (magit-section-children magit-root-section))))
 
+(defun magit-section-diff-header (section)
+  (when (eq (magit-section-type section) 'hunk)
+    (setq section (magit-section-parent section)))
+  (when (eq (magit-section-type section) 'file)
+    (let ((src (magit-section-diff-source section))
+          (dst (magit-section-value section)))
+      (format "diff --git a/%s b/%s\n--- a/%s\n+++ b/%s\n" src dst src dst))))
+
 ;;;;; Section Visibility
 
 (defun magit-section-set-hidden (section hidden)
@@ -4613,21 +4621,20 @@ Also see option `magit-revert-backup'."
         (kill-buffer buf)))))
 
 (defun magit-insert-diff-patch (section buf)
-  (magit-insert-diff-header section buf)
   (let ((patch (buffer-substring (magit-section-content section)
                                  (magit-section-end section))))
     (with-current-buffer buf
-      (insert patch))))
+      (insert (magit-section-diff-header section) patch))))
 
 (defun magit-insert-hunk-patch (section buf)
-  (magit-insert-diff-header (magit-section-parent section) buf)
   (let ((patch (buffer-substring (magit-section-start section)
                                  (magit-section-end section))))
     (with-current-buffer buf
-      (insert patch))))
+      (insert (magit-section-diff-header section) patch))))
 
 (defun magit-insert-region-patch (section reverse beg end buf)
-  (magit-insert-diff-header (magit-section-parent section) buf)
+  (with-current-buffer buf
+    (insert (magit-section-diff-header section)))
   (save-excursion
     (goto-char (magit-section-start section))
     (magit-insert-current-line buf)
@@ -4646,13 +4653,6 @@ Also see option `magit-revert-backup'."
         (forward-line))))
   (with-current-buffer buf
     (diff-fixup-modifs (point-min) (point-max))))
-
-(defun magit-insert-diff-header (section buf)
-  (let ((src (magit-section-diff-source section))
-        (dst (magit-section-value section)))
-    (with-current-buffer buf
-      (insert (format "diff --git a/%s b/%s\n--- a/%s\n+++ b/%s\n"
-                      src dst src dst)))))
 
 (defun magit-insert-current-line (buf)
   (let ((text (buffer-substring-no-properties
