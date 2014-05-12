@@ -3241,8 +3241,6 @@ the buffer.  Finally reset the window configuration to nil."
             (setq magit-previous-window-configuration nil)))))
     (run-hook-with-args 'magit-mode-quit-window-hook buffer)))
 
-;;;;; Mode Utilities
-
 (defun magit-map-magit-buffers (func &optional dir)
   (dolist (buf (buffer-list))
     (with-current-buffer buf
