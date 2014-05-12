@@ -4583,9 +4583,12 @@ Also see option `magit-revert-backup'."
     (setq args (cons "--unidiff-zero" args)))
   (let ((buf (generate-new-buffer " *magit-input*")))
     (unwind-protect
-        (progn (magit-insert-diff-patch section buf)
-               (magit-run-git-with-input
-                buf "apply" args "--ignore-space-change" "-"))
+        (let ((patch (buffer-substring (magit-section-content section)
+                                       (magit-section-end section))))
+          (with-current-buffer buf
+            (insert (magit-section-diff-header section) patch))
+          (magit-run-git-with-input
+           buf "apply" args "--ignore-space-change" "-"))
       (kill-buffer buf))))
 
 (defun magit-apply-hunk (section &rest args)
@@ -4614,23 +4617,14 @@ Also see option `magit-revert-backup'."
                      (magit-insert-region-patch
                       section (member "--reverse" args)
                       (region-beginning) (region-end) buf)
-                   (magit-insert-hunk-patch section buf))
+                   (let ((patch (buffer-substring (magit-section-start section)
+                                                  (magit-section-end section))))
+                     (with-current-buffer buf
+                       (insert (magit-section-diff-header section) patch))))
                  (magit-revert-backup buf args)
                  (magit-run-git-with-input
                   buf "apply" args "--ignore-space-change" "-"))
         (kill-buffer buf)))))
-
-(defun magit-insert-diff-patch (section buf)
-  (let ((patch (buffer-substring (magit-section-content section)
-                                 (magit-section-end section))))
-    (with-current-buffer buf
-      (insert (magit-section-diff-header section) patch))))
-
-(defun magit-insert-hunk-patch (section buf)
-  (let ((patch (buffer-substring (magit-section-start section)
-                                 (magit-section-end section))))
-    (with-current-buffer buf
-      (insert (magit-section-diff-header section) patch))))
 
 (defun magit-insert-region-patch (section reverse beg end buf)
   (with-current-buffer buf
