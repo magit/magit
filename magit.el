@@ -4708,7 +4708,7 @@ With a prefix argument, visit in other window."
                  (hunk parent-value)
                  (t    default-directory)))))
 
-(defvar-local magit-file-log-file nil)
+(defvar-local magit-log-file nil)
 (defvar-local magit-show-current-version nil)
 
 ;;;###autoload
@@ -4724,7 +4724,7 @@ return the buffer, without displaying it."
    (let* ((rev (or (magit-branch-or-commit-at-point)
                    (magit-get-current-branch)))
           (rev (magit-read-rev "Retrieve file from revision" rev))
-          (file (or (magit-file-at-point) magit-file-log-file))
+          (file (or (magit-file-at-point) magit-log-file))
           (file (cl-case rev
                   (working (read-file-name "Find file: "))
                   (index   (magit-read-file-from-rev "HEAD" file))
@@ -6158,7 +6158,7 @@ to test.  This command lets Git choose a different one."
   :actions  '((?l "Oneline"        magit-log-dwim)
               (?L "Verbose"        magit-log-verbose-dwim)
               (?r "Reflog"         magit-reflog)
-              (?f "File log"       magit-file-log)
+              (?f "File log"       magit-log-file)
               (?b "Oneline branch" magit-log)
               (?B "Verbose branch" magit-log-verbose)
               (?R "Reflog HEAD"    magit-reflog-head))
@@ -6206,7 +6206,7 @@ to test.  This command lets Git choose a different one."
             magit-current-popup-args))))
 
 ;;;###autoload
-(defun magit-file-log (file &optional use-graph)
+(defun magit-log-file (file &optional use-graph)
   "Display the log for the currently visited file or another one.
 With a prefix argument show the log graph."
   (interactive
@@ -6264,7 +6264,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
                            (and magit-log-show-margin
                                 (eq (car magit-refresh-args) 'oneline)))
   (magit-log-margin-set-timeunit-width)
-  (setq magit-file-log-file file)
+  (setq magit-log-file file)
   (when (consp range)
     (setq range (concat (car range) ".." (cdr range))))
   (magit-insert-section (logbuf)
