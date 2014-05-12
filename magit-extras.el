@@ -55,9 +55,10 @@
   (interactive "P")
   (if unmark
       (setq magit-marked-commit nil)
-    (magit-section-case (value)
-      (commit (setq magit-marked-commit
-                    (if (equal magit-marked-commit value) nil value)))))
+    (magit-section-when commit
+      (let ((value (magit-section-value it)))
+        (setq magit-marked-commit
+              (if (equal magit-marked-commit value) nil value)))))
   (magit-map-magit-buffers #'magit-refresh-marked-commit)
   (run-hooks 'magit-mark-commit-hook))
 

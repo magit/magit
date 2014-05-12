@@ -2395,6 +2395,31 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
 
 ;;;;; Section Actions
 
+(defun magit-section-match (condition &optional ident)
+  "Return t if the section at point matches CONDITION.
+
+Conditions can take the following forms:
+  (CONDITION...)  matches if any of the CONDITIONs matches.
+  [TYPE...]       matches if the first TYPE matches the type
+                  of the section at point, the second matches
+                  that of its parent, and so on.
+  [* TYPE...]     matches sections that match [TYPE...] and
+                  also recursively all their child sections.
+  TYPE            matches TYPE regardless of its parents.
+
+Each TYPE is a symbol.  Note that is not necessary to specify all
+TYPEs up to the root section as printed by `magit-describe-type',
+unless of course your want to be that precise.
+\n(fn CONDITION)" ; IDENT is for internal use
+  (when (or ident (--when-let (magit-current-section)
+                    (mapcar 'car (magit-section-ident it))))
+    (if (listp condition)
+        (--first (magit-section-match it ident) condition)
+      (magit-section-match-1 (if (symbolp condition)
+                                 (list condition)
+                               (append condition nil))
+                             ident))))
+
 (defun magit-section-match-1 (l1 l2)
   (or (null l1)
       (if (eq (car l1) '*)
@@ -2405,42 +2430,45 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
              (equal (car l1) (car l2))
              (magit-section-match-1 (cdr l1) (cdr l2))))))
 
-(defun magit-section-match (condition &optional section)
-  (unless section
-    (setq section (magit-current-section)))
-  (cond ((eq condition t) t)
-        ((not section)  nil)
-        ((listp condition)
-         (--first (magit-section-match it section) condition))
-        (t
-         (magit-section-match-1 (if (symbolp condition)
-                                    (list condition)
-                                  (append condition nil))
-                                (mapcar 'car (magit-section-ident section))))))
-
 (defmacro magit-section-when (condition &rest body)
   "If the section at point matches CONDITION evaluate BODY.
+
 If the section matches evaluate BODY forms sequentially and
-return the value of last one, or if there are no BODY forms
-return the value of the section.  If the section does not
-match return nil."
+return the value of the last one, or if there are no BODY forms
+return the value of the section.  If the section does not match
+return nil.
+
+See `magit-section-match' for the forms CONDITION can take."
   (declare (indent 1))
-  `(let ((it (magit-current-section)))
-     (when (and it (magit-section-match ',condition it))
+  `(--when-let (magit-current-section)
+     (when (magit-section-match ',condition
+                                (mapcar 'car (magit-section-ident it)))
        ,@(or body '((magit-section-value it))))))
 
-(defmacro magit-section-case (slots &rest clauses)
-  (declare (indent 1))
-  `(let* ((it (magit-current-section))
-          ,@(mapcar
-             (lambda (slot)
-               `(,slot
-                 (and it (,(intern (format "magit-section-%s" slot)) it))))
-             slots))
-     (cond ,@(mapcar (lambda (clause)
-                       `((magit-section-match ',(car clause) it)
-                         ,@(cdr clause)))
-                     clauses))))
+(defmacro magit-section-case (&rest clauses)
+  "Choose among clauses on the type of the section at point.
+
+Each clause looks like (CONDITION BODY...).  The type of the
+section is compared against each CONDITION; the BODY forms of the
+first match are evaluated sequentially and the value of the last
+form is returned.  Inside BODY the symbol `it' is bound to the
+section at point.  If no clause succeeds or if there is no
+section at point return nil.
+
+See `magit-section-match' for the forms CONDITION can take.
+Additionall a CONDITION of t is allowed in the final clause, and
+matches if no other CONDITION match, even if there is no section
+at point."
+  (declare (indent 0))
+  (let ((ident (cl-gensym "id")))
+    `(let* ((it (magit-current-section))
+            (,ident (and it (mapcar 'car (magit-section-ident it)))))
+       (cond ,@(mapcar (lambda (clause)
+                         `(,(or (eq (car clause) t)
+                                `(and it (magit-section-match
+                                          ',(car clause) ,ident)))
+                           ,@(cdr clause)))
+                       clauses)))))
 
 (defun magit-branch-at-point ()
   (magit-section-when branch))
@@ -2449,22 +2477,22 @@ match return nil."
   (magit-section-when commit))
 
 (defun magit-branch-or-commit-at-point ()
-  (magit-section-case (value)
-    (branch value)
-    (commit (magit-get-shortname value))))
+  (magit-section-case
+    (branch (magit-section-value it))
+    (commit (magit-get-shortname (magit-section-value it)))))
 
 (defun magit-stash-at-point (&optional get-number)
   (magit-section-when stash))
 
 (defun magit-remote-at-point ()
-  (magit-section-case (value parent-value)
-    (remote value)
-    (branch parent-value)))
+  (magit-section-case
+    (remote (magit-section-value it))
+    (branch (magit-section-parent-value it))))
 
 (defun magit-file-at-point ()
-  (magit-section-case (value parent-value)
-    (file value)
-    (hunk parent-value)))
+  (magit-section-case
+    (file (magit-section-value it))
+    (hunk (magit-section-parent-value it))))
 
 ;;;; Process Api
 ;;;;; Process Commands
@@ -3998,11 +4026,11 @@ commit or stash at point, then prompt for a commit."
 
 (defun magit-show-or-scroll (fn)
   (let (rev cmd buf win)
-    (magit-section-case (value)
-      (commit (setq rev value
+    (magit-section-case
+      (commit (setq rev (magit-section-value it)
                     cmd 'magit-show-commit
                     buf magit-commit-buffer-name-format))
-      (stash  (setq rev value
+      (stash  (setq rev (magit-section-value it)
                     cmd 'magit-diff-stash
                     buf magit-diff-buffer-name-format)))
     (if rev
@@ -4368,13 +4396,13 @@ can be used to override this."
 (defun magit-stage ()
   "Add the change at point to the staging area."
   (interactive)
-  (magit-section-case (value)
+  (magit-section-case
     ([file untracked]
      (let (files repos)
        (dolist (elt (if (use-region-p)
                         (magit-section-region-siblings)
                       (list it)))
-         (if (magit-git-repo-p value t)
+         (if (magit-git-repo-p (magit-section-value it) t)
              (push elt repos)
            (push (magit-section-value elt) files)))
        (when files
@@ -4391,7 +4419,7 @@ can be used to override this."
      (magit-run-git "add" "--"
                     (if (use-region-p)
                         (magit-section-region-siblings #'magit-section-value)
-                      value)))
+                      (magit-section-value it))))
     (unstaged   (magit-stage-modified))
     ([* staged] (user-error "Already staged"))
     (hunk       (user-error "Cannot stage this hunk"))
@@ -4435,15 +4463,15 @@ ignored) files.
 (defun magit-unstage ()
   "Remove the change at point from the staging area."
   (interactive)
-  (magit-section-case (value)
+  (magit-section-case
     ([hunk file staged]
      (magit-apply-hunk it "--reverse" "--cached"))
     ([file staged]
-     (when (eq value 'unmerged)
+     (when (eq (magit-section-value it) 'unmerged)
        (user-error "Can't unstage an unmerged file.  Resolve it first"))
      (magit-unstage-1 (if (use-region-p)
                           (magit-section-region-siblings #'magit-section-value)
-                        value)))
+                        (magit-section-value it))))
     (staged
      (when (or (not magit-unstage-all-confirm)
                (and (not (magit-anything-unstaged-p))
@@ -4482,14 +4510,15 @@ without requiring confirmation."
 (defun magit-discard ()
   "Remove the change introduced by the thing at point."
   (interactive)
-  (magit-section-case (value parent-value diff-status)
+  (magit-section-case
     ([file untracked]
-     (when (yes-or-no-p (format "Delete %s? " value))
-       (if (and (file-directory-p value)
-                (not (file-symlink-p value)))
-           (delete-directory value 'recursive)
-         (delete-file value))
-       (magit-refresh)))
+     (let ((value (magit-section-value it)))
+       (when (yes-or-no-p (format "Delete %s? " value))
+         (if (and (file-directory-p value)
+                  (not (file-symlink-p value)))
+             (delete-directory value 'recursive)
+           (delete-file value))
+         (magit-refresh))))
     (untracked
      (when (yes-or-no-p "Delete all untracked files and directories? ")
        (magit-run-git "clean" "-df")))
@@ -4502,7 +4531,7 @@ without requiring confirmation."
      (when (yes-or-no-p (if (use-region-p)
                             "Discard changes in region? "
                           "Discard hunk? "))
-       (if (magit-anything-unstaged-p parent-value)
+       (if (magit-anything-unstaged-p (magit-section-parent-value it))
            (progn
              (let ((inhibit-magit-refresh t))
                (magit-apply-hunk it "--reverse" "--cached")
@@ -4510,13 +4539,16 @@ without requiring confirmation."
              (magit-refresh))
          (magit-apply-hunk it "--reverse" "--index"))))
     ([file unstaged]
-     (if (eq diff-status 'unmerged)
-         (magit-checkout-stage value (magit-checkout-read-stage value))
-       (magit-discard-file value diff-status nil)))
+     (let ((value (magit-section-value it))
+           (status (magit-section-diff-status it)))
+       (if (eq status 'unmerged)
+           (magit-checkout-stage value (magit-checkout-read-stage value))
+         (magit-discard-file value status nil))))
     ([file staged]
-     (if (magit-anything-unstaged-p value)
-         (user-error "Cannot discard this hunk, file has unstaged changes")
-       (magit-discard-file value diff-status t)))
+     (let ((value (magit-section-value it)))
+       (if (magit-anything-unstaged-p value)
+           (user-error "Cannot discard this hunk, file has unstaged changes")
+         (magit-discard-file value (magit-section-diff-status it) t))))
     (hunk (user-error "Cannot discard this hunk"))
     (file (user-error "Cannot discard this file"))))
 
@@ -4541,9 +4573,10 @@ without requiring confirmation."
 (defun magit-revert ()
   "Revert the change at point in the working tree."
   (interactive)
-  (magit-section-case (value)
+  (magit-section-case
     (file (when (or (not magit-revert-confirm)
-                    (yes-or-no-p (format "Revert %s? " value)))
+                    (yes-or-no-p (format "Revert %s? "
+                                         (magit-section-value it))))
             (magit-apply-diff it "--reverse")))
     (hunk (when (or (not magit-revert-confirm)
                     (yes-or-no-p "Revert this hunk? "))
@@ -4657,9 +4690,10 @@ Also see option `magit-revert-backup'."
 ;;;; Visit
 
 (defun magit-visit-file (file &optional other-window line column)
-  (interactive (magit-section-case (value parent-value)
-                 (file (list value        current-prefix-arg))
-                 (hunk (list parent-value current-prefix-arg
+  (interactive (magit-section-case
+                 (file (list (magit-section-value it) current-prefix-arg))
+                 (hunk (list (magit-section-parent-value it)
+                             current-prefix-arg
                              (magit-hunk-target-line it)
                              (current-column)))))
   (unless (file-exists-p file)
@@ -4706,9 +4740,9 @@ With a prefix argument, visit in other window."
   (require 'dired-x)
   (dired-jump other-window
               (file-truename
-               (magit-section-case (value parent-value)
-                 (file value)
-                 (hunk parent-value)
+               (magit-section-case
+                 (file (magit-section-value it))
+                 (hunk (magit-section-parent-value it))
                  (t    default-directory)))))
 
 (defvar-local magit-log-file nil)
@@ -7363,8 +7397,8 @@ This command is intended for debugging purposes."
   (interactive)
   (let ((section (magit-current-section)))
     (message "%S %S %s-%s"
-             (magit-section-ident section)
              (magit-section-value section)
+             (apply 'vector (mapcar 'car (magit-section-ident section)))
              (marker-position (magit-section-start section))
              (marker-position (magit-section-end section)))))
 
