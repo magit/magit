@@ -2751,12 +2751,12 @@ See `magit-start-process' for more information."
            (mapconcat 'identity (magit-flatten-onelevel args) " "))
   (apply #'magit-start-git nil args))
 
-(defun magit-start-git (&optional input &rest args)
+(defun magit-start-git (input &rest args)
   "Start Git, prepare for refresh, and return the process object.
 
-If optional argument INPUT is non-nil, it has to be a buffer or
-the name of an existing buffer.  The buffer content becomes the
-processes standard input.
+If INPUT is non-nil, it has to be a buffer or the name of an
+existing buffer.  The buffer content becomes the processes
+standard input.
 
 The remaining arguments, ARGS, specify command line arguments.
 The first level of ARGS is flattened, so each member of ARGS has
