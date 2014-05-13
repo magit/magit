@@ -4436,7 +4436,7 @@ can be used to override this."
     ([hunk file unstaged]
      (magit-apply-hunk it "--cached"))
     ([file unstaged]
-     (magit-run-git "add" "--"
+     (magit-run-git "add" "-u" "--"
                     (if (use-region-p)
                         (magit-section-region-siblings #'magit-section-value)
                       (magit-section-value it))))
