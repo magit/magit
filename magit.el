@@ -1637,7 +1637,9 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 ;;;; Various Utilities
 
 (defmacro magit-bind-match-strings (varlist string &rest body)
-  (declare (indent 2))
+  (declare (indent 2)
+           (debug (listp form body)))
+
   (let ((s (cl-gensym "string"))
         (i 0))
     `(let ((,s ,string))
@@ -1646,7 +1648,8 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
          ,@body))))
 
 (defmacro magit-read-char-case (prompt abort &rest clauses)
-  (declare (indent 2))
+  (declare (indent 2)
+           (debug (form form &rest (characterp form body))))
   (let ((ng (cl-gensym "ng-"))
         (p0 (cl-gensym "p0-"))
         (p1 (cl-gensym "p1-"))
@@ -1798,7 +1801,8 @@ never modify it.")
 
 (defmacro magit-insert-section (&rest args)
   "\n\n(fn [NAME] (TYPE &optional VALUE HIDE) &rest BODY)"
-  (declare (indent defun))
+  (declare (indent defun)
+           (debug ([&optional symbolp] (symbolp &optional sexp sexp) body)))
   (let ((s (if (symbolp (car args))
                (pop args)
              (cl-gensym "section"))))
@@ -1916,7 +1920,8 @@ never modify it.")
 
 (defmacro magit-insert-header (keyword arglist &rest body)
   "\n\n(fn KEYWORD (TYPE &optional VALUE) &rest body)"
-  (declare (indent 2))
+  (declare (indent 2)
+           (debug (form (symbolp &optional form) body)))
   `(magit-insert-section ,arglist
      (insert ,keyword ":"
              (make-string (max 1 (- magit-status-line-align-to
@@ -2454,7 +2459,8 @@ return the value of the section.  If the section does not match
 return nil.
 
 See `magit-section-match' for the forms CONDITION can take."
-  (declare (indent 1))
+  (declare (indent 1)
+           (debug (sexp body)))
   `(--when-let (magit-current-section)
      (when (magit-section-match ',condition
                                 (mapcar 'car (magit-section-ident it)))
@@ -2474,7 +2480,8 @@ See `magit-section-match' for the forms CONDITION can take.
 Additionall a CONDITION of t is allowed in the final clause, and
 matches if no other CONDITION match, even if there is no section
 at point."
-  (declare (indent 0))
+  (declare (indent 0)
+           (debug (&rest (sexp body))))
   (let ((ident (cl-gensym "id")))
     `(let* ((it (magit-current-section))
             (,ident (and it (mapcar 'car (magit-section-ident it)))))
@@ -3162,6 +3169,7 @@ MODE in BUFFER, set the local value of `magit-refresh-function'
 to REFRESH-FUNC and that of `magit-refresh-args' to REFRESH-ARGS
 and finally \"refresh\" a first time.  All arguments are
 evaluated before switching to BUFFER."
+  (declare (debug (form form form form &rest form)))
   (let ((mode-symb (cl-gensym "mode-symb"))
         (toplevel  (cl-gensym "toplevel"))
         (init-args (cl-gensym "init-args"))
@@ -3816,7 +3824,8 @@ no output return nil."
                (split-string string "\\(tag: \\|[(), ]\\)" t) " ")))
 
 (defmacro magit-with-blob (commit file &rest body)
-  (declare (indent 2))
+  (declare (indent 2)
+           (debug (form form body)))
   `(with-temp-buffer
      (let ((buffer-file-name ,file))
        (save-excursion
