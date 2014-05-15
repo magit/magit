@@ -1409,6 +1409,8 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 (defvar magit-log-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
+    (define-key map "\C-c\C-b" 'magit-go-backward)
+    (define-key map "\C-c\C-f" 'magit-go-forward)
     (define-key map "+" 'magit-log-show-more-entries)
     (define-key map "h" 'magit-log-toggle-margin)
     map)
@@ -1417,6 +1419,8 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 (defvar magit-log-select-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-log-mode-map)
+    (define-key map "\C-c\C-b" 'undefined)
+    (define-key map "\C-c\C-f" 'undefined)
     (define-key map "."        'magit-log-select-pick)
     (define-key map "\C-c\C-c" 'magit-log-select-pick)
     (define-key map "q"        'magit-log-select-quit)
@@ -3187,6 +3191,8 @@ Also see `magit-mode-setup', a more convenient variant."
         magit-refresh-function refresh-func
         magit-refresh-args refresh-args)
   (cl-case mode
+    ((magit-log-mode magit-reflog-mode)
+     (magit-xref-setup refresh-args))
     ((magit-diff-mode magit-commit-mode)
      (magit-xref-setup refresh-args)
      (goto-char (point-min))))
