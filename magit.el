@@ -3183,16 +3183,13 @@ REFRESH-FUNC and that of `magit-refresh-args' to REFRESH-ARGS and
 finally \"refresh\" a first time.
 
 Also see `magit-mode-setup', a more convenient variant."
-  (cl-case mode
-    (magit-commit-mode
-     (magit-setup-xref (cons #'magit-show-commit refresh-args))
-     (goto-char (point-min)))
-    (magit-diff-mode
-     (magit-setup-xref (cons #'magit-diff refresh-args))
-     (goto-char (point-min))))
   (setq default-directory dir
         magit-refresh-function refresh-func
         magit-refresh-args refresh-args)
+  (cl-case mode
+    ((magit-diff-mode magit-commit-mode)
+     (magit-xref-setup refresh-args)
+     (goto-char (point-min))))
   (funcall mode)
   (magit-mode-refresh-buffer))
 
@@ -3372,14 +3369,21 @@ the buffer.  Finally reset the window configuration to nil."
   'mouse-face magit-section-highlight-face
   'help-echo (purecopy "mouse-2, RET: go back to next history entry"))
 
-(defun magit-setup-xref (item)
+(defun magit-xref-setup (refresh-args)
   (when help-xref-stack-item
     (push (cons (point) help-xref-stack-item) help-xref-stack)
     (setq help-xref-forward-stack nil))
   (when (called-interactively-p 'interactive)
     (--when-let (nthcdr 10 help-xref-stack)
       (setcdr it nil)))
-  (setq help-xref-stack-item item))
+  (setq help-xref-stack-item
+        `(magit-xref-restore ,default-directory ,@refresh-args)))
+
+(defun magit-xref-restore (&rest args)
+  (magit-xref-setup magit-refresh-args)
+  (setq default-directory  (car args))
+  (setq magit-refresh-args (cdr args))
+  (magit-mode-refresh-buffer))
 
 ;;;;; Refresh Machinery
 
