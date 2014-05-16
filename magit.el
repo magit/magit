@@ -6021,9 +6021,19 @@ With prefix argument, changes in staging area are kept.
 
 (defun magit-stash-drop (stash)
   "Remove a stash from the stash list.
+When the region is active offer to drop all contained stashes.
 \n(git stash drop stash@{N})"
-  (interactive (list (magit-read-stash "Drop stash")))
-  (magit-run-git "stash" "drop" stash))
+  (interactive
+   (if (use-region-p)
+       (let ((stashes (magit-section-region-siblings 'magit-section-value)))
+         (when (yes-or-no-p (format "Drop %s through %s: "
+                                    (car stashes) (car (last stashes))))
+           (deactivate-mark t)
+           (list stashes)))
+     (list (magit-read-stash "Drop stash"))))
+  (if (listp stash)
+      (mapc 'magit-stash-drop (nreverse stash))
+    (magit-run-git "stash" "drop" stash)))
 
 (defun magit-stash-branch (stash branchname)
   "Create and checkout a branch from STASH.
