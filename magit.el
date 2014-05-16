@@ -2717,6 +2717,7 @@ prepended to ARGS.
 
 Process output goes into a new section in a buffer specified by
 variable `magit-process-buffer-name-format'."
+  (run-hooks 'magit-pre-call-git-hook)
   (apply #'magit-call-process magit-git-executable
          (append magit-git-standard-options args)))
 
@@ -2829,6 +2830,7 @@ the current repository are reverted if `magit-auto-revert-mode'
 is active.
 
 See `magit-start-process' for more information."
+  (run-hooks 'magit-pre-start-git-hook)
   (apply #'magit-start-process magit-git-executable input
          (append magit-git-standard-options
                  (magit-process-quote-arguments args))))
@@ -3198,6 +3200,7 @@ Also see `magit-mode-setup', a more convenient variant."
   (setq default-directory dir
         magit-refresh-function refresh-func
         magit-refresh-args refresh-args)
+  (run-hooks 'magit-mode-setup-hook)
   (cl-case mode
     ((magit-log-mode magit-reflog-mode)
      (magit-xref-setup refresh-args))
@@ -3416,14 +3419,14 @@ tracked in the current repository."
     (unless buffer
       (setq buffer (current-buffer)))
     (with-current-buffer buffer
-      (cond ((derived-mode-p 'magit-status-mode)
-             (magit-maybe-save-repository-buffers)
-             (magit-mode-refresh-buffer buffer))
-            ((derived-mode-p 'magit-mode)
-             (magit-mode-refresh-buffer buffer)
-             (--when-let (magit-mode-get-buffer magit-status-buffer-name-format
-                                                'magit-status-mode)
-               (magit-mode-refresh-buffer it)))))
+      (when (derived-mode-p 'magit-mode)
+        (run-hooks 'magit-pre-refresh-hook)
+        (magit-mode-refresh-buffer buffer)
+        (unless (derived-mode-p 'magit-status-mode)
+          (--when-let (magit-mode-get-buffer
+                       magit-status-buffer-name-format
+                       'magit-status-mode)
+            (magit-mode-refresh-buffer it)))))
     (when magit-auto-revert-mode
       (magit-revert-buffers))))
 
@@ -3451,12 +3454,24 @@ tracked in the current repository."
                    (auto-revert-handler)
                    (run-hooks 'magit-revert-buffer-hook)))))))))
 
+(defvar disable-magit-save-buffers nil)
+(defun magit-pre-command-hook ()
+  (setq disable-magit-save-buffers nil))
+(add-hook 'pre-command-hook #'magit-pre-command-hook)
+
 (defun magit-maybe-save-repository-buffers ()
-  (when magit-save-repository-buffers
+  (when (and magit-save-repository-buffers
+             (not disable-magit-save-buffers))
+    (setq disable-magit-save-buffers t)
     (let ((msg (current-message)))
       (magit-save-repository-buffers
        (eq magit-save-repository-buffers 'dontask))
       (when msg (message msg)))))
+
+(add-hook 'magit-mode-setup-hook #'magit-maybe-save-repository-buffers)
+(add-hook 'magit-pre-refresh-hook #'magit-maybe-save-repository-buffers)
+(add-hook 'magit-pre-call-git-hook #'magit-maybe-save-repository-buffers)
+(add-hook 'magit-pre-start-git-hook #'magit-maybe-save-repository-buffers)
 
 (defun magit-save-repository-buffers (&optional arg)
   "Save file-visiting buffers belonging to the current repository.
@@ -4204,7 +4219,6 @@ can be used to override this."
                           (> (prefix-numeric-value current-prefix-arg) 4))
                        (or (magit-get-top-dir)
                            (magit-read-top-dir nil)))))
-  (magit-maybe-save-repository-buffers)
   (-when-let (default-directory
               (or (magit-get-top-dir dir)
                   (and (yes-or-no-p
@@ -5063,7 +5077,6 @@ fails if the working tree or the staging area contain changes.
            (magit-read-rev "Checkout"
                            (unless (equal default current) default)
                            current))))
-  (magit-maybe-save-repository-buffers)
   (magit-run-git "checkout" revision))
 
 (defun magit-branch (branch parent)
@@ -5073,7 +5086,6 @@ fails if the working tree or the staging area contain changes.
    (list (magit-read-string "Create branch")
          (magit-read-rev "Parent" (or (magit-branch-or-commit-at-point)
                                       (magit-get-current-branch)))))
-  (magit-maybe-save-repository-buffers)
   (magit-run-git "branch" magit-current-popup-args branch parent))
 
 ;;;###autoload
@@ -5084,7 +5096,6 @@ fails if the working tree or the staging area contain changes.
    (list (magit-read-string "Create and checkout branch")
          (magit-read-rev "Parent" (or (magit-branch-or-commit-at-point)
                                       (magit-get-current-branch)))))
-  (magit-maybe-save-repository-buffers)
   (magit-run-git "checkout" magit-current-popup-args "-b" branch parent))
 
 ;;;###autoload
