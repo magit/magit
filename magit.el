@@ -5598,9 +5598,9 @@ If only one remote exists, push to that.  Otherwise prompt for a
 remote, offering the remote configured for the current branch as
 default."
   (interactive (let ((remotes (magit-git-lines "remote")))
-                 (if (= (length remotes) 1)
-                     (car remotes)
-                   (magit-read-remote "Push tags to remote"))))
+                 (list (if (= (length remotes) 1)
+                           (car remotes)
+                         (magit-read-remote "Push tags to remote")))))
   (magit-run-git-async "push" remote "--tags"))
 
 ;;;###autoload
