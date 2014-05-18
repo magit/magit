@@ -368,6 +368,7 @@ which may or may not insert the text into the PROCESS' buffer."
   (when (string-match "^WITH-EDITOR: \\([0-9]+\\) OPEN \\(.+\\)$" string)
     (save-match-data
       (with-current-buffer (find-file-noselect (match-string 2 string))
+        (with-editor-mode 1)
         (run-hooks 'with-editor-filter-visit-hook)
         (funcall (or server-window 'pop-to-buffer) (current-buffer))
         (kill-local-variable 'server-window)))
