@@ -280,7 +280,7 @@ ENVVAR is provided then bind that environment variable instead.
        ;; Tell Git to use the Emacsclient.
        (setenv with-editor--envvar
                (concat with-editor-emacsclient-executable
-                       ;; Tell the process where the server file is.
+       ;; Tell the process where the server file is.
                        (and (not server-use-tcp)
                             (concat " --socket-name="
                                     (expand-file-name server-name
@@ -320,7 +320,7 @@ Also see documentation for option `with-editor-looping-editor'."
 
 (defadvice start-file-process (around with-editor activate)
   "When called inside a `with-editor' form and the Emacsclient
-cannot be used, then give the process the the filter function
+cannot be used, then give the process the filter function
 `with-editor-process-filter'.  To avoid overriding the filter
 being added here you should use `with-editor-set-process-filter'
 instead of `set-process-filter' inside `with-editor' forms.
@@ -376,6 +376,7 @@ which may or may not insert the text into the PROCESS' buffer."
     (with-editor-standard-process-filter process string)))
 
 (defun with-editor-standard-process-filter (process string)
+  "Filter which does what would be done if there were no filter."
   (let ((buf (process-buffer process)))
     (when (buffer-live-p buf)
       (with-current-buffer buf
