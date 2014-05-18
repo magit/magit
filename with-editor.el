@@ -386,7 +386,7 @@ which may or may not insert the text into the PROCESS' buffer."
           (save-excursion
             (goto-char mark)
             (insert string)
-            (setq mark (set-marker (process-mark process) (point))))
+            (setq mark (set-marker mark (point))))
           (when move
             (goto-char mark)))))))
 
