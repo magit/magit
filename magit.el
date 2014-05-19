@@ -7103,7 +7103,7 @@ If there is no commit at point, then prompt for one."
                                (default-value 'magit-highlight-indentation)
                                :from-end t))))))
       (when (and magit-highlight-trailing-whitespace
-                 (looking-at (concat prefix ".*\\([ \t]+\\)$")))
+                 (looking-at (concat prefix ".*?\\([ \t]+\\)$")))
         (magit-put-face-property (match-beginning 1) (match-end 1)
                                  'magit-whitespace-warning-face))
       (when (or (and (eq indent 'tabs)
