@@ -813,6 +813,12 @@ they are not (due to semantic considerations)."
   :type '(choice (const :tag "tags are the subjects" tag)
                  (const :tag "head is the subject" head)))
 
+(defcustom magit-recent-log-max-count 15
+  "How far back to go with `magit-insert-recent-log'"
+  :package-version '(magit . "2.0.0")
+  :group 'magit-status
+  :type 'integer)
+
 ;;;;;; Diff
 
 (defun magit-set-default-diff-options (symbol value)
@@ -4451,6 +4457,30 @@ can be used to override this."
       (magit-git-insert-section (recent "Recent commits:")
           (apply-partially 'magit-wash-log 'unique)
         "log" "--format=format:%h %s" "-n" "10"))))
+
+(defun magit-insert-recent-commits-graph ()
+  ;; doesn't work if there aren't any commits yet. If `git rev-parse HEAD'
+  ;; fails then there aren't any commits.
+  (when (= 0 (call-process "git" nil nil nil "rev-parse" "HEAD"))
+    (let ((revs (magit-git-lines "rev-list"
+                                 (format "--max-count=%d" (1+ magit-recent-log-max-count))
+                                 "HEAD")))
+      (magit-git-insert-section (recent "Recent commits:")
+          (lambda ()
+            (ansi-color-apply-on-region (point-min) (point-max)))
+        "log"
+        "--graph"
+        "--oneline"
+        "--decorate"
+        "--color"
+        (if (> (length revs) magit-recent-log-max-count)
+            ;; here we are. the reason we go through all this
+            ;; `rev-list' effort is for this range. This results in a
+            ;; dramatic performance improvement over --graph
+            ;; --max-count for repos with lots of commits.
+            (format "%s.." (car (last revs)))
+          "HEAD")
+        (format "--max-count=%d" magit-recent-log-max-count)))))
 
 (defun magit-insert-unpulled-commits ()
   (let ((tracked (magit-get-tracked-branch nil t)))
