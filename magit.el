@@ -286,9 +286,15 @@ tramp to connect to servers with ancient Git versions."
      (let ((version
             (format "%s.%s" emacs-major-version emacs-minor-version)))
        (or (and (eq system-type 'darwin)
-                (let ((exec-path
-                       (list (expand-file-name "bin" invocation-directory))))
-                  (executable-find "emacsclient")))
+                (let ((emacsapp
+                       ;; /Application/Emacs.app/Contents/MacOS/bin/emacsclient
+                       (expand-file-name "bin/emacsclient" invocation-directory))
+                      (homebrew
+                       ;; /usr/local/Cellar/emacs/VERSION/bin/emacsclient
+                       (expand-file-name "../../../bin/emacsclient"
+                                         invocation-directory)))
+                  (or (and (file-executable-p emacsapp) emacsapp)
+                      (and (file-executable-p homebrew) homebrew))))
            (executable-find (format "emacsclient%s"   version))
            (executable-find (format "emacsclient-%s"   version))
            (executable-find (format "emacsclient%s.exe" version))
