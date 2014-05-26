@@ -7239,22 +7239,19 @@ If hunk refining is off, then hunk refining is turned on, in
 
 Customize variable `magit-diff-refine-hunk' to change the default mode."
   (interactive "P")
-  (let ((hunk (and magit-highlighted-section
-                   (eq (magit-section-type magit-highlighted-section) 'hunk)
-                   magit-highlighted-section))
-        (old magit-diff-refine-hunk))
+  (let ((old magit-diff-refine-hunk))
     (setq-local magit-diff-refine-hunk
                 (if other
                     (if (eq old 'all) t 'all)
                   (not old)))
-    (cond ((or (eq old 'all)
-               (eq magit-diff-refine-hunk 'all))
-           (magit-refresh))
-          ((not hunk))
-          (magit-diff-refine-hunk
-           (magit-diff-refine-hunk hunk))
-          (t
-           (magit-diff-unrefine-hunk hunk)))
+    (if (or (eq old 'all)
+            (eq magit-diff-refine-hunk 'all))
+        (magit-refresh)
+      (--when-let magit-highlighted-section
+        (when (eq (magit-section-type it) 'hunk)
+          (if  magit-diff-refine-hunk
+              (magit-diff-refine-hunk it)
+            (magit-diff-unrefine-hunk it)))))
     (message "magit-diff-refine-hunk: %s" magit-diff-refine-hunk)))
 
 (defun magit-diff-refine-hunk (hunk)
