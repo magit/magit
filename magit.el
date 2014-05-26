@@ -1043,11 +1043,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   "Face for the date part of the log output."
   :group 'magit-faces)
 
-(defface magit-log-message
-  '((t))
-  "Face for the message part of the log output."
-  :group 'magit-faces)
-
 (defface magit-cherry-unmatched
   '((t :foreground "cyan"))
   "Face for unmatched cherry commits.")
@@ -1162,11 +1157,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 (defface magit-signature-untrusted
   '((t :foreground "cyan"))
   "Face for good untrusted signatures."
-  :group 'magit-faces)
-
-(defface magit-signature-none
-  '((t :inherit magit-log-message))
-  "Face for unsigned commits."
   :group 'magit-faces)
 
 (defface magit-reflog-commit
@@ -6480,9 +6470,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
       (magit-insert msg (cl-case (and gpg (aref gpg 0))
                           (?G 'magit-signature-good)
                           (?B 'magit-signature-bad)
-                          (?U 'magit-signature-untrusted)
-                          (?N 'magit-signature-none)
-                          (t  'magit-log-message))))
+                          (?U 'magit-signature-untrusted))))
     (goto-char (line-beginning-position))
     (magit-format-log-margin author date)
     (if hash
