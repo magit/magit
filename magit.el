@@ -972,6 +972,11 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   "Face for diff hunk headings."
   :group 'magit-faces)
 
+(defface magit-conflict-heading
+  '((t :inherit magit-hunk-heading))
+  "Face for conflict markers."
+  :group 'magit-faces)
+
 (defface magit-diff-added
   '((t :inherit diff-added))
   "Face for lines in a diff that have been added."
@@ -985,26 +990,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 (defface magit-diff-context
   '((t :inherit diff-context))
   "Face for lines in a diff that are unchanged."
-  :group 'magit-faces)
-
-(defface magit-diff-merge-current
-  '((t :inherit font-lock-preprocessor-face))
-  "Face for merge conflict marker 'current' line."
-  :group 'magit-faces)
-
-(defface magit-diff-merge-separator
-  '((t :inherit font-lock-preprocessor-face))
-  "Face for merge conflict marker seperator."
-  :group 'magit-faces)
-
-(defface magit-diff-merge-diff3-separator
-  '((t :inherit font-lock-preprocessor-face))
-  "Face for merge conflict marker seperator."
-  :group 'magit-faces)
-
-(defface magit-diff-merge-proposed
-  '((t :inherit font-lock-preprocessor-face))
-  "Face for merge conflict marker 'proposed' line."
   :group 'magit-faces)
 
 (defface magit-diffstat-added
@@ -7083,10 +7068,8 @@ actually were a single commit."
           (magit-put-face-property
            (point) (1+ (line-end-position))
            (cond
-            ((looking-at "^\\+\\+<<<<<<<") 'magit-diff-merge-current)
-            ((looking-at "^\\+\\+=======") 'magit-diff-merge-separator)
-            ((looking-at "^\\+\\+|||||||") 'magit-diff-merge-diff3-separator)
-            ((looking-at "^\\+\\+>>>>>>>") 'magit-diff-merge-proposed)
+            ((looking-at "^\\+\\+[<=|>]\\{7\\}")
+             'magit-conflict-heading)
             ((looking-at (if merging  "^\\(\\+\\| \\+\\)" "^\\+"))
              (magit-diff-highlight-whitespace merging)
              'magit-diff-added)
