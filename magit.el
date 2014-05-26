@@ -1466,6 +1466,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defvar magit-branch-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map "\r" 'magit-show-commit)
     (define-key map "k"  'magit-branch-delete)
     (define-key map "R"  'magit-branch-rename)
     map)
