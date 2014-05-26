@@ -414,35 +414,6 @@ many spaces.  Otherwise, highlight neither."
                                (integer :tag "Spaces" :value ,tab-width)
                                (const :tag "Neither" nil))))) ;^FIXME
 
-(defcustom magit-section-highlight-face 'magit-section-highlight
-  "The face used to highlight the current section.
-
-By default the highlighting of the current section is done using
-the background color specified by face `magit-section-highlight'.
-
-If you don't want to use the background to do the highlighting,
-this *might* by as easy as customizing that face.  However if you
-are using a theme, which in turn sets the background color of
-that face then, due to limitations in face inheritance when using
-themes, you might be forced to use another face.
-
-Unfortunately it is only possible to override a face attribute,
-set by a theme, but not to drop it entirely.  This means that one
-has to explicitly use the `default' background color, to make it
-appear *as if* the background wasn't used.
-
-One reason you might want to *not* use the background, is that
-doing so forces the use of overlays for parts of diffs and for
-refnames.  Using overlays potentially degrades performance when
-generating large diffs.  Also see option `magit-use-overlays'."
-  :package-version '(magit . "2.1.0")
-  :group 'magit
-  :group 'magit-faces
-  :type '(choice (const magit-section-highlight)
-                 (const bold)
-                 (face  :tag "Other face")
-                 (const :tag "Don't highlight" nil)))
-
 ;;;;; Completion
 
 (defcustom magit-completing-read-function 'magit-builtin-completing-read
@@ -2381,7 +2352,7 @@ If its HIGHLIGHT slot is nil, then don't highlight it."
       (setq magit-highlighted-section section)
       (unless magit-highlight-overlay
         (overlay-put (setq magit-highlight-overlay (make-overlay 1 1))
-                     'face magit-section-highlight-face))
+                     'face 'magit-section-highlight))
       (cond ((and section (magit-section-parent section))
              (when (funcall refinep)
                (magit-diff-refine-hunk section))
@@ -3353,12 +3324,12 @@ the buffer.  Finally reset the window configuration to nil."
 
 (define-button-type 'magit-xref-backward
   :supertype 'help-back
-  'mouse-face magit-section-highlight-face
+  'mouse-face 'magit-section-highlight
   'help-echo (purecopy "mouse-2, RET: go back to previous history entry"))
 
 (define-button-type 'magit-xref-forward
   :supertype 'help-forward
-  'mouse-face magit-section-highlight-face
+  'mouse-face 'magit-section-highlight
   'help-echo (purecopy "mouse-2, RET: go back to next history entry"))
 
 (defun magit-xref-setup (refresh-args)
@@ -4155,7 +4126,7 @@ commit or stash at point, then prompt for a commit."
                                     (goto-char button)
                                     (call-interactively #'magit-show-commit)))
                         'follow-link t
-                        'mouse-face magit-section-highlight-face
+                        'mouse-face 'magit-section-highlight
                         'face 'magit-hash)))
 
 ;;;; Status Mode
@@ -6453,7 +6424,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
              'action (lambda (button)
                        (magit-log-show-more-entries))
              'follow-link t
-             'mouse-face magit-section-highlight-face)))
+             'mouse-face 'magit-section-highlight)))
       (unless (equal (car args) "cherry")
         (insert ?\n)))))
 
