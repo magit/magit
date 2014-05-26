@@ -980,6 +980,16 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   "Face for diff hunk headings."
   :group 'magit-faces)
 
+(defface magit-hunk-heading-highlight
+  '((((class color) (background light))
+     :background "grey75"
+     :foreground "grey30")
+    (((class color) (background dark))
+     :background "grey35"
+     :foreground "grey70"))
+  "Face for diff hunk headings."
+  :group 'magit-faces)
+
 (defface magit-conflict-heading
   '((t :inherit magit-hunk-heading))
   "Face for conflict markers."
@@ -1009,6 +1019,36 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   '((((class color) (background light)) :foreground "grey50")
     (((class color) (background  dark)) :foreground "grey70"))
   "Face for lines in a diff that are unchanged."
+  :group 'magit-faces)
+
+(defface magit-diff-added-highlight
+  '((((class color) (background light))
+     :background "#cceecc"
+     :foreground "#22aa22")
+    (((class color) (background dark))
+     :background "#336633"
+     :foreground "#bbddbb"))
+  "Face for lines in a diff that have been added."
+  :group 'magit-faces)
+
+(defface magit-diff-removed-highlight
+  '((((class color) (background light))
+     :background "#eecccc"
+     :foreground "#aa2222")
+    (((class color) (background dark))
+     :background "#663333"
+     :foreground "#ddbbbb"))
+  "Face for lines in a diff that have been removed."
+  :group 'magit-faces)
+
+(defface magit-diff-context-highlight
+  '((((class color) (background light))
+     :background "grey85"
+     :foreground "grey50")
+    (((class color) (background dark))
+     :background "grey20"
+     :foreground "grey70"))
+  "Face for lines in a diff that have been removed."
   :group 'magit-faces)
 
 (defface magit-diffstat-added
@@ -2381,30 +2421,53 @@ Expanded: everything is shown."
 (defvar-local magit-highlight-overlay nil)
 
 (defun magit-highlight-section ()
-  "Highlight current section.
-If its HIGHLIGHT slot is nil, then don't highlight it."
-  (let ((section (magit-current-section))
-        (refinep (lambda ()
-                   (and magit-highlighted-section
-                        (eq magit-diff-refine-hunk t)
-                        (eq (magit-section-type magit-highlighted-section)
-                            'hunk)))))
-    (unless (eq section magit-highlighted-section)
-      (when (funcall refinep)
-        (magit-diff-unrefine-hunk magit-highlighted-section))
-      (setq magit-highlighted-section section)
-      (unless magit-highlight-overlay
-        (overlay-put (setq magit-highlight-overlay (make-overlay 1 1))
-                     'face 'magit-section-highlight))
-      (cond ((and section (magit-section-parent section))
-             (when (funcall refinep)
-               (magit-diff-refine-hunk section))
-             (move-overlay magit-highlight-overlay
-                           (magit-section-start section)
-                           (magit-section-end section)
-                           (current-buffer)))
-            (t
-             (delete-overlay magit-highlight-overlay))))))
+  (let ((inhibit-read-only t)
+        (deactivate-mark nil)
+        (old  magit-highlighted-section)
+        (new (magit-current-section)))
+    (unless (eq old new)
+      (when old
+        (magit-section-unhighlight old))
+      (unless (eq new magit-root-section)
+        (setq magit-highlighted-section new)
+        (magit-section-highlight new)))))
+
+(defun magit-section-highlight (section)
+  (let ((beg (magit-section-start section))
+        (end (magit-section-end   section)))
+    (save-excursion
+      (goto-char beg)
+      (magit-section-case
+        ((file staged unstaged)
+         (put-text-property beg end 'face 'magit-section-highlight)
+         (mapc 'magit-section-highlight (magit-section-children section)))
+        (hunk
+         (put-text-property beg end 'face 'magit-hunk-heading-highlight)
+         (magit-paint-hunk section t)
+         (when (eq magit-diff-refine-hunk t)
+           (magit-diff-refine-hunk section)))
+        (t
+         (overlay-put (setq magit-highlight-overlay
+                            (make-overlay beg end))
+                      'face 'magit-section-highlight))))))
+
+(defun magit-section-unhighlight (section)
+  (let ((beg (magit-section-start section))
+        (end (magit-section-end   section)))
+    (save-excursion
+      (goto-char beg)
+      (magit-section-case
+        ((file staged unstaged)
+         (put-text-property beg end 'face nil)
+         (mapc 'magit-section-unhighlight (magit-section-children section)))
+        (hunk
+         (put-text-property beg end 'face 'magit-hunk-heading)
+         (magit-paint-hunk section nil)
+         (when (eq magit-diff-refine-hunk t)
+           (magit-diff-unrefine-hunk section)))
+        (t
+         (when magit-highlight-overlay
+           (delete-overlay magit-highlight-overlay)))))))
 
 ;;;; Process Api
 ;;;;; Process Commands
@@ -6998,9 +7061,9 @@ actually were a single commit."
                (magit-insert-section (file file)
                  (insert " " file sep cnt " ")
                  (when add
-                   (insert (propertize add 'face 'magit-diffstat-added)))
+                   (magit-insert (propertize add 'face 'magit-diffstat-added)))
                  (when del
-                   (insert (propertize del 'face 'magit-diffstat-removed)))
+                   (magit-insert (propertize del 'face 'magit-diffstat-removed)))
                  (insert "\n"))))))
         (setq diffstats (magit-section-children it))))
     diffstats))
@@ -7080,29 +7143,43 @@ actually were a single commit."
 
 (defun magit-wash-hunk ()
   (when (looking-at "^@@\\(@\\)?.+")
-    (let ((merging (match-end 1))
-          (heading (match-string 0)))
+    (let ((heading (match-string 0)))
       (magit-delete-line)
       (magit-insert-section it (hunk heading)
-        (magit-insert-heading
-          (propertize (concat heading "\n") 'face 'magit-hunk-heading))
+        (insert (propertize (concat heading "\n")
+                            'face 'magit-hunk-heading))
+        (setf (magit-section-content it) (point-marker))
         (while (not (or (eobp) (looking-at magit-diff-headline-re)))
-          (magit-put-face-property
-           (point) (1+ (line-end-position))
-           (cond
-            ((looking-at "^\\+\\+[<=|>]\\{7\\}")
-             'magit-conflict-heading)
-            ((looking-at (if merging  "^\\(\\+\\| \\+\\)" "^\\+"))
-             (magit-diff-highlight-whitespace merging)
-             'magit-diff-added)
-            ((looking-at (if merging  "^\\(-\\| -\\)" "^-"))
-             'magit-diff-removed)
-            (t
-             'magit-diff-context)))
-            (forward-line))
+          (forward-line))
+        (setf (magit-section-end it) (point))
+        (magit-paint-hunk it nil)
         (when (eq magit-diff-refine-hunk 'all)
           (magit-diff-refine-hunk it))))
     t))
+
+(defun magit-paint-hunk (section highlight)
+  (let ((beg (magit-section-start   section))
+        (cnt (magit-section-content section))
+        (end (magit-section-end     section))
+        merging)
+    (save-restriction
+      (goto-char beg)
+      (setq merging (looking-at "@@@"))
+      (goto-char cnt)
+      (narrow-to-region cnt end)
+      (while (not (eobp))
+        (put-text-property
+         (point) (1+ (line-end-position)) 'face
+         (cond
+          ((looking-at "^\\+\\+[<=|>]\\{7\\}") 'magit-conflict-heading)
+          ((looking-at (if merging  "^\\(\\+\\| \\+\\)" "^\\+"))
+           (magit-diff-highlight-whitespace merging)
+           (if highlight 'magit-diff-added-highlight 'magit-diff-added))
+          ((looking-at (if merging  "^\\(-\\| -\\)" "^-"))
+           (if highlight 'magit-diff-removed-highlight 'magit-diff-removed))
+          (t
+           (if highlight 'magit-diff-context-highlight 'magit-diff-context))))
+        (forward-line)))))
 
 (defun magit-diff-highlight-whitespace (merging)
   (when (and magit-highlight-whitespace
