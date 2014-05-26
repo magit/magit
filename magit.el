@@ -1002,6 +1002,18 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   "Face for merge conflict marker 'proposed' line."
   :group 'magit-faces)
 
+(defface magit-diffstat-added
+  '((((class color) (background light)) :foreground "#22aa22")
+    (((class color) (background  dark)) :foreground "#448844"))
+  "Face for plus sign in diffstats."
+  :group 'magit-faces)
+
+(defface magit-diffstat-removed
+  '((((class color) (background light)) :foreground "#aa2222")
+    (((class color) (background  dark)) :foreground "#aa4444"))
+  "Face for minus sign in diffstats."
+  :group 'magit-faces)
+
 (defface magit-log-graph
   '((((class color) (background light))
      :foreground "grey11")
@@ -7032,8 +7044,10 @@ actually were a single commit."
                (magit-delete-line)
                (magit-insert-section (file file)
                  (insert " " file sep cnt " ")
-                 (when add (insert (propertize add 'face 'magit-diff-added)))
-                 (when del (insert (propertize del 'face 'magit-diff-removed)))
+                 (when add
+                   (insert (propertize add 'face 'magit-diffstat-added)))
+                 (when del
+                   (insert (propertize del 'face 'magit-diffstat-removed)))
                  (insert "\n"))))))
         (setq diffstats (magit-section-children it))))
     diffstats))
