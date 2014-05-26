@@ -1018,7 +1018,8 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   :group 'magit-faces)
 
 (defface magit-log-date
-  '((t))
+  '((((class color) (background light)) :foreground "grey30")
+    (((class color) (background  dark)) :foreground "grey80"))
   "Face for the date part of the log output."
   :group 'magit-faces)
 
