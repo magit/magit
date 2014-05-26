@@ -954,12 +954,14 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 ;;;; Custom Faces
 
 (defface magit-section-highlight
-  '((t :inherit secondary-selection))
+  '((((class color) (background light)) :background "grey85")
+    (((class color) (background  dark)) :background "grey20"))
   "Face for highlighting the current section."
   :group 'magit-faces)
 
 (defface magit-section-heading
-  '((t :inherit header-line))
+  '((((class color) (background light)) :background "grey80" :weight bold)
+    (((class color) (background  dark)) :background "grey25" :weight bold))
   "Face for section headings."
   :group 'magit-faces)
 
@@ -969,7 +971,12 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   :group 'magit-faces)
 
 (defface magit-hunk-heading
-  '((t :inherit diff-hunk-header))
+  '((((class color) (background light))
+     :background "grey80"
+     :foreground "grey30")
+    (((class color) (background dark))
+     :background "grey25"
+     :foreground "grey70"))
   "Face for diff hunk headings."
   :group 'magit-faces)
 
@@ -1049,20 +1056,20 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defface magit-branch-local
   '((((class color) (background light))
-     :background "grey85"
-     :foreground "LightSkyBlue4")
+     :background "grey80"
+     :foreground "SkyBlue4")
     (((class color) (background dark))
-     :background "grey15"
+     :background "grey30"
      :foreground "LightSkyBlue1"))
   "Face for local branches."
   :group 'magit-faces)
 
 (defface magit-branch-remote
   '((((class color) (background light))
-     :background "grey85"
-     :foreground "OliveDrab4")
+     :background "grey80"
+     :foreground "DarkOliveGreen4")
     (((class color) (background dark))
-     :background "grey15"
+     :background "grey30"
      :foreground "DarkSeaGreen2"))
   "Face for remote branch head labels shown in log buffer."
   :group 'magit-faces)
@@ -1075,19 +1082,21 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defface magit-head
   '((((class color) (background light))
-     :background "grey70"
-     :foreground "black")
+     :background "grey75"
+     :foreground "grey15")
     (((class color) (background dark))
-     :background "grey15"
-     :foreground "white"))
+     :background "grey30"
+     :foreground "grey90"))
   "Face for the symbolic ref \"HEAD\"."
   :group 'magit-faces)
 
 (defface magit-refname
   '((((class color) (background light))
-     :background "grey50")
-    (((class color) (background dark))
-     :background "grey50"))
+     :background "grey75"
+     :foreground "grey30")
+    (((class color) (background  dark))
+     :background "grey30"
+     :foreground "grey80"))
   "Face for refnames without a dedicated face."
   :group 'magit-faces)
 
@@ -1122,7 +1131,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
      :background "grey85"
      :foreground "LightSkyBlue4")
     (((class color) (background dark))
-     :background "grey13"
+     :background "grey30"
      :foreground "LightSkyBlue1"))
   "Face for checkout commands in reflogs."
   :group 'magit-faces)
@@ -1138,7 +1147,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
      :background "grey85"
      :foreground "OliveDrab4")
     (((class color) (background dark))
-     :background "grey11"
+     :background "grey30"
      :foreground "DarkSeaGreen2"))
   "Face for rebase commands in reflogs."
   :group 'magit-faces)
