@@ -1015,26 +1015,20 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   :group 'magit-faces)
 
 (defface magit-log-graph
-  '((((class color) (background light))
-     :foreground "grey11")
-    (((class color) (background dark))
-     :foreground "grey80"))
+  '((((class color) (background light)) :foreground "grey30")
+    (((class color) (background  dark)) :foreground "grey80"))
   "Face for the graph part of the log output."
   :group 'magit-faces)
 
 (defface magit-hash
-  '((((class color) (background light))
-     :foreground "firebrick")
-    (((class color) (background dark))
-     :foreground "tomato"))
+  '((((class color) (background light)) :foreground "firebrick")
+    (((class color) (background  dark)) :foreground "tomato"))
   "Face for the sha1 part of the log output."
   :group 'magit-faces)
 
 (defface magit-log-author
-  '((((class color) (background light))
-     :foreground "firebrick")
-    (((class color) (background dark))
-     :foreground "tomato"))
+  '((((class color) (background light)) :foreground "firebrick")
+    (((class color) (background  dark)) :foreground "tomato"))
   "Face for the author part of the log output."
   :group 'magit-faces)
 
@@ -1057,32 +1051,20 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   :group 'magit-faces)
 
 (defface magit-bisect-good
-  '((((class color) (background light))
-     :background "light green"
-     :foreground "dark olive green")
-    (((class color) (background dark))
-     :background "light green"
-     :foreground "dark olive green"))
+  '((t :background "light green"
+       :foreground "dark olive green"))
   "Face for good bisect revisions."
   :group 'magit-faces)
 
 (defface magit-bisect-skip
-  '((((class color) (background light))
-     :background "light goldenrod"
-     :foreground "dark goldenrod")
-    (((class color) (background dark))
-     :background "light goldenrod"
-     :foreground "dark goldenrod"))
+  '((t :background "LightGoldenrod"
+       :foreground "DarkGoldenrod"))
   "Face for skipped bisect revisions."
   :group 'magit-faces)
 
 (defface magit-bisect-bad
-  '((((class color) (background light))
-     :background "IndianRed1"
-     :foreground "IndianRed4")
-    (((class color) (background dark))
-     :background "IndianRed1"
-     :foreground "IndianRed4"))
+  '((t :background "IndianRed1"
+       :foreground "IndianRed4"))
   "Face for bad bisect revisions."
   :group 'magit-faces)
 
@@ -1097,12 +1079,8 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   :group 'magit-faces)
 
 (defface magit-tag
-  '((((class color) (background light))
-     :background "LemonChiffon1"
-     :foreground "goldenrod4")
-    (((class color) (background dark))
-     :background "LemonChiffon1"
-     :foreground "goldenrod4"))
+  '((t :background "LemonChiffon1"
+       :foreground "goldenrod4"))
   "Face for tag labels shown in log buffer."
   :group 'magit-faces)
 
@@ -1160,12 +1138,8 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   :group 'magit-faces)
 
 (defface magit-reflog-commit
-  '((((class color) (background light))
-     :background "LemonChiffon1"
-     :foreground "goldenrod4")
-    (((class color) (background dark))
-     :background "LemonChiffon1"
-     :foreground "goldenrod4"))
+  '((t :background "LemonChiffon1"
+       :foreground "goldenrod4"))
   "Face for commit commands in reflogs."
   :group 'magit-faces)
 
@@ -1190,12 +1164,8 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   :group 'magit-faces)
 
 (defface magit-reflog-reset
-  '((((class color) (background light))
-     :background "IndianRed1"
-     :foreground "IndianRed4")
-    (((class color) (background dark))
-     :background "IndianRed1"
-     :foreground "IndianRed4"))
+  '((t :background "IndianRed1"
+       :foreground "IndianRed4"))
   "Face for reset commands in reflogs."
   :group 'magit-faces)
 
@@ -1210,40 +1180,28 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   :group 'magit-faces)
 
 (defface magit-reflog-cherry-pick
-  '((((class color) (background light))
-     :background "light green"
-     :foreground "dark olive green")
-    (((class color) (background dark))
-     :background "light green"
-     :foreground "dark olive green"))
+  '((t :background "light green"
+       :foreground "dark olive green"))
   "Face for cherry-pick commands in reflogs."
   :group 'magit-faces)
 
 (defface magit-reflog-remote
-  '((((class color) (background light))
-     :background "Grey50")
-    (((class color) (background dark))
-     :background "Grey50"))
+  '((t :background "Grey50"))
   "Face for pull and clone commands in reflogs."
   :group 'magit-faces)
 
 (defface magit-reflog-other
-  '((((class color) (background light))
-     :background "Grey50")
-    (((class color) (background dark))
-     :background "Grey50"))
+  '((t :background "Grey50"))
   "Face for other commands in reflogs."
   :group 'magit-faces)
 
 (defface magit-process-ok
-  '((t :inherit magit-section-heading
-       :foreground "green"))
+  '((t :inherit magit-section-heading :foreground "green"))
   "Face for zero exit-status."
   :group 'magit-faces)
 
 (defface magit-process-ng
-  '((t :inherit magit-section-heading
-       :foreground "red"))
+  '((t :inherit magit-section-heading :foreground "red"))
   "Face for non-zero exit-status."
   :group 'magit-faces)
 
