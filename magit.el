@@ -414,56 +414,6 @@ many spaces.  Otherwise, highlight neither."
                                (integer :tag "Spaces" :value ,tab-width)
                                (const :tag "Neither" nil))))) ;^FIXME
 
-(defcustom magit-section-highlight-face 'magit-section-highlight
-  "The face used to highlight the current section.
-
-By default the highlighting of the current section is done using
-the background color specified by face `magit-section-highlight'.
-
-If you don't want to use the background to do the highlighting,
-this *might* by as easy as customizing that face.  However if you
-are using a theme, which in turn sets the background color of
-that face then, due to limitations in face inheritance when using
-themes, you might be forced to use another face.
-
-Unfortunately it is only possible to override a face attribute,
-set by a theme, but not to drop it entirely.  This means that one
-has to explicitly use the `default' background color, to make it
-appear *as if* the background wasn't used.
-
-One reason you might want to *not* use the background, is that
-doing so forces the use of overlays for parts of diffs and for
-refnames.  Using overlays potentially degrades performance when
-generating large diffs.  Also see option `magit-use-overlays'."
-  :package-version '(magit . "2.1.0")
-  :group 'magit
-  :group 'magit-faces
-  :type '(choice (const magit-section-highlight)
-                 (const bold)
-                 (face  :tag "Other face")
-                 (const :tag "Don't highlight" nil)))
-
-(defcustom magit-use-overlays
-  (not (eq magit-section-highlight-face 'bold))
-  "Whether to use overlays to highlight various diff components.
-
-This has to be non-nil if the current section is highlighted by
-changing the background color.  Otherwise background colors that
-hold semantic meaning, like that of the added and removed lines
-in diffs, as well as section headings, would be shadowed by the
-highlighting.
-
-To select the face used for highlighting customize the option
-`magit-section-highlight-face'.  If you set that to `bold' or some
-other face that does not use the background then you can set this
-option to nil.  Doing so could potentially improve performance
-when generating large diffs."
-  :package-version '(magit . "2.1.0")
-  :group 'magit
-  :group 'magit-faces
-  :set-after '(magit-section-highlight-face)
-  :type 'boolean)
-
 ;;;;; Completion
 
 (defcustom magit-completing-read-function 'magit-builtin-completing-read
@@ -542,6 +492,7 @@ what you want."
     ("^refs/bisect/\\(bad\\)"    magit-bisect-bad nil)
     ("^refs/bisect/\\(skip.*\\)" magit-bisect-skip nil)
     ("^refs/bisect/\\(good.*\\)" magit-bisect-good nil)
+    ("^refs/stash$"              magit-refname-stash nil)
     ("^refs/wip/\\(.+\\)"        magit-refname-wip nil)
     ("^\\(bad\\):"               magit-bisect-bad nil)
     ("^\\(skip\\):"              magit-bisect-skip nil)
@@ -1002,189 +953,280 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 ;;;; Custom Faces
 
+(defface magit-section-highlight
+  '((((class color) (background light)) :background "grey85")
+    (((class color) (background  dark)) :background "grey20"))
+  "Face for highlighting the current section."
+  :group 'magit-faces)
+
 (defface magit-section-heading
-  '((t :inherit header-line))
-  "Face for section titles."
+  '((((class color) (background light)) :background "grey80" :weight bold)
+    (((class color) (background  dark)) :background "grey25" :weight bold))
+  "Face for section headings."
   :group 'magit-faces)
 
-(defface magit-diff-file-header
-  '((t :bold t))
-  "Face for diff file header lines."
+(defface magit-file-heading
+  '((t :weight bold))
+  "Face for diff file headings."
   :group 'magit-faces)
 
-(defface magit-diff-hunk-header
-  '((t :inherit diff-hunk-header))
-  "Face for diff hunk header lines."
+(defface magit-hunk-heading
+  '((((class color) (background light))
+     :background "grey80"
+     :foreground "grey30")
+    (((class color) (background dark))
+     :background "grey25"
+     :foreground "grey70"))
+  "Face for diff hunk headings."
+  :group 'magit-faces)
+
+(defface magit-hunk-heading-highlight
+  '((((class color) (background light))
+     :background "grey75"
+     :foreground "grey30")
+    (((class color) (background dark))
+     :background "grey35"
+     :foreground "grey70"))
+  "Face for diff hunk headings."
+  :group 'magit-faces)
+
+(defface magit-conflict-heading
+  '((t :inherit magit-hunk-heading))
+  "Face for conflict markers."
   :group 'magit-faces)
 
 (defface magit-diff-added
-  '((t :inherit diff-added))
+  '((((class color) (background light))
+     :background "#ddffdd"
+     :foreground "#22aa22")
+    (((class color) (background dark))
+     :background "#335533"
+     :foreground "#aaccaa"))
   "Face for lines in a diff that have been added."
   :group 'magit-faces)
 
 (defface magit-diff-removed
-  '((t :inherit diff-removed))
+ '((((class color) (background light))
+     :background "#ffdddd"
+     :foreground "#aa2222")
+    (((class color) (background dark))
+     :background "#553333"
+     :foreground "#ccaaaa"))
   "Face for lines in a diff that have been removed."
   :group 'magit-faces)
 
 (defface magit-diff-context
-  '((t :inherit diff-context))
+  '((((class color) (background light)) :foreground "grey50")
+    (((class color) (background  dark)) :foreground "grey70"))
   "Face for lines in a diff that are unchanged."
   :group 'magit-faces)
 
-(defface magit-diff-merge-current
-  '((t :inherit font-lock-preprocessor-face))
-  "Face for merge conflict marker 'current' line."
+(defface magit-diff-added-highlight
+  '((((class color) (background light))
+     :background "#cceecc"
+     :foreground "#22aa22")
+    (((class color) (background dark))
+     :background "#336633"
+     :foreground "#bbddbb"))
+  "Face for lines in a diff that have been added."
   :group 'magit-faces)
 
-(defface magit-diff-merge-separator
-  '((t :inherit font-lock-preprocessor-face))
-  "Face for merge conflict marker seperator."
+(defface magit-diff-removed-highlight
+  '((((class color) (background light))
+     :background "#eecccc"
+     :foreground "#aa2222")
+    (((class color) (background dark))
+     :background "#663333"
+     :foreground "#ddbbbb"))
+  "Face for lines in a diff that have been removed."
   :group 'magit-faces)
 
-(defface magit-diff-merge-diff3-separator
-  '((t :inherit font-lock-preprocessor-face))
-  "Face for merge conflict marker seperator."
+(defface magit-diff-context-highlight
+  '((((class color) (background light))
+     :background "grey85"
+     :foreground "grey50")
+    (((class color) (background dark))
+     :background "grey20"
+     :foreground "grey70"))
+  "Face for lines in a diff that have been removed."
   :group 'magit-faces)
 
-(defface magit-diff-merge-proposed
-  '((t :inherit font-lock-preprocessor-face))
-  "Face for merge conflict marker 'proposed' line."
+(defface magit-diffstat-added
+  '((((class color) (background light)) :foreground "#22aa22")
+    (((class color) (background  dark)) :foreground "#448844"))
+  "Face for plus sign in diffstats."
+  :group 'magit-faces)
+
+(defface magit-diffstat-removed
+  '((((class color) (background light)) :foreground "#aa2222")
+    (((class color) (background  dark)) :foreground "#aa4444"))
+  "Face for minus sign in diffstats."
   :group 'magit-faces)
 
 (defface magit-log-graph
-  '((((class color) (background light))
-     :foreground "grey11")
-    (((class color) (background dark))
-     :foreground "grey80"))
+  '((((class color) (background light)) :foreground "grey30")
+    (((class color) (background  dark)) :foreground "grey80"))
   "Face for the graph part of the log output."
   :group 'magit-faces)
 
-(defface magit-hash
-  '((((class color) (background light))
-     :foreground "firebrick")
-    (((class color) (background dark))
-     :foreground "tomato"))
-  "Face for the sha1 part of the log output."
-  :group 'magit-faces)
-
 (defface magit-log-author
-  '((((class color) (background light))
-     :foreground "firebrick")
-    (((class color) (background dark))
-     :foreground "tomato"))
+  '((((class color) (background light)) :foreground "firebrick")
+    (((class color) (background  dark)) :foreground "tomato"))
   "Face for the author part of the log output."
   :group 'magit-faces)
 
 (defface magit-log-date
-  '((t))
+  '((((class color) (background light)) :foreground "grey30")
+    (((class color) (background  dark)) :foreground "grey80"))
   "Face for the date part of the log output."
   :group 'magit-faces)
 
-(defface magit-log-message
-  '((t))
-  "Face for the message part of the log output."
-  :group 'magit-faces)
-
-(defface magit-cherry-unmatched
-  '((t :foreground "cyan"))
-  "Face for unmatched cherry commits.")
-
-(defface magit-cherry-equivalent
-  '((t :foreground "magenta"))
-  "Face for equivalent cherry commits.")
-
-(defface magit-section-highlight
-  '((t :inherit secondary-selection))
-  "Face for highlighting the current section."
-  :group 'magit-faces)
-
 (defface magit-bisect-good
-  '((((class color) (background light))
-     :background "light green"
-     :foreground "dark olive green")
-    (((class color) (background dark))
-     :background "light green"
-     :foreground "dark olive green"))
+  '((t :background "LightGreen"
+       :foreground "DarkOliveGreen"))
   "Face for good bisect revisions."
   :group 'magit-faces)
 
 (defface magit-bisect-skip
-  '((((class color) (background light))
-     :background "light goldenrod"
-     :foreground "dark goldenrod")
-    (((class color) (background dark))
-     :background "light goldenrod"
-     :foreground "dark goldenrod"))
+  '((t :background "LightGoldenrod"
+       :foreground "DarkGoldenrod"))
   "Face for skipped bisect revisions."
   :group 'magit-faces)
 
 (defface magit-bisect-bad
-  '((((class color) (background light))
-     :background "IndianRed1"
-     :foreground "IndianRed4")
-    (((class color) (background dark))
-     :background "IndianRed1"
-     :foreground "IndianRed4"))
+  '((t :background "IndianRed1"
+       :foreground "IndianRed4"))
   "Face for bad bisect revisions."
   :group 'magit-faces)
 
-(defface magit-branch-remote
-  '((((class color) (background light))
-     :background "Grey85"
-     :foreground "OliveDrab4")
-    (((class color) (background dark))
-     :background "Grey11"
-     :foreground "DarkSeaGreen2"))
-  "Face for remote branch head labels shown in log buffer."
-  :group 'magit-faces)
-
 (defface magit-tag
-  '((((class color) (background light))
-     :background "LemonChiffon1"
-     :foreground "goldenrod4")
-    (((class color) (background dark))
-     :background "LemonChiffon1"
-     :foreground "goldenrod4"))
+  '((t :background "LemonChiffon1"
+       :foreground "goldenrod4"))
   "Face for tag labels shown in log buffer."
   :group 'magit-faces)
 
 (defface magit-branch-local
   '((((class color) (background light))
-     :background "Grey85"
-     :foreground "LightSkyBlue4")
+     :background "grey80"
+     :foreground "SkyBlue4")
     (((class color) (background dark))
-     :background "Grey13"
+     :background "grey30"
      :foreground "LightSkyBlue1"))
   "Face for local branches."
   :group 'magit-faces)
 
+(defface magit-branch-remote
+  '((((class color) (background light))
+     :background "grey80"
+     :foreground "DarkOliveGreen4")
+    (((class color) (background dark))
+     :background "grey30"
+     :foreground "DarkSeaGreen2"))
+  "Face for remote branch head labels shown in log buffer."
+  :group 'magit-faces)
+
+(defface magit-hash
+  '((((class color) (background light)) :foreground "grey60")
+    (((class color) (background  dark)) :foreground "grey40"))
+  "Face for the sha1 part of the log output."
+  :group 'magit-faces)
+
 (defface magit-head
   '((((class color) (background light))
-     :background "Grey70"
-     :foreground "Black")
+     :background "grey75"
+     :foreground "grey15")
     (((class color) (background dark))
-     :background "Grey20"
-     :foreground "White"))
+     :background "grey30"
+     :foreground "grey90"))
   "Face for the symbolic ref \"HEAD\"."
   :group 'magit-faces)
 
 (defface magit-refname
   '((((class color) (background light))
-     :background "Grey50")
-    (((class color) (background dark))
-     :background "Grey50"))
+     :background "grey75"
+     :foreground "grey30")
+    (((class color) (background  dark))
+     :background "grey30"
+     :foreground "grey80"))
   "Face for refnames without a dedicated face."
   :group 'magit-faces)
 
-(defface magit-refname-wip
-  '((((class color) (background light))
-     :background "Grey95"
-     :foreground "LightSkyBlue3")
-    (((class color) (background dark))
-     :background "Grey07"
-     :foreground "LightSkyBlue4"))
+(defface magit-refname-stash
+  '((t :inherit magit-refname))
   "Face for wip refnames."
+  :group 'magit-faces)
+
+(defface magit-refname-wip
+  '((t :inherit magit-refname))
+  "Face for wip refnames."
+  :group 'magit-faces)
+
+(defface magit-reflog-commit
+  '((t :background "LemonChiffon1"
+       :foreground "goldenrod4"))
+  "Face for commit commands in reflogs."
+  :group 'magit-faces)
+
+(defface magit-reflog-amend
+  '((t :inherit magit-reflog-commit))
+  "Face for amend commands in reflogs."
+  :group 'magit-faces)
+
+(defface magit-reflog-merge
+  '((t :inherit magit-reflog-commit))
+  "Face for merge, checkout and branch commands in reflogs."
+  :group 'magit-faces)
+
+(defface magit-reflog-checkout
+  '((((class color) (background light))
+     :background "grey85"
+     :foreground "LightSkyBlue4")
+    (((class color) (background dark))
+     :background "grey30"
+     :foreground "LightSkyBlue1"))
+  "Face for checkout commands in reflogs."
+  :group 'magit-faces)
+
+(defface magit-reflog-reset
+  '((t :background "IndianRed1"
+       :foreground "IndianRed4"))
+  "Face for reset commands in reflogs."
+  :group 'magit-faces)
+
+(defface magit-reflog-rebase
+  '((((class color) (background light))
+     :background "grey85"
+     :foreground "OliveDrab4")
+    (((class color) (background dark))
+     :background "grey30"
+     :foreground "DarkSeaGreen2"))
+  "Face for rebase commands in reflogs."
+  :group 'magit-faces)
+
+(defface magit-reflog-cherry-pick
+  '((t :background "LightGreen"
+       :foreground "DarkOliveGreen"))
+  "Face for cherry-pick commands in reflogs."
+  :group 'magit-faces)
+
+(defface magit-reflog-remote
+  '((t :background "grey50"))
+  "Face for pull and clone commands in reflogs."
+  :group 'magit-faces)
+
+(defface magit-reflog-other
+  '((t :background "grey50"))
+  "Face for other commands in reflogs."
+  :group 'magit-faces)
+
+(defface magit-process-ok
+  '((t :inherit magit-section-heading :foreground "green"))
+  "Face for zero exit-status."
+  :group 'magit-faces)
+
+(defface magit-process-ng
+  '((t :inherit magit-section-heading :foreground "red"))
+  "Face for non-zero exit-status."
   :group 'magit-faces)
 
 (defface magit-signature-good
@@ -1202,98 +1244,13 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   "Face for good untrusted signatures."
   :group 'magit-faces)
 
-(defface magit-signature-none
-  '((t :inherit magit-log-message))
-  "Face for unsigned commits."
-  :group 'magit-faces)
+(defface magit-cherry-unmatched
+  '((t :foreground "cyan"))
+  "Face for unmatched cherry commits.")
 
-(defface magit-reflog-commit
-  '((((class color) (background light))
-     :background "LemonChiffon1"
-     :foreground "goldenrod4")
-    (((class color) (background dark))
-     :background "LemonChiffon1"
-     :foreground "goldenrod4"))
-  "Face for commit commands in reflogs."
-  :group 'magit-faces)
-
-(defface magit-reflog-amend
-  '((t :inherit magit-reflog-commit))
-  "Face for amend commands in reflogs."
-  :group 'magit-faces)
-
-(defface magit-reflog-merge
-  '((t :inherit magit-reflog-commit))
-  "Face for merge, checkout and branch commands in reflogs."
-  :group 'magit-faces)
-
-(defface magit-reflog-checkout
-  '((((class color) (background light))
-     :background "Grey85"
-     :foreground "LightSkyBlue4")
-    (((class color) (background dark))
-     :background "Grey13"
-     :foreground "LightSkyBlue1"))
-  "Face for checkout commands in reflogs."
-  :group 'magit-faces)
-
-(defface magit-reflog-reset
-  '((((class color) (background light))
-     :background "IndianRed1"
-     :foreground "IndianRed4")
-    (((class color) (background dark))
-     :background "IndianRed1"
-     :foreground "IndianRed4"))
-  "Face for reset commands in reflogs."
-  :group 'magit-faces)
-
-(defface magit-reflog-rebase
-  '((((class color) (background light))
-     :background "Grey85"
-     :foreground "OliveDrab4")
-    (((class color) (background dark))
-     :background "Grey11"
-     :foreground "DarkSeaGreen2"))
-  "Face for rebase commands in reflogs."
-  :group 'magit-faces)
-
-(defface magit-reflog-cherry-pick
-  '((((class color) (background light))
-     :background "light green"
-     :foreground "dark olive green")
-    (((class color) (background dark))
-     :background "light green"
-     :foreground "dark olive green"))
-  "Face for cherry-pick commands in reflogs."
-  :group 'magit-faces)
-
-(defface magit-reflog-remote
-  '((((class color) (background light))
-     :background "Grey50")
-    (((class color) (background dark))
-     :background "Grey50"))
-  "Face for pull and clone commands in reflogs."
-  :group 'magit-faces)
-
-(defface magit-reflog-other
-  '((((class color) (background light))
-     :background "Grey50")
-    (((class color) (background dark))
-     :background "Grey50"))
-  "Face for other commands in reflogs."
-  :group 'magit-faces)
-
-(defface magit-process-ok
-  '((t :inherit magit-section-heading
-       :foreground "green"))
-  "Face for zero exit-status."
-  :group 'magit-faces)
-
-(defface magit-process-ng
-  '((t :inherit magit-section-heading
-       :foreground "red"))
-  "Face for non-zero exit-status."
-  :group 'magit-faces)
+(defface magit-cherry-equivalent
+  '((t :foreground "magenta"))
+  "Face for equivalent cherry commits.")
 
 (defface magit-whitespace-warning
   '((t :inherit trailing-whitespace))
@@ -1887,40 +1844,36 @@ never modify it.")
           (replace-match (format " (%s)" count) nil nil nil 1))))))
 
 (defun magit-insert (string &optional face &rest args)
-  (if magit-use-overlays
-      (if face
-          (let ((start (point)))
-            (insert string)
-            (let ((ov (make-overlay start (point) nil t)))
-              (overlay-put ov 'face face)
-              (overlay-put ov 'evaporate t)))
-        (let ((buf (current-buffer))
-              (offset (1- (point))))
-          (with-temp-buffer
-            (save-excursion (insert string))
-            (while (not (eobp))
-              (let* ((beg (point))
-                     (end (or (next-single-property-change beg 'face)
-                              (point-max)))
-                     (face (get-text-property beg 'face))
-                     (text (buffer-substring-no-properties beg end)))
-                (with-current-buffer buf
-                  (insert text)
-                  (when face
-                    (let ((ov (make-overlay (+ beg offset)
-                                            (+ end offset) nil t)))
-                      (overlay-put ov 'face face)
-                      (overlay-put ov 'evaporate t))))
-                (goto-char end))))))
-    (insert (propertize string 'face face)))
+  (if face
+      (let ((start (point)))
+        (insert string)
+        (let ((ov (make-overlay start (point) nil t)))
+          (overlay-put ov 'face face)
+          (overlay-put ov 'evaporate t)))
+    (let ((buf (current-buffer))
+          (offset (1- (point))))
+      (with-temp-buffer
+        (save-excursion (insert string))
+        (while (not (eobp))
+          (let* ((beg (point))
+                 (end (or (next-single-property-change beg 'face)
+                          (point-max)))
+                 (face (get-text-property beg 'face))
+                 (text (buffer-substring-no-properties beg end)))
+            (with-current-buffer buf
+              (insert text)
+              (when face
+                (let ((ov (make-overlay (+ beg offset)
+                                        (+ end offset) nil t)))
+                  (overlay-put ov 'face face)
+                  (overlay-put ov 'evaporate t))))
+            (goto-char end))))))
   (apply #'insert args))
 
 (defun magit-put-face-property (start end face)
-  (if magit-use-overlays
-      (let ((ov (make-overlay start end nil t)))
-        (overlay-put ov 'face face)
-        (overlay-put ov 'evaporate t))
-    (put-text-property start end 'face face)))
+  (let ((ov (make-overlay start end nil t)))
+    (overlay-put ov 'face face)
+    (overlay-put ov 'evaporate t)))
 
 (defmacro magit-insert-header (keyword arglist &rest body)
   "\n\n(fn KEYWORD (TYPE &optional VALUE) &rest body)"
@@ -2080,7 +2033,7 @@ With a prefix argument also expand it." title)
 (magit-define-section-jumper unpushed  "Unpushed commits")
 (magit-define-section-jumper diffstats "Diffstats")
 
-;;;;; Section Hooks
+;;;;; Section Utilities
 
 (defun magit-add-section-hook (hook function &optional at append local)
   "Add to the value of section hook HOOK the function FUNCTION.
@@ -2130,7 +2083,6 @@ again use `remove-hook'."
         (set hook value)
       (set-default hook value))))
 
-;;;;; Section Utilities
 
 (defun magit-describe-section ()
   "Show information about the section at point.
@@ -2206,6 +2158,83 @@ FUNCTION has to move point forward or return nil."
     (let ((src (magit-section-diff-source section))
           (dst (magit-section-value section)))
       (format "diff --git a/%s b/%s\n--- a/%s\n+++ b/%s\n" src dst src dst))))
+
+(defun magit-section-match (condition &optional ident)
+  "Return t if the section at point matches CONDITION.
+
+Conditions can take the following forms:
+  (CONDITION...)  matches if any of the CONDITIONs matches.
+  [TYPE...]       matches if the first TYPE matches the type
+                  of the section at point, the second matches
+                  that of its parent, and so on.
+  [* TYPE...]     matches sections that match [TYPE...] and
+                  also recursively all their child sections.
+  TYPE            matches TYPE regardless of its parents.
+
+Each TYPE is a symbol.  Note that is not necessary to specify all
+TYPEs up to the root section as printed by `magit-describe-type',
+unless of course your want to be that precise.
+\n(fn CONDITION)" ; IDENT is for internal use
+  (when (or ident (--when-let (magit-current-section)
+                    (mapcar 'car (magit-section-ident it))))
+    (if (listp condition)
+        (--first (magit-section-match it ident) condition)
+      (magit-section-match-1 (if (symbolp condition)
+                                 (list condition)
+                               (append condition nil))
+                             ident))))
+
+(defun magit-section-match-1 (l1 l2)
+  (or (null l1)
+      (if (eq (car l1) '*)
+          (or (magit-section-match-1 (cdr l1) l2)
+              (and l2
+                   (magit-section-match-1 l1 (cdr l2))))
+        (and l2
+             (equal (car l1) (car l2))
+             (magit-section-match-1 (cdr l1) (cdr l2))))))
+
+(defmacro magit-section-when (condition &rest body)
+  "If the section at point matches CONDITION evaluate BODY.
+
+If the section matches evaluate BODY forms sequentially and
+return the value of the last one, or if there are no BODY forms
+return the value of the section.  If the section does not match
+return nil.
+
+See `magit-section-match' for the forms CONDITION can take."
+  (declare (indent 1)
+           (debug (sexp body)))
+  `(--when-let (magit-current-section)
+     (when (magit-section-match ',condition
+                                (mapcar 'car (magit-section-ident it)))
+       ,@(or body '((magit-section-value it))))))
+
+(defmacro magit-section-case (&rest clauses)
+  "Choose among clauses on the type of the section at point.
+
+Each clause looks like (CONDITION BODY...).  The type of the
+section is compared against each CONDITION; the BODY forms of the
+first match are evaluated sequentially and the value of the last
+form is returned.  Inside BODY the symbol `it' is bound to the
+section at point.  If no clause succeeds or if there is no
+section at point return nil.
+
+See `magit-section-match' for the forms CONDITION can take.
+Additionall a CONDITION of t is allowed in the final clause, and
+matches if no other CONDITION match, even if there is no section
+at point."
+  (declare (indent 0)
+           (debug (&rest (sexp body))))
+  (let ((ident (cl-gensym "id")))
+    `(let* ((it (magit-current-section))
+            (,ident (and it (mapcar 'car (magit-section-ident it)))))
+       (cond ,@(mapcar (lambda (clause)
+                         `(,(or (eq (car clause) t)
+                                `(and it (magit-section-match
+                                          ',(car clause) ,ident)))
+                           ,@(cdr clause)))
+                       clauses)))))
 
 ;;;;; Section Visibility
 
@@ -2392,133 +2421,53 @@ Expanded: everything is shown."
 (defvar-local magit-highlight-overlay nil)
 
 (defun magit-highlight-section ()
-  "Highlight current section.
-If its HIGHLIGHT slot is nil, then don't highlight it."
-  (let ((section (magit-current-section))
-        (refinep (lambda ()
-                   (and magit-highlighted-section
-                        (eq magit-diff-refine-hunk t)
-                        (eq (magit-section-type magit-highlighted-section)
-                            'hunk)))))
-    (unless (eq section magit-highlighted-section)
-      (when (funcall refinep)
-        (magit-diff-unrefine-hunk magit-highlighted-section))
-      (setq magit-highlighted-section section)
-      (unless magit-highlight-overlay
-        (overlay-put (setq magit-highlight-overlay (make-overlay 1 1))
-                     'face magit-section-highlight-face))
-      (cond ((and section (magit-section-parent section))
-             (when (funcall refinep)
-               (magit-diff-refine-hunk section))
-             (move-overlay magit-highlight-overlay
-                           (magit-section-start section)
-                           (magit-section-end section)
-                           (current-buffer)))
-            (t
-             (delete-overlay magit-highlight-overlay))))))
+  (let ((inhibit-read-only t)
+        (deactivate-mark nil)
+        (old  magit-highlighted-section)
+        (new (magit-current-section)))
+    (unless (eq old new)
+      (when old
+        (magit-section-unhighlight old))
+      (unless (eq new magit-root-section)
+        (setq magit-highlighted-section new)
+        (magit-section-highlight new)))))
 
-;;;;; Section Actions
+(defun magit-section-highlight (section)
+  (let ((beg (magit-section-start section))
+        (end (magit-section-end   section)))
+    (save-excursion
+      (goto-char beg)
+      (magit-section-case
+        ((file staged unstaged)
+         (put-text-property beg end 'face 'magit-section-highlight)
+         (mapc 'magit-section-highlight (magit-section-children section)))
+        (hunk
+         (put-text-property beg end 'face 'magit-hunk-heading-highlight)
+         (magit-paint-hunk section t)
+         (when (eq magit-diff-refine-hunk t)
+           (magit-diff-refine-hunk section)))
+        (t
+         (overlay-put (setq magit-highlight-overlay
+                            (make-overlay beg end))
+                      'face 'magit-section-highlight))))))
 
-(defun magit-section-match (condition &optional ident)
-  "Return t if the section at point matches CONDITION.
-
-Conditions can take the following forms:
-  (CONDITION...)  matches if any of the CONDITIONs matches.
-  [TYPE...]       matches if the first TYPE matches the type
-                  of the section at point, the second matches
-                  that of its parent, and so on.
-  [* TYPE...]     matches sections that match [TYPE...] and
-                  also recursively all their child sections.
-  TYPE            matches TYPE regardless of its parents.
-
-Each TYPE is a symbol.  Note that is not necessary to specify all
-TYPEs up to the root section as printed by `magit-describe-type',
-unless of course your want to be that precise.
-\n(fn CONDITION)" ; IDENT is for internal use
-  (when (or ident (--when-let (magit-current-section)
-                    (mapcar 'car (magit-section-ident it))))
-    (if (listp condition)
-        (--first (magit-section-match it ident) condition)
-      (magit-section-match-1 (if (symbolp condition)
-                                 (list condition)
-                               (append condition nil))
-                             ident))))
-
-(defun magit-section-match-1 (l1 l2)
-  (or (null l1)
-      (if (eq (car l1) '*)
-          (or (magit-section-match-1 (cdr l1) l2)
-              (and l2
-                   (magit-section-match-1 l1 (cdr l2))))
-        (and l2
-             (equal (car l1) (car l2))
-             (magit-section-match-1 (cdr l1) (cdr l2))))))
-
-(defmacro magit-section-when (condition &rest body)
-  "If the section at point matches CONDITION evaluate BODY.
-
-If the section matches evaluate BODY forms sequentially and
-return the value of the last one, or if there are no BODY forms
-return the value of the section.  If the section does not match
-return nil.
-
-See `magit-section-match' for the forms CONDITION can take."
-  (declare (indent 1)
-           (debug (sexp body)))
-  `(--when-let (magit-current-section)
-     (when (magit-section-match ',condition
-                                (mapcar 'car (magit-section-ident it)))
-       ,@(or body '((magit-section-value it))))))
-
-(defmacro magit-section-case (&rest clauses)
-  "Choose among clauses on the type of the section at point.
-
-Each clause looks like (CONDITION BODY...).  The type of the
-section is compared against each CONDITION; the BODY forms of the
-first match are evaluated sequentially and the value of the last
-form is returned.  Inside BODY the symbol `it' is bound to the
-section at point.  If no clause succeeds or if there is no
-section at point return nil.
-
-See `magit-section-match' for the forms CONDITION can take.
-Additionall a CONDITION of t is allowed in the final clause, and
-matches if no other CONDITION match, even if there is no section
-at point."
-  (declare (indent 0)
-           (debug (&rest (sexp body))))
-  (let ((ident (cl-gensym "id")))
-    `(let* ((it (magit-current-section))
-            (,ident (and it (mapcar 'car (magit-section-ident it)))))
-       (cond ,@(mapcar (lambda (clause)
-                         `(,(or (eq (car clause) t)
-                                `(and it (magit-section-match
-                                          ',(car clause) ,ident)))
-                           ,@(cdr clause)))
-                       clauses)))))
-
-(defun magit-branch-at-point ()
-  (magit-section-when branch))
-
-(defun magit-commit-at-point ()
-  (magit-section-when commit))
-
-(defun magit-branch-or-commit-at-point ()
-  (magit-section-case
-    (branch (magit-section-value it))
-    (commit (magit-get-shortname (magit-section-value it)))))
-
-(defun magit-stash-at-point (&optional get-number)
-  (magit-section-when stash))
-
-(defun magit-remote-at-point ()
-  (magit-section-case
-    (remote (magit-section-value it))
-    (branch (magit-section-parent-value it))))
-
-(defun magit-file-at-point ()
-  (magit-section-case
-    (file (magit-section-value it))
-    (hunk (magit-section-parent-value it))))
+(defun magit-section-unhighlight (section)
+  (let ((beg (magit-section-start section))
+        (end (magit-section-end   section)))
+    (save-excursion
+      (goto-char beg)
+      (magit-section-case
+        ((file staged unstaged)
+         (put-text-property beg end 'face nil)
+         (mapc 'magit-section-unhighlight (magit-section-children section)))
+        (hunk
+         (put-text-property beg end 'face 'magit-hunk-heading)
+         (magit-paint-hunk section nil)
+         (when (eq magit-diff-refine-hunk t)
+           (magit-diff-unrefine-hunk section)))
+        (t
+         (when magit-highlight-overlay
+           (delete-overlay magit-highlight-overlay)))))))
 
 ;;;; Process Api
 ;;;;; Process Commands
@@ -3378,12 +3327,12 @@ the buffer.  Finally reset the window configuration to nil."
 
 (define-button-type 'magit-xref-backward
   :supertype 'help-back
-  'mouse-face magit-section-highlight-face
+  'mouse-face 'magit-section-highlight
   'help-echo (purecopy "mouse-2, RET: go back to previous history entry"))
 
 (define-button-type 'magit-xref-forward
   :supertype 'help-forward
-  'mouse-face magit-section-highlight-face
+  'mouse-face 'magit-section-highlight
   'help-echo (purecopy "mouse-2, RET: go back to next history entry"))
 
 (defun magit-xref-setup (refresh-args)
@@ -3589,6 +3538,11 @@ If FILE isn't inside a Git repository then return nil."
       (string-as-multibyte (read path))
     path))
 
+(defun magit-file-at-point ()
+  (magit-section-case
+    (file (magit-section-value it))
+    (hunk (magit-section-parent-value it))))
+
 ;;;; Predicates
 
 (defun magit-no-commit-p ()
@@ -3657,6 +3611,25 @@ string \"true\", otherwise return nil."
   (if (magit-no-commit-p)
       (magit-git-string "mktree")
     "HEAD"))
+
+(defun magit-branch-at-point ()
+  (magit-section-when branch))
+
+(defun magit-commit-at-point ()
+  (magit-section-when commit))
+
+(defun magit-branch-or-commit-at-point ()
+  (magit-section-case
+    (branch (magit-section-value it))
+    (commit (magit-get-shortname (magit-section-value it)))))
+
+(defun magit-stash-at-point (&optional get-number)
+  (magit-section-when stash))
+
+(defun magit-remote-at-point ()
+  (magit-section-case
+    (remote (magit-section-value it))
+    (branch (magit-section-parent-value it))))
 
 (defun magit-get-current-branch ()
   "Return the refname of the currently checked out branch.
@@ -4180,7 +4153,7 @@ commit or stash at point, then prompt for a commit."
                                     (goto-char button)
                                     (call-interactively #'magit-show-commit)))
                         'follow-link t
-                        'mouse-face magit-section-highlight-face
+                        'mouse-face 'magit-section-highlight
                         'face 'magit-hash)))
 
 ;;;; Status Mode
@@ -6478,7 +6451,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
              'action (lambda (button)
                        (magit-log-show-more-entries))
              'follow-link t
-             'mouse-face magit-section-highlight-face)))
+             'mouse-face 'magit-section-highlight)))
       (unless (equal (car args) "cherry")
         (insert ?\n)))))
 
@@ -6525,9 +6498,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
       (magit-insert msg (cl-case (and gpg (aref gpg 0))
                           (?G 'magit-signature-good)
                           (?B 'magit-signature-bad)
-                          (?U 'magit-signature-untrusted)
-                          (?N 'magit-signature-none)
-                          (t  'magit-log-message))))
+                          (?U 'magit-signature-untrusted))))
     (goto-char (line-beginning-position))
     (magit-format-log-margin author date)
     (if hash
@@ -7089,8 +7060,10 @@ actually were a single commit."
                (magit-delete-line)
                (magit-insert-section (file file)
                  (insert " " file sep cnt " ")
-                 (when add (insert (propertize add 'face 'magit-diff-added)))
-                 (when del (insert (propertize del 'face 'magit-diff-removed)))
+                 (when add
+                   (magit-insert (propertize add 'face 'magit-diffstat-added)))
+                 (when del
+                   (magit-insert (propertize del 'face 'magit-diffstat-removed)))
                  (insert "\n"))))))
         (setq diffstats (magit-section-children it))))
     diffstats))
@@ -7116,24 +7089,24 @@ actually were a single commit."
             (setf (magit-section-value
                    (magit-insert-section (file module t)
                      (magit-insert-heading
-                       (propertize (format "modified%s  %s\n"
+                       (propertize (format "modified%s  %s"
                                            (if dirty "%" "/") module)
-                                   'face 'magit-diff-file-header))
+                                   'face 'magit-file-heading))
                      (magit-git-wash (apply-partially 'magit-wash-log 'module)
                        "log" "--oneline" "--left-right" range)
                      (delete-char -1)))
                   module))
         (magit-insert-section (file module)
-          (magit-insert (propertize (format "dirty      %s\n" module)
-                                    'face 'magit-diff-file-header))))))
+          (magit-insert (propertize (format "dirty      %s" module)
+                                    'face 'magit-file-heading))))))
    ((looking-at "^\\* Unmerged path \\(.*\\)")
     (let ((dst (magit-decode-git-path (match-string 1))))
       (magit-delete-line)
       (unless (and (derived-mode-p 'magit-status-mode)
                    (not (member "--cached" args)))
         (magit-insert-section (file dst)
-          (magit-insert (propertize (format "unmerged   %s\n" dst)
-                                    'face 'magit-diff-file-header)))))
+          (magit-insert (propertize (format "unmerged   %s" dst)
+                                    'face 'magit-file-heading)))))
     t)
    ((looking-at "^diff \\(?:--git \\(.*\\) \\(.*\\)\\|--cc \\(.*\\)\\)$")
     (let (src dst status modes)
@@ -7158,9 +7131,9 @@ actually were a single commit."
                       (derived-mode-p 'magit-status-mode)))
         (magit-insert-heading
           (propertize (if (eq status 'rename)
-                          (format "renamed    %s => %s\n" src dst)
+                          (format "renamed    %s => %s" src dst)
                         (format "%-10s %s\n" status dst))
-                      'face 'magit-diff-file-header))
+                      'face 'magit-file-heading))
         (setf (magit-section-diff-status it) status)
         (setf (magit-section-diff-source it) src)
         (when modes
@@ -7170,31 +7143,43 @@ actually were a single commit."
 
 (defun magit-wash-hunk ()
   (when (looking-at "^@@\\(@\\)?.+")
-    (let ((merging (match-end 1))
-          (heading (match-string 0)))
+    (let ((heading (match-string 0)))
       (magit-delete-line)
       (magit-insert-section it (hunk heading)
-        (magit-insert-heading
-          (propertize (concat heading "\n") 'face 'magit-diff-hunk-header))
+        (insert (propertize (concat heading "\n")
+                            'face 'magit-hunk-heading))
+        (setf (magit-section-content it) (point-marker))
         (while (not (or (eobp) (looking-at magit-diff-headline-re)))
-          (magit-put-face-property
-           (point) (1+ (line-end-position))
-           (cond
-            ((looking-at "^\\+\\+<<<<<<<") 'magit-diff-merge-current)
-            ((looking-at "^\\+\\+=======") 'magit-diff-merge-separator)
-            ((looking-at "^\\+\\+|||||||") 'magit-diff-merge-diff3-separator)
-            ((looking-at "^\\+\\+>>>>>>>") 'magit-diff-merge-proposed)
-            ((looking-at (if merging  "^\\(\\+\\| \\+\\)" "^\\+"))
-             (magit-diff-highlight-whitespace merging)
-             'magit-diff-added)
-            ((looking-at (if merging  "^\\(-\\| -\\)" "^-"))
-             'magit-diff-removed)
-            (t
-             'magit-diff-context)))
-            (forward-line))
+          (forward-line))
+        (setf (magit-section-end it) (point))
+        (magit-paint-hunk it nil)
         (when (eq magit-diff-refine-hunk 'all)
           (magit-diff-refine-hunk it))))
     t))
+
+(defun magit-paint-hunk (section highlight)
+  (let ((beg (magit-section-start   section))
+        (cnt (magit-section-content section))
+        (end (magit-section-end     section))
+        merging)
+    (save-restriction
+      (goto-char beg)
+      (setq merging (looking-at "@@@"))
+      (goto-char cnt)
+      (narrow-to-region cnt end)
+      (while (not (eobp))
+        (put-text-property
+         (point) (1+ (line-end-position)) 'face
+         (cond
+          ((looking-at "^\\+\\+[<=|>]\\{7\\}") 'magit-conflict-heading)
+          ((looking-at (if merging  "^\\(\\+\\| \\+\\)" "^\\+"))
+           (magit-diff-highlight-whitespace merging)
+           (if highlight 'magit-diff-added-highlight 'magit-diff-added))
+          ((looking-at (if merging  "^\\(-\\| -\\)" "^-"))
+           (if highlight 'magit-diff-removed-highlight 'magit-diff-removed))
+          (t
+           (if highlight 'magit-diff-context-highlight 'magit-diff-context))))
+        (forward-line)))))
 
 (defun magit-diff-highlight-whitespace (merging)
   (when (and magit-highlight-whitespace
@@ -7239,22 +7224,19 @@ If hunk refining is off, then hunk refining is turned on, in
 
 Customize variable `magit-diff-refine-hunk' to change the default mode."
   (interactive "P")
-  (let ((hunk (and magit-highlighted-section
-                   (eq (magit-section-type magit-highlighted-section) 'hunk)
-                   magit-highlighted-section))
-        (old magit-diff-refine-hunk))
+  (let ((old magit-diff-refine-hunk))
     (setq-local magit-diff-refine-hunk
                 (if other
                     (if (eq old 'all) t 'all)
                   (not old)))
-    (cond ((or (eq old 'all)
-               (eq magit-diff-refine-hunk 'all))
-           (magit-refresh))
-          ((not hunk))
-          (magit-diff-refine-hunk
-           (magit-diff-refine-hunk hunk))
-          (t
-           (magit-diff-unrefine-hunk hunk)))
+    (if (or (eq old 'all)
+            (eq magit-diff-refine-hunk 'all))
+        (magit-refresh)
+      (--when-let magit-highlighted-section
+        (when (eq (magit-section-type it) 'hunk)
+          (if  magit-diff-refine-hunk
+              (magit-diff-refine-hunk it)
+            (magit-diff-unrefine-hunk it)))))
     (message "magit-diff-refine-hunk: %s" magit-diff-refine-hunk)))
 
 (defun magit-diff-refine-hunk (hunk)
@@ -7644,9 +7626,6 @@ Use the function by the same name instead of this variable.")
     magit-version))
 
 (cl-eval-when (load eval) (magit-version t))
-
-(define-obsolete-variable-alias 'magit-diff-use-overlays
-  'magit-use-overlays "2.1.0")
 
 (provide 'magit)
 
