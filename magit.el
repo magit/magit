@@ -1090,12 +1090,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   :group 'magit-faces)
 
 (defface magit-refname-wip
-  '((((class color) (background light))
-     :background "grey95"
-     :foreground "LightSkyBlue3")
-    (((class color) (background dark))
-     :background "grey07"
-     :foreground "LightSkyBlue4"))
+  '((t :inherit magit-refname))
   "Face for wip refnames."
   :group 'magit-faces)
 
