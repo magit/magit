@@ -959,17 +959,17 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defface magit-section-heading
   '((t :inherit header-line))
-  "Face for section titles."
+  "Face for section headings."
   :group 'magit-faces)
 
-(defface magit-diff-file-header
+(defface magit-file-heading
   '((t :bold t))
-  "Face for diff file header lines."
+  "Face for diff file headings."
   :group 'magit-faces)
 
-(defface magit-diff-hunk-header
+(defface magit-hunk-heading
   '((t :inherit diff-hunk-header))
-  "Face for diff hunk header lines."
+  "Face for diff hunk headings."
   :group 'magit-faces)
 
 (defface magit-diff-added
@@ -7021,14 +7021,14 @@ actually were a single commit."
                      (magit-insert-heading
                        (propertize (format "modified%s  %s\n"
                                            (if dirty "%" "/") module)
-                                   'face 'magit-diff-file-header))
+                                   'face 'magit-file-heading))
                      (magit-git-wash (apply-partially 'magit-wash-log 'module)
                        "log" "--oneline" "--left-right" range)
                      (delete-char -1)))
                   module))
         (magit-insert-section (file module)
           (magit-insert (propertize (format "dirty      %s\n" module)
-                                    'face 'magit-diff-file-header))))))
+                                    'face 'magit-file-heading))))))
    ((looking-at "^\\* Unmerged path \\(.*\\)")
     (let ((dst (magit-decode-git-path (match-string 1))))
       (magit-delete-line)
@@ -7036,7 +7036,7 @@ actually were a single commit."
                    (not (member "--cached" args)))
         (magit-insert-section (file dst)
           (magit-insert (propertize (format "unmerged   %s\n" dst)
-                                    'face 'magit-diff-file-header)))))
+                                    'face 'magit-file-heading)))))
     t)
    ((looking-at "^diff \\(?:--git \\(.*\\) \\(.*\\)\\|--cc \\(.*\\)\\)$")
     (let (src dst status modes)
@@ -7063,7 +7063,7 @@ actually were a single commit."
           (propertize (if (eq status 'rename)
                           (format "renamed    %s => %s\n" src dst)
                         (format "%-10s %s\n" status dst))
-                      'face 'magit-diff-file-header))
+                      'face 'magit-file-heading))
         (setf (magit-section-diff-status it) status)
         (setf (magit-section-diff-source it) src)
         (when modes
@@ -7078,7 +7078,7 @@ actually were a single commit."
       (magit-delete-line)
       (magit-insert-section it (hunk heading)
         (magit-insert-heading
-          (propertize (concat heading "\n") 'face 'magit-diff-hunk-header))
+          (propertize (concat heading "\n") 'face 'magit-hunk-heading))
         (while (not (or (eobp) (looking-at magit-diff-headline-re)))
           (magit-put-face-property
            (point) (1+ (line-end-position))
