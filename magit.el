@@ -492,6 +492,7 @@ what you want."
     ("^refs/bisect/\\(bad\\)"    magit-bisect-bad nil)
     ("^refs/bisect/\\(skip.*\\)" magit-bisect-skip nil)
     ("^refs/bisect/\\(good.*\\)" magit-bisect-good nil)
+    ("^refs/stash$"              magit-refname-stash nil)
     ("^refs/wip/\\(.+\\)"        magit-refname-wip nil)
     ("^\\(bad\\):"               magit-bisect-bad nil)
     ("^\\(skip\\):"              magit-bisect-skip nil)
@@ -1087,6 +1088,11 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (((class color) (background dark))
      :background "grey50"))
   "Face for refnames without a dedicated face."
+  :group 'magit-faces)
+
+(defface magit-refname-stash
+  '((t :inherit magit-refname))
+  "Face for wip refnames."
   :group 'magit-faces)
 
 (defface magit-refname-wip
