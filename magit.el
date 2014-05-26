@@ -7107,7 +7107,7 @@ actually were a single commit."
                    (not (member "--cached" args)))
         (magit-insert-section (file dst)
           (magit-insert (propertize (format "unmerged   %s" dst)
-                                    'face 'magit-file-heading)))))
+                                    'face 'magit-file-heading) nil ?\n))))
     t)
    ((looking-at "^diff \\(?:--git \\(.*\\) \\(.*\\)\\|--cc \\(.*\\)\\)$")
     (let (src dst status modes)
