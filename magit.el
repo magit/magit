@@ -443,27 +443,6 @@ generating large diffs.  Also see option `magit-use-overlays'."
                  (face  :tag "Other face")
                  (const :tag "Don't highlight" nil)))
 
-(defcustom magit-use-overlays
-  (not (eq magit-section-highlight-face 'bold))
-  "Whether to use overlays to highlight various diff components.
-
-This has to be non-nil if the current section is highlighted by
-changing the background color.  Otherwise background colors that
-hold semantic meaning, like that of the added and removed lines
-in diffs, as well as section headings, would be shadowed by the
-highlighting.
-
-To select the face used for highlighting customize the option
-`magit-section-highlight-face'.  If you set that to `bold' or some
-other face that does not use the background then you can set this
-option to nil.  Doing so could potentially improve performance
-when generating large diffs."
-  :package-version '(magit . "2.1.0")
-  :group 'magit
-  :group 'magit-faces
-  :set-after '(magit-section-highlight-face)
-  :type 'boolean)
-
 ;;;;; Completion
 
 (defcustom magit-completing-read-function 'magit-builtin-completing-read
@@ -1887,40 +1866,36 @@ never modify it.")
           (replace-match (format " (%s)" count) nil nil nil 1))))))
 
 (defun magit-insert (string &optional face &rest args)
-  (if magit-use-overlays
-      (if face
-          (let ((start (point)))
-            (insert string)
-            (let ((ov (make-overlay start (point) nil t)))
-              (overlay-put ov 'face face)
-              (overlay-put ov 'evaporate t)))
-        (let ((buf (current-buffer))
-              (offset (1- (point))))
-          (with-temp-buffer
-            (save-excursion (insert string))
-            (while (not (eobp))
-              (let* ((beg (point))
-                     (end (or (next-single-property-change beg 'face)
-                              (point-max)))
-                     (face (get-text-property beg 'face))
-                     (text (buffer-substring-no-properties beg end)))
-                (with-current-buffer buf
-                  (insert text)
-                  (when face
-                    (let ((ov (make-overlay (+ beg offset)
-                                            (+ end offset) nil t)))
-                      (overlay-put ov 'face face)
-                      (overlay-put ov 'evaporate t))))
-                (goto-char end))))))
-    (insert (propertize string 'face face)))
+  (if face
+      (let ((start (point)))
+        (insert string)
+        (let ((ov (make-overlay start (point) nil t)))
+          (overlay-put ov 'face face)
+          (overlay-put ov 'evaporate t)))
+    (let ((buf (current-buffer))
+          (offset (1- (point))))
+      (with-temp-buffer
+        (save-excursion (insert string))
+        (while (not (eobp))
+          (let* ((beg (point))
+                 (end (or (next-single-property-change beg 'face)
+                          (point-max)))
+                 (face (get-text-property beg 'face))
+                 (text (buffer-substring-no-properties beg end)))
+            (with-current-buffer buf
+              (insert text)
+              (when face
+                (let ((ov (make-overlay (+ beg offset)
+                                        (+ end offset) nil t)))
+                  (overlay-put ov 'face face)
+                  (overlay-put ov 'evaporate t))))
+            (goto-char end))))))
   (apply #'insert args))
 
 (defun magit-put-face-property (start end face)
-  (if magit-use-overlays
-      (let ((ov (make-overlay start end nil t)))
-        (overlay-put ov 'face face)
-        (overlay-put ov 'evaporate t))
-    (put-text-property start end 'face face)))
+  (let ((ov (make-overlay start end nil t)))
+    (overlay-put ov 'face face)
+    (overlay-put ov 'evaporate t)))
 
 (defmacro magit-insert-header (keyword arglist &rest body)
   "\n\n(fn KEYWORD (TYPE &optional VALUE) &rest body)"
@@ -7641,9 +7616,6 @@ Use the function by the same name instead of this variable.")
     magit-version))
 
 (cl-eval-when (load eval) (magit-version t))
-
-(define-obsolete-variable-alias 'magit-diff-use-overlays
-  'magit-use-overlays "2.1.0")
 
 (provide 'magit)
 
