@@ -952,6 +952,11 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 ;;;; Custom Faces
 
+(defface magit-section-highlight
+  '((t :inherit secondary-selection))
+  "Face for highlighting the current section."
+  :group 'magit-faces)
+
 (defface magit-section-heading
   '((t :inherit header-line))
   "Face for section titles."
@@ -1020,12 +1025,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   "Face for the graph part of the log output."
   :group 'magit-faces)
 
-(defface magit-hash
-  '((((class color) (background light)) :foreground "firebrick")
-    (((class color) (background  dark)) :foreground "tomato"))
-  "Face for the sha1 part of the log output."
-  :group 'magit-faces)
-
 (defface magit-log-author
   '((((class color) (background light)) :foreground "firebrick")
     (((class color) (background  dark)) :foreground "tomato"))
@@ -1035,19 +1034,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 (defface magit-log-date
   '((t))
   "Face for the date part of the log output."
-  :group 'magit-faces)
-
-(defface magit-cherry-unmatched
-  '((t :foreground "cyan"))
-  "Face for unmatched cherry commits.")
-
-(defface magit-cherry-equivalent
-  '((t :foreground "magenta"))
-  "Face for equivalent cherry commits.")
-
-(defface magit-section-highlight
-  '((t :inherit secondary-selection))
-  "Face for highlighting the current section."
   :group 'magit-faces)
 
 (defface magit-bisect-good
@@ -1068,16 +1054,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   "Face for bad bisect revisions."
   :group 'magit-faces)
 
-(defface magit-branch-remote
-  '((((class color) (background light))
-     :background "Grey85"
-     :foreground "OliveDrab4")
-    (((class color) (background dark))
-     :background "Grey11"
-     :foreground "DarkSeaGreen2"))
-  "Face for remote branch head labels shown in log buffer."
-  :group 'magit-faces)
-
 (defface magit-tag
   '((t :background "LemonChiffon1"
        :foreground "goldenrod4"))
@@ -1092,6 +1068,22 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
      :background "Grey13"
      :foreground "LightSkyBlue1"))
   "Face for local branches."
+  :group 'magit-faces)
+
+(defface magit-branch-remote
+  '((((class color) (background light))
+     :background "Grey85"
+     :foreground "OliveDrab4")
+    (((class color) (background dark))
+     :background "Grey11"
+     :foreground "DarkSeaGreen2"))
+  "Face for remote branch head labels shown in log buffer."
+  :group 'magit-faces)
+
+(defface magit-hash
+  '((((class color) (background light)) :foreground "firebrick")
+    (((class color) (background  dark)) :foreground "tomato"))
+  "Face for the sha1 part of the log output."
   :group 'magit-faces)
 
 (defface magit-head
@@ -1120,21 +1112,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
      :background "Grey07"
      :foreground "LightSkyBlue4"))
   "Face for wip refnames."
-  :group 'magit-faces)
-
-(defface magit-signature-good
-  '((t :foreground "green"))
-  "Face for good signatures."
-  :group 'magit-faces)
-
-(defface magit-signature-bad
-  '((t :foreground "red"))
-  "Face for bad signatures."
-  :group 'magit-faces)
-
-(defface magit-signature-untrusted
-  '((t :foreground "cyan"))
-  "Face for good untrusted signatures."
   :group 'magit-faces)
 
 (defface magit-reflog-commit
@@ -1204,6 +1181,29 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   '((t :inherit magit-section-heading :foreground "red"))
   "Face for non-zero exit-status."
   :group 'magit-faces)
+
+(defface magit-signature-good
+  '((t :foreground "green"))
+  "Face for good signatures."
+  :group 'magit-faces)
+
+(defface magit-signature-bad
+  '((t :foreground "red"))
+  "Face for bad signatures."
+  :group 'magit-faces)
+
+(defface magit-signature-untrusted
+  '((t :foreground "cyan"))
+  "Face for good untrusted signatures."
+  :group 'magit-faces)
+
+(defface magit-cherry-unmatched
+  '((t :foreground "cyan"))
+  "Face for unmatched cherry commits.")
+
+(defface magit-cherry-equivalent
+  '((t :foreground "magenta"))
+  "Face for equivalent cherry commits.")
 
 (defface magit-whitespace-warning
   '((t :inherit trailing-whitespace))
