@@ -986,17 +986,28 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   :group 'magit-faces)
 
 (defface magit-diff-added
-  '((t :inherit diff-added))
+  '((((class color) (background light))
+     :background "#ddffdd"
+     :foreground "#22aa22")
+    (((class color) (background dark))
+     :background "#335533"
+     :foreground "#aaccaa"))
   "Face for lines in a diff that have been added."
   :group 'magit-faces)
 
 (defface magit-diff-removed
-  '((t :inherit diff-removed))
+ '((((class color) (background light))
+     :background "#ffdddd"
+     :foreground "#aa2222")
+    (((class color) (background dark))
+     :background "#553333"
+     :foreground "#ccaaaa"))
   "Face for lines in a diff that have been removed."
   :group 'magit-faces)
 
 (defface magit-diff-context
-  '((t :inherit diff-context))
+  '((((class color) (background light)) :foreground "grey50")
+    (((class color) (background  dark)) :foreground "grey70"))
   "Face for lines in a diff that are unchanged."
   :group 'magit-faces)
 
