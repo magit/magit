@@ -963,7 +963,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   :group 'magit-faces)
 
 (defface magit-file-heading
-  '((t :bold t))
+  '((t :weight bold))
   "Face for diff file headings."
   :group 'magit-faces)
 
