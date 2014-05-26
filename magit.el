@@ -7004,7 +7004,7 @@ actually were a single commit."
             (setf (magit-section-value
                    (magit-insert-section (file module t)
                      (magit-insert-heading
-                       (propertize (format "modified%s  %s\n"
+                       (propertize (format "modified%s  %s"
                                            (if dirty "%" "/") module)
                                    'face 'magit-file-heading))
                      (magit-git-wash (apply-partially 'magit-wash-log 'module)
@@ -7012,7 +7012,7 @@ actually were a single commit."
                      (delete-char -1)))
                   module))
         (magit-insert-section (file module)
-          (magit-insert (propertize (format "dirty      %s\n" module)
+          (magit-insert (propertize (format "dirty      %s" module)
                                     'face 'magit-file-heading))))))
    ((looking-at "^\\* Unmerged path \\(.*\\)")
     (let ((dst (magit-decode-git-path (match-string 1))))
@@ -7020,7 +7020,7 @@ actually were a single commit."
       (unless (and (derived-mode-p 'magit-status-mode)
                    (not (member "--cached" args)))
         (magit-insert-section (file dst)
-          (magit-insert (propertize (format "unmerged   %s\n" dst)
+          (magit-insert (propertize (format "unmerged   %s" dst)
                                     'face 'magit-file-heading)))))
     t)
    ((looking-at "^diff \\(?:--git \\(.*\\) \\(.*\\)\\|--cc \\(.*\\)\\)$")
@@ -7046,7 +7046,7 @@ actually were a single commit."
                       (derived-mode-p 'magit-status-mode)))
         (magit-insert-heading
           (propertize (if (eq status 'rename)
-                          (format "renamed    %s => %s\n" src dst)
+                          (format "renamed    %s => %s" src dst)
                         (format "%-10s %s\n" status dst))
                       'face 'magit-file-heading))
         (setf (magit-section-diff-status it) status)
