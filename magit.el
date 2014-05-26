@@ -7098,7 +7098,7 @@ actually were a single commit."
                   module))
         (magit-insert-section (file module)
           (magit-insert (propertize (format "dirty      %s" module)
-                                    'face 'magit-file-heading))))))
+                                    'face 'magit-file-heading) nil ?\n)))))
    ((looking-at "^\\* Unmerged path \\(.*\\)")
     (let ((dst (magit-decode-git-path (match-string 1))))
       (magit-delete-line)
