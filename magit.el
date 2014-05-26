@@ -1037,8 +1037,8 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   :group 'magit-faces)
 
 (defface magit-bisect-good
-  '((t :background "light green"
-       :foreground "dark olive green"))
+  '((t :background "LightGreen"
+       :foreground "DarkOliveGreen"))
   "Face for good bisect revisions."
   :group 'magit-faces)
 
@@ -1062,20 +1062,20 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defface magit-branch-local
   '((((class color) (background light))
-     :background "Grey85"
+     :background "grey85"
      :foreground "LightSkyBlue4")
     (((class color) (background dark))
-     :background "Grey13"
+     :background "grey15"
      :foreground "LightSkyBlue1"))
   "Face for local branches."
   :group 'magit-faces)
 
 (defface magit-branch-remote
   '((((class color) (background light))
-     :background "Grey85"
+     :background "grey85"
      :foreground "OliveDrab4")
     (((class color) (background dark))
-     :background "Grey11"
+     :background "grey15"
      :foreground "DarkSeaGreen2"))
   "Face for remote branch head labels shown in log buffer."
   :group 'magit-faces)
@@ -1088,28 +1088,28 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defface magit-head
   '((((class color) (background light))
-     :background "Grey70"
-     :foreground "Black")
+     :background "grey70"
+     :foreground "black")
     (((class color) (background dark))
-     :background "Grey20"
-     :foreground "White"))
+     :background "grey15"
+     :foreground "white"))
   "Face for the symbolic ref \"HEAD\"."
   :group 'magit-faces)
 
 (defface magit-refname
   '((((class color) (background light))
-     :background "Grey50")
+     :background "grey50")
     (((class color) (background dark))
-     :background "Grey50"))
+     :background "grey50"))
   "Face for refnames without a dedicated face."
   :group 'magit-faces)
 
 (defface magit-refname-wip
   '((((class color) (background light))
-     :background "Grey95"
+     :background "grey95"
      :foreground "LightSkyBlue3")
     (((class color) (background dark))
-     :background "Grey07"
+     :background "grey07"
      :foreground "LightSkyBlue4"))
   "Face for wip refnames."
   :group 'magit-faces)
@@ -1132,10 +1132,10 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defface magit-reflog-checkout
   '((((class color) (background light))
-     :background "Grey85"
+     :background "grey85"
      :foreground "LightSkyBlue4")
     (((class color) (background dark))
-     :background "Grey13"
+     :background "grey13"
      :foreground "LightSkyBlue1"))
   "Face for checkout commands in reflogs."
   :group 'magit-faces)
@@ -1148,27 +1148,27 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 
 (defface magit-reflog-rebase
   '((((class color) (background light))
-     :background "Grey85"
+     :background "grey85"
      :foreground "OliveDrab4")
     (((class color) (background dark))
-     :background "Grey11"
+     :background "grey11"
      :foreground "DarkSeaGreen2"))
   "Face for rebase commands in reflogs."
   :group 'magit-faces)
 
 (defface magit-reflog-cherry-pick
-  '((t :background "light green"
-       :foreground "dark olive green"))
+  '((t :background "LightGreen"
+       :foreground "DarkOliveGreen"))
   "Face for cherry-pick commands in reflogs."
   :group 'magit-faces)
 
 (defface magit-reflog-remote
-  '((t :background "Grey50"))
+  '((t :background "grey50"))
   "Face for pull and clone commands in reflogs."
   :group 'magit-faces)
 
 (defface magit-reflog-other
-  '((t :background "Grey50"))
+  '((t :background "grey50"))
   "Face for other commands in reflogs."
   :group 'magit-faces)
 
