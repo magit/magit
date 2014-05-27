@@ -806,6 +806,19 @@ are no unpulled commits) show."
   :group 'magit-status
   :type 'number)
 
+(defcustom magit-log-section-args nil
+  "Additional Git arguments used when creating log sections.
+Only `--graph', `--decorate', and `--show-signature' are
+supported.  This option is only a temporary kludge and will
+be removed again.  Note that the use of `--graph' is very
+with long histories.  This is due to an issue in Git; see
+http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
+  :package-version '(magit . "2.1.0")
+  :group 'magit-log
+  :type '(repeat (choice (const "--graph")
+                         (const "--decorate")
+                         (const "--show-signature"))))
+
 ;;;;;; Others
 
 (defcustom magit-auto-revert-mode-lighter " MRev"
@@ -4268,20 +4281,20 @@ can be used to override this."
 (defun magit-insert-recent-commits ()
   (magit-insert-section (recent)
     (magit-insert-heading "Recent commits:")
-    (magit-insert-log
-     nil (list (format "-%d" magit-log-section-commit-count)))))
+    (magit-insert-log nil (cons (format "-%d" magit-log-section-commit-count)
+                                magit-log-section-args))))
 
 (defun magit-insert-unpulled-commits ()
   (-when-let (tracked (magit-get-tracked-branch nil t))
     (magit-insert-section (unpulled)
       (magit-insert-heading "Unpulled commits:")
-      (magit-insert-log (concat "HEAD.." tracked)))))
+      (magit-insert-log (concat "HEAD.." tracked) magit-log-section-args))))
 
 (defun magit-insert-unpushed-commits ()
   (-when-let (tracked (magit-get-tracked-branch nil t))
     (magit-insert-section (unpushed)
       (magit-insert-heading "Unpushed commits:")
-      (magit-insert-log (concat tracked "..HEAD")))))
+      (magit-insert-log (concat tracked "..HEAD") magit-log-section-args))))
 
 (defun magit-insert-unpulled-cherries ()
   (-when-let (tracked (magit-get-tracked-branch nil t))
