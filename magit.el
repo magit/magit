@@ -330,7 +330,7 @@ backup is created."
   :type 'boolean)
 
 (defcustom magit-save-repository-buffers t
-  "Whether to save modified buffers before running when approriate.
+  "Whether to save modified buffers when approriate.
 
 If this is non-nil then modified buffers belonging to the current
 repository may be saved when the status buffer is being refreshed
