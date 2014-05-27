@@ -3434,7 +3434,8 @@ argument (the prefix) non-nil means save all with no questions."
    arg `(lambda ()
           (and buffer-file-name
                (equal (magit-get-top-dir default-directory)
-                     ,(magit-get-top-dir default-directory))))))
+                     ,(magit-get-top-dir default-directory))
+               (magit-inside-worktree-p)))))
 
 ;;; Plumbing
 ;;;; Files
