@@ -4254,10 +4254,13 @@ can be used to override this."
     (if (and tracked (not (equal (magit-rev-parse "HEAD")
                                  (magit-rev-parse tracked))))
         (magit-insert-unpulled-commits)
-      (magit-insert-section (recent)
-        (magit-insert-heading "Recent commits:")
-        (magit-git-wash (apply-partially 'magit-wash-log 'unique)
-          "log" "--format=format:%h %s" "-n" "10")))))
+      (magit-insert-recent-commits))))
+
+(defun magit-insert-recent-commits ()
+  (magit-insert-section (recent)
+    (magit-insert-heading "Recent commits:")
+    (magit-git-wash (apply-partially 'magit-wash-log 'unique)
+      "log" "--format=format:%h %s" "-n" "10")))
 
 (defun magit-insert-unpulled-commits ()
   (-when-let (tracked (magit-get-tracked-branch nil t))
