@@ -4268,23 +4268,20 @@ can be used to override this."
 (defun magit-insert-recent-commits ()
   (magit-insert-section (recent)
     (magit-insert-heading "Recent commits:")
-    (magit-git-wash (apply-partially 'magit-wash-log 'unique)
-      "log" "--format=format:%h %s"
-      (format "-%d" magit-log-section-commit-count))))
+    (magit-insert-log
+     nil (list (format "-%d" magit-log-section-commit-count)))))
 
 (defun magit-insert-unpulled-commits ()
   (-when-let (tracked (magit-get-tracked-branch nil t))
     (magit-insert-section (unpulled)
       (magit-insert-heading "Unpulled commits:")
-      (magit-git-wash (apply-partially 'magit-wash-log 'unique)
-        "log" "--format=format:%h %s" (concat "HEAD.." tracked)))))
+      (magit-insert-log (concat "HEAD.." tracked)))))
 
 (defun magit-insert-unpushed-commits ()
   (-when-let (tracked (magit-get-tracked-branch nil t))
     (magit-insert-section (unpushed)
       (magit-insert-heading "Unpushed commits:")
-      (magit-git-wash (apply-partially 'magit-wash-log 'unique)
-        "log" "--format=format:%h %s" (concat tracked "..HEAD")))))
+      (magit-insert-log (concat tracked "..HEAD")))))
 
 (defun magit-insert-unpulled-cherries ()
   (-when-let (tracked (magit-get-tracked-branch nil t))
@@ -6220,6 +6217,7 @@ to test.  This command lets Git choose a different one."
               (?P "Pickaxe regex"             "--pickaxe-regex")
               (?g "Show Graph"                "--graph")
               (?S "Show Signature"            "--show-signature")
+              (?d "Show ref names"            "--decorate")
               (?n "Name only"                 "--name-only")
               (?M "All match"                 "--all-match")
               (?A "All"                       "--all"))
@@ -6242,7 +6240,7 @@ to test.  This command lets Git choose a different one."
               (?b "Oneline branch" magit-log)
               (?B "Verbose branch" magit-log-verbose)
               (?R "Reflog HEAD"    magit-reflog-head))
-  :default-arguments '("--graph")
+  :default-arguments '("--graph" "--decorate")
   :default-action 'magit-log-dwim
   :max-action-columns 4)
 
@@ -6361,19 +6359,31 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
     (magit-insert-heading "Commits"
       (and file  (concat " for file " file))
       (and range (concat " in " range)))
-    (magit-git-wash (apply-partially 'magit-wash-log style)
-      "log" (format "--max-count=%d" magit-log-cutoff-length)
-      "--decorate=full" "--abbrev-commit" "--color"
-      (cl-case style
-        (long    (cons "--stat" args))
-        (oneline (cons (concat "--pretty=format:%h%d "
-                               (and (member "--show-signature" args) "%G?")
-                               "[%an][%at]%s")
-                       (delete "--show-signature" args))))
-      range "--" file))
+    (if (eq style 'oneline)
+        (magit-insert-log range args file)
+      (magit-insert-log-long range args file)))
   (save-excursion
     (goto-char (point-min))
     (magit-format-log-margin)))
+
+(defun magit-insert-log (range &optional args file)
+  (--when-let (member "--decorate" args)
+    (setcar it "--decorate=full"))
+  (magit-git-wash (apply-partially 'magit-wash-log 'oneline)
+    "log" (format "-%d" magit-log-cutoff-length) "--color"
+    (format "--pretty=format:%%h%s %s[%%an][%%at]%%s"
+            (if (member "--decorate=full" args) "%d" "")
+            (if (member "--show-signature" args) "%G?" ""))
+    (delete "--show-signature" args)
+    range "--" file))
+
+(defun magit-insert-log-long (range &optional args file)
+  (--when-let (member "--decorate" args)
+    (setcar it "--decorate=full"))
+  (magit-git-wash (apply-partially 'magit-wash-log 'long)
+    "log" (format "-%d" magit-log-cutoff-length)
+    "--color" "--stat" "--abbrev-commit"
+    args range "--" file))
 
 ;;;;; Log Washing
 
@@ -6397,11 +6407,6 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
           "\\(?: \\(?3:([^()]+)\\)\\)?\\)"         ; refs
           "\\|"
           "\\(?2:.+\\)\\)$"))                      ; "msg"
-
-(defconst magit-log-unique-re
-  (concat "^"
-          "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
-          "\\(?2:.*\\)$"))                         ; msg
 
 (defconst magit-log-cherry-re
   (concat "^"
@@ -6474,7 +6479,6 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   (looking-at (cl-ecase style
                 (oneline magit-log-oneline-re)
                 (long    magit-log-long-re)
-                (unique  magit-log-unique-re)
                 (cherry  magit-log-cherry-re)
                 (module  magit-log-module-re)
                 (reflog  magit-log-reflog-re)
