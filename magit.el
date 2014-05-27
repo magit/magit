@@ -797,6 +797,15 @@ are left as-is."
   :group 'magit-log
   :type 'character)
 
+(defcustom magit-log-section-commit-count 10
+  "How many recent commits to show in certain log sections.
+How many recent commits `magit-insert-recent-commits' and
+`magit-insert-unpulled-or-recent-commits' (provided there
+are no unpulled commits) show."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-status
+  :type 'number)
+
 ;;;;;; Others
 
 (defcustom magit-auto-revert-mode-lighter " MRev"
@@ -4260,7 +4269,8 @@ can be used to override this."
   (magit-insert-section (recent)
     (magit-insert-heading "Recent commits:")
     (magit-git-wash (apply-partially 'magit-wash-log 'unique)
-      "log" "--format=format:%h %s" "-n" "10")))
+      "log" "--format=format:%h %s"
+      (format "-%d" magit-log-section-commit-count))))
 
 (defun magit-insert-unpulled-commits ()
   (-when-let (tracked (magit-get-tracked-branch nil t))
