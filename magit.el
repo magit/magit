@@ -7140,7 +7140,7 @@ actually were a single commit."
           (magit-insert (propertize (format "unmerged   %s" dst)
                                     'face 'magit-file-heading) nil ?\n))))
     t)
-   ((looking-at "^diff \\(?:--git \\(\"?a/.+\\) \\(\"?b/.+\\)\\|--cc \\(.+\\)\\)$")
+   ((looking-at "^diff \\(?:--git \\(\"?[aic]/.+\\) \\(\"?[bwi]/.+\\)\\|--cc \\(.+\\)\\)$")
     (let (src dst status modes)
       (if (match-end 1)
           (setq dst (substring (magit-decode-git-path (match-string 2)) 2)
