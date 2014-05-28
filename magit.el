@@ -598,7 +598,7 @@ The following `format'-like specs are supported:
 
 ;; This variable is only a temporary hack.  Eventually it
 ;; will be possible to set these arguments in the diff popup.
-(defvar magit-diff-extra-options '("-M" "-C"))
+(defvar magit-diff-extra-options '("--src-prefix=././" "--dst-prefix=././" "-M" "-C"))
 
 (defcustom magit-diff-auto-show
   '(commit stage-all log-oneline log-select)
@@ -4131,7 +4131,7 @@ commit or stash at point, then prompt for a commit."
     (magit-git-wash #'magit-wash-commit
       "log" "-1" "--decorate=full" "--pretty=medium"
       "--cc" "-p" (and magit-show-diffstat "--stat")
-      magit-diff-options commit)))
+      magit-diff-options magit-diff-extra-options commit)))
 
 ;;;;; Commit Washing
 
@@ -7140,11 +7140,11 @@ actually were a single commit."
           (magit-insert (propertize (format "unmerged   %s" dst)
                                     'face 'magit-file-heading) nil ?\n))))
     t)
-   ((looking-at "^diff \\(?:--git \\(\"?a/.+\\) \\(\"?b/.+\\)\\|--cc \\(.+\\)\\)$")
+   ((looking-at "^diff \\(?:--git \\(\"?\\./\\./.+\\) \\(\"?\\./\\./.+\\)\\|--cc \\(.+\\)\\)$")
     (let (src dst status modes)
       (if (match-end 1)
-          (setq dst (substring (magit-decode-git-path (match-string 2)) 2)
-                src (substring (magit-decode-git-path (match-string 1)) 2)
+          (setq dst (substring (magit-decode-git-path (match-string 2)) 4)
+                src (substring (magit-decode-git-path (match-string 1)) 4)
                 status 'modified)
         (setq dst (magit-decode-git-path (match-string 3))
               src dst status 'unmerged))
