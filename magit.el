@@ -1321,7 +1321,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "f" 'magit-fetch-popup)
     (define-key map "F" 'magit-pull-popup)
     (define-key map "i" 'magit-gitignore)
-    (define-key map "i" 'magit-gitignore-locally)
+    (define-key map "I" 'magit-gitignore-locally)
     (define-key map "J" 'magit-am-popup)
     (define-key map "l" 'magit-log-popup)
     (define-key map "m" 'magit-merge-popup)
