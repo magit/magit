@@ -6596,7 +6596,7 @@ This command can only be used inside log buffers (usually
 *magit-log*) and only if that displays a `oneline' log.
 Also see option `magit-log-show-margin'."
   (interactive)
-  (unless (derived-mode-p 'magit-log-mode)
+  (unless (derived-mode-p 'magit-log-mode 'magit-status-mode)
     (user-error "The log margin cannot be used outside of log buffers"))
   (when (eq (car magit-refresh-args) 'long)
     (user-error "The log margin cannot be used with verbose logs"))
