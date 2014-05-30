@@ -68,6 +68,7 @@
 
 (defun magit-tests--should-have-section (type info)
   (magit-status default-directory)
+  (message (buffer-string))
   (should (cl-find info
                    (magit-section-children
                     (magit-find-section `((,type) (status))))
