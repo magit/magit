@@ -4230,6 +4230,7 @@ can be used to override this."
 
 (defun magit-refresh-status ()
   (magit-git-exit-code "update-index" "--refresh")
+  (magit-log-margin-set-timeunit-width)
   (magit-insert-section (status)
     (run-hooks 'magit-status-sections-hook))
   (run-hooks 'magit-refresh-status-hook))
