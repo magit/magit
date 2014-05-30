@@ -36,7 +36,8 @@
 (require 'cl-lib)
 (require 'format-spec)
 (require 'server)
-(require 'tramp-sh)
+(require 'tramp)
+(require 'tramp-sh nil t)
 
 ;;; Options
 
