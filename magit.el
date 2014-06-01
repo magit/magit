@@ -6007,7 +6007,11 @@ With prefix argument, changes in staging area are kept.
                          (magit-current-popup-args :only "--index")
                        (--first (equal it "--index")
                                 magit-stash-popup-defaults))))
-  (magit-run-git "stash" "apply" args stash))
+  (condition-case nil
+      (magit-run-git "stash" "apply" args stash)
+    (error (and (not magit-current-popup)
+                (member "--index" args)
+                (magit-run-git stash (remove "--index" args))))))
 
 (defun magit-stash-pop (stash &optional args)
   "Apply a stash on top of working tree state and remove from stash list.
