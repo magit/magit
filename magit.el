@@ -4264,13 +4264,13 @@ can be used to override this."
   (magit-insert-section (unstaged)
     (magit-insert-heading "Unstaged changes:")
     (magit-git-wash #'magit-wash-diffs
-      "diff" magit-diff-extra-options)))
+      "diff" magit-diff-options magit-diff-extra-options)))
 
 (defun magit-insert-staged-changes ()
   (magit-insert-section (staged)
     (magit-insert-heading "Staged changes:")
     (magit-git-wash #'magit-wash-diffs
-      "diff" "--cached" magit-diff-extra-options)))
+      "diff" "--cached" magit-diff-options magit-diff-extra-options)))
 
 (defun magit-insert-unpulled-or-recent-commits ()
   (let ((tracked (magit-get-tracked-branch nil t)))
