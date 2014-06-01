@@ -596,9 +596,9 @@ The following `format'-like specs are supported:
 
 (put 'magit-diff-options 'permanent-local t)
 
-;; This variable is only a temporary hack.  Eventually it
-;; will be possible to set these arguments in the diff popup.
-(defvar magit-diff-extra-options '("-M" "-C"))
+;; This variable is only a temporary hack.  Eventually it will
+;; be possible to set some of these arguments in the diff popup.
+(defvar magit-diff-extra-options '("-M" "-C" "--no-prefix"))
 
 (defcustom magit-diff-auto-show
   '(commit stage-all log-oneline log-select)
@@ -4129,8 +4129,9 @@ commit or stash at point, then prompt for a commit."
 (defun magit-refresh-commit-buffer (commit)
   (magit-insert-section (commitbuf)
     (magit-git-wash #'magit-wash-commit
-      "log" "-1" "--decorate=full" "--pretty=medium"
-      "--cc" "-p" (and magit-show-diffstat "--stat")
+      "log" "-1" "-p" "--cc" "--no-prefix"
+      "--decorate=full" "--pretty=medium"
+      (and magit-show-diffstat "--stat")
       magit-diff-options commit)))
 
 ;;;;; Commit Washing
@@ -7145,7 +7146,7 @@ actually were a single commit."
           (magit-insert (propertize (format "unmerged   %s" dst)
                                     'face 'magit-file-heading) nil ?\n))))
     t)
-   ((looking-at "^diff \\(?:--git \\(\"?a/.+\\) \\(\"?b/.+\\)\\|--cc \\(.+\\)\\)$")
+   ((looking-at "^diff \\(?:--git \\(\"?.+\\) \\(\"?.+\\)\\|--cc \\(.+\\)\\)$")
     (let (src dst status modes)
       (if (match-end 1)
           (setq dst (substring (magit-decode-git-path (match-string 2)) 2)
