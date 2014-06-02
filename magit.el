@@ -4634,10 +4634,14 @@ without requiring confirmation."
            (when (eq type 'staged)
              (magit-run-git "reset" "-q" "--" file))
            (magit-run-git "checkout" "--" file)))
+        (renamed
+         (let ((source (magit-section-diff-source section)))
+           (when (yes-or-no-p (format "Rename back to %s? " source))
+             (magit-run-git "mv" file source))))
         (new-file
          (when (yes-or-no-p (format "Delete %s? " file))
            (magit-run-git "rm" "-f" "--" file)))
-        (t
+        (modified
          (when (yes-or-no-p (format "Discard changes to %s? " file))
            (if (eq type 'staged)
                (magit-run-git "checkout" "HEAD" "--" file)
