@@ -4636,7 +4636,7 @@ without requiring confirmation."
        (when stagedp
          (magit-run-git "reset" "-q" "--" file))
        (magit-run-git "checkout" "--" file)))
-    (new
+    ((new rename copy)
      (when (yes-or-no-p (format "Delete %s? " file))
        (magit-run-git "rm" "-f" "--" file)))
     (t
