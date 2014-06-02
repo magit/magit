@@ -7141,7 +7141,7 @@ actually were a single commit."
           (magit-insert (propertize (format "unmerged   %s" dst)
                                     'face 'magit-file-heading) nil ?\n))))
     t)
-   ((looking-at "^diff --\\(git\\|cc\\) \\(?:\\(.+?\\) \\2\\)?")
+   ((looking-at "^diff --\\(git\\|cc\\|combined\\) \\(?:\\(.+?\\) \\2\\)?")
     (let ((status (if (equal (match-string 1) "git") 'modified 'unmerged))
           (src (match-string 2))
           (dst (match-string 2))
