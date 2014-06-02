@@ -1442,7 +1442,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 (defvar magit-hunk-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map "\r" 'magit-visit-file)
-    (define-key map "a"  'magit-apply-hunk)
+    (define-key map "a"  'magit-apply)
     (define-key map "C"  'magit-commit-add-log)
     (define-key map "k"  'magit-discard)
     (define-key map "s"  'magit-stage)
@@ -1454,7 +1454,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 (defvar magit-file-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map "\r" 'magit-visit-file)
-    (define-key map "a"  'magit-apply-diff)
+    (define-key map "a"  'magit-apply)
     (define-key map "k"  'magit-discard)
     (define-key map "s"  'magit-stage)
     (define-key map "u"  'magit-unstage)
@@ -4682,16 +4682,16 @@ Also see option `magit-revert-backup'."
 
 ;;;;; Apply
 
+(defun magit-apply ()
+  "Apply the change at point."
+  (interactive)
+  (magit-section-case
+    (([* unstaged] [* staged])
+     (user-error "Change is already in the working tree"))
+    (file (magit-apply-diff it))
+    (hunk (magit-apply-hunk it))))
+
 (defun magit-apply-diff (section &rest args)
-  (interactive
-   (or (magit-section-when file
-         (if (memq (--> it
-                     magit-section-parent
-                     magit-section-type)
-                   '(staged unstaged))
-             (user-error "Change is already in the working tree")
-           (list it)))
-       (user-error "Not a file")))
   (when (member "-U0" magit-diff-options)
     (setq args (cons "--unidiff-zero" args)))
   (let ((patch (buffer-substring (magit-section-content section)
@@ -4703,16 +4703,6 @@ Also see option `magit-revert-backup'."
   (magit-refresh))
 
 (defun magit-apply-hunk (section &rest args)
-  (interactive
-   (or (magit-section-when hunk
-         (if (memq (--> it
-                     magit-section-parent
-                     magit-section-parent
-                     magit-section-type)
-                   '(staged unstaged))
-             (user-error "Change is already in the working tree")
-           (list it)))
-       (user-error "Not a diff")))
   (when (string-match "^diff --cc" (magit-section-parent-value section))
     (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
   (if (use-region-p)
