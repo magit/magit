@@ -1442,7 +1442,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 (defvar magit-hunk-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map "\r" 'magit-visit-file)
-    (define-key map "a"  'magit-apply-hunk)
+    (define-key map "a"  'magit-apply)
     (define-key map "C"  'magit-commit-add-log)
     (define-key map "k"  'magit-discard)
     (define-key map "s"  'magit-stage)
@@ -1454,7 +1454,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 (defvar magit-file-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map "\r" 'magit-visit-file)
-    (define-key map "a"  'magit-apply-diff)
+    (define-key map "a"  'magit-apply)
     (define-key map "k"  'magit-discard)
     (define-key map "s"  'magit-stage)
     (define-key map "u"  'magit-unstage)
@@ -4615,35 +4615,37 @@ without requiring confirmation."
                (magit-apply-hunk it "--reverse"))
              (magit-refresh))
          (magit-apply-hunk it "--reverse" "--index"))))
-    ([file unstaged]
-     (let ((value (magit-section-value it))
-           (status (magit-section-diff-status it)))
-       (if (eq status 'unmerged)
-           (magit-checkout-stage value (magit-checkout-read-stage value))
-         (magit-discard-file value status nil))))
-    ([file staged]
-     (let ((value (magit-section-value it)))
-       (if (magit-anything-unstaged-p value)
-           (user-error "Cannot discard this hunk, file has unstaged changes")
-         (magit-discard-file value (magit-section-diff-status it) t))))
+    (([file unstaged] [file staged]) (magit-discard-file it))
     (hunk (user-error "Cannot discard this hunk"))
     (file (user-error "Cannot discard this file"))))
 
-(defun magit-discard-file (file status stagedp)
-  (cl-case status
-    (deleted
-     (when (yes-or-no-p (format "Resurrect %s? " file))
-       (when stagedp
-         (magit-run-git "reset" "-q" "--" file))
-       (magit-run-git "checkout" "--" file)))
-    (new
-     (when (yes-or-no-p (format "Delete %s? " file))
-       (magit-run-git "rm" "-f" "--" file)))
-    (t
-     (when (yes-or-no-p (format "Discard changes to %s? " file))
-       (if stagedp
-           (magit-run-git "checkout" "HEAD" "--" file)
-         (magit-run-git "checkout" "--" file))))))
+(defun magit-discard-file (section)
+  (let ((file   (magit-section-value section))
+        (type   (magit-section-type (magit-section-parent section)))
+        (status (magit-section-diff-status section)))
+    (if (eq status 'unmerged)
+        (magit-checkout-stage file (magit-checkout-read-stage file))
+      (when (and (eq type 'staged)
+                 (magit-anything-unstaged-p file))
+        (user-error "Cannot discard file, it also has unstaged changes"))
+      (cl-case status
+        (deleted
+         (when (yes-or-no-p (format "Resurrect %s? " file))
+           (when (eq type 'staged)
+             (magit-run-git "reset" "-q" "--" file))
+           (magit-run-git "checkout" "--" file)))
+        (renamed
+         (let ((source (magit-section-diff-source section)))
+           (when (yes-or-no-p (format "Rename back to %s? " source))
+             (magit-run-git "mv" file source))))
+        (new-file
+         (when (yes-or-no-p (format "Delete %s? " file))
+           (magit-run-git "rm" "-f" "--" file)))
+        (modified
+         (when (yes-or-no-p (format "Discard changes to %s? " file))
+           (if (eq type 'staged)
+               (magit-run-git "checkout" "HEAD" "--" file)
+             (magit-run-git "checkout" "--" file))))))))
 
 ;;;;; Revert
 
@@ -4682,16 +4684,16 @@ Also see option `magit-revert-backup'."
 
 ;;;;; Apply
 
+(defun magit-apply ()
+  "Apply the change at point."
+  (interactive)
+  (magit-section-case
+    (([* unstaged] [* staged])
+     (user-error "Change is already in the working tree"))
+    (file (magit-apply-diff it))
+    (hunk (magit-apply-hunk it))))
+
 (defun magit-apply-diff (section &rest args)
-  (interactive
-   (or (magit-section-when file
-         (if (memq (--> it
-                     magit-section-parent
-                     magit-section-type)
-                   '(staged unstaged))
-             (user-error "Change is already in the working tree")
-           (list it)))
-       (user-error "Not a file")))
   (when (member "-U0" magit-diff-options)
     (setq args (cons "--unidiff-zero" args)))
   (let ((patch (buffer-substring (magit-section-content section)
@@ -4703,54 +4705,49 @@ Also see option `magit-revert-backup'."
   (magit-refresh))
 
 (defun magit-apply-hunk (section &rest args)
-  (interactive
-   (or (magit-section-when hunk
-         (if (memq (--> it
-                     magit-section-parent
-                     magit-section-parent
-                     magit-section-type)
-                   '(staged unstaged))
-             (user-error "Change is already in the working tree")
-           (list it)))
-       (user-error "Not a diff")))
   (when (string-match "^diff --cc" (magit-section-parent-value section))
-    (user-error (concat "Cannot un-/stage individual resolution hunks.  "
-                        "Please stage the whole file.")))
-  (let ((use-region (use-region-p)))
+    (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
+  (if (use-region-p)
+      (apply 'magit-apply-region section args)
     (when (member "-U0" magit-diff-options)
-      (setq args (cons "--unidiff-zero" args))
-      (when use-region
-        (user-error (concat "Not enough context to partially apply hunk.  "
-                            "Use `+' to increase context."))))
-    (let ((patch (if use-region
-                     (magit-region-patch section (member "--reverse" args)
-                                         (region-beginning) (region-end))
-                   (buffer-substring (magit-section-start section)
-                                     (magit-section-end section)))))
+      (setq args (cons "--unidiff-zero" args)))
+    (let ((patch (buffer-substring (magit-section-start section)
+                                   (magit-section-end section))))
       (with-temp-buffer
         (insert (magit-section-diff-header section) patch)
-        (when use-region
-          (diff-fixup-modifs (point-min) (point-max)))
         (magit-revert-backup (current-buffer) args)
         (magit-run-git-with-input nil
           "apply" args "--ignore-space-change" "-")))
     (magit-refresh)))
 
-(defun magit-region-patch (section reverse beg end)
-  (let ((section-end (magit-section-end section))
-        (op (if reverse "+" "-"))
-        (patch nil))
+(defun magit-apply-region (section &rest args)
+  (when (member "-U0" magit-diff-options)
+    (user-error "Not enough context to apply region.  Increase the context"))
+  (let ((op (if (member "--reverse" args) "+" "-"))
+        (rbeg (region-beginning))
+        (rend (region-end))
+        (sbeg (magit-section-start section))
+        (send (magit-section-end section))
+        patch)
     (save-excursion
-      (goto-char (magit-section-start section))
-      (while (< (point) section-end)
+      (goto-char sbeg)
+      (while (< (point) send)
         (looking-at "\\(.\\)\\([^\n]*\n\\)")
         (cond ((or (string-match-p "[@ ]" (match-string 1))
-                   (and (>= (point) beg) (< (point) end)))
+                   (and (>= (point) rbeg)
+                        (<  (point) rend)))
                (push (match-string 0) patch))
               ((equal op (match-string 1))
                (push (concat " " (match-string 2)) patch)))
         (forward-line)))
-    (mapconcat 'identity (reverse patch) "")))
+    (with-temp-buffer
+      (insert (magit-section-diff-header section)
+              (mapconcat 'identity (reverse patch) ""))
+      (diff-fixup-modifs (point-min) (point-max))
+      (magit-revert-backup (current-buffer) args)
+      (magit-run-git-with-input nil
+        "apply" args "--ignore-space-change" "-")))
+  (magit-refresh))
 
 (defun magit-revert-backup (buffer args)
   (when (and magit-revert-backup (member "--reverse" args))
@@ -7146,8 +7143,10 @@ actually were a single commit."
           (magit-insert (propertize (format "unmerged   %s" dst)
                                     'face 'magit-file-heading) nil ?\n))))
     t)
-   ((looking-at "^diff --\\(git\\|cc\\) \\(?:\\(.+?\\) \\2\\)?")
-    (let ((status (if (equal (match-string 1) "git") 'modified 'unmerged))
+   ((looking-at "^diff --\\(git\\|cc\\|combined\\) \\(?:\\(.+?\\) \\2\\)?")
+    (let ((status (cond ((equal (match-string 1) "git")      "modified")
+                        ((derived-mode-p 'magit-commit-mode) "resolved")
+                        (t                                   "unmerged")))
           (src (match-string 2))
           (dst (match-string 2))
           modes)
@@ -7165,34 +7164,36 @@ actually were a single commit."
             (setq src (match-string 2)))
            ((looking-at "^\\(copy\\|rename\\) to \\(.+\\)$")
             (setq dst (match-string 2))
-            (setq status (if (equal (match-string 1) "copy") 'new 'rename)))
-           ((looking-at "^\\(new\\|deleted\\)")
-            (setq status (intern (match-string 1)))))
+            (setq status (if (equal (match-string 1) "copy") "new file" "renamed")))
+           ((looking-at "^\\(new file\\|deleted\\)")
+            (setq status (match-string 1))))
           (magit-delete-line)))
       (setq src (magit-decode-git-path src))
       (setq dst (magit-decode-git-path dst))
       (when diffstat
         (setf (magit-section-value diffstat) dst))
       (magit-insert-section it
-        (file dst (or (eq status 'deleted)
+        (file dst (or (equal status "deleted")
                       (derived-mode-p 'magit-status-mode)))
         (magit-insert-heading
-          (propertize (if (eq status 'rename)
-                          (format "renamed    %s => %s" src dst)
-                        (format "%-10s %s\n" status dst))
-                      'face 'magit-file-heading))
-        (setf (magit-section-diff-status it) status)
+          (propertize
+           (format "%-10s %s\n" status
+                   (if (equal src dst) dst (format "%s => %s" src dst)))
+           'face 'magit-file-heading))
         (setf (magit-section-diff-source it) src)
+        (setf (magit-section-diff-status it)
+              (intern (replace-regexp-in-string " " "-" status)))
         (when modes
           (magit-insert-section (hunk)
             (insert modes)))
         (magit-wash-sequence #'magit-wash-hunk))))))
 
 (defun magit-wash-hunk ()
-  (when (looking-at "^@@\\(@\\)?.+")
-    (let ((heading (match-string 0)))
+  (when (looking-at "^\\(@@\\(@\\)? .+? @@@?\\).*$")
+    (let ((heading (match-string 0))
+          (value   (match-string 1)))
       (magit-delete-line)
-      (magit-insert-section it (hunk heading)
+      (magit-insert-section it (hunk value)
         (insert (propertize (concat heading "\n")
                             'face 'magit-hunk-heading))
         (setf (magit-section-content it) (point-marker))
