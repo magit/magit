@@ -4636,7 +4636,7 @@ without requiring confirmation."
        (when stagedp
          (magit-run-git "reset" "-q" "--" file))
        (magit-run-git "checkout" "--" file)))
-    (new
+    (new-file
      (when (yes-or-no-p (format "Delete %s? " file))
        (magit-run-git "rm" "-f" "--" file)))
     (t
@@ -7142,9 +7142,9 @@ actually were a single commit."
                                     'face 'magit-file-heading) nil ?\n))))
     t)
    ((looking-at "^diff --\\(git\\|cc\\|combined\\) \\(?:\\(.+?\\) \\2\\)?")
-    (let ((status (cond ((equal (match-string 1) "git")      'modified)
-                        ((derived-mode-p 'magit-commit-mode) 'resolved)
-                        (t                                   'unmerged)))
+    (let ((status (cond ((equal (match-string 1) "git")      "modified")
+                        ((derived-mode-p 'magit-commit-mode) "resolved")
+                        (t                                   "unmerged")))
           (src (match-string 2))
           (dst (match-string 2))
           modes)
@@ -7162,24 +7162,25 @@ actually were a single commit."
             (setq src (match-string 2)))
            ((looking-at "^\\(copy\\|rename\\) to \\(.+\\)$")
             (setq dst (match-string 2))
-            (setq status (if (equal (match-string 1) "copy") 'new 'rename)))
-           ((looking-at "^\\(new\\|deleted\\)")
-            (setq status (intern (match-string 1)))))
+            (setq status (if (equal (match-string 1) "copy") "new file" "renamed")))
+           ((looking-at "^\\(new file\\|deleted\\)")
+            (setq status (match-string 1))))
           (magit-delete-line)))
       (setq src (magit-decode-git-path src))
       (setq dst (magit-decode-git-path dst))
       (when diffstat
         (setf (magit-section-value diffstat) dst))
       (magit-insert-section it
-        (file dst (or (eq status 'deleted)
+        (file dst (or (equal status "deleted")
                       (derived-mode-p 'magit-status-mode)))
         (magit-insert-heading
-          (propertize (if (eq status 'rename)
-                          (format "renamed    %s => %s" src dst)
-                        (format "%-10s %s\n" status dst))
-                      'face 'magit-file-heading))
-        (setf (magit-section-diff-status it) status)
+          (propertize
+           (format "%-10s %s\n" status
+                   (if (equal src dst) dst (format "%s => %s" src dst)))
+           'face 'magit-file-heading))
         (setf (magit-section-diff-source it) src)
+        (setf (magit-section-diff-status it)
+              (intern (replace-regexp-in-string " " "-" status)))
         (when modes
           (magit-insert-section (hunk)
             (insert modes)))
