@@ -4615,35 +4615,33 @@ without requiring confirmation."
                (magit-apply-hunk it "--reverse"))
              (magit-refresh))
          (magit-apply-hunk it "--reverse" "--index"))))
-    ([file unstaged]
-     (let ((value (magit-section-value it))
-           (status (magit-section-diff-status it)))
-       (if (eq status 'unmerged)
-           (magit-checkout-stage value (magit-checkout-read-stage value))
-         (magit-discard-file value status nil))))
-    ([file staged]
-     (let ((value (magit-section-value it)))
-       (if (magit-anything-unstaged-p value)
-           (user-error "Cannot discard this hunk, file has unstaged changes")
-         (magit-discard-file value (magit-section-diff-status it) t))))
+    (([file unstaged] [file staged]) (magit-discard-file it))
     (hunk (user-error "Cannot discard this hunk"))
     (file (user-error "Cannot discard this file"))))
 
-(defun magit-discard-file (file status stagedp)
-  (cl-case status
-    (deleted
-     (when (yes-or-no-p (format "Resurrect %s? " file))
-       (when stagedp
-         (magit-run-git "reset" "-q" "--" file))
-       (magit-run-git "checkout" "--" file)))
-    (new-file
-     (when (yes-or-no-p (format "Delete %s? " file))
-       (magit-run-git "rm" "-f" "--" file)))
-    (t
-     (when (yes-or-no-p (format "Discard changes to %s? " file))
-       (if stagedp
-           (magit-run-git "checkout" "HEAD" "--" file)
-         (magit-run-git "checkout" "--" file))))))
+(defun magit-discard-file (section)
+  (let ((file   (magit-section-value section))
+        (type   (magit-section-type (magit-section-parent section)))
+        (status (magit-section-diff-status section)))
+    (if (eq status 'unmerged)
+        (magit-checkout-stage file (magit-checkout-read-stage file))
+      (when (and (eq type 'staged)
+                 (magit-anything-unstaged-p file))
+        (user-error "Cannot discard file, it also has unstaged changes"))
+      (cl-case status
+        (deleted
+         (when (yes-or-no-p (format "Resurrect %s? " file))
+           (when (eq type 'staged)
+             (magit-run-git "reset" "-q" "--" file))
+           (magit-run-git "checkout" "--" file)))
+        (new-file
+         (when (yes-or-no-p (format "Delete %s? " file))
+           (magit-run-git "rm" "-f" "--" file)))
+        (t
+         (when (yes-or-no-p (format "Discard changes to %s? " file))
+           (if (eq type 'staged)
+               (magit-run-git "checkout" "HEAD" "--" file)
+             (magit-run-git "checkout" "--" file))))))))
 
 ;;;;; Revert
 
