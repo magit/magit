@@ -6233,7 +6233,7 @@ to test.  This command lets Git choose a different one."
               (?P "Pickaxe regex"             "--pickaxe-regex")
               (?g "Show Graph"                "--graph")
               (?S "Show Signature"            "--show-signature")
-              (?d "Show ref names"            "--decorate")
+              (?D "Show ref names"            "--decorate")
               (?n "Name only"                 "--name-only")
               (?M "All match"                 "--all-match")
               (?A "All"                       "--all"))
