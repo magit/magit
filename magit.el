@@ -6602,10 +6602,9 @@ Also see option `magit-log-show-margin'."
     (user-error "The log margin cannot be used outside of log buffers"))
   (when (eq (car magit-refresh-args) 'long)
     (user-error "The log margin cannot be used with verbose logs"))
-  (if (setq-local magit-log-show-margin (not magit-log-show-margin))
-      (magit-refresh)
-    (magit-set-buffer-margin (car magit-log-margin-spec)
-                             (not (cdr (window-margins))))))
+  (magit-set-buffer-margin
+   (car magit-log-margin-spec)
+   (setq-local magit-log-show-margin (not magit-log-show-margin))))
 
 (defun magit-log-show-more-entries (&optional arg)
   "Grow the number of log entries shown.
