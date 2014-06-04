@@ -725,46 +725,20 @@ inserted as is."
                        (character :format "with %v"))))
 
 (defcustom magit-log-show-margin t
-  "Whether to use a margin when showing `oneline' logs.
-When non-nil the author name and date are displayed in the margin
-of the log buffer if that contains a `oneline' log.  This can be
-toggled temporarily using the command `magit-log-toggle-margin'."
+  "Whether to initially show the margin in log buffers.
+
+When non-nil the author name and date are initially displayed in
+the margin of log buffers.  The margin can be shown or hidden in
+the current buffer using the command `magit-log-toggle-margin'.
+
+When a log buffer contains a verbose log, then the margin is
+never displayed.  In status buffers this option is ignored but
+it is possible to show the margin using the mentioned command."
   :package-version '(magit . "2.1.0")
   :group 'magit-log
   :type 'boolean)
 
 (put 'magit-log-show-margin 'permanent-local t)
-
-(defcustom magit-log-margin-spec '(28 nil magit-duration-spec)
-  "How to format the margin for `oneline' logs.
-
-When the log buffer contains a `oneline' log, then it optionally
-uses the right margin to display the author name and author date.
-This is also supported in the reflog buffer.
-
-Logs that are shown together with other non-log information (e.g.
-in the status buffer) are never accompanied by a margin.  The
-same applies to `long' logs, in this case because that would be
-redundant.
-
-This option controls how that margin is formatted, the other
-option affecting this is `magit-log-show-margin'; if that is nil
-then no margin is displayed at all.  To toggle this temporarily
-use the command `magit-log-show-margin'.
-
-The value has the form (WIDTH CHARACTERP DURATION-SPEC).  The
-width of the margin is controlled using WIDTH, an integer.  When
-CHARACTERP is non-nil time units are shown as single characters,
-otherwise the full name of the unit is displayed.  DURATION-SPEC
-has to be a variable, its value controls which time units are
-used, how many seconds they contain, and what their names are."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-log
-  :type '(list (integer  :tag "Margin width")
-               (choice   :tag "Time unit style"
-                         (const :tag "Character" t)
-                         (const :tag "Word" nil))
-               (variable :tag "Duration spec variable")))
 
 (defcustom magit-duration-spec
   `((?Y "year"   "years"   ,(round (* 60 60 24 365.2425)))
@@ -776,17 +750,42 @@ used, how many seconds they contain, and what their names are."
     (?s "second" "seconds" 1))
   "Units used to display durations in a human format.
 The value is a list of time units, beginning with the longest.
-Each element has the form ((CHAR UNIT UNITS SECONDS)..).  UNIT
-is the time unit, UNITS is the plural of that unit.  CHAR is a
-character that can be used as abbreviation and must be unique
-amoung all elements.  SECONDS is the number of seconds in one
-UNIT.  Also see option `magit-log-margin-spec'."
+Each element has the form (CHAR UNIT UNITS SECONDS).  UNIT is the
+time unit, UNITS is the plural of that unit.  CHAR is a character
+abbreviation.  And SECONDS is the number of seconds in one UNIT.
+Also see option `magit-log-margin-spec'."
   :package-version '(magit . "2.1.0")
   :group 'magit-log
   :type '(repeat (list (character :tag "Unit character")
                        (string    :tag "Unit singular string")
                        (string    :tag "Unit plural string")
                        (integer   :tag "Seconds in unit"))))
+
+(defcustom magit-log-margin-spec '(28 7 magit-duration-spec)
+  "How to format the log margin.
+
+The log margin is used to display each commit's author followed
+by the commit's age.  This option controls the total width of the
+margin and how time units are formatted, the value has the form:
+
+  (WIDTH UNIT-WIDTH DURATION-SPEC)
+
+WIDTH specifies the total width of the log margin.  UNIT-WIDTH is
+either the integer 1, in which case time units are displayed as a
+single characters, leaving more room for author names; or it has
+to be the width of the longest time unit string in DURATION-SPEC.
+DURATION-SPEC has to be a variable, its value controls which time
+units, in what language, are being used."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-log
+  :set-after '(magit-duration-spec)
+  :type '(list (integer  :tag "Margin width")
+               (choice   :tag "Time unit style"
+                         (const   :format "%t\n"
+                                  :tag "abbreviate to single character" 1)
+                         (integer :format "%t\n"
+                                  :tag "show full name" 7))
+               (variable :tag "Duration spec variable")))
 
 (defcustom magit-ellipsis #x2026 ; "horizontal ellipsis"
   "Character appended to abreviated text.
@@ -1728,20 +1727,27 @@ If optional NUM is specified only delete that subexpression."
 
 ;;;; Buffer Margins
 
-(defun magit-set-buffer-margin (width enable)
+(defun magit-set-buffer-margin (enable)
+  (make-local-variable 'magit-log-show-margin)
+  (let ((width (and enable
+                    (if (and (derived-mode-p 'magit-log-mode)
+                             (eq (car magit-refresh-args) 'long))
+                        0 ; temporarily hide redundant margin
+                      (car magit-log-margin-spec)))))
+    (setq magit-log-show-margin width)
+    (-when-let (window (get-buffer-window))
+      (with-selected-window window
+        (set-window-margins nil (car (window-margins)) width)
+        (if enable
+            (add-hook  'window-configuration-change-hook
+                       'magit-set-buffer-margin-1 nil t)
+          (remove-hook 'window-configuration-change-hook
+                       'magit-set-buffer-margin-1 t))))))
+
+(defun magit-set-buffer-margin-1 ()
   (-when-let (window (get-buffer-window))
     (with-selected-window window
-      (set-window-margins nil (car (window-margins)) (if enable width 0))
-      (let ((fn (apply-partially
-                 (lambda (width)
-                   (-when-let (window (get-buffer-window))
-                     (with-selected-window window
-                       (set-window-margins nil (car (window-margins))
-                                           width))))
-                 width)))
-        (if enable
-            (add-hook  'window-configuration-change-hook fn nil t)
-          (remove-hook 'window-configuration-change-hook fn t))))))
+      (set-window-margins nil (car (window-margins)) magit-log-show-margin))))
 
 (defun magit-make-margin-overlay (&rest strings)
   (let ((o (make-overlay (point) (line-end-position) nil t)))
@@ -1750,18 +1756,6 @@ If optional NUM is specified only delete that subexpression."
                  (propertize "o" 'display
                              (list '(margin right-margin)
                                    (apply #'concat strings))))))
-
-(defvar-local magit-log-margin-timeunit-width nil)
-
-(defun magit-log-margin-set-timeunit-width ()
-  (cl-destructuring-bind (width characterp duration-spec)
-      magit-log-margin-spec
-    (setq magit-log-margin-timeunit-width
-          (if characterp
-              1
-            (apply 'max (--map (max (length (nth 1 it))
-                                    (length (nth 2 it)))
-                               (symbol-value duration-spec)))))))
 
 ;;; Magit Api
 ;;;; Section Api
@@ -4232,7 +4226,6 @@ can be used to override this."
 
 (defun magit-refresh-status ()
   (magit-git-exit-code "update-index" "--refresh")
-  (magit-log-margin-set-timeunit-width)
   (magit-insert-section (status)
     (run-hooks 'magit-status-sections-hook))
   (run-hooks 'magit-refresh-status-hook))
@@ -6362,13 +6355,10 @@ Type \\[magit-merge-popup] to merge the commit at point.
 Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 Type \\[magit-reset-head] to reset HEAD to the commit at point.
 \n\\{magit-log-mode-map}"
-  :group 'magit-log)
+  :group 'magit-log
+  (magit-set-buffer-margin magit-log-show-margin))
 
 (defun magit-refresh-log-buffer (style range args &optional file)
-  (magit-set-buffer-margin (car magit-log-margin-spec)
-                           (and magit-log-show-margin
-                                (eq (car magit-refresh-args) 'oneline)))
-  (magit-log-margin-set-timeunit-width)
   (setq magit-log-file file)
   (when (consp range)
     (setq range (concat (car range) ".." (cdr range))))
@@ -6536,7 +6526,8 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
                           (?B 'magit-signature-bad)
                           (?U 'magit-signature-untrusted))))
     (goto-char (line-beginning-position))
-    (magit-format-log-margin author date)
+    (when (eq style 'oneline)
+      (magit-format-log-margin author date))
     (if hash
         (magit-insert-section it (commit hash)
           (when (eq style 'module)
@@ -6569,44 +6560,38 @@ alist in `magit-log-format-unicode-graph-alist'."
    string))
 
 (defun magit-format-log-margin (&optional author date)
-  (when magit-log-show-margin
-    (cl-destructuring-bind (width characterp duration-spec)
-        magit-log-margin-spec
-      (if author
-          (magit-make-margin-overlay
-           (propertize (truncate-string-to-width
-                        author (- width 1 3 (if characterp 0 1)
-                                  magit-log-margin-timeunit-width 1)
-                        nil ?\s (make-string 1 magit-ellipsis))
-                       'face 'magit-log-author)
-           " "
-           (propertize (magit-format-duration
-                        (abs (truncate (- (float-time)
-                                          (string-to-number date))))
-                        (symbol-value duration-spec)
-                        magit-log-margin-timeunit-width)
-                       'face 'magit-log-date)
-           (propertize " " 'face 'fringe))
+  (cl-destructuring-bind (width unit-width duration-spec)
+      magit-log-margin-spec
+    (if author
         (magit-make-margin-overlay
-         (propertize (make-string (1- width) ?\s) 'face 'default)
-         (propertize " " 'face 'fringe))))))
+         (propertize (truncate-string-to-width
+                      author (- width 1 3 ; gap, digits
+                                (if (= unit-width 1) 1 (1+ unit-width))
+                                1) ; pseudo fringe
+                      nil ?\s (make-string 1 magit-ellipsis))
+                     'face 'magit-log-author)
+         " "
+         (propertize (magit-format-duration
+                      (abs (truncate (- (float-time)
+                                        (string-to-number date))))
+                      (symbol-value duration-spec)
+                      unit-width)
+                     'face 'magit-log-date)
+         (propertize " " 'face 'fringe))
+      (magit-make-margin-overlay
+       (propertize (make-string (1- width) ?\s) 'face 'default)
+       (propertize " " 'face 'fringe)))))
 
 ;;;;; Log Commands
 
 (defun magit-log-toggle-margin ()
-  "Show or hide the log margin.
-This command can only be used inside log buffers (usually
-*magit-log*) and only if that displays a `oneline' log.
-Also see option `magit-log-show-margin'."
+  "Show or hide the log margin."
   (interactive)
   (unless (derived-mode-p 'magit-log-mode 'magit-status-mode)
-    (user-error "The log margin cannot be used outside of log buffers"))
+    (user-error "Buffer doesn't contain any logs"))
   (when (eq (car magit-refresh-args) 'long)
-    (user-error "The log margin cannot be used with verbose logs"))
-  (if (setq-local magit-log-show-margin (not magit-log-show-margin))
-      (magit-refresh)
-    (magit-set-buffer-margin (car magit-log-margin-spec)
-                             (not (cdr (window-margins))))))
+    (user-error "Log margin is redundant when showing verbose logs"))
+  (magit-set-buffer-margin (not (cdr (window-margins)))))
 
 (defun magit-log-show-more-entries (&optional arg)
   "Grow the number of log entries shown.
@@ -6750,7 +6735,6 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   :group 'magit-log)
 
 (defun magit-refresh-reflog-buffer (ref)
-  (magit-log-margin-set-timeunit-width)
   (magit-insert-section (reflogbuf)
     (magit-insert-heading "Local history of branch " ref)
     (magit-git-wash (apply-partially 'magit-wash-log 'reflog)
