@@ -810,8 +810,8 @@ are no unpulled commits) show."
   "Additional Git arguments used when creating log sections.
 Only `--graph', `--decorate', and `--show-signature' are
 supported.  This option is only a temporary kludge and will
-be removed again.  Note that the use of `--graph' is very
-with long histories.  This is due to an issue in Git; see
+be removed again.  Note that due to an issue in Git the
+use of `--graph' is very slow with long histories.  See
 http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
   :package-version '(magit . "2.1.0")
   :group 'magit-log
