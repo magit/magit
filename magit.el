@@ -1313,6 +1313,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "B" 'magit-bisect-popup)
     (define-key map "c" 'magit-commit-popup)
     (define-key map "d" 'magit-diff-popup)
+    (define-key map "h" 'magit-log-toggle-margin)
     (define-key map "H" 'magit-diff-toggle-refine-hunk)
     (define-key map "+" 'magit-diff-more-context)
     (define-key map "-" 'magit-diff-less-context)
