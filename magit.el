@@ -4512,7 +4512,7 @@ requiring confirmation."
                (magit-completing-read "Stage file" choices
                                       nil t nil nil default)
              default))))
-  (magit-call-git "add" file))
+  (magit-run-git "add" file))
 
 ;;;###autoload
 (defun magit-stage-modified (&optional all)
@@ -4527,7 +4527,7 @@ ignored) files.
                (not (magit-anything-staged-p))
                (yes-or-no-p "Stage all changes? "))
      (user-error "Abort")))
-  (magit-call-git "add" (if all "--all" "--update") "."))
+  (magit-run-git "add" (if all "--all" "--update") "."))
 
 ;;;;; Unstage
 
