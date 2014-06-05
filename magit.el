@@ -5079,9 +5079,9 @@ checkout the \"master\" branch.
     (if (string-match "^refs/remotes/\\([^/]+\\)/\\(.+\\)" ref)
         (magit-run-git-async "push"      (match-string 1 ref)
                              (concat ":" (match-string 2 ref)))
-      (cl-case (when (equal ref (magit-ref-fullname (magit-get-current-branch)))
+      (cl-case (when (equal branch (magit-get-current-branch))
                  (let ((msg (format "Branch %s is checked out.  " branch)))
-                   (if (equal ref "refs/heads/master")
+                   (if (equal branch "master")
                        (magit-read-char-case msg nil
                          (?d "[d]etach HEAD & delete" 'detach)
                          (?a "[a]bort"                'abort))
