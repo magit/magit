@@ -342,28 +342,6 @@ the user has to confirm each save."
                  (const :tag "Ask" t)
                  (const :tag "Save without asking" dontask)))
 
-(defcustom magit-rewrite-inclusive t
-  "Whether to include the selected commit in a rewrite operation.
-
-t means both the selected commit as well as any subsequent
-commits will be rewritten.  This is magit's default behaviour,
-equivalent to 'git rebase -i ${REV}~1'
-
-  A'---B'---C'---D'
-  ^
-
-nil means the selected commit will be literally used as 'base',
-so only subsequent commits will be rewritten.  This is consistent
-with git-rebase, equivalent to 'git rebase -i ${REV}', yet more
-cumbersome to use from the status buffer.
-
-  A---B'---C'---D'
-  ^"
-  :group 'magit
-  :type '(choice (const :tag "Always" t)
-                 (const :tag "Never" nil)
-                 (const :tag "Ask"   ask)))
-
 ;;;;; Highlighting
 
 (defun magit-set-variable-and-refresh (symbol value)
