@@ -3607,7 +3607,7 @@ string \"true\", otherwise return nil."
                   (funcall fn "--refs=refs/heads/*")
                   (funcall fn "--refs=refs/remotes/*" "--always")))
     (if (and (string-match "^\\(?:tags\\|remotes\\)/\\(.+\\)" rev)
-             (magit-unambiguous-refname-p (match-string 1 rev)))
+             (magit-ref-fullname (match-string 1 rev)))
         (match-string 1 rev)
       rev)))
 
@@ -3616,13 +3616,6 @@ string \"true\", otherwise return nil."
 
 (defun magit-ref-exists-p (ref)
   (magit-git-success "show-ref" "--verify" ref))
-
-(defun magit-unambiguous-refname-p (name)
-  "Return t if REF is unambiguous, nil otherwise."
-  ;; An ambiguous ref does not cause `git rev-parse --abbrev-ref'
-  ;; to exits with a non-zero status.  But there is nothing on
-  ;; stdout in that case.
-  (and (magit-rev-parse "--abbrev-ref" name) t))
 
 (defun magit-headish ()
   "Return \"HEAD\" or if that doesn't exist the hash of the empty tree."
