@@ -5971,7 +5971,7 @@ With prefix argument, changes in staging area are kept.
                                 magit-stash-popup-defaults))))
   (if (or magit-current-popup (not (member "--index" args)))
       (magit-run-git "stash" "apply" args stash)
-    (unless (= (magit-git-success "stash" "apply" args stash))
+    (unless (magit-git-success "stash" "apply" args stash)
       (magit-run-git "stash" "apply" (remove "--index" args) stash))))
 
 (defun magit-stash-pop (stash &optional args)
