@@ -4431,32 +4431,6 @@ can be used to override this."
     (magit-insert-header "Merging" (commit (car heads))
       (mapconcat 'identity heads ", "))))
 
-(defun magit-insert-status-rebase-lines ()
-  (-when-let (rebase (magit-rebase-info))
-    (cl-destructuring-bind (onto done total hash am) rebase
-      (magit-insert-header (if am "Applying" "Rebasing") (header)
-        (format "onto %s (%s of %s)" onto done total))
-      (when (and (not am) hash)
-        (magit-insert-header "Stopped" (commit hash)
-          (magit-format-rev-summary hash))))))
-
-(defun magit-insert-rebase-sequence ()
-  (let ((f (magit-git-dir "rebase-merge/git-rebase-todo"))
-        (r "^\\(pick\\|reword\\|edit\\|squash\\|fixup\\) \\([^ ]+\\) \\(.*\\)$"))
-    (when (file-exists-p f)
-      (magit-insert-section (rebase-todo)
-        (magit-insert-heading "Rebasing:")
-        (dolist (line (magit-file-lines f))
-          (when (string-match r line)
-            (magit-bind-match-strings (cmd hash msg) line
-              (magit-insert-section (commit hash)
-                (insert cmd " ")
-                (insert (propertize
-                         (magit-rev-parse "--short" hash)
-                         'face 'magit-hash))
-                (insert " " msg "\n")))))
-        (insert "\n")))))
-
 (defun magit-insert-bisect-output ()
   (when (magit-bisecting-p)
     (let ((lines
@@ -5514,6 +5488,32 @@ Return nil if there is no rebase in progress."
          (when (string-match "^From \\([a-z0-9]\\{40\\}\\) " patch-header)
            (match-string 1 patch-header)))
        t)))))
+
+(defun magit-insert-status-rebase-lines ()
+  (-when-let (rebase (magit-rebase-info))
+    (cl-destructuring-bind (onto done total hash am) rebase
+      (magit-insert-header (if am "Applying" "Rebasing") (header)
+        (format "onto %s (%s of %s)" onto done total))
+      (when (and (not am) hash)
+        (magit-insert-header "Stopped" (commit hash)
+          (magit-format-rev-summary hash))))))
+
+(defun magit-insert-rebase-sequence ()
+  (let ((f (magit-git-dir "rebase-merge/git-rebase-todo"))
+        (r "^\\(pick\\|reword\\|edit\\|squash\\|fixup\\) \\([^ ]+\\) \\(.*\\)$"))
+    (when (file-exists-p f)
+      (magit-insert-section (rebase-todo)
+        (magit-insert-heading "Rebasing:")
+        (dolist (line (magit-file-lines f))
+          (when (string-match r line)
+            (magit-bind-match-strings (cmd hash msg) line
+              (magit-insert-section (commit hash)
+                (insert cmd " ")
+                (insert (propertize
+                         (magit-rev-parse "--short" hash)
+                         'face 'magit-hash))
+                (insert " " msg "\n")))))
+        (insert "\n")))))
 
 ;;;;; AM
 
