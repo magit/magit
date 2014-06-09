@@ -7113,9 +7113,9 @@ actually were a single commit."
             (progn (setq modes (match-string 0))
                    (magit-delete-match))
           (cond
-           ((looking-at "^--- \\([^/].*\\)$") ; i.e. not /dev/null
+           ((looking-at "^--- \\([^/].*?\\)\t?$") ; i.e. not /dev/null
             (setq src (match-string 1)))
-           ((looking-at "^\\+\\+\\+ \\([^/].*\\)$")
+           ((looking-at "^\\+\\+\\+ \\([^/].*?\\)\t?$")
             (setq dst (match-string 1)))
            ((looking-at "^\\(copy\\|rename\\) from \\(.+\\)$")
             (setq src (match-string 2)))
