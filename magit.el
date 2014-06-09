@@ -5507,18 +5507,17 @@ Return nil if there is no rebase in progress."
   "Popup console for mailbox commands."
   'magit-popups
   :man-page "git-am"
-  :switches '((?s "add a Signed-off-by line to the commit message" "--signoff")
-              (?3 "allow fall back on 3way merging if needed" "--3way")
-              (?k "pass -k flag to git-mailinfo" "--keep")
-              (?c "strip everything before a scissors line" "--scissors")
-              (?p "pass it through git-apply" "-p")
-              (?r "override error message when patch failure occurs" "--resolvemsg")
-              (?d "lie about committer date" "--committer-date-is-author-date")
-              (?D "use current timestamp for author date" "--ignore-date")
-              (?b "pass -b flag to git-mailinfo" "--keep-non-patch"))
-  :options  '((?p "format the patch(es) are in" "--patch-format"
-                  magit-popup-read-file-name))
-  :actions  '((?J "Apply Mailbox" magit-apply-mailbox)))
+  :switches '((?3 "Fall back on 3way merge"           "--3way")
+              (?s "Add Signed-off-by lines"           "--signoff")
+              (?c "Remove text before scissors line"  "--scissors")
+              (?k "Inhibit removal of email cruft"    "--keep")
+              (?b "Limit removal of email cruft"      "--keep-non-patch")
+              (?d "Use author date as committer date"
+                  "--committer-date-is-author-date")
+              (?D "Use committer date as author date" "--ignore-date"))
+  :options  '((?p "Remove leading slashes from paths" "-p" read-number))
+  :actions  '((?J "Apply Mailbox" magit-am))
+  :default-arguments '("--3way"))
 
 (defun magit-apply-mailbox (&optional file-or-dir)
   "Apply a series of patches from a mailbox."
