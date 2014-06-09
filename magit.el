@@ -6024,7 +6024,7 @@ depending on the value of option `magit-commit-squash-commit'.
            (let ((limit (save-excursion
                           (or (and (re-search-forward "^\\* " nil t)
                                    (match-beginning 0))
-                              (progn (point-max)
+                              (progn (goto-char (point-max))
                                      (forward-comment -1000)
                                      (point))))))
              (cond ((re-search-forward
