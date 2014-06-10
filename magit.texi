@@ -189,7 +189,7 @@ same time, each associated with its own Git repository.
 
 When invoking @kbd{M-x magit-status} from within a Git repository, it
 will switch to the status buffer of that repository.  Otherwise, it
-will prompt for a directory.  With a prefix argument, it will always
+will prompt for a directory.  With a prefix argument @kbd{C-u}, it will always
 prompt.
 
 You can set @code{magit-repo-dirs} to customize how
@@ -206,7 +206,7 @@ repositories in those directories and offer them for completion.
 (Magit will only look @code{magit-repo-dirs-depth} levels deep,
 however.)
 
-With two prefix arguments, @code{magit-status} will always prompt for
+With two prefix arguments @kbd{C-u C-u}, @code{magit-status} will always prompt for
 a raw directory.
 
 Thus, you would normally set @code{magit-repo-dirs} to the places
@@ -809,14 +809,14 @@ it, like from any other diff.
 @chapter Pushing and Pulling
 
 Magit will run @code{git push} when you type @kbd{P P}.  If you give
-a prefix argument to @kbd{P P}, you will be prompted for the repository
+a prefix argument @kbd{C-u} to @kbd{P P}, you will be prompted for the repository
 to push to.  When no default remote repository has been configured yet
 for the current branch, you will be prompted as well.  Typing @kbd{P P}
 will only push the current branch to the remote.  In other words, it
 will run @code{git push <remote> <branch>}.  The branch will be created
 in the remote if it doesn't exist already.  The local branch will be
 configured so that it pulls from the new remote branch.  If you give
-a double prefix argument to @kbd{P P}, you will be prompted in addition
+a double prefix @kbd{C-u C-u} argument to @kbd{P P}, you will be prompted in addition
 for the target branch to push to.  In other words, it will run @code{git
 push <remote> <branch>:<target>}.
 
@@ -846,7 +846,7 @@ Magit shows them in a section called @emph{Unpulled changes}.  Typing
 
 @table @kbd
 @item o u
-Update the submodules, with a prefix argument it will also initialize them.
+Update the submodules, with a prefix argument @kbd{C-u) it will also initialize them.
 
 @item o i
 Initialize the submodules.
