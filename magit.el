@@ -4094,7 +4094,7 @@ commit or stash at point, then prompt for a commit."
 (defun magit-refresh-commit-buffer (commit)
   (magit-insert-section (commitbuf)
     (magit-git-wash #'magit-wash-commit
-      "log" "-1" "-p" "--cc" "--no-prefix"
+      "log" "-1" "-p" "--cc" "--no-prefix" "--find-renames"
       "--decorate=full" "--pretty=medium"
       (and magit-show-diffstat "--stat")
       magit-diff-options commit)))
