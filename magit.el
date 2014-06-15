@@ -4423,8 +4423,6 @@ can be used to override this."
                        (propertize (format "%s" count) 'face
                                    (if next 'magit-tag 'magit-branch-local))))))
 
-;;;; Sequencer Sections
-
 ;;; Porcelain
 ;;;; Apply
 ;;;;; Stage
@@ -6235,7 +6233,7 @@ good and a bad commit.  To move the session forward use the
 other actions from the bisect popup (\
 \\<magit-status-mode-map>\\[magit-bisect-popup])."
   (interactive
-   (if (magit-bisecting-p)
+   (if (magit-bisect-in-progress-p)
        (user-error "Already bisecting")
      (list (magit-read-rev "Start bisect with known bad revision" "HEAD")
            (magit-read-rev "Good revision" (magit-branch-or-commit-at-point)))))
@@ -6280,7 +6278,7 @@ to test.  This command lets Git choose a different one."
   (magit-bisect-async "run" (list cmdline)))
 
 (defun magit-bisect-async (subcommand &optional args no-assert)
-  (unless (or no-assert (magit-bisecting-p))
+  (unless (or no-assert (magit-bisect-in-progress-p))
     (user-error "Not bisecting"))
   (let ((file (magit-git-dir "BISECT_CMD_OUTPUT"))
         (default-directory (magit-get-top-dir)))
@@ -6289,11 +6287,11 @@ to test.  This command lets Git choose a different one."
     (magit-process-wait)
     (magit-refresh)))
 
-(defun magit-bisecting-p ()
+(defun magit-bisect-in-progress-p ()
   (file-exists-p (magit-git-dir "BISECT_LOG")))
 
 (defun magit-insert-bisect-output ()
-  (when (magit-bisecting-p)
+  (when (magit-bisect-in-progress-p)
     (let ((lines
            (or (magit-file-lines (magit-git-dir "BISECT_CMD_OUTPUT"))
                (list "Bisecting: (no saved bisect output)"
@@ -6313,7 +6311,7 @@ to test.  This command lets Git choose a different one."
     (insert "\n")))
 
 (defun magit-insert-bisect-rest ()
-  (when (magit-bisecting-p)
+  (when (magit-bisect-in-progress-p)
     (magit-insert-section (bisect-view)
       (magit-insert-heading "Bisect Rest:")
       (magit-git-wash (apply-partially 'magit-wash-log 'bisect-vis)
@@ -6321,7 +6319,7 @@ to test.  This command lets Git choose a different one."
         "--pretty=format:%h%d %s" "--decorate=full"))))
 
 (defun magit-insert-bisect-log ()
-  (when (magit-bisecting-p)
+  (when (magit-bisect-in-progress-p)
     (magit-insert-section (bisect-log)
       (magit-insert-heading "Bisect Log:")
       (magit-git-wash #'magit-wash-bisect-log "bisect" "log"))))
