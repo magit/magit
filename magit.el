@@ -4285,8 +4285,7 @@ can be used to override this."
     (run-hooks 'magit-status-sections-hook))
   (run-hooks 'magit-refresh-status-hook))
 
-;;; Sections
-;;;; Real Sections
+;;;; Status Sections
 
 (defun magit-insert-stashes ()
   (--when-let (magit-git-lines "stash" "list")
@@ -4370,8 +4369,6 @@ can be used to override this."
         (magit-insert-heading branch ": " (car it))
         (insert (mapconcat 'identity (cdr it) "\n"))
         (insert "\n\n")))))
-
-;;;; Line Sections
 
 (defun magit-insert-empty-line ()
   (insert "\n"))
