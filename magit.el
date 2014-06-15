@@ -4425,12 +4425,6 @@ can be used to override this."
 
 ;;;; Sequencer Sections
 
-(defun magit-insert-status-merge-line ()
-  (-when-let (heads (mapcar 'magit-get-shortname
-                            (magit-file-lines (magit-git-dir "MERGE_HEAD"))))
-    (magit-insert-header "Merging" (commit (car heads))
-      (mapconcat 'identity heads ", "))))
-
 (defun magit-insert-bisect-output ()
   (when (magit-bisecting-p)
     (let ((lines
@@ -5126,6 +5120,12 @@ inspect the merge and change the commit message.
     (?o "[o]ur stage"   "--ours")
     (?t "[t]heir stage" "--theirs")
     (?c "[c]onflict"    "--merge")))
+
+(defun magit-insert-status-merge-line ()
+  (-when-let (heads (mapcar 'magit-get-shortname
+                            (magit-file-lines (magit-git-dir "MERGE_HEAD"))))
+    (magit-insert-header "Merging" (commit (car heads))
+      (mapconcat 'identity heads ", "))))
 
 ;;;;; Branching
 
