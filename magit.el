@@ -4425,65 +4425,6 @@ can be used to override this."
 
 ;;;; Sequencer Sections
 
-(defun magit-insert-bisect-output ()
-  (when (magit-bisecting-p)
-    (let ((lines
-           (or (magit-file-lines (magit-git-dir "BISECT_CMD_OUTPUT"))
-               (list "Bisecting: (no saved bisect output)"
-                     "It appears you have invoked `git bisect' from a shell."
-                     "There is nothing wrong with that, we just cannot display"
-                     "anything useful here.  Consult the shell output instead.")))
-          (done-re "^[a-z0-9]\\{40\\} is the first bad commit$"))
-      (magit-insert-section (bisect-output t)
-        (magit-insert-heading
-          (propertize (or (and (string-match done-re (car lines)) (pop lines))
-                          (cl-find-if (apply-partially 'string-match done-re)
-                                      lines)
-                          (pop lines))
-                      'face 'magit-section-heading))
-        (dolist (line lines)
-          (insert line "\n"))))
-    (insert "\n")))
-
-(defun magit-insert-bisect-rest ()
-  (when (magit-bisecting-p)
-    (magit-insert-section (bisect-view)
-      (magit-insert-heading "Bisect Rest:")
-      (magit-git-wash (apply-partially 'magit-wash-log 'bisect-vis)
-        "bisect" "visualize" "git" "log"
-        "--pretty=format:%h%d %s" "--decorate=full"))))
-
-(defun magit-insert-bisect-log ()
-  (when (magit-bisecting-p)
-    (magit-insert-section (bisect-log)
-      (magit-insert-heading "Bisect Log:")
-      (magit-git-wash #'magit-wash-bisect-log "bisect" "log"))))
-
-(defun magit-wash-bisect-log (args)
-  (let (beg)
-    (while (progn (setq beg (point-marker))
-                  (re-search-forward "^\\(git bisect [^\n]+\n\\)" nil t))
-      (magit-bind-match-strings (heading) nil
-        (magit-delete-match)
-        (save-restriction
-          (narrow-to-region beg (point))
-          (goto-char (point-min))
-          (magit-insert-section (bisect-log nil t)
-            (magit-insert-heading heading)
-            (magit-wash-sequence
-             (apply-partially 'magit-wash-log-line 'bisect-log
-                              (magit-abbrev-length)))
-            (insert ?\n)))))
-    (when (re-search-forward
-           "# first bad commit: \\[\\([a-z0-9]\\{40\\}\\)\\] [^\n]+\n" nil t)
-      (magit-bind-match-strings (hash) nil
-        (magit-delete-match)
-        (magit-insert-section (bisect-log)
-          (magit-insert (concat hash " is the first bad commit\n")))))))
-
-(defun magit-bisecting-p ()
-  (file-exists-p (magit-git-dir "BISECT_LOG")))
-
 ;;; Porcelain
 ;;;; Apply
 ;;;;; Stage
@@ -6347,6 +6288,65 @@ to test.  This command lets Git choose a different one."
     (magit-run-git-with-logfile file "bisect" subcommand args)
     (magit-process-wait)
     (magit-refresh)))
+
+(defun magit-bisecting-p ()
+  (file-exists-p (magit-git-dir "BISECT_LOG")))
+
+(defun magit-insert-bisect-output ()
+  (when (magit-bisecting-p)
+    (let ((lines
+           (or (magit-file-lines (magit-git-dir "BISECT_CMD_OUTPUT"))
+               (list "Bisecting: (no saved bisect output)"
+                     "It appears you have invoked `git bisect' from a shell."
+                     "There is nothing wrong with that, we just cannot display"
+                     "anything useful here.  Consult the shell output instead.")))
+          (done-re "^[a-z0-9]\\{40\\} is the first bad commit$"))
+      (magit-insert-section (bisect-output t)
+        (magit-insert-heading
+          (propertize (or (and (string-match done-re (car lines)) (pop lines))
+                          (cl-find-if (apply-partially 'string-match done-re)
+                                      lines)
+                          (pop lines))
+                      'face 'magit-section-heading))
+        (dolist (line lines)
+          (insert line "\n"))))
+    (insert "\n")))
+
+(defun magit-insert-bisect-rest ()
+  (when (magit-bisecting-p)
+    (magit-insert-section (bisect-view)
+      (magit-insert-heading "Bisect Rest:")
+      (magit-git-wash (apply-partially 'magit-wash-log 'bisect-vis)
+        "bisect" "visualize" "git" "log"
+        "--pretty=format:%h%d %s" "--decorate=full"))))
+
+(defun magit-insert-bisect-log ()
+  (when (magit-bisecting-p)
+    (magit-insert-section (bisect-log)
+      (magit-insert-heading "Bisect Log:")
+      (magit-git-wash #'magit-wash-bisect-log "bisect" "log"))))
+
+(defun magit-wash-bisect-log (args)
+  (let (beg)
+    (while (progn (setq beg (point-marker))
+                  (re-search-forward "^\\(git bisect [^\n]+\n\\)" nil t))
+      (magit-bind-match-strings (heading) nil
+        (magit-delete-match)
+        (save-restriction
+          (narrow-to-region beg (point))
+          (goto-char (point-min))
+          (magit-insert-section (bisect-log nil t)
+            (magit-insert-heading heading)
+            (magit-wash-sequence
+             (apply-partially 'magit-wash-log-line 'bisect-log
+                              (magit-abbrev-length)))
+            (insert ?\n)))))
+    (when (re-search-forward
+           "# first bad commit: \\[\\([a-z0-9]\\{40\\}\\)\\] [^\n]+\n" nil t)
+      (magit-bind-match-strings (hash) nil
+        (magit-delete-match)
+        (magit-insert-section (bisect-log)
+          (magit-insert (concat hash " is the first bad commit\n")))))))
 
 ;;;;; Logging
 
