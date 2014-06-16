@@ -5292,7 +5292,7 @@ With prefix, forces the rename even if NEW already exists.
     (if (magit-git-lines "rev-list" "--merges" (concat commit "..HEAD"))
         (magit-read-char-case "Proceed despite merge in rebase range?  " nil
           (?c "[c]ontinue" commit)
-          (?p "[s]elect other" nil)
+          (?s "[s]elect other" nil)
           (?a "[a]bort" (user-error "Quit")))
       commit)))
 
