@@ -280,43 +280,56 @@ tramp to connect to servers with ancient Git versions."
   :set-after '(magit-git-executable)
   :type 'string)
 
-(defcustom magit-emacsclient-executable
-  (ignore-errors
-    (shell-quote-argument
-     (let ((version
-            (format "%s.%s" emacs-major-version emacs-minor-version)))
-       (or (and (eq system-type 'darwin)
-                (let ((emacsapp
-                       ;; /Application/Emacs.app/Contents/MacOS/bin/emacsclient
-                       (expand-file-name "bin/emacsclient" invocation-directory))
-                      (homebrew
-                       ;; /usr/local/Cellar/emacs/VERSION/bin/emacsclient
-                       (expand-file-name "../../../bin/emacsclient"
-                                         invocation-directory)))
-                  (or (and (file-executable-p emacsapp) emacsapp)
-                      (and (file-executable-p homebrew) homebrew))))
-           (executable-find (format "emacsclient%s"   version))
-           (executable-find (format "emacsclient-%s"   version))
-           (executable-find (format "emacsclient%s.exe" version))
-           (executable-find (format "emacsclient-%s.exe" version))
-           (executable-find (format "emacsclient%s"   emacs-major-version))
-           (executable-find (format "emacsclient-%s"   emacs-major-version))
-           (executable-find (format "emacsclient%s.exe" emacs-major-version))
-           (executable-find (format "emacsclient-%s.exe" emacs-major-version))
-           (executable-find "emacsclient")
-           (executable-find "emacsclient.exe")))))
+(defun magit-locate-emacsclient ()
+  "Search for a suitable Emacsclient executable."
+  (let ((path (cons (directory-file-name invocation-directory)
+                    (cl-copy-list exec-path)))
+        fixup client version)
+    (when (eq system-type 'darwin)
+      (setq fixup (expand-file-name "bin" invocation-directory))
+      (when (file-directory-p fixup)
+        (push fixup path))
+      (when (string-match-p "Cellar" invocation-directory)
+        (setq fixup (expand-file-name "../../../bin" invocation-directory))
+        (when (file-directory-p fixup)
+          (push fixup path))))
+    (setq path (delete-dups path))
+    (setq client (magit-locate-emacsclient-1 path 3))
+    (setq version (and client (magit-emacsclient-version client)))
+    (unless client
+      (display-warning 'magit (format "\
+Cannot determine a suitable Emacsclient
+
+Determining an Emacsclient executable suitable for the
+current Emacs instance failed.  For more information
+please see https://github.com/magit/magit/wiki/Emacsclient.")))
+    client))
+
+(defun magit-locate-emacsclient-1 (path depth)
+  (let* ((version-lst (magit-take depth (split-string emacs-version "\\.")))
+         (version-reg (concat "^" (mapconcat #'identity version-lst "\\."))))
+    (or (locate-file-internal
+         "emacsclient" path
+         (cl-mapcan
+          (lambda (v) (cl-mapcar (lambda (e) (concat v e)) exec-suffixes))
+          (nconc (cl-mapcon (lambda (v)
+                              (setq v (mapconcat #'identity (reverse v) "."))
+                              (list v (concat "-" v)))
+                            (reverse version-lst))
+                 (list "")))
+         (lambda (exec)
+           (ignore-errors
+             (string-match-p version-reg (magit-emacsclient-version exec)))))
+        (and (> depth 1)
+             (magit-locate-emacsclient-1 path (1- depth))))))
+
+(defun magit-emacsclient-version (exec)
+  (cadr (split-string (car (process-lines exec "--version")))))
+
+(defcustom magit-emacsclient-executable (magit-locate-emacsclient)
   "The Emacsclient executable.
-
-The default value is the full path to the emacsclient executable
-located in the same directory as the executable of the current
-Emacs instance.  If the emacsclient cannot be located in that
-directory then the first executable found anywhere on the
-`exec-path' is used instead.
-
-If no executable can be located then nil becomes the default
-value, and some important Magit commands will fallback to an
-alternative code path.  However `magit-interactive-rebase'
-will stop working at all."
+If the default is nil, or commiting or rebasing is somehow broken,
+please see https://github.com/magit/magit/wiki/Emacsclient."
   :package-version '(magit . "2.0.0")
   :group 'magit-process
   :type '(choice (string :tag "Executable")
@@ -1898,6 +1911,9 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
                (cond ((consp elt) (copy-sequence elt))
                      (elt (list elt))))
              list))
+
+(defun magit-take (n l) ; until we get to use `-take' from dash
+  (let (r) (dotimes (_ n) (and l (push (pop l) r))) (nreverse r)))
 
 (defun magit-insert (string face &rest args)
   (if magit-use-overlays
