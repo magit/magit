@@ -305,6 +305,9 @@ current Emacs instance failed.  For more information
 please see https://github.com/magit/magit/wiki/Emacsclient.")))
     client))
 
+(defun magit-take (n l) ; until we get to use `-take' from dash
+  (let (r) (dotimes (_ n) (and l (push (pop l) r))) (nreverse r)))
+
 (defun magit-locate-emacsclient-1 (path depth)
   (let* ((version-lst (magit-take depth (split-string emacs-version "\\.")))
          (version-reg (concat "^" (mapconcat #'identity version-lst "\\."))))
@@ -1911,9 +1914,6 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
                (cond ((consp elt) (copy-sequence elt))
                      (elt (list elt))))
              list))
-
-(defun magit-take (n l) ; until we get to use `-take' from dash
-  (let (r) (dotimes (_ n) (and l (push (pop l) r))) (nreverse r)))
 
 (defun magit-insert (string face &rest args)
   (if magit-use-overlays
