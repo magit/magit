@@ -84,7 +84,7 @@ confirmation before committing."
   :type '(choice (const :tag "On style errors" t)
                  (const :tag "Never" nil)))
 
-(defcustom git-commit-mode-hook '(turn-on-auto-fill flyspell-mode)
+(defcustom git-commit-mode-hook '(turn-on-auto-fill)
   "Hook run when entering Git Commit mode."
   :options '(turn-on-auto-fill flyspell-mode git-commit-save-message)
   :type 'hook
