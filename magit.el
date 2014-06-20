@@ -3155,7 +3155,7 @@ Also see `magit-mode-setup', a more convenient variant."
      (magit-xref-setup refresh-args)
      (goto-char (point-min))))
   (funcall mode)
-  (magit-mode-refresh-buffer))
+  (magit-refresh-buffer))
 
 (defvar magit-inhibit-save-previous-winconf nil)
 
@@ -3221,42 +3221,6 @@ Magit mode."
 
 (defun magit-mode-get-buffer-create (format mode &optional topdir)
   (magit-mode-get-buffer format mode topdir t))
-
-(cl-defun magit-mode-refresh-buffer (&optional (buffer (current-buffer)))
-  (with-current-buffer buffer
-    (when magit-refresh-function
-      (let* ((old-line (line-number-at-pos))
-             (old-point (point))
-             (old-window (selected-window))
-             (old-window-start (window-start))
-             (old-section (magit-current-section))
-             (ident (and old-section
-                         (magit-section-ident (magit-current-section)))))
-        (beginning-of-line)
-        (let ((inhibit-read-only t)
-              (section-line (and old-section
-                                 (count-lines
-                                  (magit-section-start old-section)
-                                  (point))))
-              (line-char (- old-point (point))))
-          (erase-buffer)
-          (apply magit-refresh-function
-                 magit-refresh-args)
-          (--if-let (and ident (magit-find-section ident))
-              (progn (goto-char (magit-section-start it))
-                     (forward-line section-line)
-                     (forward-char line-char))
-            (save-restriction
-              (widen)
-              (goto-char (point-min))
-              (forward-line (1- old-line)))))
-        (when (fboundp 'unrecord-window-buffer)
-          (unrecord-window-buffer old-window buffer))
-        (dolist (w (get-buffer-window-list buffer nil t))
-          (set-window-point w (point))
-          (set-window-start w old-window-start t))
-        (magit-highlight-section)
-        (run-hooks 'magit-mode-refresh-buffer-hook)))))
 
 (defun magit-mode-quit-window (&optional kill-buffer)
   "Bury the current buffer and delete its window.
@@ -3347,7 +3311,7 @@ the buffer.  Finally reset the window configuration to nil."
   (magit-xref-setup magit-refresh-args)
   (setq default-directory  (car args))
   (setq magit-refresh-args (cdr args))
-  (magit-mode-refresh-buffer))
+  (magit-refresh-buffer))
 
 ;;;;; Refresh Machinery
 
@@ -3365,12 +3329,13 @@ tracked in the current repository."
   (unless inhibit-magit-refresh
     (when (derived-mode-p 'magit-mode)
       (run-hooks 'magit-pre-refresh-hook)
-      (magit-mode-refresh-buffer (current-buffer))
+      (magit-refresh-buffer)
       (unless (derived-mode-p 'magit-status-mode)
         (--when-let (magit-mode-get-buffer
                      magit-status-buffer-name-format
                      'magit-status-mode)
-          (magit-mode-refresh-buffer it))))
+          (with-current-buffer it
+            (magit-refresh-buffer)))))
     (when magit-auto-revert-mode
       (magit-revert-buffers))))
 
@@ -3381,8 +3346,59 @@ Refresh all Magit buffers belonging to the current repository.
 Also always revert all unmodified buffers that visit files being
 tracked in the current repository."
   (interactive)
-  (magit-map-magit-buffers #'magit-mode-refresh-buffer default-directory)
+  (magit-map-magit-buffers #'magit-refresh-buffer default-directory)
   (magit-revert-buffers))
+
+(defvar magit-refresh-buffer-hook nil)
+(define-obsolete-variable-alias 'magit-mode-refresh-buffer-hook
+  'magit-refresh-buffer-hook)
+
+(defun magit-refresh-buffer ()
+  (let  ((section (magit-current-section)) ident line char other)
+    (when section
+      (setq ident (magit-section-ident section)
+            line  (count-lines (magit-section-start section) (point))
+            char  (- (point) (line-beginning-position))))
+    (let ((inhibit-read-only t))
+      (erase-buffer)
+      (save-excursion
+        (apply magit-refresh-function
+               magit-refresh-args)))
+    (when section
+      (--if-let (magit-find-section ident)
+          (let ((start (magit-section-start it)))
+            (goto-char start)
+            (when (> (length ident) 1)
+              (ignore-errors
+                (forward-line (1- line))
+                (forward-char char))
+              (unless (eq (magit-current-section) it)
+                (goto-char start))))
+        (goto-char (--if-let (magit-refresh-buffer-1 section)
+                       (magit-section-start it)
+                     (point-min)))))
+    (run-hooks 'magit-refresh-buffer-hook)
+    (magit-highlight-section)))
+
+(defun magit-refresh-buffer-1 (section)
+  (or (--when-let (cl-case (magit-section-type section)
+                    (staged 'unstaged)
+                    (unstaged 'staged)
+                    (unpushed 'unpulled)
+                    (unpulled 'unpushed))
+        (magit-find-section `((,it) (status))))
+      (--when-let (car (magit-section-siblings section 'next))
+        (or (magit-find-section (magit-section-ident it))
+            (when (eq (magit-section-type it) 'hunk)
+              (let ((text (car (magit-section-value it))))
+                (--first (equal (car (magit-section-value it)) text)
+                         (magit-section-children
+                          (magit-find-section
+                           (cdr (magit-section-ident it)))))))))
+      (--when-let (car (magit-section-siblings section 'prev))
+        (magit-find-section (magit-section-ident it)))
+      (--when-let (magit-section-parent section)
+        (magit-refresh-buffer-1 it))))
 
 (defun magit-revert-buffers ()
   (-when-let (topdir (magit-get-top-dir))
