@@ -2114,9 +2114,9 @@ FUNCTION has to move point forward or return nil."
   (-when-let (parent (magit-section-parent section))
     (let ((siblings  (magit-section-children parent)))
       (cl-ecase direction
-        (prev (member section (reverse siblings)))
-        (next (member section siblings))
-        (nil  siblings)))))
+        (prev (cdr (member section (reverse siblings))))
+        (next (cdr (member section siblings)))
+        (nil  (delq section siblings))))))
 
 (defun magit-section-region-siblings (&optional key)
   (let ((beg (magit-find-section-at (region-beginning)))
