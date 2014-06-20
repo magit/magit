@@ -5781,7 +5781,7 @@ depending on the value of option `magit-commit-squash-confirm'.
     (magit-commit-async nil "--continue")
     nil)
    ((and magit-commit-ask-to-stage
-         (file-exists-p (magit-git-dir "MERGE_MSG")))
+         (not (file-exists-p (magit-git-dir "MERGE_MSG"))))
     (when (magit-diff-auto-show-p 'stage-all)
       (magit-diff-unstaged))
     (prog1 (when (y-or-n-p "Nothing staged.  Stage and commit everything? ")
