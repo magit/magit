@@ -4226,7 +4226,8 @@ can be used to override this."
         (string-match "^\\(stash@{\\([0-9]+\\)}\\): \\(.+\\)$" stash)
         (magit-bind-match-strings (stash number message) stash
           (magit-insert-section (stash stash)
-            (insert number ": " message "\n"))))
+            (insert (propertize (format "stash@{%s}" number) 'face 'magit-hash)
+                    " " message "\n"))))
       (insert "\n"))))
 
 (defun magit-insert-untracked-files ()
