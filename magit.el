@@ -2883,8 +2883,10 @@ tracked in the current repository are reverted if
     (magit-process-finish process)
     (when (eq process magit-this-process)
       (setq magit-this-process nil))
-    (magit-refresh (and (buffer-live-p (process-get process 'command-buf))
-                        (process-get process 'command-buf)))))
+    (--when-let (process-get process 'command-buf)
+      (when (buffer-live-p it)
+        (with-current-buffer it
+          (magit-refresh))))))
 
 (defun magit-process-filter (proc string)
   "Default filter used by `magit-start-process'."
@@ -3351,7 +3353,7 @@ the buffer.  Finally reset the window configuration to nil."
 
 (defvar inhibit-magit-refresh nil)
 
-(defun magit-refresh (&optional buffer)
+(defun magit-refresh ()
   "Refresh some buffers belonging to the current repository.
 
 Refresh the current buffer if its major mode derives from
@@ -3359,19 +3361,16 @@ Refresh the current buffer if its major mode derives from
 If the global `magit-auto-revert-mode' is turned on, then
 also revert all unmodified buffers that visit files being
 tracked in the current repository."
-  (interactive (list (current-buffer)))
+  (interactive)
   (unless inhibit-magit-refresh
-    (unless buffer
-      (setq buffer (current-buffer)))
-    (with-current-buffer buffer
-      (when (derived-mode-p 'magit-mode)
-        (run-hooks 'magit-pre-refresh-hook)
-        (magit-mode-refresh-buffer buffer)
-        (unless (derived-mode-p 'magit-status-mode)
-          (--when-let (magit-mode-get-buffer
-                       magit-status-buffer-name-format
-                       'magit-status-mode)
-            (magit-mode-refresh-buffer it)))))
+    (when (derived-mode-p 'magit-mode)
+      (run-hooks 'magit-pre-refresh-hook)
+      (magit-mode-refresh-buffer (current-buffer))
+      (unless (derived-mode-p 'magit-status-mode)
+        (--when-let (magit-mode-get-buffer
+                     magit-status-buffer-name-format
+                     'magit-status-mode)
+          (magit-mode-refresh-buffer it))))
     (when magit-auto-revert-mode
       (magit-revert-buffers))))
 
