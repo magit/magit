@@ -3753,8 +3753,8 @@ where COMMITS is the number of commits in TAG but not in \"HEAD\"."
 (defun magit-list-remote-branch-names (&optional remote relative)
   (if (and remote relative)
       (let ((regexp (format "^refs/remotes/%s/\\(.+\\)" remote)))
-        (--mapcat (and (string-match regexp it)
-                       (list (match-string t it)))
+        (--mapcat (when (string-match regexp it)
+                    (list (match-string 1 it)))
                   (magit-list-remote-branches remote)))
     (magit-list-refnames (concat "refs/remotes/" remote))))
 
