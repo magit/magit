@@ -153,6 +153,27 @@
     (should-not (magit-get-boolean "a.b"))
     (should-not (magit-get-boolean "a" "b"))))
 
+;;;; branch and remotes
+(ert-deftest magit-list-branch ()
+  (magit-tests--with-temp-repo
+    (magit-tests--modify-and-commit "file")
+    (should (member "master" (magit-list-branch-names)))
+    (should (member "master" (magit-list-local-branch-names)))
+    (should (null (magit-list-remote-branch-names)))
+
+    (magit-tests--with-temp-clone default-directory
+      (should (member "origin/master" (magit-list-branch-names)))
+      (should-not (member "orgin/master" (magit-list-local-branch-names)))
+
+      (should (member "origin/master" (magit-list-remote-branch-names)))
+      (should (member "origin/master" (magit-list-remote-branch-names "origin")))
+
+      (should-not (member "origin/master" (magit-list-remote-branch-names "foo")))
+      (should (member "origin/master" (magit-list-remote-branch-names "origin" t)))
+
+      (should-not (member "origin/master" (magit-list-remote-branch-names "foo" t)))
+)))
+
 ;;; magit-tests.el ends soon
 
 (defconst magit-tests-font-lock-keywords
