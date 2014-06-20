@@ -291,8 +291,7 @@ exec line was commented out, also uncomment it."
     (when (looking-at git-rebase-action-line-re)
       (let ((commit (match-string 2)))
         (if (fboundp 'magit-show-commit)
-            (let ((default-directory (expand-file-name "../../")))
-              (magit-show-commit commit))
+            (magit-show-commit commit)
           (shell-command (concat "git show " commit)))))))
 
 (defun git-rebase-backward-line (&optional n)
