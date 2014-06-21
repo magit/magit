@@ -46,7 +46,7 @@
   :group 'magit-blame
   :type 'boolean)
 
-(defcustom magit-time-format-string "%Y-%m-%dT%T%z"
+(defcustom magit-blame-time-format "%F %T %z"
   "How to format time in magit-blame header."
   :group 'magit-blame
   :type 'string)
@@ -172,41 +172,8 @@
 
 ;;; Parse
 
-(defun magit-blame-decode-time (unixtime &optional tz)
-  "Decode UNIXTIME into (HIGH LOW) format.
-
-The second argument TZ can be used to add the timezone in (-)HHMM
-format to UNIXTIME.  UNIXTIME should be either a number
-containing seconds since epoch or Emacs's (HIGH LOW . IGNORED)
-format."
-  (when (numberp tz)
-    (unless (numberp unixtime)
-      (setq unixtime (float-time unixtime)))
-    (let* ((ptz (abs tz))
-           (min (+ (* (/ ptz 100) 60)
-                   (mod ptz 100))))
-      (setq unixtime (+ (* (if (< tz 0) (- min) min) 60) unixtime))))
-
-  (when (numberp unixtime)
-    (setq unixtime (seconds-to-time unixtime)))
-  unixtime)
-
-(defun magit-blame-format-time-string (format &optional unixtime tz)
-  "Use FORMAT to format the time UNIXTIME, or now if omitted.
-
-UNIXTIME is specified as a number containing seconds since epoch
-or Emacs's (HIGH LOW . IGNORED) format.  The optional argument TZ
-can be used to set the time zone.  If TZ is a number it is
-treated as a (-)HHMM offset to Universal Time.  If TZ is not
-a number and non-nil the time is printed in UTC.  If TZ is nil
-the local zime zone is used.  The format of the function is
-similar to `format-time-string' except for %Z which is not
-officially supported at the moment."
-  (unless unixtime
-    (setq unixtime (current-time)))
-  (when (numberp tz) ;; TODO add support for %Z
-    (setq format (replace-regexp-in-string "%z" (format "%+05d" tz) format)))
-  (format-time-string format (magit-blame-decode-time unixtime tz) tz))
+(defun magit-blame-format-time-string (format time tz)
+  (format-time-string format (+ time (* (/ tz 100) 60 60) (* (% tz 100) 60))))
 
 (defun magit-blame-parse (target-buf blame-buf)
   "Parse blame-info in buffer BLAME-BUF and decorate TARGET-BUF buffer."
@@ -291,7 +258,7 @@ officially supported at the moment."
                                    'face 'magit-blame-culprit)
                        blank
                        (propertize (magit-blame-format-time-string
-                                    magit-time-format-string
+                                    magit-blame-time-format
                                     author-time author-timezone)
                                    'face 'magit-blame-time)
                        blank
