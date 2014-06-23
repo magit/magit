@@ -284,7 +284,7 @@ tramp to connect to servers with ancient Git versions."
   "Search for a suitable Emacsclient executable."
   (let ((path (cons (directory-file-name invocation-directory)
                     (cl-copy-list exec-path)))
-        fixup client version)
+        fixup client)
     (when (eq system-type 'darwin)
       (setq fixup (expand-file-name "bin" invocation-directory))
       (when (file-directory-p fixup)
@@ -295,15 +295,15 @@ tramp to connect to servers with ancient Git versions."
           (push fixup path))))
     (setq path (delete-dups path))
     (setq client (magit-locate-emacsclient-1 path 3))
-    (setq version (and client (magit-emacsclient-version client)))
-    (unless client
+    (if client
+        (shell-quote-argument client)
       (display-warning 'magit (format "\
 Cannot determine a suitable Emacsclient
 
 Determining an Emacsclient executable suitable for the
 current Emacs instance failed.  For more information
-please see https://github.com/magit/magit/wiki/Emacsclient.")))
-    client))
+please see https://github.com/magit/magit/wiki/Emacsclient."))
+      nil)))
 
 (defun magit-take (n l) ; until we get to use `-take' from dash
   (let (r) (dotimes (_ n) (and l (push (pop l) r))) (nreverse r)))
