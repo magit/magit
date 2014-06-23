@@ -5796,8 +5796,10 @@ depending on the value of option `magit-commit-squash-confirm'.
          (y-or-n-p "Nothing staged.  Continue in-progress rebase? "))
     (magit-commit-async nil "--continue")
     nil)
-   ((and magit-commit-ask-to-stage
-         (not (file-exists-p (magit-git-dir "MERGE_MSG"))))
+   ((and (file-exists-p (magit-git-dir "MERGE_MSG"))
+         (not (magit-anything-unstaged-p)))
+    (or args (list "--")))
+   (magit-commit-ask-to-stage
     (when (magit-diff-auto-show-p 'stage-all)
       (magit-diff-unstaged))
     (prog1 (when (y-or-n-p "Nothing staged.  Stage and commit everything? ")
