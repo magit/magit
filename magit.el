@@ -4793,7 +4793,6 @@ Also see option `magit-revert-backup'."
   "Visit file at point using Dired.
 With a prefix argument, visit in other window."
   (interactive "P")
-  (require 'dired-x)
   (dired-jump other-window
               (file-truename
                (magit-section-case
