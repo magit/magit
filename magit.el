@@ -1999,8 +1999,11 @@ IDENT has to be a list as returned by `magit-section-ident'."
 
 (defun magit-goto-section (section)
   (goto-char (magit-section-start section))
-  (magit-log-maybe-show-commit section)
-  (magit-log-maybe-show-more-entries section))
+  (run-hook-with-args 'magit-goto-section-hook section))
+
+(defvar magit-goto-section-hook
+  '(magit-log-maybe-show-commit
+    magit-log-maybe-show-more-entries))
 
 (defmacro magit-define-section-jumper (sym title)
   "Define an interactive function to go to section SYM.
