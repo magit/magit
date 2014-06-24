@@ -4761,9 +4761,11 @@ Also see option `magit-revert-backup'."
           (magit-status file (if other-window
                                  'pop-to-buffer
                                'switch-to-buffer))))
-    (if other-window
-        (find-file-other-window file)
-      (find-file file))
+    (let ((buffer (or (get-file-buffer file)
+                      (find-file-noselect file))))
+      (if (or other-window (get-buffer-window buffer))
+          (pop-to-buffer buffer)
+        (switch-to-buffer buffer)))
     (when line
       (goto-char (point-min))
       (forward-line (1- line))
