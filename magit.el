@@ -7162,9 +7162,9 @@ actually were a single commit."
         (magit-wash-sequence #'magit-wash-hunk))))))
 
 (defun magit-wash-hunk ()
-  (when (looking-at "^\\(@@\\(@\\)? .+? @@@?\\).*$")
+  (when (looking-at "^@\\{2,\\} \\(.+?\\) @\\{2,\\}\\(?: \\(.*\\)\\)?")
     (let ((heading (match-string 0))
-          (value   (match-string 1)))
+          (value (cons (match-string 2) (split-string (match-string 1)))))
       (magit-delete-line)
       (magit-insert-section it (hunk value)
         (insert (propertize (concat heading "\n")
