@@ -2002,8 +2002,18 @@ IDENT has to be a list as returned by `magit-section-ident'."
   (run-hook-with-args 'magit-goto-section-hook section))
 
 (defvar magit-goto-section-hook
-  '(magit-log-maybe-show-commit
+  '(magit-hunk-set-window-start
+    magit-log-maybe-show-commit
     magit-log-maybe-show-more-entries))
+
+(defun magit-section-set-window-start (section)
+  (unless (pos-visible-in-window-p (magit-section-end section))
+    (set-window-start (selected-window) (magit-section-start section))))
+
+(defun magit-hunk-set-window-start (section)
+  (when (and (eq (magit-section-type section) 'hunk)
+             (not (pos-visible-in-window-p (magit-section-end section))))
+    (set-window-start (selected-window) (magit-section-start section))))
 
 (defmacro magit-define-section-jumper (sym title)
   "Define an interactive function to go to section SYM.
