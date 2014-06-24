@@ -4743,13 +4743,11 @@ Also see option `magit-revert-backup'."
 
 ;;;; Visit
 
-(defun magit-visit-file (file &optional other-window line column)
+(defun magit-visit-file (file &optional other-window)
   (interactive (magit-section-case
                  (file (list (magit-section-value it) current-prefix-arg))
                  (hunk (list (magit-section-parent-value it)
-                             current-prefix-arg
-                             (magit-hunk-target-line it)
-                             (current-column)))))
+                             current-prefix-arg))))
   (unless (file-exists-p file)
     (user-error "Can't visit deleted file: %s" file))
   (if (file-directory-p file)
@@ -4761,32 +4759,34 @@ Also see option `magit-revert-backup'."
           (magit-status file (if other-window
                                  'pop-to-buffer
                                'switch-to-buffer))))
-    (let ((buffer (or (get-file-buffer file)
+    (let ((pos (magit-section-when hunk
+                 (magit-hunk-file-position it)))
+          (buffer (or (get-file-buffer file)
                       (find-file-noselect file))))
       (if (or other-window (get-buffer-window buffer))
           (pop-to-buffer buffer)
-        (switch-to-buffer buffer)))
-    (when line
-      (goto-char (point-min))
-      (forward-line (1- line))
-      (when (> column 0)
-        (move-to-column (1- column))))))
+        (switch-to-buffer buffer))
+      (when pos
+        (goto-char (point-min))
+        (forward-line (1- (car pos)))
+        (move-to-column (cdr pos))))))
 
-(defun magit-hunk-target-line (hunk)
-  (save-excursion
-    (beginning-of-line)
-    (let ((line (line-number-at-pos)))
-      (goto-char (magit-section-start hunk))
-      (unless (looking-at "@@+ .* \\+\\([0-9]+\\)\\(,[0-9]+\\)? @@+")
-        (user-error "Hunk header not found"))
-      (let ((target (string-to-number (match-string 1))))
-        (forward-line)
-        (while (< (line-number-at-pos) line)
-          ;; XXX - deal with combined diffs
-          (unless (looking-at "-")
-            (setq target (+ target 1)))
-          (forward-line))
-        target))))
+(defun magit-hunk-file-position (section)
+  (let* ((value (magit-section-value section))
+         (hunk-line (line-number-at-pos (point)))
+         (goto-line (car (last value)))
+         (offset (- (length value) 2))
+         (column (current-column)))
+    (save-excursion
+      (string-match "^\\+\\([0-9]+\\)" goto-line)
+      (setq goto-line (string-to-number (match-string 1 goto-line)))
+      (goto-char (magit-section-content section))
+      (while (< (line-number-at-pos) hunk-line)
+        (unless (string-match-p
+                 "-" (buffer-substring (point) (+ (point) offset)))
+          (cl-incf goto-line))
+        (forward-line))
+      (cons goto-line (if (looking-at "-") 0 (max 0 (- column offset)))))))
 
 ;;;###autoload
 (defun magit-dired-jump (&optional other-window)
