@@ -1498,7 +1498,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   (let ((map (make-sparse-keymap)))
     (define-key map "k"  'magit-discard)
     (define-key map "s"  'magit-stage)
-    (define-key map "u"  'magit-unstage)
     map)
   "Keymap for the `untracked' section.")
 
