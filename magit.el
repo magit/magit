@@ -2166,6 +2166,20 @@ FUNCTION has to move point forward or return nil."
           (dst (magit-section-value section)))
       (format "diff --git a/%s b/%s\n--- a/%s\n+++ b/%s\n" src dst src dst))))
 
+(defun magit-diff-scope (&optional section singular)
+  (--when-let (or section (magit-current-section))
+    (pcase (list (magit-section-type it) (use-region-p) singular)
+      (`(hunk   t  ,_) 'region)
+      (`(hunk nil  ,_) 'hunk)
+      (`(file nil  ,_) 'file)
+      (`(file   t   t) 'file)
+      (`(file   t nil) 'files)
+      (`(,(or `staged `unstaged `untracked) nil ,_) 'list)
+      (`(,(or `staged `unstaged `untracked)   t ,_)
+       (if (= (point) (1- (magit-section-end it)))
+           (if singular 'file 'files)
+         'list)))))
+
 (defun magit-section-match (condition &optional ident)
   "Return t if the section at point matches CONDITION.
 
@@ -4473,34 +4487,20 @@ can be used to override this."
 (defun magit-stage ()
   "Add the change at point to the staging area."
   (interactive)
-  (magit-section-case
-    ([file untracked]
-     (let (files repos)
-       (dolist (elt (if (use-region-p)
-                        (magit-section-region-siblings)
-                      (list it)))
-         (if (magit-git-repo-p (magit-section-value it) t)
-             (push elt repos)
-           (push (magit-section-value elt) files)))
-       (when files
-         (magit-run-git "add" "--" files))
-       (dolist (repo repos)
-         (save-excursion
-           (goto-char (magit-section-start repo))
-           (call-interactively 'magit-submodule-add)))))
-    (untracked
-     (magit-run-git "add" "--" (magit-untracked-files)))
-    ([hunk file unstaged]
-     (magit-apply-hunk it "--cached"))
-    ([file unstaged]
-     (magit-run-git "add" "-u" "--"
-                    (if (use-region-p)
-                        (magit-section-region-siblings #'magit-section-value)
-                      (magit-section-value it))))
-    (unstaged   (magit-stage-modified))
-    ([* staged] (user-error "Already staged"))
-    (hunk       (user-error "Cannot stage this hunk"))
-    (file       (user-error "Cannot stage this file"))))
+  (--when-let (magit-current-section)
+    (pcase (list (magit-diff-type) (magit-diff-scope))
+      (`(untracked     ,_) (magit-stage-untracked))
+      (`(unstaged  region) (magit-apply-region it "--cached"))
+      (`(unstaged    hunk) (magit-apply-hunk   it "--cached"))
+      (`(unstaged    file) (magit-run-git "add" "-u" "--"
+                                          (magit-section-value it)))
+      (`(unstaged   files) (magit-run-git "add" "-u" "--"
+                                          (magit-section-region-siblings
+                                           #'magit-section-value)))
+      (`(unstaged    list) (magit-stage-modified))
+      (`(staged        ,_) (user-error "Already staged"))
+      (`(committed     ,_) (user-error "Cannot stage committed changes"))
+      (`(undefined     ,_) (user-error "Cannot stage this change")))))
 
 ;;;###autoload
 (defun magit-stage-file (file)
@@ -4535,30 +4535,43 @@ ignored) files.
      (user-error "Abort")))
   (magit-run-git "add" (if all "--all" "--update") "."))
 
+(defun magit-stage-untracked ()
+  (let ((section (magit-current-section)) files repos)
+    (dolist (file (pcase (magit-diff-scope)
+                    (`file  (list (magit-section-value section)))
+                    (`files (magit-section-region-siblings 'magit-section-value))
+                    (`list  (magit-untracked-files))))
+      (if (magit-git-repo-p file t)
+          (push file repos)
+        (push file files)))
+    (when files
+      (magit-run-git "add" "--" files))
+    (dolist (repo repos)
+      (save-excursion
+        (goto-char (magit-section-start repo))
+        (call-interactively 'magit-submodule-add)))))
+
 ;;;;; Unstage
 
 (defun magit-unstage ()
   "Remove the change at point from the staging area."
   (interactive)
-  (magit-section-case
-    ([hunk file staged]
-     (magit-apply-hunk it "--reverse" "--cached"))
-    ([file staged]
-     (when (eq (magit-section-value it) 'unmerged)
-       (user-error "Can't unstage an unmerged file.  Resolve it first"))
-     (magit-unstage-1 (if (use-region-p)
-                          (magit-section-region-siblings #'magit-section-value)
-                        (magit-section-value it))))
-    (staged
-     (when (or (not magit-unstage-all-confirm)
-               (and (not (magit-anything-unstaged-p))
-                    (not (magit-untracked-files)))
-               (yes-or-no-p "Unstage all changes? "))
-       (magit-run-git "reset" "HEAD" "--")))
-    ([* untracked] (user-error "Not tracked"))
-    ([* unstaged]  (user-error "Already unstaged"))
-    (hunk          (user-error "Cannot unstage this hunk"))
-    (file          (user-error "Cannot unstage this file"))))
+  (--when-let (magit-current-section)
+    (pcase (list (magit-diff-type) (magit-diff-scope))
+      (`(untracked     ,_) (user-error "Cannot unstage untracked changes"))
+      (`(unstaged      ,_) (user-error "Already unstaged"))
+      (`(staged    region) (magit-apply-region it "--reverse" "--cached"))
+      (`(staged      hunk) (magit-apply-hunk   it "--reverse" "--cached"))
+      (`(staged      file) (magit-unstage-1 (magit-section-value it)))
+      (`(staged     files) (magit-unstage-1 (magit-section-region-siblings
+                                             #'magit-section-value)))
+      (`(staged      list) (when (or (not magit-unstage-all-confirm)
+                                     (and (not (magit-anything-unstaged-p))
+                                          (not (magit-untracked-files)))
+                                     (yes-or-no-p "Unstage all changes? "))
+                             (magit-run-git "reset" "HEAD" "--")))
+      (`(committed     ,_) (user-error "Cannot unstage committed changes"))
+      (`(undefined     ,_) (user-error "Cannot unstage this change")))))
 
 ;;;###autoload
 (defun magit-unstage-file (file)
@@ -4587,29 +4600,40 @@ without requiring confirmation."
 (defun magit-discard ()
   "Remove the change introduced by the thing at point."
   (interactive)
-  (magit-section-case
-    (untracked
-     (when (yes-or-no-p "Delete all untracked files and directories? ")
-       (magit-run-git "clean" "-df")))
-    ([hunk file unstaged]
-     (when (yes-or-no-p (if (use-region-p)
-                            "Discard changes in region? "
-                          "Discard hunk? "))
-       (magit-apply-hunk it "--reverse")))
-    ([hunk file staged]
-     (when (yes-or-no-p (if (use-region-p)
-                            "Discard changes in region? "
-                          "Discard hunk? "))
-       (if (magit-anything-unstaged-p (magit-section-parent-value it))
-           (progn
-             (let ((inhibit-magit-refresh t))
-               (magit-apply-hunk it "--reverse" "--cached")
-               (magit-apply-hunk it "--reverse"))
-             (magit-refresh))
-         (magit-apply-hunk it "--reverse" "--index"))))
-    (([file untracked] [file unstaged] [file staged]) (magit-discard-file it))
-    (hunk (user-error "Cannot discard this hunk"))
-    (file (user-error "Cannot discard this file"))))
+  (--when-let (magit-current-section)
+    (pcase (list (magit-diff-type) (magit-diff-scope))
+      (`(committed ,_) (user-error "Cannot discard committed changes"))
+      (`(undefined ,_) (user-error "Cannot discard this change"))
+      (`(untracked list)
+       (and (yes-or-no-p "Delete all untracked files? ")
+            (magit-run-git "clean" "-df")))
+      (`(,_ ,(or `list `files)) (error "Not implemented"))
+      (`(,(or `untracked `unstaged `staged) file)
+       (magit-discard-file it))
+      (`(unstaged region)
+       (and (yes-or-no-p "Discard region? ")
+            (magit-apply-region it "--reverse")))
+      (`(unstaged hunk)
+       (and (yes-or-no-p "Discard hunk? ")
+            (magit-apply-hunk it "--reverse")))
+      (`(staged region)
+       (when (yes-or-no-p "Discard region? ")
+         (if (magit-anything-unstaged-p (magit-section-parent-value it))
+             (progn
+               (let ((inhibit-magit-refresh t))
+                 (magit-apply-region it "--reverse" "--cached")
+                 (magit-apply-region it "--reverse"))
+               (magit-refresh))
+           (magit-apply-region it "--reverse" "--index"))))
+      (`(staged hunk)
+       (when (yes-or-no-p "Discard hunk? ")
+         (if (magit-anything-unstaged-p (magit-section-parent-value it))
+             (progn
+               (let ((inhibit-magit-refresh t))
+                 (magit-apply-hunk it "--reverse" "--cached")
+                 (magit-apply-hunk it "--reverse"))
+               (magit-refresh))
+           (magit-apply-hunk it "--reverse" "--index")))))))
 
 (defun magit-discard-file (section)
   (let ((file (magit-section-value section)))
@@ -4622,37 +4646,37 @@ without requiring confirmation."
                        (delete-directory file t)
                      (delete-file file))
                    (magit-refresh)))
-      (`(?A ?\s) (when (yes-or-no-p (format "Delete %s? " file))
-                   (magit-run-git "rm" "-f" "--" file)))
-      (`(?\s ?D) (when (yes-or-no-p (format "Resurrect %s? " file))
-                   (magit-run-git "checkout" "--" file)))
-      (`(?D ?\s) (when (yes-or-no-p (format "Resurrect %s? " file))
-                   (magit-run-git "reset" "-q" "--" file)))
-      (`(?\s ?M) (when (yes-or-no-p (format "Discard changes to %s? " file))
-                   (magit-run-git "checkout" "--" file)))
-      (`(?M ?\s) (when (yes-or-no-p (format "Discard changes to %s? " file))
-                   (magit-run-git "checkout" "HEAD" "--" file)))
+      (`(?A ?\s) (and (yes-or-no-p (format "Delete %s? " file))
+                      (magit-run-git "rm" "-f" "--" file)))
+      (`(?\s ?D) (and (yes-or-no-p (format "Resurrect %s? " file))
+                      (magit-run-git "checkout" "--" file)))
+      (`(?D ?\s) (and (yes-or-no-p (format "Resurrect %s? " file))
+                      (magit-run-git "reset" "-q" "--" file)))
+      (`(?\s ?M) (and (yes-or-no-p (format "Discard changes to %s? " file))
+                      (magit-run-git "checkout" "--" file)))
+      (`(?M ?\s) (and (yes-or-no-p (format "Discard changes to %s? " file))
+                      (magit-run-git "checkout" "HEAD" "--" file)))
       (`(?R  ,_) (let ((source (magit-section-diff-source section)))
-                   (when (yes-or-no-p (format "Rename back to %s? " source))
-                     (magit-run-git "mv" file source))))
+                   (and (yes-or-no-p (format "Rename back to %s? " source))
+                        (magit-run-git "mv" file source))))
       (`(?M  ?M)
-       (user-error "Cannot discard file with staged and unstaged changes"))
-      (_ (error "Cannot discard this file")))))
+       (user-error "Cannot discard file with staged and unstaged changes")))))
 
 ;;;;; Revert
 
 (defun magit-revert ()
   "Revert the change at point in the working tree."
   (interactive)
-  (magit-section-case
-    (file (when (or (not magit-revert-confirm)
-                    (yes-or-no-p (format "Revert %s? "
-                                         (magit-section-value it))))
+  (--when-let (magit-current-section)
+    (pcase (magit-diff-scope)
+      (`file
+       (and (or (not magit-revert-confirm)
+                (yes-or-no-p (format "Revert %s? " (magit-section-value it))))
             (magit-apply-diff it "--reverse")))
-    (hunk (when (or (not magit-revert-confirm)
-                    (yes-or-no-p "Revert this hunk? "))
-            (magit-apply-hunk it "--reverse")))
-    (t    (user-error "No diff at point"))))
+      ((or `region `hunk)
+       (and (or (not magit-revert-confirm)
+                (yes-or-no-p "Revert this hunk? "))
+            (magit-apply-hunk it "--reverse"))))))
 
 (defun magit-revert-commit (commit)
   (interactive
@@ -4679,11 +4703,13 @@ Also see option `magit-revert-backup'."
 (defun magit-apply ()
   "Apply the change at point."
   (interactive)
-  (magit-section-case
-    (([* unstaged] [* staged])
-     (user-error "Change is already in the working tree"))
-    (file (magit-apply-diff it))
-    (hunk (magit-apply-hunk it))))
+  (--when-let (magit-current-section)
+    (pcase (list (magit-diff-type) (magit-diff-scope))
+      (`(,(or `unstaged `staged) ,_)
+       (user-error "Change is already in the working tree"))
+      (`(,_ region) (magit-apply-region it))
+      (`(,_   hunk) (magit-apply-hunk it))
+      (`(,_   file) (magit-apply-diff it)))))
 
 (defun magit-apply-diff (section &rest args)
   (when (member "-U0" magit-diff-options)
@@ -4699,22 +4725,22 @@ Also see option `magit-revert-backup'."
 (defun magit-apply-hunk (section &rest args)
   (when (string-match "^diff --cc" (magit-section-parent-value section))
     (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
-  (if (use-region-p)
-      (apply 'magit-apply-region section args)
-    (when (member "-U0" magit-diff-options)
-      (setq args (cons "--unidiff-zero" args)))
-    (let ((patch (buffer-substring (magit-section-start section)
-                                   (magit-section-end section))))
-      (with-temp-buffer
-        (insert (magit-section-diff-header section) patch)
-        (magit-revert-backup (current-buffer) args)
-        (magit-run-git-with-input nil
-          "apply" args "--ignore-space-change" "-")))
-    (magit-refresh)))
+  (when (member "-U0" magit-diff-options)
+    (setq args (cons "--unidiff-zero" args)))
+  (let ((patch (buffer-substring (magit-section-start section)
+                                 (magit-section-end section))))
+    (with-temp-buffer
+      (insert (magit-section-diff-header section) patch)
+      (magit-revert-backup (current-buffer) args)
+      (magit-run-git-with-input nil
+        "apply" args "--ignore-space-change" "-")))
+  (magit-refresh))
 
 (defun magit-apply-region (section &rest args)
   (when (member "-U0" magit-diff-options)
     (user-error "Not enough context to apply region.  Increase the context"))
+  (when (string-match "^diff --cc" (magit-section-parent-value section))
+    (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
   (let ((op (if (member "--reverse" args) "+" "-"))
         (rbeg (region-beginning))
         (rend (region-end))
@@ -6846,6 +6872,27 @@ Type \\[magit-apply] to apply the change at point to the worktree.
 Type \\[magit-revert] to revert the change at point in the worktree.
 \n\\{magit-diff-mode-map}"
   :group 'magit-diff)
+
+(defun magit-diff-type (&optional section)
+  (--when-let (or section (magit-current-section))
+    (cond ((derived-mode-p 'magit-diff-mode)
+           (or (and (not (nth 0 magit-refresh-args))
+                    (not (nth 1 magit-refresh-args))
+                    (cond ((not (nth 2 magit-refresh-args))
+                           'unstaged)
+                          ((member "--cached" (cddr magit-refresh-args))
+                           'staged)))
+               'undefined))
+          ((derived-mode-p 'magit-commit-mode) 'committed)
+          ((derived-mode-p 'magit-status-mode)
+           (let ((stype (magit-section-type it)))
+             (if (memq stype '(staged unstaged untracked))
+                 stype
+               (pcase stype
+                 (`file (-> it magit-section-parent magit-section-type))
+                 (`hunk (-> it magit-section-parent magit-section-parent
+                            magit-section-type))))))
+          (t 'undefined))))
 
 ;;;;; Diff Entry Commands
 
