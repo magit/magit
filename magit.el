@@ -19,8 +19,7 @@
 ;; Package: magit
 ;; Package-Requires: ((cl-lib "0.3") (dash "2.6.0") (git-commit-mode "0.14.0") (git-rebase-mode "0.14.0") (with-editor "0"))
 
-;; Magit requires at least GNU Emacs 23.2 and Git 1.7.2.5.
-;; These are the versions shipped by Debian oldstable (6.0, Squeeze).
+;; Magit requires at least GNU Emacs 24.1 and Git 1.7.2.5.
 
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
@@ -52,8 +51,8 @@
 ;;; Code:
 ;;;; Dependencies
 
-(when (version< emacs-version "23.2")
-  (error "Magit requires at least GNU Emacs 23.2"))
+(when (version< emacs-version "24.1")
+  (error "Magit requires at least GNU Emacs 24.1"))
 
 (require 'git-commit-mode)
 (require 'git-rebase-mode)
