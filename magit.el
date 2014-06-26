@@ -1480,6 +1480,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "k"  'magit-discard)
     (define-key map "s"  'magit-stage)
     (define-key map "u"  'magit-unstage)
+    (define-key map "v"  'magit-reverse)
     map)
   "Keymap for the `staged' section.")
 
@@ -4745,14 +4746,28 @@ without requiring confirmation."
   "Reverse the change at point in the working tree."
   (interactive)
   (--when-let (magit-current-section)
-    (pcase (magit-diff-scope)
-      (`file
-       (and (magit-confirm 'reverse
-                           (format "Reverse %s" (magit-section-value it)))
-            (magit-apply-diff it "--reverse")))
-      ((or `region `hunk)
-       (and (magit-confirm 'reverse "Reverse this hunk")
-            (magit-apply-hunk it "--reverse"))))))
+    (pcase (list (magit-diff-type) (magit-diff-scope))
+      (`(untracked ,_) (user-error "Cannot reverse untracked changes"))
+      (`(unstaged  ,_) (user-error "Cannot reverse unstaged changes"))
+      (`(,_      list) (magit-reverse-files (magit-section-children it)))
+      (`(,_     files) (magit-reverse-files (magit-section-region-siblings)))
+      (`(,_      file) (magit-reverse-files (list it)))
+      (_               (magit-reverse-apply it)))))
+
+(defun magit-reverse-apply (section)
+  (let ((scope (magit-diff-scope section t)))
+    (when (or (eq scope 'file)
+              (magit-confirm 'reverse (format "Reverse %s" scope)))
+      (funcall (pcase scope
+                 (`region 'magit-apply-region)
+                 (`hunk   'magit-apply-hunk)
+                 (`file   'magit-apply-diff))
+               section "--reverse"))))
+
+(defun magit-reverse-files (sections)
+  (when (magit-confirm
+         'reverse "Reverse" (mapcar 'magit-section-value sections))
+    (mapc 'magit-reverse-apply sections)))
 
 (defconst magit-revert-backup-file "magit/reverted.diff")
 
