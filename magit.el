@@ -5246,6 +5246,21 @@ checkout the \"master\" branch.
   (magit-run-git "branch" (concat "--set-upstream-to=" upstream) branch))
 
 ;;;###autoload
+(defun magit-request-pull (url start)
+  (interactive
+   (let* ((remote (magit-read-remote "Remote"))
+          (branch (magit-read-remote-branch "Branch" remote)))
+     (list (magit-get "remote" remote "url")
+           (magit-get-tracked-branch))))
+  (let ((dir default-directory))
+    ;; mu4e changes default-directory
+    (compose-mail)
+    (setq default-directory dir))
+  (message-goto-body)
+  (process-file magit-git-executable nil t nil "request-pull" start url)
+  (set-buffer-modified-p nil))
+
+;;;###autoload
 (defun magit-branch-edit-description (branch)
   "Edit the description of BRANCH."
   (interactive (list (magit-read-rev "Edit branch description"
