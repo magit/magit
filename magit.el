@@ -1740,7 +1740,7 @@ If optional NUM is specified only delete that subexpression."
 
 (cl-defstruct magit-section
   type value start content end hidden washer
-  diff-status diff-source process parent children)
+  diff-source process parent children)
 
 (defvar-local magit-root-section nil
   "The root section in the current buffer.
@@ -7168,8 +7168,6 @@ actually were a single commit."
                    (if (equal src dst) dst (format "%s => %s" src dst)))
            'face 'magit-file-heading))
         (setf (magit-section-diff-source it) src)
-        (setf (magit-section-diff-status it)
-              (intern (replace-regexp-in-string " " "-" status)))
         (when modes
           (magit-insert-section (hunk)
             (insert modes)))
