@@ -291,7 +291,7 @@ also comment on issue #816."
 
 (defcustom magit-no-confirm nil
   "A list of symbols for actions Magit should not confirm, or t.
-Actions are: `stage-all', `unstage-all', `revert', `discard',
+Actions are: `stage-all', `unstage-all', `reverse', `discard',
 `trash', `delete', `resurrect', `rename', `kill-process',
 `abort-merge', `merge-dirty', `drop-stashes', `reset-bisect'.
 If t, confirmation is never needed."
@@ -299,7 +299,7 @@ If t, confirmation is never needed."
   :group 'magit
   :type '(choice (const :tag "Confirmation never needed" t)
                  (set (const stage-all)     (const unstage-all)
-                      (const revert)        (const discard)
+                      (const reverse)       (const discard)
                       (const trash)         (const delete)
                       (const resurrect)     (const rename)
                       (const kill-process)  (const abort-merge)
@@ -1420,7 +1420,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "k"  'magit-discard)
     (define-key map "s"  'magit-stage)
     (define-key map "u"  'magit-unstage)
-    (define-key map "v"  'magit-revert)
+    (define-key map "v"  'magit-reverse)
     map)
   "Keymap for `hunk' sections.")
 
@@ -1431,7 +1431,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "k"  'magit-discard)
     (define-key map "s"  'magit-stage)
     (define-key map "u"  'magit-unstage)
-    (define-key map "v"  'magit-revert)
+    (define-key map "v"  'magit-reverse)
     map)
   "Keymap for `file' sections.")
 
@@ -4085,7 +4085,7 @@ This mode is documented in info node `(magit)Commit Buffer'.
 Type \\[magit-toggle-section] to expand or hide the section at point.
 Type \\[magit-visit-file] to visit the hunk or file at point.
 Type \\[magit-apply] to apply the change at point to the worktree.
-Type \\[magit-revert] to revert the change at point in the worktree.
+Type \\[magit-reverse] to reverse the change at point in the worktree.
 \n\\{magit-commit-mode-map}"
   :group 'magit-commit)
 
@@ -4739,28 +4739,20 @@ without requiring confirmation."
                        (mapcar 'magit-section-value sections))
     (mapc 'magit-discard-apply sections)))
 
-;;;;; Revert
+;;;;; Reverse
 
-(defun magit-revert ()
-  "Revert the change at point in the working tree."
+(defun magit-reverse ()
+  "Reverse the change at point in the working tree."
   (interactive)
   (--when-let (magit-current-section)
     (pcase (magit-diff-scope)
       (`file
-       (and (magit-confirm 'revert
-                           (format "Revert %s" (magit-section-value it)))
+       (and (magit-confirm 'reverse
+                           (format "Reverse %s" (magit-section-value it)))
             (magit-apply-diff it "--reverse")))
       ((or `region `hunk)
-       (and (magit-confirm 'revert "Revert this hunk")
+       (and (magit-confirm 'reverse "Reverse this hunk")
             (magit-apply-hunk it "--reverse"))))))
-
-(defun magit-revert-commit (commit)
-  (interactive
-   (let ((atpoint (magit-commit-at-point)))
-     (list (or (and current-prefix-arg atpoint)
-               (magit-read-rev "Revert commit" atpoint)))))
-  (magit-assert-one-parent commit "revert")
-  (magit-run-git "revert" "--no-commit" commit))
 
 (defconst magit-revert-backup-file "magit/reverted.diff")
 
@@ -6175,6 +6167,16 @@ for a commit."
   (magit-assert-one-parent commit "cherry-pick")
   (magit-run-git "cherry-pick" "--no-commit" commit))
 
+;;;;; Revert
+
+(defun magit-revert-commit (commit)
+  (interactive
+   (let ((atpoint (magit-commit-at-point)))
+     (list (or (and current-prefix-arg atpoint)
+               (magit-read-rev "Revert commit" atpoint)))))
+  (magit-assert-one-parent commit "revert")
+  (magit-run-git "revert" "--no-commit" commit))
+
 ;;;;; Submoduling
 
 (magit-define-popup magit-submodule-popup
@@ -6947,7 +6949,7 @@ Type \\[magit-refresh] to refresh the current buffer.
 Type \\[magit-toggle-section] to expand or hide the section at point.
 Type \\[magit-visit-file] to visit the file at point.
 Type \\[magit-apply] to apply the change at point to the worktree.
-Type \\[magit-revert] to revert the change at point in the worktree.
+Type \\[magit-reverse] to reverse the change at point in the worktree.
 \n\\{magit-diff-mode-map}"
   :group 'magit-diff)
 
