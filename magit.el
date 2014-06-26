@@ -3549,6 +3549,15 @@ If FILE isn't inside a Git repository then return nil."
 (defun magit-staged-files ()
   (magit-git-lines "diff-index" "--name-only" (magit-headish)))
 
+(defun magit-file-status (&optional file status)
+  (if file
+      (cdr (--first (or (string-equal (car it) file)
+                        (string-match-p (format " -> %s$" (regexp-quote file))
+                                        (car it)))
+                    (or status (magit-file-status))))
+    (--map (list (substring it 3) (aref it 0) (aref it 1))
+           (magit-git-lines "status" "--porcelain" "-u" "--ignored"))))
+
 (defun magit-expand-git-file-name (filename)
   (when (tramp-tramp-file-p default-directory)
     (setq filename (file-relative-name filename
