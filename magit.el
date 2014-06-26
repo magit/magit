@@ -4769,18 +4769,6 @@ without requiring confirmation."
          'reverse "Reverse" (mapcar 'magit-section-value sections))
     (mapc 'magit-reverse-apply sections)))
 
-(defconst magit-revert-backup-file "magit/reverted.diff")
-
-(defun magit-revert-undo ()
-  "Re-apply the previously reverted hunk.
-Also see option `magit-revert-backup'."
-  (interactive)
-  (let ((file (magit-git-dir magit-revert-backup-file)))
-    (if (file-readable-p file)
-        (magit-run-git "apply" file)
-      (user-error "No backups exist"))
-    (magit-refresh)))
-
 ;;;;; Apply
 
 (defun magit-apply ()
@@ -4850,6 +4838,8 @@ Also see option `magit-revert-backup'."
         "apply" args "--ignore-space-change" "-")))
   (magit-refresh))
 
+(defconst magit-revert-backup-file "magit/reverted.diff")
+
 (defun magit-revert-backup (buffer args)
   (when (and magit-revert-backup (member "--reverse" args))
     (with-current-buffer buffer
@@ -4861,6 +4851,16 @@ Also see option `magit-revert-backup'."
             (kept-new-versions 10))
         (make-directory (file-name-directory buffer-file-name) t)
         (save-buffer 16)))))
+
+(defun magit-revert-undo ()
+  "Re-apply the previously reverted hunk.
+Also see option `magit-revert-backup'."
+  (interactive)
+  (let ((file (magit-git-dir magit-revert-backup-file)))
+    (if (file-readable-p file)
+        (magit-run-git "apply" file)
+      (user-error "No backups exist"))
+    (magit-refresh)))
 
 ;;;; Visit
 
