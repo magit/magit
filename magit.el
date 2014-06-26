@@ -7221,7 +7221,7 @@ actually were a single commit."
         (magit-insert-heading
           (propertize
            (format "%-10s %s\n" status
-                   (if (equal orig file) file (format "%s => %s" orig file)))
+                   (if (equal orig file) file (format "%s -> %s" orig file)))
            'face 'magit-file-heading))
         (unless (equal orig file)
           (setf (magit-section-source it) orig))
