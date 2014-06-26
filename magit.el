@@ -287,34 +287,21 @@ also comment on issue #816."
   :group 'magit-process
   :type '(repeat (regexp)))
 
-;;;;; Staging
+;;;;; Common
 
-(defcustom magit-stage-all-confirm t
-  "Whether to require confirmation before staging all changes.
-This reduces the risk of accidentally losing the index.  If
-nothing at all is staged yet, then always stage without requiring
-confirmation, because it can be undone without the risk of losing
-a carefully crafted index."
+(defcustom magit-no-confirm nil
+  "A list of symbols for actions Magit should not confirm, or t.
+Actions are: `stage-all', `unstage-all', `revert', `discard',
+`kill-process', `abort-merge', `merge-dirty', `drop-stashes',
+`reset-bisect'.  If t, confirmation is never needed."
   :package-version '(magit . "2.1.0")
   :group 'magit
-  :type 'boolean)
-
-(defcustom magit-unstage-all-confirm t
-  "Whether to require confirmation before unstaging all changes.
-This reduces the risk of accidentally losing of the index.  If
-there are no staged changes at all, then always unstage without
-confirmation, because it can be undone without the risk of losing
-a carefully crafted index."
-  :package-version '(magit . "2.1.0")
-  :group 'magit
-  :type 'boolean)
-
-(defcustom magit-revert-confirm t
-  "Whether to require confirmation before reverting hunks.
-If you disable this, consider enabling `magit-revert-backup'
-instead."
-  :group 'magit
-  :type 'boolean)
+  :type '(choice (const :tag "Confirmation never needed" t)
+                 (set (const stage-all)     (const unstage-all)
+                      (const revert)        (const discard)
+                      (const kill-process)  (const abort-merge)
+                      (const merge-dirty)   (const drop-stashes)
+                      (const resect-bisect))))
 
 (defcustom magit-revert-backup nil
   "Whether to backup a hunk before reverting it.
@@ -1678,6 +1665,32 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
                     (if (= cnt 1) unit units)))
         (magit-format-duration duration (cdr spec) width)))))
 
+(cl-defun magit-confirm (type prompt &optional (files nil sfiles))
+  (cond ((or (eq magit-no-confirm t)
+             (memq type magit-no-confirm))
+         (or (not sfiles)
+             (and files t)))
+        ((not sfiles)
+         (y-or-n-p (concat prompt "? ")))
+        ((= (length files) 1)
+         (y-or-n-p (format "%s %s? " prompt (car files))))
+        ((> (length files) 1)
+         (let ((buffer (get-buffer-create " *Magit Confirm*")))
+           (with-current-buffer buffer
+             (with-current-buffer-window
+              buffer
+              (cons 'display-buffer-below-selected
+                    '((window-height . fit-window-to-buffer)))
+              (lambda (window _value)
+                (with-selected-window window
+                  (unwind-protect
+                      (y-or-n-p (format "%s %i files? "
+                                        prompt (length files)))
+                    (when (window-live-p window)
+                      (quit-restore-window window 'kill)))))
+              (dolist (file files)
+                (insert file "\n"))))))))
+
 (defun magit-flatten-onelevel (list)
   (--mapcat (cond ((consp it) (copy-sequence it))
                   (it (list it)))
@@ -2507,7 +2520,7 @@ Expanded: everything is shown."
   (magit-section-when process
     (let ((process (magit-section-value it)))
       (if (eq (process-status process) 'run)
-          (when (yes-or-no-p "Kill this process? ")
+          (when (magit-confirm 'kill-process "Kill this process")
             (kill-process process))
         (user-error "Process isn't running")))))
 
@@ -4529,9 +4542,8 @@ With a prefix argument also stage previously untracked (but not
 ignored) files.
 \('git add --update|--all .')."
   (interactive
-   (unless (or (not magit-stage-all-confirm)
-               (not (magit-anything-staged-p))
-               (yes-or-no-p "Stage all changes? "))
+   (unless (or (not (magit-anything-staged-p))
+               (magit-confirm 'stage-all "Stage all changes"))
      (user-error "Abort")))
   (magit-run-git "add" (if all "--all" "--update") "."))
 
@@ -4565,10 +4577,10 @@ ignored) files.
       (`(staged      file) (magit-unstage-1 (magit-section-value it)))
       (`(staged     files) (magit-unstage-1 (magit-section-region-siblings
                                              #'magit-section-value)))
-      (`(staged      list) (when (or (not magit-unstage-all-confirm)
-                                     (and (not (magit-anything-unstaged-p))
+      (`(staged      list) (when (or (and (not (magit-anything-unstaged-p))
                                           (not (magit-untracked-files)))
-                                     (yes-or-no-p "Unstage all changes? "))
+                                     (magit-confirm 'unstage-all
+                                                    "Unstage all changes"))
                              (magit-run-git "reset" "HEAD" "--")))
       (`(committed     ,_) (user-error "Cannot unstage committed changes"))
       (`(undefined     ,_) (user-error "Cannot unstage this change")))))
@@ -4606,13 +4618,13 @@ without requiring confirmation."
         (`(committed ,_) (user-error "Cannot discard committed changes"))
         (`(undefined ,_) (user-error "Cannot discard this change"))
         (`(untracked list)
-         (and (yes-or-no-p "Delete all untracked files? ")
+         (and (magit-confirm 'discard "Delete all untracked files")
               (magit-run-git "clean" "-df")))
         (`(,_ ,(or `list `files)) (error "Not implemented"))
         (`(,_ file)
          (magit-discard-file it type))
         (`(,_ ,(or `region `hunk))
-         (and (yes-or-no-p (format "Discard %s? " type))
+         (and (magit-confirm 'discard (format "Discard %s" type))
               (magit-discard-apply it type)))))))
 
 (defun magit-discard-file (section type)
@@ -4620,23 +4632,25 @@ without requiring confirmation."
     (pcase (magit-file-status file)
       ((or `(?U ,_) `(,_ ?U) `(?D ?D) `(?A ?A))
        (magit-checkout-stage file (magit-checkout-read-stage file)))
-      (`(??  ??) (when (yes-or-no-p (format "Delete %s? " file))
+      (`(??  ??) (when (magit-confirm 'discard (format "Delete %s" file))
                    (if (and (file-directory-p file)
                             (not (file-symlink-p file)))
                        (delete-directory file t)
                      (delete-file file))
                    (magit-refresh)))
-      (`(?A ?\s) (and (yes-or-no-p (format "Delete %s? " file))
+      (`(?A ?\s) (and (magit-confirm 'discard (format "Delete %s" file))
                       (magit-run-git "rm" "-f" "--" file)))
-      (`(?\s ?D) (and (yes-or-no-p (format "Resurrect %s? " file))
+      (`(?\s ?D) (and (magit-confirm 'discard (format "Resurrect %s" file))
                       (magit-run-git "checkout" "--" file)))
-      (`(?D ?\s) (and (yes-or-no-p (format "Resurrect %s? " file))
+      (`(?D ?\s) (and (magit-confirm 'discard (format "Resurrect %s" file))
                       (magit-run-git "reset" "-q" "--" file)))
       (`(?R  ,_) (let ((source (magit-section-diff-source section)))
-                   (and (yes-or-no-p (format "Rename back to %s? " source))
+                   (and (magit-confirm 'discard
+                                       (format "Rename back to %s" source))
                         (magit-run-git "mv" file source))))
       ((or `(?M ,_) `(,_ ?M))
-       (and (yes-or-no-p (format "Discard %s changes to %s? " (car type) file))
+       (and (magit-confirm 'discard
+                           (format "Discard %s changes to %s" (car type) file))
             (magit-discard-apply section type))))))
 
 (defun magit-discard-apply (section type)
@@ -4665,12 +4679,11 @@ without requiring confirmation."
   (--when-let (magit-current-section)
     (pcase (magit-diff-scope)
       (`file
-       (and (or (not magit-revert-confirm)
-                (yes-or-no-p (format "Revert %s? " (magit-section-value it))))
+       (and (magit-confirm 'revert
+                           (format "Revert %s" (magit-section-value it)))
             (magit-apply-diff it "--reverse")))
       ((or `region `hunk)
-       (and (or (not magit-revert-confirm)
-                (yes-or-no-p "Revert this hunk? "))
+       (and (magit-confirm 'revert "Revert this hunk")
             (magit-apply-hunk it "--reverse"))))))
 
 (defun magit-revert-commit (commit)
@@ -4985,7 +4998,7 @@ inspect the merge and change the commit message.
 \n(git merge --abort)"
   (interactive)
   (if (file-exists-p (magit-git-dir "MERGE_HEAD"))
-      (when (yes-or-no-p "Abort merge? ")
+      (when (magit-confirm 'abort-merge "Abort merge")
         (magit-run-git-async "merge" "--abort"))
     (user-error "No merge in progress")))
 
@@ -5036,8 +5049,9 @@ inspect the merge and change the commit message.
 (defun magit-merge-assert ()
   (or (not (magit-anything-modified-p))
       (not magit-merge-warn-dirty-worktree)
-      (yes-or-no-p (concat "Running merge in a dirty worktree "
-                           "could cause data loss.  Continue?"))
+      (magit-confirm
+       'merge-dirty
+       "Running merge in a dirty worktree could cause data loss.  Continue")
       (user-error "Abort")))
 
 (defun magit-merge-read-rev ()
@@ -6043,8 +6057,9 @@ When the region is active offer to drop all contained stashes.
   (interactive
    (if (use-region-p)
        (let ((stashes (magit-section-region-siblings 'magit-section-value)))
-         (when (yes-or-no-p (format "Drop %s through %s: "
-                                    (car stashes) (car (last stashes))))
+         (when (magit-confirm 'drop-stashes
+                              (format "Drop %s through %s"
+                                      (car stashes) (car (last stashes))))
            (deactivate-mark t)
            (list stashes)))
      (list (magit-read-stash "Drop stash"))))
@@ -6191,7 +6206,7 @@ other actions from the bisect popup (\
 (defun magit-bisect-reset ()
   "After bisecting cleanup bisection state and return to original HEAD."
   (interactive)
-  (when (yes-or-no-p "Reset bisect?")
+  (when (magit-confirm 'reset-bisect "Reset bisect")
     (magit-run-git "bisect" "reset")
     (ignore-errors (delete-file (magit-git-dir "BISECT_CMD_OUTPUT")))))
 
