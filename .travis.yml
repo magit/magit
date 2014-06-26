@@ -4,7 +4,6 @@ env:
   global:
     - CURL=curl -fsSkL --retry 9 --retry-delay 9
   matrix:
-    - EMACS=emacs AKA=emacs23
     - EMACS=emacs24
     - EMACS=emacs-snapshot
 # matrix:

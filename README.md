@@ -12,9 +12,7 @@ provide a unified interface to various version control systems, Magit
 only supports Git and can therefore better take advantage of its native
 features.
 
-Magit supports GNU Emacs 23.2 or later; 24.1 or later is recommended.
-Magit supports Git 1.7.2.5 or later; 1.8.2 or later is recommended.
-The minimal versions are those available in Debian oldstable.
+Magit requires at least GNU Emacs 24.1 and Git 1.7.2.5.
 
 ### Table of Contents
 
@@ -250,6 +248,8 @@ Add the above lines to your init file and restart Emacs.
 
 Dependencies
 ============
+
+Magit requires at least GNU Emacs 24.1 and Git 1.7.2.5.
 
 If you install Magit using `package.el` then dependencies are
 automatically being taken care of.  Otherwise you have to track down
