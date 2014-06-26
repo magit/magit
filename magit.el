@@ -1752,7 +1752,7 @@ If optional NUM is specified only delete that subexpression."
 
 (cl-defstruct magit-section
   type value start content end hidden washer
-  diff-source process parent children)
+  source process parent children)
 
 (defvar-local magit-root-section nil
   "The root section in the current buffer.
@@ -2175,9 +2175,9 @@ FUNCTION has to move point forward or return nil."
   (when (eq (magit-section-type section) 'hunk)
     (setq section (magit-section-parent section)))
   (when (eq (magit-section-type section) 'file)
-    (let ((src (magit-section-diff-source section))
-          (dst (magit-section-value section)))
-      (format "diff --git a/%s b/%s\n--- a/%s\n+++ b/%s\n" src dst src dst))))
+    (let* ((file (magit-section-value section))
+           (orig (or (magit-section-source section) file)))
+      (format "diff --git a/%s b/%s\n--- a/%s\n+++ b/%s\n" orig file orig file))))
 
 (defun magit-diff-scope (&optional section singular)
   (--when-let (or section (magit-current-section))
@@ -4644,7 +4644,7 @@ without requiring confirmation."
                       (magit-run-git "checkout" "--" file)))
       (`(?D ?\s) (and (magit-confirm 'discard (format "Resurrect %s" file))
                       (magit-run-git "reset" "-q" "--" file)))
-      (`(?R  ,_) (let ((source (magit-section-diff-source section)))
+      (`(?R  ,_) (let ((source (magit-section-source section)))
                    (and (magit-confirm 'discard
                                        (format "Rename back to %s" source))
                         (magit-run-git "mv" file source))))
@@ -7178,20 +7178,20 @@ actually were a single commit."
           (magit-insert (propertize (format "dirty      %s" module)
                                     'face 'magit-file-heading) nil ?\n)))))
    ((looking-at "^\\* Unmerged path \\(.*\\)")
-    (let ((dst (magit-decode-git-path (match-string 1))))
+    (let ((file (magit-decode-git-path (match-string 1))))
       (magit-delete-line)
       (unless (and (derived-mode-p 'magit-status-mode)
                    (not (member "--cached" args)))
-        (magit-insert-section (file dst)
-          (magit-insert (propertize (format "unmerged   %s" dst)
+        (magit-insert-section (file file)
+          (magit-insert (propertize (format "unmerged   %s" file)
                                     'face 'magit-file-heading) nil ?\n))))
     t)
    ((looking-at "^diff --\\(git\\|cc\\|combined\\) \\(?:\\(.+?\\) \\2\\)?")
     (let ((status (cond ((equal (match-string 1) "git")      "modified")
                         ((derived-mode-p 'magit-commit-mode) "resolved")
                         (t                                   "unmerged")))
-          (src (match-string 2))
-          (dst (match-string 2))
+          (orig (match-string 2))
+          (file (match-string 2))
           modes)
       (magit-delete-line)
       (while (not (or (eobp) (looking-at magit-diff-headline-re)))
@@ -7200,30 +7200,31 @@ actually were a single commit."
                    (magit-delete-match))
           (cond
            ((looking-at "^--- \\([^/].*?\\)\t?$") ; i.e. not /dev/null
-            (setq src (match-string 1)))
+            (setq orig (match-string 1)))
            ((looking-at "^\\+\\+\\+ \\([^/].*?\\)\t?$")
-            (setq dst (match-string 1)))
+            (setq file (match-string 1)))
            ((looking-at "^\\(copy\\|rename\\) from \\(.+\\)$")
-            (setq src (match-string 2)))
+            (setq orig (match-string 2)))
            ((looking-at "^\\(copy\\|rename\\) to \\(.+\\)$")
-            (setq dst (match-string 2))
+            (setq file (match-string 2))
             (setq status (if (equal (match-string 1) "copy") "new file" "renamed")))
            ((looking-at "^\\(new file\\|deleted\\)")
             (setq status (match-string 1))))
           (magit-delete-line)))
-      (setq src (magit-decode-git-path src))
-      (setq dst (magit-decode-git-path dst))
+      (setq orig (magit-decode-git-path orig))
+      (setq file (magit-decode-git-path file))
       (when diffstat
-        (setf (magit-section-value diffstat) dst))
+        (setf (magit-section-value diffstat) file))
       (magit-insert-section it
-        (file dst (or (equal status "deleted")
+        (file file (or (equal status "deleted")
                       (derived-mode-p 'magit-status-mode)))
         (magit-insert-heading
           (propertize
            (format "%-10s %s\n" status
-                   (if (equal src dst) dst (format "%s => %s" src dst)))
+                   (if (equal orig file) file (format "%s => %s" orig file)))
            'face 'magit-file-heading))
-        (setf (magit-section-diff-source it) src)
+        (unless (equal orig file)
+          (setf (magit-section-source it) orig))
         (when modes
           (magit-insert-section (hunk)
             (insert modes)))
