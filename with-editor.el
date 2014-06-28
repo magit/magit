@@ -34,6 +34,7 @@
 ;;; Code:
 
 (require 'cl-lib)
+(require 'dash)
 (require 'format-spec)
 (require 'server)
 (require 'tramp)
@@ -46,25 +47,51 @@
   :group 'external
   :group 'server)
 
-(defcustom with-editor-emacsclient-executable
-  (ignore-errors
-    (shell-quote-argument
-     (let ((version
-            (format "%s.%s" emacs-major-version emacs-minor-version)))
-       (or (and (eq system-type 'darwin)
-                (let ((exec-path
-                       (list (expand-file-name "bin" invocation-directory))))
-                  (executable-find "emacsclient")))
-           (executable-find (format "emacsclient%s"   version))
-           (executable-find (format "emacsclient-%s"   version))
-           (executable-find (format "emacsclient%s.exe" version))
-           (executable-find (format "emacsclient-%s.exe" version))
-           (executable-find (format "emacsclient%s"   emacs-major-version))
-           (executable-find (format "emacsclient-%s"   emacs-major-version))
-           (executable-find (format "emacsclient%s.exe" emacs-major-version))
-           (executable-find (format "emacsclient-%s.exe" emacs-major-version))
-           (executable-find "emacsclient")
-           (executable-find "emacsclient.exe")))))
+(defun with-editor-locate-emacsclient ()
+  "Search for a suitable Emacsclient executable."
+  (let ((path (cons (directory-file-name invocation-directory) exec-path)))
+    (when (eq system-type 'darwin)
+      (--when-let (expand-file-name "bin" invocation-directory)
+        (when (file-directory-p it)
+          (push it path)))
+      (when (string-match-p "Cellar" invocation-directory)
+        (--when-let (expand-file-name "../../../bin" invocation-directory)
+          (when (file-directory-p it)
+            (push it path)))))
+    (--if-let (with-editor-locate-emacsclient-1
+               (cl-remove-duplicates path :test 'equal) 3)
+        (shell-quote-argument it)
+      (display-warning 'with-editor (format "\
+Cannot determine a suitable Emacsclient
+
+Determining an Emacsclient executable suitable for the
+current Emacs instance failed.  For more information
+please see https://github.com/magit/magit/wiki/Emacsclient."))
+      nil)))
+
+(defun with-editor-locate-emacsclient-1 (path depth)
+  (let* ((version-lst (-take depth (split-string emacs-version "\\.")))
+         (version-reg (concat "^" (mapconcat #'identity version-lst "\\."))))
+    (or (locate-file-internal
+         "emacsclient" path
+         (cl-mapcan
+          (lambda (v) (cl-mapcar (lambda (e) (concat v e)) exec-suffixes))
+          (nconc (cl-mapcon (lambda (v)
+                              (setq v (mapconcat #'identity (reverse v) "."))
+                              (list v (concat "-" v)))
+                            (reverse version-lst))
+                 (list "")))
+         (lambda (exec)
+           (and (ignore-errors
+                  (string-match-p
+                   version-reg
+                   (cadr (split-string
+                          (car (process-lines exec "--version"))))))
+                (file-executable-p exec))))
+        (and (> depth 1)
+             (with-editor-locate-emacsclient-1 path (1- depth))))))
+
+(defcustom with-editor-emacsclient-executable (with-editor-locate-emacsclient)
   "The Emacsclient executable used by the `with-editor' macro."
   :group 'with-editor
   :type '(choice (string :tag "Executable")
