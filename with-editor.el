@@ -340,7 +340,9 @@ Also see documentation for option `with-editor-looping-editor'."
   (if (file-remote-p default-directory)
       (with-parsed-tramp-file-name default-directory nil
         (format-spec with-editor-looping-editor
-                     `((?r . ,(format "/%s:%s@%s:" method user host))
+                     `((?r . ,(if user
+                                  (format "/%s:%s@%s:" method user host)
+                                (format "/%s:%s:" method host)))
                        (?s . ,with-editor-looping-sleep))))
     (format-spec with-editor-looping-editor
                  `((?r . "")
