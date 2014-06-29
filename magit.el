@@ -6661,7 +6661,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
                           (?B 'magit-signature-bad)
                           (?U 'magit-signature-untrusted))))
     (goto-char (line-beginning-position))
-    (when (eq style 'oneline)
+    (when (memq style '(oneline reflog))
       (magit-format-log-margin author date))
     (if hash
         (magit-insert-section it (commit hash)
