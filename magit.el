@@ -4194,8 +4194,8 @@ commit or stash at point, then prompt for a commit."
     (magit-delete-line)
     (magit-insert-section (headers)
       (magit-insert-heading
-        (propertize rev 'face 'magit-hash)
-        (and refs (concat " "(magit-format-ref-labels refs))))
+        (and refs (concat (magit-format-ref-labels refs) " "))
+        (propertize rev 'face 'magit-hash))
       (while (re-search-forward "^\\([a-z]+\\): +\\(.+\\)$" nil t)
         (magit-bind-match-strings (keyword revs) nil
           (when (string-match-p keyword "Merge")
