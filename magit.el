@@ -3640,6 +3640,12 @@ are considered."
   (or (apply 'magit-anything-staged-p files)
       (apply 'magit-anything-unstaged-p files)))
 
+(defun magit-anything-unmerged-p (&rest files)
+  "Return t if there are any merge conflicts.
+If optional FILES is non-nil, then only conflicts in those files
+are considered."
+  (and (magit-git-string "ls-files" "--unmerged" files) t))
+
 ;;;; Revisions and References
 
 (defun magit-rev-parse (&rest args)
