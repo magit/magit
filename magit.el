@@ -5354,7 +5354,7 @@ With prefix, forces the rename even if NEW already exists.
              magit-current-popup-args))))
   (if upstream
       (progn (message "Rebasing...")
-             (magit-run-git "rebase" upstream)
+             (magit-rebase-async upstream)
              (message "Rebasing...done"))
     (magit-log-select
       `(lambda (commit)
@@ -5367,7 +5367,7 @@ With prefix, forces the rename even if NEW already exists.
   (interactive (list (magit-read-rev "Rebase onto") nil))
   (if upstream
       (progn (message "Rebasing...")
-             (magit-run-git "rebase" "--onto" newbase upstream args)
+             (magit-rebase-async "--onto" newbase upstream args)
              (message "Rebasing...done"))
     (magit-log-select
       `(lambda (commit)
