@@ -4686,13 +4686,13 @@ without requiring confirmation."
           (`(?X ?D ,(or ?  ?M   )) (push file resurrect))
           (`(?Y ,_            ?D ) (push file resurrect))
           (`(?X ?R ,(or ?  ?M ?D)) (push section rename)))))
-    (magit-discard-files--resurrect resurrect)
-    (magit-discard-files--delete delete)
-    (magit-discard-files--rename rename)
-    (magit-discard-files--discard discard)
+    (magit-discard-files--resurrect (nreverse resurrect))
+    (magit-discard-files--delete    (nreverse delete))
+    (magit-discard-files--rename    (nreverse rename))
+    (magit-discard-files--discard   (nreverse discard))
     (when resolve
       (let ((inhibit-magit-refresh t))
-        (dolist (file resolve)
+        (dolist (file (nreverse resolve))
           (magit-checkout-stage file (magit-checkout-read-stage file))))))
   (magit-refresh))
 
