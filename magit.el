@@ -619,6 +619,9 @@ The following `format'-like specs are supported:
   :group 'magit-commit
   :type 'string)
 
+;; This variable is only a temporary hack.
+(defvar magit-commit-extra-options '("--decorate=full" "--pretty=medium"))
+
 (defcustom magit-commit-ask-to-stage t
   "Whether to ask to stage everything when committing and nothing is staged."
   :package-version '(magit . "2.1.0")
@@ -4177,9 +4180,11 @@ commit or stash at point, then prompt for a commit."
   (magit-insert-section (commitbuf)
     (magit-git-wash #'magit-wash-commit
       "log" "-1" "-p" "--cc" "--no-prefix"
-      "--decorate=full" "--pretty=medium"
       (and magit-show-diffstat "--stat")
-      magit-diff-options magit-diff-extra-options commit)))
+      magit-diff-options
+      magit-diff-extra-options
+      magit-commit-extra-options
+      commit)))
 
 ;;;;; Commit Washing
 
