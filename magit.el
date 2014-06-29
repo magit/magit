@@ -81,6 +81,7 @@
   (require 'ediff)
   (require 'eshell)
   (require 'ido)
+  (require 'smerge-mode)
   (require 'view))
 
 ;;;; Declarations
@@ -4897,7 +4898,9 @@ Also see option `magit-revert-backup'."
       (when pos
         (goto-char (point-min))
         (forward-line (1- (car pos)))
-        (move-to-column (cdr pos))))))
+        (move-to-column (cdr pos))))
+    (when (magit-anything-unmerged-p file)
+      (smerge-start-session))))
 
 (defun magit-hunk-file-position (section)
   (let* ((value (magit-section-value section))
