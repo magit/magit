@@ -5258,7 +5258,9 @@ checkout the \"master\" branch.
      (list b (magit-read-rev "Change upstream to branch"
                              (or (unless (equal atpoint b) atpoint)
                                  (unless (equal current b) current))))))
-  (magit-run-git "branch" (concat "--set-upstream-to=" upstream) branch))
+  (if upstream
+      (magit-run-git "branch" (concat "--set-upstream-to=" upstream) branch)
+    (magit-run-git "branch" "--unset-upstream" branch)))
 
 ;;;###autoload
 (defun magit-request-pull (url start)
