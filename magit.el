@@ -1317,7 +1317,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "u" 'magit-unstage-file)
     (define-key map "U" 'magit-reset-index)
     (define-key map "x" 'magit-reset)
-    (define-key map "X" 'magit-clean)
     (define-key map "y" 'magit-cherry)
     (define-key map "z" 'magit-stash-popup)
     (define-key map ":" 'magit-git-command)
@@ -1545,7 +1544,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     ["Ignore locally" magit-gitignore-locally t]
     ["Discard" magit-discard t]
     ["Reset head" magit-reset-head t]
-    ["Clean working tree" magit-clean t]
     ["Stash" magit-stash t]
     ["Snapshot" magit-stash-snapshot t]
     "---"
@@ -5591,22 +5589,6 @@ With a prefix argument also reset the working tree.
    (list (magit-read-rev "Hard reset to"
                          (or (magit-branch-or-commit-at-point) "HEAD"))))
   (magit-run-git "reset" "--hard" commit))
-
-;;;;; Clean
-
-;;;###autoload
-(defun magit-clean (&optional arg)
-  "Remove untracked files from the working tree.
-With a prefix argument also remove ignored files,
-with two prefix arguments remove ignored files only.
-\n(git clean -f -d [-x|-X])"
-  (interactive "p")
-  (when (yes-or-no-p (format "Remove %s files? "
-                             (cl-case arg
-                               (1 "untracked")
-                               (4 "untracked and ignored")
-                               (t "ignored"))))
-    (magit-run-git "clean" "-f" "-d" (cl-case arg (4 "-x") (16 "-X")))))
 
 ;;;;; Fetching
 

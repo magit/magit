@@ -144,6 +144,24 @@ a prefix argument run gitk without any arguments."
   (apply #'call-process magit-gitk-executable nil 0 nil
          (if arg nil (list "--all"))))
 
+;;; Clean
+
+;;;###autoload
+(defun magit-clean (&optional arg)
+  "Remove untracked files from the working tree.
+With a prefix argument also remove ignored files,
+with two prefix arguments remove ignored files only.
+\n(git clean -f -d [-x|-X])"
+  (interactive "p")
+  (when (yes-or-no-p (format "Remove %s files? "
+                             (cl-case arg
+                               (1 "untracked")
+                               (4 "untracked and ignored")
+                               (t "ignored"))))
+    (magit-run-git "clean" "-f" "-d" (cl-case arg (4 "-x") (16 "-X")))))
+
+(put 'magit-clean 'disabled t)
+
 ;;; Gitignore
 
 (defun magit-gitignore (file-or-pattern &optional local)
