@@ -2477,7 +2477,10 @@ Expanded: everything is shown."
     (unless (eq old new)
       (when old
         (magit-section-unhighlight old))
-      (unless (eq new magit-root-section)
+      (unless (or (eq new magit-root-section)
+                  (and (use-region-p)
+                       (= (region-beginning) (magit-section-start new))
+                       (not (magit-section-content new))))
         (setq magit-highlighted-section new)
         (magit-section-highlight new)))))
 
