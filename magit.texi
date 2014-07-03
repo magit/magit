@@ -65,7 +65,6 @@ mailing list}.
 * Resetting::
 * Stashing::
 * Branches and Remotes::
-* Wazzup::
 * Merging::
 * Rebasing::
 * Interactive Rebasing::
@@ -562,8 +561,7 @@ below.
 @menu
 * Branches Popup::
 * Remotes Popup::
-* Branches in the Branch Manager::
-* Remotes in the Branch Manager::
+* References Buffer::
 @end menu
 
 @node Branches Popup
@@ -608,65 +606,12 @@ To delete a remote type @kbd{M k}.
 
 Typing @kbd{M r} will let you rename a remote.
 
-@node Branches in the Branch Manager
-@section Branches in the Branch Manager
+@node References Buffer
+@section References Buffer
 
-In the branch manager, each branch is displayed on a separate line.  The
-current local branch is marked by a ``#'' in front of the name.  Remote
-branches are grouped by the remote they come from.
+TODO document me.
 
-If a local branch tracks a remote branch some extra information is
-printed on the branch line.  The format  is the following: ``<branch>
-[<remote-branch> @ <remote>: ahead <a>, behind <b>]''.
-``<remote-branch>'' is omitted if it is identical to ``<branch>''.
-``ahead'' and ``behind'' information are only displayed if necessary.
-
-To check out a branch, move your cursor to the desired branch and
-press @kbd{RET}.
-
-Typing @kbd{c} will create a new branch.
-
-Typing @kbd{k} will delete the branch in the current line, and
-@kbd{C-u k} deletes it even if it hasn't been merged into the current
-local branch.  Deleting works for both local and remote branches.
-
-Typing @kbd{r} on a branch will rename it.
-
-Typing @kbd{T} on a local branch, changes which remote branch it
-tracks.
-
-@node Remotes in the Branch Manager
-@section Remotes in the Branch Manager
-
-In the branch manager, each remote is displayed on a separate line.  The
-format is the following ``<remote> (<url>, <push-url>)''.  ``<push-url>''
-is omitted if it is not set.  The associated branches are listed under
-this line.
-
-Typing @kbd{a} will add a new remote.
-
-Typing @kbd{k} will delete the remote in the current line.
-
-Typing @kbd{r} on a remote will rename it.
-
-@node Wazzup
-@chapter Wazzup
-
-Typing @kbd{w} will show a summary of how your other branches relate
-to the current branch.
-
-For each branch, you will get a section that lists the commits in that
-branch that are not in the current branch.  The sections are initially
-collapsed; you need to explicitly open them with @kbd{TAB} (or
-similar) to show the lists of commits.
-
-When point is on a @emph{N unmerged commits in ...} title, the
-corresponding branch will be offered as the default for a merge.
-
-Hitting @kbd{i} on a branch title will ignore this branch in the
-wazzup view.  You can use @kbd{C-u w} to show all branches, including
-the ignored ones.  Hitting @kbd{i} on an already ignored branch in
-that view will unignore it.
+For now here is a little hint: try @kbd{TAB} on a branch sections.
 
 @node Merging
 @chapter Merging
