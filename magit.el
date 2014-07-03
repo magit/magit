@@ -6811,7 +6811,6 @@ With a non numeric prefix ARG, show all entries"
 This mode is documented in info node `(magit)Wazzup'.
 
 \\<magit-cherry-mode-map>\
-Type \\[magit-toggle-section] to expand or hide the section at point.
 Type \\[magit-show-commit] or \\[magit-show-or-scroll-up]\
  to visit the commit at point.
 Type \\[magit-cherry-pick] to cherry-pick the commit at point.
