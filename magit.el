@@ -1296,7 +1296,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "P" 'magit-push-popup)
     (define-key map "r" 'magit-rebase-popup)
     (define-key map "t" 'magit-tag-popup)
-    (define-key map "w" 'magit-show-refs)
     (define-key map [C-return] 'magit-dired-jump)
     (define-key map "\s"       'magit-show-or-scroll-up)
     (define-key map "\d"       'magit-show-or-scroll-down)
@@ -1306,7 +1305,8 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "u" 'magit-unstage-file)
     (define-key map "U" 'magit-reset-index)
     (define-key map "x" 'magit-reset)
-    (define-key map "y" 'magit-cherry)
+    (define-key map "y" 'magit-show-refs)
+    (define-key map "Y" 'magit-cherry)
     (define-key map "z" 'magit-stash-popup)
     (define-key map ":" 'magit-git-command)
     (define-key map "!" 'magit-run-popup)
@@ -1571,8 +1571,8 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
              (?U "Reset Index"     magit-reset-index)
              (?v "Show Commit"     magit-show-commit)
              (?V "Show File"       magit-show)
-             (?w "Show Refs"       magit-show-refs)
-             (?y "Cherry"          magit-cherry)
+             (?y "Show Refs"       magit-show-refs)
+             (?Y "Cherry"          magit-cherry)
              (?z "Stashing"        magit-stash-popup)
              (?! "Running"         magit-run-popup)
              (?$ "Show Process"    magit-display-process)))
@@ -5069,8 +5069,7 @@ inspect the merge and change the commit message.
               (?B "Create & Checkout" magit-branch-and-checkout)
               (?u "Set upstream"      magit-branch-set-upstream)
               (?r "Rename"            magit-branch-rename)
-              (?k "Delete"            magit-branch-delete)
-              (?v "Show refs"         magit-show-refs))
+              (?k "Delete"            magit-branch-delete))
   :default-action 'magit-checkout)
 
 ;;;###autoload
@@ -5201,11 +5200,9 @@ With prefix, forces the rename even if NEW already exists.
   "Popup console for remote commands."
   'magit-popups
   :man-page "git-remote"
-  :actions  '((?a "Add"       magit-remote-add)
-              (?r "Rename"    magit-remote-rename)
-              (?k "Remove"    magit-remote-remove)
-              (?v "Show refs" magit-show-refs))
-  :default-action 'magit-show-refs)
+  :actions  '((?a "Add"    magit-remote-add)
+              (?r "Rename" magit-remote-rename)
+              (?k "Remove" magit-remote-remove)))
 
 ;;;###autoload
 (defun magit-remote-add (remote url)
