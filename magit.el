@@ -4694,28 +4694,20 @@ without requiring confirmation."
 (defun magit-apply-diff (section &rest args)
   (when (member "-U0" magit-diff-options)
     (setq args (cons "--unidiff-zero" args)))
-  (let ((patch (buffer-substring (magit-section-content section)
-                                 (magit-section-end section))))
-    (with-temp-buffer
-      (insert (magit-section-diff-header section) patch)
-      (magit-apply-backup (buffer-string) args)
-      (magit-run-git-with-input nil
-        "apply" args "--ignore-space-change" "-")))
-  (magit-refresh))
+  (magit-apply-patch (concat (magit-section-diff-header section)
+                             (buffer-substring (magit-section-content section)
+                                               (magit-section-end section)))
+                     args))
 
 (defun magit-apply-hunk (section &rest args)
   (when (string-match "^diff --cc" (magit-section-parent-value section))
     (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
   (when (member "-U0" magit-diff-options)
     (setq args (cons "--unidiff-zero" args)))
-  (let ((patch (buffer-substring (magit-section-start section)
-                                 (magit-section-end section))))
-    (with-temp-buffer
-      (insert (magit-section-diff-header section) patch)
-      (magit-apply-backup (buffer-string) args)
-      (magit-run-git-with-input nil
-        "apply" args "--ignore-space-change" "-")))
-  (magit-refresh))
+  (magit-apply-patch (concat (magit-section-diff-header section)
+                             (buffer-substring (magit-section-start section)
+                                               (magit-section-end section)))
+                     args))
 
 (defun magit-apply-region (section &rest args)
   (when (member "-U0" magit-diff-options)
@@ -4727,7 +4719,7 @@ without requiring confirmation."
         (rend (region-end))
         (sbeg (magit-section-start section))
         (send (magit-section-end section))
-        patch)
+        (patch (list (magit-section-diff-header section))))
     (save-excursion
       (goto-char sbeg)
       (while (< (point) send)
@@ -4740,12 +4732,18 @@ without requiring confirmation."
                (push (concat " " (match-string 2)) patch)))
         (forward-line)))
     (with-temp-buffer
-      (insert (magit-section-diff-header section)
-              (mapconcat 'identity (reverse patch) ""))
+      (insert (mapconcat 'identity (reverse patch) ""))
       (diff-fixup-modifs (point-min) (point-max))
-      (magit-apply-backup (buffer-string) args)
-      (magit-run-git-with-input nil
-        "apply" args "--ignore-space-change" "-")))
+      (setq patch (buffer-string)))
+    (magit-apply-patch patch args)))
+
+(defun magit-apply-patch (patch args)
+  (when magit-apply-backup
+    (magit-apply-backup patch args))
+  (with-temp-buffer
+    (insert patch)
+    (magit-run-git-with-input nil
+      "apply" args "--ignore-space-change" "-"))
   (magit-refresh))
 
 (defconst magit-apply-backup-file "magit/apply.diff")
