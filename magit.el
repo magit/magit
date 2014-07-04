@@ -313,17 +313,24 @@ If t, confirmation is never needed."
   :group 'magit
   :type 'boolean)
 
-(defcustom magit-revert-backup nil
-  "Whether to backup a hunk before reverting it.
-The hunk is stored in \".git/magit/reverted.diff\" and can be
-applied using `magit-revert-undo'.  Older hunks are available
-in the same directory as numbered backup files and have to be
-applied manually.  Only individual hunks are backed up; when
-a complete file is reverted (which requires confirmation) no
-backup is created."
+(defcustom magit-apply-backup nil
+  "Whether to create a backup before using `git apply'.
+
+WARNING: This only creates a backup when Magit used `git apply'.
+That is not sufficient as not every action that might destroy
+uncommitted changes eventually uses that Git command.  Don't rely
+on this.  Reminder: you are using Magit's `next' branch and are
+therefor using a development version.
+
+The diff is stored in the file \".git/magit/apply.diff\" and can
+be applied in reversed using `magit-apply-undo'.  Older diffs are
+available in the same directory as numbered backup files and have
+to be applied manually."
   :package-version '(magit . "2.1.0")
   :group 'magit
   :type 'boolean)
+
+(define-obsolete-variable-alias 'magit-revert-backup 'magit-apply-backup)
 
 (defcustom magit-save-repository-buffers t
   "Whether to save modified buffers when approriate.
@@ -4691,6 +4698,7 @@ without requiring confirmation."
                                  (magit-section-end section))))
     (with-temp-buffer
       (insert (magit-section-diff-header section) patch)
+      (magit-apply-backup (buffer-string) args)
       (magit-run-git-with-input nil
         "apply" args "--ignore-space-change" "-")))
   (magit-refresh))
@@ -4704,7 +4712,7 @@ without requiring confirmation."
                                  (magit-section-end section))))
     (with-temp-buffer
       (insert (magit-section-diff-header section) patch)
-      (magit-revert-backup (current-buffer) args)
+      (magit-apply-backup (buffer-string) args)
       (magit-run-git-with-input nil
         "apply" args "--ignore-space-change" "-")))
   (magit-refresh))
@@ -4735,34 +4743,48 @@ without requiring confirmation."
       (insert (magit-section-diff-header section)
               (mapconcat 'identity (reverse patch) ""))
       (diff-fixup-modifs (point-min) (point-max))
-      (magit-revert-backup (current-buffer) args)
+      (magit-apply-backup (buffer-string) args)
       (magit-run-git-with-input nil
         "apply" args "--ignore-space-change" "-")))
   (magit-refresh))
 
-(defconst magit-revert-backup-file "magit/reverted.diff")
+(defconst magit-apply-backup-file "magit/apply.diff")
 
-(defun magit-revert-backup (buffer args)
-  (when (and magit-revert-backup (member "--reverse" args))
-    (with-current-buffer buffer
-      (let ((buffer-file-name (magit-git-dir magit-revert-backup-file))
-            (make-backup-files t)
-            (backup-directory-alist nil)
-            (version-control t)
-            (kept-old-versions 0)
-            (kept-new-versions 10))
-        (make-directory (file-name-directory buffer-file-name) t)
-        (save-buffer 16)))))
+(defun magit-apply-backup (patch args)
+  (with-temp-buffer
+    (insert "git apply " (mapconcat 'identity args " ") "\n---\n" patch)
+    (let ((buffer-file-name (magit-git-dir magit-apply-backup-file))
+          (make-backup-files t)
+          (backup-directory-alist nil)
+          (version-control t)
+          (kept-old-versions 0)
+          (kept-new-versions 10))
+      (make-directory (file-name-directory buffer-file-name) t)
+      (save-buffer 16))))
 
-(defun magit-revert-undo ()
-  "Re-apply the previously reverted hunk.
-Also see option `magit-revert-backup'."
+(defun magit-apply-undo ()
+  "Apply the previously applied diff in reverse.
+
+WARNING: Backups are only created when Magit used `git apply'.
+That is not sufficient as not every action that might destroy
+uncommitted changes eventually uses that Git command.  Don't rely
+on this.  Reminder: you are using Magit's `next' branch and are
+therefor using a development version.
+
+Also see variable `magit-apply-backup'."
   (interactive)
-  (let ((file (magit-git-dir magit-revert-backup-file)))
+  (let ((file (magit-git-dir magit-apply-backup-file)))
     (if (file-readable-p file)
-        (magit-run-git "apply" file)
-      (user-error "No backups exist"))
-    (magit-refresh)))
+        (with-temp-buffer
+          (insert-file-contents file)
+          (if (looking-at "^git apply \\(.+\\)")
+              (let ((args (split-string (match-string 1))))
+                (magit-apply-patch (buffer-string)
+                                   (if (member "--reverse" args)
+                                       (remove "--reverse" args)
+                                     (cons "--reverse" args))))
+            (error "Cannot undo patch")))
+      (user-error "No backups exist"))))
 
 ;;;; Visit
 
