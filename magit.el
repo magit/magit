@@ -4787,10 +4787,7 @@ Also see variable `magit-apply-backup'."
 ;;;; Visit
 
 (defun magit-visit-file (file &optional other-window)
-  (interactive (magit-section-case
-                 (file (list (magit-section-value it) current-prefix-arg))
-                 (hunk (list (magit-section-parent-value it)
-                             current-prefix-arg))))
+  (interactive (list (magit-file-at-point) current-prefix-arg))
   (unless (file-exists-p file)
     (user-error "Can't visit deleted file: %s" file))
   (if (file-directory-p file)
