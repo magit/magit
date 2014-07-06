@@ -3582,6 +3582,9 @@ If the file is not inside a Git repository then return nil."
 (defun magit-staged-files ()
   (magit-git-lines "diff-index" "--name-only" (magit-headish)))
 
+(defun magit-unmerged-files ()
+  (magit-git-lines "diff-files" "--name-only" "--diff-filter=U"))
+
 (defun magit-file-status (&optional file status)
   (if file
       (cdr (--first (or (string-equal (car it) file)
@@ -6898,61 +6901,18 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 
 ;;;; Ediff Support
 
-(defvar magit-ediff-windows nil
-  "The window configuration that will be restored when Ediff is finished.")
-
 ;;;###autoload
-(defun magit-interactive-resolve (file)
-  "Resolve a merge conflict using Ediff."
-  (interactive (list (magit-file-at-point)))
-  (require 'ediff)
-  (let ((merge-status (magit-git-lines "ls-files" "-u" "--" file))
-        (base-buffer)
-        (our-buffer (generate-new-buffer (concat file ".current")))
-        (their-buffer (generate-new-buffer (concat file ".merged")))
-        (merger-buffer)
-        (windows (current-window-configuration)))
-    (unless merge-status
-      (user-error "Cannot resolve %s" file))
-    (when (string-match "^[0-9]+ [0-9a-f]+ 1" (car merge-status))
-      (pop merge-status)
-      (setq base-buffer (generate-new-buffer (concat file ".base")))
-      (with-current-buffer base-buffer
-        (magit-git-insert "cat-file" "blob" (concat ":1:" file))))
-    ;; If the second or third version do not exit, we use an empty buffer for the deleted file
-    (with-current-buffer our-buffer
-      (when (string-match "^[0-9]+ [0-9a-f]+ 2" (car merge-status))
-        (pop merge-status)
-        (magit-git-insert "cat-file" "blob" (concat ":2:" file)))
-      (let ((buffer-file-name file))
-        (normal-mode t)))
-    (with-current-buffer their-buffer
-      (when (string-match "^[0-9]+ [0-9a-f]+ 3" (car merge-status))
-        (magit-git-insert "cat-file" "blob" (concat ":3:" file)))
-      (let ((buffer-file-name file))
-        (normal-mode t)))
-    ;; We have now created the 3 buffer with ours, theirs and the ancestor files
-    (if base-buffer
-        (setq merger-buffer (ediff-merge-buffers-with-ancestor
-                             our-buffer their-buffer base-buffer nil nil file))
-      (setq merger-buffer (ediff-merge-buffers our-buffer their-buffer nil nil file)))
-    (with-current-buffer merger-buffer
-      (setq ediff-show-clashes-only t)
-      (setq-local magit-ediff-windows windows)
-      (make-local-variable 'ediff-quit-hook)
-      (add-hook 'ediff-quit-hook
-                (lambda ()
-                  (let ((buffer-A ediff-buffer-A)
-                        (buffer-B ediff-buffer-B)
-                        (buffer-C ediff-buffer-C)
-                        (buffer-Ancestor ediff-ancestor-buffer)
-                        (windows magit-ediff-windows))
-                    (ediff-cleanup-mess)
-                    (kill-buffer buffer-A)
-                    (kill-buffer buffer-B)
-                    (when (bufferp buffer-Ancestor)
-                      (kill-buffer buffer-Ancestor))
-                    (set-window-configuration windows)))))))
+(defun magit-ediff-resolve-file (file)
+  "Resolve conflicts in FILE using Ediff."
+  (interactive
+   (let ((atpoint  (magit-file-at-point))
+         (unmerged (magit-unmerged-files)))
+     (unless unmerged
+       (user-error "There are no unresolved conflicts"))
+     (list (magit-completing-read "Resolve file" unmerged nil t nil nil
+                                  (car (member atpoint unmerged))))))
+  (with-current-buffer (find-file-noselect file)
+    (smerge-ediff)))
 
 ;;;; Diff Mode
 ;;;;; Diff Core
