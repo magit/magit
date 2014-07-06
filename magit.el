@@ -4042,19 +4042,23 @@ results in additional differences."
 
 (defvar magit-read-file-hist nil)
 
-(defun magit-read-file-from-rev (revision &optional default)
+(defun magit-read-file-from-rev (revision prompt &optional default)
   (unless revision
     (setq revision "HEAD"))
   (let ((default-directory (magit-get-top-dir)))
     (magit-completing-read
-     (format "Retrieve file from %s" revision)
+     prompt
      (magit-git-lines "ls-tree" "-r" "-t" "--name-only" revision)
      nil 'require-match
      nil 'magit-read-file-hist
-     (or default (magit-buffer-file-name t)))))
+     (or default
+         (magit-buffer-file-name t)
+         (magit-file-at-point)
+         (and (derived-mode-p 'magit-log-mode)
+              (nth 3 magit-refresh-args))))))
 
 (defun magit-read-file-trace (ignored)
-  (let ((file  (magit-read-file-from-rev "HEAD"))
+  (let ((file  (magit-read-file-from-rev "HEAD" "File"))
         (trace (magit-read-string "Trace")))
     (if (string-match
          "^\\(/.+/\\|:[^:]+\\|[0-9]+,[-+]?[0-9]+\\)\\(:\\)?$" trace)
@@ -4858,8 +4862,8 @@ return the buffer, without displaying it."
           (file (or (magit-file-at-point) magit-log-file))
           (file (cl-case rev
                   (working (read-file-name "Find file: "))
-                  (index   (magit-read-file-from-rev "HEAD" file))
-                  (t       (magit-read-file-from-rev rev file)))))
+                  (index   (magit-read-file-from-rev "HEAD" "Find file" file))
+                  (t       (magit-read-file-from-rev rev "Find file" file)))))
      (list rev file (if current-prefix-arg
                         'switch-to-buffer
                       'pop-to-buffer))))
@@ -6425,8 +6429,7 @@ to test.  This command lets Git choose a different one."
   "Display the log for the currently visited file or another one.
 With a prefix argument show the log graph."
   (interactive
-   (list (magit-read-file-from-rev (magit-get-current-branch)
-                                   (magit-buffer-file-name t))
+   (list (magit-read-file-from-rev (magit-get-current-branch) "Log for file")
          current-prefix-arg))
   (magit-mode-setup magit-log-buffer-name-format nil
                     #'magit-log-mode
