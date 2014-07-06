@@ -1577,7 +1577,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
              (?t "Tagging"         magit-tag-popup)
              (?U "Reset Index"     magit-reset-index)
              (?v "Show Commit"     magit-show-commit)
-             (?V "Show File"       magit-show)
+             (?V "Show File"       magit-find-file)
              (?y "Show Refs"       magit-show-refs)
              (?Y "Cherry"          magit-cherry)
              (?z "Stashing"        magit-stash-popup)
@@ -1633,21 +1633,6 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
     (with-temp-buffer
       (insert-file-contents file)
       (split-string (buffer-string) "\n" (not keep-empty-lines)))))
-
-(defvar-local magit-file-name ()
-  "Name of file the buffer shows a different version of.")
-
-(defun magit-buffer-file-name (&optional relative)
-  (let ((topdir (magit-get-top-dir)))
-    (--when-let (or buffer-file-name
-                    (-when-let (base (buffer-base-buffer))
-                      (with-current-buffer base
-                        buffer-file-name))
-                    (-when-let (name magit-file-name)
-                      (expand-file-name name topdir)))
-      (if relative
-          (file-relative-name (file-truename it) topdir)
-        (file-truename it)))))
 
 (defun magit-commit-log-buffer ()
   (cl-find-if (lambda (buf)
@@ -3562,9 +3547,22 @@ a bare repositories."
            (file-directory-p (expand-file-name "refs" directory))
            (file-directory-p (expand-file-name "objects" directory)))))
 
-(defun magit-file-relative-name (file)
+(defvar-local magit-buffer-revision  nil)
+(defvar-local magit-buffer-refname   nil)
+(defvar-local magit-buffer-file-name nil)
+(put 'magit-buffer-revision  'permanent-local t)
+(put 'magit-buffer-refname   'permanent-local t)
+(put 'magit-buffer-file-name 'permanent-local t)
+
+(defun magit-file-relative-name (&optional file)
   "Return the path of FILE relative to the repository root.
-If FILE isn't inside a Git repository then return nil."
+If optional FILE is nil or omitted return the relative path of
+the file being visited in the current buffer, if any, else nil.
+If the file is not inside a Git repository then return nil."
+  (unless file
+    (with-current-buffer (or (buffer-base-buffer)
+                             (current-buffer))
+      (setq file (or magit-buffer-file-name buffer-file-name))))
   (setq file (file-truename file))
   (--when-let (magit-get-top-dir (file-name-directory file))
     (substring file (length it))))
@@ -4042,19 +4040,23 @@ results in additional differences."
 
 (defvar magit-read-file-hist nil)
 
-(defun magit-read-file-from-rev (revision &optional default)
+(defun magit-read-file-from-rev (revision prompt &optional default)
   (unless revision
     (setq revision "HEAD"))
   (let ((default-directory (magit-get-top-dir)))
     (magit-completing-read
-     (format "Retrieve file from %s" revision)
+     prompt
      (magit-git-lines "ls-tree" "-r" "-t" "--name-only" revision)
      nil 'require-match
      nil 'magit-read-file-hist
-     (or default (magit-buffer-file-name t)))))
+     (or default
+         (magit-file-relative-name)
+         (magit-file-at-point)
+         (and (derived-mode-p 'magit-log-mode)
+              (nth 3 magit-refresh-args))))))
 
 (defun magit-read-file-trace (ignored)
-  (let ((file  (magit-read-file-from-rev "HEAD"))
+  (let ((file  (magit-read-file-from-rev "HEAD" "File"))
         (trace (magit-read-string "Trace")))
     (if (string-match
          "^\\(/.+/\\|:[^:]+\\|[0-9]+,[-+]?[0-9]+\\)\\(:\\)?$" trace)
@@ -4444,7 +4446,7 @@ the file to be staged.  Otherwise stage the file at point without
 requiring confirmation."
   (interactive
    (let* ((atpoint (magit-section-when (file)))
-          (current (magit-buffer-file-name t))
+          (current (magit-file-relative-name))
           (choices (nconc (magit-modified-files)
                           (magit-untracked-files)))
           (default (car (member (or atpoint current) choices))))
@@ -4514,7 +4516,7 @@ the file to be unstaged.  Otherwise unstage the file at point
 without requiring confirmation."
   (interactive
    (let* ((atpoint (magit-section-when (file)))
-          (current (magit-buffer-file-name t))
+          (current (magit-file-relative-name))
           (choices (magit-staged-files))
           (default (car (member (or atpoint current) choices))))
      (list (if (or current-prefix-arg (not default))
@@ -4786,11 +4788,63 @@ Also see variable `magit-apply-backup'."
 
 ;;;; Visit
 
+;;;###autoload
+(defun magit-find-file (rev file)
+  (interactive (magit-find-file-read-args "Find file"))
+  (switch-to-buffer (magit-find-file-noselect rev file)))
+
+;;;###autoload
+(defun magit-find-file-other-window (rev file)
+  (interactive (magit-find-file-read-args "Find file in other window"))
+  (switch-to-buffer-other-window (magit-find-file-noselect rev file)))
+
+(defun magit-find-file-read-args (prompt)
+  (let ((rev (magit-read-rev "Find file from revision"
+                             (or (magit-branch-or-commit-at-point)
+                                 (magit-get-current-branch)))))
+    (list rev (magit-read-file-from-rev rev prompt))))
+
+(defun magit-find-file-noselect (rev file)
+  (with-current-buffer
+      (get-buffer-create
+       (format "%s.~%s~" file (subst-char-in-string ?/ ?_ rev)))
+    (let ((inhibit-read-only t))
+      (erase-buffer)
+      (magit-git-insert "cat-file" "-p" (concat rev ":" file)))
+    (setq magit-buffer-revision  (magit-rev-format "%H" rev)
+          magit-buffer-refname   rev
+          magit-buffer-file-name (expand-file-name file (magit-get-top-dir)))
+    (let ((buffer-file-name magit-buffer-file-name))
+      (normal-mode t))
+    (setq buffer-read-only t)
+    (set-buffer-modified-p nil)
+    (goto-char (point-min))
+    (run-hooks 'magit-find-file-hook)
+    (current-buffer)))
+
+(defun magit-find-file-index-noselect (file)
+  (with-current-buffer
+      (get-buffer-create (concat file ".~{index}~"))
+    (let ((inhibit-read-only t)
+          (temp (car (split-string
+                      (magit-git-string "checkout-index" "--temp" file)
+                      "\t"))))
+      (erase-buffer)
+      (insert-file-contents temp nil nil nil t)
+      (delete-file temp))
+    (setq magit-buffer-revision  "{index}"
+          magit-buffer-refname   "{index}"
+          magit-buffer-file-name (expand-file-name file (magit-get-top-dir)))
+    (let ((buffer-file-name magit-buffer-file-name))
+      (normal-mode t))
+    (setq buffer-read-only t)
+    (set-buffer-modified-p nil)
+    (goto-char (point-min))
+    (run-hooks 'magit-find-index-hook)
+    (current-buffer)))
+
 (defun magit-visit-file (file &optional other-window)
-  (interactive (magit-section-case
-                 (file (list (magit-section-value it) current-prefix-arg))
-                 (hunk (list (magit-section-parent-value it)
-                             current-prefix-arg))))
+  (interactive (list (magit-file-at-point) current-prefix-arg))
   (unless (file-exists-p file)
     (user-error "Can't visit deleted file: %s" file))
   (if (file-directory-p file)
@@ -4836,76 +4890,11 @@ Also see variable `magit-apply-backup'."
 ;;;###autoload
 (defun magit-dired-jump (&optional other-window)
   "Visit file at point using Dired.
-With a prefix argument, visit in other window."
+With a prefix argument, visit in other window.  If there
+is no file at point then instead visit `default-directory'."
   (interactive "P")
   (dired-jump other-window
-              (file-truename
-               (magit-section-case
-                 (file (magit-section-value it))
-                 (hunk (magit-section-parent-value it))
-                 (t    default-directory)))))
-
-(defvar-local magit-log-file nil)
-(defvar-local magit-show-current-version nil)
-
-;;;###autoload
-(defun magit-show (rev file &optional switch-function)
-  "Display and select a buffer containing FILE as stored in REV.
-
-Insert the contents of FILE as stored in the revision REV into a
-buffer.  Then select the buffer using `pop-to-buffer' or with a
-prefix argument using `switch-to-buffer'.  Non-interactivity use
-SWITCH-FUNCTION to switch to the buffer, if that is nil simply
-return the buffer, without displaying it."
-  (interactive
-   (let* ((rev (or (magit-branch-or-commit-at-point)
-                   (magit-get-current-branch)))
-          (rev (magit-read-rev "Retrieve file from revision" rev))
-          (file (or (magit-file-at-point) magit-log-file))
-          (file (cl-case rev
-                  (working (read-file-name "Find file: "))
-                  (index   (magit-read-file-from-rev "HEAD" file))
-                  (t       (magit-read-file-from-rev rev file)))))
-     (list rev file (if current-prefix-arg
-                        'switch-to-buffer
-                      'pop-to-buffer))))
-  (let (buffer)
-    (if (eq rev 'working)
-        (setq buffer (find-file-noselect file))
-      (let ((name (format "%s.%s" file
-                          (if (symbolp rev)
-                              (format "@{%s}" rev)
-                            (replace-regexp-in-string "/" ":" rev)))))
-        (setq buffer (get-buffer name))
-        (when buffer
-          (with-current-buffer buffer
-            (if (and (equal file magit-file-name)
-                     (equal rev  magit-show-current-version))
-                (let ((inhibit-read-only t))
-                  (erase-buffer))
-              (setq buffer nil))))
-        (with-current-buffer
-            (or buffer (setq buffer (create-file-buffer name)))
-          (setq buffer-read-only t)
-          (with-silent-modifications
-            (if (eq rev 'index)
-                (let ((temp (car (split-string
-                                  (magit-git-string "checkout-index"
-                                                    "--temp" file)
-                                  "\t")))
-                      (inhibit-read-only t))
-                  (insert-file-contents temp nil nil nil t)
-                  (delete-file temp))
-              (magit-git-insert "cat-file" "-p" (concat rev ":" file))))
-          (let ((buffer-file-name (expand-file-name file (magit-get-top-dir))))
-            (normal-mode t))
-          (setq magit-file-name file)
-          (setq magit-show-current-version rev)
-          (goto-char (point-min)))))
-    (when switch-function
-      (with-current-buffer buffer
-        (funcall switch-function (current-buffer))))
-    buffer))
+              (file-truename (or (magit-file-at-point) default-directory))))
 
 ;;;; Act
 ;;;;; Init
@@ -6431,8 +6420,7 @@ to test.  This command lets Git choose a different one."
   "Display the log for the currently visited file or another one.
 With a prefix argument show the log graph."
   (interactive
-   (list (magit-read-file-from-rev (magit-get-current-branch)
-                                   (magit-buffer-file-name t))
+   (list (magit-read-file-from-rev (magit-get-current-branch) "Log for file")
          current-prefix-arg))
   (magit-mode-setup magit-log-buffer-name-format nil
                     #'magit-log-mode
@@ -6491,7 +6479,6 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   (magit-set-buffer-margin magit-log-show-margin))
 
 (defun magit-refresh-log-buffer (style range args &optional file)
-  (setq magit-log-file file)
   (when (consp range)
     (setq range (concat (car range) ".." (cdr range))))
   (magit-insert-section (logbuf)

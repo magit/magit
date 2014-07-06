@@ -120,9 +120,9 @@ blame to center around the line point is on."
    (let (revision filename)
      (when (or current-prefix-arg
                (not (setq revision "HEAD"
-                          filename (magit-buffer-file-name t))))
-       (setq revision (magit-read-rev "Retrieve from revision" "HEAD")
-             filename (magit-read-file-from-rev revision)))
+                          filename (magit-file-relative-name))))
+       (setq revision (magit-read-rev "Blame from revision" "HEAD")
+             filename (magit-read-file-from-rev revision "Blame file")))
      (list revision filename
            (and (equal filename
                        (ignore-errors
