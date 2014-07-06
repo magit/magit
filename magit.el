@@ -4833,14 +4833,11 @@ Also see variable `magit-apply-backup'."
 ;;;###autoload
 (defun magit-dired-jump (&optional other-window)
   "Visit file at point using Dired.
-With a prefix argument, visit in other window."
+With a prefix argument, visit in other window.  If there
+is no file at point then instead visit `default-directory'."
   (interactive "P")
   (dired-jump other-window
-              (file-truename
-               (magit-section-case
-                 (file (magit-section-value it))
-                 (hunk (magit-section-parent-value it))
-                 (t    default-directory)))))
+              (file-truename (or (magit-file-at-point) default-directory))))
 
 (defvar-local magit-log-file nil)
 (defvar-local magit-show-current-version nil)
