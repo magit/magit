@@ -505,8 +505,8 @@ manager but it will be used in more places in the future."
 (defcustom magit-status-sections-hook
   '(magit-insert-status-headers
     magit-insert-status-tags-line
-    magit-insert-status-merge-line
     magit-insert-empty-line
+    magit-insert-merge-log
     magit-insert-rebase-sequence
     magit-insert-am-sequence
     magit-insert-sequencer-sequence
@@ -5063,11 +5063,19 @@ inspect the merge and change the commit message.
     (?t "[t]heir stage" "--theirs")
     (?c "[c]onflict"    "--merge")))
 
-(defun magit-insert-status-merge-line ()
+(defun magit-insert-merge-log ()
   (-when-let (heads (mapcar 'magit-get-shortname
                             (magit-file-lines (magit-git-dir "MERGE_HEAD"))))
-    (magit-insert-header "Merging" (commit (car heads))
-      (mapconcat 'identity heads ", "))))
+    (magit-insert-section (commit (car heads))
+      (magit-insert-heading
+        (format "Merging %s:" (mapconcat 'identity heads ", ")))
+      (magit-insert-log
+       (concat (magit-git-string "merge-base" "--octopus" "HEAD" (car heads))
+               ".." (car heads))
+       (let ((args magit-log-section-args))
+         (unless (member "--decorate=full" magit-log-section-args)
+           (push "--decorate=full" args))
+         args)))))
 
 ;;;;; Branching
 
