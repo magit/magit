@@ -505,10 +505,11 @@ manager but it will be used in more places in the future."
 (defcustom magit-status-sections-hook
   '(magit-insert-status-headers
     magit-insert-status-tags-line
-    magit-insert-status-merge-line
-    magit-insert-status-rebase-lines
     magit-insert-empty-line
+    magit-insert-merge-log
     magit-insert-rebase-sequence
+    magit-insert-am-sequence
+    magit-insert-sequencer-sequence
     magit-insert-bisect-output
     magit-insert-bisect-rest
     magit-insert-bisect-log
@@ -1265,7 +1266,9 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "M-n"  'magit-goto-next-sibling-section)
     (define-key map "M-p"  'magit-goto-previous-sibling-section)
     (define-key map [backtab] 'magit-expand-collapse-section)
-    (define-key map "\t"   'magit-toggle-section)
+    (define-key map "+"    'magit-diff-more-context)
+    (define-key map "-"    'magit-diff-less-context)
+    (define-key map "0"    'magit-diff-default-context)
     (define-key map "1"    'magit-show-level-1)
     (define-key map "2"    'magit-show-level-2)
     (define-key map "3"    'magit-show-level-3)
@@ -1274,29 +1277,28 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "\M-2" 'magit-show-level-2-all)
     (define-key map "\M-3" 'magit-show-level-3-all)
     (define-key map "\M-4" 'magit-show-level-4-all)
+    (define-key map "\t"   'magit-toggle-section)
     (define-key map "g" 'magit-refresh)
     (define-key map "G" 'magit-refresh-all)
     (define-key map "q" 'magit-mode-quit-window)
     (define-key map "$" 'magit-process)
-    (define-key map "\C-c\C-c" 'magit-dispatch-popup)
-    (define-key map "\C-c\C-e" 'magit-dispatch-popup)
-    (define-key map "?"        'magit-dispatch-popup)
+    (define-key map "A" 'magit-cherry-pick-popup)
     (define-key map "b" 'magit-branch-popup)
     (define-key map "B" 'magit-bisect-popup)
     (define-key map "c" 'magit-commit-popup)
     (define-key map "d" 'magit-diff-popup)
-    (define-key map "h" 'magit-log-toggle-margin)
-    (define-key map "H" 'magit-diff-toggle-refine-hunk)
-    (define-key map "+" 'magit-diff-more-context)
-    (define-key map "-" 'magit-diff-less-context)
-    (define-key map "0" 'magit-diff-default-context)
+    (define-key map "D" 'magit-diff-toggle-refine-hunk)
+    (define-key map "h" 'magit-dispatch-popup)
+    (define-key map "?" 'magit-dispatch-popup)
+    (define-key map "\C-c\C-c" 'magit-dispatch-popup)
+    (define-key map "\C-c\C-e" 'magit-dispatch-popup)
     (define-key map "e" 'magit-rebase-popup)
     (define-key map "f" 'magit-fetch-popup)
     (define-key map "F" 'magit-pull-popup)
     (define-key map "i" 'magit-gitignore)
     (define-key map "I" 'magit-gitignore-locally)
-    (define-key map "J" 'magit-am-popup)
     (define-key map "l" 'magit-log-popup)
+    (define-key map "L" 'magit-log-toggle-margin)
     (define-key map "m" 'magit-merge-popup)
     (define-key map "M" 'magit-remote-popup)
     (define-key map "o" 'magit-submodule-popup)
@@ -1306,11 +1308,13 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map [C-return] 'magit-dired-jump)
     (define-key map "\s"       'magit-show-or-scroll-up)
     (define-key map "\d"       'magit-show-or-scroll-down)
-    (define-key map "A" 'magit-cherry-pick)
     (define-key map "s" 'magit-stage-file)
     (define-key map "S" 'magit-stage-modified)
     (define-key map "u" 'magit-unstage-file)
     (define-key map "U" 'magit-reset-index)
+    (define-key map "V" 'magit-revert-popup)
+    (define-key map "w" 'magit-am-popup)
+    (define-key map "W" 'magit-format-patch)
     (define-key map "x" 'magit-reset)
     (define-key map "y" 'magit-show-refs)
     (define-key map "Y" 'magit-cherry)
@@ -1432,8 +1436,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   (let ((map (make-sparse-keymap)))
     (define-key map "\r" 'magit-show-commit)
     (define-key map "a"  'magit-cherry-apply)
-    (define-key map "A"  'magit-cherry-pick)
-    (define-key map "v"  'magit-revert-commit)
+    (define-key map "v"  'magit-revert-no-commit)
     map)
   "Keymap for `commit' sections.")
 
@@ -1528,7 +1531,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
      ["Extended..." magit-log-popup t])
     "---"
     ["Cherry pick" magit-cherry-pick t]
-    ["Revert commit" magit-revert-commit t]
+    ["Revert commit" magit-revert-popup t]
     "---"
     ["Ignore" magit-gitignore t]
     ["Ignore locally" magit-gitignore-locally t]
@@ -1539,7 +1542,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     "---"
     ["Branch..." magit-checkout t]
     ["Merge" magit-merge t]
-    ["Interactive resolve" magit-interactive-resolve t]
+    ["Interactive resolve" magit-ediff-resolve-file t]
     ["Rebase..." magit-rebase-popup t]
     "---"
     ["Push" magit-push t]
@@ -2762,6 +2765,10 @@ This function might have a short halflive."
   (with-editor "GIT_EDITOR"
     (let ((magit-process-popup-time -1))
       (apply #'magit-run-git-async args))))
+
+(defun magit-run-git-sequencer (&rest args)
+  (magit-server-visit-args (if (symbolp (car args)) (pop args) 'sequencer))
+  (apply #'magit-run-git-with-editor args))
 
 (defun magit-run-git-async (&rest args)
   "Start Git, prepare for refresh, and return the process object.
@@ -5056,11 +5063,19 @@ inspect the merge and change the commit message.
     (?t "[t]heir stage" "--theirs")
     (?c "[c]onflict"    "--merge")))
 
-(defun magit-insert-status-merge-line ()
+(defun magit-insert-merge-log ()
   (-when-let (heads (mapcar 'magit-get-shortname
                             (magit-file-lines (magit-git-dir "MERGE_HEAD"))))
-    (magit-insert-header "Merging" (commit (car heads))
-      (mapconcat 'identity heads ", "))))
+    (magit-insert-section (commit (car heads))
+      (magit-insert-heading
+        (format "Merging %s:" (mapconcat 'identity heads ", ")))
+      (magit-insert-log
+       (concat (magit-git-string "merge-base" "--octopus" "HEAD" (car heads))
+               ".." (car heads))
+       (let ((args magit-log-section-args))
+         (unless (member "--decorate=full" magit-log-section-args)
+           (push "--decorate=full" args))
+         args)))))
 
 ;;;;; Branching
 
@@ -5332,7 +5347,7 @@ With prefix, forces the rename even if NEW already exists.
       (if (magit-anything-unstaged-p)
           (error "Cannot continue rebase with unstaged changes")
         (magit-rebase-async "--continue"))
-    (error "No rebase in progress")))
+    (user-error "No rebase in progress")))
 
 ;;;###autoload
 (defun magit-rebase-skip ()
@@ -5340,7 +5355,7 @@ With prefix, forces the rename even if NEW already exists.
   (interactive)
   (if (magit-rebase-in-progress-p)
       (magit-rebase-async "--skip")
-    (error "No rebase in progress")))
+    (user-error "No rebase in progress")))
 
 ;;;###autoload
 (defun magit-rebase-edit ()
@@ -5348,7 +5363,7 @@ With prefix, forces the rename even if NEW already exists.
   (interactive)
   (if (magit-rebase-in-progress-p)
       (magit-rebase-async "--edit-todo")
-    (error "No rebase in progress")))
+    (user-error "No rebase in progress")))
 
 ;;;###autoload
 (defun magit-rebase-abort ()
@@ -5356,11 +5371,10 @@ With prefix, forces the rename even if NEW already exists.
   (interactive)
   (if (magit-rebase-in-progress-p)
       (magit-run-git "rebase" "--abort")
-    (error "No rebase in progress")))
+    (user-error "No rebase in progress")))
 
 (defun magit-rebase-async (&rest args)
-  (magit-server-visit-args 'rebase)
-  (apply #'magit-run-git-with-editor "rebase" args))
+  (apply #'magit-run-git-sequencer 'rebase "rebase" args))
 
 (defun magit-rebase-interactive-assert (commit)
   (when commit
@@ -5373,85 +5387,61 @@ With prefix, forces the rename even if NEW already exists.
 
 (defun magit-rebase-in-progress-p ()
   "Return t if a rebase is in progress."
-  (or (file-directory-p (magit-git-dir "rebase-merge"))
-      (file-directory-p (magit-git-dir "rebase-apply"))))
-
-(defun magit-rebase-info ()
-  "Return a list indicating the state of an in-progress rebase.
-
-The returned list has the form (ONTO DONE TOTAL STOPPED AM).
-ONTO is the commit being rebased onto.
-DONE and TOTAL are integers with obvious meanings.
-STOPPED is the SHA-1 of the commit at which rebase stopped.
-AM is non-nil if the current rebase is actually a git-am.
-
-Return nil if there is no rebase in progress."
-  (let ((m (magit-git-dir "rebase-merge"))
-        (a (magit-git-dir "rebase-apply")))
-    (cond
-     ((file-directory-p m) ; interactive
-      (list
-       (magit-get-shortname (magit-file-line  (expand-file-name "onto" m)))
-       (length              (magit-file-lines (expand-file-name "done" m)))
-       (cl-loop for line in (magit-file-lines
-                             (expand-file-name "git-rebase-todo.backup" m))
-                count (string-match "^[^#\n]" line))
-       (magit-file-line (expand-file-name "stopped-sha" m))
-       nil))
-
-     ((file-regular-p (expand-file-name "onto" a)) ; non-interactive
-      (list
-       (magit-get-shortname  (magit-file-line (expand-file-name "onto" a)))
-       (1- (string-to-number (magit-file-line (expand-file-name "next" a))))
-       (string-to-number     (magit-file-line (expand-file-name "last" a)))
-       (let ((patch-header (magit-file-line
-                            (car (directory-files a t "^[0-9]\\{4\\}$")))))
-         (when (string-match "^From \\([a-z0-9]\\{40\\}\\) " patch-header)
-           (match-string 1 patch-header)))
-       nil))
-
-     ((file-regular-p (expand-file-name "applying" a)) ; am
-      (list
-       (magit-get-shortname  "HEAD")
-       (1- (string-to-number (magit-file-line (expand-file-name "next" a))))
-       (string-to-number     (magit-file-line (expand-file-name "last" a)))
-       (let ((patch-header (magit-file-line
-                            (car (directory-files a t "^[0-9]\\{4\\}$")))))
-         (when (string-match "^From \\([a-z0-9]\\{40\\}\\) " patch-header)
-           (match-string 1 patch-header)))
-       t)))))
-
-(defun magit-insert-status-rebase-lines ()
-  (-when-let (rebase (magit-rebase-info))
-    (cl-destructuring-bind (onto done total hash am) rebase
-      (magit-insert-header (if am "Applying" "Rebasing") (header)
-        (format "onto %s (%s of %s)" onto done total))
-      (when (and (not am) hash)
-        (magit-insert-header "Stopped" (commit hash)
-          (magit-format-rev-summary hash))))))
+  (or (file-exists-p (magit-git-dir "rebase-merge"))
+      (file-exists-p (magit-git-dir "rebase-apply/onto"))))
 
 (defun magit-insert-rebase-sequence ()
-  (let ((f (magit-git-dir "rebase-merge/git-rebase-todo"))
-        (r "^\\(pick\\|reword\\|edit\\|squash\\|fixup\\) \\([^ ]+\\) \\(.*\\)$"))
-    (when (file-exists-p f)
-      (magit-insert-section (rebase-todo)
-        (magit-insert-heading "Rebasing:")
-        (dolist (line (magit-file-lines f))
-          (when (string-match r line)
-            (magit-bind-match-strings (cmd hash msg) line
-              (magit-insert-section (commit hash)
-                (insert cmd " ")
-                (insert (propertize
-                         (magit-rev-parse "--short" hash)
-                         'face 'magit-hash))
-                (insert " " msg "\n")))))
-        (insert "\n")))))
+  (when (magit-rebase-in-progress-p)
+    (let ((interactive (file-directory-p (magit-git-dir "rebase-merge"))))
+      (magit-insert-section (rebase-sequence)
+        (magit-insert-heading
+          (if interactive
+              (format "Rebasing %s:"
+                      (-> "rebase-merge/head-name"
+                        magit-git-dir magit-file-line magit-get-shortname))
+            (format "Rebasing %s onto %s:"
+                    (-> "rebase-apply/head-name"
+                      magit-git-dir magit-file-line magit-get-shortname)
+                    (-> "rebase-apply/onto"
+                      magit-git-dir magit-file-line magit-get-shortname))))
+        (if interactive
+            (let* ((stop (magit-git-dir "rebase-merge/done"))
+                   (stop (and (file-exists-p stop)
+                              (-> stop
+                                magit-file-lines last car split-string cadr))))
+              (dolist (line (nreverse
+                             (magit-file-lines
+                              (magit-git-dir "rebase-merge/git-rebase-todo"))))
+                (when (string-match "^\\([^# ]+\\) \\([^ ]+\\) \\(.*\\)$" line)
+                  (magit-bind-match-strings (cmd hash msg) line
+                    (magit-insert-section (commit hash)
+                      (insert cmd " " (magit-format-rev-summary hash) ?\n)))))
+              (when stop
+                (magit-insert-section (commit stop)
+                  (insert "stop " (magit-format-rev-summary stop) ?\n))))
+          (magit-insert-rebase-apply-sequence))
+        (insert ?\n)))))
+
+(defun magit-insert-rebase-apply-sequence ()
+  (let* ((files (nreverse (directory-files (magit-git-dir "rebase-apply")
+                                           t "^[0-9]\\{4\\}$")))
+         (stop (car (last files))))
+    (dolist (file files)
+      (let (hash)
+        (with-temp-buffer
+          (insert-file-contents file)
+          (re-search-forward "^From \\([^ ]+\\)")
+          (setq hash (match-string 1)))
+        (magit-insert-section (commit hash)
+          (insert (if (eq file stop) "stop " "pick ")
+                  (magit-format-rev-summary hash) ?\n))))
+    (insert ?\n)))
 
 ;;;;; AM
 
 (magit-define-popup magit-am-popup
   "Popup console for mailbox commands."
-  'magit-popups
+  'magit-popups 'magit-popup-sequence-mode
   :man-page "git-am"
   :switches '((?3 "Fall back on 3way merge"           "--3way")
               (?s "Add Signed-off-by lines"           "--signoff")
@@ -5462,13 +5452,67 @@ Return nil if there is no rebase in progress."
                   "--committer-date-is-author-date")
               (?D "Use committer date as author date" "--ignore-date"))
   :options  '((?p "Remove leading slashes from paths" "-p" read-number))
-  :actions  '((?J "Apply Mailbox" magit-am))
-  :default-arguments '("--3way"))
+  :actions  '((?w "Apply patches" magit-am-apply-patches)
+              (?m "Apply maildir" magit-am-apply-maildir))
+  :default-arguments '("--3way")
+  :default-actions 'magit-am-apply-patches
+  :sequence-actions '((?w "Continue" magit-am-continue)
+                      (?s "Skip"     magit-am-skip)
+                      (?a "Abort"    magit-am-abort))
+  :sequence-predicate 'magit-am-in-progress-p)
 
-(defun magit-apply-mailbox (&optional file-or-dir)
-  "Apply a series of patches from a mailbox."
-  (interactive "fmbox or Maildir file or directory: ")
-  (magit-run-git-with-editor "am" file-or-dir))
+;;;###autoload
+(defun magit-am-apply-patches (&optional file-or-files args)
+  (interactive
+   (let ((selection (if (use-region-p)
+                        (magit-section-region-siblings)
+                      (list (magit-current-section)))))
+     (unless (eq (magit-section-type (car selection)) 'file)
+       (setq selection nil))
+     (list (if (or current-prefix-arg (not selection))
+               (read-file-name "Apply patch(es): " nil (car (last selection)))
+             (nreverse (mapcar 'magit-section-value selection)))
+           magit-current-popup-args)))
+  (magit-run-git-sequencer "am" args "--" file-or-files))
+
+;;;###autoload
+(defun magit-am-apply-maildir (&optional maildir args)
+  (interactive (list (read-file-name "Apply mbox or Maildir: ")
+                     magit-current-popup-args))
+  (magit-run-git-sequencer "am" args maildir))
+
+;;;###autoload
+(defun magit-am-continue ()
+  (interactive)
+  (if (magit-am-in-progress-p)
+      (if (magit-anything-unstaged-p)
+          (error "Cannot continue due to unstaged changes")
+        (magit-run-git-sequencer "am" "--continue"))
+    (user-error "Not applying any patches")))
+
+;;;###autoload
+(defun magit-am-skip ()
+  (interactive)
+  (if (magit-am-in-progress-p)
+      (magit-run-git-sequencer "am" "--skip")
+    (user-error "Not applying any patches")))
+
+;;;###autoload
+(defun magit-am-abort ()
+  (interactive)
+  (if (magit-am-in-progress-p)
+      (magit-run-git "am" "--abort")
+    (user-error "Not applying any patches")))
+
+(defun magit-am-in-progress-p ()
+  (file-exists-p (magit-git-dir "rebase-apply/applying")))
+
+(defun magit-insert-am-sequence ()
+  (when (file-exists-p (magit-git-dir "rebase-apply/applying"))
+    (let (msg file hash)
+      (magit-insert-section (sequence)
+        (magit-insert-heading "Applying patches:")
+        (magit-insert-rebase-apply-sequence)))))
 
 ;;;;; Reset
 
@@ -6097,45 +6141,140 @@ When the region is active offer to drop all contained stashes.
 (defun magit-stash-format-snapshot-message ()
   (format-time-string magit-stash-snapshot-message-format (current-time)))
 
-;;;;; Cherry-Pick
+;;;;; Cherry-Pick & Revert
 
-(defun magit-cherry-pick (commit)
-  "Cherry-pick the commit at point.
-If there is no commit at point or with a prefix argument prompt
-for a commit."
-  (interactive
-   (let ((atpoint (magit-branch-or-commit-at-point))
-         (current (magit-get-current-branch)))
-     (when (equal atpoint current)
-       (setq atpoint nil))
-     (list (or (and (not current-prefix-arg) atpoint)
-               (magit-read-rev "Cherry-pick" atpoint current)))))
+(magit-define-popup magit-cherry-pick-popup
+  "Popup console for cherry-pick commands."
+  'magit 'magit-popup-sequence-mode
+  :man-page "git-cherry-pick"
+  :switches '((?s "Add Signed-off-by lines"            "--signoff")
+              (?e "Edit commit messages"               "--edit")
+              (?x "Reference cherry in commit message" "-x")
+              (?F "Attempt fast-forward"               "--ff")
+              (?m "Reply merge relative to parent"     "--mainline="))
+  :options  '((?s "Strategy" "--strategy=" read-from-minibuffer))
+  :actions  '((?A "Cherry Pick"  magit-cherry-pick)
+              (?a "Cherry Apply" magit-cherry-apply))
+  :sequence-actions '((?A "Continue" magit-sequencer-continue)
+                      (?s "Skip"     magit-sequencer-skip)
+                      (?a "Abort"    magit-sequencer-abort))
+  :sequence-predicate 'magit-sequencer-in-progress-p
+  :default-arguments '("--ff"))
+
+;;;###autoload
+(defun magit-cherry-pick (commit &optional args)
+  (interactive (magit-sequencer-read-args 'cherry-pick "Cherry-pick"))
+  (magit-assert-one-parent (car (if (listp commit)
+                                    commit
+                                  (split-string commit "\\.\\.")))
+                           "cherry-pick")
+  (magit-run-git-sequencer "cherry-pick" args commit))
+
+;;;###autoload
+(defun magit-cherry-apply (commit &optional args)
+  (interactive (magit-sequencer-read-args 'cherry-pick "Apply commit"))
   (magit-assert-one-parent commit "cherry-pick")
-  (magit-run-git "cherry-pick" commit))
+  (magit-run-git-sequencer "cherry-pick" "--no-commit" args commit))
 
-(defun magit-cherry-apply (commit)
-  "Cherry-pick the commit at point, leaving changes uncommitted.
-If there is no commit at point or with a prefix argument prompt
-for a commit."
-  (interactive
-   (let ((atpoint (magit-branch-or-commit-at-point))
-         (current (magit-get-current-branch)))
-     (when (equal atpoint current)
-       (setq atpoint nil))
-     (list (or (and (not current-prefix-arg) atpoint)
-               (magit-read-rev "Apply commit" atpoint current)))))
-  (magit-assert-one-parent commit "cherry-pick")
-  (magit-run-git "cherry-pick" "--no-commit" commit))
 
-;;;;; Revert
+(magit-define-popup magit-revert-popup
+  "Popup console for revert commands."
+  'magit 'magit-popup-sequence-mode
+  :man-page "git-revert"
+  :switches '((?s "Add Signed-off-by lines" "--signoff"))
+  :options  '((?s "Strategy" "--strategy="  read-from-minibuffer))
+  :actions  '((?V "Revert commit(s)" magit-revert)
+              (?v "Revert changes"   magit-revert-no-commit))
+  :sequence-actions '((?V "Continue" magit-revert-continue)
+                      (?s "Skip"     magit-revert-skip)
+                      (?a "Abort"    magit-revert-abort))
+  :sequence-predicate 'magit-sequencer-in-progress-p)
 
-(defun magit-revert-commit (commit)
-  (interactive
-   (let ((atpoint (magit-commit-at-point)))
-     (list (or (and current-prefix-arg atpoint)
-               (magit-read-rev "Revert commit" atpoint)))))
+;;;###autoload
+(defun magit-revert (commit &optional args)
+  (interactive (magit-sequencer-read-args 'revert "Revert commit"))
   (magit-assert-one-parent commit "revert")
-  (magit-run-git "revert" "--no-commit" commit))
+  (magit-run-git "revert" args commit))
+
+;;;###autoload
+(defun magit-revert-no-commit (commit &optional args)
+  (interactive (magit-sequencer-read-args 'revert "Revert changes"))
+  (magit-assert-one-parent commit "revert")
+  (magit-run-git "revert" "--no-commit" args commit))
+
+;;;###autoload
+(defun magit-sequencer-continue ()
+  (interactive)
+  (if (magit-sequencer-in-progress-p)
+      (if (magit-anything-unstaged-p)
+          (error "Cannot continue due to unstaged changes")
+        (magit-run-git-sequencer
+         (if (magit-revert-in-progress-p) "revert" "cherry-pick") "--continue"))
+    (error "No cherry-pick or revert in progress")))
+
+;;;###autoload
+(defun magit-sequencer-skip ()
+  (interactive)
+  (if (magit-sequencer-in-progress-p)
+      (magit-run-git-sequencer
+       (if (magit-revert-in-progress-p) "revert" "cherry-pick") "--skip")
+    (error "No cherry-pick or revert in progress")))
+
+;;;###autoload
+(defun magit-sequencer-abort ()
+  (interactive)
+  (if (magit-sequencer-in-progress-p)
+      (magit-run-git-sequencer
+       (if (magit-revert-in-progress-p) "revert" "cherry-pick") "--abort")
+    (error "No cherry-pick or revert in progress")))
+
+(defun magit-sequencer-read-args (command prompt)
+  (let ((selection (if (use-region-p)
+                       (magit-section-region-siblings)
+                     (list (magit-current-section)))))
+    (list (if (or current-prefix-arg
+                  (not selection)
+                  (not (eq (magit-section-type (car selection)) 'commit)))
+              (let ((atpoint (magit-branch-or-commit-at-point)))
+                (if (eq command 'cherry-pick)
+                    (let ((current (magit-get-current-branch)))
+                      (when (equal atpoint current)
+                        (setq atpoint nil))
+                      (magit-read-rev prompt atpoint current))
+                  (magit-read-rev prompt atpoint)))
+            (setq selection (mapcar 'magit-section-value selection))
+            (if (eq command 'cherry-pick)
+                (nreverse selection)
+              selection))
+          magit-current-popup-args)))
+
+(defun magit-sequencer-in-progress-p ()
+  (or (magit-cherry-pick-in-progress-p)
+      (magit-revert-in-progress-p)))
+
+(defun magit-cherry-pick-in-progress-p ()
+  (file-regular-p (magit-git-dir "CHERRY_PICK_HEAD")))
+
+(defun magit-revert-in-progress-p ()
+  (file-regular-p (magit-git-dir "REVERT_HEAD")))
+
+(defun magit-insert-sequencer-sequence ()
+  (-when-let
+      (heading (or (and (magit-cherry-pick-in-progress-p) "Cherry Picking:")
+                   (and (magit-revert-in-progress-p)      "Reverting:")))
+    (magit-insert-section (sequence)
+      (magit-insert-heading heading)
+      (let* ((lines (nreverse
+                     (magit-file-lines (magit-git-dir "sequencer/todo"))))
+             (stop (car (last lines))))
+        (dolist (line lines)
+          (when (string-match "^pick \\([^ ]+\\) \\(.*\\)$" line)
+            (magit-bind-match-strings (hash msg) line
+              (magit-insert-section (commit hash)
+                (insert (if (eq line stop) "stop " "pick ")
+                        (propertize hash 'face 'magit-hash))
+                (insert " " msg "\n"))))))
+      (insert "\n"))))
 
 ;;;;; Submoduling
 
@@ -6455,6 +6594,19 @@ With a prefix argument another branch can be chosen."
   (magit-reflog "HEAD"))
 
 ;;;;; Miscellaneous
+
+;;;###autoload
+(defun magit-format-patch (rev)
+  (interactive
+   (let ((selection (if (use-region-p)
+                        (magit-section-region-siblings)
+                      (list (magit-current-section)))))
+     (unless (eq (magit-section-type (car selection)) 'commit)
+       (setq selection nil))
+     (list (if (or current-prefix-arg (not selection))
+               (magit-read-rev "Format patch")
+             selection))))
+  (magit-run-git "format-patch" rev))
 
 (defun magit-copy-as-kill ()
   "Copy the thing at point into the kill ring."
