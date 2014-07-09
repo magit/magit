@@ -5337,7 +5337,7 @@ With prefix, forces the rename even if NEW already exists.
       (if (magit-anything-unstaged-p)
           (error "Cannot continue rebase with unstaged changes")
         (magit-rebase-async "--continue"))
-    (error "No rebase in progress")))
+    (user-error "No rebase in progress")))
 
 ;;;###autoload
 (defun magit-rebase-skip ()
@@ -5345,7 +5345,7 @@ With prefix, forces the rename even if NEW already exists.
   (interactive)
   (if (magit-rebase-in-progress-p)
       (magit-rebase-async "--skip")
-    (error "No rebase in progress")))
+    (user-error "No rebase in progress")))
 
 ;;;###autoload
 (defun magit-rebase-edit ()
@@ -5353,7 +5353,7 @@ With prefix, forces the rename even if NEW already exists.
   (interactive)
   (if (magit-rebase-in-progress-p)
       (magit-rebase-async "--edit-todo")
-    (error "No rebase in progress")))
+    (user-error "No rebase in progress")))
 
 ;;;###autoload
 (defun magit-rebase-abort ()
@@ -5361,7 +5361,7 @@ With prefix, forces the rename even if NEW already exists.
   (interactive)
   (if (magit-rebase-in-progress-p)
       (magit-run-git "rebase" "--abort")
-    (error "No rebase in progress")))
+    (user-error "No rebase in progress")))
 
 (defun magit-rebase-async (&rest args)
   (apply #'magit-run-git-sequencer 'rebase "rebase" args))
