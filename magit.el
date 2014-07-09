@@ -2763,6 +2763,10 @@ This function might have a short halflive."
     (let ((magit-process-popup-time -1))
       (apply #'magit-run-git-async args))))
 
+(defun magit-run-git-sequencer (&rest args)
+  (magit-server-visit-args (if (symbolp (car args)) (pop args) 'sequencer))
+  (apply #'magit-run-git-with-editor args))
+
 (defun magit-run-git-async (&rest args)
   "Start Git, prepare for refresh, and return the process object.
 
@@ -5359,8 +5363,7 @@ With prefix, forces the rename even if NEW already exists.
     (error "No rebase in progress")))
 
 (defun magit-rebase-async (&rest args)
-  (magit-server-visit-args 'rebase)
-  (apply #'magit-run-git-with-editor "rebase" args))
+  (apply #'magit-run-git-sequencer 'rebase "rebase" args))
 
 (defun magit-rebase-interactive-assert (commit)
   (when commit
