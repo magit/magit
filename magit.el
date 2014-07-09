@@ -3570,9 +3570,10 @@ If the file is not inside a Git repository then return nil."
     (with-current-buffer (or (buffer-base-buffer)
                              (current-buffer))
       (setq file (or magit-buffer-file-name buffer-file-name))))
-  (setq file (file-truename file))
-  (--when-let (magit-get-top-dir (file-name-directory file))
-    (substring file (length it))))
+  (when file
+    (setq file (file-truename file))
+    (--when-let (magit-get-top-dir (file-name-directory file))
+      (substring file (length it)))))
 
 (defun magit-file-tracked-p (file)
   (magit-git-success "ls-files" "--error-unmatch" file))
