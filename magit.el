@@ -6596,17 +6596,18 @@ With a prefix argument another branch can be chosen."
 ;;;;; Miscellaneous
 
 ;;;###autoload
-(defun magit-format-patch (rev)
+(defun magit-format-patch (range)
   (interactive
-   (let ((selection (if (use-region-p)
-                        (magit-section-region-siblings)
-                      (list (magit-current-section)))))
-     (unless (eq (magit-section-type (car selection)) 'commit)
-       (setq selection nil))
-     (list (if (or current-prefix-arg (not selection))
-               (magit-read-rev "Format patch")
-             selection))))
-  (magit-run-git "format-patch" rev))
+   (let ((revs (if (use-region-p)
+                   (magit-section-region-siblings)
+                 (list (magit-current-section)))))
+     (unless (eq (magit-section-type (car revs)) 'commit)
+       (setq revs nil))
+     (setq revs (nreverse (mapcar 'magit-section-value revs)))
+     (list (if (or current-prefix-arg (not revs))
+               (magit-read-rev "Format range")
+             (concat (car revs) "^.." (car (last revs)))))))
+  (magit-run-git "format-patch" range))
 
 (defun magit-copy-as-kill ()
   "Copy the thing at point into the kill ring."
