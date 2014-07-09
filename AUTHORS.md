@@ -79,6 +79,7 @@ Contributors
 - Hannu Koivisto <azure@iki.fi>
 - Hans-Peter Deifel <hpdeifel@gmx.de>
 - Ian Eure <ian.eure@gmail.com>
+- Jan Tatarik <jan.tatarik@xing.com>
 - Jasper St. Pierre <jstpierre@mecheye.net>
 - Jeff Bellegarde <jbellegarde@whitepages.com>
 - Jesse Alama <jesse.alama@gmail.com>
@@ -94,6 +95,7 @@ Contributors
 - Leo Liu <sdl.web@gmail.com>
 - Leonardo Etcheverry <leo@kalio.net>
 - Lluís Vilanova <vilanova@ac.upc.edu>
+- Loic Dachary <loic@dachary.org>
 - Luís Borges de Oliveira <lbo@siscog.pt>
 - Luke Amdor <luke.amdor@gmail.com>
 - Manuel Vázquez Acosta <mva.led@gmail.com>
@@ -101,6 +103,7 @@ Contributors
 - Marc Herbert <marc.herbert@gmail.com>
 - Marcin Bachry <hegel666@gmail.com>
 - Marco Craveiro <marco.craveiro@gmail.com>
+- Marian Schubert <marian.schubert@gooddata.com>
 - Marius Vollmer <marius.vollmer@gmail.com>
 - Mark Hepburn <Mark.Hepburn@csiro.au>
 - Matus Goljer <dota.keys@gmail.com>
@@ -167,4 +170,5 @@ Contributors
 - Ting-Yu Lin <aethanyc@gmail.com>
 - Tom Feist <shabble@metavore.org>
 - Wilfred Hughes <me@wilfred.me.uk>
+- Win Treese <treese@acm.org>
 - Yann Hodique <yann.hodique@gmail.com>
