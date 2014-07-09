@@ -506,9 +506,9 @@ manager but it will be used in more places in the future."
   '(magit-insert-status-headers
     magit-insert-status-tags-line
     magit-insert-status-merge-line
-    magit-insert-status-rebase-lines
     magit-insert-empty-line
     magit-insert-rebase-sequence
+    magit-insert-am-sequence
     magit-insert-sequencer-sequence
     magit-insert-bisect-output
     magit-insert-bisect-rest
@@ -1297,7 +1297,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "F" 'magit-pull-popup)
     (define-key map "i" 'magit-gitignore)
     (define-key map "I" 'magit-gitignore-locally)
-    (define-key map "J" 'magit-am-popup)
     (define-key map "l" 'magit-log-popup)
     (define-key map "m" 'magit-merge-popup)
     (define-key map "M" 'magit-remote-popup)
@@ -5378,85 +5377,61 @@ With prefix, forces the rename even if NEW already exists.
 
 (defun magit-rebase-in-progress-p ()
   "Return t if a rebase is in progress."
-  (or (file-directory-p (magit-git-dir "rebase-merge"))
-      (file-directory-p (magit-git-dir "rebase-apply"))))
-
-(defun magit-rebase-info ()
-  "Return a list indicating the state of an in-progress rebase.
-
-The returned list has the form (ONTO DONE TOTAL STOPPED AM).
-ONTO is the commit being rebased onto.
-DONE and TOTAL are integers with obvious meanings.
-STOPPED is the SHA-1 of the commit at which rebase stopped.
-AM is non-nil if the current rebase is actually a git-am.
-
-Return nil if there is no rebase in progress."
-  (let ((m (magit-git-dir "rebase-merge"))
-        (a (magit-git-dir "rebase-apply")))
-    (cond
-     ((file-directory-p m) ; interactive
-      (list
-       (magit-get-shortname (magit-file-line  (expand-file-name "onto" m)))
-       (length              (magit-file-lines (expand-file-name "done" m)))
-       (cl-loop for line in (magit-file-lines
-                             (expand-file-name "git-rebase-todo.backup" m))
-                count (string-match "^[^#\n]" line))
-       (magit-file-line (expand-file-name "stopped-sha" m))
-       nil))
-
-     ((file-regular-p (expand-file-name "onto" a)) ; non-interactive
-      (list
-       (magit-get-shortname  (magit-file-line (expand-file-name "onto" a)))
-       (1- (string-to-number (magit-file-line (expand-file-name "next" a))))
-       (string-to-number     (magit-file-line (expand-file-name "last" a)))
-       (let ((patch-header (magit-file-line
-                            (car (directory-files a t "^[0-9]\\{4\\}$")))))
-         (when (string-match "^From \\([a-z0-9]\\{40\\}\\) " patch-header)
-           (match-string 1 patch-header)))
-       nil))
-
-     ((file-regular-p (expand-file-name "applying" a)) ; am
-      (list
-       (magit-get-shortname  "HEAD")
-       (1- (string-to-number (magit-file-line (expand-file-name "next" a))))
-       (string-to-number     (magit-file-line (expand-file-name "last" a)))
-       (let ((patch-header (magit-file-line
-                            (car (directory-files a t "^[0-9]\\{4\\}$")))))
-         (when (string-match "^From \\([a-z0-9]\\{40\\}\\) " patch-header)
-           (match-string 1 patch-header)))
-       t)))))
-
-(defun magit-insert-status-rebase-lines ()
-  (-when-let (rebase (magit-rebase-info))
-    (cl-destructuring-bind (onto done total hash am) rebase
-      (magit-insert-header (if am "Applying" "Rebasing") (header)
-        (format "onto %s (%s of %s)" onto done total))
-      (when (and (not am) hash)
-        (magit-insert-header "Stopped" (commit hash)
-          (magit-format-rev-summary hash))))))
+  (or (file-exists-p (magit-git-dir "rebase-merge"))
+      (file-exists-p (magit-git-dir "rebase-apply/onto"))))
 
 (defun magit-insert-rebase-sequence ()
-  (let ((f (magit-git-dir "rebase-merge/git-rebase-todo"))
-        (r "^\\(pick\\|reword\\|edit\\|squash\\|fixup\\) \\([^ ]+\\) \\(.*\\)$"))
-    (when (file-exists-p f)
-      (magit-insert-section (rebase-todo)
-        (magit-insert-heading "Rebasing:")
-        (dolist (line (magit-file-lines f))
-          (when (string-match r line)
-            (magit-bind-match-strings (cmd hash msg) line
-              (magit-insert-section (commit hash)
-                (insert cmd " ")
-                (insert (propertize
-                         (magit-rev-parse "--short" hash)
-                         'face 'magit-hash))
-                (insert " " msg "\n")))))
-        (insert "\n")))))
+  (when (magit-rebase-in-progress-p)
+    (let ((interactive (file-directory-p (magit-git-dir "rebase-merge"))))
+      (magit-insert-section (rebase-sequence)
+        (magit-insert-heading
+          (if interactive
+              (format "Rebasing %s:"
+                      (-> "rebase-merge/head-name"
+                        magit-git-dir magit-file-line magit-get-shortname))
+            (format "Rebasing %s onto %s:"
+                    (-> "rebase-apply/head-name"
+                      magit-git-dir magit-file-line magit-get-shortname)
+                    (-> "rebase-apply/onto"
+                      magit-git-dir magit-file-line magit-get-shortname))))
+        (if interactive
+            (let* ((stop (magit-git-dir "rebase-merge/done"))
+                   (stop (and (file-exists-p stop)
+                              (-> stop
+                                magit-file-lines last car split-string cadr))))
+              (dolist (line (nreverse
+                             (magit-file-lines
+                              (magit-git-dir "rebase-merge/git-rebase-todo"))))
+                (when (string-match "^\\([^# ]+\\) \\([^ ]+\\) \\(.*\\)$" line)
+                  (magit-bind-match-strings (cmd hash msg) line
+                    (magit-insert-section (commit hash)
+                      (insert cmd " " (magit-format-rev-summary hash) ?\n)))))
+              (when stop
+                (magit-insert-section (commit stop)
+                  (insert "stop " (magit-format-rev-summary stop) ?\n))))
+          (magit-insert-rebase-apply-sequence))
+        (insert ?\n)))))
+
+(defun magit-insert-rebase-apply-sequence ()
+  (let* ((files (nreverse (directory-files (magit-git-dir "rebase-apply")
+                                           t "^[0-9]\\{4\\}$")))
+         (stop (car (last files))))
+    (dolist (file files)
+      (let (hash)
+        (with-temp-buffer
+          (insert-file-contents file)
+          (re-search-forward "^From \\([^ ]+\\)")
+          (setq hash (match-string 1)))
+        (magit-insert-section (commit hash)
+          (insert (if (eq file stop) "stop " "pick ")
+                  (magit-format-rev-summary hash) ?\n))))
+    (insert ?\n)))
 
 ;;;;; AM
 
 (magit-define-popup magit-am-popup
   "Popup console for mailbox commands."
-  'magit-popups
+  'magit-popups 'magit-popup-sequence-mode
   :man-page "git-am"
   :switches '((?3 "Fall back on 3way merge"           "--3way")
               (?s "Add Signed-off-by lines"           "--signoff")
@@ -5467,13 +5442,67 @@ Return nil if there is no rebase in progress."
                   "--committer-date-is-author-date")
               (?D "Use committer date as author date" "--ignore-date"))
   :options  '((?p "Remove leading slashes from paths" "-p" read-number))
-  :actions  '((?J "Apply Mailbox" magit-am))
-  :default-arguments '("--3way"))
+  :actions  '((?w "Apply patches" magit-am-apply-patches)
+              (?m "Apply maildir" magit-am-apply-maildir))
+  :default-arguments '("--3way")
+  :default-actions 'magit-am-apply-patches
+  :sequence-actions '((?w "Continue" magit-am-continue)
+                      (?s "Skip"     magit-am-skip)
+                      (?a "Abort"    magit-am-abort))
+  :sequence-predicate 'magit-am-in-progress-p)
 
-(defun magit-apply-mailbox (&optional file-or-dir)
-  "Apply a series of patches from a mailbox."
-  (interactive "fmbox or Maildir file or directory: ")
-  (magit-run-git-with-editor "am" file-or-dir))
+;;;###autoload
+(defun magit-am-apply-patches (&optional file-or-files args)
+  (interactive
+   (let ((selection (if (use-region-p)
+                        (magit-section-region-siblings)
+                      (list (magit-current-section)))))
+     (unless (eq (magit-section-type (car selection)) 'file)
+       (setq selection nil))
+     (list (if (or current-prefix-arg (not selection))
+               (read-file-name "Apply patch(es): " nil (car (last selection)))
+             (nreverse (mapcar 'magit-section-value selection)))
+           magit-current-popup-args)))
+  (magit-run-git-sequencer "am" args "--" file-or-files))
+
+;;;###autoload
+(defun magit-am-apply-maildir (&optional maildir args)
+  (interactive (list (read-file-name "Apply mbox or Maildir: ")
+                     magit-current-popup-args))
+  (magit-run-git-sequencer "am" args maildir))
+
+;;;###autoload
+(defun magit-am-continue ()
+  (interactive)
+  (if (magit-am-in-progress-p)
+      (if (magit-anything-unstaged-p)
+          (error "Cannot continue due to unstaged changes")
+        (magit-run-git-sequencer "am" "--continue"))
+    (user-error "Not applying any patches")))
+
+;;;###autoload
+(defun magit-am-skip ()
+  (interactive)
+  (if (magit-am-in-progress-p)
+      (magit-run-git-sequencer "am" "--skip")
+    (user-error "Not applying any patches")))
+
+;;;###autoload
+(defun magit-am-abort ()
+  (interactive)
+  (if (magit-am-in-progress-p)
+      (magit-run-git "am" "--abort")
+    (user-error "Not applying any patches")))
+
+(defun magit-am-in-progress-p ()
+  (file-exists-p (magit-git-dir "rebase-apply/applying")))
+
+(defun magit-insert-am-sequence ()
+  (when (file-exists-p (magit-git-dir "rebase-apply/applying"))
+    (let (msg file hash)
+      (magit-insert-section (sequence)
+        (magit-insert-heading "Applying patches:")
+        (magit-insert-rebase-apply-sequence)))))
 
 ;;;;; Reset
 
