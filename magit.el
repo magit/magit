@@ -7444,28 +7444,29 @@ actually were a single commit."
     t))
 
 (defun magit-paint-hunk (section highlight)
-  (let ((beg (magit-section-start   section))
-        (cnt (magit-section-content section))
-        (end (magit-section-end     section))
-        merging)
-    (save-restriction
-      (goto-char beg)
-      (setq merging (looking-at "@@@"))
-      (goto-char cnt)
-      (narrow-to-region cnt end)
-      (while (not (eobp))
-        (put-text-property
-         (point) (1+ (line-end-position)) 'face
-         (cond
-          ((looking-at "^\\+\\+[<=|>]\\{7\\}") 'magit-conflict-heading)
-          ((looking-at (if merging  "^\\(\\+\\| \\+\\)" "^\\+"))
-           (magit-diff-highlight-whitespace merging)
-           (if highlight 'magit-diff-added-highlight 'magit-diff-added))
-          ((looking-at (if merging  "^\\(-\\| -\\)" "^-"))
-           (if highlight 'magit-diff-removed-highlight 'magit-diff-removed))
-          (t
-           (if highlight 'magit-diff-context-highlight 'magit-diff-context))))
-        (forward-line)))))
+  (unless (eq (magit-section-value section) 'typechange)
+    (let ((beg (magit-section-start   section))
+          (cnt (magit-section-content section))
+          (end (magit-section-end     section))
+          merging)
+      (save-restriction
+        (goto-char beg)
+        (setq merging (looking-at "@@@"))
+        (goto-char cnt)
+        (narrow-to-region cnt end)
+        (while (not (eobp))
+          (put-text-property
+           (point) (1+ (line-end-position)) 'face
+           (cond
+            ((looking-at "^\\+\\+[<=|>]\\{7\\}") 'magit-conflict-heading)
+            ((looking-at (if merging  "^\\(\\+\\| \\+\\)" "^\\+"))
+             (magit-diff-highlight-whitespace merging)
+             (if highlight 'magit-diff-added-highlight 'magit-diff-added))
+            ((looking-at (if merging  "^\\(-\\| -\\)" "^-"))
+             (if highlight 'magit-diff-removed-highlight 'magit-diff-removed))
+            (t
+             (if highlight 'magit-diff-context-highlight 'magit-diff-context))))
+          (forward-line))))))
 
 (defun magit-diff-highlight-whitespace (merging)
   (when (and magit-highlight-whitespace
