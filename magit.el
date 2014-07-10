@@ -7444,7 +7444,7 @@ actually were a single commit."
     t))
 
 (defun magit-paint-hunk (section highlight)
-  (unless (eq (magit-section-value section) 'typechange)
+  (when (magit-section-value section)
     (let ((beg (magit-section-start   section))
           (cnt (magit-section-content section))
           (end (magit-section-end     section))
