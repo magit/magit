@@ -1367,7 +1367,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "\C-c\C-b" 'magit-go-backward)
     (define-key map "\C-c\C-f" 'magit-go-forward)
     (define-key map "+" 'magit-log-show-more-entries)
-    (define-key map "h" 'magit-log-toggle-margin)
     map)
   "Keymap for `magit-log-mode'.")
 
