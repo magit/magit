@@ -5004,22 +5004,19 @@ inspect the merge and change the commit message.
 (defun magit-checkout-stage (file arg &optional restore-conflict)
   "During a conflict checkout and stage side, or restore conflict."
   (interactive
-   (let ((default-directory (magit-get-top-dir)))
-     (if t ; FIXME conflicts occur in other situations too
-         ;; (file-exists-p (magit-git-dir "MERGE_HEAD"))
-         (let ((file (magit-completing-read "Checkout file"
-                                            (magit-tracked-files) nil nil nil
-                                            'magit-read-file-hist
-                                            (magit-file-at-point))))
-           (cond
-            ((member file (magit-git-lines "diff" "--name-only"
-                                           "--diff-filter=U"))
-             (list file (magit-checkout-read-stage file)))
-            ((yes-or-no-p (format "Restore conflicts in %s? " file))
-             (list file "--merge" t))
-            (t
-             (user-error "Quit"))))
-       (user-error "No merge in progress"))))
+   (let ((default-directory (magit-get-top-dir))
+         (file (magit-completing-read "Checkout file"
+                                      (magit-tracked-files) nil nil nil
+                                      'magit-read-file-hist
+                                      (magit-file-at-point))))
+     (cond
+      ((member file (magit-git-lines "diff" "--name-only"
+                                     "--diff-filter=U"))
+       (list file (magit-checkout-read-stage file)))
+      ((yes-or-no-p (format "Restore conflicts in %s? " file))
+       (list file "--merge" t))
+      (t
+       (user-error "Quit")))))
   (if restore-conflict
       (progn
         (with-temp-buffer
