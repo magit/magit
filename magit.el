@@ -5010,8 +5010,7 @@ inspect the merge and change the commit message.
                                       'magit-read-file-hist
                                       (magit-file-at-point))))
      (cond
-      ((member file (magit-git-lines "diff" "--name-only"
-                                     "--diff-filter=U"))
+      ((member file (magit-unmerged-files))
        (list file (magit-checkout-read-stage file)))
       ((yes-or-no-p (format "Restore conflicts in %s? " file))
        (list file "--merge" t))
