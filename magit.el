@@ -4949,8 +4949,8 @@ Non-interactively DIRECTORY is always (re-)initialized."
   :actions  '((?m "Merge"                  magit-merge)
               (?e "Merge and edit message" magit-merge-editmsg)
               (?n "Merge but don't commit" magit-merge-nocommit))
-  :sequence-actions   '((?a "Abort merge"  magit-merge-abort)
-                        (?c "Commit merge" magit-commit))
+  :sequence-actions   '((?c "Commit merge" magit-commit)
+                        (?a "Abort merge"  magit-merge-abort))
   :sequence-predicate 'magit-merge-state
   :default-action 'magit-merge)
 
