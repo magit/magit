@@ -7613,12 +7613,12 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
       (let ((current  (magit-get-current-branch))
             (branches (magit-list-local-branch-names)))
         (dolist (line (magit-git-lines "branch" "-vvr"))
-          (string-match magit-wash-branch-line-re line)
-          (magit-bind-match-strings (branch hash message) line
-            (when (string-match-p (format "^%s/" remote) branch)
-              (magit-insert-branch
-               branch current branches
-               magit-remote-branch-format 'magit-branch-remote hash message)))))
+          (when (string-match magit-wash-branch-line-re line)
+            (magit-bind-match-strings (branch hash message) line
+              (when (string-match-p (format "^%s/" remote) branch)
+                (magit-insert-branch
+                 branch current branches
+                 magit-remote-branch-format 'magit-branch-remote hash message))))))
       (insert ?\n))))
 
 (defun magit-insert-branch
