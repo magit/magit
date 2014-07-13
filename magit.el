@@ -4393,7 +4393,8 @@ can be used to override this."
 ;;;; Real Sections
 
 (defun magit-insert-stashes ()
-  (let ((stashes (magit-git-lines "stash" "list")))
+   ;; #1427 Set log.date to work around an issue in Git <1.7.10.3.
+  (let ((stashes (magit-git-lines "-c" "log.date=default" "stash" "list")))
     (when stashes
       (magit-with-section (section stashes 'stashes "Stashes:" t)
         (dolist (stash stashes)
