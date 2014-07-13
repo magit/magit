@@ -4294,7 +4294,8 @@ can be used to override this."
 ;;;; Status Sections
 
 (defun magit-insert-stashes ()
-  (--when-let (magit-git-lines "stash" "list")
+  ;; #1427 Set log.date to work around an issue in Git <1.7.10.3.
+  (--when-let (magit-git-lines "-c" "log.date=default" "stash" "list")
     (magit-insert-section (stashes)
       (magit-insert-heading "Stashes:")
       (dolist (stash it)
