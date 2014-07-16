@@ -4639,7 +4639,7 @@ without requiring confirmation."
                   (string-match
                    (format "\\(.+?\\)\t%s" (regexp-quote file)) temp)
                   (rename-file (match-string 1 temp)
-                               (setq temp (concat file ".~index~")))
+                               (setq temp (concat file ".~{index}~")))
                   (delete-file temp t))
                 (magit-call-git "rm" "--cached" "--force" "--" file))
             (?D (magit-call-git "checkout" "--" file)
