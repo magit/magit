@@ -78,7 +78,6 @@
 (eval-when-compile
   (require 'dired)
   (require 'dired-x)
-  (require 'ediff)
   (require 'eshell)
   (require 'ido)
   (require 'smerge-mode)
@@ -88,7 +87,6 @@
 
 (declare-function dired-jump 'dired-x)
 (declare-function dired-uncache 'dired)
-(declare-function ediff-cleanup-mess 'ediff)
 (declare-function eshell-parse-arguments 'eshell)
 (declare-function ido-completing-read 'ido)
 
@@ -1321,6 +1319,10 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "z" 'magit-stash-popup)
     (define-key map ":" 'magit-git-command)
     (define-key map "!" 'magit-run-popup)
+    (define-key map "\M-d" 'magit-ediff-compare)
+    (define-key map "\M-e" 'magit-ediff-dwim)
+    (define-key map "\M-m" 'magit-ediff-resolve)
+    (define-key map "\M-s" 'magit-ediff-stage)
     (define-key map "L"      'magit-add-change-log-entry)
     (define-key map "\C-x4a" 'magit-add-change-log-entry-other-window)
     (define-key map "\C-w"   'magit-copy-as-kill)
@@ -1541,7 +1543,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     "---"
     ["Branch..." magit-checkout t]
     ["Merge" magit-merge t]
-    ["Interactive resolve" magit-ediff-resolve-file t]
+    ["Ediff resolve" magit-ediff-resolve t]
     ["Rebase..." magit-rebase-popup t]
     "---"
     ["Push" magit-push t]
@@ -7087,21 +7089,6 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
                         (or (cdr (assoc label magit-reflog-labels))
                             'magit-reflog-other)))))
 
-;;;; Ediff Support
-
-;;;###autoload
-(defun magit-ediff-resolve-file (file)
-  "Resolve conflicts in FILE using Ediff."
-  (interactive
-   (let ((atpoint  (magit-file-at-point))
-         (unmerged (magit-unmerged-files)))
-     (unless unmerged
-       (user-error "There are no unresolved conflicts"))
-     (list (magit-completing-read "Resolve file" unmerged nil t nil nil
-                                  (car (member atpoint unmerged))))))
-  (with-current-buffer (find-file-noselect file)
-    (smerge-ediff)))
-
 ;;;; Diff Mode
 ;;;;; Diff Core
 
@@ -7925,6 +7912,7 @@ Use the function by the same name instead of this variable.")
 
 (provide 'magit)
 
+(require 'magit-ediff)
 (require 'magit-extras)
 
 ;; Local Variables:
