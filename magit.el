@@ -78,7 +78,6 @@
 (eval-when-compile
   (require 'dired)
   (require 'dired-x)
-  (require 'ediff)
   (require 'eshell)
   (require 'ido)
   (require 'smerge-mode)
@@ -88,7 +87,6 @@
 
 (declare-function dired-jump 'dired-x)
 (declare-function dired-uncache 'dired)
-(declare-function ediff-cleanup-mess 'ediff)
 (declare-function eshell-parse-arguments 'eshell)
 (declare-function ido-completing-read 'ido)
 
@@ -1321,6 +1319,10 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "z" 'magit-stash-popup)
     (define-key map ":" 'magit-git-command)
     (define-key map "!" 'magit-run-popup)
+    (define-key map "\M-d" 'magit-ediff-compare)
+    (define-key map "\M-e" 'magit-ediff-dwim)
+    (define-key map "\M-m" 'magit-ediff-resolve)
+    (define-key map "\M-s" 'magit-ediff-stage)
     (define-key map "L"      'magit-add-change-log-entry)
     (define-key map "\C-x4a" 'magit-add-change-log-entry-other-window)
     (define-key map "\C-w"   'magit-copy-as-kill)
@@ -1541,7 +1543,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     "---"
     ["Branch..." magit-checkout t]
     ["Merge" magit-merge t]
-    ["Interactive resolve" magit-ediff-resolve-file t]
+    ["Ediff resolve" magit-ediff-resolve t]
     ["Rebase..." magit-rebase-popup t]
     "---"
     ["Push" magit-push t]
@@ -3441,7 +3443,7 @@ tracked in the current repository."
 (defun magit-revert-buffers ()
   (-when-let (topdir (magit-get-top-dir))
     (let ((gitdir  (magit-git-dir))
-          (tracked (magit-git-lines "ls-tree" "-r" "--name-only" "HEAD")))
+          (tracked (magit-revision-files "HEAD")))
       (dolist (buf (buffer-list))
         (with-current-buffer buf
           (let ((file (buffer-file-name)))
@@ -3592,6 +3594,9 @@ If the file is not inside a Git repository then return nil."
 (defun magit-unmerged-files ()
   (magit-git-lines "diff-files" "--name-only" "--diff-filter=U"))
 
+(defun magit-revision-files (rev)
+  (magit-git-lines "ls-tree" "-r" "--name-only" rev))
+
 (defun magit-file-status (&optional file status)
   (if file
       (cdr (--first (or (string-equal (car it) file)
@@ -3618,6 +3623,12 @@ If the file is not inside a Git repository then return nil."
   (magit-section-case
     (file (magit-section-value it))
     (hunk (magit-section-parent-value it))))
+
+(defun magit-current-file ()
+  (or (magit-file-relative-name)
+      (magit-file-at-point)
+      (and (derived-mode-p 'magit-log-mode)
+           (nth 3 magit-refresh-args))))
 
 ;;;; Predicates
 
@@ -4053,17 +4064,15 @@ results in additional differences."
 (defun magit-read-file-from-rev (revision prompt &optional default)
   (unless revision
     (setq revision "HEAD"))
-  (let ((default-directory (magit-get-top-dir)))
-    (magit-completing-read
-     prompt
-     (magit-git-lines "ls-tree" "-r" "-t" "--name-only" revision)
-     nil 'require-match
-     nil 'magit-read-file-hist
-     (or default
-         (magit-file-relative-name)
-         (magit-file-at-point)
-         (and (derived-mode-p 'magit-log-mode)
-              (nth 3 magit-refresh-args))))))
+  (unless default
+    (setq default (magit-current-file)))
+  (let ((default-directory (magit-get-top-dir))
+        (files (magit-revision-files revision)))
+    (when (and default (not (member default files)))
+      (setq default nil))
+    (magit-completing-read prompt files
+                           nil 'require-match
+                           nil 'magit-read-file-hist default)))
 
 (defun magit-read-file-trace (ignored)
   (let ((file  (magit-read-file-from-rev "HEAD" "File"))
@@ -4632,7 +4641,7 @@ without requiring confirmation."
                   (string-match
                    (format "\\(.+?\\)\t%s" (regexp-quote file)) temp)
                   (rename-file (match-string 1 temp)
-                               (setq temp (concat file ".~index~")))
+                               (setq temp (concat file ".~{index}~")))
                   (delete-file temp t))
                 (magit-call-git "rm" "--cached" "--force" "--" file))
             (?D (magit-call-git "checkout" "--" file)
@@ -4815,10 +4824,15 @@ Also see variable `magit-apply-backup'."
                                  (magit-get-current-branch)))))
     (list rev (magit-read-file-from-rev rev prompt))))
 
+(defun magit-get-revision-buffer (rev file &optional create)
+  (funcall (if create 'get-buffer-create 'get-buffer)
+           (format "%s.~%s~" file (subst-char-in-string ?/ ?_ rev))))
+
+(defun magit-get-revision-buffer-create (rev file)
+  (magit-get-revision-buffer rev file t))
+
 (defun magit-find-file-noselect (rev file)
-  (with-current-buffer
-      (get-buffer-create
-       (format "%s.~%s~" file (subst-char-in-string ?/ ?_ rev)))
+  (with-current-buffer (magit-get-revision-buffer-create rev file)
     (let ((inhibit-read-only t))
       (erase-buffer)
       (magit-git-insert "cat-file" "-p" (concat rev ":" file)))
@@ -4834,25 +4848,51 @@ Also see variable `magit-apply-backup'."
     (current-buffer)))
 
 (defun magit-find-file-index-noselect (file)
-  (with-current-buffer
-      (get-buffer-create (concat file ".~{index}~"))
-    (let ((inhibit-read-only t)
-          (temp (car (split-string
-                      (magit-git-string "checkout-index" "--temp" file)
-                      "\t"))))
-      (erase-buffer)
-      (insert-file-contents temp nil nil nil t)
-      (delete-file temp))
-    (setq magit-buffer-revision  "{index}"
-          magit-buffer-refname   "{index}"
-          magit-buffer-file-name (expand-file-name file (magit-get-top-dir)))
-    (let ((buffer-file-name magit-buffer-file-name))
-      (normal-mode t))
-    (setq buffer-read-only t)
-    (set-buffer-modified-p nil)
-    (goto-char (point-min))
-    (run-hooks 'magit-find-index-hook)
-    (current-buffer)))
+  (let* ((bufname (concat file ".~{index}~"))
+         (origbuf (get-buffer bufname)))
+    (with-current-buffer (get-buffer-create bufname)
+      (when (or (not origbuf)
+                (y-or-n-p (format "%s already exists; revert it? " bufname)))
+        (let ((inhibit-read-only t)
+              (temp (car (split-string
+                          (magit-git-string "checkout-index" "--temp" file)
+                          "\t"))))
+          (erase-buffer)
+          (insert-file-contents temp nil nil nil t)
+          (delete-file temp)))
+      (setq magit-buffer-revision  "{index}"
+            magit-buffer-refname   "{index}"
+            magit-buffer-file-name (expand-file-name file (magit-get-top-dir)))
+      (let ((buffer-file-name magit-buffer-file-name))
+        (normal-mode t))
+      (setq buffer-read-only t)
+      (set-buffer-modified-p nil)
+      (goto-char (point-min))
+      (run-hooks 'magit-find-index-hook)
+      (current-buffer))))
+
+(defun magit-update-index ()
+  (interactive)
+  (let ((file (magit-file-relative-name)))
+    (unless (equal magit-buffer-refname "{index}")
+      (user-error "%s isn't visiting the index" file))
+    (unless (y-or-n-p (format "Update index with contents of %s" (buffer-name)))
+      (user-error "Abort"))
+    (let ((index (make-temp-file "index"))
+          (buffer (current-buffer)))
+      (with-temp-file index
+        (insert-buffer-substring buffer))
+      (magit-call-git "update-index" "--cacheinfo"
+                      (substring (magit-git-string "ls-files" "-s" file) 0 6)
+                      (magit-git-string "hash-object" "-t" "blob" "-w"
+                                        (concat "--path=" file)
+                                        "--" index)
+                      file))
+    (set-buffer-modified-p nil))
+  (--when-let (magit-mode-get-buffer
+               magit-status-buffer-name-format 'magit-status-mode)
+    (with-current-buffer it (magit-refresh)))
+  t)
 
 (defun magit-visit-file (file &optional other-window)
   (interactive (list (magit-file-at-point) current-prefix-arg))
@@ -5008,7 +5048,7 @@ inspect the merge and change the commit message.
          (file (magit-completing-read "Checkout file"
                                       (magit-tracked-files) nil nil nil
                                       'magit-read-file-hist
-                                      (magit-file-at-point))))
+                                      (magit-current-file))))
      (cond
       ((member file (magit-unmerged-files))
        (list file (magit-checkout-read-stage file)))
@@ -7049,21 +7089,6 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
                         (or (cdr (assoc label magit-reflog-labels))
                             'magit-reflog-other)))))
 
-;;;; Ediff Support
-
-;;;###autoload
-(defun magit-ediff-resolve-file (file)
-  "Resolve conflicts in FILE using Ediff."
-  (interactive
-   (let ((atpoint  (magit-file-at-point))
-         (unmerged (magit-unmerged-files)))
-     (unless unmerged
-       (user-error "There are no unresolved conflicts"))
-     (list (magit-completing-read "Resolve file" unmerged nil t nil nil
-                                  (car (member atpoint unmerged))))))
-  (with-current-buffer (find-file-noselect file)
-    (smerge-ediff)))
-
 ;;;; Diff Mode
 ;;;;; Diff Core
 
@@ -7887,6 +7912,7 @@ Use the function by the same name instead of this variable.")
 
 (provide 'magit)
 
+(require 'magit-ediff)
 (require 'magit-extras)
 
 ;; Local Variables:
