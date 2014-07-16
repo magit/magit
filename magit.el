@@ -4822,10 +4822,15 @@ Also see variable `magit-apply-backup'."
                                  (magit-get-current-branch)))))
     (list rev (magit-read-file-from-rev rev prompt))))
 
+(defun magit-get-revision-buffer (rev file &optional create)
+  (funcall (if create 'get-buffer-create 'get-buffer)
+           (format "%s.~%s~" file (subst-char-in-string ?/ ?_ rev))))
+
+(defun magit-get-revision-buffer-create (rev file)
+  (magit-get-revision-buffer rev file t))
+
 (defun magit-find-file-noselect (rev file)
-  (with-current-buffer
-      (get-buffer-create
-       (format "%s.~%s~" file (subst-char-in-string ?/ ?_ rev)))
+  (with-current-buffer (magit-get-revision-buffer-create rev file)
     (let ((inhibit-read-only t))
       (erase-buffer)
       (magit-git-insert "cat-file" "-p" (concat rev ":" file)))
