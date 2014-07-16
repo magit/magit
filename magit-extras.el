@@ -192,7 +192,7 @@ With a prefix argument only ignore locally."
   (magit-gitignore file-or-pattern t))
 
 (defun magit-gitignore-read-args (local)
-  (let* ((default (magit-file-at-point))
+  (let* ((default (magit-current-file))
          (choices
           (delete-dups
            (--mapcat

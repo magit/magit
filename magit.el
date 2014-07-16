@@ -3622,6 +3622,12 @@ If the file is not inside a Git repository then return nil."
     (file (magit-section-value it))
     (hunk (magit-section-parent-value it))))
 
+(defun magit-current-file ()
+  (or (magit-file-relative-name)
+      (magit-file-at-point)
+      (and (derived-mode-p 'magit-log-mode)
+           (nth 3 magit-refresh-args))))
+
 ;;;; Predicates
 
 (defun magit-no-commit-p ()
@@ -4061,11 +4067,7 @@ results in additional differences."
      prompt (magit-revision-files revision)
      nil 'require-match
      nil 'magit-read-file-hist
-     (or default
-         (magit-file-relative-name)
-         (magit-file-at-point)
-         (and (derived-mode-p 'magit-log-mode)
-              (nth 3 magit-refresh-args))))))
+     (or default (magit-current-file)))))
 
 (defun magit-read-file-trace (ignored)
   (let ((file  (magit-read-file-from-rev "HEAD" "File"))
@@ -5036,7 +5038,7 @@ inspect the merge and change the commit message.
          (file (magit-completing-read "Checkout file"
                                       (magit-tracked-files) nil nil nil
                                       'magit-read-file-hist
-                                      (magit-file-at-point))))
+                                      (magit-current-file))))
      (cond
       ((member file (magit-unmerged-files))
        (list file (magit-checkout-read-stage file)))
