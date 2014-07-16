@@ -4834,25 +4834,28 @@ Also see variable `magit-apply-backup'."
     (current-buffer)))
 
 (defun magit-find-file-index-noselect (file)
-  (with-current-buffer
-      (get-buffer-create (concat file ".~{index}~"))
-    (let ((inhibit-read-only t)
-          (temp (car (split-string
-                      (magit-git-string "checkout-index" "--temp" file)
-                      "\t"))))
-      (erase-buffer)
-      (insert-file-contents temp nil nil nil t)
-      (delete-file temp))
-    (setq magit-buffer-revision  "{index}"
-          magit-buffer-refname   "{index}"
-          magit-buffer-file-name (expand-file-name file (magit-get-top-dir)))
-    (let ((buffer-file-name magit-buffer-file-name))
-      (normal-mode t))
-    (setq buffer-read-only t)
-    (set-buffer-modified-p nil)
-    (goto-char (point-min))
-    (run-hooks 'magit-find-index-hook)
-    (current-buffer)))
+  (let* ((bufname (concat file ".~{index}~"))
+         (origbuf (get-buffer bufname)))
+    (with-current-buffer (get-buffer-create bufname)
+      (when (or (not origbuf)
+                (y-or-n-p (format "%s already exists; revert it? " bufname)))
+        (let ((inhibit-read-only t)
+              (temp (car (split-string
+                          (magit-git-string "checkout-index" "--temp" file)
+                          "\t"))))
+          (erase-buffer)
+          (insert-file-contents temp nil nil nil t)
+          (delete-file temp)))
+      (setq magit-buffer-revision  "{index}"
+            magit-buffer-refname   "{index}"
+            magit-buffer-file-name (expand-file-name file (magit-get-top-dir)))
+      (let ((buffer-file-name magit-buffer-file-name))
+        (normal-mode t))
+      (setq buffer-read-only t)
+      (set-buffer-modified-p nil)
+      (goto-char (point-min))
+      (run-hooks 'magit-find-index-hook)
+      (current-buffer))))
 
 (defun magit-update-index ()
   (interactive)
