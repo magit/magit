@@ -3441,7 +3441,7 @@ tracked in the current repository."
 (defun magit-revert-buffers ()
   (-when-let (topdir (magit-get-top-dir))
     (let ((gitdir  (magit-git-dir))
-          (tracked (magit-git-lines "ls-tree" "-r" "--name-only" "HEAD")))
+          (tracked (magit-revision-files "HEAD")))
       (dolist (buf (buffer-list))
         (with-current-buffer buf
           (let ((file (buffer-file-name)))
@@ -3591,6 +3591,9 @@ If the file is not inside a Git repository then return nil."
 
 (defun magit-unmerged-files ()
   (magit-git-lines "diff-files" "--name-only" "--diff-filter=U"))
+
+(defun magit-revision-files (rev)
+  (magit-git-lines "ls-tree" "-r" "--name-only" rev))
 
 (defun magit-file-status (&optional file status)
   (if file
@@ -4055,8 +4058,7 @@ results in additional differences."
     (setq revision "HEAD"))
   (let ((default-directory (magit-get-top-dir)))
     (magit-completing-read
-     prompt
-     (magit-git-lines "ls-tree" "-r" "-t" "--name-only" revision)
+     prompt (magit-revision-files revision)
      nil 'require-match
      nil 'magit-read-file-hist
      (or default
