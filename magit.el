@@ -4062,12 +4062,15 @@ results in additional differences."
 (defun magit-read-file-from-rev (revision prompt &optional default)
   (unless revision
     (setq revision "HEAD"))
-  (let ((default-directory (magit-get-top-dir)))
-    (magit-completing-read
-     prompt (magit-revision-files revision)
-     nil 'require-match
-     nil 'magit-read-file-hist
-     (or default (magit-current-file)))))
+  (unless default
+    (setq default (magit-current-file)))
+  (let ((default-directory (magit-get-top-dir))
+        (files (magit-revision-files revision)))
+    (when (and default (not (member default files)))
+      (setq default nil))
+    (magit-completing-read prompt files
+                           nil 'require-match
+                           nil 'magit-read-file-hist default)))
 
 (defun magit-read-file-trace (ignored)
   (let ((file  (magit-read-file-from-rev "HEAD" "File"))
