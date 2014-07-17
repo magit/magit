@@ -137,6 +137,8 @@
   (magit-blame-file-off buffer)
   (save-excursion
     (with-current-buffer buffer
+      (when (fboundp 'fci-mode)
+        (fci-mode -1))
       (save-restriction
         (with-temp-buffer
           (apply 'magit-git-insert "blame" "--porcelain"
