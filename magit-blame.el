@@ -51,29 +51,29 @@
   :group 'magit-blame
   :type 'string)
 
-(defface magit-blame-header
+(defface magit-blame-heading
   '((((class color) (background light)) :background "grey80" :foreground "black")
     (((class color) (background  dark)) :background "grey25" :foreground "black"))
   "Face for blame header."
   :group 'magit-faces)
 
-(defface magit-blame-sha1
-  '((t :inherit (magit-hash magit-blame-header)))
+(defface magit-blame-hash
+  '((t :inherit (magit-hash magit-blame-heading)))
   "Face for blame sha1."
   :group 'magit-faces)
 
 (defface magit-blame-culprit
-  '((t :inherit magit-blame-header))
+  '((t :inherit magit-blame-heading))
   "Face for blame culprit."
   :group 'magit-faces)
 
 (defface magit-blame-time
-  '((t :inherit magit-blame-header))
+  '((t :inherit magit-blame-heading))
   "Face for blame time."
   :group 'magit-faces)
 
 (defface magit-blame-subject
-  '((t :inherit (magit-log-message magit-blame-header)))
+  '((t :inherit (magit-log-message magit-blame-heading)))
   "Face for blame tag line."
   :group 'magit-faces)
 
@@ -180,8 +180,8 @@
 (defun magit-blame-parse (target-buf blame-buf)
   "Parse blame-info in buffer BLAME-BUF and decorate TARGET-BUF buffer."
   (save-match-data
-    (let ((blank (propertize " " 'face 'magit-blame-header))
-          (nl (propertize "\n" 'face 'magit-blame-header))
+    (let ((blank (propertize " " 'face 'magit-blame-heading))
+          (nl (propertize "\n" 'face 'magit-blame-heading))
           (commit-hash (make-hash-table :test 'equal :size 577))
           commit commit-info old-line new-line num old-file subject author
           author-time author-timezone info ov beg end blame)
@@ -254,7 +254,7 @@
           (overlay-put ov :blame chunk)
           (setq blame (concat
                        (propertize (substring-no-properties commit 0 8)
-                                   'face 'magit-blame-sha1)
+                                   'face 'magit-blame-hash)
                        blank
                        (propertize (format "%-20s" author)
                                    'face 'magit-blame-culprit)
