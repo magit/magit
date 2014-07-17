@@ -173,7 +173,8 @@
 ;;; Parse
 
 (defun magit-blame-format-time-string (format time tz)
-  (format-time-string format (+ time (* (/ tz 100) 60 60) (* (% tz 100) 60))))
+  (format-time-string
+   format (seconds-to-time (+ time (* (/ tz 100) 60 60) (* (% tz 100) 60)))))
 
 (defun magit-blame-parse (target-buf blame-buf)
   "Parse blame-info in buffer BLAME-BUF and decorate TARGET-BUF buffer."
