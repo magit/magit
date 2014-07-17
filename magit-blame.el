@@ -52,12 +52,13 @@
   :type 'string)
 
 (defface magit-blame-header
-  '((t :inherit magit-section-title))
+  '((((class color) (background light)) :background "grey80" :foreground "black")
+    (((class color) (background  dark)) :background "grey25" :foreground "black"))
   "Face for blame header."
   :group 'magit-faces)
 
 (defface magit-blame-sha1
-  '((t :inherit (magit-log-sha1 magit-blame-header)))
+  '((t :inherit (magit-hash magit-blame-header)))
   "Face for blame sha1."
   :group 'magit-faces)
 
