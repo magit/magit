@@ -7154,8 +7154,12 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
 
 ;;;###autoload
 (defun magit-diff (range &optional args)
-  "Show changes between two commits."
-  (interactive (list (magit-read-rev "Diff for ref/rev/range")))
+    "Show differences between two commits.
+RANGE should be a range (A..B or A...B) but can also be a single
+commit.  If one side of the range is omitted, then it defaults
+to HEAD.  If just a commit is given, then changes in the working
+tree relative to that commit are shown."
+  (interactive (list (magit-read-rev "Diff for range")))
   (magit-mode-setup magit-diff-buffer-name-format
                     magit-diff-switch-buffer-function
                     #'magit-diff-mode
