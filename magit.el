@@ -93,7 +93,7 @@ Use the function by the same name instead of this variable.")
   (require 'ediff)
   (require 'eshell)
   (require 'ido)
-  (require 'helm-mode)
+  (require 'helm-mode nil t)
   (require 'iswitchb)
   (require 'package nil t)
   (require 'view))
@@ -1818,16 +1818,14 @@ set before loading libary `magit'.")
 
 (defun magit-helm-completing-read
   (prompt choices &optional predicate require-match initial-input hist def)
-  "helm-based completing-read almost-replacement"
+  "helm-based completing-read almost-replacement."
   (require 'helm-mode)
-  (helm-comp-read
-   prompt
-   choices
-   :test predicate
-   :must-match require-match
-   :initial-input initial-input
-   :history hist
-   :default def))
+  (helm-comp-read prompt choices
+                  :test predicate
+                  :must-match require-match
+                  :initial-input initial-input
+                  :history hist
+                  :default def))
 
 (defun magit-builtin-completing-read
   (prompt choices &optional predicate require-match initial-input hist def)
