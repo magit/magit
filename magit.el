@@ -6885,9 +6885,11 @@ More information can be found in Info node `(magit)Diffing'
 
 ;;;###autoload
 (defun magit-diff (range &optional working args)
-  "Show differences between in a range.
-You can also show the changes in a single commit by omitting the
-range end, but for that `magit-show-commit' is a better option."
+  "Show differences between two commits.
+RANGE should be a range (A..B or A...B) but can also be a single
+commit.  If one side of the range is omitted, then it defaults
+to HEAD.  If just a commit is given, then changes in the working
+tree relative to that commit are shown."
   (interactive (list (magit-read-rev-range "Diff")))
   (magit-mode-setup magit-diff-buffer-name
                     #'pop-to-buffer
