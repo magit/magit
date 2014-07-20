@@ -93,6 +93,7 @@ Use the function by the same name instead of this variable.")
   (require 'ediff)
   (require 'eshell)
   (require 'ido)
+  (require 'helm-mode)
   (require 'iswitchb)
   (require 'package nil t)
   (require 'view))
@@ -108,6 +109,7 @@ Use the function by the same name instead of this variable.")
 (declare-function ediff-cleanup-mess 'ediff)
 (declare-function eshell-parse-arguments 'eshell)
 (declare-function ido-completing-read 'ido)
+(declare-function helm-comp-read 'helm)
 (declare-function iswitchb-read-buffer 'iswitchb)
 (declare-function package-desc-vers 'package)
 (declare-function package-desc-version 'package)
@@ -630,6 +632,7 @@ when generating large diffs."
   :group 'magit
   :type '(radio (function-item magit-iswitchb-completing-read)
                 (function-item magit-ido-completing-read)
+                (function-item magit-helm-completing-read)
                 (function-item magit-builtin-completing-read)
                 (function :tag "Other")))
 
@@ -1812,6 +1815,19 @@ set before loading libary `magit'.")
     (or (and (consp (car choices))
              (cdr (assoc reply choices)))
         reply)))
+
+(defun magit-helm-completing-read
+  (prompt choices &optional predicate require-match initial-input hist def)
+  "helm-based completing-read almost-replacement"
+  (require 'helm-mode)
+  (helm-comp-read
+   prompt
+   choices
+   :test predicate
+   :must-match require-match
+   :initial-input initial-input
+   :history hist
+   :default def))
 
 (defun magit-builtin-completing-read
   (prompt choices &optional predicate require-match initial-input hist def)
