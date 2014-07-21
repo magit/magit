@@ -3399,11 +3399,12 @@ tracked in the current repository."
       (setq ident (magit-section-ident section)
             line  (count-lines (magit-section-start section) (point))
             char  (- (point) (line-beginning-position))))
-    (let ((inhibit-read-only t))
-      (erase-buffer)
-      (save-excursion
-        (apply magit-refresh-function
-               magit-refresh-args)))
+    (when magit-refresh-function
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (save-excursion
+          (apply magit-refresh-function
+                 magit-refresh-args))))
     (when section
       (--if-let (magit-find-section ident)
           (let ((start (magit-section-start it)))
