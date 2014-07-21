@@ -400,6 +400,7 @@ many spaces.  Otherwise, highlight neither."
   :group 'magit
   :type '(radio (function-item magit-builtin-completing-read)
                 (function-item magit-ido-completing-read)
+                (function-item helm-completing-read-with-cands-in-buffer)
                 (function :tag "Other")))
 
 (defcustom magit-repo-dirs nil
