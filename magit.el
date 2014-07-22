@@ -4068,8 +4068,8 @@ results in additional differences."
     (setq revision "HEAD"))
   (unless default
     (setq default (magit-current-file)))
-  (let ((default-directory (magit-get-top-dir))
-        (files (magit-revision-files revision)))
+  (let* ((default-directory (magit-get-top-dir))
+         (files (magit-revision-files revision)))
     (when (and default (not (member default files)))
       (setq default nil))
     (magit-completing-read prompt files
