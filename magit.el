@@ -5299,7 +5299,7 @@ With prefix, forces the rename even if NEW already exists.
 
 (magit-define-popup magit-rebase-popup
   "Key menu for rebasing."
-  'magit 'magit-popup-sequence-mode
+  'magit-popups 'magit-popup-sequence-mode
   :man-page "git-rebase"
   :switches '((?k "Keep empty commits" "--keep-empty")
               (?p "Preserve merges" "--preserve-merges")
@@ -6186,7 +6186,7 @@ When the region is active offer to drop all contained stashes.
 
 (magit-define-popup magit-cherry-pick-popup
   "Popup console for cherry-pick commands."
-  'magit 'magit-popup-sequence-mode
+  'magit-popups 'magit-popup-sequence-mode
   :man-page "git-cherry-pick"
   :switches '((?s "Add Signed-off-by lines"            "--signoff")
               (?e "Edit commit messages"               "--edit")
@@ -6220,7 +6220,7 @@ When the region is active offer to drop all contained stashes.
 
 (magit-define-popup magit-revert-popup
   "Popup console for revert commands."
-  'magit 'magit-popup-sequence-mode
+  'magit-popups 'magit-popup-sequence-mode
   :man-page "git-revert"
   :switches '((?s "Add Signed-off-by lines" "--signoff"))
   :options  '((?s "Strategy" "--strategy="  read-from-minibuffer))
@@ -7134,7 +7134,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
 
 (magit-define-popup magit-diff-popup
   "Key menu for diffing."
-  'magit 'magit-popup-mode 'magit-diff-options
+  'magit-popups 'magit-popup-mode 'magit-diff-options
   :man-page "git-diff"
   :switches '((?W "Show surrounding functions"   "--function-context")
               (?b "Ignore whitespace changes"    "--ignore-space-change")
