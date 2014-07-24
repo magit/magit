@@ -6020,6 +6020,8 @@ depending on the value of option `magit-commit-squash-commit'.
                                    (buffer-list)))))
          (buffer (funcall locate-buffer)))
     (unless buffer
+      (unless (magit-commit-assert nil)
+        (user-error "Abort"))
       (magit-commit)
       (while (not (setq buffer (funcall locate-buffer)))
         (sit-for 0.01)))
