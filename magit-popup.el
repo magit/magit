@@ -304,8 +304,9 @@ that without users being aware of it could lead to tears.
 (defun magit-popup-get-args ()
   (cl-mapcan (lambda (elt)
                (when (magit-popup-event-use elt)
-                 (list (concat (magit-popup-event-arg elt)
-                               (magit-popup-event-val elt)))))
+                 (list (format "%s%s"
+                               (magit-popup-event-arg elt)
+                               (or (magit-popup-event-val elt) "")))))
              (append (magit-popup-get :switches)
                      (magit-popup-get :options))))
 
