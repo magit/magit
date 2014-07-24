@@ -90,6 +90,10 @@
 (declare-function eshell-parse-arguments 'eshell)
 (declare-function ido-completing-read 'ido)
 
+(declare-function magit-blame-chunk-get 'magit-blame)
+(declare-function magit-blame-mode 'magit-blame)
+
+(defvar magit-blame-mode nil)
 (defvar magit-refresh-args)
 (defvar magit-this-process)
 
@@ -582,8 +586,8 @@ The following `format'-like specs are supported:
 (defvar magit-diff-extra-options '("-M" "-C" "--no-prefix"))
 
 (defcustom magit-diff-auto-show
-  '(commit stage-all log-oneline log-select)
-  "Whether to automatically show relevant diff.
+  '(commit stage-all log-oneline log-select blame-follow)
+  "Whether to automatically show relevant diff or commit.
 
 When this option is non-nil certain operations cause the relevant
 changes to be displayed automatically.
@@ -593,6 +597,7 @@ changes to be displayed automatically.
 `log-oneline'
 `log-follow'
 `log-select'
+`blame-follow'
 
 In the event that expanding very large patches takes a long time
 \\<global-map>\\[keyboard-quit] can be used to abort that step.
@@ -3456,6 +3461,16 @@ tracked in the current repository."
                    (auto-revert-handler)
                    (run-hooks 'magit-revert-buffer-hook)))))))))
 
+(defadvice auto-revert-handler (around magit-blame activate)
+  "If Magit-Blame mode is on, then turn it off, refresh the
+buffer content and then also refresh the blame information,
+by turning the mode on again."
+  (--if-let nil ; magit-blame-mode
+      (with-no-warnings ; declare-function fails
+        (magit-blame-mode -1) ad-do-it
+        (magit-blame-mode  1))
+    ad-do-it))
+
 (defvar disable-magit-save-buffers nil)
 (defun magit-pre-command-hook ()
   (setq disable-magit-save-buffers nil))
@@ -4123,7 +4138,8 @@ If there is no commit at point or with a prefix argument prompt
 for a commit."
   (interactive
    (let* ((mcommit (magit-section-when mcommit))
-          (atpoint (or mcommit (magit-branch-or-commit-at-point))))
+          (atpoint (or (and magit-blame-mode (magit-blame-chunk-get :hash))
+                       mcommit (magit-branch-or-commit-at-point))))
      (list (or (and (not current-prefix-arg) atpoint)
                (magit-read-rev "Show commit" atpoint))
            nil (and mcommit (magit-section-parent-value
@@ -4164,15 +4180,20 @@ commit or stash at point, then prompt for a commit."
 
 (defun magit-show-or-scroll (fn)
   (let (rev cmd buf win)
-    (magit-section-case
-      (commit (setq rev (magit-section-value it)
-                    cmd 'magit-show-commit
-                    buf (magit-mode-get-buffer
-                         magit-commit-buffer-name-format 'magit-commit-mode)))
-      (stash  (setq rev (magit-section-value it)
-                    cmd 'magit-diff-stash
-                    buf (magit-mode-get-buffer
-                         magit-diff-buffer-name-format 'magit-diff-mode))))
+    (if magit-blame-mode
+        (setq rev (magit-blame-chunk-get :hash)
+              cmd 'magit-show-commit
+              buf (magit-mode-get-buffer
+                   magit-commit-buffer-name-format 'magit-commit-mode))
+      (magit-section-case
+        (commit (setq rev (magit-section-value it)
+                      cmd 'magit-show-commit
+                      buf (magit-mode-get-buffer
+                           magit-commit-buffer-name-format 'magit-commit-mode)))
+        (stash  (setq rev (magit-section-value it)
+                      cmd 'magit-diff-stash
+                      buf (magit-mode-get-buffer
+                           magit-diff-buffer-name-format 'magit-diff-mode)))))
     (if rev
         (if (and buf
                  (setq win (get-buffer-window buf))
@@ -6936,14 +6957,21 @@ With a non numeric prefix ARG, show all entries"
     (forward-line -1)
     (magit-goto-next-section)))
 
-(defun magit-log-maybe-show-commit (section)
-  (when (and (eq (magit-section-type section) 'commit)
-             (or (and (magit-diff-auto-show-p 'log-follow)
-                      (get-buffer-window magit-commit-buffer-name-format))
-                 (and (magit-diff-auto-show-p 'log-oneline)
-                      (derived-mode-p 'magit-log-mode)
-                      (eq (car magit-refresh-args) 'oneline))))
-    (magit-show-commit (magit-section-value section) t)))
+(defun magit-log-maybe-show-commit (&optional section) ; TODO rename
+  (--when-let
+      (or (and section
+               (eq (magit-section-type section) 'commit)
+               (or (and (magit-diff-auto-show-p 'log-follow)
+                        (get-buffer-window magit-commit-buffer-name-format))
+                   (and (magit-diff-auto-show-p 'log-oneline)
+                        (derived-mode-p 'magit-log-mode)
+                        (eq (car magit-refresh-args) 'oneline)))
+               (magit-section-value section))
+          (and magit-blame-mode
+               (magit-diff-auto-show-p 'blame-follow)
+               (get-buffer-window magit-commit-buffer-name-format)
+               (magit-blame-chunk-get :hash)))
+    (magit-show-commit it t)))
 
 (defun magit-log-goto-same-commit ()
   (--when-let (and magit-previous-section
