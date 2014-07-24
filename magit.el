@@ -5983,6 +5983,8 @@ actually insert the entry."
       (setq buf (current-buffer)
             pos (point)))
     (unless log
+      (unless (magit-commit-assert nil)
+        (user-error "Abort"))
       (magit-commit)
       (while (not (setq log (magit-commit-log-buffer)))
         (sit-for 0.01)))
