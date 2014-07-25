@@ -1834,7 +1834,7 @@ never modify it.")
       (magit-insert
        (if (next-single-property-change 0 'face (concat "0" heading))
            heading
-         (concat (propertize heading 'face 'magit-section-heading))))
+         (propertize heading 'face 'magit-section-heading)))
       (unless (bolp)
         (insert ?\n))))
   (setf (magit-section-content magit-insert-section--current) (point-marker)))
