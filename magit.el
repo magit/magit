@@ -7369,8 +7369,11 @@ actually were a single commit."
           "\\(\\+*\\)"   ; add
           "\\(-*\\)$"))  ; del
 
-(defconst magit-diff-submodule-re "^Submodule \
-\\([^\s\n]+\\) \\(?:\\([^:\n]+\\):\\|contains modified content\\)$")
+(defconst magit-diff-submodule-re
+  (concat "^Submodule \\([^ ]+\\) \\(?:"
+          "\\([^ ]+ (new submodule)\\)\\|"
+          "\\(contains modified content\\)\\|"
+          "\\([^:]+\\):\\)$"))
 
 (defun magit-wash-diffs (args)
   (let ((diffstats (magit-wash-diffstats)))
@@ -7410,14 +7413,12 @@ actually were a single commit."
 (defun magit-wash-diff (args diffstat)
   (cond
    ((looking-at magit-diff-submodule-re)
-    (let* ((module (match-string 1))
-           (range  (match-string 2))
-           (dirty  (not range)))
+    (magit-bind-match-strings (module new dirty range) nil
       (magit-delete-line)
       (when (and dirty
                  (looking-at magit-diff-submodule-re)
                  (string= (match-string 1) module))
-        (setq range (match-string 2))
+        (setq range (match-string 4))
         (magit-delete-line))
       (while (looking-at "^  \\([<>]\\) \\(.+\\)$")
         (magit-delete-line))
@@ -7428,16 +7429,24 @@ actually were a single commit."
             (setf (magit-section-value
                    (magit-insert-section (file module t)
                      (magit-insert-heading
-                       (propertize (format "modified%s  %s"
-                                           (if dirty "%" "/") module)
-                                   'face 'magit-file-heading))
+                       (concat (propertize (concat "modified   " module)
+                                           'face 'magit-file-heading)
+                               " ("
+                               (and range "new commits")
+                               (and dirty ", modified content")
+                               ")"))
                      (magit-git-wash (apply-partially 'magit-wash-log 'module)
                        "log" "--oneline" "--left-right" range)
                      (delete-char -1)))
                   module))
         (magit-insert-section (file module)
-          (magit-insert (propertize (format "dirty      %s" module)
-                                    'face 'magit-file-heading) nil ?\n)))))
+          (magit-insert
+           (concat (propertize (if new
+                                   (concat "new module " module)
+                                 (concat "modified   " module))
+                               'face 'magit-file-heading)
+                   (and dirty " (modified content)"))
+           nil ?\n)))))
    ((looking-at "^\\* Unmerged path \\(.*\\)")
     (let ((file (magit-decode-git-path (match-string 1))))
       (magit-delete-line)
