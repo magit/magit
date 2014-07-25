@@ -2950,7 +2950,7 @@ tracked in the current repository are reverted if
       ;; Find last ^M in string.  If one was found, ignore everything
       ;; before it and delete the current line.
       (let ((ret-pos (length string)))
-        (while (and (>= (setq ret-pos (1- ret-pos)) 0)
+        (while (and (>= (cl-decf ret-pos) 0)
                     (/= ?\r (aref string ret-pos))))
         (if (< ret-pos 0)
             (insert string)
