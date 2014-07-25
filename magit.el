@@ -1598,9 +1598,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 ;;;; Various Utilities
 
 (defmacro magit-bind-match-strings (varlist string &rest body)
-  (declare (indent 2)
-           (debug (listp form body)))
-
+  (declare (indent 2) (debug (listp form body)))
   (let ((s (cl-gensym "string"))
         (i 0))
     `(let ((,s ,string))
