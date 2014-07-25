@@ -5741,7 +5741,7 @@ arguments are not saved."
   :default-action 'magit-push)
 
 ;;;###autoload
-(defun magit-push-tags (remote)
+(defun magit-push-tags (remote &optional args)
   "Push all tags to a remote repository.
 If only one remote exists, push to that.  Otherwise prompt for a
 remote, offering the remote configured for the current branch as
@@ -5749,8 +5749,9 @@ default."
   (interactive (let ((remotes (magit-git-lines "remote")))
                  (list (if (= (length remotes) 1)
                            (car remotes)
-                         (magit-read-remote "Push tags to remote")))))
-  (magit-run-git-async "push" remote "--tags"))
+                         (magit-read-remote "Push tags to remote"))
+                       magit-current-popup-args)))
+  (magit-run-git-async "push" remote "--tags" args))
 
 ;;;###autoload
 (defun magit-push (arg)
