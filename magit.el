@@ -5735,7 +5735,7 @@ ask the user what remote to use."
                            (car remotes)))))
     (when (or current-prefix-arg (not remote))
       (setq remote (magit-read-remote "Push to remote")))
-    (magit-run-git-async "push" remote "--tags")))
+    (magit-run-git-async "push" remote "--tags" magit-custom-options)))
 
 ;;;###autoload
 (defun magit-push ()
