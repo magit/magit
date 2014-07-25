@@ -5537,13 +5537,13 @@ With prefix, forces the rename even if NEW already exists.
                                      nil (car (last selection))))
              (nreverse (mapcar 'magit-section-value selection)))
            magit-current-popup-args)))
-  (magit-run-git-sequencer "am" args "--" files))
+  (magit-run-git-sequencer "am" args "--" (mapcar 'expand-file-name files)))
 
 ;;;###autoload
 (defun magit-am-apply-maildir (&optional maildir args)
   (interactive (list (read-file-name "Apply mbox or Maildir: ")
                      magit-current-popup-args))
-  (magit-run-git-sequencer "am" args maildir))
+  (magit-run-git-sequencer "am" args (expand-file-name maildir)))
 
 ;;;###autoload
 (defun magit-am-continue ()
