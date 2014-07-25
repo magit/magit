@@ -5525,7 +5525,7 @@ With prefix, forces the rename even if NEW already exists.
   :sequence-predicate 'magit-am-in-progress-p)
 
 ;;;###autoload
-(defun magit-am-apply-patches (&optional file-or-files args)
+(defun magit-am-apply-patches (&optional files args)
   (interactive
    (let ((selection (if (use-region-p)
                         (magit-section-region-siblings)
@@ -5533,10 +5533,11 @@ With prefix, forces the rename even if NEW already exists.
      (unless (eq (magit-section-type (car selection)) 'file)
        (setq selection nil))
      (list (if (or current-prefix-arg (not selection))
-               (read-file-name "Apply patch(es): " nil (car (last selection)))
+               (list (read-file-name "Apply patch(es): "
+                                     nil (car (last selection))))
              (nreverse (mapcar 'magit-section-value selection)))
            magit-current-popup-args)))
-  (magit-run-git-sequencer "am" args "--" file-or-files))
+  (magit-run-git-sequencer "am" args "--" files))
 
 ;;;###autoload
 (defun magit-am-apply-maildir (&optional maildir args)
