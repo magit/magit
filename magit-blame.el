@@ -136,11 +136,12 @@ and then turned on again when turning on the latter."
              (funcall mode -1)
              (push mode magit-blame-disabled-modes)))
          (setq magit-blame-separator (magit-blame-format-separator))
-	 (unless (eq this-command 'magit-blame)
-	   (unless (magit-file-relative-name)
+         (unless (eq this-command 'magit-blame)
+           (unless (magit-file-relative-name)
              (user-error "Current buffer has no associated file"))
-	   (call-interactively 'magit-blame)))
-	(t
+           (let ((magit-blame-mode nil))
+             (call-interactively 'magit-blame))))
+        (t
          (unless magit-blame-buffer-read-only
            (if (fboundp 'read-only-mode)
                (read-only-mode -1)
