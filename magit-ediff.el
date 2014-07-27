@@ -236,4 +236,3 @@ mind at all, then it asks the user for a command to run."
 ;; indent-tabs-mode: nil
 ;; End:
 ;;; magit-ediff.el ends here
-
