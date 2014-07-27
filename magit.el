@@ -3466,7 +3466,7 @@ tracked in the current repository."
   "If Magit-Blame mode is on, then turn it off, refresh the
 buffer content and then also refresh the blame information,
 by turning the mode on again."
-  (--if-let nil ; magit-blame-mode
+  (if magit-blame-mode
       (with-no-warnings ; declare-function fails
         (magit-blame-mode -1) ad-do-it
         (magit-blame-mode  1))
