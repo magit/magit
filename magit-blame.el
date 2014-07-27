@@ -150,10 +150,10 @@ and then turned on again when turning on the latter."
            (funcall mode 1))
          (when (process-live-p magit-blame-process)
            (kill-process magit-blame-process))
-	 (save-excursion
-	   (save-restriction
-	     (widen)
-	     (dolist (ov (overlays-in (point-min) (point-max)))
+         (save-excursion
+           (save-restriction
+             (widen)
+             (dolist (ov (overlays-in (point-min) (point-max)))
                (when (overlay-get ov 'magit-blame)
                  (delete-overlay ov))))))))
 
