@@ -71,7 +71,7 @@
   (message (buffer-string))
   (should (cl-find info
                    (magit-section-children
-                    (magit-find-section `((,type) (status))))
+                    (magit-get-section `((,type) (status))))
                    :key 'magit-section-value :test 'equal)))
 
 ;;; Tests

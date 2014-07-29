@@ -1778,7 +1778,7 @@ never modify it.")
                  :parent magit-insert-section--parent)))
        (setf (magit-section-hidden ,s)
              (--if-let (and magit-insert-section--oldroot
-                            (magit-find-section
+                            (magit-get-section
                              (magit-section-ident ,s)
                              magit-insert-section--oldroot))
                  (magit-section-hidden it)
@@ -1899,7 +1899,7 @@ The return value has the form ((TYPE . VALUE)...)."
         (--when-let (magit-section-parent section)
           (magit-section-ident it))))
 
-(defun magit-find-section (ident &optional root)
+(defun magit-get-section (ident &optional root)
   "Return the section identified by IDENT.
 IDENT has to be a list as returned by `magit-section-ident'."
   (setq ident (reverse ident))
@@ -2031,9 +2031,8 @@ TITLE is the displayed title of the section."
 Jump to section '%s'.
 With a prefix argument also expand it." title)
          (interactive "P")
-         (--if-let (magit-find-section
-                    (cons '(,sym . nil)
-                          (magit-section-ident magit-root-section)))
+         (--if-let (magit-get-section
+                    (cons '(,sym) (magit-section-ident magit-root-section)))
              (progn (goto-char (magit-section-start it))
                     (when expand
                       (with-local-quit (magit-expand-section))
@@ -3412,7 +3411,7 @@ tracked in the current repository."
           (apply magit-refresh-function
                  magit-refresh-args))))
     (when section
-      (--if-let (magit-find-section ident)
+      (--if-let (magit-get-section ident)
           (let ((start (magit-section-start it)))
             (goto-char start)
             (when (> (length ident) 1)
@@ -3433,17 +3432,17 @@ tracked in the current repository."
                     (unstaged 'staged)
                     (unpushed 'unpulled)
                     (unpulled 'unpushed))
-        (magit-find-section `((,it) (status))))
+        (magit-get-section `((,it) (status))))
       (--when-let (car (magit-section-siblings section 'next))
-        (or (magit-find-section (magit-section-ident it))
+        (or (magit-get-section (magit-section-ident it))
             (when (eq (magit-section-type it) 'hunk)
               (let ((text (car (magit-section-value it))))
                 (--first (equal (car (magit-section-value it)) text)
                          (magit-section-children
-                          (magit-find-section
+                          (magit-get-section
                            (cdr (magit-section-ident it)))))))))
       (--when-let (car (magit-section-siblings section 'prev))
-        (magit-find-section (magit-section-ident it)))
+        (magit-get-section (magit-section-ident it)))
       (--when-let (magit-section-parent section)
         (magit-refresh-buffer-1 it))))
 
