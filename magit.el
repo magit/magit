@@ -2019,9 +2019,8 @@ IDENT has to be a list as returned by `magit-section-ident'."
     (set-window-start (selected-window) (magit-section-start section))))
 
 (defun magit-hunk-set-window-start (section)
-  (when (and (eq (magit-section-type section) 'hunk)
-             (not (pos-visible-in-window-p (magit-section-end section))))
-    (set-window-start (selected-window) (magit-section-start section))))
+  (when (eq (magit-section-type section) 'hunk)
+    (magit-section-set-window-start section)))
 
 (defmacro magit-define-section-jumper (sym title)
   "Define an interactive function to go to section SYM.
