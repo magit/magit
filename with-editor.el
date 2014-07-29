@@ -49,15 +49,17 @@
 
 (defun with-editor-locate-emacsclient ()
   "Search for a suitable Emacsclient executable."
-  (let ((path (cons (directory-file-name invocation-directory) exec-path)))
-    (when (eq system-type 'darwin)
-      (--when-let (expand-file-name "bin" invocation-directory)
-        (when (file-directory-p it)
-          (push it path)))
-      (when (string-match-p "Cellar" invocation-directory)
-        (--when-let (expand-file-name "../../../bin" invocation-directory)
+  (let ((path exec-path))
+    (when invocation-directory
+      (push (directory-file-name invocation-directory) path)
+      (when (eq system-type 'darwin)
+        (--when-let (expand-file-name "bin" invocation-directory)
           (when (file-directory-p it)
-            (push it path)))))
+            (push it path)))
+        (when (string-match-p "Cellar" invocation-directory)
+          (--when-let (expand-file-name "../../../bin" invocation-directory)
+            (when (file-directory-p it)
+              (push it path))))))
     (--if-let (with-editor-locate-emacsclient-1
                (cl-remove-duplicates path :test 'equal) 3)
         (shell-quote-argument it)
