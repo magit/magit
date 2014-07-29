@@ -1264,12 +1264,14 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 (defvar magit-mode-map
   (let ((map (make-keymap)))
     (suppress-keymap map t)
+    (define-key map "\t"    'magit-section-cycle)
+    (define-key map [C-tab] 'magit-section-toggle)
+    (define-key map [M-tab] 'magit-section-cycle-diffs)
     (define-key map "^"    'magit-section-up)
     (define-key map "n"    'magit-section-forward)
     (define-key map "p"    'magit-section-backward)
     (define-key map "M-n"  'magit-section-forward-sibling)
     (define-key map "M-p"  'magit-section-backward-sibling)
-    (define-key map [backtab] 'magit-expand-collapse-section)
     (define-key map "+"    'magit-diff-more-context)
     (define-key map "-"    'magit-diff-less-context)
     (define-key map "0"    'magit-diff-default-context)
@@ -1281,7 +1283,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "\M-2" 'magit-show-level-2-all)
     (define-key map "\M-3" 'magit-show-level-3-all)
     (define-key map "\M-4" 'magit-show-level-4-all)
-    (define-key map "\t"   'magit-toggle-section)
     (define-key map "g" 'magit-refresh)
     (define-key map "G" 'magit-refresh-all)
     (define-key map "q" 'magit-mode-quit-window)
@@ -1810,7 +1811,7 @@ never modify it.")
                        (put-text-property (point) next 'keymap map)))
                    (goto-char next)))))
            (if (eq ,s magit-root-section)
-               (magit-section-set-hidden ,s nil)
+               (magit-section-show ,s)
              (setf (magit-section-children (magit-section-parent ,s))
                    (nconc (magit-section-children (magit-section-parent ,s))
                           (list ,s)))))
@@ -2017,7 +2018,7 @@ With a prefix argument also expand it." title)
                     (cons '(,sym) (magit-section-ident magit-root-section)))
              (progn (goto-char (magit-section-start it))
                     (when expand
-                      (with-local-quit (magit-expand-section))
+                      (with-local-quit (magit-section-show it))
                       (recenter 0)))
            (message ,(format "Section '%s' wasn't found" title))))
        (put ',fun 'definition-name ',sym))))
@@ -2106,10 +2107,6 @@ FUNCTION has to move point forward or return nil."
 (defun magit-section-parent-value (section)
   (setq section (magit-section-parent section))
   (when section (magit-section-value  section)))
-
-(defun magit-section-lineage (section)
-  (when section
-    (cons section (magit-section-lineage (magit-section-parent section)))))
 
 (defun magit-section-siblings (section &optional direction)
   (-when-let (parent (magit-section-parent section))
@@ -2250,129 +2247,169 @@ at point."
 
 ;;;;; Section Visibility
 
-(defun magit-section-set-hidden (section hidden)
-  "Hide SECTION if HIDDEN is not nil, show it otherwise."
-  (setf (magit-section-hidden section) hidden)
-  (let ((inhibit-read-only t)
-        (washer (magit-section-washer section)))
-    (when (and washer (not hidden))
-      (let ((magit-insert-section--parent section))
-        (save-excursion
-          (goto-char (magit-section-end section))
-          (setf (magit-section-content section) (point-marker))
-          (funcall washer)
-          (setf (magit-section-end section) (point-marker))))
-      (setf (magit-section-washer section) nil)
-      (magit-highlight-section section))
-    (--when-let (magit-section-content section)
-      (put-text-property it (magit-section-end section)
-                         'invisible hidden)))
-  (unless hidden
-    (dolist (c (magit-section-children section))
-      (magit-section-set-hidden c (magit-section-hidden c)))))
+(defun magit-section-show (section)
+  "Show the body of the current section."
+  (interactive (list (magit-current-section)))
+  (setf (magit-section-hidden section) nil)
+  (-when-let (washer (magit-section-washer section))
+    (setf (magit-section-washer section) nil)
+    (let ((inhibit-read-only t)
+          (magit-insert-section--parent section))
+      (save-excursion
+        (goto-char (magit-section-end section))
+        (setf (magit-section-content section) (point-marker))
+        (funcall washer)
+        (setf (magit-section-end section) (point-marker)))))
+  (-when-let (beg (magit-section-content section))
+    (let ((inhibit-read-only t))
+      (put-text-property beg (magit-section-end section) 'invisible nil)))
+  (dolist (child (magit-section-children section))
+    (if (magit-section-hidden child)
+        (magit-section-hide child)
+      (magit-section-show child))))
 
-(defun magit-section-any-hidden (section)
-  "Return true if SECTION or any of its children is hidden."
-  (or (magit-section-hidden section)
-      (-first 'magit-section-any-hidden
-              (magit-section-children section))))
+(defun magit-section-hide (section)
+  "Hide the body of the current section."
+  (interactive (list (magit-current-section)))
+  (if (eq section magit-root-section)
+      (user-error "Cannot hide root section")
+    (setf (magit-section-hidden section) t)
+    (-when-let (beg (magit-section-content section))
+      (let ((inhibit-read-only t))
+        (put-text-property beg (magit-section-end section) 'invisible t)))))
 
-(defun magit-section-collapse (section)
-  "Show SECTION and hide all its children."
-  (dolist (c (magit-section-children section))
-    (setf (magit-section-hidden c) t))
-  (magit-section-set-hidden section nil))
+(defun magit-section-toggle (section)
+  "Toggle visibility of the body of the current section."
+  (interactive (list (magit-current-section)))
+  (if (eq section magit-root-section)
+      (user-error "Cannot hide root section")
+    (goto-char (magit-section-start section))
+    (if (magit-section-hidden section)
+        (magit-section-show section)
+      (magit-section-hide section))))
 
-(defun magit-section-expand (section)
-  "Show SECTION and all its children."
-  (dolist (c (magit-section-children section))
-    (setf (magit-section-hidden c) nil))
-  (magit-section-set-hidden section nil))
+(defun magit-section-toggle-children (section)
+  "Toggle visibility of bodies of children of the current section."
+  (interactive (list (magit-current-section)))
+  (goto-char (magit-section-start section))
+  (let* ((children (magit-section-children section))
+         (show (-any? 'magit-section-hidden children)))
+    (dolist (c children)
+      (setf (magit-section-hidden c) show)))
+  (magit-section-show section))
 
-(defun magit-section-expand-all-aux (section)
-  "Show recursively all SECTION's children."
-  (dolist (c (magit-section-children section))
-    (setf (magit-section-hidden c) nil)
-    (magit-section-expand-all-aux c)))
+(defun magit-section-show-children (section &optional depth)
+  "Recursively show the bodies of children of the current section.
+With a prefix argument show children that deep and hide deeper
+children."
+  (interactive (list (magit-current-section)))
+  (magit-section-show-children-1 section depth)
+  (magit-section-show section))
 
-(defun magit-section-expand-all (section)
-  "Show SECTION and all its children."
-  (magit-section-expand-all-aux section)
-  (magit-section-set-hidden section nil))
+(defun magit-section-show-children-1 (section &optional depth)
+  (dolist (s (magit-section-children section))
+    (setf (magit-section-hidden s) nil)
+    (if depth
+        (if (> depth 0)
+            (magit-section-show-children-1 s (1- depth))
+          (magit-section-hide s))
+      (magit-section-show-children-1 s))))
 
-(defun magit-section-hideshow (flag-or-func)
-  "Show or hide current section depending on FLAG-OR-FUNC.
+(defun magit-section-hide-children (section)
+  "Recursively hide the bodies of children of the current section."
+  (interactive (list (magit-current-section)))
+  (mapc 'magit-section-hide (magit-section-children section)))
 
-If FLAG-OR-FUNC is a function, it will be ran on current section.
-IF FLAG-OR-FUNC is a boolean, the section will be hidden if it is
-true, shown otherwise."
-  (let ((section (magit-current-section)))
-    (when (magit-section-parent section)
-      (goto-char (magit-section-start section))
-      (if (functionp flag-or-func)
-          (funcall flag-or-func section)
-        (magit-section-set-hidden section flag-or-func)))))
+(defun magit-section-show-headings (section)
+  "Recursively how headings of children of the current section.
+Only show the headings, previously shown text-only bodies are
+hidden."
+  (interactive (list (magit-current-section)))
+  (magit-section-show-headings-1 section)
+  (magit-section-show section))
 
-(defun magit-show-section ()
-  "Show current section."
+(defun magit-section-show-headings-1 (section)
+  (dolist (s (magit-section-children section))
+    (if (or (magit-section-children s)
+            (not (magit-section-content s)))
+        (progn (setf (magit-section-hidden s) nil)
+               (magit-section-show-headings-1 s))
+      (setf (magit-section-hidden s) t))))
+
+(defun magit-section-cycle (section)
+  "Cycle visibility of current section."
+  (interactive (list (magit-current-section)))
+  (goto-char (magit-section-start section))
+  (if (magit-section-hidden section)
+      (progn (magit-section-show section)
+             (magit-section-hide-children section))
+    (let ((children (magit-section-children section)))
+      (cond ((and (-any? 'magit-section-hidden   children)
+                  (-any? 'magit-section-children children))
+             (magit-section-show-headings section))
+            ((-any? 'magit-section-hidden-body children)
+             (magit-section-show-children section))
+            (t
+             (magit-section-hide section))))))
+
+(defun magit-section-cycle-global ()
+  "Cycle visibility of all sections in the current buffer."
   (interactive)
-  (magit-section-hideshow nil))
+  (let ((children (magit-section-children magit-root-section)))
+    (cond ((and (-any? 'magit-section-hidden   children)
+                (-any? 'magit-section-children children))
+           (magit-section-show-headings magit-root-section))
+          ((-any? 'magit-section-hidden-body children)
+           (magit-section-show-children magit-root-section))
+          (t
+           (mapc 'magit-section-hide children)))))
 
-(defun magit-hide-section ()
-  "Hide current section."
+(defun magit-section-cycle-diffs ()
+  "Cycle visibility of diff-related sections in the current buffer."
   (interactive)
-  (magit-section-hideshow t))
+  (-when-let (sections
+              (cond ((derived-mode-p 'magit-status-mode)
+                     (and (magit-get-section '((staged)   (status)))
+                          (magit-get-section '((unstaged) (status)))))
+                    ((derived-mode-p 'magit-diff-mode)
+                     (--filter (eq (magit-section-type it) 'file)
+                               (magit-section-children magit-root-section)))))
+      (if (-any? 'magit-section-hidden sections)
+          (dolist (s sections)
+            (magit-section-show s)
+            (magit-section-hide-children s))
+        (let ((children (cl-mapcan 'magit-section-children sections)))
+          (cond ((and (-any? 'magit-section-hidden   children)
+                      (-any? 'magit-section-children children))
+                 (mapc 'magit-section-show-headings sections))
+                ((-any? 'magit-section-hidden-body children)
+                 (mapc 'magit-section-show-children sections))
+                (t
+                 (mapc 'magit-section-hide sections)))))))
 
-(defun magit-collapse-section ()
-  "Hide all subsection of current section."
-  (interactive)
-  (magit-section-hideshow #'magit-section-collapse))
+(defun magit-section-hidden-body (section &optional pred)
+  (--if-let (magit-section-children section)
+      (funcall (or pred '-any?) 'magit-section-hidden-body it)
+    (and (magit-section-content section)
+         (magit-section-hidden  section))))
 
-(defun magit-expand-section ()
-  "Show all subsection of current section."
-  (interactive)
-  (magit-section-hideshow #'magit-section-expand))
-
-(defun magit-toggle-file-section ()
-  "Like `magit-toggle-section' but toggle at file granularity."
-  (interactive)
-  (when (eq (magit-section-type (magit-current-section)) 'hunk)
-    (magit-section-up))
-  (magit-toggle-section))
-
-(defun magit-toggle-section ()
-  "Toggle hidden status of current section."
-  (interactive)
-  (magit-section-hideshow
-   (lambda (s)
-     (magit-section-set-hidden s (not (magit-section-hidden s))))))
-
-(defun magit-expand-collapse-section ()
-  "Toggle hidden status of subsections of current section."
-  (interactive)
-  (magit-section-hideshow
-   (lambda (s)
-     (cond ((magit-section-any-hidden s)
-            (magit-section-expand-all s))
-           (t
-            (magit-section-collapse s))))))
-
-(defun magit-cycle-section ()
-  "Cycle between expanded, hidden and collapsed state for current section.
-
-Hidden: only the first line of the section is shown
-Collapsed: only the first line of the subsection is shown
-Expanded: everything is shown."
-  (interactive)
-  (magit-section-hideshow
-   (lambda (s)
-     (cond ((magit-section-hidden s)
-            (magit-section-collapse s))
-           ((with-no-warnings
-              (cl-notany #'magit-section-hidden (magit-section-children s)))
-            (magit-section-set-hidden s t))
-           (t
-            (magit-section-expand s))))))
+(defun magit-show-level (level)
+  "Show surrounding sections up to LEVEL.
+If LEVEL (the prefix argument) is negative show up to the
+absolute value.  Sections at higher levels are hidden."
+  (interactive "p")
+  (if (< level 0)
+      (let ((s (magit-current-section)))
+        (setq level (- level))
+        (while (> (1- (length (magit-section-ident s))) level)
+          (setq s (magit-section-parent s))
+          (goto-char (magit-section-start s)))
+        (magit-section-show-children magit-root-section (1- level)))
+    (cl-do* ((s (magit-current-section) (magit-section-parent s))
+             (i (1- (length (magit-section-ident s))) (cl-decf i)))
+        ((cond ((< i level) (magit-section-show-children s (- level i 1)) t)
+               ((= i level) (magit-section-hide s) t))
+         (magit-goto-section s)))))
 
 (defun magit-show-level-1 ()
   "Show surrounding sections on first level."
@@ -2382,7 +2419,7 @@ Expanded: everything is shown."
 (defun magit-show-level-1-all ()
   "Show all sections on first level."
   (interactive)
-  (magit-show-level 1 t))
+  (magit-show-level -1))
 
 (defun magit-show-level-2 ()
   "Show surrounding sections up to second level."
@@ -2392,7 +2429,7 @@ Expanded: everything is shown."
 (defun magit-show-level-2-all ()
   "Show all sections up to second level."
   (interactive)
-  (magit-show-level 2 t))
+  (magit-show-level -2))
 
 (defun magit-show-level-3 ()
   "Show surrounding sections up to third level."
@@ -2402,7 +2439,7 @@ Expanded: everything is shown."
 (defun magit-show-level-3-all ()
   "Show all sections up to third level."
   (interactive)
-  (magit-show-level 3 t))
+  (magit-show-level -3))
 
 (defun magit-show-level-4 ()
   "Show surrounding sections up to fourth level."
@@ -2412,21 +2449,7 @@ Expanded: everything is shown."
 (defun magit-show-level-4-all ()
   "Show all sections up to fourth level."
   (interactive)
-  (magit-show-level 4 t))
-
-(defun magit-show-level (level &optional all)
-  (if all
-      (magit-show-level* magit-root-section 0 level nil)
-    (let ((path (reverse (magit-section-lineage (magit-current-section)))))
-      (magit-show-level* (car path) 0 level (cdr path)))))
-
-(defun magit-show-level* (section level threshold path)
-  (magit-section-set-hidden section (>= level threshold))
-  (when (< level threshold)
-    (if path
-        (magit-show-level* (car path) (1+ level) threshold (cdr path))
-      (dolist (c (magit-section-children section))
-        (magit-show-level* c (1+ level) threshold nil)))))
+  (magit-show-level -4))
 
 ;;;;; Section Highlighting
 
@@ -3029,7 +3052,7 @@ tracked in the current repository are reverted if
               (delete-char -1)
               (setf (magit-section-content section) nil))
           (when (= arg 0)
-            (magit-hide-section))))))
+            (magit-section-hide section))))))
   (unless (= arg 0)
     (message ; `error' would prevent refresh
      "%s ... [%s buffer %s for details]"
@@ -4105,7 +4128,7 @@ results in additional differences."
 This mode is documented in info node `(magit)Commit Buffer'.
 
 \\<magit-commit-mode-map>\
-Type \\[magit-toggle-section] to expand or hide the section at point.
+Type \\[magit-section-toggle] to expand or hide the section at point.
 Type \\[magit-visit-file] to visit the hunk or file at point.
 Type \\[magit-apply] to apply the change at point to the worktree.
 Type \\[magit-reverse] to reverse the change at point in the worktree.
@@ -4259,7 +4282,7 @@ This mode is documented in info node `(magit)Status'.
 \\<magit-status-mode-map>\
 Type \\[magit-refresh] to refresh the current buffer.
 Type \\[magit-dispatch-popup] to see available action popups.
-Type \\[magit-toggle-section] to expand or hide the section at point.
+Type \\[magit-section-toggle] to expand or hide the section at point.
 Type \\[magit-visit-file] to visit the thing at point.
 Type \\[magit-stage] to stage the change at point; \\[magit-unstage] to unstage.
 Type \\[magit-commit-popup] to create a commit.
@@ -7113,7 +7136,7 @@ This mode is documented in info node `(magit)Diffing'.
 
 \\<magit-diff-mode-map>\
 Type \\[magit-refresh] to refresh the current buffer.
-Type \\[magit-toggle-section] to expand or hide the section at point.
+Type \\[magit-section-toggle] to expand or hide the section at point.
 Type \\[magit-visit-file] to visit the file at point.
 Type \\[magit-apply] to apply the change at point to the worktree.
 Type \\[magit-reverse] to reverse the change at point in the worktree.
