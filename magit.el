@@ -1264,11 +1264,11 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 (defvar magit-mode-map
   (let ((map (make-keymap)))
     (suppress-keymap map t)
-    (define-key map "^"    'magit-goto-parent-section)
-    (define-key map "n"    'magit-goto-next-section)
-    (define-key map "p"    'magit-goto-previous-section)
-    (define-key map "M-n"  'magit-goto-next-sibling-section)
-    (define-key map "M-p"  'magit-goto-previous-sibling-section)
+    (define-key map "^"    'magit-section-up)
+    (define-key map "n"    'magit-section-forward)
+    (define-key map "p"    'magit-section-backward)
+    (define-key map "M-n"  'magit-section-forward-sibling)
+    (define-key map "M-p"  'magit-section-backward-sibling)
     (define-key map [backtab] 'magit-expand-collapse-section)
     (define-key map "+"    'magit-diff-more-context)
     (define-key map "-"    'magit-diff-less-context)
@@ -1745,7 +1745,7 @@ If optional NUM is specified only delete that subexpression."
 
 ;;; Magit Api
 ;;;; Section Api
-;;;;; Section Core
+;;;;; Section Core (1)
 
 (cl-defstruct magit-section
   type value start content end hidden washer
@@ -1889,7 +1889,7 @@ never modify it.")
                                     (length ,keyword))) ?\s))
      (magit-insert (concat ,@body) nil ?\n)))
 
-;;;;; Section Searching
+;;;;; Section Core (2)
 
 (defun magit-section-ident (section)
   "Return an unique identifier for SECTION.
@@ -1914,96 +1914,78 @@ IDENT has to be a list as returned by `magit-section-ident'."
         (pop ident))
       section)))
 
-(defun magit-find-section-after (pos)
-  "Find the first section that begins after POS."
-  (magit-find-section-after* pos (list magit-root-section)))
-
-(defun magit-find-section-after* (pos secs)
-  "Find the first section that begins after POS in the list SECS
-\(including children of sections in SECS)."
-  (while (and secs
-              (<= (magit-section-start (car secs)) pos))
-    (setq secs (if (magit-section-hidden (car secs))
-                   (cdr secs)
-                 (append (magit-section-children (car secs))
-                         (cdr secs)))))
-  (car secs))
-
-(defun magit-find-section-before (pos)
-  "Return the last section that begins before POS."
-  (let ((section (magit-find-section-at pos)))
-    (cl-do* ((current (or (magit-section-parent section)
-                          section)
-                      next)
-             (next (unless (magit-section-hidden current)
-                     (magit-find-section-before*
-                      pos (magit-section-children current)))
-                   (unless (magit-section-hidden current)
-                     (magit-find-section-before*
-                      pos (magit-section-children current)))))
-        ((null next) current))))
-
-(defun magit-find-section-before* (pos secs)
-  "Find the last section that begins before POS in the list SECS."
-  (let ((prev nil))
-    (while (and secs
-                (< (magit-section-start (car secs)) pos))
-      (setq prev (car secs))
-      (setq secs (cdr secs)))
-    prev))
-
 (defun magit-current-section ()
-  "Return the Magit section at point."
-  (magit-find-section-at (point)))
-
-(defun magit-find-section-at (pos)
-  "Return the Magit section at POS."
-  (or (get-text-property pos 'magit-section)
-      magit-root-section))
+  "Return the section at point."
+  (or (get-text-property (point) 'magit-section) magit-root-section))
 
 ;;;;; Section Jumping
 
-(defun magit-goto-next-section ()
-  "Go to the next section."
+(defun magit-section-forward ()
+  "Move to the beginning of the next section."
   (interactive)
-  (--if-let (magit-find-section-after (point))
-      (magit-goto-section it)
-    (message "No next section")))
+  (if (eobp)
+      (error "No next section")
+    (let ((section (magit-current-section)))
+      (if (magit-section-parent section)
+          (let ((next (and (not (magit-section-hidden   section))
+                           (car (magit-section-children section)))))
+            (while (and section (not next))
+              (unless (setq next (car (magit-section-siblings section 'next)))
+                (setq section (magit-section-parent section))))
+            (if next
+                (magit-goto-section next)
+              (error "No next section")))
+        (forward-line 1)))))
 
-(defun magit-goto-previous-section ()
-  "Go to the previous section."
+(defun magit-section-backward ()
+  "Move to the beginning of the previous section."
   (interactive)
-  (if (eq (point) 1)
-      (message "No previous section")
-    (magit-goto-section (magit-find-section-before (point)))))
+  (if (bobp)
+      (error "No previous section")
+    (let ((section (magit-current-section)) children)
+      (if (and (eq (point) (1- (magit-section-end section)))
+               (setq children (magit-section-children section)))
+          (magit-goto-section (car (last children)))
+        (let ((prev (car (magit-section-siblings section 'prev))))
+          (if prev
+              (while (and (not (magit-section-hidden prev))
+                          (setq children (magit-section-children prev)))
+                (setq prev (car (last children))))
+            (setq prev (magit-section-parent section)))
+          (if prev
+              (magit-goto-section prev)
+            (if (magit-section-parent section)
+                (error "No previous section")
+              (forward-line -1))))))))
 
-(defun magit-goto-parent-section ()
+(defun magit-section-up ()
   "Go to the parent section."
   (interactive)
-  (--when-let (magit-section-parent (magit-current-section))
-    (goto-char (magit-section-start it))))
+  (--if-let (magit-section-parent (magit-current-section))
+      (magit-goto-section it)
+    (error "No parent section")))
 
-(defun magit-goto-next-sibling-section ()
-  "Go to the next sibling section."
+(defun magit-section-forward-sibling ()
+  "Move to the beginning of the next sibling section.
+If there is no next sibling section, then move to the parent."
   (interactive)
-  (let* ((section (magit-current-section))
-         (parent  (magit-section-parent section)))
-    (--if-let (and parent (magit-find-section-after*
-                           (1- (magit-section-end section))
-                           (magit-section-children parent)))
-        (magit-goto-section it)
-      (magit-goto-next-section))))
+  (let ((current (magit-current-section)))
+    (if (magit-section-parent current)
+        (--if-let (car (magit-section-siblings current 'next))
+            (magit-goto-section it)
+          (magit-section-forward))
+      (forward-line 1))))
 
-(defun magit-goto-previous-sibling-section ()
-  "Go to the previous sibling section."
+(defun magit-section-backward-sibling ()
+  "Move to the beginning of the previous sibling section.
+If there is no previous sibling section, then move to the parent."
   (interactive)
-  (let* ((section (magit-current-section))
-         (parent  (magit-section-parent section)))
-    (--if-let (and parent (magit-find-section-before*
-                           (magit-section-start section)
-                           (magit-section-children parent)))
-        (magit-goto-section it)
-      (magit-goto-previous-section))))
+  (let ((current (magit-current-section)))
+    (if (magit-section-parent current)
+        (--if-let (car (magit-section-siblings current 'prev))
+            (magit-goto-section it)
+          (magit-section-backward))
+      (forward-line -1))))
 
 (defun magit-goto-section (section)
   (goto-char (magit-section-start section))
@@ -2355,7 +2337,7 @@ true, shown otherwise."
   "Like `magit-toggle-section' but toggle at file granularity."
   (interactive)
   (when (eq (magit-section-type (magit-current-section)) 'hunk)
-    (magit-goto-parent-section))
+    (magit-section-up))
   (magit-toggle-section))
 
 (defun magit-toggle-section ()
@@ -6956,7 +6938,7 @@ With a non numeric prefix ARG, show all entries"
              magit-log-auto-more)
     (magit-log-show-more-entries)
     (forward-line -1)
-    (magit-goto-next-section)))
+    (magit-section-forward)))
 
 (defun magit-log-maybe-show-commit (&optional section) ; TODO rename
   (--when-let
