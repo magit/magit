@@ -247,25 +247,6 @@ belong to processes that are still running are never removed."
   :group 'magit-process
   :type 'integer)
 
-(defcustom magit-process-quote-curly-braces
-  (and (eq system-type 'windows-nt)
-       (let ((case-fold-search t))
-         (string-match-p "cygwin" magit-git-executable))
-       t)
-  "Whether curly braces should be quoted when calling git.
-This may be necessary when using Windows.  On all other system
-types this must always be nil.
-
-We are not certain when quoting is needed, but it appears it is
-needed when using Cygwin Git but not when using stand-alone Git.
-The default value is set based on that assumptions.  If this
-turns out to be wrong you can customize this option but please
-also comment on issue #816."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-process
-  :set-after '(magit-git-executable)
-  :type 'boolean)
-
 (defcustom magit-process-yes-or-no-prompt-regexp
   " [\[(]\\([Yy]\\(?:es\\)?\\)[/|]\\([Nn]o?\\)[\])] ?[?:] ?$"
   "Regexp matching Yes-or-No prompts of Git and its subprocesses."
@@ -1689,11 +1670,6 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
               (dolist (file files)
                 (insert file "\n"))))))))
 
-(defun magit-flatten-onelevel (list)
-  (--mapcat (cond ((consp it) (copy-sequence it))
-                  (it (list it)))
-            list))
-
 (defun magit-delete-line ()
   "Delete the rest of the current line."
   (delete-region (point) (1+ (line-end-position))))
@@ -2598,16 +2574,15 @@ Run Git in the root of the current repository.
 (defun magit-git-exit-code (&rest args)
   "Execute Git with ARGS, returning its exit code."
   (apply #'process-file magit-git-executable nil nil nil
-         (append magit-git-standard-options
-                 (magit-flatten-onelevel args))))
+         (magit-process-git-arguments args)))
 
 (defun magit-git-success (&rest args)
   "Execute Git with ARGS, returning t if its exit code is 0."
-  (= (apply #'magit-git-exit-code args) 0))
+  (= (magit-git-exit-code args) 0))
 
 (defun magit-git-failure (&rest args)
   "Execute Git with ARGS, returning t if its exit code is 1."
-  (= (apply #'magit-git-exit-code args) 1))
+  (= (magit-git-exit-code args) 1))
 
 (defun magit-git-string (&rest args)
   "Execute Git with ARGS, returning the first line of its output.
@@ -2615,8 +2590,7 @@ If there is no output return nil.  If the output begins with a
 newline return an empty string."
   (with-temp-buffer
     (apply #'process-file magit-git-executable nil (list t nil) nil
-           (append magit-git-standard-options
-                   (magit-flatten-onelevel args)))
+           (magit-process-git-arguments args))
     (unless (= (point-min) (point-max))
       (goto-char (point-min))
       (buffer-substring-no-properties
@@ -2627,27 +2601,25 @@ newline return an empty string."
   "Execute Git with ARGS, returning t if it prints \"true\".
 Return t if the first (and usually only) output line is the
 string \"true\", otherwise return nil."
-  (equal (apply #'magit-git-string args) "true"))
+  (equal (magit-git-string args) "true"))
 
 (defun magit-git-false (&rest args)
   "Execute Git with ARGS, returning t if it prints \"false\".
 Return t if the first (and usually only) output line is the
 string \"false\", otherwise return nil."
-  (equal (apply #'magit-git-string args) "false"))
+  (equal (magit-git-string args) "false"))
 
 (defun magit-git-insert (&rest args)
   "Execute Git with ARGS, inserting its output at point."
   (apply #'process-file magit-git-executable nil (list t nil) nil
-         (append magit-git-standard-options
-                 (magit-flatten-onelevel args))))
+         (magit-process-git-arguments args)))
 
 (defun magit-git-lines (&rest args)
   "Execute Git with ARGS, returning its output as a list of lines.
 Empty lines anywhere in the output are omitted."
   (with-temp-buffer
     (apply #'process-file magit-git-executable nil (list t nil) nil
-           (append magit-git-standard-options
-                   (magit-flatten-onelevel args)))
+           (magit-process-git-arguments args))
     (split-string (buffer-string) "\n" 'omit-nulls)))
 
 (defun magit-git-wash (washer &rest args)
@@ -2658,7 +2630,7 @@ the buffer to the inserted text, move to its beginning, and then
 call function WASHER with no argument."
   (declare (indent 1))
   (let ((beg (point)))
-    (apply #'magit-git-insert args)
+    (magit-git-insert args)
     (if (= (point) beg)
         (magit-cancel-section)
       (unless (bolp)
@@ -2674,13 +2646,10 @@ call function WASHER with no argument."
 (defun magit-run-git (&rest args)
   "Call Git synchronously in a separate process, and refresh.
 
-The arguments ARGS specify command line arguments.  The first
-level of ARGS is flattened, so each member of ARGS has to be a
-string or a list of strings.
-
-Option `magit-git-executable' specifies which Git executable is
-used.  The arguments in option `magit-git-standard-options' are
-prepended to ARGS.
+Option `magit-git-executable' specifies the Git executable and
+option `magit-git-standard-options' specifies constant arguments.
+The remaining arguments ARGS specify arguments to Git, they are
+flattened before use.
 
 After Git returns, the current buffer (if it is a Magit buffer)
 as well as the current repository's status buffer are refreshed.
@@ -2689,36 +2658,27 @@ repository are reverted if `magit-auto-revert-mode' is active.
 
 Process output goes into a new section in a buffer specified by
 variable `magit-process-buffer-name-format'."
-  (apply #'magit-call-git (magit-process-quote-arguments args))
+  (magit-call-git args)
   (magit-refresh))
 
 (defun magit-call-git (&rest args)
   "Call Git synchronously in a separate process.
 
-The arguments ARGS specify command line arguments.  The first
-level of ARGS is flattened, so each member of ARGS has to be a
-string or a list of strings.
-
-Option `magit-git-executable' specifies which Git executable is
-used.  The arguments in option `magit-git-standard-options' are
-prepended to ARGS.
+Option `magit-git-executable' specifies the Git executable and
+option `magit-git-standard-options' specifies constant arguments.
+The remaining arguments ARGS specify arguments to Git, they are
+flattened before use.
 
 Process output goes into a new section in a buffer specified by
 variable `magit-process-buffer-name-format'."
   (run-hooks 'magit-pre-call-git-hook)
   (apply #'magit-call-process magit-git-executable
-         (append magit-git-standard-options args)))
+         (magit-process-git-arguments args)))
 
 (defun magit-call-process (program &rest args)
   "Call PROGRAM synchronously in a separate process.
-
-The arguments ARGS specify command line arguments.  The first
-level of ARGS is flattened, so each member of ARGS has to be a
-string or a list of strings.
-
 Process output goes into a new section in a buffer specified by
 variable `magit-process-buffer-name-format'."
-  (setq args (magit-flatten-onelevel args))
   (cl-destructuring-bind (process-buf . section)
       (magit-process-setup program args)
     (magit-process-finish
@@ -2728,19 +2688,17 @@ variable `magit-process-buffer-name-format'."
 
 (defun magit-run-git-with-input (input &rest args)
   "Call Git in a separate process.
+ARGS is flattened and then used as arguments to Git.
 
 The first argument, INPUT, should be a buffer or the name of
 an existing buffer.  The content of that buffer is used as the
 process' standard input.  It may also be nil in which case the
 current buffer is used.
 
-The remaining arguments, ARGS, specify command line arguments.
-The first level of ARGS is flattened, so each member of ARGS has
-to be a string or a list of strings.
-
-Option `magit-git-executable' specifies which Git executable is
-used.  The arguments in option `magit-git-standard-options' are
-prepended to ARGS.
+Option `magit-git-executable' specifies the Git executable and
+option `magit-git-standard-options' specifies constant arguments.
+The remaining arguments ARGS specify arguments to Git, they are
+flattened before use.
 
 After Git returns, the current buffer (if it is a Magit buffer)
 as well as the current repository's status buffer are refreshed.
@@ -2751,7 +2709,7 @@ When INPUT is nil then do not refresh any buffers.
 This function actually starts a asynchronous process, but it then
 waits for that process to return."
   (declare (indent 1))
-  (apply #'magit-start-git (or input (current-buffer)) args)
+  (magit-start-git (or input (current-buffer)) args)
   (magit-process-wait)
   (when input (magit-refresh)))
 
@@ -2759,7 +2717,7 @@ waits for that process to return."
   "Call Git in a separate process and log its output to FILE.
 See `magit-run-git' for more information.
 This function might have a short halflive."
-  (apply #'magit-start-git nil args)
+  (magit-start-git nil args)
   (process-put magit-this-process 'logfile file)
   (set-process-filter magit-this-process 'magit-process-logfile-filter)
   (magit-process-wait)
@@ -2772,22 +2730,15 @@ This function might have a short halflive."
 (defun magit-run-git-with-editor (&rest args)
   (with-editor "GIT_EDITOR"
     (let ((magit-process-popup-time -1))
-      (apply #'magit-run-git-async args))))
+      (magit-run-git-async args))))
 
 (defun magit-run-git-sequencer (&rest args)
   (magit-server-visit-args (if (symbolp (car args)) (pop args) 'sequencer))
-  (apply #'magit-run-git-with-editor args))
+  (magit-run-git-with-editor args))
 
 (defun magit-run-git-async (&rest args)
   "Start Git, prepare for refresh, and return the process object.
-
-If optional argument INPUT is non-nil, it has to be a buffer or
-the name of an existing buffer.  The content of that buffer is
-used as the process' standard input.
-
-The remaining arguments, ARGS, specify command line arguments.
-The first level of ARGS is flattened, so each member of ARGS has
-to be a string or a list of strings.
+ARGS is flattened and then used as arguments to Git.
 
 Display the command line arguments in the echo area.
 
@@ -2800,8 +2751,8 @@ is active.
 
 See `magit-start-process' for more information."
   (message "Running %s %s" magit-git-executable
-           (mapconcat 'identity (magit-flatten-onelevel args) " "))
-  (apply #'magit-start-git nil args))
+           (mapconcat 'identity (-flatten args) " "))
+  (magit-start-git nil args))
 
 (defun magit-start-git (input &rest args)
   "Start Git, prepare for refresh, and return the process object.
@@ -2810,9 +2761,10 @@ If INPUT is non-nil, it has to be a buffer or the name of an
 existing buffer.  The buffer content becomes the processes
 standard input.
 
-The remaining arguments, ARGS, specify command line arguments.
-The first level of ARGS is flattened, so each member of ARGS has
-to be a string or a list of strings.
+Option `magit-git-executable' specifies the Git executable and
+option `magit-git-standard-options' specifies constant arguments.
+The remaining arguments ARGS specify arguments to Git, they are
+flattened before use.
 
 After Git returns some buffers are refreshed: the buffer that was
 current when `magit-start-process' was called (if it is a Magit
@@ -2824,8 +2776,7 @@ is active.
 See `magit-start-process' for more information."
   (run-hooks 'magit-pre-start-git-hook)
   (apply #'magit-start-process magit-git-executable input
-         (append magit-git-standard-options
-                 (magit-process-quote-arguments args))))
+         (magit-process-git-arguments args)))
 
 (defun magit-start-process (program &optional input &rest args)
   "Start PROGRAM, prepare for refresh, and return the process object.
@@ -2833,10 +2784,6 @@ See `magit-start-process' for more information."
 If optional argument INPUT is non-nil, it has to be a buffer or
 the name of an existing buffer.  The buffer content becomes the
 processes standard input.
-
-The remaining arguments, ARGS, specify command line arguments.
-The first level of ARGS is flattened, so each member of ARGS has
-to be a string or a list of strings.
 
 The process is started using `start-file-process' and then setup
 to use the sentinel `magit-process-sentinel' and the filter
@@ -2851,14 +2798,13 @@ it is a Magit buffer and still alive), as well as the respective
 Magit status buffer.  Unmodified buffers visiting files that are
 tracked in the current repository are reverted if
 `magit-auto-revert-mode' is active."
-  (setq args (magit-flatten-onelevel args))
   (cl-destructuring-bind (process-buf . section)
       (magit-process-setup program args)
     (let* ((process-connection-type
             ;; Don't use a pty, because it would set icrnl
             ;; which would modify the input (issue #20).
             (and (not input) magit-process-connection-type))
-           (process (apply 'start-file-process
+           (process (apply #'start-file-process
                            (file-name-nondirectory program)
                            process-buf program args)))
       (with-editor-set-process-filter process #'magit-process-filter)
@@ -3089,16 +3035,16 @@ tracked in the current repository are reverted if
                                      (pop-to-buffer buf)))))
                              process))))))
 
-(defun magit-process-quote-arguments (args)
-  "Quote each argument in list ARGS as an argument to Git.
-Except when `magit-process-quote-curly-braces' is non-nil ARGS is
-returned unchanged.  This is required to works around strangeness
-of the Windows \"Powershell\"."
-  (if magit-process-quote-curly-braces
-      (mapcar (apply-partially 'replace-regexp-in-string
-                               "{\\([0-9]+\\)}" "\\\\{\\1\\\\}")
-              (magit-flatten-onelevel args))
-    args))
+(defun magit-process-git-arguments (args)
+  (setq args (-flatten args))
+  ;; Kludge for Powershell in combination with Cygwin Git, see #816.
+  (when (and (eq system-type 'windows-nt)
+             (let ((case-fold-search t))
+               (string-match-p "cygwin" magit-git-executable)))
+    (setq args (--map (replace-regexp-in-string
+                       "{\\([0-9]+\\)}" "\\\\{\\1\\\\}" it)
+                      args)))
+  (append magit-git-standard-options args))
 
 (defvar magit-server-visit-args nil)
 (defun  magit-server-visit-args (action &optional other-window args)
