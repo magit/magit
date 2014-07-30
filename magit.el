@@ -3461,9 +3461,14 @@ tracked in the current repository."
             (and file (string-prefix-p topdir file)
                  (not (string-prefix-p gitdir file))
                  (member (file-relative-name file topdir) tracked)
-                 (let ((auto-revert-mode t))
-                   (auto-revert-handler)
-                   (run-hooks 'magit-revert-buffer-hook)))))))))
+                 (unless (buffer-modified-p)
+                   (let ((buffer-read-only buffer-read-only)
+                         (blaming magit-blame-mode))
+                     (with-no-warnings
+                       (when blaming (magit-blame-mode -1))
+                       (revert-buffer 'ignore-auto 'dont-ask 'preserve-modes)
+                       (when blaming (magit-blame-mode 1))))
+                   (vc-find-file-hook)))))))))
 
 (defadvice auto-revert-handler (around magit-blame activate)
   "If Magit-Blame mode is on, then turn it off, refresh the
