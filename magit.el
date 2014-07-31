@@ -17,7 +17,7 @@
 
 ;; Keywords: vc tools
 ;; Package: magit
-;; Package-Requires: ((cl-lib "0.3") (dash "2.6.0") (git-commit-mode "0.14.0") (git-rebase-mode "0.14.0") (with-editor "0"))
+;; Package-Requires: ((cl-lib "0.5") (dash "2.8.0") (git-commit-mode "0.15.0") (git-rebase-mode "0.15.0") (with-editor "0.15.0"))
 
 ;; Magit requires at least GNU Emacs 24.1 and Git 1.7.2.5.
 
