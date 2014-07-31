@@ -212,7 +212,8 @@ only arguments available from `magit-blame-popup' should be used.
       (magit-blame-mode 1)
       (setq-local magit-blame-show-headings show-headings)
       (message "Blaming...")
-      (let ((magit-process-popup-time -1))
+      (let ((magit-process-popup-time -1)
+            (inhibit-magit-refresh t))
         (magit-run-git-async "blame" "--incremental" args
                              "-L" (format "%s,+%s"
                                           (line-number-at-pos (window-start))
@@ -226,7 +227,8 @@ only arguments available from `magit-blame-popup' should be used.
           (when (memq (process-status process) '(exit signal))
             (magit-process-sentinel process event)
             (when magit-blame-mode
-              (let ((magit-process-popup-time -1))
+              (let ((magit-process-popup-time -1)
+                    (inhibit-magit-refresh t))
                 (magit-run-git-async "blame" "--incremental" ,@args
                                      ,revision "--" ,file))
               (setq magit-blame-process magit-this-process)
