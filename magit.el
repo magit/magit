@@ -1735,6 +1735,13 @@ of this variable is set by `magit-insert-section' and you should
 never modify it.")
 (put 'magit-root-section 'permanent-local t)
 
+(defvar-local magit-current-section nil
+  "For internal use only.  Instead use function by same name.")
+
+(defun magit-current-section ()
+  "Return the section at point."
+  (or (get-text-property (point) 'magit-section) magit-root-section))
+
 ;;;;; Section Creation
 
 (defvar magit-insert-section--current nil "For internal use only.")
@@ -1890,10 +1897,6 @@ IDENT has to be a list as returned by `magit-section-ident'."
                          (magit-section-children section))))
         (pop ident))
       section)))
-
-(defun magit-current-section ()
-  "Return the section at point."
-  (or (get-text-property (point) 'magit-section) magit-root-section))
 
 ;;;;; Section Jumping
 
@@ -2429,13 +2432,12 @@ absolute value.  Sections at higher levels are hidden."
 
 ;;;;; Section Highlighting
 
-(defvar-local magit-highlighted-section nil)
 (defvar-local magit-highlight-overlay nil)
 
 (defun magit-highlight-section (&optional force)
   (let ((inhibit-read-only t)
         (deactivate-mark nil)
-        (old  magit-highlighted-section)
+        (old  magit-current-section)
         (new (magit-current-section)))
     (when (or force (not (eq old new)))
       (when old
@@ -2444,8 +2446,8 @@ absolute value.  Sections at higher levels are hidden."
                   (and (use-region-p)
                        (= (region-beginning) (magit-section-start new))
                        (not (magit-section-content new))))
-        (setq magit-highlighted-section new)
-        (magit-section-highlight new)))))
+        (magit-section-highlight new)))
+    (setq magit-current-section new)))
 
 (defun magit-section-highlight (section)
   (let ((beg (magit-section-start section))
@@ -7545,7 +7547,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
     (if (or (eq old 'all)
             (eq magit-diff-refine-hunk 'all))
         (magit-refresh)
-      (--when-let magit-highlighted-section
+      (--when-let magit-current-section
         (when (eq (magit-section-type it) 'hunk)
           (if  magit-diff-refine-hunk
               (magit-diff-refine-hunk it)
