@@ -363,9 +363,9 @@ the appropriate editor environment variable."
   ;; (fn NAME BUFFER PROGRAM &rest PROGRAM-ARGS)
   (if (not with-editor--envvar)
       ad-do-it
-    (let ((prog (ad-get-arg  2))
-          (args (ad-get-args 3)))
-      (when (file-remote-p default-directory)
+    (when (file-remote-p default-directory)
+      (let ((prog (ad-get-arg  2))
+            (args (ad-get-args 3)))
         (unless (equal program "env")
           (push prog args)
           (setq prog "env"))
