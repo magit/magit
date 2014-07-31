@@ -2232,6 +2232,7 @@ at point."
   (setf (magit-section-hidden section) nil)
   (-when-let (washer (magit-section-washer section))
     (setf (magit-section-washer section) nil)
+    (setq magit-current-section nil)
     (let ((inhibit-read-only t)
           (magit-insert-section--parent section))
       (save-excursion
