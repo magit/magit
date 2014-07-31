@@ -395,7 +395,7 @@ which may or may not insert the text into the PROCESS' buffer."
      filter)))
 
 (defun with-editor-process-filter
-    (process string &optional no-standard-filter)
+    (process string &optional no-default-filter)
   "Listen for edit requests by child processes."
   (when (string-match "^WITH-EDITOR: \\([0-9]+\\) OPEN \\(.+\\)$" string)
     (save-match-data
@@ -405,23 +405,24 @@ which may or may not insert the text into the PROCESS' buffer."
         (funcall (or server-window 'pop-to-buffer) (current-buffer))
         (kill-local-variable 'server-window)))
     (setq with-editor--pid (match-string 1 string)))
-  (unless no-standard-filter
-    (with-editor-standard-process-filter process string)))
+  (unless no-default-filter
+    (internal-default-process-filter process string)))
 
-(defun with-editor-standard-process-filter (process string)
-  "Filter which does what would be done if there were no filter."
-  (let ((buf (process-buffer process)))
-    (when (buffer-live-p buf)
-      (with-current-buffer buf
-        (let* ((mark (process-mark process))
-               (move (= (point) mark))
-               (inhibit-read-only t))
-          (save-excursion
-            (goto-char mark)
-            (insert string)
-            (setq mark (set-marker mark (point))))
-          (when move
-            (goto-char mark)))))))
+(unless (fboundp 'internal-default-process-filter)
+  ;; Added in Emacs 24.4 (488ac8e).
+  (defun internal-default-process-filter (process string)
+    (let ((buf (process-buffer process)))
+      (when (buffer-live-p buf)
+        (with-current-buffer buf
+          (let* ((mark (process-mark process))
+                 (move (= (point) mark))
+                 (inhibit-read-only t))
+            (save-excursion
+              (goto-char mark)
+              (insert string)
+              (setq mark (set-marker mark (point))))
+            (when move
+              (goto-char mark))))))))
 
 ;;; with-editor.el ends soon
 
