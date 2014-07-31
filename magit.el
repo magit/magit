@@ -2954,14 +2954,13 @@ tracked in the current repository are reverted if
 (defun magit-process-set-mode-line (program args)
   (when (equal program magit-git-executable)
     (setq args (nthcdr (1+ (length magit-git-standard-options)) args)))
-  (magit-map-magit-buffers
-   (apply-partially (lambda (s)
-                      (setq mode-line-process s))
-                    (concat " " program
-                            (and args (concat " " (car args)))))))
+  (let ((str (concat " " program (and args (concat " " (car args))))))
+    (dolist (buf (magit-mode-get-buffers))
+      (with-current-buffer buf (setq mode-line-process str)))))
 
 (defun magit-process-unset-mode-line ()
-  (magit-map-magit-buffers (lambda () (setq mode-line-process nil))))
+  (dolist (buf (magit-mode-get-buffers))
+    (with-current-buffer buf (setq mode-line-process nil))))
 
 (defvar magit-process-error-message-re
   (concat "^\\(?:error\\|fatal\\|git\\): \\(.*\\)" paragraph-separate))
@@ -3193,6 +3192,14 @@ Magit mode."
            buffer)
   buffer)
 
+(defun magit-mode-get-buffers (&optional topdir)
+  (unless topdir
+    (setq topdir (magit-get-top-dir)))
+  (--filter (with-current-buffer it
+              (and (derived-mode-p 'magit-mode)
+                   (equal default-directory topdir)))
+            (buffer-list)))
+
 (defun magit-mode-get-buffer (format mode &optional topdir create)
   (if (not (string-match-p "%[ab]" format))
       (funcall (if create #'get-buffer-create #'get-buffer) format)
@@ -3238,14 +3245,6 @@ the buffer.  Finally reset the window configuration to nil."
           (with-current-buffer buffer
             (setq magit-previous-window-configuration nil)))))
     (run-hook-with-args 'magit-mode-quit-window-hook buffer)))
-
-(defun magit-map-magit-buffers (func &optional dir)
-  (dolist (buf (buffer-list))
-    (with-current-buffer buf
-      (when (and (derived-mode-p 'magit-mode)
-                 (or (null dir)
-                     (equal default-directory dir)))
-        (funcall func)))))
 
 ;;;;; Buffer History
 
@@ -3339,7 +3338,7 @@ Refresh all Magit buffers belonging to the current repository.
 Also always revert all unmodified buffers that visit files being
 tracked in the current repository."
   (interactive)
-  (magit-map-magit-buffers #'magit-refresh-buffer default-directory)
+  (mapc #'magit-refresh-buffer (magit-mode-get-buffers))
   (magit-revert-buffers))
 
 (defvar magit-refresh-buffer-hook nil)
