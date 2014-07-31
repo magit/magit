@@ -2462,8 +2462,7 @@ absolute value.  Sections at higher levels are hidden."
          (when (eq magit-diff-refine-hunk t)
            (magit-diff-refine-hunk section)))
         (t
-         (overlay-put (setq magit-highlight-overlay
-                            (make-overlay beg end))
+         (overlay-put (setq magit-highlight-overlay (make-overlay beg end))
                       'face 'magit-section-highlight))))))
 
 (defun magit-section-unhighlight (section)
@@ -2894,8 +2893,8 @@ tracked in the current repository are reverted if
       (goto-char (process-mark proc))
       (setq string (propertize string 'magit-section
                                (process-get proc 'section)))
-      ;; Find last ^M in string.  If one was found, ignore everything
-      ;; before it and delete the current line.
+      ;; Find last ^M in string.  If one was found, ignore
+      ;; everything before it and delete the current line.
       (let ((ret-pos (length string)))
         (while (and (>= (cl-decf ret-pos) 0)
                     (/= ?\r (aref string ret-pos))))
@@ -3270,13 +3269,11 @@ the buffer.  Finally reset the window configuration to nil."
              (or help-xref-stack help-xref-forward-stack))
     (insert "\n")
     (when help-xref-stack
-      (magit-xref-insert-button help-back-label
-                                'magit-xref-backward))
+      (magit-xref-insert-button help-back-label 'magit-xref-backward))
     (when help-xref-forward-stack
       (when help-xref-stack
         (insert " "))
-      (magit-xref-insert-button help-forward-label
-                                'magit-xref-forward))))
+      (magit-xref-insert-button help-forward-label 'magit-xref-forward))))
 
 (defun magit-xref-insert-button (label type)
   (magit-insert-section (button label)
