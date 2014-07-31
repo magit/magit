@@ -398,13 +398,14 @@ which may or may not insert the text into the PROCESS' buffer."
     (process string &optional no-default-filter)
   "Listen for edit requests by child processes."
   (when (string-match "^WITH-EDITOR: \\([0-9]+\\) OPEN \\(.+\\)$" string)
-    (save-match-data
-      (with-current-buffer (find-file-noselect (match-string 2 string))
+    (let ((pid  (match-string 1 string))
+          (file (match-string 2 string)))
+      (with-current-buffer (find-file-noselect file)
         (with-editor-mode 1)
+        (setq with-editor--pid pid)
         (run-hooks 'with-editor-filter-visit-hook)
         (funcall (or server-window 'pop-to-buffer) (current-buffer))
-        (kill-local-variable 'server-window)))
-    (setq with-editor--pid (match-string 1 string)))
+        (kill-local-variable 'server-window))))
   (unless no-default-filter
     (internal-default-process-filter process string)))
 
