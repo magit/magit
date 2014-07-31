@@ -35,7 +35,6 @@
 
 (require 'cl-lib)
 (require 'dash)
-(require 'format-spec)
 (require 'server)
 (require 'tramp)
 (require 'tramp-sh nil t)
@@ -101,7 +100,7 @@ please see https://github.com/magit/magit/wiki/Emacsclient."))
 
 (defcustom with-editor-looping-editor "\
 sh -c '\
-echo \"WITH-EDITOR: $$ OPEN %r$0\"; \
+echo \"WITH-EDITOR: $$ OPEN $0\"; \
 trap \"exit 0\" USR1; \
 trap \"exit 1\" USR2; \
 while true; do %s; done'"
@@ -119,10 +118,8 @@ which a process filter listens for such requests.  As such it is
 not a complete substitute for a proper Emacsclient, it can only
 be used as $EDITOR of child process of the current Emacs instance.
 
-The the following `format'-like specs are supported/required:
-%s the value of `with-editor-looping-sleep'.
-%r the remote part of the filename, or for local files the empty
-   string."
+If the value of this variable contains %s, then that is replaced
+with the value of `with-editor-looping-sleep'."
   :group 'with-editor
   :type 'string)
 
@@ -339,16 +336,8 @@ current buffer (which is the one requested by the client)."
 (defun with-editor-looping-editor ()
   "Return the looping editor appropriate for `default-directory'.
 Also see documentation for option `with-editor-looping-editor'."
-  (if (file-remote-p default-directory)
-      (with-parsed-tramp-file-name default-directory nil
-        (format-spec with-editor-looping-editor
-                     `((?r . ,(if user
-                                  (format "/%s:%s@%s:" method user host)
-                                (format "/%s:%s:" method host)))
-                       (?s . ,with-editor-looping-sleep))))
-    (format-spec with-editor-looping-editor
-                 `((?r . "")
-                   (?s . ,with-editor-looping-sleep)))))
+  (format with-editor-looping-editor
+          with-editor-looping-sleep))
 
 (defadvice start-file-process (around with-editor activate)
   "When called inside a `with-editor' form and the Emacsclient
@@ -375,6 +364,7 @@ the appropriate editor environment variable."
         (ad-set-args 3 args)))
     (let ((process ad-do-it))
       (set-process-filter process 'with-editor-process-filter)
+      (process-put process 'default-dir default-directory)
       process)))
 
 (defun with-editor-set-process-filter (process filter)
@@ -399,8 +389,16 @@ which may or may not insert the text into the PROCESS' buffer."
   "Listen for edit requests by child processes."
   (when (string-match "^WITH-EDITOR: \\([0-9]+\\) OPEN \\(.+\\)$" string)
     (let ((pid  (match-string 1 string))
-          (file (match-string 2 string)))
-      (with-current-buffer (find-file-noselect file)
+          (file (match-string 2 string))
+          (dir  (process-get process 'default-dir)))
+      (with-current-buffer
+          (find-file-noselect
+           (if (file-name-absolute-p file)
+               (if (tramp-tramp-file-p dir)
+                   (with-parsed-tramp-file-name dir nil
+                     (tramp-make-tramp-file-name method user host file hop))
+                 file)
+             (expand-file-name dir file)))
         (with-editor-mode 1)
         (setq with-editor--pid pid)
         (run-hooks 'with-editor-filter-visit-hook)
