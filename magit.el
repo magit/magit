@@ -1822,14 +1822,17 @@ never modify it.")
   (setf (magit-section-content magit-insert-section--current) (point-marker)))
 
 (defun magit-insert-child-count (section)
-  (-when-let (content (and magit-show-child-count
-                           (magit-section-content section)))
-    (save-excursion
-      (goto-char content)
-      (-when-let (count (and (looking-back "\\(:\\)\n")
-                             (length (magit-section-children section))))
-        (when (> count 0)
-          (replace-match (format " (%s)" count) nil nil nil 1))))))
+  ;; This has to be fast, not pretty!
+  (let (content count)
+    (when (and magit-show-child-count
+               (setq count (length (magit-section-children section)))
+               (> count 0)
+               (setq content (magit-section-content section))
+               (eq (char-before (1- content)) ?:))
+      (save-excursion
+        (goto-char (- content 2))
+        (insert (format " (%s)" count))
+        (delete-char 1)))))
 
 (defun magit-insert (string &optional face &rest args)
   (if face
