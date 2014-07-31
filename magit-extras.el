@@ -59,7 +59,7 @@
       (let ((value (magit-section-value it)))
         (setq magit-marked-commit
               (if (equal magit-marked-commit value) nil value)))))
-  (magit-map-magit-buffers #'magit-refresh-marked-commit)
+  (mapc #'magit-refresh-marked-commit (magit-mode-get-buffers))
   (run-hooks 'magit-mark-commit-hook))
 
 (defun magit-refresh-marked-commit ()
