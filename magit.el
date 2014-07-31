@@ -2725,6 +2725,7 @@ This function might have a short halflive."
 ;;;;; Asynchronous Processes
 
 (defvar magit-this-process nil)
+(defvar inhibit-magit-refresh nil)
 
 (defun magit-run-git-with-editor (&rest args)
   (with-editor "GIT_EDITOR"
@@ -2812,6 +2813,8 @@ tracked in the current repository are reverted if
       (process-put process 'section section)
       (process-put process 'command-buf (current-buffer))
       (process-put process 'default-dir default-directory)
+      (when inhibit-magit-refresh
+        (process-put process 'inhibit-refresh t))
       (setf (magit-section-process section) process)
       (with-current-buffer process-buf
         (set-marker (process-mark process) (point)))
@@ -2878,7 +2881,8 @@ tracked in the current repository are reverted if
     (magit-process-finish process)
     (when (eq process magit-this-process)
       (setq magit-this-process nil))
-    (--when-let (process-get process 'command-buf)
+    (--when-let (and (not (process-get process 'inhibit-refresh))
+                     (process-get process 'command-buf))
       (when (buffer-live-p it)
         (with-current-buffer it
           (magit-refresh))))))
@@ -3306,8 +3310,6 @@ the buffer.  Finally reset the window configuration to nil."
   (magit-refresh-buffer))
 
 ;;;;; Refresh Machinery
-
-(defvar inhibit-magit-refresh nil)
 
 (defun magit-refresh ()
   "Refresh some buffers belonging to the current repository.
