@@ -5569,7 +5569,7 @@ With a prefix argument also reset the working tree.
   (interactive
    (list (magit-read-rev "Soft reset to"
                          (or (magit-branch-or-commit-at-point) "HEAD"))))
-  (magit-run-git "reset" "--hard" commit))
+  (magit-run-git "reset" "--soft" commit))
 
 ;;;###autoload
 (defun magit-reset-hard (commit)
