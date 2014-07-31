@@ -255,7 +255,7 @@ only arguments available from `magit-blame-popup' should be used.
   (with-current-buffer (process-get process 'command-buf)
     (when magit-blame-mode
       (let ((chunk (process-get process 'chunk))
-            (lines (split-string string "\n")))
+            (lines (split-string string "\n" t)))
         (unless (string-match-p "\n\\'" string)
           (process-put process 'chunk chunk)
           (process-put process 'partial-line (car (last lines)))
