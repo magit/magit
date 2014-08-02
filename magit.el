@@ -7921,6 +7921,7 @@ Use the function by the same name instead of this variable.")
 (require 'magit-extras)
 
 ;; Local Variables:
+;; coding: utf-8
 ;; indent-tabs-mode: nil
 ;; End:
 ;;; magit.el ends here
