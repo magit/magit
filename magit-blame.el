@@ -198,7 +198,8 @@ only arguments available from `magit-blame-popup' should be used.
        (--if-let (magit-file-relative-name)
            (list (or magit-buffer-refname magit-buffer-revision) it args)
          (user-error "Buffer isn't visiting a file")))))
-  (let ((show-headings magit-blame-show-headings))
+  (let ((show-headings magit-blame-show-headings)
+        (default-directory (magit-get-top-dir)))
     (if revision
         (magit-find-file revision file)
       (find-file (expand-file-name file (magit-get-top-dir))))
@@ -228,7 +229,8 @@ only arguments available from `magit-blame-popup' should be used.
             (magit-process-sentinel process event)
             (when magit-blame-mode
               (let ((magit-process-popup-time -1)
-                    (inhibit-magit-refresh t))
+                    (inhibit-magit-refresh t)
+                    (default-directory ,default-directory))
                 (magit-run-git-async "blame" "--incremental" ,@args
                                      ,revision "--" ,file))
               (setq magit-blame-process magit-this-process)
