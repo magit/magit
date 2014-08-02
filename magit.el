@@ -1337,8 +1337,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "\C-c\C-f" 'magit-go-forward)
     (define-key map "\s" 'scroll-up)
     (define-key map "\d" 'scroll-down)
-    (define-key map "\M-g" 'magit-jump-to-diffstats)
-    (define-key map "jd"   'magit-jump-to-diffstats)
+    (define-key map "j" 'magit-jump-to-diffstats)
     map)
   "Keymap for `magit-diff-mode'.")
 
