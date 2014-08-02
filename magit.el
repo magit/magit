@@ -1311,7 +1311,7 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
     (define-key map "\M-e" 'magit-ediff-dwim)
     (define-key map "\M-m" 'magit-ediff-resolve)
     (define-key map "\M-s" 'magit-ediff-stage)
-    (define-key map "L"      'magit-add-change-log-entry)
+    (define-key map "\C-xa"  'magit-add-change-log-entry)
     (define-key map "\C-x4a" 'magit-add-change-log-entry-other-window)
     (define-key map "\C-w"   'magit-copy-as-kill)
     map)
