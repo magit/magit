@@ -7840,6 +7840,7 @@ init file:
   (require 'magit-log-edit nil t))
 
 ;; Local Variables:
+;; coding: utf-8
 ;; indent-tabs-mode: nil
 ;; End:
 ;;; magit.el ends here
