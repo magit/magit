@@ -328,8 +328,7 @@ only arguments available from `magit-blame-popup' should be used.
 (defun magit-blame-format-heading (chunk)
   (format-spec
    (propertize (concat magit-blame-heading-format "\n")
-               'face 'magit-blame-heading
-               'invisible 'magit-blame-heading)
+               'face 'magit-blame-heading)
    `((?H . ,(propertize (or (plist-get chunk :hash) "")
                         'face 'magit-blame-hash))
      (?s . ,(propertize (plist-get chunk :summary)
