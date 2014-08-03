@@ -151,7 +151,7 @@ usually honor this wish and return non-nil."
 (defcustom git-commit-known-pseudo-headers
   '("Signed-off-by" "Acked-by" "Cc"
     "Suggested-by" "Reported-by" "Tested-by" "Reviewed-by")
-  "A list of git pseudo headers to be highlighted."
+  "A list of Git pseudo headers to be highlighted."
   :group 'git-commit
   :type '(repeat string))
 
@@ -165,60 +165,57 @@ usually honor this wish and return non-nil."
 
 (defface git-commit-summary
   '((t :inherit font-lock-type-face))
-  "Face used to highlight the summary in git commit messages"
+  "Face used for the summary in commit messages."
   :group 'git-commit-faces)
 
 (defface git-commit-overlong-summary
   '((t :inherit font-lock-warning-face))
-  "Face used to highlight overlong parts of git commit message summaries"
+  "Face used for the tail of overlong commit message summaries."
   :group 'git-commit-faces)
 
 (defface git-commit-nonempty-second-line
   '((t :inherit font-lock-warning-face))
-  "Face used to highlight text on the second line of git commit messages"
+  "Face used for non-whitespace on the second line of commit messages."
   :group 'git-commit-faces)
 
 (defface git-commit-note
   '((t :inherit font-lock-string-face))
-  "Face used to highlight notes in git commit messages"
+  "Face used for notes in commit messages."
   :group 'git-commit-faces)
 
 (defface git-commit-pseudo-header
   '((t :inherit font-lock-string-face))
-  "Font used to hightlight pseudo headers in git commit messages"
+  "Font used for pseudo headers in commit messages."
   :group 'git-commit-faces)
 
 (defface git-commit-known-pseudo-header
   '((t :inherit font-lock-keyword-face))
-  "Face used to hightlight common pseudo headers in git commit messages"
+  "Face used for the keywords of known pseudo headers in commit messages."
   :group 'git-commit-faces)
 
 (defface git-commit-comment-branch
   '((t :inherit font-lock-variable-name-face))
-  "Face used to highlight the branch name in comments in git commit messages"
+  "Face used for branch names in commit message comments."
   :group 'git-commit-faces)
 
 (defface git-commit-comment-detached
   '((t :inherit git-commit-comment-branch))
-  "Face used when a commit is going to be made outside of any branches"
+  "Face used for detached `HEAD' in commit message comments."
   :group 'git-commit-faces)
 
 (defface git-commit-comment-heading
   '((t :inherit git-commit-known-pseudo-header))
-  "Face used to highlight section headings in the default
-comments in git commit messages"
+  "Face used for headings in commit message comments."
   :group 'git-commit-faces)
 
 (defface git-commit-comment-file
   '((t :inherit git-commit-pseudo-header))
-  "Face used to highlight file names in the default comments in
-git commit messages"
+  "Face used for file names in commit message comments."
   :group 'git-commit-faces)
 
 (defface git-commit-comment-action
   '((t :inherit git-commit-comment-branch))
-  "Face used to highlight what has happened to files in the
-default comments in git commit messages"
+  "Face used for actions in commit message comments."
   :group 'git-commit-faces)
 
 ;;; Keymap
