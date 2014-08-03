@@ -519,6 +519,8 @@ minibuffer." header)
 (git-commit-define-header-inserter reported  "Reported-by")
 (git-commit-define-header-inserter suggested "Suggested-by")
 
+;;; Font-Lock
+
 (defconst git-commit-comment-headings-alist
   '(("Not currently on any branch."   . git-commit-no-branch-face)
     ("Changes to be committed:"       . git-commit-comment-heading-face)
@@ -556,8 +558,6 @@ otherwise."
     (when (re-search-forward (git-commit-summary-regexp) nil t)
       (or (string-match-p ".+" (or (match-string 2) ""))
           (string-match-p "^.+$" (or (match-string 3) ""))))))
-
-;;; Font-Lock
 
 (defun git-commit-mode-summary-font-lock-keywords (&optional errors)
   "Create font lock keywords to fontify the Git summary.
