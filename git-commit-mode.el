@@ -537,7 +537,7 @@ otherwise."
               (regexp-opt git-commit-known-pseudo-headers))
      (1 'git-commit-known-pseudo-header-face)
      (2 'git-commit-pseudo-header-face))
-    ("^\\<\\S-+: .*"
+    ("^[-a-zA-Z]+: [^<]+? <[^>]+>"
      (0 'git-commit-pseudo-header-face))
     ;; Summary
     (,(git-commit-summary-regexp)
