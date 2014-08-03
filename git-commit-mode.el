@@ -343,7 +343,7 @@ And set `fill-column' to `git-commit-fill-column'."
   (turn-on-auto-fill))
 
 (defun git-commit-turn-on-flyspell ()
-  "Unconditionally turn on Auto Fill mode.
+  "Unconditionally turn on Flyspell mode.
 Also prevent comments from being checked and
 finally check current non-comment text."
   (require 'flyspell)
