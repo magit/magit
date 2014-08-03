@@ -314,13 +314,16 @@ default comments in git commit messages"
   (run-hooks 'git-commit-setup-hook))
 
 (defun git-commit-setup-font-lock ()
-  (set-syntax-table (let ((table (make-syntax-table (syntax-table))))
-                      (modify-syntax-entry ?#  "<" table)
-                      (modify-syntax-entry ?\n ">" table)
-                      (modify-syntax-entry ?\r ">" table)
-                      table))
-  (setq-local comment-start "#")
-  (setq-local comment-start-skip "^#+\\s-*")
+  (setq-local comment-start
+              (or (ignore-errors
+                    (car (process-lines "git" "config" "core.commentchar")))
+                  "#"))
+  (let ((table (make-syntax-table (syntax-table))))
+    (modify-syntax-entry (string-to-char comment-start) "<" table)
+    (modify-syntax-entry ?\n ">" table)
+    (modify-syntax-entry ?\r ">" table)
+    (set-syntax-table table))
+  (setq-local comment-start-skip (format "^%s+\\s-*" comment-start))
   (setq-local comment-use-syntax nil)
   (setq-local font-lock-multiline t)
   (font-lock-add-keywords nil (git-commit-mode-font-lock-keywords) t))
@@ -381,7 +384,7 @@ With a numeric prefix ARG, go back ARG comments."
   (save-restriction
     (goto-char (point-min))
     (narrow-to-region (point)
-                      (if (re-search-forward "^#")
+                      (if (re-search-forward (concat "^" comment-start))
                           (max 1 (- (point) 2))
                         (point-max)))
     (log-edit-previous-comment arg)))
@@ -403,11 +406,12 @@ With a numeric prefix ARG, go forward ARG comments."
       (ring-insert log-edit-comment-ring it))))
 
 (defun git-commit-buffer-message ()
-  (let ((str (buffer-substring-no-properties (point-min) (point-max))))
+  (let ((flush (concat "^" comment-start))
+        (str (buffer-substring-no-properties (point-min) (point-max))))
     (with-temp-buffer
       (insert str)
       (goto-char (point-min))
-      (flush-lines "^#")
+      (flush-lines flush)
       (goto-char (point-max))
       (unless (eq (char-before) ?\n)
         (insert ?\n))
@@ -482,7 +486,7 @@ With a numeric prefix ARG, go forward ARG comments."
            (unless (= (char-after) ?\n)
              (insert ?\n)))
           (t
-           (while (re-search-backward "^#" nil t))
+           (while (re-search-backward (concat "^" comment-start) nil t))
            (unless (looking-back "\n\n")
              (insert ?\n))
            (insert header ?\n)))
@@ -505,7 +509,7 @@ With a numeric prefix ARG, go forward ARG comments."
    ;; Summary line
    (format "\\(.\\{0,%d\\}\\)\\(.*\\)" git-commit-summary-max-length)
    ;; Non-empty non-comment second line
-   "\\(?:\n\\#\\|\n\\(.*\\)\\)?"))
+   "\\(?:\n\\s<\\|\n\\(.*\\)\\)?"))
 
 (defun git-commit-has-style-errors-p ()
   "Check whether the current buffer has style errors.
