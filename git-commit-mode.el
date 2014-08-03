@@ -193,13 +193,13 @@ usually honor this wish and return non-nil."
   "Face used to hightlight common pseudo headers in git commit messages"
   :group 'git-commit-faces)
 
-(defface git-commit-branch
+(defface git-commit-comment-branch
   '((t :inherit font-lock-variable-name-face))
   "Face used to highlight the branch name in comments in git commit messages"
   :group 'git-commit-faces)
 
-(defface git-commit-no-branch
-  '((t :inherit git-commit-branch))
+(defface git-commit-comment-detached
+  '((t :inherit git-commit-comment-branch))
   "Face used when a commit is going to be made outside of any branches"
   :group 'git-commit-faces)
 
@@ -216,7 +216,7 @@ git commit messages"
   :group 'git-commit-faces)
 
 (defface git-commit-comment-action
-  '((t :inherit git-commit-branch))
+  '((t :inherit git-commit-comment-branch))
   "Face used to highlight what has happened to files in the
 default comments in git commit messages"
   :group 'git-commit-faces)
@@ -528,9 +528,9 @@ With a numeric prefix ARG, go forward ARG comments."
     (,(format "^%s.*" comment-start)
      (0 'font-lock-comment-face))
     (,(format "^%s On branch \\(.*\\)" comment-start)
-     (1 'git-commit-branch t))
+     (1 'git-commit-comment-branch t))
     (,(format "^%s Not currently on any branch." comment-start)
-     (1 'git-commit-no-branch t))
+     (1 'git-commit-comment-detached t))
     (,(format "^%s %s" comment-start
               (regexp-opt git-commit-comment-headings t))
      (1 'git-commit-comment-heading t))
@@ -584,8 +584,8 @@ With a numeric prefix ARG, go forward ARG comments."
 (define-obsolete-face-alias 'git-commit-note-face 'git-commit-note "1.1.0")
 (define-obsolete-face-alias 'git-commit-pseudo-header-face 'git-commit-pseudo-header "1.1.0")
 (define-obsolete-face-alias 'git-commit-known-pseudo-header-face 'git-commit-known-pseudo-header "1.1.0")
-(define-obsolete-face-alias 'git-commit-branch-face 'git-commit-branch "1.1.0")
-(define-obsolete-face-alias 'git-commit-no-branch-face 'git-commit-no-branch "1.1.0")
+(define-obsolete-face-alias 'git-commit-branch-face 'git-commit-comment-branch "1.1.0")
+(define-obsolete-face-alias 'git-commit-no-branch-face 'git-commit-comment-detached "1.1.0")
 (define-obsolete-face-alias 'git-commit-comment-heading-face 'git-commit-comment-heading "1.1.0")
 (define-obsolete-face-alias 'git-commit-comment-file-face 'git-commit-comment-file "1.1.0")
 (define-obsolete-face-alias 'git-commit-comment-action-face 'git-commit-comment-action "1.1.0")
