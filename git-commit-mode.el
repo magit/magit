@@ -421,6 +421,57 @@ With a numeric prefix ARG, go forward ARG comments."
 
 ;;; Headers
 
+(defun git-commit-ack (name mail)
+  "Insert a header acknowledging that you have looked at the commit."
+  (interactive (git-commit-self-ident))
+  (git-commit-insert-header "Acked-by" name mail))
+
+(defun git-commit-review (name mail)
+  "Insert a header acknowledging that you have reviewed the commit."
+  (interactive (git-commit-self-ident))
+  (git-commit-insert-header "Reviewed-by" name mail))
+
+(defun git-commit-signoff (name mail)
+  "Insert a header to sign off the commit."
+  (interactive (git-commit-self-ident))
+  (git-commit-insert-header "Signed-off-by" name mail))
+
+(defun git-commit-test (name mail)
+  "Insert a header acknowledging that you have tested the commit."
+  (interactive (git-commit-self-ident))
+  (git-commit-insert-header "Tested-by" name mail))
+
+(defun git-commit-cc (name mail)
+  "Insert a header mentioning someone who might be interested."
+  (interactive (git-commit-read-ident))
+  (git-commit-insert-header "Cc" name mail))
+
+(defun git-commit-reported (name mail)
+  "Insert a header mentioning the person who reported the issue."
+  (interactive (git-commit-read-ident))
+  (git-commit-insert-header "Reported-by" name mail))
+
+(defun git-commit-suggested (name mail)
+  "Insert a header mentioning the person who suggested the change."
+  (interactive (git-commit-read-ident))
+  (git-commit-insert-header "Suggested-by" name mail))
+
+(defun git-commit-self-ident ()
+  (list (or (getenv "GIT_AUTHOR_NAME")
+            (getenv "GIT_COMMITTER_NAME")
+            (ignore-errors (car (process-lines "git" "config" "user.name")))
+            user-full-name
+            (read-string "Name: "))
+        (or (getenv "GIT_AUTHOR_EMAIL")
+            (getenv "GIT_COMMITTER_EMAIL")
+            (getenv "EMAIL")
+            (ignore-errors (car (process-lines "git" "config" "user.email")))
+            (read-string "Email: "))))
+
+(defun git-commit-read-ident ()
+  (list (read-string "Name: ")
+        (read-string "Email: ")))
+
 (defun git-commit-insert-header (header name email)
   (setq header (format "%s: %s <%s>" header name email))
   (save-excursion
@@ -437,63 +488,6 @@ With a numeric prefix ARG, go forward ARG comments."
            (insert header ?\n)))
     (unless (or (eobp) (= (char-after) ?\n))
       (insert ?\n))))
-
-(defun git-commit-insert-header-as-self (type)
-  "Insert a header with the name and email of the current user.
-The inserted header has the format 'TYPE: NAME <EMAIL>'.
-Also see `git-commit-insert-header'."
-  (git-commit-insert-header
-   type
-   (or (getenv "GIT_AUTHOR_NAME")
-       (getenv "GIT_COMMITTER_NAME")
-       (ignore-errors (car (process-lines "git" "config" "user.name")))
-       user-full-name)
-   (or (getenv "GIT_AUTHOR_EMAIL")
-       (getenv "GIT_COMMITTER_EMAIL")
-       (getenv "EMAIL")
-       (ignore-errors (car (process-lines "git" "config" "user.email")))
-       user-mail-address)))
-
-(defmacro git-commit-define-self-header-inserter (action header)
-  "Create function git-commit-ACTION.
-ACTION will be part of the function name.
-HEADER is the actual header to be inserted into the comment."
-  (let ((fn (intern (format "git-commit-%s" action))))
-    `(progn
-       (defun ,fn ()
-         ,(format "Insert a '%s' header at the end of the commit message.
-
-The author name and email address used for the header are
-retrieved automatically with the same mechanism git uses." header)
-         (interactive)
-         (git-commit-insert-header-as-self ,header))
-       (put ',fn 'definition-name ',action))))
-
-(git-commit-define-self-header-inserter ack     "Acked-by")
-(git-commit-define-self-header-inserter review  "Reviewed-by")
-(git-commit-define-self-header-inserter signoff "Signed-off-by")
-(git-commit-define-self-header-inserter test    "Tested-by")
-
-(defmacro git-commit-define-header-inserter (action header)
-  "Create interactive function git-commit-ACTION.
-ACTION will be part of the function name.
-HEADER is the actual header to be inserted into the comment."
-  (let ((fn (intern (format "git-commit-%s" action))))
-    `(progn
-       (defun ,fn (name email)
-         ,(format "Insert a '%s' header at the end of the commit message.
-The value of the header is determined by NAME and EMAIL.
-
-When called interactively, both NAME and EMAIL are read from the
-minibuffer." header)
-         (interactive (list (read-string "Name: ")
-                            (read-string "Email: ")))
-         (git-commit-insert-header ,header name email))
-       (put ',fn 'definition-name ',action))))
-
-(git-commit-define-header-inserter cc        "Cc")
-(git-commit-define-header-inserter reported  "Reported-by")
-(git-commit-define-header-inserter suggested "Suggested-by")
 
 ;;; Font-Lock
 
