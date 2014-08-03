@@ -491,31 +491,20 @@ With a numeric prefix ARG, go forward ARG comments."
 
 ;;; Font-Lock
 
-(defconst git-commit-comment-headings-alist
-  '(("Not currently on any branch."   . git-commit-no-branch-face)
-    ("Changes to be committed:"       . git-commit-comment-heading-face)
-    ("Untracked files:"               . git-commit-comment-heading-face)
-    ("Changed but not updated:"       . git-commit-comment-heading-face)
-    ("Changes not staged for commit:" . git-commit-comment-heading-face)
-    ("Unmerged paths:"                . git-commit-comment-heading-face))
-  "Headings in message comments.
-
-The `car' of each cell is the heading text, the `cdr' the face to
-use for fontification.")
+(defconst git-commit-comment-headings
+  '("Changes to be committed:"
+    "Untracked files:"
+    "Changed but not updated:"
+    "Changes not staged for commit:"
+    "Unmerged paths:"))
 
 (defun git-commit-summary-regexp ()
   (concat
-   ;; Skip empty lines or comments before the summary
+   ;; Leading empty lines and comments
    "\\`\\(?:^\\(?:\\s-*\\|\\s<.*\\)\n\\)*"
-   ;; The summary line
+   ;; Summary line
    (format "\\(.\\{0,%d\\}\\)\\(.*\\)" git-commit-summary-max-length)
    ;; Non-empty non-comment second line
-   ;;
-   ;; For instant highlighting of non-empty second lines in font-lock,
-   ;; the last capturing group must capture the empty string ("") in
-   ;; "summary line\n".
-   ;; That's why the simpler regex "\\(?:\n\\([^\n#].*\\)\\)?",
-   ;; which captures 'nil', can't be used.
    "\\(?:\n\\#\\|\n\\(.*\\)\\)?"))
 
 (defun git-commit-has-style-errors-p ()
@@ -529,46 +518,37 @@ otherwise."
       (or (string-match-p ".+" (or (match-string 2) ""))
           (string-match-p "^.+$" (or (match-string 3) ""))))))
 
-(defun git-commit-mode-summary-font-lock-keywords (&optional errors)
-  "Create font lock keywords to fontify the Git summary.
-
-If ERRORS is non-nil create keywords that highlight errors in the
-summary line, not the summary line itself."
-  (if errors
-      `(,(git-commit-summary-regexp)
-        (2 'git-commit-overlong-summary-face t t)
-        (3 'git-commit-nonempty-second-line-face t t))
-    `(,(git-commit-summary-regexp)
-      (1 'git-commit-summary-face t))))
-
-(defun git-commit-mode-heading-keywords ()
-  "Create font lock keywords to fontify comment headings.
-
-Known comment headings are provided by `git-commit-comment-headings'."
-  (mapcar (lambda (cell) `(,(format "^\\s<\\s-+\\(%s\\)$"
-                                    (regexp-quote (car cell)))
-                           (1 ',(cdr cell) t)))
-          git-commit-comment-headings-alist))
-
 (defun git-commit-mode-font-lock-keywords ()
-  (append
-   `(("^\\s<.*$" . 'font-lock-comment-face)
-     ("^\\s<\\s-On branch \\(.*\\)$" (1 'git-commit-branch-face t))
-     ("^\\s<\t\\(?:\\([^:]+\\):\\s-+\\)?\\(.*\\)$"
-      (1 'git-commit-comment-action-face t t)
-      (2 'git-commit-comment-file-face t))
-     (,(concat "^\\("
-               (regexp-opt git-commit-known-pseudo-headers)
-               ":\\)\\(\s.*\\)$")
-      (1 'git-commit-known-pseudo-header-face)
-      (2 'git-commit-pseudo-header-face))
-     ("^\\<\\S-+:\\s-.*$" . 'git-commit-pseudo-header-face)
-     (eval . (git-commit-mode-summary-font-lock-keywords))
-     ("\\[[^\n]+?\\]" (0 'git-commit-note-face t)) ; Notes override summary line
-     ;; Warnings from overlong lines and nonempty second line override
-     ;; everything
-     (eval . (git-commit-mode-summary-font-lock-keywords t)))
-   (git-commit-mode-heading-keywords)))
+  `(;; Comments
+    ("^\\s<.*"
+     (0 'font-lock-comment-face))
+    ("^\\s< On branch \\(.*\\)"
+     (1 'git-commit-branch-face t))
+    ("^\\s< Not currently on any branch."
+     (1 'git-commit-no-branch-face t))
+    (,(format "^\\s< %s"
+              (regexp-opt git-commit-comment-headings t))
+     (1 'git-commit-comment-heading-face t))
+    ("^\\s<\t\\(?:\\([^:]+\\):\\s-+\\)?\\(.*\\)"
+     (1 'git-commit-comment-action-face t t)
+     (2 'git-commit-comment-file-face t))
+    ;; Pseudo headers
+    (,(format "^\\(%s:\\)\\( .*\\)"
+              (regexp-opt git-commit-known-pseudo-headers))
+     (1 'git-commit-known-pseudo-header-face)
+     (2 'git-commit-pseudo-header-face))
+    ("^\\<\\S-+: .*"
+     (0 'git-commit-pseudo-header-face))
+    ;; Summary
+    (,(git-commit-summary-regexp)
+     (1 'git-commit-summary-face t))
+    ;; - Note (overrides summary)
+    ("\\[.+?\\]"
+     (0 'git-commit-note-face t))
+    ;; - Non-empty second line (overrides summary and note)
+    (,(git-commit-summary-regexp)
+     (2 'git-commit-overlong-summary-face t t)
+     (3 'git-commit-nonempty-second-line-face t t))))
 
 (defun git-commit-propertize-diff ()
   (save-excursion
