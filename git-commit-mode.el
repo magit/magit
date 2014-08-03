@@ -63,6 +63,7 @@
 ;;; Code:
 ;;;; Dependencies
 
+(require 'dash)
 (require 'log-edit)
 (require 'ring)
 (require 'server)
@@ -372,27 +373,17 @@ finally check current non-comment text."
 
 ;;; History
 
-(defun git-commit-save-message ()
-  "Save current message to `log-edit-comment-ring'."
-  (interactive)
-  (let ((message (buffer-substring
-                  (point-min)
-                  (git-commit-find-pseudo-header-position))))
-    (when (and (string-match "^\\s-*\\sw" message)
-               (or (ring-empty-p log-edit-comment-ring)
-                   (not (ring-member log-edit-comment-ring message))))
-      ;; if index is nil, we end up cycling back to message we just saved!
-      (unless log-edit-comment-ring-index
-        (setq log-edit-comment-ring-index 0))
-      (ring-insert log-edit-comment-ring message))))
-
 (defun git-commit-prev-message (arg)
   "Cycle backward through message history, after saving current message.
 With a numeric prefix ARG, go back ARG comments."
   (interactive "*p")
   (git-commit-save-message)
   (save-restriction
-    (narrow-to-region (point-min) (git-commit-find-pseudo-header-position))
+    (goto-char (point-min))
+    (narrow-to-region (point)
+                      (if (re-search-forward "^#")
+                          (max 1 (- (point) 2))
+                        (point-max)))
     (log-edit-previous-comment arg)))
 
 (defun git-commit-next-message (arg)
@@ -400,6 +391,32 @@ With a numeric prefix ARG, go back ARG comments."
 With a numeric prefix ARG, go forward ARG comments."
   (interactive "*p")
   (git-commit-prev-message (- arg)))
+
+(defun git-commit-save-message ()
+  "Save current message to `log-edit-comment-ring'."
+  (interactive)
+  (--when-let (git-commit-buffer-message)
+    (unless (ring-member log-edit-comment-ring it)
+      ;; Else we would end up cycling back to what we just saved!
+      (unless log-edit-comment-ring-index
+        (setq log-edit-comment-ring-index 0))
+      (ring-insert log-edit-comment-ring it))))
+
+(defun git-commit-buffer-message ()
+  (let ((message (buffer-substring-no-properties (point-min) (point-max))))
+    (with-temp-buffer
+      (insert message)
+      (goto-char (point-min))
+      (flush-lines "^#")
+      (goto-char (point-min))
+      (while (re-search-forward "\n\\{2,\\}" nil t)
+        (replace-match "\n"))
+      (goto-char (point-max))
+      (unless (eq (char-before) ?\n)
+        (insert ?\n))
+      (setq message (buffer-string)))
+    (unless (string-match-p "\\`[ \t\n\r]*\\'" message)
+      message)))
 
 ;;; Headers
 
