@@ -369,9 +369,16 @@ finally check current non-comment text."
    'git-commit-finish-query-functions force))
 
 (defun git-commit-check-style-conventions (force)
-  (or (not (git-commit-has-style-errors-p)) force
-      (or (y-or-n-p "Commit despite stylistic errors? ")
-          (progn nil (message "Commit canceled due to stylistic errors")))))
+  (or force
+      (save-excursion
+        (goto-char (point-min))
+        (re-search-forward (git-commit-summary-regexp) nil t)
+        (if (equal (match-string 1) "")
+            t ; Just try; we don't know whether --allow-empty-message was used.
+          (and (or (equal (match-string 2) "")
+                   (y-or-n-p "Summary line is to long.  Commit anyway? "))
+               (or (equal (match-string 3) "")
+                   (y-or-n-p "Second line is not empty.  Commit anyway? ")))))))
 
 (defun git-commit-cancel-message ()
   (message
@@ -515,17 +522,6 @@ With a numeric prefix ARG, go forward ARG comments."
    (format "\\(.\\{0,%d\\}\\)\\(.*\\)" git-commit-summary-max-length)
    ;; Non-empty non-comment second line
    (format "\\(?:\n%s\\|\n\\(.*\\)\\)?" comment-start)))
-
-(defun git-commit-has-style-errors-p ()
-  "Check whether the current buffer has style errors.
-
-Return t, if the current buffer has style errors, or nil
-otherwise."
-  (save-excursion
-    (goto-char (point-min))
-    (when (re-search-forward (git-commit-summary-regexp) nil t)
-      (or (string-match-p ".+" (or (match-string 2) ""))
-          (string-match-p "^.+$" (or (match-string 3) ""))))))
 
 (defun git-commit-mode-font-lock-keywords ()
   `(;; Comments
