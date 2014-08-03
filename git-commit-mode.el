@@ -163,60 +163,60 @@ usually honor this wish and return non-nil."
   :group 'git-commit
   :group 'faces)
 
-(defface git-commit-summary-face
+(defface git-commit-summary
   '((t :inherit font-lock-type-face))
   "Face used to highlight the summary in git commit messages"
   :group 'git-commit-faces)
 
-(defface git-commit-overlong-summary-face
+(defface git-commit-overlong-summary
   '((t :inherit font-lock-warning-face))
   "Face used to highlight overlong parts of git commit message summaries"
   :group 'git-commit-faces)
 
-(defface git-commit-nonempty-second-line-face
+(defface git-commit-nonempty-second-line
   '((t :inherit font-lock-warning-face))
   "Face used to highlight text on the second line of git commit messages"
   :group 'git-commit-faces)
 
-(defface git-commit-note-face
+(defface git-commit-note
   '((t :inherit font-lock-string-face))
   "Face used to highlight notes in git commit messages"
   :group 'git-commit-faces)
 
-(defface git-commit-pseudo-header-face
+(defface git-commit-pseudo-header
   '((t :inherit font-lock-string-face))
   "Font used to hightlight pseudo headers in git commit messages"
   :group 'git-commit-faces)
 
-(defface git-commit-known-pseudo-header-face
+(defface git-commit-known-pseudo-header
   '((t :inherit font-lock-keyword-face))
   "Face used to hightlight common pseudo headers in git commit messages"
   :group 'git-commit-faces)
 
-(defface git-commit-branch-face
+(defface git-commit-branch
   '((t :inherit font-lock-variable-name-face))
   "Face used to highlight the branch name in comments in git commit messages"
   :group 'git-commit-faces)
 
-(defface git-commit-no-branch-face
-  '((t :inherit git-commit-branch-face))
+(defface git-commit-no-branch
+  '((t :inherit git-commit-branch))
   "Face used when a commit is going to be made outside of any branches"
   :group 'git-commit-faces)
 
-(defface git-commit-comment-heading-face
-  '((t :inherit git-commit-known-pseudo-header-face))
+(defface git-commit-comment-heading
+  '((t :inherit git-commit-known-pseudo-header))
   "Face used to highlight section headings in the default
 comments in git commit messages"
   :group 'git-commit-faces)
 
-(defface git-commit-comment-file-face
-  '((t :inherit git-commit-pseudo-header-face))
+(defface git-commit-comment-file
+  '((t :inherit git-commit-pseudo-header))
   "Face used to highlight file names in the default comments in
 git commit messages"
   :group 'git-commit-faces)
 
-(defface git-commit-comment-action-face
-  '((t :inherit git-commit-branch-face))
+(defface git-commit-comment-action
+  '((t :inherit git-commit-branch))
   "Face used to highlight what has happened to files in the
 default comments in git commit messages"
   :group 'git-commit-faces)
@@ -528,32 +528,32 @@ With a numeric prefix ARG, go forward ARG comments."
     (,(format "^%s.*" comment-start)
      (0 'font-lock-comment-face))
     (,(format "^%s On branch \\(.*\\)" comment-start)
-     (1 'git-commit-branch-face t))
+     (1 'git-commit-branch t))
     (,(format "^%s Not currently on any branch." comment-start)
-     (1 'git-commit-no-branch-face t))
+     (1 'git-commit-no-branch t))
     (,(format "^%s %s" comment-start
               (regexp-opt git-commit-comment-headings t))
-     (1 'git-commit-comment-heading-face t))
+     (1 'git-commit-comment-heading t))
     (,(format "^%s\t\\(?:\\([^:]+\\):\\s-+\\)?\\(.*\\)" comment-start)
-     (1 'git-commit-comment-action-face t t)
-     (2 'git-commit-comment-file-face t))
+     (1 'git-commit-comment-action t t)
+     (2 'git-commit-comment-file t))
     ;; Pseudo headers
     (,(format "^\\(%s:\\)\\( .*\\)"
               (regexp-opt git-commit-known-pseudo-headers))
-     (1 'git-commit-known-pseudo-header-face)
-     (2 'git-commit-pseudo-header-face))
+     (1 'git-commit-known-pseudo-header)
+     (2 'git-commit-pseudo-header))
     ("^[-a-zA-Z]+: [^<]+? <[^>]+>"
-     (0 'git-commit-pseudo-header-face))
+     (0 'git-commit-pseudo-header))
     ;; Summary
     (,(git-commit-summary-regexp)
-     (1 'git-commit-summary-face t))
+     (1 'git-commit-summary t))
     ;; - Note (overrides summary)
     ("\\[.+?\\]"
-     (0 'git-commit-note-face t))
+     (0 'git-commit-note t))
     ;; - Non-empty second line (overrides summary and note)
     (,(git-commit-summary-regexp)
-     (2 'git-commit-overlong-summary-face t t)
-     (3 'git-commit-nonempty-second-line-face t t))))
+     (2 'git-commit-overlong-summary t t)
+     (3 'git-commit-nonempty-second-line t t))))
 
 (defun git-commit-propertize-diff ()
   (save-excursion
@@ -575,6 +575,20 @@ With a numeric prefix ARG, go forward ARG comments."
                                   (get-text-property pos 'face))
                (setq pos next)))
            (buffer-string)))))))
+
+;;; git-commit-mode.el ends soon
+
+(define-obsolete-face-alias 'git-commit-summary-face 'git-commit-summary "1.1.0")
+(define-obsolete-face-alias 'git-commit-overlong-summary-face 'git-commit-overlong-summary "1.1.0")
+(define-obsolete-face-alias 'git-commit-nonempty-second-line-face 'git-commit-nonempty-second-line "1.1.0")
+(define-obsolete-face-alias 'git-commit-note-face 'git-commit-note "1.1.0")
+(define-obsolete-face-alias 'git-commit-pseudo-header-face 'git-commit-pseudo-header "1.1.0")
+(define-obsolete-face-alias 'git-commit-known-pseudo-header-face 'git-commit-known-pseudo-header "1.1.0")
+(define-obsolete-face-alias 'git-commit-branch-face 'git-commit-branch "1.1.0")
+(define-obsolete-face-alias 'git-commit-no-branch-face 'git-commit-no-branch "1.1.0")
+(define-obsolete-face-alias 'git-commit-comment-heading-face 'git-commit-comment-heading "1.1.0")
+(define-obsolete-face-alias 'git-commit-comment-file-face 'git-commit-comment-file "1.1.0")
+(define-obsolete-face-alias 'git-commit-comment-action-face 'git-commit-comment-action "1.1.0")
 
 (provide 'git-commit-mode)
 ;; Local Variables:
