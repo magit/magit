@@ -314,16 +314,20 @@ default comments in git commit messages"
   (run-hooks 'git-commit-setup-hook))
 
 (defun git-commit-setup-font-lock ()
+  (let ((table (make-syntax-table (syntax-table))))
+    (when comment-start
+      (modify-syntax-entry (string-to-char comment-start) "." table))
+    (modify-syntax-entry ?#  "." table)
+    (modify-syntax-entry ?\" "." table)
+    (modify-syntax-entry ?\' "." table)
+    (modify-syntax-entry ?`  "." table)
+    (set-syntax-table table))
   (setq-local comment-start
               (or (ignore-errors
                     (car (process-lines "git" "config" "core.commentchar")))
                   "#"))
-  (let ((table (make-syntax-table (syntax-table))))
-    (modify-syntax-entry (string-to-char comment-start) "<" table)
-    (modify-syntax-entry ?\n ">" table)
-    (modify-syntax-entry ?\r ">" table)
-    (set-syntax-table table))
-  (setq-local comment-start-skip (format "^%s+\\s-*" comment-start))
+  (setq-local comment-start-skip (format "^%s+[\s\t]*" comment-start))
+  (setq-local comment-end-skip "\n")
   (setq-local comment-use-syntax nil)
   (setq-local font-lock-multiline t)
   (font-lock-add-keywords nil (git-commit-mode-font-lock-keywords) t))
@@ -357,7 +361,8 @@ finally check current non-comment text."
   (flyspell-buffer))
 
 (defun git-commit-mode-flyspell-verify ()
-  (not (nth 4 (syntax-ppss)))) ; not inside a comment
+  (not (memq (get-text-property (point) 'face)
+             '(font-lock-comment-face font-lock-comment-delimiter-face))))
 
 (defun git-commit-finish-query-functions (force)
   (run-hook-with-args-until-failure
@@ -505,11 +510,11 @@ With a numeric prefix ARG, go forward ARG comments."
 (defun git-commit-summary-regexp ()
   (concat
    ;; Leading empty lines and comments
-   "\\`\\(?:^\\(?:\\s-*\\|\\s<.*\\)\n\\)*"
+   (format "\\`\\(?:^\\(?:\\s-*\\|%s.*\\)\n\\)*" comment-start)
    ;; Summary line
    (format "\\(.\\{0,%d\\}\\)\\(.*\\)" git-commit-summary-max-length)
    ;; Non-empty non-comment second line
-   "\\(?:\n\\s<\\|\n\\(.*\\)\\)?"))
+   (format "\\(?:\n%s\\|\n\\(.*\\)\\)?" comment-start)))
 
 (defun git-commit-has-style-errors-p ()
   "Check whether the current buffer has style errors.
@@ -524,16 +529,16 @@ otherwise."
 
 (defun git-commit-mode-font-lock-keywords ()
   `(;; Comments
-    ("^\\s<.*"
+    (,(format "^%s.*" comment-start)
      (0 'font-lock-comment-face))
-    ("^\\s< On branch \\(.*\\)"
+    (,(format "^%s On branch \\(.*\\)" comment-start)
      (1 'git-commit-branch-face t))
-    ("^\\s< Not currently on any branch."
+    (,(format "^%s Not currently on any branch." comment-start)
      (1 'git-commit-no-branch-face t))
-    (,(format "^\\s< %s"
+    (,(format "^%s %s" comment-start
               (regexp-opt git-commit-comment-headings t))
      (1 'git-commit-comment-heading-face t))
-    ("^\\s<\t\\(?:\\([^:]+\\):\\s-+\\)?\\(.*\\)"
+    (,(format "^%s\t\\(?:\\([^:]+\\):\\s-+\\)?\\(.*\\)" comment-start)
      (1 'git-commit-comment-action-face t t)
      (2 'git-commit-comment-file-face t))
     ;; Pseudo headers
