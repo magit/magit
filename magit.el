@@ -3398,7 +3398,8 @@ tracked in the current repository."
       (--when-let (car (magit-section-siblings section 'prev))
         (magit-get-section (magit-section-ident it)))
       (--when-let (magit-section-parent section)
-        (magit-refresh-buffer-1 it))))
+        (or (magit-get-section (magit-section-ident it))
+            (magit-refresh-buffer-1 it)))))
 
 (defun magit-revert-buffers ()
   (-when-let (topdir (magit-get-top-dir))
