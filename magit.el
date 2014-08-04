@@ -1900,6 +1900,42 @@ IDENT has to be a list as returned by `magit-section-ident'."
         (pop ident))
       section)))
 
+(defun magit-section-goto-successor (section line char)
+  (let ((ident (magit-section-ident section)))
+    (--if-let (magit-get-section ident)
+        (let ((start (magit-section-start it)))
+          (goto-char start)
+          (when (> (length ident) 1)
+            (ignore-errors
+              (forward-line (1- line))
+              (forward-char char))
+            (unless (eq (magit-current-section) it)
+              (goto-char start))))
+      (goto-char (--if-let (magit-section-goto-successor-1 section)
+                     (magit-section-start it)
+                   (point-min))))))
+
+(defun magit-section-goto-successor-1 (section)
+  (or (--when-let (cl-case (magit-section-type section)
+                    (staged 'unstaged)
+                    (unstaged 'staged)
+                    (unpushed 'unpulled)
+                    (unpulled 'unpushed))
+        (magit-get-section `((,it) (status))))
+      (--when-let (car (magit-section-siblings section 'next))
+        (or (magit-get-section (magit-section-ident it))
+            (when (eq (magit-section-type it) 'hunk)
+              (let ((text (car (magit-section-value it))))
+                (--first (equal (car (magit-section-value it)) text)
+                         (magit-section-children
+                          (magit-get-section
+                           (cdr (magit-section-ident it)))))))))
+      (--when-let (car (magit-section-siblings section 'prev))
+        (magit-get-section (magit-section-ident it)))
+      (--when-let (magit-section-parent section)
+        (or (magit-get-section (magit-section-ident it))
+            (magit-section-goto-successor-1 it)))))
+
 ;;;;; Section Jumping
 
 (defun magit-section-forward ()
@@ -3355,9 +3391,8 @@ tracked in the current repository."
 (defun magit-refresh-buffer ()
   (let  ((section (magit-current-section)) ident line char other)
     (when section
-      (setq ident (magit-section-ident section)
-            line  (count-lines (magit-section-start section) (point))
-            char  (- (point) (line-beginning-position))))
+      (setq line (count-lines (magit-section-start section) (point))
+            char (- (point) (line-beginning-position))))
     (when magit-refresh-function
       (let ((inhibit-read-only t))
         (erase-buffer)
@@ -3365,41 +3400,9 @@ tracked in the current repository."
           (apply magit-refresh-function
                  magit-refresh-args))))
     (when section
-      (--if-let (magit-get-section ident)
-          (let ((start (magit-section-start it)))
-            (goto-char start)
-            (when (> (length ident) 1)
-              (ignore-errors
-                (forward-line (1- line))
-                (forward-char char))
-              (unless (eq (magit-current-section) it)
-                (goto-char start))))
-        (goto-char (--if-let (magit-refresh-buffer-1 section)
-                       (magit-section-start it)
-                     (point-min)))))
+      (magit-section-goto-successor section line char))
     (run-hooks 'magit-refresh-buffer-hook)
     (magit-highlight-section)))
-
-(defun magit-refresh-buffer-1 (section)
-  (or (--when-let (cl-case (magit-section-type section)
-                    (staged 'unstaged)
-                    (unstaged 'staged)
-                    (unpushed 'unpulled)
-                    (unpulled 'unpushed))
-        (magit-get-section `((,it) (status))))
-      (--when-let (car (magit-section-siblings section 'next))
-        (or (magit-get-section (magit-section-ident it))
-            (when (eq (magit-section-type it) 'hunk)
-              (let ((text (car (magit-section-value it))))
-                (--first (equal (car (magit-section-value it)) text)
-                         (magit-section-children
-                          (magit-get-section
-                           (cdr (magit-section-ident it)))))))))
-      (--when-let (car (magit-section-siblings section 'prev))
-        (magit-get-section (magit-section-ident it)))
-      (--when-let (magit-section-parent section)
-        (or (magit-get-section (magit-section-ident it))
-            (magit-refresh-buffer-1 it)))))
 
 (defun magit-revert-buffers ()
   (-when-let (topdir (magit-get-top-dir))
