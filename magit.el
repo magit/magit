@@ -3830,6 +3830,10 @@ where COMMITS is the number of commits in TAG but not in \"HEAD\"."
                   (magit-list-remote-branches remote)))
     (magit-list-refnames (concat "refs/remotes/" remote))))
 
+(defun magit-branch-p (string)
+  (and (or (member string (magit-list-branches))
+           (member string (magit-list-branch-names))) t))
+
 (defun magit-rev-diff-count (a b)
   "Return the commits in A but not B and vice versa.
 Return a list of two integers: (A>B B>A)."
@@ -5127,24 +5131,29 @@ fails if the working tree or the staging area contain changes.
                            current))))
   (magit-run-git "checkout" revision))
 
-(defun magit-branch (branch parent)
-  "Create BRANCH at revision PARENT.
-\n(git branch [ARGS] BRANCH PARENT)."
-  (interactive
-   (list (magit-read-string "Create branch")
-         (magit-read-rev "Parent" (or (magit-branch-or-commit-at-point)
-                                      (magit-get-current-branch)))))
-  (magit-run-git "branch" magit-current-popup-args branch parent))
+(defun magit-branch (branch start-point &optional args)
+  "Create BRANCH at branch or revision START-POINT.
+\n(git branch [ARGS] BRANCH START-POINT)."
+  (interactive (magit-branch-read-args "Create branch"))
+  (magit-run-git "branch" args branch start-point))
 
 ;;;###autoload
-(defun magit-branch-and-checkout (branch parent)
-  "Create and checkout BRANCH at revision PARENT.
-\n(git checkout [ARGS] -b BRANCH PARENT)."
-  (interactive
-   (list (magit-read-string "Create and checkout branch")
-         (magit-read-rev "Parent" (or (magit-branch-or-commit-at-point)
-                                      (magit-get-current-branch)))))
-  (magit-run-git "checkout" magit-current-popup-args "-b" branch parent))
+(defun magit-branch-and-checkout (branch start-point &optional args)
+  "Create and checkout BRANCH at branch or revision START-POINT.
+\n(git checkout -b [ARGS] BRANCH START-POINT)."
+  (interactive (magit-branch-read-args "Create and checkout branch"))
+  (magit-run-git "checkout" "-b" args branch start-point))
+
+(defun magit-branch-read-args (prompt)
+  (let ((args magit-current-popup-args)
+        (branch (magit-read-string prompt))
+        (start  (magit-read-rev "Start point"
+                                (or (magit-branch-or-commit-at-point)
+                                    (magit-get-current-branch)))))
+    (when (and (member "--track" args)
+               (not (magit-branch-p start)))
+      (setq args (delete "--track" args)))
+    (list branch start args)))
 
 ;;;###autoload
 (defun magit-branch-delete (branch &optional force)
