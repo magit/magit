@@ -3389,20 +3389,20 @@ tracked in the current repository."
   'magit-refresh-buffer-hook)
 
 (defun magit-refresh-buffer ()
-  (let  ((section (magit-current-section)) ident line char other)
-    (when section
-      (setq line (count-lines (magit-section-start section) (point))
-            char (- (point) (line-beginning-position))))
-    (when magit-refresh-function
+  (when magit-refresh-function
+    (let  ((section (magit-current-section)) ident line char other)
+      (when section
+        (setq line (count-lines (magit-section-start section) (point))
+              char (- (point) (line-beginning-position))))
       (let ((inhibit-read-only t))
         (erase-buffer)
         (save-excursion
           (apply magit-refresh-function
-                 magit-refresh-args))))
-    (when section
-      (magit-section-goto-successor section line char))
-    (run-hooks 'magit-refresh-buffer-hook)
-    (magit-highlight-section)))
+                 magit-refresh-args)))
+      (when section
+        (magit-section-goto-successor section line char))
+      (run-hooks 'magit-refresh-buffer-hook)
+      (magit-highlight-section))))
 
 (defun magit-revert-buffers ()
   (-when-let (topdir (magit-get-top-dir))
