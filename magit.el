@@ -2560,7 +2560,7 @@ Run Git in the root of the current repository.
   "Mode for looking at Git process output."
   :group 'magit-process)
 
-(defun magit-process-buffer (&optional topdir create)
+(defun magit-process-buffer (&optional topdir)
   (or (magit-mode-get-buffer magit-process-buffer-name-format
                              'magit-process-mode topdir)
       (with-current-buffer (magit-mode-get-buffer-create
