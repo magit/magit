@@ -5113,6 +5113,7 @@ inspect the merge and change the commit message.
               (?u "Set upstream"      magit-branch-set-upstream)
               (?r "Rename"            magit-branch-rename)
               (?k "Delete"            magit-branch-delete))
+  :default-arguments '("--track")
   :default-action 'magit-checkout)
 
 ;;;###autoload
