@@ -5102,14 +5102,7 @@ inspect the merge and change the commit message.
   "Popup console for branch commands."
   'magit-popups
   :man-page "git-branch"
-  :switches '((?t "Set upstream configuration" "--track")
-              (?m "Merged to HEAD"             "--merged")
-              (?M "Merged to master"           "--merged=master")
-              (?n "Not merged to HEAD"         "--no-merged")
-              (?N "Not merged to master"       "--no-merged=master"))
-  :options  '((?c "Contains"   "--contains="  magit-popup-read-rev)
-              (?m "Merged"     "--merged="    magit-popup-read-rev)
-              (?n "Not merged" "--no-merged=" magit-popup-read-rev))
+  :switches '((?t "Set upstream configuration" "--track"))
   :actions  '((?b "Checkout"          magit-checkout)
               (?c "Create"            magit-branch)
               (?B "Create & Checkout" magit-branch-and-checkout)
