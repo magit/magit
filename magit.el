@@ -846,7 +846,6 @@ t          ask if --set-upstream should be used.
 
 (defcustom magit-cherry-sections-hook
   '(magit-insert-cherry-headers
-    magit-insert-cherry-help-lines
     magit-insert-empty-line
     magit-insert-cherry-commits)
   "Hook run to insert sections into the cherry buffer."
@@ -7017,15 +7016,6 @@ Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 (defun magit-insert-cherry-headers ()
   (magit-insert-status-headers (nth 1 magit-refresh-args)
                                (nth 0 magit-refresh-args)))
-
-(defun magit-insert-cherry-help-lines ()
-  (when (derived-mode-p 'magit-cherry-mode)
-    (insert "\n")
-    (magit-insert-section (help)
-      (magit-insert "-" 'magit-cherry-equivalent
-                    " equivalent exists in both refs\n")
-      (magit-insert "+" 'magit-cherry-unmatched
-                    " unmatched commit tree\n"))))
 
 (defun magit-insert-cherry-commits ()
   (magit-insert-section (cherries)
