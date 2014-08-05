@@ -1667,6 +1667,9 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
               (dolist (file files)
                 (insert file "\n"))))))))
 
+(defun magit-string-pad (string width)
+  (concat string (make-string (max 0 (- width (length string))) ?\s)))
+
 (defun magit-delete-line ()
   "Delete the rest of the current line."
   (delete-region (point) (1+ (line-end-position))))
@@ -1862,15 +1865,6 @@ never modify it.")
   (let ((ov (make-overlay start end nil t)))
     (overlay-put ov 'face face)
     (overlay-put ov 'evaporate t)))
-
-(defmacro magit-insert-header (keyword arglist &rest body)
-  "\n\n(fn KEYWORD (TYPE &optional VALUE) &rest body)"
-  (declare (indent 2)
-           (debug (form (symbolp &optional form) body)))
-  `(magit-insert-section ,arglist
-     (insert ,keyword ":"
-             (make-string (max 1 (- 9 (length ,keyword))) ?\s))
-     (magit-insert (concat ,@body) nil ?\n)))
 
 ;;;;; Section Core (2)
 
@@ -4382,24 +4376,30 @@ can be used to override this."
       (let ((line (magit-rev-format "%h %s" "HEAD")))
         (string-match "^\\([^ ]+\\) \\(.+\\)" line)
         (magit-bind-match-strings (hash msg) line
-          (magit-insert-header "Head" (branch (or branch hash))
-            (propertize hash 'face 'magit-hash) " "
-            (if branch
-                (propertize branch 'face 'magit-branch-local)
-              (propertize "HEAD" 'face 'magit-head))
-            " " msg))
+          (magit-insert-section (branch (or branch hash))
+            (magit-insert
+             (concat
+              (magit-string-pad "Head: " 10)
+              (propertize hash 'face 'magit-hash) " "
+              (if branch
+                  (propertize branch 'face 'magit-branch-local)
+                (propertize "HEAD" 'face 'magit-head))
+              " " msg "\n"))))
         (when (or upstream (setq upstream (magit-get-tracked-branch branch)))
           (setq line (or (magit-rev-format "%h %s" upstream) ""))
           (string-match "^\\([^ ]+\\) \\(.+\\)" line)
           (magit-bind-match-strings (hash msg) line
-            (magit-insert-header "Upstream" (branch upstream)
-              (if hash (propertize hash 'face 'magit-hash) "missing") " "
-              (and (magit-get-boolean "branch" branch "rebase") "onto ")
-              (propertize upstream 'face
-                          (if (string= (magit-get "branch" branch "remote") ".")
-                              'magit-branch-local
-                            'magit-branch-remote))
-              " " msg))))
+            (magit-insert-section (branch upstream)
+              (magit-insert
+               (concat
+                (magit-string-pad "Upstream: " 10)
+                (if hash (propertize hash 'face 'magit-hash) "missing") " "
+                (and (magit-get-boolean "branch" branch "rebase") "onto ")
+                (propertize upstream 'face
+                            (if (string= (magit-get "branch" branch "remote") ".")
+                                'magit-branch-local
+                              'magit-branch-remote))
+                " " msg "\n"))))))
     (insert "In the beginning there was darkness\n")))
 
 (defun magit-insert-status-tags-line ()
@@ -4407,13 +4407,16 @@ can be used to override this."
          (next-tag (magit-get-next-tag t))
          (both-tags (and current-tag next-tag t)))
     (when (or current-tag next-tag)
-      (magit-insert-header (if both-tags "Tags" "Tag")
-          (tag (or current-tag next-tag))
-        (and current-tag (magit-format-status-tag-sentence
-                          (car current-tag) (cadr current-tag) nil))
-        (and both-tags ", ")
-        (and next-tag (magit-format-status-tag-sentence
-                       (car next-tag) (cadr next-tag) t))))))
+      (magit-insert-section (tag (or current-tag next-tag))
+        (magit-insert
+         (concat
+          (magit-string-pad (if both-tags "Tags: " "Tag: ") 10)
+          (and current-tag (magit-format-status-tag-sentence
+                            (car current-tag) (cadr current-tag) nil))
+          (and both-tags ", ")
+          (and next-tag (magit-format-status-tag-sentence
+                         (car next-tag) (cadr next-tag) t))
+          "\n"))))))
 
 (defun magit-format-status-tag-sentence (tag count next)
   (concat (propertize tag 'face 'magit-tag)
@@ -7867,7 +7870,6 @@ to the current branch and `magit-wip-ref-format'."
        (1 font-lock-keyword-face)
        (2 font-lock-function-name-face nil t))
       (,(concat "(" (regexp-opt '("magit-insert-section"
-                                  "magit-insert-header"
                                   "magit-section-case"
                                   "magit-section-when"
                                   "magit-bind-match-strings"

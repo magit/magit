@@ -251,9 +251,10 @@ If USE-CACHE is non-nil, use the cached information."
 
 (defun magit-insert-svn-remote-line ()
   (--when-let (magit-svn-get-ref-info)
-    (magit-insert-header "Remote" (line)
-      (cdr (assoc 'url it)) " @ "
-      (cdr (assoc 'revision it)))))
+    (magit-insert-section (line)
+      (magit-insert (concat (magit-string-pad "Remote:" 10)
+                            (cdr (assoc 'url it)) " @ "
+                            (cdr (assoc 'revision it)))))))
 
 ;;;###autoload
 (defun magit-svn-fetch-externals()
