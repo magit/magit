@@ -427,8 +427,6 @@ supported."
   :group 'magit-modes
   :type 'boolean)
 
-(defvar magit-status-line-align-to 9)
-
 (defcustom magit-restore-window-configuration nil
   "Whether quitting a Magit buffer restores previous window configuration.
 
@@ -1871,8 +1869,7 @@ never modify it.")
            (debug (form (symbolp &optional form) body)))
   `(magit-insert-section ,arglist
      (insert ,keyword ":"
-             (make-string (max 1 (- magit-status-line-align-to
-                                    (length ,keyword))) ?\s))
+             (make-string (max 1 (- 9 (length ,keyword))) ?\s))
      (magit-insert (concat ,@body) nil ?\n)))
 
 ;;;;; Section Core (2)
