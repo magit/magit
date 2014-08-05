@@ -484,10 +484,20 @@ manager but it will be used in more places in the future."
 
 ;;;;;; Status
 
+(defcustom magit-status-headers-hook
+  '(magit-insert-status-tags-line)
+  "Hook run to insert headers into the status buffer.
+
+This hook is run by `magit-insert-status-headers', which always
+inserts the \"Head\" and \"Upstream\" headers before the headers
+listed here.  `magit-insert-status-headers' has to be a member
+of `magit-insert-status-sections', or no headers are inserted."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-status
+  :type 'hook)
+
 (defcustom magit-status-sections-hook
   '(magit-insert-status-headers
-    magit-insert-status-tags-line
-    magit-insert-empty-line
     magit-insert-merge-log
     magit-insert-rebase-sequence
     magit-insert-am-sequence
@@ -846,7 +856,6 @@ t          ask if --set-upstream should be used.
 
 (defcustom magit-cherry-sections-hook
   '(magit-insert-cherry-headers
-    magit-insert-empty-line
     magit-insert-cherry-commits)
   "Hook run to insert sections into the cherry buffer."
   :package-version '(magit . "2.1.0")
@@ -4365,9 +4374,6 @@ can be used to override this."
         (insert (mapconcat 'identity (cdr it) "\n"))
         (insert "\n\n")))))
 
-(defun magit-insert-empty-line ()
-  (insert "\n"))
-
 (defun magit-insert-status-headers (&optional branch upstream)
   (unless branch
     (setq branch (magit-get-current-branch)))
@@ -4376,30 +4382,33 @@ can be used to override this."
         (string-match "^\\([^ ]+\\) \\(.+\\)" line)
         (magit-bind-match-strings (hash msg) line
           (magit-insert-section (branch (or branch hash))
-            (magit-insert
-             (concat
+            (magit-insert-heading
               (magit-string-pad "Head: " 10)
               (propertize hash 'face 'magit-hash) " "
               (if branch
                   (propertize branch 'face 'magit-branch-local)
                 (propertize "HEAD" 'face 'magit-head))
-              " " msg "\n"))))
-        (when (or upstream (setq upstream (magit-get-tracked-branch branch)))
-          (setq line (or (magit-rev-format "%h %s" upstream) ""))
-          (string-match "^\\([^ ]+\\) \\(.+\\)" line)
-          (magit-bind-match-strings (hash msg) line
-            (magit-insert-section (branch upstream)
-              (magit-insert
-               (concat
-                (magit-string-pad "Upstream: " 10)
-                (if hash (propertize hash 'face 'magit-hash) "missing") " "
-                (and (magit-get-boolean "branch" branch "rebase") "onto ")
-                (propertize upstream 'face
-                            (if (string= (magit-get "branch" branch "remote") ".")
-                                'magit-branch-local
-                              'magit-branch-remote))
-                " " msg "\n"))))))
-    (insert "In the beginning there was darkness\n")))
+              " " msg "\n")
+            (when (or upstream (setq upstream (magit-get-tracked-branch branch)))
+              (setq line (or (magit-rev-format "%h %s" upstream) ""))
+              (string-match "^\\([^ ]+\\) \\(.+\\)" line)
+              (magit-bind-match-strings (hash msg) line
+                (magit-insert-section (branch upstream)
+                  (magit-insert
+                   (concat
+                    (magit-string-pad "Upstream: " 10)
+                    (if hash (propertize hash 'face 'magit-hash) "missing") " "
+                    (and (magit-get-boolean "branch" branch "rebase") "onto ")
+                    (propertize
+                     upstream 'face
+                     (if (string= (magit-get "branch" branch "remote") ".")
+                         'magit-branch-local
+                       'magit-branch-remote))
+                    " " msg "\n")))))
+            (run-hooks 'magit-status-headers-hook)))
+        ;; This belongs to no section but `magit-root-section'.
+        (insert "\n"))
+    (insert "In the beginning there was darkness\n\n")))
 
 (defun magit-insert-status-tags-line ()
   (let* ((current-tag (magit-get-current-tag t))
