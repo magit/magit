@@ -289,6 +289,15 @@ tramp to connect to servers with ancient Git versions."
         (setq fixup (expand-file-name "bin" invocation-directory))
         (when (file-directory-p fixup)
           (push fixup path))
+        (when (string-match "^Emacs-\\(powerpc\\|i386\\|x86_64\\)-\\(.+\\)"
+                            invocation-name)
+          (setq fixup (expand-file-name
+                       (format "bin-%s-%s"
+                               (match-string 1 invocation-name)
+                               (match-string 2 invocation-name))
+                       invocation-directory))
+          (when (file-directory-p fixup)
+            (push fixup path)))
         (when (string-match-p "Cellar" invocation-directory)
           (setq fixup (expand-file-name "../../../bin" invocation-directory))
           (when (file-directory-p fixup)
