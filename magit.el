@@ -5155,7 +5155,7 @@ changes.
   "Create and checkout BRANCH at branch or revision START-POINT.
 \n(git checkout -b [ARGS] BRANCH START-POINT)."
   (interactive (magit-branch-read-args "Create and checkout branch"))
-  (magit-run-git "checkout" "-b" args branch start-point))
+  (magit-run-git "checkout" args "-b" branch start-point))
 
 (defun magit-branch-read-args (prompt)
   (let ((args magit-current-popup-args)
