@@ -5153,7 +5153,7 @@ changes.
 ;;;###autoload
 (defun magit-branch-and-checkout (branch start-point &optional args)
   "Create and checkout BRANCH at branch or revision START-POINT.
-\n(git checkout -b [ARGS] BRANCH START-POINT)."
+\n(git checkout [ARGS] -b BRANCH START-POINT)."
   (interactive (magit-branch-read-args "Create and checkout branch"))
   (magit-run-git "checkout" args "-b" branch start-point))
 
