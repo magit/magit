@@ -130,33 +130,33 @@ Because you have seen them before and can still remember."
 (defun git-rebase-pick ()
   "Use commit on current line."
   (interactive)
-  (git-rebase-edit-line "pick"))
+  (git-rebase-set-action "pick"))
 
 (defun git-rebase-reword ()
   "Edit message of commit on current line."
   (interactive)
-  (git-rebase-edit-line "reword"))
+  (git-rebase-set-action "reword"))
 
 (defun git-rebase-edit ()
   "Stop at the commit on the current line."
   (interactive)
-  (git-rebase-edit-line "edit"))
+  (git-rebase-set-action "edit"))
 
 (defun git-rebase-squash ()
   "Meld commit on current line into previous commit, edit message."
   (interactive)
-  (git-rebase-edit-line "squash"))
+  (git-rebase-set-action "squash"))
 
 (defun git-rebase-fixup ()
   "Meld commit on current line into previous commit, discard its message."
   (interactive)
-  (git-rebase-edit-line "fixup"))
+  (git-rebase-set-action "fixup"))
 
 (defconst git-rebase-line
   "^\\(#?\\(?:[fprse]\\|pick\\|reword\\|edit\\|squash\\|fixup\\|exec\\)\\) \
 \\(?:\\([^ \n]+\\) \\(.*\\)\\)?")
 
-(defun git-rebase-edit-line (action)
+(defun git-rebase-set-action (action)
   (goto-char (line-beginning-position))
   (if (and (looking-at git-rebase-line)
            (not (string-match-p "\\(e\\|exec\\)$" (match-string 1))))
