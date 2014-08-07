@@ -66,10 +66,8 @@ Because you have seen them before and can still remember."
   :group 'git-rebase)
 
 (defface git-rebase-hash
-  '((((class color) (background light))
-     :foreground "firebrick")
-    (((class color) (background dark))
-     :foreground "tomato"))
+  '((((class color) (background light)) :foreground "grey60")
+    (((class color) (background  dark)) :foreground "grey40"))
   "Face for commit hashes."
   :group 'git-rebase-faces)
 
