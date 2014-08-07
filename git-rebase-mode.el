@@ -222,7 +222,6 @@ Because you have seen them before and can still remember."
 (defun git-rebase-move-line-down ()
   "Assuming the next line is also an action line, move the current line down."
   (interactive)
-  ;; if we're on an action and the next line is also an action
   (when (and (git-rebase-looking-at-action-or-exec)
              (save-excursion
                (forward-line)
