@@ -688,6 +688,7 @@ which generates a tracking name of the form \"REMOTE-BRANCHNAME\"."
 
 (defcustom magit-mode-hook nil
   "Hook run when entering a Magit mode derived mode."
+  :options '(magit-load-config-extensions)
   :group 'magit-modes
   :type 'hook)
 
