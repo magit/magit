@@ -286,7 +286,8 @@ exec line was commented out, also uncomment it."
   (read-shell-command "Execute: " initial-line))
 
 (defun git-rebase-undo (&optional arg)
-  "A thin wrapper around `undo', which allows undoing in read-only buffers."
+  "Undo some previous changes.
+Like `undo' but works in read-only buffers."
   (interactive "P")
   (let ((inhibit-read-only t))
     (undo arg)))
