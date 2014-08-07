@@ -306,7 +306,7 @@ Like `undo' but works in read-only buffers."
   "Move N lines backward (forward if N is negative).
 Like `forward-line' but go into the opposite direction."
   (interactive "p")
-  (forward-line (* n -1)))
+  (forward-line (- n)))
 
 ;;; Mode
 
