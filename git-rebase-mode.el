@@ -42,8 +42,8 @@
   "Edit Git rebase sequences."
   :group 'tools)
 
-(defcustom git-rebase-auto-advance nil
-  "If non-nil, moves point forward a line after running an action."
+(defcustom git-rebase-auto-advance t
+  "Whether to move to next line after changing a line."
   :group 'git-rebase
   :type 'boolean)
 
@@ -236,7 +236,8 @@ Because you have seen them before and can still remember."
     (beginning-of-line)
     (let ((inhibit-read-only t))
       (insert "#"))
-    (forward-line)))
+    (when git-rebase-auto-advance
+      (forward-line))))
 
 (defun git-rebase-exec (edit)
   "Prompt the user for a shell command to be executed, and
@@ -258,7 +259,8 @@ exec line was commented out, also uncomment it."
       (if (not (equal "" new-line))
           (insert "exec " new-line)
         (delete-char -1)
-        (forward-line))
+        (when git-rebase-auto-advance
+          (forward-line)))
       (move-beginning-of-line nil)))
    ((git-rebase-looking-at-killed-exec)
     (save-excursion
