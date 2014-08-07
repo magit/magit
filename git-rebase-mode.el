@@ -170,16 +170,6 @@ Because you have seen them before and can still remember."
     (or (looking-at git-rebase-action-line-re)
         (looking-at git-rebase-exec-line-re))))
 
-(defun git-rebase-looking-at-exec ()
-  "Return non-nil if cursor is on an exec line."
-  (string-match git-rebase-exec-line-re (thing-at-point 'line)))
-
-(defun git-rebase-looking-at-killed-exec ()
-  "Return non-nil if looking at an exec line that has been commented out."
-  (let ((line (thing-at-point 'line)))
-    (and (eq (aref line 0) ?#)
-         (string-match git-rebase-exec-line-re line))))
-
 ;;; Commands
 
 (defun git-rebase-pick ()
@@ -244,45 +234,34 @@ Because you have seen them before and can still remember."
     (when git-rebase-auto-advance
       (forward-line))))
 
-(defun git-rebase-exec (edit)
-  "Prompt the user for a shell command to be executed, and
-add it to the todo list.
+(defun git-rebase-exec (arg)
+  "Insert a shell command to be run after the proceeding commit.
 
-If the cursor is on a commented-out exec line, uncomment the
-current line instead of prompting.
-
-When the prefix argument EDIT is non-nil and the cursor is on an
-exec line, edit that line instead of inserting a new one.  If the
-exec line was commented out, also uncomment it."
+If there already is such a command on the current line, then edit
+that instead.  With a prefix argument insert a new command even
+when there already is one on the current line.  With empty input
+remove the command on the current line, if any."
   (interactive "P")
-  (cond
-   ((and edit (git-rebase-looking-at-exec))
-    (let ((new-line (git-rebase-read-exec-line
-                     (match-string-no-properties 2 (thing-at-point 'line))))
-          (inhibit-read-only t))
-      (delete-region (point-at-bol) (point-at-eol))
-      (if (not (equal "" new-line))
-          (insert "exec " new-line)
-        (delete-char -1)
-        (when git-rebase-auto-advance
-          (forward-line)))
-      (move-beginning-of-line nil)))
-   ((git-rebase-looking-at-killed-exec)
-    (save-excursion
-      (beginning-of-line)
-      (let ((buffer-read-only nil))
-        (delete-char 1))))
-   (t
-    (let ((inhibit-read-only t)
-          (line (git-rebase-read-exec-line)))
-      (unless (equal "" line)
-        (move-end-of-line nil)
-        (newline)
-        (insert (concat "exec " line))))
-    (move-beginning-of-line nil))))
-
-(defun git-rebase-read-exec-line (&optional initial-line)
-  (read-shell-command "Execute: " initial-line))
+  (let ((inhibit-read-only t) initial command)
+    (unless arg
+      (goto-char (line-beginning-position))
+      (when (looking-at git-rebase-exec-line-re)
+        (setq initial (match-string-no-properties 2))))
+    (setq command (read-shell-command "Execute: " initial))
+    (pcase (list command initial)
+      (`("" nil) (ding))
+      (`(""  ,_)
+       (delete-region (match-beginning 0) (1+ (match-end 0))))
+      (`(,_ nil)
+       (forward-line)
+       (insert (concat "exec " command "\n"))
+       (unless git-rebase-auto-advance
+         (forward-line -1)))
+      (_
+       (replace-match command t t nil 2)
+       (if git-rebase-auto-advance
+           (forward-line)
+         (goto-char (line-beginning-position)))))))
 
 (defun git-rebase-undo (&optional arg)
   "Undo some previous changes.
