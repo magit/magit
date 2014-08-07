@@ -76,9 +76,7 @@ Because you have seen them before and can still remember."
   :group 'git-rebase-faces)
 
 (defface git-rebase-killed-action
-  '((((class color))
-     :inherit font-lock-comment-face
-     :strike-through t))
+  '((t (:inherit font-lock-comment-face :strike-through t)))
   "Face for commented action and exec lines."
   :group 'git-rebase-faces)
 
