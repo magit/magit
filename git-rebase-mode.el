@@ -161,15 +161,6 @@ Because you have seen them before and can still remember."
       (when git-rebase-auto-advance
         (forward-line)))))
 
-(defmacro git-rebase-define-action (sym)
-  (declare (indent defun))
-  (let ((fn (intern (format "git-rebase-%s" sym))))
-    `(progn
-       (defun ,fn ()
-	 (interactive)
-	 (git-rebase-edit-line ,(symbol-name sym)))
-       (put ',fn 'definition-name ',sym))))
-
 (defun git-rebase-looking-at-action ()
   "Return non-nil if looking at an action line."
   (save-excursion
@@ -195,11 +186,30 @@ Because you have seen them before and can still remember."
 
 ;;; Commands
 
-(git-rebase-define-action pick)
-(git-rebase-define-action reword)
-(git-rebase-define-action edit)
-(git-rebase-define-action squash)
-(git-rebase-define-action fixup)
+(defun git-rebase-pick ()
+  "Use commit on current line."
+  (interactive)
+  (git-rebase-edit-line "pick"))
+
+(defun git-rebase-reword ()
+  "Edit message of commit on current line."
+  (interactive)
+  (git-rebase-edit-line "reword"))
+
+(defun git-rebase-edit ()
+  "Stop at the commit on the current line."
+  (interactive)
+  (git-rebase-edit-line "edit"))
+
+(defun git-rebase-squash ()
+  "Meld commit on current line into previous commit, edit message."
+  (interactive)
+  (git-rebase-edit-line "squash"))
+
+(defun git-rebase-fixup ()
+  "Meld commit on current line into previous commit, discard its message."
+  (interactive)
+  (git-rebase-edit-line "fixup"))
 
 (defun git-rebase-move-line-up ()
   "Move the current action line up."
