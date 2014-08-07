@@ -765,6 +765,11 @@ manager but it will be used in more places in the future."
 
 ;;;;;; Status
 
+(defcustom magit-status-mode-hook nil
+  "Hook run when the `magit-status' buffer is created."
+  :group 'magit-status
+  :type 'hook)
+
 (defcustom magit-status-sections-hook
   '(magit-insert-status-local-line
     magit-insert-status-remote-line
