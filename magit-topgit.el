@@ -212,6 +212,9 @@
     (magit-refresh)))
 
 ;;;###autoload
+(custom-add-option 'magit-mode-hook #'magit-topgit-mode)
+
+;;;###autoload
 (defun turn-on-magit-topgit ()
   "Unconditionally turn on `magit-topgit-mode'."
   (magit-topgit-mode 1))

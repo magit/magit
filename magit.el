@@ -484,6 +484,11 @@ manager but it will be used in more places in the future."
 
 ;;;;;; Status
 
+(defcustom magit-status-mode-hook nil
+  "Hook run when the `magit-status' buffer is created."
+  :group 'magit-status
+  :type 'hook)
+
 (defcustom magit-status-headers-hook
   '(magit-insert-status-tags-line)
   "Hook run to insert headers into the status buffer.
@@ -6015,7 +6020,7 @@ actually insert the entry."
                                      (forward-comment -1000)
                                      (point))))))
              (cond ((re-search-forward
-                     (format "(.*\\<%s\\>.*):" (regexp-quote defun))
+                     (format "(.*\\_<%s\\_>.*):" (regexp-quote defun))
                      limit t)
                     ;; found it, goto end of current entry
                     (if (re-search-forward "^(" limit t)

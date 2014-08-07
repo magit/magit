@@ -241,6 +241,9 @@ into the series."
   "Unconditionally turn on `magit-stgit-mode'."
   (magit-stgit-mode 1))
 
+;;;###autoload
+(custom-add-option 'magit-mode-hook #'magit-stgit-mode)
+
 (easy-menu-define magit-stgit-extension-menu nil
   "StGit extension menu"
   '("StGit" :visible magit-stgit-mode

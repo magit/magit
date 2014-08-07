@@ -323,6 +323,9 @@ and `git svn rebase' on each of them."
     (magit-refresh)))
 
 ;;;###autoload
+(custom-add-option 'magit-mode-hook #'magit-svn-mode)
+
+;;;###autoload
 (defun turn-on-magit-svn ()
   "Unconditionally turn on `magit-svn-mode'."
   (magit-svn-mode 1))
