@@ -30,9 +30,9 @@
 
 ;;; Code:
 
+(require 'dash)
 (require 'easymenu)
 (require 'server)
-(require 'thingatpt)
 (require 'with-editor)
 
 ;;; Options
@@ -85,25 +85,6 @@ Because you have seen them before and can still remember."
 (define-obsolete-face-alias 'git-rebase-killed-action-face
   'git-rebase-killed-action "1.0.0")
 
-;;; Regexps
-
-(defconst git-rebase-action-line-re
-  (concat "^#?"
-          "\\([efprs]\\|pick\\|reword\\|edit\\|squash\\|fixup\\) "
-          "\\([a-z0-9]\\{4,40\\}\\) "
-          "\\(.*\\)")
-  "Regexp matching action lines in rebase buffers.")
-
-(defconst git-rebase-exec-line-re
-  "^#?\\(x\\|exec\\)[[:space:]]\\(.*\\)"
-  "Regexp matching exec lines in rebase buffer.")
-
-(defconst git-rebase-dead-line-re
-  (format "^#\\(?:%s\\|%s\\)"
-          (substring git-rebase-action-line-re 1)
-          (substring git-rebase-exec-line-re 1))
-  "Regexp matching commented action and exex lines in rebase buffers.")
-
 ;;; Keymaps
 
 (defvar git-rebase-mode-map
@@ -144,32 +125,6 @@ Because you have seen them before and can still remember."
     ["Cancel" with-editor-cancel t]
     ["Finish" with-editor-finish t]))
 
-;;; Utilities
-
-(defun git-rebase-edit-line (change-to)
-  (when (git-rebase-looking-at-action)
-    (let ((buffer-read-only nil)
-          (start (point)))
-      (goto-char (point-at-bol))
-      (delete-region (point) (progn (forward-word 1) (point)))
-      (insert change-to)
-      (goto-char start)
-      (when git-rebase-auto-advance
-        (forward-line)))))
-
-(defun git-rebase-looking-at-action ()
-  "Return non-nil if looking at an action line."
-  (save-excursion
-    (goto-char (point-at-bol))
-    (looking-at git-rebase-action-line-re)))
-
-(defun git-rebase-looking-at-action-or-exec ()
-  "Return non-nil if looking at an action line or exec line."
-  (save-excursion
-    (goto-char (point-at-bol))
-    (or (looking-at git-rebase-action-line-re)
-        (looking-at git-rebase-exec-line-re))))
-
 ;;; Commands
 
 (defun git-rebase-pick ()
@@ -197,40 +152,52 @@ Because you have seen them before and can still remember."
   (interactive)
   (git-rebase-edit-line "fixup"))
 
+(defconst git-rebase-line
+  "^\\(#?\\(?:[fprse]\\|pick\\|reword\\|edit\\|squash\\|fixup\\|exec\\)\\) \
+\\(?:\\([^ \n]+\\) \\(.*\\)\\)?")
+
+(defun git-rebase-edit-line (action)
+  (goto-char (line-beginning-position))
+  (if (and (looking-at git-rebase-line)
+           (not (string-match-p "\\(e\\|exec\\)$" (match-string 1))))
+      (let ((inhibit-read-only t))
+        (replace-match action t t nil 1)
+        (when git-rebase-auto-advance
+          (forward-line)))
+    (ding)))
+
 (defun git-rebase-move-line-up ()
-  "Move the current action line up."
+  "Move the current commit (or command) up."
   (interactive)
-  (when (git-rebase-looking-at-action-or-exec)
-    (let ((buffer-read-only nil)
-          (col (current-column)))
-      (goto-char (point-at-bol))
-      (unless (bobp)
-        (transpose-lines 1)
-        (forward-line -2))
-      (move-to-column col))))
+  (goto-char (line-beginning-position))
+  (if (bobp)
+      (ding)
+    (when (looking-at git-rebase-line)
+      (let ((inhibit-read-only t))
+        (transpose-lines 1))
+      (forward-line -2))))
 
 (defun git-rebase-move-line-down ()
-  "Assuming the next line is also an action line, move the current line down."
+  "Move the current commit (or command) down."
   (interactive)
-  (when (and (git-rebase-looking-at-action-or-exec)
+  (goto-char (line-beginning-position))
+  (when (and (looking-at git-rebase-line)
              (save-excursion
                (forward-line)
-               (git-rebase-looking-at-action-or-exec)))
-    (let ((buffer-read-only nil)
-          (col (current-column)))
-      (forward-line 1)
-      (transpose-lines 1)
-      (forward-line -1)
-      (move-to-column col))))
+               (looking-at git-rebase-line)))
+    (forward-line)
+    (let ((inhibit-read-only t))
+      (transpose-lines 1))
+    (forward-line -1)))
 
 (defun git-rebase-kill-line ()
   "Kill the current action line."
   (interactive)
-  (when (and (not (eq (char-after (point-at-bol)) ?#))
-             (git-rebase-looking-at-action-or-exec))
-    (beginning-of-line)
+  (goto-char (line-beginning-position))
+  (when (and (looking-at git-rebase-line)
+             (not (eq (char-after) ?#)))
     (let ((inhibit-read-only t))
-      (insert "#"))
+      (insert ?#))
     (when git-rebase-auto-advance
       (forward-line))))
 
@@ -245,7 +212,7 @@ remove the command on the current line, if any."
   (let ((inhibit-read-only t) initial command)
     (unless arg
       (goto-char (line-beginning-position))
-      (when (looking-at git-rebase-exec-line-re)
+      (when (looking-at "^#?\\(e\\|exec\\) \\(.*\\)")
         (setq initial (match-string-no-properties 2))))
     (setq command (read-shell-command "Execute: " initial))
     (pcase (list command initial)
@@ -258,7 +225,7 @@ remove the command on the current line, if any."
        (unless git-rebase-auto-advance
          (forward-line -1)))
       (_
-       (replace-match command t t nil 2)
+       (replace-match (concat "exec " command) t t)
        (if git-rebase-auto-advance
            (forward-line)
          (goto-char (line-beginning-position)))))))
@@ -274,12 +241,13 @@ Like `undo' but works in read-only buffers."
   "Show the commit on the current line if any."
   (interactive "P")
   (save-excursion
-    (goto-char (point-at-bol))
-    (when (looking-at git-rebase-action-line-re)
-      (let ((commit (match-string 2)))
+    (goto-char (line-beginning-position))
+    (--if-let (and (looking-at git-rebase-line)
+                   (match-string 2))
         (if (fboundp 'magit-show-commit)
-            (magit-show-commit commit)
-          (shell-command (concat "git show " commit)))))))
+            (magit-show-commit it)
+          (shell-command (concat "git show " it)))
+      (ding))))
 
 (defun git-rebase-backward-line (&optional n)
   "Move N lines backward (forward if N is negative).
@@ -309,14 +277,16 @@ running 'man git-rebase' at the command line) for details."
 (defun git-rebase-cancel-confirm (force)
   (or (not (buffer-modified-p)) force (y-or-n-p "Abort this rebase? ")))
 
-(defvar git-rebase-mode-font-lock-keywords
-  `((,git-rebase-action-line-re
-     (1 font-lock-keyword-face)
+(defconst git-rebase-mode-font-lock-keywords
+  `(("^\\([efprs]\\|pick\\|reword\\|edit\\|squash\\|fixup\\) \\([^ \n]+\\) \\(.*\\)"
+     (1 'font-lock-keyword-face)
      (2 'git-rebase-hash)
      (3 'git-rebase-description))
-    (,git-rebase-exec-line-re 1 font-lock-keyword-face)
-    ("^#.*"                   0 font-lock-comment-face)
-    (,git-rebase-dead-line-re 0 'git-rebase-killed-action t))
+    ("^\\(exec\\) \\(.*\\)"
+     (1 'font-lock-keyword-face)
+     (2 'git-rebase-description))
+    ("^# .*"      0 'font-lock-comment-face)
+    ("^#[^ \n].*" 0 'git-rebase-killed-action t))
   "Font lock keywords for Git-Rebase mode.")
 
 (defun git-rebase-mode-show-keybindings ()
