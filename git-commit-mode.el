@@ -531,7 +531,7 @@ With a numeric prefix ARG, go forward ARG comments."
     (,(format "^%s %s" comment-start
               (regexp-opt git-commit-comment-headings t))
      (1 'git-commit-comment-heading t))
-    (,(format "^%s\t\\(?:\\([^:]+\\):\\s-+\\)?\\(.*\\)" comment-start)
+    (,(format "^%s\t\\(?:\\([^:\n]+\\):\\s-+\\)?\\(.*\\)" comment-start)
      (1 'git-commit-comment-action t t)
      (2 'git-commit-comment-file t))
     ;; Pseudo headers
