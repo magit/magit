@@ -301,6 +301,9 @@ If USE-CACHE is non nil, use the cached information."
   "Unconditionally turn on `magit-svn-mode'."
   (magit-svn-mode 1))
 
+;;;###autoload
+(custom-add-option 'magit-mode-hook #'magit-svn-mode)
+
 (provide 'magit-svn)
 ;; Local Variables:
 ;; indent-tabs-mode: nil

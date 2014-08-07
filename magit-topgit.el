@@ -201,6 +201,9 @@
   "Unconditionally turn on `magit-topgit-mode'."
   (magit-topgit-mode 1))
 
+;;;###autoload
+(custom-add-option 'magit-mode-hook #'magit-topgit-mode)
+
 (provide 'magit-topgit)
 ;; Local Variables:
 ;; indent-tabs-mode: nil
