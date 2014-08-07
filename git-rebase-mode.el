@@ -137,9 +137,9 @@ Because you have seen them before and can still remember."
     ["Squash" git-rebase-squash t]
     ["Fixup" git-rebase-fixup t]
     ["Kill" git-rebase-kill-line t]
+    ["Execute" git-rebase-exec t]
     ["Move Down" git-rebase-move-line-down t]
     ["Move Up" git-rebase-move-line-up t]
-    ["Execute" git-rebase-exec t]
     "---"
     ["Cancel" with-editor-cancel t]
     ["Finish" with-editor-finish t]))
