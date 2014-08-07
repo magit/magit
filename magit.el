@@ -6051,7 +6051,7 @@ depending on the value of option `magit-commit-squash-commit'.
                                      (forward-comment -1000)
                                      (point))))))
              (cond ((re-search-forward
-                     (format "(.*\\<%s\\>.*):" (regexp-quote fun))
+                     (format "(.*\\_<%s\\_>.*):" (regexp-quote fun))
                      limit t)
                     ;; found it, goto end of current entry
                     (if (re-search-forward "^(" limit t)
