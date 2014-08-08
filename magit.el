@@ -966,12 +966,11 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   :group 'magit-faces)
 
 (defface magit-hunk-heading-highlight
-  '((((class color) (background light))
-     :background "grey75"
-     :foreground "grey30")
+  '((default :inherit magit-hunk-heading)
+    (((class color) (background light))
+     :background "grey75")
     (((class color) (background dark))
-     :background "grey35"
-     :foreground "grey70"))
+     :background "grey35"))
   "Face for diff hunk headings."
   :group 'magit-faces)
 
@@ -1001,38 +1000,34 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
   :group 'magit-faces)
 
 (defface magit-diff-context
-  '((((class color) (background light)) :foreground "grey50")
-    (((class color) (background  dark)) :foreground "grey70"))
+  '((t :inherit shadow))
   "Face for lines in a diff that are unchanged."
   :group 'magit-faces)
 
 (defface magit-diff-added-highlight
-  '((((class color) (background light))
-     :background "#cceecc"
-     :foreground "#22aa22")
+  '((default :inherit magit-diff-added)
+    (((class color) (background light))
+     :background "#cceecc")
     (((class color) (background dark))
-     :background "#336633"
-     :foreground "#bbddbb"))
+     :background "#336633"))
   "Face for lines in a diff that have been added."
   :group 'magit-faces)
 
 (defface magit-diff-removed-highlight
-  '((((class color) (background light))
-     :background "#eecccc"
-     :foreground "#aa2222")
+  '((default :inherit magit-diff-removed)
+    (((class color) (background light))
+     :background "#eecccc")
     (((class color) (background dark))
-     :background "#663333"
-     :foreground "#ddbbbb"))
+     :background "#663333"))
   "Face for lines in a diff that have been removed."
   :group 'magit-faces)
 
 (defface magit-diff-context-highlight
-  '((((class color) (background light))
-     :background "grey85"
-     :foreground "grey50")
+  '((default :inherit magit-diff-context)
+    (((class color) (background light))
+     :background "grey85")
     (((class color) (background dark))
-     :background "grey20"
-     :foreground "grey70"))
+     :background "grey20"))
   "Face for lines in a diff that have been removed."
   :group 'magit-faces)
 
