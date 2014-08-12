@@ -93,7 +93,7 @@
 (declare-function magit-blame-chunk-get 'magit-blame)
 (declare-function magit-blame-mode 'magit-blame)
 
-(defvar magit-blame-mode nil)
+(defvar magit-blame-mode)
 (defvar magit-refresh-args)
 (defvar magit-this-process)
 
@@ -3421,21 +3421,10 @@ tracked in the current repository."
                  (unless (buffer-modified-p)
                    (let ((buffer-read-only buffer-read-only)
                          (blaming magit-blame-mode))
-                     (with-no-warnings
-                       (when blaming (magit-blame-mode -1))
-                       (revert-buffer 'ignore-auto 'dont-ask 'preserve-modes)
-                       (when blaming (magit-blame-mode 1))))
+                     (when blaming (magit-blame-mode -1))
+                     (revert-buffer 'ignore-auto 'dont-ask 'preserve-modes)
+                     (when blaming (magit-blame-mode 1)))
                    (vc-find-file-hook)))))))))
-
-(defadvice auto-revert-handler (around magit-blame activate)
-  "If Magit-Blame mode is on, then turn it off, refresh the
-buffer content and then also refresh the blame information,
-by turning the mode on again."
-  (if magit-blame-mode
-      (with-no-warnings ; declare-function fails
-        (magit-blame-mode -1) ad-do-it
-        (magit-blame-mode  1))
-    ad-do-it))
 
 (defvar disable-magit-save-buffers nil)
 (defun magit-pre-command-hook ()

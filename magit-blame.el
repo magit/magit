@@ -157,6 +157,15 @@ and then turned on again when turning on the latter."
                (when (overlay-get ov 'magit-blame)
                  (delete-overlay ov))))))))
 
+(defadvice auto-revert-handler (around magit-blame activate)
+  "If Magit-Blame mode is on, then turn it off, refresh the
+buffer content and then also refresh the blame information,
+by turning the mode on again."
+  (if magit-blame-mode
+      (progn (magit-blame-mode -1) ad-do-it
+             (magit-blame-mode  1))
+    ad-do-it))
+
 (magit-define-popup magit-blame-popup
   "Popup console for blame commands."
   'magit-popups
