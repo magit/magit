@@ -6228,9 +6228,9 @@ When the region is active offer to drop all contained stashes.
   :options  '((?s "Strategy" "--strategy="  read-from-minibuffer))
   :actions  '((?V "Revert commit(s)" magit-revert)
               (?v "Revert changes"   magit-revert-no-commit))
-  :sequence-actions '((?V "Continue" magit-revert-continue)
-                      (?s "Skip"     magit-revert-skip)
-                      (?a "Abort"    magit-revert-abort))
+  :sequence-actions '((?V "Continue" magit-sequencer-continue)
+                      (?s "Skip"     magit-sequencer-skip)
+                      (?a "Abort"    magit-sequencer-abort))
   :sequence-predicate 'magit-sequencer-in-progress-p)
 
 ;;;###autoload
