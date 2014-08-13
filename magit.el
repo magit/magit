@@ -2076,7 +2076,7 @@ server if necessary."
 ;;;; Git Low-Level
 
 (defun magit-git-repo-p (dir)
-  (file-exists-p (expand-file-name ".git" dir)))
+  (file-readable-p (expand-file-name ".git" dir)))
 
 (defun magit-git-dir (&optional path)
   "Return absolute path to the GIT_DIR for the current repository.
@@ -7650,7 +7650,7 @@ non-nil, then autocompletion will offer directory names."
   (if (magit-git-repo-p dir)
       (list (expand-file-name dir))
     (and (> depth 0)
-         (file-directory-p dir)
+         (file-accessible-directory-p dir)
          (not (member (file-name-nondirectory dir)
                       '(".." ".")))
          (cl-loop for entry in (directory-files dir t nil t)
