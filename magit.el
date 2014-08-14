@@ -7917,6 +7917,7 @@ Use the function by the same name instead of this variable.")
 
 (provide 'magit)
 
+(require 'magit-blame)
 (require 'magit-ediff)
 (require 'magit-extras)
 
