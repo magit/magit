@@ -359,7 +359,11 @@ finally check current non-comment text."
 
 (defun git-commit-mode-flyspell-verify ()
   (not (memq (get-text-property (point) 'face)
-             '(font-lock-comment-face font-lock-comment-delimiter-face))))
+             '(font-lock-comment-face     font-lock-comment-delimiter-face
+               git-commit-comment-branch  git-commit-comment-detached
+               git-commit-comment-heading git-commit-comment-file
+               git-commit-comment-action  git-commit-pseudo-header
+               git-commit-known-pseudo-header))))
 
 (defun git-commit-finish-query-functions (force)
   (run-hook-with-args-until-failure
