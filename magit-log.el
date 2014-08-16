@@ -560,9 +560,9 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
           "\\(?2:.+\\)?$"))                        ; msg
 
 (defconst magit-reflog-subject-re
-  (concat "\\([^ ]+\\) ?"                          ; command (1)
-          "\\(\\(?: ?-[^ ]+\\)+\\)?"               ; option  (2)
-          "\\(?: ?(\\([^)]+\\))\\)?"))             ; type    (3)
+  (concat "\\(?1:[^ ]+\\) ?"                       ; command
+          "\\(?2:\\(?: ?-[^ ]+\\)+\\)?"            ; option
+          "\\(?: ?(\\(?3:[^)]+\\))\\)?"))          ; type
 
 (defvar magit-log-count nil)
 
