@@ -1469,144 +1469,6 @@ actually insert the entry."
            (when (looking-at ":")
              (forward-char 2))))))
 
-;;;; Merge
-
-(magit-define-popup magit-merge-popup
-  "Popup console for merge commands."
-  'magit-popups 'magit-popup-sequence-mode
-  :man-page "git-merge"
-  :switches '((?f "Fast-forward only" "--ff-only")
-              (?n "No fast-forward"   "--no-ff")
-              (?s "Squash"            "--squash"))
-  :options  '((?s "Strategy" "--strategy=" read-from-minibuffer))
-  :actions  '((?m "Merge"                  magit-merge)
-              (?e "Merge and edit message" magit-merge-editmsg)
-              (?n "Merge but don't commit" magit-merge-nocommit))
-  :sequence-actions   '((?c "Commit merge" magit-commit)
-                        (?a "Abort merge"  magit-merge-abort))
-  :sequence-predicate 'magit-merge-state
-  :default-action 'magit-merge)
-
-;;;###autoload
-(defun magit-merge (rev &optional args nocommit)
-  "Merge commit REV into the current branch; using default message.
-
-Unless there are conflicts or a prefix argument is used create a
-merge commit using a generic commit message and without letting
-the user inspect the result.  With a prefix argument pretend the
-merge failed to give the user the opportunity to inspect the
-merge.
-
-\(git merge --no-edit|--no-commit [ARGS] REV)"
-  (interactive (list (magit-merge-read-rev)
-                     magit-current-popup-args
-                     current-prefix-arg))
-  (magit-merge-assert)
-  (magit-run-git "merge" (if nocommit "--no-commit" "--no-edit") args rev))
-
-;;;###autoload
-(defun magit-merge-editmsg (rev &optional args)
-  "Merge commit REV into the current branch; and edit message.
-Perform the merge and prepare a commit message but let the user
-edit it.
-\n(git merge --edit [ARGS] rev)"
-  (interactive (list (magit-merge-read-rev) magit-current-popup-args))
-  (magit-merge-assert)
-  (magit-run-git-with-editor "merge" "--edit" args rev))
-
-;;;###autoload
-(defun magit-merge-nocommit (rev &optional args)
-  "Merge commit REV into the current branch; pretending it failed.
-Pretend the merge failed to give the user the opportunity to
-inspect the merge and change the commit message.
-\n(git merge --no-commit [ARGS] rev)"
-  (interactive (list (magit-merge-read-rev) magit-current-popup-args))
-  (magit-merge-assert)
-  (magit-run-git "merge" "--no-commit" args rev))
-
-;;;###autoload
-(defun magit-merge-abort ()
-  "Abort the current merge operation.
-\n(git merge --abort)"
-  (interactive)
-  (if (file-exists-p (magit-git-dir "MERGE_HEAD"))
-      (when (magit-confirm 'abort-merge "Abort merge")
-        (magit-run-git-async "merge" "--abort"))
-    (user-error "No merge in progress")))
-
-(defun magit-checkout-stage (file arg &optional restore-conflict)
-  "During a conflict checkout and stage side, or restore conflict."
-  (interactive
-   (let ((default-directory (magit-get-top-dir))
-         (file (magit-completing-read "Checkout file"
-                                      (magit-tracked-files) nil nil nil
-                                      'magit-read-file-hist
-                                      (magit-current-file))))
-     (cond
-      ((member file (magit-unmerged-files))
-       (list file (magit-checkout-read-stage file)))
-      ((yes-or-no-p (format "Restore conflicts in %s? " file))
-       (list file "--merge" t))
-      (t
-       (user-error "Quit")))))
-  (if restore-conflict
-      (progn
-        (with-temp-buffer
-          (insert "0 0000000000000000000000000000000000000000\t" file "\n")
-          (--> (magit-git-string "ls-tree" (magit-git-string
-                                            "merge-base" "MERGE_HEAD" "HEAD")
-                                 file)
-            (replace-regexp-in-string "\t" " 1\t" it)
-            (insert it "\n"))
-          (--> (magit-git-string "ls-tree" "HEAD" file)
-            (replace-regexp-in-string "\t" " 2\t" it)
-            (insert it "\n"))
-          (--> (magit-git-string "ls-tree" "MERGE_HEAD" file)
-            (replace-regexp-in-string "\t" " 3\t" it)
-            (insert it "\n"))
-          (magit-run-git-with-input nil "checkout" arg file))
-        (magit-refresh))
-    (magit-call-git "checkout" arg file)
-    (if (string= arg "--merge")
-        (magit-refresh)
-      (magit-run-git "add" file))))
-
-(defun magit-merge-state ()
-  (file-exists-p (magit-git-dir "MERGE_HEAD")))
-
-(defun magit-merge-assert ()
-  (or (not (magit-anything-modified-p))
-      (not magit-merge-warn-dirty-worktree)
-      (magit-confirm
-       'merge-dirty
-       "Running merge in a dirty worktree could cause data loss.  Continue")
-      (user-error "Abort")))
-
-(defun magit-merge-read-rev ()
-  (magit-read-rev "Merge"
-                  (or (magit-branch-or-commit-at-point)
-                      (magit-get-previous-branch))))
-
-(defun magit-checkout-read-stage (file)
-  (magit-read-char-case (format "For %s checkout: " file) t
-    (?o "[o]ur stage"   "--ours")
-    (?t "[t]heir stage" "--theirs")
-    (?c "[c]onflict"    "--merge")))
-
-(defun magit-insert-merge-log ()
-  (-when-let (heads (mapcar 'magit-get-shortname
-                            (magit-file-lines (magit-git-dir "MERGE_HEAD"))))
-    (magit-insert-section (commit (car heads))
-      (magit-insert-heading
-        (format "Merging %s:" (mapconcat 'identity heads ", ")))
-      (magit-insert-log
-       (concat (magit-git-string "merge-base" "--octopus" "HEAD" (car heads))
-               ".." (car heads))
-       (let ((args magit-log-section-args))
-         (unless (member "--decorate=full" magit-log-section-args)
-           (push "--decorate=full" args))
-         args)))))
-
 ;;;; Branch
 
 (magit-define-popup magit-branch-popup
@@ -1759,6 +1621,144 @@ With prefix, forces the rename even if NEW already exists.
         (magit-insert-heading branch ": " (car it))
         (insert (mapconcat 'identity (cdr it) "\n"))
         (insert "\n\n")))))
+
+;;;; Merge
+
+(magit-define-popup magit-merge-popup
+  "Popup console for merge commands."
+  'magit-popups 'magit-popup-sequence-mode
+  :man-page "git-merge"
+  :switches '((?f "Fast-forward only" "--ff-only")
+              (?n "No fast-forward"   "--no-ff")
+              (?s "Squash"            "--squash"))
+  :options  '((?s "Strategy" "--strategy=" read-from-minibuffer))
+  :actions  '((?m "Merge"                  magit-merge)
+              (?e "Merge and edit message" magit-merge-editmsg)
+              (?n "Merge but don't commit" magit-merge-nocommit))
+  :sequence-actions   '((?c "Commit merge" magit-commit)
+                        (?a "Abort merge"  magit-merge-abort))
+  :sequence-predicate 'magit-merge-state
+  :default-action 'magit-merge)
+
+;;;###autoload
+(defun magit-merge (rev &optional args nocommit)
+  "Merge commit REV into the current branch; using default message.
+
+Unless there are conflicts or a prefix argument is used create a
+merge commit using a generic commit message and without letting
+the user inspect the result.  With a prefix argument pretend the
+merge failed to give the user the opportunity to inspect the
+merge.
+
+\(git merge --no-edit|--no-commit [ARGS] REV)"
+  (interactive (list (magit-merge-read-rev)
+                     magit-current-popup-args
+                     current-prefix-arg))
+  (magit-merge-assert)
+  (magit-run-git "merge" (if nocommit "--no-commit" "--no-edit") args rev))
+
+;;;###autoload
+(defun magit-merge-editmsg (rev &optional args)
+  "Merge commit REV into the current branch; and edit message.
+Perform the merge and prepare a commit message but let the user
+edit it.
+\n(git merge --edit [ARGS] rev)"
+  (interactive (list (magit-merge-read-rev) magit-current-popup-args))
+  (magit-merge-assert)
+  (magit-run-git-with-editor "merge" "--edit" args rev))
+
+;;;###autoload
+(defun magit-merge-nocommit (rev &optional args)
+  "Merge commit REV into the current branch; pretending it failed.
+Pretend the merge failed to give the user the opportunity to
+inspect the merge and change the commit message.
+\n(git merge --no-commit [ARGS] rev)"
+  (interactive (list (magit-merge-read-rev) magit-current-popup-args))
+  (magit-merge-assert)
+  (magit-run-git "merge" "--no-commit" args rev))
+
+;;;###autoload
+(defun magit-merge-abort ()
+  "Abort the current merge operation.
+\n(git merge --abort)"
+  (interactive)
+  (if (file-exists-p (magit-git-dir "MERGE_HEAD"))
+      (when (magit-confirm 'abort-merge "Abort merge")
+        (magit-run-git-async "merge" "--abort"))
+    (user-error "No merge in progress")))
+
+(defun magit-checkout-stage (file arg &optional restore-conflict)
+  "During a conflict checkout and stage side, or restore conflict."
+  (interactive
+   (let ((default-directory (magit-get-top-dir))
+         (file (magit-completing-read "Checkout file"
+                                      (magit-tracked-files) nil nil nil
+                                      'magit-read-file-hist
+                                      (magit-current-file))))
+     (cond
+      ((member file (magit-unmerged-files))
+       (list file (magit-checkout-read-stage file)))
+      ((yes-or-no-p (format "Restore conflicts in %s? " file))
+       (list file "--merge" t))
+      (t
+       (user-error "Quit")))))
+  (if restore-conflict
+      (progn
+        (with-temp-buffer
+          (insert "0 0000000000000000000000000000000000000000\t" file "\n")
+          (--> (magit-git-string "ls-tree" (magit-git-string
+                                            "merge-base" "MERGE_HEAD" "HEAD")
+                                 file)
+            (replace-regexp-in-string "\t" " 1\t" it)
+            (insert it "\n"))
+          (--> (magit-git-string "ls-tree" "HEAD" file)
+            (replace-regexp-in-string "\t" " 2\t" it)
+            (insert it "\n"))
+          (--> (magit-git-string "ls-tree" "MERGE_HEAD" file)
+            (replace-regexp-in-string "\t" " 3\t" it)
+            (insert it "\n"))
+          (magit-run-git-with-input nil "checkout" arg file))
+        (magit-refresh))
+    (magit-call-git "checkout" arg file)
+    (if (string= arg "--merge")
+        (magit-refresh)
+      (magit-run-git "add" file))))
+
+(defun magit-merge-state ()
+  (file-exists-p (magit-git-dir "MERGE_HEAD")))
+
+(defun magit-merge-assert ()
+  (or (not (magit-anything-modified-p))
+      (not magit-merge-warn-dirty-worktree)
+      (magit-confirm
+       'merge-dirty
+       "Running merge in a dirty worktree could cause data loss.  Continue")
+      (user-error "Abort")))
+
+(defun magit-merge-read-rev ()
+  (magit-read-rev "Merge"
+                  (or (magit-branch-or-commit-at-point)
+                      (magit-get-previous-branch))))
+
+(defun magit-checkout-read-stage (file)
+  (magit-read-char-case (format "For %s checkout: " file) t
+    (?o "[o]ur stage"   "--ours")
+    (?t "[t]heir stage" "--theirs")
+    (?c "[c]onflict"    "--merge")))
+
+(defun magit-insert-merge-log ()
+  (-when-let (heads (mapcar 'magit-get-shortname
+                            (magit-file-lines (magit-git-dir "MERGE_HEAD"))))
+    (magit-insert-section (commit (car heads))
+      (magit-insert-heading
+        (format "Merging %s:" (mapconcat 'identity heads ", ")))
+      (magit-insert-log
+       (concat (magit-git-string "merge-base" "--octopus" "HEAD" (car heads))
+               ".." (car heads))
+       (let ((args magit-log-section-args))
+         (unless (member "--decorate=full" magit-log-section-args)
+           (push "--decorate=full" args))
+         args)))))
 
 ;;;; Rebase
 
