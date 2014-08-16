@@ -8,11 +8,21 @@ execdir ?= $(PREFIX)/bin
 LOADDEFS_FILE ?= magit-autoloads.el
 LOADDEFS_DIR  ?= $(lispdir)
 
-ELS  = magit.el
+ELS  = magit-utils.el
+ELS += magit-section.el
+ELS += magit-git.el
+ELS += magit-mode.el
+ELS += magit-popup.el
+ELS += magit-process.el
+ELS += magit-core.el
+ELS += magit-diff.el
+ELS += magit-apply.el
+ELS += magit-log.el
+ELS += magit-wip.el
+ELS += magit.el
 ELS += magit-blame.el
 ELS += magit-ediff.el
 ELS += magit-extras.el
-ELS += magit-popup.el
 ELS += magit-stgit.el
 ELS += magit-svn.el
 ELS += magit-topgit.el
@@ -44,10 +54,10 @@ VERSION=$(shell \
   (princ magit-version))")
 
 .PHONY: lisp
-lisp: $(ELCS)
+lisp: $(ELCS) loaddefs
 
 .PHONY: all
-all: lisp magit-version.el loaddefs docs
+all: lisp magit-version.el docs
 
 .PHONY: help
 help:

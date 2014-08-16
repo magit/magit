@@ -49,7 +49,6 @@
 ;; See the Magit User Manual for more information.
 
 ;;; Code:
-;;;; Dependencies
 
 (when (version< emacs-version "24.1")
   (error "Magit requires at least GNU Emacs 24.1"))
@@ -60,46 +59,44 @@
 (require 'git-commit-mode)
 (require 'git-rebase-mode)
 (require 'with-editor)
+(require 'magit-core)
+(require 'magit-diff)
+(require 'magit-apply)
+(require 'magit-log)
 
-(require 'magit-popup)
+(declare-function magit-blame-chunk-get 'magit-blame)
+(declare-function magit-blame-mode 'magit-blame)
+(defvar magit-blame-mode)
+
+(defvar magit-refresh-args)
+(defvar magit-this-process)
 
 (require 'ansi-color)
 (require 'autorevert)
 (require 'diff-mode)
 (require 'format-spec)
 (require 'help-mode)
-(require 'package nil t)
-(require 'server)
+(require 'package nil t) ; used in `magit-version'
+(require 'server) ; for `server-visit-hook'
 (require 'tramp)
 
-(eval-when-compile
-  (require 'dired)
-  (require 'dired-x)
-  (require 'epa)
-  (require 'epg)
-  (require 'eshell)
-  (require 'ido)
-  (require 'smerge-mode))
-
-;;;; Declarations
-
-(declare-function dired-jump 'dired-x)
+(eval-when-compile (require 'dired))
 (declare-function dired-uncache 'dired)
+(eval-when-compile (require 'dired-x))
+(declare-function dired-jump 'dired-x)
+(eval-when-compile (require 'epa)) ; for `epa-protocol'
+(eval-when-compile (require 'epg))
 (declare-function epg-sub-key-id 'epg)
 (declare-function epg-key-sub-key-list 'epg)
 (declare-function epg-key-user-id-list 'epg)
 (declare-function epg-user-id-string 'epg)
 (declare-function epg-decode-dn 'epg)
 (declare-function epg-list-keys 'epg)
+(eval-when-compile (require 'eshell))
 (declare-function eshell-parse-arguments 'eshell)
+(eval-when-compile (require 'ido))
 (declare-function ido-completing-read 'ido)
-
-(declare-function magit-blame-chunk-get 'magit-blame)
-(declare-function magit-blame-mode 'magit-blame)
-
-(defvar magit-blame-mode)
-(defvar magit-refresh-args)
-(defvar magit-this-process)
+(eval-when-compile (require 'smerge-mode))
 
 
 ;;; Settings
@@ -7918,6 +7915,7 @@ Use the function by the same name instead of this variable.")
 (require 'magit-blame)
 (require 'magit-ediff)
 (require 'magit-extras)
+(require 'magit-wip)
 
 ;; Local Variables:
 ;; coding: utf-8
