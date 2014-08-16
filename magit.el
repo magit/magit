@@ -328,6 +328,12 @@ the user has to confirm each save."
                  (const :tag "Ask" t)
                  (const :tag "Save without asking" dontask)))
 
+(defcustom magit-ellipsis #x2026 ; "horizontal ellipsis"
+  "Character used to abreviate text."
+  :package-version '(magit . "2.1.0")
+  :group 'magit
+  :type 'character)
+
 ;;;;; Highlighting
 
 (defcustom magit-highlight-whitespace t
@@ -755,15 +761,6 @@ units, in what language, are being used."
                          (integer :format "%t\n"
                                   :tag "show full name" 7))
                (variable :tag "Duration spec variable")))
-
-(defcustom magit-ellipsis #x2026 ; "horizontal ellipsis"
-  "Character appended to abreviated text.
-Currently this is used only in the log margin, but might later
-be used elsewhere too.  Filenames that were abbreviated by Git
-are left as-is."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-log
-  :type 'character)
 
 (defcustom magit-log-section-commit-count 10
   "How many recent commits to show in certain log sections.
