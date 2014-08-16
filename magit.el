@@ -1142,7 +1142,7 @@ to test.  This command lets Git choose a different one."
         (magit-insert-section (bisect-log)
           (magit-insert (concat hash " is the first bad commit\n")))))))
 
-;;; Porcelain
+;;; Manipulate
 ;;;; Init
 
 ;;;###autoload
@@ -2206,6 +2206,7 @@ With a prefix argument also reset the working tree.
                          (or (magit-branch-or-commit-at-point) "HEAD"))))
   (magit-run-git "reset" "--hard" commit))
 
+;;; Transfer
 ;;;; Remotes
 
 (magit-define-popup magit-remote-popup
