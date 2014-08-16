@@ -803,7 +803,7 @@ ARG is omitted or nil.
 Magit-Auto-Revert mode is a global minor mode that, after Magit
 has run a Git command, reverts buffers associated with files that
 have changed on disk and are tracked in the current Git repository."
-  :group 'magit-modes
+  :group 'magit
   :lighter magit-auto-revert-mode-lighter
   :global t
   :init-value t)
