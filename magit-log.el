@@ -718,7 +718,7 @@ alist in `magit-log-format-unicode-graph-alist'."
     (forward-line -1)
     (magit-section-forward)))
 
-(defun magit-log-maybe-show-commit (&optional section) ; TODO rename
+(defun magit-log-maybe-show-commit (&optional section)
   (--when-let
       (or (and section
                (eq (magit-section-type section) 'commit)

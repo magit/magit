@@ -137,7 +137,7 @@ many spaces.  Otherwise, highlight neither."
   :type `(repeat (cons (string :tag "Directory regexp")
                        (choice (const :tag "Tabs" tabs)
                                (integer :tag "Spaces" :value ,tab-width)
-                               (const :tag "Neither" nil))))) ;^FIXME
+                               (const :tag "Neither" nil)))))
 
 ;;; Faces
 
