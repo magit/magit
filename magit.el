@@ -397,7 +397,7 @@ deep."
   '((t :foreground "magenta"))
   "Face for equivalent cherry commits.")
 
-;;; Modes (1)
+;;; Modes
 ;;;; Commit Mode
 ;;;;; Commit Core
 
@@ -704,6 +704,170 @@ can be used to override this."
         (magit-insert-section (file file)
           (insert "\t" file "\n")))
       (insert "\n"))))
+
+;;;; Refs Mode
+
+(defvar magit-refs-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map magit-mode-map)
+    map)
+  "Keymap for `magit-refs-mode'.")
+
+(define-derived-mode magit-refs-mode magit-mode "Magit Branch"
+  "Mode which lists and compares references.
+This mode is documented in info node `(magit)Branches and Remotes'.
+
+\\<magit-refs-mode-map>\
+Type \\[magit-refresh] to refresh the current buffer.
+Type \\[magit-branch-popup] to see available branch commands.
+Type \\[magit-show-commit] or \\[magit-show-or-scroll-up]\
+ to visit the commit at point.
+Type \\[magit-merge-popup] to merge the branch or commit at point.
+Type \\[magit-cherry-pick] to cherry-pick the commit at point.
+Type \\[magit-reset-head] to reset HEAD to the commit at point.
+\n\\{magit-refs-mode-map}"
+  :group 'magit-modes)
+
+;;;###autoload
+(defun magit-show-refs (&optional head)
+  "List and compare references in a dedicated buffer."
+  (interactive (when current-prefix-arg
+                 (list (magit-read-rev "Compare branch"
+                                       (magit-get-current-branch)))))
+  (magit-mode-setup magit-refs-buffer-name-format nil
+                    #'magit-refs-mode
+                    #'magit-refresh-refs-buffer head))
+
+(defun magit-refresh-refs-buffer (&optional head)
+  (magit-insert-section (branchbuf)
+    (run-hooks 'magit-refs-sections-hook)))
+
+(defconst magit-wash-branch-line-re
+  (concat "^"
+          "\\(?:[ \\*]\\) "
+          "\\(?1:[^ ]+?\\)"                 ; branch
+          "\\(?: +\\)"
+          "\\(?2:[0-9a-fA-F]+\\) "          ; sha1
+          "\\(?:\\["
+          "\\(?4:[^:\n]+?\\)\\(?:: \\)?"    ; upstream
+          "\\(?:ahead \\(?5:[0-9]+\\)\\)?"  ; ahead
+          "\\(?:, \\)?"
+          "\\(?:behind \\(?6:[0-9]+\\)\\)?" ; behind
+          "\\] \\)?"
+          "\\(?3:.*\\)"))                   ; message
+
+(defvar magit-local-branch-format "%c %-25n %U%m\n")
+(defvar magit-remote-branch-format "%c %-25n %m\n")
+(defvar magit-tags-format "    %n\n")
+
+(defvar magit-branch-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\r" 'magit-show-commit)
+    (define-key map "k"  'magit-branch-delete)
+    (define-key map "R"  'magit-branch-rename)
+    map)
+  "Keymap for `branch' sections.")
+
+(defvar magit-remote-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "k"  'magit-remote-remove)
+    (define-key map "R"  'magit-remote-rename)
+    map)
+  "Keymap for `remote' sections.")
+
+(defun magit-insert-local-branches ()
+  (magit-insert-section (local nil)
+    (magit-insert-heading "Branches:")
+    (let ((current  (magit-get-current-branch))
+          (branches (magit-list-local-branch-names)))
+      (dolist (line (magit-git-lines "branch" "-vv"))
+        (string-match magit-wash-branch-line-re line)
+        (magit-bind-match-strings
+            (branch hash message upstream ahead behind) line
+          (magit-insert-branch
+           branch current branches
+           magit-local-branch-format 'magit-branch-local
+           hash message upstream ahead behind))))
+    (insert ?\n)))
+
+(defun magit-insert-remote-branches ()
+  (dolist (remote (magit-git-lines "remote"))
+    (magit-insert-section (remote remote)
+      (magit-insert-heading
+        (let ((pull (magit-get "remote" remote "url"))
+              (push (magit-get "remote" remote "pushurl")))
+          (format "%s (%s):" (capitalize remote)
+                  (concat pull (and pull push ", ") push))))
+      (let ((current  (magit-get-current-branch))
+            (branches (magit-list-local-branch-names)))
+        (dolist (line (magit-git-lines "branch" "-vvr"))
+          (when (string-match magit-wash-branch-line-re line)
+            (magit-bind-match-strings (branch hash message) line
+              (when (string-match-p (format "^%s/" remote) branch)
+                (magit-insert-branch
+                 branch current branches
+                 magit-remote-branch-format 'magit-branch-remote hash message))))))
+      (insert ?\n))))
+
+(defun magit-insert-branch
+    (branch current branches format face
+            &optional hash message upstream ahead behind)
+  (magit-insert-section it (branch branch t)
+    (let* ((head  (or (car magit-refresh-args) current "HEAD"))
+           (count (string-to-number
+                   (magit-git-string
+                    "rev-list" "--count" "--right-only"
+                    (concat head "..." branch)))))
+      (when upstream
+        (setq upstream (propertize upstream 'face
+                                   (if (member upstream branches)
+                                       'magit-branch-local
+                                     'magit-branch-remote))))
+      (magit-insert-heading
+        (format-spec
+         format
+         `((?a . ,(or ahead ""))
+           (?b . ,(or behind ""))
+           (?c . ,(cond
+                   ((equal branch (car magit-refresh-args))
+                    (format "%3s" (if (equal branch current) "@" "#")))
+                   ((> count 0)
+                    (propertize (format "%3s" (number-to-string count))
+                                'face 'magit-dimmed))
+                   (t "   ")))
+           (?h . ,(or (propertize hash 'face 'magit-hash) ""))
+           (?m . ,(or message ""))
+           (?n . ,(propertize branch 'face face))
+           (?u . ,(or upstream ""))
+           (?U . ,(if upstream
+                      (format
+                       (propertize "[%s%s] " 'face 'magit-dimmed)
+                       upstream
+                       (if (or ahead behind)
+                           (concat ": " (and ahead (format "ahead %s" ahead))
+                                   (and ahead behind ", ")
+                                   (and behind (format "behind %s" behind)))
+                         ""))
+                    "")))))
+      (when (> count 0)
+        (if (magit-section-hidden it)
+            (setf (magit-section-washer it)
+                  `(lambda ()
+                     (let ((magit-insert-section--parent ,it))
+                       (magit-insert-cherry-commits-1 ,head ,branch))
+                     (insert ?\n)))
+          (magit-insert-cherry-commits-1 head branch)
+          (insert ?\n))))))
+
+(defun magit-insert-tags ()
+  (magit-insert-section (tags)
+    (magit-insert-heading "Tags:")
+    (dolist (tag (magit-git-lines "tag"))
+      (magit-insert-section (tag)
+        (magit-insert
+         (format-spec magit-tags-format
+                      `((?n . ,(propertize tag 'face 'magit-tag)))))))
+    (insert ?\n)))
 
 ;;; Porcelain
 ;;;; Visit
@@ -2517,171 +2681,6 @@ to test.  This command lets Git choose a different one."
   (interactive)
   (magit-section-when (branch commit mcommit file)
     (kill-new (message "%s" (magit-section-value it)))))
-
-;;; Modes (2)
-;;;; Refs Mode
-
-(defvar magit-refs-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-mode-map)
-    map)
-  "Keymap for `magit-refs-mode'.")
-
-(define-derived-mode magit-refs-mode magit-mode "Magit Branch"
-  "Mode which lists and compares references.
-This mode is documented in info node `(magit)Branches and Remotes'.
-
-\\<magit-refs-mode-map>\
-Type \\[magit-refresh] to refresh the current buffer.
-Type \\[magit-branch-popup] to see available branch commands.
-Type \\[magit-show-commit] or \\[magit-show-or-scroll-up]\
- to visit the commit at point.
-Type \\[magit-merge-popup] to merge the branch or commit at point.
-Type \\[magit-cherry-pick] to cherry-pick the commit at point.
-Type \\[magit-reset-head] to reset HEAD to the commit at point.
-\n\\{magit-refs-mode-map}"
-  :group 'magit-modes)
-
-;;;###autoload
-(defun magit-show-refs (&optional head)
-  "List and compare references in a dedicated buffer."
-  (interactive (when current-prefix-arg
-                 (list (magit-read-rev "Compare branch"
-                                       (magit-get-current-branch)))))
-  (magit-mode-setup magit-refs-buffer-name-format nil
-                    #'magit-refs-mode
-                    #'magit-refresh-refs-buffer head))
-
-(defun magit-refresh-refs-buffer (&optional head)
-  (magit-insert-section (branchbuf)
-    (run-hooks 'magit-refs-sections-hook)))
-
-(defconst magit-wash-branch-line-re
-  (concat "^"
-          "\\(?:[ \\*]\\) "
-          "\\(?1:[^ ]+?\\)"                 ; branch
-          "\\(?: +\\)"
-          "\\(?2:[0-9a-fA-F]+\\) "          ; sha1
-          "\\(?:\\["
-          "\\(?4:[^:\n]+?\\)\\(?:: \\)?"    ; upstream
-          "\\(?:ahead \\(?5:[0-9]+\\)\\)?"  ; ahead
-          "\\(?:, \\)?"
-          "\\(?:behind \\(?6:[0-9]+\\)\\)?" ; behind
-          "\\] \\)?"
-          "\\(?3:.*\\)"))                   ; message
-
-(defvar magit-local-branch-format "%c %-25n %U%m\n")
-(defvar magit-remote-branch-format "%c %-25n %m\n")
-(defvar magit-tags-format "    %n\n")
-
-(defvar magit-branch-section-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map "\r" 'magit-show-commit)
-    (define-key map "k"  'magit-branch-delete)
-    (define-key map "R"  'magit-branch-rename)
-    map)
-  "Keymap for `branch' sections.")
-
-(defvar magit-remote-section-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map "k"  'magit-remote-remove)
-    (define-key map "R"  'magit-remote-rename)
-    map)
-  "Keymap for `remote' sections.")
-
-(defun magit-insert-local-branches ()
-  (magit-insert-section (local nil)
-    (magit-insert-heading "Branches:")
-    (let ((current  (magit-get-current-branch))
-          (branches (magit-list-local-branch-names)))
-      (dolist (line (magit-git-lines "branch" "-vv"))
-        (string-match magit-wash-branch-line-re line)
-        (magit-bind-match-strings
-            (branch hash message upstream ahead behind) line
-          (magit-insert-branch
-           branch current branches
-           magit-local-branch-format 'magit-branch-local
-           hash message upstream ahead behind))))
-    (insert ?\n)))
-
-(defun magit-insert-remote-branches ()
-  (dolist (remote (magit-git-lines "remote"))
-    (magit-insert-section (remote remote)
-      (magit-insert-heading
-        (let ((pull (magit-get "remote" remote "url"))
-              (push (magit-get "remote" remote "pushurl")))
-          (format "%s (%s):" (capitalize remote)
-                  (concat pull (and pull push ", ") push))))
-      (let ((current  (magit-get-current-branch))
-            (branches (magit-list-local-branch-names)))
-        (dolist (line (magit-git-lines "branch" "-vvr"))
-          (when (string-match magit-wash-branch-line-re line)
-            (magit-bind-match-strings (branch hash message) line
-              (when (string-match-p (format "^%s/" remote) branch)
-                (magit-insert-branch
-                 branch current branches
-                 magit-remote-branch-format 'magit-branch-remote hash message))))))
-      (insert ?\n))))
-
-(defun magit-insert-branch
-    (branch current branches format face
-            &optional hash message upstream ahead behind)
-  (magit-insert-section it (branch branch t)
-    (let* ((head  (or (car magit-refresh-args) current "HEAD"))
-           (count (string-to-number
-                   (magit-git-string
-                    "rev-list" "--count" "--right-only"
-                    (concat head "..." branch)))))
-      (when upstream
-        (setq upstream (propertize upstream 'face
-                                   (if (member upstream branches)
-                                       'magit-branch-local
-                                     'magit-branch-remote))))
-      (magit-insert-heading
-        (format-spec
-         format
-         `((?a . ,(or ahead ""))
-           (?b . ,(or behind ""))
-           (?c . ,(cond
-                   ((equal branch (car magit-refresh-args))
-                    (format "%3s" (if (equal branch current) "@" "#")))
-                   ((> count 0)
-                    (propertize (format "%3s" (number-to-string count))
-                                'face 'magit-dimmed))
-                   (t "   ")))
-           (?h . ,(or (propertize hash 'face 'magit-hash) ""))
-           (?m . ,(or message ""))
-           (?n . ,(propertize branch 'face face))
-           (?u . ,(or upstream ""))
-           (?U . ,(if upstream
-                      (format
-                       (propertize "[%s%s] " 'face 'magit-dimmed)
-                       upstream
-                       (if (or ahead behind)
-                           (concat ": " (and ahead (format "ahead %s" ahead))
-                                   (and ahead behind ", ")
-                                   (and behind (format "behind %s" behind)))
-                         ""))
-                    "")))))
-      (when (> count 0)
-        (if (magit-section-hidden it)
-            (setf (magit-section-washer it)
-                  `(lambda ()
-                     (let ((magit-insert-section--parent ,it))
-                       (magit-insert-cherry-commits-1 ,head ,branch))
-                     (insert ?\n)))
-          (magit-insert-cherry-commits-1 head branch)
-          (insert ?\n))))))
-
-(defun magit-insert-tags ()
-  (magit-insert-section (tags)
-    (magit-insert-heading "Tags:")
-    (dolist (tag (magit-git-lines "tag"))
-      (magit-insert-section (tag)
-        (magit-insert
-         (format-spec magit-tags-format
-                      `((?n . ,(propertize tag 'face 'magit-tag)))))))
-    (insert ?\n)))
 
 ;;; Miscellaneous
 ;;;; Dispatch Popup
