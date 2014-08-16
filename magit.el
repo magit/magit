@@ -1760,41 +1760,6 @@ With prefix, forces the rename even if NEW already exists.
         (insert (mapconcat 'identity (cdr it) "\n"))
         (insert "\n\n")))))
 
-;;;; Remotes
-
-(magit-define-popup magit-remote-popup
-  "Popup console for remote commands."
-  'magit-popups
-  :man-page "git-remote"
-  :actions  '((?a "Add"    magit-remote-add)
-              (?r "Rename" magit-remote-rename)
-              (?k "Remove" magit-remote-remove)))
-
-;;;###autoload
-(defun magit-remote-add (remote url)
-  "Add the REMOTE and fetch it.
-\n(git remote add -f REMOTE URL)."
-  (interactive (list (magit-read-string "Remote name")
-                     (magit-read-string "Remote url")))
-  (magit-run-git-async "remote" "add" "-f" remote url))
-
-;;;###autoload
-(defun magit-remote-remove (remote)
-  "Delete the REMOTE.
-\n(git remote rm REMOTE)."
-  (interactive (list (magit-read-remote "Delete remote")))
-  (magit-run-git "remote" "rm" remote))
-
-;;;###autoload
-(defun magit-remote-rename (old new)
-  "Rename remote OLD to NEW.
-\n(git remote rename OLD NEW)."
-  (interactive
-   (let  ((remote (magit-read-remote "Rename remote")))
-     (list remote (magit-read-string (format "Rename remote '%s' to" remote)))))
-  (unless (string= old new)
-    (magit-run-git "remote" "rename" old new)))
-
 ;;;; Rebase
 
 (magit-define-popup magit-rebase-popup
@@ -2240,6 +2205,41 @@ With a prefix argument also reset the working tree.
    (list (magit-read-rev "Hard reset to"
                          (or (magit-branch-or-commit-at-point) "HEAD"))))
   (magit-run-git "reset" "--hard" commit))
+
+;;;; Remotes
+
+(magit-define-popup magit-remote-popup
+  "Popup console for remote commands."
+  'magit-popups
+  :man-page "git-remote"
+  :actions  '((?a "Add"    magit-remote-add)
+              (?r "Rename" magit-remote-rename)
+              (?k "Remove" magit-remote-remove)))
+
+;;;###autoload
+(defun magit-remote-add (remote url)
+  "Add the REMOTE and fetch it.
+\n(git remote add -f REMOTE URL)."
+  (interactive (list (magit-read-string "Remote name")
+                     (magit-read-string "Remote url")))
+  (magit-run-git-async "remote" "add" "-f" remote url))
+
+;;;###autoload
+(defun magit-remote-remove (remote)
+  "Delete the REMOTE.
+\n(git remote rm REMOTE)."
+  (interactive (list (magit-read-remote "Delete remote")))
+  (magit-run-git "remote" "rm" remote))
+
+;;;###autoload
+(defun magit-remote-rename (old new)
+  "Rename remote OLD to NEW.
+\n(git remote rename OLD NEW)."
+  (interactive
+   (let  ((remote (magit-read-remote "Rename remote")))
+     (list remote (magit-read-string (format "Rename remote '%s' to" remote)))))
+  (unless (string= old new)
+    (magit-run-git "remote" "rename" old new)))
 
 ;;;; Fetch
 
