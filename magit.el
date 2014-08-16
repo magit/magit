@@ -4072,9 +4072,6 @@ results in additional differences."
     (magit-completing-read prompt keys nil nil nil 'magit-gpg-secret-key-hist
                            (car (or magit-gpg-secret-key-hist keys)))))
 
-(defun magit-popup-read-file-name (prompt initial-input)
-  (read-file-name prompt nil nil t initial-input))
-
 ;;; Modes (1)
 ;;;; Commit Mode
 ;;;;; Commit Core
