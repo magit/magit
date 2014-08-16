@@ -35,7 +35,7 @@
 
 ;;; Options
 
-(defcustom magit-show-child-count nil
+(defcustom magit-section-show-child-count nil
   "Whether to append the number of childen to section headings."
   :package-version '(magit . "2.1.0")
   :group 'magit-modes
@@ -581,7 +581,7 @@ at point."
 (defun magit-insert-child-count (section)
   ;; This has to be fast, not pretty!
   (let (content count)
-    (when (and magit-show-child-count
+    (when (and magit-section-show-child-count
                (setq count (length (magit-section-children section)))
                (> count 0)
                (setq content (magit-section-content section))

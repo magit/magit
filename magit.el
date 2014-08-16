@@ -2874,6 +2874,7 @@ Use the function by the same name instead of this variable.")
 
 (define-obsolete-variable-alias 'magit-mode-refresh-buffer-hook 'magit-refresh-buffer-hook)
 (define-obsolete-variable-alias 'magit-revert-backup 'magit-apply-backup)
+(define-obsolete-variable-alias 'magit-show-child-count 'magit-section-show-child-count)
 
 (provide 'magit)
 
