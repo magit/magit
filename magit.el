@@ -4349,14 +4349,14 @@ can be used to override this."
   (-when-let (tracked (magit-get-tracked-branch nil t))
     (magit-insert-section (unpulled)
       (magit-insert-heading "Unpulled commits:")
-      (magit-git-wash (apply-partially 'magit-wash-log 'cherry)
+      (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
         "cherry" "-v" (magit-abbrev-arg) (magit-get-current-branch) tracked))))
 
 (defun magit-insert-unpushed-cherries ()
   (-when-let (tracked (magit-get-tracked-branch nil t))
     (magit-insert-section (unpushed)
       (magit-insert-heading "Unpushed commits:")
-      (magit-git-wash (apply-partially 'magit-wash-log 'cherry)
+      (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
         "cherry" "-v" (magit-abbrev-arg) tracked))))
 
 (defun magit-insert-branch-description ()
@@ -6477,7 +6477,7 @@ to test.  This command lets Git choose a different one."
   (when (magit-bisect-in-progress-p)
     (magit-insert-section (bisect-view)
       (magit-insert-heading "Bisect Rest:")
-      (magit-git-wash (apply-partially 'magit-wash-log 'bisect-vis)
+      (magit-git-wash (apply-partially 'magit-log-wash-log 'bisect-vis)
         "bisect" "visualize" "git" "log"
         "--pretty=format:%h%d %s" "--decorate=full"))))
 
@@ -6499,7 +6499,7 @@ to test.  This command lets Git choose a different one."
           (magit-insert-section (bisect-log nil t)
             (magit-insert-heading heading)
             (magit-wash-sequence
-             (apply-partially 'magit-wash-log-line 'bisect-log
+             (apply-partially 'magit-log-wash-line 'bisect-log
                               (magit-abbrev-length)))
             (insert ?\n)))))
     (when (re-search-forward
@@ -6682,7 +6682,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 (defun magit-insert-log (range &optional args file)
   (--when-let (member "--decorate" args)
     (setcar it "--decorate=full"))
-  (magit-git-wash (apply-partially 'magit-wash-log 'oneline)
+  (magit-git-wash (apply-partially 'magit-log-wash-log 'oneline)
     "log" (format "-%d" magit-log-cutoff-length) "--color"
     (format "--pretty=format:%%h%s %s[%%an][%%at]%%s"
             (if (member "--decorate=full" args) "%d" "")
@@ -6693,7 +6693,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 (defun magit-insert-log-long (range &optional args file)
   (--when-let (member "--decorate" args)
     (setcar it "--decorate=full"))
-  (magit-git-wash (apply-partially 'magit-wash-log 'long)
+  (magit-git-wash (apply-partially 'magit-log-wash-log 'long)
     "log" (format "-%d" magit-log-cutoff-length)
     "--color" "--stat" "--abbrev-commit"
     args range "--" file))
@@ -6761,7 +6761,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 
 (defvar magit-log-count nil)
 
-(defun magit-wash-log (style args)
+(defun magit-log-wash-log (style args)
   (when (member "--color" args)
     (let ((ansi-color-apply-face-function
            (lambda (beg end face)
@@ -6771,7 +6771,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   (when (eq style 'cherry)
     (reverse-region (point-min) (point-max)))
   (let ((magit-log-count 0))
-    (magit-wash-sequence (apply-partially 'magit-wash-log-line style
+    (magit-wash-sequence (apply-partially 'magit-log-wash-line style
                                           (magit-abbrev-length)))
     (if (derived-mode-p 'magit-log-mode)
         (when (= magit-log-count magit-log-cutoff-length)
@@ -6788,7 +6788,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
       (unless (equal (car args) "cherry")
         (insert ?\n)))))
 
-(defun magit-wash-log-line (style abbrev)
+(defun magit-log-wash-line (style abbrev)
   (looking-at (cl-ecase style
                 (oneline magit-log-oneline-re)
                 (long    magit-log-long-re)
@@ -6848,7 +6848,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
              (lambda ()
                (looking-at magit-log-long-re)
                (when (match-string 2)
-                 (magit-wash-log-line 'long abbrev))))))
+                 (magit-log-wash-line 'long abbrev))))))
       (forward-line)))
   t)
 
@@ -7026,7 +7026,7 @@ Type \\[magit-cherry-pick] to cherry-pick the commit at point.
     (apply 'magit-insert-cherry-commits-1 magit-refresh-args)))
 
 (defun magit-insert-cherry-commits-1 (&rest args)
-  (magit-git-wash (apply-partially 'magit-wash-log 'cherry)
+  (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
     "cherry" "-v" "--abbrev" args))
 
 ;;;; Reflog Mode
@@ -7047,7 +7047,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 (defun magit-refresh-reflog-buffer (ref)
   (magit-insert-section (reflogbuf)
     (magit-insert-heading "Local history of branch " ref)
-    (magit-git-wash (apply-partially 'magit-wash-log 'reflog)
+    (magit-git-wash (apply-partially 'magit-log-wash-log 'reflog)
       "reflog" "show" "--format=format:%h [%an] %ct %gd %gs"
       (format "--max-count=%d" magit-log-cutoff-length) ref)))
 
@@ -7392,7 +7392,7 @@ actually were a single commit."
                                (and range "new commits")
                                (and dirty ", modified content")
                                ")"))
-                     (magit-git-wash (apply-partially 'magit-wash-log 'module)
+                     (magit-git-wash (apply-partially 'magit-log-wash-log 'module)
                        "log" "--oneline" "--left-right" range)
                      (delete-char -1)))
                   module))
