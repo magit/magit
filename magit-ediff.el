@@ -33,8 +33,6 @@
 (require 'magit)
 (require 'smerge-mode)
 
-;;; Code
-
 ;;;###autoload
 (defun magit-ediff-resolve (file)
   "Resolve outstanding conflicts in FILE using Ediff.
