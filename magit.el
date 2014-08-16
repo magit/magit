@@ -192,6 +192,10 @@ The following `format'-like specs are supported:
 
 ;;;; Refs Mode
 
+(defgroup magit-refs nil
+  "Inspect and manipulate Git branches and tags."
+  :group 'magit-modes)
+
 (defcustom magit-refs-sections-hook
   '(magit-insert-branch-description
     magit-insert-local-branches
@@ -199,7 +203,7 @@ The following `format'-like specs are supported:
     magit-insert-tags)
   "Hook run to insert sections into the references buffer."
   :package-version '(magit . "2.1.0")
-  :group 'magit-modes
+  :group 'magit-refs
   :type 'hook)
 
 (defcustom magit-refs-buffer-name-format "*magit-refs: %a*"
@@ -209,7 +213,7 @@ The following `format'-like specs are supported:
 %a the absolute filename of the repository toplevel.
 %b the basename of the repository toplevel."
   :package-version '(magit . "2.1.0")
-  :group 'magit-modes
+  :group 'magit-refs
   :type 'string)
 
 ;;;; Miscellaneous
