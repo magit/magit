@@ -2076,7 +2076,7 @@ server if necessary."
 ;;;; Git Low-Level
 
 (defun magit-git-repo-p (dir)
-  (file-exists-p (expand-file-name ".git" dir)))
+  (file-readable-p (expand-file-name ".git" dir)))
 
 (defun magit-git-dir (&optional path)
   "Return absolute path to the GIT_DIR for the current repository.
