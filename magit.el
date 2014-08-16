@@ -87,9 +87,8 @@
 (eval-when-compile (require 'smerge-mode))
 
 
-;;; Settings
-;;;; Custom Options
-;;;;; Status Mode
+;;; Options
+;;;; Status Mode
 
 (defgroup magit-status nil
   "Inspect and manipulate Git repositories."
@@ -160,7 +159,7 @@ The following `format'-like specs are supported:
   :group 'magit-status
   :type 'string)
 
-;;;;; Commit Mode
+;;;; Commit Mode
 
 (defgroup magit-commit nil
   "Inspect and manipulate Git commits."
@@ -191,7 +190,7 @@ The following `format'-like specs are supported:
 ;; This variable is only a temporary hack.
 (defvar magit-commit-extra-options '("--decorate=full" "--pretty=medium"))
 
-;;;;; Refs Mode
+;;;; Refs Mode
 
 (defcustom magit-refs-sections-hook
   '(magit-insert-branch-description
@@ -213,7 +212,7 @@ The following `format'-like specs are supported:
   :group 'magit-modes
   :type 'string)
 
-;;;;; Miscellaneous
+;;;; Miscellaneous
 
 (defcustom magit-commit-ask-to-stage t
   "Whether to ask to stage everything when committing and nothing is staged."
@@ -287,7 +286,7 @@ deep."
   :group 'magit
   :type 'integer)
 
-;;;; Custom Faces
+;;;; Faces
 
 (defface magit-dimmed
   '((((class color) (background light)) :foreground "grey50")
