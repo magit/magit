@@ -877,8 +877,8 @@ The following `format'-like specs are supported:
   :group 'magit-modes
   :type 'string)
 
-(defcustom magit-branches-buffer-name-format "*magit-branches: %a*"
-  "Name format for buffers used to display and manage branches.
+(defcustom magit-refs-buffer-name-format "*magit-refs: %a*"
+  "Name format for buffers used to display and manage refs.
 
 The following `format'-like specs are supported:
 %a the absolute filename of the repository toplevel.
@@ -7589,7 +7589,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   (interactive (when current-prefix-arg
                  (list (magit-read-rev "Compare branch"
                                        (magit-get-current-branch)))))
-  (magit-mode-setup magit-branches-buffer-name-format nil
+  (magit-mode-setup magit-refs-buffer-name-format nil
                     #'magit-refs-mode
                     #'magit-refresh-refs-buffer head))
 
