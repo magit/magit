@@ -427,7 +427,7 @@ supported."
   :group 'magit-modes
   :type 'boolean)
 
-(defcustom magit-restore-window-configuration nil
+(defcustom magit-restore-window-configuration t
   "Whether quitting a Magit buffer restores previous window configuration.
 
 Function `magit-mode-display-buffer' is used to display and
@@ -438,11 +438,11 @@ later be restored by `magit-mode-quit-window', provided the
 buffer has not since been displayed in another frame.
 
 This works best when only two windows are usually displayed in a
-frame.  If this isn't the case setting this to t might often lead
-to undesirable behaviour.  Also quitting a Magit buffer while
-another Magit buffer that was created earlier is still displayed
-will cause that buffer to be hidden, which might or might not be
-what you want."
+frame.  If this isn't the case setting then the default value
+might lead to undesirable behaviour.  Also quitting a Magit
+buffer while another Magit buffer that was created earlier is
+still displayed will cause that buffer to be hidden, which might
+or might not be what you want."
   :package-version '(magit . "2.1.0")
   :group 'magit-modes
   :type 'boolean)
