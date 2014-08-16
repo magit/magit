@@ -138,7 +138,7 @@
   :group 'magit)
 
 (defgroup magit-wip nil
-  "Git-Wip support for Magit."
+  "Automatically commit work-in-progress to a dedicated ref."
   :group 'magit-extensions)
 
 (defgroup magit-faces nil
