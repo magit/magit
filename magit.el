@@ -405,15 +405,6 @@ deep."
   :type 'hook
   :options '(magit-load-config-extensions))
 
-(defcustom magit-show-xref-buttons '(magit-diff-mode magit-commit-mode)
-  "List of modes whose buffers should contain history buttons.
-Currently only `magit-diff-mode' and `magit-commit-mode' are
-supported."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-modes
-  :type '(repeat (choice (const magit-diff-mode)
-                         (const magit-commit-mode))))
-
 (defcustom magit-show-child-count nil
   "Whether to append the number of childen to section headings."
   :package-version '(magit . "2.1.0")
@@ -560,6 +551,12 @@ The following `format'-like specs are supported:
   :group 'magit-diff
   :type 'boolean)
 
+(defcustom magit-diff-show-xref-buttons t
+  "Whether to show buffer history buttons in diff buffers."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-diff
+  :type 'boolean)
+
 (defcustom magit-diff-options nil
   ""
   :group 'magit-popups
@@ -618,6 +615,12 @@ The following `format'-like specs are supported:
 
 (defcustom magit-commit-show-diffstat t
   "Whether to show diffstat in commit buffers."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-commit
+  :type 'boolean)
+
+(defcustom magit-commit-show-xref-buttons t
+  "Whether to show buffer history buttons in commit buffers."
   :package-version '(magit . "2.1.0")
   :group 'magit-commit
   :type 'boolean)
@@ -3299,8 +3302,10 @@ the buffer.  Finally reset the window configuration to nil."
     (user-error "No next entry in buffer's history")))
 
 (defun magit-xref-insert-buttons ()
-  (when (and (or (eq magit-show-xref-buttons t)
-                 (apply 'derived-mode-p magit-show-xref-buttons))
+  (when (and (or (and magit-commit-show-xref-buttons
+                      (derived-mode-p 'magit-commit-mode))
+                 (and magit-diff-show-xref-buttons
+                      (derived-mode-p 'magit-diff-mode)))
              (or help-xref-stack help-xref-forward-stack))
     (insert "\n")
     (when help-xref-stack
