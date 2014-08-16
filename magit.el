@@ -2420,6 +2420,7 @@ Also see option `magit-set-upstream-on-push'."
      (if used-branch (format "%s:%s" branch used-branch) branch)
      magit-current-popup-args)))
 
+;;; Miscellaneous
 ;;;; Tag
 
 (magit-define-popup magit-tag-popup
@@ -2656,29 +2657,6 @@ With a prefix argument also register submodules in .git/config."
   (let ((default-directory (magit-get-top-dir)))
     (magit-run-git-async "submodule" "sync")))
 
-;;;; Miscellaneous
-
-;;;###autoload
-(defun magit-format-patch (range)
-  (interactive
-   (let ((revs (if (use-region-p)
-                   (magit-section-region-siblings)
-                 (list (magit-current-section)))))
-     (unless (eq (magit-section-type (car revs)) 'commit)
-       (setq revs nil))
-     (setq revs (nreverse (mapcar 'magit-section-value revs)))
-     (list (if (or current-prefix-arg (not revs))
-               (magit-read-rev "Format range")
-             (concat (car revs) "^.." (car (last revs)))))))
-  (magit-run-git "format-patch" range))
-
-(defun magit-copy-as-kill ()
-  "Copy the thing at point into the kill ring."
-  (interactive)
-  (magit-section-when (branch commit mcommit file)
-    (kill-new (message "%s" (magit-section-value it)))))
-
-;;; Miscellaneous
 ;;;; Dispatch Popup
 
 (magit-define-popup magit-dispatch-popup
@@ -2808,6 +2786,28 @@ non-nil, then autocompletion will offer directory names."
                                value))))))
      dict)
     result))
+
+;;;; Various
+
+;;;###autoload
+(defun magit-format-patch (range)
+  (interactive
+   (let ((revs (if (use-region-p)
+                   (magit-section-region-siblings)
+                 (list (magit-current-section)))))
+     (unless (eq (magit-section-type (car revs)) 'commit)
+       (setq revs nil))
+     (setq revs (nreverse (mapcar 'magit-section-value revs)))
+     (list (if (or current-prefix-arg (not revs))
+               (magit-read-rev "Format range")
+             (concat (car revs) "^.." (car (last revs)))))))
+  (magit-run-git "format-patch" range))
+
+(defun magit-copy-as-kill ()
+  "Copy the thing at point into the kill ring."
+  (interactive)
+  (magit-section-when (branch commit mcommit file)
+    (kill-new (message "%s" (magit-section-value it)))))
 
 ;;; magit.el ends soon
 
