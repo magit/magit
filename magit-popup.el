@@ -12,9 +12,8 @@
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
-;; Package: magit-popup
 
-;; Contains code from GNU Emacs <https://www.gnu.org/software/emacs/>,
+;; Contains code from GNU Emacs https://www.gnu.org/software/emacs,
 ;; released under the GNU General Public License version 3 or later.
 
 ;; Magit is free software; you can redistribute it and/or modify it
@@ -28,7 +27,7 @@
 ;; License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
-;; along with Magit.  If not, see <http://www.gnu.org/licenses/>.
+;; along with Magit.  If not, see http://www.gnu.org/licenses.
 
 ;;; Commentary:
 

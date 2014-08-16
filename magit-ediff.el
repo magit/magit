@@ -8,7 +8,6 @@
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
-;; Package: magit
 
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
@@ -21,7 +20,7 @@
 ;; License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
-;; along with Magit.  If not, see <http://www.gnu.org/licenses/>.
+;; along with Magit.  If not, see http://www.gnu.org/licenses.
 
 ;;; Commentary:
 
@@ -33,6 +32,8 @@
 (require 'ediff)
 (require 'magit)
 (require 'smerge-mode)
+
+;;; Code
 
 ;;;###autoload
 (defun magit-ediff-resolve (file)
