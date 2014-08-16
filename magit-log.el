@@ -180,7 +180,7 @@ units, in what language, are being used."
 The following `format'-like specs are supported:
 %a the absolute filename of the repository toplevel.
 %b the basename of the repository toplevel."
-  :group 'magit-modes
+  :group 'magit-log
   :type 'string)
 
 (defcustom magit-cherry-sections-hook
@@ -188,7 +188,7 @@ The following `format'-like specs are supported:
     magit-insert-cherry-commits)
   "Hook run to insert sections into the cherry buffer."
   :package-version '(magit . "2.1.0")
-  :group 'magit-modes
+  :group 'magit-log
   :type 'hook)
 
 ;;;; Reflog Mode
