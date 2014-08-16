@@ -47,7 +47,7 @@ The following `format'-like specs are supported:
 %a the absolute filename of the repository toplevel.
 %b the basename of the repository toplevel."
   :package-version '(magit . "2.1.0")
-  :group 'magit-modes
+  :group 'magit-process
   :type 'string)
 
 (defcustom magit-process-connection-type (not (eq system-type 'cygwin))
