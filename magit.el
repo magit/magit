@@ -399,7 +399,6 @@ deep."
 
 ;;; Modes
 ;;;; Commit Mode
-;;;;; Commit Core
 
 (defvar magit-commit-mode-map
   (let ((map (make-sparse-keymap)))
@@ -509,8 +508,6 @@ commit or stash at point, then prompt for a commit."
       magit-diff-extra-options
       magit-commit-extra-options
       commit)))
-
-;;;;; Commit Washing
 
 (defun magit-wash-commit (args)
   (looking-at "^commit \\([a-z0-9]+\\)\\(?: \\(.+\\)\\)?$")
