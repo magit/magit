@@ -791,7 +791,8 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
 
 (defcustom magit-auto-revert-mode-lighter " MRev"
   "String to display when Magit-Auto-Revert mode is active."
-  :group 'magit-modes)
+  :group 'magit-modes
+  :type 'string)
 
 (define-minor-mode magit-auto-revert-mode
   "Toggle global Magit-Auto-Revert mode.
