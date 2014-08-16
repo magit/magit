@@ -104,7 +104,7 @@ t      show fine differences for the selected diff hunk only.
                  (const :tag "Selected only" t)
                  (const :tag "All" all)))
 
-(defcustom magit-highlight-whitespace t
+(defcustom magit-diff-highlight-whitespace t
   "Specify where to highlight whitespace errors.
 See `magit-highlight-trailing-whitespace',
 `magit-highlight-indentation'.  The symbol t means in all diffs,
@@ -114,15 +114,15 @@ See `magit-highlight-trailing-whitespace',
                  (const :tag "Never" nil)
                  (const :tag "In status buffer" status)))
 
-(defcustom magit-highlight-trailing-whitespace t
+(defcustom magit-diff-highlight-trailing t
   "Whether to highlight whitespace at the end of a line in diffs.
-Used only when `magit-highlight-whitespace' is non-nil."
+Used only when `magit-diff-highlight-whitespace' is non-nil."
   :group 'magit-diff
   :type 'boolean)
 
-(defcustom magit-highlight-indentation nil
+(defcustom magit-diff-highlight-indentation nil
   "Highlight the \"wrong\" indentation style.
-Used only when `magit-highlight-whitespace' is non-nil.
+Used only when `magit-diff-highlight-whitespace' is non-nil.
 
 The value is a list of cons cells.  The car is a regular
 expression, and the cdr is the value that applies to repositories
@@ -678,19 +678,20 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
           (forward-line))))))
 
 (defun magit-diff-highlight-whitespace (merging)
-  (when (and magit-highlight-whitespace
+  (when (and magit-diff-highlight-whitespace
              (or (derived-mode-p 'magit-status-mode)
-                 (not (eq magit-highlight-whitespace 'status))))
+                 (not (eq magit-diff-highlight-whitespace 'status))))
     (let ((prefix (if merging "^[-\\+\s]\\{2\\}" "^[-\\+]"))
           (indent
-           (if (local-variable-p 'magit-highlight-indentation)
-               magit-highlight-indentation
+           (if (local-variable-p 'magit-diff-highlight-indentation)
+               magit-diff-highlight-indentation
              (setq-local
-              magit-highlight-indentation
+              magit-diff-highlight-indentation
               (cdr (--first (string-match-p (car it) default-directory)
                             (nreverse
-                             (default-value 'magit-highlight-indentation))))))))
-      (when (and magit-highlight-trailing-whitespace
+                             (default-value
+                               'magit-diff-highlight-indentation))))))))
+      (when (and magit-diff-highlight-trailing
                  (looking-at (concat prefix ".*?\\([ \t]+\\)$")))
         (magit-put-face-property (match-beginning 1) (match-end 1)
                                  'magit-whitespace-warning))
