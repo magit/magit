@@ -4050,28 +4050,6 @@ results in additional differences."
                            nil 'require-match
                            nil 'magit-read-file-hist default)))
 
-(defun magit-read-file-trace (ignored)
-  (let ((file  (magit-read-file-from-rev "HEAD" "File"))
-        (trace (magit-read-string "Trace")))
-    (if (string-match
-         "^\\(/.+/\\|:[^:]+\\|[0-9]+,[-+]?[0-9]+\\)\\(:\\)?$" trace)
-        (concat trace (or (match-string 2 trace) ":") file)
-      (user-error "Trace is invalid, see man git-log"))))
-
-(defvar magit-gpg-secret-key-hist nil)
-
-(defun magit-read-gpg-secret-key (prompt &optional initial-input)
-  (require 'epa)
-  (let ((keys (--map (list (epg-sub-key-id (car (epg-key-sub-key-list it)))
-                           (-when-let (id-obj (car (epg-key-user-id-list it)))
-                             (let    ((id-str (epg-user-id-string id-obj)))
-                               (if (stringp id-str)
-                                   id-str
-                                 (epg-decode-dn id-obj)))))
-                     (epg-list-keys (epg-make-context epa-protocol) nil t))))
-    (magit-completing-read prompt keys nil nil nil 'magit-gpg-secret-key-hist
-                           (car (or magit-gpg-secret-key-hist keys)))))
-
 ;;; Modes (1)
 ;;;; Commit Mode
 ;;;;; Commit Core
@@ -5957,6 +5935,28 @@ depending on the value of option `magit-commit-squash-confirm'.
     (let ((magit-inhibit-save-previous-winconf t))
       (funcall diff-fn)))
   (apply #'magit-run-git-with-editor "commit" args))
+
+(defun magit-read-file-trace (ignored)
+  (let ((file  (magit-read-file-from-rev "HEAD" "File"))
+        (trace (magit-read-string "Trace")))
+    (if (string-match
+         "^\\(/.+/\\|:[^:]+\\|[0-9]+,[-+]?[0-9]+\\)\\(:\\)?$" trace)
+        (concat trace (or (match-string 2 trace) ":") file)
+      (user-error "Trace is invalid, see man git-log"))))
+
+(defvar magit-gpg-secret-key-hist nil)
+
+(defun magit-read-gpg-secret-key (prompt &optional initial-input)
+  (require 'epa)
+  (let ((keys (--map (list (epg-sub-key-id (car (epg-key-sub-key-list it)))
+                           (-when-let (id-obj (car (epg-key-user-id-list it)))
+                             (let    ((id-str (epg-user-id-string id-obj)))
+                               (if (stringp id-str)
+                                   id-str
+                                 (epg-decode-dn id-obj)))))
+                     (epg-list-keys (epg-make-context epa-protocol) nil t))))
+    (magit-completing-read prompt keys nil nil nil 'magit-gpg-secret-key-hist
+                           (car (or magit-gpg-secret-key-hist keys)))))
 
 (defvar magit-commit-add-log-insert-function 'magit-commit-add-log-insert)
 
