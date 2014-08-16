@@ -139,7 +139,7 @@ that without users being aware of it could lead to tears.
            directly invoke the popup's default action.
 
 `nil'      Ignore prefix arguments."
-  :group 'magit
+  :group 'magit-popup
   :type '(choice
           (const :tag "Use default action, else show popup" default)
           (const :tag "Show popup, else use default action" popup)
