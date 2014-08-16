@@ -398,36 +398,6 @@ deep."
   '((t :foreground "magenta"))
   "Face for equivalent cherry commits.")
 
-;;;; Keymaps
-
-(magit-define-popup magit-dispatch-popup
-  "Popup console for dispatching other popups."
-  'magit-popups
-  :actions '((?b "Branching"       magit-branch-popup)
-             (?B "Bisecting"       magit-bisect-popup)
-             (?c "Committing"      magit-commit-popup)
-             (?d "Diffing"         magit-diff-popup)
-             (?f "Fetching"        magit-fetch-popup)
-             (?F "Pulling"         magit-pull-popup)
-             (?g "Refresh Buffers" magit-refresh-all)
-             (?l "Logging"         magit-log-popup)
-             (?m "Merging"         magit-merge-popup)
-             (?M "Remoting"        magit-remote-popup)
-             (?P "Pushing"         magit-push-popup)
-             (?o "Submoduling"     magit-submodule-popup)
-             (?r "Rebasing"        magit-rebase-popup)
-             (?s "Show Status"     magit-status)
-             (?S "Stage all"       magit-stage-modified)
-             (?t "Tagging"         magit-tag-popup)
-             (?U "Reset Index"     magit-reset-index)
-             (?v "Show Commit"     magit-show-commit)
-             (?V "Show File"       magit-find-file)
-             (?y "Show Refs"       magit-show-refs)
-             (?Y "Cherry"          magit-cherry)
-             (?z "Stashing"        magit-stash-popup)
-             (?! "Running"         magit-run-popup)
-             (?$ "Show Process"    magit-display-process)))
-
 ;;; Modes (1)
 ;;;; Commit Mode
 ;;;;; Commit Core
@@ -2715,6 +2685,36 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
     (insert ?\n)))
 
 ;;; Miscellaneous
+;;;; Dispatch Popup
+
+(magit-define-popup magit-dispatch-popup
+  "Popup console for dispatching other popups."
+  'magit-popups
+  :actions '((?b "Branching"       magit-branch-popup)
+             (?B "Bisecting"       magit-bisect-popup)
+             (?c "Committing"      magit-commit-popup)
+             (?d "Diffing"         magit-diff-popup)
+             (?f "Fetching"        magit-fetch-popup)
+             (?F "Pulling"         magit-pull-popup)
+             (?g "Refresh Buffers" magit-refresh-all)
+             (?l "Logging"         magit-log-popup)
+             (?m "Merging"         magit-merge-popup)
+             (?M "Remoting"        magit-remote-popup)
+             (?P "Pushing"         magit-push-popup)
+             (?o "Submoduling"     magit-submodule-popup)
+             (?r "Rebasing"        magit-rebase-popup)
+             (?s "Show Status"     magit-status)
+             (?S "Stage all"       magit-stage-modified)
+             (?t "Tagging"         magit-tag-popup)
+             (?U "Reset Index"     magit-reset-index)
+             (?v "Show Commit"     magit-show-commit)
+             (?V "Show File"       magit-find-file)
+             (?y "Show Refs"       magit-show-refs)
+             (?Y "Cherry"          magit-cherry)
+             (?z "Stashing"        magit-stash-popup)
+             (?! "Running"         magit-run-popup)
+             (?$ "Show Process"    magit-display-process)))
+
 ;;;; Git Popup
 
 (defvar magit-git-command-history nil)
