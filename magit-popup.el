@@ -12,10 +12,6 @@
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
-;; Package: magit-popup
-
-;; Contains code from GNU Emacs <https://www.gnu.org/software/emacs/>,
-;; released under the GNU General Public License version 3 or later.
 
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
@@ -28,7 +24,7 @@
 ;; License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
-;; along with Magit.  If not, see <http://www.gnu.org/licenses/>.
+;; along with Magit.  If not, see http://www.gnu.org/licenses.
 
 ;;; Commentary:
 
@@ -48,44 +44,18 @@
 ;; that popup, and so we use the term "infix" instead of "prefix".
 
 ;;; Code:
-;;;; Dependencies
 
-(require 'button)
 (require 'cl-lib)
 (require 'dash)
+
+(require 'magit-mode)
+
+(require 'button)
 (require 'format-spec)
 
-;;;; Declarations
-
 (declare-function info 'info)
-(declare-function magit-refresh 'magit)
 (declare-function Man-find-section 'man)
 (declare-function Man-next-section 'man)
-
-;;;; Compatibility
-
-(eval-and-compile
-
-  ;; Added in Emacs 24.3
-  (unless (fboundp 'user-error)
-    (defalias 'user-error 'error))
-
-  ;; Added in Emacs 24.3 (mirrors/emacs@b335efc3).
-  (unless (fboundp 'setq-local)
-    (defmacro setq-local (var val)
-      "Set variable VAR to value VAL in current buffer."
-      (list 'set (list 'make-local-variable (list 'quote var)) val)))
-
-  ;; Added in Emacs 24.3 (mirrors/emacs@b335efc3).
-  (unless (fboundp 'defvar-local)
-    (defmacro defvar-local (var val &optional docstring)
-      "Define VAR as a buffer-local variable with default value VAL.
-Like `defvar' but additionally marks the variable as being automatically
-buffer-local wherever it is set."
-      (declare (debug defvar) (doc-string 3))
-      (list 'progn (list 'defvar var val docstring)
-            (list 'make-variable-buffer-local (list 'quote var)))))
-  )
 
 ;;; Settings
 ;;;; Custom Groups
@@ -139,7 +109,7 @@ that without users being aware of it could lead to tears.
            directly invoke the popup's default action.
 
 `nil'      Ignore prefix arguments."
-  :group 'magit
+  :group 'magit-popup
   :type '(choice
           (const :tag "Use default action, else show popup" default)
           (const :tag "Show popup, else use default action" popup)
@@ -299,7 +269,8 @@ that without users being aware of it could lead to tears.
     (key-description (if (vectorp key) key (vector key)))))
 
 (defun magit-popup-lookup (event type)
-  (cl-find event (magit-popup-get type) :key 'magit-popup-event-key))
+  (--first (equal (magit-popup-event-key it) event)
+           (magit-popup-get type)))
 
 (defun magit-popup-get-args ()
   (cl-mapcan (lambda (elt)
@@ -321,8 +292,8 @@ that without users being aware of it could lead to tears.
 (defun magit-popup-convert-options (val def)
   (mapcar (lambda (ev)
             (let* ((a (nth 2 ev))
-                   (v (cl-find (format "^%s\\(.+\\)" a)
-                               val :test 'string-match)))
+                   (r (format "^%s\\(.+\\)" a))
+                   (v (--first (string-match r it) val)))
               (make-magit-popup-event
                :key (car ev)  :dsc (cadr ev) :arg a
                :use (and v t) :val (and v (match-string 1 v))
