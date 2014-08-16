@@ -400,33 +400,6 @@ deep."
 
 ;;;; Keymaps
 
-(defvar magit-status-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-mode-map)
-    (define-key map "jz" 'magit-jump-to-stashes)
-    (define-key map "jn" 'magit-jump-to-untracked)
-    (define-key map "ju" 'magit-jump-to-unstaged)
-    (define-key map "js" 'magit-jump-to-staged)
-    (define-key map "jf" 'magit-jump-to-unpulled)
-    (define-key map "jp" 'magit-jump-to-unpushed)
-    map)
-  "Keymap for `magit-status-mode'.")
-
-(defvar magit-commit-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-diff-mode-map)
-    map)
-  "Keymap for `magit-commit-mode'.")
-
-(eval-after-load 'dired-x
-  '(define-key magit-status-mode-map [remap dired-jump] 'magit-dired-jump))
-
-(defvar magit-refs-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-mode-map)
-    map)
-  "Keymap for `magit-refs-mode'.")
-
 (defvar magit-stash-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map "\r" 'magit-diff-stash)
@@ -497,6 +470,12 @@ deep."
 ;;; Modes (1)
 ;;;; Commit Mode
 ;;;;; Commit Core
+
+(defvar magit-commit-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map magit-diff-mode-map)
+    map)
+  "Keymap for `magit-commit-mode'.")
 
 (define-derived-mode magit-commit-mode magit-mode "Magit"
   "Mode for looking at a Git commit.
@@ -649,6 +628,21 @@ commit or stash at point, then prompt for a commit."
                         'face 'magit-hash)))
 
 ;;;; Status Mode
+
+(defvar magit-status-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map magit-mode-map)
+    (define-key map "jz" 'magit-jump-to-stashes)
+    (define-key map "jn" 'magit-jump-to-untracked)
+    (define-key map "ju" 'magit-jump-to-unstaged)
+    (define-key map "js" 'magit-jump-to-staged)
+    (define-key map "jf" 'magit-jump-to-unpulled)
+    (define-key map "jp" 'magit-jump-to-unpushed)
+    map)
+  "Keymap for `magit-status-mode'.")
+
+(eval-after-load 'dired-x
+  '(define-key magit-status-mode-map [remap dired-jump] 'magit-dired-jump))
 
 (define-derived-mode magit-status-mode magit-mode "Magit"
   "Mode for looking at Git status.
@@ -2578,6 +2572,12 @@ to test.  This command lets Git choose a different one."
 
 ;;; Modes (2)
 ;;;; Refs Mode
+
+(defvar magit-refs-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map magit-mode-map)
+    map)
+  "Keymap for `magit-refs-mode'.")
 
 (define-derived-mode magit-refs-mode magit-mode "Magit Branch"
   "Mode which lists and compares references.
