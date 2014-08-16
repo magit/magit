@@ -2762,9 +2762,9 @@ Run Git in the root of the current repository.
             magit-repository-directories))
 
 (defun magit-list-repos* (directory depth)
-  (cond ((file-exists-p (expand-file-name ".git" directory))
+  (cond ((file-readable-p (expand-file-name ".git" directory))
          (list directory))
-        ((> depth 0)
+        ((and (> depth 0) (file-accessible-directory-p directory))
          (cl-loop for file in (directory-files directory t "^[^.]" t)
                   when (file-directory-p file)
                   append (magit-list-repos* file (1- depth))))))
