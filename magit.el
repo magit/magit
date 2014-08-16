@@ -1634,13 +1634,6 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
       (insert-file-contents file)
       (split-string (buffer-string) "\n" (not keep-empty-lines)))))
 
-(defun magit-commit-log-buffer ()
-  (let ((topdir (magit-get-top-dir)))
-    (--first (equal topdir (with-current-buffer it
-                             (and git-commit-mode (magit-get-top-dir))))
-             (append (buffer-list (selected-frame))
-                     (buffer-list)))))
-
 (defun magit-format-duration (duration spec width)
   (cl-destructuring-bind (char unit units weight)
       (car spec)
@@ -5731,6 +5724,13 @@ Also see option `magit-set-upstream-on-push'."
               (?S "Instant Squash" magit-commit-instant-squash))
   :max-action-columns 4
   :default-action 'magit-commit))
+
+(defun magit-commit-log-buffer ()
+  (let ((topdir (magit-get-top-dir)))
+    (--first (equal topdir (with-current-buffer it
+                             (and git-commit-mode (magit-get-top-dir))))
+             (append (buffer-list (selected-frame))
+                     (buffer-list)))))
 
 (defadvice magit-commit-popup (around pop-to-ongoing activate)
   (--if-let (magit-commit-log-buffer) (switch-to-buffer it) ad-do-it))
