@@ -7647,10 +7647,10 @@ non-nil, then autocompletion will offer directory names."
 
 (defun magit-list-repos* (dir depth)
   "Return a list of repos found in DIR, recursing up to DEPTH levels deep."
-  (if (magit-git-repo-p dir)
+  (if (file-readable-p (expand-file-name ".git" dir))
       (list (expand-file-name dir))
     (and (> depth 0)
-         (file-directory-p dir)
+         (file-accessible-directory-p dir)
          (not (member (file-name-nondirectory dir)
                       '(".." ".")))
          (cl-loop for entry in (directory-files dir t nil t)
