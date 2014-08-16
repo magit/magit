@@ -3394,7 +3394,7 @@ tracked in the current repository."
 
 (defun magit-refresh-buffer ()
   (when magit-refresh-function
-    (let  ((section (magit-current-section)) ident line char other)
+    (let  ((section (magit-current-section)) line char)
       (when section
         (setq line (count-lines (magit-section-start section) (point))
               char (- (point) (line-beginning-position))))
