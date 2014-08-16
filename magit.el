@@ -920,7 +920,7 @@ and end with a `format'-like spec, one of:
 When `HEAD' is detached then \"HEAD\" is used for both %b and %r.
 The use of %r is recommended but %b is used in the default value
 for compatibilty with git-wip (https://github.com/bartman/git-wip)."
-  :group 'magit-modes
+  :group 'magit-wip
   :type 'string)
 
 ;;;; Custom Faces
