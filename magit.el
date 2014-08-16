@@ -94,8 +94,6 @@
 (declare-function epg-list-keys 'epg)
 (eval-when-compile (require 'eshell))
 (declare-function eshell-parse-arguments 'eshell)
-(eval-when-compile (require 'ido))
-(declare-function ido-completing-read 'ido)
 (eval-when-compile (require 'smerge-mode))
 
 
@@ -278,23 +276,6 @@ belong to processes that are still running are never removed."
 
 ;;;;; Common
 
-(defcustom magit-no-confirm nil
-  "A list of symbols for actions Magit should not confirm, or t.
-Actions are: `stage-all', `unstage-all', `reverse', `discard',
-`trash', `delete', `resurrect', `rename', `kill-process',
-`abort-merge', `merge-dirty', `drop-stashes', `reset-bisect'.
-If t, confirmation is never needed."
-  :package-version '(magit . "2.1.0")
-  :group 'magit
-  :type '(choice (const :tag "Confirmation never needed" t)
-                 (set (const stage-all)     (const unstage-all)
-                      (const reverse)       (const discard)
-                      (const trash)         (const delete)
-                      (const resurrect)     (const rename)
-                      (const kill-process)  (const abort-merge)
-                      (const merge-dirty)   (const drop-stashes)
-                      (const resect-bisect))))
-
 (defcustom magit-delete-by-moving-to-trash t
   "Whether Magit uses the system's trash can."
   :package-version '(magit . "2.1.0")
@@ -332,12 +313,6 @@ the user has to confirm each save."
   :type '(choice (const :tag "Never" nil)
                  (const :tag "Ask" t)
                  (const :tag "Save without asking" dontask)))
-
-(defcustom magit-ellipsis ?…
-  "Character used to abreviate text."
-  :package-version '(magit . "2.1.0")
-  :group 'magit
-  :type 'character)
 
 ;;;;; Highlighting
 
@@ -377,14 +352,6 @@ many spaces.  Otherwise, highlight neither."
                                (const :tag "Neither" nil))))) ;^FIXME
 
 ;;;;; Completion
-
-(defcustom magit-completing-read-function 'magit-builtin-completing-read
-  "Function to be called when requesting input from the user."
-  :group 'magit
-  :type '(radio (function-item magit-builtin-completing-read)
-                (function-item magit-ido-completing-read)
-                (function-item helm-completing-read-with-cands-in-buffer)
-                (function :tag "Other")))
 
 (defcustom magit-repo-dirs nil
   "Directories containing Git repositories.
@@ -1586,51 +1553,6 @@ for compatibilty with git-wip (https://github.com/bartman/git-wip)."
 ;;; Utilities
 ;;;; Various Utilities
 
-(defmacro magit-bind-match-strings (varlist string &rest body)
-  (declare (indent 2) (debug (listp form body)))
-  (let ((s (cl-gensym "string"))
-        (i 0))
-    `(let ((,s ,string))
-       (let ,(save-match-data
-               (--map (list it (list 'match-string (cl-incf i) s)) varlist))
-         ,@body))))
-
-(defmacro magit-read-char-case (prompt abort &rest clauses)
-  (declare (indent 2)
-           (debug (form form &rest (characterp form body))))
-  (let ((ng (cl-gensym "ng-"))
-        (p0 (cl-gensym "p0-"))
-        (p1 (cl-gensym "p1-"))
-        (p2 (cl-gensym "p2-")))
-    `(let* ((,ng 0)
-            (,p0 ,prompt)
-            (,p1 (concat ,p0 (mapconcat 'cadr ',clauses ", ")))
-            (,p2 (concat (unless ,p0 "Choose one of ") ,p1
-                         (and ,abort ", or [C-g] to abort")))
-            (cursor-in-echo-area t))
-       (catch 'choice
-         (while (< ,ng 5) ; prevent user panic
-           (cl-case (read-event (concat (if (> ,ng 0) ,p2 ,p1) " "))
-             ,@(--map `(,(car it) (throw 'choice (progn ,@(cddr it))))
-                      clauses)
-             (t (ding) (cl-incf ,ng))))))))
-
-(defun magit-file-line (file)
-  "Return the first line of FILE as a string."
-  (when (file-regular-p file)
-    (with-temp-buffer
-      (insert-file-contents file)
-      (buffer-substring-no-properties (point-min)
-                                      (line-end-position)))))
-
-(defun magit-file-lines (file &optional keep-empty-lines)
-  "Return a list of strings containing one element per line in FILE.
-Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
-  (when (file-regular-p file)
-    (with-temp-buffer
-      (insert-file-contents file)
-      (split-string (buffer-string) "\n" (not keep-empty-lines)))))
-
 (defun magit-format-duration (duration spec width)
   (cl-destructuring-bind (char unit units weight)
       (car spec)
@@ -1642,45 +1564,6 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
             (format (format "%%3i %%-%is" width) cnt
                     (if (= cnt 1) unit units)))
         (magit-format-duration duration (cdr spec) width)))))
-
-(cl-defun magit-confirm (type prompt &optional (files nil sfiles))
-  (cond ((or (eq magit-no-confirm t)
-             (memq type magit-no-confirm))
-         (or (not sfiles)
-             (and files t)))
-        ((not sfiles)
-         (y-or-n-p (concat prompt "? ")))
-        ((= (length files) 1)
-         (y-or-n-p (format "%s %s? " prompt (car files))))
-        ((> (length files) 1)
-         (let ((buffer (get-buffer-create " *Magit Confirm*")))
-           (with-current-buffer buffer
-             (with-current-buffer-window
-              buffer
-              (cons 'display-buffer-below-selected
-                    '((window-height . fit-window-to-buffer)))
-              (lambda (window _value)
-                (with-selected-window window
-                  (unwind-protect
-                      (y-or-n-p (format "%s %i files? "
-                                        prompt (length files)))
-                    (when (window-live-p window)
-                      (quit-restore-window window 'kill)))))
-              (dolist (file files)
-                (insert file "\n"))))))))
-
-(defun magit-string-pad (string width)
-  (concat string (make-string (max 0 (- width (length string))) ?\s)))
-
-(defun magit-delete-line ()
-  "Delete the rest of the current line."
-  (delete-region (point) (1+ (line-end-position))))
-
-(defun magit-delete-match (&optional num)
-  "Delete text matched by last search.
-If optional NUM is specified only delete that subexpression."
-  (delete-region (match-beginning (or num 0))
-                 (match-end (or num 0))))
 
 (defun magit-load-config-extensions ()
   "Load Magit extensions that are defined at the Git config layer."
@@ -3860,72 +3743,6 @@ no output return nil."
     (magit-git-string "config" "--unset" (mapconcat 'identity keys "."))))
 
 ;;;; Completion
-;;;;; Completing Read
-
-(defun magit-completing-read
-  (prompt collection &optional predicate require-match initial-input hist def)
-  "Magit wrapper around `completing-read' or an alternative function.
-
-Option `magit-completing-read-function' can be used to wrap
-around another `completing-read'-like function.  Unless it
-doesn't have the exact same signature, an additional wrapper is
-required.  Even if it has the same signature it might be a good
-idea to wrap it, so that `magit-prompt-with-default' can be used.
-
-See `completing-read' for the meanings of the arguments, but note
-that this wrapper makes the following changes:
-
-- If REQUIRE-MATCH is nil and the user exits without a choise,
-  then return nil instead of an empty string.
-
-- If REQUIRE-MATCH is non-nil and the users exits without a
-  choise, then raise a user-error.
-
-- For historic reasons \": \" is appended to PROMPT.  This will
-  likely be fixed.
-
-- If a `magit-completing-read-function' is used which in turn
-  uses `magit-prompt-with-completion' and DEF is non-nil, then
-  PROMPT is modified to end with \" (default DEF): \".
-
-The use of another completing function and/or wrapper obviously
-results in additional differences."
-  (let ((reply (funcall magit-completing-read-function
-                        (concat prompt ": ") collection predicate
-                        require-match initial-input hist def)))
-    (if (string= reply "")
-        (if require-match
-            (user-error "Nothing selected")
-          nil)
-      reply)))
-
-(defun magit-builtin-completing-read
-  (prompt choices &optional predicate require-match initial-input hist def)
-  "Magit wrapper for standard `completing-read' function."
-  (completing-read (magit-prompt-with-default prompt def)
-                   choices predicate require-match
-                   initial-input hist def))
-
-(defun magit-ido-completing-read
-  (prompt choices &optional predicate require-match initial-input hist def)
-  "Ido-based completing-read almost-replacement."
-  (require 'ido)
-  (let ((reply (ido-completing-read
-                prompt
-                (if (consp (car choices))
-                    (mapcar #'car choices)
-                  choices)
-                predicate require-match initial-input hist def)))
-    (or (and (consp (car choices))
-             (cdr (assoc reply choices)))
-        reply)))
-
-(defun magit-prompt-with-default (prompt def)
-  (if (and def (> (length prompt) 2)
-           (string-equal ": " (substring prompt -2)))
-      (format "%s (default %s): " (substring prompt 0 -2) def)
-    prompt))
-
 ;;;;; Revision Completion
 
 (defvar magit-read-rev-history nil)
@@ -3963,15 +3780,6 @@ results in additional differences."
                                nil t nil nil atpoint))))
 
 ;;;;; Miscellaneous Completion
-
-(defun magit-read-string
-    (prompt &optional initial-input history default-value)
-  (let ((reply (read-string (magit-prompt-with-default
-                             (concat prompt ": ") default-value)
-                            initial-input history default-value)))
-    (if (string= reply "")
-        (user-error "Need non-empty input")
-      reply)))
 
 (defun magit-read-remote (prompt &optional default)
   (magit-completing-read prompt (magit-git-lines "remote")
