@@ -330,23 +330,12 @@ the user has to confirm each save."
 
 ;;;;; Highlighting
 
-(defun magit-set-variable-and-refresh (symbol value)
-  "Set SYMBOL to VALUE and call `magit-refresh-all'."
-  (set-default symbol value)
-  ;; If Magit isn't fully loaded yet no buffer that might
-  ;; need refreshing can exist and we can take a shortcut.
-  ;; We also don't want everything to repeatedly refresh
-  ;; when evaluating this file.
-  (when (and (featurep 'magit) (not buffer-file-name))
-    (magit-refresh-all)))
-
 (defcustom magit-highlight-whitespace t
   "Specify where to highlight whitespace errors.
 See `magit-highlight-trailing-whitespace',
 `magit-highlight-indentation'.  The symbol t means in all diffs,
 `status' means only in the status buffer, and nil means nowhere."
   :group 'magit
-  :set 'magit-set-variable-and-refresh
   :type '(choice (const :tag "Always" t)
                  (const :tag "Never" nil)
                  (const :tag "In status buffer" status)))
@@ -355,7 +344,6 @@ See `magit-highlight-trailing-whitespace',
   "Whether to highlight whitespace at the end of a line in diffs.
 Used only when `magit-highlight-whitespace' is non-nil."
   :group 'magit
-  :set 'magit-set-variable-and-refresh
   :type 'boolean)
 
 (defcustom magit-highlight-indentation nil
@@ -372,7 +360,6 @@ If the value is `tabs', highlight indentation with tabs.  If the
 value is an integer, highlight indentation with at least that
 many spaces.  Otherwise, highlight neither."
   :group 'magit
-  :set 'magit-set-variable-and-refresh
   :type `(repeat (cons (string :tag "Directory regexp")
                        (choice (const :tag "Tabs" tabs)
                                (integer :tag "Spaces" :value ,tab-width)
@@ -610,8 +597,7 @@ t      show fine differences for the selected diff hunk only.
   :group 'magit-diff
   :type '(choice (const :tag "Never" nil)
                  (const :tag "Selected only" t)
-                 (const :tag "All" all))
-  :set 'magit-set-variable-and-refresh)
+                 (const :tag "All" all)))
 
 ;;;;;; Commit
 
