@@ -782,7 +782,7 @@ be removed again.  Note that due to an issue in Git the
 use of `--graph' is very slow with long histories.  See
 http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
   :package-version '(magit . "2.1.0")
-  :group 'magit-log
+  :group 'magit-status
   :type '(repeat (choice (const "--graph")
                          (const "--decorate")
                          (const "--show-signature"))))
