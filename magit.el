@@ -397,7 +397,7 @@ deep."
   '((t :foreground "magenta"))
   "Face for equivalent cherry commits.")
 
-;;; Modes
+;;; Inspect
 ;;;; Commit Mode
 
 (defvar magit-commit-mode-map
@@ -866,8 +866,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
                       `((?n . ,(propertize tag 'face 'magit-tag)))))))
     (insert ?\n)))
 
-;;; Porcelain
-;;;; Visit
+;;;; Files
 
 ;;;###autoload
 (defun magit-find-file (rev file)
@@ -1008,8 +1007,8 @@ is no file at point then instead visit `default-directory'."
   (dired-jump other-window
               (file-truename (or (magit-file-at-point) default-directory))))
 
-;;;; Act
-;;;;; Init
+;;; Porcelain
+;;;; Init
 
 ;;;###autoload
 (defun magit-init (directory)
@@ -1037,7 +1036,7 @@ Non-interactively DIRECTORY is always (re-)initialized."
        (list dir))))
   (magit-run-git "init" (expand-file-name directory)))
 
-;;;;; Merging
+;;;; Merge
 
 (magit-define-popup magit-merge-popup
   "Popup console for merge commands."
@@ -1175,7 +1174,7 @@ inspect the merge and change the commit message.
            (push "--decorate=full" args))
          args)))))
 
-;;;;; Branching
+;;;; Branch
 
 (magit-define-popup magit-branch-popup
   "Popup console for branch commands."
@@ -1328,7 +1327,7 @@ With prefix, forces the rename even if NEW already exists.
         (insert (mapconcat 'identity (cdr it) "\n"))
         (insert "\n\n")))))
 
-;;;;; Remoting
+;;;; Remotes
 
 (magit-define-popup magit-remote-popup
   "Popup console for remote commands."
@@ -1363,7 +1362,7 @@ With prefix, forces the rename even if NEW already exists.
   (unless (string= old new)
     (magit-run-git "remote" "rename" old new)))
 
-;;;;; Rebasing
+;;;; Rebase
 
 (magit-define-popup magit-rebase-popup
   "Key menu for rebasing."
@@ -1544,7 +1543,7 @@ With prefix, forces the rename even if NEW already exists.
                   (magit-format-rev-summary hash) ?\n))))
     (insert ?\n)))
 
-;;;;; AM
+;;;; Patch
 
 (magit-define-popup magit-am-popup
   "Popup console for mailbox commands."
@@ -1622,7 +1621,7 @@ With prefix, forces the rename even if NEW already exists.
         (magit-insert-heading "Applying patches:")
         (magit-insert-rebase-apply-sequence)))))
 
-;;;;; Reset
+;;;; Reset
 
 ;;;###autoload
 (defun magit-reset-index (commit)
@@ -1674,7 +1673,7 @@ With a prefix argument also reset the working tree.
                          (or (magit-branch-or-commit-at-point) "HEAD"))))
   (magit-run-git "reset" "--hard" commit))
 
-;;;;; Fetching
+;;;; Fetch
 
 (magit-define-popup magit-fetch-popup
   "Popup console for fetch commands."
@@ -1708,7 +1707,7 @@ If there is no default remote, ask for one."
   (interactive)
   (magit-run-git-async "remote" "update" magit-current-popup-args))
 
-;;;;; Pulling
+;;;; Pull
 
 (magit-define-popup magit-pull-popup
   "Popup console for pull commands."
@@ -1774,7 +1773,7 @@ arguments are not saved."
                         chosen-branch-remote
                         chosen-branch-merge-name))))))
 
-;;;;; Pushing
+;;;; Push
 
 (magit-define-popup magit-push-popup
   "Popup console for push commands."
@@ -1853,7 +1852,7 @@ Also see option `magit-set-upstream-on-push'."
      (if used-branch (format "%s:%s" branch used-branch) branch)
      magit-current-popup-args)))
 
-;;;;; Committing
+;;;; Commit
 
 (with-no-warnings ; quiet 24.3.50 byte-compiler
 (magit-define-popup magit-commit-popup
@@ -2151,7 +2150,7 @@ actually insert the entry."
            (when (looking-at ":")
              (forward-char 2))))))
 
-;;;;; Tagging
+;;;; Tag
 
 (magit-define-popup magit-tag-popup
   "Popup console for tag commands."
@@ -2185,7 +2184,7 @@ With a prefix argument annotate the tag.
   (interactive (list (magit-read-tag "Delete Tag" t)))
   (magit-run-git "tag" "-d" name))
 
-;;;;; Stashing
+;;;; Stash
 
 (magit-define-popup magit-stash-popup
   "Popup console for stash commands."
@@ -2321,7 +2320,7 @@ When the region is active offer to drop all contained stashes.
                     " " message "\n"))))
       (insert "\n"))))
 
-;;;;; Cherry-Pick & Revert
+;;;; Pick & Revert
 
 (magit-define-popup magit-cherry-pick-popup
   "Popup console for cherry-pick commands."
@@ -2456,7 +2455,7 @@ When the region is active offer to drop all contained stashes.
                 (insert " " msg "\n"))))))
       (insert "\n"))))
 
-;;;;; Submoduling
+;;;; Submodules
 
 (magit-define-popup magit-submodule-popup
   "Popup console for submodule commands."
@@ -2522,7 +2521,7 @@ With a prefix argument also register submodules in .git/config."
   (let ((default-directory (magit-get-top-dir)))
     (magit-run-git-async "submodule" "sync")))
 
-;;;;; Bisecting
+;;;; Bisect
 
 (magit-define-popup magit-bisect-popup
   "Popup console for bisect commands."
@@ -2657,7 +2656,7 @@ to test.  This command lets Git choose a different one."
         (magit-insert-section (bisect-log)
           (magit-insert (concat hash " is the first bad commit\n")))))))
 
-;;;;; Miscellaneous
+;;;; Miscellaneous
 
 ;;;###autoload
 (defun magit-format-patch (range)
