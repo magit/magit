@@ -289,22 +289,26 @@ deep."
 
 ;;;; Custom Faces
 
-(defface magit-bisect-good
-  '((t :background "LightGreen"
-       :foreground "DarkOliveGreen"))
-  "Face for good bisect revisions."
+(defface magit-dimmed
+  '((((class color) (background light)) :foreground "grey50")
+    (((class color) (background  dark)) :foreground "grey50"))
+  "Face for text that shouldn't stand out."
   :group 'magit-faces)
 
-(defface magit-bisect-skip
-  '((t :background "LightGoldenrod"
-       :foreground "DarkGoldenrod"))
-  "Face for skipped bisect revisions."
+(defface magit-hash
+  '((((class color) (background light)) :foreground "grey60")
+    (((class color) (background  dark)) :foreground "grey40"))
+  "Face for the sha1 part of the log output."
   :group 'magit-faces)
 
-(defface magit-bisect-bad
-  '((t :background "IndianRed1"
-       :foreground "IndianRed4"))
-  "Face for bad bisect revisions."
+(defface magit-head
+  '((((class color) (background light))
+     :background "grey75"
+     :foreground "grey15")
+    (((class color) (background dark))
+     :background "grey30"
+     :foreground "grey90"))
+  "Face for the symbolic ref \"HEAD\"."
   :group 'magit-faces)
 
 (defface magit-tag
@@ -331,28 +335,6 @@ deep."
      :background "grey30"
      :foreground "DarkSeaGreen2"))
   "Face for remote branch head labels shown in log buffer."
-  :group 'magit-faces)
-
-(defface magit-dimmed
-  '((((class color) (background light)) :foreground "grey50")
-    (((class color) (background  dark)) :foreground "grey50"))
-  "Face for text that shouldn't stand out."
-  :group 'magit-faces)
-
-(defface magit-hash
-  '((((class color) (background light)) :foreground "grey60")
-    (((class color) (background  dark)) :foreground "grey40"))
-  "Face for the sha1 part of the log output."
-  :group 'magit-faces)
-
-(defface magit-head
-  '((((class color) (background light))
-     :background "grey75"
-     :foreground "grey15")
-    (((class color) (background dark))
-     :background "grey30"
-     :foreground "grey90"))
-  "Face for the symbolic ref \"HEAD\"."
   :group 'magit-faces)
 
 (defface magit-refname
@@ -388,6 +370,24 @@ deep."
 (defface magit-signature-untrusted
   '((t :foreground "cyan"))
   "Face for good untrusted signatures."
+  :group 'magit-faces)
+
+(defface magit-bisect-good
+  '((t :background "LightGreen"
+       :foreground "DarkOliveGreen"))
+  "Face for good bisect revisions."
+  :group 'magit-faces)
+
+(defface magit-bisect-skip
+  '((t :background "LightGoldenrod"
+       :foreground "DarkGoldenrod"))
+  "Face for skipped bisect revisions."
+  :group 'magit-faces)
+
+(defface magit-bisect-bad
+  '((t :background "IndianRed1"
+       :foreground "IndianRed4"))
+  "Face for bad bisect revisions."
   :group 'magit-faces)
 
 (defface magit-cherry-unmatched
