@@ -519,6 +519,8 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
   (goto-char (point-max))
   (magit-xref-insert-buttons))
 
+(magit-define-section-jumper diffstats "Diffstats")
+
 (defun magit-diff-wash-diffstats ()
   (let (heading diffstats (beg (point)))
     (when (re-search-forward "^ ?\\([0-9]+ +files? change[^\n]*\n\\)" nil t)
@@ -753,6 +755,8 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
     map)
   "Keymap for the `unstaged' section.")
 
+(magit-define-section-jumper unstaged "Unstaged changes")
+
 (defun magit-insert-unstaged-changes ()
   (magit-insert-section (unstaged)
     (magit-insert-heading "Unstaged changes:")
@@ -768,6 +772,8 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
     (define-key map "v"  'magit-reverse)
     map)
   "Keymap for the `staged' section.")
+
+(magit-define-section-jumper staged "Staged changes")
 
 (defun magit-insert-staged-changes ()
   (magit-insert-section (staged)

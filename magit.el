@@ -400,37 +400,6 @@ deep."
 
 ;;;; Keymaps
 
-(defvar magit-stash-section-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map "\r" 'magit-diff-stash)
-    (define-key map "a"  'magit-stash-apply)
-    (define-key map "A"  'magit-stash-pop)
-    (define-key map "k"  'magit-stash-drop)
-    map)
-  "Keymap for `stash' sections.")
-
-(defvar magit-branch-section-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map "\r" 'magit-show-commit)
-    (define-key map "k"  'magit-branch-delete)
-    (define-key map "R"  'magit-branch-rename)
-    map)
-  "Keymap for `branch' sections.")
-
-(defvar magit-remote-section-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map "k"  'magit-remote-remove)
-    (define-key map "R"  'magit-remote-rename)
-    map)
-  "Keymap for `remote' sections.")
-
-(defvar magit-untracked-section-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map "k"  'magit-discard)
-    (define-key map "s"  'magit-stage)
-    map)
-  "Keymap for the `untracked' section.")
-
 (magit-define-popup magit-dispatch-popup
   "Popup console for dispatching other popups."
   'magit-popups
@@ -458,14 +427,6 @@ deep."
              (?z "Stashing"        magit-stash-popup)
              (?! "Running"         magit-run-popup)
              (?$ "Show Process"    magit-display-process)))
-
-(magit-define-section-jumper stashes   "Stashes")
-(magit-define-section-jumper untracked "Untracked files")
-(magit-define-section-jumper unstaged  "Unstaged changes")
-(magit-define-section-jumper staged    "Staged changes")
-(magit-define-section-jumper unpulled  "Unpulled commits")
-(magit-define-section-jumper unpushed  "Unpushed commits")
-(magit-define-section-jumper diffstats "Diffstats")
 
 ;;; Modes (1)
 ;;;; Commit Mode
@@ -696,41 +657,6 @@ can be used to override this."
     (run-hooks 'magit-status-sections-hook))
   (run-hooks 'magit-refresh-status-hook))
 
-;;;; Status Sections
-
-(defun magit-insert-stashes ()
-  ;; #1427 Set log.date to work around an issue in Git <1.7.10.3.
-  (--when-let (magit-git-lines "-c" "log.date=default" "stash" "list")
-    (magit-insert-section (stashes)
-      (magit-insert-heading "Stashes:")
-      (dolist (stash it)
-        (string-match "^\\(stash@{\\([0-9]+\\)}\\): \\(.+\\)$" stash)
-        (magit-bind-match-strings (stash number message) stash
-          (magit-insert-section (stash stash)
-            (insert (propertize (format "stash@{%s}" number) 'face 'magit-hash)
-                    " " message "\n"))))
-      (insert "\n"))))
-
-(defun magit-insert-untracked-files ()
-  (--when-let (--mapcat (and (eq (aref it 0) ??) (list it))
-                        (magit-git-lines "status" "--porcelain"))
-    (magit-insert-section (untracked)
-      (magit-insert-heading "Untracked files:")
-      (dolist (file it)
-        (setq file (magit-decode-git-path (substring file 3)))
-        (magit-insert-section (file file)
-          (insert "\t" file "\n")))
-      (insert "\n"))))
-
-(defun magit-insert-branch-description ()
-  (let ((branch (magit-get-current-branch)))
-    (--when-let (magit-git-lines
-                 "config" (format "branch.%s.description" branch))
-      (magit-insert-section (branchdesc branch t)
-        (magit-insert-heading branch ": " (car it))
-        (insert (mapconcat 'identity (cdr it) "\n"))
-        (insert "\n\n")))))
-
 (defun magit-insert-status-headers (&optional branch upstream)
   (unless branch
     (setq branch (magit-get-current-branch)))
@@ -789,6 +715,26 @@ can be used to override this."
                (format " (%s)"
                        (propertize (format "%s" count) 'face
                                    (if next 'magit-tag 'magit-branch-local))))))
+
+(defvar magit-untracked-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "k"  'magit-discard)
+    (define-key map "s"  'magit-stage)
+    map)
+  "Keymap for the `untracked' section.")
+
+(magit-define-section-jumper untracked "Untracked files")
+
+(defun magit-insert-untracked-files ()
+  (--when-let (--mapcat (and (eq (aref it 0) ??) (list it))
+                        (magit-git-lines "status" "--porcelain"))
+    (magit-insert-section (untracked)
+      (magit-insert-heading "Untracked files:")
+      (dolist (file it)
+        (setq file (magit-decode-git-path (substring file 3)))
+        (magit-insert-section (file file)
+          (insert "\t" file "\n")))
+      (insert "\n"))))
 
 ;;; Porcelain
 ;;;; Visit
@@ -1221,14 +1167,6 @@ checkout the \"master\" branch.
   (set-buffer-modified-p nil))
 
 ;;;###autoload
-(defun magit-branch-edit-description (branch)
-  "Edit the description of BRANCH."
-  (interactive (list (magit-read-rev "Edit branch description"
-                                     (or (magit-branch-or-commit-at-point)
-                                         (magit-get-current-branch)))))
-  (magit-run-git-with-editor "branch" "--edit-description"))
-
-;;;###autoload
 (defun magit-branch-rename (old new &optional force)
   "Rename branch OLD to NEW.
 With prefix, forces the rename even if NEW already exists.
@@ -1242,6 +1180,23 @@ With prefix, forces the rename even if NEW already exists.
            current-prefix-arg)))
   (unless (string= old new)
     (magit-run-git "branch" (if force "-M" "-m") old new)))
+
+;;;###autoload
+(defun magit-branch-edit-description (branch)
+  "Edit the description of BRANCH."
+  (interactive (list (magit-read-rev "Edit branch description"
+                                     (or (magit-branch-or-commit-at-point)
+                                         (magit-get-current-branch)))))
+  (magit-run-git-with-editor "branch" "--edit-description"))
+
+(defun magit-insert-branch-description ()
+  (let ((branch (magit-get-current-branch)))
+    (--when-let (magit-git-lines
+                 "config" (format "branch.%s.description" branch))
+      (magit-insert-section (branchdesc branch t)
+        (magit-insert-heading branch ": " (car it))
+        (insert (mapconcat 'identity (cdr it) "\n"))
+        (insert "\n\n")))))
 
 ;;;;; Remoting
 
@@ -2212,6 +2167,30 @@ When the region is active offer to drop all contained stashes.
 (defun magit-stash-format-snapshot-message ()
   (format-time-string magit-stash-snapshot-message-format (current-time)))
 
+(defvar magit-stash-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\r" 'magit-diff-stash)
+    (define-key map "a"  'magit-stash-apply)
+    (define-key map "A"  'magit-stash-pop)
+    (define-key map "k"  'magit-stash-drop)
+    map)
+  "Keymap for `stash' sections.")
+
+(magit-define-section-jumper stashes "Stashes")
+
+(defun magit-insert-stashes ()
+  ;; #1427 Set log.date to work around an issue in Git <1.7.10.3.
+  (--when-let (magit-git-lines "-c" "log.date=default" "stash" "list")
+    (magit-insert-section (stashes)
+      (magit-insert-heading "Stashes:")
+      (dolist (stash it)
+        (string-match "^\\(stash@{\\([0-9]+\\)}\\): \\(.+\\)$" stash)
+        (magit-bind-match-strings (stash number message) stash
+          (magit-insert-section (stash stash)
+            (insert (propertize (format "stash@{%s}" number) 'face 'magit-hash)
+                    " " message "\n"))))
+      (insert "\n"))))
+
 ;;;;; Cherry-Pick & Revert
 
 (magit-define-popup magit-cherry-pick-popup
@@ -2625,6 +2604,21 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 (defvar magit-local-branch-format "%c %-25n %U%m\n")
 (defvar magit-remote-branch-format "%c %-25n %m\n")
 (defvar magit-tags-format "    %n\n")
+
+(defvar magit-branch-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\r" 'magit-show-commit)
+    (define-key map "k"  'magit-branch-delete)
+    (define-key map "R"  'magit-branch-rename)
+    map)
+  "Keymap for `branch' sections.")
+
+(defvar magit-remote-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "k"  'magit-remote-remove)
+    (define-key map "R"  'magit-remote-rename)
+    map)
+  "Keymap for `remote' sections.")
 
 (defun magit-insert-local-branches ()
   (magit-insert-section (local nil)
