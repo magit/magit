@@ -554,11 +554,10 @@ The following `format'-like specs are supported:
   :group 'magit-diff
   :type 'string)
 
-(defcustom magit-show-diffstat t
-  "Whether to show diffstat in diff and commit buffers."
+(defcustom magit-diff-show-diffstat t
+  "Whether to show diffstat in diff buffers."
   :package-version '(magit . "2.1.0")
   :group 'magit-diff
-  :group 'magit-commit
   :type 'boolean)
 
 (defcustom magit-diff-options nil
@@ -616,6 +615,12 @@ The following `format'-like specs are supported:
   :package-version '(magit . "2.1.0")
   :group 'magit-commit
   :type 'string)
+
+(defcustom magit-commit-show-diffstat t
+  "Whether to show diffstat in commit buffers."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-commit
+  :type 'boolean)
 
 ;; This variable is only a temporary hack.
 (defvar magit-commit-extra-options '("--decorate=full" "--pretty=medium"))
@@ -4157,7 +4162,7 @@ commit or stash at point, then prompt for a commit."
   (magit-insert-section (commitbuf)
     (magit-git-wash #'magit-wash-commit
       "log" "-1" "-p" "--cc" "--no-prefix"
-      (and magit-show-diffstat "--stat")
+      (and magit-commit-show-diffstat "--stat")
       magit-diff-options
       magit-diff-extra-options
       magit-commit-extra-options
@@ -7279,7 +7284,7 @@ actually were a single commit."
             "Staged changes"
           "Unstaged changes")))
     (magit-git-wash #'magit-wash-diffs
-      "diff" "-p" (and magit-show-diffstat "--stat")
+      "diff" "-p" (and magit-diff-show-diffstat "--stat")
       magit-diff-extra-options
       range args magit-diff-options "--")))
 
