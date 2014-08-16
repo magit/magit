@@ -57,6 +57,8 @@
 
 ;;; Code:
 
+(require 'cl-lib)
+
 (require 'magit)
 
 ;;; Options

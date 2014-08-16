@@ -49,12 +49,12 @@
 ;;; Code:
 ;;;; Dependencies
 
-(require 'button)
 (require 'cl-lib)
 (require 'dash)
-(require 'format-spec)
 
 ;;;; Declarations
+(require 'button)
+(require 'format-spec)
 
 (declare-function info 'info)
 (declare-function magit-refresh 'magit)

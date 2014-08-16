@@ -54,6 +54,9 @@
 (when (version< emacs-version "24.1")
   (error "Magit requires at least GNU Emacs 24.1"))
 
+(require 'cl-lib)
+(require 'dash)
+
 (require 'git-commit-mode)
 (require 'git-rebase-mode)
 (require 'with-editor)
@@ -62,8 +65,6 @@
 
 (require 'ansi-color)
 (require 'autorevert)
-(require 'cl-lib)
-(require 'dash)
 (require 'diff-mode)
 (require 'format-spec)
 (require 'help-mode)

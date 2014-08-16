@@ -28,9 +28,9 @@
 
 ;;; Code:
 
-(require 'cl-lib)
-(require 'ediff)
 (require 'magit)
+
+(require 'ediff)
 (require 'smerge-mode)
 
 ;;;###autoload

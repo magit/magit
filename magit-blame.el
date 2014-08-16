@@ -29,8 +29,6 @@
 
 ;;; Code:
 
-(require 'cl-lib)
-(require 'dash)
 (require 'magit)
 
 ;;; Options
