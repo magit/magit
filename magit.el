@@ -2500,7 +2500,7 @@ absolute value.  Sections at higher levels are hidden."
          (mapc 'magit-section-highlight (magit-section-children section)))
         (hunk
          (put-text-property beg end 'face 'magit-hunk-heading-highlight)
-         (magit-paint-hunk section t)
+         (magit-diff-paint-hunk section t)
          (when (eq magit-diff-refine-hunk t)
            (magit-diff-refine-hunk section)))
         (t
@@ -2518,7 +2518,7 @@ absolute value.  Sections at higher levels are hidden."
          (mapc 'magit-section-unhighlight (magit-section-children section)))
         (hunk
          (put-text-property beg end 'face 'magit-hunk-heading)
-         (magit-paint-hunk section nil)
+         (magit-diff-paint-hunk section nil)
          (when (eq magit-diff-refine-hunk t)
            (magit-diff-unrefine-hunk section)))
         (t
@@ -4214,7 +4214,7 @@ commit or stash at point, then prompt for a commit."
             ((re-search-forward "^.[^ ]" bound t)
              (goto-char (1- (match-beginning 0)))))))
   (forward-line)
-  (magit-wash-diffs args))
+  (magit-diff-wash-diffs args))
 
 (defun magit-insert-commit-button (hash)
   (magit-insert-section (commit hash)
@@ -4311,13 +4311,13 @@ can be used to override this."
 (defun magit-insert-unstaged-changes ()
   (magit-insert-section (unstaged)
     (magit-insert-heading "Unstaged changes:")
-    (magit-git-wash #'magit-wash-diffs
+    (magit-git-wash #'magit-diff-wash-diffs
       "diff" magit-diff-options magit-diff-extra-options)))
 
 (defun magit-insert-staged-changes ()
   (magit-insert-section (staged)
     (magit-insert-heading "Staged changes:")
-    (magit-git-wash #'magit-wash-diffs
+    (magit-git-wash #'magit-diff-wash-diffs
       "diff" "--cached" magit-diff-options magit-diff-extra-options)))
 
 (defun magit-insert-unpulled-or-recent-commits ()
@@ -7296,7 +7296,7 @@ actually were a single commit."
         (if (member "--cached" args)
             "Staged changes"
           "Unstaged changes")))
-    (magit-git-wash #'magit-wash-diffs
+    (magit-git-wash #'magit-diff-wash-diffs
       "diff" "-p" (and magit-diff-show-diffstat "--stat")
       magit-diff-extra-options
       range args magit-diff-options "--")))
@@ -7332,18 +7332,18 @@ actually were a single commit."
           "\\(contains modified content\\)\\|"
           "\\([^:]+\\):\\)$"))
 
-(defun magit-wash-diffs (args)
-  (let ((diffstats (magit-wash-diffstats)))
+(defun magit-diff-wash-diffs (args)
+  (let ((diffstats (magit-diff-wash-diffstats)))
     (when (re-search-forward magit-diff-headline-re nil t)
       (goto-char (line-beginning-position))
       (magit-wash-sequence
        (lambda ()
-         (magit-wash-diff args (pop diffstats))))
+         (magit-diff-wash-diff args (pop diffstats))))
       (insert ?\n)))
   (goto-char (point-max))
   (magit-xref-insert-buttons))
 
-(defun magit-wash-diffstats ()
+(defun magit-diff-wash-diffstats ()
   (let (heading diffstats (beg (point)))
     (when (re-search-forward "^ ?\\([0-9]+ +files? change[^\n]*\n\\)" nil t)
       (setq heading (match-string 1))
@@ -7367,7 +7367,7 @@ actually were a single commit."
         (setq diffstats (magit-section-children it))))
     diffstats))
 
-(defun magit-wash-diff (args diffstat)
+(defun magit-diff-wash-diff (args diffstat)
   (cond
    ((looking-at magit-diff-submodule-re)
     (magit-bind-match-strings (module new dirty range) nil
@@ -7455,9 +7455,9 @@ actually were a single commit."
         (when modes
           (magit-insert-section (hunk)
             (insert modes)))
-        (magit-wash-sequence #'magit-wash-hunk))))))
+        (magit-wash-sequence #'magit-diff-wash-hunk))))))
 
-(defun magit-wash-hunk ()
+(defun magit-diff-wash-hunk ()
   (when (looking-at "^@\\{2,\\} \\(.+?\\) @\\{2,\\}\\(?: \\(.*\\)\\)?")
     (let ((heading (match-string 0))
           (value (cons (match-string 2) (split-string (match-string 1)))))
@@ -7469,12 +7469,12 @@ actually were a single commit."
         (while (not (or (eobp) (looking-at magit-diff-headline-re)))
           (forward-line))
         (setf (magit-section-end it) (point))
-        (magit-paint-hunk it nil)
+        (magit-diff-paint-hunk it nil)
         (when (eq magit-diff-refine-hunk 'all)
           (magit-diff-refine-hunk it))))
     t))
 
-(defun magit-paint-hunk (section highlight)
+(defun magit-diff-paint-hunk (section highlight)
   (when (magit-section-value section)
     (let ((beg (magit-section-start   section))
           (cnt (magit-section-content section))
