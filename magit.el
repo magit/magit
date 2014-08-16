@@ -113,6 +113,10 @@
   "Command console popups provided by Magit."
   :group 'magit)
 
+(defgroup magit-commands nil
+  "Options controlling behavior of certain commands."
+  :group 'magit)
+
 (defgroup magit-modes nil
   "Modes used or provided by Magit."
   :group 'magit)
@@ -631,19 +635,19 @@ The following `format'-like specs are supported:
 (defcustom magit-commit-ask-to-stage t
   "Whether to ask to stage everything when committing and nothing is staged."
   :package-version '(magit . "2.1.0")
-  :group 'magit-commit
+  :group 'magit-commands
   :type 'boolean)
 
 (defcustom magit-commit-extend-override-date nil
   "Whether using `magit-commit-extend' changes the committer date."
   :package-version '(magit . "2.1.0")
-  :group 'magit-commit
+  :group 'magit-commands
   :type 'boolean)
 
 (defcustom magit-commit-reword-override-date nil
   "Whether using `magit-commit-reword' changes the committer date."
   :package-version '(magit . "2.1.0")
-  :group 'magit-commit
+  :group 'magit-commands
   :type 'boolean)
 
 (defcustom magit-commit-squash-confirm t
@@ -654,7 +658,7 @@ affects `magit-commit-squash' and `magit-commit-fixup'.  The
 \"instant\" variants always require confirmation because making
 an error while using those is harder to recover from."
   :package-version '(magit . "2.1.0")
-  :group 'magit-commit
+  :group 'magit-commands
   :type 'boolean)
 
 ;;;;;; Log
@@ -816,7 +820,7 @@ have changed on disk and are tracked in the current Git repository."
 (defcustom magit-merge-warn-dirty-worktree t
   "Whether to warn before merging with a dirty worktree."
   :package-version '(magit . "2.1.0")
-  :group 'magit-modes
+  :group 'magit-commands
   :type 'boolean)
 
 (defcustom magit-set-upstream-on-push nil
@@ -827,7 +831,7 @@ nil        don't use --set-upstream.
 t          ask if --set-upstream should be used.
 `dontask'  always use --set-upstream.
 `refuse'   refuse to push unless a remote branch has already been set."
-  :group 'magit-modes
+  :group 'magit-commands
   :type '(choice (const :tag "Never" nil)
                  (const :tag "Ask" t)
                  (const :tag "Ask if not set" askifnotset)
@@ -838,7 +842,7 @@ t          ask if --set-upstream should be used.
   "Snapshot taken at %Y-%m-%d %H:%M:%S"
   "Format for messages of snapshot stashes."
   :package-version '(magit . "2.1.0")
-  :group 'magit-modes
+  :group 'magit-commands
   :type 'string)
 
 (defcustom magit-refs-sections-hook
