@@ -822,7 +822,7 @@ have changed on disk and are tracked in the current Git repository."
   :init-value t)
 
 (defcustom magit-merge-warn-dirty-worktree t
-  "Whether to issue a warning when attempting to start a merge in a dirty worktree."
+  "Whether to warn before merging with a dirty worktree."
   :package-version '(magit . "2.1.0")
   :group 'magit-modes
   :type 'boolean)
