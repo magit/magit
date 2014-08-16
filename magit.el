@@ -2474,7 +2474,7 @@ absolute value.  Sections at higher levels are hidden."
 
 (defvar-local magit-highlight-overlay nil)
 
-(defun magit-highlight-section (&optional force)
+(defun magit-section-update-highlight (&optional force)
   (let ((inhibit-read-only t)
         (deactivate-mark nil)
         (old  magit-current-section)
@@ -3122,7 +3122,7 @@ Magit is documented in info node `(magit)'."
   (buffer-disable-undo)
   (setq truncate-lines t)
   (setq show-trailing-whitespace nil)
-  (add-hook 'post-command-hook #'magit-highlight-section t t)
+  (add-hook 'post-command-hook #'magit-section-update-highlight t t)
   (add-hook 'post-command-hook #'magit-post-command-hook t t))
 
 (defun magit-post-command-hook ()
@@ -3405,7 +3405,7 @@ tracked in the current repository."
       (when section
         (magit-section-goto-successor section line char))
       (run-hooks 'magit-refresh-buffer-hook)
-      (magit-highlight-section))))
+      (magit-section-update-highlight))))
 
 (defun magit-revert-buffers ()
   (-when-let (topdir (magit-get-top-dir))
