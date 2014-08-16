@@ -557,7 +557,7 @@ The following `format'-like specs are supported:
 
 (defcustom magit-diff-options nil
   ""
-  :group 'magit
+  :group 'magit-popups
   :type 'sexp)
 
 (put 'magit-diff-options 'permanent-local t)
