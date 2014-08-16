@@ -67,21 +67,17 @@
 (require 'diff-mode)
 (require 'epa)
 (require 'format-spec)
-(require 'grep)
 (require 'help-mode)
 (require 'package nil t)
-(require 'ring)
 (require 'server)
 (require 'tramp)
-(require 'view)
 
 (eval-when-compile
   (require 'dired)
   (require 'dired-x)
   (require 'eshell)
   (require 'ido)
-  (require 'smerge-mode)
-  (require 'view))
+  (require 'smerge-mode))
 
 ;;;; Declarations
 
