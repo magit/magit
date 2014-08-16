@@ -2547,51 +2547,6 @@ absolute value.  Sections at higher levels are hidden."
             (kill-process process))
         (user-error "Process isn't running")))))
 
-(defvar magit-git-command-history nil)
-
-(magit-define-popup magit-run-popup
-  "Popup console for running raw Git commands."
-  'magit-popups
-  :actions '((?! "Git Subcommand (from root)" magit-git-command-topdir)
-             (?: "Git Subcommand (from pwd)" magit-git-command)
-             (?g "Git Gui" magit-run-git-gui)
-             (?k "Gitk" magit-run-gitk))
-  :default-action 'magit-git-command)
-
-;;;###autoload
-(defun magit-git-command (args directory)
-  "Execute a Git subcommand asynchronously, displaying the output.
-With a prefix argument run Git in the root of the current
-repository.  Non-interactively run Git in DIRECTORY with ARGS."
-  (interactive (magit-git-command-read-args))
-  (require 'eshell)
-  (magit-mode-display-buffer (magit-process-buffer)
-                             'magit-process-mode 'pop-to-buffer)
-  (goto-char (point-max))
-  (let ((default-directory directory))
-    (magit-run-git-async
-     (with-temp-buffer
-       (insert args)
-       (mapcar 'eval (eshell-parse-arguments (point-min)
-                                             (point-max)))))))
-
-(defun magit-git-command-topdir (args directory)
-  "Execute a Git subcommand asynchronously, displaying the output.
-Run Git in the root of the current repository.
-\n(fn)" ; arguments are for internal use
-  (interactive (magit-git-command-read-args t))
-  (magit-git-command args directory))
-
-(defun magit-git-command-read-args (&optional root)
-  (let ((dir (if (or root current-prefix-arg)
-                 (or (magit-get-top-dir)
-                     (user-error "Not inside a Git repository"))
-               default-directory)))
-    (list (magit-read-string (format "Git subcommand (in %s)"
-                                     (abbreviate-file-name dir))
-                             nil 'magit-git-command-history)
-          dir)))
-
 ;;;;; Process Mode
 
 (define-derived-mode magit-process-mode magit-mode "Magit Process"
@@ -7710,6 +7665,53 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
     (insert ?\n)))
 
 ;;; Miscellaneous
+;;;; Git Popup
+
+(defvar magit-git-command-history nil)
+
+(magit-define-popup magit-run-popup
+  "Popup console for running raw Git commands."
+  'magit-popups
+  :actions '((?! "Git Subcommand (from root)" magit-git-command-topdir)
+             (?: "Git Subcommand (from pwd)" magit-git-command)
+             (?g "Git Gui" magit-run-git-gui)
+             (?k "Gitk" magit-run-gitk))
+  :default-action 'magit-git-command)
+
+;;;###autoload
+(defun magit-git-command (args directory)
+  "Execute a Git subcommand asynchronously, displaying the output.
+With a prefix argument run Git in the root of the current
+repository.  Non-interactively run Git in DIRECTORY with ARGS."
+  (interactive (magit-git-command-read-args))
+  (require 'eshell)
+  (magit-mode-display-buffer (magit-process-buffer)
+                             'magit-process-mode 'pop-to-buffer)
+  (goto-char (point-max))
+  (let ((default-directory directory))
+    (magit-run-git-async
+     (with-temp-buffer
+       (insert args)
+       (mapcar 'eval (eshell-parse-arguments (point-min)
+                                             (point-max)))))))
+
+(defun magit-git-command-topdir (args directory)
+  "Execute a Git subcommand asynchronously, displaying the output.
+Run Git in the root of the current repository.
+\n(fn)" ; arguments are for internal use
+  (interactive (magit-git-command-read-args t))
+  (magit-git-command args directory))
+
+(defun magit-git-command-read-args (&optional root)
+  (let ((dir (if (or root current-prefix-arg)
+                 (or (magit-get-top-dir)
+                     (user-error "Not inside a Git repository"))
+               default-directory)))
+    (list (magit-read-string (format "Git subcommand (in %s)"
+                                     (abbreviate-file-name dir))
+                             nil 'magit-git-command-history)
+          dir)))
+
 ;;;; Read Repository
 
 (defun magit-read-top-dir (dir)
