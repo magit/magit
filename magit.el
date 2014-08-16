@@ -328,7 +328,7 @@ the user has to confirm each save."
                  (const :tag "Ask" t)
                  (const :tag "Save without asking" dontask)))
 
-(defcustom magit-ellipsis #x2026 ; "horizontal ellipsis"
+(defcustom magit-ellipsis ?…
   "Character used to abreviate text."
   :package-version '(magit . "2.1.0")
   :group 'magit
