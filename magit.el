@@ -88,36 +88,12 @@
 
 
 ;;; Settings
-;;;; Custom Groups
+;;;; Custom Options
+;;;;; Status Mode
 
 (defgroup magit-status nil
   "Inspect and manipulate Git repositories."
   :group 'magit-modes)
-
-(defgroup magit-commit nil
-  "Inspect and manipulate Git commits."
-  :group 'magit-modes)
-
-;;;; Custom Options
-;;;;; Completion
-
-(defcustom magit-repo-dirs nil
-  "Directories containing Git repositories.
-Magit will look into these directories for Git repositories and
-offer them as choices for `magit-status'."
-  :group 'magit
-  :type '(repeat string))
-
-(defcustom magit-repo-dirs-depth 3
-  "The maximum depth to look for Git repositories.
-When looking for a Git repository below the directories in
-`magit-repo-dirs', Magit will only descend this many levels
-deep."
-  :group 'magit
-  :type 'integer)
-
-;;;;; Modes
-;;;;;; Status
 
 (defcustom magit-status-mode-hook nil
   "Hook run when the `magit-status' buffer is created."
@@ -184,7 +160,11 @@ The following `format'-like specs are supported:
   :group 'magit-status
   :type 'string)
 
-;;;;;; Commit
+;;;;; Commit Mode
+
+(defgroup magit-commit nil
+  "Inspect and manipulate Git commits."
+  :group 'magit-modes)
 
 (defcustom magit-commit-buffer-name-format "*magit-commit: %a*"
   "Name format for buffers used to display a commit.
@@ -210,6 +190,30 @@ The following `format'-like specs are supported:
 
 ;; This variable is only a temporary hack.
 (defvar magit-commit-extra-options '("--decorate=full" "--pretty=medium"))
+
+;;;;; Refs Mode
+
+(defcustom magit-refs-sections-hook
+  '(magit-insert-branch-description
+    magit-insert-local-branches
+    magit-insert-remote-branches
+    magit-insert-tags)
+  "Hook run to insert sections into the references buffer."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-modes
+  :type 'hook)
+
+(defcustom magit-refs-buffer-name-format "*magit-refs: %a*"
+  "Name format for buffers used to display and manage refs.
+
+The following `format'-like specs are supported:
+%a the absolute filename of the repository toplevel.
+%b the basename of the repository toplevel."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-modes
+  :type 'string)
+
+;;;;; Miscellaneous
 
 (defcustom magit-commit-ask-to-stage t
   "Whether to ask to stage everything when committing and nothing is staged."
@@ -240,8 +244,6 @@ an error while using those is harder to recover from."
   :group 'magit-commands
   :type 'boolean)
 
-;;;;;; Others
-
 (defcustom magit-merge-warn-dirty-worktree t
   "Whether to warn before merging with a dirty worktree."
   :package-version '(magit . "2.1.0")
@@ -270,25 +272,20 @@ t          ask if --set-upstream should be used.
   :group 'magit-commands
   :type 'string)
 
-(defcustom magit-refs-sections-hook
-  '(magit-insert-branch-description
-    magit-insert-local-branches
-    magit-insert-remote-branches
-    magit-insert-tags)
-  "Hook run to insert sections into the references buffer."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-modes
-  :type 'hook)
+(defcustom magit-repo-dirs nil
+  "Directories containing Git repositories.
+Magit will look into these directories for Git repositories and
+offer them as choices for `magit-status'."
+  :group 'magit
+  :type '(repeat string))
 
-(defcustom magit-refs-buffer-name-format "*magit-refs: %a*"
-  "Name format for buffers used to display and manage refs.
-
-The following `format'-like specs are supported:
-%a the absolute filename of the repository toplevel.
-%b the basename of the repository toplevel."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-modes
-  :type 'string)
+(defcustom magit-repo-dirs-depth 3
+  "The maximum depth to look for Git repositories.
+When looking for a Git repository below the directories in
+`magit-repo-dirs', Magit will only descend this many levels
+deep."
+  :group 'magit
+  :type 'integer)
 
 ;;;; Custom Faces
 
