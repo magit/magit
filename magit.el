@@ -65,7 +65,6 @@
 (require 'cl-lib)
 (require 'dash)
 (require 'diff-mode)
-(require 'epa)
 (require 'format-spec)
 (require 'help-mode)
 (require 'package nil t)
@@ -75,6 +74,8 @@
 (eval-when-compile
   (require 'dired)
   (require 'dired-x)
+  (require 'epa)
+  (require 'epg)
   (require 'eshell)
   (require 'ido)
   (require 'smerge-mode))
@@ -83,6 +84,12 @@
 
 (declare-function dired-jump 'dired-x)
 (declare-function dired-uncache 'dired)
+(declare-function epg-sub-key-id 'epg)
+(declare-function epg-key-sub-key-list 'epg)
+(declare-function epg-key-user-id-list 'epg)
+(declare-function epg-user-id-string 'epg)
+(declare-function epg-decode-dn 'epg)
+(declare-function epg-list-keys 'epg)
 (declare-function eshell-parse-arguments 'eshell)
 (declare-function ido-completing-read 'ido)
 
@@ -4053,6 +4060,7 @@ results in additional differences."
 (defvar magit-gpg-secret-key-hist nil)
 
 (defun magit-read-gpg-secret-key (prompt &optional initial-input)
+  (require 'epa)
   (let ((keys (--map (list (epg-sub-key-id (car (epg-key-sub-key-list it)))
                            (-when-let (id-obj (car (epg-key-user-id-list it)))
                              (let    ((id-str (epg-user-id-string id-obj)))
