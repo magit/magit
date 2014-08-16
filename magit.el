@@ -275,18 +275,18 @@ t          ask if --set-upstream should be used.
   :group 'magit-commands
   :type 'string)
 
-(defcustom magit-repo-dirs nil
+(defcustom magit-repository-directories nil
   "Directories containing Git repositories.
-Magit will look into these directories for Git repositories and
-offer them as choices for `magit-status'."
+Magit will look into these directories for Git repositories
+and offer them as choices for `magit-status'."
   :group 'magit
   :type '(repeat string))
 
-(defcustom magit-repo-dirs-depth 3
+(defcustom magit-repository-directories-depth 3
   "The maximum depth to look for Git repositories.
 When looking for a Git repository below the directories in
-`magit-repo-dirs', Magit will only descend this many levels
-deep."
+`magit-repository-directories', Magit will only descend this
+many levels deep."
   :group 'magit
   :type 'integer)
 
@@ -595,10 +595,10 @@ Type \\[magit-commit-popup] to create a commit.
 If DIR is not within a Git repository, offer to create a Git
 repository in DIR.
 
-Interactively, a prefix argument means to ask the user which Git
-repository to use even if `default-directory' is under Git
-control.  Two prefix arguments means to ignore `magit-repo-dirs'
-when asking for user input.
+Interactively, a prefix argument means to ask the user which
+Git repository to use even if `default-directory' is under
+Git control.  Two prefix arguments means to ignore
+`magit-repository-directories' when asking for user input.
 
 Depending on option `magit-status-buffer-switch-function' the
 status buffer is shown in another window (the default) or the
@@ -2742,11 +2742,8 @@ Run Git in the root of the current repository.
 ;;;; Read Repository
 
 (defun magit-read-top-dir (dir)
-  "Ask the user for a Git repository.
-The choices offered by auto-completion will be the repositories
-under `magit-repo-dirs'.  If `magit-repo-dirs' is nil or DIR is
-non-nil, then autocompletion will offer directory names."
-  (if (and (not dir) magit-repo-dirs)
+  "Ask the user for a Git repository."
+  (if (and (not dir) magit-repository-directories)
       (let* ((repos (magit-list-repos-uniquify
                      (--map (cons (file-name-nondirectory it) it)
                             (magit-list-repos))))
@@ -2761,7 +2758,8 @@ non-nil, then autocompletion will offer directory names."
                           (or (magit-get-top-dir) default-directory)))))
 
 (defun magit-list-repos ()
-  (--mapcat (magit-list-repos* it magit-repo-dirs-depth) magit-repo-dirs))
+  (--mapcat (magit-list-repos* it magit-repository-directories-depth)
+            magit-repository-directories))
 
 (defun magit-list-repos* (directory depth)
   (cond ((file-exists-p (expand-file-name ".git" directory))
@@ -2879,6 +2877,8 @@ Use the function by the same name instead of this variable.")
 (define-obsolete-variable-alias 'magit-mode-refresh-buffer-hook 'magit-refresh-buffer-hook)
 (define-obsolete-variable-alias 'magit-revert-backup 'magit-apply-backup)
 (define-obsolete-variable-alias 'magit-show-child-count 'magit-section-show-child-count)
+(define-obsolete-variable-alias 'magit-repo-dirs 'magit-repository-directories)
+(define-obsolete-variable-alias 'magit-repo-dirs-depth 'magit-repository-directories-depth)
 
 (provide 'magit)
 
