@@ -69,10 +69,9 @@
 (defun magit-tests--should-have-section (type info)
   (magit-status default-directory)
   (message (buffer-string))
-  (should (cl-find info
+  (should (--first (equal (magit-section-value it) info)
                    (magit-section-children
-                    (magit-get-section `((,type) (status))))
-                   :key 'magit-section-value :test 'equal)))
+                    (magit-get-section `((,type) (status)))))))
 
 ;;; Tests
 ;;;; status

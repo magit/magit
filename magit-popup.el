@@ -299,7 +299,8 @@ that without users being aware of it could lead to tears.
     (key-description (if (vectorp key) key (vector key)))))
 
 (defun magit-popup-lookup (event type)
-  (cl-find event (magit-popup-get type) :key 'magit-popup-event-key))
+  (--first (equal (magit-popup-event-key it) event)
+           (magit-popup-get type)))
 
 (defun magit-popup-get-args ()
   (cl-mapcan (lambda (elt)
@@ -321,8 +322,8 @@ that without users being aware of it could lead to tears.
 (defun magit-popup-convert-options (val def)
   (mapcar (lambda (ev)
             (let* ((a (nth 2 ev))
-                   (v (cl-find (format "^%s\\(.+\\)" a)
-                               val :test 'string-match)))
+                   (r (format "^%s\\(.+\\)" a))
+                   (v (--first (string-match r it) val)))
               (make-magit-popup-event
                :key (car ev)  :dsc (cadr ev) :arg a
                :use (and v t) :val (and v (match-string 1 v))

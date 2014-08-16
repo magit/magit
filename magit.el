@@ -1635,12 +1635,11 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
       (split-string (buffer-string) "\n" (not keep-empty-lines)))))
 
 (defun magit-commit-log-buffer ()
-  (cl-find-if (lambda (buf)
-                (equal (magit-get-top-dir)
-                       (with-current-buffer buf
-                         (and git-commit-mode (magit-get-top-dir)))))
-              (append (buffer-list (selected-frame))
-                      (buffer-list))))
+  (let ((topdir (magit-get-top-dir)))
+    (--first (equal topdir (with-current-buffer it
+                             (and git-commit-mode (magit-get-top-dir))))
+             (append (buffer-list (selected-frame))
+                     (buffer-list)))))
 
 (defun magit-format-duration (duration spec width)
   (cl-destructuring-bind (char unit units weight)
@@ -2162,10 +2161,9 @@ FUNCTION has to move point forward or return nil."
 
 (defun magit-diff-section-for-diffstat (section)
   (let ((file (magit-section-value section)))
-    (cl-find-if (lambda (s)
-                  (and (eq (magit-section-type s) 'file)
-                       (string-equal (magit-section-value s) file)))
-                (magit-section-children magit-root-section))))
+    (--first (and (eq (magit-section-type it) 'file)
+                  (string-equal (magit-section-value it) file))
+             (magit-section-children magit-root-section))))
 
 (defun magit-section-diff-header (section)
   (when (eq (magit-section-type section) 'hunk)
@@ -6466,8 +6464,7 @@ to test.  This command lets Git choose a different one."
       (magit-insert-section (bisect-output t)
         (magit-insert-heading
           (propertize (or (and (string-match done-re (car lines)) (pop lines))
-                          (cl-find-if (apply-partially 'string-match done-re)
-                                      lines)
+                          (--first (string-match done-re it) lines)
                           (pop lines))
                       'face 'magit-section-heading))
         (dolist (line lines)
@@ -6944,11 +6941,12 @@ With a non numeric prefix ARG, show all entries"
     (magit-show-commit it t)))
 
 (defun magit-log-goto-same-commit ()
-  (--when-let (and magit-previous-section
-                   (derived-mode-p 'magit-log-mode)
-                   (--when-let (magit-section-value magit-previous-section)
-                     (cl-find it (magit-section-children magit-root-section)
-                              :test 'equal :key 'magit-section-value)))
+  (--when-let
+      (and magit-previous-section
+           (derived-mode-p 'magit-log-mode)
+           (-when-let (value (magit-section-value magit-previous-section))
+             (--first (equal (magit-section-value it) value)
+                      (magit-section-children magit-root-section))))
     (goto-char (magit-section-start it))))
 
 ;;;; Log Select Mode
@@ -7281,8 +7279,7 @@ actually were a single commit."
   (magit-refresh))
 
 (defun magit-diff-previous-context-lines ()
-  (--if-let (cl-find "^-U\\([0-9]+\\)$" magit-diff-options
-                     :test 'string-match)
+  (--if-let (--first (string-match "^-U\\([0-9]+\\)$" it) magit-diff-options)
       (progn (setq magit-diff-options (delete it magit-diff-options))
              (string-to-number (match-string 1 it)))
     3))
@@ -7510,10 +7507,9 @@ actually were a single commit."
                magit-highlight-indentation
              (setq-local
               magit-highlight-indentation
-              (cdr (cl-find-if (lambda (pair)
-                                 (string-match-p (car pair) default-directory))
-                               (default-value 'magit-highlight-indentation)
-                               :from-end t))))))
+              (cdr (--first (string-match-p (car it) default-directory)
+                            (nreverse
+                             (default-value 'magit-highlight-indentation))))))))
       (when (and magit-highlight-trailing-whitespace
                  (looking-at (concat prefix ".*?\\([ \t]+\\)$")))
         (magit-put-face-property (match-beginning 1) (match-end 1)
