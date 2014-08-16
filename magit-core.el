@@ -31,6 +31,51 @@
 (require 'magit-popup)
 (require 'magit-process)
 
+(defgroup magit nil
+  "Controlling Git from Emacs."
+  :group 'tools)
+
+(defgroup magit-popups nil
+  "Command console popups provided by Magit."
+  :group 'magit)
+
+(defgroup magit-commands nil
+  "Options controlling behavior of certain commands."
+  :group 'magit)
+
+(defgroup magit-modes nil
+  "Modes used or provided by Magit."
+  :group 'magit)
+
+(defgroup magit-extensions nil
+  "Extensions to Magit."
+  :group 'magit)
+
+(defgroup magit-faces nil
+  "Faces used by Magit."
+  :group 'magit
+  :group 'faces)
+
+(custom-add-to-group 'magit-popup  'magit-popups      'custom-group)
+(custom-add-to-group 'magit-popups 'magit-popup       'custom-group)
+(custom-add-to-group 'magit-modes  'magit-popup       'custom-group)
+(custom-add-to-group 'magit-faces  'magit-popup-faces 'custom-group)
+
+(when (featurep 'gitattributes-mode)
+  (custom-add-to-group 'magit-modes 'gitattributes-mode 'custom-group))
+(when (featurep 'gitconfig-mode)
+  (custom-add-to-group 'magit-modes 'gitconfig-mode 'custom-group))
+(when (featurep 'gitignore-mode)
+  (custom-add-to-group 'magit-modes 'gitignore-mode 'custom-group))
+
+(custom-add-to-group 'magit-modes   'git-commit       'custom-group)
+(custom-add-to-group 'magit-faces   'git-commit-faces 'custom-group)
+(custom-add-to-group 'magit-modes   'git-rebase       'custom-group)
+(custom-add-to-group 'magit-faces   'git-rebase-faces 'custom-group)
+(custom-add-to-group 'magit-process 'with-editor      'custom-group)
+
+(custom-add-to-group 'magit 'vc-follow-symlinks 'custom-variable)
+
 ;;; magit-core.el ends soon
 (provide 'magit-core)
 ;; Local Variables:
