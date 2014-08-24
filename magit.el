@@ -2129,6 +2129,23 @@ an existing directory."
                                          localname))))
   (expand-file-name filename))
 
+(defun magit-file-in-repo-p (file repo-dir)
+  "Return non-nil if FILE is in the same git repo as REPO-DIR.
+
+This first uses `string-prefix-p' to test if FILE is a subpath of
+the git top directory for REPO-DIR. Then it tests if FILE has the
+same git top dir. The first step is unnecessary for a correct
+result, but it is performed because it does not require accessing
+the filesystem. This means that if FILE is a remote TRAMP file on
+a server with no open connection (or even a currently
+inaccessible server), calling this function on it will not cause
+Emacs to try to connect to that server (unless the git top dir is
+also on that same server)."
+  (let ((topdir (magit-get-top-dir repo-dir)))
+    (and (string-prefix-p topdir file)
+         (string= topdir
+                  (magit-get-top-dir (file-name-directory buffer-file-name))))))
+
 (defun magit-file-relative-name (file)
   "Return the path of FILE relative to the repository root.
 If FILE isn't inside a Git repository then return nil."
@@ -4712,8 +4729,8 @@ to consider it or not when called with that buffer current."
   "Only prompt to save buffers which are within the current git project.
 As determined by the directory passed to `magit-status'."
   (and buffer-file-name
-       (string= (magit-get-top-dir magit-default-directory)
-                (magit-get-top-dir (file-name-directory buffer-file-name)))))
+       (magit-file-in-repo-p buffer-file-name
+                             (magit-get-top-dir magit-default-directory))))
 
 ;;; Porcelain
 ;;;; Apply
