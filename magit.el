@@ -2433,8 +2433,8 @@ Also see option `magit-set-upstream-on-push'."
   'magit-popups
   :man-page "git-tag"
   :switches '((?a "Annotate" "--annotate")
-              (?f "Force"    "--force")
-              (?s "Sign"     "--sign"))
+              (?s "Sign"     "--sign")
+              (?f "Force"    "--force"))
   :actions  '((?t "Create"   magit-tag)
               (?k "Delete"   magit-tag-delete))
   :default-action 'magit-tag)
