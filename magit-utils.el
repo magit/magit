@@ -106,14 +106,13 @@ idea to wrap it, so that `magit-prompt-with-default' can be used.
 See `completing-read' for the meanings of the arguments, but note
 that this wrapper makes the following changes:
 
-- If REQUIRE-MATCH is nil and the user exits without a choise,
+- If REQUIRE-MATCH is nil and the user exits without a choice,
   then return nil instead of an empty string.
 
 - If REQUIRE-MATCH is non-nil and the users exits without a
-  choise, then raise a user-error.
+  choice, then raise an user-error.
 
-- For historic reasons \": \" is appended to PROMPT.  This will
-  likely be fixed.
+- \": \" is appended to PROMPT.
 
 - If a `magit-completing-read-function' is used which in turn
   uses `magit-prompt-with-completion' and DEF is non-nil, then
