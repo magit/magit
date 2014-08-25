@@ -1768,7 +1768,7 @@ inspect the merge and change the commit message.
 \n(git rebase UPSTREAM[^] [ARGS])"
   (interactive (if (magit-rebase-in-progress-p)
                    (list nil)
-                 (list (magit-read-other-branch
+                 (list (magit-read-other-branch-or-commit
                         "Rebase to"
                         (magit-get-current-branch)
                         (magit-get-tracked-branch))
@@ -1785,7 +1785,7 @@ inspect the merge and change the commit message.
 (defun magit-rebase-onto (newbase upstream &optional args)
   "Start an non-interactive rebase operation, using `--onto'.
 \n(git rebase --onto NEWBASE UPSTREAM[^] [ARGS])"
-  (interactive (list (magit-read-other-branch
+  (interactive (list (magit-read-other-branch-or-commit
                       "Rebase to"
                       (magit-get-current-branch)
                       (magit-get-tracked-branch))
