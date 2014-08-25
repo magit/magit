@@ -641,10 +641,6 @@ no output return nil."
                          nil nil nil
                          'magit-read-rev-history default))
 
-(defun magit-popup-read-rev (prompt initial-input)
-  (magit-completing-read prompt nil nil nil initial-input
-                         'magit-read-rev-history))
-
 (defun magit-read-local-branch (prompt &optional default exclude)
   (magit-completing-read prompt
                          (delete exclude (magit-list-local-branch-names))
