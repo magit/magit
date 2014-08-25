@@ -142,10 +142,12 @@
     (apply 'process-file magit-stgit-executable nil (list t nil) nil args)
     (split-string (buffer-string) "\n" 'omit-nulls)))
 
+(defvar magit-stgit-read-patch-history nil)
+
 (defun magit-stgit-read-patch (prompt &optional require-match)
   (magit-completing-read prompt (magit-stgit-lines "series" "--noprefix")
                          nil require-match
-                         nil 'magit-read-rev-history))
+                         nil 'magit-stgit-read-patch-history))
 
 (defun magit-stgit-read-args (prompt)
   (list (or (magit-section-when stgit-patch)

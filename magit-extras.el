@@ -80,11 +80,10 @@
   "Show changes between the marked commit and the one at point.
 If there is no commit at point, then prompt for one."
   (interactive
-   (let* ((marked (or magit-marked-commit (user-error "No commit marked")))
-          (commit (magit-read-rev (format "Diff marked commit %s with" marked)
-                                  (or (magit-branch-at-point)
-                                      (magit-get-current-branch)))))
-     (list (concat marked ".." commit))))
+   (let ((marked (or magit-marked-commit (user-error "No commit marked"))))
+     (list (concat marked ".."
+                   (magit-read-branch-or-commit
+                    (format "Diff marked commit %s with" marked))))))
   (magit-diff range))
 
 ;;; External Tools
@@ -119,7 +118,7 @@ blame to center around the line point is on."
      (when (or current-prefix-arg
                (not (setq revision "HEAD"
                           filename (magit-file-relative-name))))
-       (setq revision (magit-read-rev "Blame from revision" "HEAD")
+       (setq revision (magit-read-branch-or-commit "Blame from revision")
              filename (magit-read-file-from-rev revision "Blame file")))
      (list revision filename
            (and (equal filename

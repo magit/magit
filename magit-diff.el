@@ -277,7 +277,7 @@ RANGE should be a range (A..B or A...B) but can also be a single
 commit.  If one side of the range is omitted, then it defaults
 to HEAD.  If just a commit is given, then changes in the working
 tree relative to that commit are shown."
-  (interactive (list (magit-read-rev "Diff for range")))
+  (interactive (list (magit-read-range-or-commit "Diff for range")))
   (magit-mode-setup magit-diff-buffer-name-format
                     magit-diff-switch-buffer-function
                     #'magit-diff-mode
@@ -290,9 +290,7 @@ With a prefix argument show changes between the working tree and
 a commit read from the minibuffer."
   (interactive
    (and current-prefix-arg
-        (list (magit-read-rev "Diff working tree and commit"
-                              (or (magit-branch-or-commit-at-point)
-                                  (magit-get-current-branch) "HEAD")))))
+        (list (magit-read-branch-or-commit "Diff working tree and commit"))))
   (magit-diff (or rev "HEAD")))
 
 ;;;###autoload
@@ -302,9 +300,7 @@ With a prefix argument show changes between the index and
 a commit read from the minibuffer."
   (interactive
    (and current-prefix-arg
-        (list (magit-read-rev "Diff index and commit"
-                              (or (magit-branch-or-commit-at-point)
-                                  (magit-get-current-branch) "HEAD")))))
+        (list (magit-read-branch-or-commit "Diff index and commit"))))
   (magit-diff nil (cons "--cached" (and commit (list commit)))))
 
 ;;;###autoload

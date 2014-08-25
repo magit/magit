@@ -432,7 +432,7 @@ for a commit."
           (atpoint (or (and magit-blame-mode (magit-blame-chunk-get :hash))
                        mcommit (magit-branch-or-commit-at-point))))
      (list (or (and (not current-prefix-arg) atpoint)
-               (magit-read-rev "Show commit" atpoint))
+               (magit-read-branch-or-commit "Show commit" atpoint))
            nil (and mcommit (magit-section-parent-value
                              (magit-current-section))))))
   (let ((default-directory (if module
@@ -733,8 +733,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 (defun magit-show-refs (&optional head)
   "List and compare references in a dedicated buffer."
   (interactive (when current-prefix-arg
-                 (list (magit-read-rev "Compare branch"
-                                       (magit-get-current-branch)))))
+                 (list (magit-read-branch "Compare branch"))))
   (magit-mode-setup magit-refs-buffer-name-format nil
                     #'magit-refs-mode
                     #'magit-refresh-refs-buffer head))
@@ -883,9 +882,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   (switch-to-buffer-other-window (magit-find-file-noselect rev file)))
 
 (defun magit-find-file-read-args (prompt)
-  (let ((rev (magit-read-rev "Find file from revision"
-                             (or (magit-branch-or-commit-at-point)
-                                 (magit-get-current-branch)))))
+  (let ((rev (magit-read-branch-or-commit "Find file from revision")))
     (list rev (magit-read-file-from-rev rev prompt))))
 
 (defun magit-get-revision-buffer (rev file &optional create)
@@ -1036,8 +1033,8 @@ other actions from the bisect popup (\
   (interactive
    (if (magit-bisect-in-progress-p)
        (user-error "Already bisecting")
-     (list (magit-read-rev "Start bisect with known bad revision" "HEAD")
-           (magit-read-rev "Good revision" (magit-branch-or-commit-at-point)))))
+     (let ((b (magit-read-branch-or-commit "Start bisect with bad revision")))
+       (list b (magit-read-other-branch-or-commit "Good revision" b)))))
   (magit-bisect-async "start" (list bad good) t))
 
 ;;;###autoload
@@ -1497,13 +1494,7 @@ branch.  If it is something else then `HEAD' becomes detached.
 Checkout fails if the working tree or the staging area contain
 changes.
 \n(git checkout REVISION)."
-  (interactive
-   (list (let ((current (magit-get-current-branch))
-               (default (or (magit-branch-or-commit-at-point)
-                            (magit-get-previous-branch))))
-           (magit-read-rev "Checkout"
-                           (unless (equal default current) default)
-                           current))))
+  (interactive (list (magit-read-other-branch-or-commit "Checkout")))
   (magit-run-git "checkout" revision))
 
 (defun magit-branch (branch start-point &optional args)
@@ -1522,9 +1513,7 @@ changes.
 (defun magit-branch-read-args (prompt)
   (let ((args magit-current-popup-args)
         (branch (magit-read-string prompt))
-        (start  (magit-read-rev "Start point"
-                                (or (magit-branch-or-commit-at-point)
-                                    (magit-get-current-branch)))))
+        (start  (magit-read-branch-or-commit "Start point")))
     (when (and (member "--track" args)
                (not (magit-branch-p start)))
       (setq args (delete "--track" args)))
@@ -1538,11 +1527,10 @@ merged will fail.  With a prefix argument the deletion is forced.
 When BRANCH is the current branch offer to first detach HEAD or
 checkout the \"master\" branch.
 \n(git branch -d|-D BRANCH || git push REMOTE :BRANCH)."
-  (interactive (list (magit-read-rev (if current-prefix-arg
-                                         "Force delete branch"
-                                       "Delete branch")
-                                     (or (magit-branch-at-point)
-                                         (magit-get-previous-branch)))
+  (interactive (list (magit-read-branch (if current-prefix-arg
+                                            "Force delete branch"
+                                          "Delete branch")
+                                        (magit-get-previous-branch))
                      current-prefix-arg))
   (let ((ref (magit-ref-fullname branch)))
     (unless ref
@@ -1569,12 +1557,8 @@ checkout the \"master\" branch.
 (defun magit-branch-set-upstream (branch upstream)
   "Change the UPSTREAM branch of BRANCH."
   (interactive
-   (let* ((atpoint (magit-branch-at-point))
-          (current (magit-get-current-branch))
-          (b (magit-read-rev "Change upstream of branch" (or atpoint current))))
-     (list b (magit-read-rev "Change upstream to branch"
-                             (or (unless (equal atpoint b) atpoint)
-                                 (unless (equal current b) current))))))
+   (let ((b (magit-read-local-branch "Change upstream of branch")))
+     (list b (magit-read-other-branch "Change upstream to branch" b))))
   (if upstream
       (magit-run-git "branch" (concat "--set-upstream-to=" upstream) branch)
     (magit-run-git "branch" "--unset-upstream" branch)))
@@ -1600,9 +1584,7 @@ checkout the \"master\" branch.
 With prefix, forces the rename even if NEW already exists.
 \n(git branch -m|-M OLD NEW)."
   (interactive
-   (let ((branch (magit-read-local-branch
-                  "Rename branch" (or (magit-branch-at-point)
-                                      (magit-get-current-branch)))))
+   (let ((branch (magit-read-local-branch "Rename branch")))
      (list branch
            (magit-read-string (format "Rename branch '%s' to" branch))
            current-prefix-arg)))
@@ -1612,9 +1594,7 @@ With prefix, forces the rename even if NEW already exists.
 ;;;###autoload
 (defun magit-branch-edit-description (branch)
   "Edit the description of BRANCH."
-  (interactive (list (magit-read-rev "Edit branch description"
-                                     (or (magit-branch-or-commit-at-point)
-                                         (magit-get-current-branch)))))
+  (interactive (list (magit-read-local-branch "Edit branch description")))
   (magit-run-git-with-editor "branch" "--edit-description"))
 
 (defun magit-insert-branch-description ()
@@ -1655,7 +1635,7 @@ merge failed to give the user the opportunity to inspect the
 merge.
 
 \(git merge --no-edit|--no-commit [ARGS] REV)"
-  (interactive (list (magit-merge-read-rev)
+  (interactive (list (magit-read-other-branch-or-commit "Merge")
                      magit-current-popup-args
                      current-prefix-arg))
   (magit-merge-assert)
@@ -1667,7 +1647,8 @@ merge.
 Perform the merge and prepare a commit message but let the user
 edit it.
 \n(git merge --edit [ARGS] rev)"
-  (interactive (list (magit-merge-read-rev) magit-current-popup-args))
+  (interactive (list (magit-read-other-branch-or-commit "Merge")
+                     magit-current-popup-args))
   (magit-merge-assert)
   (magit-run-git-with-editor "merge" "--edit" args rev))
 
@@ -1677,7 +1658,8 @@ edit it.
 Pretend the merge failed to give the user the opportunity to
 inspect the merge and change the commit message.
 \n(git merge --no-commit [ARGS] rev)"
-  (interactive (list (magit-merge-read-rev) magit-current-popup-args))
+  (interactive (list (magit-read-other-branch-or-commit "Merge")
+                     magit-current-popup-args))
   (magit-merge-assert)
   (magit-run-git "merge" "--no-commit" args rev))
 
@@ -1739,11 +1721,6 @@ inspect the merge and change the commit message.
        "Running merge in a dirty worktree could cause data loss.  Continue")
       (user-error "Abort")))
 
-(defun magit-merge-read-rev ()
-  (magit-read-rev "Merge"
-                  (or (magit-branch-or-commit-at-point)
-                      (magit-get-previous-branch))))
-
 (defun magit-checkout-read-stage (file)
   (magit-read-char-case (format "For %s checkout: " file) t
     (?o "[o]ur stage"   "--ours")
@@ -1789,13 +1766,13 @@ inspect the merge and change the commit message.
 (defun magit-rebase (upstream &optional args)
   "Start an non-interactive rebase operation.
 \n(git rebase UPSTREAM[^] [ARGS])"
-  (interactive
-   (if (magit-rebase-in-progress-p)
-       (list nil)
-     (let ((branch (magit-get-current-branch)))
-       (list (magit-read-rev
-              "Rebase to" (magit-get-tracked-branch branch) branch)
-             magit-current-popup-args))))
+  (interactive (if (magit-rebase-in-progress-p)
+                   (list nil)
+                 (list (magit-read-other-branch
+                        "Rebase to"
+                        (magit-get-current-branch)
+                        (magit-get-tracked-branch))
+                       magit-current-popup-args)))
   (if upstream
       (progn (message "Rebasing...")
              (magit-rebase-async upstream args)
@@ -1808,7 +1785,11 @@ inspect the merge and change the commit message.
 (defun magit-rebase-onto (newbase upstream &optional args)
   "Start an non-interactive rebase operation, using `--onto'.
 \n(git rebase --onto NEWBASE UPSTREAM[^] [ARGS])"
-  (interactive (list (magit-read-rev "Rebase onto") nil))
+  (interactive (list (magit-read-other-branch
+                      "Rebase to"
+                      (magit-get-current-branch)
+                      (magit-get-tracked-branch))
+                     nil))
   (if upstream
       (progn (message "Rebasing...")
              (magit-rebase-async "--onto" newbase upstream args)
@@ -2039,13 +2020,9 @@ inspect the merge and change the commit message.
     (list (if (or current-prefix-arg
                   (not selection)
                   (not (eq (magit-section-type (car selection)) 'commit)))
-              (let ((atpoint (magit-branch-or-commit-at-point)))
-                (if (eq command 'cherry-pick)
-                    (let ((current (magit-get-current-branch)))
-                      (when (equal atpoint current)
-                        (setq atpoint nil))
-                      (magit-read-rev prompt atpoint current))
-                  (magit-read-rev prompt atpoint)))
+              (if (eq command 'cherry-pick)
+                  (magit-read-other-branch-or-commit prompt)
+                (magit-read-branch-or-commit prompt))
             (setq selection (mapcar 'magit-section-value selection))
             (if (eq command 'cherry-pick)
                 (nreverse selection)
@@ -2166,9 +2143,7 @@ inspect the merge and change the commit message.
 Keep the head and working tree as-is, so if COMMIT revers to the
 head this effectivley unstages all changes.
 \n(git reset --mixed COMMIT)"
-  (interactive
-   (list (magit-read-rev "Reset index to"
-                         (or (magit-branch-or-commit-at-point) "HEAD"))))
+  (interactive (list (magit-read-branch-or-commit "Reset index to")))
   (magit-run-git "reset" commit "--"))
 
 ;;;###autoload
@@ -2176,38 +2151,31 @@ head this effectivley unstages all changes.
   "Reset the head and index to COMMIT, but not the working tree.
 With a prefix argument also reset the working tree.
 \n(git reset --mixed|--hard COMMIT)"
-  (interactive
-   (list (magit-read-rev (if current-prefix-arg
-                             "Hard reset to"
-                           "Reset head to")
-                         (or (magit-branch-or-commit-at-point) "HEAD"))))
+  (interactive (list (magit-read-branch-or-commit
+                      (if current-prefix-arg
+                          "Hard reset to"
+                        "Reset head to"))))
   (magit-run-git "reset" (if current-prefix-arg "--hard" "--mixed") commit))
 
 ;;;###autoload
 (defun magit-reset-head (commit)
   "Reset the head and index to COMMIT, but not the working tree.
 \n(git reset --mixed COMMIT)"
-  (interactive
-   (list (magit-read-rev "Reset head to"
-                         (or (magit-branch-or-commit-at-point) "HEAD"))))
+  (interactive (list (magit-read-branch-or-commit "Reset head to")))
   (magit-run-git "reset" "--mixed" commit))
 
 ;;;###autoload
 (defun magit-reset-soft (commit)
   "Reset the head to COMMIT, but not the index and working tree.
 \n(git reset --soft REVISION)"
-  (interactive
-   (list (magit-read-rev "Soft reset to"
-                         (or (magit-branch-or-commit-at-point) "HEAD"))))
+  (interactive (list (magit-read-branch-or-commit "Soft reset to")))
   (magit-run-git "reset" "--soft" commit))
 
 ;;;###autoload
 (defun magit-reset-hard (commit)
   "Reset the head, index, and working tree to COMMIT.
 \n(git reset --hard REVISION)"
-  (interactive
-   (list (magit-read-rev "Hard reset to"
-                         (or (magit-branch-or-commit-at-point) "HEAD"))))
+  (interactive (list (magit-read-branch-or-commit "Hard reset to")))
   (magit-run-git "reset" "--hard" commit))
 
 ;;; Transfer
@@ -2445,8 +2413,7 @@ Also see option `magit-set-upstream-on-push'."
 With a prefix argument annotate the tag.
 \n(git tag [--annotate] NAME REV)"
   (interactive (list (magit-read-tag "Tag name")
-                     (magit-read-rev "Place tag on"
-                                     (or (magit-branch-or-commit-at-point) "HEAD"))
+                     (magit-read-branch-or-commit "Place tag on")
                      (let ((args magit-current-popup-args))
                        (when current-prefix-arg
                          (add-to-list 'args "--annotate"))
@@ -2802,7 +2769,7 @@ Run Git in the root of the current repository.
        (setq revs nil))
      (setq revs (nreverse (mapcar 'magit-section-value revs)))
      (list (if (or current-prefix-arg (not revs))
-               (magit-read-rev "Format range")
+               (magit-read-range-or-commit "Format range")
              (concat (car revs) "^.." (car (last revs)))))))
   (magit-run-git "format-patch" range))
 
