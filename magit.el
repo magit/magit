@@ -2440,18 +2440,18 @@ Also see option `magit-set-upstream-on-push'."
   :default-action 'magit-tag)
 
 ;;;###autoload
-(defun magit-tag (name rev &optional annotate)
+(defun magit-tag (name rev &optional args)
   "Create a new tag with the given NAME at REV.
 With a prefix argument annotate the tag.
 \n(git tag [--annotate] NAME REV)"
   (interactive (list (magit-read-tag "Tag name")
                      (magit-read-rev "Place tag on"
                                      (or (magit-branch-or-commit-at-point) "HEAD"))
-                     current-prefix-arg))
-  (let ((args magit-current-popup-args))
-    (when annotate
-      (add-to-list 'args "--annotate"))
-    (magit-run-git-with-editor "tag" args name rev)))
+                     (let ((args magit-current-popup-args))
+                       (when current-prefix-arg
+                         (add-to-list 'args "--annotate"))
+                       args)))
+  (magit-run-git-with-editor "tag" args name rev))
 
 ;;;###autoload
 (defun magit-tag-delete (name)
