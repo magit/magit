@@ -42,27 +42,21 @@
   :group 'magit)
 
 (defcustom magit-git-executable
+  ;; Git might be installed in a different location on a remote, so
+  ;; it is better not to use the full path to the executable, except
+  ;; on Window were we would otherwise end up using one one of the
+  ;; wrappers "cmd/git.exe" or "cmd/git.cmd", which are much slower
+  ;; than using "bin/git.exe" directly.
   (or (and (eq system-type 'windows-nt)
-           ;; On Windows asking for "git" from $PATH might also return
-           ;; a "git.exe" or "git.cmd".  Using "bin/git.exe" directly
-           ;; is faster than using one of the wrappers "cmd/git.exe"
-           ;; or "cmd/git.cmd".  The wrappers are likely to come
-           ;; earlier on $PATH, and so we have to exlicitly use
-           ;; the former.
-           (let ((exe (executable-find "git.exe")))
-             (when exe
-               (let ((alt (directory-file-name (file-name-directory exe))))
-                 (if (and (equal (file-name-nondirectory alt) "cmd")
-                          (setq alt (expand-file-name
-                                     (convert-standard-filename "bin/git.exe")
-                                     (file-name-directory alt)))
-                          (file-executable-p alt))
-                     alt
-                   exe)))))
-      ;; When the only cost is finding the executable, then it it
-      ;; better not to cache the full path.  It might not be installed
-      ;; in the same location on machines whose repositories are
-      ;; accessed using Tramp.
+           (--when-let (executable-find "git.exe")
+             (let ((alt (directory-file-name (file-name-directory it))))
+               (if (and (equal (file-name-nondirectory alt) "cmd")
+                        (setq alt (expand-file-name
+                                   (convert-standard-filename "bin/git.exe")
+                                   (file-name-directory alt)))
+                        (file-executable-p alt))
+                   alt
+                 it))))
       "git")
   "The Git executable used by Magit."
   :group 'magit-process
