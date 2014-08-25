@@ -626,27 +626,57 @@ no output return nil."
 
 ;;; Completion
 
-(defvar magit-read-rev-history nil)
+(defvar magit-revision-history nil)
 
-(defun magit-read-rev (prompt &optional default exclude)
-  (setq default (magit-git-string "rev-parse" "--symbolic" default)
-        exclude (magit-git-string "rev-parse" "--symbolic" exclude))
-  (magit-completing-read prompt (delete exclude (magit-list-refnames))
-                         nil nil nil
-                         'magit-read-rev-history default))
+(defun magit-read-branch (prompt &optional default)
+  (magit-completing-read prompt (magit-list-branch-names)
+                         nil t nil 'magit-revision-history
+                         (or (magit-branch-at-point)
+                             default (magit-get-current-branch))))
 
-(defun magit-read-local-branch (prompt &optional default exclude)
-  (magit-completing-read prompt
-                         (delete exclude (magit-list-local-branch-names))
-                         nil t nil nil default))
+(defun magit-read-branch-or-commit (prompt &optional default)
+  (or (magit-completing-read prompt (magit-list-refnames)
+                             nil nil nil 'magit-revision-history
+                             (or (magit-branch-or-commit-at-point)
+                                 default (magit-get-current-branch)))
+      (user-error "Nothing selected")))
+
+(defalias 'magit-read-range-or-commit #'magit-read-branch-or-commit)
 
 (defun magit-read-remote-branch (prompt remote &optional default)
   (magit-completing-read prompt (magit-list-remote-branch-names remote t)
-                         nil nil nil nil default))
+                         nil nil nil 'magit-revision-history default))
+
+(defun magit-read-local-branch (prompt &optional default)
+  (magit-completing-read prompt (magit-list-local-branch-names)
+                         nil t nil 'magit-revision-history
+                         (or (magit-branch-at-point)
+                             default (magit-get-current-branch))))
+
+(defun magit-read-other-branch (prompt &optional exclude default)
+  (let* ((current (magit-get-current-branch))
+         (atpoint (magit-branch-at-point))
+         (exclude (or exclude current))
+         (default (or (and (not (equal atpoint exclude)) atpoint)
+                      (and (not (equal current exclude)) current)
+                      default (magit-get-previous-branch))))
+    (magit-completing-read prompt (delete exclude (magit-list-branch-names))
+                           nil t nil 'magit-revision-history default)))
+
+(defun magit-read-other-branch-or-commit (prompt &optional exclude default)
+  (let* ((current (magit-get-current-branch))
+         (atpoint (magit-branch-or-commit-at-point))
+         (exclude (or exclude current))
+         (default (or (and (not (equal atpoint exclude)) atpoint)
+                      (and (not (equal current exclude)) current)
+                      default (magit-get-previous-branch))))
+    (or (magit-completing-read prompt (delete exclude (magit-list-refnames))
+                               nil nil nil 'magit-revision-history default)
+        (user-error "Nothing selected"))))
 
 (defun magit-read-tag (prompt &optional require-match)
   (magit-completing-read prompt (magit-git-lines "tag") nil
-                         require-match nil 'magit-read-rev-history))
+                         require-match nil 'magit-revision-history))
 
 (defun magit-read-stash (prompt &optional use-at-point)
   (let ((atpoint (magit-stash-at-point)))

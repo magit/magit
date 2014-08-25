@@ -353,16 +353,18 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
   (magit-log-verbose range args))
 
 (defun magit-log-read-args (dwim patch)
-  (let ((default "HEAD"))
-    (list (if (if dwim (not current-prefix-arg) current-prefix-arg)
-              default
-            (magit-read-rev (format "Show %s log for ref/rev/range"
-                                    (if patch "verbose" "oneline"))
-                            default))
-          (if (--any? (string-match-p "^\\(-G\\|--grep=\\)" it)
-                      magit-current-popup-args)
-              (delete "--graph" magit-current-popup-args)
-            magit-current-popup-args))))
+  (list (if (if dwim (not current-prefix-arg) current-prefix-arg)
+            (or (magit-get-current-branch) "HEAD")
+          (magit-read-range-or-commit
+           (format "Show %s log for ref/rev/range"
+                   (if patch "verbose" "oneline"))
+           (if dwim
+               (magit-get-current-branch)
+             (magit-get-previous-branch))))
+        (if (--any? (string-match-p "^\\(-G\\|--grep=\\)" it)
+                    magit-current-popup-args)
+            (delete "--graph" magit-current-popup-args)
+          magit-current-popup-args)))
 
 ;;;###autoload
 (defun magit-log-file (file &optional use-graph)
@@ -384,12 +386,8 @@ With a prefix argument show the log graph."
 
 ;;;###autoload
 (defun magit-reflog (ref)
-  "Display the reflog of the current branch.
-With a prefix argument another branch can be chosen."
-  (interactive (let ((branch (magit-get-current-branch)))
-                 (if (and branch (not current-prefix-arg))
-                     (list branch)
-                   (list (magit-read-rev "Reflog of" branch)))))
+  "Display the reflog of a branch."
+  (interactive (list (magit-read-local-branch "Show reflog for branch")))
   (magit-mode-setup magit-reflog-buffer-name-format nil
                     #'magit-reflog-mode
                     #'magit-refresh-reflog-buffer ref))
@@ -818,9 +816,9 @@ Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 (defun magit-cherry (head upstream)
   "Show commits in a branch that are not merged in the upstream branch."
   (interactive
-   (let  ((head (magit-read-rev "Cherry head" (magit-get-current-branch))))
-     (list head (magit-read-rev "Cherry upstream"
-                                (magit-get-tracked-branch head)))))
+   (let  ((head (magit-read-branch "Cherry head")))
+     (list head (magit-read-other-branch "Cherry upstream" head
+                                         (magit-get-tracked-branch head)))))
   (magit-mode-setup magit-cherry-buffer-name-format nil
                     #'magit-cherry-mode
                     #'magit-refresh-cherry-buffer upstream head))

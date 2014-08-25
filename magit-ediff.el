@@ -128,7 +128,7 @@ working tree state."
      'ediff-revision))) ; this job gets no special handling at all; good
 
 (defun magit-ediff-compare--read-revisions (&optional arg)
-  (let ((input (or arg (magit-read-rev "Compare range or commit")))
+  (let ((input (or arg (magit-read-range-or-commit "Compare range or commit")))
         range revA revB)
     (if (string-match
          "^\\([^.]+\\)?\\(?:\\.\\.\\(\\.\\)?\\([^.]+\\)?\\)" input)
