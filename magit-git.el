@@ -634,7 +634,7 @@ no output return nil."
 
 (defvar magit-read-rev-history nil)
 
-(defun magit-read-rev (prompt &optional default exclude noselection)
+(defun magit-read-rev (prompt &optional default exclude)
   (setq default (magit-git-string "rev-parse" "--symbolic" default)
         exclude (magit-git-string "rev-parse" "--symbolic" exclude))
   (magit-completing-read prompt (delete exclude (magit-list-refnames))
