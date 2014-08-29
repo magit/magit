@@ -35,10 +35,14 @@
 
 ;;; Options
 
+(defgroup magit-section nil
+  "Expandable sections."
+  :group 'magit)
+
 (defcustom magit-section-show-child-count nil
   "Whether to append the number of childen to section headings."
   :package-version '(magit . "2.1.0")
-  :group 'magit-modes
+  :group 'magit-section
   :type 'boolean)
 
 (defface magit-section-highlight
