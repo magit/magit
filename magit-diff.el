@@ -815,6 +815,44 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
            (if singular 'file 'files)
          'list)))))
 
+(defun magit-diff-highlight (section)
+  "Highlight the hunk or hunk parent SECTION and refine hunk(s).
+Only highlight if `magit-section-highlight' is a
+member of `magit-section-highlight-hook'.  Only
+refine if `magit-diff-refine-hunk's value is t."
+  (save-excursion
+    (goto-char (magit-section-start section))
+    (magit-section-case
+      ((file staged unstaged)
+       (when (memq 'magit-section-highlight magit-section-highlight-hook)
+         (magit-section-highlight section (magit-section-content section)))
+       (mapc #'magit-diff-highlight (magit-section-children section))
+       t)
+      (hunk
+       (when (memq 'magit-section-highlight magit-section-highlight-hook)
+         (magit-section-highlight section
+                                  (magit-section-content section)
+                                  'magit-hunk-heading-highlight)
+         (magit-diff-paint-hunk section t))
+       (when (eq magit-diff-refine-hunk t)
+         (magit-diff-refine-hunk section))
+       t))))
+
+(defun magit-diff-unhighlight (section)
+  "Unhighlight the hunk or hunk parent SECTION and unrefine hunk(s).
+Only unrefine if `magit-diff-refine-hunk's value is t."
+  (save-excursion
+    (goto-char (magit-section-start section))
+    (magit-section-case
+      ((file staged unstaged)
+       (mapc #'magit-diff-unhighlight (magit-section-children section))
+       t)
+      (hunk
+       (magit-diff-paint-hunk section nil)
+       (when (eq magit-diff-refine-hunk t)
+         (magit-diff-unrefine-hunk section))
+       t))))
+
 (defun magit-section-diff-header (section)
   (when (eq (magit-section-type section) 'hunk)
     (setq section (magit-section-parent section)))
