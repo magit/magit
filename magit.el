@@ -854,7 +854,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
             (setf (magit-section-washer it)
                   `(lambda ()
                      (magit-insert-cherry-commits-1 ,head ,branch)
-                     (insert ?\n)))
+                     (insert (propertize "\n" 'magit-section ,it))))
           (magit-insert-cherry-commits-1 head branch)
           (insert ?\n))))))
 
