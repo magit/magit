@@ -625,7 +625,7 @@ at point."
 
 ;;; Update
 
-(defvar-local magit-highlight-overlay nil)
+(defvar-local magit-section-highlight-overlays nil)
 
 (defun magit-section-update-highlight (&optional force)
   (let ((inhibit-read-only t)
@@ -643,40 +643,36 @@ at point."
     (setq magit-current-section new)))
 
 (defun magit-section-highlight (section)
-  (let ((beg (magit-section-start section))
-        (end (magit-section-end   section)))
+  (let ((beg  (magit-section-start   section))
+        (cnt  (magit-section-content section))
+        (end  (magit-section-end     section))
+        (face 'magit-section-highlight))
     (save-excursion
       (goto-char beg)
       (magit-section-case
         ((file staged unstaged)
-         (put-text-property beg end 'face 'magit-section-highlight)
+         (setq end cnt)
          (mapc 'magit-section-highlight (magit-section-children section)))
         (hunk
-         (put-text-property beg end 'face 'magit-hunk-heading-highlight)
+         (setq end cnt face 'magit-hunk-heading-highlight)
          (magit-diff-paint-hunk section t)
          (when (eq magit-diff-refine-hunk t)
-           (magit-diff-refine-hunk section)))
-        (t
-         (overlay-put (setq magit-highlight-overlay (make-overlay beg end))
-                      'face 'magit-section-highlight))))))
+           (magit-diff-refine-hunk section)))))
+    (let ((ov (make-overlay beg end)))
+      (overlay-put ov 'face face)
+      (push ov magit-section-highlight-overlays))))
 
 (defun magit-section-unhighlight (section)
-  (let ((beg (magit-section-start section))
-        (end (magit-section-end   section)))
-    (save-excursion
-      (goto-char beg)
-      (magit-section-case
-        ((file staged unstaged)
-         (put-text-property beg end 'face nil)
-         (mapc 'magit-section-unhighlight (magit-section-children section)))
-        (hunk
-         (put-text-property beg end 'face 'magit-hunk-heading)
-         (magit-diff-paint-hunk section nil)
-         (when (eq magit-diff-refine-hunk t)
-           (magit-diff-unrefine-hunk section)))
-        (t
-         (when magit-highlight-overlay
-           (delete-overlay magit-highlight-overlay)))))))
+  (save-excursion
+    (goto-char (magit-section-start section))
+    (magit-section-case
+      ((file staged unstaged stash stashes commit unpushed unpulled)
+       (mapc 'magit-section-unhighlight (magit-section-children section)))
+      (hunk
+       (magit-diff-paint-hunk section nil)
+       (when (eq magit-diff-refine-hunk t)
+         (magit-diff-unrefine-hunk section)))))
+  (mapc #'delete-overlay magit-section-highlight-overlays))
 
 (defun magit-section-goto-successor (section line char)
   (let ((ident (magit-section-ident section)))
