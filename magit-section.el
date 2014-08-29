@@ -27,19 +27,37 @@
 (require 'cl-lib)
 (require 'dash)
 
-;; For `magit-section-highlight' and `magit-section-unhighlight'
-(declare-function magit-diff-paint-hunk 'magit-diff)
-(declare-function magit-diff-refine-hunk 'magit-diff)
-(declare-function magit-diff-unrefine-hunk 'magit-diff)
-(defvar magit-diff-refine-hunk)
-
 ;;; Options
+
+(defgroup magit-section nil
+  "Expandable sections."
+  :group 'magit)
 
 (defcustom magit-section-show-child-count nil
   "Whether to append the number of childen to section headings."
   :package-version '(magit . "2.1.0")
-  :group 'magit-modes
+  :group 'magit-section
   :type 'boolean)
+
+(defcustom magit-section-highlight-hook
+  '(magit-diff-highlight magit-section-highlight)
+  "Functions used to highlight the current section.
+Each function is run with the current section as only argument
+until one of them returns non-nil."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-section
+  :type 'hook
+  :options '(magit-diff-highlight magit-section-highlight))
+
+(defcustom magit-section-unhighlight-hook
+  '(magit-diff-unhighlight)
+  "Functions used to unhighlight the previously current section.
+Each function is run with the current section as only argument
+until one of them returns non-nil."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-section
+  :type 'hook
+  :options '(magit-diff-unhighlight))
 
 (defface magit-section-highlight
   '((((class color) (background light)) :background "grey85")
@@ -209,14 +227,14 @@ With a prefix argument also expand it." title)
   (setf (magit-section-hidden section) nil)
   (-when-let (washer (magit-section-washer section))
     (setf (magit-section-washer section) nil)
-    (setq magit-current-section nil)
     (let ((inhibit-read-only t)
           (magit-insert-section--parent section))
       (save-excursion
         (goto-char (magit-section-end section))
         (setf (magit-section-content section) (point-marker))
         (funcall washer)
-        (setf (magit-section-end section) (point-marker)))))
+        (setf (magit-section-end section) (point-marker))))
+    (magit-section-update-highlight t))
   (-when-let (beg (magit-section-content section))
     (let ((inhibit-read-only t))
       (put-text-property beg (magit-section-end section) 'invisible nil)))
@@ -625,7 +643,7 @@ at point."
 
 ;;; Update
 
-(defvar-local magit-highlight-overlay nil)
+(defvar-local magit-section-highlight-overlays nil)
 
 (defun magit-section-update-highlight (&optional force)
   (let ((inhibit-read-only t)
@@ -634,49 +652,22 @@ at point."
         (new (magit-current-section)))
     (when (or force (not (eq old new)))
       (when old
-        (magit-section-unhighlight old))
+        (mapc #'delete-overlay magit-section-highlight-overlays)
+        (run-hook-with-args-until-success 'magit-section-unhighlight-hook old))
       (unless (or (eq new magit-root-section)
                   (and (use-region-p)
                        (= (region-beginning) (magit-section-start new))
                        (not (magit-section-content new))))
-        (magit-section-highlight new)))
+        (run-hook-with-args-until-success 'magit-section-highlight-hook new)))
     (setq magit-current-section new)))
 
-(defun magit-section-highlight (section)
-  (let ((beg (magit-section-start section))
-        (end (magit-section-end   section)))
-    (save-excursion
-      (goto-char beg)
-      (magit-section-case
-        ((file staged unstaged)
-         (put-text-property beg end 'face 'magit-section-highlight)
-         (mapc 'magit-section-highlight (magit-section-children section)))
-        (hunk
-         (put-text-property beg end 'face 'magit-hunk-heading-highlight)
-         (magit-diff-paint-hunk section t)
-         (when (eq magit-diff-refine-hunk t)
-           (magit-diff-refine-hunk section)))
-        (t
-         (overlay-put (setq magit-highlight-overlay (make-overlay beg end))
-                      'face 'magit-section-highlight))))))
-
-(defun magit-section-unhighlight (section)
-  (let ((beg (magit-section-start section))
-        (end (magit-section-end   section)))
-    (save-excursion
-      (goto-char beg)
-      (magit-section-case
-        ((file staged unstaged)
-         (put-text-property beg end 'face nil)
-         (mapc 'magit-section-unhighlight (magit-section-children section)))
-        (hunk
-         (put-text-property beg end 'face 'magit-hunk-heading)
-         (magit-diff-paint-hunk section nil)
-         (when (eq magit-diff-refine-hunk t)
-           (magit-diff-unrefine-hunk section)))
-        (t
-         (when magit-highlight-overlay
-           (delete-overlay magit-highlight-overlay)))))))
+(defun magit-section-highlight (section &optional end face)
+  "Highlight the SECTION using an overlay."
+  (let ((ov (make-overlay (magit-section-start section)
+                          (or end (magit-section-end section)))))
+    (overlay-put ov 'face (or face 'magit-section-highlight))
+    (overlay-put ov 'evaporate t)
+    (push ov magit-section-highlight-overlays)))
 
 (defun magit-section-goto-successor (section line char)
   (let ((ident (magit-section-ident section)))
