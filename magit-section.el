@@ -660,6 +660,7 @@ at point."
            (magit-diff-refine-hunk section)))))
     (let ((ov (make-overlay beg end)))
       (overlay-put ov 'face face)
+      (overlay-put ov 'evaporate t)
       (push ov magit-section-highlight-overlays))))
 
 (defun magit-section-unhighlight (section)
