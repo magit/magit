@@ -679,7 +679,8 @@ no output return nil."
 
 (defun magit-read-tag (prompt &optional require-match)
   (magit-completing-read prompt (magit-git-lines "tag") nil
-                         require-match nil 'magit-revision-history))
+                         require-match nil 'magit-revision-history
+                         (magit-tag-at-point)))
 
 (defun magit-read-stash (prompt &optional use-at-point)
   (let ((atpoint (magit-stash-at-point)))
