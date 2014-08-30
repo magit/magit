@@ -430,7 +430,8 @@ for a commit."
   (interactive
    (let* ((mcommit (magit-section-when mcommit))
           (atpoint (or (and magit-blame-mode (magit-blame-chunk-get :hash))
-                       mcommit (magit-branch-or-commit-at-point))))
+                       mcommit (magit-branch-or-commit-at-point)
+                       (magit-section-when tag))))
      (list (or (and (not current-prefix-arg) atpoint)
                (magit-read-branch-or-commit "Show commit" atpoint))
            nil (and mcommit (magit-section-parent-value
@@ -858,11 +859,18 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
           (magit-insert-cherry-commits-1 head branch)
           (insert ?\n))))))
 
+(defvar magit-tag-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\r" 'magit-show-commit)
+    (define-key map "k"  'magit-tag-delete)
+    map)
+  "Keymap for `tag' sections.")
+
 (defun magit-insert-tags ()
   (magit-insert-section (tags)
     (magit-insert-heading "Tags:")
     (dolist (tag (magit-git-lines "tag"))
-      (magit-insert-section (tag)
+      (magit-insert-section (tag tag)
         (magit-insert
          (format-spec magit-tags-format
                       `((?n . ,(propertize tag 'face 'magit-tag)))))))
@@ -2013,12 +2021,8 @@ inspect the merge and change the commit message.
     (error "No cherry-pick or revert in progress")))
 
 (defun magit-sequencer-read-args (command prompt)
-  (let ((selection (if (use-region-p)
-                       (magit-section-region-siblings)
-                     (list (magit-current-section)))))
-    (list (if (or current-prefix-arg
-                  (not selection)
-                  (not (eq (magit-section-type (car selection)) 'commit)))
+  (let ((selection (magit-current-sections 'commit)))
+    (list (if (or current-prefix-arg (not selection))
               (if (eq command 'cherry-pick)
                   (magit-read-other-branch-or-commit prompt)
                 (magit-read-branch-or-commit prompt))
@@ -2083,11 +2087,7 @@ inspect the merge and change the commit message.
 ;;;###autoload
 (defun magit-am-apply-patches (&optional files args)
   (interactive
-   (let ((selection (if (use-region-p)
-                        (magit-section-region-siblings)
-                      (list (magit-current-section)))))
-     (unless (eq (magit-section-type (car selection)) 'file)
-       (setq selection nil))
+   (let ((selection (magit-current-sections 'file)))
      (list (if (or current-prefix-arg (not selection))
                (list (read-file-name "Apply patch(es): "
                                      nil (car (last selection))))
@@ -2420,11 +2420,20 @@ With a prefix argument annotate the tag.
   (magit-run-git-with-editor "tag" args name rev))
 
 ;;;###autoload
-(defun magit-tag-delete (name)
-  "Delete the tag with the given NAME.
-\n(git tag -d NAME)"
-  (interactive (list (magit-read-tag "Delete Tag" t)))
-  (magit-run-git "tag" "-d" name))
+(defun magit-tag-delete (tags)
+  "Delete one or more tags.
+If the region marks multiple tags (and nothing else), then offer
+to delete those, otherwise prompt for a single tag to be deleted,
+defaulting to the tag at point.
+\n(git tag -d TAGS)"
+  (interactive
+   (let ((tags (magit-current-sections 'tag)))
+     (if (> (length tags) 1)
+         (if (magit-confirm 'delete-tags "Delete %i tags" tags)
+             (list tags)
+           (user-error "Abort"))
+       (list (magit-read-tag "Delete tag" t)))))
+  (magit-run-git "tag" "-d" tags))
 
 ;;;; Stash
 
@@ -2518,9 +2527,7 @@ When the region is active offer to drop all contained stashes.
   (interactive
    (if (use-region-p)
        (let ((stashes (magit-section-region-siblings 'magit-section-value)))
-         (when (magit-confirm 'drop-stashes
-                              (format "Drop %s through %s"
-                                      (car stashes) (car (last stashes))))
+         (when (magit-confirm 'drop-stashes "Drop %i stashes" stashes)
            (deactivate-mark t)
            (list stashes)))
      (list (magit-read-stash "Drop stash"))))
@@ -2761,11 +2768,7 @@ Run Git in the root of the current repository.
 ;;;###autoload
 (defun magit-format-patch (range)
   (interactive
-   (let ((revs (if (use-region-p)
-                   (magit-section-region-siblings)
-                 (list (magit-current-section)))))
-     (unless (eq (magit-section-type (car revs)) 'commit)
-       (setq revs nil))
+   (let ((revs (magit-current-sections 'commit)))
      (setq revs (nreverse (mapcar 'magit-section-value revs)))
      (list (if (or current-prefix-arg (not revs))
                (magit-read-range-or-commit "Format range")

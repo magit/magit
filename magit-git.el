@@ -410,7 +410,10 @@ string \"true\", otherwise return nil."
     (branch (magit-section-value it))
     (commit (magit-get-shortname (magit-section-value it)))))
 
-(defun magit-stash-at-point (&optional get-number)
+(defun magit-tag-at-point ()
+  (magit-section-when tag))
+
+(defun magit-stash-at-point ()
   (magit-section-when stash))
 
 (defun magit-remote-at-point ()
@@ -676,7 +679,8 @@ no output return nil."
 
 (defun magit-read-tag (prompt &optional require-match)
   (magit-completing-read prompt (magit-git-lines "tag") nil
-                         require-match nil 'magit-revision-history))
+                         require-match nil 'magit-revision-history
+                         (magit-tag-at-point)))
 
 (defun magit-read-stash (prompt &optional use-at-point)
   (let ((atpoint (magit-stash-at-point)))
