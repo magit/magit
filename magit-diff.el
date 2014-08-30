@@ -373,7 +373,7 @@ A stash consist of more than just one commit.  This command uses
 a special diff range so that the stashed changes appear as if it
 actually were a single commit."
   (interactive (list (or (and (not current-prefix-arg)
-                              (magit-stash-at-point t))
+                              (magit-stash-at-point))
                          (magit-read-stash "Show stash"))))
   (magit-mode-setup magit-diff-buffer-name-format
                     (if noselect 'display-buffer 'pop-to-buffer)
