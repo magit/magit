@@ -2403,7 +2403,8 @@ Also see option `magit-set-upstream-on-push'."
               (?s "Sign"     "--sign")
               (?f "Force"    "--force"))
   :actions  '((?t "Create"   magit-tag)
-              (?k "Delete"   magit-tag-delete))
+              (?k "Delete"   magit-tag-delete)
+              (?p "Prune"    magit-tag-prune))
   :default-action 'magit-tag)
 
 ;;;###autoload
@@ -2434,6 +2435,34 @@ defaulting to the tag at point.
            (user-error "Abort"))
        (list (magit-read-tag "Delete tag" t)))))
   (magit-run-git "tag" "-d" tags))
+
+(defun magit-tag-prune (tags remote-tags remote)
+  "Offer to delete tags missing locally from REMOTE, and vice versa."
+  (interactive
+   (let* ((remote (magit-read-remote "Prune tags using remote"))
+          (tags   (magit-list-tags))
+          (rtags  (prog2 (message "Determining remote tags...")
+                      (magit-list-remote-tags remote)
+                    (message "Determining remote tags...done")))
+          (ltags  (-difference tags rtags))
+          (rtags  (-difference rtags tags)))
+     (unless (or ltags rtags)
+       (message "Same tags exist locally and remotely"))
+     (when ltags
+       (unless (if (> (length ltags) 1)
+                   (magit-confirm t "Delete %i tags from remote" ltags)
+                 (magit-confirm t (format "Delete %s from remote" (car ltags))))
+         (setq ltags nil)))
+     (when rtags
+       (unless (if (> (length rtags) 1)
+                   (magit-confirm t "Delete %i tags locally" rtags)
+                 (magit-confirm t (format "Delete %s locally" (car rtags))))
+         (setq rtags nil)))
+     (list ltags rtags remote)))
+  (when tags
+    (magit-run-git "tag" "-d" tags))
+  (when remote-tags
+    (magit-run-git-async "push" remote (--map (concat ":" it) remote-tags))))
 
 ;;;; Stash
 
