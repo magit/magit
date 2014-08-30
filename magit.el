@@ -792,7 +792,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
     (insert ?\n)))
 
 (defun magit-insert-remote-branches ()
-  (dolist (remote (magit-git-lines "remote"))
+  (dolist (remote (magit-list-remotes))
     (magit-insert-section (remote remote)
       (magit-insert-heading
         (let ((pull (magit-get "remote" remote "url"))
@@ -2333,7 +2333,7 @@ arguments are not saved."
 If only one remote exists, push to that.  Otherwise prompt for a
 remote, offering the remote configured for the current branch as
 default."
-  (interactive (let ((remotes (magit-git-lines "remote")))
+  (interactive (let ((remotes (magit-list-remotes)))
                  (list (if (= (length remotes) 1)
                            (car remotes)
                          (magit-read-remote "Push tags to remote"))

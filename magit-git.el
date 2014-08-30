@@ -559,6 +559,17 @@ where COMMITS is the number of commits in TAG but not in \"HEAD\"."
                   (magit-list-remote-branches remote)))
     (magit-list-refnames (concat "refs/remotes/" remote))))
 
+(defun magit-list-remotes ()
+  (magit-git-lines "remote"))
+
+(defun magit-list-tags ()
+  (magit-git-lines "tag"))
+
+(defun magit-list-remote-tags (remote)
+  (--map (substring it 51)
+         (--filter (not (string-match-p "\\^{}$" it))
+                   (magit-git-lines "ls-remote" "--tags" remote))))
+
 (defun magit-branch-p (string)
   (and (or (member string (magit-list-branches))
            (member string (magit-list-branch-names))) t))
@@ -691,7 +702,7 @@ no output return nil."
                                nil t nil nil atpoint))))
 
 (defun magit-read-remote (prompt &optional default)
-  (magit-completing-read prompt (magit-git-lines "remote")
+  (magit-completing-read prompt (magit-list-remotes)
                          nil t nil nil
                          (or default
                              (magit-remote-at-point)
