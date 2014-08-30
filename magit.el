@@ -859,6 +859,13 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
           (magit-insert-cherry-commits-1 head branch)
           (insert ?\n))))))
 
+(defvar magit-tag-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\r" 'magit-show-commit)
+    (define-key map "k"  'magit-tag-delete)
+    map)
+  "Keymap for `tag' sections.")
+
 (defun magit-insert-tags ()
   (magit-insert-section (tags)
     (magit-insert-heading "Tags:")
