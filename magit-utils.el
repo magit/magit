@@ -47,8 +47,8 @@
   "A list of symbols for actions Magit should not confirm, or t.
 Actions are: `stage-all', `unstage-all', `reverse', `discard',
 `trash', `delete', `resurrect', `rename', `kill-process',
-`abort-merge', `merge-dirty', `drop-stashes', `reset-bisect'.
-If t, confirmation is never needed."
+`abort-merge', `merge-dirty', `drop-stashes', `reset-bisect',
+and `delete-tags'.  If t, confirmation is never needed."
   :package-version '(magit . "2.1.0")
   :group 'magit
   :type '(choice (const :tag "Confirmation never needed" t)
@@ -58,7 +58,7 @@ If t, confirmation is never needed."
                       (const resurrect)     (const rename)
                       (const kill-process)  (const abort-merge)
                       (const merge-dirty)   (const drop-stashes)
-                      (const resect-bisect))))
+                      (const resect-bisect) (const delete-tags))))
 
 (defcustom magit-ellipsis ?…
   "Character used to abreviate text."

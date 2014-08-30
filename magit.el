@@ -2420,11 +2420,20 @@ With a prefix argument annotate the tag.
   (magit-run-git-with-editor "tag" args name rev))
 
 ;;;###autoload
-(defun magit-tag-delete (name)
-  "Delete the tag with the given NAME.
-\n(git tag -d NAME)"
-  (interactive (list (magit-read-tag "Delete Tag" t)))
-  (magit-run-git "tag" "-d" name))
+(defun magit-tag-delete (tags)
+  "Delete one or more tags.
+If the region marks multiple tags (and nothing else), then offer
+to delete those, otherwise prompt for a single tag to be deleted,
+defaulting to the tag at point.
+\n(git tag -d TAGS)"
+  (interactive
+   (let ((tags (magit-current-sections 'tag)))
+     (if (> (length tags) 1)
+         (if (magit-confirm 'delete-tags "Delete %i tags" tags)
+             (list tags)
+           (user-error "Abort"))
+       (list (magit-read-tag "Delete tag" t)))))
+  (magit-run-git "tag" "-d" tags))
 
 ;;;; Stash
 
