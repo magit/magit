@@ -742,6 +742,15 @@ at point."
                                   (memq beg siblings)))
           (user-error "Ambitious cross-section region"))))))
 
+(defun magit-current-sections (&optional type)
+  (let ((sections (or (and (use-region-p)
+                           (magit-section-region-siblings))
+                      (--when-let (magit-current-section)
+                        (list it)))))
+    (when (or (not type)
+              (eq (magit-section-type (car sections)) type))
+      sections)))
+
 (defun magit-map-sections (function section)
   "Apply FUNCTION to SECTION and recursively its subsections."
   (funcall function section)

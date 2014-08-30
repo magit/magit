@@ -2021,12 +2021,8 @@ inspect the merge and change the commit message.
     (error "No cherry-pick or revert in progress")))
 
 (defun magit-sequencer-read-args (command prompt)
-  (let ((selection (if (use-region-p)
-                       (magit-section-region-siblings)
-                     (list (magit-current-section)))))
-    (list (if (or current-prefix-arg
-                  (not selection)
-                  (not (eq (magit-section-type (car selection)) 'commit)))
+  (let ((selection (magit-current-sections 'commit)))
+    (list (if (or current-prefix-arg (not selection))
               (if (eq command 'cherry-pick)
                   (magit-read-other-branch-or-commit prompt)
                 (magit-read-branch-or-commit prompt))
@@ -2091,11 +2087,7 @@ inspect the merge and change the commit message.
 ;;;###autoload
 (defun magit-am-apply-patches (&optional files args)
   (interactive
-   (let ((selection (if (use-region-p)
-                        (magit-section-region-siblings)
-                      (list (magit-current-section)))))
-     (unless (eq (magit-section-type (car selection)) 'file)
-       (setq selection nil))
+   (let ((selection (magit-current-sections 'file)))
      (list (if (or current-prefix-arg (not selection))
                (list (read-file-name "Apply patch(es): "
                                      nil (car (last selection))))
@@ -2767,11 +2759,7 @@ Run Git in the root of the current repository.
 ;;;###autoload
 (defun magit-format-patch (range)
   (interactive
-   (let ((revs (if (use-region-p)
-                   (magit-section-region-siblings)
-                 (list (magit-current-section)))))
-     (unless (eq (magit-section-type (car revs)) 'commit)
-       (setq revs nil))
+   (let ((revs (magit-current-sections 'commit)))
      (setq revs (nreverse (mapcar 'magit-section-value revs)))
      (list (if (or current-prefix-arg (not revs))
                (magit-read-range-or-commit "Format range")
