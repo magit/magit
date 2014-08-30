@@ -2526,9 +2526,7 @@ When the region is active offer to drop all contained stashes.
   (interactive
    (if (use-region-p)
        (let ((stashes (magit-section-region-siblings 'magit-section-value)))
-         (when (magit-confirm 'drop-stashes
-                              (format "Drop %s through %s"
-                                      (car stashes) (car (last stashes))))
+         (when (magit-confirm 'drop-stashes "Drop %i stashes" stashes)
            (deactivate-mark t)
            (list stashes)))
      (list (magit-read-stash "Drop stash"))))

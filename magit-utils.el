@@ -204,8 +204,10 @@ results in additional differences."
               (lambda (window _value)
                 (with-selected-window window
                   (unwind-protect
-                      (y-or-n-p (format "%s %i files? "
-                                        prompt (length files)))
+                      (y-or-n-p (if (string-match-p "%i" prompt)
+                                    (format prompt (length files))
+                                  (format "%s %i files? "
+                                          prompt (length files))))
                     (when (window-live-p window)
                       (quit-restore-window window 'kill)))))
               (dolist (file files)
