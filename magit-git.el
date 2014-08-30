@@ -410,6 +410,9 @@ string \"true\", otherwise return nil."
     (branch (magit-section-value it))
     (commit (magit-get-shortname (magit-section-value it)))))
 
+(defun magit-tag-at-point ()
+  (magit-section-when tag))
+
 (defun magit-stash-at-point ()
   (magit-section-when stash))
 
