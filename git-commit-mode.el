@@ -299,6 +299,7 @@ usually honor this wish and return non-nil."
             'git-commit-save-message nil t)
   (setq with-editor-cancel-message
         'git-commit-cancel-message)
+  (make-local-variable 'log-edit-comment-ring-index)
   (git-commit-mode 1)
   (git-commit-setup-font-lock)
   (when (boundp 'save-place)
@@ -393,7 +394,10 @@ finally check current non-comment text."
   "Cycle backward through message history, after saving current message.
 With a numeric prefix ARG, go back ARG comments."
   (interactive "*p")
-  (git-commit-save-message)
+  (when (and (git-commit-save-message) (> arg 0))
+    (setq log-edit-comment-ring-index
+          (log-edit-new-comment-index
+           arg (ring-length log-edit-comment-ring))))
   (save-restriction
     (goto-char (point-min))
     (narrow-to-region (point)
@@ -413,9 +417,6 @@ With a numeric prefix ARG, go forward ARG comments."
   (interactive)
   (--when-let (git-commit-buffer-message)
     (unless (ring-member log-edit-comment-ring it)
-      ;; Else we would end up cycling back to what we just saved!
-      (unless log-edit-comment-ring-index
-        (setq log-edit-comment-ring-index 0))
       (ring-insert log-edit-comment-ring it))))
 
 (defun git-commit-buffer-message ()
