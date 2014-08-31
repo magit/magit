@@ -449,7 +449,8 @@ Refresh all Magit buffers belonging to the current repository.
 Also always revert all unmodified buffers that visit files being
 tracked in the current repository."
   (interactive)
-  (mapc #'magit-refresh-buffer (magit-mode-get-buffers))
+  (dolist (buffer (magit-mode-get-buffers))
+    (with-current-buffer buffer (magit-refresh-buffer)))
   (magit-revert-buffers))
 
 (defvar magit-refresh-buffer-hook nil)
