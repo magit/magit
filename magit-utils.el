@@ -89,6 +89,28 @@ buffer-local wherever it is set."
       (declare (debug defvar) (doc-string 3))
       (list 'progn (list 'defvar var val docstring)
             (list 'make-variable-buffer-local (list 'quote var)))))
+
+  ;; Added in Emacs 24.4
+  (unless (fboundp 'with-current-buffer-window)
+    (defmacro with-current-buffer-window (buffer-or-name action quit-function &rest body)
+      "Evaluate BODY with a buffer BUFFER-OR-NAME current and show that buffer.
+This construct is like `with-temp-buffer-window' but unlike that
+makes the buffer specified by BUFFER-OR-NAME current for running
+BODY."
+      (declare (debug t))
+      (let ((buffer (make-symbol "buffer"))
+            (window (make-symbol "window"))
+            (value (make-symbol "value")))
+        `(let* ((,buffer (temp-buffer-window-setup ,buffer-or-name))
+                (standard-output ,buffer)
+                ,window ,value)
+           (with-current-buffer ,buffer
+             (setq ,value (progn ,@body))
+             (setq ,window (temp-buffer-window-show ,buffer ,action)))
+
+           (if (functionp ,quit-function)
+               (funcall ,quit-function ,window ,value)
+             ,value)))))
   )
 
 ;;; User Input
