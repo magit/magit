@@ -55,13 +55,13 @@
 ;;   cd /path/to/repository
 ;;   git config --add magit.extension svn
 ;;
-;; To enable the mode for repositories use:
+;; To enable the mode for all repositories use:
 ;;
 ;;   git config --global --add magit.extension svn
 ;;
 ;; To enable the mode globally without dropping to a shell:
 ;;
-;;   (add-hook 'magit-mode-hook 'turn-on-magit-svn)
+;;   (add-hook 'magit-mode-hook 'magit-svn-mode)
 
 ;;; Code:
 
@@ -326,12 +326,10 @@ and `git svn rebase' on each of them."
 ;;;###autoload
 (custom-add-option 'magit-mode-hook #'magit-svn-mode)
 
-;;;###autoload
-(defun turn-on-magit-svn ()
-  "Unconditionally turn on `magit-svn-mode'."
-  (magit-svn-mode 1))
-
 ;;; magit-svn.el ends soon
+
+(define-obsolete-function-alias 'turn-on-magit-svn 'magit-svn-mode)
+
 (provide 'magit-svn)
 ;; Local Variables:
 ;; indent-tabs-mode: nil

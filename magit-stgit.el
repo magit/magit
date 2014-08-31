@@ -47,13 +47,13 @@
 ;;   cd /path/to/repository
 ;;   git config --add magit.extension stgit
 ;;
-;; To enable the mode for repositories use:
+;; To enable the mode for all repositories use:
 ;;
 ;;   git config --global --add magit.extension stgit
 ;;
 ;; To enable the mode globally without dropping to a shell:
 ;;
-;;   (add-hook 'magit-mode-hook 'turn-on-magit-stgit)
+;;   (add-hook 'magit-mode-hook 'magit-stgit-mode)
 
 ;;; Code:
 
@@ -241,11 +241,6 @@ into the series."
     (magit-refresh)))
 
 ;;;###autoload
-(defun turn-on-magit-stgit ()
-  "Unconditionally turn on `magit-stgit-mode'."
-  (magit-stgit-mode 1))
-
-;;;###autoload
 (custom-add-option 'magit-mode-hook #'magit-stgit-mode)
 
 (easy-menu-define magit-stgit-extension-menu nil
@@ -308,6 +303,9 @@ into the series."
         (forward-line)))))
 
 ;;; magit-stgit.el ends soon
+
+(define-obsolete-function-alias 'turn-on-magit-stgit 'magit-stgit-mode)
+
 (provide 'magit-stgit)
 ;; Local Variables:
 ;; indent-tabs-mode: nil

@@ -43,13 +43,13 @@
 ;;   cd /path/to/repository
 ;;   git config --add magit.extension topgit
 ;;
-;; To enable the mode for repositories use:
+;; To enable the mode for all repositories use:
 ;;
 ;;   git config --global --add magit.extension topgit
 ;;
 ;; To enable the mode globally without dropping to a shell:
 ;;
-;;   (add-hook 'magit-mode-hook 'turn-on-magit-topgit)
+;;   (add-hook 'magit-mode-hook 'magit-topgit-mode)
 
 ;;; Code:
 
@@ -215,11 +215,6 @@
 ;;;###autoload
 (custom-add-option 'magit-mode-hook #'magit-topgit-mode)
 
-;;;###autoload
-(defun turn-on-magit-topgit ()
-  "Unconditionally turn on `magit-topgit-mode'."
-  (magit-topgit-mode 1))
-
 ;;; Topics Section
 
 (defvar magit-topgit-topic-map
@@ -254,6 +249,9 @@
         (forward-line)))))
 
 ;;; magit-topgit.el ends soon
+
+(define-obsolete-function-alias 'turn-on-magit-topgit 'magit-topgit-mode)
+
 (provide 'magit-topgit)
 ;; Local Variables:
 ;; indent-tabs-mode: nil
