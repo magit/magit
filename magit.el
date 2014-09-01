@@ -1179,6 +1179,17 @@ Non-interactively DIRECTORY is always (re-)initialized."
        (list dir))))
   (magit-run-git "init" (expand-file-name directory)))
 
+;;;###autoload
+(defun magit-clone (repository directory)
+  "Clone the REPOSITORY to DIRECTORY."
+  (interactive
+   (let ((url (magit-read-string "Clone repository")))
+     (list url (read-directory-name
+                "Clone to: " nil nil nil
+                (and (string-match "\\([^./]+\\)\\(\\.git\\)?$" url)
+                     (match-string 1 url))))))
+  (magit-run-git "clone" repository directory))
+
 ;;;; Commit
 
 (with-no-warnings ; quiet 24.3.50 byte-compiler
