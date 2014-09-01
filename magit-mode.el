@@ -246,6 +246,8 @@ Magit is documented in info node `(magit)'."
   (buffer-disable-undo)
   (setq truncate-lines t)
   (setq show-trailing-whitespace nil)
+  (make-local-variable  'text-property-default-nonsticky)
+  (push (cons 'keymap t) text-property-default-nonsticky)
   (add-hook 'post-command-hook #'magit-section-update-highlight t t)
   (add-hook 'post-command-hook #'magit-post-command-hook t t))
 
