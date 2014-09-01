@@ -31,6 +31,8 @@
 (declare-function magit-checkout-stage 'magit)
 (declare-function magit-checkout-read-stage 'magit)
 
+(require 'dired)
+
 ;;; Options
 
 (defcustom magit-apply-backup nil
@@ -325,6 +327,7 @@ without requiring confirmation."
                        (`unstaged ?Y)
                        (`untracked ?Z))
                      (magit-file-status file status))
+          (`(?Z)                        (push file delete))
           ((or `(?Z ?? ??) `(?Z ?! ?!)) (push file delete))
           ((or `(?Z ?D ? ) `(,_ ?D ?D)) (push file delete))
           ((or `(,_ ?U ,_) `(,_ ,_ ?U)) (push file resolve))
@@ -360,7 +363,8 @@ without requiring confirmation."
           (status (magit-file-status)))
       (dolist (file files)
         (if (memq (magit-diff-type) '(unstaged untracked))
-            (delete-file file magit-delete-by-moving-to-trash)
+            (dired-delete-file file dired-recursive-deletes
+                               magit-delete-by-moving-to-trash)
           (pcase (nth 2 (assoc file status))
             (?  (delete-file file t)
                 (magit-call-git "rm" "--cached" "--" file))
