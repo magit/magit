@@ -1518,9 +1518,13 @@ changes.
   (magit-run-git "checkout" args "-b" branch start-point))
 
 (defun magit-branch-read-args (prompt)
-  (let ((args magit-current-popup-args)
-        (branch (magit-read-string prompt))
-        (start  (magit-read-branch-or-commit "Start point")))
+  (let* ((args magit-current-popup-args)
+         (start (magit-read-branch-or-commit (concat prompt " starting at")))
+         (branch
+          (magit-read-string
+           "Branch name"
+           (and (member start (magit-list-remote-branch-names))
+                (mapconcat #'identity (cdr (split-string start "/")) "/")))))
     (when (and (member "--track" args)
                (not (magit-branch-p start)))
       (setq args (delete "--track" args)))
