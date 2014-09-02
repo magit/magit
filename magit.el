@@ -181,6 +181,12 @@ The following `format'-like specs are supported:
   :group 'magit-commit
   :type 'boolean)
 
+(defcustom magit-commit-show-notes t
+  "Whether to show notes in commit buffers."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-commit
+  :type 'boolean)
+
 (defcustom magit-commit-show-xref-buttons t
   "Whether to show buffer history buttons in commit buffers."
   :package-version '(magit . "2.1.0")
@@ -509,6 +515,7 @@ commit or stash at point, then prompt for a commit."
     (magit-git-wash #'magit-wash-commit
       "log" "-1" "-p" "--cc" "--no-prefix"
       (and magit-commit-show-diffstat "--stat")
+      (and magit-commit-show-notes "--notes")
       magit-diff-options
       magit-diff-extra-options
       magit-commit-extra-options
@@ -2478,6 +2485,107 @@ defaulting to the tag at point.
     (magit-run-git "tag" "-d" tags))
   (when remote-tags
     (magit-run-git-async "push" remote (--map (concat ":" it) remote-tags))))
+
+;;;; Notes
+
+(magit-define-popup magit-notes-popup
+  "Popup console for notes commands."
+  'magit-popups 'magit-popup-sequence-mode
+  :man-page "git-tag"
+  :switches '((?n "Dry run"          "--dry-run"))
+  :options  '((?r "Manipulate ref"   "--ref="      magit-notes-popup-read-ref)
+              (?s "Merge strategy"   "--strategy=" read-from-minibuffer))
+  :actions  '((?T "Edit"             magit-notes-edit)
+              (?r "Remove"           magit-notes-remove)
+              (?m "Merge"            magit-notes-merge)
+              (?p "Prune"            magit-notes-prune)
+              (?s "Set ref"          magit-notes-set-ref)
+              (?S "Set display refs" magit-notes-set-display-refs))
+  :sequence-actions '((?c "Commit merge" magit-notes-merge-commit)
+                      (?a "Abort merge"  magit-notes-merge-abort))
+  :sequence-predicate 'magit-notes-merging-p
+  :default-action 'magit-notes-edit)
+
+(defun magit-notes-edit (commit &optional ref)
+  (interactive (magit-notes-read-args "Edit notes"))
+  (magit-server-visit-args 'commit t)
+  (magit-run-git-with-editor "notes" (and ref (concat "--ref=" ref))
+                             "edit" commit))
+
+(defun magit-notes-remove (commit &optional ref)
+  (interactive (magit-notes-read-args "Remove notes"))
+  (magit-run-git-with-editor "notes" "remove" commit))
+
+(defun magit-notes-merge (ref)
+  (interactive (list (magit-read-string "Merge reference")))
+  (magit-run-git-with-editor "notes" "merge" ref))
+
+(defun magit-notes-merge-commit ()
+  (interactive)
+  (magit-run-git-with-editor "notes" "merge" "--commit"))
+
+(defun magit-notes-merge-abort ()
+  (interactive)
+  (magit-run-git-with-editor "notes" "merge" "--abort"))
+
+(defun magit-notes-prune (&optional dry-run)
+  (interactive (list (and (member "--dry-run" magit-current-popup-args) t)))
+  (when dry-run
+    (magit-process))
+  (magit-run-git-with-editor "notes" "prune" (and dry-run "--dry-run")))
+
+(defun magit-notes-set-ref (ref &optional global)
+  (interactive
+   (list (magit-completing-read "Set notes ref"
+                                (nconc (list "refs/" "refs/notes/")
+                                       (magit-list-notes-refnames))
+                                nil nil
+                                (--when-let (magit-get "core.notesRef")
+                                  (if (string-match "^refs/notes/\\(.+\\)" it)
+                                      (match-string 1 it)
+                                    it)))
+         current-prefix-arg))
+  (if ref
+      (magit-run-git "config" (and global "--global") "core.notesRef"
+                     (if (string-prefix-p "refs/" ref)
+                         ref
+                       (concat "refs/notes/" ref)))
+    (magit-run-git "config" "--unset" "core.notesRef")))
+
+(defun magit-notes-set-display-refs (refs &optional global)
+  (interactive
+   (list (magit-completing-read "Set additional notes ref(s)"
+                                (nconc (list "refs/" "refs/notes/")
+                                       (magit-list-notes-refnames))
+                                nil nil
+                                (mapconcat #'identity
+                                           (magit-get-all "notes.displayRef")
+                                           ":"))
+         current-prefix-arg))
+  (when (and refs (atom refs))
+    (setq refs (split-string refs ":")))
+  (when global
+    (setq global "--global"))
+  (magit-git-success "config" "--unset-all" global "notes.displayRef")
+  (dolist (ref refs)
+    (magit-call-git "config" "--add" global "notes.displayRef" ref))
+  (magit-refresh))
+
+(defun magit-notes-read-args (prompt)
+ (list (magit-read-branch-or-commit prompt)
+       (--when-let (--first (string-match "^--ref=\\(.+\\)" it)
+                            magit-current-popup-args)
+         (match-string 1 it))))
+
+(defun magit-notes-popup-read-ref (prompt &optional initial-input)
+  (magit-completing-read prompt (nconc (list "refs/" "refs/notes/")
+                                       (magit-list-notes-refnames))
+                         nil nil initial-input))
+
+(defun magit-notes-merging-p ()
+  (let ((dir (magit-git-dir "NOTES_MERGE_WORKTREE")))
+    (and (file-directory-p dir)
+         (directory-files dir nil "^[^.]"))))
 
 ;;;; Stash
 

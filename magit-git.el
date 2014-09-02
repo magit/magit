@@ -565,6 +565,9 @@ where COMMITS is the number of commits in TAG but not in \"HEAD\"."
 (defun magit-list-tags ()
   (magit-git-lines "tag"))
 
+(defun magit-list-notes-refnames ()
+  (--map (substring it 6) (magit-list-refnames "refs/notes")))
+
 (defun magit-list-remote-tags (remote)
   (--map (substring it 51)
          (--filter (not (string-match-p "\\^{}$" it))
