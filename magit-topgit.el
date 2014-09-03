@@ -228,7 +228,7 @@
 
 (easy-menu-add-item 'magit-mode-menu '("Extensions") magit-topgit-mode-menu)
 
-;;; Topics Section
+;;; Sections
 
 (defvar magit-topgit-topic-map
   (let ((map (make-sparse-keymap)))

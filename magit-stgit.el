@@ -246,7 +246,7 @@ into the series."
 
 (easy-menu-add-item 'magit-mode-menu '("Extensions") magit-stgit-mode-menu)
 
-;;; Series Section
+;;; Sections
 
 (defconst magit-stgit-patch-re
   "^\\(.\\)\\([-+>!]\\) \\([^ ]+\\) +# \\(.*\\)$")

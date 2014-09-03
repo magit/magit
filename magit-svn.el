@@ -80,6 +80,21 @@
   :group 'magit-svn
   :type 'string)
 
+;;; Utilities
+
+(defun magit-svn-get-url ()
+  (magit-git-string "svn" "info" "--url"))
+
+(defun magit-svn-get-rev ()
+  (--when-let (--first (string-match "^Revision: \\(.+\\)" it)
+                       (magit-git-lines "svn" "info"))
+    (match-string 1 it)))
+
+(defun magit-svn-get-ref ()
+  (--when-let (--first (string-match "^Remote Branch: \\(.+\\)" it)
+                       (magit-git-lines "svn" "rebase" "--dry-run"))
+    (match-string 1 it)))
+
 ;;; Commands
 
 (magit-define-popup magit-svn-popup
@@ -160,58 +175,7 @@ in `magit-svn-external-directories' and runs
     (user-error "No SVN Externals found. Check magit-svn-externals-dir"))
   (magit-refresh))
 
-;;; Utilities
-
-(defun magit-svn-get-url ()
-  (magit-git-string "svn" "info" "--url"))
-
-(defun magit-svn-get-rev ()
-  (--when-let (--first (string-match "^Revision: \\(.+\\)" it)
-                       (magit-git-lines "svn" "info"))
-    (match-string 1 it)))
-
-(defun magit-svn-get-ref ()
-  (--when-let (--first (string-match "^Remote Branch: \\(.+\\)" it)
-                       (magit-git-lines "svn" "rebase" "--dry-run"))
-    (match-string 1 it)))
-
-(defun magit-insert-svn-unpulled ()
-  (--when-let (magit-svn-get-ref)
-    (magit-insert-section (svn-unpulled)
-      (magit-insert-heading "Unpulled svn commits:")
-      (magit-insert-log (format "HEAD..%s" it)))))
-
-(defun magit-insert-svn-unpushed ()
-  (--when-let (magit-svn-get-ref)
-    (magit-insert-section (svn-unpushed)
-      (magit-insert-heading "Unpushed git commits:")
-      (magit-insert-log (format "%s..HEAD" it)))))
-
-(magit-define-section-jumper svn-unpulled "Unpulled svn commits")
-(magit-define-section-jumper svn-unpushed "Unpushed git commits")
-
-(defun magit-insert-svn-remote ()
-  (--when-let (magit-svn-get-rev)
-    (magit-insert-section (line)
-      (magit-insert (format "%-10s%s from %s\n" "Remote:"
-                            (propertize (concat "r" it) 'face 'magit-hash)
-                            (magit-svn-get-url))))))
-
 ;;; Mode
-
-(easy-menu-define magit-svn-mode-menu nil "Magit-Svn mode menu"
-  '("Git-Svn"
-    :visible magit-svn-mode
-    :active (lambda () (magit-get "svn-remote" "svn" "fetch"))
-    ["Dcommit"         magit-svn-dcommit]
-    ["Rebase"          magit-svn-rebase]
-    ["Fetch"           magit-svn-fetch]
-    ["Fetch Externals" magit-svn-fetch-externals]
-    ["Show commit"     magit-svn-show-commit]
-    ["Create branch"   magit-svn-create-branch]
-    ["Create tag"      magit-svn-create-tag]))
-
-(easy-menu-add-item 'magit-mode-menu '("Extensions") magit-svn-mode-menu)
 
 (defvar magit-svn-mode-map
   (let ((map (make-sparse-keymap)))
@@ -244,6 +208,44 @@ in `magit-svn-external-directories' and runs
 
 ;;;###autoload
 (custom-add-option 'magit-mode-hook #'magit-svn-mode)
+
+(easy-menu-define magit-svn-mode-menu nil "Magit-Svn mode menu"
+  '("Git-Svn"
+    :visible magit-svn-mode
+    :active (lambda () (magit-get "svn-remote" "svn" "fetch"))
+    ["Dcommit"         magit-svn-dcommit]
+    ["Rebase"          magit-svn-rebase]
+    ["Fetch"           magit-svn-fetch]
+    ["Fetch Externals" magit-svn-fetch-externals]
+    ["Show commit"     magit-svn-show-commit]
+    ["Create branch"   magit-svn-create-branch]
+    ["Create tag"      magit-svn-create-tag]))
+
+(easy-menu-add-item 'magit-mode-menu '("Extensions") magit-svn-mode-menu)
+
+;;; Sections
+
+(defun magit-insert-svn-unpulled ()
+  (--when-let (magit-svn-get-ref)
+    (magit-insert-section (svn-unpulled)
+      (magit-insert-heading "Unpulled svn commits:")
+      (magit-insert-log (format "HEAD..%s" it)))))
+
+(defun magit-insert-svn-unpushed ()
+  (--when-let (magit-svn-get-ref)
+    (magit-insert-section (svn-unpushed)
+      (magit-insert-heading "Unpushed git commits:")
+      (magit-insert-log (format "%s..HEAD" it)))))
+
+(magit-define-section-jumper svn-unpulled "Unpulled svn commits")
+(magit-define-section-jumper svn-unpushed "Unpushed git commits")
+
+(defun magit-insert-svn-remote ()
+  (--when-let (magit-svn-get-rev)
+    (magit-insert-section (line)
+      (magit-insert (format "%-10s%s from %s\n" "Remote:"
+                            (propertize (concat "r" it) 'face 'magit-hash)
+                            (magit-svn-get-url))))))
 
 ;;; magit-svn.el ends soon
 
