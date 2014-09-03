@@ -128,9 +128,6 @@
 (defvar magit-stgit-patch-buffer-name "*magit-stgit-patch*"
   "Name of buffer used to display a stgit patch.")
 
-(defvar magit-stgit-patch-history nil
-  "Input history for `magit-stgit-read-patch'.")
-
 ;;; Utilities
 
 (defun magit-run-stgit (&rest args)
