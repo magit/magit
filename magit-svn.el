@@ -106,13 +106,13 @@
 ;;;###autoload
 (defun magit-svn-show-commit (rev &optional branch)
   "Show the Git commit for a Svn revision read from the user.
-With a prefix argument also read a branch to limit the search to."
-  (interactive (list (magit-read-string "SVN revision")
+With a prefix argument also read a branch to search in."
+  (interactive (list (read-number "SVN revision: ")
                      (and current-prefix-arg
-                          (magit-read-string "In branch"))))
-  (--if-let (magit-git-string "svn" "find-rev" (concat "r" rev) branch)
+                          (magit-read-local-branch "In branch"))))
+  (--if-let (magit-git-string "svn" "find-rev" (format "r%i" rev) branch)
       (magit-show-commit it)
-    (user-error "Revision %s could not be mapped to a commit" rev)))
+    (user-error "Revision r%s could not be mapped to a commit" rev)))
 
 ;;;###autoload
 (defun magit-svn-create-branch (name &optional args)
