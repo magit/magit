@@ -91,7 +91,7 @@
 ;;; Commands
 
 (magit-define-popup magit-svn-popup
-  "Key menu for svn."
+  "Popup console for svn commands."
   'magit
   :man-page "git-svn"
   :switches '((?n "Dry run"         "--dry-run"))
@@ -116,31 +116,36 @@ With a prefix argument also read a branch to search in."
 
 ;;;###autoload
 (defun magit-svn-create-branch (name &optional args)
-  "Create svn branch NAME."
+  "Create svn branch NAME.
+\n(git svn branch [--dry-run] NAME)"
   (interactive (list (read-string "Branch name: ") magit-current-popup-args))
   (magit-run-git "svn" "branch" args name))
 
 ;;;###autoload
 (defun magit-svn-create-tag (name &optional args)
-  "Create svn tag NAME."
+  "Create svn tag NAME.
+\n(git svn tag [--dry-run] NAME)"
   (interactive (list (read-string "Tag name: ") magit-current-popup-args))
   (magit-run-git "svn" "tag" args name))
 
 ;;;###autoload
 (defun magit-svn-rebase (&optional args)
-  "Run git-svn rebase."
+  "Fetch revisions from Svn and rebase the current Git commits.
+\n(git svn rebase [--dry-run])"
   (interactive (list magit-current-popup-args))
   (magit-run-git-async "svn" "rebase" args))
 
 ;;;###autoload
 (defun magit-svn-dcommit (&optional args)
-  "Run git-svn dcommit."
+  "Run git-svn dcommit.
+\n(git svn dcommit [--dry-run])"
   (interactive (list magit-current-popup-args))
   (magit-run-git-async "svn" "dcommit" args))
 
 ;;;###autoload
 (defun magit-svn-fetch ()
-  "Run git-svn fetch."
+  "Fetch revisions from Svn updating the tracking branches.
+\n(git svn fetch)"
   (interactive)
   (magit-run-git-async "svn" "fetch"))
 
