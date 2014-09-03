@@ -1892,7 +1892,26 @@ inspect the merge and change the commit message.
     (user-error "No rebase in progress")))
 
 (defun magit-rebase-async (&rest args)
-  (apply #'magit-run-git-sequencer 'rebase "rebase" args))
+  (apply #'magit-run-git-sequencer 'rebase "rebase" args)
+  (set-process-sentinel magit-this-process #'magit-rebase-process-sentinel))
+
+(defun magit-rebase-process-sentinel (process event)
+  (when (memq (process-status process) '(exit signal))
+    (magit-process-sentinel process event)
+    (--when-let (magit-mode-get-buffer
+                 magit-status-buffer-name-format
+                 'magit-status-mode)
+      (with-current-buffer it
+        (--when-let (magit-get-section
+                     `((commit . ,(magit-rebase-stopped-commit))
+                       (rebase-sequence)
+                       (status)))
+          (goto-char (magit-section-start it)))))))
+
+(defun magit-rebase-stopped-commit ()
+  (let ((file (magit-git-dir "rebase-merge/done")))
+    (when (file-exists-p file)
+      (cadr (split-string (car (last (magit-file-lines file))))))))
 
 (defun magit-rebase-interactive-assert (commit)
   (when commit
@@ -1923,10 +1942,7 @@ inspect the merge and change the commit message.
                     (-> "rebase-apply/onto"
                       magit-git-dir magit-file-line magit-get-shortname))))
         (if interactive
-            (let* ((stop (magit-git-dir "rebase-merge/done"))
-                   (stop (and (file-exists-p stop)
-                              (-> stop
-                                magit-file-lines last car split-string cadr))))
+            (progn
               (dolist (line (nreverse
                              (magit-file-lines
                               (magit-git-dir "rebase-merge/git-rebase-todo"))))
@@ -1934,7 +1950,7 @@ inspect the merge and change the commit message.
                   (magit-bind-match-strings (cmd hash msg) line
                     (magit-insert-section (commit hash)
                       (insert cmd " " (magit-format-rev-summary hash) ?\n)))))
-              (when stop
+              (-when-let (stop (magit-rebase-stopped-commit))
                 (magit-insert-section (commit stop)
                   (insert "stop " (magit-format-rev-summary stop) ?\n))))
           (magit-insert-rebase-apply-sequence))
