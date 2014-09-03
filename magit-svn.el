@@ -162,9 +162,6 @@ in `magit-svn-external-directories' and runs
 
 ;;; Utilities
 
-(defun magit-svn-enabled ()
-  (magit-get "svn-remote" "svn" "fetch"))
-
 (defun magit-svn-get-url ()
   (magit-git-string "svn" "info" "--url"))
 
@@ -202,15 +199,17 @@ in `magit-svn-external-directories' and runs
 
 ;;; Mode
 
-(easy-menu-define magit-svn-mode-menu nil "Git-Svn mode menu"
-  '("Git-Svn" :visible magit-svn-mode
-    ["Dcommit"         magit-svn-dcommit          (magit-svn-enabled)]
-    ["Rebase"          magit-svn-rebase           (magit-svn-enabled)]
-    ["Fetch"           magit-svn-fetch            (magit-svn-enabled)]
-    ["Fetch Externals" magit-svn-fetch-externals  (magit-svn-enabled)]
-    ["Show commit"     magit-svn-show-commit      (magit-svn-enabled)]
-    ["Create branch"   magit-svn-create-branch    (magit-svn-enabled)]
-    ["Create tag"      magit-svn-create-tag       (magit-svn-enabled)]))
+(easy-menu-define magit-svn-mode-menu nil "Magit-Svn mode menu"
+  '("Git-Svn"
+    :visible magit-svn-mode
+    :active (lambda () (magit-get "svn-remote" "svn" "fetch"))
+    ["Dcommit"         magit-svn-dcommit]
+    ["Rebase"          magit-svn-rebase]
+    ["Fetch"           magit-svn-fetch]
+    ["Fetch Externals" magit-svn-fetch-externals]
+    ["Show commit"     magit-svn-show-commit]
+    ["Create branch"   magit-svn-create-branch]
+    ["Create tag"      magit-svn-create-tag]))
 
 (easy-menu-add-item 'magit-mode-menu '("Extensions") magit-svn-mode-menu)
 
