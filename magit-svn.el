@@ -146,9 +146,9 @@
 ;;;###autoload
 (defun magit-svn-fetch-externals()
   "Fetch and rebase all external repositories.
-Loops through all external repositories found in
-`magit-svn-external-directories' and runs `git svn fetch',
-and `git svn rebase' on each of them."
+Loops through all external repositories found
+in `magit-svn-external-directories' and runs
+`git svn rebase' on each of them."
   (interactive)
   (require 'find-lisp)
   (--if-let (find-lisp-find-files-internal
@@ -158,7 +158,6 @@ and `git svn rebase' on each of them."
              'find-lisp-default-directory-predicate)
       (dolist (external it)
         (let ((default-directory (file-name-directory external)))
-          (magit-run-git "svn" "fetch")
           (magit-run-git "svn" "rebase")))
     (user-error "No SVN Externals found. Check magit-svn-externals-dir"))
   (magit-refresh))
