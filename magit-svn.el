@@ -303,8 +303,8 @@ and `git svn rebase' on each of them."
   "Git-Svn support for Magit."
   :lighter magit-svn-mode-lighter
   :keymap  magit-svn-mode-map
-  (or (derived-mode-p 'magit-mode)
-      (user-error "This mode only makes sense with Magit"))
+  (unless (derived-mode-p 'magit-mode)
+    (user-error "This mode only makes sense with Magit"))
   (cond
    (magit-svn-mode
     (magit-add-section-hook 'magit-status-sections-hook

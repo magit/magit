@@ -229,8 +229,8 @@ into the series."
   "StGit support for Magit."
   :lighter magit-stgit-mode-lighter
   :keymap  magit-stgit-mode-map
-  (or (derived-mode-p 'magit-mode)
-      (user-error "This mode only makes sense with Magit"))
+  (unless (derived-mode-p 'magit-mode)
+    (user-error "This mode only makes sense with Magit"))
   (if magit-stgit-mode
       (magit-add-section-hook 'magit-status-sections-hook
                               'magit-insert-stgit-series

@@ -201,8 +201,8 @@
   "TopGit support for Magit."
   :lighter magit-topgit-mode-lighter
   :keymap  magit-topgit-mode-map
-  (or (derived-mode-p 'magit-mode)
-      (user-error "This mode only makes sense with Magit"))
+  (unless (derived-mode-p 'magit-mode)
+    (user-error "This mode only makes sense with Magit"))
   (if magit-topgit-mode
       (magit-add-section-hook 'magit-status-sections-hook
                               'magit-insert-topgit-topics
