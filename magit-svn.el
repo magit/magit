@@ -38,17 +38,9 @@
 
 ;; When `magit-svn-mode' is turned on then the unpushed and unpulled
 ;; commit relative to the Subversion repository are displayed in the
-;; status buffer.  Git-Svn commands are available from the the Git-Svn
-;; popup on `N'.
-
-;; Typing @kbd{N r} runs @code{git svn rebase}, typing @kbd{N c} runs
-;; @code{git svn dcommit} and typing @kbd{N f} runs @code{git svn fetch}.
-
-;; @kbd{N s} will prompt you for a (numeric, Subversion) revision and
-;; then search for a corresponding Git sha1 for the commit.  This is
-;; limited to the path of the remote Subversion repository.  With a prefix
-;; (@kbd{C-u N s} the user will also be prompted for a branch to search
-;; in.
+;; status buffer, and `N' is bound to a popup with commands that wrap
+;; the `git svn' subcommands fetch, rebase, dcommit, branch and tag,
+;; as well as a few extras.
 
 ;; To enable the mode in a particular repository use:
 ;;
