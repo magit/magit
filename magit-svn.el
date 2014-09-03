@@ -114,28 +114,28 @@
     (user-error "Revision %s could not be mapped to a commit" rev)))
 
 ;;;###autoload
-(defun magit-svn-create-branch (name)
+(defun magit-svn-create-branch (name &optional args)
   "Create svn branch NAME."
-  (interactive "sBranch name: ")
-  (magit-run-git "svn" "branch" magit-current-popup-args name))
+  (interactive (list (read-string "Branch name: ") magit-current-popup-args))
+  (magit-run-git "svn" "branch" args name))
 
 ;;;###autoload
-(defun magit-svn-create-tag (name)
+(defun magit-svn-create-tag (name &optional args)
   "Create svn tag NAME."
-  (interactive "sTag name: ")
-  (magit-run-git "svn" "tag" magit-current-popup-args name))
+  (interactive (list (read-string "Tag name: ") magit-current-popup-args))
+  (magit-run-git "svn" "tag" args name))
 
 ;;;###autoload
-(defun magit-svn-rebase ()
+(defun magit-svn-rebase (&optional args)
   "Run git-svn rebase."
-  (interactive)
-  (magit-run-git-async "svn" "rebase" magit-current-popup-args))
+  (interactive (list magit-current-popup-args))
+  (magit-run-git-async "svn" "rebase" args))
 
 ;;;###autoload
-(defun magit-svn-dcommit ()
+(defun magit-svn-dcommit (&optional args)
   "Run git-svn dcommit."
-  (interactive)
-  (magit-run-git-async "svn" "dcommit" magit-current-popup-args))
+  (interactive (list magit-current-popup-args))
+  (magit-run-git-async "svn" "dcommit" args))
 
 ;;;###autoload
 (defun magit-svn-remote-update ()
