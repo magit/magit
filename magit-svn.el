@@ -204,10 +204,13 @@ in `magit-svn-external-directories' and runs
 
 (easy-menu-define magit-svn-mode-menu nil "Git-Svn mode menu"
   '("Git-Svn" :visible magit-svn-mode
-    ["Create branch" magit-svn-create-branch (magit-svn-enabled)]
-    ["Rebase" magit-svn-rebase (magit-svn-enabled)]
-    ["Fetch" magit-svn-fetch (magit-svn-enabled)]
-    ["Commit" magit-svn-dcommit (magit-svn-enabled)]))
+    ["Dcommit"         magit-svn-dcommit          (magit-svn-enabled)]
+    ["Rebase"          magit-svn-rebase           (magit-svn-enabled)]
+    ["Fetch"           magit-svn-fetch            (magit-svn-enabled)]
+    ["Fetch Externals" magit-svn-fetch-externals  (magit-svn-enabled)]
+    ["Show commit"     magit-svn-show-commit      (magit-svn-enabled)]
+    ["Create branch"   magit-svn-create-branch    (magit-svn-enabled)]
+    ["Create tag"      magit-svn-create-tag       (magit-svn-enabled)]))
 
 (easy-menu-add-item 'magit-mode-menu '("Extensions") magit-svn-mode-menu)
 
