@@ -1954,6 +1954,16 @@ inspect the merge and change the commit message.
                 (magit-insert-section (commit stop)
                   (insert "stop " (magit-format-rev-summary stop) ?\n))))
           (magit-insert-rebase-apply-sequence))
+        (let ((onto (magit-file-line
+                     (magit-git-dir (if interactive
+                                        "rebase-merge/onto"
+                                      "rebase-apply/onto")))))
+          (dolist (hash (magit-git-lines "log" "--format=%H"
+                                         (concat onto "..HEAD")))
+            (magit-insert-section (commit hash)
+              (insert "done " (magit-format-rev-summary hash) ?\n)))
+          (magit-insert-section (commit onto)
+            (insert "onto " (magit-format-rev-summary onto) ?\n)))
         (insert ?\n)))))
 
 (defun magit-insert-rebase-apply-sequence ()
@@ -1968,8 +1978,7 @@ inspect the merge and change the commit message.
           (setq hash (match-string 1)))
         (magit-insert-section (commit hash)
           (insert (if (eq file stop) "stop " "pick ")
-                  (magit-format-rev-summary hash) ?\n))))
-    (insert ?\n)))
+                  (magit-format-rev-summary hash) ?\n))))))
 
 ;;;; Pick & Revert
 
@@ -2170,7 +2179,8 @@ inspect the merge and change the commit message.
     (let (msg file hash)
       (magit-insert-section (sequence)
         (magit-insert-heading "Applying patches:")
-        (magit-insert-rebase-apply-sequence)))))
+        (magit-insert-rebase-apply-sequence)
+        (insert ?\n)))))
 
 ;;;; Reset
 
