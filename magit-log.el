@@ -749,6 +749,7 @@ alist in `magit-log-format-unicode-graph-alist'."
     (define-key map "\C-c\C-b" 'undefined)
     (define-key map "\C-c\C-f" 'undefined)
     (define-key map "."        'magit-log-select-pick)
+    (define-key map "e"        'magit-log-select-pick)
     (define-key map "\C-c\C-c" 'magit-log-select-pick)
     (define-key map "q"        'magit-log-select-quit)
     (define-key map "\C-c\C-k" 'magit-log-select-quit)

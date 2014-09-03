@@ -1892,7 +1892,26 @@ inspect the merge and change the commit message.
     (user-error "No rebase in progress")))
 
 (defun magit-rebase-async (&rest args)
-  (apply #'magit-run-git-sequencer 'rebase "rebase" args))
+  (apply #'magit-run-git-sequencer 'rebase "rebase" args)
+  (set-process-sentinel magit-this-process #'magit-rebase-process-sentinel))
+
+(defun magit-rebase-process-sentinel (process event)
+  (when (memq (process-status process) '(exit signal))
+    (magit-process-sentinel process event)
+    (--when-let (magit-mode-get-buffer
+                 magit-status-buffer-name-format
+                 'magit-status-mode)
+      (with-current-buffer it
+        (--when-let (magit-get-section
+                     `((commit . ,(magit-rebase-stopped-commit))
+                       (rebase-sequence)
+                       (status)))
+          (goto-char (magit-section-start it)))))))
+
+(defun magit-rebase-stopped-commit ()
+  (let ((file (magit-git-dir "rebase-merge/done")))
+    (when (file-exists-p file)
+      (cadr (split-string (car (last (magit-file-lines file))))))))
 
 (defun magit-rebase-interactive-assert (commit)
   (when commit
@@ -1923,10 +1942,7 @@ inspect the merge and change the commit message.
                     (-> "rebase-apply/onto"
                       magit-git-dir magit-file-line magit-get-shortname))))
         (if interactive
-            (let* ((stop (magit-git-dir "rebase-merge/done"))
-                   (stop (and (file-exists-p stop)
-                              (-> stop
-                                magit-file-lines last car split-string cadr))))
+            (progn
               (dolist (line (nreverse
                              (magit-file-lines
                               (magit-git-dir "rebase-merge/git-rebase-todo"))))
@@ -1934,10 +1950,20 @@ inspect the merge and change the commit message.
                   (magit-bind-match-strings (cmd hash msg) line
                     (magit-insert-section (commit hash)
                       (insert cmd " " (magit-format-rev-summary hash) ?\n)))))
-              (when stop
+              (-when-let (stop (magit-rebase-stopped-commit))
                 (magit-insert-section (commit stop)
                   (insert "stop " (magit-format-rev-summary stop) ?\n))))
           (magit-insert-rebase-apply-sequence))
+        (let ((onto (magit-file-line
+                     (magit-git-dir (if interactive
+                                        "rebase-merge/onto"
+                                      "rebase-apply/onto")))))
+          (dolist (hash (magit-git-lines "log" "--format=%H"
+                                         (concat onto "..HEAD")))
+            (magit-insert-section (commit hash)
+              (insert "done " (magit-format-rev-summary hash) ?\n)))
+          (magit-insert-section (commit onto)
+            (insert "onto " (magit-format-rev-summary onto) ?\n)))
         (insert ?\n)))))
 
 (defun magit-insert-rebase-apply-sequence ()
@@ -1952,8 +1978,7 @@ inspect the merge and change the commit message.
           (setq hash (match-string 1)))
         (magit-insert-section (commit hash)
           (insert (if (eq file stop) "stop " "pick ")
-                  (magit-format-rev-summary hash) ?\n))))
-    (insert ?\n)))
+                  (magit-format-rev-summary hash) ?\n))))))
 
 ;;;; Pick & Revert
 
@@ -2154,7 +2179,8 @@ inspect the merge and change the commit message.
     (let (msg file hash)
       (magit-insert-section (sequence)
         (magit-insert-heading "Applying patches:")
-        (magit-insert-rebase-apply-sequence)))))
+        (magit-insert-rebase-apply-sequence)
+        (insert ?\n)))))
 
 ;;;; Reset
 
@@ -2168,21 +2194,25 @@ head this effectivley unstages all changes.
   (magit-run-git "reset" commit "--"))
 
 ;;;###autoload
-(defun magit-reset (commit)
+(defun magit-reset (commit &optional hard)
   "Reset the head and index to COMMIT, but not the working tree.
 With a prefix argument also reset the working tree.
 \n(git reset --mixed|--hard COMMIT)"
   (interactive (list (magit-read-branch-or-commit
                       (if current-prefix-arg
                           "Hard reset to"
-                        "Reset head to"))))
-  (magit-run-git "reset" (if current-prefix-arg "--hard" "--mixed") commit))
+                        "Reset head to"))
+                     current-prefix-arg))
+  (unless hard
+    (magit-maybe-save-head-message commit))
+  (magit-run-git "reset" (if hard "--hard" "--mixed") commit))
 
 ;;;###autoload
 (defun magit-reset-head (commit)
   "Reset the head and index to COMMIT, but not the working tree.
 \n(git reset --mixed COMMIT)"
   (interactive (list (magit-read-branch-or-commit "Reset head to")))
+  (magit-maybe-save-head-message commit)
   (magit-run-git "reset" "--mixed" commit))
 
 ;;;###autoload
@@ -2190,6 +2220,7 @@ With a prefix argument also reset the working tree.
   "Reset the head to COMMIT, but not the index and working tree.
 \n(git reset --soft REVISION)"
   (interactive (list (magit-read-branch-or-commit "Soft reset to")))
+  (magit-maybe-save-head-message commit)
   (magit-run-git "reset" "--soft" commit))
 
 ;;;###autoload
@@ -2198,6 +2229,16 @@ With a prefix argument also reset the working tree.
 \n(git reset --hard REVISION)"
   (interactive (list (magit-read-branch-or-commit "Hard reset to")))
   (magit-run-git "reset" "--hard" commit))
+
+(defun magit-maybe-save-head-message (commit)
+  (when (equal (magit-rev-parse commit)
+               (magit-rev-parse "HEAD~"))
+    (with-temp-buffer
+      (magit-git-insert "log" "-1" "--format=%B" "HEAD")
+      (when git-commit-major-mode
+        (funcall git-commit-major-mode))
+      (git-commit-setup-font-lock)
+      (git-commit-save-message))))
 
 ;;; Transfer
 ;;;; Remotes
