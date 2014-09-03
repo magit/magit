@@ -2168,21 +2168,25 @@ head this effectivley unstages all changes.
   (magit-run-git "reset" commit "--"))
 
 ;;;###autoload
-(defun magit-reset (commit)
+(defun magit-reset (commit &optional hard)
   "Reset the head and index to COMMIT, but not the working tree.
 With a prefix argument also reset the working tree.
 \n(git reset --mixed|--hard COMMIT)"
   (interactive (list (magit-read-branch-or-commit
                       (if current-prefix-arg
                           "Hard reset to"
-                        "Reset head to"))))
-  (magit-run-git "reset" (if current-prefix-arg "--hard" "--mixed") commit))
+                        "Reset head to"))
+                     current-prefix-arg))
+  (unless hard
+    (magit-maybe-save-head-message commit))
+  (magit-run-git "reset" (if hard "--hard" "--mixed") commit))
 
 ;;;###autoload
 (defun magit-reset-head (commit)
   "Reset the head and index to COMMIT, but not the working tree.
 \n(git reset --mixed COMMIT)"
   (interactive (list (magit-read-branch-or-commit "Reset head to")))
+  (magit-maybe-save-head-message commit)
   (magit-run-git "reset" "--mixed" commit))
 
 ;;;###autoload
@@ -2190,6 +2194,7 @@ With a prefix argument also reset the working tree.
   "Reset the head to COMMIT, but not the index and working tree.
 \n(git reset --soft REVISION)"
   (interactive (list (magit-read-branch-or-commit "Soft reset to")))
+  (magit-maybe-save-head-message commit)
   (magit-run-git "reset" "--soft" commit))
 
 ;;;###autoload
@@ -2198,6 +2203,16 @@ With a prefix argument also reset the working tree.
 \n(git reset --hard REVISION)"
   (interactive (list (magit-read-branch-or-commit "Hard reset to")))
   (magit-run-git "reset" "--hard" commit))
+
+(defun magit-maybe-save-head-message (commit)
+  (when (equal (magit-rev-parse commit)
+               (magit-rev-parse "HEAD~"))
+    (with-temp-buffer
+      (magit-git-insert "log" "-1" "--format=%B" "HEAD")
+      (when git-commit-major-mode
+        (funcall git-commit-major-mode))
+      (git-commit-setup-font-lock)
+      (git-commit-save-message))))
 
 ;;; Transfer
 ;;;; Remotes
