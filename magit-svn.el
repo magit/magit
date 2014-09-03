@@ -310,13 +310,12 @@ and `git svn rebase' on each of them."
     (magit-add-section-hook 'magit-status-sections-hook
                             'magit-insert-svn-unpushed
                             'magit-insert-unpushed-commits t t)
-    (magit-add-section-hook 'magit-status-insert-sections-hook
-                            'magit-insert-svn-remote-line
-                            'magit-insert-status-remote-line t t))
+    (magit-add-section-hook 'magit-status-headers-hook
+                            'magit-insert-svn-remote-line nil t t))
    (t
     (remove-hook 'magit-status-sections-hook 'magit-insert-svn-unpulled t)
     (remove-hook 'magit-status-sections-hook 'magit-insert-svn-unpushed t)
-    (remove-hook 'magit-status-sections-hook 'magit-insert-svn-remote-line t)))
+    (remove-hook 'magit-status-headers-hook  'magit-insert-svn-remote-line t)))
   (when (called-interactively-p 'any)
     (magit-refresh)))
 
