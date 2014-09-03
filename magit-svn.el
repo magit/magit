@@ -235,17 +235,13 @@ If USE-CACHE is non-nil, use the cached information."
   (when (magit-svn-enabled)
     (magit-insert-section (svn-unpulled)
       (magit-insert-heading "Unpulled commits (svn):")
-      (magit-git-wash (apply-partially 'magit-log-wash-log 'unique)
-        "log" "--format=format:%h %s"
-        (format "HEAD..%s" (magit-svn-get-ref t))))))
+      (magit-insert-log (format "HEAD..%s" (magit-svn-get-ref t))))))
 
 (defun magit-insert-svn-unpushed ()
   (when (magit-svn-enabled)
     (magit-insert-section (svn-unpushed)
       (magit-insert-heading "Unpushed commits (svn):")
-      (magit-git-wash (apply-partially 'magit-log-wash-log 'unique)
-        "log" "--format=format:%h %s"
-        (format "%s..HEAD" (magit-svn-get-ref t))))))
+      (magit-insert-log (format "%s..HEAD" (magit-svn-get-ref t))))))
 
 (magit-define-section-jumper svn-unpushed "Unpushed commits (svn)")
 (magit-define-section-jumper svn-unpulled "Unpulled commits (svn)")
