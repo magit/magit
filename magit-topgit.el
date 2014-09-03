@@ -134,10 +134,12 @@
 (magit-define-popup magit-topgit-popup
   "Popup console for TopGit commands."
   'magit-popups
-  :actions '((?c "Create topic"  magit-topgit-create-branch)
-             (?a "Update remote" magit-topgit-remote-update)
-             (?f "Update topic"  magit-topgit-pull)
-             (?p "Push topic"    magit-topgit-push)))
+  :actions '((?c "Create topic"   magit-topgit-create-branch)
+             (?b "Checkout topic" magit-topgit-checkout)
+             (?f "Pull topic"     magit-topgit-pull)
+             (?p "Push topic"     magit-topgit-push)
+             (?k "Discard topic"  magit-topgit-discard)
+             (?a "Update remote"  magit-topgit-remote-update)))
 
 (defun magit-topgit-create-branch (branch parent)
   (interactive
