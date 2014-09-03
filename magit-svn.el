@@ -146,7 +146,7 @@
 ;;; Utilities
 
 (defun magit-svn-enabled ()
-  (not (null (magit-svn-get-ref-info t))))
+  (magit-get "svn-remote" "svn" "fetch"))
 
 (defun magit-svn-expand-braces-in-branches (branch)
   (if (not (string-match "\\(.+\\){\\(.+,.+\\)}\\(.*\\):\\(.*\\)\\\*" branch))
