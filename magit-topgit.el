@@ -134,10 +134,12 @@
 (magit-define-popup magit-topgit-popup
   "Popup console for TopGit commands."
   'magit-popups
-  :actions '((?c "Create topic"  magit-topgit-create-branch)
-             (?a "Update remote" magit-topgit-remote-update)
-             (?f "Update topic"  magit-topgit-pull)
-             (?p "Push topic"    magit-topgit-push)))
+  :actions '((?c "Create topic"   magit-topgit-create-branch)
+             (?b "Checkout topic" magit-topgit-checkout)
+             (?f "Pull topic"     magit-topgit-pull)
+             (?p "Push topic"     magit-topgit-push)
+             (?k "Discard topic"  magit-topgit-discard)
+             (?a "Update remote"  magit-topgit-remote-update)))
 
 (defun magit-topgit-create-branch (branch parent)
   (interactive
@@ -201,8 +203,8 @@
   "TopGit support for Magit."
   :lighter magit-topgit-mode-lighter
   :keymap  magit-topgit-mode-map
-  (or (derived-mode-p 'magit-mode)
-      (user-error "This mode only makes sense with Magit"))
+  (unless (derived-mode-p 'magit-mode)
+    (user-error "This mode only makes sense with Magit"))
   (if magit-topgit-mode
       (magit-add-section-hook 'magit-status-sections-hook
                               'magit-insert-topgit-topics
@@ -215,7 +217,18 @@
 ;;;###autoload
 (custom-add-option 'magit-mode-hook #'magit-topgit-mode)
 
-;;; Topics Section
+(easy-menu-define magit-topgit-mode-menu nil "Magit-Topgit mode menu"
+  '("TopGit" :visible magit-topgit-mode
+    ["Create topic"   magit-topgit-create-branch]
+    ["Checkout topic" magit-topgit-checkout      magit-topgit-in-topic-p]
+    ["Pull topic"     magit-topgit-pull          magit-topgit-in-topic-p]
+    ["Push topic"     magit-topgit-push          magit-topgit-in-topic-p]
+    ["Discard topic"  magit-topgit-discard       magit-topgit-in-topic-p]
+    ["Update remote"  magit-topgit-remote-update magit-topgit-in-topic-p]))
+
+(easy-menu-add-item 'magit-mode-menu '("Extensions") magit-topgit-mode-menu)
+
+;;; Sections
 
 (defvar magit-topgit-topic-map
   (let ((map (make-sparse-keymap)))

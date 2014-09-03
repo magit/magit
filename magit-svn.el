@@ -38,17 +38,9 @@
 
 ;; When `magit-svn-mode' is turned on then the unpushed and unpulled
 ;; commit relative to the Subversion repository are displayed in the
-;; status buffer.  Git-Svn commands are available from the the Git-Svn
-;; popup on `N'.
-
-;; Typing @kbd{N r} runs @code{git svn rebase}, typing @kbd{N c} runs
-;; @code{git svn dcommit} and typing @kbd{N f} runs @code{git svn fetch}.
-
-;; @kbd{N s} will prompt you for a (numeric, Subversion) revision and
-;; then search for a corresponding Git sha1 for the commit.  This is
-;; limited to the path of the remote Subversion repository.  With a prefix
-;; (@kbd{C-u N s} the user will also be prompted for a branch to search
-;; in.
+;; status buffer, and `N' is bound to a popup with commands that wrap
+;; the `git svn' subcommands fetch, rebase, dcommit, branch and tag,
+;; as well as a few extras.
 
 ;; To enable the mode in a particular repository use:
 ;;
@@ -83,215 +75,107 @@
   :group 'magit-svn
   :type 'string)
 
-(defcustom magit-svn-mode-lighter " Svn"
+(defcustom magit-svn-mode-lighter " Msvn"
   "Mode-line lighter for Magit-Svn mode."
   :group 'magit-svn
   :type 'string)
 
+;;; Utilities
+
+(defun magit-svn-get-url ()
+  (magit-git-string "svn" "info" "--url"))
+
+(defun magit-svn-get-rev ()
+  (--when-let (--first (string-match "^Revision: \\(.+\\)" it)
+                       (magit-git-lines "svn" "info"))
+    (match-string 1 it)))
+
+(defun magit-svn-get-ref ()
+  (--when-let (--first (string-match "^Remote Branch: \\(.+\\)" it)
+                       (magit-git-lines "svn" "rebase" "--dry-run"))
+    (match-string 1 it)))
+
 ;;; Commands
 
 (magit-define-popup magit-svn-popup
-  "Key menu for svn."
+  "Popup console for svn commands."
   'magit
   :man-page "git-svn"
   :switches '((?n "Dry run"         "--dry-run"))
-  :actions  '((?r "Rebase"          magit-svn-rebase)
-              (?c "DCommit"         magit-svn-dcommit)
-              (?f "Fetch"           magit-svn-remote-update)
-              (?s "Find rev"        magit-svn-find-rev)
-              (?B "Create branch"   magit-svn-create-branch)
-              (?T "Create tag"      magit-svn-create-tag)
-              (?x "Fetch Externals" magit-svn-fetch-externals)))
+  :actions  '((?c "DCommit"         magit-svn-dcommit)
+              (?r "Rebase"          magit-svn-rebase)
+              (?f "Fetch"           magit-svn-fetch)
+              (?x "Fetch Externals" magit-svn-fetch-externals)
+              (?s "Show commit"     magit-svn-show-commit)
+              (?b "Create branch"   magit-svn-create-branch)
+              (?t "Create tag"      magit-svn-create-tag)))
 
 ;;;###autoload
-(defun magit-svn-find-rev (rev &optional branch)
-  "Find commit for svn REVISION in BRANCH."
-  (interactive (list (magit-read-string "SVN revision")
+(defun magit-svn-show-commit (rev &optional branch)
+  "Show the Git commit for a Svn revision read from the user.
+With a prefix argument also read a branch to search in."
+  (interactive (list (read-number "SVN revision: ")
                      (and current-prefix-arg
-                          (magit-read-string "In branch"))))
-  (--if-let (magit-git-string "svn" "find-rev" (concat "r" rev) branch)
+                          (magit-read-local-branch "In branch"))))
+  (--if-let (magit-git-string "svn" "find-rev" (format "r%i" rev) branch)
       (magit-show-commit it)
-    (user-error "Revision %s could not be mapped to a commit" rev)))
+    (user-error "Revision r%s could not be mapped to a commit" rev)))
 
 ;;;###autoload
-(defun magit-svn-create-branch (name)
-  "Create svn branch NAME."
-  (interactive "sBranch name: ")
-  (magit-run-git "svn" "branch" magit-current-popup-args name))
+(defun magit-svn-create-branch (name &optional args)
+  "Create svn branch NAME.
+\n(git svn branch [--dry-run] NAME)"
+  (interactive (list (read-string "Branch name: ") magit-current-popup-args))
+  (magit-run-git "svn" "branch" args name))
 
 ;;;###autoload
-(defun magit-svn-create-tag (name)
-  "Create svn tag NAME."
-  (interactive "sTag name: ")
-  (magit-run-git "svn" "tag" magit-current-popup-args name))
+(defun magit-svn-create-tag (name &optional args)
+  "Create svn tag NAME.
+\n(git svn tag [--dry-run] NAME)"
+  (interactive (list (read-string "Tag name: ") magit-current-popup-args))
+  (magit-run-git "svn" "tag" args name))
 
 ;;;###autoload
-(defun magit-svn-rebase ()
-  "Run git-svn rebase."
+(defun magit-svn-rebase (&optional args)
+  "Fetch revisions from Svn and rebase the current Git commits.
+\n(git svn rebase [--dry-run])"
+  (interactive (list magit-current-popup-args))
+  (magit-run-git-async "svn" "rebase" args))
+
+;;;###autoload
+(defun magit-svn-dcommit (&optional args)
+  "Run git-svn dcommit.
+\n(git svn dcommit [--dry-run])"
+  (interactive (list magit-current-popup-args))
+  (magit-run-git-async "svn" "dcommit" args))
+
+;;;###autoload
+(defun magit-svn-fetch ()
+  "Fetch revisions from Svn updating the tracking branches.
+\n(git svn fetch)"
   (interactive)
-  (magit-run-git-async "svn" "rebase" magit-current-popup-args))
-
-;;;###autoload
-(defun magit-svn-dcommit ()
-  "Run git-svn dcommit."
-  (interactive)
-  (magit-run-git-async "svn" "dcommit" magit-current-popup-args))
-
-;;;###autoload
-(defun magit-svn-remote-update ()
-  "Run git-svn fetch."
-  (interactive)
-  (when (magit-svn-enabled)
-    (magit-run-git-async "svn" "fetch")))
-
-;;; Utilities
-
-(defun magit-svn-enabled ()
-  (not (null (magit-svn-get-ref-info t))))
-
-(defun magit-svn-expand-braces-in-branches (branch)
-  (if (not (string-match "\\(.+\\){\\(.+,.+\\)}\\(.*\\):\\(.*\\)\\\*" branch))
-      (list branch)
-    (let ((prefix (match-string 1 branch))
-          (suffix (match-string 3 branch))
-          (rhs (match-string 4 branch))
-          (pieces (split-string (match-string 2 branch) ",")))
-      (mapcar (lambda (p) (concat prefix p suffix ":" rhs p)) pieces))))
-
-(defun magit-svn-get-local-ref (url)
-  (let* ((branches (cons (magit-get "svn-remote" "svn" "fetch")
-                        (magit-get-all "svn-remote" "svn" "branches")))
-         (branches (apply 'nconc
-                          (mapcar 'magit-svn-expand-braces-in-branches
-                                  branches)))
-        (base-url (magit-get "svn-remote" "svn" "url"))
-        (result nil))
-    (while branches
-      (let* ((pats (split-string (pop branches) ":"))
-             (src (replace-regexp-in-string "\\*" "\\\\(.*\\\\)" (car pats)))
-             (dst (replace-regexp-in-string "\\*" "\\\\1" (cadr pats)))
-             (base-url (replace-regexp-in-string "\\+" "\\\\+" base-url))
-             (base-url (replace-regexp-in-string "//.+@" "//" base-url))
-             (pat1 (concat "^" src "$"))
-             (pat2 (cond ((equal src "") (concat "^" base-url "$"))
-                         (t (concat "^" base-url "/" src "$")))))
-        (cond ((string-match pat1 url)
-               (setq result (replace-match dst nil nil url))
-               (setq branches nil))
-              ((string-match pat2 url)
-               (setq result (replace-match dst nil nil url))
-               (setq branches nil)))))
-    result))
-
-(defvar magit-svn-get-ref-info-cache nil
-  "A cache for svn-ref-info.
-As `magit-get-svn-ref-info' might be considered a quite
-expensive operation a cache is taken so that `magit-status'
-doesn't repeatedly call it.")
-
-(defun magit-svn-get-ref-info (&optional use-cache)
-  "Gather details about the current git-svn repository.
-Return nil if there isn't one.  Keys of the alist are ref-path,
-trunk-ref-name and local-ref-name.
-If USE-CACHE is non-nil then return the value of
-`magit-get-svn-ref-info-cache'."
-  (if (and use-cache magit-svn-get-ref-info-cache)
-      magit-svn-get-ref-info-cache
-    (let* ((fetch (magit-get "svn-remote" "svn" "fetch"))
-           (url)
-           (revision))
-      (when fetch
-        (let* ((ref (cadr (split-string fetch ":")))
-               (ref-path (file-name-directory ref))
-               (trunk-ref-name (file-name-nondirectory ref)))
-          (setq-local magit-svn-get-ref-info-cache
-                (list
-                 (cons 'ref-path ref-path)
-                 (cons 'trunk-ref-name trunk-ref-name)
-                 ;; get the local ref from the log. This is actually
-                 ;; the way that git-svn does it.
-                 (cons 'local-ref
-                       (with-temp-buffer
-                         (magit-git-insert "log" "-1" "--first-parent"
-                                           "--grep" "git-svn")
-                         (goto-char (point-min))
-                         (cond ((re-search-forward
-                                 "git-svn-id: \\(.+/.+?\\)@\\([0-9]+\\)" nil t)
-                                (setq url (match-string 1)
-                                      revision (match-string 2))
-                                (magit-svn-get-local-ref url))
-                               (t
-                                (setq url (magit-get "svn-remote" "svn" "url"))
-                                nil))))
-                 (cons 'revision revision)
-                 (cons 'url url))))))))
-
-(defun magit-svn-get-ref (&optional use-cache)
-  "Get the best guess remote ref for the current git-svn based branch.
-If USE-CACHE is non-nil, use the cached information."
-  (cdr (assoc 'local-ref (magit-svn-get-ref-info use-cache))))
-
-(defun magit-insert-svn-unpulled ()
-  (when (magit-svn-enabled)
-    (magit-insert-section (svn-unpulled)
-      (magit-insert-heading "Unpulled commits (svn):")
-      (magit-git-wash (apply-partially 'magit-log-wash-log 'unique)
-        "log" "--format=format:%h %s"
-        (format "HEAD..%s" (magit-svn-get-ref t))))))
-
-(defun magit-insert-svn-unpushed ()
-  (when (magit-svn-enabled)
-    (magit-insert-section (svn-unpushed)
-      (magit-insert-heading "Unpushed commits (svn):")
-      (magit-git-wash (apply-partially 'magit-log-wash-log 'unique)
-        "log" "--format=format:%h %s"
-        (format "%s..HEAD" (magit-svn-get-ref t))))))
-
-(magit-define-section-jumper svn-unpushed "Unpushed commits (svn)")
-(magit-define-section-jumper svn-unpulled "Unpulled commits (svn)")
-
-(defun magit-insert-svn-remote-line ()
-  (--when-let (magit-svn-get-ref-info)
-    (magit-insert-section (line)
-      (magit-insert (concat (magit-string-pad "Remote:" 10)
-                            (cdr (assoc 'url it)) " @ "
-                            (cdr (assoc 'revision it)))))))
+  (magit-run-git-async "svn" "fetch"))
 
 ;;;###autoload
 (defun magit-svn-fetch-externals()
   "Fetch and rebase all external repositories.
-Loops through all external repositories found in
-`magit-svn-external-directories' and runs `git svn fetch',
-and `git svn rebase' on each of them."
+Loops through all external repositories found
+in `magit-svn-external-directories' and runs
+`git svn rebase' on each of them."
   (interactive)
-  (--if-let (magit-svn-external-directories)
+  (require 'find-lisp)
+  (--if-let (find-lisp-find-files-internal
+             (expand-file-name magit-svn-externals-dir)
+             (lambda (file dir)
+               (string-equal file ".git"))
+             'find-lisp-default-directory-predicate)
       (dolist (external it)
         (let ((default-directory (file-name-directory external)))
-          (magit-run-git "svn" "fetch")
           (magit-run-git "svn" "rebase")))
     (user-error "No SVN Externals found. Check magit-svn-externals-dir"))
   (magit-refresh))
 
-(defun magit-svn-external-directories()
-  "Returns all .git directories within `magit-svn-externals-dir'."
-  (require 'find-lisp)
-  (find-lisp-find-files-internal (expand-file-name magit-svn-externals-dir)
-                                 '(lambda(file dir)
-                                    (string-equal file ".git"))
-                                 'find-lisp-default-directory-predicate))
-
 ;;; Mode
-
-(easy-menu-define magit-svn-extension-menu
-  nil
-  "Git-Svn extension menu"
-  '("Git-Svn" :visible magit-svn-mode
-    ["Create branch" magit-svn-create-branch (magit-svn-enabled)]
-    ["Rebase" magit-svn-rebase (magit-svn-enabled)]
-    ["Fetch" magit-svn-remote-update (magit-svn-enabled)]
-    ["Commit" magit-svn-dcommit (magit-svn-enabled)]))
-
-(easy-menu-add-item 'magit-mode-menu '("Extensions") magit-svn-extension-menu)
 
 (defvar magit-svn-mode-map
   (let ((map (make-sparse-keymap)))
@@ -303,8 +187,8 @@ and `git svn rebase' on each of them."
   "Git-Svn support for Magit."
   :lighter magit-svn-mode-lighter
   :keymap  magit-svn-mode-map
-  (or (derived-mode-p 'magit-mode)
-      (user-error "This mode only makes sense with Magit"))
+  (unless (derived-mode-p 'magit-mode)
+    (user-error "This mode only makes sense with Magit"))
   (cond
    (magit-svn-mode
     (magit-add-section-hook 'magit-status-sections-hook
@@ -313,18 +197,55 @@ and `git svn rebase' on each of them."
     (magit-add-section-hook 'magit-status-sections-hook
                             'magit-insert-svn-unpushed
                             'magit-insert-unpushed-commits t t)
-    (magit-add-section-hook 'magit-status-insert-sections-hook
-                            'magit-insert-svn-remote-line
-                            'magit-insert-status-remote-line t t))
+    (magit-add-section-hook 'magit-status-headers-hook
+                            'magit-insert-svn-remote nil t t))
    (t
     (remove-hook 'magit-status-sections-hook 'magit-insert-svn-unpulled t)
     (remove-hook 'magit-status-sections-hook 'magit-insert-svn-unpushed t)
-    (remove-hook 'magit-status-sections-hook 'magit-insert-svn-remote-line t)))
+    (remove-hook 'magit-status-headers-hook  'magit-insert-svn-remote t)))
   (when (called-interactively-p 'any)
     (magit-refresh)))
 
 ;;;###autoload
 (custom-add-option 'magit-mode-hook #'magit-svn-mode)
+
+(easy-menu-define magit-svn-mode-menu nil "Magit-Svn mode menu"
+  '("Git-Svn"
+    :visible magit-svn-mode
+    :active (lambda () (magit-get "svn-remote" "svn" "fetch"))
+    ["Dcommit"         magit-svn-dcommit]
+    ["Rebase"          magit-svn-rebase]
+    ["Fetch"           magit-svn-fetch]
+    ["Fetch Externals" magit-svn-fetch-externals]
+    ["Show commit"     magit-svn-show-commit]
+    ["Create branch"   magit-svn-create-branch]
+    ["Create tag"      magit-svn-create-tag]))
+
+(easy-menu-add-item 'magit-mode-menu '("Extensions") magit-svn-mode-menu)
+
+;;; Sections
+
+(defun magit-insert-svn-unpulled ()
+  (--when-let (magit-svn-get-ref)
+    (magit-insert-section (svn-unpulled)
+      (magit-insert-heading "Unpulled svn commits:")
+      (magit-insert-log (format "HEAD..%s" it)))))
+
+(defun magit-insert-svn-unpushed ()
+  (--when-let (magit-svn-get-ref)
+    (magit-insert-section (svn-unpushed)
+      (magit-insert-heading "Unpushed git commits:")
+      (magit-insert-log (format "%s..HEAD" it)))))
+
+(magit-define-section-jumper svn-unpulled "Unpulled svn commits")
+(magit-define-section-jumper svn-unpushed "Unpushed git commits")
+
+(defun magit-insert-svn-remote ()
+  (--when-let (magit-svn-get-rev)
+    (magit-insert-section (line)
+      (magit-insert (format "%-10s%s from %s\n" "Remote:"
+                            (propertize (concat "r" it) 'face 'magit-hash)
+                            (magit-svn-get-url))))))
 
 ;;; magit-svn.el ends soon
 

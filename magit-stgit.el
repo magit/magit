@@ -123,14 +123,6 @@
   "Face for an hidden stgit patch."
   :group 'magit-stgit-faces)
 
-;;; Variables
-
-(defvar magit-stgit-patch-buffer-name "*magit-stgit-patch*"
-  "Name of buffer used to display a stgit patch.")
-
-(defvar magit-stgit-patch-history nil
-  "Input history for `magit-stgit-read-patch'.")
-
 ;;; Utilities
 
 (defun magit-run-stgit (&rest args)
@@ -229,8 +221,8 @@ into the series."
   "StGit support for Magit."
   :lighter magit-stgit-mode-lighter
   :keymap  magit-stgit-mode-map
-  (or (derived-mode-p 'magit-mode)
-      (user-error "This mode only makes sense with Magit"))
+  (unless (derived-mode-p 'magit-mode)
+    (user-error "This mode only makes sense with Magit"))
   (if magit-stgit-mode
       (magit-add-section-hook 'magit-status-sections-hook
                               'magit-insert-stgit-series
@@ -243,8 +235,7 @@ into the series."
 ;;;###autoload
 (custom-add-option 'magit-mode-hook #'magit-stgit-mode)
 
-(easy-menu-define magit-stgit-extension-menu nil
-  "StGit extension menu"
+(easy-menu-define magit-stgit-mode-menu nil "Magit-Stgit mode menu"
   '("StGit" :visible magit-stgit-mode
     ["Refresh patch" magit-stgit-refresh
      :help "Refresh the contents of a patch in an StGit series"]
@@ -253,10 +244,9 @@ into the series."
     ["Rebase series" magit-stgit-rebase
      :help "Rebase an StGit patch series"]))
 
-(easy-menu-add-item 'magit-mode-menu '("Extensions")
-                    magit-stgit-extension-menu)
+(easy-menu-add-item 'magit-mode-menu '("Extensions") magit-stgit-mode-menu)
 
-;;; Series Section
+;;; Sections
 
 (defconst magit-stgit-patch-re
   "^\\(.\\)\\([-+>!]\\) \\([^ ]+\\) +# \\(.*\\)$")
