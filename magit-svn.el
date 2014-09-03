@@ -75,7 +75,7 @@
   :group 'magit-svn
   :type 'string)
 
-(defcustom magit-svn-mode-lighter " Svn"
+(defcustom magit-svn-mode-lighter " Msvn"
   "Mode-line lighter for Magit-Svn mode."
   :group 'magit-svn
   :type 'string)
