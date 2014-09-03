@@ -98,14 +98,15 @@
   :actions  '((?r "Rebase"          magit-svn-rebase)
               (?c "DCommit"         magit-svn-dcommit)
               (?f "Fetch"           magit-svn-fetch)
-              (?s "Find rev"        magit-svn-find-rev)
+              (?s "Show commit"     magit-svn-show-commit)
               (?B "Create branch"   magit-svn-create-branch)
               (?T "Create tag"      magit-svn-create-tag)
               (?x "Fetch Externals" magit-svn-fetch-externals)))
 
 ;;;###autoload
-(defun magit-svn-find-rev (rev &optional branch)
-  "Find commit for svn REVISION in BRANCH."
+(defun magit-svn-show-commit (rev &optional branch)
+  "Show the Git commit for a Svn revision read from the user.
+With a prefix argument also read a branch to limit the search to."
   (interactive (list (magit-read-string "SVN revision")
                      (and current-prefix-arg
                           (magit-read-string "In branch"))))
