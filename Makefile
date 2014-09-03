@@ -3,7 +3,6 @@ datarootdir ?= $(PREFIX)/share
 lispdir ?= $(datarootdir)/emacs/site-lisp/magit
 infodir ?= $(datarootdir)/info
 docdir  ?= $(datarootdir)/doc/magit
-execdir ?= $(PREFIX)/bin
 
 LOADDEFS_FILE ?= magit-autoloads.el
 LOADDEFS_DIR  ?= $(lispdir)
@@ -23,13 +22,9 @@ ELS += magit.el
 ELS += magit-blame.el
 ELS += magit-ediff.el
 ELS += magit-extras.el
-ELS += magit-stgit.el
-ELS += magit-svn.el
-ELS += magit-topgit.el
 ELCS = $(ELS:.el=.elc)
 
 CP    ?= install -p -m 644
-CPBIN ?= install -p -m 755
 MKDIR ?= install -p -m 755 -d
 RMDIR ?= rm -rf
 
@@ -214,24 +209,19 @@ install-docs: docs
 	$(MKDIR) $(DESTDIR)$(docdir)
 	$(CP) AUTHORS.md $(DESTDIR)$(docdir)
 
-.PHONY: install-script
-install-script: bin/magit
-	$(MKDIR) $(DESTDIR)$(execdir)
-	$(CPBIN) bin/magit $(DESTDIR)$(execdir)
-
 .PHONY: test
 test:
 	@$(BATCHE) "(progn\
 	(require 'cl) \
 	(put 'flet 'byte-obsolete-info nil))" \
-	-l tests/magit-tests.el -f ert-run-tests-batch-and-exit
+	-l magit-tests.el -f ert-run-tests-batch-and-exit
 
 .PHONY: test-interactive
 test-interactive:
 	@$(EMACS) $(EFLAGS) -Q -L "." --eval "(progn\
 	(require 'cl)\
 	(put 'flet 'byte-obsolete-info nil)\
-	(load-file \"tests/magit-tests.el\")\
+	(load-file \"magit-tests.el\")\
 	(ert t))"
 
 .PHONY: clean
@@ -243,7 +233,6 @@ clean:
 
 DIST_FILES  = $(ELS) magit-version.el Makefile AUTHORS.md
 DIST_FILES += README.md magit.texi magit.info dir
-DIST_FILES_BIN  = bin/magit
 
 ELPA_FILES = $(ELS) magit.info dir AUTHORS.md
 
@@ -251,9 +240,7 @@ ELPA_FILES = $(ELS) magit.info dir AUTHORS.md
 dist: magit-$(VERSION).tar.gz
 
 magit-$(VERSION).tar.gz: $(DIST_FILES)
-	$(MKDIR) magit-$(VERSION)/bin
 	$(CP) $(DIST_FILES) magit-$(VERSION)
-	$(CPBIN) $(DIST_FILES_BIN) magit-$(VERSION)/bin
 	tar -cvz --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar.gz magit-$(VERSION)
 	$(RMDIR) magit-$(VERSION)
 
