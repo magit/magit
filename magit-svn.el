@@ -141,8 +141,7 @@
 (defun magit-svn-remote-update ()
   "Run git-svn fetch."
   (interactive)
-  (when (magit-svn-enabled)
-    (magit-run-git-async "svn" "fetch")))
+  (magit-run-git-async "svn" "fetch"))
 
 ;;; Utilities
 
