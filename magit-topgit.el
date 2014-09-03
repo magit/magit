@@ -217,6 +217,17 @@
 ;;;###autoload
 (custom-add-option 'magit-mode-hook #'magit-topgit-mode)
 
+(easy-menu-define magit-topgit-mode-menu nil "Magit-Topgit mode menu"
+  '("TopGit" :visible magit-topgit-mode
+    ["Create topic"   magit-topgit-create-branch]
+    ["Checkout topic" magit-topgit-checkout      magit-topgit-in-topic-p]
+    ["Pull topic"     magit-topgit-pull          magit-topgit-in-topic-p]
+    ["Push topic"     magit-topgit-push          magit-topgit-in-topic-p]
+    ["Discard topic"  magit-topgit-discard       magit-topgit-in-topic-p]
+    ["Update remote"  magit-topgit-remote-update magit-topgit-in-topic-p]))
+
+(easy-menu-add-item 'magit-mode-menu '("Extensions") magit-topgit-mode-menu)
+
 ;;; Topics Section
 
 (defvar magit-topgit-topic-map
