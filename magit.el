@@ -737,16 +737,32 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 \n\\{magit-refs-mode-map}"
   :group 'magit-modes)
 
+(magit-define-popup magit-show-refs-popup
+  "Popup console for `magit-show-refs'."
+  'magit-popups
+  :man-page "git-branch"
+  :switches '((?m "Merged to HEAD"            "--merged")
+              (?M "Merged to master"          "--merged=master")
+              (?n "Not merged to HEAD"        "--no-merged")
+              (?N "Not merged to master"      "--no-merged=master"))
+  :options  '((?c "Contains"   "--contains="  magit-read-branch-or-commit)
+              (?m "Merged"     "--merged="    magit-read-branch-or-commit)
+              (?n "Not merged" "--no-merged=" magit-read-branch-or-commit))
+  :actions  '((?y "Show refs" magit-show-refs))
+  :default-action 'magit-show-refs
+  :use-prefix 'popup)
+
 ;;;###autoload
-(defun magit-show-refs (&optional head)
+(defun magit-show-refs (&optional head args)
   "List and compare references in a dedicated buffer."
-  (interactive (when current-prefix-arg
-                 (list (magit-read-branch "Compare branch"))))
+  (interactive (list (and (or current-prefix-arg magit-current-popup)
+                          (magit-read-branch "Compare branch"))
+                     magit-current-popup-args))
   (magit-mode-setup magit-refs-buffer-name-format nil
                     #'magit-refs-mode
-                    #'magit-refresh-refs-buffer head))
+                    #'magit-refresh-refs-buffer head args))
 
-(defun magit-refresh-refs-buffer (&optional head)
+(defun magit-refresh-refs-buffer (&rest ignore)
   (magit-insert-section (branchbuf)
     (run-hooks 'magit-refs-sections-hook)))
 
@@ -788,7 +804,8 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
     (magit-insert-heading "Branches:")
     (let ((current  (magit-get-current-branch))
           (branches (magit-list-local-branch-names)))
-      (dolist (line (magit-git-lines "branch" "-vv"))
+      (dolist (line (magit-git-lines "branch" "-vv"
+                                     (cadr magit-refresh-args)))
         (string-match magit-wash-branch-line-re line)
         (magit-bind-match-strings
             (branch hash message upstream ahead behind) line
@@ -808,7 +825,8 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
                   (concat pull (and pull push ", ") push))))
       (let ((current  (magit-get-current-branch))
             (branches (magit-list-local-branch-names)))
-        (dolist (line (magit-git-lines "branch" "-vvr"))
+        (dolist (line (magit-git-lines "branch" "-vvr"
+                                       (cadr magit-refresh-args)))
           (when (string-match magit-wash-branch-line-re line)
             (magit-bind-match-strings (branch hash message) line
               (when (string-match-p (format "^%s/" remote) branch)
