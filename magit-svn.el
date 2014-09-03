@@ -91,8 +91,8 @@
               (?c "DCommit"         magit-svn-dcommit)
               (?f "Fetch"           magit-svn-fetch)
               (?s "Show commit"     magit-svn-show-commit)
-              (?B "Create branch"   magit-svn-create-branch)
-              (?T "Create tag"      magit-svn-create-tag)
+              (?b "Create branch"   magit-svn-create-branch)
+              (?t "Create tag"      magit-svn-create-tag)
               (?x "Fetch Externals" magit-svn-fetch-externals)))
 
 ;;;###autoload
