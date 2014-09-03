@@ -97,7 +97,7 @@
   :switches '((?n "Dry run"         "--dry-run"))
   :actions  '((?r "Rebase"          magit-svn-rebase)
               (?c "DCommit"         magit-svn-dcommit)
-              (?f "Fetch"           magit-svn-remote-update)
+              (?f "Fetch"           magit-svn-fetch)
               (?s "Find rev"        magit-svn-find-rev)
               (?B "Create branch"   magit-svn-create-branch)
               (?T "Create tag"      magit-svn-create-tag)
@@ -138,7 +138,7 @@
   (magit-run-git-async "svn" "dcommit" args))
 
 ;;;###autoload
-(defun magit-svn-remote-update ()
+(defun magit-svn-fetch ()
   "Run git-svn fetch."
   (interactive)
   (magit-run-git-async "svn" "fetch"))
@@ -284,7 +284,7 @@ and `git svn rebase' on each of them."
   '("Git-Svn" :visible magit-svn-mode
     ["Create branch" magit-svn-create-branch (magit-svn-enabled)]
     ["Rebase" magit-svn-rebase (magit-svn-enabled)]
-    ["Fetch" magit-svn-remote-update (magit-svn-enabled)]
+    ["Fetch" magit-svn-fetch (magit-svn-enabled)]
     ["Commit" magit-svn-dcommit (magit-svn-enabled)]))
 
 (easy-menu-add-item 'magit-mode-menu '("Extensions") magit-svn-extension-menu)
