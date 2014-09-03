@@ -87,13 +87,13 @@
   'magit
   :man-page "git-svn"
   :switches '((?n "Dry run"         "--dry-run"))
-  :actions  '((?r "Rebase"          magit-svn-rebase)
-              (?c "DCommit"         magit-svn-dcommit)
+  :actions  '((?c "DCommit"         magit-svn-dcommit)
+              (?r "Rebase"          magit-svn-rebase)
               (?f "Fetch"           magit-svn-fetch)
+              (?x "Fetch Externals" magit-svn-fetch-externals)
               (?s "Show commit"     magit-svn-show-commit)
               (?b "Create branch"   magit-svn-create-branch)
-              (?t "Create tag"      magit-svn-create-tag)
-              (?x "Fetch Externals" magit-svn-fetch-externals)))
+              (?t "Create tag"      magit-svn-create-tag)))
 
 ;;;###autoload
 (defun magit-svn-show-commit (rev &optional branch)
