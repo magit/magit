@@ -196,7 +196,7 @@ in `magit-svn-external-directories' and runs
 (magit-define-section-jumper svn-unpushed "Unpushed commits (svn)")
 (magit-define-section-jumper svn-unpulled "Unpulled commits (svn)")
 
-(defun magit-insert-svn-remote-line ()
+(defun magit-insert-svn-remote ()
   (--when-let (magit-svn-get-rev)
     (magit-insert-section (line)
       (magit-insert (format "%-10s%s from %s\n" "Remote:"
@@ -237,11 +237,11 @@ in `magit-svn-external-directories' and runs
                             'magit-insert-svn-unpushed
                             'magit-insert-unpushed-commits t t)
     (magit-add-section-hook 'magit-status-headers-hook
-                            'magit-insert-svn-remote-line nil t t))
+                            'magit-insert-svn-remote nil t t))
    (t
     (remove-hook 'magit-status-sections-hook 'magit-insert-svn-unpulled t)
     (remove-hook 'magit-status-sections-hook 'magit-insert-svn-unpushed t)
-    (remove-hook 'magit-status-headers-hook  'magit-insert-svn-remote-line t)))
+    (remove-hook 'magit-status-headers-hook  'magit-insert-svn-remote t)))
   (when (called-interactively-p 'any)
     (magit-refresh)))
 
