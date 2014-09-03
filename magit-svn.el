@@ -202,16 +202,14 @@ in `magit-svn-external-directories' and runs
 
 ;;; Mode
 
-(easy-menu-define magit-svn-extension-menu
-  nil
-  "Git-Svn extension menu"
+(easy-menu-define magit-svn-mode-menu nil "Git-Svn mode menu"
   '("Git-Svn" :visible magit-svn-mode
     ["Create branch" magit-svn-create-branch (magit-svn-enabled)]
     ["Rebase" magit-svn-rebase (magit-svn-enabled)]
     ["Fetch" magit-svn-fetch (magit-svn-enabled)]
     ["Commit" magit-svn-dcommit (magit-svn-enabled)]))
 
-(easy-menu-add-item 'magit-mode-menu '("Extensions") magit-svn-extension-menu)
+(easy-menu-add-item 'magit-mode-menu '("Extensions") magit-svn-mode-menu)
 
 (defvar magit-svn-mode-map
   (let ((map (make-sparse-keymap)))
