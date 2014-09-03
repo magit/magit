@@ -837,7 +837,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
          `((?a . ,(or ahead ""))
            (?b . ,(or behind ""))
            (?c . ,(cond
-                   ((equal branch (car magit-refresh-args))
+                   ((equal branch head)
                     (format "%3s" (if (equal branch current) "@" "#")))
                    ((> count 0)
                     (propertize (format "%3s" (number-to-string count))
