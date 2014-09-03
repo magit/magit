@@ -243,8 +243,7 @@ into the series."
 ;;;###autoload
 (custom-add-option 'magit-mode-hook #'magit-stgit-mode)
 
-(easy-menu-define magit-stgit-extension-menu nil
-  "StGit extension menu"
+(easy-menu-define magit-stgit-mode-menu nil "Magit-Stgit mode menu"
   '("StGit" :visible magit-stgit-mode
     ["Refresh patch" magit-stgit-refresh
      :help "Refresh the contents of a patch in an StGit series"]
@@ -253,8 +252,7 @@ into the series."
     ["Rebase series" magit-stgit-rebase
      :help "Rebase an StGit patch series"]))
 
-(easy-menu-add-item 'magit-mode-menu '("Extensions")
-                    magit-stgit-extension-menu)
+(easy-menu-add-item 'magit-mode-menu '("Extensions") magit-stgit-mode-menu)
 
 ;;; Series Section
 
