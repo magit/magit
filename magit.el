@@ -2743,7 +2743,10 @@ With prefix argument, changes in staging area are kept.
                          (magit-current-popup-args :only "--index")
                        (--first (equal it "--index")
                                 magit-stash-popup-defaults))))
-  (magit-run-git "stash" "pop" args stash))
+  (if (or magit-current-popup (not (member "--index" args)))
+      (magit-run-git "stash" "pop" args stash)
+    (unless (magit-git-success "stash" "pop" args stash)
+      (magit-run-git "stash" "pop" (remove "--index" args) stash))))
 
 (defun magit-stash-drop (stash)
   "Remove a stash from the stash list.
