@@ -321,8 +321,12 @@ many levels deep."
   :group 'magit-faces)
 
 (defface magit-tag
-  '((t :background "LemonChiffon1"
-       :foreground "goldenrod4"))
+  '((((class color) (background light))
+     :background "grey80"
+     :foreground "Goldenrod4")
+    (((class color) (background dark))
+     :background "grey30"
+     :foreground "LightGoldenrod2"))
   "Face for tag labels shown in log buffer."
   :group 'magit-faces)
 
