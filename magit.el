@@ -721,7 +721,7 @@ can be used to override this."
         (magit-insert-section (file file t)
           (insert (directory-file-name file) "/\n")
             (magit-insert-heading)
-            (magit-insert-files
+            (magit-insert-untracked-files-1
              (--map (substring it 3)
                     (magit-git-lines "status" "--porcelain"
                                      "-unormal" "--" file))))
