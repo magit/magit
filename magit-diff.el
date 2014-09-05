@@ -796,7 +796,11 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
              (if (memq stype '(staged unstaged untracked))
                  stype
                (pcase stype
-                 (`file (-> it magit-section-parent magit-section-type))
+                 (`file (let* ((parent (magit-section-parent it))
+                               (type   (magit-section-type parent)))
+                          (if (eq type 'file)
+                              (magit-diff-type parent)
+                            type)))
                  (`hunk (-> it magit-section-parent magit-section-parent
                             magit-section-type))))))
           (t 'undefined))))

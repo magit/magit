@@ -708,15 +708,25 @@ can be used to override this."
 (magit-define-section-jumper untracked "Untracked files")
 
 (defun magit-insert-untracked-files ()
-  (--when-let (--mapcat (and (eq (aref it 0) ??) (list it))
-                        (magit-git-lines "status" "--porcelain"))
+  (--when-let (--mapcat (and (eq (aref it 0) ??) (list (substring it 3)))
+                        (magit-git-lines "status" "--porcelain" "-unormal"))
     (magit-insert-section (untracked)
       (magit-insert-heading "Untracked files:")
-      (dolist (file it)
-        (setq file (magit-decode-git-path (substring file 3)))
-        (magit-insert-section (file file)
-          (insert "\t" file "\n")))
+      (magit-insert-untracked-files-1 it)
       (insert "\n"))))
+
+(defun magit-insert-untracked-files-1 (files)
+  (dolist (file files)
+    (if (string-suffix-p "/" file)
+        (magit-insert-section (file file t)
+          (insert (directory-file-name file) "/\n")
+            (magit-insert-heading)
+            (magit-insert-files
+             (--map (substring it 3)
+                    (magit-git-lines "status" "--porcelain"
+                                     "-unormal" "--" file))))
+      (magit-insert-section (file file)
+        (insert file "\n")))))
 
 ;;;; Refs Mode
 
