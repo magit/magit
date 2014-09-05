@@ -400,6 +400,7 @@ tracked in the current repository are reverted if
 
 (defun magit-process-sentinel (process event)
   "Default sentinel used by `magit-start-process'."
+  (let ((debug-on-error t)) ; temporary
   (when (memq (process-status process) '(exit signal))
     (setq event (substring event 0 -1))
     (magit-process-unset-mode-line)
@@ -412,7 +413,7 @@ tracked in the current repository are reverted if
                      (process-get process 'command-buf))
       (when (buffer-live-p it)
         (with-current-buffer it
-          (magit-refresh))))))
+          (magit-refresh)))))))
 
 (defun magit-process-filter (proc string)
   "Default filter used by `magit-start-process'."
