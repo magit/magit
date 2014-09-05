@@ -228,7 +228,7 @@ only arguments available from `magit-blame-popup' should be used.
          "blame" "--incremental" args
          "-L" (format "%s,%s"
                       (max  1  (line-number-at-pos (- line range)))
-                      (1- (max (line-number-at-pos (+ line range))
+                      (1- (min (line-number-at-pos (+ line range))
                                (line-number-at-pos (point-max)))))
          revision "--" file))
       (setq magit-blame-process magit-this-process)
