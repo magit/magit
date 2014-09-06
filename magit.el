@@ -2675,7 +2675,7 @@ defaulting to the tag at point.
               (?p "Pop"            magit-stash-pop)
               (?k "Drop"           magit-stash-drop)
               (?Z "Save index"     magit-stash-index)
-              (?S "Snapshot index" magit-stash-snapshot)
+              (?S "Snapshot index" magit-stash-index-snapshot)
               (?a "Apply"          magit-stash-apply)
               (?b "Branch"         magit-stash-branch)
               (?v "View"           magit-diff-stash))
