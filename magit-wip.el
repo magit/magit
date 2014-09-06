@@ -143,13 +143,10 @@ to the current branch and `magit-wip-ref-format'."
                                  (magit-rev-parse "--verify" ref)))
                      wipref
                    (or ref "HEAD")))
-         (tree   (let ((process-environment process-environment)
-                       (index-file (make-temp-name (expand-file-name "index" toplevel))))
-                   (setenv "GIT_INDEX_FILE" index-file)
+         (tree   (magit-with-temp-index "index.wip."
                    (magit-call-git "read-tree" parent)
                    (magit-call-git "add" filename)
-                   (prog1 (magit-git-string "write-tree")
-                     (delete-file index-file)))))
+                   (magit-git-string "write-tree"))))
     (when (magit-git-failure "diff-tree" "--exit-code" tree parent)
       (magit-reflog-enable wipref)
       (magit-run-git "update-ref" wipref

@@ -641,6 +641,16 @@ no output return nil."
         (point-min) (point-max) buffer-file-name t nil nil t)
        ,@body)))
 
+(defmacro magit-with-temp-index (prefix &rest body)
+  (declare (indent 1) (debug (form form body)))
+  (let ((file (cl-gensym "index")))
+    `(let ((,file (magit-git-dir (make-temp-name ,prefix))))
+       (unwind-protect
+           (let ((process-environment process-environment))
+             (setenv "GIT_INDEX_FILE" ,file)
+             ,@body)
+         (ignore-errors (delete-file ,file))))))
+
 ;;; Completion
 
 (defvar magit-revision-history nil)

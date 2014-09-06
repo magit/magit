@@ -3022,6 +3022,7 @@ Run Git in the root of the current repository.
                                   "magit-section-case"
                                   "magit-section-when"
                                   "magit-bind-match-strings"
+                                  "magit-with-temp-index"
                                   "magit-with-blob") t)
                 "\\_>")
        . 1))))
