@@ -562,6 +562,13 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
           "\\(?2:\\(?: ?-[^ ]+\\)+\\)?"            ; option
           "\\(?: ?(\\(?3:[^)]+\\))\\)?"))          ; type
 
+(defconst magit-log-stash-re
+  (concat "^"
+          "\\(?1:[^ ]+\\)"                         ; "sha1"
+          "\\(?5: \\)"                             ; "author"
+          "\\(?6:[^ ]+\\) "                        ; date
+          "\\(?2:.+\\)$"))                         ; msg
+
 (defvar magit-log-count nil)
 
 (defun magit-log-wash-log (style args)
@@ -598,6 +605,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
                 (cherry  magit-log-cherry-re)
                 (module  magit-log-module-re)
                 (reflog  magit-log-reflog-re)
+                (stash   magit-log-stash-re)
                 (bisect-vis magit-log-bisect-vis-re)
                 (bisect-log magit-log-bisect-log-re)))
   (magit-bind-match-strings
@@ -637,12 +645,13 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
                           (?B 'magit-signature-bad)
                           (?U 'magit-signature-untrusted))))
     (goto-char (line-beginning-position))
-    (when (memq style '(oneline reflog))
+    (when (memq style '(oneline reflog stash))
       (magit-format-log-margin author date))
     (if hash
         (magit-insert-section it (commit hash)
-          (when (eq style 'module)
-            (setf (magit-section-type it) 'mcommit))
+          (pcase style
+            (`stash  (setf (magit-section-type it) 'stash))
+            (`module (setf (magit-section-type it) 'mcommit)))
           (when (derived-mode-p 'magit-log-mode)
             (cl-incf magit-log-count))
           (forward-line)

@@ -2785,17 +2785,12 @@ When the region is active offer to drop all contained stashes.
 (magit-define-section-jumper stashes "Stashes")
 
 (defun magit-insert-stashes ()
-  ;; #1427 Set log.date to work around an issue in Git <1.7.10.3.
-  (--when-let (magit-git-lines "-c" "log.date=default" "stash" "list")
+  (when (magit-rev-parse "--verify" "refs/stash")
     (magit-insert-section (stashes)
       (magit-insert-heading "Stashes:")
-      (dolist (stash it)
-        (string-match "^\\(stash@{\\([0-9]+\\)}\\): \\(.+\\)$" stash)
-        (magit-bind-match-strings (stash number message) stash
-          (magit-insert-section (stash stash)
-            (insert (propertize (format "stash@{%s}" number) 'face 'magit-hash)
-                    " " message "\n"))))
-      (insert "\n"))))
+      (magit-git-wash (apply-partially 'magit-log-wash-log 'stash)
+        "-c" "log.date=default" ; kludge for <1.7.10.3, see #1427
+        "reflog" "--format=%gd %at %gs" "refs/stash"))))
 
 ;;;; Submodules
 
