@@ -274,13 +274,6 @@ t          ask if --set-upstream should be used.
                  (const :tag "Refuse" refuse)
                  (const :tag "Always" dontask)))
 
-(defcustom magit-stash-snapshot-message-format
-  "Snapshot taken at %Y-%m-%d %H:%M:%S"
-  "Format for messages of snapshot stashes."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-commands
-  :type 'string)
-
 (defcustom magit-repository-directories nil
   "Directories containing Git repositories.
 Magit will look into these directories for Git repositories
@@ -2699,7 +2692,7 @@ With prefix argument, changes in staging area are kept.
 \n(git stash save [ARGS] \"Snapshot...\";
  git stash apply stash@{0})"
   (interactive (list (magit-current-popup-args :not "--index")))
-  (magit-call-git "stash" "save" args (magit-stash-format-snapshot-message))
+  (magit-call-git "stash" "save" args (magit-rev-format "Snapshot: %h %s"))
   (magit-stash-apply "stash@{0}" "--index"))
 
 (defun magit-stash-index (message &optional snapshot)
@@ -2720,7 +2713,7 @@ With prefix argument, changes in staging area are kept.
 (defun magit-stash-index-snapshot ()
   "Create a new stash of the index only; keep changes in place."
   (interactive)
-  (magit-stash-index (magit-stash-format-snapshot-message) t))
+  (magit-stash-index (magit-rev-format "Snapshot: %h %s") t))
 
 (defun magit-stash-apply (stash &optional args)
   "Apply a stash on top of the current working tree state.
@@ -2769,9 +2762,6 @@ When the region is active offer to drop all contained stashes.
   (interactive (list (magit-read-stash  "Branch stash" t)
                      (magit-read-string "Branch name")))
   (magit-run-git "stash" "branch" branchname stash))
-
-(defun magit-stash-format-snapshot-message ()
-  (format-time-string magit-stash-snapshot-message-format (current-time)))
 
 (defvar magit-stash-section-map
   (let ((map (make-sparse-keymap)))
