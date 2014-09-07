@@ -538,7 +538,7 @@ tracked in the current repository are reverted if
                   (goto-char (magit-section-end section))
                   (--when-let (magit-section-content section)
                     (when (re-search-backward
-                           magit-process-error-message-re nil it)
+                           magit-process-error-message-re it t)
                       (match-string 1))))))
          "Git failed")
      (-if-let (key (and (buffer-live-p command-buf)
