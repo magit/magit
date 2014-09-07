@@ -4701,7 +4701,8 @@ to consider it or not when called with that buffer current."
 As determined by the directory passed to `magit-status'."
   (and buffer-file-name
        (let ((topdir (magit-get-top-dir magit-default-directory)))
-         (and (string-prefix-p topdir buffer-file-name)
+         (and topdir
+              (string-prefix-p topdir buffer-file-name)
               ;; ^ Avoid needlessly connecting to unrelated tramp remotes.
               (string= topdir (magit-get-top-dir
                                (file-name-directory buffer-file-name)))))))
