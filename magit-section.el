@@ -696,9 +696,9 @@ at point."
             (when (eq (magit-section-type it) 'hunk)
               (let ((text (car (magit-section-value it))))
                 (--first (equal (car (magit-section-value it)) text)
-                         (magit-section-children
-                          (magit-get-section
-                           (cdr (magit-section-ident it)))))))))
+                         (--when-let (magit-get-section
+                                      (cdr (magit-section-ident it)))
+                           (magit-section-children it)))))))
       (--when-let (car (magit-section-siblings section 'prev))
         (magit-get-section (magit-section-ident it)))
       (--when-let (magit-section-parent section)
