@@ -1931,7 +1931,7 @@ inspect the merge and change the commit message.
                      `((commit . ,(magit-rebase-stopped-commit))
                        (rebase-sequence)
                        (status)))
-          (goto-char (magit-section-start it)))))))
+          (magit-goto-char (magit-section-start it)))))))
 
 (defun magit-rebase-stopped-commit ()
   (let ((file (magit-git-dir "rebase-merge/done")))
