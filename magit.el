@@ -1594,7 +1594,8 @@ checkout the \"master\" branch.
                              (concat ":" (match-string 2 ref)))
       (cl-case (when (equal ref (magit-ref-fullname (magit-get-current-branch)))
                  (let ((msg (format "Branch %s is checked out.  " branch)))
-                   (if (equal ref "refs/heads/master")
+                   (if (or (equal ref "refs/heads/master")
+                           (not (magit-ref-exists-p "refs/heads/master")))
                        (magit-read-char-case msg nil
                          (?d "[d]etach HEAD & delete" 'detach)
                          (?a "[a]bort"                'abort))
