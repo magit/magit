@@ -5268,7 +5268,8 @@ Works with local or remote branches.
        ((and is-current is-master)
         (message "Cannot delete master branch while it's checked out."))
        (is-current
-        (if (y-or-n-p "Cannot delete current branch.  Switch to master first? ")
+        (if (and (magit-ref-exists-p "refs/heads/master")
+                 (y-or-n-p "Cannot delete current branch.  Switch to master first? "))
             (progn
               (magit-checkout "master")
               (magit-run-git args))
