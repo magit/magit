@@ -904,7 +904,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 (defun magit-insert-tags ()
   (magit-insert-section (tags)
     (magit-insert-heading "Tags:")
-    (dolist (tag (magit-git-lines "tag"))
+    (dolist (tag (nreverse (magit-git-lines "tag")))
       (magit-insert-section (tag tag)
         (magit-insert
          (format-spec magit-tags-format
