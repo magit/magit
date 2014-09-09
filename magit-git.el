@@ -381,6 +381,10 @@ string \"true\", otherwise return nil."
                     (and pattern (concat "--refs=" pattern))
                     rev))
 
+(defun magit-rev-branch (rev)
+  (--when-let (magit-rev-name rev "refs/heads/*")
+    (unless (string-match-p "~" it) it)))
+
 (defun magit-get-shortname (rev)
   (let ((fn (apply-partially 'magit-git-string "name-rev"
                              "--name-only" "--no-undefined" rev)))
@@ -437,7 +441,7 @@ Return nil if the previously checked out branch no longer exists."
   (let ((current (magit-get-current-branch))
         (i 1) prev)
     (while (and (setq prev (magit-rev-parse "--verify" (format "@{-%i}" i)))
-                (setq prev (magit-get-shortname prev))
+                (setq prev (magit-rev-branch prev))
                 (equal prev current))
       (cl-incf i))
     prev))
