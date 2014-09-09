@@ -1965,17 +1965,7 @@ inspect the merge and change the commit message.
       (magit-insert-section (rebase-sequence)
         (magit-insert-heading (format "Rebasing %s onto %s:" name onto))
         (if interactive
-            (progn
-              (dolist (line (nreverse
-                             (magit-file-lines
-                              (magit-git-dir "rebase-merge/git-rebase-todo"))))
-                (when (string-match "^\\([^# ]+\\) \\([^ ]+\\) \\(.*\\)$" line)
-                  (magit-bind-match-strings (cmd hash msg) line
-                    (magit-insert-section (commit hash)
-                      (insert cmd " " (magit-format-rev-summary hash) ?\n)))))
-              (-when-let (stop (magit-rebase-stopped-commit))
-                (magit-insert-section (commit stop)
-                  (insert "stop " (magit-format-rev-summary stop) ?\n))))
+            (magit-insert-rebase-merge-sequence)
           (magit-insert-rebase-apply-sequence))
         (dolist (hash (magit-git-lines "log" "--format=%H"
                                        (concat onto "..HEAD")))
@@ -1984,6 +1974,18 @@ inspect the merge and change the commit message.
         (magit-insert-section (commit onto)
           (insert "onto " (magit-format-rev-summary onto) ?\n))
         (insert ?\n)))))
+
+(defun magit-insert-rebase-merge-sequence ()
+  (dolist (line (nreverse
+                 (magit-file-lines
+                  (magit-git-dir "rebase-merge/git-rebase-todo"))))
+    (when (string-match "^\\([^# ]+\\) \\([^ ]+\\) \\(.*\\)$" line)
+      (magit-bind-match-strings (cmd hash msg) line
+        (magit-insert-section (commit hash)
+          (insert cmd " " (magit-format-rev-summary hash) ?\n)))))
+  (-when-let (stop (magit-rebase-stopped-commit))
+    (magit-insert-section (commit stop)
+      (insert "stop " (magit-format-rev-summary stop) ?\n))))
 
 (defun magit-insert-rebase-apply-sequence ()
   (let* ((files (nreverse (directory-files (magit-git-dir "rebase-apply")
