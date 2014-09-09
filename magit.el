@@ -845,54 +845,60 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
                  magit-remote-branch-format 'magit-branch-remote hash message))))))
       (insert ?\n))))
 
-(defun magit-insert-branch
-    (branch current branches format face
-            &optional hash message upstream ahead behind)
-  (magit-insert-section it (branch branch t)
-    (let* ((head  (or (car magit-refresh-args) current "HEAD"))
-           (count (if branch (cadr (magit-rev-diff-count head branch)) 0)))
-      (when upstream
-        (setq upstream (propertize upstream 'face
-                                   (if (member upstream branches)
-                                       'magit-branch-local
-                                     'magit-branch-remote))))
-      (magit-insert-heading
-        (format-spec
-         format
-         `((?a . ,(or ahead ""))
-           (?b . ,(or behind ""))
-           (?c . ,(cond
-                   ((or (equal branch head)
-                        (and (not branch) (equal head "HEAD")))
-                    (if (equal branch current)
-                        (propertize "@" 'face 'magit-head)
-                      (propertize "#" 'face 'magit-tag)))
-                   ((> count 0)
-                    (propertize (number-to-string count)
-                                'face 'magit-dimmed))
-                   (t "")))
-           (?h . ,(or (propertize hash 'face 'magit-hash) ""))
-           (?m . ,(or message ""))
-           (?n . ,(propertize (or branch "(detached)") 'face face))
-           (?u . ,(or upstream ""))
-           (?U . ,(if upstream
-                      (format
-                       (propertize "[%s%s] " 'face 'magit-dimmed)
-                       upstream
-                       (if (or ahead behind)
-                           (concat ": " (and ahead (format "ahead %s" ahead))
-                                   (and ahead behind ", ")
-                                   (and behind (format "behind %s" behind)))
-                         ""))
-                    "")))))
-      (when (> count 0)
-        (if (magit-section-hidden it)
-            (setf (magit-section-washer it)
-                  `(lambda ()
-                     (magit-insert-cherry-commits-1 ,head ,branch)
-                     (insert (propertize "\n" 'magit-section ,it))))
-          (magit-insert-cherry-commits-1 head branch)
-          (insert ?\n))))))
+(defun magit-insert-branch (branch &rest args)
+  (if branch
+      (magit-insert-section it (branch branch t)
+        (apply #'magit-insert-branch-1 it branch args))
+    (magit-insert-section it (commit (magit-rev-parse "HEAD") t)
+      (apply #'magit-insert-branch-1 it nil args))))
+
+(defun magit-insert-branch-1
+    (section branch current branches format face
+             &optional hash message upstream ahead behind)
+  (let* ((head  (or (car magit-refresh-args) current "HEAD"))
+         (count (if branch (cadr (magit-rev-diff-count head branch)) 0)))
+    (when upstream
+      (setq upstream (propertize upstream 'face
+                                 (if (member upstream branches)
+                                     'magit-branch-local
+                                   'magit-branch-remote))))
+    (magit-insert-heading
+      (format-spec
+       format
+       `((?a . ,(or ahead ""))
+         (?b . ,(or behind ""))
+         (?c . ,(cond
+                 ((or (equal branch head)
+                      (and (not branch) (equal head "HEAD")))
+                  (if (equal branch current)
+                      (propertize "@" 'face 'magit-head)
+                    (propertize "#" 'face 'magit-tag)))
+                 ((> count 0)
+                  (propertize (number-to-string count)
+                              'face 'magit-dimmed))
+                 (t "")))
+         (?h . ,(or (propertize hash 'face 'magit-hash) ""))
+         (?m . ,(or message ""))
+         (?n . ,(propertize (or branch "(detached)") 'face face))
+         (?u . ,(or upstream ""))
+         (?U . ,(if upstream
+                    (format (propertize "[%s%s] " 'face 'magit-dimmed)
+                            upstream
+                            (if (or ahead behind)
+                                (concat ": "
+                                        (and ahead (format "ahead %s" ahead))
+                                        (and ahead behind ", ")
+                                        (and behind (format "behind %s" behind)))
+                              ""))
+                  "")))))
+    (when (> count 0)
+      (if (magit-section-hidden section)
+          (setf (magit-section-washer section)
+                `(lambda ()
+                   (magit-insert-cherry-commits-1 ,head ,branch)
+                   (insert (propertize "\n" 'magit-section ,section))))
+        (magit-insert-cherry-commits-1 head branch)
+        (insert ?\n)))))
 
 (defvar magit-tag-section-map
   (let ((map (make-sparse-keymap)))
