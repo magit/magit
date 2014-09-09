@@ -756,13 +756,25 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   :options  '((?c "Contains"   "--contains="  magit-read-branch-or-commit)
               (?m "Merged"     "--merged="    magit-read-branch-or-commit)
               (?n "Not merged" "--no-merged=" magit-read-branch-or-commit))
-  :actions  '((?y "Show refs" magit-show-refs))
-  :default-action 'magit-show-refs
+  :actions  '((?y "Show refs, comparing them with current branch"
+                  magit-show-refs-head)
+              (?b "Show refs, comparing them with other branch"
+                  magit-show-refs))
+  :default-action 'magit-show-refs-head
   :use-prefix 'popup)
 
 ;;;###autoload
+(defun magit-show-refs-head (&optional head args)
+  "List and compare references in a dedicated buffer.
+Refs are compared with the current branch or `HEAD' if
+it is detached."
+  (interactive (list (magit-get-current-branch) magit-current-popup-args))
+  (magit-show-refs head args))
+
+;;;###autoload
 (defun magit-show-refs (&optional head args)
-  "List and compare references in a dedicated buffer."
+  "List and compare references in a dedicated buffer.
+Refs are compared with a branch read form the user."
   (interactive (list (and (or current-prefix-arg magit-current-popup)
                           (magit-read-branch "Compare branch"))
                      magit-current-popup-args))
