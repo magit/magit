@@ -788,9 +788,9 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
           "\\] \\)?"
           "\\(?3:.*\\)"))                   ; message
 
-(defvar magit-local-branch-format "%c %-25n %U%m\n")
-(defvar magit-remote-branch-format "%c %-25n %m\n")
-(defvar magit-tags-format "    %n\n")
+(defvar magit-local-branch-format "%3c %-25n %U%m\n")
+(defvar magit-remote-branch-format "%3c %-25n %m\n")
+(defvar magit-tags-format "%3c %n\n")
 
 (defvar magit-branch-section-map
   (let ((map (make-sparse-keymap)))
@@ -864,13 +864,13 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
            (?b . ,(or behind ""))
            (?c . ,(cond
                    ((equal branch head)
-                    (format "%3s" (if (equal branch current)
-                                      (propertize "@" 'face 'magit-head)
-                                    (propertize "#" 'face 'magit-tag))))
+                    (if (equal branch current)
+                        (propertize "@" 'face 'magit-head)
+                      (propertize "#" 'face 'magit-tag)))
                    ((> count 0)
-                    (propertize (format "%3s" (number-to-string count))
+                    (propertize (number-to-string count)
                                 'face 'magit-dimmed))
-                   (t "   ")))
+                   (t "")))
            (?h . ,(or (propertize hash 'face 'magit-hash) ""))
            (?m . ,(or message ""))
            (?n . ,(propertize branch 'face face))
@@ -908,7 +908,8 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
       (magit-insert-section (tag tag)
         (magit-insert
          (format-spec magit-tags-format
-                      `((?n . ,(propertize tag 'face 'magit-tag)))))))
+                      `((?n . ,(propertize tag 'face 'magit-tag))
+                        (?c . ""))))))
     (insert ?\n)))
 
 ;;;; Files
