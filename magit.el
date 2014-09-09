@@ -777,7 +777,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 (defconst magit-wash-branch-line-re
   (concat "^"
           "\\(?:[ \\*]\\) "
-          "\\(?1:[^ ]+?\\)"                 ; branch
+          "\\(?1:([^)]+)\\|[^ ]+?\\)"       ; branch
           "\\(?: +\\)"
           "\\(?2:[0-9a-fA-F]+\\) "          ; sha1
           "\\(?:\\["
@@ -817,6 +817,8 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
         (string-match magit-wash-branch-line-re line)
         (magit-bind-match-strings
             (branch hash message upstream ahead behind) line
+          (when (string-match-p "(" branch)
+            (setq branch nil))
           (magit-insert-branch
            branch current branches
            magit-local-branch-format 'magit-branch-local
@@ -848,7 +850,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
             &optional hash message upstream ahead behind)
   (magit-insert-section it (branch branch t)
     (let* ((head  (or (car magit-refresh-args) current "HEAD"))
-           (count (cadr (magit-rev-diff-count head branch))))
+           (count (if branch (cadr (magit-rev-diff-count head branch)) 0)))
       (when upstream
         (setq upstream (propertize upstream 'face
                                    (if (member upstream branches)
@@ -860,7 +862,8 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
          `((?a . ,(or ahead ""))
            (?b . ,(or behind ""))
            (?c . ,(cond
-                   ((equal branch head)
+                   ((or (equal branch head)
+                        (and (not branch) (equal head "HEAD")))
                     (if (equal branch current)
                         (propertize "@" 'face 'magit-head)
                       (propertize "#" 'face 'magit-tag)))
@@ -870,7 +873,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
                    (t "")))
            (?h . ,(or (propertize hash 'face 'magit-hash) ""))
            (?m . ,(or message ""))
-           (?n . ,(propertize branch 'face face))
+           (?n . ,(propertize (or branch "(detached)") 'face face))
            (?u . ,(or upstream ""))
            (?U . ,(if upstream
                       (format
