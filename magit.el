@@ -303,16 +303,6 @@ many levels deep."
   "Face for the sha1 part of the log output."
   :group 'magit-faces)
 
-(defface magit-head
-  '((((class color) (background light))
-     :background "grey75"
-     :foreground "grey15")
-    (((class color) (background dark))
-     :background "grey30"
-     :foreground "grey90"))
-  "Face for the symbolic ref \"HEAD\"."
-  :group 'magit-faces)
-
 (defface magit-tag
   '((((class color) (background light))
      :background "grey80"
@@ -321,6 +311,16 @@ many levels deep."
      :background "grey30"
      :foreground "LightGoldenrod2"))
   "Face for tag labels shown in log buffer."
+  :group 'magit-faces)
+
+(defface magit-branch-remote
+  '((((class color) (background light))
+     :background "grey80"
+     :foreground "DarkOliveGreen4")
+    (((class color) (background dark))
+     :background "grey30"
+     :foreground "DarkSeaGreen2"))
+  "Face for remote branch head labels shown in log buffer."
   :group 'magit-faces)
 
 (defface magit-branch-local
@@ -333,14 +333,14 @@ many levels deep."
   "Face for local branches."
   :group 'magit-faces)
 
-(defface magit-branch-remote
+(defface magit-head
   '((((class color) (background light))
-     :background "grey80"
-     :foreground "DarkOliveGreen4")
+     :background "grey75"
+     :foreground "grey15")
     (((class color) (background dark))
      :background "grey30"
-     :foreground "DarkSeaGreen2"))
-  "Face for remote branch head labels shown in log buffer."
+     :foreground "grey90"))
+  "Face for the symbolic ref \"HEAD\"."
   :group 'magit-faces)
 
 (defface magit-refname
