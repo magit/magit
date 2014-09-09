@@ -437,12 +437,13 @@ Return nil if no branch is currently checked out."
 
 (defun magit-get-previous-branch ()
   "Return the refname of the previously checked out branch.
-Return nil if the previously checked out branch no longer exists."
+Return nil if no branch can be found in the `HEAD' reflog
+which is different from the current branch and still exists."
   (let ((current (magit-get-current-branch))
         (i 1) prev)
     (while (and (setq prev (magit-rev-parse "--verify" (format "@{-%i}" i)))
-                (setq prev (magit-rev-branch prev))
-                (equal prev current))
+                (or (not (setq prev (magit-rev-branch prev)))
+                    (equal prev current)))
       (cl-incf i))
     prev))
 
