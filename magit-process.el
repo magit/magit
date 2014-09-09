@@ -345,13 +345,13 @@ tracked in the current repository are reverted if
       (magit-run-git-async args))))
 
 (defvar magit-server-visit-args nil)
-(defun  magit-server-visit-args (action &optional other-window args)
+(defun  magit-server-visit-args (&optional other-window args)
   (setq magit-server-visit-args
-        (list action other-window (magit-get-top-dir)
+        (list (magit-get-top-dir) other-window
               (current-window-configuration) args)))
 
 (defun magit-run-git-sequencer (&rest args)
-  (magit-server-visit-args (if (symbolp (car args)) (pop args) 'sequencer))
+  (magit-server-visit-args   args)
   (magit-run-git-with-editor args))
 
 ;;; Process Internals

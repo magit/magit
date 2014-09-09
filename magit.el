@@ -1412,7 +1412,7 @@ depending on the value of option `magit-commit-squash-confirm'.
     (user-error "Nothing staged"))))
 
 (defun magit-commit-async (diff-fn &rest args)
-  (magit-server-visit-args 'commit t args)
+  (magit-server-visit-args t args)
   (when (and diff-fn (magit-diff-auto-show-p 'commit))
     (let ((magit-inhibit-save-previous-winconf t))
       (funcall diff-fn)))
@@ -1421,11 +1421,10 @@ depending on the value of option `magit-commit-squash-confirm'.
 (defun magit-server-visit ()
   (when (or (string-match-p git-commit-filename-regexp buffer-file-name)
             (string-match-p git-rebase-filename-regexp buffer-file-name))
-    (let ((type     (nth 0 magit-server-visit-args))
+    (let ((topdir   (nth 0 magit-server-visit-args))
           (otherwin (nth 1 magit-server-visit-args))
-          (topdir   (nth 2 magit-server-visit-args))
-          (winconf  (nth 3 magit-server-visit-args))
-          (args     (nth 4 magit-server-visit-args)))
+          (winconf  (nth 2 magit-server-visit-args))
+          (args     (nth 3 magit-server-visit-args)))
       (setq-local server-window (if otherwin 'pop-to-buffer 'switch-to-buffer))
       (when (equal (magit-get-top-dir) topdir)
         (setq with-editor-previous-winconf winconf)
@@ -1921,7 +1920,7 @@ inspect the merge and change the commit message.
     (user-error "No rebase in progress")))
 
 (defun magit-rebase-async (&rest args)
-  (apply #'magit-run-git-sequencer 'rebase "rebase" args)
+  (apply #'magit-run-git-sequencer "rebase" args)
   (set-process-sentinel magit-this-process #'magit-rebase-process-sentinel))
 
 (defun magit-rebase-process-sentinel (process event)
@@ -2573,7 +2572,7 @@ defaulting to the tag at point.
 
 (defun magit-notes-edit (commit &optional ref)
   (interactive (magit-notes-read-args "Edit notes"))
-  (magit-server-visit-args 'commit t)
+  (magit-server-visit-args t)
   (magit-run-git-with-editor "notes" (and ref (concat "--ref=" ref))
                              "edit" commit))
 
