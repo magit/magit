@@ -1955,18 +1955,15 @@ inspect the merge and change the commit message.
 
 (defun magit-insert-rebase-sequence ()
   (when (magit-rebase-in-progress-p)
-    (let ((interactive (file-directory-p (magit-git-dir "rebase-merge"))))
+    (let* ((interactive (file-directory-p (magit-git-dir "rebase-merge")))
+           (dir  (if interactive "rebase-merge/" "rebase-apply/"))
+           (name (-> (concat dir "head-name") magit-git-dir magit-file-line))
+           (onto (-> (concat dir "onto")      magit-git-dir magit-file-line))
+           (onto (or (magit-rev-name onto name)
+                     (magit-rev-name onto "refs/heads/*") onto))
+           (name (or (magit-rev-name name "refs/heads/*") name)))
       (magit-insert-section (rebase-sequence)
-        (magit-insert-heading
-          (if interactive
-              (format "Rebasing %s:"
-                      (-> "rebase-merge/head-name"
-                        magit-git-dir magit-file-line magit-get-shortname))
-            (format "Rebasing %s onto %s:"
-                    (-> "rebase-apply/head-name"
-                      magit-git-dir magit-file-line magit-get-shortname)
-                    (-> "rebase-apply/onto"
-                      magit-git-dir magit-file-line magit-get-shortname))))
+        (magit-insert-heading (format "Rebasing %s onto %s:" name onto))
         (if interactive
             (progn
               (dolist (line (nreverse
@@ -1980,16 +1977,12 @@ inspect the merge and change the commit message.
                 (magit-insert-section (commit stop)
                   (insert "stop " (magit-format-rev-summary stop) ?\n))))
           (magit-insert-rebase-apply-sequence))
-        (let ((onto (magit-file-line
-                     (magit-git-dir (if interactive
-                                        "rebase-merge/onto"
-                                      "rebase-apply/onto")))))
-          (dolist (hash (magit-git-lines "log" "--format=%H"
-                                         (concat onto "..HEAD")))
-            (magit-insert-section (commit hash)
-              (insert "done " (magit-format-rev-summary hash) ?\n)))
-          (magit-insert-section (commit onto)
-            (insert "onto " (magit-format-rev-summary onto) ?\n)))
+        (dolist (hash (magit-git-lines "log" "--format=%H"
+                                       (concat onto "..HEAD")))
+          (magit-insert-section (commit hash)
+            (insert "done " (magit-format-rev-summary hash) ?\n)))
+        (magit-insert-section (commit onto)
+          (insert "onto " (magit-format-rev-summary onto) ?\n))
         (insert ?\n)))))
 
 (defun magit-insert-rebase-apply-sequence ()

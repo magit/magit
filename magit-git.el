@@ -376,6 +376,11 @@ Return t if the first (and usually only) output line is the
 string \"true\", otherwise return nil."
   (magit-git-true "rev-parse" args))
 
+(defun magit-rev-name (rev &optional pattern)
+  (magit-git-string "name-rev" "--name-only" "--no-undefined"
+                    (and pattern (concat "--refs=" pattern))
+                    rev))
+
 (defun magit-get-shortname (rev)
   (let ((fn (apply-partially 'magit-git-string "name-rev"
                              "--name-only" "--no-undefined" rev)))
