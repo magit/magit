@@ -848,10 +848,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
             &optional hash message upstream ahead behind)
   (magit-insert-section it (branch branch t)
     (let* ((head  (or (car magit-refresh-args) current "HEAD"))
-           (count (string-to-number
-                   (magit-git-string
-                    "rev-list" "--count" "--right-only"
-                    (concat head "..." branch)))))
+           (count (cadr (magit-rev-diff-count head branch))))
       (when upstream
         (setq upstream (propertize upstream 'face
                                    (if (member upstream branches)
