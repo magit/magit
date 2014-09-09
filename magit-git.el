@@ -71,7 +71,7 @@ tramp to connect to servers with ancient Git versions."
   :type '(repeat string))
 
 (defcustom magit-ref-namespaces
-  '(("^\\(HEAD\\)$"              magit-head nil)
+  '(("^@$"                       magit-head nil)
     ("^refs/tags/\\(.+\\)"       magit-tag nil)
     ("^refs/heads/\\(.+\\)"      magit-branch-local nil)
     ("^refs/remotes/\\(.+\\)"    magit-branch-remote nil)
@@ -627,17 +627,21 @@ no output return nil."
     (put-text-property 0 (match-beginning 0) 'face 'magit-hash it)
     it))
 
-(defun magit-format-ref-label (ref)
+(defun magit-format-ref-label (ref &optional head)
   (cl-destructuring-bind (re face fn)
       (--first (string-match (car it) ref) magit-ref-namespaces)
     (if fn
         (funcall fn ref face)
-      (propertize (or (match-string 1 ref) ref) 'face face))))
+      (propertize (or (match-string 1 ref) ref)
+                  'face (if (equal ref head) 'magit-branch-current face)))))
 
 (defun magit-format-ref-labels (string)
   (save-match-data
-    (mapconcat 'magit-format-ref-label
-               (split-string string "\\(tag: \\|[(), ]\\)" t) " ")))
+    (let (head (names (split-string string "\\(tag: \\|[(), ]\\)" t)))
+      (when (member "HEAD" names)
+        (setq head  (magit-git-string "symbolic-ref" "HEAD")
+              names (cons (or head "@") (delete head (delete "HEAD" names)))))
+      (mapconcat (lambda (it) (magit-format-ref-label it head)) names " "))))
 
 (defmacro magit-with-blob (commit file &rest body)
   (declare (indent 2)

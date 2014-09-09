@@ -333,13 +333,15 @@ many levels deep."
   "Face for local branches."
   :group 'magit-faces)
 
+(defface magit-branch-current
+  '((((class color) (background light)) :inherit magit-branch-local :box t)
+    (((class color) (background dark))  :inherit magit-branch-local :box t))
+  "Face for local branches."
+  :group 'magit-faces)
+
 (defface magit-head
-  '((((class color) (background light))
-     :background "grey75"
-     :foreground "grey15")
-    (((class color) (background dark))
-     :background "grey30"
-     :foreground "grey90"))
+  '((((class color) (background light)) :inherit magit-branch-local)
+    (((class color) (background dark))  :inherit magit-branch-local))
   "Face for the symbolic ref \"HEAD\"."
   :group 'magit-faces)
 
@@ -643,10 +645,9 @@ can be used to override this."
             (magit-insert-heading
               (magit-string-pad "Head: " 10)
               (propertize hash 'face 'magit-hash) " "
-              (if branch
-                  (propertize branch 'face 'magit-branch-local)
-                (propertize "HEAD" 'face 'magit-head))
-              " " msg "\n")
+              (and branch
+                   (concat (propertize branch 'face 'magit-branch-local) " "))
+              msg "\n")
             (when (or upstream (setq upstream (magit-get-tracked-branch branch)))
               (setq line (or (magit-rev-format "%h %s" upstream) ""))
               (string-match "^\\([^ ]+\\) \\(.+\\)" line)
@@ -863,7 +864,9 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
            (?b . ,(or behind ""))
            (?c . ,(cond
                    ((equal branch head)
-                    (format "%3s" (if (equal branch current) "@" "#")))
+                    (format "%3s" (if (equal branch current)
+                                      (propertize "@" 'face 'magit-head)
+                                    (propertize "#" 'face 'magit-tag))))
                    ((> count 0)
                     (propertize (format "%3s" (number-to-string count))
                                 'face 'magit-dimmed))
