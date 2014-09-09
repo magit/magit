@@ -902,11 +902,16 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   (magit-insert-section (tags)
     (magit-insert-heading "Tags:")
     (dolist (tag (nreverse (magit-git-lines "tag")))
-      (magit-insert-section (tag tag)
-        (magit-insert
-         (format-spec magit-tags-format
-                      `((?n . ,(propertize tag 'face 'magit-tag))
-                        (?c . ""))))))
+      (let ((count (cadr (magit-rev-diff-count
+                          (or (car magit-refresh-args) "HEAD") tag))))
+        (magit-insert-section (tag tag)
+          (magit-insert
+           (format-spec magit-tags-format
+                        `((?n . ,(propertize tag 'face 'magit-tag))
+                          (?c . ,(if (> count 0)
+                                     (propertize (number-to-string count)
+                                                 'face 'magit-dimmed)
+                                   ""))))))))
     (insert ?\n)))
 
 ;;;; Files
