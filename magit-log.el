@@ -475,7 +475,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
     (setcar it "--decorate=full"))
   (magit-git-wash (apply-partially 'magit-log-wash-log 'oneline)
     "log" (format "-%d" magit-log-cutoff-length) "--color"
-    (format "--format=format:%%h%s %s[%%an][%%at]%%s"
+    (format "--format=%%h%s %s[%%an][%%at]%%s"
             (if (member "--decorate=full" args) "%d" "")
             (if (member "--show-signature" args) "%G?" ""))
     (delete "--show-signature" args)
@@ -875,7 +875,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   (magit-insert-section (reflogbuf)
     (magit-insert-heading "Local history of branch " ref)
     (magit-git-wash (apply-partially 'magit-log-wash-log 'reflog)
-      "reflog" "show" "--format=format:%h [%an] %ct %gd %gs"
+      "reflog" "show" "--format=%h [%an] %ct %gd %gs"
       (format "--max-count=%d" magit-log-cutoff-length) ref)))
 
 (defvar magit-reflog-labels

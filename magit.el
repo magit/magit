@@ -1179,7 +1179,7 @@ to test.  This command lets Git choose a different one."
       (magit-insert-heading "Bisect Rest:")
       (magit-git-wash (apply-partially 'magit-log-wash-log 'bisect-vis)
         "bisect" "visualize" "git" "log"
-        "--format=format:%h%d %s" "--decorate=full"))))
+        "--format=%h%d %s" "--decorate=full"))))
 
 (defun magit-insert-bisect-log ()
   (when (magit-bisect-in-progress-p)
