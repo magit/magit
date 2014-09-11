@@ -31,8 +31,8 @@
 (require 'magit-git)
 
 ;; For `magit-xref-insert-buttons' from `magit'
-(defvar magit-commit-show-xref-buttons)
 (defvar magit-diff-show-xref-buttons)
+(defvar magit-revision-show-xref-buttons)
 ;; For `magit-refresh' from `magit'
 (defvar magit-status-buffer-name-format)
 ;; For `magit-revert-buffers'
@@ -318,7 +318,7 @@ Also see `magit-mode-setup', a more convenient variant."
   (cl-case mode
     ((magit-log-mode magit-reflog-mode)
      (magit-xref-setup refresh-args))
-    ((magit-diff-mode magit-commit-mode)
+    ((magit-diff-mode magit-revision-mode)
      (magit-xref-setup refresh-args)
      (goto-char (point-min))))
   (funcall mode)
@@ -546,8 +546,8 @@ argument (the prefix) non-nil means save all with no questions."
     (user-error "No next entry in buffer's history")))
 
 (defun magit-xref-insert-buttons ()
-  (when (and (or (and magit-commit-show-xref-buttons
-                      (derived-mode-p 'magit-commit-mode))
+  (when (and (or (and magit-revision-show-xref-buttons
+                      (derived-mode-p 'magit-revision-mode))
                  (and magit-diff-show-xref-buttons
                       (derived-mode-p 'magit-diff-mode)))
              (or help-xref-stack help-xref-forward-stack))

@@ -181,7 +181,7 @@ mind at all, then it asks the user for a command to run."
        (cond (magit-buffer-refname
               (setq revB magit-buffer-refname
                     revA (concat revB "^")))
-             ((derived-mode-p 'magit-commit-mode)
+             ((derived-mode-p 'magit-revision-mode)
               (setq revB (car magit-refresh-args)
                     revA (concat revB "^")))
              ((derived-mode-p 'magit-diff-mode)

@@ -140,38 +140,38 @@ many spaces.  Otherwise, highlight neither."
                                (integer :tag "Spaces" :value ,tab-width)
                                (const :tag "Neither" nil)))))
 
-;;;; Commit Mode
+;;;; Revision Mode
 
-(defgroup magit-commit nil
+(defgroup magit-revision nil
   "Inspect and manipulate Git commits."
   :group 'magit-modes)
 
-(defcustom magit-commit-buffer-name-format "*magit-commit: %a*"
+(defcustom magit-revision-buffer-name-format "*magit-rev: %a*"
   "Name format for buffers used to display a commit.
 
 The following `format'-like specs are supported:
 %a the absolute filename of the repository toplevel.
 %b the basename of the repository toplevel."
   :package-version '(magit . "2.1.0")
-  :group 'magit-commit
+  :group 'magit-revision
   :type 'string)
 
-(defcustom magit-commit-show-diffstat t
+(defcustom magit-revision-show-diffstat t
   "Whether to show diffstat in commit buffers."
   :package-version '(magit . "2.1.0")
-  :group 'magit-commit
+  :group 'magit-revision
   :type 'boolean)
 
-(defcustom magit-commit-show-notes t
+(defcustom magit-revision-show-notes t
   "Whether to show notes in commit buffers."
   :package-version '(magit . "2.1.0")
-  :group 'magit-commit
+  :group 'magit-revision
   :type 'boolean)
 
-(defcustom magit-commit-show-xref-buttons t
+(defcustom magit-revision-show-xref-buttons t
   "Whether to show buffer history buttons in commit buffers."
   :package-version '(magit . "2.1.0")
-  :group 'magit-commit
+  :group 'magit-revision
   :type 'boolean)
 
 ;;; Faces
@@ -418,10 +418,10 @@ for a commit."
                              default-directory)))
     (when (magit-git-failure "cat-file" "commit" commit)
       (user-error "%s is not a commit" commit))
-    (magit-mode-setup magit-commit-buffer-name-format
+    (magit-mode-setup magit-revision-buffer-name-format
                       (if noselect 'display-buffer 'pop-to-buffer)
-                      #'magit-commit-mode
-                      #'magit-commit-refresh-buffer
+                      #'magit-revision-mode
+                      #'magit-revision-refresh-buffer
                       commit)))
 
 ;;;###autoload
@@ -499,12 +499,12 @@ commit or stash at point, then prompt for a commit."
         (setq rev (magit-blame-chunk-get :hash)
               cmd 'magit-show-commit
               buf (magit-mode-get-buffer
-                   magit-commit-buffer-name-format 'magit-commit-mode))
+                   magit-revision-buffer-name-format 'magit-revision-mode))
       (magit-section-case
         (commit (setq rev (magit-section-value it)
                       cmd 'magit-show-commit
                       buf (magit-mode-get-buffer
-                           magit-commit-buffer-name-format 'magit-commit-mode)))
+                           magit-revision-buffer-name-format 'magit-revision-mode)))
         (stash  (setq rev (magit-section-value it)
                       cmd 'magit-diff-stash
                       buf (magit-mode-get-buffer
@@ -709,9 +709,9 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
                                     'face 'magit-file-heading) nil ?\n))))
     t)
    ((looking-at "^diff --\\(git\\|cc\\|combined\\) \\(?:\\(.+?\\) \\2\\)?")
-    (let ((status (cond ((equal (match-string 1) "git")      "modified")
-                        ((derived-mode-p 'magit-commit-mode) "resolved")
-                        (t                                   "unmerged")))
+    (let ((status (cond ((equal (match-string 1) "git")        "modified")
+                        ((derived-mode-p 'magit-revision-mode) "resolved")
+                        (t                                     "unmerged")))
           (orig (match-string 2))
           (file (match-string 2))
           modes)
@@ -864,35 +864,35 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 
 ;;; Commit Mode
 
-(defvar magit-commit-mode-map
+(defvar magit-revision-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-diff-mode-map)
     map)
-  "Keymap for `magit-commit-mode'.")
+  "Keymap for `magit-revision-mode'.")
 
-(define-derived-mode magit-commit-mode magit-mode "Magit"
+(define-derived-mode magit-revision-mode magit-mode "Magit"
   "Mode for looking at a Git commit.
 This mode is documented in info node `(magit)Commit Buffer'.
 
-\\<magit-commit-mode-map>\
+\\<magit-revision-mode-map>\
 Type \\[magit-section-toggle] to expand or hide the section at point.
 Type \\[magit-visit-file] to visit the hunk or file at point.
 Type \\[magit-apply] to apply the change at point to the worktree.
 Type \\[magit-reverse] to reverse the change at point in the worktree.
-\n\\{magit-commit-mode-map}"
-  :group 'magit-commit)
+\n\\{magit-revision-mode-map}"
+  :group 'magit-revision)
 
-(defun magit-commit-refresh-buffer (commit)
+(defun magit-revision-refresh-buffer (commit)
   (magit-insert-section (commitbuf)
-    (magit-git-wash #'magit-wash-commit
+    (magit-git-wash #'magit-diff-wash-revision
       "show" "-p" "--cc" "--decorate=full" "--format=medium"
-      (and magit-commit-show-diffstat "--stat")
-      (and magit-commit-show-notes "--notes")
+      (and magit-revision-show-diffstat "--stat")
+      (and magit-revision-show-notes "--notes")
       magit-diff-options
       magit-diff-extra-options
       commit)))
 
-(defun magit-wash-commit (args)
+(defun magit-diff-wash-revision (args)
   (looking-at "^commit \\([a-z0-9]+\\)\\(?: \\(.+\\)\\)?$")
   (magit-bind-match-strings (rev refs) nil
     (magit-delete-line)
@@ -905,7 +905,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
           (when (string-match-p keyword "Merge")
             (magit-delete-match 2)
             (dolist (rev (split-string revs))
-              (magit-insert-commit-button rev)
+              (magit-diff-insert-commit-button rev)
               (insert ?\s)))))
       (forward-line)))
   (forward-line)
@@ -925,7 +925,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
   (forward-line)
   (magit-diff-wash-diffs args))
 
-(defun magit-insert-commit-button (hash)
+(defun magit-diff-insert-commit-button (hash)
   (magit-insert-section (commit hash)
     (insert-text-button hash
                         'help-echo "Visit commit"
@@ -986,7 +986,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
                           ((member "--cached" (cddr magit-refresh-args))
                            'staged)))
                'undefined))
-          ((derived-mode-p 'magit-commit-mode) 'committed)
+          ((derived-mode-p 'magit-revision-mode) 'committed)
           ((derived-mode-p 'magit-status-mode)
            (let ((stype (magit-section-type it)))
              (if (memq stype '(staged unstaged untracked))
