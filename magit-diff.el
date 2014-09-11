@@ -29,7 +29,7 @@
 
 ;; For `magit-diff-while-committing'
 (declare-function magit-commit-log-buffer 'magit)
-;; For `magit-show-commit' and `magit-diff-show-or-scroll'
+;; For `magit-show-commit' and `magit-diff-diff-show-or-scroll'
 (declare-function magit-blame-chunk-get 'magit-blame)
 (declare-function magit-blame-mode 'magit-blame)
 (defvar magit-blame-mode)

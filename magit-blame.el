@@ -103,8 +103,8 @@ and then turned on again when turning on the latter."
 (defvar magit-blame-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map "\r" 'magit-show-commit)
-    (define-key map "\s" 'magit-show-or-scroll-up)
-    (define-key map "\d" 'magit-show-or-scroll-down)
+    (define-key map "\s" 'magit-diff-show-or-scroll-up)
+    (define-key map "\d" 'magit-diff-show-or-scroll-down)
     (define-key map "b"  'magit-blame-popup)
     (define-key map "n"  'magit-blame-next-chunk)
     (define-key map "N"  'magit-blame-next-chunk-same-commit)

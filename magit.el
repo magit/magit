@@ -538,7 +538,7 @@ This mode is documented in info node `(magit)Branches and Remotes'.
 \\<magit-refs-mode-map>\
 Type \\[magit-refresh] to refresh the current buffer.
 Type \\[magit-branch-popup] to see available branch commands.
-Type \\[magit-show-commit] or \\[magit-show-or-scroll-up]\
+Type \\[magit-show-commit] or \\[magit-diff-show-or-scroll-up]\
  to visit the commit at point.
 Type \\[magit-merge-popup] to merge the branch or commit at point.
 Type \\[magit-cherry-pick] to cherry-pick the commit at point.

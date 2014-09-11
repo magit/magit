@@ -447,7 +447,7 @@ This mode is documented in info node `(magit)History'.
 
 \\<magit-log-mode-map>\
 Type \\[magit-refresh] to refresh the current buffer.
-Type \\[magit-show-commit] or \\[magit-show-or-scroll-up]\
+Type \\[magit-show-commit] or \\[magit-diff-show-or-scroll-up]\
  to visit the commit at point.
 Type \\[magit-merge-popup] to merge the commit at point.
 Type \\[magit-cherry-pick] to cherry-pick the commit at point.
@@ -816,7 +816,7 @@ alist in `magit-log-format-unicode-graph-alist'."
   "Mode for looking at commits not merged upstream.
 
 \\<magit-cherry-mode-map>\
-Type \\[magit-show-commit] or \\[magit-show-or-scroll-up]\
+Type \\[magit-show-commit] or \\[magit-diff-show-or-scroll-up]\
  to visit the commit at point.
 Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 \n\\{magit-cherry-mode-map}"
@@ -864,7 +864,7 @@ This mode is documented in info node `(magit)Reflogs'.
 
 \\<magit-reflog-mode-map>\
 Type \\[magit-refresh] to refresh the current buffer.
-Type \\[magit-show-commit] or \\[magit-show-or-scroll-up]\
+Type \\[magit-show-commit] or \\[magit-diff-show-or-scroll-up]\
  to visit the commit at point.
 Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 Type \\[magit-reset-head] to reset HEAD to the commit at point.
