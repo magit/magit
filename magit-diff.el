@@ -290,7 +290,7 @@ The following `format'-like specs are supported:
               (?w "Ignore all whitespace"        "--ignore-all-space"))
   :options  '((?h "Context lines" "-U" read-from-minibuffer)
               (?a "Diff algorithm"
-                  "--diff-algorithm=" magit-select-diff-algorithm))
+                  "--diff-algorithm=" magit-diff-select-algorithm))
   :actions  '((?d "Diff unstaged"     magit-diff-unstaged)
               (?c "Show commit"       magit-show-commit)
               (?R "Refresh diff"      magit-popup-set-local-variable)
@@ -532,7 +532,7 @@ commit or stash at point, then prompt for a commit."
       (not (memq op (cdr magit-diff-auto-show)))
     (memq op magit-diff-auto-show)))
 
-(defun magit-select-diff-algorithm (&optional noop1 noop2)
+(defun magit-diff-select-algorithm (&optional noop1 noop2)
   (magit-read-char-case nil t
     (?d "[d]efault/myers" "default")
     (?m "[m]inimal"       "minimal")
