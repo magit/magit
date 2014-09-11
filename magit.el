@@ -2410,7 +2410,7 @@ With prefix argument, changes in staging area are kept.
                      (if magit-current-popup
                          (magit-current-popup-args :only "--index")
                        (--first (equal it "--index")
-                                magit-stash-popup-defaults))))
+                                magit-stash-arguments))))
   (if (or magit-current-popup (not (member "--index" args)))
       (magit-run-git "stash" "apply" args stash)
     (unless (magit-git-success "stash" "apply" args stash)
@@ -2423,7 +2423,7 @@ With prefix argument, changes in staging area are kept.
                      (if magit-current-popup
                          (magit-current-popup-args :only "--index")
                        (--first (equal it "--index")
-                                magit-stash-popup-defaults))))
+                                magit-stash-arguments))))
   (if (or magit-current-popup (not (member "--index" args)))
       (magit-run-git "stash" "pop" args stash)
     (unless (magit-git-success "stash" "pop" args stash)

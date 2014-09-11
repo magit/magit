@@ -73,7 +73,7 @@ to be applied manually."
       (`(,_   file) (magit-apply-diff it)))))
 
 (defun magit-apply-diff (section &rest args)
-  (when (member "-U0" magit-diff-options)
+  (when (member "-U0" magit-diff-arguments)
     (setq args (cons "--unidiff-zero" args)))
   (magit-apply-patch (concat (magit-section-diff-header section)
                              (buffer-substring (magit-section-content section)
@@ -83,7 +83,7 @@ to be applied manually."
 (defun magit-apply-hunk (section &rest args)
   (when (string-match "^diff --cc" (magit-section-parent-value section))
     (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
-  (when (member "-U0" magit-diff-options)
+  (when (member "-U0" magit-diff-arguments)
     (setq args (cons "--unidiff-zero" args)))
   (magit-apply-patch (concat (magit-section-diff-header section)
                              (buffer-substring (magit-section-start section)
@@ -91,7 +91,7 @@ to be applied manually."
                      args))
 
 (defun magit-apply-region (section &rest args)
-  (when (member "-U0" magit-diff-options)
+  (when (member "-U0" magit-diff-arguments)
     (user-error "Not enough context to apply region.  Increase the context"))
   (when (string-match "^diff --cc" (magit-section-parent-value section))
     (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))

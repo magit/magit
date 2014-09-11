@@ -311,10 +311,14 @@ that without users being aware of it could lead to tears.
 (defmacro magit-define-popup (name doc &rest args)
   "\n\n(fn NAME DOC [GROUP [MODE [OPTION]]] :KEYWORD VALUE...)"
   (declare (indent defun) (doc-string 2))
-  (let ((grp  (unless (keywordp (car args)) (pop args)))
-        (mode (unless (keywordp (car args)) (pop args)))
-        (var  (unless (keywordp (car args)) (pop args)))
-        (opt  (intern (format "%s-defaults" name))))
+  (let* ((grp  (unless (keywordp (car args)) (pop args)))
+         (mode (unless (keywordp (car args)) (pop args)))
+         (var  (unless (keywordp (car args)) (pop args)))
+         (opt  (symbol-name name))
+         (opt  (intern (concat (if (string-match-p "-popup$" opt)
+                                   (substring opt 0 -6)
+                                 opt)
+                               "-arguments"))))
     `(progn
        (defun ,name (&optional arg) ,doc
          (interactive "P")

@@ -196,7 +196,7 @@ only arguments available from `magit-blame-popup' should be used.
   (interactive
    (let ((args (if magit-current-popup
                    magit-current-popup-args
-                 magit-blame-popup-defaults)))
+                 magit-blame-arguments)))
      (if magit-blame-mode
          (--if-let (magit-blame-chunk-get :previous-hash)
              (list it (magit-blame-chunk-get :previous-file)

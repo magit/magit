@@ -65,13 +65,6 @@ The following `format'-like specs are supported:
   :group 'magit-diff
   :type 'boolean)
 
-(defcustom magit-diff-options nil
-  ""
-  :group 'magit-popups
-  :type 'sexp)
-
-(put 'magit-diff-options 'permanent-local t)
-
 (defcustom magit-diff-auto-show
   '(commit stage-all log-oneline log-select blame-follow)
   "Whether to automatically show relevant diff or commit.
@@ -283,7 +276,7 @@ The following `format'-like specs are supported:
 
 (magit-define-popup magit-diff-popup
   "Key menu for diffing."
-  'magit-popups 'magit-popup-mode 'magit-diff-options
+  'magit-popups
   :man-page "git-diff"
   :switches '((?W "Show surrounding functions"   "--function-context")
               (?b "Ignore whitespace changes"    "--ignore-space-change")
@@ -445,18 +438,18 @@ actually were a single commit."
 (defun magit-diff-less-context (&optional count)
   "Decrease the context for diff hunks by COUNT."
   (interactive "p")
-  (setq magit-diff-options
+  (setq magit-diff-arguments
         (cons (format "-U%i" (max 0 (- (magit-diff-previous-context-lines)
                                        count)))
-              magit-diff-options))
+              magit-diff-arguments))
   (magit-refresh))
 
 (defun magit-diff-more-context (&optional count)
   "Increase the context for diff hunks by COUNT."
   (interactive "p")
-  (setq magit-diff-options
+  (setq magit-diff-arguments
         (cons (format "-U%i" (+ (magit-diff-previous-context-lines) count))
-              magit-diff-options))
+              magit-diff-arguments))
   (magit-refresh))
 
 (defun magit-diff-default-context ()
@@ -466,8 +459,8 @@ actually were a single commit."
   (magit-refresh))
 
 (defun magit-diff-previous-context-lines ()
-  (--if-let (--first (string-match "^-U\\([0-9]+\\)$" it) magit-diff-options)
-      (progn (setq magit-diff-options (delete it magit-diff-options))
+  (--if-let (--first (string-match "^-U\\([0-9]+\\)$" it) magit-diff-arguments)
+      (progn (setq magit-diff-arguments (delete it magit-diff-arguments))
              (string-to-number (match-string 1 it)))
     3))
 
@@ -583,7 +576,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
     (magit-git-wash #'magit-diff-wash-diffs
       "diff" "-p" (and magit-diff-show-diffstat "--stat")
       magit-diff-extra-options
-      range args magit-diff-options "--")))
+      range args magit-diff-arguments "--")))
 
 (defvar magit-file-section-map
   (let ((map (make-sparse-keymap)))
@@ -888,7 +881,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
       "show" "-p" "--cc" "--decorate=full" "--format=medium"
       (and magit-revision-show-diffstat "--stat")
       (and magit-revision-show-notes "--notes")
-      magit-diff-options
+      magit-diff-arguments
       magit-diff-extra-options
       commit)))
 
@@ -954,7 +947,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
   (magit-insert-section (unstaged)
     (magit-insert-heading "Unstaged changes:")
     (magit-git-wash #'magit-diff-wash-diffs
-      "diff" magit-diff-options magit-diff-extra-options)))
+      "diff" magit-diff-arguments magit-diff-extra-options)))
 
 (defvar magit-staged-section-map
   (let ((map (make-sparse-keymap)))
@@ -972,7 +965,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
   (magit-insert-section (staged)
     (magit-insert-heading "Staged changes:")
     (magit-git-wash #'magit-diff-wash-diffs
-      "diff" "--cached" magit-diff-options magit-diff-extra-options)))
+      "diff" "--cached" magit-diff-arguments magit-diff-extra-options)))
 
 ;;; Utilities
 
