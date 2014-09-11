@@ -154,8 +154,8 @@ that without users being aware of it could lead to tears.
     (define-key map [remap self-insert-command] 'magit-invoke-popup-action)
     (define-key map [?- t]        'magit-invoke-popup-switch)
     (define-key map [?= t]        'magit-invoke-popup-option)
-    (define-key map [?\C-c ?\C-c] 'magit-popup-set-defaults)
-    (define-key map [?\C-x ?\C-s] 'magit-popup-save-defaults)
+    (define-key map [?\C-c ?\C-c] 'magit-popup-set-default-arguments)
+    (define-key map [?\C-x ?\C-s] 'magit-popup-save-default-arguments)
     (define-key map [?\C-g]       'magit-popup-quit)
     (define-key map [??]          'magit-popup-help)
     (define-key map [?\C-h ?i]    'magit-popup-info)
@@ -470,13 +470,13 @@ that without users being aware of it could lead to tears.
 
 ;;; Save
 
-(defun magit-popup-set-defaults (arg)
+(defun magit-popup-set-default-arguments (arg)
   (interactive "P")
   (customize-set-variable (magit-popup-get :variable)
                           (magit-popup-get-args))
   (unless arg (magit-popup-quit)))
 
-(defun magit-popup-save-defaults (arg)
+(defun magit-popup-save-default-arguments (arg)
   (interactive "P")
   (customize-save-variable (magit-popup-get :variable)
                            (magit-popup-get-args))
