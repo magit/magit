@@ -475,7 +475,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
     (setcar it "--decorate=full"))
   (magit-git-wash (apply-partially 'magit-log-wash-log 'oneline)
     "log" (format "-%d" magit-log-cutoff-length) "--color"
-    (format "--pretty=format:%%h%s %s[%%an][%%at]%%s"
+    (format "--format=format:%%h%s %s[%%an][%%at]%%s"
             (if (member "--decorate=full" args) "%d" "")
             (if (member "--show-signature" args) "%G?" ""))
     (delete "--show-signature" args)

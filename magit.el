@@ -194,7 +194,7 @@ The following `format'-like specs are supported:
   :type 'boolean)
 
 ;; This variable is only a temporary hack.
-(defvar magit-commit-extra-options '("--decorate=full" "--pretty=medium"))
+(defvar magit-commit-extra-options '("--decorate=full" "--format=medium"))
 
 ;;;; Refs Mode
 
@@ -1179,7 +1179,7 @@ to test.  This command lets Git choose a different one."
       (magit-insert-heading "Bisect Rest:")
       (magit-git-wash (apply-partially 'magit-log-wash-log 'bisect-vis)
         "bisect" "visualize" "git" "log"
-        "--pretty=format:%h%d %s" "--decorate=full"))))
+        "--format=format:%h%d %s" "--decorate=full"))))
 
 (defun magit-insert-bisect-log ()
   (when (magit-bisect-in-progress-p)
