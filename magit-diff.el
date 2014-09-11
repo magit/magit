@@ -72,10 +72,6 @@ The following `format'-like specs are supported:
 
 (put 'magit-diff-options 'permanent-local t)
 
-;; This variable is only a temporary hack.  Eventually it will
-;; be possible to set some of these arguments in the diff popup.
-(defvar magit-diff-extra-options '("-M" "-C" "--no-prefix"))
-
 (defcustom magit-diff-auto-show
   '(commit stage-all log-oneline log-select blame-follow)
   "Whether to automatically show relevant diff or commit.
@@ -569,6 +565,10 @@ Type \\[magit-apply] to apply the change at point to the worktree.
 Type \\[magit-reverse] to reverse the change at point in the worktree.
 \n\\{magit-diff-mode-map}"
   :group 'magit-diff)
+
+;; This variable is only a temporary hack.  Eventually it will
+;; be possible to set some of these arguments in the diff popup.
+(defconst magit-diff-extra-options '("-M" "-C" "--no-prefix"))
 
 (defun magit-diff-refresh-buffer (range &optional args)
   (magit-insert-section (diffbuf)
