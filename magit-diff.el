@@ -471,7 +471,7 @@ actually were a single commit."
              (string-to-number (match-string 1 it)))
     3))
 
-(defun magit-show-or-scroll-up ()
+(defun magit-diff-show-or-scroll-up ()
   "Update the commit or diff buffer for the thing at point.
 
 Either show the commit or stash at point in the appropriate
@@ -480,9 +480,9 @@ current frame and contains information about that commit or
 stash, then instead scroll the buffer up.  If there is no
 commit or stash at point, then prompt for a commit."
   (interactive)
-  (magit-show-or-scroll 'scroll-up))
+  (magit-diff-show-or-scroll 'scroll-up))
 
-(defun magit-show-or-scroll-down ()
+(defun magit-diff-show-or-scroll-down ()
   "Update the commit or diff buffer for the thing at point.
 
 Either show the commit or stash at point in the appropriate
@@ -491,9 +491,9 @@ current frame and contains information about that commit or
 stash, then instead scroll the buffer down.  If there is no
 commit or stash at point, then prompt for a commit."
   (interactive)
-  (magit-show-or-scroll 'scroll-down))
+  (magit-diff-show-or-scroll 'scroll-down))
 
-(defun magit-show-or-scroll (fn)
+(defun magit-diff-show-or-scroll (fn)
   (let (rev cmd buf win)
     (if magit-blame-mode
         (setq rev (magit-blame-chunk-get :hash)
