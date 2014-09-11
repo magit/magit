@@ -281,7 +281,7 @@ tree relative to that commit are shown."
   (magit-mode-setup magit-diff-buffer-name-format
                     magit-diff-switch-buffer-function
                     #'magit-diff-mode
-                    #'magit-refresh-diff-buffer range args))
+                    #'magit-diff-refresh-buffer range args))
 
 ;;;###autoload
 (defun magit-diff-working-tree (&optional rev)
@@ -378,7 +378,7 @@ actually were a single commit."
   (magit-mode-setup magit-diff-buffer-name-format
                     (if noselect 'display-buffer 'pop-to-buffer)
                     #'magit-diff-mode
-                    #'magit-refresh-diff-buffer
+                    #'magit-diff-refresh-buffer
                     (concat stash "^2^.." stash)))
 
 (defun magit-diff-less-context (&optional count)
@@ -449,7 +449,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
 \n\\{magit-diff-mode-map}"
   :group 'magit-diff)
 
-(defun magit-refresh-diff-buffer (range &optional args)
+(defun magit-diff-refresh-buffer (range &optional args)
   (magit-insert-section (diffbuf)
     (magit-insert-heading
       (if range

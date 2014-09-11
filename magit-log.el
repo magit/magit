@@ -330,7 +330,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
   (interactive (magit-log-read-args nil nil))
   (magit-mode-setup magit-log-buffer-name-format nil
                     #'magit-log-mode
-                    #'magit-refresh-log-buffer 'oneline range
+                    #'magit-log-refresh-buffer 'oneline range
                     (cl-delete "^-L" args :test 'string-match-p))
   (magit-log-goto-same-commit))
 
@@ -344,7 +344,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
   (interactive (magit-log-read-args nil t))
   (magit-mode-setup magit-log-buffer-name-format nil
                     #'magit-log-mode
-                    #'magit-refresh-log-buffer 'long range args)
+                    #'magit-log-refresh-buffer 'long range args)
   (magit-log-goto-same-commit))
 
 ;;;###autoload
@@ -375,7 +375,7 @@ With a prefix argument show the log graph."
          current-prefix-arg))
   (magit-mode-setup magit-log-buffer-name-format nil
                     #'magit-log-mode
-                    #'magit-refresh-log-buffer
+                    #'magit-log-refresh-buffer
                     'oneline "HEAD"
                     (cons "--follow"
                           (if use-graph
@@ -390,7 +390,7 @@ With a prefix argument show the log graph."
   (interactive (list (magit-read-local-branch "Show reflog for branch")))
   (magit-mode-setup magit-reflog-buffer-name-format nil
                     #'magit-reflog-mode
-                    #'magit-refresh-reflog-buffer ref))
+                    #'magit-reflog-refresh-buffer ref))
 
 ;;;###autoload
 (defun magit-reflog-head ()
@@ -456,7 +456,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   :group 'magit-log
   (magit-set-buffer-margin magit-log-show-margin))
 
-(defun magit-refresh-log-buffer (style range args &optional file)
+(defun magit-log-refresh-buffer (style range args &optional file)
   (when (consp range)
     (setq range (concat (car range) ".." (cdr range))))
   (magit-insert-section (logbuf)
@@ -638,7 +638,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
       (insert ?\s))
     (when refsub
       (insert (format "%-2s " refsel))
-      (magit-insert (magit-log-format-reflog refsub)))
+      (magit-insert (magit-reflog-format-subject refsub)))
     (when msg
       (magit-insert msg (cl-case (and gpg (aref gpg 0))
                           (?G 'magit-signature-good)
@@ -779,7 +779,7 @@ alist in `magit-log-format-unicode-graph-alist'."
   (declare (indent defun))
   (magit-mode-setup magit-log-buffer-name-format nil
                     #'magit-log-select-mode
-                    #'magit-refresh-log-buffer 'oneline
+                    #'magit-log-refresh-buffer 'oneline
                     (or branch (magit-get-current-branch) "HEAD")
                     args)
   (magit-log-goto-same-commit)
@@ -831,9 +831,9 @@ Type \\[magit-cherry-pick] to cherry-pick the commit at point.
                                          (magit-get-tracked-branch head)))))
   (magit-mode-setup magit-cherry-buffer-name-format nil
                     #'magit-cherry-mode
-                    #'magit-refresh-cherry-buffer upstream head))
+                    #'magit-cherry-refresh-buffer upstream head))
 
-(defun magit-refresh-cherry-buffer (upstream head)
+(defun magit-cherry-refresh-buffer (upstream head)
   (magit-insert-section (cherry)
     (run-hooks 'magit-cherry-sections-hook)))
 
@@ -871,7 +871,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 \n\\{magit-reflog-mode-map}"
   :group 'magit-log)
 
-(defun magit-refresh-reflog-buffer (ref)
+(defun magit-reflog-refresh-buffer (ref)
   (magit-insert-section (reflogbuf)
     (magit-insert-heading "Local history of branch " ref)
     (magit-git-wash (apply-partially 'magit-log-wash-log 'reflog)
@@ -891,7 +891,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
     ("pull"        . magit-reflog-remote)
     ("clone"       . magit-reflog-remote)))
 
-(defun magit-log-format-reflog (subject)
+(defun magit-reflog-format-subject (subject)
   (let* ((match (string-match magit-reflog-subject-re subject))
          (command (and match (match-string 1 subject)))
          (option  (and match (match-string 2 subject)))

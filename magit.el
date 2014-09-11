@@ -450,7 +450,7 @@ for a commit."
     (magit-mode-setup magit-commit-buffer-name-format
                       (if noselect 'display-buffer 'pop-to-buffer)
                       #'magit-commit-mode
-                      #'magit-refresh-commit-buffer
+                      #'magit-commit-refresh-buffer
                       commit)))
 
 (defun magit-show-or-scroll-up ()
@@ -509,7 +509,7 @@ commit or stash at point, then prompt for a commit."
           (funcall cmd rev t))
       (call-interactively 'magit-show-commit))))
 
-(defun magit-refresh-commit-buffer (commit)
+(defun magit-commit-refresh-buffer (commit)
   (magit-insert-section (commitbuf)
     (magit-git-wash #'magit-wash-commit
       "show" "-p" "--cc" "--no-prefix"
@@ -626,13 +626,13 @@ can be used to override this."
                       (or switch-function
                           magit-status-buffer-switch-function)
                       #'magit-status-mode
-                      #'magit-refresh-status)))
+                      #'magit-status-refresh-buffer)))
 
-(defun magit-refresh-status ()
+(defun magit-status-refresh-buffer ()
   (magit-git-exit-code "update-index" "--refresh")
   (magit-insert-section (status)
     (run-hooks 'magit-status-sections-hook))
-  (run-hooks 'magit-refresh-status-hook))
+  (run-hooks 'magit-refresh-status-hook)) ; TODO
 
 (defun magit-insert-status-headers (&optional branch upstream)
   (unless branch
@@ -780,9 +780,9 @@ Refs are compared with a branch read form the user."
                      magit-current-popup-args))
   (magit-mode-setup magit-refs-buffer-name-format nil
                     #'magit-refs-mode
-                    #'magit-refresh-refs-buffer head args))
+                    #'magit-refs-refresh-buffer head args))
 
-(defun magit-refresh-refs-buffer (&rest ignore)
+(defun magit-refs-refresh-buffer (&rest ignore)
   (magit-insert-section (branchbuf)
     (run-hooks 'magit-refs-sections-hook)))
 
