@@ -882,18 +882,14 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
 \n\\{magit-commit-mode-map}"
   :group 'magit-commit)
 
-;; This variable is only a temporary hack.
-(defvar magit-commit-extra-options '("--decorate=full" "--format=medium"))
-
 (defun magit-commit-refresh-buffer (commit)
   (magit-insert-section (commitbuf)
     (magit-git-wash #'magit-wash-commit
-      "show" "-p" "--cc" "--no-prefix"
+      "show" "-p" "--cc" "--decorate=full" "--format=medium"
       (and magit-commit-show-diffstat "--stat")
       (and magit-commit-show-notes "--notes")
       magit-diff-options
       magit-diff-extra-options
-      magit-commit-extra-options
       commit)))
 
 (defun magit-wash-commit (args)
