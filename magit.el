@@ -512,7 +512,7 @@ commit or stash at point, then prompt for a commit."
 (defun magit-refresh-commit-buffer (commit)
   (magit-insert-section (commitbuf)
     (magit-git-wash #'magit-wash-commit
-      "log" "-1" "-p" "--cc" "--no-prefix"
+      "show" "-p" "--cc" "--no-prefix"
       (and magit-commit-show-diffstat "--stat")
       (and magit-commit-show-notes "--notes")
       magit-diff-options
@@ -2281,7 +2281,7 @@ With a prefix argument also reset the working tree.
   (when (equal (magit-rev-parse commit)
                (magit-rev-parse "HEAD~"))
     (with-temp-buffer
-      (magit-git-insert "log" "-1" "--format=%B" "HEAD")
+      (magit-git-insert "show" "-s" "--format=%B" "HEAD")
       (when git-commit-major-mode
         (funcall git-commit-major-mode))
       (git-commit-setup-font-lock)

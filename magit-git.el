@@ -616,10 +616,8 @@ Return a list of two integers: (A>B B>A)."
       (with-temp-file logfile))))
 
 (defun magit-rev-format (format &optional rev)
-  "Return first line of `git log -1 --format=format:FORMAT [REV]'.
-Execute Git, returning the first line of its output.  If there is
-no output return nil."
-  (magit-git-string "log" "-1" (concat "--format=format:" format) rev))
+  "Return output of `git show -s --format=format:FORMAT [REV]'."
+  (magit-git-string "show" "-s" (concat "--format=format:" format) rev))
 
 (defun magit-format-rev-summary (rev)
   (--when-let (magit-rev-format "%h %s" rev)
