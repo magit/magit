@@ -637,7 +637,7 @@ can be used to override this."
 (defun magit-insert-status-headers (&optional branch upstream)
   (unless branch
     (setq branch (magit-get-current-branch)))
-  (-if-let  (hash (magit-rev-parse "--verify" "HEAD"))
+  (-if-let  (hash (magit-rev-verify "HEAD"))
       (let ((line (magit-rev-format "%h %s" "HEAD")))
         (string-match "^\\([^ ]+\\) \\(.+\\)" line)
         (magit-bind-match-strings (hash msg) line
@@ -2797,7 +2797,7 @@ When the region is active offer to drop all contained stashes.
 (magit-define-section-jumper stashes "Stashes")
 
 (defun magit-insert-stashes ()
-  (when (magit-rev-parse "--verify" "refs/stash")
+  (when (magit-rev-verify "refs/stash")
     (magit-insert-section (stashes)
       (magit-insert-heading "Stashes:")
       (magit-git-wash (apply-partially 'magit-log-wash-log 'stash)

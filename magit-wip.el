@@ -138,9 +138,9 @@ to the current branch and `magit-wip-ref-format'."
                       magit-wip-ref-format
                       `((?r . ,(or ref "HEAD"))
                         (?b . ,(if ref (substring ref 11) "HEAD"))))))
-         (parent (if (and (magit-rev-parse "--verify" wipref)
+         (parent (if (and (magit-rev-verify wipref)
                           (equal (magit-git-string "merge-base" wipref ref)
-                                 (magit-rev-parse "--verify" ref)))
+                                 (magit-rev-verify ref)))
                      wipref
                    (or ref "HEAD")))
          (tree   (magit-with-temp-index "index.wip."

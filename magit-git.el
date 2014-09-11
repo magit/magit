@@ -376,6 +376,9 @@ Return t if the first (and usually only) output line is the
 string \"true\", otherwise return nil."
   (magit-git-true "rev-parse" args))
 
+(defun magit-rev-verify (rev)
+  (magit-rev-parse "--verify" (concat rev "^{commit}")))
+
 (defun magit-rev-name (rev &optional pattern)
   (magit-git-string "name-rev" "--name-only" "--no-undefined"
                     (and pattern (concat "--refs=" pattern))
@@ -441,7 +444,7 @@ Return nil if no branch can be found in the `HEAD' reflog
 which is different from the current branch and still exists."
   (let ((current (magit-get-current-branch))
         (i 1) prev)
-    (while (and (setq prev (magit-rev-parse "--verify" (format "@{-%i}" i)))
+    (while (and (setq prev (magit-rev-verify (format "@{-%i}" i)))
                 (or (not (setq prev (magit-rev-branch prev)))
                     (equal prev current)))
       (cl-incf i))
