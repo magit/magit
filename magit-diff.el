@@ -29,10 +29,15 @@
 
 ;; For `magit-diff-while-committing'
 (declare-function magit-commit-log-buffer 'magit)
+;; For `magit-show-commit' and `magit-diff-show-or-scroll'
+(declare-function magit-blame-chunk-get 'magit-blame)
+(declare-function magit-blame-mode 'magit-blame)
+(defvar magit-blame-mode)
 
 (require 'diff-mode)
 
 ;;; Options
+;;;; Diff Mode
 
 (defgroup magit-diff nil
   "Inspect and manipulate Git diffs."
@@ -138,6 +143,40 @@ many spaces.  Otherwise, highlight neither."
                        (choice (const :tag "Tabs" tabs)
                                (integer :tag "Spaces" :value ,tab-width)
                                (const :tag "Neither" nil)))))
+
+;;;; Commit Mode
+
+(defgroup magit-commit nil
+  "Inspect and manipulate Git commits."
+  :group 'magit-modes)
+
+(defcustom magit-commit-buffer-name-format "*magit-commit: %a*"
+  "Name format for buffers used to display a commit.
+
+The following `format'-like specs are supported:
+%a the absolute filename of the repository toplevel.
+%b the basename of the repository toplevel."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-commit
+  :type 'string)
+
+(defcustom magit-commit-show-diffstat t
+  "Whether to show diffstat in commit buffers."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-commit
+  :type 'boolean)
+
+(defcustom magit-commit-show-notes t
+  "Whether to show notes in commit buffers."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-commit
+  :type 'boolean)
+
+(defcustom magit-commit-show-xref-buttons t
+  "Whether to show buffer history buttons in commit buffers."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-commit
+  :type 'boolean)
 
 ;;; Faces
 
@@ -364,6 +403,32 @@ a commit read from the minibuffer."
   (magit-diff nil (list "--no-index" "--" a b)))
 
 ;;;###autoload
+(defun magit-show-commit (commit &optional noselect module)
+  "Show the commit at point.
+If there is no commit at point or with a prefix argument prompt
+for a commit."
+  (interactive
+   (let* ((mcommit (magit-section-when mcommit))
+          (atpoint (or (and magit-blame-mode (magit-blame-chunk-get :hash))
+                       mcommit (magit-branch-or-commit-at-point)
+                       (magit-section-when tag))))
+     (list (or (and (not current-prefix-arg) atpoint)
+               (magit-read-branch-or-commit "Show commit" atpoint))
+           nil (and mcommit (magit-section-parent-value
+                             (magit-current-section))))))
+  (let ((default-directory (if module
+                               (file-name-as-directory
+                                (expand-file-name module (magit-get-top-dir)))
+                             default-directory)))
+    (when (magit-git-failure "cat-file" "commit" commit)
+      (user-error "%s is not a commit" commit))
+    (magit-mode-setup magit-commit-buffer-name-format
+                      (if noselect 'display-buffer 'pop-to-buffer)
+                      #'magit-commit-mode
+                      #'magit-commit-refresh-buffer
+                      commit)))
+
+;;;###autoload
 (defun magit-diff-stash (stash &optional noselect)
   "Show changes in the stash at point.
 If there is no stash at point or with a prefix argument prompt
@@ -410,6 +475,62 @@ actually were a single commit."
              (string-to-number (match-string 1 it)))
     3))
 
+(defun magit-show-or-scroll-up ()
+  "Update the commit or diff buffer for the thing at point.
+
+Either show the commit or stash at point in the appropriate
+buffer, or if that buffer is already being displayed in the
+current frame and contains information about that commit or
+stash, then instead scroll the buffer up.  If there is no
+commit or stash at point, then prompt for a commit."
+  (interactive)
+  (magit-show-or-scroll 'scroll-up))
+
+(defun magit-show-or-scroll-down ()
+  "Update the commit or diff buffer for the thing at point.
+
+Either show the commit or stash at point in the appropriate
+buffer, or if that buffer is already being displayed in the
+current frame and contains information about that commit or
+stash, then instead scroll the buffer down.  If there is no
+commit or stash at point, then prompt for a commit."
+  (interactive)
+  (magit-show-or-scroll 'scroll-down))
+
+(defun magit-show-or-scroll (fn)
+  (let (rev cmd buf win)
+    (if magit-blame-mode
+        (setq rev (magit-blame-chunk-get :hash)
+              cmd 'magit-show-commit
+              buf (magit-mode-get-buffer
+                   magit-commit-buffer-name-format 'magit-commit-mode))
+      (magit-section-case
+        (commit (setq rev (magit-section-value it)
+                      cmd 'magit-show-commit
+                      buf (magit-mode-get-buffer
+                           magit-commit-buffer-name-format 'magit-commit-mode)))
+        (stash  (setq rev (magit-section-value it)
+                      cmd 'magit-diff-stash
+                      buf (magit-mode-get-buffer
+                           magit-diff-buffer-name-format 'magit-diff-mode)))))
+    (if rev
+        (if (and buf
+                 (setq win (get-buffer-window buf))
+                 (with-current-buffer buf
+                   (equal (if (eq cmd 'magit-diff-stash)
+                              (concat rev "^2^.." rev)
+                            rev)
+                          (car magit-refresh-args))))
+            (with-selected-window win
+              (condition-case err
+                  (funcall fn)
+                (error
+                 (goto-char (cl-case fn
+                              (scroll-up   (point-min))
+                              (scroll-down (point-max)))))))
+          (funcall cmd rev t))
+      (call-interactively 'magit-show-commit))))
+
 (defun magit-diff-auto-show-p (op)
   (if (eq (car magit-diff-auto-show) 'not)
       (not (memq op (cdr magit-diff-auto-show)))
@@ -422,7 +543,7 @@ actually were a single commit."
     (?p "[p]atience"      "patience")
     (?h "[h]istogram"     "histogram")))
 
-;;; Mode
+;;; Diff Mode
 
 (defvar magit-diff-mode-map
   (let ((map (make-sparse-keymap)))
@@ -741,7 +862,86 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                    (magit-section-end hunk)
                    'diff-mode 'fine))
 
-;;; Sections
+;;; Commit Mode
+
+(defvar magit-commit-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map magit-diff-mode-map)
+    map)
+  "Keymap for `magit-commit-mode'.")
+
+(define-derived-mode magit-commit-mode magit-mode "Magit"
+  "Mode for looking at a Git commit.
+This mode is documented in info node `(magit)Commit Buffer'.
+
+\\<magit-commit-mode-map>\
+Type \\[magit-section-toggle] to expand or hide the section at point.
+Type \\[magit-visit-file] to visit the hunk or file at point.
+Type \\[magit-apply] to apply the change at point to the worktree.
+Type \\[magit-reverse] to reverse the change at point in the worktree.
+\n\\{magit-commit-mode-map}"
+  :group 'magit-commit)
+
+;; This variable is only a temporary hack.
+(defvar magit-commit-extra-options '("--decorate=full" "--format=medium"))
+
+(defun magit-commit-refresh-buffer (commit)
+  (magit-insert-section (commitbuf)
+    (magit-git-wash #'magit-wash-commit
+      "show" "-p" "--cc" "--no-prefix"
+      (and magit-commit-show-diffstat "--stat")
+      (and magit-commit-show-notes "--notes")
+      magit-diff-options
+      magit-diff-extra-options
+      magit-commit-extra-options
+      commit)))
+
+(defun magit-wash-commit (args)
+  (looking-at "^commit \\([a-z0-9]+\\)\\(?: \\(.+\\)\\)?$")
+  (magit-bind-match-strings (rev refs) nil
+    (magit-delete-line)
+    (magit-insert-section (headers)
+      (magit-insert-heading
+        (and refs (concat (magit-format-ref-labels refs) " "))
+        (propertize rev 'face 'magit-hash))
+      (while (re-search-forward "^\\([a-z]+\\): +\\(.+\\)$" nil t)
+        (magit-bind-match-strings (keyword revs) nil
+          (when (string-match-p keyword "Merge")
+            (magit-delete-match 2)
+            (dolist (rev (split-string revs))
+              (magit-insert-commit-button rev)
+              (insert ?\s)))))
+      (forward-line)))
+  (forward-line)
+  (let ((bound (save-excursion
+                 (when (re-search-forward "^diff" nil t)
+                   (copy-marker (match-beginning 0)))))
+        (summary (buffer-substring-no-properties
+                  (point) (line-end-position))))
+    (magit-delete-line)
+    (magit-insert-section (message)
+      (insert summary ?\n)
+      (magit-insert-heading)
+      (cond ((re-search-forward "^---" bound t)
+             (magit-delete-match))
+            ((re-search-forward "^.[^ ]" bound t)
+             (goto-char (1- (match-beginning 0)))))))
+  (forward-line)
+  (magit-diff-wash-diffs args))
+
+(defun magit-insert-commit-button (hash)
+  (magit-insert-section (commit hash)
+    (insert-text-button hash
+                        'help-echo "Visit commit"
+                        'action (lambda (button)
+                                  (save-excursion
+                                    (goto-char button)
+                                    (call-interactively #'magit-show-commit)))
+                        'follow-link t
+                        'mouse-face 'magit-section-highlight
+                        'face 'magit-hash)))
+
+;;; Diff Sections
 
 (defvar magit-unstaged-section-map
   (let ((map (make-sparse-keymap)))
