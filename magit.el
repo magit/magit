@@ -1900,7 +1900,7 @@ inspect the merge and change the commit message.
 ;;;###autoload
 (defun magit-reset-index (commit)
   "Reset the index to COMMIT.
-Keep the head and working tree as-is, so if COMMIT revers to the
+Keep the head and working tree as-is, so if COMMIT refers to the
 head this effectivley unstages all changes.
 \n(git reset --mixed COMMIT)"
   (interactive (list (magit-read-branch-or-commit "Reset index to")))
