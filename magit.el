@@ -1513,13 +1513,11 @@ inspect the merge and change the commit message.
 (defun magit-rebase (upstream &optional args)
   "Start an non-interactive rebase operation.
 \n(git rebase UPSTREAM[^] [ARGS])"
-  (interactive (if (magit-rebase-in-progress-p)
-                   (list nil)
-                 (list (magit-read-other-branch-or-commit
-                        "Rebase to"
-                        (magit-get-current-branch)
-                        (magit-get-tracked-branch))
-                       magit-current-popup-args)))
+  (interactive (list (magit-read-other-branch-or-commit
+                      "Rebase to"
+                      (magit-get-current-branch)
+                      (magit-get-tracked-branch))
+                     magit-current-popup-args))
   (if upstream
       (progn (message "Rebasing...")
              (magit-rebase-async upstream args)
@@ -1552,15 +1550,11 @@ inspect the merge and change the commit message.
   (interactive (let ((commit (magit-commit-at-point)))
                  (list (and commit (concat commit "^"))
                        magit-current-popup-args)))
-  (cond
-   ((magit-rebase-in-progress-p)
-    (magit-rebase-popup))
-   ((setq commit (magit-rebase-interactive-assert commit))
-    (magit-rebase-async "-i" commit args))
-   (t
+  (if (setq commit (magit-rebase-interactive-assert commit))
+      (magit-rebase-async "-i" commit args)
     (magit-log-select
       `(lambda (commit)
-         (magit-rebase-interactive (concat commit "^") (list ,@args)))))))
+         (magit-rebase-interactive (concat commit "^") (list ,@args))))))
 
 ;;;###autoload
 (defun magit-rebase-autosquash (commit &optional args)
