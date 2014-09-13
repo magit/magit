@@ -1744,8 +1744,8 @@ inspect the merge and change the commit message.
 (defun magit-sequencer-skip ()
   (interactive)
   (if (magit-sequencer-in-progress-p)
-      (magit-run-git-sequencer
-       (if (magit-revert-in-progress-p) "revert" "cherry-pick") "--skip")
+      (progn (magit-call-git "reset" "--hard")
+             (magit-sequencer-continue))
     (error "No cherry-pick or revert in progress")))
 
 ;;;###autoload
