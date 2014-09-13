@@ -30,6 +30,24 @@
 
 (require 'magit)
 
+(defface magit-bisect-good
+  '((t :background "LightGreen"
+       :foreground "DarkOliveGreen"))
+  "Face for good bisect revisions."
+  :group 'magit-faces)
+
+(defface magit-bisect-skip
+  '((t :background "LightGoldenrod"
+       :foreground "DarkGoldenrod"))
+  "Face for skipped bisect revisions."
+  :group 'magit-faces)
+
+(defface magit-bisect-bad
+  '((t :background "IndianRed1"
+       :foreground "IndianRed4"))
+  "Face for bad bisect revisions."
+  :group 'magit-faces)
+
 (magit-define-popup magit-bisect-popup
   "Popup console for bisect commands."
   'magit-popups
