@@ -1918,7 +1918,7 @@ With a prefix argument also reset the working tree.
                      current-prefix-arg))
   (unless hard
     (magit-maybe-save-head-message commit))
-  (magit-run-git "reset" (if hard "--hard" "--mixed") commit))
+  (magit-run-git "reset" (if hard "--hard" "--mixed") commit "--"))
 
 ;;;###autoload
 (defun magit-reset-head (commit)
@@ -1926,7 +1926,7 @@ With a prefix argument also reset the working tree.
 \n(git reset --mixed COMMIT)"
   (interactive (list (magit-read-branch-or-commit "Reset head to")))
   (magit-maybe-save-head-message commit)
-  (magit-run-git "reset" "--mixed" commit))
+  (magit-run-git "reset" "--mixed" commit "--"))
 
 ;;;###autoload
 (defun magit-reset-soft (commit)
@@ -1934,14 +1934,14 @@ With a prefix argument also reset the working tree.
 \n(git reset --soft REVISION)"
   (interactive (list (magit-read-branch-or-commit "Soft reset to")))
   (magit-maybe-save-head-message commit)
-  (magit-run-git "reset" "--soft" commit))
+  (magit-run-git "reset" "--soft" commit "--"))
 
 ;;;###autoload
 (defun magit-reset-hard (commit)
   "Reset the head, index, and working tree to COMMIT.
 \n(git reset --hard REVISION)"
   (interactive (list (magit-read-branch-or-commit "Hard reset to")))
-  (magit-run-git "reset" "--hard" commit))
+  (magit-run-git "reset" "--hard" commit "--"))
 
 (defun magit-maybe-save-head-message (commit)
   (when (equal (magit-rev-parse commit)
