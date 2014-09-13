@@ -1511,7 +1511,7 @@ inspect the merge and change the commit message.
 
 ;;;###autoload
 (defun magit-rebase (upstream &optional args)
-  "Start an non-interactive rebase operation.
+  "Start a non-interactive rebase sequence.
 \n(git rebase UPSTREAM[^] [ARGS])"
   (interactive (list (magit-read-other-branch-or-commit
                       "Rebase to"
@@ -1528,7 +1528,7 @@ inspect the merge and change the commit message.
 
 ;;;###autoload
 (defun magit-rebase-onto (newbase upstream &optional args)
-  "Start an non-interactive rebase operation, using `--onto'.
+  "Start a non-interactive rebase sequence, using `--onto'.
 \n(git rebase --onto NEWBASE UPSTREAM[^] [ARGS])"
   (interactive (list (magit-read-other-branch-or-commit
                       "Rebase to"
@@ -1545,7 +1545,7 @@ inspect the merge and change the commit message.
 
 ;;;###autoload
 (defun magit-rebase-interactive (commit &optional args)
-  "Start an interactive rebase operation.
+  "Start an interactive rebase sequence.
 \n(git rebase -i COMMIT[^] [ARGS])"
   (interactive (let ((commit (magit-commit-at-point)))
                  (list (and commit (concat commit "^"))
