@@ -494,6 +494,7 @@ can be used to override this."
 
 (defun magit-insert-untracked-files-1 (files)
   (dolist (file files)
+    (setq file (magit-decode-git-path file))
     (if (string-suffix-p "/" file)
         (magit-insert-section (file file t)
           (insert (directory-file-name file) "/\n")
