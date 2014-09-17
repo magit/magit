@@ -526,7 +526,7 @@ at point."
 (defmacro magit-insert-section (&rest args)
   "\n\n(fn [NAME] (TYPE &optional VALUE HIDE) &rest BODY)"
   (declare (indent defun)
-           (debug ([&optional symbolp] (symbolp &optional sexp sexp) body)))
+           (debug ([&optional symbolp] (symbolp &optional form form) body)))
   (let ((s (if (symbolp (car args))
                (pop args)
              (cl-gensym "section"))))
