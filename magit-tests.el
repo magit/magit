@@ -79,7 +79,11 @@
 (ert-deftest magit-status-untracked ()
   (magit-tests--with-temp-repo
     (magit-tests--modify-file "file")
-    (magit-tests--should-have-section 'untracked "file")))
+    (magit-tests--modify-file "file with space")
+    (magit-tests--modify-file "φιλε")
+    (magit-tests--should-have-section 'untracked "file")
+    (magit-tests--should-have-section 'untracked "file with space")
+    (magit-tests--should-have-section 'untracked "φιλε")))
 
 (ert-deftest magit-status-staged-modified ()
   (magit-tests--with-temp-repo
