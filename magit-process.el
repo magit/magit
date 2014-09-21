@@ -351,7 +351,6 @@ tracked in the current repository are reverted if
               (current-window-configuration) args)))
 
 (defun magit-run-git-sequencer (&rest args)
-  (magit-server-visit-args   args)
   (magit-run-git-with-editor args))
 
 ;;; Process Internals

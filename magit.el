@@ -1587,6 +1587,7 @@ inspect the merge and change the commit message.
     (user-error "No rebase in progress")))
 
 (defun magit-rebase-async (&rest args)
+  (magit-server-visit-args)
   (apply #'magit-run-git-sequencer "rebase" args)
   (set-process-sentinel magit-this-process #'magit-rebase-process-sentinel))
 
