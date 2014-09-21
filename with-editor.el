@@ -168,6 +168,20 @@ usually honor that and return non-nil."
   :group 'with-editor
   :type '(choice (const :tag "No lighter" "") string))
 
+(defvar with-editor-server-window-alist nil
+  "Alist of filename patterns vs corresponding `server-window'.
+
+Each element looks like (REGEXP . FUNCTION).  Files matching
+REGEXP are selected using FUNCTION instead of the default in
+`server-window'.
+
+Note that when a package adds an entry here then it probably
+has a reason to disrespect `server-window' and it likely is not
+a good idea to change such entries.  The `git-commit-mode' and
+`git-rebase-mode' packages do no add entries themselves but
+loading `magit' does add entries for the files handled by these
+packages.  Don't change these, or Magit will get confused.")
+
 ;;; Commands
 
 (defvar with-editor-pre-finish-hook nil)
@@ -319,19 +333,18 @@ ENVVAR is provided then bind that environment variable instead.
        (setenv "ALTERNATE_EDITOR" (with-editor-looping-editor)))
      ,@body))
 
+(defun with-editor-server-window ()
+  (or (and buffer-file-name
+           (cdr (--first (string-match-p (car it) buffer-file-name)
+                         with-editor-server-window-alist)))
+      server-window))
+
 (defadvice server-switch-buffer (around with-editor activate)
-  "If the buffer being switched to has a buffer-local value for
-`server-window' then use that instead of the default value, and
-finally delete the local value.  To use this, add a function to
-`server-visit-hook' which possibly sets the local value in the
-current buffer (which is the one requested by the client)."
+  "Honor `with-editor-server-window-alist' (which see)."
   (let ((server-window (with-current-buffer
                            (or next-buffer (current-buffer))
-                         server-window)))
-    ad-do-it
-    (when next-buffer
-      (with-current-buffer next-buffer
-        (kill-local-variable 'server-window)))))
+                         (with-editor-server-window))))
+    ad-do-it))
 
 (defun with-editor-looping-editor ()
   "Return the looping editor appropriate for `default-directory'.
@@ -402,7 +415,8 @@ which may or may not insert the text into the PROCESS' buffer."
         (with-editor-mode 1)
         (setq with-editor--pid pid)
         (run-hooks 'with-editor-filter-visit-hook)
-        (funcall (or server-window 'pop-to-buffer) (current-buffer))
+        (funcall (or (with-editor-server-window) 'switch-to-buffer)
+                 (current-buffer))
         (kill-local-variable 'server-window))))
   (unless no-default-filter
     (internal-default-process-filter process string)))
