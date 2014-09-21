@@ -336,8 +336,6 @@ tracked in the current repository are reverted if
     (let ((magit-process-popup-time -1))
       (magit-run-git-async args))))
 
-(defalias 'magit-run-git-sequencer 'magit-run-git-with-editor)
-
 ;;; Process Internals
 
 (defun magit-process-setup (program args)

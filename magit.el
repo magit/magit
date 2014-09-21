@@ -1548,7 +1548,7 @@ inspect the merge and change the commit message.
                      magit-current-popup-args))
   (if upstream
       (progn (message "Rebasing...")
-             (magit-rebase-async upstream args)
+             (magit-run-git-sequencer "rebase" upstream args)
              (message "Rebasing...done"))
     (magit-log-select
       `(lambda (commit)
@@ -1565,7 +1565,7 @@ inspect the merge and change the commit message.
                      nil))
   (if upstream
       (progn (message "Rebasing...")
-             (magit-rebase-async "--onto" newbase upstream args)
+             (magit-run-git-sequencer "rebase" "--onto" newbase upstream args)
              (message "Rebasing...done"))
     (magit-log-select
       `(lambda (commit)
@@ -1579,7 +1579,7 @@ inspect the merge and change the commit message.
                  (list (and commit (concat commit "^"))
                        magit-current-popup-args)))
   (if (setq commit (magit-rebase-interactive-assert commit))
-      (magit-rebase-async "-i" commit args)
+      (magit-run-git-sequencer "rebase" "-i" commit args)
     (magit-log-select
       `(lambda (commit)
          (magit-rebase-interactive (concat commit "^") (list ,@args))))))
@@ -1592,7 +1592,8 @@ inspect the merge and change the commit message.
   (if (setq commit (magit-rebase-interactive-assert commit))
       (let ((process-environment process-environment))
         (setenv "GIT_SEQUENCE_EDITOR" "true")
-        (magit-rebase-async "-i" commit "--autosquash" "--autostash" args))
+        (magit-run-git-sequencer "rebase" "-i" commit
+                                 "--autosquash" "--autostash" args))
     (magit-log-select
       `(lambda (commit)
          (magit-rebase-autosquash (concat commit "^") (list ,@args))))))
@@ -1605,7 +1606,7 @@ inspect the merge and change the commit message.
       (let ((process-environment process-environment))
         (setenv "GIT_SEQUENCE_EDITOR"
                 "perl -i -p -e '++$x if not $x and s/pick/edit/'")
-        (magit-rebase-async "-i" (concat commit "^")))
+        (magit-run-git-sequencer "rebase" "-i" (concat commit "^")))
     (magit-log-select #'magit-rebase-edit-commit)))
 
 ;;;###autoload
@@ -1616,7 +1617,7 @@ inspect the merge and change the commit message.
       (let ((process-environment process-environment))
         (setenv "GIT_SEQUENCE_EDITOR"
                 "perl -i -p -e '++$x if not $x and s/pick/reword/'")
-        (magit-rebase-async "-i" (concat commit "^")))
+        (magit-run-git-sequencer "rebase" "-i" (concat commit "^")))
     (magit-log-select #'magit-rebase-reword-commit)))
 
 ;;;###autoload
@@ -1626,7 +1627,7 @@ inspect the merge and change the commit message.
   (if (magit-rebase-in-progress-p)
       (if (magit-anything-unstaged-p)
           (error "Cannot continue rebase with unstaged changes")
-        (magit-rebase-async "--continue"))
+        (magit-run-git-sequencer "rebase" "--continue"))
     (user-error "No rebase in progress")))
 
 ;;;###autoload
@@ -1634,7 +1635,7 @@ inspect the merge and change the commit message.
   "Skip the current commit and restart the current rebase operation."
   (interactive)
   (if (magit-rebase-in-progress-p)
-      (magit-rebase-async "--skip")
+      (magit-run-git-sequencer "rebase" "--skip")
     (user-error "No rebase in progress")))
 
 ;;;###autoload
@@ -1642,7 +1643,7 @@ inspect the merge and change the commit message.
   "Edit the todo list of the current rebase operation."
   (interactive)
   (if (magit-rebase-in-progress-p)
-      (magit-rebase-async "--edit-todo")
+      (magit-run-git-sequencer "rebase" "--edit-todo")
     (user-error "No rebase in progress")))
 
 ;;;###autoload
@@ -1653,21 +1654,26 @@ inspect the merge and change the commit message.
       (magit-run-git "rebase" "--abort")
     (user-error "No rebase in progress")))
 
-(defun magit-rebase-async (&rest args)
-  (apply #'magit-run-git-sequencer "rebase" args)
-  (set-process-sentinel magit-this-process #'magit-rebase-process-sentinel))
+(defun magit-run-git-sequencer (&rest args)
+  (apply #'magit-run-git-with-editor args)
+  (set-process-sentinel magit-this-process #'magit-sequencer-process-sentinel))
 
-(defun magit-rebase-process-sentinel (process event)
+(defun magit-sequencer-process-sentinel (process event)
   (when (memq (process-status process) '(exit signal))
     (magit-process-sentinel process event)
     (--when-let (magit-mode-get-buffer
                  magit-status-buffer-name-format
                  'magit-status-mode)
       (with-current-buffer it
-        (--when-let (magit-get-section
-                     `((commit . ,(magit-rev-parse "HEAD"))
-                       (rebase-sequence)
-                       (status)))
+        (--when-let
+            (magit-get-section
+             `((commit . ,(magit-rev-parse "HEAD"))
+               (,(pcase (car (cadr (-split-at
+                                    (1+ (length magit-git-standard-options))
+                                    (process-command process))))
+                   ((or "rebase" "am")   'rebase-sequence)
+                   ((or "cherry-pick" "revert") 'sequence)))
+               (status)))
           (magit-goto-char (magit-section-start it))
           (magit-section-update-highlight))))))
 
@@ -1845,13 +1851,13 @@ inspect the merge and change the commit message.
 (defun magit-revert (commit &optional args)
   (interactive (magit-sequencer-read-args 'revert "Revert commit"))
   (magit-assert-one-parent commit "revert")
-  (magit-run-git "revert" args commit))
+  (magit-run-git-sequencer "revert" args commit))
 
 ;;;###autoload
 (defun magit-revert-no-commit (commit &optional args)
   (interactive (magit-sequencer-read-args 'revert "Revert changes"))
   (magit-assert-one-parent commit "revert")
-  (magit-run-git "revert" "--no-commit" args commit))
+  (magit-run-git-sequencer "revert" "--no-commit" args commit))
 
 ;;;###autoload
 (defun magit-sequencer-continue ()
