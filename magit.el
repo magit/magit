@@ -501,11 +501,11 @@ can be used to override this."
     (if (string-suffix-p "/" file)
         (magit-insert-section (file file t)
           (insert (directory-file-name file) "/\n")
-            (magit-insert-heading)
-            (magit-insert-untracked-files-1
-             (--map (substring it 3)
-                    (magit-git-lines "status" "--porcelain"
-                                     "-unormal" "--" file))))
+          (magit-insert-heading)
+          (magit-insert-untracked-files-1
+           (--map (substring it 3)
+                  (magit-git-lines "status" "--porcelain"
+                                   "-unormal" "--" file))))
       (magit-insert-section (file file)
         (insert file "\n")))))
 
