@@ -344,16 +344,21 @@ tracked in the current repository are reverted if
     (if  buf
         (magit-process-truncate-log buf)
       (setq buf (magit-process-buffer)))
-    (when (and args (equal program magit-git-executable))
-      (setq args (-split-at (length magit-git-standard-options) args)))
     (with-current-buffer buf
       (goto-char (1- (point-max)))
       (let* ((inhibit-read-only t)
              (magit-insert-section--parent magit-root-section)
+             (elide (if (and args (equal program magit-git-executable))
+                        (length magit-git-standard-options)
+                      0))
              (section (magit-insert-section (process)
                         (magit-insert-heading "run " program " "
-                          (and args (format "%c " magit-ellipsis))
-                          (mapconcat 'identity (cadr args) " "))
+                          (mapconcat 'identity
+                                     (if (> elide 0)
+                                         (cons (char-to-string magit-ellipsis)
+                                               (cadr (-split-at elide args)))
+                                       args)
+                                     " "))
                         (insert "\n"))))
         (backward-char 1)
         (cons (current-buffer) section)))))
