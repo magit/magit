@@ -612,6 +612,13 @@ Return a list of two integers: (A>B B>A)."
   (when (> (length (magit-commit-parents commit)) 1)
     (user-error "Cannot %s a merge commit" command)))
 
+(defun magit-patch-id (rev)
+  (with-temp-buffer
+    (process-file shell-file-name nil '(t nil) nil shell-command-switch
+                  (let ((exec (shell-quote-argument magit-git-executable)))
+                    (format "%s diff-tree -u %s | %s patch-id" exec rev exec)))
+    (car (split-string (buffer-string)))))
+
 (defun magit-reflog-enable (ref)
   (let ((logfile (magit-git-dir (concat "logs/" ref))))
     (unless (file-exists-p logfile)
