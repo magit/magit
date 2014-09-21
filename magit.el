@@ -339,6 +339,45 @@ many levels deep."
   "Face for good untrusted signatures."
   :group 'magit-faces)
 
+(defface magit-sequence-pick
+  '((t :inherit default))
+  "Face used in sequence sections."
+  :group 'magit-faces)
+
+(defface magit-sequence-stop
+  '((((class color) (background light)) :foreground "DarkOliveGreen4")
+    (((class color) (background dark))  :foreground "DarkSeaGreen2"))
+  "Face used in sequence sections."
+  :group 'magit-faces)
+
+(defface magit-sequence-part
+  '((((class color) (background light)) :foreground "Goldenrod4")
+    (((class color) (background dark))  :foreground "LightGoldenrod2"))
+  "Face used in sequence sections."
+  :group 'magit-faces)
+
+(defface magit-sequence-head
+  '((((class color) (background light)) :foreground "SkyBlue4")
+    (((class color) (background dark))  :foreground "LightSkyBlue1"))
+  "Face used in sequence sections."
+  :group 'magit-faces)
+
+(defface magit-sequence-drop
+  '((((class color) (background light)) :foreground "IndianRed")
+    (((class color) (background dark))  :foreground "IndianRed"))
+  "Face used in sequence sections."
+  :group 'magit-faces)
+
+(defface magit-sequence-done
+  '((t :inherit magit-hash))
+  "Face used in sequence sections."
+  :group 'magit-faces)
+
+(defface magit-sequence-onto
+  '((t :inherit magit-sequence-done))
+  "Face used in sequence sections."
+  :group 'magit-faces)
+
 (defface magit-cherry-unmatched
   '((t :foreground "cyan"))
   "Face for unmatched cherry commits.")
@@ -1626,18 +1665,14 @@ inspect the merge and change the commit message.
                  'magit-status-mode)
       (with-current-buffer it
         (--when-let (magit-get-section
-                     `((commit . ,(magit-rebase-stopped-commit))
+                     `((commit . ,(magit-rev-parse "HEAD"))
                        (rebase-sequence)
                        (status)))
-          (magit-goto-char (magit-section-start it)))))))
+          (magit-goto-char (magit-section-start it))
+          (magit-section-update-highlight))))))
 
 (add-to-list 'with-editor-server-window-alist
              (cons git-rebase-filename-regexp 'switch-to-buffer))
-
-(defun magit-rebase-stopped-commit ()
-  (let ((file (magit-git-dir "rebase-merge/done")))
-    (when (file-exists-p file)
-      (cadr (split-string (car (last (magit-file-lines file))))))))
 
 (defun magit-rebase-interactive-assert (commit)
   (when commit
@@ -1663,43 +1698,99 @@ inspect the merge and change the commit message.
                      (magit-rev-name onto "refs/heads/*") onto))
            (name (or (magit-rev-name name "refs/heads/*") name)))
       (magit-insert-section (rebase-sequence)
-        (magit-insert-heading (format "Rebasing %s onto %s:" name onto))
+        (magit-insert-heading (format "Rebasing %s onto %s" name onto))
         (if interactive
-            (magit-insert-rebase-merge-sequence)
-          (magit-insert-rebase-apply-sequence))
-        (dolist (hash (magit-git-lines "log" "--format=%H"
-                                       (concat onto "..HEAD")))
-          (magit-insert-section (commit hash)
-            (insert "done " (magit-format-rev-summary hash) ?\n)))
-        (magit-insert-section (commit onto)
-          (insert "onto " (magit-format-rev-summary onto) ?\n))
+            (magit-rebase-insert-merge-sequence)
+          (magit-rebase-insert-apply-sequence))
+        (magit-sequence-insert-sequence
+         (magit-file-line
+          (magit-git-dir
+           (concat dir (if interactive "stopped-sha" "original-commit"))))
+         onto (--map (substring it 5 45)
+                     (magit-file-lines (magit-git-dir "rebase-merge/done"))))
         (insert ?\n)))))
 
-(defun magit-insert-rebase-merge-sequence ()
+(defun magit-rebase-insert-merge-sequence ()
   (dolist (line (nreverse
                  (magit-file-lines
                   (magit-git-dir "rebase-merge/git-rebase-todo"))))
-    (when (string-match "^\\([^# ]+\\) \\([^ ]+\\) \\(.*\\)$" line)
-      (magit-bind-match-strings (cmd hash msg) line
-        (magit-insert-section (commit hash)
-          (insert cmd " " (magit-format-rev-summary hash) ?\n)))))
-  (-when-let (stop (magit-rebase-stopped-commit))
-    (magit-insert-section (commit stop)
-      (insert "stop " (magit-format-rev-summary stop) ?\n))))
+    (when (string-match "^\\([^# ]+\\) \\([^ ]+\\) .*$" line)
+      (magit-bind-match-strings (action hash) line
+        (magit-sequence-insert-commit action hash 'magit-sequence-pick)))))
 
-(defun magit-insert-rebase-apply-sequence ()
-  (let* ((files (nreverse (directory-files (magit-git-dir "rebase-apply")
-                                           t "^[0-9]\\{4\\}$")))
-         (stop (car (last files))))
-    (dolist (file files)
-      (let (hash)
-        (with-temp-buffer
-          (insert-file-contents file)
-          (re-search-forward "^From \\([^ ]+\\)")
-          (setq hash (match-string 1)))
-        (magit-insert-section (commit hash)
-          (insert (if (eq file stop) "stop " "pick ")
-                  (magit-format-rev-summary hash) ?\n))))))
+(defun magit-rebase-insert-apply-sequence ()
+  (dolist (patch (nreverse (cdr (magit-rebase-patches))))
+    (magit-sequence-insert-commit
+     "pick" (cadr (split-string (magit-file-line patch))) 'magit-sequence-pick)))
+
+(defun magit-rebase-patches ()
+  (directory-files (magit-git-dir "rebase-apply") t "^[0-9]\\{4\\}$"))
+
+(defun magit-sequence-insert-sequence (stop onto &optional orig)
+  (setq  onto (magit-rev-parse onto))
+  (let ((head (magit-rev-parse "HEAD"))
+        (done (magit-git-lines "log" "--format=%H" (concat onto "..HEAD"))))
+    (when (and stop (not (member stop done)))
+      (let ((id (magit-patch-id stop)))
+        (--if-let (--first (equal (magit-patch-id it) id) done)
+            (setq stop it)
+          (cond
+           ((--first (magit-rev-equal it stop) done)
+            ;; The commit's testament has been executed.
+            (magit-sequence-insert-commit "void" stop 'magit-sequence-drop))
+           ;; The faith of the commit is still undecided...
+           ((magit-anything-unmerged-p)
+            ;; ...and time travel isn't for the faint of heart.
+            (magit-sequence-insert-commit "join" stop 'magit-sequence-part))
+           ((magit-anything-modified-p)
+            ;; ...and the dust hasn't settled yet...
+            (magit-sequence-insert-commit
+             (let ((staged   (magit-commit-tree "oO" "HEAD"))
+                   (unstaged (magit-commit-worktree "oO")))
+               (cond
+                ;; ...but we could end up at the same tree just by committing.
+                ((or (magit-rev-equal staged   stop)
+                     (magit-rev-equal unstaged stop)) "goal")
+                ;; ...but the changes are still there, untainted.
+                ((or (equal (magit-patch-id staged)   id)
+                     (equal (magit-patch-id unstaged) id)) "same")
+                ;; ...and some changes are gone and/or others were added.
+                (t "work")))
+             stop 'magit-sequence-part))
+           ;; The commit is definitely gone...
+           ((--first (magit-rev-equal it stop) done)
+            ;; ...but all of its changes are still in effect.
+            (magit-sequence-insert-commit "poof" stop 'magit-sequence-drop))
+           (t
+            ;; ...and some changes are gone and/or other changes were added.
+            (magit-sequence-insert-commit "gone" stop 'magit-sequence-drop)))
+          (setq stop nil))))
+    (dolist (rev done)
+      (apply 'magit-sequence-insert-commit
+             (cond ((equal rev stop)
+                    ;; ...but its reincarnation lives on.
+                    ;; Or it didn't die in the first place.
+                    (list (if (and (equal rev head)
+                                   (equal (magit-patch-id (concat stop "^"))
+                                          (magit-patch-id (car (last orig 2)))))
+                              "stop" ; We haven't done anything yet.
+                            "same")  ; There are new commits.
+                          rev (if (equal rev head)
+                                  'magit-sequence-head
+                                'magit-sequence-stop)))
+                   ((equal rev head)
+                    (list "done" rev 'magit-sequence-head))
+                   (t
+                    (list "done" rev 'magit-sequence-done)))))
+    (magit-sequence-insert-commit "onto" onto
+                                (if (equal onto head)
+                                    'magit-sequence-head
+                                  'magit-sequence-onto))))
+
+(defun magit-sequence-insert-commit (type hash face)
+  (magit-insert-section (commit hash)
+    (insert (propertize type 'face face)    ?\s
+            (magit-format-rev-summary hash) ?\n)))
 
 ;;;; Pick & Revert
 
@@ -1814,22 +1905,27 @@ inspect the merge and change the commit message.
                        (magit-file-line (magit-git-dir "sequencer/todo")))))
 
 (defun magit-insert-sequencer-sequence ()
-  (-when-let
-      (heading (or (and (magit-cherry-pick-in-progress-p) "Cherry Picking:")
-                   (and (magit-revert-in-progress-p)      "Reverting:")))
-    (magit-insert-section (sequence)
-      (magit-insert-heading heading)
-      (let* ((lines (nreverse
-                     (magit-file-lines (magit-git-dir "sequencer/todo"))))
-             (stop (car (last lines))))
-        (dolist (line lines)
-          (when (string-match "^pick \\([^ ]+\\) \\(.*\\)$" line)
-            (magit-bind-match-strings (hash msg) line
-              (magit-insert-section (commit hash)
-                (insert (if (eq line stop) "stop " "pick ")
-                        (propertize hash 'face 'magit-hash))
-                (insert " " msg "\n"))))))
-      (insert "\n"))))
+  (let ((picking (magit-cherry-pick-in-progress-p)))
+    (when (or picking (magit-revert-in-progress-p))
+      (magit-insert-section (sequence)
+        (magit-insert-heading (if picking "Cherry Picking" "Reverting"))
+        (let* ((lines (nreverse
+                       (magit-file-lines (magit-git-dir "sequencer/todo"))))
+               (stop (car (last lines))))
+          (dolist (line (butlast lines))
+            (when (string-match
+                   "^\\(pick\\|revert\\) \\([^ ]+\\) \\(.*\\)$" line)
+              (magit-bind-match-strings (cmd hash msg) line
+                (magit-insert-section (commit hash)
+                  (insert (propertize cmd 'face 'magit-sequence-pick)
+                          " " (propertize hash 'face 'magit-hash)
+                          " " msg "\n"))))))
+        (magit-sequence-insert-sequence
+         (magit-file-line (magit-git-dir (if picking
+                                             "CHERRY_PICK_HEAD"
+                                           "REVERT_HEAD")))
+         (magit-file-line (magit-git-dir "sequencer/head")))
+        (insert "\n")))))
 
 ;;;; Patch
 
@@ -1899,12 +1995,27 @@ inspect the merge and change the commit message.
   (file-exists-p (magit-git-dir "rebase-apply/applying")))
 
 (defun magit-insert-am-sequence ()
-  (when (file-exists-p (magit-git-dir "rebase-apply/applying"))
-    (let (msg file hash)
-      (magit-insert-section (sequence)
-        (magit-insert-heading "Applying patches:")
-        (magit-insert-rebase-apply-sequence)
-        (insert ?\n)))))
+  (when (magit-am-in-progress-p)
+    (magit-insert-section (rebase-sequence)
+      (magit-insert-heading "Applying patches")
+      (let* ((patches (magit-rebase-patches))
+             (stop (magit-file-line (car patches))))
+        (if (string-match "^From \\([^ ]\\{40\\}\\)" stop)
+            (progn (setq stop (match-string 1 stop))
+                   (magit-rebase-insert-apply-sequence)
+                   (magit-sequence-insert-sequence stop "ORIG_HEAD"))
+          (setq  patches (nreverse patches))
+          (while patches
+            (let ((patch (pop patches)))
+              (magit-insert-section (file patch)
+                (insert (if patches
+                            (propertize "pick" 'face 'magit-sequence-pick)
+                          (propertize "stop" 'face 'magit-sequence-stop))
+                        ?\s (propertize (file-name-nondirectory patch)
+                                        'face 'magit-hash)
+                        ?\n))))
+          (magit-sequence-insert-sequence nil "ORIG_HEAD")))
+      (insert ?\n))))
 
 ;;;; Reset
 
