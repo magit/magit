@@ -99,14 +99,6 @@ belong to processes that are still running are never removed."
   :group 'magit-process
   :type '(repeat (regexp)))
 
-(defcustom magit-success-executable "true"
-  "The executable which always succeeds.
-An executable, such as \"true\", which does
-nothing but return with a zero exit status."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-process
-  :type 'string)
-
 (defface magit-process-ok
   '((t :inherit magit-section-heading :foreground "green"))
   "Face for zero exit-status."

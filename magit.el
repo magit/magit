@@ -1545,7 +1545,7 @@ inspect the merge and change the commit message.
   (interactive (list (magit-get-tracked-branch) magit-current-popup-args))
   (if (setq commit (magit-rebase-interactive-assert commit))
       (let ((process-environment process-environment))
-        (setenv "GIT_SEQUENCE_EDITOR" magit-success-executable)
+        (setenv "GIT_SEQUENCE_EDITOR" "true")
         (magit-rebase-async "-i" commit "--autosquash" "--autostash" args))
     (magit-log-select
       `(lambda (commit)
