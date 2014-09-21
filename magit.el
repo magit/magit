@@ -2240,7 +2240,7 @@ defaulting to the tag at point.
 
 (defun magit-notes-edit (commit &optional ref)
   (interactive (magit-notes-read-args "Edit notes"))
-  (magit-server-visit-args t)
+  (magit-server-visit-args)
   (magit-run-git-with-editor "notes" (and ref (concat "--ref=" ref))
                              "edit" commit))
 
