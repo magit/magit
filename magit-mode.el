@@ -442,8 +442,7 @@ tracked in the current repository."
                      'magit-status-mode)
           (with-current-buffer it
             (magit-refresh-buffer)))))
-    (when magit-auto-revert-mode
-      (magit-revert-buffers))))
+    (magit-revert-buffers)))
 
 (defun magit-refresh-all ()
   "Refresh all buffers belonging to the current repository.
@@ -454,7 +453,7 @@ tracked in the current repository."
   (interactive)
   (dolist (buffer (magit-mode-get-buffers))
     (with-current-buffer buffer (magit-refresh-buffer)))
-  (magit-revert-buffers))
+  (magit-revert-buffers t))
 
 (defvar magit-refresh-buffer-hook nil)
 
@@ -481,24 +480,27 @@ tracked in the current repository."
               (set-window-point  win pnt)))))
       (magit-section-update-highlight))))
 
-(defun magit-revert-buffers ()
-  (-when-let (topdir (magit-get-top-dir))
-    (let ((gitdir  (magit-git-dir))
-          (tracked (magit-revision-files "HEAD")))
-      (dolist (buf (buffer-list))
-        (with-current-buffer buf
-          (let ((file (buffer-file-name)))
-            (when (and file (string-prefix-p topdir file)
-                       (not (string-prefix-p gitdir file))
-                       (member (file-relative-name file topdir) tracked)
-                       (file-readable-p file)
-                       (not (verify-visited-file-modtime buf)))
-              (let ((buffer-read-only buffer-read-only)
-                    (blaming magit-blame-mode))
-                (when blaming (magit-blame-mode -1))
-                (revert-buffer 'ignore-auto 'dont-ask 'preserve-modes)
-                (when blaming (magit-blame-mode 1)))
-              (vc-find-file-hook))))))))
+(defun magit-revert-buffers (&optional force)
+  (when (or force magit-auto-revert-mode)
+    (-when-let (topdir (magit-get-top-dir))
+      (let ((gitdir  (magit-git-dir))
+            (tracked (magit-revision-files "HEAD")))
+        (dolist (buf (buffer-list))
+          (with-current-buffer buf
+            (let ((file (buffer-file-name)))
+              (when (and file (string-prefix-p topdir file)
+                         (not (string-prefix-p gitdir file))
+                         (member (file-relative-name file topdir) tracked)
+                         (file-readable-p file)
+                         (not (verify-visited-file-modtime buf)))
+                (let ((buffer-read-only buffer-read-only)
+                      (blaming magit-blame-mode))
+                  (when blaming (magit-blame-mode -1))
+                  (revert-buffer 'ignore-auto 'dont-ask 'preserve-modes)
+                  (when blaming (magit-blame-mode 1)))
+                (vc-find-file-hook)))))))))
+
+(add-hook 'git-commit-setup-hook 'magit-revert-buffers)
 
 (defvar disable-magit-save-buffers nil)
 

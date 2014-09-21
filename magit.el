@@ -1485,15 +1485,18 @@ inspect the merge and change the commit message.
               (?c "Lie about author date" "--committer-date-is-author-date")
               (?a "Autosquash" "--autosquash")
               (?A "Autostash" "--autostash"))
-  :actions  '((?r "Rebase"      magit-rebase)
-              (?o "Rebase onto" magit-rebase-onto)
-              (?e "Interactive" magit-rebase-interactive)
-              (?f "Autosquash"  magit-rebase-autosquash))
+  :actions  '((?r "Rebase"        magit-rebase)
+              (?e "Interactive"   magit-rebase-interactive)
+              (?s "Edit commit"   magit-rebase-edit-commit)
+              (?o "Rebase onto"   magit-rebase-onto)
+              (?f "Autosquash"    magit-rebase-autosquash)
+              (?w "Reword commit" magit-rebase-reword-commit))
   :sequence-actions '((?r "Continue" magit-rebase-continue)
                       (?s "Skip"     magit-rebase-skip)
                       (?e "Edit"     magit-rebase-edit)
                       (?a "Abort"    magit-rebase-abort))
-  :sequence-predicate 'magit-rebase-in-progress-p)
+  :sequence-predicate 'magit-rebase-in-progress-p
+  :max-action-columns 3)
 
 ;;;###autoload
 (defun magit-rebase (upstream &optional args)
@@ -1554,6 +1557,28 @@ inspect the merge and change the commit message.
     (magit-log-select
       `(lambda (commit)
          (magit-rebase-autosquash (concat commit "^") (list ,@args))))))
+
+;;;###autoload
+(defun magit-rebase-edit-commit (commit)
+  "Edit a single older commit using rebase."
+  (interactive (list (magit-commit-at-point)))
+  (if (setq commit (magit-rebase-interactive-assert commit))
+      (let ((process-environment process-environment))
+        (setenv "GIT_SEQUENCE_EDITOR"
+                "perl -i -p -e '++$x if not $x and s/pick/edit/'")
+        (magit-rebase-async "-i" (concat commit "^")))
+    (magit-log-select #'magit-rebase-edit-commit)))
+
+;;;###autoload
+(defun magit-rebase-reword-commit (commit)
+  "Reword a single older commit using rebase."
+  (interactive (list (magit-commit-at-point)))
+  (if (setq commit (magit-rebase-interactive-assert commit))
+      (let ((process-environment process-environment))
+        (setenv "GIT_SEQUENCE_EDITOR"
+                "perl -i -p -e '++$x if not $x and s/pick/reword/'")
+        (magit-rebase-async "-i" (concat commit "^")))
+    (magit-log-select #'magit-rebase-reword-commit)))
 
 ;;;###autoload
 (defun magit-rebase-continue ()
