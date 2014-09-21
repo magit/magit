@@ -19,6 +19,7 @@ ELS += magit-apply.el
 ELS += magit-log.el
 ELS += magit-wip.el
 ELS += magit.el
+ELS += magit-sequence.el
 ELS += magit-bisect.el
 ELS += magit-blame.el
 ELS += magit-ediff.el
