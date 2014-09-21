@@ -663,14 +663,16 @@ Return a list of two integers: (A>B B>A)."
         (point-min) (point-max) buffer-file-name t nil nil t)
        ,@body)))
 
-(defmacro magit-with-temp-index (prefix &rest body)
-  (declare (indent 1) (debug (form form body)))
-  (let ((file (cl-gensym "index")))
-    `(let ((,file (magit-git-dir (make-temp-name ,prefix))))
+(defmacro magit-with-temp-index (args read &rest body)
+  (declare (indent 2) (debug ((&optional sexp form) form body)))
+  (let ((file (or (car args) (cl-gensym "index"))))
+    `(let ((,file (or ,(cadr args)
+                      (magit-git-dir (make-temp-name "index.magit.")))))
        (unwind-protect
-           (let ((process-environment process-environment))
-             (setenv "GIT_INDEX_FILE" ,file)
-             ,@body)
+           (progn ,@(and read (list read))
+                  (let ((process-environment process-environment))
+                    (setenv "GIT_INDEX_FILE" ,file)
+                    ,@body))
          (ignore-errors (delete-file ,file))))))
 
 ;;; Completion

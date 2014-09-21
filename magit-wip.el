@@ -143,7 +143,7 @@ to the current branch and `magit-wip-ref-format'."
                                  (magit-rev-verify ref)))
                      wipref
                    (or ref "HEAD")))
-         (tree   (magit-with-temp-index "index.wip."
+         (tree   (magit-with-temp-index nil nil
                    (magit-call-git "read-tree" parent)
                    (magit-call-git "add" filename)
                    (magit-git-string "write-tree"))))
