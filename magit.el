@@ -447,9 +447,8 @@ can be used to override this."
                          'magit-branch-local
                        'magit-branch-remote))
                     " " msg "\n")))))
-            (run-hooks 'magit-status-headers-hook)))
-        ;; This belongs to no section but `magit-root-section'.
-        (insert "\n"))
+            (run-hooks 'magit-status-headers-hook)
+            (insert "\n"))))
     (insert "In the beginning there was darkness\n\n")))
 
 (defun magit-insert-status-tags-line ()
