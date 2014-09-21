@@ -675,6 +675,19 @@ Return a list of two integers: (A>B B>A)."
                     ,@body))
          (ignore-errors (delete-file ,file))))))
 
+(defun magit-commit-tree (message &rest parents)
+  (magit-git-string "commit-tree" "-m" message
+                    (--mapcat (list "-p" it) (delq nil parents))
+                    (magit-git-string "write-tree")))
+
+(defun magit-commit-worktree (message)
+  (magit-with-temp-index (file)
+      (magit-git-success "read-tree" "-m" "HEAD"
+                         (concat "--index-output=" file))
+    (magit-git-success "update-index" "--add" "--remove" "--"
+                       (magit-git-lines "diff" "--name-only" "HEAD"))
+    (magit-commit-tree message "HEAD")))
+
 ;;; Completion
 
 (defvar magit-revision-history nil)
