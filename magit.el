@@ -1801,14 +1801,17 @@ inspect the merge and change the commit message.
           magit-current-popup-args)))
 
 (defun magit-sequencer-in-progress-p ()
-  (or (magit-cherry-pick-in-progress-p)
-      (magit-revert-in-progress-p)))
+  (file-exists-p (magit-git-dir "sequencer")))
 
 (defun magit-cherry-pick-in-progress-p ()
-  (file-regular-p (magit-git-dir "CHERRY_PICK_HEAD")))
+  (and (magit-sequencer-in-progress-p)
+       (string-match-p "^pick"
+                       (magit-file-line (magit-git-dir "sequencer/todo")))))
 
 (defun magit-revert-in-progress-p ()
-  (file-regular-p (magit-git-dir "REVERT_HEAD")))
+  (and (magit-sequencer-in-progress-p)
+       (string-match-p "^revert"
+                       (magit-file-line (magit-git-dir "sequencer/todo")))))
 
 (defun magit-insert-sequencer-sequence ()
   (-when-let
