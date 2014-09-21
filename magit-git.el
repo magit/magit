@@ -379,6 +379,9 @@ string \"true\", otherwise return nil."
 (defun magit-rev-verify (rev)
   (magit-rev-parse "--verify" (concat rev "^{commit}")))
 
+(defun magit-rev-equal (a b)
+  (magit-git-success "diff" "--quiet" a b))
+
 (defun magit-rev-name (rev &optional pattern)
   (magit-git-string "name-rev" "--name-only" "--no-undefined"
                     (and pattern (concat "--refs=" pattern))
@@ -612,6 +615,13 @@ Return a list of two integers: (A>B B>A)."
   (when (> (length (magit-commit-parents commit)) 1)
     (user-error "Cannot %s a merge commit" command)))
 
+(defun magit-patch-id (rev)
+  (with-temp-buffer
+    (process-file shell-file-name nil '(t nil) nil shell-command-switch
+                  (let ((exec (shell-quote-argument magit-git-executable)))
+                    (format "%s diff-tree -u %s | %s patch-id" exec rev exec)))
+    (car (split-string (buffer-string)))))
+
 (defun magit-reflog-enable (ref)
   (let ((logfile (magit-git-dir (concat "logs/" ref))))
     (unless (file-exists-p logfile)
@@ -656,15 +666,30 @@ Return a list of two integers: (A>B B>A)."
         (point-min) (point-max) buffer-file-name t nil nil t)
        ,@body)))
 
-(defmacro magit-with-temp-index (prefix &rest body)
-  (declare (indent 1) (debug (form form body)))
-  (let ((file (cl-gensym "index")))
-    `(let ((,file (magit-git-dir (make-temp-name ,prefix))))
+(defmacro magit-with-temp-index (args read &rest body)
+  (declare (indent 2) (debug ((&optional sexp form) form body)))
+  (let ((file (or (car args) (cl-gensym "index"))))
+    `(let ((,file (or ,(cadr args)
+                      (magit-git-dir (make-temp-name "index.magit.")))))
        (unwind-protect
-           (let ((process-environment process-environment))
-             (setenv "GIT_INDEX_FILE" ,file)
-             ,@body)
+           (progn ,@(and read (list read))
+                  (let ((process-environment process-environment))
+                    (setenv "GIT_INDEX_FILE" ,file)
+                    ,@body))
          (ignore-errors (delete-file ,file))))))
+
+(defun magit-commit-tree (message &rest parents)
+  (magit-git-string "commit-tree" "-m" message
+                    (--mapcat (list "-p" it) (delq nil parents))
+                    (magit-git-string "write-tree")))
+
+(defun magit-commit-worktree (message)
+  (magit-with-temp-index (file)
+      (magit-git-success "read-tree" "-m" "HEAD"
+                         (concat "--index-output=" file))
+    (magit-git-success "update-index" "--add" "--remove" "--"
+                       (magit-git-lines "diff" "--name-only" "HEAD"))
+    (magit-commit-tree message "HEAD")))
 
 ;;; Completion
 

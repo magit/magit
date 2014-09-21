@@ -692,10 +692,13 @@ in the popup."
                             (funcall formatter type ev))
                           (or spec (magit-popup-get
                                     (button-type-get type 'property)))))
-         (maxcols (button-type-get type 'maxcols)))
-    (cl-typecase maxcols
-      (keyword (setq maxcols (magit-popup-get maxcols)))
-      (symbol  (setq maxcols (symbol-value maxcols))))
+         (maxcols (button-type-get type 'maxcols))
+         (pred (magit-popup-get :sequence-predicate)))
+    (if (and pred (funcall pred))
+        (setq maxcols nil)
+      (cl-typecase maxcols
+        (keyword (setq maxcols (magit-popup-get maxcols)))
+        (symbol  (setq maxcols (symbol-value maxcols)))))
     (when buttons
       (insert (propertize heading 'face 'magit-popup-header))
       (unless (string-match "\n$" heading)
