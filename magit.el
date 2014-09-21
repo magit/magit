@@ -1084,26 +1084,30 @@ depending on the value of option `magit-commit-squash-confirm'.
     (user-error "Nothing staged"))))
 
 (defun magit-commit-async (diff-fn &rest args)
-  (magit-server-visit-args t args)
   (when (and diff-fn (magit-diff-auto-show-p 'commit))
-    (let ((magit-inhibit-save-previous-winconf t))
-      (funcall diff-fn)))
+    (let ((winconf (current-window-configuration))
+          (magit-inhibit-save-previous-winconf t))
+      (funcall diff-fn)
+      (setq with-editor-previous-winconf winconf)))
   (apply #'magit-run-git-with-editor "commit" args))
 
-(defun magit-server-visit ()
-  (when (or (string-match-p git-commit-filename-regexp buffer-file-name)
-            (string-match-p git-rebase-filename-regexp buffer-file-name))
-    (let ((topdir   (nth 0 magit-server-visit-args))
-          (otherwin (nth 1 magit-server-visit-args))
-          (winconf  (nth 2 magit-server-visit-args))
-          (args     (nth 3 magit-server-visit-args)))
-      (setq-local server-window (if otherwin 'pop-to-buffer 'switch-to-buffer))
-      (when (equal (magit-get-top-dir) topdir)
-        (setq with-editor-previous-winconf winconf)
-        (setq magit-refresh-args args)))))
+(defun magit-commit-switch-to-buffer (buffer)
+  (let* ((other-buffer (if (derived-mode-p 'magit-diff-mode)
+                           (current-buffer)
+                         (other-buffer (current-buffer) t)))
+         (winconf (with-current-buffer other-buffer
+                    (and (derived-mode-p 'magit-diff-mode)
+                         with-editor-previous-winconf))))
+    (if winconf
+        (progn (with-current-buffer other-buffer
+                 (kill-local-variable 'with-editor-previous-winconf))
+               (pop-to-buffer buffer)
+               (setq with-editor-previous-winconf winconf))
+      (switch-to-buffer buffer))))
 
-(add-hook 'server-visit-hook 'magit-server-visit t)
-(add-hook 'with-editor-filter-visit-hook 'magit-server-visit t)
+(add-to-list 'with-editor-server-window-alist
+             (cons git-commit-filename-regexp
+                   'magit-commit-switch-to-buffer))
 
 (defun magit-read-file-trace (ignored)
   (let ((file  (magit-read-file-from-rev "HEAD" "File"))
@@ -1586,7 +1590,6 @@ inspect the merge and change the commit message.
     (user-error "No rebase in progress")))
 
 (defun magit-rebase-async (&rest args)
-  (magit-server-visit-args)
   (apply #'magit-run-git-sequencer "rebase" args)
   (set-process-sentinel magit-this-process #'magit-rebase-process-sentinel))
 
@@ -1602,6 +1605,9 @@ inspect the merge and change the commit message.
                        (rebase-sequence)
                        (status)))
           (magit-goto-char (magit-section-start it)))))))
+
+(add-to-list 'with-editor-server-window-alist
+             (cons git-rebase-filename-regexp 'switch-to-buffer))
 
 (defun magit-rebase-stopped-commit ()
   (let ((file (magit-git-dir "rebase-merge/done")))
@@ -2239,7 +2245,6 @@ defaulting to the tag at point.
 
 (defun magit-notes-edit (commit &optional ref)
   (interactive (magit-notes-read-args "Edit notes"))
-  (magit-server-visit-args)
   (magit-run-git-with-editor "notes" (and ref (concat "--ref=" ref))
                              "edit" commit))
 

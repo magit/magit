@@ -336,14 +336,7 @@ tracked in the current repository are reverted if
     (let ((magit-process-popup-time -1))
       (magit-run-git-async args))))
 
-(defvar magit-server-visit-args nil)
-(defun  magit-server-visit-args (&optional other-window args)
-  (setq magit-server-visit-args
-        (list (magit-get-top-dir) other-window
-              (current-window-configuration) args)))
-
-(defun magit-run-git-sequencer (&rest args)
-  (magit-run-git-with-editor args))
+(defalias 'magit-run-git-sequencer 'magit-run-git-with-editor)
 
 ;;; Process Internals
 

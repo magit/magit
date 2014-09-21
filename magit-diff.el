@@ -358,13 +358,9 @@ a commit read from the minibuffer."
   (interactive)
   (let* ((toplevel (magit-get-top-dir))
          (diff-buf (magit-mode-get-buffer magit-diff-buffer-name-format
-                                          'magit-diff-mode toplevel))
-         (commit-buf (magit-commit-log-buffer)))
-    (if commit-buf
-        (if (and (or ;; certainly an explicit amend
-                     (with-current-buffer commit-buf
-                       (member "--amend" magit-refresh-args))
-                     ;; most likely an explicit amend
+                                          'magit-diff-mode toplevel)))
+    (if (magit-commit-log-buffer)
+        (if (and (or ;; most likely an explicit amend
                      (not (magit-anything-staged-p))
                      ;; explicitly toggled from within diff
                      (and (eq (current-buffer) diff-buf)))
