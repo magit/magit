@@ -502,10 +502,12 @@ can be used to override this."
         (magit-insert-section (file file t)
           (insert (directory-file-name file) "/\n")
           (magit-insert-heading)
-          (magit-insert-untracked-files-1
-           (--map (substring it 3)
-                  (magit-git-lines "status" "--porcelain"
-                                   "-unormal" "--" file))))
+          (let ((files (--map (substring it 3)
+                              (magit-git-lines "status" "--porcelain"
+                                               "-unormal" "--" file))))
+            (if (equal (car files) file)
+                (insert "(cannot expand because of Git bug)\n")
+              (magit-insert-untracked-files-1 files))))
       (magit-insert-section (file file)
         (insert file "\n")))))
 
