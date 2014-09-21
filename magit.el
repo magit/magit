@@ -1862,7 +1862,7 @@ inspect the merge and change the commit message.
      (list (if (or current-prefix-arg (not selection))
                (list (read-file-name "Apply patch(es): "
                                      nil (car (last selection))))
-             (nreverse (mapcar 'magit-section-value selection)))
+             (mapcar 'magit-section-value selection))
            magit-current-popup-args)))
   (magit-run-git-sequencer "am" args "--" (mapcar 'expand-file-name files)))
 
