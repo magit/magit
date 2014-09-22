@@ -945,14 +945,14 @@ With a prefix argument amend to the commit at HEAD instead.
                    (list (cons "--amend" magit-current-popup-args))
                  (list magit-current-popup-args)))
   (when (setq args (magit-commit-assert args))
-    (magit-commit-async 'magit-diff-staged args)))
+    (magit-run-git-with-editor "commit" args)))
 
 ;;;###autoload
 (defun magit-commit-amend (&optional args)
   "Amend the last commit.
 \n(git commit --amend ARGS)"
   (interactive (list magit-current-popup-args))
-  (magit-commit-async 'magit-diff-while-amending "--amend" args))
+  (magit-run-git-with-editor "commit" "--amend" args))
 
 ;;;###autoload
 (defun magit-commit-extend (&optional args override-date)
@@ -969,7 +969,7 @@ used to inverse the meaning of the prefix argument.
     (let ((process-environment process-environment))
       (unless override-date
         (setenv "GIT_COMMITTER_DATE" (magit-rev-format "%cd")))
-      (magit-commit-async nil "--amend" "--no-edit" args))))
+      (magit-run-git-with-editor "commit" "--amend" "--no-edit" args))))
 
 ;;;###autoload
 (defun magit-commit-reword (&optional args override-date)
@@ -989,8 +989,7 @@ and ignore the option.
   (let ((process-environment process-environment))
     (unless override-date
       (setenv "GIT_COMMITTER_DATE" (magit-rev-format "%cd")))
-    (magit-commit-async 'magit-diff-while-amending
-                        "--amend" "--only" args)))
+    (magit-run-git-with-editor "commit" "--amend" "--only" args)))
 
 ;;;###autoload
 (defun magit-commit-fixup (&optional commit args confirm)
@@ -1046,8 +1045,8 @@ depending on the value of option `magit-commit-squash-confirm'.
   (when (setq args (magit-commit-assert args t))
     (if (and commit (not confirm))
         (let ((magit-diff-auto-show nil))
-          (magit-commit-async 'magit-diff-staged "--no-edit"
-                              (concat option "=" commit) args)
+          (magit-run-git-with-editor "commit" "--no-edit"
+                                     (concat option "=" commit) args)
           commit)
       (magit-log-select
         `(lambda (commit) (,fn commit (list ,@args))))
@@ -1068,7 +1067,7 @@ depending on the value of option `magit-commit-squash-confirm'.
     (or args (list "--")))
    ((and (magit-rebase-in-progress-p)
          (y-or-n-p "Nothing staged.  Continue in-progress rebase? "))
-    (magit-commit-async nil "--continue")
+    (magit-run-git-with-editor "commit" "--continue")
     nil)
    ((and (file-exists-p (magit-git-dir "MERGE_MSG"))
          (not (magit-anything-unstaged-p)))
@@ -1085,31 +1084,22 @@ depending on the value of option `magit-commit-squash-confirm'.
    (t
     (user-error "Nothing staged"))))
 
-(defun magit-commit-async (diff-fn &rest args)
-  (when (and diff-fn (magit-diff-auto-show-p 'commit))
-    (let ((winconf (current-window-configuration))
-          (magit-inhibit-save-previous-winconf t))
-      (funcall diff-fn)
-      (setq with-editor-previous-winconf winconf)))
-  (apply #'magit-run-git-with-editor "commit" args))
+(defun magit-commit-diff ()
+  (--when-let (and git-commit-mode
+                   (magit-diff-auto-show-p 'commit)
+                   (pcase last-command
+                     (`magit-commit        'magit-diff-staged)
+                     (`magit-commit-amend  'magit-diff-while-amending)
+                     (`magit-commit-reword 'magit-diff-while-amending)))
+    (setq with-editor-previous-winconf (current-window-configuration))
+    (let ((magit-inhibit-save-previous-winconf 'unset)
+          (magit-diff-switch-buffer-function 'display-buffer))
+      (funcall it))))
 
-(defun magit-commit-switch-to-buffer (buffer)
-  (let* ((other-buffer (if (derived-mode-p 'magit-diff-mode)
-                           (current-buffer)
-                         (other-buffer (current-buffer) t)))
-         (winconf (with-current-buffer other-buffer
-                    (and (derived-mode-p 'magit-diff-mode)
-                         with-editor-previous-winconf))))
-    (if winconf
-        (progn (with-current-buffer other-buffer
-                 (kill-local-variable 'with-editor-previous-winconf))
-               (pop-to-buffer buffer)
-               (setq with-editor-previous-winconf winconf))
-      (switch-to-buffer buffer))))
+(add-hook 'server-switch-hook 'magit-commit-diff)
 
 (add-to-list 'with-editor-server-window-alist
-             (cons git-commit-filename-regexp
-                   'magit-commit-switch-to-buffer))
+             (cons git-commit-filename-regexp 'switch-to-buffer))
 
 (defun magit-read-file-trace (ignored)
   (let ((file  (magit-read-file-from-rev "HEAD" "File"))

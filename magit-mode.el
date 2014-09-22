@@ -354,10 +354,12 @@ Magit mode."
   (let ((section (magit-current-section)))
     (with-current-buffer (get-buffer-create buffer)
       (setq magit-previous-section section)
-      (unless (or (get-buffer-window buffer (selected-frame))
-                  magit-inhibit-save-previous-winconf)
-        (setq magit-previous-window-configuration
-              (current-window-configuration)))))
+      (if magit-inhibit-save-previous-winconf
+          (when (eq magit-inhibit-save-previous-winconf 'unset)
+            (setq magit-previous-window-configuration nil))
+        (unless (get-buffer-window buffer (selected-frame))
+          (setq magit-previous-window-configuration
+                (current-window-configuration))))))
   (funcall (or switch-function
                (if (derived-mode-p 'magit-mode)
                    'switch-to-buffer
