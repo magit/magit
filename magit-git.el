@@ -281,23 +281,30 @@ If the file is not inside a Git repository then return nil."
 (defun magit-file-tracked-p (file)
   (magit-git-success "ls-files" "--error-unmatch" file))
 
+(defun magit-list-files (&rest args)
+  (magit-decode-git-paths
+   (apply #'magit-git-lines "ls-files" "--full-name" args)))
+
 (defun magit-tracked-files ()
-  (magit-git-lines "ls-files" "--full-name"))
+  (magit-list-files "--cached"))
 
 (defun magit-untracked-files ()
-  (magit-git-lines "ls-files" "--full-name" "--other" "--exclude-standard"))
+  (magit-list-files "--other" "--exclude-standard"))
 
 (defun magit-modified-files ()
-  (magit-git-lines "diff-files" "--name-only"))
+  (magit-list-files "--modified"))
 
 (defun magit-staged-files ()
-  (magit-git-lines "diff-index" "--name-only" (magit-headish)))
+  (magit-decode-git-paths
+   (magit-git-lines "diff-index" "--name-only" (magit-headish))))
 
 (defun magit-unmerged-files ()
-  (magit-git-lines "diff-files" "--name-only" "--diff-filter=U"))
+  (magit-decode-git-paths
+   (magit-git-lines "diff-files" "--name-only" "--diff-filter=U")))
 
 (defun magit-revision-files (rev)
-  (magit-git-lines "ls-tree" "-r" "--name-only" rev))
+  (magit-decode-git-paths
+   (magit-git-lines "ls-tree" "-r" "--name-only" rev)))
 
 (defun magit-file-status (&optional file status)
   (if file
@@ -305,7 +312,9 @@ If the file is not inside a Git repository then return nil."
                         (string-match-p (format " -> %s$" (regexp-quote file))
                                         (car it)))
                     (or status (magit-file-status))))
-    (--map (list (substring it 3) (aref it 0) (aref it 1))
+    (--map (list (magit-decode-git-path (substring it 3))
+                 (aref it 0)
+                 (aref it 1))
            (magit-git-lines "status" "--porcelain" "-u" "--ignored"))))
 
 (defun magit-expand-git-file-name (filename)
@@ -320,6 +329,9 @@ If the file is not inside a Git repository then return nil."
   (if (eq (aref path 0) ?\")
       (string-as-multibyte (read path))
     path))
+
+(defun magit-decode-git-paths (paths)
+  (mapcar #'magit-decode-git-path paths))
 
 (defun magit-file-at-point ()
   (magit-section-case
@@ -687,8 +699,8 @@ Return a list of two integers: (A>B B>A)."
   (magit-with-temp-index (file)
       (magit-git-success "read-tree" "-m" "HEAD"
                          (concat "--index-output=" file))
-    (magit-git-success "update-index" "--add" "--remove" "--"
-                       (magit-git-lines "diff" "--name-only" "HEAD"))
+    (magit-git-success "update-index" "--add" "--remove"
+                       "--" (magit-modified-files))
     (magit-commit-tree message "HEAD")))
 
 ;;; Completion
@@ -742,7 +754,7 @@ Return a list of two integers: (A>B B>A)."
         (user-error "Nothing selected"))))
 
 (defun magit-read-tag (prompt &optional require-match)
-  (magit-completing-read prompt (magit-git-lines "tag") nil
+  (magit-completing-read prompt (magit-list-tags) nil
                          require-match nil 'magit-revision-history
                          (magit-tag-at-point)))
 

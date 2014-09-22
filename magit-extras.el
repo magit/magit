@@ -142,7 +142,7 @@ With a prefix argument only ignore locally."
                   (-when-let (ext (file-name-extension it))
                     (list (concat "/" (file-name-directory "foo") "*." ext)
                           (concat "*." ext))))
-            (magit-git-lines "ls-files" "--exclude-standard" "--other")))))
+            (magit-untracked-files)))))
     (when default
       (setq default (concat "/" default))
       (unless (member default choices)
