@@ -31,61 +31,6 @@
   "Additional functionality for Magit."
   :group 'magit-extensions)
 
-;;; Commit Mark
-
-;; Add this to your init.el file:
-;;   (define-key magit-mode-map "." 'magit-mark-commit)
-;;   (define-key magit-mode-map "=" 'magit-diff-with-mark)
-;;   (add-hook 'magit-mode-refresh-buffer-hook
-;;             'magit-refresh-marked-commit)
-
-(defface magit-marked-commit '((t :inherit highlight))
-  "Face for marked commit."
-  :group 'magit-extras)
-
-(defvar magit-marked-commit nil)
-
-(defvar-local magit-marked-commit-overlay nil)
-(put 'magit-marked-commit-overlay 'permanent-local t)
-
-(defun magit-mark-commit (&optional unmark)
-  "Mark the commit at point."
-  (interactive "P")
-  (if unmark
-      (setq magit-marked-commit nil)
-    (magit-section-when commit
-      (let ((value (magit-section-value it)))
-        (setq magit-marked-commit
-              (if (equal magit-marked-commit value) nil value)))))
-  (mapc #'magit-refresh-marked-commit (magit-mode-get-buffers))
-  (run-hooks 'magit-mark-commit-hook))
-
-(defun magit-refresh-marked-commit ()
-  (unless magit-marked-commit-overlay
-    (setq magit-marked-commit-overlay (make-overlay 1 1))
-    (overlay-put magit-marked-commit-overlay 'face 'magit-marked-commit))
-  (delete-overlay magit-marked-commit-overlay)
-  (magit-map-sections
-   (lambda (section)
-     (when (and (eq (magit-section-type section) 'commit)
-                (equal (magit-section-value section)
-                       magit-marked-commit))
-       (move-overlay magit-marked-commit-overlay
-                     (magit-section-start section)
-                     (magit-section-end section)
-                     (current-buffer))))
-   magit-root-section))
-
-(defun magit-diff-with-mark (range)
-  "Show changes between the marked commit and the one at point.
-If there is no commit at point, then prompt for one."
-  (interactive
-   (let ((marked (or magit-marked-commit (user-error "No commit marked"))))
-     (list (concat marked ".."
-                   (magit-read-branch-or-commit
-                    (format "Diff marked commit %s with" marked))))))
-  (magit-diff range))
-
 ;;; External Tools
 
 (defcustom magit-gitk-executable
