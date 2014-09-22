@@ -473,13 +473,6 @@ tracked in the current repository."
       (when section
         (magit-section-goto-successor section line char))
       (run-hooks 'magit-refresh-buffer-hook)
-      (let ((buf (current-buffer))
-            (pnt (point)))
-        (dolist (win (window-list-1 nil 0 t))
-          (when (assoc buf (window-prev-buffers win))
-            (with-selected-window win
-              (set-window-buffer win buf)
-              (set-window-point  win pnt)))))
       (magit-section-update-highlight))))
 
 (defun magit-revert-buffers (&optional force)
