@@ -926,7 +926,7 @@ Non-interactively DIRECTORY is always (re-)initialized."
   :max-action-columns 4
   :default-action 'magit-commit))
 
-(defun magit-commit-log-buffer ()
+(defun magit-commit-message-buffer ()
   (let ((topdir (magit-get-top-dir)))
     (--first (equal topdir (with-current-buffer it
                              (and git-commit-mode (magit-get-top-dir))))
@@ -934,7 +934,7 @@ Non-interactively DIRECTORY is always (re-)initialized."
                      (buffer-list)))))
 
 (defadvice magit-commit-popup (around pop-to-ongoing activate)
-  (--if-let (magit-commit-log-buffer) (switch-to-buffer it) ad-do-it))
+  (--if-let (magit-commit-message-buffer) (switch-to-buffer it) ad-do-it))
 
 ;;;###autoload
 (defun magit-commit (&optional args)
@@ -1131,7 +1131,7 @@ If no commit is in progress, then initiate it.  Use the function
 specified by variable `magit-commit-add-log-insert-function' to
 actually insert the entry."
   (interactive)
-  (let ((log (magit-commit-log-buffer)) buf pos)
+  (let ((log (magit-commit-message-buffer)) buf pos)
     (save-window-excursion
       (call-interactively #'magit-visit-file)
       (setq buf (current-buffer)
@@ -1140,7 +1140,7 @@ actually insert the entry."
       (unless (magit-commit-assert nil)
         (user-error "Abort"))
       (magit-commit)
-      (while (not (setq log (magit-commit-log-buffer)))
+      (while (not (setq log (magit-commit-message-buffer)))
         (sit-for 0.01)))
     (save-excursion
       (with-current-buffer buf

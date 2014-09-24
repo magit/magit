@@ -28,7 +28,7 @@
 (require 'magit-core)
 
 ;; For `magit-diff-while-committing'
-(declare-function magit-commit-log-buffer 'magit)
+(declare-function magit-commit-message-buffer 'magit)
 ;; For `magit-show-commit' and `magit-diff-diff-show-or-scroll'
 (declare-function magit-blame-chunk-get 'magit-blame)
 (declare-function magit-blame-mode 'magit-blame)
@@ -359,7 +359,7 @@ a commit read from the minibuffer."
   (let* ((toplevel (magit-get-top-dir))
          (diff-buf (magit-mode-get-buffer magit-diff-buffer-name-format
                                           'magit-diff-mode toplevel)))
-    (if (magit-commit-log-buffer)
+    (if (magit-commit-message-buffer)
         (if (and (or ;; most likely an explicit amend
                      (not (magit-anything-staged-p))
                      ;; explicitly toggled from within diff
