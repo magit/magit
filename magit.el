@@ -1223,13 +1223,13 @@ defaulting to the tag at point.
        (message "Same tags exist locally and remotely"))
      (when ltags
        (unless (if (> (length ltags) 1)
-                   (magit-confirm t "Delete %i tags from remote" ltags)
-                 (magit-confirm t (format "Delete %s from remote" (car ltags))))
+                   (magit-confirm t "Delete %i tags locally" ltags)
+                 (magit-confirm t (format "Delete %s locally" (car ltags))))
          (setq ltags nil)))
      (when rtags
        (unless (if (> (length rtags) 1)
-                   (magit-confirm t "Delete %i tags locally" rtags)
-                 (magit-confirm t (format "Delete %s locally" (car rtags))))
+                   (magit-confirm t "Delete %i tags from remote" rtags)
+                 (magit-confirm t (format "Delete %s from remote" (car rtags))))
          (setq rtags nil)))
      (list ltags rtags remote)))
   (when tags
