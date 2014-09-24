@@ -69,6 +69,8 @@
 (require 'server)
 (require 'with-editor)
 
+(eval-when-compile (require 'recentf))
+
 ;;;; Declarations
 
 (defvar flyspell-generic-check-word-predicate)
@@ -275,6 +277,9 @@ usually honor this wish and return non-nil."
 (defconst git-commit-filename-regexp "/\\(\
 \\(\\(COMMIT\\|NOTES\\|PULLREQ\\|TAG\\)_EDIT\\|MERGE_\\|\\)MSG\
 \\|BRANCH_DESCRIPTION\\)\\'")
+
+(eval-after-load 'recentf
+  '(add-to-list 'recentf-exclude git-commit-filename-regexp))
 
 (defun git-commit-setup-font-lock-in-buffer ()
   (and buffer-file-name

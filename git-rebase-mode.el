@@ -35,6 +35,8 @@
 (require 'server)
 (require 'with-editor)
 
+(eval-when-compile (require 'recentf))
+
 ;;; Options
 ;;;; Variables
 
@@ -318,6 +320,9 @@ By default, this is the same except for the \"pick\" command."
 ;;;###autoload
 (add-to-list 'auto-mode-alist
              (cons git-rebase-filename-regexp 'git-rebase-mode))
+
+(eval-after-load 'recentf
+  '(add-to-list 'recentf-exclude git-rebase-filename-regexp))
 
 (provide 'git-rebase-mode)
 ;; Local Variables:
