@@ -851,7 +851,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                    (magit-section-end hunk)
                    'diff-mode 'fine))
 
-;;; Commit Mode
+;;; Revision Mode
 
 (defvar magit-revision-mode-map
   (let ((map (make-sparse-keymap)))
