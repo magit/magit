@@ -369,7 +369,7 @@ can be used to override this."
     (setq branch (magit-get-current-branch)))
   (-if-let  (hash (magit-rev-verify "HEAD"))
       (let ((line (magit-rev-format "%h %s" "HEAD")))
-        (string-match "^\\([^ ]+\\) \\(.+\\)" line)
+        (string-match "^\\([^ ]+\\) \\(.*\\)" line)
         (magit-bind-match-strings (hash msg) line
           (magit-insert-section (branch (or branch hash))
             (magit-insert-heading
@@ -380,7 +380,7 @@ can be used to override this."
               msg "\n")
             (when (or upstream (setq upstream (magit-get-tracked-branch branch)))
               (setq line (or (magit-rev-format "%h %s" upstream) ""))
-              (string-match "^\\([^ ]+\\) \\(.+\\)" line)
+              (string-match "^\\([^ ]+\\) \\(.*\\)" line)
               (magit-bind-match-strings (hash msg) line
                 (magit-insert-section (branch upstream)
                   (magit-insert
