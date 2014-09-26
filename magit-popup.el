@@ -168,10 +168,10 @@ that without users being aware of it could lead to tears.
     map))
 
 (defvar magit-popup-internal-commands
-  '(("Set defaults"          magit-popup-set-defaults)
+  '(("Set defaults"          magit-popup-set-default-arguments)
     ("Goto previous button"  backward-button)
     ("View popup manual"     magit-popup-info)
-    ("Save defaults"         magit-popup-save-defaults)
+    ("Save defaults"         magit-popup-save-default-arguments)
     ("Goto next button"      forward-button)
     ("  Toggle help section" magit-popup-toggle-show-popup-commands)
     ("    Abort"             magit-popup-quit)
