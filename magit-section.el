@@ -662,11 +662,14 @@ at point."
         (run-hook-with-args-until-success 'magit-section-highlight-hook new)))
     (setq magit-current-section new)))
 
-(defun magit-section-highlight (section &optional end face)
-  "Highlight the SECTION using an overlay."
-  (let ((ov (make-overlay (magit-section-start section)
-                          (or end (magit-section-end section)))))
-    (overlay-put ov 'face (or face 'magit-section-highlight))
+(defun magit-section-highlight (section)
+  (magit-section-make-overlay (magit-section-start section)
+                              (magit-section-end section)
+                              'magit-section-highlight))
+
+(defun magit-section-make-overlay (start end face)
+  (let ((ov (make-overlay start end)))
+    (overlay-put ov 'face face)
     (overlay-put ov 'evaporate t)
     (push ov magit-section-highlight-overlays)))
 
