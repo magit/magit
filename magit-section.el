@@ -721,9 +721,9 @@ at point."
   (-when-let (parent (magit-section-parent section))
     (let ((siblings  (magit-section-children parent)))
       (cl-ecase direction
-        (prev (cdr (member section (reverse siblings))))
-        (next (cdr (member section siblings)))
-        (nil  (delq section siblings))))))
+        (prev  (cdr (member section (reverse siblings))))
+        (next  (cdr (member section siblings)))
+        ((nil) (remq section siblings))))))
 
 (defun magit-section-region-siblings (&optional key)
   (let ((beg (get-text-property (region-beginning) 'magit-section))
