@@ -760,16 +760,11 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
 
 (defun magit-diff-paint-hunk (section highlight)
   (when (magit-section-value section)
-    (let ((beg (magit-section-start   section))
-          (cnt (magit-section-content section))
-          (end (magit-section-end     section))
-          merging)
-      (save-restriction
-        (goto-char beg)
-        (setq merging (looking-at "@@@"))
-        (goto-char cnt)
-        (narrow-to-region cnt end)
-        (while (not (eobp))
+    (save-excursion
+      (goto-char (magit-section-start   section))
+      (let ((merging (looking-at "@@@")))
+        (goto-char (magit-section-content section))
+        (while (< (point) (magit-section-end section))
           (put-text-property
            (point) (1+ (line-end-position)) 'face
            (cond
