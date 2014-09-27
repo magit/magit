@@ -27,7 +27,7 @@
 (require 'magit-core)
 (require 'magit-diff)
 
-(defvar magit-commit-buffer-name-format)
+(defvar magit-revision-buffer-name-format)
 
 (declare-function magit-blame-chunk-get 'magit-blame)
 (declare-function magit-insert-status-headers 'magit)
@@ -730,14 +730,14 @@ alist in `magit-log-format-unicode-graph-alist'."
       (or (and section
                (eq (magit-section-type section) 'commit)
                (or (and (magit-diff-auto-show-p 'log-follow)
-                        (get-buffer-window magit-commit-buffer-name-format))
+                        (get-buffer-window magit-revision-buffer-name-format))
                    (and (magit-diff-auto-show-p 'log-oneline)
                         (derived-mode-p 'magit-log-mode)
                         (eq (car magit-refresh-args) 'oneline)))
                (magit-section-value section))
           (and magit-blame-mode
                (magit-diff-auto-show-p 'blame-follow)
-               (get-buffer-window magit-commit-buffer-name-format)
+               (get-buffer-window magit-revision-buffer-name-format)
                (magit-blame-chunk-get :hash)))
     (magit-show-commit it t)))
 
