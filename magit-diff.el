@@ -1014,10 +1014,13 @@ refine if `magit-diff-refine-hunk's value is t."
     (magit-section-case
       ((file staged unstaged)
        (when (memq 'magit-section-highlight magit-section-highlight-hook)
-         (magit-section-make-overlay (magit-section-start section)
-                                     (or (magit-section-content section)
-                                         (magit-section-end section))
-                                     'magit-section-highlight))
+         (let ((end (magit-section-end section)))
+           (magit-section-make-overlay (magit-section-start section)
+                                       (or (magit-section-content section) end)
+                                       'magit-section-highlight)
+           (magit-section-when (staged unstaged)
+             (magit-section-make-overlay (1- end) end
+                                         'magit-section-highlight))))
        (mapc #'magit-diff-highlight (magit-section-children section))
        t)
       (hunk
