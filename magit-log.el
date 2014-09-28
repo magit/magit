@@ -520,7 +520,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
           "\\(?:commit \\(?1:[0-9a-fA-F]+\\)"      ; sha1
           "\\(?: \\(?3:([^()]+)\\)\\)?\\)"         ; refs
           "\\|"
-          "\\(?2:.+\\)\\)$"))                      ; "msg"
+          "\\(?2:.*\\)\\)$"))                      ; "msg"
 
 (defconst magit-log-cherry-re
   (concat "^"
