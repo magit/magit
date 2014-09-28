@@ -250,40 +250,26 @@ Dependencies
 
 Magit requires at least GNU Emacs 24.1 and Git 1.7.2.5.
 
-If you install Magit using `package.el` then dependencies are
+If you install Magit using `install-package` then dependencies are
 automatically being taken care of.  Otherwise you have to track down
 dependencies and install them manually.
 
-* `cl-lib` is a new library in Emacs 24.3.  Like the old `cl` it
-  provides various Common Lisp forms, but differs in that symbols are
-  prefixed with `cl-`.  A forward compatibility `cl-lib` for older
-  versions of Emacs is available from the GNU Elpa repository.  You
-  can install it using `package.el` or get it [here][cl-lib].
+In Emacs 24.3 the old `cl` library was replaced with `cl-lib`.  They
+both provide various Common Lisp forms, but the new library prefixes
+symbols with `cl-`.  Magit requires the latter library, but luckily a
+forward compatibility implementation of `cl-lib` for older Emacs
+releases is available from the [GNU Elpa][gnuelpa] repository.  You
+can install it using `install-package` or get it [here][cl-lib].
 
-* `git-commit-mode` which is part of the [git-modes][git-modes]
-  repository and available as a separate package from Melpa.
+The library `dash` makes writing Emacs lisp more pleasant, and so
+Magit uses it.  It is available from Melpa, its repository can be found
+[here][dash].
 
-* `git-rebase-mode` which is part of the [git-modes][git-modes]
-  repository and available as a separate package from Melpa.
-
-### Optional Dependencies
-
-The following libraries build on third-party tools or git subcommands
-that are not installed by the Git base-package on some distributions:
-
-* `magit-stgit.el` requires [`stgit`][stgit].
-* `magit-svn.el` requires the official Git subcommand `svn`.
-* `magit-topgit.el` requires [`topgit`][topgit].
-* `magit-wip.el` requires [`git-wip`][git-wip].
-
-### Dependencies of Tests
-
-To run tests the following libraries are also required:
-
-* `ert` is a tool for automated testing.  It is part of Emacs
-  starting with version 24.1.  You can also obtain an old version from
-  the former development [repository][ert].
-
+The libraries `git-commit-mode`, `git-rebase-mode` and `with-editor`
+are developed in parallel to Magit, but because they can be used
+without Magit are located in their own [git-modes][git-modes].  While
+they don't need Magit, Magit does need them.  Each of these libraries
+is available from Melpa as a separate package by the same name.
 
 [contributing]: https://github.com/magit/magit/blob/master/CONTRIBUTING.md
 [contributors]: https://github.com/magit/magit/contributors
@@ -308,11 +294,13 @@ To run tests the following libraries are also required:
 [yann]: https://github.com/sigma
 
 [cl-lib]: http://elpa.gnu.org/packages/cl-lib.html
+[dash]: https://github.com/magnars/dash.el
 [emacs]: http://www.gnu.org/software/emacs
 [ert]: https://github.com/ohler/ert
 [git-wip]: https://github.com/bartman/git-wip
 [git]: http://git-scm.com
 [gitflow]: https://github.com/nvie/gitflow
+[gnuelpa]: https://elpa.gnu.org
 [gratipay]: https://gratipay.com/magit
 [git-modes]: https://github.com/magit/git-modes
 [marmalade]: http://marmalade-repo.org
