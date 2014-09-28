@@ -396,7 +396,8 @@ for a commit."
    (let* ((mcommit (magit-section-when mcommit))
           (atpoint (or (and magit-blame-mode (magit-blame-chunk-get :hash))
                        mcommit (magit-branch-or-commit-at-point)
-                       (magit-section-when tag))))
+                       (magit-section-when tag
+                         (concat (magit-section-value it) "^{commit}")))))
      (list (or (and (not current-prefix-arg) atpoint)
                (magit-read-branch-or-commit "Show commit" atpoint))
            nil (and mcommit (magit-section-parent-value
