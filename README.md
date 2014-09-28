@@ -20,10 +20,6 @@ Magit requires at least GNU Emacs 24.1 and Git 1.7.2.5.
 * [Getting Help](#getting-help)
 * [Contributions](#contributions)
 * [Installation](#installation)
-  * [Installing from Melpa](#installing-from-melpa)
-  * [Installing from Marmalade](#installing-from-marmalade)
-  * [Installing from Git](#installing-from-git)
-  * [Installing from Tarball](#installing-from-tarball)
 * [Dependencies](#dependencies)
 
 Getting Started
@@ -81,75 +77,29 @@ Thanks to all of you, may (the history of) the source be with you!
 Installation
 ============
 
-Beginning with version 24.1 Emacs includes a package management
-facility known as Elpa or `package.el`.  Using an Elpa package
-repository is the easiest and recommended way to install and update
-Magit and its dependencies.  Among other things using `package.el`
-is recommended because that automatically takes care of installing
-dependencies.
+You are looking at the `README.md` of the development branch.  For
+instructions on how to install the stable version of Magit see the
+respective [readme][development] instead.
 
-Magit is available from both of the two popular Elpa repositories,
-[Marmalade][marmalade] (stable releases) and [Melpa][melpa]
-(snapshots).
+First install the third-party `dash` using `install-package`.
 
-### Installing from Melpa
-
-If you have already used Melpa to install some other package then
-all you have to do is:
-
-<kbd>M-x package-install RET magit RET</kbd>
-
-This installs Magit as well as all of its dependencies and makes
-them available in the current and future Emacs sessions.
-
-If this is the first time you are using Melpa, then you have to
-configure `package.el` once.
-
-```lisp
-(require 'package)
-(add-to-list 'package-archives
-             '("melpa" . "http://melpa.milkbox.net/packages/") t)
-```
-
-Then evaluate these forms, update the package cache, and install
-Magit as above.  To update the cache use:
-
-<kbd>M-x package-refresh-contents RET</kbd>
-
-You might also want to have a look at the more detailed
-[instructions][melpa-intro] provided by the Melpa project.  Among
-other things it explains how to install only some packages from Melpa
-and others from Marmalade, and how to use `package.el` with older
-versions of Emacs.
-
-### Installing from Marmalade
-
-For the time being we recommend that you install the development
-version available from Melpa, because the latest Magit release (which
-is what you get from Marmalade) is very outdated.  If you are using
-the development version of Emacs, then you have to do so, because it
-contains an incompatible change that breaks the last Magit release.
-
-### Installing from Git
-
-If you want to contribute to Magit you should run it directly from the
-Git repository.
-
-First get the repository:
+Then get the Git-Modes and Magit repositories:
 
 ```sh
+$ cd /path/to/common/parent
+$ git clone git://github.com/magit/git-modes.git
 $ git clone git://github.com/magit/magit.git
 ```
 
-Then you should byte compile the libraries and generate the
-documentation, though that is not required:
+Then, in each of these repositories, byte compile the libraries
+and generate the documentation, though that is not required:
 
 ```sh
 $ make lisp docs
 ```
 
-Unless all dependencies are installed at `../DEPENDENCY` you have to
-tell `make` where to find them, e.g.:
+If you installed the Git-Modes repository to a different location,
+the tell `make` about it when compiling Magit:
 
 ```sh
 $ EFLAGS="-L /path/to/git-modes" make lisp docs
@@ -195,55 +145,6 @@ $ emacs -Q --batch -L . -L /path/to/DEPENCENCY -f batch-byte-compile *.el
 $ makeinfo -o magit.info magit.texi
 $ install-info --dir=dir magit.info
 ```
-
-### Installing from Tarball
-
-This is only intended for users who have been doing this sort of thing
-for years.  Installing from a tarball isn't particularly difficult but
-because we are only providing this as an alternative method we are a
-bit light on documentation, so it helps to have done this before.
-
-Also most steps have to be repeated every time you want to update.
-
-Because the latest Magit release is very outdated, please consider
-installing the development version even if tarballs are your thing.
-
-Download and unpack [magit-1.2.1.tar.gz][download]. Then build and
-install as usual:
-
-```sh
-$ wget https://github.com/downloads/magit/magit/magit-1.2.1.tar.gz
-$ tar -xf magit-1.2.1.tar.gz
-$ cd magit-1.2.1
-$ make
-$ sudo make install
-```
-
-This installs the Emacs lisp libraries, as well as the prebuilt
-documentation from the tarball.  You may alternatively build the
-documentation yourself:
-
-```sh
-$ make docs
-$ sudo make install-docs
-```
-
-By default the Emacs lisp libraries are installed in
-`/usr/local/share/emacs/site-lisp/magit/`.  Unless Emacs itself is
-also installed in `/usr/local/` you have to add that directory to the
-`load-path`.
-
-```lisp
-(add-to-list 'load-path "/usr/local/share/emacs/site-lisp/magit")
-```
-
-Then `magit` can be loaded:
-
-```lisp
-(require 'magit)
-```
-
-Add the above lines to your init file and restart Emacs.
 
 Dependencies
 ============
