@@ -295,6 +295,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
               (?i "Case insensitive patterns" "-i")
               (?P "Pickaxe regex"             "--pickaxe-regex")
               (?g "Show Graph"                "--graph")
+              (?u "Show diff (verbose only)"  "-u")
               (?s "Show stat (verbose only)"  "--stat")
               (?S "Show Signature"            "--show-signature")
               (?D "Show ref names"            "--decorate")
@@ -332,7 +333,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
     (magit-mode-setup magit-log-buffer-name-format nil
                       #'magit-log-mode
                       #'magit-log-refresh-buffer 'oneline range
-                      (delete "--stat" args))
+                      (delete "-u" (delete "--stat" args)))
     (magit-log-goto-same-commit)))
 
 ;;;###autoload
