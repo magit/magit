@@ -1382,6 +1382,7 @@ With prefix argument, changes in staging area are kept.
 (defun magit-stash-index (message &optional snapshot)
   "Create a new stash of the index only."
   (interactive (list (read-string "Stash message: ")))
+  (error "This command may EAT YOUR DATA!  Disabled until fixed")
   (magit-git-string "stash" "save" "--keep-index" (concat "(" message ")"))
   (let ((both (magit-rev-parse "refs/stash")))
     (message "Saved working directory and index state in %s" both)
