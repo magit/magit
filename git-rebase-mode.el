@@ -100,6 +100,7 @@ Because you have seen them before and can still remember."
     (define-key map (kbd "e")   'git-rebase-edit)
     (define-key map (kbd "s")   'git-rebase-squash)
     (define-key map (kbd "f")   'git-rebase-fixup)
+    (define-key map (kbd "y")   'git-rebase-insert)
     (define-key map (kbd "k")   'git-rebase-kill-line)
     (define-key map (kbd "C-k") 'git-rebase-kill-line)
     (define-key map (kbd "p")   'git-rebase-backward-line)
@@ -202,6 +203,21 @@ Because you have seen them before and can still remember."
       (insert ?#))
     (when git-rebase-auto-advance
       (forward-line))))
+
+(defun git-rebase-insert (rev)
+  "Read an arbitrary commit and insert it below current line."
+  (interactive
+   (list (if (fboundp 'magit-read-branch-or-commit)
+             (magit-read-branch-or-commit "Insert revision")
+           (read-string "Insert revision: "))))
+  (forward-line)
+  (let ((summary (if (fboundp 'magit-rev-format)
+                     (magit-rev-format "%h %s" rev)
+                   (process-lines "git" "show" "-s" "--format=%h %s" rev))))
+    (if summary
+        (let ((inhibit-read-only t))
+          (insert "pick " summary ?\n))
+      (user-error "Unknown revision"))))
 
 (defun git-rebase-exec (arg)
   "Insert a shell command to be run after the proceeding commit.
