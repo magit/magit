@@ -326,11 +326,12 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
 ;;;###autoload
 (defun magit-log (range &optional args)
   (interactive (magit-log-read-args nil nil))
-  (magit-mode-setup magit-log-buffer-name-format nil
-                    #'magit-log-mode
-                    #'magit-log-refresh-buffer 'oneline range
-                    (cl-delete "^-L" args :test 'string-match-p))
-  (magit-log-goto-same-commit))
+  (if (--any-p (string-match-p "^-L" it) args)
+      (magit-log-verbose range args)
+    (magit-mode-setup magit-log-buffer-name-format nil
+                      #'magit-log-mode
+                      #'magit-log-refresh-buffer 'oneline range args)
+    (magit-log-goto-same-commit)))
 
 ;;;###autoload
 (defun magit-log-dwim (range &optional args)
