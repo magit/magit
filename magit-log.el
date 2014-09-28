@@ -328,8 +328,8 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
 ;;;###autoload
 (defun magit-log (range &optional args)
   (interactive (magit-log-read-args nil nil))
-  (if (--any-p (string-match-p "^-L" it) args)
-      (magit-log-verbose range args)
+  (if (--any-p (string-match-p "^-[LG]" it) args)
+      (magit-log-verbose range (cons "-u" args))
     (magit-mode-setup magit-log-buffer-name-format nil
                       #'magit-log-mode
                       #'magit-log-refresh-buffer 'oneline range
