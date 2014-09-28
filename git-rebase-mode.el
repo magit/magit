@@ -211,13 +211,12 @@ Because you have seen them before and can still remember."
              (magit-read-branch-or-commit "Insert revision")
            (read-string "Insert revision: "))))
   (forward-line)
-  (let ((summary (if (fboundp 'magit-rev-format)
-                     (magit-rev-format "%h %s" rev)
-                   (process-lines "git" "show" "-s" "--format=%h %s" rev))))
-    (if summary
-        (let ((inhibit-read-only t))
-          (insert "pick " summary ?\n))
-      (user-error "Unknown revision"))))
+  (--if-let (if (fboundp 'magit-rev-format)
+                (magit-rev-format "%h %s" rev)
+              (process-lines "git" "show" "-s" "--format=%h %s" rev))
+      (let ((inhibit-read-only t))
+        (insert "pick " it ?\n))
+    (user-error "Unknown revision")))
 
 (defun git-rebase-exec (arg)
   "Insert a shell command to be run after the proceeding commit.
