@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/magit/magit.svg?branch=master)](https://travis-ci.org/magit/magit)
-[![Gittip](http://img.shields.io/gittip/magit.png)](https://www.gittip.com/magit)
+[![Gratipay](http://img.shields.io/gratipay/magit.png)](https://www.gratipay.com/magit)
 
 It's Magit!  An Emacs mode for Git
 ==================================
@@ -7,10 +7,10 @@ It's Magit!  An Emacs mode for Git
 Magit is an interface to the version control system [Git][git],
 implemented as an [Emacs][emacs] extension.
 
-Unlike Emacs' native [Version Control][vc] package which strives to
-provide a unified interface to various version control systems, Magit
-only supports Git and can therefore better take advantage of its native
-features.
+Unlike the [Version Control][vc] package which is part of Emacs and
+strives to provide a unified interface to various version control
+systems, Magit only supports Git and can therefore better take
+advantage of its native features.
 
 Magit requires at least GNU Emacs 24.1 and Git 1.7.2.5.
 
@@ -42,18 +42,17 @@ them.
 For more details consult the Magit user manual.  You can read it with
 <kbd>C-u C-h i magit.info</kbd> or [on the web][manual].
 
-We can also strongly recommend [this][mastering-intro] introduction
-from the Mastering Emacs blog.  It even describes some new features
-that are not yet documented in the manual.
+We can also recommend [this][mastering-intro] introduction from the
+Mastering Emacs blog.  It even describes some new features that are
+not yet documented in the manual.
 
 Magit also has a [website][website].
 
 Getting Help
 ============
 
-When something breaks *please* see the
-[curated list of known issues][knownissues] and the [FAQ][faq].
-If that doesn't help check the list of [all open issues][issues].
+When something breaks please see the [FAQ][faq].  If that doesn't help
+check the list of [all open issues][issues].
 
 If everything else fails please open a [new issue][issues] or ask for
 help on the [mailing list][group].
@@ -66,8 +65,8 @@ suggesting features on the [issue tracker][issues] or by making code
 contributions using [pull requests][pulls].  Before opening a pull
 request make sure to read the brief [guidelines][contributing].
 
-Please also consider supporting development using [gittip][gittip].
-Thank you!
+Please also consider supporting development using
+[gratipay][gratipay].  Thank you!
 
 Magit was started by [Marius Vollmer][marius] and is now maintained
 by [Jonas Bernoulli][jonas].  Other Magitians (former maintainers)
@@ -209,13 +208,13 @@ Also most steps have to be repeated every time you want to update.
 Because the latest Magit release is very outdated, please consider
 installing the development version even if tarballs are your thing.
 
-Download and unpack [magit-1.2.0.tar.gz][download]. Then build and
+Download and unpack [magit-1.2.1.tar.gz][download]. Then build and
 install as usual:
 
 ```sh
-$ wget https://github.com/downloads/magit/magit/magit-1.2.0.tar.gz
-$ tar -xf magit-1.2.0.tar.gz
-$ cd magit-1.2.0
+$ wget https://github.com/downloads/magit/magit/magit-1.2.1.tar.gz
+$ tar -xf magit-1.2.1.tar.gz
+$ cd magit-1.2.1
 $ make
 $ sudo make install
 ```
@@ -289,7 +288,7 @@ To run tests the following libraries are also required:
 [contributing]: https://github.com/magit/magit/blob/master/CONTRIBUTING.md
 [contributors]: https://github.com/magit/magit/contributors
 [development]: http://github.com/magit/magit
-[download]: https://github.com/downloads/magit/magit/magit-1.2.0.tar.gz
+[download]: https://github.com/downloads/magit/magit/magit-1.2.1.tar.gz
 [faq]: https://github.com/magit/magit/wiki/FAQ
 [group]: https://groups.google.com/forum/?fromgroups#!forum/magit
 [issues]: https://github.com/magit/magit/issues
@@ -314,7 +313,7 @@ To run tests the following libraries are also required:
 [git-wip]: https://github.com/bartman/git-wip
 [git]: http://git-scm.com
 [gitflow]: https://github.com/nvie/gitflow
-[gittip]: https://www.gittip.com/magit
+[gratipay]: https://gratipay.com/magit
 [git-modes]: https://github.com/magit/git-modes
 [marmalade]: http://marmalade-repo.org
 [mastering-intro]: http://www.masteringemacs.org/articles/2013/12/06/introduction-magit-emacs-mode-git
