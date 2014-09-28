@@ -399,19 +399,21 @@ can be used to override this."
     (insert "In the beginning there was darkness\n\n")))
 
 (defun magit-insert-status-tags-line ()
-  (let* ((current-tag (magit-get-current-tag t))
+  (let* ((this-tag (magit-get-current-tag t))
          (next-tag (magit-get-next-tag t))
-         (both-tags (and current-tag next-tag t)))
-    (when (or current-tag next-tag)
-      (magit-insert-section (tag (or current-tag next-tag))
+         (this-cnt (cadr this-tag))
+         (next-cnt (cadr next-tag))
+         (this-tag (car this-tag))
+         (next-tag (car next-tag))
+         (both-tags (and this-tag next-tag t)))
+    (when (or this-tag next-tag)
+      (magit-insert-section (tag (or this-tag next-tag))
         (magit-insert
          (concat
           (magit-string-pad (if both-tags "Tags: " "Tag: ") 10)
-          (and current-tag (magit-format-status-tag-sentence
-                            (car current-tag) (cadr current-tag) nil))
+          (and this-tag (magit-format-status-tag-sentence this-tag this-cnt nil))
           (and both-tags ", ")
-          (and next-tag (magit-format-status-tag-sentence
-                         (car next-tag) (cadr next-tag) t))
+          (and next-tag (magit-format-status-tag-sentence next-tag next-cnt t))
           "\n"))))))
 
 (defun magit-format-status-tag-sentence (tag count next)
