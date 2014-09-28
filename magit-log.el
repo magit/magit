@@ -27,8 +27,6 @@
 (require 'magit-core)
 (require 'magit-diff)
 
-(defvar magit-revision-buffer-name-format)
-
 (declare-function magit-blame-chunk-get 'magit-blame)
 (declare-function magit-insert-status-headers 'magit)
 (declare-function magit-show-commit 'magit)
