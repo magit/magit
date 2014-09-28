@@ -295,6 +295,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
               (?i "Case insensitive patterns" "-i")
               (?P "Pickaxe regex"             "--pickaxe-regex")
               (?g "Show Graph"                "--graph")
+              (?s "Show stat (verbose only)"  "--stat")
               (?S "Show Signature"            "--show-signature")
               (?D "Show ref names"            "--decorate")
               (?n "Name only"                 "--name-only")
@@ -319,7 +320,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
               (?b "Oneline branch" magit-log)
               (?B "Verbose branch" magit-log-verbose)
               (?R "Reflog HEAD"    magit-reflog-head))
-  :default-arguments '("--graph" "--decorate")
+  :default-arguments '("--graph" "--decorate" "--stat")
   :default-action 'magit-log-dwim
   :max-action-columns 4)
 
@@ -330,7 +331,8 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
       (magit-log-verbose range args)
     (magit-mode-setup magit-log-buffer-name-format nil
                       #'magit-log-mode
-                      #'magit-log-refresh-buffer 'oneline range args)
+                      #'magit-log-refresh-buffer 'oneline range
+                      (delete "--stat" args))
     (magit-log-goto-same-commit)))
 
 ;;;###autoload
@@ -485,7 +487,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
     (setcar it "--decorate=full"))
   (magit-git-wash (apply-partially 'magit-log-wash-log 'long)
     "log" (format "-%d" magit-log-cutoff-length)
-    "--color" "--stat" "--abbrev-commit"
+    "--color" "--abbrev-commit"
     args range "--" file))
 
 (defvar magit-commit-section-map
