@@ -84,7 +84,7 @@ confirmation before committing."
   :type '(choice (const :tag "On style errors" t)
                  (const :tag "Never" nil)))
 
-(defcustom git-commit-mode-hook '(turn-on-auto-fill flyspell-mode)
+(defcustom git-commit-mode-hook '(turn-on-auto-fill)
   "Hook run when entering Git Commit mode."
   :options '(turn-on-auto-fill flyspell-mode git-commit-save-message)
   :type 'hook
@@ -342,7 +342,10 @@ The commit message is saved to the kill ring."
   "Cycle backward through message history, after saving current message.
 With a numeric prefix ARG, go back ARG comments."
   (interactive "*p")
-  (git-commit-save-message)
+  (when (and (git-commit-save-message) (> arg 0))
+    (setq log-edit-comment-ring-index
+          (log-edit-new-comment-index
+           arg (ring-length log-edit-comment-ring))))
   (save-restriction
     (narrow-to-region (point-min) (git-commit-find-pseudo-header-position))
     (log-edit-previous-comment arg)))
@@ -616,6 +619,8 @@ basic structure of and errors in git commit messages."
                      (line-beginning-position)
                      (line-end-position)))
     (open-line 1))
+  ;; That's what happens when every little detail is commented
+  (make-local-variable 'log-edit-comment-ring-index)
   ;; Make sure `git-commit-abort' cannot be by-passed
   (add-hook 'kill-buffer-query-functions
             'git-commit-kill-buffer-noop nil t)
