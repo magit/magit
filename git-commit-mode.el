@@ -117,7 +117,8 @@ The major mode configured here is turned on by the minor mode
     git-commit-propertize-diff
     with-editor-usage-message))
 
-(defcustom git-commit-setup-hook git-commit-setup-hook-options
+(defcustom git-commit-setup-hook
+  (remq 'git-commit-turn-on-flyspell git-commit-setup-hook-options)
   "Hook run at the end of `git-commit-setup'."
   :group 'git-commit
   :type 'hook
