@@ -46,10 +46,11 @@
               (?a "Apply"              magit-stash-apply)
               (?w "Save worktree"      magit-stash-worktree)
               (?W "Snapshot worktree"  magit-snapshot-worktree)
-              (?k "Drop"               magit-stash-drop)
+              (?l "List"               magit-stash-list)
               (?x "Save keeping index" magit-stash-keep-index)
-              (?b "Branch"             magit-stash-branch)
-              (?v "View"               magit-diff-stash))
+              (?k "Drop"               magit-stash-drop)
+              (?v "Show"               magit-diff-stash)
+              (?b "Branch"             magit-stash-branch))
   :default-action 'magit-stash
   :max-action-columns 3)
 
@@ -266,6 +267,36 @@ When the region is active offer to drop all contained stashes."
       (magit-git-wash (apply-partially 'magit-log-wash-log 'stash)
         "-c" "log.date=default" ; kludge for <1.7.10.3, see #1427
         "reflog" "--format=%gd %at %gs" "refs/stash"))))
+
+;;; List Stashes
+
+(defcustom magit-stashes-buffer-name-format "*magit-stashes: %a*"
+  "Name format for buffers used to list stashes.
+
+The following `format'-like specs are supported:
+%a the absolute filename of the repository toplevel.
+%b the basename of the repository toplevel."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-modes
+  :type 'string)
+
+(defun magit-stash-list ()
+  "List all stashes in a buffer."
+  (interactive)
+  (magit-mode-setup magit-stashes-buffer-name-format nil
+                    #'magit-stashes-mode
+                    #'magit-stashes-refresh-buffer))
+
+(define-derived-mode magit-stashes-mode magit-reflog-mode "Magit Stashes"
+  "Mode for looking at lists of stashes."
+  :group 'magit)
+
+(cl-defun magit-stashes-refresh-buffer ()
+  (magit-insert-section (stashesbuf)
+    (magit-insert-heading "Stashes:")
+    (magit-git-wash (apply-partially 'magit-log-wash-log 'stash)
+      "-c" "log.date=default" ; kludge for <1.7.10.3, see #1427
+      "reflog" "--format=%gd %at %gs" "refs/stash")))
 
 ;;; magit-stash.el ends soon
 (provide 'magit-stash)
