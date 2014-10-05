@@ -27,6 +27,7 @@
 (require 'magit-core)
 (require 'magit-diff)
 
+(declare-function magit-maybe-backup 'magit-backup)
 ;; For `magit-discard-files'
 (declare-function magit-checkout-stage 'magit)
 (declare-function magit-checkout-read-stage 'magit)
@@ -34,23 +35,6 @@
 (require 'dired)
 
 ;;; Options
-
-(defcustom magit-apply-backup nil
-  "Whether to create a backup before using `git apply'.
-
-WARNING: This only creates a backup when Magit used `git apply'.
-That is not sufficient as not every action that might destroy
-uncommitted changes eventually uses that Git command.  Don't rely
-on this.  Reminder: you are using Magit's `next' branch and are
-therefor using a development version.
-
-The diff is stored in the file \".git/magit/apply.diff\" and can
-be applied in reversed using `magit-apply-undo'.  Older diffs are
-available in the same directory as numbered backup files and have
-to be applied manually."
-  :package-version '(magit . "2.1.0")
-  :group 'magit
-  :type 'boolean)
 
 (defcustom magit-delete-by-moving-to-trash t
   "Whether Magit uses the system's trash can."
@@ -65,6 +49,7 @@ to be applied manually."
   "Apply the change at point."
   (interactive)
   (--when-let (magit-current-section)
+    (magit-maybe-backup)
     (pcase (list (magit-diff-type) (magit-diff-scope))
       (`(,(or `unstaged `staged) ,_)
        (user-error "Change is already in the working tree"))
@@ -119,53 +104,11 @@ to be applied manually."
     (magit-apply-patch patch args)))
 
 (defun magit-apply-patch (patch args)
-  (when magit-apply-backup
-    (magit-apply-backup patch args))
   (with-temp-buffer
     (insert patch)
     (magit-run-git-with-input nil
       "apply" args "--ignore-space-change" "-"))
   (magit-refresh))
-
-;;;; Backup
-
-(defconst magit-apply-backup-file "magit/apply.diff")
-
-(defun magit-apply-backup (patch args)
-  (with-temp-buffer
-    (insert "git apply " (mapconcat 'identity args " ") "\n---\n" patch)
-    (let ((buffer-file-name (magit-git-dir magit-apply-backup-file))
-          (make-backup-files t)
-          (backup-directory-alist nil)
-          (version-control t)
-          (kept-old-versions 0)
-          (kept-new-versions 10))
-      (make-directory (file-name-directory buffer-file-name) t)
-      (save-buffer 16))))
-
-(defun magit-apply-undo ()
-  "Apply the previously applied diff in reverse.
-
-WARNING: Backups are only created when Magit used `git apply'.
-That is not sufficient as not every action that might destroy
-uncommitted changes eventually uses that Git command.  Don't rely
-on this.  Reminder: you are using Magit's `next' branch and are
-therefor using a development version.
-
-Also see variable `magit-apply-backup'."
-  (interactive)
-  (let ((file (magit-git-dir magit-apply-backup-file)))
-    (if (file-readable-p file)
-        (with-temp-buffer
-          (insert-file-contents file)
-          (if (looking-at "^git apply \\(.+\\)")
-              (let ((args (split-string (match-string 1))))
-                (magit-apply-patch (buffer-string)
-                                   (if (member "--reverse" args)
-                                       (remove "--reverse" args)
-                                     (cons "--reverse" args))))
-            (error "Cannot undo patch")))
-      (user-error "No backups exist"))))
 
 ;;;; Stage
 
@@ -173,6 +116,7 @@ Also see variable `magit-apply-backup'."
   "Add the change at point to the staging area."
   (interactive)
   (--when-let (magit-current-section)
+    (magit-maybe-backup)
     (pcase (list (magit-diff-type) (magit-diff-scope))
       (`(untracked     ,_) (magit-stage-untracked))
       (`(unstaged  region) (magit-apply-region it "--cached"))
@@ -182,7 +126,7 @@ Also see variable `magit-apply-backup'."
       (`(unstaged   files) (magit-run-git "add" "-u" "--"
                                           (magit-section-region-siblings
                                            #'magit-section-value)))
-      (`(unstaged    list) (magit-stage-modified))
+      (`(unstaged    list) (magit-run-git "add" "-u" "."))
       (`(staged        ,_) (user-error "Already staged"))
       (`(committed     ,_) (user-error "Cannot stage committed changes"))
       (`(undefined     ,_) (user-error "Cannot stage this change")))))
@@ -203,6 +147,7 @@ requiring confirmation."
                (magit-completing-read "Stage file" choices
                                       nil t nil nil default)
              default))))
+  (magit-maybe-backup)
   (magit-run-git "add" file))
 
 ;;;###autoload
@@ -217,6 +162,7 @@ ignored) files.
    (unless (or (not (magit-anything-staged-p))
                (magit-confirm 'stage-all "Stage all changes"))
      (user-error "Abort")))
+  (magit-maybe-backup)
   (magit-run-git "add" (if all "--all" "--update") "."))
 
 (defun magit-stage-untracked ()
@@ -241,6 +187,7 @@ ignored) files.
   "Remove the change at point from the staging area."
   (interactive)
   (--when-let (magit-current-section)
+    (magit-maybe-backup)
     (pcase (list (magit-diff-type) (magit-diff-scope))
       (`(untracked     ,_) (user-error "Cannot unstage untracked changes"))
       (`(unstaged      ,_) (user-error "Already unstaged"))
@@ -272,6 +219,7 @@ without requiring confirmation."
                (magit-completing-read "Unstage file" choices
                                       nil t nil nil default)
              default))))
+  (magit-maybe-backup)
   (magit-unstage-1 file))
 
 (defun magit-unstage-1 (args)
@@ -294,6 +242,7 @@ without requiring confirmation."
       (_               (magit-discard-apply it)))))
 
 (defun magit-discard-apply (section)
+  (magit-maybe-backup)
   (let* ((type  (magit-diff-type  section))
          (scope (magit-diff-scope section t))
          (fn    (pcase scope
@@ -339,14 +288,15 @@ without requiring confirmation."
           (`(?X ?D ,(or ?  ?M   )) (push file resurrect))
           (`(?Y ,_            ?D ) (push file resurrect))
           (`(?X ?R ,(or ?  ?M ?D)) (push section rename)))))
-    (magit-discard-files--resurrect (nreverse resurrect))
-    (magit-discard-files--delete    (nreverse delete))
-    (magit-discard-files--rename    (nreverse rename))
-    (magit-discard-files--discard   (nreverse discard))
     (when resolve
       (let ((inhibit-magit-refresh t))
         (dolist (file (nreverse resolve))
-          (magit-checkout-stage file (magit-checkout-read-stage file))))))
+          (magit-checkout-stage file (magit-checkout-read-stage file)))))
+    (magit-maybe-backup)
+    (magit-discard-files--resurrect (nreverse resurrect))
+    (magit-discard-files--delete    (nreverse delete))
+    (magit-discard-files--rename    (nreverse rename))
+    (magit-discard-files--discard   (nreverse discard)))
   (magit-refresh))
 
 (defun magit-discard-files--resurrect (files)
@@ -408,6 +358,7 @@ without requiring confirmation."
   "Reverse the change at point in the working tree."
   (interactive)
   (--when-let (magit-current-section)
+    (magit-maybe-backup)
     (pcase (list (magit-diff-type) (magit-diff-scope))
       (`(untracked ,_) (user-error "Cannot reverse untracked changes"))
       (`(unstaged  ,_) (user-error "Cannot reverse unstaged changes"))

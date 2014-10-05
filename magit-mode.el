@@ -169,6 +169,7 @@ the user has to confirm each save."
     (define-key map "y" 'magit-show-refs-popup)
     (define-key map "Y" 'magit-cherry)
     (define-key map "z" 'magit-stash-popup)
+    (define-key map "Z" 'magit-stash-popup)
     (define-key map ":" 'magit-git-command)
     (define-key map "!" 'magit-run-popup)
     (define-key map "\M-d" 'magit-ediff-compare)

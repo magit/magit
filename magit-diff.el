@@ -414,24 +414,6 @@ for a commit."
                       #'magit-revision-refresh-buffer
                       commit)))
 
-;;;###autoload
-(defun magit-diff-stash (stash &optional noselect)
-  "Show changes in the stash at point.
-If there is no stash at point or with a prefix argument prompt
-for a stash.
-
-A stash consist of more than just one commit.  This command uses
-a special diff range so that the stashed changes appear as if it
-actually were a single commit."
-  (interactive (list (or (and (not current-prefix-arg)
-                              (magit-stash-at-point))
-                         (magit-read-stash "Show stash"))))
-  (magit-mode-setup magit-diff-buffer-name-format
-                    (if noselect 'display-buffer 'pop-to-buffer)
-                    #'magit-diff-mode
-                    #'magit-diff-refresh-buffer
-                    (concat stash "^2^.." stash)))
-
 (defun magit-diff-less-context (&optional count)
   "Decrease the context for diff hunks by COUNT."
   (interactive "p")
@@ -971,7 +953,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
                           ((member "--cached" (cddr magit-refresh-args))
                            'staged)))
                'undefined))
-          ((derived-mode-p 'magit-revision-mode) 'committed)
+          ((derived-mode-p 'magit-revision-mode 'magit-stash-mode) 'committed)
           ((derived-mode-p 'magit-status-mode)
            (let ((stype (magit-section-type it)))
              (if (memq stype '(staged unstaged untracked))
@@ -994,8 +976,11 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
       (`(file nil  ,_) 'file)
       (`(file   t   t) 'file)
       (`(file   t nil) 'files)
-      (`(,(or `staged `unstaged `untracked) nil ,_) 'list)
-      (`(,(or `staged `unstaged `untracked)   t ,_)
+      (`(,(or `staged `unstaged `untracked
+              `stashed-index `stashed-worktree `stashed-untracked) nil ,_)
+       'list)
+      (`(,(or `staged `unstaged `untracked `stashed
+              `stashed-index `stashed-worktree `stashed-untracked) t ,_)
        (if (= (point) (1- (magit-section-end it)))
            (if singular 'file 'files)
          'list)))))
@@ -1008,7 +993,7 @@ refine if `magit-diff-refine-hunk's value is t."
   (save-excursion
     (goto-char (magit-section-start section))
     (magit-section-case
-      ((file staged unstaged)
+      ((file staged unstaged stashed-index stashed-worktree stashed-untracked)
        (when (memq 'magit-section-highlight magit-section-highlight-hook)
          (let ((end (magit-section-end section)))
            (magit-section-make-overlay (magit-section-start section)

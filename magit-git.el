@@ -288,15 +288,19 @@ If the file is not inside a Git repository then return nil."
 (defun magit-tracked-files ()
   (magit-list-files "--cached"))
 
-(defun magit-untracked-files ()
-  (magit-list-files "--other" "--exclude-standard"))
+(defun magit-untracked-files (&optional nomodules all)
+  (magit-list-files "--other"
+                    (unless all "--exclude-standard")
+                    (and nomodules "--ignore-submodules")))
 
-(defun magit-modified-files ()
-  (magit-list-files "--modified"))
+(defun magit-modified-files (&optional nomodules)
+  (magit-list-files "--modified" (and nomodules "--ignore-submodules")))
 
-(defun magit-staged-files ()
+(defun magit-staged-files (&optional nomodules)
   (magit-decode-git-paths
-   (magit-git-lines "diff-index" "--name-only" (magit-headish))))
+   (magit-git-lines "diff-index" "--name-only"
+                    (and nomodules "--ignore-submodules")
+                    (magit-headish))))
 
 (defun magit-unmerged-files ()
   (magit-decode-git-paths
@@ -634,11 +638,16 @@ Return a list of two integers: (A>B B>A)."
                     (format "%s diff-tree -u %s | %s patch-id" exec rev exec)))
     (car (split-string (buffer-string)))))
 
-(defun magit-reflog-enable (ref)
-  (let ((logfile (magit-git-dir (concat "logs/" ref))))
+(defun magit-reflog-enable (ref &optional stashish)
+  (let ((oldrev  (magit-rev-verify ref))
+        (logfile (magit-git-dir (concat "logs/" ref))))
     (unless (file-exists-p logfile)
+      (when oldrev
+        (magit-git-success "update-ref" "-d" ref oldrev))
       (make-directory (file-name-directory logfile) t)
-      (with-temp-file logfile))))
+      (with-temp-file logfile)
+      (when (and oldrev (not stashish))
+        (magit-git-success "update-ref" "-m" "enable reflog" ref oldrev "")))))
 
 (defun magit-rev-format (format &optional rev)
   "Return output of `git show -s --format=FORMAT [REV]'."
@@ -678,30 +687,34 @@ Return a list of two integers: (A>B B>A)."
         (point-min) (point-max) buffer-file-name t nil nil t)
        ,@body)))
 
-(defmacro magit-with-temp-index (args read &rest body)
-  (declare (indent 2) (debug ((&optional sexp form) form body)))
-  (let ((file (or (car args) (cl-gensym "index"))))
-    `(let ((,file (or ,(cadr args)
-                      (magit-git-dir (make-temp-name "index.magit.")))))
+(defmacro magit-with-temp-index (tree &rest body)
+  (declare (indent 1) (debug (form body)))
+  (let ((stree (cl-gensym "tree"))
+        (sfile (cl-gensym "file")))
+    `(let ((,stree ,tree)
+           (,sfile (magit-git-dir (make-temp-name "index.magit."))))
        (unwind-protect
-           (progn ,@(and read (list read))
-                  (let ((process-environment process-environment))
-                    (setenv "GIT_INDEX_FILE" ,file)
-                    ,@body))
-         (ignore-errors (delete-file ,file))))))
+           (let ((process-environment process-environment))
+             ,@(and tree
+                    `((or (magit-git-success "read-tree" ,stree
+                                             (concat "--index-output=" ,sfile))
+                          (error "Cannot read tree %s" ,stree))))
+             (setenv "GIT_INDEX_FILE" ,sfile)
+             ,@body)
+         (ignore-errors (delete-file ,sfile))))))
 
-(defun magit-commit-tree (message &rest parents)
+(defun magit-commit-tree (message &optional tree &rest parents)
   (magit-git-string "commit-tree" "-m" message
                     (--mapcat (list "-p" it) (delq nil parents))
-                    (magit-git-string "write-tree")))
+                    (or tree (magit-git-string "write-tree"))))
 
-(defun magit-commit-worktree (message)
-  (magit-with-temp-index (file)
-      (magit-git-success "read-tree" "-m" "HEAD"
-                         (concat "--index-output=" file))
-    (magit-git-success "update-index" "--add" "--remove"
-                       "--" (magit-modified-files))
-    (magit-commit-tree message "HEAD")))
+(defun magit-commit-worktree (message &rest other-parents)
+  (magit-with-temp-index "HEAD"
+    (and (magit-update-files (magit-modified-files))
+         (apply #'magit-commit-tree message nil "HEAD" other-parents))))
+
+(defun magit-update-files (files)
+  (magit-git-success "update-index" "--add" "--remove" "--" files))
 
 ;;; Completion
 

@@ -1339,136 +1339,6 @@ defaulting to the tag at point.
     (and (file-directory-p dir)
          (directory-files dir nil "^[^.]"))))
 
-;;;; Stash
-
-(magit-define-popup magit-stash-popup
-  "Popup console for stash commands."
-  'magit-popups
-  :man-page "git-stash"
-  :switches '((?k "Don't stash index"       "--keep-index")
-              (?i "Reinstate stashed index" "--index")
-              (?u "Include untracked files" "--include-untracked")
-              (?a "Include all files"       "--all"))
-  :actions  '((?z "Save"           magit-stash)
-              (?s "Snapshot"       magit-stash-snapshot)
-              (?p "Pop"            magit-stash-pop)
-              (?k "Drop"           magit-stash-drop)
-              (?Z "Save index"     magit-stash-index)
-              (?S "Snapshot index" magit-stash-index-snapshot)
-              (?a "Apply"          magit-stash-apply)
-              (?b "Branch"         magit-stash-branch)
-              (?v "View"           magit-diff-stash))
-  :default-arguments '("--index")
-  :default-action 'magit-stash
-  :max-action-columns 4)
-
-;;;###autoload
-(defun magit-stash (description &optional args)
-  "Create new stash of working tree and staging area named DESCRIPTION.
-Working tree and staging area revert to the current `HEAD'.
-With prefix argument, changes in staging area are kept.
-\n(git stash save [ARGS] DESCRIPTION)"
-  (interactive (list (read-string "Stash message: ")
-                     (magit-current-popup-args :not "--index")))
-  (magit-run-git "stash" "save" args "--" description))
-
-;;;###autoload
-(defun magit-stash-snapshot (&optional args)
-  "Create new stash of working tree and staging area; keep changes in place.
-\n(git stash save [ARGS] \"Snapshot...\";
- git stash apply stash@{0})"
-  (interactive (list (magit-current-popup-args :not "--index")))
-  (magit-call-git "stash" "save" args (magit-rev-format "Snapshot: %h %s"))
-  (magit-stash-apply "stash@{0}" "--index"))
-
-(defun magit-stash-index (message &optional snapshot)
-  "Create a new stash of the index only."
-  (interactive (list (read-string "Stash message: ")))
-  (error "This command may EAT YOUR DATA!  Disabled until fixed")
-  (magit-git-string "stash" "save" "--keep-index" (concat "(" message ")"))
-  (let ((both (magit-rev-parse "refs/stash")))
-    (message "Saved working directory and index state in %s" both)
-    (magit-call-git "stash" "drop")
-    (magit-call-git "stash" "save" message)
-    (if snapshot
-        (magit-run-git "stash" "pop" "--index" both)
-      (with-temp-buffer
-        (magit-git-insert "diff" (concat "stash@{0}.." both))
-        (magit-run-git-with-input nil "apply"))
-      (magit-refresh))))
-
-(defun magit-stash-index-snapshot ()
-  "Create a new stash of the index only; keep changes in place."
-  (interactive)
-  (magit-stash-index (magit-rev-format "Snapshot: %h %s") t))
-
-(defun magit-stash-apply (stash &optional args)
-  "Apply a stash on top of the current working tree state.
-\n(git stash apply [ARGS] stash@{N})"
-  (interactive (list (magit-read-stash "Apply stash" t)
-                     (if magit-current-popup
-                         (magit-current-popup-args :only "--index")
-                       (--first (equal it "--index")
-                                magit-stash-arguments))))
-  (if (or magit-current-popup (not (member "--index" args)))
-      (magit-run-git "stash" "apply" args stash)
-    (unless (magit-git-success "stash" "apply" args stash)
-      (magit-run-git "stash" "apply" (remove "--index" args) stash))))
-
-(defun magit-stash-pop (stash &optional args)
-  "Apply a stash on top of working tree state and remove from stash list.
-\n(git stash pop [ARGS] stash@{N})"
-  (interactive (list (magit-read-stash "Pop stash" t)
-                     (if magit-current-popup
-                         (magit-current-popup-args :only "--index")
-                       (--first (equal it "--index")
-                                magit-stash-arguments))))
-  (if (or magit-current-popup (not (member "--index" args)))
-      (magit-run-git "stash" "pop" args stash)
-    (unless (magit-git-success "stash" "pop" args stash)
-      (magit-run-git "stash" "pop" (remove "--index" args) stash))))
-
-(defun magit-stash-drop (stash)
-  "Remove a stash from the stash list.
-When the region is active offer to drop all contained stashes.
-\n(git stash drop stash@{N})"
-  (interactive
-   (if (use-region-p)
-       (let ((stashes (magit-section-region-siblings 'magit-section-value)))
-         (when (magit-confirm 'drop-stashes "Drop %i stashes" stashes)
-           (deactivate-mark t)
-           (list stashes)))
-     (list (magit-read-stash "Drop stash"))))
-  (if (listp stash)
-      (mapc 'magit-stash-drop (nreverse stash))
-    (magit-run-git "stash" "drop" stash)))
-
-(defun magit-stash-branch (stash branchname)
-  "Create and checkout a branch from STASH.
-\n(git stash branch BRANCHNAME stash@{N})"
-  (interactive (list (magit-read-stash  "Branch stash" t)
-                     (magit-read-string "Branch name")))
-  (magit-run-git "stash" "branch" branchname stash))
-
-(defvar magit-stash-section-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map "\r" 'magit-diff-stash)
-    (define-key map "a"  'magit-stash-apply)
-    (define-key map "A"  'magit-stash-pop)
-    (define-key map "k"  'magit-stash-drop)
-    map)
-  "Keymap for `stash' sections.")
-
-(magit-define-section-jumper stashes "Stashes")
-
-(defun magit-insert-stashes ()
-  (when (magit-rev-verify "refs/stash")
-    (magit-insert-section (stashes)
-      (magit-insert-heading "Stashes:")
-      (magit-git-wash (apply-partially 'magit-log-wash-log 'stash)
-        "-c" "log.date=default" ; kludge for <1.7.10.3, see #1427
-        "reflog" "--format=%gd %at %gs" "refs/stash"))))
-
 ;;;; Submodules
 
 (magit-define-popup magit-submodule-popup
@@ -1756,6 +1626,7 @@ Use the function by the same name instead of this variable.")
 (provide 'magit)
 
 (require 'magit-sequence)
+(require 'magit-stash)
 (require 'magit-commit)
 (require 'magit-remote)
 (require 'magit-bisect)
