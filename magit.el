@@ -1425,9 +1425,9 @@ When the region is active offer to drop all contained stashes."
   (interactive
    (if (use-region-p)
        (let ((stashes (magit-section-region-siblings 'magit-section-value)))
-         (when (magit-confirm 'drop-stashes "Drop %i stashes" stashes)
-           (deactivate-mark t)
-           (list stashes)))
+         (if (magit-confirm 'drop-stashes "Drop %i stashes" stashes)
+             (list stashes)
+           (user-error "Abort")))
      (list (magit-read-stash "Drop stash"))))
   (if (listp stash)
       (mapc 'magit-stash-drop (nreverse stash))
