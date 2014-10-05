@@ -699,11 +699,11 @@ Return a list of two integers: (A>B B>A)."
                     (--mapcat (list "-p" it) (delq nil parents))
                     (or tree (magit-git-string "write-tree"))))
 
-(defun magit-commit-worktree (message)
+(defun magit-commit-worktree (message &rest other-parents)
   (magit-with-temp-index "HEAD"
     (magit-git-success "update-index" "--add" "--remove"
                        "--" (magit-modified-files))
-    (magit-commit-tree message nil "HEAD")))
+    (apply #'magit-commit-tree message nil "HEAD" other-parents)))
 
 ;;; Completion
 
