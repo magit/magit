@@ -288,8 +288,8 @@ If the file is not inside a Git repository then return nil."
 (defun magit-tracked-files ()
   (magit-list-files "--cached"))
 
-(defun magit-untracked-files ()
-  (magit-list-files "--other" "--exclude-standard"))
+(defun magit-untracked-files (&optional all)
+  (magit-list-files "--other" (unless all "--exclude-standard")))
 
 (defun magit-modified-files ()
   (magit-list-files "--modified"))
