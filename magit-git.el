@@ -638,11 +638,16 @@ Return a list of two integers: (A>B B>A)."
                     (format "%s diff-tree -u %s | %s patch-id" exec rev exec)))
     (car (split-string (buffer-string)))))
 
-(defun magit-reflog-enable (ref)
-  (let ((logfile (magit-git-dir (concat "logs/" ref))))
+(defun magit-reflog-enable (ref &optional stashish)
+  (let ((oldrev  (magit-rev-verify ref))
+        (logfile (magit-git-dir (concat "logs/" ref))))
     (unless (file-exists-p logfile)
+      (when oldrev
+        (magit-git-success "update-ref" "-d" ref oldrev))
       (make-directory (file-name-directory logfile) t)
-      (with-temp-file logfile))))
+      (with-temp-file logfile)
+      (when (and oldrev (not stashish))
+        (magit-git-success "update-ref" "-m" "enable reflog" ref oldrev "")))))
 
 (defun magit-rev-format (format &optional rev)
   "Return output of `git show -s --format=FORMAT [REV]'."
