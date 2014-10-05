@@ -1421,8 +1421,7 @@ and forgo removing the stash."
 
 (defun magit-stash-drop (stash)
   "Remove a stash from the stash list.
-When the region is active offer to drop all contained stashes.
-\n(git stash drop stash@{N})"
+When the region is active offer to drop all contained stashes."
   (interactive
    (if (use-region-p)
        (let ((stashes (magit-section-region-siblings 'magit-section-value)))
@@ -1434,12 +1433,11 @@ When the region is active offer to drop all contained stashes.
       (mapc 'magit-stash-drop (nreverse stash))
     (magit-run-git "stash" "drop" stash)))
 
-(defun magit-stash-branch (stash branchname)
-  "Create and checkout a branch from STASH.
-\n(git stash branch BRANCHNAME stash@{N})"
+(defun magit-stash-branch (stash branch)
+  "Create and checkout a new BRANCH from STASH."
   (interactive (list (magit-read-stash  "Branch stash" t)
                      (magit-read-string "Branch name")))
-  (magit-run-git "stash" "branch" branchname stash))
+  (magit-run-git "stash" "branch" branch stash))
 
 (defvar magit-stash-section-map
   (let ((map (make-sparse-keymap)))
