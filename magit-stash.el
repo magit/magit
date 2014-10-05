@@ -49,7 +49,7 @@
               (?l "List"               magit-stash-list)
               (?x "Save keeping index" magit-stash-keep-index)
               (?k "Drop"               magit-stash-drop)
-              (?v "Show"               magit-diff-stash)
+              (?v "Show"               magit-stash-show)
               (?b "Branch"             magit-stash-branch))
   :default-action 'magit-stash
   :max-action-columns 3)
@@ -297,6 +297,73 @@ The following `format'-like specs are supported:
     (magit-git-wash (apply-partially 'magit-log-wash-log 'stash)
       "-c" "log.date=default" ; kludge for <1.7.10.3, see #1427
       "reflog" "--format=%gd %at %gs" "refs/stash")))
+
+;;; Show Stash
+
+(defcustom magit-stash-sections-hook
+  '(magit-insert-stash-index
+    magit-insert-stash-worktree
+    magit-insert-stash-untracked)
+  "Hook run to insert sections into stash buffers."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-modes
+  :type 'hook)
+
+(defcustom magit-stash-buffer-name-format "*magit-stash: %a*"
+  "Name format for buffers used to show stash diffs.
+
+The following `format'-like specs are supported:
+%a the absolute filename of the repository toplevel.
+%b the basename of the repository toplevel."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-modes
+  :type 'string)
+
+(defun magit-stash-show (stash &optional noselect)
+  "Show all diffs of a stash in a buffer."
+  (interactive (list (or (and (not current-prefix-arg)
+                              (magit-stash-at-point))
+                         (magit-read-stash "Show stash"))))
+  (magit-mode-setup magit-stash-buffer-name-format
+                    (if noselect 'display-buffer 'pop-to-buffer)
+                    #'magit-stash-mode
+                    #'magit-stash-refresh-buffer stash))
+
+(define-derived-mode magit-stash-mode magit-mode "Magit Stash"
+  "Mode for looking at individual stashes."
+  :group 'magit)
+
+(defun magit-stash-refresh-buffer (stash)
+  (magit-insert-section (stash)
+    (run-hooks 'magit-stash-sections-hook)))
+
+(defun magit-insert-stash-index ()
+  (let ((stash (car magit-refresh-args)))
+    (magit-insert-section (stashed-index)
+      (magit-insert-heading (concat (capitalize stash) " index:"))
+      (magit-git-wash #'magit-diff-wash-diffs
+        "diff" magit-diff-arguments magit-diff-extra-options
+        (format "%s^..%s^2" stash stash)))))
+
+(defun magit-insert-stash-worktree ()
+  (let ((stash (car magit-refresh-args)))
+    (magit-insert-section (stashed-worktree)
+      (magit-insert-heading (concat (capitalize stash) " worktree:"))
+      (magit-git-wash #'magit-diff-wash-diffs
+        "diff" magit-diff-arguments magit-diff-extra-options
+        (format "%s^2..%s" stash stash)))))
+
+(defun magit-insert-stash-untracked ()
+  (let* ((stash  (car magit-refresh-args))
+         (commit (concat stash "^3")))
+    (when (magit-rev-verify commit)
+      (-when-let
+          (files (magit-git-lines "ls-tree" "--name-only" "--full-tree" commit))
+        (magit-insert-section (stashed-untracked)
+          (magit-insert-heading (concat (capitalize stash) " untracked:"))
+          (magit-git-wash #'magit-diff-wash-diffs
+            "diff" magit-diff-arguments magit-diff-extra-options
+            (format "%s^..%s^3" stash stash) "--" files))))))
 
 ;;; magit-stash.el ends soon
 (provide 'magit-stash)
