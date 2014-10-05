@@ -1346,7 +1346,6 @@ defaulting to the tag at point.
   'magit-popups
   :man-page "git-stash"
   :switches '((?k "Don't stash index"       "--keep-index")
-              (?i "Reinstate stashed index" "--index")
               (?u "Include untracked files" "--include-untracked")
               (?a "Include all files"       "--all"))
   :actions  '((?z "Save"           magit-stash)
@@ -1358,7 +1357,6 @@ defaulting to the tag at point.
               (?a "Apply"          magit-stash-apply)
               (?b "Branch"         magit-stash-branch)
               (?v "View"           magit-diff-stash))
-  :default-arguments '("--index")
   :default-action 'magit-stash
   :max-action-columns 4)
 
@@ -1369,7 +1367,7 @@ Working tree and staging area revert to the current `HEAD'.
 With prefix argument, changes in staging area are kept.
 \n(git stash save [ARGS] DESCRIPTION)"
   (interactive (list (read-string "Stash message: ")
-                     (magit-current-popup-args :not "--index")))
+                     (magit-current-popup-args)))
   (magit-run-git "stash" "save" args "--" description))
 
 ;;;###autoload
@@ -1377,9 +1375,9 @@ With prefix argument, changes in staging area are kept.
   "Create new stash of working tree and staging area; keep changes in place.
 \n(git stash save [ARGS] \"Snapshot...\";
  git stash apply stash@{0})"
-  (interactive (list (magit-current-popup-args :not "--index")))
+  (interactive (list (magit-current-popup-args)))
   (magit-call-git "stash" "save" args (magit-rev-format "Snapshot: %h %s"))
-  (magit-stash-apply "stash@{0}" "--index"))
+  (magit-run-git "stash" "apply" "stash@{0}" "--index"))
 
 (defun magit-stash-index (message &optional snapshot)
   "Create a new stash of the index only."
@@ -1402,31 +1400,24 @@ With prefix argument, changes in staging area are kept.
   (interactive)
   (magit-stash-index (magit-rev-format "Snapshot: %h %s") t))
 
-(defun magit-stash-apply (stash &optional args)
-  "Apply a stash on top of the current working tree state.
-\n(git stash apply [ARGS] stash@{N})"
-  (interactive (list (magit-read-stash "Apply stash" t)
-                     (if magit-current-popup
-                         (magit-current-popup-args :only "--index")
-                       (--first (equal it "--index")
-                                magit-stash-arguments))))
-  (if (or magit-current-popup (not (member "--index" args)))
-      (magit-run-git "stash" "apply" args stash)
-    (unless (magit-git-success "stash" "apply" args stash)
-      (magit-run-git "stash" "apply" (remove "--index" args) stash))))
+(defun magit-stash-apply (stash)
+  "Apply a stash to the working tree.
+Try to preserve the stash index.  If that fails because there
+are staged changes, apply without preserving the stash index."
+  (interactive (list (magit-read-stash "Apply stash" t)))
+  (if (magit-git-success "stash" "apply" "--index" stash)
+      (magit-refresh)
+    (magit-run-git "stash" "apply" stash)))
 
-(defun magit-stash-pop (stash &optional args)
-  "Apply a stash on top of working tree state and remove from stash list.
-\n(git stash pop [ARGS] stash@{N})"
-  (interactive (list (magit-read-stash "Pop stash" t)
-                     (if magit-current-popup
-                         (magit-current-popup-args :only "--index")
-                       (--first (equal it "--index")
-                                magit-stash-arguments))))
-  (if (or magit-current-popup (not (member "--index" args)))
-      (magit-run-git "stash" "pop" args stash)
-    (unless (magit-git-success "stash" "pop" args stash)
-      (magit-run-git "stash" "pop" (remove "--index" args) stash))))
+(defun magit-stash-pop (stash)
+  "Apply a stash to the working tree and remove it from stash list.
+Try to preserve the stash index.  If that fails because there
+are staged changes, apply without preserving the stash index
+and forgo removing the stash."
+  (interactive (list (magit-read-stash "Apply pop" t)))
+  (if (magit-git-success "stash" "pop" "--index" stash)
+      (magit-refresh)
+    (magit-run-git "stash" "apply" stash)))
 
 (defun magit-stash-drop (stash)
   "Remove a stash from the stash list.
