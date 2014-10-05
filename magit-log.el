@@ -542,13 +542,13 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   (concat "^"
           "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
           "\\(?:\\(?3:([^()]+)\\) \\)?"            ; refs
-          "\\(?2:.+\\)$"))                         ; msg
+          "\\(?2:.*\\)$"))                         ; msg
 
 (defconst magit-log-bisect-log-re
   (concat "^# "
           "\\(?3:bad:\\|skip:\\|good:\\) "         ; "refs"
           "\\[\\(?1:[^]]+\\)\\] "                  ; sha1
-          "\\(?2:.+\\)$"))                         ; msg
+          "\\(?2:.*\\)$"))                         ; msg
 
 (defconst magit-log-reflog-re
   (concat "^"
@@ -557,7 +557,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
           "\\(?6:[^ ]*\\) "                        ; date
           "[^@]+@{\\(?9:[^}]+\\)} "                ; refsel
           "\\(?10:merge\\|[^:]+\\)?:? ?"           ; refsub
-          "\\(?2:.+\\)?$"))                        ; msg
+          "\\(?2:.*\\)?$"))                        ; msg
 
 (defconst magit-reflog-subject-re
   (concat "\\(?1:[^ ]+\\) ?"                       ; command
@@ -569,7 +569,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
           "\\(?1:[^ ]+\\)"                         ; "sha1"
           "\\(?5: \\)"                             ; "author"
           "\\(?6:[^ ]+\\) "                        ; date
-          "\\(?2:.+\\)$"))                         ; msg
+          "\\(?2:.*\\)$"))                         ; msg
 
 (defvar magit-log-count nil)
 
