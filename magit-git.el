@@ -701,9 +701,11 @@ Return a list of two integers: (A>B B>A)."
 
 (defun magit-commit-worktree (message &rest other-parents)
   (magit-with-temp-index "HEAD"
-    (and (magit-git-success "update-index" "--add" "--remove"
-                            "--" (magit-modified-files))
+    (and (magit-update-files (magit-modified-files))
          (apply #'magit-commit-tree message nil "HEAD" other-parents))))
+
+(defun magit-update-files (files)
+  (magit-git-success "update-index" "--add" "--remove" "--" files))
 
 ;;; Completion
 
