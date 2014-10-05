@@ -1433,11 +1433,23 @@ When the region is active offer to drop all contained stashes."
       (mapc 'magit-stash-drop (nreverse stash))
     (magit-run-git "stash" "drop" stash)))
 
+(defun magit-stash-clear ()
+  "Remove all stashes saved in REF's reflog by deleting REF."
+  (interactive (unless (magit-confirm 'drop-stashes "Drop all stashes")
+                 (user-error "Abort")))
+  (magit-run-git "update-ref" "-d" ref))
+
 (defun magit-stash-branch (stash branch)
   "Create and checkout a new BRANCH from STASH."
   (interactive (list (magit-read-stash  "Branch stash" t)
                      (magit-read-string "Branch name")))
   (magit-run-git "stash" "branch" branch stash))
+
+(defvar magit-stashes-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "k"  'magit-stash-clear)
+    map)
+  "Keymap for `stashes' section.")
 
 (defvar magit-stash-section-map
   (let ((map (make-sparse-keymap)))
