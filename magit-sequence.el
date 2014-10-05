@@ -542,7 +542,7 @@
            ((magit-anything-modified-p)
             ;; ...and the dust hasn't settled yet...
             (magit-sequence-insert-commit
-             (let ((staged   (magit-commit-tree "oO" "HEAD"))
+             (let ((staged   (magit-commit-tree "oO" nil "HEAD"))
                    (unstaged (magit-commit-worktree "oO")))
                (cond
                 ;; ...but we could end up at the same tree just by committing.

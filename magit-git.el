@@ -694,16 +694,16 @@ Return a list of two integers: (A>B B>A)."
              ,@body)
          (ignore-errors (delete-file ,sfile))))))
 
-(defun magit-commit-tree (message &rest parents)
+(defun magit-commit-tree (message &optional tree &rest parents)
   (magit-git-string "commit-tree" "-m" message
                     (--mapcat (list "-p" it) (delq nil parents))
-                    (magit-git-string "write-tree")))
+                    (or tree (magit-git-string "write-tree"))))
 
 (defun magit-commit-worktree (message)
   (magit-with-temp-index "HEAD"
     (magit-git-success "update-index" "--add" "--remove"
                        "--" (magit-modified-files))
-    (magit-commit-tree message "HEAD")))
+    (magit-commit-tree message nil "HEAD")))
 
 ;;; Completion
 
