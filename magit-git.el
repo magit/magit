@@ -288,15 +288,19 @@ If the file is not inside a Git repository then return nil."
 (defun magit-tracked-files ()
   (magit-list-files "--cached"))
 
-(defun magit-untracked-files (&optional all)
-  (magit-list-files "--other" (unless all "--exclude-standard")))
+(defun magit-untracked-files (&optional nomodules all)
+  (magit-list-files "--other"
+                    (unless all "--exclude-standard")
+                    (and nomodules "--ignore-submodules")))
 
-(defun magit-modified-files ()
-  (magit-list-files "--modified"))
+(defun magit-modified-files (&optional nomodules)
+  (magit-list-files "--modified" (and nomodules "--ignore-submodules")))
 
-(defun magit-staged-files ()
+(defun magit-staged-files (&optional nomodules)
   (magit-decode-git-paths
-   (magit-git-lines "diff-index" "--name-only" (magit-headish))))
+   (magit-git-lines "diff-index" "--name-only"
+                    (and nomodules "--ignore-submodules")
+                    (magit-headish))))
 
 (defun magit-unmerged-files ()
   (magit-decode-git-paths
