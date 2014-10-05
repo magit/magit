@@ -170,13 +170,21 @@ When the region is active offer to drop all contained stashes."
        (list (magit-read-stash "Drop stash")))))
   (if (listp stash)
       (mapc 'magit-stash-drop (nreverse stash))
-    (magit-run-git "stash" "drop" stash)))
+    (magit-call-git "reflog" "delete" "--updateref" "--rewrite" stash)
+    (-when-let (ref (and (string-match "\\(.+\\)@{[0-9]+}$" stash)
+                         (match-string 1 stash)))
+      (unless (magit-rev-verify (concat ref "@{0}"))
+        (magit-run-git "update-ref" "-d" ref)))
+    (magit-refresh)))
 
-(defun magit-stash-clear ()
+(defun magit-stash-clear (ref)
   "Remove all stashes saved in REF's reflog by deleting REF."
-  (interactive (unless (magit-confirm 'drop-stashes "Drop all stashes")
-                 (user-error "Abort")))
-  (magit-run-git "update-ref" "-d" "refs/stash"))
+  (interactive
+   (let ((ref (or (magit-section-when 'stashes) "refs/stash")))
+     (if (magit-confirm 'drop-stashes (format "Drop all stashes in %s" ref))
+         (list ref)
+       (user-error "Abort"))))
+  (magit-run-git "update-ref" "-d" ref))
 
 (defun magit-stash-branch (stash branch)
   "Create and checkout a new BRANCH from STASH."
@@ -260,13 +268,14 @@ When the region is active offer to drop all contained stashes."
 
 (magit-define-section-jumper stashes "Stashes")
 
-(defun magit-insert-stashes ()
-  (when (magit-rev-verify "refs/stash")
-    (magit-insert-section (stashes)
-      (magit-insert-heading "Stashes:")
+(cl-defun magit-insert-stashes (&optional (ref   "refs/stash")
+                                          (heading "Stashes:"))
+  (when (magit-rev-verify ref)
+    (magit-insert-section (stashes ref)
+      (magit-insert-heading heading)
       (magit-git-wash (apply-partially 'magit-log-wash-log 'stash)
         "-c" "log.date=default" ; kludge for <1.7.10.3, see #1427
-        "reflog" "--format=%gd %at %gs" "refs/stash"))))
+        "reflog" "--format=%gd %at %gs" ref))))
 
 ;;; List Stashes
 
@@ -291,12 +300,13 @@ The following `format'-like specs are supported:
   "Mode for looking at lists of stashes."
   :group 'magit)
 
-(cl-defun magit-stashes-refresh-buffer ()
+(cl-defun magit-stashes-refresh-buffer (&optional (ref   "refs/stash")
+                                                  (heading "Stashes:"))
   (magit-insert-section (stashesbuf)
-    (magit-insert-heading "Stashes:")
+    (magit-insert-heading heading)
     (magit-git-wash (apply-partially 'magit-log-wash-log 'stash)
       "-c" "log.date=default" ; kludge for <1.7.10.3, see #1427
-      "reflog" "--format=%gd %at %gs" "refs/stash")))
+      "reflog" "--format=%gd %at %gs" ref)))
 
 ;;; Show Stash
 

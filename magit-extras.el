@@ -26,6 +26,7 @@
 ;;; Code:
 
 (require 'magit)
+(require 'magit-backup)
 
 (defgroup magit-extras nil
   "Additional functionality for Magit."
@@ -99,6 +100,7 @@ with two prefix arguments remove ignored files only.
                                (1 "untracked")
                                (4 "untracked and ignored")
                                (t "ignored"))))
+    (magit-maybe-backup)
     (magit-run-git "clean" "-f" "-d" (cl-case arg (4 "-x") (16 "-X")))))
 
 (put 'magit-clean 'disabled t)

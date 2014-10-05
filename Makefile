@@ -21,6 +21,7 @@ ELS += magit-wip.el
 ELS += magit.el
 ELS += magit-sequence.el
 ELS += magit-stash.el
+ELS += magit-backup.el
 ELS += magit-commit.el
 ELS += magit-remote.el
 ELS += magit-bisect.el
