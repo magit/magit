@@ -678,17 +678,21 @@ Return a list of two integers: (A>B B>A)."
         (point-min) (point-max) buffer-file-name t nil nil t)
        ,@body)))
 
-(defmacro magit-with-temp-index (args read &rest body)
-  (declare (indent 2) (debug ((&optional sexp form) form body)))
-  (let ((file (or (car args) (cl-gensym "index"))))
-    `(let ((,file (or ,(cadr args)
-                      (magit-git-dir (make-temp-name "index.magit.")))))
+(defmacro magit-with-temp-index (tree &rest body)
+  (declare (indent 1) (debug (form body)))
+  (let ((stree (cl-gensym "tree"))
+        (sfile (cl-gensym "file")))
+    `(let ((,stree ,tree)
+           (,sfile (magit-git-dir (make-temp-name "index.magit."))))
        (unwind-protect
-           (progn ,@(and read (list read))
-                  (let ((process-environment process-environment))
-                    (setenv "GIT_INDEX_FILE" ,file)
-                    ,@body))
-         (ignore-errors (delete-file ,file))))))
+           (let ((process-environment process-environment))
+             ,@(and tree
+                    `((or (magit-git-success "read-tree" ,stree
+                                             (concat "--index-output=" ,sfile))
+                          (error "Cannot read tree %s" ,stree))))
+             (setenv "GIT_INDEX_FILE" ,sfile)
+             ,@body)
+         (ignore-errors (delete-file ,sfile))))))
 
 (defun magit-commit-tree (message &rest parents)
   (magit-git-string "commit-tree" "-m" message
@@ -696,9 +700,7 @@ Return a list of two integers: (A>B B>A)."
                     (magit-git-string "write-tree")))
 
 (defun magit-commit-worktree (message)
-  (magit-with-temp-index (file)
-      (magit-git-success "read-tree" "-m" "HEAD"
-                         (concat "--index-output=" file))
+  (magit-with-temp-index "HEAD"
     (magit-git-success "update-index" "--add" "--remove"
                        "--" (magit-modified-files))
     (magit-commit-tree message "HEAD")))
