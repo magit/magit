@@ -158,7 +158,7 @@
       ("P" "Push" magit-push)
       ("t" "Push tags" magit-push-tags))
      (switches
-      ("-f" "Force" "--force")
+      ("-f" "Force" "--force-with-lease")
       ("-d" "Dry run" "-n")
       ("-u" "Set upstream" "-u")))
 
