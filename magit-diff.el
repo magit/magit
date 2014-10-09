@@ -1044,6 +1044,37 @@ Only unrefine if `magit-diff-refine-hunk's value is t."
            (orig (or (magit-section-source section) file)))
       (format "diff --git a/%s b/%s\n--- a/%s\n+++ b/%s\n" orig file orig file))))
 
+(defun magit-diff-hunk-region-header (section)
+  (nth 3 (split-string (magit-diff-hunk-region-patch section) "\n")))
+
+(defun magit-diff-hunk-region-patch (section &optional args)
+  (when (member "-U0" magit-diff-arguments)
+    (user-error "Not enough context to apply region.  Increase the context"))
+  (when (string-match "^diff --cc" (magit-section-parent-value section))
+    (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
+  (let ((op (if (member "--reverse" args) "+" "-"))
+        (sbeg (magit-section-start section))
+        (rbeg (region-beginning))
+        (rend (region-end))
+        (send (magit-section-end section))
+        (patch (list (magit-diff-file-header section))))
+    (save-excursion
+      (goto-char sbeg)
+      (while (< (point) send)
+        (looking-at "\\(.\\)\\([^\n]*\n\\)")
+        (cond ((or (string-match-p "[@ ]" (match-string-no-properties 1))
+                   (and (>= (point) rbeg)
+                        (<= (point) rend)))
+               (push (match-string-no-properties 0) patch))
+              ((equal op (match-string-no-properties 1))
+               (push (concat " " (match-string-no-properties 2)) patch)))
+        (forward-line)))
+    (with-temp-buffer
+      (insert (mapconcat 'identity (reverse patch) ""))
+      (diff-fixup-modifs (point-min) (point-max))
+      (setq patch (buffer-string)))
+    patch))
+
 ;;; magit-diff.el ends soon
 (provide 'magit-diff)
 ;; Local Variables:

@@ -76,32 +76,7 @@
                      args))
 
 (defun magit-apply-region (section &rest args)
-  (when (member "-U0" magit-diff-arguments)
-    (user-error "Not enough context to apply region.  Increase the context"))
-  (when (string-match "^diff --cc" (magit-section-parent-value section))
-    (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
-  (let ((op (if (member "--reverse" args) "+" "-"))
-        (rbeg (region-beginning))
-        (rend (region-end))
-        (sbeg (magit-section-start section))
-        (send (magit-section-end section))
-        (patch (list (magit-diff-file-header section))))
-    (save-excursion
-      (goto-char sbeg)
-      (while (< (point) send)
-        (looking-at "\\(.\\)\\([^\n]*\n\\)")
-        (cond ((or (string-match-p "[@ ]" (match-string 1))
-                   (and (>= (point) rbeg)
-                        (<  (point) rend)))
-               (push (match-string 0) patch))
-              ((equal op (match-string 1))
-               (push (concat " " (match-string 2)) patch)))
-        (forward-line)))
-    (with-temp-buffer
-      (insert (mapconcat 'identity (reverse patch) ""))
-      (diff-fixup-modifs (point-min) (point-max))
-      (setq patch (buffer-string)))
-    (magit-apply-patch patch args)))
+  (magit-apply-patch (magit-diff-hunk-region-patch section args) args))
 
 (defun magit-apply-patch (patch args)
   (with-temp-buffer
