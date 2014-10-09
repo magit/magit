@@ -1621,7 +1621,7 @@ Use the function by the same name instead of this variable.")
 
 (cl-eval-when (load eval) (magit-version t))
 
-(define-obsolete-variable-alias 'magit-highlight-whitespace 'magit-diff-highlight-whitespace)
+(define-obsolete-variable-alias 'magit-highlight-whitespace 'magit-diff-paint-whitespace)
 (define-obsolete-variable-alias 'magit-highlight-trailing-whitespace 'magit-diff-highlight-trailing)
 (define-obsolete-variable-alias 'magit-highlight-indentation 'magit-diff-highlight-indentation)
 (define-obsolete-variable-alias 'magit-mode-refresh-buffer-hook 'magit-refresh-buffer-hook)

@@ -98,7 +98,7 @@ t      show fine differences for the selected diff hunk only.
                  (const :tag "Selected only" t)
                  (const :tag "All" all)))
 
-(defcustom magit-diff-highlight-whitespace t
+(defcustom magit-diff-paint-whitespace t
   "Specify where to highlight whitespace errors.
 See `magit-highlight-trailing-whitespace',
 `magit-highlight-indentation'.  The symbol t means in all diffs,
@@ -110,13 +110,13 @@ See `magit-highlight-trailing-whitespace',
 
 (defcustom magit-diff-highlight-trailing t
   "Whether to highlight whitespace at the end of a line in diffs.
-Used only when `magit-diff-highlight-whitespace' is non-nil."
+Used only when `magit-diff-paint-whitespace' is non-nil."
   :group 'magit-diff
   :type 'boolean)
 
 (defcustom magit-diff-highlight-indentation nil
   "Highlight the \"wrong\" indentation style.
-Used only when `magit-diff-highlight-whitespace' is non-nil.
+Used only when `magit-diff-paint-whitespace' is non-nil.
 
 The value is a list of cons cells.  The car is a regular
 expression, and the cdr is the value that applies to repositories
@@ -754,7 +754,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
            (cond
             ((looking-at "^\\+\\+[<=|>]\\{7\\}") 'magit-conflict-heading)
             ((looking-at (if merging  "^\\(\\+\\| \\+\\)" "^\\+"))
-             (magit-diff-highlight-whitespace merging)
+             (magit-diff-paint-whitespace merging)
              (if highlight 'magit-diff-added-highlight 'magit-diff-added))
             ((looking-at (if merging  "^\\(-\\| -\\)" "^-"))
              (if highlight 'magit-diff-removed-highlight 'magit-diff-removed))
@@ -762,10 +762,10 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
              (if highlight 'magit-diff-context-highlight 'magit-diff-context))))
           (forward-line))))))
 
-(defun magit-diff-highlight-whitespace (merging)
-  (when (and magit-diff-highlight-whitespace
+(defun magit-diff-paint-whitespace (merging)
+  (when (and magit-diff-paint-whitespace
              (or (derived-mode-p 'magit-status-mode)
-                 (not (eq magit-diff-highlight-whitespace 'status))))
+                 (not (eq magit-diff-paint-whitespace 'status))))
     (let ((prefix (if merging "^[-\\+\s]\\{2\\}" "^[-\\+]"))
           (indent
            (if (local-variable-p 'magit-diff-highlight-indentation)
