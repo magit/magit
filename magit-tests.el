@@ -137,8 +137,7 @@
      (magit-call-git "tag" "FIRST")
      (should (equal "FIRST" (magit-git-string "describe" "--contains" "FIRST")))
      (should (equal nil (magit-get-next-tag)))
-     (magit-call-git "tag" "-d" "FIRST")
-     )))
+     (magit-call-git "tag" "-d" "FIRST"))))
 
 ;;;; config
 
@@ -170,8 +169,7 @@
       (should-not (member "origin/master" (magit-list-remote-branch-names "foo")))
       (should (member "master" (magit-list-remote-branch-names "origin" t)))
 
-      (should-not (member "master" (magit-list-remote-branch-names "foo" t)))
-)))
+      (should-not (member "master" (magit-list-remote-branch-names "foo" t))))))
 
 ;;; magit-tests.el ends soon
 
