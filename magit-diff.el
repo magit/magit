@@ -478,14 +478,14 @@ commit or stash at point, then prompt for a commit."
                       buf (magit-mode-get-buffer
                            magit-revision-buffer-name-format 'magit-revision-mode)))
         (stash  (setq rev (magit-section-value it)
-                      cmd 'magit-diff-stash
+                      cmd 'magit-stash-show
                       buf (magit-mode-get-buffer
                            magit-diff-buffer-name-format 'magit-diff-mode)))))
     (if rev
         (if (and buf
                  (setq win (get-buffer-window buf))
                  (with-current-buffer buf
-                   (equal (if (eq cmd 'magit-diff-stash)
+                   (equal (if (eq cmd 'magit-stash-show)
                               (concat rev "^2^.." rev)
                             rev)
                           (car magit-refresh-args))))
