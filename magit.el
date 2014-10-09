@@ -296,6 +296,11 @@ many levels deep."
   '((t :foreground "magenta"))
   "Face for equivalent cherry commits.")
 
+(defface magit-filename
+  '((t :weight normal))
+  "Face for filenames."
+  :group 'magit-faces)
+
 ;;; Inspect
 ;;;; Status Mode
 
@@ -447,9 +452,9 @@ can be used to override this."
       (if (equal dir directory)
           (let ((file (pop files)))
             (magit-insert-section (file file)
-              (insert file ?\n)))
+              (insert (propertize file 'face 'magit-filename) ?\n)))
         (magit-insert-section (file dir t)
-          (insert dir ?\n)
+          (insert (propertize dir 'file 'magit-filename) ?\n)
           (magit-insert-heading)
           (setq files (magit-insert-untracked-files-1 files dir))))))
   files)

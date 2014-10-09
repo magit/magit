@@ -625,11 +625,12 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
              (magit-bind-match-strings (file sep cnt add del) nil
                (magit-delete-line)
                (magit-insert-section (file file)
-                 (insert " " file sep cnt " ")
+                 (insert " " (propertize file 'face 'magit-filename) sep cnt
+                         " ")
                  (when add
-                   (magit-insert (propertize add 'face 'magit-diffstat-added)))
+                   (insert (propertize add 'face 'magit-diffstat-added)))
                  (when del
-                   (magit-insert (propertize del 'face 'magit-diffstat-removed)))
+                   (insert (propertize del 'face 'magit-diffstat-removed)))
                  (insert "\n"))))))
         (setq diffstats (magit-section-children it))))
     diffstats))
