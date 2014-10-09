@@ -1030,7 +1030,7 @@ Only unrefine if `magit-diff-refine-hunk's value is t."
          (magit-diff-unrefine-hunk section))
        t))))
 
-(defun magit-section-diff-header (section)
+(defun magit-diff-file-header (section)
   (when (eq (magit-section-type section) 'hunk)
     (setq section (magit-section-parent section)))
   (when (eq (magit-section-type section) 'file)
