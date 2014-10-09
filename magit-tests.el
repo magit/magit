@@ -89,16 +89,14 @@
   (magit-tests--with-temp-repo
     (magit-tests--modify-file "file")
     (magit-status default-directory)
-    (let ((magit-stage-all-confirm nil))
-      (magit-stage-modified t))
+    (magit-stage-modified t)
     (magit-tests--should-have-section 'staged "file")))
 
 (ert-deftest magit-status-staged-modified-with-space ()
   (magit-tests--with-temp-repo
     (magit-tests--modify-file "file with space")
     (magit-status default-directory)
-    (let ((magit-stage-all-confirm nil))
-      (magit-stage-modified t))
+    (magit-stage-modified t)
     (magit-tests--should-have-section 'staged "file with space")))
 
 (ert-deftest magit-status-modified ()
@@ -113,8 +111,7 @@
     (magit-tests--modify-and-commit "file with space")
     (magit-tests--modify-file "file with space")
     (magit-status default-directory)
-    (let ((magit-stage-all-confirm nil))
-      (magit-stage-modified t))
+    (magit-stage-modified t)
     (magit-tests--should-have-section 'staged "file with space")))
 
 (ert-deftest magit-status-unpushed ()
