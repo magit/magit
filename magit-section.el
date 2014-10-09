@@ -669,7 +669,8 @@ at point."
   (let ((ov (make-overlay start end)))
     (overlay-put ov 'face face)
     (overlay-put ov 'evaporate t)
-    (push ov magit-section-highlight-overlays)))
+    (push ov magit-section-highlight-overlays)
+    ov))
 
 (defun magit-section-goto-successor (section line char)
   (let ((ident (magit-section-ident section)))
