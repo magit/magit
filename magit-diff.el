@@ -1038,12 +1038,6 @@ Only unrefine if `magit-diff-refine-hunk's value is t."
            (orig (or (magit-section-source section) file)))
       (format "diff --git a/%s b/%s\n--- a/%s\n+++ b/%s\n" orig file orig file))))
 
-(defun magit-diff-section-for-diffstat (section)
-  (let ((file (magit-section-value section)))
-    (--first (and (eq (magit-section-type it) 'file)
-                  (string-equal (magit-section-value it) file))
-             (magit-section-children magit-root-section))))
-
 ;;; magit-diff.el ends soon
 (provide 'magit-diff)
 ;; Local Variables:
