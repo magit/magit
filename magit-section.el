@@ -84,9 +84,6 @@ of this variable is set by `magit-insert-section' and you should
 never modify it.")
 (put 'magit-root-section 'permanent-local t)
 
-(defvar-local magit-current-section nil
-  "For internal use only.  Instead use function by same name.")
-
 (defun magit-current-section ()
   "Return the section at point."
   (or (get-text-property (point) 'magit-section) magit-root-section))
@@ -645,22 +642,25 @@ at point."
 ;;; Update
 
 (defvar-local magit-section-highlight-overlays nil)
+(defvar-local magit-section-highlighted-sections nil)
 
 (defun magit-section-update-highlight (&optional force)
   (let ((inhibit-read-only t)
         (deactivate-mark nil)
-        (old  magit-current-section)
         (new (magit-current-section)))
-    (when (or force (not (eq old new)))
-      (when old
+    (when (or force
+              (not (eq new (car (last magit-section-highlighted-sections)))))
+      (when magit-section-highlighted-sections
         (mapc #'delete-overlay magit-section-highlight-overlays)
-        (run-hook-with-args-until-success 'magit-section-unhighlight-hook old))
+        (mapc (apply-partially 'run-hook-with-args-until-success
+                               'magit-section-unhighlight-hook)
+              magit-section-highlighted-sections))
       (unless (or (eq new magit-root-section)
                   (and (use-region-p)
                        (= (region-beginning) (magit-section-start new))
                        (not (magit-section-content new))))
         (run-hook-with-args-until-success 'magit-section-highlight-hook new)))
-    (setq magit-current-section new)))
+    (setq magit-section-highlighted-sections (list new))))
 
 (defun magit-section-highlight (section)
   (magit-section-make-overlay (magit-section-start section)

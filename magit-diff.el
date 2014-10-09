@@ -811,11 +811,11 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
     (if (or (eq old 'all)
             (eq magit-diff-refine-hunk 'all))
         (magit-refresh)
-      (--when-let magit-current-section
-        (when (eq (magit-section-type it) 'hunk)
+      (dolist (section magit-section-highlighted-sections)
+        (when (eq (magit-section-type section) 'hunk)
           (if  magit-diff-refine-hunk
-              (magit-diff-refine-hunk it)
-            (magit-diff-unrefine-hunk it)))))
+              (magit-diff-refine-hunk section)
+            (magit-diff-unrefine-hunk section)))))
     (message "magit-diff-refine-hunk: %s" magit-diff-refine-hunk)))
 
 (defun magit-diff-refine-hunk (hunk)
