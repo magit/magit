@@ -44,7 +44,8 @@ EFLAGS ?= -L ../git-modes -L ../cl-lib -L ../dash
 EMACS  ?= emacs
 BATCH   = $(EMACS) $(EFLAGS) -batch -Q -L .
 BATCHE  = $(BATCH) -eval
-BATCHC  = $(BATCH) -f batch-byte-compile
+BATCHC  = $(BATCH) -eval "(setq with-editor-emacsclient-executable nil)" \
+  -f batch-byte-compile
 
 VERSION=$(shell \
   test -e .git\
