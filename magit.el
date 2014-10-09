@@ -296,6 +296,11 @@ many levels deep."
   '((t :foreground "magenta"))
   "Face for equivalent cherry commits.")
 
+(defface magit-filename
+  '((t :weight normal))
+  "Face for filenames."
+  :group 'magit-faces)
+
 ;;; Inspect
 ;;;; Status Mode
 
@@ -447,9 +452,9 @@ can be used to override this."
       (if (equal dir directory)
           (let ((file (pop files)))
             (magit-insert-section (file file)
-              (insert file ?\n)))
+              (insert (propertize file 'face 'magit-filename) ?\n)))
         (magit-insert-section (file dir t)
-          (insert dir ?\n)
+          (insert (propertize dir 'file 'magit-filename) ?\n)
           (magit-insert-heading)
           (setq files (magit-insert-untracked-files-1 files dir))))))
   files)
@@ -1205,12 +1210,11 @@ to delete those, otherwise prompt for a single tag to be deleted,
 defaulting to the tag at point.
 \n(git tag -d TAGS)"
   (interactive
-   (let ((tags (magit-current-sections 'tag)))
-     (if (> (length tags) 1)
-         (if (magit-confirm 'delete-tags "Delete %i tags" tags)
-             (list tags)
-           (user-error "Abort"))
-       (list (magit-read-tag "Delete tag" t)))))
+   (-if-let (tags (magit-region-values 'tag))
+       (if (magit-confirm 'delete-tags "Delete %i tags" tags)
+           (list tags)
+         (user-error "Abort"))
+     (list (magit-read-tag "Delete tag" t))))
   (magit-run-git "tag" "-d" tags))
 
 (defun magit-tag-prune (tags remote-tags remote)
@@ -1539,12 +1543,9 @@ Run Git in the root of the current repository.
 
 ;;;###autoload
 (defun magit-format-patch (range)
-  (interactive
-   (let ((revs (magit-current-sections 'commit)))
-     (setq revs (nreverse (mapcar 'magit-section-value revs)))
-     (list (if (or current-prefix-arg (not revs))
-               (magit-read-range-or-commit "Format range")
-             (concat (car revs) "^.." (car (last revs)))))))
+  (interactive (list (-if-let (revs (magit-region-values 'commit))
+                         (concat (car (last revs)) "^.." (car revs))
+                       (magit-read-range-or-commit "Format range"))))
   (magit-run-git "format-patch" range))
 
 (defun magit-copy-as-kill ()
@@ -1616,7 +1617,7 @@ Use the function by the same name instead of this variable.")
 
 (cl-eval-when (load eval) (magit-version t))
 
-(define-obsolete-variable-alias 'magit-highlight-whitespace 'magit-diff-highlight-whitespace)
+(define-obsolete-variable-alias 'magit-highlight-whitespace 'magit-diff-paint-whitespace)
 (define-obsolete-variable-alias 'magit-highlight-trailing-whitespace 'magit-diff-highlight-trailing)
 (define-obsolete-variable-alias 'magit-highlight-indentation 'magit-diff-highlight-indentation)
 (define-obsolete-variable-alias 'magit-mode-refresh-buffer-hook 'magit-refresh-buffer-hook)

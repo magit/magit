@@ -27,6 +27,8 @@
 (require 'cl-lib)
 (require 'dash)
 
+(require 'magit-utils)
+
 ;;; Options
 
 (defgroup magit-section nil
@@ -83,9 +85,6 @@ All other sections are descendants of this section.  The value
 of this variable is set by `magit-insert-section' and you should
 never modify it.")
 (put 'magit-root-section 'permanent-local t)
-
-(defvar-local magit-current-section nil
-  "For internal use only.  Instead use function by same name.")
 
 (defun magit-current-section ()
   "Return the section at point."
@@ -235,7 +234,7 @@ With a prefix argument also expand it." title)
         (setf (magit-section-content section) (point-marker))
         (funcall washer)
         (setf (magit-section-end section) (point-marker))))
-    (magit-section-update-highlight t))
+    (magit-section-update-highlight))
   (-when-let (beg (magit-section-content section))
     (let ((inhibit-read-only t))
       (put-text-property beg (magit-section-end section) 'invisible nil)))
@@ -645,33 +644,42 @@ at point."
 ;;; Update
 
 (defvar-local magit-section-highlight-overlays nil)
+(defvar-local magit-section-highlighted-sections nil)
+(defvar-local magit-section-unhighlight-sections nil)
 
-(defun magit-section-update-highlight (&optional force)
+(defun magit-section-update-highlight ()
   (let ((inhibit-read-only t)
         (deactivate-mark nil)
-        (old  magit-current-section)
-        (new (magit-current-section)))
-    (when (or force (not (eq old new)))
-      (when old
-        (mapc #'delete-overlay magit-section-highlight-overlays)
-        (run-hook-with-args-until-success 'magit-section-unhighlight-hook old))
-      (unless (or (eq new magit-root-section)
-                  (and (use-region-p)
-                       (= (region-beginning) (magit-section-start new))
-                       (not (magit-section-content new))))
-        (run-hook-with-args-until-success 'magit-section-highlight-hook new)))
-    (setq magit-current-section new)))
+        (section (magit-current-section)))
+    (mapc 'delete-overlay magit-section-highlight-overlays)
+    (setq magit-section-unhighlight-sections
+          magit-section-highlighted-sections
+          magit-section-highlighted-sections nil)
+    (magit-face-remap-set-base 'region)
+    (unless (eq section magit-root-section)
+      (run-hook-with-args-until-success
+       'magit-section-highlight-hook section (magit-region-sections)))
+    (mapc (apply-partially 'run-hook-with-args-until-success
+                           'magit-section-unhighlight-hook)
+          magit-section-unhighlight-sections)))
 
-(defun magit-section-highlight (section)
-  (magit-section-make-overlay (magit-section-start section)
-                              (magit-section-end section)
-                              'magit-section-highlight))
+(defun magit-section-highlight (section siblings)
+  (cond (siblings
+         (magit-face-remap-set-base 'region 'face-override-spec)
+         (magit-section-make-overlay (magit-section-start     (car siblings))
+                                     (magit-section-end (car (last siblings)))
+                                     'magit-section-highlight))
+        (t
+         (magit-section-make-overlay (magit-section-start section)
+                                     (magit-section-end   section)
+                                     'magit-section-highlight))))
 
 (defun magit-section-make-overlay (start end face)
   (let ((ov (make-overlay start end)))
     (overlay-put ov 'face face)
     (overlay-put ov 'evaporate t)
-    (push ov magit-section-highlight-overlays)))
+    (push ov magit-section-highlight-overlays)
+    ov))
 
 (defun magit-section-goto-successor (section line char)
   (let ((ident (magit-section-ident section)))
@@ -728,37 +736,39 @@ at point."
         (next  (cdr (member section siblings)))
         ((nil) (remq section siblings))))))
 
-(defun magit-section-region-siblings (&optional key)
-  (let ((beg (get-text-property (region-beginning) 'magit-section))
-        (end (get-text-property (region-end) 'magit-section)))
-    (if (eq beg end)
-        (list (if key (funcall key beg) beg))
-      (goto-char (region-end))
-      (when (bolp)
-        (setq end (get-text-property (1- (point)) 'magit-section)))
-      (while (> (length (magit-section-ident beg))
-                (length (magit-section-ident end)))
-        (setq beg (magit-section-parent beg)))
-      (while (> (length (magit-section-ident end))
-                (length (magit-section-ident beg)))
-        (setq end (magit-section-parent end)))
-      (let* ((parent   (magit-section-parent beg))
-             (siblings (magit-section-children parent))
-             (stop     (cadr (memq end siblings))))
-        (if (eq parent (magit-section-parent end))
-            (mapcar (or key #'identity)
-                    (--take-while (not (eq it stop))
-                                  (memq beg siblings)))
-          (user-error "Ambitious cross-section region"))))))
+(defun magit-region-values (&rest types)
+  (when (use-region-p)
+    (let ((sections (magit-region-sections)))
+      (when (or (not types)
+                (--all-p (memq (magit-section-type it) types) sections))
+        (mapcar 'magit-section-value sections)))))
 
-(defun magit-current-sections (&optional type)
-  (let ((sections (or (and (use-region-p)
-                           (magit-section-region-siblings))
-                      (--when-let (magit-current-section)
-                        (list it)))))
-    (when (or (not type)
-              (eq (magit-section-type (car sections)) type))
-      sections)))
+(defun magit-region-sections ()
+  (when (use-region-p)
+    (let* ((rbeg (region-beginning))
+           (rend (region-end))
+           (sbeg (get-text-property rbeg 'magit-section))
+           (send (get-text-property rend 'magit-section)))
+      (unless (memq send (list sbeg magit-root-section nil))
+        (let ((siblings (magit-section-siblings sbeg 'next)) sections)
+          (when (and (memq send siblings)
+                     (magit-section-position-in-heading-p sbeg rbeg)
+                     (magit-section-position-in-heading-p send rend))
+            (while siblings
+              (push (car siblings) sections)
+              (when (eq (pop siblings) send)
+                (setq siblings nil)))
+            (cons sbeg (nreverse sections))))))))
+
+(defun magit-section-position-in-heading-p (section pos)
+  (and (>= pos (magit-section-start section))
+       (<  pos (or (magit-section-content section)
+                   (magit-section-end section)))))
+
+(defun magit-section-internal-region-p (section)
+  (and (region-active-p)
+       (eq (get-text-property (region-beginning) 'magit-section)
+           (get-text-property (region-end)       'magit-section))))
 
 (defun magit-map-sections (function section)
   "Apply FUNCTION to SECTION and recursively its subsections."

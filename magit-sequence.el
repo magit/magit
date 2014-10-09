@@ -129,16 +129,12 @@
   (file-exists-p (magit-git-dir "sequencer")))
 
 (defun magit-sequencer-read-args (command prompt)
-  (let ((selection (magit-current-sections 'commit)))
-    (list (if (or current-prefix-arg (not selection))
-              (if (eq command 'cherry-pick)
-                  (magit-read-other-branch-or-commit prompt)
-                (magit-read-branch-or-commit prompt))
-            (setq selection (mapcar 'magit-section-value selection))
-            (if (eq command 'cherry-pick)
-                (nreverse selection)
-              selection))
-          magit-current-popup-args)))
+  (list (-if-let (commits (magit-region-values 'commit))
+            (if (eq command 'cherry-pick) (nreverse commits) commits)
+          (if (eq command 'cherry-pick)
+              (magit-read-other-branch-or-commit prompt)
+            (magit-read-branch-or-commit prompt)))
+        magit-current-popup-args))
 
 ;;; Cherry-Pick
 
@@ -238,13 +234,9 @@
 
 ;;;###autoload
 (defun magit-am-apply-patches (&optional files args)
-  (interactive
-   (let ((selection (magit-current-sections 'file)))
-     (list (if (or current-prefix-arg (not selection))
-               (list (read-file-name "Apply patch(es): "
-                                     nil (car (last selection))))
-             (mapcar 'magit-section-value selection))
-           magit-current-popup-args)))
+  (interactive (list (or (magit-region-values 'file)
+                         (list (read-file-name "Apply patch: ")))
+                     magit-current-popup-args))
   (magit-run-git-sequencer "am" args "--" (mapcar 'expand-file-name files)))
 
 ;;;###autoload
