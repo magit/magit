@@ -71,6 +71,8 @@
 (declare-function dired-jump 'dired-x)
 (eval-when-compile (require 'eshell))
 (declare-function eshell-parse-arguments 'eshell)
+(eval-when-compile (require 'message))
+(declare-function message-goto-body 'message)
 (eval-when-compile (require 'smerge-mode))
 
 
