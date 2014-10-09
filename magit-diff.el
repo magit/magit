@@ -970,21 +970,27 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
           (t 'undefined))))
 
 (defun magit-diff-scope (&optional section singular)
-  (--when-let (or section (magit-current-section))
-    (pcase (list (magit-section-type it) (use-region-p) singular)
-      (`(hunk   t  ,_) 'region)
-      (`(hunk nil  ,_) 'hunk)
-      (`(file nil  ,_) 'file)
-      (`(file   t   t) 'file)
-      (`(file   t nil) 'files)
-      (`(,(or `staged `unstaged `untracked
-              `stashed-index `stashed-worktree `stashed-untracked) nil ,_)
-       'list)
-      (`(,(or `staged `unstaged `untracked `stashed
-              `stashed-index `stashed-worktree `stashed-untracked) t ,_)
-       (if (= (point) (1- (magit-section-end it)))
-           (if singular 'file 'files)
-         'list)))))
+  (let ((siblings (and (not singular) (magit-region-sections))))
+    (--when-let (or section (car siblings) (magit-current-section))
+      (pcase (list (magit-section-type it)
+                   (and siblings t)
+                   (and (region-active-p) t)
+                   singular)
+        (`(hunk nil nil  ,_) 'hunk)
+        (`(hunk nil   t  ,_)
+         (if (and (magit-section-internal-region-p it)
+                  (not (magit-section-position-in-heading-p
+                        it (region-beginning))))
+             (if singular 'hunk 'region)
+           'hunk))
+        (`(hunk   t   t   t) 'hunk)
+        (`(hunk   t   t nil) 'hunks)
+        (`(file nil  ,_  ,_) 'file)
+        (`(file   t   t   t) 'file)
+        (`(file   t   t nil) 'files)
+        (`(,(or `staged `unstaged `untracked
+                `stashed-index `stashed-worktree `stashed-untracked)
+           nil ,_ ,_) 'list)))))
 
 (defun magit-diff-highlight (section)
   "Highlight the hunk or hunk parent SECTION and refine hunk(s).
