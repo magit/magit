@@ -169,12 +169,12 @@ The following `format'-like specs are supported:
 
 ;;; Faces
 
-(defface magit-file-heading
+(defface magit-diff-file-heading
   '((t :weight bold))
   "Face for diff file headings."
   :group 'magit-faces)
 
-(defface magit-hunk-heading
+(defface magit-diff-hunk-heading
   '((((class color) (background light))
      :background "grey80"
      :foreground "grey30")
@@ -184,7 +184,7 @@ The following `format'-like specs are supported:
   "Face for diff hunk headings."
   :group 'magit-faces)
 
-(defface magit-hunk-heading-highlight
+(defface magit-diff-hunk-heading-highlight
   '((((class color) (background light))
      :background "grey75"
      :foreground "grey30")
@@ -194,8 +194,8 @@ The following `format'-like specs are supported:
   "Face for diff hunk headings."
   :group 'magit-faces)
 
-(defface magit-conflict-heading
-  '((t :inherit magit-hunk-heading))
+(defface magit-diff-conflict-heading
+  '((t :inherit magit-diff-hunk-heading))
   "Face for conflict markers."
   :group 'magit-faces)
 
@@ -255,6 +255,11 @@ The following `format'-like specs are supported:
   "Face for lines in a diff that have been removed."
   :group 'magit-faces)
 
+(defface magit-diff-whitespace-warning
+  '((t :inherit trailing-whitespace))
+  "Face for highlighting whitespace errors added lines."
+  :group 'magit-faces)
+
 (defface magit-diffstat-added
   '((((class color) (background light)) :foreground "#22aa22")
     (((class color) (background  dark)) :foreground "#448844"))
@@ -265,11 +270,6 @@ The following `format'-like specs are supported:
   '((((class color) (background light)) :foreground "#aa2222")
     (((class color) (background  dark)) :foreground "#aa4444"))
   "Face for minus sign in diffstats."
-  :group 'magit-faces)
-
-(defface magit-whitespace-warning
-  '((t :inherit trailing-whitespace))
-  "Face for highlighting whitespace errors in Magit diffs."
   :group 'magit-faces)
 
 ;;; Commands
@@ -655,7 +655,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
                    (magit-insert-section (file module t)
                      (magit-insert-heading
                        (concat (propertize (concat "modified   " module)
-                                           'face 'magit-file-heading)
+                                           'face 'magit-diff-file-heading)
                                " ("
                                (and range "new commits")
                                (and dirty ", modified content")
@@ -669,7 +669,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
            (concat (propertize (if new
                                    (concat "new module " module)
                                  (concat "modified   " module))
-                               'face 'magit-file-heading)
+                               'face 'magit-diff-file-heading)
                    (and dirty " (modified content)"))
            nil ?\n)))))
    ((looking-at "^\\* Unmerged path \\(.*\\)")
@@ -679,7 +679,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
                    (not (member "--cached" args)))
         (magit-insert-section (file file)
           (magit-insert (propertize (format "unmerged   %s" file)
-                                    'face 'magit-file-heading) nil ?\n))))
+                                    'face 'magit-diff-file-heading) nil ?\n))))
     t)
    ((looking-at "^diff --\\(git\\|cc\\|combined\\) \\(?:\\(.+?\\) \\2\\)?")
     (let ((status (cond ((equal (match-string 1) "git")        "modified")
@@ -717,7 +717,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
                                     (if (equal orig file)
                                         file
                                       (format "%s -> %s" orig file)))
-                            'face 'magit-file-heading))
+                            'face 'magit-diff-file-heading))
         (magit-insert-heading)
         (unless (equal orig file)
           (setf (magit-section-source it) orig))
@@ -732,7 +732,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
           (value (cons (match-string 2) (split-string (match-string 1)))))
       (magit-delete-line)
       (magit-insert-section it (hunk value)
-        (insert (propertize (concat heading "\n") 'face 'magit-hunk-heading))
+        (insert (propertize (concat heading "\n") 'face 'magit-diff-hunk-heading))
         (magit-insert-heading)
         (while (not (or (eobp) (looking-at magit-diff-headline-re)))
           (forward-line))
@@ -980,7 +980,7 @@ refine if `magit-diff-refine-hunk's value is t."
        (when (memq 'magit-section-highlight magit-section-highlight-hook)
          (magit-section-make-overlay (magit-section-start section)
                                      (magit-section-content section)
-                                     'magit-hunk-heading-highlight)
+                                     'magit-diff-hunk-heading-highlight)
          (magit-diff-paint-hunk section t))
        (when (eq magit-diff-refine-hunk t)
          (magit-diff-refine-hunk section))
@@ -996,7 +996,7 @@ refine if `magit-diff-refine-hunk's value is t."
           (put-text-property
            (point) (1+ (line-end-position)) 'face
            (cond
-            ((looking-at "^\\+\\+[<=|>]\\{7\\}") 'magit-conflict-heading)
+            ((looking-at "^\\+\\+[<=|>]\\{7\\}") 'magit-diff-conflict-heading)
             ((looking-at (if merging  "^\\(\\+\\| \\+\\)" "^\\+"))
              (magit-diff-paint-whitespace merging)
              (if highlight 'magit-diff-added-highlight 'magit-diff-added))
@@ -1023,14 +1023,14 @@ refine if `magit-diff-refine-hunk's value is t."
       (when (and magit-diff-highlight-trailing
                  (looking-at (concat prefix ".*?\\([ \t]+\\)$")))
         (magit-put-face-property (match-beginning 1) (match-end 1)
-                                 'magit-whitespace-warning))
+                                 'magit-diff-whitespace-warning))
       (when (or (and (eq indent 'tabs)
                      (looking-at (concat prefix "\\( *\t[ \t]*\\)")))
                 (and (integerp indent)
                      (looking-at (format "%s\\([ \t]* \\{%s,\\}[ \t]*\\)"
                                          prefix indent))))
         (magit-put-face-property (match-beginning 1) (match-end 1)
-                                 'magit-whitespace-warning)))))
+                                 'magit-diff-whitespace-warning)))))
 
 (defun magit-diff-refine-hunk (hunk)
   (save-excursion
