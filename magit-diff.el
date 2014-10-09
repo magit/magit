@@ -942,7 +942,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
     (magit-git-wash #'magit-diff-wash-diffs
       "diff" "--cached" magit-diff-arguments magit-diff-extra-options)))
 
-;;; Utilities
+;;; Diff Type
 
 (defun magit-diff-type (&optional section)
   (--when-let (or section (magit-current-section))
@@ -992,6 +992,8 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
                 `stashed-index `stashed-worktree `stashed-untracked)
            nil ,_ ,_) 'list)))))
 
+;;; Diff Paint
+
 (defun magit-diff-highlight (section)
   "Highlight the hunk or hunk parent SECTION and refine hunk(s).
 Only highlight if `magit-section-highlight' is a
@@ -1035,6 +1037,8 @@ Only unrefine if `magit-diff-refine-hunk's value is t."
        (when (eq magit-diff-refine-hunk t)
          (magit-diff-unrefine-hunk section))
        t))))
+
+;;; Diff Extract
 
 (defun magit-diff-file-header (section)
   (when (eq (magit-section-type section) 'hunk)
