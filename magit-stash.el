@@ -236,7 +236,7 @@ When the region is active offer to drop all contained stashes."
       (setq untracked (magit-with-temp-index nil
                         (or (and (magit-update-files untracked)
                                  (magit-commit-tree
-                                  (concat "untracked files on %s" summary)))
+                                  (concat "untracked files on " summary)))
                             (error "Cannot save the untracked files")))))
     (magit-with-temp-index (if worktree "HEAD" index)
       (when worktree
