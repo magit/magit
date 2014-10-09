@@ -506,6 +506,7 @@ tracked in the current repository."
 
 (defun magit-maybe-save-repository-buffers ()
   (when (and magit-save-repository-buffers
+             (magit-get-top-dir)
              (not disable-magit-save-buffers))
     (setq disable-magit-save-buffers t)
     (let ((msg (current-message)))
