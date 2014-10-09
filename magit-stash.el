@@ -161,13 +161,11 @@ and forgo removing the stash."
   "Remove a stash from the stash list.
 When the region is active offer to drop all contained stashes."
   (interactive
-   (let ((stashes (and (use-region-p)
-                       (magit-region-sections 'magit-section-value))))
-     (if (> (length stashes) 1)
-         (if (magit-confirm 'drop-stashes "Drop %i stashes" stashes)
-             (list stashes)
-           (user-error "Abort"))
-       (list (magit-read-stash "Drop stash")))))
+   (-if-let (stashes (magit-region-values 'stash))
+       (if (magit-confirm 'drop-stashes "Drop %i stashes" stashes)
+           (list stashes)
+         (user-error "Abort"))
+     (list (magit-read-stash "Drop stash"))))
   (if (listp stash)
       (mapc 'magit-stash-drop (nreverse stash))
     (magit-call-git "reflog" "delete" "--updateref" "--rewrite" stash)

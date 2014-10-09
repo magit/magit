@@ -121,11 +121,8 @@
       (`(untracked     ,_) (magit-stage-untracked))
       (`(unstaged  region) (magit-apply-region it "--cached"))
       (`(unstaged    hunk) (magit-apply-hunk   it "--cached"))
-      (`(unstaged    file) (magit-run-git "add" "-u" "--"
-                                          (magit-section-value it)))
-      (`(unstaged   files) (magit-run-git "add" "-u" "--"
-                                          (magit-region-sections
-                                           #'magit-section-value)))
+      (`(unstaged    file) (magit-run-git "add" "-u" "--" (magit-section-value it)))
+      (`(unstaged   files) (magit-run-git "add" "-u" "--" (magit-region-values)))
       (`(unstaged    list) (magit-run-git "add" "-u" "."))
       (`(staged        ,_) (user-error "Already staged"))
       (`(committed     ,_) (user-error "Cannot stage committed changes"))
@@ -169,7 +166,7 @@ ignored) files.
   (let ((section (magit-current-section)) files repos)
     (dolist (file (pcase (magit-diff-scope)
                     (`file  (list (magit-section-value section)))
-                    (`files (magit-region-sections 'magit-section-value))
+                    (`files (magit-region-values))
                     (`list  (magit-untracked-files))))
       (if (magit-git-repo-p file t)
           (push file repos)
@@ -194,8 +191,7 @@ ignored) files.
       (`(staged    region) (magit-apply-region it "--reverse" "--cached"))
       (`(staged      hunk) (magit-apply-hunk   it "--reverse" "--cached"))
       (`(staged      file) (magit-unstage-1 (magit-section-value it)))
-      (`(staged     files) (magit-unstage-1 (magit-region-sections
-                                             #'magit-section-value)))
+      (`(staged     files) (magit-unstage-1 (magit-region-values)))
       (`(staged      list) (when (or (and (not (magit-anything-unstaged-p))
                                           (not (magit-untracked-files)))
                                      (magit-confirm 'unstage-all
