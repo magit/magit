@@ -471,6 +471,8 @@ tracked in the current repository."
         (save-excursion
           (apply magit-refresh-function
                  magit-refresh-args)))
+      (setq magit-section-highlight-overlays nil
+            magit-section-highlighted-sections nil)
       (when section
         (magit-section-goto-successor section line char))
       (run-hooks 'magit-refresh-buffer-hook)

@@ -27,6 +27,8 @@
 (require 'cl-lib)
 (require 'dash)
 
+(require 'magit-utils)
+
 ;;; Options
 
 (defgroup magit-section nil
@@ -232,7 +234,7 @@ With a prefix argument also expand it." title)
         (setf (magit-section-content section) (point-marker))
         (funcall washer)
         (setf (magit-section-end section) (point-marker))))
-    (magit-section-update-highlight t))
+    (magit-section-update-highlight))
   (-when-let (beg (magit-section-content section))
     (let ((inhibit-read-only t))
       (put-text-property beg (magit-section-end section) 'invisible nil)))
@@ -643,27 +645,34 @@ at point."
 
 (defvar-local magit-section-highlight-overlays nil)
 (defvar-local magit-section-highlighted-sections nil)
+(defvar-local magit-section-unhighlight-sections nil)
 
-(defun magit-section-update-highlight (&optional force)
+(defun magit-section-update-highlight ()
   (let ((inhibit-read-only t)
         (deactivate-mark nil)
         (section (magit-current-section)))
-    (when (or force
-              (not (eq section (car (last magit-section-highlighted-sections)))))
-      (when magit-section-highlighted-sections
-        (mapc #'delete-overlay magit-section-highlight-overlays)
-        (mapc (apply-partially 'run-hook-with-args-until-success
-                               'magit-section-unhighlight-hook)
-              magit-section-highlighted-sections))
-      (unless (eq section magit-root-section)
-        (run-hook-with-args-until-success
-         'magit-section-highlight-hook section)))
-    (setq magit-section-highlighted-sections (list section))))
+    (mapc 'delete-overlay magit-section-highlight-overlays)
+    (setq magit-section-unhighlight-sections
+          magit-section-highlighted-sections
+          magit-section-highlighted-sections nil)
+    (magit-face-remap-set-base 'region)
+    (unless (eq section magit-root-section)
+      (run-hook-with-args-until-success
+       'magit-section-highlight-hook section (magit-region-sections)))
+    (mapc (apply-partially 'run-hook-with-args-until-success
+                           'magit-section-unhighlight-hook)
+          magit-section-unhighlight-sections)))
 
-(defun magit-section-highlight (section)
-  (magit-section-make-overlay (magit-section-start section)
-                              (magit-section-end section)
-                              'magit-section-highlight))
+(defun magit-section-highlight (section siblings)
+  (cond (siblings
+         (magit-face-remap-set-base 'region 'face-override-spec)
+         (magit-section-make-overlay (magit-section-start     (car siblings))
+                                     (magit-section-end (car (last siblings)))
+                                     'magit-section-highlight))
+        (t
+         (magit-section-make-overlay (magit-section-start section)
+                                     (magit-section-end   section)
+                                     'magit-section-highlight))))
 
 (defun magit-section-make-overlay (start end face)
   (let ((ov (make-overlay start end)))

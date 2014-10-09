@@ -53,6 +53,14 @@ The following `format'-like specs are supported:
   :group 'magit-diff
   :type 'string)
 
+(defcustom magit-diff-highlight-hunk-body t
+  "Whether to highlight bodies of selected hunk sections.
+This only has an effect if `magit-diff-highlight' is a
+member of `magit-section-highlight-hook', which see."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-diff
+  :type 'boolean)
+
 (defcustom magit-diff-show-diffstat t
   "Whether to show diffstat in diff buffers."
   :package-version '(magit . "2.1.0")
@@ -174,6 +182,21 @@ The following `format'-like specs are supported:
   "Face for diff file headings."
   :group 'magit-faces)
 
+(defface magit-diff-file-heading-highlight
+  '((t :inherit (magit-diff-file-heading magit-section-highlight)))
+  "Face for current diff file headings."
+  :group 'magit-faces)
+
+(defface magit-diff-file-heading-selection
+  '((((class color) (background light))
+     :inherit magit-diff-file-heading-highlight
+     :foreground "salmon4")
+    (((class color) (background dark))
+     :inherit magit-diff-file-heading-highlight
+     :foreground "LightSalmon3"))
+  "Face for selected diff file headings."
+  :group 'magit-faces)
+
 (defface magit-diff-hunk-heading
   '((((class color) (background light))
      :background "grey80"
@@ -191,7 +214,33 @@ The following `format'-like specs are supported:
     (((class color) (background dark))
      :background "grey35"
      :foreground "grey70"))
-  "Face for diff hunk headings."
+  "Face for current diff hunk headings."
+  :group 'magit-faces)
+
+(defface magit-diff-hunk-heading-selection
+  '((((class color) (background light))
+     :inherit magit-diff-hunk-heading-highlight
+     :foreground "salmon4")
+    (((class color) (background dark))
+     :inherit magit-diff-hunk-heading-highlight
+     :foreground "LightSalmon3"))
+  "Face for selected diff hunk headings."
+  :group 'magit-faces)
+
+(defface magit-diff-lines-heading
+  '((((class color) (background light))
+     :inherit magit-diff-hunk-heading-highlight
+     :background "LightSalmon3")
+    (((class color) (background dark))
+     :inherit magit-diff-hunk-heading-highlight
+     :foreground "grey80"
+     :background "salmon4"))
+  "Face for diff hunk heading when lines are marked."
+  :group 'magit-faces)
+
+(defface magit-diff-lines-boundary
+  '((t :inherit magit-diff-lines-heading))
+  "Face for boundary of marked lines in diff hunk."
   :group 'magit-faces)
 
 (defface magit-diff-conflict-heading
@@ -737,9 +786,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
         (while (not (or (eobp) (looking-at magit-diff-headline-re)))
           (forward-line))
         (setf (magit-section-end it) (point))
-        (magit-diff-paint-hunk it nil)
-        (when (eq magit-diff-refine-hunk 'all)
-          (magit-diff-refine-hunk it))))
+        (magit-diff-paint-hunk it nil nil (eq magit-diff-refine-hunk 'all))))
     t))
 
 (defun magit-diff-toggle-refine-hunk (&optional other)
@@ -940,71 +987,121 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
                 `stashed-index `stashed-worktree `stashed-untracked)
            nil ,_ ,_) 'list)))))
 
-;;; Diff Paint
+;;; Diff Highlight
 
 (defun magit-diff-unhighlight (section)
-  "Unhighlight the hunk or hunk parent SECTION and unrefine hunk(s).
-Only unrefine if `magit-diff-refine-hunk's value is t."
-  (save-excursion
-    (goto-char (magit-section-start section))
-    (magit-section-case
-      ((diff staged unstaged)
-       (mapc #'magit-diff-unhighlight (magit-section-children section))
-       t)
-      (hunk
-       (magit-diff-paint-hunk section nil)
-       (when (eq magit-diff-refine-hunk t)
-         (magit-diff-unrefine-hunk section))
-       t))))
+  (when (eq (magit-section-type section) 'hunk)
+    (magit-diff-paint-hunk section)
+    t))
 
-(defun magit-diff-highlight (section)
-  "Highlight the hunk or hunk parent SECTION and refine hunk(s).
-Only highlight if `magit-section-highlight' is a
-member of `magit-section-highlight-hook'.  Only
-refine if `magit-diff-refine-hunk's value is t."
-  (save-excursion
-    (goto-char (magit-section-start section))
-    (magit-section-case
-      ((file staged unstaged stashed-index stashed-worktree stashed-untracked)
-       (when (memq 'magit-section-highlight magit-section-highlight-hook)
-         (let ((end (magit-section-end section)))
-           (magit-section-make-overlay (magit-section-start section)
-                                       (or (magit-section-content section) end)
-                                       'magit-section-highlight)
-           (magit-section-when (staged unstaged)
-             (magit-section-make-overlay (1- end) end
-                                         'magit-section-highlight))))
-       (mapc #'magit-diff-highlight (magit-section-children section))
-       t)
-      (hunk
-       (when (memq 'magit-section-highlight magit-section-highlight-hook)
-         (magit-section-make-overlay (magit-section-start section)
-                                     (magit-section-content section)
-                                     'magit-diff-hunk-heading-highlight)
-         (magit-diff-paint-hunk section t))
-       (when (eq magit-diff-refine-hunk t)
-         (magit-diff-refine-hunk section))
-       t))))
+(defun magit-diff-highlight (section siblings)
+  (-when-let (scope (magit-diff-scope section t))
+    (cond ((eq scope 'region)
+           (magit-diff-paint-hunk section nil t)
+           (magit-face-remap-set-base 'region 'face-override-spec)
+           (magit-diff-highlight-lines section))
+          (siblings
+           (magit-face-remap-set-base 'region 'face-override-spec)
+           (dolist (section siblings)
+             (magit-diff-highlight-recursive section siblings)))
+          (t
+           (magit-diff-highlight-recursive section)))
+    t))
 
-(defun magit-diff-paint-hunk (section highlight)
-  (when (magit-section-value section)
-    (save-excursion
-      (goto-char (magit-section-start   section))
-      (let ((merging (looking-at "@@@")))
-        (goto-char (magit-section-content section))
-        (while (< (point) (magit-section-end section))
-          (put-text-property
-           (point) (1+ (line-end-position)) 'face
-           (cond
-            ((looking-at "^\\+\\+[<=|>]\\{7\\}") 'magit-diff-conflict-heading)
-            ((looking-at (if merging  "^\\(\\+\\| \\+\\)" "^\\+"))
-             (magit-diff-paint-whitespace merging)
-             (if highlight 'magit-diff-added-highlight 'magit-diff-added))
-            ((looking-at (if merging  "^\\(-\\| -\\)" "^-"))
-             (if highlight 'magit-diff-removed-highlight 'magit-diff-removed))
-            (t
-             (if highlight 'magit-diff-context-highlight 'magit-diff-context))))
-          (forward-line))))))
+(defun magit-diff-highlight-recursive (section &optional siblings)
+  (let ((scope (magit-diff-scope section nil t)))
+    (pcase scope
+      (`list (magit-diff-highlight-list section))
+      (`file (magit-diff-highlight-heading section siblings))
+      (`hunk (magit-diff-highlight-heading section siblings)
+             (magit-diff-paint-hunk section siblings t)))
+    (dolist (child (magit-section-children section))
+      (magit-diff-highlight-recursive child siblings))))
+
+(defun magit-diff-highlight-list (section)
+  (let ((beg (magit-section-start   section))
+        (cnt (magit-section-content section))
+        (end (magit-section-end     section)))
+    (magit-section-make-overlay     beg  cnt 'magit-section-highlight)
+    (magit-section-make-overlay (1- end) end 'magit-section-highlight)))
+
+(defun magit-diff-highlight-heading (section &optional siblings)
+  (magit-section-make-overlay
+   (magit-section-start section)
+   (or (magit-section-content section)
+       (magit-section-end     section))
+   (pcase (magit-section-type section)
+     (`file (if (member section siblings)
+                'magit-diff-file-heading-selection
+              'magit-diff-file-heading-highlight))
+     (`hunk (if (member section siblings)
+                'magit-diff-hunk-heading-selection
+              'magit-diff-hunk-heading-highlight)))))
+
+(defun magit-diff-highlight-lines (section)
+  (let ((face (if magit-diff-highlight-hunk-body
+                  'magit-diff-context-highlight
+                'magit-diff-context))
+        (sbeg (magit-section-start section))
+        (cbeg (magit-section-content section))
+        (rbeg (save-excursion (goto-char (region-beginning))
+                              (line-beginning-position)))
+        (rend (save-excursion (goto-char (region-end))
+                              (line-end-position)))
+        (send (magit-section-end section)))
+    (overlay-put (magit-section-make-overlay
+                  sbeg cbeg 'magit-diff-lines-heading)
+                 'display (concat (magit-diff-hunk-region-header section) "\n"))
+    (overlay-put (magit-section-make-overlay cbeg rbeg face) 'priority 2)
+    (overlay-put (magit-section-make-overlay rbeg (1+ rbeg) nil)
+                 'before-string
+                 (propertize
+                  (concat (propertize "\s" 'display '(space :height (1)))
+                          (propertize "\n" 'line-height t))
+                  'face 'magit-diff-lines-boundary))
+    (overlay-put (magit-section-make-overlay rend (1+ rend) nil)
+                 'after-string
+                 (propertize
+                  (concat (propertize "\s" 'display '(space :height (1)))
+                          (propertize "\n" 'line-height t))
+                  'face 'magit-diff-lines-boundary))
+    (overlay-put (magit-section-make-overlay (1+ rend) send face) 'priority 2)))
+
+;;; Hunk Paint
+
+(defun magit-diff-paint-hunk (section &optional siblings highlight refine)
+  (let ((paint (not highlight)))
+    (when highlight
+      (push section magit-section-highlighted-sections)
+      (cond ((memq section magit-section-unhighlight-sections)
+             (setq magit-section-unhighlight-sections
+                   (delete section magit-section-unhighlight-sections)))
+            (magit-diff-highlight-hunk-body
+             (setq paint t))))
+    (when paint
+      (save-excursion
+        (goto-char (magit-section-start section))
+        (let ((end (magit-section-end section))
+              (merging (looking-at "@@@")))
+          (forward-line)
+          (while (< (point) end)
+            (put-text-property
+             (point) (1+ (line-end-position)) 'face
+             (cond
+              ((looking-at "^\\+\\+[<=|>]\\{7\\}") 'magit-diff-conflict-heading)
+              ((looking-at (if merging  "^\\(\\+\\| \\+\\)" "^\\+"))
+               (magit-diff-paint-whitespace merging)
+               (if highlight 'magit-diff-added-highlight 'magit-diff-added))
+              ((looking-at (if merging  "^\\(-\\| -\\)" "^-"))
+               (if highlight 'magit-diff-removed-highlight 'magit-diff-removed))
+              (t
+               (if highlight 'magit-diff-context-highlight 'magit-diff-context))))
+            (forward-line)))))
+    (cond (refine (magit-diff-refine-hunk section))
+          ((eq magit-diff-refine-hunk t)
+           (if highlight
+               (magit-diff-refine-hunk section)
+             (magit-diff-unrefine-hunk section))))))
 
 (defun magit-diff-paint-whitespace (merging)
   (when (and magit-diff-paint-whitespace
