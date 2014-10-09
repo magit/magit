@@ -728,7 +728,7 @@ at point."
         (next  (cdr (member section siblings)))
         ((nil) (remq section siblings))))))
 
-(defun magit-section-region-siblings (&optional key)
+(defun magit-region-sections (&optional key)
   (let ((beg (get-text-property (region-beginning) 'magit-section))
         (end (get-text-property (region-end) 'magit-section)))
     (if (eq beg end)
@@ -753,7 +753,7 @@ at point."
 
 (defun magit-current-sections (&optional type)
   (let ((sections (or (and (use-region-p)
-                           (magit-section-region-siblings))
+                           (magit-region-sections))
                       (--when-let (magit-current-section)
                         (list it)))))
     (when (or (not type)

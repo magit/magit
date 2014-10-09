@@ -124,7 +124,7 @@
       (`(unstaged    file) (magit-run-git "add" "-u" "--"
                                           (magit-section-value it)))
       (`(unstaged   files) (magit-run-git "add" "-u" "--"
-                                          (magit-section-region-siblings
+                                          (magit-region-sections
                                            #'magit-section-value)))
       (`(unstaged    list) (magit-run-git "add" "-u" "."))
       (`(staged        ,_) (user-error "Already staged"))
@@ -169,7 +169,7 @@ ignored) files.
   (let ((section (magit-current-section)) files repos)
     (dolist (file (pcase (magit-diff-scope)
                     (`file  (list (magit-section-value section)))
-                    (`files (magit-section-region-siblings 'magit-section-value))
+                    (`files (magit-region-sections 'magit-section-value))
                     (`list  (magit-untracked-files))))
       (if (magit-git-repo-p file t)
           (push file repos)
@@ -194,7 +194,7 @@ ignored) files.
       (`(staged    region) (magit-apply-region it "--reverse" "--cached"))
       (`(staged      hunk) (magit-apply-hunk   it "--reverse" "--cached"))
       (`(staged      file) (magit-unstage-1 (magit-section-value it)))
-      (`(staged     files) (magit-unstage-1 (magit-section-region-siblings
+      (`(staged     files) (magit-unstage-1 (magit-region-sections
                                              #'magit-section-value)))
       (`(staged      list) (when (or (and (not (magit-anything-unstaged-p))
                                           (not (magit-untracked-files)))
@@ -237,7 +237,7 @@ without requiring confirmation."
       (`(committed ,_) (user-error "Cannot discard committed changes"))
       (`(undefined ,_) (user-error "Cannot discard this change"))
       (`(,_      list) (magit-discard-files (magit-section-children it)))
-      (`(,_     files) (magit-discard-files (magit-section-region-siblings)))
+      (`(,_     files) (magit-discard-files (magit-region-sections)))
       (`(,_      file) (magit-discard-files (list it)))
       (_               (magit-discard-apply it)))))
 
@@ -363,7 +363,7 @@ without requiring confirmation."
       (`(untracked ,_) (user-error "Cannot reverse untracked changes"))
       (`(unstaged  ,_) (user-error "Cannot reverse unstaged changes"))
       (`(,_      list) (magit-reverse-files (magit-section-children it)))
-      (`(,_     files) (magit-reverse-files (magit-section-region-siblings)))
+      (`(,_     files) (magit-reverse-files (magit-region-sections)))
       (`(,_      file) (magit-reverse-files (list it)))
       (_               (magit-reverse-apply it)))))
 

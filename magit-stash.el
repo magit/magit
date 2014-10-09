@@ -162,7 +162,7 @@ and forgo removing the stash."
 When the region is active offer to drop all contained stashes."
   (interactive
    (let ((stashes (and (use-region-p)
-                       (magit-section-region-siblings 'magit-section-value))))
+                       (magit-region-sections 'magit-section-value))))
      (if (> (length stashes) 1)
          (if (magit-confirm 'drop-stashes "Drop %i stashes" stashes)
              (list stashes)
