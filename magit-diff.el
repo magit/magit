@@ -712,12 +712,13 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
         (setf (magit-section-value diffstat) file))
       (magit-insert-section it
         (file file (or (equal status "deleted")
-                      (derived-mode-p 'magit-status-mode)))
-        (magit-insert-heading
-          (propertize
-           (format "%-10s %s\n" status
-                   (if (equal orig file) file (format "%s -> %s" orig file)))
-           'face 'magit-file-heading))
+                       (derived-mode-p 'magit-status-mode)))
+        (insert (propertize (format "%-10s %s\n" status
+                                    (if (equal orig file)
+                                        file
+                                      (format "%s -> %s" orig file)))
+                            'face 'magit-file-heading))
+        (magit-insert-heading)
         (unless (equal orig file)
           (setf (magit-section-source it) orig))
         (when modes
@@ -731,9 +732,8 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
           (value (cons (match-string 2) (split-string (match-string 1)))))
       (magit-delete-line)
       (magit-insert-section it (hunk value)
-        (insert (propertize (concat heading "\n")
-                            'face 'magit-hunk-heading))
-        (setf (magit-section-content it) (point-marker))
+        (insert (propertize (concat heading "\n") 'face 'magit-hunk-heading))
+        (magit-insert-heading)
         (while (not (or (eobp) (looking-at magit-diff-headline-re)))
           (forward-line))
         (setf (magit-section-end it) (point))
