@@ -111,8 +111,7 @@
     (magit-tests--modify-and-commit "file with space")
     (magit-tests--modify-file "file with space")
     (magit-status default-directory)
-    (magit-stage-modified t)
-    (magit-tests--should-have-section 'staged "file with space")))
+    (magit-tests--should-have-section 'unstaged "file with space")))
 
 (ert-deftest magit-status-unpushed ()
   (magit-tests--with-temp-repo
