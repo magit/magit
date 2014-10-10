@@ -305,11 +305,10 @@ hidden."
 
 (defun magit-section-show-headings-1 (section)
   (dolist (s (magit-section-children section))
-    (if (or (magit-section-children s)
-            (not (magit-section-content s)))
-        (progn (setf (magit-section-hidden s) nil)
-               (magit-section-show-headings-1 s))
-      (setf (magit-section-hidden s) t))))
+    (when (or (magit-section-children s)
+              (not (magit-section-content s)))
+      (magit-section-show-headings-1 s))
+    (setf (magit-section-hidden s) nil)))
 
 (defun magit-section-cycle (section)
   "Cycle visibility of current section."
