@@ -1,5 +1,4 @@
-# 'elisp' isn't supported and 'c' is less noisy than the default
-language: c
+language: generic
 env:
   global:
     - CURL=curl -fsSkL --retry 9 --retry-delay 9
