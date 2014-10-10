@@ -646,14 +646,15 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
           "\\(contains modified content\\)\\|"
           "\\([^:]+\\):\\)$"))
 
-(defun magit-diff-wash-diffs (args)
-  (let ((diffstats (magit-diff-wash-diffstats)))
-    (when (re-search-forward magit-diff-headline-re nil t)
-      (goto-char (line-beginning-position))
-      (magit-wash-sequence
-       (lambda ()
-         (magit-diff-wash-diff args (pop diffstats))))
-      (insert ?\n)))
+(defun magit-diff-wash-diffs (args &optional diffstats)
+  (unless diffstats
+    (setq diffstats (magit-diff-wash-diffstats)))
+  (when (re-search-forward magit-diff-headline-re nil t)
+    (goto-char (line-beginning-position))
+    (magit-wash-sequence
+     (lambda ()
+       (magit-diff-wash-diff args (pop diffstats))))
+    (insert ?\n))
   (goto-char (point-max))
   (magit-xref-insert-buttons))
 
@@ -850,37 +851,38 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
       commit)))
 
 (defun magit-diff-wash-revision (args)
-  (looking-at "^commit \\([a-z0-9]+\\)\\(?: \\(.+\\)\\)?$")
-  (magit-bind-match-strings (rev refs) nil
-    (magit-delete-line)
-    (magit-insert-section (headers)
-      (magit-insert-heading
-        (and refs (concat (magit-format-ref-labels refs) " "))
-        (propertize rev 'face 'magit-hash))
-      (while (re-search-forward "^\\([a-z]+\\): +\\(.+\\)$" nil t)
-        (magit-bind-match-strings (keyword revs) nil
-          (when (string-match-p keyword "Merge")
-            (magit-delete-match 2)
-            (dolist (rev (split-string revs))
-              (magit-diff-insert-commit-button rev)
-              (insert ?\s)))))
-      (forward-line)))
-  (forward-line)
-  (let ((bound (save-excursion
-                 (when (re-search-forward "^diff" nil t)
-                   (copy-marker (match-beginning 0)))))
-        (summary (buffer-substring-no-properties
-                  (point) (line-end-position))))
-    (magit-delete-line)
-    (magit-insert-section (message)
-      (insert summary ?\n)
-      (magit-insert-heading)
-      (cond ((re-search-forward "^---" bound t)
-             (magit-delete-match))
-            ((re-search-forward "^.[^ ]" bound t)
-             (goto-char (1- (match-beginning 0)))))))
-  (forward-line)
-  (magit-diff-wash-diffs args))
+  (let (diffstats)
+    (looking-at "^commit \\([a-z0-9]+\\)\\(?: \\(.+\\)\\)?$")
+    (magit-bind-match-strings (rev refs) nil
+      (magit-delete-line)
+      (magit-insert-section (headers)
+        (magit-insert-heading
+          (and refs (concat (magit-format-ref-labels refs) " "))
+          (propertize rev 'face 'magit-hash))
+        (while (re-search-forward "^\\([a-z]+\\): +\\(.+\\)$" nil t)
+          (magit-bind-match-strings (keyword revs) nil
+            (when (string-match-p keyword "Merge")
+              (magit-delete-match 2)
+              (dolist (rev (split-string revs))
+                (magit-diff-insert-commit-button rev)
+                (insert ?\s)))))
+        (forward-line 2)
+        (let ((bound (save-excursion
+                       (when (re-search-forward "^diff" nil t)
+                         (copy-marker (match-beginning 0)))))
+              (summary (buffer-substring-no-properties
+                        (point) (line-end-position))))
+          (magit-delete-line)
+          (magit-insert-section (message)
+            (insert summary ?\n)
+            (magit-insert-heading)
+            (cond ((re-search-forward "^---" bound t)
+                   (magit-delete-match))
+                  ((re-search-forward "^.[^ ]" bound t)
+                   (goto-char (1- (match-beginning 0)))))))
+        (forward-line)
+        (setq diffstats (magit-diff-wash-diffstats))))
+    (magit-diff-wash-diffs args diffstats)))
 
 (defun magit-diff-insert-commit-button (hash)
   (magit-insert-section (commit hash)
