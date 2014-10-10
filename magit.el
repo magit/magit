@@ -4081,12 +4081,14 @@ the current repository."
         (dolist (buf (buffer-list))
           (with-current-buffer buf
             (let ((file (buffer-file-name)))
-              (and file (string-prefix-p topdir file)
-                   (not (string-prefix-p gitdir file))
-                   (member (file-relative-name file topdir) tracked)
-                   (let ((auto-revert-mode t))
-                     (auto-revert-handler)
-                     (run-hooks 'magit-revert-buffer-hook))))))))))
+              (when (and file (string-prefix-p topdir file)
+                         (not (string-prefix-p gitdir file))
+                         (member (file-relative-name file topdir) tracked)
+                         (file-readable-p file)
+                         (not (verify-visited-file-modtime buf)))
+                (revert-buffer 'ignore-auto 'dont-ask 'preserve-modes)
+                (vc-find-file-hook)
+                (run-hooks 'magit-revert-buffer-hook)))))))))
 
 ;;; (misplaced)
 ;;;; Diff Options
