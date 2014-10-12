@@ -214,7 +214,7 @@ Download and unpack [magit-1.2.1.tar.gz][download]. Then build and
 install as usual:
 
 ```sh
-$ wget https://github.com/downloads/magit/magit/magit-1.2.1.tar.gz
+$ wget https://github.com/magit/magit/releases/download/1.2.1/magit-1.2.1.tar.gz
 $ tar -xf magit-1.2.1.tar.gz
 $ cd magit-1.2.1
 $ make
@@ -288,7 +288,7 @@ To run tests the following libraries are also required:
 [contributing]: https://github.com/magit/magit/blob/master/CONTRIBUTING.md
 [contributors]: https://github.com/magit/magit/contributors
 [development]: http://github.com/magit/magit
-[download]: https://github.com/downloads/magit/magit/magit-1.2.1.tar.gz
+[download]: https://github.com/magit/magit/releases/download/1.2.1/magit-1.2.1.tar.gz
 [faq]: https://github.com/magit/magit/wiki/FAQ
 [group]: https://groups.google.com/forum/?fromgroups#!forum/magit
 [issues]: https://github.com/magit/magit/issues
