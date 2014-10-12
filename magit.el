@@ -4705,7 +4705,7 @@ As determined by the directory passed to `magit-status'."
   (and buffer-file-name
        (let ((topdir (magit-get-top-dir magit-default-directory)))
          (and topdir
-              (string-prefix-p topdir buffer-file-name)
+              (equal (file-remote-p topdir) (file-remote-p buffer-file-name))
               ;; ^ Avoid needlessly connecting to unrelated tramp remotes.
               (string= topdir (magit-get-top-dir
                                (file-name-directory buffer-file-name)))))))
