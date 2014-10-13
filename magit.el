@@ -4080,8 +4080,10 @@ the current repository."
             (tracked (magit-git-lines "ls-tree" "-r" "--name-only" "HEAD")))
         (dolist (buf (buffer-list))
           (with-current-buffer buf
-            (let ((file (buffer-file-name)))
-              (when (and file (string-prefix-p topdir file)
+            (let ((file buffer-file-truename))
+              (when (and file
+                         (setq file (expand-file-name file))
+                         (string-prefix-p topdir file)
                          (not (string-prefix-p gitdir file))
                          (member (file-relative-name file topdir) tracked)
                          (file-readable-p file)
