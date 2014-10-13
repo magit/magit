@@ -4085,7 +4085,7 @@ the current repository."
                          (not (string-prefix-p gitdir file))
                          (member (file-relative-name file topdir) tracked)
                          (file-readable-p file)
-                         (not (verify-visited-file-modtime buf)))
+                         (not (buffer-modified-p)))
                 (revert-buffer 'ignore-auto 'dont-ask 'preserve-modes)
                 (vc-find-file-hook)
                 (run-hooks 'magit-revert-buffer-hook)))))))))
