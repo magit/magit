@@ -693,6 +693,8 @@ Return a list of two integers: (A>B B>A)."
         (sfile (cl-gensym "file")))
     `(let ((,stree ,tree)
            (,sfile (magit-git-dir (make-temp-name "index.magit."))))
+       (when (file-remote-p ,sfile)
+         (setq ,sfile (with-parsed-tramp-file-name ,sfile nil localname)))
        (unwind-protect
            (let ((process-environment process-environment))
              ,@(and tree
