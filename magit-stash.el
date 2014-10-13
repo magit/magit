@@ -171,6 +171,8 @@ When the region is active offer to drop all contained stashes."
     (magit-call-git "reflog" "delete" "--updateref" "--rewrite" stash)
     (-when-let (ref (and (string-match "\\(.+\\)@{[0-9]+}$" stash)
                          (match-string 1 stash)))
+      (unless (string-match "^refs/" ref)
+        (setq ref (concat "refs/" ref)))
       (unless (magit-rev-verify (concat ref "@{0}"))
         (magit-run-git "update-ref" "-d" ref)))
     (magit-refresh)))
