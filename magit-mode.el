@@ -495,6 +495,7 @@ tracked in the current repository."
                       (blaming magit-blame-mode))
                   (when blaming (magit-blame-mode -1))
                   (revert-buffer 'ignore-auto 'dont-ask 'preserve-modes)
+                  (run-hooks 'magit-revert-buffer-hook)
                   (when blaming (magit-blame-mode 1)))
                 (vc-find-file-hook)))))))))
 
