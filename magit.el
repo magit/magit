@@ -4080,17 +4080,13 @@ the current repository."
             (tracked (magit-git-lines "ls-tree" "-r" "--name-only" "HEAD")))
         (dolist (buf (buffer-list))
           (with-current-buffer buf
-            (let ((file buffer-file-truename))
-              (when (and file
-                         (setq file (expand-file-name file))
-                         (string-prefix-p topdir file)
-                         (not (string-prefix-p gitdir file))
-                         (member (file-relative-name file topdir) tracked)
-                         (file-readable-p file)
-                         (not (buffer-modified-p)))
-                (revert-buffer 'ignore-auto 'dont-ask 'preserve-modes)
-                (vc-find-file-hook)
-                (run-hooks 'magit-revert-buffer-hook)))))))))
+            (let ((file (buffer-file-name)))
+              (and file (string-prefix-p topdir file)
+                   (not (string-prefix-p gitdir file))
+                   (member (file-relative-name file topdir) tracked)
+                   (let ((auto-revert-mode t))
+                     (auto-revert-handler)
+                     (run-hooks 'magit-revert-buffer-hook))))))))))
 
 ;;; (misplaced)
 ;;;; Diff Options
