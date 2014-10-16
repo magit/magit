@@ -37,7 +37,7 @@ want to be part of the next release.
 
 **No *completely* new features are going to be implemented until after
 the next release.  However some "new" features are going to make it
-into the release with replace existing but broken and/or misguided
+into the release which replace existing but broken and/or misguided
 features.**
 
 This shouldn't keep you from making feature requests, but first
