@@ -316,7 +316,7 @@ To run tests the following libraries are also required:
 [gratipay]: https://gratipay.com/magit
 [git-modes]: https://github.com/magit/git-modes
 [marmalade]: http://marmalade-repo.org
-[mastering-intro]: http://www.masteringemacs.org/articles/2013/12/06/introduction-magit-emacs-mode-git
+[mastering-intro]: http://www.masteringemacs.org/article/introduction-magit-emacs-mode-git
 [melpa]: http://melpa.milkbox.net
 [melpa-intro]: http://melpa.milkbox.net/#/getting-started
 [stgit]: http://www.procode.org/stgit
