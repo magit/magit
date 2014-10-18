@@ -1,4 +1,4 @@
-;;; magit-stash.el --- automatically create backup stashes
+;;; magit-backup.el --- automatically create backup stashes
 
 ;; Copyright (C) 2008-2014  The Magit Project Developers
 ;;
