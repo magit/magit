@@ -77,7 +77,8 @@
   :group 'magit-backup)
 
 (defun magit-maybe-backup ()
-  (when (magit-rev-parse "--verify" "HEAD")
+  (when (and magit-backup-mode
+             (magit-rev-parse "--verify" "HEAD"))
     (magit-stash-save (concat "WIP on " (magit-stash-summary))
                       (not (magit-anything-unmerged-p))
                       t magit-backup-untracked
