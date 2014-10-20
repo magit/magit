@@ -473,23 +473,25 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
     (magit-format-log-margin)))
 
 (defun magit-insert-log (range &optional args file)
-  (--when-let (member "--decorate" args)
-    (setcar it "--decorate=full"))
   (magit-git-wash (apply-partially 'magit-log-wash-log 'oneline)
     "log" (format "-%d" magit-log-cutoff-length) "--color"
     (format "--format=%%h%s %s[%%an][%%at]%%s"
-            (if (member "--decorate=full" args) "%d" "")
-            (if (member "--show-signature" args) "%G?" ""))
-    (delete "--show-signature" args)
+            (if (member "--decorate" args) "%d" "")
+            (if (member "--show-signature" args)
+                (progn (setq args (remove "--show-signature" args)) "%G?")
+              ""))
+    (if (member "--decorate" args)
+        (cons "--decorate=full" (remove "--decorate" args))
+      args)
     range "--" file))
 
 (defun magit-insert-log-long (range &optional args file)
-  (--when-let (member "--decorate" args)
-    (setcar it "--decorate=full"))
   (magit-git-wash (apply-partially 'magit-log-wash-log 'long)
-    "log" (format "-%d" magit-log-cutoff-length)
-    "--color" "--abbrev-commit"
-    args range "--" file))
+    "log" (format "-%d" magit-log-cutoff-length) "--color" "--abbrev-commit"
+    (if (member "--decorate" args)
+        (cons "--decorate=full" (remove "--decorate" args))
+      args)
+    range "--" file))
 
 (defvar magit-commit-section-map
   (let ((map (make-sparse-keymap)))
