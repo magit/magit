@@ -466,31 +466,34 @@ for a commit."
 (defun magit-diff-less-context (&optional count)
   "Decrease the context for diff hunks by COUNT lines."
   (interactive "p")
-  (setq magit-diff-arguments
-        (cons (format "-U%i" (max 0 (- (magit-diff-previous-context-lines)
-                                       count)))
-              magit-diff-arguments))
-  (magit-refresh))
+  (magit-diff-set-context `(lambda (cur) (max 0 (- (or cur 0) ,count)))))
 
 (defun magit-diff-more-context (&optional count)
   "Increase the context for diff hunks by COUNT lines."
   (interactive "p")
-  (setq magit-diff-arguments
-        (cons (format "-U%i" (+ (magit-diff-previous-context-lines) count))
-              magit-diff-arguments))
-  (magit-refresh))
+  (magit-diff-set-context `(lambda (cur) (+ (or cur 0) ,count))))
 
 (defun magit-diff-default-context ()
   "Reset context for diff hunks to the default height."
   (interactive)
-  (magit-diff-previous-context-lines)
+  (magit-diff-set-context #'ignore))
+
+(defun magit-diff-set-context (fn)
+  (let* ((def (--if-let (magit-get "diff.context") (string-to-number it) 3))
+         (val magit-diff-arguments)
+         (arg (--first (string-match "^-U\\([0-9]+\\)?$" it) val))
+         (num (--if-let (match-string 1 arg) (string-to-number it) def))
+         (val (delete arg val))
+         (num (funcall fn num))
+         (arg (and num (not (= num def)) (format "-U%i" num))))
+    (setq magit-diff-arguments (if arg (cons arg val) val)))
   (magit-refresh))
 
-(defun magit-diff-previous-context-lines ()
-  (--if-let (--first (string-match "^-U\\([0-9]+\\)$" it) magit-diff-arguments)
-      (progn (setq magit-diff-arguments (delete it magit-diff-arguments))
-             (string-to-number (match-string 1 it)))
-    3))
+(defun magit-diff-context-p ()
+  (--if-let (--first (string-match "^-U\\([0-9]+\\)$" it)
+                     magit-diff-arguments)
+      (not (equal "-U0" it))
+    t))
 
 (defun magit-diff-show-or-scroll-up ()
   "Update the commit or diff buffer for the thing at point.
@@ -1150,7 +1153,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
   (nth 3 (split-string (magit-diff-hunk-region-patch section) "\n")))
 
 (defun magit-diff-hunk-region-patch (section &optional args)
-  (when (member "-U0" magit-diff-arguments)
+  (unless (magit-diff-context-p)
     (user-error "Not enough context to apply region.  Increase the context"))
   (when (string-match "^diff --cc" (magit-section-parent-value section))
     (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))

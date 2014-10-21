@@ -79,7 +79,7 @@
     (insert patch)
     (magit-run-git-with-input nil
       "apply" args
-      (and (member "-U0" magit-diff-arguments) "--unidiff-zero")
+      (unless (magit-diff-context-p) "--unidiff-zero")
       "--ignore-space-change" "-"))
   (magit-refresh))
 
