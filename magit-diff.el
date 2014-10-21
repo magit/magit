@@ -335,13 +335,10 @@ The following `format'-like specs are supported:
                   "--diff-algorithm=" magit-diff-select-algorithm))
   :actions  '((?d "Diff unstaged"     magit-diff-unstaged)
               (?c "Show commit"       magit-show-commit)
-              (?R "Refresh diff"      magit-popup-set-local-variable)
+              (?w "Diff working tree" magit-diff-working-tree)
               (?i "Diff staged"       magit-diff-staged)
               (?r "Diff commits"      magit-diff)
-              (?S "Refresh and set"   magit-popup-set-variable)
-              (?w "Diff working tree" magit-diff-working-tree)
-              (?p "Diff paths"        magit-diff-paths)
-              (?W "Refresh and save"  magit-popup-save-variable))
+              (?p "Diff paths"        magit-diff-paths))
   :default-action 'magit-diff-working-tree
   :max-action-columns 3)
 

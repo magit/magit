@@ -488,30 +488,6 @@ that without users being aware of it could lead to tears.
                            (magit-popup-get-args))
   (unless arg (magit-popup-quit)))
 
-(defun magit-popup-set-local-variable ()
-  (interactive)
-  (set (make-local-variable
-        (plist-get (symbol-value magit-current-popup) :variable))
-       magit-current-popup-args)
-  (when (derived-mode-p 'magit-mode)
-    (magit-refresh)))
-
-(defun magit-popup-set-variable ()
-  (interactive)
-  (let ((var (plist-get (symbol-value magit-current-popup) :variable)))
-    (kill-local-variable var)
-    (customize-set-variable var magit-current-popup-args))
-  (when (derived-mode-p 'magit-mode)
-    (magit-refresh)))
-
-(defun magit-popup-save-variable ()
-  (interactive)
-  (let ((var (plist-get (symbol-value magit-current-popup) :variable)))
-    (kill-local-variable var)
-    (customize-save-variable var magit-current-popup-args))
-  (when (derived-mode-p 'magit-mode)
-    (magit-refresh)))
-
 ;;; Help
 
 (defun magit-popup-toggle-show-popup-commands ()
