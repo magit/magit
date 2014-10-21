@@ -313,24 +313,24 @@ that without users being aware of it could lead to tears.
   (declare (indent defun) (doc-string 2))
   (let* ((grp  (unless (keywordp (car args)) (pop args)))
          (mode (unless (keywordp (car args)) (pop args)))
-         (var  (unless (keywordp (car args)) (pop args)))
          (opt  (symbol-name name))
-         (opt  (intern (concat (if (string-match-p "-popup$" opt)
-                                   (substring opt 0 -6)
-                                 opt)
-                               "-arguments"))))
+         (opt  (if (keywordp (car args))
+                   (intern (concat (if (string-match-p "-popup$" opt)
+                                       (substring opt 0 -6)
+                                     opt)
+                                   "-arguments"))
+                 (pop args))))
     `(progn
        (defun ,name (&optional arg) ,doc
          (interactive "P")
          (magit-invoke-popup ',name ,mode arg))
        (defvar ,name
-         (list :variable ,(or var `',opt) ,@args))
-       ,@(unless var
-           `((defcustom ,opt (plist-get ,name :default-arguments)
-               ""
-               ,@(and grp (list :group grp))
-               :type '(repeat (string :tag "Argument")))
-             (put ',opt 'definition-name ',name))))))
+         (list :variable ',opt ,@args))
+       (defcustom ,opt (plist-get ,name :default-arguments)
+         ""
+         ,@(and grp (list :group grp))
+         :type '(repeat (string :tag "Argument")))
+       (put ',opt 'definition-name ',name))))
 
 (defun magit-define-popup-switch (popup key desc switch
                                         &optional enable at prepend)
