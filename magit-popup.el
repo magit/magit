@@ -292,7 +292,7 @@ that without users being aware of it could lead to tears.
 (defun magit-popup-convert-options (val def)
   (mapcar (lambda (ev)
             (let* ((a (nth 2 ev))
-                   (r (format "^%s\\(.+\\)" a))
+                   (r (format "^%s\\(.*\\)" a))
                    (v (--first (string-match r it) val)))
               (make-magit-popup-event
                :key (car ev)  :dsc (cadr ev) :arg a
@@ -313,24 +313,24 @@ that without users being aware of it could lead to tears.
   (declare (indent defun) (doc-string 2))
   (let* ((grp  (unless (keywordp (car args)) (pop args)))
          (mode (unless (keywordp (car args)) (pop args)))
-         (var  (unless (keywordp (car args)) (pop args)))
          (opt  (symbol-name name))
-         (opt  (intern (concat (if (string-match-p "-popup$" opt)
-                                   (substring opt 0 -6)
-                                 opt)
-                               "-arguments"))))
+         (opt  (if (keywordp (car args))
+                   (intern (concat (if (string-match-p "-popup$" opt)
+                                       (substring opt 0 -6)
+                                     opt)
+                                   "-arguments"))
+                 (pop args))))
     `(progn
        (defun ,name (&optional arg) ,doc
          (interactive "P")
          (magit-invoke-popup ',name ,mode arg))
        (defvar ,name
-         (list :variable ,(or var `',opt) ,@args))
-       ,@(unless var
-           `((defcustom ,opt (plist-get ,name :default-arguments)
-               ""
-               ,@(and grp (list :group grp))
-               :type '(repeat (string :tag "Argument")))
-             (put ',opt 'definition-name ',name))))))
+         (list :variable ',opt ,@args))
+       (defcustom ,opt (plist-get ,name :default-arguments)
+         ""
+         ,@(and grp (list :group grp))
+         :type '(repeat (string :tag "Argument")))
+       (put ',opt 'definition-name ',name))))
 
 (defun magit-define-popup-switch (popup key desc switch
                                         &optional enable at prepend)
@@ -487,30 +487,6 @@ that without users being aware of it could lead to tears.
   (customize-save-variable (magit-popup-get :variable)
                            (magit-popup-get-args))
   (unless arg (magit-popup-quit)))
-
-(defun magit-popup-set-local-variable ()
-  (interactive)
-  (set (make-local-variable
-        (plist-get (symbol-value magit-current-popup) :variable))
-       magit-current-popup-args)
-  (when (derived-mode-p 'magit-mode)
-    (magit-refresh)))
-
-(defun magit-popup-set-variable ()
-  (interactive)
-  (let ((var (plist-get (symbol-value magit-current-popup) :variable)))
-    (kill-local-variable var)
-    (customize-set-variable var magit-current-popup-args))
-  (when (derived-mode-p 'magit-mode)
-    (magit-refresh)))
-
-(defun magit-popup-save-variable ()
-  (interactive)
-  (let ((var (plist-get (symbol-value magit-current-popup) :variable)))
-    (kill-local-variable var)
-    (customize-save-variable var magit-current-popup-args))
-  (when (derived-mode-p 'magit-mode)
-    (magit-refresh)))
 
 ;;; Help
 
@@ -733,11 +709,12 @@ in the popup."
                               'face (if (magit-popup-event-use ev)
                                         'magit-popup-argument
                                       'magit-popup-disabled-argument)))
-           (?v . ,(if (magit-popup-event-use ev)
-                      (propertize
-                       (format "\"%s\"" (magit-popup-event-val ev))
-                       'face 'magit-popup-option-value)
-                    ""))))
+           (?v . ,(let ((val (magit-popup-event-val ev)))
+                    (if (and (magit-popup-event-use ev)
+                             (not (equal val "")))
+                        (propertize (format "\"%s\"" val)
+                                    'face 'magit-popup-option-value)
+                      "")))))
         'type type 'event (magit-popup-event-key ev)))
 
 (defun magit-popup-format-action-button (type ev)

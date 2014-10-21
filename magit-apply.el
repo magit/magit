@@ -58,8 +58,6 @@
       (`(,_   file) (magit-apply-diff it)))))
 
 (defun magit-apply-diff (section &rest args)
-  (when (member "-U0" magit-diff-arguments)
-    (setq args (cons "--unidiff-zero" args)))
   (magit-apply-patch (concat (magit-diff-file-header section)
                              (buffer-substring (magit-section-content section)
                                                (magit-section-end section)))
@@ -68,8 +66,6 @@
 (defun magit-apply-hunk (section &rest args)
   (when (string-match "^diff --cc" (magit-section-parent-value section))
     (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
-  (when (member "-U0" magit-diff-arguments)
-    (setq args (cons "--unidiff-zero" args)))
   (magit-apply-patch (concat (magit-diff-file-header section)
                              (buffer-substring (magit-section-start section)
                                                (magit-section-end section)))
@@ -82,7 +78,9 @@
   (with-temp-buffer
     (insert patch)
     (magit-run-git-with-input nil
-      "apply" args "--ignore-space-change" "-"))
+      "apply" args
+      (unless (magit-diff-context-p) "--unidiff-zero")
+      "--ignore-space-change" "-"))
   (magit-refresh))
 
 ;;;; Stage
