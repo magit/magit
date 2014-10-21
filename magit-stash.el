@@ -329,21 +329,22 @@ The following `format'-like specs are supported:
   :group 'magit-modes
   :type 'string)
 
-(defun magit-stash-show (stash &optional noselect)
+(defun magit-stash-show (stash &optional noselect args)
   "Show all diffs of a stash in a buffer."
   (interactive (list (or (and (not current-prefix-arg)
                               (magit-stash-at-point))
-                         (magit-read-stash "Show stash"))))
+                         (magit-read-stash "Show stash"))
+                     nil (magit-diff-arguments)))
   (magit-mode-setup magit-stash-buffer-name-format
                     (if noselect 'display-buffer 'pop-to-buffer)
                     #'magit-stash-mode
-                    #'magit-stash-refresh-buffer stash))
+                    #'magit-stash-refresh-buffer stash args))
 
 (define-derived-mode magit-stash-mode magit-diff-mode "Magit Stash"
   "Mode for looking at individual stashes."
   :group 'magit)
 
-(defun magit-stash-refresh-buffer (stash)
+(defun magit-stash-refresh-buffer (stash args)
   (magit-insert-section (stash)
     (run-hooks 'magit-stash-sections-hook)))
 
@@ -352,7 +353,7 @@ The following `format'-like specs are supported:
      (magit-insert-section (,(intern (format "stashed-%s" subtype)))
        (magit-insert-heading (format "%s %s:" (capitalize stash) ',subtype))
        (magit-git-wash #'magit-diff-wash-diffs
-         "diff" magit-diff-arguments magit-diff-extra-options
+         "diff" (cdr magit-refresh-args) magit-diff-extra-options
          (format ,format stash stash) "--" ,files))))
 
 (defun magit-insert-stash-index ()

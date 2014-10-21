@@ -370,57 +370,60 @@ RANGE should be a range (A..B or A...B) but can also be a single
 commit.  If one side of the range is omitted, then it defaults
 to HEAD.  If just a commit is given, then changes in the working
 tree relative to that commit are shown."
-  (interactive (list (magit-read-range-or-commit "Diff for range")))
+  (interactive (list (magit-read-range-or-commit "Diff for range")
+                     (magit-diff-arguments)))
   (magit-mode-setup magit-diff-buffer-name-format
                     magit-diff-switch-buffer-function
                     #'magit-diff-mode
                     #'magit-diff-refresh-buffer range args))
 
 ;;;###autoload
-(defun magit-diff-working-tree (&optional rev)
+(defun magit-diff-working-tree (&optional rev args)
   "Show changes between the current working tree and the `HEAD' commit.
 With a prefix argument show changes between the working tree and
 a commit read from the minibuffer."
   (interactive
-   (and current-prefix-arg
-        (list (magit-read-branch-or-commit "Diff working tree and commit"))))
-  (magit-diff (or rev "HEAD")))
+   (list (and current-prefix-arg
+              (magit-read-branch-or-commit "Diff working tree and commit"))
+         (magit-diff-arguments)))
+  (magit-diff (or rev "HEAD") args))
 
 ;;;###autoload
-(defun magit-diff-staged (&optional commit)
+(defun magit-diff-staged (&optional rev args)
   "Show changes between the index and the `HEAD' commit.
 With a prefix argument show changes between the index and
 a commit read from the minibuffer."
   (interactive
-   (and current-prefix-arg
-        (list (magit-read-branch-or-commit "Diff index and commit"))))
-  (magit-diff nil (cons "--cached" (and commit (list commit)))))
+   (list (and current-prefix-arg
+              (magit-read-branch-or-commit "Diff index and commit"))
+         (magit-diff-arguments)))
+  (magit-diff rev (cons "--cached" args)))
 
 ;;;###autoload
-(defun magit-diff-unstaged ()
+(defun magit-diff-unstaged (&optional args)
   "Show changes between the working tree and the index."
-  (interactive)
-  (magit-diff nil))
+  (interactive (list (magit-diff-arguments)))
+  (magit-diff nil args))
 
 ;;;###autoload
-(defun magit-diff-unpushed ()
+(defun magit-diff-unpushed (&optional args)
   "Show unpushed changes."
-  (interactive)
+  (interactive (list (magit-diff-arguments)))
   (-if-let (tracked (magit-get-tracked-branch nil t))
-      (magit-diff (concat tracked "..."))
+      (magit-diff (concat tracked "...") args)
     (error "Detached HEAD or upstream unset")))
 
 ;;;###autoload
-(defun magit-diff-unpulled ()
+(defun magit-diff-unpulled (&optional args)
   "Show unpulled changes."
-  (interactive)
+  (interactive (list (magit-diff-arguments)))
   (-if-let (tracked (magit-get-tracked-branch nil t))
-      (magit-diff (concat "..." tracked))
+      (magit-diff (concat "..." tracked) args)
     (error "Detached HEAD or upstream unset")))
 
 ;;;###autoload
-(defun magit-diff-while-committing ()
-  (interactive)
+(defun magit-diff-while-committing (&optional args)
+  (interactive (list (magit-diff-arguments)))
   (let* ((toplevel (magit-get-top-dir))
          (diff-buf (magit-mode-get-buffer magit-diff-buffer-name-format
                                           'magit-diff-mode toplevel)))
@@ -435,15 +438,15 @@ a commit read from the minibuffer."
                            (not (equal (magit-get-top-dir) toplevel))
                            ;; toggle to include last commit
                            (not (car magit-refresh-args))))))
-            (magit-diff-while-amending)
-          (magit-diff-staged))
+            (magit-diff-while-amending args)
+          (magit-diff-staged nil args))
       (user-error "No commit in progress"))))
 
 (define-key git-commit-mode-map
   (kbd "C-c C-d") 'magit-diff-while-committing)
 
-(defun magit-diff-while-amending ()
-  (magit-diff "HEAD^" (list "--cached")))
+(defun magit-diff-while-amending (&optional args)
+  (magit-diff "HEAD^" (cons "--cached" args)))
 
 ;;;###autoload
 (defun magit-diff-paths (a b)
@@ -453,7 +456,7 @@ a commit read from the minibuffer."
   (magit-diff nil (list "--no-index" "--" a b)))
 
 ;;;###autoload
-(defun magit-show-commit (commit &optional noselect module)
+(defun magit-show-commit (commit &optional noselect module args)
   "Show the commit at point.
 If there is no commit at point or with a prefix argument prompt
 for a commit."
@@ -466,7 +469,8 @@ for a commit."
      (list (or (and (not current-prefix-arg) atpoint)
                (magit-read-branch-or-commit "Show commit" atpoint))
            nil (and mcommit (magit-section-parent-value
-                             (magit-current-section))))))
+                             (magit-current-section)))
+           (magit-diff-arguments))))
   (let ((default-directory (if module
                                (file-name-as-directory
                                 (expand-file-name module (magit-get-top-dir)))
@@ -477,7 +481,7 @@ for a commit."
                       (if noselect 'display-buffer 'pop-to-buffer)
                       #'magit-revision-mode
                       #'magit-revision-refresh-buffer
-                      commit)))
+                      commit args)))
 
 (defun magit-diff-less-context (&optional count)
   "Decrease the context for diff hunks by COUNT lines."
@@ -627,7 +631,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
     (magit-git-wash #'magit-diff-wash-diffs
       "diff" "-p" (and magit-diff-show-diffstat "--stat")
       magit-diff-extra-options
-      range args magit-diff-arguments (and (not (member "--" args)) "--"))))
+      range args (and (not (member "--" args)) "--"))))
 
 (defvar magit-file-section-map
   (let ((map (make-sparse-keymap)))
@@ -857,15 +861,13 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
 \n\\{magit-revision-mode-map}"
   :group 'magit-revision)
 
-(defun magit-revision-refresh-buffer (commit)
+(defun magit-revision-refresh-buffer (commit args)
   (magit-insert-section (commitbuf)
     (magit-git-wash #'magit-diff-wash-revision
       "show" "-p" "--cc" "--decorate=full" "--format=fuller"
       (and magit-revision-show-diffstat "--stat")
       (and magit-revision-show-notes "--notes")
-      magit-diff-arguments
-      magit-diff-extra-options
-      commit)))
+      magit-diff-extra-options args commit)))
 
 (defun magit-diff-wash-revision (args)
   (let (diffstats)
