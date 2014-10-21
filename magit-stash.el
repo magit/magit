@@ -339,7 +339,7 @@ The following `format'-like specs are supported:
                     #'magit-stash-mode
                     #'magit-stash-refresh-buffer stash))
 
-(define-derived-mode magit-stash-mode magit-mode "Magit Stash"
+(define-derived-mode magit-stash-mode magit-diff-mode "Magit Stash"
   "Mode for looking at individual stashes."
   :group 'magit)
 
