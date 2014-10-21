@@ -342,6 +342,25 @@ The following `format'-like specs are supported:
   :default-action 'magit-diff-working-tree
   :max-action-columns 3)
 
+(defvar-local magit-diff-section-arguments nil)
+
+(defun magit-diff-arguments (&optional refresh)
+  (if magit-current-popup
+      magit-current-popup-args
+    (if refresh
+        (if (derived-mode-p 'magit-diff-mode)
+            (--filter (not (member it '("--cached" "--no-index" "--")))
+                      (cadr magit-refresh-args))
+          magit-diff-section-arguments)
+      (default-value (magit-diff-arguments-variable)))))
+
+(defun magit-diff-arguments-variable (&optional refresh)
+  (if (derived-mode-p 'magit-diff-mode)
+      (if refresh
+          'magit-refresh-args
+        'magit-diff-arguments)
+    'magit-diff-section-arguments))
+
 (defvar magit-diff-switch-buffer-function 'pop-to-buffer)
 
 ;;;###autoload
@@ -477,18 +496,22 @@ for a commit."
 
 (defun magit-diff-set-context (fn)
   (let* ((def (--if-let (magit-get "diff.context") (string-to-number it) 3))
-         (val magit-diff-arguments)
+         (val (magit-diff-arguments t))
          (arg (--first (string-match "^-U\\([0-9]+\\)?$" it) val))
          (num (--if-let (match-string 1 arg) (string-to-number it) def))
          (val (delete arg val))
          (num (funcall fn num))
-         (arg (and num (not (= num def)) (format "-U%i" num))))
-    (setq magit-diff-arguments (if arg (cons arg val) val)))
+         (arg (and num (not (= num def)) (format "-U%i" num)))
+         (val (if arg (cons arg val) val)))
+    (set (magit-diff-arguments-variable t)
+         (if (derived-mode-p 'magit-diff-mode)
+             (list (car magit-refresh-args) val)
+           val)))
   (magit-refresh))
 
 (defun magit-diff-context-p ()
   (--if-let (--first (string-match "^-U\\([0-9]+\\)$" it)
-                     magit-diff-arguments)
+                     (magit-diff-arguments))
       (not (equal "-U0" it))
     t))
 
@@ -907,7 +930,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
   (magit-insert-section (unstaged)
     (magit-insert-heading "Unstaged changes:")
     (magit-git-wash #'magit-diff-wash-diffs
-      "diff" magit-diff-arguments magit-diff-extra-options)))
+      "diff" magit-diff-section-arguments magit-diff-extra-options)))
 
 (defvar magit-staged-section-map
   (let ((map (make-sparse-keymap)))
@@ -925,7 +948,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
   (magit-insert-section (staged)
     (magit-insert-heading "Staged changes:")
     (magit-git-wash #'magit-diff-wash-diffs
-      "diff" "--cached" magit-diff-arguments magit-diff-extra-options)))
+      "diff" "--cached" magit-diff-section-arguments magit-diff-extra-options)))
 
 ;;; Diff Type
 
