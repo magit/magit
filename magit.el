@@ -912,20 +912,20 @@ checkout the \"master\" branch.
     (if (string-match "^refs/remotes/\\([^/]+\\)/\\(.+\\)" ref)
         (magit-run-git-async "push"      (match-string 1 ref)
                              (concat ":" (match-string 2 ref)))
-      (cl-case (when (equal ref (magit-ref-fullname (magit-get-current-branch)))
-                 (let ((msg (format "Branch %s is checked out.  " branch)))
-                   (if (or (equal ref "refs/heads/master")
-                           (not (magit-ref-exists-p "refs/heads/master")))
-                       (magit-read-char-case msg nil
-                         (?d "[d]etach HEAD & delete" 'detach)
-                         (?a "[a]bort"                'abort))
-                     (magit-read-char-case msg nil
-                       (?d "[d]etach HEAD & delete"     'detach)
-                       (?c "[c]heckout master & delete" 'master)
-                       (?a "[a]bort"                    'abort)))))
-        (detach (setq force t) (magit-call-git "checkout" "--detach"))
-        (master (setq force t) (magit-call-git "checkout" "master"))
-        (abort  (user-error "Branch %s not deleted" branch)))
+      (when (equal ref (magit-ref-fullname (magit-get-current-branch)))
+        (pcase (let ((prompt (format "Branch %s is checked out.  " branch)))
+                 (if (or (equal ref "refs/heads/master")
+                         (not (magit-ref-exists-p "refs/heads/master")))
+                     (magit-read-char-case prompt nil
+                       (?d "[d]etach HEAD & delete" 'detach)
+                       (?a "[a]bort"                'abort))
+                   (magit-read-char-case prompt nil
+                     (?d "[d]etach HEAD & delete"     'detach)
+                     (?c "[c]heckout master & delete" 'master)
+                     (?a "[a]bort"                    'abort))))
+          (`detach (setq force t) (magit-call-git "checkout" "--detach"))
+          (`master (setq force t) (magit-call-git "checkout" "master"))
+          (`abort  (user-error "Branch %s not deleted" branch))))
       (magit-run-git "branch" (if force "-D" "-d") branch))))
 
 ;;;###autoload
