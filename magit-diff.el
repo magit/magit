@@ -822,13 +822,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 
 ;;; Revision Mode
 
-(defvar magit-revision-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-diff-mode-map)
-    map)
-  "Keymap for `magit-revision-mode'.")
-
-(define-derived-mode magit-revision-mode magit-mode "Magit"
+(define-derived-mode magit-revision-mode magit-diff-mode "Magit"
   "Mode for looking at a Git commit.
 This mode is documented in info node `(magit)Commit Buffer'.
 
