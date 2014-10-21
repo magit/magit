@@ -1032,13 +1032,12 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
    (magit-section-start section)
    (or (magit-section-content section)
        (magit-section-end     section))
-   (pcase (magit-section-type section)
-     (`file (if (member section siblings)
-                'magit-diff-file-heading-selection
-              'magit-diff-file-heading-highlight))
-     (`hunk (if (member section siblings)
-                'magit-diff-hunk-heading-selection
-              'magit-diff-hunk-heading-highlight)))))
+   (pcase (list (magit-section-type section)
+                (and (member section siblings) t))
+     (`(file   t) 'magit-diff-file-heading-selection)
+     (`(file nil) 'magit-diff-file-heading-highlight)
+     (`(hunk   t) 'magit-diff-hunk-heading-selection)
+     (`(hunk nil) 'magit-diff-hunk-heading-highlight))))
 
 (defun magit-diff-highlight-lines (section)
   (let ((face (if magit-diff-highlight-hunk-body
