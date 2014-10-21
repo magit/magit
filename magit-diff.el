@@ -330,9 +330,11 @@ The following `format'-like specs are supported:
   :switches '((?f "Show surrounding functions" "--function-context")
               (?b "Ignore whitespace changes"  "--ignore-space-change")
               (?w "Ignore all whitespace"      "--ignore-all-space"))
-  :options  '((?u "Context lines" "-U" read-from-minibuffer)
-              (?a "Diff algorithm"
-                  "--diff-algorithm=" magit-diff-select-algorithm))
+  :options  '((?u "Context lines"  "-U" read-from-minibuffer)
+              (?m "Detect renames" "-M" read-from-minibuffer)
+              (?c "Dectet copies"  "-C" read-from-minibuffer)
+              (?a "Diff algorithm" "--diff-algorithm="
+                  magit-diff-select-algorithm))
   :actions  '((?d "Diff unstaged"     magit-diff-unstaged)
               (?c "Show commit"       magit-show-commit)
               (?w "Diff working tree" magit-diff-working-tree)
@@ -614,10 +616,6 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
 \n\\{magit-diff-mode-map}"
   :group 'magit-diff)
 
-;; This variable is only a temporary hack.  Eventually it will
-;; be possible to set some of these arguments in the diff popup.
-(defconst magit-diff-extra-options '("-M" "-C" "--no-prefix"))
-
 (defun magit-diff-refresh-buffer (range &optional args)
   (magit-insert-section (diffbuf)
     (magit-insert-heading
@@ -630,8 +628,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
           "Unstaged changes")))
     (magit-git-wash #'magit-diff-wash-diffs
       "diff" "-p" (and magit-diff-show-diffstat "--stat")
-      magit-diff-extra-options
-      range args (and (not (member "--" args)) "--"))))
+      range args "--no-prefix" (and (not (member "--" args)) "--"))))
 
 (defvar magit-file-section-map
   (let ((map (make-sparse-keymap)))
@@ -864,10 +861,10 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
 (defun magit-revision-refresh-buffer (commit args)
   (magit-insert-section (commitbuf)
     (magit-git-wash #'magit-diff-wash-revision
-      "show" "-p" "--cc" "--decorate=full" "--format=fuller"
+      "show" "-p" "--cc" "--decorate=full" "--format=fuller" "--no-prefix"
       (and magit-revision-show-diffstat "--stat")
       (and magit-revision-show-notes "--notes")
-      magit-diff-extra-options args commit)))
+      args commit)))
 
 (defun magit-diff-wash-revision (args)
   (let (diffstats)
@@ -932,7 +929,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
   (magit-insert-section (unstaged)
     (magit-insert-heading "Unstaged changes:")
     (magit-git-wash #'magit-diff-wash-diffs
-      "diff" magit-diff-section-arguments magit-diff-extra-options)))
+      "diff" magit-diff-section-arguments "--no-prefix")))
 
 (defvar magit-staged-section-map
   (let ((map (make-sparse-keymap)))
@@ -950,7 +947,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
   (magit-insert-section (staged)
     (magit-insert-heading "Staged changes:")
     (magit-git-wash #'magit-diff-wash-diffs
-      "diff" "--cached" magit-diff-section-arguments magit-diff-extra-options)))
+      "diff" "--cached" magit-diff-section-arguments "--no-prefix")))
 
 ;;; Diff Type
 

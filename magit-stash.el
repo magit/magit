@@ -353,7 +353,7 @@ The following `format'-like specs are supported:
      (magit-insert-section (,(intern (format "stashed-%s" subtype)))
        (magit-insert-heading (format "%s %s:" (capitalize stash) ',subtype))
        (magit-git-wash #'magit-diff-wash-diffs
-         "diff" (cdr magit-refresh-args) magit-diff-extra-options
+         "diff" (cdr magit-refresh-args) "--no-prefix"
          (format ,format stash stash) "--" ,files))))
 
 (defun magit-insert-stash-index ()
