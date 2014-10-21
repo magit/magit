@@ -324,12 +324,12 @@ The following `format'-like specs are supported:
 ;;; Commands
 
 (magit-define-popup magit-diff-popup
-  "Key menu for diffing."
+  "Popup console for diff commands."
   'magit-popups
   :man-page "git-diff"
-  :switches '((?W "Show surrounding functions"   "--function-context")
-              (?b "Ignore whitespace changes"    "--ignore-space-change")
-              (?w "Ignore all whitespace"        "--ignore-all-space"))
+  :switches '((?W "Show surrounding functions" "--function-context")
+              (?b "Ignore whitespace changes"  "--ignore-space-change")
+              (?w "Ignore all whitespace"      "--ignore-all-space"))
   :options  '((?h "Context lines" "-U" read-from-minibuffer)
               (?a "Diff algorithm"
                   "--diff-algorithm=" magit-diff-select-algorithm))
