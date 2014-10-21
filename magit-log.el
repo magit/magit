@@ -691,9 +691,7 @@ alist in `magit-log-format-unicode-graph-alist'."
          (propertize (truncate-string-to-width
                       author (- width 1 3 ; gap, digits
                                 (if (= unit-width 1) 1 (1+ unit-width))
-                                (if (derived-mode-p 'magit-log-mode)
-                                    1 ; pseudo fringe
-                                  0))
+                                (if (derived-mode-p 'magit-log-mode) 1 0))
                       nil ?\s (make-string 1 magit-ellipsis))
                      'face 'magit-log-author)
          " "
@@ -703,8 +701,8 @@ alist in `magit-log-format-unicode-graph-alist'."
                       (symbol-value duration-spec)
                       unit-width)
                      'face 'magit-log-date)
-         (when (derived-mode-p 'magit-log-mode)
-           (propertize " " 'face 'fringe)))
+         (and (derived-mode-p 'magit-log-mode)
+              (propertize " " 'face 'fringe)))
       (magit-make-margin-overlay
        (propertize (make-string (1- width) ?\s) 'face 'default)
        (propertize " " 'face 'fringe)))))
