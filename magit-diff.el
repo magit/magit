@@ -464,7 +464,7 @@ for a commit."
                       commit)))
 
 (defun magit-diff-less-context (&optional count)
-  "Decrease the context for diff hunks by COUNT."
+  "Decrease the context for diff hunks by COUNT lines."
   (interactive "p")
   (setq magit-diff-arguments
         (cons (format "-U%i" (max 0 (- (magit-diff-previous-context-lines)
@@ -473,7 +473,7 @@ for a commit."
   (magit-refresh))
 
 (defun magit-diff-more-context (&optional count)
-  "Increase the context for diff hunks by COUNT."
+  "Increase the context for diff hunks by COUNT lines."
   (interactive "p")
   (setq magit-diff-arguments
         (cons (format "-U%i" (+ (magit-diff-previous-context-lines) count))
@@ -481,7 +481,7 @@ for a commit."
   (magit-refresh))
 
 (defun magit-diff-default-context ()
-  "Reset context for diff hunks to the default size."
+  "Reset context for diff hunks to the default height."
   (interactive)
   (magit-diff-previous-context-lines)
   (magit-refresh))
