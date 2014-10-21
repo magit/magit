@@ -553,12 +553,12 @@ commit or stash at point, then prompt for a commit."
       (not (memq op (cdr magit-diff-auto-show)))
     (memq op magit-diff-auto-show)))
 
-(defun magit-diff-select-algorithm (&optional noop1 noop2)
+(defun magit-diff-select-algorithm (&rest _ignore)
   (magit-read-char-case nil t
-    (?d "[d]efault/myers" "default")
-    (?m "[m]inimal"       "minimal")
-    (?p "[p]atience"      "patience")
-    (?h "[h]istogram"     "histogram")))
+    (?d "[d]efault"   "default")
+    (?m "[m]inimal"   "minimal")
+    (?p "[p]atience"  "patience")
+    (?h "[h]istogram" "histogram")))
 
 ;;; Diff Mode
 
