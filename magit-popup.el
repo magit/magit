@@ -292,7 +292,7 @@ that without users being aware of it could lead to tears.
 (defun magit-popup-convert-options (val def)
   (mapcar (lambda (ev)
             (let* ((a (nth 2 ev))
-                   (r (format "^%s\\(.+\\)" a))
+                   (r (format "^%s\\(.*\\)" a))
                    (v (--first (string-match r it) val)))
               (make-magit-popup-event
                :key (car ev)  :dsc (cadr ev) :arg a
@@ -733,11 +733,12 @@ in the popup."
                               'face (if (magit-popup-event-use ev)
                                         'magit-popup-argument
                                       'magit-popup-disabled-argument)))
-           (?v . ,(if (magit-popup-event-use ev)
-                      (propertize
-                       (format "\"%s\"" (magit-popup-event-val ev))
-                       'face 'magit-popup-option-value)
-                    ""))))
+           (?v . ,(let ((val (magit-popup-event-val ev)))
+                    (if (and (magit-popup-event-use ev)
+                             (not (equal val "")))
+                        (propertize (format "\"%s\"" val)
+                                    'face 'magit-popup-option-value)
+                      "")))))
         'type type 'event (magit-popup-event-key ev)))
 
 (defun magit-popup-format-action-button (type ev)
