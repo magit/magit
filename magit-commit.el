@@ -69,7 +69,7 @@ an error while using those is harder to recover from."
 
 ;;; Code
 
-(with-no-warnings ; quiet 24.3.50 byte-compiler
+(with-no-warnings ; quiet 24.4 byte-compiler
 (magit-define-popup magit-commit-popup
   "Popup console for commit commands."
   'magit-popups
