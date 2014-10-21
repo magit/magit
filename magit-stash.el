@@ -347,33 +347,24 @@ The following `format'-like specs are supported:
   (magit-insert-section (stash)
     (run-hooks 'magit-stash-sections-hook)))
 
+(defmacro magit-stash-insert-section (subtype format &optional files)
+  `(let ((stash (car magit-refresh-args)))
+     (magit-insert-section (,(intern (format "stashed-%s" subtype)))
+       (magit-insert-heading (format "%s %s:" (capitalize stash) ',subtype))
+       (magit-git-wash #'magit-diff-wash-diffs
+         "diff" magit-diff-arguments magit-diff-extra-options
+         (format ,format stash stash) "--" ,files))))
+
 (defun magit-insert-stash-index ()
-  (let ((stash (car magit-refresh-args)))
-    (magit-insert-section (stashed-index)
-      (magit-insert-heading (concat (capitalize stash) " index:"))
-      (magit-git-wash #'magit-diff-wash-diffs
-        "diff" magit-diff-arguments magit-diff-extra-options
-        (format "%s^..%s^2" stash stash)))))
+  (magit-stash-insert-section index "%s^..%s^2"))
 
 (defun magit-insert-stash-worktree ()
-  (let ((stash (car magit-refresh-args)))
-    (magit-insert-section (stashed-worktree)
-      (magit-insert-heading (concat (capitalize stash) " worktree:"))
-      (magit-git-wash #'magit-diff-wash-diffs
-        "diff" magit-diff-arguments magit-diff-extra-options
-        (format "%s^2..%s" stash stash)))))
+  (magit-stash-insert-section worktree "%s^2..%s"))
 
 (defun magit-insert-stash-untracked ()
-  (let* ((stash  (car magit-refresh-args))
-         (commit (concat stash "^3")))
-    (when (magit-rev-verify commit)
-      (-when-let
-          (files (magit-git-lines "ls-tree" "--name-only" "--full-tree" commit))
-        (magit-insert-section (stashed-untracked)
-          (magit-insert-heading (concat (capitalize stash) " untracked:"))
-          (magit-git-wash #'magit-diff-wash-diffs
-            "diff" magit-diff-arguments magit-diff-extra-options
-            (format "%s^..%s^3" stash stash) "--" files))))))
+  (-when-let (files (magit-git-lines "ls-tree" "--name-only" "--full-tree"
+                                     (concat (car magit-refresh-args) "^3")))
+      (magit-stash-insert-section untracked "%s^..%s^3" files)))
 
 ;;; magit-stash.el ends soon
 (provide 'magit-stash)
