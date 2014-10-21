@@ -27,6 +27,8 @@
 (require 'git-commit-mode)
 (require 'magit-core)
 
+;; For `magit-diff-popup'
+(declare-function magit-stash-show 'magit-stash)
 ;; For `magit-diff-while-committing'
 (declare-function magit-commit-message-buffer 'magit)
 ;; For `magit-show-commit' and `magit-diff-diff-show-or-scroll'
@@ -335,13 +337,15 @@ The following `format'-like specs are supported:
               (?c "Dectet copies"  "-C" read-from-minibuffer)
               (?a "Diff algorithm" "--diff-algorithm="
                   magit-diff-select-algorithm))
-  :actions  '((?d "Diff unstaged"     magit-diff-unstaged)
-              (?c "Show commit"       magit-show-commit)
-              (?w "Diff working tree" magit-diff-working-tree)
-              (?i "Diff staged"       magit-diff-staged)
-              (?r "Diff commits"      magit-diff)
-              (?p "Diff paths"        magit-diff-paths))
-  :default-action 'magit-diff-working-tree
+  :actions  '((?d "Dwim"          magit-diff-dwim)
+              (?u "Diff unstaged" magit-diff-unstaged)
+              (?c "Show commit"   magit-show-commit)
+              (?r "Diff commits"  magit-diff)
+              (?s "Diff staged"   magit-diff-staged)
+              (?t "Show stash"    magit-stash-show)
+              (?p "Diff paths"    magit-diff-paths)
+              (?w "Diff worktree" magit-diff-working-tree))
+  :default-action 'magit-diff-dwim
   :max-action-columns 3)
 
 (with-no-warnings ; quiet 24.4 byte-compiler
@@ -385,6 +389,24 @@ The following `format'-like specs are supported:
     'magit-diff-section-arguments))
 
 (defvar magit-diff-switch-buffer-function 'pop-to-buffer)
+
+;;;###autoload
+(defun magit-diff-dwim (&optional args)
+  "Show changes for the thing at point."
+  (interactive (list (magit-diff-arguments)))
+  (--when-let (magit-current-section)
+    (let ((value (magit-section-value it)))
+      (magit-section-case
+        ([* unpushed] (magit-diff-unpushed args))
+        ([* unpulled] (magit-diff-unpulled args))
+        (unstaged (magit-diff-unstaged args))
+        (staged   (magit-diff-staged   args))
+        (branch   (-if-let (tracked (magit-get-tracked-branch value t))
+                      (magit-diff (format "%s...%s" tracked value) args)
+                    (call-interactively 'magit-diff)))
+        (commit   (magit-show-commit value nil nil args))
+        (stash    (magit-stash-show  value nil args))
+        (t        (call-interactively 'magit-diff))))))
 
 ;;;###autoload
 (defun magit-diff (range &optional args)
