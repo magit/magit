@@ -604,7 +604,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
     (magit-git-wash #'magit-diff-wash-diffs
       "diff" "-p" (and magit-diff-show-diffstat "--stat")
       magit-diff-extra-options
-      range args magit-diff-arguments "--")))
+      range args magit-diff-arguments (and (not (member "--" args)) "--"))))
 
 (defvar magit-file-section-map
   (let ((map (make-sparse-keymap)))
