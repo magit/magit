@@ -136,6 +136,7 @@ the user has to confirm each save."
     (define-key map "B" 'magit-bisect-popup)
     (define-key map "c" 'magit-commit-popup)
     (define-key map "d" 'magit-diff-popup)
+    (define-key map "\C-d" 'magit-diff-refresh-popup)
     (define-key map "D" 'magit-diff-toggle-refine-hunk)
     (define-key map "h" 'magit-dispatch-popup)
     (define-key map "?" 'magit-dispatch-popup)

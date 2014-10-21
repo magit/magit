@@ -344,7 +344,28 @@ The following `format'-like specs are supported:
   :default-action 'magit-diff-working-tree
   :max-action-columns 3)
 
-(defvar-local magit-diff-section-arguments nil)
+(with-no-warnings ; quiet 24.4 byte-compiler
+(magit-define-popup magit-diff-refresh-popup
+  "Popup console for changing diff arguments in the current buffer."
+  'magit-popups nil magit-diff-section-arguments
+  :man-page "git-diff"
+  :switches '((?f "Show surrounding functions" "--function-context")
+              (?b "Ignore whitespace changes"  "--ignore-space-change")
+              (?w "Ignore all whitespace"      "--ignore-all-space"))
+  :options  '((?u "Context lines"  "-U" read-from-minibuffer)
+              (?m "Detect renames" "-M" read-from-minibuffer)
+              (?c "Dectet copies"  "-C" read-from-minibuffer)
+              (?a "Diff algorithm" "--diff-algorithm="
+                  magit-diff-select-algorithm))
+  :actions  '((?g "Refresh"       magit-diff-refresh)
+              (?s "Set defaults"  magit-diff-set-default-arguments)
+              (?w "Save defaults" magit-diff-save-default-arguments))))
+
+(defadvice magit-diff-refresh-popup (around get-current-arguments activate)
+  (if (derived-mode-p 'magit-diff-mode)
+      (let ((magit-diff-section-arguments (cadr magit-refresh-args)))
+        ad-do-it)
+    ad-do-it))
 
 (defun magit-diff-arguments (&optional refresh)
   (if magit-current-popup
@@ -484,6 +505,34 @@ for a commit."
                       #'magit-revision-mode
                       #'magit-revision-refresh-buffer
                       commit args)))
+
+(defun magit-diff-refresh (args)
+  (interactive (list (magit-diff-arguments t)))
+  (cond ((derived-mode-p 'magit-diff-mode)
+         (setq magit-refresh-args (list (car magit-refresh-args) args)))
+        (t
+         (setq magit-diff-section-arguments args)))
+  (magit-refresh))
+
+(defun magit-diff-set-default-arguments (args)
+  (interactive (list (magit-diff-arguments t)))
+  (cond ((derived-mode-p 'magit-diff-mode)
+         (customize-set-variable 'magit-diff-arguments args)
+         (setq magit-refresh-args (list (car magit-refresh-args) args)))
+        (t
+         (customize-set-variable 'magit-diff-section-arguments args)
+         (kill-local-variable 'magit-diff-section-arguments)))
+  (magit-refresh))
+
+(defun magit-diff-save-default-arguments (args)
+  (interactive (list (magit-diff-arguments t)))
+  (cond ((derived-mode-p 'magit-diff-mode)
+         (customize-save-variable 'magit-diff-arguments args)
+         (setq magit-refresh-args (list (car magit-refresh-args) args)))
+        (t
+         (customize-save-variable 'magit-diff-section-arguments args)
+         (kill-local-variable 'magit-diff-section-arguments)))
+  (magit-refresh))
 
 (defun magit-diff-less-context (&optional count)
   "Decrease the context for diff hunks by COUNT lines."
