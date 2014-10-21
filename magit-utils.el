@@ -198,25 +198,15 @@ results in additional differences."
         (user-error "Need non-empty input")
       reply)))
 
-(defmacro magit-read-char-case (prompt abort &rest clauses)
+(defmacro magit-read-char-case (prompt verbose &rest clauses)
   (declare (indent 2)
            (debug (form form &rest (characterp form body))))
-  (let ((ng (cl-gensym "ng-"))
-        (p0 (cl-gensym "p0-"))
-        (p1 (cl-gensym "p1-"))
-        (p2 (cl-gensym "p2-")))
-    `(let* ((,ng 0)
-            (,p0 ,prompt)
-            (,p1 (concat ,p0 (mapconcat 'cadr ',clauses ", ")))
-            (,p2 (concat (unless ,p0 "Choose one of ") ,p1
-                         (and ,abort ", or [C-g] to abort")))
-            (cursor-in-echo-area t))
-       (catch 'choice
-         (while (< ,ng 5) ; prevent user panic
-           (cl-case (read-event (concat (if (> ,ng 0) ,p2 ,p1) " "))
-             ,@(--map `(,(car it) (throw 'choice (progn ,@(cddr it))))
-                      clauses)
-             (t (ding) (cl-incf ,ng))))))))
+  `(pcase (read-char-choice
+           (concat ,prompt
+                   ,(concat (mapconcat 'cadr clauses ", ")
+                            (and verbose ", or [C-g] to abort") " "))
+           ',(mapcar 'car clauses))
+     ,@(--map `(,(car it) ,@(cddr it)) clauses)))
 
 (cl-defun magit-confirm (type prompt &optional (files nil sfiles))
   (cond ((or (eq magit-no-confirm t)
