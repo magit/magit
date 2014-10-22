@@ -688,7 +688,7 @@ at point."
     (--if-let (magit-get-section ident)
         (let ((start (magit-section-start it)))
           (magit-goto-char start)
-          (when (> (length ident) 1)
+          (unless (eq section magit-root-section)
             (ignore-errors
               (forward-line (1- line))
               (forward-char char))
