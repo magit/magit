@@ -18,7 +18,7 @@ BATCH=$(EMACS) $(EFLAGS) -batch -q -no-site-file -eval \
 
 
 %.elc: %.el
-	$(BATCH) --eval '(byte-compile-file "$<")'
+	@$(BATCH) --eval '(byte-compile-file "$<")'
 
 all: core docs contrib
 
@@ -29,19 +29,19 @@ docs: dir
 contrib: $(ELCS_CONTRIB)
 
 magit.spec: magit.spec.in
-	sed -e s/@VERSION@/$(VERSION)/ < $< > $@
+	@sed -e s/@VERSION@/$(VERSION)/ < $< > $@
 
 magit-pkg.el: magit-pkg.el.in
-	sed -e s/@VERSION@/$(VERSION)/ < $< > $@
+	@sed -e s/@VERSION@/$(VERSION)/ < $< > $@
 
 50magit.el: $(ELS) magit.elc
-	$(BATCH) -eval "(progn (defvar generated-autoload-file nil) (let ((generated-autoload-file \"$(CURDIR)/50magit.el\") (make-backup-files nil)) (update-directory-autoloads \".\")))"
+	@$(BATCH) -eval "(progn (defvar generated-autoload-file nil) (let ((generated-autoload-file \"$(CURDIR)/50magit.el\") (make-backup-files nil)) (update-directory-autoloads \".\")))"
 
 magit.elc: magit.el
-	sed -e "s/@GIT_DEV_VERSION@/$(VERSION)/" < magit.el > magit.tmp.el #NO_DIST
-	$(BATCH) --eval '(byte-compile-file "magit.tmp.el")' #NO_DIST
-	mv magit.tmp.elc magit.elc #NO_DIST
-	rm magit.tmp.el #NO_DIST
+	@sed -e "s/@GIT_DEV_VERSION@/$(VERSION)/" < magit.el > magit.tmp.el #NO_DIST
+	@$(BATCH) --eval '(byte-compile-file "magit.tmp.el")' #NO_DIST
+	@mv magit.tmp.elc magit.elc #NO_DIST
+	@rm magit.tmp.el #NO_DIST
 
 dir: magit.info
 	install-info --dir=$@ $<
@@ -95,5 +95,5 @@ test: $(ELCS)
 	$(BATCH) -l tests/magit-tests.el -f ert-run-tests-batch-and-exit
 
 clean:
-	rm -f magit.info #NO_DIST
-	rm -fr magit-pkg.el magit.spec 50magit.el $(ELCS) $(ELCS_CONTRIB) *.tar.gz magit-$(VERSION)
+	@rm -f magit.info #NO_DIST
+	@rm -fr magit-pkg.el magit.spec 50magit.el $(ELCS) $(ELCS_CONTRIB) *.tar.gz magit-$(VERSION)
