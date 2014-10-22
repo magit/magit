@@ -5247,18 +5247,21 @@ for the file whose log must be displayed."
 (defun magit-show-file-revision ()
   "Open a new buffer showing the current file in the revision at point."
   (interactive)
-  (flet ((magit-show-file-from-diff (item)
-                                    (switch-to-buffer-other-window
-                                     (magit-show (cdr (magit-diff-item-range item))
-                                                 (magit-diff-item-file item)))))
-    (magit-section-action (item info "show")
-      ((commit)
-       (let ((current-file (or magit-file-log-file
-                               (magit-read-file-from-rev info))))
-         (switch-to-buffer-other-window
-          (magit-show info current-file))))
-      ((hunk) (magit-show-file-from-diff (magit-hunk-item-diff item)))
-      ((diff) (magit-show-file-from-diff item)))))
+  (magit-section-action (item info "show")
+    ((commit)
+     (let ((current-file (or magit-file-log-file
+                             (magit-read-file-from-rev info))))
+       (switch-to-buffer-other-window
+        (magit-show info current-file))))
+    ((hunk)
+     (setq item (magit-hunk-item-diff item))
+     (switch-to-buffer-other-window
+      (magit-show (cdr (magit-diff-item-range item))
+                  (magit-diff-item-file item))))
+    ((diff)
+     (switch-to-buffer-other-window
+      (magit-show (cdr (magit-diff-item-range item))
+                  (magit-diff-item-file item))))))
 
 ;;; Miscellaneous
 
