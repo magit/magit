@@ -693,7 +693,7 @@ at point."
               (forward-line (1- line))
               (forward-char char))
             (unless (eq (magit-current-section) it)
-              (magit-goto-char start))))
+              (goto-char start))))
       (magit-goto-char (--if-let (magit-section-goto-successor-1 section)
                            (magit-section-start it)
                          (point-min))))))
