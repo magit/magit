@@ -130,9 +130,9 @@ IDENT has to be a list as returned by `magit-section-ident'."
               (unless (setq next (car (magit-section-siblings section 'next)))
                 (setq section (magit-section-parent section))))
             (if next
-                (magit-goto-section next)
+                (magit-section-goto next)
               (error "No next section")))
-        (forward-line 1)))))
+        (magit-section-goto 1)))))
 
 (defun magit-section-backward ()
   "Move to the beginning of the previous section."
@@ -142,7 +142,7 @@ IDENT has to be a list as returned by `magit-section-ident'."
     (let ((section (magit-current-section)) children)
       (if (and (eq (point) (1- (magit-section-end section)))
                (setq children (magit-section-children section)))
-          (magit-goto-section (car (last children)))
+          (magit-section-goto (car (last children)))
         (let ((prev (car (magit-section-siblings section 'prev))))
           (if prev
               (while (and (not (magit-section-hidden prev))
@@ -150,16 +150,16 @@ IDENT has to be a list as returned by `magit-section-ident'."
                 (setq prev (car (last children))))
             (setq prev (magit-section-parent section)))
           (if prev
-              (magit-goto-section prev)
+              (magit-section-goto prev)
             (if (magit-section-parent section)
                 (error "No previous section")
-              (forward-line -1))))))))
+              (magit-section-goto -1))))))))
 
 (defun magit-section-up ()
   "Go to the parent section."
   (interactive)
   (--if-let (magit-section-parent (magit-current-section))
-      (magit-goto-section it)
+      (magit-section-goto it)
     (error "No parent section")))
 
 (defun magit-section-forward-sibling ()
@@ -169,9 +169,9 @@ If there is no next sibling section, then move to the parent."
   (let ((current (magit-current-section)))
     (if (magit-section-parent current)
         (--if-let (car (magit-section-siblings current 'next))
-            (magit-goto-section it)
+            (magit-section-goto it)
           (magit-section-forward))
-      (forward-line 1))))
+      (magit-section-goto 1))))
 
 (defun magit-section-backward-sibling ()
   "Move to the beginning of the previous sibling section.
@@ -180,15 +180,18 @@ If there is no previous sibling section, then move to the parent."
   (let ((current (magit-current-section)))
     (if (magit-section-parent current)
         (--if-let (car (magit-section-siblings current 'prev))
-            (magit-goto-section it)
+            (magit-section-goto it)
           (magit-section-backward))
-      (forward-line -1))))
+      (magit-section-goto -1))))
 
-(defun magit-goto-section (section)
-  (goto-char (magit-section-start section))
-  (run-hook-with-args 'magit-goto-section-hook section))
+(defun magit-section-goto (arg)
+  (if (integerp arg)
+      (progn (forward-line arg)
+             (setq arg (magit-current-section)))
+    (goto-char (magit-section-start arg)))
+  (run-hook-with-args 'magit-section-movement-hook arg))
 
-(defvar magit-goto-section-hook
+(defvar magit-section-movement-hook
   '(magit-hunk-set-window-start
     magit-log-maybe-show-commit
     magit-log-maybe-show-more-entries))
@@ -383,7 +386,7 @@ absolute value.  Sections at higher levels are hidden."
              (i (1- (length (magit-section-ident s))) (cl-decf i)))
         ((cond ((< i level) (magit-section-show-children s (- level i 1)) t)
                ((= i level) (magit-section-hide s) t))
-         (magit-goto-section s)))))
+         (magit-section-goto s)))))
 
 (defun magit-show-level-1 ()
   "Show surrounding sections on first level."
