@@ -400,7 +400,7 @@ The following `format'-like specs are supported:
         ([* unpushed] (magit-diff-unpushed args))
         ([* unpulled] (magit-diff-unpulled args))
         (unstaged (magit-diff-unstaged args))
-        (staged   (magit-diff-staged   args))
+        (staged   (magit-diff-staged nil args))
         (branch   (-if-let (tracked (magit-get-tracked-branch value t))
                       (magit-diff (format "%s...%s" tracked value) args)
                     (call-interactively 'magit-diff)))
