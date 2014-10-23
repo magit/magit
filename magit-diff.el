@@ -935,7 +935,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
       "show" "-p" "--cc" "--decorate=full" "--format=fuller" "--no-prefix"
       (and magit-revision-show-diffstat "--stat")
       (and magit-revision-show-notes "--notes")
-      args commit)))
+      args commit "--")))
 
 (defun magit-diff-wash-revision (args)
   (let (diffstats)
