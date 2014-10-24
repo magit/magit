@@ -167,7 +167,7 @@ a position in a file-visiting buffer."
                      (prompt-for-change-log-name)))
   (let (buf pos)
     (save-window-excursion
-      (call-interactively #'magit-visit-file)
+      (call-interactively #'magit-diff-visit-file)
       (setq buf (current-buffer)
             pos (point)))
     (save-excursion

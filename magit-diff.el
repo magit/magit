@@ -29,7 +29,7 @@
 
 ;; For `magit-diff-popup'
 (declare-function magit-stash-show 'magit-stash)
-;; For `magit-visit-file'
+;; For `magit-diff-visit-file'
 (declare-function magit-dired-jump 'magit)
 (declare-function magit-status 'magit)
 ;; For `magit-diff-while-committing'
@@ -637,7 +637,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
             (magit-diff-unrefine-hunk section)))))
     (message "magit-diff-refine-hunk: %s" magit-diff-refine-hunk)))
 
-(defun magit-visit-file (file &optional other-window)
+(defun magit-diff-visit-file (file &optional other-window)
   (interactive (list (magit-file-at-point) current-prefix-arg))
   (unless (file-exists-p file)
     (user-error "Can't visit deleted file: %s" file))
@@ -758,7 +758,7 @@ This mode is documented in info node `(magit)Diffing'.
 \\<magit-diff-mode-map>\
 Type \\[magit-refresh] to refresh the current buffer.
 Type \\[magit-section-toggle] to expand or hide the section at point.
-Type \\[magit-visit-file] to visit the file at point.
+Type \\[magit-diff-visit-file] to visit the file at point.
 Type \\[magit-apply] to apply the change at point to the worktree.
 Type \\[magit-reverse] to reverse the change at point in the worktree.
 \n\\{magit-diff-mode-map}"
@@ -780,7 +780,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
 
 (defvar magit-file-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map "\r" 'magit-visit-file)
+    (define-key map "\r" 'magit-diff-visit-file)
     (define-key map "a"  'magit-apply)
     (define-key map "k"  'magit-discard)
     (define-key map "s"  'magit-stage)
@@ -791,7 +791,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
 
 (defvar magit-hunk-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map "\r" 'magit-visit-file)
+    (define-key map "\r" 'magit-diff-visit-file)
     (define-key map "a"  'magit-apply)
     (define-key map "C"  'magit-commit-add-log)
     (define-key map "k"  'magit-discard)
@@ -970,7 +970,7 @@ This mode is documented in info node `(magit)Commit Buffer'.
 
 \\<magit-revision-mode-map>\
 Type \\[magit-section-toggle] to expand or hide the section at point.
-Type \\[magit-visit-file] to visit the hunk or file at point.
+Type \\[magit-diff-visit-file] to visit the hunk or file at point.
 Type \\[magit-apply] to apply the change at point to the worktree.
 Type \\[magit-reverse] to reverse the change at point in the worktree.
 \n\\{magit-revision-mode-map}"

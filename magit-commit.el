@@ -302,7 +302,7 @@ actually insert the entry."
   (interactive)
   (let ((log (magit-commit-message-buffer)) buf pos)
     (save-window-excursion
-      (call-interactively #'magit-visit-file)
+      (call-interactively #'magit-diff-visit-file)
       (setq buf (current-buffer)
             pos (point)))
     (unless log
