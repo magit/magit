@@ -116,6 +116,7 @@ If the current buffer visits a file tracked in a Git repository,
 then turn on `magit-wip-save-mode' provided the `wip-save' Magit
 extension has been enabled in that repository."
   (when (and (buffer-file-name)
+             (file-directory-p (file-name-directory (buffer-file-name)))
              (magit-inside-worktree-p)
              (magit-file-tracked-p (buffer-file-name))
              (member "wip-save" (magit-get-all "magit.extension")))
