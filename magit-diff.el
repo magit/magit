@@ -651,7 +651,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
                                  'pop-to-buffer
                                'switch-to-buffer))))
     (let ((pos (magit-section-when hunk
-                 (magit-hunk-file-position it)))
+                 (magit-diff-file-position it)))
           (buffer (or (get-file-buffer file)
                       (find-file-noselect file))))
       (if (or other-window (get-buffer-window buffer))
@@ -664,7 +664,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
     (when (magit-anything-unmerged-p file)
       (smerge-start-session))))
 
-(defun magit-hunk-file-position (section)
+(defun magit-diff-file-position (section)
   (let* ((value (magit-section-value section))
          (hunk-line (line-number-at-pos (point)))
          (goto-line (car (last value)))
