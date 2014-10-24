@@ -758,50 +758,6 @@ Refs are compared with a branch read form the user."
     (with-current-buffer it (magit-refresh)))
   t)
 
-(defun magit-visit-file (file &optional other-window)
-  (interactive (list (magit-file-at-point) current-prefix-arg))
-  (unless (file-exists-p file)
-    (user-error "Can't visit deleted file: %s" file))
-  (if (file-directory-p file)
-      (progn
-        (setq file (file-name-as-directory (expand-file-name file)))
-        (if (equal (magit-get-top-dir (file-name-directory file))
-                   (magit-get-top-dir))
-            (magit-dired-jump other-window)
-          (magit-status file (if other-window
-                                 'pop-to-buffer
-                               'switch-to-buffer))))
-    (let ((pos (magit-section-when hunk
-                 (magit-hunk-file-position it)))
-          (buffer (or (get-file-buffer file)
-                      (find-file-noselect file))))
-      (if (or other-window (get-buffer-window buffer))
-          (pop-to-buffer buffer)
-        (switch-to-buffer buffer))
-      (when pos
-        (goto-char (point-min))
-        (forward-line (1- (car pos)))
-        (move-to-column (cdr pos))))
-    (when (magit-anything-unmerged-p file)
-      (smerge-start-session))))
-
-(defun magit-hunk-file-position (section)
-  (let* ((value (magit-section-value section))
-         (hunk-line (line-number-at-pos (point)))
-         (goto-line (car (last value)))
-         (offset (- (length value) 2))
-         (column (current-column)))
-    (save-excursion
-      (string-match "^\\+\\([0-9]+\\)" goto-line)
-      (setq goto-line (string-to-number (match-string 1 goto-line)))
-      (goto-char (magit-section-content section))
-      (while (< (line-number-at-pos) hunk-line)
-        (unless (string-match-p
-                 "-" (buffer-substring (point) (+ (point) offset)))
-          (cl-incf goto-line))
-        (forward-line))
-      (cons goto-line (if (looking-at "-") 0 (max 0 (- column offset)))))))
-
 ;;;###autoload
 (defun magit-dired-jump (&optional other-window)
   "Visit file at point using Dired.
