@@ -97,6 +97,11 @@ changes, e.g. because you are committing some binary files."
   :group 'magit-diff
   :type 'sexp)
 
+(defun magit-diff-auto-show-p (op)
+  (if (eq (car magit-diff-auto-show) 'not)
+      (not (memq op (cdr magit-diff-auto-show)))
+    (memq op magit-diff-auto-show)))
+
 (defcustom magit-diff-refine-hunk nil
   "Whether to show word-granularity differences within diff hunks.
 
@@ -654,11 +659,6 @@ commit or stash at point, then prompt for a commit."
                               (scroll-down (point-max)))))))
           (funcall cmd rev t))
       (call-interactively 'magit-show-commit))))
-
-(defun magit-diff-auto-show-p (op)
-  (if (eq (car magit-diff-auto-show) 'not)
-      (not (memq op (cdr magit-diff-auto-show)))
-    (memq op magit-diff-auto-show)))
 
 ;;; Diff Mode
 
