@@ -604,6 +604,36 @@ for a commit."
       (not (equal "-U0" it))
     t))
 
+(defun magit-diff-toggle-refine-hunk (&optional other)
+  "Turn diff-hunk refining on or off.
+
+If hunk refining is currently on, then hunk refining is turned off.
+If hunk refining is off, then hunk refining is turned on, in
+`selected' mode (only the currently selected hunk is refined).
+
+With a prefix argument, the \"third choice\" is used instead:
+If hunk refining is currently on, then refining is kept on, but
+the refining mode (`selected' or `all') is switched.
+If hunk refining is off, then hunk refining is turned on, in
+`all' mode (all hunks refined).
+
+Customize variable `magit-diff-refine-hunk' to change the default mode."
+  (interactive "P")
+  (let ((old magit-diff-refine-hunk))
+    (setq-local magit-diff-refine-hunk
+                (if other
+                    (if (eq old 'all) t 'all)
+                  (not old)))
+    (if (or (eq old 'all)
+            (eq magit-diff-refine-hunk 'all))
+        (magit-refresh)
+      (dolist (section magit-section-highlighted-sections)
+        (when (eq (magit-section-type section) 'hunk)
+          (if  magit-diff-refine-hunk
+              (magit-diff-refine-hunk section)
+            (magit-diff-unrefine-hunk section)))))
+    (message "magit-diff-refine-hunk: %s" magit-diff-refine-hunk)))
+
 (defun magit-diff-show-or-scroll-up ()
   "Update the commit or diff buffer for the thing at point.
 
@@ -884,36 +914,6 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
         (setf (magit-section-end it) (point))
         (magit-diff-paint-hunk it nil nil (eq magit-diff-refine-hunk 'all))))
     t))
-
-(defun magit-diff-toggle-refine-hunk (&optional other)
-  "Turn diff-hunk refining on or off.
-
-If hunk refining is currently on, then hunk refining is turned off.
-If hunk refining is off, then hunk refining is turned on, in
-`selected' mode (only the currently selected hunk is refined).
-
-With a prefix argument, the \"third choice\" is used instead:
-If hunk refining is currently on, then refining is kept on, but
-the refining mode (`selected' or `all') is switched.
-If hunk refining is off, then hunk refining is turned on, in
-`all' mode (all hunks refined).
-
-Customize variable `magit-diff-refine-hunk' to change the default mode."
-  (interactive "P")
-  (let ((old magit-diff-refine-hunk))
-    (setq-local magit-diff-refine-hunk
-                (if other
-                    (if (eq old 'all) t 'all)
-                  (not old)))
-    (if (or (eq old 'all)
-            (eq magit-diff-refine-hunk 'all))
-        (magit-refresh)
-      (dolist (section magit-section-highlighted-sections)
-        (when (eq (magit-section-type section) 'hunk)
-          (if  magit-diff-refine-hunk
-              (magit-diff-refine-hunk section)
-            (magit-diff-unrefine-hunk section)))))
-    (message "magit-diff-refine-hunk: %s" magit-diff-refine-hunk)))
 
 ;;; Revision Mode
 
