@@ -388,6 +388,13 @@ The following `format'-like specs are supported:
         'magit-diff-arguments)
     'magit-diff-section-arguments))
 
+(defun magit-diff-select-algorithm (&rest _ignore)
+  (magit-read-char-case nil t
+    (?d "[d]efault"   "default")
+    (?m "[m]inimal"   "minimal")
+    (?p "[p]atience"  "patience")
+    (?h "[h]istogram" "histogram")))
+
 (defvar magit-diff-switch-buffer-function 'pop-to-buffer)
 
 ;;;###autoload
@@ -652,13 +659,6 @@ commit or stash at point, then prompt for a commit."
   (if (eq (car magit-diff-auto-show) 'not)
       (not (memq op (cdr magit-diff-auto-show)))
     (memq op magit-diff-auto-show)))
-
-(defun magit-diff-select-algorithm (&rest _ignore)
-  (magit-read-char-case nil t
-    (?d "[d]efault"   "default")
-    (?m "[m]inimal"   "minimal")
-    (?p "[p]atience"  "patience")
-    (?h "[h]istogram" "histogram")))
 
 ;;; Diff Mode
 
