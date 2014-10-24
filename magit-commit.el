@@ -270,7 +270,7 @@ depending on the value of option `magit-commit-squash-confirm'.
 (add-to-list 'with-editor-server-window-alist
              (cons git-commit-filename-regexp 'switch-to-buffer))
 
-(defun magit-read-file-trace (ignored)
+(defun magit-read-file-trace (&rest ignored)
   (let ((file  (magit-read-file-from-rev "HEAD" "File"))
         (trace (magit-read-string "Trace")))
     (if (string-match
