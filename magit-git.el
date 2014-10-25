@@ -434,12 +434,16 @@ string \"true\", otherwise return nil."
   (magit-section-when branch))
 
 (defun magit-commit-at-point ()
-  (magit-section-when commit))
+  (if (derived-mode-p 'magit-revision-mode)
+      (car (last magit-refresh-args 2))
+    (magit-section-when commit)))
 
 (defun magit-branch-or-commit-at-point ()
-  (magit-section-case
-    (branch (magit-section-value it))
-    (commit (magit-get-shortname (magit-section-value it)))))
+  (if (derived-mode-p 'magit-revision-mode)
+      (car (last magit-refresh-args 2))
+    (magit-section-case
+      (branch (magit-section-value it))
+      (commit (magit-get-shortname (magit-section-value it))))))
 
 (defun magit-tag-at-point ()
   (magit-section-when tag))
