@@ -30,6 +30,7 @@ Contributors
 - Aaron Culich <aculich@gmail.com>
 - Abdo Roig-Maranges <abdo.roig@gmail.com>
 - acple <silentsphere110@gmail.com>
+- Adam Spiers <emacs@adamspiers.org>
 - Ævar Arnfjörð Bjarmason <avarab@gmail.com>
 - Alan Falloon <alan.falloon@gmail.com>
 - Alexey Voinov <alexey.v.voinov@gmail.com>
@@ -82,6 +83,7 @@ Contributors
 - Jan Tatarik <jan.tatarik@xing.com>
 - Jasper St. Pierre <jstpierre@mecheye.net>
 - Jeff Bellegarde <jbellegarde@whitepages.com>
+- Jeff Dairiki <dairiki@dairiki.org>
 - Jesse Alama <jesse.alama@gmail.com>
 - John Wiegley <johnw@newartisans.com>
 - Jonas Bernoulli <jonas@bernoul.li>
@@ -131,6 +133,7 @@ Contributors
 - Phil Jackson <phil@shellarchive.co.uk>
 - Pieter Praet <pieter@praet.org>
 - Prathamesh Sonpatki <csonpatki@gmail.com>
+- pskrz <dennis@walltowall.com>
 - rabio <rabiodev@o2.pl>
 - Raimon Grau <raimonster@gmail.com>
 - Ramkumar Ramachandra <artagnon@gmail.com>
@@ -172,3 +175,4 @@ Contributors
 - Wilfred Hughes <me@wilfred.me.uk>
 - Win Treese <treese@acm.org>
 - Yann Hodique <yann.hodique@gmail.com>
+- York Zhao <gtdplatform@gmail.com>
