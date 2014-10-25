@@ -34,7 +34,7 @@
 (declare-function magit-status 'magit)
 ;; For `magit-diff-while-committing'
 (declare-function magit-commit-message-buffer 'magit)
-;; For `magit-show-commit' and `magit-diff-diff-show-or-scroll'
+;; For `magit-show-commit' and `magit-diff-show-or-scroll'
 (declare-function magit-blame-chunk-get 'magit-blame)
 (declare-function magit-blame-mode 'magit-blame)
 (defvar magit-blame-mode)
@@ -640,7 +640,7 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 (defun magit-diff-visit-file (file &optional other-window)
   (interactive (list (magit-file-at-point) current-prefix-arg))
   (unless (file-exists-p file)
-    (user-error "Can't visit deleted file: %s" file))
+    (user-error "Cannot visit deleted file %s" file))
   (if (file-directory-p file)
       (progn
         (setq file (file-name-as-directory (expand-file-name file)))

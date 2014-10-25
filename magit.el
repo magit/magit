@@ -327,7 +327,7 @@ This mode is documented in info node `(magit)Status'.
 Type \\[magit-refresh] to refresh the current buffer.
 Type \\[magit-dispatch-popup] to see available action popups.
 Type \\[magit-section-toggle] to expand or hide the section at point.
-Type \\[magit-diff-visit-file] to visit the thing at point.
+Type \\[magit-diff-visit-file] to visit the change at point.
 Type \\[magit-stage] to stage the change at point; \\[magit-unstage] to unstage.
 Type \\[magit-commit-popup] to create a commit.
 \n\\{magit-status-mode-map}"
