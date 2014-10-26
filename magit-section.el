@@ -525,6 +525,8 @@ at point."
 (defvar magit-insert-section--parent  nil "For internal use only.")
 (defvar magit-insert-section--oldroot nil "For internal use only.")
 
+(defvar magit-section-set-visibility-hook nil)
+
 (defmacro magit-insert-section (&rest args)
   "\n\n(fn [NAME] (TYPE &optional VALUE HIDE) &rest BODY)"
   (declare (indent defun)
@@ -538,12 +540,15 @@ at point."
                  :start (point-marker)
                  :parent magit-insert-section--parent)))
        (setf (magit-section-hidden ,s)
-             (--if-let (and magit-insert-section--oldroot
-                            (magit-get-section
-                             (magit-section-ident ,s)
-                             magit-insert-section--oldroot))
-                 (magit-section-hidden it)
-               ,(nth 2 (car args))))
+             (-if-let (value (run-hook-with-args-until-success
+                              'magit-section-set-visibility-hook ,s))
+                 (eq value 'hide)
+               (--if-let (and magit-insert-section--oldroot
+                              (magit-get-section
+                               (magit-section-ident ,s)
+                               magit-insert-section--oldroot))
+                   (magit-section-hidden it)
+                 ,(nth 2 (car args)))))
        (let ((magit-insert-section--current ,s)
              (magit-insert-section--parent  ,s)
              (magit-insert-section--oldroot
