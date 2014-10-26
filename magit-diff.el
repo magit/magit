@@ -516,6 +516,15 @@ a commit read from the minibuffer."
                      (read-file-name "Second file: " nil nil t)))
   (magit-diff nil (list "--no-index" "--" a b)))
 
+(defvar-local magit-diff-hidden-files nil)
+(put 'magit-diff-hidden-files 'permanent-local t)
+
+(defun magit-diff-set-visibility (section)
+  (and (derived-mode-p 'magit-revision-mode)
+       (eq (magit-section-type section) 'file)
+       (member (magit-section-value section) magit-diff-hidden-files)
+       'hide))
+
 ;;;###autoload
 (defun magit-show-commit (commit &optional noselect module args)
   "Show the commit at point.
@@ -538,6 +547,19 @@ for a commit."
                              default-directory)))
     (when (magit-git-failure "cat-file" "commit" commit)
       (user-error "%s is not a commit" commit))
+    (-when-let (buffer (magit-mode-get-buffer
+                        magit-revision-buffer-name-format
+                        'magit-revision-mode))
+      (with-current-buffer buffer
+        (let ((prev (car magit-refresh-args)))
+          (unless (equal commit prev)
+            (dolist (child (cdr (magit-section-children magit-root-section)))
+              (when (eq (magit-section-type child) 'file)
+                (let ((file (magit-section-value child)))
+                  (if (magit-section-hidden child)
+                      (add-to-list 'magit-diff-hidden-files file)
+                    (setq magit-diff-hidden-files
+                          (delete file magit-diff-hidden-files))))))))))
     (magit-mode-setup magit-revision-buffer-name-format
                       (if noselect 'display-buffer 'pop-to-buffer)
                       #'magit-revision-mode

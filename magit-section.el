@@ -525,7 +525,7 @@ at point."
 (defvar magit-insert-section--parent  nil "For internal use only.")
 (defvar magit-insert-section--oldroot nil "For internal use only.")
 
-(defvar magit-section-set-visibility-hook nil)
+(defvar magit-section-set-visibility-hook '(magit-diff-set-visibility))
 
 (defmacro magit-insert-section (&rest args)
   "\n\n(fn [NAME] (TYPE &optional VALUE HIDE) &rest BODY)"
