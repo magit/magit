@@ -77,7 +77,7 @@ until one of them returns non-nil."
 
 (cl-defstruct magit-section
   type value start content end hidden washer
-  source process parent children)
+  source blobs process parent children)
 
 (defvar-local magit-root-section nil
   "The root section in the current buffer.

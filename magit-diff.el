@@ -955,7 +955,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
                         (t                                     "unmerged")))
           (orig (match-string 2))
           (file (match-string 2))
-          modes)
+          blobs modes)
       (magit-delete-line)
       (while (not (or (eobp) (looking-at magit-diff-headline-re)))
         (if (looking-at "^old mode \\([^\n]+\\)\nnew mode \\([^\n]+\\)\n")
@@ -972,7 +972,9 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
             (setq file (match-string 2))
             (setq status (if (equal (match-string 1) "copy") "new file" "renamed")))
            ((looking-at "^\\(new file\\|deleted\\)")
-            (setq status (match-string 1))))
+            (setq status (match-string 1)))
+           ((looking-at "^index \\([^ ]+\\)")
+            (setq blobs (match-string 1))))
           (magit-delete-line)))
       (setq orig (magit-decode-git-path orig))
       (setq file (magit-decode-git-path file))
@@ -989,6 +991,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
         (magit-insert-heading)
         (unless (equal orig file)
           (setf (magit-section-source it) orig))
+        (setf (magit-section-blobs it) blobs)
         (when modes
           (magit-insert-section (hunk)
             (insert modes)))
@@ -1344,7 +1347,8 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
   (when (eq (magit-section-type section) 'file)
     (let* ((file (magit-section-value section))
            (orig (or (magit-section-source section) file)))
-      (format "diff --git a/%s b/%s\n--- a/%s\n+++ b/%s\n" orig file orig file))))
+      (format "diff --git a/%s b/%s\nindex %s\n--- a/%s\n+++ b/%s\n"
+              orig file (magit-section-blobs section) orig file))))
 
 (defun magit-diff-hunk-region-header (section)
   (nth 3 (split-string (magit-diff-hunk-region-patch section) "\n")))

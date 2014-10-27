@@ -42,20 +42,30 @@
   :group 'magit
   :type 'boolean)
 
+(defcustom magit-apply-three-way t
+  "Whether command `magit-apply' should do a three-way merge."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-diff
+  :type 'boolean)
+
 ;;; Commands
 ;;;; Apply
 
-(defun magit-apply ()
-  "Apply the change at point."
-  (interactive)
+(defun magit-apply (&rest args)
+  "Apply the change at point.
+Interactively, with a prefix argument or when the option
+`magit-apply-three-way' is non-nil, fall back to a 3-way
+merge."
+  (interactive (and (or current-prefix-arg magit-apply-three-way)
+                    (list "--3way")))
   (--when-let (magit-current-section)
     (magit-maybe-backup)
     (pcase (list (magit-diff-type) (magit-diff-scope))
       (`(,(or `unstaged `staged) ,_)
        (user-error "Change is already in the working tree"))
-      (`(,_ region) (magit-apply-region it))
-      (`(,_   hunk) (magit-apply-hunk it))
-      (`(,_   file) (magit-apply-diff it)))))
+      (`(,_ region) (magit-apply-region it args))
+      (`(,_   hunk) (magit-apply-hunk it args))
+      (`(,_   file) (magit-apply-diff it args)))))
 
 (defun magit-apply-diff (section &rest args)
   (magit-apply-patch (concat (magit-diff-file-header section)
