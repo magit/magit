@@ -32,7 +32,7 @@
 ;; For `magit-diff-visit-file'
 (declare-function magit-dired-jump 'magit)
 (declare-function magit-find-file-noselect 'magit)
-(declare-function magit-status 'magit)
+(declare-function magit-status-internal 'magit)
 ;; For `magit-diff-while-committing'
 (declare-function magit-commit-message-buffer 'magit)
 ;; For `magit-show-commit' and `magit-diff-show-or-scroll'
@@ -721,9 +721,9 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
   (if (equal (magit-get-top-dir (file-name-directory directory))
              (magit-get-top-dir))
       (magit-dired-jump other-window)
-    (magit-status directory (if other-window
-                                'pop-to-buffer
-                              'switch-to-buffer))))
+    (magit-status-internal directory (if other-window
+                                         'pop-to-buffer
+                                       'switch-to-buffer))))
 
 (defun magit-diff-show-or-scroll-up ()
   "Update the commit or diff buffer for the thing at point.

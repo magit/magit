@@ -334,36 +334,37 @@ Type \\[magit-commit-popup] to create a commit.
   :group 'magit-status)
 
 ;;;###autoload
-(defun magit-status (dir &optional switch-function)
-  "Open a Magit status buffer for the Git repository containing DIR.
-If DIR is not within a Git repository, offer to create a Git
-repository in DIR.
+(defun magit-status (&optional directory)
+  "Show the status of the current Git repository in a buffer.
+With a prefix argument prompt for a repository to be shown.
+With two prefix arguments prompt for an arbitrary directory.
+If that directory isn't the root of an existing repository
+then offer to initialize it as a new repository."
+  (interactive
+   (list (and (or current-prefix-arg (not (magit-get-top-dir)))
+              (magit-read-repository
+               (>= (prefix-numeric-value current-prefix-arg) 16)))))
+  (if directory
+      (let ((toplevel (magit-toplevel-safe directory)))
+        (setq directory (expand-file-name directory))
+        (if (and toplevel (string-equal directory toplevel))
+            (magit-status-internal directory)
+          (when (y-or-n-p
+                 (if toplevel
+                     (format "%s is a repository.  Create another in %s? "
+                             toplevel directory)
+                   (format "Create repository in %s? " directory)))
+            (magit-init directory))))
+    (magit-status-internal default-directory)))
 
-Interactively, a prefix argument means to ask the user which
-Git repository to use even if `default-directory' is under
-Git control.  Two prefix arguments means to ignore
-`magit-repository-directories' when asking for user input.
+(put 'magit-status 'interactive-only 'magit-status-internal)
 
-Depending on option `magit-status-buffer-switch-function' the
-status buffer is shown in another window (the default) or the
-current window.  Non-interactively optional SWITCH-FUNCTION
-can be used to override this."
-  (interactive (list (if current-prefix-arg
-                         (magit-read-top-dir
-                          (> (prefix-numeric-value current-prefix-arg) 4))
-                       (or (magit-get-top-dir)
-                           (magit-read-top-dir nil)))))
-  (-when-let (default-directory
-              (or (magit-get-top-dir dir)
-                  (and (yes-or-no-p
-                        (format "No repository in %s.  Create one? " dir))
-                       (progn (magit-init dir)
-                              (magit-get-top-dir dir)))))
-    (magit-mode-setup magit-status-buffer-name-format
-                      (or switch-function
-                          magit-status-buffer-switch-function)
-                      #'magit-status-mode
-                      #'magit-status-refresh-buffer)))
+(defun magit-status-internal (default-directory &optional switch-function)
+  (magit-mode-setup magit-status-buffer-name-format
+                    (or switch-function
+                        magit-status-buffer-switch-function)
+                    #'magit-status-mode
+                    #'magit-status-refresh-buffer))
 
 (defun magit-status-refresh-buffer ()
   (magit-git-exit-code "update-index" "--refresh")
@@ -772,29 +773,31 @@ is no file at point then instead visit `default-directory'."
 
 ;;;###autoload
 (defun magit-init (directory)
-  "Create or reinitialize a Git repository.
-Read directory name and initialize it as new Git repository.
+  "Initialize a Git repository, then show its status.
 
 If the directory is below an existing repository, then the user
-has to confirm that a new one should be created inside; or when
-the directory is the root of the existing repository, whether
-it should be reinitialized.
+has to confirm that a new one should be created inside.  If the
+directory is the root of the existing repository, then the user
+has to confirm that it should be reinitialized.
 
-Non-interactively DIRECTORY is always (re-)initialized."
+Non-interactively DIRECTORY is (re-)initialized unconditionally."
   (interactive
-   (let* ((dir (file-name-as-directory
-                (expand-file-name
-                 (read-directory-name "Create repository in: "))))
-          (top (magit-get-top-dir dir)))
-     (if (and top
-              (not (yes-or-no-p
-                    (if (string-equal top dir)
-                        (format "Reinitialize existing repository %s? " dir)
-                      (format "%s is a repository.  Create another in %s? "
-                              top dir)))))
-         (user-error "Abort")
-       (list dir))))
-  (magit-run-git "init" (expand-file-name directory)))
+   (let ((directory (file-name-as-directory
+                     (expand-file-name
+                      (read-directory-name "Create repository in: ")))))
+     (-when-let (toplevel (magit-toplevel-safe directory))
+       (setq toplevel (expand-file-name toplevel))
+       (unless (y-or-n-p (if (string-equal toplevel directory)
+                             (format "Reinitialize existing repository %s? "
+                                     directory)
+                           (format "%s is a repository.  Create another in %s? "
+                                   toplevel directory)))
+         (user-error "Abort")))
+     (list directory)))
+  (make-directory directory t)
+  ;; `git init' does not understand the meaning of "~"!
+  (magit-call-git "init" (expand-file-name directory))
+  (magit-status-internal directory))
 
 ;;;; Branch
 
@@ -1446,9 +1449,8 @@ Run Git in the root of the current repository.
 
 ;;;; Read Repository
 
-(defun magit-read-top-dir (dir)
-  "Ask the user for a Git repository."
-  (if (and (not dir) magit-repository-directories)
+(defun magit-read-repository (&optional read-directory-name)
+  (if (and (not read-directory-name) magit-repository-directories)
       (let* ((repos (magit-list-repos-uniquify
                      (--map (cons (file-name-nondirectory it) it)
                             (magit-list-repos))))
