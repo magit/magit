@@ -517,7 +517,7 @@ tracked in the current repository."
     (let ((msg (current-message)))
       (magit-save-repository-buffers
        (eq magit-save-repository-buffers 'dontask))
-      (when msg (message msg)))))
+      (when msg (message "%s" msg)))))
 
 (add-hook 'magit-mode-setup-hook #'magit-maybe-save-repository-buffers)
 (add-hook 'magit-pre-refresh-hook #'magit-maybe-save-repository-buffers)
