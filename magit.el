@@ -1465,16 +1465,16 @@ Run Git in the root of the current repository.
                           (or (magit-get-top-dir) default-directory)))))
 
 (defun magit-list-repos ()
-  (--mapcat (magit-list-repos* it magit-repository-directories-depth)
+  (--mapcat (magit-list-repos-1 it magit-repository-directories-depth)
             magit-repository-directories))
 
-(defun magit-list-repos* (directory depth)
+(defun magit-list-repos-1 (directory depth)
   (cond ((file-readable-p (expand-file-name ".git" directory))
          (list directory))
         ((and (> depth 0) (file-accessible-directory-p directory))
          (cl-loop for file in (directory-files directory t "^[^.]" t)
                   when (file-directory-p file)
-                  append (magit-list-repos* file (1- depth))))))
+                  append (magit-list-repos-1 file (1- depth))))))
 
 (defun magit-list-repos-uniquify (alist)
   (let (result (dict (make-hash-table :test 'equal)))
