@@ -34,7 +34,7 @@
 (declare-function magit-find-file-noselect 'magit)
 (declare-function magit-status-internal 'magit)
 ;; For `magit-diff-wash-revision'
-(declare-function magit-insert-status-tags-line 'magit)
+(declare-function magit-insert-tags-header 'magit)
 ;; For `magit-diff-while-committing'
 (declare-function magit-commit-message-buffer 'magit)
 ;; For `magit-show-commit' and `magit-diff-show-or-scroll'
@@ -1061,7 +1061,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
             (magit-insert-section (branch branch)
               (insert (magit-format-ref-label branch))))
           (insert ?\n))
-        (magit-insert-status-tags-line 12)
+        (magit-insert-tags-header 12)
         (while (looking-at "^\\([a-z]+\\):")
           (when (string-equal (match-string 1) "Merge")
             (magit-delete-match))

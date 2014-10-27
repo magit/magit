@@ -88,8 +88,7 @@
   :group 'magit-status
   :type 'hook)
 
-(defcustom magit-status-headers-hook
-  '(magit-insert-status-tags-line)
+(defcustom magit-status-headers-hook '(magit-insert-tags-header)
   "Hook run to insert headers into the status buffer.
 
 This hook is run by `magit-insert-status-headers', which always
@@ -406,7 +405,7 @@ then offer to initialize it as a new repository."
             (insert "\n"))))
     (insert "In the beginning there was darkness\n\n")))
 
-(defun magit-insert-status-tags-line (&optional pad)
+(defun magit-insert-tags-header (&optional pad)
   (let* ((this-tag (magit-get-current-tag t))
          (next-tag (magit-get-next-tag t))
          (this-cnt (cadr this-tag))
