@@ -673,12 +673,12 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
       (pcase (magit-diff-scope nil nil t)
         (`list (setq diff (car (magit-section-children current))
                      hunk (car (magit-section-children diff))))
-        (`diff (setq diff current
+        (`file (setq diff current
                      hunk (car (magit-section-children diff))))
         ((or `hunk `region)
          (setq hunk current)))
-      (let ((line (magit-diff-hunk-line   hunk))
-            (col  (magit-diff-hunk-column hunk))
+      (let ((line (and hunk (magit-diff-hunk-line   hunk)))
+            (col  (and hunk (magit-diff-hunk-column hunk)))
             (buffer (if rev
                         (magit-find-file-noselect rev file)
                       (or (get-file-buffer file)
