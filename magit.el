@@ -349,10 +349,10 @@ status buffer is shown in another window (the default) or the
 current window.  Non-interactively optional SWITCH-FUNCTION
 can be used to override this."
   (interactive (list (if current-prefix-arg
-                         (magit-read-top-dir
+                         (magit-read-repository
                           (> (prefix-numeric-value current-prefix-arg) 4))
                        (or (magit-get-top-dir)
-                           (magit-read-top-dir nil)))))
+                           (magit-read-repository nil)))))
   (-when-let (default-directory
               (or (magit-get-top-dir dir)
                   (and (yes-or-no-p
@@ -1446,7 +1446,7 @@ Run Git in the root of the current repository.
 
 ;;;; Read Repository
 
-(defun magit-read-top-dir (dir)
+(defun magit-read-repository (dir)
   "Ask the user for a Git repository."
   (if (and (not dir) magit-repository-directories)
       (let* ((repos (magit-list-repos-uniquify
