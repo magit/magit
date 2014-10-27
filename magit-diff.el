@@ -33,6 +33,8 @@
 (declare-function magit-dired-jump 'magit)
 (declare-function magit-find-file-noselect 'magit)
 (declare-function magit-status-internal 'magit)
+;; For `magit-diff-wash-revision'
+(declare-function magit-insert-tags-header 'magit)
 ;; For `magit-diff-while-committing'
 (declare-function magit-commit-message-buffer 'magit)
 ;; For `magit-show-commit' and `magit-diff-show-or-scroll'
@@ -1037,42 +1039,56 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
         (magit-insert-heading
           (and refs (concat (magit-format-ref-labels refs) " "))
           (propertize rev 'face 'magit-hash))
-        (while (re-search-forward "^\\([a-z]+\\): +\\(.+\\)$" nil t)
-          (magit-bind-match-strings (keyword revs) nil
-            (when (string-match-p keyword "Merge")
-              (magit-delete-match 2)
-              (dolist (rev (split-string revs))
-                (magit-diff-insert-commit-button rev)
-                (insert ?\s)))))
-        (forward-line 2)
-        (let ((bound (save-excursion
-                       (when (re-search-forward "^diff" nil t)
-                         (copy-marker (match-beginning 0)))))
-              (summary (buffer-substring-no-properties
-                        (point) (line-end-position))))
-          (magit-delete-line)
-          (magit-insert-section (message)
-            (insert summary ?\n)
-            (magit-insert-heading)
-            (cond ((re-search-forward "^---" bound t)
-                   (magit-delete-match))
-                  ((re-search-forward "^.[^ ]" bound t)
-                   (goto-char (1- (match-beginning 0)))))))
+        (dolist (commit (magit-commit-parents rev))
+          (magit-insert-section (commit commit)
+            (let ((line (magit-rev-format "%h %s" commit)))
+              (string-match "^\\([^ ]+\\) \\(.*\\)" line)
+              (magit-bind-match-strings (commit msg) line
+                (insert "Parent:     ")
+                (insert (propertize commit 'face 'magit-hash))
+                (insert " " msg "\n")))))
+        (--when-let (magit-list-contained-branches rev)
+          (insert "Contains:  ")
+          (dolist (branch it)
+            (insert ?\s)
+            (magit-insert-section (branch branch)
+              (insert (magit-format-ref-label branch))))
+          (insert ?\n))
+        (--when-let (magit-list-merged-branches rev)
+          (insert "Merged:    ")
+          (dolist (branch it)
+            (insert ?\s)
+            (magit-insert-section (branch branch)
+              (insert (magit-format-ref-label branch))))
+          (insert ?\n))
+        (magit-insert-tags-header 12)
+        (while (looking-at "^\\([a-z]+\\):")
+          (when (string-equal (match-string 1) "Merge")
+            (magit-delete-match))
+          (forward-line 1))
+        (re-search-forward "^\\(\\(---\\)\\|    .\\)")
+        (goto-char (line-beginning-position))
+        (if (match-string 2)
+            (progn (magit-delete-match)
+                   (insert ?\n)
+                   (magit-insert-section (message)
+                     (insert "    (no message)\n")))
+          (let ((bound (save-excursion
+                         (when (re-search-forward "^diff" nil t)
+                           (copy-marker (match-beginning 0)))))
+                (summary (buffer-substring-no-properties
+                          (point) (line-end-position))))
+            (magit-delete-line)
+            (magit-insert-section (message)
+              (insert summary ?\n)
+              (magit-insert-heading)
+              (cond ((re-search-forward "^---" bound t)
+                     (magit-delete-match))
+                    ((re-search-forward "^.[^ ]" bound t)
+                     (goto-char (1- (match-beginning 0))))))))
         (forward-line)
         (setq diffstats (magit-diff-wash-diffstats))))
     (magit-diff-wash-diffs args diffstats)))
-
-(defun magit-diff-insert-commit-button (hash)
-  (magit-insert-section (commit hash)
-    (insert-text-button hash
-                        'help-echo "Visit commit"
-                        'action (lambda (button)
-                                  (save-excursion
-                                    (goto-char button)
-                                    (call-interactively #'magit-show-commit)))
-                        'follow-link t
-                        'mouse-face 'magit-section-highlight
-                        'face 'magit-hash)))
 
 ;;; Diff Sections
 

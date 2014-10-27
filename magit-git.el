@@ -548,9 +548,9 @@ uncommitted changes, nil otherwise."
       (string-match
        "\\(.+\\)-\\(?:0[0-9]*\\|\\([0-9]+\\)\\)-g[0-9a-z]+\\(-dirty\\)?$" it)
       (if with-distance
-          (list (match-string 1 it)
-                (string-to-number (or (match-string 2 it) "0"))
-                (and (match-string 3 it) t))
+          `(,(match-string 1 it)
+            ,(string-to-number (or (match-string 2 it) "0"))
+            ,@(and (match-string 3 it) (list t)))
         (match-string 1 it)))))
 
 (defun magit-get-next-tag (&optional with-distance)
@@ -583,6 +583,14 @@ where COMMITS is the number of commits in TAG but not in \"HEAD\"."
 
 (defun magit-list-remote-branches (&optional remote)
   (magit-list-refs (concat "refs/remotes/" remote)))
+
+(defun magit-list-contained-branches (commit)
+  (--map (concat "refs/heads/" (substring it 2))
+         (magit-git-lines "branch" "--contains" commit)))
+
+(defun magit-list-merged-branches (commit)
+  (--map (concat "refs/heads/" (substring it 2))
+         (magit-git-lines "branch" "--merged" commit)))
 
 (defun magit-list-refnames (&rest args)
   (magit-git-lines
