@@ -1042,7 +1042,8 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
             (when (string-match-p keyword "Merge")
               (magit-delete-match 2)
               (dolist (rev (split-string revs))
-                (magit-diff-insert-commit-button rev)
+                (magit-insert-section (commit rev)
+                  (magit-insert rev 'magit-hash))
                 (insert ?\s)))))
         (re-search-forward "^\\(\\(---\\)\\|    .\\)")
         (goto-char (line-beginning-position))
@@ -1067,18 +1068,6 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
         (forward-line)
         (setq diffstats (magit-diff-wash-diffstats))))
     (magit-diff-wash-diffs args diffstats)))
-
-(defun magit-diff-insert-commit-button (hash)
-  (magit-insert-section (commit hash)
-    (insert-text-button hash
-                        'help-echo "Visit commit"
-                        'action (lambda (button)
-                                  (save-excursion
-                                    (goto-char button)
-                                    (call-interactively #'magit-show-commit)))
-                        'follow-link t
-                        'mouse-face 'magit-section-highlight
-                        'face 'magit-hash)))
 
 ;;; Diff Sections
 
