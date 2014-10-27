@@ -1472,9 +1472,9 @@ Run Git in the root of the current repository.
   (cond ((file-readable-p (expand-file-name ".git" directory))
          (list directory))
         ((and (> depth 0) (file-accessible-directory-p directory))
-         (cl-loop for file in (directory-files directory t "^[^.]" t)
-                  when (file-directory-p file)
-                  append (magit-list-repos-1 file (1- depth))))))
+         (--mapcat (when (file-directory-p it)
+                     (magit-list-repos-1 it (1- depth)))
+                   (directory-files directory t "^[^.]" t)))))
 
 (defun magit-list-repos-uniquify (alist)
   (let (result (dict (make-hash-table :test 'equal)))
