@@ -67,7 +67,7 @@
                   "--" filename))
 
 (defun magit-tests--should-have-section (type info)
-  (magit-status default-directory)
+  (magit-status-internal default-directory)
   (message (buffer-string))
   (should (--first (equal (magit-section-value it) info)
                    (magit-section-children
@@ -88,14 +88,14 @@
 (ert-deftest magit-status-staged-modified ()
   (magit-tests--with-temp-repo
     (magit-tests--modify-file "file")
-    (magit-status default-directory)
+    (magit-status-internal default-directory)
     (magit-stage-modified t)
     (magit-tests--should-have-section 'staged "file")))
 
 (ert-deftest magit-status-staged-modified-with-space ()
   (magit-tests--with-temp-repo
     (magit-tests--modify-file "file with space")
-    (magit-status default-directory)
+    (magit-status-internal default-directory)
     (magit-stage-modified t)
     (magit-tests--should-have-section 'staged "file with space")))
 
@@ -103,14 +103,14 @@
   (magit-tests--with-temp-repo
     (magit-tests--modify-and-commit "file")
     (magit-tests--modify-file "file")
-    (magit-status default-directory)
+    (magit-status-internal default-directory)
     (magit-tests--should-have-section 'unstaged "file")))
 
 (ert-deftest magit-status-modified-with-space ()
   (magit-tests--with-temp-repo
     (magit-tests--modify-and-commit "file with space")
     (magit-tests--modify-file "file with space")
-    (magit-status default-directory)
+    (magit-status-internal default-directory)
     (magit-tests--should-have-section 'unstaged "file with space")))
 
 (ert-deftest magit-status-unpushed ()

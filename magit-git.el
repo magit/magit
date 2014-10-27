@@ -209,6 +209,14 @@ directory.  Otherwise return nil."
   (--when-let (magit-rev-parse "--show-toplevel")
     (file-name-as-directory (magit-expand-git-file-name it))))
 
+(defun magit-toplevel-safe (&optional directory)
+  (let ((default-directory (or directory default-directory)))
+    (while (not (file-accessible-directory-p default-directory))
+      (setq default-directory
+            (file-name-directory
+             (directory-file-name default-directory))))
+    (magit-toplevel)))
+
 (defun magit-get-top-dir (&optional directory)
   "Return the top-level directory for the current repository.
 
