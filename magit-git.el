@@ -584,6 +584,14 @@ where COMMITS is the number of commits in TAG but not in \"HEAD\"."
 (defun magit-list-remote-branches (&optional remote)
   (magit-list-refs (concat "refs/remotes/" remote)))
 
+(defun magit-list-contained-branches (commit)
+  (--map (concat "refs/heads/" (substring it 2))
+         (magit-git-lines "branch" "--contains" commit)))
+
+(defun magit-list-merged-branches (commit)
+  (--map (concat "refs/heads/" (substring it 2))
+         (magit-git-lines "branch" "--merged" commit)))
+
 (defun magit-list-refnames (&rest args)
   (magit-git-lines
    "for-each-ref" "--format=%(refname:short)"
