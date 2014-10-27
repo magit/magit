@@ -45,17 +45,18 @@
 ;;; Commands
 ;;;; Apply
 
-(defun magit-apply ()
-  "Apply the change at point."
-  (interactive)
+(defun magit-apply (&rest args)
+  "Apply the change at point.
+With a prefix argument fall back to a 3-way merge."
+  (interactive (and current-prefix-arg (list "--3way")))
   (--when-let (magit-current-section)
     (magit-maybe-backup)
     (pcase (list (magit-diff-type) (magit-diff-scope))
       (`(,(or `unstaged `staged) ,_)
        (user-error "Change is already in the working tree"))
-      (`(,_ region) (magit-apply-region it))
-      (`(,_   hunk) (magit-apply-hunk it))
-      (`(,_   file) (magit-apply-diff it)))))
+      (`(,_ region) (magit-apply-region it args))
+      (`(,_   hunk) (magit-apply-hunk it args))
+      (`(,_   file) (magit-apply-diff it args)))))
 
 (defun magit-apply-diff (section &rest args)
   (magit-apply-patch (concat (magit-diff-file-header section)
