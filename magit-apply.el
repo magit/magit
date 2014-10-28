@@ -45,7 +45,7 @@
 (defcustom magit-apply-three-way t
   "Whether command `magit-apply' should do a three-way merge."
   :package-version '(magit . "2.1.0")
-  :group 'magit-diff
+  :group 'magit-commands
   :type 'boolean)
 
 ;;; Commands
