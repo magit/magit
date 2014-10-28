@@ -38,7 +38,7 @@
   :group 'magit-backup
   :type 'string)
 
-(defcustom magit-backup-untracked t
+(defcustom magit-backup-untracked nil
   "Whether to include untracked files in backup stashes."
   :group 'magit-backup
   :type 'boolean)
@@ -71,7 +71,6 @@
 (define-minor-mode magit-backup-mode
   "Automatically create stashes to backup uncommitted changes."
   :lighter magit-backup-mode-lighter
-  :init-value t
   :global t
   :group 'magit
   :group 'magit-backup)
