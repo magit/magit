@@ -852,39 +852,63 @@ changes.
     (list branch start args)))
 
 ;;;###autoload
-(defun magit-branch-delete (branch &optional force)
-  "Delete BRANCH.
-Without a prefix argument deleting a branch that hasn't been
-merged will fail.  With a prefix argument the deletion is forced.
-When BRANCH is the current branch offer to first detach HEAD or
-checkout the \"master\" branch.
-\n(git branch -d|-D BRANCH || git push REMOTE :BRANCH)."
-  (interactive (list (magit-read-branch (if current-prefix-arg
-                                            "Force delete branch"
-                                          "Delete branch")
-                                        (magit-get-previous-branch))
-                     current-prefix-arg))
-  (let ((ref (magit-ref-fullname branch)))
-    (unless ref
-      (error "%s cannot be resolved" branch))
-    (if (string-match "^refs/remotes/\\([^/]+\\)/\\(.+\\)" ref)
-        (magit-run-git-async "push"      (match-string 1 ref)
-                             (concat ":" (match-string 2 ref)))
-      (when (equal ref (magit-ref-fullname (magit-get-current-branch)))
-        (pcase (let ((prompt (format "Branch %s is checked out.  " branch)))
-                 (if (or (equal ref "refs/heads/master")
-                         (not (magit-ref-exists-p "refs/heads/master")))
+(defun magit-branch-delete (branches &optional force)
+  "Delete one or multiple branches.
+If the region marks multiple branches, then offer to delete
+those, otherwise prompt for a single branch to be deleted,
+defaulting to the branch at point."
+  (interactive
+   (let ((branches (magit-region-values 'branch)) force)
+     (if (if (> (length branches) 1)
+             (magit-confirm t nil "Delete %i branches" branches)
+           (setq branches
+                 (list (magit-read-branch (if current-prefix-arg
+                                              "Force delete branch"
+                                            "Delete branch")
+                                          (magit-get-previous-branch)))))
+         (unless current-prefix-arg
+           (-when-let (unmerged (-intersection
+                                 (--map (substring it 2)
+                                        (magit-git-lines "branch" "--no-merged"))
+                                 branches))
+             (if (magit-confirm 'delete-unmerged-branch
+                   "Delete unmerged branch %s"
+                   "Delete %i unmerged branches" unmerged)
+                 (setq force t)
+               (or (setq branches (-difference branches unmerged))
+                   (user-error "Abort")))))
+       (user-error "Abort"))
+     (list branches force)))
+  (let ((ref (magit-ref-fullname (car branches))))
+    (cond
+     ((string-match "^refs/remotes/\\([^/]+\\)" ref)
+      (let* ((remote (match-string 1 ref))
+             (offset (1+ (length remote))))
+        (magit-run-git-async
+         "push" remote (--map (concat ":" (substring it offset)) branches))))
+     ((> (length branches) 1)
+      (magit-run-git "branch" (if force "-D" "-d")
+                     (delete (magit-get-current-branch) branches)))
+     (t ; And now for something completely different.
+      (let* ((branch (car branches))
+             (prompt (format "Branch %s is checked out.  " branch)))
+        (when (equal branch (magit-get-current-branch))
+          (pcase (if (or (equal branch "master")
+                         (not (magit-rev-verify "master")))
                      (magit-read-char-case prompt nil
                        (?d "[d]etach HEAD & delete" 'detach)
                        (?a "[a]bort"                'abort))
                    (magit-read-char-case prompt nil
                      (?d "[d]etach HEAD & delete"     'detach)
                      (?c "[c]heckout master & delete" 'master)
-                     (?a "[a]bort"                    'abort))))
-          (`detach (setq force t) (magit-call-git "checkout" "--detach"))
-          (`master (setq force t) (magit-call-git "checkout" "master"))
-          (`abort  (user-error "Branch %s not deleted" branch))))
-      (magit-run-git "branch" (if force "-D" "-d") branch))))
+                     (?a "[a]bort"                    'abort)))
+            (`detach (magit-call-git "checkout" "--detach"))
+            (`master (magit-call-git "checkout" "master"))
+            (`abort  (user-error "Abort")))
+          (setq force t))
+        (magit-run-git "branch" (if force "-D" "-d") branch))))))
+
+(put 'magit-branch-delete 'interactive-only t)
 
 ;;;###autoload
 (defun magit-branch-set-upstream (branch upstream)

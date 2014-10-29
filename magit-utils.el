@@ -47,7 +47,7 @@
   "A list of symbols for actions Magit should not confirm, or t.
 Actions are: `reverse', `discard', `rename', `resurrect',
 `trash', `delete', `abort-merge', `merge-dirty', `drop-stashes'
-`reset-bisect', `kill-process',
+`reset-bisect', `kill-process', `delete-unmerged-branch',
 `stage-all-changes' and `unstage-all-changes'.  If t then don't
 require confirmation for any of these actions."
   :package-version '(magit . "2.1.0")
@@ -58,7 +58,7 @@ require confirmation for any of these actions."
                       (const trash)             (const delete)
                       (const abort-merge)       (const merge-dirty)
                       (const drop-stashes)      (const resect-bisect)
-                      (const kill-process)
+                      (const kill-process)      (const delete-unmerged-branch)
                       (const stage-all-changes) (const unstage-all-changes))))
 
 (defcustom magit-ellipsis ?…
