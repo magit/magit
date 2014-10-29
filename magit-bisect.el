@@ -79,7 +79,7 @@ other actions from the bisect popup (\
 (defun magit-bisect-reset ()
   "After bisecting cleanup bisection state and return to original HEAD."
   (interactive)
-  (when (magit-confirm 'reset-bisect "Reset bisect")
+  (when (magit-confirm 'reset-bisect)
     (magit-run-git "bisect" "reset")
     (ignore-errors (delete-file (magit-git-dir "BISECT_CMD_OUTPUT")))))
 

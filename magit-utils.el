@@ -45,20 +45,21 @@
 
 (defcustom magit-no-confirm nil
   "A list of symbols for actions Magit should not confirm, or t.
-Actions are: `stage-all', `unstage-all', `reverse', `discard',
-`trash', `delete', `resurrect', `rename', `kill-process',
-`abort-merge', `merge-dirty', `drop-stashes', `reset-bisect',
-and `delete-tags'.  If t, confirmation is never needed."
+Actions are: `reverse', `discard', `rename', `resurrect',
+`trash', `delete', `abort-merge', `merge-dirty', `drop-stashes'
+`reset-bisect', `kill-process',
+`stage-all-changes' and `unstage-all-changes'.  If t then don't
+require confirmation for any of these actions."
   :package-version '(magit . "2.1.0")
   :group 'magit
-  :type '(choice (const :tag "Confirmation never needed" t)
-                 (set (const stage-all)     (const unstage-all)
-                      (const reverse)       (const discard)
-                      (const trash)         (const delete)
-                      (const resurrect)     (const rename)
-                      (const kill-process)  (const abort-merge)
-                      (const merge-dirty)   (const drop-stashes)
-                      (const resect-bisect) (const delete-tags))))
+  :type '(choice (const :tag "No confirmation needed" t)
+                 (set (const reverse)           (const discard)
+                      (const rename)            (const resurrect)
+                      (const trash)             (const delete)
+                      (const abort-merge)       (const merge-dirty)
+                      (const drop-stashes)      (const resect-bisect)
+                      (const kill-process)
+                      (const stage-all-changes) (const unstage-all-changes))))
 
 (defcustom magit-ellipsis ?…
   "Character used to abreviate text."
@@ -208,33 +209,47 @@ results in additional differences."
            ',(mapcar 'car clauses))
      ,@(--map `(,(car it) ,@(cddr it)) clauses)))
 
-(cl-defun magit-confirm (type prompt &optional (files nil sfiles))
-  (cond ((or (eq magit-no-confirm t)
-             (memq type magit-no-confirm))
-         (or (not sfiles)
-             (and files t)))
-        ((not sfiles)
-         (y-or-n-p (concat prompt "? ")))
-        ((= (length files) 1)
-         (y-or-n-p (format "%s %s? " prompt (car files))))
-        ((> (length files) 1)
+(cl-defun magit-confirm (action &optional prompt prompt-n (items nil sitems))
+  (declare (indent defun))
+  (setq prompt-n (format (concat (or prompt-n prompt) "? ") (length items))
+        prompt   (format (concat (or prompt (magit-confirm-make-prompt action))
+                                 "? ")
+                         (car items)))
+  (cond ((and (not (eq action t))
+              (or (eq magit-no-confirm t)
+                  (memq action magit-no-confirm)))
+         (or (not sitems) items))
+        ((not sitems)
+         (y-or-n-p prompt))
+        ((= (length items) 1)
+         (and (y-or-n-p prompt) items))
+        ((> (length items) 1)
          (let ((buffer (get-buffer-create " *Magit Confirm*")))
            (with-current-buffer buffer
              (with-current-buffer-window
-              buffer
-              (cons 'display-buffer-below-selected
-                    '((window-height . fit-window-to-buffer)))
+              buffer (cons 'display-buffer-below-selected
+                           '((window-height . fit-window-to-buffer)))
               (lambda (window _value)
                 (with-selected-window window
-                  (unwind-protect
-                      (y-or-n-p (if (string-match-p "%i" prompt)
-                                    (format prompt (length files))
-                                  (format "%s %i files? "
-                                          prompt (length files))))
+                  (unwind-protect (and (y-or-n-p prompt-n) items)
                     (when (window-live-p window)
                       (quit-restore-window window 'kill)))))
-              (dolist (file files)
-                (insert file "\n"))))))))
+              (dolist (item items)
+                (insert item "\n"))))))))
+
+(defun magit-confirm-files (action files &optional prompt)
+  (when files
+    (unless prompt
+      (setq prompt (magit-confirm-make-prompt action)))
+    (magit-confirm action
+      (concat prompt " %s")
+      (concat prompt " %i files")
+      files)))
+
+(defun magit-confirm-make-prompt (action)
+  (let ((prompt (symbol-name action)))
+    (replace-regexp-in-string
+     "-" " " (concat (upcase (substring prompt 0 1)) (substring prompt 1)))))
 
 ;;; Text Utilities
 

@@ -148,7 +148,7 @@ belong to processes that are still running are never removed."
   (magit-section-when process
     (let ((process (magit-section-value it)))
       (if (eq (process-status process) 'run)
-          (when (magit-confirm 'kill-process "Kill this process")
+          (when (magit-confirm 'kill-process)
             (kill-process process))
         (user-error "Process isn't running")))))
 

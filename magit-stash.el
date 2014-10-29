@@ -160,12 +160,9 @@ and forgo removing the stash."
 (defun magit-stash-drop (stash)
   "Remove a stash from the stash list.
 When the region is active offer to drop all contained stashes."
-  (interactive
-   (-if-let (stashes (magit-region-values 'stash))
-       (if (magit-confirm 'drop-stashes "Drop %i stashes" stashes)
-           (list stashes)
-         (user-error "Abort"))
-     (list (magit-read-stash "Drop stash"))))
+  (interactive (list (--if-let (magit-region-values 'stash)
+                         (magit-confirm t nil "Drop %i stashes" it)
+                       (magit-read-stash "Drop stash"))))
   (if (listp stash)
       (mapc 'magit-stash-drop (nreverse stash))
     (magit-call-git "reflog" "delete" "--updateref" "--rewrite" stash)
@@ -181,7 +178,7 @@ When the region is active offer to drop all contained stashes."
   "Remove all stashes saved in REF's reflog by deleting REF."
   (interactive
    (let ((ref (or (magit-section-when 'stashes) "refs/stash")))
-     (if (magit-confirm 'drop-stashes (format "Drop all stashes in %s" ref))
+     (if (magit-confirm t (format "Drop all stashes in %s" ref))
          (list ref)
        (user-error "Abort"))))
   (magit-run-git "update-ref" "-d" ref))

@@ -139,7 +139,7 @@ With a prefix argument also stage previously untracked (but not
 ignored) files.
 \('git add --update|--all .')."
   (interactive (progn (unless (or (not (magit-anything-staged-p))
-                                  (magit-confirm 'stage-all "Stage all changes"))
+                                  (magit-confirm 'stage-all-changes))
                         (user-error "Abort"))
                       (list current-prefix-arg)))
   (magit-maybe-backup)
@@ -177,8 +177,7 @@ ignored) files.
       (`(staged     files) (magit-unstage-1 (magit-region-values)))
       (`(staged      list) (when (or (and (not (magit-anything-unstaged-p))
                                           (not (magit-untracked-files)))
-                                     (magit-confirm 'unstage-all
-                                                    "Unstage all changes"))
+                                     (magit-confirm 'unstage-all-changes))
                              (magit-run-git "reset" "HEAD" "--")))
       (`(committed     ,_) (user-error "Cannot unstage committed changes"))
       (`(undefined     ,_) (user-error "Cannot unstage this change")))))
@@ -279,15 +278,15 @@ without requiring confirmation."
   (magit-refresh))
 
 (defun magit-discard-files--resurrect (files)
-  (when (magit-confirm 'resurrect "Resurrect" files)
+  (when (magit-confirm-files 'resurrect files)
     (if (eq (magit-diff-type) 'staged)
         (magit-call-git "reset"  "--" files)
       (magit-call-git "checkout" "--" files))))
 
 (defun magit-discard-files--delete (files)
   (when (if magit-delete-by-moving-to-trash
-            (magit-confirm 'trash "Trash" files)
-          (magit-confirm 'delete "Delete" files))
+            (magit-confirm-files 'trash files)
+          (magit-confirm-files 'delete files))
     (let ((delete-by-moving-to-trash magit-delete-by-moving-to-trash)
           (status (magit-file-status)))
       (dolist (file files)
@@ -309,14 +308,11 @@ without requiring confirmation."
                 (magit-call-git "rm" "--cached" "--force" "--" file))))))))
 
 (defun magit-discard-files--rename (sections)
-  (when (magit-confirm 'rename
-                       (if (= (length sections) 1)
-                           "Undo rename"
-                         "Undo renames")
-                       (--map (format "%s -> %s"
-                                      (magit-section-source it)
-                                      (magit-section-value it))
-                              sections))
+  (when (magit-confirm 'rename "Undo rename %s" "Undo %i renames"
+          (--map (format "%s -> %s"
+                         (magit-section-source it)
+                         (magit-section-value it))
+                 sections))
     (dolist (section sections)
       (let ((file (magit-section-value section))
             (orig (magit-section-source section)))
@@ -326,9 +322,8 @@ without requiring confirmation."
           (magit-call-git "reset" "--" orig))))))
 
 (defun magit-discard-files--discard (sections)
-  (when (magit-confirm 'discard
-                       (format "Discard %s changes to" (magit-diff-type))
-                       (mapcar 'magit-section-value sections))
+  (when (magit-confirm-files 'discard (mapcar 'magit-section-value sections)
+                             (format "Discard %s changes in" (magit-diff-type)))
     (mapc 'magit-discard-apply sections)))
 
 ;;;; Reverse
@@ -357,8 +352,7 @@ without requiring confirmation."
                section "--reverse"))))
 
 (defun magit-reverse-files (sections)
-  (when (magit-confirm
-         'reverse "Reverse" (mapcar 'magit-section-value sections))
+  (when (magit-confirm-files 'reverse (mapcar 'magit-section-value sections))
     (mapc 'magit-reverse-apply sections)))
 
 ;;; magit-apply.el ends soon
