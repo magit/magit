@@ -378,7 +378,9 @@ then offer to initialize it as a new repository."
       (let ((line (magit-rev-format "%h %s" "HEAD")))
         (string-match "^\\([^ ]+\\) \\(.*\\)" line)
         (magit-bind-match-strings (hash msg) line
-          (magit-insert-section (branch (or branch hash))
+          (magit-insert-section it (branch (or branch hash))
+            (unless branch
+              (setf (magit-section-type it) 'commit))
             (magit-insert-heading
               (magit-string-pad "Head: " 10)
               (propertize hash 'face 'magit-hash) " "

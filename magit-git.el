@@ -442,16 +442,17 @@ string \"true\", otherwise return nil."
   (magit-section-when branch))
 
 (defun magit-commit-at-point ()
-  (if (derived-mode-p 'magit-revision-mode)
-      (car (last magit-refresh-args 2))
-    (magit-section-when commit)))
+  (or (magit-section-when commit)
+      (and (derived-mode-p 'magit-revision-mode)
+           (car (last magit-refresh-args 2)))))
 
 (defun magit-branch-or-commit-at-point ()
-  (if (derived-mode-p 'magit-revision-mode)
-      (car (last magit-refresh-args 2))
-    (magit-section-case
-      (branch (magit-section-value it))
-      (commit (magit-get-shortname (magit-section-value it))))))
+  (or (magit-section-case
+        (branch (magit-section-value it))
+        (commit (magit-get-shortname (magit-section-value it))))
+      (and (derived-mode-p 'magit-revision-mode)
+           (car (last magit-refresh-args 2)))))
+
 
 (defun magit-tag-at-point ()
   (magit-section-when tag))
@@ -585,12 +586,10 @@ where COMMITS is the number of commits in TAG but not in \"HEAD\"."
   (magit-list-refs (concat "refs/remotes/" remote)))
 
 (defun magit-list-contained-branches (commit)
-  (--map (concat "refs/heads/" (substring it 2))
-         (magit-git-lines "branch" "--contains" commit)))
+  (--map (substring it 2) (magit-git-lines "branch" "--contains" commit)))
 
 (defun magit-list-merged-branches (commit)
-  (--map (concat "refs/heads/" (substring it 2))
-         (magit-git-lines "branch" "--merged" commit)))
+  (--map (substring it 2) (magit-git-lines "branch" "--merged" commit)))
 
 (defun magit-list-refnames (&rest args)
   (magit-git-lines
