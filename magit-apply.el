@@ -138,10 +138,10 @@ that no longer exist in the working tree from the index also.
 With a prefix argument also stage previously untracked (but not
 ignored) files.
 \('git add --update|--all .')."
-  (interactive
-   (unless (or (not (magit-anything-staged-p))
-               (magit-confirm 'stage-all "Stage all changes"))
-     (user-error "Abort")))
+  (interactive (progn (unless (or (not (magit-anything-staged-p))
+                                  (magit-confirm 'stage-all "Stage all changes"))
+                        (user-error "Abort"))
+                      (list current-prefix-arg)))
   (magit-maybe-backup)
   (magit-run-git "add" (if all "--all" "--update") "."))
 
