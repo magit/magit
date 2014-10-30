@@ -860,7 +860,8 @@ If the region marks multiple branches, then offer to delete
 those, otherwise prompt for a single branch to be deleted,
 defaulting to the branch at point."
   (interactive
-   (let ((branches (magit-region-values 'branch)) force)
+   (let ((branches (magit-region-values 'branch))
+         (force current-prefix-arg))
      (if (if (> (length branches) 1)
              (magit-confirm t nil "Delete %i branches" branches)
            (setq branches
