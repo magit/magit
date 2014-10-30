@@ -868,7 +868,8 @@ defaulting to the branch at point."
                                               "Force delete branch"
                                             "Delete branch")
                                           (magit-get-previous-branch)))))
-         (unless current-prefix-arg
+         (if current-prefix-arg
+             (setq force t)
            (-when-let (unmerged (-intersection
                                  (--map (substring it 2)
                                         (magit-git-lines "branch" "--no-merged"))
