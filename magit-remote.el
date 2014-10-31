@@ -141,9 +141,8 @@ If there is no default remote, ask for one."
   "Pull changes from a remote repository.
 
 If there is no default remote, the user is prompted for one and
-the choosen values is saved.  If there is no default merge
-branch, the user is prompted for one and the choosen values is
-saved.
+the chosen values is saved.  If there is no default merge branch,
+the user is prompted for one and the chosen values is saved.
 
 With a prefix argument, the default remote is not used and the
 user is prompted for a remote.  With two prefix arguments, the
