@@ -917,8 +917,11 @@ defaulting to the branch at point."
 (defun magit-branch-set-upstream (branch upstream)
   "Change the UPSTREAM branch of BRANCH."
   (interactive
-   (let ((b (magit-read-local-branch "Change upstream of branch")))
-     (list b (magit-read-other-branch "Change upstream to branch" b))))
+   (let ((branch (magit-read-local-branch "Change upstream of branch")))
+     (list branch (magit-completing-read
+                   "Change upstream to branch (empty to unset)"
+                   (delete branch (magit-list-branch-names))
+                   nil t nil 'magit-revision-history))))
   (if upstream
       (magit-run-git "branch" (concat "--set-upstream-to=" upstream) branch)
     (magit-run-git "branch" "--unset-upstream" branch)))
