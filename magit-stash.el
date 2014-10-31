@@ -195,7 +195,7 @@ When the region is active offer to drop all contained stashes."
                                  &optional refresh keep noerror ref)
   (if (or (and index     (magit-staged-files t))
           (and worktree  (magit-modified-files t))
-          (and untracked (magit-untracked-files t (eq untracked 'all))))
+          (and untracked (magit-untracked-files (eq untracked 'all))))
       (progn
         (magit-stash-store message (or ref "refs/stash")
                            (magit-stash-create message index worktree untracked))
