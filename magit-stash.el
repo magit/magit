@@ -68,6 +68,7 @@ while two prefix arguments are equivalent to `--all'."
   "Create a stash of the index only.
 Unstaged and untracked changes are not stashed."
   (interactive (list (magit-stash-read-message)))
+  (error "This command is currently broken")
   (magit-stash-save message t nil nil t))
 
 ;;;###autoload
@@ -77,6 +78,7 @@ Untracked files are included according to popup arguments.
 One prefix argument is equivalent to `--include-untracked'
 while two prefix arguments are equivalent to `--all'."
   (interactive (magit-stash-read-args))
+  (error "This command is currently broken")
   (magit-stash-save message nil t include-untracked t))
 
 ;;;###autoload
