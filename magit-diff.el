@@ -1138,13 +1138,11 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
 (defun magit-diff-type (&optional section)
   (--when-let (or section (magit-current-section))
     (cond ((derived-mode-p 'magit-diff-mode)
-           (or (and (not (nth 0 magit-refresh-args))
-                    (not (nth 1 magit-refresh-args))
-                    (cond ((not (nth 2 magit-refresh-args))
-                           'unstaged)
-                          ((member "--cached" (cddr magit-refresh-args))
-                           'staged)))
-               'undefined))
+           (if (car magit-refresh-args)
+               'undefined
+             (if (member "--cached" (cadr magit-refresh-args))
+                 'staged
+               'unstaged)))
           ((derived-mode-p 'magit-revision-mode 'magit-stash-mode) 'committed)
           ((derived-mode-p 'magit-status-mode)
            (let ((stype (magit-section-type it)))
