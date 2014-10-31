@@ -495,7 +495,7 @@
          (magit-file-line
           (magit-git-dir
            (concat dir (if interactive "stopped-sha" "original-commit"))))
-         onto (--map (substring it 5 45)
+         onto (--map (cadr (split-string it))
                      (magit-file-lines (magit-git-dir "rebase-merge/done"))))
         (insert ?\n)))))
 
