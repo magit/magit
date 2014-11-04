@@ -1528,10 +1528,24 @@ Run Git in the root of the current repository.
   (magit-run-git "format-patch" range))
 
 (defun magit-copy-as-kill ()
-  "Copy the thing at point into the kill ring."
+  "Save the value of the current section to the kill ring.
+For commits save the full hash.  For branches do so only when
+a prefix argument is used, otherwise save the branch name."
   (interactive)
-  (magit-section-when (branch commit mcommit file)
-    (kill-new (message "%s" (magit-section-value it)))))
+  (-when-let (section (magit-current-section))
+    (let ((value (magit-section-value section)))
+      (magit-section-case
+        (branch  (when current-prefix-arg
+                   (setq value (magit-rev-parse value))))
+        (commit  (setq value (magit-rev-parse value)))
+        (mcommit (let ((default-directory
+                         (file-name-as-directory
+                          (expand-file-name
+                           (magit-section-parent-value section)
+                           (magit-get-top-dir)))))
+                   (setq value (magit-rev-parse value))))
+        (t value))
+      (kill-new (message "%s" value)))))
 
 ;;; magit.el ends soon
 
