@@ -661,7 +661,7 @@ completion.
 Magit will look into these directories for Git repositories and
 offer them as choices for `magit-status'."
   :group 'magit
-  :type '(repeat string))
+  :type '(repeat directory))
 
 (defcustom magit-repo-dirs-depth 3
   "The maximum depth to look for Git repos.
