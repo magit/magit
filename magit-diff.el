@@ -345,7 +345,7 @@ The following `format'-like specs are supported:
               (?w "Ignore all whitespace"      "--ignore-all-space"))
   :options  '((?u "Context lines"  "-U" read-from-minibuffer)
               (?m "Detect renames" "-M" read-from-minibuffer)
-              (?c "Dectet copies"  "-C" read-from-minibuffer)
+              (?c "Detect copies"  "-C" read-from-minibuffer)
               (?a "Diff algorithm" "--diff-algorithm="
                   magit-diff-select-algorithm))
   :actions  '((?d "Dwim"          magit-diff-dwim)
@@ -369,7 +369,7 @@ The following `format'-like specs are supported:
               (?w "Ignore all whitespace"      "--ignore-all-space"))
   :options  '((?u "Context lines"  "-U" read-from-minibuffer)
               (?m "Detect renames" "-M" read-from-minibuffer)
-              (?c "Dectet copies"  "-C" read-from-minibuffer)
+              (?c "Detect copies"  "-C" read-from-minibuffer)
               (?a "Diff algorithm" "--diff-algorithm="
                   magit-diff-select-algorithm))
   :actions  '((?g "Refresh"       magit-diff-refresh)
