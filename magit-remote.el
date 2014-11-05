@@ -208,10 +208,7 @@ arguments are not saved."
 If only one remote exists, push to that.  Otherwise prompt for a
 remote, offering the remote configured for the current branch as
 default."
-  (interactive (list (let ((remotes (magit-list-remotes)))
-                       (if (= (length remotes) 1)
-                           (car remotes)
-                         (magit-read-remote "Push tags to remote")))
+  (interactive (list (magit-read-remote "Push tags to remote" nil t)
                      magit-current-popup-args))
   (magit-run-git-async "push" remote "--tags" args))
 

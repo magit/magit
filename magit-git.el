@@ -812,12 +812,15 @@ Return a list of two integers: (A>B B>A)."
                                       (magit-git-lines "stash" "list"))
                                nil t nil nil atpoint))))
 
-(defun magit-read-remote (prompt &optional default)
-  (magit-completing-read prompt (magit-list-remotes)
-                         nil t nil nil
-                         (or default
-                             (magit-remote-at-point)
-                             (magit-get-remote))))
+(defun magit-read-remote (prompt &optional default use-only)
+  (let ((remotes (magit-list-remotes)))
+    (if (and use-only (= (length remotes) 1))
+        (car remotes)
+      (magit-completing-read prompt (magit-list-remotes)
+                             nil t nil nil
+                             (or default
+                                 (magit-remote-at-point)
+                                 (magit-get-remote))))))
 
 (defvar magit-read-file-hist nil)
 
