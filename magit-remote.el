@@ -129,8 +129,7 @@ If there is no default remote, ask for one."
   "Popup console for pull commands."
   'magit-popups
   :man-page "git-pull"
-  :switches '((?f "Force"  "--force")
-              (?r "Rebase" "--rebase"))
+  :switches '((?r "Rebase" "--rebase"))
   :actions  '((?F "Pull"   magit-pull))
   :default-action 'magit-pull)
 
