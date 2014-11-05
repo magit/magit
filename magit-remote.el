@@ -170,7 +170,7 @@ arguments are not saved."
           (if branch-needed
               (magit-read-remote-branch (format "Pull branch from remote %s"
                                                 chosen-branch-remote)
-                                        chosen-branch-remote)
+                                        chosen-branch-remote nil t)
             branch-merge-name)))
     (when (and (not branch-remote)
                (not choose-remote))
