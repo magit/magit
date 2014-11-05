@@ -533,6 +533,13 @@ otherwise try to shorten it to a name (which may fail)."
       (unless (equal remote ".")
         remote))))
 
+(defun magit-get-remote-branch (&optional branch)
+  (-when-let (local (or branch (magit-get-current-branch)))
+    (let ((remote (magit-get-remote local))
+          (branch (magit-get "branch" local "merge")))
+      (when (and remote branch (string-match "^refs/heads/\\(.+\\)" branch))
+        (cons remote (match-string 1 branch))))))
+
 (defun magit-get-current-tag (&optional with-distance)
   "Return the closest tag reachable from \"HEAD\".
 
