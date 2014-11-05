@@ -69,23 +69,20 @@ t          ask if --set-upstream should be used.
 
 ;;;###autoload
 (defun magit-remote-add (remote url)
-  "Add the REMOTE and fetch it.
-\n(git remote add -f REMOTE URL)."
+  "Add a remote named REMOTE and fetch it."
   (interactive (list (magit-read-string "Remote name")
                      (magit-read-string "Remote url")))
   (magit-run-git-async "remote" "add" "-f" remote url))
 
 ;;;###autoload
 (defun magit-remote-remove (remote)
-  "Delete the REMOTE.
-\n(git remote rm REMOTE)."
+  "Delete the remote named REMOTE."
   (interactive (list (magit-read-remote "Delete remote")))
   (magit-run-git "remote" "rm" remote))
 
 ;;;###autoload
 (defun magit-remote-rename (old new)
-  "Rename remote OLD to NEW.
-\n(git remote rename OLD NEW)."
+  "Rename the remote named OLD to NEW."
   (interactive
    (let  ((remote (magit-read-remote "Rename remote")))
      (list remote (magit-read-string (format "Rename remote '%s' to" remote)))))
