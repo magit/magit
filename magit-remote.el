@@ -86,8 +86,9 @@
 
 ;;;###autoload
 (defun magit-fetch-current (&optional args)
-  "Fetch for the default remote.
-If there is no default remote, ask for one."
+  "Fetch from the upstream repository of the current branch.
+If `HEAD' is detached or if the upstream is not configured,
+then first read the branch to be pushed."
   (interactive (list magit-current-popup-args))
   (magit-fetch (or (magit-get-remote)
                    (magit-read-remote "Fetch remote"))
@@ -95,14 +96,14 @@ If there is no default remote, ask for one."
 
 ;;;###autoload
 (defun magit-fetch (remote &optional args)
-  "Fetch from REMOTE."
+  "Fetch from another repository."
   (interactive (list (magit-read-remote "Fetch remote")
                      magit-current-popup-args))
   (magit-run-git-async "fetch" remote args))
 
 ;;;###autoload
 (defun magit-fetch-all (&optional args)
-  "Update all remotes."
+  "Fetch from another repository."
   (interactive (list magit-current-popup-args))
   (magit-run-git-async "remote" "update" args))
 
