@@ -85,13 +85,6 @@
   :default-action 'magit-fetch-current)
 
 ;;;###autoload
-(defun magit-fetch (remote &optional args)
-  "Fetch from REMOTE."
-  (interactive (list (magit-read-remote "Fetch remote")
-                     magit-current-popup-args))
-  (magit-run-git-async "fetch" remote args))
-
-;;;###autoload
 (defun magit-fetch-current (&optional args)
   "Fetch for the default remote.
 If there is no default remote, ask for one."
@@ -99,6 +92,13 @@ If there is no default remote, ask for one."
   (magit-fetch (or (magit-get-remote)
                    (magit-read-remote "Fetch remote"))
                args))
+
+;;;###autoload
+(defun magit-fetch (remote &optional args)
+  "Fetch from REMOTE."
+  (interactive (list (magit-read-remote "Fetch remote")
+                     magit-current-popup-args))
+  (magit-run-git-async "fetch" remote args))
 
 ;;;###autoload
 (defun magit-fetch-all (&optional args)
