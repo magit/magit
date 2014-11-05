@@ -113,7 +113,7 @@ t          ask if --set-upstream should be used.
   "Fetch for the default remote.
 If there is no default remote, ask for one."
   (interactive (list magit-current-popup-args))
-  (magit-fetch (or (magit-get-current-remote)
+  (magit-fetch (or (magit-get-remote)
                    (magit-read-remote "Fetch remote"))
                args))
 

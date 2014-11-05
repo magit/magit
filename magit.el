@@ -1354,8 +1354,7 @@ based on URL."
             "Remote url"
             (and path (magit-git-repo-p path t)
                  (let ((default-directory path))
-                   (magit-get "remote"
-                              (or (magit-get-current-remote) "origin")
+                   (magit-get "remote" (or (magit-get-remote) "origin")
                               "url"))))
            (and path (directory-file-name (file-relative-name path))))))
   (magit-run-git "submodule" "add" url path))

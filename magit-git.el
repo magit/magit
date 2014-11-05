@@ -527,11 +527,8 @@ otherwise try to shorten it to a name (which may fail)."
                    (substring match 13))
                   (t match))))))))
 
-(defun magit-get-current-remote ()
-  "Return the remote configured for the current branch.
-If HEAD is detached, or the current branch doesn't track
-any branch or tracks another local branch, return nil."
-  (-when-let (branch (magit-get-current-branch))
+(defun magit-get-remote (&optional branch)
+  (when (or branch (setq branch (magit-get-current-branch)))
     (let ((remote (magit-get "branch" branch "remote")))
       (unless (equal remote ".")
         remote))))
@@ -813,7 +810,7 @@ Return a list of two integers: (A>B B>A)."
                          nil t nil nil
                          (or default
                              (magit-remote-at-point)
-                             (magit-get-current-remote))))
+                             (magit-get-remote))))
 
 (defvar magit-read-file-hist nil)
 
