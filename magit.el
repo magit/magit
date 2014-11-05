@@ -928,11 +928,8 @@ defaulting to the branch at point."
 
 ;;;###autoload
 (defun magit-request-pull (url start)
-  (interactive
-   (let* ((remote (magit-read-remote "Remote"))
-          (branch (magit-read-remote-branch "Branch" remote)))
-     (list (magit-get "remote" remote "url")
-           (magit-get-tracked-branch))))
+  (interactive (list (magit-get "remote" (magit-read-remote "Remote") "url")
+                     (magit-get-tracked-branch)))
   (let ((dir default-directory))
     ;; mu4e changes default-directory
     (compose-mail)
