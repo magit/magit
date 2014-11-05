@@ -203,16 +203,6 @@ arguments are not saved."
   :default-action 'magit-push)
 
 ;;;###autoload
-(defun magit-push-tags (remote &optional args)
-  "Push all tags to a remote repository.
-If only one remote exists, push to that.  Otherwise prompt for a
-remote, offering the remote configured for the current branch as
-default."
-  (interactive (list (magit-read-remote "Push tags to remote" nil t)
-                     magit-current-popup-args))
-  (magit-run-git-async "push" remote "--tags" args))
-
-;;;###autoload
 (defun magit-push (arg)
   "Push the current branch to a remote repository.
 
@@ -263,6 +253,16 @@ Also see option `magit-set-upstream-on-push'."
      "push" "-v" used-remote
      (if used-branch (format "%s:%s" branch used-branch) branch)
      magit-current-popup-args)))
+
+;;;###autoload
+(defun magit-push-tags (remote &optional args)
+  "Push all tags to a remote repository.
+If only one remote exists, push to that.  Otherwise prompt for a
+remote, offering the remote configured for the current branch as
+default."
+  (interactive (list (magit-read-remote "Push tags to remote" nil t)
+                     magit-current-popup-args))
+  (magit-run-git-async "push" remote "--tags" args))
 
 ;;; magit-remote.el ends soon
 (provide 'magit-remote)
