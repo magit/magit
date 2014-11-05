@@ -113,62 +113,27 @@ If there is no default remote, ask for one."
   'magit-popups
   :man-page "git-pull"
   :switches '((?r "Rebase" "--rebase"))
-  :actions  '((?F "Pull"   magit-pull))
-  :default-action 'magit-pull)
+  :actions  '((?F "Current" magit-pull-current)
+              (?o "Other"   magit-pull))
+  :default-action 'magit-pull-current)
 
 ;;;###autoload
-(defun magit-pull ()
-  "Pull changes from a remote repository.
+(defun magit-pull-current (remote branch &optional args)
+  "Fetch from another repository and merge into current branch."
+  (interactive (magit-pull-read-args t))
+  (magit-run-git-async "pull" args remote branch))
 
-If there is no default remote, the user is prompted for one and
-the chosen values is saved.  If there is no default merge branch,
-the user is prompted for one and the chosen values is saved.
+;;;###autoload
+(defun magit-pull (remote branch &optional args)
+  "Fetch from another repository and merge a fetched branch."
+  (interactive (magit-pull-read-args))
+  (magit-run-git-async "pull" args remote branch))
 
-With a prefix argument, the default remote is not used and the
-user is prompted for a remote.  With two prefix arguments, the
-default merge branch is not used and the user is prompted for
-a merge branch.  Values entered by the user because of prefix
-arguments are not saved."
-  (interactive)
-  (let* ((branch (magit-get-current-branch))
-         (branch-remote (magit-get-current-remote))
-         (branch-merge (magit-get "branch" branch "merge"))
-         (branch-merge-name (and branch-merge
-                                 (save-match-data
-                                   (string-match "^refs/heads/\\(.+\\)"
-                                                 branch-merge)
-                                   (match-string 1 branch-merge))))
-         (choose-remote (>= (prefix-numeric-value current-prefix-arg) 4))
-         (choose-branch (>= (prefix-numeric-value current-prefix-arg) 16))
-         (remote-needed (or choose-remote
-                            (not branch-remote)))
-         (branch-needed (or choose-branch
-                            (not branch-merge-name)))
-         (chosen-branch-remote
-          (if remote-needed
-              (magit-read-remote "Pull from remote" branch-remote)
-            branch-remote))
-         (chosen-branch-merge-name
-          (if branch-needed
-              (magit-read-remote-branch (format "Pull branch from remote %s"
-                                                chosen-branch-remote)
-                                        chosen-branch-remote nil t)
-            branch-merge-name)))
-    (when (and (not branch-remote)
-               (not choose-remote))
-      (magit-set chosen-branch-remote "branch" branch "remote"))
-    (when (and (not branch-merge-name)
-               (not choose-branch))
-      (magit-set (format "%s" chosen-branch-merge-name)
-                 "branch" branch "merge"))
-    (magit-run-git-async
-     "pull" magit-current-popup-args
-     (and choose-remote chosen-branch-remote)
-     (and (or choose-remote choose-branch)
-          (list (format "refs/heads/%s:refs/remotes/%s/%s"
-                        chosen-branch-merge-name
-                        chosen-branch-remote
-                        chosen-branch-merge-name))))))
+(defun magit-pull-read-args (&optional use-upstream)
+  (let ((remote (magit-get-remote-branch)))
+    (unless (and use-upstream remote)
+      (setq remote (magit-read-remote-branch "Pull" nil remote t)))
+    (list (car remote) (cdr remote) magit-current-popup-args)))
 
 ;;; Push
 
@@ -181,41 +146,60 @@ arguments are not saved."
               (?h "Disable hooks" "--no-verify")
               (?d "Dry run"       "--dry-run")
               (?u "Set upstream"  "--set-upstream"))
-  :actions  '((?P "Push"          magit-push)
-              (?t "Push tags"     magit-push-tags))
-  :default-action 'magit-push)
+  :actions  '((?P "Current"   magit-push-current)
+              (?o "Other"     magit-push)
+              (?e "Elsewhere" magit-push-elsewhere)
+              (?m "Matching"  magit-push-matching)
+              (?t "Tags"      magit-push-tags))
+  :default-action 'magit-push-current)
 
 ;;;###autoload
-(defun magit-push (arg)
-  "Push the current branch to a remote repository.
+(defun magit-push-current (branch remote &optional remote-branch args)
+  "Push the current branch to its upstream branch.
+If the upstream isn't set, then read the remote branch."
+  (interactive (magit-push-read-args t t))
+  (magit-push branch remote remote-branch args))
 
-With a single prefix argument ask the user what remote to push
-to.  With two or more prefix arguments also ask the user the
-name of the remote branch to push to.
+;;;###autoload
+(defun magit-push (branch remote &optional remote-branch args)
+  "Push a branch to its upstream branch.
+If the upstream isn't set, then read the remote branch."
+  (interactive (magit-push-read-args t))
+  (magit-run-git-async "push" "-v" args remote
+                       (if remote-branch
+                           (format "%s:refs/heads/%s" branch remote-branch)
+                         branch)))
 
-Otherwise use the remote and branch as configured using the
-Git variables `branch.<name>.remote' and `branch.<name>.merge'.
-If the former is undefined ask the user.  If the latter is
-undefined push without specifing the remote branch explicitly."
-  (interactive "P")
-  (let* ((branch (or (magit-get-current-branch)
-                     (user-error "Don't push a detached head.  That's gross")))
-         (auto-remote (magit-get-current-remote))
-         (used-remote (if (or arg (not auto-remote))
-                          (magit-read-remote
-                           (format "Push %s to remote" branch) auto-remote)
-                        auto-remote))
-         (auto-branch (and (equal used-remote auto-remote)
-                           (magit-get "branch" branch "merge")))
-         (used-branch (if (>= (prefix-numeric-value arg) 16)
-                          (magit-read-remote-branch
-                           (format "Push %s as branch" branch)
-                           used-remote auto-branch)
-                        auto-branch)))
-    (magit-run-git-async
-     "push" "-v" used-remote
-     (if used-branch (format "%s:%s" branch used-branch) branch)
-     magit-current-popup-args)))
+;;;###autoload
+(defun magit-push-elsewhere (branch remote remote-branch &optional args)
+  "Push a branch or commit to some remote branch.
+Read the local and remote branch."
+  (interactive (magit-push-read-args))
+  (magit-push branch remote remote-branch args))
+
+(defun magit-push-read-args (&optional use-upstream use-current)
+  (let* ((local (or (and use-current (magit-get-current-branch))
+                    (magit-completing-read
+                     "Push" (--if-let (magit-commit-at-point)
+                                (cons it (magit-list-local-branch-names))
+                              (magit-list-local-branch-names))
+                     nil nil nil 'magit-revision-history
+                     (magit-local-branch-at-point))
+                    (user-error "Nothing selected")))
+         (remote (and (magit-branch-p local)
+                      (magit-get-remote-branch local))))
+    (unless (and use-upstream remote)
+      (setq remote (magit-read-remote-branch (format "Push %s to" local)
+                                             nil remote 'confirm)))
+    (list local (car remote) (cdr remote) magit-current-popup-args)))
+
+;;;###autoload
+(defun magit-push-matching (remote &optional args)
+  "Push all matching branches to another repository.
+If multiple remotes exit, then read one from the user.
+If just one exists, use that without requiring confirmation."
+  (interactive (list (magit-read-remote "Push matching branches to" nil t)))
+  (magit-run-git-async "push" "-v" args remote ":"))
 
 ;;;###autoload
 (defun magit-push-tags (remote &optional args)
