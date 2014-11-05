@@ -118,10 +118,10 @@ If there is no default remote, ask for one."
                args))
 
 ;;;###autoload
-(defun magit-remote-update ()
+(defun magit-remote-update (&optional args)
   "Update all remotes."
-  (interactive)
-  (magit-run-git-async "remote" "update" magit-current-popup-args))
+  (interactive (list magit-current-popup-args))
+  (magit-run-git-async "remote" "update" args))
 
 ;;; Pull
 
