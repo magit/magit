@@ -256,10 +256,10 @@ Also see option `magit-set-upstream-on-push'."
 
 ;;;###autoload
 (defun magit-push-tags (remote &optional args)
-  "Push all tags to a remote repository.
-If only one remote exists, push to that.  Otherwise prompt for a
-remote, offering the remote configured for the current branch as
-default."
+  "Push all tags to another repository.
+If only one remote exists, then push to that.  Otherwise prompt
+for a remote, offering the remote configured for the current
+branch as default."
   (interactive (list (magit-read-remote "Push tags to remote" nil t)
                      magit-current-popup-args))
   (magit-run-git-async "push" remote "--tags" args))
