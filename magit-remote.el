@@ -196,8 +196,8 @@ arguments are not saved."
   :man-page "git-push"
   :switches '((?f "Force"         "--force")
               (?h "Disable hooks" "--no-verify")
-              (?d "Dry run"       "-n")
-              (?u "Set upstream"  "-u"))
+              (?d "Dry run"       "--dry-run")
+              (?u "Set upstream"  "--set-upstream"))
   :actions  '((?P "Push"          magit-push)
               (?t "Push tags"     magit-push-tags))
   :default-action 'magit-push)
@@ -236,19 +236,20 @@ Also see option `magit-set-upstream-on-push'."
                 (equal auto-branch used-branch)
                 (equal auto-remote used-remote)))
           ;; Setting upstream because of magit-current-popup-args.
-          ((member "-u" magit-current-popup-args))
+          ((member "--set-upstream" magit-current-popup-args))
           ;; Two prefix arguments; ignore magit-set-upstream-on-push.
           ((>= (prefix-numeric-value arg) 16)
            (and (yes-or-no-p "Set upstream while pushing? ")
                 (setq magit-current-popup-args
-                      (cons "-u" magit-current-popup-args))))
+                      (cons "--set-upstream" magit-current-popup-args))))
           ;; Else honor magit-set-upstream-on-push.
           ((eq magit-set-upstream-on-push 'refuse)
            (user-error "Not pushing since no upstream has been set."))
           ((or (eq magit-set-upstream-on-push 'dontask)
                (and (eq magit-set-upstream-on-push t)
                     (yes-or-no-p "Set upstream while pushing? ")))
-           (setq magit-current-popup-args (cons "-u" magit-current-popup-args))))
+           (setq magit-current-popup-args
+                 (cons "--set-upstream" magit-current-popup-args))))
     (magit-run-git-async
      "push" "-v" used-remote
      (if used-branch (format "%s:%s" branch used-branch) branch)
