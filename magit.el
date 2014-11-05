@@ -921,7 +921,7 @@ defaulting to the branch at point."
      (list branch (magit-completing-read
                    "Change upstream to branch (empty to unset)"
                    (delete branch (magit-list-branch-names))
-                   nil t nil 'magit-revision-history))))
+                   nil nil nil 'magit-revision-history))))
   (if upstream
       (magit-run-git "branch" (concat "--set-upstream-to=" upstream) branch)
     (magit-run-git "branch" "--unset-upstream" branch)))
