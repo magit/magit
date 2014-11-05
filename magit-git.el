@@ -768,7 +768,7 @@ Return a list of two integers: (A>B B>A)."
                                    default (magit-get-current-branch))))
       (user-error "Nothing selected")))
 
-(defun magit-read-remote-branch (prompt remote &optional default)
+(defun magit-read-remote-branch (prompt &optional remote default)
   (magit-completing-read prompt (magit-list-remote-branch-names remote t)
                          nil nil nil 'magit-revision-history default))
 
