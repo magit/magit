@@ -26,23 +26,6 @@
 
 (require 'magit)
 
-;;; Options
-
-(defcustom magit-set-upstream-on-push nil
-  "Whether `magit-push' may set upstream when pushing a branch.
-This only applies if the branch does not have an upstream set yet.
-
-nil        don't use --set-upstream.
-t          ask if --set-upstream should be used.
-`dontask'  always use --set-upstream.
-`refuse'   refuse to push unless a remote branch has already been set."
-  :group 'magit-commands
-  :type '(choice (const :tag "Never" nil)
-                 (const :tag "Ask" t)
-                 (const :tag "Ask if not set" askifnotset)
-                 (const :tag "Refuse" refuse)
-                 (const :tag "Always" dontask)))
-
 ;;; Clone
 
 ;;;###autoload
@@ -213,9 +196,7 @@ name of the remote branch to push to.
 Otherwise use the remote and branch as configured using the
 Git variables `branch.<name>.remote' and `branch.<name>.merge'.
 If the former is undefined ask the user.  If the latter is
-undefined push without specifing the remote branch explicitly.
-
-Also see option `magit-set-upstream-on-push'."
+undefined push without specifing the remote branch explicitly."
   (interactive "P")
   (let* ((branch (or (magit-get-current-branch)
                      (user-error "Don't push a detached head.  That's gross")))
@@ -231,25 +212,6 @@ Also see option `magit-set-upstream-on-push'."
                            (format "Push %s as branch" branch)
                            used-remote auto-branch)
                         auto-branch)))
-    (cond ;; Pushing to what's already configured.
-          ((and auto-branch
-                (equal auto-branch used-branch)
-                (equal auto-remote used-remote)))
-          ;; Setting upstream because of magit-current-popup-args.
-          ((member "--set-upstream" magit-current-popup-args))
-          ;; Two prefix arguments; ignore magit-set-upstream-on-push.
-          ((>= (prefix-numeric-value arg) 16)
-           (and (yes-or-no-p "Set upstream while pushing? ")
-                (setq magit-current-popup-args
-                      (cons "--set-upstream" magit-current-popup-args))))
-          ;; Else honor magit-set-upstream-on-push.
-          ((eq magit-set-upstream-on-push 'refuse)
-           (user-error "Not pushing since no upstream has been set."))
-          ((or (eq magit-set-upstream-on-push 'dontask)
-               (and (eq magit-set-upstream-on-push t)
-                    (yes-or-no-p "Set upstream while pushing? ")))
-           (setq magit-current-popup-args
-                 (cons "--set-upstream" magit-current-popup-args))))
     (magit-run-git-async
      "push" "-v" used-remote
      (if used-branch (format "%s:%s" branch used-branch) branch)
