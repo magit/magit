@@ -75,12 +75,6 @@ t          ask if --set-upstream should be used.
   (magit-run-git-async "remote" "add" "-f" remote url))
 
 ;;;###autoload
-(defun magit-remote-remove (remote)
-  "Delete the remote named REMOTE."
-  (interactive (list (magit-read-remote "Delete remote")))
-  (magit-run-git "remote" "rm" remote))
-
-;;;###autoload
 (defun magit-remote-rename (old new)
   "Rename the remote named OLD to NEW."
   (interactive
@@ -88,6 +82,12 @@ t          ask if --set-upstream should be used.
      (list remote (magit-read-string (format "Rename remote '%s' to" remote)))))
   (unless (string= old new)
     (magit-run-git "remote" "rename" old new)))
+
+;;;###autoload
+(defun magit-remote-remove (remote)
+  "Delete the remote named REMOTE."
+  (interactive (list (magit-read-remote "Delete remote")))
+  (magit-run-git "remote" "rm" remote))
 
 ;;; Fetch
 
