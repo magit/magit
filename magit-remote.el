@@ -81,7 +81,7 @@
   :switches '((?p "Prune"   "--prune"))
   :actions  '((?f "Current" magit-fetch-current)
               (?o "Other"   magit-fetch)
-              (?a "All"     magit-remote-update))
+              (?a "All"     magit-fetch-all))
   :default-action 'magit-fetch-current)
 
 ;;;###autoload
@@ -101,7 +101,7 @@ If there is no default remote, ask for one."
                args))
 
 ;;;###autoload
-(defun magit-remote-update (&optional args)
+(defun magit-fetch-all (&optional args)
   "Update all remotes."
   (interactive (list magit-current-popup-args))
   (magit-run-git-async "remote" "update" args))
