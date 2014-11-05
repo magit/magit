@@ -441,6 +441,12 @@ string \"true\", otherwise return nil."
 (defun magit-branch-at-point ()
   (magit-section-when branch))
 
+(defun magit-local-branch-at-point ()
+  (magit-section-when branch
+    (let ((branch (magit-section-value it)))
+      (when (member branch (magit-list-local-branch-names))
+        branch))))
+
 (defun magit-commit-at-point ()
   (or (magit-section-when commit)
       (and (derived-mode-p 'magit-revision-mode)
