@@ -49,7 +49,7 @@ t          ask if --set-upstream should be used.
 (defun magit-clone (repository directory)
   "Clone the REPOSITORY to DIRECTORY."
   (interactive
-   (let ((url (magit-read-string "Clone repository")))
+   (let  ((url (magit-read-string "Clone repository")))
      (list url (read-directory-name
                 "Clone to: " nil nil nil
                 (and (string-match "\\([^./]+\\)\\(\\.git\\)?$" url)
