@@ -194,7 +194,8 @@ arguments are not saved."
   "Popup console for push commands."
   'magit-popups
   :man-page "git-push"
-  :switches '((?f "Force"         "--force")
+  :switches '((?F "Force safely"  "--force-with-lease") ; >= 1.8.5
+              (?f "Force"         "--force")
               (?h "Disable hooks" "--no-verify")
               (?d "Dry run"       "--dry-run")
               (?u "Set upstream"  "--set-upstream"))
