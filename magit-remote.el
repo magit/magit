@@ -54,6 +54,7 @@ t          ask if --set-upstream should be used.
                 "Clone to: " nil nil nil
                 (and (string-match "\\([^./]+\\)\\(\\.git\\)?$" url)
                      (match-string 1 url))))))
+  (make-directory directory t)
   (magit-run-git "clone" repository directory))
 
 ;;; Setup
