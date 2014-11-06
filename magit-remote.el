@@ -62,7 +62,7 @@
   "Rename the remote named OLD to NEW."
   (interactive
    (let  ((remote (magit-read-remote "Rename remote")))
-     (list remote (magit-read-string (format "Rename remote '%s' to" remote)))))
+     (list remote (magit-read-string (format "Rename %s to" remote)))))
   (unless (string= old new)
     (magit-run-git "remote" "rename" old new)))
 
