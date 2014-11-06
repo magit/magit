@@ -109,20 +109,22 @@ The major mode configured here is turned on by the minor mode
   :type '(choice (function-item text-mode)
                  (const :tag "No major mode")))
 
-(defconst git-commit-setup-hook-options
+(defcustom git-commit-setup-hook
   '(git-commit-save-message
     git-commit-setup-changelog-support
     git-commit-turn-on-auto-fill
-    git-commit-turn-on-flyspell
     git-commit-propertize-diff
-    with-editor-usage-message))
-
-(defcustom git-commit-setup-hook
-  (remq 'git-commit-turn-on-flyspell git-commit-setup-hook-options)
+    with-editor-usage-message)
   "Hook run at the end of `git-commit-setup'."
   :group 'git-commit
   :type 'hook
-  :options git-commit-setup-hook-options)
+  :options '(magit-revert-buffers
+             git-commit-save-message
+             git-commit-setup-changelog-support
+             git-commit-turn-on-auto-fill
+             git-commit-turn-on-flyspell
+             git-commit-propertize-diff
+             with-editor-usage-message))
 
 (defcustom git-commit-finish-query-functions
   '(git-commit-check-style-conventions)
