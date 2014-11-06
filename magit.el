@@ -921,18 +921,15 @@ defaulting to the branch at point."
      (list branch (magit-completing-read
                    "Change upstream to branch (empty to unset)"
                    (delete branch (magit-list-branch-names))
-                   nil t nil 'magit-revision-history))))
+                   nil nil nil 'magit-revision-history))))
   (if upstream
       (magit-run-git "branch" (concat "--set-upstream-to=" upstream) branch)
     (magit-run-git "branch" "--unset-upstream" branch)))
 
 ;;;###autoload
 (defun magit-request-pull (url start)
-  (interactive
-   (let* ((remote (magit-read-remote "Remote"))
-          (branch (magit-read-remote-branch "Branch" remote)))
-     (list (magit-get "remote" remote "url")
-           (magit-get-tracked-branch))))
+  (interactive (list (magit-get "remote" (magit-read-remote "Remote") "url")
+                     (magit-get-tracked-branch)))
   (let ((dir default-directory))
     ;; mu4e changes default-directory
     (compose-mail)
@@ -1357,8 +1354,7 @@ based on URL."
             "Remote url"
             (and path (magit-git-repo-p path t)
                  (let ((default-directory path))
-                   (magit-get "remote"
-                              (or (magit-get-current-remote) "origin")
+                   (magit-get "remote" (or (magit-get-remote) "origin")
                               "url"))))
            (and path (directory-file-name (file-relative-name path))))))
   (magit-run-git "submodule" "add" url path))

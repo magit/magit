@@ -441,6 +441,12 @@ string \"true\", otherwise return nil."
 (defun magit-branch-at-point ()
   (magit-section-when branch))
 
+(defun magit-local-branch-at-point ()
+  (magit-section-when branch
+    (let ((branch (magit-section-value it)))
+      (when (member branch (magit-list-local-branch-names))
+        branch))))
+
 (defun magit-commit-at-point ()
   (or (magit-section-when commit)
       (and (derived-mode-p 'magit-revision-mode)
@@ -527,14 +533,18 @@ otherwise try to shorten it to a name (which may fail)."
                    (substring match 13))
                   (t match))))))))
 
-(defun magit-get-current-remote ()
-  "Return the remote configured for the current branch.
-If HEAD is detached, or the current branch doesn't track
-any branch or tracks another local branch, return nil."
-  (-when-let (branch (magit-get-current-branch))
+(defun magit-get-remote (&optional branch)
+  (when (or branch (setq branch (magit-get-current-branch)))
     (let ((remote (magit-get "branch" branch "remote")))
       (unless (equal remote ".")
         remote))))
+
+(defun magit-get-remote-branch (&optional branch)
+  (-when-let (local (or branch (magit-get-current-branch)))
+    (let ((remote (magit-get-remote local))
+          (branch (magit-get "branch" local "merge")))
+      (when (and remote branch (string-match "^refs/heads/\\(.+\\)" branch))
+        (cons remote (match-string 1 branch))))))
 
 (defun magit-get-current-tag (&optional with-distance)
   "Return the closest tag reachable from \"HEAD\".
@@ -764,9 +774,15 @@ Return a list of two integers: (A>B B>A)."
                                    default (magit-get-current-branch))))
       (user-error "Nothing selected")))
 
-(defun magit-read-remote-branch (prompt remote &optional default)
-  (magit-completing-read prompt (magit-list-remote-branch-names remote t)
-                         nil nil nil 'magit-revision-history default))
+(defun magit-read-remote-branch (prompt &optional remote default require-match)
+  (when (consp default)
+    (setq default (concat (car default) "/" (cdr default))))
+  (let ((branch (magit-completing-read
+                 prompt (magit-list-remote-branch-names remote t)
+                 nil require-match nil 'magit-revision-history default)))
+    (string-match "^\\([^/]+\\)/\\(.+\\)" branch)
+    (cons (match-string 1 branch)
+          (match-string 2 branch))))
 
 (defun magit-read-local-branch (prompt &optional default)
   (magit-completing-read prompt (magit-list-local-branch-names)
@@ -808,12 +824,15 @@ Return a list of two integers: (A>B B>A)."
                                       (magit-git-lines "stash" "list"))
                                nil t nil nil atpoint))))
 
-(defun magit-read-remote (prompt &optional default)
-  (magit-completing-read prompt (magit-list-remotes)
-                         nil t nil nil
-                         (or default
-                             (magit-remote-at-point)
-                             (magit-get-current-remote))))
+(defun magit-read-remote (prompt &optional default use-only)
+  (let ((remotes (magit-list-remotes)))
+    (if (and use-only (= (length remotes) 1))
+        (car remotes)
+      (magit-completing-read prompt (magit-list-remotes)
+                             nil t nil nil
+                             (or default
+                                 (magit-remote-at-point)
+                                 (magit-get-remote))))))
 
 (defvar magit-read-file-hist nil)
 
