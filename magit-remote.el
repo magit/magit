@@ -85,14 +85,14 @@
   :default-action 'magit-fetch-current)
 
 ;;;###autoload
-(defun magit-fetch-current (&optional args)
+(defun magit-fetch-current (remote &optional args)
   "Fetch from the upstream repository of the current branch.
 If `HEAD' is detached or if the upstream is not configured,
-then first read the branch to be pushed."
-  (interactive (list magit-current-popup-args))
-  (magit-fetch (or (magit-get-remote)
-                   (magit-read-remote "Fetch remote"))
-               args))
+then read the remote."
+  (interactive (list (or (magit-get-remote)
+                         (magit-read-remote "Fetch remote"))
+                     magit-current-popup-args))
+  (magit-run-git-async "fetch" remote args))
 
 ;;;###autoload
 (defun magit-fetch (remote &optional args)
