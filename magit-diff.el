@@ -1237,17 +1237,21 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
      (`(hunk   t) 'magit-diff-hunk-heading-selection)
      (`(hunk nil) 'magit-diff-hunk-heading-highlight))))
 
+(defvar magit-diff-unmarked-lines-keep-foreground t)
+
 (defun magit-diff-highlight-lines (section)
-  (let ((face (if magit-diff-highlight-hunk-body
-                  'magit-diff-context-highlight
-                'magit-diff-context))
-        (sbeg (magit-section-start section))
+  (let ((sbeg (magit-section-start section))
         (cbeg (magit-section-content section))
         (rbeg (save-excursion (goto-char (region-beginning))
                               (line-beginning-position)))
         (rend (save-excursion (goto-char (region-end))
                               (line-end-position)))
-        (send (magit-section-end section)))
+        (send (magit-section-end section))
+        (face (if magit-diff-highlight-hunk-body
+                  'magit-diff-context-highlight
+                'magit-diff-context)))
+    (when magit-diff-unmarked-lines-keep-foreground
+      (setq face (list :background (face-attribute face :background))))
     (overlay-put (magit-section-make-overlay
                   sbeg cbeg 'magit-diff-lines-heading)
                  'display (concat (magit-diff-hunk-region-header section) "\n"))
