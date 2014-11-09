@@ -339,7 +339,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
    #'magit-log-refresh-buffer
    (if (--any? (string-match-p
                 (concat "^" (regexp-opt magit-log-verbose-args)) it) args)
-       'long
+       'verbose
      'oneline)
    range
    (if (--any? (string-match-p
@@ -396,7 +396,7 @@ With a prefix argument show the log graph."
   (interactive)
   (unless (derived-mode-p 'magit-log-mode 'magit-status-mode)
     (user-error "Buffer doesn't contain any logs"))
-  (when (eq (car magit-refresh-args) 'long)
+  (when (eq (car magit-refresh-args) 'verbose)
     (user-error "Log margin is redundant when showing verbose logs"))
   (magit-set-buffer-margin (not (cdr (window-margins)))))
 
@@ -450,7 +450,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
       (and range (concat " in " range)))
     (if (eq style 'oneline)
         (magit-insert-log range args file)
-      (magit-insert-log-long range args file)))
+      (magit-insert-log-verbose range args file)))
   (save-excursion
     (goto-char (point-min))
     (magit-format-log-margin)))
@@ -468,8 +468,8 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
       args)
     range "--" file))
 
-(defun magit-insert-log-long (range &optional args file)
-  (magit-git-wash (apply-partially 'magit-log-wash-log 'long)
+(defun magit-insert-log-verbose (range &optional args file)
+  (magit-git-wash (apply-partially 'magit-log-wash-log 'verbose)
     "log" (format "-%d" magit-log-cutoff-length) "--color"
     (if (member "--decorate" args)
         (cons "--decorate=full" (remove "--decorate" args))
@@ -499,12 +499,6 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
           "\\[\\(?5:[^]]*\\)\\]"                   ; author
           "\\[\\(?6:[^]]*\\)\\]"                   ; date
           "\\(?2:.*\\)$"))                         ; msg
-
-(defconst magit-log-long-re
-  (concat "^"
-          "\\(\\(?:[-_/|\\*o.] *\\)+ *\\)?"
-          "commit \\([0-9a-fA-F]+\\)"
-          "\\(?: \\(([^()]+)\\)\\)?"))
 
 (defconst magit-log-cherry-re
   (concat "^"
@@ -551,6 +545,12 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
           "\\(?6:[^ ]+\\) "                        ; date
           "\\(?2:.*\\)$"))                         ; msg
 
+(defconst magit-log-verbose-re
+  (concat "^"
+          "\\(\\(?:[-_/|\\*o.] *\\)+ *\\)?"
+          "commit \\([0-9a-fA-F]+\\)"
+          "\\(?: \\(([^()]+)\\)\\)?"))
+
 (defvar magit-log-count nil)
 
 (defun magit-log-wash-log (style args)
@@ -565,7 +565,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   (let ((magit-log-count 0)
         (abbrev (magit-abbrev-length)))
     (magit-wash-sequence
-     (if (eq style 'long)
+     (if (eq style 'verbose)
          (apply-partially 'magit-log-wash-verbose abbrev)
        (apply-partially 'magit-log-wash-line style abbrev)))
     (if (derived-mode-p 'magit-log-mode)
@@ -638,7 +638,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 
 (defun magit-log-wash-verbose (abbrev)
   (cl-incf magit-log-count)
-  (looking-at magit-log-long-re)
+  (looking-at magit-log-verbose-re)
   (magit-bind-match-strings (graph hash refs) nil
     (magit-delete-match)
     (magit-insert-section (commit hash)
@@ -647,7 +647,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
         (magit-insert (magit-format-ref-labels refs) nil ?\s))
       (magit-insert hash 'magit-hash ?\s)
       (forward-line)
-      (while (and (not (eobp)) (not (looking-at magit-log-long-re)))
+      (while (and (not (eobp)) (not (looking-at magit-log-verbose-re)))
         (forward-line))))
   t)
 
@@ -957,7 +957,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   (make-local-variable 'magit-log-show-margin)
   (let ((width (and enable
                     (if (and (derived-mode-p 'magit-log-mode)
-                             (eq (car magit-refresh-args) 'long))
+                             (eq (car magit-refresh-args) 'verbose))
                         0 ; temporarily hide redundant margin
                       (car magit-log-margin-spec)))))
     (setq magit-log-show-margin width)
