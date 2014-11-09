@@ -326,13 +326,13 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
   :default-action 'magit-log-dwim
   :max-action-columns 4)
 
-(defun magit-log-read-args (dwim patch)
-  (list (if (if dwim (not current-prefix-arg) current-prefix-arg)
+(defun magit-log-read-args (use-current verbose)
+  (list (if (if use-current (not current-prefix-arg) current-prefix-arg)
             (or (magit-get-current-branch) "HEAD")
           (magit-read-range-or-commit
            (format "Show %s log for ref/rev/range"
-                   (if patch "verbose" "oneline"))
-           (if dwim
+                   (if verbose "verbose" "oneline"))
+           (if use-current
                (magit-get-current-branch)
              (magit-get-previous-branch))))
         (if (--any? (string-match-p "^\\(-G\\|--grep=\\)" it)
