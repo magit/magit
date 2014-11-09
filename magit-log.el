@@ -424,7 +424,7 @@ With a non numeric prefix ARG, show all entries"
     (magit-refresh)
     (goto-char old-point)))
 
-(defun magit-read-file-trace (ignored)
+(defun magit-read-file-trace (&rest ignored)
   (let ((file  (magit-read-file-from-rev "HEAD" "File"))
         (trace (magit-read-string "Trace")))
     (if (string-match

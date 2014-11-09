@@ -270,14 +270,6 @@ depending on the value of option `magit-commit-squash-confirm'.
 (add-to-list 'with-editor-server-window-alist
              (cons git-commit-filename-regexp 'switch-to-buffer))
 
-(defun magit-read-file-trace (&rest ignored)
-  (let ((file  (magit-read-file-from-rev "HEAD" "File"))
-        (trace (magit-read-string "Trace")))
-    (if (string-match
-         "^\\(/.+/\\|:[^:]+\\|[0-9]+,[-+]?[0-9]+\\)\\(:\\)?$" trace)
-        (concat trace (or (match-string 2 trace) ":") file)
-      (user-error "Trace is invalid, see man git-log"))))
-
 (defvar magit-gpg-secret-key-hist nil)
 
 (defun magit-read-gpg-secret-key (prompt &optional initial-input)
