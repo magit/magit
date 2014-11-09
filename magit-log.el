@@ -301,8 +301,8 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
               (?a "Limit to author"         "--author="    read-from-minibuffer)
               (?m "Search messages"         "--grep="      read-from-minibuffer)
               (?p "Search patches"          "-G"           read-from-minibuffer))
-  :actions  '((?l "Log current"             magit-log-dwim)
-              (?v "Log current (verbose)"   magit-log-verbose-dwim)
+  :actions  '((?l "Log current"             magit-log-current)
+              (?v "Log current (verbose)"   magit-log-current-verbose)
               (?r "Reflog"                  magit-reflog)
               (?f "File log"                magit-log-file)
               (?o "Log other"               magit-log)
@@ -328,6 +328,11 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
           magit-current-popup-args)))
 
 ;;;###autoload
+(defun magit-log-current (range &optional args)
+  (interactive (magit-log-read-args t nil))
+  (magit-log range args))
+
+;;;###autoload
 (defun magit-log (range &optional args)
   (interactive (magit-log-read-args nil nil))
   (if (--any-p (string-match-p "^-G" it) args)
@@ -339,9 +344,9 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
     (magit-log-goto-same-commit)))
 
 ;;;###autoload
-(defun magit-log-dwim (range &optional args)
-  (interactive (magit-log-read-args t nil))
-  (magit-log range args))
+(defun magit-log-current-verbose (range &optional args)
+  (interactive (magit-log-read-args t t))
+  (magit-log-verbose range args))
 
 ;;;###autoload
 (defun magit-log-verbose (range &optional args)
@@ -350,11 +355,6 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
                     #'magit-log-mode
                     #'magit-log-refresh-buffer 'long range args)
   (magit-log-goto-same-commit))
-
-;;;###autoload
-(defun magit-log-verbose-dwim (range &optional args)
-  (interactive (magit-log-read-args t t))
-  (magit-log-verbose range args))
 
 ;;;###autoload
 (defun magit-log-file (file &optional use-graph)
