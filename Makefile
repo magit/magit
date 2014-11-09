@@ -44,8 +44,6 @@ EFLAGS ?= -L ../git-modes -L ../cl-lib -L ../dash
 EMACS  ?= emacs
 BATCH   = $(EMACS) $(EFLAGS) -batch -Q -L .
 BATCHE  = $(BATCH) -eval
-BATCHC  = $(BATCH) -eval "(setq with-editor-emacsclient-executable nil)" \
-  -f batch-byte-compile
 
 VERSION=$(shell \
   test -e .git\
@@ -100,7 +98,14 @@ help:
 	@printf "\n"
 
 %.elc: %.el
-	@$(BATCHC) $<
+	@printf "Compiling %s\n" $<
+	@$(BATCH) -eval "(progn\
+	(setq with-editor-emacsclient-executable nil)\
+	(fset 'message* (symbol-function 'message))\
+	(fset 'message  (lambda (f &rest a)\
+	                  (unless (equal f \"Wrote %s\")\
+	                    (apply 'message* f a)))))" \
+	-f batch-byte-compile $<
 
 .PHONY: magit-version.el
 magit-version.el:
