@@ -314,16 +314,16 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
 (defvar magit-log-verbose-args '("--patch" "--stat")
   "Arguments which trigger the use of verbose log.")
 
+(defvar magit-log-nongraph-args '("-G" "--grep")
+  "Arguments which are not compatible with `--graph'.")
+
 (defun magit-log-read-args (use-current)
   (list (or (and use-current (or (magit-get-current-branch) "HEAD"))
             (magit-read-range-or-commit "Show log for"
                                         (if use-current
                                             (magit-get-current-branch)
                                           (magit-get-previous-branch))))
-        (if (--any? (string-match-p "^\\(-G\\|--grep=\\)" it)
-                    magit-current-popup-args)
-            (delete "--graph" magit-current-popup-args)
-          magit-current-popup-args)))
+        magit-current-popup-args))
 
 ;;;###autoload
 (defun magit-log-current (range &optional args)
@@ -341,7 +341,11 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
                 (concat "^" (regexp-opt magit-log-verbose-args)) it) args)
        'long
      'oneline)
-   range args)
+   range
+   (if (--any? (string-match-p
+                (concat "^" (regexp-opt magit-log-nongraph-args)) it) args)
+       (delete "--graph" args)
+     args))
   (magit-log-goto-same-commit))
 
 ;;;###autoload
