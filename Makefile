@@ -37,8 +37,8 @@ RMDIR ?= rm -rf
 MAKEINFO     ?= makeinfo
 INSTALL_INFO ?= $(shell \
   hash ginstall-info 2> /dev/null\
-  && echo ginstall-info\
-  || echo install-info)
+  && printf ginstall-info\
+  || printf install-info)
 
 EFLAGS ?= -L ../git-modes -L ../cl-lib -L ../dash
 EMACS  ?= emacs
@@ -223,7 +223,7 @@ test-interactive:
 
 .PHONY: clean
 clean:
-	@echo "Cleaning"
+	@printf "Cleaning\n"
 	@$(RM) $(ELCS) $(LOADDEFS_FILE) magit-version.el *.tar.gz *.tar
 	@$(RMDIR) magit-$(VERSION)
 	@test ! -e .git || $(RM) magit.info
