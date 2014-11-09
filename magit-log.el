@@ -311,9 +311,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
               (?> "Show only newer commits" "--since="     read-from-minibuffer)
               (?< "Show only older commits" "--before="    read-from-minibuffer)
               (?g "Search messages"         "--grep="      read-from-minibuffer)
-              (?G "Search patches"          "-G"           read-from-minibuffer)
-              (?L "Trace line evolution"    "-L"           magit-read-file-trace)
-              (?s "Pickaxe search"          "-S"           read-from-minibuffer))
+              (?G "Search patches"          "-G"           read-from-minibuffer))
   :actions  '((?l "Log current"             magit-log-dwim)
               (?L "Log current (verbose)"   magit-log-verbose-dwim)
               (?r "Reflog"                  magit-reflog)
@@ -343,7 +341,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
 ;;;###autoload
 (defun magit-log (range &optional args)
   (interactive (magit-log-read-args nil nil))
-  (if (--any-p (string-match-p "^-[LG]" it) args)
+  (if (--any-p (string-match-p "^-G" it) args)
       (magit-log-verbose range (cons "--patch" args))
     (magit-mode-setup magit-log-buffer-name-format nil
                       #'magit-log-mode
@@ -424,14 +422,6 @@ With a non numeric prefix ARG, show all entries"
   (let ((old-point (point)))
     (magit-refresh)
     (goto-char old-point)))
-
-(defun magit-read-file-trace (&rest ignored)
-  (let ((file  (magit-read-file-from-rev "HEAD" "File"))
-        (trace (magit-read-string "Trace")))
-    (if (string-match
-         "^\\(/.+/\\|:[^:]+\\|[0-9]+,[-+]?[0-9]+\\)\\(:\\)?$" trace)
-        (concat trace (or (match-string 2 trace) ":") file)
-      (user-error "Trace is invalid, see man git-log"))))
 
 ;;; Log Mode
 
