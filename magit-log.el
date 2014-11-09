@@ -69,15 +69,14 @@ Only considered when moving past the last entry with
   :group 'magit-log
   :type 'integer)
 
-(defcustom magit-log-format-graph-function nil
+(defcustom magit-log-format-graph-function 'identity
   "Function used to format graphs in log buffers.
-The function is called with one argument, the propertized graph
-of a single line in as a string.  It has to return the formatted
-string.  This option can also be nil, in which case the graph is
-inserted as is."
+The function is called with one argument, the graph of a single
+line as a propertized string.  It has to return the formatted
+string.  Use `identity' to forgo changing the graph."
   :package-version '(magit . "2.1.0")
   :group 'magit-log
-  :type '(choice (const :tag "insert as is" nil)
+  :type '(choice (function-item identity)
                  (function-item magit-log-format-unicode-graph)
                  function))
 
@@ -616,9 +615,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
           (insert (propertize hash 'face 'magit-hash) ?\s)
         (insert (make-string (1+ abbrev) ? ))))
     (when graph
-      (if magit-log-format-graph-function
-          (insert (funcall magit-log-format-graph-function graph))
-        (insert graph)))
+      (insert (funcall magit-log-format-graph-function graph)))
     (when (and hash (eq style 'long))
       (magit-insert (if refs hash (magit-rev-parse hash)) 'magit-hash ?\s))
     (when refs
