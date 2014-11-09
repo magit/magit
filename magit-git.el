@@ -835,14 +835,6 @@ Return a list of two integers: (A>B B>A)."
                                  (magit-remote-at-point)
                                  (magit-get-remote))))))
 
-(defvar magit-read-file-hist nil)
-
-(defun magit-read-file-from-rev (rev prompt &optional default)
-  (let ((files (magit-revision-files rev)))
-    (magit-completing-read
-     prompt files nil t nil 'magit-read-file-hist
-     (car (member (or default (magit-current-file)) files)))))
-
 ;;; Variables
 
 (defun magit-get (&rest keys)

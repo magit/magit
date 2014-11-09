@@ -690,6 +690,14 @@ Refs are compared with a branch read form the user."
   (let ((rev (magit-read-branch-or-commit "Find file from revision")))
     (list rev (magit-read-file-from-rev rev prompt))))
 
+(defvar magit-read-file-hist nil)
+
+(defun magit-read-file-from-rev (rev prompt &optional default)
+  (let ((files (magit-revision-files rev)))
+    (magit-completing-read
+     prompt files nil t nil 'magit-read-file-hist
+     (car (member (or default (magit-current-file)) files)))))
+
 (defun magit-get-revision-buffer (rev file &optional create)
   (funcall (if create 'get-buffer-create 'get-buffer)
            (format "%s.~%s~" file (subst-char-in-string ?/ ?_ rev))))
