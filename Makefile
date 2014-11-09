@@ -102,7 +102,6 @@ help:
 %.elc: %.el
 	@$(BATCHC) $<
 
-# Not a phony target, but needs to run *every* time.
 .PHONY: magit-version.el
 magit-version.el:
 	@printf "Generating magit-version.el\n"
@@ -172,7 +171,6 @@ Contributors
 endef
 export AUTHORS_HEADER
 
-# Not a phony target, but needs to run *every* time.
 .PHONY: AUTHORS.md
 AUTHORS.md: .mailmap
 	@printf "Generating AUTHORS.md..."
