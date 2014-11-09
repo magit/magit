@@ -308,7 +308,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
               (?H "Reflog HEAD"             magit-reflog-head)
               (?f "Log file"                magit-log-file))
   :default-arguments '("--graph" "--decorate")
-  :default-action 'magit-log-dwim
+  :default-action 'magit-log-current
   :max-action-columns 2
   :max-switch-columns 1)
 
