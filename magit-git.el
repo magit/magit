@@ -836,16 +836,12 @@ Return a list of two integers: (A>B B>A)."
 
 (defvar magit-read-file-hist nil)
 
-(defun magit-read-file-from-rev (revision prompt &optional default)
-  (unless default
-    (setq default (magit-current-file)))
+(defun magit-read-file-from-rev (rev prompt &optional default)
   (let* ((default-directory (magit-get-top-dir))
-         (files (magit-revision-files revision)))
-    (when (and default (not (member default files)))
-      (setq default nil))
-    (magit-completing-read prompt files
-                           nil 'require-match
-                           nil 'magit-read-file-hist default)))
+         (files (magit-revision-files rev)))
+    (magit-completing-read
+     prompt files nil t nil 'magit-read-file-hist
+     (car (member (or default (magit-current-file)) files)))))
 
 ;;; Variables
 
