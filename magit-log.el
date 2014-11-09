@@ -27,6 +27,7 @@
 (require 'magit-core)
 (require 'magit-diff)
 
+(declare-function magit-read-file-from-rev 'magit)
 (declare-function magit-blame-chunk-get 'magit-blame)
 (declare-function magit-insert-status-headers 'magit)
 (declare-function magit-show-commit 'magit)
@@ -325,6 +326,20 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
   :default-action 'magit-log-dwim
   :max-action-columns 4)
 
+(defun magit-log-read-args (dwim patch)
+  (list (if (if dwim (not current-prefix-arg) current-prefix-arg)
+            (or (magit-get-current-branch) "HEAD")
+          (magit-read-range-or-commit
+           (format "Show %s log for ref/rev/range"
+                   (if patch "verbose" "oneline"))
+           (if dwim
+               (magit-get-current-branch)
+             (magit-get-previous-branch))))
+        (if (--any? (string-match-p "^\\(-G\\|--grep=\\)" it)
+                    magit-current-popup-args)
+            (delete "--graph" magit-current-popup-args)
+          magit-current-popup-args)))
+
 ;;;###autoload
 (defun magit-log (range &optional args)
   (interactive (magit-log-read-args nil nil))
@@ -353,20 +368,6 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
 (defun magit-log-verbose-dwim (range &optional args)
   (interactive (magit-log-read-args t t))
   (magit-log-verbose range args))
-
-(defun magit-log-read-args (dwim patch)
-  (list (if (if dwim (not current-prefix-arg) current-prefix-arg)
-            (or (magit-get-current-branch) "HEAD")
-          (magit-read-range-or-commit
-           (format "Show %s log for ref/rev/range"
-                   (if patch "verbose" "oneline"))
-           (if dwim
-               (magit-get-current-branch)
-             (magit-get-previous-branch))))
-        (if (--any? (string-match-p "^\\(-G\\|--grep=\\)" it)
-                    magit-current-popup-args)
-            (delete "--graph" magit-current-popup-args)
-          magit-current-popup-args)))
 
 ;;;###autoload
 (defun magit-log-file (file &optional use-graph)
