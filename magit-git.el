@@ -837,8 +837,6 @@ Return a list of two integers: (A>B B>A)."
 (defvar magit-read-file-hist nil)
 
 (defun magit-read-file-from-rev (revision prompt &optional default)
-  (unless revision
-    (setq revision "HEAD"))
   (unless default
     (setq default (magit-current-file)))
   (let* ((default-directory (magit-get-top-dir))
