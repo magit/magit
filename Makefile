@@ -231,22 +231,22 @@ clean:
 DIST_FILES  = $(ELS) magit-version.el Makefile AUTHORS.md
 DIST_FILES += README.md magit.texi magit.info dir
 
-ELPA_FILES  = $(ELS) magit-pkg.el magit.info dir AUTHORS.md
-
 .PHONY: dist
 dist: magit-$(VERSION).tar.gz
-
 magit-$(VERSION).tar.gz: $(DIST_FILES)
-	$(MKDIR) magit-$(VERSION)
-	$(CP) $(DIST_FILES) magit-$(VERSION)
-	tar -cvz --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar.gz magit-$(VERSION)
-	$(RMDIR) magit-$(VERSION)
+	@printf "Packing $@\n"
+	@$(MKDIR) magit-$(VERSION)
+	@$(CP) $(DIST_FILES) magit-$(VERSION)
+	@tar -cz --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar.gz magit-$(VERSION)
+	@$(RMDIR) magit-$(VERSION)
+
+ELPA_FILES = $(ELS) magit-pkg.el magit.info dir AUTHORS.md
 
 .PHONY: marmalade
 marmalade: magit-$(VERSION).tar
-
 magit-$(VERSION).tar: $(ELPA_FILES)
-	$(MKDIR) magit-$(VERSION)
-	$(CP) $(ELPA_FILES) magit-$(VERSION)
-	tar -cv --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar magit-$(VERSION)
-	$(RMDIR) magit-$(VERSION)
+	@printf "Packing $@\n"
+	@$(MKDIR) magit-$(VERSION)
+	@$(CP) $(ELPA_FILES) magit-$(VERSION)
+	@tar -c --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar magit-$(VERSION)
+	@$(RMDIR) magit-$(VERSION)
