@@ -687,7 +687,7 @@ Refs are compared with a branch read form the user."
   (switch-to-buffer-other-window (magit-find-file-noselect rev file)))
 
 (defun magit-find-file-read-args (prompt)
-  (let ((rev (magit-read-branch-or-commit "Find file from revision")))
+  (let  ((rev (magit-read-branch-or-commit "Find file from revision")))
     (list rev (magit-read-file-from-rev rev prompt))))
 
 (defvar magit-read-file-hist nil)
