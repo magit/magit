@@ -291,7 +291,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
   :man-page "git-log"
   :switches '((?g "Show graph"              "--graph")
               (?d "Show refnames"           "--decorate")
-              (?s "Show signatures"         "--show-signature")
+              (?S "Show signatures"         "--show-signature")
               (?a "Show all refs"           "--all")
               (?u "Show diffs"              "--patch")
               (?s "Show diffstats"          "--stat"))
