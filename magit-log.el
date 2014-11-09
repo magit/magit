@@ -69,15 +69,14 @@ Only considered when moving past the last entry with
   :group 'magit-log
   :type 'integer)
 
-(defcustom magit-log-format-graph-function nil
+(defcustom magit-log-format-graph-function 'identity
   "Function used to format graphs in log buffers.
-The function is called with one argument, the propertized graph
-of a single line in as a string.  It has to return the formatted
-string.  This option can also be nil, in which case the graph is
-inserted as is."
+The function is called with one argument, the graph of a single
+line as a propertized string.  It has to return the formatted
+string.  Use `identity' to forgo changing the graph."
   :package-version '(magit . "2.1.0")
   :group 'magit-log
-  :type '(choice (const :tag "insert as is" nil)
+  :type '(choice (function-item identity)
                  (function-item magit-log-format-unicode-graph)
                  function))
 
@@ -340,7 +339,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
    #'magit-log-refresh-buffer
    (if (--any? (string-match-p
                 (concat "^" (regexp-opt magit-log-verbose-args)) it) args)
-       'long
+       'verbose
      'oneline)
    range
    (if (--any? (string-match-p
@@ -397,7 +396,7 @@ With a prefix argument show the log graph."
   (interactive)
   (unless (derived-mode-p 'magit-log-mode 'magit-status-mode)
     (user-error "Buffer doesn't contain any logs"))
-  (when (eq (car magit-refresh-args) 'long)
+  (when (eq (car magit-refresh-args) 'verbose)
     (user-error "Log margin is redundant when showing verbose logs"))
   (magit-set-buffer-margin (not (cdr (window-margins)))))
 
@@ -451,7 +450,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
       (and range (concat " in " range)))
     (if (eq style 'oneline)
         (magit-insert-log range args file)
-      (magit-insert-log-long range args file)))
+      (magit-insert-log-verbose range args file)))
   (save-excursion
     (goto-char (point-min))
     (magit-format-log-margin)))
@@ -469,9 +468,9 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
       args)
     range "--" file))
 
-(defun magit-insert-log-long (range &optional args file)
-  (magit-git-wash (apply-partially 'magit-log-wash-log 'long)
-    "log" (format "-%d" magit-log-cutoff-length) "--color" "--abbrev-commit"
+(defun magit-insert-log-verbose (range &optional args file)
+  (magit-git-wash (apply-partially 'magit-log-wash-log 'verbose)
+    "log" (format "-%d" magit-log-cutoff-length) "--color"
     (if (member "--decorate" args)
         (cons "--decorate=full" (remove "--decorate" args))
       args)
@@ -494,23 +493,12 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 (defconst magit-log-oneline-re
   (concat "^"
           "\\(?4:\\(?: *[-_/|\\*o.] *\\)+ *\\)?"   ; graph
-          "\\(?:"
           "\\(?1:[0-9a-fA-F]+\\) "                 ; sha1
           "\\(?:\\(?3:([^()]+)\\) \\)?"            ; refs
           "\\(?7:[BGUN]\\)?"                       ; gpg
           "\\[\\(?5:[^]]*\\)\\]"                   ; author
           "\\[\\(?6:[^]]*\\)\\]"                   ; date
-          "\\(?2:.*\\)"                            ; msg
-          "\\)?$"))
-
-(defconst magit-log-long-re
-  (concat "^"
-          "\\(?4:\\(?:[-_/|\\*o.] *\\)+ *\\)?"     ; graph
-          "\\(?:"
-          "\\(?:commit \\(?1:[0-9a-fA-F]+\\)"      ; sha1
-          "\\(?: \\(?3:([^()]+)\\)\\)?\\)"         ; refs
-          "\\|"
-          "\\(?2:.*\\)\\)$"))                      ; "msg"
+          "\\(?2:.*\\)$"))                         ; msg
 
 (defconst magit-log-cherry-re
   (concat "^"
@@ -557,6 +545,12 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
           "\\(?6:[^ ]+\\) "                        ; date
           "\\(?2:.*\\)$"))                         ; msg
 
+(defconst magit-log-verbose-re
+  (concat "^"
+          "\\(\\(?:[-_/|\\*o.] *\\)+ *\\)?"
+          "commit \\([0-9a-fA-F]+\\)"
+          "\\(?: \\(([^()]+)\\)\\)?"))
+
 (defvar magit-log-count nil)
 
 (defun magit-log-wash-log (style args)
@@ -568,9 +562,12 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
       (ansi-color-apply-on-region (point-min) (point-max))))
   (when (eq style 'cherry)
     (reverse-region (point-min) (point-max)))
-  (let ((magit-log-count 0))
-    (magit-wash-sequence (apply-partially 'magit-log-wash-line style
-                                          (magit-abbrev-length)))
+  (let ((magit-log-count 0)
+        (abbrev (magit-abbrev-length)))
+    (magit-wash-sequence
+     (if (eq style 'verbose)
+         (apply-partially 'magit-log-wash-verbose abbrev)
+       (apply-partially 'magit-log-wash-line style abbrev)))
     (if (derived-mode-p 'magit-log-mode)
         (when (= magit-log-count magit-log-cutoff-length)
           (magit-insert-section (longer)
@@ -587,71 +584,71 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
         (insert ?\n)))))
 
 (defun magit-log-wash-line (style abbrev)
-  (looking-at (cl-ecase style
-                (oneline magit-log-oneline-re)
-                (long    magit-log-long-re)
-                (cherry  magit-log-cherry-re)
-                (module  magit-log-module-re)
-                (reflog  magit-log-reflog-re)
-                (stash   magit-log-stash-re)
-                (bisect-vis magit-log-bisect-vis-re)
-                (bisect-log magit-log-bisect-log-re)))
+  (when (derived-mode-p 'magit-log-mode)
+    (cl-incf magit-log-count))
+  (looking-at (pcase style
+                (`oneline    magit-log-oneline-re)
+                (`cherry     magit-log-cherry-re)
+                (`module     magit-log-module-re)
+                (`reflog     magit-log-reflog-re)
+                (`stash      magit-log-stash-re)
+                (`bisect-vis magit-log-bisect-vis-re)
+                (`bisect-log magit-log-bisect-log-re)))
   (magit-bind-match-strings
       (hash msg refs graph author date gpg cherry refsel refsub side) nil
     (magit-delete-match)
-    (when cherry
-      (unless (derived-mode-p 'magit-cherry-mode)
-        (insert "  "))
-      (magit-insert cherry (if (string= cherry "-")
-                               'magit-cherry-equivalent
-                             'magit-cherry-unmatched) ?\s))
-    (when side
-      (magit-insert side (if (string= side "<")
-                             'magit-diff-removed
-                           'magit-diff-added) ?\s))
-    (unless (eq style 'long)
-      (when (eq style 'bisect-log)
-        (setq hash (magit-git-string "rev-parse" "--short" hash)))
-      (if hash
-          (insert (propertize hash 'face 'magit-hash) ?\s)
-        (insert (make-string (1+ abbrev) ? ))))
-    (when graph
-      (if magit-log-format-graph-function
-          (insert (funcall magit-log-format-graph-function graph))
-        (insert graph)))
-    (when (and hash (eq style 'long))
-      (magit-insert (if refs hash (magit-rev-parse hash)) 'magit-hash ?\s))
-    (when refs
-      (magit-insert (magit-format-ref-labels refs))
-      (insert ?\s))
-    (when refsub
-      (insert (format "%-2s " refsel))
-      (magit-insert (magit-reflog-format-subject refsub)))
-    (when msg
-      (if (eq style 'long)
-          (insert msg)
-        (magit-insert msg (cl-case (and gpg (aref gpg 0))
+    (magit-insert-section section (commit hash)
+      (pcase style
+        (`stash      (setf (magit-section-type section) 'stash))
+        (`module     (setf (magit-section-type section) 'mcommit))
+        (`bisect-log (setq hash (magit-git-string "rev-parse" "--short" hash))))
+      (when cherry
+        (unless (derived-mode-p 'magit-cherry-mode)
+          (insert "  "))
+        (magit-insert cherry (if (string= cherry "-")
+                                 'magit-cherry-equivalent
+                               'magit-cherry-unmatched) ?\s))
+      (when side
+        (magit-insert side (if (string= side "<")
+                               'magit-diff-removed
+                             'magit-diff-added) ?\s))
+      (insert (propertize hash 'face 'magit-hash) ?\s)
+      (when graph
+        (insert (funcall magit-log-format-graph-function graph)))
+      (when refs
+        (magit-insert (magit-format-ref-labels refs) nil ?\s))
+      (when refsub
+        (insert (format "%-2s " refsel))
+        (magit-insert (magit-reflog-format-subject refsub)))
+      (when msg
+        (magit-insert msg (pcase (and gpg (aref gpg 0))
                             (?G 'magit-signature-good)
                             (?B 'magit-signature-bad)
-                            (?U 'magit-signature-untrusted)))))
-    (goto-char (line-beginning-position))
-    (when (memq style '(oneline reflog stash))
-      (magit-format-log-margin author date))
-    (if hash
-        (magit-insert-section it (commit hash)
-          (pcase style
-            (`stash  (setf (magit-section-type it) 'stash))
-            (`module (setf (magit-section-type it) 'mcommit)))
-          (when (derived-mode-p 'magit-log-mode)
-            (cl-incf magit-log-count))
-          (forward-line)
-          (when (eq style 'long)
-            (magit-wash-sequence
-             (lambda ()
-               (looking-at magit-log-long-re)
-               (when (match-string 2)
-                 (magit-log-wash-line 'long abbrev))))))
+                            (?U 'magit-signature-untrusted))))
+      (when (memq style '(oneline reflog stash))
+        (goto-char (line-beginning-position))
+        (magit-format-log-margin author date))
       (forward-line)))
+  (when (eq style 'oneline)
+    (let ((align (make-string (1+ abbrev) ? )))
+      (while (and (not (eobp)) (not (looking-at magit-log-oneline-re)))
+        (insert align)
+        (forward-line))))
+  t)
+
+(defun magit-log-wash-verbose (abbrev)
+  (cl-incf magit-log-count)
+  (looking-at magit-log-verbose-re)
+  (magit-bind-match-strings (graph hash refs) nil
+    (magit-delete-match)
+    (magit-insert-section (commit hash)
+      (insert graph)
+      (when refs
+        (magit-insert (magit-format-ref-labels refs) nil ?\s))
+      (magit-insert hash 'magit-hash ?\s)
+      (forward-line)
+      (while (and (not (eobp)) (not (looking-at magit-log-verbose-re)))
+        (forward-line))))
   t)
 
 (defun magit-log-format-unicode-graph (string)
@@ -960,7 +957,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   (make-local-variable 'magit-log-show-margin)
   (let ((width (and enable
                     (if (and (derived-mode-p 'magit-log-mode)
-                             (eq (car magit-refresh-args) 'long))
+                             (eq (car magit-refresh-args) 'verbose))
                         0 ; temporarily hide redundant margin
                       (car magit-log-margin-spec)))))
     (setq magit-log-show-margin width)
