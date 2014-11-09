@@ -470,7 +470,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 
 (defun magit-insert-log-long (range &optional args file)
   (magit-git-wash (apply-partially 'magit-log-wash-log 'long)
-    "log" (format "-%d" magit-log-cutoff-length) "--color" "--abbrev-commit"
+    "log" (format "-%d" magit-log-cutoff-length) "--color"
     (if (member "--decorate" args)
         (cons "--decorate=full" (remove "--decorate" args))
       args)
@@ -616,11 +616,11 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
         (insert (make-string (1+ abbrev) ? ))))
     (when graph
       (insert (funcall magit-log-format-graph-function graph)))
-    (when (and hash (eq style 'long))
-      (magit-insert (if refs hash (magit-rev-parse hash)) 'magit-hash ?\s))
     (when refs
       (magit-insert (magit-format-ref-labels refs))
       (insert ?\s))
+    (when (and hash (eq style 'long))
+      (magit-insert hash 'magit-hash ?\s))
     (when refsub
       (insert (format "%-2s " refsel))
       (magit-insert (magit-reflog-format-subject refsub)))
