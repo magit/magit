@@ -302,13 +302,15 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
               (?m "Search messages"         "--grep="      read-from-minibuffer)
               (?p "Search patches"          "-G"           read-from-minibuffer))
   :actions  '((?l "Log current"             magit-log-current)
-              (?r "Reflog"                  magit-reflog)
-              (?f "File log"                magit-log-file)
+              (?r "Reflog current"          magit-reflog-current)
               (?o "Log other"               magit-log)
-              (?h "Reflog HEAD"             magit-reflog-head))
+              (?O "Reflog other"            magit-reflog)
+              (?h "Log HEAD"                magit-log-head)
+              (?H "Reflog HEAD"             magit-reflog-head)
+              (?f "Log file"                magit-log-file))
   :default-arguments '("--graph" "--decorate")
   :default-action 'magit-log-dwim
-  :max-action-columns 3
+  :max-action-columns 2
   :max-switch-columns 1)
 
 (defvar magit-log-verbose-args '("--patch" "--stat")
@@ -318,7 +320,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
   "Arguments which are not compatible with `--graph'.")
 
 (defun magit-log-read-args (use-current)
-  (list (or (and use-current (or (magit-get-current-branch) "HEAD"))
+  (list (or (and use-current (magit-get-current-branch))
             (magit-read-range-or-commit "Show log for"
                                         (unless use-current
                                           (magit-get-previous-branch))))
@@ -348,6 +350,11 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
   (magit-log-goto-same-commit))
 
 ;;;###autoload
+(defun magit-log-head (args)
+  (interactive (list magit-current-popup-args))
+  (magit-log "HEAD" args))
+
+;;;###autoload
 (defun magit-log-file (file &optional use-graph)
   "Display the log for the currently visited file or another one.
 With a prefix argument show the log graph."
@@ -364,6 +371,12 @@ With a prefix argument show the log graph."
                             (delete "--graph" magit-current-popup-args)))
                     file)
   (magit-log-goto-same-commit))
+
+;;;###autoload
+(defun magit-reflog-current ()
+  "Display the reflog of the current branch."
+  (interactive)
+  (magit-reflog (magit-get-current-branch)))
 
 ;;;###autoload
 (defun magit-reflog (ref)
