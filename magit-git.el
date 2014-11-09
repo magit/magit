@@ -315,8 +315,9 @@ If the file is not inside a Git repository then return nil."
    (magit-git-lines "diff-files" "--name-only" "--diff-filter=U")))
 
 (defun magit-revision-files (rev)
-  (magit-decode-git-paths
-   (magit-git-lines "ls-tree" "-r" "--name-only" rev)))
+  (let ((default-directory (magit-get-top-dir)))
+    (magit-decode-git-paths
+     (magit-git-lines "ls-tree" "-r" "--name-only" rev))))
 
 (defun magit-file-status (&optional file status)
   (if file
@@ -837,8 +838,7 @@ Return a list of two integers: (A>B B>A)."
 (defvar magit-read-file-hist nil)
 
 (defun magit-read-file-from-rev (rev prompt &optional default)
-  (let* ((default-directory (magit-get-top-dir))
-         (files (magit-revision-files rev)))
+  (let ((files (magit-revision-files rev)))
     (magit-completing-read
      prompt files nil t nil 'magit-read-file-hist
      (car (member (or default (magit-current-file)) files)))))
