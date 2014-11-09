@@ -302,26 +302,25 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
               (?m "Search messages"         "--grep="      read-from-minibuffer)
               (?p "Search patches"          "-G"           read-from-minibuffer))
   :actions  '((?l "Log current"             magit-log-current)
-              (?v "Log current (verbose)"   magit-log-current-verbose)
               (?r "Reflog"                  magit-reflog)
               (?f "File log"                magit-log-file)
               (?o "Log other"               magit-log)
-              (?V "Log other (verbose)"     magit-log-verbose)
               (?h "Reflog HEAD"             magit-reflog-head))
-  :default-arguments '("--graph" "--decorate" "--stat")
+  :default-arguments '("--graph" "--decorate")
   :default-action 'magit-log-dwim
-  :max-action-columns 4
+  :max-action-columns 3
   :max-switch-columns 1)
 
-(defun magit-log-read-args (use-current verbose)
+(defvar magit-log-verbose-args '("--patch" "--stat")
+  "Arguments which trigger the use of verbose log.")
+
+(defun magit-log-read-args (use-current)
   (list (if (if use-current (not current-prefix-arg) current-prefix-arg)
             (or (magit-get-current-branch) "HEAD")
-          (magit-read-range-or-commit
-           (format "Show %s log for ref/rev/range"
-                   (if verbose "verbose" "oneline"))
-           (if use-current
-               (magit-get-current-branch)
-             (magit-get-previous-branch))))
+          (magit-read-range-or-commit "Show log for"
+                                      (if use-current
+                                          (magit-get-current-branch)
+                                        (magit-get-previous-branch))))
         (if (--any? (string-match-p "^\\(-G\\|--grep=\\)" it)
                     magit-current-popup-args)
             (delete "--graph" magit-current-popup-args)
@@ -329,31 +328,21 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
 
 ;;;###autoload
 (defun magit-log-current (range &optional args)
-  (interactive (magit-log-read-args t nil))
+  (interactive (magit-log-read-args t))
   (magit-log range args))
 
 ;;;###autoload
 (defun magit-log (range &optional args)
-  (interactive (magit-log-read-args nil nil))
-  (if (--any-p (string-match-p "^-G" it) args)
-      (magit-log-verbose range (cons "--patch" args))
-    (magit-mode-setup magit-log-buffer-name-format nil
-                      #'magit-log-mode
-                      #'magit-log-refresh-buffer 'oneline range
-                      (delete "--patch" (delete "--stat" args)))
-    (magit-log-goto-same-commit)))
-
-;;;###autoload
-(defun magit-log-current-verbose (range &optional args)
-  (interactive (magit-log-read-args t t))
-  (magit-log-verbose range args))
-
-;;;###autoload
-(defun magit-log-verbose (range &optional args)
-  (interactive (magit-log-read-args nil t))
-  (magit-mode-setup magit-log-buffer-name-format nil
-                    #'magit-log-mode
-                    #'magit-log-refresh-buffer 'long range args)
+  (interactive (magit-log-read-args nil))
+  (magit-mode-setup
+   magit-log-buffer-name-format nil
+   #'magit-log-mode
+   #'magit-log-refresh-buffer
+   (if (--any? (string-match-p
+                (concat "^" (regexp-opt magit-log-verbose-args)) it) args)
+       'long
+     'oneline)
+   range args)
   (magit-log-goto-same-commit))
 
 ;;;###autoload
