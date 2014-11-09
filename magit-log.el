@@ -293,10 +293,10 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
   :switches '((?m "Only merge commits"        "--merges")
               (?d "Date Order"                "--date-order")
               (?f "First parent"              "--first-parent")
-              (?i "Case insensitive patterns" "-i")
+              (?i "Ignore case"               "--regexp-ignore-case")
               (?P "Pickaxe regex"             "--pickaxe-regex")
               (?g "Show Graph"                "--graph")
-              (?u "Show diff (verbose only)"  "-u")
+              (?u "Show diff (verbose only)"  "--patch")
               (?s "Show stat (verbose only)"  "--stat")
               (?S "Show Signature"            "--show-signature")
               (?D "Show ref names"            "--decorate")
@@ -344,11 +344,11 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
 (defun magit-log (range &optional args)
   (interactive (magit-log-read-args nil nil))
   (if (--any-p (string-match-p "^-[LG]" it) args)
-      (magit-log-verbose range (cons "-u" args))
+      (magit-log-verbose range (cons "--patch" args))
     (magit-mode-setup magit-log-buffer-name-format nil
                       #'magit-log-mode
                       #'magit-log-refresh-buffer 'oneline range
-                      (delete "-u" (delete "--stat" args)))
+                      (delete "--patch" (delete "--stat" args)))
     (magit-log-goto-same-commit)))
 
 ;;;###autoload
