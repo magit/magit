@@ -27,6 +27,7 @@
 (require 'magit-core)
 (require 'magit-diff)
 
+(declare-function magit-read-file-from-rev 'magit)
 (declare-function magit-blame-chunk-get 'magit-blame)
 (declare-function magit-insert-status-headers 'magit)
 (declare-function magit-show-commit 'magit)
@@ -289,84 +290,69 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
   "Popup console for log commands."
   'magit-popups
   :man-page "git-log"
-  :switches '((?m "Only merge commits"        "--merges")
-              (?d "Date Order"                "--date-order")
-              (?f "First parent"              "--first-parent")
-              (?i "Case insensitive patterns" "-i")
-              (?P "Pickaxe regex"             "--pickaxe-regex")
-              (?g "Show Graph"                "--graph")
-              (?u "Show diff (verbose only)"  "-u")
-              (?s "Show stat (verbose only)"  "--stat")
-              (?S "Show Signature"            "--show-signature")
-              (?D "Show ref names"            "--decorate")
-              (?n "Name only"                 "--name-only")
-              (?M "All match"                 "--all-match")
-              (?A "All"                       "--all"))
-  :options  '((?r "Relative"       "--relative="  read-directory-name)
-              (?c "Committer"      "--committer=" read-from-minibuffer)
-              (?> "Since"          "--since="     read-from-minibuffer)
-              (?< "Before"         "--before="    read-from-minibuffer)
-              (?a "Author"         "--author="    read-from-minibuffer)
-              (?g "Grep messages"  "--grep="      read-from-minibuffer)
-              (?G "Grep patches"   "-G"           read-from-minibuffer)
-              (?L "Trace evolution of line range"
-                  "-L" magit-read-file-trace)
-              (?s "Pickaxe search" "-S"           read-from-minibuffer)
-              (?b "Branches"       "--branches="  read-from-minibuffer)
-              (?R "Remotes"        "--remotes="   read-from-minibuffer))
-  :actions  '((?l "Oneline"        magit-log-dwim)
-              (?L "Verbose"        magit-log-verbose-dwim)
-              (?r "Reflog"         magit-reflog)
-              (?f "File log"       magit-log-file)
-              (?b "Oneline branch" magit-log)
-              (?B "Verbose branch" magit-log-verbose)
-              (?R "Reflog HEAD"    magit-reflog-head))
-  :default-arguments '("--graph" "--decorate" "--stat")
+  :switches '((?g "Show graph"              "--graph")
+              (?d "Show refnames"           "--decorate")
+              (?s "Show signatures"         "--show-signature")
+              (?a "Show all refs"           "--all")
+              (?u "Show diffs"              "--patch")
+              (?s "Show diffstats"          "--stat"))
+  :options  '((?b "Show branches"           "--branches="  read-from-minibuffer)
+              (?s "Limit to subdirectory"   "--relative="  read-directory-name)
+              (?a "Limit to author"         "--author="    read-from-minibuffer)
+              (?m "Search messages"         "--grep="      read-from-minibuffer)
+              (?p "Search patches"          "-G"           read-from-minibuffer))
+  :actions  '((?l "Log current"             magit-log-current)
+              (?r "Reflog current"          magit-reflog-current)
+              (?o "Log other"               magit-log)
+              (?O "Reflog other"            magit-reflog)
+              (?h "Log HEAD"                magit-log-head)
+              (?H "Reflog HEAD"             magit-reflog-head)
+              (?f "Log file"                magit-log-file))
+  :default-arguments '("--graph" "--decorate")
   :default-action 'magit-log-dwim
-  :max-action-columns 4)
+  :max-action-columns 2
+  :max-switch-columns 1)
+
+(defvar magit-log-verbose-args '("--patch" "--stat")
+  "Arguments which trigger the use of verbose log.")
+
+(defvar magit-log-nongraph-args '("-G" "--grep")
+  "Arguments which are not compatible with `--graph'.")
+
+(defun magit-log-read-args (use-current)
+  (list (or (and use-current (magit-get-current-branch))
+            (magit-read-range-or-commit "Show log for"
+                                        (unless use-current
+                                          (magit-get-previous-branch))))
+        magit-current-popup-args))
 
 ;;;###autoload
-(defun magit-log (range &optional args)
-  (interactive (magit-log-read-args nil nil))
-  (if (--any-p (string-match-p "^-[LG]" it) args)
-      (magit-log-verbose range (cons "-u" args))
-    (magit-mode-setup magit-log-buffer-name-format nil
-                      #'magit-log-mode
-                      #'magit-log-refresh-buffer 'oneline range
-                      (delete "-u" (delete "--stat" args)))
-    (magit-log-goto-same-commit)))
-
-;;;###autoload
-(defun magit-log-dwim (range &optional args)
-  (interactive (magit-log-read-args t nil))
+(defun magit-log-current (range &optional args)
+  (interactive (magit-log-read-args t))
   (magit-log range args))
 
 ;;;###autoload
-(defun magit-log-verbose (range &optional args)
-  (interactive (magit-log-read-args nil t))
-  (magit-mode-setup magit-log-buffer-name-format nil
-                    #'magit-log-mode
-                    #'magit-log-refresh-buffer 'long range args)
+(defun magit-log (range &optional args)
+  (interactive (magit-log-read-args nil))
+  (magit-mode-setup
+   magit-log-buffer-name-format nil
+   #'magit-log-mode
+   #'magit-log-refresh-buffer
+   (if (--any? (string-match-p
+                (concat "^" (regexp-opt magit-log-verbose-args)) it) args)
+       'long
+     'oneline)
+   range
+   (if (--any? (string-match-p
+                (concat "^" (regexp-opt magit-log-nongraph-args)) it) args)
+       (delete "--graph" args)
+     args))
   (magit-log-goto-same-commit))
 
 ;;;###autoload
-(defun magit-log-verbose-dwim (range &optional args)
-  (interactive (magit-log-read-args t t))
-  (magit-log-verbose range args))
-
-(defun magit-log-read-args (dwim patch)
-  (list (if (if dwim (not current-prefix-arg) current-prefix-arg)
-            (or (magit-get-current-branch) "HEAD")
-          (magit-read-range-or-commit
-           (format "Show %s log for ref/rev/range"
-                   (if patch "verbose" "oneline"))
-           (if dwim
-               (magit-get-current-branch)
-             (magit-get-previous-branch))))
-        (if (--any? (string-match-p "^\\(-G\\|--grep=\\)" it)
-                    magit-current-popup-args)
-            (delete "--graph" magit-current-popup-args)
-          magit-current-popup-args)))
+(defun magit-log-head (args)
+  (interactive (list magit-current-popup-args))
+  (magit-log "HEAD" args))
 
 ;;;###autoload
 (defun magit-log-file (file &optional use-graph)
@@ -385,6 +371,12 @@ With a prefix argument show the log graph."
                             (delete "--graph" magit-current-popup-args)))
                     file)
   (magit-log-goto-same-commit))
+
+;;;###autoload
+(defun magit-reflog-current ()
+  "Display the reflog of the current branch."
+  (interactive)
+  (magit-reflog (magit-get-current-branch)))
 
 ;;;###autoload
 (defun magit-reflog (ref)
@@ -423,14 +415,6 @@ With a non numeric prefix ARG, show all entries"
   (let ((old-point (point)))
     (magit-refresh)
     (goto-char old-point)))
-
-(defun magit-read-file-trace (&rest ignored)
-  (let ((file  (magit-read-file-from-rev "HEAD" "File"))
-        (trace (magit-read-string "Trace")))
-    (if (string-match
-         "^\\(/.+/\\|:[^:]+\\|[0-9]+,[-+]?[0-9]+\\)\\(:\\)?$" trace)
-        (concat trace (or (match-string 2 trace) ":") file)
-      (user-error "Trace is invalid, see man git-log"))))
 
 ;;; Log Mode
 
