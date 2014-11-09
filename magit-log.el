@@ -320,8 +320,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
 (defun magit-log-read-args (use-current)
   (list (or (and use-current (or (magit-get-current-branch) "HEAD"))
             (magit-read-range-or-commit "Show log for"
-                                        (if use-current
-                                            (magit-get-current-branch)
+                                        (unless use-current
                                           (magit-get-previous-branch))))
         magit-current-popup-args))
 
