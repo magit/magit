@@ -315,12 +315,11 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
   "Arguments which trigger the use of verbose log.")
 
 (defun magit-log-read-args (use-current)
-  (list (if (if use-current (not current-prefix-arg) current-prefix-arg)
-            (or (magit-get-current-branch) "HEAD")
-          (magit-read-range-or-commit "Show log for"
-                                      (if use-current
-                                          (magit-get-current-branch)
-                                        (magit-get-previous-branch))))
+  (list (or (and use-current (or (magit-get-current-branch) "HEAD"))
+            (magit-read-range-or-commit "Show log for"
+                                        (if use-current
+                                            (magit-get-current-branch)
+                                          (magit-get-previous-branch))))
         (if (--any? (string-match-p "^\\(-G\\|--grep=\\)" it)
                     magit-current-popup-args)
             (delete "--graph" magit-current-popup-args)
