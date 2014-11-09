@@ -237,6 +237,7 @@ ELPA_FILES  = $(ELS) magit-pkg.el magit.info dir AUTHORS.md
 dist: magit-$(VERSION).tar.gz
 
 magit-$(VERSION).tar.gz: $(DIST_FILES)
+	$(MKDIR) magit-$(VERSION)
 	$(CP) $(DIST_FILES) magit-$(VERSION)
 	tar -cvz --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar.gz magit-$(VERSION)
 	$(RMDIR) magit-$(VERSION)
