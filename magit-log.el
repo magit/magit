@@ -632,6 +632,8 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
     (let ((align (make-string (1+ abbrev) ? )))
       (while (and (not (eobp)) (not (looking-at magit-log-oneline-re)))
         (insert align)
+        (goto-char (line-beginning-position))
+        (magit-format-log-margin nil nil)
         (forward-line))))
   t)
 
@@ -647,6 +649,8 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
       (magit-insert hash 'magit-hash ?\s)
       (forward-line)
       (while (and (not (eobp)) (not (looking-at magit-log-verbose-re)))
+        (goto-char (line-beginning-position))
+        (magit-format-log-margin nil nil)
         (forward-line))))
   t)
 
