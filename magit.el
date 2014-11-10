@@ -493,31 +493,39 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   :options  '((?c "Contains"   "--contains="  magit-read-branch-or-commit)
               (?m "Merged"     "--merged="    magit-read-branch-or-commit)
               (?n "Not merged" "--no-merged=" magit-read-branch-or-commit))
-  :actions  '((?y "Show refs, comparing them with current branch"
+  :actions  '((?y "Show refs, comparing them with HEAD"
                   magit-show-refs-head)
-              (?b "Show refs, comparing them with other branch"
+              (?c "Show refs, comparing them with current branch"
+                  magit-show-refs-current)
+              (?o "Show refs, comparing them with other branch"
                   magit-show-refs))
   :default-action 'magit-show-refs-head
   :use-prefix 'popup)
 
 ;;;###autoload
-(defun magit-show-refs-head (&optional head args)
+(defun magit-show-refs-head (&optional args)
+  "List and compare references in a dedicated buffer.
+Refs are compared with `HEAD'."
+  (interactive (list magit-current-popup-args))
+  (magit-show-refs nil args))
+
+;;;###autoload
+(defun magit-show-refs-current (&optional args)
   "List and compare references in a dedicated buffer.
 Refs are compared with the current branch or `HEAD' if
 it is detached."
-  (interactive (list (magit-get-current-branch) magit-current-popup-args))
-  (magit-show-refs head args))
+  (interactive (list magit-current-popup-args))
+  (magit-show-refs (magit-get-current-branch) args))
 
 ;;;###autoload
-(defun magit-show-refs (&optional head args)
+(defun magit-show-refs (&optional ref args)
   "List and compare references in a dedicated buffer.
 Refs are compared with a branch read form the user."
-  (interactive (list (and (or current-prefix-arg magit-current-popup)
-                          (magit-read-branch "Compare branch"))
+  (interactive (list (magit-read-other-branch "Compare with")
                      magit-current-popup-args))
   (magit-mode-setup magit-refs-buffer-name-format nil
                     #'magit-refs-mode
-                    #'magit-refs-refresh-buffer head args))
+                    #'magit-refs-refresh-buffer ref args))
 
 (defun magit-refs-refresh-buffer (&rest ignore)
   (magit-insert-section (branchbuf)
@@ -595,11 +603,11 @@ Refs are compared with a branch read form the user."
       (insert ?\n))))
 
 (defun magit-insert-branch (branch &rest args)
-  (if branch
-      (magit-insert-section it (branch branch t)
-        (apply #'magit-insert-branch-1 it branch args))
-    (magit-insert-section it (commit (magit-rev-parse "HEAD") t)
-      (apply #'magit-insert-branch-1 it nil args))))
+  (if (equal branch "HEAD")
+      (magit-insert-section it (commit (magit-rev-parse "HEAD") t)
+        (apply #'magit-insert-branch-1 it nil args))
+    (magit-insert-section it (branch branch t)
+      (apply #'magit-insert-branch-1 it branch args))))
 
 (defun magit-insert-branch-1
     (section branch current branches format face
