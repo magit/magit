@@ -403,8 +403,9 @@ With a prefix argument show the log graph."
   "Grow the number of log entries shown.
 
 With no prefix optional ARG, show twice as many log entries.
-With a numerical prefix ARG, add this number to the number of shown log entries.
-With a non numeric prefix ARG, show all entries"
+With a numerical prefix ARG, add this number to the number of
+shown log entries.  With a non-numeric prefix ARG, show all
+entries"
   (interactive "P")
   (setq-local magit-log-cutoff-length
               (cond ((numberp arg) (+ magit-log-cutoff-length arg))
