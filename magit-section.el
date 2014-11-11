@@ -224,6 +224,8 @@ With a prefix argument also expand it." title)
 
 ;;;; Visibility
 
+(defvar magit-section-show-hook '(magit-hunk-set-window-start))
+
 (defun magit-section-show (section)
   "Show the body of the current section."
   (interactive (list (magit-current-section)))
@@ -241,6 +243,9 @@ With a prefix argument also expand it." title)
   (-when-let (beg (magit-section-content section))
     (let ((inhibit-read-only t))
       (put-text-property beg (magit-section-end section) 'invisible nil)))
+  (when (memq this-command
+              '(magit-section-show magit-section-toggle magit-section-cycle))
+    (run-hook-with-args 'magit-section-show-hook section))
   (dolist (child (magit-section-children section))
     (if (magit-section-hidden child)
         (magit-section-hide child)
