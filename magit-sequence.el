@@ -128,14 +128,6 @@
 (defun magit-sequencer-in-progress-p ()
   (file-exists-p (magit-git-dir "sequencer")))
 
-(defun magit-sequencer-read-args (command prompt)
-  (list (-if-let (commits (magit-region-values 'commit))
-            (if (eq command 'cherry-pick) (nreverse commits) commits)
-          (if (eq command 'cherry-pick)
-              (magit-read-other-branch-or-commit prompt)
-            (magit-read-branch-or-commit prompt)))
-        magit-current-popup-args))
-
 ;;; Cherry-Pick
 
 (magit-define-popup magit-cherry-pick-popup
@@ -156,9 +148,14 @@
   :sequence-predicate 'magit-sequencer-in-progress-p
   :default-arguments '("--ff"))
 
+(defun magit-cherry-pick-read-args (prompt)
+  (list (or (nreverse (magit-region-values 'commit))
+            (magit-read-other-branch-or-commit prompt))
+        magit-current-popup-args))
+
 ;;;###autoload
 (defun magit-cherry-pick (commit &optional args)
-  (interactive (magit-sequencer-read-args 'cherry-pick "Cherry-pick"))
+  (interactive (magit-cherry-pick-read-args "Cherry-pick"))
   (magit-assert-one-parent (car (if (listp commit)
                                     commit
                                   (split-string commit "\\.\\.")))
@@ -167,7 +164,7 @@
 
 ;;;###autoload
 (defun magit-cherry-apply (commit &optional args)
-  (interactive (magit-sequencer-read-args 'cherry-pick "Apply commit"))
+  (interactive (magit-cherry-pick-read-args "Apply commit"))
   (magit-assert-one-parent commit "cherry-pick")
   (magit-run-git-sequencer "cherry-pick" "--no-commit" args commit))
 
@@ -191,15 +188,20 @@
                       (?a "Abort"    magit-sequencer-abort))
   :sequence-predicate 'magit-sequencer-in-progress-p)
 
+(defun magit-revert-read-args (prompt)
+  (list (or (magit-region-values 'commit)
+            (magit-read-branch-or-commit prompt))
+        magit-current-popup-args))
+
 ;;;###autoload
 (defun magit-revert (commit &optional args)
-  (interactive (magit-sequencer-read-args 'revert "Revert commit"))
+  (interactive (magit-revert-read-args "Revert commit"))
   (magit-assert-one-parent commit "revert")
   (magit-run-git-sequencer "revert" args commit))
 
 ;;;###autoload
 (defun magit-revert-no-commit (commit &optional args)
-  (interactive (magit-sequencer-read-args 'revert "Revert changes"))
+  (interactive (magit-revert-read-args "Revert changes"))
   (magit-assert-one-parent commit "revert")
   (magit-run-git-sequencer "revert" "--no-commit" args commit))
 
