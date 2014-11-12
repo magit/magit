@@ -34,6 +34,7 @@
 (defvar magit-blame-mode)
 
 (require 'ansi-color)
+(require 'crm)
 
 ;;; Options
 ;;;; Log Mode
@@ -296,7 +297,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
               (?u "Show diffs"              "--patch")
               (?s "Show diffstats"          "--stat"))
   :options  '((?b "Show branches"           "--branches="  read-from-minibuffer)
-              (?s "Limit to subdirectory"   "--relative="  read-directory-name)
+              (?f "Limit to files"          "-- "          magit-log-read-files)
               (?a "Limit to author"         "--author="    read-from-minibuffer)
               (?m "Search messages"         "--grep="      read-from-minibuffer)
               (?p "Search patches"          "-G"           read-from-minibuffer))
@@ -305,8 +306,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
               (?o "Log other"               magit-log)
               (?O "Reflog other"            magit-reflog)
               (?h "Log HEAD"                magit-log-head)
-              (?H "Reflog HEAD"             magit-reflog-head)
-              (?f "Log file"                magit-log-file))
+              (?H "Reflog HEAD"             magit-reflog-head))
   :default-arguments '("--graph" "--decorate")
   :default-action 'magit-log-current
   :max-action-columns 2
@@ -321,19 +321,29 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
   "Regexp matching arguments which are not compatible with `--graph'.")
 
 (defun magit-log-read-args (use-current)
-  (list (or (and use-current (magit-get-current-branch))
-            (magit-read-range-or-commit "Show log for"
-                                        (unless use-current
-                                          (magit-get-previous-branch))))
-        (magit-log-arguments)))
+  (let* ((args  (magit-log-arguments))
+         (files (--first (string-match-p "^-- " it) args)))
+    (when files
+      (setq args  (remove files args)
+            files (split-string (substring files 3) ",")))
+    (list (or (and use-current (magit-get-current-branch))
+              (magit-read-range-or-commit
+               "Log" (unless use-current
+                       (magit-get-previous-branch))))
+          args files)))
+
+(defun magit-log-read-files (_ignored initial-contents)
+  (mapconcat 'identity
+             (completing-read-multiple "File,s: " (magit-list-files)
+                                       nil nil initial-contents) ","))
 
 ;;;###autoload
-(defun magit-log-current (range &optional args)
+(defun magit-log-current (range &optional args files)
   (interactive (magit-log-read-args t))
-  (magit-log range args))
+  (magit-log range args files))
 
 ;;;###autoload
-(defun magit-log (range &optional args)
+(defun magit-log (range &optional args files)
   (interactive (magit-log-read-args nil))
   (magit-mode-setup magit-log-buffer-name-format nil
                     #'magit-log-mode
@@ -346,7 +356,8 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
                     (if (--any? (string-match-p magit-log-remove-graph-re it)
                                 args)
                         (delete "--graph" args)
-                      args))
+                      args)
+                    files)
   (magit-log-goto-same-commit))
 
 ;;;###autoload
@@ -355,21 +366,18 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
   (magit-log "HEAD" args))
 
 ;;;###autoload
-(defun magit-log-file (file &optional use-graph)
-  "Display the log for the currently visited file or another one.
-With a prefix argument show the log graph."
-  (interactive
-   (list (magit-read-file-from-rev (magit-get-current-branch) "Log for file")
-         current-prefix-arg))
-  (magit-mode-setup magit-log-buffer-name-format nil
-                    #'magit-log-mode
-                    #'magit-log-refresh-buffer
-                    'oneline "HEAD"
-                    (cons "--follow"
-                          (if use-graph
-                              (cons "--graph" (magit-log-arguments))
-                            (delete "--graph" (magit-log-arguments))))
-                    file)
+(defun magit-log-buffer-file ()
+  "Show log for the file visited in the current buffer."
+  (interactive)
+  (-if-let (file (or buffer-file-name magit-buffer-file-name))
+      (magit-mode-setup magit-log-buffer-name-format nil
+                        #'magit-log-mode
+                        #'magit-log-refresh-buffer
+                        'oneline
+                        (or magit-buffer-refname "HEAD")
+                        (magit-log-arguments)
+                        file)
+    (user-error "Buffer does not visit a file"))
   (magit-log-goto-same-commit))
 
 ;;;###autoload
@@ -443,21 +451,20 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   :group 'magit-log
   (magit-set-buffer-margin magit-log-show-margin))
 
-(defun magit-log-refresh-buffer (style range args &optional file)
+(defun magit-log-refresh-buffer (style range args &optional files)
   (when (consp range)
     (setq range (concat (car range) ".." (cdr range))))
   (magit-insert-section (logbuf)
-    (magit-insert-heading "Commits"
-      (and file  (concat " for file " file))
-      (and range (concat " in " range)))
+    (magit-insert-heading "Commits in " range
+      (and files (concat " touching " (mapconcat 'identity files " "))))
     (if (eq style 'oneline)
-        (magit-insert-log range args file)
-      (magit-insert-log-verbose range args file)))
+        (magit-insert-log range args files)
+      (magit-insert-log-verbose range args files)))
   (save-excursion
     (goto-char (point-min))
     (magit-format-log-margin)))
 
-(defun magit-insert-log (range &optional args file)
+(defun magit-insert-log (range &optional args files)
   (magit-git-wash (apply-partially 'magit-log-wash-log 'oneline)
     "log" (format "-%d" magit-log-cutoff-length) "--color"
     (format "--format=%%h%s %s[%%an][%%at]%%s"
@@ -468,15 +475,15 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
     (if (member "--decorate" args)
         (cons "--decorate=full" (remove "--decorate" args))
       args)
-    range "--" file))
+    range "--" files))
 
-(defun magit-insert-log-verbose (range &optional args file)
+(defun magit-insert-log-verbose (range &optional args files)
   (magit-git-wash (apply-partially 'magit-log-wash-log 'verbose)
     "log" (format "-%d" magit-log-cutoff-length) "--color"
     (if (member "--decorate" args)
         (cons "--decorate=full" (remove "--decorate" args))
       args)
-    range "--" file))
+    range "--" files))
 
 (defvar magit-commit-section-map
   (let ((map (make-sparse-keymap)))
