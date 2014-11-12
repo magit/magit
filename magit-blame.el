@@ -130,7 +130,7 @@ and then turned on again when turning on the latter."
              (read-only-mode 1)
            (setq buffer-read-only t))
          (dolist (mode magit-blame-disable-modes)
-           (when (and (fboundp mode) (symbol-value mode))
+           (when (and (boundp mode) (symbol-value mode))
              (funcall mode -1)
              (push mode magit-blame-disabled-modes)))
          (setq magit-blame-separator (magit-blame-format-separator))
