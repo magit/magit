@@ -91,20 +91,20 @@ If `HEAD' is detached or if the upstream is not configured,
 then read the remote."
   (interactive (list (or (magit-get-remote)
                          (magit-read-remote "Fetch remote"))
-                     magit-current-popup-args))
+                     (magit-fetch-arguments)))
   (magit-run-git-async "fetch" remote args))
 
 ;;;###autoload
 (defun magit-fetch (remote &optional args)
   "Fetch from another repository."
   (interactive (list (magit-read-remote "Fetch remote")
-                     magit-current-popup-args))
+                     (magit-fetch-arguments)))
   (magit-run-git-async "fetch" remote args))
 
 ;;;###autoload
 (defun magit-fetch-all (&optional args)
   "Fetch from another repository."
-  (interactive (list magit-current-popup-args))
+  (interactive (list (magit-fetch-arguments)))
   (magit-run-git-async "remote" "update" args))
 
 ;;; Pull
@@ -134,7 +134,7 @@ then read the remote."
   (let ((remote (magit-get-remote-branch)))
     (unless (and use-upstream remote)
       (setq remote (magit-read-remote-branch "Pull" nil remote t)))
-    (list (car remote) (cdr remote) magit-current-popup-args)))
+    (list (car remote) (cdr remote) (magit-pull-arguments))))
 
 ;;; Push
 
@@ -192,7 +192,7 @@ Read the local and remote branch."
     (unless (and use-upstream remote)
       (setq remote (magit-read-remote-branch (format "Push %s to" local)
                                              nil remote 'confirm)))
-    (list local (car remote) (cdr remote) magit-current-popup-args)))
+    (list local (car remote) (cdr remote) (magit-pull-arguments))))
 
 ;;;###autoload
 (defun magit-push-matching (remote &optional args)
@@ -209,7 +209,7 @@ If only one remote exists, then push to that.  Otherwise prompt
 for a remote, offering the remote configured for the current
 branch as default."
   (interactive (list (magit-read-remote "Push tags to remote" nil t)
-                     magit-current-popup-args))
+                     (magit-push-arguments)))
   (magit-run-git-async "push" remote "--tags" args))
 
 ;;; magit-remote.el ends soon

@@ -110,8 +110,8 @@ an error while using those is harder to recover from."
 With a prefix argument amend to the commit at HEAD instead.
 \n(git commit [--amend] ARGS)"
   (interactive (if current-prefix-arg
-                   (list (cons "--amend" magit-current-popup-args))
-                 (list magit-current-popup-args)))
+                   (list (cons "--amend" (magit-commit-arguments)))
+                 (list (magit-commit-arguments))))
   (when (setq args (magit-commit-assert args))
     (magit-run-git-with-editor "commit" args)))
 
@@ -119,7 +119,7 @@ With a prefix argument amend to the commit at HEAD instead.
 (defun magit-commit-amend (&optional args)
   "Amend the last commit.
 \n(git commit --amend ARGS)"
-  (interactive (list magit-current-popup-args))
+  (interactive (list (magit-commit-arguments)))
   (magit-run-git-with-editor "commit" "--amend" args))
 
 ;;;###autoload
@@ -129,7 +129,7 @@ With a prefix argument do change the committer date, otherwise
 don't.  The option `magit-commit-extend-override-date' can be
 used to inverse the meaning of the prefix argument.
 \n(git commit --amend --no-edit)"
-  (interactive (list magit-current-popup-args
+  (interactive (list (magit-commit-arguments)
                      (if current-prefix-arg
                          (not magit-commit-reword-override-date)
                        magit-commit-reword-override-date)))
@@ -150,7 +150,7 @@ used to inverse the meaning of the prefix argument.
 Non-interactively respect the optional OVERRIDE-DATE argument
 and ignore the option.
 \n(git commit --amend --only)"
-  (interactive (list magit-current-popup-args
+  (interactive (list (magit-commit-arguments)
                      (if current-prefix-arg
                          (not magit-commit-reword-override-date)
                        magit-commit-reword-override-date)))
@@ -186,7 +186,8 @@ depending on the value of option `magit-commit-squash-confirm'.
   "Create a fixup commit and instantly rebase.
 \n(git commit --no-edit --fixup=COMMIT ARGS;
  git rebase -i COMMIT^ --autosquash --autostash)"
-  (interactive (list (magit-commit-at-point) magit-current-popup-args))
+  (interactive (list (magit-commit-at-point)
+                     (magit-commit-arguments)))
   (magit-commit-squash-internal
    (lambda (c a)
      (when (setq c (magit-commit-fixup c a))
@@ -198,7 +199,8 @@ depending on the value of option `magit-commit-squash-confirm'.
   "Create a squash commit and instantly rebase.
 \n(git commit --no-edit --squash=COMMIT ARGS;
  git rebase -i COMMIT^ --autosquash --autostash)"
-  (interactive (list (magit-commit-at-point) magit-current-popup-args))
+  (interactive (list (magit-commit-at-point)
+                     (magit-commit-arguments)))
   (magit-commit-squash-internal
    (lambda (c a)
      (when (setq c (magit-commit-squash c a))
@@ -206,7 +208,8 @@ depending on the value of option `magit-commit-squash-confirm'.
    "--squash" commit args t))
 
 (defun magit-commit-squash-read-args ()
-  (list (magit-commit-at-point) magit-current-popup-args
+  (list (magit-commit-at-point)
+        (magit-commit-arguments)
         (or current-prefix-arg magit-commit-squash-confirm)))
 
 (defun magit-commit-squash-internal (fn option commit args confirm)

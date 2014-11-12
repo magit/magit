@@ -194,9 +194,7 @@ ARGS is a list of additional arguments to pass to `git blame';
 only arguments available from `magit-blame-popup' should be used.
 \n(fn REVISON FILE &optional ARGS)" ; LINE is for internal use
   (interactive
-   (let ((args (if magit-current-popup
-                   magit-current-popup-args
-                 magit-blame-arguments)))
+   (let ((args (magit-blame-arguments)))
      (if magit-blame-mode
          (--if-let (magit-blame-chunk-get :previous-hash)
              (list it (magit-blame-chunk-get :previous-file)

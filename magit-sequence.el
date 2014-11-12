@@ -151,7 +151,7 @@
 (defun magit-cherry-pick-read-args (prompt)
   (list (or (nreverse (magit-region-values 'commit))
             (magit-read-other-branch-or-commit prompt))
-        magit-current-popup-args))
+        (magit-cherry-pick-arguments)))
 
 ;;;###autoload
 (defun magit-cherry-pick (commit &optional args)
@@ -192,7 +192,7 @@
 (defun magit-revert-read-args (prompt)
   (list (or (magit-region-values 'commit)
             (magit-read-branch-or-commit prompt))
-        magit-current-popup-args))
+        (magit-revert-arguments)))
 
 ;;;###autoload
 (defun magit-revert (commit &optional args)
@@ -239,13 +239,13 @@
 (defun magit-am-apply-patches (&optional files args)
   (interactive (list (or (magit-region-values 'file)
                          (list (read-file-name "Apply patch: ")))
-                     magit-current-popup-args))
+                     (magit-am-arguments)))
   (magit-run-git-sequencer "am" args "--" (mapcar 'expand-file-name files)))
 
 ;;;###autoload
 (defun magit-am-apply-maildir (&optional maildir args)
   (interactive (list (read-file-name "Apply mbox or Maildir: ")
-                     magit-current-popup-args))
+                     (magit-am-arguments)))
   (magit-run-git-sequencer "am" args (expand-file-name maildir)))
 
 ;;;###autoload
@@ -309,7 +309,7 @@
                       "Rebase to"
                       (magit-get-current-branch)
                       (magit-get-tracked-branch))
-                     magit-current-popup-args))
+                     (magit-rebase-arguments)))
   (if upstream
       (progn (message "Rebasing...")
              (magit-run-git-sequencer "rebase" upstream args)
@@ -341,7 +341,7 @@
 \n(git rebase -i COMMIT[^] [ARGS])"
   (interactive (let ((commit (magit-commit-at-point)))
                  (list (and commit (concat commit "^"))
-                       magit-current-popup-args)))
+                       (magit-rebase-arguments))))
   (if (setq commit (magit-rebase-interactive-assert commit))
       (magit-run-git-sequencer "rebase" "-i" commit args)
     (magit-log-select
@@ -352,7 +352,7 @@
 (defun magit-rebase-autosquash (commit &optional args)
   "Combine squash and fixup commits with their intended targets.
 \n(git rebase -i COMMIT[^] --autosquash --autostash [ARGS])"
-  (interactive (list (magit-get-tracked-branch) magit-current-popup-args))
+  (interactive (list (magit-get-tracked-branch) (magit-rebase-arguments)))
   (if (setq commit (magit-rebase-interactive-assert commit))
       (let ((process-environment process-environment))
         (setenv "GIT_SEQUENCE_EDITOR" "true")

@@ -506,7 +506,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 (defun magit-show-refs-head (&optional args)
   "List and compare references in a dedicated buffer.
 Refs are compared with `HEAD'."
-  (interactive (list magit-current-popup-args))
+  (interactive (list (magit-show-refs-arguments)))
   (magit-show-refs nil args))
 
 ;;;###autoload
@@ -514,7 +514,7 @@ Refs are compared with `HEAD'."
   "List and compare references in a dedicated buffer.
 Refs are compared with the current branch or `HEAD' if
 it is detached."
-  (interactive (list magit-current-popup-args))
+  (interactive (list (magit-show-refs-arguments)))
   (magit-show-refs (magit-get-current-branch) args))
 
 ;;;###autoload
@@ -522,7 +522,7 @@ it is detached."
   "List and compare references in a dedicated buffer.
 Refs are compared with a branch read form the user."
   (interactive (list (magit-read-other-branch "Compare with")
-                     magit-current-popup-args))
+                     (magit-show-refs-arguments)))
   (magit-mode-setup magit-refs-buffer-name-format nil
                     #'magit-refs-mode
                     #'magit-refs-refresh-buffer ref args))
@@ -855,7 +855,7 @@ changes.
   (magit-run-git "checkout" args "-b" branch start-point))
 
 (defun magit-branch-read-args (prompt)
-  (let* ((args magit-current-popup-args)
+  (let* ((args (magit-branch-arguments))
          (start (magit-read-branch-or-commit (concat prompt " starting at")))
          (branch
           (magit-read-string
@@ -1010,7 +1010,7 @@ merge.
 
 \(git merge --no-edit|--no-commit [ARGS] REV)"
   (interactive (list (magit-read-other-branch-or-commit "Merge")
-                     magit-current-popup-args
+                     (magit-merge-arguments)
                      current-prefix-arg))
   (magit-merge-assert)
   (magit-run-git "merge" (if nocommit "--no-commit" "--no-edit") args rev))
@@ -1022,7 +1022,7 @@ Perform the merge and prepare a commit message but let the user
 edit it.
 \n(git merge --edit [ARGS] rev)"
   (interactive (list (magit-read-other-branch-or-commit "Merge")
-                     magit-current-popup-args))
+                     (magit-merge-arguments)))
   (magit-merge-assert)
   (magit-run-git-with-editor "merge" "--edit" args rev))
 
@@ -1033,7 +1033,7 @@ Pretend the merge failed to give the user the opportunity to
 inspect the merge and change the commit message.
 \n(git merge --no-commit [ARGS] rev)"
   (interactive (list (magit-read-other-branch-or-commit "Merge")
-                     magit-current-popup-args))
+                     (magit-merge-arguments)))
   (magit-merge-assert)
   (magit-run-git "merge" "--no-commit" args rev))
 
@@ -1194,7 +1194,7 @@ With a prefix argument annotate the tag.
 \n(git tag [--annotate] NAME REV)"
   (interactive (list (magit-read-tag "Tag name")
                      (magit-read-branch-or-commit "Place tag on")
-                     (let ((args magit-current-popup-args))
+                     (let ((args (magit-tag-arguments)))
                        (when current-prefix-arg
                          (add-to-list 'args "--annotate"))
                        args)))
@@ -1278,7 +1278,7 @@ defaulting to the tag at point.
   (magit-run-git-with-editor "notes" "merge" "--abort"))
 
 (defun magit-notes-prune (&optional dry-run)
-  (interactive (list (and (member "--dry-run" magit-current-popup-args) t)))
+  (interactive (list (and (member "--dry-run" (magit-notes-arguments)) t)))
   (when dry-run
     (magit-process))
   (magit-run-git-with-editor "notes" "prune" (and dry-run "--dry-run")))
@@ -1323,7 +1323,7 @@ defaulting to the tag at point.
 (defun magit-notes-read-args (prompt)
  (list (magit-read-branch-or-commit prompt)
        (--when-let (--first (string-match "^--ref=\\(.+\\)" it)
-                            magit-current-popup-args)
+                            (magit-notes-arguments))
          (match-string 1 it))))
 
 (defun magit-notes-popup-read-ref (prompt &optional initial-input)

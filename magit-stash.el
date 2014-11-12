@@ -95,10 +95,10 @@ while two prefix arguments are equivalent to `--all'."
         (magit-stash-read-untracked)))
 
 (defun magit-stash-read-untracked ()
-  (let ((prefix (prefix-numeric-value current-prefix-arg)))
-    (cond ((or (= prefix 16) (member "--all" magit-current-popup-args)) 'all)
-          ((or (= prefix  4)
-               (member "--include-untracked" magit-current-popup-args)) t))))
+  (let ((prefix (prefix-numeric-value current-prefix-arg))
+        (args   (magit-stash-arguments)))
+    (cond ((or (= prefix 16) (member "--all" args)) 'all)
+          ((or (= prefix  4) (member "--include-untracked" args)) t))))
 
 (defun magit-stash-read-message ()
   (let* ((default (format "On %s: "
