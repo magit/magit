@@ -644,7 +644,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   (magit-bind-match-strings (graph hash refs) nil
     (magit-delete-match)
     (magit-insert-section (commit hash)
-      (insert graph)
+      (when graph (insert graph))
       (when refs
         (magit-insert (magit-format-ref-labels refs) nil ?\s))
       (magit-insert hash 'magit-hash ?\s)
