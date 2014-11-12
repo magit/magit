@@ -325,7 +325,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
             (magit-read-range-or-commit "Show log for"
                                         (unless use-current
                                           (magit-get-previous-branch))))
-        magit-current-popup-args))
+        (magit-log-arguments)))
 
 ;;;###autoload
 (defun magit-log-current (range &optional args)
@@ -351,7 +351,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
 
 ;;;###autoload
 (defun magit-log-head (args)
-  (interactive (list magit-current-popup-args))
+  (interactive (list (magit-log-arguments)))
   (magit-log "HEAD" args))
 
 ;;;###autoload
@@ -367,8 +367,8 @@ With a prefix argument show the log graph."
                     'oneline "HEAD"
                     (cons "--follow"
                           (if use-graph
-                              (cons "--graph" magit-current-popup-args)
-                            (delete "--graph" magit-current-popup-args)))
+                              (cons "--graph" (magit-log-arguments))
+                            (delete "--graph" (magit-log-arguments))))
                     file)
   (magit-log-goto-same-commit))
 

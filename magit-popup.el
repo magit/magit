@@ -330,6 +330,10 @@ that without users being aware of it could lead to tears.
          ""
          ,@(and grp (list :group grp))
          :type '(repeat (string :tag "Argument")))
+       (defun ,opt ()
+         (if (eq magit-current-popup ',name)
+             magit-current-popup-args
+           ,opt))
        (put ',opt 'definition-name ',name))))
 
 (defun magit-define-popup-switch (popup key desc switch

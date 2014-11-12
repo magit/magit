@@ -359,7 +359,7 @@ The following `format'-like specs are supported:
   :default-action 'magit-diff-dwim
   :max-action-columns 3)
 
-(with-no-warnings ; quiet 24.4 byte-compiler
+(with-no-warnings
 (magit-define-popup magit-diff-refresh-popup
   "Popup console for changing diff arguments in the current buffer."
   'magit-popups nil magit-diff-section-arguments
@@ -381,23 +381,6 @@ The following `format'-like specs are supported:
       (let ((magit-diff-section-arguments (cadr magit-refresh-args)))
         ad-do-it)
     ad-do-it))
-
-(defun magit-diff-arguments (&optional refresh)
-  (if magit-current-popup
-      magit-current-popup-args
-    (if refresh
-        (if (derived-mode-p 'magit-diff-mode)
-            (--filter (not (member it '("--cached" "--no-index" "--")))
-                      (cadr magit-refresh-args))
-          magit-diff-section-arguments)
-      (default-value (magit-diff-arguments-variable)))))
-
-(defun magit-diff-arguments-variable (&optional refresh)
-  (if (derived-mode-p 'magit-diff-mode)
-      (if refresh
-          'magit-refresh-args
-        'magit-diff-arguments)
-    'magit-diff-section-arguments))
 
 (defun magit-diff-select-algorithm (&rest _ignore)
   (magit-read-char-case nil t
@@ -568,8 +551,17 @@ for a commit."
                       #'magit-revision-refresh-buffer
                       commit args)))
 
+(defun magit-diff-refresh-arguments ()
+  (cond ((memq magit-current-popup '(magit-diff-popup magit-diff-refresh-popup))
+         magit-current-popup-args)
+        ((derived-mode-p 'magit-diff-mode)
+         (--filter (not (member it '("--cached" "--no-index" "--")))
+                   (cadr magit-refresh-args)))
+        (t
+         magit-diff-section-arguments)))
+
 (defun magit-diff-refresh (args)
-  (interactive (list (magit-diff-arguments t)))
+  (interactive (list (magit-diff-refresh-arguments)))
   (cond ((derived-mode-p 'magit-diff-mode)
          (setq magit-refresh-args (list (car magit-refresh-args) args)))
         (t
@@ -577,7 +569,7 @@ for a commit."
   (magit-refresh))
 
 (defun magit-diff-set-default-arguments (args)
-  (interactive (list (magit-diff-arguments t)))
+  (interactive (list (magit-diff-refresh-arguments)))
   (cond ((derived-mode-p 'magit-diff-mode)
          (customize-set-variable 'magit-diff-arguments args)
          (setq magit-refresh-args (list (car magit-refresh-args) args)))
@@ -587,7 +579,7 @@ for a commit."
   (magit-refresh))
 
 (defun magit-diff-save-default-arguments (args)
-  (interactive (list (magit-diff-arguments t)))
+  (interactive (list (magit-diff-refresh-arguments)))
   (cond ((derived-mode-p 'magit-diff-mode)
          (customize-save-variable 'magit-diff-arguments args)
          (setq magit-refresh-args (list (car magit-refresh-args) args)))
@@ -613,17 +605,16 @@ for a commit."
 
 (defun magit-diff-set-context (fn)
   (let* ((def (--if-let (magit-get "diff.context") (string-to-number it) 3))
-         (val (magit-diff-arguments t))
+         (val (magit-diff-refresh-arguments))
          (arg (--first (string-match "^-U\\([0-9]+\\)?$" it) val))
          (num (--if-let (match-string 1 arg) (string-to-number it) def))
          (val (delete arg val))
          (num (funcall fn num))
          (arg (and num (not (= num def)) (format "-U%i" num)))
          (val (if arg (cons arg val) val)))
-    (set (magit-diff-arguments-variable t)
-         (if (derived-mode-p 'magit-diff-mode)
-             (list (car magit-refresh-args) val)
-           val)))
+    (if (derived-mode-p 'magit-diff-mode)
+        (setq magit-refresh-args (list (car magit-refresh-args) val))
+      (setq magit-diff-section-arguments val)))
   (magit-refresh))
 
 (defun magit-diff-context-p ()
