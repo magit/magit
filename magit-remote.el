@@ -192,7 +192,7 @@ Read the local and remote branch."
     (unless (and use-upstream remote)
       (setq remote (magit-read-remote-branch (format "Push %s to" local)
                                              nil remote 'confirm)))
-    (list local (car remote) (cdr remote) (magit-pull-arguments))))
+    (list local (car remote) (cdr remote) (magit-push-arguments))))
 
 ;;;###autoload
 (defun magit-push-matching (remote &optional args)
