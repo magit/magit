@@ -795,7 +795,7 @@ alist in `magit-log-format-unicode-graph-alist'."
   (magit-mode-setup magit-log-buffer-name-format nil
                     #'magit-log-select-mode
                     #'magit-log-refresh-buffer 'oneline
-                    (or branch (magit-get-current-branch) "HEAD")
+                    (list (or branch (magit-get-current-branch) "HEAD"))
                     args)
   (magit-log-goto-same-commit)
   (setq magit-log-select-pick-function pick)
