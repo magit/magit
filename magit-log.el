@@ -316,7 +316,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
   (concat "^" (regexp-opt '("--patch" "--stat")))
   "Regexp matching arguments which trigger the use of verbose log.")
 
-(defvar magit-log-nongraph-re
+(defvar magit-log-remove-graph-re
   (concat "^" (regexp-opt '("-G" "--grep")))
   "Regexp matching arguments which are not compatible with `--graph'.")
 
@@ -338,11 +338,13 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
   (magit-mode-setup magit-log-buffer-name-format nil
                     #'magit-log-mode
                     #'magit-log-refresh-buffer
-                    (if (--any? (string-match-p magit-log-use-verbose-re it) args)
+                    (if (--any? (string-match-p magit-log-use-verbose-re it)
+                                args)
                         'verbose
                       'oneline)
                     range
-                    (if (--any? (string-match-p magit-log-nongraph-re it) args)
+                    (if (--any? (string-match-p magit-log-remove-graph-re it)
+                                args)
                         (delete "--graph" args)
                       args))
   (magit-log-goto-same-commit))
