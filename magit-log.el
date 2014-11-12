@@ -312,7 +312,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
   :max-action-columns 2
   :max-switch-columns 1)
 
-(defvar magit-log-verbose-re
+(defvar magit-log-use-verbose-re
   (concat "^" (regexp-opt '("--patch" "--stat")))
   "Regexp matching arguments which trigger the use of verbose log.")
 
@@ -338,7 +338,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
   (magit-mode-setup magit-log-buffer-name-format nil
                     #'magit-log-mode
                     #'magit-log-refresh-buffer
-                    (if (--any? (string-match-p magit-log-verbose-re it) args)
+                    (if (--any? (string-match-p magit-log-use-verbose-re it) args)
                         'verbose
                       'oneline)
                     range
