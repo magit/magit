@@ -210,7 +210,8 @@ directory.  Otherwise return nil."
     (file-name-as-directory (magit-expand-git-file-name it))))
 
 (defun magit-toplevel-safe (&optional directory)
-  (let ((default-directory (or directory default-directory)))
+  (let ((default-directory
+          (file-name-as-directory (or directory default-directory))))
     (while (not (file-accessible-directory-p default-directory))
       (setq default-directory
             (file-name-directory
