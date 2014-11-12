@@ -325,13 +325,13 @@ The following `format'-like specs are supported:
 (defface magit-diffstat-added
   '((((class color) (background light)) :foreground "#22aa22")
     (((class color) (background  dark)) :foreground "#448844"))
-  "Face for plus sign in diffstats."
+  "Face for plus sign in diffstat."
   :group 'magit-faces)
 
 (defface magit-diffstat-removed
   '((((class color) (background light)) :foreground "#aa2222")
     (((class color) (background  dark)) :foreground "#aa4444"))
-  "Face for minus sign in diffstats."
+  "Face for minus sign in diffstat."
   :group 'magit-faces)
 
 ;;; Commands
@@ -793,7 +793,7 @@ commit or stash at point, then prompt for a commit."
     (define-key map "\C-c\C-f" 'magit-go-forward)
     (define-key map "\s" 'scroll-up)
     (define-key map "\d" 'scroll-down)
-    (define-key map "j" 'magit-jump-to-diffstats)
+    (define-key map "j" 'magit-jump-to-diffstat)
     map)
   "Keymap for `magit-diff-mode'.")
 
@@ -866,7 +866,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
 
 (defun magit-diff-wash-diffs (args &optional diffstats)
   (unless diffstats
-    (setq diffstats (magit-diff-wash-diffstats)))
+    (setq diffstats (magit-diff-wash-diffstat)))
   (when (re-search-forward magit-diff-headline-re nil t)
     (goto-char (line-beginning-position))
     (magit-wash-sequence
@@ -876,15 +876,15 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
   (goto-char (point-max))
   (magit-xref-insert-buttons))
 
-(magit-define-section-jumper diffstats "Diffstats")
+(magit-define-section-jumper diffstat "Diffstat")
 
-(defun magit-diff-wash-diffstats ()
-  (let (heading diffstats (beg (point)))
+(defun magit-diff-wash-diffstat ()
+  (let (heading children (beg (point)))
     (when (re-search-forward "^ ?\\([0-9]+ +files? change[^\n]*\n\\)" nil t)
       (setq heading (match-string 1))
       (magit-delete-match)
       (goto-char beg)
-      (magit-insert-section it (diffstats)
+      (magit-insert-section it (diffstat)
         (insert heading)
         (magit-insert-heading)
         (magit-wash-sequence
@@ -900,8 +900,8 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
                  (when del
                    (insert (propertize del 'face 'magit-diffstat-removed)))
                  (insert "\n"))))))
-        (setq diffstats (magit-section-children it))))
-    diffstats))
+        (setq children (magit-section-children it))))
+    children))
 
 (defun magit-diff-wash-diff (args diffstat)
   (cond
@@ -1036,7 +1036,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
 (defvar magit-diff-wash-revision-insert-related-refs t)
 
 (defun magit-diff-wash-revision (args)
-  (let (diffstats)
+  (let (children)
     (looking-at "^commit \\([a-z0-9]+\\)\\(?: \\(.+\\)\\)?$")
     (magit-bind-match-strings (rev refs) nil
       (magit-delete-line)
@@ -1093,8 +1093,8 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
                     ((re-search-forward "^.[^ ]" bound t)
                      (goto-char (1- (match-beginning 0))))))))
         (forward-line)
-        (setq diffstats (magit-diff-wash-diffstats))))
-    (magit-diff-wash-diffs args diffstats)))
+        (setq children (magit-diff-wash-diffstat))))
+    (magit-diff-wash-diffs args children)))
 
 ;;; Diff Sections
 
@@ -1166,7 +1166,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
                    (and (not (eq (magit-diff-type section) 'untracked))
                         (not (eq (--when-let (magit-section-parent section)
                                    (magit-section-type it))
-                                 'diffstats)))))
+                                 'diffstat)))))
       (pcase (list (magit-section-type section)
                    (and siblings t)
                    (and (region-active-p) t)
