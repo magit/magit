@@ -305,8 +305,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
               (?o "Log other"               magit-log)
               (?O "Reflog other"            magit-reflog)
               (?h "Log HEAD"                magit-log-head)
-              (?H "Reflog HEAD"             magit-reflog-head)
-              (?f "Log file"                magit-log-file))
+              (?H "Reflog HEAD"             magit-reflog-head))
   :default-arguments '("--graph" "--decorate")
   :default-action 'magit-log-current
   :max-action-columns 2
@@ -355,14 +354,18 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
   (magit-log "HEAD" args))
 
 ;;;###autoload
-(defun magit-log-file (file)
-  "Display the log for the currently visited file or another one."
-  (interactive
-   (list (magit-read-file-from-rev (magit-get-current-branch) "Log for file")))
-  (magit-mode-setup magit-log-buffer-name-format nil
-                    #'magit-log-mode
-                    #'magit-log-refresh-buffer
-                    'oneline "HEAD" (magit-log-arguments) file)
+(defun magit-log-buffer-file ()
+  "Show log for the file visited in the current buffer."
+  (interactive)
+  (-if-let (file (or buffer-file-name magit-buffer-file-name))
+      (magit-mode-setup magit-log-buffer-name-format nil
+                        #'magit-log-mode
+                        #'magit-log-refresh-buffer
+                        'oneline
+                        (or magit-buffer-refname "HEAD")
+                        (magit-log-arguments)
+                        (list file))
+    (user-error "Buffer does not visit a file"))
   (magit-log-goto-same-commit))
 
 ;;;###autoload
