@@ -166,7 +166,8 @@
 (defun magit-cherry-apply (commit &optional args)
   (interactive (magit-cherry-pick-read-args "Apply commit"))
   (magit-assert-one-parent commit "cherry-pick")
-  (magit-run-git-sequencer "cherry-pick" "--no-commit" args commit))
+  (magit-run-git-sequencer "cherry-pick" "--no-commit"
+                           (remove "--ff" args) commit))
 
 (defun magit-cherry-pick-in-progress-p ()
   (and (magit-sequencer-in-progress-p)
