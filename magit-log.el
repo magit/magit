@@ -355,20 +355,14 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
   (magit-log "HEAD" args))
 
 ;;;###autoload
-(defun magit-log-file (file &optional use-graph)
-  "Display the log for the currently visited file or another one.
-With a prefix argument show the log graph."
+(defun magit-log-file (file)
+  "Display the log for the currently visited file or another one."
   (interactive
-   (list (magit-read-file-from-rev (magit-get-current-branch) "Log for file")
-         current-prefix-arg))
+   (list (magit-read-file-from-rev (magit-get-current-branch) "Log for file")))
   (magit-mode-setup magit-log-buffer-name-format nil
                     #'magit-log-mode
                     #'magit-log-refresh-buffer
-                    'oneline "HEAD"
-                    (if use-graph
-                        (cons "--graph" (magit-log-arguments))
-                      (delete "--graph" (magit-log-arguments)))
-                    file)
+                    'oneline "HEAD" (magit-log-arguments) file)
   (magit-log-goto-same-commit))
 
 ;;;###autoload
