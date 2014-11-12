@@ -365,10 +365,9 @@ With a prefix argument show the log graph."
                     #'magit-log-mode
                     #'magit-log-refresh-buffer
                     'oneline "HEAD"
-                    (cons "--follow"
-                          (if use-graph
-                              (cons "--graph" (magit-log-arguments))
-                            (delete "--graph" (magit-log-arguments))))
+                    (if use-graph
+                        (cons "--graph" (magit-log-arguments))
+                      (delete "--graph" (magit-log-arguments)))
                     file)
   (magit-log-goto-same-commit))
 
