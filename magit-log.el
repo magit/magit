@@ -290,17 +290,17 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
   "Popup console for log commands."
   'magit-popups
   :man-page "git-log"
-  :switches '((?g "Show graph"              "--graph")
+  :switches '((?a "Show all refs"           "--all")
+              (?b "Show all branches"       "--branches")
+              (?g "Show graph"              "--graph")
               (?d "Show refnames"           "--decorate")
               (?S "Show signatures"         "--show-signature")
-              (?a "Show all refs"           "--all")
               (?u "Show diffs"              "--patch")
               (?s "Show diffstats"          "--stat"))
-  :options  '((?b "Show branches"           "--branches="  read-from-minibuffer)
-              (?f "Limit to files"          "-- "          magit-log-read-files)
-              (?a "Limit to author"         "--author="    read-from-minibuffer)
-              (?m "Search messages"         "--grep="      read-from-minibuffer)
-              (?p "Search patches"          "-G"           read-from-minibuffer))
+  :options  '((?f "Limit to files"          "-- "       magit-log-read-files)
+              (?a "Limit to author"         "--author=" read-from-minibuffer)
+              (?m "Search messages"         "--grep="   read-from-minibuffer)
+              (?p "Search patches"          "-G"        read-from-minibuffer))
   :actions  '((?l "Log current"             magit-log-current)
               (?r "Reflog current"          magit-reflog-current)
               (?o "Log other"               magit-log)
@@ -326,11 +326,32 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
     (when files
       (setq args  (remove files args)
             files (split-string (substring files 3) ",")))
-    (list (or (and use-current (magit-get-current-branch))
-              (magit-read-range-or-commit
-               "Log" (unless use-current
-                       (magit-get-previous-branch))))
-          args files)))
+    (list (magit-log-read-revs use-current) args files)))
+
+(defvar magit-log-read-revs-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map crm-local-completion-map)
+    (define-key map "\s" 'self-insert-command)
+    map))
+
+(defun magit-log-read-revs (&optional use-current)
+  (or (and use-current (--when-let (magit-get-current-branch) (list it)))
+      (let* ((choose-completion-string-functions
+              '(crm--choose-completion-string))
+             (minibuffer-completion-table #'crm--collection-fn)
+             (minibuffer-completion-confirm t)
+             (crm-completion-table (magit-list-branch-names))
+             (crm-separator "\\(\\.\\.\\.?\\| \\)")
+             (default (or (magit-branch-or-commit-at-point)
+                          (unless use-current
+                            (magit-get-previous-branch))))
+             (input (read-from-minibuffer "Log rev,s: "
+                                          nil magit-log-read-revs-map
+                                          nil 'magit-revision-history default)))
+        (when (string-equal input "")
+          (or (setq input default)
+              (user-error "Nothing selected")))
+        (split-string input " " t))))
 
 (defun magit-log-read-files (_ignored initial-contents)
   (mapconcat 'identity
@@ -338,12 +359,12 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
                                        nil nil initial-contents) ","))
 
 ;;;###autoload
-(defun magit-log-current (range &optional args files)
+(defun magit-log-current (revs &optional args files)
   (interactive (magit-log-read-args t))
-  (magit-log range args files))
+  (magit-log revs args files))
 
 ;;;###autoload
-(defun magit-log (range &optional args files)
+(defun magit-log (revs &optional args files)
   (interactive (magit-log-read-args nil))
   (magit-mode-setup magit-log-buffer-name-format nil
                     #'magit-log-mode
@@ -352,7 +373,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
                                 args)
                         'verbose
                       'oneline)
-                    range
+                    revs
                     (if (--any? (string-match-p magit-log-remove-graph-re it)
                                 args)
                         (delete "--graph" args)
@@ -451,20 +472,18 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   :group 'magit-log
   (magit-set-buffer-margin magit-log-show-margin))
 
-(defun magit-log-refresh-buffer (style range args &optional files)
-  (when (consp range)
-    (setq range (concat (car range) ".." (cdr range))))
+(defun magit-log-refresh-buffer (style revs args &optional files)
   (magit-insert-section (logbuf)
-    (magit-insert-heading "Commits in " range
-      (and files (concat " touching " (mapconcat 'identity files " "))))
+    (magit-insert-heading "Commits in " (mapconcat 'identity revs  " ")
+      (and files (concat " touching "   (mapconcat 'identity files " "))))
     (if (eq style 'oneline)
-        (magit-insert-log range args files)
-      (magit-insert-log-verbose range args files)))
+        (magit-insert-log revs args files)
+      (magit-insert-log-verbose revs args files)))
   (save-excursion
     (goto-char (point-min))
     (magit-format-log-margin)))
 
-(defun magit-insert-log (range &optional args files)
+(defun magit-insert-log (revs &optional args files)
   (magit-git-wash (apply-partially 'magit-log-wash-log 'oneline)
     "log" (format "-%d" magit-log-cutoff-length) "--color"
     (format "--format=%%h%s %s[%%an][%%at]%%s"
@@ -475,15 +494,15 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
     (if (member "--decorate" args)
         (cons "--decorate=full" (remove "--decorate" args))
       args)
-    range "--" files))
+    revs "--" files))
 
-(defun magit-insert-log-verbose (range &optional args files)
+(defun magit-insert-log-verbose (revs &optional args files)
   (magit-git-wash (apply-partially 'magit-log-wash-log 'verbose)
     "log" (format "-%d" magit-log-cutoff-length) "--color"
     (if (member "--decorate" args)
         (cons "--decorate=full" (remove "--decorate" args))
       args)
-    range "--" files))
+    revs "--" files))
 
 (defvar magit-commit-section-map
   (let ((map (make-sparse-keymap)))
