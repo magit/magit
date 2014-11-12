@@ -793,7 +793,7 @@ commit or stash at point, then prompt for a commit."
     (define-key map "\C-c\C-f" 'magit-go-forward)
     (define-key map "\s" 'scroll-up)
     (define-key map "\d" 'scroll-down)
-    (define-key map "j" 'magit-jump-to-diffstat)
+    (define-key map "j" 'magit-jump-to-diffstat-or-diff)
     map)
   "Keymap for `magit-diff-mode'.")
 
@@ -876,7 +876,24 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
   (goto-char (point-max))
   (magit-xref-insert-buttons))
 
-(magit-define-section-jumper diffstat "Diffstat")
+(defun magit-jump-to-diffstat-or-diff ()
+  "Jump to the diffstat or diff.
+When point is on a file inside the diffstat section, then jump
+to the respective diff section, otherwise jump to the diffstat
+section or a child thereof."
+  (interactive)
+  (--if-let (magit-get-section
+             (append (magit-section-case
+                       ([file diffstat] `((file . ,(magit-section-value it))))
+                       (file `((file . ,(magit-section-value it)) (diffstat)
+                               ,@(and (derived-mode-p 'magit-revision-mode)
+                                      '((headers)))))
+                       (t (if (derived-mode-p 'magit-revision-mode)
+                              '((diffstat) (headers))
+                            '((diffstat)))))
+                     (magit-section-ident magit-root-section)))
+      (magit-section-goto it)
+    (user-error "No diffstat in this buffer")))
 
 (defun magit-diff-wash-diffstat ()
   (let (heading children (beg (point)))
