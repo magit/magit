@@ -343,7 +343,7 @@ then offer to initialize it as a new repository."
                (>= (prefix-numeric-value current-prefix-arg) 16)))))
   (if directory
       (let ((toplevel (magit-toplevel-safe directory)))
-        (setq directory (expand-file-name directory))
+        (setq directory (file-name-as-directory (expand-file-name directory)))
         (if (and toplevel (string-equal directory toplevel))
             (magit-status-internal directory)
           (when (y-or-n-p
