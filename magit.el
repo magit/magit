@@ -442,7 +442,12 @@ then offer to initialize it as a new repository."
 (magit-define-section-jumper untracked "Untracked files")
 
 (defun magit-insert-untracked-files ()
-  (-when-let (files (magit-untracked-files))
+  (-when-let (files (--mapcat (and (eq (aref it 0) ??)
+                                   (list (substring it 3)))
+                              (magit-git-lines
+                               "status" "--porcelain"
+                               (unless (magit-get "status.showUntrackedFiles")
+                                 "-uall"))))
     (magit-insert-section (untracked)
       (magit-insert-heading "Untracked files:")
       (magit-insert-untracked-files-1 files nil)
@@ -455,6 +460,8 @@ then offer to initialize it as a new repository."
           (let ((file (pop files)))
             (magit-insert-section (file file)
               (insert (propertize file 'face 'magit-filename) ?\n)))
+        (when (equal (car files) dir)
+          (pop files))
         (magit-insert-section (file dir t)
           (insert (propertize dir 'file 'magit-filename) ?\n)
           (magit-insert-heading)
