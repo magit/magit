@@ -339,8 +339,8 @@ messages. This is particularly useful if you have a hook that
 occasionally causes git to refuse your commit.
 
 To abort a commit use @kbd{C-c C-k}.  The commit message is saved and
-can later be retrieved in the commit message buffer using @kbd{M-p}
-and @kbd{M-a}.
+can later be retrieved in the commit message buffer using @kbd{M-n}
+and @kbd{M-p}.
 
 Typing @kbd{C} will also pop up the change description buffer, but in
 addition, it will try to insert a ChangeLog-style entry for the change
