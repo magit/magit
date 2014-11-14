@@ -4383,6 +4383,8 @@ can be used to override this."
                           #'magit-status-mode
                           #'magit-refresh-status)))))
 
+(defalias 'magit-status-internal 'magit-status) ; forward compatibility
+
 (defun magit-refresh-status ()
   (magit-git-exit-code "update-index" "--refresh")
   (magit-with-section (section status 'status nil t)
