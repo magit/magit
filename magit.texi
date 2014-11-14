@@ -609,7 +609,7 @@ Typing @kbd{M r} will let you rename a remote.
 @section Branches in the Branch Manager
 
 In the branch manager, each branch is displayed on a separate line.  The
-current local branch is marked by a ``#'' in front of the name.  Remote
+current local branch is marked by a ``*'' in front of the name.  Remote
 branches are grouped by the remote they come from.
 
 If a local branch tracks a remote branch some extra information is
