@@ -65,6 +65,7 @@ Contributors
 - David Abrahams <dave@boostpro.com>
 - David Hull <david.hull@openx.com>
 - David Wallin <david.wallin@gmail.com>
+- Dennis Paskorz <dennis@walltowall.com>
 - Divye Kapoor <divye@google.com>
 - Dominique Quatravaux <domq@google.com>
 - Eli Barzilay <eli@barzilay.org>
@@ -127,13 +128,12 @@ Contributors
 - Pavel Holejsovsky <pavel.holejsovsky@upek.com>
 - Pekka Pessi <nospam@pessi.fi>
 - Peter J. Weisberg <pj@irregularexpressions.net>
-- Philippe Vaucher <philippe@stvs.ch>
+- Philippe Vaucher <philippe.vaucher@gmail.com>
 - Philipp Haselwarter <philipp@haselwarter.org>
 - Philip Weaver <philip.weaver@gmail.com>
 - Phil Jackson <phil@shellarchive.co.uk>
 - Pieter Praet <pieter@praet.org>
 - Prathamesh Sonpatki <csonpatki@gmail.com>
-- pskrz <dennis@walltowall.com>
 - rabio <rabiodev@o2.pl>
 - Raimon Grau <raimonster@gmail.com>
 - Ramkumar Ramachandra <artagnon@gmail.com>
