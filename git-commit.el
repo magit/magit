@@ -390,7 +390,7 @@ finally check current non-comment text."
         (if (equal (match-string 1) "")
             t ; Just try; we don't know whether --allow-empty-message was used.
           (and (or (equal (match-string 2) "")
-                   (y-or-n-p "Summary line is to long.  Commit anyway? "))
+                   (y-or-n-p "Summary line is too long.  Commit anyway? "))
                (or (equal (match-string 3) "")
                    (y-or-n-p "Second line is not empty.  Commit anyway? ")))))))
 
