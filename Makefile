@@ -135,6 +135,7 @@ define MAILMAP
 Alex Ott <alexott@gmail.com> <ott@flash.lan>
 Seong-Kook Shin <cinsky@gmail.com>
 David Abrahams <dave@boostpro.com>
+Dennis Paskorz <dennis@walltowall.com>
 Evgkeni Sampelnikof <esabof@gmail.com> <faceoffuture@yahoo.gr>
 Evgkeni Sampelnikof <esabof@gmail.com> <sabof@example.com>
 Graham Clark <grclark@gmail.com> <gcla@moria.(none)>
@@ -154,6 +155,7 @@ Noam Postavsky <npostavs@users.sourceforge.net>
 Óscar Fuentes <ofv@wanadoo.es> <oscar@nc10>
 Óscar Fuentes <ofv@wanadoo.es> <oscar@qcore>
 Peter J. Weisberg <pj@irregularexpressions.net>
+Philippe Vaucher <philippe.vaucher@gmail.com> <philippe@stvs.ch>
 Rémi Vanicat <vanicat@debian.org> <github.20.vanicat@mamber.net>
 Sébastien Gross <seb@chezwam.org> <seb•ɑƬ•chezwam•ɖɵʈ•org>
 Yann Hodique <yann.hodique@gmail.com> <hodiquey@vmware.com>
