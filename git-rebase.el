@@ -1,10 +1,15 @@
 ;;; git-rebase.el --- Major mode for editing git rebase files
 
 ;; Copyright (C) 2010-2014  The Magit Project Developers
+;;
+;; For a full list of contributors, see the AUTHORS.md file
+;; at the top-level directory of this distribution and at
+;; https://raw.github.com/magit/magit/master/AUTHORS.md
 
 ;; Author: Phil Jackson <phil@shellarchive.co.uk>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
-;; Homepage: https://github.com/magit/git-modes
+
+;; Homepage: https://github.com/magit/magit
 ;; Keywords: convenience vc git
 
 ;; This file is not part of GNU Emacs.

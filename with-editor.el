@@ -1,10 +1,15 @@
 ;;; with-editor.el --- use the Emacsclient as $EDITOR -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2014  The Magit Project Developers
+;;
+;; For a full list of contributors, see the AUTHORS.md file
+;; at the top-level directory of this distribution and at
+;; https://raw.github.com/magit/magit/master/AUTHORS.md
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
-;; Homepage: https://github.com/magit/git-modes
+
+;; Homepage: https://github.com/magit/magit
 
 ;; This file is not part of GNU Emacs.
 
