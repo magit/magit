@@ -380,8 +380,8 @@ which may or may not insert the text into the PROCESS' buffer."
    process
    (if (eq (process-filter process) 'with-editor-process-filter)
        `(lambda (proc str)
-          (with-editor-process-filter proc str t)
-          (,filter proc str))
+          (,filter proc str)
+          (with-editor-process-filter proc str t))
      filter)))
 
 (defun with-editor-process-filter
