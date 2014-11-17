@@ -629,7 +629,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
       (pcase style
         (`stash      (setf (magit-section-type section) 'stash))
         (`module     (setf (magit-section-type section) 'mcommit))
-        (`bisect-log (setq hash (magit-git-string "rev-parse" "--short" hash))))
+        (`bisect-log (setq hash (magit-rev-parse "--short" hash))))
       (when cherry
         (unless (derived-mode-p 'magit-cherry-mode)
           (insert "  "))
