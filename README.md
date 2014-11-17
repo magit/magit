@@ -14,35 +14,52 @@ advantage of its native features.
 
 Magit requires at least GNU Emacs 24.1 and Git 1.7.2.5.
 
-### Table of Contents
+Installation
+============
 
-* [Getting Started](#getting-started)
-* [Getting Help](#getting-help)
-* [Contributions](#contributions)
-* [Installation](#installation)
-* [Dependencies](#dependencies)
+You are looking at the `README.md` of the development branch.  For
+instructions on how to install the stable version of Magit see the
+respective [`README.md`][development] instead.
 
-Getting Started
-===============
+First **uninstall** all instances of `magit`, `git-commit-mode` and
+`git-rebase-mode` that you have currently installed.  Doing this,
+and doing it carefully (e.g. did you also install Magit using your
+distributions package manager at some point?), is **very important**.
+It only takes a few minutes to do this, but if everyone does it, then
+that will save me hours of investigating "impossible" issues, which I
+cannot actually reproduce myself.
 
-To get started with Magit, run <kbd>M-x magit-status</kbd>.  If you
-are inside a Git repository this opens a buffer that summarizes its
-status.  Otherwise you are first prompted for a repository.  Read the
-short help for `magit-status-mode` (<kbd>C-h m</kbd> in the status
-buffer).
+Then install package `dash` using `install-package`.  This is now
+the only external dependency; the libraries `git-commit.el` and
+`git-rebase.el` are now part of the Magit repository.  (These
+libraries were previously part of the Git-Modes repository and their
+names used to end with `-mode.el`).
 
-Then edit and save some files, refresh the status buffer
-(<kbd>g</kbd>), stage changes (<kbd>s</kbd>) and commit (<kbd>c</kbd>)
-them.
+Then clone the Magit repository and compile the libraries:
 
-For more details consult the Magit user manual.  You can read it with
-<kbd>C-u C-h i magit.info</kbd> or [on the web][manual].
+```sh
+$ git clone git://github.com/magit/magit.git ~/.emacs.d/site-lisp/magit
+$ cd ~/.emacs.d/site-lisp/magit
+$ make lisp
+```
 
-We can also recommend [this][mastering-intro] introduction from the
-Mastering Emacs blog.  It even describes some new features that are
-not yet documented in the manual.
+Finally add this to you init file:
 
-Magit also has a [website][website].
+```lisp
+(add-to-list 'load-path "~/emacs.d/site-lisp/magit")
+(require 'magit)
+```
+
+To update Magit use:
+
+```sh
+$ git pull
+$ make clean lisp
+```
+
+To view all available make targets use `make help`.  Note that the
+documentation is very much out-of-date, so the `docs` target isn't
+very useful at the moment.
 
 Getting Help
 ============
@@ -74,103 +91,6 @@ features.
 
 Thanks to all of you, may (the history of) the source be with you!
 
-Installation
-============
-
-You are looking at the `README.md` of the development branch.  For
-instructions on how to install the stable version of Magit see the
-respective [readme][development] instead.
-
-First install the third-party `dash` using `install-package`.
-
-Then get the Git-Modes and Magit repositories:
-
-```sh
-$ cd /path/to/common/parent
-$ git clone git://github.com/magit/git-modes.git
-$ git clone git://github.com/magit/magit.git
-```
-
-Then, in each of these repositories, byte compile the libraries
-and generate the documentation, though that is not required:
-
-```sh
-$ make lisp docs
-```
-
-If you installed the Git-Modes repository to a different location,
-the tell `make` about it when compiling Magit:
-
-```sh
-$ EFLAGS="-L /path/to/git-modes" make lisp docs
-```
-
-Then add this to you init file:
-
-```lisp
-(add-to-list 'load-path "/path/to/git-modes")
-(add-to-list 'load-path "/path/to/magit")
-(eval-after-load 'info
-  '(progn (info-initialize)
-          (add-to-list 'Info-directory-list "/path/to/magit/")))
-(require 'magit)
-```
-
-If you are using an Emacs version before 24.3, then you also have to
-install `cl-lib` and tell `make` as well as Emacs where to find it.
-
-To view available make targets use:
-
-```sh
-$ make help
-```
-
-To update use:
-
-```sh
-$ git pull
-$ make lisp docs
-```
-
-Before creating a pull request always run:
-
-```sh
-$ make lisp test
-```
-
-You may also build Magit manually:
-
-```sh
-$ emacs -Q --batch -L . -L /path/to/DEPENCENCY -f batch-byte-compile *.el
-$ makeinfo -o magit.info magit.texi
-$ install-info --dir=dir magit.info
-```
-
-Dependencies
-============
-
-Magit requires at least GNU Emacs 24.1 and Git 1.7.2.5.
-
-If you install Magit using `install-package` then dependencies are
-automatically being taken care of.  Otherwise you have to track down
-dependencies and install them manually.
-
-In Emacs 24.3 the old `cl` library was replaced with `cl-lib`.  They
-both provide various Common Lisp forms, but the new library prefixes
-symbols with `cl-`.  Magit requires the latter library, but luckily a
-forward compatibility implementation of `cl-lib` for older Emacs
-releases is available from the [GNU Elpa][gnuelpa] repository.  You
-can install it using `install-package` or get it [here][cl-lib].
-
-The library `dash` makes writing Emacs lisp more pleasant, and so
-Magit uses it.  It is available from Melpa, its repository can be found
-[here][dash].
-
-The libraries `git-commit-mode`, `git-rebase-mode` and `with-editor`
-are developed in parallel to Magit, but because they can be used
-without Magit are located in their own [git-modes][git-modes].  While
-they don't need Magit, Magit does need them.  Each of these libraries
-is available from Melpa as a separate package by the same name.
 
 [contributing]: https://github.com/magit/magit/blob/master/CONTRIBUTING.md
 [contributors]: https://github.com/magit/magit/contributors
