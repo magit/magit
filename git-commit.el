@@ -1,12 +1,11 @@
 ;;; git-commit.el --- edit Git commit messages  -*- lexical-binding: t; -*-
 
-;; Copyright (c) 2010-2012  Florian Ragwitz
-;; Copyright (c) 2012-2013  Sebastian Wiesner
 ;; Copyright (C) 2010-2014  The Magit Project Developers
 
 ;; Authors: Jonas Bernoulli <jonas@bernoul.li>
 ;;	Sebastian Wiesner <lunaryorn@gmail.com>
 ;;	Florian Ragwitz <rafl@debian.org>
+;;	Marius Vollmer <marius.vollmer@gmail.com>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 ;; Homepage: https://github.com/magit/git-modes
 ;; Keywords: convenience vc git
