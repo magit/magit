@@ -309,7 +309,7 @@ ENVVAR is provided then bind that environment variable instead.
            (when (server-running-p server-name)
              (server-force-delete server-name)))
          (server-start))
-       ;; Tell Git to use the Emacsclient.
+       ;; Tell $EDITOR to use the Emacsclient.
        (setenv with-editor--envvar
                (concat with-editor-emacsclient-executable
        ;; Tell the process where the server file is.
