@@ -7,7 +7,10 @@ docdir  ?= $(datarootdir)/doc/magit
 LOADDEFS_FILE ?= magit-autoloads.el
 LOADDEFS_DIR  ?= $(lispdir)
 
-ELS  = magit-utils.el
+ELS  = with-editor.el
+ELS += git-commit.el
+ELS += git-rebase.el
+ELS += magit-utils.el
 ELS += magit-section.el
 ELS += magit-git.el
 ELS += magit-mode.el
