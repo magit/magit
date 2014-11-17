@@ -295,7 +295,9 @@ instructing them to use the Emacsclient as $EDITOR.  If optional
 ENVVAR is provided then bind that environment variable instead.
 \n(fn [ENVVAR] BODY...)"
   (declare (indent defun))
-  `(let ((with-editor--envvar ,(if (stringp (car body)) (pop body) "EDITOR"))
+  `(let ((with-editor--envvar ,(if (stringp (car body))
+                                   (pop body)
+                                 '(or with-editor--envvar "EDITOR")))
          (process-environment process-environment))
      (if (not with-editor-emacsclient-executable)
          (setenv with-editor--envvar with-editor-looping-editor)
