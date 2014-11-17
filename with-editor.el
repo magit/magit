@@ -176,11 +176,11 @@ REGEXP are selected using FUNCTION instead of the default in
 `server-window'.
 
 Note that when a package adds an entry here then it probably
-has a reason to disrespect `server-window' and it likely is not
-a good idea to change such entries.  The `git-commit-mode' and
-`git-rebase-mode' packages do no add entries themselves but
-loading `magit' does add entries for the files handled by these
-packages.  Don't change these, or Magit will get confused.")
+has a reason to disrespect `server-window' and it likely is
+not a good idea to change such entries.  The `git-commit' and
+`git-rebase' packages do no add entries themselves but loading
+`magit' does add entries for the files handled by these packages.
+Don't change these, or Magit will get confused.")
 
 ;;; Commands
 

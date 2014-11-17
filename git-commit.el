@@ -1,4 +1,4 @@
-;;; git-commit-mode.el --- edit Git commit messages  -*- lexical-binding: t; -*-
+;;; git-commit.el --- edit Git commit messages  -*- lexical-binding: t; -*-
 
 ;; Copyright (c) 2010-2012  Florian Ragwitz
 ;; Copyright (c) 2012-2013  Sebastian Wiesner
@@ -586,7 +586,7 @@ With a numeric prefix ARG, go forward ARG comments."
                (setq pos next)))
            (buffer-string)))))))
 
-;;; git-commit-mode.el ends soon
+;;; git-commit.el ends soon
 
 (define-obsolete-face-alias 'git-commit-summary-face 'git-commit-summary "1.1.0")
 (define-obsolete-face-alias 'git-commit-overlong-summary-face 'git-commit-overlong-summary "1.1.0")
@@ -600,8 +600,8 @@ With a numeric prefix ARG, go forward ARG comments."
 (define-obsolete-face-alias 'git-commit-comment-file-face 'git-commit-comment-file "1.1.0")
 (define-obsolete-face-alias 'git-commit-comment-action-face 'git-commit-comment-action "1.1.0")
 
-(provide 'git-commit-mode)
+(provide 'git-commit)
 ;; Local Variables:
 ;; indent-tabs-mode: nil
 ;; End:
-;;; git-commit-mode.el ends here
+;;; git-commit.el ends here

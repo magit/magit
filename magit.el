@@ -54,9 +54,9 @@
 (require 'cl-lib)
 (require 'dash)
 
-(require 'git-commit-mode)
-(require 'git-rebase-mode)
 (require 'with-editor)
+(require 'git-commit)
+(require 'git-rebase)
 (require 'magit-core)
 (require 'magit-diff)
 (require 'magit-apply)

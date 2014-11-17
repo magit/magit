@@ -24,7 +24,7 @@
 
 ;;; Code:
 
-(require 'git-commit-mode)
+(require 'git-commit)
 (require 'magit-core)
 
 ;; For `magit-diff-popup'

@@ -1,4 +1,4 @@
-;;; git-rebase-mode.el --- Major mode for editing git rebase files
+;;; git-rebase.el --- Major mode for editing git rebase files
 
 ;; Copyright (C) 2010-2014  The Magit Project Developers
 
@@ -339,8 +339,8 @@ By default, this is the same except for the \"pick\" command."
 (eval-after-load 'recentf
   '(add-to-list 'recentf-exclude git-rebase-filename-regexp))
 
-(provide 'git-rebase-mode)
+(provide 'git-rebase)
 ;; Local Variables:
 ;; indent-tabs-mode: nil
 ;; End:
-;;; git-rebase-mode.el ends here
+;;; git-rebase.el ends here
