@@ -384,27 +384,33 @@ which may or may not insert the text into the PROCESS' buffer."
           (with-editor-process-filter proc str t))
      filter)))
 
+(defun with-editor-output-filter (string)
+  (save-match-data
+    (if (string-match "^WITH-EDITOR: \\([0-9]+\\) OPEN \\(.+\\)$" string)
+        (let ((pid  (match-string 1 string))
+              (file (match-string 2 string)))
+          (with-current-buffer
+              (find-file-noselect
+               (if (file-name-absolute-p file)
+                   (if (tramp-tramp-file-p default-directory)
+                       (with-parsed-tramp-file-name default-directory nil
+                         (tramp-make-tramp-file-name method user host file hop))
+                     file)
+                 (expand-file-name file)))
+            (with-editor-mode 1)
+            (setq with-editor--pid pid)
+            (run-hooks 'with-editor-filter-visit-hook)
+            (funcall (or (with-editor-server-window) 'switch-to-buffer)
+                     (current-buffer))
+            (kill-local-variable 'server-window))
+          nil)
+      string)))
+
 (defun with-editor-process-filter
     (process string &optional no-default-filter)
   "Listen for edit requests by child processes."
-  (when (string-match "^WITH-EDITOR: \\([0-9]+\\) OPEN \\(.+\\)$" string)
-    (let ((pid  (match-string 1 string))
-          (file (match-string 2 string))
-          (dir  (process-get process 'default-dir)))
-      (with-current-buffer
-          (find-file-noselect
-           (if (file-name-absolute-p file)
-               (if (tramp-tramp-file-p dir)
-                   (with-parsed-tramp-file-name dir nil
-                     (tramp-make-tramp-file-name method user host file hop))
-                 file)
-             (expand-file-name dir file)))
-        (with-editor-mode 1)
-        (setq with-editor--pid pid)
-        (run-hooks 'with-editor-filter-visit-hook)
-        (funcall (or (with-editor-server-window) 'switch-to-buffer)
-                 (current-buffer))
-        (kill-local-variable 'server-window))))
+  (let ((default-directory (process-get process 'default-dir)))
+    (with-editor-output-filter string))
   (unless no-default-filter
     (internal-default-process-filter process string)))
 
