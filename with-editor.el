@@ -299,7 +299,8 @@ ENVVAR is provided then bind that environment variable instead.
                                    (pop body)
                                  '(or with-editor--envvar "EDITOR")))
          (process-environment process-environment))
-     (if (not with-editor-emacsclient-executable)
+     (if (or (not with-editor-emacsclient-executable)
+             (file-remote-p default-directory))
          (setenv with-editor--envvar with-editor-looping-editor)
        ;; Make sure server-use-tcp's value is valid.
        (unless (featurep 'make-network-process '(:family local))
