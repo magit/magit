@@ -395,9 +395,10 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
                         #'magit-log-mode
                         #'magit-log-refresh-buffer
                         'oneline
-                        (or magit-buffer-refname "HEAD")
+                        (list (or magit-buffer-refname
+                                  (magit-get-current-branch) "HEAD"))
                         (magit-log-arguments)
-                        file)
+                        (list (file-relative-name file (magit-toplevel))))
     (user-error "Buffer does not visit a file"))
   (magit-log-goto-same-commit))
 
