@@ -653,12 +653,13 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
             (magit-diff-unrefine-hunk section)))))
     (message "magit-diff-refine-hunk: %s" magit-diff-refine-hunk)))
 
-(defun magit-diff-visit-file (file &optional other-window)
+(defun magit-diff-visit-file (file &optional other-window force-worktree)
   (interactive (list (magit-file-at-point) current-prefix-arg))
   (if (file-accessible-directory-p file)
       (magit-diff-visit-directory file other-window)
     (let ((current (magit-current-section)) rev diff hunk line col)
-      (when (derived-mode-p 'magit-revision-mode)
+      (when (and (derived-mode-p 'magit-revision-mode)
+                 (not force-worktree))
         (setq rev (car (last magit-refresh-args 2)))
         (when (equal (magit-rev-parse rev)
                      (magit-rev-parse "HEAD"))
@@ -686,6 +687,10 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
             (move-to-column col)))))
     (when (magit-anything-unmerged-p file)
       (smerge-start-session))))
+
+(defun magit-diff-visit-file-worktree (file &optional other-window)
+  (interactive (list (magit-file-at-point) current-prefix-arg))
+  (magit-diff-visit-file file other-window t))
 
 (defun magit-diff-hunk-line (section)
   (let* ((value  (magit-section-value section))
@@ -817,6 +822,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
 
 (defvar magit-file-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map [C-return] 'magit-diff-visit-file-worktree)
     (define-key map "\r" 'magit-diff-visit-file)
     (define-key map "a"  'magit-apply)
     (define-key map "k"  'magit-discard)
@@ -828,6 +834,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
 
 (defvar magit-hunk-section-map
   (let ((map (make-sparse-keymap)))
+    (define-key map [C-return] 'magit-diff-visit-file-worktree)
     (define-key map "\r" 'magit-diff-visit-file)
     (define-key map "a"  'magit-apply)
     (define-key map "C"  'magit-commit-add-log)

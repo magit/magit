@@ -156,7 +156,7 @@ the user has to confirm each save."
     (define-key map "r" 'magit-rebase-popup)
     (define-key map "t" 'magit-tag-popup)
     (define-key map "T" 'magit-notes-popup)
-    (define-key map [C-return] 'magit-dired-jump)
+    (define-key map [M-return] 'magit-dired-jump)
     (define-key map "\s"       'magit-diff-show-or-scroll-up)
     (define-key map "\d"       'magit-diff-show-or-scroll-down)
     (define-key map "s" 'magit-stage-file)
