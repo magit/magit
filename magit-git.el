@@ -759,21 +759,23 @@ Return a list of two integers: (A>B B>A)."
                          (or (magit-branch-at-point)
                              default (magit-get-current-branch))))
 
-(defun magit-read-branch-or-commit (prompt &optional default)
+(defun magit-read-branch-or-commit (prompt &optional secondary-default)
   (or (magit-completing-read prompt (magit-list-refnames)
                              nil nil nil 'magit-revision-history
                              (or (magit-branch-or-commit-at-point)
-                                 default (magit-get-current-branch)))
+                                 secondary-default
+                                 (magit-get-current-branch)))
       (user-error "Nothing selected")))
 
-(defun magit-read-range-or-commit (prompt &optional default)
+(defun magit-read-range-or-commit (prompt &optional secondary-default)
   (or (magit-completing-read prompt (magit-list-refnames)
                              nil nil nil 'magit-revision-history
                              (--if-let (magit-region-values 'commit 'branch)
                                  (concat (car (last it)) ".." (car it))
                                (deactivate-mark)
                                (or (magit-branch-or-commit-at-point)
-                                   default (magit-get-current-branch))))
+                                   secondary-default
+                                   (magit-get-current-branch))))
       (user-error "Nothing selected")))
 
 (defun magit-read-remote-branch (prompt &optional remote default require-match)
@@ -786,29 +788,31 @@ Return a list of two integers: (A>B B>A)."
     (cons (match-string 1 branch)
           (match-string 2 branch))))
 
-(defun magit-read-local-branch (prompt &optional default)
+(defun magit-read-local-branch (prompt &optional secondary-default)
   (magit-completing-read prompt (magit-list-local-branch-names)
                          nil t nil 'magit-revision-history
                          (or (magit-branch-at-point)
-                             default (magit-get-current-branch))))
+                             secondary-default
+                             (magit-get-current-branch))))
 
-(defun magit-read-other-branch (prompt &optional exclude default)
+(defun magit-read-other-branch (prompt &optional exclude secondary-default)
   (let* ((current (magit-get-current-branch))
          (atpoint (magit-branch-at-point))
          (exclude (or exclude current))
          (default (or (and (not (equal atpoint exclude)) atpoint)
                       (and (not (equal current exclude)) current)
-                      default (magit-get-previous-branch))))
+                      secondary-default (magit-get-previous-branch))))
     (magit-completing-read prompt (delete exclude (magit-list-branch-names))
                            nil t nil 'magit-revision-history default)))
 
-(defun magit-read-other-branch-or-commit (prompt &optional exclude default)
+(defun magit-read-other-branch-or-commit
+    (prompt &optional exclude secondary-default)
   (let* ((current (magit-get-current-branch))
          (atpoint (magit-branch-or-commit-at-point))
          (exclude (or exclude current))
          (default (or (and (not (equal atpoint exclude)) atpoint)
                       (and (not (equal current exclude)) current)
-                      default (magit-get-previous-branch))))
+                      secondary-default (magit-get-previous-branch))))
     (or (magit-completing-read prompt (delete exclude (magit-list-refnames))
                                nil nil nil 'magit-revision-history default)
         (user-error "Nothing selected"))))
