@@ -214,15 +214,12 @@ only arguments available from `magit-blame-popup' should be used."
       (setq-local magit-blame-show-headings show-headings)
       (message "Blaming...")
       (let ((magit-process-popup-time -1)
-            (inhibit-magit-refresh t)
-            (range (/ (window-height) 2))
-            (line (line-number-at-pos (point))))
+            (inhibit-magit-refresh t))
         (magit-run-git-async
          "blame" "--incremental" args
          "-L" (format "%s,%s"
-                      (max  1  (line-number-at-pos (- line range)))
-                      (1- (min (line-number-at-pos (+ line range))
-                               (line-number-at-pos (point-max)))))
+                      (line-number-at-pos (window-start))
+                      (line-number-at-pos (1- (window-end))))
          revision "--" file))
       (setq magit-blame-process magit-this-process)
       (set-process-filter magit-this-process 'magit-blame-process-filter)
