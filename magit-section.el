@@ -204,7 +204,7 @@ If there is no previous sibling section, then move to the parent."
   (when (eq (magit-section-type section) 'hunk)
     (magit-section-set-window-start section)))
 
-(defmacro magit-define-section-jumper (sym title)
+(defmacro magit-define-section-jumper (sym title &optional value)
   "Define an interactive function to go to section SYM.
 TITLE is the displayed title of the section."
   (let ((fun (intern (format "magit-jump-to-%s" sym))))
@@ -214,7 +214,7 @@ Jump to section '%s'.
 With a prefix argument also expand it." title)
          (interactive "P")
          (--if-let (magit-get-section
-                    (cons '(,sym) (magit-section-ident magit-root-section)))
+                    (cons '(,sym . ,value) (magit-section-ident magit-root-section)))
              (progn (goto-char (magit-section-start it))
                     (when expand
                       (with-local-quit (magit-section-show it))
