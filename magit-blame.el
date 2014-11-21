@@ -231,7 +231,8 @@ only arguments available from `magit-blame-popup' should be used."
             (with-current-buffer (process-get process 'command-buf)
               (when magit-blame-mode
                 (let ((magit-process-popup-time -1)
-                      (inhibit-magit-refresh t))
+                      (inhibit-magit-refresh t)
+                      (default-directory ,default-directory))
                   (magit-run-git-async "blame" "--incremental" ,@args
                                        ,revision "--" ,file))
                 (setq magit-blame-process magit-this-process)
