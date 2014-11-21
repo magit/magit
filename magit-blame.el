@@ -228,17 +228,17 @@ only arguments available from `magit-blame-popup' should be used."
        `(lambda (process event)
           (when (memq (process-status process) '(exit signal))
             (magit-process-sentinel process event)
-            (when magit-blame-mode
-              (let ((magit-process-popup-time -1)
-                    (inhibit-magit-refresh t)
-                    (default-directory ,default-directory))
-                (magit-run-git-async "blame" "--incremental" ,@args
-                                     ,revision "--" ,file))
-              (setq magit-blame-process magit-this-process)
-              (set-process-filter
-               magit-this-process 'magit-blame-process-filter)
-              (set-process-sentinel
-               magit-this-process 'magit-blame-process-sentinel))))))))
+            (with-current-buffer (process-get process 'command-buf)
+              (when magit-blame-mode
+                (let ((magit-process-popup-time -1)
+                      (inhibit-magit-refresh t))
+                  (magit-run-git-async "blame" "--incremental" ,@args
+                                       ,revision "--" ,file))
+                (setq magit-blame-process magit-this-process)
+                (set-process-filter
+                 magit-this-process 'magit-blame-process-filter)
+                (set-process-sentinel
+                 magit-this-process 'magit-blame-process-sentinel)))))))))
 
 (defun magit-blame-process-sentinel (process event)
   (let ((status (process-status process)))
@@ -246,7 +246,8 @@ only arguments available from `magit-blame-popup' should be used."
       (magit-process-sentinel process event)
       (if (eq status 'exit)
           (message "Blaming...done")
-        (magit-blame-mode -1)
+        (with-current-buffer (process-get process 'command-buf)
+          (magit-blame-mode -1))
         (message "Blaming...failed")))))
 
 (defun magit-blame-process-filter (process string)
