@@ -858,12 +858,16 @@ changes.
 (defun magit-branch-and-checkout (branch start-point &optional args)
   "Create and checkout BRANCH at branch or revision START-POINT.
 \n(git checkout [ARGS] -b BRANCH START-POINT)."
-  (interactive (magit-branch-read-args "Create and checkout branch"))
-  (magit-run-git "checkout" args "-b" branch start-point))
+  (interactive (magit-branch-read-args "Create and checkout branch"
+                                       (magit-stash-at-point)))
+  (if (string-match-p "^\\(stash\\|backup\\)@{[0-9]+}$" start-point)
+      (magit-run-git "stash" "branch" branch start-point)
+    (magit-run-git "checkout" args "-b" branch start-point)))
 
-(defun magit-branch-read-args (prompt)
+(defun magit-branch-read-args (prompt &optional secondary-default)
   (let* ((args (magit-branch-arguments))
-         (start (magit-read-branch-or-commit (concat prompt " starting at")))
+         (start (magit-read-branch-or-commit (concat prompt " starting at")
+                                             secondary-default))
          (branch
           (magit-read-string
            "Branch name"
