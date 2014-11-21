@@ -127,6 +127,12 @@ similar hooks for other Magit modes."
   :group 'magit-status
   :type 'hook)
 
+(defcustom magit-status-refresh-hook nil
+  "Hook run when the status buffer has been refreshed."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-status
+  :type 'hook)
+
 (defcustom magit-status-buffer-switch-function 'pop-to-buffer
   "Function used by `magit-status' to switch to the status buffer.
 
@@ -369,7 +375,7 @@ then offer to initialize it as a new repository."
   (magit-git-exit-code "update-index" "--refresh")
   (magit-insert-section (status)
     (run-hooks 'magit-status-sections-hook))
-  (run-hooks 'magit-refresh-status-hook)) ; TODO
+  (run-hooks 'magit-status-refresh-hook))
 
 (defun magit-insert-status-headers (&optional branch upstream)
   (unless branch
@@ -1636,6 +1642,7 @@ Use the function by the same name instead of this variable.")
 (define-obsolete-variable-alias 'magit-highlight-indentation 'magit-diff-highlight-indentation)
 (define-obsolete-variable-alias 'magit-mode-refresh-buffer-hook 'magit-refresh-buffer-hook)
 (define-obsolete-variable-alias 'magit-revert-backup 'magit-apply-backup)
+(define-obsolete-variable-alias 'magit-status-refresh-hook 'magit-refresh-status-hook)
 (define-obsolete-variable-alias 'magit-show-child-count 'magit-section-show-child-count)
 (define-obsolete-variable-alias 'magit-repo-dirs 'magit-repository-directories)
 (define-obsolete-variable-alias 'magit-repo-dirs-depth 'magit-repository-directories-depth)
