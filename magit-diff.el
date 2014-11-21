@@ -859,7 +859,8 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
 (defconst magit-diff-submodule-re
   (concat "^Submodule \\([^ ]+\\) \\(?:"
           "\\([^ ]+ (new submodule)\\)\\|"
-          "\\(contains modified content\\)\\|"
+          "\\([^ ]+ (submodule deleted)\\)\\|"
+          "\\(contains \\(?:modified\\|untracked\\) content\\)\\|"
           "\\([^:]+\\):\\)$"))
 
 (defun magit-diff-wash-diffs (args &optional diffstats)
@@ -921,7 +922,7 @@ section or a child thereof."
 (defun magit-diff-wash-diff (args diffstat)
   (cond
    ((looking-at magit-diff-submodule-re)
-    (magit-bind-match-strings (module new dirty range) nil
+    (magit-bind-match-strings (module new deleted dirty range) nil
       (magit-delete-line)
       (when (and dirty
                  (looking-at magit-diff-submodule-re)
@@ -953,7 +954,8 @@ section or a child thereof."
                                    (concat "new module " module)
                                  (concat "modified   " module))
                                'face 'magit-diff-file-heading)
-                   (and dirty " (modified content)"))
+                   (cond (dirty   " (modified content)")
+                         (deleted " (deleted submodule)")))
            nil ?\n)))))
    ((looking-at "^\\* Unmerged path \\(.*\\)")
     (let ((file (magit-decode-git-path (match-string 1))))
