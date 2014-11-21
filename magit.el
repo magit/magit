@@ -549,7 +549,7 @@ Refs are compared with a branch read form the user."
 
 (defvar magit-local-branch-format "%3c %-25n %U%m\n")
 (defvar magit-remote-branch-format "%3c %-25n %m\n")
-(defvar magit-tags-format "%3c %n\n")
+(defvar magit-tags-format "%3c %-25n %m\n")
 
 (defvar magit-branch-section-map
   (let ((map (make-sparse-keymap)))
@@ -672,7 +672,10 @@ Refs are compared with a branch read form the user."
       (magit-insert-heading "Tags:")
       (dolist (tag (nreverse tags))
         (let ((count (cadr (magit-rev-diff-count
-                            (or (car magit-refresh-args) "HEAD") tag))))
+                            (or (car magit-refresh-args) "HEAD") tag)))
+              (message (magit-git-string "tag" "-l" "-n" tag)))
+          (string-match "^[^ \t]+[ \t]+\\(.+\\)" message)
+          (setq message (match-string 1 message))
           (magit-insert-section (tag tag)
             (magit-insert
              (format-spec magit-tags-format
@@ -680,7 +683,8 @@ Refs are compared with a branch read form the user."
                             (?c . ,(if (> count 0)
                                        (propertize (number-to-string count)
                                                    'face 'magit-dimmed)
-                                     ""))))))))
+                                     ""))
+                            (?m . ,message)))))))
       (insert ?\n))))
 
 ;;;; Files
