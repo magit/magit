@@ -548,15 +548,16 @@ otherwise try to shorten it to a name (which may fail)."
       (when (and remote branch (string-match "^refs/heads/\\(.+\\)" branch))
         (cons remote (match-string 1 branch))))))
 
-(defun magit-get-current-tag (&optional with-distance)
-  "Return the closest tag reachable from \"HEAD\".
+(defun magit-get-current-tag (&optional rev with-distance)
+  "Return the closest tag reachable from REV.
 
+If optional REV is nil then default to \"HEAD\".
 If optional WITH-DISTANCE is non-nil then return (TAG COMMITS),
 if it is `dirty' return (TAG COMMIT DIRTY). COMMITS is the number
 of commits in \"HEAD\" but not in TAG and DIRTY is t if there are
 uncommitted changes, nil otherwise."
   (--when-let (magit-git-string "describe" "--long" "--tags"
-                                (and (eq with-distance 'dirty) "--dirty"))
+                                (and (eq with-distance 'dirty) "--dirty") rev)
     (save-match-data
       (string-match
        "\\(.+\\)-\\(?:0[0-9]*\\|\\([0-9]+\\)\\)-g[0-9a-z]+\\(-dirty\\)?$" it)
@@ -566,21 +567,21 @@ uncommitted changes, nil otherwise."
             ,@(and (match-string 3 it) (list t)))
         (match-string 1 it)))))
 
-(defun magit-get-next-tag (&optional with-distance)
-  "Return the closest tag from which \"HEAD\" is reachable.
+(defun magit-get-next-tag (&optional rev with-distance)
+  "Return the closest tag from which REV is reachable.
 
+If optional REV is nil then default to \"HEAD\".
 If no such tag can be found or if the distance is 0 (in which
 case it is the current tag, not the next) return nil instead.
-
 If optional WITH-DISTANCE is non-nil then return (TAG COMMITS)
-where COMMITS is the number of commits in TAG but not in \"HEAD\"."
-  (--when-let (magit-git-string "describe" "--contains" "HEAD")
+where COMMITS is the number of commits in TAG but not in REV."
+  (--when-let (magit-git-string "describe" "--contains" rev)
     (save-match-data
       (when (string-match "^[^^~]+" it)
         (setq it (match-string 0 it))
-        (unless (equal it (magit-get-current-tag))
+        (unless (equal it (magit-get-current-tag rev))
           (if with-distance
-              (list it (car (magit-rev-diff-count it "HEAD")))
+              (list it (car (magit-rev-diff-count it rev)))
             it))))))
 
 (defun magit-list-refs (&rest args)

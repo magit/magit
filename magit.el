@@ -414,8 +414,8 @@ then offer to initialize it as a new repository."
     (insert "In the beginning there was darkness\n\n")))
 
 (defun magit-insert-tags-header (&optional pad)
-  (let* ((this-tag (magit-get-current-tag t))
-         (next-tag (magit-get-next-tag t))
+  (let* ((this-tag (magit-get-current-tag nil t))
+         (next-tag (magit-get-next-tag nil t))
          (this-cnt (cadr this-tag))
          (next-cnt (cadr next-tag))
          (this-tag (car this-tag))
