@@ -1087,7 +1087,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
           (insert ?\n))
         (while (looking-at "^\\([a-z]+\\):")
           (when (string-equal (match-string 1) "Merge")
-            (magit-delete-match))
+            (magit-delete-line))
           (forward-line 1))
         (re-search-forward "^\\(\\(---\\)\\|    .\\)")
         (goto-char (line-beginning-position))
