@@ -103,6 +103,7 @@ help:
 %.elc: %.el
 	@printf "Compiling %s\n" $<
 	@$(BATCH) -eval "(progn\
+        (package-initialize)\
 	(setq with-editor-emacsclient-executable nil)\
 	(fset 'message* (symbol-function 'message))\
 	(fset 'message  (lambda (f &rest a)\
