@@ -1097,7 +1097,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
     (magit-insert-section (related-refs)
       (magit-insert
        (let ((p (length parents)) (m (length merged)) (s (length containing)))
-         (format "%s parent commit%s, %s merged branch%s, %s successor branch%s\n"
+         (format "%s parent commit%s, %s merged branch%s, %s containing branch%s\n"
                  p (if (= p 1) "" "s")
                  m (if (= m 1) "" "es")
                  s (if (= s 1) "" "es"))))
