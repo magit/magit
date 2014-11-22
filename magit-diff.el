@@ -1226,14 +1226,13 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
     t))
 
 (defun magit-diff-highlight-recursive (section &optional siblings)
-  (let ((scope (magit-diff-scope section nil t)))
-    (pcase scope
-      (`list (magit-diff-highlight-list section))
-      (`file (magit-diff-highlight-heading section siblings))
-      (`hunk (magit-diff-highlight-heading section siblings)
-             (magit-diff-paint-hunk section siblings t)))
-    (dolist (child (magit-section-children section))
-      (magit-diff-highlight-recursive child siblings))))
+  (pcase (magit-diff-scope section nil t)
+    (`list (magit-diff-highlight-list section))
+    (`file (magit-diff-highlight-heading section siblings))
+    (`hunk (magit-diff-highlight-heading section siblings)
+           (magit-diff-paint-hunk section siblings t)))
+  (dolist (child (magit-section-children section))
+    (magit-diff-highlight-recursive child siblings)))
 
 (defun magit-diff-highlight-list (section)
   (let ((beg (magit-section-start   section))
