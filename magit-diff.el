@@ -1115,7 +1115,8 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
         (merged     (magit-list-merged-branches rev))
         (containing (magit-list-contained-branches rev))
         (follows    (magit-get-current-tag rev t))
-        (precedes   (magit-get-next-tag rev t)))
+        (precedes   (magit-get-next-tag rev t))
+        branch)
     (magit-insert-section (related-refs)
       (magit-insert
        (let ((p (length parents)) (m (length merged)) (s (length containing)))
@@ -1134,17 +1135,27 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
               (insert " " msg "\n")))))
       (when merged
         (insert " Merged     |")
-        (dolist (branch merged)
+        (while (and (< (+ (- (point) (line-beginning-position))
+                          (length (car merged)) 9)
+                       (window-width))
+                    (setq branch (pop merged)))
           (insert ?\s)
           (magit-insert-section (branch branch)
             (magit-insert branch 'magit-branch-local)))
+        (when merged
+          (insert (format " (%s more)" (length merged))))
         (insert ?\n))
       (when containing
         (insert " Containing |")
-        (dolist (branch containing)
+        (while (and (< (+ (- (point) (line-beginning-position))
+                          (length (car containing)) 9)
+                       (window-width))
+                    (setq branch (pop containing)))
           (insert ?\s)
           (magit-insert-section (branch branch)
             (magit-insert branch 'magit-branch-local)))
+        (when containing
+          (insert (format " (%s more)" (length containing))))
         (insert ?\n))
       (when follows
         (let ((tag (car  follows))
