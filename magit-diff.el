@@ -1113,7 +1113,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
 (defun magit-revision-insert-related-refs (rev)
   (let ((parents    (magit-commit-parents rev))
         (merged     (magit-list-merged-branches rev))
-        (containing (magit-list-contained-branches rev))
+        (containing (magit-list-containing-branches rev))
         (follows    (magit-get-current-tag rev t))
         (precedes   (magit-get-next-tag rev t))
         branch)
