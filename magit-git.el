@@ -779,11 +779,18 @@ Return a list of two integers: (A>B B>A)."
                                    (magit-get-current-branch))))
       (user-error "Nothing selected")))
 
-(defun magit-read-remote-branch (prompt &optional remote default require-match)
+(defun magit-read-remote-branch
+    (prompt &optional remote default local-branch require-match)
   (when (consp default)
     (setq default (concat (car default) "/" (cdr default))))
   (let ((branch (magit-completing-read
-                 prompt (magit-list-remote-branch-names remote t)
+                 prompt
+                 (nconc (and local-branch
+                             (if remote
+                                 (concat remote "/" local-branch)
+                               (--map (concat it "/" local-branch)
+                                      (magit-list-remotes))))
+                        (magit-list-remote-branch-names remote t))
                  nil require-match nil 'magit-revision-history default)))
     (string-match "^\\([^/]+\\)/\\(.+\\)" branch)
     (cons (match-string 1 branch)

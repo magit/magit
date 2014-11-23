@@ -133,7 +133,7 @@ then read the remote."
 (defun magit-pull-read-args (&optional use-upstream)
   (let ((remote (magit-get-remote-branch)))
     (unless (and use-upstream remote)
-      (setq remote (magit-read-remote-branch "Pull" nil remote t)))
+      (setq remote (magit-read-remote-branch "Pull" nil remote nil t)))
     (list (car remote) (cdr remote) (magit-pull-arguments))))
 
 ;;; Push
@@ -191,7 +191,7 @@ Read the local and remote branch."
                       (magit-get-remote-branch local))))
     (unless (and use-upstream remote)
       (setq remote (magit-read-remote-branch (format "Push %s to" local)
-                                             nil remote 'confirm)))
+                                             nil remote local 'confirm)))
     (list local (car remote) (cdr remote) (magit-push-arguments))))
 
 ;;;###autoload
