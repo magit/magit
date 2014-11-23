@@ -518,9 +518,9 @@ for a commit."
   (interactive
    (let* ((mcommit (magit-section-when mcommit))
           (atpoint (or (and magit-blame-mode (magit-blame-chunk-get :hash))
-                       mcommit (magit-branch-or-commit-at-point)
-                       (magit-section-when tag
-                         (concat (magit-section-value it) "^{commit}")))))
+                       mcommit
+                       (magit-branch-or-commit-at-point)
+                       (magit-tag-at-point))))
      (list (or (and (not current-prefix-arg) atpoint)
                (magit-read-branch-or-commit "Show commit" atpoint))
            nil (and mcommit (magit-section-parent-value
@@ -1051,14 +1051,18 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
       args commit "--")))
 
 (defun magit-diff-wash-revision (args)
+  (magit-diff-wash-tag)
   (let (children)
     (looking-at "^commit \\([a-z0-9]+\\)\\(?: \\(.+\\)\\)?$")
     (magit-bind-match-strings (rev refs) nil
       (magit-delete-line)
       (magit-insert-section (headers)
         (magit-insert-heading
-          (and refs (concat (magit-format-ref-labels refs) " "))
+          (propertize "Commit " 'face 'magit-section-heading)
           (propertize rev 'face 'magit-hash))
+        (when refs
+          (magit-insert (format "References: %s\n"
+                                (magit-format-ref-labels refs))))
         (while (looking-at "^\\([a-z]+\\):")
           (when (string-equal (match-string 1) "Merge")
             (magit-delete-line))
@@ -1087,6 +1091,24 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
         (magit-revision-insert-related-refs rev)
         (setq children (magit-diff-wash-diffstat))))
     (magit-diff-wash-diffs args children)))
+
+(defun magit-diff-wash-tag ()
+  (when (looking-at "^tag \\(.+\\)$")
+    (let ((tag (match-string 1)))
+      (magit-delete-line)
+      (magit-insert-section (tag tag)
+        (magit-insert-heading
+          (propertize "Tag " 'face 'magit-section-heading)
+          (propertize  tag   'face 'magit-tag))
+        (while (looking-at "^\\([a-z]+\\):")
+          (forward-line))
+        (forward-line)
+        (magit-insert-section (message)
+          (forward-line)
+          (magit-insert-heading)
+          (while (not (looking-at "\ncommit [a-z0-9]\\{40\\}"))
+            (forward-line)))
+        (forward-line)))))
 
 (defun magit-revision-insert-related-refs (rev)
   (let ((parents    (magit-commit-parents rev))
