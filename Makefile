@@ -103,7 +103,7 @@ help:
 %.elc: %.el
 	@printf "Compiling %s\n" $<
 	@$(BATCH) -eval "(progn\
-        (package-initialize)\
+	(package-initialize)\
 	(setq with-editor-emacsclient-executable nil)\
 	(fset 'message* (symbol-function 'message))\
 	(fset 'message  (lambda (f &rest a)\
@@ -220,7 +220,7 @@ test:
 .PHONY: test-interactive
 test-interactive:
 	@$(EMACS) $(EFLAGS) -Q -L "." --eval "\
-        (progn (load-file \"magit-tests.el\") (ert t))"
+	(progn (load-file \"magit-tests.el\") (ert t))"
 
 .PHONY: clean
 clean:
