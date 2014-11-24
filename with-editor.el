@@ -28,13 +28,52 @@
 
 ;;; Commentary:
 
-;; Use the Emacsclient as $EDITOR of child processes, making sure
+;; Use the Emacsclient as `$EDITOR' of child processes, making sure
 ;; they know how to call home.  For remote processes a substitute is
 ;; provided, which communicates with Emacs on stdout instead of using
 ;; a socket as the Emacsclient does.
 
-;; Additionally `with-editor-mode' provides some utilities that make
-;; it nicer to specialize edit sessions.
+;; The commands `with-editor-async-shell-command' and
+;; `with-editor-shell-command' are intended as drop in replacements
+;; for `async-shell-command' and `shell-command'.  They automatically
+;; export `$EDITOR' making sure the executed command uses the current
+;; Emacs instance as "the editor".  With a prefix argument these
+;; commands prompt for an alternative environment variable such as
+;; `$GIT_EDITOR'.  To always use these variants add this to you init
+;; file:
+;;
+;;   (define-key (current-global-map)
+;;     [remap async-shell-command] 'with-editor-async-shell-command)
+;;   (define-key (current-global-map)
+;;     [remap shell-command] 'with-editor-shell-command)
+
+;; Alternatively use the global `shell-command-with-editor-mode',
+;; which always sets `$EDITOR' for all Emacs commands which ultimately
+;; use `shell-command' to asynchronously run some shell command.
+
+;; The command `with-editor-export-editor' exports `$EDITOR' or
+;; another such environment variable in `shell-mode', `term-mode' and
+;; `eshell-mode' buffers.  Use this Emacs command before executing a
+;; shell command which needs the editor set, or always arrange for the
+;; current Emacs instance to be used as editor by adding it to the
+;; appropriate mode hooks:
+;;
+;;   (add-hook 'shell-mode-hook  'with-editor-export-editor)
+;;   (add-hook 'term-mode-hook   'with-editor-export-editor)
+;;   (add-hook 'eshell-mode-hook 'with-editor-export-editor)
+
+;; Some variants of this function exist, these two forms are
+;; equivalent:
+;;
+;;   (add-hook 'shell-mode-hook
+;;             (apply-partially 'with-editor-export-editor "GIT_EDITOR"))
+;;   (add-hook 'shell-mode-hook 'with-editor-export-git-editor)
+
+;; This library can also be used by other packages which need to use
+;; the current Emacs instance as editor.  In fact this library was
+;; written for Magit and its `git-commit-mode' and `git-rebase-mode'.
+;; Consult `git-rebase.el' and the related code in `magit-sequence.el'
+;; for a simple example.
 
 ;;; Code:
 
@@ -43,6 +82,14 @@
 (require 'server)
 (require 'tramp)
 (require 'tramp-sh nil t)
+
+(eval-when-compile
+  (progn (require 'dired nil t)
+         (require 'eshell nil t)
+         (require 'term nil t)))
+(declare-function dired-get-filename 'dired)
+(declare-function term-emulate-terminal 'term)
+(defvar eshell-preoutput-filter-functions)
 
 ;;; Options
 
@@ -173,7 +220,7 @@ not a good idea to change such entries.  The `git-commit' and
 `magit' does add entries for the files handled by these packages.
 Don't change these, or Magit will get confused.")
 
-;;; Commands
+;;; Mode Commands
 
 (defvar with-editor-pre-finish-hook nil)
 (defvar with-editor-pre-cancel-hook nil)
@@ -386,7 +433,7 @@ which may or may not insert the text into the PROCESS' buffer."
 
 (defun with-editor-output-filter (string)
   (save-match-data
-    (if (string-match "^WITH-EDITOR: \\([0-9]+\\) OPEN \\(.+\\)$" string)
+    (if (string-match "^WITH-EDITOR: \\([0-9]+\\) OPEN \\(.+?\\)\r?$" string)
         (let ((pid  (match-string 1 string))
               (file (match-string 2 string)))
           (with-current-buffer
@@ -429,6 +476,151 @@ which may or may not insert the text into the PROCESS' buffer."
               (setq mark (set-marker mark (point))))
             (when move
               (goto-char mark))))))))
+
+;;; Augmentations
+
+(cl-defun with-editor-export-editor (&optional (envvar "EDITOR"))
+  "Teach subsequent commands to use current Emacs instance as editor.
+
+Set and export the environment variable ENVVAR, by default
+\"EDITOR\".  The value is automatically generated to teach
+commands use the current Emacs instance as \"the editor\".
+
+This works in `shell-mode', `term-mode' and `eshell-mode'."
+  (interactive (list (with-editor-read-envvar)))
+  (cond
+   ((derived-mode-p 'comint-mode 'term-mode)
+    (let* ((process (get-buffer-process (current-buffer)))
+           (filter  (process-filter process)))
+      (set-process-filter process 'ignore)
+      (goto-char (process-mark process))
+      (process-send-string
+       process (format "export %s=%s\n" envvar
+                       (shell-quote-argument with-editor-looping-editor)))
+      (while (accept-process-output process 0.1))
+      (set-process-filter process filter)
+      (if (derived-mode-p 'term-mode)
+          (with-editor-set-process-filter process 'with-editor-emulate-terminal)
+        (add-hook 'comint-output-filter-functions 'with-editor-output-filter
+                  nil t))))
+   ((derived-mode-p 'eshell-mode)
+    (add-to-list 'eshell-preoutput-filter-functions
+                 'with-editor-output-filter)
+    (setenv envvar with-editor-looping-editor))
+   (t
+    (error "Cannot export environment variables in this buffer")))
+  (message "Successfully exported %s" envvar))
+
+(defun with-editor-export-git-editor ()
+  "Like `with-editor-export-editor' but always set `$GIT_EDITOR'."
+  (interactive)
+  (with-editor-export-editor "GIT_EDITOR"))
+
+(defun with-editor-export-hg-editor ()
+  "Like `with-editor-export-editor' but always set `$HG_EDITOR'."
+  (interactive)
+  (with-editor-export-editor "HG_EDITOR"))
+
+(defun with-editor-emulate-terminal (process string)
+  "Like `term-emulate-terminal' but also handle edit requests."
+  (when (with-editor-output-filter string)
+    (term-emulate-terminal process string)))
+
+(defvar with-editor-envvars '("EDITOR" "GIT_EDITOR" "HG_EDITOR"))
+
+(cl-defun with-editor-read-envvar
+    (&optional (prompt  "Set environment variable")
+               (default "EDITOR"))
+  (let ((reply (completing-read (if default
+                                    (format "%s (%s): " prompt default)
+                                  (concat prompt ": "))
+                                with-editor-envvars nil nil nil nil default)))
+    (if (string= reply "") (user-error "Nothing selected") reply)))
+
+(define-minor-mode shell-command-with-editor-mode
+  "Teach `shell-command' to use current Emacs instance as editor.
+
+Teach `shell-command', and all commands that ultimately call that
+command, to use the current Emacs instance as editor by executing
+\"EDITOR=CLIENT COMMAND&\" instead of just \"COMMAND&\".
+
+CLIENT is automatically generated; EDITOR=CLIENT instructs
+COMMAND to use to the current Emacs instance as \"the editor\",
+assuming no other variable overrides the effect of \"$EDITOR\".
+CLIENT may be the path to an appropriate emacsclient executable
+with arguments, or a script which also works over Tramp.
+
+Alternatively you can use the `with-editor-async-shell-command',
+which also allows the use of another variable instead of
+\"EDITOR\"."
+  :global t)
+
+(defun with-editor-async-shell-command
+    (command &optional output-buffer error-buffer envvar)
+  "Like `async-shell-command' but with `$EDITOR' set.
+
+Execute string \"ENVVAR=CLIENT COMMAND\" in an inferior shell;
+display output, if any.  With a prefix argument prompt for an
+environment variable, otherwise the default \"EDITOR\" variable
+is used.  With a negative prefix argument additionally insert
+the COMMAND's output at point.
+
+CLIENT is automatically generated; ENVVAR=CLIENT instructs
+COMMAND to use to the current Emacs instance as \"the editor\",
+assuming it respects ENVVAR as an \"EDITOR\"-like variable.
+CLIENT maybe the path to an appropriate emacsclient executable
+with arguments, or a script which also works over Tramp.
+
+Also see `async-shell-command' and `shell-command'."
+  (interactive (with-editor-shell-command-read-args "Async shell command: " t))
+  (let ((with-editor--envvar envvar))
+    (with-editor
+      (async-shell-command command output-buffer error-buffer))))
+
+(defun with-editor-shell-command
+    (command &optional output-buffer error-buffer envvar)
+  "Like `shell-command' or `with-editor-async-shell-command'.
+If COMMAND ends with \"&\" behave like the latter,
+else like the former."
+  (interactive (with-editor-shell-command-read-args "Shell command: "))
+  (if (string-match "&[ \t]*\\'" command)
+      (with-editor-async-shell-command
+       command output-buffer error-buffer envvar)
+    (shell-command command output-buffer error-buffer)))
+
+(defun with-editor-shell-command-read-args (prompt &optional async)
+  (let ((command (read-shell-command
+                  prompt nil nil
+                  (--when-let (or (buffer-file-name)
+                                  (and (eq major-mode 'dired-mode)
+                                       (dired-get-filename nil t)))
+                    (file-relative-name it)))))
+    (list command
+          (if (or async (setq async (string-match-p "&[ \t]*\\'" command)))
+              (< (prefix-numeric-value current-prefix-arg) 0)
+            current-prefix-arg)
+          shell-command-default-error-buffer
+          (and async current-prefix-arg (with-editor-read-envvar)))))
+
+(defadvice shell-command (around with-editor activate)
+  (cond ((or (not (or with-editor--envvar shell-command-with-editor-mode))
+             (not (string-match-p "&$" (ad-get-arg 0))))
+         ad-do-it)
+        ((and with-editor-emacsclient-executable
+              (not (file-remote-p default-directory)))
+         (with-editor ad-do-it))
+        (t
+         (ad-set-arg
+          0 (format "%s=%s %s"
+                    (or with-editor--envvar "EDITOR")
+                    (shell-quote-argument with-editor-looping-editor)
+                    (ad-get-arg 0)))
+         (let ((process ad-do-it))
+           (set-process-filter
+            process (lambda (proc str)
+                      (comint-output-filter proc str)
+                      (with-editor-process-filter proc str t)))
+           process))))
 
 ;;; with-editor.el ends soon
 
