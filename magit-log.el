@@ -341,7 +341,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
              (minibuffer-completion-table #'crm--collection-fn)
              (minibuffer-completion-confirm t)
              (crm-completion-table (magit-list-branch-names))
-             (crm-separator "\\(\\.\\.\\.?\\| \\)")
+             (crm-separator "\\(\\.\\.\\.?\\|[, ]\\)")
              (default (or (magit-branch-or-commit-at-point)
                           (unless use-current
                             (magit-get-previous-branch))))
@@ -351,7 +351,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
         (when (string-equal input "")
           (or (setq input default)
               (user-error "Nothing selected")))
-        (split-string input " " t))))
+        (split-string input "[, ]" t))))
 
 (defun magit-log-read-files (_ignored initial-contents)
   (mapconcat 'identity
