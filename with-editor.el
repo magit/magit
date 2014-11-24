@@ -28,13 +28,34 @@
 
 ;;; Commentary:
 
-;; Use the Emacsclient as $EDITOR of child processes, making sure
+;; Use the Emacsclient as `$EDITOR' of child processes, making sure
 ;; they know how to call home.  For remote processes a substitute is
 ;; provided, which communicates with Emacs on stdout instead of using
 ;; a socket as the Emacsclient does.
 
-;; Additionally `with-editor-mode' provides some utilities that make
-;; it nicer to specialize edit sessions.
+;; The command `with-editor-export-editor' exports `$EDITOR' or
+;; another such environment variable in `shell-mode', `term-mode' and
+;; `eshell-mode' buffers.  Use this Emacs command before executing a
+;; shell command which needs the editor set, or always arrange for the
+;; current Emacs instance to be used as editor by adding it to the
+;; appropriate mode hooks:
+;;
+;;   (add-hook 'shell-mode-hook  'with-editor-export-editor)
+;;   (add-hook 'term-mode-hook   'with-editor-export-editor)
+;;   (add-hook 'eshell-mode-hook 'with-editor-export-editor)
+
+;; Some variants of this function exist, these two forms are
+;; equivalent:
+;;
+;;   (add-hook 'shell-mode-hook
+;;             (apply-partially 'with-editor-export-editor "GIT_EDITOR"))
+;;   (add-hook 'shell-mode-hook 'with-editor-export-git-editor)
+
+;; This library can also be used by other packages which need to use
+;; the current Emacs instance as editor.  In fact this library was
+;; written for Magit and its `git-commit-mode' and `git-rebase-mode'.
+;; Consult `git-rebase.el' and the related code in `magit-sequence.el'
+;; for a simple example.
 
 ;;; Code:
 
@@ -43,6 +64,14 @@
 (require 'server)
 (require 'tramp)
 (require 'tramp-sh nil t)
+
+(eval-when-compile
+  (progn (require 'dired nil t)
+         (require 'eshell nil t)
+         (require 'term nil t)))
+(declare-function dired-get-filename 'dired)
+(declare-function term-emulate-terminal 'term)
+(defvar eshell-preoutput-filter-functions)
 
 ;;; Options
 
@@ -173,7 +202,7 @@ not a good idea to change such entries.  The `git-commit' and
 `magit' does add entries for the files handled by these packages.
 Don't change these, or Magit will get confused.")
 
-;;; Commands
+;;; Mode Commands
 
 (defvar with-editor-pre-finish-hook nil)
 (defvar with-editor-pre-cancel-hook nil)
@@ -386,7 +415,7 @@ which may or may not insert the text into the PROCESS' buffer."
 
 (defun with-editor-output-filter (string)
   (save-match-data
-    (if (string-match "^WITH-EDITOR: \\([0-9]+\\) OPEN \\(.+\\)$" string)
+    (if (string-match "^WITH-EDITOR: \\([0-9]+\\) OPEN \\(.+?\\)\r?$" string)
         (let ((pid  (match-string 1 string))
               (file (match-string 2 string)))
           (with-current-buffer
@@ -430,6 +459,65 @@ which may or may not insert the text into the PROCESS' buffer."
             (when move
               (goto-char mark))))))))
 
+;;; Augmentations
+
+(cl-defun with-editor-export-editor (&optional (envvar "EDITOR"))
+  "Teach subsequent commands to use current Emacs instance as editor.
+
+Set and export the environment variable ENVVAR, by default
+\"EDITOR\".  The value is automatically generated to teach
+commands use the current Emacs instance as \"the editor\".
+
+This works in `shell-mode', `term-mode' and `eshell-mode'."
+  (interactive (list (with-editor-read-envvar)))
+  (cond
+   ((derived-mode-p 'comint-mode 'term-mode)
+    (let* ((process (get-buffer-process (current-buffer)))
+           (filter  (process-filter process)))
+      (set-process-filter process 'ignore)
+      (goto-char (process-mark process))
+      (process-send-string
+       process (format "export %s=%s\n" envvar
+                       (shell-quote-argument with-editor-looping-editor)))
+      (while (accept-process-output process 0.1))
+      (set-process-filter process filter)
+      (if (derived-mode-p 'term-mode)
+          (with-editor-set-process-filter process 'with-editor-emulate-terminal)
+        (add-hook 'comint-output-filter-functions 'with-editor-output-filter
+                  nil t))))
+   ((derived-mode-p 'eshell-mode)
+    (add-to-list 'eshell-preoutput-filter-functions
+                 'with-editor-output-filter)
+    (setenv envvar with-editor-looping-editor))
+   (t
+    (error "Cannot export environment variables in this buffer")))
+  (message "Successfully exported %s" envvar))
+
+(defun with-editor-export-git-editor ()
+  "Like `with-editor-export-editor' but always set `$GIT_EDITOR'."
+  (interactive)
+  (with-editor-export-editor "GIT_EDITOR"))
+
+(defun with-editor-export-hg-editor ()
+  "Like `with-editor-export-editor' but always set `$HG_EDITOR'."
+  (interactive)
+  (with-editor-export-editor "HG_EDITOR"))
+
+(defun with-editor-emulate-terminal (process string)
+  "Like `term-emulate-terminal' but also handle edit requests."
+  (when (with-editor-output-filter string)
+    (term-emulate-terminal process string)))
+
+(defvar with-editor-envvars '("EDITOR" "GIT_EDITOR" "HG_EDITOR"))
+
+(cl-defun with-editor-read-envvar
+    (&optional (prompt  "Set environment variable")
+               (default "EDITOR"))
+  (let ((reply (completing-read (if default
+                                    (format "%s (%s): " prompt default)
+                                  (concat prompt ": "))
+                                with-editor-envvars nil nil nil nil default)))
+    (if (string= reply "") (user-error "Nothing selected") reply)))
 ;;; with-editor.el ends soon
 
 (defconst with-editor-font-lock-keywords
