@@ -33,6 +33,24 @@
 ;; provided, which communicates with Emacs on stdout instead of using
 ;; a socket as the Emacsclient does.
 
+;; The commands `with-editor-async-shell-command' and
+;; `with-editor-shell-command' are intended as drop in replacements
+;; for `async-shell-command' and `shell-command'.  They automatically
+;; export `$EDITOR' making sure the executed command uses the current
+;; Emacs instance as "the editor".  With a prefix argument these
+;; commands prompt for an alternative environment variable such as
+;; `$GIT_EDITOR'.  To always use these variants add this to you init
+;; file:
+;;
+;;   (define-key (current-global-map)
+;;     [remap async-shell-command] 'with-editor-async-shell-command)
+;;   (define-key (current-global-map)
+;;     [remap shell-command] 'with-editor-shell-command)
+
+;; Alternatively use the global `shell-command-with-editor-mode',
+;; which always sets `$EDITOR' for all Emacs commands which ultimately
+;; use `shell-command' to asynchronously run some shell command.
+
 ;; The command `with-editor-export-editor' exports `$EDITOR' or
 ;; another such environment variable in `shell-mode', `term-mode' and
 ;; `eshell-mode' buffers.  Use this Emacs command before executing a
@@ -518,6 +536,92 @@ This works in `shell-mode', `term-mode' and `eshell-mode'."
                                   (concat prompt ": "))
                                 with-editor-envvars nil nil nil nil default)))
     (if (string= reply "") (user-error "Nothing selected") reply)))
+
+(define-minor-mode shell-command-with-editor-mode
+  "Teach `shell-command' to use current Emacs instance as editor.
+
+Teach `shell-command', and all commands that ultimately call that
+command, to use the current Emacs instance as editor by executing
+\"EDITOR=CLIENT COMMAND&\" instead of just \"COMMAND&\".
+
+CLIENT is automatically generated; EDITOR=CLIENT instructs
+COMMAND to use to the current Emacs instance as \"the editor\",
+assuming no other variable overrides the effect of \"$EDITOR\".
+CLIENT may be the path to an appropriate emacsclient executable
+with arguments, or a script which also works over Tramp.
+
+Alternatively you can use the `with-editor-async-shell-command',
+which also allows the use of another variable instead of
+\"EDITOR\"."
+  :global t)
+
+(defun with-editor-async-shell-command
+    (command &optional output-buffer error-buffer envvar)
+  "Like `async-shell-command' but with `$EDITOR' set.
+
+Execute string \"ENVVAR=CLIENT COMMAND\" in an inferior shell;
+display output, if any.  With a prefix argument prompt for an
+environment variable, otherwise the default \"EDITOR\" variable
+is used.  With a negative prefix argument additionally insert
+the COMMAND's output at point.
+
+CLIENT is automatically generated; ENVVAR=CLIENT instructs
+COMMAND to use to the current Emacs instance as \"the editor\",
+assuming it respects ENVVAR as an \"EDITOR\"-like variable.
+CLIENT maybe the path to an appropriate emacsclient executable
+with arguments, or a script which also works over Tramp.
+
+Also see `async-shell-command' and `shell-command'."
+  (interactive (with-editor-shell-command-read-args "Async shell command: " t))
+  (let ((with-editor--envvar envvar))
+    (with-editor
+      (async-shell-command command output-buffer error-buffer))))
+
+(defun with-editor-shell-command
+    (command &optional output-buffer error-buffer envvar)
+  "Like `shell-command' or `with-editor-async-shell-command'.
+If COMMAND ends with \"&\" behave like the latter,
+else like the former."
+  (interactive (with-editor-shell-command-read-args "Shell command: "))
+  (if (string-match "&[ \t]*\\'" command)
+      (with-editor-async-shell-command
+       command output-buffer error-buffer envvar)
+    (shell-command command output-buffer error-buffer)))
+
+(defun with-editor-shell-command-read-args (prompt &optional async)
+  (let ((command (read-shell-command
+                  prompt nil nil
+                  (--when-let (or (buffer-file-name)
+                                  (and (eq major-mode 'dired-mode)
+                                       (dired-get-filename nil t)))
+                    (file-relative-name it)))))
+    (list command
+          (if (or async (setq async (string-match-p "&[ \t]*\\'" command)))
+              (< (prefix-numeric-value current-prefix-arg) 0)
+            current-prefix-arg)
+          shell-command-default-error-buffer
+          (and async current-prefix-arg (with-editor-read-envvar)))))
+
+(defadvice shell-command (around with-editor activate)
+  (cond ((or (not (or with-editor--envvar shell-command-with-editor-mode))
+             (not (string-match-p "&$" (ad-get-arg 0))))
+         ad-do-it)
+        ((and with-editor-emacsclient-executable
+              (not (file-remote-p default-directory)))
+         (with-editor ad-do-it))
+        (t
+         (ad-set-arg
+          0 (format "%s=%s %s"
+                    (or with-editor--envvar "EDITOR")
+                    (shell-quote-argument with-editor-looping-editor)
+                    (ad-get-arg 0)))
+         (let ((process ad-do-it))
+           (set-process-filter
+            process (lambda (proc str)
+                      (comint-output-filter proc str)
+                      (with-editor-process-filter proc str t)))
+           process))))
+
 ;;; with-editor.el ends soon
 
 (defconst with-editor-font-lock-keywords
