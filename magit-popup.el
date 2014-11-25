@@ -194,7 +194,7 @@ that without users being aware of it could lead to tears.
   'formatter 'magit-popup-format-argument-button
   'format    " %k %d (%a)"
   'prefix    ?-
-  'maxcols   :max-switch-columns)
+  'maxcols   1)
 
 (define-button-type 'magit-popup-option-button
   'supertype 'magit-popup-button

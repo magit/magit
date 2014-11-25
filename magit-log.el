@@ -309,8 +309,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
               (?H "Reflog HEAD"             magit-reflog-head))
   :default-arguments '("--graph" "--decorate")
   :default-action 'magit-log-current
-  :max-action-columns 2
-  :max-switch-columns 1)
+  :max-action-columns 2)
 
 (defvar magit-log-use-verbose-re
   (concat "^" (regexp-opt '("--patch" "--stat")))
