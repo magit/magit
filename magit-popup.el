@@ -535,7 +535,10 @@ that without users being aware of it could lead to tears.
   (let ((winconf (current-window-configuration)))
     (delete-other-windows)
     (split-window-below)
-    (woman topic)
+    (with-no-warnings ; display-buffer-function is obsolete
+      (let ((display-buffer-alist nil)
+            (display-buffer-function nil))
+        (woman topic)))
     (if (and arg
              (Man-find-section "OPTIONS")
              (re-search-forward (format "^\t\\(-., \\)?%s[[=\n]" arg)
@@ -554,7 +557,10 @@ that without users being aware of it could lead to tears.
     (delete-other-windows)
     (split-window-below)
     (other-window 1)
-    (describe-function function)
+    (with-no-warnings ; display-buffer-function is obsolete
+      (let ((display-buffer-alist nil)
+            (display-buffer-function nil))
+        (describe-function function)))
     (fit-window-to-buffer)
     (other-window 1)
     (setq magit-popup-previous-winconf winconf)
