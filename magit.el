@@ -958,9 +958,11 @@ defaulting to the branch at point."
     (magit-run-git "branch" "--unset-upstream" branch)))
 
 ;;;###autoload
-(defun magit-request-pull (url start)
-  (interactive (list (magit-get "remote" (magit-read-remote "Remote") "url")
-                     (magit-get-tracked-branch)))
+(defun magit-request-pull (url start end)
+  (interactive
+   (list (magit-get "remote" (magit-read-remote "Remote") "url")
+         (magit-read-branch-or-commit "Start" (magit-get-tracked-branch))
+         (magit-read-branch-or-commit "End")))
   (let ((dir default-directory))
     ;; mu4e changes default-directory
     (compose-mail)
