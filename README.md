@@ -4,8 +4,11 @@
 It's Magit!  An Emacs mode for Git
 ==================================
 
-**The Magit wiki contains a list of [frequently asked questions][faq],
-*please* do consult it.**
+**The Magit wiki contains a list of [FREQUENTLY ASKED QUESTIONS][faq],
+please do consult it.**
+
+**Magit is in [FEATURE FREEZE][roadmap], please keep that in mind
+when making feature requests.**
 
 Magit is an interface to the version control system [Git][git],
 implemented as an [Emacs][emacs] extension.
@@ -18,34 +21,6 @@ advantage of its native features.
 Magit supports GNU Emacs 23.2 or later; 24.1 or later is recommended.
 Magit supports Git 1.7.2.5 or later; 1.8.2 or later is recommended.
 The minimal versions are those available in Debian oldstable.
-
-Feature Freeze
-==============
-
-There are currently three "versions" of Magit.  The `1.2.1` bugfix
-release which is mostly the same as `1.2.0` released in 2012.  The
-`master` branch, which the packages on Melpa and Melpa-Stable are
-built from.  This hasn't seen many major changes since February of
-this year.  And the `next` branch which contains 99% of the work I
-have done during the last eight months.
-
-It's about time that `next` is merged and that a release is created.
-For that reason I am not going to implement any new features being
-proposed now, until after I have created a release.  Magit isn't in a
-complete feature freeze yet, there are certain new features that I do
-want to be part of the next release.
-
-**No *completely* new features are going to be implemented until after
-the next release.  However some "new" features are going to make it
-into the release which replace existing but broken and/or misguided
-features.**
-
-This shouldn't keep you from making feature requests, but first
-*please* check whether that feature already exists on `next` and don't
-expect it to be implemented until after the release.  For instructions
-on how to install the `next` version of Magit see
-[this](https://github.com/magit/magit/tree/next#installation) and
-[that](https://github.com/magit/magit/issues/1220).
 
 ### Table of Contents
 
@@ -327,6 +302,7 @@ To run tests the following libraries are also required:
 [manual]: http://magit.github.io/documentation.html
 [owners]: https://github.com/magit?tab=members
 [pulls]: https://github.com/magit/magit/pulls
+[roadmap]: https://github.com/magit/magit/issues/1645
 [screencast]: http://vimeo.com/2871241
 [website]: http://magit.github.io
 
