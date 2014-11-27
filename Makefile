@@ -195,9 +195,6 @@ authors: AUTHORS.md
 .PHONY: install
 install: install-lisp install-docs
 
-.PHONY: install-all
-install-all: install-lisp install-docs install-script
-
 .PHONY: install-lisp
 install-lisp: lisp
 	$(MKDIR) $(DESTDIR)$(lispdir)
