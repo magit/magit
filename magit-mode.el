@@ -249,33 +249,10 @@ Magit is documented in info node `(magit)'."
   (buffer-disable-undo)
   (setq truncate-lines t)
   (setq show-trailing-whitespace nil)
-  (make-local-variable  'text-property-default-nonsticky)
+  (make-local-variable 'text-property-default-nonsticky)
   (push (cons 'keymap t) text-property-default-nonsticky)
-  (add-hook 'post-command-hook #'magit-section-update-highlight t t)
-  (add-hook 'post-command-hook #'magit-post-command-hook t t))
-
-(defun magit-post-command-hook ()
-  (--when-let (magit-current-section)
-    (when  (= (point) (magit-section-start it))
-      ;; So we ended up at the beginning of a section, which also is
-      ;; the end of the preceding sibling section, if any.  There are
-      ;; two markers here.  If the preceding section is hidden, then
-      ;; we are also at the end of an invisible text range.  So far
-      ;; so good.
-      ;;
-      ;; But if we ended up here because we moved upward (but not when
-      ;; moving downward), then "point adjustment" messes up badly.
-      ;; Visually point would still be in the right spot but according
-      ;; to the function `point' we would be somewhere else; at the
-      ;; beginning of the preceding section, which isn't even the
-      ;; first position "at the other end of the invisible text".
-      ;; The existence of markers appears relevant, but not their
-      ;; insertion types.  Wtf!
-      ;;
-      ;; If we are not at the start of a section then do not disable
-      ;; "point adjustment", because when we truely end up *inside*
-      ;; an invisible range, then moving outside is a good thing.
-      (setq disable-point-adjustment t))))
+  (push (cons 'invisible t) text-property-default-nonsticky)
+  (add-hook 'post-command-hook #'magit-section-update-highlight t t))
 
 (defvar-local magit-refresh-function nil)
 (put 'magit-refresh-function 'permanent-local t)
