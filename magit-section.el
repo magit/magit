@@ -683,9 +683,7 @@ at point."
                                      'magit-section-highlight))))
 
 (defun magit-section-make-overlay (start end face)
-  (let ((ov (make-overlay start end)))
-    (overlay-put ov 'face face)
-    (overlay-put ov 'evaporate t)
+  (let ((ov (magit-put-face-property start end face)))
     (push ov magit-section-highlight-overlays)
     ov))
 
