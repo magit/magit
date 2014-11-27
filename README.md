@@ -37,25 +37,19 @@ names used to end with `-mode.el`).
 
 Then clone the Magit repository and compile the libraries:
 
-```sh
-$ git clone git://github.com/magit/magit.git ~/.emacs.d/site-lisp/magit
-$ cd ~/.emacs.d/site-lisp/magit
-$ make lisp
-```
+    $ git clone git://github.com/magit/magit.git ~/.emacs.d/site-lisp/magit
+    $ cd ~/.emacs.d/site-lisp/magit
+    $ make lisp
 
 Finally add this to you init file:
 
-```lisp
-(add-to-list 'load-path "~/emacs.d/site-lisp/magit")
-(require 'magit)
-```
+    (add-to-list 'load-path "~/emacs.d/site-lisp/magit")
+    (require 'magit)
 
 To update Magit use:
 
-```sh
-$ git pull
-$ make clean lisp
-```
+    $ git pull
+    $ make clean lisp
 
 To view all available targets use `make help`.
 
