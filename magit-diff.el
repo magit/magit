@@ -1050,6 +1050,8 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
       (and magit-revision-show-notes "--notes")
       args commit "--")))
 
+(defvar magit-revision-insert-related-refs t)
+
 (defun magit-diff-wash-revision (args)
   (magit-diff-wash-tag)
   (let (children)
@@ -1088,7 +1090,8 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
                     ((re-search-forward "^.[^ ]" bound t)
                      (goto-char (1- (match-beginning 0))))))))
         (forward-line)
-        (magit-revision-insert-related-refs rev)
+        (when magit-revision-insert-related-refs
+          (magit-revision-insert-related-refs rev))
         (setq children (magit-diff-wash-diffstat))))
     (magit-diff-wash-diffs args children)))
 
