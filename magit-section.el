@@ -646,7 +646,8 @@ at point."
 (defun magit-put-face-property (start end face)
   (let ((ov (make-overlay start end nil t)))
     (overlay-put ov 'face face)
-    (overlay-put ov 'evaporate t)))
+    (overlay-put ov 'evaporate t)
+    ov))
 
 ;;; Update
 
