@@ -299,7 +299,7 @@ children."
   (mapc 'magit-section-hide (magit-section-children section)))
 
 (defun magit-section-show-headings (section)
-  "Recursively how headings of children of the current section.
+  "Recursively show headings of children of the current section.
 Only show the headings, previously shown text-only bodies are
 hidden."
   (interactive (list (magit-current-section)))
