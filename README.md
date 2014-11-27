@@ -57,9 +57,7 @@ $ git pull
 $ make clean lisp
 ```
 
-To view all available make targets use `make help`.  Note that the
-documentation is very much out-of-date, so the `docs` target isn't
-very useful at the moment.
+To view all available targets use `make help`.
 
 Getting Help
 ============
