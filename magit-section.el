@@ -117,7 +117,7 @@ IDENT has to be a list as returned by `magit-section-ident'."
 ;;;; Movement
 
 (defun magit-section-forward ()
-  "Move to the beginning of the next section."
+  "Move to the beginning of the next visible section."
   (interactive)
   (if (eobp)
       (error "No next section")
@@ -135,7 +135,7 @@ IDENT has to be a list as returned by `magit-section-ident'."
         (magit-section-goto 1)))))
 
 (defun magit-section-backward ()
-  "Move to the beginning of the previous section."
+  "Move to the beginning of the previous visible section."
   (interactive)
   (if (bobp)
       (error "No previous section")
