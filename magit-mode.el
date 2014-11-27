@@ -252,7 +252,13 @@ Magit is documented in info node `(magit)'."
   (make-local-variable 'text-property-default-nonsticky)
   (push (cons 'keymap t) text-property-default-nonsticky)
   (push (cons 'invisible t) text-property-default-nonsticky)
+  (add-hook 'post-command-hook #'magit-post-command-adjust-point t t)
   (add-hook 'post-command-hook #'magit-section-update-highlight t t))
+
+(defun magit-post-command-adjust-point ()
+  (when (and (get-text-property (point) 'invisible)
+             (not (get-pos-property (point) 'invisible)))
+    (goto-char (next-single-char-property-change (point) 'invisible))))
 
 (defvar-local magit-refresh-function nil)
 (put 'magit-refresh-function 'permanent-local t)
