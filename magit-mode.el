@@ -463,19 +463,29 @@ tracked in the current repository."
 
 (defun magit-refresh-buffer ()
   (when magit-refresh-function
-    (let  ((section (magit-current-section)) line char)
-      (when section
-        (setq line (count-lines (magit-section-start section) (point))
-              char (- (point) (line-beginning-position))))
+    (let* ((buffer (current-buffer))
+           (windows
+            (--mapcat (with-selected-window it
+                        (with-current-buffer buffer
+                          (-when-let (section (magit-current-section))
+                            (list
+                             (list it section
+                                   (count-lines (magit-section-start section)
+                                                (point))
+                                   (- (point) (line-beginning-position)))))))
+                      (or (get-buffer-window-list buffer nil t)
+                          (list (selected-window))))))
+      (setq magit-section-highlight-overlays nil
+            magit-section-highlighted-sections nil)
       (let ((inhibit-read-only t))
         (erase-buffer)
         (save-excursion
           (apply magit-refresh-function
                  magit-refresh-args)))
-      (setq magit-section-highlight-overlays nil
-            magit-section-highlighted-sections nil)
-      (when section
-        (magit-section-goto-successor section line char))
+      (dolist (window windows)
+        (with-selected-window (car window)
+          (with-current-buffer buffer
+            (apply #'magit-section-goto-successor (cdr window)))))
       (run-hooks 'magit-refresh-buffer-hook)
       (magit-section-update-highlight))))
 

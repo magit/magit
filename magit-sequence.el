@@ -96,7 +96,7 @@
                    ((or "rebase" "am")   'rebase-sequence)
                    ((or "cherry-pick" "revert") 'sequence)))
                (status)))
-          (magit-goto-char (magit-section-start it))
+          (goto-char (magit-section-start it))
           (magit-section-update-highlight))))))
 
 ;;;###autoload

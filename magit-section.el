@@ -691,16 +691,16 @@ at point."
   (let ((ident (magit-section-ident section)))
     (--if-let (magit-get-section ident)
         (let ((start (magit-section-start it)))
-          (magit-goto-char start)
+          (goto-char start)
           (unless (eq section magit-root-section)
             (ignore-errors
               (forward-line (1- line))
               (forward-char char))
             (unless (eq (magit-current-section) it)
               (goto-char start))))
-      (magit-goto-char (--if-let (magit-section-goto-successor-1 section)
-                           (magit-section-start it)
-                         (point-min))))))
+      (goto-char (--if-let (magit-section-goto-successor-1 section)
+                     (magit-section-start it)
+                   (point-min))))))
 
 (defun magit-section-goto-successor-1 (section)
   (or (--when-let (pcase (magit-section-type section)
@@ -724,11 +724,6 @@ at point."
             (magit-section-goto-successor-1 it)))))
 
 ;;; Utilities
-
-(defun magit-goto-char (position)
-  (dolist (window (get-buffer-window-list))
-    (with-selected-window window
-      (goto-char position))))
 
 (defun magit-section-parent-value (section)
   (setq section (magit-section-parent section))
