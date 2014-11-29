@@ -29,9 +29,7 @@ The minimal versions are those available in Debian oldstable.
 * [Contributions](#contributions)
 * [Installation](#installation)
   * [Installing from Melpa](#installing-from-melpa)
-  * [Installing from Marmalade](#installing-from-marmalade)
   * [Installing from Git](#installing-from-git)
-  * [Installing from Tarball](#installing-from-tarball)
 * [Dependencies](#dependencies)
 
 Getting Started
@@ -96,9 +94,7 @@ Magit and its dependencies.  Among other things using `package.el`
 is recommended because that automatically takes care of installing
 dependencies.
 
-Magit is available from both of the two popular Elpa repositories,
-[Marmalade][marmalade] (stable releases) and [Melpa][melpa]
-(snapshots).
+Also see [Which version should I install?][which].
 
 ### Installing from Melpa
 
@@ -129,14 +125,6 @@ You might also want to have a look at the more detailed
 other things it explains how to install only some packages from Melpa
 and others from Marmalade, and how to use `package.el` with older
 versions of Emacs.
-
-### Installing from Marmalade
-
-For the time being we recommend that you install the development
-version available from Melpa, because the latest Magit release (which
-is what you get from Marmalade) is very outdated.  If you are using
-the development version of Emacs, then you have to do so, because it
-contains an incompatible change that breaks the last Magit release.
 
 ### Installing from Git
 
@@ -204,55 +192,6 @@ $ makeinfo -o magit.info magit.texi
 $ install-info --dir=dir magit.info
 ```
 
-### Installing from Tarball
-
-This is only intended for users who have been doing this sort of thing
-for years.  Installing from a tarball isn't particularly difficult but
-because we are only providing this as an alternative method we are a
-bit light on documentation, so it helps to have done this before.
-
-Also most steps have to be repeated every time you want to update.
-
-Because the latest Magit release is very outdated, please consider
-installing the development version even if tarballs are your thing.
-
-Download and unpack [magit-1.2.1.tar.gz][download]. Then build and
-install as usual:
-
-```sh
-$ wget https://github.com/magit/magit/releases/download/1.2.1/magit-1.2.1.tar.gz
-$ tar -xf magit-1.2.1.tar.gz
-$ cd magit-1.2.1
-$ make
-$ sudo make install
-```
-
-This installs the Emacs lisp libraries, as well as the prebuilt
-documentation from the tarball.  You may alternatively build the
-documentation yourself:
-
-```sh
-$ make docs
-$ sudo make install-docs
-```
-
-By default the Emacs lisp libraries are installed in
-`/usr/local/share/emacs/site-lisp/magit/`.  Unless Emacs itself is
-also installed in `/usr/local/` you have to add that directory to the
-`load-path`.
-
-```lisp
-(add-to-list 'load-path "/usr/local/share/emacs/site-lisp/magit")
-```
-
-Then `magit` can be loaded:
-
-```lisp
-(require 'magit)
-```
-
-Add the above lines to your init file and restart Emacs.
-
 Dependencies
 ============
 
@@ -296,6 +235,7 @@ To run tests the following libraries are also required:
 [development]: http://github.com/magit/magit
 [download]: https://github.com/magit/magit/releases/download/1.2.1/magit-1.2.1.tar.gz
 [faq]: https://github.com/magit/magit/wiki/FAQ
+[faq-which]: https://github.com/magit/magit/wiki/FAQ#which-version-should-i-install
 [group]: https://groups.google.com/forum/?fromgroups#!forum/magit
 [issues]: https://github.com/magit/magit/issues
 [knownissues]: https://github.com/magit/magit/wiki/Known-issues
