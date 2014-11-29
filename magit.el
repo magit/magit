@@ -6262,15 +6262,24 @@ With a prefix argument show the log graph."
    (list (magit-read-file-from-rev (magit-get-current-branch)
                                    (magit-buffer-file-name t))
          current-prefix-arg))
+  (magit-revision-file-log "HEAD" file use-graph))
+
+;;;###autoload
+(defun magit-revision-file-log (revision file &optional use-graph)
+  "Display the log for the currently visited file or another one for a specific revision.
+With a prefix argument show the log graph."
+  (interactive
+   (let* ((rev (magit-read-rev "Revision" (or (magit-guess-branch) "HEAD")))
+          (file (magit-read-file-from-rev rev (magit-buffer-file-name t))))
+     (list rev file current-prefix-arg)))
   (magit-mode-setup magit-log-buffer-name nil
                     #'magit-log-mode
                     #'magit-refresh-log-buffer
-                    'oneline "HEAD"
+                    'oneline revision
                     `(,@(and use-graph (list "--graph"))
                       ,@magit-custom-options
                       "--follow")
                     file))
-
 ;;;###autoload
 (defun magit-reflog (ref)
   "Display the reflog of the current branch.
