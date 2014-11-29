@@ -17,7 +17,7 @@
 
 ;; Keywords: vc tools
 
-;; Magit requires at least GNU Emacs 24.1 and Git 1.7.2.5.
+;; Magit requires at least GNU Emacs 24.1 and Git 1.9.1.
 
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
