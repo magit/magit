@@ -13,10 +13,10 @@ when making feature requests.**
 Magit is an interface to the version control system [Git][git],
 implemented as an [Emacs][emacs] extension.
 
-Unlike the [Version Control][vc] package which is part of Emacs and
-strives to provide a unified interface to various version control
-systems, Magit only supports Git and can therefore better take
-advantage of its native features.
+Unlike the [VC][vc] package which is part of Emacs and strives to
+provide a unified interface to various version control systems, Magit
+only supports Git and can therefore better take advantage of its
+native features.
 
 Magit supports GNU Emacs 23.2 or later; 24.1 or later is recommended.
 Magit supports Git 1.7.2.5 or later; 1.8.2 or later is recommended.
