@@ -158,7 +158,8 @@ string \"false\", otherwise return nil."
 
 (defun magit-git-insert (&rest args)
   "Execute Git with ARGS, inserting its output at point."
-  (apply #'process-file magit-git-executable nil (list t nil) nil
+  (apply #'process-file magit-git-executable nil
+         (list t (magit-git-dir "magit-errors")) nil
          (magit-process-git-arguments args)))
 
 (defun magit-git-lines (&rest args)
