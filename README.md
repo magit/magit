@@ -90,7 +90,7 @@ features.
 Thanks to all of you, may (the history of) the source be with you!
 
 [magit]:        https://github.com/magit/magit
-[contributing]: https://github.com/magit/magit/CONTRIBUTING.md
+[contributing]: https://github.com/magit/magit/blob/next/CONTRIBUTING.md
 [contributors]: https://github.com/magit/magit/contributors
 [faq]:          https://github.com/magit/magit/wiki/FAQ
 [issues]:       https://github.com/magit/magit/issues
