@@ -25,7 +25,8 @@ Installation
 
 You are looking at the `README.md` of the development branch.  For
 instructions on how to install the stable version of Magit see the
-respective [`README.md`][magit] instead.
+respective [`README.md`][magit] instead.  Also see
+[Which version should I install?][faq-which]
 
 First **uninstall** all instances of `magit`, `git-commit-mode` and
 `git-rebase-mode` that you have currently installed.  Doing this,
@@ -93,6 +94,7 @@ Thanks to all of you, may (the history of) the source be with you!
 [contributing]: https://github.com/magit/magit/blob/next/CONTRIBUTING.md
 [contributors]: https://github.com/magit/magit/contributors
 [faq]:          https://github.com/magit/magit/wiki/FAQ
+[faq-which]:    https://github.com/magit/magit/wiki/FAQ#which-version-should-i-install
 [issues]:       https://github.com/magit/magit/issues
 [pulls]:        https://github.com/magit/magit/pulls
 [roadmap]:      https://github.com/magit/magit/issues/1645
