@@ -4,6 +4,12 @@
 It's Magit!  An Emacs mode for Git
 ==================================
 
+**The Magit wiki contains a list of [FREQUENTLY ASKED QUESTIONS][faq],
+please do consult it.**
+
+**Magit is in [FEATURE FREEZE][roadmap], keep that in mind when making
+feature requests.**
+
 Magit is an interface to the version control system [Git][git],
 implemented as an [Emacs][emacs] extension.
 
@@ -89,6 +95,7 @@ Thanks to all of you, may (the history of) the source be with you!
 [faq]:          https://github.com/magit/magit/wiki/FAQ
 [issues]:       https://github.com/magit/magit/issues
 [pulls]:        https://github.com/magit/magit/pulls
+[roadmap]:      https://github.com/magit/magit/issues/1645
 
 [group]:    https://groups.google.com/forum/?fromgroups#!forum/magit
 [gratipay]: https://gratipay.com/magit
