@@ -94,7 +94,7 @@ Magit and its dependencies.  Among other things using `package.el`
 is recommended because that automatically takes care of installing
 dependencies.
 
-Also see [Which version should I install?][which].
+Also see [Which version should I install?][faq-which]
 
 ### Installing from Melpa
 
