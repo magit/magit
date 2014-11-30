@@ -1,0 +1,55 @@
+Magit v0.8.0 Release Notes
+==========================
+
+Released 7 May 2010 by Phil Jackson.
+
+Changes since v0.7.0
+--------------------
+
+ * By setting magit-repo-dirs, you can get better repo completion.
+   Magit will offer all subdirectories (upto magit-repo-dirs level
+   deep) of the listed directories when magit-status asks for a
+   directory to work on.  You can get the old behavior with a double
+   prefix to magit-status.
+
+ * Hitting 'c' or 'C' while resolving a conflict in the middle of a
+   rebase will offer to continue the rebase instead of trying to commit
+   your changes.
+
+ * Pulling will ask which branch to pull from when you don't have a
+   default branch configured.
+
+ * Switching to a remote branch will offer to create a local tracking
+   branch for it.
+
+ * Hitting C-c C-s while editing a commit message will toggle the
+   "--signoff" option.
+
+ * Hitting 's' on the "Untracked files" section title will stage all
+   untracked files.
+
+ * Hitting 'C-u S' will stage all untracked and tracked files.
+
+ * Performance improvements in the status buffer.
+
+ * Bug fixes to make Magit work better with newer Gits.
+
+Authors
+-------
+
+    66  Phil Jackson
+    53  Marius Vollmer
+    27  Rémi Vanicat
+     7  Alexey Voinov
+     5  Hannu Koivisto
+     5  Roger Crew
+     4  John Wiegley
+     4  Moritz Bunkus
+     3  Ben Walton
+     2  Marcin Bachry
+     2  Óscar Fuentes
+     1  David Abrahams
+     1  Leo Liu
+     1  Pavel Holejsovsky
+     1  Ramkumar Ramachandra
+     1  Steve Purcell

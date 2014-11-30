@@ -1,0 +1,11 @@
+Magit v0.5.1 Release Notes
+==========================
+
+This is the first release of Magit.  Enjoy!
+
+Released 14 August 2008 by Marius Vollmer.
+
+Authors
+-------
+
+   157  Marius Vollmer
