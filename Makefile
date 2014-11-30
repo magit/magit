@@ -207,12 +207,12 @@ install-docs: docs
 
 .PHONY: test
 test:
-	@$(BATCH) -l magit-tests.el -f ert-run-tests-batch-and-exit
+	@$(BATCH) -l t/magit-tests.el -f ert-run-tests-batch-and-exit
 
 .PHONY: test-interactive
 test-interactive:
 	@$(EMACS) $(EFLAGS) -Q -L "." --eval "\
-	(progn (load-file \"magit-tests.el\") (ert t))"
+	(progn (load-file \"t/magit-tests.el\") (ert t))"
 
 .PHONY: clean
 clean:
