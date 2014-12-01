@@ -1459,7 +1459,7 @@ With a prefix argument also register submodules in .git/config."
              (?U "Reset Index"     magit-reset-index)
              (?v "Show Commit"     magit-show-commit)
              (?V "Show File"       magit-find-file)
-             (?y "Show Refs"       magit-show-refs)
+             (?y "Show Refs"       magit-show-refs-popup)
              (?Y "Cherry"          magit-cherry)
              (?z "Stashing"        magit-stash-popup)
              (?! "Running"         magit-run-popup)
