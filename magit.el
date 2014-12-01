@@ -1463,7 +1463,7 @@ With a prefix argument also register submodules in .git/config."
              (?Y "Cherry"          magit-cherry)
              (?z "Stashing"        magit-stash-popup)
              (?! "Running"         magit-run-popup)
-             (?$ "Show Process"    magit-display-process)))
+             (?$ "Show Process"    magit-process)))
 
 ;;;; Git Popup
 
