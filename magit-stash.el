@@ -230,13 +230,13 @@ When the region is active offer to drop all contained stashes."
                                  (unless index (magit-rev-parse "HEAD^{tree}"))
                                  "HEAD"))
         (error "Cannot save the current index state"))
-    (when untracked
-      (setq untracked (magit-untracked-files (eq untracked 'all)))
-      (setq untracked (magit-with-temp-index nil
-                        (or (and (magit-update-files untracked)
-                                 (magit-commit-tree
-                                  (concat "untracked files on " summary)))
-                            (error "Cannot save the untracked files")))))
+    (and untracked
+         (setq untracked (magit-untracked-files (eq untracked 'all)))
+         (setq untracked (magit-with-temp-index nil
+                           (or (and (magit-update-files untracked)
+                                    (magit-commit-tree
+                                     (concat "untracked files on " summary)))
+                               (error "Cannot save the untracked files")))))
     (magit-with-temp-index (if worktree "HEAD" index)
       (when worktree
         (or (magit-update-files (magit-git-lines "diff" "--name-only" "HEAD"))
