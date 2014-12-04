@@ -59,7 +59,7 @@ ifeq "$(DASH_DIR)" ""
   DASH_DIR = ../cl-lib
 endif
 
-LOAD_PATH ?= -L $(CL_LIB_DIR) -L $(DASH_DIR)
+LOAD_PATH ?= -L . -L $(CL_LIB_DIR) -L $(DASH_DIR)
 
 EMACS ?= emacs
 BATCH  = $(EMACS) -batch -Q $(LOAD_PATH)
