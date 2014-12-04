@@ -42,13 +42,18 @@ the only external dependency; the libraries `git-commit.el` and
 libraries were previously part of the Git-Modes repository and their
 names used to end with `-mode.el`).
 
-Then clone the Magit repository and compile the libraries:
+Then clone the Magit repository and check out the magit branch:
 
     $ git clone git://github.com/magit/magit.git ~/.emacs.d/site-lisp/magit
     $ cd ~/.emacs.d/site-lisp/magit
+    $ git fetch
+    $ git checkout next
+
+Then compile the libraries:
+
     $ make lisp
 
-Finally add this to you init file:
+Finally add this to your init file:
 
     (add-to-list 'load-path "~/emacs.d/site-lisp/magit")
     (require 'magit)
