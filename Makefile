@@ -43,15 +43,31 @@ INSTALL_INFO ?= $(shell \
   && printf ginstall-info\
   || printf install-info)
 
-EFLAGS ?= -L ../git-modes -L ../cl-lib -L ../dash
-EMACS  ?= emacs
-BATCH   = $(EMACS) $(EFLAGS) -batch -Q -L .
-BATCHE  = $(BATCH) -eval
+ELPA_DIR ?= ~/.emacs.d/elpa
+
+CL_LIB_DIR ?= $(shell \
+  find $(ELPA_DIR) -maxdepth 1 -regex '.*/cl-lib-[.0-9]*' 2> /dev/null | \
+  sort | tail -n 1)
+ifeq "$(CL_LIB_DIR)" ""
+  CL_LIB_DIR = ../cl-lib
+endif
+
+DASH_DIR ?= $(shell \
+  find $(ELPA_DIR) -maxdepth 1 -regex '.*/dash-[.0-9]*' 2> /dev/null | \
+  sort | tail -n 1)
+ifeq "$(DASH_DIR)" ""
+  DASH_DIR = ../cl-lib
+endif
+
+LOAD_PATH ?= -L $(CL_LIB_DIR) -L $(DASH_DIR)
+
+EMACS ?= emacs
+BATCH  = $(EMACS) -batch -Q $(LOAD_PATH)
 
 VERSION=$(shell \
   test -e .git\
   && git describe --tags --dirty 2> /dev/null\
-  || $(BATCHE) "(progn\
+  || $(BATCH) -eval "(progn\
   (fset 'message (lambda (&rest _)))\
   (load-file \"magit-version.el\")\
   (princ magit-version))")
@@ -101,7 +117,6 @@ help:
 %.elc: %.el
 	@printf "Compiling %s\n" $<
 	@$(BATCH) -eval "(progn\
-	(package-initialize)\
 	(setq with-editor-emacsclient-executable nil)\
 	(fset 'message* (symbol-function 'message))\
 	(fset 'message  (lambda (f &rest a)\
@@ -128,7 +143,7 @@ loaddefs: $(LOADDEFS_FILE)
 
 $(LOADDEFS_FILE): $(ELS)
 	@printf "Generating magit-autoloads.el\n"
-	@$(BATCHE) "(progn\
+	@$(BATCH) -eval "(progn\
 	(fset 'message (lambda (&rest _)))\
 	(setq vc-handled-backends nil)\
 	(defvar generated-autoload-file nil)\
@@ -211,7 +226,7 @@ test:
 
 .PHONY: test-interactive
 test-interactive:
-	@$(EMACS) $(EFLAGS) -Q -L "." --eval "\
+	@$(EMACS) -Q $(LOAD_PATH) --eval "\
 	(progn (load-file \"t/magit-tests.el\") (ert t))"
 
 .PHONY: clean
