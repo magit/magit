@@ -1,0 +1,70 @@
+Magit v0.7.0 Release Notes
+==========================
+
+Released 8 March 2009 by Marius Vollmer.
+
+Changes since v0.6.1
+--------------------
+
+ * Tagging, on 't' and 'T'.
+
+ * Stashing, on 'z' and 'Z'.
+
+ * Wazzup, on 'w'.  Wazzup gives you an overview over how other
+   branches relate to the current one.
+
+ * There is more control over pushing.  'P' now takes a prefix argument
+   and pushing a branch without a default remote will ask for one.
+
+ * Logs have changed a bit: 'l' shows the traditional brief log, and
+   'L' shows a more verbose log.  Use the prefix arg to specify the
+   range of the log.
+
+ * M-x magit-status doesn't prompt anymore for a directory when invoked
+   from within a Git repository.  Use C-u to force a prompt.
+
+ * When you have nothing staged, 'c' will now explicitly ask whether to
+   commit everything instead of just going ahead and do it.  This can
+   be customized.
+
+ * The digit keys '1', '2', '3', and '4' now show sections on the
+   respective level and hide everything below.  With Meta, they work on
+   all sections; without, they work only on sections that are a parent
+   or child of the current section.
+
+ * Typing '+' and '-' will change the size of hunks, via the "-U"
+   option to git diff.  '0' resets hunks to their default size.
+
+ * Typing 'k' on the "Untracked files" section title will offer to
+   delete all untracked files.
+
+ * Magit understands a bit of git-svn: the status buffer shows unpushed
+   and unpulled commits, 'N r' runs git svn rebase, and 'N c' runs git
+   svn dcommit.
+
+ * Magit now also works when the direcory is accessed via tramp.
+
+ * M-x magit-status can also create new repositories when given a
+   directory that is not a Git repository.
+
+ * Magit works better with oldish Gits that don't understand "--graph",
+   for example.
+
+ * The name of the Git program and common options for it can be
+   customized.
+
+Authors
+-------
+
+   107  Marius Vollmer
+    18  John Wiegley
+     9  Alexey Voinov
+     5  Marcin Bachry
+     3  Rémi Vanicat
+     2  Alex Ott
+     2  René Stadler
+     2  Steve Purcell
+     1  Daniel Farina
+     1  David Wallin
+     1  Ian Eure
+     1  Jesse Alama

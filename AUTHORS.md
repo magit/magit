@@ -94,7 +94,6 @@ Contributors
 - Kimberly Wolk <kimwolk@hotmail.com>
 - Kyle Meyer <kyle@kyleam.com>
 - Laurent Laffont <laurent.laffont@gmail.com>
-- Leandro Facchinetti <me@leafac.com>
 - Lele Gaifax <lele@metapensiero.it>
 - Leo Liu <sdl.web@gmail.com>
 - Leonardo Etcheverry <leo@kalio.net>
@@ -148,7 +147,6 @@ Contributors
 - Ron Parker <rparker@a123systems.com>
 - Roy Crihfield <rscrihf@gmail.com>
 - Rüdiger Sonderfeld <ruediger@c-plusplus.de>
-- Rüdiger Sonderfeld <ruediger@c-plusplus.net>
 - Ryan C. Thompson <rct@thompsonclan.org>
 - Samuel Bronson <naesten@gmail.com>
 - Sanjoy Das <sanjoy@playingwithpointers.com>

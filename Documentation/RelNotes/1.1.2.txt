@@ -1,0 +1,33 @@
+Magit v1.1.2 Release Notes
+==========================
+
+Released 23 September 2012 by Yann Hodique.
+
+Changes since v1.1.1
+--------------------
+
+ * Modes now have proper mode-line lighters.
+
+ * Hook variables are now defined semi-explicitly.
+
+ * Uninteresting refs are no longer shown in logs.
+
+ * The deprecated `assoc' libary is no longer used.
+
+ * Several other fixes and improvements.
+
+Authors
+-------
+
+    13  Yann Hodique
+     9  Peter J. Weisberg
+     2  Jonas Bernoulli
+     2  Ramkumar Ramachandra
+     1  Bradley Wright
+     1  Bryan Shell
+     1  Damien Cassou
+     1  Eric Davis
+     1  John Wiegley
+     1  Nic Ferier
+     1  Nick Alcock
+     1  Rémi Vanicat
