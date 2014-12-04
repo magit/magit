@@ -68,8 +68,7 @@ while two prefix arguments are equivalent to `--all'."
   "Create a stash of the index only.
 Unstaged and untracked changes are not stashed."
   (interactive (list (magit-stash-read-message)))
-  (error "This command is currently broken")
-  (magit-stash-save message t nil nil t))
+  (magit-stash-save message t nil nil t 'worktree))
 
 ;;;###autoload
 (defun magit-stash-worktree (message &optional include-untracked)
@@ -78,8 +77,7 @@ Untracked files are included according to popup arguments.
 One prefix argument is equivalent to `--include-untracked'
 while two prefix arguments are equivalent to `--all'."
   (interactive (magit-stash-read-args))
-  (error "This command is currently broken")
-  (magit-stash-save message nil t include-untracked t))
+  (magit-stash-save message nil t include-untracked t 'index))
 
 ;;;###autoload
 (defun magit-stash-keep-index (message &optional include-untracked)
@@ -198,15 +196,22 @@ When the region is active offer to drop all contained stashes."
   (if (or (and index     (magit-staged-files t))
           (and worktree  (magit-modified-files t))
           (and untracked (magit-untracked-files (eq untracked 'all))))
-      (progn
+      (let ((default-directory (magit-get-top-dir)))
         (magit-stash-store message (or ref "refs/stash")
                            (magit-stash-create message index worktree untracked))
-        (unless (and keep (not (eq keep 'index)))
-          (when untracked
-            (magit-call-git "clean" "-f" (and (eq untracked 'all) "-x")))
-          (if keep
-              (magit-call-git "checkout" "--" ".")
-            (magit-call-git "reset" "--hard" "HEAD")))
+        (if (eq keep 'worktree)
+            (with-temp-buffer
+              (magit-git-insert "diff" "--cached")
+              (magit-run-git-with-input nil
+                "apply" "--reverse" "--cached" "--ignore-space-change" "-")
+              (magit-run-git-with-input nil
+                "apply" "--reverse" "--ignore-space-change" "-"))
+          (unless (eq keep t)
+            (if (eq keep 'index)
+                (magit-call-git "checkout" "--" ".")
+              (magit-call-git "reset" "--hard" "HEAD"))
+            (when untracked
+              (magit-call-git "clean" "-f" (and (eq untracked 'all) "-x")))))
         (when refresh
           (magit-refresh)))
     (unless noerror
@@ -223,25 +228,27 @@ When the region is active offer to drop all contained stashes."
 (defun magit-stash-create (message index worktree untracked)
   (unless (magit-rev-parse "--verify" "HEAD")
     (error "You do not have the initial commit yet"))
-  (let ((default-directory (magit-get-top-dir))
-        (summary (magit-stash-summary)))
-    (or (setq index
-              (magit-commit-tree (concat "index on " summary)
-                                 (unless index (magit-rev-parse "HEAD^{tree}"))
-                                 "HEAD"))
+  (let ((magit-git-standard-options (nconc (list "-c" "commit.gpgsign=false")
+                                           magit-git-standard-options))
+        (default-directory (magit-get-top-dir))
+        (summary (magit-stash-summary))
+        (head "HEAD"))
+    (when (and worktree (not index))
+      (setq head (magit-commit-tree "pre-stash index" nil "HEAD")))
+    (or (setq index (magit-commit-tree (concat "index on " summary) nil head))
         (error "Cannot save the current index state"))
-    (when untracked
-      (setq untracked (magit-untracked-files (eq untracked 'all)))
-      (setq untracked (magit-with-temp-index nil
-                        (or (and (magit-update-files untracked)
-                                 (magit-commit-tree
-                                  (concat "untracked files on " summary)))
-                            (error "Cannot save the untracked files")))))
-    (magit-with-temp-index (if worktree "HEAD" index)
+    (and untracked
+         (setq untracked (magit-untracked-files (eq untracked 'all)))
+         (setq untracked (magit-with-temp-index nil
+                           (or (and (magit-update-files untracked)
+                                    (magit-commit-tree
+                                     (concat "untracked files on " summary)))
+                               (error "Cannot save the untracked files")))))
+    (magit-with-temp-index (if worktree head index)
       (when worktree
-        (or (magit-update-files (magit-git-lines "diff" "--name-only" "HEAD"))
+        (or (magit-update-files (magit-git-lines "diff" "--name-only" head))
             (error "Cannot save the current worktree state")))
-      (or (magit-commit-tree message nil "HEAD" index untracked)
+      (or (magit-commit-tree message nil head index untracked)
           (error "Cannot save the current worktree state")))))
 
 (defun magit-stash-summary ()

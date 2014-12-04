@@ -42,22 +42,13 @@
   :group 'magit
   :type 'boolean)
 
-(defcustom magit-apply-three-way t
-  "Whether command `magit-apply' should do a three-way merge."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-commands
-  :type 'boolean)
-
 ;;; Commands
 ;;;; Apply
 
 (defun magit-apply (&rest args)
   "Apply the change at point.
-Interactively, with a prefix argument or when the option
-`magit-apply-three-way' is non-nil, fall back to a 3-way
-merge."
-  (interactive (and (or current-prefix-arg magit-apply-three-way)
-                    (list "--3way")))
+With a prefix argument and if necessary, attempt a 3-way merge."
+  (interactive (and current-prefix-arg (list "--3way")))
   (--when-let (magit-current-section)
     (magit-maybe-backup)
     (pcase (list (magit-diff-type) (magit-diff-scope))
