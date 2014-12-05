@@ -491,16 +491,26 @@ tracked in the current repository."
               (with-current-buffer buffer
                 (magit-revert-buffer)))))))))
 
+(defvar magit-after-revert-hook nil
+  "Normal hook for `magit-revert-buffer' to run after reverting.")
+
+(defvar magit-not-reverted-hook nil
+  "Normal hook for `magit-revert-buffer' to run instead of reverting.
+Run if the visited file has not changed on disk and the buffer
+therefor does not have to be reverted.  While Magit does not need
+to do anything in that case, some third-party extensions do.")
+
 (defun magit-revert-buffer ()
-  (when (and (file-readable-p buffer-file-name)
-             (not (verify-visited-file-modtime (current-buffer))))
-    (let ((buffer-read-only buffer-read-only)
-          (blaming magit-blame-mode))
-      (when blaming (magit-blame-mode -1))
-      (revert-buffer 'ignore-auto 'dont-ask 'preserve-modes)
-      (run-hooks 'magit-revert-buffer-hook)
-      (when blaming (magit-blame-mode 1)))
-    (vc-find-file-hook)))
+  (if (and (file-readable-p buffer-file-name)
+           (not (verify-visited-file-modtime (current-buffer))))
+      (let ((buffer-read-only buffer-read-only)
+            (blaming magit-blame-mode))
+        (when blaming (magit-blame-mode -1))
+        (revert-buffer 'ignore-auto 'dont-ask 'preserve-modes)
+        (when blaming (magit-blame-mode 1))
+        (run-hooks 'magit-after-revert-hook))
+    (run-hooks 'magit-not-reverted-hook))
+  (vc-find-file-hook))
 
 (add-hook 'git-commit-setup-hook 'magit-revert-buffers)
 
