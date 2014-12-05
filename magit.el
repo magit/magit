@@ -1635,11 +1635,11 @@ Use the function by the same name instead of this variable.")
                (load-file static))
               ((featurep 'package)
                (setq magit-version
-                     (or (and (fboundp 'package-desc-vers) ; < 24.3.50
+                     (or (and (fboundp 'package-desc-vers) ; < 24.4
                               (package-version-join
                                (package-desc-vers
                                 (cdr (assq 'magit package-alist)))))
-                         (and (fboundp 'package-desc-version) ; >= 24.3.50
+                         (and (fboundp 'package-desc-version) ; >= 24.4
                               (package-version-join
                                (package-desc-version
                                 (cadr (assq 'magit package-alist)))))))))))
@@ -1654,15 +1654,16 @@ Use the function by the same name instead of this variable.")
 
 (cl-eval-when (load eval) (magit-version t))
 
-(define-obsolete-variable-alias 'magit-highlight-whitespace 'magit-diff-paint-whitespace)
-(define-obsolete-variable-alias 'magit-highlight-trailing-whitespace 'magit-diff-highlight-trailing)
 (define-obsolete-variable-alias 'magit-highlight-indentation 'magit-diff-highlight-indentation)
+(define-obsolete-variable-alias 'magit-highlight-trailing-whitespace 'magit-diff-highlight-trailing)
+(define-obsolete-variable-alias 'magit-highlight-whitespace 'magit-diff-paint-whitespace)
 (define-obsolete-variable-alias 'magit-mode-refresh-buffer-hook 'magit-refresh-buffer-hook)
-(define-obsolete-variable-alias 'magit-revert-backup 'magit-apply-backup)
-(define-obsolete-variable-alias 'magit-status-refresh-hook 'magit-refresh-status-hook)
-(define-obsolete-variable-alias 'magit-show-child-count 'magit-section-show-child-count)
 (define-obsolete-variable-alias 'magit-repo-dirs 'magit-repository-directories)
 (define-obsolete-variable-alias 'magit-repo-dirs-depth 'magit-repository-directories-depth)
+(define-obsolete-variable-alias 'magit-revert-backup 'magit-apply-backup)
+(define-obsolete-variable-alias 'magit-revert-buffer-hook 'magit-after-revert-hook)
+(define-obsolete-variable-alias 'magit-show-child-count 'magit-section-show-child-count)
+(define-obsolete-variable-alias 'magit-status-refresh-hook 'magit-refresh-status-hook)
 
 (provide 'magit)
 
