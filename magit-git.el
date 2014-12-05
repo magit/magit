@@ -158,9 +158,13 @@ string \"false\", otherwise return nil."
 
 (defun magit-git-insert (&rest args)
   "Execute Git with ARGS, inserting its output at point."
-  (apply #'process-file magit-git-executable nil
-         (list t (magit-git-dir "magit-errors")) nil
-         (magit-process-git-arguments args)))
+  (let ((errfile (magit-git-dir "magit-errors")))
+    (when (file-exists-p errfile)
+      ;; 24.3 `process-file' raises error if stderr file exists.
+      (delete-file errfile))
+   (apply #'process-file magit-git-executable nil
+          (list t errfile) nil
+          (magit-process-git-arguments args))))
 
 (defun magit-git-lines (&rest args)
   "Execute Git with ARGS, returning its output as a list of lines.
