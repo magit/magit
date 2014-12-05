@@ -56,7 +56,7 @@ DASH_DIR ?= $(shell \
   find $(ELPA_DIR) -maxdepth 1 -regex '.*/dash-[.0-9]*' 2> /dev/null | \
   sort | tail -n 1)
 ifeq "$(DASH_DIR)" ""
-  DASH_DIR = ../cl-lib
+  DASH_DIR = ../dash
 endif
 
 LOAD_PATH ?= -L . -L $(CL_LIB_DIR) -L $(DASH_DIR)
