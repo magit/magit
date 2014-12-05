@@ -474,26 +474,33 @@ tracked in the current repository."
 
 (defun magit-revert-buffers (&optional force)
   (when (or force magit-auto-revert-mode)
-    (-when-let (topdir (magit-get-top-dir))
-      (let ((gitdir  (magit-git-dir))
-            (tracked (magit-revision-files "HEAD")))
-        (dolist (buf (buffer-list))
-          (with-current-buffer buf
-            (let ((file buffer-file-truename))
-              (when (and file
-                         (setq file (expand-file-name file))
-                         (string-prefix-p topdir file)
-                         (not (string-prefix-p gitdir file))
-                         (member (file-relative-name file topdir) tracked)
-                         (file-readable-p file)
-                         (not (verify-visited-file-modtime buf)))
-                (let ((buffer-read-only buffer-read-only)
-                      (blaming magit-blame-mode))
-                  (when blaming (magit-blame-mode -1))
-                  (revert-buffer 'ignore-auto 'dont-ask 'preserve-modes)
-                  (run-hooks 'magit-revert-buffer-hook)
-                  (when blaming (magit-blame-mode 1)))
-                (vc-find-file-hook)))))))))
+    (-when-let (topdir (magit-toplevel-safe))
+      (let ((tracked (magit-revision-files "HEAD"))
+            (buffers (buffer-list)))
+        (if (> (length tracked)
+               (length buffers))
+            (dolist (buffer buffers)
+              (with-current-buffer buffer
+                (let ((file buffer-file-truename))
+                  (and file
+                       (file-in-directory-p file topdir)
+                       (member (file-relative-name file topdir) tracked)
+                       (magit-revert-buffer)))))
+          (dolist (file (--map (expand-file-name it topdir) tracked))
+            (-when-let (buffer (find-buffer-visiting file))
+              (with-current-buffer buffer
+                (magit-revert-buffer)))))))))
+
+(defun magit-revert-buffer ()
+  (when (and (file-readable-p buffer-file-name)
+             (not (verify-visited-file-modtime (current-buffer))))
+    (let ((buffer-read-only buffer-read-only)
+          (blaming magit-blame-mode))
+      (when blaming (magit-blame-mode -1))
+      (revert-buffer 'ignore-auto 'dont-ask 'preserve-modes)
+      (run-hooks 'magit-revert-buffer-hook)
+      (when blaming (magit-blame-mode 1)))
+    (vc-find-file-hook)))
 
 (add-hook 'git-commit-setup-hook 'magit-revert-buffers)
 
