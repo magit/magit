@@ -631,8 +631,8 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
         (`module     (setf (magit-section-type section) 'mcommit))
         (`bisect-log (setq hash (magit-rev-parse "--short" hash))))
       (when cherry
-        (unless (derived-mode-p 'magit-cherry-mode)
-          (insert "  "))
+        (when (derived-mode-p 'magit-refs-mode)
+          (insert "   "))
         (magit-insert cherry (if (string= cherry "-")
                                  'magit-cherry-equivalent
                                'magit-cherry-unmatched) ?\s))

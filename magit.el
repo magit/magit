@@ -568,9 +568,9 @@ Refs are compared with a branch read form the user."
           "\\] \\)?"
           "\\(?3:.*\\)"))                   ; message
 
-(defvar magit-local-branch-format "%3c %-25n %U%m\n")
-(defvar magit-remote-branch-format "%3c %-25n %m\n")
-(defvar magit-tags-format "%3c %-25n %m\n")
+(defvar magit-local-branch-format "%4c %-25n %U%m\n")
+(defvar magit-remote-branch-format "%4c %-25n %m\n")
+(defvar magit-tags-format "%4c %-25n %m\n")
 
 (defvar magit-branch-section-map
   (let ((map (make-sparse-keymap)))
