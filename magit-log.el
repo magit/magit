@@ -960,6 +960,27 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
       (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
         "cherry" "-v" (magit-abbrev-arg) (magit-get-current-branch) tracked))))
 
+(defun magit-insert-unpulled-module-commits ()
+  (-when-let (modules (magit-get-submodules))
+    (magit-insert-section section (modules)
+      (magit-insert-heading "Unpulled modules:")
+      (dolist (module modules)
+        (setq  module (cdr module))
+        (magit-insert-section sec (file module t)
+          (magit-insert-heading
+            (concat (propertize module 'face 'magit-diff-file-heading) ":"))
+          (let ((default-directory
+                  (file-name-as-directory
+                   (expand-file-name module (magit-get-top-dir)))))
+            (-when-let (tracked (magit-get-tracked-branch nil t))
+              (magit-git-wash (apply-partially 'magit-log-wash-log 'module)
+                "log" "--oneline" (concat "HEAD.." tracked))
+              (when (> (point) (magit-section-content sec))
+                (delete-char -1))))))
+      (if (> (point) (magit-section-content section))
+          (insert ?\n)
+        (magit-cancel-section)))))
+
 (defvar magit-unpushed-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map "\r" 'magit-diff-unpushed)
@@ -980,6 +1001,27 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
       (magit-insert-heading "Unpushed commits:")
       (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
         "cherry" "-v" (magit-abbrev-arg) tracked))))
+
+(defun magit-insert-unpushed-module-commits ()
+  (-when-let (modules (magit-get-submodules))
+    (magit-insert-section section (modules)
+      (magit-insert-heading "Unpushed modules:")
+      (dolist (module modules)
+        (setq  module (cdr module))
+        (magit-insert-section sec (file module t)
+          (magit-insert-heading
+            (concat (propertize module 'face 'magit-diff-file-heading) ":"))
+          (let ((default-directory
+                  (file-name-as-directory
+                   (expand-file-name module (magit-get-top-dir)))))
+            (-when-let (tracked (magit-get-tracked-branch nil t))
+              (magit-git-wash (apply-partially 'magit-log-wash-log 'module)
+                "log" "--oneline" (concat tracked "..HEAD"))
+              (when (> (point) (magit-section-content sec))
+                (delete-char -1))))))
+      (if (> (point) (magit-section-content section))
+          (insert ?\n)
+        (magit-cancel-section)))))
 
 ;;; Buffer Margins
 
