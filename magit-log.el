@@ -962,7 +962,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 
 (defun magit-insert-unpulled-module-commits ()
   (-when-let (modules (magit-get-submodules))
-    (magit-insert-section section (modules)
+    (magit-insert-section section (unpulled-modules)
       (magit-insert-heading "Unpulled modules:")
       (dolist (module modules)
         (setq  module (cdr module))
@@ -1004,7 +1004,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 
 (defun magit-insert-unpushed-module-commits ()
   (-when-let (modules (magit-get-submodules))
-    (magit-insert-section section (modules)
+    (magit-insert-section section (unpushed-modules)
       (magit-insert-heading "Unpushed modules:")
       (dolist (module modules)
         (setq  module (cdr module))
