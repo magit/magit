@@ -31,6 +31,7 @@ Contributors
 - Abdo Roig-Maranges <abdo.roig@gmail.com>
 - acple <silentsphere110@gmail.com>
 - Adam Spiers <emacs@adamspiers.org>
+- Adeodato Simó <dato@net.com.org.es>
 - Ævar Arnfjörð Bjarmason <avarab@gmail.com>
 - Alan Falloon <alan.falloon@gmail.com>
 - Alexey Voinov <alexey.v.voinov@gmail.com>
@@ -40,7 +41,9 @@ Contributors
 - Andreas Rottmann <a.rottmann@gmx.at>
 - Andrei Chițu <andrei.chitu1@gmail.com>
 - Andrew Kirkpatrick <andrew.kirkpatrick@adelaide.edu.au>
+- Andrew Schwartzmeyer <andrew@schwartzmeyer.com>
 - Andrey Smirnov <andrew.smirnov@gmail.com>
+- Andy Sawyer <git@pureabstract.org>
 - Bastian Beischer <beischer@physik.rwth-aachen.de>
 - Ben Walton <bwalton@artsci.utoronto.ca>
 - Bradley Wright <brad@intranation.com>
@@ -74,12 +77,15 @@ Contributors
 - Evgkeni Sampelnikof <esabof@gmail.com>
 - Felix Geller <fgeller@gmail.com>
 - Feng Li <fengli@blackmagicdesign.com>
+- Florian Ragwitz <rafl@debian.org>
 - George Kadianakis <desnacked@gmail.com>
 - Graham Clark <grclark@gmail.com>
 - Greg A. Woods <woods@planix.com>
 - Greg Sexton <gregsexton@gmail.com>
+- Guillaume Martres <smarter@ubuntu.com>
 - Hannu Koivisto <azure@iki.fi>
 - Hans-Peter Deifel <hpdeifel@gmx.de>
+- HUANG Wei <weih@opera.com>
 - Ian Eure <ian.eure@gmail.com>
 - Jan Tatarik <jan.tatarik@xing.com>
 - Jasper St. Pierre <jstpierre@mecheye.net>
@@ -91,9 +97,11 @@ Contributors
 - Jonathan Roes <jroes@jroes.net>
 - Julien Danjou <julien@danjou.info>
 - Justin Caratzas <justin.caratzas@gmail.com>
+- Kan-Ru Chen <koster@debian.org>
 - Kimberly Wolk <kimwolk@hotmail.com>
 - Kyle Meyer <kyle@kyleam.com>
 - Laurent Laffont <laurent.laffont@gmail.com>
+- Leandro Facchinetti <me@leafac.com>
 - Lele Gaifax <lele@metapensiero.it>
 - Leo Liu <sdl.web@gmail.com>
 - Leonardo Etcheverry <leo@kalio.net>
@@ -110,6 +118,9 @@ Contributors
 - Marius Vollmer <marius.vollmer@gmail.com>
 - Mark Hepburn <Mark.Hepburn@csiro.au>
 - Matus Goljer <dota.keys@gmail.com>
+- Michael Fogleman <michaelwfogleman@gmail.com>
+- Michael Griffiths <mikey@cich.li>
+- Michal Sojka <sojkam1@fel.cvut.cz>
 - Miles Bader <miles@gnu.org>
 - Mitchel Humpherys <mitch.special@gmail.com>
 - Moritz Bunkus <moritz@bunkus.org>
@@ -127,6 +138,7 @@ Contributors
 - Paul Stadig <paul@stadig.name>
 - Pavel Holejsovsky <pavel.holejsovsky@upek.com>
 - Pekka Pessi <nospam@pessi.fi>
+- Peter Eisentraut <peter@eisentraut.org>
 - Peter J. Weisberg <pj@irregularexpressions.net>
 - Philippe Vaucher <philippe.vaucher@gmail.com>
 - Philipp Haselwarter <philipp@haselwarter.org>
@@ -146,7 +158,7 @@ Contributors
 - Romain Francoise <romain@orebokech.com>
 - Ron Parker <rparker@a123systems.com>
 - Roy Crihfield <rscrihf@gmail.com>
-- Rüdiger Sonderfeld <ruediger@c-plusplus.de>
+- Rüdiger Sonderfeld <ruediger@c-plusplus.net>
 - Ryan C. Thompson <rct@thompsonclan.org>
 - Samuel Bronson <naesten@gmail.com>
 - Sanjoy Das <sanjoy@playingwithpointers.com>
@@ -163,6 +175,7 @@ Contributors
 - Steve Purcell <steve@sanityinc.com>
 - Suhail Shergill <suhailshergill@gmail.com>
 - Takafumi Arakaki <aka.tkf@gmail.com>
+- Teemu Likonen <tlikonen@iki.fi>
 - Teruki Shigitani <teruki.shigitani@gmail.com>
 - Thierry Volpiatto <thierry.volpiatto@gmail.com>
 - Thomas Frössman <thomasf@jossystem.se>
@@ -170,6 +183,7 @@ Contributors
 - Thomas Riccardi <riccardi.thomas@gmail.com>
 - Tibor Simko <tibor.simko@cern.ch>
 - Timo Juhani Lindfors <timo.lindfors@iki.fi>
+- Tim Wraight <tim@wraight.net>
 - Ting-Yu Lin <aethanyc@gmail.com>
 - Tom Feist <shabble@metavore.org>
 - Wilfred Hughes <me@wilfred.me.uk>
