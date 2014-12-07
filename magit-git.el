@@ -643,14 +643,7 @@ where COMMITS is the number of commits in TAG but not in REV."
                    (magit-git-lines "ls-remote" "--tags" remote))))
 
 (defun magit-get-submodules ()
-  (let (modules)
-    (with-temp-buffer
-      (save-excursion (magit-git-insert "submodule" "foreach" "echo $path"))
-      (while (looking-at "^Entering '\\([^']+\\)'\n\\(.+\\)")
-        (push (cons (match-string 1)
-                    (match-string 2)) modules)
-        (forward-line 2)))
-    (reverse modules)))
+  (magit-git-lines "submodule" "--quiet" "foreach" "echo $path"))
 
 (defun magit-branch-p (string)
   (and (or (member string (magit-list-branches))
