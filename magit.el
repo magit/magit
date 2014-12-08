@@ -1380,7 +1380,8 @@ defaulting to the tag at point.
               (?b "Setup"  magit-submodule-setup)
               (?i "Init"   magit-submodule-init)
               (?u "Update" magit-submodule-update)
-              (?s "Sync"   magit-submodule-sync)))
+              (?s "Sync"   magit-submodule-sync)
+              (?f "Fetch"  magit-submodule-fetch)))
 
 ;;;###autoload
 (defun magit-submodule-add (url &optional path)
@@ -1434,6 +1435,15 @@ With a prefix argument also register submodules in .git/config."
   (interactive)
   (let ((default-directory (magit-get-top-dir)))
     (magit-run-git-async "submodule" "sync")))
+
+;;;###autoload
+(defun magit-submodule-fetch (&optional all)
+  "Fetch submodule.
+With a prefix argument fetch all remotes."
+  (interactive "P")
+  (let ((default-directory (magit-get-top-dir)))
+    (magit-run-git-async "submodule" "foreach"
+                         "git" "fetch" (and all "--all"))))
 
 ;;;; Dispatch Popup
 
