@@ -1443,7 +1443,7 @@ With a prefix argument fetch all remotes."
   (interactive "P")
   (let ((default-directory (magit-get-top-dir)))
     (magit-run-git-async "submodule" "foreach"
-                         "git" "fetch" (and all "--all"))))
+                         (format "git fetch %s || true" (if all "--all" "")))))
 
 ;;;; Dispatch Popup
 
