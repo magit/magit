@@ -1,0 +1,60 @@
+\input texinfo   @c -*-texinfo-*-
+@c %**start of header
+@setfilename magit.info
+@settitle Magit
+@dircategory Emacs
+@direntry
+* magit: (magit.info). It's Magit! An Emacs mode for Git
+@end direntry
+@documentencoding UTF-8
+@c %**end of header
+
+@copying
+This is the `Magit manual' for Magit version 2.1.0.
+
+Copyright @copyright{} 2014, Jonas Bernoulli
+
+@quotation
+@end quotation
+@end copying
+
+@titlepage
+@title Magit
+@insertcopying
+@end titlepage
+@contents
+
+@ifnottex
+@node Top
+@top Magit
+@insertcopying
+@end ifnottex
+
+@c %**start of body
+@menu
+* Overview::    Magit in brief.
+* Index::       The index.
+@end menu
+
+@node Overview
+@chapter Overview
+
+Magit is an interface to the version control system
+Git@footnote{http://git-scm.com/}, implemented as an Emacs extension.
+
+Unlike the `VC' package which is part of Emacs and strives to provide
+a unified interface to various version control systems, Magit only
+supports Git and can therefore better take advantage of its native
+features. @xref{Introduction to VC, VC,, emacs, The Emacs Editor}.
+
+Magit supports `GNU Emacs' 23.2 or later; 24.1 or later is
+recommended. Magit supports `Git' 1.7.2.5 or later; 1.8.2 or later is
+recommended. The minimal versions are those available in Debian
+oldstable.
+
+@node Index
+@unnumbered Index
+
+@printindex cp
+
+@bye
