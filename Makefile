@@ -151,14 +151,8 @@ $(LOADDEFS_FILE): $(ELS)
 	      (make-backup-files nil))\
 	  (update-directory-autoloads \".\")))"
 
-.PHONY: docs
-docs: magit.info dir
-
 %.info: %.texi
 	@$(MAKEINFO) $< -o $@
-
-dir: magit.info
-	@$(INSTALL_INFO) --dir=$@ $<
 
 CONTRIBUTORS_URL = https://github.com/magit/magit/graphs/contributors
 define AUTHORS_HEADER
@@ -216,7 +210,7 @@ install-lisp: lisp
 	$(CP) $(LOADDEFS_FILE) $(DESTDIR)$(LOADDEFS_DIR)/$(LOADDEFS_FILE)
 
 .PHONY: install-docs
-install-docs: docs
+install-docs:
 	$(MKDIR) $(DESTDIR)$(docdir)
 	$(CP) AUTHORS.md $(DESTDIR)$(docdir)
 
@@ -234,7 +228,6 @@ clean:
 	@printf "Cleaning\n"
 	@$(RM) $(ELCS) $(LOADDEFS_FILE) magit-version.el *.tar.gz *.tar
 	@$(RMDIR) magit-$(VERSION)
-	@test ! -e .git || $(RM) magit.info
 
 DIST_FILES = $(ELS) magit-version.el Makefile AUTHORS.md README.md
 
