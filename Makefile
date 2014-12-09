@@ -91,12 +91,14 @@ help:
 	$(info make                  - build elisp files)
 	$(info make lisp             - ditto)
 	$(info make all              - build elisp files and documentation)
+	$(info make docs             - generate documentation)
 	$(info )
 	$(info Install)
 	$(info =======)
 	$(info )
 	$(info make install          - install elisp files and documentation)
 	$(info make install-lisp     - install elisp files)
+	$(info make install-docs     - install documentation)
 	$(info make install-script   - install shell script)
 	$(info make install-all      - install elisp files, script, and docs)
 	$(info )
@@ -217,6 +219,9 @@ install-lisp: lisp
 
 .PHONY: install-docs
 install-docs: docs
+	$(MKDIR) $(DESTDIR)$(infodir)
+	$(CP) magit.info $(DESTDIR)$(infodir)
+	$(INSTALL_INFO) --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/magit.info
 	$(MKDIR) $(DESTDIR)$(docdir)
 	$(CP) AUTHORS.md $(DESTDIR)$(docdir)
 
@@ -237,6 +242,7 @@ clean:
 	@test ! -e .git || $(RM) magit.info
 
 DIST_FILES = $(ELS) magit-version.el Makefile AUTHORS.md README.md
+DIST_FILES += magit.texi magit.info dir
 
 .PHONY: dist
 dist: magit-$(VERSION).tar.gz
@@ -247,7 +253,7 @@ magit-$(VERSION).tar.gz: $(DIST_FILES)
 	@tar -cz --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar.gz magit-$(VERSION)
 	@$(RMDIR) magit-$(VERSION)
 
-ELPA_FILES = $(ELS) magit-pkg.el AUTHORS.md
+ELPA_FILES = $(ELS) magit-pkg.el AUTHORS.md magit.info dir
 
 .PHONY: marmalade
 marmalade: magit-$(VERSION).tar
