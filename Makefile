@@ -1,7 +1,6 @@
 PREFIX  ?= /usr/local
 datarootdir ?= $(PREFIX)/share
 lispdir ?= $(datarootdir)/emacs/site-lisp/magit
-infodir ?= $(datarootdir)/info
 docdir  ?= $(datarootdir)/doc/magit
 
 LOADDEFS_FILE ?= magit-autoloads.el
@@ -36,12 +35,6 @@ ELCS = $(ELS:.el=.elc)
 CP    ?= install -p -m 644
 MKDIR ?= install -p -m 755 -d
 RMDIR ?= rm -rf
-
-MAKEINFO     ?= makeinfo
-INSTALL_INFO ?= $(shell \
-  hash ginstall-info 2> /dev/null\
-  && printf ginstall-info\
-  || printf install-info)
 
 ELPA_DIR ?= ~/.emacs.d/elpa
 
@@ -151,15 +144,6 @@ $(LOADDEFS_FILE): $(ELS)
 	      (make-backup-files nil))\
 	  (update-directory-autoloads \".\")))"
 
-.PHONY: docs
-docs: magit.info dir
-
-%.info: %.texi
-	@$(MAKEINFO) $< -o $@
-
-dir: magit.info
-	@$(INSTALL_INFO) --dir=$@ $<
-
 CONTRIBUTORS_URL = https://github.com/magit/magit/graphs/contributors
 define AUTHORS_HEADER
 Authors
@@ -216,7 +200,7 @@ install-lisp: lisp
 	$(CP) $(LOADDEFS_FILE) $(DESTDIR)$(LOADDEFS_DIR)/$(LOADDEFS_FILE)
 
 .PHONY: install-docs
-install-docs: docs
+install-docs:
 	$(MKDIR) $(DESTDIR)$(docdir)
 	$(CP) AUTHORS.md $(DESTDIR)$(docdir)
 
@@ -234,7 +218,6 @@ clean:
 	@printf "Cleaning\n"
 	@$(RM) $(ELCS) $(LOADDEFS_FILE) magit-version.el *.tar.gz *.tar
 	@$(RMDIR) magit-$(VERSION)
-	@test ! -e .git || $(RM) magit.info
 
 DIST_FILES = $(ELS) magit-version.el Makefile AUTHORS.md README.md
 
