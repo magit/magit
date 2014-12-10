@@ -231,11 +231,16 @@ When the region is active offer to drop all contained stashes."
   (let ((magit-git-standard-options (nconc (list "-c" "commit.gpgsign=false")
                                            magit-git-standard-options))
         (default-directory (magit-get-top-dir))
+        (conflicts (magit-anything-unmerged-p))
         (summary (magit-stash-summary))
         (head "HEAD"))
-    (when (and worktree (not index))
+    (when (and worktree (not index) (not conflicts))
       (setq head (magit-commit-tree "pre-stash index" nil "HEAD")))
-    (or (setq index (magit-commit-tree (concat "index on " summary) nil head))
+    (or (setq index (if conflicts
+                        (magit-commit-tree (concat "index on " summary)
+                                           "HEAD^{tree}" "HEAD")
+                      (magit-commit-tree (concat "index on " summary)
+                                         nil head)))
         (error "Cannot save the current index state"))
     (and untracked
          (setq untracked (magit-untracked-files (eq untracked 'all)))
