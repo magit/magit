@@ -72,11 +72,11 @@ VERSION=$(shell \
   (load-file \"magit-version.el\")\
   (princ magit-version))")
 
-.PHONY: lisp
-lisp: $(ELCS) loaddefs
-
 .PHONY: all
 all: lisp magit-version.el
+
+.PHONY: lisp
+lisp: $(ELCS) loaddefs
 
 .PHONY: help
 help:
