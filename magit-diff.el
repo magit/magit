@@ -1437,7 +1437,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
               orig file (magit-section-blobs section) orig file))))
 
 (defun magit-diff-hunk-region-header (section)
-  (nth 3 (split-string (magit-diff-hunk-region-patch section) "\n")))
+  (nth 4 (split-string (magit-diff-hunk-region-patch section) "\n")))
 
 (defun magit-diff-hunk-region-patch (section &optional args)
   (unless (magit-diff-context-p)
