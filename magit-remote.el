@@ -78,10 +78,11 @@
   "Popup console for fetch commands."
   'magit-popups
   :man-page "git-fetch"
-  :switches '((?p "Prune"   "--prune"))
-  :actions  '((?f "Current" magit-fetch-current)
-              (?o "Other"   magit-fetch)
-              (?a "All"     magit-fetch-all))
+  :switches '((?p "Prune"      "--prune"))
+  :actions  '((?f "Current"    magit-fetch-current)
+              (?o "Other"      magit-fetch)
+              (?a "All"        magit-fetch-all)
+              (?m "Submodules" magit-submodule-fetch))
   :default-action 'magit-fetch-current)
 
 ;;;###autoload
