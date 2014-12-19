@@ -571,6 +571,7 @@ Refs are compared with a branch read form the user."
 (defvar magit-local-branch-format "%4c %-25n %U%m\n")
 (defvar magit-remote-branch-format "%4c %-25n %m\n")
 (defvar magit-tags-format "%4c %-25n %m\n")
+(defvar magit-refs-indent-cherry-lines 3)
 
 (defvar magit-branch-section-map
   (let ((map (make-sparse-keymap)))
@@ -636,7 +637,13 @@ Refs are compared with a branch read form the user."
     (section branch current branches format face
              &optional hash message upstream ahead behind)
   (let* ((head  (or (car magit-refresh-args) current "HEAD"))
-         (count (if branch (cadr (magit-rev-diff-count head branch)) 0)))
+         (count (and (string-match-p "%-?[0-9]+c" format)
+                     (if branch (cadr (magit-rev-diff-count head branch)) 0)))
+         (mark  (and (or (equal branch head)
+                         (and (not branch) (equal head "HEAD")))
+                     (if (equal branch current)
+                         (propertize "@" 'face 'magit-head)
+                       (propertize "#" 'face 'magit-tag)))))
     (when upstream
       (setq upstream (propertize upstream 'face
                                  (if (member upstream branches)
@@ -647,16 +654,12 @@ Refs are compared with a branch read form the user."
        format
        `((?a . ,(or ahead ""))
          (?b . ,(or behind ""))
-         (?c . ,(cond
-                 ((or (equal branch head)
-                      (and (not branch) (equal head "HEAD")))
-                  (if (equal branch current)
-                      (propertize "@" 'face 'magit-head)
-                    (propertize "#" 'face 'magit-tag)))
-                 ((> count 0)
-                  (propertize (number-to-string count)
-                              'face 'magit-dimmed))
-                 (t "")))
+         (?c . ,(or mark
+                    (and count (> count 0)
+                         (propertize (number-to-string count)
+                                     'face 'magit-dimmed))
+                    ""))
+         (?C . ,(or mark " "))
          (?h . ,(or (propertize hash 'face 'magit-hash) ""))
          (?m . ,(or message ""))
          (?n . ,(propertize (or branch "(detached)") 'face face))
@@ -671,7 +674,7 @@ Refs are compared with a branch read form the user."
                                         (and behind (format "behind %s" behind)))
                               ""))
                   "")))))
-    (when (> count 0)
+    (when (or (not count) (> count 0))
       (if (magit-section-hidden section)
           (setf (magit-section-washer section)
                 `(lambda ()
@@ -692,8 +695,9 @@ Refs are compared with a branch read form the user."
     (magit-insert-section (tags)
       (magit-insert-heading "Tags:")
       (dolist (tag (nreverse tags))
-        (let ((count (cadr (magit-rev-diff-count
-                            (or (car magit-refresh-args) "HEAD") tag)))
+        (let ((count (and (string-match-p "%-?[0-9]+c" magit-tags-format)
+                          (cadr (magit-rev-diff-count
+                                 (or (car magit-refresh-args) "HEAD") tag))))
               (message (magit-git-string "tag" "-l" "-n" tag)))
           (string-match "^[^ \t]+[ \t]+\\(.+\\)" message)
           (setq message (match-string 1 message))
@@ -701,7 +705,7 @@ Refs are compared with a branch read form the user."
             (magit-insert
              (format-spec magit-tags-format
                           `((?n . ,(propertize tag 'face 'magit-tag))
-                            (?c . ,(if (> count 0)
+                            (?c . ,(if (and count (> count 0))
                                        (propertize (number-to-string count)
                                                    'face 'magit-dimmed)
                                      ""))

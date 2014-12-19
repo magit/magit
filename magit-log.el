@@ -32,6 +32,7 @@
 (declare-function magit-insert-status-headers 'magit)
 (declare-function magit-show-commit 'magit)
 (defvar magit-blame-mode)
+(defvar magit-refs-indent-cherry-lines)
 
 (require 'ansi-color)
 (require 'crm)
@@ -632,7 +633,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
         (`bisect-log (setq hash (magit-rev-parse "--short" hash))))
       (when cherry
         (when (derived-mode-p 'magit-refs-mode)
-          (insert "   "))
+          (insert (make-string magit-refs-indent-cherry-lines ?\s)))
         (magit-insert cherry (if (string= cherry "-")
                                  'magit-cherry-equivalent
                                'magit-cherry-unmatched) ?\s))
