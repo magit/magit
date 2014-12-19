@@ -46,9 +46,10 @@
   "Popup console for remote commands."
   'magit-popups
   :man-page "git-remote"
-  :actions  '((?a "Add"    magit-remote-add)
-              (?r "Rename" magit-remote-rename)
-              (?k "Remove" magit-remote-remove)))
+  :actions  '((?a "Add"     magit-remote-add)
+              (?r "Rename"  magit-remote-rename)
+              (?k "Remove"  magit-remote-remove)
+              (?u "Set url" magit-remote-set-url)))
 
 ;;;###autoload
 (defun magit-remote-add (remote url)
@@ -65,6 +66,14 @@
      (list remote (magit-read-string (format "Rename %s to" remote)))))
   (unless (string= old new)
     (magit-run-git "remote" "rename" old new)))
+
+;;;###autoload
+(defun magit-remote-set-url (remote url)
+  "Change the url of the remote named REMOTE to URL."
+  (interactive
+   (let  ((remote (magit-read-remote "Rename remote")))
+     (list remote (magit-read-string "Url" (magit-get "remote" remote "url")))))
+  (magit-set url "remote" remote "url"))
 
 ;;;###autoload
 (defun magit-remote-remove (remote)
