@@ -4704,12 +4704,13 @@ to consider it or not when called with that buffer current."
   "Only prompt to save buffers which are within the current git project.
 As determined by the directory passed to `magit-status'."
   (and buffer-file-name
-       (let ((topdir (magit-get-top-dir magit-default-directory)))
+       (let ((topdir (magit-get-top-dir magit-default-directory))
+             (buffer-dir (file-name-directory buffer-file-name)))
          (and topdir
               (equal (file-remote-p topdir) (file-remote-p buffer-file-name))
               ;; ^ Avoid needlessly connecting to unrelated tramp remotes.
-              (string= topdir (magit-get-top-dir
-                               (file-name-directory buffer-file-name)))))))
+              (file-directory-p buffer-dir)
+              (string= topdir (magit-get-top-dir buffer-dir))))))
 
 ;;; Porcelain
 ;;;; Apply
