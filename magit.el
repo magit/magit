@@ -1580,9 +1580,11 @@ Run Git in the root of the current repository.
 
 ;;;###autoload
 (defun magit-format-patch (range)
-  (interactive (list (-if-let (revs (magit-region-values 'commit))
-                         (concat (car (last revs)) "^.." (car revs))
-                       (magit-read-range-or-commit "Format range"))))
+  (interactive
+   (list (-if-let (revs (magit-region-values 'commit))
+             (concat (car (last revs)) "^.." (car revs))
+           (let ((commit (magit-read-range-or-commit "Format range")))
+             (format "%s~..%s" commit commit)))))
   (magit-run-git "format-patch" range))
 
 (defun magit-copy-as-kill ()
