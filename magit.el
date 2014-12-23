@@ -1614,8 +1614,8 @@ a prefix argument is used, otherwise save the branch name."
     `((,(concat "(\\(magit-define-section-jumper\\)\\_>"
                 "[ \t'\(]*"
                 "\\(\\(?:\\sw\\|\\s_\\)+\\)?")
-       (1 font-lock-keyword-face)
-       (2 font-lock-function-name-face nil t))
+       (1 'font-lock-keyword-face)
+       (2 'font-lock-function-name-face nil t))
       (,(concat "(" (regexp-opt '("magit-insert-section"
                                   "magit-section-case"
                                   "magit-section-when"

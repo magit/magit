@@ -626,7 +626,7 @@ else like the former."
 ;;; with-editor.el ends soon
 
 (defconst with-editor-font-lock-keywords
-  '(("(\\(with-\\(?:git-\\)?editor\\)\\_>" . 1)))
+  '(("(\\(with-\\(?:git-\\)?editor\\)\\_>" (1 'font-lock-keyword-face))))
 (font-lock-add-keywords 'emacs-lisp-mode with-editor-font-lock-keywords)
 
 (provide 'with-editor)
