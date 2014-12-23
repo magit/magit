@@ -756,8 +756,8 @@ in the popup."
     `((,(concat "(\\(magit-define-popup\\)\\_>"
                 "[ \t'\(]*"
                 "\\(\\(?:\\sw\\|\\s_\\)+\\)?")
-       (1 font-lock-keyword-face)
-       (2 font-lock-function-name-face nil t)))))
+       (1 'font-lock-keyword-face)
+       (2 'font-lock-function-name-face nil t)))))
 
 (font-lock-add-keywords 'emacs-lisp-mode magit-popup-font-lock-keywords)
 
