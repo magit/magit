@@ -63,7 +63,7 @@
   :type 'string)
 
 (defcustom magit-git-standard-options
-  '("--no-pager" "-c" "core.preloadindex=true")
+  '("--no-pager" "--literal-pathspecs" "-c" "core.preloadindex=true")
   "Standard options when running Git.
 Be careful what you add here, especially if you are using
 tramp to connect to servers with ancient Git versions."

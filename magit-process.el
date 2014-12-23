@@ -183,10 +183,8 @@ flattened before use.
 Process output goes into a new section in a buffer specified by
 variable `magit-process-buffer-name-format'."
   (run-hooks 'magit-pre-call-git-hook)
-  (let ((process-environment process-environment))
-    (setenv "GIT_LITERAL_PATHSPECS" "1")
-    (apply #'magit-call-process magit-git-executable
-           (magit-process-git-arguments args))))
+  (apply #'magit-call-process magit-git-executable
+         (magit-process-git-arguments args)))
 
 (defun magit-call-process (program &rest args)
   "Call PROGRAM synchronously in a separate process.
@@ -279,10 +277,8 @@ is active.
 
 See `magit-start-process' for more information."
   (run-hooks 'magit-pre-start-git-hook)
-  (let ((process-environment process-environment))
-    (setenv "GIT_LITERAL_PATHSPECS")
-    (apply #'magit-start-process magit-git-executable input
-           (magit-process-git-arguments args))))
+  (apply #'magit-start-process magit-git-executable input
+         (magit-process-git-arguments args)))
 
 (defun magit-start-process (program &optional input &rest args)
   "Start PROGRAM, prepare for refresh, and return the process object.
