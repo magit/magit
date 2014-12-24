@@ -49,7 +49,7 @@
   "Hook run when entering a mode derived from Magit mode."
   :group 'magit-modes
   :type 'hook
-  :options '(magit-load-config-extensions))
+  :options '(magit-load-config-extensions bug-reference-mode))
 
 (defcustom magit-auto-revert-mode-lighter " MRev"
   "String to display when Magit-Auto-Revert mode is active."
