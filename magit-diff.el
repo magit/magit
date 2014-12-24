@@ -51,6 +51,11 @@
   "Inspect and manipulate Git diffs."
   :group 'magit-modes)
 
+(defcustom magit-diff-mode-hook nil
+  "Hook run after entering Magit-Diff mode."
+  :group 'magit-diff
+  :type 'hook)
+
 (defcustom magit-diff-buffer-name-format "*magit-diff: %a*"
   "Name format for buffers used to display a diff.
 
@@ -159,6 +164,11 @@ many spaces.  Otherwise, highlight neither."
 (defgroup magit-revision nil
   "Inspect and manipulate Git commits."
   :group 'magit-modes)
+
+(defcustom magit-revision-mode-hook nil
+  "Hook run after entering Magit-Revision mode."
+  :group 'magit-revison
+  :type 'hook)
 
 (defcustom magit-revision-buffer-name-format "*magit-rev: %a*"
   "Name format for buffers used to display a commit.

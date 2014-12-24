@@ -44,6 +44,11 @@
   "Inspect and manipulate Git history."
   :group 'magit-modes)
 
+(defcustom magit-log-mode-hook nil
+  "Hook run after entering Magit-Log mode."
+  :group 'magit-log
+  :type 'hook)
+
 (defcustom magit-log-buffer-name-format "*magit-log: %a*"
   "Name format for buffers used to display log entries.
 

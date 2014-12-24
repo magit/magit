@@ -82,7 +82,7 @@
   :group 'magit-modes)
 
 (defcustom magit-status-mode-hook nil
-  "Hook run when the `magit-status' buffer is created."
+  "Hook run after entering Magit-Status mode."
   :group 'magit-status
   :type 'hook)
 
@@ -156,6 +156,11 @@ The following `format'-like specs are supported:
 (defgroup magit-refs nil
   "Inspect and manipulate Git branches and tags."
   :group 'magit-modes)
+
+(defcustom magit-refs-mode-hook nil
+  "Hook run after entering Magit-Refs mode."
+  :group 'magit-refs
+  :type 'hook)
 
 (defcustom magit-refs-sections-hook
   '(magit-insert-branch-description
