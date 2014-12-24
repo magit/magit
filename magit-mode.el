@@ -249,6 +249,7 @@ Magit is documented in info node `(magit)'."
   (buffer-disable-undo)
   (setq truncate-lines t)
   (setq show-trailing-whitespace nil)
+  (hack-dir-local-variables-non-file-buffer)
   (make-local-variable 'text-property-default-nonsticky)
   (push (cons 'keymap t) text-property-default-nonsticky)
   (push (cons 'invisible t) text-property-default-nonsticky)
