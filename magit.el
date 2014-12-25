@@ -702,16 +702,16 @@ Refs are compared with a branch read form the user."
   "Keymap for `tag' sections.")
 
 (defun magit-insert-tags ()
-  (-when-let (tags (magit-git-lines "tag"))
+  (-when-let (tags (magit-git-lines "tag" "-l" "-n"))
     (magit-insert-section (tags)
       (magit-insert-heading "Tags:")
       (dolist (tag (nreverse tags))
-        (let ((count (and (string-match-p "%-?[0-9]+c" magit-tags-format)
-                          (cadr (magit-rev-diff-count
-                                 (or (car magit-refresh-args) "HEAD") tag))))
-              (message (magit-git-string "tag" "-l" "-n" tag)))
-          (string-match "^[^ \t]+[ \t]+\\(.+\\)" message)
-          (setq message (match-string 1 message))
+        (string-match "^\\([^ \t]+\\)[ \t]+\\([^ \t\n].*\\)?" tag)
+        (let* ((message (match-string 2 tag))
+               (tag     (match-string 1 tag))
+               (count (and (string-match-p "%-?[0-9]+c" magit-tags-format)
+                           (cadr (magit-rev-diff-count
+                                  (or (car magit-refresh-args) "HEAD") tag)))))
           (magit-insert-section (tag tag)
             (magit-insert
              (format-spec magit-tags-format
@@ -720,7 +720,7 @@ Refs are compared with a branch read form the user."
                                        (propertize (number-to-string count)
                                                    'face 'magit-dimmed)
                                      ""))
-                            (?m . ,message)))))))
+                            (?m . ,(or message ""))))))))
       (insert ?\n))))
 
 ;;;; Files
