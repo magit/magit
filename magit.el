@@ -566,10 +566,13 @@ Refs are compared with a branch read form the user."
           "\\(?: +\\)"
           "\\(?2:[0-9a-fA-F]+\\) "          ; sha1
           "\\(?:\\["
-          "\\(?4:[^:\n]+?\\)\\(?:: \\)?"    ; upstream
+          "\\(?4:[^:]+\\): "                ; upstream
+          "\\(?:"
+          "\\(?7:gone\\)\\|"                ; gone
           "\\(?:ahead \\(?5:[0-9]+\\)\\)?"  ; ahead
           "\\(?:, \\)?"
           "\\(?:behind \\(?6:[0-9]+\\)\\)?" ; behind
+          "\\)"
           "\\] \\)?"
           "\\(?3:.*\\)"))                   ; message
 
@@ -602,13 +605,13 @@ Refs are compared with a branch read form the user."
                                      (cadr magit-refresh-args)))
         (string-match magit-wash-branch-line-re line)
         (magit-bind-match-strings
-            (branch hash message upstream ahead behind) line
+            (branch hash message upstream ahead behind gone) line
           (when (string-match-p "(" branch)
             (setq branch nil))
           (magit-insert-branch
            branch current branches
            magit-local-branch-format 'magit-branch-local
-           hash message upstream ahead behind))))
+           hash message upstream ahead behind gone))))
     (insert ?\n)))
 
 (defun magit-insert-remote-branches ()
@@ -640,7 +643,7 @@ Refs are compared with a branch read form the user."
 
 (defun magit-insert-branch-1
     (section branch current branches format face
-             &optional hash message upstream ahead behind)
+             &optional hash message upstream ahead behind gone)
   (let* ((head  (or (car magit-refresh-args) current "HEAD"))
          (count (and (string-match-p "%-?[0-9]+c" format)
                      (if branch (cadr (magit-rev-diff-count head branch)) 0)))
@@ -672,12 +675,15 @@ Refs are compared with a branch read form the user."
          (?U . ,(if upstream
                     (format (propertize "[%s%s] " 'face 'magit-dimmed)
                             upstream
-                            (if (or ahead behind)
-                                (concat ": "
-                                        (and ahead (format "ahead %s" ahead))
-                                        (and ahead behind ", ")
-                                        (and behind (format "behind %s" behind)))
-                              ""))
+                            (cond
+                             (gone
+                              (concat ": " (propertize gone 'face 'error)))
+                             ((or ahead behind)
+                              (concat ": "
+                                      (and ahead (format "ahead %s" ahead))
+                                      (and ahead behind ", ")
+                                      (and behind (format "behind %s" behind))))
+                             (t "")))
                   "")))))
     (when (or (not count) (> count 0))
       (if (magit-section-hidden section)
