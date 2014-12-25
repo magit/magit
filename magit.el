@@ -599,8 +599,9 @@ Refs are compared with a branch read form the user."
 (defun magit-insert-local-branches ()
   (magit-insert-section (local nil)
     (magit-insert-heading "Branches:")
-    (let ((current  (magit-get-current-branch))
-          (branches (magit-list-local-branch-names)))
+    (let* ((current  (magit-get-current-branch))
+           (branches (magit-list-local-branch-names))
+           (all-branches (append branches (magit-list-remote-branch-names))))
       (dolist (line (magit-git-lines "branch" "-vv"
                                      (cadr magit-refresh-args)))
         (string-match magit-wash-branch-line-re line)
@@ -608,6 +609,10 @@ Refs are compared with a branch read form the user."
             (branch hash message upstream ahead behind gone) line
           (when (string-match-p "(" branch)
             (setq branch nil))
+          (when (and upstream
+                     (not (member upstream all-branches)))
+            (setq message (concat "[" upstream "] " message))
+            (setq upstream nil))
           (magit-insert-branch
            branch current branches
            magit-local-branch-format 'magit-branch-local
