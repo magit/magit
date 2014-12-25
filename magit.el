@@ -704,8 +704,9 @@ Refs are compared with a branch read form the user."
                           (cadr (magit-rev-diff-count
                                  (or (car magit-refresh-args) "HEAD") tag))))
               (message (magit-git-string "tag" "-l" "-n" tag)))
-          (string-match "^[^ \t]+[ \t]+\\(.+\\)" message)
-          (setq message (match-string 1 message))
+          (if (string-match "^[^ \t]+[ \t]+\\(.+\\)" message)
+              (setq message (match-string 1 message))
+            (setq message ""))
           (magit-insert-section (tag tag)
             (magit-insert
              (format-spec magit-tags-format
