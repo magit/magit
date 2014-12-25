@@ -167,7 +167,7 @@ many spaces.  Otherwise, highlight neither."
 
 (defcustom magit-revision-mode-hook nil
   "Hook run after entering Magit-Revision mode."
-  :group 'magit-revison
+  :group 'magit-revision
   :type 'hook)
 
 (defcustom magit-revision-buffer-name-format "*magit-rev: %a*"
