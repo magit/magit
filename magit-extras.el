@@ -122,7 +122,8 @@ With a prefix argument only ignore locally."
       (goto-char (point-max))
       (unless (bolp)
         (insert "\n"))
-      (insert file-or-pattern "\n")
+      (insert (replace-regexp-in-string "\\(\\\\*\\)" "\\1\\1" file-or-pattern))
+      (insert "\n")
       (write-region nil nil gitignore))
     (if local
         (magit-refresh)
