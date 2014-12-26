@@ -32,8 +32,6 @@
 
 (defvar magit-refresh-args) ; from `magit-mode' for `magit-current-file'
 
-(require 'tramp) ; for `magit-expand-git-file-name'
-
 ;;; Options
 
 ;; For now this is shared between `magit-process' and `magit-git'.
@@ -197,22 +195,24 @@ call function WASHER with no argument."
 
 ;;; Files
 
-(defun magit-git-dir (&optional path)
+(defun magit-git-dir (&optional path localname)
   "Return absolute path to the GIT_DIR for the current repository.
 If optional PATH is non-nil it has to be a path relative to the
-GIT_DIR and its absolute path is returned"
+GIT_DIR and its absolute path is returned.  If optional LOCALNAME
+is non-nil return only the local part of tramp paths."
   (--when-let (magit-rev-parse "--git-dir")
-    (setq it (file-name-as-directory (magit-expand-git-file-name it)))
+    (setq it (file-name-as-directory (magit-expand-git-file-name it localname)))
     (if path (expand-file-name (convert-standard-filename path) it) it)))
 
-(defun magit-toplevel ()
+(defun magit-toplevel (&optional localname)
   "Return the top-level directory for the current repository.
 
 Determine the repository which contains `default-directory' in
 its work tree and return the absolute path to its top-level
-directory.  Otherwise return nil."
+directory.  Otherwise return nil.  If optional LOCALNAME is
+non-nil return only the local part of tramp paths."
   (--when-let (magit-rev-parse "--show-toplevel")
-    (file-name-as-directory (magit-expand-git-file-name it))))
+    (file-name-as-directory (magit-expand-git-file-name it localname))))
 
 (defun magit-toplevel-safe (&optional directory)
   (let ((default-directory
@@ -336,13 +336,14 @@ If the file is not inside a Git repository then return nil."
                  (aref it 1))
            (magit-git-lines "status" "--porcelain" "-u" "--ignored"))))
 
-(defun magit-expand-git-file-name (filename)
-  (when (tramp-tramp-file-p default-directory)
-    (setq filename (file-relative-name filename
-                                       (with-parsed-tramp-file-name
-                                           default-directory nil
-                                         localname))))
-  (expand-file-name filename))
+(defun magit-expand-git-file-name (filename &optional localname)
+  (if (file-name-absolute-p filename)
+      (if localname
+          filename
+        (concat (file-remote-p default-directory) filename))
+    (expand-file-name filename
+                      (and localname
+                           (file-remote-p default-directory 'localname)))))
 
 (defun magit-decode-git-path (path)
   (if (eq (aref path 0) ?\")
