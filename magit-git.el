@@ -32,6 +32,8 @@
 
 (defvar magit-refresh-args) ; from `magit-mode' for `magit-current-file'
 
+(defvar magit-tramp-process-environment nil)
+
 ;;; Options
 
 ;; For now this is shared between `magit-process' and `magit-git'.
@@ -730,21 +732,23 @@ Return a list of two integers: (A>B B>A)."
 
 (defmacro magit-with-temp-index (tree &rest body)
   (declare (indent 1) (debug (form body)))
-  (let ((stree (cl-gensym "tree"))
-        (sfile (cl-gensym "file")))
-    `(let ((,stree ,tree)
-           (,sfile (magit-git-dir (make-temp-name "index.magit."))))
-       (when (file-remote-p ,sfile)
-         (setq ,sfile (with-parsed-tramp-file-name ,sfile nil localname)))
+  (let ((file (cl-gensym "file")))
+    `(let ((,file (magit-git-dir (make-temp-name "index.magit.") t)))
        (unwind-protect
-           (let ((process-environment process-environment))
-             ,@(and tree
-                    `((or (magit-git-success "read-tree" ,stree
-                                             (concat "--index-output=" ,sfile))
-                          (error "Cannot read tree %s" ,stree))))
-             (setenv "GIT_INDEX_FILE" ,sfile)
-             ,@body)
-         (ignore-errors (delete-file ,sfile))))))
+           (progn ,@(--when-let tree
+                      `((or (magit-git-success
+                             "read-tree" ,it (concat "--index-output=" ,file))
+                            (error "Cannot read tree %s" ,it))))
+                  (if (file-remote-p default-directory)
+                      (let ((magit-tramp-process-environment
+                             (setenv-internal magit-tramp-process-environment
+                                              "GIT_INDEX_FILE" ,file t)))
+                        ,@body)
+                    (let ((process-environment process-environment))
+                      (setenv "GIT_INDEX_FILE" ,file)
+                      ,@body)))
+         (ignore-errors
+           (delete-file (concat (file-remote-p default-directory) ,file)))))))
 
 (defun magit-commit-tree (message &optional tree &rest parents)
   (magit-git-string "commit-tree" "-m" message

@@ -472,6 +472,22 @@ tracked in the current repository are reverted if
               (eq (process-status magit-this-process) 'run))
     (sit-for 0.1 t)))
 
+(defadvice tramp-sh-handle-start-file-process
+    (before magit-tramp-process-environment activate)
+  (when magit-tramp-process-environment
+    (ad-set-args 3 (append (cdr magit-tramp-process-environment)
+                           (cons (ad-get-arg 2)
+                                 (ad-get-args 3))))
+    (ad-set-arg  2 (car magit-tramp-process-environment))))
+
+(defadvice tramp-sh-handle-process-file
+    (before magit-tramp-process-environment activate)
+  (when magit-tramp-process-environment
+    (ad-set-args 4 (append magit-tramp-process-environment
+                           (cons (ad-get-arg 0)
+                                 (ad-get-args 4))))
+    (ad-set-arg  0 "env")))
+
 (defun magit-process-set-mode-line (program args)
   (when (equal program magit-git-executable)
     (setq args (nthcdr (1+ (length magit-git-standard-options)) args)))
