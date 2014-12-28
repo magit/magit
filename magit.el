@@ -998,7 +998,7 @@ defaulting to the branch at point."
     (compose-mail)
     (setq default-directory dir))
   (message-goto-body)
-  (process-file magit-git-executable nil t nil "request-pull" start url)
+  (magit-git-insert "request-pull" start url)
   (set-buffer-modified-p nil))
 
 ;;;###autoload
