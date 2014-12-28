@@ -160,8 +160,8 @@ When this is nil, no sections are ever removed."
 
 Option `magit-git-executable' specifies the Git executable and
 option `magit-git-standard-options' specifies constant arguments.
-The remaining arguments ARGS specify arguments to Git, they are
-flattened before use.
+The arguments ARGS specify arguments to Git, they are flattened
+before use.
 
 After Git returns, the current buffer (if it is a Magit buffer)
 as well as the current repository's status buffer are refreshed.
@@ -178,8 +178,8 @@ variable `magit-process-buffer-name-format'."
 
 Option `magit-git-executable' specifies the Git executable and
 option `magit-git-standard-options' specifies constant arguments.
-The remaining arguments ARGS specify arguments to Git, they are
-flattened before use.
+The arguments ARGS specify arguments to Git, they are flattened
+before use.
 
 Process output goes into a new section in a buffer specified by
 variable `magit-process-buffer-name-format'."
@@ -246,11 +246,10 @@ ARGS is flattened and then used as arguments to Git.
 Display the command line arguments in the echo area.
 
 After Git returns some buffers are refreshed: the buffer that was
-current when `magit-start-process' was called (if it is a Magit
-buffer and still alive), as well as the respective Magit status
-buffer.  Unmodified buffers visiting files that are tracked in
-the current repository are reverted if `magit-auto-revert-mode'
-is active.
+current when this function was called (if it is a Magit buffer
+and still alive), as well as the respective Magit status buffer.
+Unmodified buffers visiting files that are tracked in the current
+repository are reverted if `magit-auto-revert-mode' is active.
 
 See `magit-start-process' for more information."
   (message "Running %s %s" magit-git-executable
@@ -270,11 +269,10 @@ The remaining arguments ARGS specify arguments to Git, they are
 flattened before use.
 
 After Git returns some buffers are refreshed: the buffer that was
-current when `magit-start-process' was called (if it is a Magit
-buffer and still alive), as well as the respective Magit status
-buffer.  Unmodified buffers visiting files that are tracked in
-the current repository are reverted if `magit-auto-revert-mode'
-is active.
+current when this function was called (if it is a Magit buffer
+and still alive), as well as the respective Magit status buffer.
+Unmodified buffers visiting files that are tracked in the current
+repository are reverted if `magit-auto-revert-mode' is active.
 
 See `magit-start-process' for more information."
   (run-hooks 'magit-pre-start-git-hook)
