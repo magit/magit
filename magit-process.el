@@ -256,6 +256,24 @@ See `magit-start-process' for more information."
            (mapconcat 'identity (-flatten args) " "))
   (magit-start-git nil args))
 
+(defun magit-run-git-with-editor (&rest args)
+  "Export GIT_EDITOR and start Git.
+Also prepare for refresh and return the process object.
+ARGS is flattened and then used as arguments to Git.
+
+Display the command line arguments in the echo area.
+
+After Git returns some buffers are refreshed: the buffer that was
+current when this function was called (if it is a Magit buffer
+and still alive), as well as the respective Magit status buffer.
+Unmodified buffers visiting files that are tracked in the current
+repository are reverted if `magit-auto-revert-mode' is active.
+
+See `magit-start-process' and `with-editor' for more information."
+  (with-editor "GIT_EDITOR"
+    (let ((magit-process-popup-time -1))
+      (magit-run-git-async args))))
+
 (defun magit-start-git (input &rest args)
   "Start Git, prepare for refresh, and return the process object.
 
@@ -327,13 +345,6 @@ tracked in the current repository are reverted if
       (setf (magit-section-value section) process)
       (magit-process-display-buffer process)
       process)))
-
-;;; Editor Processes
-
-(defun magit-run-git-with-editor (&rest args)
-  (with-editor "GIT_EDITOR"
-    (let ((magit-process-popup-time -1))
-      (magit-run-git-async args))))
 
 ;;; Process Internals
 
