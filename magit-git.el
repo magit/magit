@@ -30,6 +30,9 @@
 (require 'magit-utils)
 (require 'magit-section)
 
+(declare-function magit-process-buffer 'magit-process)
+(declare-function magit-process-insert-section 'magit-process)
+(defvar magit-process-error-message-re)
 (defvar magit-refresh-args) ; from `magit-mode' for `magit-current-file'
 
 (defvar magit-tramp-process-environment nil)
@@ -156,13 +159,28 @@ string \"false\", otherwise return nil."
 
 (defun magit-git-insert (&rest args)
   "Execute Git with ARGS, inserting its output at point."
-  (let ((errfile (magit-git-dir "magit-errors")))
-    (when (file-exists-p errfile)
-      ;; 24.3 `process-file' raises error if stderr file exists.
-      (delete-file errfile))
-   (apply #'process-file magit-git-executable nil
-          (list t errfile) nil
-          (magit-process-git-arguments args))))
+  (setq args (magit-process-git-arguments args))
+  (let (log)
+    (unwind-protect
+        (progn (setq log (make-temp-file "magit-stderr"))
+               (delete-file log)
+               (let ((exit (apply #'process-file magit-git-executable
+                                  nil (list t log) nil args)))
+                 (when (> exit 0)
+                   (let ((msg "Git failed"))
+                     (when (file-exists-p log)
+                       (setq msg (with-temp-buffer
+                                   (insert-file-contents log)
+                                   (goto-char (point-max))
+                                   (and (re-search-backward
+                                         magit-process-error-message-re nil t)
+                                        (match-string 1))))
+                       (with-current-buffer (magit-process-buffer)
+                         (magit-process-insert-section magit-git-executable
+                                                       args exit log)))
+                     (message "%s" msg)))
+                 exit))
+      (ignore-errors (delete-file log)))))
 
 (defun magit-git-lines (&rest args)
   "Execute Git with ARGS, returning its output as a list of lines.

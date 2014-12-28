@@ -349,20 +349,30 @@ tracked in the current repository are reverted if
                 (prog1 (magit-process-insert-section program args)
                   (backward-char 1))))))
 
-(defun magit-process-insert-section (program args)
+(defun magit-process-insert-section (program args &optional errcode errlog)
   (let ((inhibit-read-only t)
         (magit-insert-section--parent magit-root-section))
     (goto-char (1- (point-max)))
     (magit-insert-section (process)
-      (magit-insert-heading "run " program " "
-        (mapconcat 'identity
-                   (--if-let (and args
-                                  (equal program magit-git-executable)
-                                  (length magit-git-standard-options))
-                       (cons (char-to-string magit-ellipsis)
-                             (cadr (-split-at it args)))
-                     args)
-                   " "))
+      (insert (if errcode
+                  (format "%3s " (propertize (number-to-string errcode)
+                                             'face 'magit-process-ng))
+                "run "))
+      (insert (propertize program 'face 'magit-section-heading))
+      (insert " ")
+      (when (and args (equal program magit-git-executable))
+        (setq args (-split-at (length magit-git-standard-options) args))
+        (insert (propertize (char-to-string magit-ellipsis)
+                            'face 'magit-section-heading
+                            'help-echo (mapconcat #'identity (car args) " ")))
+        (insert " ")
+        (setq args (cadr args)))
+      (insert (propertize (mapconcat #'identity args " ")
+                          'face 'magit-section-heading))
+      (magit-insert-heading)
+      (when errlog
+        (insert-file-contents errlog)
+        (goto-char (1- (point-max))))
       (insert "\n"))))
 
 (defun magit-process-truncate-log (buffer)
