@@ -345,24 +345,25 @@ tracked in the current repository are reverted if
     (if  buf
         (magit-process-truncate-log buf)
       (setq buf (magit-process-buffer)))
-    (with-current-buffer buf
-      (goto-char (1- (point-max)))
-      (let* ((inhibit-read-only t)
-             (magit-insert-section--parent magit-root-section)
-             (elide (if (and args (equal program magit-git-executable))
-                        (length magit-git-standard-options)
-                      0))
-             (section (magit-insert-section (process)
-                        (magit-insert-heading "run " program " "
-                          (mapconcat 'identity
-                                     (if (> elide 0)
-                                         (cons (char-to-string magit-ellipsis)
-                                               (cadr (-split-at elide args)))
-                                       args)
-                                     " "))
-                        (insert "\n"))))
-        (backward-char 1)
-        (cons (current-buffer) section)))))
+    (cons buf (with-current-buffer buf
+                (prog1 (magit-process-insert-section program args)
+                  (backward-char 1))))))
+
+(defun magit-process-insert-section (program args)
+  (let ((inhibit-read-only t)
+        (magit-insert-section--parent magit-root-section))
+    (goto-char (1- (point-max)))
+    (magit-insert-section (process)
+      (magit-insert-heading "run " program " "
+        (mapconcat 'identity
+                   (--if-let (and args
+                                  (equal program magit-git-executable)
+                                  (length magit-git-standard-options))
+                       (cons (char-to-string magit-ellipsis)
+                             (cadr (-split-at it args)))
+                     args)
+                   " "))
+      (insert "\n"))))
 
 (defun magit-process-truncate-log (buffer)
   (when magit-process-log-max
