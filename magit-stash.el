@@ -382,9 +382,11 @@ The following `format'-like specs are supported:
   (magit-stash-insert-section worktree "%s^2..%s"))
 
 (defun magit-insert-stash-untracked ()
-  (-when-let (files (magit-git-lines "ls-tree" "--name-only" "--full-tree"
-                                     (concat (car magit-refresh-args) "^3")))
-      (magit-stash-insert-section untracked "%s^..%s^3" files)))
+  (let ((rev (concat (car magit-refresh-args) "^3")))
+    (when (magit-rev-verify rev)
+      (magit-stash-insert-section
+       untracked "%s^..%s^3"
+       (magit-git-lines "ls-tree" "--name-only" "--full-tree" rev)))))
 
 ;;; magit-stash.el ends soon
 (provide 'magit-stash)
