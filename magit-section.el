@@ -598,9 +598,9 @@ at point."
       (magit-insert
        (if (next-single-property-change 0 'face (concat "0" heading))
            heading
-         (propertize heading 'face 'magit-section-heading)))
-      (unless (bolp)
-        (insert ?\n))))
+         (propertize heading 'face 'magit-section-heading)))))
+  (unless (bolp)
+    (insert ?\n))
   (setf (magit-section-content magit-insert-section--current) (point-marker)))
 
 (defun magit-insert-child-count (section)
