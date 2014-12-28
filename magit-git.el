@@ -138,11 +138,9 @@ newline return an empty string."
   (with-temp-buffer
     (apply #'process-file magit-git-executable nil (list t nil) nil
            (magit-process-git-arguments args))
-    (unless (= (point-min) (point-max))
+    (unless (bobp)
       (goto-char (point-min))
-      (buffer-substring-no-properties
-       (line-beginning-position)
-       (line-end-position)))))
+      (buffer-substring-no-properties (point) (line-end-position)))))
 
 (defun magit-git-true (&rest args)
   "Execute Git with ARGS, returning t if it prints \"true\".
