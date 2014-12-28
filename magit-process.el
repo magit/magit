@@ -155,6 +155,21 @@ When this is nil, no sections are ever removed."
 
 ;;; Synchronous Processes
 
+(defvar magit-process-raise-error nil)
+
+(defun magit-git (&rest args)
+  "Call Git synchronously in a separate process, for side-effects.
+
+Option `magit-git-executable' specifies the Git executable.
+The arguments ARGS specify arguments to Git, they are flattened
+before use.
+
+Process output goes into a new section in a buffer specified by
+variable `magit-process-buffer-name-format'.  If Git exits with
+a non-zero status, then raise an error."
+  (let ((magit-process-raise-error t))
+    (magit-call-git args)))
+
 (defun magit-run-git (&rest args)
   "Call Git synchronously in a separate process, and refresh.
 
@@ -557,7 +572,8 @@ tracked in the current repository are reverted if
           (when (= arg 0)
             (magit-section-hide section))))))
   (unless (= arg 0)
-    (message ; `error' would prevent refresh
+    (funcall
+     (if magit-process-raise-error #'error #'message)
      "%s ... [%s buffer %s for details]"
      (or (and (buffer-live-p process-buf)
               (with-current-buffer process-buf
