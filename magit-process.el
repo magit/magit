@@ -70,10 +70,11 @@ If t, use ptys: this enables Magit to prompt for passphrases when needed."
   "Maximum number of sections to keep in a process log buffer.
 When adding a new section would go beyond the limit set here,
 then the older half of the sections are remove.  Sections that
-belong to processes that are still running are never removed."
+belong to processes that are still running are never removed.
+When this is nil, no sections are ever removed."
   :package-version '(magit . "2.1.0")
   :group 'magit-process
-  :type 'integer)
+  :type '(choice (const :tag "Never remove old sections" nil) integer))
 
 (defcustom magit-process-yes-or-no-prompt-regexp
   " [\[(]\\([Yy]\\(?:es\\)?\\)[/|]\\([Nn]o?\\)[\])] ?[?:] ?$"
@@ -364,26 +365,27 @@ tracked in the current repository are reverted if
         (cons (current-buffer) section)))))
 
 (defun magit-process-truncate-log (buffer)
-  (with-current-buffer buffer
-    (let* ((head nil)
-           (tail (magit-section-children magit-root-section))
-           (count (length tail)))
-      (when (> (1+ count) magit-process-log-max)
-        (while (and (cdr tail)
-                    (> count (/ magit-process-log-max 2)))
-          (let* ((inhibit-read-only t)
-                 (section (car tail))
-                 (process (magit-section-process section)))
-            (cond ((not process))
-                  ((memq (process-status process) '(exit signal))
-                   (delete-region (magit-section-start section)
-                                  (1+ (magit-section-end section)))
-                   (cl-decf count))
-                  (t
-                   (push section head))))
-          (pop tail))
-        (setf (magit-section-children magit-root-section)
-              (nconc (reverse head) tail))))))
+  (when magit-process-log-max
+    (with-current-buffer buffer
+      (let* ((head nil)
+             (tail (magit-section-children magit-root-section))
+             (count (length tail)))
+        (when (> (1+ count) magit-process-log-max)
+          (while (and (cdr tail)
+                      (> count (/ magit-process-log-max 2)))
+            (let* ((inhibit-read-only t)
+                   (section (car tail))
+                   (process (magit-section-process section)))
+              (cond ((not process))
+                    ((memq (process-status process) '(exit signal))
+                     (delete-region (magit-section-start section)
+                                    (1+ (magit-section-end section)))
+                     (cl-decf count))
+                    (t
+                     (push section head))))
+            (pop tail))
+          (setf (magit-section-children magit-root-section)
+                (nconc (reverse head) tail)))))))
 
 (defun magit-process-sentinel (process event)
   "Default sentinel used by `magit-start-process'."
