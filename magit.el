@@ -1606,6 +1606,7 @@ Run Git in the root of the current repository.
 
 ;;;###autoload
 (defun magit-format-patch (range)
+  "Prepare patches within RANGE for submission by email."
   (interactive
    (list (-if-let (revs (magit-region-values 'commit))
              (concat (car (last revs)) "^.." (car revs))
