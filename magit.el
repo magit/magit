@@ -1137,9 +1137,11 @@ inspect the merge and change the commit message.
       (magit-run-git "add" file))))
 
 (defun magit-merge-state ()
+  "Check whether a merge is in progress."
   (file-exists-p (magit-git-dir "MERGE_HEAD")))
 
 (defun magit-merge-assert ()
+  "A predicate that attempts to prevent risky merges."
   (or (not (magit-anything-modified-p))
       (not magit-merge-warn-dirty-worktree)
       (magit-confirm 'merge-dirty
