@@ -1312,27 +1312,35 @@ defaulting to the tag at point.
   :default-action 'magit-notes-edit)
 
 (defun magit-notes-edit (commit &optional ref)
+  "Edit the notes for a given COMMIT."
   (interactive (magit-notes-read-args "Edit notes"))
   (magit-run-git-with-editor "notes" (and ref (concat "--ref=" ref))
                              "edit" commit))
 
 (defun magit-notes-remove (commit &optional ref)
+  "Remove the notes for a given COMMIT."
   (interactive (magit-notes-read-args "Remove notes"))
   (magit-run-git-with-editor "notes" "remove" commit))
 
 (defun magit-notes-merge (ref)
+  "Merge the given notes ref into the current notes REF."
   (interactive (list (magit-read-string "Merge reference")))
   (magit-run-git-with-editor "notes" "merge" ref))
 
 (defun magit-notes-merge-commit ()
+  "Finalize the process of merging notes."
   (interactive)
   (magit-run-git-with-editor "notes" "merge" "--commit"))
 
 (defun magit-notes-merge-abort ()
+  "Abort the process of merging notes."
   (interactive)
   (magit-run-git-with-editor "notes" "merge" "--abort"))
 
 (defun magit-notes-prune (&optional dry-run)
+  "Remove notes for unreachable objects.
+If DRY-RUN is specified, report but do not remove the object
+names whose notes would be removed."
   (interactive (list (and (member "--dry-run" (magit-notes-arguments)) t)))
   (when dry-run
     (magit-process))
@@ -1387,6 +1395,7 @@ defaulting to the tag at point.
                          nil nil initial-input))
 
 (defun magit-notes-merging-p ()
+  "A predicate for determining whether a notes merge is in progress."
   (let ((dir (magit-git-dir "NOTES_MERGE_WORKTREE")))
     (and (file-directory-p dir)
          (directory-files dir nil "^[^.]"))))
@@ -1408,7 +1417,7 @@ defaulting to the tag at point.
 (defun magit-submodule-add (url &optional path)
   "Add the repository at URL as a submodule.
 Optional PATH is the path to the submodule relative to the root
-of the superproject. If it is nil then the path is determined
+of the superproject.  If it is nil then the path is determined
 based on URL."
   (interactive
    (let* ((default-directory (magit-toplevel))
