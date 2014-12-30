@@ -1217,6 +1217,7 @@ With a prefix argument also reset the working tree.
   (magit-run-git "reset" "--hard" commit "--"))
 
 (defun magit-maybe-save-head-message (commit)
+  "If the current COMMIT is the same as `HEAD', save the current commit message."
   (when (equal (magit-rev-parse commit)
                (magit-rev-parse "HEAD~"))
     (with-temp-buffer
