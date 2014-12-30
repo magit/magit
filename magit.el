@@ -1007,7 +1007,7 @@ defaulting to the branch at point."
 ;;;###autoload
 (defun magit-branch-rename (old new &optional force)
   "Rename branch OLD to NEW.
-With prefix, forces the rename even if NEW already exists.
+With prefix FORCE, forces the rename even if NEW already exists.
 \n(git branch -m|-M OLD NEW)."
   (interactive
    (let ((branch (magit-read-local-branch "Rename branch")))
@@ -1254,7 +1254,7 @@ With a prefix argument annotate the tag.
 
 ;;;###autoload
 (defun magit-tag-delete (tags)
-  "Delete one or more tags.
+  "Delete one or more TAGS.
 If the region marks multiple tags (and nothing else), then offer
 to delete those, otherwise prompt for a single tag to be deleted,
 defaulting to the tag at point.
@@ -1265,7 +1265,7 @@ defaulting to the tag at point.
   (magit-run-git "tag" "-d" tags))
 
 (defun magit-tag-prune (tags remote-tags remote)
-  "Offer to delete tags missing locally from REMOTE, and vice versa."
+  "Offer to delete TAGS missing locally from REMOTE, and vice versa."
   (interactive
    (let* ((remote (magit-read-remote "Prune tags using remote"))
           (tags   (magit-list-tags))
@@ -1456,8 +1456,8 @@ With a prefix argument also register submodules in .git/config."
 
 ;;;###autoload
 (defun magit-submodule-fetch (&optional all)
-  "Fetch submodule.
-With a prefix argument fetch all remotes."
+  "Fetch a submodule.
+With a prefix argument fetch ALL remotes."
   (interactive "P")
   (let ((default-directory (magit-get-top-dir)))
     (magit-run-git-async "submodule" "foreach"
