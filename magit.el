@@ -991,6 +991,7 @@ defaulting to the branch at point."
 
 ;;;###autoload
 (defun magit-request-pull (url start end)
+  "Generate a summary of changes."
   (interactive
    (list (magit-get "remote" (magit-read-remote "Remote") "url")
          (magit-read-branch-or-commit "Start" (magit-get-tracked-branch))
