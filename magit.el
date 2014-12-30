@@ -727,11 +727,13 @@ Refs are compared with a branch read form the user."
 
 ;;;###autoload
 (defun magit-find-file (rev file)
+  "Find a FILE within a repository."
   (interactive (magit-find-file-read-args "Find file"))
   (switch-to-buffer (magit-find-file-noselect rev file)))
 
 ;;;###autoload
 (defun magit-find-file-other-window (rev file)
+  "Find a FILE in another window's repository."
   (interactive (magit-find-file-read-args "Find file in other window"))
   (switch-to-buffer-other-window (magit-find-file-noselect rev file)))
 
