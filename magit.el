@@ -384,7 +384,7 @@ To make this command available use something like:
   (add-hook 'ido-setup-hook
             (lambda ()
               (define-key ido-completion-map
-                (kbd "C-x g") 'ido-enter-magit-status)))"
+                (kbd \"C-x g\") 'ido-enter-magit-status)))"
   (interactive)
   (setq ido-exit 'fallback fallback 'magit-status)
   (exit-minibuffer))
