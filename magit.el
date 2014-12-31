@@ -376,6 +376,19 @@ then offer to initialize it as a new repository."
                     #'magit-status-mode
                     #'magit-status-refresh-buffer))
 
+(defun ido-enter-magit-status ()
+  "Drop into `magit-status' from file switching.
+
+To make this command available use something like:
+
+  (add-hook 'ido-setup-hook
+            (lambda ()
+              (define-key ido-completion-map
+                (kbd "C-x g") 'ido-enter-magit-status)))"
+  (interactive)
+  (setq ido-exit 'fallback fallback 'magit-status)
+  (exit-minibuffer))
+
 (defun magit-status-refresh-buffer ()
   (magit-git-exit-code "update-index" "--refresh")
   (magit-insert-section (status)
