@@ -229,7 +229,7 @@ clean:
 	@$(RM) $(ELCS) $(LOADDEFS_FILE) magit-version.el *.tar.gz *.tar
 	@$(RMDIR) magit-$(VERSION)
 
-DIST_FILES = $(ELS) magit-version.el Makefile AUTHORS.md README.md
+DIST_FILES = $(ELS) magit-version.el Makefile AUTHORS.md README.md COPYING
 
 .PHONY: dist
 dist: magit-$(VERSION).tar.gz
