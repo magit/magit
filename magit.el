@@ -397,7 +397,8 @@ To make this command available use something like:
               (define-key ido-completion-map
                 (kbd \"C-x g\") 'ido-enter-magit-status)))"
   (interactive)
-  (setq ido-exit 'fallback fallback 'magit-status)
+  (with-no-warnings ; FIXME these are internal variables
+    (setq ido-exit 'fallback fallback 'magit-status))
   (exit-minibuffer))
 
 (defun magit-status-refresh-buffer ()
