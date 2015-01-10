@@ -4461,15 +4461,18 @@ can be used to override this."
             (apply-partially #'magit-wash-raw-diffs t)
           "diff-index" "--cached" base)))))
 
+(defun magit-insert-recent-commits ()
+  (magit-git-insert-section (recent "Recent commits:")
+      (apply-partially 'magit-wash-log 'unique)
+    "log" "--format=format:%h %s" "-n" "10"))
+
 (defun magit-insert-unpulled-or-recent-commits ()
   (let ((tracked (magit-get-tracked-branch nil t)))
     (if (and tracked
              (not (equal (magit-git-string "rev-parse" "HEAD")
                          (magit-git-string "rev-parse" tracked))))
         (magit-insert-unpulled-commits)
-      (magit-git-insert-section (recent "Recent commits:")
-          (apply-partially 'magit-wash-log 'unique)
-        "log" "--format=format:%h %s" "-n" "10"))))
+      (magit-insert-recent-commits))))
 
 (defun magit-insert-unpulled-commits ()
   (let ((tracked (magit-get-tracked-branch nil t)))
