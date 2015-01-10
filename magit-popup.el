@@ -45,12 +45,9 @@
 
 ;;; Code:
 
+(require 'button)
 (require 'cl-lib)
 (require 'dash)
-
-(require 'magit-mode)
-
-(require 'button)
 (require 'format-spec)
 
 (declare-function info 'info)
