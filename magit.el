@@ -84,7 +84,6 @@
 (declare-function message-goto-body 'message)
 (eval-when-compile (require 'smerge-mode))
 
-
 ;;; Options
 ;;;; Status Mode
 
