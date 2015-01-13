@@ -1,6 +1,6 @@
 ;;; magit-tests.el --- tests for Magit
 
-;; Copyright (C) 2011-2014  The Magit Project Developers
+;; Copyright (C) 2011-2015  The Magit Project Developers
 ;;
 ;; License: GPLv3
 

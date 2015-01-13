@@ -1,6 +1,6 @@
 ;;; magit-extras.el --- additional functionality for Magit
 
-;; Copyright (C) 2008-2014  The Magit Project Developers
+;; Copyright (C) 2008-2015  The Magit Project Developers
 ;;
 ;; For a full list of contributors, see the AUTHORS.md file
 ;; at the top-level directory of this distribution and at
