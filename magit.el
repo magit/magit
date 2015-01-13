@@ -380,12 +380,13 @@ then offer to initialize it as a new repository."
 
 (put 'magit-status 'interactive-only 'magit-status-internal)
 
-(defun magit-status-internal (default-directory &optional switch-function)
-  (magit-mode-setup magit-status-buffer-name-format
-                    (or switch-function
-                        magit-status-buffer-switch-function)
-                    #'magit-status-mode
-                    #'magit-status-refresh-buffer))
+(defun magit-status-internal (directory &optional switch-function)
+  (let ((default-directory directory))
+    (magit-mode-setup magit-status-buffer-name-format
+                      (or switch-function
+                          magit-status-buffer-switch-function)
+                      #'magit-status-mode
+                      #'magit-status-refresh-buffer)))
 
 (defun ido-enter-magit-status ()
   "Drop into `magit-status' from file switching.
