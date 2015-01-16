@@ -124,6 +124,7 @@ to test.  This command lets Git choose a different one."
     (magit-refresh)))
 
 (defun magit-bisect-in-progress-p ()
+  "A predicate for determining whether a bisect is in progress."
   (file-exists-p (magit-git-dir "BISECT_LOG")))
 
 (defun magit-insert-bisect-output ()

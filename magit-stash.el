@@ -139,7 +139,7 @@ while two prefix arguments are equivalent to `--all'."
                     index worktree untracked refresh t))
 
 (defun magit-stash-apply (stash)
-  "Apply a stash to the working tree.
+  "Apply a STASH to the working tree.
 Try to preserve the stash index.  If that fails because there
 are staged changes, apply without preserving the stash index."
   (interactive (list (magit-read-stash "Apply stash" t)))
@@ -148,7 +148,7 @@ are staged changes, apply without preserving the stash index."
     (magit-run-git "stash" "apply" stash)))
 
 (defun magit-stash-pop (stash)
-  "Apply a stash to the working tree and remove it from stash list.
+  "Apply a STASH to the working tree and remove it from stash list.
 Try to preserve the stash index.  If that fails because there
 are staged changes, apply without preserving the stash index
 and forgo removing the stash."
@@ -158,7 +158,7 @@ and forgo removing the stash."
     (magit-run-git "stash" "apply" stash)))
 
 (defun magit-stash-drop (stash)
-  "Remove a stash from the stash list.
+  "Remove a STASH from the stash list.
 When the region is active offer to drop all contained stashes."
   (interactive (list (--if-let (magit-region-values 'stash)
                          (magit-confirm t nil "Drop %i stashes" it)
@@ -184,7 +184,7 @@ When the region is active offer to drop all contained stashes."
   (magit-run-git "update-ref" "-d" ref))
 
 (defun magit-stash-branch (stash branch)
-  "Create and checkout a new BRANCH from STASH."
+  "Create and checkout a STASH from a new BRANCH."
   (interactive (list (magit-read-stash  "Branch stash" t)
                      (magit-read-string "Branch name")))
   (magit-run-git "stash" "branch" branch stash))
@@ -257,6 +257,7 @@ When the region is active offer to drop all contained stashes."
           (error "Cannot save the current worktree state")))))
 
 (defun magit-stash-summary ()
+  "Provide a stash summary based on the current branch and commit."
   (concat (or (magit-get-current-branch) "(no branch)")
           ": " (magit-rev-format "%h %s")))
 
@@ -342,7 +343,7 @@ The following `format'-like specs are supported:
   :type 'string)
 
 (defun magit-stash-show (stash &optional noselect args)
-  "Show all diffs of a stash in a buffer."
+  "Show all diffs of a STASH in a buffer."
   (interactive (list (or (and (not current-prefix-arg)
                               (magit-stash-at-point))
                          (magit-read-stash "Show stash"))

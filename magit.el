@@ -752,11 +752,13 @@ Refs are compared with a branch read form the user."
 
 ;;;###autoload
 (defun magit-find-file (rev file)
+  "Find a FILE within a repository."
   (interactive (magit-find-file-read-args "Find file"))
   (switch-to-buffer (magit-find-file-noselect rev file)))
 
 ;;;###autoload
 (defun magit-find-file-other-window (rev file)
+  "Find a FILE in another window's repository."
   (interactive (magit-find-file-read-args "Find file in other window"))
   (switch-to-buffer-other-window (magit-find-file-noselect rev file)))
 
@@ -1014,6 +1016,7 @@ defaulting to the branch at point."
 
 ;;;###autoload
 (defun magit-request-pull (url start end)
+  "Generate a summary of changes."
   (interactive
    (list (magit-get "remote" (magit-read-remote "Remote") "url")
          (magit-read-branch-or-commit "Start" (magit-get-tracked-branch))
@@ -1029,7 +1032,7 @@ defaulting to the branch at point."
 ;;;###autoload
 (defun magit-branch-rename (old new &optional force)
   "Rename branch OLD to NEW.
-With prefix, forces the rename even if NEW already exists.
+With prefix FORCE, forces the rename even if NEW already exists.
 \n(git branch -m|-M OLD NEW)."
   (interactive
    (let ((branch (magit-read-local-branch "Rename branch")))
@@ -1159,9 +1162,11 @@ inspect the merge and change the commit message.
       (magit-run-git "add" file))))
 
 (defun magit-merge-state ()
+  "Check whether a merge is in progress."
   (file-exists-p (magit-git-dir "MERGE_HEAD")))
 
 (defun magit-merge-assert ()
+  "A predicate that attempts to prevent risky merges."
   (or (not (magit-anything-modified-p))
       (not magit-merge-warn-dirty-worktree)
       (magit-confirm 'merge-dirty
@@ -1237,6 +1242,7 @@ With a prefix argument also reset the working tree.
   (magit-run-git "reset" "--hard" commit "--"))
 
 (defun magit-maybe-save-head-message (commit)
+  "If the current COMMIT is the same as `HEAD', save the current commit message."
   (when (equal (magit-rev-parse commit)
                (magit-rev-parse "HEAD~"))
     (with-temp-buffer
@@ -1276,7 +1282,7 @@ With a prefix argument annotate the tag.
 
 ;;;###autoload
 (defun magit-tag-delete (tags)
-  "Delete one or more tags.
+  "Delete one or more TAGS.
 If the region marks multiple tags (and nothing else), then offer
 to delete those, otherwise prompt for a single tag to be deleted,
 defaulting to the tag at point.
@@ -1287,7 +1293,7 @@ defaulting to the tag at point.
   (magit-run-git "tag" "-d" tags))
 
 (defun magit-tag-prune (tags remote-tags remote)
-  "Offer to delete tags missing locally from REMOTE, and vice versa."
+  "Offer to delete TAGS missing locally from REMOTE, and vice versa."
   (interactive
    (let* ((remote (magit-read-remote "Prune tags using remote"))
           (tags   (magit-list-tags))
@@ -1331,27 +1337,35 @@ defaulting to the tag at point.
   :default-action 'magit-notes-edit)
 
 (defun magit-notes-edit (commit &optional ref)
+  "Edit the notes for a given COMMIT."
   (interactive (magit-notes-read-args "Edit notes"))
   (magit-run-git-with-editor "notes" (and ref (concat "--ref=" ref))
                              "edit" commit))
 
 (defun magit-notes-remove (commit &optional ref)
+  "Remove the notes for a given COMMIT."
   (interactive (magit-notes-read-args "Remove notes"))
   (magit-run-git-with-editor "notes" "remove" commit))
 
 (defun magit-notes-merge (ref)
+  "Merge the given notes ref into the current notes REF."
   (interactive (list (magit-read-string "Merge reference")))
   (magit-run-git-with-editor "notes" "merge" ref))
 
 (defun magit-notes-merge-commit ()
+  "Finalize the process of merging notes."
   (interactive)
   (magit-run-git-with-editor "notes" "merge" "--commit"))
 
 (defun magit-notes-merge-abort ()
+  "Abort the process of merging notes."
   (interactive)
   (magit-run-git-with-editor "notes" "merge" "--abort"))
 
 (defun magit-notes-prune (&optional dry-run)
+  "Remove notes for unreachable objects.
+If DRY-RUN is specified, report but do not remove the object
+names whose notes would be removed."
   (interactive (list (and (member "--dry-run" (magit-notes-arguments)) t)))
   (when dry-run
     (magit-process))
@@ -1407,6 +1421,7 @@ defaulting to the tag at point.
                          nil nil initial-input))
 
 (defun magit-notes-merging-p ()
+  "A predicate for determining whether a notes merge is in progress."
   (let ((dir (magit-git-dir "NOTES_MERGE_WORKTREE")))
     (and (file-directory-p dir)
          (directory-files dir nil "^[^.]"))))
@@ -1428,7 +1443,7 @@ defaulting to the tag at point.
 (defun magit-submodule-add (url &optional path)
   "Add the repository at URL as a submodule.
 Optional PATH is the path to the submodule relative to the root
-of the superproject. If it is nil then the path is determined
+of the superproject.  If it is nil then the path is determined
 based on URL."
   (interactive
    (let* ((default-directory (magit-toplevel))
@@ -1479,8 +1494,8 @@ With a prefix argument also register submodules in .git/config."
 
 ;;;###autoload
 (defun magit-submodule-fetch (&optional all)
-  "Fetch submodule.
-With a prefix argument fetch all remotes."
+  "Fetch a submodule.
+With a prefix argument fetch ALL remotes."
   (interactive "P")
   (let ((default-directory (magit-get-top-dir)))
     (magit-run-git-async "submodule" "foreach"
@@ -1617,6 +1632,7 @@ Run Git in the root of the current repository.
 
 ;;;###autoload
 (defun magit-format-patch (range)
+  "Prepare patches within RANGE for submission by email."
   (interactive
    (list (-if-let (revs (magit-region-values 'commit))
              (concat (car (last revs)) "^.." (car revs))

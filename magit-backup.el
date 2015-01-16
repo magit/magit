@@ -94,6 +94,7 @@
   :group 'magit-backup)
 
 (defun magit-maybe-backup ()
+  "If magit-backup-mode is non-nil, stash uncommitted changes."
   (when (and magit-backup-mode
              (magit-rev-parse "--verify" "HEAD"))
     (magit-stash-save (concat "WIP on " (magit-stash-summary))

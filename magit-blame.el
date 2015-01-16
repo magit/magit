@@ -356,7 +356,7 @@ only arguments available from `magit-blame-popup' should be used."
    format (seconds-to-time (+ time (* (/ tz 100) 60 60) (* (% tz 100) 60)))))
 
 (defun magit-blame-quit ()
-  "Turn of Magit-Blame mode.
+  "Turn off Magit-Blame mode.
 If the buffer was created during a recursive blame,
 then also kill the buffer."
   (interactive)
