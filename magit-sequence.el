@@ -105,10 +105,10 @@
   (interactive)
   (if (magit-sequencer-in-progress-p)
       (if (magit-anything-unstaged-p)
-          (error "Cannot continue due to unstaged changes")
+          (user-error "Cannot continue due to unstaged changes")
         (magit-run-git-sequencer
          (if (magit-revert-in-progress-p) "revert" "cherry-pick") "--continue"))
-    (error "No cherry-pick or revert in progress")))
+    (user-error "No cherry-pick or revert in progress")))
 
 ;;;###autoload
 (defun magit-sequencer-skip ()
@@ -116,7 +116,7 @@
   (if (magit-sequencer-in-progress-p)
       (progn (magit-call-git "reset" "--hard")
              (magit-sequencer-continue))
-    (error "No cherry-pick or revert in progress")))
+    (user-error "No cherry-pick or revert in progress")))
 
 ;;;###autoload
 (defun magit-sequencer-abort ()
@@ -124,7 +124,7 @@
   (if (magit-sequencer-in-progress-p)
       (magit-run-git-sequencer
        (if (magit-revert-in-progress-p) "revert" "cherry-pick") "--abort")
-    (error "No cherry-pick or revert in progress")))
+    (user-error "No cherry-pick or revert in progress")))
 
 (defun magit-sequencer-in-progress-p ()
   (file-exists-p (magit-git-dir "sequencer")))
