@@ -312,7 +312,7 @@ that without users being aware of it could lead to tears.
          (mode (unless (keywordp (car args)) (pop args)))
          (opt  (symbol-name name))
          (opt  (if (keywordp (car args))
-                   (intern (concat (if (string-match-p "-popup$" opt)
+                   (intern (concat (if (string-suffix-p "-popup" opt)
                                        (substring opt 0 -6)
                                      opt)
                                    "-arguments"))
