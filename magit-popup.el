@@ -162,7 +162,28 @@ that without users being aware of it could lead to tears.
     (define-key map [?\t]         'forward-button)
     (define-key map [?\C-n]       'forward-button)
     (define-key map [?\r]         'push-button)
-    map))
+    map)
+  "Keymap for `magit-popup-mode'.
+
+\\<magit-popup-mode-map>\
+This keymap contains bindings common to all popups.  A section
+listing these commands can be shown or hidden using \
+\\[magit-popup-toggle-show-popup-commands].
+
+The prefix used to toggle any switch can be changed by binding
+another key to `magit-invoke-popup-switch'.  Likewise binding
+another key to `magit-invoke-popup-option' changes the prefixed
+used to set any option.  The two prefixes have to be different.
+If you change these bindings you should also change the `prefix'
+property of the button types `magit-popup-switch-button' and
+`magit-popup-option-button'.
+
+If you change any other binding, then you might have to also edit
+`magit-popup-internal-commands' for things to align correctly in
+the section listing these commands.
+
+Never bind an alphabetic character in this keymap or you might
+make it impossible to invoke certain actions.")
 
 (defvar magit-popup-internal-commands
   '(("Set defaults"          magit-popup-set-default-arguments)
@@ -227,24 +248,65 @@ that without users being aware of it could lead to tears.
 
 ;;; Events
 
-(defvar-local magit-this-popup nil)
-(defvar-local magit-this-popup-events nil)
+(defvar-local magit-this-popup nil
+  "The popup which is currently active.
+This is intended for internal use only.
+Don't confuse this with `magit-current-popup'.")
+
+(defvar-local magit-this-popup-events nil
+  "The events known to the active popup.
+This is intended for internal use only.
+Don't confuse this with `magit-current-popup-args'.")
 
 (defun magit-popup-get (prop)
+  "While a popup is active, get the value of PROP."
   (if (memq prop '(:switches :options :actions))
       (plist-get magit-this-popup-events prop)
     (plist-get (symbol-value magit-this-popup) prop)))
 
 (defun magit-popup-put (prop val)
+  "While a popup is active, set the value of PROP to VAL."
   (if (memq prop '(:switches :options :actions))
       (setq magit-this-popup-events
             (plist-put magit-this-popup-events prop val))
     (error "Property %s isn't supported" prop)))
 
-(defvar magit-current-popup nil)
-(defvar magit-current-popup-args nil)
+(defvar magit-current-popup nil
+  "The popup from which this editing command was invoked.
+
+Use this inside the `interactive' form of a popup aware command
+to determine whether it was invoked from a popup and if so from
+which popup.  If the current command was invoked without the use
+of a popup then this is nil.")
+
+(defvar magit-current-popup-args nil
+  "The value of the popup arguments for this editing command.
+
+If the current command was invoked from a popup, then this is
+a list of strings of all the set switches and options.  This
+includes arguments which are set by default not only those
+explicitly set during this invocation.
+
+When the value is nil, then that can be because no argument is
+set, or because the current command wasn't invoked from a popup;
+consult `magit-current-popup' to tell the difference.
+
+Generally it is better to use `NAME-arguments', which is created
+by `magit-define-popup', instead of this variable or the function
+by the same name, because `NAME-argument' uses the default value
+for the arguments when the editing command is invoked directly
+instead of from a popup.  When the command is bound in several
+popups that might not be feasible though.")
 
 (defun magit-current-popup-args (&rest filter)
+  "Return the value of the popup arguments for this editing command.
+
+The value is the same as that of the variable by the same name
+\(which see), except that FILTER is applied.  FILTER is a list
+of regexps; only arguments that match one of them are returned.
+The first element of FILTER may also be `:not' in which case
+only arguments that don't match any of the regexps are returned,
+or `:only' which doesn't change the behaviour."
   (let ((-compare-fn (lambda (a b) (magit-popup-arg-match b a))))
     (-filter (if (eq (car filter) :not)
                  (lambda (arg) (not (-contains? (cdr filter) arg)))
@@ -306,7 +368,63 @@ that without users being aware of it could lead to tears.
 ;;; Define
 
 (defmacro magit-define-popup (name doc &rest args)
-  "\n\n(fn NAME DOC [GROUP [MODE [OPTION]]] :KEYWORD VALUE...)"
+  "Define a popup command named NAME.
+
+NAME should begin with the package prefix and by convention end
+with `-popup'.  That name is used for the actual command as well
+as for a variable used internally.  DOC is used as the doc-string
+of that command.
+
+Also define an option and a function named `SHORTNAME-arguments',
+where SHORTNAME is NAME with the trailing `-popup' removed.  The
+name of this option and this function can be overwritten using
+the optional argument OPTION, but that is rarely advisable.
+
+The option `SHORTNAME-arguments' holds the default value for the
+popup arguments.  It can be customized from within the popup or
+using the Custom interface.
+
+The function `SHORTNAME-arguments' is a wrapper around the
+variable `magit-current-popup-args', both of which are intended
+to be used inside the `interactive' form of commands commonly
+invoked from the popup `NAME'.  When such a command is invoked
+from that popup, then the function `SHORTNAME-arguments' returns
+the value of the variable `magit-current-popup-args'; however
+when the command is invoked directly, then it returns the default
+value of the variable `SHORTNAME-arguments'.
+
+Optional argument GROUP specifies the Custom group in which the
+option is placed.  If ommitted then the option is placed in some
+group the same way it is done when directly using `defcustom'.
+
+Optional argument MODE specifies the mode used by the popup
+buffer.  If it is ommitted or nil then `magit-popup-mode' is
+used.
+
+The remaining arguments should have the form
+
+    [KEYWORD VALUE]...
+
+The following keywords are meaningful (and by convention are
+usually specified in that order):
+
+:man-page
+:switches
+:options
+:actions
+:default-arguments
+:default-action
+:max-action-columns
+:use-prefix
+
+When MODE is `magit-popup-sequence-mode', then the following
+keywords are also meaningful:
+
+:sequence-actions
+:sequence-predicate
+
+\(fn NAME DOC [GROUP [MODE [OPTION]]] :KEYWORD VALUE...)"
+  ;; TODO document keywords
   (declare (indent defun) (doc-string 2))
   (let* ((grp  (unless (keywordp (car args)) (pop args)))
          (mode (unless (keywordp (car args)) (pop args)))
@@ -335,24 +453,84 @@ that without users being aware of it could lead to tears.
 
 (defun magit-define-popup-switch (popup key desc switch
                                         &optional enable at prepend)
+  "In POPUP, define KEY as SWITCH.
+
+POPUP is a popup command defined using `magit-define-popup'.
+SWITCH is a string representing an argument that takes no value.
+KEY is a character representing the second event in the sequence
+of keystrokes used to toggle the argument.  (The first event, the
+prefix, is shared among all switches, defaults to -, and can be
+changed in `magit-popup-mode-keymap').
+
+DESC is a string describing the purpose of the argument, it is
+displayed in the popup.
+
+If optional ENABLE is non-nil then the switch is on by default.
+
+SWITCH is inserted after all other switches already defined for
+POPUP, unless optional PREPEND is non-nil, in which case it is
+placed first.  If optional AT is non-nil then it should be the
+KEY of another switch already defined for POPUP, the argument
+is then placed before or after AT, depending on PREPEND."
   (declare (indent defun))
   (magit-define-popup-key popup :switches key
     (list desc switch enable) at prepend))
 
 (defun magit-define-popup-option (popup key desc option reader
                                         &optional value at prepend)
+  "In POPUP, define KEY as OPTION.
+
+POPUP is a popup command defined using `magit-define-popup'.
+OPTION is a string representing an argument that takes a value.
+KEY is a character representing the second event in the sequence
+of keystrokes used to set the argument's value.  (The first
+event, the prefix, is shared among all options, defaults to =,
+and can be changed in `magit-popup-mode-keymap').
+
+DESC is a string describing the purpose of the argument, it is
+displayed in the popup.
+
+If optional VALUE is non-nil then the option is on by default,
+and VALUE is its default value.
+
+OPTION is inserted after all other options already defined for
+POPUP, unless optional PREPEND is non-nil, in which case it is
+placed first.  If optional AT is non-nil then it should be the
+KEY of another option already defined for POPUP, the argument
+is then placed before or after AT, depending on PREPEND."
   (declare (indent defun))
   (magit-define-popup-key popup :options key
     (list desc option reader value) at prepend))
 
 (defun magit-define-popup-action (popup key desc command
                                         &optional at prepend)
+  "In POPUP, define KEY as COMMAND.
+
+POPUP is a popup command defined using `magit-define-popup'.
+COMMAND can be any command but should usually consume the popup
+arguments in its `interactive' form.
+KEY is a character representing the event used invoke the action,
+i.e. to interactively call the COMMAND.
+
+DESC is a string describing the purpose of the action, it is
+displayed in the popup.
+
+COMMAND is inserted after all other commands already defined for
+POPUP, unless optional PREPEND is non-nil, in which case it is
+placed first.  If optional AT is non-nil then it should be the
+KEY of another command already defined for POPUP, the command
+is then placed before or after AT, depending on PREPEND."
   (declare (indent defun))
   (magit-define-popup-key popup :actions key
     (list desc command) at prepend))
 
 (defun magit-define-popup-key (popup type key def
                                      &optional at prepend)
+  "In POPUP, define KEY as an action, switch, or option.
+It's better to use one of the specialized functions
+  `magit-define-popup-action',
+  `magit-define-popup-switch', or
+  `magit-define-popup-option'."
   (declare (indent defun))
   (if (memq type '(:switches :options :actions))
       (let* ((plist (symbol-value popup))
@@ -377,9 +555,16 @@ that without users being aware of it could lead to tears.
     (error "Unknown popup event type: %s" type)))
 
 (defun magit-change-popup-key (popup type from to)
+  "In POPUP, bind TO to what FROM was bound to.
+TYPE is one of `:action', `:switch', or `:option'.
+Bind TO and unbind FROM, both are characters."
   (setcar (assoc from (plist-get (symbol-value popup) type)) to))
 
 (defun magit-remove-popup-key (popup type key)
+  "In POPUP, remove KEY's binding of TYPE.
+POPUP is a popup command defined using `magit-define-popup'.
+TYPE is one of `:action', `:switch', or `:option'.
+KEY is the character which is to be unbound."
   (let* ((plist (symbol-value popup))
          (alist (plist-get plist type))
          (value (assoc key alist)))
@@ -465,6 +650,7 @@ that without users being aware of it could lead to tears.
       (error "%c isn't bound to any action" event))))
 
 (defun magit-popup-quit ()
+  "Quit the current popup command without invoking an action."
   (interactive)
   (let ((buf (current-buffer))
         (winconf magit-popup-previous-winconf))
@@ -478,12 +664,24 @@ that without users being aware of it could lead to tears.
 ;;; Save
 
 (defun magit-popup-set-default-arguments (arg)
+  "Set default value for the arguments for the current popup.
+Then close the popup without invoking an action; unless a prefix
+argument is used in which case the popup remains open.
+
+For a popup named `NAME-popup' that usually means setting the
+value of the custom option `NAME-arguments'."
   (interactive "P")
   (customize-set-variable (magit-popup-get :variable)
                           (magit-popup-get-args))
   (unless arg (magit-popup-quit)))
 
 (defun magit-popup-save-default-arguments (arg)
+  "Save default value for the arguments for the current popup.
+Then close the popup without invoking an action; unless a prefix
+argument is used in which case the popup remains open.
+
+For a popup named `NAME-popup' that usually means saving the
+value of the custom option `NAME-arguments'."
   (interactive "P")
   (customize-save-variable (magit-popup-get :variable)
                            (magit-popup-get-args))
@@ -492,6 +690,9 @@ that without users being aware of it could lead to tears.
 ;;; Help
 
 (defun magit-popup-toggle-show-popup-commands ()
+  "Show or hide an additional section with common commands.
+The commands listed in this section are common to all popups
+and are defined in `magit-popup-mode-map' (which see)."
   (interactive)
   (setq magit-popup-show-help-section
         (not magit-popup-show-help-section))
@@ -499,6 +700,7 @@ that without users being aware of it could lead to tears.
   (fit-window-to-buffer))
 
 (defun magit-popup-help ()
+  "Show help for the argument or action at point."
   (interactive)
   (let* ((man (magit-popup-get :man-page))
          (key (read-key-sequence
@@ -564,7 +766,9 @@ that without users being aware of it could lead to tears.
     (magit-popup-help-mode)))
 
 (defun magit-popup-info ()
+  "Show the popup manual."
   (interactive)
+  (error "The manual does not exist yet, I'm afraid")
   (let ((winconf (current-window-configuration)))
     (delete-other-windows)
     (split-window-below)
@@ -595,7 +799,7 @@ restored."
 
 (put 'magit-popup-mode 'mode-class 'special)
 
-(defvar magit-popup-setup-hook nil)
+(defvar magit-popup-setup-hook nil "For internal use.")
 
 (defun magit-popup-default-setup (val def)
   (magit-popup-put :switches (magit-popup-convert-switches
@@ -668,7 +872,8 @@ in the popup."
 
 ;;; Draw
 
-(defvar magit-popup-min-padding 3)
+(defvar magit-popup-min-padding 3
+  "Minimal amount of whitespace between columns in popup buffers.")
 
 (defun magit-popup-insert-section (type &optional spec)
   (let* ((heading   (button-type-get type 'heading))

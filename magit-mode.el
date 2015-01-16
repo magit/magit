@@ -451,9 +451,12 @@ tracked in the current repository."
     (with-current-buffer buffer (magit-refresh-buffer)))
   (magit-revert-buffers t))
 
-(defvar magit-refresh-buffer-hook nil)
+(defvar magit-refresh-buffer-hook nil
+  "Hook run after refreshing a file-visiting buffer.")
 
 (defun magit-refresh-buffer ()
+  "Refresh the current Magit buffer.
+Uses the buffer-local `magit-refresh-function'."
   (when magit-refresh-function
     (let* ((buffer (current-buffer))
            (windows
@@ -482,6 +485,9 @@ tracked in the current repository."
       (magit-section-update-highlight))))
 
 (defun magit-revert-buffers (&optional force)
+  "Refresh the current file-visiting buffer.
+The buffer is only refreshed if `magit-auto-revert-mode'
+is turned on or optional FORCE is non-nil."
   (when (or force magit-auto-revert-mode)
     (-when-let (topdir (magit-toplevel-safe))
       (let ((tracked (magit-revision-files "HEAD"))

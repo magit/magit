@@ -281,6 +281,10 @@ When the region is active offer to drop all contained stashes."
 
 (cl-defun magit-insert-stashes (&optional (ref   "refs/stash")
                                           (heading "Stashes:"))
+  "Insert `stashes' section showing reflog for \"refs/stash\".
+If optional REF is non-nil show reflog for that instead.
+If optional HEADING is non-nil use that as section heading
+instead of \"Stashes:\"."
   (when (magit-rev-verify ref)
     (magit-insert-section (stashes ref)
       (magit-insert-heading heading)
@@ -361,6 +365,7 @@ The following `format'-like specs are supported:
     (run-hooks 'magit-stash-sections-hook)))
 
 (defun magit-insert-stash-message ()
+  "Insert section showing the message of the stash."
   (let ((stash (car magit-refresh-args)))
     (magit-insert-section (stash-message)
       (magit-insert
@@ -376,12 +381,15 @@ The following `format'-like specs are supported:
          (format ,format stash stash) "--" ,files))))
 
 (defun magit-insert-stash-index ()
+  "Insert section showing the index commit of the stash."
   (magit-stash-insert-section index "%s^..%s^2"))
 
 (defun magit-insert-stash-worktree ()
+  "Insert section showing the worktree commit of the stash."
   (magit-stash-insert-section worktree "%s^2..%s"))
 
 (defun magit-insert-stash-untracked ()
+  "Insert section showing the untracked files commit of the stash."
   (let ((rev (concat (car magit-refresh-args) "^3")))
     (when (magit-rev-verify rev)
       (magit-stash-insert-section

@@ -77,7 +77,7 @@ other actions from the bisect popup (\
 
 ;;;###autoload
 (defun magit-bisect-reset ()
-  "After bisecting cleanup bisection state and return to original HEAD."
+  "After bisecting, cleanup bisection state and return to original HEAD."
   (interactive)
   (when (magit-confirm 'reset-bisect)
     (magit-run-git "bisect" "reset")
@@ -127,6 +127,7 @@ to test.  This command lets Git choose a different one."
   (file-exists-p (magit-git-dir "BISECT_LOG")))
 
 (defun magit-insert-bisect-output ()
+  "While bisecting, insert section with output from `git bisect'."
   (when (magit-bisect-in-progress-p)
     (let ((lines
            (or (magit-file-lines (magit-git-dir "BISECT_CMD_OUTPUT"))
@@ -146,6 +147,7 @@ to test.  This command lets Git choose a different one."
     (insert "\n")))
 
 (defun magit-insert-bisect-rest ()
+  "While bisecting, insert section visualizing the bisect state."
   (when (magit-bisect-in-progress-p)
     (magit-insert-section (bisect-view)
       (magit-insert-heading "Bisect Rest:")
@@ -154,6 +156,7 @@ to test.  This command lets Git choose a different one."
         "--format=%h%d %s" "--decorate=full"))))
 
 (defun magit-insert-bisect-log ()
+  "While bisecting, insert section logging bisect progress."
   (when (magit-bisect-in-progress-p)
     (magit-insert-section (bisect-log)
       (magit-insert-heading "Bisect Log:")

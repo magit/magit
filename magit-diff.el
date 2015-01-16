@@ -404,7 +404,11 @@ The following `format'-like specs are supported:
     (?p "[p]atience"  "patience")
     (?h "[h]istogram" "histogram")))
 
-(defvar magit-diff-switch-buffer-function 'pop-to-buffer)
+(defvar magit-diff-switch-buffer-function 'pop-to-buffer
+  "Function used to display and possibly select a diff buffer.
+This variable is mainly intended for internal use, allowing a
+different function to be used under certain circumstances.
+If you do change the global value this might lead to problems.")
 
 ;;;###autoload
 (defun magit-diff-dwim (&optional args)
@@ -484,6 +488,10 @@ a commit read from the minibuffer."
 
 ;;;###autoload
 (defun magit-diff-while-committing (&optional args)
+  "While committing, show the changes that are about to be committed.
+While amending, invoking the command again toggles between
+showing just the new changes or all the changes that will
+be commited."
   (interactive (list (magit-diff-arguments)))
   (let* ((toplevel (magit-get-top-dir))
          (diff-buf (magit-mode-get-buffer magit-diff-buffer-name-format
@@ -669,6 +677,17 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
     (message "magit-diff-refine-hunk: %s" magit-diff-refine-hunk)))
 
 (defun magit-diff-visit-file (file &optional other-window force-worktree)
+  "From a diff, visit the corresponding file at the appropriate position.
+
+When the file is already being displayed in another window of the
+same frame, then just select that window and adjust point.  With
+a prefix argument also display in another window.
+
+If the diff shows changes in the worktree, the index, or HEAD,
+then visit the actual file.  Otherwise when the diff is about
+an older commit, then visit the respective blob using
+`magit-find-file'.  Also see `magit-diff-visit-file-worktree'
+which, as the name suggests always visits the actual file."
   (interactive (list (magit-file-at-point) current-prefix-arg))
   (if (file-accessible-directory-p file)
       (magit-diff-visit-directory file other-window)
@@ -704,6 +723,20 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
       (smerge-start-session))))
 
 (defun magit-diff-visit-file-worktree (file &optional other-window)
+  "From a diff, visit the corresponding file at the appropriate position.
+
+When the file is already being displayed in another window of the
+same frame, then just select that window and adjust point.  With
+a prefix argument also display in another window.
+
+The actual file in the worktree is visited. The positions in the
+hunk headers get less useful the \"older\" the changes are, and
+as a result, jumping to the appropriate position gets less
+reliable.
+
+Also see `magit-diff-visit-file-worktree' which visits the
+respective blob, unless the diff shows changes in the worktree,
+the index, or HEAD."
   (interactive (list (magit-file-at-point) current-prefix-arg))
   (magit-diff-visit-file file other-window t))
 
@@ -1207,6 +1240,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
 (magit-define-section-jumper unstaged "Unstaged changes")
 
 (defun magit-insert-unstaged-changes ()
+  "Insert section showing unstaged changes."
   (magit-insert-section (unstaged)
     (magit-insert-heading "Unstaged changes:")
     (magit-git-wash #'magit-diff-wash-diffs
@@ -1225,6 +1259,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
 (magit-define-section-jumper staged "Staged changes")
 
 (defun magit-insert-staged-changes ()
+  "Insert section showing staged changes."
   (magit-insert-section (staged)
     (magit-insert-heading "Staged changes:")
     (magit-git-wash #'magit-diff-wash-diffs
@@ -1233,6 +1268,22 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
 ;;; Diff Type
 
 (defun magit-diff-type (&optional section)
+  "Return the diff type of SECTION.
+
+The returned type is one of the symbols `staged', `unstaged',
+`committed', or `undefined'.  This type serves a similar purpose
+as the general type common to all sections (which is stored in
+the `type' slot of the corresponding `magit-section' struct) but
+takes additional information into account.
+
+The section has to be a `diff' or `hunk' section, or a section
+whose children are of type `diff'.  If optional SECTION is nil,
+return the diff type for the current section.  In buffers whose
+major mode is `magit-diff-mode' SECTION is ignored and the type
+is determined using other means.  In `magit-revision-mode'
+buffers the type is always `committed'.
+
+Do not confuse this with `magit-diff-scope' (which see)."
   (--when-let (or section (magit-current-section))
     (cond ((derived-mode-p 'magit-diff-mode)
            (if (car magit-refresh-args)
@@ -1256,6 +1307,22 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
           (t 'undefined))))
 
 (defun magit-diff-scope (&optional section strict singular)
+  "Return the diff scope of SECTION.
+
+A diff's \"scope\" describes what part of a diff is selected, it
+is a symbol, one of `hunk', `hunks', `file', `files', or `list'.
+When the region is active and selects a valid group of sections,
+then the type is plural.  If the region is not active then it is
+singular.  If optional SINGULAR is non-nil, then always return a
+singular.  If optional SECTION is non-nil, the return the scope
+of that, ignoring the region.
+
+If optional STRICT is non-nil then return nil if the diff type of
+the section at point is `untracked' or the section at point is not
+actually a `diff' but a `diffstat' section.
+
+Do not confuse this with `magit-diff-type' (which see).
+Also see `magit-current-selection'."
   (let ((siblings (and (not singular) (magit-region-sections))))
     (setq section (or section (car siblings) (magit-current-section)))
     (when (and section
@@ -1287,11 +1354,16 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
 ;;; Diff Highlight
 
 (defun magit-diff-unhighlight (section)
+  "Remove the highlighting of the diff-related SECTION."
   (when (eq (magit-section-type section) 'hunk)
     (magit-diff-paint-hunk section)
     t))
 
 (defun magit-diff-highlight (section siblings)
+  "Highlight the diff-related SECTION and return non-nil.
+If SECTION is not a diff-related section, then do nothing and
+return nil.  If SIBLINGS is non-nil then it is a list of siblings
+of SECTION including SECTION and all of them are highlighted."
   (-when-let (scope (magit-diff-scope section t))
     (cond ((eq scope 'region)
            (magit-diff-paint-hunk section nil t)

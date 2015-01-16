@@ -112,7 +112,8 @@ and then turned on again when turning on the latter."
     (define-key map "P"  'magit-blame-previous-chunk-same-commit)
     (define-key map "q"  'magit-blame-quit)
     (define-key map "t"  'magit-blame-toggle-headings)
-    map))
+    map)
+  "Keymap for `magit-blame-mode'.")
 
 (defvar-local magit-blame-buffer-read-only nil)
 (defvar-local magit-blame-cache nil)
@@ -356,7 +357,7 @@ only arguments available from `magit-blame-popup' should be used."
    format (seconds-to-time (+ time (* (/ tz 100) 60 60) (* (% tz 100) 60)))))
 
 (defun magit-blame-quit ()
-  "Turn of Magit-Blame mode.
+  "Turn off Magit-Blame mode.
 If the buffer was created during a recursive blame,
 then also kill the buffer."
   (interactive)
@@ -365,7 +366,8 @@ then also kill the buffer."
     (magit-blame-mode -1)))
 
 (defvar magit-blame-goto-chunk-hook
-  '(magit-log-maybe-show-commit))
+  '(magit-log-maybe-show-commit)
+  "Hook run by `magit-blame-next-chunk' and `magit-blame-previous-chunk'.")
 
 (defun magit-blame-next-chunk ()
   "Move to the next chunk."

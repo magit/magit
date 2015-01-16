@@ -293,7 +293,8 @@ depending on the value of option `magit-commit-squash-confirm'.
     (magit-completing-read prompt keys nil nil nil 'magit-gpg-secret-key-hist
                            (car (or magit-gpg-secret-key-hist keys)))))
 
-(defvar magit-commit-add-log-insert-function 'magit-commit-add-log-insert)
+(defvar magit-commit-add-log-insert-function 'magit-commit-add-log-insert
+  "Used by `magit-commit-add-log' to insert a single entry.")
 
 (defun magit-commit-add-log ()
   "Add a stub for the current hunk into the commit message buffer.

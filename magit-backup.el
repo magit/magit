@@ -94,6 +94,7 @@
   :group 'magit-backup)
 
 (defun magit-maybe-backup ()
+  "If `magit-backup-mode' is enabled, create a backup stash."
   (when (and magit-backup-mode
              (magit-rev-parse "--verify" "HEAD"))
     (magit-stash-save (concat "WIP on " (magit-stash-summary))
@@ -102,6 +103,7 @@
                       nil t t magit-backup-ref)))
 
 (defun magit-insert-backups ()
+  "Insert `stashes' section showing reflog for `magit-backup-ref'."
   (magit-insert-stashes magit-backup-ref "Backups:"))
 
 ;;; magit-backup.el ends soon

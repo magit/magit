@@ -61,7 +61,9 @@ until one of them returns non-nil."
   '(magit-diff-unhighlight)
   "Functions used to unhighlight the previously current section.
 Each function is run with the current section as only argument
-until one of them returns non-nil."
+until one of them returns non-nil.  Most sections are properly
+unhighlighted without requiring a specialized unhighligher,
+diff-related sections being the only exception."
   :package-version '(magit . "2.1.0")
   :group 'magit-section
   :type 'hook
@@ -200,13 +202,18 @@ If there is no previous sibling section, then move to the parent."
 (defvar magit-section-movement-hook
   '(magit-hunk-set-window-start
     magit-log-maybe-show-commit
-    magit-log-maybe-show-more-entries))
+    magit-log-maybe-show-more-entries)
+  "Hook run by `magit-section-goto'.
+That function in turn is used by all section movement commands.")
 
 (defun magit-section-set-window-start (section)
+  "Ensure the beginning of SECTION is visible."
   (unless (pos-visible-in-window-p (magit-section-end section))
     (set-window-start (selected-window) (magit-section-start section))))
 
 (defun magit-hunk-set-window-start (section)
+  "Ensure the beginning of the `hunk' SECTION is visible.
+It the SECTION has a different type, then do nothing."
   (when (eq (magit-section-type section) 'hunk)
     (magit-section-set-window-start section)))
 
@@ -531,10 +538,49 @@ at point."
 (defvar magit-insert-section--parent  nil "For internal use only.")
 (defvar magit-insert-section--oldroot nil "For internal use only.")
 
-(defvar magit-section-set-visibility-hook '(magit-diff-set-visibility))
+(defvar magit-section-set-visibility-hook '(magit-diff-set-visibility)
+  "Hook used to set the initial visibility of a section.
+Stop at the first function that returns non-nil.  The value
+should be `show' or `hide'.  If no function returns non-nil
+determine the visibility as usual (see `magit-insert-section').")
 
 (defmacro magit-insert-section (&rest args)
-  "\n\n(fn [NAME] (TYPE &optional VALUE HIDE) &rest BODY)"
+  "Insert a section at point.
+
+TYPE is the section type, a symbol.  Many commands that act on
+the current section behave differently depending on that type.
+Also if a variable `magit-TYPE-section-map' exists, then use
+that as the text-property `keymap' of all text belonging to the
+section (but this may be overwritten in subsections).
+
+Optional VALUE is the value of the section, usually a string
+that is required when acting on the section.
+
+When optional HIDE is non-nil collapse the section body by
+default, i.e. when first creating the section, but not when
+refreshing the buffer.  Else expand it by default.  This can be
+overwritten using `magit-section-set-visibility-hook'.  When a
+section is recreated during a refresh, then the visibility of
+predecessor is inherited and HIDE is ignored (but the hook is
+still honored).
+
+BODY is any number of forms that actually insert the section's
+heading and body.  Optional NAME, if specified, has to be a
+symbol, which is then bound to the struct of the section being
+inserted.
+
+Before BODY is evaluated the `start' of the section object is set
+to the value of `point' and after BODY was evaluated its `end' is
+set to the new value of `point'; BODY is responsible for moving
+`point' forward.
+
+If it turns out inside BODY that the section is empty, then
+`magit-cancel-section' can be used to abort and remove all traces
+of the partially inserted section.  This can happen when creating
+a section by washing Git's output and Git didn't actually output
+anything this time around.
+
+\(fn [NAME] (TYPE &optional VALUE HIDE) &rest BODY)"
   (declare (indent defun)
            (debug ([&optional symbolp] (symbolp &optional form form) body)))
   (let ((s (if (symbolp (car args))
@@ -598,6 +644,32 @@ at point."
       (throw 'cancel-section nil))))
 
 (defun magit-insert-heading (&rest args)
+  "Insert the heading for the section currently being inserted.
+
+This function should only be used inside `magit-insert-section'.
+
+When called without any arguments, then just set the `content'
+slot of the object representing the section being inserted to
+a marker at `point'.  The section should only contain a single
+line when this function is used like this.
+
+When called with arguments ARGS, which have to be strings, then
+insert those strings at point.  The section should not contain
+any text before this happens and afterwards it should again only
+contain a single line.  If the `face' property is set anywhere
+inside any of these strings, then insert all of them unchanged.
+Otherwise use the `magit-section-heading' face for all inserted
+text.
+
+The `content' property of the secton struct is the end of the
+heading (which lasts from `start' to `content') and the beginning
+of the the body (which lasts from `content' to `end').  If the
+value of `content' is nil, then the section has no heading and
+its body cannot be collapsed.  If a section does have a heading
+then its height must be exactly one line, including a trailing
+newline character.  This isn't enforced, you are responsible for
+getting it right.  The only exception is that this function does
+insert a newline character if necessary."
   (declare (indent defun))
   (when args
     (let ((heading (apply #'concat args)))
@@ -610,6 +682,14 @@ at point."
   (setf (magit-section-content magit-insert-section--current) (point-marker)))
 
 (defun magit-insert-child-count (section)
+  "Modify SECTION's heading to contain number of child sections.
+
+If `magit-section-show-child-count' is non-nil and the SECTION
+has children and its heading ends with \":\", then replace that
+with \" (N)\", where N is the number of child sections.
+
+This function is called by `magit-insert-section' after that has
+evaluated its BODY.  Admittedly that's a bit of a hack."
   ;; This has to be fast, not pretty!
   (let (content count)
     (when (and magit-section-show-child-count
@@ -623,6 +703,23 @@ at point."
         (delete-char 1)))))
 
 (defun magit-insert (string &optional face &rest args)
+  "Insert the strings STRING and ARGS at point.
+
+First insert STRING, possibly doing some crazy things as
+described below; then insert ARGS as is, in a totally sane
+fashion.
+
+This function owes its existence to the fact that Emacs does
+not implement negative overlay priorities, and that some time
+in the past it was decided that this is not acceptable and that
+such negative prioritize have to be faked.  I wish we had shown
+some restrain, but here we are.  At least this madness is now
+contained in this function and `magit-put-face-property'.
+
+Insert STRING and then create an overlay on the inserted text,
+which sets the `face' property.  If optional FACE is non-nil,
+then use that face.  Otherwise use the first `face' property
+found in STRING."
   (if face
       (let ((start (point)))
         (insert string)
@@ -674,6 +771,10 @@ at point."
           magit-section-unhighlight-sections)))
 
 (defun magit-section-highlight (section siblings)
+  "Highlight SECTION and if non-nil all SIBLINGS.
+This function works for any section but produces undesirable
+effects for diff related sections, which by default are
+highlighted using `magit-diff-highlight'."
   (cond (siblings
          (magit-face-remap-set-base 'region 'face-override-spec)
          (magit-section-make-overlay (magit-section-start     (car siblings))
@@ -733,6 +834,12 @@ at point."
   (when section (magit-section-value  section)))
 
 (defun magit-section-siblings (section &optional direction)
+  "Return a list of the sibling sections of SECTION.
+
+If optional DIRECTION is `prev' then return siblings that come
+before SECTION, if it is `next' then return siblings that come
+after SECTION.  For all other values return all siblings
+including SECTION itself."
   (-when-let (parent (magit-section-parent section))
     (let ((siblings  (magit-section-children parent)))
       (pcase direction
@@ -741,6 +848,14 @@ at point."
         (_      (remq section siblings))))))
 
 (defun magit-region-values (&rest types)
+  "Return a list of the values of the selected sections.
+
+Also see `magit-region-sections' whose doc-string explains when a
+region is a valid section selection.  If the region is not active
+or is not a valid section selection, then return nil.  If optional
+TYPES is non-nil then the selection not only has to be valid; the
+types of all selected sections additionally have to match one of
+TYPES, or nil is returned."
   (when (use-region-p)
     (let ((sections (magit-region-sections)))
       (when (or (not types)
@@ -748,6 +863,22 @@ at point."
         (mapcar 'magit-section-value sections)))))
 
 (defun magit-region-sections ()
+  "Return a list of the selected sections.
+
+When the region is active and constitutes a valid section
+selection, then return a list of all selected sections.  This is
+the case when the region begins in the heading of a section and
+ends in the heading of a sibling of that first section.  When
+the selection is not valid then return nil.  Most commands that
+can act on the selected sections, then instead just act on the
+current section, the one point is in.
+
+When the region looks like it would in any other buffer then
+the selection is invalid.  When the selection is valid then the
+region uses the `magit-section-highlight'.  This does not apply
+to diffs were things get a bit more complicated, but even here
+if the region looks like it usually does, then that's not a
+valid selection as far as this function is concerned."
   (when (use-region-p)
     (let* ((rbeg (region-beginning))
            (rend (region-end))

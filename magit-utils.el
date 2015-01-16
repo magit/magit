@@ -206,8 +206,10 @@ results in additional differences."
       (format "%s (default %s): " (substring prompt 0 -2) def)
     prompt))
 
-(defun magit-read-string
-    (prompt &optional initial-input history default-value)
+(defun magit-read-string (prompt &optional initial-input history default-value)
+  "Like `read-string' but require non-empty input.
+Empty input is only allowed if DEFAULT-VALUE is non-nil in
+which case that is returned.  Also append \": \" to PROMPT."
   (let ((reply (read-string (magit-prompt-with-default
                              (concat prompt ": ") default-value)
                             initial-input history default-value)))
@@ -270,6 +272,11 @@ results in additional differences."
 ;;; Text Utilities
 
 (defmacro magit-bind-match-strings (varlist string &rest body)
+  "Bind varibles to submatches accoring to VARLIST then evaluate BODY.
+Bind the symbols in VARLIST to submatches of the current match
+data, starting with 1 and incrementing by 1 for each symbol.  If
+the last match was against a string then that has to be provided
+as STRING."
   (declare (indent 2) (debug (listp form body)))
   (let ((s (cl-gensym "string"))
         (i 0))
@@ -308,6 +315,9 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
       (split-string (buffer-string) "\n" (not keep-empty-lines)))))
 
 (defun magit-face-remap-set-base (face &optional base)
+  "Like `face-remap-set-base' but without the bug.
+Also lacks a few features we don't need, including the
+always-raise-an-error feature."
   (make-local-variable 'face-remapping-alist)
   (--if-let (assq face  face-remapping-alist)
       (if base

@@ -73,7 +73,7 @@
   '("--no-pager" "--literal-pathspecs" "-c" "core.preloadindex=true")
   "Standard options when running Git.
 Be careful what you add here, especially if you are using
-tramp to connect to servers with ancient Git versions."
+Tramp to connect to servers with ancient Git versions."
   :group 'magit-process
   :type '(repeat string))
 
@@ -115,8 +115,17 @@ manager but it will be used in more places in the future."
 ;;; Git
 
 (defun magit-process-git-arguments (args)
+  "Prepare ARGS for a function that invokes Git.
+
+Magit has many specialized functions for running Git; they all
+pass arguments through this function before handing them to Git,
+to do the following.
+
+* Flatten ARGS, removing nil arguments.
+* Prepend `magit-git-standard-options' to ARGS.
+* Quote arguments as required when using Powershell together
+  with Cygwin Git.  See #816."
   (setq args (-flatten args))
-  ;; Kludge for Powershell in combination with Cygwin Git, see #816.
   (when (and (eq system-type 'windows-nt)
              (let ((case-fold-search t))
                (string-match-p "cygwin" magit-git-executable)))
@@ -237,6 +246,10 @@ non-nil return only the local part of tramp paths."
     (file-name-as-directory (magit-expand-git-file-name it localname))))
 
 (defun magit-toplevel-safe (&optional directory)
+  "Return the top-level directory for the repository containing DIRECTORY.
+
+If optional DIRECTORY is nil use the `default-directory'.  Unlike
+with `magit-toplevel' the DIRECTORY does not have to exist."
   (let ((default-directory
           (file-name-as-directory (or directory default-directory))))
     (while (not (file-accessible-directory-p default-directory))

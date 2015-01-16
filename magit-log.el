@@ -371,11 +371,19 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
 
 ;;;###autoload
 (defun magit-log-current (revs &optional args files)
+  "Show log for the current branch.
+When HEAD is detached or with a prefix argument show log for one
+or more revs read from the minibuffer."
   (interactive (magit-log-read-args t))
   (magit-log revs args files))
 
 ;;;###autoload
 (defun magit-log (revs &optional args files)
+  "Show log for one or more revs read from the minibuffer.
+The user can input any revision or revisions separated by a
+space, or even ranges, but only branches and tags, and a
+representation of the commit at point, are available as
+completion candidates."
   (interactive (magit-log-read-args nil))
   (magit-mode-setup magit-log-buffer-name-format nil
                     #'magit-log-mode
@@ -394,6 +402,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
 
 ;;;###autoload
 (defun magit-log-head (args)
+  "Show log for HEAD."
   (interactive (list (magit-log-arguments)))
   (magit-log "HEAD" args))
 
@@ -496,6 +505,8 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
     (magit-format-log-margin)))
 
 (defun magit-insert-log (revs &optional args files)
+  "Insert a oneline log section.
+For internal use; don't add to a hook."
   (magit-git-wash (apply-partially 'magit-log-wash-log 'oneline)
     "log" (format "-%d" magit-log-cutoff-length) "--color"
     (format "--format=%%h%s %s[%%an][%%at]%%s"
@@ -509,6 +520,8 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
     revs "--" files))
 
 (defun magit-insert-log-verbose (revs &optional args files)
+  "Insert a multiline log section.
+For internal use; don't add to a hook."
   (magit-git-wash (apply-partially 'magit-log-wash-log 'verbose)
     "log" (format "-%d" magit-log-cutoff-length) "--color"
     (if (member "--decorate" args)
@@ -746,6 +759,9 @@ alist in `magit-log-format-unicode-graph-alist'."
 
 
 (defun magit-log-maybe-show-more-entries (section)
+  "Automatically insert more commit sections in a log.
+Only do so if `point' is on the \"show more\" section,
+and `magit-log-auto-more' is non-nil."
   (when (and (eq (magit-section-type section) 'longer)
              magit-log-auto-more)
     (magit-log-show-more-entries)
@@ -753,6 +769,10 @@ alist in `magit-log-format-unicode-graph-alist'."
     (magit-section-forward)))
 
 (defun magit-log-maybe-show-commit (&optional section)
+  "Automatically show commit at point in another window.
+If the section at point is a `commit' section and the value of
+`magit-diff-auto-show-p' calls for it, then show that commit in
+another window, using `magit-show-commit'."
   (--when-let
       (or (and section
                (eq (magit-section-type section) 'commit)
@@ -819,6 +839,9 @@ alist in `magit-log-format-unicode-graph-alist'."
             'magit-log-select-quit))))
 
 (defun magit-log-select-pick ()
+  "Select the commit at point and act on it.
+Call `magit-log-select-pick-function' with the selected
+commit as argument."
   (interactive)
   (let ((fun magit-log-select-pick-function)
         (rev (magit-commit-at-point)))
@@ -826,6 +849,7 @@ alist in `magit-log-format-unicode-graph-alist'."
     (funcall fun rev)))
 
 (defun magit-log-select-quit ()
+  "Abort selecting a commit, don't act on any commit."
   (interactive)
   (kill-buffer (current-buffer))
   (when magit-log-select-quit-function
@@ -865,10 +889,12 @@ Type \\[magit-cherry-pick] to cherry-pick the commit at point.
     (run-hooks 'magit-cherry-sections-hook)))
 
 (defun magit-insert-cherry-headers ()
+  "Insert headers appropriate for `magit-cherry-mode' buffers."
   (magit-insert-status-headers (nth 1 magit-refresh-args)
                                (nth 0 magit-refresh-args)))
 
 (defun magit-insert-cherry-commits ()
+  "Insert commit sections into a `magit-cherry-mode' buffer."
   (magit-insert-section (cherries)
     (magit-insert-heading "Cherry commits:")
     (apply 'magit-insert-cherry-commits-1 magit-refresh-args)))
@@ -947,12 +973,18 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 (magit-define-section-jumper unpulled "Unpulled commits")
 
 (defun magit-insert-unpulled-commits ()
+  "Insert section showing unpulled commits."
   (-when-let (tracked (magit-get-tracked-branch nil t))
     (magit-insert-section (unpulled)
       (magit-insert-heading "Unpulled commits:")
       (magit-insert-log (concat "HEAD.." tracked) magit-log-section-args))))
 
 (defun magit-insert-unpulled-or-recent-commits ()
+  "Insert section showing unpulled or recent commits.
+If an upstream is configured for the current branch and it is
+ahead of the current branch, then show the missing commits,
+otherwise show the last `magit-log-section-commit-count'
+commits. "
   (let ((tracked (magit-get-tracked-branch nil t)))
     (if (and tracked (not (equal (magit-rev-parse "HEAD")
                                  (magit-rev-parse tracked))))
@@ -960,12 +992,19 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
       (magit-insert-recent-commits))))
 
 (defun magit-insert-recent-commits ()
+  "Insert section showing recent commits.
+Show the last `magit-log-section-commit-count' commits."
   (magit-insert-section (recent)
     (magit-insert-heading "Recent commits:")
     (magit-insert-log nil (cons (format "-%d" magit-log-section-commit-count)
                                 magit-log-section-args))))
 
 (defun magit-insert-unpulled-cherries ()
+  "Insert section showing unpulled commits.
+Like `magit-insert-unpulled-commits' but prefix each commit
+which has not been applied yet (i.e. a commit with a patch-id
+not shared with any local commit) with \"+\", and all others
+with \"-\"."
   (-when-let (tracked (magit-get-tracked-branch nil t))
     (magit-insert-section (unpulled)
       (magit-insert-heading "Unpulled commits:")
@@ -973,6 +1012,8 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
         "cherry" "-v" (magit-abbrev-arg) (magit-get-current-branch) tracked))))
 
 (defun magit-insert-unpulled-module-commits ()
+  "Insert sections for all submodules with unpulled commits.
+This sections can be expanded to show the respective commits."
   (-when-let (modules (magit-get-submodules))
     (magit-insert-section section (unpulled-modules)
       (magit-insert-heading "Unpulled modules:")
@@ -1001,12 +1042,18 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 (magit-define-section-jumper unpushed "Unpushed commits")
 
 (defun magit-insert-unpushed-commits ()
+  "Insert section showing unpushed commits."
   (-when-let (tracked (magit-get-tracked-branch nil t))
     (magit-insert-section (unpushed)
       (magit-insert-heading "Unpushed commits:")
       (magit-insert-log (concat tracked "..HEAD") magit-log-section-args))))
 
 (defun magit-insert-unpushed-cherries ()
+  "Insert section showing unpushed commits.
+Like `magit-insert-unpushed-commits' but prefix each commit
+which has not been applied to upstream yet (i.e. a commit with
+a patch-id not shared with any upstream commit) with \"+\", and
+all others with \"-\"."
   (-when-let (tracked (magit-get-tracked-branch nil t))
     (magit-insert-section (unpushed)
       (magit-insert-heading "Unpushed commits:")
@@ -1014,6 +1061,8 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
         "cherry" "-v" (magit-abbrev-arg) tracked))))
 
 (defun magit-insert-unpushed-module-commits ()
+  "Insert sections for all submodules with unpushed commits.
+These sections can be expanded to show the respective commits."
   (-when-let (modules (magit-get-submodules))
     (magit-insert-section section (unpushed-modules)
       (magit-insert-heading "Unpushed modules:")
