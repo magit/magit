@@ -372,7 +372,7 @@ The following `format'-like specs are supported:
 (with-no-warnings
 (magit-define-popup magit-diff-refresh-popup
   "Popup console for changing diff arguments in the current buffer."
-  'magit-popups nil magit-diff-section-arguments
+  'magit-popups nil 'magit-diff-section-arguments
   :man-page "git-diff"
   :switches '((?f "Show surrounding functions" "--function-context")
               (?b "Ignore whitespace changes"  "--ignore-space-change")

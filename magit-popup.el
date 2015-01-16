@@ -316,7 +316,7 @@ that without users being aware of it could lead to tears.
                                        (substring opt 0 -6)
                                      opt)
                                    "-arguments"))
-                 (pop args))))
+                 (eval (pop args)))))
     `(progn
        (defun ,name (&optional arg) ,doc
          (interactive "P")
