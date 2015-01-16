@@ -78,7 +78,8 @@
 
 (defun magit-run-git-sequencer (&rest args)
   (apply #'magit-run-git-with-editor args)
-  (set-process-sentinel magit-this-process #'magit-sequencer-process-sentinel))
+  (set-process-sentinel magit-this-process #'magit-sequencer-process-sentinel)
+  magit-this-process)
 
 (defun magit-sequencer-process-sentinel (process event)
   (when (memq (process-status process) '(exit signal))
