@@ -729,10 +729,10 @@ at point."
 (defun magit-section-siblings (section &optional direction)
   (-when-let (parent (magit-section-parent section))
     (let ((siblings  (magit-section-children parent)))
-      (cl-ecase direction
-        (prev  (cdr (member section (reverse siblings))))
-        (next  (cdr (member section siblings)))
-        ((nil) (remq section siblings))))))
+      (pcase direction
+        (`prev  (cdr (member section (reverse siblings))))
+        (`next  (cdr (member section siblings)))
+        (_      (remq section siblings))))))
 
 (defun magit-region-values (&rest types)
   (when (use-region-p)

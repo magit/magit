@@ -783,9 +783,9 @@ commit or stash at point, then prompt for a commit."
               (condition-case err
                   (funcall fn)
                 (error
-                 (goto-char (cl-case fn
-                              (scroll-up   (point-min))
-                              (scroll-down (point-max)))))))
+                 (goto-char (pcase fn
+                              (`scroll-up   (point-min))
+                              (`scroll-down (point-max)))))))
           (funcall cmd rev t))
       (call-interactively 'magit-show-commit))))
 

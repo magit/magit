@@ -303,10 +303,10 @@ Also see `magit-mode-setup', a more convenient variant."
         magit-refresh-function refresh-func
         magit-refresh-args refresh-args)
   (run-hooks 'magit-mode-setup-hook)
-  (cl-case mode
-    ((magit-log-mode magit-reflog-mode)
+  (pcase mode
+    (`(magit-log-mode magit-reflog-mode)
      (magit-xref-setup refresh-args))
-    ((magit-diff-mode magit-revision-mode)
+    (`(magit-diff-mode magit-revision-mode)
      (magit-xref-setup refresh-args)
      (goto-char (point-min))))
   (funcall mode)

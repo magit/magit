@@ -96,12 +96,12 @@ with two prefix arguments remove ignored files only.
 \n(git clean -f -d [-x|-X])"
   (interactive "p")
   (when (yes-or-no-p (format "Remove %s files? "
-                             (cl-case arg
+                             (pcase arg
                                (1 "untracked")
                                (4 "untracked and ignored")
-                               (t "ignored"))))
+                               (_ "ignored"))))
     (magit-maybe-backup)
-    (magit-run-git "clean" "-f" "-d" (cl-case arg (4 "-x") (16 "-X")))))
+    (magit-run-git "clean" "-f" "-d" (pcase arg (4 "-x") (16 "-X")))))
 
 (put 'magit-clean 'disabled t)
 

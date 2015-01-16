@@ -506,22 +506,22 @@ that without users being aware of it could lead to tears.
          (int (aref key (1- (length key))))
          (def (or (lookup-key (current-local-map)  key t)
                   (lookup-key (current-global-map) key))))
-    (cl-case def
-      (magit-invoke-popup-switch
+    (pcase def
+      (`magit-invoke-popup-switch
        (magit-popup-woman man (magit-popup-lookup int :switches)))
-      (magit-invoke-popup-option
+      (`magit-invoke-popup-option
        (magit-popup-woman man (magit-popup-lookup int :options)))
-      (magit-popup-help
+      (`magit-popup-help
        (magit-popup-woman man nil))
-      (self-insert-command
+      (`self-insert-command
        (setq def (magit-popup-lookup int :actions))
        (if def
            (magit-popup-describe-function (magit-popup-event-fun def))
          (ding)
          (message nil)))
-      (nil (ding)
-           (message nil))
-      (t   (magit-popup-describe-function def)))))
+      (`nil (ding)
+            (message nil))
+      (_    (magit-popup-describe-function def)))))
 
 (defun magit-popup-woman (topic arg)
   (unless topic
