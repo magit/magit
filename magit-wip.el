@@ -110,6 +110,7 @@ repository where wip-save is enabled in git config.
 You can activate it with git config magit.extension wip-save."
   (when (and (buffer-file-name)
              (magit-get-top-dir)
+             (magit-git-true "rev-parse" "--is-inside-work-tree")
              (member "wip-save" (magit-get-all "magit.extension")))
     (if (magit-git-success "wip" "-h")
         (magit-wip-save-mode 1)
