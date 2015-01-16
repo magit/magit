@@ -620,9 +620,7 @@ at point."
   (if face
       (let ((start (point)))
         (insert string)
-        (let ((ov (make-overlay start (point) nil t)))
-          (overlay-put ov 'face face)
-          (overlay-put ov 'evaporate t)))
+        (magit-put-face-property start (point) face))
     (let ((buf (current-buffer))
           (offset (1- (point))))
       (with-temp-buffer
@@ -636,10 +634,8 @@ at point."
             (with-current-buffer buf
               (insert text)
               (when face
-                (let ((ov (make-overlay (+ beg offset)
-                                        (+ end offset) nil t)))
-                  (overlay-put ov 'face face)
-                  (overlay-put ov 'evaporate t))))
+                (magit-put-face-property (+ beg offset)
+                                         (+ end offset) face)))
             (goto-char end))))))
   (apply #'insert args))
 
