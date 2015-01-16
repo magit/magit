@@ -1373,7 +1373,8 @@ defaulting to the tag at point.
                      (if (string-prefix-p "refs/" ref)
                          ref
                        (concat "refs/notes/" ref)))
-    (magit-run-git "config" "--unset" "core.notesRef")))
+    (magit-run-git "config" (and global "--global")
+                   "--unset" "core.notesRef")))
 
 (defun magit-notes-set-display-refs (refs &optional global)
   (interactive
