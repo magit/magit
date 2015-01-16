@@ -22,6 +22,12 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with Magit.  If not, see http://www.gnu.org/licenses.
 
+;;; Commentary:
+
+;; This library implements the abstract major-mode `magit-mode' from
+;; which almost all other Magit major-modes derive.  The code in here
+;; is mostly concerned with creating and refreshing Magit buffers.
+
 ;;; Code:
 
 (require 'cl-lib)

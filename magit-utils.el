@@ -25,6 +25,22 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with Magit.  If not, see http://www.gnu.org/licenses.
 
+;;; Commentary:
+
+;; This library defines several utility functions used by several
+;; other libraries which cannot depend on one another (because
+;; circular dependencies are not good).  Luckily most (all) of these
+;; functions have very little (nothing) to do with Git, so we not only
+;; have to do this, it even makes sense.
+
+;; Unfortunately there are also some options which are used by several
+;; libraries which cannot depend on one another, they are defined here
+;; too.
+
+;; And finally, some users insist on using ancient Emacsen, making
+;; backward compatibility definitions necessary.  They too are placed
+;; here.
+
 ;;; Code:
 
 (require 'cl-lib)

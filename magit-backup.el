@@ -22,6 +22,23 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with Magit.  If not, see http://www.gnu.org/licenses.
 
+;;; Commentary:
+
+;; This library implements support for creating stashes that serve
+;; as backups.  When `magit-backup-mode' is enabled, then many Magit
+;; command that may lose data, try to mitigate the risk by first
+;; saving a stash to `magit-backup-ref'.
+
+;; Note that "many" is not the same as "all" and that "Magit" is not
+;; the same as "any way in which one can interact with a repository".
+;; Generally speaking only changes which can be saved by creating a
+;; stash, are being saved by creating a stash - which is exactly the
+;; sort of tautology you would in the description of any backup tool.
+
+;; You might also be interested in `magit-wip-save-mode', which is
+;; defined elsewhere, and which covers one of the many cases where
+;; using `magit-backup-mode' would not have saved you.
+
 ;;; Code:
 
 (require 'magit)

@@ -22,6 +22,13 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with Magit.  If not, see http://www.gnu.org/licenses.
 
+;;; Commentary:
+
+;; This library requires several other libraries, so that yet other
+;; libraries can just require this one, instead of having to require
+;; all the other ones.  In other words this separates the low-level
+;; stuff from the rest.  It also defines some Custom groups.
+
 ;;; Code:
 
 (require 'magit-utils)

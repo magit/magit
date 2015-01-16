@@ -22,6 +22,12 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with Magit.  If not, see http://www.gnu.org/licenses.
 
+;;; Commentary:
+
+;; This library implements support for interacting with remote
+;; repositories.  Commands for cloning, fetching, pulling, and
+;; pushing are defined here.
+
 ;;; Code:
 
 (require 'magit)

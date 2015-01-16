@@ -22,6 +22,12 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with Magit.  If not, see http://www.gnu.org/licenses.
 
+;;; Commentary:
+
+;; This library implements commands for creating Git commits.  These
+;; commands just initiate the commit, support for writing the commit
+;; messages is implemented in `git-commit.el'.
+
 ;;; Code:
 
 (require 'magit)

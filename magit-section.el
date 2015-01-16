@@ -22,6 +22,12 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with Magit.  If not, see http://www.gnu.org/licenses.
 
+;;; Commentary:
+
+;; This library implements "sections" as used in all Magit buffers.
+;; If you have used Magit before then you probably know what that
+;; means, otherwise think "read-only Org-Mode for Git", kinda.
+
 ;;; Code:
 
 (require 'cl-lib)

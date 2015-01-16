@@ -22,6 +22,12 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with Magit.  If not, see http://www.gnu.org/licenses.
 
+;;; Commentary:
+
+;; This library implements a global minor-mode which saves changes to
+;; dedicated work-in-progress refs, whenever the user saves a buffer
+;; which visits a file tracked by Git.
+
 ;;; Code:
 
 (require 'magit-core)

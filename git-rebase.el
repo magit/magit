@@ -1,4 +1,4 @@
-;;; git-rebase.el --- Major mode for editing git rebase files
+;;; git-rebase.el --- Major mode for editing Git rebase files
 
 ;; Copyright (C) 2010-2015  The Magit Project Developers
 ;;
@@ -29,9 +29,38 @@
 
 ;;; Commentary:
 
-;; Allows the editing of a git rebase file (which you might get when
-;; using 'git rebase -i' or hitting 'E' in Magit). Assumes editing is
-;; happening in a server.
+;; This package assists the user in editing the list of commits to be
+;; rewritten during an interactive rebase.
+
+;; When the user initiates an interactive rebase, e.g. using "e e" in
+;; a Magit buffer or on the command line using "git rebase -i REV",
+;; Git invokes the `$GIT_SEQUENCE_EDITOR' (or if that is undefined
+;; `$GIT_EDITOR' or even `$EDITOR') letting the user rearrange, drop,
+;; reword, edit, and squash commits.
+
+;; This package provides the major-mode `git-rebase-mode' which makes
+;; doing so much more fun, by making the buffer more colorful and
+;; providing the following commands:
+;;
+;;   C-c C-c  Tell Git to make it happen.
+;;   C-c C-k  Tell Git that you changed your mind, i.e. abort.
+;;
+;;   M-p      Move the commit at point up.
+;;   M-n      Move the commit at point down.
+;;
+;;   k        Drop the commit at point.
+;;   p        Don't drop the commit at point.
+;;   r        Change the message of the commit at point.
+;;   e        Edit the commit at point.
+;;   s        Squash the commit at point, into the one above.
+;;   f        Like "s" but don't also edit the commit message.
+;;   x        Add a script to be run with the commit at point
+;;            being checked out.
+;;
+;;   RET      Show the commit at point in another buffer.
+;;   C-/      Undo last change.
+
+;; You should probably also read the `git-rebase' manpage.
 
 ;;; Code:
 
