@@ -34,16 +34,15 @@
 
 ;;; Commentary:
 
-;; Invoking the `magit-status' command will show a buffer with the
-;; status of the current Git repository and its working tree.  That
-;; buffer offers key bindings for manipulating the status in simple
-;; ways.
-;;
-;; The status buffer mainly shows the difference between the working
-;; tree and the index, and the difference between the index and the
-;; current HEAD.  You can add individual hunks from the working tree
-;; to the index, and you can commit the index.
-;;
+;; Magit is an interface to the version control system Git,
+;; or as they call it a Git porcelain.
+
+;; Unlike the VC package which is part of Emacs and strives to provide
+;; a unified interface to various version control systems, Magit only
+;; supports Git and can therefore better take advantage of its native
+;; features.
+
+;; The main entry point is `magit-status'.
 ;; See the Magit User Manual for more information.
 
 ;;; Code:
