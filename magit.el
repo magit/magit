@@ -81,7 +81,6 @@
 (declare-function eshell-parse-arguments 'eshell)
 (eval-when-compile (require 'message))
 (declare-function message-goto-body 'message)
-(eval-when-compile (require 'smerge-mode))
 
 ;;; Options
 ;;;; Status Mode

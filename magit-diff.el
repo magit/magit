@@ -48,6 +48,7 @@
 (defvar magit-blame-mode)
 
 (require 'diff-mode)
+(require 'smerge-mode)
 
 ;;; Options
 ;;;; Diff Mode
@@ -55,6 +56,9 @@
 (defgroup magit-diff nil
   "Inspect and manipulate Git diffs."
   :group 'magit-modes)
+
+(custom-add-to-group 'magit-diff 'smerge-refine-ignore-whitespace
+                     'custom-variable)
 
 (defcustom magit-diff-mode-hook nil
   "Hook run after entering Magit-Diff mode."
