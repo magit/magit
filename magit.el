@@ -536,7 +536,7 @@ Do so depending on the value of `status.showUntrackedFiles'."
     map)
   "Keymap for `magit-refs-mode'.")
 
-(define-derived-mode magit-refs-mode magit-mode "Magit Branch"
+(define-derived-mode magit-refs-mode magit-mode "Magit Refs"
   "Mode which lists and compares references.
 This mode is documented in info node `(magit)Branches and Remotes'.
 
