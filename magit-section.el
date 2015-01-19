@@ -787,6 +787,7 @@ highlighted using `magit-diff-highlight'."
 
 (defun magit-section-make-overlay (start end face)
   (let ((ov (magit-put-face-property start end face)))
+    (overlay-put ov 'evaporate t)
     (push ov magit-section-highlight-overlays)
     ov))
 
