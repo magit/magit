@@ -128,7 +128,8 @@ When this is nil, no sections are ever removed."
 
 (define-derived-mode magit-process-mode magit-mode "Magit Process"
   "Mode for looking at Git process output."
-  :group 'magit-process)
+  :group 'magit-process
+  (hack-dir-local-variables-non-file-buffer))
 
 (defun magit-process-buffer (&optional topdir)
   (or (magit-mode-get-buffer magit-process-buffer-name-format

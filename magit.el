@@ -363,7 +363,8 @@ Type \\[magit-stage] to stage the change at point; \\[magit-unstage] to unstage.
 \\<magit-status-mode-map>\
 Type \\[magit-commit-popup] to create a commit.
 \n\\{magit-status-mode-map}"
-  :group 'magit-status)
+  :group 'magit-status
+  (hack-dir-local-variables-non-file-buffer))
 
 ;;;###autoload
 (defun magit-status (&optional directory)
@@ -547,7 +548,8 @@ Type \\[magit-merge-popup] to merge the branch or commit at point.
 Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 Type \\[magit-reset-head] to reset HEAD to the commit at point.
 \n\\{magit-refs-mode-map}"
-  :group 'magit-modes)
+  :group 'magit-modes
+  (hack-dir-local-variables-non-file-buffer))
 
 (magit-define-popup magit-show-refs-popup
   "Popup console for `magit-show-refs'."

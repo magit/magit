@@ -795,7 +795,8 @@ restored."
   (setq buffer-read-only t)
   (setq-local scroll-margin 0)
   (setq-local magit-popup-show-help-section magit-popup-show-help-section)
-  (add-hook 'magit-popup-setup-hook 'magit-popup-default-setup nil t))
+  (add-hook 'magit-popup-setup-hook 'magit-popup-default-setup nil t)
+  (hack-dir-local-variables-non-file-buffer))
 
 (put 'magit-popup-mode 'mode-class 'special)
 
@@ -826,7 +827,8 @@ in the popup."
                       :actions (magit-popup-convert-actions
                                 val (magit-popup-get :sequence-actions)))
                    (magit-popup-default-setup val def)))
-               t t))
+               t t)
+  (hack-dir-local-variables-non-file-buffer))
 
 (defun magit-popup-mode-setup (popup mode)
   (let ((val (symbol-value (plist-get (symbol-value popup) :variable)))

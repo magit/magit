@@ -852,7 +852,8 @@ Type \\[magit-diff-visit-file] to visit the file at point.
 Type \\[magit-apply] to apply the change at point to the worktree.
 Type \\[magit-reverse] to reverse the change at point in the worktree.
 \n\\{magit-diff-mode-map}"
-  :group 'magit-diff)
+  :group 'magit-diff
+  (hack-dir-local-variables-non-file-buffer))
 
 (defun magit-diff-refresh-buffer (range &optional args)
   (magit-insert-section (diffbuf)
@@ -1088,7 +1089,8 @@ Type \\[magit-diff-visit-file] to visit the hunk or file at point.
 Type \\[magit-apply] to apply the change at point to the worktree.
 Type \\[magit-reverse] to reverse the change at point in the worktree.
 \n\\{magit-revision-mode-map}"
-  :group 'magit-revision)
+  :group 'magit-revision
+  (hack-dir-local-variables-non-file-buffer))
 
 (defun magit-revision-refresh-buffer (commit args)
   (magit-insert-section (commitbuf)

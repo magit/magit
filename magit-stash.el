@@ -313,7 +313,8 @@ The following `format'-like specs are supported:
 
 (define-derived-mode magit-stashes-mode magit-reflog-mode "Magit Stashes"
   "Mode for looking at lists of stashes."
-  :group 'magit)
+  :group 'magit
+  (hack-dir-local-variables-non-file-buffer))
 
 (cl-defun magit-stashes-refresh-buffer (&optional (ref   "refs/stash")
                                                   (heading "Stashes:"))
@@ -358,7 +359,8 @@ The following `format'-like specs are supported:
 
 (define-derived-mode magit-stash-mode magit-diff-mode "Magit Stash"
   "Mode for looking at individual stashes."
-  :group 'magit)
+  :group 'magit
+  (hack-dir-local-variables-non-file-buffer))
 
 (defun magit-stash-refresh-buffer (stash args)
   (magit-insert-section (stash)

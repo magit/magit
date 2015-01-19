@@ -492,7 +492,8 @@ Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 Type \\[magit-reset-head] to reset HEAD to the commit at point.
 \n\\{magit-log-mode-map}"
   :group 'magit-log
-  (magit-set-buffer-margin magit-log-show-margin))
+  (magit-set-buffer-margin magit-log-show-margin)
+  (hack-dir-local-variables-non-file-buffer))
 
 (defun magit-log-refresh-buffer (style revs args &optional files)
   (magit-insert-section (logbuf)
@@ -819,7 +820,8 @@ another window, using `magit-show-commit'."
 
 (define-derived-mode magit-log-select-mode magit-log-mode "Magit Select"
   "Mode for selecting a commit from history."
-  :group 'magit-log)
+  :group 'magit-log
+  (hack-dir-local-variables-non-file-buffer))
 
 (defvar-local magit-log-select-pick-function nil)
 (defvar-local magit-log-select-quit-function nil)
@@ -873,7 +875,8 @@ Type \\[magit-show-commit] or \\[magit-diff-show-or-scroll-up]\
  to visit the commit at point.
 Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 \n\\{magit-cherry-mode-map}"
-  :group 'magit-modes)
+  :group 'magit-modes
+  (hack-dir-local-variables-non-file-buffer))
 
 ;;;###autoload
 (defun magit-cherry (head upstream)
@@ -924,7 +927,8 @@ Type \\[magit-show-commit] or \\[magit-diff-show-or-scroll-up]\
 Type \\[magit-cherry-pick] to cherry-pick the commit at point.
 Type \\[magit-reset-head] to reset HEAD to the commit at point.
 \n\\{magit-reflog-mode-map}"
-  :group 'magit-log)
+  :group 'magit-log
+  (hack-dir-local-variables-non-file-buffer))
 
 (defun magit-reflog-refresh-buffer (ref)
   (magit-insert-section (reflogbuf)
