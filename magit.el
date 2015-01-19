@@ -202,6 +202,7 @@ nil    Never show counts."
   :type '(choice (const all    :tag "For branches and tags")
                  (const branch :tag "For branches only")
                  (const nil    :tag "Never")))
+(put 'magit-refs-show-commit-count 'safe-local-variable 'symbolp)
 
 ;;;; Miscellaneous
 
