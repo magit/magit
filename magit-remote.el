@@ -164,11 +164,13 @@ then read the remote."
               (?d "Dry run"       "--dry-run")
               (?u "Set upstream"  "--set-upstream"))
   :actions  '((?P "Current"   magit-push-current)
-              (?o "Other"     magit-push)
               (?e "Elsewhere" magit-push-elsewhere)
+              (?t "Tags"      magit-push-tags)
+              (?o "Other"     magit-push)
               (?m "Matching"  magit-push-matching)
-              (?t "Tags"      magit-push-tags))
-  :default-action 'magit-push-current)
+              (?T "Tag"       magit-push-tag))
+  :default-action 'magit-push-current
+  :max-action-columns 3)
 
 ;;;###autoload
 (defun magit-push-current (branch remote &optional remote-branch args)
@@ -227,6 +229,15 @@ branch as default."
   (interactive (list (magit-read-remote "Push tags to remote" nil t)
                      (magit-push-arguments)))
   (magit-run-git-async "push" remote "--tags" args))
+
+;;;###autoload
+(defun magit-push-tag (tag remote &optional args)
+  "Push a tag to another repository."
+  (interactive
+   (let  ((tag (magit-read-tag "Push tag")))
+     (list tag (magit-read-remote (format "Push %s to remote" tag) nil t))))
+  (magit-run-git-async "push" remote tag))
+
 
 ;;; magit-remote.el ends soon
 (provide 'magit-remote)
