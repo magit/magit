@@ -128,7 +128,7 @@ IDENT has to be a list as returned by `magit-section-ident'."
   "Move to the beginning of the next visible section."
   (interactive)
   (if (eobp)
-      (error "No next section")
+      (user-error "No next section")
     (let ((section (magit-current-section)))
       (if (magit-section-parent section)
           (let ((next (and (not (magit-section-hidden section))
@@ -139,14 +139,14 @@ IDENT has to be a list as returned by `magit-section-ident'."
                 (setq section (magit-section-parent section))))
             (if next
                 (magit-section-goto next)
-              (error "No next section")))
+              (user-error "No next section")))
         (magit-section-goto 1)))))
 
 (defun magit-section-backward ()
   "Move to the beginning of the previous visible section."
   (interactive)
   (if (bobp)
-      (error "No previous section")
+      (user-error "No previous section")
     (let ((section (magit-current-section)) children)
       (if (and (eq (point) (1- (magit-section-end section)))
                (setq children (magit-section-children section)))
@@ -160,7 +160,7 @@ IDENT has to be a list as returned by `magit-section-ident'."
           (if prev
               (magit-section-goto prev)
             (if (magit-section-parent section)
-                (error "No previous section")
+                (user-error "No previous section")
               (magit-section-goto -1))))))))
 
 (defun magit-section-up ()
@@ -168,7 +168,7 @@ IDENT has to be a list as returned by `magit-section-ident'."
   (interactive)
   (--if-let (magit-section-parent (magit-current-section))
       (magit-section-goto it)
-    (error "No parent section")))
+    (user-error "No parent section")))
 
 (defun magit-section-forward-sibling ()
   "Move to the beginning of the next sibling section.
