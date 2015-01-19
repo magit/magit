@@ -39,6 +39,7 @@
 (declare-function magit-show-commit 'magit)
 (defvar magit-blame-mode)
 (defvar magit-refs-indent-cherry-lines)
+(defvar magit-refs-show-commit-count)
 
 (require 'ansi-color)
 (require 'crm)
@@ -656,7 +657,8 @@ For internal use; don't add to a hook."
         (`module     (setf (magit-section-type section) 'mcommit))
         (`bisect-log (setq hash (magit-rev-parse "--short" hash))))
       (when cherry
-        (when (derived-mode-p 'magit-refs-mode)
+        (when (and (derived-mode-p 'magit-refs-mode)
+                   magit-refs-show-commit-count)
           (insert (make-string magit-refs-indent-cherry-lines ?\s)))
         (magit-insert cherry (if (string= cherry "-")
                                  'magit-cherry-equivalent

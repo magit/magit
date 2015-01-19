@@ -192,6 +192,17 @@ The following `format'-like specs are supported:
   :group 'magit-refs
   :type 'string)
 
+(defcustom magit-refs-show-commit-count 'all
+  "Whether to show commit counts in Magit-Refs mode buffers.
+
+all    Show counts for branches and tags.
+branch Show counts for branches only.
+nil    Never show counts."
+  :group 'magit
+  :type '(choice (const all    :tag "For branches and tags")
+                 (const branch :tag "For branches only")
+                 (const nil    :tag "Never")))
+
 ;;;; Miscellaneous
 
 (defcustom magit-merge-warn-dirty-worktree t
@@ -604,9 +615,9 @@ Refs are compared with a branch read form the user."
           "\\] \\)?"
           "\\(?3:.*\\)"))                   ; message
 
-(defvar magit-local-branch-format "%4c %-25n %U%m\n")
-(defvar magit-remote-branch-format "%4c %-25n %m\n")
-(defvar magit-tags-format "%4c %-25n %m\n")
+(defvar magit-refs-local-branch-format "%4c %-25n %U%m\n")
+(defvar magit-refs-remote-branch-format "%4c %-25n %m\n")
+(defvar magit-refs-tags-format "%4c %-25n %m\n")
 (defvar magit-refs-indent-cherry-lines 3)
 
 (defvar magit-branch-section-map
@@ -638,9 +649,8 @@ Refs are compared with a branch read form the user."
           (when (string-match-p "(" branch)
             (setq branch nil))
           (magit-insert-branch
-           branch current branches
-           magit-local-branch-format 'magit-branch-local
-           hash message upstream ahead behind gone))))
+           branch current branches magit-refs-local-branch-format
+           'magit-branch-local hash message upstream ahead behind gone))))
     (insert ?\n)))
 
 (defun magit-insert-remote-branches ()
@@ -660,8 +670,8 @@ Refs are compared with a branch read form the user."
             (magit-bind-match-strings (branch hash message) line
               (when (string-match-p (format "^%s/" remote) branch)
                 (magit-insert-branch
-                 branch current branches
-                 magit-remote-branch-format 'magit-branch-remote hash message))))))
+                 branch current branches magit-refs-remote-branch-format
+                 'magit-branch-remote hash message))))))
       (insert ?\n))))
 
 (defun magit-insert-branch (branch &rest args)
@@ -677,8 +687,8 @@ Refs are compared with a branch read form the user."
              &optional hash message upstream ahead behind gone)
   "For internal use, don't add to a hook."
   (let* ((head  (or (car magit-refresh-args) current "HEAD"))
-         (count (and (string-match-p "%-?[0-9]+c" format)
-                     (if branch (cadr (magit-rev-diff-count head branch)) 0)))
+         (count (and branch
+                     (magit-refs-format-commit-count branch head format)))
          (mark  (and (or (equal branch head)
                          (and (not branch) (equal head "HEAD")))
                      (if (equal branch current)
@@ -694,11 +704,7 @@ Refs are compared with a branch read form the user."
        format
        `((?a . ,(or ahead ""))
          (?b . ,(or behind ""))
-         (?c . ,(or mark
-                    (and count (> count 0)
-                         (propertize (number-to-string count)
-                                     'face 'magit-dimmed))
-                    ""))
+         (?c . ,(or mark count ""))
          (?C . ,(or mark " "))
          (?h . ,(or (propertize hash 'face 'magit-hash) ""))
          (?m . ,(or message ""))
@@ -717,14 +723,7 @@ Refs are compared with a branch read form the user."
                                       (and behind (format "behind %s" behind))))
                              (t "")))
                   "")))))
-    (when (or (not count) (> count 0))
-      (if (magit-section-hidden section)
-          (setf (magit-section-washer section)
-                `(lambda ()
-                   (magit-insert-cherry-commits-1 ,head ,branch)
-                   (insert (propertize "\n" 'magit-section ,section))))
-        (magit-insert-cherry-commits-1 head branch)
-        (insert ?\n)))))
+    (magit-refs-insert-cherry-commits head branch section)))
 
 (defvar magit-tag-section-map
   (let ((map (make-sparse-keymap)))
@@ -738,23 +737,41 @@ Refs are compared with a branch read form the user."
   (-when-let (tags (magit-git-lines "tag" "-l" "-n"))
     (magit-insert-section (tags)
       (magit-insert-heading "Tags:")
-      (dolist (tag (nreverse tags))
-        (string-match "^\\([^ \t]+\\)[ \t]+\\([^ \t\n].*\\)?" tag)
-        (let* ((message (match-string 2 tag))
-               (tag     (match-string 1 tag))
-               (count (and (string-match-p "%-?[0-9]+c" magit-tags-format)
-                           (cadr (magit-rev-diff-count
-                                  (or (car magit-refresh-args) "HEAD") tag)))))
-          (magit-insert-section (tag tag)
-            (magit-insert
-             (format-spec magit-tags-format
-                          `((?n . ,(propertize tag 'face 'magit-tag))
-                            (?c . ,(if (and count (> count 0))
-                                       (propertize (number-to-string count)
-                                                   'face 'magit-dimmed)
-                                     ""))
-                            (?m . ,(or message ""))))))))
+      (let ((head (or (car magit-refresh-args)
+                      (magit-get-current-branch)
+                      "HEAD")))
+        (dolist (tag (nreverse tags))
+          (string-match "^\\([^ \t]+\\)[ \t]+\\([^ \t\n].*\\)?" tag)
+          (let* ((message (match-string 2 tag))
+                 (tag     (match-string 1 tag))
+                 (count   (magit-refs-format-commit-count
+                           tag head magit-refs-tags-format t)))
+            (magit-insert-section (tag tag)
+              (magit-insert
+               (format-spec magit-refs-tags-format
+                            `((?n . ,(propertize tag 'face 'magit-tag))
+                              (?c . ,(or count ""))
+                              (?m . ,(or message "")))))))))
       (insert ?\n))))
+
+(defun magit-refs-insert-cherry-commits (head ref section)
+  (if (magit-section-hidden section)
+      (setf (magit-section-washer section)
+            `(lambda ()
+               (let ((start (point)))
+                 (magit-insert-cherry-commits-1 ,head ,ref)
+                 (unless (= (point) start)
+                   (insert (propertize "\n" 'magit-section ,section))))))
+    (magit-insert-cherry-commits-1 head ref section)))
+
+(defun magit-refs-format-commit-count (ref head format &optional tag-p)
+  (and (string-match-p "%-?[0-9]+c" format)
+       (if tag-p
+           (eq magit-refs-show-commit-count 'all)
+         magit-refs-show-commit-count)
+       (let ((count (cadr (magit-rev-diff-count head ref))))
+	 (and (> count 0)
+	      (propertize (number-to-string count) 'face 'magit-dimmed)))))
 
 ;;;; Files
 
