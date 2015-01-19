@@ -470,6 +470,7 @@ Uses the buffer-local `magit-refresh-function'."
                                    (- (point) (line-beginning-position)))))))
                       (or (get-buffer-window-list buffer nil t)
                           (list (selected-window))))))
+      (deactivate-mark)
       (setq magit-section-highlight-overlays nil
             magit-section-highlighted-sections nil)
       (let ((inhibit-read-only t))
