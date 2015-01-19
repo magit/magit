@@ -746,12 +746,13 @@ Refs are compared with a branch read form the user."
                  (tag     (match-string 1 tag))
                  (count   (magit-refs-format-commit-count
                            tag head magit-refs-tags-format t)))
-            (magit-insert-section (tag tag)
-              (magit-insert
+            (magit-insert-section section (tag tag t)
+              (magit-insert-heading
                (format-spec magit-refs-tags-format
                             `((?n . ,(propertize tag 'face 'magit-tag))
                               (?c . ,(or count ""))
-                              (?m . ,(or message "")))))))))
+                              (?m . ,(or message "")))))
+              (magit-refs-insert-cherry-commits head tag section)))))
       (insert ?\n))))
 
 (defun magit-refs-insert-cherry-commits (head ref section)
