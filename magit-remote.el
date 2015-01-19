@@ -193,17 +193,19 @@ If the upstream isn't set, then read the remote branch."
 (defun magit-push-elsewhere (branch remote remote-branch &optional args)
   "Push a branch or commit to some remote branch.
 Read the local and remote branch."
-  (interactive (magit-push-read-args))
+  (interactive (magit-push-read-args nil nil t))
   (magit-push branch remote remote-branch args))
 
-(defun magit-push-read-args (&optional use-upstream use-current)
-  (let* ((local (or (and use-current (magit-get-current-branch))
+(defun magit-push-read-args (&optional use-upstream use-current default-current)
+  (let* ((current (magit-get-current-branch))
+         (local (or (and use-current current)
                     (magit-completing-read
                      "Push" (--if-let (magit-commit-at-point)
                                 (cons it (magit-list-local-branch-names))
                               (magit-list-local-branch-names))
                      nil nil nil 'magit-revision-history
-                     (magit-local-branch-at-point))
+                     (or (and default-current current)
+                         (magit-local-branch-at-point)))
                     (user-error "Nothing selected")))
          (remote (and (magit-branch-p local)
                       (magit-get-remote-branch local))))
