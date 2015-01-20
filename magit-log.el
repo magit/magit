@@ -332,13 +332,14 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
   (concat "^" (regexp-opt '("-G" "--grep")))
   "Regexp matching arguments which are not compatible with `--graph'.")
 
-(defun magit-log-read-args (use-current)
+(defun magit-log-read-args (&optional use-current norev)
   (let* ((args  (magit-log-arguments))
          (files (--first (string-match-p "^-- " it) args)))
     (when files
       (setq args  (remove files args)
             files (split-string (substring files 3) ",")))
-    (list (magit-log-read-revs use-current) args files)))
+    `(,@(unless norev (list (magit-log-read-revs use-current)))
+      ,args ,files)))
 
 (defvar magit-log-read-revs-map
   (let ((map (make-sparse-keymap)))
@@ -402,10 +403,10 @@ completion candidates."
   (magit-log-goto-same-commit))
 
 ;;;###autoload
-(defun magit-log-head (args)
+(defun magit-log-head (&optional args files)
   "Show log for HEAD."
-  (interactive (list (magit-log-arguments)))
-  (magit-log (list "HEAD") args))
+  (interactive (magit-log-read-args nil t))
+  (magit-log (list "HEAD") args files))
 
 ;;;###autoload
 (defun magit-log-buffer-file ()
