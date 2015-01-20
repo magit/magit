@@ -405,7 +405,7 @@ completion candidates."
 (defun magit-log-head (args)
   "Show log for HEAD."
   (interactive (list (magit-log-arguments)))
-  (magit-log "HEAD" args))
+  (magit-log (list "HEAD") args))
 
 ;;;###autoload
 (defun magit-log-buffer-file ()
