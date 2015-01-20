@@ -288,9 +288,9 @@ Like `undo' but works in read-only buffers."
   (let ((inhibit-read-only t))
     (undo arg)))
 
-(defun git-rebase-show-commit (&optional arg)
+(defun git-rebase-show-commit ()
   "Show the commit on the current line if any."
-  (interactive "P")
+  (interactive)
   (save-excursion
     (goto-char (line-beginning-position))
     (--if-let (and (looking-at git-rebase-line)
