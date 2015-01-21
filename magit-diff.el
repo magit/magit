@@ -899,7 +899,8 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
   "Keymap for `hunk' sections.")
 
 (defconst magit-diff-headline-re
-  "^\\(@@@?\\|diff\\|\\* Unmerged path\\|Submodule\\)")
+  (concat "^\\(@@@?\\|diff\\|Submodule\\|"
+          "\\* Unmerged path\\|merged\\|changed in both\\)"))
 
 (defconst magit-diff-statline-re
   (concat "^ ?"
@@ -985,6 +986,22 @@ section or a child thereof."
           (magit-insert (propertize (format "unmerged   %s" file)
                                     'face 'magit-diff-file-heading) nil ?\n))))
     t)
+   ((looking-at "^\\(merged\\|changed in both\\)")
+    (let ((status (if (equal (match-string 1) "merged") 'merged 'conflict))
+          file orig modes blobs blobA blobB)
+      (magit-delete-line)
+      (while (looking-at
+              "^  \\([^ ]+\\) +[0-9]\\{6\\} \\([a-z0-9]\\{40\\}\\) \\(.+\\)$")
+        (magit-bind-match-strings (side blob name) nil
+          (pcase side
+            ("result" (setq file name blobB blob))
+            ("our"    (setq orig name blobA blob))
+            ("their"  (setq file name blobB blob))))
+        (magit-delete-line))
+      (setq orig (magit-decode-git-path orig))
+      (setq file (magit-decode-git-path file))
+      (magit-diff-insert-file-section file orig status modes
+                                      (concat blobA ".." blobB))))
    ((looking-at "^diff --\\(git\\|cc\\|combined\\) \\(?:\\(.+?\\) \\2\\)?")
     (let ((status (cond ((equal (match-string 1) "git")        "modified")
                         ((derived-mode-p 'magit-revision-mode) "resolved")
@@ -1471,7 +1488,7 @@ of SECTION including SECTION and all of them are highlighted."
             (put-text-property
              (point) (1+ (line-end-position)) 'face
              (cond
-              ((looking-at "^\\+\\+[<=|>]\\{7\\}") 'magit-diff-conflict-heading)
+              ((looking-at "^\\+\\+?[<=|>]\\{7\\}") 'magit-diff-conflict-heading)
               ((looking-at (if merging  "^\\(\\+\\| \\+\\)" "^\\+"))
                (magit-diff-paint-whitespace merging)
                (if highlight 'magit-diff-added-highlight 'magit-diff-added))
