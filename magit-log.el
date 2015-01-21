@@ -680,7 +680,7 @@ For internal use; don't add to a hook."
       (while (and (not (eobp)) (not (looking-at magit-log-oneline-re)))
         (insert align)
         (goto-char (line-beginning-position))
-        (magit-format-log-margin nil nil)
+        (magit-format-log-margin)
         (forward-line))))
   t)
 
