@@ -108,7 +108,7 @@ string.  Use `identity' to forgo changing the graph."
 
 When non-nil the author name and date are initially displayed in
 the margin of log buffers.  The margin can be shown or hidden in
-the current buffer using the command `magit-log-toggle-margin'.
+the current buffer using the command `magit-toggle-margin'.
 
 When a log buffer contains a verbose log, then the margin is
 never displayed.  In status buffers this option is ignored but
@@ -116,8 +116,6 @@ it is possible to show the margin using the mentioned command."
   :package-version '(magit . "2.1.0")
   :group 'magit-log
   :type 'boolean)
-
-(put 'magit-log-show-margin 'permanent-local t)
 
 (defcustom magit-duration-spec
   `((?Y "year"   "years"   ,(round (* 60 60 24 365.2425)))
@@ -443,15 +441,6 @@ completion candidates."
   "Display the HEAD reflog."
   (interactive)
   (magit-reflog "HEAD"))
-
-(defun magit-log-toggle-margin ()
-  "Show or hide the log margin."
-  (interactive)
-  (unless (derived-mode-p 'magit-log-mode 'magit-status-mode)
-    (user-error "Buffer doesn't contain any logs"))
-  (when (eq (car magit-refresh-args) 'verbose)
-    (user-error "Log margin is redundant when showing verbose logs"))
-  (magit-set-buffer-margin (not (cdr (window-margins)))))
 
 (defun magit-log-show-more-entries (&optional arg)
   "Grow the number of log entries shown.
@@ -1091,14 +1080,30 @@ These sections can be expanded to show the respective commits."
 
 ;;; Buffer Margins
 
+(defvar-local magit-set-buffer-margin-refresh nil)
+
+(defvar-local magit-show-margin nil)
+(put 'magit-show-margin 'permanent-local t)
+
+(defun magit-toggle-margin ()
+  "Show or hide the Magit margin."
+  (interactive)
+  (unless (derived-mode-p 'magit-log-mode 'magit-status-mode 'magit-refs-mode)
+    (user-error "Buffer doesn't contain any logs"))
+  (when (and (derived-mode-p 'magit-log-mode)
+             (eq (car magit-refresh-args) 'verbose))
+    (user-error "Log margin is redundant when showing verbose logs"))
+  (magit-set-buffer-margin (not (cdr (window-margins)))))
+
 (defun magit-set-buffer-margin (enable)
-  (make-local-variable 'magit-log-show-margin)
   (let ((width (and enable
                     (if (and (derived-mode-p 'magit-log-mode)
                              (eq (car magit-refresh-args) 'verbose))
                         0 ; temporarily hide redundant margin
                       (car magit-log-margin-spec)))))
-    (setq magit-log-show-margin width)
+    (setq magit-show-margin width)
+    (when (and enable magit-set-buffer-margin-refresh)
+      (magit-refresh))
     (-when-let (window (get-buffer-window))
       (with-selected-window window
         (set-window-margins nil (car (window-margins)) width)
@@ -1111,7 +1116,7 @@ These sections can be expanded to show the respective commits."
 (defun magit-set-buffer-margin-1 ()
   (-when-let (window (get-buffer-window))
     (with-selected-window window
-      (set-window-margins nil (car (window-margins)) magit-log-show-margin))))
+      (set-window-margins nil (car (window-margins)) magit-show-margin))))
 
 (defun magit-make-margin-overlay (&rest strings)
   (let ((o (make-overlay (point) (line-end-position) nil t)))

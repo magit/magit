@@ -154,7 +154,7 @@ the user has to confirm each save."
     (define-key map "i" 'magit-gitignore)
     (define-key map "I" 'magit-gitignore-locally)
     (define-key map "l" 'magit-log-popup)
-    (define-key map "L" 'magit-log-toggle-margin)
+    (define-key map "L" 'magit-toggle-margin)
     (define-key map "m" 'magit-merge-popup)
     (define-key map "M" 'magit-remote-popup)
     (define-key map "o" 'magit-submodule-popup)

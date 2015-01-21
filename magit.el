@@ -203,6 +203,18 @@ nil    Never show counts."
                  (const nil    :tag "Never")))
 (put 'magit-refs-show-commit-count 'safe-local-variable 'symbolp)
 
+(defcustom magit-refs-show-margin 'branch
+  "Whether to initially show the margin in refs buffers.
+
+When non-nil the committer name and date are initially displayed
+in the margin of refs buffers.  The margin can be shown or hidden
+in the current buffer using the command `magit-toggle-margin'."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-refs
+  :type '(choice (const all    :tag "For branches and tags")
+                 (const branch :tag "For branches only")
+                 (const nil    :tag "Never")))
+
 ;;;; Miscellaneous
 
 (defcustom magit-merge-warn-dirty-worktree t
@@ -597,6 +609,7 @@ Refs are compared with a branch read form the user."
                     #'magit-refs-refresh-buffer ref args))
 
 (defun magit-refs-refresh-buffer (&rest ignore)
+  (setq magit-set-buffer-margin-refresh (not magit-show-margin))
   (magit-insert-section (branchbuf)
     (run-hooks 'magit-refs-sections-hook)))
 
@@ -725,6 +738,8 @@ Refs are compared with a branch read form the user."
                                       (and behind (format "behind %s" behind))))
                              (t "")))
                   "")))))
+    (when magit-show-margin
+      (magit-refs-format-margin branch))
     (magit-refs-insert-cherry-commits head branch section)))
 
 (defvar magit-tag-section-map
@@ -754,6 +769,9 @@ Refs are compared with a branch read form the user."
                             `((?n . ,(propertize tag 'face 'magit-tag))
                               (?c . ,(or count ""))
                               (?m . ,(or message "")))))
+              (when (and magit-show-margin
+                         (eq magit-refs-show-margin 'all))
+                (magit-refs-format-margin (concat tag "^{commit}")))
               (magit-refs-insert-cherry-commits head tag section)))))
       (insert ?\n))))
 
@@ -775,6 +793,13 @@ Refs are compared with a branch read form the user."
        (let ((count (cadr (magit-rev-diff-count head ref))))
 	 (and (> count 0)
 	      (propertize (number-to-string count) 'face 'magit-dimmed)))))
+
+(defun magit-refs-format-margin (commit)
+  (save-excursion
+    (goto-char (line-beginning-position 0))
+    (let ((line (magit-rev-format "%ct%cn" commit)))
+      (magit-format-log-margin (substring line 10)
+                               (substring line 0 10)))))
 
 ;;;; Files
 
