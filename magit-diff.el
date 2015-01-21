@@ -991,7 +991,7 @@ section or a child thereof."
                         (t                                     "unmerged")))
           (orig (match-string 2))
           (file (match-string 2))
-          blobs modes)
+          modes blobs)
       (magit-delete-line)
       (while (not (or (eobp) (looking-at magit-diff-headline-re)))
         (if (looking-at "^old mode \\([^\n]+\\)\nnew mode \\([^\n]+\\)\n")
@@ -1016,22 +1016,25 @@ section or a child thereof."
       (setq file (magit-decode-git-path file))
       (when diffstat
         (setf (magit-section-value diffstat) file))
-      (magit-insert-section it
-        (file file (or (equal status "deleted")
-                       (derived-mode-p 'magit-status-mode)))
-        (insert (propertize (format "%-10s %s\n" status
-                                    (if (equal orig file)
-                                        file
-                                      (format "%s -> %s" orig file)))
-                            'face 'magit-diff-file-heading))
-        (magit-insert-heading)
-        (unless (equal orig file)
-          (setf (magit-section-source it) orig))
-        (setf (magit-section-blobs it) blobs)
-        (when modes
-          (magit-insert-section (hunk)
-            (insert modes)))
-        (magit-wash-sequence #'magit-diff-wash-hunk))))))
+      (magit-diff-insert-file-section file orig status modes blobs)))))
+
+(defun magit-diff-insert-file-section (file orig status modes blobs)
+  (magit-insert-section section
+    (file file (or (equal status "deleted")
+                   (derived-mode-p 'magit-status-mode)))
+    (insert (propertize (format "%-10s %s\n" status
+                                (if (equal orig file)
+                                    file
+                                  (format "%s -> %s" orig file)))
+                        'face 'magit-diff-file-heading))
+    (magit-insert-heading)
+    (unless (equal orig file)
+      (setf (magit-section-source section) orig))
+    (setf (magit-section-blobs section) blobs)
+    (when modes
+      (magit-insert-section (hunk)
+        (insert modes)))
+    (magit-wash-sequence #'magit-diff-wash-hunk)))
 
 (defun magit-diff-wash-submodule ()
   (magit-bind-match-strings (module new deleted dirty range) nil
