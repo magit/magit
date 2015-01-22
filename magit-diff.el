@@ -899,7 +899,8 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
   "Keymap for `hunk' sections.")
 
 (defconst magit-diff-headline-re
-  "^\\(@@@?\\|diff\\|\\* Unmerged path\\|Submodule\\)")
+  (concat "^\\(@@@?\\|diff\\|Submodule\\|"
+          "\\* Unmerged path\\|merged\\|changed in both\\)"))
 
 (defconst magit-diff-statline-re
   (concat "^ ?"
@@ -975,41 +976,7 @@ section or a child thereof."
 (defun magit-diff-wash-diff (args diffstat)
   (cond
    ((looking-at magit-diff-submodule-re)
-    (magit-bind-match-strings (module new deleted dirty range) nil
-      (magit-delete-line)
-      (when (and dirty
-                 (looking-at magit-diff-submodule-re)
-                 (string= (match-string 1) module))
-        (setq range (match-string 4))
-        (magit-delete-line))
-      (while (looking-at "^  \\([<>]\\) \\(.+\\)$")
-        (magit-delete-line))
-      (if range
-          (let ((default-directory
-                  (file-name-as-directory
-                   (expand-file-name module (magit-get-top-dir)))))
-            (setf (magit-section-value
-                   (magit-insert-section (file module t)
-                     (magit-insert-heading
-                       (concat (propertize (concat "modified   " module)
-                                           'face 'magit-diff-file-heading)
-                               " ("
-                               (and range "new commits")
-                               (and dirty ", modified content")
-                               ")"))
-                     (magit-git-wash (apply-partially 'magit-log-wash-log 'module)
-                       "log" "--oneline" "--left-right" range)
-                     (delete-char -1)))
-                  module))
-        (magit-insert-section (file module)
-          (magit-insert
-           (concat (propertize (if new
-                                   (concat "new module " module)
-                                 (concat "modified   " module))
-                               'face 'magit-diff-file-heading)
-                   (cond (dirty   " (modified content)")
-                         (deleted " (deleted submodule)")))
-           nil ?\n)))))
+    (magit-diff-wash-submodule))
    ((looking-at "^\\* Unmerged path \\(.*\\)")
     (let ((file (magit-decode-git-path (match-string 1))))
       (magit-delete-line)
@@ -1019,13 +986,29 @@ section or a child thereof."
           (magit-insert (propertize (format "unmerged   %s" file)
                                     'face 'magit-diff-file-heading) nil ?\n))))
     t)
+   ((looking-at "^\\(merged\\|changed in both\\)")
+    (let ((status (if (equal (match-string 1) "merged") 'merged 'conflict))
+          file orig modes blobs blobA blobB)
+      (magit-delete-line)
+      (while (looking-at
+              "^  \\([^ ]+\\) +[0-9]\\{6\\} \\([a-z0-9]\\{40\\}\\) \\(.+\\)$")
+        (magit-bind-match-strings (side blob name) nil
+          (pcase side
+            ("result" (setq file name blobB blob))
+            ("our"    (setq orig name blobA blob))
+            ("their"  (setq file name blobB blob))))
+        (magit-delete-line))
+      (setq orig (magit-decode-git-path orig))
+      (setq file (magit-decode-git-path file))
+      (magit-diff-insert-file-section file orig status modes
+                                      (concat blobA ".." blobB))))
    ((looking-at "^diff --\\(git\\|cc\\|combined\\) \\(?:\\(.+?\\) \\2\\)?")
     (let ((status (cond ((equal (match-string 1) "git")        "modified")
                         ((derived-mode-p 'magit-revision-mode) "resolved")
                         (t                                     "unmerged")))
           (orig (match-string 2))
           (file (match-string 2))
-          blobs modes)
+          modes blobs)
       (magit-delete-line)
       (while (not (or (eobp) (looking-at magit-diff-headline-re)))
         (if (looking-at "^old mode \\([^\n]+\\)\nnew mode \\([^\n]+\\)\n")
@@ -1050,22 +1033,62 @@ section or a child thereof."
       (setq file (magit-decode-git-path file))
       (when diffstat
         (setf (magit-section-value diffstat) file))
-      (magit-insert-section it
-        (file file (or (equal status "deleted")
-                       (derived-mode-p 'magit-status-mode)))
-        (insert (propertize (format "%-10s %s\n" status
-                                    (if (equal orig file)
-                                        file
-                                      (format "%s -> %s" orig file)))
-                            'face 'magit-diff-file-heading))
-        (magit-insert-heading)
-        (unless (equal orig file)
-          (setf (magit-section-source it) orig))
-        (setf (magit-section-blobs it) blobs)
-        (when modes
-          (magit-insert-section (hunk)
-            (insert modes)))
-        (magit-wash-sequence #'magit-diff-wash-hunk))))))
+      (magit-diff-insert-file-section file orig status modes blobs)))))
+
+(defun magit-diff-insert-file-section (file orig status modes blobs)
+  (magit-insert-section section
+    (file file (or (equal status "deleted")
+                   (derived-mode-p 'magit-status-mode)))
+    (insert (propertize (format "%-10s %s\n" status
+                                (if (equal orig file)
+                                    file
+                                  (format "%s -> %s" orig file)))
+                        'face 'magit-diff-file-heading))
+    (magit-insert-heading)
+    (unless (equal orig file)
+      (setf (magit-section-source section) orig))
+    (setf (magit-section-blobs section) blobs)
+    (when modes
+      (magit-insert-section (hunk)
+        (insert modes)))
+    (magit-wash-sequence #'magit-diff-wash-hunk)))
+
+(defun magit-diff-wash-submodule ()
+  (magit-bind-match-strings (module new deleted dirty range) nil
+    (magit-delete-line)
+    (when (and dirty
+               (looking-at magit-diff-submodule-re)
+               (string= (match-string 1) module))
+      (setq range (match-string 4))
+      (magit-delete-line))
+    (while (looking-at "^  \\([<>]\\) \\(.+\\)$")
+      (magit-delete-line))
+    (if range
+        (let ((default-directory
+                (file-name-as-directory
+                 (expand-file-name module (magit-get-top-dir)))))
+          (setf (magit-section-value
+                 (magit-insert-section (file module t)
+                   (magit-insert-heading
+                     (concat (propertize (concat "modified   " module)
+                                         'face 'magit-diff-file-heading)
+                             " ("
+                             (and range "new commits")
+                             (and dirty ", modified content")
+                             ")"))
+                   (magit-git-wash (apply-partially 'magit-log-wash-log 'module)
+                     "log" "--oneline" "--left-right" range)
+                   (delete-char -1)))
+                module))
+      (magit-insert-section (file module)
+        (magit-insert
+         (concat (propertize (if new
+                                 (concat "new module " module)
+                               (concat "modified   " module))
+                             'face 'magit-diff-file-heading)
+                 (cond (dirty   " (modified content)")
+                       (deleted " (deleted submodule)")))
+         nil ?\n)))))
 
 (defun magit-diff-wash-hunk ()
   (when (looking-at "^@\\{2,\\} \\(.+?\\) @\\{2,\\}\\(?: \\(.*\\)\\)?")
@@ -1465,7 +1488,7 @@ of SECTION including SECTION and all of them are highlighted."
             (put-text-property
              (point) (1+ (line-end-position)) 'face
              (cond
-              ((looking-at "^\\+\\+[<=|>]\\{7\\}") 'magit-diff-conflict-heading)
+              ((looking-at "^\\+\\+?[<=|>]\\{7\\}") 'magit-diff-conflict-heading)
               ((looking-at (if merging  "^\\(\\+\\| \\+\\)" "^\\+"))
                (magit-diff-paint-whitespace merging)
                (if highlight 'magit-diff-added-highlight 'magit-diff-added))

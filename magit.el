@@ -1141,11 +1141,13 @@ line is inserted at all."
   :options  '((?s "Strategy" "--strategy=" read-from-minibuffer))
   :actions  '((?m "Merge"                  magit-merge)
               (?e "Merge and edit message" magit-merge-editmsg)
+              (?p "Preview merge"          magit-merge-preview)
               (?n "Merge but don't commit" magit-merge-nocommit))
   :sequence-actions   '((?m "Commit merge" magit-commit)
                         (?a "Abort merge"  magit-merge-abort))
   :sequence-predicate 'magit-merge-state
-  :default-action 'magit-merge)
+  :default-action 'magit-merge
+  :max-action-columns 2)
 
 ;;;###autoload
 (defun magit-merge (rev &optional args nocommit)
@@ -1185,6 +1187,24 @@ inspect the merge and change the commit message.
                      (magit-merge-arguments)))
   (magit-merge-assert)
   (magit-run-git "merge" "--no-commit" args rev))
+
+;;;###autoload
+(defun magit-merge-preview (rev)
+  "Preview result of merging REV into the current branch."
+  (interactive (list (magit-read-other-branch-or-commit "Preview merge")))
+  (magit-mode-setup magit-diff-buffer-name-format
+                    magit-diff-switch-buffer-function
+                    #'magit-diff-mode
+                    #'magit-merge-refresh-preview-buffer rev))
+
+(defun magit-merge-refresh-preview-buffer (rev)
+  (magit-insert-section (diffbuf)
+    (let* ((branch (magit-get-current-branch))
+           (head (or branch (magit-rev-verify "HEAD"))))
+      (magit-insert-heading (format "Preview merge of %s into %s"
+                                    rev (or branch "HEAD")))
+      (magit-git-wash #'magit-diff-wash-diffs
+        "merge-tree" (magit-git-string "merge-base" head rev) head rev))))
 
 ;;;###autoload
 (defun magit-merge-abort ()
