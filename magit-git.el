@@ -745,7 +745,21 @@ Return a list of two integers: (A>B B>A)."
 
 (defun magit-format-ref-labels (string)
   (save-match-data
-    (let (head (names (split-string string "\\(tag: \\|[(), ]\\)" t)))
+    (let ((names (split-string
+                  (replace-regexp-in-string "tag: " "refs/tags/" string)
+                  "[(), ]" t))
+          head)
+      (when (and (derived-mode-p 'magit-log-mode)
+                 (member "--simplify-by-decoration" (nth 2 magit-refresh-args)))
+        (let ((branches (magit-list-local-branch-names))
+              (re (format "^%s/.+" (regexp-opt (magit-list-remotes)))))
+          (setq names
+                (--map (cond ((string-equal it "HEAD")     it)
+                             ((string-prefix-p "refs/" it) it)
+                             ((member it branches) (concat "refs/heads/" it))
+                             ((string-match re it) (concat "refs/remotes/" it))
+                             (t                    (concat "refs/" it)))
+                       names))))
       (when (member "HEAD" names)
         (setq head  (magit-git-string "symbolic-ref" "HEAD")
               names (cons (or head "@") (delete head (delete "HEAD" names)))))
