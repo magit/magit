@@ -613,7 +613,7 @@ Refs are compared with a branch read form the user."
   (magit-insert-section (branchbuf)
     (run-hooks 'magit-refs-sections-hook)))
 
-(defconst magit-wash-branch-line-re
+(defconst magit-refs-branch-line-re
   (concat "^"
           "\\(?:[ \\*]\\) "
           "\\(?1:([^)]+)\\|[^ ]+?\\)"       ; branch
@@ -658,7 +658,7 @@ Refs are compared with a branch read form the user."
           (branches (magit-list-local-branch-names)))
       (dolist (line (magit-git-lines "branch" "-vv"
                                      (cadr magit-refresh-args)))
-        (string-match magit-wash-branch-line-re line)
+        (string-match magit-refs-branch-line-re line)
         (magit-bind-match-strings
             (branch hash message upstream ahead behind gone) line
           (when (string-match-p "(" branch)
@@ -681,7 +681,7 @@ Refs are compared with a branch read form the user."
             (branches (magit-list-local-branch-names)))
         (dolist (line (magit-git-lines "branch" "-vvr"
                                        (cadr magit-refresh-args)))
-          (when (string-match magit-wash-branch-line-re line)
+          (when (string-match magit-refs-branch-line-re line)
             (magit-bind-match-strings (branch hash message) line
               (when (string-match-p (format "^%s/" remote) branch)
                 (magit-insert-branch
