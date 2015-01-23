@@ -258,7 +258,7 @@ depending on the value of option `magit-commit-squash-confirm'.
              (or args (list "--")))
       (when (and (magit-diff-auto-show-p 'stage-all)
                  (derived-mode-p 'magit-diff-mode))
-        (magit-mode-quit-window))))
+        (magit-mode-bury-buffer))))
    (t
     (user-error "Nothing staged"))))
 

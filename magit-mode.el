@@ -83,7 +83,7 @@ Function `magit-mode-display-buffer' is used to display and
 select Magit buffers.  Unless the buffer was already displayed in
 a window of the selected frame it also stores the previous window
 configuration.  If this option is non-nil that configuration will
-later be restored by `magit-mode-quit-window', provided the
+later be restored by `magit-mode-bury-buffer', provided the
 buffer has not since been displayed in another frame.
 
 This works best when only two windows are usually displayed in a
@@ -135,7 +135,7 @@ the user has to confirm each save."
     (define-key map "\M-4" 'magit-show-level-4-all)
     (define-key map "g" 'magit-refresh)
     (define-key map "G" 'magit-refresh-all)
-    (define-key map "q" 'magit-mode-quit-window)
+    (define-key map "q" 'magit-mode-bury-buffer)
     (define-key map "$" 'magit-process)
     (define-key map "A" 'magit-cherry-pick-popup)
     (define-key map "b" 'magit-branch-popup)
@@ -238,7 +238,7 @@ the user has to confirm each save."
     ("Extensions")
     "---"
     ["Display Git output" magit-process t]
-    ["Quit Magit" magit-mode-quit-window t]))
+    ["Quit Magit" magit-mode-bury-buffer t]))
 
 (defun magit-load-config-extensions ()
   "Load Magit extensions that are defined at the Git config layer."
@@ -333,7 +333,7 @@ the buffer.
 
 Unless BUFFER is already displayed in the selected frame store the
 previous window configuration as a buffer local value, so that it
-can later be restored by `magit-mode-quit-window'.
+can later be restored by `magit-mode-bury-buffer'.
 
 Then display and select BUFFER using SWITCH-FUNCTION.  If that is
 nil either use `pop-to-buffer' if the current buffer's major mode
@@ -393,13 +393,13 @@ Magit mode."
 (defun magit-mode-get-buffer-create (format mode &optional topdir)
   (magit-mode-get-buffer format mode topdir t))
 
-(defun magit-mode-quit-window (&optional kill-buffer)
-  "Bury the current buffer and delete its window.
+(defun magit-mode-bury-buffer (&optional kill-buffer)
+  "Bury the current buffer.
 With a prefix argument, kill the buffer instead.
 
 If `magit-restore-window-configuration' is non-nil and the last
 configuration stored by `magit-mode-display-buffer' originates
-from the selected frame then restore it after burrying/killing
+from the selected frame then restore it after burying/killing
 the buffer.  Finally reset the window configuration to nil."
   (interactive "P")
   (let ((winconf magit-previous-window-configuration)
@@ -413,7 +413,7 @@ the buffer.  Finally reset the window configuration to nil."
         (when (buffer-live-p buffer)
           (with-current-buffer buffer
             (setq magit-previous-window-configuration nil)))))
-    (run-hook-with-args 'magit-mode-quit-window-hook buffer)))
+    (run-hook-with-args 'magit-mode-bury-buffer-hook buffer)))
 
 ;;; Refresh Machinery
 
