@@ -459,6 +459,23 @@ entries"
     (magit-refresh)
     (goto-char old-point)))
 
+(defun magit-log-bury-buffer (&optional arg)
+  "Bury the current buffer or the revision buffer in the same frame.
+Like `magit-mode-bury-buffer' (which see) but with a negative
+prefix argument instead bury the revision buffer, provided it
+is displayed in the current frame."
+  (interactive "p")
+  (if (< arg 0)
+      (let* ((buf (magit-mode-get-buffer magit-revision-buffer-name-format
+                                         'magit-revision-mode))
+             (win (and buf (get-buffer-window buf (selected-frame)))))
+        (if win
+            (with-selected-window win
+              (with-current-buffer buf
+                (magit-mode-bury-buffer (> (abs arg) 1))))
+          (user-error "No revision buffer in this frame")))
+    (magit-mode-bury-buffer (> arg 1))))
+
 ;;; Log Mode
 
 (defvar magit-log-mode-map
@@ -467,6 +484,7 @@ entries"
     (define-key map "\C-c\C-b" 'magit-go-backward)
     (define-key map "\C-c\C-f" 'magit-go-forward)
     (define-key map "+" 'magit-log-show-more-entries)
+    (define-key map "q" 'magit-log-bury-buffer)
     map)
   "Keymap for `magit-log-mode'.")
 
