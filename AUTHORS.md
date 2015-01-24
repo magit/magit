@@ -40,6 +40,7 @@ Contributors
 - Andreas Rottmann <a.rottmann@gmx.at>
 - Andrei Chițu <andrei.chitu1@gmail.com>
 - Andrew Kirkpatrick <andrew.kirkpatrick@adelaide.edu.au>
+- Andrew Schwartzmeyer <andrew@schwartzmeyer.com>
 - Andrey Smirnov <andrew.smirnov@gmail.com>
 - Bastian Beischer <beischer@physik.rwth-aachen.de>
 - Ben Walton <bwalton@artsci.utoronto.ca>
@@ -74,6 +75,7 @@ Contributors
 - Evgkeni Sampelnikof <esabof@gmail.com>
 - Felix Geller <fgeller@gmail.com>
 - Feng Li <fengli@blackmagicdesign.com>
+- Geoff Shannon <geoffpshannon@gmail.com>
 - George Kadianakis <desnacked@gmail.com>
 - Graham Clark <grclark@gmail.com>
 - Greg A. Woods <woods@planix.com>
@@ -89,6 +91,7 @@ Contributors
 - John Wiegley <johnw@newartisans.com>
 - Jonas Bernoulli <jonas@bernoul.li>
 - Jonathan Roes <jroes@jroes.net>
+- Jordan Greenberg <jordan@softwareslave.com>
 - Julien Danjou <julien@danjou.info>
 - Justin Caratzas <justin.caratzas@gmail.com>
 - Kimberly Wolk <kimwolk@hotmail.com>
@@ -136,6 +139,7 @@ Contributors
 - Pieter Praet <pieter@praet.org>
 - Prathamesh Sonpatki <csonpatki@gmail.com>
 - rabio <rabiodev@o2.pl>
+- Rafael Laboissiere <rafael@laboissiere.net>
 - Raimon Grau <raimonster@gmail.com>
 - Ramkumar Ramachandra <artagnon@gmail.com>
 - Remco van 't Veer <rwvtveer@xs4all.nl>
