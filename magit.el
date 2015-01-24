@@ -53,17 +53,6 @@
 (require 'cl-lib)
 (require 'dash)
 
-(define-obsolete-variable-alias 'magit-highlight-indentation 'magit-diff-highlight-indentation)
-(define-obsolete-variable-alias 'magit-highlight-trailing-whitespace 'magit-diff-highlight-trailing)
-(define-obsolete-variable-alias 'magit-highlight-whitespace 'magit-diff-paint-whitespace)
-(define-obsolete-variable-alias 'magit-mode-refresh-buffer-hook 'magit-refresh-buffer-hook)
-(define-obsolete-variable-alias 'magit-repo-dirs 'magit-repository-directories)
-(define-obsolete-variable-alias 'magit-repo-dirs-depth 'magit-repository-directories-depth)
-(define-obsolete-variable-alias 'magit-revert-backup 'magit-apply-backup)
-(define-obsolete-variable-alias 'magit-revert-buffer-hook 'magit-after-revert-hook)
-(define-obsolete-variable-alias 'magit-show-child-count 'magit-section-show-child-count)
-(define-obsolete-variable-alias 'magit-status-refresh-hook 'magit-refresh-status-hook)
-
 (require 'with-editor)
 (require 'git-commit)
 (require 'git-rebase)
