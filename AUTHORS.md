@@ -78,6 +78,7 @@ Contributors
 - Felix Geller <fgeller@gmail.com>
 - Feng Li <fengli@blackmagicdesign.com>
 - Florian Ragwitz <rafl@debian.org>
+- Geoff Shannon <geoffpshannon@gmail.com>
 - George Kadianakis <desnacked@gmail.com>
 - Graham Clark <grclark@gmail.com>
 - Greg A. Woods <woods@planix.com>
@@ -95,6 +96,7 @@ Contributors
 - John Wiegley <johnw@newartisans.com>
 - Jonas Bernoulli <jonas@bernoul.li>
 - Jonathan Roes <jroes@jroes.net>
+- Jordan Greenberg <jordan@softwareslave.com>
 - Julien Danjou <julien@danjou.info>
 - Justin Caratzas <justin.caratzas@gmail.com>
 - Kan-Ru Chen <koster@debian.org>
@@ -147,6 +149,7 @@ Contributors
 - Pieter Praet <pieter@praet.org>
 - Prathamesh Sonpatki <csonpatki@gmail.com>
 - rabio <rabiodev@o2.pl>
+- Rafael Laboissiere <rafael@laboissiere.net>
 - Raimon Grau <raimonster@gmail.com>
 - Ramkumar Ramachandra <artagnon@gmail.com>
 - Remco van 't Veer <rwvtveer@xs4all.nl>
