@@ -203,7 +203,9 @@ only arguments available from `magit-blame-popup' should be used.
            (user-error "Block has no further history"))
        (--if-let (magit-file-relative-name)
            (list (or magit-buffer-refname magit-buffer-revision) it args)
-         (user-error "Buffer isn't visiting a file")))))
+         (if buffer-file-name
+             (user-error "Buffer isn't visiting a tracked file")
+           (user-error "Buffer isn't visiting a file"))))))
   (let ((show-headings magit-blame-show-headings)
         (default-directory (magit-get-top-dir)))
     (if revision
