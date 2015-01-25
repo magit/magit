@@ -241,6 +241,38 @@ branch as default."
   (magit-run-git-async "push" remote tag))
 
 
+;;; Email
+
+;;;###autoload
+(defun magit-format-patch (range)
+  "Create patches for the commits in RANGE."
+  (interactive
+   (list (-if-let (revs (magit-region-values 'commit))
+             (concat (car (last revs)) "^.." (car revs))
+           (let ((commit (magit-read-range-or-commit "Format range")))
+             (format "%s~..%s" commit commit)))))
+  (magit-run-git "format-patch" range))
+
+;;;###autoload
+(defun magit-request-pull (url start end)
+  "Request upstream to pull from you public repository.
+
+URL is the url of your publically accessible repository.
+START is a commit that already is in the upstream repository.
+END is the last commit, usually a branch name, which upstream
+is asked to pull.  START has to be reachable from that commit."
+  (interactive
+   (list (magit-get "remote" (magit-read-remote "Remote") "url")
+         (magit-read-branch-or-commit "Start" (magit-get-tracked-branch))
+         (magit-read-branch-or-commit "End")))
+  (let ((dir default-directory))
+    ;; mu4e changes default-directory
+    (compose-mail)
+    (setq default-directory dir))
+  (message-goto-body)
+  (magit-git-insert "request-pull" start url)
+  (set-buffer-modified-p nil))
+
 ;;; magit-remote.el ends soon
 (provide 'magit-remote)
 ;; Local Variables:

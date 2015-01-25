@@ -1066,26 +1066,6 @@ defaulting to the branch at point."
     (magit-run-git "branch" "--unset-upstream" branch)))
 
 ;;;###autoload
-(defun magit-request-pull (url start end)
-  "Request upstream to pull from you public repository.
-
-URL is the url of your publically accessible repository.
-START is a commit that already is in the upstream repository.
-END is the last commit, usually a branch name, which upstream
-is asked to pull.  START has to be reachable from that commit."
-  (interactive
-   (list (magit-get "remote" (magit-read-remote "Remote") "url")
-         (magit-read-branch-or-commit "Start" (magit-get-tracked-branch))
-         (magit-read-branch-or-commit "End")))
-  (let ((dir default-directory))
-    ;; mu4e changes default-directory
-    (compose-mail)
-    (setq default-directory dir))
-  (message-goto-body)
-  (magit-git-insert "request-pull" start url)
-  (set-buffer-modified-p nil))
-
-;;;###autoload
 (defun magit-branch-rename (old new &optional force)
   "Rename branch OLD to NEW.
 With prefix, forces the rename even if NEW already exists.
@@ -1751,16 +1731,6 @@ With prefix argument simply read a directory name using
     result))
 
 ;;;; Various
-
-;;;###autoload
-(defun magit-format-patch (range)
-  "Create patches for the commits in RANGE."
-  (interactive
-   (list (-if-let (revs (magit-region-values 'commit))
-             (concat (car (last revs)) "^.." (car revs))
-           (let ((commit (magit-read-range-or-commit "Format range")))
-             (format "%s~..%s" commit commit)))))
-  (magit-run-git "format-patch" range))
 
 (defun magit-copy-as-kill ()
   "Save the value of the current section to the kill ring.
