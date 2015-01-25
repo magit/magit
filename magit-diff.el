@@ -697,35 +697,36 @@ which, as the name suggests always visits the actual file."
                      current-prefix-arg))
   (if (file-accessible-directory-p file)
       (magit-diff-visit-directory file other-window)
-    (let ((current (magit-current-section)) rev diff hunk line col)
+    (let ((current (magit-current-section))
+          rev diff hunk line col buffer)
       (when (and (derived-mode-p 'magit-revision-mode)
                  (not force-worktree))
         (setq rev (car (last magit-refresh-args 2)))
         (when (magit-rev-head-p rev)
           (setq rev nil)))
       (pcase (magit-diff-scope nil nil t)
-        (`list (setq diff (car (magit-section-children current))
-                     hunk (car (magit-section-children diff))))
-        (`file (setq diff current
-                     hunk (car (magit-section-children diff))))
+        (`list (setq hunk (car (magit-section-children
+                                (car (magit-section-children current))))))
+        (`file (setq hunk (car (magit-section-children current))))
         ((or `hunk `region)
          (setq hunk current)))
-      (let ((line (and hunk (magit-diff-hunk-line   hunk)))
-            (col  (and hunk (magit-diff-hunk-column hunk)))
-            (buffer (if rev
-                        (magit-find-file-noselect rev file)
-                      (or (get-file-buffer file)
-                          (find-file-noselect file)))))
-        (if (or other-window (get-buffer-window buffer))
-            (pop-to-buffer buffer)
-          (switch-to-buffer buffer))
-        (when line
-          (goto-char (point-min))
-          (forward-line (1- line))
-          (when col
-            (move-to-column col)))))
-    (when (magit-anything-unmerged-p file)
-      (smerge-start-session))))
+      (when hunk
+        (setq line (magit-diff-hunk-line   hunk)
+              col  (magit-diff-hunk-column hunk)))
+      (setq buffer (if rev
+                       (magit-find-file-noselect rev file)
+                     (or (get-file-buffer file)
+                         (find-file-noselect file))))
+      (if (or other-window (get-buffer-window buffer))
+          (pop-to-buffer buffer)
+        (switch-to-buffer buffer))
+      (when line
+        (goto-char (point-min))
+        (forward-line (1- line))
+        (when col
+          (move-to-column col)))))
+  (when (magit-anything-unmerged-p file)
+    (smerge-start-session)))
 
 (defun magit-diff-visit-file-worktree (file &optional other-window)
   "From a diff, visit the corresponding file at the appropriate position.
