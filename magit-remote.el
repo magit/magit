@@ -243,8 +243,28 @@ branch as default."
 
 ;;; Email
 
+(magit-define-popup magit-patch-popup
+  "Popup console for patch commands."
+  'magit-popups
+  :man-page "git-format-patch"
+  :options  '((?f "From"             "--from=")
+              (?t "To"               "--to=")
+              (?c "CC"               "--cc=")
+              (?r "In reply to"      "--in-reply-to=")
+              (?v "Reroll count"     "--reroll-count=")
+              (?s "Thread style"     "--thread=")
+              (?U "Context lines"    "-U")
+              (?M "Detect renames"   "-M")
+              (?C "Detect copies"    "-C")
+              (?A "Diff algorithm"   "--diff-algorithm="
+                  magit-diff-select-algorithm)
+              (?o "Output directory" "--output-directory="))
+  :actions  '((?p "Format patches"   magit-format-patch)
+              (?r "Request pull"     magit-request-pull))
+  :default-action 'magit-format-patch)
+
 ;;;###autoload
-(defun magit-format-patch (range)
+(defun magit-format-patch (range args)
   "Create patches for the commits in RANGE."
   (interactive
    (list (-if-let (revs (magit-region-values 'commit))
@@ -252,8 +272,9 @@ branch as default."
            (let ((range (magit-read-range-or-commit "Format range or commit")))
              (if (string-match-p "\\.\\." range)
                  range
-               (format "%s~..%s" range range))))))
-  (magit-run-git "format-patch" range))
+               (format "%s~..%s" range range))))
+         (magit-patch-arguments)))
+  (magit-run-git "format-patch" range args))
 
 ;;;###autoload
 (defun magit-request-pull (url start end)

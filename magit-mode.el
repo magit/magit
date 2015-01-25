@@ -171,7 +171,7 @@ the user has to confirm each save."
     (define-key map "U" 'magit-reset-index)
     (define-key map "V" 'magit-revert-popup)
     (define-key map "w" 'magit-am-popup)
-    (define-key map "W" 'magit-format-patch)
+    (define-key map "W" 'magit-patch-popup)
     (define-key map "x" 'magit-reset)
     (define-key map "y" 'magit-show-refs-popup)
     (define-key map "Y" 'magit-cherry)
