@@ -356,7 +356,7 @@ or `:only' which doesn't change the behaviour."
               (make-magit-popup-event
                :key (car ev)  :dsc (cadr ev) :arg a
                :use (and v t) :val (and v (match-string 1 v))
-               :fun (nth 3 ev))))
+               :fun (or (nth 3 ev) 'read-from-minibuffer))))
           def))
 
 (defun magit-popup-convert-actions (val def)
@@ -476,8 +476,8 @@ is then placed before or after AT, depending on PREPEND."
   (magit-define-popup-key popup :switches key
     (list desc switch enable) at prepend))
 
-(defun magit-define-popup-option (popup key desc option reader
-                                        &optional value at prepend)
+(defun magit-define-popup-option (popup key desc option
+                                        &optional reader value at prepend)
   "In POPUP, define KEY as OPTION.
 
 POPUP is a popup command defined using `magit-define-popup'.
