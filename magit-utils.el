@@ -49,6 +49,9 @@
 (eval-when-compile (require 'ido))
 (declare-function ido-completing-read 'ido)
 
+(defvar magit-backup-mode)
+(defvar magit-backup-untracked)
+
 ;;; Options
 
 (defcustom magit-completing-read-function 'magit-builtin-completing-read
