@@ -61,11 +61,86 @@
 
 (defcustom magit-no-confirm nil
   "A list of symbols for actions Magit should not confirm, or t.
-Actions are: `reverse', `discard', `rename', `resurrect',
-`trash', `delete', `abort-merge', `merge-dirty', `drop-stashes'
-`reset-bisect', `kill-process', `delete-unmerged-branch',
-`stage-all-changes' and `unstage-all-changes'.  If t then don't
-require confirmation for any of these actions."
+
+Many potentially dangerous commands by default ask the user for
+confirmation.  Each of the below symbols stands for an action
+which, when invoked unintentionally or without being fully aware
+of the consequences, could lead to tears.  In many cases there
+are more than one command which performs a certain action, so
+we don't use the command names but more generic symbols.
+
+Applying changes:
+
+  `discard' Discarding one or more changes (i.e. hunks or the
+  complete diff for a file) loses that change, obviously.
+
+  `reverse' Reverting one or more changes can usually be undone
+  by reverting the reversion.
+
+  `stage-all-changes', `unstage-all-changes' When there are both
+  staged and unstaged changes, then un-/staging everything would
+  destroy that distinction.  Of course that also applies when
+  un-/staging a single change, but then less is lost and one does
+  that so often that having to confirm every time would be
+  unacceptable.
+
+Files:
+
+  `delete' When a file that isn't yet tracked by Git is deleted
+  then it is completely lost, not just the last changes.  Very
+  dangerous.
+
+  `trash' Instead of deleting a file it can also be move to the
+  system trash.  Obviously much less dangerous than deleting it.
+
+  Also see option `magit-delete-by-moving-to-trash'.
+
+  `resurrect' A deleted file can easily be resurrected by
+  \"deleting\" the deletion, which is done using the same command
+  that was used to delete the same file in the first place.
+
+  `rename' Renaming a file can easily be undone.
+
+Sequences:
+
+  `reset-bisect' Aborting (known to Git as \"resetting\") a
+  bisect operation loses all information collected so far.
+
+  `abort-merge' Aborting a merge throws away all conflict
+  resolutions which has already been carried out by the user.
+
+  `merge-dirty' Merging with a dirty worktree can make it hard to
+  go back to the state before the merge was initiated.
+
+References:
+
+  `delete-unmerged-branch' Once a branch has been deleted it can
+  only be restored using low-level recovery tools provided by
+  Git.  And even then the reflog is gone.  The user always has
+  to confirm the deletion of a branch by accepting the default
+  choice (or selecting another branch), but when a branch has
+  not been merged yet, also make sure the user is aware of that.
+
+  `drop-stashes' Dropping a stash is dangerous because Git stores
+  them in the reflog, once it is removed there is no going back
+  without using low-level recovery tools provided by Git.  When a
+  single stash is dropped, then the user always has to confirm by
+  accepting the default (or selecting another).  This action only
+  concerns the deletion of multiple stages at once.
+
+Various:
+
+  `kill-process' There seldom is a reason to kill a process.
+
+Global settings:
+
+  Instead of adding all of the above symbols to the value of this
+  option you can also set it to the atom `t', which has the same
+  effect as adding all of the above symbols.  Doing that most
+  certainly is a bad idea, especially because other symbols might
+  be added in the future.  So even if you don't want to be asked
+  for confirmation for any of these actions, you are still better
+  of adding all of the respective symbols individually."
   :package-version '(magit . "2.1.0")
   :group 'magit
   :type '(choice (const :tag "No confirmation needed" t)
