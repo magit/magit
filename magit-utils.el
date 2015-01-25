@@ -140,7 +140,16 @@ Global settings:
   certainly is a bad idea, especially because other symbols might
   be added in the future.  So even if you don't want to be asked
   for confirmation for any of these actions, you are still better
-  of adding all of the respective symbols individually."
+  of adding all of the respective symbols individually.
+
+  `safe-with-backup' When `magit-backup-mode' is enabled then
+  some of the above actions can be fairly easily undone.  Adding
+  this symbol to the value has the same effect as adding `discard',
+  `reverse', `stage-all-changes', and `unstage-all-changes', but
+  only if the mode is enabled in the current buffer.  When the
+  option `magit-backup-untracked' is non-nil, then that extends
+  to `delete' and `trash'.  Before you add this symbol you should
+  practice restoring a backup stash from `magit-backup-list'."
   :package-version '(magit . "2.1.0")
   :group 'magit
   :type '(choice (const :tag "No confirmation needed" t)
@@ -150,7 +159,8 @@ Global settings:
                       (const abort-merge)       (const merge-dirty)
                       (const drop-stashes)      (const resect-bisect)
                       (const kill-process)      (const delete-unmerged-branch)
-                      (const stage-all-changes) (const unstage-all-changes))))
+                      (const stage-all-changes) (const unstage-all-changes)
+                      (const safe-with-backup))))
 
 (defcustom magit-ellipsis ?…
   "Character used to abreviate text."
@@ -310,7 +320,15 @@ which case that is returned.  Also append \": \" to PROMPT."
                          (car items)))
   (cond ((and (not (eq action t))
               (or (eq magit-no-confirm t)
-                  (memq action magit-no-confirm)))
+                  (memq action
+                        `(,@magit-no-confirm
+                          ,@(and magit-backup-mode
+                                 (memq 'safe-with-backup magit-no-confirm)
+                                 `(discard reverse
+                                           stage-all-changes
+                                           unstage-all-changes
+                                           ,@(and magit-backup-untracked
+                                                  `(delete trash))))))))
          (or (not sitems) items))
         ((not sitems)
          (y-or-n-p prompt))
