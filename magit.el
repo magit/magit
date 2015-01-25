@@ -206,12 +206,6 @@ in the current buffer using the command `magit-toggle-margin'."
 
 ;;;; Miscellaneous
 
-(defcustom magit-merge-warn-dirty-worktree t
-  "Whether to warn before merging with a dirty worktree."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-commands
-  :type 'boolean)
-
 (defcustom magit-repository-directories nil
   "Directories containing Git repositories.
 Magit checks these directories for Git repositories and offers
@@ -1227,7 +1221,6 @@ inspect the merge and change the commit message.
 
 (defun magit-merge-assert ()
   (or (not (magit-anything-modified-p))
-      (not magit-merge-warn-dirty-worktree)
       (magit-confirm 'merge-dirty
         "Merging with dirty worktree is risky.  Continue")
       (user-error "Abort")))
