@@ -249,8 +249,10 @@ branch as default."
   (interactive
    (list (-if-let (revs (magit-region-values 'commit))
              (concat (car (last revs)) "^.." (car revs))
-           (let ((commit (magit-read-range-or-commit "Format range")))
-             (format "%s~..%s" commit commit)))))
+           (let ((range (magit-read-range-or-commit "Format range or commit")))
+             (if (string-match-p "\\.\\." range)
+                 range
+               (format "%s~..%s" range range))))))
   (magit-run-git "format-patch" range))
 
 ;;;###autoload
