@@ -692,7 +692,9 @@ then visit the actual file.  Otherwise when the diff is about
 an older commit, then visit the respective blob using
 `magit-find-file'.  Also see `magit-diff-visit-file-worktree'
 which, as the name suggests always visits the actual file."
-  (interactive (list (magit-file-at-point) current-prefix-arg))
+  (interactive (list (or (magit-file-at-point)
+                         (user-error "No file at point"))
+                     current-prefix-arg))
   (if (file-accessible-directory-p file)
       (magit-diff-visit-directory file other-window)
     (let ((current (magit-current-section)) rev diff hunk line col)
@@ -740,7 +742,9 @@ reliable.
 Also see `magit-diff-visit-file-worktree' which visits the
 respective blob, unless the diff shows changes in the worktree,
 the index, or HEAD."
-  (interactive (list (magit-file-at-point) current-prefix-arg))
+  (interactive (list (or (magit-file-at-point)
+                         (user-error "No file at point"))
+                     current-prefix-arg))
   (magit-diff-visit-file file other-window t))
 
 (defun magit-diff-hunk-line (section)
