@@ -357,9 +357,11 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
              (default (or (magit-branch-or-commit-at-point)
                           (unless use-current
                             (magit-get-previous-branch))))
-             (input (read-from-minibuffer "Log rev,s: "
-                                          nil magit-log-read-revs-map
-                                          nil 'magit-revision-history default)))
+             (input (read-from-minibuffer
+                     (format "Log rev,s%s: "
+                             (and default (format " (%s)" default)))
+                     nil magit-log-read-revs-map
+                     nil 'magit-revision-history default)))
         (when (string-equal input "")
           (or (setq input default)
               (user-error "Nothing selected")))
