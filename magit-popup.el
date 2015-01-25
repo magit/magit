@@ -558,7 +558,9 @@ It's better to use one of the specialized functions
   "In POPUP, bind TO to what FROM was bound to.
 TYPE is one of `:action', `:switch', or `:option'.
 Bind TO and unbind FROM, both are characters."
-  (setcar (assoc from (plist-get (symbol-value popup) type)) to))
+  (--if-let (assoc from (plist-get (symbol-value popup) type))
+      (setcar it to)
+    (message "magit-change-popup-key: FROM key %c is unbound" from)))
 
 (defun magit-remove-popup-key (popup type key)
   "In POPUP, remove KEY's binding of TYPE.
