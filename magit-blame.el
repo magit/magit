@@ -179,7 +179,7 @@ by turning the mode on again."
   :use-prefix 'popup)
 
 ;;;###autoload
-(defun magit-blame (revision file &optional args)
+(defun magit-blame (revision file &optional args line)
   "Display edit history of FILE up to REVISION.
 Interactively blame the file being visited in the current buffer.
 If the buffer visits a revision of that file, then blame up to
@@ -192,7 +192,8 @@ is the revision before the revision that added the lines at
 point.
 
 ARGS is a list of additional arguments to pass to `git blame';
-only arguments available from `magit-blame-popup' should be used."
+only arguments available from `magit-blame-popup' should be used.
+\n(fn REVISION FILE &optional ARGS)" ; LINE is for internal use
   (interactive
    (let ((args (magit-blame-arguments)))
      (if magit-blame-mode
@@ -208,6 +209,10 @@ only arguments available from `magit-blame-popup' should be used."
     (if revision
         (magit-find-file revision file)
       (find-file (expand-file-name file (magit-get-top-dir))))
+    (when line
+      (setq magit-blame-recursive-p t)
+      (goto-char (point-min))
+      (forward-line (1- line)))
     (unless magit-blame-mode
       (setq magit-blame-cache (make-hash-table :test 'equal))
       (setq this-command 'magit-blame)
