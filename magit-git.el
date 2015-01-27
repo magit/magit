@@ -578,53 +578,26 @@ which is different from the current branch and still exists."
       (cl-incf i))
     prev))
 
-(defun magit-get-tracked-ref (&optional branch)
-  (magit-get-tracked-branch branch t))
-
-(defun magit-get-tracked-branch (&optional branch qualified)
-  "Return the name of the tracking branch the local branch name BRANCH.
-
-If optional QUALIFIED is non-nil return the full branch path,
-otherwise try to shorten it to a name (which may fail)."
-  (unless branch
-    (setq branch (magit-get-current-branch)))
+(cl-defun magit-get-tracked-ref
+    (&optional (branch (magit-get-current-branch)))
   (when branch
     (let ((remote (magit-get "branch" branch "remote"))
           (merge  (magit-get "branch" branch "merge")))
-      (when (and (not merge)
-                 (not (equal remote ".")))
-        (setq merge branch))
       (when (and remote merge)
-        (if (string= remote ".")
-            (cond (qualified merge)
-                  ((string-match "^refs/heads/" merge)
-                   (substring merge 11))
-                  ((string-match "^refs/" merge)
-                   merge))
-          (let* ((fetch (--map (split-string it "[+:]" t)
-                               (magit-get-all "remote" remote "fetch")))
-                 (match (cadr (assoc merge fetch))))
-            (unless match
-              (let* ((prefix (nreverse (split-string merge "/")))
-                     (unique (list (car prefix))))
-                (setq prefix (cdr prefix))
-                (setq fetch
-                      (--mapcat (cl-destructuring-bind (from to) it
-                                  (setq from (nreverse (split-string from "/")))
-                                  (when (equal (car from) "*")
-                                    (list (list (cdr from) to))))
-                                fetch))
-                (while (and prefix (not match))
-                  (if (setq match (cadr (assoc prefix fetch)))
-                      (setq match (concat (substring match 0 -1)
-                                          (mapconcat 'identity unique "/")))
-                    (push (car prefix) unique)
-                    (setq prefix (cdr prefix))))))
-            (cond ((not match) nil)
-                  (qualified match)
-                  ((string-match "^refs/remotes/" match)
-                   (substring match 13))
-                  (t match))))))))
+        (cond ((string-equal remote ".") merge)
+              ((string-prefix-p "refs/heads/" merge)
+               (concat "refs/remotes/" remote "/" (substring merge 11))))))))
+
+(cl-defun magit-get-tracked-branch
+    (&optional (branch (magit-get-current-branch)))
+  (when branch
+    (let ((remote (magit-get "branch" branch "remote"))
+          (merge  (magit-get "branch" branch "merge")))
+      (when (and remote merge (string-prefix-p "refs/heads/" merge))
+        (setq merge (substring merge 11))
+        (if (string-equal remote ".")
+            (concat remote "/" merge)
+          merge)))))
 
 (defun magit-get-remote (&optional branch)
   (when (or branch (setq branch (magit-get-current-branch)))
