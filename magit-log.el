@@ -1042,13 +1042,21 @@ This sections can be expanded to show the respective commits."
             (magit-insert-section sec (file module t)
               (magit-insert-heading
                 (concat (propertize module 'face 'magit-diff-file-heading) ":"))
-              (magit-git-wash (apply-partially 'magit-log-wash-log 'module)
-                "log" "--oneline" (concat "HEAD.." tracked))
-              (when (> (point) (magit-section-content sec))
-                (delete-char -1))))))
+              (magit-insert-submodule-commits
+               section (concat "HEAD.." tracked))))))
       (if (> (point) (magit-section-content section))
           (insert ?\n)
         (magit-cancel-section)))))
+
+(defun magit-insert-submodule-commits (section range)
+  "For internal use, don't add to a hook."
+  (if (magit-section-hidden section)
+      (setf (magit-section-washer section)
+            (apply-partially #'magit-insert-submodule-commits section range))
+    (magit-git-wash (apply-partially 'magit-log-wash-log 'module)
+      "log" "--oneline" range)
+    (when (> (point) (magit-section-content section))
+      (delete-char -1))))
 
 (defvar magit-unpushed-section-map
   (let ((map (make-sparse-keymap)))
@@ -1091,10 +1099,8 @@ These sections can be expanded to show the respective commits."
             (magit-insert-section sec (file module t)
               (magit-insert-heading
                 (concat (propertize module 'face 'magit-diff-file-heading) ":"))
-              (magit-git-wash (apply-partially 'magit-log-wash-log 'module)
-                "log" "--oneline" (concat tracked "..HEAD"))
-              (when (> (point) (magit-section-content sec))
-                (delete-char -1))))))
+              (magit-insert-submodule-commits
+               section (concat tracked "..HEAD"))))))
       (if (> (point) (magit-section-content section))
           (insert ?\n)
         (magit-cancel-section)))))
