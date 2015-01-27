@@ -644,8 +644,8 @@ If optional WITH-DISTANCE is non-nil then return (TAG COMMITS),
 if it is `dirty' return (TAG COMMIT DIRTY). COMMITS is the number
 of commits in \"HEAD\" but not in TAG and DIRTY is t if there are
 uncommitted changes, nil otherwise."
-  (--when-let (magit-git-string "describe" "--long" "--tags"
-                                (and (eq with-distance 'dirty) "--dirty") rev)
+  (--when-let (magit-git-str "describe" "--long" "--tags"
+                             (and (eq with-distance 'dirty) "--dirty") rev)
     (save-match-data
       (string-match
        "\\(.+\\)-\\(?:0[0-9]*\\|\\([0-9]+\\)\\)-g[0-9a-z]+\\(-dirty\\)?$" it)
