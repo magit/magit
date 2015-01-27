@@ -221,11 +221,13 @@ message and add a section in the respective process buffer."
 
 (defun magit-git-lines (&rest args)
   "Execute Git with ARGS, returning its output as a list of lines.
-Empty lines anywhere in the output are omitted."
+Empty lines anywhere in the output are omitted.
+
+If Git exits with a non-zero exit status, then report show a
+message and add a section in the respective process buffer."
   (with-temp-buffer
-    (apply #'process-file magit-git-executable nil (list t nil) nil
-           (magit-process-git-arguments args))
-    (split-string (buffer-string) "\n" 'omit-nulls)))
+    (apply #'magit-git-insert args)
+    (split-string (buffer-string) "\n" t)))
 
 (defun magit-git-wash (washer &rest args)
   "Execute Git with ARGS, inserting washed output at point.
@@ -952,7 +954,8 @@ Return a list of two integers: (A>B B>A)."
 
 (defun magit-get-all (&rest keys)
   "Return all values of the Git config entry specified by KEYS."
-  (magit-git-lines "config" "--get-all" (mapconcat 'identity keys ".")))
+  (let ((magit-git-debug nil))
+    (magit-git-lines "config" "--get-all" (mapconcat 'identity keys "."))))
 
 (defun magit-get-boolean (&rest keys)
   "Return the boolean value of Git config entry specified by KEYS."
