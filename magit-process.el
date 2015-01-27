@@ -131,18 +131,19 @@ When this is nil, no sections are ever removed."
   :group 'magit-process
   (hack-dir-local-variables-non-file-buffer))
 
-(defun magit-process-buffer (&optional topdir)
+(defun magit-process-buffer (&optional topdir create)
   (or (magit-mode-get-buffer magit-process-buffer-name-format
                              'magit-process-mode topdir)
-      (with-current-buffer (magit-mode-get-buffer-create
-                            magit-process-buffer-name-format
-                            'magit-process-mode topdir)
-        (magit-process-mode)
-        (let ((inhibit-read-only t))
-          (make-local-variable 'text-property-default-nonsticky)
-          (magit-insert-section (processbuf)
-            (insert "\n")))
-        (current-buffer))))
+      (and create
+           (with-current-buffer (magit-mode-get-buffer-create
+                                 magit-process-buffer-name-format
+                                 'magit-process-mode topdir)
+             (magit-process-mode)
+             (let ((inhibit-read-only t))
+               (make-local-variable 'text-property-default-nonsticky)
+               (magit-insert-section (processbuf)
+                 (insert "\n")))
+             (current-buffer)))))
 
 (defun magit-process ()
   "Display Magit process buffer."
@@ -377,7 +378,7 @@ tracked in the current repository are reverted if
   (let ((buf (magit-process-buffer)))
     (if  buf
         (magit-process-truncate-log buf)
-      (setq buf (magit-process-buffer)))
+      (setq buf (magit-process-buffer nil t)))
     (cons buf (with-current-buffer buf
                 (prog1 (magit-process-insert-section program args)
                   (backward-char 1))))))

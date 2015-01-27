@@ -188,7 +188,7 @@ string \"false\", otherwise return nil."
                                    (and (re-search-backward
                                          magit-process-error-message-re nil t)
                                         (match-string 1))))
-                       (with-current-buffer (magit-process-buffer)
+                       (with-current-buffer (magit-process-buffer nil t)
                          (magit-process-insert-section magit-git-executable
                                                        args exit log)))
                      (message "%s" msg)))
