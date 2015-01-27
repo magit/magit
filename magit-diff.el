@@ -919,7 +919,7 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
           "\\([^ ]+ (new submodule)\\)\\|"
           "\\([^ ]+ (submodule deleted)\\)\\|"
           "\\(contains \\(?:modified\\|untracked\\) content\\)\\|"
-          "\\([^:]+\\):\\)$"))
+          "\\([^ :]+\\)\\( (rewind)\\)?:\\)$"))
 
 (defun magit-diff-wash-diffs (args &optional diffstats)
   (unless diffstats
@@ -1058,7 +1058,7 @@ section or a child thereof."
     (magit-wash-sequence #'magit-diff-wash-hunk)))
 
 (defun magit-diff-wash-submodule ()
-  (magit-bind-match-strings (module new deleted dirty range) nil
+  (magit-bind-match-strings (module new deleted dirty range rewind) nil
     (magit-delete-line)
     (when (and dirty
                (looking-at magit-diff-submodule-re)
@@ -1077,12 +1077,14 @@ section or a child thereof."
                      (concat (propertize (concat "modified   " module)
                                          'face 'magit-diff-file-heading)
                              " ("
-                             (and range "new commits")
+                             (if rewind "rewind" "new commits")
                              (and dirty ", modified content")
                              ")"))
-                   (magit-git-wash (apply-partially 'magit-log-wash-log 'module)
-                     "log" "--oneline" "--left-right" range)
-                   (delete-char -1)))
+                   (unless rewind
+                     (magit-git-wash
+                         (apply-partially 'magit-log-wash-log 'module)
+                       "log" "--oneline" "--left-right" range)
+                     (delete-char -1))))
                 module))
       (magit-insert-section (file module)
         (magit-insert
