@@ -77,6 +77,24 @@ Tramp to connect to servers with ancient Git versions."
   :group 'magit-process
   :type '(repeat string))
 
+(defcustom magit-git-debug nil
+  "Whether to enable additional reporting of Git errors.
+
+Magit basically calls Git for one of these two reasons: for
+side-effects or to do something with its standard output.
+
+When Git is run for side-effects then its output, including error
+messages go into the process buffer which is shown when using \
+\\<magit-status-mode-map>\\[magit-process].
+
+When Git's output is consumed in some way, then it would be to
+expensive to also insert it into this buffer, but when this
+option is non-nil and Git returns with a non-zero exit status,
+then at least its standart error is inserted into this buffer."
+  :group 'magit
+  :group 'magit-process
+  :type 'boolean)
+
 (defcustom magit-ref-namespaces
   '(("^@$"                       magit-head nil)
     ("^refs/tags/\\(.+\\)"       magit-tag nil)
@@ -168,32 +186,38 @@ string \"true\", otherwise return nil."
   "Execute Git with ARGS, returning t if it prints \"false\".
 Return t if the first (and usually only) output line is the
 string \"false\", otherwise return nil."
-  (equal (magit-git-string args) "false"))
+  (equal (magit-git-str args) "false"))
 
 (defun magit-git-insert (&rest args)
-  "Execute Git with ARGS, inserting its output at point."
+  "Execute Git with ARGS, inserting its output at point.
+If Git exits with a non-zero exit status, then report show a
+message and add a section in the respective process buffer."
   (setq args (magit-process-git-arguments args))
-  (let (log)
-    (unwind-protect
-        (progn (setq log (make-temp-file "magit-stderr"))
-               (delete-file log)
-               (let ((exit (apply #'process-file magit-git-executable
-                                  nil (list t log) nil args)))
-                 (when (> exit 0)
-                   (let ((msg "Git failed"))
-                     (when (file-exists-p log)
-                       (setq msg (with-temp-buffer
-                                   (insert-file-contents log)
-                                   (goto-char (point-max))
-                                   (and (re-search-backward
-                                         magit-process-error-message-re nil t)
-                                        (match-string 1))))
-                       (with-current-buffer (magit-process-buffer nil t)
-                         (magit-process-insert-section magit-git-executable
-                                                       args exit log)))
-                     (message "%s" msg)))
-                 exit))
-      (ignore-errors (delete-file log)))))
+  (if magit-git-debug
+      (let (log)
+        (unwind-protect
+            (progn
+              (setq log (make-temp-file "magit-stderr"))
+              (delete-file log)
+              (let ((exit (apply #'process-file magit-git-executable
+                                 nil (list t log) nil args)))
+                (when (> exit 0)
+                  (let ((msg "Git failed"))
+                    (when (file-exists-p log)
+                      (setq msg (with-temp-buffer
+                                  (insert-file-contents log)
+                                  (goto-char (point-max))
+                                  (and (re-search-backward
+                                        magit-process-error-message-re nil t)
+                                       (match-string 1))))
+                      (let ((magit-git-debug nil))
+                        (with-current-buffer (magit-process-buffer nil t)
+                          (magit-process-insert-section magit-git-executable
+                                                        args exit log))))
+                    (message "%s" msg)))
+                exit))
+          (ignore-errors (delete-file log))))
+    (apply #'process-file magit-git-executable nil (list t nil) nil args)))
 
 (defun magit-git-lines (&rest args)
   "Execute Git with ARGS, returning its output as a list of lines.
