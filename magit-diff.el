@@ -1063,7 +1063,7 @@ section or a child thereof."
     (when (and dirty
                (looking-at magit-diff-submodule-re)
                (string= (match-string 1) module))
-      (setq range (match-string 4))
+      (setq range (match-string 5))
       (magit-delete-line))
     (while (looking-at "^  \\([<>]\\) \\(.+\\)$")
       (magit-delete-line))
