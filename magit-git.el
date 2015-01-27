@@ -668,6 +668,14 @@ where COMMITS is the number of commits in TAG but not in REV."
                   (magit-list-remote-branches remote)))
     (magit-list-refnames (concat "refs/remotes/" remote))))
 
+(defun magit-format-refs (format &rest args)
+  (let ((lines (magit-git-lines
+                "for-each-ref" (concat "--format=" format)
+                (or args (list "refs/heads" "refs/remotes" "refs/tags")))))
+    (if (string-match-p "\f" format)
+        (--map (split-string it "\f") lines)
+      lines)))
+
 (defun magit-list-remotes ()
   (magit-git-lines "remote"))
 
