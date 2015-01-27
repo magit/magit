@@ -991,7 +991,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 
 (defun magit-insert-unpulled-commits ()
   "Insert section showing unpulled commits."
-  (-when-let (tracked (magit-get-tracked-branch nil t))
+  (-when-let (tracked (magit-get-tracked-ref))
     (magit-insert-section (unpulled)
       (magit-insert-heading "Unpulled commits:")
       (magit-insert-log (concat "HEAD.." tracked) magit-log-section-args))))
@@ -1002,7 +1002,7 @@ If an upstream is configured for the current branch and it is
 ahead of the current branch, then show the missing commits,
 otherwise show the last `magit-log-section-commit-count'
 commits. "
-  (let ((tracked (magit-get-tracked-branch nil t)))
+  (let ((tracked (magit-get-tracked-ref)))
     (if (and tracked (not (equal (magit-rev-parse "HEAD")
                                  (magit-rev-parse tracked))))
         (magit-insert-unpulled-commits)
@@ -1022,7 +1022,7 @@ Like `magit-insert-unpulled-commits' but prefix each commit
 which has not been applied yet (i.e. a commit with a patch-id
 not shared with any local commit) with \"+\", and all others
 with \"-\"."
-  (-when-let (tracked (magit-get-tracked-branch nil t))
+  (-when-let (tracked (magit-get-tracked-ref))
     (magit-insert-section (unpulled)
       (magit-insert-heading "Unpulled commits:")
       (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
@@ -1038,7 +1038,7 @@ This sections can be expanded to show the respective commits."
         (let ((default-directory
                 (file-name-as-directory
                  (expand-file-name module (magit-get-top-dir)))))
-          (-when-let (tracked (magit-get-tracked-branch nil t))
+          (-when-let (tracked (magit-get-tracked-ref))
             (magit-insert-section sec (file module t)
               (magit-insert-heading
                 (concat (propertize module 'face 'magit-diff-file-heading) ":"))
@@ -1060,7 +1060,7 @@ This sections can be expanded to show the respective commits."
 
 (defun magit-insert-unpushed-commits ()
   "Insert section showing unpushed commits."
-  (-when-let (tracked (magit-get-tracked-branch nil t))
+  (-when-let (tracked (magit-get-tracked-ref))
     (magit-insert-section (unpushed)
       (magit-insert-heading "Unpushed commits:")
       (magit-insert-log (concat tracked "..HEAD") magit-log-section-args))))
@@ -1071,7 +1071,7 @@ Like `magit-insert-unpushed-commits' but prefix each commit
 which has not been applied to upstream yet (i.e. a commit with
 a patch-id not shared with any upstream commit) with \"+\", and
 all others with \"-\"."
-  (-when-let (tracked (magit-get-tracked-branch nil t))
+  (-when-let (tracked (magit-get-tracked-ref))
     (magit-insert-section (unpushed)
       (magit-insert-heading "Unpushed commits:")
       (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
@@ -1087,7 +1087,7 @@ These sections can be expanded to show the respective commits."
         (let ((default-directory
                 (file-name-as-directory
                  (expand-file-name module (magit-get-top-dir)))))
-          (-when-let (tracked (magit-get-tracked-branch nil t))
+          (-when-let (tracked (magit-get-tracked-ref))
             (magit-insert-section sec (file module t)
               (magit-insert-heading
                 (concat (propertize module 'face 'magit-diff-file-heading) ":"))

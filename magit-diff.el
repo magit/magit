@@ -425,7 +425,7 @@ If you do change the global value this might lead to problems.")
         ([* staged] (magit-diff-staged nil args))
         (unpushed (magit-diff-unpushed args))
         (unpulled (magit-diff-unpulled args))
-        (branch   (-if-let (tracked (magit-get-tracked-branch value t))
+        (branch   (-if-let (tracked (magit-get-tracked-ref value))
                       (magit-diff (format "%s...%s" tracked value) args)
                     (call-interactively 'magit-diff)))
         (commit   (magit-show-commit value nil nil args))
@@ -478,7 +478,7 @@ a commit read from the minibuffer."
 (defun magit-diff-unpushed (&optional args)
   "Show unpushed changes."
   (interactive (list (magit-diff-arguments)))
-  (-if-let (tracked (magit-get-tracked-branch nil t))
+  (-if-let (tracked (magit-get-tracked-ref))
       (magit-diff (concat tracked "...") args)
     (error "Detached HEAD or upstream unset")))
 
@@ -486,7 +486,7 @@ a commit read from the minibuffer."
 (defun magit-diff-unpulled (&optional args)
   "Show unpulled changes."
   (interactive (list (magit-diff-arguments)))
-  (-if-let (tracked (magit-get-tracked-branch nil t))
+  (-if-let (tracked (magit-get-tracked-ref))
       (magit-diff (concat "..." tracked) args)
     (error "Detached HEAD or upstream unset")))
 

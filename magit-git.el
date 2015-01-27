@@ -578,6 +578,9 @@ which is different from the current branch and still exists."
       (cl-incf i))
     prev))
 
+(defun magit-get-tracked-ref (&optional branch)
+  (magit-get-tracked-branch branch t))
+
 (defun magit-get-tracked-branch (&optional branch qualified)
   "Return the name of the tracking branch the local branch name BRANCH.
 
