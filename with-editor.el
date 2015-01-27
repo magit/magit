@@ -104,6 +104,10 @@
   (let ((path exec-path))
     (when invocation-directory
       (push (directory-file-name invocation-directory) path)
+      (let* ((linkname (expand-file-name invocation-name invocation-directory))
+             (truename (file-chase-links linkname)))
+        (unless (equal truename linkname)
+          (push (directory-file-name (file-name-directory truename)) path)))
       (when (eq system-type 'darwin)
         (let ((dir (expand-file-name "bin" invocation-directory)))
           (when (file-directory-p dir)
