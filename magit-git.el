@@ -734,7 +734,12 @@ where COMMITS is the number of commits in TAG but not in REV."
                    (magit-git-lines "ls-remote" "--tags" remote))))
 
 (defun magit-get-submodules ()
-  (magit-git-lines "submodule" "--quiet" "foreach" "echo $path"))
+  (--mapcat
+   (and (string-match "^\\([0-7]+\\) [0-9a-z]\\{40\\} \\([0-3]\\)\t\\(.+\\)$" it)
+        (equal (match-string 1 it) "160000")
+        (equal (match-string 2 it) "0")
+        (list  (match-string 3 it)))
+   (magit-git-lines "ls-files" "--stage")))
 
 (defun magit-branch-p (string)
   (and (or (member string (magit-list-branches))
