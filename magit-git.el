@@ -165,10 +165,11 @@ to do the following.
   "Execute Git with ARGS, returning t if its exit code is 1."
   (= (magit-git-exit-code args) 1))
 
-(defun magit-git-string (&rest args)
+(defun magit-git-str (&rest args)
   "Execute Git with ARGS, returning the first line of its output.
 If there is no output return nil.  If the output begins with a
-newline return an empty string."
+newline return an empty string.  Like `magit-git-string' but
+ignore `magit-git-debug'."
   (with-temp-buffer
     (apply #'process-file magit-git-executable nil (list t nil) nil
            (magit-process-git-arguments args))
@@ -180,7 +181,7 @@ newline return an empty string."
   "Execute Git with ARGS, returning t if it prints \"true\".
 Return t if the first (and usually only) output line is the
 string \"true\", otherwise return nil."
-  (equal (magit-git-string args) "true"))
+  (equal (magit-git-str args) "true"))
 
 (defun magit-git-false (&rest args)
   "Execute Git with ARGS, returning t if it prints \"false\".
@@ -218,6 +219,16 @@ message and add a section in the respective process buffer."
                 exit))
           (ignore-errors (delete-file log))))
     (apply #'process-file magit-git-executable nil (list t nil) nil args)))
+
+(defun magit-git-string (&rest args)
+  "Execute Git with ARGS, returning the first line of its output.
+If there is no output return nil.  If the output begins with a
+newline return an empty string."
+  (with-temp-buffer
+    (apply #'magit-git-insert args)
+    (unless (bobp)
+      (goto-char (point-min))
+      (buffer-substring-no-properties (point) (line-end-position)))))
 
 (defun magit-git-lines (&rest args)
   "Execute Git with ARGS, returning its output as a list of lines.
@@ -257,7 +268,7 @@ call function WASHER with no argument."
 If optional PATH is non-nil it has to be a path relative to the
 GIT_DIR and its absolute path is returned.  If optional LOCALNAME
 is non-nil return only the local part of tramp paths."
-  (--when-let (magit-rev-parse "--git-dir")
+  (--when-let (magit-rev-parse-safe "--git-dir")
     (setq it (file-name-as-directory (magit-expand-git-file-name it localname)))
     (if path (expand-file-name (convert-standard-filename path) it) it)))
 
@@ -268,7 +279,7 @@ Determine the repository which contains `default-directory' in
 its work tree and return the absolute path to its top-level
 directory.  Otherwise return nil.  If optional LOCALNAME is
 non-nil return only the local part of tramp paths."
-  (--when-let (magit-rev-parse "--show-toplevel")
+  (--when-let (magit-rev-parse-safe "--show-toplevel")
     (file-name-as-directory (magit-expand-git-file-name it localname))))
 
 (defun magit-toplevel-safe (&optional directory)
@@ -462,6 +473,12 @@ are considered."
   "Execute `git rev-parse ARGS', returning first line of output.
 If there is no output return nil."
   (apply #'magit-git-string "rev-parse" args))
+
+(defun magit-rev-parse-safe (&rest args)
+  "Execute `git rev-parse ARGS', returning first line of output.
+If there is no output return nil.  Like `magit-rev-parse' but
+ignore `magit-git-debug'."
+  (apply #'magit-git-str "rev-parse" args))
 
 (defun magit-rev-parse-p (&rest args)
   "Execute `git rev-parse ARGS', returning t if it prints \"true\".
@@ -950,7 +967,7 @@ Return a list of two integers: (A>B B>A)."
 
 (defun magit-get (&rest keys)
   "Return the value of Git config entry specified by KEYS."
-  (magit-git-string "config" (mapconcat 'identity keys ".")))
+  (magit-git-str "config" (mapconcat 'identity keys ".")))
 
 (defun magit-get-all (&rest keys)
   "Return all values of the Git config entry specified by KEYS."
