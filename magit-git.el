@@ -487,7 +487,7 @@ string \"true\", otherwise return nil."
   (magit-git-true "rev-parse" args))
 
 (defun magit-rev-verify (rev)
-  (magit-rev-parse "--verify" rev))
+  (magit-rev-parse-safe "--verify" rev))
 
 (defun magit-rev-equal (a b)
   (magit-git-success "diff" "--quiet" a b))
