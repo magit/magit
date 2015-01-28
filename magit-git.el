@@ -440,7 +440,7 @@ If the file is not inside a Git repository then return nil."
 
 (defun magit-no-commit-p ()
   "Return t if there is no commit in the current Git repository."
-  (not (magit-git-string "rev-list" "-1" "HEAD")))
+  (not (magit-rev-verify "HEAD")))
 
 (defun magit-anything-staged-p (&rest files)
   "Return t if there are any staged changes.
