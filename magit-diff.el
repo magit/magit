@@ -300,6 +300,26 @@ The following `format'-like specs are supported:
   "Face for lines in a diff that have been removed."
   :group 'magit-faces)
 
+(defface magit-diff-our
+  '((t :inherit magit-diff-removed))
+  "Face for lines in a diff for our side in a conflict."
+  :group 'magit-faces)
+
+(defface magit-diff-base
+  '((((class color) (background light))
+     :background "#ffffcc"
+     :foreground "#aaaa11")
+    (((class color) (background dark))
+     :background "#555522"
+     :foreground "#ccccbb"))
+  "Face for lines in a diff for the base side in a conflict."
+  :group 'magit-faces)
+
+(defface magit-diff-their
+  '((t :inherit magit-diff-added))
+  "Face for lines in a diff for their side in a conflict."
+  :group 'magit-faces)
+
 (defface magit-diff-context
   '((((class color) (background light)) :foreground "grey50")
     (((class color) (background  dark)) :foreground "grey70"))
@@ -324,6 +344,26 @@ The following `format'-like specs are supported:
      :background "#663333"
      :foreground "#ddbbbb"))
   "Face for lines in a diff that have been removed."
+  :group 'magit-faces)
+
+(defface magit-diff-our-highlight
+  '((t :inherit magit-diff-removed-highlight))
+  "Face for lines in a diff for our side in a conflict."
+  :group 'magit-faces)
+
+(defface magit-diff-base-highlight
+  '((((class color) (background light))
+     :background "#eeeebb"
+     :foreground "#aaaa11")
+    (((class color) (background dark))
+     :background "#666622"
+     :foreground "#ddddaa"))
+  "Face for lines in a diff for the base side in a conflict."
+  :group 'magit-faces)
+
+(defface magit-diff-their-highlight
+  '((t :inherit magit-diff-added-highlight))
+  "Face for lines in a diff for their side in a conflict."
   :group 'magit-faces)
 
 (defface magit-diff-context-highlight
@@ -1488,16 +1528,27 @@ of SECTION including SECTION and all of them are highlighted."
       (save-excursion
         (goto-char (magit-section-start section))
         (let ((end (magit-section-end section))
-              (merging (looking-at "@@@")))
+              (merging (looking-at "@@@"))
+              (stage nil))
           (forward-line)
           (while (< (point) end)
             (put-text-property
              (point) (1+ (line-end-position)) 'face
              (cond
-              ((looking-at "^\\+\\+?[<=|>]\\{7\\}") 'magit-diff-conflict-heading)
+              ((looking-at "^\\+\\+?\\([<=|>]\\)\\{7\\}")
+               (setq stage (pcase (list (match-string 1) highlight)
+                             (`("<" nil) 'magit-diff-our)
+                             (`("<"   t) 'magit-diff-our-highlight)
+                             (`("|" nil) 'magit-diff-base)
+                             (`("|"   t) 'magit-diff-base-highlight)
+                             (`("=" nil) 'magit-diff-their)
+                             (`("="   t) 'magit-diff-their-highlight)
+                             (`(">" nil) nil)))
+               'magit-diff-conflict-heading)
               ((looking-at (if merging  "^\\(\\+\\| \\+\\)" "^\\+"))
                (magit-diff-paint-whitespace merging)
-               (if highlight 'magit-diff-added-highlight 'magit-diff-added))
+               (or stage
+                   (if highlight 'magit-diff-added-highlight 'magit-diff-added)))
               ((looking-at (if merging  "^\\(-\\| -\\)" "^-"))
                (if highlight 'magit-diff-removed-highlight 'magit-diff-removed))
               (t
