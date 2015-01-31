@@ -7465,7 +7465,18 @@ Non-interactively DIRECTORY is always (re-)initialized."
   (magit-section-action copy (info)
     ((branch commit file diff)
      (kill-new info)
-     (message "%s" info))))
+     (message "%s" info))
+    ((message)
+     (kill-new
+      (mapconcat
+       (lambda (x) (if (> (length x) 4) (substring x 4) x))
+       (split-string
+        (buffer-substring-no-properties
+         (magit-section-beginning it)
+         (magit-section-end it))
+        "\n")
+       "\n"))
+     (message "COMMIT_MSG"))))
 
 (defun magit-ignore-item (edit &optional local)
   "Ignore the item at point.
