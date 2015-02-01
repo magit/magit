@@ -13,6 +13,9 @@
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 
+;; Package-Requires: ((emacs "24") (cl-lib "0.5") (dash "2.10.0"))
+;; Homepage: https://github.com/magit/magit
+
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation; either version 3, or (at your option)
@@ -42,6 +45,14 @@
 ;; not limit what that next command could be.  But entering a command
 ;; console popup does limit the selection to the commands defined for
 ;; that popup, and so we use the term "infix" instead of "prefix".
+
+;; Note: This library is developed in the `next' branch of the Magit
+;;       repository and replaces the older library `magit-key-mode.el'
+;;       from the `master' branch.  If you get Magit from Melpa or
+;;       Melpa-Stable, then you are using its `master' version/branch.
+;;       Because this new library can be used independently of Magit
+;;       I am making it available as a separate package.  It can be
+;;       installed in parallel to Magit's `master' version.
 
 ;;; Code:
 
