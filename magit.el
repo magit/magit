@@ -82,6 +82,7 @@ Use the function by the same name instead of this variable.")
 (require 'format-spec)
 (require 'grep)
 (require 'help-mode)
+(require 'mailheader)
 (require 'ring)
 (require 'server)
 (require 'tramp)
@@ -1635,6 +1636,7 @@ set before loading libary `magit'.")
     (define-key map (kbd "SPC") 'scroll-up)
     (define-key map (kbd "DEL") 'scroll-down)
     (define-key map (kbd "j") 'magit-jump-to-diffstats)
+    (define-key map (kbd "M-m") 'magit-commit-compose-mail)
     map)
   "Keymap for `magit-commit-mode'.")
 
@@ -4282,7 +4284,8 @@ stash at point, then prompt for a commit."
     (delete-region (point) (1+ (line-end-position)))
     (magit-with-section
         (section headers 'headers
-         (concat (propertize rev 'face 'magit-log-sha1)
+         (concat (propertize rev 'face 'magit-log-sha1
+                             'magit-commit-revision rev)
                  (and refs (concat " "(magit-format-ref-labels refs)))
                  "\n"))
       (while (re-search-forward "^\\([a-z]+\\): +\\(.+\\)$" nil t)
@@ -6043,6 +6046,31 @@ depending on the value of option `magit-commit-squash-commit'.
            ;; found entry for file, look for beginning  it
            (when (looking-at ":")
              (forward-char 2))))))
+
+(defun magit-commit-compose-mail (&optional to)
+  "Compose a mail message from the commit buffer."
+  (interactive "sTo address: ")
+  (unless (eq major-mode 'magit-commit-mode)
+    (user-error "Not in commit mode"))
+  (let ((rev (get-text-property (point-min) 'magit-commit-revision))
+        subject header body user-point)
+    (unless rev
+      (user-error "Cannot determine commit revision"))
+    (with-temp-buffer
+      (magit-git-insert "format-patch" "--stdout" rev "-1")
+      (goto-char (point-min))
+      (forward-line 1)
+      (setq header (mail-header-extract)
+            subject (assq 'subject header))
+      (if subject
+          (setq header (delq subject header)))
+      (re-search-forward "^$")
+      (forward-line 1)
+      (setq body (buffer-substring (point) (point-max))))
+    (compose-mail to (cdr subject) header)
+    (setq user-point (goto-char (point-max)))
+    (insert body)
+    (goto-char user-point)))
 
 ;;;;; Tagging
 
