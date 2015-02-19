@@ -1603,6 +1603,8 @@ With a prefix argument fetch all remotes."
              (?P "Pushing"         magit-push-popup)
              (?o "Submoduling"     magit-submodule-popup)
              (?r "Rebasing"        magit-rebase-popup)
+             (?w "Apply patches"   magit-am-popup)
+             (?W "Format patches"  magit-patch-popup)
              (?s "Show Status"     magit-status)
              (?S "Stage all"       magit-stage-modified)
              (?t "Tagging"         magit-tag-popup)
