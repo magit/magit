@@ -766,7 +766,7 @@ Refs are compared with a branch read form the user."
                  (magit-insert-cherry-commits-1 ,head ,ref)
                  (unless (= (point) start)
                    (insert (propertize "\n" 'magit-section ,section))))))
-    (magit-insert-cherry-commits-1 head ref section)))
+    (magit-insert-cherry-commits-1 head ref)))
 
 (defun magit-refs-format-commit-count (ref head format &optional tag-p)
   (and (string-match-p "%-?[0-9]+c" format)
