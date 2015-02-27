@@ -486,9 +486,12 @@ Uses the buffer-local `magit-refresh-function'."
       (magit-section-update-highlight))))
 
 (defun magit-revert-buffers (&optional force)
-  "Refresh the current file-visiting buffer.
-The buffer is only refreshed if `magit-auto-revert-mode'
-is turned on or optional FORCE is non-nil."
+  "Revert unmodified file-visiting buffers of the current repository.
+
+If, and only if, the global `magit-auto-revert-mode' is turned
+on, or if optional FORCE is non-nil, revert all unmodified
+buffers that visit files being tracked in the current
+repository."
   (when (or force magit-auto-revert-mode)
     (-when-let (topdir (magit-toplevel-safe))
       (let ((tracked (magit-revision-files "HEAD"))
@@ -517,6 +520,7 @@ therefor does not have to be reverted.  While Magit does not need
 to do anything in that case, some third-party extensions do.")
 
 (defun magit-revert-buffer ()
+  "Refresh the current file-visiting buffer."
   (if (and (file-readable-p buffer-file-name)
            (not (verify-visited-file-modtime (current-buffer))))
       (let ((buffer-read-only buffer-read-only)
