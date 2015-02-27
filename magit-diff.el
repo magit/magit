@@ -1389,7 +1389,7 @@ is a symbol, one of `hunk', `hunks', `file', `files', or `list'.
 When the region is active and selects a valid group of sections,
 then the type is plural.  If the region is not active then it is
 singular.  If optional SINGULAR is non-nil, then always return a
-singular.  If optional SECTION is non-nil, the return the scope
+singular.  If optional SECTION is non-nil, then return the scope
 of that, ignoring the region.
 
 If optional STRICT is non-nil then return nil if the diff type of
