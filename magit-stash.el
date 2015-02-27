@@ -249,7 +249,7 @@ When the region is active offer to drop all contained stashes."
                                     (magit-commit-tree
                                      (concat "untracked files on " summary)))
                                (error "Cannot save the untracked files")))))
-    (magit-with-temp-index (if worktree head index)
+    (magit-with-temp-index index
       (when worktree
         (or (magit-update-files (magit-git-lines "diff" "--name-only" head))
             (error "Cannot save the current worktree state")))
