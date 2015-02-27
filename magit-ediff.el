@@ -175,6 +175,7 @@ mind at all, then it asks the user for a command to run."
     (hunk (save-excursion
             (goto-char (magit-section-start (magit-section-parent it)))
             (magit-ediff-dwim)))
+    (commit (call-interactively 'magit-ediff-compare))
     (t
      (let ((command 'magit-ediff-compare)
            (file (magit-current-file))
