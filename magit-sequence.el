@@ -574,7 +574,7 @@ If no such sequence is in progress, do nothing."
            ((magit-anything-unmerged-p)
             ;; ...and time travel isn't for the faint of heart.
             (magit-sequence-insert-commit "join" stop 'magit-sequence-part))
-           ((magit-anything-modified-p)
+           ((magit-anything-modified-p t)
             ;; ...and the dust hasn't settled yet...
             (magit-sequence-insert-commit
              (let ((staged   (magit-commit-tree "oO" nil "HEAD"))
