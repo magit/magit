@@ -432,8 +432,9 @@ To make this command available use something like:
               (and branch
                    (concat (propertize branch 'face 'magit-branch-local) " "))
               msg "\n")
-            (when (or upstream (setq upstream (magit-get-tracked-branch branch)))
-              (setq line (or (magit-rev-format "%h %s" upstream) ""))
+            (when (and (or upstream
+                           (setq upstream (magit-get-tracked-branch branch)))
+                       (setq line (magit-rev-format "%h %s" upstream)))
               (string-match "^\\([^ ]+\\) \\(.*\\)" line)
               (magit-bind-match-strings (hash msg) line
                 (magit-insert-section (branch upstream)
