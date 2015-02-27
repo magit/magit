@@ -230,9 +230,9 @@ without requiring confirmation."
       (if (eq type 'unstaged)
           (funcall fn section "--reverse")
         (if (magit-anything-unstaged-p
-             (if (eq scope 'file)
-                 (magit-section-value section)
-               (magit-section-parent-value section)))
+             nil (if (eq scope 'file)
+                     (magit-section-value section)
+                   (magit-section-parent-value section)))
             (progn
               (let ((inhibit-magit-refresh t))
                 (funcall fn section "--reverse" "--cached")

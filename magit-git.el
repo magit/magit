@@ -442,24 +442,28 @@ If the file is not inside a Git repository then return nil."
   "Return t if there is no commit in the current Git repository."
   (not (magit-rev-verify "HEAD")))
 
-(defun magit-anything-staged-p (&rest files)
+(defun magit-anything-staged-p (&optional ignore-submodules &rest files)
   "Return t if there are any staged changes.
 If optional FILES is non-nil, then only changes to those files
 are considered."
-  (magit-git-failure "diff" "--quiet" "--cached" "--" files))
+  (magit-git-failure "diff" "--quiet" "--cached"
+                     (and ignore-submodules "--ignore-submodules")
+                     "--" files))
 
-(defun magit-anything-unstaged-p (&rest files)
+(defun magit-anything-unstaged-p (&optional ignore-submodules &rest files)
   "Return t if there are any unstaged changes.
 If optional FILES is non-nil, then only changes to those files
 are considered."
-  (magit-git-failure "diff" "--quiet" "--" files))
+  (magit-git-failure "diff" "--quiet"
+                     (and ignore-submodules "--ignore-submodules")
+                     "--" files))
 
-(defun magit-anything-modified-p (&rest files)
+(defun magit-anything-modified-p (&optional ignore-submodules &rest files)
   "Return t if there are any staged or unstaged changes.
 If optional FILES is non-nil, then only changes to those files
 are considered."
-  (or (apply 'magit-anything-staged-p files)
-      (apply 'magit-anything-unstaged-p files)))
+  (or (apply 'magit-anything-staged-p   ignore-submodules files)
+      (apply 'magit-anything-unstaged-p ignore-submodules files)))
 
 (defun magit-anything-unmerged-p (&rest files)
   "Return t if there are any merge conflicts.
