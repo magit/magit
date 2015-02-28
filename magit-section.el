@@ -897,14 +897,23 @@ valid selection as far as this function is concerned."
             (cons sbeg (nreverse sections))))))))
 
 (defun magit-section-position-in-heading-p (section pos)
+  "Return t if POSITION is inside the heading of SECTION."
   (and (>= pos (magit-section-start section))
        (<  pos (or (magit-section-content section)
-                   (magit-section-end section)))))
+                   (magit-section-end section)))
+       t))
 
-(defun magit-section-internal-region-p (section)
+(defun magit-section-internal-region-p (&optional section)
+  "Return t if the region is active and inside SECTION's body.
+If optional SECTION is nil, use the current section."
   (and (region-active-p)
-       (eq (get-text-property (region-beginning) 'magit-section)
-           (get-text-property (region-end)       'magit-section))))
+       (or section (setq section (magit-current-section)))
+       (let ((beg (get-text-property (region-beginning) 'magit-section)))
+         (and (eq beg (get-text-property   (region-end) 'magit-section))
+              (eq beg section)))
+       (not (or (magit-section-position-in-heading-p section (region-beginning))
+                (magit-section-position-in-heading-p section (region-end))))
+       t))
 
 (defun magit-map-sections (function section)
   "Apply FUNCTION to SECTION and recursively its subsections."

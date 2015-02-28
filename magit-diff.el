@@ -744,12 +744,12 @@ which, as the name suggests always visits the actual file."
         (setq rev (car (last magit-refresh-args 2)))
         (when (magit-rev-head-p rev)
           (setq rev nil)))
-      (pcase (magit-diff-scope nil nil t)
-        (`list (setq hunk (car (magit-section-children
-                                (car (magit-section-children current))))))
-        (`file (setq hunk (car (magit-section-children current))))
-        ((or `hunk `region)
-         (setq hunk current)))
+      (setq hunk
+            (pcase (magit-diff-scope)
+              ((or `hunk `region) current)
+              ((or `file `files)  (car (magit-section-children current)))
+              (`list (car (magit-section-children
+                           (car (magit-section-children current)))))))
       (when hunk
         (setq line (magit-diff-hunk-line   hunk)
               col  (magit-diff-hunk-column hunk)))
@@ -1381,24 +1381,27 @@ Do not confuse this with `magit-diff-scope' (which see)."
                             magit-section-type))))))
           (t 'undefined))))
 
-(defun magit-diff-scope (&optional section strict singular)
-  "Return the diff scope of SECTION.
+(cl-defun magit-diff-scope (&optional (section nil ssection) strict)
+  "Return the diff scope of SECTION or the selected section(s).
 
-A diff's \"scope\" describes what part of a diff is selected, it
-is a symbol, one of `hunk', `hunks', `file', `files', or `list'.
-When the region is active and selects a valid group of sections,
-then the type is plural.  If the region is not active then it is
-singular.  If optional SINGULAR is non-nil, then always return a
-singular.  If optional SECTION is non-nil, then return the scope
-of that, ignoring the region.
+A diff's \"scope\" describes what part of a diff is selected, it is
+a symbol, one of `region', `hunk', `hunks', `file', `files', or
+`list'.  Do not confuse this with the diff \"type\", as returned by
+`magit-diff-type'.
+
+If optional SECTION is non-nil, then return the scope of that,
+ignoring the sections selected by the region.  Otherwise return
+the scope of the current section, or if the region is active and
+selects a valid group of diff related sections, the type of these
+sections, i.e. `hunks' or `files'.  If SECTION, or if that is nil
+the current section, is a `hunk' section; and the region region
+starts and ends inside the body of a that section, then the type
+is `region'.
 
 If optional STRICT is non-nil then return nil if the diff type of
 the section at point is `untracked' or the section at point is not
-actually a `diff' but a `diffstat' section.
-
-Do not confuse this with `magit-diff-type' (which see).
-Also see `magit-current-selection'."
-  (let ((siblings (and (not singular) (magit-region-sections))))
+actually a `diff' but a `diffstat' section."
+  (let ((siblings (and (not ssection) (magit-region-sections))))
     (setq section (or section (car siblings) (magit-current-section)))
     (when (and section
                (or (not strict)
@@ -1409,19 +1412,13 @@ Also see `magit-current-selection'."
       (pcase (list (magit-section-type section)
                    (and siblings t)
                    (and (region-active-p) t)
-                   singular)
-        (`(hunk nil nil  ,_) 'hunk)
+                   ssection)
         (`(hunk nil   t  ,_)
-         (if (and (magit-section-internal-region-p section)
-                  (not (magit-section-position-in-heading-p
-                        section (region-beginning))))
-             (if singular 'hunk 'region)
-           'hunk))
-        (`(hunk   t   t   t) 'hunk)
+         (if (magit-section-internal-region-p section) 'region 'hunk))
         (`(hunk   t   t nil) 'hunks)
-        (`(file nil  ,_  ,_) 'file)
-        (`(file   t   t   t) 'file)
+        (`(hunk  ,_  ,_  ,_) 'hunk)
         (`(file   t   t nil) 'files)
+        (`(file  ,_  ,_  ,_) 'file)
         (`(,(or `staged `unstaged `untracked
                 `stashed-index `stashed-worktree `stashed-untracked)
            nil ,_ ,_) 'list)))))
@@ -1453,7 +1450,7 @@ of SECTION including SECTION and all of them are highlighted."
     t))
 
 (defun magit-diff-highlight-recursive (section &optional siblings)
-  (pcase (magit-diff-scope section nil t)
+  (pcase (magit-diff-scope section)
     (`list (magit-diff-highlight-list section))
     (`file (magit-diff-highlight-heading section siblings))
     (`hunk (magit-diff-highlight-heading section siblings)

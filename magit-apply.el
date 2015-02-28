@@ -220,7 +220,7 @@ without requiring confirmation."
 (defun magit-discard-apply (section)
   (magit-maybe-backup)
   (let* ((type  (magit-diff-type  section))
-         (scope (magit-diff-scope section t))
+         (scope (magit-diff-scope section))
          (fn    (pcase scope
                   (`region 'magit-apply-region)
                   (`hunk   'magit-apply-hunk)
@@ -340,7 +340,7 @@ without requiring confirmation."
       (_               (magit-reverse-apply it)))))
 
 (defun magit-reverse-apply (section)
-  (let ((scope (magit-diff-scope section t)))
+  (let ((scope (magit-diff-scope section)))
     (when (or (eq scope 'file)
               (magit-confirm 'reverse (format "Reverse %s" scope)))
       (funcall (pcase scope
