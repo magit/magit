@@ -138,7 +138,8 @@ This discards all changes made since the sequence started."
     (user-error "No cherry-pick or revert in progress")))
 
 (defun magit-sequencer-in-progress-p ()
-  (file-exists-p (magit-git-dir "sequencer")))
+  (or (magit-cherry-pick-in-progress-p)
+      (magit-revert-in-progress-p)))
 
 ;;; Cherry-Pick
 
@@ -190,9 +191,8 @@ without prompting."
                            (remove "--ff" args) commit))
 
 (defun magit-cherry-pick-in-progress-p ()
-  (and (magit-sequencer-in-progress-p)
-       (string-match-p "^pick"
-                       (magit-file-line (magit-git-dir "sequencer/todo")))))
+  ;; .git/sequencer/todo does not exist when there is only one commit left.
+  (file-exists-p (magit-git-dir "CHERRY_PICK_HEAD")))
 
 ;;; Revert
 
@@ -235,9 +235,8 @@ without prompting."
   (magit-run-git-sequencer "revert" "--no-commit" args commit))
 
 (defun magit-revert-in-progress-p ()
-  (and (magit-sequencer-in-progress-p)
-       (string-match-p "^revert"
-                       (magit-file-line (magit-git-dir "sequencer/todo")))))
+  ;; .git/sequencer/todo does not exist when there is only one commit left.
+  (file-exists-p (magit-git-dir "REVERT_HEAD")))
 
 ;;; Patch
 
@@ -475,12 +474,9 @@ If no such sequence is in progress, do nothing."
     (when (or picking (magit-revert-in-progress-p))
       (magit-insert-section (sequence)
         (magit-insert-heading (if picking "Cherry Picking" "Reverting"))
-        (let* ((lines (nreverse
-                       (magit-file-lines (magit-git-dir "sequencer/todo"))))
-               (stop (car (last lines))))
-          (dolist (line (butlast lines))
-            (when (string-match
-                   "^\\(pick\\|revert\\) \\([^ ]+\\) \\(.*\\)$" line)
+        (-when-let (lines (cdr (magit-file-lines (magit-git-dir "sequencer/todo"))))
+          (dolist (line (nreverse lines))
+            (when (string-match "^\\(pick\\|revert\\) \\([^ ]+\\) \\(.*\\)$" line)
               (magit-bind-match-strings (cmd hash msg) line
                 (magit-insert-section (commit hash)
                   (insert (propertize cmd 'face 'magit-sequence-pick)
