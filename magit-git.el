@@ -408,6 +408,15 @@ If the file is not inside a Git repository then return nil."
                  (aref it 1))
            (magit-git-lines "status" "--porcelain" "-u" "--ignored"))))
 
+(defun magit-rename-source (file &optional status)
+  (--when-let (--first (and (string-match (format "^\\(.+\\) -> %s$"
+                                                  (regexp-quote file))
+                                          (car it))
+                            (=    (nth 1 it) ?R)
+                            (memq (nth 2 it) '(?\s ?M ?D)))
+                       (or status (magit-file-status)))
+    (match-string 1 (car it))))
+
 (defun magit-expand-git-file-name (filename &optional localname)
   (if (file-name-absolute-p filename)
       (if localname

@@ -263,7 +263,7 @@ without requiring confirmation."
           (`(?X ?C ,(or ?  ?M ?D)) (push file delete))
           (`(?X ?D ,(or ?  ?M   )) (push file resurrect))
           (`(?Y ,_            ?D ) (push file resurrect))
-          (`(?X ?R ,(or ?  ?M ?D)) (push section rename)))))
+          (`(?X ?R ,(or ?  ?M ?D)) (push file rename)))))
     (when resolve
       (let ((inhibit-magit-refresh t))
         (dolist (file (nreverse resolve))
@@ -305,19 +305,17 @@ without requiring confirmation."
                 (delete-file file t)
                 (magit-call-git "rm" "--cached" "--force" "--" file))))))))
 
-(defun magit-discard-files--rename (sections)
-  (when (magit-confirm 'rename "Undo rename %s" "Undo %i renames"
-          (--map (format "%s -> %s"
-                         (magit-section-source it)
-                         (magit-section-value it))
-                 sections))
-    (dolist (section sections)
-      (let ((file (magit-section-value section))
-            (orig (magit-section-source section)))
-        (if (file-exists-p file)
-            (magit-call-git "mv" file orig)
-          (magit-call-git "rm" "--cached" "--" file)
-          (magit-call-git "reset" "--" orig))))))
+(defun magit-discard-files--rename (files)
+  (let ((status (magit-file-status)))
+    (when (magit-confirm 'rename "Undo rename %s" "Undo %i renames"
+            (--map (format "%s -> %s" (magit-rename-source it status) it)
+                   files))
+      (dolist (file files)
+        (let ((orig (magit-rename-source file status)))
+          (if (file-exists-p file)
+              (magit-call-git "mv" file orig)
+            (magit-call-git "rm" "--cached" "--" file)
+            (magit-call-git "reset" "--" orig)))))))
 
 (defun magit-discard-files--discard (sections)
   (when (magit-confirm-files 'discard (mapcar 'magit-section-value sections)
