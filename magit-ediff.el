@@ -61,14 +61,14 @@ FILE has to be relative to the top directory of the repository."
                                 (magit-current-file))))
   (let* ((conf (current-window-configuration))
          (bufA (magit-get-revision-buffer "HEAD" file))
-         (bufB (get-file-buffer file))
-         (bufC (get-buffer (concat file ".~{index}~")))
-         (bufCrw (and bufC (with-current-buffer bufC
-                             (not buffer-read-only)))))
+         (bufB (get-buffer (concat file ".~{index}~")))
+         (bufBrw (and bufB (with-current-buffer bufB
+                             (not buffer-read-only))))
+         (bufC (get-file-buffer file)))
     (ediff-buffers3
      (or bufA (magit-find-file-noselect "HEAD" file))
-     (or bufB (find-file-noselect file))
-     (or bufC (magit-find-file-index-noselect file))
+     (or bufB (magit-find-file-index-noselect file))
+     (or bufC (find-file-noselect file))
      `((lambda ()
          (add-hook
           'ediff-quit-hook
@@ -76,19 +76,19 @@ FILE has to be relative to the top directory of the repository."
             (and (buffer-live-p ediff-buffer-B)
                  (buffer-modified-p ediff-buffer-B)
                  (with-current-buffer ediff-buffer-B
-                   (when (y-or-n-p
-                          (format "Save file %s? " (buffer-file-name)))
-                     (save-buffer))))
+                   (magit-update-index)))
             (and (buffer-live-p ediff-buffer-C)
                  (buffer-modified-p ediff-buffer-C)
                  (with-current-buffer ediff-buffer-C
-                   (magit-update-index)))
+                   (when (y-or-n-p
+                          (format "Save file %s? " (buffer-file-name)))
+                     (save-buffer))))
             ,@(unless bufA '((ediff-kill-buffer-carefully ediff-buffer-A)))
-            ,@(unless bufB '((ediff-kill-buffer-carefully ediff-buffer-B)))
-            ,@(if bufC
-                  (unless bufCrw '((with-current-buffer ediff-buffer-C
+            ,@(if bufB
+                  (unless bufBrw '((with-current-buffer ediff-buffer-B
                                      (setq buffer-read-only t))))
-                '((ediff-kill-buffer-carefully ediff-buffer-C)))
+                '((ediff-kill-buffer-carefully ediff-buffer-B)))
+            ,@(unless bufC '((ediff-kill-buffer-carefully ediff-buffer-C)))
             (set-window-configuration ,conf))
           nil t)))      ; and then also run default `ediff-cleanup-mess'
      'ediff-buffers3))) ; no "staging" job exists, use this generic job
