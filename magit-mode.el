@@ -284,39 +284,31 @@ to REFRESH-FUNC and that of `magit-refresh-args' to REFRESH-ARGS
 and finally \"refresh\" a first time.  All arguments are
 evaluated before switching to BUFFER."
   (declare (debug (form form form form &rest form)))
-  (let ((mode-symb (cl-gensym "mode-symb"))
-        (toplevel  (cl-gensym "toplevel"))
-        (init-args (cl-gensym "init-args"))
-        (buf-symb  (cl-gensym "buf-symb")))
-    `(let* ((,mode-symb ,mode)
-            (,toplevel  (magit-get-top-dir))
-            (,init-args (list ,mode-symb ,refresh-func ,@refresh-args))
-            (,buf-symb  (magit-mode-display-buffer
-                         ,buffer ,mode-symb ,switch-func)))
-       (if ,toplevel
-           (with-current-buffer ,buf-symb
-             (apply #'magit-mode-init ,toplevel ,init-args))
+  (let ((smode (cl-gensym "mode"))
+        (sroot (cl-gensym "root"))
+        (sfunc (cl-gensym "func"))
+        (sargs (cl-gensym "args"))
+        (sbuf  (cl-gensym "buffer")))
+    `(let* ((,smode ,mode)
+            (,sroot (magit-get-top-dir))
+            (,sfunc ,refresh-func)
+            (,sargs (list ,@refresh-args))
+            (,sbuf  (magit-mode-display-buffer ,buffer ,smode ,switch-func)))
+       (if ,sroot
+           (with-current-buffer ,sbuf
+             (setq default-directory ,sroot
+                   magit-refresh-function ,sfunc
+                   magit-refresh-args ,sargs)
+             (run-hooks 'magit-mode-setup-hook)
+             (pcase ,smode
+               (`(magit-log-mode magit-reflog-mode)
+                (magit-xref-setup magit-refresh-args))
+               (`(magit-diff-mode magit-revision-mode)
+                (magit-xref-setup magit-refresh-args)
+                (goto-char (point-min))))
+             (funcall ,smode)
+             (magit-refresh-buffer))
          (user-error "Not inside a Git repository")))))
-
-(defun magit-mode-init (dir mode refresh-func &rest refresh-args)
-  "Turn on MODE and refresh in the current buffer.
-Turn on MODE, set the local value of `magit-refresh-function' to
-REFRESH-FUNC and that of `magit-refresh-args' to REFRESH-ARGS and
-finally \"refresh\" a first time.
-
-Also see `magit-mode-setup', a more convenient variant."
-  (setq default-directory dir
-        magit-refresh-function refresh-func
-        magit-refresh-args refresh-args)
-  (run-hooks 'magit-mode-setup-hook)
-  (pcase mode
-    (`(magit-log-mode magit-reflog-mode)
-     (magit-xref-setup refresh-args))
-    (`(magit-diff-mode magit-revision-mode)
-     (magit-xref-setup refresh-args)
-     (goto-char (point-min))))
-  (funcall mode)
-  (magit-refresh-buffer))
 
 (defvar magit-inhibit-save-previous-winconf nil)
 
