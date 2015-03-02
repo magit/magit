@@ -240,6 +240,16 @@ message and add a section in the respective process buffer."
     (apply #'magit-git-insert args)
     (split-string (buffer-string) "\n" t)))
 
+(defun magit-git-items (&rest args)
+  "Execute Git with ARGS, returning its null-separated output as a list.
+Empty items anywhere in the output are omitted.
+
+If Git exits with a non-zero exit status, then report show a
+message and add a section in the respective process buffer."
+  (with-temp-buffer
+    (apply #'magit-git-insert args)
+    (split-string (buffer-string) "\0" t)))
+
 (defun magit-git-wash (washer &rest args)
   "Execute Git with ARGS, inserting washed output at point.
 Actually first insert the raw output at point.  If there is no
