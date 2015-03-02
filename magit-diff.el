@@ -1349,7 +1349,13 @@ The returned type is one of the symbols `staged', `unstaged',
 `committed', or `undefined'.  This type serves a similar purpose
 as the general type common to all sections (which is stored in
 the `type' slot of the corresponding `magit-section' struct) but
-takes additional information into account.
+takes additional information into account.  When the SECTION
+isn't related to diffs and the buffer containing it also isn't
+a diff-only buffer, then return nil.
+
+Currently the type can also be one of `tracked' and `untracked'
+but these values are not handled explicitly everywhere they
+should be and a possible fix could be to just return nil here.
 
 The section has to be a `diff' or `hunk' section, or a section
 whose children are of type `diff'.  If optional SECTION is nil,
@@ -1369,7 +1375,7 @@ Do not confuse this with `magit-diff-scope' (which see)."
           ((derived-mode-p 'magit-revision-mode 'magit-stash-mode) 'committed)
           ((derived-mode-p 'magit-status-mode)
            (let ((stype (magit-section-type it)))
-             (if (memq stype '(staged unstaged untracked))
+             (if (memq stype '(staged unstaged tracked untracked))
                  stype
                (pcase stype
                  (`file (let* ((parent (magit-section-parent it))

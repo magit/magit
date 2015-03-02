@@ -333,6 +333,7 @@ deep."
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
     (define-key map "jz" 'magit-jump-to-stashes)
+    (define-key map "jt" 'magit-jump-to-tracked)
     (define-key map "jn" 'magit-jump-to-untracked)
     (define-key map "ju" 'magit-jump-to-unstaged)
     (define-key map "js" 'magit-jump-to-staged)
@@ -479,14 +480,24 @@ To make this command available use something like:
                        (propertize (format "%s" count) 'face
                                    (if next 'magit-tag 'magit-branch-local))))))
 
+(magit-define-section-jumper tracked "Tracked files")
+
+(defun magit-insert-tracked-files ()
+  "Insert a tree of tracked files."
+  (-when-let (files (magit-list-files))
+    (magit-insert-section (tracked nil t)
+      (magit-insert-heading "Tracked files:")
+      (magit-insert-un/tracked-files-1 files nil)
+      (insert ?\n))))
+
+(magit-define-section-jumper untracked "Untracked files")
+
 (defvar magit-untracked-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map "k"  'magit-discard)
     (define-key map "s"  'magit-stage)
     map)
   "Keymap for the `untracked' section.")
-
-(magit-define-section-jumper untracked "Untracked files")
 
 (defun magit-insert-untracked-files ()
   "Maybe insert a list or tree of untracked files.
@@ -497,7 +508,7 @@ Do so depending on the value of `status.showUntrackedFiles'."
           (-when-let (files (magit-untracked-files))
             (magit-insert-section (untracked)
               (magit-insert-heading "Untracked files:")
-              (magit-insert-untracked-files-1 files nil)
+              (magit-insert-un/tracked-files-1 files nil)
               (insert ?\n)))
         (-when-let (files (--mapcat (and (eq (aref it 0) ??)
                                          (list (magit-decode-git-path
@@ -510,7 +521,7 @@ Do so depending on the value of `status.showUntrackedFiles'."
                 (insert (propertize file 'face 'magit-filename) ?\n))))
           (insert ?\n))))))
 
-(defun magit-insert-untracked-files-1 (files directory)
+(defun magit-insert-un/tracked-files-1 (files directory)
   (while (and files (string-prefix-p (or directory "") (car files)))
     (let ((dir (file-name-directory (car files))))
       (if (equal dir directory)
@@ -520,7 +531,7 @@ Do so depending on the value of `status.showUntrackedFiles'."
         (magit-insert-section (file dir t)
           (insert (propertize dir 'file 'magit-filename) ?\n)
           (magit-insert-heading)
-          (setq files (magit-insert-untracked-files-1 files dir))))))
+          (setq files (magit-insert-un/tracked-files-1 files dir))))))
   files)
 
 ;;;; Refs Mode
