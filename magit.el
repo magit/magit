@@ -1318,6 +1318,61 @@ With a prefix argument also reset the working tree.
       (git-commit-setup-font-lock)
       (git-commit-save-message))))
 
+;;;; Files
+
+(defun magit-file-rename (file newname)
+  "Rename the FILE to NEWNAME.
+If FILE isn't tracked in Git fallback to using `rename-file'."
+  (interactive
+   (let* ((file (magit-read-file "Rename file"))
+          (newname (read-file-name (format "Rename %s to file: " file))))
+     (list (expand-file-name file (magit-toplevel))
+           (expand-file-name newname))))
+  (if (magit-file-tracked-p file)
+      (let ((oldbuf (get-file-buffer file)))
+        (when (and oldbuf (buffer-modified-p oldbuf))
+          (user-error "Save %s before moving it" file))
+        (when (file-exists-p newname)
+          (user-error "%s already exists" newname))
+        (magit-run-git "mv" file newname)
+        (when oldbuf
+          (with-current-buffer oldbuf
+            (let ((buffer-read-only buffer-read-only))
+              (set-visited-file-name newname))
+            (vc-find-file-hook))))
+    (rename-file file newname current-prefix-arg)
+    (magit-refresh)))
+
+(defun magit-file-untrack (file)
+  "Untrack FILE.
+Stop tracking FILE in Git but do not remove it from the working
+tree."
+  (interactive (list (magit-read-tracked-file "Untrack file")))
+  (magit-run-git "rm" "--cached" "--" file))
+
+(defun magit-file-delete (file &optional force)
+  "Delete FILE.
+With a prefix argument FORCE do so even when FILE has uncommitted
+changes.
+
+If FILE isn't tracked in Git fallback to using `delete-file'."
+  (interactive (list (magit-read-file "Delete file")))
+  (if (magit-file-tracked-p file)
+      (magit-run-git "rm" (and force "--force") "--" file)
+    (delete-file (expand-file-name file (magit-toplevel)) t)
+    (magit-refresh)))
+
+(defun magit-read-tracked-file (prompt)
+  (magit-read-file prompt t))
+
+(defun magit-read-file (prompt &optional tracked-only)
+  (let ((choices (nconc (magit-list-files)
+                        (unless tracked-only (magit-untracked-files)))))
+    (magit-completing-read prompt choices nil t nil nil
+                           (car (member (or (magit-section-when (file))
+                                            (magit-file-relative-name))
+                                        choices)))))
+
 ;;; Miscellaneous
 ;;;; Tag
 

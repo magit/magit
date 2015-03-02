@@ -923,6 +923,8 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
     (define-key map "\r" 'magit-diff-visit-file)
     (define-key map "a"  'magit-apply)
     (define-key map "k"  'magit-discard)
+    (define-key map "K"  'magit-file-untrack)
+    (define-key map "R"  'magit-file-rename)
     (define-key map "s"  'magit-stage)
     (define-key map "u"  'magit-unstage)
     (define-key map "v"  'magit-reverse)
