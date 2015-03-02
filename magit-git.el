@@ -675,10 +675,10 @@ where COMMITS is the number of commits in TAG but not in REV."
 (defun magit-list-remote-branches (&optional remote)
   (magit-list-refs (concat "refs/remotes/" remote)))
 
-(defun magit-list-containing-branches (commit)
+(defun magit-list-containing-branches (&optional commit)
   (--map (substring it 2) (magit-git-lines "branch" "--contains" commit)))
 
-(defun magit-list-merged-branches (commit)
+(defun magit-list-merged-branches (&optional commit)
   (--map (substring it 2) (magit-git-lines "branch" "--merged" commit)))
 
 (defun magit-list-refnames (&rest args)
