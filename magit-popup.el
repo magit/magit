@@ -391,7 +391,9 @@ of that command.
 Also define an option and a function named `SHORTNAME-arguments',
 where SHORTNAME is NAME with the trailing `-popup' removed.  The
 name of this option and this function can be overwritten using
-the optional argument OPTION, but that is rarely advisable.
+the optional argument OPTION, but that is rarely advisable. As a
+special case if OPTION is specified but nil, do not define this
+option and this function at all.
 
 The option `SHORTNAME-arguments' holds the default value for the
 popup arguments.  It can be customized from within the popup or
@@ -454,15 +456,16 @@ keywords are also meaningful:
          (magit-invoke-popup ',name ,mode arg))
        (defvar ,name
          (list :variable ',opt ,@args))
-       (defcustom ,opt (plist-get ,name :default-arguments)
-         ""
-         ,@(and grp (list :group grp))
-         :type '(repeat (string :tag "Argument")))
-       (defun ,opt ()
-         (if (eq magit-current-popup ',name)
-             magit-current-popup-args
-           ,opt))
-       (put ',opt 'definition-name ',name))))
+       ,@(when opt
+           `((defcustom ,opt (plist-get ,name :default-arguments)
+               ""
+               ,@(and grp (list :group grp))
+               :type '(repeat (string :tag "Argument")))
+             (defun ,opt ()
+               (if (eq magit-current-popup ',name)
+                   magit-current-popup-args
+                 ,opt))
+             (put ',opt 'definition-name ',name))))))
 
 (defun magit-define-popup-switch (popup key desc switch
                                         &optional enable at prepend)
