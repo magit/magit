@@ -340,7 +340,7 @@ or `:only' which doesn't change the behaviour."
 
 (defun magit-popup-lookup (event type)
   (--first (equal (magit-popup-event-key it) event)
-           (magit-popup-get type)))
+           (-filter 'magit-popup-event-p (magit-popup-get type))))
 
 (defun magit-popup-get-args ()
   (cl-mapcan (lambda (elt)
@@ -372,8 +372,10 @@ or `:only' which doesn't change the behaviour."
 
 (defun magit-popup-convert-actions (val def)
   (mapcar (lambda (ev)
-            (make-magit-popup-event
-             :key (car ev) :dsc (cadr ev) :fun (nth 2 ev)))
+            (if (stringp ev)
+                ev
+              (make-magit-popup-event
+               :key (car ev) :dsc (cadr ev) :fun (nth 2 ev))))
           def))
 
 ;;; Define
@@ -871,7 +873,13 @@ in the popup."
     (save-excursion
       (magit-popup-insert-section 'magit-popup-switch-button)
       (magit-popup-insert-section 'magit-popup-option-button)
-      (magit-popup-insert-section 'magit-popup-action-button)
+      (let ((actions (magit-popup-get :actions)))
+        (if (stringp (car actions))
+            (--each (-partition-by-header 'stringp actions)
+              (magit-popup-insert-section 'magit-popup-action-button
+                                          (cdr it)
+                                          (car it)))
+          (magit-popup-insert-section 'magit-popup-action-button)))
       (run-hooks 'magit-refresh-popup-buffer-hook)
       (when magit-popup-show-help-section
         (magit-popup-insert-command-section
@@ -890,9 +898,10 @@ in the popup."
 (defvar magit-popup-min-padding 3
   "Minimal amount of whitespace between columns in popup buffers.")
 
-(defun magit-popup-insert-section (type &optional spec)
-  (let* ((heading   (button-type-get type 'heading))
-         (formatter (button-type-get type 'formatter))
+(defun magit-popup-insert-section (type &optional spec heading)
+  (unless heading
+    (setq heading (button-type-get type 'heading)))
+  (let* ((formatter (button-type-get type 'formatter))
          (buttons (mapcar (lambda (ev)
                             (funcall formatter type ev))
                           (or spec (magit-popup-get
