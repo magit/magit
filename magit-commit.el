@@ -78,7 +78,7 @@ an error while using those is harder to recover from."
 (with-no-warnings ; quiet 24.4 byte-compiler
 (magit-define-popup magit-commit-popup
   "Popup console for commit commands."
-  'magit-popups
+  'magit-commands
   :man-page "git-commit"
   :switches '((?a "Stage all modified and deleted files"   "--all")
               (?e "Allow empty commit"                     "--allow-empty")

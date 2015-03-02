@@ -145,7 +145,7 @@ This discards all changes made since the sequence started."
 
 (magit-define-popup magit-cherry-pick-popup
   "Popup console for cherry-pick commands."
-  'magit-popups 'magit-popup-sequence-mode
+  'magit-commands 'magit-popup-sequence-mode
   :man-page "git-cherry-pick"
   :switches '((?s "Add Signed-off-by lines"            "--signoff")
               (?e "Edit commit messages"               "--edit")
@@ -198,7 +198,7 @@ without prompting."
 
 (magit-define-popup magit-revert-popup
   "Popup console for revert commands."
-  'magit-popups 'magit-popup-sequence-mode
+  'magit-commands 'magit-popup-sequence-mode
   :man-page "git-revert"
   :switches '((?s "Add Signed-off-by lines" "--signoff"))
   :options  '((?s "Strategy" "--strategy="  read-from-minibuffer))
@@ -242,7 +242,7 @@ without prompting."
 
 (magit-define-popup magit-am-popup
   "Popup console for mailbox commands."
-  'magit-popups 'magit-popup-sequence-mode
+  'magit-commands 'magit-popup-sequence-mode
   :man-page "git-am"
   :switches '((?3 "Fall back on 3way merge"           "--3way")
               (?s "Add Signed-off-by lines"           "--signoff")
@@ -314,7 +314,7 @@ This discards all changes made since the sequence started."
 
 (magit-define-popup magit-rebase-popup
   "Key menu for rebasing."
-  'magit-popups 'magit-popup-sequence-mode
+  'magit-commands 'magit-popup-sequence-mode
   :man-page "git-rebase"
   :switches '((?k "Keep empty commits" "--keep-empty")
               (?p "Preserve merges" "--preserve-merges")

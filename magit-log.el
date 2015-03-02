@@ -299,7 +299,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
 
 (magit-define-popup magit-log-popup
   "Popup console for log commands."
-  'magit-popups
+  'magit-log
   :man-page "git-log"
   :switches '((?a "Show all refs"           "--all")
               (?b "Show all branches"       "--branches")

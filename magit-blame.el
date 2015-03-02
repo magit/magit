@@ -164,7 +164,7 @@ See #1731."
 
 (magit-define-popup magit-blame-popup
   "Popup console for blame commands."
-  'magit-popups
+  'magit-commands
   :man-page "git-blame"
   :switches '((?w "Ignore whitespace" "-w")
               (?r "Do not treat root commits as boundaries" "--root"))

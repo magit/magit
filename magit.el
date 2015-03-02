@@ -560,7 +560,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
 
 (magit-define-popup magit-show-refs-popup
   "Popup console for `magit-show-refs'."
-  'magit-popups
+  'magit-refs
   :man-page "git-branch"
   :switches '((?m "Merged to HEAD"            "--merged")
               (?M "Merged to master"          "--merged=master")
@@ -945,7 +945,7 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
 
 (magit-define-popup magit-branch-popup
   "Popup console for branch commands."
-  'magit-popups
+  'magit-commands
   :man-page "git-branch"
   :switches '((?t "Set upstream configuration" "--track"))
   :actions  '((?b "Checkout"          magit-checkout)
@@ -1108,7 +1108,7 @@ line is inserted at all."
 
 (magit-define-popup magit-merge-popup
   "Popup console for merge commands."
-  'magit-popups 'magit-popup-sequence-mode
+  'magit-commands 'magit-popup-sequence-mode
   :man-page "git-merge"
   :switches '((?f "Fast-forward only" "--ff-only")
               (?n "No fast-forward"   "--no-ff")
@@ -1378,7 +1378,7 @@ If FILE isn't tracked in Git fallback to using `delete-file'."
 
 (magit-define-popup magit-tag-popup
   "Popup console for tag commands."
-  'magit-popups
+  'magit-commands
   :man-page "git-tag"
   :switches '((?a "Annotate" "--annotate")
               (?s "Sign"     "--sign")
@@ -1441,7 +1441,7 @@ defaulting to the tag at point.
 
 (magit-define-popup magit-notes-popup
   "Popup console for notes commands."
-  'magit-popups 'magit-popup-sequence-mode
+  'magit-commands 'magit-popup-sequence-mode
   :man-page "git-tag"
   :switches '((?n "Dry run"          "--dry-run"))
   :options  '((?r "Manipulate ref"   "--ref="      magit-notes-popup-read-ref)
@@ -1581,7 +1581,7 @@ the current repository."
 
 (magit-define-popup magit-submodule-popup
   "Popup console for submodule commands."
-  'magit-popups
+  'magit-commands nil nil
   :man-page "git-submodule"
   :actions  '((?a "Add"    magit-submodule-add)
               (?b "Setup"  magit-submodule-setup)
@@ -1656,7 +1656,7 @@ With a prefix argument fetch all remotes."
 
 (magit-define-popup magit-dispatch-popup
   "Popup console for dispatching other popups."
-  'magit-popups
+  'magit-commands nil nil
   :actions '((?b "Branching"       magit-branch-popup)
              (?B "Bisecting"       magit-bisect-popup)
              (?c "Committing"      magit-commit-popup)
@@ -1690,7 +1690,7 @@ With a prefix argument fetch all remotes."
 
 (magit-define-popup magit-run-popup
   "Popup console for running raw Git commands."
-  'magit-popups
+  'magit-commands nil nil
   :actions '((?! "Git Subcommand (from root)" magit-git-command-topdir)
              (?: "Git Subcommand (from pwd)" magit-git-command)
              (?g "Git Gui" magit-run-git-gui)

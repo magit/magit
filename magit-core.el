@@ -42,10 +42,6 @@
   "Controlling Git from Emacs."
   :group 'tools)
 
-(defgroup magit-popups nil
-  "Command console popups provided by Magit."
-  :group 'magit)
-
 (defgroup magit-commands nil
   "Options controlling behavior of certain commands."
   :group 'magit)
@@ -63,8 +59,6 @@
   :group 'magit
   :group 'faces)
 
-(custom-add-to-group 'magit-popup   'magit-popups      'custom-group)
-(custom-add-to-group 'magit-popups  'magit-popup       'custom-group)
 (custom-add-to-group 'magit-modes   'magit-popup       'custom-group)
 (custom-add-to-group 'magit-faces   'magit-popup-faces 'custom-group)
 (custom-add-to-group 'magit-modes   'git-commit        'custom-group)

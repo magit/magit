@@ -50,7 +50,7 @@
 
 (magit-define-popup magit-remote-popup
   "Popup console for remote commands."
-  'magit-popups
+  'magit-commands nil nil
   :man-page "git-remote"
   :actions  '((?a "Add"     magit-remote-add)
               (?r "Rename"  magit-remote-rename)
@@ -91,7 +91,7 @@
 
 (magit-define-popup magit-fetch-popup
   "Popup console for fetch commands."
-  'magit-popups
+  'magit-commands
   :man-page "git-fetch"
   :switches '((?p "Prune"      "--prune"))
   :actions  '((?f "Current"    magit-fetch-current)
@@ -127,7 +127,7 @@ then read the remote."
 
 (magit-define-popup magit-pull-popup
   "Popup console for pull commands."
-  'magit-popups
+  'magit-commands
   :man-page "git-pull"
   :switches '((?r "Rebase" "--rebase"))
   :actions  '((?F "Current" magit-pull-current)
@@ -156,7 +156,7 @@ then read the remote."
 
 (magit-define-popup magit-push-popup
   "Popup console for push commands."
-  'magit-popups
+  'magit-commands
   :man-page "git-push"
   :switches '((?f "Force safely"  "--force-with-lease") ; >= 1.8.5
               (?F "Force"         "--force")
@@ -245,7 +245,7 @@ branch as default."
 
 (magit-define-popup magit-patch-popup
   "Popup console for patch commands."
-  'magit-popups
+  'magit-commands
   :man-page "git-format-patch"
   :options  '((?f "From"             "--from=")
               (?t "To"               "--to=")

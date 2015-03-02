@@ -50,7 +50,7 @@
 
 (magit-define-popup magit-bisect-popup
   "Popup console for bisect commands."
-  'magit-popups
+  'magit-commands nil nil
   :man-page "git-bisect"
   :actions  '((?b "Bad"   magit-bisect-bad)
               (?g "Good"  magit-bisect-good)
