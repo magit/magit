@@ -1015,15 +1015,15 @@ defaulting to the branch at point."
                                             "Delete branch")
                                           (magit-get-previous-branch)))))
          (unless force
-           (-when-let (unmerged (-intersection
-                                 (--map (substring it 2)
-                                        (magit-git-lines "branch" "--no-merged"))
-                                 branches))
+           (--when-let (-intersection
+                        (-union (magit-list-unmerged-branches)
+                                (magit-list-unmerged-to-upstream-branches))
+                        branches)
              (if (magit-confirm 'delete-unmerged-branch
                    "Delete unmerged branch %s"
-                   "Delete %i unmerged branches" unmerged)
+                   "Delete %i unmerged branches" it)
                  (setq force t)
-               (or (setq branches (-difference branches unmerged))
+               (or (setq branches (-difference branches it))
                    (user-error "Abort")))))
        (user-error "Abort"))
      (list branches force)))
