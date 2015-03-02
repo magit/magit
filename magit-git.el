@@ -886,14 +886,18 @@ Return a list of two integers: (A>B B>A)."
       (user-error "Nothing selected")))
 
 (defun magit-read-range-or-commit (prompt &optional secondary-default)
-  (or (magit-completing-read prompt (magit-list-refnames)
-                             nil nil nil 'magit-revision-history
-                             (--if-let (magit-region-values 'commit 'branch)
-                                 (concat (car (last it)) ".." (car it))
-                               (deactivate-mark)
-                               (or (magit-branch-or-commit-at-point)
-                                   secondary-default
-                                   (magit-get-current-branch))))
+  (or (let ((crm-separator "\\.\\.\\.?"))
+        (mapconcat 'identity
+                   (completing-read-multiple
+                    (concat prompt ": ")
+                    (magit-list-refnames) nil nil nil 'magit-revision-history
+                    (--if-let (magit-region-values 'commit 'branch)
+                        (concat (car (last it)) ".." (car it))
+                      (deactivate-mark)
+                      (or (magit-branch-or-commit-at-point)
+                          secondary-default
+                          (magit-get-current-branch))))
+                   ".."))
       (user-error "Nothing selected")))
 
 (defun magit-read-remote-branch
