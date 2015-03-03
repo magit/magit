@@ -78,6 +78,13 @@
 
 ;;;; Custom Options
 
+(defcustom magit-popup-manpage-package
+  (if (memq system-type '(windows-nt ms-dos)) 'woman 'man)
+  "The package used to display manpages.
+One of `man' or `woman'."
+  :group 'magit-popup
+  :type '(choice (const man) (const woman)))
+
 (defcustom magit-popup-show-help-echo t
   "Show usage information in the echo area."
   :group 'magit-popup
@@ -782,11 +789,11 @@ and are defined in `magit-popup-mode-map' (which see)."
                   (lookup-key (current-global-map) key))))
     (pcase def
       (`magit-invoke-popup-switch
-       (magit-popup-woman man (magit-popup-lookup int :switches)))
+       (magit-popup-manpage man (magit-popup-lookup int :switches)))
       (`magit-invoke-popup-option
-       (magit-popup-woman man (magit-popup-lookup int :options)))
+       (magit-popup-manpage man (magit-popup-lookup int :options)))
       (`magit-popup-help
-       (magit-popup-woman man nil))
+       (magit-popup-manpage man nil))
       (`self-insert-command
        (setq def (magit-popup-lookup int :actions))
        (if def
@@ -797,31 +804,39 @@ and are defined in `magit-popup-mode-map' (which see)."
             (message nil))
       (_    (magit-popup-describe-function def)))))
 
-(defun magit-popup-woman (topic arg)
+(defun magit-popup-manpage (topic arg)
   (unless topic
     (error "No man page associated with %s"
            (magit-popup-get :man-page)))
   (when arg
     (setq arg (magit-popup-event-arg arg)))
-  (let ((winconf (current-window-configuration)))
-    (delete-other-windows)
-    (split-window-below)
-    (with-no-warnings ; display-buffer-function is obsolete
-      (let ((display-buffer-alist nil)
-            (display-buffer-function nil))
-        (woman topic)))
-    (if (and arg
-             (Man-find-section "OPTIONS")
-             (re-search-forward (format "^[\t\s]+\\(-., \\)*?%s[=\n]" arg)
-                                (save-excursion
-                                  (Man-next-section 1)
-                                  (point))
-                                t))
-        (goto-char (1+ (match-beginning 0)))
-      (goto-char (point-min)))
-    (setq magit-popup-previous-winconf winconf))
-  (magit-popup-help-mode)
-  (fit-window-to-buffer (next-window)))
+  (let ((winconf (current-window-configuration)) buffer)
+    (pcase magit-popup-manpage-package
+      (`woman (delete-other-windows)
+              (split-window-below)
+              (with-no-warnings ; display-buffer-function is obsolete
+                (let ((display-buffer-alist nil)
+                      (display-buffer-function nil))
+                  (woman topic)))
+              (setq buffer (current-buffer)))
+      (`man   (cl-letf (((symbol-function #'fboundp) (lambda (_) nil)))
+                (setq buffer (man topic)))
+              (delete-other-windows)
+              (split-window-below)
+              (set-window-buffer (selected-window) buffer)))
+    (with-current-buffer buffer
+      (setq magit-popup-previous-winconf winconf)
+      (magit-popup-help-mode)
+      (fit-window-to-buffer (next-window))
+      (if (and arg
+               (Man-find-section "OPTIONS")
+               (re-search-forward (format "^[\t\s]+\\(-., \\)*?%s[=\n]" arg)
+                                  (save-excursion
+                                    (Man-next-section 1)
+                                    (point))
+                                  t))
+          (goto-char (1+ (match-beginning 0)))
+        (goto-char (point-min))))))
 
 (defun magit-popup-describe-function (function)
   (let ((winconf (current-window-configuration)))
