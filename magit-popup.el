@@ -423,20 +423,73 @@ The remaining arguments should have the form
 The following keywords are meaningful (and by convention are
 usually specified in that order):
 
-:man-page
-:switches
-:options
-:actions
-:default-arguments
-:default-action
-:max-action-columns
-:use-prefix
+`:actions'
+  The actions which can be invoked from the popup.  VALUE is a
+  list whose members have the form (KEY DESC COMMAND), see
+  `magit-define-popup-action' for details.
+
+  Actions are regular Emacs commands, which usually have an
+  `interactive' form setup to consume the values of the popup
+  `:switches' and `:options' when invoked from the corresponding
+  popup, else when invoked as the default action or directrly
+  without using the popup, the default value of the variable
+  `SHORTNAME-arguments'.  This is usually done using by calling
+  the function`SHORTNAME-arguments'.
+
+  Members of VALUE may also be strings may, assuming the first
+  member is also a string.  Instead of just one action section
+  with the heading \"Actions\", multiple sections are then
+  inserted into the popup buffer, using these strings as
+  headings.
+
+`:default-action'
+  The default action of the popup which is used directly instead
+  of displaying the popup buffer, when the popup is invoked with
+  a prefix argument.  Also see `magit-popup-use-prefix-argument'
+  and `:use-prefix', which can be used to inverse the meaning of
+  the prefix argument.
+
+`:use-prefix'
+  Controls when to display the popup buffer and when to invoke
+  the default action (if any) directly.  This overrides the
+  global default set using `magit-popup-use-prefix-argument'.
+  The value, if specified, should be one of `default' or `prefix'.
+
+`:max-action-columns'
+  The maximum number of actions to display on a single line.
+  This helps arranging actions more sensibly.  If there is not
+  enough room to display that many actions on one line, then
+  this is ignored.
+
+`:switches'
+  The popup arguments which can be toggled on and off.  VALUE
+  is a list whose members have the form (KEY DESC SWITCH), see
+  `magit-define-popup-switch' for defails.
+
+`:options'
+  The popup arguments which take a value, as in \"--opt=OPTVAL\".
+  VALUE is a list whose members have the form (KEY DESC OPTION
+  READER), see `magit-define-popup-option' for defails.
+
+`:default-arguments'
+  The default arguments, a list of switches (which are then
+  enabled by default) and options with there default values, as
+  in \"--OPT=OPTVAL\".
+
+`:man-page'
+  The name of the manpage to be displayed when the user requests
+  help for a switch or argument.
 
 When MODE is `magit-popup-sequence-mode', then the following
 keywords are also meaningful:
 
-:sequence-actions
-:sequence-predicate
+`:sequence-predicate'
+  When this function returns non-nil, then the popup uses
+  `:sequence-actions' instead of `:actions'.
+
+`:sequence-actions'
+  The actions which can be invoked from the popup, when
+  `:sequence-predicate' returns non-nil.
 
 \(fn NAME DOC [GROUP [MODE [OPTION]]] :KEYWORD VALUE...)"
   ;; TODO document keywords
