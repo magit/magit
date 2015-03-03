@@ -359,7 +359,7 @@ This discards all changes made since the sequence started."
                       "Rebase to"
                       (magit-get-current-branch)
                       (magit-get-tracked-branch))
-                     nil))
+                     (magit-rebase-arguments)))
   (if upstream
       (progn (message "Rebasing...")
              (magit-run-git-sequencer "rebase" "--onto" newbase upstream args)
