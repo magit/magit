@@ -812,7 +812,7 @@ and are defined in `magit-popup-mode-map' (which see)."
         (woman topic)))
     (if (and arg
              (Man-find-section "OPTIONS")
-             (re-search-forward (format "^\t\\(-., \\)?%s[[=\n]" arg)
+             (re-search-forward (format "^[\t\s]+\\(-., \\)*?%s[=\n]" arg)
                                 (save-excursion
                                   (Man-next-section 1)
                                   (point))
