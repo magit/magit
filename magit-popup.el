@@ -108,7 +108,7 @@ prefix argument to the action invoked from the popup, and changing
 that without users being aware of it could lead to tears.
 
 `disabled' Bring up a Custom option buffer so that the user reads
-           the above and then makes an informed choice.
+           this and then makes an informed choice.
 
 `default'  With a prefix argument directly invoke the popup's
            default action (an Emacs command), instead of bringing
