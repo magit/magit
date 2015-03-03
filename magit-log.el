@@ -301,9 +301,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
   "Popup console for log commands."
   'magit-log
   :man-page "git-log"
-  :switches '((?a "Show all refs"           "--all")
-              (?b "Show all branches"       "--branches")
-              (?g "Show graph"              "--graph")
+  :switches '((?g "Show graph"              "--graph")
               (?d "Show refnames"           "--decorate")
               (?S "Show signatures"         "--show-signature")
               (?u "Show diffs"              "--patch")
@@ -314,14 +312,17 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
               (?m "Search messages"         "--grep="   read-from-minibuffer)
               (?p "Search patches"          "-G"        read-from-minibuffer))
   :actions  '((?l "Log current"             magit-log-current)
+              (?b "Log all branches"        magit-log-branches)
               (?r "Reflog current"          magit-reflog-current)
               (?o "Log other"               magit-log)
+              (?a "Log all referenes"       magit-log-all)
               (?O "Reflog other"            magit-reflog)
               (?h "Log HEAD"                magit-log-head)
+              nil
               (?H "Reflog HEAD"             magit-reflog-head))
   :default-arguments '("--graph" "--decorate")
   :default-action 'magit-log-current
-  :max-action-columns 2)
+  :max-action-columns 3)
 
 (defvar magit-log-use-verbose-re
   (concat "^" (regexp-opt '("--patch" "--stat")))
@@ -408,6 +409,20 @@ completion candidates."
   "Show log for HEAD."
   (interactive (magit-log-read-args nil t))
   (magit-log (list "HEAD") args files))
+
+;;;###autoload
+(defun magit-log-branches (&optional args files)
+  "Show log for all branches and `HEAD'."
+  (interactive (magit-log-read-args nil t))
+  (magit-log `(,(unless (magit-get-current-branch) "HEAD") "--branches")
+             args files))
+
+;;;###autoload
+(defun magit-log-all (&optional args files)
+  "Show log for all references and `HEAD'."
+  (interactive (magit-log-read-args nil t))
+  (magit-log `(,(unless (magit-get-current-branch) "HEAD") "--all")
+             args files))
 
 ;;;###autoload
 (defun magit-log-buffer-file ()
