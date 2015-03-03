@@ -510,10 +510,10 @@ Do so depending on the value of `status.showUntrackedFiles'."
               (magit-insert-heading "Untracked files:")
               (magit-insert-un/tracked-files-1 files nil)
               (insert ?\n)))
-        (-when-let (files (--mapcat (and (eq (aref it 0) ??)
-                                         (list (magit-decode-git-path
-                                                (substring it 3))))
-                                    (magit-git-lines "status" "--porcelain")))
+        (-when-let
+            (files (--mapcat (and (eq (aref it 0) ??)
+                                  (list (substring it 3)))
+                             (magit-git-items "status" "-z" "--porcelain")))
           (magit-insert-section (untracked)
             (magit-insert-heading "Untracked files:")
             (dolist (file files)

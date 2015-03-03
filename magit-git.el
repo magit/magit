@@ -378,8 +378,7 @@ If the file is not inside a Git repository then return nil."
   (magit-git-success "ls-files" "--error-unmatch" file))
 
 (defun magit-list-files (&rest args)
-  (magit-decode-git-paths
-   (apply #'magit-git-lines "ls-files" "--full-name" args)))
+  (apply #'magit-git-items "ls-files" "-z" "--full-name" args))
 
 (defun magit-tracked-files ()
   (magit-list-files "--cached"))
@@ -388,24 +387,20 @@ If the file is not inside a Git repository then return nil."
   (magit-list-files "--other" (unless all "--exclude-standard")))
 
 (defun magit-modified-files (&optional nomodules)
-  (magit-decode-git-paths
-   (magit-git-lines "diff-files" "--name-only"
-                    (and nomodules "--ignore-submodules"))))
+  (magit-git-items "diff-files" "-z" "--name-only"
+                   (and nomodules "--ignore-submodules")))
 
 (defun magit-staged-files (&optional nomodules)
-  (magit-decode-git-paths
-   (magit-git-lines "diff-index" "--name-only"
-                    (and nomodules "--ignore-submodules")
-                    (magit-headish))))
+  (magit-git-items "diff-index" "-z" "--name-only"
+                   (and nomodules "--ignore-submodules")
+                   (magit-headish)))
 
 (defun magit-unmerged-files ()
-  (magit-decode-git-paths
-   (magit-git-lines "diff-files" "--name-only" "--diff-filter=U")))
+  (magit-git-items "diff-files" "-z" "--name-only" "--diff-filter=U"))
 
 (defun magit-revision-files (rev)
   (let ((default-directory (magit-get-top-dir)))
-    (magit-decode-git-paths
-     (magit-git-lines "ls-tree" "-r" "--name-only" rev))))
+    (magit-git-items "ls-tree" "-z" "-r" "--name-only" rev)))
 
 (defun magit-file-status (&optional file status)
   (if file
@@ -413,10 +408,10 @@ If the file is not inside a Git repository then return nil."
                         (string-match-p (format " -> %s$" (regexp-quote file))
                                         (car it)))
                     (or status (magit-file-status))))
-    (--map (list (magit-decode-git-path (substring it 3))
+    (--map (list (substring it 3)
                  (aref it 0)
                  (aref it 1))
-           (magit-git-lines "status" "--porcelain" "-u" "--ignored"))))
+           (magit-git-items "status" "-z" "--porcelain" "-u" "--ignored"))))
 
 (defun magit-rename-source (file &optional status)
   (--when-let (--first (and (string-match (format "^\\(.+\\) -> %s$"
@@ -746,7 +741,7 @@ where COMMITS is the number of commits in TAG but not in REV."
         (equal (match-string 1 it) "160000")
         (equal (match-string 2 it) "0")
         (list  (match-string 3 it)))
-   (magit-git-lines "ls-files" "--stage")))
+   (magit-git-items "ls-files" "-z" "--stage")))
 
 (defun magit-branch-p (string)
   (and (or (member string (magit-list-branches))

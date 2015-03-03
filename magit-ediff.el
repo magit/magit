@@ -154,8 +154,8 @@ working tree state."
                             (setq elt (split-string (substring elt 97)))
                             (when (nth 2 elt)
                               (list (cons (nth 1 elt) (nth 2 elt)))))
-                          (magit-decode-git-path
-                           (magit-git-lines "diff-tree" "-M" "HEAD^" "HEAD")))))
+                          (magit-git-items
+                           "diff-tree" "-z" "-M" "HEAD^" "HEAD"))))
             (magit-read-file-from-rev
              revA (format "Compare %s:%s with file in %s" revB fileB revA)))
         fileB))
