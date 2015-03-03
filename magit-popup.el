@@ -679,8 +679,7 @@ KEY is the character which is to be unbound."
      (local
       (error "Invalid :use-prefix popup property value: %s" use-prefix))
      (t
-      (error "Invalid magit-popup-use-prefix-argument value: %s" use-prefix)
-      ))))
+      (error "Invalid magit-popup-use-prefix-argument value: %s" use-prefix)))))
 
 (defun magit-invoke-popup-switch (event)
   (interactive (list last-command-event))
