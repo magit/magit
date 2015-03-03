@@ -372,7 +372,7 @@ or `:only' which doesn't change the behaviour."
 
 (defun magit-popup-convert-actions (val def)
   (mapcar (lambda (ev)
-            (if (stringp ev)
+            (if (or (null ev) (stringp ev))
                 ev
               (make-magit-popup-event
                :key (car ev) :dsc (cadr ev) :fun (nth 2 ev))))
@@ -441,6 +441,10 @@ usually specified in that order):
   with the heading \"Actions\", multiple sections are then
   inserted into the popup buffer, using these strings as
   headings.
+
+  Members of VALUE may also be nil.  This should only be used to
+  getter with `:max-action-columns' and allows having gaps in the
+  action grit, which can help arranging actions sensibly.
 
 `:default-action'
   The default action of the popup which is used directly instead
@@ -958,7 +962,7 @@ in the popup."
     (setq heading (button-type-get type 'heading)))
   (let* ((formatter (button-type-get type 'formatter))
          (buttons (mapcar (lambda (ev)
-                            (funcall formatter type ev))
+                            (and ev (funcall formatter type ev)))
                           (or spec (magit-popup-get
                                     (button-type-get type 'property)))))
          (maxcols (button-type-get type 'maxcols))
@@ -978,13 +982,16 @@ in the popup."
         (dolist (button buttons)
           (unless (bolp)
             (let ((padding (- colwidth (% (current-column) colwidth))))
-              (if (and (< (+ (current-column) padding colwidth)
-                          (window-width))
-                       (< (ceiling (/ (current-column) (* colwidth 1.0)))
-                          (or maxcols 1000)))
-                  (insert (make-string padding ?\s))
-                (insert "\n"))))
-          (apply 'insert-button button)))
+              (when button
+                (if (and (< (+ (current-column) padding colwidth)
+                            (window-width))
+                         (< (ceiling (/ (current-column) (* colwidth 1.0)))
+                            (or maxcols 1000)))
+                    (insert (make-string padding ?\s))
+                  (insert "\n")))))
+          (if button
+              (apply 'insert-button button)
+            (insert (make-string colwidth ?\s)))))
       (insert (if (= (char-before) ?\n) "\n" "\n\n")))))
 
 (defun magit-popup-format-argument-button (type ev)
