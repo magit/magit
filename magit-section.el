@@ -456,8 +456,9 @@ This command is intended for debugging purposes."
 
 ;;; Match
 
-(defun magit-section-match (condition &optional ident)
-  "Return t if the section at point matches CONDITION.
+(defun magit-section-match (condition &optional section)
+  "Return t if SECTION matches CONDITION.
+SECTION defaults to the section at point.
 
 Conditions can take the following forms:
   (CONDITION...)  matches if any of the CONDITIONs matches.
@@ -470,16 +471,19 @@ Conditions can take the following forms:
 
 Each TYPE is a symbol.  Note that is not necessary to specify all
 TYPEs up to the root section as printed by `magit-describe-type',
-unless of course your want to be that precise.
-\n(fn CONDITION)" ; IDENT is for internal use
-  (when (or ident (--when-let (magit-current-section)
-                    (mapcar 'car (magit-section-ident it))))
-    (if (listp condition)
-        (--first (magit-section-match it ident) condition)
-      (magit-section-match-1 (if (symbolp condition)
-                                 (list condition)
-                               (append condition nil))
-                             ident))))
+unless of course your want to be that precise."
+  ;; When recursing SECTION actually is a type list.  Matching
+  ;; macros also pass such a list instead of a section struct.
+  (let ((types (if (magit-section-p section)
+                   (mapcar 'car (magit-section-ident section))
+                 section)))
+    (when (or types section (magit-current-section))
+      (if (listp condition)
+          (--first (magit-section-match it types) condition)
+        (magit-section-match-1 (if (symbolp condition)
+                                   (list condition)
+                                 (append condition nil))
+                               types)))))
 
 (defun magit-section-match-1 (l1 l2)
   (or (null l1)
