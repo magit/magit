@@ -74,14 +74,10 @@ Only considered when moving past the last entry with
   :type 'boolean)
 
 (defcustom magit-log-cutoff-length 100
-  "The maximum number of commits to show in the log and whazzup buffers."
+  "The maximum number of commits to show in log and reflog buffers."
   :group 'magit-log
-  :type 'integer)
-
-(defcustom magit-log-infinite-length 99999
-  "Number of log used to show as maximum for `magit-log-cutoff-length'."
-  :group 'magit-log
-  :type 'integer)
+  :type '(choice (const :tag "no limit") integer))
+(make-variable-buffer-local 'magit-log-cutoff-length)
 
 (defcustom magit-log-format-graph-function 'identity
   "Function used to format graphs in log buffers.
@@ -461,17 +457,24 @@ completion candidates."
   (magit-reflog "HEAD"))
 
 (defun magit-log-show-more-entries (&optional arg)
-  "Grow the number of log entries shown.
+  "Increase the number of commits shown in current log.
 
-With no prefix optional ARG, show twice as many log entries.
-With a numerical prefix ARG, add this number to the number of
-shown log entries.  With a non-numeric prefix ARG, show all
-entries"
+With no prefix argument, show twice as many commits as before.
+With a numerical prefix argument, show this many additional
+commits.  With a non-numeric prefix argument, show all commits.
+
+When no limit was previously imposed in the current buffer, set
+the local limit to the default limit instead (or if that is nil
+then 100), regardless of the prefix argument.
+
+By default `magit-log-cutoff-length' commits are shown."
   (interactive "P")
-  (setq-local magit-log-cutoff-length
-              (cond ((numberp arg) (+ magit-log-cutoff-length arg))
-                    (arg magit-log-infinite-length)
-                    (t (* magit-log-cutoff-length 2))))
+  (setq magit-log-cutoff-length
+        (if magit-log-cutoff-length
+            (if arg
+                (and (numberp arg) (+ magit-log-cutoff-length arg))
+              (* magit-log-cutoff-length 2))
+          (or (default-value 'magit-log-cutoff-length) 100)))
   (let ((old-point (point)))
     (magit-refresh)
     (goto-char old-point)))
@@ -536,7 +539,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   "Insert a oneline log section.
 For internal use; don't add to a hook."
   (magit-git-wash (apply-partially 'magit-log-wash-log 'oneline)
-    "log" (format "-%d" magit-log-cutoff-length) "--color"
+    "log" (magit-log-format-max-count) "--color"
     (format "--format=%%h%s %s[%%an][%%at]%%s"
             (if (member "--decorate" args) "%d" "")
             (if (member "--show-signature" args)
@@ -551,7 +554,7 @@ For internal use; don't add to a hook."
   "Insert a multiline log section.
 For internal use; don't add to a hook."
   (magit-git-wash (apply-partially 'magit-log-wash-log 'verbose)
-    "log" (format "-%d" magit-log-cutoff-length) "--color"
+    "log" (magit-log-format-max-count) "--color"
     (if (member "--decorate" args)
         (cons "--decorate=full" (remove "--decorate" args))
       args)
@@ -633,6 +636,10 @@ For internal use; don't add to a hook."
           "\\(?: \\(([^()]+)\\)\\)?"))
 
 (defvar magit-log-count nil)
+
+(defun magit-log-format-max-count ()
+  (and magit-log-cutoff-length
+       (format "-%d" magit-log-cutoff-length)))
 
 (defun magit-log-wash-log (style args)
   (when (member "--color" args)
@@ -961,7 +968,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
     (magit-insert-heading "Local history of branch " ref)
     (magit-git-wash (apply-partially 'magit-log-wash-log 'reflog)
       "reflog" "show" "--format=%h [%an] %ct %gd %gs"
-      (format "--max-count=%d" magit-log-cutoff-length) ref)))
+      (magit-log-format-max-count) ref)))
 
 (defvar magit-reflog-labels
   '(("commit"      . magit-reflog-commit)
