@@ -195,11 +195,13 @@ usually honor this wish and return non-nil."
 (defcustom git-commit-summary-max-length 50
   "Fontify characters beyond this column in summary lines as errors."
   :group 'git-commit
+  :safe 'numberp
   :type 'number)
 
 (defcustom git-commit-fill-column 72
   "Automatically wrap commit message lines beyond this column."
   :group 'git-commit
+  :safe 'numberp
   :type 'number)
 
 (defcustom git-commit-known-pseudo-headers
@@ -207,6 +209,7 @@ usually honor this wish and return non-nil."
     "Suggested-by" "Reported-by" "Tested-by" "Reviewed-by")
   "A list of Git pseudo headers to be highlighted."
   :group 'git-commit
+  :safe (lambda (val) (and (listp val) (-all-p 'stringp val)))
   :type '(repeat string))
 
 ;;;; Faces

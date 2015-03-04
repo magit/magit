@@ -187,6 +187,7 @@ all    Show counts for branches and tags.
 branch Show counts for branches only.
 nil    Never show counts."
   :group 'magit
+  :safe (lambda (val) (memq val '(all branch nil)))
   :type '(choice (const all    :tag "For branches and tags")
                  (const branch :tag "For branches only")
                  (const nil    :tag "Never")))
@@ -200,6 +201,7 @@ in the margin of refs buffers.  The margin can be shown or hidden
 in the current buffer using the command `magit-toggle-margin'."
   :package-version '(magit . "2.1.0")
   :group 'magit-refs
+  :safe (lambda (val) (memq val '(all branch nil)))
   :type '(choice (const all    :tag "For branches and tags")
                  (const branch :tag "For branches only")
                  (const nil    :tag "Never")))

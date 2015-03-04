@@ -129,6 +129,7 @@ nil    never show fine differences.
 t      show fine differences for the selected diff hunk only.
 `all'  show fine differences for all displayed diff hunks."
   :group 'magit-diff
+  :safe (lambda (val) (memq val '(nil t all)))
   :type '(choice (const :tag "Never" nil)
                  (const :tag "Selected only" t)
                  (const :tag "All" all)))
@@ -139,6 +140,7 @@ See `magit-highlight-trailing-whitespace',
 `magit-highlight-indentation'.  The symbol t means in all diffs,
 `status' means only in the status buffer, and nil means nowhere."
   :group 'magit-diff
+  :safe (lambda (val) (memq val '(t nil status)))
   :type '(choice (const :tag "Always" t)
                  (const :tag "Never" nil)
                  (const :tag "In status buffer" status)))
@@ -147,6 +149,7 @@ See `magit-highlight-trailing-whitespace',
   "Whether to highlight whitespace at the end of a line in diffs.
 Used only when `magit-diff-paint-whitespace' is non-nil."
   :group 'magit-diff
+  :safe 'booleanp
   :type 'boolean)
 
 (defcustom magit-diff-highlight-indentation nil
@@ -199,6 +202,7 @@ The following `format'-like specs are supported:
   "Whether to show notes in commit buffers."
   :package-version '(magit . "2.1.0")
   :group 'magit-revision
+  :safe 'booleanp
   :type 'boolean)
 
 (defcustom magit-revision-show-xref-buttons t
