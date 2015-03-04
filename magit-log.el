@@ -456,7 +456,7 @@ completion candidates."
   (interactive)
   (magit-reflog "HEAD"))
 
-(defun magit-log-show-more-entries (&optional arg)
+(defun magit-log-show-more-commits (&optional arg)
   "Increase the number of commits shown in current log.
 
 With no prefix argument, show twice as many commits as before.
@@ -503,7 +503,7 @@ is displayed in the current frame."
     (set-keymap-parent map magit-mode-map)
     (define-key map "\C-c\C-b" 'magit-go-backward)
     (define-key map "\C-c\C-f" 'magit-go-forward)
-    (define-key map "+" 'magit-log-show-more-entries)
+    (define-key map "+" 'magit-log-show-more-commits)
     (define-key map "q" 'magit-log-bury-buffer)
     map)
   "Keymap for `magit-log-mode'.")
@@ -663,9 +663,9 @@ For internal use; don't add to a hook."
              (substitute-command-keys
               (format "Type \\<%s>\\[%s] to show more history"
                       'magit-log-mode-map
-                      'magit-log-show-more-entries))
+                      'magit-log-show-more-commits))
              'action (lambda (button)
-                       (magit-log-show-more-entries))
+                       (magit-log-show-more-commits))
              'follow-link t
              'mouse-face 'magit-section-highlight)))
       (unless (equal (car args) "cherry")
@@ -794,13 +794,13 @@ alist in `magit-log-format-unicode-graph-alist'."
         (magit-format-duration duration (cdr spec) width)))))
 
 
-(defun magit-log-maybe-show-more-entries (section)
+(defun magit-log-maybe-show-more-commits (section)
   "Automatically insert more commit sections in a log.
 Only do so if `point' is on the \"show more\" section,
 and `magit-log-auto-more' is non-nil."
   (when (and (eq (magit-section-type section) 'longer)
              magit-log-auto-more)
-    (magit-log-show-more-entries)
+    (magit-log-show-more-commits)
     (forward-line -1)
     (magit-section-forward)))
 

@@ -202,7 +202,7 @@ If there is no previous sibling section, then move to the parent."
 (defvar magit-section-movement-hook
   '(magit-hunk-set-window-start
     magit-log-maybe-show-commit
-    magit-log-maybe-show-more-entries)
+    magit-log-maybe-show-more-commits)
   "Hook run by `magit-section-goto'.
 That function in turn is used by all section movement commands.")
 
