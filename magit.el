@@ -157,6 +157,7 @@ The following `format'-like specs are supported:
 
 (defcustom magit-refs-mode-hook nil
   "Hook run after entering Magit-Refs mode."
+  :package-version '(magit . "2.1.0")
   :group 'magit-refs
   :type 'hook)
 
@@ -186,6 +187,7 @@ The following `format'-like specs are supported:
 all    Show counts for branches and tags.
 branch Show counts for branches only.
 nil    Never show counts."
+  :package-version '(magit . "2.1.0")
   :group 'magit
   :safe (lambda (val) (memq val '(all branch nil)))
   :type '(choice (const all    :tag "For branches and tags")
