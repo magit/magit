@@ -118,10 +118,7 @@ matches the reference is used.  The first regexp submatch becomes
 the \"label\" that represents the ref and is propertized with
 font FONT.  If FORMATTER is non-nil it should be a function that
 takes two arguments, the full ref and the face.  It is supposed
-to return a propertized label that represents the ref.
-
-Currently this variable is only used in logs and the branch
-manager but it will be used in more places in the future."
+to return a propertized label that represents the ref."
   :package-version '(magit . "2.1.0")
   :group 'magit-modes
   :type '(repeat
