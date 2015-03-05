@@ -311,7 +311,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
               (?b "Log all branches"        magit-log-branches)
               (?r "Reflog current"          magit-reflog-current)
               (?o "Log other"               magit-log)
-              (?a "Log all referenes"       magit-log-all)
+              (?a "Log all references"      magit-log-all)
               (?O "Reflog other"            magit-reflog)
               (?h "Log HEAD"                magit-log-head)
               nil
