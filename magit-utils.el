@@ -47,7 +47,8 @@
 (require 'dash)
 
 (eval-when-compile (require 'ido))
-(declare-function ido-completing-read 'ido)
+(declare-function completing-read-ido 'ido-ubiquitous)
+(defvar ido-ubiquitous-next-override)
 
 (defvar magit-backup-mode)
 (defvar magit-backup-untracked)
@@ -276,14 +277,41 @@ results in additional differences."
 
 (defun magit-ido-completing-read
   (prompt choices &optional predicate require-match initial-input hist def)
-  "Ido-based completing-read almost-replacement."
+  "Ido-based `completing-read' almost-replacement.
+
+`ido-completing-read' is not suitable as a replacement for
+`completing-read', because it lacks essential features and
+has bugs.  Instead use the wrapper `completing-read-ido'
+from the `ido-ubiquitous' package."
   (require 'ido)
-  (let ((reply (ido-completing-read
-                prompt
-                (if (consp (car choices))
-                    (mapcar #'car choices)
-                  choices)
-                predicate require-match initial-input hist def)))
+  (require 'ido-ubiquitous)
+  (let* (;; Pretend these modes are on because otherwise we would
+         ;; end up using regular `completing-read'.  Also ensure all
+         ;; `ido-ubiquitous' fixes to be used, even those that are not
+         ;; enabled or were disabled by the user.
+         (ido-mode t)
+         (ido-ubiquitous-mode t)
+         (ido-ubiquitous-allow-on-functional-collection t)
+         (ido-ubiquitous-fallback-completing-read-function
+          #'completing-read-default)
+         ;; `ido-ubiquitous' calls this "old style" and a "quirk" but
+         ;; it actually is an essential feature which we depend on.
+         (ido-ubiquitous-old-style-default t)
+         ;; Magit properly supports ido, but to do so it does require
+         ;; `ido-ubiquitous', which in turn is configured to prevent
+         ;; that.  Override that, but only when magit's own wrapper
+         ;; (this function) is called, not when `completing-read-ido'
+         ;; is called due to `ido-ubiquitous-mode' being on.
+         (ido-ubiquitous-next-override
+          (remove '(disable prefix "magit-") ido-ubiquitous-next-override))
+         (reply (completing-read-ido
+                 prompt
+                 ;; Unlike `completing-read', `ido-completing-read'
+                 ;; and `completing-read-ido' cannot handle alists.
+                 (if (consp (car choices))
+                     (mapcar #'car choices)
+                   choices)
+                 predicate require-match initial-input hist def)))
     (or (and (consp (car choices))
              (cdr (assoc reply choices)))
         reply)))
