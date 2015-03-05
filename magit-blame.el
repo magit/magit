@@ -159,7 +159,8 @@ and then turned on again when turning on the latter."
 (defadvice auto-revert-handler (around magit-blame activate)
   "If Magit-Blame mode is on, then do nothing.
 See #1731."
-  (unless magit-blame-mode
+  (if magit-blame-mode
+      (message "Reverting %s inhibited due to magit-blame-mode" buffer-file-name)
     ad-do-it))
 
 (magit-define-popup magit-blame-popup

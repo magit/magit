@@ -515,11 +515,11 @@ to do anything in that case, some third-party extensions do.")
   "Refresh the current file-visiting buffer."
   (if (and (file-readable-p buffer-file-name)
            (not (verify-visited-file-modtime (current-buffer))))
-      (let ((buffer-read-only buffer-read-only)
-            (blaming magit-blame-mode))
-        (when blaming (magit-blame-mode -1))
+      (if magit-blame-mode
+          (progn (message "Reverting %s inhibited due to magit-blame-mode"
+                          buffer-file-name)
+                 (run-hooks 'magit-not-reverted-hook))
         (revert-buffer 'ignore-auto 'dont-ask 'preserve-modes)
-        (when blaming (magit-blame-mode 1))
         (run-hooks 'magit-after-revert-hook))
     (run-hooks 'magit-not-reverted-hook))
   (vc-find-file-hook))
