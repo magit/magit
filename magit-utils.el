@@ -287,8 +287,8 @@ from the `ido-ubiquitous' package."
   (require 'ido-ubiquitous)
   (let* (;; Pretend these modes are on because otherwise we would
          ;; end up using regular `completing-read'.  Also ensure all
-         ;; `ido-ubiquitous' fixes to be used, even those that are not
-         ;; enabled or were disabled by the user.
+         ;; `ido-ubiquitous' fixes are used, even those that are not
+         ;; enabled by default or were disabled by the user.
          (ido-mode t)
          (ido-ubiquitous-mode t)
          (ido-ubiquitous-allow-on-functional-collection t)
