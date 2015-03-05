@@ -447,9 +447,9 @@ usually specified in that order):
   inserted into the popup buffer, using these strings as
   headings.
 
-  Members of VALUE may also be nil.  This should only be used to
-  getter with `:max-action-columns' and allows having gaps in the
-  action grit, which can help arranging actions sensibly.
+  Members of VALUE may also be nil.  This should only be used
+  together with `:max-action-columns' and allows having gaps in
+  the action grit, which can help arranging actions sensibly.
 
 `:default-action'
   The default action of the popup which is used directly instead
