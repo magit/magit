@@ -996,16 +996,15 @@ in the popup."
           (dolist (item items)
             (unless (bolp)
               (let ((padding (- colwidth (% (current-column) colwidth))))
-                (when item
-                  (if (and (< (+ (current-column) padding colwidth)
-                              (window-width))
-                           (< (ceiling (/ (current-column) (* colwidth 1.0)))
-                              (or maxcols 1000)))
-                      (insert (make-string padding ?\s))
-                    (insert "\n")))))
+                (if (and (< (+ (current-column) padding colwidth)
+                            (window-width))
+                         (< (ceiling (/ (current-column) (* colwidth 1.0)))
+                            (or maxcols 1000)))
+                    (insert (make-string padding ?\s))
+                  (insert "\n"))))
             (if item
                 (apply 'insert-button item)
-              (insert (make-string colwidth ?\s)))))
+              (insert ?\s))))
         (insert (if (= (char-before) ?\n) "\n" "\n\n"))))))
 
 (defun magit-popup-format-argument-button (type ev)
