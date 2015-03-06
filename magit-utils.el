@@ -48,7 +48,6 @@
 
 (eval-when-compile (require 'ido))
 (declare-function completing-read-ido 'ido-ubiquitous)
-(declare-function ido-ubiquitous-with-override 'ido-ubiquitous)
 
 (defvar magit-backup-mode)
 (defvar magit-backup-untracked)
@@ -291,20 +290,16 @@ from the `ido-ubiquitous' package."
          ;; Ignore user customization.
          (ido-ubiquitous-allow-on-functional-collection t)
          ;; Keep `completing-read-ido' from falling back to regular
-         ;; `completing-read'.
-         (ido-ubiquitous-next-override
-          (remove '(disable prefix "magit-") ido-ubiquitous-next-override))
-         ;; `ido-ubiquitous' calls `enable-old' style a "quirk" but
-         ;; it actually is an essential feature which we depend on.
-         (reply (ido-ubiquitous-with-override 'enable-old
-                  (completing-read-ido
-                   prompt
-                   ;; Unlike `completing-read', `ido-completing-read'
-                   ;; and `completing-read-ido' cannot handle alists.
-                   (if (consp (car choices))
-                       (mapcar #'car choices)
-                     choices)
-                   predicate require-match initial-input hist def)) ))
+         ;; `completing-read' and force use of `enable-old' style.
+         (ido-ubiquitous-next-override 'enable-old)
+         (reply (completing-read-ido
+                 prompt
+                 ;; Unlike `completing-read', `ido-completing-read'
+                 ;; and `completing-read-ido' cannot handle alists.
+                 (if (consp (car choices))
+                     (mapcar #'car choices)
+                   choices)
+                 predicate require-match initial-input hist def)))
     (or (and (consp (car choices))
              (cdr (assoc reply choices)))
         reply)))
