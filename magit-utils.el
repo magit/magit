@@ -287,8 +287,6 @@ from the `ido-ubiquitous' package."
          ;; end up using regular `completing-read'.
          (ido-mode t)
          (ido-ubiquitous-mode t)
-         ;; Ignore user customization.
-         (ido-ubiquitous-allow-on-functional-collection t)
          ;; Keep `completing-read-ido' from falling back to regular
          ;; `completing-read' and force use of `enable-old' style.
          (ido-ubiquitous-next-override 'enable-old)
