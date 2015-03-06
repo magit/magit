@@ -283,7 +283,6 @@ results in additional differences."
 `completing-read', because it lacks essential features and
 has bugs.  Instead use the wrapper `completing-read-ido'
 from the `ido-ubiquitous' package."
-  (require 'ido)
   (require 'ido-ubiquitous)
   (let* (;; Pretend these modes are on because otherwise we would
          ;; end up using regular `completing-read'.
