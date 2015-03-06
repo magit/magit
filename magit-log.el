@@ -1028,12 +1028,12 @@ commits. "
     (if (and tracked (not (equal (magit-rev-parse "HEAD")
                                  (magit-rev-parse tracked))))
         (magit-insert-unpulled-commits)
-      (magit-insert-recent-commits))))
+      (magit-insert-recent-commits t))))
 
-(defun magit-insert-recent-commits ()
+(defun magit-insert-recent-commits (&optional collapse)
   "Insert section showing recent commits.
 Show the last `magit-log-section-commit-count' commits."
-  (magit-insert-section (recent)
+  (magit-insert-section (recent nil collapse)
     (magit-insert-heading "Recent commits:")
     (magit-insert-log nil (cons (format "-%d" magit-log-section-commit-count)
                                 magit-log-section-args))))
