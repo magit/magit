@@ -242,7 +242,6 @@ without requiring confirmation."
 
 (defun magit-discard-files (sections)
   (let ((auto-revert-verbose nil)
-        (inhibit-magit-refresh t)
         (status (magit-file-status))
         delete resurrect rename discard resolve)
     (dolist (section sections)
@@ -264,16 +263,17 @@ without requiring confirmation."
           (`(?X ?D ,(or ?  ?M   )) (push file resurrect))
           (`(?Y ,_            ?D ) (push file resurrect))
           (`(?X ?R ,(or ?  ?M ?D)) (push file rename)))))
-    (when resolve
-      (let ((inhibit-magit-refresh t))
-        (dolist (file (nreverse resolve))
-          (magit-checkout-stage file (magit-checkout-read-stage file)))))
-    (magit-maybe-backup)
-    (magit-discard-files--resurrect (nreverse resurrect))
-    (magit-discard-files--delete    (nreverse delete))
-    (magit-discard-files--rename    (nreverse rename))
-    (magit-discard-files--discard   (nreverse discard)))
-  (magit-refresh))
+    (unwind-protect
+        (let ((inhibit-magit-refresh t))
+          (when resolve
+            (dolist (file (nreverse resolve))
+              (magit-checkout-stage file (magit-checkout-read-stage file))))
+          (magit-maybe-backup)
+          (magit-discard-files--resurrect (nreverse resurrect))
+          (magit-discard-files--delete    (nreverse delete))
+          (magit-discard-files--rename    (nreverse rename))
+          (magit-discard-files--discard   (nreverse discard)))
+      (magit-refresh))))
 
 (defun magit-discard-files--resurrect (files)
   (when (magit-confirm-files 'resurrect files)
