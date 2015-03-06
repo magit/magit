@@ -1596,13 +1596,16 @@ of SECTION including SECTION and all of them are highlighted."
                                  'magit-diff-whitespace-warning)))))
 
 (defun magit-diff-refine-hunk (hunk)
-  (save-excursion
-    (goto-char (magit-section-start hunk))
-    ;; `diff-refine-hunk' does not handle combined diffs.
-    (unless (looking-at "@@@")
-      (diff-refine-hunk))))
+  (unless (magit-section-refined hunk)
+    (setf (magit-section-refined hunk) t)
+    (save-excursion
+      (goto-char (magit-section-start hunk))
+      ;; `diff-refine-hunk' does not handle combined diffs.
+      (unless (looking-at "@@@")
+        (diff-refine-hunk)))))
 
 (defun magit-diff-unrefine-hunk (hunk)
+  (setf (magit-section-refined hunk) nil)
   (remove-overlays (magit-section-start hunk)
                    (magit-section-end hunk)
                    'diff-mode 'fine))

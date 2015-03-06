@@ -84,7 +84,7 @@ diff-related sections being the only exception."
 ;;; Core
 
 (cl-defstruct magit-section
-  type value start content end hidden washer
+  type value start content end hidden washer refined
   source blobs process parent children)
 
 (defvar-local magit-root-section nil
