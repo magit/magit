@@ -292,26 +292,18 @@ from the `ido-ubiquitous' package."
          (ido-mode t)
          (ido-ubiquitous-mode t)
          (ido-ubiquitous-allow-on-functional-collection t)
-         (ido-ubiquitous-fallback-completing-read-function
-          #'completing-read-default)
-         ;; `ido-ubiquitous' calls this "old style" and a "quirk" but
-         ;; it actually is an essential feature which we depend on.
-         (ido-ubiquitous-old-style-default t)
-         ;; Magit properly supports ido, but to do so it does require
-         ;; `ido-ubiquitous', which in turn is configured to prevent
-         ;; that.  Override that, but only when magit's own wrapper
-         ;; (this function) is called, not when `completing-read-ido'
-         ;; is called due to `ido-ubiquitous-mode' being on.
-         (ido-ubiquitous-next-override
-          (remove '(disable prefix "magit-") ido-ubiquitous-next-override))
-         (reply (completing-read-ido
-                 prompt
-                 ;; Unlike `completing-read', `ido-completing-read'
-                 ;; and `completing-read-ido' cannot handle alists.
-                 (if (consp (car choices))
-                     (mapcar #'car choices)
-                   choices)
-                 predicate require-match initial-input hist def)))
+         (reply
+          ;; `ido-ubiquitous' calls this "old style" and a "quirk" but
+          ;; it actually is an essential feature which we depend on.
+          (ido-ubiquitous-with-override 'enable-old
+                  (completing-read-ido
+                   prompt
+                   ;; Unlike `completing-read', `ido-completing-read'
+                   ;; and `completing-read-ido' cannot handle alists.
+                   (if (consp (car choices))
+                       (mapcar #'car choices)
+                     choices)
+                   predicate require-match initial-input hist def)) ))
     (or (and (consp (car choices))
              (cdr (assoc reply choices)))
         reply)))
