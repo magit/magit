@@ -242,9 +242,8 @@ without requiring confirmation."
 
 (defun magit-discard-files (sections)
   (let ((auto-revert-verbose nil)
-        (inhibit-magit-refresh t)
         (status (magit-file-status))
-        delete resurrect rename discard resolve)
+        delete resurrect rename discard discard-new resolve)
     (dolist (section sections)
       (let ((file (magit-section-value section)))
         (pcase (cons (pcase (magit-diff-type section)
@@ -259,21 +258,25 @@ without requiring confirmation."
           (`(,_ ?A ?A)                  (push file resolve))
           (`(?X ?M ,(or ?  ?M ?D)) (push section discard))
           (`(?Y ,_         ?M    ) (push section discard))
-          (`(?X ?A ,(or ?  ?M ?D)) (push file delete))
-          (`(?X ?C ,(or ?  ?M ?D)) (push file delete))
+          (`(?X ?A         ?M    ) (push file discard-new))
+          (`(?X ?C         ?M    ) (push file discard-new))
+          (`(?X ?A ,(or ?     ?D)) (push file delete))
+          (`(?X ?C ,(or ?     ?D)) (push file delete))
           (`(?X ?D ,(or ?  ?M   )) (push file resurrect))
           (`(?Y ,_            ?D ) (push file resurrect))
           (`(?X ?R ,(or ?  ?M ?D)) (push file rename)))))
-    (when resolve
-      (let ((inhibit-magit-refresh t))
-        (dolist (file (nreverse resolve))
-          (magit-checkout-stage file (magit-checkout-read-stage file)))))
-    (magit-maybe-backup)
-    (magit-discard-files--resurrect (nreverse resurrect))
-    (magit-discard-files--delete    (nreverse delete))
-    (magit-discard-files--rename    (nreverse rename))
-    (magit-discard-files--discard   (nreverse discard)))
-  (magit-refresh))
+    (unwind-protect
+        (let ((inhibit-magit-refresh t))
+          (when resolve
+            (dolist (file (nreverse resolve))
+              (magit-checkout-stage file (magit-checkout-read-stage file))))
+          (magit-maybe-backup)
+          (magit-discard-files--resurrect (nreverse resurrect))
+          (magit-discard-files--delete    (nreverse delete))
+          (magit-discard-files--rename    (nreverse rename))
+          (magit-discard-files--discard   (nreverse discard)
+                                          (nreverse discard-new)))
+      (magit-refresh))))
 
 (defun magit-discard-files--resurrect (files)
   (when (magit-confirm-files 'resurrect files)
@@ -317,10 +320,29 @@ without requiring confirmation."
             (magit-call-git "rm" "--cached" "--" file)
             (magit-call-git "reset" "--" orig)))))))
 
-(defun magit-discard-files--discard (sections)
-  (when (magit-confirm-files 'discard (mapcar 'magit-section-value sections)
-                             (format "Discard %s changes in" (magit-diff-type)))
-    (mapc 'magit-discard-apply sections)))
+(defun magit-discard-files--discard (sections new-files)
+  (let ((files (mapcar #'magit-section-value sections)))
+    (when (magit-confirm-files
+           'discard (append files new-files)
+           (format "Discard %s changes in" (magit-diff-type)))
+      (if (eq (magit-diff-type (car sections)) 'unstaged)
+          (magit-call-git "checkout" "--" files)
+        (when new-files
+          (magit-call-git "add"   "--" new-files)
+          (magit-call-git "reset" "--" new-files))
+        (-if-let (binaries (magit-staged-binary-files))
+            (let ((text (--filter (not (member (magit-section-value it) binaries))
+                                  sections)))
+              (cl-destructuring-bind (unsafe safe)
+                  (let ((modified (magit-modified-files t)))
+                    (--separate (member it modified) binaries))
+                (mapc #'magit-discard-apply text)
+                (when safe
+                  (magit-call-git "reset" "--" safe))
+                (user-error
+                 (concat "Cannot discard staged changes to binary files, "
+                         "which also have unstaged changes.  Unstage instead."))))
+          (mapc #'magit-discard-apply sections))))))
 
 ;;;; Reverse
 
@@ -348,8 +370,13 @@ without requiring confirmation."
                section "--reverse"))))
 
 (defun magit-reverse-files (sections)
-  (when (magit-confirm-files 'reverse (mapcar 'magit-section-value sections))
-    (mapc 'magit-reverse-apply sections)))
+  (cl-destructuring-bind (binaries files)
+      (let ((binaries (magit-staged-binary-files)))
+        (--separate (member (magit-section-value it) binaries) sections))
+    (when (magit-confirm-files 'reverse files)
+      (mapc #'magit-reverse-apply files))
+    (when binaries
+      (user-error "Cannot reverse binary files"))))
 
 ;;; magit-apply.el ends soon
 (provide 'magit-apply)

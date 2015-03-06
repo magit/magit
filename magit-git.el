@@ -392,6 +392,12 @@ If the file is not inside a Git repository then return nil."
                    (and nomodules "--ignore-submodules")
                    (magit-headish)))
 
+(defun magit-staged-binary-files ()
+  (--mapcat (and (string-match "^-\t-\t\\(.+\\)" it)
+                 (list (match-string 1 it)))
+            (magit-git-items "diff" "-z" "--cached"
+                             "--numstat" "--ignore-submodules")))
+
 (defun magit-unmerged-files ()
   (magit-git-items "diff-files" "-z" "--name-only" "--diff-filter=U"))
 
