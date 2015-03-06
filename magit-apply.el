@@ -318,9 +318,25 @@ without requiring confirmation."
             (magit-call-git "reset" "--" orig)))))))
 
 (defun magit-discard-files--discard (sections)
-  (when (magit-confirm-files 'discard (mapcar 'magit-section-value sections)
-                             (format "Discard %s changes in" (magit-diff-type)))
-    (mapc 'magit-discard-apply sections)))
+  (let ((files (mapcar #'magit-section-value sections)))
+    (when (magit-confirm-files
+           'discard files
+           (format "Discard %s changes in" (magit-diff-type)))
+      (if (eq (magit-diff-type (car sections)) 'unstaged)
+          (magit-call-git "checkout" "--" files)
+        (-if-let (binaries (magit-staged-binary-files))
+            (let ((text (--filter (not (member (magit-section-value it) binaries))
+                                  sections)))
+              (cl-destructuring-bind (unsafe safe)
+                  (let ((modified (magit-modified-files t)))
+                    (--separate (member it modified) binaries))
+                (mapc #'magit-discard-apply text)
+                (when safe
+                  (magit-call-git "reset" "--" safe))
+                (user-error
+                 (concat "Cannot discard staged changes to binary files, "
+                         "which also have unstaged changes.  Unstage instead."))))
+          (mapc #'magit-discard-apply sections))))))
 
 ;;;; Reverse
 
