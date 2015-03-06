@@ -348,8 +348,13 @@ without requiring confirmation."
                section "--reverse"))))
 
 (defun magit-reverse-files (sections)
-  (when (magit-confirm-files 'reverse (mapcar 'magit-section-value sections))
-    (mapc 'magit-reverse-apply sections)))
+  (cl-destructuring-bind (binaries files)
+      (let ((binaries (magit-staged-binary-files)))
+        (--separate (member (magit-section-value it) binaries) sections))
+    (when (magit-confirm-files 'reverse files)
+      (mapc #'magit-reverse-apply files))
+    (when binaries
+      (user-error "Cannot reverse binary files"))))
 
 ;;; magit-apply.el ends soon
 (provide 'magit-apply)
