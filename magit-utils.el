@@ -48,7 +48,7 @@
 
 (eval-when-compile (require 'ido))
 (declare-function completing-read-ido 'ido-ubiquitous)
-(defvar ido-ubiquitous-next-override)
+(declare-function ido-ubiquitous-with-override 'ido-ubiquitous)
 
 (defvar magit-backup-mode)
 (defvar magit-backup-untracked)
@@ -291,6 +291,10 @@ from the `ido-ubiquitous' package."
          (ido-ubiquitous-mode t)
          ;; Ignore user customization.
          (ido-ubiquitous-allow-on-functional-collection t)
+         ;; Keep `completing-read-ido' from falling back to regular
+         ;; `completing-read'.
+         (ido-ubiquitous-next-override
+          (remove '(disable prefix "magit-") ido-ubiquitous-next-override))
          ;; `ido-ubiquitous' calls `enable-old' style a "quirk" but
          ;; it actually is an essential feature which we depend on.
          (reply (ido-ubiquitous-with-override 'enable-old
