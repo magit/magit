@@ -308,13 +308,14 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
               (?m "Search messages"         "--grep="   read-from-minibuffer)
               (?p "Search patches"          "-G"        read-from-minibuffer))
   :actions  '((?l "Log current"             magit-log-current)
-              (?b "Log all branches"        magit-log-branches)
+              (?L "Log local branches"      magit-log-branches)
               (?r "Reflog current"          magit-reflog-current)
               (?o "Log other"               magit-log)
-              (?a "Log all references"      magit-log-all)
+              (?b "Log all branches"        magit-log-all-branches)
               (?O "Reflog other"            magit-reflog)
               (?h "Log HEAD"                magit-log-head)
-              nil     (?H "Reflog HEAD"     magit-reflog-head)
+              (?a "Log all references"      magit-log-all)
+              (?H "Reflog HEAD"             magit-reflog-head)
               nil nil (?S "List stashes"    magit-stash-list)
               nil nil (?B "List backups"    magit-backup-list))
   :default-arguments '("--graph" "--decorate")
@@ -409,9 +410,17 @@ completion candidates."
 
 ;;;###autoload
 (defun magit-log-branches (&optional args files)
-  "Show log for all branches and `HEAD'."
+  "Show log for all local branches and `HEAD'."
   (interactive (magit-log-read-args nil t))
   (magit-log `(,(unless (magit-get-current-branch) "HEAD") "--branches")
+             args files))
+
+;;;###autoload
+(defun magit-log-all-branches (&optional args files)
+  "Show log for all local and remote branches and `HEAD'."
+  (interactive (magit-log-read-args nil t))
+  (magit-log `(,(unless (magit-get-current-branch) "HEAD")
+               "--branches" "--remotes")
              args files))
 
 ;;;###autoload
