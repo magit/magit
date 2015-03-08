@@ -403,7 +403,7 @@ This discards all changes made since the sequence started."
   (if (setq commit (magit-rebase-interactive-assert commit))
       (let ((process-environment process-environment))
         (setenv "GIT_SEQUENCE_EDITOR"
-                "perl -i -p -e '++$x if not $x and s/pick/edit/'")
+                "perl -i -p -e '++$x if not $x and s/^pick/edit/'")
         (magit-run-git-sequencer "rebase" "-i" (concat commit "^")))
     (magit-log-select #'magit-rebase-edit-commit)))
 
@@ -414,7 +414,7 @@ This discards all changes made since the sequence started."
   (if (setq commit (magit-rebase-interactive-assert commit))
       (let ((process-environment process-environment))
         (setenv "GIT_SEQUENCE_EDITOR"
-                "perl -i -p -e '++$x if not $x and s/pick/reword/'")
+                "perl -i -p -e '++$x if not $x and s/^pick/reword/'")
         (magit-run-git-sequencer "rebase" "-i" (concat commit "^")))
     (magit-log-select #'magit-rebase-reword-commit)))
 
