@@ -397,26 +397,32 @@ This discards all changes made since the sequence started."
          (magit-rebase-autosquash (concat commit "^") (list ,@args))))))
 
 ;;;###autoload
-(defun magit-rebase-edit-commit (commit)
+(defun magit-rebase-edit-commit (commit &optional args)
   "Edit a single older commit using rebase."
-  (interactive (list (magit-commit-at-point)))
+  (interactive (list (magit-commit-at-point)
+                     (magit-rebase-arguments)))
   (if (setq commit (magit-rebase-interactive-assert commit))
       (let ((process-environment process-environment))
         (setenv "GIT_SEQUENCE_EDITOR"
                 "perl -i -p -e '++$x if not $x and s/^pick/edit/'")
-        (magit-run-git-sequencer "rebase" "-i" (concat commit "^")))
-    (magit-log-select #'magit-rebase-edit-commit)))
+        (magit-run-git-sequencer "rebase" "-i" (concat commit "^") args))
+    (magit-log-select
+      `(lambda (commit)
+         (magit-rebase-edit-commit commit (list ,@args))))))
 
 ;;;###autoload
-(defun magit-rebase-reword-commit (commit)
+(defun magit-rebase-reword-commit (commit &optional args)
   "Reword a single older commit using rebase."
-  (interactive (list (magit-commit-at-point)))
+  (interactive (list (magit-commit-at-point)
+                     (magit-rebase-arguments)))
   (if (setq commit (magit-rebase-interactive-assert commit))
       (let ((process-environment process-environment))
         (setenv "GIT_SEQUENCE_EDITOR"
                 "perl -i -p -e '++$x if not $x and s/^pick/reword/'")
-        (magit-run-git-sequencer "rebase" "-i" (concat commit "^")))
-    (magit-log-select #'magit-rebase-reword-commit)))
+        (magit-run-git-sequencer "rebase" "-i" (concat commit "^") args))
+    (magit-log-select
+      `(lambda (commit)
+         (magit-rebase-reword-commit commit (list ,@args))))))
 
 (defun magit-rebase-interactive-assert (commit)
   (when commit
