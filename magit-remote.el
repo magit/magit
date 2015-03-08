@@ -253,6 +253,7 @@ branch as default."
               (?r "In reply to"      "--in-reply-to=")
               (?v "Reroll count"     "--reroll-count=")
               (?s "Thread style"     "--thread=")
+              (?S "Subject Prefix"   "--subject-prefix=")
               (?U "Context lines"    "-U")
               (?M "Detect renames"   "-M")
               (?C "Detect copies"    "-C")
