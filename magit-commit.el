@@ -94,7 +94,7 @@ an error while using those is harder to recover from."
               (?f "Fixup"          magit-commit-fixup)
               (?F "Instant Fixup"  magit-commit-instant-fixup)
               (?a "Amend"          magit-commit-amend)
-              (?r "Reword"         magit-commit-reword)
+              (?w "Reword"         magit-commit-reword)
               (?s "Squash"         magit-commit-squash)
               (?S "Instant Squash" magit-commit-instant-squash))
   :max-action-columns 4
