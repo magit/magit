@@ -359,6 +359,7 @@ This discards all changes made since the sequence started."
                       "Rebase to"
                       (magit-get-current-branch)
                       (magit-get-tracked-branch))
+                     nil
                      (magit-rebase-arguments)))
   (if upstream
       (progn (message "Rebasing...")
@@ -366,7 +367,7 @@ This discards all changes made since the sequence started."
              (message "Rebasing...done"))
     (magit-log-select
       `(lambda (commit)
-         (magit-rebase-onto ,newbase (concat commit "^") ,args)))))
+         (magit-rebase-onto ,newbase (concat commit "^") (list ,@args))))))
 
 ;;;###autoload
 (defun magit-rebase-interactive (commit &optional args)
