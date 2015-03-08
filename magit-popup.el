@@ -436,10 +436,10 @@ usually specified in that order):
   Actions are regular Emacs commands, which usually have an
   `interactive' form setup to consume the values of the popup
   `:switches' and `:options' when invoked from the corresponding
-  popup, else when invoked as the default action or directrly
+  popup, else when invoked as the default action or directly
   without using the popup, the default value of the variable
-  `SHORTNAME-arguments'.  This is usually done using by calling
-  the function`SHORTNAME-arguments'.
+  `SHORTNAME-arguments'.  This is usually done by calling the
+  function`SHORTNAME-arguments'.
 
   Members of VALUE may also be strings may, assuming the first
   member is also a string.  Instead of just one action section
@@ -478,7 +478,7 @@ usually specified in that order):
 `:options'
   The popup arguments which take a value, as in \"--opt=OPTVAL\".
   VALUE is a list whose members have the form (KEY DESC OPTION
-  READER), see `magit-define-popup-option' for defails.
+  READER), see `magit-define-popup-option' for details.
 
 `:default-arguments'
   The default arguments, a list of switches (which are then
