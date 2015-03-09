@@ -282,8 +282,8 @@ branch as default."
   "Emails patches for range. Prompts for To and Cc fields."
   (interactive
    (list (magit-read-range-or-commit "Files, directories, rev-lists")
-         (magit-read-repeated-options "To email,s: " "--to=")
-         (magit-read-repeated-options "Cc email,s: " "--cc=")
+         (magit-read-repeated-options "To email,s" "--to=")
+         (magit-read-repeated-options "Cc email,s" "--cc=")
          (magit-patch-arguments)))
   (magit-run-git "send-email" range to cc args))
 

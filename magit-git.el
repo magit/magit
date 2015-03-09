@@ -983,13 +983,15 @@ Return a list of two integers: (A>B B>A)."
 (defun magit-read-repeated-options (prompt &optional option)
   "Read multiple comma-separated strings and repeat option for each.
 
-PROMPT is prepended to each token in the split input string in
-addition to being used as the prompt.
+PROMPT is concatenated with a colon and passed to read-from-minibuffer.
+
+OPTION is prepended to each token of the split string, resulting
+in repeating options. If not given, prompt is used instead.
 
 If the empty string is given, no options are returned."
   (mapcar (lambda (x) (and (not (string= "" x))
                            (concat (or option prompt) x)))
-          (split-string (read-from-minibuffer prompt) ",")))
+          (split-string (read-from-minibuffer (concat prompt ": ")) ",")))
 
 ;;; Variables
 
