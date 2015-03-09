@@ -980,6 +980,17 @@ Return a list of two integers: (A>B B>A)."
                                  (magit-remote-at-point)
                                  (magit-get-remote))))))
 
+(defun magit-read-repeated-options (prompt &optional option)
+  "Read multiple comma-separated strings and repeat option for each.
+
+PROMPT is prepended to each token in the split input string in
+addition to being used as the prompt.
+
+If the empty string is given, no options are returned."
+  (mapcar (lambda (x) (and (not (string= "" x))
+                           (concat (or option prompt) x)))
+          (split-string (read-from-minibuffer prompt) ",")))
+
 ;;; Variables
 
 (defun magit-get (&rest keys)

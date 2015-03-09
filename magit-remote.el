@@ -282,19 +282,10 @@ branch as default."
   "Emails patches for range. Prompts for To and Cc fields."
   (interactive
    (list (magit-read-range-or-commit "Files, directories, rev-lists")
-         (magit-remote-read-emails "To" "to")
-         (magit-remote-read-emails "Cc" "cc")
+         (magit-read-repeated-options "To email,s: " "--to=")
+         (magit-read-repeated-options "Cc email,s: " "--cc=")
          (magit-patch-arguments)))
   (magit-run-git "send-email" range to cc args))
-
-(defun magit-remote-read-emails (prompt option)
-  "Read multiple comma-separated emails and repeat option for each.
-
-PROMPT is the string preprended to ' email,s: ' for 'To email,s: '.
-OPTION is the string inserted between '--' and '=' for '--to='."
-  (mapcar (lambda (email) (and (not (string= "" email))
-                               (concat "--" option "=" email)))
-          (split-string (read-from-minibuffer (concat prompt " email,s: ")) ",")))
 
 ;;;###autoload
 (defun magit-request-pull (url start end)
