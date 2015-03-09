@@ -766,7 +766,8 @@ Return a list of two integers: (A>B B>A)."
   (format "--abbrev=%d" (magit-abbrev-length)))
 
 (defun magit-commit-parents (commit)
-  (cdr (split-string (magit-git-string "rev-list" "-1" "--parents" commit))))
+  (--when-let (magit-git-string "rev-list" "-1" "--parents" commit)
+    (cdr (split-string it))))
 
 (defun magit-assert-one-parent (commit command)
   (when (> (length (magit-commit-parents commit)) 1)
