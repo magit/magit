@@ -41,6 +41,8 @@
 
 (defvar magit-tramp-process-environment nil)
 
+(require 'crm)
+
 ;;; Options
 
 ;; For now this is shared between `magit-process' and `magit-git'.
