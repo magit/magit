@@ -439,7 +439,7 @@ usually specified in that order):
   popup, else when invoked as the default action or directly
   without using the popup, the default value of the variable
   `SHORTNAME-arguments'.  This is usually done by calling the
-  function`SHORTNAME-arguments'.
+  function `SHORTNAME-arguments'.
 
   Members of VALUE may also be strings may, assuming the first
   member is also a string.  Instead of just one action section
