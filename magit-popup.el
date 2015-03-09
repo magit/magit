@@ -1048,7 +1048,7 @@ in the popup."
   (nconc (magit-popup-format-action-button
           type (make-magit-popup-event :key (car  elt)
                                        :dsc (cadr elt)))
-         (list 'function (cadr elt))))
+         (list 'function (lookup-key (current-local-map) (car elt)))))
 
 ;;; magit-popup.el ends soon
 
