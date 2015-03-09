@@ -256,8 +256,9 @@ make it impossible to invoke certain actions.")
   'supertype 'magit-popup-action-button
   'formatter 'magit-popup-format-command-button
   'action    (lambda (button)
-               (call-interactively
-                (button-get button 'function))))
+               (let ((command (button-get button 'function)))
+                 (unless (eq command 'push-button)
+                   (call-interactively command)))))
 
 (define-button-type 'magit-popup-internal-command-button
   'supertype 'magit-popup-command-button
