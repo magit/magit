@@ -989,9 +989,8 @@ OPTION is prepended to each token of the split string, resulting
 in repeating options. If not given, prompt is used instead.
 
 If the empty string is given, no options are returned."
-  (mapcar (lambda (x) (and (not (string= "" x))
-                           (concat (or option prompt) x)))
-          (split-string (read-from-minibuffer (concat prompt ": ")) ",")))
+  (mapcar (lambda (x) (concat (or option prompt) x))
+          (completing-read-multiple (concat prompt ": ") nil nil nil)))
 
 ;;; Variables
 
