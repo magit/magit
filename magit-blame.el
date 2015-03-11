@@ -348,14 +348,14 @@ only arguments available from `magit-blame-popup' should be used.
                          magit-blame-time-format
                          (plist-get chunk :author-time)
                          (plist-get chunk :author-tz))
-                        'face 'magit-blame-time))
+                        'face 'magit-blame-date))
      (?c . ,(propertize (plist-get chunk :committer)
                         'face 'magit-blame-name))
      (?C . ,(propertize (magit-blame-format-time-string
                          magit-blame-time-format
                          (plist-get chunk :committer-time)
                          (plist-get chunk :committer-tz))
-                        'face 'magit-blame-time)))))
+                        'face 'magit-blame-date)))))
 
 (defun magit-blame-format-time-string (format time tz)
   (format-time-string
