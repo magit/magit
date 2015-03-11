@@ -124,7 +124,7 @@ and then turned on again when turning on the latter."
 
 (define-minor-mode magit-blame-mode
   "Display blame information inline."
-  :lighter 'magit-blame-mode-lighter
+  :lighter magit-blame-mode-lighter
   (cond (magit-blame-mode
          (setq magit-blame-buffer-read-only buffer-read-only)
          (if (fboundp 'read-only-mode)
