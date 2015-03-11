@@ -117,7 +117,7 @@ that without users being aware of it could lead to tears.
            When the default action is invoked like this, then the
            prefix and infix arguments might be passed on verbatim
            or modified.  How exactly this happens is still subject
-           to change.  If it seems to dangerous that the behavior
+           to change.  If it seems too dangerous that the behavior
            might change at any time, then use `nil' for now.
 
 `popup'    With a prefix argument bring up the popup, otherwise
