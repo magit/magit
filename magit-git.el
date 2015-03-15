@@ -989,8 +989,8 @@ OPTION is prepended to each token of the split string, resulting
 in repeating options. If not given, prompt is used instead.
 
 If the empty string is given, no options are returned."
-  (mapcar (lambda (x) (concat (or option prompt) x))
-          (completing-read-multiple (concat prompt ": ") nil nil nil)))
+  (--map (concat (or option prompt) it)
+         (completing-read-multiple (concat prompt ": ") nil nil nil)))
 
 ;;; Variables
 
