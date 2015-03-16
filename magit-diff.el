@@ -406,9 +406,10 @@ The following `format'-like specs are supported:
   :switches '((?f "Show surrounding functions" "--function-context")
               (?b "Ignore whitespace changes"  "--ignore-space-change")
               (?w "Ignore all whitespace"      "--ignore-all-space"))
-  :options  '((?u "Context lines"  "-U" read-from-minibuffer)
-              (?m "Detect renames" "-M" read-from-minibuffer)
-              (?c "Detect copies"  "-C" read-from-minibuffer)
+  :options  '((?f "Limit to files" "-- " magit-read-files)
+              (?u "Context lines"  "-U"  read-from-minibuffer)
+              (?m "Detect renames" "-M"  read-from-minibuffer)
+              (?c "Detect copies"  "-C"  read-from-minibuffer)
               (?a "Diff algorithm" "--diff-algorithm="
                   magit-diff-select-algorithm))
   :actions  '((?d "Dwim"          magit-diff-dwim)
@@ -421,6 +422,16 @@ The following `format'-like specs are supported:
               (?w "Diff worktree" magit-diff-working-tree))
   :default-action 'magit-diff-dwim
   :max-action-columns 3)
+
+(defun magit-diff-read-args (&optional no-files)
+  (let* ((args  (magit-diff-arguments))
+         (files (--first (string-prefix-p "-- " it) args)))
+    (when files
+      (setq args  (delete files args)
+            files (split-string (substring files 3) ",")))
+    (if no-files
+        (list args)
+      (list args files))))
 
 (with-no-warnings
 (magit-define-popup magit-diff-refresh-popup
@@ -459,9 +470,9 @@ different function to be used under certain circumstances.
 If you do change the global value this might lead to problems.")
 
 ;;;###autoload
-(defun magit-diff-dwim (&optional args)
+(defun magit-diff-dwim (&optional args files)
   "Show changes for the thing at point."
-  (interactive (list (magit-diff-arguments)))
+  (interactive (magit-diff-read-args))
   (--when-let (magit-current-section)
     (let ((value (magit-section-value it)))
       (magit-section-case
@@ -477,61 +488,61 @@ If you do change the global value this might lead to problems.")
         (t        (call-interactively 'magit-diff))))))
 
 ;;;###autoload
-(defun magit-diff (range &optional args)
+(defun magit-diff (range &optional args files)
     "Show differences between two commits.
 RANGE should be a range (A..B or A...B) but can also be a single
 commit.  If one side of the range is omitted, then it defaults
 to HEAD.  If just a commit is given, then changes in the working
 tree relative to that commit are shown."
-  (interactive (list (magit-read-range-or-commit "Diff for range")
-                     (magit-diff-arguments)))
+  (interactive (cons (magit-read-range-or-commit "Diff for range")
+                     (magit-diff-read-args)))
   (magit-mode-setup magit-diff-buffer-name-format
                     magit-diff-switch-buffer-function
                     #'magit-diff-mode
-                    #'magit-diff-refresh-buffer range args))
+                    #'magit-diff-refresh-buffer range args files))
 
 ;;;###autoload
-(defun magit-diff-working-tree (&optional rev args)
+(defun magit-diff-working-tree (&optional rev args files)
   "Show changes between the current working tree and the `HEAD' commit.
 With a prefix argument show changes between the working tree and
 a commit read from the minibuffer."
   (interactive
-   (list (and current-prefix-arg
+   (cons (and current-prefix-arg
               (magit-read-branch-or-commit "Diff working tree and commit"))
-         (magit-diff-arguments)))
-  (magit-diff (or rev "HEAD") args))
+         (magit-diff-read-args)))
+  (magit-diff (or rev "HEAD") args files))
 
 ;;;###autoload
-(defun magit-diff-staged (&optional rev args)
+(defun magit-diff-staged (&optional rev args files)
   "Show changes between the index and the `HEAD' commit.
 With a prefix argument show changes between the index and
 a commit read from the minibuffer."
   (interactive
-   (list (and current-prefix-arg
+   (cons (and current-prefix-arg
               (magit-read-branch-or-commit "Diff index and commit"))
-         (magit-diff-arguments)))
+         (magit-diff-read-args)))
   (magit-diff rev (cons "--cached" args)))
 
 ;;;###autoload
-(defun magit-diff-unstaged (&optional args)
+(defun magit-diff-unstaged (&optional args files)
   "Show changes between the working tree and the index."
-  (interactive (list (magit-diff-arguments)))
-  (magit-diff nil args))
+  (interactive (magit-diff-read-args))
+  (magit-diff nil args files))
 
 ;;;###autoload
-(defun magit-diff-unpushed (&optional args)
+(defun magit-diff-unpushed (&optional args files)
   "Show unpushed changes."
-  (interactive (list (magit-diff-arguments)))
+  (interactive (magit-diff-read-args))
   (-if-let (tracked (magit-get-tracked-ref))
-      (magit-diff (concat tracked "...") args)
+      (magit-diff (concat tracked "...") args files)
     (error "Detached HEAD or upstream unset")))
 
 ;;;###autoload
-(defun magit-diff-unpulled (&optional args)
+(defun magit-diff-unpulled (&optional args files)
   "Show unpulled changes."
-  (interactive (list (magit-diff-arguments)))
+  (interactive (magit-diff-read-args))
   (-if-let (tracked (magit-get-tracked-ref))
-      (magit-diff (concat "..." tracked) args)
+      (magit-diff (concat "..." tracked) args files)
     (error "Detached HEAD or upstream unset")))
 
 ;;;###autoload
@@ -540,7 +551,7 @@ a commit read from the minibuffer."
 While amending, invoking the command again toggles between
 showing just the new changes or all the changes that will
 be commited."
-  (interactive (list (magit-diff-arguments)))
+  (interactive (magit-diff-read-args t))
   (let* ((toplevel (magit-get-top-dir))
          (diff-buf (magit-mode-get-buffer magit-diff-buffer-name-format
                                           'magit-diff-mode toplevel)))
@@ -592,11 +603,11 @@ for a commit."
                        mcommit
                        (magit-branch-or-commit-at-point)
                        (magit-tag-at-point))))
-     (list (or (and (not current-prefix-arg) atpoint)
-               (magit-read-branch-or-commit "Show commit" atpoint))
-           nil (and mcommit (magit-section-parent-value
-                             (magit-current-section)))
-           (magit-diff-arguments))))
+     (nconc (list (or (and (not current-prefix-arg) atpoint)
+                      (magit-read-branch-or-commit "Show commit" atpoint))
+                  nil (and mcommit (magit-section-parent-value
+                                    (magit-current-section))))
+            (magit-diff-read-args t))))
   (let ((default-directory (if module
                                (file-name-as-directory
                                 (expand-file-name module (magit-get-top-dir)))
@@ -907,19 +918,25 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
   :group 'magit-diff
   (hack-dir-local-variables-non-file-buffer))
 
-(defun magit-diff-refresh-buffer (range &optional args)
+(defun magit-diff-refresh-buffer (range &optional args files)
   (magit-insert-section (diffbuf)
     (magit-insert-heading
-      (if range
-          (if (string-match-p "\\.\\." range)
-              (format "Changes in %s" range)
-            (format "Changes from %s to working tree" range))
-        (if (member "--cached" args)
-            "Staged changes"
-          "Unstaged changes")))
+      (concat (if range
+                  (if (string-match-p "\\.\\." range)
+                      (format "Changes in %s" range)
+                    (format "Changes from %s to working tree" range))
+                (if (member "--cached" args)
+                    "Staged changes"
+                  "Unstaged changes"))
+              (pcase (length files)
+                (0)
+                (1 (concat " in file " (car files)))
+                (_ (concat " in files " (mapconcat #'identity files ", "))))))
     (magit-git-wash #'magit-diff-wash-diffs
       "diff" "-p" (and magit-diff-show-diffstat "--stat")
-      range args "--no-prefix" (and (not (member "--" args)) "--"))))
+      range args "--no-prefix"
+      (and (not (member "--" args))
+           (list "--" files)))))
 
 (defvar magit-file-section-map
   (let ((map (make-sparse-keymap)))
