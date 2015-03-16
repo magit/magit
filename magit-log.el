@@ -303,7 +303,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
               (?u "Show diffs"              "--patch")
               (?s "Show diffstats"          "--stat")
               (?D "Simplify by decoration"  "--simplify-by-decoration"))
-  :options  '((?f "Limit to files"          "-- "       magit-log-read-files)
+  :options  '((?f "Limit to files"          "-- "       magit-read-files)
               (?a "Limit to author"         "--author=" read-from-minibuffer)
               (?m "Search messages"         "--grep="   read-from-minibuffer)
               (?p "Search patches"          "-G"        read-from-minibuffer))
@@ -365,11 +365,6 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
           (or (setq input default)
               (user-error "Nothing selected")))
         (split-string input "[, ]" t))))
-
-(defun magit-log-read-files (_ignored initial-contents)
-  (mapconcat 'identity
-             (completing-read-multiple "File,s: " (magit-list-files)
-                                       nil nil initial-contents) ","))
 
 ;;;###autoload
 (defun magit-log-current (revs &optional args files)

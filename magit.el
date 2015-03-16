@@ -1377,6 +1377,12 @@ If FILE isn't tracked in Git fallback to using `delete-file'."
                                             (magit-file-relative-name))
                                         choices)))))
 
+(defun magit-read-files (prompt initial-contents)
+  (mapconcat 'identity
+             (completing-read-multiple (or prompt "File,s: ")
+                                       (magit-list-files)
+                                       nil nil initial-contents) ","))
+
 ;;; Miscellaneous
 ;;;; Tag
 
