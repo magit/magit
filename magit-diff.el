@@ -581,7 +581,10 @@ be commited."
   "Show changes between any two files on disk."
   (interactive (list (read-file-name "First file: " nil nil t)
                      (read-file-name "Second file: " nil nil t)))
-  (magit-diff nil (list "--no-index" "--" a b)))
+  (magit-diff nil
+              (list "--no-index")
+              (list (expand-file-name a)
+                    (expand-file-name b))))
 
 (defvar-local magit-diff-hidden-files nil)
 (put 'magit-diff-hidden-files 'permanent-local t)
@@ -933,10 +936,8 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
                 (1 (concat " in file " (car files)))
                 (_ (concat " in files " (mapconcat #'identity files ", "))))))
     (magit-git-wash #'magit-diff-wash-diffs
-      "diff" "-p" (and magit-diff-show-diffstat "--stat")
-      range args "--no-prefix"
-      (and (not (member "--" args))
-           (list "--" files)))))
+      "diff" range "-p" (and magit-diff-show-diffstat "--stat")
+      "--no-prefix" args "--" files)))
 
 (defvar magit-file-section-map
   (let ((map (make-sparse-keymap)))
