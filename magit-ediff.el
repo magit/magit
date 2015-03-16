@@ -60,15 +60,17 @@ FILE has to be relative to the top directory of the repository."
                                 (magit-tracked-files) nil nil nil
                                 (magit-current-file))))
   (let* ((conf (current-window-configuration))
-         (bufA (magit-get-revision-buffer "HEAD" file))
-         (bufB (get-buffer (concat file ".~{index}~")))
+         (bufA (or (magit-get-revision-buffer "HEAD" file)
+                   (magit-find-file-noselect "HEAD" file)))
+         (bufB (or (get-buffer (concat file ".~{index}~"))
+                   (magit-find-file-index-noselect file)))
          (bufBrw (and bufB (with-current-buffer bufB
-                             (not buffer-read-only))))
-         (bufC (get-file-buffer file)))
+                             (prog1 (not buffer-read-only)
+                               (setq buffer-read-only nil)))))
+         (bufC (or (get-file-buffer file)
+                   (find-file-noselect file))))
     (ediff-buffers3
-     (or bufA (magit-find-file-noselect "HEAD" file))
-     (or bufB (magit-find-file-index-noselect file))
-     (or bufC (find-file-noselect file))
+     bufA bufB bufC
      `((lambda ()
          (add-hook
           'ediff-quit-hook
