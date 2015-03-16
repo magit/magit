@@ -980,17 +980,23 @@ Return a list of two integers: (A>B B>A)."
                                  (magit-remote-at-point)
                                  (magit-get-remote))))))
 
-(defun magit-read-repeated-options (prompt &optional option)
-  "Read multiple comma-separated strings and repeat option for each.
+(defun magit-repeat-options (opt &optional required)
+  "Convert --opt=a,b,c into --opt=a --opt=b --opt=c.
 
-PROMPT is concatenated with a colon and passed to read-from-minibuffer.
+When called within a popup, this retrieves the current arguments
+matching OPT and repeats the option for each comma-separated
+value given to the argument.  The argument may be specified
+multiple times.
 
-OPTION is prepended to each token of the split string, resulting
-in repeating options. If not given, prompt is used instead.
-
-If the empty string is given, no options are returned."
-  (--map (concat (or option prompt) it)
-         (completing-read-multiple (concat prompt ": ") nil nil nil)))
+OPT is the option '--opt='
+REQUIRED will cause a 'user-error' if the option is not specified"
+  (let ((args (--mapcat (split-string it ",") (magit-current-popup-args opt))))
+    (when (and (not args) required)
+      (user-error "Required option %s not specified" opt))
+    (setq magit-current-popup-args
+          (--remove (-contains? (magit-current-popup-args opt) it)
+                    magit-current-popup-args))
+    (--map (if (string-prefix-p opt it) it (concat opt it)) args)))
 
 ;;; Variables
 
