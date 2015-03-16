@@ -434,21 +434,21 @@ The following `format'-like specs are supported:
       (list args files))))
 
 (with-no-warnings
-(magit-define-popup magit-diff-refresh-popup
-  "Popup console for changing diff arguments in the current buffer."
-  'magit-diff nil 'magit-diff-section-arguments
-  :man-page "git-diff"
-  :switches '((?f "Show surrounding functions" "--function-context")
-              (?b "Ignore whitespace changes"  "--ignore-space-change")
-              (?w "Ignore all whitespace"      "--ignore-all-space"))
-  :options  '((?u "Context lines"  "-U" read-from-minibuffer)
-              (?m "Detect renames" "-M" read-from-minibuffer)
-              (?c "Detect copies"  "-C" read-from-minibuffer)
-              (?a "Diff algorithm" "--diff-algorithm="
-                  magit-diff-select-algorithm))
-  :actions  '((?g "Refresh"       magit-diff-refresh)
-              (?s "Set defaults"  magit-diff-set-default-arguments)
-              (?w "Save defaults" magit-diff-save-default-arguments))))
+  (magit-define-popup magit-diff-refresh-popup
+    "Popup console for changing diff arguments in the current buffer."
+    'magit-diff nil 'magit-diff-section-arguments
+    :man-page "git-diff"
+    :switches '((?f "Show surrounding functions" "--function-context")
+                (?b "Ignore whitespace changes"  "--ignore-space-change")
+                (?w "Ignore all whitespace"      "--ignore-all-space"))
+    :options  '((?u "Context lines"  "-U" read-from-minibuffer)
+                (?m "Detect renames" "-M" read-from-minibuffer)
+                (?c "Detect copies"  "-C" read-from-minibuffer)
+                (?a "Diff algorithm" "--diff-algorithm="
+                    magit-diff-select-algorithm))
+    :actions  '((?g "Refresh"       magit-diff-refresh)
+                (?s "Set defaults"  magit-diff-set-default-arguments)
+                (?w "Save defaults" magit-diff-save-default-arguments))))
 
 (defadvice magit-diff-refresh-popup (around get-current-arguments activate)
   (if (derived-mode-p 'magit-diff-mode)
