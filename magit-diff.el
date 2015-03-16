@@ -924,17 +924,19 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
 (defun magit-diff-refresh-buffer (range &optional args files)
   (magit-insert-section (diffbuf)
     (magit-insert-heading
-      (concat (if range
-                  (if (string-match-p "\\.\\." range)
-                      (format "Changes in %s" range)
-                    (format "Changes from %s to working tree" range))
-                (if (member "--cached" args)
-                    "Staged changes"
-                  "Unstaged changes"))
-              (pcase (length files)
-                (0)
-                (1 (concat " in file " (car files)))
-                (_ (concat " in files " (mapconcat #'identity files ", "))))))
+      (if (member "--no-index" args)
+          (apply #'format "Differences between %s and %s" files)
+        (concat (if range
+                    (if (string-match-p "\\.\\." range)
+                        (format "Changes in %s" range)
+                      (format "Changes from %s to working tree" range))
+                  (if (member "--cached" args)
+                      "Staged changes"
+                    "Unstaged changes"))
+                (pcase (length files)
+                  (0)
+                  (1 (concat " in file " (car files)))
+                  (_ (concat " in files " (mapconcat #'identity files ", ")))))))
     (magit-git-wash #'magit-diff-wash-diffs
       "diff" range "-p" (and magit-diff-show-diffstat "--stat")
       "--no-prefix" args "--" files)))
