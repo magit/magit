@@ -448,7 +448,8 @@ The following `format'-like specs are supported:
                     magit-diff-select-algorithm))
     :actions  '((?g "Refresh"       magit-diff-refresh)
                 (?s "Set defaults"  magit-diff-set-default-arguments)
-                (?w "Save defaults" magit-diff-save-default-arguments))))
+                (?w "Save defaults" magit-diff-save-default-arguments)
+                (?t "Toggle hunk refinement" magit-diff-toggle-refine-hunk))))
 
 (defadvice magit-diff-refresh-popup (around get-current-arguments activate)
   (if (derived-mode-p 'magit-diff-mode)
