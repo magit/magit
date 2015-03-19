@@ -3,7 +3,6 @@ datarootdir ?= $(PREFIX)/share
 lispdir ?= $(datarootdir)/emacs/site-lisp/magit
 infodir ?= $(datarootdir)/info
 docdir  ?= $(datarootdir)/doc/magit
-execdir ?= $(PREFIX)/bin
 
 LOADDEFS_FILE ?= magit-autoloads.el
 LOADDEFS_DIR  ?= $(lispdir)
@@ -11,14 +10,10 @@ LOADDEFS_DIR  ?= $(lispdir)
 ELS  = magit.el
 ELS += magit-blame.el
 ELS += magit-key-mode.el
-ELS += magit-stgit.el
-ELS += magit-svn.el
-ELS += magit-topgit.el
 ELS += magit-wip.el
 ELCS = $(ELS:.el=.elc)
 
 CP    ?= install -p -m 644
-CPBIN ?= install -p -m 755
 MKDIR ?= install -p -m 755 -d
 RMDIR ?= rm -rf
 
@@ -66,7 +61,6 @@ help:
 	$(info make install          - install elisp files and documentation)
 	$(info make install-lisp     - install elisp files)
 	$(info make install-docs     - install documentation)
-	$(info make install-script   - install shell script)
 	$(info make install-all      - install elisp files, script, and docs)
 	$(info )
 	$(info Test)
@@ -221,7 +215,7 @@ authors: AUTHORS.md
 install: install-lisp install-docs
 
 .PHONY: install-all
-install-all: install-lisp install-docs install-script
+install-all: install-lisp install-docs
 
 .PHONY: install-lisp
 install-lisp: lisp
@@ -237,11 +231,6 @@ install-docs: docs
 	$(INSTALL_INFO) --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/magit.info
 	$(MKDIR) $(DESTDIR)$(docdir)
 	$(CP) AUTHORS.md $(DESTDIR)$(docdir)
-
-.PHONY: install-script
-install-script: bin/magit
-	$(MKDIR) $(DESTDIR)$(execdir)
-	$(CPBIN) bin/magit $(DESTDIR)$(execdir)
 
 .PHONY: test
 test: $(ELCS)
@@ -277,7 +266,6 @@ dist: magit-$(VERSION).tar.gz
 magit-$(VERSION).tar.gz: $(DIST_FILES)
 	$(MKDIR) magit-$(VERSION)/bin
 	$(CP) $(DIST_FILES) magit-$(VERSION)
-	$(CPBIN) $(DIST_FILES_BIN) magit-$(VERSION)/bin
 	tar -cvz --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar.gz magit-$(VERSION)
 	$(RMDIR) magit-$(VERSION)
 

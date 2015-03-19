@@ -216,9 +216,6 @@ dependencies and install them manually.
 The following libraries build on third-party tools or git subcommands
 that are not installed by the Git base-package on some distributions:
 
-* `magit-stgit.el` requires [`stgit`][stgit].
-* `magit-svn.el` requires the official Git subcommand `svn`.
-* `magit-topgit.el` requires [`topgit`][topgit].
 * `magit-wip.el` requires [`git-wip`][git-wip].
 
 ### Dependencies of Tests
@@ -266,6 +263,4 @@ To run tests the following libraries are also required:
 [mastering-intro]: http://www.masteringemacs.org/article/introduction-magit-emacs-mode-git
 [melpa]: http://melpa.milkbox.net
 [melpa-intro]: http://melpa.milkbox.net/#/getting-started
-[stgit]: http://www.procode.org/stgit
-[topgit]: https://github.com/greenrd/topgit
 [vc]: http://www.gnu.org/software/emacs/manual/html_node/emacs/Version-Control.html
