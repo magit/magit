@@ -156,7 +156,9 @@ ignored) files.
       (magit-run-git "add" "--" files))
     (dolist (repo repos)
       (save-excursion
-        (goto-char (magit-section-start repo))
+        (goto-char (magit-section-start
+                    (magit-get-section
+                     `((file . ,repo) (untracked) (status)))))
         (call-interactively 'magit-submodule-add)))))
 
 ;;;; Unstage
