@@ -2,6 +2,7 @@
 *~
 /.dir-locals.el
 /dir
+/magit.info
 /magit-*.tar
 /magit-*.tar.gz
 /magit-autoloads.el
