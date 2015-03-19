@@ -1,7 +1,6 @@
 *.elc
 *~
 /.dir-locals.el
-/.mailmap
 /debian/
 /dir
 /magit-*.tar
