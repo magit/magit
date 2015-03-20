@@ -173,8 +173,7 @@ See #1731."
               (?M "Detect lines moved or copied between files" "-M" read-number))
   :actions  '((?b "Blame" magit-blame))
   :default-arguments '("-w")
-  :default-action 'magit-blame
-  :use-prefix 'popup)
+  :default-action 'magit-blame)
 
 ;;;###autoload
 (defun magit-blame (revision file &optional args line)
