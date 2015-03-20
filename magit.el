@@ -2432,9 +2432,9 @@ involving HEAD."
   (let ((beg (magit-read-rev (format "%s range or start" op) def-beg)))
     (save-match-data
       (if (string-match "^\\(.+\\)\\.\\.\\(.+\\)$" beg)
-          (cons (match-string 1 beg) (match-string 2 beg))
+          (match-string 0 beg)
         (let ((end (magit-read-rev (format "%s end" op) def-end nil t)))
-          (if end (cons beg end) beg))))))
+          (if end (concat beg ".." end) beg))))))
 
 (defun magit-read-stash (prompt)
   (let ((n (read-number prompt 0))
@@ -6213,13 +6213,10 @@ to test.  This command lets Git choose a different one."
 ;;;###autoload
 (defun magit-log (&optional range)
   (interactive)
-  (cond ((not range) (setq range "HEAD"))
-        ;; Forward compatibility kludge.
-        ((listp range) (setq range (car range))))
   (magit-mode-setup magit-log-buffer-name nil
                     #'magit-log-mode
                     #'magit-refresh-log-buffer
-                    'oneline range magit-custom-options))
+                    'oneline (or range "HEAD") magit-custom-options))
 
 ;;;###autoload
 (defun magit-log-ranged (range)
@@ -6229,11 +6226,10 @@ to test.  This command lets Git choose a different one."
 ;;;###autoload
 (defun magit-log-long (&optional range)
   (interactive)
-  (unless range (setq range "HEAD"))
   (magit-mode-setup magit-log-buffer-name nil
                     #'magit-log-mode
                     #'magit-refresh-log-buffer
-                    'long range magit-custom-options))
+                    'long (or range "HEAD") magit-custom-options))
 
 ;;;###autoload
 (defun magit-log-long-ranged (range)
