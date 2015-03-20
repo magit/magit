@@ -390,7 +390,7 @@ If the file is not inside a Git repository then return nil."
                    (and nomodules "--ignore-submodules")))
 
 (defun magit-staged-files (&optional nomodules)
-  (magit-git-items "diff-index" "-z" "--name-only"
+  (magit-git-items "diff-index" "-z" "--name-only" "--cached"
                    (and nomodules "--ignore-submodules")
                    (magit-headish)))
 
