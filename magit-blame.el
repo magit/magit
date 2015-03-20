@@ -52,6 +52,12 @@
   :group 'magit-blame
   :type 'string)
 
+(defcustom magit-blame-detect-copies-moves nil
+  "Detect moved or copied lines within a file. Enables options -M
+and -C in git blame."
+  :group 'magit-blame
+  :type 'boolean)
+
 (defface magit-blame-header
   '((t :inherit magit-section-title))
   "Face for blame header."
@@ -140,6 +146,8 @@
       (save-restriction
         (with-temp-buffer
           (apply 'magit-git-insert "blame" "--porcelain"
+                 (when magit-blame-detect-copies-moves "-M")
+                 (when magit-blame-detect-copies-moves "-C")
                  `(,@(and magit-blame-ignore-whitespace (list "-w")) "--"
                    ,(file-name-nondirectory (buffer-file-name buffer))))
           (magit-blame-parse buffer (current-buffer)))))))
