@@ -415,10 +415,10 @@ finally check current non-comment text."
   (require 'flyspell)
   (turn-on-flyspell)
   (setq flyspell-generic-check-word-predicate
-        'git-commit-mode-flyspell-verify)
+        'git-commit-flyspell-verify)
   (flyspell-buffer))
 
-(defun git-commit-mode-flyspell-verify ()
+(defun git-commit-flyspell-verify ()
   (not (memq (get-text-property (point) 'face)
              '(font-lock-comment-face     font-lock-comment-delimiter-face
                git-commit-comment-branch  git-commit-comment-detached
