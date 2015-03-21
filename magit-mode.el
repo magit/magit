@@ -280,8 +280,8 @@ Magit is documented in info node `(magit)'."
 Display BUFFER using `magit-mode-display-buffer', then turn on
 MODE in BUFFER, set the local value of `magit-refresh-function'
 to REFRESH-FUNC and that of `magit-refresh-args' to REFRESH-ARGS
-and finally \"refresh\" a first time.  All arguments are
-evaluated before switching to BUFFER."
+and finally \"refresh\" a first time.  All arguments are evaluated
+before switching to BUFFER."
   (declare (debug (form form form form &rest form)))
   (let ((smode (cl-gensym "mode"))
         (sroot (cl-gensym "root"))
@@ -328,10 +328,7 @@ can later be restored by `magit-mode-bury-buffer'.
 
 Then display and select BUFFER using SWITCH-FUNCTION.  If that is
 nil either use `pop-to-buffer' if the current buffer's major mode
-derives from Magit mode; or else use `switch-to-buffer'.
-
-This is only intended for buffers whose major modes derive from
-Magit mode."
+derives from Magit mode; or else use `switch-to-buffer'."
   (cond ((stringp buffer)
          (setq buffer (magit-mode-get-buffer-create buffer mode)))
         ((not (bufferp buffer))
