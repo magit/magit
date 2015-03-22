@@ -1880,7 +1880,10 @@ Git, and Emacs in the echo area.\n\n(fn)"
                                 (cadr (assq 'magit package-alist)))))))))))
     (if (stringp magit-version)
         (when (called-interactively-p 'any)
-          (message "magit-%s" magit-version))
+          (message "Magit %s, Git %s, Emacs %s"
+                   magit-version
+                   (substring (magit-git-string "version") 12)
+                   emacs-version))
       (if noerror
           (progn (setq magit-version 'error)
                  (message "Cannot determine Magit's version"))
