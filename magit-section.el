@@ -385,9 +385,8 @@ hidden."
 
 (defun magit-section-show-level (level)
   "Show surrounding sections up to LEVEL.
-If LEVEL (the prefix argument) is negative show up to the
-absolute value.  Sections at higher levels are hidden."
-  (interactive "p")
+If LEVEL is negative show up to the absolute value.
+Sections at higher levels are hidden."
   (if (< level 0)
       (let ((s (magit-current-section)))
         (setq level (- level))
