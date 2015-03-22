@@ -383,7 +383,7 @@ hidden."
     (and (magit-section-content section)
          (magit-section-hidden  section))))
 
-(defun magit-show-level (level)
+(defun magit-section-show-level (level)
   "Show surrounding sections up to LEVEL.
 If LEVEL (the prefix argument) is negative show up to the
 absolute value.  Sections at higher levels are hidden."
@@ -401,45 +401,45 @@ absolute value.  Sections at higher levels are hidden."
                ((= i level) (magit-section-hide s) t))
          (magit-section-goto s)))))
 
-(defun magit-show-level-1 ()
+(defun magit-section-show-level-1 ()
   "Show surrounding sections on first level."
   (interactive)
-  (magit-show-level 1))
+  (magit-section-show-level 1))
 
-(defun magit-show-level-1-all ()
+(defun magit-section-show-level-1-all ()
   "Show all sections on first level."
   (interactive)
-  (magit-show-level -1))
+  (magit-section-show-level -1))
 
-(defun magit-show-level-2 ()
+(defun magit-section-show-level-2 ()
   "Show surrounding sections up to second level."
   (interactive)
-  (magit-show-level 2))
+  (magit-section-show-level 2))
 
-(defun magit-show-level-2-all ()
+(defun magit-section-show-level-2-all ()
   "Show all sections up to second level."
   (interactive)
-  (magit-show-level -2))
+  (magit-section-show-level -2))
 
-(defun magit-show-level-3 ()
+(defun magit-section-show-level-3 ()
   "Show surrounding sections up to third level."
   (interactive)
-  (magit-show-level 3))
+  (magit-section-show-level 3))
 
-(defun magit-show-level-3-all ()
+(defun magit-section-show-level-3-all ()
   "Show all sections up to third level."
   (interactive)
-  (magit-show-level -3))
+  (magit-section-show-level -3))
 
-(defun magit-show-level-4 ()
+(defun magit-section-show-level-4 ()
   "Show surrounding sections up to fourth level."
   (interactive)
-  (magit-show-level 4))
+  (magit-section-show-level 4))
 
-(defun magit-show-level-4-all ()
+(defun magit-section-show-level-4-all ()
   "Show all sections up to fourth level."
   (interactive)
-  (magit-show-level -4))
+  (magit-section-show-level -4))
 
 ;;;; Auxiliary
 
