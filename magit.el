@@ -1849,7 +1849,9 @@ a prefix argument is used, otherwise save the branch name."
 Use the function by the same name instead of this variable.")
 
 (defun magit-version (&optional noerror)
-  "The version of Magit that you're using.\n\n\(fn)"
+  "Return the version of Magit currently in use.
+When called interactive also show the used versions of Magit,
+Git, and Emacs in the echo area.\n\n(fn)"
   (interactive)
   (let ((toplib (or load-file-name buffer-file-name)))
     (unless (and toplib

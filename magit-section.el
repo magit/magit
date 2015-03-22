@@ -164,7 +164,7 @@ IDENT has to be a list as returned by `magit-section-ident'."
               (magit-section-goto -1))))))))
 
 (defun magit-section-up ()
-  "Go to the parent section."
+  "Move to the beginning of the parent section."
   (interactive)
   (--if-let (magit-section-parent (magit-current-section))
       (magit-section-goto it)
@@ -327,7 +327,7 @@ hidden."
       (magit-section-show-headings-1 s))))
 
 (defun magit-section-cycle (section)
-  "Cycle visibility of current section."
+  "Cycle visibility of current section and its children."
   (interactive (list (magit-current-section)))
   (goto-char (magit-section-start section))
   (if (magit-section-hidden section)
