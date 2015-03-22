@@ -114,8 +114,8 @@ the user has to confirm each save."
 (defvar magit-mode-map
   (let ((map (make-keymap)))
     (suppress-keymap map t)
-    (define-key map "\t"    'magit-section-cycle)
-    (define-key map [C-tab] 'magit-section-toggle)
+    (define-key map "\t"    'magit-section-toggle)
+    (define-key map [C-tab] 'magit-section-cycle)
     (define-key map [M-tab] 'magit-section-cycle-diffs)
     (define-key map "^"    'magit-section-up)
     (define-key map "n"    'magit-section-forward)
