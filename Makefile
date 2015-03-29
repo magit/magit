@@ -1,8 +1,10 @@
-PREFIX  ?= /usr/local
+PREFIX      ?= /usr/local
 datarootdir ?= $(PREFIX)/share
-lispdir ?= $(datarootdir)/emacs/site-lisp/magit
-infodir ?= $(datarootdir)/info
-docdir  ?= $(datarootdir)/doc/magit
+lispdir     ?= $(datarootdir)/emacs/site-lisp/magit
+infodir     ?= $(datarootdir)/info
+docdir      ?= $(datarootdir)/doc/magit
+
+statsdir    ?= $(HOME)/Repos/magit/page/stats
 
 LOADDEFS_FILE ?= magit-autoloads.el
 LOADDEFS_DIR  ?= $(lispdir)
@@ -112,6 +114,11 @@ help:
 	$(info make authors          - regenerate the AUTHORS.md file)
 	$(info make dist             - create old-school tarball)
 	$(info make marmalade        - create marmalade tarball)
+	$(info )
+	$(info Web Page)
+	$(info ========)
+	$(info )
+	$(info make stats            - generate stats)
 	@printf "\n"
 
 %.elc: %.el
@@ -250,3 +257,8 @@ magit-$(VERSION).tar: $(ELPA_FILES)
 	@$(CP) $(ELPA_FILES) magit-$(VERSION)
 	@tar -c --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar magit-$(VERSION)
 	@$(RMDIR) magit-$(VERSION)
+
+.PHONY: stats
+stats:
+	@printf "Generating stats\n"
+	@gitstats -c style=/css/stats.css -c max_authors=200 . $(statsdir)
