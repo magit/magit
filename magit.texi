@@ -1,22 +1,39 @@
 \input texinfo.tex    @c -*-texinfo-*-
 @c %**start of header
 @setfilename magit.info
-@settitle Magit User Manual
+@settitle Magit User Manual (1.4.0)
 @documentencoding utf-8
+@documentlanguage en
 @c %**end of header
 
 @macro magit{url, text}
 @uref{https://github.com/magit/magit/\url\, \text\}
 @end macro
 
-@dircategory Emacs
-@direntry
-* Magit: (magit).        Using Git from Emacs with Magit.
-@end direntry
-
 @copying
-Copyright @copyright{} 2008-2013 Magit contributors. (See the header
-of magit.el for the lengthy list of Magit contributors.)
+Magit is an interface to the version control system Git, implemented
+as an Emacs package.
+
+Unlike Emacs's native Version Control package which strives to
+provide a unified interface to various version control systems, Magit
+only supports Git and can therefor better take advantage of its native
+features.
+
+You are looking at the manual for the @code{1.4.0} release.
+
+Magit supports GNU Emacs 23.2 or later; 24.1 or later is recommended.
+Magit supports Git 1.7.2.5 or later; 1.8.2 or later is recommended.
+
+When something breaks please see the curated list of
+@magit{wiki/Known-Issues, known issues} and the @magit{wiki/FAQ, FAQ}.
+If that doesn't help check the list of all open issues @magit{issues,
+issues}.
+
+If everything else fails please open a new issue or ask for help on
+the @uref{https://groups.google.com/forum/?fromgroups#!forum/magit,
+mailing list}.
+
+Copyright @copyright{} 2008-2015 The Magit Project Developers
 
 @quotation
 Permission is granted to copy, distribute and/or modify this document
@@ -28,29 +45,27 @@ Texts.  A copy of the license is included in the section entitled
 @end quotation
 @end copying
 
+@dircategory Emacs
+@direntry
+* Magit (1.4.0): (magit). Using Git from Emacs with Magit. (1.4.0)
+@end direntry
+
+@finalout
+@titlepage
+@title Magit User Manual (1.4.0)
+@author The Magit Project Developers
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@contents
+
+@ifnottex
 @node Top
-@top Magit User Manual
-
-Magit is an interface to the version control system Git, implemented
-as an Emacs extension.
-
-Unlike Emacs's native Version Control package which strives to
-provide a unified interface to various version control systems, Magit
-only supports Git and can therefor better take advantage of its native
-features.
-
-Magit supports GNU Emacs 23.2 or later; 24.1 or later is recommended.
-Magit supports Git 1.7.2.5 or later; 1.8.2 or later is recommended.
-The minimal versions are those available in Debian oldstable.
-
-When something breaks please see the curated list of
-@magit{wiki/Known-Issues, known issues} and the @magit{wiki/FAQ, FAQ}.
-If that doesn't help check the list of all open issues @magit{issues,
-issues}.
-
-If everything else fails please open a new issue or ask for help on
-the @uref{https://groups.google.com/forum/?fromgroups#!forum/magit,
-mailing list}.
+@top Magit User Manual (1.4.0)
+@insertcopying
+@end ifnottex
 
 @menu
 * Introduction::
