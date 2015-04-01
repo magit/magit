@@ -1,0 +1,15 @@
+Magit v1.2.1 Release Notes
+==========================
+
+Released 23 May 2014 by Jonas Bernoulli.
+
+Changes since v1.2.0
+--------------------
+
+ * `magit-delete-directory' was rewritten to deal with an incompatible
+   change in `delete-directory' in Emacs v24.4.
+
+Authors
+-------
+
+     1  Jonas Bernoulli

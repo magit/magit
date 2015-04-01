@@ -1,0 +1,73 @@
+Magit v1.2.0 Release Notes
+==========================
+
+Released 23 September 2012 by Yann Hodique.
+
+Changes since v1.1.2
+--------------------
+
+ * Rewrote the branch manager.
+
+ * Diffs are optionally refined using `diff-refine-hunk'.
+
+ * Added library `magit-blame.el' defining new mode
+   `magit-blame-mode'.
+
+ * Added library `magit-wip.el' defining new modes
+   `magit-wip-save-mode' and `magit-wip-mode'.
+
+ * New section movement commands; `magit-goto-next-sibling-section'
+   and `magit-goto-previous-sibling-section'.
+
+ * Added command `magit-file-log'.
+
+ * Added command `magit-manual-merge'.
+
+ * `magit-delete-branch-force' was merged into `magit-delete-branch'.
+
+ * `magit-move-branch' learned to force the rename.
+
+ * `magit-reset-working-tree' learned to remove ignored files.
+
+ * `magit-pull' learned to set `branch.BRANCH.merge'.
+
+ * `magit-log-edit' learned to respect GIT_AUTHOR_EMAIL,
+   GIT_AUTHOR_NAME and GIT_AUTHOR_DATE.
+
+ * `magit-visit-item' learned to visit untracked files, diffs and
+   hunks.
+
+ * Added option `magit-sha1-abbrev-length'.
+
+Authors
+-------
+
+   157  Yann Hodique
+    61  Nicolas Dudebout
+    14  Peter J. Weisberg
+    12  Jonas Bernoulli
+    10  Ryan C. Thompson
+     7  Miles Bader
+     6  Damien Cassou
+     5  Samuel Bronson
+     4  Dale Hagglund
+     4  Eli Barzilay
+     4  Takafumi Arakaki
+     4  rabio
+     3  Leonardo Etcheverry
+     3  Nick Alcock
+     3  Rémi Vanicat
+     3  Rüdiger Sonderfeld
+     2  Graham Clark
+     2  Hans-Peter Deifel
+     2  Moritz Bunkus
+     1  Andreas Liljeqvist
+     1  Christian Dietrich
+     1  Christopher Monsanto
+     1  Daniel Hackney
+     1  Hannu Koivisto
+     1  John Wiegley
+     1  Jonathan Roes
+     1  Ole Arndt
+     1  Ron Parker
+     1  Suhail Shergill
