@@ -102,9 +102,9 @@ magit-pkg.el:
 	@printf "Generating magit-pkg.el\n"
 	@printf "(define-package \"magit\" \""$(VERSION)"\"\n" > $@
 	@printf "  \"Control Git from Emacs.\"\n"      >> $@
-	@printf "  '((cl-lib \"0.3\")\n"               >> $@
-	@printf "    (git-commit-mode \"0.14.0\")\n"   >> $@
-	@printf "    (git-rebase-mode \"0.14.0\")))\n" >> $@
+	@printf "  '((cl-lib \"0.5\")\n"               >> $@
+	@printf "    (git-commit-mode \"1.0.0\")\n"   >> $@
+	@printf "    (git-rebase-mode \"1.0.0\")))\n" >> $@
 
 .PHONY: loaddefs
 loaddefs: $(LOADDEFS_FILE)
