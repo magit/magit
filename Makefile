@@ -75,6 +75,7 @@ help:
 	$(info make authors          - regenerate the AUTHORS.md file)
 	$(info make dist             - create old-school tarball)
 	$(info make marmalade        - create marmalade tarball)
+	$(info make marmalade-upload - create and upload marmalade tarball)
 	@printf "\n"
 
 %.elc: %.el
@@ -229,9 +230,10 @@ magit-$(VERSION).tar.gz: $(DIST_FILES)
 	tar -cvz --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar.gz magit-$(VERSION)
 	$(RMDIR) magit-$(VERSION)
 
-.PHONY: marmalade
+.PHONY: marmalade-upload marmalade
+marmalade-upload: magit-$(VERSION).tar
+	@marmalade-upload
 marmalade: magit-$(VERSION).tar
-
 magit-$(VERSION).tar: $(ELPA_FILES) magit-pkg.el
 	$(MKDIR) magit-$(VERSION)
 	$(CP) $(ELPA_FILES) magit-$(VERSION)
