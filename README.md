@@ -1,6 +1,3 @@
-[![Build Status](https://travis-ci.org/magit/magit.svg?branch=master)](https://travis-ci.org/magit/magit)
-[![Gratipay](http://img.shields.io/gratipay/magit.png)](https://www.gratipay.com/magit)
-
 It's Magit!  An Emacs mode for Git
 ==================================
 
