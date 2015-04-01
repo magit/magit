@@ -20,11 +20,11 @@ RMDIR ?= rm -rf
 MAKEINFO     ?= makeinfo
 INSTALL_INFO ?= install-info
 
-EFLAGS ?= -L ../git-modes -L ../cl-lib
-EMACS  ?= emacs
-BATCH   = $(EMACS) $(EFLAGS) -batch -Q -L .
-BATCHE  = $(BATCH) -eval
-BATCHC  = $(BATCH) -f batch-byte-compile
+EFLAGS   ?= -L ../git-modes -L ../cl-lib
+EMACSBIN ?= emacs
+BATCH     = $(EMACSBIN) $(EFLAGS) -batch -Q -L .
+BATCHE    = $(BATCH) -eval
+BATCHC    = $(BATCH) -f batch-byte-compile
 
 VERSION=$(shell \
   test -e .git && git describe --tags --dirty 2> /dev/null || \
@@ -201,7 +201,7 @@ test: $(ELCS)
 
 .PHONY: test-interactive
 test-interactive: $(ELCS)
-	@$(EMACS) $(EFLAGS) -Q -L "." --eval "(progn\
+	@$(EMACSBIN) $(EFLAGS) -Q -L "." --eval "(progn\
 	(require 'cl)\
 	(put 'flet 'byte-obsolete-info nil)\
 	(load-file \"tests/magit-tests.el\")\
