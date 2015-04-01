@@ -50,7 +50,7 @@
 
 (defun magit-wip-mode (&rest ignore)
   (message "magit-wip-mode is obsolete and doesn't do anything"))
-(make-obsolete 'magit-wip-mode "This mode is a noop now" "2.0.0")
+(make-obsolete 'magit-wip-mode "This mode is a noop now" "1.4.0")
 
 ;;; Options
 

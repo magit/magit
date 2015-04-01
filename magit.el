@@ -340,7 +340,7 @@ please see https://github.com/magit/magit/wiki/Emacsclient."))
   "The Emacsclient executable.
 If the default is nil, or commiting or rebasing is somehow broken,
 please see https://github.com/magit/magit/wiki/Emacsclient."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-process
   :type '(choice (string :tag "Executable")
                  (const :tag "Don't use Emacsclient" nil)))
@@ -366,7 +366,7 @@ If t, use ptys: this enables magit to prompt for passphrases when needed."
 When adding a new section would go beyond the limit set here,
 then the older half of the sections are remove.  Sections that
 belong to processes that are still running are never removed."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-process
   :type 'integer)
 
@@ -384,7 +384,7 @@ needed when using Cygwin Git but not when using stand-alone Git.
 The default value is set based on that assumptions.  If this
 turns out to be wrong you can customize this option but please
 also comment on issue #816."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-process
   :set-after '(magit-git-executable)
   :type 'boolean)
@@ -392,7 +392,7 @@ also comment on issue #816."
 (defcustom magit-process-yes-or-no-prompt-regexp
    " [\[(]\\([Yy]\\(?:es\\)?\\)[/|]\\([Nn]o?\\)[\])] ?[?:] ?$"
   "Regexp matching Yes-or-No prompts of git and its subprocesses."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-process
   :type 'regexp)
 
@@ -402,14 +402,14 @@ also comment on issue #816."
     "^.*'s password: ?$"
     "^Yubikey for .*: ?$")
   "List of regexps matching password prompts of git and its subprocesses."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-process
   :type '(repeat (regexp)))
 
 (defcustom magit-process-username-prompt-regexps
   '("^Username for '.*': ?$")
   "List of regexps matching username prompts of git and its subprocesses."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-process
   :type '(repeat (regexp)))
 
@@ -428,7 +428,7 @@ also comment on issue #816."
 It should take one argument (a buffer) and display and select it.
 A common value is `pop-to-buffer'.  It can also be nil in which
 case the selected window is used."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-process
   :type magit-server-window-type)
 
@@ -437,7 +437,7 @@ case the selected window is used."
 It should take one argument (a buffer) and display and select it.
 A common value is `pop-to-buffer'.  It can also be nil in which
 case the selected window is used."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-process
   :set-after '(server-window)
   :type magit-server-window-type)
@@ -450,7 +450,7 @@ This reduces the risk of accidentally losing the index.  If
 nothing at all is staged yet, then always stage without requiring
 confirmation, because it can be undone without the risk of losing
 a carefully crafted index."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit
   :type 'boolean)
 
@@ -460,7 +460,7 @@ This reduces the risk of accidentally losing of the index.  If
 there are no staged changes at all, then always unstage without
 confirmation, because it can be undone without the risk of losing
 a carefully crafted index."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit
   :type 'boolean)
 
@@ -598,7 +598,7 @@ One reason you might want to *not* use the background, is that
 doing so forces the use of overlays for parts of diffs and for
 refnames.  Using overlays potentially degrades performance when
 generating large diffs.  Also see option `magit-use-overlays'."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit
   :group 'magit-faces
   :type '(choice (const magit-item-highlight)
@@ -648,7 +648,7 @@ completion.
 
 `remote-slash-branch'  Format refs as \"remote/branch\".
 `branch-then-remote'   Format refs as \"branch (remote)\"."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit
   :type '(choice (const :tag "branch (remote)" branch-then-remote)
                  (const :tag "remote/branch" remote-slash-branch)))
@@ -681,14 +681,14 @@ deep."
   "List of modes whose buffers should contain history buttons.
 Currently only `magit-diff-mode' and `magit-commit-mode' are
 supported."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-modes
   :type '(repeat (choice (const magit-diff-mode)
                          (const magit-commit-mode))))
 
 (defcustom magit-show-child-count nil
   "Whether to append the number of childen to section headings."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-modes
   :type 'boolean)
 
@@ -710,7 +710,7 @@ to undesirable behaviour.  Also quitting a Magit buffer while
 another Magit buffer that was created earlier is still displayed
 will cause that buffer to be hidden, which might or might not be
 what you want."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-modes
   :type 'boolean)
 
@@ -741,7 +741,7 @@ to return a propertized label that represents the ref.
 
 Currently this variable is only used in logs and the branch
 manager but it will be used in more places in the future."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-modes
   :type '(repeat
           (list regexp
@@ -786,7 +786,7 @@ with the `magit-insert-' prefix but do not insert a section.
 
 Note that there are already plans to improve this and to add
 similar hooks for other Magit modes."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-status
   :type 'hook)
 
@@ -803,7 +803,7 @@ The function is given one argument, the status buffer."
   "Whether to show instructions on how to proceed a stopped action.
 When this is non-nil and a commit failed to apply during a merge
 or rebase, then show instructions on how to continue."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-status
   :type 'boolean)
 
@@ -824,7 +824,7 @@ or objects in these sentences.
 
 If the value is `tag' the commit counts are fontified; otherwise
 they are not (due to semantic considerations)."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-status
   :type '(choice (const :tag "tags are the subjects" tag)
                  (const :tag "head is the subject" head)))
@@ -859,7 +859,7 @@ access repositories on a system with such a version.  If you see
 whitespace where you would have expected a diff, this likely is
 the cause, and the only (currently) workaround is to not make the
 problematic option a member of the default value."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-diff
   :set 'magit-set-default-diff-options
   :type '(set :greedy t
@@ -886,7 +886,7 @@ problematic option a member of the default value."
 
 (defcustom magit-show-diffstat t
   "Whether to show diffstat in diff and commit buffers."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-diff
   :group 'magit-commit
   :type 'boolean)
@@ -909,19 +909,19 @@ t      show fine differences for the selected diff hunk only
 
 (defcustom magit-commit-ask-to-stage t
   "Whether to ask to stage everything when committing and nothing is staged."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-commit
   :type 'boolean)
 
 (defcustom magit-commit-extend-override-date nil
   "Whether using `magit-commit-extend' changes the committer date."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-commit
   :type 'boolean)
 
 (defcustom magit-commit-reword-override-date nil
   "Whether using `magit-commit-reword' changes the committer date."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-commit
   :type 'boolean)
 
@@ -936,7 +936,7 @@ used with a prefix argument, in which case this option is ignored.
 Otherwise this controls which commit to target, either the
 current or marked commit.  Or if both can be used, which should
 be preferred."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-commit
   :type
   '(choice
@@ -957,7 +957,7 @@ In the event that expanding very large patches takes a long time
 \\<global-map>\\[keyboard-quit] can be used to abort that step.
 This is especially useful when you would normally not look at the
 changes, e.g. because you are committing some binary files."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-commit
   :type '(choice (const :tag "Expand all subsections" full)
                  (const :tag "Expand top section" t)
@@ -1006,7 +1006,7 @@ inserted as is."
 
 (defcustom magit-log-show-gpg-status nil
   "Display signature verification information as part of the log."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-log
   :type 'boolean)
 
@@ -1015,7 +1015,7 @@ inserted as is."
 When non-nil the author name and date are displayed in the margin
 of the log buffer if that contains a `oneline' log.  This can be
 toggled temporarily using the command `magit-log-toggle-margin'."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-log
   :type 'boolean)
 
@@ -1044,7 +1044,7 @@ CHARACTERP is non-nil time units are shown as single characters,
 otherwise the full name of the unit is displayed.  DURATION-SPEC
 has to be a variable, its value controls which time units are
 used, how many seconds they contain, and what their names are."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-log
   :type '(list (integer  :tag "Margin width")
                (choice   :tag "Time unit style"
@@ -1067,7 +1067,7 @@ is the time unit, UNITS is the plural of that unit.  CHAR is a
 character that can be used as abbreviation and must be unique
 amoung all elements.  SECONDS is the number of seconds in one
 UNIT.  Also see option `magit-log-margin-spec'."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-log
   :type '(repeat (list (character :tag "Unit character")
                        (string    :tag "Unit singular string")
@@ -1079,7 +1079,7 @@ UNIT.  Also see option `magit-log-margin-spec'."
 Currently this is used only in the log margin, but might later
 be used elsewhere too.  Filenames that were abbreviated by Git
 are left as-is."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-log
   :type 'character)
 
@@ -1105,14 +1105,14 @@ have changed on disk and are tracked in the current Git repository."
 
 (defcustom magit-merge-warn-dirty-worktree t
   "Whether to issue a warning when attempting to start a merge in a dirty worktree."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-modes
   :type 'boolean)
 
 (defcustom magit-push-hook '(magit-push-dwim)
   "Hook run by `magit-push' to actually do the work.
 See `magit-push' and `magit-push-dwim' for more information."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-modes
   :type 'hook)
 
@@ -1136,7 +1136,7 @@ t          ask if --set-upstream should be used.
     magit-insert-empty-line
     magit-insert-wazzup-branches)
   "Hook run to insert sections into the wazzup buffer."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-modes
   :type 'hook)
 
@@ -1147,7 +1147,7 @@ t          ask if --set-upstream should be used.
     magit-insert-empty-line
     magit-insert-cherry-commits)
   "Hook run to insert sections into the cherry buffer."
-  :package-version '(magit . "2.0.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-modes
   :type 'hook)
 
@@ -7779,14 +7779,14 @@ init file:
 (cl-eval-when (load eval) (magit-version t))
 
 (define-obsolete-variable-alias 'magit-cherry-insert-sections-hook
-  'magit-cherry-sections-hook "2.0.0")
+  'magit-cherry-sections-hook "1.4.0")
 (define-obsolete-variable-alias 'magit-status-insert-sections-hook
-  'magit-status-sections-hook "2.0.0")
+  'magit-status-sections-hook "1.4.0")
 (define-obsolete-variable-alias 'magit-wazzup-insert-sections-hook
-  'magit-wazzup-sections-hook "2.0.0")
+  'magit-wazzup-sections-hook "1.4.0")
 
 (define-obsolete-variable-alias 'magit-quote-curly-braces
-  'magit-process-quote-curly-braces "2.0.0")
+  'magit-process-quote-curly-braces "1.4.0")
 
 (provide 'magit)
 
