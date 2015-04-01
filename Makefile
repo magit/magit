@@ -211,13 +211,12 @@ test-interactive: $(ELCS)
 .PHONY: clean
 clean:
 	@echo "Cleaning..."
-	@$(RM) $(ELCS) $(LOADDEFS_FILE) magit-version.el *.tar.gz *.tar
+	@$(RM) $(ELCS) $(LOADDEFS_FILE) magit-version.el *.tar.gz *.tar dir
 	@$(RMDIR) magit-$(VERSION)
 	@test ! -e .git || $(RM) magit.info
 
 DIST_FILES  = $(ELS) magit-version.el Makefile AUTHORS.md
 DIST_FILES += README.md magit.texi magit.info dir
-DIST_FILES_BIN  = bin/magit
 
 ELPA_FILES = $(ELS) magit.info dir AUTHORS.md
 
@@ -225,7 +224,7 @@ ELPA_FILES = $(ELS) magit.info dir AUTHORS.md
 dist: magit-$(VERSION).tar.gz
 
 magit-$(VERSION).tar.gz: $(DIST_FILES)
-	$(MKDIR) magit-$(VERSION)/bin
+	$(MKDIR) magit-$(VERSION)
 	$(CP) $(DIST_FILES) magit-$(VERSION)
 	tar -cvz --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar.gz magit-$(VERSION)
 	$(RMDIR) magit-$(VERSION)
