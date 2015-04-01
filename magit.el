@@ -7776,6 +7776,15 @@ init file:
         (user-error "Cannot determine Magit's version")))
     magit-version))
 
+(defvar magit-last-seen-setup-instructions "0")
+
+(defun magit-maybe-show-setup-instructions ()
+  (when (version< magit-last-seen-setup-instructions "0")
+    (require 'warnings)
+    (display-warning :warning "for magit-0")))
+
+(add-hook 'after-init-hook #'magit-maybe-show-setup-instructions)
+
 (cl-eval-when (load eval) (magit-version t))
 
 (define-obsolete-variable-alias 'magit-cherry-insert-sections-hook
