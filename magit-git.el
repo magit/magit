@@ -371,7 +371,7 @@ If the file is not inside a Git repository then return nil."
   (when file
     (setq file (file-truename file))
     (--when-let (magit-get-top-dir (file-name-directory file))
-      (substring file (length it)))))
+      (substring file (length (expand-file-name it))))))
 
 (defun magit-file-tracked-p (file)
   (magit-git-success "ls-files" "--error-unmatch" file))
