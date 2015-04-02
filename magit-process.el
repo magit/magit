@@ -481,7 +481,20 @@ tracked in the current repository are reverted if
       (insert string)
       (write-region (point-min) (point-max) file))))
 
-(defun magit-process-yes-or-no-prompt (proc string)
+(defmacro magit-process-kill-on-abort (proc &rest body)
+  (declare (indent 1))
+  (let ((map (gensym)))
+    `(let ((,map (make-sparse-keymap)))
+       (set-keymap-parent ,map minibuffer-local-map)
+       (define-key ,map "\C-g"
+         (lambda ()
+           (interactive)
+           (ignore-errors (kill-process ,proc))
+           (abort-recursive-edit)))
+       (let ((minibuffer-local-map ,map))
+         ,@body))))
+
+(defun magit-process-yes-or-no-prompt (process string)
   "Forward Yes-or-No prompts to the user."
   (-when-let (beg (string-match magit-process-yes-or-no-prompt-regexp string))
     (let ((max-mini-window-height 30))
@@ -490,22 +503,27 @@ tracked in the current repository are reverted if
        (downcase
         (concat
          (match-string
-          (if (save-match-data (yes-or-no-p (substring string 0 beg))) 1 2)
+          (if (save-match-data
+                (magit-process-kill-on-abort process
+                  (yes-or-no-p (substring string 0 beg)))) 1 2)
           string)
          "\n"))))))
 
-(defun magit-process-password-prompt (proc string)
+(defun magit-process-password-prompt (process string)
   "Forward password prompts to the user."
   (--when-let (magit-process-match-prompt
                magit-process-password-prompt-regexps string)
-    (process-send-string proc (concat (read-passwd it) "\n"))))
+    (process-send-string
+     process (magit-process-kill-on-abort process
+               (concat (read-passwd it) "\n")))))
 
-(defun magit-process-username-prompt (proc string)
+(defun magit-process-username-prompt (process string)
   "Forward username prompts to the user."
   (--when-let (magit-process-match-prompt
                magit-process-username-prompt-regexps string)
     (process-send-string
-     proc (concat (read-string it nil nil (user-login-name)) "\n"))))
+     process (magit-process-kill-on-abort process
+               (concat (read-string it nil nil (user-login-name)) "\n")))))
 
 (defun magit-process-match-prompt (prompts string)
   (when (--any? (string-match it string) prompts)
