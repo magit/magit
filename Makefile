@@ -63,8 +63,8 @@ endif
 
 LOAD_PATH ?= -L . -L $(CL_LIB_DIR) -L $(DASH_DIR)
 
-EMACS ?= emacs
-BATCH  = $(EMACS) -batch -Q $(LOAD_PATH)
+EMACSBIN ?= emacs
+BATCH    = $(EMACSBIN) -batch -Q $(LOAD_PATH)
 
 VERSION=$(shell \
   test -e .git\
@@ -99,7 +99,7 @@ help:
 	$(info )
 	$(info make install          - install elisp files and documentation)
 	$(info make install-lisp     - install elisp files)
-	$(info make install-script   - install shell script)
+	$(info make install-docs     - install documentation)
 	$(info make install-all      - install elisp files, script, and docs)
 	$(info )
 	$(info Test)
@@ -114,6 +114,7 @@ help:
 	$(info make authors          - regenerate the AUTHORS.md file)
 	$(info make dist             - create old-school tarball)
 	$(info make marmalade        - create marmalade tarball)
+	$(info make marmalade-upload - create and upload marmalade tarball)
 	$(info )
 	$(info Web Page)
 	$(info ========)
@@ -227,13 +228,13 @@ test:
 
 .PHONY: test-interactive
 test-interactive:
-	@$(EMACS) -Q $(LOAD_PATH) --eval "\
+	@$(EMACSBIN) -Q $(LOAD_PATH) --eval "\
 	(progn (load-file \"t/magit-tests.el\") (ert t))"
 
 .PHONY: clean
 clean:
-	@printf "Cleaning\n"
-	@$(RM) $(ELCS) $(LOADDEFS_FILE) magit-version.el *.tar.gz *.tar
+	@printf "Cleaning...\n"
+	@$(RM) $(ELCS) $(LOADDEFS_FILE) magit-version.el *.tar.gz *.tar dir
 	@$(RMDIR) magit-$(VERSION)
 
 DIST_FILES = $(ELS) magit-version.el Makefile AUTHORS.md README.md COPYING
@@ -249,7 +250,9 @@ magit-$(VERSION).tar.gz: $(DIST_FILES)
 
 ELPA_FILES = $(ELS) magit-pkg.el AUTHORS.md
 
-.PHONY: marmalade
+.PHONY: marmalade-upload marmalade
+marmalade-upload: magit-$(VERSION).tar
+	@marmalade-upload
 marmalade: magit-$(VERSION).tar
 magit-$(VERSION).tar: $(ELPA_FILES)
 	@printf "Packing $@\n"
