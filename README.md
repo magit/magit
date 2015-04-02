@@ -11,7 +11,7 @@ please do consult it.**
 feature requests.**
 
 Magit is an interface to the version control system [Git][git],
-implemented as an [Emacs][emacs] extension.
+implemented as an [Emacs][emacs] package.
 
 Unlike the [VC][vc] package which is part of Emacs and strives to
 provide a unified interface to various version control systems, Magit
