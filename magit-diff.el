@@ -134,6 +134,8 @@ t      show fine differences for the selected diff hunk only.
                  (const :tag "Selected only" t)
                  (const :tag "All" all)))
 
+(defvar magit-diff-refine-hunk-related nil)
+
 (defcustom magit-diff-paint-whitespace t
   "Specify where to highlight whitespace errors.
 See `magit-highlight-trailing-whitespace',
@@ -1617,7 +1619,9 @@ of SECTION including SECTION and all of them are highlighted."
                                  'magit-diff-whitespace-warning)))))
 
 (defun magit-diff-refine-hunk (hunk)
-  (unless (magit-section-refined hunk)
+  (when (and (not (magit-section-refined hunk))
+             (or magit-diff-refine-hunk-related
+                 (eq (magit-current-section) hunk)))
     (setf (magit-section-refined hunk) t)
     (save-excursion
       (goto-char (magit-section-start hunk))
