@@ -2,7 +2,7 @@ It's Magit!  A Git Porcelain inside Emacs
 =========================================
 
 Magit is an interface to the version control system [Git][git],
-implemented as an [Emacs][emacs] extension.
+implemented as an [Emacs][emacs] package.
 
 Unlike the [VC][vc] package which is part of Emacs and strives to
 provide a unified interface to various version control systems, Magit
@@ -95,11 +95,12 @@ script, which you have to install manually.
 [contributing]: https://github.com/magit/magit/blob/master/CONTRIBUTING.md
 [development]: http://github.com/magit/magit
 [donations]: http://magit.vc/donations.html
+[emacsstack]: http://emacs.stackexchange.com/questions/tagged/magit
 [faq]: https://github.com/magit/magit/wiki/FAQ
 [group]: https://groups.google.com/forum/?fromgroups#!forum/magit
 [install]: https://github.com/magit/magit/wiki/Installation
 [issues]: https://github.com/magit/magit/issues
-[manual]: http://magit.vc/master
+[manual]: http://magit.vc/manual/master
 [pulls]: https://github.com/magit/magit/pulls
 [stats-authors]: http://magit.vc/stats/authors.html
 [website]: http://magit.vc
