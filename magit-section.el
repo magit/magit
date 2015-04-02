@@ -157,11 +157,18 @@ IDENT has to be a list as returned by `magit-section-ident'."
                           (setq children (magit-section-children prev)))
                 (setq prev (car (last children))))
             (setq prev (magit-section-parent section)))
-          (if prev
-              (magit-section-goto prev)
-            (if (magit-section-parent section)
-                (user-error "No previous section")
-              (magit-section-goto -1))))))))
+          (cond (prev
+                 (magit-section-goto prev))
+                ((magit-section-parent section)
+                 (user-error "No previous section"))
+                ;; Eob special cases.
+                ((not (get-text-property (1- (point)) 'invisible))
+                 (magit-section-goto -1))
+                (t
+                 (goto-char (previous-single-property-change
+                             (1- (point)) 'invisible))
+                 (forward-line -1)
+                 (magit-section-goto (magit-current-section)))))))))
 
 (defun magit-section-up ()
   "Move to the beginning of the parent section."
