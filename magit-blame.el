@@ -115,6 +115,16 @@ and then turned on again when turning on the latter."
     map)
   "Keymap for `magit-blame-mode'.")
 
+(defun magit-blame-put-keymap-before-view-mode ()
+  "Put `magit-blame-mode' ahead of `view-mode' in `minor-mode-map-alist'."
+  (--when-let (assq 'magit-blame-mode
+                    (cl-member 'view-mode minor-mode-map-alist :key #'car))
+    (setq minor-mode-map-alist
+          (cons it (delq it minor-mode-map-alist))))
+  (remove-hook 'view-mode-hook #'magit-blame-put-keymap-before-view-mode))
+
+(add-hook 'view-mode-hook #'magit-blame-put-keymap-before-view-mode)
+
 (defvar-local magit-blame-buffer-read-only nil)
 (defvar-local magit-blame-cache nil)
 (defvar-local magit-blame-disabled-modes nil)
