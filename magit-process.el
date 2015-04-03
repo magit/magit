@@ -483,7 +483,7 @@ tracked in the current repository are reverted if
 
 (defmacro magit-process-kill-on-abort (proc &rest body)
   (declare (indent 1))
-  (let ((map (gensym)))
+  (let ((map (cl-gensym)))
     `(let ((,map (make-sparse-keymap)))
        (set-keymap-parent ,map minibuffer-local-map)
        (define-key ,map "\C-g"
