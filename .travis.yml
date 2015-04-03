@@ -20,5 +20,5 @@ install:
     fi
   - git tag 0
 script:
-  - make
-  - make test
+  - make EMACSBIN=$EMACS
+  - make test EMACSBIN=$EMACS
