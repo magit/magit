@@ -499,7 +499,7 @@ tracked in the current repository are reverted if
   (-when-let (beg (string-match magit-process-yes-or-no-prompt-regexp string))
     (let ((max-mini-window-height 30))
       (process-send-string
-       proc
+       process
        (downcase
         (concat
          (match-string
