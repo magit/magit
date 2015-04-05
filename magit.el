@@ -953,13 +953,15 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
   :man-page "git-branch"
   :switches '((?t "Set upstream configuration" "--track"))
   :actions  '((?b "Checkout"          magit-checkout)
-              (?c "Create"            magit-branch)
-              (?B "Create & Checkout" magit-branch-and-checkout)
               (?u "Set upstream"      magit-branch-set-upstream)
+              (?k "Delete"            magit-branch-delete)
+              (?c "Create"            magit-branch)
+              (?e "Set description"   magit-branch-edit-description)
               (?r "Rename"            magit-branch-rename)
-              (?k "Delete"            magit-branch-delete))
+              (?B "Create & Checkout" magit-branch-and-checkout))
   :default-arguments '("--track")
-  :default-action 'magit-checkout)
+  :default-action 'magit-checkout
+  :max-action-columns 3)
 
 ;;;###autoload
 (defun magit-checkout (revision)
