@@ -47,9 +47,6 @@
 
 ;;; Code:
 
-(when (version< emacs-version "24.2")
-  (error "Magit requires at least GNU Emacs 24.2"))
-
 (require 'cl-lib)
 (require 'dash)
 
@@ -1892,11 +1889,43 @@ Git, and Emacs in the echo area.\n\n(fn)"
         (error "Cannot determine Magit's version")))
     magit-version))
 
+(defun magit-assert-satisfied-dependencies ()
+  (let ((version (substring (magit-git-string "version") 12)))
+    (when (and version (version< version "1.9.4"))
+      (display-warning :error (format "\
+Magit requires Git >= 1.9.4, you are using %s.
+
+If this comes as a surprise to you, because you do actually have
+a newer version installed, then that probably means that the
+older version happens to appear earlier on the `$PATH'.  If you
+always start Emacs from a shell, then that can be fixed in the
+shell's init file.  If you start Emacs by clicking on an icon,
+or using some sort of application launcher, then you probably
+have to adjust the environment as seen by graphical interface.
+For X11 something like ~/.xinitrc should work.
+
+If you use Tramp to work inside remote Git repositories, then you
+have to make sure a suitable Git is used on the remote machines
+too.\n" version))))
+  (when (version< emacs-version "24.2")
+    (display-warning :error (format "\
+Magit requires Emacs >= 24.2, you are using %s.
+
+If this comes as a surprise to you, because you do actually have
+a newer version installed, then that probably means that the
+older version happens to appear earlier on the `$PATH'.  If you
+always start Emacs from a shell, then that can be fixed in the
+shell's init file.  If you start Emacs by clicking on an icon,
+or using some sort of application launcher, then you probably
+have to adjust the environment as seen by graphical interface.
+For X11 something like ~/.xinitrc should work.\n" emacs-version))))
+
+(add-hook 'after-init-hook #'magit-assert-satisfied-dependencies)
+
 (defvar magit-last-seen-setup-instructions "0")
 
 (defun magit-maybe-show-setup-instructions ()
   (when (version< magit-last-seen-setup-instructions "1.4.0")
-    (require 'warnings)
     (display-warning :warning "for Magit >= 1.4.0
 
 Before running Git, Magit by default reverts all unmodified
@@ -1923,7 +1952,7 @@ Then you also have to add the following line to your init file
 to prevent this message from being shown again when you restart
 Emacs:
 
-  (setq magit-last-seen-setup-instructions \"1.4.0\")")))
+  (setq magit-last-seen-setup-instructions \"1.4.0\")\n")))
 
 (add-hook 'after-init-hook #'magit-maybe-show-setup-instructions)
 
