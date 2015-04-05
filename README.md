@@ -18,7 +18,7 @@ provide a unified interface to various version control systems, Magit
 only supports Git and can therefore better take advantage of its
 native features.
 
-*Magit 2.0.50 requires at least GNU Emacs 24.1 and Git 1.9.1.*
+*Magit 2.0.50 requires at least GNU Emacs 24.2 and Git 1.9.1.*
 
 Installation
 ============

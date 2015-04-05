@@ -1,4 +1,4 @@
 (define-package "magit" "2.0.50"
   "Control Git from Emacs"
-  '((cl-lib "0.5")
+  '((emacs "24.2")
     (dash "2.10.0")))
