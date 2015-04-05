@@ -260,6 +260,7 @@ branch as default."
                   magit-diff-select-algorithm)
               (?o "Output directory" "--output-directory="))
   :actions  '((?p "Format patches"   magit-format-patch)
+              (?s "Send email"       magit-send-email)
               (?r "Request pull"     magit-request-pull))
   :default-action 'magit-format-patch)
 
@@ -275,6 +276,16 @@ branch as default."
                (format "%s~..%s" range range))))
          (magit-patch-arguments)))
   (magit-run-git "format-patch" range args))
+
+;;;###autoload
+(defun magit-send-email (range to cc args)
+  "Emails patches for range. Prompts for To and Cc fields."
+  (interactive
+   (list (magit-read-range-or-commit "Files, directories, rev-lists")
+         (magit-repeat-options "--to=" t)
+         (magit-repeat-options "--cc=")
+         (magit-patch-arguments)))
+  (magit-run-git "send-email" range to cc args))
 
 ;;;###autoload
 (defun magit-request-pull (url start end)
