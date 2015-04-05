@@ -50,14 +50,15 @@
 
 (magit-define-popup magit-bisect-popup
   "Popup console for bisect commands."
-  'magit-commands nil nil
+  'magit-commands 'magit-popup-sequence-mode
   :man-page "git-bisect"
-  :actions  '((?b "Bad"   magit-bisect-bad)
-              (?g "Good"  magit-bisect-good)
-              (?k "Skip"  magit-bisect-skip)
-              (?r "Reset" magit-bisect-reset)
-              (?s "Start" magit-bisect-start)
-              (?u "Run"   magit-bisect-run)))
+  :actions            '((?B "Start" magit-bisect-start)
+                        (?a "Run"   magit-bisect-run))
+  :sequence-actions   '((?r "Reset" magit-bisect-reset)
+                        (?b "Bad"   magit-bisect-bad)
+                        (?g "Good"  magit-bisect-good)
+                        (?k "Skip"  magit-bisect-skip))
+  :sequence-predicate 'magit-bisect-in-progress-p)
 
 ;;;###autoload
 (defun magit-bisect-start (bad good)
