@@ -936,12 +936,6 @@ If optional SECTION is nil, use the current section."
                 (magit-section-position-in-heading-p section (region-end))))
        t))
 
-(defun magit-map-sections (function section)
-  "Apply FUNCTION to SECTION and recursively its subsections."
-  (funcall function section)
-  (mapc (apply-partially 'magit-map-sections function)
-        (magit-section-children section)))
-
 (defun magit-wash-sequence (function)
   "Repeatedly call FUNCTION until it returns nil or eob is reached.
 FUNCTION has to move point forward or return nil."
