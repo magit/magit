@@ -375,7 +375,7 @@ without requiring confirmation."
   (cl-destructuring-bind (binaries files)
       (let ((binaries (magit-staged-binary-files)))
         (--separate (member (magit-section-value it) binaries) sections))
-    (when (magit-confirm-files 'reverse files)
+    (when (magit-confirm-files 'reverse (mapcar #'magit-section-value files))
       (mapc #'magit-reverse-apply files))
     (when binaries
       (user-error "Cannot reverse binary files"))))
