@@ -81,6 +81,12 @@ diff-related sections being the only exception."
   "Face for section headings."
   :group 'magit-faces)
 
+(defface magit-section-heading-selection
+  '((((class color) (background light)) :foreground "salmon4")
+    (((class color) (background  dark)) :foreground "LightSalmon3"))
+  "Face for selected section headings."
+  :group 'magit-faces)
+
 ;;; Core
 
 (cl-defstruct magit-section
@@ -789,7 +795,12 @@ highlighted using `magit-diff-highlight'."
          (magit-face-remap-set-base 'region 'face-override-spec)
          (magit-section-make-overlay (magit-section-start     (car siblings))
                                      (magit-section-end (car (last siblings)))
-                                     'magit-section-highlight))
+                                     'magit-section-highlight)
+         (--each siblings
+           (magit-section-make-overlay (magit-section-start it)
+                                       (or (magit-section-content it)
+                                           (magit-section-end it))
+                                       'magit-section-heading-selection)))
         (t
          (magit-section-make-overlay (magit-section-start section)
                                      (magit-section-end   section)
