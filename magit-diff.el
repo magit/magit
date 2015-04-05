@@ -1553,7 +1553,7 @@ of SECTION including SECTION and all of them are highlighted."
       (push section magit-section-highlighted-sections)
       (cond ((memq section magit-section-unhighlight-sections)
              (setq magit-section-unhighlight-sections
-                   (delete section magit-section-unhighlight-sections)))
+                   (delq section magit-section-unhighlight-sections)))
             (magit-diff-highlight-hunk-body
              (setq paint t))))
     (when paint
