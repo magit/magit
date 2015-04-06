@@ -46,7 +46,7 @@ VERSION=$(shell \
   (princ magit-version))")
 
 .PHONY: help magit-version.el AUTHORS.md install-lisp install-docs \
-	test test-interactive clean dist marmalade-upload marmalade stats
+	test test-interactive clean dist marmalade-upload marmalade genstats
 
 all: lisp docs
 
@@ -89,7 +89,7 @@ help:
 	$(info Web Page)
 	$(info ========)
 	$(info )
-	$(info make stats            - generate stats)
+	$(info make genstats         - generate stats)
 	@printf "\n"
 
 ELS  = with-editor.el
@@ -280,6 +280,6 @@ magit-$(VERSION).tar: $(ELPA_FILES)
 	@tar -c --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar magit-$(VERSION)
 	@$(RMDIR) magit-$(VERSION)
 
-stats:
+genstats:
 	@printf "Generating stats\n"
 	@gitstats -c style=/css/stats.css -c max_authors=200 . $(statsdir)
