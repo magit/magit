@@ -35,16 +35,6 @@ ELS += magit-ediff.el
 ELS += magit-extras.el
 ELCS = $(ELS:.el=.elc)
 
-CP    ?= install -p -m 644
-MKDIR ?= install -p -m 755 -d
-RMDIR ?= rm -rf
-
-MAKEINFO     ?= makeinfo
-INSTALL_INFO ?= $(shell \
-  hash ginstall-info 2> /dev/null\
-  && printf ginstall-info\
-  || printf install-info)
-
 ELPA_DIR ?= ~/.emacs.d/elpa
 
 CL_LIB_DIR ?= $(shell \
@@ -64,7 +54,17 @@ endif
 LOAD_PATH ?= -L . -L $(CL_LIB_DIR) -L $(DASH_DIR)
 
 EMACSBIN ?= emacs
-BATCH    = $(EMACSBIN) -batch -Q $(LOAD_PATH)
+BATCH     = $(EMACSBIN) -batch -Q $(LOAD_PATH)
+
+CP    ?= install -p -m 644
+MKDIR ?= install -p -m 755 -d
+RMDIR ?= rm -rf
+
+MAKEINFO     ?= makeinfo
+INSTALL_INFO ?= $(shell \
+  hash ginstall-info 2> /dev/null\
+  && printf ginstall-info\
+  || printf install-info)
 
 VERSION=$(shell \
   test -e .git\
