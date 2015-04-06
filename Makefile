@@ -6,32 +6,6 @@ docdir      ?= $(datarootdir)/doc/magit
 
 statsdir    ?= $(HOME)/Repos/magit/page/stats
 
-ELS  = with-editor.el
-ELS += git-commit.el
-ELS += git-rebase.el
-ELS += magit-popup.el
-ELS += magit-utils.el
-ELS += magit-section.el
-ELS += magit-git.el
-ELS += magit-mode.el
-ELS += magit-process.el
-ELS += magit-core.el
-ELS += magit-diff.el
-ELS += magit-apply.el
-ELS += magit-log.el
-ELS += magit-wip.el
-ELS += magit.el
-ELS += magit-sequence.el
-ELS += magit-stash.el
-ELS += magit-backup.el
-ELS += magit-commit.el
-ELS += magit-remote.el
-ELS += magit-bisect.el
-ELS += magit-blame.el
-ELS += magit-ediff.el
-ELS += magit-extras.el
-ELCS = $(ELS:.el=.elc)
-
 ELPA_DIR ?= ~/.emacs.d/elpa
 
 CL_LIB_DIR ?= $(shell \
@@ -71,11 +45,7 @@ VERSION=$(shell \
   (load-file \"magit-version.el\")\
   (princ magit-version))")
 
-.PHONY: all
 all: lisp docs
-
-.PHONY: lisp
-lisp: $(ELCS) magit-version.el magit-autoloads.el
 
 .PHONY: help
 help:
@@ -119,6 +89,62 @@ help:
 	$(info )
 	$(info make stats            - generate stats)
 	@printf "\n"
+
+ELS  = with-editor.el
+ELS += git-commit.el
+ELS += git-rebase.el
+ELS += magit-popup.el
+ELS += magit-utils.el
+ELS += magit-section.el
+ELS += magit-git.el
+ELS += magit-mode.el
+ELS += magit-process.el
+ELS += magit-core.el
+ELS += magit-diff.el
+ELS += magit-apply.el
+ELS += magit-log.el
+ELS += magit.el
+ELS += magit-sequence.el
+ELS += magit-commit.el
+ELS += magit-remote.el
+ELS += magit-bisect.el
+ELS += magit-stash.el
+ELS += magit-blame.el
+ELS += magit-ediff.el
+ELS += magit-wip.el
+ELS += magit-backup.el
+ELS += magit-extras.el
+ELCS = $(ELS:.el=.elc)
+
+with-editor.elc:
+git-commit.elc:		with-editor.elc
+git-rebase.elc:		with-editor.elc
+magit-utils.elc:
+magit-section.elc:	magit-utils.elc
+magit-git.elc:		magit-utils.elc magit-section.elc
+magit-mode.elc:		magit-section.elc magit-git.elc
+magit-popup.elc:
+magit-process.elc:	with-editor.elc magit-utils.elc magit-section.elc \
+			magit-git.elc magit-mode.elc
+magit-core.elc:		magit-utils.elc magit-section.elc magit-git.elc \
+			magit-mode.elc magit-popup.elc magit-process.elc
+magit-diff.elc:		git-commit.elc magit-core.elc
+magit-apply.elc:	magit-core.elc magit-diff.elc
+magit-log.elc:		magit-core.elc magit-diff.elc
+magit.elc:		with-editor.elc git-commit.elc git-rebase.elc \
+			magit-core.elc magit-diff.elc magit-apply.elc magit-log.elc
+magit-sequence.elc:	magit.elc
+magit-commit.elc:	magit.elc magit-sequence.elc
+magit-remote.elc:	magit.elc
+magit-bisect.elc:	magit.elc
+magit-stash.elc:	magit.elc
+magit-blame.elc:	magit.elc
+magit-ediff.elc:	magit.elc
+magit-wip.elc:		magit-core.elc
+magit-backup.elc:	magit.elc magit-stash.elc
+magit-extras.elc:	magit.elc magit-backup.elc
+
+lisp: $(ELCS) magit-version.el magit-autoloads.el
 
 %.elc: %.el
 	@printf "Compiling %s\n" $<
