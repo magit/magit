@@ -1,0 +1,26 @@
+\input texinfo    @c -*- texinfo -*-
+@setfilename ./magit.info
+@settitle Ceci n'est pa un manuel
+@documentencoding UTF-8
+@documentlanguage en
+
+@dircategory Emacs
+@direntry
+* Magit: (magitish). Ceci n'est pa un manuel.
+@end direntry
+
+@node Top
+@top Ceci n'est pa un manuel
+
+Magit is an interface to the version control system Git, implemented
+as an Emacs package.
+
+This is only a stub, not even a draft.  The draft for what will
+become the manual for the upcoming @code{2.1.0} release is currently
+maintained in the webpage repository.  It will be moved into the
+source repository once it is mostly finished.  You can read the draft
+online at @uref{http://magit.vc}.  The draft and earlier versions of
+the manual can also be downloaded in various formats from that same
+page.
+
+@bye

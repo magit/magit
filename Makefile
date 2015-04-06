@@ -75,7 +75,7 @@ VERSION=$(shell \
   (princ magit-version))")
 
 .PHONY: all
-all: lisp
+all: lisp docs
 
 .PHONY: lisp
 lisp: $(ELCS) loaddefs magit-version.el
@@ -93,6 +93,7 @@ help:
 	$(info make                  - build elisp files)
 	$(info make lisp             - ditto)
 	$(info make all              - build elisp files and documentation)
+	$(info make docs             - generate documentation)
 	$(info )
 	$(info Install)
 	$(info =======)
@@ -159,7 +160,13 @@ $(LOADDEFS_FILE): $(ELS)
 	      (make-backup-files nil))\
 	  (update-directory-autoloads \".\")))"
 
+docs: Documentation/magit.info Documentation/dir
+
+Documentation/dir: Documentation/magit.info
+	@$(INSTALL_INFO) --dir=$@ $<
+
 %.info: %.texi
+	@printf "Generating magit.info\n"
 	@$(MAKEINFO) $< -o $@
 
 CONTRIBUTORS_URL = https://github.com/magit/magit/graphs/contributors
@@ -234,7 +241,8 @@ test-interactive:
 .PHONY: clean
 clean:
 	@printf "Cleaning...\n"
-	@$(RM) $(ELCS) $(LOADDEFS_FILE) magit-version.el *.tar.gz *.tar dir
+	@$(RM) $(ELCS) $(LOADDEFS_FILE) magit-version.el *.tar.gz *.tar
+	@$(RM) dir Documentation/dir Documentation/magit.info
 	@$(RMDIR) magit-$(VERSION)
 
 DIST_FILES = $(ELS) magit-version.el Makefile AUTHORS.md README.md COPYING

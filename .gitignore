@@ -1,8 +1,8 @@
 *.elc
 *~
 /.dir-locals.el
-/dir
-/magit.info
+/Documentation/dir
+/Documentation/magit.info
 /magit-*.tar
 /magit-*.tar.gz
 /magit-autoloads.el
