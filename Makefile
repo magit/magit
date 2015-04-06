@@ -45,9 +45,11 @@ VERSION=$(shell \
   (load-file \"magit-version.el\")\
   (princ magit-version))")
 
+.PHONY: help magit-version.el AUTHORS.md install-lisp install-docs \
+	test test-interactive clean dist marmalade-upload marmalade stats
+
 all: lisp docs
 
-.PHONY: help
 help:
 	$(info Getting Help)
 	$(info ============)
@@ -158,7 +160,6 @@ lisp: $(ELCS) magit-version.el magit-autoloads.el
 	                    (apply 'message* f a)))))" \
 	-f batch-byte-compile $<
 
-.PHONY: magit-version.el
 magit-version.el:
 	@printf "Generating magit-version.el\n"
 	@printf ";;; magit-version.el --- the Magit version you are using\n\n" > $@
@@ -224,7 +225,6 @@ Contributors
 endef
 export AUTHORS_HEADER
 
-.PHONY: AUTHORS.md
 AUTHORS.md: .mailmap
 	@printf "Generating AUTHORS.md..."
 	@test -d .git \
@@ -233,32 +233,25 @@ AUTHORS.md: .mailmap
 			&& printf "done\n" ; ) \
 		|| printf "FAILED (non-fatal)\n"
 
-.PHONY: authors
 authors: AUTHORS.md
 
-.PHONY: install
 install: install-lisp install-docs
 
-.PHONY: install-lisp
 install-lisp: lisp
 	$(MKDIR) $(DESTDIR)$(lispdir)
 	$(CP) $(ELS) $(ELCS) magit-autoloads.el magit-version.el $(DESTDIR)$(lispdir)
 
-.PHONY: install-docs
 install-docs:
 	$(MKDIR) $(DESTDIR)$(docdir)
 	$(CP) AUTHORS.md $(DESTDIR)$(docdir)
 
-.PHONY: test
 test:
 	@$(BATCH) -l t/magit-tests.el -f ert-run-tests-batch-and-exit
 
-.PHONY: test-interactive
 test-interactive:
 	@$(EMACSBIN) -Q $(LOAD_PATH) --eval "\
 	(progn (load-file \"t/magit-tests.el\") (ert t))"
 
-.PHONY: clean
 clean:
 	@printf "Cleaning...\n"
 	@$(RM) $(ELCS) magit-autoloads.el magit-version.el *.tar.gz *.tar
@@ -267,7 +260,6 @@ clean:
 
 DIST_FILES = $(ELS) magit-version.el Makefile AUTHORS.md README.md COPYING
 
-.PHONY: dist
 dist: magit-$(VERSION).tar.gz
 magit-$(VERSION).tar.gz: $(DIST_FILES)
 	@printf "Packing $@\n"
@@ -278,7 +270,6 @@ magit-$(VERSION).tar.gz: $(DIST_FILES)
 
 ELPA_FILES = $(ELS) magit-pkg.el AUTHORS.md
 
-.PHONY: marmalade-upload marmalade
 marmalade-upload: magit-$(VERSION).tar
 	@marmalade-upload
 marmalade: magit-$(VERSION).tar
@@ -289,7 +280,6 @@ magit-$(VERSION).tar: $(ELPA_FILES)
 	@tar -c --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar magit-$(VERSION)
 	@$(RMDIR) magit-$(VERSION)
 
-.PHONY: stats
 stats:
 	@printf "Generating stats\n"
 	@gitstats -c style=/css/stats.css -c max_authors=200 . $(statsdir)
