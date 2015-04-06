@@ -1,12 +1,13 @@
+-include config.mk
+
 PREFIX      ?= /usr/local
 datarootdir ?= $(PREFIX)/share
 lispdir     ?= $(datarootdir)/emacs/site-lisp/magit
 infodir     ?= $(datarootdir)/info
 docdir      ?= $(datarootdir)/doc/magit
+statsdir    ?= ./stats
 
-statsdir    ?= $(HOME)/Repos/magit/page/stats
-
-ELPA_DIR ?= ~/.emacs.d/elpa
+ELPA_DIR    ?= $(HOME)/.emacs.d/elpa
 
 CL_LIB_DIR ?= $(shell \
   find $(ELPA_DIR) -maxdepth 1 -regex '.*/cl-lib-[.0-9]*' 2> /dev/null | \
@@ -85,10 +86,6 @@ help:
 	$(info make dist             - create old-school tarball)
 	$(info make marmalade        - create marmalade tarball)
 	$(info make marmalade-upload - create and upload marmalade tarball)
-	$(info )
-	$(info Web Page)
-	$(info ========)
-	$(info )
 	$(info make genstats         - generate stats)
 	@printf "\n"
 
