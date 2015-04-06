@@ -240,7 +240,7 @@ install-lisp: lisp
 	$(MKDIR) $(DESTDIR)$(lispdir)
 	$(CP) $(ELS) $(ELCS) magit-autoloads.el magit-version.el $(DESTDIR)$(lispdir)
 
-install-docs:
+install-docs: docs
 	$(MKDIR) $(DESTDIR)$(docdir)
 	$(CP) AUTHORS.md $(DESTDIR)$(docdir)
 
