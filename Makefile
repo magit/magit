@@ -31,6 +31,7 @@ BATCH     = $(EMACSBIN) -batch -Q $(LOAD_PATH)
 CP    ?= install -p -m 644
 MKDIR ?= install -p -m 755 -d
 RMDIR ?= rm -rf
+TAR   ?= tar
 
 MAKEINFO     ?= makeinfo
 INSTALL_INFO ?= $(shell \
@@ -46,8 +47,9 @@ VERSION=$(shell \
   (load-file \"magit-version.el\")\
   (princ magit-version))")
 
-.PHONY: help magit-version.el AUTHORS.md install-lisp install-docs \
-	test test-interactive clean dist marmalade-upload marmalade genstats
+.PHONY: help magit-version.el AUTHORS.md \
+	install-lisp install-docs test test-interactive clean \
+	dist magit-$(VERSION).tar magit-$(VERSION).tar.gz genstats
 
 all: lisp docs
 
@@ -255,26 +257,29 @@ clean:
 	@$(RM) dir Documentation/dir Documentation/magit.info
 	@$(RMDIR) magit-$(VERSION)
 
-DIST_FILES = $(ELS) magit-version.el Makefile AUTHORS.md README.md COPYING
+DIST_FILES = $(ELS) magit-version.el Makefile \
+	AUTHORS.md README.md COPYING Documentation/magit.texi
 
 dist: magit-$(VERSION).tar.gz
-magit-$(VERSION).tar.gz: $(DIST_FILES)
+magit-$(VERSION).tar.gz:
 	@printf "Packing $@\n"
 	@$(MKDIR) magit-$(VERSION)
 	@$(CP) $(DIST_FILES) magit-$(VERSION)
-	@tar -cz --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar.gz magit-$(VERSION)
+	@$(TAR) cz --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar.gz magit-$(VERSION)
 	@$(RMDIR) magit-$(VERSION)
 
-ELPA_FILES = $(ELS) magit-pkg.el AUTHORS.md
+ELPA_FILES = $(ELS) magit-pkg.el AUTHORS.md Documentation/magit.info Documentation/dir
 
-marmalade-upload: magit-$(VERSION).tar
-	@marmalade-upload
 marmalade: magit-$(VERSION).tar
-magit-$(VERSION).tar: $(ELPA_FILES)
+marmalade-upload: marmalade
+	@printf "Uploading magit-$(VERSION)\n"
+	@marmalade-upload magit-$(VERSION).tar
+	@$(RMDIR) marmalade
+magit-$(VERSION).tar:
 	@printf "Packing $@\n"
 	@$(MKDIR) magit-$(VERSION)
 	@$(CP) $(ELPA_FILES) magit-$(VERSION)
-	@tar -c --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar magit-$(VERSION)
+	@$(TAR) c --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar magit-$(VERSION)
 	@$(RMDIR) magit-$(VERSION)
 
 genstats:
