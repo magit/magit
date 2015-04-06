@@ -48,6 +48,7 @@
   "Face for bad bisect revisions."
   :group 'magit-faces)
 
+;;;###autoload (autoload 'magit-bisect-popup "magit-bisect" nil t)
 (magit-define-popup magit-bisect-popup
   "Popup console for bisect commands."
   'magit-commands 'magit-popup-sequence-mode

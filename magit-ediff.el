@@ -33,6 +33,7 @@
 (require 'ediff)
 (require 'smerge-mode)
 
+;;;###autoload (autoload 'magit-ediff-popup "magit-ediff" nil t)
 (magit-define-popup magit-ediff-popup
   "Popup console for ediff commands."
   'magit-diff nil nil

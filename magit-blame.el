@@ -173,6 +173,7 @@ See #1731."
       (message "Reverting %s inhibited due to magit-blame-mode" buffer-file-name)
     ad-do-it))
 
+;;;###autoload (autoload 'magit-blame-popup "magit-blame" nil t)
 (magit-define-popup magit-blame-popup
   "Popup console for blame commands."
   'magit-commands

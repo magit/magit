@@ -32,6 +32,7 @@
 
 ;;; Commands
 
+;;;###autoload (autoload 'magit-stash-popup "magit-stash" nil t)
 (magit-define-popup magit-stash-popup
   "Popup console for stash commands."
   'magit-commands

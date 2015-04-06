@@ -48,6 +48,7 @@
 
 ;;; Setup
 
+;;;###autoload (autoload 'magit-remote-popup "magit-remote" nil t)
 (magit-define-popup magit-remote-popup
   "Popup console for remote commands."
   'magit-commands nil nil
@@ -89,6 +90,7 @@
 
 ;;; Fetch
 
+;;;###autoload (autoload 'magit-fetch-popup "magit-remote" nil t)
 (magit-define-popup magit-fetch-popup
   "Popup console for fetch commands."
   'magit-commands
@@ -125,6 +127,7 @@ then read the remote."
 
 ;;; Pull
 
+;;;###autoload (autoload 'magit-pull-popup "magit-remote" nil t)
 (magit-define-popup magit-pull-popup
   "Popup console for pull commands."
   'magit-commands
@@ -154,6 +157,7 @@ then read the remote."
 
 ;;; Push
 
+;;;###autoload (autoload 'magit-push-popup "magit-remote" nil t)
 (magit-define-popup magit-push-popup
   "Popup console for push commands."
   'magit-commands
@@ -243,6 +247,7 @@ branch as default."
 
 ;;; Email
 
+;;;###autoload (autoload 'magit-patch-popup "magit-remote" nil t)
 (magit-define-popup magit-patch-popup
   "Popup console for patch commands."
   'magit-commands

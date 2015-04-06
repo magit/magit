@@ -401,6 +401,7 @@ The following `format'-like specs are supported:
 
 ;;; Commands
 
+;;;###autoload (autoload 'magit-diff-popup "magit-diff" nil t)
 (magit-define-popup magit-diff-popup
   "Popup console for diff commands."
   'magit-diff

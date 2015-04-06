@@ -293,6 +293,7 @@ http://www.mail-archive.com/git@vger.kernel.org/msg51337.html"
 
 ;;; Commands
 
+;;;###autoload (autoload 'magit-log-popup "magit-log" nil t)
 (magit-define-popup magit-log-popup
   "Popup console for log commands."
   'magit-log

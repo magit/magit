@@ -75,6 +75,7 @@ an error while using those is harder to recover from."
 
 ;;; Code
 
+;;;###autoload (autoload 'magit-commit-popup "magit-commit" nil t)
 (with-no-warnings ; quiet 24.4 byte-compiler
 (magit-define-popup magit-commit-popup
   "Popup console for commit commands."

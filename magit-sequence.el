@@ -143,6 +143,7 @@ This discards all changes made since the sequence started."
 
 ;;; Cherry-Pick
 
+;;;###autoload (autoload 'magit-cherry-pick-popup "magit-sequence" nil t)
 (magit-define-popup magit-cherry-pick-popup
   "Popup console for cherry-pick commands."
   'magit-commands 'magit-popup-sequence-mode
@@ -196,6 +197,7 @@ without prompting."
 
 ;;; Revert
 
+;;;###autoload (autoload 'magit-revert-popup "magit-sequence" nil t)
 (magit-define-popup magit-revert-popup
   "Popup console for revert commands."
   'magit-commands 'magit-popup-sequence-mode
@@ -240,6 +242,7 @@ without prompting."
 
 ;;; Patch
 
+;;;###autoload (autoload 'magit-am-popup "magit-sequence" nil t)
 (magit-define-popup magit-am-popup
   "Popup console for mailbox commands."
   'magit-commands 'magit-popup-sequence-mode
@@ -312,6 +315,7 @@ This discards all changes made since the sequence started."
 (add-to-list 'with-editor-server-window-alist
              (cons git-rebase-filename-regexp 'switch-to-buffer))
 
+;;;###autoload (autoload 'magit-rebase-popup "magit-sequence" nil t)
 (magit-define-popup magit-rebase-popup
   "Key menu for rebasing."
   'magit-commands 'magit-popup-sequence-mode

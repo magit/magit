@@ -559,6 +559,7 @@ Type \\[magit-reset-head] to reset HEAD to the commit at point.
   :group 'magit-modes
   (hack-dir-local-variables-non-file-buffer))
 
+;;;###autoload (autoload 'magit-show-refs-popup "magit" nil t)
 (magit-define-popup magit-show-refs-popup
   "Popup console for `magit-show-refs'."
   'magit-refs
@@ -944,6 +945,7 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
 
 ;;;; Branch
 
+;;;###autoload (autoload 'magit-branch-popup "magit" nil t)
 (magit-define-popup magit-branch-popup
   "Popup console for branch commands."
   'magit-commands
@@ -1109,6 +1111,7 @@ line is inserted at all."
 
 ;;;; Merge
 
+;;;###autoload (autoload 'magit-merge-popup "magit" nil t)
 (magit-define-popup magit-merge-popup
   "Popup console for merge commands."
   'magit-commands 'magit-popup-sequence-mode
@@ -1385,6 +1388,7 @@ If FILE isn't tracked in Git fallback to using `delete-file'."
 ;;; Miscellaneous
 ;;;; Tag
 
+;;;###autoload (autoload 'magit-tag-popup "magit" nil t)
 (magit-define-popup magit-tag-popup
   "Popup console for tag commands."
   'magit-commands
@@ -1448,6 +1452,7 @@ defaulting to the tag at point.
 
 ;;;; Notes
 
+;;;###autoload (autoload 'magit-notes-popup "magit" nil t)
 (magit-define-popup magit-notes-popup
   "Popup console for notes commands."
   'magit-commands 'magit-popup-sequence-mode
@@ -1588,6 +1593,7 @@ the current repository."
 
 ;;;; Submodules
 
+;;;###autoload (autoload 'magit-submodule-popup "magit" nil t)
 (magit-define-popup magit-submodule-popup
   "Popup console for submodule commands."
   'magit-commands nil nil
@@ -1663,6 +1669,7 @@ With a prefix argument fetch all remotes."
 
 ;;;; Dispatch Popup
 
+;;;###autoload (autoload 'magit-dispatch-popup "magit" nil t)
 (magit-define-popup magit-dispatch-popup
   "Popup console for dispatching other popups."
   'magit-commands nil nil
@@ -1697,6 +1704,7 @@ With a prefix argument fetch all remotes."
 
 (defvar magit-git-command-history nil)
 
+;;;###autoload (autoload 'magit-run-popup "magit" nil t)
 (magit-define-popup magit-run-popup
   "Popup console for running raw Git commands."
   'magit-commands nil nil
