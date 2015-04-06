@@ -191,12 +191,13 @@ Documentation/dir: Documentation/magit.info
 	@printf "Generating magit.info\n"
 	@$(MAKEINFO) $< -o $@
 
-CONTRIBUTORS_URL = https://github.com/magit/magit/graphs/contributors
+AUTHORS_URL = http://magit.vc/stats/authors.html
 define AUTHORS_HEADER
 Authors
 =======
 
-Also see $(CONTRIBUTORS_URL).
+For statistics see $(AUTHORS_URL).
+
 Names below are sorted alphabetically.
 
 Author
@@ -224,6 +225,7 @@ Contributors
 endef
 export AUTHORS_HEADER
 
+authors: AUTHORS.md
 AUTHORS.md: .mailmap
 	@printf "Generating AUTHORS.md..."
 	@test -d .git \
@@ -231,8 +233,6 @@ AUTHORS.md: .mailmap
 			&& git log --pretty=format:'- %aN <%aE>' | sort -u >> $@ \
 			&& printf "done\n" ; ) \
 		|| printf "FAILED (non-fatal)\n"
-
-authors: AUTHORS.md
 
 install: install-lisp install-docs
 

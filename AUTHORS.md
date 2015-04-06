@@ -1,7 +1,10 @@
 Authors
 =======
 
-Also see https://github.com/magit/magit/graphs/contributors.
+May (the history of) the source be with you!
+
+For statistics see http://magit.vc/stats/authors.html.
+
 Names below are sorted alphabetically.
 
 Author
@@ -35,6 +38,7 @@ Contributors
 - Ævar Arnfjörð Bjarmason <avarab@gmail.com>
 - Alan Falloon <alan.falloon@gmail.com>
 - Alexey Voinov <alexey.v.voinov@gmail.com>
+- Alex Kost <alezost@gmail.com>
 - Alex Ott <alexott@gmail.com>
 - Andreas Fuchs <asf@boinkor.net>
 - Andreas Liljeqvist <andreas.liljeqvist@robacks.se>
@@ -93,6 +97,7 @@ Contributors
 - Jeff Bellegarde <jbellegarde@whitepages.com>
 - Jeff Dairiki <dairiki@dairiki.org>
 - Jesse Alama <jesse.alama@gmail.com>
+- John Mastro <john.b.mastro@gmail.com>
 - John Wiegley <johnw@newartisans.com>
 - Jonas Bernoulli <jonas@bernoul.li>
 - Jonathan Roes <jroes@jroes.net>
@@ -178,6 +183,7 @@ Contributors
 - Steven Thomas <sthomas314@gmail.com>
 - Steve Purcell <steve@sanityinc.com>
 - Suhail Shergill <suhailshergill@gmail.com>
+- Syohei YOSHIDA <syohex@gmail.com>
 - Takafumi Arakaki <aka.tkf@gmail.com>
 - Teemu Likonen <tlikonen@iki.fi>
 - Teruki Shigitani <teruki.shigitani@gmail.com>
