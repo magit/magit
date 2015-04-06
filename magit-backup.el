@@ -67,6 +67,7 @@
 
 ;;; Commands
 
+;;;###autoload
 (defun magit-backup ()
   "Create a backup stash."
   (interactive)
@@ -74,6 +75,7 @@
                     t t magit-backup-untracked
                     t t nil magit-backup-ref))
 
+;;;###autoload
 (defun magit-backup-list ()
   "List all backup stashes in a buffer."
   (interactive)
@@ -85,6 +87,7 @@
 
 ;;; Mode
 
+;;;###autoload
 (define-minor-mode magit-backup-mode
   "Automatically create stashes to backup uncommitted changes."
   :lighter magit-backup-mode-lighter
@@ -92,7 +95,7 @@
   :group 'magit
   :group 'magit-backup)
 
-(defun magit-maybe-backup ()
+(defun magit-backup-maybe ()
   "If `magit-backup-mode' is enabled, create a backup stash."
   (when (and magit-backup-mode
              (magit-rev-parse "--verify" "HEAD"))
@@ -101,6 +104,7 @@
                       t magit-backup-untracked
                       nil t t magit-backup-ref)))
 
+;;;###autoload
 (defun magit-insert-backups ()
   "Insert `stashes' section showing reflog for `magit-backup-ref'."
   (magit-insert-stashes magit-backup-ref "Backups:"))

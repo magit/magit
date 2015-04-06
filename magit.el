@@ -1964,19 +1964,21 @@ Emacs:
 
 (add-hook 'after-init-hook #'magit-maybe-show-setup-instructions)
 
-(cl-eval-when (load eval) (magit-version t))
-
 (provide 'magit)
 
-(require 'magit-sequence)
-(require 'magit-stash)
-(require 'magit-commit)
-(require 'magit-remote)
-(require 'magit-bisect)
-(require 'magit-blame)
-(require 'magit-ediff)
-(require 'magit-extras)
-(require 'magit-wip)
+(cl-eval-when (load eval)
+  (magit-version t)
+  (require 'magit-sequence)
+  (require 'magit-commit)
+  (require 'magit-remote)
+  (require 'magit-bisect)
+  (require 'magit-stash)
+  (unless (require 'magit-autoloads nil t)
+    (require 'magit-blame)
+    (require 'magit-ediff)
+    (require 'magit-wip)
+    (require 'magit-backup)
+    (require 'magit-extras)))
 
 ;; Local Variables:
 ;; coding: utf-8

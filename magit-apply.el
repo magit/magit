@@ -34,7 +34,7 @@
 (require 'magit-core)
 (require 'magit-diff)
 
-(declare-function magit-maybe-backup 'magit-backup)
+(declare-function magit-backup-maybe 'magit-backup)
 ;; For `magit-discard-files'
 (declare-function magit-checkout-stage 'magit)
 (declare-function magit-checkout-read-stage 'magit)
@@ -90,6 +90,11 @@ With a prefix argument and if necessary, attempt a 3-way merge."
       (unless (magit-diff-context-p) "--unidiff-zero")
       "--ignore-space-change" "-"))
   (magit-refresh))
+
+(defun magit-maybe-backup ()
+  "If `magit-backup-mode' is enabled, create a backup stash."
+  (when (fboundp 'magit-backup-maybe)
+    (magit-backup-maybe)))
 
 ;;;; Stage
 

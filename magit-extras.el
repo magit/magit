@@ -107,6 +107,7 @@ with two prefix arguments remove ignored files only.
 
 ;;; Gitignore
 
+;;;###autoload
 (defun magit-gitignore (file-or-pattern &optional local)
   "Instruct Git to ignore FILE-OR-PATTERN.
 With a prefix argument only ignore locally."
@@ -129,6 +130,7 @@ With a prefix argument only ignore locally."
         (magit-refresh)
       (magit-run-git "add" ".gitignore"))))
 
+;;;###autoload
 (defun magit-gitignore-locally (file-or-pattern &optional local)
   "Instruct Git to locally ignore FILE-OR-PATTERN.
 \n(fn FILE-OR-PATTERN)"

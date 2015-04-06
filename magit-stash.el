@@ -139,6 +139,7 @@ while two prefix arguments are equivalent to `--all'."
   (magit-stash-save (concat "WIP on " (magit-stash-summary))
                     index worktree untracked refresh t))
 
+;;;###autoload
 (defun magit-stash-apply (stash)
   "Apply a stash to the working tree.
 Try to preserve the stash index.  If that fails because there
@@ -158,6 +159,7 @@ and forgo removing the stash."
       (magit-stash-drop stash)
     (magit-run-git "stash" "apply" stash)))
 
+;;;###autoload
 (defun magit-stash-drop (stash)
   "Remove a stash from the stash list.
 When the region is active offer to drop all contained stashes."
@@ -175,6 +177,7 @@ When the region is active offer to drop all contained stashes."
         (magit-run-git "update-ref" "-d" ref)))
     (magit-refresh)))
 
+;;;###autoload
 (defun magit-stash-clear (ref)
   "Remove all stashes saved in REF's reflog by deleting REF."
   (interactive
@@ -184,6 +187,7 @@ When the region is active offer to drop all contained stashes."
        (user-error "Abort"))))
   (magit-run-git "update-ref" "-d" ref))
 
+;;;###autoload
 (defun magit-stash-branch (stash branch)
   "Create and checkout a new BRANCH from STASH."
   (interactive (list (magit-read-stash  "Branch stash" t)
@@ -305,6 +309,7 @@ The following `format'-like specs are supported:
   :group 'magit-modes
   :type 'string)
 
+;;;###autoload
 (defun magit-stash-list ()
   "List all stashes in a buffer."
   (interactive)
@@ -347,6 +352,7 @@ The following `format'-like specs are supported:
   :group 'magit-modes
   :type 'string)
 
+;;;###autoload
 (defun magit-stash-show (stash &optional noselect args)
   "Show all diffs of a stash in a buffer."
   (interactive (nconc (list (or (and (not current-prefix-arg)

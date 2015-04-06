@@ -6,9 +6,6 @@ docdir      ?= $(datarootdir)/doc/magit
 
 statsdir    ?= $(HOME)/Repos/magit/page/stats
 
-LOADDEFS_FILE ?= magit-autoloads.el
-LOADDEFS_DIR  ?= $(lispdir)
-
 ELS  = with-editor.el
 ELS += git-commit.el
 ELS += git-rebase.el
@@ -78,7 +75,7 @@ VERSION=$(shell \
 all: lisp docs
 
 .PHONY: lisp
-lisp: $(ELCS) loaddefs magit-version.el
+lisp: $(ELCS) magit-version.el magit-autoloads.el
 
 .PHONY: help
 help:
@@ -126,6 +123,8 @@ help:
 %.elc: %.el
 	@printf "Compiling %s\n" $<
 	@$(BATCH) -eval "(progn\
+	(when (file-exists-p \"$@\")\
+	  (delete-file \"$@\"))\
 	(setq with-editor-emacsclient-executable nil)\
 	(fset 'message* (symbol-function 'message))\
 	(fset 'message  (lambda (f &rest a)\
@@ -147,16 +146,13 @@ magit-version.el:
 	@printf ";; End:\n" >> $@
 	@printf ";;; magit-version.el ends here\n" >> $@
 
-.PHONY: loaddefs
-loaddefs: $(LOADDEFS_FILE)
-
-$(LOADDEFS_FILE): $(ELS)
+magit-autoloads.el: $(ELS)
 	@printf "Generating magit-autoloads.el\n"
 	@$(BATCH) -eval "(progn\
 	(fset 'message (lambda (&rest _)))\
 	(setq vc-handled-backends nil)\
 	(defvar generated-autoload-file nil)\
-	(let ((generated-autoload-file \"$(CURDIR)/$(LOADDEFS_FILE)\")\
+	(let ((generated-autoload-file \"$(CURDIR)/magit-autoloads.el\")\
 	      (make-backup-files nil))\
 	  (update-directory-autoloads \".\")))"
 
@@ -220,9 +216,7 @@ install: install-lisp install-docs
 .PHONY: install-lisp
 install-lisp: lisp
 	$(MKDIR) $(DESTDIR)$(lispdir)
-	$(CP) $(ELS) $(ELCS) magit-version.el $(DESTDIR)$(lispdir)
-	$(MKDIR) $(DESTDIR)$(LOADDEFS_DIR)
-	$(CP) $(LOADDEFS_FILE) $(DESTDIR)$(LOADDEFS_DIR)/$(LOADDEFS_FILE)
+	$(CP) $(ELS) $(ELCS) magit-autoloads.el magit-version.el $(DESTDIR)$(lispdir)
 
 .PHONY: install-docs
 install-docs:
@@ -241,7 +235,7 @@ test-interactive:
 .PHONY: clean
 clean:
 	@printf "Cleaning...\n"
-	@$(RM) $(ELCS) $(LOADDEFS_FILE) magit-version.el *.tar.gz *.tar
+	@$(RM) $(ELCS) magit-autoloads.el magit-version.el *.tar.gz *.tar
 	@$(RM) dir Documentation/dir Documentation/magit.info
 	@$(RMDIR) magit-$(VERSION)
 
