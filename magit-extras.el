@@ -49,7 +49,7 @@
 (defun magit-run-git-gui ()
   "Run `git gui' for the current git repository."
   (interactive)
-  (let* ((default-directory (magit-get-top-dir)))
+  (let ((default-directory (magit-get-top-dir)))
     (call-process magit-git-executable nil 0 nil "gui")))
 
 ;;;###autoload
