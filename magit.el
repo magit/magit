@@ -1974,7 +1974,7 @@ Emacs:
   (require 'magit-bisect)
   (require 'magit-stash)
   (require 'magit-blame)
-  (unless (require 'magit-autoloads nil t)
+  (unless (load "magit-autoloads" t t)
     (require 'magit-ediff)
     (require 'magit-wip)
     (require 'magit-backup)
