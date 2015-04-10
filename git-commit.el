@@ -355,6 +355,8 @@ usually honor this wish and return non-nil."
   (with-editor-mode 1)
   (add-hook 'with-editor-finish-query-functions
             'git-commit-finish-query-functions nil t)
+  (add-hook 'with-editor-pre-finish-hook
+            'git-commit-save-message nil t)
   (add-hook 'with-editor-pre-cancel-hook
             'git-commit-save-message nil t)
   (setq with-editor-cancel-message
