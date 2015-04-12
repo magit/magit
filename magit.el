@@ -479,7 +479,7 @@ in the same directory as numbered backup files and have to be
 applied manually.  Only individual hunks are backed up; when
 a complete file is reverted (which requires confirmation) no
 backup is created."
-  :package-version '(magit . "2.1.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit
   :type 'boolean)
 
@@ -621,14 +621,14 @@ To select the face used for highlighting customize the option
 other face that does not use the background then you can set this
 option to nil.  Doing so could potentially improve performance
 when generating large diffs."
-  :package-version '(magit . "2.1.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit
   :group 'magit-faces
   :set-after '(magit-item-highlight-face)
   :type 'boolean)
 
 (define-obsolete-variable-alias 'magit-diff-use-overlays
-  'magit-use-overlays "2.1.0")
+  'magit-use-overlays "1.4.0")
 
 ;;;;; Completion
 
@@ -989,7 +989,7 @@ The function is called with one argument, the propertized graph
 of a single line in as a string.  It has to return the formatted
 string.  This option can also be nil, in which case the graph is
 inserted as is."
-  :package-version '(magit . "2.1.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-log
   :type '(choice (const :tag "insert as is" nil)
                  (function-item magit-log-format-unicode-graph)
@@ -998,7 +998,7 @@ inserted as is."
 (defcustom magit-log-format-unicode-graph-alist
   '((?/ . ?╱) (?| . ?│) (?\\ . ?╲) (?* . ?◆) (?o . ?◇))
   "Alist used by `magit-log-format-unicode-graph' to translate chars."
-  :package-version '(magit . "2.1.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-log
   :type '(repeat (cons :format "%v\n"
                        (character :format "replace %v ")
