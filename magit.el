@@ -7822,9 +7822,12 @@ https://github.com/magit/magit/wiki/Emacsclient")))
 
 (add-hook 'after-init-hook #'magit-maybe-show-setup-instructions)
 
-(cl-eval-when (load eval) (magit-version t))
-
 (provide 'magit)
+
+(cl-eval-when (load eval)
+  (magit-version t)
+  (when after-init-time
+    (magit-maybe-show-setup-instructions)))
 
 (require 'magit-key-mode)
 

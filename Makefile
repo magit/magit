@@ -24,7 +24,6 @@ EFLAGS   ?= -L ../git-modes -L ../cl-lib
 EMACSBIN ?= emacs
 BATCH     = $(EMACSBIN) $(EFLAGS) -batch -Q -L .
 BATCHE    = $(BATCH) -eval
-BATCHC    = $(BATCH) -f batch-byte-compile
 
 VERSION=$(shell \
   test -e .git && git describe --tags --dirty 2> /dev/null || \
@@ -79,7 +78,8 @@ help:
 	@printf "\n"
 
 %.elc: %.el
-	@$(BATCHC) $<
+	@$(BATCH) -eval "(setq magit-last-seen-setup-instructions \"9999\")" \
+	-f batch-byte-compile $<
 
 # Not a phony target, but needs to run *every* time.
 .PHONY: magit-version.el
@@ -112,6 +112,7 @@ loaddefs: $(LOADDEFS_FILE)
 $(LOADDEFS_FILE): $(ELS)
 	@$(BATCHE) "(progn\
 	(setq vc-handled-backends nil)\
+	(setq magit-last-seen-setup-instructions \"9999\")\
 	(defvar generated-autoload-file nil)\
 	(let ((generated-autoload-file \"$(CURDIR)/$(LOADDEFS_FILE)\")\
 	      (make-backup-files nil))\
@@ -197,6 +198,7 @@ install-docs: docs
 test: $(ELCS)
 	@$(BATCHE) "(progn\
 	(require 'cl) \
+	(setq magit-last-seen-setup-instructions \"9999\")\
 	(put 'flet 'byte-obsolete-info nil))" \
 	-l tests/magit-tests.el -f ert-run-tests-batch-and-exit
 
@@ -205,6 +207,7 @@ test-interactive: $(ELCS)
 	@$(EMACSBIN) $(EFLAGS) -Q -L "." --eval "(progn\
 	(require 'cl)\
 	(put 'flet 'byte-obsolete-info nil)\
+	(setq magit-last-seen-setup-instructions \"9999\")\
 	(load-file \"tests/magit-tests.el\")\
 	(ert t))"
 
