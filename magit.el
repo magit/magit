@@ -7824,16 +7824,6 @@ https://github.com/magit/magit/wiki/Emacsclient")))
 
 (cl-eval-when (load eval) (magit-version t))
 
-(define-obsolete-variable-alias 'magit-cherry-insert-sections-hook
-  'magit-cherry-sections-hook "1.4.0")
-(define-obsolete-variable-alias 'magit-status-insert-sections-hook
-  'magit-status-sections-hook "1.4.0")
-(define-obsolete-variable-alias 'magit-wazzup-insert-sections-hook
-  'magit-wazzup-sections-hook "1.4.0")
-
-(define-obsolete-variable-alias 'magit-quote-curly-braces
-  'magit-process-quote-curly-braces "1.4.0")
-
 (provide 'magit)
 
 (require 'magit-key-mode)
