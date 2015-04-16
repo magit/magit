@@ -619,9 +619,9 @@ For internal use; don't add to a hook."
           "\\(?1:[^ ]+\\) "                        ; sha1
           "\\[\\(?5:[^]]*\\)\\] "                  ; author
           "\\(?6:[^ ]*\\) "                        ; date
-          "[^@]+@{\\(?9:[^}]+\\)} "                ; refsel
+          "\\(?:\\(?:[^@]+@{\\(?9:[^}]+\\)} "      ; refsel
           "\\(?10:merge\\|[^:]+\\)?:? ?"           ; refsub
-          "\\(?2:.*\\)?$"))                        ; msg
+          "\\(?2:.*\\)?\\)\\| \\)$"))              ; msg
 
 (defconst magit-reflog-subject-re
   (concat "\\(?1:[^ ]+\\) ?"                       ; command
