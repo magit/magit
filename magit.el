@@ -1951,7 +1951,7 @@ keep this enabled.
 Keeping this mode enabled is only problematic if you, for
 example, use `git reset --hard REV' or `magit-reset-head-hard'
 *and* expect Emacs to preserve the old state of some file in a
-buffer.  If you turn of this mode then file-visiting buffers and
+buffer.  If you turn off this mode then file-visiting buffers and
 Magit buffer will no longer by in sync, which can be confusing
 and would complicate many operations.  Also note that it is
 possible to undo a buffer revert using `C-x u' (`undo').
