@@ -42,7 +42,7 @@ INSTALL_INFO ?= $(shell \
 VERSION=$(shell \
   test -e .git\
   && git describe --tags --dirty 2> /dev/null\
-  || $(BATCH) -eval "(progn\
+  || $(BATCH) --eval "(progn\
   (fset 'message (lambda (&rest _)))\
   (load-file \"magit-version.el\")\
   (princ magit-version))")
@@ -149,7 +149,7 @@ lisp: $(ELCS) magit-version.el magit-autoloads.el
 
 %.elc: %.el
 	@printf "Compiling %s\n" $<
-	@$(BATCH) -eval "(progn\
+	@$(BATCH) --eval "(progn\
 	(when (file-exists-p \"$@\")\
 	  (delete-file \"$@\"))\
 	(setq with-editor-emacsclient-executable nil)\
@@ -175,7 +175,7 @@ magit-version.el:
 
 magit-autoloads.el: $(ELS)
 	@printf "Generating magit-autoloads.el\n"
-	@$(BATCH) -eval "(progn\
+	@$(BATCH) --eval "(progn\
 	(fset 'message (lambda (&rest _)))\
 	(setq vc-handled-backends nil)\
 	(setq magit-last-seen-setup-instructions \"9999\")\
