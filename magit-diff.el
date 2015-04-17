@@ -605,7 +605,7 @@ be commited."
 If there is no commit at point or with a prefix argument prompt
 for a commit."
   (interactive
-   (let* ((mcommit (magit-section-when mcommit))
+   (let* ((mcommit (magit-section-when module-commit))
           (atpoint (or (and magit-blame-mode (magit-blame-chunk-get :hash))
                        mcommit
                        (magit-branch-or-commit-at-point)

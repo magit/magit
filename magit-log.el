@@ -574,11 +574,11 @@ For internal use; don't add to a hook."
     map)
   "Keymap for `commit' sections.")
 
-(defvar magit-mcommit-section-map
+(defvar magit-module-commit-section-map
   (let ((map (make-sparse-keymap)))
     (define-key map "\r" 'magit-show-commit)
     map)
-  "Keymap for `mcommit' (module commit) sections.")
+  "Keymap for `module-commit' sections.")
 
 (defconst magit-log-oneline-re
   (concat "^"
@@ -694,7 +694,7 @@ For internal use; don't add to a hook."
     (magit-insert-section section (commit hash)
       (pcase style
         (`stash      (setf (magit-section-type section) 'stash))
-        (`module     (setf (magit-section-type section) 'mcommit))
+        (`module     (setf (magit-section-type section) 'module-commit))
         (`bisect-log (setq hash (magit-rev-parse "--short" hash))))
       (when cherry
         (when (and (derived-mode-p 'magit-refs-mode)

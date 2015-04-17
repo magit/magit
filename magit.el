@@ -1824,15 +1824,15 @@ a prefix argument is used, otherwise save the branch name."
   (-when-let (section (magit-current-section))
     (let ((value (magit-section-value section)))
       (magit-section-case
-        (branch  (when current-prefix-arg
-                   (setq value (magit-rev-parse value))))
-        (commit  (setq value (magit-rev-parse value)))
-        (mcommit (let ((default-directory
-                         (file-name-as-directory
-                          (expand-file-name
-                           (magit-section-parent-value section)
-                           (magit-get-top-dir)))))
-                   (setq value (magit-rev-parse value))))
+        (branch (when current-prefix-arg
+                  (setq value (magit-rev-parse value))))
+        (commit (setq value (magit-rev-parse value)))
+        (module-commit (let ((default-directory
+                               (file-name-as-directory
+                                (expand-file-name
+                                 (magit-section-parent-value section)
+                                 (magit-get-top-dir)))))
+                         (setq value (magit-rev-parse value))))
         (t value))
       (kill-new (message "%s" value)))))
 
