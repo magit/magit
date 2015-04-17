@@ -555,7 +555,7 @@ tracked in the current repository are reverted if
 
 (defun magit-process-set-mode-line (program args)
   (when (equal program magit-git-executable)
-    (setq args (nthcdr (1+ (length magit-git-standard-options)) args)))
+    (setq args (nthcdr (length magit-git-standard-options) args)))
   (let ((str (concat " " program (and args (concat " " (car args))))))
     (dolist (buf (magit-mode-get-buffers))
       (with-current-buffer buf (setq mode-line-process str)))))
