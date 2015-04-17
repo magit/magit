@@ -233,7 +233,7 @@ magit-$(VERSION).tar.gz: $(DIST_FILES)
 
 .PHONY: marmalade-upload marmalade
 marmalade-upload: magit-$(VERSION).tar
-	@marmalade-upload
+	marmalade-upload $<
 marmalade: magit-$(VERSION).tar
 magit-$(VERSION).tar: $(ELPA_FILES) magit-pkg.el
 	$(MKDIR) magit-$(VERSION)
