@@ -955,9 +955,10 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
               (?u "Set upstream"      magit-branch-set-upstream)
               (?k "Delete"            magit-branch-delete)
               (?c "Create"            magit-branch)
-              (?e "Set description"   magit-branch-edit-description)
+              (?U "Unset upstream"    magit-branch-unset-upstream)
               (?r "Rename"            magit-branch-rename)
-              (?B "Create & Checkout" magit-branch-and-checkout))
+              (?B "Create & Checkout" magit-branch-and-checkout)
+              (?e "Set description"   magit-branch-edit-description))
   :default-arguments '("--track")
   :default-action 'magit-checkout
   :max-action-columns 3)
@@ -1067,14 +1068,18 @@ defaulting to the branch at point."
 (defun magit-branch-set-upstream (branch upstream)
   "Change the UPSTREAM branch of BRANCH."
   (interactive
-   (let ((branch (magit-read-local-branch "Change upstream of branch")))
+   (let  ((branch (magit-read-local-branch "Change upstream of branch")))
      (list branch (magit-completing-read
-                   "Change upstream to branch (empty to unset)"
+                   "Change upstream to branch"
                    (delete branch (magit-list-branch-names))
                    nil nil nil 'magit-revision-history))))
-  (if upstream
-      (magit-run-git "branch" (concat "--set-upstream-to=" upstream) branch)
-    (magit-run-git "branch" "--unset-upstream" branch)))
+  (magit-run-git "branch" (concat "--set-upstream-to=" upstream) branch))
+
+;;;###autoload
+(defun magit-branch-unset-upstream (branch)
+  "Unset the upstream branch of BRANCH."
+  (interactive (list (magit-read-local-branch "Unset upstream of branch")))
+  (magit-run-git "branch" "--unset-upstream" branch))
 
 ;;;###autoload
 (defun magit-branch-rename (old new &optional force)
