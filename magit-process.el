@@ -626,14 +626,18 @@ tracked in the current repository are reverted if
     (let ((buf (process-buffer process)))
       (cond ((not (buffer-live-p buf)))
             ((= magit-process-popup-time 0)
-             (pop-to-buffer buf))
+             (if (minibufferp)
+                 (switch-to-buffer-other-window buf)
+               (pop-to-buffer buf)))
             ((> magit-process-popup-time 0)
              (run-with-timer magit-process-popup-time nil
                              (lambda (p)
                                (when (eq (process-status p) 'run)
                                  (let ((buf (process-buffer p)))
                                    (when (buffer-live-p buf)
-                                     (pop-to-buffer buf)))))
+                                     (if (minibufferp)
+                                         (switch-to-buffer-other-window buf)
+                                       (pop-to-buffer buf))))))
                              process))))))
 
 ;;; magit-process.el ends soon
