@@ -47,7 +47,7 @@
 (require 'dash)
 
 (eval-when-compile (require 'ido))
-(declare-function completing-read-ido 'ido-ubiquitous)
+(declare-function ido-completing-read+ 'ido-completing-read+)
 
 (defvar magit-backup-mode)
 (defvar magit-backup-untracked)
@@ -278,29 +278,20 @@ results in additional differences."
   (prompt choices &optional predicate require-match initial-input hist def)
   "Ido-based `completing-read' almost-replacement.
 
-`ido-completing-read' is not suitable as a replacement for
-`completing-read', because it lacks essential features and
-has bugs.  Instead use the wrapper `completing-read-ido'
-from the `ido-ubiquitous' package."
-  (require 'ido-ubiquitous)
-  (let* (;; Pretend these modes are on because otherwise we would
-         ;; end up using regular `completing-read'.
-         (ido-mode t)
-         (ido-ubiquitous-mode t)
-         ;; Keep `completing-read-ido' from falling back to regular
-         ;; `completing-read' and force use of `enable-old' style.
-         (ido-ubiquitous-next-override 'enable-old)
-         (reply (completing-read-ido
-                 prompt
-                 ;; Unlike `completing-read', `ido-completing-read'
-                 ;; and `completing-read-ido' cannot handle alists.
-                 (if (consp (car choices))
-                     (mapcar #'car choices)
-                   choices)
-                 predicate require-match initial-input hist def)))
-    (or (and (consp (car choices))
-             (cdr (assoc reply choices)))
-        reply)))
+Unfortunately `ido-completing-read' is not suitable as a
+drop-in replacement for `completing-read', instead we use
+`ido-completing-read+' from third-party the package by the
+same name."
+  (if (require 'ido-completing-read+ nil t)
+      (ido-completing-read+ prompt choices predicate require-match
+                            initial-input hist def)
+    (display-warning :error "ido-completing-read+ is not installed
+
+To use Ido completion with Magit you need to install the
+third-party `ido-completing-read+' packages.  Falling
+back to built-in `completing-read' for now.")
+    (magit-builtin-completing-read prompt choices predicate require-match
+                                   initial-input hist def)))
 
 (defun magit-prompt-with-default (prompt def)
   (if (and def (> (length prompt) 2)
