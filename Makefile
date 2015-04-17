@@ -153,6 +153,7 @@ lisp: $(ELCS) magit-version.el magit-autoloads.el
 	(when (file-exists-p \"$@\")\
 	  (delete-file \"$@\"))\
 	(setq with-editor-emacsclient-executable nil)\
+	(setq magit-last-seen-setup-instructions \"9999\")\
 	(fset 'message* (symbol-function 'message))\
 	(fset 'message  (lambda (f &rest a)\
 	                  (unless (equal f \"Wrote %s\")\
@@ -177,6 +178,7 @@ magit-autoloads.el: $(ELS)
 	@$(BATCH) -eval "(progn\
 	(fset 'message (lambda (&rest _)))\
 	(setq vc-handled-backends nil)\
+	(setq magit-last-seen-setup-instructions \"9999\")\
 	(defvar generated-autoload-file nil)\
 	(let ((generated-autoload-file \"$(CURDIR)/magit-autoloads.el\")\
 	      (make-backup-files nil))\
@@ -245,11 +247,16 @@ install-docs: docs
 	$(CP) AUTHORS.md $(DESTDIR)$(docdir)
 
 test:
-	@$(BATCH) -l t/magit-tests.el -f ert-run-tests-batch-and-exit
+	@$(BATCH) --eval "(progn\
+	(setq magit-last-seen-setup-instructions \"9999\")\
+	(load-file \"t/magit-tests.el\")\
+	(ert-run-tests-batch-and-exit))"
 
 test-interactive:
-	@$(EMACSBIN) -Q $(LOAD_PATH) --eval "\
-	(progn (load-file \"t/magit-tests.el\") (ert t))"
+	@$(EMACSBIN) -Q $(LOAD_PATH) --eval "(progn\
+	(setq magit-last-seen-setup-instructions \"9999\")\
+	(load-file \"t/magit-tests.el\")\
+	(ert t))"
 
 clean:
 	@printf "Cleaning...\n"

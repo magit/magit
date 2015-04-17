@@ -84,7 +84,7 @@ Only considered when moving past the last entry with
 The function is called with one argument, the graph of a single
 line as a propertized string.  It has to return the formatted
 string.  Use `identity' to forgo changing the graph."
-  :package-version '(magit . "2.1.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-log
   :type '(choice (function-item identity)
                  (function-item magit-log-format-unicode-graph)
@@ -93,7 +93,7 @@ string.  Use `identity' to forgo changing the graph."
 (defcustom magit-log-format-unicode-graph-alist
   '((?/ . ?╱) (?| . ?│) (?\\ . ?╲) (?* . ?◆) (?o . ?◇))
   "Alist used by `magit-log-format-unicode-graph' to translate chars."
-  :package-version '(magit . "2.1.0")
+  :package-version '(magit . "1.4.0")
   :group 'magit-log
   :type '(repeat (cons :format "%v\n"
                        (character :format "replace %v ")

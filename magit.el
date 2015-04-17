@@ -1965,7 +1965,17 @@ Then you also have to add the following line to your init file
 to prevent this message from being shown again when you restart
 Emacs:
 
-  (setq magit-last-seen-setup-instructions \"1.4.0\")\n")))
+  (setq magit-last-seen-setup-instructions \"1.4.0\")\n"))
+  (when (featurep 'magit-log-edit)
+    (display-warning :error "magit-log-edit has to be removed
+
+Magit is no longer compatible with the library `magit-log-edit',
+which was used in earlier releases.  Please remove it, so that
+Magit can use the successor `git-commit-mode' without the
+obsolete library getting in the way.  Then restart Emacs.
+
+You might also want to read:
+https://github.com/magit/magit/wiki/Emacsclient")))
 
 (add-hook 'after-init-hook #'magit-maybe-show-setup-instructions)
 
