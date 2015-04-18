@@ -45,11 +45,14 @@
 ;;   C-c C-c  Tell Git to make it happen.
 ;;   C-c C-k  Tell Git that you changed your mind, i.e. abort.
 ;;
+;;   p        Move point to previous line.
+;;   n        Move point to next line.
+;;
 ;;   M-p      Move the commit at point up.
 ;;   M-n      Move the commit at point down.
 ;;
 ;;   k        Drop the commit at point.
-;;   p        Don't drop the commit at point.
+;;   c        Don't drop the commit at point.
 ;;   r        Change the message of the commit at point.
 ;;   e        Edit the commit at point.
 ;;   s        Squash the commit at point, into the one above.
@@ -345,17 +348,25 @@ running 'man git-rebase' at the command line) for details."
 at the bottom of the file so that in place of the one-letter
 abbreviation for the command, it shows the command's keybinding.
 By default, this is the same except for the \"pick\" command."
-  (save-excursion
-    (goto-char (point-min))
-    (while (search-forward-regexp "^#  \\(.\\), \\([[:alpha:]]+\\) = " nil t)
-      (let ((start (match-beginning 1))
-            (end (match-end 1))
-            (command (intern (concat "git-rebase-" (match-string 2)))))
-        (when (fboundp command)
-          (let ((overlay (make-overlay start end)))
-            (overlay-put
-             overlay 'display
-             (key-description (where-is-internal command nil t)))))))))
+  (let ((inhibit-read-only t))
+    (save-excursion
+      (goto-char (point-min))
+      (when (re-search-forward "^# Commands:\n" nil t)
+        (insert "#  C-c C-c  tell Git to make it happen\n")
+        (insert "#  C-c C-k  tell Git that you changed your mind, i.e. abort\n")
+        (insert "#  p        move point to previous line\n")
+        (insert "#  n        move point to next line\n")
+        (insert "#  M-p      move the commit at point up\n")
+        (insert "#  M-n      move the commit at point down\n")
+        (insert "#  RET      show the commit at point in another buffer\n")
+        (insert "#  C-/      undo last change\n")
+        (insert "#  k        drop the commit at point\n")
+        (while (re-search-forward "^#  \\(.\\)\\(,\\) \\([^ ]+\\) = " nil t)
+          (replace-match "       " t t nil 2)
+          (let ((command (intern (concat "git-rebase-" (match-string 3)))))
+            (when (fboundp command)
+              (replace-match (key-description (where-is-internal command nil t))
+                             t t nil 1))))))))
 
 (add-hook 'git-rebase-mode-hook 'git-rebase-mode-show-keybindings t)
 
