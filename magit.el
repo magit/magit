@@ -191,6 +191,7 @@ nil    Never show counts."
                  (const branch :tag "For branches only")
                  (const nil    :tag "Never")))
 (put 'magit-refs-show-commit-count 'safe-local-variable 'symbolp)
+(put 'magit-refs-show-commit-count 'permanent-local t)
 
 (defcustom magit-refs-show-margin 'branch
   "Whether to initially show the margin in refs buffers.
