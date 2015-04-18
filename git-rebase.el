@@ -321,10 +321,20 @@ running 'man git-rebase' at the command line) for details."
   (with-editor-mode 1)
   (when git-rebase-confirm-cancel
     (add-hook 'with-editor-cancel-query-functions
-              'git-rebase-cancel-confirm nil t)))
+              'git-rebase-cancel-confirm nil t))
+  (add-hook 'with-editor-pre-cancel-hook  'git-rebase-autostash-save  nil t)
+  (add-hook 'with-editor-post-cancel-hook 'git-rebase-autostash-apply nil t))
 
 (defun git-rebase-cancel-confirm (force)
   (or (not (buffer-modified-p)) force (y-or-n-p "Abort this rebase? ")))
+
+(defun git-rebase-autostash-save ()
+  (--when-let (magit-file-line (magit-git-dir "rebase-merge/autostash"))
+    (push (cons 'stash it) with-editor-cancel-alist)))
+
+(defun git-rebase-autostash-apply ()
+  (--when-let (cdr (assq 'stash with-editor-cancel-alist))
+    (magit-stash-apply it)))
 
 (defconst git-rebase-mode-font-lock-keywords
   `(("^\\([efprs]\\|pick\\|reword\\|edit\\|squash\\|fixup\\) \\([^ \n]+\\) \\(.*\\)"
