@@ -941,11 +941,8 @@ Type \\[magit-cherry-pick] to cherry-pick the commit at point.
   "Insert commit sections into a `magit-cherry-mode' buffer."
   (magit-insert-section (cherries)
     (magit-insert-heading "Cherry commits:")
-    (apply 'magit-insert-cherry-commits-1 magit-refresh-args)))
-
-(defun magit-insert-cherry-commits-1 (&rest args)
-  (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
-    "cherry" "-v" "--abbrev" args))
+    (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
+      "cherry" "-v" "--abbrev" magit-refresh-args)))
 
 ;;; Reflog Mode
 
