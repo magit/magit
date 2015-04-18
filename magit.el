@@ -52,7 +52,6 @@
 
 (require 'with-editor)
 (require 'git-commit)
-(require 'git-rebase)
 (require 'magit-core)
 (require 'magit-diff)
 (require 'magit-apply)
@@ -2015,7 +2014,8 @@ https://github.com/magit/magit/wiki/Emacsclient")))
     (require 'magit-ediff)
     (require 'magit-wip)
     (require 'magit-backup)
-    (require 'magit-extras)))
+    (require 'magit-extras)
+    (require 'git-rebase)))
 
 ;; Local Variables:
 ;; coding: utf-8

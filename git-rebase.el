@@ -71,6 +71,7 @@
 (require 'easymenu)
 (require 'server)
 (require 'with-editor)
+(require 'magit)
 
 (eval-when-compile (require 'recentf))
 
@@ -244,14 +245,9 @@ Because you have seen them before and can still remember."
 
 (defun git-rebase-insert (rev)
   "Read an arbitrary commit and insert it below current line."
-  (interactive
-   (list (if (fboundp 'magit-read-branch-or-commit)
-             (magit-read-branch-or-commit "Insert revision")
-           (read-string "Insert revision: "))))
+  (interactive (list (magit-read-branch-or-commit "Insert revision")))
   (forward-line)
-  (--if-let (if (fboundp 'magit-rev-format)
-                (magit-rev-format "%h %s" rev)
-              (process-lines "git" "show" "-s" "--format=%h %s" rev))
+  (--if-let (magit-rev-format "%h %s" rev)
       (let ((inhibit-read-only t))
         (insert "pick " it ?\n))
     (user-error "Unknown revision")))
@@ -299,9 +295,7 @@ Like `undo' but works in read-only buffers."
     (goto-char (line-beginning-position))
     (--if-let (and (looking-at git-rebase-line)
                    (match-string 2))
-        (if (fboundp 'magit-show-commit)
-            (magit-show-commit it)
-          (shell-command (concat "git show " it)))
+        (magit-show-commit it)
       (ding))))
 
 (defun git-rebase-backward-line (&optional n)
@@ -381,6 +375,9 @@ By default, this is the same except for the \"pick\" command."
 ;;;###autoload
 (add-to-list 'auto-mode-alist
              (cons git-rebase-filename-regexp 'git-rebase-mode))
+;;;###autoload
+(add-to-list 'with-editor-server-window-alist
+             (cons git-rebase-filename-regexp 'switch-to-buffer))
 
 (eval-after-load 'recentf
   '(add-to-list 'recentf-exclude git-rebase-filename-regexp))

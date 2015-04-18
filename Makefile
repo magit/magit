@@ -93,7 +93,6 @@ help:
 
 ELS  = with-editor.el
 ELS += git-commit.el
-ELS += git-rebase.el
 ELS += magit-popup.el
 ELS += magit-utils.el
 ELS += magit-section.el
@@ -115,11 +114,11 @@ ELS += magit-ediff.el
 ELS += magit-wip.el
 ELS += magit-backup.el
 ELS += magit-extras.el
+ELS += git-rebase.el
 ELCS = $(ELS:.el=.elc)
 
 with-editor.elc:
 git-commit.elc:		with-editor.elc
-git-rebase.elc:		with-editor.elc
 magit-utils.elc:
 magit-section.elc:	magit-utils.elc
 magit-git.elc:		magit-utils.elc magit-section.elc
@@ -132,7 +131,7 @@ magit-core.elc:		magit-utils.elc magit-section.elc magit-git.elc \
 magit-diff.elc:		git-commit.elc magit-core.elc
 magit-apply.elc:	magit-core.elc magit-diff.elc
 magit-log.elc:		magit-core.elc magit-diff.elc
-magit.elc:		with-editor.elc git-commit.elc git-rebase.elc \
+magit.elc:		with-editor.elc git-commit.elc \
 			magit-core.elc magit-diff.elc magit-apply.elc magit-log.elc
 magit-sequence.elc:	magit.elc
 magit-commit.elc:	magit.elc magit-sequence.elc
@@ -144,6 +143,7 @@ magit-ediff.elc:	magit.elc
 magit-wip.elc:		magit-core.elc
 magit-backup.elc:	magit.elc magit-stash.elc
 magit-extras.elc:	magit.elc magit-backup.elc
+git-rebase.elc:		magit.elc with-editor.elc
 
 lisp: $(ELCS) magit-version.el magit-autoloads.el
 

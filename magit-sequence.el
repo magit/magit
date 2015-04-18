@@ -312,9 +312,6 @@ This discards all changes made since the sequence started."
 
 ;;; Rebase
 
-(add-to-list 'with-editor-server-window-alist
-             (cons git-rebase-filename-regexp 'switch-to-buffer))
-
 ;;;###autoload (autoload 'magit-rebase-popup "magit-sequence" nil t)
 (magit-define-popup magit-rebase-popup
   "Key menu for rebasing."
