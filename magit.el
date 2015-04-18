@@ -178,7 +178,7 @@ The following `format'-like specs are supported:
   :group 'magit-refs
   :type 'string)
 
-(defcustom magit-refs-show-commit-count 'all
+(defcustom magit-refs-show-commit-count nil
   "Whether to show commit counts in Magit-Refs mode buffers.
 
 all    Show counts for branches and tags.
