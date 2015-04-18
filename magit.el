@@ -540,6 +540,7 @@ Do so depending on the value of `status.showUntrackedFiles'."
 (defvar magit-refs-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-mode-map)
+    (define-key map "\C-y" 'magit-refs-set-show-commit-count)
     map)
   "Keymap for `magit-refs-mode'.")
 
@@ -646,6 +647,16 @@ Refs are compared with a branch read form the user."
     (define-key map "R"  'magit-remote-rename)
     map)
   "Keymap for `remote' sections.")
+
+(defun magit-refs-set-show-commit-count ()
+  "Change for which refs the commit count is shown."
+  (interactive)
+  (setq-local magit-refs-show-commit-count
+              (magit-read-char-case "Show commit counts for " nil
+                (?a "[a]ll refs" 'all)
+                (?b "[b]ranches only" t)
+                (?n "[n]othing" nil)))
+  (magit-refresh))
 
 (defun magit-insert-local-branches ()
   "Insert sections showing all local branches."
