@@ -953,6 +953,7 @@ in the popup."
         (magit-popup-insert-command-section
          'magit-popup-internal-command-button
          magit-popup-internal-commands)))
+    (set-buffer-modified-p nil)
     (if event
         (while (and (forward-button 1)
                     (let ((b (button-at (point))))

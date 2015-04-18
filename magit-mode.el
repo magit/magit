@@ -250,6 +250,7 @@ the user has to confirm each save."
 Magit is documented in info node `(magit)'."
   :group 'magit-modes
   (buffer-disable-undo)
+  (setq buffer-read-only t)
   (setq truncate-lines t)
   (setq show-trailing-whitespace nil)
   (hack-dir-local-variables-non-file-buffer)
@@ -469,7 +470,8 @@ Uses the buffer-local `magit-refresh-function'."
           (with-current-buffer buffer
             (apply #'magit-section-goto-successor (cdr window)))))
       (run-hooks 'magit-refresh-buffer-hook)
-      (magit-section-update-highlight))))
+      (magit-section-update-highlight)
+      (set-buffer-modified-p nil))))
 
 (defun magit-revert-buffers (&optional force)
   "Revert unmodified file-visiting buffers of the current repository.

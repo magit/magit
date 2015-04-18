@@ -784,7 +784,8 @@ found in STRING."
        'magit-section-highlight-hook section (magit-region-sections)))
     (mapc (apply-partially 'run-hook-with-args-until-success
                            'magit-section-unhighlight-hook)
-          magit-section-unhighlight-sections)))
+          magit-section-unhighlight-sections)
+    (restore-buffer-modified-p nil)))
 
 (defun magit-section-highlight (section siblings)
   "Highlight SECTION and if non-nil all SIBLINGS.
