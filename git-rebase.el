@@ -385,7 +385,7 @@ By default, this is the same except for the \"pick\" command."
 ;;;###autoload
 (add-to-list 'auto-mode-alist
              (cons git-rebase-filename-regexp 'git-rebase-mode))
-;;;###autoload
+
 (add-to-list 'with-editor-server-window-alist
              (cons git-rebase-filename-regexp 'switch-to-buffer))
 
