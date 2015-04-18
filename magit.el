@@ -767,7 +767,7 @@ Refs are compared with a branch read form the user."
       (let ((head (or (car magit-refresh-args)
                       (magit-get-current-branch)
                       "HEAD"))
-            (format (if (eq magit-refs-show-commit-count 'all)
+            (format (if magit-refs-show-commit-count
                         magit-refs-tags-format
                       (replace-regexp-in-string
                        "%[0-9]\\([cC]\\)" "%1\\1" magit-refs-tags-format t))))
