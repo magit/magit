@@ -673,7 +673,7 @@ Refs are compared with a branch read form the user."
           (when (string-match-p "(" branch)
             (setq branch nil))
           (magit-insert-branch
-           branch current branches magit-refs-local-branch-format
+           branch magit-refs-local-branch-format current branches
            'magit-branch-local hash message upstream ahead behind gone))))
     (insert ?\n)))
 
@@ -694,20 +694,22 @@ Refs are compared with a branch read form the user."
             (magit-bind-match-strings (branch hash message) line
               (when (string-match-p (format "^%s/" remote) branch)
                 (magit-insert-branch
-                 branch current branches magit-refs-remote-branch-format
+                 branch magit-refs-remote-branch-format current branches
                  'magit-branch-remote hash message))))))
       (insert ?\n))))
 
-(defun magit-insert-branch (branch &rest args)
+(defun magit-insert-branch (branch format &rest args)
   "For internal use, don't add to a hook."
+  (unless magit-refs-show-commit-count
+    (setq format (replace-regexp-in-string "%[0-9]\\([cC]\\)" "%1\\1" format t)))
   (if (equal branch "HEAD")
       (magit-insert-section it (commit (magit-rev-parse "HEAD") t)
-        (apply #'magit-insert-branch-1 it nil args))
+        (apply #'magit-insert-branch-1 it nil format args))
     (magit-insert-section it (branch branch t)
-      (apply #'magit-insert-branch-1 it branch args))))
+      (apply #'magit-insert-branch-1 it branch format args))))
 
 (defun magit-insert-branch-1
-    (section branch current branches format face
+    (section branch format current branches face
              &optional hash message upstream ahead behind gone)
   "For internal use, don't add to a hook."
   (let* ((head  (or (car magit-refresh-args) current "HEAD"))
@@ -765,16 +767,20 @@ Refs are compared with a branch read form the user."
       (magit-insert-heading "Tags:")
       (let ((head (or (car magit-refresh-args)
                       (magit-get-current-branch)
-                      "HEAD")))
+                      "HEAD"))
+            (format (if (eq magit-refs-show-commit-count 'all)
+                        magit-refs-tags-format
+                      (replace-regexp-in-string
+                       "%[0-9]\\([cC]\\)" "%1\\1" magit-refs-tags-format t))))
         (dolist (tag (nreverse tags))
           (string-match "^\\([^ \t]+\\)[ \t]+\\([^ \t\n].*\\)?" tag)
           (let* ((message (match-string 2 tag))
                  (tag     (match-string 1 tag))
                  (count   (magit-refs-format-commit-count
-                           tag head magit-refs-tags-format t)))
+                           tag head format t)))
             (magit-insert-section section (tag tag t)
               (magit-insert-heading
-               (format-spec magit-refs-tags-format
+               (format-spec format
                             `((?n . ,(propertize tag 'face 'magit-tag))
                               (?c . ,(or count ""))
                               (?m . ,(or message "")))))
