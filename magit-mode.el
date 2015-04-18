@@ -555,7 +555,9 @@ argument (the prefix) non-nil means save all with no questions."
                (-when-let (topdir ,(magit-get-top-dir default-directory))
                  (and (string-prefix-p topdir buffer-file-name)
                       ;; ^ Avoid needlessly connecting to unrelated remotes.
-                      (equal (magit-get-top-dir default-directory) topdir)
+                      (equal (ignore-errors
+                               (magit-get-top-dir default-directory))
+                             topdir)
                       (magit-inside-worktree-p)))))))
 
 ;;; Buffer History
