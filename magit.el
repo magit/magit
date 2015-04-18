@@ -793,13 +793,13 @@ Refs are compared with a branch read form the user."
   (if (magit-section-hidden section)
       (setf (magit-section-washer section)
             (apply-partially #'magit-refs-insert-cherry-commits-1
-                             section head ref))
-    (magit-refs-insert-cherry-commits-1 section head ref)))
+                             head ref section))
+    (magit-refs-insert-cherry-commits-1 head ref section)))
 
 (defun magit-refs-insert-cherry-commits-1 (head ref section)
   (let ((start (point)))
     (magit-git-wash (apply-partially 'magit-log-wash-log 'cherry)
-      "cherry" "-v" "--abbrev" magit-refresh-args)
+      "cherry" "-v" "--abbrev" head ref magit-refresh-args)
     (unless (= (point) start)
       (insert (propertize "\n" 'magit-section section)))))
 
