@@ -437,7 +437,6 @@ tracked in the current repository are reverted if
   (let ((debug-on-error t)) ; temporary
   (when (memq (process-status process) '(exit signal))
     (setq event (substring event 0 -1))
-    (magit-process-unset-mode-line)
     (when (string-match "^finished" event)
       (message (concat (capitalize (process-name process)) " finished")))
     (magit-process-finish process)
@@ -575,6 +574,7 @@ tracked in the current repository are reverted if
           default-dir (process-get arg 'default-dir)
           section     (process-get arg 'section)
           arg         (process-exit-status arg)))
+  (magit-process-unset-mode-line)
   (when (featurep 'dired)
     (dired-uncache default-dir))
   (when (buffer-live-p process-buf)
