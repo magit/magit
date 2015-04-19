@@ -344,7 +344,7 @@ running 'man git-rebase' at the command line) for details."
     ("^\\(exec\\) \\(.*\\)"
      (1 'font-lock-keyword-face)
      (2 'git-rebase-description))
-    ("^#.+"       0 'font-lock-comment-face)
+    ("^#.*"       0 'font-lock-comment-face)
     ("^#[^ \n].*" 0 'git-rebase-killed-action t))
   "Font lock keywords for Git-Rebase mode.")
 
