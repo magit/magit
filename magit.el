@@ -608,6 +608,8 @@ Refs are compared with a branch read form the user."
 
 (defun magit-refs-refresh-buffer (&rest ignore)
   (setq magit-set-buffer-margin-refresh (not magit-show-margin))
+  (unless (magit-rev-verify (or (car magit-refresh-args) "HEAD"))
+    (setq magit-refs-show-commit-count nil))
   (magit-insert-section (branchbuf)
     (run-hooks 'magit-refs-sections-hook)))
 
