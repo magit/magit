@@ -699,7 +699,7 @@ KEY is the character which is to be unbound."
         (setf (magit-popup-event-use it)
               (not (magit-popup-event-use it)))
         (magit-refresh-popup-buffer))
-    (error "%c isn't bound to any switch" event)))
+    (user-error "%c isn't bound to any switch" event)))
 
 (defun magit-invoke-popup-option (event)
   (interactive (list last-command-event))
@@ -715,7 +715,7 @@ KEY is the character which is to be unbound."
             (setf (magit-popup-event-use it) t)
             (setf (magit-popup-event-val it) val)))
         (magit-refresh-popup-buffer))
-    (error "%c isn't bound to any option" event)))
+    (user-error "%c isn't bound to any option" event)))
 
 (defun magit-invoke-popup-action (event)
   (interactive (list last-command-event))
@@ -728,7 +728,7 @@ KEY is the character which is to be unbound."
         (setq this-command command))
     (if (eq event ?q)
         (magit-popup-quit)
-      (error "%c isn't bound to any action" event))))
+      (user-error "%c isn't bound to any action" event))))
 
 (defun magit-popup-quit ()
   "Quit the current popup command without invoking an action."
@@ -808,8 +808,8 @@ and are defined in `magit-popup-mode-map' (which see)."
 
 (defun magit-popup-manpage (topic arg)
   (unless topic
-    (error "No man page associated with %s"
-           (magit-popup-get :man-page)))
+    (user-error "No man page associated with %s"
+                (magit-popup-get :man-page)))
   (when arg
     (setq arg (magit-popup-event-arg arg)))
   (let ((winconf (current-window-configuration)) buffer)
@@ -857,7 +857,7 @@ and are defined in `magit-popup-mode-map' (which see)."
 (defun magit-popup-info ()
   "Show the popup manual."
   (interactive)
-  (error "The manual does not exist yet, I'm afraid")
+  (user-error "The manual does not exist yet, I'm afraid")
   (let ((winconf (current-window-configuration)))
     (delete-other-windows)
     (split-window-below)
