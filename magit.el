@@ -4386,8 +4386,8 @@ can be used to override this."
                   (number (match-string 2 stash))
                   (message (match-string 3 stash)))
               (magit-with-section (section stash stash)
-                (insert number ": " message "\n"))))
-          (insert "\n"))))))
+                (insert number ": " message "\n")))))
+        (insert "\n")))))
 
 (defun magit-insert-untracked-files ()
   (magit-with-section (section untracked 'untracked "Untracked files:" t)
