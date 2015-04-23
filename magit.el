@@ -6279,7 +6279,7 @@ Type `\\[magit-log-show-more-entries]` to show more commits, \
 and `\\[magit-refresh]` to refresh the log.
 Type `\\[magit-diff-working-tree]` to see the diff between current commit and your working tree,
 Type `\\[magit-diff]` to see diff between any two version
-Type `\\[magit-apply-item]` to apply the change of the current commit to your wortree,
+Type `\\[magit-apply-item]` to apply the change of the current commit to your worktree,
 and `\\[magit-cherry-pick-item]` to apply and commit the result.
 Type `\\[magit-revert-item]` to revert a commit, and `\\[magit-reset-head]` reset your current head to a commit,
 
