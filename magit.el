@@ -1927,8 +1927,11 @@ Git, and Emacs in the echo area.\n\n(fn)"
 
 (defun magit-assert-satisfied-dependencies ()
   (let ((version (substring (magit-git-string "version") 12)))
-    (when (and version (version< version "1.9.4"))
-      (display-warning :error (format "\
+    (when version
+      (when (string-match "^\\([0-9]+\\.[0-9]+\\.[0-9]+\\)" version)
+        (setq version (match-string 1 version)))
+      (when (version< version "1.9.4")
+        (display-warning :error (format "\
 Magit requires Git >= 1.9.4, you are using %s.
 
 If this comes as a surprise to you, because you do actually have
@@ -1942,7 +1945,7 @@ For X11 something like ~/.xinitrc should work.
 
 If you use Tramp to work inside remote Git repositories, then you
 have to make sure a suitable Git is used on the remote machines
-too.\n" version))))
+too.\n" version)))))
   (when (version< emacs-version "24.2")
     (display-warning :error (format "\
 Magit requires Emacs >= 24.2, you are using %s.
