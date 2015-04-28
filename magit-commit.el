@@ -198,7 +198,7 @@ depending on the value of option `magit-commit-squash-confirm'.
   (magit-commit-squash-internal
    (lambda (c a)
      (when (setq c (magit-commit-fixup c a))
-       (magit-rebase-autosquash (concat c "^"))))
+       (magit-rebase-autosquash (concat c "^") (list "--autostash"))))
    "--fixup" commit args t))
 
 ;;;###autoload
@@ -211,7 +211,7 @@ depending on the value of option `magit-commit-squash-confirm'.
   (magit-commit-squash-internal
    (lambda (c a)
      (when (setq c (magit-commit-squash c a))
-       (magit-rebase-autosquash (concat c "^"))))
+       (magit-rebase-autosquash (concat c "^") (list "--autostash"))))
    "--squash" commit args t))
 
 (defun magit-commit-squash-read-args ()
