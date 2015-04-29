@@ -262,9 +262,7 @@ Magit is documented in info node `(magit)'."
 
 (defun magit-post-command-adjust-point ()
   (when (and (get-text-property (point) 'invisible)
-             (not (if (fboundp 'get-pos-property) ; since 24.4, see #1671
-                      (get-pos-property (point) 'invisible)
-                    (get-text-property (1+ (point)) 'invisible))))
+             (not (get-pos-property (point) 'invisible)))
     (goto-char (next-single-char-property-change (point) 'invisible))))
 
 (defvar-local magit-refresh-function nil)

@@ -17,7 +17,7 @@
 
 ;; Keywords: vc tools
 
-;; Magit requires at least GNU Emacs 24.2 and Git 1.9.4.
+;; Magit requires at least GNU Emacs 24.4 and Git 1.9.4.
 
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
@@ -1905,14 +1905,10 @@ Git, and Emacs in the echo area.\n\n(fn)"
                (load-file static))
               ((featurep 'package)
                (setq magit-version
-                     (or (and (fboundp 'package-desc-vers) ; < 24.4
-                              (package-version-join
-                               (package-desc-vers
-                                (cdr (assq 'magit package-alist)))))
-                         (and (fboundp 'package-desc-version) ; >= 24.4
-                              (package-version-join
-                               (package-desc-version
-                                (cadr (assq 'magit package-alist)))))))))))
+                     (and (fboundp 'package-desc-version)
+                          (package-version-join
+                           (package-desc-version
+                            (cadr (assq 'magit package-alist))))))))))
     (if (stringp magit-version)
         (when (called-interactively-p 'any)
           (message "Magit %s, Git %s, Emacs %s"
@@ -1946,9 +1942,9 @@ For X11 something like ~/.xinitrc should work.
 If you use Tramp to work inside remote Git repositories, then you
 have to make sure a suitable Git is used on the remote machines
 too.\n" version)))))
-  (when (version< emacs-version "24.2")
+  (when (version< emacs-version "24.4")
     (display-warning :error (format "\
-Magit requires Emacs >= 24.2, you are using %s.
+Magit requires Emacs >= 24.4, you are using %s.
 
 If this comes as a surprise to you, because you do actually have
 a newer version installed, then that probably means that the
