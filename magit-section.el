@@ -259,10 +259,12 @@ With a prefix argument also expand it." title)
     (let ((inhibit-read-only t)
           (magit-insert-section--parent section))
       (save-excursion
-        (goto-char (magit-section-end section))
-        (setf (magit-section-content section) (point-marker))
-        (funcall washer)
-        (setf (magit-section-end section) (point-marker))))
+        (if (magit-section-content section)
+            (funcall washer section) ; already partially washed (hunk)
+          (goto-char (magit-section-end section))
+          (setf (magit-section-content section) (point-marker))
+          (funcall washer)
+          (setf (magit-section-end section) (point-marker)))))
     (magit-section-update-highlight))
   (-when-let (beg (magit-section-content section))
     (let ((inhibit-read-only t))
@@ -395,6 +397,14 @@ hidden."
       (funcall (or pred '-any?) 'magit-section-hidden-body it)
     (and (magit-section-content section)
          (magit-section-hidden  section))))
+
+(defun magit-section-invisible-p (section)
+  "Return t if the SECTION's body is invisible.
+When the body of an ancestor of SECTION is collapsed then
+SECTION's body (and heading) obviously cannot be visible."
+  (or (magit-section-hidden section)
+      (--when-let (magit-section-parent section)
+        (magit-section-invisible-p it))))
 
 (defun magit-section-show-level (level)
   "Show surrounding sections up to LEVEL.

@@ -1177,7 +1177,11 @@ section or a child thereof."
         (while (not (or (eobp) (looking-at magit-diff-headline-re)))
           (forward-line))
         (setf (magit-section-end it) (point))
-        (magit-diff-paint-hunk it nil nil (eq magit-diff-refine-hunk 'all))))
+        (let ((refine (eq magit-diff-refine-hunk 'all)))
+          (if (magit-section-invisible-p it)
+              (setf (magit-section-washer it)
+                    (apply-partially #'magit-diff-paint-hunk it nil nil refine))
+            (magit-diff-paint-hunk it nil nil refine)))))
     t))
 
 ;;; Revision Mode
