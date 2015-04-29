@@ -126,15 +126,13 @@ changes, e.g. because you are committing some binary files."
   "Whether to show word-granularity differences within diff hunks.
 
 nil    never show fine differences.
-t      show fine differences for the selected diff hunk only.
+t      show fine differences for the current diff hunk only.
 `all'  show fine differences for all displayed diff hunks."
   :group 'magit-diff
   :safe (lambda (val) (memq val '(nil t all)))
   :type '(choice (const :tag "Never" nil)
-                 (const :tag "Selected only" t)
+                 (const :tag "Current" t)
                  (const :tag "All" all)))
-
-(defvar magit-diff-refine-hunk-related nil)
 
 (defcustom magit-diff-paint-whitespace t
   "Specify where to highlight whitespace errors.
@@ -712,7 +710,7 @@ for a commit."
       (not (equal "-U0" it))
     t))
 
-(defun magit-diff-toggle-refine-hunk (&optional other)
+(defun magit-diff-toggle-refine-hunk (&optional style)
   "Turn diff-hunk refining on or off.
 
 If hunk refining is currently on, then hunk refining is turned off.
@@ -727,20 +725,11 @@ If hunk refining is off, then hunk refining is turned on, in
 
 Customize variable `magit-diff-refine-hunk' to change the default mode."
   (interactive "P")
-  (let ((old magit-diff-refine-hunk))
-    (setq-local magit-diff-refine-hunk
-                (if other
-                    (if (eq old 'all) t 'all)
-                  (not old)))
-    (if (or (eq old 'all)
-            (eq magit-diff-refine-hunk 'all))
-        (magit-refresh)
-      (dolist (section magit-section-highlighted-sections)
-        (when (eq (magit-section-type section) 'hunk)
-          (if  magit-diff-refine-hunk
-              (magit-diff-refine-hunk section)
-            (magit-diff-unrefine-hunk section)))))
-    (message "magit-diff-refine-hunk: %s" magit-diff-refine-hunk)))
+  (setq-local magit-diff-refine-hunk
+              (if style
+                  (if (eq magit-diff-refine-hunk 'all) t 'all)
+                (not magit-diff-refine-hunk)))
+  (magit-diff-update-hunk-refinement))
 
 (defun magit-diff-visit-file (file &optional other-window force-worktree)
   "From a diff, visit the corresponding file at the appropriate position.
@@ -1177,11 +1166,9 @@ section or a child thereof."
         (while (not (or (eobp) (looking-at magit-diff-headline-re)))
           (forward-line))
         (setf (magit-section-end it) (point))
-        (let ((refine (eq magit-diff-refine-hunk 'all)))
-          (if (magit-section-invisible-p it)
-              (setf (magit-section-washer it)
-                    (apply-partially #'magit-diff-paint-hunk it nil nil refine))
-            (magit-diff-paint-hunk it nil nil refine)))))
+        (if (magit-section-invisible-p it)
+            (setf (magit-section-washer it) #'magit-diff-paint-hunk)
+          (magit-diff-paint-hunk it))))
     t))
 
 ;;; Revision Mode
@@ -1556,7 +1543,7 @@ of SECTION including SECTION and all of them are highlighted."
 
 ;;; Hunk Paint
 
-(defun magit-diff-paint-hunk (section &optional siblings highlight refine)
+(defun magit-diff-paint-hunk (section &optional siblings highlight)
   (let (paint)
     (cond (highlight
            (unless (magit-section-hidden section)
@@ -1603,12 +1590,8 @@ of SECTION including SECTION and all of them are highlighted."
                (if highlight 'magit-diff-removed-highlight 'magit-diff-removed))
               (t
                (if highlight 'magit-diff-context-highlight 'magit-diff-context))))
-            (forward-line)))))
-    (cond (refine (magit-diff-refine-hunk section))
-          ((eq magit-diff-refine-hunk t)
-           (if highlight
-               (magit-diff-refine-hunk section)
-             (magit-diff-unrefine-hunk section))))))
+            (forward-line))))))
+  (magit-diff-update-hunk-refinement section))
 
 (defun magit-diff-paint-whitespace (merging)
   (when (and magit-diff-paint-whitespace
@@ -1636,22 +1619,31 @@ of SECTION including SECTION and all of them are highlighted."
         (magit-put-face-property (match-beginning 1) (match-end 1)
                                  'magit-diff-whitespace-warning)))))
 
-(defun magit-diff-refine-hunk (hunk)
-  (when (and (not (magit-section-refined hunk))
-             (or magit-diff-refine-hunk-related
-                 (eq (magit-current-section) hunk)))
-    (setf (magit-section-refined hunk) t)
-    (save-excursion
-      (goto-char (magit-section-start hunk))
-      ;; `diff-refine-hunk' does not handle combined diffs.
-      (unless (looking-at "@@@")
-        (diff-refine-hunk)))))
+(defun magit-diff-update-hunk-refinement (&optional section)
+  (if section
+      (unless (magit-section-hidden section)
+        (pcase (list magit-diff-refine-hunk
+                     (magit-section-refined section)
+                     (eq section (magit-current-section)))
+          ((or `(all nil ,_) `(t nil t))
+           (setf (magit-section-refined section) t)
+           (save-excursion
+             (goto-char (magit-section-start section))
+             ;; `diff-refine-hunk' does not handle combined diffs.
+             (unless (looking-at "@@@")
+               (diff-refine-hunk))))
+          ((or `(nil t ,_) `(t t nil))
+           (setf (magit-section-refined section) nil)
+           (remove-overlays (magit-section-start section)
+                            (magit-section-end   section)
+                            'diff-mode 'fine))))
+    (cl-labels ((recurse (section)
+                         (if (magit-section-match 'hunk section)
+                             (magit-diff-update-hunk-refinement section)
+                           (--each (magit-section-children section)
+                             (recurse it)))))
+      (recurse magit-root-section))))
 
-(defun magit-diff-unrefine-hunk (hunk)
-  (setf (magit-section-refined hunk) nil)
-  (remove-overlays (magit-section-start hunk)
-                   (magit-section-end hunk)
-                   'diff-mode 'fine))
 
 ;;; Diff Extract
 
