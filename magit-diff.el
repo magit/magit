@@ -1166,9 +1166,7 @@ section or a child thereof."
         (while (not (or (eobp) (looking-at magit-diff-headline-re)))
           (forward-line))
         (setf (magit-section-end it) (point))
-        (if (magit-section-invisible-p it)
-            (setf (magit-section-washer it) #'magit-diff-paint-hunk)
-          (magit-diff-paint-hunk it))))
+        (setf (magit-section-washer it) #'magit-diff-paint-hunk)))
     t))
 
 ;;; Revision Mode
@@ -1452,10 +1450,10 @@ actually a `diff' but a `diffstat' section."
 
 ;;; Diff Highlight
 
-(defun magit-diff-unhighlight (section)
+(defun magit-diff-unhighlight (section selection)
   "Remove the highlighting of the diff-related SECTION."
   (when (eq (magit-section-type section) 'hunk)
-    (magit-diff-paint-hunk section)
+    (magit-diff-paint-hunk section selection nil)
     t))
 
 (defun magit-diff-highlight (section siblings)
@@ -1465,7 +1463,7 @@ return nil.  If SIBLINGS is non-nil then it is a list of siblings
 of SECTION including SECTION and all of them are highlighted."
   (-when-let (scope (magit-diff-scope section t))
     (cond ((eq scope 'region)
-           (magit-diff-paint-hunk section nil t))
+           (magit-diff-paint-hunk section siblings t))
           (siblings
            (dolist (section siblings)
              (magit-diff-highlight-recursive section siblings)))
@@ -1543,7 +1541,9 @@ of SECTION including SECTION and all of them are highlighted."
 
 ;;; Hunk Paint
 
-(defun magit-diff-paint-hunk (section &optional siblings highlight)
+(cl-defun magit-diff-paint-hunk
+    (section &optional selection
+             (highlight (magit-section-selected-p section selection)))
   (let (paint)
     (cond (highlight
            (unless (magit-section-hidden section)

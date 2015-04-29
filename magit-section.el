@@ -789,16 +789,18 @@ found in STRING."
   (let ((section (magit-current-section)))
     (unless (eq section magit-section-highlighted-section)
       (let ((inhibit-read-only t)
-            (deactivate-mark nil))
+            (deactivate-mark nil)
+            (selection (magit-region-sections)))
         (mapc #'delete-overlay magit-section-highlight-overlays)
         (setq magit-section-unhighlight-sections
               magit-section-highlighted-sections
               magit-section-highlighted-sections nil)
         (unless (eq section magit-root-section)
           (run-hook-with-args-until-success
-           'magit-section-highlight-hook section (magit-region-sections)))
+           'magit-section-highlight-hook section selection))
         (--each magit-section-unhighlight-sections
-          (run-hook-with-args-until-success 'magit-section-unhighlight-hook it))
+          (run-hook-with-args-until-success
+           'magit-section-unhighlight-hook it selection))
         (restore-buffer-modified-p nil)
         (unless (eq magit-section-highlighted-section section)
           (setq magit-section-highlighted-section
@@ -868,6 +870,14 @@ highlighted using `magit-diff-highlight'."
             (magit-section-goto-successor-1 it)))))
 
 ;;; Utilities
+
+(cl-defun magit-section-selected-p (section &optional (selection nil sselection))
+  (or (eq section (magit-current-section))
+      (memq section (if sselection
+                        selection
+                      (setq selection (magit-region-sections))))
+      (--when-let (magit-section-parent section)
+        (magit-section-selected-p it selection))))
 
 (defun magit-section-parent-value (section)
   (setq section (magit-section-parent section))
