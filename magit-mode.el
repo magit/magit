@@ -468,6 +468,7 @@ tracked in the current repository."
 (defvar magit-refresh-buffer-hook nil
   "Hook run after refreshing a file-visiting buffer.")
 
+(defvar magit-refresh-verbose nil)
 (defvar-local magit-refresh-start-time nil)
 
 (defun magit-refresh-buffer ()
@@ -475,6 +476,8 @@ tracked in the current repository."
 Uses the buffer-local `magit-refresh-function'."
   (setq magit-refresh-start-time (current-time))
   (when magit-refresh-function
+    (when magit-refresh-verbose
+      (message "Refreshing %s..." (current-buffer)))
     (let* ((buffer (current-buffer))
            (windows
             (--mapcat (with-selected-window it
@@ -503,7 +506,11 @@ Uses the buffer-local `magit-refresh-function'."
             (apply #'magit-section-goto-successor (cdr window)))))
       (run-hooks 'magit-refresh-buffer-hook)
       (magit-section-update-highlight)
-      (set-buffer-modified-p nil))))
+      (set-buffer-modified-p nil))
+    (when magit-refresh-verbose
+      (message "Refreshing %s...done (%.3fs)" (current-buffer)
+               (float-time (time-subtract (current-time)
+                                          magit-refresh-start-time))))))
 
 (defun magit-revert-buffers (&optional force)
   "Revert unmodified file-visiting buffers of the current repository.
