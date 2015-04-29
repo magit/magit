@@ -468,9 +468,12 @@ tracked in the current repository."
 (defvar magit-refresh-buffer-hook nil
   "Hook run after refreshing a file-visiting buffer.")
 
+(defvar-local magit-refresh-start-time nil)
+
 (defun magit-refresh-buffer ()
   "Refresh the current Magit buffer.
 Uses the buffer-local `magit-refresh-function'."
+  (setq magit-refresh-start-time (current-time))
   (when magit-refresh-function
     (let* ((buffer (current-buffer))
            (windows

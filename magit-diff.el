@@ -75,6 +75,24 @@ The following `format'-like specs are supported:
   :group 'magit-diff
   :type 'string)
 
+(defcustom magit-diff-expansion-threshold 1.0
+  "After how many seconds not to expand anymore diffs.
+
+Except in status buffers, diffs are usually start out fully
+expanded.  Because that can take a long time, all diffs that
+haven't been fontified during a refresh before the treshold
+defined here are instead displayed with their bodies collapsed.
+
+Note that this can cause sections that were previously expanded
+to be collapsed.  So you should not pick a very low value here.
+
+The hook function `magit-diff-expansion-treshold' has to be a
+member of `magit-section-set-visibility-hook' for this option
+to have any effect"
+  :package-version '(magit . "2.1.0")
+  :group 'magit-diff
+  :type 'float)
+
 (defcustom magit-diff-highlight-hunk-body t
   "Whether to highlight bodies of selected hunk sections.
 This only has an effect if `magit-diff-highlight' is a
@@ -1162,6 +1180,14 @@ section or a child thereof."
         (setf (magit-section-end it) (point))
         (setf (magit-section-washer it) #'magit-diff-paint-hunk)))
     t))
+
+
+(defun magit-diff-expansion-threshold (section)
+  "Keep new diff sections collapsed if washing takes to long."
+  (and (memq (magit-section-type section) '(file))
+       (> (float-time (time-subtract (current-time) magit-refresh-start-time))
+          magit-diff-expansion-threshold)
+       'hide))
 
 ;;; Revision Mode
 
