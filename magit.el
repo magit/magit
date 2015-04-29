@@ -860,20 +860,21 @@ existing one."
 
 (defun magit-find-file-noselect (rev file)
   "Read FILE from REV into a buffer and return the buffer."
-  (with-current-buffer (magit-get-revision-buffer-create rev file)
-    (let ((inhibit-read-only t))
-      (erase-buffer)
-      (magit-git-insert "cat-file" "-p" (concat rev ":" file)))
-    (setq magit-buffer-revision  (magit-rev-format "%H" rev)
-          magit-buffer-refname   rev
-          magit-buffer-file-name (expand-file-name file (magit-get-top-dir)))
-    (let ((buffer-file-name magit-buffer-file-name))
-      (normal-mode t))
-    (setq buffer-read-only t)
-    (set-buffer-modified-p nil)
-    (goto-char (point-min))
-    (run-hooks 'magit-find-file-hook)
-    (current-buffer)))
+  (or (magit-get-revision-buffer rev file)
+      (with-current-buffer (magit-get-revision-buffer-create rev file)
+        (let ((inhibit-read-only t))
+          (erase-buffer)
+          (magit-git-insert "cat-file" "-p" (concat rev ":" file)))
+        (setq magit-buffer-revision  (magit-rev-format "%H" rev)
+              magit-buffer-refname   rev
+              magit-buffer-file-name (expand-file-name file (magit-get-top-dir)))
+        (let ((buffer-file-name magit-buffer-file-name))
+          (normal-mode t))
+        (setq buffer-read-only t)
+        (set-buffer-modified-p nil)
+        (goto-char (point-min))
+        (run-hooks 'magit-find-file-hook)
+        (current-buffer))))
 
 (defun magit-find-file-index-noselect (file)
   "Read FILE from the index into a buffer and return the buffer."
