@@ -770,6 +770,10 @@ found in STRING."
 (defvar-local magit-section-highlighted-sections nil)
 (defvar-local magit-section-unhighlight-sections nil)
 
+(defun magit-section-update-region (_)
+  ;; Don't show complete region.  Highlighting emphasizes headings.
+  (magit-region-sections))
+
 (defun magit-section-update-highlight ()
   (let ((inhibit-read-only t)
         (deactivate-mark nil)
@@ -778,7 +782,6 @@ found in STRING."
     (setq magit-section-unhighlight-sections
           magit-section-highlighted-sections
           magit-section-highlighted-sections nil)
-    (magit-face-remap-set-base 'region)
     (unless (eq section magit-root-section)
       (run-hook-with-args-until-success
        'magit-section-highlight-hook section (magit-region-sections)))
@@ -793,7 +796,6 @@ This function works for any section but produces undesirable
 effects for diff related sections, which by default are
 highlighted using `magit-diff-highlight'."
   (cond (siblings
-         (magit-face-remap-set-base 'region 'face-override-spec)
          (magit-section-make-overlay (magit-section-start     (car siblings))
                                      (magit-section-end (car (last siblings)))
                                      'magit-section-highlight)
@@ -808,7 +810,8 @@ highlighted using `magit-diff-highlight'."
                                      'magit-section-highlight))))
 
 (defun magit-section-make-overlay (start end face)
-  (let ((ov (magit-put-face-property start end face)))
+  (let ((ov (make-overlay start end nil t)))
+    (overlay-put ov 'face face)
     (overlay-put ov 'evaporate t)
     (push ov magit-section-highlight-overlays)
     ov))

@@ -1474,11 +1474,8 @@ return nil.  If SIBLINGS is non-nil then it is a list of siblings
 of SECTION including SECTION and all of them are highlighted."
   (-when-let (scope (magit-diff-scope section t))
     (cond ((eq scope 'region)
-           (magit-diff-paint-hunk section nil t)
-           (magit-face-remap-set-base 'region 'face-override-spec)
-           (magit-diff-highlight-lines section))
+           (magit-diff-paint-hunk section nil t))
           (siblings
-           (magit-face-remap-set-base 'region 'face-override-spec)
            (dolist (section siblings)
              (magit-diff-highlight-recursive section siblings)))
           (t
@@ -1515,38 +1512,42 @@ of SECTION including SECTION and all of them are highlighted."
      (`(hunk   t) 'magit-diff-hunk-heading-selection)
      (`(hunk nil) 'magit-diff-hunk-heading-highlight))))
 
+;;; Highlight Region
+
 (defvar magit-diff-unmarked-lines-keep-foreground t)
 
-(defun magit-diff-highlight-lines (section)
-  (let ((sbeg (magit-section-start section))
-        (cbeg (magit-section-content section))
-        (rbeg (save-excursion (goto-char (region-beginning))
-                              (line-beginning-position)))
-        (rend (save-excursion (goto-char (region-end))
-                              (line-end-position)))
-        (send (magit-section-end section))
-        (face (if magit-diff-highlight-hunk-body
-                  'magit-diff-context-highlight
-                'magit-diff-context)))
-    (when magit-diff-unmarked-lines-keep-foreground
-      (setq face (list :background (face-attribute face :background))))
-    (overlay-put (magit-section-make-overlay
-                  sbeg cbeg 'magit-diff-lines-heading)
-                 'display (concat (magit-diff-hunk-region-header section) "\n"))
-    (overlay-put (magit-section-make-overlay cbeg rbeg face) 'priority 2)
-    (overlay-put (magit-section-make-overlay rbeg (1+ rbeg) nil)
-                 'before-string
-                 (propertize
-                  (concat (propertize "\s" 'display '(space :height (1)))
-                          (propertize "\n" 'line-height t))
-                  'face 'magit-diff-lines-boundary))
-    (overlay-put (magit-section-make-overlay rend (1+ rend) nil)
-                 'after-string
-                 (propertize
-                  (concat (propertize "\s" 'display '(space :height (1)))
-                          (propertize "\n" 'line-height t))
-                  'face 'magit-diff-lines-boundary))
-    (overlay-put (magit-section-make-overlay (1+ rend) send face) 'priority 2)))
+(defun magit-diff-update-hunk-region (section)
+  (when (eq (magit-diff-scope section t) 'region)
+    (let ((sbeg (magit-section-start section))
+          (cbeg (magit-section-content section))
+          (rbeg (save-excursion (goto-char (region-beginning))
+                                (line-beginning-position)))
+          (rend (save-excursion (goto-char (region-end))
+                                (line-end-position)))
+          (send (magit-section-end section))
+          (face (if magit-diff-highlight-hunk-body
+                    'magit-diff-context-highlight
+                  'magit-diff-context)))
+      (when magit-diff-unmarked-lines-keep-foreground
+        (setq face (list :background (face-attribute face :background))))
+      (cl-flet ((ov (start end &rest args)
+                  (let ((ov (make-overlay start end nil t)))
+                    (overlay-put ov 'evaporate t)
+                    (while args (overlay-put ov (pop args) (pop args)))
+                    (push ov magit-region-overlays)
+                    ov)))
+        (ov sbeg cbeg 'face 'magit-diff-lines-heading
+            'display (concat (magit-diff-hunk-region-header section) "\n"))
+        (ov cbeg rbeg 'face face)
+        (ov rbeg (1+ rbeg) 'before-string
+            (propertize (concat (propertize "\s" 'display '(space :height (1)))
+                                (propertize "\n" 'line-height t))
+                        'face 'magit-diff-lines-boundary))
+        (ov rend (1+ rend) 'after-string
+            (propertize (concat (propertize "\s" 'display '(space :height (1)))
+                                (propertize "\n" 'line-height t))
+                        'face 'magit-diff-lines-boundary))
+        (ov (1+ rend) send 'face face)))))
 
 ;;; Hunk Paint
 

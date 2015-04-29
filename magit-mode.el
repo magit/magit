@@ -62,6 +62,18 @@
   :group 'magit-modes
   :type 'string)
 
+(defcustom magit-region-highlight-hook
+  '(magit-section-update-region magit-diff-update-hunk-region)
+  "Functions used to highlight the region.
+Each function is run with the current section as only argument
+until one of them returns non-nil.  When multiple sections are
+selected, then this hook does not run and the region is not
+displayed.  Otherwise fall back to regular region highlighting."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-modes
+  :type 'hook
+  :options '(magit-section-update-region magit-diff-update-hunk-region))
+
 (define-minor-mode magit-auto-revert-mode
   "Toggle global Magit-Auto-Revert mode.
 With prefix ARG, enable Magit-Auto-Revert mode if ARG is positive;
@@ -258,12 +270,28 @@ Magit is documented in info node `(magit)'."
   (push (cons 'keymap t) text-property-default-nonsticky)
   (push (cons 'invisible t) text-property-default-nonsticky)
   (add-hook 'post-command-hook #'magit-post-command-adjust-point t t)
-  (add-hook 'post-command-hook #'magit-section-update-highlight t t))
+  (add-hook 'post-command-hook #'magit-section-update-highlight t t)
+  (setq-local redisplay-highlight-region-function 'magit-highlight-region)
+  (setq-local redisplay-unhighlight-region-function 'magit-unhighlight-region))
 
 (defun magit-post-command-adjust-point ()
   (when (and (get-text-property (point) 'invisible)
              (not (get-pos-property (point) 'invisible)))
     (goto-char (next-single-char-property-change (point) 'invisible))))
+
+(defvar-local magit-region-overlays nil)
+
+(defun magit-highlight-region (start end window rol)
+  (mapc #'delete-overlay magit-region-overlays)
+  (if (run-hook-with-args-until-success 'magit-region-highlight-hook
+                                        (magit-current-section))
+      (funcall (default-value 'redisplay-unhighlight-region-function) rol)
+    (funcall (default-value 'redisplay-highlight-region-function)
+             start end window rol)))
+
+(defun magit-unhighlight-region (rol)
+  (mapc #'delete-overlay magit-region-overlays)
+  (funcall (default-value 'redisplay-unhighlight-region-function) rol))
 
 (defvar-local magit-refresh-function nil)
 (put 'magit-refresh-function 'permanent-local t)

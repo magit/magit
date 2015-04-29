@@ -353,20 +353,6 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
       (insert-file-contents file)
       (split-string (buffer-string) "\n" (not keep-empty-lines)))))
 
-(defun magit-face-remap-set-base (face &optional base)
-  "Like `face-remap-set-base' but without the bug.
-Also lacks a few features we don't need, including the
-always-raise-an-error feature."
-  (make-local-variable 'face-remapping-alist)
-  (--if-let (assq face  face-remapping-alist)
-      (if base
-          (setcar (last it) base)
-        (if (cddr it)
-            (setcar (last it) face)
-          (setq face-remapping-alist (remq it face-remapping-alist))))
-    (when base
-      (push (list face base) face-remapping-alist))))
-
 ;;; magit-utils.el ends soon
 (provide 'magit-utils)
 ;; Local Variables:
