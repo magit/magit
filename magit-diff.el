@@ -1510,43 +1510,6 @@ of SECTION including SECTION and all of them are highlighted."
      (`(hunk   t) 'magit-diff-hunk-heading-selection)
      (`(hunk nil) 'magit-diff-hunk-heading-highlight))))
 
-;;; Highlight Region
-
-(defvar magit-diff-unmarked-lines-keep-foreground t)
-
-(defun magit-diff-update-hunk-region (section)
-  (when (eq (magit-diff-scope section t) 'region)
-    (let ((sbeg (magit-section-start section))
-          (cbeg (magit-section-content section))
-          (rbeg (save-excursion (goto-char (region-beginning))
-                                (line-beginning-position)))
-          (rend (save-excursion (goto-char (region-end))
-                                (line-end-position)))
-          (send (magit-section-end section))
-          (face (if magit-diff-highlight-hunk-body
-                    'magit-diff-context-highlight
-                  'magit-diff-context)))
-      (when magit-diff-unmarked-lines-keep-foreground
-        (setq face (list :background (face-attribute face :background))))
-      (cl-flet ((ov (start end &rest args)
-                  (let ((ov (make-overlay start end nil t)))
-                    (overlay-put ov 'evaporate t)
-                    (while args (overlay-put ov (pop args) (pop args)))
-                    (push ov magit-region-overlays)
-                    ov)))
-        (ov sbeg cbeg 'face 'magit-diff-lines-heading
-            'display (concat (magit-diff-hunk-region-header section) "\n"))
-        (ov cbeg rbeg 'face face)
-        (ov rbeg (1+ rbeg) 'before-string
-            (propertize (concat (propertize "\s" 'display '(space :height (1)))
-                                (propertize "\n" 'line-height t))
-                        'face 'magit-diff-lines-boundary))
-        (ov rend (1+ rend) 'after-string
-            (propertize (concat (propertize "\s" 'display '(space :height (1)))
-                                (propertize "\n" 'line-height t))
-                        'face 'magit-diff-lines-boundary))
-        (ov (1+ rend) send 'face face)))))
-
 ;;; Hunk Paint
 
 (cl-defun magit-diff-paint-hunk
@@ -1652,6 +1615,43 @@ of SECTION including SECTION and all of them are highlighted."
                              (recurse it)))))
       (recurse magit-root-section))))
 
+
+;;; Highlight Region
+
+(defvar magit-diff-unmarked-lines-keep-foreground t)
+
+(defun magit-diff-update-hunk-region (section)
+  (when (eq (magit-diff-scope section t) 'region)
+    (let ((sbeg (magit-section-start section))
+          (cbeg (magit-section-content section))
+          (rbeg (save-excursion (goto-char (region-beginning))
+                                (line-beginning-position)))
+          (rend (save-excursion (goto-char (region-end))
+                                (line-end-position)))
+          (send (magit-section-end section))
+          (face (if magit-diff-highlight-hunk-body
+                    'magit-diff-context-highlight
+                  'magit-diff-context)))
+      (when magit-diff-unmarked-lines-keep-foreground
+        (setq face (list :background (face-attribute face :background))))
+      (cl-flet ((ov (start end &rest args)
+                  (let ((ov (make-overlay start end nil t)))
+                    (overlay-put ov 'evaporate t)
+                    (while args (overlay-put ov (pop args) (pop args)))
+                    (push ov magit-region-overlays)
+                    ov)))
+        (ov sbeg cbeg 'face 'magit-diff-lines-heading
+            'display (concat (magit-diff-hunk-region-header section) "\n"))
+        (ov cbeg rbeg 'face face)
+        (ov rbeg (1+ rbeg) 'before-string
+            (propertize (concat (propertize "\s" 'display '(space :height (1)))
+                                (propertize "\n" 'line-height t))
+                        'face 'magit-diff-lines-boundary))
+        (ov rend (1+ rend) 'after-string
+            (propertize (concat (propertize "\s" 'display '(space :height (1)))
+                                (propertize "\n" 'line-height t))
+                        'face 'magit-diff-lines-boundary))
+        (ov (1+ rend) send 'face face)))))
 
 ;;; Diff Extract
 
