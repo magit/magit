@@ -69,6 +69,18 @@ diff-related sections being the only exception."
   :type 'hook
   :options '(magit-diff-unhighlight))
 
+(defcustom magit-section-set-visibility-hook
+  '(magit-diff-expansion-threshold magit-revision-set-visibility)
+  "Hook used to set the initial visibility of a section.
+Stop at the first function that returns non-nil.  The value
+should be `show' or `hide'.  If no function returns non-nil
+determine the visibility as usual, i.e. use the hardcoded
+section specific default (see `magit-insert-section')."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-section
+  :type 'hook
+  :options '(magit-diff-expansion-threshold magit-revision-set-visibility))
+
 (defface magit-section-highlight
   '((((class color) (background light)) :background "grey85")
     (((class color) (background  dark)) :background "grey20"))
@@ -259,10 +271,12 @@ With a prefix argument also expand it." title)
     (let ((inhibit-read-only t)
           (magit-insert-section--parent section))
       (save-excursion
-        (goto-char (magit-section-end section))
-        (setf (magit-section-content section) (point-marker))
-        (funcall washer)
-        (setf (magit-section-end section) (point-marker))))
+        (if (magit-section-content section)
+            (funcall washer section) ; already partially washed (hunk)
+          (goto-char (magit-section-end section))
+          (setf (magit-section-content section) (point-marker))
+          (funcall washer)
+          (setf (magit-section-end section) (point-marker)))))
     (magit-section-update-highlight))
   (-when-let (beg (magit-section-content section))
     (let ((inhibit-read-only t))
@@ -395,6 +409,14 @@ hidden."
       (funcall (or pred '-any?) 'magit-section-hidden-body it)
     (and (magit-section-content section)
          (magit-section-hidden  section))))
+
+(defun magit-section-invisible-p (section)
+  "Return t if the SECTION's body is invisible.
+When the body of an ancestor of SECTION is collapsed then
+SECTION's body (and heading) obviously cannot be visible."
+  (or (magit-section-hidden section)
+      (--when-let (magit-section-parent section)
+        (magit-section-invisible-p it))))
 
 (defun magit-section-show-level (level)
   "Show surrounding sections up to LEVEL.
@@ -553,12 +575,6 @@ at point."
 (defvar magit-insert-section--current nil "For internal use only.")
 (defvar magit-insert-section--parent  nil "For internal use only.")
 (defvar magit-insert-section--oldroot nil "For internal use only.")
-
-(defvar magit-section-set-visibility-hook '(magit-diff-set-visibility)
-  "Hook used to set the initial visibility of a section.
-Stop at the first function that returns non-nil.  The value
-should be `show' or `hide'.  If no function returns non-nil
-determine the visibility as usual (see `magit-insert-section').")
 
 (defmacro magit-insert-section (&rest args)
   "Insert a section at point.
@@ -767,25 +783,34 @@ found in STRING."
 ;;; Update
 
 (defvar-local magit-section-highlight-overlays nil)
+(defvar-local magit-section-highlighted-section nil)
 (defvar-local magit-section-highlighted-sections nil)
 (defvar-local magit-section-unhighlight-sections nil)
 
+(defun magit-section-update-region (_)
+  ;; Don't show complete region.  Highlighting emphasizes headings.
+  (magit-region-sections))
+
 (defun magit-section-update-highlight ()
-  (let ((inhibit-read-only t)
-        (deactivate-mark nil)
-        (section (magit-current-section)))
-    (mapc 'delete-overlay magit-section-highlight-overlays)
-    (setq magit-section-unhighlight-sections
-          magit-section-highlighted-sections
-          magit-section-highlighted-sections nil)
-    (magit-face-remap-set-base 'region)
-    (unless (eq section magit-root-section)
-      (run-hook-with-args-until-success
-       'magit-section-highlight-hook section (magit-region-sections)))
-    (mapc (apply-partially 'run-hook-with-args-until-success
-                           'magit-section-unhighlight-hook)
-          magit-section-unhighlight-sections)
-    (restore-buffer-modified-p nil)))
+  (let ((section (magit-current-section)))
+    (unless (eq section magit-section-highlighted-section)
+      (let ((inhibit-read-only t)
+            (deactivate-mark nil)
+            (selection (magit-region-sections)))
+        (mapc #'delete-overlay magit-section-highlight-overlays)
+        (setq magit-section-unhighlight-sections
+              magit-section-highlighted-sections
+              magit-section-highlighted-sections nil)
+        (unless (eq section magit-root-section)
+          (run-hook-with-args-until-success
+           'magit-section-highlight-hook section selection))
+        (--each magit-section-unhighlight-sections
+          (run-hook-with-args-until-success
+           'magit-section-unhighlight-hook it selection))
+        (restore-buffer-modified-p nil)
+        (unless (eq magit-section-highlighted-section section)
+          (setq magit-section-highlighted-section
+                (unless (magit-section-hidden section) section)))))))
 
 (defun magit-section-highlight (section siblings)
   "Highlight SECTION and if non-nil all SIBLINGS.
@@ -793,7 +818,6 @@ This function works for any section but produces undesirable
 effects for diff related sections, which by default are
 highlighted using `magit-diff-highlight'."
   (cond (siblings
-         (magit-face-remap-set-base 'region 'face-override-spec)
          (magit-section-make-overlay (magit-section-start     (car siblings))
                                      (magit-section-end (car (last siblings)))
                                      'magit-section-highlight)
@@ -808,7 +832,8 @@ highlighted using `magit-diff-highlight'."
                                      'magit-section-highlight))))
 
 (defun magit-section-make-overlay (start end face)
-  (let ((ov (magit-put-face-property start end face)))
+  (let ((ov (make-overlay start end nil t)))
+    (overlay-put ov 'face face)
     (overlay-put ov 'evaporate t)
     (push ov magit-section-highlight-overlays)
     ov))
@@ -851,6 +876,14 @@ highlighted using `magit-diff-highlight'."
             (magit-section-goto-successor-1 it)))))
 
 ;;; Utilities
+
+(cl-defun magit-section-selected-p (section &optional (selection nil sselection))
+  (or (eq section (magit-current-section))
+      (memq section (if sselection
+                        selection
+                      (setq selection (magit-region-sections))))
+      (--when-let (magit-section-parent section)
+        (magit-section-selected-p it selection))))
 
 (defun magit-section-parent-value (section)
   (setq section (magit-section-parent section))

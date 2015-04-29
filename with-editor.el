@@ -9,7 +9,7 @@
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 
-;; Package-Requires: ((emacs "24") (cl-lib "0.5") (dash "2.10.0"))
+;; Package-Requires: ((emacs "24.4") (cl-lib "0.5") (dash "2.10.0"))
 ;; Homepage: https://github.com/magit/magit
 
 ;; This file is not part of GNU Emacs.
@@ -281,8 +281,6 @@ Don't change these, or Magit will get confused.")
     (remove-hook 'kill-buffer-query-functions
                  'with-editor-kill-buffer-noop t)
     (cond (cancel
-           (when (< emacs-major-version 24)
-             (erase-buffer))
            (save-buffer)
            (if clients
                (dolist (client clients)
@@ -473,22 +471,6 @@ which may or may not insert the text into the PROCESS' buffer."
     (with-editor-output-filter string))
   (unless no-default-filter
     (internal-default-process-filter process string)))
-
-(unless (fboundp 'internal-default-process-filter)
-  ;; Added in Emacs 24.4 (488ac8e).
-  (defun internal-default-process-filter (process string)
-    (let ((buf (process-buffer process)))
-      (when (buffer-live-p buf)
-        (with-current-buffer buf
-          (let* ((mark (process-mark process))
-                 (move (= (point) mark))
-                 (inhibit-read-only t))
-            (save-excursion
-              (goto-char mark)
-              (insert string)
-              (setq mark (set-marker mark (point))))
-            (when move
-              (goto-char mark))))))))
 
 ;;; Augmentations
 

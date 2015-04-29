@@ -37,10 +37,6 @@
 ;; libraries which cannot depend on one another, they are defined here
 ;; too.
 
-;; And finally, some users insist on using ancient Emacsen, making
-;; backward compatibility definitions necessary.  They too are placed
-;; here.
-
 ;;; Code:
 
 (require 'cl-lib)
@@ -170,64 +166,6 @@ Global settings:
   :package-version '(magit . "2.1.0")
   :group 'magit
   :type 'character)
-
-;;; Compatibility
-
-(eval-and-compile
-
-  ;; Added in Emacs 24.3
-  (unless (fboundp 'user-error)
-    (defalias 'user-error 'error))
-
-  ;; Added in Emacs 24.3 (mirrors/emacs@b335efc3).
-  (unless (fboundp 'setq-local)
-    (defmacro setq-local (var val)
-      "Set variable VAR to value VAL in current buffer."
-      (list 'set (list 'make-local-variable (list 'quote var)) val)))
-
-  ;; Added in Emacs 24.3 (mirrors/emacs@b335efc3).
-  (unless (fboundp 'defvar-local)
-    (defmacro defvar-local (var val &optional docstring)
-      "Define VAR as a buffer-local variable with default value VAL.
-Like `defvar' but additionally marks the variable as being automatically
-buffer-local wherever it is set."
-      (declare (debug defvar) (doc-string 3))
-      (list 'progn (list 'defvar var val docstring)
-            (list 'make-variable-buffer-local (list 'quote var)))))
-
-  ;; Added in Emacs 24.4
-  (unless (fboundp 'with-current-buffer-window)
-    (defmacro with-current-buffer-window (buffer-or-name action quit-function &rest body)
-      "Evaluate BODY with a buffer BUFFER-OR-NAME current and show that buffer.
-This construct is like `with-temp-buffer-window' but unlike that
-makes the buffer specified by BUFFER-OR-NAME current for running
-BODY."
-      (declare (debug t))
-      (let ((buffer (make-symbol "buffer"))
-            (window (make-symbol "window"))
-            (value (make-symbol "value")))
-        `(let* ((,buffer (temp-buffer-window-setup ,buffer-or-name))
-                (standard-output ,buffer)
-                ,window ,value)
-           (with-current-buffer ,buffer
-             (setq ,value (progn ,@body))
-             (setq ,window (temp-buffer-window-show ,buffer ,action)))
-
-           (if (functionp ,quit-function)
-               (funcall ,quit-function ,window ,value)
-             ,value)))))
-
-  ;; Added in Emacs 24.4
-  (unless (fboundp 'string-suffix-p)
-    (defun string-suffix-p (suffix string  &optional ignore-case)
-      "Return non-nil if SUFFIX is a suffix of STRING.
-If IGNORE-CASE is non-nil, the comparison is done without paying
-attention to case differences."
-      (let ((start-pos (- (length string) (length suffix))))
-        (and (>= start-pos 0)
-             (eq t (compare-strings suffix nil nil
-                                    string start-pos nil ignore-case))))))
-  )
 
 ;;; User Input
 
@@ -414,20 +352,6 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
     (with-temp-buffer
       (insert-file-contents file)
       (split-string (buffer-string) "\n" (not keep-empty-lines)))))
-
-(defun magit-face-remap-set-base (face &optional base)
-  "Like `face-remap-set-base' but without the bug.
-Also lacks a few features we don't need, including the
-always-raise-an-error feature."
-  (make-local-variable 'face-remapping-alist)
-  (--if-let (assq face  face-remapping-alist)
-      (if base
-          (setcar (last it) base)
-        (if (cddr it)
-            (setcar (last it) face)
-          (setq face-remapping-alist (remq it face-remapping-alist))))
-    (when base
-      (push (list face base) face-remapping-alist))))
 
 ;;; magit-utils.el ends soon
 (provide 'magit-utils)

@@ -62,6 +62,18 @@
   :group 'magit-modes
   :type 'string)
 
+(defcustom magit-region-highlight-hook
+  '(magit-section-update-region magit-diff-update-hunk-region)
+  "Functions used to highlight the region.
+Each function is run with the current section as only argument
+until one of them returns non-nil.  When multiple sections are
+selected, then this hook does not run and the region is not
+displayed.  Otherwise fall back to regular region highlighting."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-modes
+  :type 'hook
+  :options '(magit-section-update-region magit-diff-update-hunk-region))
+
 (define-minor-mode magit-auto-revert-mode
   "Toggle global Magit-Auto-Revert mode.
 With prefix ARG, enable Magit-Auto-Revert mode if ARG is positive;
@@ -258,14 +270,29 @@ Magit is documented in info node `(magit)'."
   (push (cons 'keymap t) text-property-default-nonsticky)
   (push (cons 'invisible t) text-property-default-nonsticky)
   (add-hook 'post-command-hook #'magit-post-command-adjust-point t t)
-  (add-hook 'post-command-hook #'magit-section-update-highlight t t))
+  (add-hook 'post-command-hook #'magit-section-update-highlight t t)
+  (setq-local redisplay-highlight-region-function 'magit-highlight-region)
+  (setq-local redisplay-unhighlight-region-function 'magit-unhighlight-region))
 
 (defun magit-post-command-adjust-point ()
   (when (and (get-text-property (point) 'invisible)
-             (not (if (fboundp 'get-pos-property) ; since 24.4, see #1671
-                      (get-pos-property (point) 'invisible)
-                    (get-text-property (1+ (point)) 'invisible))))
+             (not (get-pos-property (point) 'invisible)))
     (goto-char (next-single-char-property-change (point) 'invisible))))
+
+(defvar-local magit-region-overlays nil)
+
+(defun magit-highlight-region (start end window rol)
+  (mapc #'delete-overlay magit-region-overlays)
+  (if (run-hook-with-args-until-success 'magit-region-highlight-hook
+                                        (magit-current-section))
+      (funcall (default-value 'redisplay-unhighlight-region-function) rol)
+    (funcall (default-value 'redisplay-highlight-region-function)
+             start end window rol)))
+
+(defun magit-unhighlight-region (rol)
+  (setq magit-section-highlighted-section nil)
+  (mapc #'delete-overlay magit-region-overlays)
+  (funcall (default-value 'redisplay-unhighlight-region-function) rol))
 
 (defvar-local magit-refresh-function nil)
 (put 'magit-refresh-function 'permanent-local t)
@@ -441,10 +468,16 @@ tracked in the current repository."
 (defvar magit-refresh-buffer-hook nil
   "Hook run after refreshing a file-visiting buffer.")
 
+(defvar magit-refresh-verbose nil)
+(defvar-local magit-refresh-start-time nil)
+
 (defun magit-refresh-buffer ()
   "Refresh the current Magit buffer.
 Uses the buffer-local `magit-refresh-function'."
+  (setq magit-refresh-start-time (current-time))
   (when magit-refresh-function
+    (when magit-refresh-verbose
+      (message "Refreshing %s..." (current-buffer)))
     (let* ((buffer (current-buffer))
            (windows
             (--mapcat (with-selected-window it
@@ -459,7 +492,9 @@ Uses the buffer-local `magit-refresh-function'."
                           (list (selected-window))))))
       (deactivate-mark)
       (setq magit-section-highlight-overlays nil
-            magit-section-highlighted-sections nil)
+            magit-section-highlighted-section nil
+            magit-section-highlighted-sections nil
+            magit-section-unhighlight-sections nil)
       (let ((inhibit-read-only t))
         (erase-buffer)
         (save-excursion
@@ -471,7 +506,11 @@ Uses the buffer-local `magit-refresh-function'."
             (apply #'magit-section-goto-successor (cdr window)))))
       (run-hooks 'magit-refresh-buffer-hook)
       (magit-section-update-highlight)
-      (set-buffer-modified-p nil))))
+      (set-buffer-modified-p nil))
+    (when magit-refresh-verbose
+      (message "Refreshing %s...done (%.3fs)" (current-buffer)
+               (float-time (time-subtract (current-time)
+                                          magit-refresh-start-time))))))
 
 (defun magit-revert-buffers (&optional force)
   "Revert unmodified file-visiting buffers of the current repository.
