@@ -69,6 +69,18 @@ diff-related sections being the only exception."
   :type 'hook
   :options '(magit-diff-unhighlight))
 
+(defcustom magit-section-set-visibility-hook
+  '(magit-diff-set-visibility)
+  "Hook used to set the initial visibility of a section.
+Stop at the first function that returns non-nil.  The value
+should be `show' or `hide'.  If no function returns non-nil
+determine the visibility as usual, i.e. use the hardcoded
+section specific default (see `magit-insert-section')."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-section
+  :type 'hook
+  :options '(magit-diff-set-visibility))
+
 (defface magit-section-highlight
   '((((class color) (background light)) :background "grey85")
     (((class color) (background  dark)) :background "grey20"))
@@ -563,12 +575,6 @@ at point."
 (defvar magit-insert-section--current nil "For internal use only.")
 (defvar magit-insert-section--parent  nil "For internal use only.")
 (defvar magit-insert-section--oldroot nil "For internal use only.")
-
-(defvar magit-section-set-visibility-hook '(magit-diff-set-visibility)
-  "Hook used to set the initial visibility of a section.
-Stop at the first function that returns non-nil.  The value
-should be `show' or `hide'.  If no function returns non-nil
-determine the visibility as usual (see `magit-insert-section').")
 
 (defmacro magit-insert-section (&rest args)
   "Insert a section at point.
