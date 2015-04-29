@@ -591,12 +591,6 @@ be commited."
 (defvar-local magit-diff-hidden-files nil)
 (put 'magit-diff-hidden-files 'permanent-local t)
 
-(defun magit-diff-set-visibility (section)
-  (and (derived-mode-p 'magit-revision-mode)
-       (eq (magit-section-type section) 'file)
-       (member (magit-section-value section) magit-diff-hidden-files)
-       'hide))
-
 ;;;###autoload
 (defun magit-show-commit (commit &optional noselect module args)
   "Show the commit at point.
@@ -1319,6 +1313,13 @@ Type \\[magit-reverse] to reverse the change at point in the worktree.
                                   (propertize (number-to-string cnt)
                                               'face 'magit-tag))))))
       (insert ?\n))))
+
+(defun magit-revision-set-visibility (section)
+  "Preserve section visibility when displaying another commit in."
+  (and (derived-mode-p 'magit-revision-mode)
+       (eq (magit-section-type section) 'file)
+       (member (magit-section-value section) magit-diff-hidden-files)
+       'hide))
 
 ;;; Diff Sections
 

@@ -70,7 +70,7 @@ diff-related sections being the only exception."
   :options '(magit-diff-unhighlight))
 
 (defcustom magit-section-set-visibility-hook
-  '(magit-diff-set-visibility)
+  '(magit-revision-set-visibility)
   "Hook used to set the initial visibility of a section.
 Stop at the first function that returns non-nil.  The value
 should be `show' or `hide'.  If no function returns non-nil
@@ -79,7 +79,7 @@ section specific default (see `magit-insert-section')."
   :package-version '(magit . "2.1.0")
   :group 'magit-section
   :type 'hook
-  :options '(magit-diff-set-visibility))
+  :options '(magit-revision-set-visibility))
 
 (defface magit-section-highlight
   '((((class color) (background light)) :background "grey85")
