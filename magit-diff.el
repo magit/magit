@@ -1490,8 +1490,9 @@ of SECTION including SECTION and all of them are highlighted."
       (`file (magit-diff-highlight-heading section siblings))
       (`hunk (magit-diff-highlight-heading section siblings)
              (magit-diff-paint-hunk section siblings t)))
-    (dolist (child (magit-section-children section))
-      (magit-diff-highlight-recursive child siblings))))
+    (unless (magit-section-hidden section)
+      (dolist (child (magit-section-children section))
+        (magit-diff-highlight-recursive child siblings)))))
 
 (defun magit-diff-highlight-list (section)
   (let ((beg (magit-section-start   section))
@@ -1552,14 +1553,23 @@ of SECTION including SECTION and all of them are highlighted."
 ;;; Hunk Paint
 
 (defun magit-diff-paint-hunk (section &optional siblings highlight refine)
-  (let ((paint (not highlight)))
-    (when highlight
-      (push section magit-section-highlighted-sections)
-      (cond ((memq section magit-section-unhighlight-sections)
-             (setq magit-section-unhighlight-sections
-                   (delq section magit-section-unhighlight-sections)))
-            (magit-diff-highlight-hunk-body
-             (setq paint t))))
+  (let (paint)
+    (cond (highlight
+           (unless (magit-section-hidden section)
+             (add-to-list 'magit-section-highlighted-sections section)
+             (cond ((memq section magit-section-unhighlight-sections)
+                    (setq magit-section-unhighlight-sections
+                          (delq section magit-section-unhighlight-sections)))
+                   (magit-diff-highlight-hunk-body
+                    (setq paint t)))))
+          (t
+           (cond ((and (magit-section-hidden section)
+                       (memq section magit-section-unhighlight-sections))
+                  (add-to-list 'magit-section-highlighted-sections section)
+                  (setq magit-section-unhighlight-sections
+                        (delq section magit-section-unhighlight-sections)))
+                 (t
+                  (setq paint t)))))
     (when paint
       (save-excursion
         (goto-char (magit-section-start section))

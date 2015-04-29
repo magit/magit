@@ -790,7 +790,9 @@ found in STRING."
         (--each magit-section-unhighlight-sections
           (run-hook-with-args-until-success 'magit-section-unhighlight-hook it))
         (restore-buffer-modified-p nil)
-        (setq magit-section-highlighted-section section)))))
+        (unless (eq magit-section-highlighted-section section)
+          (setq magit-section-highlighted-section
+                (unless (magit-section-hidden section) section)))))))
 
 (defun magit-section-highlight (section siblings)
   "Highlight SECTION and if non-nil all SIBLINGS.
