@@ -767,6 +767,7 @@ found in STRING."
 ;;; Update
 
 (defvar-local magit-section-highlight-overlays nil)
+(defvar-local magit-section-highlighted-section nil)
 (defvar-local magit-section-highlighted-sections nil)
 (defvar-local magit-section-unhighlight-sections nil)
 
@@ -775,20 +776,21 @@ found in STRING."
   (magit-region-sections))
 
 (defun magit-section-update-highlight ()
-  (let ((inhibit-read-only t)
-        (deactivate-mark nil)
-        (section (magit-current-section)))
-    (mapc 'delete-overlay magit-section-highlight-overlays)
-    (setq magit-section-unhighlight-sections
-          magit-section-highlighted-sections
-          magit-section-highlighted-sections nil)
-    (unless (eq section magit-root-section)
-      (run-hook-with-args-until-success
-       'magit-section-highlight-hook section (magit-region-sections)))
-    (mapc (apply-partially 'run-hook-with-args-until-success
-                           'magit-section-unhighlight-hook)
-          magit-section-unhighlight-sections)
-    (restore-buffer-modified-p nil)))
+  (let ((section (magit-current-section)))
+    (unless (eq section magit-section-highlighted-section)
+      (let ((inhibit-read-only t)
+            (deactivate-mark nil))
+        (mapc #'delete-overlay magit-section-highlight-overlays)
+        (setq magit-section-unhighlight-sections
+              magit-section-highlighted-sections
+              magit-section-highlighted-sections nil)
+        (unless (eq section magit-root-section)
+          (run-hook-with-args-until-success
+           'magit-section-highlight-hook section (magit-region-sections)))
+        (--each magit-section-unhighlight-sections
+          (run-hook-with-args-until-success 'magit-section-unhighlight-hook it))
+        (restore-buffer-modified-p nil)
+        (setq magit-section-highlighted-section section)))))
 
 (defun magit-section-highlight (section siblings)
   "Highlight SECTION and if non-nil all SIBLINGS.

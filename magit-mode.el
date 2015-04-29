@@ -290,6 +290,7 @@ Magit is documented in info node `(magit)'."
              start end window rol)))
 
 (defun magit-unhighlight-region (rol)
+  (setq magit-section-highlighted-section nil)
   (mapc #'delete-overlay magit-region-overlays)
   (funcall (default-value 'redisplay-unhighlight-region-function) rol))
 
@@ -485,7 +486,9 @@ Uses the buffer-local `magit-refresh-function'."
                           (list (selected-window))))))
       (deactivate-mark)
       (setq magit-section-highlight-overlays nil
-            magit-section-highlighted-sections nil)
+            magit-section-highlighted-section nil
+            magit-section-highlighted-sections nil
+            magit-section-unhighlight-sections nil)
       (let ((inhibit-read-only t))
         (erase-buffer)
         (save-excursion
