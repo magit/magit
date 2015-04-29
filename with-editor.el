@@ -245,7 +245,7 @@ Don't change these, or Magit will get confused.")
 (put 'with-editor-cancel-message 'permanent-local t)
 (put 'with-editor-previous-winconf 'permanent-local t)
 
-(defvar with-editor--pid nil "For internal use.")
+(defvar-local with-editor--pid nil "For internal use.")
 (put 'with-editor--pid 'permanent-local t)
 
 (defun with-editor-finish (force)
